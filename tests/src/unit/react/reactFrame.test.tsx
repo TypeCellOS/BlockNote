@@ -73,9 +73,6 @@ function AlertFrame(props: ReactCustomBlockFrameProps<typeof alertConfig>) {
       activeFrames--;
     };
   }, []);
-  if (!props.block.props.framed) {
-    return null;
-  }
   return (
     <FrameChrome flavor={props.block.props.flavor}>
       <button
@@ -104,6 +101,7 @@ function AlertFrame(props: ReactCustomBlockFrameProps<typeof alertConfig>) {
 const createFrameAlert = createReactBlockSpec(alertConfig, {
   render: (props) => <div className="alert-title" ref={props.contentRef} />,
   renderFrame: AlertFrame,
+  hasFrame: (props) => props.framed,
 });
 
 // Framing alone must not change how the block's children nest.
@@ -132,6 +130,37 @@ let editor: BlockNoteEditor<any, any, any> | undefined;
 let uncaught: unknown[] = [];
 
 const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
+
+/**
+ * Checks that the root of the frame of the block with `id` (`.alert-frame`) is
+ * the block's element, in place of `.bn-block`.
+ */
+function expectFrameRoot(id: string) {
+  const frame = div!.querySelector<HTMLElement>(".alert-frame")!;
+  expect(frame.dataset.nodeType).toBe("blockContainer");
+  expect(frame.dataset.id).toBe(id);
+  expect(frame.matches(".bn-block")).toBe(false);
+  expect(div!.querySelector(`.bn-block[data-id="${id}"]`)).toBeNull();
+  expect(frame.closest(".bn-block-outer")!.getAttribute("data-id")).toBe(id);
+}
+
+/**
+ * Checks that the block with `id` draws no frame: its `.bn-block` holds its
+ * content and children directly, with no React wrapper around them.
+ */
+function expectUnframed(id: string) {
+  const block = div!.querySelector<HTMLElement>(`.bn-block[data-id="${id}"]`);
+  expect(block).not.toBeNull();
+  expect(block!.parentElement!.matches(".bn-block-outer")).toBe(true);
+  expect(block!.parentElement!.children).toHaveLength(1);
+  expect(block!.querySelector(":scope > .bn-container-node-view")).toBeNull();
+  expect(
+    block!.querySelector(
+      ":scope > .bn-block-content, :scope > .bn-react-node-view-renderer > .bn-block-content",
+    ),
+  ).not.toBeNull();
+  expect(block!.querySelector(":scope > .bn-block-group")).not.toBeNull();
+}
 
 function mountEditor(initialContent: any[]) {
   div = document.createElement("div");
@@ -277,7 +306,7 @@ describe("React renderFrame", () => {
     expect(uncaught).toEqual([]);
   });
 
-  it("renders plain nesting when the frame mounts no slot", async () => {
+  it("renders plain nesting when the frame declines", async () => {
     mountEditor([
       {
         id: "alert-0",
@@ -290,6 +319,9 @@ describe("React renderFrame", () => {
     await tick();
 
     expect(div!.querySelector(".alert-frame")).toBeNull();
+    expectUnframed("alert-0");
+    // A declined frame's component is not rendered.
+    expect(activeFrames).toBe(0);
     expect(div!.textContent).toContain("Heads up");
     expect(div!.textContent).toContain("Body");
     expect(uncaught).toEqual([]);
@@ -310,6 +342,8 @@ describe("React renderFrame", () => {
       ),
     );
     expect(div!.querySelector(".alert-slot")?.textContent).toBe("TitleBody");
+    // The frame's root is the block's element, in place of `.bn-block`.
+    expectFrameRoot("alert");
     const child = div!.querySelector('[data-id="child"]');
     const title = div!.querySelector(".alert-title");
     div!.querySelector<HTMLButtonElement>(".frame-counter")!.click();
@@ -336,13 +370,15 @@ describe("React renderFrame", () => {
     );
     expect(div!.querySelector('[data-id="child"]')).toBe(child);
     expect(div!.querySelector(".alert-title")).toBe(title);
+    // React's renders keep the block's attributes on the frame's root.
+    expectFrameRoot("alert");
     expect(mounted.getBlock("child")?.content).toEqual([
       { type: "text", text: "Body", styles: {} },
     ]);
     expect(uncaught).toEqual([]);
   });
 
-  it("switches framing off and on without losing title or child node views", async () => {
+  it("switches framing off and on, and keeps the title and children", async () => {
     const mounted = mountEditor([
       {
         id: "alert",
@@ -354,18 +390,66 @@ describe("React renderFrame", () => {
     await vi.waitFor(() =>
       expect(div!.querySelector(".alert-slot")?.textContent).toBe("TitleBody"),
     );
-    const child = div!.querySelector('[data-id="child"]');
+    // A change to the framing draws the block again, as for a vanilla frame.
     mounted.updateBlock("alert", { props: { framed: false } });
     await vi.waitFor(() =>
       expect(div!.querySelector(".alert-frame")).toBeNull(),
     );
+    expectUnframed("alert");
     expect(div!.textContent).toContain("TitleBody");
-    expect(div!.querySelector('[data-id="child"]')).toBe(child);
+    expect(activeFrames).toBe(0);
     mounted.updateBlock("alert", { props: { framed: true } });
     await vi.waitFor(() =>
       expect(div!.querySelector(".alert-slot")?.textContent).toBe("TitleBody"),
     );
+    expect(activeFrames).toBe(1);
+    expect(mounted.getBlock("child")?.content).toEqual([
+      { type: "text", text: "Body", styles: {} },
+    ]);
+    expect(uncaught).toEqual([]);
+  });
+
+  it("keeps a declined frame's block while its framing stays the same", async () => {
+    const mounted = mountEditor([
+      {
+        id: "alert",
+        type: "frameAlert",
+        props: { framed: false },
+        content: "Title",
+        children: [{ id: "child", type: "paragraph", content: "Body" }],
+      },
+    ]);
+    await tick();
+    expectUnframed("alert");
+    const child = div!.querySelector('[data-id="child"]');
+    const title = div!.querySelector(".alert-title");
+    // Another prop, and then another type without a frame: the block is
+    // asked again, still draws no frame, and keeps its DOM.
+    mounted.updateBlock("alert", { props: { flavor: "warning" } });
+    await tick();
+    expect(div!.querySelector(".alert-title")).toBe(title);
+    mounted.updateBlock("alert", { type: "paragraph" });
+    await tick();
+    expectUnframed("alert");
     expect(div!.querySelector('[data-id="child"]')).toBe(child);
+    // A type with a frame draws it.
+    mounted.updateBlock("alert", { type: "frameToggle" });
+    await vi.waitFor(() =>
+      expect(div!.querySelector(".toggle-frame")?.textContent).toBe(
+        "TitleBody",
+      ),
+    );
+    // Back to the declined frame: no frame.
+    mounted.updateBlock("alert", {
+      type: "frameAlert",
+      props: { framed: false },
+    });
+    await vi.waitFor(() =>
+      expect(div!.querySelector(".toggle-frame")).toBeNull(),
+    );
+    expectUnframed("alert");
+    expect(div!.textContent).toContain("TitleBody");
+    expect(activeFrames).toBe(0);
     expect(uncaught).toEqual([]);
   });
 

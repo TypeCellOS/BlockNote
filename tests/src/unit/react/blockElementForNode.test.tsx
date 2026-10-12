@@ -12,7 +12,8 @@ import { describe, expect, it } from "vite-plus/test";
 
 // `getBlockElementForNode` finds a block's own element (the element with
 // `data-node-type` and `data-id`) for every kind of block: regular blocks with
-// and without a frame, containers, vanilla and React.
+// and without a frame, containers, vanilla and React. A frame's root is the
+// block's element.
 
 const VanillaFrame = createBlockSpec(
   { type: "vanillaFrame", propSchema: {}, content: "inline" },
@@ -89,6 +90,9 @@ const schema = withMultiColumn(
 );
 
 const child = (id: string) => ({ id, type: "paragraph", content: id });
+
+// The regular blocks below that draw a frame.
+const framedBlocks = ["heading", "toggle", "vanillaFrame", "reactFrame"];
 
 describe("getBlockElementForNode", () => {
   it("finds the block's own element for every kind of block", async () => {
@@ -188,6 +192,22 @@ describe("getBlockElementForNode", () => {
         expect(element!.getAttribute("data-node-type"), id).toBe(
           node.type.name,
         );
+        if (node.type.name === "blockContainer") {
+          // A regular block's element is in its `.bn-block-outer` (React
+          // adds `display: contents` wrappers between them): the root of its
+          // frame, or else `.bn-block`.
+          const framed = framedBlocks.includes(id);
+          expect(
+            element!
+              .parentElement!.closest(".bn-block-outer")!
+              .getAttribute("data-id"),
+            id,
+          ).toBe(id);
+          expect(element!.matches(".bn-block"), id).toBe(!framed);
+          expect(element!.matches("section, .bn-toggle-frame"), id).toBe(
+            framed,
+          );
+        }
         // Another block's id finds nothing.
         expect(getBlockElementForNode(view, pos, "other"), id).toBeUndefined();
         found.push(id);

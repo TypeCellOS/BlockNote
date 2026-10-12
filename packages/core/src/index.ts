@@ -4,6 +4,10 @@ export { isContainerNode } from "./schema/blocks/children.js";
 export { getBlockElementForNode } from "./extensions/blockDOM.js";
 export { applyContainerAttributes } from "./schema/blocks/containerAttributes.js";
 export {
+  renderBlockElement,
+  stampBlockFrame,
+} from "./pm-nodes/BlockContainer.js";
+export {
   fixContainer,
   isEmptyContainerChild,
 } from "./api/blockManipulation/containers/fixContainer.js";

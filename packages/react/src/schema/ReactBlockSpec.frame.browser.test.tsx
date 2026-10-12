@@ -52,9 +52,6 @@ function createFrameSchema(content: "inline" | "plain") {
           ),
           renderFrame: function Frame(props) {
             const [clicks, setClicks] = useState(0);
-            if (!props.block.props.framed) {
-              return null;
-            }
             return (
               <section className="frame">
                 <button
@@ -67,6 +64,7 @@ function createFrameSchema(content: "inline" | "plain") {
               </section>
             );
           },
+          hasFrame: (props) => props.framed,
         },
       )(),
     },
@@ -98,7 +96,8 @@ it.each(["inline", "plain"] as const)(
           "TitleBody",
         ),
       );
-      const child = host.querySelector('[data-id="body"]');
+      // A change to the framing draws the block again, children included.
+      const child = () => host.querySelector('[data-id="body"]');
 
       editor.focus();
       editor.setTextCursorPosition("frame", "end");
@@ -116,7 +115,7 @@ it.each(["inline", "plain"] as const)(
       editor.updateBlock("frame", { props: { framed: false } });
       await vi.waitFor(() => expect(host.querySelector(".frame")).toBeNull());
       await userEvent.keyboard("?");
-      await vi.waitFor(() => expect(child?.textContent).toBe("Body?"));
+      await vi.waitFor(() => expect(child()?.textContent).toBe("Body?"));
 
       editor.updateBlock("frame", { props: { framed: true } });
       await vi.waitFor(() =>
@@ -125,8 +124,7 @@ it.each(["inline", "plain"] as const)(
         ),
       );
       await userEvent.keyboard("!");
-      await vi.waitFor(() => expect(child?.textContent).toBe("Body?!"));
-      expect(host.querySelector('[data-id="body"]')).toBe(child);
+      await vi.waitFor(() => expect(child()?.textContent).toBe("Body?!"));
       expect(editor.getTextCursorPosition().block.id).toBe("body");
     } finally {
       root.unmount();

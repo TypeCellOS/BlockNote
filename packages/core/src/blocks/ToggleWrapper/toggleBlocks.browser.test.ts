@@ -96,7 +96,9 @@ function shape(blocks = editor.document): string {
 }
 
 function blockElement(id: string) {
-  const element = root.querySelector(`.bn-block[data-id="${id}"]`);
+  const element = root.querySelector(
+    `[data-node-type="blockContainer"][data-id="${id}"]`,
+  );
   if (!element) {
     throw new Error(`Block "${id}" is not rendered`);
   }
@@ -105,13 +107,16 @@ function blockElement(id: string) {
 
 /**
  * The first element matching `selector` that belongs to the block itself,
- * not to one of its children. Where it sits inside the block is left open.
+ * not to one of its children: the block's element (a frame's root is), or
+ * one inside it. Where it sits inside the block is left open.
  */
 function own(id: string, selector: string) {
   const block = blockElement(id);
   return (
-    [...block.querySelectorAll<HTMLElement>(selector)].find(
-      (element) => element.closest(".bn-block") === block,
+    [block, ...block.querySelectorAll<HTMLElement>(selector)].find(
+      (element) =>
+        element.matches(selector) &&
+        element.closest('[data-node-type="blockContainer"]') === block,
     ) ?? null
   );
 }
@@ -186,7 +191,9 @@ function dropCursor() {
 function highlightedDropTarget() {
   return (
     root
-      .querySelector('[data-drop-target="true"] > .bn-block')
+      .querySelector(
+        '[data-drop-target="true"] > [data-node-type="blockContainer"]',
+      )
       ?.getAttribute("data-id") ?? null
   );
 }

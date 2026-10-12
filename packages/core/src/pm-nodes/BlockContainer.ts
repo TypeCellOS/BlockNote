@@ -3,6 +3,7 @@ import {
   type NodeViewRenderer,
   type NodeViewRendererProps,
 } from "@tiptap/core";
+import type { Node as PMNode } from "@tiptap/pm/model";
 import type { NodeView } from "@tiptap/pm/view";
 
 import type { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
@@ -31,9 +32,10 @@ function hasBlockColors(props: Record<string, unknown>) {
 }
 
 /**
- * Puts a block's text and background color on its own element (`.bn-block`),
- * so they also apply to its children however deep a frame puts its content.
- * Only these two props, which `Block.css` applies to a block's children.
+ * Puts a block's text and background color on its own element (`.bn-block`,
+ * or the root of its frame), so they also apply to its children however deep
+ * a frame puts its content. Only these two props, which `Block.css` applies
+ * to a block's children.
  */
 export function setBlockColorAttributes(
   element: HTMLElement,
@@ -47,6 +49,39 @@ export function setBlockColorAttributes(
       element.removeAttribute(attribute);
     }
   }
+}
+
+/**
+ * Makes a frame's root the block's element, in place of `.bn-block`
+ * (`blockElement`, the `contentDOM` of `blockContainer`'s `toDOM`): the root
+ * gets the attributes of `.bn-block` (`data-node-type`, `data-id`, the
+ * attributes of `domAttributes.block`) and the block's colors. It does not get
+ * the classes of `.bn-block`: the root keeps the classes of its frame, and
+ * CSS finds a block's element by `data-node-type`.
+ */
+export function stampBlockFrame(
+  root: HTMLElement,
+  blockElement: HTMLElement,
+  props: Record<string, unknown>,
+) {
+  for (const { name, value } of blockElement.attributes) {
+    if (name !== "class") {
+      root.setAttribute(name, value);
+    }
+  }
+  setBlockColorAttributes(root, props);
+}
+
+/**
+ * The block element (`.bn-block`) that a `blockContainer` node renders: the
+ * element whose attributes `stampBlockFrame` gives to a frame's root.
+ */
+export function renderBlockElement(node: PMNode): HTMLElement {
+  const { contentDOM } = node.type.spec.toDOM!(node) as {
+    dom: HTMLElement;
+    contentDOM: HTMLElement;
+  };
+  return contentDOM;
 }
 
 // Object containing all possible block attributes.
@@ -78,7 +113,8 @@ export const BlockContainer = Node.create<{
   parseHTML() {
     return [
       {
-        tag: "div[data-node-type=" + this.name + "]",
+        // Any tag: the root of a block's frame is the block's element.
+        tag: "[data-node-type=" + this.name + "]",
         getAttrs: (element) => {
           if (typeof element === "string") {
             return false;
@@ -141,6 +177,7 @@ export const BlockContainer = Node.create<{
     // Every block gets this node view: it draws the block's frame (or none),
     // keeps it current, and keeps the block's colors on `.bn-block`. Without
     // a frame, it is as fast as ProseMirror's default (`performance.test.ts`).
+    // A frame's root replaces `.bn-block` as the block's element.
     // Cast: this returns a plain ProseMirror node view, which tiptap's
     // `NodeViewRenderer` type doesn't model.
     return ((props: NodeViewRendererProps) => {
@@ -150,22 +187,27 @@ export const BlockContainer = Node.create<{
       };
       const editor = this.options.editor;
       // The block's frame: React draws its own, otherwise the block's
-      // vanilla `renderFrame`. A drawn frame goes inside `.bn-block`; a block
-      // without one keeps its content and children in `.bn-block` itself.
+      // vanilla `renderFrame`. A drawn frame's root replaces `.bn-block` in
+      // `.bn-block-outer`, and gets its attributes (React stamps its own
+      // root). A block without a frame keeps its content and children in
+      // `.bn-block` itself.
       const frame = blockFrameView({
         props,
         editor,
         blockNode: (node) => node.firstChild!,
         unframed: block,
+        stampRoot: (root, node) =>
+          stampBlockFrame(root, block, node.firstChild!.attrs),
       });
-      if (frame.dom !== block) {
-        block.appendChild(frame.dom);
+      const framed = frame.dom !== block;
+      if (framed) {
+        dom.replaceChildren(frame.dom);
       }
       // A new `.bn-block` has no color attributes, so a block with the default
       // colors needs no DOM calls. Skipping them keeps typing in large
       // documents fast (`performance.test.ts`).
       const attrs = props.node.firstChild!.attrs;
-      if (hasBlockColors(attrs)) {
+      if (!framed && hasBlockColors(attrs)) {
         setBlockColorAttributes(block, attrs);
       }
 
@@ -186,8 +228,9 @@ export const BlockContainer = Node.create<{
             return false;
           }
           // `Block.css` applies a block's colors to its children too, from
-          // its element. They are props, so only a prop change moves them.
-          if (!node.firstChild!.sameMarkup(before.firstChild!)) {
+          // its element. They are props, so only a prop change moves them. A
+          // frame keeps the colors on its root itself.
+          if (!framed && !node.firstChild!.sameMarkup(before.firstChild!)) {
             setBlockColorAttributes(block, node.firstChild!.attrs);
           }
           return true;

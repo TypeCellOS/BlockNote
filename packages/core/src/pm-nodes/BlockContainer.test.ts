@@ -3,7 +3,8 @@ import { describe, expect, it } from "vite-plus/test";
 import { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
 
 // `Block.css` applies a block's colors to its children from the block's own
-// element, so the node view keeps them on `.bn-block`, framed or not.
+// element (`.bn-block`, or the root of its frame), so the node view keeps
+// them there.
 describe("block colors on the block's element", () => {
   const blockElement = (editor: BlockNoteEditor<any, any, any>, id: string) =>
     editor.domElement!.querySelector(
@@ -88,10 +89,14 @@ describe("block type changes", () => {
       editor.updateBlock("parent", { type: "toggleListItem" });
       const toggled = element("parent")!;
       expect(toggled).not.toBe(parent);
-      expect(toggled.querySelector(".bn-toggle-frame")).not.toBeNull();
+      // The frame's root is the block's element, in place of `.bn-block`.
+      expect(toggled.matches(".bn-toggle-frame")).toBe(true);
+      expect(toggled.matches(".bn-block")).toBe(false);
+      expect(toggled.parentElement!.matches(".bn-block-outer")).toBe(true);
 
       editor.updateBlock("parent", { type: "paragraph" });
       expect(element("parent")).not.toBe(toggled);
+      expect(element("parent")!.matches(".bn-block")).toBe(true);
       expect(element("parent")!.querySelector(".bn-toggle-frame")).toBeNull();
       expect(element("parent")!.textContent).toContain("Child");
     } finally {

@@ -15,7 +15,10 @@ import {
 } from "../../../nodeConversions/blockToNode.js";
 
 import { nodeToCustomInlineContent } from "../../../nodeConversions/nodeToBlock.js";
-import { setBlockColorAttributes } from "../../../../pm-nodes/BlockContainer.js";
+import {
+  setBlockColorAttributes,
+  stampBlockFrame,
+} from "../../../../pm-nodes/BlockContainer.js";
 import {
   markFrameSlot,
   renderFrameDOM,
@@ -211,21 +214,25 @@ function serializeBlock<
     dom: HTMLElement;
     contentDOM?: HTMLElement;
   };
-  if (bc.contentDOM) {
-    setBlockColorAttributes(bc.contentDOM, props);
+  if (!bc.contentDOM) {
+    throw new Error("blockContainer renders no block element.");
   }
 
-  // The block's content and children go into the blockContainer, or into the
-  // slot of the frame around them. The DOM render context lets interactive
-  // frames export without browser view state.
+  // The block's content and children go into the block's element
+  // (`.bn-block`), or into the slot of the frame whose root replaces it. The
+  // DOM render context lets interactive frames export without browser view
+  // state.
   let contentDOM = bc.contentDOM;
   const frame = renderFrameDOM(editor, fullBlock);
   if (frame) {
+    stampBlockFrame(frame.dom, bc.contentDOM, props);
+    bc.contentDOM.replaceWith(frame.dom);
     // Marks where the block's content and children are, for the parser: the
     // rest of the frame is chrome, not document content.
     markFrameSlot(frame.slot);
-    bc.contentDOM?.appendChild(frame.dom);
     contentDOM = frame.slot;
+  } else {
+    setBlockColorAttributes(bc.contentDOM, props);
   }
   contentDOM?.appendChild(ret.dom);
 

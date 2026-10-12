@@ -198,8 +198,8 @@ NESTED BLOCKS
 }
 
 .bn-block-outer[data-prev-type="heading"] > .bn-block > .bn-block-content,
+/* A toggle heading, in the slot of its toggle frame, the block's element. */
 .bn-block-outer[data-prev-type="heading"]
-  > .bn-block
   > .bn-toggle-frame
   > .bn-toggle-slot
   > .bn-block-content {
@@ -210,9 +210,8 @@ NESTED BLOCKS
 .bn-block-outer:not([data-prev-type])
   > .bn-block
   > .bn-block-content[data-content-type="heading"],
-/* A toggle heading, inside its toggle frame. */
+/* A toggle heading, in the slot of its toggle frame, the block's element. */
 .bn-block-outer:not([data-prev-type])
-  > .bn-block
   > .bn-toggle-frame
   > .bn-toggle-slot
   > .bn-block-content[data-content-type="heading"],

@@ -140,102 +140,118 @@ type FrameViewArgs = {
    * frame (a block's `.bn-block`). Without it, the block must draw a frame.
    */
   unframed?: HTMLElement;
+  /**
+   * Makes the root of a vanilla frame the element of a block that is not a
+   * container, after the frame is drawn or patched. A container's frame is
+   * stamped with `stampContainerFrame`.
+   */
+  stampRoot?: (root: HTMLElement, node: PMNode) => void;
 };
 
 /**
  * The frame view of a block: React's (the internal `frameView` hook), or else
- * the view of its vanilla `renderFrame`.
+ * the view of its vanilla `renderFrame`. A block that declines its frame gets
+ * a view without a frame: `unframed` holds its content and children, and the
+ * view asks again when the block's type or props change. A frame belongs to
+ * one block type, and whether a block declines depends only on its props.
  */
 export function blockFrameView(args: FrameViewArgs): FrameView {
-  const { props, editor, blockNode } = args;
-  return (
-    editor.blockImplementations[
-      blockNode(props.node).type.name
-    ].implementation.frameView?.(props) ?? vanillaFrameView(args)
-  );
-}
-
-/**
- * The frame view of a block's vanilla `renderFrame`: draws the frame in the
- * editor and keeps it current. A frame belongs to one block type and depends
- * only on the block's props; a frame that shows more needs an update hook.
- */
-function vanillaFrameView(args: FrameViewArgs): FrameView {
   const { props, editor, blockNode, unframed } = args;
-  const config = editor.blockImplementations[blockNode(props.node).type.name]
-    .config as BlockConfig<any, any, any>;
 
-  // A container's frame is stamped after it is drawn or patched (see
-  // `stampContainerFrame`).
-  function stamp(frame: VanillaFrame, block: any) {
-    if (config.container === true) {
-      stampContainerFrame(config, frame, block);
-    }
-  }
-
-  // The block's `renderFrame`, with the editor's render context.
+  // The block's frame view for `node`, or `undefined` when it draws no frame.
   function draw(node: PMNode) {
-    const spec = editor.blockImplementations[blockNode(node).type.name];
-    const renderFrame = spec.implementation.renderFrame;
-    if (!renderFrame) {
-      // The block type has no frame. Return `undefined`: no frame.
-      return undefined;
-    }
-    const block = nodeToBlock(node, props.view.state.doc);
-    const frame = renderFrame.call(
-      { renderType: "nodeView", props, propSchema: spec.config.propSchema },
-      block,
-      editor,
-    );
-    if (!frame) {
-      // The block declined its frame. Return `undefined`: no frame.
-      return undefined;
-    }
-    // The block drew its frame. Return it, stamped when it is a container.
-    stamp(frame, block);
-    return frame;
+    const nodeProps = node === props.node ? props : { ...props, node };
+    const { implementation } =
+      editor.blockImplementations[blockNode(node).type.name];
+    return implementation.frameView
+      ? implementation.frameView(nodeProps)
+      : vanillaFrameView({ ...args, props: nodeProps });
   }
 
   const frame = draw(props.node);
-  let dom: HTMLElement;
-  let slot: HTMLElement;
   if (frame) {
-    dom = frame.dom;
-    slot = frame.slot;
-  } else if (unframed) {
-    dom = unframed;
-    slot = unframed;
-  } else {
+    return frame;
+  }
+  if (!unframed) {
     throw new Error(
       `Block "${blockNode(props.node).type.name}" must draw its frame: \`renderFrame\` returned undefined.`,
     );
   }
 
   let current = props.node;
+  return {
+    dom: unframed,
+    slot: unframed,
+    get node() {
+      return current;
+    },
+    update(node) {
+      // The block drew no frame. When its type or props change, ask again.
+      const asked = blockNode(node).sameMarkup(blockNode(current))
+        ? undefined
+        : draw(node);
+      if (asked) {
+        // The block now draws a frame. Return `false`: draw the block again.
+        asked.destroy?.();
+        return false;
+      }
+      // The block still draws no frame. Return `true`: keep the block. Its
+      // content and children stay, also when its type changes.
+      current = node;
+      return true;
+    },
+  };
+}
+
+/**
+ * The frame view of a block's vanilla `renderFrame`: draws the frame in the
+ * editor and keeps it current, or returns `undefined` when the block draws no
+ * frame. A frame that shows more than the block's props needs an update hook.
+ */
+function vanillaFrameView(args: FrameViewArgs): FrameView | undefined {
+  const { props, editor, blockNode, stampRoot } = args;
+  const spec = editor.blockImplementations[blockNode(props.node).type.name];
+  const config = spec.config as BlockConfig<any, any, any>;
+  const renderFrame = spec.implementation.renderFrame;
+  if (!renderFrame) {
+    // The block type has no frame. Return `undefined`: no frame.
+    return undefined;
+  }
+
+  // A frame's root is the block's element, so it is stamped after it is
+  // drawn or patched.
+  function stamp(frame: VanillaFrame, node: PMNode, block: any) {
+    if (config.container === true) {
+      stampContainerFrame(config, frame, block);
+    } else {
+      stampRoot?.(frame.dom, node);
+    }
+  }
+
+  const block = nodeToBlock(props.node, props.view.state.doc);
+  const frame = renderFrame.call(
+    { renderType: "nodeView", props, propSchema: config.propSchema },
+    block,
+    editor,
+  );
+  if (!frame) {
+    // The block declined its frame. Return `undefined`: no frame.
+    return undefined;
+  }
+  // The block drew its frame. Stamp it.
+  stamp(frame, props.node, block);
+
+  let current = props.node;
 
   return {
-    dom,
-    slot,
+    dom: frame.dom,
+    slot: frame.slot,
     get node() {
       return current;
     },
     update(node) {
       const before = blockNode(current);
       const after = blockNode(node);
-      if (!frame) {
-        // The block drew no frame. When its type or props change, ask again.
-        const asked = after.sameMarkup(before) ? undefined : draw(node);
-        if (asked) {
-          // The block now draws a frame. Return `false`: draw the block
-          // again.
-          asked.destroy?.();
-          return false;
-        }
-        // The block still draws no frame. Return `true`: keep the block.
-        // Its content and children stay, also when its type changes.
-        current = node;
-        return true;
-      }
       if (after.type !== before.type) {
         // A frame belongs to one block type. Return `false`: draw the block
         // again.
@@ -249,7 +265,7 @@ function vanillaFrameView(args: FrameViewArgs): FrameView {
           // again.
           return false;
         }
-        stamp(frame, block);
+        stamp(frame, node, block);
       } else if (!after.sameMarkup(before)) {
         // The props changed, and the frame cannot patch itself. Return
         // `false`: draw the block again.
@@ -259,7 +275,7 @@ function vanillaFrameView(args: FrameViewArgs): FrameView {
       current = node;
       return true;
     },
-    destroy: () => frame?.destroy?.(),
+    destroy: () => frame.destroy?.(),
   };
 }
 

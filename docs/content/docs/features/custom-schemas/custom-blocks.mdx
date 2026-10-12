@@ -135,11 +135,12 @@ type ReactCustomBlockImplementation = {
     editor: BlockNoteEditor;
     contentRef?: (node: HTMLElement | null) => void;
   }>;
-  renderFrame?: React.FC<{
+  renderFrame?: (props: {
     block: Block;
     editor: BlockNoteEditor;
     slotRef: (node: HTMLElement | null) => void;
-  }>;
+  }) => React.ReactElement;
+  hasFrame?: (props: Block["props"]) => boolean;
   toExternalHTML?: React.FC<{
     block: Block;
     editor: BlockNoteEditor;
@@ -187,6 +188,8 @@ type ReactCustomBlockImplementation = {
 - `contentRef:` A React `ref` you can use to mark which element in your block is editable. This is only available if your block config contains `content: "inline"` or `content: "plain"`.
 
 `renderFrame?:` A component that draws a box around the block's content and its child blocks, with `slotRef` marking where they go. A container block (`container: true`) declares `renderFrame` instead of `render`. See [Container Blocks](/docs/features/custom-schemas/container-blocks).
+
+`hasFrame?:` Decides from the block's props whether the block draws its frame (`renderFrame`). When it returns `false`, the block shows its content and children without a frame. Without it, the block always draws its frame.
 
 `toExternalHTML?:` This component is used whenever the block is being exported to HTML for use outside BlockNote, for example when copying it to the clipboard. If it's not defined, BlockNote will just use `render` (and `renderFrame`, if the block has one) for the HTML conversion. Takes the same props as `render`, and two more:
 

@@ -111,16 +111,20 @@
   width: 100%;
 }
 
-/* Container blocks own their outer DOM: the block's root element is the one
-   its `render` returned, so the wrapper React needs around it must not be a
+/* A frame's root is the block's element (a container's, or a block's in
+   place of `.bn-block`), so the wrapper React needs around it must not be a
    box of its own. */
 .bn-react-node-view-renderer.bn-container-node-view {
   display: contents;
 }
 
-/* Indent line styling */
+/* Indent line styling. A block's element is `.bn-block`, or the root of its
+   frame, so the rule selects it by `data-node-type`. */
 .bn-block-group
-  .bn-block:not(:has(.bn-toggle-wrapper))
+  [data-node-type="blockContainer"]:not(
+    .bn-toggle-wrapper,
+    :has(.bn-toggle-wrapper)
+  )
   .bn-block-group
   .bn-block-outer:not([data-prev-depth-changed])::before {
   border-left: 1px solid var(--bn-colors-side-menu);
