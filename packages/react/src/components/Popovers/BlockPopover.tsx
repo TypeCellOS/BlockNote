@@ -1,4 +1,4 @@
-import { getNodeById, isContainerNode } from "@blocknote/core";
+import { getBlockElementForNode, getNodeById } from "@blocknote/core";
 import { ReactNode, useMemo } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
@@ -28,44 +28,12 @@ export const BlockPopover = (
           return undefined;
         }
 
-        // Containers anchor to their own root, not the child-block contentDOM.
-        if (isContainerNode(nodePosInfo.node.type)) {
-          const dom = editor.prosemirrorView.nodeDOM(nodePosInfo.posBeforeNode);
-          if (dom instanceof Element) {
-            // React adds two display:contents wrappers around the author root.
-            const root = dom.matches(".bn-container-node-view")
-              ? dom.querySelector(":scope > [data-node-view-wrapper]")
-                  ?.firstElementChild
-              : dom;
-            return { element: root ?? dom };
-          }
-        }
-
-        // A frame's editable slot may start after interactive chrome, such as
-        // a toggle button. Anchor outside the whole block so the side menu
-        // does not cover that chrome. The blockContainer node view owns a
-        // boxed outer element around the frame.
-        const contentType = nodePosInfo.node.firstChild?.type.name;
-        if (
-          contentType &&
-          editor.schema.blockSpecs[contentType]?.implementation.renderFrame
-        ) {
-          const dom = editor.prosemirrorView.nodeDOM(nodePosInfo.posBeforeNode);
-          if (dom instanceof Element) {
-            return { element: dom };
-          }
-        }
-
-        const { node } = editor.prosemirrorView.domAtPos(
-          nodePosInfo.posBeforeNode + 1,
+        const element = getBlockElementForNode(
+          editor.prosemirrorView,
+          nodePosInfo.posBeforeNode,
+          blockId,
         );
-        if (!(node instanceof Element)) {
-          return undefined;
-        }
-
-        return {
-          element: node,
-        };
+        return element ? { element } : undefined;
       }),
     [editor, blockId],
   );

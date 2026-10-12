@@ -22,8 +22,8 @@ import {
 } from "@blocknote/core";
 import {
   NodeViewProps,
-  NodeViewRenderer,
   NodeViewWrapper,
+  ReactNodeView,
   ReactNodeViewRenderer,
   useReactNodeView,
 } from "@tiptap/react";
@@ -425,9 +425,9 @@ export function createReactBlockSpec<
         (element: HTMLDivElement | null) => {
           wrapper.current = element;
           // TODO: a declined React frame falls back to this wrapper inside the
-          // node view, so core's `createFrameView` can't tell it is unframed.
-          // Lift declining out of the component when `createFrameView`
-          // returns `NodeView | undefined` (review cluster A).
+          // node view, so core's `createFrameView` can't tell it is unframed
+          // (it returns `undefined` for a declined vanilla frame). Lift
+          // declining out of the component.
           if (!slot.current && !isContainer) {
             mountContent(element);
           }
@@ -484,14 +484,14 @@ export function createReactBlockSpec<
           },
         }),
         // A container has no `render`: it draws only its frame, and core
-        // builds its node view through `frameNodeView`.
+        // builds its node view around its `frameView`.
         ...(ReactRender &&
           ({
             render(block, editor) {
               // TODO: `render` does two jobs here, picked by `renderType`: the
               // live node view (built from `this.props`) and the static render.
               // Frames keep them apart: `renderFrame` only draws, and React
-              // supplies the live node view through the internal `frameNodeView`.
+              // supplies the frame's view through the internal `frameView` hook.
               // Do the same for content (an internal node view hook that core's
               // `blockNodeView` uses when present), so `render` is static only
               // and nothing in BlockNote needs `renderType` / `this.props`.
@@ -572,22 +572,68 @@ export function createReactBlockSpec<
                 );
                 return contentDOM ? { dom, slot: contentDOM } : undefined;
               },
-              frameNodeView: (props) => {
+              // The frame in the editor: TipTap renders React only through a
+              // node view, so this draws one and hands core its frame parts.
+              // Core owns the block's node view.
+              frameView: (props) => {
                 const nodeView = ReactNodeViewRenderer(FrameNodeView, {
                   // Separate from the regular class, because it removes the
                   // box that one relies on (see `Block.css`).
                   className:
                     "bn-react-node-view-renderer bn-container-node-view",
-                })(props) as { contentDOM?: HTMLElement | null };
-                // A container's slot determines layout, not TipTap's host.
-                if (isContainer && nodeView.contentDOM) {
-                  nodeView.contentDOM.style.display = "contents";
+                })(props);
+                // TipTap returns no node view when the editor has no React
+                // content component (a headless editor), which never draws
+                // node views.
+                if (!(nodeView instanceof ReactNodeView)) {
+                  throw new Error(
+                    "React frames need an editor that renders React node views.",
+                  );
                 }
-                return nodeView as ReturnType<NodeViewRenderer>;
+                // Read once: TipTap's `dom` getter throws whenever its
+                // wrapper element isn't rendered, e.g. while unmounting.
+                const dom = nodeView.dom;
+                const slot = nodeView.contentDOM;
+                if (!slot) {
+                  throw new Error("React frame node view has no content DOM.");
+                }
+                // A container's slot determines layout, not TipTap's host.
+                if (isContainer) {
+                  slot.style.display = "contents";
+                }
+                return {
+                  dom,
+                  slot,
+                  update(node, decorations, innerDecorations) {
+                    // A frame belongs to one block type. A regular block's
+                    // node is its `blockContainer`, so its type is the type
+                    // of the content node. (A container's node is the block
+                    // itself, and TipTap checks its type below.)
+                    if (
+                      !isContainer &&
+                      node.firstChild?.type !== props.node.firstChild?.type
+                    ) {
+                      // The block's type changed. Return `false`: the node
+                      // view draws the block again, with the frame of the
+                      // new type.
+                      return false;
+                    }
+                    // TipTap returns `false` when the type of the node
+                    // changed, which can occur only for a container: the
+                    // node view draws the block again. Otherwise TipTap gives
+                    // the new node to the React frame and returns `true`: the
+                    // node view keeps the frame.
+                    return nodeView.update(node, decorations, innerDecorations);
+                  },
+                  // React shows the selection (`props.selected`).
+                  selectNode: () => nodeView.selectNode(),
+                  deselectNode: () => nodeView.deselectNode(),
+                  destroy: () => nodeView.destroy(),
+                };
               },
             } satisfies Pick<
               BlockImplementation<TName, TProps, TContent>,
-              "renderFrame" | "frameNodeView"
+              "renderFrame" | "frameView"
             >)
           : {}),
       },

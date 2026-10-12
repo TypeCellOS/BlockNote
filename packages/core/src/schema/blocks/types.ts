@@ -1,10 +1,7 @@
+import type { FrameView } from "./frame.js";
 /** Define the main block types **/
 // import { Extension, Node } from "@tiptap/core";
-import type {
-  Node,
-  NodeViewRenderer,
-  NodeViewRendererProps,
-} from "@tiptap/core";
+import type { Node, NodeViewRendererProps } from "@tiptap/core";
 import type { Fragment, Node as PMNode, Schema } from "prosemirror-model";
 import type { ViewMutationRecord } from "prosemirror-view";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
@@ -725,15 +722,15 @@ export type BlockImplementation<
     | "plain",
 > = {
   /**
-   * @internal Framework adapter (React) for a frame's live node view: the
-   * `blockContainer` around a framed block, or a container's own node. Core
-   * uses it instead of the vanilla `renderFrame` when present.
+   * @internal Framework adapter (React): draws the block's frame in the
+   * editor, for the node view of a framed block's `blockContainer` or of a
+   * container. Core uses it instead of the vanilla `renderFrame` when present.
    *
    * TODO: the content node view has no such hook yet: React builds it inside
-   * `render` (see the `TODO` there). Add one, so both live node views come
-   * from adapter hooks and `render` / `renderFrame` only draw.
+   * `render` (see the `TODO` there). Add one, so `render` / `renderFrame`
+   * only draw.
    */
-  frameNodeView?: NodeViewRenderer;
+  frameView?: (props: NodeViewRendererProps) => FrameView;
   /**
    * Metadata
    */
@@ -818,7 +815,11 @@ export type BlockImplementation<
    * Chrome outside the slot is the author's: ProseMirror leaves its events
    * alone. An `update` hook receives the current block on updates and patches
    * the frame in place. Return `false` to rebuild (or decline) the frame.
-   * Without an update hook, block changes rebuild the frame.
+   * Without an update hook, a change to the block's props rebuilds the frame;
+   * its content and children are in the slot, so typing doesn't. A frame
+   * whose chrome shows the block's content or children needs an `update`
+   * hook. Whether a block declines may depend only on its props: a declined
+   * frame is asked again when the block's props change.
    */
   renderFrame?: <I extends InlineContentSchema, S extends StyleSchema>(
     this:
@@ -953,4 +954,4 @@ export type CustomBlockImplementation<
   T extends string = string,
   PS extends PropSchema = PropSchema,
   C extends "inline" | "none" | "plain" = "inline" | "none" | "plain",
-> = Omit<BlockImplementation<T, PS, C>, "frameNodeView">;
+> = Omit<BlockImplementation<T, PS, C>, "frameView">;

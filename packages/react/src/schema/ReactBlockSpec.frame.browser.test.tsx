@@ -28,7 +28,15 @@ function createFrameSchema(content: "inline" | "plain") {
             dom.dataset.title = JSON.stringify(block.content);
             const slot = document.createElement("div");
             dom.append(slot);
-            return { dom, slot };
+            // The chrome shows the title, so it refreshes it on updates.
+            return {
+              dom,
+              slot,
+              update(updated) {
+                dom.dataset.title = JSON.stringify(updated.content);
+                return true;
+              },
+            };
           },
         },
       )(),

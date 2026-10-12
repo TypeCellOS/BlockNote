@@ -1,4 +1,9 @@
-import { BlockNoteEditor, BlockNoteSchema } from "@blocknote/core";
+import {
+  BlockNoteEditor,
+  BlockNoteSchema,
+  getBlockElementForNode,
+  getNodeById,
+} from "@blocknote/core";
 import {
   BlockNoteViewRaw,
   createReactBlockSpec,
@@ -201,6 +206,47 @@ describe("React renderFrame", () => {
     expect(mounted.getBlock("box-child")?.content).toEqual([
       { type: "text", text: "Child", styles: {} },
     ]);
+    expect(uncaught).toEqual([]);
+  });
+
+  it("finds a React container's own element, not React's wrappers", async () => {
+    const mounted = mountEditor([
+      {
+        id: "box-0",
+        type: "frameBox",
+        children: [{ id: "box-child", type: "paragraph", content: "Child" }],
+      },
+    ]);
+    await tick();
+    const { posBeforeNode } = getNodeById(
+      "box-0",
+      mounted.prosemirrorState.doc,
+    )!;
+    const element = getBlockElementForNode(
+      mounted.prosemirrorView,
+      posBeforeNode,
+      "box-0",
+    );
+    expect(element).toBe(div!.querySelector(".frame-box"));
+    expect(uncaught).toEqual([]);
+  });
+
+  it("draws a React-framed block again when its type changes", async () => {
+    const mounted = mountEditor([
+      {
+        id: "alert-0",
+        type: "frameAlert",
+        content: "Heads up",
+        children: [{ id: "alert-child", type: "paragraph", content: "Body" }],
+      },
+    ]);
+    await tick();
+    expect(div!.querySelector(".alert-frame")).not.toBeNull();
+    mounted.updateBlock("alert-0", { type: "paragraph" });
+    await tick();
+    expect(div!.querySelector(".alert-frame")).toBeNull();
+    expect(div!.textContent).toContain("Heads up");
+    expect(div!.textContent).toContain("Body");
     expect(uncaught).toEqual([]);
   });
 
