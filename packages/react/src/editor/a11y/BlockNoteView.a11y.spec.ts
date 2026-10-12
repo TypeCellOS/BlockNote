@@ -1,84 +1,51 @@
-import { defaultSchemaDocument } from "../../../../tests/a11y/documents.js";
-import { expect, test, afterEach } from "vite-plus/test";
+import { navigateDefaultSchemaDocument } from "./helpers.js";
+import { defaultSchemaDocument } from "../../../../../tests/a11y/documents.js";
+import { expect, test } from "vite-plus/test";
 import { page } from "vite-plus/test/browser";
-import { screenshotFull } from "../../../../tests/src/utils/screenshotFull.js";
+import { screenshotFull } from "../../../../../tests/src/utils/screenshotFull.js";
 import {
   openEditor,
   checkAxe,
   pressKey,
-  readSelection,
-  saveTranscript,
-  screenReader,
-} from "../../../../tests/a11y/helpers.js";
+} from "../../../../../tests/a11y/helpers.js";
 
-afterEach(async () => {
-  await saveTranscript();
-});
-
-test("default schema: axe and arrow-key document navigation", async () => {
+test("default schema: axe", async () => {
   await openEditor(defaultSchemaDocument);
   await checkAxe();
+});
+
+test("default schema: arrow-key document navigation", async () => {
+  await openEditor(defaultSchemaDocument);
+  await navigateDefaultSchemaDocument();
+});
+
+test.skip("editor can receive focus without selecting content", async () => {
+  // TODO: Focus the editor as a page element without an editing selection.
+  // Tab/arrows should navigate the page; Enter should enter editing.
+  // Escape currently blurs to body, which does not preserve this entry point.
+});
+
+test.skip("keyboard selection extends to the entire block", async () => {
+  // TODO: Extend a text selection to its whole block, leaving neighbours out.
+  // Whole-block selection currently requires Cmd+Click; keyboard UX is TBD.
+});
+
+test.skip("whole-block selection is visible", async () => {
+  // TODO: Once keyboard block selection exists, snapshot its visual indicator.
+  // TODO: Text selection, whole-document selection, and non-inline blocks.
+});
+
+test("Escape allows Tab to leave the editor", async () => {
+  await openEditor([{ type: "paragraph", content: "Editable text" }]);
   await pressKey("Tab");
   await expect.element(page.getByRole("textbox")).toHaveFocus();
-
-  // Bound the traversal so a keyboard trap produces a useful failure instead
-  // of an infinite loop. Selection endpoints prove the arrows actually moved.
-  const visitedTableCells = new Set<string>();
-  for (let step = 0; step < 120 && readSelection().blockId !== "end"; step++) {
-    const { tableCell } = readSelection();
-    if (tableCell) {
-      visitedTableCells.add(`${tableCell.row},${tableCell.column}`);
-    }
-    // ArrowDown alone skips columns. Move through cell text and across each
-    // row with ArrowRight, then resume ArrowDown from the final cell.
-    await pressKey(
-      tableCell && visitedTableCells.size < 4 ? "ArrowRight" : "ArrowDown",
-    );
-  }
-  expect([...visitedTableCells].sort(), "Every table cell is visited").toEqual([
-    "0,0",
-    "0,1",
-    "1,0",
-    "1,1",
-  ]);
-  expect(readSelection().blockId, "Arrow keys reach the final block").toBe(
-    "end",
-  );
-
-  for (
-    let step = 0;
-    step < 120 && readSelection().blockId !== "start";
-    step++
-  ) {
-    await pressKey("ArrowUp");
-  }
-  expect(readSelection().blockId, "ArrowUp returns to the first block").toBe(
-    "start",
-  );
-});
-
-test.skip("keyboard selection includes an entire block", async () => {
-  // TODO: Whole-block keyboard selection is not currently available.
-  // Once implemented, select a block using only the keyboard and assert the
-  // block selection (not just its text), leaving neighbouring blocks unselected.
-  // Verify the visible selection and screen-reader announcement. The keyboard
-  // interaction remains unspecified until the product behavior is designed.
-});
-
-test.skip("keyboard selection includes the entire editor", async () => {
-  // TODO: Whole-editor keyboard selection is not currently available.
-  // Once implemented, select all editor content using only the keyboard,
-  // including non-text blocks, without selecting surrounding page controls.
-  // Verify the selection boundaries, visible selection and announcement.
-  // Do not assume a shortcut before the product interaction is defined.
-});
-
-test.skip("keyboard focus can enter and leave the editor in both directions", async () => {
-  // TODO: There is currently no easy keyboard escape from the editor.
-  // Once the interaction is designed, navigate from Before editor into the
-  // editor (including interactive blocks), escape to After editor, and repeat
-  // in reverse. Assert focus at each boundary and capture its visible indicator.
-  // Do not choose an escape shortcut here before the product behavior exists.
+  await pressKey("Escape");
+  await expect.element(document.body).toHaveFocus();
+  await pressKey("Tab");
+  await expect
+    .element(page.getByRole("button", { name: "After editor", exact: true }))
+    .toHaveFocus();
+  // Revisit when the editor can retain focus without an editing selection.
 });
 
 // Screenshots need human review for clipping/overlap before accepting a
@@ -94,7 +61,7 @@ async function waitForMedia() {
   }
 }
 
-test.describe.skipIf(screenReader)("text spacing and resizing", () => {
+test.describe("text spacing and resizing", () => {
   test("default schema remains readable with text spacing overrides", async () => {
     await openEditor(defaultSchemaDocument);
     await waitForMedia();

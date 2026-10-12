@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`default schema: axe and arrow-key document navigation 1`] = `
+exports[`default schema: arrow-key document navigation 1`] = `
 [
   "list box pop-up text entry area Start of document
 Plain text. BlockNote documentation bold. italic. underline. strike. code. textColor. backgroundColor.

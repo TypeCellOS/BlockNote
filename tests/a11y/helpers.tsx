@@ -49,10 +49,9 @@ export async function openEditor(initialContent: PartialBlock[]) {
   }
 }
 
-export async function checkAxe() {
-  const results = await axe.run(document.body);
-  // Preserve interaction evidence even when existing axe violations fail.
-  expect.soft(results.violations, "axe violations").toEqual([]);
+export async function checkAxe(scope?: string) {
+  const results = await axe.run(scope ? { include: [scope] } : document.body);
+  expect(results.violations, "axe violations").toEqual([]);
 }
 
 export function readSelection() {

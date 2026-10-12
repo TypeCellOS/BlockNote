@@ -29,6 +29,7 @@ export default defineConfig({
       ...configDefaults.exclude,
       "**/*.browser.test.*",
       "**/*.a11y.spec.ts",
+      "**/*.screen-reader.spec.ts",
     ],
   },
   plugins: [webpackStats()],
