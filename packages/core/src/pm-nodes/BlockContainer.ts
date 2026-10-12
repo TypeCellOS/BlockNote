@@ -3,66 +3,31 @@ import {
   type NodeViewRenderer,
   type NodeViewRendererProps,
 } from "@tiptap/core";
-
 import type { NodeView } from "@tiptap/pm/view";
+
 import type { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
-import { nodeToBlock } from "../api/nodeConversions/nodeToBlock.js";
-import { findFrameSlot } from "../schema/blocks/frame.js";
+import {
+  blockFrameView,
+  findFrameSlot,
+  frameNodeViewHooks,
+} from "../schema/blocks/frame.js";
 import { BlockNoteDOMAttributes } from "../schema/index.js";
-import { ignoreFrameChromeMutations } from "../schema/nodeViewMutations.js";
 import { mergeCSSClasses } from "../util/browser.js";
 import { suggestionMarks } from "./suggestionMarks.js";
 
-const dropEvents = new Set(["dragenter", "dragover", "dragleave", "drop"]);
+/** The block props whose colors `Block.css` applies to a block's children. */
+const BLOCK_COLORS = [
+  ["textColor", "data-text-color"],
+  ["backgroundColor", "data-background-color"],
+] as const;
 
-/**
- * Adapts vanilla frames to the same lifecycle as framework node views.
- *
- * TODO: without a frame (no `renderFrame`, or it declined), this returns a
- * stand-in node view whose `dom` and `contentDOM` are both `fallback`, which
- * the caller detects again (`framed`). Return `NodeView | undefined` instead
- * and drop `fallback` (review cluster A).
- */
-function createFrameView(
-  props: NodeViewRendererProps,
-  editor: BlockNoteEditor,
-  fallback: HTMLElement,
-): NodeView {
-  const type = props.node.firstChild!.type.name;
-  const implementation = editor.blockImplementations[type].implementation;
-  if (implementation.frameNodeView) {
-    return implementation.frameNodeView(props);
-  }
+function isColorSet(value: unknown): value is string {
+  return typeof value === "string" && value !== "default";
+}
 
-  const renderFrame = implementation.renderFrame<
-    typeof editor.schema.inlineContentSchema,
-    typeof editor.schema.styleSchema
-  >;
-  const frame = renderFrame?.call(
-    {
-      renderType: "nodeView",
-      props,
-      propSchema: editor.blockImplementations[type].config.propSchema,
-    },
-    nodeToBlock(props.node, props.view.state.doc),
-    editor,
-  );
-  return {
-    dom: frame?.dom ?? fallback,
-    contentDOM: frame?.slot ?? fallback,
-    destroy: frame?.destroy?.bind(frame),
-    update(node) {
-      if (frame?.update) {
-        return frame.update(nodeToBlock(node, props.view.state.doc)) !== false;
-      }
-      // Declined frames must also be reconsidered when their block changes.
-      // TODO: move this rule into the outer node view's `update`. It compares
-      // against `props.node`, the node the view was created with, and
-      // `node.eq` compares the whole subtree, so a declined frame (and a
-      // frame without `update`) rebuilds on every change, typing included.
-      return !renderFrame || node.eq(props.node);
-    },
-  };
+/** Whether a block has a text or background color other than the default. */
+function hasBlockColors(props: Record<string, unknown>) {
+  return BLOCK_COLORS.some(([prop]) => isColorSet(props[prop]));
 }
 
 /**
@@ -74,12 +39,9 @@ export function setBlockColorAttributes(
   element: HTMLElement,
   props: Record<string, unknown> | undefined,
 ) {
-  for (const [prop, attribute] of [
-    ["textColor", "data-text-color"],
-    ["backgroundColor", "data-background-color"],
-  ] as const) {
+  for (const [prop, attribute] of BLOCK_COLORS) {
     const value = props?.[prop];
-    if (typeof value === "string" && value !== "default") {
+    if (isColorSet(value)) {
       element.setAttribute(attribute, value);
     } else {
       element.removeAttribute(attribute);
@@ -176,60 +138,62 @@ export const BlockContainer = Node.create<{
   },
 
   addNodeView() {
+    // Every block gets this node view: it draws the block's frame (or none),
+    // keeps it current, and keeps the block's colors on `.bn-block`. Without
+    // a frame, it is as fast as ProseMirror's default (`performance.test.ts`).
     // Cast: this returns a plain ProseMirror node view, which tiptap's
     // `NodeViewRenderer` type doesn't model.
     return ((props: NodeViewRendererProps) => {
-      const editor = this.options.editor;
-      const { dom, contentDOM } = this.type.spec.toDOM!(props.node) as {
+      const { dom, contentDOM: block } = this.type.spec.toDOM!(props.node) as {
         dom: HTMLElement;
         contentDOM: HTMLElement;
       };
-      const frameView = createFrameView(props, editor, contentDOM);
-      // TODO: a sentinel for "no frame"; goes away when `createFrameView`
-      // returns `undefined` without one. React frames always count as
-      // framed, as their node view handles a declined frame itself.
-      const framed = frameView.dom !== contentDOM;
-      if (framed) {
-        contentDOM.appendChild(frameView.dom);
+      const editor = this.options.editor;
+      // The block's frame: React draws its own, otherwise the block's
+      // vanilla `renderFrame`. A drawn frame goes inside `.bn-block`; a block
+      // without one keeps its content and children in `.bn-block` itself.
+      const frame = blockFrameView({
+        props,
+        editor,
+        blockNode: (node) => node.firstChild!,
+        unframed: block,
+      });
+      if (frame.dom !== block) {
+        block.appendChild(frame.dom);
       }
-      setBlockColorAttributes(contentDOM, props.node.firstChild?.attrs);
+      // A new `.bn-block` has no color attributes, so a block with the default
+      // colors needs no DOM calls. Skipping them keeps typing in large
+      // documents fast (`performance.test.ts`).
+      const attrs = props.node.firstChild!.attrs;
+      if (hasBlockColors(attrs)) {
+        setBlockColorAttributes(block, attrs);
+      }
 
       const nodeView: NodeView = {
         dom,
-        contentDOM: frameView.contentDOM ?? contentDOM,
+        contentDOM: frame.slot,
         update(node, decorations, innerDecorations) {
-          // Changing the wrapper or block type replaces the complete view.
-          const kept =
-            node.sameMarkup(props.node) &&
-            node.firstChild?.type === props.node.firstChild?.type &&
-            (frameView.update?.(node, decorations, innerDecorations) ?? false);
-          if (kept) {
-            // The view stays when only the content's attributes change.
-            setBlockColorAttributes(contentDOM, node.firstChild?.attrs);
+          const before = frame.node;
+          // Like ProseMirror's default, the view is rebuilt when the block's
+          // own attributes change (another block), and otherwise kept while
+          // ProseMirror updates the content and children. It is also rebuilt
+          // when the frame no longer fits, for example after a change of the
+          // block's type or props.
+          if (
+            !node.sameMarkup(before) ||
+            !frame.update(node, decorations, innerDecorations)
+          ) {
+            return false;
           }
-          return kept;
+          // `Block.css` applies a block's colors to its children too, from
+          // its element. They are props, so only a prop change moves them.
+          if (!node.firstChild!.sameMarkup(before.firstChild!)) {
+            setBlockColorAttributes(block, node.firstChild!.attrs);
+          }
+          return true;
         },
-        stopEvent(event) {
-          // Author chrome handles its own events; the slot remains editable.
-          // Drag-and-drop events still go to ProseMirror, so a block dropped
-          // on the chrome drops where the drop cursor shows it.
-          const target = event.target;
-          return (
-            (target instanceof globalThis.Node &&
-              frameView.dom.contains(target) &&
-              !nodeView.contentDOM?.contains(target) &&
-              !dropEvents.has(event.type)) ||
-            (frameView.stopEvent?.(event) ?? false)
-          );
-        },
-        destroy: frameView.destroy?.bind(frameView),
-        selectNode: frameView.selectNode?.bind(frameView),
-        deselectNode: frameView.deselectNode?.bind(frameView),
-        ignoreMutation: frameView.ignoreMutation?.bind(frameView),
+        ...frameNodeViewHooks(frame),
       };
-      if (framed) {
-        ignoreFrameChromeMutations(nodeView);
-      }
       return nodeView;
     }) as unknown as NodeViewRenderer;
   },

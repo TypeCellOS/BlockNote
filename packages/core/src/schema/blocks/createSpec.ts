@@ -6,7 +6,6 @@ import {
   TagParseRule,
 } from "@tiptap/pm/model";
 import { NodeView } from "@tiptap/pm/view";
-import { nodeToBlock } from "../../api/nodeConversions/nodeToBlock.js";
 import { mergeParagraphs } from "../../blocks/defaultBlockHelpers.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import {
@@ -25,8 +24,7 @@ import {
   containerNodePriority,
 } from "./children.js";
 import { applyDataAttributes } from "../dataAttributes.js";
-import { applyContainerAttributes } from "./containerAttributes.js";
-import { findFrameSlot, markFrameSlot } from "./frame.js";
+import { blockFrameView, findFrameSlot, frameNodeViewHooks } from "./frame.js";
 import {
   applyDOMAttributes,
   getBlockFromNodeView,
@@ -230,42 +228,6 @@ export function validateRenderHooks(
   }
 }
 
-/**
- * Draws a container's frame, stamped with what its round-trip parse reads:
- * the block's attributes on the frame's root, and the slot marker.
- */
-function renderContainerFrame<
-  TName extends string,
-  TProps extends PropSchema,
-  TContent extends "inline" | "none" | "table" | "plain",
->(
-  blockConfig: BlockConfig<TName, TProps, TContent>,
-  renderFrame: NonNullable<
-    BlockImplementation<TName, TProps, TContent>["renderFrame"]
-  >,
-  thisArg: ThisParameterType<
-    NonNullable<BlockImplementation<TName, TProps, TContent>["renderFrame"]>
-  >,
-  block: any,
-  editor: any,
-) {
-  const frame = renderFrame.call(thisArg, block, editor);
-  if (!frame) {
-    throw new Error(
-      `Container block "${blockConfig.type}" must draw its frame: \`renderFrame\` returned undefined.`,
-    );
-  }
-  applyContainerAttributes(
-    frame.dom,
-    blockConfig.type,
-    block.props,
-    blockConfig.propSchema,
-    block.id,
-  );
-  markFrameSlot(frame.slot);
-  return frame;
-}
-
 /** A block implementation with its `meta` resolved (see `resolveBlockMeta`). */
 type ResolvedBlockImplementation<
   TName extends string,
@@ -275,44 +237,40 @@ type ResolvedBlockImplementation<
   meta: ResolvedBlockConfigMeta<TName, TProps>;
 };
 
-/**
- * A container's node view: its frame, with the child blocks in the slot. A
- * framework adapter (React) builds the frame's node view itself.
- *
- * FIXME: unlike a framed `blockContainer` (`BlockContainer.ts`), the chrome's
- * events and DOM mutations still reach ProseMirror. Share one frame node view
- * for both (review cluster A).
- */
-function containerFrameView<
+/** A container's node view: its frame. */
+function containerNodeView<
   TName extends string,
   TProps extends PropSchema,
   TContent extends "inline" | "none" | "table" | "plain",
 >(
-  blockConfig: BlockConfig<TName, TProps, TContent>,
   blockImplementation: ResolvedBlockImplementation<TName, TProps, TContent>,
   props: NodeViewRendererProps,
-  block: any,
 ): NodeView {
-  if (blockImplementation.frameNodeView) {
-    return blockImplementation.frameNodeView(props) as NodeView;
-  }
-  const frame = renderContainerFrame(
-    blockConfig,
-    blockImplementation.renderFrame!,
-    { renderType: "nodeView", props, propSchema: blockConfig.propSchema },
-    block,
-    props.extension.options.editor,
-  );
-  const update = frame.update?.bind(frame);
-  return {
+  // React draws its own frame and stamps it; core stamps a vanilla one.
+  const frame = blockFrameView({
+    props,
+    editor: props.extension.options.editor,
+    blockNode: (node) => node,
+  });
+  const nodeView: NodeView = {
     dom: frame.dom,
     contentDOM: frame.slot,
-    destroy: frame.destroy?.bind(frame),
-    update:
-      update &&
-      ((node) =>
-        update(nodeToBlock(node, props.view.state.doc) as any) !== false),
+    update(node, decorations, innerDecorations) {
+      if (node.attrs.id !== frame.node.attrs.id) {
+        // ProseMirror offers a view whose node is gone to the next node of
+        // the same type. Return `false`: the frame shows another block, so
+        // draw this block's own frame.
+        return false;
+      }
+      // The same block. Return the frame's answer: `true` keeps it.
+      return frame.update(node, decorations, innerDecorations);
+    },
+    ...frameNodeViewHooks(frame),
   };
+  if (!blockImplementation.meta.selectable) {
+    applyNonSelectableBlockFix(nodeView, props.editor);
+  }
+  return nodeView;
 }
 
 function blockNodeView<
@@ -324,73 +282,35 @@ function blockNodeView<
   blockImplementation: ResolvedBlockImplementation<TName, TProps, TContent>,
   props: NodeViewRendererProps,
 ): NodeView {
-  const isContainer = blockConfig.container === true;
-  const block = isContainer
-    ? nodeToBlock(props.node, props.view.state.doc)
-    : getBlockFromNodeView(props.getPos, props.node, props.view.state.doc);
-  const typedNodeView = isContainer
-    ? containerFrameView(blockConfig, blockImplementation, props, block)
-    : (blockImplementation.render!.call(
-        {
-          blockContentDOMAttributes:
-            props.extension.options.domAttributes?.blockContent || {},
-          props,
-          renderType: "nodeView",
-          propSchema: blockConfig.propSchema,
-        },
-        block as any,
-        props.extension.options.editor,
-      ) as unknown as NodeView);
+  if (blockConfig.container === true) {
+    return containerNodeView(blockImplementation, props);
+  }
+  const block = getBlockFromNodeView(
+    props.getPos,
+    props.node,
+    props.view.state.doc,
+  );
+  const nodeView = blockImplementation.render!.call(
+    {
+      blockContentDOMAttributes:
+        props.extension.options.domAttributes?.blockContent || {},
+      props,
+      renderType: "nodeView",
+      propSchema: blockConfig.propSchema,
+    },
+    block as any,
+    props.extension.options.editor,
+  ) as unknown as NodeView;
 
   if (!blockImplementation.meta.selectable) {
-    applyNonSelectableBlockFix(typedNodeView, props.editor);
+    applyNonSelectableBlockFix(nodeView, props.editor);
   }
 
   // Ignores Dark Reader's rewrites of the block's DOM, which would otherwise
   // trigger an infinite re-render loop that freezes the tab.
-  ignoreDarkReaderMutations(typedNodeView);
+  ignoreDarkReaderMutations(nodeView);
 
-  if (!isContainer) {
-    return typedNodeView;
-  }
-
-  applyContainerAttributes(
-    typedNodeView.dom as HTMLElement,
-    blockConfig.type,
-    block.props as any,
-    blockConfig.propSchema,
-    block.id,
-  );
-
-  // Mark the slot in the live DOM, mirroring what the internal HTML
-  // serializer emits, so the container's round-trip parse rule can scope
-  // itself to it (`contentElement` in `getParseRules`) when ProseMirror
-  // re-reads editor DOM.
-  if (typedNodeView.contentDOM) {
-    markFrameSlot(typedNodeView.contentDOM as HTMLElement);
-  }
-
-  const update = typedNodeView.update?.bind(typedNodeView);
-  if (update) {
-    typedNodeView.update = (node, decorations, innerDecorations) => {
-      if (node.type.name !== blockConfig.type) {
-        return false;
-      }
-      if (update(node, decorations, innerDecorations) === false) {
-        return false;
-      }
-      applyContainerAttributes(
-        typedNodeView.dom as HTMLElement,
-        blockConfig.type,
-        nodeToBlock(node, props.view.state.doc).props as any,
-        blockConfig.propSchema,
-        node.attrs.id,
-      );
-      return true;
-    };
-  }
-
-  return typedNodeView;
+  return nodeView;
 }
 
 /**
@@ -554,13 +474,8 @@ export function addNodeAndExtensionsToSpec<
   });
 
   // The spec holds the resolved settings, not the declared option.
-  const {
-    experimental_keyboard,
-    render,
-    renderFrame,
-    toExternalHTML,
-    ...rest
-  } = implementation;
+  const { experimental_keyboard, render, toExternalHTML, ...rest } =
+    implementation;
   return {
     config: blockConfig,
     implementation: {
@@ -589,25 +504,6 @@ export function addNodeAndExtensionsToSpec<
             editor as any,
           );
         },
-      }),
-      // A container's frame is its block element, so it is stamped with what
-      // its round-trip parse reads. Other frames are drawn as declared, with
-      // the caller's render context.
-      ...(renderFrame && {
-        renderFrame: isContainer
-          ? (block: any, editor: BlockNoteEditor<any, any, any>) =>
-              renderContainerFrame(
-                blockConfig,
-                renderFrame,
-                {
-                  renderType: "dom",
-                  props: undefined,
-                  propSchema: blockConfig.propSchema,
-                },
-                block,
-                editor,
-              )
-          : renderFrame,
       }),
       // The block's own external HTML, when it declares one. It replaces the
       // default export (`render` in its frame), which the external serializer

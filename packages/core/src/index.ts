@@ -1,6 +1,7 @@
 export * from "./api/blockManipulation/commands/insertBlocks/insertBlocks.js";
 export * from "./api/blockManipulation/commands/replaceBlocks/replaceBlocks.js";
 export { isContainerNode } from "./schema/blocks/children.js";
+export { getBlockElementForNode } from "./extensions/blockDOM.js";
 export { applyContainerAttributes } from "./schema/blocks/containerAttributes.js";
 export {
   fixContainer,

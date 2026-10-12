@@ -159,9 +159,10 @@ function serializeBlock<
   const fullBlock = { ...block, props, children } as any;
 
   if (isContainerNode(editor.pmSchema.nodes[block.type as any])) {
-    // A container is its frame. The spec stamps the frame's root with the
-    // block's attributes and marks the slot, which holds the children, so the
-    // round-trip parse rule reads only the slot and not the chrome around it.
+    // A container is its frame. `renderFrameDOM` stamps the frame's root with
+    // the block's attributes and marks the slot, which holds the children, so
+    // the round-trip parse rule reads only the slot and not the chrome around
+    // it.
     const frame = renderFrameDOM(editor, fullBlock);
     if (!frame) {
       throw new Error(

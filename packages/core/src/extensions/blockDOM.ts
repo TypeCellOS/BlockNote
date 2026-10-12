@@ -33,6 +33,35 @@ export function getBlockElement(
     : undefined;
 }
 
+/**
+ * Returns the element of the block with `id`, whose node starts at `pos`: the
+ * same element as `getBlockElement` finds from inside the block. ProseMirror's
+ * DOM for the node can be that element (a container's frame), or wrap it: a
+ * regular block's `.bn-block-outer`, or a framework's wrappers that don't
+ * carry the block's id (React's `display: contents` wrappers).
+ *
+ * Caution: a React container's frame exists only after React renders its
+ * node view, which can be after the editor's own render. Until then, this
+ * returns `undefined` for it, never another element.
+ */
+export function getBlockElementForNode(
+  view: Pick<EditorView, "nodeDOM">,
+  pos: number,
+  id: string,
+): Element | undefined {
+  const dom = view.nodeDOM(pos);
+  if (!(dom instanceof Element)) {
+    return undefined;
+  }
+  // The block's element comes before its child blocks, so it is the first
+  // block element: the node's DOM, or else the first one inside it (inside
+  // `.bn-block-outer`, or inside a framework's wrappers).
+  const element = dom.matches(BLOCK_SELECTOR)
+    ? dom
+    : dom.querySelector(BLOCK_SELECTOR);
+  return element?.getAttribute("data-id") === id ? element : undefined;
+}
+
 /** Resolves block identity independently of whether it gets a drag handle. */
 export function getBlockFromElement(
   element: Element,
