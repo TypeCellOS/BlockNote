@@ -425,9 +425,9 @@ export function createReactBlockSpec<
         (element: HTMLDivElement | null) => {
           wrapper.current = element;
           // TODO: a declined React frame falls back to this wrapper inside the
-          // node view, so core's `createFrameView` can't tell it is unframed
-          // (it returns `undefined` for a declined vanilla frame). Lift
-          // declining out of the component.
+          // node view, so core can't tell it is unframed. A declined vanilla
+          // frame gives no frame (`vanillaFrameView`), and the block keeps
+          // `.bn-block`. Lift declining out of the component.
           if (!slot.current && !isContainer) {
             mountContent(element);
           }
