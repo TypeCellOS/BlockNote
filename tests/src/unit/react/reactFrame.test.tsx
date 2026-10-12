@@ -209,6 +209,33 @@ describe("React renderFrame", () => {
     expect(uncaught).toEqual([]);
   });
 
+  it("never gives one React container's frame to another container", async () => {
+    // ProseMirror offers a view whose node is gone to the next node of the
+    // same type. A frame shows one block, so its state must not move to
+    // another block.
+    const mounted = mountEditor([
+      { id: "a", type: "frameBox", children: [{ type: "paragraph" }] },
+      { id: "b", type: "frameBox", children: [{ type: "paragraph" }] },
+    ]);
+    await tick();
+    // `a`'s frame switches its root to a <section> (its own state).
+    flushSync(() =>
+      div!
+        .querySelector('[data-id="a"]')!
+        .querySelector<HTMLButtonElement>(".swap-root")!
+        .click(),
+    );
+    expect(div!.querySelector('section[data-id="a"]')).not.toBeNull();
+    mounted.transact(() => {
+      mounted.updateBlock("b", { props: { flavor: "warning" } });
+      mounted.removeBlocks(["a"]);
+    });
+    await tick();
+    // `b` keeps its own frame: a <div>, not `a`'s <section>.
+    expect(div!.querySelector('div[data-id="b"]')).not.toBeNull();
+    expect(uncaught).toEqual([]);
+  });
+
   it("finds a React container's own element, not React's wrappers", async () => {
     const mounted = mountEditor([
       {

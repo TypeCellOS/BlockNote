@@ -649,3 +649,43 @@ it("parses chrome outside the static frame slot as no document content", () => {
     editor._tiptapEditor.destroy();
   }
 });
+
+it("never gives one container's frame to another container", () => {
+  // ProseMirror offers a view whose node is gone to the next node of the same
+  // type. A frame shows one block, so it must refuse another block.
+  const patchedBox = createBlockSpec(
+    {
+      type: "patchedBox",
+      propSchema: { tone: { default: "plain" } },
+      content: "none",
+      container: true,
+    },
+    {
+      renderFrame(block) {
+        const dom = document.createElement("section");
+        dom.dataset.drawnFor = block.id;
+        return { dom, slot: dom, update: () => true };
+      },
+    },
+  )();
+  const editor = BlockNoteEditor.create({
+    schema: BlockNoteSchema.create({
+      blockSpecs: { ...defaultBlockSpecs, patchedBox },
+    }),
+    initialContent: [
+      { id: "a", type: "patchedBox", children: [{ content: "A" }] },
+      { id: "b", type: "patchedBox", children: [{ content: "B" }] },
+    ],
+  });
+  try {
+    editor.mount(document.createElement("div"));
+    editor.transact(() => {
+      editor.updateBlock("b", { props: { tone: "loud" } });
+      editor.removeBlocks(["a"]);
+    });
+    const frame = editor.domElement!.querySelector('[data-id="b"]')!;
+    expect(frame.getAttribute("data-drawn-for")).toBe("b");
+  } finally {
+    editor._tiptapEditor.destroy();
+  }
+});

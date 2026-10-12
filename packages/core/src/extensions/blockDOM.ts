@@ -39,6 +39,10 @@ export function getBlockElement(
  * DOM for the node can be that element (a container's frame), or wrap it: a
  * regular block's `.bn-block-outer`, or a framework's wrappers that don't
  * carry the block's id (React's `display: contents` wrappers).
+ *
+ * Caution: a React container's frame exists only after React renders its
+ * node view, which can be after the editor's own render. Until then, this
+ * returns `undefined` for it, never another element.
  */
 export function getBlockElementForNode(
   view: Pick<EditorView, "nodeDOM">,

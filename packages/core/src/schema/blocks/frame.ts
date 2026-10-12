@@ -105,12 +105,17 @@ export function renderFrameDOM(
  * A block's frame in the editor (the frame's view, like ProseMirror's
  * `NodeView` for a node): what a block's node view needs from it. React
  * supplies one through the internal `frameView` hook; a vanilla frame
- * (`renderFrame`) gets one from `vanillaFrameView`.
+ * (`renderFrame`) gets one from `vanillaFrameView` (see `blockFrameView`).
  */
 export type FrameView = {
   dom: HTMLElement;
   /** Holds the block's content and children. */
   slot: HTMLElement;
+  /**
+   * The node the view shows. It changes only when `update` keeps the view:
+   * ProseMirror can offer a view that refused a node to the next node.
+   */
+  readonly node: PMNode;
   /** Updates the frame for the changed node. `false` rebuilds the view. */
   update(
     node: PMNode,
@@ -122,12 +127,7 @@ export type FrameView = {
   destroy?(): void;
 };
 
-/**
- * The frame view of a block's vanilla `renderFrame`: draws the frame in the
- * editor and keeps it current. A frame belongs to one block type and depends
- * only on the block's props; a frame that shows more needs an update hook.
- */
-export function vanillaFrameView(args: {
+type FrameViewArgs = {
   props: NodeViewRendererProps;
   editor: BlockNoteEditor<any, any, any>;
   /**
@@ -140,7 +140,27 @@ export function vanillaFrameView(args: {
    * frame (a block's `.bn-block`). Without it, the block must draw a frame.
    */
   unframed?: HTMLElement;
-}): FrameView {
+};
+
+/**
+ * The frame view of a block: React's (the internal `frameView` hook), or else
+ * the view of its vanilla `renderFrame`.
+ */
+export function blockFrameView(args: FrameViewArgs): FrameView {
+  const { props, editor, blockNode } = args;
+  return (
+    editor.blockImplementations[
+      blockNode(props.node).type.name
+    ].implementation.frameView?.(props) ?? vanillaFrameView(args)
+  );
+}
+
+/**
+ * The frame view of a block's vanilla `renderFrame`: draws the frame in the
+ * editor and keeps it current. A frame belongs to one block type and depends
+ * only on the block's props; a frame that shows more needs an update hook.
+ */
+function vanillaFrameView(args: FrameViewArgs): FrameView {
   const { props, editor, blockNode, unframed } = args;
   const config = editor.blockImplementations[blockNode(props.node).type.name]
     .config as BlockConfig<any, any, any>;
@@ -191,13 +211,14 @@ export function vanillaFrameView(args: {
     );
   }
 
-  // The node this view shows. It changes only when the view keeps a node:
-  // ProseMirror can offer a view that refused a node to the next node.
   let current = props.node;
 
   return {
     dom,
     slot,
+    get node() {
+      return current;
+    },
     update(node) {
       const before = blockNode(current);
       const after = blockNode(node);
@@ -261,7 +282,10 @@ const editorEvents = new Set([
  * Drag-and-drop and clipboard events still go to ProseMirror (see
  * `editorEvents`).
  */
-export function isFrameChromeEvent(frame: FrameView, event: Event): boolean {
+export function isFrameChromeEvent(
+  frame: Pick<FrameView, "dom" | "slot">,
+  event: Event,
+): boolean {
   const target = event.target;
   return (
     target instanceof globalThis.Node &&
@@ -279,7 +303,7 @@ export function isFrameChromeEvent(frame: FrameView, event: Event): boolean {
  * read.
  */
 export function isFrameRenderingMutation(
-  frame: FrameView,
+  frame: Pick<FrameView, "dom" | "slot">,
   mutation: ViewMutationRecord,
 ): boolean {
   if (mutation.type === "selection") {
@@ -294,4 +318,20 @@ export function isFrameRenderingMutation(
   return (
     frame.dom.contains(mutation.target) && !frame.slot.contains(mutation.target)
   );
+}
+
+/**
+ * The node view hooks that come from a block's frame alone: its chrome rules
+ * (`isFrameChromeEvent`, `isFrameRenderingMutation`), and its selection and
+ * cleanup.
+ */
+export function frameNodeViewHooks(frame: FrameView) {
+  return {
+    stopEvent: (event: Event) => isFrameChromeEvent(frame, event),
+    ignoreMutation: (mutation: ViewMutationRecord) =>
+      isFrameRenderingMutation(frame, mutation),
+    selectNode: frame.selectNode?.bind(frame),
+    deselectNode: frame.deselectNode?.bind(frame),
+    destroy: frame.destroy?.bind(frame),
+  };
 }

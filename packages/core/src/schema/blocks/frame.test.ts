@@ -15,7 +15,7 @@ function frameWithChrome() {
   const content = document.createElement("p");
   slot.append(content);
   dom.append(chrome, slot);
-  const frame: FrameView = { dom, slot, update: () => true };
+  const frame: Pick<FrameView, "dom" | "slot"> = { dom, slot };
   return { frame, chrome, slot, content };
 }
 

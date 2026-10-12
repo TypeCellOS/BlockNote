@@ -7,10 +7,9 @@ import type { NodeView } from "@tiptap/pm/view";
 
 import type { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
 import {
+  blockFrameView,
   findFrameSlot,
-  isFrameChromeEvent,
-  isFrameRenderingMutation,
-  vanillaFrameView,
+  frameNodeViewHooks,
 } from "../schema/blocks/frame.js";
 import { BlockNoteDOMAttributes } from "../schema/index.js";
 import { mergeCSSClasses } from "../util/browser.js";
@@ -153,16 +152,12 @@ export const BlockContainer = Node.create<{
       // The block's frame: React draws its own, otherwise the block's
       // vanilla `renderFrame`. A drawn frame goes inside `.bn-block`; a block
       // without one keeps its content and children in `.bn-block` itself.
-      const frame =
-        editor.blockImplementations[
-          props.node.firstChild!.type.name
-        ].implementation.frameView?.(props) ??
-        vanillaFrameView({
-          props,
-          editor,
-          blockNode: (node) => node.firstChild!,
-          unframed: block,
-        });
+      const frame = blockFrameView({
+        props,
+        editor,
+        blockNode: (node) => node.firstChild!,
+        unframed: block,
+      });
       if (frame.dom !== block) {
         block.appendChild(frame.dom);
       }
@@ -173,36 +168,31 @@ export const BlockContainer = Node.create<{
       if (hasBlockColors(attrs)) {
         setBlockColorAttributes(block, attrs);
       }
-      let current = props.node;
 
       const nodeView: NodeView = {
         dom,
         contentDOM: frame.slot,
         update(node, decorations, innerDecorations) {
+          const before = frame.node;
           // Like ProseMirror's default, the view is rebuilt when the block's
-          // own attributes change, and otherwise kept while ProseMirror
-          // updates the content and children. It is also rebuilt when the
-          // frame no longer fits, for example after a change of the block's
-          // type or props.
+          // own attributes change (another block), and otherwise kept while
+          // ProseMirror updates the content and children. It is also rebuilt
+          // when the frame no longer fits, for example after a change of the
+          // block's type or props.
           if (
-            !node.sameMarkup(current) ||
+            !node.sameMarkup(before) ||
             !frame.update(node, decorations, innerDecorations)
           ) {
             return false;
           }
           // `Block.css` applies a block's colors to its children too, from
           // its element. They are props, so only a prop change moves them.
-          if (!node.firstChild!.sameMarkup(current.firstChild!)) {
+          if (!node.firstChild!.sameMarkup(before.firstChild!)) {
             setBlockColorAttributes(block, node.firstChild!.attrs);
           }
-          current = node;
           return true;
         },
-        stopEvent: (event) => isFrameChromeEvent(frame, event),
-        ignoreMutation: (mutation) => isFrameRenderingMutation(frame, mutation),
-        selectNode: frame.selectNode?.bind(frame),
-        deselectNode: frame.deselectNode?.bind(frame),
-        destroy: frame.destroy?.bind(frame),
+        ...frameNodeViewHooks(frame),
       };
       return nodeView;
     }) as unknown as NodeViewRenderer;

@@ -24,12 +24,7 @@ import {
   containerNodePriority,
 } from "./children.js";
 import { applyDataAttributes } from "../dataAttributes.js";
-import {
-  findFrameSlot,
-  isFrameChromeEvent,
-  isFrameRenderingMutation,
-  vanillaFrameView,
-} from "./frame.js";
+import { blockFrameView, findFrameSlot, frameNodeViewHooks } from "./frame.js";
 import {
   applyDOMAttributes,
   getBlockFromNodeView,
@@ -252,24 +247,25 @@ function containerNodeView<
   props: NodeViewRendererProps,
 ): NodeView {
   // React draws its own frame and stamps it; core stamps a vanilla one.
-  const frame =
-    blockImplementation.frameView?.(props) ??
-    vanillaFrameView({
-      props,
-      editor: props.extension.options.editor,
-      blockNode: (node) => node,
-    });
+  const frame = blockFrameView({
+    props,
+    editor: props.extension.options.editor,
+    blockNode: (node) => node,
+  });
   const nodeView: NodeView = {
     dom: frame.dom,
     contentDOM: frame.slot,
-    update: (node, decorations, innerDecorations) =>
-      node.type === props.node.type &&
-      frame.update(node, decorations, innerDecorations),
-    stopEvent: (event) => isFrameChromeEvent(frame, event),
-    ignoreMutation: (mutation) => isFrameRenderingMutation(frame, mutation),
-    selectNode: frame.selectNode?.bind(frame),
-    deselectNode: frame.deselectNode?.bind(frame),
-    destroy: frame.destroy?.bind(frame),
+    update(node, decorations, innerDecorations) {
+      if (node.attrs.id !== frame.node.attrs.id) {
+        // ProseMirror offers a view whose node is gone to the next node of
+        // the same type. Return `false`: the frame shows another block, so
+        // draw this block's own frame.
+        return false;
+      }
+      // The same block. Return the frame's answer: `true` keeps it.
+      return frame.update(node, decorations, innerDecorations);
+    },
+    ...frameNodeViewHooks(frame),
   };
   if (!blockImplementation.meta.selectable) {
     applyNonSelectableBlockFix(nodeView, props.editor);

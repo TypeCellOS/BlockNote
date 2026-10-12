@@ -604,25 +604,27 @@ export function createReactBlockSpec<
                 return {
                   dom,
                   slot,
+                  // TipTap keeps the node it shows, and changes it only when
+                  // it keeps the view.
+                  get node() {
+                    return nodeView.node;
+                  },
                   update(node, decorations, innerDecorations) {
                     // A frame belongs to one block type. A regular block's
                     // node is its `blockContainer`, so its type is the type
                     // of the content node. (A container's node is the block
-                    // itself, and TipTap checks its type below.)
+                    // itself, so ProseMirror never offers it another type.)
                     if (
                       !isContainer &&
-                      node.firstChild?.type !== props.node.firstChild?.type
+                      node.firstChild?.type !== nodeView.node.firstChild?.type
                     ) {
                       // The block's type changed. Return `false`: the node
                       // view draws the block again, with the frame of the
                       // new type.
                       return false;
                     }
-                    // TipTap returns `false` when the type of the node
-                    // changed, which can occur only for a container: the
-                    // node view draws the block again. Otherwise TipTap gives
-                    // the new node to the React frame and returns `true`: the
-                    // node view keeps the frame.
+                    // TipTap gives the new node to the React frame. Return
+                    // `true`: the node view keeps the frame.
                     return nodeView.update(node, decorations, innerDecorations);
                   },
                   // React shows the selection (`props.selected`).
