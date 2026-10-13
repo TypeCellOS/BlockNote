@@ -77,6 +77,30 @@ const Pair = createBlockSpec(
   { renderFrame: frameDiv },
 )();
 
+// A tab set: its tabs are content, not layout, so it does not dissolve. An
+// empty tab stays, and the set stays when too few tabs are left.
+const Tabs = createBlockSpec(
+  {
+    type: "tabs" as const,
+    propSchema: {},
+    content: "none",
+    container: true,
+    children: { allow: ["tab"], min: 1, dissolve: false },
+  },
+  { renderFrame: frameDiv },
+)();
+
+const Tab = createBlockSpec(
+  {
+    type: "tab" as const,
+    propSchema: {},
+    content: "none",
+    container: true,
+    placeable: "namedOnly",
+  },
+  { renderFrame: frameDiv },
+)();
+
 // A titled block: an ordinary block with inline content (the title) whose
 // child blocks are a body that belongs to it. Its `experimental_keyboard` settings keep
 // the body together: Enter in the title starts it, its blocks can't be
@@ -115,5 +139,7 @@ export const containerSchema = BlockNoteSchema.create().extend({
     gridCell: GridCell,
     pair: Pair,
     box: Box,
+    tabs: Tabs,
+    tab: Tab,
   } as const,
 });

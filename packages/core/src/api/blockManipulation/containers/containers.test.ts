@@ -462,6 +462,69 @@ describe("children repair", () => {
   });
 });
 
+describe("containers that do not dissolve", () => {
+  // `tabs` sets `dissolve: false`: an empty tab is still a tab.
+  const tab = (id: string, text: string) => ({
+    type: "tab" as const,
+    id,
+    children: [{ id: `${id}-p`, type: "paragraph" as const, content: text }],
+  });
+
+  it("keeps an emptied tab when another tab changes", () => {
+    editor.replaceBlocks(editor.document, [
+      {
+        type: "tabs",
+        id: "tabs",
+        children: [
+          {
+            type: "tab",
+            id: "a",
+            children: [
+              { id: "a-p", type: "paragraph", content: "A" },
+              { id: "a-extra", type: "paragraph", content: "A2" },
+            ],
+          },
+          tab("b", ""),
+        ],
+      },
+      { id: "trailing", type: "paragraph", content: "" },
+    ]);
+
+    editor.removeBlocks(["a-extra"]);
+
+    expect(editor.getBlock("tabs")!.children.map((t) => t.id)).toEqual([
+      "a",
+      "b",
+    ]);
+  });
+
+  it("keeps the tab set when the last tab with text is removed", () => {
+    editor.replaceBlocks(editor.document, [
+      { type: "tabs", id: "tabs", children: [tab("a", "A"), tab("b", "")] },
+      { id: "trailing", type: "paragraph", content: "" },
+    ]);
+
+    editor.removeBlocks(["a"]);
+
+    expect(editor.getBlock("tabs")!.children.map((t) => t.id)).toEqual(["b"]);
+  });
+
+  it("fills the tab set with an empty tab when its only tab is removed", () => {
+    editor.replaceBlocks(editor.document, [
+      { type: "tabs", id: "tabs", children: [tab("a", "A")] },
+      { id: "trailing", type: "paragraph", content: "" },
+    ]);
+
+    editor.removeBlocks(["a"]);
+
+    const tabs = editor.getBlock("tabs")!;
+    expect(tabs.children).toHaveLength(1);
+    expect(tabs.children[0].type).toBe("tab");
+    expect(tabs.children[0].id).not.toBe("a");
+    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+  });
+});
+
 describe("repair edge cases", () => {
   // A container that explicitly allows being empty. `min: 0` compiles to a
   // `*` content expression, so ProseMirror never pads it and repair leaves

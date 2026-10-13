@@ -1602,6 +1602,51 @@ export const examples = {
           'In this example, we create a custom `Callout` block with a real rich-text title and child blocks inside it (a titled block), like a Notion-style callout.\n\nThe block has `content: "inline"`: the title is ordinary inline content — formatting, links, and multiplayer cursors all work — and its child blocks live on `block.children` at runtime. Its `keyboard` settings keep the child blocks inside the callout: Enter in the title adds a first child block, Shift-Tab doesn\'t move child blocks out, and Enter in an empty last child block leaves the callout. `render` draws the title row and `renderFrame` draws the box around the title and child blocks together.\n\nWe also wire up a Slash Menu item to insert the callout.\n\n**Try it out:**\n\n- Press Enter at the end of the callout\'s title to add a block inside the callout.\n- Press Enter in an empty last block inside the callout to leave the callout.\n- Press Backspace at the start of the first block inside the callout to merge it back into the title.\n- Press "/" inside the callout and add a code block, heading, or list.\n\n**Relevant Docs:**\n\n- [Container Blocks](/docs/features/custom-schemas/container-blocks)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)',
       },
       {
+        projectSlug: "tabs-block",
+        fullSlug: "custom-schema/tabs-block",
+        pathFromRoot: "examples/06-custom-schema/14-tabs-block",
+        config: {
+          playground: true,
+          docs: false,
+          author: "claude",
+          tags: ["Intermediate", "Blocks", "Custom Schemas"],
+          dependencies: {
+            "react-icons": "^5.5.0",
+            "@dnd-kit/core": "^6.3.1",
+            "@dnd-kit/sortable": "^10.0.0",
+            "@dnd-kit/utilities": "^3.2.2",
+          } as any,
+        },
+        title: "Tabs Block",
+        group: {
+          pathFromRoot: "examples/06-custom-schema",
+          slug: "custom-schema",
+        },
+        readme:
+          "A tab set built on the container block API. `tabs` is a container whose\n`children` are restricted to `tab` panels, and `tab` is a `placeable:\n\"namedOnly\"` container, so a panel can only ever exist inside a tab set —\nthe schema enforces both. Both blocks are containers (`container: true`), so\nthey declare only `renderFrame`, and the child blocks go where `slotRef` is\nattached.\n\nEach panel holds any block. A panel's label is document content and lives in\nits props. Which panel is open is not: it belongs to each reader, so it is kept\noutside the document, in `localStorage` keyed by the tab set's id. Switching\ntabs is therefore not an undo step and is not sent to collaborators.\n\n**Try it out:** Click a tab to open it, click the open tab for its menu, and\ndrag a tab to reorder it.\n\n## What a tab set needs beyond the container API\n\n**Revealing the panel the caret lands in.** A hidden panel is still part of the\ndocument, so the editor will move content into it: Backspace at the start of\nthe block after a tab set pulls that block into the last panel, which may not\nbe the open one. `useRevealCaretPanel` opens whichever panel the caret ends up\nin, using `editor.onSelectionChange`, so every route in (Backspace, Delete,\narrow keys, drag and drop, paste) is covered at once.\n\n**Moving the caret when a tab is clicked.** An explicit switch takes the caret\nwith it when the caret was inside the set. Otherwise the reveal above would\nimmediately reopen the panel it was left in.\n\n**A menu instead of buttons.** Clicking the open tab opens a menu to rename,\nmove or delete it. It is built from `useComponentsContext()`, so it matches\nwhichever UI library the editor uses.\n\n**Drag to reorder.** Tabs are sortable with dnd-kit. A tab keeps its block id\nwhen it moves, so the reader's open tab follows it.\n\n**Empty tabs stay.** The tab set sets `children.dissolve` to `false`. A tab\nis content, not layout: an empty tab is still a tab, and when the last tab is\nremoved, the tab set stays with a new, empty tab. (A column list dissolves:\nan empty column is removed, and one column left is just its blocks.)\n\n**Relevant Docs:**\n\n- [Container Blocks](/docs/features/custom-schemas/container-blocks)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)",
+      },
+      {
+        projectSlug: "stepper-block",
+        fullSlug: "custom-schema/stepper-block",
+        pathFromRoot: "examples/06-custom-schema/15-stepper-block",
+        config: {
+          playground: true,
+          docs: false,
+          author: "claude",
+          tags: ["Intermediate", "Blocks", "Custom Schemas"],
+          dependencies: {
+            "react-icons": "^5.5.0",
+          } as any,
+        },
+        title: "Stepper Block",
+        group: {
+          pathFromRoot: "examples/06-custom-schema",
+          slug: "custom-schema",
+        },
+        readme:
+          'Numbered steps built on the container block API. `stepper` is a container\nrestricted to `step` children, and `step` is a `placeable: "namedOnly"`\ncontainer, so a step can only exist inside a stepper.\n\nEach step holds any blocks: headings, lists, code. The numbers are a CSS\ncounter, so they stay correct as steps are added, removed, reordered or\nundone. Nothing in the document has to be kept in sync.\n\n**Add step** below the last step adds an untitled one.\n\nBoth blocks are containers (`container: true`), so they declare only\n`renderFrame`, and the child blocks go where `slotRef` is attached. A step can\nonly be inside a stepper, so it gets no drag handle by default. The step sets\n`meta: { draggable: true }` to keep it, so the side menu can move or delete a\nstep.\n\n## Things worth knowing\n\n**Enter starts the next step.** By default, Enter on an empty block at the end\nof a step moves that block out below the whole stepper, so the keyboard alone\ncannot start a new step. `enterStartsNextStep` makes Enter work the way it does\nin a list:\n\n1. Enter at the end of a step adds a block to that step.\n2. Enter again, on the empty block, starts the next step and puts the caret\n   in its title.\n3. Enter again, on the empty title, leaves the stepper. It leaves a paragraph\n   behind, not the empty heading the step was created with.\n\nThe block\'s `experimental_keyboard` settings cannot insert a new step, so this\nis written as an extension, passed as the third argument of\n`createReactBlockSpec`.\n\n## Known limitations\n\n**The title is not enforced.** A step has no text of its own: its title is\nsimply its first child, a heading. The user can turn that heading into any\nother block, delete it, or put blocks above it. A real title needs a block\nwith its own text that may only appear inside a stepper, and the container API\ncannot express that yet: `placeable: "namedOnly"` requires a container (a\nblock without content), and `children.allow` can only name containers.\n\n**Empty steps stay.** The stepper sets `children.dissolve` to `false`, so a\nstep that holds only an empty paragraph is not removed, and the stepper stays\nwhen its last step is removed.\n\n## What the container API gives you for free\n\n- Backspace at the start of a step\'s title first turns it into a paragraph.\n  A second Backspace moves it to the end of the previous step, or above the\n  stepper if it is in the first step.\n- Emptying a step drops it. Deleting the last step removes the stepper.\n- Shift-Tab unnests inside a step and stops at the step\'s edge.\n\n**Relevant Docs:**\n\n- [Container Blocks](/docs/features/custom-schemas/container-blocks)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)',
+      },
+      {
         projectSlug: "draggable-inline-content",
         fullSlug: "custom-schema/draggable-inline-content",
         pathFromRoot: "examples/06-custom-schema/draggable-inline-content",

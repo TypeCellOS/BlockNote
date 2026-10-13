@@ -67,6 +67,14 @@ export function fixContainer(tr: Transaction, containerPos: number) {
     return;
   }
 
+  // A container that does not dissolve keeps its empty children, and stays
+  // when too few are left: ProseMirror fills it back up to its minimum with
+  // empty children (`children.dissolve`).
+  const children = container.type.spec.blockConfig?.children;
+  if (children && "dissolve" in children && children.dissolve === false) {
+    return;
+  }
+
   const min = minChildren(container.type.spec.blockConfig?.children);
   const survivors: { node: Node; offset: number }[] = [];
   const emptied: { from: number; to: number }[] = [];

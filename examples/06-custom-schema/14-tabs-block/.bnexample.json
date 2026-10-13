@@ -1,0 +1,12 @@
+{
+  "playground": true,
+  "docs": false,
+  "author": "claude",
+  "tags": ["Intermediate", "Blocks", "Custom Schemas"],
+  "dependencies": {
+    "react-icons": "^5.5.0",
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2"
+  }
+}
