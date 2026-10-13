@@ -13,7 +13,7 @@ export function validateChildrenConfigs(
   >,
 ) {
   for (const [type, { config }] of Object.entries(blockSpecs)) {
-    if (config.layoutOnly !== undefined && config.content !== "none") {
+    if (config.layoutOnly === true && config.content !== "none") {
       fail(
         type,
         '`layoutOnly: true` is only for blocks without content (`content: "none"`). A layout block holds only child blocks, no content of its own.',

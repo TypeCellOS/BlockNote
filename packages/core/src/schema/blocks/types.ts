@@ -201,12 +201,13 @@ export interface BlockConfig<
    */
   content: C;
   /**
-   * Makes the block a layout block: a block without content of its own
-   * (`content: "none"`) whose own node holds its child blocks. Its `render`
-   * mounts them through contentDOM (React: contentRef). Without it, a block's
-   * child blocks are indented below it.
+   * `true` makes the block a layout block: a block without content of its own
+   * (`content: "none"`) whose own node holds its child blocks. Its
+   * `renderFrame` puts them in its slot (React: `slotRef`). With `false` (the
+   * default), the block's child blocks are indented below it. Only a block
+   * with `content: "none"` can set `true`.
    */
-  layoutOnly?: C extends "none" ? true : never;
+  layoutOnly?: C extends "none" ? boolean : false;
   /**
    * Which child blocks the block may have. Every block can have any child
    * blocks (`{ allow: "blocks" }`, the default). Only a layout block

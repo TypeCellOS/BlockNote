@@ -1589,7 +1589,7 @@ export const examples = {
           slug: "custom-schema",
         },
         readme:
-          "In this example, we extend the [`Alert` block](/examples/custom-schema/alert-block) with a title and a body: the alert's text is its title, and its child blocks are the body.\n\nThe block has `content: \"inline\"`, so the title is ordinary inline content: formatting, links, and multiplayer cursors all work. Its child blocks are in `block.children` at runtime. `render` draws the title row, the same as in the Alert example, and `renderFrame` draws the alert's box around the title and the body together. Its `experimental_keyboard` settings keep the body inside the alert: Enter in the title adds a first child block, Shift-Tab doesn't move child blocks out, and Enter in an empty last child block leaves the alert.\n\n**Try it out:**\n\n- Click the icon to change the alert type.\n- Press Enter at the end of the alert's title to add a block to its body.\n- Press Enter in an empty last block of the body to leave the alert.\n- Press Backspace at the start of the first block in the body to merge it back into the title.\n- Press \"/\" in the body and add a code block, heading, or list.\n\n**Relevant Docs:**\n\n- [Minimal Alert Block Example](/examples/custom-schema/alert-block)\n- [Alert Block with Full UX](/examples/custom-schema/alert-block-full-ux)\n- [Layout Blocks](/docs/features/custom-schemas/layout-blocks#combining-content-and-child-blocks)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)",
+          "In this example, we extend the [`Alert` block](/examples/custom-schema/alert-block) with a title and a body: the alert's text is its title, and its child blocks are the body.\n\nThe block has `content: \"inline\"`, so the title is ordinary inline content: formatting, links, and multiplayer cursors all work. Its child blocks are in `block.children` at runtime. `render` draws the title row, the same as in the Alert example, and `renderFrame` draws the alert's box around the title and the body together. Its `experimental_keyboard` settings keep the body inside the alert: Enter in the title adds a first child block, Shift-Tab doesn't move child blocks out, and Enter in an empty last child block leaves the alert.\n\n**Try it out:**\n\n- Click the icon to change the alert type.\n- Press Enter at the end of the alert's title to add a block to its body.\n- Press Enter in an empty last block of the body to leave the alert.\n- Press Backspace at the start of the first block in the body to merge it back into the title.\n- Press \"/\" in the body and add a code block, heading, or list.\n\n**Relevant Docs:**\n\n- [Minimal Alert Block Example](/examples/custom-schema/alert-block)\n- [Alert Block with Full UX](/examples/custom-schema/alert-block-full-ux)\n- [Block Frames](/docs/features/custom-schemas/custom-blocks#block-frames)\n- [Layout Blocks and Block Frames](/docs/features/custom-schemas/layout-blocks#layout-blocks-and-block-frames)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)",
       },
       {
         projectSlug: "tabs-block",
@@ -1597,7 +1597,7 @@ export const examples = {
         pathFromRoot: "examples/06-custom-schema/14-tabs-block",
         config: {
           playground: true,
-          docs: false,
+          docs: true,
           author: "claude",
           tags: ["Intermediate", "Blocks", "Custom Schemas"],
           dependencies: {
@@ -1621,7 +1621,7 @@ export const examples = {
         pathFromRoot: "examples/06-custom-schema/15-stepper-block",
         config: {
           playground: true,
-          docs: false,
+          docs: true,
           author: "claude",
           tags: ["Intermediate", "Blocks", "Custom Schemas"],
           dependencies: {

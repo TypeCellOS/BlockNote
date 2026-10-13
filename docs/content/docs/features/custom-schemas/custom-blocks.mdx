@@ -56,11 +56,10 @@ type BlockConfig = {
   type: string;
   content: "inline" | "plain" | "none";
   readonly propSchema: PropSchema;
-  layoutOnly?: true; // only with content: "none"
-  children?: {
-    allow?: "blocks" | string[];
-    min?: number;
-  };
+  layoutOnly?: boolean;
+  children?:
+    | { allow?: "blocks"; exclude?: string[] }
+    | { allow: string[]; min?: number; dissolve?: boolean };
   placeable?: "anywhere" | "namedOnly";
 };
 ```
@@ -77,14 +76,6 @@ type BlockConfig = {
   _In the alert demo, we want the user to be able to type rich text in our
   alert, so we set `content` to `"inline"`._
 </Callout>
-
-<Callout type="info">
-  _Every block can have child blocks, indented below it. A block without
-  content can also hold them inside itself with `layoutOnly: true`. See
-  [Layout Blocks](/docs/features/custom-schemas/layout-blocks)._
-</Callout>
-
-`layoutOnly?:` Puts the block's child blocks inside it. `children?:` Restricts which child blocks a layout block can hold. `placeable?:` Controls where a layout block can be used. See [Layout Blocks](/docs/features/custom-schemas/layout-blocks) for the supported configurations.
 
 `propSchema:` The `PropSchema` specifies the props that the block supports. Block props (properties) are data stored with your Block in the document, and can be used to customize its appearance or behavior.
 
@@ -122,6 +113,15 @@ If you do not want the prop to have a default value, you can define it as an obj
   (warning / error / info / success). We also want basic styling options, so we
   add text alignment and text color from the [Default Block
   Properties](/docs/features/blocks#default-block-properties)._
+</Callout>
+
+<Callout type="info">
+  _Every block can have child blocks, indented below it. You do not declare
+  them in the config. To draw a frame around a block and its child blocks, see
+  [Block Frames](#block-frames). `layoutOnly`, `children` and `placeable` are
+  only for layout blocks. A layout block only holds and arranges other blocks,
+  but has no content of its own, for example a panel or a tab set. See [Layout
+  Blocks](/docs/features/custom-schemas/layout-blocks)._
 </Callout>
 
 ### Block Implementation (`ReactCustomBlockImplementation`)
@@ -186,7 +186,7 @@ type ReactCustomBlockImplementation = {
 
 - `contentRef:` A React `ref` you can use to mark which element in your block is editable. This is only available if your block config contains `content: "inline"` or `content: "plain"`.
 
-`renderFrame?:` A component that draws a box around the block's content and its child blocks, with `slotRef` marking where they go. A layout block (`layoutOnly: true`) declares `renderFrame` instead of `render`. See [Layout Blocks](/docs/features/custom-schemas/layout-blocks).
+`renderFrame?:` A component that draws a frame around the block's content and its child blocks. See [Block Frames](#block-frames).
 
 `toExternalHTML?:` This component is used whenever the block is being exported to HTML for use outside BlockNote, for example when copying it to the clipboard. If it's not defined, BlockNote will just use `render` (and `renderFrame`, if the block has one) for the HTML conversion. Takes the same props as `render`, and two more:
 
@@ -315,3 +315,86 @@ You can then instantiate your editor with this custom schema, as explained on th
 Now you know how to create a custom block and add it to your editor. However, users don't have a way of creating instances of it to their documents.
 
 To fix this, it's recommended to implement a [command to insert your custom in the Slash Menu](/docs/react/components/suggestion-menus#changing-slash-menu-items), and [an item for it in the Block Type Select](/docs/react/components/formatting-toolbar)
+
+## Block Frames
+
+A block can have child blocks. By default, BlockNote shows the child blocks indented below the block. Use `renderFrame` to draw one frame around the block's content and its child blocks, for example one background for both.
+
+In the demo below, we give the Alert block from the demo above a title and a body. The alert's text is its title, and its child blocks are its body. The frame gives the title and the body the background color of the alert type:
+
+<Example name="custom-schema/alert-block-with-title-and-body" />
+
+The block config does not change. A block with content (`content: "inline"` or `"plain"`) can always have child blocks, so you do not declare them. We add `renderFrame` and `experimental_keyboard` to the block implementation:
+
+```tsx
+export const createAlert = createReactBlockSpec(
+  {
+    type: "alert",
+    propSchema: {
+      type: {
+        default: "warning",
+        values: ["warning", "error", "info", "success"],
+      },
+    },
+    content: "inline",
+  },
+  {
+    experimental_keyboard: {
+      enter: "into-children",
+      childrenCanOutdent: false,
+      emptyChildEnter: "exit-at-end",
+    },
+    // Draws the title row, the same as in the Alert demo.
+    render: (props) => {
+      ...
+    },
+    renderFrame: (props) => (
+      <div className="alert-frame" data-alert-type={props.block.props.type}>
+        <div ref={props.slotRef} />
+      </div>
+    ),
+  },
+);
+```
+
+`render:` Draws only the block's content, here the alert's title row. It does not change when you add a frame.
+
+`renderFrame:` A React component that draws the frame. It takes three React props:
+
+- `block:` The block. Use its props to change the frame, for example to show the color of the alert type.
+
+- `editor:` The BlockNote editor instance that the block is in.
+
+- `slotRef:` A React `ref`. Attach it to the element that holds the block's content and its child blocks. You can add other elements around this element, for example icons or buttons. Set `contentEditable={false}` on them.
+
+To show the block without a frame, return `null`. For example, you can use a prop to turn the frame on and off.
+
+`experimental_keyboard:` Without these settings, the child blocks behave like all other nested blocks. Here, they keep the body in the alert:
+
+- `enter: "into-children"`: Enter in the title adds a block at the start of the body.
+- `childrenCanOutdent: false`: Shift-Tab does not move blocks out of the alert.
+- `emptyChildEnter: "exit-at-end"`: Enter in an empty last block of the body moves that block out of the alert.
+
+See [`experimental_keyboard`](#block-implementation-reactcustomblockimplementation) above for all settings.
+
+Use `content` for the title and `children` for the body:
+
+```typescript
+{
+  type: "alert",
+  content: "Before you start",
+  children: [
+    { type: "paragraph", content: "Make sure you have an account." },
+  ],
+}
+```
+
+When the user moves the alert, its title and its body move together.
+
+<Callout type="info">
+  _A block with a frame is different from a [layout
+  block](/docs/features/custom-schemas/layout-blocks). A layout block has no
+  content of its own. It only holds child blocks, for example a panel or a tab
+  set. See [Layout Blocks and Block
+  Frames](/docs/features/custom-schemas/layout-blocks#layout-blocks-and-block-frames)._
+</Callout>

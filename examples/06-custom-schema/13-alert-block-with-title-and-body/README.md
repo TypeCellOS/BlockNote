@@ -16,6 +16,7 @@ The block has `content: "inline"`, so the title is ordinary inline content: form
 
 - [Minimal Alert Block Example](/examples/custom-schema/alert-block)
 - [Alert Block with Full UX](/examples/custom-schema/alert-block-full-ux)
-- [Layout Blocks](/docs/features/custom-schemas/layout-blocks#combining-content-and-child-blocks)
+- [Block Frames](/docs/features/custom-schemas/custom-blocks#block-frames)
+- [Layout Blocks and Block Frames](/docs/features/custom-schemas/layout-blocks#layout-blocks-and-block-frames)
 - [Custom Blocks](/docs/features/custom-schemas/custom-blocks)
 - [Editor Setup](/docs/getting-started/editor-setup)

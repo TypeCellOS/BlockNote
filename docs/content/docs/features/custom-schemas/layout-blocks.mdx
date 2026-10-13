@@ -5,9 +5,15 @@ description: Learn how to create custom blocks that contain other blocks
 
 # Layout Blocks
 
-You can create custom blocks that contain other blocks, such as panels, tab sets, and column layouts. Take a look at the demo below, in which we add a custom panel to a BlockNote editor, as well as a custom [Slash Menu item](/docs/react/components/suggestion-menus#changing-slash-menu-items) to insert it. Each panel can contain paragraphs, headings, lists, or any other blocks in the editor.
+A layout block is a custom block that holds and arranges other blocks, but has no content of its own. Panels, tab sets and column layouts are examples. Its child blocks are inside the layout block, not indented below it, and the layout block draws a frame around them. A layout block can also limit which blocks it holds, for example only tabs in a tab set.
+
+If your block has its own text and also child blocks, for example an alert with a title and a body, use a custom block with a [frame](/docs/features/custom-schemas/custom-blocks#block-frames). See [Layout Blocks and Block Frames](#layout-blocks-and-block-frames) for the differences.
+
+Take a look at the demo below, in which we add a custom panel to a BlockNote editor, as well as a custom [Slash Menu item](/docs/react/components/suggestion-menus#changing-slash-menu-items) to insert it. Each panel can contain paragraphs, headings, lists, or any other blocks in the editor.
 
 <Example name="custom-schema/layout-block" />
+
+For more advanced layout blocks, see the [Tabs Block](/examples/custom-schema/tabs-block) and [Stepper Block](/examples/custom-schema/stepper-block) examples.
 
 ## Creating a Layout Block
 
@@ -35,7 +41,7 @@ export const createPanel = createReactBlockSpec(
 
 The block config defines the content and child blocks your layout block can hold:
 
-`content:` Must be `"none"` for a layout block: its node holds nothing but its child blocks. For a block with its own text and child blocks, see [Combining Content and Child Blocks](#combining-content-and-child-blocks).
+`content:` Must be `"none"` for a layout block. A layout block holds only its child blocks. For a block with its own text and child blocks, see [Layout Blocks and Block Frames](#layout-blocks-and-block-frames).
 
 `layoutOnly:` Set to `true` to put the block's child blocks inside it. Without it, a block's child blocks are indented below it. A layout block accepts any block by default. You can also restrict it to specific layout block types, as explained in [Restricting Children](#restricting-children).
 
@@ -43,7 +49,7 @@ The block config defines the content and child blocks your layout block can hold
 
 ### Block Implementation
 
-`renderFrame:` Your React component draws the layout block's box. A layout block has no content of its own, so it has no `render`, only this frame. Attach `slotRef` where the child blocks should appear. You can add icons, buttons, or other elements around it:
+`renderFrame:` Your React component draws the layout block's frame. A layout block has no content of its own, so it has no `render`, only this frame. Attach `slotRef` to the element that holds the child blocks. You can add icons, buttons, or other elements around this element. `renderFrame` takes the same props as for [other blocks](/docs/features/custom-schemas/custom-blocks#block-frames):
 
 ```tsx
 renderFrame: (props) => (
@@ -103,77 +109,24 @@ const editor = useCreateBlockNote({
 
 If you create a panel without specifying its children, it starts with an empty paragraph. To let users insert panels themselves, add a [custom Slash Menu item](/docs/react/components/suggestion-menus#changing-slash-menu-items), as shown in the demo.
 
-## Combining Content and Child Blocks
-
-A block can have both its own text and child blocks. Use this for a question followed by hints, a checklist item with detailed instructions, a code sample followed by explanatory blocks, or an alert with a title. In the demo below, we extend the [Alert block](/docs/features/custom-schemas/custom-blocks) with a body: the block's text is the alert's title, and its child blocks are the body:
-
-<Example name="custom-schema/alert-block-with-title-and-body" />
-
-Set `content` to `"inline"` for rich text or `"plain"` for unstyled text. Every block with content can have child blocks, so there's nothing to declare for them. Use `render` for the block's own text, `renderFrame` to style that content and its child blocks together, and `keyboard` to keep the child blocks inside the block:
-
-```tsx
-import { createReactBlockSpec } from "@blocknote/react";
-
-export const createAlert = createReactBlockSpec(
-  {
-    type: "alert",
-    propSchema: {
-      type: {
-        default: "warning",
-        values: ["warning", "error", "info", "success"],
-      },
-    },
-    content: "inline",
-  },
-  {
-    experimental_keyboard: {
-      enter: "into-children",
-      childrenCanOutdent: false,
-      emptyChildEnter: "exit-at-end",
-    },
-    render: (props) => (
-      <div className="inline-content" ref={props.contentRef} />
-    ),
-    renderFrame: (props) => (
-      <div className="alert-frame" data-alert-type={props.block.props.type}>
-        <div ref={props.slotRef} />
-      </div>
-    ),
-  },
-);
-```
-
-`render:` Attach `contentRef` to the block's own editable text. With `content: "inline"`, users can format it and add links, just like in a paragraph. In this example, it is the alert's title. The full example also adds the Alert's icon, which opens a menu to change the alert type.
-
-For plain text, set `content: "plain"` and use a `<pre>` element to display line breaks and spacing:
-
-```tsx
-render: (props) => <pre ref={props.contentRef} />,
-```
-
-The child blocks can still contain rich text, images, and other block types.
-
-`renderFrame:` An optional React component for styling the block and its children together, such as giving the alert a shared background in the color of its type. It receives `block`, `editor`, and `slotRef`. Attach `slotRef` where the block's content and children should appear. You can use the block's props to customize the frame, add interactive controls, or return `null` to show the block without a frame.
-
-`experimental_keyboard:` Without it, child blocks behave like any indented blocks. This API is experimental and may change. Here, `enter: "into-children"` makes Enter in the title add a first child block, `childrenCanOutdent: false` keeps Shift-Tab from moving blocks out of the alert, and `emptyChildEnter: "exit-at-end"` makes Enter in an empty last block leave the alert. See [Custom Blocks](/docs/features/custom-schemas/custom-blocks) for all keyboard settings.
-
-A layout block with `content: "none"`, like the panel above, has only `renderFrame`, and it always draws its frame.
-
-Add `alert: createAlert()` to your schema, then use `content` for the title and `children` for the blocks inside it:
-
-```typescript
-{
-  type: "alert",
-  content: "Before you start",
-  children: [
-    { type: "paragraph", content: "Make sure you have an account." },
-  ],
-}
-```
-
-Pressing Enter at the end of the title adds a paragraph to the body, and Enter in an empty last paragraph leaves the alert. Moving the alert moves its title and body together.
-
 To add blocks to an existing layout block, see [Inserting Blocks](/docs/reference/editor/manipulating-content#inserting-blocks).
+
+## Layout Blocks and Block Frames
+
+Every custom block can have a [frame](/docs/features/custom-schemas/custom-blocks#block-frames), drawn by `renderFrame` around the block's content and its child blocks. A layout block is a block that has only a frame. The table shows the differences:
+
+| | Block with a frame | Layout block |
+| --- | --- | --- |
+| Example | [Alert with a title and a body](/examples/custom-schema/alert-block-with-title-and-body) | Panel, tab set, column list |
+| Config | Any `content`, usually `"inline"` or `"plain"` | `content: "none"` and `layoutOnly: true` |
+| Content | Its own text, drawn by `render` | None |
+| Implementation | `render`, and `renderFrame` if necessary | `renderFrame` only |
+| Frame | `renderFrame` can return `null` to show the block without a frame | Always shown |
+| Child blocks | Any blocks | Any blocks, or only the layout block types in [`children.allow`](#restricting-children) |
+| Without child blocks | The frame holds only the block's content | By default, it always holds at least one child block (see [Restricting Children](#restricting-children)) |
+| Keyboard | Child blocks behave like nested blocks, unless you change this with `experimental_keyboard` | Child blocks cannot be moved out with Shift-Tab, and Enter in an empty last child block moves it out |
+
+Use a layout block when the block only holds and arranges other blocks. Use a block with a frame when the block has its own text, for example a title.
 
 ## Restricting Children
 
@@ -188,6 +141,8 @@ For structured layouts, you can limit a layout block to specific layout block ty
 `children.exclude:` For a layout block that accepts any blocks, the layout block types it does not hold. Only layout block types can be excluded, not regular block types such as `"paragraph"`.
 
 `placeable:` Set to `"namedOnly"` to restrict a layout block to parents that name it in `children.allow`. Defaults to `"anywhere"`.
+
+The [Tabs Block](/examples/custom-schema/tabs-block) and [Stepper Block](/examples/custom-schema/stepper-block) examples use these options. A tab set holds only `tab` blocks, and a stepper holds only `step` blocks. Both set `dissolve: false`, so they stay when the user removes their last tab or step. A `tab` and a `step` are `placeable: "namedOnly"`, so they can only be in a tab set or a stepper.
 
 These options need `layoutOnly: true`. Other blocks can always have child blocks of any type, so for them `children` can only be the default, `{ allow: "blocks" }`.
 

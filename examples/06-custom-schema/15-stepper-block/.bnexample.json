@@ -1,6 +1,6 @@
 {
   "playground": true,
-  "docs": false,
+  "docs": true,
   "author": "claude",
   "tags": ["Intermediate", "Blocks", "Custom Schemas"],
   "dependencies": {
