@@ -1260,11 +1260,15 @@ block — on insertions and deletions alike. The card lives on `.bn-block-conten
 because it's the only element present for every block type (the suggestion wrapper
 spans the whole subtree; the media wrapper exists only for files), but it sets
 only non-collapsing properties — background / radius / padding never depend on the
-content's intrinsic size, so no block can break.
+content's intrinsic size, so no block can break. A preview block (math, diagram)
+counts as one too: its source sits in a hidden popup, so its text marks don't show.
 */
 /* Attribute changes use the same card for text blocks as for media blocks. */
 [data-type="attributes"] > .bn-suggestion-node > .bn-block-content,
-.bn-suggestion-node .bn-block-content:not(:has(.bn-inline-content)) {
+.bn-suggestion-node
+  .bn-block-content:not(
+    :has(.bn-inline-content:not(.bn-source-block-popup *))
+  ) {
   /* The card bleeds this far into the gutters on both sides, so tinting a block
      never shifts its content sideways. */
   --bn-suggestion-card-inset: 6px;
@@ -1284,7 +1288,9 @@ content's intrinsic size, so no block can break.
   > .bn-block-content,
 .dark.bn-root
   .bn-suggestion-node
-  .bn-block-content:not(:has(.bn-inline-content)) {
+  .bn-block-content:not(
+    :has(.bn-inline-content:not(.bn-source-block-popup *))
+  ) {
   background-color: color-mix(
     in srgb,
     var(--user-color-light) 25%,
@@ -1294,8 +1300,9 @@ content's intrinsic size, so no block can break.
 
 /* Source-backed blocks can carry attribution inside a clipped popup while
    their visible preview has no mark. Frame the preview with a subtle diff
-   color rather than the entire block column. */
-.bn-block-content
+   color rather than the entire block column. An inserted or deleted block shows
+   its card instead. */
+.bn-block-content:not(.bn-suggestion-node *)
   .bn-preview-with-source-popup:has(.bn-source-block-popup .bn-suggestion-mark)
   .bn-preview-container {
   background-color: color-mix(in srgb, #c9efe9 50%, white);
@@ -1304,7 +1311,7 @@ content's intrinsic size, so no block can break.
 }
 
 .dark.bn-root
-  .bn-block-content
+  .bn-block-content:not(.bn-suggestion-node *)
   .bn-preview-with-source-popup:has(.bn-source-block-popup .bn-suggestion-mark)
   .bn-preview-container {
   background-color: color-mix(
@@ -1336,13 +1343,18 @@ A deletion additionally flags the block with the localized "Deleted" label, plac
 above the content (out of flow) with extra top padding reserving its row: the
 card's own 3px, the label's 16px line box, and 2px of breathing room under it.
 */
-.bn-suggestion-node--delete .bn-block-content:not(:has(.bn-inline-content)) {
+.bn-suggestion-node--delete
+  .bn-block-content:not(
+    :has(.bn-inline-content:not(.bn-source-block-popup *))
+  ) {
   position: relative;
   padding-top: calc(3px + 16px + 2px);
 }
 
 .bn-suggestion-node--delete
-  .bn-block-content:not(:has(.bn-inline-content))::before {
+  .bn-block-content:not(
+    :has(.bn-inline-content:not(.bn-source-block-popup *))
+  )::before {
   content: var(--deleted-label, "Deleted");
   /* Sits in the reserved top padding, above the content. Out of flow so it never
      becomes a flex item beside the block. */
