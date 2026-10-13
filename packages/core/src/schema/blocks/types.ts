@@ -149,8 +149,8 @@ export type ChildrenAllow = "blocks" | readonly AllowedChildType[];
 export type ChildrenConfig =
   | {
       /**
-       * Any blocks, the default. Such a container always holds at least one
-       * child: when its last child is removed, the container dissolves.
+       * Any blocks, the default. When its last child is removed, the
+       * container is removed too.
        */
       allow?: "blocks";
       /**
@@ -165,14 +165,17 @@ export type ChildrenConfig =
       /** Which container types may appear as a child. */
       allow: readonly AllowedChildType[];
       /**
-       * How few children the container may hold; `0` lets it be empty. When
-       * children drop below the minimum, a container that can stand anywhere
-       * dissolves into its surviving children (a one-column column list is
-       * just those blocks), and one that only exists inside another container
-       * is topped back up with empty children (a column keeps existing).
+       * How few children the container may hold; `0` lets it be empty.
        * @default 1
        */
       min?: number;
+      /**
+       * Whether a container with too few children dissolves into what they
+       * hold, like a column list with one column left. `false` keeps the
+       * container and its empty children, like a tab set.
+       * @default true
+       */
+      dissolve?: boolean;
     };
 
 export interface BlockConfig<
@@ -215,7 +218,12 @@ export interface BlockConfig<
    */
   children?: C extends "none"
     ? ChildrenConfig
-    : { allow?: "blocks"; exclude?: undefined; min?: undefined };
+    : {
+        allow?: "blocks";
+        exclude?: undefined;
+        min?: undefined;
+        dissolve?: undefined;
+      };
   /**
    * Where this block may be placed.
    *

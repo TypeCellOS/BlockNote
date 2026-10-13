@@ -85,8 +85,10 @@ function useActiveTabId(tabsId: string, tabs: Block<any, any, any>[]): string {
     () => undefined,
   );
 
-  // `tabs` is never empty: the schema gives the set `min: 1`.
-  return tabs.find((tab) => tab.id === chosen)?.id ?? tabs[0].id;
+  // `tabs` is empty only while a panel that was just removed renders one last
+  // time (see `TabPanel`); then no panel is open. Otherwise the schema gives
+  // the set at least one panel (`min: 1`).
+  return tabs.find((tab) => tab.id === chosen)?.id ?? tabs[0]?.id ?? "";
 }
 
 /**
@@ -129,7 +131,7 @@ function useRevealCaretPanel(
       editor.onSelectionChange(() => {
         // Read the panels back from the editor rather than closing over
         // them: the block that just moved into one is not in the list this
-        // effect was created with. A collaborator can dissolve the set
+        // effect was created with. A collaborator can remove the set
         // between the selection changing and this running, so a missing one
         // is expected here, unlike in the handlers below.
         const tabs = editor.getBlock(tabsId)?.children;
@@ -170,14 +172,17 @@ export const createTab = createReactBlockSpec(
     // panel reads its own open state, so it re-renders when the reader
     // switches tabs without the document changing at all.
     renderFrame: function TabPanel(props) {
-      // `placeable: "namedOnly"` means a panel only ever exists inside a tab
-      // set, so not finding one is a broken document rather than a state to
-      // render around.
       const set = props.editor.getParentBlock(props.block.id);
-      if (!set) {
+      // `placeable: "namedOnly"` means a panel in the document is always in a
+      // tab set, so not finding one is a broken document. A panel that was
+      // just removed is not in the document, but it can render one last time
+      // before React unmounts it: the reader's open tab changes in the same
+      // step (`removeTab`). Then it shows closed.
+      if (!set && props.editor.getBlock(props.block.id)) {
         throw new Error(`Tab panel "${props.block.id}" has no tab set`);
       }
-      const open = useActiveTabId(set.id, set.children) === props.block.id;
+      const open =
+        useActiveTabId(set?.id ?? "", set?.children ?? []) === props.block.id;
 
       return (
         <div
@@ -238,7 +243,9 @@ export const createTabs = createReactBlockSpec(
     propSchema: {},
     content: "none",
     container: true,
-    children: { allow: ["tab"], min: 1 },
+    // A tab is content, not layout: an empty tab stays, and the tab set
+    // stays when its last tab is removed (it gets a new, empty tab).
+    children: { allow: ["tab"], min: 1, dissolve: false },
   },
   {
     renderFrame: function TabStrip(props) {
@@ -331,12 +338,10 @@ export const createTabs = createReactBlockSpec(
       };
 
       const removeTab = (index: number) => {
-        if (tabs.length === 1) {
-          return;
-        }
         props.editor.removeBlocks([tabs[index]]);
-        // One tab always survives, since the guard above refuses to remove
-        // the last one.
+        // One tab always survives: the set does not dissolve
+        // (`dissolve: false`), so removing its last tab leaves a new, empty
+        // one.
         const next = panelsOf(props.editor, props.block.id);
         openTab(props.block.id, next[Math.min(index, next.length - 1)].id);
       };
@@ -485,14 +490,12 @@ export const createTabs = createReactBlockSpec(
                                 Move right
                               </Components.Generic.Menu.Item>
                             )}
-                            {tabs.length > 1 && (
-                              <Components.Generic.Menu.Item
-                                icon={<RiDeleteBinLine />}
-                                onClick={() => removeTab(i)}
-                              >
-                                Delete tab
-                              </Components.Generic.Menu.Item>
-                            )}
+                            <Components.Generic.Menu.Item
+                              icon={<RiDeleteBinLine />}
+                              onClick={() => removeTab(i)}
+                            >
+                              Delete tab
+                            </Components.Generic.Menu.Item>
                           </Components.Generic.Menu.Dropdown>
                         </Components.Generic.Menu.Root>
                       ) : (

@@ -52,7 +52,12 @@ type BlockFixture = {
   content?: "none" | "inline" | "plain" | "table";
   container?: true;
   // Loose on purpose: the validator tests pass shapes the type rejects.
-  children?: { allow?: ChildrenAllow; min?: number; exclude?: string[] };
+  children?: {
+    allow?: ChildrenAllow;
+    min?: number;
+    exclude?: string[];
+    dissolve?: boolean;
+  };
   placeable?: "anywhere" | "namedOnly";
 };
 
@@ -221,6 +226,18 @@ describe("validateChildrenConfigs", () => {
         alert: { content: "inline" },
       }),
     ).toThrow(/regular block/);
+  });
+
+  it("rejects `dissolve` without an allow list", () => {
+    expect(
+      validate({ box: { container: true, children: { dissolve: false } } }),
+    ).toThrow(/`children.dissolve` needs an `allow` list/);
+  });
+
+  it("rejects `dissolve` on a block that is not a container", () => {
+    expect(
+      validate({ alert: { content: "inline", children: { dissolve: false } } }),
+    ).toThrow(/requires `container: true`/);
   });
 
   it("rejects named-only placement on a shared regular block wrapper", () => {

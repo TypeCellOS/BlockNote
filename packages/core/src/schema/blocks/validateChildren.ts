@@ -34,31 +34,41 @@ export function validateChildrenConfigs(
       allow = "blocks",
       min,
       exclude,
+      dissolve,
     } = config.children as {
       allow?: ChildrenAllow;
       min?: number;
       exclude?: readonly string[];
+      dissolve?: boolean;
     };
 
     // The child blocks of a block that isn't a container share one untyped
     // group, which can't enforce types or counts.
     if (config.container !== true) {
-      if (allow !== "blocks" || min !== undefined || exclude !== undefined) {
+      if (
+        allow !== "blocks" ||
+        min !== undefined ||
+        exclude !== undefined ||
+        dissolve !== undefined
+      ) {
         fail(
           type,
-          'restricting child types or a minimum count requires `container: true`. Other blocks can always have any child blocks (`{ allow: "blocks" }`).',
+          'restricting child types, a minimum count or `dissolve` requires `container: true`. Other blocks can always have any child blocks (`{ allow: "blocks" }`).',
         );
       }
       continue;
     }
 
     // A container that accepts any blocks always holds at least one, and
-    // dissolves when it loses it. A minimum only means something for a set
-    // of named container types (two columns, one tab).
-    if (allow === "blocks" && min !== undefined) {
+    // dissolves when it loses it. A minimum, and whether the container
+    // dissolves, only mean something for a set of named container types (two
+    // columns, one tab). A key can move the last block out of a container
+    // that accepts any blocks, so one that does not dissolve could never be
+    // removed with the keyboard.
+    if (allow === "blocks" && (min !== undefined || dissolve !== undefined)) {
       fail(
         type,
-        "`children.min` needs an `allow` list. A container that accepts any blocks always holds at least one child, and dissolves when its last child is removed.",
+        `\`children.${min !== undefined ? "min" : "dissolve"}\` needs an \`allow\` list. A container that accepts any blocks always holds at least one child, and dissolves when its last child is removed.`,
       );
     }
 

@@ -176,7 +176,9 @@ For structured layouts, you can limit a container to specific container types, w
 
 `children.allow:` Accepts `"blocks"` (the default) or an array of container type names. You cannot list regular block types such as `"paragraph"` individually.
 
-`children.min:` The minimum number of children, for an `allow` list only. Defaults to `1`; `0` lets the container be empty. A container that accepts any blocks always has at least one child: when its last child is removed, the container dissolves.
+`children.min:` The minimum number of children, for an `allow` list only. Defaults to `1`.
+
+`children.dissolve:` Whether a container with too few children dissolves into what they hold, for an `allow` list only. Defaults to `true`, like a column list with one column left. Set `false` to keep the container and its empty children, like a tab set.
 
 `children.exclude:` For a container that accepts any blocks, the container types it does not hold. Only container types can be excluded, not regular block types such as `"paragraph"`.
 

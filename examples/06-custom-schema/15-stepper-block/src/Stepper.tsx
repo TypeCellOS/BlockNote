@@ -7,10 +7,7 @@ import "./styles.css";
 /**
  * A new, untitled step.
  *
- * Its title is an empty heading, the right block for a title. This also keeps
- * the step alive: BlockNote treats a container child holding only an empty
- * paragraph as emptied out and deletes it the next time it repairs the
- * stepper, but an empty heading does not count as empty.
+ * Its title is an empty heading, the right block for a title.
  */
 function newStep() {
   return {
@@ -62,8 +59,10 @@ const enterStartsNextStep = createExtension({
             stepper,
             "after",
           );
-          // If this was the stepper's only step, the stepper dissolves too.
-          editor.removeBlocks([step]);
+          // If this was the stepper's only step, the stepper goes too. It
+          // does not dissolve by itself (`dissolve: false`): without this,
+          // it would stay with a new, empty step.
+          editor.removeBlocks([stepper.children.length === 1 ? stepper : step]);
           return inserted;
         });
         editor.setTextCursorPosition(landing, "start");
@@ -142,7 +141,9 @@ export const createStepper = createReactBlockSpec(
     propSchema: {},
     content: "none",
     container: true,
-    children: { allow: ["step"], min: 1 },
+    // A step is content, not layout: an empty step stays, and the stepper
+    // stays when its last step is removed (it gets a new, empty step).
+    children: { allow: ["step"], min: 1, dissolve: false },
   },
   {
     renderFrame: (props) => {

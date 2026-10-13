@@ -35,12 +35,10 @@ whichever UI library the editor uses.
 **Drag to reorder.** Tabs are sortable with dnd-kit. A tab keeps its block id
 when it moves, so the reader's open tab follows it.
 
-## Known limitation
-
-Emptying a panel removes it, label included, because the container repair
-treats a panel holding only an empty paragraph as empty. Removing the last
-non-empty panel can therefore dissolve the whole tab set. The container API
-has no way for a block to opt out of this yet.
+**Empty tabs stay.** The tab set sets `children.dissolve` to `false`. A tab
+is content, not layout: an empty tab is still a tab, and when the last tab is
+removed, the tab set stays with a new, empty tab. (A column list dissolves:
+an empty column is removed, and one column left is just its blocks.)
 
 **Relevant Docs:**
 
