@@ -42,3 +42,30 @@ export async function navigateDefaultSchemaDocument() {
     "start",
   );
 }
+
+export function applyStyles(css: string) {
+  const style = document.createElement("style");
+  style.textContent = css;
+  page.getByRole("main").element().append(style);
+}
+
+// Scaling text takes some logic as the scaling has to be applied to each font
+// size, not just the base editor font size.
+export function resizeText(scale: number) {
+  function rulesFor(element: Element, selector: string): string {
+    const rule =
+      element instanceof HTMLElement
+        ? `${selector} { font-size: ${Number.parseFloat(getComputedStyle(element).fontSize) * scale}px !important; }`
+        : "";
+    return [
+      rule,
+      ...Array.from(element.children, (child, index) =>
+        rulesFor(child, `${selector} > :nth-child(${index + 1})`),
+      ),
+    ].join("\n");
+  }
+
+  // Read all sizes before applying overrides, so inherited sizes scale once.
+  // A stylesheet avoids ProseMirror reconciling mutations to editable DOM.
+  applyStyles(rulesFor(page.getByRole("textbox").element(), ".bn-editor"));
+}

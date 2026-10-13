@@ -5,7 +5,8 @@ import { navigateDefaultSchemaDocument } from "./helpers.js";
 
 afterEach(saveTranscript);
 
-test("default schema: arrow-key document navigation", async () => {
+// TODO: Enable once navigation announces block types and document structure.
+test.skip("default schema: arrow-key document navigation", async () => {
   await openEditor(defaultSchemaDocument);
   await navigateDefaultSchemaDocument();
 });

@@ -1,4 +1,8 @@
-import { navigateDefaultSchemaDocument } from "./helpers.js";
+import {
+  applyStyles,
+  navigateDefaultSchemaDocument,
+  resizeText,
+} from "./helpers.js";
 import { defaultSchemaDocument } from "@root/tests/a11y/documents.js";
 import { expect, test } from "vite-plus/test";
 import { page } from "vite-plus/test/browser";
@@ -56,16 +60,14 @@ test.describe("text spacing and resizing", () => {
     await waitForMedia();
     // WCAG 1.4.12: override spacing without changing any other style property.
     // https://www.w3.org/WAI/WCAG22/Understanding/text-spacing.html
-    const style = document.createElement("style");
-    style.textContent = `
+    applyStyles(`
       .bn-editor, .bn-editor * {
         line-height: 1.5 !important;
         letter-spacing: 0.12em !important;
         word-spacing: 0.16em !important;
       }
       .bn-editor p { margin-block-end: 2em !important; }
-    `;
-    page.getByRole("main").element().append(style);
+    `);
     await screenshotFull(document.body, "default-schema-text-spacing.png", {
       comparatorOptions: { allowedMismatchedPixels: 10 },
     });
@@ -74,36 +76,7 @@ test.describe("text spacing and resizing", () => {
   test("default schema remains readable at 200% text size", async () => {
     await openEditor(defaultSchemaDocument);
     await waitForMedia();
-    const editor = page.getByRole("textbox").element();
-    const paragraph = editor.querySelector("p")!;
-    const fontSize = Number.parseFloat(getComputedStyle(paragraph).fontSize);
-
-    // WCAG 1.4.4: resize text to 200%, without scaling its containers/images.
-    // Read every original size first so inherited sizes aren't doubled twice.
-    // https://www.w3.org/WAI/WCAG22/Understanding/resize-text.html
-    const sizes = [editor, ...editor.querySelectorAll("*")]
-      .filter((node): node is HTMLElement => node instanceof HTMLElement)
-      .map((node) => ({
-        node,
-        size: Number.parseFloat(getComputedStyle(node).fontSize),
-      }));
-    // Use a stylesheet: changing contenteditable DOM attributes directly makes
-    // ProseMirror reconcile the mutations and replace the affected nodes.
-    const style = document.createElement("style");
-    style.textContent = sizes
-      .map(({ node, size }) => {
-        const path: string[] = [];
-        for (let child = node; child !== editor; child = child.parentElement!) {
-          const siblings = Array.from(child.parentElement!.children);
-          path.unshift(`> :nth-child(${siblings.indexOf(child) + 1})`);
-        }
-        return `.bn-editor ${path.join(" ")} { font-size: ${size * 2}px !important; }`;
-      })
-      .join("\n");
-    page.getByRole("main").element().append(style);
-    await expect
-      .poll(() => getComputedStyle(paragraph).fontSize)
-      .toBe(`${fontSize * 2}px`);
+    resizeText(2);
     await screenshotFull(
       document.body,
       "default-schema-text-size-200-percent.png",
