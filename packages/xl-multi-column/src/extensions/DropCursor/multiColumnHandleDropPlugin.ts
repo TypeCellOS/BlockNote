@@ -168,6 +168,15 @@ export function createMultiColumnHandleDropPlugin(
           const originalTargetIndex = columnList.children.findIndex(
             (column) => column.id === targetColumnId,
           );
+          if (originalTargetIndex === -1) {
+            // The drop target comes from this column list, so it is one of
+            // its columns. If it is not, the two come from different
+            // documents. Without this check, the new column goes to an
+            // incorrect position and no error shows.
+            throw new Error(
+              "The drop target column is not a column of its column list.",
+            );
+          }
           const boundary =
             originalTargetIndex + (edgePos.position === "right" ? 1 : 0);
           const insertionIndex = remainingColumns
