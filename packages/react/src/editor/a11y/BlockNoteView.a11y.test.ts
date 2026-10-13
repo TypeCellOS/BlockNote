@@ -1,9 +1,9 @@
 import { navigateDefaultSchemaDocument } from "./helpers.js";
-import { defaultSchemaDocument } from "../../../../../tests/a11y/documents.js";
+import { defaultSchemaDocument } from "@root/tests/a11y/documents.js";
 import { expect, test } from "vite-plus/test";
 import { page } from "vite-plus/test/browser";
-import { screenshotFull } from "../../../../../tests/src/utils/screenshotFull.js";
-import { openEditor, pressKey } from "../../../../../tests/a11y/helpers.js";
+import { screenshotFull } from "@root/tests/src/utils/screenshotFull.js";
+import { openEditor, pressKey } from "@root/tests/a11y/helpers.js";
 
 test("default schema: arrow-key document navigation", async () => {
   await openEditor(defaultSchemaDocument);

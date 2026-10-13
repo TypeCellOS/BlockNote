@@ -9,7 +9,10 @@
     "noEmit": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
-    "types": ["node", "vite-plus/client"]
+    "types": ["node", "vite-plus/client"],
+    "paths": {
+      "@root/*": ["../../*"]
+    }
   },
   "include": [
     "./**/*.ts",

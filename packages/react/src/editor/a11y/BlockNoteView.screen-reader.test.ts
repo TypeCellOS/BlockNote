@@ -1,9 +1,6 @@
 import { afterEach, test } from "vite-plus/test";
-import { defaultSchemaDocument } from "../../../../../tests/a11y/documents.js";
-import {
-  openEditor,
-  saveTranscript,
-} from "../../../../../tests/a11y/helpers.js";
+import { defaultSchemaDocument } from "@root/tests/a11y/documents.js";
+import { openEditor, saveTranscript } from "@root/tests/a11y/helpers.js";
 import { navigateDefaultSchemaDocument } from "./helpers.js";
 
 afterEach(saveTranscript);

@@ -1,6 +1,6 @@
 import { expect, test } from "vite-plus/test";
 import { page } from "vite-plus/test/browser";
-import { openEditor, pressKey } from "../../../../../../tests/a11y/helpers.js";
+import { openEditor, pressKey } from "@root/tests/a11y/helpers.js";
 
 // Toggle headings represent interactive blocks in this accessibility vertical slice.
 test.skip("editable toggle heading: toggle is keyboard accessible while the editor has focus", async () => {

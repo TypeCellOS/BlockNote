@@ -1,6 +1,6 @@
 import { expect } from "vite-plus/test";
 import { page } from "vite-plus/test/browser";
-import { pressKey, readSelection } from "../../../../../tests/a11y/helpers.js";
+import { pressKey, readSelection } from "@root/tests/a11y/helpers.js";
 
 // Shared by browser keyboard checks and the native transcript test.
 export async function navigateDefaultSchemaDocument() {

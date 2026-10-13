@@ -5,7 +5,7 @@ import {
   pressKey,
   readSelection,
   selectToLineEndKey,
-} from "../../../../../../tests/a11y/helpers.js";
+} from "@root/tests/a11y/helpers.js";
 
 // The middle paragraph is selected; its neighbours provide navigation context.
 export const toolbarDocument: PartialBlock[] = [

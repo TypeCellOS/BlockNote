@@ -4,7 +4,7 @@ import {
   openEditor,
   pressKey,
   saveTranscript,
-} from "../../../../../../tests/a11y/helpers.js";
+} from "@root/tests/a11y/helpers.js";
 import { toolbarDocument, focusToolbarControl } from "./helpers.js";
 
 afterEach(saveTranscript);

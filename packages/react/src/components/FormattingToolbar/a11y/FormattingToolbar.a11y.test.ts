@@ -1,7 +1,7 @@
 import { toolbarDocument, focusToolbarControl } from "./helpers.js";
 import { expect, test } from "vite-plus/test";
 import { page, userEvent } from "vite-plus/test/browser";
-import { openEditor, pressKey } from "../../../../../../tests/a11y/helpers.js";
+import { openEditor, pressKey } from "@root/tests/a11y/helpers.js";
 
 // Every test opens a fresh editor so one control's changes cannot affect another.
 // Native transcript checks live in FormattingToolbar.screen-reader.test.ts.

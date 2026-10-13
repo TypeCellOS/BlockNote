@@ -27,6 +27,7 @@ export default defineConfig({
   publicDir: fileURLToPath(new URL("./public", import.meta.url)),
   resolve: {
     alias: {
+      "@root": fileURLToPath(new URL("../../", import.meta.url)),
       "@blocknote/core": fileURLToPath(
         new URL("../../packages/core/src", import.meta.url),
       ),

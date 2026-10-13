@@ -1,11 +1,7 @@
 import { expect, test } from "vite-plus/test";
 import { page } from "vite-plus/test/browser";
 import { toolbarDocument, focusToolbarControl } from "./helpers.js";
-import {
-  openEditor,
-  checkAxe,
-  pressKey,
-} from "../../../../../../tests/a11y/helpers.js";
+import { openEditor, checkAxe, pressKey } from "@root/tests/a11y/helpers.js";
 
 // Separate, scoped axe checks keep editor violations from masking UI results.
 // Menus/popovers are scanned after opening: the toolbar scan cannot cover hidden
