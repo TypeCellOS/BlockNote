@@ -1,3 +1,4 @@
+import { BlockNoteEditor } from "@blocknote/core";
 import { filterSuggestionItems } from "@blocknote/core/extensions";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
@@ -11,7 +12,6 @@ import { cleanup, render } from "vitest-browser-react";
 
 import { page, userEvent } from "../../utils/context.js";
 import { sleep, waitForSelector } from "../../utils/editor.js";
-import { clickAt } from "../../utils/mouse.js";
 
 // Where the slash menu goes relative to its trigger (#2771): below, unless
 // there is too little room there and more room above. It keeps its side
@@ -20,8 +20,10 @@ import { clickAt } from "../../utils/mouse.js";
 /** How long the slash menu items take to load, with `slowItems`. */
 const ITEMS_DELAY = 500;
 
+let editor: BlockNoteEditor;
+
 function Editor(props: { slowItems?: boolean }) {
-  const editor = useCreateBlockNote({
+  editor = useCreateBlockNote({
     initialContent: Array.from({ length: 40 }, (_, i) => ({
       type: "paragraph" as const,
       content: `Paragraph ${i}`,
@@ -68,9 +70,16 @@ async function openSlashMenuAt(
     const rect = element.getBoundingClientRect();
     return rect.top <= y && rect.bottom >= y;
   })!;
-  const rect = paragraph.getBoundingClientRect();
-  await clickAt(rect.right - 2, rect.top + rect.height / 2);
-  await userEvent.keyboard("{End}/");
+  // Through the API rather than a click: a window resized with
+  // `page.viewport` is scaled, so mouse coordinates would miss.
+  editor.setTextCursorPosition(
+    paragraph
+      .closest('[data-node-type="blockContainer"]')!
+      .getAttribute("data-id")!,
+    "end",
+  );
+  editor.focus();
+  await userEvent.keyboard("/");
   const menu = await waitForSelector(".bn-suggestion-menu");
   await sleep(200);
   return menu;
@@ -149,6 +158,7 @@ test("goes above the trigger at once when the items load asynchronously", async 
   const menu = await openSlashMenuAt(innerHeight * 0.85, { slowItems: true });
   // The items are still loading: the menu is nearly empty, and still goes
   // above.
+  expect(menu.querySelectorAll(".bn-suggestion-menu-item")).toHaveLength(0);
   expect(side(menu)).toBe("above");
 
   await sleep(ITEMS_DELAY + 300);
