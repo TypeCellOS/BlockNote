@@ -106,7 +106,7 @@ export async function pressKey(key: string) {
 // Cleanup runs even if the transcript comparison fails.
 export async function saveTranscript() {
   if (!screenReader) {
-    return;
+    throw new Error("saveTranscript requires a screen-reader test run.");
   }
   try {
     const transcript = await browserCommands.readTranscript();
