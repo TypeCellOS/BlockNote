@@ -16,13 +16,13 @@ export function validateChildrenConfigs(
     if (config.container !== undefined && config.content !== "none") {
       fail(
         type,
-        '`container: true` is only for blocks without content (`content: "none"`): a container\'s own node holds nothing but its child blocks.',
+        '`container: true` is only for blocks without content (`content: "none"`). A container block holds only child blocks, no content of its own.',
       );
     }
     if (config.placeable === "namedOnly" && config.container !== true) {
       fail(
         type,
-        '`placeable: "namedOnly"` requires a container node; regular blocks share the same wrapper and cannot restrict their placement.',
+        '`placeable: "namedOnly"` is only for container blocks (`container: true`). Only a container block can be limited to the blocks that name it in `children.allow`.',
       );
     }
     if (!config.children) {
@@ -90,8 +90,8 @@ export function validateChildrenConfigs(
         if (excludedConfig.container !== true) {
           fail(
             type,
-            `\`exclude\` contains "${excluded}", which is a regular block, not a container block. ` +
-              "Every regular block is the same ProseMirror node, so one can't be excluded on its own.",
+            `\`exclude\` contains "${excluded}", which is not a container block. ` +
+              "Only container blocks (`container: true`) can be excluded.",
           );
         }
         if (excludedConfig.placeable === "namedOnly") {
@@ -116,18 +116,34 @@ export function validateChildrenConfigs(
         if (blockSpecs[allowed].config.container !== true) {
           fail(
             type,
-            `\`allow\` contains "${allowed}", which is a regular block, not a container block. ` +
-              "Restricting which regular block types a container accepts is not yet supported, as every regular block is the same ProseMirror node. " +
-              'Use `allow: "blocks"` to accept all regular blocks, or name only container block types.',
+            `\`allow\` contains "${allowed}", which is not a container block. ` +
+              "An `allow` list can name only container blocks (`container: true`); naming other blocks is not supported yet. " +
+              'Use `allow: "blocks"` to accept all other blocks.',
           );
         }
       }
     }
   }
+
+  // A `namedOnly` block can only be a child of a block that names it in
+  // `children.allow`. Without such a block, the editor cannot insert it.
+  const named = new Set(
+    Object.values(blockSpecs).flatMap(({ config }) =>
+      config.children?.allow && config.children.allow !== "blocks"
+        ? config.children.allow
+        : [],
+    ),
+  );
+  for (const [type, { config }] of Object.entries(blockSpecs)) {
+    if (config.placeable === "namedOnly" && !named.has(type)) {
+      fail(
+        type,
+        '`placeable: "namedOnly"` limits this block to the blocks that name it in `children.allow`, but no block names it. Name it in the `allow` list of a container block.',
+      );
+    }
+  }
 }
 
 function fail(type: string, message: string): never {
-  throw new Error(
-    `Invalid \`children\` config for block "${type}": ${message}`,
-  );
+  throw new Error(`Invalid config for block "${type}": ${message}`);
 }
