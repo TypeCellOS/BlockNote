@@ -62,7 +62,7 @@ return (
 
 A few more props customize the states: `errorPreview` for the compact error state shown in place of the preview, `emptySourcePlaceholder` for when the source is empty (a string customizes the default placeholder's text, an element — e.g. the exported `PreviewPlaceholder` with your own icon — replaces it entirely), and `sourcePlaceholder` for the popup input's placeholder. See the `SourceWithPreviewProps` type for the full list.
 
-**3. The spec's `meta`**, opting into the popup:
+**3. The spec's `meta`**, opting into the popup, and its `experimental_keyboard`:
 
 ```tsx
 const createMyBlockSpec = createReactBlockSpec(createMyBlockConfig, {
@@ -70,10 +70,12 @@ const createMyBlockSpec = createReactBlockSpec(createMyBlockConfig, {
     code: true,
     // Marks the block as rendering a preview with an editable source popup.
     hasPreview: true,
-    // What Enter does while the popup is open: "enter" inserts a newline
-    // (multiline sources, like diagrams), "shift+enter" closes the popup
-    // (single-line sources, like math).
-    hardBreakShortcut: "enter",
+  },
+  // What Enter does while the popup is open: "line-break" inserts a newline
+  // (multiline sources, like diagrams). Without it, Enter closes the popup
+  // (single-line sources, like math).
+  experimental_keyboard: {
+    enter: "line-break",
   },
   render: MyBlockPreview,
 });

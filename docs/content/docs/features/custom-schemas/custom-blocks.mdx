@@ -56,8 +56,9 @@ type BlockConfig = {
   type: string;
   content: "inline" | "plain" | "none";
   readonly propSchema: PropSchema;
+  container?: true; // only with content: "none"
   children?: {
-    allow: "blocks" | string[];
+    allow?: "blocks" | string[];
     min?: number;
   };
   placeable?: "anywhere" | "namedOnly";
@@ -78,12 +79,12 @@ type BlockConfig = {
 </Callout>
 
 <Callout type="info">
-  _Custom blocks can also contain child blocks by declaring the `children`
-  option, with or without editable content of their own. See [Container
-  Blocks](/docs/features/custom-schemas/container-blocks)._
+  _Every block can have child blocks, indented below it. A block without
+  content can also hold them inside itself with `container: true`. See
+  [Container Blocks](/docs/features/custom-schemas/container-blocks)._
 </Callout>
 
-`children?:` Defines which child blocks the block can contain. `placeable?:` Controls where a container block can be used. See [Container Blocks](/docs/features/custom-schemas/container-blocks) for the supported configurations.
+`container?:` Puts the block's child blocks inside it. `children?:` Restricts which child blocks a container can hold. `placeable?:` Controls where a container block can be used. See [Container Blocks](/docs/features/custom-schemas/container-blocks) for the supported configurations.
 
 `propSchema:` The `PropSchema` specifies the props that the block supports. Block props (properties) are data stored with your Block in the document, and can be used to customize its appearance or behavior.
 
@@ -134,11 +135,17 @@ type ReactCustomBlockImplementation = {
     editor: BlockNoteEditor;
     contentRef?: (node: HTMLElement | null) => void;
   }>;
+  renderFrame?: React.FC<{
+    block: Block;
+    editor: BlockNoteEditor;
+    slotRef: (node: HTMLElement | null) => void;
+  }>;
   toExternalHTML?: React.FC<{
     block: Block;
     editor: BlockNoteEditor;
     contentRef?: (node: HTMLElement | null) => void;
-    contest: { nestingLevel: number };
+    childrenRef: (node: HTMLElement | null) => void;
+    context: { nestingLevel: number };
   }>;
   parse?: (element: HTMLElement) => PartialBlock["props"] | undefined;
   parseContent?: (options: {
@@ -146,13 +153,26 @@ type ReactCustomBlockImplementation = {
     schema: Schema;
   }) => Fragment | undefined;
   runsBefore?: string[];
+  experimental_keyboard?:
+    | KeyboardSettings
+    | ((block: Block) => KeyboardSettings);
+  // KeyboardSettings: {
+  //   enter?: "split" | "into-children" | "line-break";
+  //   shiftEnter?: "line-break" | "same-as-enter";
+  //   splitKeepsType?: boolean;
+  //   splitKeepsChildren?: boolean;
+  //   resetsTo?: { type: string; props?: Record<string, unknown> };
+  //   emptyEnterResets?: boolean;
+  //   emptyChildEnter?: "outdent" | "exit-at-end" | "stay";
+  //   childrenCanOutdent?: boolean;
+  // }
   meta?: {
-    hardBreakShortcut?: "shift+enter" | "enter" | "none";
     selectable?: boolean;
     fileBlockAccept?: string[];
     code?: boolean;
     defining?: boolean;
     isolating?: boolean;
+    draggable?: boolean;
     highlight?: (block: Block) => string | undefined;
   };
 };
@@ -166,9 +186,14 @@ type ReactCustomBlockImplementation = {
 
 - `contentRef:` A React `ref` you can use to mark which element in your block is editable. This is only available if your block config contains `content: "inline"` or `content: "plain"`.
 
-`toExternalHTML?:` This component is used whenever the block is being exported to HTML for use outside BlockNote, for example when copying it to the clipboard. If it's not defined, BlockNote will just use `render` for the HTML conversion. Takes the same props as `render` and an additional `context` prop, which is. an object with the following attributes:
+`renderFrame?:` A component that draws a box around the block's content and its child blocks, with `slotRef` marking where they go. A container block (`container: true`) declares `renderFrame` instead of `render`. See [Container Blocks](/docs/features/custom-schemas/container-blocks).
 
-- `nestingLevel`: How deep the block being exported in nested inside other blocks. 0 means it's at the top level of the document.
+`toExternalHTML?:` This component is used whenever the block is being exported to HTML for use outside BlockNote, for example when copying it to the clipboard. If it's not defined, BlockNote will just use `render` (and `renderFrame`, if the block has one) for the HTML conversion. Takes the same props as `render`, and two more:
+
+- `childrenRef:` A React `ref` that marks where the block's child blocks go, for example inside a `<details>` element. Without it, the child blocks follow the block.
+
+- `context:` An object with the following attributes:
+  - `nestingLevel`: How deep the block being exported is nested inside other blocks. 0 means it's at the top level of the document.
 
 <Callout type="info">
   _Note that your component passed to `toExternalHTML` is rendered and
@@ -184,9 +209,27 @@ type ReactCustomBlockImplementation = {
 
 `runsBefore?:` If this block has parsing or extensions that need to be given priority over any other blocks, you can pass their `type`s in an array here.
 
-`meta?:` An object for setting various generic properties of the block.
+`experimental_keyboard?:` How the keyboard treats the block and its children. This API is experimental and may change. Give only the settings that differ from the defaults. To make settings depend on the block's props, give a function that gets the block and returns them instead.
 
-- `hardBreakShortcut?:` Defines which keyboard shortcut should be used to insert a hard break into the block's inline content. Defaults to `"shift+enter"`. For `content: "plain"` blocks (which can't hold hard break nodes), the shortcut inserts a literal newline (`"\n"`) instead.
+- `enter?:` What Enter does in the block's content. `"split"` (default) splits the block, moving the text after the caret into a new block below. `"into-children"` moves it into a new first child instead. `"line-break"` inserts a line break, and makes Shift-Enter do the same. For `content: "plain"` blocks (which can't hold hard break nodes), a line break is a literal newline (`"\n"`).
+
+- `shiftEnter?:` What Shift-Enter does in the block's content: `"line-break"` (default) or `"same-as-enter"`.
+
+- `splitKeepsType?:` Whether the block created by splitting this one with Enter has the same type, as in lists. Defaults to `false`.
+
+- `splitKeepsChildren?:` Whether the block's children stay with it when Enter splits it. Otherwise they follow the text after the caret into the new block, as for nested blocks, so the new block takes the block's place above them. Defaults to `true` when `enter` is `"into-children"` (the children are the block's body), otherwise `false`; a closed toggle sets it to keep its hidden children.
+
+- `resetsTo?:` What the block turns into when it's reset, keeping its content and children. Backspace at the start of the block always resets it. A `type`, and `props` to merge into the block's props. Defaults to `{ type: "paragraph" }`.
+
+- `emptyEnterResets?:` Whether Enter in the empty block resets it too, as when an empty list item turns into a paragraph. Defaults to `false`.
+
+- `emptyChildEnter?:` What Enter does in an empty child of this block. `"outdent"` (default) outdents any empty child. `"exit-at-end"` (default for container blocks) moves an empty last child out to after the block, and adds a new child after any other empty child. `"stay"` always adds a new child after it.
+
+- `childrenCanOutdent?:` Whether the block's children can be outdented out of it with Shift-Tab, or by Enter or Backspace in an empty or nested child. Defaults to `true`, or `false` for container blocks, whose children can never be outdented.
+
+When settings meet, Enter at the start of non-empty content always inserts an empty block above it, and resetting an empty block comes before `enter: "into-children"`.
+
+`meta?:` An object for setting various generic properties of the block.
 
 - `selectable?:` Can be set to false in order to make the block non-selectable, both using the mouse and keyboard. This also helps with being able to select non-editable content within the block. Should only be set to false when `content` is `none` and defaults to true.
 
@@ -197,6 +240,8 @@ type ReactCustomBlockImplementation = {
 - `defining?:` Whether this block is [defining](https://prosemirror.net/docs/ref/#model.NodeSpec.defining).
 
 - `isolating?:` Whether this block is [isolating](https://prosemirror.net/docs/ref/#model.NodeSpec.isolating).
+
+- `draggable?:` Whether the block gets a side menu drag handle. Defaults to `true`, or `false` for a container that can only be placed inside a specific parent (`placeable: "namedOnly"`).
 
 - `highlight?:` A callback that returns the language the block's text should be syntax-highlighted as (or `undefined` for no highlighting). Highlighting only takes effect when the [syntax highlighting extension](/docs/features/blocks/code-blocks#syntax-highlighting) is added to the editor.
 

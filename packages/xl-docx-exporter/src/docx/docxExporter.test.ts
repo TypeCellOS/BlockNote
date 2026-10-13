@@ -423,14 +423,12 @@ describe("custom container blocks", () => {
       type: "box" as const,
       propSchema: {},
       content: "none",
-      children: { allow: "blocks" },
+      container: true,
     },
     {
-      render: (block: any) => {
+      renderFrame: () => {
         const dom = document.createElement("div");
-        dom.setAttribute("data-node-type", "box");
-        dom.setAttribute("data-id", block.id);
-        return { dom, contentDOM: dom };
+        return { dom, slot: dom };
       },
     },
   )();
@@ -453,15 +451,14 @@ describe("custom container blocks", () => {
   ] as any);
 
   // A titled block: inline content (the title) plus children (the body). The
-  // mapping renders the title into its own paragraph and places the children
-  // after it; because the block counts as a container, transformBlocks must
-  // not append them a second time.
+  // `{ withChildren }` mapping renders the title into its own paragraph and
+  // places the children after it, so transformBlocks must not append them a
+  // second time.
   const Alert = createBlockSpec(
     {
       type: "alert" as const,
       propSchema: {},
       content: "inline",
-      children: { allow: "blocks" },
     },
     {
       render: (block: any) => {
@@ -502,16 +499,18 @@ describe("custom container blocks", () => {
         ...docxDefaultSchemaMappings,
         blockMapping: {
           ...docxDefaultSchemaMappings.blockMapping,
-          box: (
-            _block: any,
-            _exporter: any,
-            _nesting: any,
-            _index: any,
-            children: any,
-          ) =>
-            new Paragraph({
-              children: [new TextRun(`BOX(${children?.length ?? 0})`)],
-            }),
+          box: {
+            withChildren: (
+              _block: any,
+              _exporter: any,
+              _nesting: any,
+              _index: any,
+              children: any,
+            ) =>
+              new Paragraph({
+                children: [new TextRun(`BOX(${children?.length ?? 0})`)],
+              }),
+          },
         },
       } as any,
       { resolveFileUrl: testResolveFileUrl },
@@ -523,18 +522,6 @@ describe("custom container blocks", () => {
     expect(xml).toContain("BOX(2)");
   });
 
-  it("throws a clear error for an unmapped container block", async () => {
-    const exporter = new DOCXExporter(
-      boxSchema,
-      docxDefaultSchemaMappings as any,
-      { resolveFileUrl: testResolveFileUrl },
-    );
-
-    await expect(exporter.transformBlocks(boxDocument as any)).rejects.toThrow(
-      /container block type "box"/,
-    );
-  });
-
   it("renders a titled block's title and places its children inside", async () => {
     const exporter = new DOCXExporter(
       alertSchema,
@@ -542,21 +529,23 @@ describe("custom container blocks", () => {
         ...docxDefaultSchemaMappings,
         blockMapping: {
           ...docxDefaultSchemaMappings.blockMapping,
-          alert: (
-            block: any,
-            exporter: any,
-            _nesting: any,
-            _index: any,
-            children: any,
-          ) => [
-            new Paragraph({
-              children: [
-                new TextRun("ALERT:"),
-                ...exporter.transformInlineContent(block.content),
-              ],
-            }),
-            ...(children ?? []),
-          ],
+          alert: {
+            withChildren: (
+              block: any,
+              exporter: any,
+              _nesting: any,
+              _index: any,
+              children: any,
+            ) => [
+              new Paragraph({
+                children: [
+                  new TextRun("ALERT:"),
+                  ...exporter.transformInlineContent(block.content),
+                ],
+              }),
+              ...(children ?? []),
+            ],
+          },
         },
       } as any,
       { resolveFileUrl: testResolveFileUrl },
@@ -579,6 +568,9 @@ function prettify(sourceXml: string) {
 
   // replace random ids like r:id="rIdll8_ocxarmodcwrnsavfb"
   ret = ret.replace(/r:id="[a-zA-Z0-9_-]*"/g, 'r:id="FAKE-ID"');
+
+  // Image relationship IDs are internal to docx and can change between releases.
+  ret = ret.replace(/r:embed="[a-zA-Z0-9_-]*"/g, 'r:embed="FAKE-ID"');
 
   // replace random ids like Id="rIdll8_ocxarmodcwrnsavfb"
   ret = ret.replace(/ Id="[a-zA-Z0-9_-]*"/g, ' Id="FAKE-ID"');

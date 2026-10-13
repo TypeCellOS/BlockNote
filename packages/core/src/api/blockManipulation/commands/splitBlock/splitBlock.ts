@@ -10,6 +10,7 @@ export const splitBlockCommand = (
   posInBlock: number,
   keepType?: boolean,
   keepProps?: boolean,
+  keepChildren?: boolean,
 ) => {
   return ({
     state,
@@ -19,7 +20,13 @@ export const splitBlockCommand = (
     dispatch: ((args?: any) => any) | undefined;
   }) => {
     if (dispatch) {
-      return splitBlockTr(state.tr, posInBlock, keepType, keepProps);
+      return splitBlockTr(
+        state.tr,
+        posInBlock,
+        keepType,
+        keepProps,
+        keepChildren,
+      );
     }
 
     return true;
@@ -31,6 +38,7 @@ export const splitBlockTr = (
   posInBlock: number,
   keepType?: boolean,
   keepProps?: boolean,
+  keepChildren?: boolean,
 ): boolean => {
   const nearestBlockContainerPos = getNearestBlockPos(tr.doc, posInBlock);
 
@@ -55,9 +63,14 @@ export const splitBlockTr = (
     },
   ];
 
-  // At the start, children follow the entire title to the second block.
-  // Otherwise they belong to the first half, all within the same undo step.
-  const children = posInBlock === info.contentStart ? undefined : info.children;
+  // The children follow the text after the caret into the second block, as
+  // `tr.split` leaves them. With `keepChildren` they move back to the first
+  // half, within the same undo step. At the start, the whole content goes to
+  // the second block, and the children with it.
+  const children =
+    keepChildren && posInBlock !== info.contentStart
+      ? info.children
+      : undefined;
   if (children) {
     tr.delete(children.beforePos, children.afterPos);
   }

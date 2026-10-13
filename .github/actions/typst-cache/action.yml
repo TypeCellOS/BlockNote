@@ -1,0 +1,12 @@
+name: Restore Typst WASM cache
+description: Reuse compiled Typst WASM after dependency installation
+runs:
+  using: composite
+  steps:
+    # Cache just the distributable (~25 MB), not the multi-GB Rust target tree.
+    # ensure-wasm.mjs still verifies its content hash before using this output.
+    - name: Cache Typst WASM
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+      with:
+        path: packages/xl-typst-compiler/pkg
+        key: typst-wasm-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('packages/xl-typst-compiler/rust/Cargo.toml', 'packages/xl-typst-compiler/rust/Cargo.lock', 'packages/xl-typst-compiler/rust/rust-toolchain.toml', 'packages/xl-typst-compiler/rust/src/**', 'packages/xl-typst-compiler/scripts/ensure-wasm.mjs', 'packages/xl-typst-compiler/package.json', 'packages/xl-typst-compiler/node_modules/wasm-pack/package.json') }}

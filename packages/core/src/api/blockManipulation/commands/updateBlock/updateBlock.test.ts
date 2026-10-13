@@ -1064,12 +1064,17 @@ describe("Test updateBlock content carry-over", () => {
     );
 
     // An empty paragraph carries nothing, so the rebuilt node holds just the
-    // empty fill its content expression requires — two paragraphs for the
-    // pair's `min: 2`.
+    // empty fill its content expression requires — two callouts for the
+    // pair's `min: 2`, each with the one empty block a callout needs.
     const block = editor.document[1] as any;
     expect(block.type).toBe("pair");
-    expect(block.children).toHaveLength(2);
-    expect(block.children.map((child: any) => child.content)).toEqual([[], []]);
+    expect(block.children.map((child: any) => child.type)).toEqual([
+      "callout",
+      "callout",
+    ]);
+    for (const callout of block.children) {
+      expect(callout.children.map((child: any) => child.content)).toEqual([[]]);
+    }
     expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
   });
 
@@ -1139,45 +1144,17 @@ describe("Test updateBlock content carry-over", () => {
     expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
   });
 
-  it("Keeps existing children when a container drops the content", () => {
-    const editor = getContainerEditor();
-    // The carried content has nowhere to go, but the block's own children are
-    // regular blocks the pair can still hold.
-    expect(() =>
-      editor.transact((tr) =>
-        updateBlock(tr, "paragraph-with-text-and-children", {
-          type: "pair",
-        }),
-      ),
-    ).not.toThrow();
-
-    const block = editor.document[2] as any;
-    expect(block.type).toBe("pair");
-    // The kept child survives; the pair's `min: 2` is met by an empty fill.
-    expect(block.children.map((child: any) => child.id)).toContain(
-      "existing-child",
-    );
-    expect(block.children).toHaveLength(2);
-    expect(
-      block.children.find((child: any) => child.id === "existing-child")
-        .content,
-    ).toEqual([{ type: "text", text: "Existing child", styles: {} }]);
-    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
-  });
-
   it("Keeps a container's children when changing between container types", () => {
     const editor = getContainerEditor();
-    editor.transact((tr) => updateBlock(tr, "callout-0", { type: "pair" }));
+    editor.transact((tr) => updateBlock(tr, "callout-0", { type: "box" }));
 
     // Neither container holds content of its own, so the children move across
-    // untouched rather than being re-seeded; the pair's `min: 2` is met by an
-    // empty fill.
+    // untouched rather than being re-seeded.
     const block = editor.document[4] as any;
-    expect(block.type).toBe("pair");
-    expect(block.children.map((child: any) => child.id)).toContain(
+    expect(block.type).toBe("box");
+    expect(block.children.map((child: any) => child.id)).toEqual([
       "callout-child",
-    );
-    expect(block.children).toHaveLength(2);
+    ]);
     expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
   });
 

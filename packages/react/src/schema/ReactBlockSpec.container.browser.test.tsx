@@ -1,4 +1,6 @@
-import { BlockNoteEditor, BlockNoteSchema } from "@blocknote/core";
+import { BlockNoteEditor, BlockNoteSchema, getNodeById } from "@blocknote/core";
+import { posToDOMRect } from "@tiptap/core";
+import { NodeSelection } from "@tiptap/pm/state";
 import { useState } from "react";
 import { userEvent } from "vite-plus/test/browser";
 import { flushSync } from "react-dom";
@@ -20,16 +22,16 @@ import { createReactBlockSpec } from "./ReactBlockSpec.js";
  * `api/blockManipulation/containers/`.
  */
 
-// A container: its `contentRef` element holds its child blocks.
+// A container: its `slotRef` element holds its child blocks.
 const createCallout = createReactBlockSpec(
   {
     type: "callout",
     propSchema: { flavor: { default: "tip" } },
     content: "none",
-    children: { allow: "blocks" },
+    container: true,
   },
   {
-    render: function Callout(props) {
+    renderFrame: function Callout(props) {
       const [alternate, setAlternate] = useState(false);
       const Tag = alternate ? "section" : "div";
       return (
@@ -40,7 +42,7 @@ const createCallout = createReactBlockSpec(
           >
             Swap root
           </button>
-          <div className="callout-body" ref={props.contentRef} />
+          <div className="callout-body" ref={props.slotRef} />
         </Tag>
       );
     },
@@ -68,13 +70,13 @@ describe("React container block external HTML", () => {
     // Container blocks own their outer DOM entirely. Regression test for the
     // React `toExternalHTML` path wrapping them in a spurious
     // `bn-block-content` div (core's `createBlockSpec` passes them through).
-    // The root is the element `render` returned, with no React wrapper in
+    // The root is the element the frame returned, with no React wrapper in
     // between, so `.callout[data-*]` CSS matches it here exactly as in the
-    // live editor.
+    // live editor. Like a regular block, it carries no BlockNote markers.
     expect(html).not.toContain('data-content-type="callout"');
     expect(html).not.toContain("data-node-view-wrapper");
     expect(html).toContain('class="callout"');
-    expect(html).toContain('data-node-type="callout"');
+    expect(html).not.toContain("data-node-type");
     expect(html).toContain("Hello");
 
     editor._tiptapEditor.destroy();
@@ -159,6 +161,55 @@ describe("React container block node view", () => {
     expect(box.getBoundingClientRect().height).toBeGreaterThan(0);
   });
 
+  it("measures a container by its own box, not React's wrapper", async () => {
+    // ProseMirror and BlockNote measure the `dom` of a node view:
+    // `coordsAtPos`, `posToDOMRect` (toolbars), `nodeDOM` (drop cursor), the
+    // selection box and scrolling. The wrapper of React has no box
+    // (`display: contents`). See `measureFrameRoot`, a workaround.
+    const { editor, div } = await mountEditor([
+      { id: "before", type: "paragraph", content: "Before" },
+      {
+        id: "c-0",
+        type: "callout",
+        children: [{ id: "child", type: "paragraph", content: "Body" }],
+      },
+      { id: "after", type: "paragraph", content: "After" },
+    ]);
+    const view = editor.prosemirrorView;
+    const { posBeforeNode: from, node } = getNodeById("c-0", view.state.doc)!;
+    const to = from + node.nodeSize;
+    const box = div.querySelector(".callout")!.getBoundingClientRect();
+    expect(box.height).toBeGreaterThan(0);
+    function expectBox(rect: {
+      left: number;
+      top: number;
+      right: number;
+      bottom: number;
+    }) {
+      expect(rect.left).toBeCloseTo(box.left);
+      expect(rect.top).toBeCloseTo(box.top);
+      expect(rect.right).toBeCloseTo(box.right);
+      expect(rect.bottom).toBeCloseTo(box.bottom);
+    }
+    expectBox((view.nodeDOM(from) as HTMLElement).getBoundingClientRect());
+    expectBox(posToDOMRect(view, from, to));
+    expect(view.coordsAtPos(from, 1).top).toBeCloseTo(box.top);
+    expect(view.coordsAtPos(to, -1).bottom).toBeCloseTo(box.bottom);
+    view.dispatch(
+      view.state.tr.setSelection(NodeSelection.create(view.state.doc, from)),
+    );
+    expectBox(editor.getSelectionBoundingBox()!);
+
+    // Also after the author's state replaces the root.
+    await userEvent.click(div.querySelector(".callout button")!);
+    const swapped = div
+      .querySelector("section.callout")!
+      .getBoundingClientRect();
+    expect(
+      (view.nodeDOM(from) as HTMLElement).getBoundingClientRect().top,
+    ).toBeCloseTo(swapped.top);
+  });
+
   it("keeps attributes and native editing after a local state root swap", async () => {
     const { editor, div } = await mountEditor([
       {
@@ -208,7 +259,7 @@ describe("React container block node view", () => {
     ).toBe("warning");
   });
 
-  it("mounts a pure container's children inside its `contentRef` element", async () => {
+  it("mounts a pure container's children inside its `slotRef` element", async () => {
     const mounted = await mountEditor([
       {
         id: "c-0",
@@ -219,7 +270,7 @@ describe("React container block node view", () => {
 
     const body = mounted.div.querySelector<HTMLElement>(".callout-body")!;
     // A container with no content of its own puts its children where the
-    // author placed `contentRef`, not somewhere else in the node view. The
+    // author placed `slotRef`, not somewhere else in the node view. The
     // child's own block element is a descendant, so this checks structure,
     // not just text that happened to bubble up.
     expect(body.querySelector('[data-id="c-child"]')).not.toBeNull();

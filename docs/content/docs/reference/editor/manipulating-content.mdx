@@ -165,15 +165,18 @@ editor.insertBlocks(
   "after",
 );
 
-// Insert a paragraph as the last child of a container block
+// Insert a paragraph as the last child of an existing block
 editor.insertBlocks(
   [{ type: "paragraph", content: "Nested paragraph" }],
-  "container-block-id",
+  "existing-block-id",
   "last-child",
 );
 ```
 
-For [container blocks](/docs/features/custom-schemas/container-blocks), `"first-child"` inserts at the beginning of the container and `"last-child"` inserts at the end. Use `"before"` or `"after"` to insert next to the container instead.
+`placement` says where the new blocks go, relative to the reference block:
+
+- `"before"` and `"after"`: as its siblings, directly before or after it.
+- `"first-child"` and `"last-child"`: as its children, at the start or at the end. The reference block does not need to have children yet.
 
 ### Updating Blocks
 
@@ -399,7 +402,7 @@ if (selectedText) {
 getActiveStyles(): Styles
 ```
 
-Returns the active text styles at the current cursor position or at the end of the current selection.
+Returns the active text styles at the current cursor position or at the end of the current selection. With an empty selection, this includes styles enabled for upcoming text: for example, turning on bold before typing makes `activeStyles.bold` true even when the surrounding text is not bold.
 
 ```typescript
 const activeStyles = editor.getActiveStyles();
@@ -422,7 +425,7 @@ if (activeStyles.textColor) {
 getSelectedLinkUrl(): string | undefined
 ```
 
-Returns the URL of the last link in the current selection, or `undefined` if no links are selected.
+Returns the URL of the link the current selection starts in, or `undefined` if it does not start in a link.
 
 ```typescript
 const linkUrl = editor.getSelectedLinkUrl();

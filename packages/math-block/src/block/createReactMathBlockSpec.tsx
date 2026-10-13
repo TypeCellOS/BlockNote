@@ -29,7 +29,6 @@ export const createReactMathBlockSpec = createReactBlockSpec(
       isolating: false,
       highlight: () => "latex",
       hasPreview: true,
-      hardBreakShortcut: "shift+enter",
     },
     parse: parseBlockMathMLElement,
     parseContent: parseBlockMathMLContent,

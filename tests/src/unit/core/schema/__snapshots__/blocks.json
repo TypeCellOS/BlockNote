@@ -1,19 +1,23 @@
 {
   "alert": {
     "config": {
-      "children": {
-        "allow": "blocks",
-      },
       "content": "inline",
       "propSchema": {},
       "type": "alert",
     },
     "extensions": undefined,
     "implementation": {
+      "keyboard": [Function],
+      "meta": {
+        "code": false,
+        "defining": true,
+        "draggable": true,
+        "isolating": true,
+        "selectable": true,
+      },
       "node": null,
       "render": [Function],
       "renderFrame": [Function],
-      "toExternalHTML": [Function],
     },
   },
   "audio": {
@@ -40,10 +44,16 @@
     },
     "extensions": undefined,
     "implementation": {
+      "keyboard": [Function],
       "meta": {
+        "code": false,
+        "defining": true,
+        "draggable": true,
         "fileBlockAccept": [
           "audio/*",
         ],
+        "isolating": true,
+        "selectable": true,
       },
       "node": null,
       "parse": [Function],
@@ -80,8 +90,13 @@
       [Function],
     ],
     "implementation": {
+      "keyboard": [Function],
       "meta": {
+        "code": false,
+        "defining": true,
+        "draggable": true,
         "isolating": false,
+        "selectable": true,
       },
       "node": null,
       "parse": [Function],
@@ -95,6 +110,7 @@
       "children": {
         "allow": "blocks",
       },
+      "container": true,
       "content": "none",
       "propSchema": {
         "flavor": {
@@ -110,9 +126,16 @@
     },
     "extensions": undefined,
     "implementation": {
+      "keyboard": [Function],
+      "meta": {
+        "code": false,
+        "defining": true,
+        "draggable": true,
+        "isolating": false,
+        "selectable": true,
+      },
       "node": null,
-      "render": [Function],
-      "toExternalHTML": [Function],
+      "renderFrame": [Function],
     },
   },
   "checkListItem": {
@@ -145,8 +168,13 @@
       [Function],
     ],
     "implementation": {
+      "keyboard": [Function],
       "meta": {
+        "code": false,
+        "defining": true,
+        "draggable": true,
         "isolating": false,
+        "selectable": true,
       },
       "node": null,
       "parse": [Function],
@@ -172,11 +200,14 @@
       [Function],
     ],
     "implementation": {
+      "keyboard": [Function],
       "meta": {
         "code": true,
         "defining": true,
+        "draggable": true,
         "highlight": [Function],
         "isolating": false,
+        "selectable": true,
       },
       "node": null,
       "parse": [Function],
@@ -209,6 +240,14 @@
     },
     "extensions": undefined,
     "implementation": {
+      "keyboard": [Function],
+      "meta": {
+        "code": false,
+        "defining": true,
+        "draggable": true,
+        "isolating": true,
+        "selectable": true,
+      },
       "node": null,
       "parse": [Function],
       "render": [Function],
@@ -225,13 +264,17 @@
       [Function],
     ],
     "implementation": {
+      "keyboard": [Function],
       "meta": {
+        "code": false,
+        "defining": true,
+        "draggable": true,
         "isolating": false,
+        "selectable": true,
       },
       "node": null,
       "parse": [Function],
       "render": [Function],
-      "toExternalHTML": [Function],
     },
   },
   "file": {
@@ -255,10 +298,16 @@
     },
     "extensions": undefined,
     "implementation": {
+      "keyboard": [Function],
       "meta": {
+        "code": false,
+        "defining": true,
+        "draggable": true,
         "fileBlockAccept": [
           "*/*",
         ],
+        "isolating": true,
+        "selectable": true,
       },
       "node": null,
       "parse": [Function],
@@ -307,13 +356,20 @@
       [Function],
     ],
     "implementation": {
+      "keyboard": [Function],
       "meta": {
+        "code": false,
+        "defining": true,
+        "draggable": true,
+        "dropsIntoChildren": [Function],
         "isolating": false,
+        "selectable": true,
       },
       "node": null,
       "parse": [Function],
       "parseContent": [Function],
       "render": [Function],
+      "renderFrame": [Function],
       "runsBefore": [
         "toggleListItem",
       ],
@@ -357,10 +413,16 @@
     },
     "extensions": undefined,
     "implementation": {
+      "keyboard": [Function],
       "meta": {
+        "code": false,
+        "defining": true,
+        "draggable": true,
         "fileBlockAccept": [
           "image/*",
         ],
+        "isolating": true,
+        "selectable": true,
       },
       "node": null,
       "parse": [Function],
@@ -401,8 +463,13 @@
       [Function],
     ],
     "implementation": {
+      "keyboard": [Function],
       "meta": {
+        "code": false,
+        "defining": true,
+        "draggable": true,
         "isolating": false,
+        "selectable": true,
       },
       "node": null,
       "parse": [Function],
@@ -419,6 +486,14 @@
     },
     "extensions": undefined,
     "implementation": {
+      "keyboard": [Function],
+      "meta": {
+        "code": false,
+        "defining": true,
+        "draggable": true,
+        "isolating": true,
+        "selectable": true,
+      },
       "node": null,
       "parse": [Function],
       "render": [Function],
@@ -451,8 +526,13 @@
       [Function],
     ],
     "implementation": {
+      "keyboard": [Function],
       "meta": {
+        "code": false,
+        "defining": true,
+        "draggable": true,
         "isolating": false,
+        "selectable": true,
       },
       "node": null,
       "parse": [Function],
@@ -481,8 +561,13 @@
       [Function],
     ],
     "implementation": {
+      "keyboard": [Function],
       "meta": {
+        "code": false,
+        "defining": true,
+        "draggable": true,
         "isolating": false,
+        "selectable": true,
       },
       "node": null,
       "parse": [Function],
@@ -514,9 +599,16 @@
     },
     "extensions": undefined,
     "implementation": {
+      "keyboard": [Function],
+      "meta": {
+        "code": false,
+        "defining": true,
+        "draggable": true,
+        "isolating": true,
+        "selectable": true,
+      },
       "node": null,
       "render": [Function],
-      "toExternalHTML": [Function],
     },
   },
   "simpleImage": {
@@ -556,9 +648,16 @@
     },
     "extensions": undefined,
     "implementation": {
+      "keyboard": [Function],
+      "meta": {
+        "code": false,
+        "defining": true,
+        "draggable": true,
+        "isolating": true,
+        "selectable": true,
+      },
       "node": null,
       "render": [Function],
-      "toExternalHTML": [Function],
     },
   },
   "table": {
@@ -576,6 +675,14 @@
       [Function],
     ],
     "implementation": {
+      "keyboard": [Function],
+      "meta": {
+        "code": false,
+        "defining": true,
+        "draggable": true,
+        "isolating": true,
+        "selectable": true,
+      },
       "node": null,
       "render": [Function],
       "toExternalHTML": [Function],
@@ -607,13 +714,20 @@
       [Function],
     ],
     "implementation": {
+      "keyboard": [Function],
       "meta": {
+        "code": false,
+        "defining": true,
+        "draggable": true,
+        "dropsIntoChildren": [Function],
         "isolating": false,
+        "selectable": true,
       },
       "node": null,
       "parse": [Function],
       "parseContent": [Function],
       "render": [Function],
+      "renderFrame": [Function],
       "runsBefore": [
         "bulletListItem",
       ],
@@ -657,10 +771,16 @@
     },
     "extensions": undefined,
     "implementation": {
+      "keyboard": [Function],
       "meta": {
+        "code": false,
+        "defining": true,
+        "draggable": true,
         "fileBlockAccept": [
           "video/*",
         ],
+        "isolating": true,
+        "selectable": true,
       },
       "node": null,
       "parse": [Function],

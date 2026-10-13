@@ -12,11 +12,8 @@ vi.mock("../../extensions/DropCursor/multiColumnDropCursor.js", () => ({
 
 const getEditor = setupTestEnv();
 
-function dropOnColumn(
-  ids: string[],
-  target: string,
-  position: "left" | "right",
-) {
+/** Drops the blocks on an edge of `target`, as the drop handler sees it. */
+function dropOnEdge(ids: string[], target: string, position: "left" | "right") {
   const editor = getEditor();
   const view = editor.prosemirrorView;
   const column = getNodeById(target, view.state.doc)!;
@@ -53,7 +50,7 @@ describe("column edge drops", () => {
         "column-paragraph-2",
         "column-paragraph-3",
       ];
-      expect(dropOnColumn(dragged, "column-1", edge)).toBe(true);
+      expect(dropOnEdge(dragged, "column-1", edge)).toBe(true);
       expect(
         editor
           .getBlock("column-list-0")!
@@ -66,7 +63,7 @@ describe("column edge drops", () => {
   it("preserves the column when dropping only its own children", () => {
     const editor = getEditor();
     const before = editor.document;
-    dropOnColumn(
+    dropOnEdge(
       ["column-paragraph-0", "column-paragraph-1"],
       "column-0",
       "right",
@@ -82,7 +79,7 @@ describe("column edge drops", () => {
       "column-paragraph-2",
       "column-paragraph-3",
     ];
-    dropOnColumn(dragged, "column-0", "left");
+    dropOnEdge(dragged, "column-0", "left");
     expect(editor.getBlock("column-list-0")).toBeUndefined();
     expect(editor.document.map((block) => block.id)).toEqual([
       "paragraph-0",
@@ -91,5 +88,32 @@ describe("column edge drops", () => {
       "paragraph-2",
     ]);
     expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+  });
+});
+
+// Dropping blocks onto themselves does nothing, like dropping a block next to
+// itself. Removing the dragged blocks from where they are used to remove the
+// drop target with them, and the handler then threw when it updated the
+// target (`Block with ID ... not found`).
+describe("drops whose target the dragged blocks hold", () => {
+  it("does nothing when the dragged blocks hold the target's column list", () => {
+    const editor = getEditor();
+    const before = editor.document;
+    // A block selection that spans the paragraph above the column list and
+    // the whole list (e.g. extended with Shift+Arrow from the paragraph into
+    // a column), dragged by one of the list's blocks.
+    expect(
+      dropOnEdge(["paragraph-1", "column-list-0"], "column-0", "right"),
+    ).toBe(true);
+    expect(editor.document).toEqual(before);
+  });
+
+  it("does nothing when a dragged block holds the target", () => {
+    const editor = getEditor();
+    const before = editor.document;
+    expect(dropOnEdge(["paragraph-0"], "nested-paragraph-0", "left")).toBe(
+      true,
+    );
+    expect(editor.document).toEqual(before);
   });
 });

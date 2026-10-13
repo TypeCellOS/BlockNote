@@ -1,4 +1,9 @@
-import { BlockNoteEditor, BlockNoteSchema } from "@blocknote/core";
+import {
+  BlockNoteEditor,
+  BlockNoteSchema,
+  getBlockElementForNode,
+  getNodeById,
+} from "@blocknote/core";
 import {
   BlockNoteViewRaw,
   createReactBlockSpec,
@@ -21,10 +26,10 @@ const createFrameBox = createReactBlockSpec(
     type: "frameBox",
     propSchema: { flavor: { default: "tip" } },
     content: "none",
-    children: { allow: "blocks" },
+    container: true,
   },
   {
-    render: function Container(props) {
+    renderFrame: function Container(props) {
       const [alternate, setAlternate] = useState(false);
       const Tag = alternate ? "section" : "div";
       return (
@@ -36,7 +41,7 @@ const createFrameBox = createReactBlockSpec(
           >
             Swap root
           </button>
-          <div className="frame-slot" ref={props.contentRef} />
+          <div className="frame-slot" ref={props.slotRef} />
         </Tag>
       );
     },
@@ -49,7 +54,6 @@ const alertConfig = {
   type: "frameAlert",
   propSchema: { flavor: { default: "tip" }, framed: { default: true } },
   content: "inline",
-  children: { allow: "blocks" },
 } as const;
 
 function FrameChrome(props: { children: ReactNode; flavor: string }) {
@@ -92,7 +96,7 @@ function AlertFrame(props: ReactCustomBlockFrameProps<typeof alertConfig>) {
       >
         Change flavor
       </button>
-      <div className="alert-slot" ref={props.contentRef} />
+      <div className="alert-slot" ref={props.slotRef} />
     </FrameChrome>
   );
 }
@@ -102,13 +106,13 @@ const createFrameAlert = createReactBlockSpec(alertConfig, {
   renderFrame: AlertFrame,
 });
 
-// Framing alone must not turn ordinary nesting into an owned body.
+// Framing alone must not change how the block's children nest.
 const createToggle = createReactBlockSpec(
   { type: "frameToggle", propSchema: {}, content: "inline" },
   {
     render: (props) => <div ref={props.contentRef} />,
     renderFrame: (props) => (
-      <div className="toggle-frame" ref={props.contentRef} />
+      <div className="toggle-frame" ref={props.slotRef} />
     ),
   },
 );
@@ -202,6 +206,74 @@ describe("React renderFrame", () => {
     expect(mounted.getBlock("box-child")?.content).toEqual([
       { type: "text", text: "Child", styles: {} },
     ]);
+    expect(uncaught).toEqual([]);
+  });
+
+  it("never gives one React container's frame to another container", async () => {
+    // ProseMirror offers a view whose node is gone to the next node of the
+    // same type. A frame shows one block, so its state must not move to
+    // another block.
+    const mounted = mountEditor([
+      { id: "a", type: "frameBox", children: [{ type: "paragraph" }] },
+      { id: "b", type: "frameBox", children: [{ type: "paragraph" }] },
+    ]);
+    await tick();
+    // `a`'s frame switches its root to a <section> (its own state).
+    flushSync(() =>
+      div!
+        .querySelector('[data-id="a"]')!
+        .querySelector<HTMLButtonElement>(".swap-root")!
+        .click(),
+    );
+    expect(div!.querySelector('section[data-id="a"]')).not.toBeNull();
+    mounted.transact(() => {
+      mounted.updateBlock("b", { props: { flavor: "warning" } });
+      mounted.removeBlocks(["a"]);
+    });
+    await tick();
+    // `b` keeps its own frame: a <div>, not `a`'s <section>.
+    expect(div!.querySelector('div[data-id="b"]')).not.toBeNull();
+    expect(uncaught).toEqual([]);
+  });
+
+  it("finds a React container's own element, not React's wrappers", async () => {
+    const mounted = mountEditor([
+      {
+        id: "box-0",
+        type: "frameBox",
+        children: [{ id: "box-child", type: "paragraph", content: "Child" }],
+      },
+    ]);
+    await tick();
+    const { posBeforeNode } = getNodeById(
+      "box-0",
+      mounted.prosemirrorState.doc,
+    )!;
+    const element = getBlockElementForNode(
+      mounted.prosemirrorView,
+      posBeforeNode,
+      "box-0",
+    );
+    expect(element).toBe(div!.querySelector(".frame-box"));
+    expect(uncaught).toEqual([]);
+  });
+
+  it("draws a React-framed block again when its type changes", async () => {
+    const mounted = mountEditor([
+      {
+        id: "alert-0",
+        type: "frameAlert",
+        content: "Heads up",
+        children: [{ id: "alert-child", type: "paragraph", content: "Body" }],
+      },
+    ]);
+    await tick();
+    expect(div!.querySelector(".alert-frame")).not.toBeNull();
+    mounted.updateBlock("alert-0", { type: "paragraph" });
+    await tick();
+    expect(div!.querySelector(".alert-frame")).toBeNull();
+    expect(div!.textContent).toContain("Heads up");
+    expect(div!.textContent).toContain("Body");
     expect(uncaught).toEqual([]);
   });
 
@@ -309,7 +381,9 @@ describe("React renderFrame", () => {
     expect(uncaught).toEqual([]);
   });
 
-  it("exports a titled React frame with its content and children in the slot", () => {
+  it("exports a titled React frame around its content and children", () => {
+    // Without an explicit `toExternalHTML`, external HTML keeps the frame,
+    // with the content and the children in its slot.
     const headless = BlockNoteEditor.create({ schema });
     try {
       const html = headless.blocksToHTMLLossy([
@@ -319,14 +393,12 @@ describe("React renderFrame", () => {
           children: [{ type: "paragraph", content: "Body" }],
         },
       ]);
-      const output = document.createElement("div");
-      output.innerHTML = html;
-      expect(output.querySelector(".alert-slot")?.textContent).toBe(
-        "TitleBody",
-      );
-      expect(output.querySelector(".frame-counter")?.textContent).toBe(
-        "outside: 0",
-      );
+      const dom = document.createElement("div");
+      dom.innerHTML = html;
+      const slot = dom.querySelector(".alert-frame .alert-slot");
+      expect(slot?.querySelector(".alert-title")?.textContent).toBe("Title");
+      expect(slot?.textContent).toContain("Body");
+      expect(activeFrames).toBe(0);
     } finally {
       headless._tiptapEditor.destroy();
     }

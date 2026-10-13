@@ -15,6 +15,11 @@ import {
 } from "../../../nodeConversions/blockToNode.js";
 
 import { nodeToCustomInlineContent } from "../../../nodeConversions/nodeToBlock.js";
+import { setBlockColorAttributes } from "../../../../pm-nodes/BlockContainer.js";
+import {
+  markFrameSlot,
+  renderFrameDOM,
+} from "../../../../schema/blocks/frame.js";
 export function serializeInlineContentInternalHTML<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
@@ -151,16 +156,39 @@ function serializeBlock<
   const children = block.children || [];
 
   const impl = editor.blockImplementations[block.type as any].implementation;
+  const fullBlock = { ...block, props, children } as any;
+
+  if (isContainerNode(editor.pmSchema.nodes[block.type as any])) {
+    // A container is its frame. `renderFrameDOM` stamps the frame's root with
+    // the block's attributes and marks the slot, which holds the children, so
+    // the round-trip parse rule reads only the slot and not the chrome around
+    // it.
+    const frame = renderFrameDOM(editor, fullBlock);
+    if (!frame) {
+      throw new Error(
+        `Container block "${block.type}" drew no frame. This is a bug in BlockNote.`,
+      );
+    }
+    if (children.length > 0) {
+      frame.slot.append(serializeBlocks(editor, children, serializer, options));
+    }
+    return frame.dom;
+  }
+
+  // Every block but a container declares `render` (`validateRenderHooks`).
+  if (!impl.render) {
+    throw new Error(
+      `Block "${block.type}" has no \`render\`. This is a bug in BlockNote.`,
+    );
+  }
   const ret = impl.render.call(
     {
       renderType: "dom",
       props: undefined,
     },
-    { ...block, props, children } as any,
+    fullBlock,
     editor as any,
   );
-
-  const isContainer = isContainerNode(editor.pmSchema.nodes[block.type as any]);
 
   if (ret.contentDOM && block.content) {
     const ic = serializeInlineContentInternalHTML(
@@ -173,28 +201,6 @@ function serializeBlock<
     ret.contentDOM.appendChild(ic);
   }
 
-  if (isContainer) {
-    // Mark where the children live so the container's round-trip parse rule
-    // can scope itself to this element (`contentElement` in `getParseRules`).
-    // A render is free to put non-content UI text elsewhere in its DOM
-    // (button labels, captions, ...), and without the marker that text would
-    // parse back as document content.
-    if (ret.contentDOM) {
-      ret.contentDOM.setAttribute("data-children-of", block.type!);
-    }
-    if (block.children && block.children.length > 0) {
-      const fragment = serializeBlocks(
-        editor,
-        block.children,
-        serializer,
-        options,
-      );
-
-      ret.contentDOM?.append(fragment);
-    }
-    return ret.dom;
-  }
-
   // wrap the block in a blockContainer
   const bc = BC_NODE.spec?.toDOM?.(
     BC_NODE.create({
@@ -205,32 +211,27 @@ function serializeBlock<
     dom: HTMLElement;
     contentDOM?: HTMLElement;
   };
-
-  // Frames wrap the content and its child group in static HTML too. The DOM
-  // render context lets interactive frames export without browser view state.
-  const renderFrame = impl.renderFrame<I, S>;
-  const frame = renderFrame?.call(
-    {
-      renderType: "dom",
-      props: undefined,
-      blockContentDOMAttributes:
-        editor._tiptapEditor.extensionManager.extensions.find(
-          (extension) => extension.name === block.type,
-        )?.options.domAttributes?.blockContent || {},
-      propSchema: editor.schema.blockSchema[block.type!].propSchema,
-    },
-    { ...block, props, children },
-    editor,
-  );
-  if (frame) {
-    bc.contentDOM?.appendChild(frame.dom);
+  if (bc.contentDOM) {
+    setBlockColorAttributes(bc.contentDOM, props);
   }
-  const contentDOM = frame?.slot ?? bc.contentDOM;
+
+  // The block's content and children go into the blockContainer, or into the
+  // slot of the frame around them. The DOM render context lets interactive
+  // frames export without browser view state.
+  let contentDOM = bc.contentDOM;
+  const frame = renderFrameDOM(editor, fullBlock);
+  if (frame) {
+    // Marks where the block's content and children are, for the parser: the
+    // rest of the frame is chrome, not document content.
+    markFrameSlot(frame.slot);
+    bc.contentDOM?.appendChild(frame.dom);
+    contentDOM = frame.slot;
+  }
   contentDOM?.appendChild(ret.dom);
 
-  if (block.children && block.children.length > 0) {
+  if (children.length > 0) {
     contentDOM?.appendChild(
-      serializeBlocksInternalHTML(editor, block.children, serializer, options),
+      serializeBlocksInternalHTML(editor, children, serializer, options),
     );
   }
   return bc.dom;

@@ -1,4 +1,5 @@
 import { defineConfig } from "vite-plus";
+import { buildCacheInputs } from "../scripts/build-cache-inputs.js";
 
 export default defineConfig({
   run: {
@@ -6,7 +7,7 @@ export default defineConfig({
       build: {
         command: "tsc",
         input: [
-          { auto: true },
+          ...buildCacheInputs("shared"),
           // Auto-detection tracks the conventional src/ layout, but this
           // package's sources live at the package root (api/, util/,
           // testDocument*.ts, ...) - without listing them, edits here never

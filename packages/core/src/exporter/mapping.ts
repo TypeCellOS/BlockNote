@@ -11,6 +11,13 @@ import type { Exporter } from "./Exporter.js";
 
 /**
  * Defines a mapping from all block types with a schema to a result type `R`.
+ * Each block type maps to either:
+ * - a function that renders the block itself. The exporter places the
+ *   block's children after it, nested as the format does it; or
+ * - `{ withChildren }`, a function that renders the block *and* its
+ *   children, which it receives already rendered as its last argument. For
+ *   blocks whose children are part of them, like a column or a callout's
+ *   body. Container blocks must use it.
  */
 export type BlockMapping<
   B extends BlockSchema,
@@ -19,17 +26,41 @@ export type BlockMapping<
   RB,
   RI,
 > = {
-  [K in keyof B]: (
-    block: BlockFromConfigNoChildren<B[K], I, S>,
-    // we don't know the exact types that are supported by the exporter at this point,
-    // because the mapping only knows about converting certain types (which might be a subset of the supported types)
-    // this is why there are many `any` types here (same for types below)
-    exporter: Exporter<any, any, any, RB, RI, any, any>,
-    nestingLevel: number,
-    numberedListIndex?: number,
-    children?: Array<Awaited<RB>>,
-  ) => RB | Promise<RB>;
+  [K in keyof B]:
+    | BlockMappingFunction<B[K], I, S, RB, RI>
+    | { withChildren: BlockMappingWithChildrenFunction<B[K], I, S, RB, RI> };
 };
+
+export type BlockMappingFunction<
+  C extends BlockSchema[string],
+  I extends InlineContentSchema,
+  S extends StyleSchema,
+  RB,
+  RI,
+> = (
+  block: BlockFromConfigNoChildren<C, I, S>,
+  // we don't know the exact types that are supported by the exporter at this point,
+  // because the mapping only knows about converting certain types (which might be a subset of the supported types)
+  // this is why there are many `any` types here (same for types below)
+  exporter: Exporter<any, any, any, RB, RI, any, any>,
+  nestingLevel: number,
+  numberedListIndex?: number,
+) => RB | Promise<RB>;
+
+/** A `{ withChildren }` mapping: it also receives the block's rendered children. */
+export type BlockMappingWithChildrenFunction<
+  C extends BlockSchema[string],
+  I extends InlineContentSchema,
+  S extends StyleSchema,
+  RB,
+  RI,
+> = (
+  block: BlockFromConfigNoChildren<C, I, S>,
+  exporter: Exporter<any, any, any, RB, RI, any, any>,
+  nestingLevel: number,
+  numberedListIndex: number | undefined,
+  children: Array<Awaited<RB>>,
+) => RB | Promise<RB>;
 
 /**
  * Defines a mapping from all inline content types with a schema to a result type R.

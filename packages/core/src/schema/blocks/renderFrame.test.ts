@@ -4,7 +4,6 @@ import { BlockNoteSchema } from "../../blocks/BlockNoteSchema.js";
 import { defaultBlockSpecs } from "../../blocks/defaultBlocks.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import {
-  CONTAINER_SELECTOR,
   getBlockFromElement,
   getDraggableBlockFromElement,
 } from "../../extensions/blockDOM.js";
@@ -33,7 +32,6 @@ const Toggle = createBlockSpec(
       },
     },
     content: "inline",
-    children: { allow: "blocks" },
   },
   {
     render: renderDiv,
@@ -62,7 +60,6 @@ const FrameBox = createBlockSpec(
       },
     },
     content: "inline",
-    children: { allow: "blocks" },
   },
   {
     render: renderDiv,
@@ -89,24 +86,46 @@ const ContentFrame = createBlockSpec(
     type: "contentFrame",
     propSchema: {},
     content: "inline",
-    children: { allow: "blocks" },
   },
   {
     render: renderDiv,
     meta: { draggable: false },
     renderFrame(block) {
-      if (block.children.length === 0) {
-        return undefined;
-      }
       const dom = document.createElement("section");
       dom.className = "content-frame";
       dom.dataset.title = JSON.stringify(block.content);
       dom.dataset.count = String(block.children.length);
       const slot = document.createElement("div");
       dom.append(slot);
-      const fragment = document.createDocumentFragment();
-      fragment.append(dom);
-      return { dom: fragment, slot };
+      // The chrome shows the title and the child count, so the frame keeps
+      // them current.
+      return {
+        dom,
+        slot,
+        update(updated) {
+          dom.dataset.title = JSON.stringify(updated.content);
+          dom.dataset.count = String(updated.children.length);
+          return true;
+        },
+      };
+    },
+  },
+)();
+
+// A frame without an `update` hook, whose chrome shows a prop.
+const PropFrame = createBlockSpec(
+  {
+    type: "propFrame",
+    propSchema: { tone: { default: "calm" } },
+    content: "inline",
+  },
+  {
+    render: renderDiv,
+    renderFrame(block) {
+      const dom = document.createElement("section");
+      dom.className = "prop-frame";
+      dom.dataset.tone = block.props.tone;
+      return { dom, slot: dom };
     },
   },
 )();
@@ -116,6 +135,7 @@ const schema = BlockNoteSchema.create().extend({
     ...defaultBlockSpecs,
     toggle: Toggle,
     contentFrame: ContentFrame,
+    propFrame: PropFrame,
     frameBox: FrameBox,
   } as const,
 });
@@ -175,23 +195,80 @@ describe("renderFrame decline", () => {
 });
 
 describe("renderFrame updates", () => {
-  it("re-evaluates a declined frame when children appear and disappear", () => {
+  it("keeps a frame without an update hook until the block's props change", () => {
     const editor = editorWith([
-      { id: "frame", type: "contentFrame", content: "Title" },
+      { id: "frame", type: "propFrame", content: "Title" },
     ]);
     try {
-      expect(editor.domElement!.querySelector(".content-frame")).toBeNull();
+      const root = editor.domElement!;
+      const first = root.querySelector(".prop-frame");
+      editor.updateBlock("frame", { content: "Typed" });
       editor.updateBlock("frame", {
         children: [{ id: "child", type: "paragraph", content: "Body" }],
       });
-      expect(
-        editor
-          .domElement!.querySelector(".content-frame")
-          ?.getAttribute("data-count"),
-      ).toBe("1");
-      editor.removeBlocks(["child"]);
-      expect(editor.domElement!.querySelector(".content-frame")).toBeNull();
-      expect(editor.domElement!.textContent).toContain("Title");
+      expect(root.querySelector(".prop-frame")).toBe(first);
+
+      editor.updateBlock("frame", { props: { tone: "loud" } });
+      const rebuilt = root.querySelector<HTMLElement>(".prop-frame")!;
+      expect(rebuilt).not.toBe(first);
+      expect(rebuilt.dataset.tone).toBe("loud");
+      expect(rebuilt.textContent).toContain("Typed");
+      expect(rebuilt.textContent).toContain("Body");
+    } finally {
+      editor._tiptapEditor.destroy();
+    }
+  });
+
+  it("does not rebuild a declined frame's block while typing", () => {
+    const editor = editorWith([
+      {
+        id: "frame",
+        type: "toggle",
+        props: { mode: "plain" },
+        content: "Title",
+      },
+    ]);
+    try {
+      const block = () =>
+        editor.domElement!.querySelector(
+          '[data-node-type="blockContainer"][data-id="frame"]',
+        );
+      const first = block();
+      editor.updateBlock("frame", { content: "Typed" });
+      editor.updateBlock("frame", {
+        children: [{ id: "child", type: "paragraph", content: "Body" }],
+      });
+      expect(block()).toBe(first);
+      expect(editor.domElement!.querySelector(".toggle")).toBeNull();
+    } finally {
+      editor._tiptapEditor.destroy();
+    }
+  });
+
+  it("keeps a declined frame's block when a prop change keeps it declined", () => {
+    const editor = editorWith([
+      {
+        id: "heading",
+        type: "heading",
+        content: "Title",
+        children: [{ id: "child", type: "paragraph", content: "Body" }],
+      },
+    ]);
+    try {
+      const block = () =>
+        editor.domElement!.querySelector(
+          '[data-node-type="blockContainer"][data-id="heading"]',
+        );
+      const child = () => editor.domElement!.querySelector('[data-id="child"]');
+      const [firstBlock, firstChild] = [block(), child()];
+      editor.updateBlock("heading", { props: { textColor: "red" } });
+      expect(block()).toBe(firstBlock);
+      expect(child()).toBe(firstChild);
+
+      // Becoming toggleable draws the frame: the view is rebuilt.
+      editor.updateBlock("heading", { props: { isToggleable: true } });
+      expect(block()).not.toBe(firstBlock);
+      expect(block()!.querySelector(".bn-toggle-frame")).not.toBeNull();
     } finally {
       editor._tiptapEditor.destroy();
     }
@@ -276,7 +353,7 @@ it("honors a titled block's draggable flag through its regular block wrapper", (
     ).toBeUndefined();
     const block = getBlockFromElement(title, editor._tiptapEditor.view);
     expect(block).toMatchObject({ id: "locked", type: "contentFrame" });
-    expect(block?.node.matches(CONTAINER_SELECTOR)).toBe(false);
+    expect(block?.node.getAttribute("data-node-type")).toBe("blockContainer");
   } finally {
     editor._tiptapEditor.destroy();
   }
@@ -290,9 +367,6 @@ it("supplies the node-view context to vanilla frames", () => {
       renderFrame() {
         expect(this.renderType).toBe("nodeView");
         expect(this.props?.node.firstChild?.type.name).toBe("contextualFrame");
-        expect(this.blockContentDOMAttributes).toEqual({
-          "data-test": "content",
-        });
         expect(this.propSchema).toEqual({});
         const dom = document.createElement("div");
         dom.className = "contextual-frame";
@@ -304,7 +378,6 @@ it("supplies the node-view context to vanilla frames", () => {
     schema: BlockNoteSchema.create({
       blockSpecs: { ...defaultBlockSpecs, contextualFrame },
     }),
-    domAttributes: { blockContent: { "data-test": "content" } },
     initialContent: [{ type: "contextualFrame", content: "Title" }],
   });
   try {
@@ -312,6 +385,50 @@ it("supplies the node-view context to vanilla frames", () => {
     expect(
       editor.domElement?.querySelector(".contextual-frame")?.textContent,
     ).toBe("Title");
+  } finally {
+    editor._tiptapEditor.destroy();
+  }
+});
+
+it("supplies the node-view context to vanilla container frames, and stamps them", () => {
+  const contextualContainer = createBlockSpec(
+    {
+      type: "contextualContainer",
+      propSchema: { tone: { default: "plain" } },
+      content: "none",
+      container: true,
+    },
+    {
+      renderFrame() {
+        expect(this.renderType).toBe("nodeView");
+        expect(this.props?.node.type.name).toBe("contextualContainer");
+        const dom = document.createElement("section");
+        const slot = document.createElement("div");
+        dom.append(slot);
+        return { dom, slot };
+      },
+    },
+  )();
+  const editor = BlockNoteEditor.create({
+    schema: BlockNoteSchema.create({
+      blockSpecs: { ...defaultBlockSpecs, contextualContainer },
+    }),
+    initialContent: [
+      {
+        id: "box",
+        type: "contextualContainer",
+        props: { tone: "loud" },
+        children: [{ content: "Body" }],
+      },
+    ],
+  });
+  try {
+    editor.mount(document.createElement("div"));
+    const frame = editor.domElement!.querySelector("section")!;
+    expect(frame.getAttribute("data-node-type")).toBe("contextualContainer");
+    expect(frame.getAttribute("data-id")).toBe("box");
+    expect(frame.getAttribute("data-tone")).toBe("loud");
+    expect(frame.firstElementChild!.hasAttribute("data-frame-slot")).toBe(true);
   } finally {
     editor._tiptapEditor.destroy();
   }
@@ -380,7 +497,9 @@ it("rebuilds or declines a frame when update returns false and cleans up each in
   } finally {
     editor._tiptapEditor.destroy();
   }
-  expect(destroy).toHaveBeenCalledTimes(3);
+  // Three frames, plus the one drawn to ask the declined frame again when
+  // its mode changed back: each is destroyed.
+  expect(destroy).toHaveBeenCalledTimes(4);
 });
 
 it("exports title and children inside the static frame slot with the DOM context", () => {
@@ -395,9 +514,6 @@ it("exports title and children inside the static frame slot with the DOM context
       renderFrame(block) {
         expect(this.renderType).toBe("dom");
         expect(this.props).toBeUndefined();
-        expect(this.blockContentDOMAttributes).toEqual({
-          "data-test": "static",
-        });
         expect(this.propSchema).toEqual({ framed: { default: true } });
         if (!block.props.framed) {
           return undefined;
@@ -415,7 +531,6 @@ it("exports title and children inside the static frame slot with the DOM context
     schema: BlockNoteSchema.create({
       blockSpecs: { ...defaultBlockSpecs, staticFrame },
     }),
-    domAttributes: { blockContent: { "data-test": "static" } },
     initialContent: [
       {
         id: "framed",
@@ -444,6 +559,132 @@ it("exports title and children inside the static frame slot with the DOM context
     );
     expect(dom.textContent).toContain("Plain");
     expect(editor.tryParseHTMLToBlocks(dom.innerHTML)).toEqual(editor.document);
+  } finally {
+    editor._tiptapEditor.destroy();
+  }
+});
+
+it("keeps a vanilla frame whose chrome changes by itself", async () => {
+  const counterFrame = createBlockSpec(
+    { type: "counterFrame", propSchema: {}, content: "inline" },
+    {
+      render: renderDiv,
+      renderFrame() {
+        const dom = document.createElement("section");
+        dom.className = "counter-frame";
+        const counter = document.createElement("button");
+        counter.contentEditable = "false";
+        counter.className = "counter";
+        counter.textContent = "0";
+        const slot = document.createElement("div");
+        dom.append(counter, slot);
+        return { dom, slot };
+      },
+    },
+  )();
+  const editor = BlockNoteEditor.create({
+    schema: BlockNoteSchema.create({
+      blockSpecs: { ...defaultBlockSpecs, counterFrame },
+    }),
+    initialContent: [{ id: "frame", type: "counterFrame", content: "Title" }],
+  });
+  try {
+    editor.mount(document.createElement("div"));
+    const root = editor.domElement!;
+    const frame = root.querySelector(".counter-frame");
+    // The chrome updates itself, for example from a click handler.
+    root.querySelector(".counter")!.textContent = "1";
+    // Lets ProseMirror's mutation observer run.
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(root.querySelector(".counter-frame")).toBe(frame);
+    expect(root.querySelector(".counter")!.textContent).toBe("1");
+    expect(editor.document).toHaveLength(1);
+    expect(editor.document[0].content).toEqual([
+      { type: "text", text: "Title", styles: {} },
+    ]);
+  } finally {
+    editor._tiptapEditor.destroy();
+  }
+});
+
+it("parses chrome outside the static frame slot as no document content", () => {
+  // A frame with a labelled control beside its slot, as the toggle frame
+  // draws its buttons. The control's text is in the exported HTML, but the
+  // round-trip parse reads only the slot.
+  const chromeFrame = createBlockSpec(
+    { type: "chromeFrame", propSchema: {}, content: "inline" },
+    {
+      render: renderDiv,
+      renderFrame() {
+        const dom = document.createElement("div");
+        dom.className = "chrome-frame";
+        const control = document.createElement("button");
+        control.contentEditable = "false";
+        control.textContent = "UI LABEL";
+        const slot = document.createElement("div");
+        slot.className = "chrome-slot";
+        dom.append(control, slot);
+        return { dom, slot };
+      },
+    },
+  )();
+  const editor = BlockNoteEditor.create({
+    schema: BlockNoteSchema.create({
+      blockSpecs: { ...defaultBlockSpecs, chromeFrame },
+    }),
+    initialContent: [
+      {
+        id: "framed",
+        type: "chromeFrame",
+        content: "Title",
+        children: [{ id: "body", content: "Body" }],
+      },
+    ],
+  });
+  try {
+    const html = editor.blocksToFullHTML(editor.document);
+    expect(html).toContain("UI LABEL");
+    expect(editor.tryParseHTMLToBlocks(html)).toEqual(editor.document);
+  } finally {
+    editor._tiptapEditor.destroy();
+  }
+});
+
+it("never gives one container's frame to another container", () => {
+  // ProseMirror offers a view whose node is gone to the next node of the same
+  // type. A frame shows one block, so it must refuse another block.
+  const patchedBox = createBlockSpec(
+    {
+      type: "patchedBox",
+      propSchema: { tone: { default: "plain" } },
+      content: "none",
+      container: true,
+    },
+    {
+      renderFrame(block) {
+        const dom = document.createElement("section");
+        dom.dataset.drawnFor = block.id;
+        return { dom, slot: dom, update: () => true };
+      },
+    },
+  )();
+  const editor = BlockNoteEditor.create({
+    schema: BlockNoteSchema.create({
+      blockSpecs: { ...defaultBlockSpecs, patchedBox },
+    }),
+    initialContent: [
+      { id: "a", type: "patchedBox", children: [{ content: "A" }] },
+      { id: "b", type: "patchedBox", children: [{ content: "B" }] },
+    ],
+  });
+  try {
+    editor.mount(document.createElement("div"));
+    editor.transact(() => {
+      editor.updateBlock("b", { props: { tone: "loud" } });
+      editor.removeBlocks(["a"]);
+    });
+    const frame = editor.domElement!.querySelector('[data-id="b"]')!;
+    expect(frame.getAttribute("data-drawn-for")).toBe("b");
   } finally {
     editor._tiptapEditor.destroy();
   }

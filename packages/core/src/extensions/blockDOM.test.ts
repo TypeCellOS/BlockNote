@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vite-plus/test";
 
 import {
+  getBlockElementForNode,
   getBlockFromElement,
   getDraggableBlockFromElement,
 } from "./blockDOM.js";
@@ -136,4 +137,42 @@ it("does not resolve a block owned by an embedded editor", () => {
   outerView.dom.className = "bn-editor";
   expect(getBlockFromElement(nested.content, outerView)).toBeUndefined();
   expect(getBlockFromElement(nested.content, nestedView)?.id).toBe("nested");
+});
+
+describe("getBlockElementForNode", () => {
+  const viewWith = (dom: Node | null) => ({ nodeDOM: () => dom });
+
+  it("returns a regular block's element inside its blockOuter", () => {
+    // `getBlockElement` finds the same element from inside the block.
+    const { outer, blockContainer } = regularBlock("a", "paragraph");
+    expect(getBlockElementForNode(viewWith(outer), 0, "a")).toBe(
+      blockContainer,
+    );
+  });
+
+  it("returns the node's DOM when it is the block's element", () => {
+    const frame = document.createElement("section");
+    frame.setAttribute("data-node-type", "panel");
+    frame.setAttribute("data-id", "panel");
+    expect(getBlockElementForNode(viewWith(frame), 0, "panel")).toBe(frame);
+  });
+
+  it("finds the block's element inside wrappers without its id", () => {
+    // A framework's node view: wrappers around the block's element, which
+    // holds a child block of its own.
+    const wrapper = document.createElement("div");
+    const inner = document.createElement("div");
+    const root = document.createElement("div");
+    root.setAttribute("data-node-type", "panel");
+    root.setAttribute("data-id", "panel");
+    const { outer: child } = regularBlock("child", "paragraph");
+    root.append(child);
+    inner.append(root);
+    wrapper.append(inner);
+    expect(getBlockElementForNode(viewWith(wrapper), 0, "panel")).toBe(root);
+  });
+
+  it("returns undefined when the node has no element", () => {
+    expect(getBlockElementForNode(viewWith(null), 0, "a")).toBeUndefined();
+  });
 });

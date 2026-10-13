@@ -28,7 +28,15 @@ function createFrameSchema(content: "inline" | "plain") {
             dom.dataset.title = JSON.stringify(block.content);
             const slot = document.createElement("div");
             dom.append(slot);
-            return { dom, slot };
+            // The chrome shows the title, so it refreshes it on updates.
+            return {
+              dom,
+              slot,
+              update(updated) {
+                dom.dataset.title = JSON.stringify(updated.content);
+                return true;
+              },
+            };
           },
         },
       )(),
@@ -37,7 +45,6 @@ function createFrameSchema(content: "inline" | "plain") {
           type: "framed",
           propSchema: { framed: { default: true } },
           content,
-          children: { allow: "blocks" },
         },
         {
           render: (props) => (
@@ -56,7 +63,7 @@ function createFrameSchema(content: "inline" | "plain") {
                 >
                   {clicks}
                 </button>
-                <div className="frame-body" ref={props.contentRef} />
+                <div className="frame-body" ref={props.slotRef} />
               </section>
             );
           },

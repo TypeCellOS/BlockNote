@@ -34,9 +34,9 @@ const createBoxBlock = createReactBlockSpec(
     type: "box",
     propSchema: {},
     content: "none",
-    children: { allow: "blocks" },
+    container: true,
   },
-  { render: (props) => <div ref={props.contentRef} /> },
+  { renderFrame: (props) => <div ref={props.slotRef} /> },
 );
 
 const schema = BlockNoteSchema.create().extend({

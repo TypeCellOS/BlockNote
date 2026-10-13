@@ -109,7 +109,7 @@ export async function handleFileInsertion<
     // Gets file block corresponding to MIME type.
     let fileBlockType = "file";
     for (const blockSpec of Object.values(editor.schema.blockSpecs)) {
-      for (const mimeType of blockSpec.implementation.meta?.fileBlockAccept ||
+      for (const mimeType of blockSpec.implementation.meta.fileBlockAccept ||
         []) {
         const isFileExtension = mimeType.startsWith(".");
         const file = items[i].getAsFile();

@@ -5,10 +5,12 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { ChangeEvent, KeyboardEvent, useCallback, useState } from "react";
+import { ChangeEvent, useCallback, useState } from "react";
 import { RiFontFamily } from "react-icons/ri";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
+import { usePortalElement } from "../../../editor/PortalElementOverride.js";
+import { ScreenReaderOnlySubmit } from "../../Form/ScreenReaderOnlySubmit.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorState } from "../../../hooks/useEditorState.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
@@ -16,6 +18,7 @@ import { useDictionary } from "../../../i18n/dictionary.js";
 export const FileRenameButton = () => {
   const dict = useDictionary();
   const Components = useComponentsContext()!;
+  const portalElement = usePortalElement();
 
   const editor = useBlockNoteEditor<
     BlockSchema,
@@ -53,7 +56,20 @@ export const FileRenameButton = () => {
     },
   });
 
-  const [popoverOpen, setPopoverOpen] = useState(false);
+  const [popoverOpen, setPopoverOpenState] = useState(false);
+
+  // Return focus to the editor when closing, so on mobile the on-screen
+  // keyboard and formatting toolbar stay up instead of being dismissed as
+  // focus falls back to `<body>`.
+  const setPopoverOpen = useCallback(
+    (open: boolean) => {
+      if (!open) {
+        editor.focus();
+      }
+      setPopoverOpenState(open);
+    },
+    [editor],
+  );
 
   const handleChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
@@ -73,13 +89,6 @@ export const FileRenameButton = () => {
     [block, editor],
   );
 
-  const handleKeyDown = useCallback((event: KeyboardEvent) => {
-    if (event.key === "Enter" && !event.nativeEvent.isComposing) {
-      event.preventDefault();
-      setPopoverOpen(false);
-    }
-  }, []);
-
   if (block === undefined) {
     return null;
   }
@@ -88,6 +97,9 @@ export const FileRenameButton = () => {
     <Components.Generic.Popover.Root
       open={popoverOpen}
       onOpenChange={setPopoverOpen}
+      // Portal the popover into the editor's themed portal target so it
+      // inherits styling and escapes any scroll-container overflow clipping.
+      portalElement={portalElement}
     >
       <Components.Generic.Popover.Trigger>
         <Components.FormattingToolbar.Button
@@ -101,14 +113,17 @@ export const FileRenameButton = () => {
             dict.formatting_toolbar.file_rename.tooltip["file"]
           }
           icon={<RiFontFamily />}
-          onClick={() => setPopoverOpen((open) => !open)}
+          onClick={() => setPopoverOpen(!popoverOpen)}
         />
       </Components.Generic.Popover.Trigger>
       <Components.Generic.Popover.Content
         className={"bn-popover-content bn-form-popover"}
         variant={"form-popover"}
       >
-        <Components.Generic.Form.Root>
+        <Components.Generic.Form.Root
+          onSubmit={() => setPopoverOpen(false)}
+          submitButton={<ScreenReaderOnlySubmit />}
+        >
           <Components.Generic.Form.TextInput
             name={"file-name"}
             icon={<RiFontFamily />}
@@ -119,7 +134,6 @@ export const FileRenameButton = () => {
                 block.type
               ] || dict.formatting_toolbar.file_rename.input_placeholder["file"]
             }
-            onKeyDown={handleKeyDown}
             onChange={handleChange}
           />
         </Components.Generic.Form.Root>

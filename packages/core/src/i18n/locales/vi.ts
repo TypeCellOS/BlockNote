@@ -198,6 +198,7 @@ export const vi: Dictionary = {
   },
   toggle_blocks: {
     add_block_button: "Toggle trống. Nhấp để thêm khối.",
+    toggle_button: "Mở rộng hoặc thu gọn",
   },
   code_block: {
     add_source_button_text: "Thêm mã nguồn",
@@ -420,5 +421,6 @@ export const vi: Dictionary = {
   },
   generic: {
     ctrl_shortcut: "Ctrl",
+    form_submit: "OK",
   },
 };

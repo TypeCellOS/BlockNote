@@ -165,8 +165,16 @@ export const typstBlockMappingForDefaultSchema: BlockMapping<
   // a grid's track sizes on the grid, not on the cell, so the width has to
   // reach the parent - the same reason the DOCX mapping hands its columnList
   // a width-carrying table cell.
-  column: (block, _exporter, _nestingLevel, _numberedListIndex, children) =>
-    `(width: ${block.props.width ?? 1}, body: [${(children ?? []).join("\n\n")}])`,
+  column: {
+    withChildren: (
+      block,
+      _exporter,
+      _nestingLevel,
+      _numberedListIndex,
+      children,
+    ) =>
+      `(width: ${block.props.width ?? 1}, body: [${(children ?? []).join("\n\n")}])`,
+  },
 
   // Lays the columns out side-by-side as a Typst `grid`, assembled in Typst
   // code from the columns' (width, body) pairs so the fractional (`fr`)
@@ -174,21 +182,23 @@ export const typstBlockMappingForDefaultSchema: BlockMapping<
   // `table`), so it isn't tagged as a data table in the PDF. The trailing
   // comma matters: `(x)` in Typst is a parenthesized value, not a one-element
   // array.
-  columnList: (
-    _block,
-    _exporter,
-    _nestingLevel,
-    _numberedListIndex,
-    children,
-  ) =>
-    [
-      `#{`,
-      `  let cols = (`,
-      ...(children ?? []).map((c) => `    ${c},`),
-      `  )`,
-      `  grid(columns: cols.map(c => c.width * 1fr), column-gutter: 1em, ..cols.map(c => c.body))`,
-      `}`,
-    ].join("\n"),
+  columnList: {
+    withChildren: (
+      _block,
+      _exporter,
+      _nestingLevel,
+      _numberedListIndex,
+      children,
+    ) =>
+      [
+        `#{`,
+        `  let cols = (`,
+        ...(children ?? []).map((c) => `    ${c},`),
+        `  )`,
+        `  grid(columns: cols.map(c => c.width * 1fr), column-gutter: 1em, ..cols.map(c => c.body))`,
+        `}`,
+      ].join("\n"),
+  },
 
   // --- media -> Figure + Alt --------------------------------------------------
   image: (block, exporter) =>

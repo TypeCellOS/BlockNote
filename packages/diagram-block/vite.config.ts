@@ -2,6 +2,7 @@ import * as path from "path";
 import { webpackStats } from "rollup-plugin-webpack-stats";
 import { configDefaults, defineConfig, type UserConfig } from "vite-plus";
 import pkg from "./package.json";
+import { buildCacheInputs } from "../../scripts/build-cache-inputs.js";
 
 // https://vitejs.dev/config/
 export default defineConfig(
@@ -12,7 +13,7 @@ export default defineConfig(
           build: {
             command: "tsc && vp build",
             input: [
-              { auto: true },
+              ...buildCacheInputs("packages/diagram-block"),
               { pattern: "!**/*.tsbuildinfo", base: "workspace" },
             ],
             // `types/**` must be declared too: a cache replay that restores only

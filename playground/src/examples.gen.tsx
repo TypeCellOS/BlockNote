@@ -734,13 +734,12 @@ export const examples = {
           "In this example, we implement a basic editor interface using components from Material UI. We replace the Formatting Toolbar, Slash Menu, and Block Side Menu while disabling the other default elements. Additionally, the Formatting Toolbar is made static and always visible above the editor.\n\n**Relevant Docs:**\n\n- [Formatting Toolbar](/docs/react/components/formatting-toolbar)\n- [Manipulating Inline Content](/docs/reference/editor/manipulating-content)\n- [Slash Menu](/docs/react/components/suggestion-menus)\n- [Side Menu](/docs/react/components/side-menu)\n- [Editor Setup](/docs/getting-started/editor-setup)",
       },
       {
-        projectSlug: "experimental-mobile-formatting-toolbar",
-        fullSlug: "ui-components/experimental-mobile-formatting-toolbar",
-        pathFromRoot:
-          "examples/03-ui-components/14-experimental-mobile-formatting-toolbar",
+        projectSlug: "mobile-formatting-toolbar",
+        fullSlug: "ui-components/mobile-formatting-toolbar",
+        pathFromRoot: "examples/03-ui-components/14-mobile-formatting-toolbar",
         config: {
           playground: true,
-          docs: true,
+          docs: false,
           author: "areknawo",
           tags: [
             "Intermediate",
@@ -749,13 +748,13 @@ export const examples = {
             "Appearance & Styling",
           ],
         },
-        title: "Experimental Mobile Formatting Toolbar",
+        title: "Mobile Formatting Toolbar",
         group: {
           pathFromRoot: "examples/03-ui-components",
           slug: "ui-components",
         },
         readme:
-          "This example shows how to use the experimental mobile formatting toolbar, which uses [Visual Viewport API](https://developer.mozilla.org/en-US/docs/Web/API/Visual_Viewport_API) to position the toolbar right above the virtual keyboard on mobile devices.\n\nController is currently marked **experimental** due to the flickering issue with positioning (caused by delays of the Visual Viewport API)\n\n**Relevant Docs:**\n\n- [Changing the Formatting Toolbar](/docs/react/components/formatting-toolbar)\n- [Editor Setup](/docs/getting-started/editor-setup)",
+          "This example demos the opt-in **scroll container**: adding the `bn-scroll-container` class to the element wrapping your page content pins it to the visual viewport (using styles from BlockNote's stylesheet), so your content scrolls inside it and the toolbar stays perfectly in place while scrolling and zooming. Use the switch in the nav bar to toggle it off and compare.\n\n**Relevant Docs:**\n\n- [Mobile Formatting Toolbar](/docs/react/components/formatting-toolbar#mobile-formatting-toolbar)\n- [Editor Setup](/docs/getting-started/editor-setup)",
       },
       {
         projectSlug: "advanced-tables",
@@ -890,7 +889,7 @@ export const examples = {
           slug: "ui-components",
         },
         readme:
-          "By default, BlockNote's floating UI elements (formatting toolbar, slash menu, table handles, etc.) mount inside the editor's `bn-container`. The `portalElements` prop on `BlockNoteView` lets you change that — globally via `default`, or per element by key.\n\nThis example renders two editors side-by-side, both wrapped in a small `overflow: hidden` container. The left editor uses the default — the slash menu is clipped by the editor's bounds. The right editor passes `portalElements={{ default: document.body }}` so floating UI escapes the wrapper and renders fully.\n\n```tsx\n<BlockNoteView editor={editor} portalElements={{ default: document.body }} />\n```\n\n**Relevant Docs:**\n\n- [UI Components](/docs/react/components)",
+          "By default, BlockNote's floating components (formatting toolbar, slash menu, table handles, etc.) mount next to the editor, inside its `bn-container` (or inside whatever you render `BlockNoteViewEditor` into). The `portalElements` prop on `BlockNoteView` lets you change that: globally via `default`, or per component by key. The menus and popovers a floating component opens follow it wherever it mounts.\n\nThis example renders two editors side-by-side, both wrapped in a small `overflow: hidden` container. The left editor uses the default, so the slash menu is clipped by the editor's bounds. The right editor passes `portalElements={{ default: document.body }}` so the floating components escape the wrapper and render fully.\n\n```tsx\n<BlockNoteView editor={editor} portalElements={{ default: document.body }} />\n```\n\n**Relevant Docs:**\n\n- [UI Components](/docs/react/components)\n- [Mobile Formatting Toolbar](/docs/react/components/formatting-toolbar#mobile-formatting-toolbar)",
       },
     ],
   },
@@ -1160,7 +1159,7 @@ export const examples = {
             "@blocknote/math-block": "latest",
             "@blocknote/xl-docx-exporter": "latest",
             "@blocknote/xl-multi-column": "latest",
-            katex: "^0.16.11",
+            katex: "^0.18.9",
           } as any,
           pro: true,
         },
@@ -1188,7 +1187,7 @@ export const examples = {
             "@blocknote/math-block": "latest",
             "@blocknote/xl-multi-column": "latest",
             "@blocknote/xl-odt-exporter": "latest",
-            katex: "^0.16.11",
+            katex: "^0.18.9",
           } as any,
           pro: true,
         },
@@ -1434,24 +1433,6 @@ export const examples = {
           'In this example, we create a custom `Alert` block which is used to emphasize text, same as in the [minimal `Alert` block example](/examples/custom-schema/alert-block). However, in this example, we also add a command to insert the block via the Slash Menu, and an entry in the Formatting Toolbar\'s Block Type Select to change the current block to an `Alert`.\n\n**Try it out:** Press the "/" key to open the Slash Menu and insert an `Alert` block! Or highlight text in a paragraph, then change the block type to an `Alert` using the Block Type Select in the Formatting Toolbar!\n\n**Relevant Docs:**\n\n- [Minimal Alert Block Example](/examples/custom-schema/alert-block)\n- [Changing Slash Menu Items](/docs/react/components/suggestion-menus)\n- [Changing Block Type Select Items](/docs/react/components/formatting-toolbar)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)',
       },
       {
-        projectSlug: "toggleable-blocks",
-        fullSlug: "custom-schema/toggleable-blocks",
-        pathFromRoot: "examples/06-custom-schema/06-toggleable-blocks",
-        config: {
-          playground: true,
-          docs: true,
-          author: "matthewlipski",
-          tags: ["Basic"],
-        },
-        title: "Toggleable Custom Blocks",
-        group: {
-          pathFromRoot: "examples/06-custom-schema",
-          slug: "custom-schema",
-        },
-        readme:
-          "This example shows how to create custom blocks with a toggle button to show/hide their children, like with the default toggle heading and list item blocks. This is done using the use the `ToggleWrapper` component from `@blocknote/react`.\n\n**Relevant Docs:**\n\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Default Schema](/docs/features/blocks)",
-      },
-      {
         projectSlug: "configuring-blocks",
         fullSlug: "custom-schema/configuring-blocks",
         pathFromRoot: "examples/06-custom-schema/07-configuring-blocks",
@@ -1512,7 +1493,7 @@ export const examples = {
           slug: "custom-schema",
         },
         readme:
-          'In this example, we create a custom `Panel` block that holds other blocks as its body, such as a panel containing headings and paragraphs.\n\nThe block declares the `children` config on `BlockConfig`. `children: { allow: "blocks" }` makes it a container: its child blocks mount into the rendered content region (attached with `ref={contentRef}`), and live on `block.children` at runtime. A pure container like this draws its box in `render`, which re-renders live when props change.\n\nWe also wire up a Slash Menu item to insert the panel.\n\n**Try it out:**\n\n- Press the "/" key inside the panel\'s body and add a code block, heading, or list.\n- Insert a new panel via the Slash Menu (search "panel").\n\n**Relevant Docs:**\n\n- [Container Blocks](/docs/features/custom-schemas/container-blocks)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)',
+          'In this example, we create a custom `Panel` block that holds other blocks as its body, such as a panel containing headings and paragraphs.\n\nThe block sets `container: true` on `BlockConfig`, which makes it a container: its child blocks mount into the rendered content region (attached with `ref={contentRef}`), and live on `block.children` at runtime. A pure container like this draws its box in `render`, which re-renders live when props change.\n\nWe also wire up a Slash Menu item to insert the panel.\n\n**Try it out:**\n\n- Press the "/" key inside the panel\'s body and add a code block, heading, or list.\n- Insert a new panel via the Slash Menu (search "panel").\n\n**Relevant Docs:**\n\n- [Container Blocks](/docs/features/custom-schemas/container-blocks)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)',
       },
       {
         projectSlug: "math-block",
@@ -1618,7 +1599,7 @@ export const examples = {
           slug: "custom-schema",
         },
         readme:
-          'In this example, we create a custom `Callout` block with a real rich-text title and a body of child blocks (a titled block), like a Notion-style callout.\n\nThe block combines `content: "inline"` with the `children` config on `BlockConfig`. The title is ordinary inline content — formatting, links, and multiplayer cursors all work — while `children: { allow: "blocks" }` hosts the body blocks, which live on `block.children` at runtime. `render` draws the title row and `renderFrame` draws the box around the title and body together.\n\nWe also wire up a Slash Menu item to insert the callout.\n\n**Try it out:**\n\n- Press Enter at the end of the callout\'s title to jump into its body.\n- Press Backspace at the start of the first body block to merge it back into the title.\n- Press "/" inside the body and add a code block, heading, or list.\n\n**Relevant Docs:**\n\n- [Container Blocks](/docs/features/custom-schemas/container-blocks)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)',
+          'In this example, we create a custom `Callout` block with a real rich-text title and child blocks inside it (a titled block), like a Notion-style callout.\n\nThe block has `content: "inline"`: the title is ordinary inline content — formatting, links, and multiplayer cursors all work — and its child blocks live on `block.children` at runtime. Its `keyboard` settings keep the child blocks inside the callout: Enter in the title adds a first child block, Shift-Tab doesn\'t move child blocks out, and Enter in an empty last child block leaves the callout. `render` draws the title row and `renderFrame` draws the box around the title and child blocks together.\n\nWe also wire up a Slash Menu item to insert the callout.\n\n**Try it out:**\n\n- Press Enter at the end of the callout\'s title to add a block inside the callout.\n- Press Enter in an empty last block inside the callout to leave the callout.\n- Press Backspace at the start of the first block inside the callout to merge it back into the title.\n- Press "/" inside the callout and add a code block, heading, or list.\n\n**Relevant Docs:**\n\n- [Container Blocks](/docs/features/custom-schemas/container-blocks)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)',
       },
       {
         projectSlug: "tabs-block",
@@ -1972,7 +1953,7 @@ export const examples = {
           dependencies: {
             "y-websocket": "^2.1.0",
             yjs: "^13.6.27",
-            lib0: "^0.2.99",
+            lib0: "^0.2.119",
           } as any,
         },
         title: "Local Storage Versioning (yjs v13)",
@@ -1996,7 +1977,7 @@ export const examples = {
             "@y/protocols": "^1.0.6-rc.1",
             "@y/websocket": "^4.0.0-3",
             "@y/y": "^14.0.0-rc.23",
-            lib0: "1.0.0-rc.22",
+            lib0: "^1.0.0-rc.34",
           } as any,
         },
         title: "YHub Multi-Doc",
@@ -2021,7 +2002,7 @@ export const examples = {
             "@y/protocols": "^1.0.6-rc.1",
             "@y/websocket": "^4.0.0-3",
             "@y/y": "^14.0.0-rc.23",
-            lib0: "1.0.0-rc.22",
+            lib0: "^1.0.0-rc.34",
           } as any,
         },
         title: "YHub Versioning (@y/y v14)",
@@ -2072,7 +2053,7 @@ export const examples = {
           tags: ["Extension"],
           pro: true,
           dependencies: {
-            "@tiptap/core": "^3.29.2",
+            "@tiptap/core": "^3.31.3",
           } as any,
         },
         title: "TipTap extension (arrow InputRule)",

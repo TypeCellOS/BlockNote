@@ -55,7 +55,7 @@ describe("children insertion & filling", () => {
       childType: "paragraph",
       min: 1,
     },
-    { block: { type: "pair" }, childType: "paragraph", min: 2 },
+    { block: { type: "pair" }, childType: "callout", min: 2 },
     { block: { type: "grid" }, childType: "gridCell", min: 2 },
   ] satisfies { block: PartialBlock; childType: string; min: number }[])(
     "fills $block to its minimum with identifiable $childType children",
@@ -174,6 +174,33 @@ describe("children insertion & filling", () => {
   });
 });
 
+describe("container keyboard defaults", () => {
+  // A container's children can't be outdented, so its defaults say so: an
+  // empty last child leaves the container instead.
+  it("defaults to leaving the container instead of outdenting", () => {
+    editor.replaceBlocks(editor.document, [
+      { id: "callout", type: "callout", children: [{ type: "paragraph" }] },
+    ]);
+    const keyboard = editor.schema.blockSpecs.callout.implementation.keyboard(
+      editor.getBlock("callout")!,
+    );
+    expect(keyboard).toMatchObject({
+      emptyChildEnter: "exit-at-end",
+      childrenCanOutdent: false,
+    });
+  });
+
+  it("keeps outdenting for other blocks", () => {
+    const keyboard = editor.schema.blockSpecs.paragraph.implementation.keyboard(
+      editor.getBlock("p-0")!,
+    );
+    expect(keyboard).toMatchObject({
+      emptyChildEnter: "outdent",
+      childrenCanOutdent: true,
+    });
+  });
+});
+
 describe("container nodes", () => {
   // No container is `isolating`. PM only honours that flag while no selection
   // spans the edge, and nothing prevents one: given a spanning slice, `Fitter`
@@ -190,42 +217,39 @@ describe("container nodes", () => {
   // running from inside a container to after it, paste it back over itself,
   // and the document must come back unchanged. Marking the container
   // `isolating` instead re-nests the whole fragment a level too deep.
-  it.each(["callout", "pair"])(
-    "round-trips a paste across a %s's edge",
-    (type) => {
-      editor.replaceBlocks(editor.document, [
-        {
-          id: "c",
-          type,
-          children: [
-            { id: "c1", type: "paragraph", content: "Inner one" },
-            { id: "c2", type: "paragraph", content: "Inner two" },
-          ],
-        },
-        { id: "a", type: "paragraph", content: "After" },
-      ] as PartialBlock[]);
+  it.each(["callout"])("round-trips a paste across a %s's edge", (type) => {
+    editor.replaceBlocks(editor.document, [
+      {
+        id: "c",
+        type,
+        children: [
+          { id: "c1", type: "paragraph", content: "Inner one" },
+          { id: "c2", type: "paragraph", content: "Inner two" },
+        ],
+      },
+      { id: "a", type: "paragraph", content: "After" },
+    ] as PartialBlock[]);
 
-      const before = JSON.stringify(editor.document);
+    const before = JSON.stringify(editor.document);
 
-      editor.transact((tr) => {
-        let from = 0;
-        let to = 0;
-        tr.doc.descendants((node, pos) => {
-          if (node.isText && node.text === "Inner two") {
-            from = pos;
-          }
-          if (node.isText && node.text === "After") {
-            to = pos + node.nodeSize;
-          }
-        });
-
-        const selection = TextSelection.create(tr.doc, from, to);
-        tr.setSelection(selection).replace(from, to, selection.content());
+    editor.transact((tr) => {
+      let from = 0;
+      let to = 0;
+      tr.doc.descendants((node, pos) => {
+        if (node.isText && node.text === "Inner two") {
+          from = pos;
+        }
+        if (node.isText && node.text === "After") {
+          to = pos + node.nodeSize;
+        }
       });
 
-      expect(JSON.stringify(editor.document)).toBe(before);
-    },
-  );
+      const selection = TextSelection.create(tr.doc, from, to);
+      tr.setSelection(selection).replace(from, to, selection.content());
+    });
+
+    expect(JSON.stringify(editor.document)).toBe(before);
+  });
 });
 
 // `initialContent` is the only path that builds a document without validating
@@ -320,6 +344,81 @@ describe("children repair", () => {
     expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
   });
 
+  // Dissolving is an unwrap, not a rewrite: the survivor's content is the same
+  // content, in place, so a caret sitting in it stays where the user put it
+  // (and a collaborator's concurrent edit still maps onto it). Replacing the
+  // container with freshly built copies of its children would collapse the
+  // selection onto the edge of the replaced range instead.
+  it("keeps the caret in the survivor a container unwraps to", () => {
+    editor.replaceBlocks(editor.document, [
+      {
+        type: "pair",
+        id: "pair-0",
+        children: [
+          {
+            id: "pair-a",
+            type: "callout",
+            children: [{ id: "pair-a-p", type: "paragraph", content: "A" }],
+          },
+          {
+            id: "pair-b",
+            type: "callout",
+            children: [
+              { id: "pair-b-p", type: "paragraph", content: "Survivor" },
+            ],
+          },
+        ],
+      },
+      { id: "trailing", type: "paragraph", content: "" },
+    ]);
+
+    editor.setTextCursorPosition("pair-b-p", "end");
+    const offsetBefore = editor.prosemirrorState.selection.$from.parentOffset;
+
+    editor.removeBlocks(["pair-a"]);
+
+    expect(editor.getBlock("pair-0")).toBeUndefined();
+    expect(editor.getBlock("pair-b")?.type).toBe("callout");
+    expect(editor.getTextCursorPosition().block.id).toBe("pair-b-p");
+    expect(editor.prosemirrorState.selection.$from.parentOffset).toBe(
+      offsetBefore,
+    );
+  });
+
+  // The same, for a survivor that is lifted out of two wrappers at once.
+  it("keeps the caret in a named-only survivor's content", () => {
+    editor.replaceBlocks(editor.document, [
+      {
+        type: "grid",
+        id: "g-0",
+        children: [
+          {
+            type: "gridCell",
+            id: "cell-a",
+            children: [{ id: "cell-a-p", type: "paragraph", content: "A" }],
+          },
+          {
+            type: "gridCell",
+            id: "cell-b",
+            children: [{ id: "cell-b-p", type: "paragraph", content: "B" }],
+          },
+        ],
+      },
+      { id: "trailing", type: "paragraph", content: "" },
+    ]);
+
+    editor.setTextCursorPosition("cell-b-p", "end");
+    const offsetBefore = editor.prosemirrorState.selection.$from.parentOffset;
+
+    editor.removeBlocks(["cell-a-p"]);
+
+    expect(editor.getBlock("g-0")).toBeUndefined();
+    expect(editor.getTextCursorPosition().block.id).toBe("cell-b-p");
+    expect(editor.prosemirrorState.selection.$from.parentOffset).toBe(
+      offsetBefore,
+    );
+  });
+
   // An emptied child of the container is dropped even when the container
   // stays at or above `min`: an emptied column disappears rather than
   // lingering. The multicolumn e2e snapshots pin the same behavior from the
@@ -366,18 +465,20 @@ describe("children repair", () => {
 describe("repair edge cases", () => {
   // A container that explicitly allows being empty. `min: 0` compiles to a
   // `*` content expression, so ProseMirror never pads it and repair leaves
-  // it alone.
+  // it alone. (Only an `allow` list can set it: a container of any blocks
+  // always holds at least one.)
   const Tray = createBlockSpec(
     {
       type: "tray" as const,
       propSchema: {},
       content: "none" as const,
-      children: { allow: "blocks", min: 0 },
+      container: true,
+      children: { allow: ["callout"], min: 0 },
     },
     {
-      render: () => {
+      renderFrame: () => {
         const dom = document.createElement("div");
-        return { dom, contentDOM: dom };
+        return { dom, slot: dom };
       },
     },
   )();
@@ -393,15 +494,20 @@ describe("repair edge cases", () => {
         {
           type: "tray",
           id: "t-0",
-          children: [{ id: "t-p-0", type: "paragraph", content: "" }],
+          children: [
+            {
+              id: "t-c-0",
+              type: "callout",
+              children: [{ type: "paragraph", content: "" }],
+            },
+          ],
         },
         { id: "trailing", type: "paragraph", content: "" },
       ]);
 
-      // Removing its only (empty) child leaves zero children, which `min: 0`
-      // allows: the tray stays instead of dissolving, and nothing is padded
-      // back.
-      trayEditor.removeBlocks(["t-p-0"]);
+      // Removing its only child leaves zero children, which `min: 0` allows:
+      // the tray stays instead of dissolving, and nothing is padded back.
+      trayEditor.removeBlocks(["t-c-0"]);
 
       expect(trayEditor.getBlock("t-0")).toBeDefined();
       expect(trayEditor.getBlock("t-0")!.children).toHaveLength(0);
@@ -441,8 +547,16 @@ describe("repair edge cases", () => {
         type: "pair",
         id: "s-0",
         children: [
-          { id: "s-a", type: "paragraph", content: "A" },
-          { id: "s-b", type: "paragraph", content: "B" },
+          {
+            id: "s-a",
+            type: "callout",
+            children: [{ type: "paragraph", content: "A" }],
+          },
+          {
+            id: "s-b",
+            type: "callout",
+            children: [{ type: "paragraph", content: "B" }],
+          },
         ],
       },
       { id: "trailing", type: "paragraph", content: "" },
@@ -522,8 +636,16 @@ describe("ancestor container repair", () => {
         type: "pair",
         id: "s-0",
         children: [
-          { id: "s-p-0", type: "paragraph", content: "Kept" },
-          { id: "s-p-1", type: "paragraph", content: "Removed" },
+          {
+            id: "s-p-0",
+            type: "callout",
+            children: [{ type: "paragraph", content: "Kept" }],
+          },
+          {
+            id: "s-p-1",
+            type: "callout",
+            children: [{ type: "paragraph", content: "Removed" }],
+          },
         ],
       },
       { id: "trailing", type: "paragraph", content: "" },

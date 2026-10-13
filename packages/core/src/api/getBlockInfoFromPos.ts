@@ -10,7 +10,6 @@ import {
 import {
   CHILD_CONTAINER_GROUP,
   isContainerNode,
-  hasOwnedChildren,
 } from "../schema/blocks/children.js";
 import type { BlockConfig } from "../schema/blocks/types.js";
 
@@ -74,7 +73,6 @@ export type BlockInfo = {
       children: ChildrenInfo;
       content?: undefined;
       hasContent: false;
-      hasOwnedChildren: true;
       contentStart?: undefined;
       contentEnd?: undefined;
       contentKind?: undefined;
@@ -94,10 +92,12 @@ export type BlockInfo = {
       /** `content.afterPos - 1`: the last position inside the content. */
       contentEnd: number;
       /**
-       * What the content node holds: its block spec's `content`, which is what
-       * the node's ProseMirror content expression was generated from (and what
-       * a hand-written node's expression is checked against when the schema is
-       * built).
+       * What the content node holds: its block spec's `content`, read from the
+       * `blockConfig` stored on the node's spec. For a node `createBlockSpec`
+       * builds, the node's ProseMirror content expression is generated from
+       * it. For a hand-written node (`createBlockSpecFromTiptapNode`), it is
+       * whatever the block spec declares; the node's own content expression is
+       * not checked against it.
        */
       contentKind: BlockConfig["content"];
       /** `content.node.childCount === 0`. */
@@ -111,8 +111,6 @@ export type BlockInfo = {
        * `hasContent: false`.
        */
       hasContent: true;
-      /** Whether children belong to this block, even before a body exists. */
-      hasOwnedChildren: boolean;
     }
 );
 
@@ -330,7 +328,6 @@ export function getBlockInfoFromNode(node: Node, beforePos: number): BlockInfo {
   if (isContainerNode(node.type)) {
     return {
       hasContent: false,
-      hasOwnedChildren: true,
       block,
       children: {
         ...block,
@@ -384,7 +381,6 @@ export function getBlockInfoFromNode(node: Node, beforePos: number): BlockInfo {
 
     return {
       hasContent: true,
-      hasOwnedChildren: hasOwnedChildren(node),
       block,
       content,
       children,

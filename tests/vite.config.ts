@@ -1,5 +1,6 @@
 import * as path from "path";
 import { defineConfig, type UserConfig } from "vite-plus";
+import { buildCacheInputs } from "../scripts/build-cache-inputs.js";
 
 // https://vitejs.dev/config/
 export default defineConfig(
@@ -10,7 +11,7 @@ export default defineConfig(
           build: {
             command: "tsc",
             input: [
-              { auto: true },
+              ...buildCacheInputs("tests"),
               { pattern: "!**/*.tsbuildinfo", base: "workspace" },
             ],
           },

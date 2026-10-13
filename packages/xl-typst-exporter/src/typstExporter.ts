@@ -253,7 +253,7 @@ export class TypstExporter<
         continue;
       }
 
-      const isContainer = this.isContainerBlock(b);
+      const isContainer = this.placesChildren(b);
       const children = await this.transformBlocks(b.children, nestingLevel + 1);
       const self = await this.mapBlock(
         b,

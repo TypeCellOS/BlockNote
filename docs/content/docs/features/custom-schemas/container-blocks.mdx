@@ -11,7 +11,7 @@ You can create custom blocks that contain other blocks, such as panels, callouts
 
 ## Creating a Container Block
 
-Use the `createReactBlockSpec` function to create a container block, just like a [Custom Block](/docs/features/custom-schemas/custom-blocks). For the panel below, we set `content` to `"none"` and add the `children` option to let it contain other blocks:
+Use the `createReactBlockSpec` function to create a container block, just like a [Custom Block](/docs/features/custom-schemas/custom-blocks). For the panel below, we set `content` to `"none"` and `container` to `true`, so the panel's child blocks go inside it:
 
 ```tsx
 import { createReactBlockSpec } from "@blocknote/react";
@@ -21,11 +21,11 @@ export const createPanel = createReactBlockSpec(
     type: "panel",
     propSchema: {},
     content: "none",
-    children: { allow: "blocks" },
+    container: true,
   },
   {
-    render: (props) => (
-      <div className="panel" ref={props.contentRef} />
+    renderFrame: (props) => (
+      <div className="panel" ref={props.slotRef} />
     ),
   },
 );
@@ -35,21 +35,21 @@ export const createPanel = createReactBlockSpec(
 
 The block config defines the content and child blocks your container can hold:
 
-`content:` Works the same as for [Custom Blocks](/docs/features/custom-schemas/custom-blocks#block-config-customblockconfig). When using the `children` option, choose `"none"`, `"inline"`, or `"plain"`.
+`content:` Must be `"none"` for a container: its node holds nothing but its child blocks. For a block with its own text and child blocks, see [Combining Content and Child Blocks](#combining-content-and-child-blocks).
 
-`children.allow:` Set to `"blocks"` to accept the editor's block types. You can also restrict a container to specific container types, as explained in [Restricting Children](#restricting-children).
+`container:` Set to `true` to put the block's child blocks inside it. Without it, a block's child blocks are indented below it. A container accepts any block by default. You can also restrict it to specific container types, as explained in [Restricting Children](#restricting-children).
 
 `propSchema:` Defines the container's props, just like for other custom blocks. Use these to customize its appearance or behavior.
 
 ### Block Implementation
 
-`render:` Your React component defines how the block should look. With `content: "none"`, attach `contentRef` where the child blocks should appear. With `content: "inline"` or `"plain"`, attach it to the block's own editable text. You can add icons, buttons, or other elements around it:
+`renderFrame:` Your React component draws the container's box. A container has no content of its own, so it has no `render`, only this frame. Attach `slotRef` where the child blocks should appear. You can add icons, buttons, or other elements around it:
 
 ```tsx
-render: (props) => (
+renderFrame: (props) => (
   <div className="panel">
     <span contentEditable={false}>💡</span>
-    <div ref={props.contentRef} />
+    <div ref={props.slotRef} />
   </div>
 ),
 ```
@@ -109,7 +109,7 @@ A block can have both its own text and child blocks. Use this for a question fol
 
 <Example name="custom-schema/callout-block" />
 
-Set `content` to `"inline"` for rich text or `"plain"` for unstyled text, and add `children: { allow: "blocks" }`. Use `render` for the block's own text and `renderFrame` to style that content and its child blocks together:
+Set `content` to `"inline"` for rich text or `"plain"` for unstyled text. Every block with content can have child blocks, so there's nothing to declare for them. Use `render` for the block's own text, `renderFrame` to style that content and its child blocks together, and `keyboard` to keep the child blocks inside the block:
 
 ```tsx
 import { createReactBlockSpec } from "@blocknote/react";
@@ -119,15 +119,19 @@ export const createCallout = createReactBlockSpec(
     type: "callout",
     propSchema: {},
     content: "inline",
-    children: { allow: "blocks" },
   },
   {
+    experimental_keyboard: {
+      enter: "into-children",
+      childrenCanOutdent: false,
+      emptyChildEnter: "exit-at-end",
+    },
     render: (props) => (
       <div className="callout-title" ref={props.contentRef} />
     ),
     renderFrame: (props) => (
       <div className="callout">
-        <div ref={props.contentRef} />
+        <div ref={props.slotRef} />
       </div>
     ),
   },
@@ -144,11 +148,13 @@ render: (props) => <pre ref={props.contentRef} />,
 
 The child blocks can still contain rich text, images, and other block types.
 
-`renderFrame:` An optional React component for styling the block and its children together, such as giving the callout a shared border or background. It receives `block`, `editor`, and `contentRef`, just like `render`. Attach `contentRef` where the block's content and children should appear. You can use the block's props to customize the frame, add interactive controls, or return `null` to show the block without a frame.
+`renderFrame:` An optional React component for styling the block and its children together, such as giving the callout a shared border or background. It receives `block`, `editor`, and `slotRef`. Attach `slotRef` where the block's content and children should appear. You can use the block's props to customize the frame, add interactive controls, or return `null` to show the block without a frame.
 
-You can also use `renderFrame` without the `children` option to style a block and its indented children together. For a container with `content: "none"`, like the panel above, add the surrounding styling directly in `render`.
+`experimental_keyboard:` Without it, child blocks behave like any indented blocks. This API is experimental and may change. Here, `enter: "into-children"` makes Enter in the title add a first child block, `childrenCanOutdent: false` keeps Shift-Tab from moving blocks out of the callout, and `emptyChildEnter: "exit-at-end"` makes Enter in an empty last block leave the callout. See [Custom Blocks](/docs/features/custom-schemas/custom-blocks) for all keyboard settings.
 
-Add `callout: createCallout()` to your schema, then use `content` for the title and `children` for the body:
+A container with `content: "none"`, like the panel above, has only `renderFrame`, and it always draws its frame.
+
+Add `callout: createCallout()` to your schema, then use `content` for the title and `children` for the blocks inside it:
 
 ```typescript
 {
@@ -160,35 +166,22 @@ Add `callout: createCallout()` to your schema, then use `content` for the title 
 }
 ```
 
-Pressing Enter at the end of the title starts a paragraph in the body. Moving the callout moves its title and body together.
+Pressing Enter at the end of the title adds a paragraph inside the callout, and Enter in an empty last paragraph leaves the callout. Moving the callout moves its title and child blocks together.
 
 To add blocks to an existing container, see [Inserting Blocks](/docs/reference/editor/manipulating-content#inserting-blocks).
 
 ## Restricting Children
 
-For structured layouts, you can limit a container to specific container types. For example, a column layout should only contain columns, while each column can contain any block.
+For structured layouts, you can limit a container to specific container types, with these options in the block config:
 
-Use an array of container type names for `children.allow`, and `min` to set the minimum number of children:
+`children.allow:` Accepts `"blocks"` (the default) or an array of container type names. You cannot list regular block types such as `"paragraph"` individually.
 
-```typescript
-// Column layout config:
-children: { allow: ["column"], min: 2 },
-```
+`children.min:` The minimum number of children, for an `allow` list only. Defaults to `1`; `0` lets the container be empty. A container that accepts any blocks always has at least one child: when its last child is removed, the container dissolves.
 
-On the column itself, set `placeable` to `"namedOnly"` so it can only be used inside a container that explicitly allows it:
-
-```typescript
-// Column config:
-children: { allow: "blocks" },
-placeable: "namedOnly",
-```
-
-`children.allow:` Accepts `"blocks"` or an array of container type names. You cannot list regular block types such as `"paragraph"` individually.
-
-`children.min:` The minimum number of children. Defaults to `1`.
+`children.exclude:` For a container that accepts any blocks, the container types it does not hold. Only container types can be excluded, not regular block types such as `"paragraph"`.
 
 `placeable:` Set to `"namedOnly"` to restrict a container to parents that name it in `children.allow`. Defaults to `"anywhere"`.
 
-These options apply to containers with `content: "none"`. Blocks with `content: "inline"` or `"plain"` use `children: { allow: "blocks" }` and can have no child blocks.
+These options need `container: true`. Other blocks can always have child blocks of any type, so for them `children` can only be the default, `{ allow: "blocks" }`.
 
 For built-in column blocks, see [Multi-Column Layouts](/docs/foundations/document-structure#column-blocks).

@@ -79,4 +79,20 @@ describe("Test removeBlocks", () => {
 
     expect(getEditor().document).toMatchSnapshot();
   });
+
+  // Removing the other column leaves the column list with one column, so it
+  // dissolves and the surviving column's blocks are lifted out. That is an
+  // unwrap of content that never moves, so a caret in it survives untouched.
+  it("Keeps the cursor in place when removing a column dissolves the columnList", () => {
+    const editor = getEditor();
+    editor.setTextCursorPosition("column-paragraph-2", "end");
+    const offsetBefore = editor.prosemirrorState.selection.$from.parentOffset;
+
+    editor.removeBlocks(["column-0"]);
+
+    expect(editor.getTextCursorPosition().block.id).toBe("column-paragraph-2");
+    expect(editor.prosemirrorState.selection.$from.parentOffset).toBe(
+      offsetBefore,
+    );
+  });
 });

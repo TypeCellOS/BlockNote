@@ -260,6 +260,7 @@ export const uz: Dictionary = {
 
   toggle_blocks: {
     add_block_button: "Bo‘sh toggle. Blok qo‘shish uchun bosing.",
+    toggle_button: "Yoyish yoki yig‘ish",
   },
 
   code_block: {
@@ -455,5 +456,6 @@ export const uz: Dictionary = {
   },
   generic: {
     ctrl_shortcut: "Ctrl",
+    form_submit: "OK",
   },
 };

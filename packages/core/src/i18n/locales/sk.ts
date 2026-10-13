@@ -199,6 +199,7 @@ export const sk = {
   },
   toggle_blocks: {
     add_block_button: "Prázdne prepínanie. Kliknite pre pridanie bloku.",
+    toggle_button: "Rozbaliť alebo zbaliť",
   },
   code_block: {
     add_source_button_text: "Pridať zdrojový kód",
@@ -419,5 +420,6 @@ export const sk = {
   },
   generic: {
     ctrl_shortcut: "Ctrl",
+    form_submit: "OK",
   },
 };

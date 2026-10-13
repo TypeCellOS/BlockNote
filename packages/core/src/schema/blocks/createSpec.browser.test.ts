@@ -19,9 +19,9 @@ import { createBlockSpec } from "./createSpec.js";
 // runs. Parsing HTML is the capability under test, so the whole suite runs
 // against a real browser engine rather than jsdom's.
 
-const renderDiv = () => {
+const frameDiv = () => {
   const dom = document.createElement("div");
-  return { dom, contentDOM: dom };
+  return { dom, slot: dom };
 };
 
 // A pure container that recognizes its own external HTML. Before containers
@@ -32,10 +32,10 @@ const Card = createBlockSpec(
     type: "card" as const,
     propSchema: { tone: { default: "neutral" } },
     content: "none",
-    children: { allow: "blocks" },
+    container: true,
   },
   {
-    render: renderDiv,
+    renderFrame: frameDiv,
     parse: (el) =>
       el.classList.contains("card")
         ? { tone: el.getAttribute("data-tone") ?? undefined }
@@ -49,10 +49,10 @@ const Quote = createBlockSpec(
     type: "quote" as const,
     propSchema: {},
     content: "none",
-    children: { allow: "blocks" },
+    container: true,
   },
   {
-    render: renderDiv,
+    renderFrame: frameDiv,
     parse: (el) => (el.tagName === "BLOCKQUOTE" ? {} : undefined),
     // Returns inline nodes, the natural thing to build from an element, and
     // relies on ProseMirror's parser to wrap them into child blocks.
@@ -133,10 +133,10 @@ describe("container `runsBefore`", () => {
         type,
         propSchema: {},
         content: "none",
-        children: { allow: "blocks" },
+        container: true,
       } as any,
       {
-        render: renderDiv,
+        renderFrame: frameDiv,
         parse: (el: HTMLElement) =>
           el.classList.contains("shared") ? {} : undefined,
       },

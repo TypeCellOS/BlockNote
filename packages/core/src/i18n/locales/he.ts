@@ -201,6 +201,7 @@ export const he: Dictionary = {
   },
   toggle_blocks: {
     add_block_button: "מתג ריק. לחץ כדי להוסיף בלוק.",
+    toggle_button: "הרחבה או כיווץ",
   },
   code_block: {
     add_source_button_text: "הוסף קוד מקור",
@@ -421,5 +422,6 @@ export const he: Dictionary = {
   },
   generic: {
     ctrl_shortcut: "Ctrl",
+    form_submit: "אישור",
   },
 };

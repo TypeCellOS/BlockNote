@@ -56,6 +56,35 @@ async function pressKey(
 }
 
 describe("children keyboard handling", () => {
+  // The previous sibling's children end in a container, which Tab used to
+  // throw on ("Cannot join blockContainer onto callout"). The block now nests
+  // after the container.
+  it("Tab after a container at the end of the previous sibling's children nests after it", async () => {
+    editor.replaceBlocks(editor.document, [
+      {
+        id: "p-0",
+        type: "paragraph",
+        content: "Paragraph 0",
+        children: [
+          {
+            id: "c-0",
+            type: "callout",
+            children: [{ type: "paragraph", content: "In callout" }],
+          },
+        ],
+      },
+      { id: "after", type: "paragraph", content: "After" },
+    ]);
+
+    await pressKey("Tab", { block: "after", placement: "start" });
+
+    expect(editor.getBlock("p-0")!.children.map((child) => child.id)).toEqual([
+      "c-0",
+      "after",
+    ]);
+    expect(editor.getTextCursorPosition().block.id).toBe("after");
+  });
+
   it("Enter on an empty last child escapes the container", async () => {
     editor.replaceBlocks(editor.document, [
       {

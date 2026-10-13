@@ -65,15 +65,14 @@ describe("exporter", () => {
 
 describe("titled blocks", () => {
   // A titled block: inline content (the title) plus children (the body). The
-  // mapping renders the title and places the children inside its own view;
-  // because the block counts as a container, transformBlocks must not wrap
-  // them after it in padded sibling views.
+  // `{ withChildren }` mapping renders the title and places the children
+  // inside its own view, so transformBlocks must not wrap them after it in
+  // padded sibling views.
   const Alert = createBlockSpec(
     {
       type: "alert" as const,
       propSchema: {},
       content: "inline",
-      children: { allow: "blocks" },
     },
     {
       render: (block: any) => {
@@ -108,34 +107,27 @@ describe("titled blocks", () => {
     },
   ] as any);
 
-  it("throws a clear error for an unmapped container block", async () => {
-    const exporter = new PDFExporter(
-      alertSchema,
-      pdfDefaultSchemaMappings as any,
-    );
-
-    await expect(
-      exporter.transformBlocks(alertDocument as any),
-    ).rejects.toThrow(/container block type "alert"/);
-  });
-
   it("renders a titled block's title and places its children inside", async () => {
     const exporter = new PDFExporter(alertSchema, {
       ...pdfDefaultSchemaMappings,
       blockMapping: {
         ...pdfDefaultSchemaMappings.blockMapping,
-        alert: (
-          block: any,
-          exporter: any,
-          _nestingLevel: any,
-          _numberedListIndex: any,
-          children: any,
-        ) => (
-          <View>
-            <Text>ALERT:{exporter.transformInlineContent(block.content)}</Text>
-            {children}
-          </View>
-        ),
+        alert: {
+          withChildren: (
+            block: any,
+            exporter: any,
+            _nestingLevel: any,
+            _numberedListIndex: any,
+            children: any,
+          ) => (
+            <View>
+              <Text>
+                ALERT:{exporter.transformInlineContent(block.content)}
+              </Text>
+              {children}
+            </View>
+          ),
+        },
       },
     } as any);
 

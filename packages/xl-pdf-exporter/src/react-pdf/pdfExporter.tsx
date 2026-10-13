@@ -184,7 +184,7 @@ export class PDFExporter<
         children,
       );
 
-      if (b.type === "pageBreak" || this.isContainerBlock(b)) {
+      if (b.type === "pageBreak" || this.placesChildren(b)) {
         ret.push(self);
         continue;
       }

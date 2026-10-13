@@ -213,6 +213,7 @@ export const is: Dictionary = {
   },
   toggle_blocks: {
     add_block_button: "Tóm fellilína. Smelltu til að bæta við blokk.",
+    toggle_button: "Fella út eða inn",
   },
   code_block: {
     add_source_button_text: "Bæta við frumkóða",
@@ -435,5 +436,6 @@ export const is: Dictionary = {
   },
   generic: {
     ctrl_shortcut: "Ctrl",
+    form_submit: "Í lagi",
   },
 };

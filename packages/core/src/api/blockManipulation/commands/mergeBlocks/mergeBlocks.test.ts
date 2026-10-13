@@ -43,6 +43,23 @@ describe("Test mergeBlocks", () => {
 
     mergeBlocks(getPosBeforeSelectedBlock());
 
+    // The merged block's children are lifted into its place, not dropped
+    // with it. The lift and the delete go through the one transaction tiptap
+    // hands the command (its chainable state's `tr` getter returns the same
+    // transaction every time), so the lift must survive the dispatch.
+    expect(getEditor().getBlock("paragraph-with-children")).toBeUndefined();
+    expect(getEditor().getBlock("paragraph-1")!.content).toEqual([
+      { type: "text", text: "Paragraph 1Paragraph with children", styles: {} },
+    ]);
+    expect(getEditor().document.map((block) => block.id)).toContain(
+      "nested-paragraph-0",
+    );
+    expect(
+      getEditor()
+        .getBlock("nested-paragraph-0")!
+        .children.map((c) => c.id),
+    ).toEqual(["double-nested-paragraph-0"]);
+
     expect(getEditor().document).toMatchSnapshot();
   });
 
@@ -94,18 +111,18 @@ describe("Test mergeBlocks", () => {
     expect(result).toBeUndefined();
   });
 
-  // We expect a no-op for each of the remaining tests as merging should only
-  // happen for blocks which both have inline content. We also expect
-  // `mergeBlocks` to return false as TipTap commands should do that instead of
-  // throwing an error, when the command cannot be executed.
   it("First block is empty", () => {
     getEditor().setTextCursorPosition("paragraph-8");
 
     const originalDocument = getEditor().document;
     const ret = mergeBlocks(getPosBeforeSelectedBlock());
 
-    expect(getEditor().document).toEqual(originalDocument);
-    expect(ret).toBeFalsy();
+    // The empty paragraph above has the same type and props, so the block
+    // moves up into its place, keeping its id (#550).
+    expect(getEditor().document).toEqual(
+      originalDocument.filter((block) => block.id !== "empty-paragraph"),
+    );
+    expect(ret).toBe(true);
   });
 
   it("Inline content & no content", () => {
@@ -135,7 +152,7 @@ describe("Test mergeBlocks", () => {
     const ret = mergeBlocks(getPosBeforeSelectedBlock());
 
     expect(getEditor().document).toEqual(originalDocument);
-    expect(ret).toBeFalsy();
+    expect(ret).toBe(false);
   });
 
   it("Table content & inline content", () => {

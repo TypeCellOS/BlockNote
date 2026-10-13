@@ -1,7 +1,10 @@
 import { BlockNoteEditor, Dictionary, mergeCSSClasses } from "@blocknote/core";
-import { CommentsExtension } from "@blocknote/core/comments";
+import {
+  CommentEditorSubmitExtension,
+  CommentsExtension,
+} from "@blocknote/core/comments";
 import { ThreadData } from "@blocknote/core/comments";
-import { FocusEvent, memo, useCallback } from "react";
+import { FocusEvent, memo, useRef } from "react";
 
 import {
   Components,
@@ -90,6 +93,7 @@ export type ThreadProps = {
    * The editor used to compose a reply. Provided by `FloatingThreadController`
    * so it can check for unsaved text before discarding the floating card. When
    * omitted (e.g. in the sidebar), the thread creates its own.
+   * Must include `CommentEditorSubmitExtension` configured with the reply's save callback.
    */
   newCommentEditor?: BlockNoteEditor<any, any, any>;
 };
@@ -117,6 +121,8 @@ export const Thread = ({
   const dict = useDictionary();
 
   const comments = useExtension(CommentsExtension);
+  const threadIdRef = useRef(thread.id);
+  threadIdRef.current = thread.id;
 
   const ownNewCommentEditor = useCreateBlockNote({
     trailingBlock: false,
@@ -127,6 +133,18 @@ export const Thread = ({
       },
     },
     schema: comments.commentEditorSchema || defaultCommentEditorSchema,
+    extensions: [
+      CommentEditorSubmitExtension({
+        submitOnEnter: comments.submitOnEnter,
+        onSubmit: async (editor) => {
+          await comments.threadStore.addComment({
+            comment: { body: editor.document },
+            threadId: threadIdRef.current,
+          });
+          editor.removeBlocks(editor.document);
+        },
+      }),
+    ],
   });
 
   // Use the editor provided by the controller (which owns the dismiss
@@ -134,17 +152,15 @@ export const Thread = ({
   // our own when the thread is rendered standalone (e.g. in the sidebar).
   const newCommentEditor = providedNewCommentEditor ?? ownNewCommentEditor;
 
-  const onNewCommentSave = useCallback(async () => {
-    await comments.threadStore.addComment({
-      comment: {
-        body: newCommentEditor.document,
-      },
-      threadId: thread.id,
-    });
-
-    // reset editor
-    newCommentEditor.removeBlocks(newCommentEditor.document);
-  }, [comments, newCommentEditor, thread.id]);
+  const submitExtension = newCommentEditor.getExtension(
+    CommentEditorSubmitExtension,
+  );
+  if (!submitExtension) {
+    throw new Error(
+      "Thread's newCommentEditor must include CommentEditorSubmitExtension.",
+    );
+  }
+  const onNewCommentSave = submitExtension.submit;
 
   return (
     <Components.Comments.Card

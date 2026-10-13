@@ -1,10 +1,14 @@
-import { CommentsExtension } from "@blocknote/core/comments";
+import {
+  CommentEditorSubmitExtension,
+  CommentsExtension,
+} from "@blocknote/core/comments";
 import { flip, offset, shift } from "@floating-ui/react";
 import { ComponentProps, FC, useMemo } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useCreateBlockNote } from "../../hooks/useCreateBlockNote.js";
 import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
+import { PortalElementOverride } from "../../editor/PortalElementOverride.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
 import { PositionPopover } from "../Popovers/PositionPopover.js";
@@ -22,10 +26,10 @@ export default function FloatingThreadController(props: {
   floatingUIOptions?: FloatingUIOptions;
   /**
    * Override the DOM node this floating element portals into. Falls back to
-   * `editor.portalElement` (which by default is mounted inside `bn-container`)
+   * the ambient portal element (the element wrapping the editor by default)
    * when omitted.
    */
-  portalElement?: HTMLElement | null;
+  portalElement?: HTMLElement;
 }) {
   const editor = useBlockNoteEditor<any, any, any>();
   const dict = useDictionary();
@@ -57,6 +61,21 @@ export default function FloatingThreadController(props: {
         },
       },
       schema: comments.commentEditorSchema || defaultCommentEditorSchema,
+      extensions: [
+        CommentEditorSubmitExtension({
+          submitOnEnter: comments.submitOnEnter,
+          onSubmit: async (editor) => {
+            if (!selectedThread) {
+              return;
+            }
+            await comments.threadStore.addComment({
+              comment: { body: editor.document },
+              threadId: selectedThread.id,
+            });
+            editor.removeBlocks(editor.document);
+          },
+        }),
+      ],
     },
     [selectedThread?.id],
   );
@@ -128,18 +147,19 @@ export default function FloatingThreadController(props: {
   const Component = props.floatingThread || Thread;
 
   return (
-    <PositionPopover
-      position={selectedThread?.position}
-      portalElement={props.portalElement}
-      {...floatingUIOptions}
-    >
-      {thread && (
-        <Component
-          thread={thread}
-          selected={true}
-          newCommentEditor={newCommentEditor}
-        />
-      )}
-    </PositionPopover>
+    <PortalElementOverride target={props.portalElement}>
+      <PositionPopover
+        position={selectedThread?.position}
+        {...floatingUIOptions}
+      >
+        {thread && (
+          <Component
+            thread={thread}
+            selected={true}
+            newCommentEditor={newCommentEditor}
+          />
+        )}
+      </PositionPopover>
+    </PortalElementOverride>
   );
 }

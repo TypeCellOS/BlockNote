@@ -45,7 +45,7 @@ export default function App() {
       {
         type: "paragraph",
         content:
-          "Welcome! This demo shows a titled block: a rich-text title with a body of child blocks.",
+          "Welcome! This demo shows a titled block: a rich-text title with child blocks inside it.",
       },
       {
         type: "callout",
@@ -59,7 +59,7 @@ export default function App() {
           {
             type: "paragraph",
             content:
-              "Press Enter at the end of the title to jump into the body, or Backspace at the start of the body to merge back.",
+              "Press Enter at the end of the title to add a block inside the callout, or Backspace at the start of the first block inside to merge it back.",
           },
         ],
       },

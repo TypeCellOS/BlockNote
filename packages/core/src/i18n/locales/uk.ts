@@ -224,6 +224,7 @@ export const uk: Dictionary = {
   },
   toggle_blocks: {
     add_block_button: "Порожній перемикач. Натисніть, щоб додати блок.",
+    toggle_button: "Розгорнути або згорнути",
   },
   code_block: {
     add_source_button_text: "Додати вихідний код",
@@ -445,5 +446,6 @@ export const uk: Dictionary = {
   },
   generic: {
     ctrl_shortcut: "Ctrl",
+    form_submit: "ОК",
   },
 };

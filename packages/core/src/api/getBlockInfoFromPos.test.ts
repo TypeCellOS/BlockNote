@@ -524,7 +524,7 @@ describe("block info for containers", () => {
     editor._tiptapEditor.destroy();
   });
   it.each(["paragraph", "alert", "callout"] as const)(
-    "distinguishes %s ownership from the presence of children",
+    "distinguishes %s content from the presence of children",
     (type) => {
       for (const children of [
         [],
@@ -532,7 +532,6 @@ describe("block info for containers", () => {
       ]) {
         const node = blockToNode({ type, children }, editor.pmSchema);
         const info = getBlockInfoFromNode(node, 10);
-        expect(info.hasOwnedChildren).toBe(type !== "paragraph");
         expect(info.hasContent).toBe(type !== "callout");
         if (children.length) {
           expect(info.children?.node.childCount).toBe(1);

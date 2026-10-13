@@ -1,9 +1,7 @@
 export * from "./api/blockManipulation/commands/insertBlocks/insertBlocks.js";
 export * from "./api/blockManipulation/commands/replaceBlocks/replaceBlocks.js";
-export {
-  isContainerNode,
-  isContainerConfig,
-} from "./schema/blocks/children.js";
+export { isContainerNode } from "./schema/blocks/children.js";
+export { getBlockElementForNode } from "./extensions/blockDOM.js";
 export { applyContainerAttributes } from "./schema/blocks/containerAttributes.js";
 export {
   fixContainer,
@@ -19,6 +17,7 @@ export * from "./api/nodeUtil.js";
 export * from "./api/pmUtil.js";
 export * from "./blocks/index.js";
 export * from "./editor/BlockNoteEditor.js";
+export type { EditorFocusOptions } from "./editor/managers/EventManager.js";
 export * from "./editor/BlockNoteExtension.js";
 export * from "./editor/defaultColors.js";
 export * from "./editor/selectionTypes.js";

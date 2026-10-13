@@ -568,28 +568,30 @@ export function prosemirrorSliceToSlicedBlocks<
     let blockCutAtStart: string | undefined;
     let blockCutAtEnd: string | undefined;
 
-    node.forEach((blockContainer, _offset, index) => {
+    // Each child is a block's node: a `blockContainer` for a regular block,
+    // or a container node (columnList, column, callout, ...) for a container
+    // block.
+    node.forEach((blockNode, _offset, index) => {
       const isFirstBlock = index === 0;
       const isLastBlock = index === node.childCount - 1;
 
-      const isContainer = isContainerNode(blockContainer.type);
+      const isContainer = isContainerNode(blockNode.type);
       if (!isContainer) {
-        if (blockContainer.type.name !== "blockContainer") {
+        if (blockNode.type.name !== "blockContainer") {
           throw new Error("unexpected");
         }
-        if (blockContainer.childCount === 0) {
+        if (blockNode.childCount === 0) {
           return;
         }
-        if (blockContainer.childCount > 2) {
+        if (blockNode.childCount > 2) {
           throw new Error(
-            "unexpected, blockContainer.childCount: " +
-              blockContainer.childCount,
+            "unexpected, blockContainer.childCount: " + blockNode.childCount,
           );
         }
       }
 
       const omittedParent =
-        !isContainer && blockContainer.firstChild!.type.name === "blockGroup";
+        !isContainer && blockNode.firstChild!.type.name === "blockGroup";
       if (omittedParent && !isFirstBlock) {
         throw new Error("unexpected");
       }
@@ -602,7 +604,7 @@ export function prosemirrorSliceToSlicedBlocks<
           ((isFirstBlock && openStart > 0) || (isLastBlock && openEnd > 0)))
       ) {
         const ret = processNode(
-          isContainer ? blockContainer : blockContainer.firstChild!,
+          isContainer ? blockNode : blockNode.firstChild!,
           isFirstBlock ? Math.max(0, openStart - 1) : 0,
           isLastBlock ? Math.max(0, openEnd - 1) : 0,
         );
@@ -618,14 +620,14 @@ export function prosemirrorSliceToSlicedBlocks<
 
       if (isContainer) {
         blocks.push(
-          nodeToBlock<BSchema, I, S>(blockContainer, slice.content.firstChild!),
+          nodeToBlock<BSchema, I, S>(blockNode, slice.content.firstChild!),
         );
         return;
       }
 
-      const block = nodeToBlock(blockContainer, slice.content.firstChild!);
+      const block = nodeToBlock(blockNode, slice.content.firstChild!);
       const childGroup =
-        blockContainer.childCount > 1 ? blockContainer.child(1) : undefined;
+        blockNode.childCount > 1 ? blockNode.child(1) : undefined;
 
       let childBlocks: Block<BSchema, I, S>[] = [];
       if (childGroup) {

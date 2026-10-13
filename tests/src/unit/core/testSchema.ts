@@ -99,8 +99,8 @@ const SimpleCustomParagraph = createBlockSpec(
   },
 );
 
-// A container block: it holds no inline content of its own, and its `contentDOM`
-// is where its child blocks go. Covers containers in the format-conversion,
+// A container block: it holds no inline content of its own, and its frame's
+// `slot` is where its child blocks go. Covers containers in the format-conversion,
 // clipboard and selection matrices, which otherwise never see one.
 const Callout = createBlockSpec(
   {
@@ -112,12 +112,13 @@ const Callout = createBlockSpec(
       },
     },
     content: "none",
+    container: true,
     children: {
       allow: "blocks",
     },
   },
   {
-    render() {
+    renderFrame() {
       const callout = document.createElement("div");
       callout.className = "callout";
       // The serializer must overwrite author attributes with the block props.
@@ -127,21 +128,17 @@ const Callout = createBlockSpec(
       body.className = "callout-body";
       callout.appendChild(body);
 
-      if (this.renderType === "dom") {
-        // Exercise fragment roots and chrome outside the children region in
-        // the shared HTML snapshots and full-HTML equality matrix.
-        const chrome = document.createElement("button");
-        chrome.contentEditable = "false";
-        chrome.textContent = "UI LABEL";
-        callout.append(chrome);
-        const fragment = document.createDocumentFragment();
-        fragment.append(callout);
-        return { dom: fragment, contentDOM: body };
-      }
+      // Chrome outside the children region. It is in the HTML snapshots, and
+      // the full-HTML equality matrix shows that it does not parse back as
+      // document content.
+      const chrome = document.createElement("button");
+      chrome.contentEditable = "false";
+      chrome.textContent = "UI LABEL";
+      callout.append(chrome);
 
       return {
         dom: callout,
-        contentDOM: body,
+        slot: body,
       };
     },
   },
@@ -156,9 +153,6 @@ const Alert = createBlockSpec(
     type: "alert" as const,
     propSchema: {},
     content: "inline",
-    children: {
-      allow: "blocks",
-    },
   },
   {
     render: () => {
@@ -177,9 +171,15 @@ const Alert = createBlockSpec(
       const frame = document.createElement("div");
       frame.className = "alert-frame";
 
+      // Chrome outside the slot, like the callout's: it must not parse back
+      // as document content either.
+      const chrome = document.createElement("button");
+      chrome.contentEditable = "false";
+      chrome.textContent = "UI LABEL";
+
       const slot = document.createElement("div");
       slot.className = "alert-slot";
-      frame.appendChild(slot);
+      frame.append(chrome, slot);
 
       return {
         dom: frame,

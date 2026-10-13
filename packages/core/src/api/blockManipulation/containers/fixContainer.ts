@@ -1,9 +1,11 @@
-import { Fragment, type Node } from "prosemirror-model";
+import { Fragment, type Node, Slice } from "prosemirror-model";
 import { type Transaction } from "prosemirror-state";
+import { ReplaceAroundStep } from "prosemirror-transform";
 
 import {
   isContainerNode,
   isNamedOnly,
+  minChildren,
 } from "../../../schema/blocks/children.js";
 import { getNodeById } from "../../nodeUtil.js";
 
@@ -27,12 +29,11 @@ export function isEmptyContainerChild(node: Node): boolean {
     if (node.childCount === 1) {
       return isEmptyContainerChild(node.firstChild!);
     }
-    // A container left with no children at all — its last child was removed
+    // A container left with no children at all: its last child was removed
     // and no fill happened on the way. A `min: 0` container in this state is
     // valid and stays; any other is broken structure.
     if (node.childCount === 0) {
-      const children = node.type.spec.blockConfig?.children;
-      return !!children && (children.min ?? 1) >= 1;
+      return minChildren(node.type.spec.blockConfig?.children) >= 1;
     }
     return false;
   }
@@ -66,13 +67,12 @@ export function fixContainer(tr: Transaction, containerPos: number) {
     return;
   }
 
-  const childrenConfig = container.type.spec.blockConfig?.children;
-  const min = childrenConfig ? (childrenConfig.min ?? 1) : 1;
-  const survivors: Node[] = [];
+  const min = minChildren(container.type.spec.blockConfig?.children);
+  const survivors: { node: Node; offset: number }[] = [];
   const emptied: { from: number; to: number }[] = [];
   container.forEach((child, offset) => {
     if (!isEmptyContainerChild(child)) {
-      survivors.push(child);
+      survivors.push({ node: child, offset });
     } else if (isContainerNode(child.type)) {
       const from = containerPos + 1 + offset;
       emptied.push({ from, to: from + child.nodeSize });
@@ -90,8 +90,42 @@ export function fixContainer(tr: Transaction, containerPos: number) {
 
   // Too few children left for the container to mean anything, so it is
   // replaced by its surviving children.
+
+  // A single survivor supplying the whole replacement is an unwrap, and doing
+  // it as a `ReplaceAroundStep` leaves that content in place in the document:
+  // positions inside it - a caret, a collaborator's concurrent edit - map
+  // through it, where deleting and reinserting the same content would collapse
+  // them onto the edge of the replaced range.
+  if (survivors.length === 1) {
+    const [{ node: survivor, offset }] = survivors;
+    const survivorPos = containerPos + 1 + offset;
+    // A `namedOnly` survivor is lifted out of two wrappers at once - the column
+    // and the container - and any other survivor out of just the container.
+    const gap = isNamedOnly(survivor.type)
+      ? { from: survivorPos + 1, to: survivorPos + survivor.nodeSize - 1 }
+      : { from: survivorPos, to: survivorPos + survivor.nodeSize };
+
+    tr.step(
+      new ReplaceAroundStep(
+        containerPos,
+        containerPos + container.nodeSize,
+        gap.from,
+        gap.to,
+        Slice.empty,
+        0,
+        // Not a pure unwrap: emptied siblings sit outside the gap and go with
+        // the container, which the `structure` check would refuse.
+        false,
+      ),
+    );
+    return;
+  }
+
+  // Several survivors are not one contiguous range once an emptied child sits
+  // between them, so this path rebuilds them and positions inside them
+  // collapse. It takes a container with a `min` of 3 or more to reach.
   const replacement: Node[] = [];
-  for (const survivor of survivors) {
+  for (const { node: survivor } of survivors) {
     if (isNamedOnly(survivor.type)) {
       // The survivor can't stand on its own either (a column only exists
       // inside a column list), so what it holds is what's left.

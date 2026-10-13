@@ -1,6 +1,6 @@
 import { type ChainedCommands, Extension } from "@tiptap/core";
-import { Fragment } from "prosemirror-model";
-import { TextSelection, Transaction } from "prosemirror-state";
+import { Fragment, type Node } from "prosemirror-model";
+import { NodeSelection, TextSelection, Transaction } from "prosemirror-state";
 
 import {
   mergeBlocksCommand,
@@ -12,6 +12,7 @@ import {
   unnestBlock,
 } from "../../../api/blockManipulation/commands/nestBlock/nestBlock.js";
 import { fixContainersById } from "../../../api/blockManipulation/containers/fixContainer.js";
+import { nodeToBlock } from "../../../api/nodeConversions/nodeToBlock.js";
 import { isContainerNode } from "../../../schema/blocks/children.js";
 import { splitBlockCommand } from "../../../api/blockManipulation/commands/splitBlock/splitBlock.js";
 import { updateBlockCommand } from "../../../api/blockManipulation/commands/updateBlock/updateBlock.js";
@@ -83,6 +84,17 @@ export const KeyboardShortcutsExtension = Extension.create<{
   // TODO: The shortcuts need a refactor. Do we want to use a command priority
   //  design as there is now, or clump the logic into a single function?
   addKeyboardShortcuts() {
+    const bnEditor = this.options.editor;
+    // The `keyboard` settings of the block that `node` holds, in `doc`.
+    function keyboardOf(node: Node, doc: Node) {
+      const block = nodeToBlock(node, doc);
+      return bnEditor.schema.blockSpecs[block.type].implementation.keyboard(
+        block,
+      );
+    }
+    function canOutdentFrom(doc: Node) {
+      return (parent: Node) => keyboardOf(parent, doc).childrenCanOutdent;
+    }
     // handleBackspace is partially adapted from https://github.com/ueberdosis/tiptap/blob/ed56337470efb4fd277128ab7ef792b37cfae992/packages/core/src/extensions/keymap.ts
     const handleBackspace = () =>
       this.editor.commands.first(({ chain, commands }) => [
@@ -90,7 +102,9 @@ export const KeyboardShortcutsExtension = Extension.create<{
         () => commands.deleteSelection(),
         // Undoes an input rule if one was triggered in the last editor state change.
         () => commands.undoInputRule(),
-        // Reverts block content type to a paragraph if the selection is at the start of the block.
+        // Resets the block (`keyboard.resetsTo`, a paragraph by default) if the
+        // selection is at the start of the block and the block isn't already
+        // in that form.
         () =>
           commands.command(({ state }) => {
             const blockInfo = getBlockInfoFromSelection(state);
@@ -100,43 +114,30 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
             const selectionAtBlockStart =
               state.selection.from === blockInfo.contentStart;
-            const isParagraph =
-              blockInfo.content.node.type.name === "paragraph";
-
-            if (selectionAtBlockStart && !isParagraph) {
-              return commands.command(
-                updateBlockCommand(blockInfo.block.beforePos, {
-                  type: "paragraph",
-                  props: {},
-                }),
-              );
-            }
-
-            return false;
-          }),
-        // Removes a level of nesting if the block is indented if the selection is at the start of the block.
-        () =>
-          commands.command(({ state, tr }) => {
-            const blockInfo = getBlockInfoFromSelection(state);
-            if (!blockInfo.hasContent) {
+            if (!selectionAtBlockStart) {
               return false;
             }
 
-            const selectionAtBlockStart =
-              state.selection.from === blockInfo.contentStart;
-
-            if (selectionAtBlockStart) {
-              return liftItem(
-                tr,
-                tr.doc.type.schema.nodes["blockContainer"],
-                tr.doc.type.schema.nodes["blockGroup"],
+            const resetsTo = keyboardOf(
+              blockInfo.block.node,
+              state.doc,
+            ).resetsTo;
+            const content = blockInfo.content.node;
+            const alreadyReset =
+              content.type.name === resetsTo.type &&
+              Object.entries(resetsTo.props ?? {}).every(
+                ([prop, value]) => content.attrs[prop] === value,
               );
+            if (alreadyReset) {
+              return false;
             }
 
-            return false;
+            return commands.command(
+              updateBlockCommand(blockInfo.block.beforePos, resetsTo as any),
+            );
           }),
-        // Merges block with the previous one if it isn't indented, and the selection is at the start of the
-        // block. The target block for merging must contain inline content.
+        // Merges at the start of the block, into the preceding sibling
+        // (or its deepest descendant) or parent. Both must have inline content.
         () =>
           commands.command(({ state }) => {
             const blockInfo = getBlockInfoFromSelection(state);
@@ -149,14 +150,12 @@ export const KeyboardShortcutsExtension = Extension.create<{
               state.doc,
               blockInfo.block.beforePos,
             );
-            // A preceding container or owned body takes the move branch below.
-            // With no sibling, mergeBlocksCommand checks for an owning title.
-            if (
-              prevSibling &&
-              (!prevSibling.hasContent ||
-                prevSibling.contentKind !== "inline" ||
-                (prevSibling.children && prevSibling.hasOwnedChildren))
-            ) {
+            // A preceding container takes the move branch below. Otherwise
+            // the block merges into the block above (its last descendant), or
+            // into its parent when it has no previous sibling;
+            // mergeBlocksCommand decides whether their contents are
+            // compatible.
+            if (prevSibling && !prevSibling.hasContent) {
               return false;
             }
 
@@ -191,10 +190,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
             let target = getPrevBlockInfo(tr.doc, blockInfo.block.beforePos);
             let insertionPos: number | undefined;
             if (target) {
-              if (
-                target.hasContent &&
-                !(target.children && target.hasOwnedChildren)
-              ) {
+              if (target.hasContent) {
                 return false;
               }
             } else {
@@ -239,65 +235,59 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
             return true;
           }),
-        // Deletes the current block if it's an empty block with inline content,
-        // and moves the selection to the previous block.
+        // Removes an empty inline block when merging is impossible. Its
+        // children take its place; the cursor moves to the preceding block.
         () =>
-          commands.command(({ state }) => {
+          commands.command(({ state, tr, dispatch }) => {
             const blockInfo = getBlockInfoFromSelection(state);
-            if (!blockInfo.hasContent) {
+            if (
+              !blockInfo.hasContent ||
+              !state.selection.empty ||
+              blockInfo.contentKind !== "inline" ||
+              !blockInfo.isContentEmpty
+            ) {
               return false;
             }
-
-            const blockEmpty =
-              blockInfo.isContentEmpty && blockInfo.contentKind === "inline";
-
-            if (blockEmpty) {
-              const prevBlockInfo = getPrevBlockInfo(
-                state.doc,
-                blockInfo.block.beforePos,
-              );
-              if (!prevBlockInfo) {
-                return false;
-              }
-              const bottomNestedPrevBlockInfo =
-                getLastDescendantBlockInfo(prevBlockInfo);
-              if (!bottomNestedPrevBlockInfo.hasContent) {
-                return false;
-              }
-
-              const chainedCommands = chain();
-
-              // Moves the children the current block.
-              if (blockInfo.children) {
-                chainedCommands.insertContentAt(
-                  blockInfo.block.afterPos,
-                  blockInfo.children?.node.content,
-                );
-              }
-
-              chainedCommands.command(({ tr }) => {
-                tr.setSelection(
-                  blockEdgeSelection(tr.doc, bottomNestedPrevBlockInfo, "end"),
-                );
-                return true;
-              });
-
-              return chainedCommands
-                .deleteRange({
-                  from: blockInfo.block.beforePos,
-                  to: blockInfo.block.afterPos,
-                })
-                .scrollIntoView()
-                .run();
+            const prevBlockInfo = getPrevBlockInfo(
+              state.doc,
+              blockInfo.block.beforePos,
+            );
+            const parent = !prevBlockInfo
+              ? getParentBlockInfo(state.doc, blockInfo.block.beforePos)
+              : undefined;
+            const target = prevBlockInfo
+              ? getLastDescendantBlockInfo(prevBlockInfo)
+              : parent;
+            if (!target?.hasContent) {
+              return false;
             }
-
-            return false;
+            if (dispatch) {
+              if (
+                parent?.children?.node.childCount === 1 &&
+                !blockInfo.children
+              ) {
+                tr.delete(parent.children.beforePos, parent.children.afterPos);
+              } else {
+                tr.replaceWith(
+                  blockInfo.block.beforePos,
+                  blockInfo.block.afterPos,
+                  blockInfo.children?.node.content ?? Fragment.empty,
+                );
+              }
+              tr.setSelection(
+                target.contentKind === "none"
+                  ? NodeSelection.create(tr.doc, target.content.beforePos)
+                  : TextSelection.near(tr.doc.resolve(target.contentEnd), -1),
+              );
+              tr.scrollIntoView();
+            }
+            return true;
           }),
         // Deletes previous block if it contains no content and isn't a table,
         // when the selection is empty and at the start of the block. Moves the
         // current block into the deleted block's place.
         () =>
-          commands.command(({ state }) => {
+          commands.command(({ state, tr, dispatch }) => {
             const blockInfo = getBlockInfoFromSelection(state);
 
             if (!blockInfo.hasContent) {
@@ -329,23 +319,47 @@ export const KeyboardShortcutsExtension = Extension.create<{
                   bottomBlock.isContentEmpty);
 
               if (prevBlockNotTableAndNoContent) {
-                return chain()
-                  .cut(
-                    {
-                      from: blockInfo.block.beforePos,
-                      to: blockInfo.block.afterPos,
-                    },
+                if (dispatch) {
+                  tr.delete(
+                    blockInfo.block.beforePos,
+                    blockInfo.block.afterPos,
+                  );
+                  tr.replaceWith(
+                    bottomBlock.block.beforePos,
                     bottomBlock.block.afterPos,
-                  )
-                  .deleteRange({
-                    from: bottomBlock.block.beforePos,
-                    to: bottomBlock.block.afterPos,
-                  })
-                  .run();
+                    blockInfo.block.node,
+                  );
+                  tr.setSelection(
+                    TextSelection.near(
+                      tr.doc.resolve(bottomBlock.block.beforePos + 2),
+                    ),
+                  );
+                  tr.scrollIntoView();
+                }
+                return true;
               }
             }
 
             return false;
+          }),
+        // If no merge/deletion is possible (for example beside a table or
+        // under an image), unindent instead of trapping the cursor or losing text.
+        () =>
+          commands.command(({ state, tr }) => {
+            const blockInfo = getBlockInfoFromSelection(state);
+            if (
+              !blockInfo.hasContent ||
+              !state.selection.empty ||
+              state.selection.from !== blockInfo.contentStart
+            ) {
+              return false;
+            }
+            return liftItem(
+              tr,
+              tr.doc.type.schema.nodes["blockContainer"],
+              tr.doc.type.schema.nodes["blockGroup"],
+              canOutdentFrom(tr.doc),
+            );
           }),
       ]);
 
@@ -516,6 +530,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
                 chain(),
                 blockInfo,
                 nextBlockInfo,
+                nextBlockInfo.block,
               );
             }
 
@@ -614,6 +629,30 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
     const handleEnter = (withShift = false) => {
       return this.editor.commands.first(({ commands, tr }) => [
+        // Resets an empty block (`keyboard.resetsTo`) if it resets on Enter
+        // (`keyboard.emptyEnterResets`), e.g. an empty list item turns into a
+        // paragraph. Its children stay.
+        () =>
+          commands.command(({ state }) => {
+            const blockInfo = getBlockInfoFromSelection(state);
+            if (
+              !blockInfo.hasContent ||
+              !state.selection.empty ||
+              !blockInfo.isContentEmpty
+            ) {
+              return false;
+            }
+            const keyboard = keyboardOf(blockInfo.block.node, state.doc);
+            if (!keyboard.emptyEnterResets) {
+              return false;
+            }
+            return commands.command(
+              updateBlockCommand(
+                blockInfo.block.beforePos,
+                keyboard.resetsTo as any,
+              ),
+            );
+          }),
         // Removes a level of nesting if the block is empty & indented, while the selection is also empty & at the start
         // of the block.
         () =>
@@ -639,16 +678,32 @@ export const KeyboardShortcutsExtension = Extension.create<{
               blockEmpty &&
               blockIndented
             ) {
+              // Only outdents where the parent says so
+              // (`keyboard.emptyChildEnter: "outdent"`); otherwise the block
+              // leaves at the end, or a new child is added, further down.
+              const parent = getParentBlockInfo(
+                state.doc,
+                blockContainer.beforePos,
+              );
+              if (
+                parent &&
+                keyboardOf(parent.block.node, state.doc).emptyChildEnter !==
+                  "outdent"
+              ) {
+                return false;
+              }
               return liftItem(
                 tr,
                 tr.doc.type.schema.nodes["blockContainer"],
                 tr.doc.type.schema.nodes["blockGroup"],
+                canOutdentFrom(tr.doc),
               );
             }
 
             return false;
           }),
-        // Creates a hard break if block is configured to do so.
+        // Creates a hard break if the block is configured to do so
+        // (`keyboard.enter` / `keyboard.shiftEnter`).
         () =>
           commands.command(({ state }) => {
             const blockInfo = getBlockInfoFromSelection(state);
@@ -656,21 +711,12 @@ export const KeyboardShortcutsExtension = Extension.create<{
             const blockSpec =
               this.options.editor.schema.blockSpecs[blockInfo.blockNoteType];
 
-            const blockHardBreakShortcut =
-              blockSpec?.implementation?.meta?.hardBreakShortcut ??
-              "shift+enter";
-
-            if (blockHardBreakShortcut === "none") {
-              return false;
-            }
+            const keyboard = keyboardOf(blockInfo.block.node, state.doc);
 
             if (
-              // If shortcut is not configured, or is configured as "shift+enter",
-              // create a hard break for shift+enter, but not for enter.
-              (blockHardBreakShortcut === "shift+enter" && withShift) ||
-              // If shortcut is configured as "enter", create a hard break for
-              // both enter and shift+enter.
-              blockHardBreakShortcut === "enter"
+              // Enter as a line break makes Shift-Enter one too.
+              keyboard.enter === "line-break" ||
+              (withShift && keyboard.shiftEnter === "line-break")
             ) {
               // "plain" blocks (e.g. code/math/diagram source) hold text only
               // (their content is `text*`), which can't contain a `hardBreak`
@@ -700,9 +746,10 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
             return false;
           }),
-        // If the block is empty and the last child of a container or an
-        // owned-children body, moves the block out (double Enter exits the
-        // container). The block lands at the nearest enclosing position that
+        // If the block is empty and the last child of a block whose empty
+        // children exit at the end (`keyboard.emptyChildEnter:
+        // "exit-at-end"`, the default for containers), moves the block out
+        // (double Enter exits the container). The block lands at the nearest enclosing position that
         // accepts it. E.g. out of a column it skips the columnList, which
         // holds only columns, and lands below it. Without this, Enter only
         // ever creates new blocks within the container, so the cursor could
@@ -730,7 +777,13 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
 
             const owner = getParentBlockInfo(tr.doc, blockInfo.block.beforePos);
-            if (!owner || !owner.hasOwnedChildren) {
+            if (!owner) {
+              return false;
+            }
+            if (
+              keyboardOf(owner.block.node, tr.doc).emptyChildEnter !==
+              "exit-at-end"
+            ) {
               return false;
             }
             // The first block of a body stays put: it is where the body
@@ -777,7 +830,8 @@ export const KeyboardShortcutsExtension = Extension.create<{
               selectionAtBlockStart &&
               selectionEmpty &&
               blockEmpty &&
-              !blockInfo.hasOwnedChildren
+              keyboardOf(blockInfo.block.node, state.doc).enter !==
+                "into-children"
             ) {
               const newBlockInsertionPos = blockContainer.afterPos;
               const newBlockContentPos = newBlockInsertionPos + 2;
@@ -818,10 +872,43 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
             return false;
           }),
-        // Enter in a titled block's own content (a callout's title) starts its
-        // body rather than splitting the block in two: whatever follows the
-        // cursor becomes the body's first block, and the body the callout
-        // already had stays where it is.
+        // Enter at the start of non-empty content inserts an empty block above
+        // it: the same type when the block's splits keep their type (lists),
+        // a paragraph otherwise, with default props. The block itself, with
+        // its id, props (e.g. a checklist item's checked state) and children,
+        // stays where it is (#550).
+        () =>
+          commands.command(({ state, tr, dispatch }) => {
+            const blockInfo = getBlockInfoFromSelection(state);
+            if (
+              !blockInfo.hasContent ||
+              blockInfo.contentKind === "table" ||
+              !state.selection.empty ||
+              blockInfo.isContentEmpty ||
+              state.selection.from !== blockInfo.contentStart
+            ) {
+              return false;
+            }
+
+            if (dispatch) {
+              const contentType = keyboardOf(blockInfo.block.node, state.doc)
+                .splitKeepsType
+                ? blockInfo.content.node.type
+                : state.schema.nodes["paragraph"];
+              const newBlock = state.schema.nodes["blockContainer"].create(
+                undefined,
+                contentType.create(),
+              );
+              tr.insert(blockInfo.block.beforePos, newBlock).scrollIntoView();
+            }
+
+            return true;
+          }),
+        // Enter in the content of a block whose Enter goes into its children
+        // (`keyboard.enter: "into-children"`, e.g. an open toggle) starts its
+        // children rather than splitting the block in two: whatever follows
+        // the cursor becomes the first child, and the existing children stay
+        // where they are.
         () =>
           commands.command(({ state, tr, dispatch }) => {
             const blockInfo = getBlockInfoFromSelection(state);
@@ -829,7 +916,10 @@ export const KeyboardShortcutsExtension = Extension.create<{
               return false;
             }
 
-            if (!blockInfo.hasOwnedChildren) {
+            if (
+              keyboardOf(blockInfo.block.node, state.doc).enter !==
+              "into-children"
+            ) {
               return false;
             }
             if (!state.selection.empty) {
@@ -895,13 +985,16 @@ export const KeyboardShortcutsExtension = Extension.create<{
             const blockEmpty = blockInfo.isContentEmpty;
 
             if (!blockEmpty) {
+              const keyboard = keyboardOf(blockInfo.block.node, state.doc);
+              const keepType = selectionAtBlockStart || keyboard.splitKeepsType;
               chain()
                 .deleteSelection()
                 .command(
                   splitBlockCommand(
                     state.selection.from,
+                    keepType,
                     selectionAtBlockStart,
-                    selectionAtBlockStart,
+                    keyboard.splitKeepsChildren,
                   ),
                 )
                 .scrollIntoView()

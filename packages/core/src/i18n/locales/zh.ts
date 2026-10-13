@@ -240,6 +240,7 @@ export const zh: Dictionary = {
   },
   toggle_blocks: {
     add_block_button: "空的切换区。点击添加区块。",
+    toggle_button: "展开或收起",
   },
   code_block: {
     add_source_button_text: "添加源代码",
@@ -462,5 +463,6 @@ export const zh: Dictionary = {
   },
   generic: {
     ctrl_shortcut: "Ctrl",
+    form_submit: "确定",
   },
 };

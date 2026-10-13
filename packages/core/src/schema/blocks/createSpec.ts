@@ -1,4 +1,4 @@
-import { Editor, Node, NodeViewRendererProps } from "@tiptap/core";
+import { Editor, Node, NodeConfig, NodeViewRendererProps } from "@tiptap/core";
 import {
   DOMParser,
   Fragment,
@@ -6,24 +6,25 @@ import {
   TagParseRule,
 } from "@tiptap/pm/model";
 import { NodeView } from "@tiptap/pm/view";
-import { nodeToBlock } from "../../api/nodeConversions/nodeToBlock.js";
 import { mergeParagraphs } from "../../blocks/defaultBlockHelpers.js";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import {
   Extension,
   ExtensionFactoryInstance,
 } from "../../editor/BlockNoteExtension.js";
-import { nonFormattingMarks } from "../markGroups.js";
-import { ignoreNonContentMutations } from "../nodeViewMutations.js";
 import { suggestionMarks } from "../../pm-nodes/suggestionMarks.js";
+import { nonFormattingMarks } from "../markGroups.js";
+import { ignoreDarkReaderMutations } from "../nodeViewMutations.js";
 import { PropSchema } from "../propTypes.js";
 import {
   BLOCK_GROUP_CHILD_GROUP,
   CHILD_CONTAINER_GROUP,
+  anyBlocksExpression,
   childrenContentExpression,
   containerNodePriority,
-  isContainerConfig,
 } from "./children.js";
-import { applyContainerAttributes } from "./containerAttributes.js";
+import { applyDataAttributes } from "../dataAttributes.js";
+import { blockFrameView, findFrameSlot, frameNodeViewHooks } from "./frame.js";
 import {
   applyDOMAttributes,
   getBlockFromNodeView,
@@ -31,13 +32,17 @@ import {
   propsToAttributes,
   wrapInBlockStructure,
 } from "./internal.js";
+import { createBlockKeyboard } from "./keyboard.js";
+import { resolveBlockMeta } from "./meta.js";
 import {
   BlockConfig,
   BlockConfigOrCreator,
   BlockImplementation,
   BlockImplementationOrCreator,
   BlockSpec,
+  ChildrenConfig,
   LooseBlockSpec,
+  ResolvedBlockConfigMeta,
 } from "./types.js";
 
 // Function that causes events within non-selectable blocks to be handled by the
@@ -57,33 +62,6 @@ export function applyNonSelectableBlockFix(nodeView: NodeView, editor: Editor) {
   };
 }
 
-// Finds the element holding a serialized container block's children, marked
-// `data-children-of` by the internal HTML serializer. Returns undefined when
-// no marker belonging to *this* block (rather than a same-typed nested
-// container) is present.
-function findContainerContentElement(
-  el: HTMLElement,
-  config: { type: string },
-): HTMLElement | undefined {
-  const selector = `[data-children-of="${config.type}"]`;
-
-  // The block's root may itself be the children host (a render that passes
-  // its own root to `contentRef`). `querySelectorAll` only sees descendants.
-  if (el.matches(selector)) {
-    return el;
-  }
-
-  for (const host of el.querySelectorAll<HTMLElement>(selector)) {
-    // Skip hosts of same-typed *nested* containers: this block's own host is
-    // the one with no other container root between it and `el`.
-    if (host.parentElement?.closest("[data-node-type]") === el) {
-      return host;
-    }
-  }
-
-  return undefined;
-}
-
 // Custom parsing, followed by the default parser for the block's content kind.
 function blockContentParser<
   TName extends string,
@@ -93,7 +71,7 @@ function blockContentParser<
   config: BlockConfig<TName, TProps, TContent>,
   implementation: BlockImplementation<TName, TProps, TContent>,
 ): TagParseRule["getContent"] | undefined {
-  const isContainer = isContainerConfig(config);
+  const isContainer = config.container === true;
   if (
     config.content === "table" ||
     (isContainer && !implementation.parseContent)
@@ -174,21 +152,18 @@ export function getParseRules<
   config: BlockConfig<TName, TProps, TContent>,
   implementation: BlockImplementation<TName, TProps, TContent>,
 ) {
-  const isContainer = isContainerConfig(config);
+  const isContainer = config.container === true;
 
   const rules: TagParseRule[] = [
     isContainer
       ? {
           tag: `[data-node-type=${config.type}]`,
-          // Scope the round-trip parse to the block's content region, so text
-          // the render puts elsewhere in its DOM (button labels, captions,
-          // ...) doesn't parse back as document content. The internal HTML
-          // serializer marks the region with `data-children-of`; HTML without
-          // the marker (older or hand-written) falls back to the whole
-          // element, the previous behavior.
+          // Scope the round-trip parse to the frame's slot, so chrome the
+          // frame draws around it (button labels, captions, ...) doesn't
+          // parse back as document content. HTML without the marker
+          // (hand-written) falls back to the whole element.
           contentElement: (el) =>
-            findContainerContentElement(el as HTMLElement, config) ??
-            (el as HTMLElement),
+            findFrameSlot(el as HTMLElement) ?? (el as HTMLElement),
         }
       : {
           tag: "[data-content-type=" + config.type + "]",
@@ -222,20 +197,80 @@ export function getParseRules<
   return rules;
 }
 
-export function containerRootDOM(output: {
-  dom: HTMLElement | DocumentFragment;
-}): HTMLElement | null {
-  if (isDocumentFragment(output.dom)) {
-    // A fragment can't hold attributes, so the round-trip markers
-    // (`data-node-type`, prop `data-*`) would be lost with it as the root.
-    // When it wraps a single element (the shape a React render produces),
-    // that element is the block's real root. A multi-element fragment has no
-    // root to mark, so its container HTML can't parse back.
-    return output.dom.children.length === 1
-      ? (output.dom.children[0] as HTMLElement)
-      : null;
+/**
+ * Checks that a block declares the render hooks its config calls for: a
+ * container (`container: true`) has no content, so it declares only
+ * `renderFrame`; every other block declares `render`.
+ *
+ * FIXME: return the checked hooks as a discriminated union
+ * (`{ kind: "render", render } | { kind: "frame", renderFrame }`), so callers
+ * don't need `!` on `render`/`renderFrame` afterwards.
+ */
+export function validateRenderHooks(
+  blockConfig: Pick<BlockConfig, "type" | "container">,
+  implementation: { render?: unknown; renderFrame?: unknown },
+) {
+  if (blockConfig.container !== true) {
+    if (!implementation.render) {
+      throw new Error(`Block "${blockConfig.type}" must declare \`render\`.`);
+    }
+    return;
   }
-  return output.dom;
+  if (implementation.render) {
+    throw new Error(
+      `Container block "${blockConfig.type}" draws its box in \`renderFrame\`, and has no content for \`render\` to draw.`,
+    );
+  }
+  if (!implementation.renderFrame) {
+    throw new Error(
+      `Container block "${blockConfig.type}" must declare \`renderFrame\`.`,
+    );
+  }
+}
+
+/** A block implementation with its `meta` resolved (see `resolveBlockMeta`). */
+type ResolvedBlockImplementation<
+  TName extends string,
+  TProps extends PropSchema,
+  TContent extends "inline" | "none" | "table" | "plain",
+> = Omit<BlockImplementation<TName, TProps, TContent>, "meta"> & {
+  meta: ResolvedBlockConfigMeta<TName, TProps>;
+};
+
+/** A container's node view: its frame. */
+function containerNodeView<
+  TName extends string,
+  TProps extends PropSchema,
+  TContent extends "inline" | "none" | "table" | "plain",
+>(
+  blockImplementation: ResolvedBlockImplementation<TName, TProps, TContent>,
+  props: NodeViewRendererProps,
+): NodeView {
+  // React draws its own frame and stamps it; core stamps a vanilla one.
+  const frame = blockFrameView({
+    props,
+    editor: props.extension.options.editor,
+    blockNode: (node) => node,
+  });
+  const nodeView: NodeView = {
+    dom: frame.dom,
+    contentDOM: frame.slot,
+    update(node, decorations, innerDecorations) {
+      if (node.attrs.id !== frame.node.attrs.id) {
+        // ProseMirror offers a view whose node is gone to the next node of
+        // the same type. Return `false`: the frame shows another block, so
+        // draw this block's own frame.
+        return false;
+      }
+      // The same block. Return the frame's answer: `true` keeps it.
+      return frame.update(node, decorations, innerDecorations);
+    },
+    ...frameNodeViewHooks(frame),
+  };
+  if (!blockImplementation.meta.selectable) {
+    applyNonSelectableBlockFix(nodeView, props.editor);
+  }
+  return nodeView;
 }
 
 function blockNodeView<
@@ -244,14 +279,18 @@ function blockNodeView<
   TContent extends "inline" | "none" | "table" | "plain",
 >(
   blockConfig: BlockConfig<TName, TProps, TContent>,
-  blockImplementation: BlockImplementation<TName, TProps, TContent>,
+  blockImplementation: ResolvedBlockImplementation<TName, TProps, TContent>,
   props: NodeViewRendererProps,
 ): NodeView {
-  const isContainer = isContainerConfig(blockConfig);
-  const block = isContainer
-    ? nodeToBlock(props.node, props.view.state.doc)
-    : getBlockFromNodeView(props.getPos, props.node, props.view.state.doc);
-  const nodeView = blockImplementation.render.call(
+  if (blockConfig.container === true) {
+    return containerNodeView(blockImplementation, props);
+  }
+  const block = getBlockFromNodeView(
+    props.getPos,
+    props.node,
+    props.view.state.doc,
+  );
+  const nodeView = blockImplementation.render!.call(
     {
       blockContentDOMAttributes:
         props.extension.options.domAttributes?.blockContent || {},
@@ -261,60 +300,39 @@ function blockNodeView<
     },
     block as any,
     props.extension.options.editor,
-  );
+  ) as unknown as NodeView;
 
-  const typedNodeView = nodeView as unknown as NodeView;
-
-  if (blockImplementation.meta?.selectable === false) {
-    applyNonSelectableBlockFix(typedNodeView, props.editor);
+  if (!blockImplementation.meta.selectable) {
+    applyNonSelectableBlockFix(nodeView, props.editor);
   }
 
-  ignoreNonContentMutations(typedNodeView);
+  // Ignores Dark Reader's rewrites of the block's DOM, which would otherwise
+  // trigger an infinite re-render loop that freezes the tab.
+  ignoreDarkReaderMutations(nodeView);
 
-  if (!isContainer) {
-    return typedNodeView;
+  return nodeView;
+}
+
+/**
+ * A container node's content expression. A container that excludes types
+ * needs the schema's other container types spelled out, which only the
+ * editor's schema knows: tiptap accepts a function here and calls it when
+ * the editor builds its ProseMirror schema, with the configured options.
+ */
+function containerContent(
+  children: ChildrenConfig | undefined,
+): NodeConfig<{ editor: BlockNoteEditor<any, any, any> }>["content"] {
+  const exclude =
+    children !== undefined && "exclude" in children ? children.exclude : [];
+  if (exclude === undefined || exclude.length === 0) {
+    return childrenContentExpression(children);
   }
-
-  applyContainerAttributes(
-    containerRootDOM(nodeView),
-    blockConfig.type,
-    block.props as any,
-    blockConfig.propSchema,
-    block.id,
-  );
-
-  // Mark the children host in the live DOM, mirroring what the internal HTML
-  // serializer emits, so the container's round-trip parse rule can scope
-  // itself to it (`contentElement` in `getParseRules`) when ProseMirror
-  // re-reads editor DOM.
-  if (typedNodeView.contentDOM) {
-    (typedNodeView.contentDOM as HTMLElement).setAttribute(
-      "data-children-of",
-      blockConfig.type,
+  return function () {
+    return childrenContentExpression(
+      children,
+      anyBlocksExpression(exclude, this.options.editor.schema.blockSpecs),
     );
-  }
-
-  const update = typedNodeView.update?.bind(typedNodeView);
-  if (update) {
-    typedNodeView.update = (node, decorations, innerDecorations) => {
-      if (node.type.name !== blockConfig.type) {
-        return false;
-      }
-      if (update(node, decorations, innerDecorations) === false) {
-        return false;
-      }
-      applyContainerAttributes(
-        containerRootDOM(nodeView),
-        blockConfig.type,
-        nodeToBlock(node, props.view.state.doc).props as any,
-        blockConfig.propSchema,
-        node.attrs.id,
-      );
-      return true;
-    };
-  }
-
-  return typedNodeView;
+  };
 }
 
 function buildNode<
@@ -323,14 +341,14 @@ function buildNode<
   TContent extends "inline" | "none" | "table" | "plain",
 >(
   blockConfig: BlockConfig<TName, TProps, TContent>,
-  blockImplementation: BlockImplementation<TName, TProps, TContent>,
+  blockImplementation: ResolvedBlockImplementation<TName, TProps, TContent>,
   priority?: number,
 ) {
-  const isContainer = isContainerConfig(blockConfig);
+  const isContainer = blockConfig.container === true;
   return Node.create({
     name: blockConfig.type,
     content: isContainer
-      ? childrenContentExpression(blockConfig.children!)
+      ? containerContent(blockConfig.children)
       : blockConfig.content === "inline"
         ? "inline*"
         : blockConfig.content === "plain"
@@ -360,14 +378,12 @@ function buildNode<
             : [BLOCK_GROUP_CHILD_GROUP]),
         ].join(" ")
       : "blockContent",
-    selectable: blockImplementation.meta?.selectable ?? true,
-    // Containers must remain open to paste across their edges; isolating
-    // makes ProseMirror wrap spanning slices in a spurious blockGroup.
-    isolating: isContainer
-      ? false
-      : (blockImplementation.meta?.isolating ?? true),
-    code: isContainer ? false : (blockImplementation.meta?.code ?? false),
-    defining: isContainer ? true : (blockImplementation.meta?.defining ?? true),
+    // The node flags come resolved, container rules included (see
+    // `resolveBlockMeta`).
+    selectable: blockImplementation.meta.selectable,
+    isolating: blockImplementation.meta.isolating,
+    code: blockImplementation.meta.code,
+    defining: blockImplementation.meta.defining,
     priority: isContainer ? containerNodePriority(priority) : priority,
     addAttributes() {
       return propsToAttributes(blockConfig.propSchema);
@@ -404,7 +420,7 @@ function buildNode<
         blockConfig.type,
         {},
         blockConfig.propSchema,
-        blockImplementation.meta?.fileBlockAccept !== undefined,
+        blockImplementation.meta.fileBlockAccept !== undefined,
         HTMLAttributes,
       );
     },
@@ -427,14 +443,17 @@ export function addNodeAndExtensionsToSpec<
   extensions?: (ExtensionFactoryInstance | Extension)[],
   priority?: number,
 ): LooseBlockSpec<TName, TProps, TContent> {
-  // Only a contentless block builds a container node. A block with content of
-  // its own keeps its ordinary shape, and its `children` are owned children
-  // instead.
-  const isContainer = isContainerConfig(blockConfig);
+  // Only a block declared `container: true` builds a container node, which
+  // holds its children. Every other block keeps its ordinary shape.
+  const isContainer = blockConfig.container === true;
+  const implementation: ResolvedBlockImplementation<TName, TProps, TContent> = {
+    ...blockImplementation,
+    meta: resolveBlockMeta(blockImplementation.meta, blockConfig),
+  };
 
   const builtNode: Node =
-    (blockImplementation as any).node ??
-    buildNode(blockConfig, blockImplementation, priority);
+    (implementation as any).node ??
+    buildNode(blockConfig, implementation, priority);
 
   if (builtNode.name !== blockConfig.type) {
     throw new Error(
@@ -442,14 +461,7 @@ export function addNodeAndExtensionsToSpec<
     );
   }
 
-  if (!blockImplementation.render) {
-    throw new Error(`Block "${blockConfig.type}" must declare \`render\`.`);
-  }
-  if (isContainer && blockImplementation.renderFrame) {
-    throw new Error(
-      `Container block "${blockConfig.type}" draws its box in \`render\`; \`renderFrame\` requires a separate content node.`,
-    );
-  }
+  validateRenderHooks(blockConfig, implementation);
 
   // The block's config is stored on its node's PM spec
   // (`NodeSpec.blockConfig`), so code holding a bare `Node` can consult it
@@ -461,65 +473,70 @@ export function addNodeAndExtensionsToSpec<
     },
   });
 
-  function serialize(
-    block: Parameters<LooseBlockSpec["implementation"]["render"]>[0],
-    editor: Parameters<LooseBlockSpec["implementation"]["render"]>[1],
-    context?: { nestingLevel: number },
-  ) {
-    const blockContentDOMAttributes =
-      node.options.domAttributes?.blockContent || {};
-    const external =
-      context &&
-      blockImplementation.toExternalHTML?.call(
-        { blockContentDOMAttributes, propSchema: blockConfig.propSchema },
-        block,
-        editor as any,
-        context,
-      );
-    const output =
-      external ??
-      blockImplementation.render.call(
-        {
-          blockContentDOMAttributes,
-          props: undefined,
-          renderType: "dom",
-          propSchema: blockConfig.propSchema,
-        },
-        block,
-        editor as any,
-      );
-
-    if (isContainer) {
-      applyContainerAttributes(
-        containerRootDOM(output),
-        blockConfig.type,
-        block.props,
-        blockConfig.propSchema,
-        block.id,
-      );
-    } else if (context && !external) {
-      // An explicit external renderer owns the complete export. Otherwise
-      // wrap the default content and children in the editor's frame.
-      const frame = blockImplementation.renderFrame?.call(
-        { renderType: "dom", props: undefined, blockContentDOMAttributes },
-        block,
-        editor as any,
-      );
-      if (frame) {
-        frame.slot.append(output.dom);
-        return { ...output, dom: frame.dom, childrenDOM: frame.slot };
-      }
-    }
-    return output;
-  }
-
+  // The spec holds the resolved settings, not the declared option.
+  const { experimental_keyboard, render, toExternalHTML, ...rest } =
+    implementation;
   return {
     config: blockConfig,
     implementation: {
-      ...blockImplementation,
+      ...rest,
+      keyboard: createBlockKeyboard(experimental_keyboard, {
+        isContainer,
+        hardBreakShortcut: implementation.meta.hardBreakShortcut,
+      }),
       node,
-      render: serialize,
-      toExternalHTML: serialize,
+      // The block's content outside the editor. A container has no content,
+      // so no `render`: it is its frame. A frame is drawn by whoever
+      // assembles the block (the serializers), never by `render`.
+      ...(render && {
+        render(block: any, editor: BlockNoteEditor<any, any, any>) {
+          const blockContentDOMAttributes =
+            node.options.domAttributes?.blockContent || {};
+
+          return render.call(
+            {
+              blockContentDOMAttributes,
+              props: undefined,
+              renderType: "dom",
+              propSchema: blockConfig.propSchema,
+            },
+            block as any,
+            editor as any,
+          );
+        },
+      }),
+      // The block's own external HTML, when it declares one. It replaces the
+      // default export (`render` in its frame), which the external serializer
+      // makes for a block without one.
+      // TODO: this should not have wrapInBlockStructure and generally be a lot simpler
+      // post-processing in externalHTMLExporter should not be necessary
+      ...(toExternalHTML && {
+        toExternalHTML: (
+          block: any,
+          editor: BlockNoteEditor<any, any, any>,
+          context: { nestingLevel: number },
+        ) => {
+          const blockContentDOMAttributes =
+            node.options.domAttributes?.blockContent || {};
+
+          const external = toExternalHTML.call(
+            { blockContentDOMAttributes, propSchema: blockConfig.propSchema },
+            block as any,
+            editor as any,
+            context,
+          );
+          // A container's export carries its props as `data-*`, as a regular
+          // block's does.
+          if (external && isContainer && !isDocumentFragment(external.dom)) {
+            applyDataAttributes(
+              external.dom,
+              block.props,
+              blockConfig.propSchema,
+            );
+          }
+          return external;
+        },
+      }),
     },
     extensions,
   };
@@ -629,15 +646,15 @@ export function createBlockSpec<
         : extensionsOrCreator
       : undefined;
 
-    // Only a contentless block is a container here. A block with content of
-    // its own keeps its ordinary shape, and its `children` are owned children
-    // instead.
-    const isContainer = isContainerConfig(blockConfig);
+    // Only a block declared `container: true` is a container here. Every
+    // other block keeps its ordinary shape.
+    const isContainer = blockConfig.container === true;
 
-    // Keep the existing render contract, including for JS callers.
-    if (!blockImplementation.render) {
-      throw new Error(`Block "${blockConfig.type}" must declare \`render\`.`);
-    }
+    // Reports a misdeclared block where it is created, including for JS
+    // callers.
+    validateRenderHooks(blockConfig, blockImplementation);
+    const render = blockImplementation.render;
+    const toExternalHTML = blockImplementation.toExternalHTML;
 
     return {
       config: blockConfig,
@@ -645,58 +662,69 @@ export function createBlockSpec<
         ...blockImplementation,
         // TODO: this should not have wrapInBlockStructure and generally be a lot simpler
         // post-processing in externalHTMLExporter should not be necessary
-        toExternalHTML(block, editor, context) {
-          const output = blockImplementation.toExternalHTML?.call(
-            { blockContentDOMAttributes: this.blockContentDOMAttributes },
-            block as any,
-            editor as any,
-            context,
-          );
+        // Only a block with its own export has `toExternalHTML`. Without
+        // one, the external HTML serializer makes the default export.
+        ...(toExternalHTML && {
+          toExternalHTML(
+            this: ThisParameterType<typeof toExternalHTML>,
+            block: Parameters<typeof toExternalHTML>[0],
+            editor: Parameters<typeof toExternalHTML>[1],
+            context: Parameters<typeof toExternalHTML>[2],
+          ) {
+            const output = toExternalHTML.call(
+              { blockContentDOMAttributes: this.blockContentDOMAttributes },
+              block as any,
+              editor as any,
+              context,
+            );
 
-          if (output === undefined) {
-            return undefined;
-          }
+            if (output === undefined) {
+              return undefined;
+            }
 
-          if (isContainer) {
-            applyDOMAttributes(output.dom, this.blockContentDOMAttributes);
-            return output;
-          }
+            if (isContainer) {
+              applyDOMAttributes(output.dom, this.blockContentDOMAttributes);
+              return output;
+            }
 
-          return wrapInBlockStructure(
-            output,
-            block.type,
-            block.props,
-            this.propSchema ?? blockConfig.propSchema,
-            blockImplementation.meta?.fileBlockAccept !== undefined,
-          );
-        },
-        render(block, editor) {
-          const output = blockImplementation.render.call(
-            {
-              blockContentDOMAttributes: this.blockContentDOMAttributes,
-              renderType: this.renderType,
-              props: this.props as any,
-            },
-            block as any,
-            editor as any,
-          );
+            return wrapInBlockStructure(
+              output,
+              block.type,
+              block.props,
+              this.propSchema ?? blockConfig.propSchema,
+              blockImplementation.meta?.fileBlockAccept !== undefined,
+            );
+          },
+        }),
+        // A container has no `render`: it draws only its frame.
+        ...(render && {
+          render(
+            this: ThisParameterType<typeof render>,
+            block: Parameters<typeof render>[0],
+            editor: Parameters<typeof render>[1],
+          ) {
+            const output = render.call(
+              {
+                blockContentDOMAttributes: this.blockContentDOMAttributes,
+                renderType: this.renderType,
+                props: this.props as any,
+              },
+              block as any,
+              editor as any,
+            );
 
-          if (isContainer) {
-            applyDOMAttributes(output.dom, this.blockContentDOMAttributes);
-            return output;
-          }
+            const nodeView = wrapInBlockStructure(
+              output,
+              block.type,
+              block.props,
+              this.propSchema ?? blockConfig.propSchema,
+              blockImplementation.meta?.fileBlockAccept !== undefined,
+              this.blockContentDOMAttributes,
+            ) satisfies NodeView;
 
-          const nodeView = wrapInBlockStructure(
-            output,
-            block.type,
-            block.props,
-            this.propSchema ?? blockConfig.propSchema,
-            blockImplementation.meta?.fileBlockAccept !== undefined,
-            this.blockContentDOMAttributes,
-          ) satisfies NodeView;
-
-          return nodeView;
-        },
+            return nodeView;
+          },
+        }),
       },
       extensions: extensions,
     };

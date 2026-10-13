@@ -771,6 +771,44 @@ describe("canNestBlock / canUnnestBlock around containers", () => {
 
     expect(editor.document).toEqual(before);
   });
+
+  // The nest step moves the block into the previous sibling's children, where
+  // ProseMirror can refuse it. That refusal has to come back as `false`
+  // rather than escape as a `TransformError`: `canNestBlock` runs on every
+  // selection change (the formatting toolbar's nest buttons), and Tab runs
+  // `nestBlock` in the keymap.
+  //
+  // Here the previous sibling's children end in a container. The step opens
+  // into that last child to join the block onto it, which only works for a
+  // `blockContainer`: "Cannot join blockContainer onto callout".
+  it("Nests after a container at the end of the previous sibling's children", () => {
+    const editor = withContainerEditor([
+      {
+        id: "paragraph-0",
+        type: "paragraph",
+        content: "Paragraph 0",
+        children: [
+          {
+            id: "callout-0",
+            type: "callout",
+            children: [
+              { id: "callout-child", type: "paragraph", content: "In callout" },
+            ],
+          },
+        ],
+      },
+      { id: "after", type: "paragraph", content: "After" },
+    ]);
+
+    editor.setTextCursorPosition("after", "start");
+
+    expect(editor.canNestBlock()).toBe(true);
+    editor.nestBlock();
+    expect(
+      editor.getBlock("paragraph-0")!.children.map((child) => child.id),
+    ).toEqual(["callout-0", "after"]);
+    expect(editor.getTextCursorPosition().block.id).toBe("after");
+  });
 });
 
 // A `grid` holds only `gridCell`s, so a selection spanning two cells has no

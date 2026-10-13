@@ -4,11 +4,42 @@ import {
   createExtension,
   fragmentToBlocks,
   getBlockInfoFromNode,
+  getNodeById,
   nodeToBlock,
 } from "@blocknote/core";
+import type { Node } from "prosemirror-model";
 import { Plugin } from "prosemirror-state";
 import type { EditorView } from "prosemirror-view";
 import { detectEdgePosition } from "./multiColumnDropCursor.js";
+
+/**
+ * Whether the drop target is one of the dragged blocks, or inside one: the
+ * blocks are being dropped onto themselves. E.g. a block selection that spans
+ * the paragraph above a column list and the whole list, dragged by one of the
+ * list's blocks and dropped on a column's edge. Removing the dragged blocks
+ * would take the target with them.
+ */
+function targetInDraggedBlocks(
+  doc: Node,
+  draggedBlockIds: Set<string>,
+  targetId: string,
+): boolean {
+  const target = getNodeById(targetId, doc);
+  if (!target) {
+    throw new Error(`Drop target "${targetId}" is not in the document`);
+  }
+  for (const id of draggedBlockIds) {
+    const dragged = getNodeById(id, doc);
+    if (
+      dragged &&
+      dragged.posBeforeNode <= target.posBeforeNode &&
+      target.posBeforeNode < dragged.posBeforeNode + dragged.node.nodeSize
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
 
 /**
  * Creates a ProseMirror plugin that handles drop events for multi-column layouts.
@@ -72,6 +103,17 @@ export function createMultiColumnHandleDropPlugin(
             parentBlock,
             view.state.doc,
           );
+
+          // The user is dropping the blocks on a list they hold - do nothing.
+          if (
+            targetInDraggedBlocks(
+              view.state.doc,
+              draggedBlockIds,
+              columnList.id,
+            )
+          ) {
+            return true;
+          }
 
           // Normalize column widths to average of 1
           // In a `columnList`, we expect that the average width of each column
@@ -164,9 +206,11 @@ export function createMultiColumnHandleDropPlugin(
           // Create new columnList with blocks as columns
           const block = nodeToBlock(blockInfo.block.node, view.state.doc);
 
-          // The user is dropping next to one of the blocks being dragged - do
-          // nothing.
-          if (draggedBlockIds.has(block.id)) {
+          // The user is dropping next to one of the blocks being dragged, or
+          // next to a block inside one - do nothing.
+          if (
+            targetInDraggedBlocks(view.state.doc, draggedBlockIds, block.id)
+          ) {
             return true;
           }
 

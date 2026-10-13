@@ -5,8 +5,11 @@ import { defaultBlockToHTML } from "../../blocks/defaultBlockHelpers.js";
 import type { ExtensionFactoryInstance } from "../../editor/BlockNoteExtension.js";
 import { mergeCSSClasses } from "../../util/browser.js";
 import { camelToDataKebab } from "../../util/string.js";
+import { propsToDataAttributes, setDataAttributes } from "../dataAttributes.js";
 import { PropSchema, Props } from "../propTypes.js";
-import { BlockConfig, ChildrenConfig, LooseBlockSpec } from "./types.js";
+import { createBlockKeyboard } from "./keyboard.js";
+import { resolveBlockMeta } from "./meta.js";
+import { LooseBlockSpec } from "./types.js";
 
 // Function that uses the 'propSchema' of a blockConfig to create a TipTap
 // node's `addAttributes` property.
@@ -60,14 +63,8 @@ export function propsToAttributes(propSchema: PropSchema): Attributes {
 
         return value;
       },
-      renderHTML: (attributes) => {
-        // don't render to html if the value is the same as the default
-        return attributes[name] !== spec.default
-          ? {
-              [camelToDataKebab(name)]: attributes[name],
-            }
-          : {};
-      },
+      renderHTML: (attributes) =>
+        propsToDataAttributes({ [name]: attributes[name] }, { [name]: spec }),
     };
   });
 
@@ -231,15 +228,13 @@ export function wrapInBlockStructure<
   );
   // Sets content type attribute
   blockContent.setAttribute("data-content-type", blockType);
-  // Adds props as HTML attributes in kebab-case with "data-" prefix. Skips props
-  // which are already added as HTML attributes to the parent `blockContent`
-  // element (inheritedProps) and props set to their default values.
-  for (const [prop, value] of Object.entries(blockProps)) {
-    const spec = propSchema[prop];
-    if (value !== spec?.default) {
-      blockContent.setAttribute(camelToDataKebab(prop), value);
-    }
-  }
+  // Adds the props as `data-*` attributes, leaving out those at their default.
+  // Set only: the tiptap `renderHTML` path passes the props through
+  // `domAttributes` above and empty `blockProps`.
+  setDataAttributes(
+    blockContent,
+    propsToDataAttributes(blockProps, propSchema),
+  );
   // Adds file block attribute
   if (isFileBlock) {
     blockContent.setAttribute("data-file-block", "");
@@ -265,12 +260,6 @@ export function createBlockSpecFromTiptapNode<
     node: Node;
     type: string;
     content: "inline" | "table" | "none" | "plain";
-    // Declares the block's container semantics (child counts/repair etc.)
-    // even though the node itself is hand-written. The node's own content
-    // expression stays authoritative for the PM schema, while BlockNote-level
-    // behavior (repair, seeding, validation) reads this config.
-    children?: ChildrenConfig;
-    placeable?: BlockConfig["placeable"];
   },
   P extends PropSchema,
 >(
@@ -283,13 +272,14 @@ export function createBlockSpecFromTiptapNode<
       type: config.type as T["type"],
       content: config.content,
       propSchema,
-      ...(config.children !== undefined ? { children: config.children } : {}),
-      ...(config.placeable !== undefined
-        ? { placeable: config.placeable }
-        : {}),
     },
     implementation: {
       node: config.node,
+      meta: resolveBlockMeta(undefined, {}),
+      keyboard: createBlockKeyboard(undefined, {
+        isContainer: false,
+        hardBreakShortcut: undefined,
+      }),
       render: defaultBlockToHTML,
       toExternalHTML: defaultBlockToHTML,
     },

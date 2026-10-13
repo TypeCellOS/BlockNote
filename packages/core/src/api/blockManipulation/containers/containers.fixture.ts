@@ -7,6 +7,11 @@ const renderDiv = () => {
   return { dom, contentDOM: dom };
 };
 
+const frameDiv = () => {
+  const dom = document.createElement("div");
+  return { dom, slot: dom };
+};
+
 const Callout = createBlockSpec(
   {
     type: "callout" as const,
@@ -17,9 +22,9 @@ const Callout = createBlockSpec(
       },
     },
     content: "none",
-    children: { allow: "blocks" },
+    container: true,
   },
-  { render: renderDiv },
+  { renderFrame: frameDiv },
 )();
 
 const Grid = createBlockSpec(
@@ -27,12 +32,13 @@ const Grid = createBlockSpec(
     type: "grid" as const,
     propSchema: {},
     content: "none",
+    container: true,
     children: {
       allow: ["gridCell"],
       min: 2,
     },
   },
-  { render: renderDiv },
+  { renderFrame: frameDiv },
 )();
 
 const GridCell = createBlockSpec(
@@ -40,38 +46,54 @@ const GridCell = createBlockSpec(
     type: "gridCell" as const,
     propSchema: {},
     content: "none",
-    children: { allow: "blocks" },
+    container: true,
     placeable: "namedOnly",
   },
-  { render: renderDiv },
+  { renderFrame: frameDiv },
 )();
 
-// A container that requires two children, so dropping below `min` dissolves
-// it into the survivors.
+// A second container of any blocks, for conversions between container types.
+const Box = createBlockSpec(
+  {
+    type: "box" as const,
+    propSchema: {},
+    content: "none",
+    container: true,
+  },
+  { renderFrame: frameDiv },
+)();
+
+// A container that requires two callouts, so dropping below `min` dissolves
+// it into the survivor. (`min` needs an `allow` list: a container of any
+// blocks always holds at least one.)
 const Pair = createBlockSpec(
   {
     type: "pair" as const,
     propSchema: {},
     content: "none",
-    children: {
-      allow: "blocks",
-      min: 2,
-    },
+    container: true,
+    children: { allow: ["callout"], min: 2 },
   },
-  { render: renderDiv },
+  { renderFrame: frameDiv },
 )();
 
 // A titled block: an ordinary block with inline content (the title) whose
-// `children` are a body that belongs to it. The frame draws the box around
-// title and body together.
+// child blocks are a body that belongs to it. Its `experimental_keyboard` settings keep
+// the body together: Enter in the title starts it, its blocks can't be
+// outdented, and an empty last block leaves it. The frame draws the box
+// around title and body together.
 const Alert = createBlockSpec(
   {
     type: "alert" as const,
     propSchema: {},
     content: "inline",
-    children: { allow: "blocks" },
   },
   {
+    experimental_keyboard: {
+      enter: "into-children",
+      childrenCanOutdent: false,
+      emptyChildEnter: "exit-at-end",
+    },
     render: renderDiv,
     renderFrame: () => {
       const dom = document.createElement("div");
@@ -92,5 +114,6 @@ export const containerSchema = BlockNoteSchema.create().extend({
     grid: Grid,
     gridCell: GridCell,
     pair: Pair,
+    box: Box,
   } as const,
 });

@@ -220,6 +220,7 @@ export const de: Dictionary = {
   toggle_blocks: {
     add_block_button:
       "Leerer aufklappbarer Bereich. Klicken, um einen Block hinzuzufügen.",
+    toggle_button: "Aufklappen oder zuklappen",
   },
   code_block: {
     add_source_button_text: "Quellcode hinzufügen",
@@ -440,5 +441,6 @@ export const de: Dictionary = {
   },
   generic: {
     ctrl_shortcut: "Strg",
+    form_submit: "OK",
   },
 };

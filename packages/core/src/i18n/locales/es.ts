@@ -199,6 +199,7 @@ export const es: Dictionary = {
   },
   toggle_blocks: {
     add_block_button: "Toggle vacío. Haz clic para añadir un bloque.",
+    toggle_button: "Expandir o contraer",
   },
   code_block: {
     add_source_button_text: "Agregar código fuente",
@@ -419,5 +420,6 @@ export const es: Dictionary = {
   },
   generic: {
     ctrl_shortcut: "Ctrl",
+    form_submit: "Aceptar",
   },
 };
