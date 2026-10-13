@@ -1,3 +1,11 @@
+import {
+  BlockNoteEditor,
+  BlockNoteSchema,
+  createBlockSpec,
+} from "@blocknote/core";
+import { BlockNoteView } from "@blocknote/mantine";
+import "@blocknote/mantine/style.css";
+import { createReactBlockSpec, useCreateBlockNote } from "@blocknote/react";
 import TestingApp from "@examples/01-basic/testing/src/App";
 import PdfFileApp from "@examples/06-custom-schema/04-pdf-file-block/src/App";
 import { describe, expect, test } from "vite-plus/test";
@@ -16,9 +24,14 @@ import { insertHeading, insertParagraph } from "../../utils/copypaste.js";
 import {
   compareDocToSnapshot,
   focusOnEditor,
+  sleep,
   waitForSelector,
 } from "../../utils/editor.js";
-import { dragAndDropBlock } from "../../utils/mouse.js";
+import {
+  dragAndDropBlock,
+  dropDraggedBlock,
+  startBlockDrag,
+} from "../../utils/mouse.js";
 import { executeSlashCommand } from "../../utils/slashmenu.js";
 
 // `expect.element` is augmented against the bare `vitest` module, but vite-plus
@@ -148,4 +161,206 @@ describe("Check Block Dragging Functionality", () => {
       await compareDocToSnapshot("dragPdf");
     },
   );
+});
+
+// Dragging container blocks by their drag handle: the drag preview shows the
+// dragged block, and a drop places the dragged block itself, not a new copy
+// of its parent around it.
+
+/**
+ * A container's frame: a label (chrome) above the slot. The drag handle of the
+ * container shows when the mouse is on its chrome.
+ */
+function labelledFrame(label: string) {
+  const dom = document.createElement("section");
+  dom.style.border = "1px solid gray";
+  dom.style.padding = "8px";
+  const chrome = document.createElement("div");
+  chrome.className = "label";
+  chrome.contentEditable = "false";
+  chrome.textContent = label;
+  const slot = document.createElement("div");
+  dom.append(chrome, slot);
+  return { dom, slot };
+}
+
+// A React container: React wraps its frame in elements of its own.
+const createReactPanel = createReactBlockSpec(
+  { type: "reactPanel", propSchema: {}, content: "none", container: true },
+  {
+    renderFrame: (props) => (
+      <section style={{ border: "1px solid gray", padding: 8 }}>
+        <div className="label" contentEditable={false}>
+          React panel
+        </div>
+        <div ref={props.slotRef} />
+      </section>
+    ),
+  },
+);
+
+// A list of items. An item is placed only in a list (`namedOnly`), and it
+// keeps its drag handle (`draggable`), like the steps of a stepper.
+const Item = createBlockSpec(
+  {
+    type: "item",
+    propSchema: {},
+    content: "none",
+    container: true,
+    placeable: "namedOnly",
+  },
+  {
+    meta: { draggable: true },
+    renderFrame: () => labelledFrame("Item"),
+  },
+);
+
+const List = createBlockSpec(
+  {
+    type: "list",
+    propSchema: {},
+    content: "none",
+    container: true,
+    children: { allow: ["item"], min: 1 },
+  },
+  {
+    renderFrame: () => {
+      const dom = document.createElement("div");
+      return { dom, slot: dom };
+    },
+  },
+);
+
+const schema = BlockNoteSchema.create().extend({
+  blockSpecs: {
+    reactPanel: createReactPanel(),
+    item: Item(),
+    list: List(),
+  },
+});
+
+const item = (id: string, text: string) => ({
+  id,
+  type: "item",
+  children: [{ type: "paragraph", content: text }],
+});
+
+const editors: BlockNoteEditor<any, any, any>[] = [];
+
+function Editor(props: { initialContent: any[] }) {
+  const editor = useCreateBlockNote({
+    schema,
+    initialContent: props.initialContent,
+  });
+  editors.push(editor as any);
+  return <BlockNoteView editor={editor} />;
+}
+
+async function renderEditors(...documents: any[][]) {
+  editors.length = 0;
+  await render(
+    <div>
+      {documents.map((initialContent, index) => (
+        <Editor key={index} initialContent={initialContent} />
+      ))}
+    </div>,
+  );
+  await waitForSelector(EDITOR_SELECTOR);
+  await sleep(100);
+}
+
+/** The element of the block with the ID. */
+function block(id: string) {
+  return document.querySelector(`[data-id="${id}"]`)!;
+}
+
+/**
+ * Where the mouse picks the block with the ID: the chrome of a container, or
+ * else the block's element.
+ */
+function handleOf(id: string) {
+  return block(id).querySelector(":scope > .label") ?? block(id);
+}
+
+/** The IDs of the blocks. */
+function ids(blocks: any[]) {
+  return blocks.map((block) => block.id);
+}
+
+/** The number of `list` blocks in a block tree. */
+function lists(blocks: any[]): number {
+  return blocks.reduce(
+    (count, block) =>
+      count + (block.type === "list" ? 1 : 0) + lists(block.children),
+    0,
+  );
+}
+
+// Playwright doesn't correctly simulate drag events in Firefox.
+describe.skipIf(browserName === "firefox")("Dragging container blocks", () => {
+  test.each([
+    { name: "a React container", id: "reactPanel", text: "In React" },
+    { name: "a block in a React container", id: "inReact", text: "In React" },
+  ])("shows $name in the drag preview", async ({ id, text }) => {
+    await renderEditors([
+      {
+        id: "reactPanel",
+        type: "reactPanel",
+        children: [{ id: "inReact", type: "paragraph", content: "In React" }],
+      },
+    ]);
+
+    await startBlockDrag(handleOf(id));
+    try {
+      const preview = await waitForSelector(".bn-drag-preview");
+      expect(preview.textContent).toContain(text);
+      const { width, height } = preview.getBoundingClientRect();
+      expect(width).toBeGreaterThan(0);
+      expect(height).toBeGreaterThan(0);
+    } finally {
+      // Releases the mouse also when a check fails, for the next tests.
+      await dropDraggedBlock(block(id), true);
+    }
+  });
+
+  test("moves a namedOnly container in its list, without a copy of the list", async () => {
+    await renderEditors([
+      {
+        id: "list",
+        type: "list",
+        children: [item("i1", "One"), item("i2", "Two"), item("i3", "Three")],
+      },
+    ]);
+
+    await dragAndDropBlock(handleOf("i1"), handleOf("i3"), true);
+    await sleep(100);
+
+    // The item moved: the list holds the same items, and no new list.
+    expect(lists(editors[0].document)).toBe(1);
+    expect(ids(editors[0].document[0].children)).toEqual(["i2", "i1", "i3"]);
+  });
+
+  test("moves a namedOnly container into a list of another editor", async () => {
+    await renderEditors(
+      [
+        {
+          id: "list",
+          type: "list",
+          children: [item("i1", "One"), item("i2", "Two")],
+        },
+      ],
+      [{ id: "list2", type: "list", children: [item("j1", "Uno")] }],
+    );
+
+    await dragAndDropBlock(handleOf("i1"), handleOf("j1"), true);
+    await sleep(100);
+
+    expect(ids(editors[0].document[0].children)).toEqual(["i2"]);
+    // The item moved into the other list, without a new list around it.
+    expect(lists(editors[1].document)).toBe(1);
+    expect(editors[1].document[0].children).toHaveLength(2);
+    expect(
+      editors[1].document[0].children.map((child: any) => child.type),
+    ).toEqual(["item", "item"]);
+  });
 });

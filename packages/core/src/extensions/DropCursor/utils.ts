@@ -40,19 +40,6 @@ export function hasExclusionClassname(
   return !!element.closest(`.${exclude}`);
 }
 
-// A node view whose outer element is `display: contents` (e.g. a React
-// container block) has no box of its own, so measure its first rendered child.
-function getNodeRect(node: HTMLElement): DOMRect {
-  let measured: Element = node;
-  while (
-    getComputedStyle(measured).display === "contents" &&
-    measured.firstElementChild
-  ) {
-    measured = measured.firstElementChild;
-  }
-  return measured.getBoundingClientRect();
-}
-
 /**
  * Computes the viewport rect for a block-level drop cursor (horizontal line between blocks
  * or vertical line on left/right edge). Returns null for inline positions or when no DOM node exists.
@@ -92,7 +79,7 @@ export function getBlockDropRect(
     return null;
   }
 
-  const nodeRect = getNodeRect(node);
+  const nodeRect = node.getBoundingClientRect();
 
   if (isVertical) {
     const halfWidth = (width / 2) * scaleX;
@@ -112,7 +99,10 @@ export function getBlockDropRect(
   let top = before ? nodeRect.bottom : nodeRect.top;
   if (before && after) {
     top =
-      (top + getNodeRect(view.nodeDOM(cursorPos.pos) as HTMLElement).top) / 2;
+      (top +
+        (view.nodeDOM(cursorPos.pos) as HTMLElement).getBoundingClientRect()
+          .top) /
+      2;
   }
   const halfHeight = (width / 2) * scaleY;
 
