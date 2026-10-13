@@ -1,4 +1,4 @@
-import { containerSchema } from "./blockManipulation/containers/containers.fixture.js";
+import { layoutSchema } from "./blockManipulation/layoutBlocks/layoutBlocks.fixture.js";
 import { getNodeById } from "./nodeUtil.js";
 import { Node, Schema } from "prosemirror-model";
 import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
@@ -7,7 +7,7 @@ import { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
 import { blockToNode } from "./nodeConversions/blockToNode.js";
 import { docToBlocks } from "./nodeConversions/nodeToBlock.js";
 import {
-  getAncestorContainers,
+  getAncestorLayoutBlocks,
   getBlockInfoFromNode,
   getLastDescendantBlockInfo,
   getNextBlockInfo,
@@ -511,14 +511,14 @@ describe("docToBlocks round trip with suggested deletions", () => {
   });
 });
 
-describe("block info for containers", () => {
+describe("block info for layout blocks", () => {
   let editor: BlockNoteEditor<
-    typeof containerSchema.blockSchema,
-    typeof containerSchema.inlineContentSchema,
-    typeof containerSchema.styleSchema
+    typeof layoutSchema.blockSchema,
+    typeof layoutSchema.inlineContentSchema,
+    typeof layoutSchema.styleSchema
   >;
   beforeEach(() => {
-    editor = BlockNoteEditor.create({ schema: containerSchema });
+    editor = BlockNoteEditor.create({ schema: layoutSchema });
   });
   afterEach(() => {
     editor._tiptapEditor.destroy();
@@ -555,12 +555,12 @@ describe("block info for containers", () => {
     }
   });
 
-  describe("parent lookups for container children", () => {
-    // Regression: `getParentBlockInfo` used to skip the container level for
-    // container children (returning the grid for a block inside a gridCell).
+  describe("parent lookups for layout block children", () => {
+    // Regression: `getParentBlockInfo` used to skip the layout block level for
+    // layout block children (returning the grid for a block inside a gridCell).
     // The parent of a block is the block whose `children` contains it: the
     // cell.
-    it("returns the container as the parent of its direct children", () => {
+    it("returns the layout block as the parent of its direct children", () => {
       editor.replaceBlocks(editor.document, [
         {
           type: "grid",
@@ -601,7 +601,7 @@ describe("block info for containers", () => {
     });
   });
 
-  it("lists the container ancestors of a position, innermost first", () => {
+  it("lists the layout block ancestors of a position, innermost first", () => {
     editor.replaceBlocks(editor.document, [
       {
         type: "grid",
@@ -630,19 +630,21 @@ describe("block info for containers", () => {
 
     editor.transact((tr) => {
       const deep = getNodeById("deep-p", tr.doc)!;
-      const ancestors = getAncestorContainers(tr.doc, deep.posBeforeNode);
+      const ancestors = getAncestorLayoutBlocks(tr.doc, deep.posBeforeNode);
 
-      // Only the container nodes: the `blockGroup`/`blockContainer` levels
-      // between them are not containers and must not be repaired.
+      // Only the layout block nodes: the `blockGroup`/`blockContainer` levels
+      // between them are not layout blocks and must not be repaired.
       expect(ancestors.map(({ id }) => id)).toEqual(["c-0", "cell-a", "g-0"]);
-      // Depths shrink outwards, which is what `fixContainersById` sorts on.
+      // Depths shrink outwards, which is what `fixLayoutBlocksById` sorts on.
       expect(ancestors.map(({ depth }) => depth)).toEqual(
         [...ancestors.map(({ depth }) => depth)].sort((a, b) => b - a),
       );
 
-      // A top-level block has no container ancestors at all.
+      // A top-level block has no layout block ancestors at all.
       const trailing = getNodeById("trailing", tr.doc)!;
-      expect(getAncestorContainers(tr.doc, trailing.posBeforeNode)).toEqual([]);
+      expect(getAncestorLayoutBlocks(tr.doc, trailing.posBeforeNode)).toEqual(
+        [],
+      );
     });
   });
 });

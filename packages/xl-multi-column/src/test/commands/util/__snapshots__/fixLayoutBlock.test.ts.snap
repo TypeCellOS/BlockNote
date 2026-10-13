@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Test fixContainer drops emptied columns > First of two columns empty 1`] = `
+exports[`Test fixLayoutBlock drops emptied columns > First of two columns empty 1`] = `
 {
   "content": [
     {
@@ -35,7 +35,7 @@ exports[`Test fixContainer drops emptied columns > First of two columns empty 1`
 }
 `;
 
-exports[`Test fixContainer drops emptied columns > Last of two columns empty 1`] = `
+exports[`Test fixLayoutBlock drops emptied columns > Last of two columns empty 1`] = `
 {
   "content": [
     {
@@ -70,7 +70,7 @@ exports[`Test fixContainer drops emptied columns > Last of two columns empty 1`]
 }
 `;
 
-exports[`Test fixContainer drops emptied columns > Start and end columns empty 1`] = `
+exports[`Test fixLayoutBlock drops emptied columns > Start and end columns empty 1`] = `
 {
   "content": [
     {
@@ -153,7 +153,7 @@ exports[`Test fixContainer drops emptied columns > Start and end columns empty 1
 }
 `;
 
-exports[`Test fixContainer drops emptied columns > Two empty columns 1`] = `
+exports[`Test fixLayoutBlock drops emptied columns > Two empty columns 1`] = `
 {
   "content": [
     {

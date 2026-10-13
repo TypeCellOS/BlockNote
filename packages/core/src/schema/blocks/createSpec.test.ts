@@ -169,7 +169,7 @@ describe("block spec and node agreement", () => {
   });
 });
 
-describe("container children parsing", () => {
+describe("layout block children parsing", () => {
   const frameDiv = () => {
     const dom = document.createElement("div");
     return { dom, slot: dom };
@@ -180,7 +180,7 @@ describe("container children parsing", () => {
       type: "mixedBox" as const,
       propSchema: {},
       content: "none",
-      container: true,
+      layoutOnly: true,
     },
     { renderFrame: frameDiv },
   )();
@@ -233,14 +233,14 @@ describe("render hooks contract", () => {
           type: "probed" as const,
           propSchema: {},
           content: "none" as const,
-          container: true,
+          layoutOnly: true,
         },
         {},
       )(),
     ).toThrow(/must declare `renderFrame`/);
   });
 
-  it("rejects renderFrame alone on a block that is not a container", () => {
+  it("rejects renderFrame alone on a block that is not a layout block", () => {
     // A block with content draws it in `render`.
     expect(() =>
       createBlockSpec(
@@ -254,27 +254,27 @@ describe("render hooks contract", () => {
     ).toThrow(/must declare `render`/);
   });
 
-  it("rejects render on a container, which has no content to draw", () => {
+  it("rejects render on a layout block, which has no content to draw", () => {
     expect(() =>
       createBlockSpec(
         {
           type: "probed",
           propSchema: {},
           content: "none",
-          container: true,
+          layoutOnly: true,
         },
         { render: renderDiv, renderFrame: frameDiv },
       )(),
     ).toThrow(/has no content for `render` to draw/);
   });
 
-  it("rejects a container frame that declines", () => {
+  it("rejects a layout block frame that declines", () => {
     const declining = createBlockSpec(
       {
         type: "probed",
         propSchema: {},
         content: "none",
-        container: true,
+        layoutOnly: true,
       },
       { renderFrame: () => undefined },
     )();
@@ -290,13 +290,13 @@ describe("render hooks contract", () => {
   });
 });
 
-it("exports a container like a regular block, parsing back through its own parse", () => {
+it("exports a layout block like a regular block, parsing back through its own parse", () => {
   const box = createBlockSpec(
     {
       type: "box",
       propSchema: { tone: { default: "plain" } },
       content: "none",
-      container: true,
+      layoutOnly: true,
     },
     {
       renderFrame() {

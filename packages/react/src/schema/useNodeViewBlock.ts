@@ -42,7 +42,7 @@ export function useNodeViewBlock(
   const lastBlockRef = useRef(initialBlock);
   const doc = props.view.state.doc;
 
-  // Container node views already receive the complete block node.
+  // Layout block node views already receive the complete block node.
   if (props.node.type.isInGroup("bnBlock")) {
     return nodeToBlock(props.node, doc);
   }

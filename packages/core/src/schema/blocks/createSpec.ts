@@ -21,7 +21,7 @@ import {
   CHILD_CONTAINER_GROUP,
   anyBlocksExpression,
   childrenContentExpression,
-  containerNodePriority,
+  layoutNodePriority,
 } from "./children.js";
 import { applyDataAttributes } from "../dataAttributes.js";
 import { blockFrameView, findFrameSlot, frameNodeViewHooks } from "./frame.js";
@@ -71,12 +71,12 @@ function blockContentParser<
   config: BlockConfig<TName, TProps, TContent>,
   implementation: BlockImplementation<TName, TProps, TContent>,
 ): TagParseRule["getContent"] | undefined {
-  const isContainer = config.container === true;
+  const isLayoutBlock = config.layoutOnly === true;
   if (
     config.content === "table" ||
-    (isContainer && !implementation.parseContent)
+    (isLayoutBlock && !implementation.parseContent)
   ) {
-    // Tables use their own rules. Containers without parseContent use PM's
+    // Tables use their own rules. Layout blocks without parseContent use PM's
     // normal child parsing, including wrapping inline runs as paragraphs.
     return undefined;
   }
@@ -94,7 +94,7 @@ function blockContentParser<
       }
     }
 
-    if (isContainer) {
+    if (isLayoutBlock) {
       return DOMParser.fromSchema(schema).parse(node as HTMLElement, {
         topNode: schema.nodes["blockGroup"].create(),
         preserveWhitespace: true,
@@ -152,10 +152,10 @@ export function getParseRules<
   config: BlockConfig<TName, TProps, TContent>,
   implementation: BlockImplementation<TName, TProps, TContent>,
 ) {
-  const isContainer = config.container === true;
+  const isLayoutBlock = config.layoutOnly === true;
 
   const rules: TagParseRule[] = [
-    isContainer
+    isLayoutBlock
       ? {
           tag: `[data-node-type=${config.type}]`,
           // Scope the round-trip parse to the frame's slot, so chrome the
@@ -199,7 +199,7 @@ export function getParseRules<
 
 /**
  * Checks that a block declares the render hooks its config calls for: a
- * container (`container: true`) has no content, so it declares only
+ * layout block (`layoutOnly: true`) has no content, so it declares only
  * `renderFrame`; every other block declares `render`.
  *
  * FIXME: return the checked hooks as a discriminated union
@@ -207,10 +207,10 @@ export function getParseRules<
  * don't need `!` on `render`/`renderFrame` afterwards.
  */
 export function validateRenderHooks(
-  blockConfig: Pick<BlockConfig, "type" | "container">,
+  blockConfig: Pick<BlockConfig, "type" | "layoutOnly">,
   implementation: { render?: unknown; renderFrame?: unknown },
 ) {
-  if (blockConfig.container !== true) {
+  if (blockConfig.layoutOnly !== true) {
     if (!implementation.render) {
       throw new Error(`Block "${blockConfig.type}" must declare \`render\`.`);
     }
@@ -218,12 +218,12 @@ export function validateRenderHooks(
   }
   if (implementation.render) {
     throw new Error(
-      `Container block "${blockConfig.type}" draws its box in \`renderFrame\`, and has no content for \`render\` to draw.`,
+      `Layout block "${blockConfig.type}" draws its box in \`renderFrame\`, and has no content for \`render\` to draw.`,
     );
   }
   if (!implementation.renderFrame) {
     throw new Error(
-      `Container block "${blockConfig.type}" must declare \`renderFrame\`.`,
+      `Layout block "${blockConfig.type}" must declare \`renderFrame\`.`,
     );
   }
 }
@@ -237,8 +237,8 @@ type ResolvedBlockImplementation<
   meta: ResolvedBlockConfigMeta<TName, TProps>;
 };
 
-/** A container's node view: its frame. */
-function containerNodeView<
+/** A layout block's node view: its frame. */
+function layoutNodeView<
   TName extends string,
   TProps extends PropSchema,
   TContent extends "inline" | "none" | "table" | "plain",
@@ -282,8 +282,8 @@ function blockNodeView<
   blockImplementation: ResolvedBlockImplementation<TName, TProps, TContent>,
   props: NodeViewRendererProps,
 ): NodeView {
-  if (blockConfig.container === true) {
-    return containerNodeView(blockImplementation, props);
+  if (blockConfig.layoutOnly === true) {
+    return layoutNodeView(blockImplementation, props);
   }
   const block = getBlockFromNodeView(
     props.getPos,
@@ -314,12 +314,12 @@ function blockNodeView<
 }
 
 /**
- * A container node's content expression. A container that excludes types
- * needs the schema's other container types spelled out, which only the
+ * A layout block node's content expression. A layout block that excludes types
+ * needs the schema's other layout block types spelled out, which only the
  * editor's schema knows: tiptap accepts a function here and calls it when
  * the editor builds its ProseMirror schema, with the configured options.
  */
-function containerContent(
+function layoutNodeContent(
   children: ChildrenConfig | undefined,
 ): NodeConfig<{ editor: BlockNoteEditor<any, any, any> }>["content"] {
   const exclude =
@@ -344,11 +344,11 @@ function buildNode<
   blockImplementation: ResolvedBlockImplementation<TName, TProps, TContent>,
   priority?: number,
 ) {
-  const isContainer = blockConfig.container === true;
+  const isLayoutBlock = blockConfig.layoutOnly === true;
   return Node.create({
     name: blockConfig.type,
-    content: isContainer
-      ? containerContent(blockConfig.children)
+    content: isLayoutBlock
+      ? layoutNodeContent(blockConfig.children)
       : blockConfig.content === "inline"
         ? "inline*"
         : blockConfig.content === "plain"
@@ -363,13 +363,13 @@ function buildNode<
     // when at least one such mark is registered, so a plain block in an editor
     // without any of them doesn't reference an empty (unknown) mark group.
     marks() {
-      return isContainer
+      return isLayoutBlock
         ? suggestionMarks(this.editor)
         : blockConfig.content === "plain"
           ? nonFormattingMarks(this.editor)
           : undefined;
     },
-    group: isContainer
+    group: isLayoutBlock
       ? [
           "bnBlock",
           CHILD_CONTAINER_GROUP,
@@ -378,13 +378,13 @@ function buildNode<
             : [BLOCK_GROUP_CHILD_GROUP]),
         ].join(" ")
       : "blockContent",
-    // The node flags come resolved, container rules included (see
+    // The node flags come resolved, layout block rules included (see
     // `resolveBlockMeta`).
     selectable: blockImplementation.meta.selectable,
     isolating: blockImplementation.meta.isolating,
     code: blockImplementation.meta.code,
     defining: blockImplementation.meta.defining,
-    priority: isContainer ? containerNodePriority(priority) : priority,
+    priority: isLayoutBlock ? layoutNodePriority(priority) : priority,
     addAttributes() {
       return propsToAttributes(blockConfig.propSchema);
     },
@@ -394,7 +394,7 @@ function buildNode<
     },
 
     renderHTML({ HTMLAttributes }) {
-      if (isContainer) {
+      if (isLayoutBlock) {
         const dom = document.createElement("div");
         dom.setAttribute("data-node-type", blockConfig.type);
         for (const [attribute, value] of Object.entries(HTMLAttributes)) {
@@ -443,9 +443,9 @@ export function addNodeAndExtensionsToSpec<
   extensions?: (ExtensionFactoryInstance | Extension)[],
   priority?: number,
 ): LooseBlockSpec<TName, TProps, TContent> {
-  // Only a block declared `container: true` builds a container node, which
+  // Only a block declared `layoutOnly: true` builds a layout block node, which
   // holds its children. Every other block keeps its ordinary shape.
-  const isContainer = blockConfig.container === true;
+  const isLayoutBlock = blockConfig.layoutOnly === true;
   const implementation: ResolvedBlockImplementation<TName, TProps, TContent> = {
     ...blockImplementation,
     meta: resolveBlockMeta(blockImplementation.meta, blockConfig),
@@ -481,11 +481,11 @@ export function addNodeAndExtensionsToSpec<
     implementation: {
       ...rest,
       keyboard: createBlockKeyboard(experimental_keyboard, {
-        isContainer,
+        isLayoutBlock,
         hardBreakShortcut: implementation.meta.hardBreakShortcut,
       }),
       node,
-      // The block's content outside the editor. A container has no content,
+      // The block's content outside the editor. A layout block has no content,
       // so no `render`: it is its frame. A frame is drawn by whoever
       // assembles the block (the serializers), never by `render`.
       ...(render && {
@@ -525,9 +525,9 @@ export function addNodeAndExtensionsToSpec<
             editor as any,
             context,
           );
-          // A container's export carries its props as `data-*`, as a regular
+          // A layout block's export carries its props as `data-*`, as a regular
           // block's does.
-          if (external && isContainer && !isDocumentFragment(external.dom)) {
+          if (external && isLayoutBlock && !isDocumentFragment(external.dom)) {
             applyDataAttributes(
               external.dom,
               block.props,
@@ -646,9 +646,9 @@ export function createBlockSpec<
         : extensionsOrCreator
       : undefined;
 
-    // Only a block declared `container: true` is a container here. Every
+    // Only a block declared `layoutOnly: true` is a layout block here. Every
     // other block keeps its ordinary shape.
-    const isContainer = blockConfig.container === true;
+    const isLayoutBlock = blockConfig.layoutOnly === true;
 
     // Reports a misdeclared block where it is created, including for JS
     // callers.
@@ -682,7 +682,7 @@ export function createBlockSpec<
               return undefined;
             }
 
-            if (isContainer) {
+            if (isLayoutBlock) {
               applyDOMAttributes(output.dom, this.blockContentDOMAttributes);
               return output;
             }
@@ -696,7 +696,7 @@ export function createBlockSpec<
             );
           },
         }),
-        // A container has no `render`: it draws only its frame.
+        // A layout block has no `render`: it draws only its frame.
         ...(render && {
           render(
             this: ThisParameterType<typeof render>,

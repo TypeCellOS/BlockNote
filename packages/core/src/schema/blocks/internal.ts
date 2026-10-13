@@ -277,7 +277,7 @@ export function createBlockSpecFromTiptapNode<
       node: config.node,
       meta: resolveBlockMeta(undefined, {}),
       keyboard: createBlockKeyboard(undefined, {
-        isContainer: false,
+        isLayoutBlock: false,
         hardBreakShortcut: undefined,
       }),
       render: defaultBlockToHTML,

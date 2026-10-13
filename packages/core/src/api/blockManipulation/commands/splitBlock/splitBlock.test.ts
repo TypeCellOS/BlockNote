@@ -8,7 +8,7 @@ import {
   getNodeId,
 } from "../../../getBlockInfoFromPos.js";
 import { getNodeById } from "../../../nodeUtil.js";
-import { containerSchema } from "../../containers/containers.fixture.js";
+import { layoutSchema } from "../../layoutBlocks/layoutBlocks.fixture.js";
 import { setupTestEnv } from "../../setupTestEnv.js";
 import { splitBlockCommand } from "./splitBlock.js";
 
@@ -152,12 +152,12 @@ describe("Test splitBlocks", () => {
 
 // `splitBlockTr` splits two levels deep (`blockContent` and its
 // `blockContainer`), which assumes the block's parent is a children holder that
-// accepts another `blockContainer`. A container's children holder is a
+// accepts another `blockContainer`. A layout block's children holder is a
 // different node type than `blockGroup`, so these pin that the split lands
-// inside the container rather than tearing it open.
-describe("Test splitBlocks inside containers", () => {
-  const getContainerEditor = setupTestEnv({
-    schema: containerSchema,
+// inside the layout block rather than tearing it open.
+describe("Test splitBlocks inside layout blocks", () => {
+  const getLayoutEditor = setupTestEnv({
+    schema: layoutSchema,
     document: [
       { id: "before", type: "paragraph", content: "Before" },
       {
@@ -206,12 +206,12 @@ describe("Test splitBlocks inside containers", () => {
     ],
   });
 
-  function splitContainerBlock(
+  function splitLayoutBlock(
     blockId: string,
     offset: number,
     keepChildren = false,
   ) {
-    const editor = getContainerEditor();
+    const editor = getLayoutEditor();
 
     const posInBlock = editor.transact((tr) => {
       const posInfo = getNodeById(blockId, tr.doc);
@@ -221,7 +221,7 @@ describe("Test splitBlocks inside containers", () => {
 
       const info = getBlockInfoFromNode(posInfo.node, posInfo.posBeforeNode);
 
-      // A container has no content to offset into, so we aim at the node
+      // A layout block has no content to offset into, so we aim at the node
       // itself, which is where a `NodeSelection` on it would put the anchor.
       return info.hasContent
         ? info.content.beforePos + offset + 1
@@ -237,10 +237,10 @@ describe("Test splitBlocks inside containers", () => {
     return (block.content as { text: string }[]).map((c) => c.text).join("");
   }
 
-  it("Splits a block inside a container in place", () => {
-    expect(splitContainerBlock("callout-child-0", 7)).toBe(true);
+  it("Splits a block inside a layout block in place", () => {
+    expect(splitLayoutBlock("callout-child-0", 7)).toBe(true);
 
-    const document = getContainerEditor().document;
+    const document = getLayoutEditor().document;
 
     expect(document.map((block) => block.id)).toEqual([
       "before",
@@ -256,15 +256,13 @@ describe("Test splitBlocks inside containers", () => {
       "Callout heading",
     ]);
 
-    expect(() =>
-      getContainerEditor().prosemirrorState.doc.check(),
-    ).not.toThrow();
+    expect(() => getLayoutEditor().prosemirrorState.doc.check()).not.toThrow();
   });
 
   it("Moves the block's children to the second half of the split", () => {
-    expect(splitContainerBlock("callout-child-1", 7)).toBe(true);
+    expect(splitLayoutBlock("callout-child-1", 7)).toBe(true);
 
-    const callout = getContainerEditor().document[1];
+    const callout = getLayoutEditor().document[1];
 
     expect(callout.children.map(textOf)).toEqual([
       "Callout child",
@@ -277,15 +275,13 @@ describe("Test splitBlocks inside containers", () => {
       "nested-child",
     ]);
 
-    expect(() =>
-      getContainerEditor().prosemirrorState.doc.check(),
-    ).not.toThrow();
+    expect(() => getLayoutEditor().prosemirrorState.doc.check()).not.toThrow();
   });
 
   it("Keeps the block's children on the first half with `keepChildren`", () => {
-    expect(splitContainerBlock("callout-child-1", 7, true)).toBe(true);
+    expect(splitLayoutBlock("callout-child-1", 7, true)).toBe(true);
 
-    const callout = getContainerEditor().document[1];
+    const callout = getLayoutEditor().document[1];
 
     expect(callout.children.map(textOf)).toEqual([
       "Callout child",
@@ -297,32 +293,28 @@ describe("Test splitBlocks inside containers", () => {
       "nested-child",
     ]);
 
-    expect(() =>
-      getContainerEditor().prosemirrorState.doc.check(),
-    ).not.toThrow();
+    expect(() => getLayoutEditor().prosemirrorState.doc.check()).not.toThrow();
   });
 
-  it("Splits a block inside a nested container", () => {
-    expect(splitContainerBlock("cell-0-p", 4)).toBe(true);
+  it("Splits a block inside a nested layout block", () => {
+    expect(splitLayoutBlock("cell-0-p", 4)).toBe(true);
 
-    const grid = getContainerEditor().document[2];
+    const grid = getLayoutEditor().document[2];
 
     expect(grid.type).toBe("grid");
     expect(grid.children.map((cell) => cell.id)).toEqual(["cell-0", "cell-1"]);
     expect(grid.children[0].children.map(textOf)).toEqual(["Cell", " zero"]);
     expect(grid.children[1].children.map(textOf)).toEqual(["Cell one"]);
 
-    expect(() =>
-      getContainerEditor().prosemirrorState.doc.check(),
-    ).not.toThrow();
+    expect(() => getLayoutEditor().prosemirrorState.doc.check()).not.toThrow();
   });
 
-  it("Does not split a container block itself", () => {
-    const before = getContainerEditor().document;
+  it("Does not split a layout block itself", () => {
+    const before = getLayoutEditor().document;
 
-    expect(splitContainerBlock("callout-0", 0)).toBe(false);
+    expect(splitLayoutBlock("callout-0", 0)).toBe(false);
 
-    expect(getContainerEditor().document).toEqual(before);
+    expect(getLayoutEditor().document).toEqual(before);
   });
 });
 

@@ -3,7 +3,7 @@ import { describe, expect, it } from "vite-plus/test";
 import type { PartialBlock } from "../../../../blocks/defaultBlocks.js";
 import { getBlockInfoFromNode } from "../../../getBlockInfoFromPos.js";
 import { getNodeById } from "../../../nodeUtil.js";
-import { containerSchema } from "../../containers/containers.fixture.js";
+import { layoutSchema } from "../../layoutBlocks/layoutBlocks.fixture.js";
 import { setupTestEnv } from "../../setupTestEnv.js";
 import { updateBlock } from "./updateBlock.js";
 
@@ -981,14 +981,14 @@ describe("Test updateBlock minimal steps", () => {
   });
 });
 
-// Changing a block's type across the content/container divide can't happen in
+// Changing a block's type across the content/layout block divide can't happen in
 // place, so `updateBlock` rebuilds the node and has to decide what to do with
 // the content the old shape held and the new one can't. These tests pin that
 // decision. Assertions are explicit rather than snapshotted because the point
 // is *where* the carried content ends up.
 describe("Test updateBlock content carry-over", () => {
-  const getContainerEditor = setupTestEnv({
-    schema: containerSchema,
+  const getLayoutEditor = setupTestEnv({
+    schema: layoutSchema,
     document: [
       {
         id: "paragraph-with-text",
@@ -1035,13 +1035,13 @@ describe("Test updateBlock content carry-over", () => {
 
   // A block that changes shape is rebuilt rather than updated in place, and the
   // rebuilt node is minted a fresh ID. That is long-standing behaviour, not
-  // something the container work introduced, but converting a paragraph into a
-  // container is a far more ordinary action than the paragraph/column
+  // something the layout block work introduced, but converting a paragraph into a
+  // layout block is a far more ordinary action than the paragraph/column
   // conversions that used to be the only way to reach this path. These tests
   // therefore address blocks by position, and the first one pins the ID loss so
   // that fixing it shows up as a deliberate change.
-  it("Moves inline content into a child paragraph when becoming a container", () => {
-    const editor = getContainerEditor();
+  it("Moves inline content into a child paragraph when becoming a layout block", () => {
+    const editor = getLayoutEditor();
     editor.transact((tr) =>
       updateBlock(tr, "paragraph-with-text", { type: "callout" }),
     );
@@ -1057,8 +1057,8 @@ describe("Test updateBlock content carry-over", () => {
     expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
   });
 
-  it("Fills a container's children when there is no content to carry", () => {
-    const editor = getContainerEditor();
+  it("Fills a layout block's children when there is no content to carry", () => {
+    const editor = getLayoutEditor();
     editor.transact((tr) =>
       updateBlock(tr, "empty-paragraph", { type: "pair" }),
     );
@@ -1079,7 +1079,7 @@ describe("Test updateBlock content carry-over", () => {
   });
 
   it("Puts carried content before existing children", () => {
-    const editor = getContainerEditor();
+    const editor = getLayoutEditor();
     editor.transact((tr) =>
       updateBlock(tr, "paragraph-with-text-and-children", { type: "callout" }),
     );
@@ -1096,10 +1096,10 @@ describe("Test updateBlock content carry-over", () => {
     expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
   });
 
-  it("Drops table content when becoming a container", () => {
-    const editor = getContainerEditor();
+  it("Drops table content when becoming a layout block", () => {
+    const editor = getLayoutEditor();
     // Table content isn't an inline array, so there is no sensible paragraph to
-    // wrap it in. It's dropped, and the container seeds as if the block had
+    // wrap it in. It's dropped, and the layout block seeds as if the block had
     // been empty.
     expect(() =>
       editor.transact((tr) => updateBlock(tr, "table-0", { type: "callout" })),
@@ -1117,7 +1117,7 @@ describe("Test updateBlock content carry-over", () => {
   it.each(["paragraph-with-text", "callout-0"])(
     "Rejects conversion of %s rather than dropping incompatible children",
     (id) => {
-      const editor = getContainerEditor();
+      const editor = getLayoutEditor();
       const before = editor.prosemirrorState.doc;
       expect(() =>
         editor.transact((tr) => updateBlock(tr, id, { type: "grid" })),
@@ -1126,8 +1126,8 @@ describe("Test updateBlock content carry-over", () => {
     },
   );
 
-  it("Allows explicit replacement children when converting to a restricted container", () => {
-    const editor = getContainerEditor();
+  it("Allows explicit replacement children when converting to a restricted layout block", () => {
+    const editor = getLayoutEditor();
     editor.transact((tr) =>
       updateBlock(tr, "callout-0", {
         type: "grid",
@@ -1144,11 +1144,11 @@ describe("Test updateBlock content carry-over", () => {
     expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
   });
 
-  it("Keeps a container's children when changing between container types", () => {
-    const editor = getContainerEditor();
+  it("Keeps a layout block's children when changing between layout block types", () => {
+    const editor = getLayoutEditor();
     editor.transact((tr) => updateBlock(tr, "callout-0", { type: "box" }));
 
-    // Neither container holds content of its own, so the children move across
+    // Neither layout block holds content of its own, so the children move across
     // untouched rather than being re-seeded.
     const block = editor.document[4] as any;
     expect(block.type).toBe("box");
@@ -1158,8 +1158,8 @@ describe("Test updateBlock content carry-over", () => {
     expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
   });
 
-  it("Keeps a container's children alongside the content it gains", () => {
-    const editor = getContainerEditor();
+  it("Keeps a layout block's children alongside the content it gains", () => {
+    const editor = getLayoutEditor();
     editor.transact((tr) =>
       updateBlock(tr, "callout-0", {
         type: "heading",
@@ -1167,7 +1167,7 @@ describe("Test updateBlock content carry-over", () => {
       }),
     );
 
-    // The container had nowhere to put inline content; the heading does, so
+    // The layout block had nowhere to put inline content; the heading does, so
     // the given content lands there and the children stay nested under it.
     const block = editor.document[4] as any;
     expect(block.type).toBe("heading");
@@ -1180,13 +1180,13 @@ describe("Test updateBlock content carry-over", () => {
     expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
   });
 
-  it("Updates a container's props without rebuilding it", () => {
-    const editor = getContainerEditor();
+  it("Updates a layout block's props without rebuilding it", () => {
+    const editor = getLayoutEditor();
     editor.transact((tr) =>
       updateBlock(tr, "callout-0", { props: { flavor: "warning" } }),
     );
 
-    // No shape change, so this is an in-place attribute update: the container
+    // No shape change, so this is an in-place attribute update: the layout block
     // keeps its ID (unlike the type changes above) and its children.
     const block = editor.document[4] as any;
     expect(block.id).toBe("callout-0");
@@ -1197,8 +1197,8 @@ describe("Test updateBlock content carry-over", () => {
     expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
   });
 
-  it("Keeps a container's children and invents no content when becoming a block", () => {
-    const editor = getContainerEditor();
+  it("Keeps a layout block's children and invents no content when becoming a block", () => {
+    const editor = getLayoutEditor();
     editor.transact((tr) =>
       updateBlock(tr, "callout-0", { type: "paragraph" }),
     );

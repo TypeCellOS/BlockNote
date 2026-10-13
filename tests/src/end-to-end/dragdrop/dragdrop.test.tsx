@@ -163,13 +163,13 @@ describe("Check Block Dragging Functionality", () => {
   );
 });
 
-// Dragging container blocks by their drag handle: the drag preview shows the
+// Dragging layout blocks by their drag handle: the drag preview shows the
 // dragged block, and a drop places the dragged block itself, not a new copy
 // of its parent around it.
 
 /**
- * A container's frame: a label (chrome) above the slot. The drag handle of the
- * container shows when the mouse is on its chrome.
+ * A layout block's frame: a label (chrome) above the slot. The drag handle of the
+ * layout block shows when the mouse is on its chrome.
  */
 function labelledFrame(label: string) {
   const dom = document.createElement("section");
@@ -184,9 +184,9 @@ function labelledFrame(label: string) {
   return { dom, slot };
 }
 
-// A React container: React wraps its frame in elements of its own.
+// A React layout block: React wraps its frame in elements of its own.
 const createReactPanel = createReactBlockSpec(
-  { type: "reactPanel", propSchema: {}, content: "none", container: true },
+  { type: "reactPanel", propSchema: {}, content: "none", layoutOnly: true },
   {
     renderFrame: (props) => (
       <section style={{ border: "1px solid gray", padding: 8 }}>
@@ -206,7 +206,7 @@ const Item = createBlockSpec(
     type: "item",
     propSchema: {},
     content: "none",
-    container: true,
+    layoutOnly: true,
     placeable: "namedOnly",
   },
   {
@@ -220,7 +220,7 @@ const List = createBlockSpec(
     type: "list",
     propSchema: {},
     content: "none",
-    container: true,
+    layoutOnly: true,
     children: { allow: ["item"], min: 1 },
   },
   {
@@ -275,7 +275,7 @@ function block(id: string) {
 }
 
 /**
- * Where the mouse picks the block with the ID: the chrome of a container, or
+ * Where the mouse picks the block with the ID: the chrome of a layout block, or
  * else the block's element.
  */
 function handleOf(id: string) {
@@ -297,10 +297,14 @@ function lists(blocks: any[]): number {
 }
 
 // Playwright doesn't correctly simulate drag events in Firefox.
-describe.skipIf(browserName === "firefox")("Dragging container blocks", () => {
+describe.skipIf(browserName === "firefox")("Dragging layout blocks", () => {
   test.each([
-    { name: "a React container", id: "reactPanel", text: "In React" },
-    { name: "a block in a React container", id: "inReact", text: "In React" },
+    { name: "a React layout block", id: "reactPanel", text: "In React" },
+    {
+      name: "a block in a React layout block",
+      id: "inReact",
+      text: "In React",
+    },
   ])("shows $name in the drag preview", async ({ id, text }) => {
     await renderEditors([
       {
@@ -323,7 +327,7 @@ describe.skipIf(browserName === "firefox")("Dragging container blocks", () => {
     }
   });
 
-  test("moves a namedOnly container in its list, without a copy of the list", async () => {
+  test("moves a namedOnly layout block in its list, without a copy of the list", async () => {
     await renderEditors([
       {
         id: "list",
@@ -340,7 +344,7 @@ describe.skipIf(browserName === "firefox")("Dragging container blocks", () => {
     expect(ids(editors[0].document[0].children)).toEqual(["i2", "i1", "i3"]);
   });
 
-  test("moves a namedOnly container into a list of another editor", async () => {
+  test("moves a namedOnly layout block into a list of another editor", async () => {
     await renderEditors(
       [
         {

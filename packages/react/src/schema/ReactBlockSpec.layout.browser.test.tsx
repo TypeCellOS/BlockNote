@@ -12,23 +12,23 @@ import { BlockNoteViewRaw } from "../editor/BlockNoteView.js";
 import { createReactBlockSpec } from "./ReactBlockSpec.js";
 
 /**
- * Tests for React container blocks in a real browser.
+ * Tests for React layout blocks in a real browser.
  *
  * Everything here needs a real DOM: the external-HTML path renders the block
  * through a temporary `createRoot` (see `@util/ReactRenderUtil`), and a React
  * node view only runs once `contentComponent` is set, which happens when
  * `BlockNoteViewRaw` mounts the editor. Document-model behaviour of
- * containers in general is covered by the core suites in
- * `api/blockManipulation/containers/`.
+ * layout blocks in general is covered by the core suites in
+ * `api/blockManipulation/layoutBlocks/`.
  */
 
-// A container: its `slotRef` element holds its child blocks.
+// A layout block: its `slotRef` element holds its child blocks.
 const createCallout = createReactBlockSpec(
   {
     type: "callout",
     propSchema: { flavor: { default: "tip" } },
     content: "none",
-    container: true,
+    layoutOnly: true,
   },
   {
     renderFrame: function Callout(props) {
@@ -55,7 +55,7 @@ const schema = BlockNoteSchema.create().extend({
   },
 });
 
-describe("React container block external HTML", () => {
+describe("React layout block external HTML", () => {
   it("serializes the author's own root element, unwrapped", () => {
     const editor = BlockNoteEditor.create({ schema });
 
@@ -67,7 +67,7 @@ describe("React container block external HTML", () => {
       },
     ] as any);
 
-    // Container blocks own their outer DOM entirely. Regression test for the
+    // Layout blocks own their outer DOM entirely. Regression test for the
     // React `toExternalHTML` path wrapping them in a spurious
     // `bn-block-content` div (core's `createBlockSpec` passes them through).
     // The root is the element the frame returned, with no React wrapper in
@@ -124,8 +124,8 @@ async function mountEditor(initialContent: any[]) {
   return { editor: editor!, div: div! };
 }
 
-describe("React container block node view", () => {
-  it("anchors a container popover to the author's box", async () => {
+describe("React layout block node view", () => {
+  it("anchors a layout block popover to the author's box", async () => {
     const { editor, div } = await mountEditor([
       {
         id: "outer",
@@ -152,7 +152,7 @@ describe("React container block node view", () => {
               },
             }}
           >
-            Container menu
+            Layout block menu
           </BlockPopover>
         </BlockNoteViewRaw>,
       );
@@ -161,7 +161,7 @@ describe("React container block node view", () => {
     expect(box.getBoundingClientRect().height).toBeGreaterThan(0);
   });
 
-  it("measures a container by its own box, not React's wrapper", async () => {
+  it("measures a layout block by its own box, not React's wrapper", async () => {
     // ProseMirror and BlockNote measure the `dom` of a node view:
     // `coordsAtPos`, `posToDOMRect` (toolbars), `nodeDOM` (drop cursor), the
     // selection box and scrolling. The wrapper of React has no box
@@ -259,7 +259,7 @@ describe("React container block node view", () => {
     ).toBe("warning");
   });
 
-  it("mounts a pure container's children inside its `slotRef` element", async () => {
+  it("mounts a layout block's children inside its `slotRef` element", async () => {
     const mounted = await mountEditor([
       {
         id: "c-0",
@@ -269,7 +269,7 @@ describe("React container block node view", () => {
     ]);
 
     const body = mounted.div.querySelector<HTMLElement>(".callout-body")!;
-    // A container with no content of its own puts its children where the
+    // A layout block with no content of its own puts its children where the
     // author placed `slotRef`, not somewhere else in the node view. The
     // child's own block element is a descendant, so this checks structure,
     // not just text that happened to bubble up.

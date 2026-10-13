@@ -1,12 +1,12 @@
 export * from "./api/blockManipulation/commands/insertBlocks/insertBlocks.js";
 export * from "./api/blockManipulation/commands/replaceBlocks/replaceBlocks.js";
-export { isContainerNode } from "./schema/blocks/children.js";
+export { isLayoutNode } from "./schema/blocks/children.js";
 export { getBlockElementForNode } from "./extensions/blockDOM.js";
-export { applyContainerAttributes } from "./schema/blocks/containerAttributes.js";
+export { applyLayoutBlockAttributes } from "./schema/blocks/layoutBlockAttributes.js";
 export {
-  fixContainer,
-  isEmptyContainerChild,
-} from "./api/blockManipulation/containers/fixContainer.js";
+  fixLayoutBlock,
+  isEmptyLayoutChild,
+} from "./api/blockManipulation/layoutBlocks/fixLayoutBlock.js";
 export * from "./api/blockManipulation/commands/updateBlock/updateBlock.js";
 export * from "./api/exporters/html/externalHTMLExporter.js";
 export * from "./api/exporters/html/internalHTMLSerializer.js";

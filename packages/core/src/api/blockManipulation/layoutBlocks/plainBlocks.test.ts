@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it } from "vite-plus/test";
 
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 import { createBlockSpec } from "../../../schema/blocks/createSpec.js";
-import { containerSchema } from "./containers.fixture.js";
+import { layoutSchema } from "./layoutBlocks.fixture.js";
 
 const plainNote = createBlockSpec(
   {
@@ -32,7 +32,7 @@ const plainNote = createBlockSpec(
     },
   },
 )();
-const schema = containerSchema.extend({ blockSpecs: { plainNote } });
+const schema = layoutSchema.extend({ blockSpecs: { plainNote } });
 const editors = new Set<ReturnType<typeof editorWith>>();
 
 function editorWith(
@@ -165,16 +165,16 @@ describe("plain blocks whose Enter goes into their children", () => {
     expect(editor.blocksToHTMLLossy(editor.document)).toContain("Explanation");
   });
 
-  it("preserves text and children when converting between plain, inline, and container blocks", () => {
+  it("preserves text and children when converting between plain, inline, and layout blocks", () => {
     const editor = editorWith("First\nSecond");
     editor.updateBlock("note", { type: "alert" });
     expect(editor.getBlock("note")!.children[0].id).toBe("body");
     editor.updateBlock("note", { type: "plainNote" });
     expect(text(editor, "note")).toBe("First\nSecond");
     editor.updateBlock("note", { type: "callout" });
-    const container = editor.document[0];
-    expect(text(editor, container.children[0].id)).toBe("First\nSecond");
-    expect(container.children[1].id).toBe("body");
+    const layoutBlock = editor.document[0];
+    expect(text(editor, layoutBlock.children[0].id)).toBe("First\nSecond");
+    expect(layoutBlock.children[1].id).toBe("body");
     editor.prosemirrorState.doc.check();
   });
 });

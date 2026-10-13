@@ -4,7 +4,7 @@ import { getBlockInfoFromSelection } from "../../../getBlockInfoFromPos.js";
 import { setupTestEnv } from "../../setupTestEnv.js";
 import { getParentBlockInfo } from "../../../getBlockInfoFromPos.js";
 import { getNodeById } from "../../../nodeUtil.js";
-import { containerSchema } from "../../containers/containers.fixture.js";
+import { layoutSchema } from "../../layoutBlocks/layoutBlocks.fixture.js";
 import { mergeBlocksCommand } from "./mergeBlocks.js";
 
 const getEditor = setupTestEnv();
@@ -166,9 +166,9 @@ describe("Test mergeBlocks", () => {
   });
 });
 
-describe("Test mergeBlocks at container boundaries", () => {
-  const getContainerEditor = setupTestEnv({
-    schema: containerSchema,
+describe("Test mergeBlocks at layout block boundaries", () => {
+  const getLayoutEditor = setupTestEnv({
+    schema: layoutSchema,
     document: [
       { id: "before-callout", type: "paragraph", content: "Before callout" },
       {
@@ -191,14 +191,14 @@ describe("Test mergeBlocks at container boundaries", () => {
     ],
   });
 
-  function mergeContainerBlocks(posBetweenBlocks: number) {
-    return getContainerEditor()._tiptapEditor.commands.command(
+  function mergeLayoutBlocks(posBetweenBlocks: number) {
+    return getLayoutEditor()._tiptapEditor.commands.command(
       mergeBlocksCommand(posBetweenBlocks),
     );
   }
 
   function getPosBefore(id: string) {
-    return getContainerEditor().transact((tr) => {
+    return getLayoutEditor().transact((tr) => {
       const node = getNodeById(id, tr.doc);
       if (!node) {
         throw new Error(`No block with id "${id}" in the test document`);
@@ -207,38 +207,38 @@ describe("Test mergeBlocks at container boundaries", () => {
     });
   }
 
-  // A container's first child has no previous sibling, so there is nothing to
-  // merge it into. The block above it on screen sits outside the container.
-  it("Does not merge a container's first child out of the container", () => {
-    const originalDocument = getContainerEditor().document;
-    const ret = mergeContainerBlocks(getPosBefore("callout-child-0"));
+  // A layout block's first child has no previous sibling, so there is nothing to
+  // merge it into. The block above it on screen sits outside the layout block.
+  it("Does not merge a layout block's first child out of the layout block", () => {
+    const originalDocument = getLayoutEditor().document;
+    const ret = mergeLayoutBlocks(getPosBefore("callout-child-0"));
 
     expect(ret).toBeFalsy();
-    expect(getContainerEditor().document).toEqual(originalDocument);
+    expect(getLayoutEditor().document).toEqual(originalDocument);
   });
 
-  // A container has no content of its own, so there is nothing to merge.
-  it("Does not merge a container into the block above it", () => {
-    const originalDocument = getContainerEditor().document;
-    const ret = mergeContainerBlocks(getPosBefore("callout-0"));
+  // A layout block has no content of its own, so there is nothing to merge.
+  it("Does not merge a layout block into the block above it", () => {
+    const originalDocument = getLayoutEditor().document;
+    const ret = mergeLayoutBlocks(getPosBefore("callout-0"));
 
     expect(ret).toBeFalsy();
-    expect(getContainerEditor().document).toEqual(originalDocument);
+    expect(getLayoutEditor().document).toEqual(originalDocument);
   });
 
-  // `mergeBlocksCommand` treats a container like any other block with children
+  // `mergeBlocksCommand` treats a layout block like any other block with children
   // and merges into its last descendant, which puts the merged text inside the
-  // container. Backspace never produces this, because
+  // layout block. Backspace never produces this, because
   // `KeyboardShortcutsExtension` bails out when the previous sibling has no
-  // inline content and moves the block into the container instead. So this is
+  // inline content and moves the block into the layout block instead. So this is
   // the command's behaviour on its own, not the editor's; it is pinned here
   // because `mergeBlocks.ts` documents the opposite.
-  it("Merges a block into the last descendant of the container above it", () => {
-    const ret = mergeContainerBlocks(getPosBefore("after-callout"));
+  it("Merges a block into the last descendant of the layout block above it", () => {
+    const ret = mergeLayoutBlocks(getPosBefore("after-callout"));
 
     expect(ret).toBeTruthy();
 
-    const document = getContainerEditor().document;
+    const document = getLayoutEditor().document;
 
     expect(document.map((block) => block.id)).toEqual([
       "before-callout",

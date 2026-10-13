@@ -34,9 +34,9 @@ import { getRect, mouseSequence } from "../../utils/mouse.js";
 // whether it shows at all. "works today" guards behavior that works on main;
 // "fixed issues" reproduces issues that fail on main.
 
-// A draggable container with padding around its children, like a panel.
+// A draggable layout block with padding around its children, like a panel.
 const Panel = createBlockSpec(
-  { type: "panel" as const, propSchema: {}, content: "none", container: true },
+  { type: "panel" as const, propSchema: {}, content: "none", layoutOnly: true },
   {
     renderFrame: () => {
       const dom = document.createElement("div");
@@ -920,7 +920,7 @@ describe("side menu hover: wide container padding", () => {
   });
 });
 
-describe("side menu hover: containers", () => {
+describe("side menu hover: layout blocks", () => {
   const panelDocument: PartialBlock<any, any, any>[] = [
     paragraph("before"),
     {
@@ -937,7 +937,7 @@ describe("side menu hover: containers", () => {
       .getBoundingClientRect();
   }
 
-  test("shows the container's own menu in its padding above its children", async () => {
+  test("shows the layout block's own menu in its padding above its children", async () => {
     await render(<Editor name="main" content={panelDocument} />);
     await waitForSelector(".bn-editor");
 
@@ -946,7 +946,7 @@ describe("side menu hover: containers", () => {
     expect(menuBlock()).toBe("panel");
   });
 
-  test("shows a child's menu in the container's padding beside it", async () => {
+  test("shows a child's menu in the layout block's padding beside it", async () => {
     await render(<Editor name="main" content={panelDocument} />);
     await waitForSelector(".bn-editor");
 

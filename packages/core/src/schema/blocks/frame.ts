@@ -9,7 +9,7 @@ import type {
 import { nodeToBlock } from "../../api/nodeConversions/nodeToBlock.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { isDarkReaderMutation } from "../nodeViewMutations.js";
-import { applyContainerAttributes } from "./containerAttributes.js";
+import { applyLayoutBlockAttributes } from "./layoutBlockAttributes.js";
 import type { BlockConfig, BlockImplementation } from "./types.js";
 
 /** What a vanilla `renderFrame` returns when it draws a frame. */
@@ -51,16 +51,16 @@ export function findFrameSlot(
 }
 
 /**
- * Stamps a container's frame with what its round-trip parse reads: the
+ * Stamps a layout block's frame with what its round-trip parse reads: the
  * block's attributes on the frame's root (the block's element), and the slot
- * marker. Whoever draws a container's frame stamps it.
+ * marker. Whoever draws a layout block's frame stamps it.
  */
-export function stampContainerFrame(
+export function stampLayoutFrame(
   blockConfig: BlockConfig<any, any, any>,
   frame: { dom: HTMLElement; slot: HTMLElement },
   block: any,
 ) {
-  applyContainerAttributes(
+  applyLayoutBlockAttributes(
     frame.dom,
     blockConfig.type,
     block.props,
@@ -72,8 +72,8 @@ export function stampContainerFrame(
 
 /**
  * Draws a block's frame outside the editor (`renderType: "dom"`), as both
- * HTML serializers do. A container's frame comes stamped (see
- * `stampContainerFrame`).
+ * HTML serializers do. A layout block's frame comes stamped (see
+ * `stampLayoutFrame`).
  */
 export function renderFrameDOM(
   editor: BlockNoteEditor<any, any, any>,
@@ -89,14 +89,14 @@ export function renderFrameDOM(
     block,
     editor,
   );
-  if (spec.config.container === true) {
+  if (spec.config.layoutOnly === true) {
     if (!frame) {
-      // A container is its frame: without one, nothing of it is left.
+      // A layout block is its frame: without one, nothing of it is left.
       throw new Error(
-        `Container block "${block.type}" must draw its frame: \`renderFrame\` returned undefined.`,
+        `Layout block "${block.type}" must draw its frame: \`renderFrame\` returned undefined.`,
       );
     }
-    stampContainerFrame(spec.config, frame, block);
+    stampLayoutFrame(spec.config, frame, block);
   }
   return frame;
 }
@@ -132,7 +132,7 @@ type FrameViewArgs = {
   editor: BlockNoteEditor<any, any, any>;
   /**
    * The node that holds the block's type and props: a `blockContainer`'s
-   * content node, or a container's own node.
+   * content node, or a layout block's own node.
    */
   blockNode: (node: PMNode) => PMNode;
   /**
@@ -165,11 +165,11 @@ function vanillaFrameView(args: FrameViewArgs): FrameView {
   const config = editor.blockImplementations[blockNode(props.node).type.name]
     .config as BlockConfig<any, any, any>;
 
-  // A container's frame is stamped after it is drawn or patched (see
-  // `stampContainerFrame`).
+  // A layout block's frame is stamped after it is drawn or patched (see
+  // `stampLayoutFrame`).
   function stamp(frame: VanillaFrame, block: any) {
-    if (config.container === true) {
-      stampContainerFrame(config, frame, block);
+    if (config.layoutOnly === true) {
+      stampLayoutFrame(config, frame, block);
     }
   }
 
@@ -191,7 +191,7 @@ function vanillaFrameView(args: FrameViewArgs): FrameView {
       // The block declined its frame. Return `undefined`: no frame.
       return undefined;
     }
-    // The block drew its frame. Return it, stamped when it is a container.
+    // The block drew its frame. Return it, stamped when it is a layout block.
     stamp(frame, block);
     return frame;
   }

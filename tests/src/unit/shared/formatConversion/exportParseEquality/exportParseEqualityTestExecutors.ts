@@ -35,7 +35,7 @@ export const testExportParseEqualityBlockNoteHTML = <
   } else {
     // Round-trip valid blocks, including schema-generated required children.
     // The shorthand helper defaults all children to [], which is invalid for
-    // containers with a minimum child count.
+    // layout blocks with a minimum child count.
     const blocks = testCase.content.map((block) =>
       nodeToBlock(
         blockToNode(block, editor.pmSchema),

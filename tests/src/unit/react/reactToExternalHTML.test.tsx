@@ -23,7 +23,7 @@ const createDisclosure = createReactBlockSpec(
 );
 
 const createShelf = createReactBlockSpec(
-  { type: "shelf", propSchema: {}, content: "none", container: true },
+  { type: "shelf", propSchema: {}, content: "none", layoutOnly: true },
   {
     renderFrame: (props) => <div ref={props.slotRef} />,
     toExternalHTML: (props) => (
@@ -35,9 +35,9 @@ const createShelf = createReactBlockSpec(
   },
 );
 
-// Containers whose own export doesn't place their children.
+// Layout blocks whose own export doesn't place their children.
 const createPlainShelf = createReactBlockSpec(
-  { type: "plainShelf", propSchema: {}, content: "none", container: true },
+  { type: "plainShelf", propSchema: {}, content: "none", layoutOnly: true },
   {
     renderFrame: (props) => <div ref={props.slotRef} />,
     toExternalHTML: () => <section className="plain-shelf" />,
@@ -45,7 +45,7 @@ const createPlainShelf = createReactBlockSpec(
 );
 
 const VanillaShelf = createBlockSpec(
-  { type: "vanillaShelf", propSchema: {}, content: "none", container: true },
+  { type: "vanillaShelf", propSchema: {}, content: "none", layoutOnly: true },
   {
     renderFrame: () => {
       const dom = document.createElement("div");
@@ -94,7 +94,7 @@ describe("React toExternalHTML childrenRef", () => {
     );
   });
 
-  it("places a container's children where its export puts them", () => {
+  it("places a layout block's children where its export puts them", () => {
     const dom = exportHTML([
       {
         type: "shelf",
@@ -105,7 +105,7 @@ describe("React toExternalHTML childrenRef", () => {
     expect(dom.querySelector(".shelf-children")?.textContent).toBe("Child");
   });
 
-  it("keeps a container's children after it when its export places them nowhere", () => {
+  it("keeps a layout block's children after it when its export places them nowhere", () => {
     for (const type of ["plainShelf", "vanillaShelf"]) {
       const dom = exportHTML([
         { type, children: [{ type: "paragraph", content: "Child" }] },

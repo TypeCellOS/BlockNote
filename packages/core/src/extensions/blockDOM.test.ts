@@ -49,7 +49,7 @@ function viewWith(root: HTMLElement) {
 }
 
 describe("getDraggableBlockFromElement", () => {
-  it("returns the block container for a regular block", () => {
+  it("returns the blockContainer element for a regular block", () => {
     const { outer, blockContainer, content } = regularBlock("a", "paragraph");
 
     expect(
@@ -107,7 +107,7 @@ describe("getDraggableBlockFromElement", () => {
     ).toBeUndefined();
   });
 
-  it("returns a container block only when its type is draggable", () => {
+  it("returns a layout block only when its type is draggable", () => {
     const column = document.createElement("div");
     column.setAttribute("data-node-type", "column");
     column.setAttribute("data-id", "col");

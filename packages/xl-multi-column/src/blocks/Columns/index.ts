@@ -14,15 +14,15 @@ export const ColumnBlock = createBlockSpec(
       },
     },
     content: "none",
-    container: true,
+    layoutOnly: true,
     placeable: "namedOnly",
     // Column lists don't nest in columns, as on `main` and in Notion.
     children: { allow: "blocks", exclude: ["columnList"] },
   },
   {
     // Enter in an empty column block adds another block, as in Notion:
-    // columns are layout, and people add space with Enter. Other containers
-    // keep the default, where an empty last block leaves the container.
+    // columns are layout, and people add space with Enter. Other layout blocks
+    // keep the default, where an empty last block leaves the layout block.
     experimental_keyboard: { emptyChildEnter: "stay" },
     // External HTML carries no BlockNote markers, so columns are recognized
     // by the class their frame draws. `width` comes back from `data-width`.
@@ -51,7 +51,7 @@ export const ColumnListBlock = createBlockSpec(
     type: "columnList" as const,
     propSchema: {},
     content: "none",
-    container: true,
+    layoutOnly: true,
     children: {
       allow: ["column"],
       min: 2,

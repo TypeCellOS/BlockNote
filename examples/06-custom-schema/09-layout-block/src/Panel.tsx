@@ -7,7 +7,7 @@ export const createPanel = createReactBlockSpec(
     type: "panel",
     propSchema: {},
     content: "none",
-    container: true,
+    layoutOnly: true,
   },
   {
     // With no content of its own, the panel draws only its frame. The slot

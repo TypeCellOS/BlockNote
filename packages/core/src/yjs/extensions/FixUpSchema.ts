@@ -26,8 +26,8 @@ export const FixUpSchemaExtension = createExtension(({ editor }) => {
       // create a copy that we can mutate (otherwise, assigning attrs is not safe and corrupts the pm state)
       const jsonNode = JSON.parse(JSON.stringify(ret.toJSON()));
       // The first fill of the doc's blockGroup is always a `blockContainer`:
-      // container block nodes are clamped below its priority
-      // (`containerNodePriority`) precisely so auto-fill picks it first. If
+      // layout block nodes are clamped below its priority
+      // (`layoutNodePriority`) precisely so auto-fill picks it first. If
       // that ever stops holding, throwing here is better than silently
       // leaving the id unset, which would let every peer generate its own
       // initial block id.

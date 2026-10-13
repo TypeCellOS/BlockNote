@@ -723,9 +723,9 @@ export const copyTestInstancesHTML: TestInstance<
     executeTest: testCopyHTML,
   },
   {
-    // The whole of a container's children, selected from inside it.
+    // The whole of a layout block's children, selected from inside it.
     testCase: {
-      name: "containerChildren",
+      name: "layoutChildren",
       document: [
         {
           type: "callout",
@@ -745,10 +745,10 @@ export const copyTestInstancesHTML: TestInstance<
     executeTest: testCopyHTML,
   },
   {
-    // A selection that leaves the container partway through, so the copied
+    // A selection that leaves the layout block partway through, so the copied
     // fragment is cut open on one side.
     testCase: {
-      name: "containerChildToSiblingAfter",
+      name: "layoutChildToSiblingAfter",
       document: [
         {
           type: "callout",
@@ -769,10 +769,10 @@ export const copyTestInstancesHTML: TestInstance<
     executeTest: testCopyHTML,
   },
   {
-    // A single block two containers deep, so the fragment is cut open on both
+    // A single block two layout blocks deep, so the fragment is cut open on both
     // sides at two different levels.
     testCase: {
-      name: "containerNestedChild",
+      name: "layoutNestedChild",
       document: [
         {
           type: "callout",

@@ -9,18 +9,18 @@ import { validateChildrenConfigs } from "./validateChildren.js";
 // right, `allow`/`min` are enforced by ProseMirror itself.
 const CASES: [string, ChildrenConfig, string][] = [
   [
-    "any block or placeable container, at least one (the minimal config)",
+    "any block or placeable layout block, at least one (the minimal config)",
     { allow: "blocks" },
     "blockGroupChild+",
   ],
-  ["one container type only", { allow: ["column"], min: 2 }, "column{2,}"],
+  ["one layout block type only", { allow: ["column"], min: 2 }, "column{2,}"],
   [
-    "one container type, possibly none",
+    "one layout block type, possibly none",
     { allow: ["column"], min: 0 },
     "column*",
   ],
   [
-    "several container types",
+    "several layout block types",
     { allow: ["column", "card"] },
     "(column | card)+",
   ],
@@ -50,7 +50,7 @@ describe("childrenContentExpression", () => {
 
 type BlockFixture = {
   content?: "none" | "inline" | "plain" | "table";
-  container?: true;
+  layoutOnly?: true;
   // Loose on purpose: the validator tests pass shapes the type rejects.
   children?: {
     allow?: ChildrenAllow;
@@ -83,9 +83,9 @@ const validate = (blocks: Record<string, BlockFixture>) => () =>
 // by its other members, and `childrenContentExpression` takes the result.
 describe("anyBlocksExpression", () => {
   const specs = specsWith({
-    callout: { container: true },
-    columnList: { container: true, children: { allow: ["column"], min: 2 } },
-    column: { container: true, placeable: "namedOnly" },
+    callout: { layoutOnly: true },
+    columnList: { layoutOnly: true, children: { allow: ["column"], min: 2 } },
+    column: { layoutOnly: true, placeable: "namedOnly" },
   }) as any;
 
   it("is the group when nothing is excluded", () => {
@@ -110,7 +110,7 @@ describe("anyBlocksExpression", () => {
   it("rejects `exclude` on an allow list at the type level", () => {
     const config: ChildrenConfig = {
       allow: ["column"],
-      // @ts-expect-error `exclude` is only for a container of any blocks
+      // @ts-expect-error `exclude` is only for a layout block of any blocks
       exclude: ["callout"],
     };
     expect(config.allow).toEqual(["column"]);
@@ -118,11 +118,11 @@ describe("anyBlocksExpression", () => {
 });
 
 describe("validateChildrenConfigs", () => {
-  it("accepts `exclude` of a container that can stand anywhere", () => {
+  it("accepts `exclude` of a layout block that can stand anywhere", () => {
     expect(
       validate({
-        box: { container: true, children: { exclude: ["callout"] } },
-        callout: { container: true },
+        box: { layoutOnly: true, children: { exclude: ["callout"] } },
+        callout: { layoutOnly: true },
       }),
     ).not.toThrow();
   });
@@ -131,54 +131,54 @@ describe("validateChildrenConfigs", () => {
     expect(
       validate({
         box: {
-          container: true,
+          layoutOnly: true,
           children: { allow: ["callout"], exclude: ["callout"] },
         },
-        callout: { container: true },
+        callout: { layoutOnly: true },
       }),
-    ).toThrow(/only for a container that accepts any blocks/);
+    ).toThrow(/only for a layout block that accepts any blocks/);
     expect(
       validate({
         box: { content: "inline", children: { exclude: ["callout"] } },
-        callout: { container: true },
+        callout: { layoutOnly: true },
       }),
-    ).toThrow(/requires `container: true`/);
+    ).toThrow(/requires `layoutOnly: true`/);
     expect(
-      validate({ box: { container: true, children: { exclude: ["typo"] } } }),
+      validate({ box: { layoutOnly: true, children: { exclude: ["typo"] } } }),
     ).toThrow(/not a configured block type/);
     expect(
       validate({
-        box: { container: true, children: { exclude: ["paragraph"] } },
+        box: { layoutOnly: true, children: { exclude: ["paragraph"] } },
       }),
-    ).toThrow(/is not a container block/);
+    ).toThrow(/is not a layout block/);
     expect(
       validate({
-        box: { container: true, children: { exclude: ["column"] } },
-        column: { container: true, placeable: "namedOnly" },
+        box: { layoutOnly: true, children: { exclude: ["column"] } },
+        column: { layoutOnly: true, placeable: "namedOnly" },
       }),
     ).toThrow(/namedOnly/);
   });
 
-  it("accepts recursive containers and named-only children", () => {
-    expect(validate({ callout: { container: true } })).not.toThrow();
+  it("accepts recursive layout blocks and named-only children", () => {
+    expect(validate({ callout: { layoutOnly: true } })).not.toThrow();
     expect(
       validate({
         // gridCell is a terminating alternative to the recursive grid.
         grid: {
-          container: true,
+          layoutOnly: true,
           children: { allow: ["gridCell", "grid"], min: 2 },
         },
-        gridCell: { container: true, placeable: "namedOnly" },
+        gridCell: { layoutOnly: true, placeable: "namedOnly" },
       }),
     ).not.toThrow();
   });
 
-  // `min` only means something for a set of named container types. A
-  // container that accepts any blocks always holds at least one, and
+  // `min` only means something for a set of named layout block types. A
+  // layout block that accepts any blocks always holds at least one, and
   // dissolves when it loses it.
-  it("rejects `min` on a container that accepts any blocks", () => {
+  it("rejects `min` on a layout block that accepts any blocks", () => {
     for (const children of [{ allow: "blocks", min: 2 }, { min: 2 }] as const) {
-      expect(validate({ panel: { container: true, children } })).toThrow(
+      expect(validate({ panel: { layoutOnly: true, children } })).toThrow(
         /`children.min` needs an `allow` list/,
       );
     }
@@ -189,9 +189,9 @@ describe("validateChildrenConfigs", () => {
   });
 
   it.each(["inline", "plain", "table"] as const)(
-    "rejects `container` on a block with %s content",
+    "rejects `layoutOnly` on a block with %s content",
     (content) => {
-      expect(validate({ alert: { content, container: true } })).toThrow(
+      expect(validate({ alert: { content, layoutOnly: true } })).toThrow(
         /only for blocks without content/,
       );
     },
@@ -200,7 +200,7 @@ describe("validateChildrenConfigs", () => {
   // Any block can have any child blocks, so writing out the default is fine
   // everywhere. Restricting them needs the block's own node.
   it.each(["inline", "plain", "table", "none"] as const)(
-    "only accepts the default children on a %s block that isn't a container",
+    "only accepts the default children on a %s block that isn't a layout block",
     (content) => {
       expect(
         validate({ alert: { content, children: { allow: "blocks" } } }),
@@ -212,49 +212,49 @@ describe("validateChildrenConfigs", () => {
         expect(
           validate({
             alert: { content, children },
-            cell: { container: true },
+            cell: { layoutOnly: true },
           }),
-        ).toThrow(/requires `container: true`/);
+        ).toThrow(/requires `layoutOnly: true`/);
       }
     },
   );
 
-  it("does not treat a block with content as an allowed container", () => {
+  it("does not treat a block with content as an allowed layout block", () => {
     expect(
       validate({
-        box: { container: true, children: { allow: ["alert"] } },
+        box: { layoutOnly: true, children: { allow: ["alert"] } },
         alert: { content: "inline" },
       }),
-    ).toThrow(/is not a container block/);
+    ).toThrow(/is not a layout block/);
   });
 
   it("rejects `dissolve` without an allow list", () => {
     expect(
-      validate({ box: { container: true, children: { dissolve: false } } }),
+      validate({ box: { layoutOnly: true, children: { dissolve: false } } }),
     ).toThrow(/`children.dissolve` needs an `allow` list/);
   });
 
-  it("rejects `dissolve` on a block that is not a container", () => {
+  it("rejects `dissolve` on a block that is not a layout block", () => {
     expect(
       validate({ alert: { content: "inline", children: { dissolve: false } } }),
-    ).toThrow(/requires `container: true`/);
+    ).toThrow(/requires `layoutOnly: true`/);
   });
 
-  it("rejects named-only placement on a block that is not a container", () => {
+  it("rejects named-only placement on a block that is not a layout block", () => {
     expect(
       validate({ alert: { content: "inline", placeable: "namedOnly" } }),
-    ).toThrow(/only for container blocks/);
+    ).toThrow(/only for layout blocks/);
   });
 
   it("rejects a named-only block that no allow list names", () => {
     // The editor could not insert it anywhere.
     expect(
-      validate({ step: { container: true, placeable: "namedOnly" } }),
+      validate({ step: { layoutOnly: true, placeable: "namedOnly" } }),
     ).toThrow(/no block names it/);
     expect(
       validate({
-        stepper: { container: true, children: { allow: ["step"] } },
-        step: { container: true, placeable: "namedOnly" },
+        stepper: { layoutOnly: true, children: { allow: ["step"] } },
+        step: { layoutOnly: true, placeable: "namedOnly" },
       }),
     ).not.toThrow();
   });
@@ -263,14 +263,14 @@ describe("validateChildrenConfigs", () => {
     "rejects an allow entry that is not a configured block: %s",
     (allowed) => {
       expect(
-        validate({ box: { container: true, children: { allow: [allowed] } } }),
+        validate({ box: { layoutOnly: true, children: { allow: [allowed] } } }),
       ).toThrow(/not a configured block type/);
     },
   );
 
   it("rejects a regular block type in the allow array", () => {
     expect(
-      validate({ box: { container: true, children: { allow: ["heading"] } } }),
+      validate({ box: { layoutOnly: true, children: { allow: ["heading"] } } }),
     ).toThrow(/not supported yet/);
   });
 });

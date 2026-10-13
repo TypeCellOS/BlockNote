@@ -10,7 +10,7 @@ import { ColumnBlock, ColumnListBlock } from "@blocknote/xl-multi-column";
 import { testDocument } from "@shared/testDocument.js";
 
 // Schema including the multi-column blocks, matching the shared testDocument.
-// The columns are container blocks, so the exporter only recognizes them as
+// The columns are layout blocks, so the exporter only recognizes them as
 // such (and lets their mappings place the children) when they're in the
 // schema it was constructed with.
 const fullSchema = BlockNoteSchema.create({

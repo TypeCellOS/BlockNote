@@ -11,16 +11,16 @@ import {
   nestBlock,
   unnestBlock,
 } from "../../../api/blockManipulation/commands/nestBlock/nestBlock.js";
-import { fixContainersById } from "../../../api/blockManipulation/containers/fixContainer.js";
+import { fixLayoutBlocksById } from "../../../api/blockManipulation/layoutBlocks/fixLayoutBlock.js";
 import { nodeToBlock } from "../../../api/nodeConversions/nodeToBlock.js";
-import { isContainerNode } from "../../../schema/blocks/children.js";
+import { isLayoutNode } from "../../../schema/blocks/children.js";
 import { splitBlockCommand } from "../../../api/blockManipulation/commands/splitBlock/splitBlock.js";
 import { updateBlockCommand } from "../../../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import {
   type BlockInfo,
   ascendToInsertablePos,
   getInsertionPos,
-  getAncestorContainers,
+  getAncestorLayoutBlocks,
   getFirstLeafBlock,
   getBlockInfoAt,
   getBlockInfoFromNode,
@@ -35,19 +35,19 @@ import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 import { FilePanelExtension } from "../../FilePanel/FilePanel.js";
 import { FormattingToolbarExtension } from "../../FormattingToolbar/FormattingToolbar.js";
 
-// Move a block across a container boundary, repair its former ancestors, and
+// Move a block across a layout block boundary, repair its former ancestors, and
 // map the caret through any repairs that change the insertion position.
 function moveBlockOutAndPlaceCaret(
   tr: Transaction,
   block: BlockInfo["block"],
   insertAt: number,
 ) {
-  const containersToFix = getAncestorContainers(tr.doc, block.beforePos);
+  const layoutBlocksToFix = getAncestorLayoutBlocks(tr.doc, block.beforePos);
   tr.delete(block.beforePos, block.afterPos);
   const insertionPos = tr.mapping.map(insertAt);
   tr.insert(insertionPos, block.node);
   const stepsBeforeFix = tr.steps.length;
-  fixContainersById(tr, containersToFix);
+  fixLayoutBlocksById(tr, layoutBlocksToFix);
   tr.setSelection(
     TextSelection.near(
       tr.doc.resolve(tr.mapping.slice(stepsBeforeFix).map(insertionPos) + 1),
@@ -150,7 +150,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
               state.doc,
               blockInfo.block.beforePos,
             );
-            // A preceding container takes the move branch below. Otherwise
+            // A preceding layout block takes the move branch below. Otherwise
             // the block merges into the block above (its last descendant), or
             // into its parent when it has no previous sibling;
             // mergeBlocksCommand decides whether their contents are
@@ -174,8 +174,8 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
             return false;
           }),
-        // Move into the preceding container's trailing slot, or out of the
-        // current container when this is its first block.
+        // Move into the preceding layout block's trailing slot, or out of the
+        // current layout block when this is its first block.
         () =>
           commands.command(({ state, tr, dispatch }) => {
             const blockInfo = getBlockInfoFromSelection(state);
@@ -195,26 +195,26 @@ export const KeyboardShortcutsExtension = Extension.create<{
               }
             } else {
               const $pos = tr.doc.resolve(blockInfo.block.beforePos);
-              if (!isContainerNode($pos.parent.type)) {
+              if (!isLayoutNode($pos.parent.type)) {
                 return false;
               }
-              const $containerPos = tr.doc.resolve($pos.before());
+              const $layoutBlockPos = tr.doc.resolve($pos.before());
               // Between columns, move into the previous column. Outside a
-              // container, move above the closest boundary that accepts us.
-              const prevSibling = $containerPos.nodeBefore;
+              // layout block, move above the closest boundary that accepts us.
+              const prevSibling = $layoutBlockPos.nodeBefore;
               if (
-                isContainerNode($containerPos.parent.type) &&
+                isLayoutNode($layoutBlockPos.parent.type) &&
                 prevSibling &&
-                isContainerNode(prevSibling.type)
+                isLayoutNode(prevSibling.type)
               ) {
                 target = getBlockInfoFromNode(
                   prevSibling,
-                  $containerPos.pos - prevSibling.nodeSize,
+                  $layoutBlockPos.pos - prevSibling.nodeSize,
                 );
               } else {
                 insertionPos = ascendToInsertablePos(
                   tr.doc,
-                  $containerPos.pos,
+                  $layoutBlockPos.pos,
                   blockType,
                 );
               }
@@ -304,7 +304,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
             );
 
             if (prevBlockInfo && selectionAtBlockStart && selectionEmpty) {
-              // An emptied container has no content to merge with, so the
+              // An emptied layout block has no content to merge with, so the
               // guard below rejects it — the merge branch above only fires
               // for a previous block with content of its own.
               const bottomBlock = getLastDescendantBlockInfo(prevBlockInfo);
@@ -380,8 +380,9 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
             const { children } = blockInfo;
 
-            // A container allowed to hold no children still has a child
-            // container node, but no first child to pull anything out of.
+            // A block can have an empty children node (the `childContainer`
+            // group), but then there is no first child to pull anything out
+            // of.
             if (children.node.childCount === 0) {
               return false;
             }
@@ -445,8 +446,8 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
             return false;
           }),
-        // Pull the next leaf across a container boundary. It may be inside
-        // the next sibling container, or follow the containers we're leaving.
+        // Pull the next leaf across a layout block boundary. It may be inside
+        // the next sibling layout block, or follow the layout blocks we're leaving.
         () =>
           commands.command(({ state, tr, dispatch }) => {
             const blockInfo = getBlockInfoFromSelection(state);
@@ -461,7 +462,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
             while (
               !$boundary.nodeAfter &&
               $boundary.depth > 0 &&
-              isContainerNode($boundary.parent.type)
+              isLayoutNode($boundary.parent.type)
             ) {
               $boundary = tr.doc.resolve($boundary.after());
             }
@@ -471,7 +472,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
 
             const crossedBoundary = $boundary.pos !== blockInfo.block.afterPos;
-            if (!crossedBoundary && !isContainerNode(nextNode.type)) {
+            if (!crossedBoundary && !isLayoutNode(nextNode.type)) {
               return false;
             }
             const target = getFirstLeafBlock(
@@ -748,13 +749,13 @@ export const KeyboardShortcutsExtension = Extension.create<{
           }),
         // If the block is empty and the last child of a block whose empty
         // children exit at the end (`keyboard.emptyChildEnter:
-        // "exit-at-end"`, the default for containers), moves the block out
-        // (double Enter exits the container). The block lands at the nearest enclosing position that
+        // "exit-at-end"`, the default for layout blocks), moves the block out
+        // (double Enter exits the layout block). The block lands at the nearest enclosing position that
         // accepts it. E.g. out of a column it skips the columnList, which
         // holds only columns, and lands below it. Without this, Enter only
-        // ever creates new blocks within the container, so the cursor could
-        // never leave a trailing container. Shift+Enter still adds spacing
-        // inside a container. The first block of a body stays put: it is
+        // ever creates new blocks within the layout block, so the cursor could
+        // never leave a trailing layout block. Shift+Enter still adds spacing
+        // inside a layout block. The first block of a body stays put: it is
         // where the body begins, not a way out of it.
         () =>
           commands.command(({ state, tr, dispatch }) => {
@@ -771,7 +772,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
 
             const $pos = tr.doc.resolve(blockInfo.block.beforePos);
-            // Only fires on the container's last child.
+            // Only fires on the layout block's last child.
             if (tr.doc.resolve(blockInfo.block.afterPos).nodeAfter !== null) {
               return false;
             }
@@ -787,7 +788,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
               return false;
             }
             // The first block of a body stays put: it is where the body
-            // begins, not a way out of it. (A container's own first child has
+            // begins, not a way out of it. (A layout block's own first child has
             // no such role, so it may still leave.)
             if ($pos.index() === 0 && owner.hasContent) {
               return false;

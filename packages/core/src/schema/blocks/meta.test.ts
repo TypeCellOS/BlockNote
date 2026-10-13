@@ -30,23 +30,23 @@ describe("resolveBlockMeta", () => {
     });
   });
 
-  it("decides a container's node flags itself", () => {
+  it("decides a layout block's node flags itself", () => {
     expect(
       resolveBlockMeta(
         { code: true, defining: false, isolating: true },
-        { container: true },
+        { layoutOnly: true },
       ),
     ).toMatchObject({ code: false, defining: true, isolating: false });
   });
 
-  it("gives a named-only container no drag handle unless it opts in", () => {
-    const namedOnly = { container: true, placeable: "namedOnly" } as const;
+  it("gives a named-only layout block no drag handle unless it opts in", () => {
+    const namedOnly = { layoutOnly: true, placeable: "namedOnly" } as const;
     expect(resolveBlockMeta(undefined, namedOnly).draggable).toBe(false);
     expect(resolveBlockMeta({ draggable: true }, namedOnly).draggable).toBe(
       true,
     );
     expect(
-      resolveBlockMeta(undefined, { container: true, placeable: "anywhere" })
+      resolveBlockMeta(undefined, { layoutOnly: true, placeable: "anywhere" })
         .draggable,
     ).toBe(true);
   });

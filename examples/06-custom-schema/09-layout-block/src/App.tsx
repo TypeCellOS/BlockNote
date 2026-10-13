@@ -16,7 +16,7 @@ import { RiChatQuoteLine } from "react-icons/ri";
 import { createPanel } from "./Panel";
 import "./styles.css";
 
-// Schema with the default blocks plus our custom Panel container block.
+// Schema with the default blocks plus our custom Panel layout block.
 const schema = BlockNoteSchema.create().extend({
   blockSpecs: {
     panel: createPanel(),
@@ -28,12 +28,21 @@ const schema = BlockNoteSchema.create().extend({
 function insertPanel(editor: typeof schema.BlockNoteEditor) {
   return {
     title: "Panel",
-    subtext: "Container block that wraps other blocks",
+    subtext: "Layout block that wraps other blocks",
     onItemClick: () =>
       insertOrUpdateBlockForSlashMenu(editor, {
         type: "panel",
       }),
-    aliases: ["panel", "container", "callout", "alert", "note", "tip", "info"],
+    aliases: [
+      "panel",
+      "layout",
+      "container",
+      "callout",
+      "alert",
+      "note",
+      "tip",
+      "info",
+    ],
     group: "Basic blocks",
     icon: <RiChatQuoteLine />,
   };
@@ -45,7 +54,7 @@ export default function App() {
     initialContent: [
       {
         type: "paragraph",
-        content: "Welcome! This demo shows the new container block kind.",
+        content: "Welcome! This demo shows the new layout block kind.",
       },
       {
         type: "panel",

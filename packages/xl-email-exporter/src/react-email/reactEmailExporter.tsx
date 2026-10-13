@@ -247,15 +247,15 @@ export class ReactEmailExporter<
         i = nextIndex;
         continue;
       }
-      const isContainer = this.placesChildren(b);
+      const placesChildren = this.placesChildren(b);
       const children = await this.transformBlocks(b.children, nestingLevel + 1);
       const self = await this.mapBlock(
         b,
         nestingLevel,
         0,
-        isContainer ? children : undefined,
+        placesChildren ? children : undefined,
       );
-      const style = isContainer
+      const style = placesChildren
         ? {}
         : this.blocknoteDefaultPropsToReactEmailStyle(b.props);
 
@@ -266,7 +266,7 @@ export class ReactEmailExporter<
           ) : (
             self
           )}
-          {!isContainer && children.length > 0 && (
+          {!placesChildren && children.length > 0 && (
             <div style={{ marginLeft: "24px" }}>{children}</div>
           )}
         </React.Fragment>,

@@ -36,11 +36,11 @@ export function getBlockElement(
 /**
  * Returns the element of the block with `id`, whose node starts at `pos`: the
  * same element as `getBlockElement` finds from inside the block. ProseMirror's
- * DOM for the node can be that element (a container's frame), or wrap it: a
+ * DOM for the node can be that element (a layout block's frame), or wrap it: a
  * regular block's `.bn-block-outer`, or a framework's wrappers that don't
  * carry the block's id (React's `display: contents` wrappers).
  *
- * Caution: a React container's frame exists only after React renders its
+ * Caution: a React layout block's frame exists only after React renders its
  * node view, which can be after the editor's own render. Until then, this
  * returns `undefined` for it, never another element.
  */
@@ -117,15 +117,15 @@ export function getDraggableBlockFromElement(
 
 /**
  * Returns the child blocks of a block element: its nested blocks, or the
- * children of a container. The blocks of an editor nested in the block are
+ * children of a layout block. The blocks of an editor nested in the block are
  * not its children: they belong to that editor.
  */
-export function getDirectChildBlocks(container: Element): Element[] {
-  const editor = container.closest(".bn-editor");
+export function getDirectChildBlocks(blockElement: Element): Element[] {
+  const editor = blockElement.closest(".bn-editor");
   const children: Element[] = [];
-  for (const child of container.querySelectorAll(BLOCK_SELECTOR)) {
+  for (const child of blockElement.querySelectorAll(BLOCK_SELECTOR)) {
     if (
-      child.parentElement?.closest(BLOCK_SELECTOR) === container &&
+      child.parentElement?.closest(BLOCK_SELECTOR) === blockElement &&
       child.closest(".bn-editor") === editor
     ) {
       children.push(child);

@@ -1120,10 +1120,10 @@ l'utilisateur (bouton bleu en haut à droite de la conversation)<o:p></o:p></spa
     executeTest: testParseHTML,
   },
   {
-    // The internal (`blocksToFullHTML`) form of a container. The frame's
+    // The internal (`blocksToFullHTML`) form of a layout block. The frame's
     // slot, which holds the children, is marked with `data-frame-slot`.
     testCase: {
-      name: "container",
+      name: "layoutBlock",
       content: `<div class="bn-block-group" data-node-type="blockGroup">
   <div class="callout" data-node-type="callout" data-id="1">
     <div class="callout-body" data-frame-slot="">
@@ -1141,9 +1141,9 @@ l'utilisateur (bouton bleu en haut à droite de la conversation)<o:p></o:p></spa
     executeTest: testParseHTML,
   },
   {
-    // A container nested inside another, with a non-default prop on each.
+    // A layout block nested inside another, with a non-default prop on each.
     testCase: {
-      name: "containerNested",
+      name: "layoutNested",
       content: `<div class="bn-block-group" data-node-type="blockGroup">
   <div class="callout" data-flavor="warning" data-node-type="callout" data-id="1">
     <div class="callout-body" data-frame-slot="">
@@ -1172,10 +1172,10 @@ l'utilisateur (bouton bleu en haut à droite de la conversation)<o:p></o:p></spa
     executeTest: testParseHTML,
   },
   {
-    // An empty container children holder is filled to its schema minimum
+    // An empty layout block children holder is filled to its schema minimum
     // when parsed into a valid document.
     testCase: {
-      name: "containerEmptyChildren",
+      name: "layoutEmptyChildren",
       content: `<div class="bn-block-group" data-node-type="blockGroup">
   <div class="callout" data-node-type="callout" data-id="1">
     <div class="callout-body" data-frame-slot=""></div>
@@ -1185,12 +1185,12 @@ l'utilisateur (bouton bleu en haut à droite de la conversation)<o:p></o:p></spa
     executeTest: testParseHTML,
   },
   {
-    // Container HTML without the `data-frame-slot` marker our own
-    // serializers add: what a container looks like once it has been through
+    // Layout block HTML without the `data-frame-slot` marker our own
+    // serializers add: what a layout block looks like once it has been through
     // another app, or has come from an older version. The parse rule has to
     // fall back to reading the whole element as the children region.
     testCase: {
-      name: "containerExternalHTML",
+      name: "layoutExternalHTML",
       content: `<div class="callout" data-flavor="warning" data-node-type="callout" data-id="1">
   <div class="callout-body">
     <h1 data-nesting-level="1">Nested heading</h1>

@@ -19,8 +19,8 @@ function pressEnter(editor: BlockNoteEditor<any, any, any>) {
 
 // Columns set `emptyChildEnter: "stay"`: Enter in an empty column block adds
 // another block in the column, as on `main` and in Notion, instead of the
-// container default where an empty last block leaves the container. The
-// generic exit mechanics are covered in core's `containers.browser.test.ts`.
+// layout block default where an empty last block leaves the layout block. The
+// generic exit mechanics are covered in core's `layoutBlocks.browser.test.ts`.
 describe("Enter in columns", () => {
   it("adds blocks in the column and never leaves it", () => {
     const editor = getEditor();

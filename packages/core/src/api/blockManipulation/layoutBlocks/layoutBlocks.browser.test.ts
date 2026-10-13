@@ -9,14 +9,14 @@ import {
 import { userEvent } from "vite-plus/test/browser";
 
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
-import { containerSchema } from "./containers.fixture.js";
+import { layoutSchema } from "./layoutBlocks.fixture.js";
 
-// Keymap tests for container blocks, split off from the node-environment
-// `containers.test.ts`. tiptap can only reach `handleKeyDown` through a
+// Keymap tests for layout blocks, split off from the node-environment
+// `layoutBlocks.test.ts`. tiptap can only reach `handleKeyDown` through a
 // mounted view, so the editor is mounted and focused here and the keys are
 // pressed for real.
 
-const schema = containerSchema;
+const schema = layoutSchema;
 
 let editor: BlockNoteEditor<
   typeof schema.blockSchema,
@@ -56,10 +56,10 @@ async function pressKey(
 }
 
 describe("children keyboard handling", () => {
-  // The previous sibling's children end in a container, which Tab used to
+  // The previous sibling's children end in a layout block, which Tab used to
   // throw on ("Cannot join blockContainer onto callout"). The block now nests
-  // after the container.
-  it("Tab after a container at the end of the previous sibling's children nests after it", async () => {
+  // after the layout block.
+  it("Tab after a layout block at the end of the previous sibling's children nests after it", async () => {
     editor.replaceBlocks(editor.document, [
       {
         id: "p-0",
@@ -85,7 +85,7 @@ describe("children keyboard handling", () => {
     expect(editor.getTextCursorPosition().block.id).toBe("after");
   });
 
-  it("Enter on an empty last child escapes the container", async () => {
+  it("Enter on an empty last child escapes the layout block", async () => {
     editor.replaceBlocks(editor.document, [
       {
         type: "callout",
@@ -155,8 +155,8 @@ describe("children keyboard handling", () => {
     expect(editor.getTextCursorPosition().block.id).toBe("g-p-2");
   });
 
-  it("Enter on an empty block mid-container stays inside", async () => {
-    // The escape only fires at the end of the container. An empty block with
+  it("Enter on an empty block mid-layout-block stays inside", async () => {
+    // The escape only fires at the end of the layout block. An empty block with
     // siblings after it never ejects.
     editor.replaceBlocks(editor.document, [
       {
@@ -176,7 +176,7 @@ describe("children keyboard handling", () => {
     expect(editor.getBlock("c-0")!.children).toHaveLength(4);
   });
 
-  it("Backspace at the start of a container's first child moves it out", async () => {
+  it("Backspace at the start of a layout block's first child moves it out", async () => {
     editor.replaceBlocks(editor.document, [
       { id: "before", type: "paragraph", content: "Before" },
       {
@@ -204,7 +204,7 @@ describe("children keyboard handling", () => {
     ]);
   });
 
-  it("Backspace at the start of a block after a container moves it inside", async () => {
+  it("Backspace at the start of a block after a layout block moves it inside", async () => {
     editor.replaceBlocks(editor.document, [
       {
         type: "callout",
@@ -226,7 +226,7 @@ describe("children keyboard handling", () => {
     ]);
   });
 
-  it("Delete at the end of a block before a container pulls its first child out", async () => {
+  it("Delete at the end of a block before a layout block pulls its first child out", async () => {
     editor.replaceBlocks(editor.document, [
       { id: "before", type: "paragraph", content: "Before" },
       {
@@ -251,7 +251,7 @@ describe("children keyboard handling", () => {
     ]);
   });
 
-  it("Delete at the end of a container's last child pulls the next block in", async () => {
+  it("Delete at the end of a layout block's last child pulls the next block in", async () => {
     editor.replaceBlocks(editor.document, [
       {
         type: "callout",
@@ -272,9 +272,9 @@ describe("children keyboard handling", () => {
 });
 
 // HTML round-trips (full, external, clipboard) live with the parse rules in
-// `schema/blocks/containerParse.browser.test.ts`.
+// `schema/blocks/createSpec.browser.test.ts`.
 describe("children conversion", () => {
-  it("flattens containers to their children in markdown export", () => {
+  it("flattens layout blocks to their children in markdown export", () => {
     editor.replaceBlocks(editor.document, [
       {
         type: "callout",

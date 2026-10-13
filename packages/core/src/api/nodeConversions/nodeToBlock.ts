@@ -1,6 +1,6 @@
 import { Mark, Node, Slice } from "@tiptap/pm/model";
 import type { Block } from "../../blocks/defaultBlocks.js";
-import { isContainerNode } from "../../schema/blocks/children.js";
+import { isLayoutNode } from "../../schema/blocks/children.js";
 import UniqueID from "../../extensions/tiptap-extensions/UniqueID/UniqueID.js";
 import type {
   BlockSchema,
@@ -559,9 +559,9 @@ export function prosemirrorSliceToSlicedBlocks<
     blockCutAtStart: string | undefined;
     blockCutAtEnd: string | undefined;
   } {
-    // Both `blockGroup` and container nodes (columnList, column, callout,
+    // Both `blockGroup` and layout block nodes (columnList, column, callout,
     // ...) hold block children directly, so both can be processed here.
-    if (node.type.name !== "blockGroup" && !isContainerNode(node.type)) {
+    if (node.type.name !== "blockGroup" && !isLayoutNode(node.type)) {
       throw new Error("unexpected");
     }
     const blocks: Block<BSchema, I, S>[] = [];
@@ -569,14 +569,14 @@ export function prosemirrorSliceToSlicedBlocks<
     let blockCutAtEnd: string | undefined;
 
     // Each child is a block's node: a `blockContainer` for a regular block,
-    // or a container node (columnList, column, callout, ...) for a container
+    // or a layout block node (columnList, column, callout, ...) for a layout block
     // block.
     node.forEach((blockNode, _offset, index) => {
       const isFirstBlock = index === 0;
       const isLastBlock = index === node.childCount - 1;
 
-      const isContainer = isContainerNode(blockNode.type);
-      if (!isContainer) {
+      const isLayoutBlock = isLayoutNode(blockNode.type);
+      if (!isLayoutBlock) {
         if (blockNode.type.name !== "blockContainer") {
           throw new Error("unexpected");
         }
@@ -591,20 +591,20 @@ export function prosemirrorSliceToSlicedBlocks<
       }
 
       const omittedParent =
-        !isContainer && blockNode.firstChild!.type.name === "blockGroup";
+        !isLayoutBlock && blockNode.firstChild!.type.name === "blockGroup";
       if (omittedParent && !isFirstBlock) {
         throw new Error("unexpected");
       }
 
-      // Open containers and regular parents whose content was cut away both
+      // Open layout blocks and regular parents whose content was cut away both
       // contribute their selected children, without their own wrapper.
       if (
         omittedParent ||
-        (isContainer &&
+        (isLayoutBlock &&
           ((isFirstBlock && openStart > 0) || (isLastBlock && openEnd > 0)))
       ) {
         const ret = processNode(
-          isContainer ? blockNode : blockNode.firstChild!,
+          isLayoutBlock ? blockNode : blockNode.firstChild!,
           isFirstBlock ? Math.max(0, openStart - 1) : 0,
           isLastBlock ? Math.max(0, openEnd - 1) : 0,
         );
@@ -618,7 +618,7 @@ export function prosemirrorSliceToSlicedBlocks<
         return;
       }
 
-      if (isContainer) {
+      if (isLayoutBlock) {
         blocks.push(
           nodeToBlock<BSchema, I, S>(blockNode, slice.content.firstChild!),
         );

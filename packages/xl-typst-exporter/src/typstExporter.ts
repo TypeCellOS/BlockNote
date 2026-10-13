@@ -253,15 +253,15 @@ export class TypstExporter<
         continue;
       }
 
-      const isContainer = this.placesChildren(b);
+      const placesChildren = this.placesChildren(b);
       const children = await this.transformBlocks(b.children, nestingLevel + 1);
       const self = await this.mapBlock(
         b,
         nestingLevel,
         0,
-        isContainer ? children : [],
+        placesChildren ? children : [],
       );
-      out.push(isContainer ? self : this.wrapBlock(b, self, children));
+      out.push(placesChildren ? self : this.wrapBlock(b, self, children));
       i++;
     }
     return out;

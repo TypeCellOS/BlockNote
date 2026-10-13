@@ -64,7 +64,7 @@ function setDragImage(view: EditorView, from: number, to = from) {
   // The preview is a copy of the element that holds the dragged blocks,
   // without its other children: a copy of each dragged block's element. The
   // holding element can have no box of its own (`display: contents`, e.g. the
-  // slot of a React container), but the preview needs one.
+  // slot of a React layout block), but the preview needs one.
   const preview = view.domAtPos(from).node.cloneNode(false) as HTMLElement;
   preview.style.removeProperty("display");
   for (let pos = from; pos < to; pos += view.state.doc.nodeAt(pos)!.nodeSize) {

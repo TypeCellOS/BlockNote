@@ -71,11 +71,11 @@ export interface BlockConfigMeta<
 
   /**
    * Whether this block type gets a side menu drag handle (and can be dragged
-   * by it). Applies to any block type, container or not: e.g. a
+   * by it). Applies to any block type, layout block or not: e.g. a
    * "locked" block can opt out of dragging entirely. A block that opts out is
    * skipped when looking for a drag handle, so the handle falls through to the
    * nearest draggable ancestor.
-   * @default `true`, or `false` for a container placeable `"namedOnly"`, which
+   * @default `true`, or `false` for a layout block placeable `"namedOnly"`, which
    * can only live in its parent
    */
   draggable?: boolean;
@@ -117,18 +117,18 @@ export type ResolvedBlockConfigMeta<
   >;
 
 /**
- * The type name of a container block, as used in {@link ChildrenConfig.allow}.
+ * The type name of a layout block, as used in {@link ChildrenConfig.allow}.
  */
 export type AllowedChildType = string;
 
 /**
- * What may appear as a child of a container block.
+ * What may appear as a child of a layout block.
  *
- * - `"blocks"`: any regular block, or any container block placeable anywhere.
+ * - `"blocks"`: any regular block, or any layout block placeable anywhere.
  *   This cannot be narrowed to specific regular block types: every regular
  *   block is the *same* ProseMirror node (`blockContainer`), so paragraphs,
  *   headings and code blocks are indistinguishable at the node level.
- * - `readonly AllowedChildType[]`: only these container types, enforced exactly
+ * - `readonly AllowedChildType[]`: only these layout block types, enforced exactly
  *   by the schema. Naming a regular block type is a startup error; per-type
  *   regular-block filtering can be added to this same form later, with no API
  *   change.
@@ -139,7 +139,7 @@ export type AllowedChildType = string;
 export type ChildrenAllow = "blocks" | readonly AllowedChildType[];
 
 /**
- * Which child blocks a container block holds (`container: true`), exposed as
+ * Which child blocks a layout block holds (`layoutOnly: true`), exposed as
  * `block.children` at runtime.
  *
  * The config describes one uniform set of children, semantically a single
@@ -150,11 +150,11 @@ export type ChildrenConfig =
   | {
       /**
        * Any blocks, the default. When its last child is removed, the
-       * container is removed too.
+       * layout block is removed too.
        */
       allow?: "blocks";
       /**
-       * Container types the block does not hold, out of those placeable
+       * Layout block types the block does not hold, out of those placeable
        * anywhere: a column holds any block except a column list. Regular
        * block types can't be excluded, as every regular block is the same
        * ProseMirror node.
@@ -162,17 +162,17 @@ export type ChildrenConfig =
       exclude?: readonly AllowedChildType[];
     }
   | {
-      /** Which container types may appear as a child. */
+      /** Which layout block types may appear as a child. */
       allow: readonly AllowedChildType[];
       /**
-       * How few children the container may hold; `0` lets it be empty.
+       * How few children the layout block may hold; `0` lets it be empty.
        * @default 1
        */
       min?: number;
       /**
-       * Whether a container with too few children dissolves into what they
+       * Whether a layout block with too few children dissolves into what they
        * hold, like a column list with one column left. `false` keeps the
-       * container and its empty children, like a tab set.
+       * layout block and its empty children, like a tab set.
        * @default true
        */
       dissolve?: boolean;
@@ -201,16 +201,16 @@ export interface BlockConfig<
    */
   content: C;
   /**
-   * Makes the block a container: a block without content of its own
+   * Makes the block a layout block: a block without content of its own
    * (`content: "none"`) whose own node holds its child blocks. Its `render`
    * mounts them through contentDOM (React: contentRef). Without it, a block's
    * child blocks are indented below it.
    */
-  container?: C extends "none" ? true : never;
+  layoutOnly?: C extends "none" ? true : never;
   /**
    * Which child blocks the block may have. Every block can have any child
-   * blocks (`{ allow: "blocks" }`, the default). Only a container
-   * (`container: true`) can restrict them to certain types or a minimum
+   * blocks (`{ allow: "blocks" }`, the default). Only a layout block
+   * (`layoutOnly: true`) can restrict them to certain types or a minimum
    * count, since the child blocks of other blocks all share one untyped
    * group. How the keyboard treats a block's children (e.g. whether Enter in
    * the block's text starts them) is set with its `experimental_keyboard`
@@ -229,10 +229,10 @@ export interface BlockConfig<
    *
    * - `"anywhere"` (default): anywhere a regular block goes, the document
    *   root or nested under any other block.
-   * - `"namedOnly"`: only inside a container that names this type in its
+   * - `"namedOnly"`: only inside a layout block that names this type in its
    *   `children.allow` array (e.g. a `column` inside a `columnList`).
    *
-   * Only meaningful for container blocks; regular blocks are always placeable
+   * Only meaningful for layout blocks; regular blocks are always placeable
    * anywhere.
    */
   placeable?: "anywhere" | "namedOnly";
@@ -363,7 +363,7 @@ export type LooseBlockSpec<
     /** The block's `meta`, with defaults filled in. */
     meta: ResolvedBlockConfigMeta<T, PS>;
     // purposefully stub the types for render and toExternalHTML since they reference the block
-    // A container declares `renderFrame` instead of `render`.
+    // A layout block declares `renderFrame` instead of `render`.
     render?: (
       /**
        * The custom block to render
@@ -436,7 +436,7 @@ export type BlockSpecs = {
     > & {
       experimental_keyboard?: BlockKeyboardOption<any>;
       // purposefully stub the types for render and toExternalHTML since they reference the block
-      // A container declares `renderFrame` instead of `render`.
+      // A layout block declares `renderFrame` instead of `render`.
       render?: (
         /**
          * The custom block to render
@@ -732,7 +732,7 @@ export type BlockImplementation<
   /**
    * @internal Framework adapter (React): draws the block's frame in the
    * editor, for the node view of a framed block's `blockContainer` or of a
-   * container. Core uses it instead of the vanilla `renderFrame` when present.
+   * layout block. Core uses it instead of the vanilla `renderFrame` when present.
    *
    * TODO: the content node view has no such hook yet: React builds it inside
    * `render` (see the `TODO` there). Add one, so `render` / `renderFrame`
@@ -754,13 +754,13 @@ export type BlockImplementation<
   >;
   /**
    * A function that converts the block into a DOM element. Every block
-   * declares it, except a container (`container: true`), which has no content
+   * declares it, except a layout block (`layoutOnly: true`), which has no content
    * to draw and declares only `renderFrame`.
    *
    * FIXME: optional for every block here, checked at runtime
    * (`validateRenderHooks`). The types could require exactly one of `render`
    * and `renderFrame`, but core's first `createBlockSpec` overload can't see
-   * `container`.
+   * `layoutOnly`.
    */
   render?: (
     this:
@@ -810,10 +810,10 @@ export type BlockImplementation<
    * Draws the chrome *around* a block's content and children: the author's
    * markup wraps both, and the `slot` is where BlockNote mounts them.
    *
-   * The slot holds the content first and the children after it. A container
-   * (`container: true`) has no content, so it draws only its frame, with its
+   * The slot holds the content first and the children after it. A layout block
+   * (`layoutOnly: true`) has no content, so it draws only its frame, with its
    * child blocks in the slot. The frame's root is then the block's element,
-   * and a container must always draw it.
+   * and a layout block must always draw it.
    *
    * `render` stays the knob for the block's own content. A block may use
    * both: `render` draws the title, `renderFrame` draws the box around title

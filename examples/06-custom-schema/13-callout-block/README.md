@@ -15,6 +15,6 @@ We also wire up a Slash Menu item to insert the callout.
 
 **Relevant Docs:**
 
-- [Container Blocks](/docs/features/custom-schemas/container-blocks)
+- [Layout Blocks](/docs/features/custom-schemas/layout-blocks)
 - [Custom Blocks](/docs/features/custom-schemas/custom-blocks)
 - [Editor Setup](/docs/getting-started/editor-setup)

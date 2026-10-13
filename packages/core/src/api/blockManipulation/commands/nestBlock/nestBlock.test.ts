@@ -3,7 +3,7 @@ import { describe, expect, it } from "vite-plus/test";
 import { afterAll, beforeAll } from "vite-plus/test";
 import { PartialBlock } from "../../../../blocks/defaultBlocks.js";
 import { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
-import { containerSchema } from "../../containers/containers.fixture.js";
+import { layoutSchema } from "../../layoutBlocks/layoutBlocks.fixture.js";
 
 /**
  * Custom test setup with a document designed to reproduce nesting/unnesting bugs.
@@ -647,14 +647,14 @@ describe("unnestBlock / liftListItem", () => {
   });
 });
 
-// A second editor, on a schema that has container blocks. `setupNestTestEnv`
+// A second editor, on a schema that has layout blocks. `setupNestTestEnv`
 // builds a default-schema editor, which can't express any of the cases below.
-function setupContainerNestTestEnv() {
+function setupLayoutNestTestEnv() {
   let editor: BlockNoteEditor<any, any, any>;
   const div = document.createElement("div");
 
   beforeAll(() => {
-    editor = BlockNoteEditor.create({ schema: containerSchema });
+    editor = BlockNoteEditor.create({ schema: layoutSchema });
     editor.mount(div);
   });
 
@@ -673,12 +673,12 @@ function setupContainerNestTestEnv() {
 // that is thrown away, rather than restating its preconditions. The cases here
 // are the ones where the old, restated preconditions gave the wrong answer:
 // they looked at a previous sibling's mere existence and at the block's depth,
-// neither of which knows anything about containers.
-describe("canNestBlock / canUnnestBlock around containers", () => {
-  const withContainerEditor = setupContainerNestTestEnv();
+// neither of which knows anything about layout blocks.
+describe("canNestBlock / canUnnestBlock around layout blocks", () => {
+  const withLayoutEditor = setupLayoutNestTestEnv();
 
-  it("Reports that a block cannot be nested under a container sibling", () => {
-    const editor = withContainerEditor([
+  it("Reports that a block cannot be nested under a layout block sibling", () => {
+    const editor = withLayoutEditor([
       {
         id: "callout-0",
         type: "callout",
@@ -699,8 +699,8 @@ describe("canNestBlock / canUnnestBlock around containers", () => {
     expect(editor.document).toEqual(before);
   });
 
-  it("Reports that a container's child cannot be unnested out of it", () => {
-    const editor = withContainerEditor([
+  it("Reports that a layout block's child cannot be unnested out of it", () => {
+    const editor = withLayoutEditor([
       {
         id: "callout-0",
         type: "callout",
@@ -720,7 +720,7 @@ describe("canNestBlock / canUnnestBlock around containers", () => {
   });
 
   it("Reports that a block with a plain previous sibling can be nested", () => {
-    const editor = withContainerEditor([
+    const editor = withLayoutEditor([
       { id: "paragraph-0", type: "paragraph", content: "Paragraph 0" },
       { id: "paragraph-1", type: "paragraph", content: "Paragraph 1" },
     ]);
@@ -740,8 +740,8 @@ describe("canNestBlock / canUnnestBlock around containers", () => {
     expect(editor.canUnnestBlock()).toBe(true);
   });
 
-  it("Nests and unnests a block inside a container's children", () => {
-    const editor = withContainerEditor([
+  it("Nests and unnests a block inside a layout block's children", () => {
+    const editor = withLayoutEditor([
       {
         id: "callout-0",
         type: "callout",
@@ -778,11 +778,11 @@ describe("canNestBlock / canUnnestBlock around containers", () => {
   // selection change (the formatting toolbar's nest buttons), and Tab runs
   // `nestBlock` in the keymap.
   //
-  // Here the previous sibling's children end in a container. The step opens
+  // Here the previous sibling's children end in a layout block. The step opens
   // into that last child to join the block onto it, which only works for a
   // `blockContainer`: "Cannot join blockContainer onto callout".
-  it("Nests after a container at the end of the previous sibling's children", () => {
-    const editor = withContainerEditor([
+  it("Nests after a layout block at the end of the previous sibling's children", () => {
+    const editor = withLayoutEditor([
       {
         id: "paragraph-0",
         type: "paragraph",
@@ -816,8 +816,8 @@ describe("canNestBlock / canUnnestBlock around containers", () => {
 // `blockGroup` the grid sits in, so Tab moves the grid as a unit rather than
 // doing nothing. `columnList`/`column` in `@blocknote/xl-multi-column` are the
 // same shape, and the user-facing case this guards.
-describe("Nesting a selection that spans two of a container's children", () => {
-  const withContainerEditor = setupContainerNestTestEnv();
+describe("Nesting a selection that spans two of a layout block's children", () => {
+  const withLayoutEditor = setupLayoutNestTestEnv();
 
   function gridWith(id: string) {
     return {
@@ -843,7 +843,7 @@ describe("Nesting a selection that spans two of a container's children", () => {
   }
 
   it("Nests the whole grid under its previous sibling", () => {
-    const editor = withContainerEditor([
+    const editor = withLayoutEditor([
       { id: "paragraph-0", type: "paragraph", content: "Paragraph 0" },
       gridWith("grid-0"),
     ]);
@@ -865,7 +865,7 @@ describe("Nesting a selection that spans two of a container's children", () => {
   });
 
   it("Unnests the whole grid out of its parent", () => {
-    const editor = withContainerEditor([
+    const editor = withLayoutEditor([
       {
         id: "paragraph-0",
         type: "paragraph",
@@ -891,7 +891,7 @@ describe("Nesting a selection that spans two of a container's children", () => {
   });
 
   it("Reports no nesting when the grid has no previous sibling", () => {
-    const editor = withContainerEditor([gridWith("grid-0")]);
+    const editor = withLayoutEditor([gridWith("grid-0")]);
 
     editor.setSelection("grid-0-a", "grid-0-b");
 

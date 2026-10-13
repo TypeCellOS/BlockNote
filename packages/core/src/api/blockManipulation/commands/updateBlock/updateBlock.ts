@@ -30,7 +30,7 @@ import { getNodeById } from "../../../nodeUtil.js";
 import { getBlockSchema, getPmSchema } from "../../../pmUtil.js";
 import {
   createBlockGroup,
-  isContainerNode,
+  isLayoutNode,
 } from "../../../../schema/blocks/children.js";
 
 // for compatibility with tiptap. TODO: remove as we want to remove dependency on tiptap command interface
@@ -111,7 +111,7 @@ export function updateBlockTr<
       ? replaceToPos - blockInfo.contentStart
       : undefined;
 
-  // Rebuild when the block's shape changes or a container's existing children
+  // Rebuild when the block's shape changes or a layout block's existing children
   // cannot satisfy the new type (e.g. changing to a pair requiring two children).
   if (
     blockInfo.hasContent !== newNodeType.isInGroup("blockContent") ||
@@ -131,7 +131,7 @@ export function updateBlockTr<
         targetConfig.content === "plain"
       ) {
         content = existingBlock.content;
-      } else if (isContainerNode(newNodeType)) {
+      } else if (isLayoutNode(newNodeType)) {
         children.unshift({ type: "paragraph", content: existingBlock.content });
       }
     }
@@ -139,7 +139,7 @@ export function updateBlockTr<
     const replacementNode = blockToNode(
       {
         ...(content ? { content } : {}),
-        // Omit empty children so a new container can seed its required children.
+        // Omit empty children so a new layout block can seed its required children.
         ...(children.length > 0 ? { children } : {}),
         ...block,
       },
@@ -562,7 +562,7 @@ function updateChildren<
     } else if (blockInfo.hasContent) {
       // A `blockContainer` with no children yet: its `blockGroup` is lazy
       // (`blockContent blockGroup?`), so create it around the child nodes and
-      // insert it after the content node. (Containers always have a children
+      // insert it after the content node. (Layout blocks always have a children
       // holder, so no holder implies a `blockContainer`.)
       tr.insert(
         blockInfo.content.afterPos,

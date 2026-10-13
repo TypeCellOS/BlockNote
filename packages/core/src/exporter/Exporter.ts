@@ -160,16 +160,16 @@ export abstract class Exporter<
       );
     }
     if (typeof mapping === "function") {
-      // A container's children belong inside it, which only a
+      // A layout block's children belong inside it, which only a
       // `{ withChildren }` mapping can do. Fail early rather than export them
       // after it.
       // TODO: remove once the `BlockMapping` type requires `{ withChildren }`
-      // for containers (`createBlockSpec` doesn't keep `container: true` in the
+      // for layout blocks (`createBlockSpec` doesn't keep `layoutOnly: true` in the
       // config type yet).
       const spec = this.schema.blockSpecs[block.type];
-      if (spec !== undefined && spec.config.container === true) {
+      if (spec !== undefined && spec.config.layoutOnly === true) {
         throw new Error(
-          `The mapping for container block type "${block.type}" must be a \`{ withChildren }\` mapping, which places the block's children.`,
+          `The mapping for layout block type "${block.type}" must be a \`{ withChildren }\` mapping, which places the block's children.`,
         );
       }
       return mapping(block, this, nestingLevel, numberedListIndex);

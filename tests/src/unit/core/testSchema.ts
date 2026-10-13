@@ -99,8 +99,8 @@ const SimpleCustomParagraph = createBlockSpec(
   },
 );
 
-// A container block: it holds no inline content of its own, and its frame's
-// `slot` is where its child blocks go. Covers containers in the format-conversion,
+// A layout block: it holds no inline content of its own, and its frame's
+// `slot` is where its child blocks go. Covers layout blocks in the format-conversion,
 // clipboard and selection matrices, which otherwise never see one.
 const Callout = createBlockSpec(
   {
@@ -112,7 +112,7 @@ const Callout = createBlockSpec(
       },
     },
     content: "none",
-    container: true,
+    layoutOnly: true,
     children: {
       allow: "blocks",
     },
@@ -147,7 +147,7 @@ const Callout = createBlockSpec(
 // A titled block: an ordinary block with inline content (the title) whose
 // `children` are a body that belongs to it. Covers titled blocks in the
 // format-conversion, clipboard and selection matrices, which otherwise never
-// see one (the `callout` above only covers pure containers).
+// see one (the `callout` above only covers layout blocks).
 const Alert = createBlockSpec(
   {
     type: "alert" as const,

@@ -110,8 +110,8 @@
       "children": {
         "allow": "blocks",
       },
-      "container": true,
       "content": "none",
+      "layoutOnly": true,
       "propSchema": {
         "flavor": {
           "default": "tip",

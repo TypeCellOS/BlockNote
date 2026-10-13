@@ -57,7 +57,7 @@ export default function App() {
     initialContent: [
       {
         type: "paragraph",
-        content: "A stepper built on the container API. Numbering is CSS.",
+        content: "A stepper built on the layout block API. Numbering is CSS.",
       },
       {
         type: "stepper",

@@ -27,7 +27,7 @@ const schema = BlockNoteSchema.create().extend({
 function insertCallout(editor: typeof schema.BlockNoteEditor) {
   return {
     title: "Callout",
-    subtext: "Titled container block that wraps other blocks",
+    subtext: "Titled block that wraps other blocks",
     onItemClick: () =>
       insertOrUpdateBlockForSlashMenu(editor, {
         type: "callout",

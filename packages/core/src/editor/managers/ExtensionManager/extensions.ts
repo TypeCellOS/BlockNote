@@ -64,9 +64,9 @@ export function getDefaultTiptapExtensions(
       // everything from bnBlock group (nodes that represent a BlockNote block should have an id)
       types: [
         "blockContainer",
-        // Only pure containers own their ID; titled blocks use blockContainer.
+        // Only layout blocks own their ID; titled blocks use blockContainer.
         ...Object.values(editor.schema.blockSpecs)
-          .filter((spec) => spec.config.container === true)
+          .filter((spec) => spec.config.layoutOnly === true)
           .map((spec) => spec.config.type),
       ],
       setIdAttribute: options.setIdAttribute,

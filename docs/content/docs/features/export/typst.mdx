@@ -121,7 +121,7 @@ For a block with inline content, render it the way the default mappings do:
 markup strings, so plain concatenation composes them).
 
 A `{ withChildren }` mapping places the block's children itself
-([container blocks](/docs/features/custom-schemas/container-blocks) must use
+([layout blocks](/docs/features/custom-schemas/layout-blocks) must use
 one). It gets the children as rendered markup strings: join them with a blank
 line, `children.join("\n\n")`, so each stays its own block, since a single
 `\n` is only a soft break in Typst markup.

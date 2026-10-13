@@ -8,7 +8,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../../../schema/index.js";
-import { isContainerNode } from "../../../../schema/blocks/children.js";
+import { isLayoutNode } from "../../../../schema/blocks/children.js";
 import {
   FRAME_SLOT_ATTRIBUTE,
   renderFrameDOM,
@@ -192,7 +192,7 @@ type BlockOutput = {
 /**
  * The block's output for external HTML, and the frame to put it into. The
  * block's own `toExternalHTML` replaces the default export, frame included.
- * By default, a container is its frame, with the children in the slot, and
+ * By default, a layout block is its frame, with the children in the slot, and
  * any other block is `render`'s output, which the caller puts into the
  * block's frame (if it draws one).
  */
@@ -200,7 +200,7 @@ function renderBlockOutput(
   blockImplementation: BlockImplementation,
   block: any,
   editor: BlockNoteEditor<any, any, any>,
-  isContainer: boolean,
+  isLayoutBlock: boolean,
   nestingLevel: number,
 ): { output: BlockOutput; frame?: { dom: HTMLElement; slot: HTMLElement } } {
   const external = blockImplementation.toExternalHTML?.call({}, block, editor, {
@@ -211,10 +211,10 @@ function renderBlockOutput(
   }
 
   const frame = renderFrameDOM(editor, block);
-  if (isContainer) {
+  if (isLayoutBlock) {
     if (!frame) {
       throw new Error(
-        `Container block "${block.type}" drew no frame. This is a bug in BlockNote.`,
+        `Layout block "${block.type}" drew no frame. This is a bug in BlockNote.`,
       );
     }
     return { output: { dom: frame.dom, childrenDOM: frame.slot } };
@@ -277,12 +277,12 @@ function serializeBlock<
   const blockImplementation = editor.blockImplementations[block.type as any]
     .implementation as BlockImplementation;
   const blockWithDefaults = { ...block, props, children: block.children ?? [] };
-  const isContainer = isContainerNode(editor.pmSchema.nodes[block.type as any]);
+  const isLayoutBlock = isLayoutNode(editor.pmSchema.nodes[block.type as any]);
   const { output: ret, frame } = renderBlockOutput(
     blockImplementation,
     blockWithDefaults,
     editor,
-    isContainer,
+    isLayoutBlock,
     nestingLevel,
   );
 
@@ -325,9 +325,9 @@ function serializeBlock<
     elementFragment.append(...Array.from(rootElement.childNodes));
   } else {
     elementFragment.append(ret.dom);
-    if (isContainer) {
+    if (isLayoutBlock) {
       // Like a regular block's type marker (`data-content-type`), a
-      // container's markers stay out of external HTML: it parses back only
+      // layout block's markers stay out of external HTML: it parses back only
       // through the block's `parse`, like any other block. Its props stay as
       // `data-*` attributes. This mirrors the unwrapping of a regular block's
       // `.bn-block-content` above: the spec's hooks produce the editor's
@@ -444,7 +444,7 @@ function serializeBlock<
       !ret.contentDOM
     ) {
       // default "blockContainer" style blocks are flattened (no "nested block" support) for externalHTML, so append the child fragment to the outer fragment.
-      // So does a container whose own export places its children nowhere.
+      // So does a layout block whose own export places its children nowhere.
       fragment.append(childFragment);
     } else {
       // for columns / column lists, do use nesting

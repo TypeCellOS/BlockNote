@@ -83,7 +83,7 @@ function columnElement(id: string): HTMLElement {
  * Starts a drag of the block as its drag handle would: the handle's
  * `dragstart` goes through the side menu's `blockDragStart`, and then bubbles
  * up to the document, where every editor's side menu handles it. It starts
- * from the editor's container, where the handle lives: `UniqueID` keeps the
+ * from the editor's container element, where the handle lives: `UniqueID` keeps the
  * ids of blocks dragged from there, and regenerates them for drops from
  * elsewhere.
  */

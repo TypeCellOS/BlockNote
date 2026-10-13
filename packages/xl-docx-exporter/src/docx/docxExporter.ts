@@ -184,7 +184,7 @@ export class DOCXExporter<
         children,
       );
       ret.push(...(Array.isArray(self) ? self : [self]));
-      // A container's mapping is handed its children and places them itself,
+      // A layout block's mapping is handed its children and places them itself,
       // so they must not be appended after it as well.
       if (!this.placesChildren(b)) {
         ret.push(...children);

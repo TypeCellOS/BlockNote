@@ -70,17 +70,17 @@ export type BlockKeyboard = {
    * - `"outdent"`: any empty child is outdented, as for nested blocks
    *   (needs `childrenCanOutdent`).
    * - `"exit-at-end"`: an empty last child moves out to after this block, as
-   *   for containers. An empty child elsewhere gets a new child after it.
+   *   for layout blocks. An empty child elsewhere gets a new child after it.
    * - `"stay"`: an empty child always gets a new child after it.
-   * @default "outdent", or "exit-at-end" for container blocks
+   * @default "outdent", or "exit-at-end" for layout blocks
    */
   emptyChildEnter: "outdent" | "exit-at-end" | "stay";
   /**
    * Whether this block's children can be outdented out of it: Shift-Tab, the
    * unnest button, and the outdent that Backspace and Enter do at the start of
-   * an empty or nested block. A container's children can never be outdented,
-   * so this has no effect on containers.
-   * @default true, or false for container blocks
+   * an empty or nested block. A layout block's children can never be outdented,
+   * so this has no effect on layout blocks.
+   * @default true, or false for layout blocks
    */
   childrenCanOutdent: boolean;
 };
@@ -109,12 +109,12 @@ export type BlockKeyboardOption<TBlock> =
 export function createBlockKeyboard<TBlock>(
   option: BlockKeyboardOption<TBlock> | undefined,
   spec: {
-    isContainer: boolean;
+    isLayoutBlock: boolean;
     /** The deprecated `meta.hardBreakShortcut`, read when set. */
     hardBreakShortcut: "shift+enter" | "enter" | "none" | undefined;
   },
 ): (block: TBlock) => BlockKeyboard {
-  const { isContainer, hardBreakShortcut } = spec;
+  const { isLayoutBlock, hardBreakShortcut } = spec;
   const defaults: BlockKeyboard = {
     enter: hardBreakShortcut === "enter" ? "line-break" : "split",
     shiftEnter: hardBreakShortcut === "none" ? "same-as-enter" : "line-break",
@@ -122,10 +122,10 @@ export function createBlockKeyboard<TBlock>(
     splitKeepsChildren: false,
     resetsTo: { type: "paragraph" },
     emptyEnterResets: false,
-    // A container's children can't be outdented (the schema doesn't allow
+    // A layout block's children can't be outdented (the schema doesn't allow
     // them outside it), so an empty last child leaves it instead.
-    emptyChildEnter: isContainer ? "exit-at-end" : "outdent",
-    childrenCanOutdent: !isContainer,
+    emptyChildEnter: isLayoutBlock ? "exit-at-end" : "outdent",
+    childrenCanOutdent: !isLayoutBlock,
   };
   if (typeof option === "function") {
     return (block) => withDefaults(defaults, option(block));

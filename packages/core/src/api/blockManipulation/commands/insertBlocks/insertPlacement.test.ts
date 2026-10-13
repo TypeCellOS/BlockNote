@@ -15,7 +15,7 @@ import { createBlockSpec } from "../../../../schema/blocks/createSpec.js";
 
 // The editor stays headless, so these blocks are never rendered.
 // `renderFrame` only has to exist for `createBlockSpec` to accept the spec.
-const container = (type: string, config: Record<string, unknown>) =>
+const layoutBlock = (type: string, config: Record<string, unknown>) =>
   createBlockSpec({ type, propSchema: {}, ...config } as any, {
     renderFrame: () => {
       throw new Error("not rendered in this suite");
@@ -25,22 +25,22 @@ const container = (type: string, config: Record<string, unknown>) =>
 const schema = BlockNoteSchema.create().extend({
   blockSpecs: {
     ...defaultBlockSpecs,
-    // A container of any blocks. `"first-child"`/`"last-child"` insert at
+    // A layout block of any blocks. `"first-child"`/`"last-child"` insert at
     // the start or end of its children.
-    box: container("box", {
+    box: layoutBlock("box", {
       content: "none",
-      container: true,
+      layoutOnly: true,
     }),
-    // A container that only accepts other containers, so an insertion has to
+    // A layout block that only accepts other layout blocks, so an insertion has to
     // descend a level to find a place for a regular block.
-    grid: container("grid", {
+    grid: layoutBlock("grid", {
       content: "none",
-      container: true,
+      layoutOnly: true,
       children: { allow: ["cell"], min: 2 },
     }),
-    cell: container("cell", {
+    cell: layoutBlock("cell", {
       content: "none",
-      container: true,
+      layoutOnly: true,
       placeable: "namedOnly",
     }),
   } as const,
@@ -92,7 +92,7 @@ describe('insertBlocks "first-child" / "last-child"', () => {
     ]);
   });
 
-  it("descends into a nested container that accepts the block", () => {
+  it("descends into a nested layout block that accepts the block", () => {
     editor.replaceBlocks(editor.document, [
       {
         id: "g-0",

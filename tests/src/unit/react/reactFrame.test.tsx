@@ -20,16 +20,16 @@ import { flushSync } from "react-dom";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 
-// Pure containers continue to draw their outer box through render.
+// A layout block draws its box in `renderFrame`.
 const createFrameBox = createReactBlockSpec(
   {
     type: "frameBox",
     propSchema: { flavor: { default: "tip" } },
     content: "none",
-    container: true,
+    layoutOnly: true,
   },
   {
-    renderFrame: function Container(props) {
+    renderFrame: function LayoutFrame(props) {
       const [alternate, setAlternate] = useState(false);
       const Tag = alternate ? "section" : "div";
       return (
@@ -174,7 +174,7 @@ afterEach(() => {
 });
 
 describe("React renderFrame", () => {
-  it("keeps container identity and child DOM through prop and author-root changes", async () => {
+  it("keeps layout block identity and child DOM through prop and author-root changes", async () => {
     const mounted = mountEditor([
       {
         id: "box-0",
@@ -209,7 +209,7 @@ describe("React renderFrame", () => {
     expect(uncaught).toEqual([]);
   });
 
-  it("never gives one React container's frame to another container", async () => {
+  it("never gives one React layout block's frame to another layout block", async () => {
     // ProseMirror offers a view whose node is gone to the next node of the
     // same type. A frame shows one block, so its state must not move to
     // another block.
@@ -236,7 +236,7 @@ describe("React renderFrame", () => {
     expect(uncaught).toEqual([]);
   });
 
-  it("finds a React container's own element, not React's wrappers", async () => {
+  it("finds a React layout block's own element, not React's wrappers", async () => {
     const mounted = mountEditor([
       {
         id: "box-0",

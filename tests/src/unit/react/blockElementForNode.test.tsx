@@ -12,7 +12,7 @@ import { describe, expect, it } from "vite-plus/test";
 
 // `getBlockElementForNode` finds a block's own element (the element with
 // `data-node-type` and `data-id`) for every kind of block: regular blocks with
-// and without a frame, containers, vanilla and React.
+// and without a frame, layout blocks, vanilla and React.
 
 const VanillaFrame = createBlockSpec(
   { type: "vanillaFrame", propSchema: {}, content: "inline" },
@@ -30,12 +30,12 @@ const VanillaFrame = createBlockSpec(
   },
 );
 
-const VanillaContainer = createBlockSpec(
+const VanillaLayout = createBlockSpec(
   {
-    type: "vanillaContainer",
+    type: "vanillaLayout",
     propSchema: {},
     content: "none",
-    container: true,
+    layoutOnly: true,
   },
   {
     renderFrame: () => {
@@ -64,8 +64,8 @@ const createReactFrame = createReactBlockSpec(
   },
 );
 
-const createReactContainer = createReactBlockSpec(
-  { type: "reactContainer", propSchema: {}, content: "none", container: true },
+const createReactLayout = createReactBlockSpec(
+  { type: "reactLayout", propSchema: {}, content: "none", layoutOnly: true },
   {
     renderFrame: (props) => (
       <section>
@@ -80,10 +80,10 @@ const schema = withMultiColumn(
   BlockNoteSchema.create().extend({
     blockSpecs: {
       vanillaFrame: VanillaFrame(),
-      vanillaContainer: VanillaContainer(),
+      vanillaLayout: VanillaLayout(),
       reactContent: createReactContent(),
       reactFrame: createReactFrame(),
-      reactContainer: createReactContainer(),
+      reactLayout: createReactLayout(),
     },
   }),
 );
@@ -127,9 +127,9 @@ describe("getBlockElementForNode", () => {
           children: [child("vanillaFrameChild")],
         },
         {
-          id: "vanillaContainer",
-          type: "vanillaContainer",
-          children: [child("vanillaContainerChild")],
+          id: "vanillaLayout",
+          type: "vanillaLayout",
+          children: [child("vanillaLayoutChild")],
         },
         {
           id: "reactContent",
@@ -144,9 +144,9 @@ describe("getBlockElementForNode", () => {
           children: [child("reactFrameChild")],
         },
         {
-          id: "reactContainer",
-          type: "reactContainer",
-          children: [child("reactContainerChild")],
+          id: "reactLayout",
+          type: "reactLayout",
+          children: [child("reactLayoutChild")],
         },
         {
           id: "columns",

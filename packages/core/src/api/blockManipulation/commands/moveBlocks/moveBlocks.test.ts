@@ -8,7 +8,7 @@ import {
   getNodeId,
 } from "../../../getBlockInfoFromPos.js";
 import { getNodeById } from "../../../nodeUtil.js";
-import { containerSchema } from "../../containers/containers.fixture.js";
+import { layoutSchema } from "../../layoutBlocks/layoutBlocks.fixture.js";
 import { setupTestEnv, testDocument } from "../../setupTestEnv.js";
 import {
   moveBlocksDown,
@@ -17,11 +17,11 @@ import {
 } from "./moveBlocks.js";
 
 const getEditor = setupTestEnv<
-  typeof containerSchema.blockSchema,
-  typeof containerSchema.inlineContentSchema,
-  typeof containerSchema.styleSchema
+  typeof layoutSchema.blockSchema,
+  typeof layoutSchema.inlineContentSchema,
+  typeof layoutSchema.styleSchema
 >({
-  schema: containerSchema,
+  schema: layoutSchema,
   document: testDocument,
 });
 

@@ -18,7 +18,7 @@ import {
 } from "../../schema/inlineContent/types.js";
 import {
   createBlockGroup,
-  isContainerNode,
+  isLayoutNode,
 } from "../../schema/blocks/children.js";
 import { getColspan, isPartialTableCell } from "../../util/table.js";
 import { UnreachableCaseError } from "../../util/typescript.js";
@@ -404,7 +404,7 @@ export function blockToNode(
       },
       groupNode ? [contentNode, groupNode] : contentNode,
     );
-  } else if (isContainerNode(schema.nodes[block.type])) {
+  } else if (isLayoutNode(schema.nodes[block.type])) {
     const type = schema.nodes[block.type];
     const attrs = { id: id, ...block.props };
 

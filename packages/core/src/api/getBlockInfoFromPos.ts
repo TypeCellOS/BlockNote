@@ -9,7 +9,7 @@ import {
 
 import {
   CHILD_CONTAINER_GROUP,
-  isContainerNode,
+  isLayoutNode,
 } from "../schema/blocks/children.js";
 import type { BlockConfig } from "../schema/blocks/types.js";
 
@@ -325,7 +325,7 @@ export function getBlockInfoFromNode(node: Node, beforePos: number): BlockInfo {
     afterPos: beforePos + node.nodeSize,
   };
 
-  if (isContainerNode(node.type)) {
+  if (isLayoutNode(node.type)) {
     return {
       hasContent: false,
       block,
@@ -589,7 +589,7 @@ export function getInsertionPos(
     // A restricted container can route insertion into its edge container,
     // e.g. inserting a paragraph into the last column of a column list.
     const child = last ? children.node.lastChild : children.node.firstChild;
-    if (!child || !isContainerNode(child.type)) {
+    if (!child || !isLayoutNode(child.type)) {
       break;
     }
     info = getBlockInfoFromNode(
@@ -602,8 +602,8 @@ export function getInsertionPos(
 
 /**
  * Resolves a block to its first leaf block: the block itself when it is not a
- * container, otherwise the first leaf of its first child. Returns `null` for
- * an empty container.
+ * layout block, otherwise the first leaf of its first child. Returns `null` for
+ * an empty layout block.
  */
 export function getFirstLeafBlock(info: BlockInfo): BlockInfo | null {
   while (!info.hasContent) {
@@ -617,9 +617,9 @@ export function getFirstLeafBlock(info: BlockInfo): BlockInfo | null {
 }
 
 /**
- * Climbs out of containers until it reaches a position where `nodeType` fits.
- * `side` picks which edge of each climbed container to land on: `"before"` for
- * moves that put a block above the containers it leaves (Backspace move-out),
+ * Climbs out of layout blocks until it reaches a position where `nodeType` fits.
+ * `side` picks which edge of each climbed layout block to land on: `"before"` for
+ * moves that put a block above the layout blocks it leaves (Backspace move-out),
  * `"after"` for moves that put it below them (Enter-exit).
  *
  * Position-based rather than `BlockInfo`-based (unlike the descend/leaf
@@ -638,7 +638,7 @@ export function ascendToInsertablePos(
     if (parent.canReplaceWith($pos.index(), $pos.index(), nodeType)) {
       return pos;
     }
-    if ($pos.depth > 0 && isContainerNode(parent.type)) {
+    if ($pos.depth > 0 && isLayoutNode(parent.type)) {
       pos = side === "before" ? $pos.before() : $pos.after();
       continue;
     }
@@ -647,23 +647,23 @@ export function ascendToInsertablePos(
 }
 
 /**
- * The container ancestors of a position, outermost last, each with its block
- * id and resolution depth. Used to re-run container repair (`fixContainersById`)
- * on every container a mutation may have emptied. Position-based for the same
+ * The layout block ancestors of a position, outermost last, each with its block
+ * id and resolution depth. Used to re-run layout block repair (`fixLayoutBlocksById`)
+ * on every layout block a mutation may have emptied. Position-based for the same
  * reason as `ascendToInsertablePos`: selections and mapped positions are the
  * natural inputs.
  */
-export function getAncestorContainers(
+export function getAncestorLayoutBlocks(
   doc: Node,
   pos: number,
 ): { id: string; depth: number }[] {
   const $pos = doc.resolve(pos);
-  const containers: { id: string; depth: number }[] = [];
+  const layoutBlocks: { id: string; depth: number }[] = [];
   for (let depth = $pos.depth; depth > 0; depth--) {
     const ancestor = $pos.node(depth);
-    if (isContainerNode(ancestor.type) && ancestor.attrs.id) {
-      containers.push({ id: ancestor.attrs.id, depth });
+    if (isLayoutNode(ancestor.type) && ancestor.attrs.id) {
+      layoutBlocks.push({ id: ancestor.attrs.id, depth });
     }
   }
-  return containers;
+  return layoutBlocks;
 }

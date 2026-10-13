@@ -390,18 +390,18 @@ it("supplies the node-view context to vanilla frames", () => {
   }
 });
 
-it("supplies the node-view context to vanilla container frames, and stamps them", () => {
-  const contextualContainer = createBlockSpec(
+it("supplies the node-view context to vanilla layout block frames, and stamps them", () => {
+  const contextualLayout = createBlockSpec(
     {
-      type: "contextualContainer",
+      type: "contextualLayout",
       propSchema: { tone: { default: "plain" } },
       content: "none",
-      container: true,
+      layoutOnly: true,
     },
     {
       renderFrame() {
         expect(this.renderType).toBe("nodeView");
-        expect(this.props?.node.type.name).toBe("contextualContainer");
+        expect(this.props?.node.type.name).toBe("contextualLayout");
         const dom = document.createElement("section");
         const slot = document.createElement("div");
         dom.append(slot);
@@ -411,12 +411,12 @@ it("supplies the node-view context to vanilla container frames, and stamps them"
   )();
   const editor = BlockNoteEditor.create({
     schema: BlockNoteSchema.create({
-      blockSpecs: { ...defaultBlockSpecs, contextualContainer },
+      blockSpecs: { ...defaultBlockSpecs, contextualLayout },
     }),
     initialContent: [
       {
         id: "box",
-        type: "contextualContainer",
+        type: "contextualLayout",
         props: { tone: "loud" },
         children: [{ content: "Body" }],
       },
@@ -425,7 +425,7 @@ it("supplies the node-view context to vanilla container frames, and stamps them"
   try {
     editor.mount(document.createElement("div"));
     const frame = editor.domElement!.querySelector("section")!;
-    expect(frame.getAttribute("data-node-type")).toBe("contextualContainer");
+    expect(frame.getAttribute("data-node-type")).toBe("contextualLayout");
     expect(frame.getAttribute("data-id")).toBe("box");
     expect(frame.getAttribute("data-tone")).toBe("loud");
     expect(frame.firstElementChild!.hasAttribute("data-frame-slot")).toBe(true);
@@ -650,7 +650,7 @@ it("parses chrome outside the static frame slot as no document content", () => {
   }
 });
 
-it("never gives one container's frame to another container", () => {
+it("never gives one layout block's frame to another layout block", () => {
   // ProseMirror offers a view whose node is gone to the next node of the same
   // type. A frame shows one block, so it must refuse another block.
   const patchedBox = createBlockSpec(
@@ -658,7 +658,7 @@ it("never gives one container's frame to another container", () => {
       type: "patchedBox",
       propSchema: { tone: { default: "plain" } },
       content: "none",
-      container: true,
+      layoutOnly: true,
     },
     {
       renderFrame(block) {

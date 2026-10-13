@@ -49,7 +49,7 @@ export function setDataAttributes(
 /**
  * Makes an element's prop attributes follow `props`: sets those of the
  * non-default props and removes those of every other prop in the schema, so
- * an element that lives across updates (a container's root, the table view)
+ * an element that lives across updates (a layout block's root, the table view)
  * drops stale attributes, including ones its author set.
  */
 export function applyDataAttributes<PSchema extends PropSchema>(

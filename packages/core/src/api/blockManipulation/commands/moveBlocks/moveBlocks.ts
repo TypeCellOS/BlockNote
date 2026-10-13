@@ -11,7 +11,7 @@ import { Block } from "../../../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor";
 import { BlockIdentifier } from "../../../../schema/index.js";
 import {
-  isContainerNode,
+  isLayoutNode,
   isNamedOnly,
 } from "../../../../schema/blocks/children.js";
 import {
@@ -28,17 +28,17 @@ import { removeAndInsertBlocks } from "../replaceBlocks/replaceBlocks.js";
  * Dissolves `placeable: "namedOnly"` blocks into their children.
  *
  * A `namedOnly` block (a `column`, say) is defined only in terms of the
- * container that holds it, so it can't land anywhere a regular block goes —
- * moving one out of its container moves its children instead. Every other
+ * layout block that holds it, so it can't land anywhere a regular block goes —
+ * moving one out of its layout block moves its children instead. Every other
  * block passes through as itself.
  */
-function dissolveContainerOnlyBlocks(
+function dissolveLayoutOnlyBlocks(
   blocks: Block<any, any, any>[],
   pmSchema: Schema,
 ): Block<any, any, any>[] {
   return blocks.flatMap((block) =>
     isNamedOnly(pmSchema.nodes[block.type])
-      ? dissolveContainerOnlyBlocks(block.children, pmSchema)
+      ? dissolveLayoutOnlyBlocks(block.children, pmSchema)
       : [block],
   );
 }
@@ -188,10 +188,10 @@ export function moveBlocks(
     // </column>
     // When the non-empty block is moved up, the column is seen as empty and
     // collapsed in the removal step, so the following insertion fails.
-    removeAndInsertBlocks(tr, blocks, [], { fixContainers: false });
+    removeAndInsertBlocks(tr, blocks, [], { fixLayoutBlocks: false });
     insertBlocks<any, any, any>(
       tr,
-      dissolveContainerOnlyBlocks(blocks, editor.pmSchema),
+      dissolveLayoutOnlyBlocks(blocks, editor.pmSchema),
       referenceBlock,
       placement,
     );
@@ -226,14 +226,14 @@ export function moveSelectedBlocksAndSelection(
   });
 }
 
-/** The first node type inserted after dissolving container-only blocks. */
+/** The first node type inserted after dissolving layout-only blocks. */
 function getMovedNodeType(
   editor: BlockNoteEditor<any, any, any>,
   block: Block<any, any, any>,
 ): NodeType {
-  const first = dissolveContainerOnlyBlocks([block], editor.pmSchema)[0];
+  const first = dissolveLayoutOnlyBlocks([block], editor.pmSchema)[0];
   const type = first && editor.pmSchema.nodes[first.type];
-  return type && isContainerNode(type)
+  return type && isLayoutNode(type)
     ? type
     : editor.pmSchema.nodes["blockContainer"];
 }

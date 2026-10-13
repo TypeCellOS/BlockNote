@@ -41,7 +41,7 @@ export const invalidMathBlock = {
 
 // Includes the multi-column blocks, which the shared test document contains.
 // They have to be in the *schema*, not just the mappings: the exporters read
-// the schema to tell a container block from a regular one, and a container
+// the schema to tell a layout block from a regular one, and a layout block
 // the exporter doesn't recognize gets its children appended after it instead
 // of placed by its mapping.
 export function schema() {

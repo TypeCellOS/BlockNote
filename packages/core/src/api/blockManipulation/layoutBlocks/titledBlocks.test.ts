@@ -3,16 +3,16 @@ import { afterEach, describe, expect, it } from "vite-plus/test";
 
 import type { BlockNoteSchema } from "../../../blocks/BlockNoteSchema.js";
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
-import { isContainerNode } from "../../../schema/blocks/children.js";
+import { isLayoutNode } from "../../../schema/blocks/children.js";
 import { getBlockInfoAt } from "../../getBlockInfoFromPos.js";
 import { getNodeById } from "../../nodeUtil.js";
-import { containerSchema } from "./containers.fixture.js";
+import { layoutSchema } from "./layoutBlocks.fixture.js";
 
 // Behaviour of titled blocks: an ordinary block with inline content
 // (the title) whose `children` are a body that belongs to it. The `alert`
-// fixture block is the specimen; `callout` (a pure container) is the control.
+// fixture block is the specimen; `callout` (a layout block) is the control.
 
-const schema = containerSchema;
+const schema = layoutSchema;
 const editors = new Set<ReturnType<typeof editorWith>>();
 
 afterEach(() => {
@@ -88,7 +88,7 @@ describe("titled-block schema shape", () => {
       const alert = getNodeById("w", tr.doc)!;
       // An ordinary blockContainer: its node holds content, not children.
       expect(alert.node.type.name).toBe("blockContainer");
-      expect(isContainerNode(alert.node.type)).toBe(false);
+      expect(isLayoutNode(alert.node.type)).toBe(false);
       expect(keyboardOf("w")).toMatchObject({
         enter: "into-children",
         childrenCanOutdent: false,
@@ -286,12 +286,12 @@ describe("a titled block's keyboard behaviour", () => {
   });
 });
 
-describe("converting between a titled block and a pure container", () => {
+describe("converting between a titled block and a layout block", () => {
   it("carries the title into the body when an alert becomes a callout", () => {
     const editor = editorWith(withAlert());
     editor.updateBlock("w" as any, { type: "callout" } as any);
 
-    // A container holds no content of its own, so the title moves into the
+    // A layout block holds no content of its own, so the title moves into the
     // body as its first paragraph; the existing children stay after it, in
     // order.
     expect(shape(editor.document)).toBe(
@@ -314,7 +314,7 @@ describe("converting between a titled block and a pure container", () => {
     ]);
     editor.updateBlock("w" as any, { type: "alert" } as any);
 
-    // The container had no title to carry, so the alert starts empty; its
+    // The layout block had no title to carry, so the alert starts empty; its
     // children move across untouched.
     expect(shape(editor.document)).toBe(
       'paragraph"Before", alert""[paragraph"One", paragraph"Two"], paragraph"After"',

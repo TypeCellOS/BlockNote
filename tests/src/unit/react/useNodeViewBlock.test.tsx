@@ -27,14 +27,14 @@ const createReproBlock = createReactBlockSpec(
   { render: (props) => <p ref={props.contentRef} /> },
 );
 
-// A container block, whose node view's node is itself the bnBlock, resolved
+// A layout block, whose node view's node is itself the bnBlock, resolved
 // directly instead of by position.
 const createBoxBlock = createReactBlockSpec(
   {
     type: "box",
     propSchema: {},
     content: "none",
-    container: true,
+    layoutOnly: true,
   },
   { renderFrame: (props) => <div ref={props.slotRef} /> },
 );
@@ -93,7 +93,7 @@ function renderHook(
 
 // Only the fields `useNodeViewBlock` reads. Built structurally so `tests`
 // doesn't need a dependency on `@tiptap/react` just for its prop types. The
-// `node` defaults to a regular (non-container) block's node shape; container
+// `node` defaults to a regular (non-layout) block's node shape; layout block
 // tests pass the real PM node instead.
 function makeProps(getPos: () => number | undefined, node?: unknown) {
   return {
@@ -187,7 +187,7 @@ describe("useNodeViewBlock", () => {
     expect(resolved).not.toBe(seed);
   });
 
-  it("resolves container blocks directly without consulting their position", () => {
+  it("resolves layout blocks directly without consulting their position", () => {
     const box = editor.document.find((block) => block.type === "box")!;
     const { node } = getNodeById(box.id, editor.prosemirrorState.doc)!;
     const getPos = vi.fn(() => undefined);

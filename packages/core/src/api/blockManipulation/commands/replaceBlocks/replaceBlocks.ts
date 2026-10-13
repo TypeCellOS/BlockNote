@@ -3,7 +3,7 @@ import { type Transaction } from "prosemirror-state";
 import type { Block, PartialBlock } from "../../../../blocks/defaultBlocks.js";
 import {
   getNodeId,
-  getAncestorContainers,
+  getAncestorLayoutBlocks,
 } from "../../../getBlockInfoFromPos.js";
 import type {
   BlockIdentifier,
@@ -14,7 +14,7 @@ import type {
 import { blockToNode } from "../../../nodeConversions/blockToNode.js";
 import { nodeToBlock } from "../../../nodeConversions/nodeToBlock.js";
 import { getPmSchema } from "../../../pmUtil.js";
-import { fixContainersById } from "../../containers/fixContainer.js";
+import { fixLayoutBlocksById } from "../../layoutBlocks/fixLayoutBlock.js";
 
 export function removeAndInsertBlocks<
   BSchema extends BlockSchema,
@@ -25,7 +25,7 @@ export function removeAndInsertBlocks<
   blocksToRemove: BlockIdentifier[],
   blocksToInsert: PartialBlock<BSchema, I, S>[],
   options: {
-    fixContainers?: boolean;
+    fixLayoutBlocks?: boolean;
   } = {},
 ): {
   insertedBlocks: Block<BSchema, I, S>[];
@@ -46,10 +46,10 @@ export function removeAndInsertBlocks<
     ),
   );
   const removedBlocks: Block<BSchema, I, S>[] = [];
-  // Ancestor containers of removed blocks, to repair afterwards. Tracked by
+  // Ancestor layout blocks of removed blocks, to repair afterwards. Tracked by
   // node id (not position) since the removals and earlier repairs shift
   // positions; recorded with their depth so repairs run deepest-first.
-  const containersToFix: { id: string; depth: number }[] = [];
+  const layoutBlocksToFix: { id: string; depth: number }[] = [];
 
   const idOfFirstBlock =
     typeof blocksToRemove[0] === "string"
@@ -89,15 +89,15 @@ export function removeAndInsertBlocks<
 
     const $pos = tr.doc.resolve(mapPos(pos));
 
-    for (const container of getAncestorContainers($pos.doc, $pos.pos)) {
-      if (!containersToFix.some((c) => c.id === container.id)) {
-        containersToFix.push(container);
+    for (const layoutBlock of getAncestorLayoutBlocks($pos.doc, $pos.pos)) {
+      if (!layoutBlocksToFix.some((c) => c.id === layoutBlock.id)) {
+        layoutBlocksToFix.push(layoutBlock);
       }
     }
 
     // When the block is the only child of a nested `blockGroup`, delete the
-    // group with it (`blockGroup` acting as a `min: 1` container that unwraps
-    // when emptied). This can't route through `fixContainer`: repair runs after
+    // group with it (`blockGroup` acting as a `min: 1` layout block that unwraps
+    // when emptied). This can't route through `fixLayoutBlock`: repair runs after
     // the delete, and by then ProseMirror's replace-fitting has padded the
     // `blockGroupChild+` group with a fresh empty `blockContainer`
     // indistinguishable from an intentional one. Only here, before the
@@ -126,12 +126,12 @@ export function removeAndInsertBlocks<
     );
   }
 
-  // Repairs the containers the removed blocks lived in (e.g. collapses
+  // Repairs the layout blocks the removed blocks lived in (e.g. collapses
   // emptied columns/columnLists), deepest-first. Callers where the removal
   // isn't a deletion can opt out, e.g. `moveBlocks` re-inserts the blocks
-  // elsewhere and deliberately leaves emptied containers as-is.
-  if (options.fixContainers !== false) {
-    fixContainersById(tr, containersToFix);
+  // elsewhere and deliberately leaves emptied layout blocks as-is.
+  if (options.fixLayoutBlocks !== false) {
+    fixLayoutBlocksById(tr, layoutBlocksToFix);
   }
 
   // Converts the nodes created from `blocksToInsert` into full `Block`s.

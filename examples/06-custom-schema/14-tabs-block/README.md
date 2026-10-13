@@ -1,9 +1,9 @@
 # Tabs Block
 
-A tab set built on the container block API. `tabs` is a container whose
+A tab set built on the layout block API. `tabs` is a layout block whose
 `children` are restricted to `tab` panels, and `tab` is a `placeable:
-"namedOnly"` container, so a panel can only ever exist inside a tab set —
-the schema enforces both. Both blocks are containers (`container: true`), so
+"namedOnly"` layout block, so a panel can only ever exist inside a tab set —
+the schema enforces both. Both blocks are layout blocks (`layoutOnly: true`), so
 they declare only `renderFrame`, and the child blocks go where `slotRef` is
 attached.
 
@@ -15,7 +15,7 @@ tabs is therefore not an undo step and is not sent to collaborators.
 **Try it out:** Click a tab to open it, click the open tab for its menu, and
 drag a tab to reorder it.
 
-## What a tab set needs beyond the container API
+## What a tab set needs beyond the layout block API
 
 **Revealing the panel the caret lands in.** A hidden panel is still part of the
 document, so the editor will move content into it: Backspace at the start of
@@ -42,5 +42,5 @@ an empty column is removed, and one column left is just its blocks.)
 
 **Relevant Docs:**
 
-- [Container Blocks](/docs/features/custom-schemas/container-blocks)
+- [Layout Blocks](/docs/features/custom-schemas/layout-blocks)
 - [Custom Blocks](/docs/features/custom-schemas/custom-blocks)

@@ -68,8 +68,8 @@ function mount(type: string) {
   return root;
 }
 
-function childContent(container: HTMLElement) {
-  const child = container.querySelector<HTMLElement>(
+function childContent(root: HTMLElement) {
+  const child = root.querySelector<HTMLElement>(
     '[data-id="child"] .bn-inline-content',
   );
   if (!child) {
@@ -93,23 +93,21 @@ describe.each(["paragraph", "toggleListItem", "framedNote"])(
   "a %s's colors",
   (type) => {
     it("apply to its child blocks", () => {
-      const container = mount(type);
+      const root = mount(type);
 
-      expect(getComputedStyle(childContent(container)).color).toBe(RED);
-      expect(backgroundBehind(childContent(container))).toBe(BLUE_BACKGROUND);
+      expect(getComputedStyle(childContent(root)).color).toBe(RED);
+      expect(backgroundBehind(childContent(root))).toBe(BLUE_BACKGROUND);
     });
 
     it("follow changes to the block's props", () => {
-      const container = mount(type);
+      const root = mount(type);
 
       editor!.updateBlock("parent", {
         props: { textColor: "green", backgroundColor: "default" },
       });
 
-      expect(getComputedStyle(childContent(container)).color).toBe(GREEN);
-      expect(backgroundBehind(childContent(container))).not.toBe(
-        BLUE_BACKGROUND,
-      );
+      expect(getComputedStyle(childContent(root)).color).toBe(GREEN);
+      expect(backgroundBehind(childContent(root))).not.toBe(BLUE_BACKGROUND);
     });
 
     it("apply to its child blocks in the internal HTML", () => {

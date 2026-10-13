@@ -11,19 +11,19 @@ import {
 
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 import { createBlockSpec } from "../../../schema/blocks/createSpec.js";
-import { containerSchema } from "./containers.fixture.js";
+import { layoutSchema } from "./layoutBlocks.fixture.js";
 
-type PartialBlock = (typeof containerSchema)["PartialBlock"];
+type PartialBlock = (typeof layoutSchema)["PartialBlock"];
 
-// Document-model behaviour of container blocks: filling, schema enforcement,
+// Document-model behaviour of layout blocks: filling, schema enforcement,
 // repair and selection. Everything is `Block` JSON in and out, so the editor
 // runs headless with no DOM.
 //
 // The keymap (tiptap can only reach it through a mounted view) and
 // HTML/markdown serialization (builds real DOM) are tested in
-// `containers.browser.test.ts`.
+// `layoutBlocks.browser.test.ts`.
 
-const schema = containerSchema;
+const schema = layoutSchema;
 
 let editor: BlockNoteEditor<
   typeof schema.blockSchema,
@@ -60,8 +60,8 @@ describe("children insertion & filling", () => {
   ] satisfies { block: PartialBlock; childType: string; min: number }[])(
     "fills $block to its minimum with identifiable $childType children",
     ({ block, childType, min }) => {
-      editor.insertBlocks([{ ...block, id: "container" }], "p-1", "after");
-      const children = editor.getBlock("container")!.children;
+      editor.insertBlocks([{ ...block, id: "layoutBlock" }], "p-1", "after");
+      const children = editor.getBlock("layoutBlock")!.children;
       expect(children.map((child) => child.type)).toEqual(
         Array(min).fill(childType),
       );
@@ -72,7 +72,7 @@ describe("children insertion & filling", () => {
     },
   );
 
-  it("does not re-fill a container round-tripped through the document", () => {
+  it("does not re-fill a layout block round-tripped through the document", () => {
     editor.insertBlocks([{ type: "callout", id: "c-0" }], "p-1", "after");
     const inserted = editor.getBlock("c-0")!;
 
@@ -85,7 +85,7 @@ describe("children insertion & filling", () => {
     );
   });
 
-  it("accepts arbitrary block children, including nested containers", () => {
+  it("accepts arbitrary block children, including nested layout blocks", () => {
     editor.insertBlocks(
       [
         {
@@ -113,7 +113,7 @@ describe("children insertion & filling", () => {
     expect(editor.getBlock("c-1")!.children[0].type).toBe("paragraph");
   });
 
-  it("enforces a restricted container's allow list", () => {
+  it("enforces a restricted layout block's allow list", () => {
     editor.insertBlocks(
       [
         {
@@ -147,9 +147,9 @@ describe("children insertion & filling", () => {
   });
 
   // The `allow: "blocks"` wildcard compiles to the regular blocks plus the
-  // containers placeable anywhere, so a namedOnly block only fits where a
+  // layout blocks placeable anywhere, so a namedOnly block only fits where a
   // parent names it explicitly: not at the root, and not under a wildcard
-  // container.
+  // layout block.
   it("rejects a namedOnly block outside a parent that names it", () => {
     expect(() =>
       editor.insertBlocks(
@@ -174,10 +174,10 @@ describe("children insertion & filling", () => {
   });
 });
 
-describe("container keyboard defaults", () => {
-  // A container's children can't be outdented, so its defaults say so: an
-  // empty last child leaves the container instead.
-  it("defaults to leaving the container instead of outdenting", () => {
+describe("layout block keyboard defaults", () => {
+  // A layout block's children can't be outdented, so its defaults say so: an
+  // empty last child leaves the layout block instead.
+  it("defaults to leaving the layout block instead of outdenting", () => {
     editor.replaceBlocks(editor.document, [
       { id: "callout", type: "callout", children: [{ type: "paragraph" }] },
     ]);
@@ -201,12 +201,12 @@ describe("container keyboard defaults", () => {
   });
 });
 
-describe("container nodes", () => {
-  // No container is `isolating`. PM only honours that flag while no selection
+describe("layout block nodes", () => {
+  // No layout block is `isolating`. PM only honours that flag while no selection
   // spans the edge, and nothing prevents one: given a spanning slice, `Fitter`
-  // refuses to open into the container and wraps the content in a spurious
+  // refuses to open into the layout block and wraps the content in a spurious
   // `blockGroup`, corrupting the document.
-  it("leaves every container non-isolating", () => {
+  it("leaves every layout block non-isolating", () => {
     const nodes = editor.pmSchema.nodes;
     for (const type of ["callout", "pair", "grid", "gridCell"]) {
       expect(nodes[type].spec.isolating).toBeFalsy();
@@ -214,8 +214,8 @@ describe("container nodes", () => {
   });
 
   // The corruption the line above avoids, pinned end to end: copy a selection
-  // running from inside a container to after it, paste it back over itself,
-  // and the document must come back unchanged. Marking the container
+  // running from inside a layout block to after it, paste it back over itself,
+  // and the document must come back unchanged. Marking the layout block
   // `isolating` instead re-nests the whole fragment a level too deep.
   it.each(["callout"])("round-trips a paste across a %s's edge", (type) => {
     editor.replaceBlocks(editor.document, [
@@ -255,7 +255,7 @@ describe("container nodes", () => {
 // `initialContent` is the only path that builds a document without validating
 // it, since `blockToNode` is deliberately lenient and `createDocument` builds
 // from JSON. Regression: blocks that `insertBlocks` rejects loaded without
-// error, and a container below its `min` stayed there for the life of the
+// error, and a layout block below its `min` stayed there for the life of the
 // document.
 describe("initialContent enforcement", () => {
   const createWith = (initialContent: PartialBlock[]) => {
@@ -272,7 +272,7 @@ describe("initialContent enforcement", () => {
     loaded._tiptapEditor.destroy();
   });
 
-  it("fills a container below `min` and rejects one it can never fill", () => {
+  it("fills a layout block below `min` and rejects one it can never fill", () => {
     // One cell under `min: 2` is padded up to it.
     const loaded = createWith([
       { type: "grid", id: "g-0", children: [{ type: "gridCell" }] },
@@ -295,7 +295,7 @@ describe("initialContent enforcement", () => {
 });
 
 describe("children repair", () => {
-  it("dissolves a container that can stand anywhere when it drops below `min`", () => {
+  it("dissolves a layout block that can stand anywhere when it drops below `min`", () => {
     editor.replaceBlocks(editor.document, [
       {
         type: "callout",
@@ -313,7 +313,7 @@ describe("children repair", () => {
     expect(editor.document.map((block) => block.id)).toEqual(["trailing"]);
   });
 
-  it("unwraps a container whose single survivor cannot stand alone", () => {
+  it("unwraps a layout block whose single survivor cannot stand alone", () => {
     editor.replaceBlocks(editor.document, [
       {
         type: "grid",
@@ -347,9 +347,9 @@ describe("children repair", () => {
   // Dissolving is an unwrap, not a rewrite: the survivor's content is the same
   // content, in place, so a caret sitting in it stays where the user put it
   // (and a collaborator's concurrent edit still maps onto it). Replacing the
-  // container with freshly built copies of its children would collapse the
+  // layout block with freshly built copies of its children would collapse the
   // selection onto the edge of the replaced range instead.
-  it("keeps the caret in the survivor a container unwraps to", () => {
+  it("keeps the caret in the survivor a layout block unwraps to", () => {
     editor.replaceBlocks(editor.document, [
       {
         type: "pair",
@@ -419,11 +419,11 @@ describe("children repair", () => {
     );
   });
 
-  // An emptied child of the container is dropped even when the container
+  // An emptied child of the layout block is dropped even when the layout block
   // stays at or above `min`: an emptied column disappears rather than
   // lingering. The multicolumn e2e snapshots pin the same behavior from the
   // keyboard side.
-  it("drops emptied container children even at or above `min`", () => {
+  it("drops emptied layout block children even at or above `min`", () => {
     editor.replaceBlocks(editor.document, [
       {
         type: "grid",
@@ -462,7 +462,7 @@ describe("children repair", () => {
   });
 });
 
-describe("containers that do not dissolve", () => {
+describe("layout blocks that do not dissolve", () => {
   // `tabs` sets `dissolve: false`: an empty tab is still a tab.
   const tab = (id: string, text: string) => ({
     type: "tab" as const,
@@ -526,16 +526,16 @@ describe("containers that do not dissolve", () => {
 });
 
 describe("repair edge cases", () => {
-  // A container that explicitly allows being empty. `min: 0` compiles to a
+  // A layout block that explicitly allows being empty. `min: 0` compiles to a
   // `*` content expression, so ProseMirror never pads it and repair leaves
-  // it alone. (Only an `allow` list can set it: a container of any blocks
+  // it alone. (Only an `allow` list can set it: a layout block of any blocks
   // always holds at least one.)
   const Tray = createBlockSpec(
     {
       type: "tray" as const,
       propSchema: {},
       content: "none" as const,
-      container: true,
+      layoutOnly: true,
       children: { allow: ["callout"], min: 0 },
     },
     {
@@ -546,9 +546,9 @@ describe("repair edge cases", () => {
     },
   )();
 
-  it("keeps a `min: 0` container with zero children", () => {
+  it("keeps a `min: 0` layout block with zero children", () => {
     const trayEditor = BlockNoteEditor.create({
-      schema: containerSchema.extend({
+      schema: layoutSchema.extend({
         blockSpecs: { tray: Tray },
       }),
     });
@@ -580,7 +580,7 @@ describe("repair edge cases", () => {
     }
   });
 
-  it("keeps emptied regular blocks when the container survives", () => {
+  it("keeps emptied regular blocks when the layout block survives", () => {
     editor.replaceBlocks(editor.document, [
       {
         type: "callout",
@@ -596,7 +596,7 @@ describe("repair edge cases", () => {
 
     editor.removeBlocks(["c-a"]);
 
-    // Only emptied *container* children are dropped. The empty paragraph is
+    // Only emptied *layout block* children are dropped. The empty paragraph is
     // content the user typed into, not structure, so it stays.
     expect(editor.getBlock("c-0")!.children.map((child) => child.id)).toEqual([
       "c-b",
@@ -604,7 +604,7 @@ describe("repair edge cases", () => {
     ]);
   });
 
-  it("dissolves a `min: 2` container left with one surviving child", () => {
+  it("dissolves a `min: 2` layout block left with one surviving child", () => {
     editor.replaceBlocks(editor.document, [
       {
         type: "pair",
@@ -650,7 +650,7 @@ describe("repair edge cases", () => {
 
     editor.removeBlocks(["b1"]);
 
-    // Titled blocks never enter `fixContainer`: the alert keeps its title
+    // Titled blocks never enter `fixLayoutBlock`: the alert keeps its title
     // with an empty body rather than dissolving.
     const alert = editor.getBlock("w")! as any;
     expect(alert.type).toBe("alert");
@@ -661,7 +661,7 @@ describe("repair edge cases", () => {
 });
 
 describe("children selection", () => {
-  it("getSelectionCutBlocks handles selections reaching into a container", () => {
+  it("getSelectionCutBlocks handles selections reaching into a layout block", () => {
     editor.replaceBlocks(editor.document, [
       { id: "before", type: "paragraph", content: "Before" },
       {
@@ -676,19 +676,19 @@ describe("children selection", () => {
     editor.setSelection("before", "c-p-0");
 
     // Previously threw "unexpected" for any partial selection touching a
-    // container (breaking comments/AI selection handling).
+    // layout block (breaking comments/AI selection handling).
     const result = editor.getSelectionCutBlocks();
     expect(result.blocks.length).toBeGreaterThanOrEqual(1);
     expect(result.blocks.map((block) => block.id)).toContain("before");
   });
 });
 
-// Every mutation that can empty a container records its ancestors with
-// `getAncestorContainers` and hands them to `fixContainersById`, which repairs
+// Every mutation that can empty a layout block records its ancestors with
+// `getAncestorLayoutBlocks` and hands them to `fixLayoutBlocksById`, which repairs
 // them deepest-first. Removing a block therefore repairs the whole chain it
-// sat in, not just the container directly holding it.
-describe("ancestor container repair", () => {
-  it("repairs every container a single removal emptied", () => {
+// sat in, not just the layout block directly holding it.
+describe("ancestor layout block repair", () => {
+  it("repairs every layout block a single removal emptied", () => {
     editor.replaceBlocks(editor.document, [
       {
         type: "callout",
@@ -714,11 +714,11 @@ describe("ancestor container repair", () => {
       { id: "trailing", type: "paragraph", content: "" },
     ]);
 
-    // Blocks from two different containers in one call: each container is
+    // Blocks from two different layout blocks in one call: each layout block is
     // recorded once and repaired on its own terms.
     editor.removeBlocks(["c-p-0", "s-p-1"]);
 
-    // Both containers dissolve: the callout held nothing else, and the pair
+    // Both layout blocks dissolve: the callout held nothing else, and the pair
     // is replaced by the one child that still carried content.
     expect(editor.getBlock("c-0")).toBeUndefined();
     expect(editor.getBlock("s-0")).toBeUndefined();
@@ -728,7 +728,7 @@ describe("ancestor container repair", () => {
     ]);
   });
 
-  it("cascades a repair outwards from the deepest container", () => {
+  it("cascades a repair outwards from the deepest layout block", () => {
     editor.replaceBlocks(editor.document, [
       {
         type: "grid",
@@ -768,11 +768,11 @@ describe("ancestor container repair", () => {
       { id: "trailing", type: "paragraph", content: "" },
     ]);
 
-    // The only real content, three containers deep. Removing it empties the
+    // The only real content, three layout blocks deep. Removing it empties the
     // inner cell, and the emptiness has to travel all the way out: the inner
     // grid loses both its cells, the outer cell loses the inner grid, and the
     // outer grid loses both of its cells. Recording only the innermost
-    // container would leave a stack of empty grids behind.
+    // layout block would leave a stack of empty grids behind.
     editor.removeBlocks(["inner-p"]);
 
     expect(editor.getBlock("g-inner")).toBeUndefined();

@@ -164,11 +164,11 @@ export const createTab = createReactBlockSpec(
       label: { default: "Tab" },
     },
     content: "none",
-    container: true,
+    layoutOnly: true,
     placeable: "namedOnly",
   },
   {
-    // A container has no content of its own, so it draws only its frame. The
+    // A layout block has no content of its own, so it draws only its frame. The
     // panel reads its own open state, so it re-renders when the reader
     // switches tabs without the document changing at all.
     renderFrame: function TabPanel(props) {
@@ -242,7 +242,7 @@ export const createTabs = createReactBlockSpec(
     type: "tabs",
     propSchema: {},
     content: "none",
-    container: true,
+    layoutOnly: true,
     // A tab is content, not layout: an empty tab stays, and the tab set
     // stays when its last tab is removed (it gets a new, empty tab).
     children: { allow: ["tab"], min: 1, dissolve: false },

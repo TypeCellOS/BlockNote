@@ -6,7 +6,7 @@ import {
   StyleSchema,
 } from "../../schema/index.js";
 import {
-  isContainerNode,
+  isLayoutNode,
   isNamedOnly,
   minChildren,
 } from "../../schema/blocks/children.js";
@@ -24,20 +24,20 @@ export function fragmentToBlocks<
     const incompleteBlock =
       node.type.name === "blockContainer" &&
       node.firstChild?.type.name === "blockGroup";
-    const flattenContainer =
-      isContainerNode(node.type) &&
+    const flattenLayoutBlock =
+      isLayoutNode(node.type) &&
       (!childrenConfig ||
         isNamedOnly(node.type) ||
         node.childCount < minChildren(childrenConfig));
 
-    // Open selections and containers that cannot stand alone contribute
+    // Open selections and layout blocks that cannot stand alone contribute
     // their children. Complete blocks already include their descendants.
     if (
       incompleteBlock ||
-      flattenContainer ||
+      flattenLayoutBlock ||
       !node.type.isInGroup("bnBlock")
     ) {
-      node.forEach((child) => visit(child, flattenContainer ? root : child));
+      node.forEach((child) => visit(child, flattenLayoutBlock ? root : child));
     } else {
       blocks.push(nodeToBlock(node, root));
     }

@@ -106,8 +106,8 @@ function addStep(editor: BlockNoteEditor<any, any, any>, stepperId: string) {
  * of every other position, and moving one out dissolves it into its blocks.
  *
  * A step has no text of its own - its title is simply its first child. The
- * container API cannot express "a block with its own rich text that may only
- * appear inside a stepper": `children.allow` names container types only, and
+ * layout block API cannot express "a block with its own rich text that may only
+ * appear inside a stepper": `children.allow` names layout block types only, and
  * a block with content is not one.
  */
 export const createStep = createReactBlockSpec(
@@ -115,7 +115,7 @@ export const createStep = createReactBlockSpec(
     type: "step",
     propSchema: {},
     content: "none",
-    container: true,
+    layoutOnly: true,
     placeable: "namedOnly",
   },
   {
@@ -140,7 +140,7 @@ export const createStepper = createReactBlockSpec(
     type: "stepper",
     propSchema: {},
     content: "none",
-    container: true,
+    layoutOnly: true,
     // A step is content, not layout: an empty step stays, and the stepper
     // stays when its last step is removed (it gets a new, empty step).
     children: { allow: ["step"], min: 1, dissolve: false },

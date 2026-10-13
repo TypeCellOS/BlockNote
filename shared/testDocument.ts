@@ -28,7 +28,7 @@ const testDocumentSchema = BlockNoteSchema.create({
 // guard against drift from the real specs (see `testDocumentSchema.test` in
 // that package).
 //
-// The columns are container blocks: every exporter maps them with
+// The columns are layout blocks: every exporter maps them with
 // `{ withChildren }`, so the mapping places their children. The exporters'
 // snapshot tests of this document check that each exporter gives the
 // children to the mapping and does not also place them after the block. An

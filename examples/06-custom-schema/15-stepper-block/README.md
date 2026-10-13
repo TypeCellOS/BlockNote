@@ -1,8 +1,8 @@
 # Stepper Block
 
-Numbered steps built on the container block API. `stepper` is a container
+Numbered steps built on the layout block API. `stepper` is a layout block
 restricted to `step` children, and `step` is a `placeable: "namedOnly"`
-container, so a step can only exist inside a stepper.
+layout block, so a step can only exist inside a stepper.
 
 Each step holds any blocks: headings, lists, code. The numbers are a CSS
 counter, so they stay correct as steps are added, removed, reordered or
@@ -10,7 +10,7 @@ undone. Nothing in the document has to be kept in sync.
 
 **Add step** below the last step adds an untitled one.
 
-Both blocks are containers (`container: true`), so they declare only
+Both blocks are layout blocks (`layoutOnly: true`), so they declare only
 `renderFrame`, and the child blocks go where `slotRef` is attached. A step can
 only be inside a stepper, so it gets no drag handle by default. The step sets
 `meta: { draggable: true }` to keep it, so the side menu can move or delete a
@@ -38,15 +38,15 @@ is written as an extension, passed as the third argument of
 **The title is not enforced.** A step has no text of its own: its title is
 simply its first child, a heading. The user can turn that heading into any
 other block, delete it, or put blocks above it. A real title needs a block
-with its own text that may only appear inside a stepper, and the container API
-cannot express that yet: `placeable: "namedOnly"` requires a container (a
-block without content), and `children.allow` can only name containers.
+with its own text that may only appear inside a stepper, and the layout block API
+cannot express that yet: `placeable: "namedOnly"` requires a layout block (a
+block without content), and `children.allow` can only name layout blocks.
 
 **Empty steps stay.** The stepper sets `children.dissolve` to `false`, so a
 step that holds only an empty paragraph is not removed, and the stepper stays
 when its last step is removed.
 
-## What the container API gives you for free
+## What the layout block API gives you for free
 
 - Backspace at the start of a step's title first turns it into a paragraph.
   A second Backspace moves it to the end of the previous step, or above the
@@ -56,5 +56,5 @@ when its last step is removed.
 
 **Relevant Docs:**
 
-- [Container Blocks](/docs/features/custom-schemas/container-blocks)
+- [Layout Blocks](/docs/features/custom-schemas/layout-blocks)
 - [Custom Blocks](/docs/features/custom-schemas/custom-blocks)

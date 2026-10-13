@@ -155,22 +155,22 @@ export class ODTExporter<
         numberedListIndex = 0;
       }
 
-      const isContainer = this.placesChildren(block);
-      // Container mappings own the layout: table cells start a fresh
+      const placesChildren = this.placesChildren(block);
+      // Mappings that place their children own the layout: table cells start a fresh
       // indentation context instead of inheriting literal <text:tab>s.
       const children = await this.transformBlocks(
         block.children,
-        isContainer ? 0 : nestingLevel + 1,
+        placesChildren ? 0 : nestingLevel + 1,
       );
       ret.push(
         await this.mapBlock(
           block,
-          isContainer ? 0 : nestingLevel,
+          placesChildren ? 0 : nestingLevel,
           numberedListIndex,
           children,
         ),
       );
-      if (!isContainer) {
+      if (!placesChildren) {
         ret.push(...children);
       }
     }

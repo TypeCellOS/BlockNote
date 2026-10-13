@@ -2,13 +2,13 @@ import { applyDataAttributes } from "../dataAttributes.js";
 import { PropSchema, Props } from "../propTypes.js";
 
 /**
- * Writes the attributes a container block's round-trip parse reads onto its
+ * Writes the attributes a layout block's round-trip parse reads onto its
  * root element: the `data-node-type` marker, the block's non-default props as
  * `data-*` (see `propsToDataAttributes`), and its id where there is one.
  * Existing attributes follow the block props, including removing defaults.
  * @internal
  */
-export function applyContainerAttributes<PSchema extends PropSchema>(
+export function applyLayoutBlockAttributes<PSchema extends PropSchema>(
   element: HTMLElement | undefined | null,
   blockType: string,
   blockProps: Partial<Props<PSchema>>,

@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vite-plus/test";
 
 import { setupTestEnv } from "../../setupTestEnv.js";
-import { fixContainer, isEmptyContainerChild } from "@blocknote/core";
+import { fixLayoutBlock, isEmptyLayoutChild } from "@blocknote/core";
 
 const getEditor = setupTestEnv();
 
-describe("Test isEmptyContainerChild", () => {
+describe("Test isEmptyLayoutChild", () => {
   it("Empty blocks", () => {
     const schema = getEditor()._tiptapEditor.schema;
 
@@ -15,7 +15,7 @@ describe("Test isEmptyContainerChild", () => {
       ]),
     ]);
 
-    expect(isEmptyContainerChild(column)).toBeTruthy();
+    expect(isEmptyLayoutChild(column)).toBeTruthy();
   });
 
   it("Multiple blocks", () => {
@@ -30,7 +30,7 @@ describe("Test isEmptyContainerChild", () => {
       ]),
     ]);
 
-    expect(isEmptyContainerChild(column)).toBeFalsy();
+    expect(isEmptyLayoutChild(column)).toBeFalsy();
   });
 
   it("Block with children", () => {
@@ -47,7 +47,7 @@ describe("Test isEmptyContainerChild", () => {
       ]),
     ]);
 
-    expect(isEmptyContainerChild(column)).toBeFalsy();
+    expect(isEmptyLayoutChild(column)).toBeFalsy();
   });
 
   it("Block with text", () => {
@@ -61,7 +61,7 @@ describe("Test isEmptyContainerChild", () => {
       ]),
     ]);
 
-    expect(isEmptyContainerChild(column)).toBeFalsy();
+    expect(isEmptyLayoutChild(column)).toBeFalsy();
   });
 
   it("Non-text block", () => {
@@ -73,11 +73,11 @@ describe("Test isEmptyContainerChild", () => {
       ]),
     ]);
 
-    expect(isEmptyContainerChild(column)).toBeFalsy();
+    expect(isEmptyLayoutChild(column)).toBeFalsy();
   });
 });
 
-describe("Test fixContainer drops emptied columns", () => {
+describe("Test fixLayoutBlock drops emptied columns", () => {
   it.each<[string, string[]]>([
     ["Start and end columns empty", ["", "Paragraph 1", "Paragraph 2", ""]],
     ["First of two columns empty", ["", "Paragraph 1"]],
@@ -101,7 +101,7 @@ describe("Test fixContainer drops emptied columns", () => {
     );
     const tr = editor.prosemirrorState.tr;
     tr.replaceRangeWith(1, tr.doc.firstChild!.content.size, columnList);
-    fixContainer(tr, 1);
+    fixLayoutBlock(tr, 1);
     expect(tr.doc).toMatchSnapshot();
   });
 });

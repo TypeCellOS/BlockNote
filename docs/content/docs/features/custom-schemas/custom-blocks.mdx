@@ -56,7 +56,7 @@ type BlockConfig = {
   type: string;
   content: "inline" | "plain" | "none";
   readonly propSchema: PropSchema;
-  container?: true; // only with content: "none"
+  layoutOnly?: true; // only with content: "none"
   children?: {
     allow?: "blocks" | string[];
     min?: number;
@@ -80,11 +80,11 @@ type BlockConfig = {
 
 <Callout type="info">
   _Every block can have child blocks, indented below it. A block without
-  content can also hold them inside itself with `container: true`. See
-  [Container Blocks](/docs/features/custom-schemas/container-blocks)._
+  content can also hold them inside itself with `layoutOnly: true`. See
+  [Layout Blocks](/docs/features/custom-schemas/layout-blocks)._
 </Callout>
 
-`container?:` Puts the block's child blocks inside it. `children?:` Restricts which child blocks a container can hold. `placeable?:` Controls where a container block can be used. See [Container Blocks](/docs/features/custom-schemas/container-blocks) for the supported configurations.
+`layoutOnly?:` Puts the block's child blocks inside it. `children?:` Restricts which child blocks a layout block can hold. `placeable?:` Controls where a layout block can be used. See [Layout Blocks](/docs/features/custom-schemas/layout-blocks) for the supported configurations.
 
 `propSchema:` The `PropSchema` specifies the props that the block supports. Block props (properties) are data stored with your Block in the document, and can be used to customize its appearance or behavior.
 
@@ -186,7 +186,7 @@ type ReactCustomBlockImplementation = {
 
 - `contentRef:` A React `ref` you can use to mark which element in your block is editable. This is only available if your block config contains `content: "inline"` or `content: "plain"`.
 
-`renderFrame?:` A component that draws a box around the block's content and its child blocks, with `slotRef` marking where they go. A container block (`container: true`) declares `renderFrame` instead of `render`. See [Container Blocks](/docs/features/custom-schemas/container-blocks).
+`renderFrame?:` A component that draws a box around the block's content and its child blocks, with `slotRef` marking where they go. A layout block (`layoutOnly: true`) declares `renderFrame` instead of `render`. See [Layout Blocks](/docs/features/custom-schemas/layout-blocks).
 
 `toExternalHTML?:` This component is used whenever the block is being exported to HTML for use outside BlockNote, for example when copying it to the clipboard. If it's not defined, BlockNote will just use `render` (and `renderFrame`, if the block has one) for the HTML conversion. Takes the same props as `render`, and two more:
 
@@ -223,9 +223,9 @@ type ReactCustomBlockImplementation = {
 
 - `emptyEnterResets?:` Whether Enter in the empty block resets it too, as when an empty list item turns into a paragraph. Defaults to `false`.
 
-- `emptyChildEnter?:` What Enter does in an empty child of this block. `"outdent"` (default) outdents any empty child. `"exit-at-end"` (default for container blocks) moves an empty last child out to after the block, and adds a new child after any other empty child. `"stay"` always adds a new child after it.
+- `emptyChildEnter?:` What Enter does in an empty child of this block. `"outdent"` (default) outdents any empty child. `"exit-at-end"` (default for layout blocks) moves an empty last child out to after the block, and adds a new child after any other empty child. `"stay"` always adds a new child after it.
 
-- `childrenCanOutdent?:` Whether the block's children can be outdented out of it with Shift-Tab, or by Enter or Backspace in an empty or nested child. Defaults to `true`, or `false` for container blocks, whose children can never be outdented.
+- `childrenCanOutdent?:` Whether the block's children can be outdented out of it with Shift-Tab, or by Enter or Backspace in an empty or nested child. Defaults to `true`, or `false` for layout blocks, whose children can never be outdented.
 
 When settings meet, Enter at the start of non-empty content always inserts an empty block above it, and resetting an empty block comes before `enter: "into-children"`.
 
@@ -241,7 +241,7 @@ When settings meet, Enter at the start of non-empty content always inserts an em
 
 - `isolating?:` Whether this block is [isolating](https://prosemirror.net/docs/ref/#model.NodeSpec.isolating).
 
-- `draggable?:` Whether the block gets a side menu drag handle. Defaults to `true`, or `false` for a container that can only be placed inside a specific parent (`placeable: "namedOnly"`).
+- `draggable?:` Whether the block gets a side menu drag handle. Defaults to `true`, or `false` for a layout block that can only be placed inside a specific parent (`placeable: "namedOnly"`).
 
 - `highlight?:` A callback that returns the language the block's text should be syntax-highlighted as (or `undefined` for no highlighting). Highlighting only takes effect when the [syntax highlighting extension](/docs/features/blocks/code-blocks#syntax-highlighting) is added to the editor.
 

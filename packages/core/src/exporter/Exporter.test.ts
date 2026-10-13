@@ -190,14 +190,14 @@ describe("Exporter missing mappings", () => {
   });
 });
 
-// A container block (`container: true`), and an exporter
+// A layout block (`layoutOnly: true`), and an exporter
 // whose mappings return strings.
 const box = createBlockSpec(
   {
     type: "box",
     propSchema: {},
     content: "none",
-    container: true,
+    layoutOnly: true,
   },
   {
     renderFrame: () => {
@@ -236,7 +236,7 @@ describe("Exporter child placement", () => {
     ).resolves.toBe("[a,b]");
   });
 
-  it("throws when a container block has a plain mapping", async () => {
+  it("throws when a layout block has a plain mapping", async () => {
     const exporter = new StringExporter({ box: () => "box" });
 
     expect(exporter.placesChildren({ type: "box" })).toBe(false);

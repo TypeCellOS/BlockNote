@@ -7,7 +7,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../../../schema/index.js";
-import { isContainerNode } from "../../../../schema/blocks/children.js";
+import { isLayoutNode } from "../../../../schema/blocks/children.js";
 import { UnreachableCaseError } from "../../../../util/typescript.js";
 import {
   inlineContentToNodes,
@@ -158,15 +158,15 @@ function serializeBlock<
   const impl = editor.blockImplementations[block.type as any].implementation;
   const fullBlock = { ...block, props, children } as any;
 
-  if (isContainerNode(editor.pmSchema.nodes[block.type as any])) {
-    // A container is its frame. `renderFrameDOM` stamps the frame's root with
+  if (isLayoutNode(editor.pmSchema.nodes[block.type as any])) {
+    // A layout block is its frame. `renderFrameDOM` stamps the frame's root with
     // the block's attributes and marks the slot, which holds the children, so
     // the round-trip parse rule reads only the slot and not the chrome around
     // it.
     const frame = renderFrameDOM(editor, fullBlock);
     if (!frame) {
       throw new Error(
-        `Container block "${block.type}" drew no frame. This is a bug in BlockNote.`,
+        `Layout block "${block.type}" drew no frame. This is a bug in BlockNote.`,
       );
     }
     if (children.length > 0) {
@@ -175,7 +175,7 @@ function serializeBlock<
     return frame.dom;
   }
 
-  // Every block but a container declares `render` (`validateRenderHooks`).
+  // Every block but a layout block declares `render` (`validateRenderHooks`).
   if (!impl.render) {
     throw new Error(
       `Block "${block.type}" has no \`render\`. This is a bug in BlockNote.`,

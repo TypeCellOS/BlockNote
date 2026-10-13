@@ -24,7 +24,7 @@ const frameDiv = () => {
   return { dom, slot: dom };
 };
 
-// A pure container that recognizes its own external HTML. Before containers
+// A layout block that recognizes its own external HTML. Before layout blocks
 // went through `getParseRules`, `parse` was silently dropped for them and this
 // produced nothing at all.
 const Card = createBlockSpec(
@@ -32,7 +32,7 @@ const Card = createBlockSpec(
     type: "card" as const,
     propSchema: { tone: { default: "neutral" } },
     content: "none",
-    container: true,
+    layoutOnly: true,
   },
   {
     renderFrame: frameDiv,
@@ -49,7 +49,7 @@ const Quote = createBlockSpec(
     type: "quote" as const,
     propSchema: {},
     content: "none",
-    container: true,
+    layoutOnly: true,
   },
   {
     renderFrame: frameDiv,
@@ -90,8 +90,8 @@ beforeEach(() => {
   ]);
 });
 
-describe("container `parse`", () => {
-  it("parses an external element into a container, children intact", () => {
+describe("layout block `parse`", () => {
+  it("parses an external element into a layout block, children intact", () => {
     const blocks = editor.tryParseHTMLToBlocks(
       '<div class="card" data-tone="warning"><p>First</p><h1>Second</h1></div>',
     );
@@ -126,14 +126,14 @@ describe("container `parse`", () => {
   });
 });
 
-describe("container `runsBefore`", () => {
+describe("layout block `runsBefore`", () => {
   const ambiguous = (type: string) =>
     createBlockSpec(
       {
         type,
         propSchema: {},
         content: "none",
-        container: true,
+        layoutOnly: true,
       } as any,
       {
         renderFrame: frameDiv,
@@ -156,7 +156,7 @@ describe("container `runsBefore`", () => {
     }) as BlockNoteEditor<any, any, any>;
   };
 
-  it("orders a container's parse rules before another container's", () => {
+  it("orders a layout block's parse rules before another layout block's", () => {
     // Declaration order wins by default; `runsBefore` overrides it.
     for (const [runsBefore, winner] of [
       [undefined, "alpha"],

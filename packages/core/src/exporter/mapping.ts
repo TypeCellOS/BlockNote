@@ -17,7 +17,7 @@ import type { Exporter } from "./Exporter.js";
  * - `{ withChildren }`, a function that renders the block *and* its
  *   children, which it receives already rendered as its last argument. For
  *   blocks whose children are part of them, like a column or a callout's
- *   body. Container blocks must use it.
+ *   body. Layout blocks must use it.
  */
 export type BlockMapping<
   B extends BlockSchema,

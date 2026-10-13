@@ -7,22 +7,22 @@ export function validateChildrenConfigs(
     {
       config: Pick<
         BlockConfig,
-        "content" | "placeable" | "container" | "children"
+        "content" | "placeable" | "layoutOnly" | "children"
       >;
     }
   >,
 ) {
   for (const [type, { config }] of Object.entries(blockSpecs)) {
-    if (config.container !== undefined && config.content !== "none") {
+    if (config.layoutOnly !== undefined && config.content !== "none") {
       fail(
         type,
-        '`container: true` is only for blocks without content (`content: "none"`). A container block holds only child blocks, no content of its own.',
+        '`layoutOnly: true` is only for blocks without content (`content: "none"`). A layout block holds only child blocks, no content of its own.',
       );
     }
-    if (config.placeable === "namedOnly" && config.container !== true) {
+    if (config.placeable === "namedOnly" && config.layoutOnly !== true) {
       fail(
         type,
-        '`placeable: "namedOnly"` is only for container blocks (`container: true`). Only a container block can be limited to the blocks that name it in `children.allow`.',
+        '`placeable: "namedOnly"` is only for layout blocks (`layoutOnly: true`). Only a layout block can be limited to the blocks that name it in `children.allow`.',
       );
     }
     if (!config.children) {
@@ -42,9 +42,9 @@ export function validateChildrenConfigs(
       dissolve?: boolean;
     };
 
-    // The child blocks of a block that isn't a container share one untyped
+    // The child blocks of a block that isn't a layout block share one untyped
     // group, which can't enforce types or counts.
-    if (config.container !== true) {
+    if (config.layoutOnly !== true) {
       if (
         allow !== "blocks" ||
         min !== undefined ||
@@ -53,22 +53,22 @@ export function validateChildrenConfigs(
       ) {
         fail(
           type,
-          'restricting child types, a minimum count or `dissolve` requires `container: true`. Other blocks can always have any child blocks (`{ allow: "blocks" }`).',
+          'restricting child types, a minimum count or `dissolve` requires `layoutOnly: true`. Other blocks can always have any child blocks (`{ allow: "blocks" }`).',
         );
       }
       continue;
     }
 
-    // A container that accepts any blocks always holds at least one, and
-    // dissolves when it loses it. A minimum, and whether the container
-    // dissolves, only mean something for a set of named container types (two
-    // columns, one tab). A key can move the last block out of a container
+    // A layout block that accepts any blocks always holds at least one, and
+    // dissolves when it loses it. A minimum, and whether the layout block
+    // dissolves, only mean something for a set of named layout block types (two
+    // columns, one tab). A key can move the last block out of a layout block
     // that accepts any blocks, so one that does not dissolve could never be
     // removed with the keyboard.
     if (allow === "blocks" && (min !== undefined || dissolve !== undefined)) {
       fail(
         type,
-        `\`children.${min !== undefined ? "min" : "dissolve"}\` needs an \`allow\` list. A container that accepts any blocks always holds at least one child, and dissolves when its last child is removed.`,
+        `\`children.${min !== undefined ? "min" : "dissolve"}\` needs an \`allow\` list. A layout block that accepts any blocks always holds at least one child, and dissolves when its last child is removed.`,
       );
     }
 
@@ -76,7 +76,7 @@ export function validateChildrenConfigs(
       if (allow !== "blocks") {
         fail(
           type,
-          "`children.exclude` is only for a container that accepts any blocks. An `allow` list already names exactly what the container holds.",
+          "`children.exclude` is only for a layout block that accepts any blocks. An `allow` list already names exactly what the layout block holds.",
         );
       }
       for (const excluded of exclude) {
@@ -87,17 +87,17 @@ export function validateChildrenConfigs(
           );
         }
         const { config: excludedConfig } = blockSpecs[excluded];
-        if (excludedConfig.container !== true) {
+        if (excludedConfig.layoutOnly !== true) {
           fail(
             type,
-            `\`exclude\` contains "${excluded}", which is not a container block. ` +
-              "Only container blocks (`container: true`) can be excluded.",
+            `\`exclude\` contains "${excluded}", which is not a layout block. ` +
+              "Only layout blocks (`layoutOnly: true`) can be excluded.",
           );
         }
         if (excludedConfig.placeable === "namedOnly") {
           fail(
             type,
-            `\`exclude\` contains "${excluded}", which is \`placeable: "namedOnly"\` and never a child of a container that accepts any blocks.`,
+            `\`exclude\` contains "${excluded}", which is \`placeable: "namedOnly"\` and never a child of a layout block that accepts any blocks.`,
           );
         }
       }
@@ -113,11 +113,11 @@ export function validateChildrenConfigs(
             `\`allow\` contains "${allowed}", which is not a configured block type.`,
           );
         }
-        if (blockSpecs[allowed].config.container !== true) {
+        if (blockSpecs[allowed].config.layoutOnly !== true) {
           fail(
             type,
-            `\`allow\` contains "${allowed}", which is not a container block. ` +
-              "An `allow` list can name only container blocks (`container: true`); naming other blocks is not supported yet. " +
+            `\`allow\` contains "${allowed}", which is not a layout block. ` +
+              "An `allow` list can name only layout blocks (`layoutOnly: true`); naming other blocks is not supported yet. " +
               'Use `allow: "blocks"` to accept all other blocks.',
           );
         }
@@ -138,7 +138,7 @@ export function validateChildrenConfigs(
     if (config.placeable === "namedOnly" && !named.has(type)) {
       fail(
         type,
-        '`placeable: "namedOnly"` limits this block to the blocks that name it in `children.allow`, but no block names it. Name it in the `allow` list of a container block.',
+        '`placeable: "namedOnly"` limits this block to the blocks that name it in `children.allow`, but no block names it. Name it in the `allow` list of a layout block.',
       );
     }
   }

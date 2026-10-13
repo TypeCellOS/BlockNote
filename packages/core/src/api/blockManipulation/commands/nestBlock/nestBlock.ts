@@ -37,7 +37,7 @@ function holdsItems(node: Node, itemType: NodeType) {
  * 4. Operates on Transaction directly instead of state+dispatch
  * 5. Opens the slice into the previous sibling's child group, not into the
  *    group's last child. The original cut one level deeper to keep `insert`
- *    at 1; that failed when the last child was a container node (a column
+ *    at 1; that failed when the last child was a layout block node (a column
  *    list), which a `blockContainer` can't be joined onto.
  */
 function sinkItem(tr: Transaction, itemType: NodeType, groupType: NodeType) {
@@ -70,7 +70,7 @@ function sinkItem(tr: Transaction, itemType: NodeType, groupType: NodeType) {
   const after = range.end;
 
   // Nothing above can make the schema refuse this step: `parent` holds
-  // regular blocks, so it may lose one (a container of any blocks has no
+  // regular blocks, so it may lose one (a layout block of any blocks has no
   // `min` above 1), and the slice only joins the previous sibling and its
   // group. A refusal here would be a bug, so it throws.
   tr.step(
@@ -237,7 +237,7 @@ export function unnestBlock(editor: BlockNoteEditor<any, any, any>) {
 // `canExec` hands the command a transaction it never dispatches, so "can I
 // nest?" is answered by nesting and throwing the result away. A second
 // statement of the preconditions would drift from the command it describes —
-// and did: it read a previous sibling's mere existence, so a container block
+// and did: it read a previous sibling's mere existence, so a layout block
 // before the cursor enabled the button while `nestBlock` did nothing.
 export function canNestBlock(editor: BlockNoteEditor<any, any, any>) {
   return editor.canExec((state) => nestCommand(editor)(state.tr));

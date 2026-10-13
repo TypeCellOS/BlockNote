@@ -22,7 +22,7 @@ const Callout = createBlockSpec(
       },
     },
     content: "none",
-    container: true,
+    layoutOnly: true,
   },
   { renderFrame: frameDiv },
 )();
@@ -32,7 +32,7 @@ const Grid = createBlockSpec(
     type: "grid" as const,
     propSchema: {},
     content: "none",
-    container: true,
+    layoutOnly: true,
     children: {
       allow: ["gridCell"],
       min: 2,
@@ -46,32 +46,32 @@ const GridCell = createBlockSpec(
     type: "gridCell" as const,
     propSchema: {},
     content: "none",
-    container: true,
+    layoutOnly: true,
     placeable: "namedOnly",
   },
   { renderFrame: frameDiv },
 )();
 
-// A second container of any blocks, for conversions between container types.
+// A second layout block of any blocks, for conversions between layout block types.
 const Box = createBlockSpec(
   {
     type: "box" as const,
     propSchema: {},
     content: "none",
-    container: true,
+    layoutOnly: true,
   },
   { renderFrame: frameDiv },
 )();
 
-// A container that requires two callouts, so dropping below `min` dissolves
-// it into the survivor. (`min` needs an `allow` list: a container of any
+// A layout block that requires two callouts, so dropping below `min` dissolves
+// it into the survivor. (`min` needs an `allow` list: a layout block of any
 // blocks always holds at least one.)
 const Pair = createBlockSpec(
   {
     type: "pair" as const,
     propSchema: {},
     content: "none",
-    container: true,
+    layoutOnly: true,
     children: { allow: ["callout"], min: 2 },
   },
   { renderFrame: frameDiv },
@@ -84,7 +84,7 @@ const Tabs = createBlockSpec(
     type: "tabs" as const,
     propSchema: {},
     content: "none",
-    container: true,
+    layoutOnly: true,
     children: { allow: ["tab"], min: 1, dissolve: false },
   },
   { renderFrame: frameDiv },
@@ -95,7 +95,7 @@ const Tab = createBlockSpec(
     type: "tab" as const,
     propSchema: {},
     content: "none",
-    container: true,
+    layoutOnly: true,
     placeable: "namedOnly",
   },
   { renderFrame: frameDiv },
@@ -130,7 +130,7 @@ const Alert = createBlockSpec(
   },
 )();
 
-export const containerSchema = BlockNoteSchema.create().extend({
+export const layoutSchema = BlockNoteSchema.create().extend({
   blockSpecs: {
     ...defaultBlockSpecs,
     callout: Callout,

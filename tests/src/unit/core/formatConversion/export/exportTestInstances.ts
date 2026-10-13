@@ -3109,7 +3109,7 @@ export const exportTestInstancesBlockNoteHTML: TestInstance<
   },
   {
     testCase: {
-      name: "container/basic",
+      name: "layoutBlock/basic",
       content: [
         {
           type: "callout",
@@ -3126,7 +3126,7 @@ export const exportTestInstancesBlockNoteHTML: TestInstance<
   },
   {
     testCase: {
-      name: "container/nested",
+      name: "layoutBlock/nested",
       content: [
         {
           type: "callout",
@@ -3156,7 +3156,7 @@ export const exportTestInstancesBlockNoteHTML: TestInstance<
     // Partial input omits the required child. Export snapshots record this
     // raw form; full-HTML equality tests normalize it to a valid block first.
     testCase: {
-      name: "container/emptyChildren",
+      name: "layoutBlock/emptyChildren",
       content: [
         {
           type: "callout",

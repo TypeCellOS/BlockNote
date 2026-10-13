@@ -56,7 +56,8 @@ export default function App() {
     initialContent: [
       {
         type: "paragraph",
-        content: "Tabs built on the container API. Each panel holds any block.",
+        content:
+          "Tabs built on the layout block API. Each panel holds any block.",
       },
       {
         // A persistent ID so the open tab is remembered across reloads: the
