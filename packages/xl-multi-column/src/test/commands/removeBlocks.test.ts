@@ -95,4 +95,41 @@ describe("Test removeBlocks", () => {
       offsetBefore,
     );
   });
+
+  // A block that is nested under a regular block cannot empty a column, so
+  // removing it must not repair the column list. Here column 0 holds only an
+  // empty paragraph, which the repair would otherwise remove.
+  it("Keeps the column list when removing a nested block in a column", () => {
+    getEditor().replaceBlocks(getEditor().document, [
+      {
+        id: "cl",
+        type: "columnList",
+        children: [
+          {
+            id: "c0",
+            type: "column",
+            children: [{ id: "e", type: "paragraph" }],
+          },
+          {
+            id: "c1",
+            type: "column",
+            children: [
+              {
+                id: "a",
+                type: "paragraph",
+                content: "A",
+                children: [{ id: "n", type: "paragraph", content: "N" }],
+              },
+            ],
+          },
+        ],
+      },
+    ]);
+
+    getEditor().removeBlocks(["n"]);
+
+    const list = getEditor().getBlock("cl");
+    expect(list?.type).toBe("columnList");
+    expect(list?.children.map((column) => column.id)).toEqual(["c0", "c1"]);
+  });
 });

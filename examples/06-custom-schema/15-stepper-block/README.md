@@ -51,7 +51,8 @@ when its last step is removed.
 - Backspace at the start of a step's title first turns it into a paragraph.
   A second Backspace moves it to the end of the previous step, or above the
   stepper if it is in the first step.
-- Emptying a step drops it. Deleting the last step removes the stepper.
+- A step stays when its blocks are removed. When the last step is removed,
+  the stepper stays and gets a new step with an empty paragraph.
 - Shift-Tab unnests inside a step and stops at the step's edge.
 
 **Relevant Docs:**

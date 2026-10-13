@@ -647,11 +647,17 @@ export function ascendToInsertablePos(
 }
 
 /**
- * The layout block ancestors of a position, outermost last, each with its block
- * id and resolution depth. Used to re-run layout block repair (`fixLayoutBlocksById`)
- * on every layout block a mutation may have emptied. Position-based for the same
+ * The layout blocks that a removal at a position can empty, outermost last,
+ * each with its block id and resolution depth. Used to re-run layout block
+ * repair (`fixLayoutBlocksById`) after a mutation. Position-based for the same
  * reason as `ascendToInsertablePos`: selections and mapped positions are the
  * natural inputs.
+ *
+ * These are the layout blocks that directly hold the position, and the layout
+ * blocks that directly hold them. The walk stops at the first ancestor that is
+ * not a layout block: a removal inside a regular block's children cannot empty
+ * a layout block above that regular block, so those layout blocks stay as they
+ * are.
  */
 export function getAncestorLayoutBlocks(
   doc: Node,
@@ -661,7 +667,10 @@ export function getAncestorLayoutBlocks(
   const layoutBlocks: { id: string; depth: number }[] = [];
   for (let depth = $pos.depth; depth > 0; depth--) {
     const ancestor = $pos.node(depth);
-    if (isLayoutNode(ancestor.type) && ancestor.attrs.id) {
+    if (!isLayoutNode(ancestor.type)) {
+      break;
+    }
+    if (ancestor.attrs.id) {
       layoutBlocks.push({ id: ancestor.attrs.id, depth });
     }
   }

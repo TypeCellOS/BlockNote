@@ -234,6 +234,18 @@ describe("validateChildrenConfigs", () => {
     ).toThrow(/`children.dissolve` needs an `allow` list/);
   });
 
+  it.each([-1, 1.5, Number.NaN])("rejects `min: %s`", (min) => {
+    expect(
+      validate({
+        columnList: {
+          layoutOnly: true,
+          children: { allow: ["column"], min },
+        },
+        column: { layoutOnly: true, placeable: "namedOnly" },
+      }),
+    ).toThrow(/`children.min` must be a whole number that is 0 or more/);
+  });
+
   it("rejects `dissolve` on a block that is not a layout block", () => {
     expect(
       validate({ alert: { content: "inline", children: { dissolve: false } } }),

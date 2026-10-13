@@ -72,6 +72,13 @@ export function validateChildrenConfigs(
       );
     }
 
+    if (min !== undefined && !(Number.isInteger(min) && min >= 0)) {
+      fail(
+        type,
+        `\`children.min\` must be a whole number that is 0 or more, not ${String(min)}.`,
+      );
+    }
+
     if (exclude !== undefined) {
       if (allow !== "blocks") {
         fail(

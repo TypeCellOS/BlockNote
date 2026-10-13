@@ -34,7 +34,7 @@ function insertPanel(editor: typeof schema.BlockNoteEditor) {
         type: "panel",
       }),
     aliases: ["panel", "layout", "container", "box", "group", "section"],
-    group: "Basic blocks",
+    group: "Layout",
     icon: <RiChatQuoteLine />,
   };
 }

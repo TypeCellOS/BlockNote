@@ -138,6 +138,8 @@ export function updateBlockTr<
 
     const replacementNode = blockToNode(
       {
+        // The rebuilt block keeps its id, so references to it stay valid.
+        id: existingBlock.id,
         ...(content ? { content } : {}),
         // Omit empty children so a new layout block can seed its required children.
         ...(children.length > 0 ? { children } : {}),

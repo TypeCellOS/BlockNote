@@ -1,7 +1,7 @@
 {
   "playground": true,
   "docs": true,
-  "author": "claude",
+  "author": "yousefed",
   "tags": ["Intermediate", "Blocks", "Custom Schemas"],
   "dependencies": {
     "react-icons": "^5.5.0",

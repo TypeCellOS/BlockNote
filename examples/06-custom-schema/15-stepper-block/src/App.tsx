@@ -46,7 +46,7 @@ function insertStepper(editor: typeof schema.BlockNoteEditor) {
         ],
       } as any),
     aliases: ["stepper", "steps", "guide", "walkthrough"],
-    group: "Basic blocks",
+    group: "Layout",
     icon: <RiListOrdered2 />,
   };
 }

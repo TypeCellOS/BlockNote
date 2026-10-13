@@ -1033,13 +1033,9 @@ describe("Test updateBlock content carry-over", () => {
     ],
   });
 
-  // A block that changes shape is rebuilt rather than updated in place, and the
-  // rebuilt node is minted a fresh ID. That is long-standing behaviour, not
-  // something the layout block work introduced, but converting a paragraph into a
-  // layout block is a far more ordinary action than the paragraph/column
-  // conversions that used to be the only way to reach this path. These tests
-  // therefore address blocks by position, and the first one pins the ID loss so
-  // that fixing it shows up as a deliberate change.
+  // A block that changes shape is rebuilt rather than updated in place. The
+  // rebuilt block keeps its ID, so comments and other references to it stay
+  // valid. Before, it got a new ID; the first and the last test check this.
   it("Moves inline content into a child paragraph when becoming a layout block", () => {
     const editor = getLayoutEditor();
     editor.transact((tr) =>
@@ -1048,7 +1044,7 @@ describe("Test updateBlock content carry-over", () => {
 
     const block = editor.document[0] as any;
     expect(block.type).toBe("callout");
-    expect(block.id).not.toBe("paragraph-with-text");
+    expect(block.id).toBe("paragraph-with-text");
     expect(block.children).toHaveLength(1);
     expect(block.children[0].type).toBe("paragraph");
     expect(block.children[0].content).toEqual([
@@ -1205,6 +1201,7 @@ describe("Test updateBlock content carry-over", () => {
 
     const block = editor.document[4] as any;
     expect(block.type).toBe("paragraph");
+    expect(block.id).toBe("callout-0");
     expect(block.content).toEqual([]);
     expect(block.children).toHaveLength(1);
     expect(block.children[0].id).toBe("callout-child");

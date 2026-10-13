@@ -45,7 +45,7 @@ function insertTabs(editor: typeof schema.BlockNoteEditor) {
         ],
       } as any),
     aliases: ["tabs", "tab"],
-    group: "Basic blocks",
+    group: "Layout",
     icon: <RiLayoutTopLine />,
   };
 }
