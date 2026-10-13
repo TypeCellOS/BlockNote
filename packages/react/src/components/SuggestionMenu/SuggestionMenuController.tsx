@@ -11,7 +11,7 @@ import { useEditorDOMElement } from "../../hooks/useEditorDomElement.js";
 import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
 import { PortalElementOverride } from "../../editor/PortalElementOverride.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
-import { createSuggestionMenuMiddleware } from "./suggestionMenuMiddleware.js";
+import { suggestionMenuMiddleware } from "./suggestionMenuMiddleware.js";
 import {
   GenericPopover,
   GenericPopoverReference,
@@ -117,9 +117,6 @@ export function SuggestionMenuController<
       }) satisfies GenericPopoverReference,
   });
 
-  // Once per menu: the middleware remembers the side the menu is on.
-  const middleware = useMemo(() => createSuggestionMenuMiddleware(), []);
-
   const floatingUIOptions = useMemo<FloatingUIOptions>(
     () => ({
       ...props.floatingUIOptions,
@@ -131,7 +128,7 @@ export function SuggestionMenuController<
           }
         },
         placement: "bottom-start",
-        middleware,
+        middleware: suggestionMenuMiddleware,
         ...props.floatingUIOptions?.useFloatingOptions,
       },
       focusManagerProps: {
@@ -148,7 +145,6 @@ export function SuggestionMenuController<
       },
     }),
     [
-      middleware,
       props.floatingUIOptions,
       state?.show,
       state?.triggerCharacter,
