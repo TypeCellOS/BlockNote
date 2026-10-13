@@ -3,7 +3,7 @@ import { SuggestionMenu } from "@blocknote/core/extensions";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { useCreateBlockNote } from "@blocknote/react";
-import { afterEach, expect, test } from "vite-plus/test";
+import { afterEach, expect, test, vi } from "vite-plus/test";
 import { cleanup, render } from "vitest-browser-react";
 
 import { userEvent } from "../../utils/context.js";
@@ -76,8 +76,8 @@ test("scrolling the page still updates the slash menu's position", async () => {
   const counter = countMenuUpdates();
 
   document.scrollingElement!.scrollTop += 50;
-  // WebKit delivers the scroll event late.
-  await sleep(1000);
-
-  expect(counter.updates).toBeGreaterThan(0);
+  // WebKit delivers the scroll event late (about a second).
+  await vi.waitFor(() => expect(counter.updates).toBeGreaterThan(0), {
+    timeout: 3000,
+  });
 });

@@ -7,7 +7,7 @@ import {
   SuggestionMenuController,
   useCreateBlockNote,
 } from "@blocknote/react";
-import { afterEach, expect, test } from "vite-plus/test";
+import { afterEach, expect, test, vi } from "vite-plus/test";
 import { cleanup, render } from "vitest-browser-react";
 
 import { page, userEvent } from "../../utils/context.js";
@@ -64,6 +64,13 @@ async function openSlashMenuAt(
     document.scrollingElement!.scrollTop = options.scrollTop;
     await sleep(100);
   }
+  const menu = await typeSlashAt(y);
+  await sleep(200);
+  return menu;
+}
+
+/** Types "/" at the end of the paragraph at height `y`, in the editor. */
+async function typeSlashAt(y: number) {
   const paragraph = [
     ...document.querySelectorAll('[data-content-type="paragraph"]'),
   ].find((element) => {
@@ -80,9 +87,7 @@ async function openSlashMenuAt(
   );
   editor.focus();
   await userEvent.keyboard("/");
-  const menu = await waitForSelector(".bn-suggestion-menu");
-  await sleep(200);
-  return menu;
+  return waitForSelector(".bn-suggestion-menu");
 }
 
 /** The gap (px) between the menu and its trigger. */
@@ -175,9 +180,8 @@ test("chooses its side again when the page scrolls", async () => {
 
   // Scrolling up moves the trigger down, near the bottom of the screen.
   document.scrollingElement!.scrollTop = 300 - innerHeight * 0.35;
-  // WebKit delivers the scroll event late.
-  await sleep(1000);
-  expect(side(menu)).toBe("above");
+  // WebKit delivers the scroll event late (about a second).
+  await vi.waitFor(() => expect(side(menu)).toBe("above"), { timeout: 3000 });
 });
 
 test("chooses its side again when the window is resized", async () => {
@@ -248,4 +252,33 @@ test("grows when the items load asynchronously, then keeps its width while filte
     5,
   );
   expect(width(menu)).toBe(loaded);
+});
+
+test("chooses its side and height again when opened again elsewhere", async () => {
+  const first = await openSlashMenuAt(innerHeight * 0.15);
+  expect(side(first)).toBe("below");
+
+  await userEvent.keyboard("{Escape}");
+  await sleep(400);
+  const second = await typeSlashAt(innerHeight * 0.85);
+  await sleep(200);
+  expect(side(second)).toBe("above");
+  // The room above, not the height it had below.
+  expect(second.getBoundingClientRect().height).toBeGreaterThan(400);
+});
+
+test("starts at its own width when opened again", async () => {
+  const first = await openSlashMenuAt(innerHeight * 0.15, {
+    slowItems: true,
+  });
+  await sleep(ITEMS_DELAY + 300);
+  const loaded = width(first);
+
+  await userEvent.keyboard("{Escape}");
+  // After the menu has faded out.
+  await sleep(400);
+  const second = await typeSlashAt(innerHeight * 0.3);
+  // The items are loading again: the menu is as narrow as it was then, not
+  // as wide as it was with its items.
+  expect(width(second)).toBeLessThan(loaded);
 });
