@@ -95,8 +95,7 @@ it("stores a table that one edit reshapes in two directions", () => {
   );
 });
 
-// To be fixed by #3173.
-it.fails("keeps a concurrent cell edit when a different user reshapes the table", () => {
+it("keeps a concurrent cell edit when a different user reshapes the table", () => {
   const { a, b, sync } = twoUsers();
   a.updateBlock("table", table(grown));
   b.updateBlock(

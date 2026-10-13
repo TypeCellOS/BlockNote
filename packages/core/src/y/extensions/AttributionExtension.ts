@@ -1,6 +1,5 @@
-import { AddNodeMarkStep } from "prosemirror-transform";
-import { getChangedRanges } from "@tiptap/core";
 import { Plugin, PluginKey, type Transaction } from "prosemirror-state";
+import { getChangedRangeWithAttrs } from "../../api/getChangedRangeWithAttrs.js";
 import {
   createExtension,
   createStore,
@@ -132,34 +131,15 @@ export const AttributionExtension = createExtension(
 
     const store = createStore<AttributionTooltipState | undefined>(undefined);
 
-    // Load the authors of the attribution marks in `tr`'s changed ranges, so
+    // Load the authors of the attribution marks in `tr`'s changed range, so
     // their colors/usernames resolve (colors then flow to marks via `syncRootVars`).
-    // `getChangedRanges` covers mark-only steps too — which suggestion mode adds
-    // over existing text and `tr.changedRange()` would miss.
+    // The range covers mark-only and node-mark steps too — which suggestion
+    // mode adds over existing text and `tr.changedRange()` would miss.
     const loadChangedUsers = (tr: Transaction) => {
-      const ranges = getChangedRanges(tr);
-      // Most changes are local (often several steps in one small span), so scan a
-      // single range spanning all of them rather than each range individually.
-      let from = Infinity;
-      let to = -Infinity;
-      for (const { newRange } of ranges) {
-        from = Math.min(from, newRange.from);
-        to = Math.max(to, newRange.to);
-      }
-
+      const range = getChangedRangeWithAttrs(tr);
       const ids = new Set<string>();
-      // AddNodeMarkStep has an empty position map, so getChangedRanges cannot
-      // locate its node. Load its authors directly from the added mark.
-      for (const step of tr.steps) {
-        if (
-          step instanceof AddNodeMarkStep &&
-          step.mark.type.name in ATTRIBUTION_MARK_TYPES
-        ) {
-          getAttributionUserIds(step.mark).forEach((id) => ids.add(id));
-        }
-      }
-      if (ranges.length > 0) {
-        tr.doc.nodesBetween(from, to, (node) => {
+      if (range) {
+        tr.doc.nodesBetween(range.from, range.to, (node) => {
           for (const mark of node.marks) {
             if (
               ATTRIBUTION_MARK_TYPES[

@@ -88,7 +88,13 @@ export const FormattingToolbarExtension = createExtension(({ editor }) => {
           if (preventShowWhileMouseDown || preventShowWhileDragging) {
             return;
           }
-          store.setState(shouldShow());
+          // Focus that comes back into the editor's UI rather than its
+          // content (e.g. a click on the drag handle) is not about the
+          // selection: showing the toolbar then would put it over the menu
+          // the UI opens.
+          if (editor.isFocused()) {
+            store.setState(shouldShow());
+          }
         },
         { includeEditorUI: true },
       );

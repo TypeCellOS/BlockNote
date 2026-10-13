@@ -1,4 +1,4 @@
-import { combineTransactionSteps } from "@tiptap/core";
+import { combineTransactionSteps } from "./combineTransactionSteps.js";
 import deepEqual from "fast-deep-equal";
 import type { Node } from "prosemirror-model";
 import type { Transaction } from "prosemirror-state";
@@ -11,7 +11,7 @@ import {
 import type { BlockSchema } from "../schema/index.js";
 import type { InlineContentSchema } from "../schema/inlineContent/types.js";
 import type { StyleSchema } from "../schema/styles/types.js";
-import { getChangedRange } from "./getChangedRange.js";
+import { getChangedRangeWithAttrs } from "./getChangedRangeWithAttrs.js";
 import { getNodeId } from "./getBlockInfoFromPos.js";
 import { nodeToBlock } from "./nodeConversions/nodeToBlock.js";
 import { isNodeBlock } from "./nodeUtil.js";
@@ -303,7 +303,7 @@ export function getBlocksChangedByTransaction<
   ]);
 
   // Changed range in the new doc; null means nothing changed.
-  const newRange = getChangedRange(combinedTransaction);
+  const newRange = getChangedRangeWithAttrs(combinedTransaction);
   if (!newRange) {
     return [];
   }
