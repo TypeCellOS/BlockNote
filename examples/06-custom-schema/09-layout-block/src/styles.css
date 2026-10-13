@@ -1,10 +1,11 @@
+/* A neutral box: the panel only groups blocks, it has no meaning of its own
+   (compare the Alert block, whose box shows its type). */
 .panel {
-  border-left: 4px solid #507aff;
+  border: 1px solid var(--panel-border, #d4d4d8);
   border-radius: 6px;
-  background-color: var(--panel-bg, #e6ebff);
   padding: 12px 16px;
 }
 
 [data-color-scheme="dark"] .panel {
-  --panel-bg: #1e2a5c;
+  --panel-border: #3f3f46;
 }

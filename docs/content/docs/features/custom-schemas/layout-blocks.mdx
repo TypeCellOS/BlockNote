@@ -5,7 +5,7 @@ description: Learn how to create custom blocks that contain other blocks
 
 # Layout Blocks
 
-You can create custom blocks that contain other blocks, such as panels, callouts, and column layouts. Take a look at the demo below, in which we add a custom panel to a BlockNote editor, as well as a custom [Slash Menu item](/docs/react/components/suggestion-menus#changing-slash-menu-items) to insert it. Each panel can contain paragraphs, headings, lists, or any other blocks in the editor.
+You can create custom blocks that contain other blocks, such as panels, tab sets, and column layouts. Take a look at the demo below, in which we add a custom panel to a BlockNote editor, as well as a custom [Slash Menu item](/docs/react/components/suggestion-menus#changing-slash-menu-items) to insert it. Each panel can contain paragraphs, headings, lists, or any other blocks in the editor.
 
 <Example name="custom-schema/layout-block" />
 
@@ -105,19 +105,24 @@ If you create a panel without specifying its children, it starts with an empty p
 
 ## Combining Content and Child Blocks
 
-A block can have both its own text and child blocks. Use this for a question followed by hints, a checklist item with detailed instructions, a code sample followed by explanatory blocks, or a callout with a heading. In the demo below, we use the block's text as a callout title:
+A block can have both its own text and child blocks. Use this for a question followed by hints, a checklist item with detailed instructions, a code sample followed by explanatory blocks, or an alert with a title. In the demo below, we extend the [Alert block](/docs/features/custom-schemas/custom-blocks) with a body: the block's text is the alert's title, and its child blocks are the body:
 
-<Example name="custom-schema/callout-block" />
+<Example name="custom-schema/alert-block-with-title-and-body" />
 
 Set `content` to `"inline"` for rich text or `"plain"` for unstyled text. Every block with content can have child blocks, so there's nothing to declare for them. Use `render` for the block's own text, `renderFrame` to style that content and its child blocks together, and `keyboard` to keep the child blocks inside the block:
 
 ```tsx
 import { createReactBlockSpec } from "@blocknote/react";
 
-export const createCallout = createReactBlockSpec(
+export const createAlert = createReactBlockSpec(
   {
-    type: "callout",
-    propSchema: {},
+    type: "alert",
+    propSchema: {
+      type: {
+        default: "warning",
+        values: ["warning", "error", "info", "success"],
+      },
+    },
     content: "inline",
   },
   {
@@ -127,10 +132,10 @@ export const createCallout = createReactBlockSpec(
       emptyChildEnter: "exit-at-end",
     },
     render: (props) => (
-      <div className="callout-title" ref={props.contentRef} />
+      <div className="inline-content" ref={props.contentRef} />
     ),
     renderFrame: (props) => (
-      <div className="callout">
+      <div className="alert-frame" data-alert-type={props.block.props.type}>
         <div ref={props.slotRef} />
       </div>
     ),
@@ -138,7 +143,7 @@ export const createCallout = createReactBlockSpec(
 );
 ```
 
-`render:` Attach `contentRef` to the block's own editable text. With `content: "inline"`, users can format it and add links, just like in a paragraph. In this example, we style it as a callout title.
+`render:` Attach `contentRef` to the block's own editable text. With `content: "inline"`, users can format it and add links, just like in a paragraph. In this example, it is the alert's title. The full example also adds the Alert's icon, which opens a menu to change the alert type.
 
 For plain text, set `content: "plain"` and use a `<pre>` element to display line breaks and spacing:
 
@@ -148,17 +153,17 @@ render: (props) => <pre ref={props.contentRef} />,
 
 The child blocks can still contain rich text, images, and other block types.
 
-`renderFrame:` An optional React component for styling the block and its children together, such as giving the callout a shared border or background. It receives `block`, `editor`, and `slotRef`. Attach `slotRef` where the block's content and children should appear. You can use the block's props to customize the frame, add interactive controls, or return `null` to show the block without a frame.
+`renderFrame:` An optional React component for styling the block and its children together, such as giving the alert a shared background in the color of its type. It receives `block`, `editor`, and `slotRef`. Attach `slotRef` where the block's content and children should appear. You can use the block's props to customize the frame, add interactive controls, or return `null` to show the block without a frame.
 
-`experimental_keyboard:` Without it, child blocks behave like any indented blocks. This API is experimental and may change. Here, `enter: "into-children"` makes Enter in the title add a first child block, `childrenCanOutdent: false` keeps Shift-Tab from moving blocks out of the callout, and `emptyChildEnter: "exit-at-end"` makes Enter in an empty last block leave the callout. See [Custom Blocks](/docs/features/custom-schemas/custom-blocks) for all keyboard settings.
+`experimental_keyboard:` Without it, child blocks behave like any indented blocks. This API is experimental and may change. Here, `enter: "into-children"` makes Enter in the title add a first child block, `childrenCanOutdent: false` keeps Shift-Tab from moving blocks out of the alert, and `emptyChildEnter: "exit-at-end"` makes Enter in an empty last block leave the alert. See [Custom Blocks](/docs/features/custom-schemas/custom-blocks) for all keyboard settings.
 
 A layout block with `content: "none"`, like the panel above, has only `renderFrame`, and it always draws its frame.
 
-Add `callout: createCallout()` to your schema, then use `content` for the title and `children` for the blocks inside it:
+Add `alert: createAlert()` to your schema, then use `content` for the title and `children` for the blocks inside it:
 
 ```typescript
 {
-  type: "callout",
+  type: "alert",
   content: "Before you start",
   children: [
     { type: "paragraph", content: "Make sure you have an account." },
@@ -166,7 +171,7 @@ Add `callout: createCallout()` to your schema, then use `content` for the title 
 }
 ```
 
-Pressing Enter at the end of the title adds a paragraph inside the callout, and Enter in an empty last paragraph leaves the callout. Moving the callout moves its title and child blocks together.
+Pressing Enter at the end of the title adds a paragraph to the body, and Enter in an empty last paragraph leaves the alert. Moving the alert moves its title and body together.
 
 To add blocks to an existing layout block, see [Inserting Blocks](/docs/reference/editor/manipulating-content#inserting-blocks).
 

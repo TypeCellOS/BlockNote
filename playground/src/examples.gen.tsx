@@ -1305,13 +1305,7 @@ export const examples = {
           playground: true,
           docs: true,
           author: "matthewlipski",
-          tags: [
-            "Intermediate",
-            "Blocks",
-            "Custom Schemas",
-            "Suggestion Menus",
-            "Slash Menu",
-          ],
+          tags: ["Intermediate", "Blocks", "Custom Schemas"],
           dependencies: {
             "@mantine/core": "^9.0.2",
             "react-icons": "^5.5.0",
@@ -1323,7 +1317,7 @@ export const examples = {
           slug: "custom-schema",
         },
         readme:
-          'In this example, we create a custom `Alert` block which is used to emphasize text.\n\n**Try it out:** Click the "!" icon to change the alert type!\n\n**Relevant Docs:**\n\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)',
+          'In this example, we create a custom `Alert` block which is used to emphasize text.\n\n**Try it out:** Click the "!" icon to change the alert type!\n\n**Relevant Docs:**\n\n- [Alert Block with Full UX](/examples/custom-schema/alert-block-full-ux)\n- [Alert Block with Title and Body](/examples/custom-schema/alert-block-with-title-and-body)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)',
       },
       {
         projectSlug: "suggestion-menus-mentions",
@@ -1430,7 +1424,7 @@ export const examples = {
           slug: "custom-schema",
         },
         readme:
-          'In this example, we create a custom `Alert` block which is used to emphasize text, same as in the [minimal `Alert` block example](/examples/custom-schema/alert-block). However, in this example, we also add a command to insert the block via the Slash Menu, and an entry in the Formatting Toolbar\'s Block Type Select to change the current block to an `Alert`.\n\n**Try it out:** Press the "/" key to open the Slash Menu and insert an `Alert` block! Or highlight text in a paragraph, then change the block type to an `Alert` using the Block Type Select in the Formatting Toolbar!\n\n**Relevant Docs:**\n\n- [Minimal Alert Block Example](/examples/custom-schema/alert-block)\n- [Changing Slash Menu Items](/docs/react/components/suggestion-menus)\n- [Changing Block Type Select Items](/docs/react/components/formatting-toolbar)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)',
+          'In this example, we create a custom `Alert` block which is used to emphasize text, same as in the [minimal `Alert` block example](/examples/custom-schema/alert-block). However, in this example, we also add a command to insert the block via the Slash Menu, and an entry in the Formatting Toolbar\'s Block Type Select to change the current block to an `Alert`.\n\n**Try it out:** Press the "/" key to open the Slash Menu and insert an `Alert` block! Or highlight text in a paragraph, then change the block type to an `Alert` using the Block Type Select in the Formatting Toolbar!\n\n**Relevant Docs:**\n\n- [Minimal Alert Block Example](/examples/custom-schema/alert-block)\n- [Alert Block with Title and Body](/examples/custom-schema/alert-block-with-title-and-body)\n- [Changing Slash Menu Items](/docs/react/components/suggestion-menus)\n- [Changing Block Type Select Items](/docs/react/components/formatting-toolbar)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)',
       },
       {
         projectSlug: "configuring-blocks",
@@ -1575,31 +1569,27 @@ export const examples = {
           'In this example, we build custom blocks on the source-with-preview pattern — the same building blocks behind BlockNote\'s math and diagram blocks. A custom "CSV table" block renders its comma-separated source as a table, and a custom "color" inline content renders a CSS color as a swatch. Both show the rendered preview in place, while the source is edited in a popup.\n\n**Try it out:** Click the table or a color chip to edit its source!\n\n**Relevant Docs:**\n\n- [Source with Preview Blocks](/docs/features/custom-schemas/source-with-preview)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Custom Inline Content](/docs/features/custom-schemas/custom-inline-content)',
       },
       {
-        projectSlug: "callout-block",
-        fullSlug: "custom-schema/callout-block",
-        pathFromRoot: "examples/06-custom-schema/13-callout-block",
+        projectSlug: "alert-block-with-title-and-body",
+        fullSlug: "custom-schema/alert-block-with-title-and-body",
+        pathFromRoot:
+          "examples/06-custom-schema/13-alert-block-with-title-and-body",
         config: {
           playground: true,
           docs: true,
           author: "nickthesick",
-          tags: [
-            "Intermediate",
-            "Blocks",
-            "Custom Schemas",
-            "Suggestion Menus",
-            "Slash Menu",
-          ],
+          tags: ["Intermediate", "Blocks", "Custom Schemas"],
           dependencies: {
+            "@mantine/core": "^9.0.2",
             "react-icons": "^5.5.0",
           } as any,
         },
-        title: "Callout Block",
+        title: "Alert Block with Title and Body",
         group: {
           pathFromRoot: "examples/06-custom-schema",
           slug: "custom-schema",
         },
         readme:
-          'In this example, we create a custom `Callout` block with a real rich-text title and child blocks inside it (a titled block), like a Notion-style callout.\n\nThe block has `content: "inline"`: the title is ordinary inline content — formatting, links, and multiplayer cursors all work — and its child blocks live on `block.children` at runtime. Its `keyboard` settings keep the child blocks inside the callout: Enter in the title adds a first child block, Shift-Tab doesn\'t move child blocks out, and Enter in an empty last child block leaves the callout. `render` draws the title row and `renderFrame` draws the box around the title and child blocks together.\n\nWe also wire up a Slash Menu item to insert the callout.\n\n**Try it out:**\n\n- Press Enter at the end of the callout\'s title to add a block inside the callout.\n- Press Enter in an empty last block inside the callout to leave the callout.\n- Press Backspace at the start of the first block inside the callout to merge it back into the title.\n- Press "/" inside the callout and add a code block, heading, or list.\n\n**Relevant Docs:**\n\n- [Layout Blocks](/docs/features/custom-schemas/layout-blocks)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)',
+          "In this example, we extend the [`Alert` block](/examples/custom-schema/alert-block) with a title and a body: the alert's text is its title, and its child blocks are the body.\n\nThe block has `content: \"inline\"`, so the title is ordinary inline content: formatting, links, and multiplayer cursors all work. Its child blocks are in `block.children` at runtime. `render` draws the title row, the same as in the Alert example, and `renderFrame` draws the alert's box around the title and the body together. Its `experimental_keyboard` settings keep the body inside the alert: Enter in the title adds a first child block, Shift-Tab doesn't move child blocks out, and Enter in an empty last child block leaves the alert.\n\n**Try it out:**\n\n- Click the icon to change the alert type.\n- Press Enter at the end of the alert's title to add a block to its body.\n- Press Enter in an empty last block of the body to leave the alert.\n- Press Backspace at the start of the first block in the body to merge it back into the title.\n- Press \"/\" in the body and add a code block, heading, or list.\n\n**Relevant Docs:**\n\n- [Minimal Alert Block Example](/examples/custom-schema/alert-block)\n- [Alert Block with Full UX](/examples/custom-schema/alert-block-full-ux)\n- [Layout Blocks](/docs/features/custom-schemas/layout-blocks#combining-content-and-child-blocks)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)",
       },
       {
         projectSlug: "tabs-block",

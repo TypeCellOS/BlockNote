@@ -24,7 +24,7 @@ const schema = BlockNoteSchema.create().extend({
 });
 
 // Slash menu item to insert a Panel. Inserting one with no children fills
-// it with an empty paragraph, as `min` defaults to 1.
+// it with an empty paragraph: a layout block always holds at least one child.
 function insertPanel(editor: typeof schema.BlockNoteEditor) {
   return {
     title: "Panel",
@@ -33,16 +33,7 @@ function insertPanel(editor: typeof schema.BlockNoteEditor) {
       insertOrUpdateBlockForSlashMenu(editor, {
         type: "panel",
       }),
-    aliases: [
-      "panel",
-      "layout",
-      "container",
-      "callout",
-      "alert",
-      "note",
-      "tip",
-      "info",
-    ],
+    aliases: ["panel", "layout", "container", "box", "group", "section"],
     group: "Basic blocks",
     icon: <RiChatQuoteLine />,
   };

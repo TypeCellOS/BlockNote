@@ -2,14 +2,9 @@
   "playground": true,
   "docs": true,
   "author": "nickthesick",
-  "tags": [
-    "Intermediate",
-    "Blocks",
-    "Custom Schemas",
-    "Suggestion Menus",
-    "Slash Menu"
-  ],
+  "tags": ["Intermediate", "Blocks", "Custom Schemas"],
   "dependencies": {
+    "@mantine/core": "^9.0.2",
     "react-icons": "^5.5.0"
   }
 }
