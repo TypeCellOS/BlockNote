@@ -492,12 +492,6 @@ export const scenarios: SuggestionScenario[] = [
   {
     kind: "single",
     id: "text-enter-at-heading-start",
-    feedback: [
-      {
-        severity: "high",
-        note: "Shows the heading's text deleted and re-inserted in a new block, instead of an empty block inserted above: splitting at the start keeps the block's id on the (now empty) first half.",
-      },
-    ],
     title: "Enter at the start of a heading",
     category: "Basic text",
     description:

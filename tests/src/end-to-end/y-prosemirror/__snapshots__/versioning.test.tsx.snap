@@ -700,10 +700,8 @@ exports[`versioning diff: Edit text vs change to heading 1`] = `
 
 exports[`versioning diff: Enter at the start of a heading 1`] = `
 [
-  "delete "Title" A",
-  "insert block "Title" A",
-  "insert <heading> A",
-  "insert "Title" A",
+  "insert block "" A",
+  "insert <paragraph> A",
 ]
 `;
 
