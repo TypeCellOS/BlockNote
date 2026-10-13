@@ -149,7 +149,7 @@ function showDiff(
 }
 
 describe("version diff of a deleted block", () => {
-  // To be fixed by #3166.
+  // Known limitation: content removed with a deleted block is credited to the user who deleted or moved the block. #3166 has a hacky prototype fix.
   it.fails("does not attribute content added concurrently inside it to the deleter", () => {
     const base = baseDocument([
       {
@@ -193,7 +193,7 @@ describe("version diff of a deleted block", () => {
     ]);
   });
 
-  // To be fixed by #3166.
+  // Known limitation: content removed with a deleted block is credited to the user who deleted or moved the block. #3166 has a hacky prototype fix.
   it.fails("names no author when hovering content removed with it", () => {
     const base = baseDocument([
       { id: "parent", type: "paragraph", content: "Parent" },
@@ -311,7 +311,7 @@ describe("version diff of a moved block", () => {
     ).toEqual(["[block moved]: bob"]);
   });
 
-  // To be fixed by #3166.
+  // Known limitation: content removed with a deleted block is credited to the user who deleted or moved the block. #3166 has a hacky prototype fix.
   it.fails("names no author for a block moved into a concurrently deleted one", () => {
     const base = blocks();
     const bob = editOf(base, 2, nest);
@@ -340,7 +340,7 @@ describe("version diff of a moved block", () => {
     ).toEqual(["[block parent]: alice"]);
   });
 
-  // To be fixed by #3166.
+  // Known limitation: content removed with a deleted block is credited to the user who deleted or moved the block. #3166 has a hacky prototype fix.
   it.fails("names no author for a moved block that someone else deletes", () => {
     const base = blocks();
     const server = history(base);
@@ -436,7 +436,7 @@ describe("version diff of a type change", () => {
     return out;
   }
 
-  // To be fixed by #3166.
+  // Known limitation: a type change or a move re-creates the block, so the diff shows it deleted and inserted again. #3166 has a hacky prototype fix.
   it.fails("shows a type change as a formatting change, not as replaced text", () => {
     const base = blocks();
     const server = history(base);
@@ -446,7 +446,7 @@ describe("version diff of a type change", () => {
     ).toEqual(["attrs <heading>: bob"]);
   });
 
-  // To be fixed by #3166.
+  // Known limitation: a type change or a move re-creates the block, so the diff shows it deleted and inserted again. #3166 has a hacky prototype fix.
   it.fails("credits a type-changed block's text to its writer, from before it existed", () => {
     const base = baseDocument([
       { id: "next", type: "paragraph", content: "Next" },
@@ -472,7 +472,7 @@ describe("version diff of a type change", () => {
     ]);
   });
 
-  // To be fixed by #3166.
+  // Known limitation: a type change or a move re-creates the block, so the diff shows it deleted and inserted again. #3166 has a hacky prototype fix.
   it.fails("keeps later edits to a type-changed block as their author's", () => {
     const base = blocks();
     const server = history(base);
@@ -517,7 +517,7 @@ describe("version diff of a type change", () => {
     ]);
   });
 
-  // To be fixed by #3166.
+  // Known limitation: a type change or a move re-creates the block, so the diff shows it deleted and inserted again. #3166 has a hacky prototype fix.
   it.fails("credits an indented block's text to its writer, from before it existed", () => {
     const base = blocks();
     const server = history(base);
@@ -549,7 +549,7 @@ describe("version diff of a type change", () => {
     ]);
   });
 
-  // To be fixed by #3166.
+  // Known limitation: a type change or a move re-creates the block, so the diff shows it deleted and inserted again. #3166 has a hacky prototype fix.
   it.fails("shows a block moved among its siblings as a move at both places", () => {
     const base = baseDocument([
       { id: "first", type: "paragraph", content: "First" },
@@ -572,7 +572,7 @@ describe("version diff of a type change", () => {
     ]);
   });
 
-  // To be fixed by #3166.
+  // Known limitation: a type change or a move re-creates the block, so the diff shows it deleted and inserted again. #3166 has a hacky prototype fix.
   it.fails("shows a type change as a formatting change after the text was rewritten", () => {
     const base = blocks();
     const server = history(base);
@@ -590,7 +590,7 @@ describe("version diff of a type change", () => {
     ]);
   });
 
-  // To be fixed by #3166.
+  // Known limitation: a type change or a move re-creates the block, so the diff shows it deleted and inserted again. #3166 has a hacky prototype fix.
   it.fails("strikes a moved block's children through with it at its old place", () => {
     const base = baseDocument([
       { id: "first", type: "paragraph", content: "First" },
@@ -649,7 +649,7 @@ describe("version diff of a type change", () => {
     expect(changes).toEqual(["delete <blockContainer>: bob"]);
   });
 
-  // To be fixed by #3166.
+  // Known limitation: a type change or a move re-creates the block, so the diff shows it deleted and inserted again. #3166 has a hacky prototype fix.
   it.fails.each([
     ["the same user", "bob"],
     ["a different user", "carol"],
@@ -678,7 +678,7 @@ describe("version diff of a type change", () => {
     },
   );
 
-  // To be fixed by #3166.
+  // Known limitation: a type change or a move re-creates the block, so the diff shows it deleted and inserted again. #3166 has a hacky prototype fix.
   it.fails("credits two type changes to the last one", () => {
     const base = blocks();
     const server = history(base);
@@ -787,7 +787,7 @@ describe("version diff of a document several users wrote", () => {
     return wrong;
   }
 
-  // To be fixed by #3166.
+  // Known limitation: a type change or a move re-creates the block, so the diff shows it deleted and inserted again. #3166 has a hacky prototype fix.
   it.fails("credits every word to its writer, between any two versions", () => {
     const base = baseDocument([
       { id: "start", type: "paragraph", content: "" },

@@ -288,7 +288,7 @@ describe("version diff of a nesting change", () => {
     return changed;
   }
 
-  // To be fixed by #3166.
+  // Known limitation: a type change or a move re-creates the block, so the diff shows it deleted and inserted again. #3166 has a hacky prototype fix.
   it.fails("shows an indent as a moved block, leaving the new parent unchanged", () => {
     expect(
       diffOf(
@@ -304,7 +304,7 @@ describe("version diff of a nesting change", () => {
     ).toEqual([">X"]);
   });
 
-  // To be fixed by #3166.
+  // Known limitation: a type change or a move re-creates the block, so the diff shows it deleted and inserted again. #3166 has a hacky prototype fix.
   it.fails("shows an unindent as a moved block, leaving the old parent unchanged", () => {
     expect(
       diffOf(

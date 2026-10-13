@@ -881,7 +881,7 @@ export const scenarios: SuggestionScenario[] = [
     feedback: [
       {
         severity: "low",
-        note: "Block-level prop changes produce no y-attributed-* mark, so the pending change renders as if already accepted — it's invisible in the diff.",
+        note: 'The cells show the new background but no change marker. Only the tooltip on hover ("Formatting change") shows that A changed them.',
       },
     ],
     initial: [TABLE_2X2],
@@ -1167,7 +1167,7 @@ export const scenarios: SuggestionScenario[] = [
       },
       {
         severity: "high",
-        note: "Versioning shows X as deleted by B, though B only moved it. To be fixed by #3166.",
+        note: "Versioning shows X as deleted by B, though B only moved it. #3166 has a hacky prototype fix.",
       },
     ],
     title: "Move a block into a block that is deleted",
@@ -1366,6 +1366,12 @@ export const scenarios: SuggestionScenario[] = [
     id: "concurrent-table-row-and-column",
     title: "Add row vs add column",
     category: "Tables",
+    feedback: [
+      {
+        severity: "info",
+        note: "The merged table is not rectangular, so the editor adds an empty cell to complete it. The diff shows this cell as inserted, without an author.",
+      },
+    ],
     description: "A adds a row while B adds a column.",
     initial: [TABLE_2X2],
     applyA: (editor) =>
@@ -1394,6 +1400,12 @@ export const scenarios: SuggestionScenario[] = [
     id: "concurrent-table-addcol-vs-addrow",
     title: "Add column vs add row",
     category: "Tables",
+    feedback: [
+      {
+        severity: "info",
+        note: "The merged table is not rectangular, so the editor adds an empty cell to complete it. The diff shows this cell as inserted, without an author.",
+      },
+    ],
     description: "A adds a column while B adds a row.",
     initial: [TABLE_2X2],
     applyA: (editor) =>
@@ -1446,7 +1458,7 @@ export const scenarios: SuggestionScenario[] = [
     feedback: [
       {
         severity: "low",
-        note: "Diff seems weird and A2 in wrong place",
+        note: "B's new row has a cell (B3) in the column that A deleted, so the editor adds empty cells to complete the table. The diff shows these cells as inserted, without an author, and one of them pushes A2 into the second column.",
       },
     ],
     category: "Tables",
@@ -1478,6 +1490,12 @@ export const scenarios: SuggestionScenario[] = [
     id: "concurrent-table-seq-col-then-row",
     title: "A adds column then row, B adds column",
     category: "Tables",
+    feedback: [
+      {
+        severity: "info",
+        note: "The merged table is not rectangular, so the editor adds an empty cell to complete it. The diff shows this cell as inserted, without an author.",
+      },
+    ],
     description: "A adds a column and then a row (two edits); B adds a column.",
     initial: [TABLE_2X2],
     applyA: (editor) => {
@@ -1514,6 +1532,12 @@ export const scenarios: SuggestionScenario[] = [
     id: "concurrent-table-seq-row-then-col",
     title: "A adds row then column, B adds row",
     category: "Tables",
+    feedback: [
+      {
+        severity: "info",
+        note: "The merged table is not rectangular, so the editor adds an empty cell to complete it. The diff shows this cell as inserted, without an author.",
+      },
+    ],
     description: "A adds a row and then a column (two edits); B adds a row.",
     initial: [TABLE_2X2],
     applyA: (editor) => {
