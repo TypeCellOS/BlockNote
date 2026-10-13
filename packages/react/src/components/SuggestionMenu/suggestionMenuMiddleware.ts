@@ -73,9 +73,29 @@ const placeBelowUnlessCramped: Middleware = {
 };
 
 /**
+ * Keeps the menu at the widest it has been since it opened. The menu is as
+ * wide as its widest item, so without this it would shrink and grow while
+ * the user filters the items. It can still grow, e.g. when items load
+ * asynchronously. Each time the menu opens, it is a new floating element, so
+ * it starts at its own width again.
+ *
+ * The minimum width is on the floating element, which wraps the menu: the
+ * menu grows to fill it (see `.bn-suggestion-menu` in `styles.css`).
+ */
+function keepWidestWidth(floating: HTMLElement) {
+  const width = floating.getBoundingClientRect().width;
+  // The current width includes the minimum set before, so the minimum only
+  // grows. It changes only by whole pixels, so rounding cannot loop.
+  if (width >= (parseFloat(floating.style.minWidth) || 0) + 1) {
+    floating.style.minWidth = `${Math.ceil(width)}px`;
+  }
+}
+
+/**
  * The Floating UI middleware of the suggestion menus: below the trigger
- * unless that is too cramped, within the screen, and no taller than the room
- * on its side or `MAX_HEIGHT` (the menu scrolls).
+ * unless that is too cramped, within the screen, no taller than the room on
+ * its side or `MAX_HEIGHT` (the menu scrolls), and no narrower than it has
+ * been since it opened.
  */
 export const suggestionMenuMiddleware: Middleware[] = [
   placeBelowUnlessCramped,
@@ -84,6 +104,7 @@ export const suggestionMenuMiddleware: Middleware[] = [
   size({
     apply({ elements, availableHeight }) {
       elements.floating.style.maxHeight = `${Math.max(0, Math.min(availableHeight, MAX_HEIGHT))}px`;
+      keepWidestWidth(elements.floating);
     },
     padding: PADDING,
   }),

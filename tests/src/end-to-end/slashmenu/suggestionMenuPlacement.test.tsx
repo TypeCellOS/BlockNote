@@ -209,3 +209,43 @@ test("shows the last item when it is selected near the bottom of the screen", as
   expect(item.top).toBeGreaterThanOrEqual(visible.top - 1);
   expect(item.bottom).toBeLessThanOrEqual(visible.bottom + 1);
 });
+
+/** The menu's width (px). */
+function width(menu: HTMLElement): number {
+  return Math.round(menu.getBoundingClientRect().width);
+}
+
+test("keeps its width while the user filters the items", async () => {
+  const menu = await openSlashMenuAt(innerHeight * 0.15);
+  const opened = width(menu);
+
+  // "quo" leaves only short items, which on their own are narrower.
+  for (const key of ["q", "u", "o"]) {
+    await userEvent.keyboard(key);
+    await sleep(100);
+    expect(width(menu)).toBe(opened);
+  }
+  for (let i = 0; i < 3; i++) {
+    await userEvent.keyboard("{Backspace}");
+    await sleep(100);
+    expect(width(menu)).toBe(opened);
+  }
+});
+
+test("grows when the items load asynchronously, then keeps its width while filtering", async () => {
+  const menu = await openSlashMenuAt(innerHeight * 0.15, { slowItems: true });
+  const loading = width(menu);
+
+  await sleep(ITEMS_DELAY + 300);
+  const loaded = width(menu);
+  // The items are wider than the menu while it loads: it grows.
+  expect(loaded).toBeGreaterThan(loading);
+
+  // Each query loads its items again.
+  await userEvent.keyboard("quo");
+  await sleep(ITEMS_DELAY + 300);
+  expect(menu.querySelectorAll(".bn-suggestion-menu-item").length).toBeLessThan(
+    5,
+  );
+  expect(width(menu)).toBe(loaded);
+});

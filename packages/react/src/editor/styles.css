@@ -262,6 +262,14 @@ SideMenuController offsets its position to keep it centered on the line. */
   height: 30px;
 }
 
+/* Suggestion menus fill their floating element, which keeps the widest width
+  the menu has had since it opened (`suggestionMenuMiddleware.ts`). Without
+  this, a menu would shrink and grow as the user filters its items. */
+.bn-suggestion-menu,
+.bn-grid-suggestion-menu {
+  flex-grow: 1;
+}
+
 /* Thread sidebar styling */
 .bn-threads-sidebar {
   border-radius: var(--bn-border-radius-medium);
