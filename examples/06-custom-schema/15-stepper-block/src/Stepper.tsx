@@ -25,9 +25,9 @@ function newStep() {
  * handling would move that block out below the whole stepper, which leaves no
  * keyboard route to a new step.
  *
- * Keyboard shortcuts have no editor-API equivalent, so this is the one piece
- * that needs an extension, attached through `createReactBlockSpec`'s third
- * argument.
+ * The block's `experimental_keyboard` settings cannot insert a new step, so
+ * this is the one piece that needs an extension, attached through
+ * `createReactBlockSpec`'s third argument.
  */
 const enterStartsNextStep = createExtension({
   key: "stepper-enter-starts-next-step",
@@ -116,18 +116,21 @@ export const createStep = createReactBlockSpec(
     type: "step",
     propSchema: {},
     content: "none",
-    children: { allow: "blocks" },
+    container: true,
     placeable: "namedOnly",
   },
   {
-    render: (props) => (
+    // A step that can only be inside a stepper gets no drag handle by
+    // default. This one keeps it, so the side menu can move or delete it.
+    meta: { draggable: true },
+    renderFrame: (props) => (
       <div className="step">
-        {/* Chrome, not content: it sits outside `contentRef`. The number
+        {/* Chrome, not content: it sits outside `slotRef`. The number
             comes from a CSS counter. */}
         <div className="step-rail" contentEditable={false}>
           <span className="step-number" />
         </div>
-        <div className="step-body" ref={props.contentRef} />
+        <div className="step-body" ref={props.slotRef} />
       </div>
     ),
   },
@@ -138,13 +141,14 @@ export const createStepper = createReactBlockSpec(
     type: "stepper",
     propSchema: {},
     content: "none",
+    container: true,
     children: { allow: ["step"], min: 1 },
   },
   {
-    render: (props) => {
+    renderFrame: (props) => {
       return (
         <div className="stepper">
-          <div className="stepper-steps" ref={props.contentRef} />
+          <div className="stepper-steps" ref={props.slotRef} />
           <button
             type="button"
             className="stepper-add"

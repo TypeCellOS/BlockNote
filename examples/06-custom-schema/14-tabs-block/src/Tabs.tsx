@@ -13,7 +13,11 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { Block, BlockNoteEditor } from "@blocknote/core";
-import { createReactBlockSpec, useComponentsContext } from "@blocknote/react";
+import {
+  createReactBlockSpec,
+  useComponentsContext,
+  usePortalElement,
+} from "@blocknote/react";
 import type React from "react";
 import {
   RiArrowLeftLine,
@@ -158,13 +162,14 @@ export const createTab = createReactBlockSpec(
       label: { default: "Tab" },
     },
     content: "none",
-    children: { allow: "blocks" },
+    container: true,
     placeable: "namedOnly",
   },
   {
-    // The panel reads its own open state, so it re-renders when the reader
+    // A container has no content of its own, so it draws only its frame. The
+    // panel reads its own open state, so it re-renders when the reader
     // switches tabs without the document changing at all.
-    render: function TabPanel(props) {
+    renderFrame: function TabPanel(props) {
       // `placeable: "namedOnly"` means a panel only ever exists inside a tab
       // set, so not finding one is a broken document rather than a state to
       // render around.
@@ -180,7 +185,7 @@ export const createTab = createReactBlockSpec(
           role="tabpanel"
           aria-label={props.block.props.label}
           data-active={open}
-          ref={props.contentRef}
+          ref={props.slotRef}
         />
       );
     },
@@ -232,14 +237,18 @@ export const createTabs = createReactBlockSpec(
     type: "tabs",
     propSchema: {},
     content: "none",
+    container: true,
     children: { allow: ["tab"], min: 1 },
   },
   {
-    render: function TabStrip(props) {
+    renderFrame: function TabStrip(props) {
       // The editor's own menu primitives, so the tab menu matches whichever
       // UI library `BlockNoteView` is using (Mantine, Ariakit or ShadCN)
       // instead of being styled by hand.
       const Components = useComponentsContext()!;
+      // The menu opens in the editor's portal element, so it keeps the
+      // editor's theme and is not clipped by the tab set.
+      const portalElement = usePortalElement();
       // A few pixels of movement before a drag starts, so clicking a tab
       // still opens it rather than picking it up.
       const sensors = useSensors(
@@ -376,7 +385,7 @@ export const createTabs = createReactBlockSpec(
 
       return (
         <div className="tabs">
-          {/* Chrome, not document content: it lives outside `contentRef`. */}
+          {/* Chrome, not document content: it lives outside `slotRef`. */}
           <div
             className="tabs-strip"
             role="tablist"
@@ -446,7 +455,10 @@ export const createTabs = createReactBlockSpec(
                       the open one opens its menu, so the strip needs no
                       always-visible edit buttons. */}
                       {i === activeIndex && !editing ? (
-                        <Components.Generic.Menu.Root position="bottom-start">
+                        <Components.Generic.Menu.Root
+                          position="bottom-start"
+                          portalElement={portalElement}
+                        >
                           <Components.Generic.Menu.Trigger>
                             {label}
                           </Components.Generic.Menu.Trigger>
@@ -495,7 +507,7 @@ export const createTabs = createReactBlockSpec(
               + Tab
             </button>
           </div>
-          <div className="tabs-body" ref={props.contentRef} />
+          <div className="tabs-body" ref={props.slotRef} />
         </div>
       );
     },

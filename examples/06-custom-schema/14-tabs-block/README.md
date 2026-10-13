@@ -3,7 +3,9 @@
 A tab set built on the container block API. `tabs` is a container whose
 `children` are restricted to `tab` panels, and `tab` is a `placeable:
 "namedOnly"` container, so a panel can only ever exist inside a tab set —
-the schema enforces both.
+the schema enforces both. Both blocks are containers (`container: true`), so
+they declare only `renderFrame`, and the child blocks go where `slotRef` is
+attached.
 
 Each panel holds any block. A panel's label is document content and lives in
 its props. Which panel is open is not: it belongs to each reader, so it is kept

@@ -10,6 +10,12 @@ undone. Nothing in the document has to be kept in sync.
 
 **Add step** below the last step adds an untitled one.
 
+Both blocks are containers (`container: true`), so they declare only
+`renderFrame`, and the child blocks go where `slotRef` is attached. A step can
+only be inside a stepper, so it gets no drag handle by default. The step sets
+`meta: { draggable: true }` to keep it, so the side menu can move or delete a
+step.
+
 ## Things worth knowing
 
 **Enter starts the next step.** By default, Enter on an empty block at the end
@@ -23,7 +29,7 @@ in a list:
 3. Enter again, on the empty title, leaves the stepper. It leaves a paragraph
    behind, not the empty heading the step was created with.
 
-Keyboard shortcuts are the one thing the editor API cannot provide, so this
+The block's `experimental_keyboard` settings cannot insert a new step, so this
 is written as an extension, passed as the third argument of
 `createReactBlockSpec`.
 
