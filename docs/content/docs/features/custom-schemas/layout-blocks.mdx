@@ -5,6 +5,14 @@ description: Learn how to create custom blocks that contain other blocks
 
 # Layout Blocks
 
+<Callout type="info" title="Preview">
+  Layout blocks are a preview feature. The API can change in a future release.
+  We would like to hear what you build with layout blocks, and what does not
+  work for you. Please tell us in [GitHub
+  Discussions](https://github.com/TypeCellOS/BlockNote/discussions) or open an
+  [issue](https://github.com/TypeCellOS/BlockNote/issues).
+</Callout>
+
 A layout block is a custom block that holds and arranges other blocks, but has no content of its own. Panels, tab sets and column layouts are examples. Its child blocks are inside the layout block, not indented below it, and the layout block draws a frame around them. A layout block can also limit which blocks it holds, for example only tabs in a tab set.
 
 If your block has its own text and also child blocks, for example an alert with a title and a body, use a custom block with a [frame](/docs/features/custom-schemas/custom-blocks#block-frames). See [Layout Blocks and Block Frames](#layout-blocks-and-block-frames) for the differences.
@@ -117,14 +125,11 @@ Every custom block can have a [frame](/docs/features/custom-schemas/custom-block
 
 | | Block with a frame | Layout block |
 | --- | --- | --- |
-| Example | [Alert with a title and a body](/examples/custom-schema/alert-block-with-title-and-body) | Panel, tab set, column list |
+| Example | [Alert with a title and a body](/examples/custom-schema/alert-block-with-title-and-body) | [Panel](/examples/custom-schema/layout-block), [tab set](/examples/custom-schema/tabs-block), [stepper](/examples/custom-schema/stepper-block), [column list](/examples/basic/multi-column) |
 | Config | Any `content`, usually `"inline"` or `"plain"` | `content: "none"` and `layoutOnly: true` |
 | Content | Its own text, drawn by `render` | None |
-| Implementation | `render`, and `renderFrame` if necessary | `renderFrame` only |
-| Frame | `renderFrame` can return `null` to show the block without a frame | Must always draw a frame. If `renderFrame` returns `null`, export fails |
+| Implementation | `render` (mandatory) draws the content. `renderFrame` (optional) draws the frame. It can return `null` to show the block without a frame | `renderFrame` (mandatory) draws the frame. It must always draw a frame: if it returns `null`, export fails |
 | Child blocks | Any blocks | Any blocks, or only the layout block types in [`children.allow`](#restricting-children) |
-| Without child blocks | The frame holds only the block's content | By default, it always holds at least one child block (see [Restricting Children](#restricting-children)) |
-| Keyboard | Child blocks behave like nested blocks, unless you change this with `experimental_keyboard` | Child blocks cannot be moved out with Shift-Tab, and Enter in an empty last child block moves it out |
 
 Use a layout block when the block only holds and arranges other blocks. Use a block with a frame when the block has its own text, for example a title.
 
@@ -132,7 +137,7 @@ Use a layout block when the block only holds and arranges other blocks. Use a bl
 
 For structured layouts, you can limit a layout block to specific layout block types, with these options in the block config:
 
-`children.allow:` Accepts `"blocks"` (the default) or an array of layout block type names. You cannot list regular block types such as `"paragraph"` individually.
+`children.allow:` Accepts `"blocks"` (the default) or an array of layout block type names. At this moment, you cannot list regular block types such as `"paragraph"` individually.
 
 `children.min:` The minimum number of children, for an `allow` list only. Defaults to `1`.
 
