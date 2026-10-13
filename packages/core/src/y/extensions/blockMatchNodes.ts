@@ -136,6 +136,8 @@ function getTableDimensions(
  * @param b inserted (new) node
  * @returns whether `a` and `b` are the same node (diff in place) vs different (replace)
  */
+const replaceReshapedTables = false;
+
 export const blockMatchNodes = (
   a: schema.Unwrap<typeof $prosemirrorDelta>,
   b: schema.Unwrap<typeof $prosemirrorDelta>,
@@ -165,7 +167,16 @@ export const blockMatchNodes = (
     return false;
   }
 
-  if (childA?.name === "table" && childB?.name === "table") {
+  // Disabled: replacing a table that one edit reshapes both ways silently
+  // dropped concurrent edits to it, and version diffs compare all the changes
+  // between two versions, so concurrent one-way reshapes (a row and a column)
+  // replaced the whole table there. Reshapes merge in place, as one-way ones
+  // always did.
+  if (
+    replaceReshapedTables &&
+    childA?.name === "table" &&
+    childB?.name === "table"
+  ) {
     const dimA = getTableDimensions(childA);
     const dimB = getTableDimensions(childB);
     if (
