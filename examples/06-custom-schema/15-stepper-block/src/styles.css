@@ -10,7 +10,8 @@
   content: "";
   position: absolute;
   left: 12px;
-  top: 18px;
+  /* The centre of the first number. */
+  top: 33px;
   bottom: 12px;
   width: 1px;
   background: var(--bn-colors-border);
@@ -24,6 +25,9 @@
 
 .step {
   display: flex;
+  /* The side menu of a block in a step is at the left of that block. This gap
+     is wider than the side menu (48px), so the menu does not cover the
+     number. */
   gap: 12px;
   padding-bottom: 8px;
 }
@@ -31,8 +35,10 @@
 .step-rail {
   flex: none;
   width: 25px;
-  /* Centres the number on the first line of a step's title. */
-  padding-top: 6px;
+  /* Centres the number on the first line of a step's title. The title is a
+     heading, and its first line starts 21px below its top: 18px of heading
+     spacing and 3px of line spacing. */
+  padding-top: 21px;
 }
 
 /* Every circle gets the editor's background so the rail passes behind it. */
@@ -74,15 +80,14 @@
   min-width: 0;
 }
 
-/* A heading's top spacing separates it from the block above; the step's
-   title has none above it, and would sit below its number. */
-.step-body > div > .bn-block-outer:first-child > .bn-block > .bn-block-content {
-  padding-top: 3px;
-}
+/* Do not remove the top spacing of the step's title (a heading). The side
+   menu is centred on the first line of a heading with the default spacing
+   only. With less spacing, the menu is below the line. */
 
 .stepper-add {
   display: flex;
   align-items: center;
+  /* The same as the gap of a step, so "Add step" aligns with the steps. */
   gap: 12px;
   border: none;
   background: none;
