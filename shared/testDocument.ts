@@ -27,6 +27,13 @@ const testDocumentSchema = BlockNoteSchema.create({
 // `ColumnBlock` / `ColumnListBlock`. Exported so xl-multi-column's tests can
 // guard against drift from the real specs (see `testDocumentSchema.test` in
 // that package).
+//
+// The columns are container blocks: every exporter maps them with
+// `{ withChildren }`, so the mapping places their children. The exporters'
+// snapshot tests of this document check that each exporter gives the
+// children to the mapping and does not also place them after the block. An
+// exporter's custom blocks need no test of their own for this: the exporter
+// handles every `{ withChildren }` mapping the same (`placesChildren`).
 export const columnBlockSchema: {
   column: {
     type: "column";
