@@ -1,6 +1,7 @@
 import {
   BlockNoteEditor,
   BlockNoteSchema,
+  createBlockSpec,
   type PartialBlock,
   defaultBlockSpecs,
 } from "@blocknote/core";
@@ -33,7 +34,22 @@ import { getRect, mouseSequence } from "../../utils/mouse.js";
 // whether it shows at all. "works today" guards behavior that works on main;
 // "fixed issues" reproduces issues that fail on main.
 
-const schema = withMultiColumn(BlockNoteSchema.create());
+// A draggable layout block with padding around its children, like a panel.
+const Panel = createBlockSpec(
+  { type: "panel" as const, propSchema: {}, content: "none", layoutOnly: true },
+  {
+    renderFrame: () => {
+      const dom = document.createElement("div");
+      dom.style.padding = "16px";
+      dom.style.border = "1px solid gray";
+      return { dom, slot: dom };
+    },
+  },
+)();
+
+const schema = withMultiColumn(BlockNoteSchema.create()).extend({
+  blockSpecs: { panel: Panel },
+});
 type Editor = BlockNoteEditor<
   typeof schema.blockSchema,
   typeof schema.inlineContentSchema,
@@ -597,41 +613,56 @@ describe("side menu hover: engaging a block", () => {
 
 // The drag handle is the drag source: if the menu hid or moved during the
 // drag, React would remove the handle, its `dragend` would never fire, and the
-// drag image would stay in the document. The drop changes the document, which
-// re-resolves the block under the pointer while the drag is still on.
+// drag image would stay in the document (it then broke the next toggle test).
 // Real mouse drags are only emulated reliably in Chromium.
 describe.skipIf(browserName !== "chromium")("side menu hover: dragging", () => {
   test("keeps the drag handle mounted until the drag ends", async () => {
     await render(
       <Editor
         name="main"
-        content={[paragraph("a"), paragraph("b"), paragraph("drag", "Drag me")]}
+        content={[
+          { id: "t", type: "toggleListItem", content: "Toggle" },
+          paragraph("drag", "Drag me"),
+        ]}
       />,
     );
     await waitForSelector(".bn-editor");
+    const chevron = getRect(await waitForSelector(".bn-toggle-button"));
+    await mouseSequence([
+      {
+        type: "click",
+        x: chevron.x + chevron.width / 2,
+        y: chevron.y + chevron.height / 2,
+      },
+    ]);
+    await sleep(100);
 
     await hoverBlock("drag");
     expect(menuBlock()).toBe("drag");
     const handle = getRect(await waitForSelector(DRAG_HANDLE_SELECTOR));
-    const target = blockRect("a");
+    const target = getRect(
+      await waitForSelector(".bn-toggle-add-block-button"),
+    );
     await walk([
       { x: handle.x + handle.width / 2, y: handle.y + handle.height / 2 },
     ]);
     await mouseSequence([{ type: "down" }]);
     await sleep(100);
-    // Onto the top of "a": the block goes before it.
     await mouseSequence([
-      { type: "move", x: target.x + 20, y: target.y + 2, steps: 5 },
+      {
+        type: "move",
+        x: target.x + target.width / 2,
+        y: target.y + target.height / 2,
+        steps: 5,
+      },
     ]);
     await sleep(100);
     await mouseSequence([{ type: "up" }]);
     await sleep(100);
 
-    expect(editors.main.document.map((block) => block.id)).toEqual([
-      "drag",
-      "a",
-      "b",
-    ]);
+    expect(
+      editors.main.getBlock("t")!.children.map((child) => child.id),
+    ).toEqual(["drag"]);
     expect(document.querySelector(".bn-drag-preview")).toBeNull();
   });
 
@@ -886,6 +917,43 @@ describe("side menu hover: wide container padding", () => {
     } finally {
       style.remove();
     }
+  });
+});
+
+describe("side menu hover: layout blocks", () => {
+  const panelDocument: PartialBlock<any, any, any>[] = [
+    paragraph("before"),
+    {
+      id: "panel",
+      type: "panel",
+      children: [paragraph("p1", "First in the panel"), paragraph("p2")],
+    } as PartialBlock<any, any, any>,
+    paragraph("after"),
+  ];
+
+  function panelRect() {
+    return document
+      .querySelector('[data-editor-name="main"] [data-node-type="panel"]')!
+      .getBoundingClientRect();
+  }
+
+  test("shows the layout block's own menu in its padding above its children", async () => {
+    await render(<Editor name="main" content={panelDocument} />);
+    await waitForSelector(".bn-editor");
+
+    const panel = panelRect();
+    await walk([{ x: panel.x + panel.width / 2, y: panel.top + 6 }]);
+    expect(menuBlock()).toBe("panel");
+  });
+
+  test("shows a child's menu in the layout block's padding beside it", async () => {
+    await render(<Editor name="main" content={panelDocument} />);
+    await waitForSelector(".bn-editor");
+
+    const panel = panelRect();
+    const child = blockRect("p1");
+    await walk([{ x: panel.left + 6, y: child.y + child.height / 2 }]);
+    expect(menuBlock()).toBe("p1");
   });
 });
 

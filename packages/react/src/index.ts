@@ -24,7 +24,6 @@ export * from "./blocks/SourceWithPreview/block/useSourceBlockPreviewPopup.js";
 export * from "./blocks/SourceWithPreview/inlineContent/SourceInlineContentWithPreview.js";
 export * from "./blocks/SourceWithPreview/inlineContent/useSourceInlineContentPreviewPopup.js";
 export * from "./blocks/Video/block.js";
-export * from "./blocks/ToggleWrapper/ToggleWrapper.js";
 
 export * from "./components/FormattingToolbar/DefaultButtons/AddCommentButton.js";
 export * from "./components/FormattingToolbar/DefaultButtons/AddTiptapCommentButton.js";

@@ -1,11 +1,8 @@
+import type { FrameView } from "./frame.js";
 /** Define the main block types **/
 // import { Extension, Node } from "@tiptap/core";
 import type { Node, NodeViewRendererProps } from "@tiptap/core";
-import type {
-  Fragment,
-  Node as ProsemirrorNode,
-  Schema,
-} from "prosemirror-model";
+import type { Fragment, Node as PMNode, Schema } from "prosemirror-model";
 import type { ViewMutationRecord } from "prosemirror-view";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import type {
@@ -19,6 +16,7 @@ import type {
   StyledText,
 } from "../inlineContent/types.js";
 import type { PropSchema, Props } from "../propTypes.js";
+import type { BlockKeyboard, BlockKeyboardOption } from "./keyboard.js";
 import type { StyleSchema } from "../styles/types.js";
 
 export type BlockNoteDOMElement =
@@ -39,6 +37,10 @@ export interface BlockConfigMeta<
   /**
    * Defines which keyboard shortcut should be used to insert a hard break into the block's inline content.
    * @default "shift+enter"
+   * @deprecated Use `experimental_keyboard.enter` and
+   * `experimental_keyboard.shiftEnter` instead: `"enter"` is
+   * `experimental_keyboard: { enter: "line-break" }`, and `"none"` is
+   * `experimental_keyboard: { shiftEnter: "same-as-enter" }`.
    */
   hardBreakShortcut?: "shift+enter" | "enter" | "none";
 
@@ -68,6 +70,25 @@ export interface BlockConfigMeta<
   isolating?: boolean;
 
   /**
+   * Whether this block type gets a side menu drag handle (and can be dragged
+   * by it). Applies to any block type, layout block or not: e.g. a
+   * "locked" block can opt out of dragging entirely. A block that opts out is
+   * skipped when looking for a drag handle, so the handle falls through to the
+   * nearest draggable ancestor.
+   * @default `true`, or `false` for a layout block placeable `"namedOnly"`, which
+   * can only live in its parent
+   */
+  draggable?: boolean;
+
+  /**
+   * Whether a block dragged onto this block's content or frame chrome becomes
+   * its first child (as in Notion's toggles), instead of going before or after
+   * it. A block dragged onto its children still goes between them.
+   * @default false
+   */
+  dropsIntoChildren?(block: { type: TName; props: Props<TProps> }): boolean;
+
+  /**
    * Enables syntax highlighting of the contents of the block with the result of this callback
    */
   highlight?(block: { type: TName; props: Props<TProps> }): string | undefined;
@@ -81,9 +102,82 @@ export interface BlockConfigMeta<
 }
 
 /**
- * BlockConfig contains the "schema" info about a Block type
- * i.e. what props it supports, what content it supports, etc.
+ * A block's `meta` with every default applied: what a block spec in a schema
+ * holds, so readers never see a missing setting (see `resolveBlockMeta`).
  */
+export type ResolvedBlockConfigMeta<
+  TName extends string = string,
+  TProps extends PropSchema = PropSchema,
+> = BlockConfigMeta<TName, TProps> &
+  Required<
+    Pick<
+      BlockConfigMeta<TName, TProps>,
+      "selectable" | "code" | "defining" | "isolating" | "draggable"
+    >
+  >;
+
+/**
+ * The type name of a layout block, as used in {@link ChildrenConfig.allow}.
+ */
+export type AllowedChildType = string;
+
+/**
+ * What may appear as a child of a layout block.
+ *
+ * - `"blocks"`: any regular block, or any layout block placeable anywhere.
+ *   This cannot be narrowed to specific regular block types: every regular
+ *   block is the *same* ProseMirror node (`blockContainer`), so paragraphs,
+ *   headings and code blocks are indistinguishable at the node level.
+ * - `readonly AllowedChildType[]`: only these layout block types, enforced exactly
+ *   by the schema. Naming a regular block type is a startup error; per-type
+ *   regular-block filtering can be added to this same form later, with no API
+ *   change.
+ *
+ * Neither form includes `placeable: "namedOnly"` types. Those appear only
+ * where a parent names them explicitly in an array.
+ */
+export type ChildrenAllow = "blocks" | readonly AllowedChildType[];
+
+/**
+ * Which child blocks a layout block holds (`layoutOnly: true`), exposed as
+ * `block.children` at runtime.
+ *
+ * The config describes one uniform set of children, semantically a single
+ * implicit slot. Ordered multi-slot children (a `sequence` of slots) can be
+ * added later as a sibling form.
+ */
+export type ChildrenConfig =
+  | {
+      /**
+       * Any blocks, the default. When its last child is removed, the
+       * layout block is removed too.
+       */
+      allow?: "blocks";
+      /**
+       * Layout block types the block does not hold, out of those placeable
+       * anywhere: a column holds any block except a column list. Regular
+       * block types can't be excluded, as every regular block is the same
+       * ProseMirror node.
+       */
+      exclude?: readonly AllowedChildType[];
+    }
+  | {
+      /** Which layout block types may appear as a child. */
+      allow: readonly AllowedChildType[];
+      /**
+       * How few children the layout block may hold; `0` lets it be empty.
+       * @default 1
+       */
+      min?: number;
+      /**
+       * Whether a layout block with too few children dissolves into what they
+       * hold, like a column list with one column left. `false` keeps the
+       * layout block and its empty children, like a tab set.
+       * @default true
+       */
+      dissolve?: boolean;
+    };
+
 export interface BlockConfig<
   T extends string = string,
   PS extends PropSchema = PropSchema,
@@ -106,8 +200,43 @@ export interface BlockConfig<
    * The content that the block supports
    */
   content: C;
-  // TODO: how do you represent things that have nested content?
-  // e.g. tables, alerts (with title & content)
+  /**
+   * `true` makes the block a layout block: a block without content of its own
+   * (`content: "none"`) whose own node holds its child blocks. Its
+   * `renderFrame` puts them in its slot (React: `slotRef`). With `false` (the
+   * default), the block's child blocks are indented below it. Only a block
+   * with `content: "none"` can set `true`.
+   */
+  layoutOnly?: C extends "none" ? boolean : false;
+  /**
+   * Which child blocks the block may have. Every block can have any child
+   * blocks (`{ allow: "blocks" }`, the default). Only a layout block
+   * (`layoutOnly: true`) can restrict them to certain types or a minimum
+   * count, since the child blocks of other blocks all share one untyped
+   * group. How the keyboard treats a block's children (e.g. whether Enter in
+   * the block's text starts them) is set with its `experimental_keyboard`
+   * settings.
+   */
+  children?: C extends "none"
+    ? ChildrenConfig
+    : {
+        allow?: "blocks";
+        exclude?: undefined;
+        min?: undefined;
+        dissolve?: undefined;
+      };
+  /**
+   * Where this block may be placed.
+   *
+   * - `"anywhere"` (default): anywhere a regular block goes, the document
+   *   root or nested under any other block.
+   * - `"namedOnly"`: only inside a layout block that names this type in its
+   *   `children.allow` array (e.g. a `column` inside a `columnList`).
+   *
+   * Only meaningful for layout blocks; regular blocks are always placeable
+   * anywhere.
+   */
+  placeable?: "anywhere" | "namedOnly";
 }
 
 declare module "prosemirror-model" {
@@ -224,10 +353,19 @@ export type LooseBlockSpec<
   config: BlockConfig<T, PS, C>;
   implementation: Omit<
     BlockImplementation<T, PS, C>,
-    "render" | "toExternalHTML"
+    | "render"
+    | "renderFrame"
+    | "toExternalHTML"
+    | "experimental_keyboard"
+    | "meta"
   > & {
+    /** Every keyboard setting of the block, with defaults filled in. */
+    keyboard: (block: any) => BlockKeyboard;
+    /** The block's `meta`, with defaults filled in. */
+    meta: ResolvedBlockConfigMeta<T, PS>;
     // purposefully stub the types for render and toExternalHTML since they reference the block
-    render: (
+    // A layout block declares `renderFrame` instead of `render`.
+    render?: (
       /**
        * The custom block to render
        */
@@ -240,9 +378,21 @@ export type LooseBlockSpec<
       dom: HTMLElement | DocumentFragment;
       contentDOM?: HTMLElement;
       ignoreMutation?: (mutation: ViewMutationRecord) => boolean;
-      update?: (node: ProsemirrorNode) => boolean;
       destroy?: () => void;
+      update?: (node: PMNode) => boolean | void;
     };
+    renderFrame?: <I extends InlineContentSchema, S extends StyleSchema>(
+      block: any,
+      editor: BlockNoteEditor<any, I, S>,
+    ) =>
+      | {
+          dom: HTMLElement;
+          slot: HTMLElement;
+          /** Releases resources when the live frame is replaced or destroyed. */
+          destroy?: () => void;
+          update?: (block: any) => boolean | void;
+        }
+      | undefined;
     toExternalHTML?: (
       block: any,
       editor: BlockNoteEditor<any>,
@@ -283,10 +433,12 @@ export type BlockSpecs = {
     config: BlockSpec<k>["config"];
     implementation: Omit<
       BlockSpec<k>["implementation"],
-      "render" | "toExternalHTML"
+      "render" | "renderFrame" | "toExternalHTML" | "experimental_keyboard"
     > & {
+      experimental_keyboard?: BlockKeyboardOption<any>;
       // purposefully stub the types for render and toExternalHTML since they reference the block
-      render: (
+      // A layout block declares `renderFrame` instead of `render`.
+      render?: (
         /**
          * The custom block to render
          */
@@ -299,9 +451,21 @@ export type BlockSpecs = {
         dom: HTMLElement | DocumentFragment;
         contentDOM?: HTMLElement;
         ignoreMutation?: (mutation: ViewMutationRecord) => boolean;
-        update?: (node: ProsemirrorNode) => boolean;
         destroy?: () => void;
+        update?: (node: PMNode) => boolean | void;
       };
+      renderFrame?: <I extends InlineContentSchema, S extends StyleSchema>(
+        block: any,
+        editor: BlockNoteEditor<any, I, S>,
+      ) =>
+        | {
+            dom: HTMLElement;
+            slot: HTMLElement;
+            /** Releases resources when the live frame is replaced or destroyed. */
+            destroy?: () => void;
+            update?: (block: any) => boolean | void;
+          }
+        | undefined;
       toExternalHTML?: (
         block: any,
         editor: BlockNoteEditor<any>,
@@ -567,13 +731,39 @@ export type BlockImplementation<
     | "plain",
 > = {
   /**
+   * @internal Framework adapter (React): draws the block's frame in the
+   * editor, for the node view of a framed block's `blockContainer` or of a
+   * layout block. Core uses it instead of the vanilla `renderFrame` when present.
+   *
+   * TODO: the content node view has no such hook yet: React builds it inside
+   * `render` (see the `TODO` there). Add one, so `render` / `renderFrame`
+   * only draw.
+   */
+  frameView?: (props: NodeViewRendererProps) => FrameView;
+  /**
    * Metadata
    */
   meta?: BlockConfigMeta<TName, TProps>;
   /**
-   * A function that converts the block into a DOM element
+   * Experimental: how the keyboard treats the block and its children (Enter,
+   * Shift-Enter, Backspace, and outdenting): the settings that differ from the
+   * defaults, or a function of the block that returns them. See
+   * {@link BlockKeyboard}. This API may change.
    */
-  render: (
+  experimental_keyboard?: BlockKeyboardOption<
+    BlockFromConfig<BlockConfig<TName, TProps, TContent>, any, any>
+  >;
+  /**
+   * A function that converts the block into a DOM element. Every block
+   * declares it, except a layout block (`layoutOnly: true`), which has no content
+   * to draw and declares only `renderFrame`.
+   *
+   * FIXME: optional for every block here, checked at runtime
+   * (`validateRenderHooks`). The types could require exactly one of `render`
+   * and `renderFrame`, but core's first `createBlockSpec` overload can't see
+   * `layoutOnly`.
+   */
+  render?: (
     this:
       | Record<string, never>
       | ({
@@ -603,6 +793,7 @@ export type BlockImplementation<
     dom: HTMLElement | DocumentFragment;
     contentDOM?: HTMLElement;
     ignoreMutation?: (mutation: ViewMutationRecord) => boolean;
+    destroy?: () => void;
     /**
      * Called by ProseMirror when this block's node is updated (e.g. its content
      * or props change). Return `true` to handle the update in place - keeping
@@ -613,13 +804,74 @@ export type BlockImplementation<
      * Useful for blocks whose `render` builds custom DOM that needs to stay in
      * sync with the node (e.g. a code block rendering a preview of its content).
      */
-    update?: (node: ProsemirrorNode) => boolean;
-    destroy?: () => void;
+    update?: (node: PMNode) => boolean | void;
   };
 
   /**
+   * Draws the chrome *around* a block's content and children: the author's
+   * markup wraps both, and the `slot` is where BlockNote mounts them.
+   *
+   * The slot holds the content first and the children after it. A layout block
+   * (`layoutOnly: true`) has no content, so it draws only its frame, with its
+   * child blocks in the slot. The frame's root is then the block's element,
+   * and a layout block must always draw it.
+   *
+   * `render` stays the knob for the block's own content. A block may use
+   * both: `render` draws the title, `renderFrame` draws the box around title
+   * and body. Returning `undefined` declines — the block renders plain — so
+   * a block can decide from its props, content, or children whether it is framed.
+   *
+   * Chrome outside the slot is the author's: ProseMirror leaves its events
+   * alone. An `update` hook receives the current block on updates and patches
+   * the frame in place. Return `false` to rebuild (or decline) the frame.
+   * Without an update hook, a change to the block's props rebuilds the frame;
+   * its content and children are in the slot, so typing doesn't. A frame
+   * whose chrome shows the block's content or children needs an `update`
+   * hook. Whether a block declines may depend only on its props: a declined
+   * frame is asked again when the block's props change.
+   */
+  renderFrame?: <I extends InlineContentSchema, S extends StyleSchema>(
+    this:
+      | Record<string, never>
+      | ({
+          propSchema?: TProps;
+        } & (
+          | {
+              renderType: "nodeView";
+              props: NodeViewRendererProps;
+            }
+          | {
+              renderType: "dom";
+              props: undefined;
+            }
+        )),
+    block: BlockFromConfig<BlockConfig<TName, TProps, TContent>, any, any>,
+    editor: BlockNoteEditor<
+      Record<TName, BlockConfig<TName, TProps, TContent>>,
+      I,
+      S
+    >,
+  ) =>
+    | {
+        dom: HTMLElement;
+        /** Where BlockNote mounts the block's content and/or children. */
+        slot: HTMLElement;
+        /** Releases resources when the live frame is replaced or destroyed. */
+        destroy?: () => void;
+        update?: (
+          block: BlockFromConfig<
+            BlockConfig<TName, TProps, TContent>,
+            any,
+            any
+          >,
+        ) => boolean | void;
+      }
+    | undefined;
+
+  /**
    * Exports block to external HTML. If not defined, the output will be the same
-   * as `render(...).dom`.
+   * as `render(...).dom`, inside the block's frame (`renderFrame`) if it has
+   * one. When defined, it replaces both.
    */
   toExternalHTML?: (
     this: Partial<{
@@ -711,4 +963,4 @@ export type CustomBlockImplementation<
   T extends string = string,
   PS extends PropSchema = PropSchema,
   C extends "inline" | "none" | "plain" = "inline" | "none" | "plain",
-> = BlockImplementation<T, PS, C>;
+> = Omit<BlockImplementation<T, PS, C>, "frameView">;

@@ -59,9 +59,10 @@ export function insertBlocks<
   }
 
   // `getInsertionPos` can only answer for the first node's type: the fragment
-  // doesn't exist yet when it runs. The whole fragment still has to fit, so it
-  // is checked here, where the nodes are known, rather than left to `tr.step`
-  // to reject with a ProseMirror-level message.
+  // doesn't exist yet when it runs. The whole fragment still has to fit — a
+  // `blockGroup` takes a paragraph but not a `namedOnly` block — so it is
+  // checked here, where the nodes are known, rather than left to `tr.step` to
+  // reject with a ProseMirror-level message.
   if (
     target.wrapIn &&
     !target.wrapIn.validContent(Fragment.from(nodesToInsert))

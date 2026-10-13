@@ -199,6 +199,7 @@ export const en = {
   },
   toggle_blocks: {
     add_block_button: "Empty toggle. Click to add a block.",
+    toggle_button: "Expand or collapse",
   },
   code_block: {
     add_source_button_text: "Add source code",

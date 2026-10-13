@@ -3,6 +3,8 @@ import { describe, expect, it } from "vite-plus/test";
 import { getBlockInfoFromSelection } from "../../../getBlockInfoFromPos.js";
 import { setupTestEnv } from "../../setupTestEnv.js";
 import { getParentBlockInfo } from "../../../getBlockInfoFromPos.js";
+import { getNodeById } from "../../../nodeUtil.js";
+import { layoutSchema } from "../../layoutBlocks/layoutBlocks.fixture.js";
 import { mergeBlocksCommand } from "./mergeBlocks.js";
 
 const getEditor = setupTestEnv();
@@ -40,6 +42,23 @@ describe("Test mergeBlocks", () => {
     getEditor().setTextCursorPosition("paragraph-with-children");
 
     mergeBlocks(getPosBeforeSelectedBlock());
+
+    // The merged block's children are lifted into its place, not dropped
+    // with it. The lift and the delete go through the one transaction tiptap
+    // hands the command (its chainable state's `tr` getter returns the same
+    // transaction every time), so the lift must survive the dispatch.
+    expect(getEditor().getBlock("paragraph-with-children")).toBeUndefined();
+    expect(getEditor().getBlock("paragraph-1")!.content).toEqual([
+      { type: "text", text: "Paragraph 1Paragraph with children", styles: {} },
+    ]);
+    expect(getEditor().document.map((block) => block.id)).toContain(
+      "nested-paragraph-0",
+    );
+    expect(
+      getEditor()
+        .getBlock("nested-paragraph-0")!
+        .children.map((c) => c.id),
+    ).toEqual(["double-nested-paragraph-0"]);
 
     expect(getEditor().document).toMatchSnapshot();
   });
@@ -98,19 +117,10 @@ describe("Test mergeBlocks", () => {
     const originalDocument = getEditor().document;
     const ret = mergeBlocks(getPosBeforeSelectedBlock());
 
+    // The empty paragraph above has the same type and props, so the block
+    // moves up into its place, keeping its id (#550).
     expect(getEditor().document).toEqual(
-      originalDocument
-        .filter((block) => block.id !== "paragraph-8")
-        .map((block) =>
-          block.id === "empty-paragraph"
-            ? {
-                ...block,
-                content: originalDocument.find(
-                  (source) => source.id === "paragraph-8",
-                )!.content,
-              }
-            : block,
-        ),
+      originalDocument.filter((block) => block.id !== "empty-paragraph"),
     );
     expect(ret).toBe(true);
   });
@@ -153,5 +163,89 @@ describe("Test mergeBlocks", () => {
 
     expect(getEditor().document).toEqual(originalDocument);
     expect(ret).toBeFalsy();
+  });
+});
+
+describe("Test mergeBlocks at layout block boundaries", () => {
+  const getLayoutEditor = setupTestEnv({
+    schema: layoutSchema,
+    document: [
+      { id: "before-callout", type: "paragraph", content: "Before callout" },
+      {
+        id: "callout-0",
+        type: "callout",
+        children: [
+          {
+            id: "callout-child-0",
+            type: "paragraph",
+            content: "Callout child 0",
+          },
+          {
+            id: "callout-child-1",
+            type: "paragraph",
+            content: "Callout child 1",
+          },
+        ],
+      },
+      { id: "after-callout", type: "paragraph", content: "After callout" },
+    ],
+  });
+
+  function mergeLayoutBlocks(posBetweenBlocks: number) {
+    return getLayoutEditor()._tiptapEditor.commands.command(
+      mergeBlocksCommand(posBetweenBlocks),
+    );
+  }
+
+  function getPosBefore(id: string) {
+    return getLayoutEditor().transact((tr) => {
+      const node = getNodeById(id, tr.doc);
+      if (!node) {
+        throw new Error(`No block with id "${id}" in the test document`);
+      }
+      return node.posBeforeNode;
+    });
+  }
+
+  // A layout block's first child has no previous sibling, so there is nothing to
+  // merge it into. The block above it on screen sits outside the layout block.
+  it("Does not merge a layout block's first child out of the layout block", () => {
+    const originalDocument = getLayoutEditor().document;
+    const ret = mergeLayoutBlocks(getPosBefore("callout-child-0"));
+
+    expect(ret).toBeFalsy();
+    expect(getLayoutEditor().document).toEqual(originalDocument);
+  });
+
+  // A layout block has no content of its own, so there is nothing to merge.
+  it("Does not merge a layout block into the block above it", () => {
+    const originalDocument = getLayoutEditor().document;
+    const ret = mergeLayoutBlocks(getPosBefore("callout-0"));
+
+    expect(ret).toBeFalsy();
+    expect(getLayoutEditor().document).toEqual(originalDocument);
+  });
+
+  // `mergeBlocksCommand` treats a layout block like any other block with children
+  // and merges into its last descendant, which puts the merged text inside the
+  // layout block. Backspace never produces this, because
+  // `KeyboardShortcutsExtension` bails out when the previous sibling has no
+  // inline content and moves the block into the layout block instead. So this is
+  // the command's behaviour on its own, not the editor's; it is pinned here
+  // because `mergeBlocks.ts` documents the opposite.
+  it("Merges a block into the last descendant of the layout block above it", () => {
+    const ret = mergeLayoutBlocks(getPosBefore("after-callout"));
+
+    expect(ret).toBeTruthy();
+
+    const document = getLayoutEditor().document;
+
+    expect(document.map((block) => block.id)).toEqual([
+      "before-callout",
+      "callout-0",
+    ]);
+    expect(document[1].children[1].content).toEqual([
+      { type: "text", text: "Callout child 1After callout", styles: {} },
+    ]);
   });
 });

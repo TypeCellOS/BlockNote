@@ -218,6 +218,7 @@ export const no: Dictionary = {
   },
   toggle_blocks: {
     add_block_button: "Tomt toggle. Klikk for å legge til en blokk.",
+    toggle_button: "Utvid eller skjul",
   },
   code_block: {
     add_source_button_text: "Legg til kildekode",

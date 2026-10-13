@@ -1,4 +1,4 @@
-import { BLOCK_SELECTOR, getDirectChildBlocks } from "./blockDOM.js";
+import { BLOCK_SELECTOR, getDirectChildBlocks } from "../blockDOM.js";
 
 export type BlockRect = {
   top: number;

@@ -191,6 +191,7 @@ export const pl: Dictionary = {
   toggle_blocks: {
     add_block_button:
       "Brak bloków do rozwinięcia. Kliknij, aby dodać pierwszego.",
+    toggle_button: "Rozwiń lub zwiń",
   },
   code_block: {
     add_source_button_text: "Dodaj kod źródłowy",

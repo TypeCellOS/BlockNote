@@ -16,12 +16,8 @@ import {
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 import { createBlockSpec } from "../../../schema/index.js";
 
-// The `hardBreakShortcut` setting lives on the block spec's implementation
-// (`schema.blockSpecs[type].implementation.meta`), not on the block config in
-// `schema.blockSchema`. These blocks verify that the Enter / Shift-Enter
-// handlers read it from the right place — a previous regression read it from
-// `blockSchema`, which never contains `meta`, so custom settings were silently
-// ignored and every block behaved as "shift+enter".
+// Blocks configured with the deprecated `meta.hardBreakShortcut`, which still
+// sets the default of `keyboard.enter` and `keyboard.shiftEnter`.
 const createHardBreakTestBlockSpec = <
   const T extends string,
   const S extends "shift+enter" | "enter" | "none",
@@ -51,9 +47,73 @@ const createHardBreakTestBlockSpec = <
     },
   )();
 
+// The same blocks, configured with the `experimental_keyboard` settings that
+// replace the
+// deprecated `meta.hardBreakShortcut`.
+const createKeyboardTestBlockSpec = <
+  const T extends string,
+  const C extends "inline" | "plain",
+>(
+  type: T,
+  keyboard: {
+    enter?: "split" | "into-children" | "line-break";
+    shiftEnter?: "line-break" | "same-as-enter";
+  },
+  content: C = "inline" as C,
+) =>
+  createBlockSpec(
+    {
+      type,
+      propSchema: {},
+      content,
+    },
+    {
+      experimental_keyboard: keyboard,
+      render: () => {
+        const dom = document.createElement("p");
+        return {
+          dom,
+          contentDOM: dom,
+        };
+      },
+    },
+  )();
+
+// A block whose keyboard function leaves settings `undefined` when a prop is
+// off. Those settings must keep their defaults.
+const conditionalKeyboardBlock = createBlockSpec(
+  {
+    type: "conditionalKeyboard",
+    propSchema: { on: { default: false } },
+    content: "inline",
+  },
+  {
+    experimental_keyboard: (block) => ({
+      enter: block.props.on ? "into-children" : undefined,
+      resetsTo: block.props.on ? { type: "heading" } : undefined,
+    }),
+    render: () => {
+      const dom = document.createElement("p");
+      return { dom, contentDOM: dom };
+    },
+  },
+)();
+
 const schema = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
+    conditionalKeyboard: conditionalKeyboardBlock,
+    keyboardEnter: createKeyboardTestBlockSpec("keyboardEnter", {
+      enter: "line-break",
+    }),
+    keyboardNone: createKeyboardTestBlockSpec("keyboardNone", {
+      shiftEnter: "same-as-enter",
+    }),
+    keyboardEnterPlain: createKeyboardTestBlockSpec(
+      "keyboardEnterPlain",
+      { enter: "line-break" },
+      "plain",
+    ),
     hardBreakEnter: createHardBreakTestBlockSpec("hardBreakEnter", "enter"),
     hardBreakNone: createHardBreakTestBlockSpec("hardBreakNone", "none"),
     // "plain" content (`text*`) can't hold a `hardBreak` node, so these blocks
@@ -71,7 +131,10 @@ function createEditor(
     | "paragraph"
     | "hardBreakEnter"
     | "hardBreakNone"
-    | "hardBreakEnterPlain",
+    | "hardBreakEnterPlain"
+    | "keyboardEnter"
+    | "keyboardNone"
+    | "keyboardEnterPlain",
 ) {
   const editor = BlockNoteEditor.create({
     schema,
@@ -95,6 +158,22 @@ function createEditor(
  */
 function pressKeys(editor: BlockNoteEditor<any, any, any>, keys: string) {
   editor._tiptapEditor.commands.keyboardShortcut(keys);
+}
+
+/**
+ * Dispatches a keydown event straight to the view's handlers. Unlike
+ * `pressKeys`, whose command loses the selection and stored marks the handler
+ * sets, this leaves the state as a real key press does. Use it for tests that
+ * check the caret or the styles of what is typed next.
+ */
+function keyDown(
+  editor: BlockNoteEditor<any, any, any>,
+  init: KeyboardEventInit,
+) {
+  const view = editor._tiptapEditor.view;
+  view.someProp("handleKeyDown", (handler) =>
+    handler(view, new KeyboardEvent("keydown", init)),
+  );
 }
 
 function countHardBreaks(editor: BlockNoteEditor<any, any, any>) {
@@ -255,6 +334,121 @@ describe("KeyboardShortcutsExtension Backspace", () => {
     `);
     editor._tiptapEditor.destroy();
   });
+  // The block above isn't rich text, but its last child is: the text joins
+  // that child, as after any block with children.
+  it("merges into the last child of a block above whose own content isn't inline", () => {
+    const editor = createEditorWithBlocks(
+      [
+        {
+          id: "code",
+          type: "codeBlock",
+          content: "x",
+          children: [{ id: "child", type: "paragraph", content: "Child" }],
+        },
+        { id: "after", type: "paragraph", content: "After" },
+      ],
+      { id: "after", placement: "start" },
+    );
+
+    pressKeys(editor, "Backspace");
+
+    expect(outline(editor.document)).toMatchInlineSnapshot(`
+      [
+        {
+          "children": [
+            {
+              "text": "ChildAfter",
+              "type": "paragraph",
+            },
+          ],
+          "text": "x",
+          "type": "codeBlock",
+        },
+      ]
+    `);
+    editor._tiptapEditor.destroy();
+  });
+
+  it("does not merge rich text into a code block above", () => {
+    const editor = createEditorWithBlocks(
+      [
+        { id: "code", type: "codeBlock", content: "x" },
+        { id: "after", type: "paragraph", content: "After" },
+      ],
+      { id: "after", placement: "start" },
+    );
+
+    pressKeys(editor, "Backspace");
+
+    expect(outline(editor.document)).toMatchInlineSnapshot(`
+      [
+        {
+          "text": "x",
+          "type": "codeBlock",
+        },
+        {
+          "text": "After",
+          "type": "paragraph",
+        },
+      ]
+    `);
+    editor._tiptapEditor.destroy();
+  });
+
+  // #2566: the caret used to jump to the end of the top-level block above,
+  // instead of the last block nested under it.
+  it("in an empty block moves the caret to the end of the deepest last block above", () => {
+    const editor = createEditorWithBlocks(
+      [
+        {
+          id: "list",
+          type: "bulletListItem",
+          content: "One",
+          children: [
+            { id: "nested", type: "bulletListItem", content: "Two" },
+            { id: "last", type: "bulletListItem" },
+          ],
+        },
+        { id: "empty", type: "paragraph" },
+      ],
+      { id: "empty", placement: "start" },
+    );
+
+    keyDown(editor, { key: "Backspace", keyCode: 8 });
+
+    expect(editor.getBlock("empty")).toBeUndefined();
+    expect(editor.getTextCursorPosition().block.id).toBe("last");
+    editor._tiptapEditor.destroy();
+  });
+
+  // #605: Backspace in an empty block below an image used to delete the image
+  // too.
+  it("in an empty block below a block without content deletes only the empty block", () => {
+    const editor = createEditorWithBlocks(
+      [
+        { id: "image", type: "image" },
+        { id: "empty", type: "paragraph" },
+      ],
+      { id: "empty", placement: "start" },
+    );
+
+    pressKeys(editor, "Backspace");
+
+    expect(editor.document.map((block) => block.id)).toEqual(["image"]);
+    editor._tiptapEditor.destroy();
+  });
+  it("keeps the default of a keyboard setting given as undefined", () => {
+    const editor = createEditorWithBlocks(
+      [{ id: "a", type: "conditionalKeyboard", content: "Text" }],
+      { id: "a", placement: "start" },
+    );
+
+    // `resetsTo` is undefined for this block, so the default applies.
+    pressKeys(editor, "Backspace");
+
+    expect(editor.getBlock("a")!.type).toBe("paragraph");
+    editor._tiptapEditor.destroy();
+  });
 });
 
 describe("KeyboardShortcutsExtension Delete", () => {
@@ -373,29 +567,6 @@ describe("KeyboardShortcutsExtension Delete", () => {
 });
 
 describe("KeyboardShortcutsExtension Enter", () => {
-  it("inserts an empty block above when Enter is pressed at the start", () => {
-    const editor = createEditorWithBlocks(
-      [{ id: "a", type: "paragraph", content: "Hello" }],
-      { id: "a", placement: "start" },
-    );
-
-    pressKeys(editor, "Enter");
-
-    expect(outline(editor.document)).toMatchInlineSnapshot(`
-      [
-        {
-          "text": "",
-          "type": "paragraph",
-        },
-        {
-          "text": "Hello",
-          "type": "paragraph",
-        },
-      ]
-    `);
-    editor._tiptapEditor.destroy();
-  });
-
   it("lifts an empty nested block on Enter", () => {
     const editor = createEditorWithBlocks(
       [
@@ -459,7 +630,7 @@ describe("KeyboardShortcutsExtension Shift-Tab", () => {
   });
 });
 
-describe("KeyboardShortcutsExtension hardBreakShortcut", () => {
+describe("KeyboardShortcutsExtension line breaks", () => {
   it("inserts a hard break on Shift-Enter by default", () => {
     const editor = createEditor("paragraph");
 
@@ -468,6 +639,33 @@ describe("KeyboardShortcutsExtension hardBreakShortcut", () => {
     expect(countHardBreaks(editor)).toBe(1);
     expect(editor.document.length).toBe(1);
 
+    editor._tiptapEditor.destroy();
+  });
+
+  // #1672: text typed after the line break used to lose the styles of the
+  // text before it.
+  it("keeps the styles of the text before the line break", () => {
+    const editor = createEditorWithBlocks(
+      [
+        {
+          id: "p",
+          type: "paragraph",
+          content: [
+            { type: "text", text: "Red", styles: { textColor: "red" } },
+          ],
+        },
+      ],
+      { id: "p", placement: "end" },
+    );
+
+    keyDown(editor, { key: "Enter", keyCode: 13, shiftKey: true });
+    // Typing: `insertText` takes the stored marks, as the browser input does.
+    const view = editor._tiptapEditor.view;
+    view.dispatch(view.state.tr.insertText("x"));
+
+    expect(editor.getBlock("p")!.content).toEqual([
+      { type: "text", text: "Red\nx", styles: { textColor: "red" } },
+    ]);
     editor._tiptapEditor.destroy();
   });
 
@@ -481,73 +679,130 @@ describe("KeyboardShortcutsExtension hardBreakShortcut", () => {
 
     editor._tiptapEditor.destroy();
   });
+});
 
-  it('inserts a hard break on Enter when hardBreakShortcut is "enter"', () => {
-    const editor = createEditor("hardBreakEnter");
+describe.each([
+  {
+    setting: "meta.hardBreakShortcut (deprecated)",
+    enter: "hardBreakEnter",
+    none: "hardBreakNone",
+    plain: "hardBreakEnterPlain",
+  },
+  {
+    setting: "keyboard",
+    enter: "keyboardEnter",
+    none: "keyboardNone",
+    plain: "keyboardEnterPlain",
+  },
+] as const)(
+  "hard breaks configured with $setting",
+  ({ enter, none, plain }) => {
+    it("inserts a hard break on Enter when Enter makes line breaks", () => {
+      const editor = createEditor(enter);
 
-    pressKeys(editor, "Enter");
+      pressKeys(editor, "Enter");
 
-    expect(countHardBreaks(editor)).toBe(1);
-    expect(editor.document.length).toBe(1);
+      expect(countHardBreaks(editor)).toBe(1);
+      expect(editor.document.length).toBe(1);
 
-    editor._tiptapEditor.destroy();
-  });
+      editor._tiptapEditor.destroy();
+    });
 
-  it('inserts a hard break on Shift-Enter when hardBreakShortcut is "enter"', () => {
-    const editor = createEditor("hardBreakEnter");
+    it("inserts a hard break on Shift-Enter when Enter makes line breaks", () => {
+      const editor = createEditor(enter);
 
-    pressKeys(editor, "Shift-Enter");
+      pressKeys(editor, "Shift-Enter");
 
-    expect(countHardBreaks(editor)).toBe(1);
-    expect(editor.document.length).toBe(1);
+      expect(countHardBreaks(editor)).toBe(1);
+      expect(editor.document.length).toBe(1);
 
-    editor._tiptapEditor.destroy();
-  });
+      editor._tiptapEditor.destroy();
+    });
 
-  it('does not insert a hard break on Shift-Enter when hardBreakShortcut is "none"', () => {
-    const editor = createEditor("hardBreakNone");
+    it("does not insert a hard break on Shift-Enter when it acts as Enter", () => {
+      const editor = createEditor(none);
 
-    pressKeys(editor, "Shift-Enter");
+      pressKeys(editor, "Shift-Enter");
 
-    expect(countHardBreaks(editor)).toBe(0);
+      expect(countHardBreaks(editor)).toBe(0);
 
-    editor._tiptapEditor.destroy();
-  });
+      editor._tiptapEditor.destroy();
+    });
 
-  it('splits the block on Enter when hardBreakShortcut is "none"', () => {
-    const editor = createEditor("hardBreakNone");
+    it("splits the block on Enter when Shift-Enter acts as Enter", () => {
+      const editor = createEditor(none);
 
-    pressKeys(editor, "Enter");
+      pressKeys(editor, "Enter");
 
-    expect(countHardBreaks(editor)).toBe(0);
-    expect(editor.document.length).toBe(2);
+      expect(countHardBreaks(editor)).toBe(0);
+      expect(editor.document.length).toBe(2);
 
-    editor._tiptapEditor.destroy();
-  });
+      editor._tiptapEditor.destroy();
+    });
 
-  it('inserts a newline character on Enter when content is "plain"', () => {
-    const editor = createEditor("hardBreakEnterPlain");
+    it('inserts a newline character on Enter when content is "plain"', () => {
+      const editor = createEditor(plain);
 
-    pressKeys(editor, "Enter");
+      pressKeys(editor, "Enter");
 
-    // A "plain" block can't hold a `hardBreak` node, so no node is inserted and
-    // the block is not split - a literal newline is added to its text instead.
-    expect(countHardBreaks(editor)).toBe(0);
-    expect(editor.document.length).toBe(1);
-    expect(getTextContent(editor)).toBe("Hello world\n");
+      // A "plain" block can't hold a `hardBreak` node, so no node is inserted and
+      // the block is not split - a literal newline is added to its text instead.
+      expect(countHardBreaks(editor)).toBe(0);
+      expect(editor.document.length).toBe(1);
+      expect(getTextContent(editor)).toBe("Hello world\n");
 
-    editor._tiptapEditor.destroy();
-  });
+      editor._tiptapEditor.destroy();
+    });
 
-  it('inserts a newline character on Shift-Enter when content is "plain"', () => {
-    const editor = createEditor("hardBreakEnterPlain");
+    it('inserts a newline character on Shift-Enter when content is "plain"', () => {
+      const editor = createEditor(plain);
 
-    pressKeys(editor, "Shift-Enter");
+      pressKeys(editor, "Shift-Enter");
 
-    expect(countHardBreaks(editor)).toBe(0);
-    expect(editor.document.length).toBe(1);
-    expect(getTextContent(editor)).toBe("Hello world\n");
+      expect(countHardBreaks(editor)).toBe(0);
+      expect(editor.document.length).toBe(1);
+      expect(getTextContent(editor)).toBe("Hello world\n");
 
+      editor._tiptapEditor.destroy();
+    });
+  },
+);
+
+describe("Delete preserves the caret before appended text", () => {
+  function paragraph(id: string, children: PartialBlock[] = []): PartialBlock {
+    return { id, type: "paragraph", content: id, children };
+  }
+
+  it.each([
+    {
+      name: "sole child",
+      initialContent: [paragraph("selected", [paragraph("removed")])],
+    },
+    {
+      name: "following shallower block",
+      initialContent: [
+        paragraph("parent", [paragraph("selected")]),
+        paragraph("removed"),
+      ],
+    },
+  ])("$name", ({ initialContent }) => {
+    const editor = BlockNoteEditor.create({ initialContent });
+    editor.mount(document.createElement("div"));
+    editor.setTextCursorPosition("selected", "end");
+
+    const view = editor.prosemirrorView;
+    const event = new KeyboardEvent("keydown", {
+      key: "Delete",
+      code: "Delete",
+      keyCode: 46,
+    });
+    view.someProp("handleKeyDown", (handler) => handler(view, event));
+
+    expect(editor.getBlock("removed")).toBeUndefined();
+    expect(editor.getTextCursorPosition().block.id).toBe("selected");
+    expect(editor.prosemirrorState.selection.$from.parentOffset).toBe(
+      "selected".length,
+    );
     editor._tiptapEditor.destroy();
   });
 });
