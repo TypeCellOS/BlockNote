@@ -4,7 +4,9 @@
 import * as Y from "@y/y";
 import { afterEach, describe, expect, it } from "vite-plus/test";
 
+import { CommentMark } from "../../comments/mark.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { createExtension } from "../../editor/BlockNoteExtension.js";
 import { blocksToYType } from "../utils.js";
 import { AttributionExtension } from "./AttributionExtension.js";
 import { withCollaboration } from "./index.js";
@@ -864,5 +866,79 @@ describe("version diff of a document several users wrote", () => {
       }
     }
     expect(wrong).toEqual([]);
+  });
+});
+
+describe("version diff of a comment", () => {
+  const commentMark = createExtension({
+    key: "commentMark",
+    tiptapExtensions: [CommentMark],
+  });
+
+  function commentableEditor(doc: Y.Doc) {
+    const editor = BlockNoteEditor.create(
+      withCollaboration({
+        extensions: [commentMark],
+        collaboration: {
+          fragment: doc.get("doc"),
+          user: { name: "Test", color: "#ff0000" },
+        },
+      }),
+    );
+    const element = document.createElement("div");
+    document.body.appendChild(element);
+    editor.mount(element);
+    editors.push(editor);
+    return editor;
+  }
+
+  it("does not show an added comment as a formatting change", () => {
+    const doc = new Y.Doc({ gc: false });
+    const editor = commentableEditor(doc);
+    editor.replaceBlocks(editor.document, [
+      { id: "a", type: "paragraph", content: "Hello world" },
+    ]);
+    const before = Y.encodeStateAsUpdateV2(doc);
+    // A comment on "Hello" and, as a control, bold on "world".
+    editor.transact((tr) => {
+      let start = -1;
+      tr.doc.descendants((node, pos) => {
+        if (node.isText && start === -1) {
+          start = pos;
+        }
+      });
+      tr.addMark(
+        start,
+        start + "Hello".length,
+        editor.pmSchema.marks["comment"].create({ threadId: "thread" }),
+      );
+      tr.addMark(
+        start + "Hello ".length,
+        start + "Hello world".length,
+        editor.pmSchema.marks["bold"].create(),
+      );
+    });
+    const after = Y.encodeStateAsUpdateV2(doc);
+
+    const viewerDoc = new Y.Doc();
+    Y.applyUpdateV2(viewerDoc, after);
+    const viewer = commentableEditor(viewerDoc);
+    const view = createYVersionView(viewer, viewerDoc.get("doc")).open();
+    view.show({
+      content: after,
+      comparison: { content: before },
+      target: { type: "snapshot", id: "after" },
+    });
+    // What the reader sees: the rendered formatting changes.
+    const formatChanges = [
+      ...viewer.prosemirrorView!.dom.querySelectorAll<HTMLElement>(
+        '[data-type="modification"]',
+      ),
+    ].map((element) => ({
+      text: element.textContent,
+      format: Object.keys(JSON.parse(element.dataset["format"]!)),
+    }));
+    view.close();
+    expect(formatChanges).toEqual([{ text: "world", format: ["bold"] }]);
   });
 });
