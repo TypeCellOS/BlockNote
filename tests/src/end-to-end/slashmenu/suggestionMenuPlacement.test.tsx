@@ -58,6 +58,15 @@ test("stays below the trigger when there is enough room, even with more room abo
   expect(side(menu)).toBe("below");
 });
 
+test("is no taller than its maximum height, even with more room", async () => {
+  // About 600px below the trigger.
+  const menu = await openSlashMenuAt(innerHeight * 0.1);
+  expect(side(menu)).toBe("below");
+  expect(menu.getBoundingClientRect().height).toBeLessThanOrEqual(400);
+  // The full list is longer, so it scrolls.
+  expect(menu.scrollHeight).toBeGreaterThan(menu.clientHeight);
+});
+
 test("goes above the trigger when there is too little room below", async () => {
   const menu = await openSlashMenuAt(innerHeight * 0.85);
   expect(side(menu)).toBe("above");

@@ -14,6 +14,12 @@ const OFFSET = 10;
 const PADDING = 10;
 
 /**
+ * The most height (px) the menu takes, even with more room: a longer list
+ * scrolls, or the user filters it.
+ */
+const MAX_HEIGHT = 400;
+
+/**
  * The least room (px) the menu needs below its trigger. With less room, the
  * menu goes above instead, if there is more room there.
  */
@@ -84,7 +90,7 @@ function placeBelowUnlessCramped(): Middleware {
 /**
  * Creates the Floating UI middleware of a suggestion menu: below the trigger
  * unless that is too cramped, within the screen, and no taller than the room
- * on its side (the menu scrolls). Create it once per menu, as it remembers
+ * on its side or `MAX_HEIGHT` (the menu scrolls). Create it once per menu, as it remembers
  * the side the menu is on.
  */
 export function createSuggestionMenuMiddleware(): Middleware[] {
@@ -94,7 +100,7 @@ export function createSuggestionMenuMiddleware(): Middleware[] {
     shift(),
     size({
       apply({ elements, availableHeight }) {
-        elements.floating.style.maxHeight = `${Math.max(0, availableHeight)}px`;
+        elements.floating.style.maxHeight = `${Math.max(0, Math.min(availableHeight, MAX_HEIGHT))}px`;
       },
       padding: PADDING,
     }),
