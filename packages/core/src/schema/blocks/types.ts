@@ -733,12 +733,14 @@ export type BlockImplementation<
    * @internal Framework adapter (React): draws the block's frame in the
    * editor, for the node view of a framed block's `blockContainer` or of a
    * container. Core uses it instead of the vanilla `renderFrame` when present.
+   * Returns `undefined` when the block declines its frame, as `renderFrame`
+   * does.
    *
    * TODO: the content node view has no such hook yet: React builds it inside
    * `render` (see the `TODO` there). Add one, so `render` / `renderFrame`
    * only draw.
    */
-  frameView?: (props: NodeViewRendererProps) => FrameView;
+  frameView?: (props: NodeViewRendererProps) => FrameView | undefined;
   /**
    * Metadata
    */
@@ -812,13 +814,18 @@ export type BlockImplementation<
    *
    * The slot holds the content first and the children after it. A container
    * (`container: true`) has no content, so it draws only its frame, with its
-   * child blocks in the slot. The frame's root is then the block's element,
-   * and a container must always draw it.
+   * child blocks in the slot, and must always draw it.
+   *
+   * The frame's root is the block's element: BlockNote puts the block's
+   * attributes on it (`data-node-type`, `data-id`, and the props of a
+   * container, or the colors and `domAttributes.block` attributes of another
+   * block). For a block that is not a container, the root replaces the
+   * default block element (`.bn-block`), but does not get its classes.
    *
    * `render` stays the knob for the block's own content. A block may use
    * both: `render` draws the title, `renderFrame` draws the box around title
    * and body. Returning `undefined` declines — the block renders plain — so
-   * a block can decide from its props, content, or children whether it is framed.
+   * a block can decide from its props whether it is framed.
    *
    * Chrome outside the slot is the author's: ProseMirror leaves its events
    * alone. An `update` hook receives the current block on updates and patches

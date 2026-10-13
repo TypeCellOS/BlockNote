@@ -1,5 +1,4 @@
 import {
-  applyContainerAttributes,
   Block,
   BlockConfig,
   BlockFromConfig,
@@ -12,14 +11,15 @@ import {
   Extension,
   ExtensionFactoryInstance,
   ExtractBlockConfigFromConfigOrCreator,
-  markFrameSlot,
   mergeCSSClasses,
   nodeToBlock,
   Props,
   PropSchema,
   propsToDataAttributes,
+  stampFrame,
   validateRenderHooks,
 } from "@blocknote/core";
+import type { Node as PMNode } from "@tiptap/pm/model";
 import {
   NodeViewProps,
   NodeViewWrapper,
@@ -30,6 +30,7 @@ import {
 import {
   CSSProperties,
   FC,
+  ReactElement,
   ReactNode,
   useCallback,
   useLayoutEffect,
@@ -40,8 +41,8 @@ import { useNodeViewBlock } from "./useNodeViewBlock.js";
 
 // this file is mostly analogoues to `customBlocks.ts`, but for React blocks
 
-// A container block's root element is the block's own element, so every
-// wrapper React puts above it has to contribute no box of its own. Module
+// A frame's root element is the block's own element, so every wrapper React
+// puts above it has to contribute no box of its own. Module
 // scope so the style object is referentially stable across renders.
 const DISPLAY_CONTENTS: CSSProperties = { display: "contents" };
 
@@ -144,8 +145,17 @@ export type ReactCustomBlockImplementation<
   render?: FC<ReactCustomBlockRenderProps<B>>;
   // The frame around a block's content and its children, or a container's
   // only element. Its slot holds the content followed by the children (a
-  // container: only the children).
-  renderFrame?: FC<ReactCustomBlockFrameProps<B>>;
+  // container: only the children). It always draws the frame and attaches
+  // `slotRef`: a block declines its frame with `hasFrame`, not by rendering
+  // `null`.
+  renderFrame?: (props: ReactCustomBlockFrameProps<B>) => ReactElement;
+  // Whether the block draws its frame (`renderFrame`), from its props alone.
+  // `false` declines the frame: the block shows its content and children
+  // without a frame, as when a vanilla `renderFrame` returns `undefined`.
+  // BlockNote asks again when the block's props change. Without it, the block
+  // always draws its frame. A container always draws its frame, so it has no
+  // `hasFrame`.
+  hasFrame?: (props: Props<Config["propSchema"]>) => boolean;
   // Like core's `toExternalHTML`, which returns `contentDOM` and
   // `childrenDOM`: `contentRef` marks where the block's content goes, and
   // `childrenRef` where its children go. Without `childrenRef`, the children
@@ -320,9 +330,15 @@ export function createReactBlockSpec<
     const {
       render: ReactRender,
       renderFrame: reactRenderFrame,
+      hasFrame,
       toExternalHTML: ReactToExternalHTML,
       ...coreImplementation
     } = blockImplementation;
+    if (hasFrame && (!reactRenderFrame || blockConfig.container === true)) {
+      throw new Error(
+        `Block "${blockConfig.type}" has \`hasFrame\`, which only a block with \`renderFrame\` that is not a container can have.`,
+      );
+    }
 
     const extensions = extensionsOrCreator
       ? typeof extensionsOrCreator === "function"
@@ -390,28 +406,32 @@ export function createReactBlockSpec<
 
     const Frame = reactRenderFrame;
 
-    // Marks a container's slot for the parser and puts the block's attributes
-    // on its frame's root, the block's element.
-    function stampContainerFrame(
+    // Whether the block of `node` draws its frame (see `hasFrame`).
+    function drawsFrame(node: PMNode, doc: PMNode) {
+      if (!hasFrame) {
+        return true;
+      }
+      const block = nodeToBlock<
+        Record<TName, BlockConfig<TName, TProps, TContent>>,
+        any,
+        any
+      >(node, doc);
+      return hasFrame(block.props);
+    }
+
+    // Makes the frame's root the block's element (see `stampFrame`), and
+    // shows the selection on it.
+    function stampRoot(
       slot: HTMLElement,
-      block: Block<any, any, any>,
-      selected: boolean,
+      current: { block: Block<any, any, any>; selected: boolean },
+      editor: BlockNoteEditor<any, any, any>,
     ) {
-      markFrameSlot(slot);
       const root = slot.closest("[data-node-view-wrapper]")?.firstElementChild;
       if (!(root instanceof HTMLElement)) {
-        throw new Error(
-          "Container content must be inside its node view wrapper.",
-        );
+        throw new Error("A frame must be inside its node view wrapper.");
       }
-      applyContainerAttributes(
-        root,
-        blockConfig.type,
-        block.props,
-        blockConfig.propSchema,
-        block.id,
-      );
-      root.toggleAttribute("data-selected", selected);
+      stampFrame({ dom: root, slot }, current.block, editor);
+      root.toggleAttribute("data-selected", current.selected);
     }
 
     function FrameNodeView(props: NodeViewProps) {
@@ -424,57 +444,42 @@ export function createReactBlockSpec<
         );
       }
       const mountContent = useReactNodeView().nodeViewContentRef;
-      const wrapper = useRef<HTMLDivElement | null>(null);
       const slot = useRef<HTMLElement | null>(null);
       if (!mountContent || !Frame) {
         throw new Error("Frame node view requires a frame and content mount.");
       }
-      // A container's frame root is its block's element, so it carries the
-      // block's attributes, kept current after every render.
+      // A frame's root is its block's element, so it carries the block's
+      // attributes, kept current after every render.
+      const editor = props.extension.options.editor;
       const latest = useRef({ block, selected: props.selected });
       useLayoutEffect(() => {
         latest.current = { block, selected: props.selected };
-        if (isContainer && slot.current) {
-          stampContainerFrame(slot.current, block, props.selected);
+        if (!slot.current) {
+          // The frame declines with `hasFrame`, so it always has a slot.
+          throw new Error(
+            `The frame of block "${blockConfig.type}" must attach \`slotRef\`.`,
+          );
         }
+        stampRoot(slot.current, latest.current, editor);
       });
       const contentRef = useCallback(
         (element: HTMLElement | null) => {
           slot.current = element;
-          if (element) {
-            element.dataset.nodeViewContent = "";
+          if (!element) {
+            // The slot is gone. TipTap mounts the content again in the next
+            // slot.
+            return;
           }
-          // TipTap owns contentDOM and preserves it as a conditional frame
-          // switches between author markup and the default wrapper. A
-          // container's frame never declines, so it has no default wrapper.
-          mountContent(element ?? (isContainer ? null : wrapper.current));
+          element.dataset.nodeViewContent = "";
+          mountContent(element);
           // Also when author state replaces the frame's root or slot.
-          if (isContainer && element) {
-            stampContainerFrame(
-              element,
-              latest.current.block,
-              latest.current.selected,
-            );
-          }
+          stampRoot(element, latest.current, editor);
         },
-        [mountContent],
-      );
-      const wrapperRef = useCallback(
-        (element: HTMLDivElement | null) => {
-          wrapper.current = element;
-          // TODO: a declined React frame falls back to this wrapper inside the
-          // node view, so core can't tell it is unframed. A declined vanilla
-          // frame gives no frame (`vanillaFrameView`), and the block keeps
-          // `.bn-block`. Lift declining out of the component.
-          if (!slot.current && !isContainer) {
-            mountContent(element);
-          }
-        },
-        [mountContent],
+        [mountContent, editor],
       );
 
       return (
-        <NodeViewWrapper ref={wrapperRef} style={DISPLAY_CONTENTS}>
+        <NodeViewWrapper style={DISPLAY_CONTENTS}>
           <Frame
             // The outer node view checks the content type before reusing this
             // renderer; the schema supplies the corresponding props/content.
@@ -483,7 +488,7 @@ export function createReactBlockSpec<
                 typeof blockConfig
               >["block"]
             }
-            editor={props.extension.options.editor}
+            editor={editor}
             slotRef={contentRef}
           />
         </NodeViewWrapper>
@@ -602,18 +607,32 @@ export function createReactBlockSpec<
               // Serialization uses the same component through the existing
               // static renderer. Live rendering uses the outer node view below.
               renderFrame(block, editor) {
+                if (hasFrame && !hasFrame(block.props)) {
+                  // The block declines its frame.
+                  return undefined;
+                }
                 const { dom, contentDOM } = renderToDOMSpec(
                   (slotRef) => (
                     <Frame block={block} editor={editor} slotRef={slotRef} />
                   ),
                   editor,
                 );
-                return contentDOM ? { dom, slot: contentDOM } : undefined;
+                if (!contentDOM) {
+                  throw new Error(
+                    `The frame of block "${blockConfig.type}" must attach \`slotRef\`.`,
+                  );
+                }
+                return { dom, slot: contentDOM };
               },
               // The frame in the editor: TipTap renders React only through a
               // node view, so this draws one and hands core its frame parts.
               // Core owns the block's node view.
               frameView: (props) => {
+                if (!drawsFrame(props.node, props.view.state.doc)) {
+                  // The block declines its frame. Return `undefined`: no
+                  // frame.
+                  return undefined;
+                }
                 const nodeView = ReactNodeViewRenderer(FrameNodeView, {
                   // Separate from the regular class, because it removes the
                   // box that one relies on (see `Block.css`).
@@ -635,13 +654,11 @@ export function createReactBlockSpec<
                 if (!slot) {
                   throw new Error("React frame node view has no content DOM.");
                 }
-                if (isContainer) {
-                  // A container's slot determines layout, not TipTap's host.
-                  slot.style.display = "contents";
-                  // FIXME: workaround. The `dom` of a container is the wrapper
-                  // of TipTap, which has no box (see `measureFrameRoot`).
-                  measureFrameRoot(dom, () => nodeView.node.attrs.id);
-                }
+                // The frame's slot determines layout, not TipTap's host.
+                slot.style.display = "contents";
+                // FIXME: workaround. The `dom` of the frame is the wrapper of
+                // TipTap, which has no box (see `measureFrameRoot`).
+                measureFrameRoot(dom, () => nodeView.node.attrs.id);
                 return {
                   dom,
                   slot,
@@ -662,6 +679,12 @@ export function createReactBlockSpec<
                       // The block's type changed. Return `false`: the node
                       // view draws the block again, with the frame of the
                       // new type.
+                      return false;
+                    }
+                    if (!drawsFrame(node, props.view.state.doc)) {
+                      // The block now declines its frame. Return `false`:
+                      // the node view draws the block again, without a
+                      // frame.
                       return false;
                     }
                     // TipTap gives the new node to the React frame. Return

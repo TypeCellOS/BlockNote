@@ -72,7 +72,9 @@ export const AIMenuController = (props: {
           // (probably because we don't assign the referenceProps to the reference element)
           outsidePress: (event: MouseEvent) => {
             if (event.target instanceof Element) {
-              const blockElement = event.target.closest(".bn-block");
+              const blockElement = event.target.closest(
+                '[data-node-type="blockContainer"]',
+              );
               if (
                 blockElement &&
                 blockElement.getAttribute("data-id") === blockId

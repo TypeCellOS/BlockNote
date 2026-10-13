@@ -84,9 +84,11 @@ beforeEach(() => {
 });
 
 async function openToggle() {
-  const block = document.querySelector(`.bn-block[data-id="t"]`)!;
+  const block = document.querySelector(
+    `[data-node-type="blockContainer"][data-id="t"]`,
+  )!;
   const button = [...block.querySelectorAll(".bn-toggle-button")].find(
-    (element) => element.closest(".bn-block") === block,
+    (element) => element.closest('[data-node-type="blockContainer"]') === block,
   );
   if (!button) {
     throw new Error("The toggle has no chevron");
@@ -98,9 +100,12 @@ const DROP_CURSOR_SELECTOR = '[class*="prosemirror-dropcursor"]';
 
 /** An element of the toggle itself, not of a toggle nested in it. */
 async function ownElement(selector: string) {
-  const block = await waitForSelector(`.bn-block[data-id="t"]`);
+  const block = await waitForSelector(
+    `[data-node-type="blockContainer"][data-id="t"]`,
+  );
   const element = [...block.querySelectorAll(selector)].find(
-    (candidate) => candidate.closest(".bn-block") === block,
+    (candidate) =>
+      candidate.closest('[data-node-type="blockContainer"]') === block,
   );
   if (!element) {
     throw new Error(`The toggle has no ${selector}`);

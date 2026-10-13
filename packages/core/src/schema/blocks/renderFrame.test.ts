@@ -172,6 +172,13 @@ describe("renderFrame decline", () => {
       // child block survives the rebuild.
       const framed = root.querySelector<HTMLElement>(".toggle")!;
       expect(framed).not.toBeNull();
+      // The frame's root is the block's element, in place of the default
+      // frame (`.bn-block-outer` and `.bn-block`).
+      expect(framed.dataset.nodeType).toBe("blockContainer");
+      expect(framed.dataset.id).toBe("t1");
+      expect(framed.matches(".bn-block-outer")).toBe(true);
+      expect(framed.matches(".bn-block")).toBe(false);
+      expect(framed.parentElement!.matches(".bn-block-group")).toBe(true);
       const slot = framed.querySelector<HTMLElement>(".toggle-slot")!;
       expect(slot.textContent).toContain("Title");
       expect(slot.querySelector('[data-id="c1"]')).not.toBeNull();
@@ -184,9 +191,56 @@ describe("renderFrame decline", () => {
 
       // Declined again: the box is gone, the content is intact.
       expect(root.querySelector(".toggle")).toBeNull();
+      expect(root.querySelector('.bn-block[data-id="t1"]')).not.toBeNull();
       expect(root.textContent).toContain("Title");
       expect(root.textContent).toContain("Body");
       expect(root.querySelector('[data-id="c1"]')).not.toBeNull();
+      expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+    } finally {
+      editor._tiptapEditor.destroy();
+    }
+  });
+});
+
+describe("renderFrame decline on type changes", () => {
+  it("keeps a block without a frame across types, and frames it for a type that draws one", () => {
+    const editor = editorWith([
+      {
+        id: "t1",
+        type: "toggle",
+        props: { mode: "plain" },
+        content: "Title",
+        children: [{ id: "c1", type: "paragraph", content: "Body" }],
+      },
+    ]);
+    try {
+      const root = editor.domElement!;
+      const block = () =>
+        root.querySelector<HTMLElement>(
+          '[data-node-type="blockContainer"][data-id="t1"]',
+        )!;
+      const child = () => root.querySelector('[data-id="c1"]');
+      const [firstBlock, firstChild] = [block(), child()];
+      expect(firstBlock.matches(".bn-block")).toBe(true);
+
+      // Another type without a frame: the block is asked again, draws no
+      // frame, and keeps its element and children.
+      editor.updateBlock("t1", { type: "paragraph" });
+      expect(block()).toBe(firstBlock);
+      expect(child()).toBe(firstChild);
+
+      // A type with a frame draws it.
+      editor.updateBlock("t1", { type: "propFrame" });
+      expect(root.querySelector(".prop-frame")).not.toBeNull();
+      expect(root.querySelector(".prop-frame")!.textContent).toContain(
+        "TitleBody",
+      );
+
+      // A type whose frame declines: no frame.
+      editor.updateBlock("t1", { type: "toggle", props: { mode: "plain" } });
+      expect(root.querySelector(".prop-frame")).toBeNull();
+      expect(block().matches(".bn-block")).toBe(true);
+      expect(block().textContent).toContain("TitleBody");
       expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
     } finally {
       editor._tiptapEditor.destroy();
@@ -268,7 +322,7 @@ describe("renderFrame updates", () => {
       // Becoming toggleable draws the frame: the view is rebuilt.
       editor.updateBlock("heading", { props: { isToggleable: true } });
       expect(block()).not.toBe(firstBlock);
-      expect(block()!.querySelector(".bn-toggle-frame")).not.toBeNull();
+      expect(block()!.matches(".bn-toggle-frame")).toBe(true);
     } finally {
       editor._tiptapEditor.destroy();
     }
@@ -688,4 +742,54 @@ it("never gives one container's frame to another container", () => {
   } finally {
     editor._tiptapEditor.destroy();
   }
+});
+
+describe("renderFrame internal HTML", () => {
+  // Internal HTML from before a frame's root replaced `.bn-block`: the frame
+  // is inside `.bn-block`.
+  const oldHTML =
+    '<div class="bn-block-group" data-node-type="blockGroup">' +
+    '<div class="bn-block-outer" data-node-type="blockOuter" data-id="t1">' +
+    '<div class="bn-block" data-node-type="blockContainer" data-id="t1">' +
+    '<div class="toggle"><button>chrome</button>' +
+    '<div class="toggle-slot" data-frame-slot="">' +
+    '<div class="bn-block-content" data-content-type="toggle" data-mode="framed">' +
+    '<div class="bn-inline-content">Title</div></div>' +
+    '<div class="bn-block-group" data-node-type="blockGroup">' +
+    '<div class="bn-block-outer" data-node-type="blockOuter" data-id="c1">' +
+    '<div class="bn-block" data-node-type="blockContainer" data-id="c1">' +
+    '<div class="bn-block-content" data-content-type="paragraph">' +
+    '<p class="bn-inline-content">Body</p></div></div></div></div>' +
+    "</div></div></div></div></div>";
+
+  it("parses a frame inside `.bn-block`, and a frame's root as the block's element", () => {
+    const editor = editorWith([{ type: "paragraph" }]);
+    try {
+      const old = editor.tryParseHTMLToBlocks(oldHTML);
+      const expected = {
+        type: "toggle",
+        props: { mode: "framed" },
+        content: [{ type: "text", text: "Title" }],
+        children: [
+          { type: "paragraph", content: [{ type: "text", text: "Body" }] },
+        ],
+      };
+      expect(old).toMatchObject([expected]);
+
+      // Today's internal HTML has the frame's root in place of the default
+      // frame (`.bn-block-outer` and `.bn-block`).
+      const dom = document.createElement("div");
+      dom.innerHTML = editor.blocksToFullHTML(old);
+      const frame = dom.querySelector<HTMLElement>(".toggle")!;
+      expect(frame.dataset.nodeType).toBe("blockContainer");
+      expect(frame.dataset.id).toBe(old[0].id);
+      expect(frame.matches(".bn-block-outer")).toBe(true);
+      expect(frame.parentElement!.matches(".bn-block-group")).toBe(true);
+      expect(editor.tryParseHTMLToBlocks(dom.innerHTML)).toMatchObject([
+        expected,
+      ]);
+    } finally {
+      editor._tiptapEditor.destroy();
+    }
+  });
 });
