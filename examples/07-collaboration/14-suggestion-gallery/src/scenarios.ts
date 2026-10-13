@@ -244,7 +244,7 @@ export const scenarios: SuggestionScenario[] = [
       },
       {
         severity: "high",
-        note: "Indenting re-creates Parent and Child as new blocks (the schema fix stores a block that gains or loses its children as a new block). The diff therefore shows both as deleted and inserted again, all credited to whoever indented.",
+        note: "Indenting moves Child: the diff shows it as deleted at its old place and inserted under Parent, credited to whoever indented. Parent itself is unchanged.",
       },
     ],
     title: "Nest a bullet under another",
@@ -300,12 +300,7 @@ export const scenarios: SuggestionScenario[] = [
   {
     kind: "single",
     id: "delete-nested",
-    feedback: [
-      {
-        severity: "high",
-        note: "Deleting the only child re-creates Parent as a new block (the schema fix stores a block that gains or loses its children as a new block). The diff therefore shows Parent as deleted and inserted again, credited to whoever deleted the child.",
-      },
-    ],
+    feedback: [],
     title: "Delete a nested block",
     category: "Add / remove blocks",
     description: "Delete the nested child of a parent block.",
@@ -645,7 +640,7 @@ export const scenarios: SuggestionScenario[] = [
     feedback: [
       {
         severity: "high",
-        note: "Indenting re-creates N0 and N1 as new blocks (the schema fix stores a block that gains or loses its children as a new block). The diff therefore shows both as deleted and inserted again, all credited to whoever indented.",
+        note: "Indenting moves N1: the diff shows it as deleted at its old place and inserted under N0, credited to whoever indented. N0 itself is unchanged.",
       },
     ],
     title: "Indent a block",
@@ -668,7 +663,7 @@ export const scenarios: SuggestionScenario[] = [
     feedback: [
       {
         severity: "high",
-        note: "Outdenting re-creates N0 and N1 as new blocks (the schema fix stores a block that gains or loses its children as a new block). The diff therefore shows N0 and N1 as deleted and inserted again, all credited to whoever outdented.",
+        note: "Outdenting moves N1: the diff shows it as deleted under N0 and inserted after it, credited to whoever outdented. N0 itself is unchanged.",
       },
     ],
     title: "Unindent a block",
@@ -1043,12 +1038,12 @@ export const scenarios: SuggestionScenario[] = [
     id: "concurrent-indent-cascade",
     feedback: [
       {
-        severity: "high",
-        note: "The diff also shows N0 and N2 as deleted and inserted again: indenting re-creates blocks (see Indent a block).",
+        severity: "low",
+        note: "N2 is lost. Indenting is a move, which deletes the original block and inserts a copy: B nests N2 into the original N1, which A's indent deletes, so N2 goes with it (shown as deleted by B, whose indent deleted N2's own original). Before nesting changes diffed in place, B's indent replaced N1 instead, so N1 appeared twice. Needs move support.",
       },
       {
-        severity: "low",
-        note: "Block N1 appears in two places. Previously this concurrency scenario would also not be correctly handled (one of the edits would be dropped).",
+        severity: "high",
+        note: "Versioning shows N2 as deleted by B, though B only indented it.",
       },
     ],
     title: "Cascading indents",
@@ -1078,7 +1073,7 @@ export const scenarios: SuggestionScenario[] = [
       },
       {
         severity: "high",
-        note: "The diff also shows N0 and N1 as deleted and inserted again, all credited to A: indenting re-creates blocks (see Indent a block).",
+        note: "The diff shows N1 as deleted at its old place and inserted under N0, all credited to A: indenting moves the block (see Indent a block). N0 itself is unchanged.",
       },
     ],
     title: "Indent a block vs edit its text",
@@ -1102,12 +1097,12 @@ export const scenarios: SuggestionScenario[] = [
     id: "concurrent-nest-into-moved-block",
     feedback: [
       {
-        severity: "high",
-        note: "The diff also shows R and B1–B3 as deleted and inserted again: indenting and moving re-create blocks.",
+        severity: "low",
+        note: "B1–B3 are lost. A's indent writes them into the original Q, which B's indent concurrently deletes (a move inserts a copy of Q, without them); they show as deleted by A, whose indent deleted their originals. Before nesting changes diffed in place, Q appeared twice instead. Needs move support.",
       },
       {
-        severity: "low",
-        note: "Q appears twice: B's indent moves a copy of Q under R, and A's nesting replaces the original Q with another copy holding B1–B3.",
+        severity: "high",
+        note: "Versioning shows B1–B3 as deleted by A, though A only nested them.",
       },
     ],
     title: "Nest blocks into a block that is moved",
@@ -1258,12 +1253,8 @@ export const scenarios: SuggestionScenario[] = [
     id: "concurrent-nest-both-under-n0",
     feedback: [
       {
-        severity: "high",
-        note: "The diff also shows N0 as deleted and inserted twice, credited to A and to B: nesting re-creates it.",
-      },
-      {
-        severity: "low",
-        note: "In this concurrent editing scenario the N0 block is duplicated. Previously this scenario would likely drop one of the changes, so it's not a regression per se. A better fix for the schema compatibility could resolve this.",
+        severity: "info",
+        note: "Both new blocks end up under the one N0. Every block's child group lives in the shared document from the start (hidden while empty), so A and B nest into the same group instead of each creating their own, and the merge is an ordinary concurrent insert.",
       },
     ],
     title: "Both nest a new block under N0",

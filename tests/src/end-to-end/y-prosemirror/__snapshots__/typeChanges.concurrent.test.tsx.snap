@@ -4,6 +4,7 @@ exports[`concurrent: A edits text, B → heading 1`] = `
 "<blockGroup>
   <blockContainer id="block-hello">
     <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello world</paragraph>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -12,6 +13,7 @@ exports[`concurrent: A edits text, B → heading 2`] = `
 "<blockGroup>
   <blockContainer id="block-hello">
     <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello universe</paragraph>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -26,6 +28,7 @@ exports[`concurrent: A edits text, B → heading 3`] = `
       textAlignment="left"
       textColor="default"
     >hello world</heading>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -40,6 +43,7 @@ exports[`concurrent: A edits text, B → heading 4`] = `
       textAlignment="left"
       textColor="default"
     >hello world</heading>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -98,6 +102,7 @@ exports[`concurrent: A → heading, B → list item 1`] = `
 "<blockGroup>
   <blockContainer id="block-hello">
     <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello world</paragraph>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -112,6 +117,7 @@ exports[`concurrent: A → heading, B → list item 2`] = `
       textAlignment="left"
       textColor="default"
     >hello world</heading>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -124,6 +130,7 @@ exports[`concurrent: A → heading, B → list item 3`] = `
       textAlignment="left"
       textColor="default"
     >hello world</bulletListItem>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -138,6 +145,7 @@ exports[`concurrent: A → heading, B → list item 4`] = `
       textAlignment="left"
       textColor="default"
     >hello world</heading>
+    <blockGroup></blockGroup>
   </blockContainer>
   <blockContainer id="block-hello">
     <bulletListItem
@@ -145,6 +153,7 @@ exports[`concurrent: A → heading, B → list item 4`] = `
       textAlignment="left"
       textColor="default"
     >hello world</bulletListItem>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
