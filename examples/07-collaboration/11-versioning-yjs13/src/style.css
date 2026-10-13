@@ -36,7 +36,8 @@
 /* The themed root `RenderInPortalElement` creates in the slot. Only inside it
    do the `--bn-*` variables follow the editor's (light or dark) theme. */
 .sidebar-section > .bn-root {
-  background-color: var(--bn-colors-disabled-background);
+  background-color: var(--bn-colors-editor-background);
+  border-left: 1px solid var(--bn-colors-border);
   display: flex;
   flex: 1;
   min-height: 0;
