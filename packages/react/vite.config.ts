@@ -27,7 +27,8 @@ export default defineConfig(
       test: {
         environment: "jsdom",
         setupFiles: ["./vitestSetup.ts"],
-        // Browser tests run in the tests package's Docker browser suite.
+        // `.browser.test` files need a real browser; the tests package's
+        // browser suite runs them.
         exclude: [...configDefaults.exclude, "**/*.browser.test.*"],
       },
       plugins: [react(), webpackStats()],

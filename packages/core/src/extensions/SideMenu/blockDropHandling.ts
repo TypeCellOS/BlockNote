@@ -219,10 +219,15 @@ export function registerBlockDropHandlers(
       "text/html",
     ).body;
 
+    // Into the type of the blocks' parent, when this editor has it (see
+    // `dragStart`): a block that only this parent can hold, e.g. a column or
+    // the step of a stepper, would otherwise be wrapped in a new copy of it.
+    const { nodes } = view.state.schema;
+    const parentType =
+      nodes[event.dataTransfer!.getData("blocknote/parent")] ??
+      nodes["blockGroup"];
     const parser = DOMParser.fromSchema(view.state.schema);
-    const node = parser.parse(element, {
-      topNode: view.state.schema.nodes["blockGroup"].create(),
-    });
+    const node = parser.parse(element, { topNode: parentType.create() });
 
     view.dragging = {
       slice: new Slice(node.content, 0, 0),

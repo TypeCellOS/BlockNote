@@ -61,33 +61,23 @@ function setDragImage(view: EditorView, from: number, to = from) {
     to += view.state.doc.resolve(from + 1).node().nodeSize;
   }
 
-  // Parent element is cloned to remove all unselected children without affecting the editor content.
-  const parentClone = view.domAtPos(from).node.cloneNode(true) as Element;
-  const parent = view.domAtPos(from).node as Element;
-
-  const getElementIndex = (parentElement: Element, targetElement: Element) =>
-    Array.prototype.indexOf.call(parentElement.children, targetElement);
-
-  const firstSelectedBlockIndex = getElementIndex(
-    parent,
-    // Expects from position to be just before the first selected block.
-    view.domAtPos(from + 1).node.parentElement!,
-  );
-  const lastSelectedBlockIndex = getElementIndex(
-    parent,
-    // Expects to position to be just after the last selected block.
-    view.domAtPos(to - 1).node.parentElement!,
-  );
-
-  for (let i = parent.childElementCount - 1; i >= 0; i--) {
-    if (i > lastSelectedBlockIndex || i < firstSelectedBlockIndex) {
-      parentClone.removeChild(parentClone.children[i]);
+  // The preview is a copy of the element that holds the dragged blocks,
+  // without its other children: a copy of each dragged block's element. The
+  // holding element can have no box of its own (`display: contents`, e.g. the
+  // slot of a React layout block), but the preview needs one.
+  const preview = view.domAtPos(from).node.cloneNode(false) as HTMLElement;
+  preview.style.removeProperty("display");
+  for (let pos = from; pos < to; pos += view.state.doc.nodeAt(pos)!.nodeSize) {
+    const blockDOM = view.nodeDOM(pos);
+    if (!blockDOM) {
+      throw new Error(`The dragged block at ${pos} has no DOM.`);
     }
+    preview.appendChild(blockDOM.cloneNode(true));
   }
 
   // dataTransfer.setDragImage(element) only works if element is attached to the DOM.
   unsetDragImage(view.root);
-  dragImageElement = parentClone;
+  dragImageElement = preview;
 
   // Browsers may have CORS policies which prevents iframes from being
   // manipulated, so better to stay on the safe side and remove them from the
@@ -195,6 +185,13 @@ export function dragStart<
 
     e.dataTransfer.clearData();
     e.dataTransfer.setData("blocknote/html", clipboardHTML);
+    // The type of the dragged blocks' parent. The editors parse the blocks
+    // into it (see `blockDropHandling.ts`), so that a block that only this
+    // parent can hold is not wrapped in a new copy of it.
+    e.dataTransfer.setData(
+      "blocknote/parent",
+      view.state.selection.$from.parent.type.name,
+    );
     e.dataTransfer.setData("text/html", externalHTML);
     e.dataTransfer.setData("text/plain", plainText);
     e.dataTransfer.effectAllowed = "move";

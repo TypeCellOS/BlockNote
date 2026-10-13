@@ -134,7 +134,7 @@ describe("Math block source popup keyboard handling", () => {
       await flush();
       expect(isPopupOpen("math")).toBe(true);
 
-      // Math uses `hardBreakShortcut: "shift+enter"`, so unlike the diagram
+      // Math keeps the default Enter (no `keyboard.enter: "line-break"`), so unlike the diagram
       // block, a plain Enter closes the popup rather than extending the source
       // with a newline (that needs Shift+Enter - see the next test).
       pressKey("Enter");

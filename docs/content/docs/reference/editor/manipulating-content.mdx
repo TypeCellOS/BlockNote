@@ -173,6 +173,11 @@ editor.insertBlocks(
 );
 ```
 
+`placement` says where the new blocks go, relative to the reference block:
+
+- `"before"` and `"after"`: as its siblings, directly before or after it.
+- `"first-child"` and `"last-child"`: as its children, at the start or at the end. The reference block does not need to have children yet.
+
 ### Updating Blocks
 
 #### Modifying Existing Blocks

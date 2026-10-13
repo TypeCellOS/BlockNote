@@ -70,7 +70,7 @@ export default function App() {
         formattingToolbar={() => (
           <FormattingToolbar
             blockTypeSelectItems={[
-              ...blockTypeSelectItems(editor.dictionary),
+              ...blockTypeSelectItems(editor),
               ...getDiagramBlockTypeSelectItems(editor),
             ]}
           />

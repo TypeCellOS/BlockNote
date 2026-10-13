@@ -111,6 +111,10 @@ export const SideMenuExtension = createExtension(
       | { exit: Point; timer: ReturnType<typeof setTimeout> }
       | undefined;
 
+    function isDraggable(type: string) {
+      return editor.schema.blockSpecs[type].implementation.meta.draggable;
+    }
+
     function clearIntent() {
       if (intent) {
         clearTimeout(intent.timer);
@@ -180,6 +184,7 @@ export const SideMenuExtension = createExtension(
         editor.prosemirrorView,
         target,
         point,
+        isDraggable,
         editor.isWithinEditor,
         hoverMargin,
       );

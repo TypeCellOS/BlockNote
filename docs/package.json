@@ -113,7 +113,10 @@
     "yjs": "^13.6.27",
     "zod": "^4.3.5",
     "@blocknote/xl-typst-exporter": "workspace:*",
-    "@blocknote/xl-typst-compiler": "workspace:*"
+    "@blocknote/xl-typst-compiler": "workspace:*",
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2"
   },
   "devDependencies": {
     "@blocknote/code-block": "workspace:*",

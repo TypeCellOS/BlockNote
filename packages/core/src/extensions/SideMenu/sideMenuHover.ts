@@ -1,7 +1,6 @@
 import { EditorView } from "@tiptap/pm/view";
 
-import { getDraggableBlockFromElement } from "../getDraggableBlockFromElement.js";
-import { getBlockElement } from "./blockDOM.js";
+import { getBlockElement, getDraggableBlockFromElement } from "../blockDOM.js";
 import { getNestedBlockAtCursor } from "./blockGeometry.js";
 
 export type Point = { x: number; y: number };
@@ -78,6 +77,8 @@ export function resolveHoveredBlock(
   view: EditorView,
   target: Element | null,
   pointer: Point,
+  /** Whether blocks of this type get a drag handle. */
+  isDraggable: (type: string) => boolean,
   /** Whether the element is UI that belongs to this editor (a toolbar, a menu). */
   isWithinEditorUI: (element: Element) => boolean,
   /** How far left or right of the editor element the pointer still counts (px). */
@@ -87,7 +88,7 @@ export function resolveHoveredBlock(
   // their children do, and their gutter still needs to resolve those children.
   function draggable(block: Element | undefined): HoverResolution {
     const resolved = block
-      ? getDraggableBlockFromElement(block, view)
+      ? getDraggableBlockFromElement(block, view, isDraggable)
       : undefined;
     return resolved ? { kind: "block", block: resolved } : { kind: "none" };
   }
