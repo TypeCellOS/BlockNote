@@ -27,7 +27,7 @@ import {
   waitForSelector,
   waitForSelectorDetached,
 } from "../../utils/editor.js";
-import { moveMouseOverElement } from "../../utils/mouse.js";
+import { clickAt, getRect, moveMouseOverElement } from "../../utils/mouse.js";
 import { executeSlashCommand } from "../../utils/slashmenu.js";
 
 describe("Check Draghandle functionality", () => {
@@ -236,5 +236,36 @@ describe("Check Draghandle functionality", () => {
     await waitForSelectorDetached(H_THREE_BLOCK_SELECTOR);
 
     await compareDocToSnapshot("draghandlenesteddelete");
+  });
+
+  // #3186: the selection survives a blur, so focus coming back into the
+  // editor's UI (the drag handle) must not show the toolbar over the menu.
+  test("Clicking the drag handle while the editor is blurred keeps the formatting toolbar hidden", async () => {
+    await userEvent.keyboard("First paragraph");
+    await userEvent.keyboard("{Enter}");
+    await userEvent.keyboard("Second paragraph");
+
+    // Select a word: the formatting toolbar shows.
+    const word = getRect(page.getByText("First paragraph").element());
+    await clickAt(word.x + 10, word.y + word.height / 2, 2);
+    await waitForSelector(".bn-formatting-toolbar");
+
+    // Focus something outside the editor: the toolbar hides.
+    const outside = document.createElement("button");
+    outside.textContent = "Outside";
+    document.body.append(outside);
+    try {
+      await userEvent.click(outside);
+      await waitForSelectorDetached(".bn-formatting-toolbar");
+
+      const second = page.getByText("Second paragraph").element();
+      await moveMouseOverElement(second);
+      await userEvent.click(await waitForSelector(DRAG_HANDLE_SELECTOR));
+      await waitForSelector(DRAG_HANDLE_MENU_SELECTOR);
+      await sleep(100);
+      expect(document.querySelector(".bn-formatting-toolbar")).toBeNull();
+    } finally {
+      outside.remove();
+    }
   });
 });
