@@ -1846,12 +1846,6 @@ export const scenarios: SuggestionScenario[] = [
         "anchor",
         "after",
       ),
-    feedback: [
-      {
-        severity: "high",
-        note: "formatting changes should not show up in the diff, the diff should indicate content has been added",
-      },
-    ],
   },
   {
     kind: "single",
