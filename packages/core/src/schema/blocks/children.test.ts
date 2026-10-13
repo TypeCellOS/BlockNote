@@ -145,7 +145,7 @@ describe("validateChildrenConfigs", () => {
       validate({
         box: { container: true, children: { exclude: ["paragraph"] } },
       }),
-    ).toThrow(/regular block, not a container block/);
+    ).toThrow(/is not a container block/);
     expect(
       validate({
         box: { container: true, children: { exclude: ["column"] } },
@@ -220,13 +220,26 @@ describe("validateChildrenConfigs", () => {
         box: { container: true, children: { allow: ["alert"] } },
         alert: { content: "inline" },
       }),
-    ).toThrow(/regular block/);
+    ).toThrow(/is not a container block/);
   });
 
-  it("rejects named-only placement on a shared regular block wrapper", () => {
+  it("rejects named-only placement on a block that is not a container", () => {
     expect(
       validate({ alert: { content: "inline", placeable: "namedOnly" } }),
-    ).toThrow(/requires a container node/);
+    ).toThrow(/only for container blocks/);
+  });
+
+  it("rejects a named-only block that no allow list names", () => {
+    // The editor could not insert it anywhere.
+    expect(
+      validate({ step: { container: true, placeable: "namedOnly" } }),
+    ).toThrow(/no block names it/);
+    expect(
+      validate({
+        stepper: { container: true, children: { allow: ["step"] } },
+        step: { container: true, placeable: "namedOnly" },
+      }),
+    ).not.toThrow();
   });
 
   it.each(["typo", "blockGroupChild", "toString"])(
@@ -241,6 +254,6 @@ describe("validateChildrenConfigs", () => {
   it("rejects a regular block type in the allow array", () => {
     expect(
       validate({ box: { container: true, children: { allow: ["heading"] } } }),
-    ).toThrow(/not yet supported/);
+    ).toThrow(/not supported yet/);
   });
 });
