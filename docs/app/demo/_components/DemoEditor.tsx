@@ -192,6 +192,14 @@ function DemoEditorInner({
   const { resolvedTheme } = useTheme();
   // const [mounted, setMounted] = useState(false);
   const [activeUser, setActiveUser] = useState(HARDCODED_USERS[0]);
+  // The editor's scroll column clips the floating UI inside it. The slash
+  // menu goes to <body> instead, so it can extend past the demo's edge: it is
+  // taller than the room below a block near the bottom. Toolbars and handles
+  // stay clipped to the column. (On the server, there is no <body> to use; the
+  // menu is closed then.)
+  const [slashMenuPortal] = useState(() =>
+    typeof document === "undefined" ? undefined : document.body,
+  );
   const [sidebarOpen, setSidebarOpen] = useState(() => {
     if (typeof window === "undefined") {
       return true;
@@ -418,6 +426,7 @@ function DemoEditorInner({
           <SuggestionMenuController
             triggerCharacter={"/"}
             getItems={getSlashMenuItems}
+            portalElement={slashMenuPortal}
           />
 
           <div className="flex h-full w-full">
