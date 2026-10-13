@@ -1842,13 +1842,13 @@ export const examples = {
         pathFromRoot: "examples/07-collaboration/10-suggestion-multi-editor",
         config: {
           playground: true,
-          docs: true,
+          docs: false,
           author: "nperez0111",
           tags: ["Advanced", "Saving/Loading", "Collaboration"],
           dependencies: {
             "@y/protocols": "^1.0.6-rc.1",
             "@y/y": "^14.0.0-rc.26",
-            "@y/prosemirror": "^2.0.0-14",
+            "@y/prosemirror": "^2.0.0-15",
             "@y/websocket": "^4.0.0-rc.2",
           } as any,
         },
@@ -1870,7 +1870,7 @@ export const examples = {
           author: "yousefed",
           tags: ["Advanced", "Development", "Collaboration"],
           dependencies: {
-            "@y/prosemirror": "^2.0.0-14",
+            "@y/prosemirror": "^2.0.0-15",
             "@y/protocols": "^1.0.6-rc.1",
             "@y/y": "^14.0.0-rc.26",
             "y-websocket": "^2.1.0",
@@ -1901,7 +1901,7 @@ export const examples = {
             "@y/websocket": "^4.0.0-3",
             "@y/y": "^14.0.0-rc.26",
             lib0: "1.0.0-rc.36",
-            "@y/prosemirror": "^2.0.0-14",
+            "@y/prosemirror": "^2.0.0-15",
           } as any,
         },
         title: "YHub Multi-Doc",
@@ -1922,7 +1922,7 @@ export const examples = {
           author: "yousefed",
           tags: ["Advanced", "Development", "Collaboration"],
           dependencies: {
-            "@y/prosemirror": "^2.0.0-14",
+            "@y/prosemirror": "^2.0.0-15",
             "@y/protocols": "^1.0.6-rc.1",
             "@y/websocket": "^4.0.0-3",
             "@y/y": "^14.0.0-rc.26",
@@ -2000,7 +2000,7 @@ export const examples = {
           tags: ["Extension"],
           dependencies: {
             "@y/y": "^14.0.0-rc.26",
-            "@y/prosemirror": "^2.0.0-14",
+            "@y/prosemirror": "^2.0.0-15",
             "react-icons": "^5.5.0",
           } as any,
         },
