@@ -3,19 +3,8 @@ import { expect, test } from "vite-plus/test";
 import { page, userEvent } from "vite-plus/test/browser";
 import { openEditor, pressKey } from "@root/tests/a11y/helpers.js";
 
-// Every test opens a fresh editor so one control's changes cannot affect another.
-// Native transcript checks live in FormattingToolbar.screen-reader.test.ts.
-// This vertical slice covers controls shown for a basic text selection only.
-// TODO: Cover context-specific toolbar items with axe, keyboard interactions,
-// focus screenshots and screen-reader announcements:
-// - File/media blocks: caption, replace, rename, delete, download and preview.
-// - Table cell selections: merge cells.
-// - Editors with commenting/collaboration configured: AddCommentButton and
-//   AddTiptapCommentButton, including their resulting comment UI.
-// The shared setup's 12-button assertion describes this fixture, not the entire toolbar.
 async function setupToolbar(control: string) {
   const result = await focusToolbarControl(control);
-  // Capture the focus ring before activation can return focus to the editor.
   await expect
     .element(result.toolbar)
     .toMatchScreenshot(
@@ -25,15 +14,12 @@ async function setupToolbar(control: string) {
   return result;
 }
 
-// Capture the dropdown focus ring, then choose Heading 1 using the keyboard.
-// Verify the block changes type without losing its text and editing focus returns.
-test("formatting toolbar: Paragraph", async () => {
+test("formatting toolbar: Block type select", async () => {
   await openEditor(toolbarDocument);
   await setupToolbar("Paragraph");
   await pressKey("Enter");
   const menu = page.getByRole("menu");
   await expect.element(menu).toBeVisible();
-  // Enter the menu, then establish a known first item for the focus snapshot.
   await pressKey("ArrowDown");
   await pressKey("Home");
   await expect.element(menu.getByRole("menuitem").first()).toHaveFocus();
@@ -58,9 +44,6 @@ test("formatting toolbar: Paragraph", async () => {
   await expect.element(page.getByRole("textbox")).toHaveFocus();
 });
 
-// Each text-style test starts with unformatted text, activates one button with
-// Enter, and checks its accessible pressed state. These assertions cover the
-// control's state; they do not inspect the editor's resulting inline markup.
 test("formatting toolbar: Bold", async () => {
   await openEditor(toolbarDocument);
   const { button } = await setupToolbar("Bold");
@@ -89,9 +72,6 @@ test("formatting toolbar: Strike", async () => {
   await expect.element(button).toHaveAttribute("aria-pressed", "true");
 });
 
-// Left is already the default: activating it should leave it selected. Center
-// and right start from that same default and must become selected on activation.
-// As above, setup also verifies Tab access and the button's focus appearance.
 test("formatting toolbar: Align text left", async () => {
   await openEditor(toolbarDocument);
   const { button } = await setupToolbar("Align text left");
@@ -113,8 +93,8 @@ test("formatting toolbar: Align text right", async () => {
   await expect.element(button).toHaveAttribute("aria-pressed", "true");
 });
 
-// Apply an actual color, then verify the selected text changed and editing
-// focus returned. Opening the menu alone would not test the color action.
+// Choose gray, verify it is applied to the selected text, and check that
+// focus returns to the editor.
 test("formatting toolbar: Colors", async () => {
   await openEditor(toolbarDocument);
   await setupToolbar("Colors");
@@ -141,8 +121,6 @@ test("formatting toolbar: Colors", async () => {
   await expect.element(page.getByRole("textbox")).toHaveFocus();
 });
 
-// A preceding sibling makes Nest available. After activation, the target must
-// appear exactly once under that sibling, and exactly once in the whole editor.
 test("formatting toolbar: Nest block", async () => {
   await openEditor([
     { id: "preceding", type: "paragraph", content: "Preceding paragraph" },
@@ -166,9 +144,6 @@ test("formatting toolbar: Nest block", async () => {
     .toBeInTheDocument();
 });
 
-// Start with the target as a child so Unnest is enabled. It must leave its
-// parent while remaining in the document; disappearing would also satisfy the
-// first assertion, which is why we check its continued existence separately.
 test("formatting toolbar: Unnest block", async () => {
   await openEditor([
     {
@@ -198,8 +173,6 @@ test("formatting toolbar: Unnest block", async () => {
     .toBeInTheDocument();
 });
 
-// Opening the form should focus its URL input. Capture that focus appearance,
-// type into the focused field, and submit with Enter to link the selected text.
 test("formatting toolbar: Create link", async () => {
   await openEditor(toolbarDocument);
   await setupToolbar("Create link");
@@ -209,7 +182,6 @@ test("formatting toolbar: Create link", async () => {
   );
   await expect.element(popover.getByPlaceholder("Edit URL")).toHaveFocus();
   // TODO: The focused URL input currently has no distinct focus outline.
-  // This records its appearance; it does not establish sufficient focus styling.
   await expect
     .element(popover)
     .toMatchScreenshot("focus-create-link-url.png", {});

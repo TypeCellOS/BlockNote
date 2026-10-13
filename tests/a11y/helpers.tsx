@@ -90,8 +90,8 @@ export async function pressKey(key: string) {
   return browserCommands.pressKey(key);
 }
 
-// Explicitly called by afterEach in the two files with screen-reader journeys.
-// Cleanup runs even if the transcript comparison fails.
+// Register with afterEach in screen-reader tests. Stop the reader even when
+// reading or comparing the transcript fails.
 export async function saveTranscript() {
   if (!screenReader) {
     throw new Error("saveTranscript requires a screen-reader test run.");

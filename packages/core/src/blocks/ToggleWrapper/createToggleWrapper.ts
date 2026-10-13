@@ -175,9 +175,9 @@ export const createToggleWrapper = (
     ignoreMutation: (mutation) => {
       if (
         mutation instanceof MutationRecord &&
-        // We want to prevent re-renders when the view changes, so we ignore
-        // all mutations where the `data-show-children` attribute is changed
-        // or the "add block" button is added/removed.
+        // Expansion updates view-only state: data-show-children, aria-expanded,
+        // and the presence of the "add block" button. Ignore these mutations
+        // so ProseMirror does not re-render the node view.
         ((mutation.type === "attributes" &&
           mutation.target === toggleWrapper &&
           mutation.attributeName === "data-show-children") ||

@@ -39,10 +39,8 @@ test("Escape allows Tab to leave the editor", async () => {
   // Revisit when the editor can retain focus without an editing selection.
 });
 
-// Screenshots need human review for clipping/overlap before accepting a
-// baseline; matching an existing image alone does not prove accessibility.
 async function waitForMedia() {
-  // Capture the loaded controls and first video frame, not loading animations.
+  // Wait for current-frame media data before the tests take screenshots.
   for (const media of document.querySelectorAll("audio, video")) {
     if (media instanceof HTMLMediaElement) {
       media.preload = "auto";

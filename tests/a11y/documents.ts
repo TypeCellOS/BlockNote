@@ -7,7 +7,6 @@ import type {
   Styles,
 } from "@blocknote/core";
 
-// Keep each style on its own span: code intentionally excludes other marks.
 const styleExamples = {
   bold: { bold: true },
   italic: { italic: true },
@@ -34,13 +33,12 @@ const inlineExamples = {
   PartialInlineContentElement<DefaultInlineContentSchema, DefaultStyleSchema>
 >;
 
-// Exhaustive by schema key, so adding a default block/style/inline type makes
-// this fixture fail type checking until there is an example for it.
 const blockExamples = {
   paragraph: {
     type: "paragraph",
     content: [
       ...Object.values(inlineExamples),
+      // Use separate text spans because code excludes other formatting marks.
       ...Object.entries(styleExamples).map(([name, styles]) => ({
         type: "text" as const,
         text: ` ${name}.`,
