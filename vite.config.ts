@@ -95,6 +95,24 @@ export default defineConfig({
     },
     overrides: [
       {
+        files: [
+          "**/a11y/**",
+          "**/*.a11y.spec.ts",
+          "**/*.axe.spec.ts",
+          "**/*.screen-reader.spec.ts",
+        ],
+        rules: {
+          "no-restricted-properties": [
+            "error",
+            {
+              property: "getByTestId",
+              message:
+                "Use accessible locators such as getByRole with a name or getByLabel in accessibility tests.",
+            },
+          ],
+        },
+      },
+      {
         files: ["tests/a11y/**"],
         rules: {
           // The nested package.json selects ESM; dependencies belong to tests.

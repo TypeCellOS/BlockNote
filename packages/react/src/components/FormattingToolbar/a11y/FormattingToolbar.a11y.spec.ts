@@ -46,7 +46,13 @@ test("formatting toolbar: Paragraph", async () => {
     .toHaveFocus();
   await pressKey("Enter");
   await expect
-    .element(page.getByTestId("format").getByRole("heading", { level: 1 }))
+    .element(
+      page.getByRole("heading", {
+        level: 1,
+        name: "Format this text",
+        exact: true,
+      }),
+    )
     .toHaveTextContent("Format this text");
   await expect.element(menu).not.toBeInTheDocument();
   await expect.element(page.getByRole("textbox")).toHaveFocus();

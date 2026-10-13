@@ -1,3 +1,4 @@
+import { UniqueID } from "../../extensions/tiptap-extensions/UniqueID/UniqueID.js";
 import { ViewMutationRecord } from "@tiptap/pm/view";
 
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
@@ -42,9 +43,17 @@ export const createToggleWrapper = (
   const toggleButton = document.createElement("button");
   toggleButton.className = "bn-toggle-button";
   toggleButton.type = "button";
+  // Reference the live block content so edits also update the accessible name.
+  // Generate a DOM ID: multiple editors may render the same block ID on a page.
+  renderedElement.id ||= `bn-toggle-label-${UniqueID.options.generateID()}`;
+  toggleButton.setAttribute("aria-labelledby", renderedElement.id);
   toggleButton.innerHTML =
     // https://fonts.google.com/icons?selected=Material+Symbols+Rounded:chevron_right:FILL@0;wght@700;GRAD@0;opsz@24&icon.query=chevron&icon.style=Rounded&icon.size=24&icon.color=%23e8eaed
     '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="CURRENTCOLOR"><path d="M320-200v-560l440 280-440 280Z"/></svg>';
+  function setExpanded(expanded: boolean) {
+    toggleWrapper.setAttribute("data-show-children", String(expanded));
+    toggleButton.setAttribute("aria-expanded", String(expanded));
+  }
   const toggleButtonMouseDown = (event: MouseEvent) => event.preventDefault();
   toggleButton.addEventListener("mousedown", toggleButtonMouseDown);
   const toggleButtonOnClick = () => {
@@ -56,14 +65,14 @@ export const createToggleWrapper = (
     }
 
     if (toggleWrapper.getAttribute("data-show-children") === "true") {
-      toggleWrapper.setAttribute("data-show-children", "false");
+      setExpanded(false);
       toggledState.set(currentBlock, false);
 
       if (dom.contains(toggleAddBlockButton)) {
         dom.removeChild(toggleAddBlockButton);
       }
     } else {
-      toggleWrapper.setAttribute("data-show-children", "true");
+      setExpanded(true);
       toggledState.set(currentBlock, true);
 
       if (
@@ -115,7 +124,7 @@ export const createToggleWrapper = (
     if (newChildCount > childCount) {
       // If a child block is added while children are hidden, show children.
       if (toggleWrapper.getAttribute("data-show-children") === "false") {
-        toggleWrapper.setAttribute("data-show-children", "true");
+        setExpanded(true);
         const currentBlock = editor.getBlock(block);
         if (currentBlock) {
           toggledState.set(currentBlock, true);
@@ -131,7 +140,7 @@ export const createToggleWrapper = (
       // If the last child block is removed while children are shown, hide
       // children.
       if (toggleWrapper.getAttribute("data-show-children") === "true") {
-        toggleWrapper.setAttribute("data-show-children", "false");
+        setExpanded(false);
         const currentBlock = editor.getBlock(block);
         if (currentBlock) {
           toggledState.set(currentBlock, false);
@@ -149,7 +158,7 @@ export const createToggleWrapper = (
   });
 
   if (toggledState.get(block)) {
-    toggleWrapper.setAttribute("data-show-children", "true");
+    setExpanded(true);
 
     if (editor.isEditable && block.children.length === 0) {
       // If the toggle is set to show children, but there are no children,
@@ -157,7 +166,7 @@ export const createToggleWrapper = (
       dom.appendChild(toggleAddBlockButton);
     }
   } else {
-    toggleWrapper.setAttribute("data-show-children", "false");
+    setExpanded(false);
   }
 
   return {
@@ -172,6 +181,9 @@ export const createToggleWrapper = (
         ((mutation.type === "attributes" &&
           mutation.target === toggleWrapper &&
           mutation.attributeName === "data-show-children") ||
+          (mutation.type === "attributes" &&
+            mutation.target === toggleButton &&
+            mutation.attributeName === "aria-expanded") ||
           (mutation.type === "childList" &&
             (mutation.addedNodes[0] === toggleAddBlockButton ||
               mutation.removedNodes[0] === toggleAddBlockButton)))
