@@ -23,8 +23,8 @@
   },
   "include": ["src"],
   "exclude": [
-    "src/**/*.a11y.spec.ts",
-    "src/**/*.screen-reader.spec.ts",
+    "src/**/*.a11y.test.ts",
+    "src/**/*.screen-reader.test.ts",
     "src/**/a11y/**"
   ],
   "references": [

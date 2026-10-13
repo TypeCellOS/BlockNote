@@ -43,8 +43,8 @@ export default defineConfig({
     name: "a11y",
     include: [
       reader
-        ? "../packages/*/src/**/*.screen-reader.spec.ts"
-        : "../packages/*/src/**/*.{a11y,axe}.spec.ts",
+        ? "../packages/*/src/**/*.screen-reader.test.ts"
+        : "../packages/*/src/**/*.{a11y,axe}.test.ts",
     ],
     testTimeout: reader ? 300_000 : 120_000,
     hookTimeout: 30_000,

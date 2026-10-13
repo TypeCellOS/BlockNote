@@ -4,7 +4,7 @@ import { page, userEvent } from "vite-plus/test/browser";
 import { openEditor, pressKey } from "../../../../../../tests/a11y/helpers.js";
 
 // Every test opens a fresh editor so one control's changes cannot affect another.
-// Native transcript checks live in FormattingToolbar.screen-reader.spec.ts.
+// Native transcript checks live in FormattingToolbar.screen-reader.test.ts.
 // This vertical slice covers controls shown for a basic text selection only.
 // TODO: Cover context-specific toolbar items with axe, keyboard interactions,
 // focus screenshots and screen-reader announcements:

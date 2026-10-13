@@ -97,9 +97,9 @@ export default defineConfig({
       {
         files: [
           "**/a11y/**",
-          "**/*.a11y.spec.ts",
-          "**/*.axe.spec.ts",
-          "**/*.screen-reader.spec.ts",
+          "**/*.a11y.test.ts",
+          "**/*.axe.test.ts",
+          "**/*.screen-reader.test.ts",
         ],
         rules: {
           "no-restricted-properties": [
