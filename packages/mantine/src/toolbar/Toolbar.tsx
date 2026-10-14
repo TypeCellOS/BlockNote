@@ -10,10 +10,12 @@ export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
   (props, ref) => {
     const {
       className,
+      "aria-label": ariaLabel,
       children,
       onMouseEnter,
       onMouseLeave,
       variant,
+      trapFocus: _trapFocus,
       ...rest
     } = props;
 
@@ -26,9 +28,9 @@ export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
     return (
       <Flex
         className={className}
+        aria-label={ariaLabel}
         ref={ref}
         role="toolbar"
-        // TODO: aria-label
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
         gap={variant === "action-toolbar" ? 2 : undefined}

@@ -18,6 +18,7 @@ import {
   getInlineContentSchemaFromSpecs,
   getStyleSchemaFromSpecs,
 } from "../schema/index.js";
+import { marksExcludingNonFormattingMarks } from "../schema/markGroups.js";
 import {
   createAudioBlockSpec,
   createBulletListItemBlockSpec,
@@ -56,7 +57,9 @@ export const defaultBlockSpecs = {
 // underscore is used that in case a user overrides DefaultBlockSchema,
 // they can still access the original default block schema
 export type _DefaultBlockSchema = {
-  [K in keyof typeof defaultBlockSpecs]: (typeof defaultBlockSpecs)[K]["config"];
+  [
+    K in keyof typeof defaultBlockSpecs
+  ]: (typeof defaultBlockSpecs)[K]["config"];
 };
 export type DefaultBlockSchema = _DefaultBlockSchema;
 
@@ -139,6 +142,9 @@ export const defaultStyleSpecs = {
   strike: createStyleSpecFromTipTapMark(Strike, "boolean"),
   code: createStyleSpecFromTipTapMark(
     Code.extend({
+      excludes() {
+        return marksExcludingNonFormattingMarks(this.editor);
+      },
       addInputRules() {
         return [
           // Matches any string that starts with a backtick, ends with a

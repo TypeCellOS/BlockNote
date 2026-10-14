@@ -1,170 +1,92 @@
-import { Node } from "prosemirror-model";
-import { EditorState } from "prosemirror-state";
+import { Fragment } from "prosemirror-model";
+import {
+  EditorState,
+  Selection,
+  TextSelection,
+  Transaction,
+} from "prosemirror-state";
 
 import {
-  BlockInfo,
-  getBlockInfoFromResolvedPos,
+  type BlockInfo,
+  getBlockInfoAt,
+  getLastDescendantBlockInfo,
+  getParentBlockInfo,
+  getPrevBlockInfo,
 } from "../../../getBlockInfoFromPos.js";
 
-/**
- * Returns the block info from the parent block
- * or undefined if we're at the root
- */
-export const getParentBlockInfo = (
-  doc: Node,
-  beforePos: number,
-): BlockInfo | undefined => {
-  const $pos = doc.resolve(beforePos);
-  const depth = $pos.depth - 1;
-
-  if (depth < 1) {
-    return undefined;
-  }
-
-  const parentBeforePos = $pos.before(depth);
-  const parentNode = doc.resolve(parentBeforePos).nodeAfter;
-
-  if (!parentNode) {
-    return undefined;
-  }
-
-  if (!parentNode.type.spec.group?.includes("bnBlock")) {
-    return getParentBlockInfo(doc, parentBeforePos);
-  }
-
-  const parentBlockInfo = getBlockInfoFromResolvedPos(
-    doc.resolve(parentBeforePos),
-  );
-
-  return parentBlockInfo;
-};
+type ContentBlockInfo = Extract<BlockInfo, { hasContent: true }>;
 
 /**
- * Returns the block info from the sibling block before (above) the given block,
- * or undefined if the given block is the first sibling.
+ * Returns the content to append, or undefined when the blocks cannot merge.
+ * Only inline content merges, into inline content: a block with plain-text
+ * content (e.g. a code block) never takes merged text.
  */
-export const getPrevBlockInfo = (doc: Node, beforePos: number) => {
-  const $pos = doc.resolve(beforePos);
+export function getMergeContent(
+  current: ContentBlockInfo,
+  next: ContentBlockInfo,
+): Fragment | undefined {
+  return current.contentKind === "inline" && next.contentKind === "inline"
+    ? next.content.node.content
+    : undefined;
+}
 
-  const indexInParent = $pos.index();
-
-  if (indexInParent === 0) {
-    return undefined;
-  }
-
-  const prevBlockBeforePos = $pos.posAtIndex(indexInParent - 1);
-
-  const prevBlockInfo = getBlockInfoFromResolvedPos(
-    doc.resolve(prevBlockBeforePos),
-  );
-  return prevBlockInfo;
-};
-
-/**
- * Returns the block info from the sibling block after (below) the given block,
- * or undefined if the given block is the last sibling.
- */
-export const getNextBlockInfo = (doc: Node, beforePos: number) => {
-  const $pos = doc.resolve(beforePos);
-
-  const indexInParent = $pos.index();
-
-  if (indexInParent === $pos.node().childCount - 1) {
-    return undefined;
-  }
-
-  const nextBlockBeforePos = $pos.posAtIndex(indexInParent + 1);
-
-  const nextBlockInfo = getBlockInfoFromResolvedPos(
-    doc.resolve(nextBlockBeforePos),
-  );
-  return nextBlockInfo;
-};
-
-/**
- * If a block has children like this:
- * A
- * - B
- * - C
- * -- D
- *
- * Then the bottom nested block returned is D.
- */
-export const getBottomNestedBlockInfo = (doc: Node, blockInfo: BlockInfo) => {
-  while (blockInfo.childContainer) {
-    const group = blockInfo.childContainer.node;
-
-    const newPos = doc
-      .resolve(blockInfo.childContainer.beforePos + 1)
-      .posAtIndex(group.childCount - 1);
-    blockInfo = getBlockInfoFromResolvedPos(doc.resolve(newPos));
-  }
-
-  return blockInfo;
-};
-
-const canMerge = (prevBlockInfo: BlockInfo, nextBlockInfo: BlockInfo) => {
-  return (
-    prevBlockInfo.isBlockContainer &&
-    prevBlockInfo.blockContent.node.type.spec.content === "inline*" &&
-    prevBlockInfo.blockContent.node.childCount > 0 &&
-    nextBlockInfo.isBlockContainer &&
-    nextBlockInfo.blockContent.node.type.spec.content === "inline*"
-  );
-};
-
-const mergeBlocks = (
+/** Merge a first child into its parent, promoting descendants into its place. */
+function mergeIntoParent(
   state: EditorState,
-  dispatch: ((args?: any) => any) | undefined,
-  prevBlockInfo: BlockInfo,
-  nextBlockInfo: BlockInfo,
-) => {
-  // Un-nests all children of the next block.
-  if (!nextBlockInfo.isBlockContainer) {
-    throw new Error(
-      `Attempted to merge block at position ${nextBlockInfo.bnBlock.beforePos} into previous block at position ${prevBlockInfo.bnBlock.beforePos}, but next block is not a block container`,
-    );
+  dispatch: ((tr: Transaction) => void) | undefined,
+  parent: ContentBlockInfo,
+  child: ContentBlockInfo,
+): boolean {
+  if (!parent.children) {
+    return false;
+  }
+  const content = getMergeContent(parent, child);
+  if (
+    content === undefined ||
+    (content.size > 0 &&
+      !parent.content.node.type.validContent(
+        parent.content.node.content.append(content),
+      ))
+  ) {
+    return false;
   }
 
-  // Removes a level of nesting all children of the next block by 1 level, if it contains both content and block
-  // group nodes.
-  if (nextBlockInfo.childContainer) {
-    const childBlocksStart = state.doc.resolve(
-      nextBlockInfo.childContainer.beforePos + 1,
-    );
-    const childBlocksEnd = state.doc.resolve(
-      nextBlockInfo.childContainer.afterPos - 1,
-    );
-    const childBlocksRange = childBlocksStart.blockRange(childBlocksEnd);
-
-    if (dispatch) {
-      const pos = state.doc.resolve(nextBlockInfo.bnBlock.beforePos);
-      state.tr.lift(childBlocksRange!, pos.depth);
-    }
-  }
-
-  // Deletes the boundary between the two blocks. Can be thought of as
-  // removing the closing tags of the first block and the opening tags of the
-  // second one to stitch them together.
   if (dispatch) {
-    if (!prevBlockInfo.isBlockContainer) {
-      throw new Error(
-        `Attempted to merge block at position ${nextBlockInfo.bnBlock.beforePos} into previous block at position ${prevBlockInfo.bnBlock.beforePos}, but previous block is not a block container`,
+    const tr = state.tr;
+    if (parent.children.node.childCount === 1 && !child.children) {
+      tr.delete(parent.children.beforePos, parent.children.afterPos);
+    } else {
+      tr.replaceWith(
+        child.block.beforePos,
+        child.block.afterPos,
+        child.children?.node.content ?? Fragment.empty,
       );
     }
-
-    // TODO: test merging between a columnList and paragraph, between two columnLists, and v.v.
-    dispatch(
-      state.tr.delete(
-        prevBlockInfo.blockContent.afterPos - 1,
-        nextBlockInfo.blockContent.beforePos + 1,
-      ),
-    );
+    const cursorPos = parent.contentEnd;
+    if (content.size > 0) {
+      tr.insert(cursorPos, content);
+    }
+    tr.setSelection(Selection.near(tr.doc.resolve(cursorPos), -1));
+    dispatch(tr.scrollIntoView());
   }
-
   return true;
-};
+}
 
+/**
+ * Merges the block starting at `posBetweenBlocks` into the block visually
+ * above it, by deleting the boundary between the two.
+ *
+ * @param posBetweenBlocks The position of the boundary between the two blocks:
+ * the position just before the outer node of the block being merged upwards,
+ * i.e. its `BlockInfo`'s `block.beforePos`. The block above is found by walking
+ * back from there: the previous sibling's deepest descendant, or the parent
+ * when the block is its first child.
+ * @returns A tiptap command that returns `false` (leaving the doc untouched)
+ * when the two blocks can't merge: no compatible text block above. The block
+ * above may be empty. With the same type and props, the block moves up into
+ * its place. Otherwise the text takes the empty block's type and props (and
+ * id), as in Notion.
+ */
 export const mergeBlocksCommand =
   (posBetweenBlocks: number) =>
   ({
@@ -172,28 +94,94 @@ export const mergeBlocksCommand =
     dispatch,
   }: {
     state: EditorState;
-    dispatch: ((args?: any) => any) | undefined;
+    dispatch: ((tr: Transaction) => void) | undefined;
   }) => {
-    const $pos = state.doc.resolve(posBetweenBlocks);
-    const nextBlockInfo = getBlockInfoFromResolvedPos($pos);
-
-    const prevBlockInfo = getPrevBlockInfo(
-      state.doc,
-      nextBlockInfo.bnBlock.beforePos,
-    );
-
-    if (!prevBlockInfo) {
+    const nextBlockInfo = getBlockInfoAt(state.doc, posBetweenBlocks);
+    if (!nextBlockInfo.hasContent) {
       return false;
     }
 
-    const bottomNestedBlockInfo = getBottomNestedBlockInfo(
+    const prevSibling = getPrevBlockInfo(
       state.doc,
-      prevBlockInfo,
+      nextBlockInfo.block.beforePos,
     );
+    if (!prevSibling) {
+      const parent = getParentBlockInfo(
+        state.doc,
+        nextBlockInfo.block.beforePos,
+      );
+      if (!parent?.hasContent) {
+        return false;
+      }
+      return mergeIntoParent(state, dispatch, parent, nextBlockInfo);
+    }
 
-    if (!canMerge(bottomNestedBlockInfo, nextBlockInfo)) {
+    // The block we merge into is the last descendant of the previous block:
+    // visually, that's the block directly above the boundary.
+    const prevBlockInfo = getLastDescendantBlockInfo(prevSibling);
+    if (!prevBlockInfo.hasContent) {
+      return false;
+    }
+    if (getMergeContent(prevBlockInfo, nextBlockInfo) === undefined) {
       return false;
     }
 
-    return mergeBlocks(state, dispatch, bottomNestedBlockInfo, nextBlockInfo);
+    // An empty block above with the same type and props adds nothing: the
+    // block moves up into its place, keeping its id and children (#550).
+    if (
+      prevBlockInfo.isContentEmpty &&
+      prevBlockInfo.content.node.sameMarkup(nextBlockInfo.content.node)
+    ) {
+      if (dispatch) {
+        const tr = state.tr
+          .delete(nextBlockInfo.block.beforePos, nextBlockInfo.block.afterPos)
+          .replaceWith(
+            prevBlockInfo.block.beforePos,
+            prevBlockInfo.block.afterPos,
+            nextBlockInfo.block.node,
+          );
+        tr.setSelection(
+          TextSelection.create(tr.doc, prevBlockInfo.contentStart),
+        );
+        dispatch(tr.scrollIntoView());
+      }
+      return true;
+    }
+
+    // Lift children before removing their parent. `state.tr` here is not a
+    // fresh transaction: tiptap's chainable state (`createChainableState`)
+    // returns the one transaction the command runs in from every `tr` read,
+    // so this lift and the delete below are dispatched together. The "Second
+    // block has children" test in mergeBlocks.test.ts pins that the lifted
+    // children survive the merge.
+    if (dispatch && nextBlockInfo.children) {
+      const childBlocksRange = state.doc
+        .resolve(nextBlockInfo.children.childrenStart)
+        .blockRange(state.doc.resolve(nextBlockInfo.children.childrenEnd));
+
+      // A block's children always sit at the same depth in the same parent, so
+      // they form a block range. No range means the doc is malformed, which is
+      // a bug rather than a case to merge around.
+      if (!childBlocksRange) {
+        throw new Error(
+          "Children of a block are expected to form a block range",
+        );
+      }
+
+      state.tr.lift(
+        childBlocksRange,
+        state.doc.resolve(nextBlockInfo.block.beforePos).depth,
+      );
+    }
+
+    // Deletes the boundary between the two blocks. Can be thought of as
+    // removing the closing tags of the first block and the opening tags of the
+    // second one to stitch them together.
+    if (dispatch) {
+      dispatch(
+        state.tr.delete(prevBlockInfo.contentEnd, nextBlockInfo.contentStart),
+      );
+    }
+
+    return true;
   };

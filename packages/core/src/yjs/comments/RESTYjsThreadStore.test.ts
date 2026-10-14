@@ -12,8 +12,11 @@ import { DefaultThreadStoreAuth } from "../../comments/threadstore/DefaultThread
 import { withCollaboration } from "../extensions/index.js";
 import { RESTYjsThreadStore } from "./RESTYjsThreadStore.js";
 
+const cleanups: Array<() => void> = [];
+
 function createCollabEditor() {
   const doc = new Y.Doc();
+  cleanups.push(() => doc.destroy());
   const fragment = doc.getXmlFragment("doc");
   const editor = BlockNoteEditor.create(
     withCollaboration({
@@ -26,6 +29,7 @@ function createCollabEditor() {
     }),
   );
   editor.mount(document.createElement("div"));
+  cleanups.push(() => editor.unmount());
   editor.replaceBlocks(editor.document, [
     { type: "paragraph", content: "Hello World" },
   ]);
@@ -33,6 +37,12 @@ function createCollabEditor() {
 }
 
 afterEach(() => {
+  // ProseMirror can leave a timer that flushes DOM changes 20ms later. If it
+  // fires after the test environment is torn down, it throws "document is not
+  // defined". After unmounting, the flush does nothing.
+  while (cleanups.length) {
+    cleanups.pop()!();
+  }
   vi.restoreAllMocks();
 });
 

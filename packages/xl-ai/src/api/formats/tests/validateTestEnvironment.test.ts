@@ -34,7 +34,7 @@ describe("MSW Snapshots", () => {
 
     // Filter and get tests with multiple snapshot files
     const duplicates = Object.entries(testGroups)
-      .filter(([_, files]) => files.length > 1)
+      .filter(([, files]) => files.length > 1)
       .map(([testName, files]) => ({
         testName: path.basename(testName),
         count: files.length,

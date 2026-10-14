@@ -1,6 +1,9 @@
 import { afterEach, describe, expect, it } from "vite-plus/test";
 
+import { Plugin } from "prosemirror-state";
+
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { createExtension } from "../../editor/BlockNoteExtension.js";
 
 /**
  * @vitest-environment jsdom
@@ -116,5 +119,38 @@ describe("PreviousBlockType: scoped traversal", () => {
       state.currentTransactionOldBlockAttrs,
     ).length;
     expect(trackedBlockCount).toBeLessThan(10);
+  });
+});
+
+// https://github.com/TypeCellOS/BlockNote/issues/3013
+describe("PreviousBlockType: changes before the view exists", () => {
+  it("doesn't mark a block whose type changed while the view was created", () => {
+    // Like y-sync's first render: an earlier plugin view replaces the
+    // placeholder paragraph with a stored heading that has the same id.
+    const RenderOnCreate = createExtension(({ editor }) => ({
+      key: "renderOnCreate",
+      runsBefore: ["previousBlockType"],
+      prosemirrorPlugins: [
+        new Plugin({
+          view: () => {
+            editor.updateBlock(editor.document[0], {
+              type: "heading",
+              props: { level: 1 },
+            });
+            return {};
+          },
+        }),
+      ],
+    }));
+    const editor = BlockNoteEditor.create({
+      initialContent: [{ type: "paragraph", content: "Title" }],
+      extensions: [RenderOnCreate()],
+    });
+    editor.mount(document.createElement("div"));
+    activeEditors.push(editor);
+
+    expect(editor.document[0].type).toBe("heading");
+    expect(getPreviousBlockTypePluginState(editor).updatedBlocks.size).toBe(0);
+    expect(editor.domElement!.querySelector("[data-prev-type]")).toBeNull();
   });
 });

@@ -1,0 +1,239 @@
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent,
+} from "react";
+
+import { useComponentsContext } from "../../editor/ComponentsContext.js";
+import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
+import { useVersioning, useVersioningState } from "./useVersioning.js";
+import { useDictionary } from "../../i18n/dictionary.js";
+import { Snapshot } from "./Snapshot.js";
+import { usePreviewRow } from "./usePreviewRow.js";
+import { useVersioningSidebar } from "./VersioningSidebarContext.js";
+import { getVisibleVersionRows, getVersionList } from "./visibleHistory.js";
+
+const useIsomorphicLayoutEffect =
+  typeof window !== "undefined" ? useLayoutEffect : useEffect;
+
+/**
+ * The sidebar's list of versions: a list whose items are {@link Snapshot} rows,
+ * newest first, with the current version pinned at the top.
+ *
+ * A plain list rather than a listbox: the rows carry their own interactive
+ * content (the "..." menu, the inline name field), which an `option` may not.
+ */
+export function VersioningSidebarList() {
+  const Components = useComponentsContext()!;
+  const editor = useBlockNoteEditor();
+  const dict = useDictionary();
+  const { namedOnly, loadingIndicator, run } = useVersioningSidebar();
+  const previewRow = usePreviewRow();
+  const state = useVersioningState();
+  const versioning = useVersioning();
+  const list = useMemo(() => getVersionList(state), [state]);
+  const listError =
+    state.mode === "versions" && state.history.status === "error";
+  const listing =
+    state.mode === "versions" && state.history.status === "pending";
+
+  const listId = useId();
+  const focusedRowId = useRef<string | undefined>(undefined);
+  const listRef = useRef<HTMLDivElement>(null);
+  const paginationRef = useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const nextCursor = state.mode === "versions" ? state.nextCursor : undefined;
+
+  const focusRow = useCallback((index: number) => {
+    const items =
+      listRef.current?.querySelectorAll<HTMLElement>('[role="listitem"]');
+    if (!items || items.length === 0) {
+      return;
+    }
+    const clamped = Math.max(0, Math.min(index, items.length - 1));
+    setActiveIndex(clamped);
+    // The header sits outside the list's scroll container, so native focus
+    // scrolling reveals the whole row on its own.
+    items[clamped]!.focus();
+  }, []);
+
+  // Current stays pinned even when unnamed versions are filtered out.
+  const rows = useMemo(
+    () => (list.loaded ? getVisibleVersionRows(list, namedOnly) : []),
+    [list, namedOnly],
+  );
+
+  useEffect(() => {
+    if (!list.loaded || listing || listError || nextCursor === undefined) {
+      return;
+    }
+    const root = listRef.current;
+    const target = paginationRef.current;
+    if (!root || !target) {
+      return;
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          void versioning.loadMore();
+        }
+      },
+      { root },
+    );
+    observer.observe(target);
+    return () => observer.disconnect();
+    // Reobserve after each page, including pages hidden by the named-only filter.
+  }, [list.loaded, listing, listError, nextCursor, rows, versioning]);
+
+  useIsomorphicLayoutEffect(() => {
+    if (!focusedRowId.current) {
+      return;
+    }
+    // Removing the focused DOM node drops focus onto body. Return it to the
+    // nearest remaining row without stealing focus from another control.
+    if (
+      !rows.some((row) => row.snapshot.id === focusedRowId.current) &&
+      document.activeElement === document.body
+    ) {
+      focusRow(activeIndex);
+    }
+  }, [rows, activeIndex, focusRow]);
+
+  const pagination =
+    state.mode === "versions" &&
+    (state.nextCursor !== undefined || listError) ? (
+      <div className="bn-versioning-pagination" ref={paginationRef}>
+        {listing && (
+          <span role="status" aria-label={dict.generic.loading}>
+            <span
+              className="bn-versioning-pagination-loader"
+              aria-hidden="true"
+            >
+              {loadingIndicator ?? (
+                <Components.Versioning.Loader className="bn-suggestion-menu-loader" />
+              )}
+            </span>
+          </span>
+        )}
+        {listError && (
+          <Components.Generic.Toolbar.Button
+            label={dict.generic.load_more}
+            onClick={() => {
+              void versioning.loadMore();
+            }}
+          >
+            {dict.generic.load_more}
+          </Components.Generic.Toolbar.Button>
+        )}
+      </div>
+    ) : null;
+
+  if (!list.loaded) {
+    if (listError) {
+      return pagination;
+    }
+    return (
+      <div className="bn-versioning-sidebar-loading" role="status">
+        {loadingIndicator ?? (
+          <Components.Versioning.Loader className="bn-suggestion-menu-loader" />
+        )}
+        <span className="bn-visually-hidden">{dict.generic.loading}</span>
+      </div>
+    );
+  }
+
+  function handleKeyDown(event: KeyboardEvent, index: number) {
+    // Text inputs (the inline rename) and the row menu handle their own keys.
+    const target = event.target as HTMLElement;
+    if (target.tagName === "INPUT" || target.closest(".bn-snapshot-menu")) {
+      return;
+    }
+
+    switch (event.key) {
+      case "ArrowDown":
+        event.preventDefault();
+        focusRow(index + 1);
+        break;
+      case "ArrowUp":
+        event.preventDefault();
+        focusRow(index - 1);
+        break;
+      case "Home":
+        event.preventDefault();
+        focusRow(0);
+        break;
+      case "End":
+        event.preventDefault();
+        focusRow(rows.length - 1);
+        break;
+      case "Enter":
+      case " ":
+        event.preventDefault();
+        void run(() => previewRow(rows[index]!.snapshot));
+        break;
+      default:
+        break;
+    }
+  }
+
+  return (
+    <>
+      <div
+        className="bn-versioning-sidebar-list"
+        role="list"
+        aria-label={dict.versioning.versions_list}
+        aria-busy={listing || undefined}
+        ref={listRef}
+        onBlur={(event) => {
+          // Registered editor menus can live outside the list's DOM.
+          const target = event.relatedTarget;
+          const inEditorMenu =
+            target &&
+            editor.isWithinEditor(target) &&
+            target.closest('[role="menu"]');
+          if (!event.currentTarget.contains(target) && !inEditorMenu) {
+            focusedRowId.current = undefined;
+          }
+        }}
+      >
+        {rows.map(({ snapshot, isCurrent }, index) => (
+          <Snapshot
+            key={snapshot.id}
+            id={`${listId}-snapshot-${snapshot.id}`}
+            snapshot={snapshot}
+            isCurrent={isCurrent}
+            // One tab stop; fall back to Current if the active index disappears.
+            tabIndex={
+              index === activeIndex ||
+              (activeIndex >= rows.length && index === 0)
+                ? 0
+                : -1
+            }
+            onKeyDown={(event) => handleKeyDown(event, index)}
+            onFocus={() => {
+              focusedRowId.current = snapshot.id;
+              setActiveIndex(index);
+            }}
+          />
+        ))}
+        {(rows.length === 0 ||
+          (rows.length === 1 &&
+            state.mode === "versions" &&
+            state.showCurrentVersion !== false)) && (
+          <div className="bn-versioning-sidebar-empty">
+            {/* No stored row is visible, including empty continuous history. */}
+            {list.snapshots.length > 0
+              ? dict.versioning.empty_named_only
+              : dict.versioning.empty}
+          </div>
+        )}
+        {pagination}
+      </div>
+    </>
+  );
+}

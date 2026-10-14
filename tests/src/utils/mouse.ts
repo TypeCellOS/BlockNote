@@ -63,15 +63,11 @@ export async function moveMouseOverElement(
 }
 
 /**
- * Drags a block onto another via its drag handle. Hovers the drag target to
- * reveal the handle, presses on the handle, then drops on the left edge
- * (`dropAbove`) or right edge of the drop target.
+ * Starts dragging a block by its drag handle: hovers the block to reveal the
+ * handle, presses on it, and moves the mouse a little, so the browser starts
+ * the drag. Finish it with `dropDraggedBlock`.
  */
-export async function dragAndDropBlock(
-  dragTarget: string | Element,
-  dropTarget: string | Element,
-  dropAbove: boolean,
-) {
+export async function startBlockDrag(dragTarget: string | Element) {
   await moveMouseOverElement(dragTarget);
   await sleep(100);
 
@@ -83,7 +79,19 @@ export async function dragAndDropBlock(
   await sleep(100);
   await runMouse([{ type: "down" }]);
   await sleep(100);
+  await runMouse([
+    { type: "move", x: handleCenter.x + 10, y: handleCenter.y + 10, steps: 5 },
+  ]);
+}
 
+/**
+ * Drops the block that `startBlockDrag` drags on the left edge (`dropAbove`)
+ * or right edge of the drop target.
+ */
+export async function dropDraggedBlock(
+  dropTarget: string | Element,
+  dropAbove: boolean,
+) {
   const dropRect = getRect(dropTarget);
   const dropCoords = dropAbove
     ? { x: dropRect.x + 1, y: dropRect.y + dropRect.height / 2 }
@@ -95,4 +103,18 @@ export async function dragAndDropBlock(
     { type: "move", x: dropCoords.x, y: dropCoords.y, steps: 5 },
     { type: "up" },
   ]);
+}
+
+/**
+ * Drags a block onto another via its drag handle. Hovers the drag target to
+ * reveal the handle, presses on the handle, then drops on the left edge
+ * (`dropAbove`) or right edge of the drop target.
+ */
+export async function dragAndDropBlock(
+  dragTarget: string | Element,
+  dropTarget: string | Element,
+  dropAbove: boolean,
+) {
+  await startBlockDrag(dragTarget);
+  await dropDraggedBlock(dropTarget, dropAbove);
 }

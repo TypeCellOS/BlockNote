@@ -1,7 +1,7 @@
 import { BlockNoteEditor, BlockNoteSchema } from "@blocknote/core";
 import { BlockNoteViewRaw } from "@blocknote/react";
 import { Node } from "prosemirror-model";
-import { TextSelection } from "prosemirror-state";
+import { NodeSelection, TextSelection } from "prosemirror-state";
 import { flushSync } from "react-dom";
 import { createRoot, Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
@@ -15,6 +15,87 @@ import { createReactInlineMathSpec } from "./createReactMathInlineContentSpec.js
 // Inline math isn't default inline content, so register it in a custom schema.
 const schema = BlockNoteSchema.create().extend({
   inlineContentSpecs: { math: createReactInlineMathSpec() },
+});
+
+describe("Inline math preview first click", () => {
+  it("keeps the formula mounted while the inline node is selected and opens its popup", async () => {
+    if (!document.elementFromPoint) {
+      document.elementFromPoint = () => null;
+    }
+
+    const div = document.createElement("div");
+    document.body.appendChild(div);
+    const editor = BlockNoteEditor.create({
+      schema,
+      trailingBlock: false,
+      initialContent: [
+        {
+          id: "para",
+          type: "paragraph",
+          content: ["before ", { type: "math", content: "a^2" }, " after"],
+        },
+      ],
+    });
+    const root = createRoot(div);
+
+    try {
+      flushSync(() => {
+        root.render(<BlockNoteViewRaw editor={editor} />);
+      });
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      const formula = div.querySelector<HTMLElement>(
+        ".bn-preview-container .katex",
+      );
+      if (!formula) {
+        throw new Error("Inline math preview did not render");
+      }
+
+      editor.setTextCursorPosition("para", "start");
+      formula.dispatchEvent(
+        new MouseEvent("mousedown", { bubbles: true, cancelable: true }),
+      );
+
+      const view = editor.prosemirrorView!;
+      let mathPos: number | undefined;
+      view.state.doc.descendants((node, pos) => {
+        if (node.type.name === "math") {
+          mathPos = pos;
+          return false;
+        }
+        return true;
+      });
+      if (mathPos === undefined) {
+        throw new Error("Inline math node not found");
+      }
+      view.dispatch(
+        view.state.tr.setSelection(
+          NodeSelection.create(view.state.doc, mathPos),
+        ),
+      );
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      // Replacing the mousedown target here would prevent a native click.
+      expect(div.querySelector(".bn-preview-container .katex")).toBe(formula);
+      formula.dispatchEvent(
+        new MouseEvent("mouseup", { bubbles: true, cancelable: true }),
+      );
+      formula.dispatchEvent(
+        new MouseEvent("click", { bubbles: true, cancelable: true }),
+      );
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(
+        div
+          .querySelector(".bn-preview-with-source-popup")
+          ?.getAttribute("data-open"),
+      ).toBe("true");
+    } finally {
+      root.unmount();
+      editor._tiptapEditor.destroy();
+      div.remove();
+    }
+  });
 });
 
 describe.skip("Inline math source popup", () => {

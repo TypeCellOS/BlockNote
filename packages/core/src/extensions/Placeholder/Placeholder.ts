@@ -18,14 +18,13 @@ export const PlaceholderExtension = createExtension(
     Pick<BlockNoteEditorOptions<any, any, any>, "placeholders">
   >) => {
     const placeholders = options.placeholders;
+    const uniqueEditorSelector = `placeholder-selector-${uuidv4()}`;
     return {
       key: "placeholder",
       prosemirrorPlugins: [
         new Plugin({
           key: PLUGIN_KEY,
           view: (view) => {
-            const uniqueEditorSelector = `placeholder-selector-${uuidv4()}`;
-            view.dom.classList.add(uniqueEditorSelector);
             const styleEl = document.createElement("style");
 
             const nonce = editor._tiptapEditor.options.injectNonce;
@@ -89,15 +88,17 @@ export const PlaceholderExtension = createExtension(
 
             return {
               destroy: () => {
-                if (view.root instanceof window.ShadowRoot) {
-                  view.root.removeChild(styleEl);
-                } else {
-                  view.root.head.removeChild(styleEl);
-                }
+                // `remove()` is a no-op if something else (e.g. a router
+                // merging `<head>`) already detached the element.
+                styleEl.remove();
               },
             };
           },
           props: {
+            // Set through ProseMirror, not on `view.dom` directly: ProseMirror
+            // observes the editor element, and flushes a change made outside
+            // it later, which can outlive the editor.
+            attributes: { class: uniqueEditorSelector },
             decorations: (state) => {
               const { doc, selection } = state;
 

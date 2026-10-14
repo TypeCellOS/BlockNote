@@ -36,3 +36,33 @@ Keys mirror the default UI flags (`formattingToolbar`, `linkToolbar`, `slashMenu
 The [mobile Formatting Toolbar](/docs/react/components/formatting-toolbar#mobile-formatting-toolbar) always portals to `document.body`, including its menus and popovers. It does not use the configured formatting-toolbar or default target.
 
 When a target sits outside the editor's DOM (like `document.body`), BlockNote automatically renders a themed wrapper element inside it, so floating UI keeps the editor's styling and theming wherever it's portalled.
+
+### Placing BlockNote UI in your own layout
+
+Some components, like the [comments sidebar](/docs/features/collaboration/comments#sidebar-view), aren't floating but still need the editor's context, so they must be rendered inside `BlockNoteView`. To show one somewhere else in your application's layout, render it inside `BlockNoteView` wrapped in `RenderInPortalElement`, and pass the element it should appear in:
+
+```tsx
+function App() {
+  const editor = useCreateBlockNote(/* ... */);
+  // The element in your layout that the sidebar is rendered into.
+  const [sidebarElement, setSidebarElement] = useState<HTMLElement | null>(
+    null,
+  );
+
+  return (
+    <div className="my-layout">
+      <BlockNoteView editor={editor} comments={false}>
+        <FloatingComposerController />
+        {sidebarElement && (
+          <RenderInPortalElement target={sidebarElement}>
+            <ThreadsSidebar />
+          </RenderInPortalElement>
+        )}
+      </BlockNoteView>
+      <aside ref={setSidebarElement} />
+    </div>
+  );
+}
+```
+
+The children are rendered inside a themed wrapper element in `target`, so they keep the editor's styling, and focus inside them counts as focus within the editor.
