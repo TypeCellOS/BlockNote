@@ -3,17 +3,24 @@
  */
 
 import { closeHistory } from "@tiptap/pm/history";
-import { NodeSelection, TextSelection } from "prosemirror-state";
+import { NodeSelection, Selection, TextSelection } from "prosemirror-state";
 import { afterEach, describe, expect, it } from "vite-plus/test";
 
 import { mergeBlocksCommand } from "../../../api/blockManipulation/commands/mergeBlocks/mergeBlocks.js";
-import { getBlockInfoFromSelection } from "../../../api/getBlockInfoFromPos.js";
+import {
+  getBlockInfoAt,
+  getBlockInfoFromSelection,
+} from "../../../api/getBlockInfoFromPos.js";
+import { getNodeById } from "../../../api/nodeUtil.js";
 import { BlockNoteSchema } from "../../../blocks/BlockNoteSchema.js";
 import {
   defaultBlockSpecs,
-  PartialBlock,
+  type PartialBlock,
 } from "../../../blocks/defaultBlocks.js";
-import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
+import {
+  BlockNoteEditor,
+  type BlockNoteEditorOptions,
+} from "../../../editor/BlockNoteEditor.js";
 import { createBlockSpec } from "../../../schema/index.js";
 
 // Blocks configured with the deprecated `meta.hardBreakShortcut`, which still
@@ -195,6 +202,293 @@ function getTextContent(editor: BlockNoteEditor<any, any, any>) {
   });
   return text;
 }
+
+describe("KeyboardShortcutsExtension Mod-a (select all)", () => {
+  // BlockNote disables TipTap's core extensions, so it has no default `Mod-a`
+  // binding and select-all used to rely on the browser's native behaviour. That
+  // native select-all collapses to a cursor when the editor's first element is
+  // non-editable - e.g. the checkbox `<div>` of a check list item as the first
+  // block - so `Mod-a` is now handled explicitly. These tests exercise the
+  // keymap path (not native selection) and would collapse before the fix.
+  function createSelectAllEditor(
+    blocks: PartialBlock<any, any, any>[],
+    selectAllBehavior?: BlockNoteEditorOptions<
+      typeof schema.blockSchema,
+      typeof schema.inlineContentSchema,
+      typeof schema.styleSchema
+    >["selectAllBehavior"],
+  ) {
+    const editor = BlockNoteEditor.create({
+      schema,
+      selectAllBehavior,
+      initialContent: blocks.map((block, index) => ({
+        id: `block-${index}`,
+        ...block,
+      })),
+    });
+    editor.mount(document.createElement("div"));
+    return editor;
+  }
+
+  // Dispatches a real `Mod-a` keydown through ProseMirror's `handleKeyDown`, the
+  // path browsers use to invoke the keymap. TipTap's `keyboardShortcut` command
+  // doesn't reliably simulate modifier combos in jsdom, and prosemirror-keymap
+  // resolves `Mod` to `Ctrl` outside of a Mac environment (jsdom reports none).
+  function pressSelectAll(editor: BlockNoteEditor<any, any, any>) {
+    const view = editor._tiptapEditor.view;
+    const event = new KeyboardEvent("keydown", {
+      key: "a",
+      code: "KeyA",
+      ctrlKey: true,
+    });
+    view.someProp("handleKeyDown", (handler) => handler(view, event));
+  }
+
+  function pressBackspace(editor: BlockNoteEditor<any, any, any>) {
+    const view = editor._tiptapEditor.view;
+    const event = new KeyboardEvent("keydown", {
+      key: "Backspace",
+      code: "Backspace",
+    });
+    view.someProp("handleKeyDown", (handler) => handler(view, event));
+  }
+
+  function expectWholeDocSelected(editor: BlockNoteEditor<any, any, any>) {
+    const { selection, doc } = editor._tiptapEditor.state;
+    // Select-all spans all content as a `TextSelection` (from the first
+    // selectable position to the last), not an `AllSelection`.
+    expect(selection).toBeInstanceOf(TextSelection);
+    expect(selection.from).toBe(Selection.atStart(doc).from);
+    expect(selection.to).toBe(Selection.atEnd(doc).to);
+  }
+
+  function expectBlockContentSelected(
+    editor: BlockNoteEditor<any, any, any>,
+    blockId: string,
+  ) {
+    const { selection, doc } = editor._tiptapEditor.state;
+    const blockInfo = getBlockInfoAt(
+      doc,
+      getNodeById(blockId, doc)!.posBeforeNode,
+    );
+    if (!blockInfo.hasContent) {
+      throw new Error(`Block ${blockId} is not a block container`);
+    }
+    // The current block's content is selected as a `TextSelection` spanning its
+    // full content, without reaching into neighbouring blocks.
+    expect(selection).toBeInstanceOf(TextSelection);
+    expect(selection.from).toBe(blockInfo.contentStart);
+    expect(selection.to).toBe(blockInfo.contentEnd);
+  }
+
+  // Like `expectBlockContentSelected`, but for blocks whose content isn't
+  // directly inline (e.g. tables), where the selection snaps inward to the
+  // nearest inline positions rather than sitting exactly on the content bounds.
+  function expectSelectionWithinBlock(
+    editor: BlockNoteEditor<any, any, any>,
+    blockId: string,
+  ) {
+    const { selection, doc } = editor._tiptapEditor.state;
+    const blockInfo = getBlockInfoAt(
+      doc,
+      getNodeById(blockId, doc)!.posBeforeNode,
+    );
+    if (!blockInfo.hasContent) {
+      throw new Error(`Block ${blockId} is not a block container`);
+    }
+    expect(selection).toBeInstanceOf(TextSelection);
+    expect(selection.empty).toBe(false);
+    // The selection stays inside the block's content, without reaching into
+    // neighbouring blocks.
+    expect(selection.from).toBeGreaterThanOrEqual(blockInfo.contentStart);
+    expect(selection.to).toBeLessThanOrEqual(blockInfo.contentEnd);
+  }
+
+  it("selects the block first when explicitly configured", () => {
+    const editor = createSelectAllEditor(
+      [
+        { type: "paragraph", content: "First" },
+        { type: "paragraph", content: "Second" },
+      ],
+      "block-first",
+    );
+    editor.setTextCursorPosition("block-0", "end");
+
+    pressSelectAll(editor);
+    expectBlockContentSelected(editor, "block-0");
+
+    pressSelectAll(editor);
+    expectWholeDocSelected(editor);
+
+    editor._tiptapEditor.destroy();
+  });
+
+  it("selects the whole document immediately when configured", () => {
+    const editor = createSelectAllEditor(
+      [
+        { type: "checkListItem", content: "First" },
+        { type: "paragraph", content: "Second" },
+      ],
+      "document",
+    );
+    editor.setTextCursorPosition("block-1", "end");
+
+    pressSelectAll(editor);
+    expectWholeDocSelected(editor);
+
+    pressSelectAll(editor);
+    expectWholeDocSelected(editor);
+
+    pressBackspace(editor);
+    expect(editor.document).toEqual([
+      expect.objectContaining({ type: "paragraph", content: [] }),
+    ]);
+
+    editor._tiptapEditor.destroy();
+  });
+
+  // Each test walks the full Notion-style flow: the first `Mod-a` selects the
+  // current block, the second expands to the whole document, and Backspace
+  // clears it (issue #2973 - the bug was specific to documents starting with a
+  // check list item).
+  it("escalates the selection and clears a paragraph-first document", () => {
+    const editor = createSelectAllEditor([
+      { type: "paragraph", content: "First" },
+      { type: "paragraph", content: "Second" },
+    ]);
+    editor.setTextCursorPosition("block-0", "end");
+
+    pressSelectAll(editor);
+    expectBlockContentSelected(editor, "block-0");
+
+    pressSelectAll(editor);
+    expectWholeDocSelected(editor);
+
+    pressBackspace(editor);
+    expect(editor.document).toEqual([
+      expect.objectContaining({ type: "paragraph", content: [] }),
+    ]);
+
+    editor._tiptapEditor.destroy();
+  });
+
+  it("escalates the selection and clears a check-list-first document", () => {
+    const editor = createSelectAllEditor([
+      { type: "checkListItem", content: "First" },
+      { type: "paragraph", content: "Second" },
+    ]);
+    // Cursor starts in a later block to check select-all still spans the whole
+    // document, not just the current block.
+    editor.setTextCursorPosition("block-1", "end");
+
+    pressSelectAll(editor);
+    expectBlockContentSelected(editor, "block-1");
+
+    pressSelectAll(editor);
+    expectWholeDocSelected(editor);
+
+    pressBackspace(editor);
+    expect(editor.document).toEqual([
+      expect.objectContaining({ type: "paragraph", content: [] }),
+    ]);
+
+    editor._tiptapEditor.destroy();
+  });
+
+  it("escalates the selection and clears an all-check-list document", () => {
+    const editor = createSelectAllEditor([
+      { type: "checkListItem", content: "First" },
+      { type: "checkListItem", content: "Second" },
+    ]);
+    editor.setTextCursorPosition("block-0", "end");
+
+    pressSelectAll(editor);
+    expectBlockContentSelected(editor, "block-0");
+
+    pressSelectAll(editor);
+    expectWholeDocSelected(editor);
+
+    pressBackspace(editor);
+    expect(editor.document).toEqual([
+      expect.objectContaining({ type: "paragraph", content: [] }),
+    ]);
+
+    editor._tiptapEditor.destroy();
+  });
+
+  it("escalates the selection and clears a document ending in a check list item", () => {
+    const editor = createSelectAllEditor([
+      { type: "paragraph", content: "First" },
+      { type: "checkListItem", content: "Second" },
+    ]);
+    editor.setTextCursorPosition("block-0", "end");
+
+    pressSelectAll(editor);
+    expectBlockContentSelected(editor, "block-0");
+
+    pressSelectAll(editor);
+    expectWholeDocSelected(editor);
+
+    pressBackspace(editor);
+    expect(editor.document).toEqual([
+      expect.objectContaining({ type: "paragraph", content: [] }),
+    ]);
+
+    editor._tiptapEditor.destroy();
+  });
+
+  it("keeps the block type when clearing a single-block document", () => {
+    const editor = createSelectAllEditor([
+      { type: "checkListItem", content: "Only" },
+    ]);
+    editor.setTextCursorPosition("block-0", "end");
+
+    pressSelectAll(editor);
+    expectBlockContentSelected(editor, "block-0");
+
+    pressSelectAll(editor);
+    expectWholeDocSelected(editor);
+
+    // A single block can only ever have its content selected, so Backspace
+    // clears the content but (correctly) leaves the block type unchanged.
+    pressBackspace(editor);
+    expect(editor.document).toEqual([
+      expect.objectContaining({ type: "checkListItem", content: [] }),
+    ]);
+
+    editor._tiptapEditor.destroy();
+  });
+
+  it("escalates the selection and clears a document containing a table", () => {
+    const editor = createSelectAllEditor([
+      { type: "paragraph", content: "Before" },
+      {
+        type: "table",
+        content: {
+          type: "tableContent",
+          rows: [{ cells: ["A1", "B1"] }, { cells: ["A2", "B2"] }],
+        },
+      },
+      { type: "paragraph", content: "After" },
+    ]);
+    editor.setTextCursorPosition("block-1", "start");
+
+    // A table's content node isn't directly inline, so the first `Mod-a` selects
+    // across its cells rather than producing an invalid whole-block selection.
+    pressSelectAll(editor);
+    expectSelectionWithinBlock(editor, "block-1");
+
+    pressSelectAll(editor);
+    expectWholeDocSelected(editor);
+
+    pressBackspace(editor);
+    expect(editor.document).toEqual([
+      expect.objectContaining({ type: "paragraph", content: [] }),
+    ]);
+
+    editor._tiptapEditor.destroy();
+  });
+});
 
 /**
  * Characterization tests for the Backspace/Delete/Enter/Tab handlers: they pin
