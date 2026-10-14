@@ -1,0 +1,26 @@
+[
+  {
+    "children": [
+      {
+        "children": [],
+        "content": [],
+        "id": "2",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+    ],
+    "content": [],
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "checked": false,
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "checkListItem",
+  },
+]

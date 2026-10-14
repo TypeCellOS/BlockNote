@@ -488,6 +488,20 @@ export const exportParseEqualityTestInstancesMarkdown: TestInstance<
     },
     executeTest: testExportParseEqualityMarkdown,
   },
+  // Markdown export doesn't escape HTML-like text, so this loads back as an
+  // empty list item. It must load without throwing.
+  {
+    testCase: {
+      name: "markdown/numberedListItemWithDetailsText",
+      content: [
+        {
+          type: "numberedListItem",
+          content: "<details>",
+        },
+      ],
+    },
+    executeTest: testExportParseEqualityMarkdown,
+  },
   {
     testCase: {
       name: "markdown/nestedLists",
