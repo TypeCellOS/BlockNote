@@ -849,10 +849,14 @@ function serializeInlineContent(el: Element): string {
 /**
  * Escape `<` where the markdown parser would read raw HTML or an autolink, so
  * text like `<details>` loads back as text. A `<` before a space or digit
- * stays as is, as in `1 < 2`.
+ * stays as is, as in `1 < 2`. Backslashes right before an escaped `<` are
+ * doubled too, so `\<details>` doesn't become an escaped backslash plus HTML.
  */
 function escapeHtmlLikeText(text: string): string {
-  return text.replace(/<(?=[A-Za-z/!?])/g, "\\<");
+  return text.replace(
+    /(\\*)<(?=[A-Za-z/!?])/g,
+    (_, backslashes: string) => `${backslashes}${backslashes}\\<`,
+  );
 }
 
 /**
