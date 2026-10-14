@@ -18,7 +18,7 @@ jobs:
     if: github.event.workflow_run.conclusion == 'success'
     steps:
       - name: Send bundle stats and build information to RelativeCI (editor)
-        uses: relative-ci/agent-action@fcf45416581928e8dd62eded78ce98c78e5149f8 # v3.2.3
+        uses: relative-ci/agent-action@711f3a8fa1b928e6afde280011110c9b0a224a60 # v3.2.4
         with:
           artifactName: relative-ci-artifacts-editor
           key: ${{ secrets.RELATIVE_CI_KEY }}
