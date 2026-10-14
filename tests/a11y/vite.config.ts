@@ -53,7 +53,7 @@ export default defineConfig({
     retry: 0,
     // Missing baselines fail unless explicitly generated with --update.
     update: false,
-    reporters: ["default", "html"],
+    reporters: ["verbose", "html"],
     outputFile: {
       html: `playwright-report/a11y/${reader ?? "browser"}/index.html`,
     },

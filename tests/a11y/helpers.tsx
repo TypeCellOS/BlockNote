@@ -5,7 +5,7 @@ import "@blocknote/mantine/style.css";
 import { useCreateBlockNote } from "@blocknote/react";
 import { render } from "vitest-browser-react";
 import axe from "axe-core";
-import { expect } from "vite-plus/test";
+import { expect, type TestContext } from "vite-plus/test";
 import { commands, page, server } from "vite-plus/test/browser";
 import "./style.css";
 
@@ -64,8 +64,21 @@ export async function openEditor(
   }
 }
 
-export async function checkAxe(scope?: string) {
-  const results = await axe.run(scope ? { include: [scope] } : document.body);
+export async function checkAxe(
+  annotate: TestContext["annotate"],
+  scope?: string,
+) {
+  const results = await axe.run(scope ? { include: [scope] } : document.body, {
+    rules: { "target-size": { enabled: true } },
+  });
+  for (const result of results.incomplete) {
+    for (const node of result.nodes) {
+      await annotate(
+        `axe manual review: ${result.id} — ${result.help}\nTarget: ${JSON.stringify(node.target)}\n${node.failureSummary ?? ""}\n${result.helpUrl}`,
+        "warning",
+      );
+    }
+  }
   expect(results.violations, "axe violations").toEqual([]);
 }
 
