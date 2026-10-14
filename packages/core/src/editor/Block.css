@@ -218,6 +218,13 @@ NESTED BLOCKS
   > .bn-toggle-frame
   > .bn-toggle-slot
   > .bn-block-content[data-content-type="heading"],
+/* A changed toggle heading: wrapped in suggestion marks inside its slot. */
+.bn-block-outer:not([data-prev-type])
+  > .bn-block
+  > .bn-toggle-frame
+  > .bn-toggle-slot
+  > :not(.bn-block-group)
+  .bn-block-content[data-content-type="heading"],
 .bn-block-outer:not([data-prev-type])
   > .bn-block
   > :is(ins, del, [data-type="attributes"])
@@ -394,12 +401,20 @@ NESTED BLOCKS
 /* A heading's top spacing goes on the frame, so the chevron stays centred on
    the heading text. */
 .bn-toggle-frame:has(
-  > .bn-toggle-slot > .bn-block-content[data-content-type="heading"]
+  > .bn-toggle-slot > .bn-block-content[data-content-type="heading"],
+  /* A changed toggle heading: wrapped in suggestion marks inside its slot. */
+  > .bn-toggle-slot
+    > :not(.bn-block-group)
+    .bn-block-content[data-content-type="heading"]
 ) {
   padding-top: 18px;
 }
 
-.bn-toggle-slot > .bn-block-content[data-content-type="heading"] {
+.bn-toggle-slot > .bn-block-content[data-content-type="heading"],
+/* A changed toggle heading: wrapped in suggestion marks inside its slot. */
+.bn-toggle-slot
+  > :not(.bn-block-group)
+  .bn-block-content[data-content-type="heading"] {
   padding-top: 0;
 }
 

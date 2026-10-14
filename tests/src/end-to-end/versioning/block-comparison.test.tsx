@@ -170,12 +170,14 @@ for (const theme of ["light", "dark"] as const) {
         await expect
           .poll(() => document.querySelector(".bn-suggestion-tooltip"))
           .toBeNull();
-        for (const toggle of root.querySelectorAll<HTMLElement>(
-          '.bn-toggle-wrapper[data-show-children="false"]',
-        )) {
+        const collapsed = root.querySelectorAll<HTMLButtonElement>(
+          '.bn-toggle-button[aria-expanded="false"]',
+        );
+        expect(collapsed.length).toBeGreaterThan(0);
+        for (const button of collapsed) {
           // Expand without scrolling the outer Vitest UI to each toggle.
-          toggle.querySelector<HTMLButtonElement>("button")!.click();
-          expect(toggle.getAttribute("data-show-children")).toBe("true");
+          button.click();
+          expect(button.getAttribute("aria-expanded")).toBe("true");
         }
         await document.fonts.ready;
         await Promise.all(
