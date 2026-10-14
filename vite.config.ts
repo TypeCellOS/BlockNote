@@ -16,10 +16,12 @@ export default defineConfig({
     tasks: {
       "copy-package-readmes": {
         command: "node scripts/copy-package-readmes.mjs",
-        // These copies are outputs, not inputs: automatic tracking of the
-        // destination checks would make a fresh checkout miss every time.
-        input: ["README.md", "scripts/copy-package-readmes.mjs"],
-        output: ["packages/core/README.md", "packages/react/README.md"],
+        cache: {
+          // These copies are outputs, not inputs: automatic tracking of the
+          // destination checks would make a fresh checkout miss every time.
+          input: ["README.md", "scripts/copy-package-readmes.mjs"],
+          output: ["packages/core/README.md", "packages/react/README.md"],
+        },
       },
       // The release script is interactive and produces only side-effects
       // (git commit/tag/push, npm publish). It reads a stable file set

@@ -389,13 +389,19 @@ const createColumnResizePlugin = (editor: BlockNoteEditor<any, any, any>) =>
           return DecorationSet.empty;
         }
 
+        // A drop or document replacement can move or remove hovered columns
+        // before the next mouse event. Resolve their positions in this document.
+        const columnList = getNodeById(pluginState.columnList.id, state.doc);
+        if (!columnList) {
+          return DecorationSet.empty;
+        }
+
         // This highlights the hovered column list - core's stylesheet uses
         // the class to show separators between its columns.
         const decorations = [
           Decoration.node(
-            pluginState.columnList.posBeforeNode,
-            pluginState.columnList.posBeforeNode +
-              pluginState.columnList.node.nodeSize,
+            columnList.posBeforeNode,
+            columnList.posBeforeNode + columnList.node.nodeSize,
             {
               class: "bn-column-list-hovered",
             },
@@ -410,16 +416,18 @@ const createColumnResizePlugin = (editor: BlockNoteEditor<any, any, any>) =>
           pluginState.type === "hover-column" ||
           pluginState.type === "resize"
         ) {
-          decorations.push(
-            Decoration.node(
-              pluginState.leftColumn.posBeforeNode,
-              pluginState.leftColumn.posBeforeNode +
-                pluginState.leftColumn.node.nodeSize,
-              {
-                class: "bn-column-resize-border",
-              },
-            ),
-          );
+          const leftColumn = getNodeById(pluginState.leftColumn.id, state.doc);
+          if (leftColumn) {
+            decorations.push(
+              Decoration.node(
+                leftColumn.posBeforeNode,
+                leftColumn.posBeforeNode + leftColumn.node.nodeSize,
+                {
+                  class: "bn-column-resize-border",
+                },
+              ),
+            );
+          }
         }
 
         return DecorationSet.create(state.doc, decorations);

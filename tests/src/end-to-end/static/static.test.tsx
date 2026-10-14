@@ -127,7 +127,15 @@ describe("Check static rendering", () => {
           {
             height: CAPTURE_HEIGHT,
             comparatorOptions: { allowedMismatchedPixels: 2500 },
-            screenshotOptions: { scale: "css", mask: masks() },
+            screenshotOptions: {
+              scale: "css",
+              mask: masks(),
+              // Pin the Linux baseline's monospace font. Chromium otherwise
+              // changes its generic fallback when a capture resizes the window;
+              // Vitest 5 resizes it before capture instead of during capture.
+              style:
+                'pre, code { font-family: "Liberation Mono", monospace !important; }',
+            },
           },
         );
       };

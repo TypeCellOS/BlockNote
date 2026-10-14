@@ -14,13 +14,15 @@ export default defineConfig(
         tasks: {
           build: {
             command: "tsc && vp build",
-            input: [
-              ...buildCacheInputs("packages/shadcn"),
-              { pattern: "!**/*.tsbuildinfo", base: "workspace" },
-            ],
-            // `types/**` must be declared too: a cache replay that restores only
-            // dist/ leaves consumers without declarations (tsc is skipped).
-            output: ["dist/**", "types/**", "!dist/*.tsbuildinfo"],
+            cache: {
+              input: [
+                ...buildCacheInputs("packages/shadcn"),
+                { pattern: "!**/*.tsbuildinfo", base: "workspace" },
+              ],
+              // `types/**` must be declared too: a cache replay that restores only
+              // dist/ leaves consumers without declarations (tsc is skipped).
+              output: ["dist/**", "types/**", "!dist/*.tsbuildinfo"],
+            },
           },
         },
       },

@@ -1,7 +1,7 @@
 import react from "@vitejs/plugin-react";
 import * as path from "path";
 import { webpackStats } from "rollup-plugin-webpack-stats";
-import { defineConfig, type UserConfig } from "vite-plus";
+import { configDefaults, defineConfig, type UserConfig } from "vite-plus";
 import pkg from "./package.json";
 import { buildCacheInputs } from "../../scripts/build-cache-inputs.js";
 // import eslintPlugin from "vite-plugin-eslint";
@@ -14,19 +14,22 @@ export default defineConfig(
         tasks: {
           build: {
             command: "tsc && vp build",
-            input: [
-              ...buildCacheInputs("packages/mantine"),
-              { pattern: "!**/*.tsbuildinfo", base: "workspace" },
-            ],
-            // `types/**` must be declared too: a cache replay that restores only
-            // dist/ leaves consumers without declarations (tsc is skipped).
-            output: ["dist/**", "types/**", "!dist/*.tsbuildinfo"],
+            cache: {
+              input: [
+                ...buildCacheInputs("packages/mantine"),
+                { pattern: "!**/*.tsbuildinfo", base: "workspace" },
+              ],
+              // `types/**` must be declared too: a cache replay that restores only
+              // dist/ leaves consumers without declarations (tsc is skipped).
+              output: ["dist/**", "types/**", "!dist/*.tsbuildinfo"],
+            },
           },
         },
       },
       test: {
         environment: "jsdom",
-        setupFiles: ["./vitestSetup.ts"],
+        // Browser tests run in the Docker suite in tests/vite.config.browser.ts.
+        exclude: [...configDefaults.exclude, "**/*.browser.test.*"],
       },
       plugins: [react(), webpackStats()],
       // used so that vitest resolves the core package from the sources instead of the built version

@@ -1,4 +1,5 @@
 import { expect } from "vite-plus/test";
+import type { ScreenshotMatcherOptions } from "vite-plus/test/browser";
 
 /**
  * Browser-mode `expect` helpers for the y-prosemirror suggestion suite.
@@ -18,6 +19,12 @@ interface ElementAssertion {
 }
 
 interface BrowserExpect {
+  (locator: LocatorLike): {
+    toMatchScreenshot(
+      name: string | undefined,
+      options: ScreenshotMatcherOptions,
+    ): Promise<void>;
+  };
   element(locator: unknown): ElementAssertion;
 }
 
@@ -36,5 +43,13 @@ export function expectScreenshot(
   locator: LocatorLike,
   name?: string,
 ): Promise<void> {
-  return (expect(locator) as any).toMatchScreenshot(name);
+  // These references were captured with Vitest 4 fitting the fixture's iframe
+  // inside a 1280x720 window. Vitest 5 resizes the window with the iframe, so
+  // preserve that framing during capture without changing the fixture layout.
+  const scale = Math.min(1, 1280 / window.innerWidth, 720 / window.innerHeight);
+  return browserExpect(locator).toMatchScreenshot(name, {
+    screenshotOptions: {
+      style: `iframe[data-vitest="true"] { transform: scale(${scale}) !important; transform-origin: top left !important; }`,
+    },
+  });
 }

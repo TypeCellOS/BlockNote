@@ -48,3 +48,4 @@ release
 !.claude/skills
 .playwright-cli
 .claude/skills/playwright-cli/screenshots
+.vitest/

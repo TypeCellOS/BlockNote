@@ -7,7 +7,7 @@ const template = (
 import react from "@vitejs/plugin-react";
 import * as fs from "fs";
 import * as path from "path";
-import { defineConfig } from "vite";${
+import { defineConfig } from "vite-plus";${
   project.config.tailwind
     ? `
 import tailwindcss from "@tailwindcss/vite";`

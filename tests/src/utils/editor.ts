@@ -1,6 +1,6 @@
 import { expect, vi } from "vite-plus/test";
 import type { Locator } from "vite-plus/test/browser";
-import { userEvent } from "./context.js";
+import { page, userEvent } from "./context.js";
 import { EDITOR_SELECTOR } from "./const.js";
 
 /** Fixed pause for animations/debounces the editor relies on. */
@@ -122,6 +122,11 @@ type ElementExpect = (
 
 export const expectElement = (expect as unknown as { element: ElementExpect })
   .element;
+
+/** Capture the visible viewport without scrolling or resizing the page. */
+export function matchViewportScreenshot(name: string) {
+  return (expect(page) as unknown as ElementMatchers).toMatchScreenshot(name);
+}
 
 /**
  * Visual regression snapshot of the whole page (captures the editor plus any

@@ -7,7 +7,6 @@
     "concurrently": "9.1.2",
     "eslint-plugin-import": "^2.32.0",
     "glob": "^10.5.0",
-    "oxlint-tsgolint": "^7.0.2001",
     "serve": "14.2.6",
     "typescript": "^7.0.2",
     "vite-plus": "catalog:",

@@ -13,18 +13,20 @@ export default defineConfig(
         tasks: {
           build: {
             command: "tsc && vp build",
-            input: [
-              ...buildCacheInputs("packages/xl-pdf-exporter"),
-              { pattern: "!**/*.tsbuildinfo", base: "workspace" },
-            ],
-            // `types/**` must be declared too: a cache replay that restores only
-            // dist/ leaves consumers without declarations (tsc is skipped).
-            // Entries stored before this spec carried types/** replay stale
-            // declarations; editing this config invalidates them.
-            // (Invalidated again 2026-08: the Typst-compiler migration
-            // replaced pdfua/compileBrowser with pdfua/compileTypst and the
-            // export surface, and cached pre-migration types resurfaced.)
-            output: ["dist/**", "types/**", "!dist/*.tsbuildinfo"],
+            cache: {
+              input: [
+                ...buildCacheInputs("packages/xl-pdf-exporter"),
+                { pattern: "!**/*.tsbuildinfo", base: "workspace" },
+              ],
+              // `types/**` must be declared too: a cache replay that restores only
+              // dist/ leaves consumers without declarations (tsc is skipped).
+              // Entries stored before this spec carried types/** replay stale
+              // declarations; editing this config invalidates them.
+              // (Invalidated again 2026-08: the Typst-compiler migration
+              // replaced pdfua/compileBrowser with pdfua/compileTypst and the
+              // export surface, and cached pre-migration types resurfaced.)
+              output: ["dist/**", "types/**", "!dist/*.tsbuildinfo"],
+            },
           },
         },
       },

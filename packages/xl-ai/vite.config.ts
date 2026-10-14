@@ -14,23 +14,27 @@ export default defineConfig(
         tasks: {
           build: {
             command: "tsc && vp build",
-            input: [
-              ...buildCacheInputs("packages/xl-ai"),
-              { pattern: "!**/*.tsbuildinfo", base: "workspace" },
-            ],
-            // `types/**` must be declared too: a cache replay that restores only
-            // dist/ leaves consumers without declarations (tsc is skipped).
-            output: ["dist/**", "types/**", "!dist/*.tsbuildinfo"],
+            cache: {
+              input: [
+                ...buildCacheInputs("packages/xl-ai"),
+                { pattern: "!**/*.tsbuildinfo", base: "workspace" },
+              ],
+              // `types/**` must be declared too: a cache replay that restores only
+              // dist/ leaves consumers without declarations (tsc is skipped).
+              output: ["dist/**", "types/**", "!dist/*.tsbuildinfo"],
+            },
           },
           test: {
             command:
               'NODE_EXTRA_CA_CERTS="$(mkcert -CAROOT)/rootCA.pem" vp test --run',
-            input: [
-              { auto: true },
-              { pattern: "!**/.vite-temp/**", base: "workspace" },
-              { pattern: "!**/node_modules/.vite/**", base: "workspace" },
-              { pattern: "!**/*.tsbuildinfo", base: "workspace" },
-            ],
+            cache: {
+              input: [
+                { auto: true },
+                { pattern: "!**/.vite-temp/**", base: "workspace" },
+                { pattern: "!**/node_modules/.vite/**", base: "workspace" },
+                { pattern: "!**/*.tsbuildinfo", base: "workspace" },
+              ],
+            },
           },
         },
       },

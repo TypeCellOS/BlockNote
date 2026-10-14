@@ -178,7 +178,7 @@ jobs:
         if: ${{ failure() }}
         with:
           name: e2e-attachments-${{ matrix.browser }}-${{ matrix.shardIndex }}
-          path: tests/.vitest-attachments/
+          path: tests/.vitest/attachments/
           # The attachments dir is a dot-directory; without this the action
           # silently uploads nothing ("No files were found").
           include-hidden-files: true
@@ -232,7 +232,7 @@ jobs:
         if: ${{ failure() }}
         with:
           name: e2e-attachments-pdf-${{ matrix.browser }}
-          path: tests/.vitest-attachments/
+          path: tests/.vitest/attachments/
           include-hidden-files: true
           retention-days: 7
 

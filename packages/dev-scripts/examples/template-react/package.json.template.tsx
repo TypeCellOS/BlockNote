@@ -7,10 +7,10 @@ const template = (project: Project) => ({
   private: true,
   version: "0.12.4",
   scripts: {
-    start: "vite",
-    dev: "vite",
-    "build:prod": "tsc && vite build",
-    preview: "vite preview",
+    start: "vp dev",
+    dev: "vp dev",
+    "build:prod": "tsc && vp build",
+    preview: "vp preview",
   },
   dependencies: {
     "@blocknote/ariakit": "latest",
@@ -40,6 +40,7 @@ const template = (project: Project) => ({
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
     vite: getCatalogVersion("vite"),
+    "vite-plus": getCatalogVersion("vite-plus"),
     ...(project.config?.devDependencies || {}),
   },
 });

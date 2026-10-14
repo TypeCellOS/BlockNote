@@ -30,41 +30,23 @@ overrides:
   # incompatible types. Keep direct imports and prosemirror-state/@tiptap/pm
   # on one resolution (1.12.0 vs 1.12.1 breaks the core build).
   "prosemirror-transform": "^1.12.1"
-  # vite-plus declares @types/node and jsdom as peers, so every distinct version
-  # of them in the workspace produces a separate vite-plus (and therefore vitest)
-  # instance. `vp run test` starts the runner from the workspace root while each
-  # test file resolves `vite-plus/test` relative to itself, so a package on a
-  # different instance ends up with a second SnapshotClient and every
-  # `toMatchSnapshot` fails with "The snapshot state for '...' is not found".
-  # Pin both so the whole workspace shares one instance.
+  # Keep Vitest's @types/node and jsdom peers identical across the workspace.
+  # Otherwise pnpm can create separate runner instances, so test imports and
+  # the CLI do not share snapshot state.
   "@types/node": "25.9.5"
   "jsdom": "^29.0.2"
-  "vitest": "4.1.11"
-  # Keep the browser runner and its adapters on the same version as Vitest.
-  "@vitest/browser": "4.1.11"
-  "@vitest/browser-playwright": "4.1.11"
-  "@vitest/browser-preview": "4.1.11"
-  "@vitest/runner": "4.1.11"
-  # @vitest/mocker must stay >=4.1.10: earlier builds only recognize `vitest`
-  # as the mocks-API source, so `vi.mock` imported from `vite-plus/test` fails
-  # to hoist ("problems in resolving the mocks API"). 4.1.10 adds vite-plus/test.
-  "@vitest/mocker": "4.1.11"
   "@y/y": "14.0.0-rc.23"
   "@y/prosemirror": "2.0.0-6"
   "lib0": "^1.0.0-rc.34"
+  vite@*: "catalog:"
+  vitest@*: "catalog:"
 packageExtensions:
-  # `@vitest/ui` is an *optional peer* of vitest, which vite-plus re-exposes as
-  # an optional peer of its own. Only `tests` declares it (its browser config
-  # uses the `html` reporter), so it used to be resolved in that one importer
-  # and missing everywhere else - two `vite-plus` peer keys, two physical
-  # instances. Declaring it in more importers doesn't help: an importer that
-  # depends on it directly resolves it *without* vitest attached, so the key
-  # differs either way. Making it a regular dependency of vite-plus satisfies
-  # the peer inside vite-plus itself, so it drops out of the peer key entirely
-  # and every importer shares one instance.
+  # Provide the optional HTML reporter through every vite-plus instance so
+  # tests/ and the Node suites resolve the same Vitest peer graph. Keep this
+  # version aligned with the bundled runner and the toolchain catalog.
   vite-plus:
     dependencies:
-      "@vitest/ui": "4.1.5"
+      "@vitest/ui": "5.0.3"
 allowBuilds:
   "@parcel/watcher": true
   "@sentry/cli": true
@@ -82,8 +64,11 @@ allowBuilds:
 patchedDependencies:
   { "@y/prosemirror@2.0.0-6": patches/@y__prosemirror@2.0.0-6.patch }
 catalog:
-  vite: ^8.0.0
-  vite-plus: ^0.3.3
+  vite: npm:@voidzero-dev/vite-plus-core@1.1.0
+  vite-plus: 1.1.0
+  vitest: 5.0.3
+  "@vitest/browser-playwright": 5.0.3
+  "@vitest/ui": 5.0.3
 minimumReleaseAgeExclude:
   - vite-plus
   - lib0
@@ -104,8 +89,17 @@ minimumReleaseAgeExclude:
   - "@myriaddreamin/typst-ts-renderer"
   - "@myriaddreamin/typst-ts-node-compiler"
   - "@myriaddreamin/typst-ts-node-compiler-*"
+  - vitest
+  - "@vitest/*"
 
 # pdfjs-dist pulls @napi-rs/canvas (native binaries) for Node-side
 # rendering, which we never do - pdf.js only runs in the browser suite.
 ignoredOptionalDependencies:
   - "@napi-rs/canvas"
+peerDependencyRules:
+  allowAny:
+    - vite
+    - vitest
+  allowedVersions:
+    vite: "*"
+    vitest: "*"

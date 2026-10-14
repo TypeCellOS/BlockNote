@@ -11,15 +11,17 @@ export default defineConfig(
         tasks: {
           build: {
             command: "tsc && vp build",
-            input: [
-              ...buildCacheInputs("packages/xl-typst-exporter"),
-              { pattern: "!**/*.tsbuildinfo", base: "workspace" },
-            ],
-            // `types/**` must be declared too: a cache replay that restores only
-            // dist/ leaves consumers without declarations (tsc is skipped).
-            // Entries stored before this spec carried types/** replay stale
-            // declarations; editing this config invalidates them.
-            output: ["dist/**", "types/**", "!dist/*.tsbuildinfo"],
+            cache: {
+              input: [
+                ...buildCacheInputs("packages/xl-typst-exporter"),
+                { pattern: "!**/*.tsbuildinfo", base: "workspace" },
+              ],
+              // `types/**` must be declared too: a cache replay that restores only
+              // dist/ leaves consumers without declarations (tsc is skipped).
+              // Entries stored before this spec carried types/** replay stale
+              // declarations; editing this config invalidates them.
+              output: ["dist/**", "types/**", "!dist/*.tsbuildinfo"],
+            },
           },
         },
       },

@@ -3,7 +3,11 @@ import { beforeEach, describe, expect, test } from "vite-plus/test";
 import { render } from "vitest-browser-react";
 import { page, userEvent } from "../../utils/context.js";
 import { EDITOR_SELECTOR } from "../../utils/const.js";
-import { expectElement, sleep, waitForSelector } from "../../utils/editor.js";
+import {
+  matchViewportScreenshot,
+  sleep,
+  waitForSelector,
+} from "../../utils/editor.js";
 
 beforeEach(async () => {
   // Use a small viewport so the editor content requires scrolling.
@@ -58,10 +62,9 @@ describe("AI Menu Scroll Regression", () => {
     // Brief wait for any scroll side effects to take place
     await sleep(300);
 
-    // Screenshot after opening AI menu
-    await expectElement(document.body).toMatchScreenshot(
-      "ai_menu_scroll_position",
-    );
+    // Capture the visible scrolled viewport. A body capture includes blank
+    // areas outside the test iframe and can change the scroll position.
+    await matchViewportScreenshot("ai_menu_scroll_position");
 
     // Check that the scroll position has not jumped to the top
     const scrollYAfter = window.scrollY;

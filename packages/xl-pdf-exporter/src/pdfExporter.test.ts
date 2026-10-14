@@ -24,7 +24,7 @@ const schema = BlockNoteSchema.create({
 });
 
 function read(p: string) {
-  return new Uint8Array(readFileSync(resolve(process.cwd(), p)));
+  return new Uint8Array(readFileSync(resolve(import.meta.dirname, "..", p)));
 }
 
 // Node has no URL-relative wasm loading, so the module bytes are passed

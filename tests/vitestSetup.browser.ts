@@ -9,18 +9,11 @@ import { ensureTouchEmulation } from "./src/utils/ensureTouchEmulation.js";
 // (e.g. the AI example uses `mockID`), replacing the Playwright init script
 // that used to live in `src/setup/setupScript.ts`.
 
-// Size the test iframe to 1280x720. The playwright `contextOptions.viewport`
-// in vite.config.browser.ts sizes the OUTER browser window, but vitest renders
-// each test inside an iframe that defaults to a much smaller size (~333px wide
-// — narrow enough to wrap menus weirdly and skew screenshots). `page.viewport`
-// resizes that iframe. Run before all tests in the file so every test sees the
-// right size from the first render.
+// Set both the test iframe and the outer browser window to the baseline size.
+// Vitest 5's `page.viewport` resizes both. Run before all tests in the file so
+// every test sees the right size from the first render.
 beforeAll(async () => {
-  // On the android and ios instances the outer window is a 393x727 phone
-  // (provider contextOptions) — the iframe must match it exactly. A larger
-  // iframe gets scaled down by the harness's fit-to-window transform, so
-  // captures come out phone-*sized* but contain a shrunken desktop-width
-  // layout.
+  // Match the phone viewport configured for the android and ios instances.
   if (/android|iphone/i.test(navigator.userAgent)) {
     await page.viewport(393, 727);
   } else {

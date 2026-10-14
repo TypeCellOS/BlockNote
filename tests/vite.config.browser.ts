@@ -69,7 +69,7 @@ const blockNoteSrcAliases = Object.fromEntries(
 // The e2e suite is designed to run in a fixed Linux environment (the Playwright
 // Docker image) so behaviour is identical locally and on CI — see the migration
 // notes. Locally you run it via the `test:e2e:ui` Docker script and view the
-// Vitest UI from the host browser at http://localhost:63315/__vitest__/.
+// Vitest UI using the authenticated URL printed by Vitest (forward port 63315).
 
 // `defineConfig` with the inline object form trips TS2321 (excessive stack depth)
 // once the browser config is this large; the function form + `as UserConfig`
@@ -130,11 +130,8 @@ export default defineConfig(
         // Persist a navigable HTML report to tests/playwright-report/ (same
         // path the legacy Playwright HTML report used, so existing CI artifact
         // uploads keep working). The `html` reporter is provided by
-        // `@vitest/ui` — its peer-dep version must match vite-plus-test's
-        // expectation (4.1.5 at the time of writing); earlier 0.1.x doesn't
-        // ship the `/reporter` subexport and errors at startup.
-        reporters: ["default", "html"],
-        outputFile: { html: "./playwright-report/index.html" },
+        // `@vitest/ui`, aligned with the bundled Vitest version in the catalog.
+        reporters: ["default", ["html", { outputDir: "./playwright-report" }]],
         browser: {
           enabled: true,
           // Global default tolerance for every `toMatchScreenshot` assertion.

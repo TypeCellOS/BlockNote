@@ -19,3 +19,4 @@
 packages/xl-typst-compiler/pkg
 **/playwright-report
 tests/.vitest-attachments
+**/.vitest

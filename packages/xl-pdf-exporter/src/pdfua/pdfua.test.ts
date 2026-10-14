@@ -30,7 +30,8 @@ function fontBlobs(): Uint8Array[] {
     `${shared}/noto/Noto-COLRv1.ttf`,
   ];
   return paths.map(
-    (p) => new Uint8Array(readFileSync(resolve(process.cwd(), p))),
+    (p) =>
+      new Uint8Array(readFileSync(resolve(import.meta.dirname, "../..", p))),
   );
 }
 
