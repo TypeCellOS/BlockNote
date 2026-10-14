@@ -29,7 +29,10 @@ entrypoint_args=("$@")
 # Auto-rebuild the image if its content hash label doesn't match the current
 # repo state. The hash covers every file that affects the image's contents: the
 # Dockerfile itself, plus everything it bakes in — the lockfile, workspace file,
-# all package.json files, patches, and example sources. When they differ the
+# all package.json files, patches, and example sources. Generated output dirs
+# are pruned: `pkg/` is wasm-pack's, and it emits a package.json, so without
+# that prune, building the wasm this script *requires* would itself invalidate
+# the image and force a second full rebuild. When they differ the
 # image is rebuilt in place
 # (Docker's layer cache makes this fast when only a leaf changed).
 _dep_files() {
@@ -42,7 +45,8 @@ _dep_files() {
     find . -name package.json \
       -not -path '*/node_modules/*' \
       -not -path '*/.git/*' \
-      -not -path '*/dist/*'
+      -not -path '*/dist/*' \
+      -not -path '*/pkg/*'
   } | sort -u
 }
 _content_hash() {
@@ -65,6 +69,19 @@ mounts=()
 for src in packages/*/src; do
   mounts+=(-v "$PWD/$src:/work/$src")
 done
+# xl-typst-compiler is consumed through its build outputs (see
+# vite.config.browser.ts): the wasm + glue in pkg/ and the built TS wrapper.
+# Build them first (build:wasm + build) - they are gitignored, so the image
+# cannot contain them.
+for out in pkg dist types; do
+  if [ ! -d "packages/xl-typst-compiler/$out" ]; then
+    echo "packages/xl-typst-compiler/$out is missing - build it first:" >&2
+    echo "  pnpm exec vp run --filter @blocknote/xl-typst-compiler build" >&2
+    echo "(compiles the Rust wasm too when needed - requires rustup)" >&2
+    exit 1
+  fi
+  mounts+=(-v "$PWD/packages/xl-typst-compiler/$out:/work/packages/xl-typst-compiler/$out")
+done
 # The test files and browser config (callers iterate on these too).
 mounts+=(
   -v "$PWD/tests/src:/work/tests/src"
@@ -78,6 +95,7 @@ mounts+=(
 # keeps the image's node_modules symlinks intact).
 mounts+=(
   -v "$PWD/shared/testDocument.ts:/work/shared/testDocument.ts"
+  -v "$PWD/shared/testDocumentBlocks.ts:/work/shared/testDocumentBlocks.ts"
   -v "$PWD/shared/formatConversionTestUtil.ts:/work/shared/formatConversionTestUtil.ts"
   -v "$PWD/shared/api:/work/shared/api"
   -v "$PWD/shared/util:/work/shared/util"

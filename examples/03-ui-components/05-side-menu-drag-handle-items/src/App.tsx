@@ -13,7 +13,7 @@ import {
 
 import { ResetBlockTypeItem } from "./ResetBlockTypeItem";
 
-// To avoid rendering issues, it's good practice to define your custom drag
+// To avoid rendering issues, we recommend defining your custom drag
 // handle menu in a separate component, instead of inline within the `sideMenu`
 // prop of `SideMenuController`.
 const CustomDragHandleMenu = () => (

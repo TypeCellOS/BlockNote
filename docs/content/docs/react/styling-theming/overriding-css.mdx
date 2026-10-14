@@ -21,7 +21,7 @@ BlockNote uses classes with the `bn-` prefix to style editor elements. Here are 
 
 #### Editor Structure
 
-- `.bn-root`: Container class both the floating menus / toolbars and the editor
+- `.bn-root`: Themed root for the editor or portalled UI. An editor can have multiple roots.
 - `.bn-container`: Container around `.bn-editor`
 - `.bn-editor`: Main editor element (the "contenteditable").
 - `.bn-block`: Individual block element (including nested).
@@ -35,6 +35,8 @@ BlockNote uses classes with the `bn-` prefix to style editor elements. Here are 
 - `.bn-side-menu`: Side menu element.
 - `.bn-drag-handle-menu`: Drag handle menu.
 - `.bn-suggestion-menu`: Suggestion menu.
+
+Menus and popovers may be portalled outside the toolbar or button that opened them. Target their own classes under `.bn-root` rather than relying on a toolbar or `.bn-container` ancestor. See [Configuring Portal Targets](/docs/react/components#configuring-portal-targets).
 
 ### BlockNote CSS Attributes
 

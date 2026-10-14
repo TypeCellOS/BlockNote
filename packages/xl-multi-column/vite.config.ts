@@ -1,7 +1,8 @@
 import * as path from "path";
 import { webpackStats } from "rollup-plugin-webpack-stats";
-import { defineConfig, type UserConfig } from "vite-plus";
+import { configDefaults, defineConfig, type UserConfig } from "vite-plus";
 import pkg from "./package.json";
+import { buildCacheInputs } from "../../scripts/build-cache-inputs.js";
 // import eslintPlugin from "vite-plugin-eslint";
 
 // https://vitejs.dev/config/
@@ -11,18 +12,24 @@ export default defineConfig(
       run: {
         tasks: {
           build: {
-            command: "tsc && vp build",
+            command:
+              "tsc --project tsconfig.json --composite false --incremental false --rootDir . && vp build",
             input: [
-              { auto: true },
+              ...buildCacheInputs("packages/xl-multi-column"),
               { pattern: "!**/*.tsbuildinfo", base: "workspace" },
             ],
-            output: ["dist/**", "!dist/*.tsbuildinfo"],
+            // `types/**` must be declared too: a cache replay that restores only
+            // dist/ leaves consumers without declarations (tsc is skipped).
+            output: ["dist/**", "types/**", "!dist/*.tsbuildinfo"],
           },
         },
       },
       test: {
         environment: "jsdom",
         setupFiles: ["./vitestSetup.ts"],
+        // `.browser.test` files need a real browser; the tests package's
+        // browser suite runs them.
+        exclude: [...configDefaults.exclude, "**/*.browser.test.*"],
       },
       plugins: [webpackStats()],
       resolve: {

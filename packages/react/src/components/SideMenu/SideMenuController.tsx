@@ -3,6 +3,7 @@ import { SideMenuExtension } from "@blocknote/core/extensions";
 import { autoUpdate, offset, ReferenceElement } from "@floating-ui/react";
 import { FC, useCallback, useMemo } from "react";
 
+import { PortalElementOverride } from "../../editor/PortalElementOverride.js";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useExtensionState } from "../../hooks/useExtension.js";
 import { BlockPopover } from "../Popovers/BlockPopover.js";
@@ -61,10 +62,10 @@ export const SideMenuController = (props: {
   floatingUIOptions?: Partial<FloatingUIOptions>;
   /**
    * Override the DOM node this floating element portals into. Falls back to
-   * `editor.portalElement` (which by default is mounted inside `bn-container`)
+   * the ambient portal element (the element wrapping the editor by default)
    * when omitted.
    */
-  portalElement?: HTMLElement | null;
+  portalElement?: HTMLElement;
 }) => {
   const editor = useBlockNoteEditor();
   const state = useExtensionState(SideMenuExtension, {
@@ -88,8 +89,11 @@ export const SideMenuController = (props: {
       floating: HTMLElement,
       _update: () => void,
     ) => {
+      const sideMenu = editor.getExtension(SideMenuExtension);
+      // Lets the extension keep the block while the pointer heads to the menu.
+      sideMenu?.setMenuElement(floating);
       let initialized = false;
-      return autoUpdate(
+      const cleanup = autoUpdate(
         reference,
         floating,
         () => {
@@ -99,7 +103,7 @@ export const SideMenuController = (props: {
             initialized = true;
             return;
           }
-          editor.getExtension(SideMenuExtension)?.hideMenuIfNotFrozen();
+          sideMenu?.hideMenuIfNotFrozen();
         },
         {
           ancestorScroll: true,
@@ -108,6 +112,10 @@ export const SideMenuController = (props: {
           layoutShift: false,
         },
       );
+      return () => {
+        cleanup();
+        sideMenu?.setMenuElement(undefined);
+      };
     },
     [editor],
   );
@@ -149,12 +157,13 @@ export const SideMenuController = (props: {
   const Component = props.sideMenu || SideMenu;
 
   return (
-    <BlockPopover
-      blockId={show ? block?.id : undefined}
-      portalElement={props.portalElement}
-      {...floatingUIOptions}
-    >
-      {block?.id && <Component />}
-    </BlockPopover>
+    <PortalElementOverride target={props.portalElement}>
+      <BlockPopover
+        blockId={show ? block?.id : undefined}
+        {...floatingUIOptions}
+      >
+        {block?.id && <Component />}
+      </BlockPopover>
+    </PortalElementOverride>
   );
 };

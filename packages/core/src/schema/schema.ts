@@ -16,6 +16,7 @@ import {
   getInlineContentSchemaFromSpecs,
   getStyleSchemaFromSpecs,
 } from "./index.js";
+import { validateChildrenConfigs } from "./blocks/validateChildren.js";
 
 function removeUndefined<T extends Record<string, any> | undefined>(obj: T): T {
   if (!obj) {
@@ -90,6 +91,10 @@ export class CustomBlockNoteSchema<
         runsBefore: val.implementation?.runsBefore ?? [],
       })),
     );
+
+    // Validation runs before the nodes are built, so the misconfigurations
+    // ProseMirror cannot report on its own surface as clear errors.
+    validateChildrenConfigs(this.opts.blockSpecs);
 
     const blockSpecs = Object.fromEntries(
       Object.entries(this.opts.blockSpecs).map(([key, blockSpec]) => {
@@ -193,7 +198,9 @@ export class CustomBlockNoteSchema<
     AdditionalInlineContentSpecs extends undefined | Record<string, never>
       ? ISchema
       : ISchema & {
-          [K in keyof AdditionalInlineContentSpecs]: AdditionalInlineContentSpecs[K]["config"];
+          [
+            K in keyof AdditionalInlineContentSpecs
+          ]: AdditionalInlineContentSpecs[K]["config"];
         },
     AdditionalStyleSpecs extends undefined | Record<string, never>
       ? SSchema
@@ -201,10 +208,19 @@ export class CustomBlockNoteSchema<
           [K in keyof AdditionalStyleSpecs]: AdditionalStyleSpecs[K]["config"];
         }
   > {
-    // Merge the new specs with existing ones
-    Object.assign(this.opts.blockSpecs, opts.blockSpecs);
-    Object.assign(this.opts.inlineContentSpecs, opts.inlineContentSpecs);
-    Object.assign(this.opts.styleSpecs, opts.styleSpecs);
+    // Merge the new specs with the existing ones into fresh objects. The
+    // existing spec objects must not be written to: `BlockNoteSchema.create()`
+    // passes the module-level default specs by reference, so mutating them
+    // would leak the added specs (and the editor extensions they register) into
+    // every default-schema editor created afterwards.
+    this.opts = {
+      blockSpecs: { ...this.opts.blockSpecs, ...opts.blockSpecs },
+      inlineContentSpecs: {
+        ...this.opts.inlineContentSpecs,
+        ...opts.inlineContentSpecs,
+      },
+      styleSpecs: { ...this.opts.styleSpecs, ...opts.styleSpecs },
+    };
 
     // Reinitialize the block specs with the merged specs
     const {

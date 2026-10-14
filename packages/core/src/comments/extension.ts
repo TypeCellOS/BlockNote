@@ -64,6 +64,7 @@ export const CommentsExtension = createExtension(
       threadStore,
       resolveUsers,
       confirmBeforeDiscard = true,
+      submitOnEnter = true,
     },
   }: ExtensionOptions<{
     /**
@@ -93,6 +94,12 @@ export const CommentsExtension = createExtension(
      * @default true
      */
     confirmBeforeDiscard?: boolean;
+    /**
+     * Submit comments, replies, and edits on Enter. Shift-Enter inserts a line
+     * break, and Mod-Enter always submits, regardless of this setting.
+     * @default true
+     */
+    submitOnEnter?: boolean;
   }>) => {
     if (!resolveUsers) {
       throw new Error(
@@ -383,6 +390,7 @@ export const CommentsExtension = createExtension(
       },
       commentEditorSchema,
       confirmBeforeDiscard,
+      submitOnEnter,
     } as const;
   },
 );

@@ -4,7 +4,7 @@ import "./style.css";
 
 import type { GalleryEditor } from "./gallerySchema";
 import {
-  createYjsVersioningAdapter,
+  createYVersionView,
   SuggestionsExtension,
   withCollaboration,
 } from "@blocknote/core/y";
@@ -19,7 +19,7 @@ import { gallerySchema } from "./gallerySchema";
 import {
   buildSuggestionScenarioDocs,
   cloneDoc,
-  createAttributionStore,
+  createVersionMerge,
   docFromBlocks,
 } from "./scenarioDocs";
 import { scenarios, SuggestionScenario } from "./scenarios";
@@ -35,8 +35,8 @@ function makeAwareness(doc: Y.Doc, name: string, color: string): Awareness {
 // Hardcoded to match the attribution-mark palette (the colors BlockNote derives
 // per author id "A" / "B"), so a user's pane chrome matches their color in the
 // Diff / Merged panes.
-const USER_A = { name: "User A", color: "#8a6d1a" };
-const USER_B = { name: "User B", color: "#8a2e24" };
+const USER_A = { name: "User A", color: "#46525f" };
+const USER_B = { name: "User B", color: "#8a6d1a" };
 
 type Renderer = ReturnType<typeof Y.createDiffRenderer>;
 
@@ -113,14 +113,8 @@ function SuggestionsView({ scenario }: { scenario: SuggestionScenario }) {
   }, []);
 
   const authors = suggestionAuthors(scenario);
-  const paneCount = 1 + authors.length + (authors.length > 1 ? 1 : 0);
   return (
-    <div
-      className={
-        "bn-gallery-editors" +
-        (paneCount >= 4 ? " bn-gallery-editors--four" : "")
-      }
-    >
+    <div className="bn-gallery-editors">
       <div className="bn-gallery-pane">
         <div className="bn-gallery-pane-label">Base (editable)</div>
         <BlockNoteView editor={baseEditor} />
@@ -236,9 +230,7 @@ function UserSuggestion({
       className="bn-gallery-pane"
       style={{ borderTopColor: user.color, borderTopWidth: 3 }}
     >
-      <div className="bn-gallery-pane-label" style={{ color: user.color }}>
-        {label}
-      </div>
+      <div className="bn-gallery-pane-label">{label}</div>
       <BlockNoteView editor={editor} />
     </div>
   );
@@ -373,14 +365,7 @@ function VersioningView({ scenario }: { scenario: SuggestionScenario }) {
   }, []);
 
   return (
-    <div
-      className={
-        "bn-gallery-editors " +
-        (setup.users.length > 1
-          ? "bn-gallery-editors--four"
-          : "bn-gallery-editors--three")
-      }
-    >
+    <div className="bn-gallery-editors">
       <div className="bn-gallery-pane">
         <div className="bn-gallery-pane-label">Version 1 (editable)</div>
         <BlockNoteView editor={beforeEditor} />
@@ -411,19 +396,15 @@ function VersionMerge({
   applyInitial: boolean;
 }) {
   const [setup] = useState(() => {
-    const afterDoc = cloneDoc(beforeDoc);
-    const ids = new Set(users.map((u) => u.id));
-    // Record which user authored each merged change (by the Yjs origin the
-    // edits are forwarded with), so the Diff can color A's and B's
-    // contributions in their own colors instead of one flat diff color.
-    const attrs = createAttributionStore(afterDoc, (tr) =>
-      ids.has(String(tr.origin)) ? String(tr.origin) : null,
-    );
+    // Records which user authored each merged change, so the Diff can color
+    // A's and B's contributions in their own colors.
+    const merge = createVersionMerge(beforeDoc);
     return {
       userDocs: users.map(() => cloneDoc(beforeDoc)),
-      afterDoc,
-      attrs,
-      diffAwareness: new Awareness(afterDoc),
+      merge,
+      afterDoc: merge.doc,
+      attrs: merge.attributions,
+      diffAwareness: new Awareness(merge.doc),
     };
   });
 
@@ -441,36 +422,37 @@ function VersionMerge({
   useEffect(() => {
     // Forward every user edit into the merge doc (idempotent CRDT apply), so any
     // change to any user re-diffs.
-    // Forward with the author's id as the Yjs origin so the attribution store
-    // tags each merged change with its author.
     const offs = setup.userDocs.map((doc, i) => {
-      const origin = users[i].id;
       const onUpdate = (update: Uint8Array) =>
-        Y.applyUpdate(setup.afterDoc, update, origin);
+        setup.merge.apply(update, users[i].id);
       doc.on("update", onUpdate);
       return () => doc.off("update", onUpdate);
     });
     // Also pull in any edits that already flushed (the initial applies).
     setup.userDocs.forEach((doc, i) =>
-      Y.applyUpdate(setup.afterDoc, Y.encodeStateAsUpdate(doc), users[i].id),
+      setup.merge.apply(Y.encodeStateAsUpdate(doc), users[i].id),
     );
 
-    const adapter = createYjsVersioningAdapter(
+    const view = createYVersionView(
       diffEditor,
       setup.afterDoc.get("doc"),
-    );
+    ).open();
     const renderDiff = () =>
-      adapter.preview.enterPreview(
-        Y.encodeStateAsUpdateV2(setup.afterDoc),
-        Y.encodeStateAsUpdateV2(beforeDoc),
-        setup.attrs,
-      );
+      view.show({
+        content: Y.encodeStateAsUpdateV2(setup.afterDoc),
+        comparison: {
+          content: Y.encodeStateAsUpdateV2(beforeDoc),
+          attributions: setup.attrs,
+        },
+        target: { type: "current" },
+      });
     renderDiff();
     setup.afterDoc.on("update", renderDiff);
 
     return () => {
       offs.forEach((off) => off());
       setup.afterDoc.off("update", renderDiff);
+      view.close();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -535,9 +517,7 @@ function UserVersion({
       className="bn-gallery-pane"
       style={{ borderTopColor: user.color, borderTopWidth: 3 }}
     >
-      <div className="bn-gallery-pane-label" style={{ color: user.color }}>
-        {label}
-      </div>
+      <div className="bn-gallery-pane-label">{label}</div>
       <BlockNoteView editor={editor} />
     </div>
   );

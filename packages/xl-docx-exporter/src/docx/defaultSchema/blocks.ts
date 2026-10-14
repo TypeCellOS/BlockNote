@@ -126,23 +126,27 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
       ],
     });
   },
-  numberedListItem: (block, exporter, nestingLevel) => {
+  numberedListItem: (block, exporter, nestingLevel, numberingInstance) => {
     return new Paragraph({
       ...blockPropsToStyles(block.props, exporter.options.colors),
       children: exporter.transformInlineContent(block.content),
       numbering: {
         reference: "blocknote-numbered-list",
         level: clampListLevel(nestingLevel),
+        // Each distinct list gets its own instance so separate lists don't
+        // continue each other's numbering (see DOCXExporter.transformBlocks).
+        instance: numberingInstance,
       },
     });
   },
-  bulletListItem: (block, exporter, nestingLevel) => {
+  bulletListItem: (block, exporter, nestingLevel, numberingInstance) => {
     return new Paragraph({
       ...blockPropsToStyles(block.props, exporter.options.colors),
       children: exporter.transformInlineContent(block.content),
       numbering: {
         reference: "blocknote-bullet-list",
         level: clampListLevel(nestingLevel),
+        instance: numberingInstance,
       },
     });
   },
@@ -173,18 +177,33 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
     });
   },
   audio: (block, exporter) => {
+    if (!block.props.url && !block.props.name) {
+      // An un-uploaded media placeholder ("Add file") is an editing
+      // affordance, not document content - it exports as nothing.
+      return [];
+    }
     return [
       file(block.props, exporter.dictionary.open_audio_file, exporter),
       ...caption(block.props, exporter),
     ];
   },
   video: (block, exporter) => {
+    if (!block.props.url && !block.props.name) {
+      // An un-uploaded media placeholder ("Add file") is an editing
+      // affordance, not document content - it exports as nothing.
+      return [];
+    }
     return [
       file(block.props, exporter.dictionary.open_video_file, exporter),
       ...caption(block.props, exporter),
     ];
   },
   file: (block, exporter) => {
+    if (!block.props.url && !block.props.name) {
+      // An un-uploaded media placeholder ("Add file") is an editing
+      // affordance, not document content - it exports as nothing.
+      return [];
+    }
     return [
       file(block.props, exporter.dictionary.open_file, exporter),
       ...caption(block.props, exporter),
@@ -208,56 +227,74 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
       },
     });
   },
-  column: (block, _exporter, _nestingLevel, _numberedListIndex, children) => {
-    return new TableCell({
-      width: {
-        size: `${block.props.width * 100}%`,
-        type: "pct",
-      },
-      children: (children || []).flatMap((child) => {
-        if (Array.isArray(child)) {
-          return child;
-        }
+  column: {
+    withChildren: (
+      block,
+      _exporter,
+      _nestingLevel,
+      _numberedListIndex,
+      children,
+    ) => {
+      return new TableCell({
+        width: {
+          size: `${block.props.width * 100}%`,
+          type: "pct",
+        },
+        children: (children || []).flatMap((child) => {
+          if (Array.isArray(child)) {
+            return child;
+          }
 
-        return [child];
-      }),
-    }) as any;
-  },
-  columnList: (
-    _block,
-    _exporter,
-    _nestingLevel,
-    _numberedListIndex,
-    children,
-  ) => {
-    return new DocxTable({
-      layout: "autofit",
-      borders: {
-        bottom: { style: "nil" },
-        top: { style: "nil" },
-        left: { style: "nil" },
-        right: { style: "nil" },
-        insideHorizontal: { style: "nil" },
-        insideVertical: { style: "nil" },
-      },
-      rows: [
-        new TableRow({
-          children: (children as unknown as TableCell[]).map(
-            (cell, _index, children) => {
-              return new TableCell({
-                width: {
-                  size: `${(parseFloat(`${cell.options.width?.size || "100%"}`) / (children.length * 100)) * 100}%`,
-                  type: "pct",
-                },
-                children: cell.options.children,
-              });
-            },
-          ),
+          return [child];
         }),
-      ],
-    });
+      }) as any;
+    },
+  },
+  columnList: {
+    withChildren: (
+      _block,
+      _exporter,
+      _nestingLevel,
+      _numberedListIndex,
+      children,
+    ) => {
+      return new DocxTable({
+        layout: "autofit",
+        borders: {
+          bottom: { style: "nil" },
+          top: { style: "nil" },
+          left: { style: "nil" },
+          right: { style: "nil" },
+          insideHorizontal: { style: "nil" },
+          insideVertical: { style: "nil" },
+        },
+        rows: [
+          new TableRow({
+            children: (children as unknown as TableCell[]).map(
+              (cell, _index, children) => {
+                return new TableCell({
+                  width: {
+                    size: `${(parseFloat(`${cell.options.width?.size || "100%"}`) / (children.length * 100)) * 100}%`,
+                    type: "pct",
+                  },
+                  children: cell.options.children,
+                });
+              },
+            ),
+          }),
+        ],
+      });
+    },
   },
   image: async (block, exporter) => {
+    if (!block.props.url) {
+      // An image without a URL is the editor's un-uploaded placeholder ("Add
+      // image"), not document content - it exports as nothing. (The typst
+      // exporter renders a labelled placeholder figure when a name is present;
+      // this format has no placeholder rendering, so any url-less image is
+      // omitted.)
+      return [];
+    }
     const blob = await exporter.resolveFile(block.props.url);
     const { width, height } = await getImageDimensions(blob);
 

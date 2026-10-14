@@ -245,6 +245,7 @@ export const fr: Dictionary = {
   },
   toggle_blocks: {
     add_block_button: "Liste repliable vide. Cliquez pour ajouter un bloc.",
+    toggle_button: "Déplier ou replier",
   },
   code_block: {
     add_source_button_text: "Ajouter le code source",
@@ -455,10 +456,39 @@ export const fr: Dictionary = {
   suggestion_changes: {
     formatting_change: "Modification de mise en forme",
     deleted: "Supprimé",
+    inserted: "Inséré",
     inserted_by: (users: string) => `Inséré par : ${users}`,
     deleted_by: (users: string) => `Supprimé par : ${users}`,
+    changed: "Modifié",
+    changed_by: (users: string) => `Modifié par : ${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `Modification de mise en forme (${formats}) par : ${users}`,
+  },
+  versioning: {
+    start_of_document: "Début du document",
+    compare_since_beginning_menuitem: "Comparer depuis le début",
+    title: "Historique",
+    close: "Fermer",
+    show_named_only: "Afficher uniquement les versions nommées",
+    show_all: "Afficher toutes les versions",
+    comparison_on: "Activer la comparaison",
+    comparison_off: "Désactiver la comparaison",
+    versions_list: "Versions",
+    empty: "Aucune version pour l'instant",
+    empty_named_only: "Aucune version nommée",
+    current_version: "Version actuelle",
+    before_restore: "Avant la restauration",
+    comparing_to: "Comparé à",
+    restored_from: (date: string) => `Restauré depuis ${date}`,
+    more_actions: "Plus d'actions",
+    version_name_input: "Nom de la version",
+    name_version_menuitem: "Nommer cette version",
+    rename_menuitem: "Renommer",
+    compare_with_menuitem: "Comparer avec cette version",
+    restore_menuitem: "Restaurer",
+    delete_menuitem: "Supprimer",
+    action_failed: "Une erreur s'est produite. Veuillez réessayer.",
+    history_load_failed: "Impossible de charger l'historique des versions",
   },
   exporter: {
     open_file: "Ouvrir le fichier",
@@ -466,6 +496,9 @@ export const fr: Dictionary = {
     open_audio_file: "Ouvrir l'audio",
   },
   generic: {
+    loading: "Chargement...",
+    load_more: "Charger plus",
     ctrl_shortcut: "Ctrl",
+    form_submit: "OK",
   },
 };

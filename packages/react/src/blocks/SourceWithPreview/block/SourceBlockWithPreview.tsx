@@ -31,8 +31,8 @@ export const SourceBlockWithPreview = (props: SourceBlockWithPreviewProps) => {
   // block uses Enter for hard breaks (multi-line source, e.g. diagrams),
   // Enter inserts a newline instead of closing the popup.
   const enterSubmits =
-    editor.schema.blockSpecs[block.type]?.implementation?.meta
-      ?.hardBreakShortcut !== "enter";
+    editor.schema.blockSpecs[block.type].implementation.keyboard(block)
+      .enter !== "line-break";
 
   return (
     <SourceWithPreview

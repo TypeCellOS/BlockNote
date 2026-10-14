@@ -5,9 +5,18 @@ import {
   createCodeBlockSpec,
   InlineContentSchema,
   StyleSchema,
-  uploadToTmpFilesDotOrg_DEV_ONLY,
 } from "@blocknote/core";
 import { afterAll, beforeAll } from "vite-plus/test";
+
+// "Uploads" a file by encoding it as a base64 data URL.
+async function uploadFile(file: File) {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
+}
 
 export const createTestEditor = <
   B extends BlockSchema,
@@ -57,7 +66,7 @@ export const createTestEditor = <
         headers: true,
       },
       trailingBlock: false,
-      uploadFile: uploadToTmpFilesDotOrg_DEV_ONLY,
+      uploadFile,
     }) as any;
     editor.mount(div);
   });

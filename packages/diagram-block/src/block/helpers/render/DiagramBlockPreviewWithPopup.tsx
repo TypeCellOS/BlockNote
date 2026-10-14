@@ -9,6 +9,7 @@ import { SiMermaid } from "react-icons/si";
 
 import { plainContentToString } from "@blocknote/core";
 import { initializeMermaid } from "../../../helpers/initializeMermaid.js";
+import { withSVGFontFamily } from "../../../helpers/svgFontFamily.js";
 import { trimDiagramSVG } from "../../../helpers/trimDiagramSVG.js";
 import { getDiagramDictionary } from "../../../i18n/dictionary.js";
 import { DiagramBlockConfig } from "../../createReactDiagramBlockSpec.js";
@@ -22,19 +23,28 @@ let mermaidElementId = 0;
  * has fully rendered, and swapping inline SVG commits in a single frame - so
  * the preview never flashes.
  */
-export const useMermaidSVG = (source: string) => {
+export const useMermaidSVG = (source: string, fontFamilyElement?: Element) => {
   const [svg, setSVG] = useState("");
   const [error, setError] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     if (!source.trim()) {
+      // Clear the previous render when the external source becomes empty.
+      // eslint-disable-next-line react/set-state-in-effect
       setSVG("");
+      // eslint-disable-next-line react/set-state-in-effect
       setError(undefined);
 
       return;
     }
 
     initializeMermaid();
+
+    // Read the font at render time, not at mount - the computed font is
+    // themeable via CSS, so a memoized read would go stale on theme changes.
+    const fontFamily = fontFamilyElement
+      ? getComputedStyle(fontFamilyElement).fontFamily
+      : undefined;
 
     // Rendering is asynchronous, so bail out if the source changed (or the
     // block was removed) before it finished.
@@ -49,7 +59,11 @@ export const useMermaidSVG = (source: string) => {
         await mermaid.parse(source);
         const { svg } = await mermaid.render(id, source);
         if (!stale) {
-          setSVG(trimDiagramSVG(svg));
+          // Diagrams display in the editor's own font (see
+          // `setSVGFontFamily`) - the same treatment the export renderers
+          // apply, so the preview shows what exports produce.
+          const trimmed = trimDiagramSVG(svg);
+          setSVG(fontFamily ? withSVGFontFamily(trimmed, fontFamily) : trimmed);
           setError(undefined);
         }
       } catch (err) {
@@ -62,7 +76,7 @@ export const useMermaidSVG = (source: string) => {
     return () => {
       stale = true;
     };
-  }, [source]);
+  }, [source, fontFamilyElement]);
 
   return { svg, error };
 };
@@ -70,7 +84,10 @@ export const DiagramBlockPreviewWithPopup = (
   props: ReactCustomBlockRenderProps<DiagramBlockConfig>,
 ) => {
   const source = plainContentToString(props.block.content).trim();
-  const { svg, error } = useMermaidSVG(source);
+  // Diagrams render in the editor's computed font, so they match the document
+  // they live in - the block renders inside the editor, so the element is
+  // mounted by the time the hook's effect reads its style.
+  const { svg, error } = useMermaidSVG(source, props.editor.domElement);
   const dict = getDiagramDictionary(props.editor).block;
 
   return (

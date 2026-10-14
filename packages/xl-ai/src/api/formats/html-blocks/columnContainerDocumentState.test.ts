@@ -76,7 +76,9 @@ describe("htmlBlockLLMFormat.defaultDocumentStateBuilder with multi-column", () 
       b.id.includes("column-list-0"),
     );
     expect(columnListEntry).toBeDefined();
-    expect(columnListEntry!.block).toContain('data-node-type="columnList"');
+    // External HTML has no BlockNote markers; the column list is recognized
+    // by its class (see the `parse` of the column blocks).
+    expect(columnListEntry!.block).toContain('class="bn-block-column-list"');
 
     expect(idEntries.find((b) => b.id.includes("column-0"))).toBeDefined();
     expect(idEntries.find((b) => b.id.includes("column-1"))).toBeDefined();

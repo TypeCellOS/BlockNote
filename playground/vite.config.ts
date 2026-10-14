@@ -6,6 +6,7 @@ import Inspect from "vite-plugin-inspect";
 import tailwindcss from "@tailwindcss/vite";
 
 import { defineConfig } from "vite-plus";
+import { buildCacheInputs } from "../scripts/build-cache-inputs.js";
 
 const devAliases: Record<string, string> = {
   "@blocknote/core": resolve(__dirname, "../packages/core/src"),
@@ -25,6 +26,10 @@ const devAliases: Record<string, string> = {
   "@blocknote/xl-pdf-exporter": resolve(
     __dirname,
     "../packages/xl-pdf-exporter/src",
+  ),
+  "@blocknote/xl-typst-exporter": resolve(
+    __dirname,
+    "../packages/xl-typst-exporter/src",
   ),
   "@shared": resolve(__dirname, "../shared"),
   "@blocknote/xl-multi-column": resolve(
@@ -69,7 +74,7 @@ export default defineConfig(((conf: { command: string }) => ({
       build: {
         command: "tsc && vp build",
         input: [
-          { auto: true },
+          ...buildCacheInputs("playground"),
           { pattern: "!**/*.tsbuildinfo", base: "workspace" },
         ],
         output: ["dist/**"],
@@ -123,13 +128,20 @@ export default defineConfig(((conf: { command: string }) => ({
               __dirname,
               "../packages/diagram-block/src",
             ),
+            // Same treatment for the typst exporter: the pdf-ua example and
+            // the math/diagram `typst-exporter` subpaths import it, and its
+            // optional-peer status in those packages means Vercel's filtered
+            // install would leave it unresolvable from their dist builds.
+            "@blocknote/xl-typst-exporter": resolve(
+              __dirname,
+              "../packages/xl-typst-exporter/src",
+            ),
+            // math-block's typst entry's optional peer, resolved from the
+            // playground's own dependencies (like katex below).
+            tex2typst: resolve(__dirname, "node_modules/tex2typst"),
             // The shared test-utils package the suggestion-gallery example
             // imports; dev mode resolves it via devAliases above.
             "@shared": resolve(__dirname, "../shared"),
-            "@react-pdf/math": resolve(
-              __dirname,
-              "node_modules/@react-pdf/math",
-            ),
             katex: resolve(__dirname, "node_modules/katex"),
           }
         : devAliases,

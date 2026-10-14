@@ -1,3 +1,4 @@
+/* eslint-disable react/refs -- This test block forwards the editor's callback ref to its rendered DOM node. */
 import {
   BlockNoteSchema,
   defaultBlockSpecs,

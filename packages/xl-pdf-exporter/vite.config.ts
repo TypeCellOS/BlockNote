@@ -1,7 +1,8 @@
 import * as path from "path";
 import { webpackStats } from "rollup-plugin-webpack-stats";
-import { defineConfig, type UserConfig } from "vite-plus";
+import { configDefaults, defineConfig, type UserConfig } from "vite-plus";
 import pkg from "./package.json";
+import { buildCacheInputs } from "../../scripts/build-cache-inputs.js";
 // import eslintPlugin from "vite-plugin-eslint";
 
 // https://vitejs.dev/config/
@@ -11,12 +12,20 @@ export default defineConfig(
       run: {
         tasks: {
           build: {
-            command: "tsc && vp build",
+            command:
+              "tsc --project tsconfig.json --composite false --incremental false --rootDir . && vp build",
             input: [
-              { auto: true },
+              ...buildCacheInputs("packages/xl-pdf-exporter"),
               { pattern: "!**/*.tsbuildinfo", base: "workspace" },
             ],
-            output: ["dist/**", "!dist/*.tsbuildinfo"],
+            // `types/**` must be declared too: a cache replay that restores only
+            // dist/ leaves consumers without declarations (tsc is skipped).
+            // Entries stored before this spec carried types/** replay stale
+            // declarations; editing this config invalidates them.
+            // (Invalidated again 2026-08: the Typst-compiler migration
+            // replaced pdfua/compileBrowser with pdfua/compileTypst and the
+            // export surface, and cached pre-migration types resurfaced.)
+            output: ["dist/**", "types/**", "!dist/*.tsbuildinfo"],
           },
         },
       },
@@ -24,6 +33,9 @@ export default defineConfig(
         environment: "node",
         setupFiles: ["./vitestSetup.ts"],
         testTimeout: 15000,
+        // `.browser.test` files need a real browser; the tests package's
+        // browser suite runs them.
+        exclude: [...configDefaults.exclude, "**/*.browser.test.*"],
         // assetsInclude: [
         //   "**/*.woff",
         //   "**/*.woff2",
@@ -48,6 +60,10 @@ export default defineConfig(
                   __dirname,
                   "../xl-multi-column/src/",
                 ),
+                "@blocknote/xl-typst-exporter": path.resolve(
+                  __dirname,
+                  "../xl-typst-exporter/src/",
+                ),
               } as Record<string, string>),
       },
       server: {
@@ -64,6 +80,7 @@ export default defineConfig(
               __dirname,
               "src/index.ts",
             ),
+            "react-pdf": path.resolve(__dirname, "src/react-pdf/index.ts"),
           },
           name: "blocknote-xl-pdf-exporter",
           formats: ["es", "cjs"],

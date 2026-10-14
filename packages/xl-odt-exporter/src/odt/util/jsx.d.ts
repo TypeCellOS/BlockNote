@@ -27,6 +27,7 @@ declare module "react/jsx-runtime" {
       "table:table": any;
       "table:table-row": any;
       "table:table-cell": any;
+      "table:covered-table-cell": any;
       "table:table-column": any;
       "manifest:manifest": any;
       "manifest:file-entry": any;

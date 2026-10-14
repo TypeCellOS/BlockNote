@@ -1,9 +1,8 @@
 import { FilePanelProps, useBlockNoteEditor } from "@blocknote/react";
-import Uppy, { UploadSuccessCallback } from "@uppy/core";
+import Uppy, { UploadCompleteCallback } from "@uppy/core";
 import "@uppy/core/dist/style.min.css";
 import "@uppy/dashboard/dist/style.min.css";
 import { Dashboard } from "@uppy/react";
-import XHR from "@uppy/xhr-upload";
 import { useEffect } from "react";
 
 // Image editor plugin
@@ -25,58 +24,38 @@ const uppy = new Uppy()
   // Instagram Dropbox etc.
   .use(Webcam)
   .use(ScreenCapture)
-  .use(ImageEditor)
+  .use(ImageEditor);
 
-  // Uses an XHR upload plugin to upload files to tmpfiles.org.
-  // You want to replace this with your own upload endpoint or Uppy Companion
-  // server.
-  .use(XHR, {
-    endpoint: "https://tmpfiles.org/api/v1/upload",
-    getResponseData(text, _resp) {
-      return {
-        url: JSON.parse(text).data.url.replace(
-          "tmpfiles.org/",
-          "tmpfiles.org/dl/",
-        ),
-      };
-    },
-  });
+// No uploader plugin is registered: for this demo we "upload" files with
+// BlockNote's dev-only helper, which encodes them as base64 data URLs. In a real
+// app you'd add an uploader like `@uppy/xhr-upload` pointing at your own backend
+// or Uppy Companion server.
 
 export function UppyFilePanel(props: FilePanelProps) {
   const { blockId } = props;
   const editor = useBlockNoteEditor();
 
   useEffect(() => {
-    // Listen for successful tippy uploads, and then update the Block with the
-    // uploaded URL.
-    const handler: UploadSuccessCallback<Record<string, unknown>> = (
-      file,
-      response,
+    // Listen for completed Dashboard uploads, then update the Block with the
+    // uploaded file's URL.
+    const handler: UploadCompleteCallback<Record<string, unknown>> = async (
+      result,
     ) => {
-      if (!file) {
-        return;
-      }
-
-      if (file.source === "uploadFile") {
-        // Didn't originate from Dashboard, should be handled by `uploadFile`
-        return;
-      }
-      if (response.status === 200) {
-        const updateData = {
+      for (const file of result.successful) {
+        editor.updateBlock(blockId, {
           props: {
-            name: file?.name,
-            url: response.uploadURL,
+            name: file.name,
+            url: await uploadFile(file.data as File),
           },
-        };
-        editor.updateBlock(blockId, updateData);
+        });
 
         // File should be removed from the Uppy instance after upload.
         uppy.removeFile(file.id);
       }
     };
-    uppy.on("upload-success", handler);
+    uppy.on("complete", handler);
     return () => {
-      uppy.off("upload-success", handler);
+      uppy.off("complete", handler);
     };
   }, [blockId, editor]);
 
@@ -86,19 +65,14 @@ export function UppyFilePanel(props: FilePanelProps) {
 
 // Implementation for the BlockNote `uploadFile` function.
 // This function is used when for example, files are dropped into the editor.
+// It "uploads" a file by encoding it as a base64 data URL. In a real app you'd
+// replace this with an upload to your own backend that returns a URL to the
+// stored file.
 export async function uploadFile(file: File) {
-  const id = uppy.addFile({
-    id: file.name,
-    name: file.name,
-    type: file.type,
-    data: file,
-    source: "uploadFile",
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
   });
-
-  try {
-    const result = await uppy.upload();
-    return result.successful[0].response!.uploadURL!;
-  } finally {
-    uppy.removeFile(id);
-  }
 }

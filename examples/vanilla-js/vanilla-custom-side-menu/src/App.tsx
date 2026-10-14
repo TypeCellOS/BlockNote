@@ -1,8 +1,5 @@
-import {
-  BlockNoteEditor,
-  SideMenuExtension,
-  SuggestionMenu,
-} from "@blocknote/core";
+import { BlockNoteEditor } from "@blocknote/core";
+import { SideMenuExtension, SuggestionMenu } from "@blocknote/core/extensions";
 import "@blocknote/core/fonts/inter.css";
 import "@blocknote/core/style.css";
 import { useEffect, useRef } from "react";

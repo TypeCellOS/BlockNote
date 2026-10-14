@@ -85,6 +85,7 @@ export function useGridSuggestionMenuKeyboardNavigation<Item>(
 
   // Resets index when items change
   useEffect(() => {
+    // eslint-disable-next-line react/set-state-in-effect -- Selection resets after the query changes, matching the existing menu interaction.
     setSelectedIndex(0);
   }, [query]);
 

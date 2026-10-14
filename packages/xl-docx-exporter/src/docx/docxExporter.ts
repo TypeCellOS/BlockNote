@@ -9,6 +9,7 @@ import {
 } from "@blocknote/core";
 import {
   AlignmentType,
+  CarriageReturn,
   Document,
   IRunPropertiesOptions,
   ISectionOptions,
@@ -55,7 +56,7 @@ export class DOCXExporter<
     /**
      * The schema of your editor. The mappings are automatically typed checked against this schema.
      */
-    protected readonly schema: BlockNoteSchema<B, I, S>,
+    schema: BlockNoteSchema<B, I, S>,
     /**
      * The mappings that map the BlockNote schema to the docxjs content.
      * Pass {@link docxDefaultSchemaMappings} for the default schema.
@@ -97,12 +98,30 @@ export class DOCXExporter<
       ...stylesArray,
     );
 
+    // A hard line break (shift+enter) arrives as "\n" inside the text. A raw
+    // LF inside <w:t> is ignored by Word, so the lines are emitted with
+    // explicit break elements (<w:cr/>) between them instead.
+    const lines = styledText.text.split("\n");
     return new TextRun({
       ...styles,
       style: hyperlink ? "Hyperlink" : styles.style,
-      text: styledText.text,
+      ...(lines.length === 1
+        ? { text: styledText.text }
+        : {
+            children: lines.flatMap((line, index) =>
+              index === 0 ? [line] : [new CarriageReturn(), line],
+            ),
+          }),
     });
   }
+
+  /**
+   * A document-global counter used to hand every distinct list its own numbering
+   * instance (and therefore its own `w:numId`). Two lists that share a `numId`
+   * are treated by Word as one continued list, so without this all lists in a
+   * document number/bullet as if they were a single list. See issue #2225.
+   */
+  private numberingInstanceCounter = 0;
 
   /**
    * Mostly for internal use, you probably want to use `toBlob` or `toDocxJsDocument` instead.
@@ -113,10 +132,33 @@ export class DOCXExporter<
   ): Promise<Array<Paragraph | Table>> {
     const ret: Array<Paragraph | Table> = [];
 
+    // The top-level call starts a fresh document, so restart instance numbering.
+    if (nestingLevel === 0) {
+      this.numberingInstanceCounter = 0;
+    }
+
+    // A list in Word is a maximal run of consecutive sibling list items of the
+    // same type; a break (any other block) or a switch between bullet/numbered
+    // starts a new list. Each such run gets its own numbering instance so it
+    // renders as a separate list rather than continuing the previous one.
+    let runListType: string | undefined;
+    let runInstance = 0;
+
     for (const b of blocks) {
+      let numberingInstance = 0;
+      if (b.type === "bulletListItem" || b.type === "numberedListItem") {
+        if (b.type !== runListType) {
+          runInstance = ++this.numberingInstanceCounter;
+          runListType = b.type;
+        }
+        numberingInstance = runInstance;
+      } else {
+        runListType = undefined;
+      }
+
       let children = await this.transformBlocks(b.children, nestingLevel + 1);
 
-      if (!["columnList", "column"].includes(b.type)) {
+      if (!this.placesChildren(b)) {
         children = children.map((c, _i) => {
           // NOTE: nested tables not supported (we can't insert the new Tab before a table)
           if (
@@ -133,18 +175,19 @@ export class DOCXExporter<
         });
       }
 
+      // The `numberedListIndex` slot carries the numbering instance for the docx
+      // block mappings (bullet/numbered list items); other block types ignore it.
       const self = await this.mapBlock(
-        b as any,
+        b,
         nestingLevel,
-        0 /*unused*/,
+        numberingInstance,
         children,
-      ); // TODO: any
-      if (["columnList", "column"].includes(b.type)) {
-        ret.push(self as Table);
-      } else if (Array.isArray(self)) {
-        ret.push(...self, ...children);
-      } else {
-        ret.push(self, ...children);
+      );
+      ret.push(...(Array.isArray(self) ? self : [self]));
+      // A layout block's mapping is handed its children and places them itself,
+      // so they must not be appended after it as well.
+      if (!this.placesChildren(b)) {
+        ret.push(...children);
       }
     }
     return ret;

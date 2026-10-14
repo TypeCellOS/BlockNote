@@ -5,7 +5,9 @@ import { FC, useEffect, useMemo, useState } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useEditorDOMElement } from "../../hooks/useEditorDomElement.js";
+import { useEditorState } from "../../hooks/useEditorState.js";
 import { useExtension } from "../../hooks/useExtension.js";
+import { PortalElementOverride } from "../../editor/PortalElementOverride.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
 import {
   GenericPopover,
@@ -19,12 +21,20 @@ export const LinkToolbarController = (props: {
   floatingUIOptions?: FloatingUIOptions;
   /**
    * Override the DOM node this floating element portals into. Falls back to
-   * `editor.portalElement` (which by default is mounted inside `bn-container`)
+   * the ambient portal element (the element wrapping the editor by default)
    * when omitted.
    */
-  portalElement?: HTMLElement | null;
+  portalElement?: HTMLElement;
 }) => {
   const editor = useBlockNoteEditor<any, any, any>();
+
+  // Reactive, not a one-off read: the editor can be locked and unlocked while
+  // this component stays mounted (a version preview does exactly that), and a
+  // read-only editor must not offer link editing.
+  const isEditable = useEditorState({
+    editor,
+    selector: ({ editor: current }) => current?.isEditable ?? false,
+  });
 
   const [toolbarOpen, setToolbarOpen] = useState(false);
   const [toolbarPositionFrozen, setToolbarPositionFrozen] = useState(false);
@@ -49,6 +59,17 @@ export const LinkToolbarController = (props: {
   // cursor position. If there is none, uses the link hovered by the mouse
   // cursor. Otherwise, the toolbar remains closed.
   useEffect(() => {
+    if (!isEditable) {
+      // Nothing to open a toolbar for, and any link picked up while the editor
+      // was still editable has to go — otherwise it would reappear the moment
+      // editing resumes.
+      // eslint-disable-next-line react/set-state-in-effect
+      setLink(undefined);
+      // eslint-disable-next-line react/set-state-in-effect
+      setToolbarOpen(false);
+      return;
+    }
+
     const textCursorCallback = () => {
       const textCursorLink = linkToolbar.getLinkAtSelection();
       if (!textCursorLink) {
@@ -114,7 +135,14 @@ export const LinkToolbarController = (props: {
       destroyOnSelectionChangeHandler();
       editorDOMElement?.removeEventListener("mouseover", mouseCursorCallback);
     };
-  }, [editor, editorDOMElement, linkToolbar, link, toolbarPositionFrozen]);
+  }, [
+    editor,
+    editorDOMElement,
+    isEditable,
+    linkToolbar,
+    link,
+    toolbarPositionFrozen,
+  ]);
 
   const floatingUIOptions = useMemo<FloatingUIOptions>(
     () => ({
@@ -173,31 +201,30 @@ export const LinkToolbarController = (props: {
 
   const reference = useMemo<GenericPopoverReference | undefined>(
     () => (link?.element ? { element: link.element } : undefined),
+    // The reference tracks the DOM node, not other link metadata.
+    // eslint-disable-next-line react/preserve-manual-memoization
     [link?.element],
   );
 
-  // TODO: this should be a hook to be reactive
-  if (!editor.isEditable) {
+  if (!isEditable) {
     return null;
   }
 
   const Component = props.linkToolbar || LinkToolbar;
 
   return (
-    <GenericPopover
-      reference={reference}
-      portalElement={props.portalElement}
-      {...floatingUIOptions}
-    >
-      {link && (
-        <Component
-          url={link.url}
-          text={link.text}
-          range={link.range}
-          setToolbarOpen={setToolbarOpen}
-          setToolbarPositionFrozen={setToolbarPositionFrozen}
-        />
-      )}
-    </GenericPopover>
+    <PortalElementOverride target={props.portalElement}>
+      <GenericPopover reference={reference} {...floatingUIOptions}>
+        {link && (
+          <Component
+            url={link.url}
+            text={link.text}
+            range={link.range}
+            setToolbarOpen={setToolbarOpen}
+            setToolbarPositionFrozen={setToolbarPositionFrozen}
+          />
+        )}
+      </GenericPopover>
+    </PortalElementOverride>
   );
 };

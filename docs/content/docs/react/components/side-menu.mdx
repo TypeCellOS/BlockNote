@@ -50,3 +50,26 @@ You can also change the items in the Drag Handle Menu. The demo below adds an it
 <Example name="ui-components/side-menu-drag-handle-items" />
 
 Here, we use the `SideMenu` component but keep the default buttons (we don't pass any children). Instead, we pass our customized Drag Handle Menu using the `dragHandleMenu` prop.
+
+## Hover and Drop Areas
+
+By default, the Block Side Menu shows only while the mouse is over the editor, including its padding, where the menu sits. A dragged block can still be dropped when it is up to 250px outside the editor. You can change both distances with the `sideMenu` editor option:
+
+```tsx
+import { useCreateBlockNote } from "@blocknote/react";
+
+const editor = useCreateBlockNote({
+  sideMenu: {
+    // Also show the menu up to 100px left or right of the editor.
+    hoverMargin: 100,
+    // Accept drops up to 400px outside the editor.
+    dropMargin: 400,
+  },
+});
+```
+
+`hoverMargin:` How far left or right of the editor (in px) the mouse still shows the menu, for the block at the height of the mouse. Defaults to `0`.
+
+`dropMargin:` How far outside the editor (in px), on any side, a dragged block can still be dropped. The block goes to the nearest position in the editor. Defaults to `250`.
+
+Both distances count from the editor's edge, so with the same value, the menu shows left and right of the editor as far out as a block can be dropped.

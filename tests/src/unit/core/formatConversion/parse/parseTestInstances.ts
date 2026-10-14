@@ -1119,6 +1119,125 @@ l'utilisateur (bouton bleu en haut à droite de la conversation)<o:p></o:p></spa
     },
     executeTest: testParseHTML,
   },
+  {
+    // The internal (`blocksToFullHTML`) form of a layout block. The frame's
+    // slot, which holds the children, is marked with `data-frame-slot`.
+    testCase: {
+      name: "layoutBlock",
+      content: `<div class="bn-block-group" data-node-type="blockGroup">
+  <div class="callout" data-node-type="callout" data-id="1">
+    <div class="callout-body" data-frame-slot="">
+      <div class="bn-block-outer" data-node-type="blockOuter" data-id="2">
+        <div class="bn-block" data-node-type="blockContainer" data-id="2">
+          <div class="bn-block-content" data-content-type="paragraph">
+            <p class="bn-inline-content">Callout child</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    // A layout block nested inside another, with a non-default prop on each.
+    testCase: {
+      name: "layoutNested",
+      content: `<div class="bn-block-group" data-node-type="blockGroup">
+  <div class="callout" data-flavor="warning" data-node-type="callout" data-id="1">
+    <div class="callout-body" data-frame-slot="">
+      <div class="bn-block-outer" data-node-type="blockOuter" data-id="2">
+        <div class="bn-block" data-node-type="blockContainer" data-id="2">
+          <div class="bn-block-content" data-content-type="heading">
+            <h1 class="bn-inline-content">Nested heading</h1>
+          </div>
+        </div>
+      </div>
+      <div class="callout" data-flavor="info" data-node-type="callout" data-id="3">
+        <div class="callout-body" data-frame-slot="">
+          <div class="bn-block-outer" data-node-type="blockOuter" data-id="4">
+            <div class="bn-block" data-node-type="blockContainer" data-id="4">
+              <div class="bn-block-content" data-content-type="paragraph">
+                <p class="bn-inline-content">Inner callout child</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    // An empty layout block children holder is filled to its schema minimum
+    // when parsed into a valid document.
+    testCase: {
+      name: "layoutEmptyChildren",
+      content: `<div class="bn-block-group" data-node-type="blockGroup">
+  <div class="callout" data-node-type="callout" data-id="1">
+    <div class="callout-body" data-frame-slot=""></div>
+  </div>
+</div>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    // Layout block HTML without the `data-frame-slot` marker our own
+    // serializers add: what a layout block looks like once it has been through
+    // another app, or has come from an older version. The parse rule has to
+    // fall back to reading the whole element as the children region.
+    testCase: {
+      name: "layoutExternalHTML",
+      content: `<div class="callout" data-flavor="warning" data-node-type="callout" data-id="1">
+  <div class="callout-body">
+    <h1 data-nesting-level="1">Nested heading</h1>
+    <div class="callout" data-flavor="info" data-node-type="callout" data-id="3" data-nesting-level="1">
+      <div class="callout-body">
+        <p data-nesting-level="2">Inner callout child</p>
+      </div>
+    </div>
+  </div>
+</div>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    // The internal (`blocksToFullHTML`) form of a titled block: the title in
+    // the block's own content, the body in its nested `blockGroup`. Parses
+    // back to the alert with its title and both children, in order.
+    testCase: {
+      name: "titledBlock",
+      content: `<div class="bn-block-group" data-node-type="blockGroup">
+  <div class="bn-block-outer" data-node-type="blockOuter" data-id="1">
+    <div class="bn-block" data-node-type="blockContainer" data-id="1">
+      <div class="bn-block-content" data-content-type="alert">
+        <div class="bn-inline-content alert">Heads up</div>
+      </div>
+      <div class="bn-block-group" data-node-type="blockGroup">
+        <div class="bn-block-outer" data-node-type="blockOuter" data-id="2">
+          <div class="bn-block" data-node-type="blockContainer" data-id="2">
+            <div class="bn-block-content" data-content-type="paragraph">
+              <p class="bn-inline-content">First</p>
+            </div>
+          </div>
+        </div>
+        <div class="bn-block-outer" data-node-type="blockOuter" data-id="3">
+          <div class="bn-block" data-node-type="blockContainer" data-id="3">
+            <div class="bn-block-content" data-content-type="paragraph">
+              <p class="bn-inline-content">Second</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>`,
+    },
+    executeTest: testParseHTML,
+  },
 ];
 
 export const parseTestInstancesMarkdown: TestInstance<
@@ -1494,6 +1613,37 @@ Paragraph below`,
     testCase: {
       name: "linkAndText",
       content: `Before [Link](https://example.com) after`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "linkCommonMarkAutolink",
+      content: `Visit <https://example.com/path?q=1>
+
+Invalid email domains stay plain: <a@b..c>`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "linkGfmAutolinkLiterals",
+      content: `Visit https://example.com/path?q=1 or www.example.com.
+
+Balanced parentheses stay linked: https://example.com/a(b)))
+
+Entity suffix stays plain: https://example.com&copy;
+
+Editor-compatible detection: https://invalid
+
+Invalid schemeless domains stay plain: www.invalid_domain.com`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "linkWithFormattedAutolinkText",
+      content: `[**https://example.com**](https://destination.com)`,
     },
     executeTest: testParseMarkdown,
   },

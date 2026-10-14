@@ -107,9 +107,11 @@ describe("odt exporter mappings", () => {
 
     // The math block & inline math paragraph from the shared test document.
     const odt = await exporter.toODTDocument(
+      // `as any`: the filtered subset holds no multi-column blocks, but the
+      // fixture's type still carries them and this schema doesn't.
       testDocumentWithSourceBlocks.filter((block) =>
         ["math-block", "paragraph-with-inline-math"].includes(block.id),
-      ),
+      ) as any,
     );
     // The math block & the inline math each embed one formula object.
     await testODTDocumentAgainstSnapshot(odt, {

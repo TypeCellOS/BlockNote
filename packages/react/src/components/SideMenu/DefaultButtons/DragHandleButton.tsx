@@ -2,6 +2,7 @@ import { SideMenuExtension } from "@blocknote/core/extensions";
 import { MdDragIndicator } from "react-icons/md";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
+import { usePortalElement } from "../../../editor/PortalElementOverride.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
 import { DragHandleMenu } from "../DragHandleMenu/DragHandleMenu.js";
 import { SideMenuProps } from "../SideMenuProps.js";
@@ -16,6 +17,7 @@ export const DragHandleButton = (
   },
 ) => {
   const Components = useComponentsContext()!;
+  const portalElement = usePortalElement();
   const dict = useDictionary();
 
   const sideMenu = useExtension(SideMenuExtension);
@@ -39,6 +41,7 @@ export const DragHandleButton = (
         }
       }}
       position={"left"}
+      portalElement={portalElement}
     >
       <Components.Generic.Menu.Trigger>
         <Components.SideMenu.Button

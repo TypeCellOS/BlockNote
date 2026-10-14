@@ -3,7 +3,7 @@ import { COLORS_DEFAULT } from "../editor/defaultColors.js";
 import type { Dictionary } from "../i18n/dictionary.js";
 import { en } from "../i18n/locales/index.js";
 import {
-  BlockFromConfig,
+  BlockNoDefaults,
   BlockSchema,
   InlineContent,
   InlineContentSchema,
@@ -61,7 +61,7 @@ export abstract class Exporter<
   TS,
 > {
   public constructor(
-    _schema: BlockNoteSchema<B, I, S>, // only used for type inference
+    protected readonly schema: BlockNoteSchema<B, I, S>,
     protected readonly mappings: {
       blockMapping: BlockMapping<B, I, S, RB, RI>;
       inlineContentMapping: InlineContentMapping<I, S, RI, TS>;
@@ -69,6 +69,15 @@ export abstract class Exporter<
     },
     public readonly options: ExporterOptions,
   ) {}
+
+  /**
+   * Whether the block's mapping places its children itself (a `{ withChildren }`
+   * mapping). Otherwise the exporter places them after the block.
+   */
+  public placesChildren(block: { type: string }): boolean {
+    const mapping = this.mappings.blockMapping[block.type];
+    return typeof mapping === "object" && mapping !== null;
+  }
 
   /**
    * The strings this exporter renders into the produced document - the
@@ -81,13 +90,31 @@ export abstract class Exporter<
 
   public async resolveFile(url: string) {
     if (!this.options?.resolveFileUrl) {
-      return (await fetch(url)).blob();
+      return this.fetchBlob(url);
     }
     const ret = await this.options.resolveFileUrl(url);
     if (ret instanceof Blob) {
       return ret;
     }
-    return (await fetch(ret)).blob();
+    return this.fetchBlob(ret);
+  }
+
+  /**
+   * Fetch a URL as a Blob, throwing a clear error on a non-OK response. Without
+   * this an error page (404 / rate-limit / proxy failure) would be returned as
+   * the file's bytes and silently embedded as a corrupt image. An unreachable
+   * file is an environment failure, not expected input, so it fails the export
+   * loudly (see the error-handling conventions in AGENTS.md) rather than
+   * degrading the document silently.
+   */
+  private async fetchBlob(url: string): Promise<Blob> {
+    const res = await fetch(url);
+    if (!res.ok) {
+      throw new Error(
+        `Failed to fetch file "${url}": ${res.status} ${res.statusText}`,
+      );
+    }
+    return res.blob();
   }
 
   public mapStyles(styles: Styles<S>) {
@@ -121,7 +148,7 @@ export abstract class Exporter<
   public abstract transformStyledText(styledText: StyledText<S>): TS;
 
   public async mapBlock(
-    block: BlockFromConfig<B[keyof B], I, S>,
+    block: BlockNoDefaults<B, I, S>,
     nestingLevel: number,
     numberedListIndex: number,
     children?: Array<Awaited<RB>>,
@@ -132,6 +159,27 @@ export abstract class Exporter<
         `Exporter is missing a block mapping for block type "${block.type}". If this block comes from a separate package, spread that package's exporter mappings into your blockMapping.`,
       );
     }
-    return mapping(block, this, nestingLevel, numberedListIndex, children);
+    if (typeof mapping === "function") {
+      // A layout block's children belong inside it, which only a
+      // `{ withChildren }` mapping can do. Fail early rather than export them
+      // after it.
+      // TODO: remove once the `BlockMapping` type requires `{ withChildren }`
+      // for layout blocks (`createBlockSpec` doesn't keep `layoutOnly: true` in the
+      // config type yet).
+      const spec = this.schema.blockSpecs[block.type];
+      if (spec !== undefined && spec.config.layoutOnly === true) {
+        throw new Error(
+          `The mapping for layout block type "${block.type}" must be a \`{ withChildren }\` mapping, which places the block's children.`,
+        );
+      }
+      return mapping(block, this, nestingLevel, numberedListIndex);
+    }
+    return mapping.withChildren(
+      block,
+      this,
+      nestingLevel,
+      numberedListIndex,
+      children ?? [],
+    );
   }
 }

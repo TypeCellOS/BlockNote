@@ -1,0 +1,27 @@
+[
+  {
+    "attrs": {
+      "flavor": "tip",
+      "id": "1",
+    },
+    "content": [
+      {
+        "attrs": {
+          "id": "1",
+        },
+        "content": [
+          {
+            "attrs": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "type": "blockContainer",
+      },
+    ],
+    "type": "callout",
+  },
+]

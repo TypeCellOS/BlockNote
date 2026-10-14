@@ -27,12 +27,12 @@
     "install-playwright": "cd tests && vp exec playwright install --with-deps",
     "e2e:image": "bash tests/docker-build.sh",
     "e2e": "bash tests/docker-run.sh -e CI=1 -- --run",
-    "e2e:updateSnaps": "bash tests/docker-run.sh -e CI=1 -- --run -u",
+    "e2e:updateSnaps": "bash tests/docker-run.sh -e CI=1 -- --run --update=true",
     "e2e:report": "serve -l 4173 tests/playwright-report",
     "lint": "vp lint --type-aware",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "postpublish": "rm -rf packages/core/README.md && rm -rf packages/react/README.md",
-    "prebuild": "cp README.md packages/core/README.md && cp README.md packages/react/README.md",
+    "prebuild": "vp run copy-package-readmes",
     "prestart": "vp run build",
     "start": "vp run --filter @blocknote/example-editor preview",
     "test": "vp run --filter \"@blocknote/*\" --filter \"docs\" test",
@@ -52,8 +52,8 @@
     "@ai-sdk/react": "3.0.5",
     "@ai-sdk/gateway": "3.0.4",
     "@headlessui/react": "^2.2.4",
-    "@tiptap/core": "^3.29.2",
-    "@tiptap/pm": "^3.29.2"
+    "@tiptap/core": "^3.31.3",
+    "@tiptap/pm": "^3.31.3"
   },
   "workspaces": [
     "packages/*",

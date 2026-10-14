@@ -68,7 +68,7 @@ The example below wires them all up.
 
 Diagrams export to every format BlockNote supports. [Markdown](/docs/features/export/markdown) works out of the box — diagrams export as ` ```mermaid ` fenced code blocks, their common Markdown notation.
 
-The [PDF](/docs/features/export/pdf), [DOCX](/docs/features/export/docx), [ODT](/docs/features/export/odt), and [email](/docs/features/export/email) exporters embed the diagram as an image via their mappings — they live as subpaths of this package, and each exports a `createDiagramBlockMapping` factory to spread into the exporter's default mappings. The [DOCX exporter](/docs/features/export/docx) shown here; the [PDF](/docs/features/export/pdf), [ODT](/docs/features/export/odt), and [email](/docs/features/export/email) exporters work the same way with their respective subpaths:
+The [PDF](/docs/features/export/pdf) (and [Typst](/docs/features/export/typst)), [DOCX](/docs/features/export/docx), [ODT](/docs/features/export/odt), and [email](/docs/features/export/email) exporters embed the diagram as an image via their mappings — they live as subpaths of this package, and each exports a `createDiagramBlockMapping` factory to spread into the exporter's default mappings. The [DOCX exporter](/docs/features/export/docx) shown here; the others work the same way with their respective subpaths:
 
 ```typescript
 import {
@@ -76,7 +76,8 @@ import {
   docxDefaultSchemaMappings,
 } from "@blocknote/xl-docx-exporter";
 import { createDiagramBlockMapping } from "@blocknote/diagram-block/docx-exporter";
-// ...or "@blocknote/diagram-block/pdf-exporter",
+// ...or "@blocknote/diagram-block/typst-exporter" (PDF + Typst - embeds
+//       vector SVG with labels as real text),
 //       "@blocknote/diagram-block/odt-exporter",
 //       "@blocknote/diagram-block/email-exporter"
 
