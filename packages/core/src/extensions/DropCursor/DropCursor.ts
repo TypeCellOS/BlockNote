@@ -344,7 +344,12 @@ export const DropCursorExtension = createExtension<
           } else {
             editor.updateBlock(target, { children: draggedBlocks });
           }
+          // A text cursor at the end of the dropped blocks, as the side menu
+          // leaves after ProseMirror's drops (see `blockDragEnd`).
+          editor.setTextCursorPosition(draggedBlocks.at(-1), "end");
         });
+        // ProseMirror's drop focuses the editor too.
+        view.focus();
         return true;
       },
     },

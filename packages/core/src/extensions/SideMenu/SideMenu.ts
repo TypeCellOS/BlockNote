@@ -1,3 +1,5 @@
+import { Selection } from "prosemirror-state";
+
 import { Block } from "../../blocks/defaultBlocks.js";
 import {
   createExtension,
@@ -397,9 +399,35 @@ export const SideMenuExtension = createExtension(
       /**
        * Handles drag & drop events for blocks.
        */
+      // FIXME: move this into the document-level `dragend` listener in
+      // `blockDropHandling.ts` (`if (isDragOrigin) ...`), and deprecate
+      // `blockDragEnd` as a no-op. It only runs when whatever renders the
+      // handle wires its `dragend` here (our React button, the MUI and vanilla
+      // examples, the docs): a custom side menu that forgets it leaks the drag
+      // image and `isDragOrigin` until the `mousemove` fallback, which only
+      // calls `endBlockDrag` and so skips the blur/refocus below. The
+      // document listener sees the handle's `dragend` too, as the side menu
+      // keeps the handle mounted while it is the drag origin. The refocus is
+      // also drop handling, and belongs with it.
       blockDragEnd() {
         endBlockDrag();
+        // A drop focuses the editor it drops in. The dropped blocks are
+        // selected, which would show the formatting toolbar.
+        const dropped = editor.isFocused();
+        // Firefox shows no text cursor after a drop until the editor is
+        // focused again (#2128).
         editor.blur();
+        if (dropped) {
+          // A text cursor at the end of the dropped blocks, so the keyboard
+          // works on the editor right away, e.g. to undo the drop (#3165).
+          const view = editor.prosemirrorView;
+          view.dispatch(
+            view.state.tr.setSelection(
+              Selection.near(view.state.selection.$to, -1),
+            ),
+          );
+          editor.focus();
+        }
       },
 
       /**
@@ -432,6 +460,19 @@ export const SideMenuExtension = createExtension(
       unfreezeMenu() {
         menuFrozen = false;
         hideMenu();
+        // Closing a menu of the side menu gives the focus back to the editor,
+        // so the keyboard works on it right away, e.g. to undo a change made
+        // in the menu (#3165). Only when the focus is in the side menu (its
+        // menus render in it) or lost, not when it moved elsewhere, e.g. to
+        // an input that a menu item opened.
+        const active = document.activeElement;
+        if (
+          !active ||
+          active === document.body ||
+          (menuElement?.contains(active) ?? false)
+        ) {
+          editor.focus();
+        }
       },
 
       /**
