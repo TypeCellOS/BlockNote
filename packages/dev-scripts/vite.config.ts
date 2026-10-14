@@ -5,7 +5,8 @@ export default defineConfig({
   run: {
     tasks: {
       build: {
-        command: "tsc",
+        command:
+          "tsc --project tsconfig.json --composite false --incremental false --rootDir .",
         input: [
           ...buildCacheInputs("packages/dev-scripts"),
           { pattern: "!**/*.tsbuildinfo", base: "workspace" },

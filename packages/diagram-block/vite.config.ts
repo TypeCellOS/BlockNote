@@ -11,7 +11,8 @@ export default defineConfig(
       run: {
         tasks: {
           build: {
-            command: "tsc && vp build",
+            command:
+              "tsc --project tsconfig.json --composite false --incremental false --rootDir . && vp build",
             input: [
               ...buildCacheInputs("packages/diagram-block"),
               { pattern: "!**/*.tsbuildinfo", base: "workspace" },

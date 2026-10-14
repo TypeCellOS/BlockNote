@@ -7,7 +7,7 @@ import {
   Extension as TiptapExtension,
 } from "@tiptap/core";
 import { keydownHandler } from "@tiptap/pm/keymap";
-import { Plugin, TextSelection } from "prosemirror-state";
+import { Plugin, PluginKey, TextSelection } from "prosemirror-state";
 import { updateBlockTr } from "../../../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import { setTextCursorPosition } from "../../../api/blockManipulation/selections/textCursorPosition.js";
 import {
@@ -29,6 +29,13 @@ import {
   getDefaultExtensions,
   getDefaultTiptapExtensions,
 } from "./extensions.js";
+
+export type ExtensionSelector =
+  | Extension
+  | ExtensionFactory
+  | string
+  | undefined;
+export type ExtensionSelection = ExtensionSelector | ExtensionSelector[];
 
 export class ExtensionManager {
   /**
@@ -52,6 +59,7 @@ export class ExtensionManager {
    * We need to keep track of all the plugins for each extension, so that we can remove them when the extension is unregistered
    */
   private extensionPlugins: Map<Extension, Plugin[]> = new Map();
+  private runtimeExtensions = new Set<Extension>();
   /**
    * Maps an extension key to the set of extension keys that declared it as a
    * dependency via `blockNoteExtensions`. A sub-extension is a dependency of
@@ -68,24 +76,7 @@ export class ExtensionManager {
      */
     editor.onMount(() => {
       for (const extension of this.extensions) {
-        // If the extension has an init function, we can initialize it, otherwise, it is already added to the editor
-        if (extension.mount) {
-          // We create an abort controller for each extension, so that we can abort the extension when the editor is unmounted
-          const abortController = new window.AbortController();
-          const unmountCallback = extension.mount({
-            dom: editor.prosemirrorView.dom,
-            root: editor.prosemirrorView.root,
-            signal: abortController.signal,
-          });
-          // If the extension returns a method to unmount it, we can register it to be called when the abort controller is aborted
-          if (unmountCallback) {
-            abortController.signal.addEventListener("abort", () => {
-              unmountCallback();
-            });
-          }
-          // Keep track of the abort controller for each extension, so that we can abort it when the editor is unmounted
-          this.abortMap.set(extension, abortController);
-        }
+        this.mountExtension(extension);
       }
     });
 
@@ -118,6 +109,26 @@ export class ExtensionManager {
     for (const block of Object.values(this.editor.schema.blockSpecs)) {
       for (const extension of block.extensions ?? []) {
         this.addExtension(extension);
+      }
+    }
+  }
+
+  private mountExtension(extension: Extension): void {
+    if (!extension.mount || this.abortMap.has(extension)) {
+      return;
+    }
+    const controller = new window.AbortController();
+    this.abortMap.set(extension, controller);
+    const cleanup = extension.mount({
+      dom: this.editor.prosemirrorView.dom,
+      root: this.editor.prosemirrorView.root,
+      signal: controller.signal,
+    });
+    if (cleanup) {
+      if (controller.signal.aborted) {
+        cleanup();
+      } else {
+        controller.signal.addEventListener("abort", cleanup, { once: true });
       }
     }
   }
@@ -185,14 +196,12 @@ export class ExtensionManager {
     }
 
     // Now that we know that the extension is not disabled, we can add it to the extension factories
-    if (typeof extension === "function") {
-      const originalFactory = (instance as any)[originalFactorySymbol] as (
-        ...args: any[]
-      ) => ExtensionFactoryInstance;
+    const originalFactory = (instance as any)[originalFactorySymbol] as (
+      ...args: any[]
+    ) => ExtensionFactoryInstance;
 
-      if (typeof originalFactory === "function") {
-        this.extensionFactories.set(originalFactory, instance);
-      }
+    if (typeof originalFactory === "function") {
+      this.extensionFactories.set(originalFactory, instance);
     }
 
     this.extensions.push(instance);
@@ -243,23 +252,38 @@ export class ExtensionManager {
   /**
    * Unregister an extension from the editor
    * @param toUnregister - The extension to unregister
-   * @returns void
+   * @returns The removed instance, or the removed instances for an array.
    */
+  public unregisterExtension<const T extends ExtensionFactory>(
+    toUnregister: T,
+  ): ReturnType<ReturnType<T>> | undefined;
+  public unregisterExtension<const T extends Extension>(
+    toUnregister: T,
+  ): T | undefined;
+  public unregisterExtension(toUnregister: ExtensionSelector[]): Extension[];
   public unregisterExtension(
-    toUnregister:
-      | undefined
-      | string
-      | Extension
-      | ExtensionFactory
-      | (Extension | ExtensionFactory | string | undefined)[],
-  ): void {
-    this.replaceExtension(toUnregister, []);
+    toUnregister: ExtensionSelector,
+  ): Extension | undefined;
+  public unregisterExtension(
+    toUnregister: ExtensionSelection,
+  ): Extension | Extension[] | undefined;
+  public unregisterExtension(
+    toUnregister: ExtensionSelection,
+  ): Extension | Extension[] | undefined {
+    const removed = [...new Set(this.resolveExtensions(toUnregister))].filter(
+      (extension) => this.extensions.includes(extension),
+    );
+    if (removed.length) {
+      this.replaceExtension(removed, []);
+    }
+    return Array.isArray(toUnregister) ? removed : removed[0];
   }
 
   /**
    * Atomically replace extension instances in the editor.
    * @param toUnregister - The extensions to unregister, can be a string key, an extension instance, an extension factory, or an array of any of those
    * @param toRegister - The extensions to register, can be an extension instance, an extension factory, or an array of any of those
+   * @param options.resetPluginStateFor - Plugin keys whose state must be initialized afresh instead of carried across the replacement
    * @returns void
    */
   public replaceExtension(
@@ -273,6 +297,7 @@ export class ExtensionManager {
       | Extension
       | ExtensionFactoryInstance
       | (Extension | ExtensionFactoryInstance)[],
+    options?: { resetPluginStateFor: readonly PluginKey[] },
   ): void {
     // ---- Remove phase (no updatePlugins call) ----
     const extensionsToRemove = this.resolveExtensions(toUnregister);
@@ -310,6 +335,7 @@ export class ExtensionManager {
         }
       });
       this.extensionPlugins.delete(extension);
+      this.runtimeExtensions.delete(extension);
 
       if (extension.tiptapExtensions && !didWarnUnregister) {
         didWarnUnregister = true;
@@ -332,6 +358,7 @@ export class ExtensionManager {
 
     const pluginsToAdd: Plugin[] = [];
     for (const extension of registeredExtensions) {
+      this.runtimeExtensions.add(extension);
       if (extension?.tiptapExtensions) {
         // eslint-disable-next-line no-console
         console.warn(
@@ -355,35 +382,44 @@ export class ExtensionManager {
       );
     }
 
-    // Nothing to do
+    // ---- Single atomic plugin update for replacement or an explicit reset ----
     if (
-      !pluginRefsToRemove.size &&
-      !pluginKeysToRemove.size &&
-      !pluginsToAdd.length
+      pluginRefsToRemove.size ||
+      pluginKeysToRemove.size ||
+      pluginsToAdd.length ||
+      options?.resetPluginStateFor.length
     ) {
-      return;
+      this.updatePlugins(
+        (plugins) => [
+          ...plugins.filter((plugin) => {
+            // Fast path: exact reference match
+            if (pluginRefsToRemove.has(plugin)) {
+              return false;
+            }
+            // Fallback: match by key string (handles cases where plugin instances
+            // in the state differ from the ones we tracked)
+            if (pluginKeysToRemove.size) {
+              const key = (plugin as any).spec?.key;
+              const keyStr = typeof key === "object" && key ? key.key : key;
+              if (
+                typeof keyStr === "string" &&
+                pluginKeysToRemove.has(keyStr)
+              ) {
+                return false;
+              }
+            }
+            return true;
+          }),
+          ...pluginsToAdd,
+        ],
+        options?.resetPluginStateFor,
+      );
     }
-
-    // ---- Single atomic plugin update ----
-    this.updatePlugins((plugins) => [
-      ...plugins.filter((plugin) => {
-        // Fast path: exact reference match
-        if (pluginRefsToRemove.has(plugin)) {
-          return false;
-        }
-        // Fallback: match by key string (handles cases where plugin instances
-        // in the state differ from the ones we tracked)
-        if (pluginKeysToRemove.size) {
-          const key = (plugin as any).spec?.key;
-          const keyStr = typeof key === "object" && key ? key.key : key;
-          if (typeof keyStr === "string" && pluginKeysToRemove.has(keyStr)) {
-            return false;
-          }
-        }
-        return true;
-      }),
-      ...pluginsToAdd,
-    ]);
+    if (!this.editor.headless) {
+      for (const extension of registeredExtensions) {
+        this.mountExtension(extension);
+      }
+    }
   }
 
   /**
@@ -391,10 +427,23 @@ export class ExtensionManager {
    * @param update - A function that takes the current plugins and returns the new plugins
    * @returns void
    */
-  private updatePlugins(update: (plugins: Plugin[]) => Plugin[]): void {
+  private updatePlugins(
+    update: (plugins: Plugin[]) => Plugin[],
+    resetPluginStateFor?: readonly PluginKey[],
+  ): void {
     const currentState = this.editor.prosemirrorState;
-
-    const state = currentState.reconfigure({
+    // Reconfigure an intermediate state off-view to drop selected keyed state.
+    // New plugins initialize before any view hooks can see a torn binding, and
+    // the view receives only the final, complete plugin set.
+    const resetKeys = new Set(resetPluginStateFor);
+    const baseState = resetKeys.size
+      ? currentState.reconfigure({
+          plugins: currentState.plugins.filter(
+            (plugin) => !plugin.spec.key || !resetKeys.has(plugin.spec.key),
+          ),
+        })
+      : currentState;
+    const state = baseState.reconfigure({
       plugins: update(currentState.plugins.slice()),
     });
 
@@ -443,7 +492,12 @@ export class ExtensionManager {
           TiptapExtension.create({
             name: extension.key,
             priority,
-            addProseMirrorPlugins: () => prosemirrorPlugins,
+            // Removed extensions have no plugins in the map. Replacements and
+            // re-registrations belong to the runtime wrapper below instead.
+            addProseMirrorPlugins: () =>
+              this.runtimeExtensions.has(extension)
+                ? []
+                : (this.extensionPlugins.get(extension) ?? []),
           }),
         );
       }
@@ -454,6 +508,19 @@ export class ExtensionManager {
         inputRulesByPriority.get(priority)!.push(...inputRules);
       }
     }
+
+    // Runtime additions have no construction-time Tiptap wrapper. Like
+    // registerExtension's plugin update, append their already-created plugins.
+    tiptapExtensions.push(
+      TiptapExtension.create({
+        name: "blocknote-runtime-extensions",
+        priority: Number.NEGATIVE_INFINITY,
+        addProseMirrorPlugins: () =>
+          this.extensions
+            .filter((extension) => this.runtimeExtensions.has(extension))
+            .flatMap((extension) => this.extensionPlugins.get(extension) ?? []),
+      }),
+    );
 
     // Collect all input rules into 1 extension to reduce conflicts
     tiptapExtensions.push(

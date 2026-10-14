@@ -1,4 +1,4 @@
-/* eslint-disable testing-library/render-result-naming-convention */
+/* eslint-disable testing-library/render-result-naming-convention, react/globals -- Fixture components expose their mounted editors and controls to browser test actions. */
 /**
  * Fixture for two-user concurrent suggestion tests.
  *
@@ -45,6 +45,7 @@ import { Awareness } from "@y/protocols/awareness";
 import * as Y from "@y/y";
 import { render } from "vitest-browser-react";
 import { page } from "../../../utils/context.js";
+import { mouseSequence } from "../../../utils/mouse.js";
 
 export interface ConcurrentSuggestionUser {
   editor: GalleryEditor;
@@ -114,7 +115,7 @@ export async function setupConcurrentSuggestionTest({
   // reliable to snapshot.
 
   // Each editor's attribution manager reads its `attrs` (a mutable
-  // `Y.Attributions`) on every transaction. We back each `attrs` with an
+  // `Y.ContentMap`) on every transaction. We back each `attrs` with an
   // in-memory store that records the author of each change (see
   // `createInMemoryAttributionStore` below) so suggestions render in their
   // author's color instead of all sharing the default. A and B are single-user
@@ -125,7 +126,7 @@ export async function setupConcurrentSuggestionTest({
     tr.local ? "A" : null,
   );
   const managerA = Y.createDiffRenderer(baseDoc, suggestionDocA, {
-    attrs: attrsA,
+    attributions: attrsA,
   });
   managerA.suggestionMode = true;
 
@@ -133,7 +134,7 @@ export async function setupConcurrentSuggestionTest({
     tr.local ? "B" : null,
   );
   const managerB = Y.createDiffRenderer(baseDoc, suggestionDocB, {
-    attrs: attrsB,
+    attributions: attrsB,
   });
   managerB.suggestionMode = true;
 
@@ -144,7 +145,7 @@ export async function setupConcurrentSuggestionTest({
     (tr) => (tr.origin === "A" || tr.origin === "B" ? tr.origin : null),
   );
   const managerMerged = Y.createDiffRenderer(baseDoc, suggestionDocMerged, {
-    attrs: attrsMerged,
+    attributions: attrsMerged,
   });
   managerMerged.suggestionMode = false;
 
@@ -239,6 +240,10 @@ export async function setupConcurrentSuggestionTest({
   // column doesn't clip BlockNote content.
   await page.viewport(1800, 800);
 
+  // The browser reuses its pointer position between tests. Park it outside
+  // the editors before mounting so suggestion marks cannot inherit a hover.
+  await mouseSequence([{ type: "move", x: 0, y: 0 }]);
+
   await render(<Editors />);
 
   return {
@@ -292,10 +297,11 @@ function makeAwareness(
  * attribution store (YHub) that real deployments use.
  *
  * It observes the doc and, for every transaction, records the author of that
- * transaction's inserts/deletes into a mutable `Y.Attributions`. A
+ * transaction's inserts/deletes into a mutable `Y.ContentMap`. A
  * `DiffRenderer` re-reads that same `attrs` object on each transaction
  * (via its own `beforeObserverCalls` handler), so the suggestion marks pick up
- * the author and render in their color (`colorsForUserIds` in YSync.ts).
+ * the author and render in their color (`colorsForUserIds` /
+ * `userMarkColors` in `user/userColors.ts`).
  *
  * Crucially this store's handler must run BEFORE the manager's, so it is
  * registered here and the caller creates the manager immediately afterwards
@@ -309,8 +315,8 @@ function makeAwareness(
 function createInMemoryAttributionStore(
   doc: Y.Doc,
   resolveUserId: (tr: any) => string | null,
-): Y.Attributions {
-  const attrs = new Y.Attributions();
+): Y.ContentMap {
+  const attrs = Y.createContentMap();
   doc.on("beforeObserverCalls", (tr: any) => {
     const userId = resolveUserId(tr);
     if (userId == null) {

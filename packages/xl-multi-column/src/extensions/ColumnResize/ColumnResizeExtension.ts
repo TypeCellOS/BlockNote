@@ -440,7 +440,9 @@ class ColumnResizePluginView implements PluginView {
   }
 }
 
-const createColumnResizePlugin = (editor: BlockNoteEditor<any, any, any>) =>
+export const createColumnResizePlugin = (
+  editor: BlockNoteEditor<any, any, any>,
+) =>
   new Plugin({
     key: columnResizePluginKey,
     props: {

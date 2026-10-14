@@ -14,34 +14,37 @@ export function getById(id: string): User {
 
 // Integer-like ids make it obvious if username resolution ever breaks: the UI
 // would show a bare number (e.g. "1") instead of a name.
+// The light/dark pairs are BlockNote's own attribution palette
+// (`userColorPalette`), so the marks look the same as they would for a user
+// with no color of their own.
 export const USERS: User[] = [
   {
     id: "1",
     username: "Alice",
     avatarUrl: "",
-    color: "#e6194b",
-    colorLight: "#e6194b33",
+    color: "#8a6d1a",
+    colorLight: "#fff0c2",
   },
   {
     id: "2",
     username: "Bob",
     avatarUrl: "",
-    color: "#3cb44b",
-    colorLight: "#3cb44b33",
+    color: "#0b6a8a",
+    colorLight: "#cdeffd",
   },
   {
     id: "3",
     username: "Charlie",
     avatarUrl: "",
-    color: "#f58231",
-    colorLight: "#f5823133",
+    color: "#2948b3",
+    colorLight: "#d6defd",
   },
   {
     id: "4",
     username: "Dana",
     avatarUrl: "",
-    color: "#4363d8",
-    colorLight: "#4363d833",
+    color: "#6b2fa3",
+    colorLight: "#eadcfb",
   },
 ];
 

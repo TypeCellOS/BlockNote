@@ -1,9 +1,5 @@
-import {
-  BlockNoteEditor,
-  BlockNoteSchema,
-  getNodeById,
-  type SideMenuExtension,
-} from "@blocknote/core";
+import { BlockNoteEditor, BlockNoteSchema, getNodeById } from "@blocknote/core";
+import type { SideMenuExtension } from "@blocknote/core/extensions";
 import "@blocknote/core/style.css";
 import { TextSelection } from "prosemirror-state";
 import { afterEach, describe, expect, it } from "vite-plus/test";

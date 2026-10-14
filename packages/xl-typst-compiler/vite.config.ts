@@ -15,7 +15,8 @@ export default defineConfig(
             // consumer of this task, including the Vercel builds, gets the
             // wasm without a separate step. Requires a Rust toolchain
             // locally (pinned in rust/rust-toolchain.toml).
-            command: "node scripts/ensure-wasm.mjs && tsc && vp build",
+            command:
+              "node scripts/ensure-wasm.mjs && tsc --project tsconfig.json --composite false --incremental false --rootDir . && vp build",
             input: [
               ...buildCacheInputs("packages/xl-typst-compiler"),
               { pattern: "!**/*.tsbuildinfo", base: "workspace" },

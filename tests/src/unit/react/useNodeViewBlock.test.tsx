@@ -1,3 +1,4 @@
+/* eslint-disable react/globals -- Probe components expose hook results to assertions after render. */
 import {
   BlockNoteEditor,
   BlockNoteSchema,

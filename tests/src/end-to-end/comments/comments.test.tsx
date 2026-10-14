@@ -8,6 +8,7 @@ import {
   focusOnEditor,
   sleep,
   waitForSelector,
+  waitForSelectorDetached,
 } from "../../utils/editor.js";
 import { clickAt, getRect, moveMouseOverElement } from "../../utils/mouse.js";
 
@@ -146,6 +147,11 @@ describe("Check Comments functionality", () => {
     // Wait for comment composer to close.
     await expectSelectorCount(".bn-thread", 0);
 
+    // Click away from the mark so reopening is not a third click in the
+    // initial text-selection double-click, even on fast CI runners.
+    await userEvent.click(
+      await waitForSelector(`${EDITOR_SELECTOR} .bn-block-content`),
+    );
     await clickThreadMark();
     await expectElement(
       await waitForSelector(".bn-thread-comment"),
@@ -161,7 +167,7 @@ describe("Check Comments functionality", () => {
     await userEvent.click(await waitForSelector('[data-test="addreaction"]'));
     const firstPickerButtons = await waitForEmojiButtons();
     await userEvent.click(firstPickerButtons[0]);
-    await expectSelectorCount("em-emoji-picker", 0);
+    await waitForSelectorDetached("em-emoji-picker");
     await expectSelectorCount(".bn-comment-reaction", 1);
 
     // Add a second reaction via the add-reaction badge.
@@ -172,7 +178,7 @@ describe("Check Comments functionality", () => {
     // toggling the first one off.
     const secondPickerButtons = await waitForEmojiButtons(6);
     await userEvent.click(secondPickerButtons[5]);
-    await expectSelectorCount("em-emoji-picker", 0);
+    await waitForSelectorDetached("em-emoji-picker");
     await expectSelectorCount(".bn-comment-reaction", 2);
   });
 

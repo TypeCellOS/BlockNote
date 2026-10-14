@@ -1,785 +1,966 @@
-import {
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-} from "vite-plus/test";
-import { encodeAny } from "lib0/buffer";
+// @vitest-environment node
+import { afterEach, beforeEach, expect, it, vi } from "vite-plus/test";
+import { decodeAny, encodeAny } from "lib0/buffer";
 import * as Y from "@y/y";
-
 import {
-  CURRENT_VERSION_ID,
-  type VersionSnapshot,
-} from "../../../extensions/Versioning/index.js";
-import { createYHubVersioningEndpoints } from "../yhub.js";
+  configureYProsemirror,
+  docToDelta,
+  ySyncPluginKey,
+} from "@y/prosemirror";
+import {
+  createYHubVersionStorage,
+  YVersioningExtension,
+  type YHubVersionStorageOptions,
+} from "../yhub.js";
+import { YHubClient } from "../yhubClient.js";
+import { createVersioning } from "../../../extensions/Versioning/createVersioning.js";
+import { resultValue } from "../../../extensions/Versioning/__test__/result.js";
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
-import { createExtension } from "../../../editor/BlockNoteExtension.js";
+import type { VersioningController } from "../../../extensions/Versioning/Versioning.js";
+import { withCollaboration } from "../../extensions/index.js";
+import {
+  _blocksToProsemirrorNode,
+  docDiffToDelta,
+  yNodeToTransaction,
+} from "../../utils.js";
 
-// ---------------------------------------------------------------------------
-// Fixture data — version entries now carry an `id` custom attribution (UUID).
-// ---------------------------------------------------------------------------
-
-const VERSION_ENTRY_1 = {
-  from: 1782218082853,
-  to: 1782218082853,
-  by: "user-1",
-  customAttributions: [
-    { k: "type", v: "version" },
-    { k: "id", v: "uuid-version-1" },
-    { k: "name", v: "Test Version 1" },
-  ],
+const options = { baseUrl: "https://yhub.test/api", org: "org", docId: "doc" };
+const signal = new AbortController().signal;
+const first = { from: 1000, to: 1000, by: ["alice"] };
+const latest = { from: 2000, to: 2000, by: ["bob"] };
+const version = {
+  type: "version:v1" as const,
+  t: 1000,
+  name: "Milestone",
+  custom: { restoredFrom: 42, ticket: "BN-1" },
+  updatedAt: 3000,
 };
+const cleanup: Array<() => void> = [];
+let fetchSpy = vi.spyOn(globalThis, "fetch");
+beforeEach(() => {
+  fetchSpy = vi.spyOn(globalThis, "fetch");
+});
+afterEach(() => {
+  for (const dispose of cleanup.splice(0)) {
+    dispose();
+  }
+  vi.restoreAllMocks();
+});
 
-const VERSION_ENTRY_2 = {
-  from: 1782218211312,
-  to: 1782218211312,
-  by: "user-2, user-3",
-  customAttributions: [
-    { k: "type", v: "version" },
-    { k: "id", v: "uuid-version-2" },
-    { k: "name", v: "Test Version 2" },
-  ],
-};
+function response(body: unknown, status = 200) {
+  return new Response(status === 204 ? null : new Uint8Array(encodeAny(body)), {
+    status,
+  });
+}
 
-// Snapshots as produced by `list()` (see `activityToSnapshot`): the activity
-// entry's `to` timestamp becomes both `createdAt` and `updatedAt`. The
-// changeset/rollback APIs are now driven by these timestamps directly, so the
-// endpoints no longer make an activity lookup to resolve them. The entry's
-// comma-separated `by` user-ids are split into the snapshot's raw `by` array.
-const SNAPSHOT_1: VersionSnapshot = {
-  id: "uuid-version-1",
-  name: "Test Version 1",
-  createdAt: VERSION_ENTRY_1.to,
-  updatedAt: VERSION_ENTRY_1.to,
-  by: ["user-1"],
-};
-
-const SNAPSHOT_2: VersionSnapshot = {
-  id: "uuid-version-2",
-  name: "Test Version 2",
-  createdAt: VERSION_ENTRY_2.to,
-  updatedAt: VERSION_ENTRY_2.to,
-  by: ["user-2", "user-3"],
-};
-
-const PATCH_RESPONSE = { success: true, message: "Document updated" };
-
-function makeChangeset(opts: { ydoc?: boolean; attributions?: boolean } = {}) {
+function storage(activityParams?: YHubVersionStorageOptions["activityParams"]) {
   const doc = new Y.Doc();
-  const frag = doc.get("default", "XmlFragment");
-  frag.insert(0, ["hello"]);
+  const fragment = doc.get("default");
+  cleanup.push(() => doc.destroy());
   return {
-    ...(opts.ydoc !== false ? { ydoc: Y.encodeStateAsUpdate(doc) } : {}),
-    ...(opts.attributions ? { attributions: new Uint8Array([0]) } : {}),
+    api: createYHubVersionStorage({
+      ...options,
+      activityParams,
+      fragment,
+      beforeRestoreName: "Before restore",
+    }),
+    doc,
+    fragment,
   };
 }
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-const BASE_URL = "https://yhub.test/api";
-const ORG = "test-org";
-const DOC_ID = "test-doc";
-
-// The factory returns a callback that receives the editor instance (used to
-// stamp `create`d snapshots with the current cursor user's id). Author ids are
-// passed through raw on `VersionSnapshot.by` — resolving them to user info is
-// the view layer's job, not the endpoints'. These tests create a bare editor
-// with no collaboration extensions, so `create` gets no author id.
-function makeEndpoints() {
-  const editor = BlockNoteEditor.create();
-  return createYHubVersioningEndpoints({
-    baseUrl: BASE_URL,
-    org: ORG,
-    docId: DOC_ID,
-    activityLimit: 50,
-  })(editor);
+function request(index: number) {
+  const [url, init] = fetchSpy.mock.calls[index];
+  return {
+    url: new URL(url instanceof Request ? url.url : url),
+    method: init?.method ?? "GET",
+    body: init?.body instanceof Uint8Array ? decodeAny(init.body) : undefined,
+    signal: init?.signal,
+  };
 }
 
-// A lightweight stand-in for the real `ySync` extension. `getVersionNamesMap`
-// in yhub.ts reads the live collaboration doc exclusively via
-// `editor.getExtension("ySync")?.fragment.doc`, so a stub that just exposes the
-// fragment is enough to exercise the mutable `__bn_version_names` name store
-// without wiring up the full collaboration/prosemirror sync machinery.
-const ySyncStub = (fragment: Y.Type) =>
-  createExtension({ key: "ySync", fragment } as any);
-
-// Build endpoints against an editor that has a `ySync` extension whose fragment
-// belongs to `doc`, so the mutable version-name store on `doc` is reachable.
-function makeCollabEndpoints(doc: Y.Doc) {
-  const fragment = doc.get("default", "XmlFragment") as unknown as Y.Type;
-  (fragment as any).insert(0, ["hello"]);
-  const editor = BlockNoteEditor.create({
-    extensions: [ySyncStub(fragment)],
-  });
-  const endpoints = createYHubVersioningEndpoints({
-    baseUrl: BASE_URL,
-    org: ORG,
-    docId: DOC_ID,
-  })(editor);
-  return { endpoints, fragment };
-}
-
-function mockFetchResponse(body: unknown, status = 200) {
-  const encoded = encodeAny(body);
-  return new Response(encoded as Blob | BufferSource, {
-    status,
-    statusText: status === 200 ? "OK" : "Error",
-  });
-}
-
-function makeFragment(): Y.Type {
-  const doc = new Y.Doc();
-  const frag = doc.get("default", "XmlFragment");
-  frag.insert(0, ["test content"]);
-  return frag;
-}
-
-// ---------------------------------------------------------------------------
-// Tests
-// ---------------------------------------------------------------------------
-
-describe("createYHubVersioningEndpoints", () => {
-  let fetchSpy: ReturnType<typeof vi.spyOn>;
-
-  beforeEach(() => {
-    fetchSpy = vi.spyOn(globalThis, "fetch");
+/**
+ * Types `a`, `b`, `c` as separate edits at 1000, 1100 and 1200 (by the given
+ * authors), serves them through a mocked YHub with the given activity, and
+ * returns each character of the shown comparison with the authors that the
+ * diff credits it to (none = not changed).
+ */
+async function compareCharacters({
+  authors,
+  activity,
+  target,
+  compareTo,
+  showCurrentVersion = false,
+}: {
+  authors: [string, string, string];
+  activity: { first: unknown; history: unknown[] };
+  target: { type: "current" } | { type: "snapshot"; id: string };
+  compareTo: (history: { id: string }[]) => string;
+  showCurrentVersion?: boolean;
+}) {
+  const { api, doc, fragment } = storage();
+  const editor = BlockNoteEditor.create(
+    withCollaboration({
+      extensions: [
+        YVersioningExtension({ storage: { ...api, showCurrentVersion } }),
+      ],
+      collaboration: { fragment, user: { name: "Alice", color: "red" } },
+    }),
+  );
+  const mode = editor.getExtension<VersioningController>("versioning")!;
+  cleanup.unshift(() => {
+    mode.dispose();
+    editor._tiptapEditor.destroy();
   });
 
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
-  // -------------------------------------------------------------------------
-  // list
-  // -------------------------------------------------------------------------
-  describe("list", () => {
-    it("returns version-tagged entries using the id attribution as snapshot id", async () => {
-      fetchSpy.mockResolvedValueOnce(
-        mockFetchResponse({ activity: [VERSION_ENTRY_2, VERSION_ENTRY_1] }),
-      );
-      // Current-version probe: latest edit of any kind, then latest version
-      // marker. Both are VERSION_ENTRY_2, so latest edit == latest marker → no
-      // synthetic "current version" entry.
-      fetchSpy.mockResolvedValueOnce(
-        mockFetchResponse({ activity: [VERSION_ENTRY_2] }),
-      );
-      fetchSpy.mockResolvedValueOnce(
-        mockFetchResponse({ activity: [VERSION_ENTRY_2] }),
-      );
-
-      const endpoints = makeEndpoints();
-      const snapshots = await endpoints.list();
-
-      expect(snapshots).toHaveLength(2);
-      expect(snapshots[0].id).toBe("uuid-version-2");
-      expect(snapshots[0].name).toBe("Test Version 2");
-      // The comma-separated `by` user-ids are split into a raw id array —
-      // never resolved to usernames here (that's the view layer's job).
-      expect(snapshots[0].by).toEqual(["user-2", "user-3"]);
-      expect(snapshots[0].secondaryLabel).toBeUndefined();
-      expect(snapshots[1].id).toBe("uuid-version-1");
-      expect(snapshots[1].name).toBe("Test Version 1");
-      expect(snapshots[1].by).toEqual(["user-1"]);
-    });
-
-    it("fetches the full activity timeline (no type:version filter) with grouping defaults", async () => {
-      // 1: full activity timeline. 2: latest edit of any kind. 3: latest
-      // version marker (the current-version probe makes both 2 & 3).
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse({ activity: [] }));
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse({ activity: [] }));
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse({ activity: [] }));
-
-      const endpoints = makeEndpoints();
-      await endpoints.list();
-
-      expect(fetchSpy).toHaveBeenCalledTimes(3);
-      const versionUrl = new URL(fetchSpy.mock.calls[0][0] as string);
-      expect(versionUrl.pathname).toBe(`/api/activity/v1/${ORG}/${DOC_ID}`);
-      // The `type:version` overlay filter is dropped so history entries are
-      // returned too.
-      expect(versionUrl.searchParams.get("withCustomAttributions")).toBe(null);
-      expect(versionUrl.searchParams.get("customAttributions")).toBe("true");
-      // Grouping default is applied.
-      expect(versionUrl.searchParams.get("groupMaxGap")).toBe("10000");
-
-      // Probe A: the latest entry of *any* type (no marker filter).
-      const latestUrl = new URL(fetchSpy.mock.calls[1][0] as string);
-      expect(latestUrl.pathname).toBe(`/api/activity/v1/${ORG}/${DOC_ID}`);
-      expect(latestUrl.searchParams.get("limit")).toBe("1");
-      expect(latestUrl.searchParams.has("withCustomAttributions")).toBe(false);
-
-      // Probe B: the latest *version marker*, server-filtered to `type:version`
-      // so grouping/mergeUsers can't conflate it with a later edit.
-      const markerUrl = new URL(fetchSpy.mock.calls[2][0] as string);
-      expect(markerUrl.pathname).toBe(`/api/activity/v1/${ORG}/${DOC_ID}`);
-      expect(markerUrl.searchParams.get("limit")).toBe("1");
-      expect(markerUrl.searchParams.get("withCustomAttributions")).toBe(
-        "type:version",
-      );
-    });
-
-    it("forwards group + groupMaxDuration params when configured", async () => {
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse({ activity: [] }));
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse({ activity: [] }));
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse({ activity: [] }));
-
-      const endpoints = createYHubVersioningEndpoints({
-        baseUrl: BASE_URL,
-        org: ORG,
-        docId: DOC_ID,
-        activityLimit: 50,
-        group: true,
-        groupMaxDuration: 5000,
-      })(BlockNoteEditor.create());
-      await endpoints.list();
-
-      const versionUrl = new URL(fetchSpy.mock.calls[0][0] as string);
-      expect(versionUrl.searchParams.get("group")).toBe("true");
-      expect(versionUrl.searchParams.get("groupMaxDuration")).toBe("5000");
-    });
-
-    it("omits group params by default while keeping the groupMaxGap default", async () => {
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse({ activity: [] }));
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse({ activity: [] }));
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse({ activity: [] }));
-
-      // `makeEndpoints` builds the factory with no group/groupMaxDuration opts.
-      const endpoints = makeEndpoints();
-      await endpoints.list();
-
-      const versionUrl = new URL(fetchSpy.mock.calls[0][0] as string);
-      expect(versionUrl.searchParams.get("group")).toBe(null);
-      expect(versionUrl.searchParams.get("groupMaxDuration")).toBe(null);
-      expect(versionUrl.searchParams.get("groupMaxGap")).toBe("10000");
-      // mergeUsers is only forwarded when explicitly configured.
-      expect(versionUrl.searchParams.get("mergeUsers")).toBe(null);
-    });
-
-    it("maps both named version entries and plain history entries", async () => {
-      const namedEntry = {
-        from: 2000,
-        to: 2000,
-        by: "user-1",
-        customAttributions: [
-          { k: "type", v: "version" },
-          { k: "id", v: "v1" },
-          { k: "name", v: "Named" },
+  const edits: {
+    at: number;
+    content: Uint8Array;
+    attributions: Y.ContentMap;
+  }[] = [];
+  doc.on("beforeObserverCalls", (transaction) => {
+    const at = 1000 + edits.length * 100;
+    edits.push({
+      at,
+      content: Y.encodeStateAsUpdate(doc),
+      attributions: Y.createContentMapFromContentIds(
+        { inserts: transaction.insertSet, deletes: transaction.deleteSet },
+        [
+          Y.createContentAttribute("insert", authors[edits.length]),
+          Y.createContentAttribute("insertAt", at),
         ],
-      };
-      const historyEntry = {
-        from: 1000,
-        to: 1000,
-        by: "user-2",
-      };
-      fetchSpy.mockResolvedValueOnce(
-        mockFetchResponse({ activity: [namedEntry, historyEntry] }),
-      );
-      // Current-version probe: latest edit == latest marker == `namedEntry`, so
-      // no synthetic current row.
-      fetchSpy.mockResolvedValueOnce(
-        mockFetchResponse({ activity: [namedEntry] }),
-      );
-      fetchSpy.mockResolvedValueOnce(
-        mockFetchResponse({ activity: [namedEntry] }),
-      );
-
-      const endpoints = makeEndpoints();
-      const snapshots = await endpoints.list();
-
-      const named = snapshots.find((s) => s.name === "Named");
-      expect(named).toBeDefined();
-      expect(named!.id).toBe("v1");
-
-      // `historyEntry` is at index 1 in the mocked entries array, so its
-      // history id embeds that index: `history-<to>-<index>`.
-      const history = snapshots.find((s) => s.id === "history-1000-1");
-      expect(history).toBeDefined();
-      expect(history!.name).toBeUndefined();
+        [],
+      ),
     });
+  });
+  function paragraph(text: string) {
+    return _blocksToProsemirrorNode(editor, [
+      { id: "paragraph", type: "paragraph", content: text },
+    ]);
+  }
+  const empty = Y.encodeStateAsUpdate(doc);
+  for (const text of ["a", "ab", "abc"]) {
+    fragment.applyDelta(
+      text === "a"
+        ? docToDelta(paragraph(text))
+        : docDiffToDelta(paragraph(text.slice(0, -1)), paragraph(text)),
+    );
+  }
 
-    it("returns empty array when no versions exist", async () => {
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse({ activity: [] }));
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse({ activity: [] }));
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse({ activity: [] }));
-
-      const endpoints = makeEndpoints();
-      const snapshots = await endpoints.list();
-
-      expect(snapshots).toEqual([]);
+  fetchSpy.mockImplementation(async (input) => {
+    const url = new URL(input instanceof Request ? input.url : input);
+    if (url.pathname.includes("/activity/")) {
+      return response({
+        activity:
+          url.searchParams.get("order") === "asc"
+            ? [activity.first]
+            : activity.history,
+      });
+    }
+    const from = Number(url.searchParams.get("from") ?? 0);
+    const to = Number(url.searchParams.get("to") ?? Infinity);
+    if (url.searchParams.has("attributions")) {
+      const attributions = Y.createContentMap();
+      for (const edit of edits.filter(
+        (edit) => from <= edit.at && edit.at <= to,
+      )) {
+        Y.insertIntoIdMap(attributions.inserts, edit.attributions.inserts);
+      }
+      return response({ attributions: Y.encodeContentMap(attributions) });
+    }
+    // YHub includes edits at `to`, not just edits before it.
+    return response({
+      ydoc: edits.findLast((edit) => edit.at <= to)?.content ?? empty,
     });
+  });
 
-    it("sorts snapshots newest-first", async () => {
-      fetchSpy.mockResolvedValueOnce(
-        mockFetchResponse({ activity: [VERSION_ENTRY_1, VERSION_ENTRY_2] }),
-      );
-      fetchSpy.mockResolvedValueOnce(
-        mockFetchResponse({ activity: [VERSION_ENTRY_2] }),
-      );
-      fetchSpy.mockResolvedValueOnce(
-        mockFetchResponse({ activity: [VERSION_ENTRY_2] }),
-      );
+  editor.replaceBlocks(editor.document, [
+    { id: "paragraph", type: "paragraph", content: "abc" },
+  ]);
+  editor.prosemirrorView.updateState(
+    editor.prosemirrorState.reconfigure({
+      plugins: editor._tiptapEditor.extensionManager.plugins,
+    }),
+  );
+  editor.exec(configureYProsemirror({ ytype: fragment }));
+  mode.open();
+  expect(await mode.list()).toEqual({ status: "done" });
+  const state = mode.store.state;
+  if (state.mode !== "versions" || state.history.status !== "success") {
+    throw new Error("Expected loaded version history");
+  }
+  expect(
+    await mode.select(target, { compareTo: compareTo(state.history.data) }),
+  ).toEqual({ status: "done" });
 
-      const endpoints = makeEndpoints();
-      const snapshots = await endpoints.list();
+  // Headless editors have no plugin view to hydrate the configured preview.
+  const binding = ySyncPluginKey.getState(editor.prosemirrorState)!;
+  editor.prosemirrorView.dispatch(
+    yNodeToTransaction(editor.prosemirrorState.tr, binding.ytype!, {
+      renderer: binding.renderer,
+    }),
+  );
+  const characters: { character: string; authors: string[] }[] = [];
+  editor.prosemirrorState.doc.descendants((node) => {
+    if (node.isText) {
+      const insertion = node.marks.find(
+        (mark) => mark.type.name === "y-attributed-insert",
+      );
+      for (const character of node.text!) {
+        characters.push({
+          character,
+          authors: insertion?.attrs.userIds ?? [],
+        });
+      }
+    }
+  });
+  return characters;
+}
 
-      expect(snapshots[0].createdAt).toBeGreaterThan(snapshots[1].createdAt);
+it.each([false, true])(
+  "attributes every character of abc when comparing since beginning (Current: %s)",
+  async (showCurrentVersion) => {
+    const characters = await compareCharacters({
+      authors: ["alice", "alice", "alice"],
+      activity: { first, history: [{ ...first, to: 1200 }] },
+      target: showCurrentVersion
+        ? { type: "current" }
+        : { type: "snapshot", id: "1000-1200" },
+      compareTo: (history) => history.at(-1)!.id,
+      showCurrentVersion,
     });
+    expect(characters).toEqual(
+      ["a", "b", "c"].map((character) => ({ character, authors: ["alice"] })),
+    );
+  },
+);
 
-    it("silently skips entries without an id attribution", async () => {
-      const noIdEntry = {
-        from: 1782218082853,
-        to: 1782218082853,
-        by: "Bad Entry",
-        customAttributions: [{ k: "type", v: "version" }],
-      };
-      fetchSpy.mockResolvedValueOnce(
-        mockFetchResponse({ activity: [VERSION_ENTRY_1, noIdEntry] }),
-      );
-      fetchSpy.mockResolvedValueOnce(
-        mockFetchResponse({ activity: [VERSION_ENTRY_1] }),
-      );
-      fetchSpy.mockResolvedValueOnce(
-        mockFetchResponse({ activity: [VERSION_ENTRY_1] }),
-      );
+it("shows only the selected version's edits when comparing to the previous version", async () => {
+  // Beginning (a), then "1000-1100" by alice (a, b), then "1200-1200" by bob (c).
+  const characters = await compareCharacters({
+    authors: ["alice", "alice", "bob"],
+    activity: {
+      first,
+      history: [
+        { from: 1200, to: 1200, by: ["bob"] },
+        { from: 1000, to: 1100, by: ["alice"] },
+      ],
+    },
+    target: { type: "snapshot", id: "1200-1200" },
+    compareTo: () => "1000-1100",
+  });
+  expect(characters).toEqual([
+    { character: "a", authors: [] },
+    { character: "b", authors: [] },
+    { character: "c", authors: ["bob"] },
+  ]);
+});
 
-      const endpoints = makeEndpoints();
-      const snapshots = await endpoints.list();
+it("shows only the selected version's edits when the previous version is the first edit alone", async () => {
+  // "1000-1000" is both the first edit and a version of its own; the start of
+  // the document is a separate, empty row before it.
+  const characters = await compareCharacters({
+    authors: ["alice", "bob", "bob"],
+    activity: {
+      first,
+      history: [
+        { from: 1100, to: 1200, by: ["bob"] },
+        { from: 1000, to: 1000, by: ["alice"] },
+      ],
+    },
+    target: { type: "snapshot", id: "1100-1200" },
+    compareTo: () => "1000-1000",
+  });
+  expect(characters).toEqual([
+    { character: "a", authors: [] },
+    { character: "b", authors: ["bob"] },
+    { character: "c", authors: ["bob"] },
+  ]);
+});
 
-      expect(snapshots).toHaveLength(1);
-      expect(snapshots[0].id).toBe("uuid-version-1");
+it("uses the latest server checkpoint as Current without a separate capture row", () => {
+  expect(storage().api.showCurrentVersion).toBe(false);
+  expect(fetchSpy).not.toHaveBeenCalled();
+});
+
+it("pins the start of the document, before the first edit, independently of sidebar filters and grouping", async () => {
+  const { api, doc } = storage({ from: 1500, by: "bob", group: true });
+  doc.get("default").push(["initial content"]);
+  fetchSpy
+    .mockResolvedValueOnce(response({ activity: [latest] }))
+    .mockResolvedValueOnce(response({ activity: [{ ...first, version }] }))
+    .mockResolvedValueOnce(response({ ydoc: Y.encodeStateAsUpdate(doc) }));
+  const { snapshots: versions } = resultValue(await api.list(signal));
+  expect(versions).toHaveLength(2);
+  const start = versions[1];
+  // The moment before the first edit: an empty document, without the first
+  // edit's name.
+  expect(start).toMatchObject({ id: "999-999", createdAt: 999, by: ["alice"] });
+  expect(start.name).toBeUndefined();
+  const content = resultValue(await api.getContent(start.id, signal));
+  const decoded = new Y.Doc();
+  try {
+    Y.applyUpdateV2(decoded, content);
+    expect(Object.fromEntries(request(1).url.searchParams)).toEqual({
+      from: "0",
+      order: "asc",
+      limit: "1",
+      group: "false",
+      versions: "true",
+      customAttributions: "true",
     });
+    expect(request(2).url.searchParams.get("to")).toBe("999");
+  } finally {
+    decoded.destroy();
+  }
+});
 
-    it("prefers the mutable __bn_version_names name over the attribution name", async () => {
-      const doc = new Y.Doc();
-      // The `ySync` extension's fragment belongs to `doc`, so the mutable
-      // name store on `doc` is what `getVersionNamesMap` reads.
-      const { endpoints } = makeCollabEndpoints(doc);
+it("lists no snapshots when there are no recorded edits", async () => {
+  fetchSpy.mockImplementation(async () => response({ activity: [] }));
+  expect(await storage().api.list(signal)).toEqual({
+    ok: true,
+    value: { snapshots: [], nextCursor: undefined },
+  });
+  expect(fetchSpy).toHaveBeenCalledTimes(2);
+});
 
-      // Rename version "v1" in the mutable store on the live doc.
-      doc.get("__bn_version_names").setAttr("v1", "Renamed");
-
-      const versionEntry = {
-        from: 1782218082853,
-        to: 1782218082853,
-        by: "user-1",
-        customAttributions: [
-          { k: "type", v: "version" },
-          { k: "id", v: "v1" },
-          { k: "name", v: "Original" },
+it("reloads an unnamed YHub checkpoint as Current on each opening without creating a version", async () => {
+  const { api, doc } = storage();
+  const show = vi.fn();
+  const mode = createVersioning({
+    storage: api,
+    adapter: {
+      supportsComparison: false,
+      open() {
+        return {
+          current: { content: new Uint8Array(), capturedAt: 3000 },
+          show,
+          close() {},
+        };
+      },
+    },
+    setReadOnly() {},
+  });
+  for (let opening = 0; opening < 2; opening++) {
+    fetchSpy
+      .mockResolvedValueOnce(response({ activity: [latest, first] }))
+      .mockResolvedValueOnce(response({ activity: [first] }))
+      .mockResolvedValueOnce(response({ ydoc: Y.encodeStateAsUpdate(doc) }));
+    mode.open();
+    expect(await mode.list()).toEqual({ status: "done" });
+    expect(mode.store.state).toMatchObject({
+      showCurrentVersion: false,
+      displayed: { type: "snapshot", id: "2000-2000" },
+      history: {
+        data: [
+          { id: "2000-2000", name: undefined },
+          { id: "1000-1000" },
+          { id: "999-999" },
         ],
-      };
-      // 1: activity fetch. 2 & 3: current-version probe (latest edit, latest
-      // marker) — same entry both times, so no newer edit and no current row.
-      fetchSpy.mockResolvedValueOnce(
-        mockFetchResponse({ activity: [versionEntry] }),
-      );
-      fetchSpy.mockResolvedValueOnce(
-        mockFetchResponse({ activity: [versionEntry] }),
-      );
-      fetchSpy.mockResolvedValueOnce(
-        mockFetchResponse({ activity: [versionEntry] }),
-      );
-
-      const snapshots = await endpoints.list();
-
-      expect(snapshots).toHaveLength(1);
-      expect(snapshots[0].id).toBe("v1");
-      expect(snapshots[0].name).toBe("Renamed");
+      },
     });
-
-    it("falls back to the attribution name when the store has no entry", async () => {
-      fetchSpy.mockResolvedValueOnce(
-        mockFetchResponse({ activity: [VERSION_ENTRY_1] }),
-      );
-      fetchSpy.mockResolvedValueOnce(
-        mockFetchResponse({ activity: [VERSION_ENTRY_1] }),
-      );
-      fetchSpy.mockResolvedValueOnce(
-        mockFetchResponse({ activity: [VERSION_ENTRY_1] }),
-      );
-
-      const endpoints = makeEndpoints();
-      const snapshots = await endpoints.list();
-
-      expect(snapshots).toHaveLength(1);
-      expect(snapshots[0].name).toBe("Test Version 1");
+    expect(show.mock.lastCall?.[0].target).toEqual({
+      type: "snapshot",
+      id: "2000-2000",
     });
+    mode.close();
+  }
+  expect(fetchSpy).toHaveBeenCalledTimes(6);
+  for (let index = 0; index < 6; index++) {
+    expect(request(index).method).toBe("GET");
+  }
+});
 
-    it("prepends a 'current version' entry when there are edits beyond the latest version", async () => {
-      // A more recent edit than VERSION_ENTRY_2, by a different author.
-      const latestEdit = {
-        from: 1782218300000,
-        to: 1782218300000,
-        by: "user-4",
-      };
-      // 1: activity list. 2: latest edit of any kind (the newer edit). 3: latest
-      // version marker (VERSION_ENTRY_2). Since latestEdit.to > VERSION_ENTRY_2.to
-      // a synthetic current-version row is prepended.
-      fetchSpy.mockResolvedValueOnce(
-        mockFetchResponse({ activity: [VERSION_ENTRY_2, VERSION_ENTRY_1] }),
-      );
-      fetchSpy.mockResolvedValueOnce(
-        mockFetchResponse({ activity: [latestEdit] }),
-      );
-      fetchSpy.mockResolvedValueOnce(
-        mockFetchResponse({ activity: [VERSION_ENTRY_2] }),
-      );
+it("lists server checkpoints with their attached versions and empty versions", async () => {
+  fetchSpy
+    .mockResolvedValueOnce(
+      response({
+        activity: [
+          latest,
+          {
+            ...first,
+            by: ["alice", "bob"],
+            version,
+            customAttributions: [{ k: "source", v: "import" }],
+          },
+          {
+            from: 500,
+            to: 500,
+            by: [],
+            version: { ...version, t: 500, name: "Empty" },
+            isEmpty: true,
+          },
+        ],
+      }),
+    )
+    .mockResolvedValueOnce(response({ activity: [] }));
+  expect(resultValue(await storage().api.list(signal)).snapshots).toMatchObject(
+    [
+      { id: "2000-2000", by: ["bob"] },
+      {
+        id: "1000-1000",
+        by: ["alice", "bob"],
+        name: "Milestone",
+        metadata: version.custom,
+        restoredFrom: { id: "42-42", createdAt: 42 },
+        customAttributions: { source: "import" },
+      },
+      { id: "500-500", by: [], name: "Empty" },
+    ],
+  );
+  expect(fetchSpy).toHaveBeenCalledTimes(2);
+  expect(request(0).url.searchParams.get("versions")).toBe("true");
+  expect(request(0).signal).toBeInstanceOf(AbortSignal);
+});
 
-      const endpoints = makeEndpoints();
-      const snapshots = await endpoints.list();
-
-      expect(snapshots).toHaveLength(3);
-      expect(snapshots[0].id).toBe(CURRENT_VERSION_ID);
-      expect(snapshots[0].createdAt).toBe(latestEdit.to);
-      expect(snapshots[0].by).toEqual(["user-4"]);
-      expect(snapshots[0].secondaryLabel).toBeUndefined();
-      // The real version markers follow, newest-first.
-      expect(snapshots[1].id).toBe("uuid-version-2");
-      expect(snapshots[2].id).toBe("uuid-version-1");
-    });
-
-    it("prepends 'current version' even when the newest activity entry is a history edit (regression: grouping absorbing the marker)", async () => {
-      // This is the exact regression the self-contained current-version probe
-      // fixes: `list()` maps the whole timeline, so its newest snapshot is a
-      // plain edit — deriving the latest-version time from that list would make
-      // the guard compare a value against itself and never surface a current
-      // row. Because the marker is fetched independently (probe 3), the edit is
-      // correctly recognised as newer than the latest *version marker*.
-      const historyEdit = {
-        from: 1782218300000,
-        to: 1782218300000,
-        by: "user-9",
-      };
-      // 1: activity list — newest entry is the history edit, not a marker.
-      fetchSpy.mockResolvedValueOnce(
-        mockFetchResponse({
-          activity: [historyEdit, VERSION_ENTRY_2, VERSION_ENTRY_1],
+it.each([false, 0, "", ["app"], {}, null].map((custom) => ({ custom })))(
+  "preserves each activity entry and its custom metadata $custom",
+  async ({ custom }) => {
+    fetchSpy
+      .mockResolvedValueOnce(
+        response({
+          activity: [
+            { ...first, by: "bob", version: { ...version, custom } },
+            {
+              ...first,
+              by: "alice",
+              customAttributions: [{ k: "source", v: "edit" }],
+            },
+          ],
         }),
-      );
-      // 2: latest edit of any kind → the history edit.
-      fetchSpy.mockResolvedValueOnce(
-        mockFetchResponse({ activity: [historyEdit] }),
-      );
-      // 3: latest version marker → VERSION_ENTRY_2 (older than the edit).
-      fetchSpy.mockResolvedValueOnce(
-        mockFetchResponse({ activity: [VERSION_ENTRY_2] }),
-      );
+      )
+      .mockResolvedValueOnce(response({ activity: [first] }));
+    const { snapshots: rows } = resultValue(
+      await storage({ groupByUser: true }).api.list(signal),
+    );
+    expect(rows).toHaveLength(3);
+    expect(rows[2].id).toBe("999-999");
+    expect(rows[0].by).toEqual(["bob"]);
+    expect(rows[0].metadata).toEqual(custom);
+    expect(rows[1].by).toEqual(["alice"]);
+    expect(rows[1].metadata).toBeUndefined();
+    expect(rows[1].customAttributions).toEqual({ source: "edit" });
+    expect(request(0).url.searchParams.get("groupByUser")).toBe("true");
+  },
+);
 
-      const endpoints = makeEndpoints();
-      const snapshots = await endpoints.list();
+it("preserves caller activity filters without merging returned entries", async () => {
+  fetchSpy
+    .mockResolvedValueOnce(
+      response({
+        activity: [
+          { ...first, customAttributions: [{ k: "source", v: "import" }] },
+          {
+            ...first,
+            by: ["bob"],
+            version,
+            customAttributions: [{ k: "tag", v: "release" }],
+          },
+        ],
+      }),
+    )
+    .mockResolvedValueOnce(response({ activity: [first] }));
+  const activityParams = {
+    groupExclude: "alice,bob",
+    order: "desc",
+    limit: 10,
+    from: 500,
+    by: "alice,bob",
+    customAttributions: true,
+  };
+  expect(
+    resultValue(await storage(activityParams).api.list(signal)).snapshots,
+  ).toMatchObject([
+    {
+      id: "1000-1000",
+      by: ["alice"],
+      customAttributions: { source: "import" },
+    },
+    {
+      id: "1000-1000",
+      by: ["bob"],
+      name: "Milestone",
+      metadata: version.custom,
+      restoredFrom: { id: "42-42", createdAt: 42 },
+      customAttributions: { tag: "release" },
+    },
+    { id: "999-999", by: ["alice"] },
+  ]);
+  for (const [key, value] of Object.entries(activityParams)) {
+    expect(request(0).url.searchParams.get(key)).toBe(
+      String(key === "limit" ? Number(value) + 1 : value),
+    );
+  }
+  expect(activityParams).toEqual({
+    groupExclude: "alice,bob",
+    order: "desc",
+    limit: 10,
+    from: 500,
+    by: "alice,bob",
+    customAttributions: true,
+  });
+});
 
-      expect(snapshots[0].id).toBe(CURRENT_VERSION_ID);
-      expect(snapshots[0].createdAt).toBe(historyEdit.to);
-      expect(snapshots[0].by).toEqual(["user-9"]);
-    });
-
-    it("forwards the mergeUsers param when configured", async () => {
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse({ activity: [] }));
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse({ activity: [] }));
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse({ activity: [] }));
-
-      const endpoints = createYHubVersioningEndpoints({
-        baseUrl: BASE_URL,
-        org: ORG,
-        docId: DOC_ID,
-        mergeUsers: true,
-      })(BlockNoteEditor.create());
-      await endpoints.list();
-
-      const versionUrl = new URL(fetchSpy.mock.calls[0][0] as string);
-      expect(versionUrl.searchParams.get("mergeUsers")).toBe("true");
+it("pages through bounded activity windows with stable timestamp identifiers", async () => {
+  const activity = [
+    { from: 90, to: 100, by: ["alice"] },
+    { from: 70, to: 80, by: ["bob"], version: { ...version, t: 80 } },
+    { from: 50, to: 60, by: ["alice"] },
+  ];
+  fetchSpy.mockImplementation(async (url) => {
+    const params = new URL(url instanceof Request ? url.url : url).searchParams;
+    if (params.get("order") === "asc") {
+      return response({ activity: [activity.at(-1)] });
+    }
+    const to = Number(params.get("to") ?? Infinity);
+    return response({
+      activity: activity
+        .filter((entry) => entry.to <= to)
+        .slice(0, Number(params.get("limit"))),
     });
   });
+  const { api } = storage({ limit: 1 });
+  const snapshots = [];
+  const cursors = new Set<string>();
+  let cursor: string | undefined;
+  do {
+    const page = resultValue(await api.list(signal, cursor));
+    snapshots.push(...page.snapshots);
+    cursor = page.nextCursor;
+    if (cursor !== undefined) {
+      expect(cursors.has(cursor)).toBe(false);
+      cursors.add(cursor);
+    }
+  } while (cursor !== undefined);
+  expect(
+    snapshots.map(({ id, createdAt, name }) => ({ id, createdAt, name })),
+  ).toEqual([
+    { id: "90-100", createdAt: 100, name: undefined },
+    // The first page also pins the start, the moment before the first edit.
+    { id: "49-49", createdAt: 49, name: undefined },
+    { id: "70-80", createdAt: 80, name: "Milestone" },
+    { id: "50-60", createdAt: 60, name: undefined },
+  ]);
+});
 
-  // -------------------------------------------------------------------------
-  // create
-  // -------------------------------------------------------------------------
-  describe("create", () => {
-    it("PATCHes with type:version, id, and name attributions and returns optimistic snapshot", async () => {
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse(PATCH_RESPONSE));
-
-      const endpoints = makeEndpoints();
-      const snapshot = await endpoints.create!(makeFragment(), {
-        name: "My Version",
-      });
-
-      // Only one fetch call (PATCH) — no activity fetch
-      expect(fetchSpy).toHaveBeenCalledOnce();
-      const [patchUrl, patchInit] = fetchSpy.mock.calls[0];
-      expect(patchUrl).toBe(`${BASE_URL}/ydoc/v1/${ORG}/${DOC_ID}`);
-      expect(patchInit.method).toBe("PATCH");
-      expect(patchInit.body).toBeInstanceOf(Uint8Array);
-
-      // Optimistic snapshot has a UUID id and the provided name. With no
-      // yCursor extension there's no current user to attribute it to.
-      expect(snapshot.id).toMatch(/^[0-9a-f-]+$/);
-      expect(snapshot.name).toBe("My Version");
-      expect(snapshot.createdAt).toBeGreaterThan(0);
-      expect(snapshot.by).toBeUndefined();
-    });
-
-    it("stamps the optimistic snapshot with the cursor user's id", async () => {
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse(PATCH_RESPONSE));
-
-      // Stub the editor so the yCursor extension reports a current user.
-      const editor = {
-        getExtension: (key: string) =>
-          key === "yCursor"
-            ? {
-                getUser: () => ({ id: "user-1", name: "Alice", color: "#f00" }),
-              }
-            : undefined,
-      } as unknown as BlockNoteEditor<any, any, any>;
-      const endpoints = createYHubVersioningEndpoints({
-        baseUrl: BASE_URL,
-        org: ORG,
-        docId: DOC_ID,
-      })(editor);
-
-      const snapshot = await endpoints.create!(makeFragment(), {
-        name: "My Version",
-      });
-
-      expect(snapshot.by).toBe("user-1");
-      // The PATCH is attributed to the same user via the body, not query params.
-      const patchUrl = new URL(fetchSpy.mock.calls[0][0] as string);
-      expect(patchUrl.searchParams.has("userid")).toBe(false);
-    });
-
-    it("creates a version without a name", async () => {
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse(PATCH_RESPONSE));
-
-      const endpoints = makeEndpoints();
-      const snapshot = await endpoints.create!(makeFragment());
-
-      expect(snapshot.name).toBeUndefined();
-      expect(snapshot.id).toMatch(/^[0-9a-f-]+$/);
-    });
-
-    it("writes the version name into the __bn_version_names Y.Map on create", async () => {
-      const doc = new Y.Doc();
-      const { endpoints, fragment } = makeCollabEndpoints(doc);
-
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse({ success: true }));
-
-      const snapshot = await endpoints.create!(fragment as any, {
-        name: "My Version",
-      });
-
-      const names = doc.get("__bn_version_names");
-      expect(names.getAttr(snapshot.id as string)).toBe("My Version");
-    });
-
-    it("throws when the fragment is not attached to a doc", async () => {
-      const endpoints = makeEndpoints();
-      const detached = { doc: null } as unknown as Y.Type;
-      await expect(
-        endpoints.create!(detached, { name: "fail" }),
-      ).rejects.toThrow("not attached to a Y.Doc");
-    });
-
-    it("getContent works on the returned snapshot without an extra lookup", async () => {
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse(PATCH_RESPONSE));
-      const cs = makeChangeset();
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse(cs));
-
-      const endpoints = makeEndpoints();
-      const snapshot = await endpoints.create!(makeFragment(), {
-        name: "new",
-      });
-
-      const content = await endpoints.getContent(snapshot);
-      expect(content).toBeInstanceOf(Uint8Array);
-      // PATCH + changeset — the timestamp comes from the snapshot itself, so
-      // there's no activity lookup.
-      expect(fetchSpy).toHaveBeenCalledTimes(2);
-      const url = new URL(fetchSpy.mock.calls[1][0] as string);
-      expect(url.searchParams.get("to")).toBe(String(snapshot.createdAt));
-    });
+it("keeps grouping fixed while traversing a cursor and uses changed options on refresh", async () => {
+  const activityParams = { limit: 1, groupMaxGap: 10, groupByUser: false };
+  fetchSpy.mockImplementation(async (url) => {
+    const params = new URL(url instanceof Request ? url.url : url).searchParams;
+    if (params.get("order") === "asc") {
+      return response({ activity: [first] });
+    }
+    return response({ activity: params.has("to") ? [first] : [latest, first] });
   });
+  const { api } = storage(activityParams);
+  const page = resultValue(await api.list(signal));
+  activityParams.groupMaxGap = 20;
+  activityParams.groupByUser = true;
+  expect(
+    resultValue(await api.list(signal, page.nextCursor)).snapshots[0].id,
+  ).toBe("1000-1000");
+  await api.list(signal);
+  expect(request(2).url.searchParams.get("groupMaxGap")).toBe("10");
+  expect(request(2).url.searchParams.get("groupByUser")).toBe("false");
+  expect(request(3).url.searchParams.get("groupMaxGap")).toBe("20");
+  expect(request(3).url.searchParams.get("groupByUser")).toBe("true");
+});
 
-  // -------------------------------------------------------------------------
-  // getContent
-  // -------------------------------------------------------------------------
-  describe("getContent", () => {
-    it("fetches the changeset by to=<snapshot.createdAt> with no activity lookup", async () => {
-      // changeset fetch
-      const cs = makeChangeset();
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse(cs));
+it.each([{ activity: [] }, { activity: [latest] }])(
+  "reports exhaustion without an unnecessary empty-page request for %j",
+  async ({ activity }) => {
+    fetchSpy
+      .mockResolvedValueOnce(response({ activity }))
+      .mockResolvedValueOnce(response({ activity }));
+    const page = resultValue(await storage({ limit: 1 }).api.list(signal));
+    expect(page.nextCursor).toBeUndefined();
+    // With an edit, the start of the document is pinned after it.
+    expect(page.snapshots.map((snapshot) => snapshot.id)).toEqual(
+      activity.length ? ["2000-2000", "1999-1999"] : [],
+    );
+  },
+);
 
-      const endpoints = makeEndpoints();
-      const content = await endpoints.getContent(SNAPSHOT_1);
+it.each([0, -1, 1.5, NaN, Infinity, Number.MAX_SAFE_INTEGER + 1])(
+  "rejects invalid activity page size %s",
+  async (limit) => {
+    await expect(storage({ limit }).api.list(signal)).rejects.toThrow(
+      "positive integer",
+    );
+  },
+);
 
-      expect(content).toBeInstanceOf(Uint8Array);
-      expect(content.byteLength).toBeGreaterThan(0);
-
-      // The snapshot carries its own timestamp, so only the changeset is fetched.
-      expect(fetchSpy).toHaveBeenCalledOnce();
-
-      // changeset reconstructed by timestamp, NOT by custom attribution
-      const url = new URL(fetchSpy.mock.calls[0][0] as string);
-      expect(url.pathname).toBe(`/api/changeset/v1/${ORG}/${DOC_ID}`);
-      expect(url.searchParams.get("ydoc")).toBe("true");
-      expect(url.searchParams.get("to")).toBe(String(SNAPSHOT_1.createdAt));
-      expect(url.searchParams.has("from")).toBe(false);
-      expect(url.searchParams.has("withCustomAttributions")).toBe(false);
-    });
-
-    it("throws when changeset has no ydoc", async () => {
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse({}));
-
-      const endpoints = makeEndpoints();
-      await expect(endpoints.getContent(SNAPSHOT_1)).rejects.toThrow(
-        "no document state",
-      );
-    });
+it("names the latest checkpoint only when its content matches frozen current", async () => {
+  const { api, doc } = storage();
+  doc.get("default").push(["shown"]);
+  fetchSpy
+    .mockResolvedValueOnce(response({ activity: [latest] }))
+    .mockResolvedValueOnce(response({ ydoc: Y.encodeStateAsUpdate(doc) }))
+    .mockResolvedValueOnce(response({ versions: [] }))
+    .mockResolvedValueOnce(
+      response({ ...version, t: latest.to, name: "Current milestone" }),
+    );
+  expect(
+    await api.create!(Y.encodeStateAsUpdateV2(doc), "Current milestone"),
+  ).toMatchObject({
+    ok: true,
+    value: { id: "2000-2000", createdAt: 2000, name: "Current milestone" },
   });
+  expect(request(0).url.searchParams.get("limit")).toBe("1");
+  expect(request(3).method).toBe("POST");
+  expect(request(3).body).toEqual({
+    type: "version:v1",
+    t: 2000,
+    name: "Current milestone",
+  });
+});
 
-  // -------------------------------------------------------------------------
-  // getAttributions
-  // -------------------------------------------------------------------------
-  describe("getAttributions", () => {
-    it("fetches attributions between two versions", async () => {
-      const endpoints = makeEndpoints();
+it("renames an already named latest checkpoint while preserving metadata", async () => {
+  const { api, doc } = storage();
+  doc.get("default").push(["shown"]);
+  const current = { ...version, t: latest.to };
+  fetchSpy
+    .mockResolvedValueOnce(response({ activity: [latest] }))
+    .mockResolvedValueOnce(response({ ydoc: Y.encodeStateAsUpdate(doc) }))
+    .mockResolvedValueOnce(response({ versions: [current] }))
+    .mockResolvedValueOnce(response({ ...current, name: "Renamed current" }));
+  expect(
+    await api.create!(Y.encodeStateAsUpdateV2(doc), "Renamed current"),
+  ).toMatchObject({
+    ok: true,
+    value: {
+      id: "2000-2000",
+      name: "Renamed current",
+      metadata: version.custom,
+    },
+  });
+  expect(request(3).method).toBe("PATCH");
+  expect(request(3).body.custom).toEqual(version.custom);
+});
 
-      // changeset fetch (timestamps come straight from the snapshots)
-      const cs = makeChangeset({ attributions: true });
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse(cs));
+it("does not name a checkpoint when no edits have been recorded", async () => {
+  fetchSpy.mockResolvedValueOnce(response({ activity: [] }));
+  expect(
+    await storage().api.create?.(new Uint8Array(), "Current milestone"),
+  ).toEqual({ ok: false, error: { type: "conflict" } });
+  expect(fetchSpy).toHaveBeenCalledOnce();
+});
 
-      try {
-        await endpoints.getAttributions!(SNAPSHOT_2, SNAPSHOT_1);
-      } catch {
-        // Expected — mock attributions aren't valid Y.ContentMap
+it("names a recorded checkpoint through POST", async () => {
+  fetchSpy.mockResolvedValueOnce(response({ versions: [] }));
+  fetchSpy.mockResolvedValueOnce(response({ ...version, name: "Saved" }));
+  await storage().api.rename!("900-1000", "Saved");
+  expect(request(1)).toMatchObject({
+    method: "POST",
+    body: { type: "version:v1", t: 1000, name: "Saved" },
+  });
+});
+
+it("renames through conditional PATCH without losing custom data", async () => {
+  fetchSpy.mockResolvedValueOnce(response({ versions: [version] }));
+  fetchSpy.mockResolvedValueOnce(response({ ...version, name: "New" }));
+  await storage().api.rename!("900-1000", "New");
+  expect(request(1)).toMatchObject({
+    method: "PATCH",
+    body: {
+      updatedAt: 3000,
+      name: "New",
+      custom: version.custom,
+    },
+  });
+});
+
+it("removes a name without removing app metadata", async () => {
+  fetchSpy.mockResolvedValueOnce(response({ versions: [version] }));
+  fetchSpy.mockResolvedValueOnce(response({ ...version, name: "" }));
+  await storage().api.remove!("900-1000");
+  expect(request(1).body).toMatchObject({ name: "", custom: version.custom });
+});
+
+it("conditionally deletes a version without custom metadata", async () => {
+  fetchSpy.mockResolvedValueOnce(
+    response({ versions: [{ ...version, custom: null }] }),
+  );
+  fetchSpy.mockResolvedValueOnce(response(null, 204));
+  await storage().api.remove!("900-1000");
+  expect(request(1).method).toBe("DELETE");
+  expect(request(1).url.searchParams.get("updatedAt")).toBe("3000");
+});
+
+it("leaves unnamed automatic activity alone", async () => {
+  fetchSpy.mockResolvedValueOnce(response({ versions: [] }));
+  await storage().api.remove!("900-1000");
+  expect(fetchSpy).toHaveBeenCalledOnce();
+});
+
+it("propagates concurrent version conflicts", async () => {
+  fetchSpy.mockResolvedValueOnce(response({ versions: [version] }));
+  fetchSpy.mockResolvedValueOnce(response({ error: "conflict" }, 409));
+  expect(await storage().api.rename!("900-1000", "New")).toEqual({
+    ok: false,
+    error: { type: "conflict" },
+  });
+});
+
+it("loads V2 content at the end of its window", async () => {
+  const { api, doc } = storage();
+  doc.get("default").push(["hello"]);
+  fetchSpy.mockResolvedValueOnce(
+    response({ ydoc: Y.encodeStateAsUpdate(doc) }),
+  );
+  const content = resultValue(await api.getContent("900-1000", signal));
+  const restored = new Y.Doc();
+  try {
+    Y.applyUpdateV2(restored, content);
+    expect(restored.get("default").toArray()).toEqual(["hello"]);
+  } finally {
+    restored.destroy();
+  }
+  expect(request(0).url.searchParams.get("to")).toBe("1000");
+  expect(request(0).signal).toBeInstanceOf(AbortSignal);
+});
+
+it.each([
+  { type: "current", capturedAt: 500 },
+  { type: "current", capturedAt: 2500 },
+  { type: "snapshot", capturedAt: 2500 },
+] as const)(
+  "uses the server attribution cutoff for $type with client capture time $capturedAt",
+  async ({ type, capturedAt }) => {
+    fetchSpy.mockResolvedValueOnce(
+      response({ attributions: Y.encodeContentMap(Y.createContentMap()) }),
+    );
+    await storage().api.getAttributions!(
+      type === "current" ? { type } : { type, id: "1900-2000" },
+      "900-1000",
+      capturedAt,
+      signal,
+    );
+    // The baseline already holds its edits up to 1000.
+    expect(request(0).url.searchParams.get("from")).toBe("1001");
+    expect(request(0).url.searchParams.get("to")).toBe(
+      type === "current" ? null : "2000",
+    );
+    expect(request(0).signal).toBeInstanceOf(AbortSignal);
+  },
+);
+
+it.each([false, true])(
+  "preserves the live head before restore, existing named checkpoint: %s",
+  async (named) => {
+    const { api, doc, fragment } = storage();
+    fragment.push(["hello"]);
+    fetchSpy.mockImplementation(async (input, init) => {
+      const path = new URL(input instanceof Request ? input.url : input)
+        .pathname;
+      if (path.includes("/activity/")) {
+        return response({ activity: [latest] });
       }
-
-      // Only the changeset is fetched — no activity lookups.
-      expect(fetchSpy).toHaveBeenCalledOnce();
-      const url = new URL(fetchSpy.mock.calls[0][0] as string);
-      expect(url.searchParams.get("from")).toBe(String(SNAPSHOT_1.createdAt));
-      expect(url.searchParams.get("to")).toBe(String(SNAPSHOT_2.createdAt));
-      expect(url.searchParams.get("attributions")).toBe("true");
-    });
-
-    it("uses from=0 when compareTo is omitted", async () => {
-      const endpoints = makeEndpoints();
-
-      // changeset fetch
-      const cs = makeChangeset({ attributions: true });
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse(cs));
-
-      try {
-        await endpoints.getAttributions!(SNAPSHOT_1);
-      } catch {
-        // Expected
+      if (path.includes("/ydoc/")) {
+        return response({ doc: Y.encodeStateAsUpdate(doc) });
       }
-
-      const url = new URL(fetchSpy.mock.calls[0][0] as string);
-      expect(url.searchParams.get("from")).toBe("0");
+      if (path.includes("/version/") && init?.method !== "POST") {
+        return response({ versions: named ? [{ ...version, t: 2000 }] : [] });
+      }
+      if (path.includes("/version/")) {
+        return response({ ...version, t: 2000 });
+      }
+      return response({ success: true });
     });
+    await api.restore!("900-1000");
+    const calls = fetchSpy.mock.calls.map((_, index) => request(index));
+    const pins = calls.filter(
+      (call) =>
+        call.method === "POST" && call.url.pathname.includes("/version/"),
+    );
+    expect(pins).toHaveLength(named ? 0 : 1);
+    if (!named) {
+      expect(pins[0].body).toMatchObject({ t: 2000, name: "Before restore" });
+    }
+    const rollback = calls.find((call) =>
+      call.url.pathname.includes("/rollback/"),
+    );
+    expect(rollback?.body.from).toBe(1001);
+    expect(Y.decodeContentIds(rollback?.body.contentIds).inserts).toBeDefined();
+  },
+);
 
-    it("throws when changeset has no attributions", async () => {
-      const endpoints = makeEndpoints();
-
-      // changeset without attributions
-      fetchSpy.mockResolvedValueOnce(
-        mockFetchResponse({ ydoc: new Uint8Array() }),
-      );
-
-      await expect(endpoints.getAttributions!(SNAPSHOT_1)).rejects.toThrow(
-        "no attributions",
-      );
+it.each(["alice", "bob"])(
+  "authenticates every restore request as %s without using the rollback author filter",
+  async (userid) => {
+    const doc = new Y.Doc();
+    cleanup.push(() => doc.destroy());
+    const fragment = doc.get("default");
+    fragment.push(["hello"]);
+    const api = createYHubVersionStorage({
+      ...options,
+      queryParams: { userid },
+      fragment,
+      beforeRestoreName: "Before restore",
     });
+    fetchSpy.mockImplementation(async (input, init) => {
+      const path = new URL(input instanceof Request ? input.url : input)
+        .pathname;
+      if (path.includes("/activity/")) {
+        return response({ activity: [latest] });
+      }
+      if (path.includes("/ydoc/")) {
+        return response({ doc: Y.encodeStateAsUpdate(doc) });
+      }
+      if (path.includes("/version/")) {
+        return init?.method === "POST"
+          ? response({ ...version, t: latest.to })
+          : response({ versions: [] });
+      }
+      return response({ success: true });
+    });
+    expect(await api.restore("900-1000")).toEqual({
+      ok: true,
+      value: undefined,
+    });
+    const calls = fetchSpy.mock.calls.map((_, index) => request(index));
+    expect(calls).toHaveLength(6);
+    for (const call of calls) {
+      expect(call.url.searchParams.get("userid")).toBe(userid);
+    }
+    const rollback = calls.find((call) =>
+      call.url.pathname.includes("/rollback/"),
+    );
+    expect(Object.keys(rollback?.body).sort()).toEqual(["contentIds", "from"]);
+    expect(calls[0].url.searchParams.get("limit")).toBe("1");
+    expect(calls[1].url.searchParams.get("gc")).toBe("false");
+  },
+);
+
+it.each([false, 0, "", [], {}, null].map((custom) => ({ custom })))(
+  "the transport can still save app metadata $custom directly",
+  async ({ custom }) => {
+    fetchSpy.mockResolvedValueOnce(response({ ...version, custom }));
+    await new YHubClient(options).createVersion(1000, "Milestone", custom);
+    expect(request(0).body.custom).toEqual(custom);
+  },
+);
+
+it("refuses to name newer server content that was not shown in frozen current", async () => {
+  const { api, doc, fragment } = storage();
+  fragment.push(["shown"]);
+  const frozen = Y.encodeStateAsUpdateV2(doc);
+  fragment.push(["unseen"]);
+  fetchSpy
+    .mockResolvedValueOnce(response({ activity: [latest] }))
+    .mockResolvedValueOnce(response({ ydoc: Y.encodeStateAsUpdate(doc) }));
+  expect(await api.create!(frozen, "Milestone")).toEqual({
+    ok: false,
+    error: { type: "conflict" },
   });
+  expect(fetchSpy).toHaveBeenCalledTimes(2);
+  expect(fetchSpy.mock.calls.every(([, init]) => !init?.method)).toBe(true);
+});
 
-  // -------------------------------------------------------------------------
-  // restore
-  // -------------------------------------------------------------------------
-  describe("restore", () => {
-    it("fetches content and issues rollback (no backup)", async () => {
-      const endpoints = makeEndpoints();
-      const cs = makeChangeset();
-
-      // 1: GET /changeset (getContentAt via to=<snapshot.createdAt>)
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse(cs));
-      // 2: POST /rollback
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse({ success: true }));
-
-      const content = await endpoints.restore!(makeFragment(), SNAPSHOT_1);
-
-      // No backup PATCH and no activity lookup — just changeset + rollback.
-      expect(fetchSpy).toHaveBeenCalledTimes(2);
-
-      // 1st call: GET changeset by timestamp
-      const csUrl = new URL(fetchSpy.mock.calls[0][0] as string);
-      expect(csUrl.pathname).toBe(`/api/changeset/v1/${ORG}/${DOC_ID}`);
-      expect(csUrl.searchParams.get("to")).toBe(String(SNAPSHOT_1.createdAt));
-
-      // 2nd call: POST rollback
-      const [rollbackUrl, rollbackInit] = fetchSpy.mock.calls[1];
-      expect(rollbackUrl).toBe(`${BASE_URL}/rollback/v1/${ORG}/${DOC_ID}`);
-      expect(rollbackInit.method).toBe("POST");
-
-      expect(content).toBeInstanceOf(Uint8Array);
-    });
+it("waits for the post-rollback document and applies it to the original live document", async () => {
+  const { api, doc, fragment } = storage();
+  fragment.push(["before"]);
+  const server = new Y.Doc();
+  Y.applyUpdate(server, Y.encodeStateAsUpdate(doc));
+  server.get("default").delete(0, 1);
+  server.get("default").push(["restored"]);
+  let finish!: (response: Response) => void;
+  const postRollback = new Promise<Response>((resolve) => {
+    finish = resolve;
   });
-
-  // -------------------------------------------------------------------------
-  // rename
-  // -------------------------------------------------------------------------
-  describe("rename", () => {
-    it("provides a rename endpoint", () => {
-      const endpoints = makeEndpoints();
-      expect(typeof endpoints.rename).toBe("function");
-    });
-
-    it("rename sets the name in the Y.Map", async () => {
-      const doc = new Y.Doc();
-      const { endpoints, fragment } = makeCollabEndpoints(doc);
-
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse({ success: true }));
-      const snapshot = await endpoints.create!(fragment as any, {
-        name: "Old",
-      });
-
-      await endpoints.rename!(snapshot, "New");
-
-      const names = doc.get("__bn_version_names");
-      expect(names.getAttr(snapshot.id as string)).toBe("New");
-    });
-
-    it("rename with no name clears the entry", async () => {
-      const doc = new Y.Doc();
-      const { endpoints, fragment } = makeCollabEndpoints(doc);
-
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse({ success: true }));
-      const snapshot = await endpoints.create!(fragment as any, {
-        name: "Old",
-      });
-
-      await endpoints.rename!(snapshot, undefined);
-
-      const names = doc.get("__bn_version_names");
-      expect(names.hasAttr(snapshot.id as string)).toBe(false);
-    });
+  fetchSpy
+    .mockResolvedValueOnce(response({ activity: [latest] }))
+    .mockResolvedValueOnce(response({ doc: Y.encodeStateAsUpdate(doc) }))
+    .mockResolvedValueOnce(response({ versions: [{ ...version, t: 2000 }] }))
+    .mockResolvedValueOnce(response({ success: true }))
+    .mockReturnValueOnce(postRollback);
+  let completed = false;
+  const restore = api.restore!("900-1000").then((result) => {
+    completed = true;
+    return result;
   });
+  await vi.waitFor(() => expect(fetchSpy).toHaveBeenCalledTimes(5));
+  expect(completed).toBe(false);
+  expect(fragment.toArray()).toEqual(["before"]);
+  finish(response({ doc: Y.encodeStateAsUpdate(server) }));
+  expect(await restore).toEqual({ ok: true, value: undefined });
+  expect(fragment.toArray()).toEqual(["restored"]);
+  server.destroy();
+});
 
-  // -------------------------------------------------------------------------
-  // error handling
-  // -------------------------------------------------------------------------
-  describe("error handling", () => {
-    it("throws on non-OK HTTP responses", async () => {
-      fetchSpy.mockResolvedValueOnce(
-        new Response("Not Found", { status: 404, statusText: "Not Found" }),
-      );
-
-      const endpoints = makeEndpoints();
-      await expect(endpoints.list()).rejects.toThrow(
-        "YHub request failed: 404",
-      );
+it.each([
+  { status: 403, error: { type: "forbidden" } },
+  { status: 404, error: { type: "not-found" } },
+  { status: 409, error: { type: "conflict" } },
+  { status: 500, error: { type: "server", status: 500 } },
+])(
+  "returns a typed expected error for HTTP $status without exposing its body",
+  async ({ status, error }) => {
+    fetchSpy.mockResolvedValueOnce(
+      response({ error: "private server details" }, status),
+    );
+    expect(await new YHubClient(options).getActivity()).toEqual({
+      ok: false,
+      error,
     });
+  },
+);
+
+it("classifies transport failures but lets unexpected bugs throw", async () => {
+  const client = new YHubClient(options);
+  fetchSpy.mockRejectedValueOnce(new TypeError("fetch failed"));
+  expect(await client.getActivity()).toEqual({
+    ok: false,
+    error: { type: "network" },
   });
+  const bug = new Error("programmer error");
+  fetchSpy.mockRejectedValueOnce(bug);
+  await expect(client.getActivity()).rejects.toBe(bug);
+  fetchSpy.mockResolvedValueOnce(response(null));
+  await expect(client.getActivity()).rejects.toThrow();
+});
+
+it.each(["read", "mutation"] as const)(
+  "bounds a hung $type request and reports whether its outcome is known",
+  async (type) => {
+    fetchSpy.mockImplementationOnce(
+      (_input, init) =>
+        new Promise((_, reject) => {
+          init?.signal?.addEventListener(
+            "abort",
+            () => reject(init.signal?.reason),
+            { once: true },
+          );
+        }),
+    );
+    const client = new YHubClient({ ...options, timeoutMs: 10 });
+    const result = await (type === "read"
+      ? client.getActivity()
+      : client.createVersion(1000, "Named"));
+    expect(result).toEqual({
+      ok: false,
+      error: {
+        type: "timeout",
+        outcome: type === "read" ? "unchanged" : "unknown",
+      },
+    });
+    expect(fetchSpy).toHaveBeenCalledOnce();
+  },
+);
+
+it("preserves caller cancellation rather than showing it as a network failure", async () => {
+  const abort = new AbortController();
+  fetchSpy.mockImplementationOnce(
+    (_input, init) =>
+      new Promise((_, reject) => {
+        init?.signal?.addEventListener(
+          "abort",
+          () => reject(init.signal?.reason),
+          { once: true },
+        );
+      }),
+  );
+  const pending = new YHubClient(options).getActivity(undefined, abort.signal);
+  abort.abort();
+  await expect(pending).rejects.toBe(abort.signal.reason);
 });

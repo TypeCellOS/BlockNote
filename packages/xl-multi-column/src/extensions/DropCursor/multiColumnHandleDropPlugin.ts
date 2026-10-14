@@ -1,12 +1,12 @@
 import type { BlockNoteEditor } from "@blocknote/core";
 import {
-  UniqueID,
   createExtension,
   fragmentToBlocks,
   getBlockInfoFromNode,
   getNodeById,
   nodeToBlock,
 } from "@blocknote/core";
+import { UniqueID } from "@blocknote/core/extensions";
 import type { Node } from "prosemirror-model";
 import { Plugin } from "prosemirror-state";
 import type { EditorView } from "prosemirror-view";
