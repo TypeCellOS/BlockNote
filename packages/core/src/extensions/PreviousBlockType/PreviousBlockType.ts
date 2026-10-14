@@ -28,12 +28,15 @@ const nodeAttributes: Record<string, string> = {
  */
 export const PreviousBlockTypeExtension = createExtension(() => {
   let timeout: ReturnType<typeof setTimeout>;
+  // Until the view exists, nothing is on screen to animate from.
+  let hasView = false;
   return {
     key: "previousBlockType",
     prosemirrorPlugins: [
       new Plugin({
         key: PLUGIN_KEY,
         view(_editorView) {
+          hasView = true;
           return {
             update: async (view, _prevState) => {
               if (this.key?.getState(view.state).updatedBlocks.size > 0) {
@@ -47,6 +50,7 @@ export const PreviousBlockTypeExtension = createExtension(() => {
               }
             },
             destroy: () => {
+              hasView = false;
               if (timeout) {
                 clearTimeout(timeout);
               }
@@ -69,7 +73,7 @@ export const PreviousBlockTypeExtension = createExtension(() => {
             prev.currentTransactionOldBlockAttrs = {};
             prev.updatedBlocks.clear();
 
-            if (!transaction.docChanged) {
+            if (!transaction.docChanged || !hasView) {
               return prev;
             }
 
