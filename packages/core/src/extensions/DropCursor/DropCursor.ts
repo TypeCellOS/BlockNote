@@ -1,6 +1,6 @@
-import { Plugin } from "prosemirror-state";
+import { Plugin, PluginKey } from "prosemirror-state";
 import { dropPoint } from "prosemirror-transform";
-import type { EditorView } from "prosemirror-view";
+import { Decoration, DecorationSet, type EditorView } from "prosemirror-view";
 import {
   applyOrientationClasses,
   getBlockDropRect,
@@ -14,6 +14,12 @@ import { createExtension } from "../../editor/BlockNoteExtension.js";
 import { getDropIntoChildren } from "./dropIntoChildren.js";
 
 export const DRAG_EXCLUSION_CLASSNAME = "bn-drag-exclude";
+
+/** The block a drop goes into, as the drop cursor shows it. */
+type DropInto = { blockId: string; draggedBlocks: any[]; pos: number };
+
+// The state of `dropIntoChildrenPlugin`: the block the drop goes into, if any.
+const dropIntoKey = new PluginKey<DropInto | undefined>("dropInto");
 
 /**
  * Context passed to the computeDropPosition hook.
@@ -66,11 +72,6 @@ export const DropCursorExtension = createExtension<
   let element: HTMLElement | null = null;
   let timeout = -1;
   let dragSourceElement: Element | null = null;
-  // The block the drop goes into, if any, as the cursor shows it. Its
-  // element is highlighted like a selected block.
-  let dropInto:
-    | { blockId: string; draggedBlocks: any[]; element: HTMLElement }
-    | undefined;
 
   const config = {
     width: options.dropCursor?.width ?? 5,
@@ -80,12 +81,13 @@ export const DropCursorExtension = createExtension<
   } as const;
 
   // Helper functions
-  const setDropInto = (into: typeof dropInto) => {
-    delete dropInto?.element.dataset.dropTarget;
-    dropInto = into;
-    if (dropInto) {
-      dropInto.element.dataset.dropTarget = "true";
+  const setDropInto = (into: DropInto | undefined) => {
+    const view = editor.prosemirrorView;
+    const current = dropIntoKey.getState(view.state);
+    if (current?.blockId === into?.blockId && current?.pos === into?.pos) {
+      return;
     }
+    view.dispatch(view.state.tr.setMeta(dropIntoKey, { into }));
   };
 
   const setCursor = (pos: DropCursorPosition | null) => {
@@ -243,14 +245,10 @@ export const DropCursorExtension = createExtension<
         finalPosition.orientation === "block-horizontal"
       ) {
         const { block } = intoChildren.blockInfo;
-        const element = view.nodeDOM(block.beforePos);
-        if (!(element instanceof HTMLElement)) {
-          throw new Error("A block in the document must have an element");
-        }
         setDropInto({
           blockId: block.node.attrs.id,
           draggedBlocks: intoChildren.draggedBlocks,
-          element,
+          pos: block.beforePos,
         });
       } else {
         setDropInto(undefined);
@@ -280,10 +278,44 @@ export const DropCursorExtension = createExtension<
 
   // Drops the blocks where the cursor shows them: as the first children of
   // the block it goes into. Other drops are ProseMirror's.
-  const dropIntoChildrenPlugin = new Plugin({
+  const dropIntoChildrenPlugin = new Plugin<DropInto | undefined>({
+    key: dropIntoKey,
+    state: {
+      init: () => undefined,
+      apply(tr, into) {
+        const meta: { into: DropInto | undefined } | undefined =
+          tr.getMeta(dropIntoKey);
+        if (meta) {
+          return meta.into;
+        }
+        if (!into) {
+          return undefined;
+        }
+        // The block moves with edits made during the drag, e.g. by a
+        // collaborator, and the drop no longer goes into it once it's gone.
+        const { pos, deletedAfter } = tr.mapping.mapResult(into.pos, 1);
+        return deletedAfter ? undefined : { ...into, pos };
+      },
+    },
     props: {
-      handleDrop(_view, _event, _slice, moved) {
-        const into = dropInto;
+      // Highlights the block like a selected block. A decoration, as setting
+      // the attribute on the block's element directly is a DOM change
+      // ProseMirror reads back: it draws the block again, and the browser then
+      // drops the drag without a `drop` event.
+      decorations(state) {
+        const into = dropIntoKey.getState(state);
+        const node = into && state.doc.nodeAt(into.pos);
+        if (!into || !node) {
+          return DecorationSet.empty;
+        }
+        return DecorationSet.create(state.doc, [
+          Decoration.node(into.pos, into.pos + node.nodeSize, {
+            "data-drop-target": "true",
+          }),
+        ]);
+      },
+      handleDrop(view, _event, _slice, moved) {
+        const into = dropIntoKey.getState(view.state);
         // The drop ends the drag, and with it the highlight.
         setDropInto(undefined);
         // The block may be gone since the last `dragover`, e.g. removed by a
