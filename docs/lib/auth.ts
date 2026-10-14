@@ -1,25 +1,23 @@
 import { checkout, polar, portal, webhooks } from "@polar-sh/better-auth";
-import { Polar } from "@polar-sh/sdk";
+import { createPolarCore } from "@polar-sh/sdk/2026-10";
+import { updateCustomers } from "@polar-sh/sdk/2026-10/services/customers";
 import * as Sentry from "@sentry/nextjs";
 import { betterAuth } from "better-auth";
-import {
-  captcha,
-  createAuthMiddleware,
-  customSession,
-  magicLink,
-} from "better-auth/plugins";
+import { createAuthMiddleware } from "better-auth/api";
+import { captcha, customSession, magicLink } from "better-auth/plugins";
 import { github } from "better-auth/social-providers";
 import Database from "better-sqlite3";
 import { Pool } from "pg";
 import { PRODUCTS } from "./product-list";
 import { sendEmail } from "./send-mail";
 
-export const polarClient = new Polar({
-  accessToken: process.env.POLAR_ACCESS_TOKEN,
+// Keep the Polar webhook endpoint on the same API version.
+export const polarClient = createPolarCore({
+  accessToken: process.env.POLAR_ACCESS_TOKEN!,
   // Use 'sandbox' if you're using the Polar Sandbox environment
   // Remember that access tokens, products, etc. are completely separated between environments.
   // Access tokens obtained in Production are for instance not usable in the Sandbox environment.
-  server: process.env.NODE_ENV === "production" ? "production" : "sandbox",
+  environment: process.env.NODE_ENV === "production" ? "production" : "sandbox",
 });
 
 export const auth = betterAuth({
@@ -234,7 +232,7 @@ export const auth = betterAuth({
               case "subscription.created":
               case "subscription.uncanceled": {
                 // Resolve the BlockNote account for this purchase. For pay-first
-                // (logged-out) checkouts the customer has no externalId, so this
+                // (logged-out) checkouts the customer has no external_id, so this
                 // creates/links an account by email and sends a sign-in link.
                 const userId = await resolveUserForCustomer(
                   payload.data.customer,
@@ -244,7 +242,7 @@ export const auth = betterAuth({
                 }
                 const authContext = await auth.$context;
                 if (payload.data.status === "active") {
-                  const productId = payload.data.product.id;
+                  const productId = payload.data.product_id;
                   const planType = Object.values(PRODUCTS).find(
                     (p) => p.id === productId,
                   )?.slug;
@@ -306,19 +304,19 @@ export const auth = betterAuth({
 });
 
 // For "pay-first" checkouts the buyer may not have an account yet: the Polar
-// customer has no externalId because they checked out while logged out. Resolve
+// customer has no external_id because they checked out while logged out. Resolve
 // the BlockNote user for a Polar customer — creating one keyed on the checkout
 // email when needed — so the purchase can be provisioned and the buyer gets
 // access (via a sign-in link) to the account holding their new plan.
 async function resolveUserForCustomer(customer: {
   id: string;
-  externalId?: string | null;
+  external_id?: string | null;
   email?: string | null;
   name?: string | null;
 }): Promise<string | null> {
   // Authenticated purchase: the customer is already linked to a user.
-  if (customer.externalId) {
-    return customer.externalId;
+  if (customer.external_id) {
+    return customer.external_id;
   }
   const email = customer.email;
   if (!email) {
@@ -335,13 +333,16 @@ async function resolveUserForCustomer(customer: {
   }
 
   try {
-    const created = await authContext.internalAdapter.createUser({
-      email,
-      name: customer.name || email,
-      emailVerified: false,
-    });
+    const created = await authContext.internalAdapter.createUser(
+      {
+        email,
+        name: customer.name || email,
+        emailVerified: false,
+      },
+      { method: "polar" },
+    );
     // Link the Polar customer to the new account. Subscription and
-    // customer-portal lookups resolve a user's customer by externalId, so
+    // customer-portal lookups resolve a user's customer by external_id, so
     // without this the buyer couldn't access or manage the plan they bought.
     await linkPolarCustomer(customer.id, created.id);
     // New account → email a sign-in link so they can access the plan they
@@ -368,17 +369,14 @@ async function resolveUserForCustomer(customer: {
 }
 
 // Link a Polar customer to a BlockNote user by setting the customer's
-// externalId. Subscription and customer-portal lookups resolve a user's Polar
-// customer by `externalId === user.id`, so a logged-out (pay-first) purchase
+// external_id. Subscription and customer-portal lookups resolve a user's Polar
+// customer by `external_id === user.id`, so a logged-out (pay-first) purchase
 // must be linked here or the buyer can't access/manage their subscription.
 // Best-effort: a failure is reported but must not block provisioning the plan,
 // and subsequent subscription events retry the link via the same path.
 async function linkPolarCustomer(customerId: string, userId: string) {
   try {
-    await polarClient.customers.update({
-      id: customerId,
-      customerUpdate: { externalId: userId },
-    });
+    await updateCustomers(polarClient)(customerId, { external_id: userId });
   } catch (err) {
     Sentry.captureException(err);
   }
