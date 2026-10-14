@@ -515,6 +515,19 @@ export const exportParseEqualityTestInstancesMarkdown: TestInstance<
   },
   {
     testCase: {
+      name: "markdown/paragraphWithBackslashBeforeHtmlLikeText",
+      content: [
+        {
+          type: "paragraph",
+          content:
+            "Escaped \\<details> and \\\\<b> stay text, as does C:\\Users.",
+        },
+      ],
+    },
+    executeTest: testExportParseEqualityMarkdown,
+  },
+  {
+    testCase: {
       name: "markdown/nestedLists",
       content: [
         {
