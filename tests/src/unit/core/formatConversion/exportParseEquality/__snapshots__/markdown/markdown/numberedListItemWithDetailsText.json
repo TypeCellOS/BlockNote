@@ -1,19 +1,13 @@
 [
   {
-    "children": [
+    "children": [],
+    "content": [
       {
-        "children": [],
-        "content": [],
-        "id": "2",
-        "props": {
-          "backgroundColor": "default",
-          "textAlignment": "left",
-          "textColor": "default",
-        },
-        "type": "paragraph",
+        "styles": {},
+        "text": "<details>",
+        "type": "text",
       },
     ],
-    "content": [],
     "id": "1",
     "props": {
       "backgroundColor": "default",

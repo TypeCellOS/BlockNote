@@ -755,7 +755,7 @@ function serializeInlineContent(el: Element): string {
 
   for (const child of Array.from(el.childNodes)) {
     if (child.nodeType === 3 /* Node.TEXT_NODE */) {
-      result += child.textContent || "";
+      result += escapeHtmlLikeText(child.textContent || "");
     } else if (child.nodeType === 1 /* Node.ELEMENT_NODE */) {
       const childEl = child as HTMLElement;
       const tag = childEl.tagName.toLowerCase();
@@ -844,6 +844,15 @@ function serializeInlineContent(el: Element): string {
   }
 
   return result;
+}
+
+/**
+ * Escape `<` where the markdown parser would read raw HTML or an autolink, so
+ * text like `<details>` loads back as text. A `<` before a space or digit
+ * stays as is, as in `1 < 2`.
+ */
+function escapeHtmlLikeText(text: string): string {
+  return text.replace(/<(?=[A-Za-z/!?])/g, "\\<");
 }
 
 /**
