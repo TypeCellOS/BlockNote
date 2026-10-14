@@ -13,10 +13,10 @@ const PADDING = 10;
 const MAX_HEIGHT = 600;
 
 /**
- * The least room (px) the menu needs below its trigger. With less room, the
- * menu goes above instead, if there is more room there.
+ * The least room (px) the menu needs below its trigger: about five items.
+ * With less room, the menu goes above instead, if there is more room there.
  */
-const MIN_HEIGHT = 200;
+const MIN_HEIGHT = 300;
 
 /**
  * Places the menu below its trigger, unless there is less than `MIN_HEIGHT`

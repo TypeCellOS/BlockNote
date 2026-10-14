@@ -110,9 +110,16 @@ function side(menu: HTMLElement): "above" | "below" {
 }
 
 test("stays below the trigger when there is enough room, even with more room above", async () => {
-  // About 300px below the trigger, more above.
-  const menu = await openSlashMenuAt(innerHeight * 0.55);
+  // About 380px below the trigger, more above.
+  const menu = await openSlashMenuAt(innerHeight * 0.45);
   expect(side(menu)).toBe("below");
+});
+
+test("goes above the trigger when the room below fits only a few items", async () => {
+  // About 250px below the trigger: a menu there would show only about four
+  // items, with more room above.
+  const menu = await openSlashMenuAt(innerHeight * 0.62);
+  expect(side(menu)).toBe("above");
 });
 
 test("is no taller than its maximum height, even with more room", async () => {
