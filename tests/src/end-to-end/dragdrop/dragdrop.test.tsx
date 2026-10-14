@@ -30,6 +30,8 @@ import {
 import {
   dragAndDropBlock,
   dropDraggedBlock,
+  getRect,
+  mouseSequence,
   startBlockDrag,
 } from "../../utils/mouse.js";
 import { executeSlashCommand } from "../../utils/slashmenu.js";
@@ -366,5 +368,37 @@ describe.skipIf(browserName === "firefox")("Dragging layout blocks", () => {
     expect(
       editors[1].document[0].children.map((child: any) => child.type),
     ).toEqual(["item", "item"]);
+  });
+});
+
+// Playwright doesn't correctly simulate drag events in Firefox.
+describe.skipIf(browserName === "firefox")("Dropping into a block", () => {
+  // The highlight of the toggle used to be set on its element directly, which
+  // ProseMirror read back as a DOM change and drew the toggle again: the
+  // browser then dropped the drag without a `drop` event.
+  test("drops a block onto a closed toggle as its first child", async () => {
+    await renderEditors([
+      { id: "toggle", type: "toggleListItem", content: "Toggle" },
+      { id: "dragged", type: "paragraph", content: "Dragged" },
+    ]);
+
+    await startBlockDrag(block("dragged"));
+    const target = getRect(block("toggle").querySelector(".bn-block-content")!);
+    await mouseSequence([
+      {
+        type: "move",
+        x: target.x + target.width / 2,
+        y: target.y + target.height / 2,
+        steps: 5,
+      },
+    ]);
+    // Hovers before the drop, as a user does, which gave ProseMirror the time
+    // to draw the toggle again.
+    await sleep(200);
+    await mouseSequence([{ type: "up" }]);
+    await sleep(100);
+
+    expect(ids(editors[0].document)).toEqual(["toggle"]);
+    expect(ids(editors[0].document[0].children)).toEqual(["dragged"]);
   });
 });
