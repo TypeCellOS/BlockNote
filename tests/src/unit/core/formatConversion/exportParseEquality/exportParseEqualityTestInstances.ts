@@ -488,8 +488,6 @@ export const exportParseEqualityTestInstancesMarkdown: TestInstance<
     },
     executeTest: testExportParseEqualityMarkdown,
   },
-  // Markdown export doesn't escape HTML-like text, so this loads back as an
-  // empty list item. It must load without throwing.
   {
     testCase: {
       name: "markdown/numberedListItemWithDetailsText",
@@ -497,6 +495,19 @@ export const exportParseEqualityTestInstancesMarkdown: TestInstance<
         {
           type: "numberedListItem",
           content: "<details>",
+        },
+      ],
+    },
+    executeTest: testExportParseEqualityMarkdown,
+  },
+  {
+    testCase: {
+      name: "markdown/paragraphWithHtmlLikeText",
+      content: [
+        {
+          type: "paragraph",
+          content:
+            "Tags like <b>, </b> and <!-- note --> stay text, and 1 < 2.",
         },
       ],
     },
