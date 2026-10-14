@@ -23,8 +23,8 @@ import type { GetAttributionMarkClassName } from "./YAttributionMarks.js";
 const DIFF_AUTHOR_ID = "blocknote:version-diff";
 
 /** Colors used for the version diff marks — the palette's blue. */
-const DIFF_AUTHOR_COLOR = "#1e4fb0";
-const DIFF_AUTHOR_COLOR_LIGHT = "#c9dcff";
+const DIFF_AUTHOR_COLOR = "#2948b3";
+const DIFF_AUTHOR_COLOR_LIGHT = "#d6defd";
 
 export type DiffVersioningExtensionOptions = {
   /**

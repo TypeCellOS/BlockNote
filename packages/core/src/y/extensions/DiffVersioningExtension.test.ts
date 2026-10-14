@@ -189,8 +189,8 @@ describe("DiffVersioningExtension", () => {
     // Both halves are set, so the marks and their tooltip use the tuned pair
     // rather than a tint derived from the saturated colour.
     expect(colorsForUserIds(attribution.userStore, [authorId])).toEqual({
-      light: "#c9dcff",
-      dark: "#1e4fb0",
+      light: "#d6defd",
+      dark: "#2948b3",
     });
   });
 
