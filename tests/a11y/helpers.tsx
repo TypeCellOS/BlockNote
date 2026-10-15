@@ -26,16 +26,18 @@ const browserCommands = commands as typeof commands & {
 function EditorFixture({
   initialContent,
   editable,
+  theme,
 }: {
   initialContent: PartialBlock[];
   editable: boolean;
+  theme: "light" | "dark";
 }) {
   const editor = useCreateBlockNote({ initialContent });
   return (
     <main style={{ maxWidth: 900, margin: "80px auto", padding: 24 }}>
       <h1>BlockNote accessibility fixture</h1>
       <button type="button">Before editor</button>
-      <BlockNoteView editor={editor} theme="light" editable={editable} />
+      <BlockNoteView editor={editor} theme={theme} editable={editable} />
       <button type="button">After editor</button>
     </main>
   );
@@ -43,11 +45,18 @@ function EditorFixture({
 
 export async function openEditor(
   initialContent: PartialBlock[],
-  { editable = true }: { editable?: boolean } = {},
+  {
+    editable = true,
+    theme = "light",
+  }: { editable?: boolean; theme?: "light" | "dark" } = {},
 ) {
   await page.viewport(1280, 900);
   await render(
-    <EditorFixture initialContent={initialContent} editable={editable} />,
+    <EditorFixture
+      initialContent={initialContent}
+      editable={editable}
+      theme={theme}
+    />,
   );
   await expect.element(page.getByRole("textbox")).toBeVisible();
   await expect

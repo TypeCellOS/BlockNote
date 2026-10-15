@@ -20,6 +20,6 @@
     "../../packages/*/src/**/*.a11y.test.ts",
     "../../packages/*/src/**/*.axe.test.ts",
     "../../packages/*/src/**/*.screen-reader.test.ts",
-    "../../packages/*/src/**/a11y/helpers.ts"
+    "../../packages/*/src/**/a11y/*.ts"
   ]
 }

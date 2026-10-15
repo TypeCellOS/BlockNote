@@ -33,7 +33,7 @@ const inlineExamples = {
   PartialInlineContentElement<DefaultInlineContentSchema, DefaultStyleSchema>
 >;
 
-const blockExamples = {
+export const blockExamples = {
   paragraph: {
     type: "paragraph",
     content: [
