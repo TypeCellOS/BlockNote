@@ -1076,7 +1076,13 @@ export const scenarios: SuggestionScenario[] = [
       },
       {
         severity: "high",
+        when: { implicitDeleteAttribution: false },
         note: "Versioning shows N2 as deleted by B, though B only indented it.",
+      },
+      {
+        severity: "info",
+        when: { implicitDeleteAttribution: true },
+        note: "Versioning shows N2 deleted without an author: B only indented it.",
       },
     ],
     title: "Cascading indents",
@@ -1141,7 +1147,13 @@ export const scenarios: SuggestionScenario[] = [
       },
       {
         severity: "high",
+        when: { implicitDeleteAttribution: false },
         note: "Versioning shows B1–B3 as deleted by A, though A only nested them.",
+      },
+      {
+        severity: "info",
+        when: { implicitDeleteAttribution: true },
+        note: "Versioning shows B1–B3 deleted without an author: A only nested them.",
       },
     ],
     title: "Nest blocks into a block that is moved",
