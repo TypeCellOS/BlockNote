@@ -8,9 +8,9 @@ import type { User, UserStore } from "@blocknote/core";
 // (`userColorPalette`). Only `color` is set, so the pale mark background is
 // derived from it (see `userMarkColors`).
 export const USERS: User[] = [
-  { id: "1", username: "Alice", avatarUrl: "", color: "#3b3f9c" },
-  { id: "2", username: "Bob", avatarUrl: "", color: "#0f6e62" },
-  { id: "3", username: "Carol", avatarUrl: "", color: "#1e4fb0" },
+  { id: "1", username: "Alice", avatarUrl: "", color: "#8a6d1a" },
+  { id: "2", username: "Bob", avatarUrl: "", color: "#0b6a8a" },
+  { id: "3", username: "Carol", avatarUrl: "", color: "#2948b3" },
   { id: "4", username: "Dave", avatarUrl: "", color: "#6b2fa3" },
   { id: "5", username: "Erin", avatarUrl: "", color: "#46525f" },
 ];

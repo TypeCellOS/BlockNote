@@ -7,6 +7,10 @@ import {
   Transaction,
 } from "prosemirror-state";
 
+import {
+  CHILD_CONTAINER_GROUP,
+  isLayoutNode,
+} from "../schema/blocks/children.js";
 import type { BlockConfig } from "../schema/blocks/types.js";
 
 /**
@@ -88,10 +92,12 @@ export type BlockInfo = {
       /** `content.afterPos - 1`: the last position inside the content. */
       contentEnd: number;
       /**
-       * What the content node holds: its block spec's `content`, which is what
-       * the node's ProseMirror content expression was generated from (and what
-       * a hand-written node's expression is checked against when the schema is
-       * built).
+       * What the content node holds: its block spec's `content`, read from the
+       * `blockConfig` stored on the node's spec. For a node `createBlockSpec`
+       * builds, the node's ProseMirror content expression is generated from
+       * it. For a hand-written node (`createBlockSpecFromTiptapNode`), it is
+       * whatever the block spec declares; the node's own content expression is
+       * not checked against it.
        */
       contentKind: BlockConfig["content"];
       /** `content.node.childCount === 0`. */
@@ -182,6 +188,36 @@ export function isSuggestedDeletionNode(node: Node): boolean {
   return node.marks.some((m) => ["y-attributed-delete"].includes(m.type.name));
 }
 
+// Computed in one walk per doc: callers look up every block, and a walk per
+// suggested-deletion node made that quadratic in large diffs.
+const deletedNodeIdsByDoc = new WeakMap<Node, Map<Node, string>>();
+
+/**
+ * The ids of the suggested-deletion nodes in `doc`: `<id>-<index>`, where
+ * `index` counts the nodes with the same id before it, in document order.
+ */
+function getDeletedNodeIds(doc: Node): Map<Node, string> {
+  let deletedNodeIds = deletedNodeIdsByDoc.get(doc);
+  if (deletedNodeIds === undefined) {
+    const ids = new Map<Node, string>();
+    const counts = new Map<string, number>();
+    doc.descendants((descNode) => {
+      const id = descNode.attrs.id;
+      if (id) {
+        const index = counts.get(id) ?? 0;
+        if (isSuggestedDeletionNode(descNode) && !ids.has(descNode)) {
+          ids.set(descNode, `${id}-${index}`);
+        }
+        counts.set(id, index + 1);
+      }
+      return true;
+    });
+    deletedNodeIds = ids;
+    deletedNodeIdsByDoc.set(doc, deletedNodeIds);
+  }
+  return deletedNodeIds;
+}
+
 /**
  * The block ID to address `node` by. Normally its `id` attribute, but a node
  * kept around by suggestion mode (see {@link isSuggestedDeletionNode}) shares
@@ -203,28 +239,13 @@ export function getNodeId(node: Node, doc: Node): string {
    * so we need to differentiate them by counting how many nodes with the same ID come before them in the document, and adding that count to the ID.
    */
   if (isSuggestedDeletionNode(node)) {
-    // walk the doc to find the node and count it's index if others have the same ID, to differentiate them
-    let index = 0;
-    let found = false;
-    doc.descendants((descNode: Node) => {
-      if (found) {
-        return false; // stop the walk
-      }
-      if (descNode.attrs.id === id) {
-        if (descNode === node) {
-          found = true;
-          return false; // stop the walk
-        }
-        index++;
-      }
-      return true; // continue the walk
-    });
-    if (!found) {
+    const deletedId = getDeletedNodeIds(doc).get(node);
+    if (deletedId === undefined) {
       throw new Error(
         `Node ${node.type.name} with ID ${id} not found in document`,
       );
     }
-    return `${id}-${index}`;
+    return deletedId;
   }
   // TODO handle deleted nodes
   return id;
@@ -319,7 +340,7 @@ export function getBlockInfoFromNode(node: Node, beforePos: number): BlockInfo {
     afterPos: beforePos + node.nodeSize,
   };
 
-  if (node.type.isInGroup("bnBlock") && node.type.isInGroup("childContainer")) {
+  if (isLayoutNode(node.type)) {
     return {
       hasContent: false,
       block,
@@ -452,7 +473,7 @@ export function getParentBlockInfo(
   }
   // A `blockGroup`: its own parent block is the real parent, unless it's the
   // document root group.
-  if (parent.type.isInGroup("childContainer") && $pos.depth > 1) {
+  if (parent.type.isInGroup(CHILD_CONTAINER_GROUP) && $pos.depth > 1) {
     return getBlockInfoAt(doc, $pos.before($pos.depth - 1));
   }
   return undefined;
@@ -583,13 +604,7 @@ export function getInsertionPos(
     // A restricted container can route insertion into its edge container,
     // e.g. inserting a paragraph into the last column of a column list.
     const child = last ? children.node.lastChild : children.node.firstChild;
-    if (
-      !child ||
-      !(
-        child.type.isInGroup("bnBlock") &&
-        child.type.isInGroup("childContainer")
-      )
-    ) {
+    if (!child || !isLayoutNode(child.type)) {
       break;
     }
     info = getBlockInfoFromNode(
@@ -598,4 +613,81 @@ export function getInsertionPos(
     );
   }
   return null;
+}
+
+/**
+ * Resolves a block to its first leaf block: the block itself when it is not a
+ * layout block, otherwise the first leaf of its first child. Returns `null` for
+ * an empty layout block.
+ */
+export function getFirstLeafBlock(info: BlockInfo): BlockInfo | null {
+  while (!info.hasContent) {
+    const { node, childrenStart } = info.children;
+    if (!node.firstChild) {
+      return null;
+    }
+    info = getBlockInfoFromNode(node.firstChild, childrenStart);
+  }
+  return info;
+}
+
+/**
+ * Climbs out of layout blocks until it reaches a position where `nodeType` fits.
+ * `side` picks which edge of each climbed layout block to land on: `"before"` for
+ * moves that put a block above the layout blocks it leaves (Backspace move-out),
+ * `"after"` for moves that put it below them (Enter-exit).
+ *
+ * Position-based rather than `BlockInfo`-based (unlike the descend/leaf
+ * helpers above) because its input is an arbitrary gap position — a point
+ * between blocks, not a block.
+ */
+export function ascendToInsertablePos(
+  doc: Node,
+  pos: number,
+  nodeType: NodeType,
+  side: "before" | "after" = "before",
+): number | undefined {
+  for (;;) {
+    const $pos = doc.resolve(pos);
+    const parent = $pos.node();
+    if (parent.canReplaceWith($pos.index(), $pos.index(), nodeType)) {
+      return pos;
+    }
+    if ($pos.depth > 0 && isLayoutNode(parent.type)) {
+      pos = side === "before" ? $pos.before() : $pos.after();
+      continue;
+    }
+    return undefined;
+  }
+}
+
+/**
+ * The layout blocks that a removal at a position can empty, outermost last,
+ * each with its block id and resolution depth. Used to re-run layout block
+ * repair (`fixLayoutBlocksById`) after a mutation. Position-based for the same
+ * reason as `ascendToInsertablePos`: selections and mapped positions are the
+ * natural inputs.
+ *
+ * These are the layout blocks that directly hold the position, and the layout
+ * blocks that directly hold them. The walk stops at the first ancestor that is
+ * not a layout block: a removal inside a regular block's children cannot empty
+ * a layout block above that regular block, so those layout blocks stay as they
+ * are.
+ */
+export function getAncestorLayoutBlocks(
+  doc: Node,
+  pos: number,
+): { id: string; depth: number }[] {
+  const $pos = doc.resolve(pos);
+  const layoutBlocks: { id: string; depth: number }[] = [];
+  for (let depth = $pos.depth; depth > 0; depth--) {
+    const ancestor = $pos.node(depth);
+    if (!isLayoutNode(ancestor.type)) {
+      break;
+    }
+    if (ancestor.attrs.id) {
+      layoutBlocks.push({ id: ancestor.attrs.id, depth });
+    }
+  }
+  return layoutBlocks;
 }

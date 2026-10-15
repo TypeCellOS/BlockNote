@@ -10,17 +10,31 @@ import {
 } from "./userColors.js";
 
 describe("userColorPalette", () => {
-  it("contains no red", () => {
-    // The palette tints insertions as well as deletions, so a red entry would
-    // make one author's additions read as errors. Guard the property rather
-    // than the exact hexes: red is any entry whose hue is near 0°/360°.
+  it("contains no red or green", () => {
+    // The palette tints insertions as well as deletions, and diffs use red for
+    // deleted and green for inserted content. Guard the property rather than
+    // the exact hexes: no entry may have a red or a green hue.
     for (const { light, dark } of userColorPalette) {
       for (const color of [light, dark]) {
-        const [r, g, b] = [1, 3, 5].map((offset) =>
-          parseInt(color.slice(offset, offset + 2), 16),
+        const [r, g, b] = [1, 3, 5].map(
+          (offset) => parseInt(color.slice(offset, offset + 2), 16) / 255,
         );
-        const isRed = r > g + 40 && r > b + 40;
-        expect(isRed, `${color} reads as red`).toBe(false);
+        const max = Math.max(r, g, b);
+        const delta = max - Math.min(r, g, b);
+        if (delta < 0.05) {
+          continue; // grey: no hue
+        }
+        const hue =
+          (60 *
+            (max === r
+              ? ((g - b) / delta) % 6
+              : max === g
+                ? (b - r) / delta + 2
+                : (r - g) / delta + 4) +
+            360) %
+          360;
+        expect(hue >= 340 || hue <= 20, `${color} reads as red`).toBe(false);
+        expect(hue >= 90 && hue <= 160, `${color} reads as green`).toBe(false);
       }
     }
   });

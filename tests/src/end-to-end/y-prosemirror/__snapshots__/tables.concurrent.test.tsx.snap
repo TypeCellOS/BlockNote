@@ -49,6 +49,7 @@ exports[`concurrent: A adds a column, B adds a row 1`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -122,6 +123,7 @@ exports[`concurrent: A adds a column, B adds a row 2`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -197,6 +199,7 @@ exports[`concurrent: A adds a column, B adds a row 3`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -302,6 +305,7 @@ exports[`concurrent: A adds a column, B adds a row 4`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -503,6 +507,7 @@ exports[`concurrent: A adds a row, B adds a column 1`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -578,6 +583,7 @@ exports[`concurrent: A adds a row, B adds a column 2`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -651,6 +657,7 @@ exports[`concurrent: A adds a row, B adds a column 3`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -756,6 +763,7 @@ exports[`concurrent: A adds a row, B adds a column 4`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -957,6 +965,7 @@ exports[`concurrent: A deletes a column, B adds a row 1`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -990,6 +999,7 @@ exports[`concurrent: A deletes a column, B adds a row 2`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -1065,6 +1075,7 @@ exports[`concurrent: A deletes a column, B adds a row 3`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -1120,6 +1131,7 @@ exports[`concurrent: A deletes a column, B adds a row 4`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -1286,6 +1298,7 @@ exports[`sequential: A adds a column then a row, B adds a column 1`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -1391,6 +1404,7 @@ exports[`sequential: A adds a column then a row, B adds a column 2`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -1464,6 +1478,7 @@ exports[`sequential: A adds a column then a row, B adds a column 3`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -1599,6 +1614,7 @@ exports[`sequential: A adds a column then a row, B adds a column 4`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -1857,6 +1873,7 @@ exports[`sequential: A adds a row then a column, B adds a row 1`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -1962,6 +1979,7 @@ exports[`sequential: A adds a row then a column, B adds a row 2`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -2037,6 +2055,7 @@ exports[`sequential: A adds a row then a column, B adds a row 3`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -2174,6 +2193,7 @@ exports[`sequential: A adds a row then a column, B adds a row 4`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;

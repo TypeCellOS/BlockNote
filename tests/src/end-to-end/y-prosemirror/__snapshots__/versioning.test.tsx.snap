@@ -78,21 +78,16 @@ exports[`versioning diff (experimental): Add a whole document 1`] = `
   "insert block "Welcome to this demo 🙌!" A",
   "insert <paragraph> A",
   "insert "Welcome to this " A",
-  "format "Welcome to this " A",
   "insert "demo 🙌!" A",
-  "format "demo 🙌!" A",
-  "insert <blockGroup> A",
   "insert block "Hello World nested" A",
   "insert <paragraph> A",
   "insert "Hello World nested" A",
-  "insert <blockGroup> A",
   "insert block "Hello World double nested" A",
   "insert <paragraph> A",
   "insert "Hello World double nested" A",
   "insert block "This paragraph has a background color" A",
   "insert <paragraph> A",
   "insert "This paragraph has a background color" A",
-  "format "This paragraph has a background color" A",
   "insert block "Paragraph" A",
   "insert <paragraph> A",
   "insert "Paragraph" A",
@@ -133,7 +128,6 @@ exports[`versioning diff (experimental): Add a whole document 1`] = `
   "insert block "Bullet List Item. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat." A",
   "insert <bulletListItem> A",
   "insert "Bullet List Item. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat." A",
-  "insert <blockGroup> A",
   "insert block "Bullet List Item.  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat." A",
   "insert <bulletListItem> A",
   "insert "Bullet List Item.  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat." A",
@@ -146,7 +140,6 @@ exports[`versioning diff (experimental): Add a whole document 1`] = `
   "insert block "Numbered List Item 2" A",
   "insert <numberedListItem> A",
   "insert "Numbered List Item 2" A",
-  "insert <blockGroup> A",
   "insert block "Numbered List Item Nested 1" A",
   "insert <numberedListItem> A",
   "insert "Numbered List Item Nested 1" A",
@@ -177,7 +170,6 @@ exports[`versioning diff (experimental): Add a whole document 1`] = `
   "insert block "Toggle List Item" A",
   "insert <toggleListItem> A",
   "insert "Toggle List Item" A",
-  "insert <blockGroup> A",
   "insert block "Content nested inside the toggle list item." A",
   "insert <paragraph> A",
   "insert "Content nested inside the toggle list item." A",
@@ -187,7 +179,6 @@ exports[`versioning diff (experimental): Add a whole document 1`] = `
   "insert block "Toggle Heading" A",
   "insert <heading> A",
   "insert "Toggle Heading" A",
-  "insert <blockGroup> A",
   "insert block "Content nested inside the toggle heading." A",
   "insert <paragraph> A",
   "insert "Content nested inside the toggle heading." A",
@@ -240,20 +231,15 @@ exports[`versioning diff (experimental): Add a whole document 1`] = `
   "insert block "Inline Content:" A",
   "insert <paragraph> A",
   "insert "Inline Content:" A",
-  "format "Inline Content:" A",
   "insert block "Styled Text underlined strikethrough Link" A",
   "insert <paragraph> A",
   "insert "Styled Text" A",
-  "format "Styled Text" A",
   "insert " " A",
   "insert "underlined" A",
-  "format "underlined" A",
   "insert " " A",
   "insert "strikethrough" A",
-  "format "strikethrough" A",
   "insert " " A",
   "insert "Link" A",
-  "format "Link" A",
   "insert block "Table Header 1Table Header 2Table Header 3Table Cell 4Table Cell Bold Colored 5Table Cell 6Table Cell 7Table Cell 8Table Cell 9" A",
   "insert <table> A",
   "insert <tableRow> A",
@@ -273,7 +259,6 @@ exports[`versioning diff (experimental): Add a whole document 1`] = `
   "insert <tableCell> A",
   "insert <tableParagraph> A",
   "insert "Table Cell Bold Colored 5" A",
-  "format "Table Cell Bold Colored 5" A",
   "insert <tableCell> A",
   "insert <tableParagraph> A",
   "insert "Table Cell 6" A",
@@ -334,9 +319,7 @@ exports[`versioning diff (experimental): Add a whole document 1`] = `
   "insert block "Some inline code: var foo = 'bar';" A",
   "insert <paragraph> A",
   "insert "Some inline code: " A",
-  "format "Some inline code: " A",
   "insert "var foo = 'bar';" A",
-  "format "var foo = 'bar';" A",
   "insert <columnList> A",
   "insert <column> A",
   "insert block "This paragraph is in a column!" A",
@@ -395,7 +378,6 @@ exports[`versioning diff (experimental): Add colored block with child 1`] = `
   "insert block "Colored parent" A",
   "insert <paragraph> A",
   "insert "Colored parent" A",
-  "insert <blockGroup> A",
   "insert block "Child block" A",
   "insert <paragraph> A",
   "insert "Child block" A",
@@ -454,11 +436,9 @@ exports[`versioning diff (experimental): Add nested bullets 1`] = `
   "insert block "Level 0" A",
   "insert <bulletListItem> A",
   "insert "Level 0" A",
-  "insert <blockGroup> A",
   "insert block "Level 1" A",
   "insert <bulletListItem> A",
   "insert "Level 1" A",
-  "insert <blockGroup> A",
   "insert block "Level 2" A",
   "insert <bulletListItem> A",
   "insert "Level 2" A",
@@ -522,18 +502,9 @@ exports[`versioning diff (experimental): Bold vs italic 1`] = `
 
 exports[`versioning diff (experimental): Both nest a new block under N0 1`] = `
 [
-  "delete block "N0" A,B",
-  "insert block "N0" A",
-  "insert <paragraph> A",
-  "insert "N0" A",
-  "insert <blockGroup> A",
   "insert block "N1" A",
   "insert <paragraph> A",
   "insert "N1" A",
-  "insert block "N0" B",
-  "insert <paragraph> B",
-  "insert "N0" B",
-  "insert <blockGroup> B",
   "insert block "N2" B",
   "insert <paragraph> B",
   "insert "N2" B",
@@ -542,16 +513,8 @@ exports[`versioning diff (experimental): Both nest a new block under N0 1`] = `
 
 exports[`versioning diff (experimental): Cascading indents 1`] = `
 [
-  "delete block "N1" A,B",
-  "insert <blockGroup> A",
-  "insert block "N1" A",
-  "insert <paragraph> A",
-  "insert "N1" A",
-  "insert block "N1" B",
-  "insert <paragraph> B",
-  "insert "N1" B",
-  "insert <blockGroup> B",
-  "moved block "N2" B",
+  "moved block "N1" A",
+  "delete block "N2"",
 ]
 `;
 
@@ -611,18 +574,15 @@ exports[`versioning diff (experimental): Delete a divider 1`] = `
 
 exports[`versioning diff (experimental): Delete a nested block 1`] = `
 [
-  "delete block "Parent" A",
-  "insert block "Parent" A",
-  "insert <paragraph> A",
-  "insert "Parent" A",
+  "delete block "Child" A",
 ]
 `;
 
 exports[`versioning diff (experimental): Delete a parent block 1`] = `
 [
-  "delete block "Parent" A",
-  "insert block "" A",
-  "insert <paragraph> A",
+  "attrs block "Parent" id:A",
+  "delete "Parent" A",
+  "delete block "Child" A",
 ]
 `;
 
@@ -668,9 +628,10 @@ exports[`versioning diff (experimental): Delete one of two empty blocks 1`] = `
 
 exports[`versioning diff (experimental): Delete parent with mixed children 1`] = `
 [
-  "delete block "Parent" A",
-  "insert block "" A",
-  "insert <paragraph> A",
+  "attrs block "Parent" id:A",
+  "delete "Parent" A",
+  "delete block "Nested paragraph" A",
+  "delete block "" A",
 ]
 `;
 
@@ -709,7 +670,6 @@ exports[`versioning diff (experimental): Edit a link 1`] = `
   "format "the " A",
   "delete "old" A",
   "insert "new" A",
-  "format "new" A",
   "format " site" A",
 ]
 `;
@@ -722,10 +682,8 @@ exports[`versioning diff (experimental): Edit text vs change to heading 1`] = `
 
 exports[`versioning diff (experimental): Enter at the start of a heading 1`] = `
 [
-  "delete "Title" A",
-  "insert block "Title" A",
-  "insert <heading> A",
-  "insert "Title" A",
+  "insert block "" A",
+  "insert <paragraph> A",
 ]
 `;
 
@@ -760,14 +718,12 @@ exports[`versioning diff (experimental): Highlight a column 1`] = `
 
 exports[`versioning diff (experimental): Indent a block 1`] = `
 [
-  "insert <blockGroup> A",
   "moved block "N1" A",
 ]
 `;
 
 exports[`versioning diff (experimental): Indent a block vs edit its text 1`] = `
 [
-  "insert <blockGroup> A",
   "moved block "N1" A",
 ]
 `;
@@ -833,25 +789,16 @@ exports[`versioning diff (experimental): Move paragraph with children 1`] = `
 
 exports[`versioning diff (experimental): Nest a bullet under another 1`] = `
 [
-  "insert <blockGroup> A",
   "moved block "Child" A",
 ]
 `;
 
 exports[`versioning diff (experimental): Nest blocks into a block that is moved 1`] = `
 [
-  "delete block "Q" B,A",
-  "insert <blockGroup> B",
-  "insert block "Q" B",
-  "insert <paragraph> B",
-  "insert "Q" B",
-  "insert block "Q" A",
-  "insert <paragraph> A",
-  "insert "Q" A",
-  "insert <blockGroup> A",
-  "moved block "B1" A",
-  "moved block "B2" A",
-  "moved block "B3" A",
+  "moved block "Q" B",
+  "delete block "B1"",
+  "delete block "B2"",
+  "delete block "B3"",
 ]
 `;
 
@@ -1037,21 +984,16 @@ exports[`versioning diff: Add a whole document 1`] = `
   "insert block "Welcome to this demo 🙌!" A",
   "insert <paragraph> A",
   "insert "Welcome to this " A",
-  "format "Welcome to this " A",
   "insert "demo 🙌!" A",
-  "format "demo 🙌!" A",
-  "insert <blockGroup> A",
   "insert block "Hello World nested" A",
   "insert <paragraph> A",
   "insert "Hello World nested" A",
-  "insert <blockGroup> A",
   "insert block "Hello World double nested" A",
   "insert <paragraph> A",
   "insert "Hello World double nested" A",
   "insert block "This paragraph has a background color" A",
   "insert <paragraph> A",
   "insert "This paragraph has a background color" A",
-  "format "This paragraph has a background color" A",
   "insert block "Paragraph" A",
   "insert <paragraph> A",
   "insert "Paragraph" A",
@@ -1092,7 +1034,6 @@ exports[`versioning diff: Add a whole document 1`] = `
   "insert block "Bullet List Item. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat." A",
   "insert <bulletListItem> A",
   "insert "Bullet List Item. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat." A",
-  "insert <blockGroup> A",
   "insert block "Bullet List Item.  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat." A",
   "insert <bulletListItem> A",
   "insert "Bullet List Item.  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat." A",
@@ -1105,7 +1046,6 @@ exports[`versioning diff: Add a whole document 1`] = `
   "insert block "Numbered List Item 2" A",
   "insert <numberedListItem> A",
   "insert "Numbered List Item 2" A",
-  "insert <blockGroup> A",
   "insert block "Numbered List Item Nested 1" A",
   "insert <numberedListItem> A",
   "insert "Numbered List Item Nested 1" A",
@@ -1136,7 +1076,6 @@ exports[`versioning diff: Add a whole document 1`] = `
   "insert block "Toggle List Item" A",
   "insert <toggleListItem> A",
   "insert "Toggle List Item" A",
-  "insert <blockGroup> A",
   "insert block "Content nested inside the toggle list item." A",
   "insert <paragraph> A",
   "insert "Content nested inside the toggle list item." A",
@@ -1146,7 +1085,6 @@ exports[`versioning diff: Add a whole document 1`] = `
   "insert block "Toggle Heading" A",
   "insert <heading> A",
   "insert "Toggle Heading" A",
-  "insert <blockGroup> A",
   "insert block "Content nested inside the toggle heading." A",
   "insert <paragraph> A",
   "insert "Content nested inside the toggle heading." A",
@@ -1199,20 +1137,15 @@ exports[`versioning diff: Add a whole document 1`] = `
   "insert block "Inline Content:" A",
   "insert <paragraph> A",
   "insert "Inline Content:" A",
-  "format "Inline Content:" A",
   "insert block "Styled Text underlined strikethrough Link" A",
   "insert <paragraph> A",
   "insert "Styled Text" A",
-  "format "Styled Text" A",
   "insert " " A",
   "insert "underlined" A",
-  "format "underlined" A",
   "insert " " A",
   "insert "strikethrough" A",
-  "format "strikethrough" A",
   "insert " " A",
   "insert "Link" A",
-  "format "Link" A",
   "insert block "Table Header 1Table Header 2Table Header 3Table Cell 4Table Cell Bold Colored 5Table Cell 6Table Cell 7Table Cell 8Table Cell 9" A",
   "insert <table> A",
   "insert <tableRow> A",
@@ -1232,7 +1165,6 @@ exports[`versioning diff: Add a whole document 1`] = `
   "insert <tableCell> A",
   "insert <tableParagraph> A",
   "insert "Table Cell Bold Colored 5" A",
-  "format "Table Cell Bold Colored 5" A",
   "insert <tableCell> A",
   "insert <tableParagraph> A",
   "insert "Table Cell 6" A",
@@ -1293,9 +1225,7 @@ exports[`versioning diff: Add a whole document 1`] = `
   "insert block "Some inline code: var foo = 'bar';" A",
   "insert <paragraph> A",
   "insert "Some inline code: " A",
-  "format "Some inline code: " A",
   "insert "var foo = 'bar';" A",
-  "format "var foo = 'bar';" A",
   "insert <columnList> A",
   "insert <column> A",
   "insert block "This paragraph is in a column!" A",
@@ -1354,7 +1284,6 @@ exports[`versioning diff: Add colored block with child 1`] = `
   "insert block "Colored parent" A",
   "insert <paragraph> A",
   "insert "Colored parent" A",
-  "insert <blockGroup> A",
   "insert block "Child block" A",
   "insert <paragraph> A",
   "insert "Child block" A",
@@ -1413,11 +1342,9 @@ exports[`versioning diff: Add nested bullets 1`] = `
   "insert block "Level 0" A",
   "insert <bulletListItem> A",
   "insert "Level 0" A",
-  "insert <blockGroup> A",
   "insert block "Level 1" A",
   "insert <bulletListItem> A",
   "insert "Level 1" A",
-  "insert <blockGroup> A",
   "insert block "Level 2" A",
   "insert <bulletListItem> A",
   "insert "Level 2" A",
@@ -1481,18 +1408,9 @@ exports[`versioning diff: Bold vs italic 1`] = `
 
 exports[`versioning diff: Both nest a new block under N0 1`] = `
 [
-  "delete block "N0" A,B",
-  "insert block "N0" A",
-  "insert <paragraph> A",
-  "insert "N0" A",
-  "insert <blockGroup> A",
   "insert block "N1" A",
   "insert <paragraph> A",
   "insert "N1" A",
-  "insert block "N0" B",
-  "insert <paragraph> B",
-  "insert "N0" B",
-  "insert <blockGroup> B",
   "insert block "N2" B",
   "insert <paragraph> B",
   "insert "N2" B",
@@ -1501,23 +1419,11 @@ exports[`versioning diff: Both nest a new block under N0 1`] = `
 
 exports[`versioning diff: Cascading indents 1`] = `
 [
-  "delete block "N0" A",
-  "delete block "N1" A,B",
-  "insert block "N0" A",
-  "insert <paragraph> A",
-  "insert "N0" A",
-  "insert <blockGroup> A",
   "insert block "N1" A",
   "insert <paragraph> A",
   "insert "N1" A",
+  "delete block "N1" A",
   "delete block "N2" B",
-  "insert block "N1" B",
-  "insert <paragraph> B",
-  "insert "N1" B",
-  "insert <blockGroup> B",
-  "insert block "N2" B",
-  "insert <paragraph> B",
-  "insert "N2" B",
 ]
 `;
 
@@ -1533,7 +1439,6 @@ exports[`versioning diff: Change a parent's type vs edit its child 1`] = `
   "insert block "Parent" A",
   "insert <heading> A",
   "insert "Parent" A",
-  "insert <blockGroup> A",
   "insert block "Child" A",
   "insert <paragraph> A",
   "insert "Child" A",
@@ -1552,7 +1457,6 @@ exports[`versioning diff: Change type of a parent block 1`] = `
   "insert block "N0" A",
   "insert <heading> A",
   "insert "N0" A",
-  "insert <blockGroup> A",
   "insert block "N1" A",
   "insert <paragraph> A",
   "insert "N1" A",
@@ -1591,18 +1495,15 @@ exports[`versioning diff: Delete a divider 1`] = `
 
 exports[`versioning diff: Delete a nested block 1`] = `
 [
-  "delete block "Parent" A",
-  "insert block "Parent" A",
-  "insert <paragraph> A",
-  "insert "Parent" A",
+  "delete block "Child" A",
 ]
 `;
 
 exports[`versioning diff: Delete a parent block 1`] = `
 [
-  "delete block "Parent" A",
-  "insert block "" A",
-  "insert <paragraph> A",
+  "attrs block "Parent" id:A",
+  "delete "Parent" A",
+  "delete block "Child" A",
 ]
 `;
 
@@ -1648,9 +1549,10 @@ exports[`versioning diff: Delete one of two empty blocks 1`] = `
 
 exports[`versioning diff: Delete parent with mixed children 1`] = `
 [
-  "delete block "Parent" A",
-  "insert block "" A",
-  "insert <paragraph> A",
+  "attrs block "Parent" id:A",
+  "delete "Parent" A",
+  "delete block "Nested paragraph" A",
+  "delete block "" A",
 ]
 `;
 
@@ -1689,7 +1591,6 @@ exports[`versioning diff: Edit a link 1`] = `
   "format "the " A",
   "delete "old" A",
   "insert "new" A",
-  "format "new" A",
   "format " site" A",
 ]
 `;
@@ -1705,10 +1606,8 @@ exports[`versioning diff: Edit text vs change to heading 1`] = `
 
 exports[`versioning diff: Enter at the start of a heading 1`] = `
 [
-  "delete "Title" A",
-  "insert block "Title" A",
-  "insert <heading> A",
-  "insert "Title" A",
+  "insert block "" A",
+  "insert <paragraph> A",
 ]
 `;
 
@@ -1743,29 +1642,19 @@ exports[`versioning diff: Highlight a column 1`] = `
 
 exports[`versioning diff: Indent a block 1`] = `
 [
-  "delete block "N0" A",
-  "delete block "N1" A",
-  "insert block "N0" A",
-  "insert <paragraph> A",
-  "insert "N0" A",
-  "insert <blockGroup> A",
   "insert block "N1" A",
   "insert <paragraph> A",
   "insert "N1" A",
+  "delete block "N1" A",
 ]
 `;
 
 exports[`versioning diff: Indent a block vs edit its text 1`] = `
 [
-  "delete block "N0" A",
-  "delete block "N1" A",
-  "insert block "N0" A",
-  "insert <paragraph> A",
-  "insert "N0" A",
-  "insert <blockGroup> A",
   "insert block "N1" A",
   "insert <paragraph> A",
   "insert "N1" A",
+  "delete block "N1" A",
 ]
 `;
 
@@ -1831,7 +1720,6 @@ exports[`versioning diff: Move paragraph with children 1`] = `
   "insert block "Parent" A",
   "insert <paragraph> A",
   "insert "Parent" A",
-  "insert <blockGroup> A",
   "insert block "Child" A",
   "insert <paragraph> A",
   "insert "Child" A",
@@ -1841,45 +1729,22 @@ exports[`versioning diff: Move paragraph with children 1`] = `
 
 exports[`versioning diff: Nest a bullet under another 1`] = `
 [
-  "delete block "Parent" A",
-  "delete block "Child" A",
-  "insert block "Parent" A",
-  "insert <bulletListItem> A",
-  "insert "Parent" A",
-  "insert <blockGroup> A",
   "insert block "Child" A",
   "insert <bulletListItem> A",
   "insert "Child" A",
+  "delete block "Child" A",
 ]
 `;
 
 exports[`versioning diff: Nest blocks into a block that is moved 1`] = `
 [
-  "delete block "R" B",
-  "delete block "Q" B,A",
-  "insert block "R" B",
-  "insert <paragraph> B",
-  "insert "R" B",
-  "insert <blockGroup> B",
   "insert block "Q" B",
   "insert <paragraph> B",
   "insert "Q" B",
+  "delete block "Q" B",
   "delete block "B1" A",
   "delete block "B2" A",
   "delete block "B3" A",
-  "insert block "Q" A",
-  "insert <paragraph> A",
-  "insert "Q" A",
-  "insert <blockGroup> A",
-  "insert block "B1" A",
-  "insert <paragraph> A",
-  "insert "B1" A",
-  "insert block "B2" A",
-  "insert <paragraph> A",
-  "insert "B2" A",
-  "insert block "B3" A",
-  "insert <paragraph> A",
-  "insert "B3" A",
 ]
 `;
 
@@ -1988,10 +1853,7 @@ exports[`versioning diff: Text color vs background color 1`] = `
 
 exports[`versioning diff: Unindent a block 1`] = `
 [
-  "delete block "N0" A",
-  "insert block "N0" A",
-  "insert <paragraph> A",
-  "insert "N0" A",
+  "delete block "N1" A",
   "insert block "N1" A",
   "insert <paragraph> A",
   "insert "N1" A",

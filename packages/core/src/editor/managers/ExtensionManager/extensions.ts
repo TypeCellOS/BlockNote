@@ -63,7 +63,13 @@ export function getDefaultTiptapExtensions(
 
     UniqueID.configure({
       // everything from bnBlock group (nodes that represent a BlockNote block should have an id)
-      types: ["blockContainer", "columnList", "column"],
+      types: [
+        "blockContainer",
+        // Only layout blocks own their ID; titled blocks use blockContainer.
+        ...Object.values(editor.schema.blockSpecs)
+          .filter((spec) => spec.config.layoutOnly === true)
+          .map((spec) => spec.config.type),
+      ],
       setIdAttribute: options.setIdAttribute,
       isWithinEditor: editor.isWithinEditor,
     }),
@@ -108,6 +114,7 @@ export function getDefaultTiptapExtensions(
     KeyboardShortcutsExtension.configure({
       editor: editor,
       tabBehavior: options.tabBehavior,
+      selectAllBehavior: options.selectAllBehavior ?? "block-first",
     }),
     BlockGroup.configure({
       domAttributes: options.domAttributes,

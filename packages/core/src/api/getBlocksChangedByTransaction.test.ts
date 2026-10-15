@@ -656,7 +656,7 @@ describe("getBlocksChangedByTransaction - ranged optimization", () => {
         throw new Error("expected a wrapped block");
       }
       // Adding a mark produces an AddMarkStep, whose StepMap is empty — the case
-      // getChangedRange has to recover from the step's own from/to.
+      // getChangedRangeWithAttrs has to recover from the step's own from/to.
       tr.addMark(
         info.content.beforePos + 1,
         info.content.afterPos - 1,

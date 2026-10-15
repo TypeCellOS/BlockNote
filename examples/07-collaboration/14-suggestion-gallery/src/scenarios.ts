@@ -269,7 +269,7 @@ export const scenarios: SuggestionScenario[] = [
       {
         severity: "high",
         when: { recreatedBlocks: false },
-        note: "Indenting re-creates Parent and Child as new blocks (the schema fix stores a block that gains or loses its children as a new block). The diff therefore shows both as deleted and inserted again, all credited to whoever indented.",
+        note: "Indenting moves Child: the diff shows it as deleted at its old place and inserted under Parent, credited to whoever indented. Parent itself is unchanged.",
       },
     ],
     title: "Nest a bullet under another",
@@ -325,12 +325,7 @@ export const scenarios: SuggestionScenario[] = [
   {
     kind: "single",
     id: "delete-nested",
-    feedback: [
-      {
-        severity: "high",
-        note: "Deleting the only child re-creates Parent as a new block (the schema fix stores a block that gains or loses its children as a new block). The diff therefore shows Parent as deleted and inserted again, credited to whoever deleted the child.",
-      },
-    ],
+    feedback: [],
     title: "Delete a nested block",
     category: "Add / remove blocks",
     description: "Delete the nested child of a parent block.",
@@ -526,12 +521,6 @@ export const scenarios: SuggestionScenario[] = [
   {
     kind: "single",
     id: "text-enter-at-heading-start",
-    feedback: [
-      {
-        severity: "high",
-        note: "Shows the heading's text deleted and re-inserted in a new block, instead of an empty block inserted above: splitting at the start keeps the block's id on the (now empty) first half.",
-      },
-    ],
     title: "Enter at the start of a heading",
     category: "Basic text",
     description:
@@ -680,7 +669,7 @@ export const scenarios: SuggestionScenario[] = [
       {
         severity: "high",
         when: { recreatedBlocks: false },
-        note: "Indenting re-creates N0 and N1 as new blocks (the schema fix stores a block that gains or loses its children as a new block). The diff therefore shows both as deleted and inserted again, all credited to whoever indented.",
+        note: "Indenting moves N1: the diff shows it as deleted at its old place and inserted under N0, credited to whoever indented. N0 itself is unchanged.",
       },
     ],
     title: "Indent a block",
@@ -705,7 +694,7 @@ export const scenarios: SuggestionScenario[] = [
       {
         severity: "high",
         when: { recreatedBlocks: false },
-        note: "Outdenting re-creates N0 and N1 as new blocks (the schema fix stores a block that gains or loses its children as a new block). The diff therefore shows N0 and N1 as deleted and inserted again, all credited to whoever outdented.",
+        note: "Outdenting moves N1: the diff shows it as deleted under N0 and inserted after it, credited to whoever outdented. N0 itself is unchanged.",
       },
     ],
     title: "Unindent a block",
@@ -925,7 +914,7 @@ export const scenarios: SuggestionScenario[] = [
     feedback: [
       {
         severity: "low",
-        note: "Block-level prop changes produce no y-attributed-* mark, so the pending change renders as if already accepted — it's invisible in the diff.",
+        note: 'The cells show the new background but no change marker. Only the tooltip on hover ("Formatting change") shows that A changed them.',
       },
     ],
     initial: [TABLE_2X2],
@@ -1082,18 +1071,12 @@ export const scenarios: SuggestionScenario[] = [
     id: "concurrent-indent-cascade",
     feedback: [
       {
-        severity: "high",
-        when: { recreatedBlocks: true },
-        note: "Versioning shows N0 unchanged and N2 as moved, but N1's two copies as inserted by A and by B.",
-      },
-      {
-        severity: "high",
-        when: { recreatedBlocks: false },
-        note: "The diff also shows N0 and N2 as deleted and inserted again: indenting re-creates blocks (see Indent a block).",
-      },
-      {
         severity: "low",
-        note: "Block N1 appears in two places. Previously this concurrency scenario would also not be correctly handled (one of the edits would be dropped).",
+        note: "N2 is lost. Indenting is a move, which deletes the original block and inserts a copy: B nests N2 into the original N1, which A's indent deletes, so N2 goes with it (shown as deleted by B, whose indent deleted N2's own original). Before nesting changes diffed in place, B's indent replaced N1 instead, so N1 appeared twice. Needs move support.",
+      },
+      {
+        severity: "high",
+        note: "Versioning shows N2 as deleted by B, though B only indented it.",
       },
     ],
     title: "Cascading indents",
@@ -1129,7 +1112,7 @@ export const scenarios: SuggestionScenario[] = [
       {
         severity: "high",
         when: { recreatedBlocks: false },
-        note: "The diff also shows N0 and N1 as deleted and inserted again, all credited to A: indenting re-creates blocks (see Indent a block).",
+        note: "The diff shows N1 as deleted at its old place and inserted under N0, all credited to A: indenting moves the block (see Indent a block). N0 itself is unchanged.",
       },
     ],
     title: "Indent a block vs edit its text",
@@ -1153,18 +1136,12 @@ export const scenarios: SuggestionScenario[] = [
     id: "concurrent-nest-into-moved-block",
     feedback: [
       {
-        severity: "high",
-        when: { recreatedBlocks: true },
-        note: "Versioning shows R unchanged and B1–B3 as moved, but Q's two copies as inserted by B and by A.",
-      },
-      {
-        severity: "high",
-        when: { recreatedBlocks: false },
-        note: "The diff also shows R and B1–B3 as deleted and inserted again: indenting and moving re-create blocks.",
-      },
-      {
         severity: "low",
-        note: "Q appears twice: B's indent moves a copy of Q under R, and A's nesting replaces the original Q with another copy holding B1–B3.",
+        note: "B1–B3 are lost. A's indent writes them into the original Q, which B's indent concurrently deletes (a move inserts a copy of Q, without them); they show as deleted by A, whose indent deleted their originals. Before nesting changes diffed in place, Q appeared twice instead. Needs move support.",
+      },
+      {
+        severity: "high",
+        note: "Versioning shows B1–B3 as deleted by A, though A only nested them.",
       },
     ],
     title: "Nest blocks into a block that is moved",
@@ -1323,12 +1300,8 @@ export const scenarios: SuggestionScenario[] = [
     id: "concurrent-nest-both-under-n0",
     feedback: [
       {
-        severity: "high",
-        note: "The diff also shows N0 as deleted and inserted twice, credited to A and to B: nesting re-creates it.",
-      },
-      {
-        severity: "low",
-        note: "In this concurrent editing scenario the N0 block is duplicated. Previously this scenario would likely drop one of the changes, so it's not a regression per se. A better fix for the schema compatibility could resolve this.",
+        severity: "info",
+        note: "Both new blocks end up under the one N0. Every block's child group lives in the shared document from the start (hidden while empty), so A and B nest into the same group instead of each creating their own, and the merge is an ordinary concurrent insert.",
       },
     ],
     title: "Both nest a new block under N0",
@@ -1447,6 +1420,12 @@ export const scenarios: SuggestionScenario[] = [
     id: "concurrent-table-row-and-column",
     title: "Add row vs add column",
     category: "Tables",
+    feedback: [
+      {
+        severity: "info",
+        note: "The merged table is not rectangular, so the editor adds an empty cell to complete it. The diff shows this cell as inserted, without an author.",
+      },
+    ],
     description: "A adds a row while B adds a column.",
     initial: [TABLE_2X2],
     applyA: (editor) =>
@@ -1475,6 +1454,12 @@ export const scenarios: SuggestionScenario[] = [
     id: "concurrent-table-addcol-vs-addrow",
     title: "Add column vs add row",
     category: "Tables",
+    feedback: [
+      {
+        severity: "info",
+        note: "The merged table is not rectangular, so the editor adds an empty cell to complete it. The diff shows this cell as inserted, without an author.",
+      },
+    ],
     description: "A adds a column while B adds a row.",
     initial: [TABLE_2X2],
     applyA: (editor) =>
@@ -1527,7 +1512,7 @@ export const scenarios: SuggestionScenario[] = [
     feedback: [
       {
         severity: "low",
-        note: "Diff seems weird and A2 in wrong place",
+        note: "B's new row has a cell (B3) in the column that A deleted, so the editor adds empty cells to complete the table. The diff shows these cells as inserted, without an author, and one of them pushes A2 into the second column.",
       },
     ],
     category: "Tables",
@@ -1559,6 +1544,12 @@ export const scenarios: SuggestionScenario[] = [
     id: "concurrent-table-seq-col-then-row",
     title: "A adds column then row, B adds column",
     category: "Tables",
+    feedback: [
+      {
+        severity: "info",
+        note: "The merged table is not rectangular, so the editor adds an empty cell to complete it. The diff shows this cell as inserted, without an author.",
+      },
+    ],
     description: "A adds a column and then a row (two edits); B adds a column.",
     initial: [TABLE_2X2],
     applyA: (editor) => {
@@ -1595,6 +1586,12 @@ export const scenarios: SuggestionScenario[] = [
     id: "concurrent-table-seq-row-then-col",
     title: "A adds row then column, B adds row",
     category: "Tables",
+    feedback: [
+      {
+        severity: "info",
+        note: "The merged table is not rectangular, so the editor adds an empty cell to complete it. The diff shows this cell as inserted, without an author.",
+      },
+    ],
     description: "A adds a row and then a column (two edits); B adds a row.",
     initial: [TABLE_2X2],
     applyA: (editor) => {
@@ -1909,12 +1906,6 @@ export const scenarios: SuggestionScenario[] = [
         "anchor",
         "after",
       ),
-    feedback: [
-      {
-        severity: "high",
-        note: "formatting changes should not show up in the diff, the diff should indicate content has been added",
-      },
-    ],
   },
   {
     kind: "single",

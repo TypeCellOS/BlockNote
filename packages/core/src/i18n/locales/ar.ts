@@ -184,6 +184,7 @@ export const ar: Dictionary = {
   },
   toggle_blocks: {
     add_block_button: "تبديل فارغ. انقر لإضافة كتلة.",
+    toggle_button: "توسيع أو طي",
   },
   code_block: {
     add_source_button_text: "إضافة كود المصدر",

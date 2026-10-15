@@ -11,7 +11,7 @@ import { createExternalHTMLExporter } from "../html/externalHTMLExporter.js";
 import { EMPTY_BLOCK_PLACEHOLDER } from "../html/util/serializeBlocksExternalHTML.js";
 import { htmlToMarkdown } from "./htmlToMarkdown.js";
 
-// Needs to be sync because it's used in drag handler event (SideMenuPlugin)
+// Needs to be sync because it's used in drag handler event (SideMenuExtension)
 export function cleanHTMLToMarkdown(cleanHTMLString: string) {
   // The external HTML exporter fills empty inline-content blocks with a
   // placeholder character so they survive an HTML round trip (see

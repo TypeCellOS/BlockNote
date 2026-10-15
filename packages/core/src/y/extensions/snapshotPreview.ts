@@ -749,6 +749,23 @@ function pairClone(
   });
 }
 
+/**
+ * Throws when something syncs `doc` (a provider or a persistence layer listens
+ * to its updates). A decoded snapshot is written to (see
+ * {@link splitChangedBlocks}), and that write must never reach a stored
+ * document.
+ */
+export function assertUnsyncedDoc(doc: Y.Doc): void {
+  // lib0's observable keeps its listeners in `_observers`.
+  const observers = (doc as unknown as { _observers: Map<string, unknown> })
+    ._observers;
+  if (observers.has("update") || observers.has("updateV2")) {
+    throw new Error(
+      "DANGER! Refusing to write to a doc that something syncs. splitChangedBlocks should only write to throwaway copies.",
+    );
+  }
+}
+
 /** Attributions as the other kind: `insert`/`insertAt` as `delete`/`deleteAt`. */
 function asKind(
   attrs: Y.ContentAttribute<any>[],
@@ -778,6 +795,8 @@ function splitChangedBlocks(
   attributions: Y.ContentMap | undefined,
   added: Y.ContentMap,
 ): void {
+  // The split is a real write: it must stay in the decoded snapshot.
+  assertUnsyncedDoc(node.doc!);
   for (let index = 0; index < node.length; index++) {
     const child = node.get(index);
     if (!(child instanceof Y.Node)) {
@@ -795,8 +814,6 @@ function splitChangedBlocks(
         const { inserted, deleted } = attributions
           ? structuralAttributions(child, baseline, attributions)
           : { inserted: [], deleted: [] };
-        // `node` is a decoded snapshot's, never the live document, so the split
-        // doesn't reach the stored document.
         const doc = child.doc!;
         // A change that only inserted (or only deleted) still credits both
         // sides of the split, under that side's attribution kind.

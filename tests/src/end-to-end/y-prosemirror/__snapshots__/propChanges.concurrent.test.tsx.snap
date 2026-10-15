@@ -4,6 +4,7 @@ exports[`concurrent: A changes textColor, B changes backgroundColor 1`] = `
 "<blockGroup>
   <blockContainer id="block-hello">
     <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello world</paragraph>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -12,6 +13,7 @@ exports[`concurrent: A changes textColor, B changes backgroundColor 2`] = `
 "<blockGroup>
   <blockContainer id="block-hello">
     <paragraph backgroundColor="default" textAlignment="left" textColor="red">hello world</paragraph>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -20,6 +22,7 @@ exports[`concurrent: A changes textColor, B changes backgroundColor 3`] = `
 "<blockGroup>
   <blockContainer id="block-hello">
     <paragraph backgroundColor="yellow" textAlignment="left" textColor="default">hello world</paragraph>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -28,6 +31,7 @@ exports[`concurrent: A changes textColor, B changes backgroundColor 4`] = `
 "<blockGroup>
   <blockContainer id="block-hello">
     <paragraph backgroundColor="yellow" textAlignment="left" textColor="red">hello world</paragraph>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;

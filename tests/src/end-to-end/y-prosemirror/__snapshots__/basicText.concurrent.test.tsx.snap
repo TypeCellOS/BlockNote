@@ -4,6 +4,7 @@ exports[`concurrent: A bolds the word, B italicises the word 1`] = `
 "<blockGroup>
   <blockContainer id="block-hello">
     <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello world</paragraph>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -15,6 +16,7 @@ exports[`concurrent: A bolds the word, B italicises the word 2`] = `
       hello
       <bold>world</bold>
     </paragraph>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -26,6 +28,7 @@ exports[`concurrent: A bolds the word, B italicises the word 3`] = `
       hello
       <italic>world</italic>
     </paragraph>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -39,6 +42,7 @@ exports[`concurrent: A bolds the word, B italicises the word 4`] = `
         <bold>world</bold>
       </italic>
     </paragraph>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -64,6 +68,7 @@ exports[`concurrent: A fixes typo, B deletes the word 1`] = `
 "<blockGroup>
   <blockContainer id="block-hello">
     <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello wrold</paragraph>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -72,6 +77,7 @@ exports[`concurrent: A fixes typo, B deletes the word 2`] = `
 "<blockGroup>
   <blockContainer id="block-hello">
     <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello world</paragraph>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -80,6 +86,7 @@ exports[`concurrent: A fixes typo, B deletes the word 3`] = `
 "<blockGroup>
   <blockContainer id="block-hello">
     <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello</paragraph>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -88,6 +95,7 @@ exports[`concurrent: A fixes typo, B deletes the word 4`] = `
 "<blockGroup>
   <blockContainer id="block-hello">
     <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello o</paragraph>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;

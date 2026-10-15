@@ -37,6 +37,9 @@ function createCollabEditor() {
 }
 
 afterEach(() => {
+  // ProseMirror can leave a timer that flushes DOM changes 20ms later. If it
+  // fires after the test environment is torn down, it throws "document is not
+  // defined". After unmounting, the flush does nothing.
   while (cleanups.length) {
     cleanups.pop()!();
   }

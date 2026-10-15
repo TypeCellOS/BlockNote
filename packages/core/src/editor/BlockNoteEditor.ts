@@ -21,6 +21,7 @@ import {
 import {
   BlockChangeExtension,
   DropCursorOptions,
+  SideMenuOptions,
 } from "../extensions/index.js";
 import { UniqueID } from "../extensions/tiptap-extensions/UniqueID/UniqueID.js";
 import type { Dictionary } from "../i18n/dictionary.js";
@@ -129,6 +130,13 @@ export interface BlockNoteEditorOptions<
    * @remarks `DropCursorOptions`
    */
   dropCursor?: DropCursorOptions;
+
+  /**
+   * Options for the side menu, the menu with the drag handle and "+" button
+   * next to the block under the mouse.
+   * @remarks `SideMenuOptions`
+   */
+  sideMenu?: SideMenuOptions;
 
   /**
    * The content that should be in the editor when it's created, represented as an array of {@link PartialBlock} objects.
@@ -262,6 +270,15 @@ export interface BlockNoteEditorOptions<
    * (note that the id is always set on the `data-id` attribute)
    */
   setIdAttribute?: boolean;
+
+  /**
+   * Determines behavior when pressing Cmd+A (Mac) or Ctrl+A (Windows/Linux).
+   * - `"block-first"`: Selects the current block's content first, then the whole document on a subsequent press.
+   * - `"document"`: Selects the whole document immediately.
+   * Selecting the current block scrolls it into view; selecting the whole document preserves the scroll position.
+   * @default "block-first"
+   */
+  selectAllBehavior?: "block-first" | "document";
 
   /**
    * Determines behavior when pressing Tab (or Shift-Tab) while multiple blocks are selected and a toolbar is open.

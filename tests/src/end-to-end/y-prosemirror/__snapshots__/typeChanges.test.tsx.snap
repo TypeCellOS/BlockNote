@@ -8,6 +8,7 @@ exports[`suggestion mode: change list item to paragraph 1`] = `
       textAlignment="left"
       textColor="default"
     >hello world</bulletListItem>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -16,6 +17,7 @@ exports[`suggestion mode: change list item to paragraph 2`] = `
 "<blockGroup>
   <blockContainer id="block-hello">
     <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello world</paragraph>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -69,6 +71,7 @@ exports[`suggestion mode: change paragraph to heading 1`] = `
 "<blockGroup>
   <blockContainer id="block-hello">
     <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello world</paragraph>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -83,6 +86,7 @@ exports[`suggestion mode: change paragraph to heading 2`] = `
       textAlignment="left"
       textColor="default"
     >hello world</heading>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;

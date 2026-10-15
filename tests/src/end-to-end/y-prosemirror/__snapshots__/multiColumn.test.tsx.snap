@@ -6,11 +6,13 @@ exports[`suggestion mode: add a block to a column 1`] = `
     <column id="col-left" width="1">
       <blockContainer id="left-p">
         <paragraph backgroundColor="default" textAlignment="left" textColor="default">Left column</paragraph>
+        <blockGroup></blockGroup>
       </blockContainer>
     </column>
     <column id="col-right" width="1">
       <blockContainer id="0">
         <paragraph backgroundColor="default" textAlignment="left" textColor="default">Right column</paragraph>
+        <blockGroup></blockGroup>
       </blockContainer>
     </column>
   </columnList>
@@ -23,14 +25,17 @@ exports[`suggestion mode: add a block to a column 2`] = `
     <column id="col-left" width="1">
       <blockContainer id="left-p">
         <paragraph backgroundColor="default" textAlignment="left" textColor="default">Left column</paragraph>
+        <blockGroup></blockGroup>
       </blockContainer>
       <blockContainer id="1">
         <paragraph backgroundColor="default" textAlignment="left" textColor="default">Added to the left column</paragraph>
+        <blockGroup></blockGroup>
       </blockContainer>
     </column>
     <column id="col-right" width="1">
       <blockContainer id="0">
         <paragraph backgroundColor="default" textAlignment="left" textColor="default">Right column</paragraph>
+        <blockGroup></blockGroup>
       </blockContainer>
     </column>
   </columnList>
@@ -77,6 +82,7 @@ exports[`suggestion mode: create two columns 1`] = `
 "<blockGroup>
   <blockContainer id="intro">
     <paragraph backgroundColor="default" textAlignment="left" textColor="default">Intro paragraph</paragraph>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -85,16 +91,19 @@ exports[`suggestion mode: create two columns 2`] = `
 "<blockGroup>
   <blockContainer id="intro">
     <paragraph backgroundColor="default" textAlignment="left" textColor="default">Intro paragraph</paragraph>
+    <blockGroup></blockGroup>
   </blockContainer>
   <columnList id="0">
     <column id="1" width="1">
       <blockContainer id="2">
         <paragraph backgroundColor="default" textAlignment="left" textColor="default">Left column</paragraph>
+        <blockGroup></blockGroup>
       </blockContainer>
     </column>
     <column id="3" width="1">
       <blockContainer id="4">
         <paragraph backgroundColor="default" textAlignment="left" textColor="default">Right column</paragraph>
+        <blockGroup></blockGroup>
       </blockContainer>
     </column>
   </columnList>
@@ -175,11 +184,13 @@ exports[`suggestion mode: remove a column 1`] = `
     <column id="col-left" width="1">
       <blockContainer id="0">
         <paragraph backgroundColor="default" textAlignment="left" textColor="default">Left column</paragraph>
+        <blockGroup></blockGroup>
       </blockContainer>
     </column>
     <column id="col-right" width="1">
       <blockContainer id="1">
         <paragraph backgroundColor="default" textAlignment="left" textColor="default">Right column</paragraph>
+        <blockGroup></blockGroup>
       </blockContainer>
     </column>
   </columnList>
@@ -190,6 +201,7 @@ exports[`suggestion mode: remove a column 2`] = `
 "<blockGroup>
   <blockContainer id="0">
     <paragraph backgroundColor="default" textAlignment="left" textColor="default">Left column</paragraph>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -282,16 +294,19 @@ exports[`suggestion mode: remove a column from three 1`] = `
     <column id="col-left" width="1">
       <blockContainer id="0">
         <paragraph backgroundColor="default" textAlignment="left" textColor="default">Left column</paragraph>
+        <blockGroup></blockGroup>
       </blockContainer>
     </column>
     <column id="col-middle" width="1">
       <blockContainer id="1">
         <paragraph backgroundColor="default" textAlignment="left" textColor="default">Middle column</paragraph>
+        <blockGroup></blockGroup>
       </blockContainer>
     </column>
     <column id="col-right" width="1">
       <blockContainer id="2">
         <paragraph backgroundColor="default" textAlignment="left" textColor="default">Right column</paragraph>
+        <blockGroup></blockGroup>
       </blockContainer>
     </column>
   </columnList>
@@ -304,11 +319,13 @@ exports[`suggestion mode: remove a column from three 2`] = `
     <column id="col-left" width="1">
       <blockContainer id="0">
         <paragraph backgroundColor="default" textAlignment="left" textColor="default">Left column</paragraph>
+        <blockGroup></blockGroup>
       </blockContainer>
     </column>
     <column id="col-middle" width="1">
       <blockContainer id="1">
         <paragraph backgroundColor="default" textAlignment="left" textColor="default">Middle column</paragraph>
+        <blockGroup></blockGroup>
       </blockContainer>
     </column>
   </columnList>

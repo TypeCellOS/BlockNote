@@ -15,17 +15,18 @@ const hashStr = (s: string): number => {
 /**
  * Fallback palette used when a user has no resolved color of their own.
  *
- * Deliberately red-free: these colors tint *insertions* as well as deletions,
- * and a red insertion reads as an error rather than as one author's
- * contribution. The hues are spread far enough apart to stay distinguishable
- * for the most common forms of colour-vision deficiency.
+ * Deliberately free of red and green: these colors tint *insertions* as well as
+ * deletions, and diffs conventionally use red for deleted and green for
+ * inserted content. A red insertion would read as a deletion, and a green
+ * deletion as an insertion. The hues are spread far enough apart to stay
+ * distinguishable for the most common forms of colour-vision deficiency.
  */
 export const userColorPalette: Array<{ light: string; dark: string }> = [
   { light: "#fff0c2", dark: "#8a6d1a" }, // amber
-  { light: "#dcdefc", dark: "#3b3f9c" }, // indigo
-  { light: "#c9efe9", dark: "#0f6e62" }, // teal
-  { light: "#c9dcff", dark: "#1e4fb0" }, // blue
+  { light: "#cdeffd", dark: "#0b6a8a" }, // sky
+  { light: "#d6defd", dark: "#2948b3" }, // blue
   { light: "#eadcfb", dark: "#6b2fa3" }, // violet
+  { light: "#f1e2d3", dark: "#7a4a1e" }, // brown
   { light: "#dfe4ea", dark: "#46525f" }, // slate
 ];
 

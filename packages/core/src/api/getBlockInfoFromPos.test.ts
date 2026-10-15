@@ -1,10 +1,13 @@
+import { layoutSchema } from "./blockManipulation/layoutBlocks/layoutBlocks.fixture.js";
+import { getNodeById } from "./nodeUtil.js";
 import { Node, Schema } from "prosemirror-model";
-import { describe, expect, it } from "vite-plus/test";
+import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 
 import { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
 import { blockToNode } from "./nodeConversions/blockToNode.js";
 import { docToBlocks } from "./nodeConversions/nodeToBlock.js";
 import {
+  getAncestorLayoutBlocks,
   getBlockInfoFromNode,
   getLastDescendantBlockInfo,
   getNextBlockInfo,
@@ -155,6 +158,37 @@ describe("getNodeId", () => {
     expect(getNodeId(blockGroup.child(2), doc)).toBe("0-1");
   });
 
+  it("counts same-id nodes in document order, including nested ones", () => {
+    const schema = getSchema();
+
+    // A deleted block before its live copy, and a deleted copy nested in
+    // the live block's children.
+    const nestedDeleted = makeBlockContainer(schema, "0", "Nested", true);
+    const liveWithChild = schema.nodes["blockContainer"].createChecked(
+      { id: "0" },
+      [
+        schema.nodes["paragraph"].createChecked({}, schema.text("Live")),
+        schema.nodes["blockGroup"].createChecked({}, nestedDeleted),
+      ],
+    );
+    const firstDeleted = makeBlockContainer(schema, "0", "First", true);
+
+    const doc = schema.nodes["doc"].createChecked(
+      {},
+      schema.nodes["blockGroup"].createChecked({}, [
+        firstDeleted,
+        liveWithChild,
+      ]),
+    );
+
+    const blockGroup = doc.firstChild!;
+    expect(getNodeId(blockGroup.child(0), doc)).toBe("0-0");
+    expect(getNodeId(blockGroup.child(1), doc)).toBe("0");
+    expect(getNodeId(blockGroup.child(1).lastChild!.firstChild!, doc)).toBe(
+      "0-2",
+    );
+  });
+
   it("throws when a suggested-deletion node is not found in the provided doc", () => {
     const schema = getSchema();
 
@@ -279,21 +313,6 @@ describe("derived position and content fields", () => {
     const info = getBlockInfoFromNode(node, 0);
 
     expect(info.contentKind).toBe("plain");
-  });
-
-  it("rejects malformed wrapper structure at the block-info boundary", () => {
-    const { blockContainer, paragraph, blockGroup } = getSchema().nodes;
-    const content = paragraph.create();
-    for (const children of [
-      [],
-      [blockGroup.create()],
-      [content, content],
-      [content, blockGroup.create(), blockGroup.create()],
-    ]) {
-      // Deliberately bypass schema checking, as transaction intermediates can.
-      const node = blockContainer.create(null, children);
-      expect(() => getBlockInfoFromNode(node, 0)).toThrow(/blockContainer/);
-    }
   });
 
   it("rejects a content node that was not built from a block spec", () => {
@@ -520,5 +539,143 @@ describe("docToBlocks round trip with suggested deletions", () => {
 
     expect(ids).toEqual(["0", "1", "0-1"]);
     expect(new Set(ids).size).toBe(ids.length);
+  });
+});
+
+describe("block info for layout blocks", () => {
+  let editor: BlockNoteEditor<
+    typeof layoutSchema.blockSchema,
+    typeof layoutSchema.inlineContentSchema,
+    typeof layoutSchema.styleSchema
+  >;
+  beforeEach(() => {
+    editor = BlockNoteEditor.create({ schema: layoutSchema });
+  });
+  afterEach(() => {
+    editor._tiptapEditor.destroy();
+  });
+  it.each(["paragraph", "alert", "callout"] as const)(
+    "distinguishes %s content from the presence of children",
+    (type) => {
+      for (const children of [
+        [],
+        [{ type: "paragraph" as const, content: "Body" }],
+      ]) {
+        const node = blockToNode({ type, children }, editor.pmSchema);
+        const info = getBlockInfoFromNode(node, 10);
+        expect(info.hasContent).toBe(type !== "callout");
+        if (children.length) {
+          expect(info.children?.node.childCount).toBe(1);
+        }
+      }
+    },
+  );
+
+  it("rejects malformed wrapper structure at the block-info boundary", () => {
+    const { blockContainer, paragraph, blockGroup } = editor.pmSchema.nodes;
+    const content = paragraph.create();
+    for (const children of [
+      [],
+      [blockGroup.create()],
+      [content, content],
+      [content, blockGroup.create(), blockGroup.create()],
+    ]) {
+      // Deliberately bypass schema checking, as transaction intermediates can.
+      const node = blockContainer.create(null, children);
+      expect(() => getBlockInfoFromNode(node, 0)).toThrow(/blockContainer/);
+    }
+  });
+
+  describe("parent lookups for layout block children", () => {
+    // Regression: `getParentBlockInfo` used to skip the layout block level for
+    // layout block children (returning the grid for a block inside a gridCell).
+    // The parent of a block is the block whose `children` contains it: the
+    // cell.
+    it("returns the layout block as the parent of its direct children", () => {
+      editor.replaceBlocks(editor.document, [
+        {
+          type: "grid",
+          id: "g-0",
+          children: [
+            {
+              type: "gridCell",
+              id: "cell-a",
+              children: [{ id: "cell-a-p", type: "paragraph", content: "A" }],
+            },
+            {
+              type: "gridCell",
+              id: "cell-b",
+              children: [{ id: "cell-b-p", type: "paragraph", content: "B" }],
+            },
+          ],
+        },
+        { id: "trailing", type: "paragraph", content: "" },
+      ]);
+
+      editor.transact((tr) => {
+        // The block directly containing a cell's paragraph is the cell.
+        const cellChild = getNodeById("cell-a-p", tr.doc)!;
+        expect(
+          getParentBlockInfo(tr.doc, cellChild.posBeforeNode)?.blockNoteType,
+        ).toBe("gridCell");
+
+        // The parent of a cell is the grid; the parent of the grid (a
+        // top-level block) is undefined.
+        const cell = getNodeById("cell-a", tr.doc)!;
+        expect(
+          getParentBlockInfo(tr.doc, cell.posBeforeNode)?.blockNoteType,
+        ).toBe("grid");
+
+        const grid = getNodeById("g-0", tr.doc)!;
+        expect(getParentBlockInfo(tr.doc, grid.posBeforeNode)).toBeUndefined();
+      });
+    });
+  });
+
+  it("lists the layout block ancestors of a position, innermost first", () => {
+    editor.replaceBlocks(editor.document, [
+      {
+        type: "grid",
+        id: "g-0",
+        children: [
+          {
+            type: "gridCell",
+            id: "cell-a",
+            children: [
+              {
+                type: "callout",
+                id: "c-0",
+                children: [{ id: "deep-p", type: "paragraph", content: "X" }],
+              },
+            ],
+          },
+          {
+            type: "gridCell",
+            id: "cell-b",
+            children: [{ id: "cell-b-p", type: "paragraph", content: "B" }],
+          },
+        ],
+      },
+      { id: "trailing", type: "paragraph", content: "" },
+    ]);
+
+    editor.transact((tr) => {
+      const deep = getNodeById("deep-p", tr.doc)!;
+      const ancestors = getAncestorLayoutBlocks(tr.doc, deep.posBeforeNode);
+
+      // Only the layout block nodes: the `blockGroup`/`blockContainer` levels
+      // between them are not layout blocks and must not be repaired.
+      expect(ancestors.map(({ id }) => id)).toEqual(["c-0", "cell-a", "g-0"]);
+      // Depths shrink outwards, which is what `fixLayoutBlocksById` sorts on.
+      expect(ancestors.map(({ depth }) => depth)).toEqual(
+        [...ancestors.map(({ depth }) => depth)].sort((a, b) => b - a),
+      );
+
+      // A top-level block has no layout block ancestors at all.
+      const trailing = getNodeById("trailing", tr.doc)!;
+      expect(getAncestorLayoutBlocks(tr.doc, trailing.posBeforeNode)).toEqual(
+        [],
+      );
+    });
   });
 });

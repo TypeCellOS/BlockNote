@@ -7,7 +7,7 @@ import * as Y from "@y/y";
 
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { withCollaboration } from "./index.js";
-import { showSnapshotPreview } from "./snapshotPreview.js";
+import { assertUnsyncedDoc, showSnapshotPreview } from "./snapshotPreview.js";
 
 /** Collaborative editor without versioning — the preview modules under test. */
 function createPreviewEditor() {
@@ -185,5 +185,17 @@ describe("showSnapshotPreview", () => {
       ),
     ).toThrow();
     expect(getEditorText(ctx.editor)).toContain("Live content");
+  });
+});
+
+describe("assertUnsyncedDoc", () => {
+  it("allows writes to a doc that nothing syncs", () => {
+    expect(() => assertUnsyncedDoc(new Y.Doc())).not.toThrow();
+  });
+
+  it("refuses writes to a doc that something syncs", () => {
+    const doc = new Y.Doc();
+    doc.on("update", () => {});
+    expect(() => assertUnsyncedDoc(doc)).toThrow();
   });
 });

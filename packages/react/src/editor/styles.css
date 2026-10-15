@@ -111,6 +111,12 @@
   width: 100%;
 }
 
+/* A frame's root is the block's element, so the wrapper React needs around it
+   must not be a box of its own. */
+.bn-react-node-view-renderer.bn-frame-node-view {
+  display: contents;
+}
+
 /* Indent line styling */
 .bn-block-group
   .bn-block:not(:has(.bn-toggle-wrapper))
@@ -260,6 +266,14 @@ first line (e.g. headings), the menu is not stretched - instead, the
 SideMenuController offsets its position to keep it centered on the line. */
 .bn-side-menu {
   height: 30px;
+}
+
+/* Suggestion menus fill their floating element, which keeps the widest width
+  the menu has had since it opened (`suggestionMenuMiddleware.ts`). Without
+  this, a menu would shrink and grow as the user filters its items. */
+.bn-suggestion-menu,
+.bn-grid-suggestion-menu {
+  flex-grow: 1;
 }
 
 /* Thread sidebar styling */

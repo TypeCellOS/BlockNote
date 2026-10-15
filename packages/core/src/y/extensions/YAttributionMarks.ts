@@ -1,4 +1,5 @@
 import { Mark } from "@tiptap/core";
+import { yattr2markname } from "@y/prosemirror";
 import { Mark as PMMark, MarkSpec } from "prosemirror-model";
 import {
   createExtension,
@@ -73,6 +74,22 @@ export function getAttributeChanges(mark: PMMark): AttributeChanges {
   return mark.attrs["changes"] ?? {};
 }
 
+/**
+ * The format changes of a `y-attributed-format` mark that format the text.
+ * Annotation marks such as comments are left out: adding one isn't a
+ * formatting change.
+ */
+function formattingChanges(mark: PMMark): Record<string, string[]> {
+  const format: Record<string, string[]> = mark.attrs["format"] ?? {};
+  return Object.fromEntries(
+    Object.entries(format).filter(([key]) => {
+      const group =
+        mark.type.schema.marks[yattr2markname(key)]?.spec.group ?? "";
+      return !group.split(" ").includes(NON_FORMATTING_MARK_GROUP);
+    }),
+  );
+}
+
 export function getAttributionUserIds(mark: PMMark): string[] {
   return mark.type.name === "y-attributed-attrs"
     ? [
@@ -118,12 +135,22 @@ const createAttributionMarkView =
     const allChanges = getAttributeChanges(mark);
     const { id: _id, ...blockChanges } = allChanges;
     const changes = inline ? allChanges : blockChanges;
-    if (type === "attrs" && Object.keys(changes).length === 0) {
+    const format =
+      type === "modification" ? formattingChanges(mark) : undefined;
+    if (
+      (type === "attrs" && Object.keys(changes).length === 0) ||
+      (format && Object.keys(format).length === 0)
+    ) {
+      // The mark has no change to show (only a block id or an annotation such
+      // as a comment changed). Render the content without a highlight or a
+      // tooltip. The mark stays in the document, so suggestion mode still
+      // finds the change.
       const dom = document.createElement(inline ? "span" : "div");
       dom.style.display = "contents";
       return { dom, contentDOM: dom };
     }
-    // Only the authors of the shown changes, not of a hidden id change.
+    // Only the authors of the shown changes, not of a hidden id change or
+    // annotation.
     const userIds =
       type === "attrs"
         ? [
@@ -131,7 +158,9 @@ const createAttributionMarkView =
               Object.values(changes).flatMap((change) => change.userIds),
             ),
           ]
-        : getAttributionUserIds(mark);
+        : format
+          ? [...new Set(Object.values(format).flat())]
+          : getAttributionUserIds(mark);
     // `<ins>`/`<del>` are semantic elements. The modification mark has no
     // dedicated element, so it renders as a `<span>` inline or a `<div>` over a
     // block, matching its `parseDOM` rules.
@@ -158,7 +187,7 @@ const createAttributionMarkView =
     }
     if (type === "modification") {
       dom.dataset["type"] = "modification";
-      dom.dataset["format"] = JSON.stringify(mark.attrs["format"]);
+      dom.dataset["format"] = JSON.stringify(format);
     }
 
     // Optional app-provided override: `y-attributed-format` is exposed as

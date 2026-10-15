@@ -50,7 +50,7 @@ overrides:
   # to hoist ("problems in resolving the mocks API"). 4.1.10 adds vite-plus/test.
   "@vitest/mocker": "4.1.11"
   "@y/y": "14.0.0-rc.26"
-  "@y/prosemirror": "2.0.0-14"
+  "@y/prosemirror": "2.0.0-15"
   "lib0": "1.0.0-rc.36"
 packageExtensions:
   # `@vitest/ui` is an *optional peer* of vitest, which vite-plus re-exposes as
