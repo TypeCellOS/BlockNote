@@ -866,12 +866,20 @@ NESTED BLOCKS
 }
 
 /* PLACEHOLDERS*/
-.bn-block-content:has(.ProseMirror-trailingBreak:only-child):after {
+.bn-inline-content:has(> .bn-placeholder) {
+  position: relative;
+  flex: 1;
+}
+
+.bn-placeholder {
+  position: absolute;
+  z-index: 1;
+  inset-inline-start: 0;
+  top: 0;
+  width: 100%;
   font-style: italic;
-  /* Removes text cursor offset. */
-  margin-inline: -2px;
   pointer-events: none;
-  max-width: 100%;
+  user-select: none;
 }
 
 /* TEXT COLORS */
