@@ -19,23 +19,23 @@
   --bn-colors-border: #efefef;
   --bn-colors-side-menu: #cfcfcf;
 
-  --bn-colors-highlights-gray-text: #9b9a97;
+  --bn-colors-highlights-gray-text: #686665;
   --bn-colors-highlights-gray-background: #ebeced;
-  --bn-colors-highlights-brown-text: #64473a;
+  --bn-colors-highlights-brown-text: #845d4c;
   --bn-colors-highlights-brown-background: #e9e5e3;
-  --bn-colors-highlights-red-text: #e03e3e;
+  --bn-colors-highlights-red-text: #bc3434;
   --bn-colors-highlights-red-background: #fbe4e4;
-  --bn-colors-highlights-orange-text: #d9730d;
+  --bn-colors-highlights-orange-text: #9d5309;
   --bn-colors-highlights-orange-background: #f6e9d9;
-  --bn-colors-highlights-yellow-text: #dfab01;
+  --bn-colors-highlights-yellow-text: #816201;
   --bn-colors-highlights-yellow-background: #fbf3db;
-  --bn-colors-highlights-green-text: #4d6461;
-  --bn-colors-highlights-green-background: #ddedea;
-  --bn-colors-highlights-blue-text: #0b6e99;
+  --bn-colors-highlights-green-text: #596c40;
+  --bn-colors-highlights-green-background: #e5edda;
+  --bn-colors-highlights-blue-text: #0b6d99;
   --bn-colors-highlights-blue-background: #ddebf1;
-  --bn-colors-highlights-purple-text: #6940a5;
+  --bn-colors-highlights-purple-text: #7b4fbb;
   --bn-colors-highlights-purple-background: #eae4f2;
-  --bn-colors-highlights-pink-text: #ad1a72;
+  --bn-colors-highlights-pink-text: #be1d7e;
   --bn-colors-highlights-pink-background: #f4dfeb;
 
   --bn-font-family:
@@ -72,23 +72,23 @@
   --bn-colors-side-menu: #7f7f7f;
 
   --bn-colors-highlights-gray-text: #bebdb8;
-  --bn-colors-highlights-gray-background: #9b9a97;
-  --bn-colors-highlights-brown-text: #8e6552;
-  --bn-colors-highlights-brown-background: #64473a;
-  --bn-colors-highlights-red-text: #ec4040;
-  --bn-colors-highlights-red-background: #be3434;
-  --bn-colors-highlights-orange-text: #e3790d;
-  --bn-colors-highlights-orange-background: #b7600a;
+  --bn-colors-highlights-gray-background: #393838;
+  --bn-colors-highlights-brown-text: #b9a094;
+  --bn-colors-highlights-brown-background: #44352e;
+  --bn-colors-highlights-red-text: #f38585;
+  --bn-colors-highlights-red-background: #5e2727;
+  --bn-colors-highlights-orange-text: #e89036;
+  --bn-colors-highlights-orange-background: #4d3219;
   --bn-colors-highlights-yellow-text: #dfab01;
-  --bn-colors-highlights-yellow-background: #b58b00;
-  --bn-colors-highlights-green-text: #6b8b87;
-  --bn-colors-highlights-green-background: #4d6461;
-  --bn-colors-highlights-blue-text: #0e87bc;
-  --bn-colors-highlights-blue-background: #0b6e99;
-  --bn-colors-highlights-purple-text: #8552d7;
-  --bn-colors-highlights-purple-background: #6940a5;
-  --bn-colors-highlights-pink-text: #da208f;
-  --bn-colors-highlights-pink-background: #ad1a72;
+  --bn-colors-highlights-yellow-background: #413718;
+  --bn-colors-highlights-green-text: #a0aa82;
+  --bn-colors-highlights-green-background: #353a29;
+  --bn-colors-highlights-blue-text: #5eafd2;
+  --bn-colors-highlights-blue-background: #183c4d;
+  --bn-colors-highlights-purple-text: #b596e7;
+  --bn-colors-highlights-purple-background: #422f5e;
+  --bn-colors-highlights-pink-text: #ea83c1;
+  --bn-colors-highlights-pink-background: #631d47;
 }
 
 .bn-root {
