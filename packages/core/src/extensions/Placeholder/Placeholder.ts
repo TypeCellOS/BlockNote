@@ -1,6 +1,5 @@
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
-import { uuidv4 } from "lib0/random";
 
 import {
   createExtension,
@@ -23,121 +22,57 @@ export const PlaceholderExtension = createExtension(
       prosemirrorPlugins: [
         new Plugin({
           key: PLUGIN_KEY,
-          view: (view) => {
-            const uniqueEditorSelector = `placeholder-selector-${uuidv4()}`;
-            view.dom.classList.add(uniqueEditorSelector);
-            const styleEl = document.createElement("style");
-
-            const nonce = editor._tiptapEditor.options.injectNonce;
-            if (nonce) {
-              styleEl.setAttribute("nonce", nonce);
-            }
-
-            if (view.root instanceof window.ShadowRoot) {
-              view.root.append(styleEl);
-            } else {
-              view.root.head.appendChild(styleEl);
-            }
-
-            const styleSheet = styleEl.sheet!;
-
-            const getSelector = (additionalSelectors = "") =>
-              `.${uniqueEditorSelector} .bn-block-content${additionalSelectors}:has(.ProseMirror-trailingBreak:only-child):after`;
-
-            try {
-              // FIXME: the names "default" and "emptyDocument" are hardcoded
-              const {
-                default: defaultPlaceholder,
-                emptyDocument: emptyPlaceholder,
-                ...rest
-              } = placeholders || {};
-
-              // add block specific placeholders
-              for (const [blockType, placeholder] of Object.entries(rest)) {
-                const blockTypeSelector = `[data-content-type="${blockType}"]`;
-
-                styleSheet.insertRule(
-                  `${getSelector(blockTypeSelector)} { content: ${JSON.stringify(
-                    placeholder,
-                  )}; }`,
-                );
-              }
-
-              const onlyBlockSelector = `[data-is-only-empty-block]`;
-              const mustBeFocusedSelector = `[data-is-empty-and-focused]`;
-
-              // placeholder for when there's only one empty block
-              styleSheet.insertRule(
-                `${getSelector(onlyBlockSelector)} { content: ${JSON.stringify(
-                  emptyPlaceholder,
-                )}; }`,
-              );
-
-              // placeholder for default blocks, only when the cursor is in the block (mustBeFocused)
-              styleSheet.insertRule(
-                `${getSelector(mustBeFocusedSelector)} { content: ${JSON.stringify(
-                  defaultPlaceholder,
-                )}; }`,
-              );
-            } catch (e) {
-              // eslint-disable-next-line no-console
-              console.warn(
-                `Failed to insert placeholder CSS rule - this is likely due to the browser not supporting certain CSS pseudo-element selectors (:has, :only-child:, or :before)`,
-                e,
-              );
-            }
-
-            return {
-              destroy: () => {
-                // `remove()` is a no-op if something else (e.g. a router
-                // merging `<head>`) already detached the element.
-                styleEl.remove();
-              },
-            };
-          },
           props: {
             decorations: (state) => {
-              const { doc, selection } = state;
-
               if (!editor.isEditable) {
-                return;
+                return DecorationSet.empty;
               }
 
-              if (!selection.empty) {
-                return;
-              }
+              const { doc, selection } = state;
+              const decorations: Decoration[] = [];
+              doc.descendants((node, pos) => {
+                if (
+                  !node.isTextblock ||
+                  !node.type.isInGroup("blockContent") ||
+                  node.content.size ||
+                  node.type.spec.code
+                ) {
+                  return;
+                }
 
-              // Don't show placeholder when the cursor is inside a code block
-              if (selection.$from.parent.type.spec.code) {
-                return;
-              }
+                let placeholder = placeholders?.[node.type.name];
+                if (doc.content.size === 6) {
+                  placeholder = placeholders?.emptyDocument ?? placeholder;
+                }
+                if (selection.empty && selection.$anchor.parent === node) {
+                  placeholder = placeholders?.default ?? placeholder;
+                }
+                if (!placeholder) {
+                  return false;
+                }
 
-              const decs = [];
-
-              // decoration for when there's only one empty block
-              // positions are hardcoded for now
-              if (state.doc.content.size === 6) {
-                decs.push(
-                  Decoration.node(2, 4, {
-                    "data-is-only-empty-block": "true",
-                  }),
+                const text = placeholder;
+                decorations.push(
+                  Decoration.widget(
+                    pos + 1,
+                    (view) => {
+                      const span = view.dom.ownerDocument.createElement("span");
+                      span.className = "bn-placeholder";
+                      span.contentEditable = "false";
+                      span.setAttribute("aria-hidden", "true");
+                      span.textContent = text;
+                      return span;
+                    },
+                    {
+                      side: -1,
+                      key: `placeholder-${text}`,
+                      ignoreSelection: true,
+                    },
+                  ),
                 );
-              }
-
-              const $pos = selection.$anchor;
-              const node = $pos.parent;
-
-              if (node.content.size === 0) {
-                const before = $pos.before();
-
-                decs.push(
-                  Decoration.node(before, before + node.nodeSize, {
-                    "data-is-empty-and-focused": "true",
-                  }),
-                );
-              }
-
-              return DecorationSet.create(doc, decs);
+                return false;
+              });
+              return DecorationSet.create(doc, decorations);
             },
           },
         }),
