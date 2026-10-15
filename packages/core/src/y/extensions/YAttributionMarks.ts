@@ -178,6 +178,9 @@ const createAttributionMarkView =
       userIds: JSON.stringify(userIds),
       inline: String(inline),
     });
+    if (mark.attrs["moved"]) {
+      dom.dataset["moved"] = "";
+    }
     if (type === "attrs") {
       dom.dataset["type"] = "attributes";
       dom.dataset["attributes"] = JSON.stringify(changes);
@@ -292,6 +295,8 @@ export const YAttributedInsertion = Mark.create<{
   addAttributes() {
     return {
       userIds: { default: null },
+      // A moved block, at its new place (see `showSnapshotPreview`).
+      moved: { default: null },
     };
   },
   addMarkView() {
@@ -319,6 +324,8 @@ export const YAttributedDeletion = Mark.create<{
   addAttributes() {
     return {
       userIds: { default: null },
+      // The original of a moved block (see `showSnapshotPreview`).
+      moved: { default: null },
     };
   },
   addMarkView() {
