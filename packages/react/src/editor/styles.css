@@ -2,41 +2,41 @@
 
 /* Default theme params */
 .bn-root {
-  --bn-colors-editor-text: #3f3f3f;
-  --bn-colors-editor-background: #ffffff;
-  --bn-colors-menu-text: #3f3f3f;
-  --bn-colors-menu-background: #ffffff;
-  --bn-colors-tooltip-text: #3f3f3f;
-  --bn-colors-tooltip-background: #efefef;
-  --bn-colors-hovered-text: #3f3f3f;
-  --bn-colors-hovered-background: #efefef;
-  --bn-colors-selected-text: #ffffff;
-  --bn-colors-selected-background: #3f3f3f;
-  --bn-colors-disabled-text: #afafaf;
-  --bn-colors-disabled-background: #efefef;
+  --bn-colors-editor-text: oklch(37% 0 0);
+  --bn-colors-editor-background: oklch(100% 0 0);
+  --bn-colors-menu-text: oklch(37% 0 0);
+  --bn-colors-menu-background: oklch(100% 0 0);
+  --bn-colors-tooltip-text: oklch(37% 0 0);
+  --bn-colors-tooltip-background: oklch(95% 0 0);
+  --bn-colors-hovered-text: oklch(37% 0 0);
+  --bn-colors-hovered-background: oklch(95% 0 0);
+  --bn-colors-selected-text: oklch(100% 0 0);
+  --bn-colors-selected-background: oklch(37% 0 0);
+  --bn-colors-disabled-text: oklch(75% 0 0);
+  --bn-colors-disabled-background: oklch(95% 0 0);
 
-  --bn-colors-shadow: #cfcfcf;
-  --bn-colors-border: #efefef;
-  --bn-colors-side-menu: #cfcfcf;
+  --bn-colors-shadow: oklch(85% 0 0);
+  --bn-colors-border: oklch(95% 0 0);
+  --bn-colors-side-menu: oklch(85% 0 0);
 
-  --bn-colors-highlights-gray-text: #686665;
-  --bn-colors-highlights-gray-background: #ebeced;
-  --bn-colors-highlights-brown-text: #845d4c;
-  --bn-colors-highlights-brown-background: #e9e5e3;
-  --bn-colors-highlights-red-text: #bc3434;
-  --bn-colors-highlights-red-background: #fbe4e4;
-  --bn-colors-highlights-orange-text: #9d5309;
-  --bn-colors-highlights-orange-background: #f6e9d9;
-  --bn-colors-highlights-yellow-text: #816201;
-  --bn-colors-highlights-yellow-background: #fbf3db;
-  --bn-colors-highlights-green-text: #596c40;
-  --bn-colors-highlights-green-background: #e5edda;
-  --bn-colors-highlights-blue-text: #0b6d99;
-  --bn-colors-highlights-blue-background: #ddebf1;
-  --bn-colors-highlights-purple-text: #7b4fbb;
-  --bn-colors-highlights-purple-background: #eae4f2;
-  --bn-colors-highlights-pink-text: #be1d7e;
-  --bn-colors-highlights-pink-background: #f4dfeb;
+  --bn-colors-highlights-gray-text: oklch(51.6% 0 0);
+  --bn-colors-highlights-gray-background: oklch(93% 0 0);
+  --bn-colors-highlights-brown-text: oklch(48.5% 0.06 50);
+  --bn-colors-highlights-brown-background: oklch(93% 0.015 50);
+  --bn-colors-highlights-red-text: oklch(50.5% 0.1 25);
+  --bn-colors-highlights-red-background: oklch(93% 0.025 25);
+  --bn-colors-highlights-orange-text: oklch(50.5% 0.1 65);
+  --bn-colors-highlights-orange-background: oklch(93% 0.025 65);
+  --bn-colors-highlights-yellow-text: oklch(50.5% 0.1 95);
+  --bn-colors-highlights-yellow-background: oklch(93% 0.025 95);
+  --bn-colors-highlights-green-text: oklch(50.5% 0.1 135);
+  --bn-colors-highlights-green-background: oklch(93% 0.025 135);
+  --bn-colors-highlights-blue-text: oklch(50.5% 0.1 235);
+  --bn-colors-highlights-blue-background: oklch(93% 0.025 235);
+  --bn-colors-highlights-purple-text: oklch(50.5% 0.1 300);
+  --bn-colors-highlights-purple-background: oklch(93% 0.025 300);
+  --bn-colors-highlights-pink-text: oklch(50.5% 0.1 345);
+  --bn-colors-highlights-pink-background: oklch(93% 0.025 345);
 
   --bn-font-family:
     "Inter", "Inter fallback", "SF Pro Display", -apple-system,
@@ -54,41 +54,41 @@
 }
 
 .bn-root[data-color-scheme="dark"] {
-  --bn-colors-editor-text: #cfcfcf;
-  --bn-colors-editor-background: #1f1f1f;
-  --bn-colors-menu-text: #cfcfcf;
-  --bn-colors-menu-background: #1f1f1f;
-  --bn-colors-tooltip-text: #cfcfcf;
-  --bn-colors-tooltip-background: #161616;
-  --bn-colors-hovered-text: #cfcfcf;
-  --bn-colors-hovered-background: #161616;
-  --bn-colors-selected-text: #cfcfcf;
-  --bn-colors-selected-background: #0f0f0f;
-  --bn-colors-disabled-text: #3f3f3f;
-  --bn-colors-disabled-background: #161616;
+  --bn-colors-editor-text: oklch(85% 0 0);
+  --bn-colors-editor-background: oklch(24% 0 0);
+  --bn-colors-menu-text: oklch(85% 0 0);
+  --bn-colors-menu-background: oklch(24% 0 0);
+  --bn-colors-tooltip-text: oklch(85% 0 0);
+  --bn-colors-tooltip-background: oklch(20% 0 0);
+  --bn-colors-hovered-text: oklch(85% 0 0);
+  --bn-colors-hovered-background: oklch(20% 0 0);
+  --bn-colors-selected-text: oklch(85% 0 0);
+  --bn-colors-selected-background: oklch(17% 0 0);
+  --bn-colors-disabled-text: oklch(37% 0 0);
+  --bn-colors-disabled-background: oklch(20% 0 0);
 
-  --bn-colors-shadow: #0f0f0f;
-  --bn-colors-border: #161616;
-  --bn-colors-side-menu: #7f7f7f;
+  --bn-colors-shadow: oklch(17% 0 0);
+  --bn-colors-border: oklch(20% 0 0);
+  --bn-colors-side-menu: oklch(60% 0 0);
 
-  --bn-colors-highlights-gray-text: #bebdb8;
-  --bn-colors-highlights-gray-background: #393838;
-  --bn-colors-highlights-brown-text: #b9a094;
-  --bn-colors-highlights-brown-background: #44352e;
-  --bn-colors-highlights-red-text: #f38585;
-  --bn-colors-highlights-red-background: #5e2727;
-  --bn-colors-highlights-orange-text: #e89036;
-  --bn-colors-highlights-orange-background: #4d3219;
-  --bn-colors-highlights-yellow-text: #dfab01;
-  --bn-colors-highlights-yellow-background: #413718;
-  --bn-colors-highlights-green-text: #a0aa82;
-  --bn-colors-highlights-green-background: #353a29;
-  --bn-colors-highlights-blue-text: #5eafd2;
-  --bn-colors-highlights-blue-background: #183c4d;
-  --bn-colors-highlights-purple-text: #b596e7;
-  --bn-colors-highlights-purple-background: #422f5e;
-  --bn-colors-highlights-pink-text: #ea83c1;
-  --bn-colors-highlights-pink-background: #631d47;
+  --bn-colors-highlights-gray-text: oklch(71.5% 0 0);
+  --bn-colors-highlights-gray-background: oklch(34% 0 0);
+  --bn-colors-highlights-brown-text: oklch(73% 0.06 50);
+  --bn-colors-highlights-brown-background: oklch(34% 0.035 50);
+  --bn-colors-highlights-red-text: oklch(75% 0.1 25);
+  --bn-colors-highlights-red-background: oklch(34% 0.065 25);
+  --bn-colors-highlights-orange-text: oklch(75% 0.1 65);
+  --bn-colors-highlights-orange-background: oklch(34% 0.065 65);
+  --bn-colors-highlights-yellow-text: oklch(75% 0.1 95);
+  --bn-colors-highlights-yellow-background: oklch(34% 0.065 95);
+  --bn-colors-highlights-green-text: oklch(75% 0.1 135);
+  --bn-colors-highlights-green-background: oklch(34% 0.065 135);
+  --bn-colors-highlights-blue-text: oklch(75% 0.1 235);
+  --bn-colors-highlights-blue-background: oklch(34% 0.065 235);
+  --bn-colors-highlights-purple-text: oklch(75% 0.1 300);
+  --bn-colors-highlights-purple-background: oklch(34% 0.065 300);
+  --bn-colors-highlights-pink-text: oklch(75% 0.1 345);
+  --bn-colors-highlights-pink-background: oklch(34% 0.065 345);
 }
 
 .bn-root {
