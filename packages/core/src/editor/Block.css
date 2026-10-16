@@ -219,9 +219,13 @@ NESTED BLOCKS
 /* QUOTES */
 [data-content-type="quote"] blockquote {
   border-left: 2px solid rgb(125, 121, 122);
-  color: rgb(125, 121, 122);
+  color: #646362;
   margin: 0;
   padding-left: 1em;
+}
+
+[data-content-type="quote"] blockquote:where(.dark, .dark *) {
+  color: #bebdb8;
 }
 
 /* DIVIDERS */
@@ -347,11 +351,15 @@ NESTED BLOCKS
 
 .bn-toggle-add-block-button {
   font-size: 16px;
-  color: var(--bn-colors-side-menu);
+  color: #646362;
   font-weight: normal;
   margin-left: 22px;
   padding-inline: 2px;
   width: fit-content;
+}
+
+.bn-toggle-add-block-button:where(.dark, .dark *) {
+  color: #bebdb8;
 }
 
 .bn-toggle-button,
@@ -683,7 +691,7 @@ NESTED BLOCKS
 
 .bn-preview-placeholder:where(.dark, .dark *) {
   background-color: rgb(70, 70, 70);
-  color: rgb(190, 190, 190);
+  color: #cfcfcf;
 }
 
 .bn-editor[contenteditable="true"]
@@ -782,7 +790,7 @@ NESTED BLOCKS
   align-items: center;
   background-color: rgb(242, 241, 238);
   border-radius: 4px;
-  color: rgb(125, 121, 122);
+  color: #646362;
   display: flex;
   gap: 10px;
   padding: 12px;
@@ -790,7 +798,7 @@ NESTED BLOCKS
 
 [data-file-block] .bn-add-file-button:where(.dark, .dark *) {
   background-color: rgb(70, 70, 70);
-  color: rgb(190, 190, 190);
+  color: #cfcfcf;
 }
 
 .bn-editor[contenteditable="true"] [data-file-block] .bn-add-file-button:hover,

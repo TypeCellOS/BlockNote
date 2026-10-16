@@ -57,13 +57,13 @@
                     {
                       "type": "textColor",
                       "attrs": {
-                        "stringValue": "rgb(63, 63, 63)"
+                        "stringValue": "oklch(0.37 0 0)"
                       }
                     },
                     {
                       "type": "backgroundColor",
                       "attrs": {
-                        "stringValue": "rgb(255, 255, 255)"
+                        "stringValue": "oklch(1 0 0)"
                       }
                     }
                   ],
