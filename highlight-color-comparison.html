@@ -136,9 +136,10 @@
         4.5:1 for normal text.
       </p>
       <p>
-        Includes the default editor colors. Hex values appear in the row and
-        column headings. This is a standalone snapshot of the palettes,
-        including the new yellow-shifted green.
+        Includes the default editor colors. Color values appear in the row and
+        column headings. The new highlight text and backgrounds each share OKLCH
+        lightness and chroma within each theme, with independently tuned neutral
+        gray text and muted brown.
       </p>
       <nav aria-label="Themes">
         <a href="#light">Light mode</a><a href="#dark">Dark mode</a>
@@ -923,747 +924,1081 @@
                 <thead>
                   <tr>
                     <th scope="col">Text ↓<br />Background →</th>
-                    <th scope="col">default<span class="hex">#ffffff</span></th>
-                    <th scope="col">gray<span class="hex">#ebeced</span></th>
-                    <th scope="col">brown<span class="hex">#e9e5e3</span></th>
-                    <th scope="col">red<span class="hex">#fbe4e4</span></th>
-                    <th scope="col">orange<span class="hex">#f6e9d9</span></th>
-                    <th scope="col">yellow<span class="hex">#fbf3db</span></th>
-                    <th scope="col">green<span class="hex">#e5edda</span></th>
-                    <th scope="col">blue<span class="hex">#ddebf1</span></th>
-                    <th scope="col">purple<span class="hex">#eae4f2</span></th>
-                    <th scope="col">pink<span class="hex">#f4dfeb</span></th>
+                    <th scope="col">
+                      default<span class="hex">oklch(100% 0 0)</span>
+                    </th>
+                    <th scope="col">
+                      gray<span class="hex">oklch(93% 0 0)</span>
+                    </th>
+                    <th scope="col">
+                      brown<span class="hex">oklch(93% 0.015 50)</span>
+                    </th>
+                    <th scope="col">
+                      red<span class="hex">oklch(93% 0.025 25)</span>
+                    </th>
+                    <th scope="col">
+                      orange<span class="hex">oklch(93% 0.025 65)</span>
+                    </th>
+                    <th scope="col">
+                      yellow<span class="hex">oklch(93% 0.025 95)</span>
+                    </th>
+                    <th scope="col">
+                      green<span class="hex">oklch(93% 0.025 135)</span>
+                    </th>
+                    <th scope="col">
+                      blue<span class="hex">oklch(93% 0.025 235)</span>
+                    </th>
+                    <th scope="col">
+                      purple<span class="hex">oklch(93% 0.025 300)</span>
+                    </th>
+                    <th scope="col">
+                      pink<span class="hex">oklch(93% 0.025 345)</span>
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <th scope="row">default<span class="hex">#3f3f3f</span></th>
+                    <th scope="row">
+                      default<span class="hex">oklch(37% 0 0)</span>
+                    </th>
                     <td
-                      style="color: #3f3f3f; background: #ffffff"
-                      title="default text (#3f3f3f) on default background (#ffffff): 10.53:1; meets 4.5:1"
+                      style="color: oklch(37% 0 0); background: oklch(100% 0 0)"
+                      title="default text (oklch(37% 0 0)) on default background (oklch(100% 0 0)): 10.43:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">10.53:1</span>
+                      ><span class="ratio">10.43:1</span>
                     </td>
                     <td
-                      style="color: #3f3f3f; background: #ebeced"
-                      title="default text (#3f3f3f) on gray background (#ebeced): 8.90:1; meets 4.5:1"
+                      style="color: oklch(37% 0 0); background: oklch(93% 0 0)"
+                      title="default text (oklch(37% 0 0)) on gray background (oklch(93% 0 0)): 8.49:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">8.90:1</span>
+                      ><span class="ratio">8.49:1</span>
                     </td>
                     <td
-                      style="color: #3f3f3f; background: #e9e5e3"
-                      title="default text (#3f3f3f) on brown background (#e9e5e3): 8.42:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">8.42:1</span>
-                    </td>
-                    <td
-                      style="color: #3f3f3f; background: #fbe4e4"
-                      title="default text (#3f3f3f) on red background (#fbe4e4): 8.69:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">8.69:1</span>
-                    </td>
-                    <td
-                      style="color: #3f3f3f; background: #f6e9d9"
-                      title="default text (#3f3f3f) on orange background (#f6e9d9): 8.81:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">8.81:1</span>
-                    </td>
-                    <td
-                      style="color: #3f3f3f; background: #fbf3db"
-                      title="default text (#3f3f3f) on yellow background (#fbf3db): 9.50:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">9.50:1</span>
-                    </td>
-                    <td
-                      style="color: #3f3f3f; background: #e5edda"
-                      title="default text (#3f3f3f) on green background (#e5edda): 8.75:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">8.75:1</span>
-                    </td>
-                    <td
-                      style="color: #3f3f3f; background: #ddebf1"
-                      title="default text (#3f3f3f) on blue background (#ddebf1): 8.64:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">8.64:1</span>
-                    </td>
-                    <td
-                      style="color: #3f3f3f; background: #eae4f2"
-                      title="default text (#3f3f3f) on purple background (#eae4f2): 8.46:1; meets 4.5:1"
+                      style="
+                        color: oklch(37% 0 0);
+                        background: oklch(93% 0.015 50);
+                      "
+                      title="default text (oklch(37% 0 0)) on brown background (oklch(93% 0.015 50)): 8.46:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
                       ><span class="ratio">8.46:1</span>
                     </td>
                     <td
-                      style="color: #3f3f3f; background: #f4dfeb"
-                      title="default text (#3f3f3f) on pink background (#f4dfeb): 8.33:1; meets 4.5:1"
+                      style="
+                        color: oklch(37% 0 0);
+                        background: oklch(93% 0.025 25);
+                      "
+                      title="default text (oklch(37% 0 0)) on red background (oklch(93% 0.025 25)): 8.42:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">8.33:1</span>
+                      ><span class="ratio">8.42:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(37% 0 0);
+                        background: oklch(93% 0.025 65);
+                      "
+                      title="default text (oklch(37% 0 0)) on orange background (oklch(93% 0.025 65)): 8.46:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">8.46:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(37% 0 0);
+                        background: oklch(93% 0.025 95);
+                      "
+                      title="default text (oklch(37% 0 0)) on yellow background (oklch(93% 0.025 95)): 8.50:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">8.50:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(37% 0 0);
+                        background: oklch(93% 0.025 135);
+                      "
+                      title="default text (oklch(37% 0 0)) on green background (oklch(93% 0.025 135)): 8.55:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">8.55:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(37% 0 0);
+                        background: oklch(93% 0.025 235);
+                      "
+                      title="default text (oklch(37% 0 0)) on blue background (oklch(93% 0.025 235)): 8.53:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">8.53:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(37% 0 0);
+                        background: oklch(93% 0.025 300);
+                      "
+                      title="default text (oklch(37% 0 0)) on purple background (oklch(93% 0.025 300)): 8.44:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">8.44:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(37% 0 0);
+                        background: oklch(93% 0.025 345);
+                      "
+                      title="default text (oklch(37% 0 0)) on pink background (oklch(93% 0.025 345)): 8.41:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">8.41:1</span>
                     </td>
                   </tr>
                   <tr>
-                    <th scope="row">gray<span class="hex">#686665</span></th>
+                    <th scope="row">
+                      gray<span class="hex">oklch(51.6% 0 0)</span>
+                    </th>
                     <td
-                      style="color: #686665; background: #ffffff"
-                      title="gray text (#686665) on default background (#ffffff): 5.71:1; meets 4.5:1"
+                      style="
+                        color: oklch(51.6% 0 0);
+                        background: oklch(100% 0 0);
+                      "
+                      title="gray text (oklch(51.6% 0 0)) on default background (oklch(100% 0 0)): 5.60:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">5.71:1</span>
+                      ><span class="ratio">5.60:1</span>
                     </td>
                     <td
-                      style="color: #686665; background: #ebeced"
-                      title="gray text (#686665) on gray background (#ebeced): 4.83:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.83:1</span>
-                    </td>
-                    <td
-                      style="color: #686665; background: #e9e5e3"
-                      title="gray text (#686665) on brown background (#e9e5e3): 4.56:1; meets 4.5:1"
+                      style="
+                        color: oklch(51.6% 0 0);
+                        background: oklch(93% 0 0);
+                      "
+                      title="gray text (oklch(51.6% 0 0)) on gray background (oklch(93% 0 0)): 4.56:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
                       ><span class="ratio">4.56:1</span>
                     </td>
                     <td
-                      style="color: #686665; background: #fbe4e4"
-                      title="gray text (#686665) on red background (#fbe4e4): 4.71:1; meets 4.5:1"
+                      style="
+                        color: oklch(51.6% 0 0);
+                        background: oklch(93% 0.015 50);
+                      "
+                      title="gray text (oklch(51.6% 0 0)) on brown background (oklch(93% 0.015 50)): 4.54:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">4.71:1</span>
+                      ><span class="ratio">4.54:1</span>
                     </td>
                     <td
-                      style="color: #686665; background: #f6e9d9"
-                      title="gray text (#686665) on orange background (#f6e9d9): 4.78:1; meets 4.5:1"
+                      style="
+                        color: oklch(51.6% 0 0);
+                        background: oklch(93% 0.025 25);
+                      "
+                      title="gray text (oklch(51.6% 0 0)) on red background (oklch(93% 0.025 25)): 4.52:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">4.78:1</span>
+                      ><span class="ratio">4.52:1</span>
                     </td>
                     <td
-                      style="color: #686665; background: #fbf3db"
-                      title="gray text (#686665) on yellow background (#fbf3db): 5.15:1; meets 4.5:1"
+                      style="
+                        color: oklch(51.6% 0 0);
+                        background: oklch(93% 0.025 65);
+                      "
+                      title="gray text (oklch(51.6% 0 0)) on orange background (oklch(93% 0.025 65)): 4.54:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">5.15:1</span>
+                      ><span class="ratio">4.54:1</span>
                     </td>
                     <td
-                      style="color: #686665; background: #e5edda"
-                      title="gray text (#686665) on green background (#e5edda): 4.75:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.75:1</span>
-                    </td>
-                    <td
-                      style="color: #686665; background: #ddebf1"
-                      title="gray text (#686665) on blue background (#ddebf1): 4.69:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.69:1</span>
-                    </td>
-                    <td
-                      style="color: #686665; background: #eae4f2"
-                      title="gray text (#686665) on purple background (#eae4f2): 4.59:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.59:1</span>
-                    </td>
-                    <td
-                      style="color: #686665; background: #f4dfeb"
-                      title="gray text (#686665) on pink background (#f4dfeb): 4.51:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.51:1</span>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th scope="row">brown<span class="hex">#845d4c</span></th>
-                    <td
-                      style="color: #845d4c; background: #ffffff"
-                      title="brown text (#845d4c) on default background (#ffffff): 5.75:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">5.75:1</span>
-                    </td>
-                    <td
-                      style="color: #845d4c; background: #ebeced"
-                      title="brown text (#845d4c) on gray background (#ebeced): 4.86:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.86:1</span>
-                    </td>
-                    <td
-                      style="color: #845d4c; background: #e9e5e3"
-                      title="brown text (#845d4c) on brown background (#e9e5e3): 4.60:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.60:1</span>
-                    </td>
-                    <td
-                      style="color: #845d4c; background: #fbe4e4"
-                      title="brown text (#845d4c) on red background (#fbe4e4): 4.74:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.74:1</span>
-                    </td>
-                    <td
-                      style="color: #845d4c; background: #f6e9d9"
-                      title="brown text (#845d4c) on orange background (#f6e9d9): 4.81:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.81:1</span>
-                    </td>
-                    <td
-                      style="color: #845d4c; background: #fbf3db"
-                      title="brown text (#845d4c) on yellow background (#fbf3db): 5.19:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">5.19:1</span>
-                    </td>
-                    <td
-                      style="color: #845d4c; background: #e5edda"
-                      title="brown text (#845d4c) on green background (#e5edda): 4.78:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.78:1</span>
-                    </td>
-                    <td
-                      style="color: #845d4c; background: #ddebf1"
-                      title="brown text (#845d4c) on blue background (#ddebf1): 4.72:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.72:1</span>
-                    </td>
-                    <td
-                      style="color: #845d4c; background: #eae4f2"
-                      title="brown text (#845d4c) on purple background (#eae4f2): 4.62:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.62:1</span>
-                    </td>
-                    <td
-                      style="color: #845d4c; background: #f4dfeb"
-                      title="brown text (#845d4c) on pink background (#f4dfeb): 4.55:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.55:1</span>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th scope="row">red<span class="hex">#bc3434</span></th>
-                    <td
-                      style="color: #bc3434; background: #ffffff"
-                      title="red text (#bc3434) on default background (#ffffff): 5.71:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">5.71:1</span>
-                    </td>
-                    <td
-                      style="color: #bc3434; background: #ebeced"
-                      title="red text (#bc3434) on gray background (#ebeced): 4.83:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.83:1</span>
-                    </td>
-                    <td
-                      style="color: #bc3434; background: #e9e5e3"
-                      title="red text (#bc3434) on brown background (#e9e5e3): 4.56:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.56:1</span>
-                    </td>
-                    <td
-                      style="color: #bc3434; background: #fbe4e4"
-                      title="red text (#bc3434) on red background (#fbe4e4): 4.71:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.71:1</span>
-                    </td>
-                    <td
-                      style="color: #bc3434; background: #f6e9d9"
-                      title="red text (#bc3434) on orange background (#f6e9d9): 4.78:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.78:1</span>
-                    </td>
-                    <td
-                      style="color: #bc3434; background: #fbf3db"
-                      title="red text (#bc3434) on yellow background (#fbf3db): 5.15:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">5.15:1</span>
-                    </td>
-                    <td
-                      style="color: #bc3434; background: #e5edda"
-                      title="red text (#bc3434) on green background (#e5edda): 4.75:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.75:1</span>
-                    </td>
-                    <td
-                      style="color: #bc3434; background: #ddebf1"
-                      title="red text (#bc3434) on blue background (#ddebf1): 4.68:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.68:1</span>
-                    </td>
-                    <td
-                      style="color: #bc3434; background: #eae4f2"
-                      title="red text (#bc3434) on purple background (#eae4f2): 4.59:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.59:1</span>
-                    </td>
-                    <td
-                      style="color: #bc3434; background: #f4dfeb"
-                      title="red text (#bc3434) on pink background (#f4dfeb): 4.51:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.51:1</span>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th scope="row">orange<span class="hex">#9d5309</span></th>
-                    <td
-                      style="color: #9d5309; background: #ffffff"
-                      title="orange text (#9d5309) on default background (#ffffff): 5.71:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">5.71:1</span>
-                    </td>
-                    <td
-                      style="color: #9d5309; background: #ebeced"
-                      title="orange text (#9d5309) on gray background (#ebeced): 4.83:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.83:1</span>
-                    </td>
-                    <td
-                      style="color: #9d5309; background: #e9e5e3"
-                      title="orange text (#9d5309) on brown background (#e9e5e3): 4.57:1; meets 4.5:1"
+                      style="
+                        color: oklch(51.6% 0 0);
+                        background: oklch(93% 0.025 95);
+                      "
+                      title="gray text (oklch(51.6% 0 0)) on yellow background (oklch(93% 0.025 95)): 4.57:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
                       ><span class="ratio">4.57:1</span>
                     </td>
                     <td
-                      style="color: #9d5309; background: #fbe4e4"
-                      title="orange text (#9d5309) on red background (#fbe4e4): 4.71:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.71:1</span>
-                    </td>
-                    <td
-                      style="color: #9d5309; background: #f6e9d9"
-                      title="orange text (#9d5309) on orange background (#f6e9d9): 4.78:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.78:1</span>
-                    </td>
-                    <td
-                      style="color: #9d5309; background: #fbf3db"
-                      title="orange text (#9d5309) on yellow background (#fbf3db): 5.16:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">5.16:1</span>
-                    </td>
-                    <td
-                      style="color: #9d5309; background: #e5edda"
-                      title="orange text (#9d5309) on green background (#e5edda): 4.75:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.75:1</span>
-                    </td>
-                    <td
-                      style="color: #9d5309; background: #ddebf1"
-                      title="orange text (#9d5309) on blue background (#ddebf1): 4.69:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.69:1</span>
-                    </td>
-                    <td
-                      style="color: #9d5309; background: #eae4f2"
-                      title="orange text (#9d5309) on purple background (#eae4f2): 4.59:1; meets 4.5:1"
+                      style="
+                        color: oklch(51.6% 0 0);
+                        background: oklch(93% 0.025 135);
+                      "
+                      title="gray text (oklch(51.6% 0 0)) on green background (oklch(93% 0.025 135)): 4.59:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
                       ><span class="ratio">4.59:1</span>
                     </td>
                     <td
-                      style="color: #9d5309; background: #f4dfeb"
-                      title="orange text (#9d5309) on pink background (#f4dfeb): 4.52:1; meets 4.5:1"
+                      style="
+                        color: oklch(51.6% 0 0);
+                        background: oklch(93% 0.025 235);
+                      "
+                      title="gray text (oklch(51.6% 0 0)) on blue background (oklch(93% 0.025 235)): 4.58:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.58:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(51.6% 0 0);
+                        background: oklch(93% 0.025 300);
+                      "
+                      title="gray text (oklch(51.6% 0 0)) on purple background (oklch(93% 0.025 300)): 4.53:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.53:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(51.6% 0 0);
+                        background: oklch(93% 0.025 345);
+                      "
+                      title="gray text (oklch(51.6% 0 0)) on pink background (oklch(93% 0.025 345)): 4.52:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
                       ><span class="ratio">4.52:1</span>
                     </td>
                   </tr>
                   <tr>
-                    <th scope="row">yellow<span class="hex">#816201</span></th>
+                    <th scope="row">
+                      brown<span class="hex">oklch(48.5% 0.06 50)</span>
+                    </th>
                     <td
-                      style="color: #816201; background: #ffffff"
-                      title="yellow text (#816201) on default background (#ffffff): 5.71:1; meets 4.5:1"
+                      style="
+                        color: oklch(48.5% 0.06 50);
+                        background: oklch(100% 0 0);
+                      "
+                      title="brown text (oklch(48.5% 0.06 50)) on default background (oklch(100% 0 0)): 6.53:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">5.71:1</span>
+                      ><span class="ratio">6.53:1</span>
                     </td>
                     <td
-                      style="color: #816201; background: #ebeced"
-                      title="yellow text (#816201) on gray background (#ebeced): 4.82:1; meets 4.5:1"
+                      style="
+                        color: oklch(48.5% 0.06 50);
+                        background: oklch(93% 0 0);
+                      "
+                      title="brown text (oklch(48.5% 0.06 50)) on gray background (oklch(93% 0 0)): 5.32:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">4.82:1</span>
+                      ><span class="ratio">5.32:1</span>
                     </td>
                     <td
-                      style="color: #816201; background: #e9e5e3"
-                      title="yellow text (#816201) on brown background (#e9e5e3): 4.56:1; meets 4.5:1"
+                      style="
+                        color: oklch(48.5% 0.06 50);
+                        background: oklch(93% 0.015 50);
+                      "
+                      title="brown text (oklch(48.5% 0.06 50)) on brown background (oklch(93% 0.015 50)): 5.30:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">4.56:1</span>
+                      ><span class="ratio">5.30:1</span>
                     </td>
                     <td
-                      style="color: #816201; background: #fbe4e4"
-                      title="yellow text (#816201) on red background (#fbe4e4): 4.71:1; meets 4.5:1"
+                      style="
+                        color: oklch(48.5% 0.06 50);
+                        background: oklch(93% 0.025 25);
+                      "
+                      title="brown text (oklch(48.5% 0.06 50)) on red background (oklch(93% 0.025 25)): 5.27:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">4.71:1</span>
+                      ><span class="ratio">5.27:1</span>
                     </td>
                     <td
-                      style="color: #816201; background: #f6e9d9"
-                      title="yellow text (#816201) on orange background (#f6e9d9): 4.77:1; meets 4.5:1"
+                      style="
+                        color: oklch(48.5% 0.06 50);
+                        background: oklch(93% 0.025 65);
+                      "
+                      title="brown text (oklch(48.5% 0.06 50)) on orange background (oklch(93% 0.025 65)): 5.30:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.30:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(48.5% 0.06 50);
+                        background: oklch(93% 0.025 95);
+                      "
+                      title="brown text (oklch(48.5% 0.06 50)) on yellow background (oklch(93% 0.025 95)): 5.33:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.33:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(48.5% 0.06 50);
+                        background: oklch(93% 0.025 135);
+                      "
+                      title="brown text (oklch(48.5% 0.06 50)) on green background (oklch(93% 0.025 135)): 5.36:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.36:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(48.5% 0.06 50);
+                        background: oklch(93% 0.025 235);
+                      "
+                      title="brown text (oklch(48.5% 0.06 50)) on blue background (oklch(93% 0.025 235)): 5.34:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.34:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(48.5% 0.06 50);
+                        background: oklch(93% 0.025 300);
+                      "
+                      title="brown text (oklch(48.5% 0.06 50)) on purple background (oklch(93% 0.025 300)): 5.29:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.29:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(48.5% 0.06 50);
+                        background: oklch(93% 0.025 345);
+                      "
+                      title="brown text (oklch(48.5% 0.06 50)) on pink background (oklch(93% 0.025 345)): 5.27:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.27:1</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row">
+                      red<span class="hex">oklch(50.5% 0.1 25)</span>
+                    </th>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 25);
+                        background: oklch(100% 0 0);
+                      "
+                      title="red text (oklch(50.5% 0.1 25)) on default background (oklch(100% 0 0)): 6.17:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">6.17:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 25);
+                        background: oklch(93% 0 0);
+                      "
+                      title="red text (oklch(50.5% 0.1 25)) on gray background (oklch(93% 0 0)): 5.02:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.02:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 25);
+                        background: oklch(93% 0.015 50);
+                      "
+                      title="red text (oklch(50.5% 0.1 25)) on brown background (oklch(93% 0.015 50)): 5.01:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.01:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 25);
+                        background: oklch(93% 0.025 25);
+                      "
+                      title="red text (oklch(50.5% 0.1 25)) on red background (oklch(93% 0.025 25)): 4.98:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.98:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 25);
+                        background: oklch(93% 0.025 65);
+                      "
+                      title="red text (oklch(50.5% 0.1 25)) on orange background (oklch(93% 0.025 65)): 5.01:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.01:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 25);
+                        background: oklch(93% 0.025 95);
+                      "
+                      title="red text (oklch(50.5% 0.1 25)) on yellow background (oklch(93% 0.025 95)): 5.03:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.03:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 25);
+                        background: oklch(93% 0.025 135);
+                      "
+                      title="red text (oklch(50.5% 0.1 25)) on green background (oklch(93% 0.025 135)): 5.06:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.06:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 25);
+                        background: oklch(93% 0.025 235);
+                      "
+                      title="red text (oklch(50.5% 0.1 25)) on blue background (oklch(93% 0.025 235)): 5.05:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.05:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 25);
+                        background: oklch(93% 0.025 300);
+                      "
+                      title="red text (oklch(50.5% 0.1 25)) on purple background (oklch(93% 0.025 300)): 4.99:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.99:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 25);
+                        background: oklch(93% 0.025 345);
+                      "
+                      title="red text (oklch(50.5% 0.1 25)) on pink background (oklch(93% 0.025 345)): 4.97:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.97:1</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row">
+                      orange<span class="hex">oklch(50.5% 0.1 65)</span>
+                    </th>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 65);
+                        background: oklch(100% 0 0);
+                      "
+                      title="orange text (oklch(50.5% 0.1 65)) on default background (oklch(100% 0 0)): 6.03:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">6.03:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 65);
+                        background: oklch(93% 0 0);
+                      "
+                      title="orange text (oklch(50.5% 0.1 65)) on gray background (oklch(93% 0 0)): 4.90:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.90:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 65);
+                        background: oklch(93% 0.015 50);
+                      "
+                      title="orange text (oklch(50.5% 0.1 65)) on brown background (oklch(93% 0.015 50)): 4.89:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.89:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 65);
+                        background: oklch(93% 0.025 25);
+                      "
+                      title="orange text (oklch(50.5% 0.1 65)) on red background (oklch(93% 0.025 25)): 4.86:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.86:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 65);
+                        background: oklch(93% 0.025 65);
+                      "
+                      title="orange text (oklch(50.5% 0.1 65)) on orange background (oklch(93% 0.025 65)): 4.89:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.89:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 65);
+                        background: oklch(93% 0.025 95);
+                      "
+                      title="orange text (oklch(50.5% 0.1 65)) on yellow background (oklch(93% 0.025 95)): 4.91:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.91:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 65);
+                        background: oklch(93% 0.025 135);
+                      "
+                      title="orange text (oklch(50.5% 0.1 65)) on green background (oklch(93% 0.025 135)): 4.94:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.94:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 65);
+                        background: oklch(93% 0.025 235);
+                      "
+                      title="orange text (oklch(50.5% 0.1 65)) on blue background (oklch(93% 0.025 235)): 4.93:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.93:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 65);
+                        background: oklch(93% 0.025 300);
+                      "
+                      title="orange text (oklch(50.5% 0.1 65)) on purple background (oklch(93% 0.025 300)): 4.88:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.88:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 65);
+                        background: oklch(93% 0.025 345);
+                      "
+                      title="orange text (oklch(50.5% 0.1 65)) on pink background (oklch(93% 0.025 345)): 4.86:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.86:1</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row">
+                      yellow<span class="hex">oklch(50.5% 0.1 95)</span>
+                    </th>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 95);
+                        background: oklch(100% 0 0);
+                      "
+                      title="yellow text (oklch(50.5% 0.1 95)) on default background (oklch(100% 0 0)): 5.87:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.87:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 95);
+                        background: oklch(93% 0 0);
+                      "
+                      title="yellow text (oklch(50.5% 0.1 95)) on gray background (oklch(93% 0 0)): 4.77:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
                       ><span class="ratio">4.77:1</span>
                     </td>
                     <td
-                      style="color: #816201; background: #fbf3db"
-                      title="yellow text (#816201) on yellow background (#fbf3db): 5.15:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">5.15:1</span>
-                    </td>
-                    <td
-                      style="color: #816201; background: #e5edda"
-                      title="yellow text (#816201) on green background (#e5edda): 4.74:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.74:1</span>
-                    </td>
-                    <td
-                      style="color: #816201; background: #ddebf1"
-                      title="yellow text (#816201) on blue background (#ddebf1): 4.68:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.68:1</span>
-                    </td>
-                    <td
-                      style="color: #816201; background: #eae4f2"
-                      title="yellow text (#816201) on purple background (#eae4f2): 4.59:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.59:1</span>
-                    </td>
-                    <td
-                      style="color: #816201; background: #f4dfeb"
-                      title="yellow text (#816201) on pink background (#f4dfeb): 4.51:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.51:1</span>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th scope="row">green<span class="hex">#596c40</span></th>
-                    <td
-                      style="color: #596c40; background: #ffffff"
-                      title="green text (#596c40) on default background (#ffffff): 5.76:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">5.76:1</span>
-                    </td>
-                    <td
-                      style="color: #596c40; background: #ebeced"
-                      title="green text (#596c40) on gray background (#ebeced): 4.87:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.87:1</span>
-                    </td>
-                    <td
-                      style="color: #596c40; background: #e9e5e3"
-                      title="green text (#596c40) on brown background (#e9e5e3): 4.61:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.61:1</span>
-                    </td>
-                    <td
-                      style="color: #596c40; background: #fbe4e4"
-                      title="green text (#596c40) on red background (#fbe4e4): 4.75:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.75:1</span>
-                    </td>
-                    <td
-                      style="color: #596c40; background: #f6e9d9"
-                      title="green text (#596c40) on orange background (#f6e9d9): 4.82:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.82:1</span>
-                    </td>
-                    <td
-                      style="color: #596c40; background: #fbf3db"
-                      title="green text (#596c40) on yellow background (#fbf3db): 5.20:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">5.20:1</span>
-                    </td>
-                    <td
-                      style="color: #596c40; background: #e5edda"
-                      title="green text (#596c40) on green background (#e5edda): 4.79:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.79:1</span>
-                    </td>
-                    <td
-                      style="color: #596c40; background: #ddebf1"
-                      title="green text (#596c40) on blue background (#ddebf1): 4.73:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.73:1</span>
-                    </td>
-                    <td
-                      style="color: #596c40; background: #eae4f2"
-                      title="green text (#596c40) on purple background (#eae4f2): 4.63:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.63:1</span>
-                    </td>
-                    <td
-                      style="color: #596c40; background: #f4dfeb"
-                      title="green text (#596c40) on pink background (#f4dfeb): 4.56:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.56:1</span>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th scope="row">blue<span class="hex">#0b6d99</span></th>
-                    <td
-                      style="color: #0b6d99; background: #ffffff"
-                      title="blue text (#0b6d99) on default background (#ffffff): 5.74:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">5.74:1</span>
-                    </td>
-                    <td
-                      style="color: #0b6d99; background: #ebeced"
-                      title="blue text (#0b6d99) on gray background (#ebeced): 4.85:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.85:1</span>
-                    </td>
-                    <td
-                      style="color: #0b6d99; background: #e9e5e3"
-                      title="blue text (#0b6d99) on brown background (#e9e5e3): 4.58:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.58:1</span>
-                    </td>
-                    <td
-                      style="color: #0b6d99; background: #fbe4e4"
-                      title="blue text (#0b6d99) on red background (#fbe4e4): 4.73:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.73:1</span>
-                    </td>
-                    <td
-                      style="color: #0b6d99; background: #f6e9d9"
-                      title="blue text (#0b6d99) on orange background (#f6e9d9): 4.80:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.80:1</span>
-                    </td>
-                    <td
-                      style="color: #0b6d99; background: #fbf3db"
-                      title="blue text (#0b6d99) on yellow background (#fbf3db): 5.17:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">5.17:1</span>
-                    </td>
-                    <td
-                      style="color: #0b6d99; background: #e5edda"
-                      title="blue text (#0b6d99) on green background (#e5edda): 4.77:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.77:1</span>
-                    </td>
-                    <td
-                      style="color: #0b6d99; background: #ddebf1"
-                      title="blue text (#0b6d99) on blue background (#ddebf1): 4.70:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.70:1</span>
-                    </td>
-                    <td
-                      style="color: #0b6d99; background: #eae4f2"
-                      title="blue text (#0b6d99) on purple background (#eae4f2): 4.61:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.61:1</span>
-                    </td>
-                    <td
-                      style="color: #0b6d99; background: #f4dfeb"
-                      title="blue text (#0b6d99) on pink background (#f4dfeb): 4.53:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.53:1</span>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th scope="row">purple<span class="hex">#7b4fbb</span></th>
-                    <td
-                      style="color: #7b4fbb; background: #ffffff"
-                      title="purple text (#7b4fbb) on default background (#ffffff): 5.71:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">5.71:1</span>
-                    </td>
-                    <td
-                      style="color: #7b4fbb; background: #ebeced"
-                      title="purple text (#7b4fbb) on gray background (#ebeced): 4.83:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.83:1</span>
-                    </td>
-                    <td
-                      style="color: #7b4fbb; background: #e9e5e3"
-                      title="purple text (#7b4fbb) on brown background (#e9e5e3): 4.56:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.56:1</span>
-                    </td>
-                    <td
-                      style="color: #7b4fbb; background: #fbe4e4"
-                      title="purple text (#7b4fbb) on red background (#fbe4e4): 4.71:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.71:1</span>
-                    </td>
-                    <td
-                      style="color: #7b4fbb; background: #f6e9d9"
-                      title="purple text (#7b4fbb) on orange background (#f6e9d9): 4.78:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.78:1</span>
-                    </td>
-                    <td
-                      style="color: #7b4fbb; background: #fbf3db"
-                      title="purple text (#7b4fbb) on yellow background (#fbf3db): 5.15:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">5.15:1</span>
-                    </td>
-                    <td
-                      style="color: #7b4fbb; background: #e5edda"
-                      title="purple text (#7b4fbb) on green background (#e5edda): 4.75:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.75:1</span>
-                    </td>
-                    <td
-                      style="color: #7b4fbb; background: #ddebf1"
-                      title="purple text (#7b4fbb) on blue background (#ddebf1): 4.68:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.68:1</span>
-                    </td>
-                    <td
-                      style="color: #7b4fbb; background: #eae4f2"
-                      title="purple text (#7b4fbb) on purple background (#eae4f2): 4.59:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.59:1</span>
-                    </td>
-                    <td
-                      style="color: #7b4fbb; background: #f4dfeb"
-                      title="purple text (#7b4fbb) on pink background (#f4dfeb): 4.51:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.51:1</span>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th scope="row">pink<span class="hex">#be1d7e</span></th>
-                    <td
-                      style="color: #be1d7e; background: #ffffff"
-                      title="pink text (#be1d7e) on default background (#ffffff): 5.73:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">5.73:1</span>
-                    </td>
-                    <td
-                      style="color: #be1d7e; background: #ebeced"
-                      title="pink text (#be1d7e) on gray background (#ebeced): 4.84:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.84:1</span>
-                    </td>
-                    <td
-                      style="color: #be1d7e; background: #e9e5e3"
-                      title="pink text (#be1d7e) on brown background (#e9e5e3): 4.58:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.58:1</span>
-                    </td>
-                    <td
-                      style="color: #be1d7e; background: #fbe4e4"
-                      title="pink text (#be1d7e) on red background (#fbe4e4): 4.72:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.72:1</span>
-                    </td>
-                    <td
-                      style="color: #be1d7e; background: #f6e9d9"
-                      title="pink text (#be1d7e) on orange background (#f6e9d9): 4.79:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.79:1</span>
-                    </td>
-                    <td
-                      style="color: #be1d7e; background: #fbf3db"
-                      title="pink text (#be1d7e) on yellow background (#fbf3db): 5.17:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">5.17:1</span>
-                    </td>
-                    <td
-                      style="color: #be1d7e; background: #e5edda"
-                      title="pink text (#be1d7e) on green background (#e5edda): 4.76:1; meets 4.5:1"
+                      style="
+                        color: oklch(50.5% 0.1 95);
+                        background: oklch(93% 0.015 50);
+                      "
+                      title="yellow text (oklch(50.5% 0.1 95)) on brown background (oklch(93% 0.015 50)): 4.76:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
                       ><span class="ratio">4.76:1</span>
                     </td>
                     <td
-                      style="color: #be1d7e; background: #ddebf1"
-                      title="pink text (#be1d7e) on blue background (#ddebf1): 4.70:1; meets 4.5:1"
+                      style="
+                        color: oklch(50.5% 0.1 95);
+                        background: oklch(93% 0.025 25);
+                      "
+                      title="yellow text (oklch(50.5% 0.1 95)) on red background (oklch(93% 0.025 25)): 4.73:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">4.70:1</span>
+                      ><span class="ratio">4.73:1</span>
                     </td>
                     <td
-                      style="color: #be1d7e; background: #eae4f2"
-                      title="pink text (#be1d7e) on purple background (#eae4f2): 4.60:1; meets 4.5:1"
+                      style="
+                        color: oklch(50.5% 0.1 95);
+                        background: oklch(93% 0.025 65);
+                      "
+                      title="yellow text (oklch(50.5% 0.1 95)) on orange background (oklch(93% 0.025 65)): 4.76:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.76:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 95);
+                        background: oklch(93% 0.025 95);
+                      "
+                      title="yellow text (oklch(50.5% 0.1 95)) on yellow background (oklch(93% 0.025 95)): 4.78:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.78:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 95);
+                        background: oklch(93% 0.025 135);
+                      "
+                      title="yellow text (oklch(50.5% 0.1 95)) on green background (oklch(93% 0.025 135)): 4.81:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.81:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 95);
+                        background: oklch(93% 0.025 235);
+                      "
+                      title="yellow text (oklch(50.5% 0.1 95)) on blue background (oklch(93% 0.025 235)): 4.79:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.79:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 95);
+                        background: oklch(93% 0.025 300);
+                      "
+                      title="yellow text (oklch(50.5% 0.1 95)) on purple background (oklch(93% 0.025 300)): 4.74:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.74:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 95);
+                        background: oklch(93% 0.025 345);
+                      "
+                      title="yellow text (oklch(50.5% 0.1 95)) on pink background (oklch(93% 0.025 345)): 4.73:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.73:1</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row">
+                      green<span class="hex">oklch(50.5% 0.1 135)</span>
+                    </th>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 135);
+                        background: oklch(100% 0 0);
+                      "
+                      title="green text (oklch(50.5% 0.1 135)) on default background (oklch(100% 0 0)): 5.66:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.66:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 135);
+                        background: oklch(93% 0 0);
+                      "
+                      title="green text (oklch(50.5% 0.1 135)) on gray background (oklch(93% 0 0)): 4.60:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
                       ><span class="ratio">4.60:1</span>
                     </td>
                     <td
-                      style="color: #be1d7e; background: #f4dfeb"
-                      title="pink text (#be1d7e) on pink background (#f4dfeb): 4.53:1; meets 4.5:1"
+                      style="
+                        color: oklch(50.5% 0.1 135);
+                        background: oklch(93% 0.015 50);
+                      "
+                      title="green text (oklch(50.5% 0.1 135)) on brown background (oklch(93% 0.015 50)): 4.59:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">4.53:1</span>
+                      ><span class="ratio">4.59:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 135);
+                        background: oklch(93% 0.025 25);
+                      "
+                      title="green text (oklch(50.5% 0.1 135)) on red background (oklch(93% 0.025 25)): 4.56:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.56:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 135);
+                        background: oklch(93% 0.025 65);
+                      "
+                      title="green text (oklch(50.5% 0.1 135)) on orange background (oklch(93% 0.025 65)): 4.59:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.59:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 135);
+                        background: oklch(93% 0.025 95);
+                      "
+                      title="green text (oklch(50.5% 0.1 135)) on yellow background (oklch(93% 0.025 95)): 4.61:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.61:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 135);
+                        background: oklch(93% 0.025 135);
+                      "
+                      title="green text (oklch(50.5% 0.1 135)) on green background (oklch(93% 0.025 135)): 4.64:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.64:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 135);
+                        background: oklch(93% 0.025 235);
+                      "
+                      title="green text (oklch(50.5% 0.1 135)) on blue background (oklch(93% 0.025 235)): 4.62:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.62:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 135);
+                        background: oklch(93% 0.025 300);
+                      "
+                      title="green text (oklch(50.5% 0.1 135)) on purple background (oklch(93% 0.025 300)): 4.58:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.58:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 135);
+                        background: oklch(93% 0.025 345);
+                      "
+                      title="green text (oklch(50.5% 0.1 135)) on pink background (oklch(93% 0.025 345)): 4.56:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.56:1</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row">
+                      blue<span class="hex">oklch(50.5% 0.1 235)</span>
+                    </th>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 235);
+                        background: oklch(100% 0 0);
+                      "
+                      title="blue text (oklch(50.5% 0.1 235)) on default background (oklch(100% 0 0)): 5.76:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.76:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 235);
+                        background: oklch(93% 0 0);
+                      "
+                      title="blue text (oklch(50.5% 0.1 235)) on gray background (oklch(93% 0 0)): 4.69:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.69:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 235);
+                        background: oklch(93% 0.015 50);
+                      "
+                      title="blue text (oklch(50.5% 0.1 235)) on brown background (oklch(93% 0.015 50)): 4.67:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.67:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 235);
+                        background: oklch(93% 0.025 25);
+                      "
+                      title="blue text (oklch(50.5% 0.1 235)) on red background (oklch(93% 0.025 25)): 4.65:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.65:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 235);
+                        background: oklch(93% 0.025 65);
+                      "
+                      title="blue text (oklch(50.5% 0.1 235)) on orange background (oklch(93% 0.025 65)): 4.67:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.67:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 235);
+                        background: oklch(93% 0.025 95);
+                      "
+                      title="blue text (oklch(50.5% 0.1 235)) on yellow background (oklch(93% 0.025 95)): 4.70:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.70:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 235);
+                        background: oklch(93% 0.025 135);
+                      "
+                      title="blue text (oklch(50.5% 0.1 235)) on green background (oklch(93% 0.025 135)): 4.72:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.72:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 235);
+                        background: oklch(93% 0.025 235);
+                      "
+                      title="blue text (oklch(50.5% 0.1 235)) on blue background (oklch(93% 0.025 235)): 4.71:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.71:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 235);
+                        background: oklch(93% 0.025 300);
+                      "
+                      title="blue text (oklch(50.5% 0.1 235)) on purple background (oklch(93% 0.025 300)): 4.66:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.66:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 235);
+                        background: oklch(93% 0.025 345);
+                      "
+                      title="blue text (oklch(50.5% 0.1 235)) on pink background (oklch(93% 0.025 345)): 4.64:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.64:1</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row">
+                      purple<span class="hex">oklch(50.5% 0.1 300)</span>
+                    </th>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 300);
+                        background: oklch(100% 0 0);
+                      "
+                      title="purple text (oklch(50.5% 0.1 300)) on default background (oklch(100% 0 0)): 6.11:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">6.11:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 300);
+                        background: oklch(93% 0 0);
+                      "
+                      title="purple text (oklch(50.5% 0.1 300)) on gray background (oklch(93% 0 0)): 4.97:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.97:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 300);
+                        background: oklch(93% 0.015 50);
+                      "
+                      title="purple text (oklch(50.5% 0.1 300)) on brown background (oklch(93% 0.015 50)): 4.96:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.96:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 300);
+                        background: oklch(93% 0.025 25);
+                      "
+                      title="purple text (oklch(50.5% 0.1 300)) on red background (oklch(93% 0.025 25)): 4.93:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.93:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 300);
+                        background: oklch(93% 0.025 65);
+                      "
+                      title="purple text (oklch(50.5% 0.1 300)) on orange background (oklch(93% 0.025 65)): 4.96:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.96:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 300);
+                        background: oklch(93% 0.025 95);
+                      "
+                      title="purple text (oklch(50.5% 0.1 300)) on yellow background (oklch(93% 0.025 95)): 4.98:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.98:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 300);
+                        background: oklch(93% 0.025 135);
+                      "
+                      title="purple text (oklch(50.5% 0.1 300)) on green background (oklch(93% 0.025 135)): 5.01:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.01:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 300);
+                        background: oklch(93% 0.025 235);
+                      "
+                      title="purple text (oklch(50.5% 0.1 300)) on blue background (oklch(93% 0.025 235)): 5.00:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.00:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 300);
+                        background: oklch(93% 0.025 300);
+                      "
+                      title="purple text (oklch(50.5% 0.1 300)) on purple background (oklch(93% 0.025 300)): 4.95:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.95:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 300);
+                        background: oklch(93% 0.025 345);
+                      "
+                      title="purple text (oklch(50.5% 0.1 300)) on pink background (oklch(93% 0.025 345)): 4.93:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.93:1</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row">
+                      pink<span class="hex">oklch(50.5% 0.1 345)</span>
+                    </th>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 345);
+                        background: oklch(100% 0 0);
+                      "
+                      title="pink text (oklch(50.5% 0.1 345)) on default background (oklch(100% 0 0)): 6.21:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">6.21:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 345);
+                        background: oklch(93% 0 0);
+                      "
+                      title="pink text (oklch(50.5% 0.1 345)) on gray background (oklch(93% 0 0)): 5.05:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.05:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 345);
+                        background: oklch(93% 0.015 50);
+                      "
+                      title="pink text (oklch(50.5% 0.1 345)) on brown background (oklch(93% 0.015 50)): 5.03:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.03:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 345);
+                        background: oklch(93% 0.025 25);
+                      "
+                      title="pink text (oklch(50.5% 0.1 345)) on red background (oklch(93% 0.025 25)): 5.01:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.01:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 345);
+                        background: oklch(93% 0.025 65);
+                      "
+                      title="pink text (oklch(50.5% 0.1 345)) on orange background (oklch(93% 0.025 65)): 5.03:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.03:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 345);
+                        background: oklch(93% 0.025 95);
+                      "
+                      title="pink text (oklch(50.5% 0.1 345)) on yellow background (oklch(93% 0.025 95)): 5.06:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.06:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 345);
+                        background: oklch(93% 0.025 135);
+                      "
+                      title="pink text (oklch(50.5% 0.1 345)) on green background (oklch(93% 0.025 135)): 5.09:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.09:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 345);
+                        background: oklch(93% 0.025 235);
+                      "
+                      title="pink text (oklch(50.5% 0.1 345)) on blue background (oklch(93% 0.025 235)): 5.07:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.07:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 345);
+                        background: oklch(93% 0.025 300);
+                      "
+                      title="pink text (oklch(50.5% 0.1 345)) on purple background (oklch(93% 0.025 300)): 5.02:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.02:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(50.5% 0.1 345);
+                        background: oklch(93% 0.025 345);
+                      "
+                      title="pink text (oklch(50.5% 0.1 345)) on pink background (oklch(93% 0.025 345)): 5.00:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.00:1</span>
                     </td>
                   </tr>
                 </tbody>
@@ -2452,747 +2787,1081 @@
                 <thead>
                   <tr>
                     <th scope="col">Text ↓<br />Background →</th>
-                    <th scope="col">default<span class="hex">#1f1f1f</span></th>
-                    <th scope="col">gray<span class="hex">#393838</span></th>
-                    <th scope="col">brown<span class="hex">#44352e</span></th>
-                    <th scope="col">red<span class="hex">#5e2727</span></th>
-                    <th scope="col">orange<span class="hex">#4d3219</span></th>
-                    <th scope="col">yellow<span class="hex">#413718</span></th>
-                    <th scope="col">green<span class="hex">#353a29</span></th>
-                    <th scope="col">blue<span class="hex">#183c4d</span></th>
-                    <th scope="col">purple<span class="hex">#422f5e</span></th>
-                    <th scope="col">pink<span class="hex">#631d47</span></th>
+                    <th scope="col">
+                      default<span class="hex">oklch(24% 0 0)</span>
+                    </th>
+                    <th scope="col">
+                      gray<span class="hex">oklch(34% 0 0)</span>
+                    </th>
+                    <th scope="col">
+                      brown<span class="hex">oklch(34% 0.035 50)</span>
+                    </th>
+                    <th scope="col">
+                      red<span class="hex">oklch(34% 0.065 25)</span>
+                    </th>
+                    <th scope="col">
+                      orange<span class="hex">oklch(34% 0.065 65)</span>
+                    </th>
+                    <th scope="col">
+                      yellow<span class="hex">oklch(34% 0.065 95)</span>
+                    </th>
+                    <th scope="col">
+                      green<span class="hex">oklch(34% 0.065 135)</span>
+                    </th>
+                    <th scope="col">
+                      blue<span class="hex">oklch(34% 0.065 235)</span>
+                    </th>
+                    <th scope="col">
+                      purple<span class="hex">oklch(34% 0.065 300)</span>
+                    </th>
+                    <th scope="col">
+                      pink<span class="hex">oklch(34% 0.065 345)</span>
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <th scope="row">default<span class="hex">#cfcfcf</span></th>
+                    <th scope="row">
+                      default<span class="hex">oklch(85% 0 0)</span>
+                    </th>
                     <td
-                      style="color: #cfcfcf; background: #1f1f1f"
-                      title="default text (#cfcfcf) on default background (#1f1f1f): 10.58:1; meets 4.5:1"
+                      style="color: oklch(85% 0 0); background: oklch(24% 0 0)"
+                      title="default text (oklch(85% 0 0)) on default background (oklch(24% 0 0)): 10.41:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">10.58:1</span>
+                      ><span class="ratio">10.41:1</span>
                     </td>
                     <td
-                      style="color: #cfcfcf; background: #393838"
-                      title="default text (#cfcfcf) on gray background (#393838): 7.50:1; meets 4.5:1"
+                      style="color: oklch(85% 0 0); background: oklch(34% 0 0)"
+                      title="default text (oklch(85% 0 0)) on gray background (oklch(34% 0 0)): 7.44:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">7.50:1</span>
+                      ><span class="ratio">7.44:1</span>
                     </td>
                     <td
-                      style="color: #cfcfcf; background: #44352e"
-                      title="default text (#cfcfcf) on brown background (#44352e): 7.51:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">7.51:1</span>
-                    </td>
-                    <td
-                      style="color: #cfcfcf; background: #5e2727"
-                      title="default text (#cfcfcf) on red background (#5e2727): 7.51:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">7.51:1</span>
-                    </td>
-                    <td
-                      style="color: #cfcfcf; background: #4d3219"
-                      title="default text (#cfcfcf) on orange background (#4d3219): 7.55:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">7.55:1</span>
-                    </td>
-                    <td
-                      style="color: #cfcfcf; background: #413718"
-                      title="default text (#cfcfcf) on yellow background (#413718): 7.55:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">7.55:1</span>
-                    </td>
-                    <td
-                      style="color: #cfcfcf; background: #353a29"
-                      title="default text (#cfcfcf) on green background (#353a29): 7.54:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">7.54:1</span>
-                    </td>
-                    <td
-                      style="color: #cfcfcf; background: #183c4d"
-                      title="default text (#cfcfcf) on blue background (#183c4d): 7.52:1; meets 4.5:1"
+                      style="
+                        color: oklch(85% 0 0);
+                        background: oklch(34% 0.035 50);
+                      "
+                      title="default text (oklch(85% 0 0)) on brown background (oklch(34% 0.035 50)): 7.52:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
                       ><span class="ratio">7.52:1</span>
                     </td>
                     <td
-                      style="color: #cfcfcf; background: #422f5e"
-                      title="default text (#cfcfcf) on purple background (#422f5e): 7.49:1; meets 4.5:1"
+                      style="
+                        color: oklch(85% 0 0);
+                        background: oklch(34% 0.065 25);
+                      "
+                      title="default text (oklch(85% 0 0)) on red background (oklch(34% 0.065 25)): 7.66:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">7.49:1</span>
+                      ><span class="ratio">7.66:1</span>
                     </td>
                     <td
-                      style="color: #cfcfcf; background: #631d47"
-                      title="default text (#cfcfcf) on pink background (#631d47): 7.50:1; meets 4.5:1"
+                      style="
+                        color: oklch(85% 0 0);
+                        background: oklch(34% 0.065 65);
+                      "
+                      title="default text (oklch(85% 0 0)) on orange background (oklch(34% 0.065 65)): 7.55:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">7.50:1</span>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th scope="row">gray<span class="hex">#bebdb8</span></th>
-                    <td
-                      style="color: #bebdb8; background: #1f1f1f"
-                      title="gray text (#bebdb8) on default background (#1f1f1f): 8.76:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">8.76:1</span>
+                      ><span class="ratio">7.55:1</span>
                     </td>
                     <td
-                      style="color: #bebdb8; background: #393838"
-                      title="gray text (#bebdb8) on gray background (#393838): 6.21:1; meets 4.5:1"
+                      style="
+                        color: oklch(85% 0 0);
+                        background: oklch(34% 0.065 95);
+                      "
+                      title="default text (oklch(85% 0 0)) on yellow background (oklch(34% 0.065 95)): 7.43:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">6.21:1</span>
+                      ><span class="ratio">7.43:1</span>
                     </td>
                     <td
-                      style="color: #bebdb8; background: #44352e"
-                      title="gray text (#bebdb8) on brown background (#44352e): 6.22:1; meets 4.5:1"
+                      style="
+                        color: oklch(85% 0 0);
+                        background: oklch(34% 0.065 135);
+                      "
+                      title="default text (oklch(85% 0 0)) on green background (oklch(34% 0.065 135)): 7.27:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">6.22:1</span>
+                      ><span class="ratio">7.27:1</span>
                     </td>
                     <td
-                      style="color: #bebdb8; background: #5e2727"
-                      title="gray text (#bebdb8) on red background (#5e2727): 6.22:1; meets 4.5:1"
+                      style="
+                        color: oklch(85% 0 0);
+                        background: oklch(34% 0.065 235);
+                      "
+                      title="default text (oklch(85% 0 0)) on blue background (oklch(34% 0.065 235)): 7.35:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">6.22:1</span>
+                      ><span class="ratio">7.35:1</span>
                     </td>
                     <td
-                      style="color: #bebdb8; background: #4d3219"
-                      title="gray text (#bebdb8) on orange background (#4d3219): 6.25:1; meets 4.5:1"
+                      style="
+                        color: oklch(85% 0 0);
+                        background: oklch(34% 0.065 300);
+                      "
+                      title="default text (oklch(85% 0 0)) on purple background (oklch(34% 0.065 300)): 7.61:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">6.25:1</span>
+                      ><span class="ratio">7.61:1</span>
                     </td>
                     <td
-                      style="color: #bebdb8; background: #413718"
-                      title="gray text (#bebdb8) on yellow background (#413718): 6.25:1; meets 4.5:1"
+                      style="
+                        color: oklch(85% 0 0);
+                        background: oklch(34% 0.065 345);
+                      "
+                      title="default text (oklch(85% 0 0)) on pink background (oklch(34% 0.065 345)): 7.68:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">6.25:1</span>
-                    </td>
-                    <td
-                      style="color: #bebdb8; background: #353a29"
-                      title="gray text (#bebdb8) on green background (#353a29): 6.24:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">6.24:1</span>
-                    </td>
-                    <td
-                      style="color: #bebdb8; background: #183c4d"
-                      title="gray text (#bebdb8) on blue background (#183c4d): 6.23:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">6.23:1</span>
-                    </td>
-                    <td
-                      style="color: #bebdb8; background: #422f5e"
-                      title="gray text (#bebdb8) on purple background (#422f5e): 6.20:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">6.20:1</span>
-                    </td>
-                    <td
-                      style="color: #bebdb8; background: #631d47"
-                      title="gray text (#bebdb8) on pink background (#631d47): 6.21:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">6.21:1</span>
+                      ><span class="ratio">7.68:1</span>
                     </td>
                   </tr>
                   <tr>
-                    <th scope="row">brown<span class="hex">#b9a094</span></th>
+                    <th scope="row">
+                      gray<span class="hex">oklch(71.5% 0 0)</span>
+                    </th>
                     <td
-                      style="color: #b9a094; background: #1f1f1f"
-                      title="brown text (#b9a094) on default background (#1f1f1f): 6.69:1; meets 4.5:1"
+                      style="
+                        color: oklch(71.5% 0 0);
+                        background: oklch(24% 0 0);
+                      "
+                      title="gray text (oklch(71.5% 0 0)) on default background (oklch(24% 0 0)): 6.51:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">6.69:1</span>
+                      ><span class="ratio">6.51:1</span>
                     </td>
                     <td
-                      style="color: #b9a094; background: #393838"
-                      title="brown text (#b9a094) on gray background (#393838): 4.74:1; meets 4.5:1"
+                      style="
+                        color: oklch(71.5% 0 0);
+                        background: oklch(34% 0 0);
+                      "
+                      title="gray text (oklch(71.5% 0 0)) on gray background (oklch(34% 0 0)): 4.65:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">4.74:1</span>
+                      ><span class="ratio">4.65:1</span>
                     </td>
                     <td
-                      style="color: #b9a094; background: #44352e"
-                      title="brown text (#b9a094) on brown background (#44352e): 4.75:1; meets 4.5:1"
+                      style="
+                        color: oklch(71.5% 0 0);
+                        background: oklch(34% 0.035 50);
+                      "
+                      title="gray text (oklch(71.5% 0 0)) on brown background (oklch(34% 0.035 50)): 4.70:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">4.75:1</span>
+                      ><span class="ratio">4.70:1</span>
                     </td>
                     <td
-                      style="color: #b9a094; background: #5e2727"
-                      title="brown text (#b9a094) on red background (#5e2727): 4.74:1; meets 4.5:1"
+                      style="
+                        color: oklch(71.5% 0 0);
+                        background: oklch(34% 0.065 25);
+                      "
+                      title="gray text (oklch(71.5% 0 0)) on red background (oklch(34% 0.065 25)): 4.79:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">4.74:1</span>
+                      ><span class="ratio">4.79:1</span>
                     </td>
                     <td
-                      style="color: #b9a094; background: #4d3219"
-                      title="brown text (#b9a094) on orange background (#4d3219): 4.77:1; meets 4.5:1"
+                      style="
+                        color: oklch(71.5% 0 0);
+                        background: oklch(34% 0.065 65);
+                      "
+                      title="gray text (oklch(71.5% 0 0)) on orange background (oklch(34% 0.065 65)): 4.72:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">4.77:1</span>
+                      ><span class="ratio">4.72:1</span>
                     </td>
                     <td
-                      style="color: #b9a094; background: #413718"
-                      title="brown text (#b9a094) on yellow background (#413718): 4.77:1; meets 4.5:1"
+                      style="
+                        color: oklch(71.5% 0 0);
+                        background: oklch(34% 0.065 95);
+                      "
+                      title="gray text (oklch(71.5% 0 0)) on yellow background (oklch(34% 0.065 95)): 4.65:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">4.77:1</span>
+                      ><span class="ratio">4.65:1</span>
                     </td>
                     <td
-                      style="color: #b9a094; background: #353a29"
-                      title="brown text (#b9a094) on green background (#353a29): 4.76:1; meets 4.5:1"
+                      style="
+                        color: oklch(71.5% 0 0);
+                        background: oklch(34% 0.065 135);
+                      "
+                      title="gray text (oklch(71.5% 0 0)) on green background (oklch(34% 0.065 135)): 4.55:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.55:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(71.5% 0 0);
+                        background: oklch(34% 0.065 235);
+                      "
+                      title="gray text (oklch(71.5% 0 0)) on blue background (oklch(34% 0.065 235)): 4.60:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.60:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(71.5% 0 0);
+                        background: oklch(34% 0.065 300);
+                      "
+                      title="gray text (oklch(71.5% 0 0)) on purple background (oklch(34% 0.065 300)): 4.76:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
                       ><span class="ratio">4.76:1</span>
                     </td>
                     <td
-                      style="color: #b9a094; background: #183c4d"
-                      title="brown text (#b9a094) on blue background (#183c4d): 4.75:1; meets 4.5:1"
+                      style="
+                        color: oklch(71.5% 0 0);
+                        background: oklch(34% 0.065 345);
+                      "
+                      title="gray text (oklch(71.5% 0 0)) on pink background (oklch(34% 0.065 345)): 4.81:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">4.75:1</span>
-                    </td>
-                    <td
-                      style="color: #b9a094; background: #422f5e"
-                      title="brown text (#b9a094) on purple background (#422f5e): 4.73:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.73:1</span>
-                    </td>
-                    <td
-                      style="color: #b9a094; background: #631d47"
-                      title="brown text (#b9a094) on pink background (#631d47): 4.74:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.74:1</span>
+                      ><span class="ratio">4.81:1</span>
                     </td>
                   </tr>
                   <tr>
-                    <th scope="row">red<span class="hex">#f38585</span></th>
+                    <th scope="row">
+                      brown<span class="hex">oklch(73% 0.06 50)</span>
+                    </th>
                     <td
-                      style="color: #f38585; background: #1f1f1f"
-                      title="red text (#f38585) on default background (#1f1f1f): 6.68:1; meets 4.5:1"
+                      style="
+                        color: oklch(73% 0.06 50);
+                        background: oklch(24% 0 0);
+                      "
+                      title="brown text (oklch(73% 0.06 50)) on default background (oklch(24% 0 0)): 6.76:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">6.68:1</span>
+                      ><span class="ratio">6.76:1</span>
                     </td>
                     <td
-                      style="color: #f38585; background: #393838"
-                      title="red text (#f38585) on gray background (#393838): 4.73:1; meets 4.5:1"
+                      style="
+                        color: oklch(73% 0.06 50);
+                        background: oklch(34% 0 0);
+                      "
+                      title="brown text (oklch(73% 0.06 50)) on gray background (oklch(34% 0 0)): 4.83:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.83:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(73% 0.06 50);
+                        background: oklch(34% 0.035 50);
+                      "
+                      title="brown text (oklch(73% 0.06 50)) on brown background (oklch(34% 0.035 50)): 4.89:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.89:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(73% 0.06 50);
+                        background: oklch(34% 0.065 25);
+                      "
+                      title="brown text (oklch(73% 0.06 50)) on red background (oklch(34% 0.065 25)): 4.98:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.98:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(73% 0.06 50);
+                        background: oklch(34% 0.065 65);
+                      "
+                      title="brown text (oklch(73% 0.06 50)) on orange background (oklch(34% 0.065 65)): 4.91:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.91:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(73% 0.06 50);
+                        background: oklch(34% 0.065 95);
+                      "
+                      title="brown text (oklch(73% 0.06 50)) on yellow background (oklch(34% 0.065 95)): 4.83:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">4.83:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(73% 0.06 50);
+                        background: oklch(34% 0.065 135);
+                      "
+                      title="brown text (oklch(73% 0.06 50)) on green background (oklch(34% 0.065 135)): 4.73:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
                       ><span class="ratio">4.73:1</span>
                     </td>
                     <td
-                      style="color: #f38585; background: #44352e"
-                      title="red text (#f38585) on brown background (#44352e): 4.74:1; meets 4.5:1"
+                      style="
+                        color: oklch(73% 0.06 50);
+                        background: oklch(34% 0.065 235);
+                      "
+                      title="brown text (oklch(73% 0.06 50)) on blue background (oklch(34% 0.065 235)): 4.78:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">4.74:1</span>
+                      ><span class="ratio">4.78:1</span>
                     </td>
                     <td
-                      style="color: #f38585; background: #5e2727"
-                      title="red text (#f38585) on red background (#5e2727): 4.74:1; meets 4.5:1"
+                      style="
+                        color: oklch(73% 0.06 50);
+                        background: oklch(34% 0.065 300);
+                      "
+                      title="brown text (oklch(73% 0.06 50)) on purple background (oklch(34% 0.065 300)): 4.95:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">4.74:1</span>
+                      ><span class="ratio">4.95:1</span>
                     </td>
                     <td
-                      style="color: #f38585; background: #4d3219"
-                      title="red text (#f38585) on orange background (#4d3219): 4.76:1; meets 4.5:1"
+                      style="
+                        color: oklch(73% 0.06 50);
+                        background: oklch(34% 0.065 345);
+                      "
+                      title="brown text (oklch(73% 0.06 50)) on pink background (oklch(34% 0.065 345)): 4.99:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">4.76:1</span>
-                    </td>
-                    <td
-                      style="color: #f38585; background: #413718"
-                      title="red text (#f38585) on yellow background (#413718): 4.77:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.77:1</span>
-                    </td>
-                    <td
-                      style="color: #f38585; background: #353a29"
-                      title="red text (#f38585) on green background (#353a29): 4.75:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.75:1</span>
-                    </td>
-                    <td
-                      style="color: #f38585; background: #183c4d"
-                      title="red text (#f38585) on blue background (#183c4d): 4.74:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.74:1</span>
-                    </td>
-                    <td
-                      style="color: #f38585; background: #422f5e"
-                      title="red text (#f38585) on purple background (#422f5e): 4.73:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.73:1</span>
-                    </td>
-                    <td
-                      style="color: #f38585; background: #631d47"
-                      title="red text (#f38585) on pink background (#631d47): 4.73:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.73:1</span>
+                      ><span class="ratio">4.99:1</span>
                     </td>
                   </tr>
                   <tr>
-                    <th scope="row">orange<span class="hex">#e89036</span></th>
+                    <th scope="row">
+                      red<span class="hex">oklch(75% 0.1 25)</span>
+                    </th>
                     <td
-                      style="color: #e89036; background: #1f1f1f"
-                      title="orange text (#e89036) on default background (#1f1f1f): 6.65:1; meets 4.5:1"
+                      style="
+                        color: oklch(75% 0.1 25);
+                        background: oklch(24% 0 0);
+                      "
+                      title="red text (oklch(75% 0.1 25)) on default background (oklch(24% 0 0)): 7.10:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">6.65:1</span>
+                      ><span class="ratio">7.10:1</span>
                     </td>
                     <td
-                      style="color: #e89036; background: #393838"
-                      title="orange text (#e89036) on gray background (#393838): 4.72:1; meets 4.5:1"
+                      style="
+                        color: oklch(75% 0.1 25);
+                        background: oklch(34% 0 0);
+                      "
+                      title="red text (oklch(75% 0.1 25)) on gray background (oklch(34% 0 0)): 5.07:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">4.72:1</span>
+                      ><span class="ratio">5.07:1</span>
                     </td>
                     <td
-                      style="color: #e89036; background: #44352e"
-                      title="orange text (#e89036) on brown background (#44352e): 4.72:1; meets 4.5:1"
+                      style="
+                        color: oklch(75% 0.1 25);
+                        background: oklch(34% 0.035 50);
+                      "
+                      title="red text (oklch(75% 0.1 25)) on brown background (oklch(34% 0.035 50)): 5.13:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">4.72:1</span>
+                      ><span class="ratio">5.13:1</span>
                     </td>
                     <td
-                      style="color: #e89036; background: #5e2727"
-                      title="orange text (#e89036) on red background (#5e2727): 4.72:1; meets 4.5:1"
+                      style="
+                        color: oklch(75% 0.1 25);
+                        background: oklch(34% 0.065 25);
+                      "
+                      title="red text (oklch(75% 0.1 25)) on red background (oklch(34% 0.065 25)): 5.22:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">4.72:1</span>
+                      ><span class="ratio">5.22:1</span>
                     </td>
                     <td
-                      style="color: #e89036; background: #4d3219"
-                      title="orange text (#e89036) on orange background (#4d3219): 4.74:1; meets 4.5:1"
+                      style="
+                        color: oklch(75% 0.1 25);
+                        background: oklch(34% 0.065 65);
+                      "
+                      title="red text (oklch(75% 0.1 25)) on orange background (oklch(34% 0.065 65)): 5.15:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">4.74:1</span>
+                      ><span class="ratio">5.15:1</span>
                     </td>
                     <td
-                      style="color: #e89036; background: #413718"
-                      title="orange text (#e89036) on yellow background (#413718): 4.75:1; meets 4.5:1"
+                      style="
+                        color: oklch(75% 0.1 25);
+                        background: oklch(34% 0.065 95);
+                      "
+                      title="red text (oklch(75% 0.1 25)) on yellow background (oklch(34% 0.065 95)): 5.07:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">4.75:1</span>
+                      ><span class="ratio">5.07:1</span>
                     </td>
                     <td
-                      style="color: #e89036; background: #353a29"
-                      title="orange text (#e89036) on green background (#353a29): 4.74:1; meets 4.5:1"
+                      style="
+                        color: oklch(75% 0.1 25);
+                        background: oklch(34% 0.065 135);
+                      "
+                      title="red text (oklch(75% 0.1 25)) on green background (oklch(34% 0.065 135)): 4.96:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">4.74:1</span>
+                      ><span class="ratio">4.96:1</span>
                     </td>
                     <td
-                      style="color: #e89036; background: #183c4d"
-                      title="orange text (#e89036) on blue background (#183c4d): 4.73:1; meets 4.5:1"
+                      style="
+                        color: oklch(75% 0.1 25);
+                        background: oklch(34% 0.065 235);
+                      "
+                      title="red text (oklch(75% 0.1 25)) on blue background (oklch(34% 0.065 235)): 5.01:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">4.73:1</span>
+                      ><span class="ratio">5.01:1</span>
                     </td>
                     <td
-                      style="color: #e89036; background: #422f5e"
-                      title="orange text (#e89036) on purple background (#422f5e): 4.71:1; meets 4.5:1"
+                      style="
+                        color: oklch(75% 0.1 25);
+                        background: oklch(34% 0.065 300);
+                      "
+                      title="red text (oklch(75% 0.1 25)) on purple background (oklch(34% 0.065 300)): 5.19:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">4.71:1</span>
+                      ><span class="ratio">5.19:1</span>
                     </td>
                     <td
-                      style="color: #e89036; background: #631d47"
-                      title="orange text (#e89036) on pink background (#631d47): 4.71:1; meets 4.5:1"
+                      style="
+                        color: oklch(75% 0.1 25);
+                        background: oklch(34% 0.065 345);
+                      "
+                      title="red text (oklch(75% 0.1 25)) on pink background (oklch(34% 0.065 345)): 5.24:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">4.71:1</span>
+                      ><span class="ratio">5.24:1</span>
                     </td>
                   </tr>
                   <tr>
-                    <th scope="row">yellow<span class="hex">#dfab01</span></th>
+                    <th scope="row">
+                      orange<span class="hex">oklch(75% 0.1 65)</span>
+                    </th>
                     <td
-                      style="color: #dfab01; background: #1f1f1f"
-                      title="yellow text (#dfab01) on default background (#1f1f1f): 7.82:1; meets 4.5:1"
+                      style="
+                        color: oklch(75% 0.1 65);
+                        background: oklch(24% 0 0);
+                      "
+                      title="orange text (oklch(75% 0.1 65)) on default background (oklch(24% 0 0)): 7.25:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">7.82:1</span>
+                      ><span class="ratio">7.25:1</span>
                     </td>
                     <td
-                      style="color: #dfab01; background: #393838"
-                      title="yellow text (#dfab01) on gray background (#393838): 5.55:1; meets 4.5:1"
+                      style="
+                        color: oklch(75% 0.1 65);
+                        background: oklch(34% 0 0);
+                      "
+                      title="orange text (oklch(75% 0.1 65)) on gray background (oklch(34% 0 0)): 5.18:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">5.55:1</span>
+                      ><span class="ratio">5.18:1</span>
                     </td>
                     <td
-                      style="color: #dfab01; background: #44352e"
-                      title="yellow text (#dfab01) on brown background (#44352e): 5.55:1; meets 4.5:1"
+                      style="
+                        color: oklch(75% 0.1 65);
+                        background: oklch(34% 0.035 50);
+                      "
+                      title="orange text (oklch(75% 0.1 65)) on brown background (oklch(34% 0.035 50)): 5.24:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">5.55:1</span>
+                      ><span class="ratio">5.24:1</span>
                     </td>
                     <td
-                      style="color: #dfab01; background: #5e2727"
-                      title="yellow text (#dfab01) on red background (#5e2727): 5.55:1; meets 4.5:1"
+                      style="
+                        color: oklch(75% 0.1 65);
+                        background: oklch(34% 0.065 25);
+                      "
+                      title="orange text (oklch(75% 0.1 65)) on red background (oklch(34% 0.065 25)): 5.33:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">5.55:1</span>
+                      ><span class="ratio">5.33:1</span>
                     </td>
                     <td
-                      style="color: #dfab01; background: #4d3219"
-                      title="yellow text (#dfab01) on orange background (#4d3219): 5.58:1; meets 4.5:1"
+                      style="
+                        color: oklch(75% 0.1 65);
+                        background: oklch(34% 0.065 65);
+                      "
+                      title="orange text (oklch(75% 0.1 65)) on orange background (oklch(34% 0.065 65)): 5.26:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">5.58:1</span>
+                      ><span class="ratio">5.26:1</span>
                     </td>
                     <td
-                      style="color: #dfab01; background: #413718"
-                      title="yellow text (#dfab01) on yellow background (#413718): 5.58:1; meets 4.5:1"
+                      style="
+                        color: oklch(75% 0.1 65);
+                        background: oklch(34% 0.065 95);
+                      "
+                      title="orange text (oklch(75% 0.1 65)) on yellow background (oklch(34% 0.065 95)): 5.18:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">5.58:1</span>
+                      ><span class="ratio">5.18:1</span>
                     </td>
                     <td
-                      style="color: #dfab01; background: #353a29"
-                      title="yellow text (#dfab01) on green background (#353a29): 5.57:1; meets 4.5:1"
+                      style="
+                        color: oklch(75% 0.1 65);
+                        background: oklch(34% 0.065 135);
+                      "
+                      title="orange text (oklch(75% 0.1 65)) on green background (oklch(34% 0.065 135)): 5.07:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">5.57:1</span>
+                      ><span class="ratio">5.07:1</span>
                     </td>
                     <td
-                      style="color: #dfab01; background: #183c4d"
-                      title="yellow text (#dfab01) on blue background (#183c4d): 5.56:1; meets 4.5:1"
+                      style="
+                        color: oklch(75% 0.1 65);
+                        background: oklch(34% 0.065 235);
+                      "
+                      title="orange text (oklch(75% 0.1 65)) on blue background (oklch(34% 0.065 235)): 5.12:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.12:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(75% 0.1 65);
+                        background: oklch(34% 0.065 300);
+                      "
+                      title="orange text (oklch(75% 0.1 65)) on purple background (oklch(34% 0.065 300)): 5.30:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.30:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(75% 0.1 65);
+                        background: oklch(34% 0.065 345);
+                      "
+                      title="orange text (oklch(75% 0.1 65)) on pink background (oklch(34% 0.065 345)): 5.35:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.35:1</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row">
+                      yellow<span class="hex">oklch(75% 0.1 95)</span>
+                    </th>
+                    <td
+                      style="
+                        color: oklch(75% 0.1 95);
+                        background: oklch(24% 0 0);
+                      "
+                      title="yellow text (oklch(75% 0.1 95)) on default background (oklch(24% 0 0)): 7.42:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">7.42:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(75% 0.1 95);
+                        background: oklch(34% 0 0);
+                      "
+                      title="yellow text (oklch(75% 0.1 95)) on gray background (oklch(34% 0 0)): 5.30:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.30:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(75% 0.1 95);
+                        background: oklch(34% 0.035 50);
+                      "
+                      title="yellow text (oklch(75% 0.1 95)) on brown background (oklch(34% 0.035 50)): 5.36:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.36:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(75% 0.1 95);
+                        background: oklch(34% 0.065 25);
+                      "
+                      title="yellow text (oklch(75% 0.1 95)) on red background (oklch(34% 0.065 25)): 5.46:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.46:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(75% 0.1 95);
+                        background: oklch(34% 0.065 65);
+                      "
+                      title="yellow text (oklch(75% 0.1 95)) on orange background (oklch(34% 0.065 65)): 5.38:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.38:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(75% 0.1 95);
+                        background: oklch(34% 0.065 95);
+                      "
+                      title="yellow text (oklch(75% 0.1 95)) on yellow background (oklch(34% 0.065 95)): 5.30:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.30:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(75% 0.1 95);
+                        background: oklch(34% 0.065 135);
+                      "
+                      title="yellow text (oklch(75% 0.1 95)) on green background (oklch(34% 0.065 135)): 5.18:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.18:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(75% 0.1 95);
+                        background: oklch(34% 0.065 235);
+                      "
+                      title="yellow text (oklch(75% 0.1 95)) on blue background (oklch(34% 0.065 235)): 5.24:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.24:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(75% 0.1 95);
+                        background: oklch(34% 0.065 300);
+                      "
+                      title="yellow text (oklch(75% 0.1 95)) on purple background (oklch(34% 0.065 300)): 5.43:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.43:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(75% 0.1 95);
+                        background: oklch(34% 0.065 345);
+                      "
+                      title="yellow text (oklch(75% 0.1 95)) on pink background (oklch(34% 0.065 345)): 5.48:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.48:1</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row">
+                      green<span class="hex">oklch(75% 0.1 135)</span>
+                    </th>
+                    <td
+                      style="
+                        color: oklch(75% 0.1 135);
+                        background: oklch(24% 0 0);
+                      "
+                      title="green text (oklch(75% 0.1 135)) on default background (oklch(24% 0 0)): 7.64:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">7.64:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(75% 0.1 135);
+                        background: oklch(34% 0 0);
+                      "
+                      title="green text (oklch(75% 0.1 135)) on gray background (oklch(34% 0 0)): 5.46:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.46:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(75% 0.1 135);
+                        background: oklch(34% 0.035 50);
+                      "
+                      title="green text (oklch(75% 0.1 135)) on brown background (oklch(34% 0.035 50)): 5.52:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.52:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(75% 0.1 135);
+                        background: oklch(34% 0.065 25);
+                      "
+                      title="green text (oklch(75% 0.1 135)) on red background (oklch(34% 0.065 25)): 5.62:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.62:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(75% 0.1 135);
+                        background: oklch(34% 0.065 65);
+                      "
+                      title="green text (oklch(75% 0.1 135)) on orange background (oklch(34% 0.065 65)): 5.54:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.54:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(75% 0.1 135);
+                        background: oklch(34% 0.065 95);
+                      "
+                      title="green text (oklch(75% 0.1 135)) on yellow background (oklch(34% 0.065 95)): 5.45:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.45:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(75% 0.1 135);
+                        background: oklch(34% 0.065 135);
+                      "
+                      title="green text (oklch(75% 0.1 135)) on green background (oklch(34% 0.065 135)): 5.34:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.34:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(75% 0.1 135);
+                        background: oklch(34% 0.065 235);
+                      "
+                      title="green text (oklch(75% 0.1 135)) on blue background (oklch(34% 0.065 235)): 5.40:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.40:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(75% 0.1 135);
+                        background: oklch(34% 0.065 300);
+                      "
+                      title="green text (oklch(75% 0.1 135)) on purple background (oklch(34% 0.065 300)): 5.59:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.59:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(75% 0.1 135);
+                        background: oklch(34% 0.065 345);
+                      "
+                      title="green text (oklch(75% 0.1 135)) on pink background (oklch(34% 0.065 345)): 5.64:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.64:1</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row">
+                      blue<span class="hex">oklch(75% 0.1 235)</span>
+                    </th>
+                    <td
+                      style="
+                        color: oklch(75% 0.1 235);
+                        background: oklch(24% 0 0);
+                      "
+                      title="blue text (oklch(75% 0.1 235)) on default background (oklch(24% 0 0)): 7.53:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">7.53:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(75% 0.1 235);
+                        background: oklch(34% 0 0);
+                      "
+                      title="blue text (oklch(75% 0.1 235)) on gray background (oklch(34% 0 0)): 5.38:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.38:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(75% 0.1 235);
+                        background: oklch(34% 0.035 50);
+                      "
+                      title="blue text (oklch(75% 0.1 235)) on brown background (oklch(34% 0.035 50)): 5.44:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.44:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(75% 0.1 235);
+                        background: oklch(34% 0.065 25);
+                      "
+                      title="blue text (oklch(75% 0.1 235)) on red background (oklch(34% 0.065 25)): 5.54:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.54:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(75% 0.1 235);
+                        background: oklch(34% 0.065 65);
+                      "
+                      title="blue text (oklch(75% 0.1 235)) on orange background (oklch(34% 0.065 65)): 5.46:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.46:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(75% 0.1 235);
+                        background: oklch(34% 0.065 95);
+                      "
+                      title="blue text (oklch(75% 0.1 235)) on yellow background (oklch(34% 0.065 95)): 5.38:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.38:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(75% 0.1 235);
+                        background: oklch(34% 0.065 135);
+                      "
+                      title="blue text (oklch(75% 0.1 235)) on green background (oklch(34% 0.065 135)): 5.26:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.26:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(75% 0.1 235);
+                        background: oklch(34% 0.065 235);
+                      "
+                      title="blue text (oklch(75% 0.1 235)) on blue background (oklch(34% 0.065 235)): 5.32:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.32:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(75% 0.1 235);
+                        background: oklch(34% 0.065 300);
+                      "
+                      title="blue text (oklch(75% 0.1 235)) on purple background (oklch(34% 0.065 300)): 5.51:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.51:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(75% 0.1 235);
+                        background: oklch(34% 0.065 345);
+                      "
+                      title="blue text (oklch(75% 0.1 235)) on pink background (oklch(34% 0.065 345)): 5.56:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
                       ><span class="ratio">5.56:1</span>
                     </td>
+                  </tr>
+                  <tr>
+                    <th scope="row">
+                      purple<span class="hex">oklch(75% 0.1 300)</span>
+                    </th>
                     <td
-                      style="color: #dfab01; background: #422f5e"
-                      title="yellow text (#dfab01) on purple background (#422f5e): 5.54:1; meets 4.5:1"
+                      style="
+                        color: oklch(75% 0.1 300);
+                        background: oklch(24% 0 0);
+                      "
+                      title="purple text (oklch(75% 0.1 300)) on default background (oklch(24% 0 0)): 7.17:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">5.54:1</span>
+                      ><span class="ratio">7.17:1</span>
                     </td>
                     <td
-                      style="color: #dfab01; background: #631d47"
-                      title="yellow text (#dfab01) on pink background (#631d47): 5.54:1; meets 4.5:1"
+                      style="
+                        color: oklch(75% 0.1 300);
+                        background: oklch(34% 0 0);
+                      "
+                      title="purple text (oklch(75% 0.1 300)) on gray background (oklch(34% 0 0)): 5.12:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">5.54:1</span>
+                      ><span class="ratio">5.12:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(75% 0.1 300);
+                        background: oklch(34% 0.035 50);
+                      "
+                      title="purple text (oklch(75% 0.1 300)) on brown background (oklch(34% 0.035 50)): 5.18:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.18:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(75% 0.1 300);
+                        background: oklch(34% 0.065 25);
+                      "
+                      title="purple text (oklch(75% 0.1 300)) on red background (oklch(34% 0.065 25)): 5.27:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.27:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(75% 0.1 300);
+                        background: oklch(34% 0.065 65);
+                      "
+                      title="purple text (oklch(75% 0.1 300)) on orange background (oklch(34% 0.065 65)): 5.20:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.20:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(75% 0.1 300);
+                        background: oklch(34% 0.065 95);
+                      "
+                      title="purple text (oklch(75% 0.1 300)) on yellow background (oklch(34% 0.065 95)): 5.12:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.12:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(75% 0.1 300);
+                        background: oklch(34% 0.065 135);
+                      "
+                      title="purple text (oklch(75% 0.1 300)) on green background (oklch(34% 0.065 135)): 5.01:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.01:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(75% 0.1 300);
+                        background: oklch(34% 0.065 235);
+                      "
+                      title="purple text (oklch(75% 0.1 300)) on blue background (oklch(34% 0.065 235)): 5.06:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.06:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(75% 0.1 300);
+                        background: oklch(34% 0.065 300);
+                      "
+                      title="purple text (oklch(75% 0.1 300)) on purple background (oklch(34% 0.065 300)): 5.24:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.24:1</span>
+                    </td>
+                    <td
+                      style="
+                        color: oklch(75% 0.1 300);
+                        background: oklch(34% 0.065 345);
+                      "
+                      title="purple text (oklch(75% 0.1 300)) on pink background (oklch(34% 0.065 345)): 5.29:1; meets 4.5:1"
+                    >
+                      <span class="sample">Aa</span
+                      ><span class="ratio">5.29:1</span>
                     </td>
                   </tr>
                   <tr>
-                    <th scope="row">green<span class="hex">#a0aa82</span></th>
+                    <th scope="row">
+                      pink<span class="hex">oklch(75% 0.1 345)</span>
+                    </th>
                     <td
-                      style="color: #a0aa82; background: #1f1f1f"
-                      title="green text (#a0aa82) on default background (#1f1f1f): 6.72:1; meets 4.5:1"
+                      style="
+                        color: oklch(75% 0.1 345);
+                        background: oklch(24% 0 0);
+                      "
+                      title="pink text (oklch(75% 0.1 345)) on default background (oklch(24% 0 0)): 7.06:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">6.72:1</span>
+                      ><span class="ratio">7.06:1</span>
                     </td>
                     <td
-                      style="color: #a0aa82; background: #393838"
-                      title="green text (#a0aa82) on gray background (#393838): 4.77:1; meets 4.5:1"
+                      style="
+                        color: oklch(75% 0.1 345);
+                        background: oklch(34% 0 0);
+                      "
+                      title="pink text (oklch(75% 0.1 345)) on gray background (oklch(34% 0 0)): 5.05:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">4.77:1</span>
+                      ><span class="ratio">5.05:1</span>
                     </td>
                     <td
-                      style="color: #a0aa82; background: #44352e"
-                      title="green text (#a0aa82) on brown background (#44352e): 4.77:1; meets 4.5:1"
+                      style="
+                        color: oklch(75% 0.1 345);
+                        background: oklch(34% 0.035 50);
+                      "
+                      title="pink text (oklch(75% 0.1 345)) on brown background (oklch(34% 0.035 50)): 5.10:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">4.77:1</span>
+                      ><span class="ratio">5.10:1</span>
                     </td>
                     <td
-                      style="color: #a0aa82; background: #5e2727"
-                      title="green text (#a0aa82) on red background (#5e2727): 4.77:1; meets 4.5:1"
+                      style="
+                        color: oklch(75% 0.1 345);
+                        background: oklch(34% 0.065 25);
+                      "
+                      title="pink text (oklch(75% 0.1 345)) on red background (oklch(34% 0.065 25)): 5.19:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">4.77:1</span>
+                      ><span class="ratio">5.19:1</span>
                     </td>
                     <td
-                      style="color: #a0aa82; background: #4d3219"
-                      title="green text (#a0aa82) on orange background (#4d3219): 4.80:1; meets 4.5:1"
+                      style="
+                        color: oklch(75% 0.1 345);
+                        background: oklch(34% 0.065 65);
+                      "
+                      title="pink text (oklch(75% 0.1 345)) on orange background (oklch(34% 0.065 65)): 5.12:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">4.80:1</span>
+                      ><span class="ratio">5.12:1</span>
                     </td>
                     <td
-                      style="color: #a0aa82; background: #413718"
-                      title="green text (#a0aa82) on yellow background (#413718): 4.80:1; meets 4.5:1"
+                      style="
+                        color: oklch(75% 0.1 345);
+                        background: oklch(34% 0.065 95);
+                      "
+                      title="pink text (oklch(75% 0.1 345)) on yellow background (oklch(34% 0.065 95)): 5.04:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">4.80:1</span>
+                      ><span class="ratio">5.04:1</span>
                     </td>
                     <td
-                      style="color: #a0aa82; background: #353a29"
-                      title="green text (#a0aa82) on green background (#353a29): 4.79:1; meets 4.5:1"
+                      style="
+                        color: oklch(75% 0.1 345);
+                        background: oklch(34% 0.065 135);
+                      "
+                      title="pink text (oklch(75% 0.1 345)) on green background (oklch(34% 0.065 135)): 4.93:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">4.79:1</span>
+                      ><span class="ratio">4.93:1</span>
                     </td>
                     <td
-                      style="color: #a0aa82; background: #183c4d"
-                      title="green text (#a0aa82) on blue background (#183c4d): 4.78:1; meets 4.5:1"
+                      style="
+                        color: oklch(75% 0.1 345);
+                        background: oklch(34% 0.065 235);
+                      "
+                      title="pink text (oklch(75% 0.1 345)) on blue background (oklch(34% 0.065 235)): 4.99:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">4.78:1</span>
+                      ><span class="ratio">4.99:1</span>
                     </td>
                     <td
-                      style="color: #a0aa82; background: #422f5e"
-                      title="green text (#a0aa82) on purple background (#422f5e): 4.76:1; meets 4.5:1"
+                      style="
+                        color: oklch(75% 0.1 345);
+                        background: oklch(34% 0.065 300);
+                      "
+                      title="pink text (oklch(75% 0.1 345)) on purple background (oklch(34% 0.065 300)): 5.16:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">4.76:1</span>
+                      ><span class="ratio">5.16:1</span>
                     </td>
                     <td
-                      style="color: #a0aa82; background: #631d47"
-                      title="green text (#a0aa82) on pink background (#631d47): 4.77:1; meets 4.5:1"
+                      style="
+                        color: oklch(75% 0.1 345);
+                        background: oklch(34% 0.065 345);
+                      "
+                      title="pink text (oklch(75% 0.1 345)) on pink background (oklch(34% 0.065 345)): 5.21:1; meets 4.5:1"
                     >
                       <span class="sample">Aa</span
-                      ><span class="ratio">4.77:1</span>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th scope="row">blue<span class="hex">#5eafd2</span></th>
-                    <td
-                      style="color: #5eafd2; background: #1f1f1f"
-                      title="blue text (#5eafd2) on default background (#1f1f1f): 6.70:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">6.70:1</span>
-                    </td>
-                    <td
-                      style="color: #5eafd2; background: #393838"
-                      title="blue text (#5eafd2) on gray background (#393838): 4.75:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.75:1</span>
-                    </td>
-                    <td
-                      style="color: #5eafd2; background: #44352e"
-                      title="blue text (#5eafd2) on brown background (#44352e): 4.76:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.76:1</span>
-                    </td>
-                    <td
-                      style="color: #5eafd2; background: #5e2727"
-                      title="blue text (#5eafd2) on red background (#5e2727): 4.76:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.76:1</span>
-                    </td>
-                    <td
-                      style="color: #5eafd2; background: #4d3219"
-                      title="blue text (#5eafd2) on orange background (#4d3219): 4.78:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.78:1</span>
-                    </td>
-                    <td
-                      style="color: #5eafd2; background: #413718"
-                      title="blue text (#5eafd2) on yellow background (#413718): 4.79:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.79:1</span>
-                    </td>
-                    <td
-                      style="color: #5eafd2; background: #353a29"
-                      title="blue text (#5eafd2) on green background (#353a29): 4.77:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.77:1</span>
-                    </td>
-                    <td
-                      style="color: #5eafd2; background: #183c4d"
-                      title="blue text (#5eafd2) on blue background (#183c4d): 4.76:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.76:1</span>
-                    </td>
-                    <td
-                      style="color: #5eafd2; background: #422f5e"
-                      title="blue text (#5eafd2) on purple background (#422f5e): 4.74:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.74:1</span>
-                    </td>
-                    <td
-                      style="color: #5eafd2; background: #631d47"
-                      title="blue text (#5eafd2) on pink background (#631d47): 4.75:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.75:1</span>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th scope="row">purple<span class="hex">#b596e7</span></th>
-                    <td
-                      style="color: #b596e7; background: #1f1f1f"
-                      title="purple text (#b596e7) on default background (#1f1f1f): 6.66:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">6.66:1</span>
-                    </td>
-                    <td
-                      style="color: #b596e7; background: #393838"
-                      title="purple text (#b596e7) on gray background (#393838): 4.72:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.72:1</span>
-                    </td>
-                    <td
-                      style="color: #b596e7; background: #44352e"
-                      title="purple text (#b596e7) on brown background (#44352e): 4.73:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.73:1</span>
-                    </td>
-                    <td
-                      style="color: #b596e7; background: #5e2727"
-                      title="purple text (#b596e7) on red background (#5e2727): 4.72:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.72:1</span>
-                    </td>
-                    <td
-                      style="color: #b596e7; background: #4d3219"
-                      title="purple text (#b596e7) on orange background (#4d3219): 4.75:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.75:1</span>
-                    </td>
-                    <td
-                      style="color: #b596e7; background: #413718"
-                      title="purple text (#b596e7) on yellow background (#413718): 4.75:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.75:1</span>
-                    </td>
-                    <td
-                      style="color: #b596e7; background: #353a29"
-                      title="purple text (#b596e7) on green background (#353a29): 4.74:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.74:1</span>
-                    </td>
-                    <td
-                      style="color: #b596e7; background: #183c4d"
-                      title="purple text (#b596e7) on blue background (#183c4d): 4.73:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.73:1</span>
-                    </td>
-                    <td
-                      style="color: #b596e7; background: #422f5e"
-                      title="purple text (#b596e7) on purple background (#422f5e): 4.71:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.71:1</span>
-                    </td>
-                    <td
-                      style="color: #b596e7; background: #631d47"
-                      title="purple text (#b596e7) on pink background (#631d47): 4.72:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.72:1</span>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th scope="row">pink<span class="hex">#ea83c1</span></th>
-                    <td
-                      style="color: #ea83c1; background: #1f1f1f"
-                      title="pink text (#ea83c1) on default background (#1f1f1f): 6.68:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">6.68:1</span>
-                    </td>
-                    <td
-                      style="color: #ea83c1; background: #393838"
-                      title="pink text (#ea83c1) on gray background (#393838): 4.74:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.74:1</span>
-                    </td>
-                    <td
-                      style="color: #ea83c1; background: #44352e"
-                      title="pink text (#ea83c1) on brown background (#44352e): 4.75:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.75:1</span>
-                    </td>
-                    <td
-                      style="color: #ea83c1; background: #5e2727"
-                      title="pink text (#ea83c1) on red background (#5e2727): 4.74:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.74:1</span>
-                    </td>
-                    <td
-                      style="color: #ea83c1; background: #4d3219"
-                      title="pink text (#ea83c1) on orange background (#4d3219): 4.77:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.77:1</span>
-                    </td>
-                    <td
-                      style="color: #ea83c1; background: #413718"
-                      title="pink text (#ea83c1) on yellow background (#413718): 4.77:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.77:1</span>
-                    </td>
-                    <td
-                      style="color: #ea83c1; background: #353a29"
-                      title="pink text (#ea83c1) on green background (#353a29): 4.76:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.76:1</span>
-                    </td>
-                    <td
-                      style="color: #ea83c1; background: #183c4d"
-                      title="pink text (#ea83c1) on blue background (#183c4d): 4.75:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.75:1</span>
-                    </td>
-                    <td
-                      style="color: #ea83c1; background: #422f5e"
-                      title="pink text (#ea83c1) on purple background (#422f5e): 4.73:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.73:1</span>
-                    </td>
-                    <td
-                      style="color: #ea83c1; background: #631d47"
-                      title="pink text (#ea83c1) on pink background (#631d47): 4.74:1; meets 4.5:1"
-                    >
-                      <span class="sample">Aa</span
-                      ><span class="ratio">4.74:1</span>
+                      ><span class="ratio">5.21:1</span>
                     </td>
                   </tr>
                 </tbody>
