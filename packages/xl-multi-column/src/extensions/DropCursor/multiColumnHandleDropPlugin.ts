@@ -195,22 +195,25 @@ export function createMultiColumnHandleDropPlugin(
               id: UniqueID.options.generateID(),
             });
 
-          const blocksToRemove = draggedBlocks.filter(
-            (block) =>
-              editor.getBlock(block.id) &&
-              !blocksAlreadyInColumnList.has(block.id),
-          );
-          if (blocksToRemove.length > 0) {
-            editor.removeBlocks(blocksToRemove);
-          }
+          // A single transaction, so that the drop is undone in one step.
+          editor.transact(() => {
+            const blocksToRemove = draggedBlocks.filter(
+              (block) =>
+                editor.getBlock(block.id) &&
+                !blocksAlreadyInColumnList.has(block.id),
+            );
+            if (blocksToRemove.length > 0) {
+              editor.removeBlocks(blocksToRemove);
+            }
 
-          if (newChildren.length === 1) {
-            editor.replaceBlocks([columnList], draggedBlocks);
-          } else {
-            editor.updateBlock(columnList, {
-              children: newChildren,
-            });
-          }
+            if (newChildren.length === 1) {
+              editor.replaceBlocks([columnList], draggedBlocks);
+            } else {
+              editor.updateBlock(columnList, {
+                children: newChildren,
+              });
+            }
+          });
         } else {
           // Create new columnList with blocks as columns
           const block = nodeToBlock(blockInfo.block.node, view.state.doc);
@@ -228,27 +231,29 @@ export function createMultiColumnHandleDropPlugin(
               ? [draggedBlocks, [block]]
               : [[block], draggedBlocks];
 
-          const blocksToRemove = draggedBlocks.filter((draggedBlock) =>
-            editor.getBlock(draggedBlock.id),
-          );
-          if (blocksToRemove.length > 0) {
-            editor.removeBlocks(blocksToRemove);
-          }
+          editor.transact(() => {
+            const blocksToRemove = draggedBlocks.filter((draggedBlock) =>
+              editor.getBlock(draggedBlock.id),
+            );
+            if (blocksToRemove.length > 0) {
+              editor.removeBlocks(blocksToRemove);
+            }
 
-          editor.replaceBlocks(
-            [block],
-            [
-              {
-                type: "columnList",
-                children: columns.map((children) => {
-                  return {
-                    type: "column",
-                    children,
-                  };
-                }),
-              },
-            ],
-          );
+            editor.replaceBlocks(
+              [block],
+              [
+                {
+                  type: "columnList",
+                  children: columns.map((children) => {
+                    return {
+                      type: "column",
+                      children,
+                    };
+                  }),
+                },
+              ],
+            );
+          });
         }
 
         return true; // Prevent default ProseMirror drop behavior
