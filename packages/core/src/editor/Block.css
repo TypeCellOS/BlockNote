@@ -866,16 +866,20 @@ NESTED BLOCKS
 }
 
 /* PLACEHOLDERS*/
-.bn-inline-content:has(> .bn-placeholder) {
-  position: relative;
+/* Keep aligned placeholders full-width so list markers stay in place. */
+.bn-block-content:is(
+    [data-text-alignment="center"],
+    [data-text-alignment="right"]
+  )
+  .bn-inline-content:has(> .bn-placeholder) {
   flex: 1;
 }
 
 .bn-placeholder {
-  position: absolute;
-  z-index: 1;
-  inset-inline-start: 0;
-  top: 0;
+  /* A zero-height float leaves the caret on the empty line without requiring
+     absolute positioning and a full-width flex item for every empty block. */
+  float: inline-start;
+  height: 0;
   width: 100%;
   font-style: italic;
   pointer-events: none;
