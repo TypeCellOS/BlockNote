@@ -210,7 +210,7 @@ jobs:
           cache-save: false
 
       - name: Download Typst compiler build outputs
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: typst-compiler-build
           path: packages/xl-typst-compiler
@@ -261,7 +261,7 @@ jobs:
 
       # Gather every shard's blob into one directory (blob-report-chromium-1, …).
       - name: Download blob reports
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           path: tests/blob-report
           pattern: blob-report-*
@@ -315,7 +315,7 @@ jobs:
           persist-credentials: false
 
       - name: Download merged report
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: e2e-report
           path: e2e-report
