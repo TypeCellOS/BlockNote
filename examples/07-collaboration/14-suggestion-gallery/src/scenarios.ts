@@ -1,4 +1,4 @@
-import { testDocument } from "@shared/testDocument.js";
+import { testDocumentBlocks } from "@shared/testDocumentBlocks.js";
 
 import type { GalleryEditor, GalleryPartialBlock } from "./gallerySchema";
 
@@ -243,8 +243,8 @@ export const scenarios: SuggestionScenario[] = [
         note: "Nested bullets all render as • instead of •/◦/▪ — the suggestion-mark wrappers (display: contents) break the depth-detecting CSS chains. Fix: compute each bullet's nesting level in JS and expose it as data-bullet-level, then pick the glyph with a wrapper-independent attribute selector (as numbered lists do with data-index).",
       },
       {
-        severity: "low",
-        note: "Going from 0 to 1+ children re-creates the block as a new one — so concurrent edits to the original block can be lost, the whole new block is attributed to whoever made the change, and the diff takes more space than needed. A consequence of the schema fix.",
+        severity: "high",
+        note: "Indenting moves Child: the diff shows it as deleted at its old place and inserted under Parent, credited to whoever indented. Parent itself is unchanged.",
       },
     ],
     title: "Nest a bullet under another",
@@ -300,12 +300,7 @@ export const scenarios: SuggestionScenario[] = [
   {
     kind: "single",
     id: "delete-nested",
-    feedback: [
-      {
-        severity: "low",
-        note: "Going from 1+ to 0 children re-creates the block as a new one — so concurrent edits to the original block can be lost, the whole new block is attributed to whoever made the change, and the diff takes more space than needed. A consequence of the schema fix.",
-      },
-    ],
+    feedback: [],
     title: "Delete a nested block",
     category: "Add / remove blocks",
     description: "Delete the nested child of a parent block.",
@@ -409,6 +404,12 @@ export const scenarios: SuggestionScenario[] = [
   {
     kind: "single",
     id: "type-list-to-paragraph",
+    feedback: [
+      {
+        severity: "high",
+        note: "Changing the type re-creates the block as a new one (with the schema fix, a block's type can't change in place). The diff therefore shows it as deleted and inserted again, all credited to whoever changed the type.",
+      },
+    ],
     title: "List item → paragraph",
     category: "Type changes",
     description:
@@ -425,6 +426,12 @@ export const scenarios: SuggestionScenario[] = [
   {
     kind: "single",
     id: "type-paragraph-to-heading",
+    feedback: [
+      {
+        severity: "high",
+        note: "Changing the type re-creates the block as a new one (with the schema fix, a block's type can't change in place). The diff therefore shows it as deleted and inserted again, all credited to whoever changed the type.",
+      },
+    ],
     title: "Paragraph → heading",
     category: "Type changes",
     description:
@@ -459,6 +466,42 @@ export const scenarios: SuggestionScenario[] = [
         type: "paragraph",
         content: "hello universe",
       });
+    },
+  },
+  {
+    kind: "single",
+    id: "text-edit-diagram",
+    title: "Edit a diagram",
+    category: "Basic text",
+    description:
+      "Rename a node in a Mermaid diagram. The source shows the struck-through " +
+      "and inserted text; the preview renders the suggested diagram.",
+    initial: [
+      {
+        id: "diagram",
+        type: "diagram",
+        content: "graph TD\n  A[Draft] --> B[Review]",
+      },
+    ],
+    apply: (editor) => {
+      editor.updateBlock("diagram", {
+        content: "graph TD\n  A[Draft] --> B[Publish]",
+      });
+    },
+  },
+  {
+    kind: "single",
+    id: "text-enter-at-heading-start",
+    title: "Enter at the start of a heading",
+    category: "Basic text",
+    description:
+      "Press Enter at the start of a heading, moving it down below an empty line.",
+    initial: [
+      { id: "h", type: "heading", props: { level: 1 }, content: "Title" },
+    ],
+    apply: (editor) => {
+      editor.setTextCursorPosition("h", "start");
+      editor._tiptapEditor.commands.keyboardShortcut("Enter");
     },
   },
   {
@@ -541,6 +584,12 @@ export const scenarios: SuggestionScenario[] = [
   {
     kind: "single",
     id: "move-paragraph-up",
+    feedback: [
+      {
+        severity: "high",
+        note: "Moving re-creates the block as a new one at its new place. The diff therefore shows it as deleted at its old place and inserted at its new one, all credited to the mover.",
+      },
+    ],
     title: "Move paragraph up",
     category: "Move blocks",
     description:
@@ -556,6 +605,12 @@ export const scenarios: SuggestionScenario[] = [
   {
     kind: "single",
     id: "move-paragraph-with-children",
+    feedback: [
+      {
+        severity: "high",
+        note: "Moving re-creates the block, with its child, as a new one at its new place. The diff therefore shows it as deleted at its old place and inserted at its new one, all credited to the mover.",
+      },
+    ],
     title: "Move paragraph with children",
     category: "Move blocks",
     description:
@@ -570,7 +625,6 @@ export const scenarios: SuggestionScenario[] = [
       },
     ],
     apply: (editor) => editor.moveBlocksUp("parent"),
-    feedback: [],
   },
 
   // --- Nesting ---
@@ -579,8 +633,8 @@ export const scenarios: SuggestionScenario[] = [
     id: "nesting-indent",
     feedback: [
       {
-        severity: "low",
-        note: "Going from 0 to 1+ children re-creates the block as a new one — so concurrent edits to the original block can be lost, the whole new block is attributed to whoever made the change, and the diff takes more space than needed. A consequence of the schema fix.",
+        severity: "high",
+        note: "Indenting moves N1: the diff shows it as deleted at its old place and inserted under N0, credited to whoever indented. N0 itself is unchanged.",
       },
     ],
     title: "Indent a block",
@@ -600,13 +654,13 @@ export const scenarios: SuggestionScenario[] = [
   {
     kind: "single",
     id: "nesting-unindent",
-    title: "Unindent a block",
     feedback: [
       {
-        severity: "low",
-        note: "Going from 1+ to 0 children re-creates the block as a new one — so concurrent edits to the original block can be lost, the whole new block is attributed to whoever made the change, and the diff takes more space than needed. A consequence of the schema fix.",
+        severity: "high",
+        note: "Outdenting moves N1: the diff shows it as deleted under N0 and inserted after it, credited to whoever outdented. N0 itself is unchanged.",
       },
     ],
+    title: "Unindent a block",
     category: "Nesting",
     description: "Un-nest N1 out of N0 (outdent) back to a top-level sibling.",
     initial: [
@@ -627,8 +681,8 @@ export const scenarios: SuggestionScenario[] = [
     id: "nesting-change-parent-type",
     feedback: [
       {
-        severity: "low",
-        note: "Changing a parent's type deletes the old block and creates a new one — so concurrent edits to the original block can be lost, and the entire new block is attributed to whoever changed the type. A consequence of the schema fix.",
+        severity: "high",
+        note: "Changing the type re-creates N0, children included, as a new block (with the schema fix, a block's type can't change in place). The diff therefore shows it as deleted and inserted again, all credited to whoever changed the type.",
       },
     ],
     title: "Change type of a parent block",
@@ -654,17 +708,11 @@ export const scenarios: SuggestionScenario[] = [
   {
     kind: "single",
     id: "prop-text-alignment",
-    feedback: [
-      {
-        severity: "low",
-        note: "Block-level prop changes produce no y-attributed-* mark, so the pending change renders as if already accepted — it's invisible in the diff.",
-      },
-    ],
     title: "Center-align",
     category: "Prop changes",
     description:
       "Change a paragraph's text alignment from left to center — a block-level " +
-      "prop change (no insert/delete marks are generated).",
+      "prop change highlighted as a formatting change.",
     initial: [{ id: "block-hello", type: "paragraph", content: "hello world" }],
     apply: (editor) => {
       const [block] = editor.document;
@@ -677,12 +725,6 @@ export const scenarios: SuggestionScenario[] = [
   {
     kind: "single",
     id: "prop-heading-level",
-    feedback: [
-      {
-        severity: "low",
-        note: "Block-level prop changes produce no y-attributed-* mark, so the pending change renders as if already accepted — it's invisible in the diff.",
-      },
-    ],
     title: "Demote heading",
     category: "Prop changes",
     description: "Change a heading from level 1 to level 2.",
@@ -702,12 +744,6 @@ export const scenarios: SuggestionScenario[] = [
   {
     kind: "single",
     id: "prop-image-width",
-    feedback: [
-      {
-        severity: "low",
-        note: "Block-level prop changes produce no y-attributed-* mark, so the pending change renders as if already accepted — it's invisible in the diff.",
-      },
-    ],
     title: "Resize image",
     category: "Prop changes",
     description: "Change an image's previewWidth (200 → 400).",
@@ -729,12 +765,6 @@ export const scenarios: SuggestionScenario[] = [
   {
     kind: "single",
     id: "prop-image-source",
-    feedback: [
-      {
-        severity: "low",
-        note: "Block-level prop changes produce no y-attributed-* mark, so the pending change renders as if already accepted — it's invisible in the diff.",
-      },
-    ],
     title: "Change image source",
     category: "Prop changes",
     description: "Swap an image's url for a different source.",
@@ -845,7 +875,7 @@ export const scenarios: SuggestionScenario[] = [
     feedback: [
       {
         severity: "low",
-        note: "Block-level prop changes produce no y-attributed-* mark, so the pending change renders as if already accepted — it's invisible in the diff.",
+        note: 'The cells show the new background but no change marker. Only the tooltip on hover ("Formatting change") shows that A changed them.',
       },
     ],
     initial: [TABLE_2X2],
@@ -1003,7 +1033,11 @@ export const scenarios: SuggestionScenario[] = [
     feedback: [
       {
         severity: "low",
-        note: "Block N1 appears in two places. Previously this concurrency scenario would also not be correctly handled (one of the edits would be dropped).",
+        note: "N2 is lost. Indenting is a move, which deletes the original block and inserts a copy: B nests N2 into the original N1, which A's indent deletes, so N2 goes with it (shown as deleted by B, whose indent deleted N2's own original). Before nesting changes diffed in place, B's indent replaced N1 instead, so N1 appeared twice. Needs move support.",
+      },
+      {
+        severity: "high",
+        note: "Versioning shows N2 as deleted by B, though B only indented it.",
       },
     ],
     title: "Cascading indents",
@@ -1025,11 +1059,196 @@ export const scenarios: SuggestionScenario[] = [
   },
   {
     kind: "concurrent",
+    id: "concurrent-indent-vs-edit",
+    feedback: [
+      {
+        severity: "low",
+        note: "B's edit is lost: A's indent re-creates N1 as a new block, which doesn't have B's concurrent edit.",
+      },
+      {
+        severity: "high",
+        note: "The diff shows N1 as deleted at its old place and inserted under N0, all credited to A: indenting moves the block (see Indent a block). N0 itself is unchanged.",
+      },
+    ],
+    title: "Indent a block vs edit its text",
+    category: "Nesting",
+    description: "A indents N1 while B types at the end of N1.",
+    initial: [
+      { id: "n0", type: "paragraph", content: "N0" },
+      { id: "n1", type: "paragraph", content: "N1" },
+    ],
+    applyA: (editor) => {
+      editor.setTextCursorPosition("n1", "start");
+      editor.nestBlock();
+    },
+    applyB: (editor) => {
+      editor.setTextCursorPosition("n1", "end");
+      editor.insertInlineContent(" edited");
+    },
+  },
+  {
+    kind: "concurrent",
+    id: "concurrent-nest-into-moved-block",
+    feedback: [
+      {
+        severity: "low",
+        note: "B1–B3 are lost. A's indent writes them into the original Q, which B's indent concurrently deletes (a move inserts a copy of Q, without them); they show as deleted by A, whose indent deleted their originals. Before nesting changes diffed in place, Q appeared twice instead. Needs move support.",
+      },
+      {
+        severity: "high",
+        note: "Versioning shows B1–B3 as deleted by A, though A only nested them.",
+      },
+    ],
+    title: "Nest blocks into a block that is moved",
+    category: "Nesting",
+    description: "A nests B1–B3 under Q while B nests Q under R.",
+    initial: [
+      { id: "r", type: "paragraph", content: "R" },
+      { id: "q", type: "paragraph", content: "Q" },
+      { id: "b1", type: "paragraph", content: "B1" },
+      { id: "b2", type: "paragraph", content: "B2" },
+      { id: "b3", type: "paragraph", content: "B3" },
+    ],
+    applyA: (editor) => {
+      editor.setSelection("b1", "b3");
+      editor.nestBlock();
+    },
+    applyB: (editor) => {
+      editor.setTextCursorPosition("q", "start");
+      editor.nestBlock();
+    },
+  },
+  {
+    kind: "concurrent",
+    id: "concurrent-parent-type-vs-child-edit",
+    feedback: [
+      {
+        severity: "high",
+        note: "The diff also shows Parent and Child as deleted and inserted again, all credited to A: changing the type re-creates blocks (see Change type of a parent block).",
+      },
+      {
+        severity: "low",
+        note: "B's edit is lost. Changing the parent's type replaces the parent block with a copy, children included, which doesn't have B's concurrent edit.",
+      },
+    ],
+    title: "Change a parent's type vs edit its child",
+    category: "Nesting",
+    description:
+      "A changes a parent paragraph to a heading while B types in its child.",
+    initial: [
+      {
+        id: "p",
+        type: "paragraph",
+        content: "Parent",
+        children: [{ id: "c", type: "paragraph", content: "Child" }],
+      },
+    ],
+    applyA: (editor) => {
+      editor.updateBlock("p", { type: "heading", props: { level: 2 } });
+    },
+    applyB: (editor) => {
+      editor.setTextCursorPosition("c", "end");
+      editor.insertInlineContent(" edited by B");
+    },
+  },
+  {
+    kind: "concurrent",
+    id: "concurrent-move-into-deleted-block",
+    feedback: [
+      {
+        severity: "low",
+        note: "X is lost: B's move inserts a copy into Parent, which A deletes.",
+      },
+      {
+        severity: "high",
+        note: "Versioning shows X as deleted by B, though B only moved it. #3166 has a hacky prototype fix.",
+      },
+    ],
+    title: "Move a block into a block that is deleted",
+    category: "Nesting",
+    description: "A deletes Parent while B moves X into it.",
+    initial: [
+      {
+        id: "parent",
+        type: "paragraph",
+        content: "Parent",
+        children: [{ id: "child", type: "paragraph", content: "Child" }],
+      },
+      { id: "x", type: "paragraph", content: "X" },
+      { id: "next", type: "paragraph", content: "Next" },
+    ],
+    applyA: (editor) => {
+      editor.removeBlocks(["parent"]);
+    },
+    applyB: (editor) => {
+      editor.setTextCursorPosition("x");
+      editor.nestBlock();
+    },
+  },
+  {
+    kind: "concurrent",
+    id: "concurrent-delete-parent-vs-child-type",
+    feedback: [
+      {
+        severity: "info",
+        note: "B's type change is lost with Parent, which A deleted. Versioning shows Parent and Child as deleted by A, who deleted them.",
+      },
+    ],
+    title: "Delete a parent vs change its child's type",
+    category: "Nesting",
+    description: "A deletes Parent while B turns its child into a heading.",
+    initial: [
+      {
+        id: "parent",
+        type: "paragraph",
+        content: "Parent",
+        children: [{ id: "child", type: "paragraph", content: "Child" }],
+      },
+      { id: "next", type: "paragraph", content: "Next" },
+    ],
+    applyA: (editor) => {
+      editor.removeBlocks(["parent"]);
+    },
+    applyB: (editor) => {
+      editor.updateBlock("child", { type: "heading" });
+    },
+  },
+  {
+    kind: "concurrent",
+    id: "concurrent-delete-parent-vs-child-edit",
+    feedback: [
+      {
+        severity: "info",
+        note: "B's text is lost with Parent, which A deleted. It is in neither version, so Versioning doesn't show it. When B's text is in the earlier version, Versioning credits its deletion to A, which never saw it; the gallery can't set that up (every user starts from the same document).",
+      },
+    ],
+    title: "Delete a parent vs type in its child",
+    category: "Nesting",
+    description: "A deletes Parent while B types at the end of its child.",
+    initial: [
+      {
+        id: "parent",
+        type: "paragraph",
+        content: "Parent",
+        children: [{ id: "child", type: "paragraph", content: "Child" }],
+      },
+      { id: "next", type: "paragraph", content: "Next" },
+    ],
+    applyA: (editor) => {
+      editor.removeBlocks(["parent"]);
+    },
+    applyB: (editor) => {
+      editor.setTextCursorPosition("child", "end");
+      editor.insertInlineContent(" by B");
+    },
+  },
+  {
+    kind: "concurrent",
     id: "concurrent-nest-both-under-n0",
     feedback: [
       {
         severity: "info",
-        note: "In this concurrent editing scenario the N0 block is duplicated. Previously this scenario would likely drop one of the changes, so it's not a regression per se. A better fix for the schema compatibility could resolve this.",
+        note: "Both new blocks end up under the one N0. Every block's child group lives in the shared document from the start (hidden while empty), so A and B nest into the same group instead of each creating their own, and the merge is an ordinary concurrent insert.",
       },
     ],
     title: "Both nest a new block under N0",
@@ -1062,14 +1281,9 @@ export const scenarios: SuggestionScenario[] = [
     title: "Text color vs background color",
     category: "Prop changes",
     description:
-      "A sets text color red while B sets background yellow; both apply.",
+      "A sets text color red while B sets background yellow; both prop changes " +
+      "merge, each highlighted in its author's color.",
     initial: [{ id: "block-hello", type: "paragraph", content: "hello world" }],
-    feedback: [
-      {
-        severity: "low",
-        note: "Block-level prop changes produce no y-attributed-* mark, so the pending change renders as if already accepted — it's invisible in the diff.",
-      },
-    ],
     applyA: (editor) => {
       const [block] = editor.document;
       editor.updateBlock(block, {
@@ -1090,8 +1304,12 @@ export const scenarios: SuggestionScenario[] = [
     id: "concurrent-heading-vs-list",
     feedback: [
       {
-        severity: "info",
-        note: "Both changes are preserved in the merge — A's heading change and B's list-item change both survive.",
+        severity: "high",
+        note: "The diff shows the block as deleted and inserted twice, credited to A and to B: each type change re-creates it.",
+      },
+      {
+        severity: "low",
+        note: "The block appears twice: A's heading and B's list item are each a copy of it.",
       },
     ],
     title: "Heading vs list item",
@@ -1112,6 +1330,10 @@ export const scenarios: SuggestionScenario[] = [
     kind: "concurrent",
     id: "concurrent-text-vs-heading",
     feedback: [
+      {
+        severity: "high",
+        note: "The diff shows the block as deleted and inserted again, all credited to B: changing the type re-creates it.",
+      },
       {
         severity: "low",
         note: "User A's content edit is lost — it's overwritten by B's simultaneous block-type change. This is a consequence of the schema fix.",
@@ -1138,6 +1360,12 @@ export const scenarios: SuggestionScenario[] = [
     id: "concurrent-table-row-and-column",
     title: "Add row vs add column",
     category: "Tables",
+    feedback: [
+      {
+        severity: "info",
+        note: "The merged table is not rectangular, so the editor adds an empty cell to complete it. The diff shows this cell as inserted, without an author.",
+      },
+    ],
     description: "A adds a row while B adds a column.",
     initial: [TABLE_2X2],
     applyA: (editor) =>
@@ -1166,6 +1394,12 @@ export const scenarios: SuggestionScenario[] = [
     id: "concurrent-table-addcol-vs-addrow",
     title: "Add column vs add row",
     category: "Tables",
+    feedback: [
+      {
+        severity: "info",
+        note: "The merged table is not rectangular, so the editor adds an empty cell to complete it. The diff shows this cell as inserted, without an author.",
+      },
+    ],
     description: "A adds a column while B adds a row.",
     initial: [TABLE_2X2],
     applyA: (editor) =>
@@ -1192,18 +1426,9 @@ export const scenarios: SuggestionScenario[] = [
   {
     kind: "concurrent",
     id: "concurrent-table-row-vs-column",
-    feedback: [
-      {
-        severity: "high",
-        note: "Crashes — prosemirror-tables' fixTables treats the suggestion-marked table as malformed and feeds y-prosemirror a delta Yjs can't apply (lib0 'Unexpected case'). Confirmed via a fixTables on/off loop (25/25 crashes on, 0/25 off); fix is to block fixTablesKey transactions while suggestions are active, mirroring AIExtension during ai-writing.",
-      },
-    ],
     title: "Delete row vs add column",
     category: "Tables",
-    description:
-      "A deletes a row while B adds a column — known to crash the merge " +
-      "(prosemirror-tables fixTables).",
-    knownCrash: true,
+    description: "A deletes a row while B adds a column.",
     initial: [TABLE_2X2],
     applyA: (editor) =>
       editor.updateBlock("table", {
@@ -1226,8 +1451,8 @@ export const scenarios: SuggestionScenario[] = [
     title: "Delete column vs add row",
     feedback: [
       {
-        severity: "high",
-        note: "Diff seems weird and A2 in wrong place",
+        severity: "low",
+        note: "B's new row has a cell (B3) in the column that A deleted, so the editor adds empty cells to complete the table. The diff shows these cells as inserted, without an author, and one of them pushes A2 into the second column.",
       },
     ],
     category: "Tables",
@@ -1259,6 +1484,12 @@ export const scenarios: SuggestionScenario[] = [
     id: "concurrent-table-seq-col-then-row",
     title: "A adds column then row, B adds column",
     category: "Tables",
+    feedback: [
+      {
+        severity: "info",
+        note: "The merged table is not rectangular, so the editor adds an empty cell to complete it. The diff shows this cell as inserted, without an author.",
+      },
+    ],
     description: "A adds a column and then a row (two edits); B adds a column.",
     initial: [TABLE_2X2],
     applyA: (editor) => {
@@ -1295,6 +1526,12 @@ export const scenarios: SuggestionScenario[] = [
     id: "concurrent-table-seq-row-then-col",
     title: "A adds row then column, B adds row",
     category: "Tables",
+    feedback: [
+      {
+        severity: "info",
+        note: "The merged table is not rectangular, so the editor adds an empty cell to complete it. The diff shows this cell as inserted, without an author.",
+      },
+    ],
     description: "A adds a row and then a column (two edits); B adds a row.",
     initial: [TABLE_2X2],
     applyA: (editor) => {
@@ -1492,6 +1729,12 @@ export const scenarios: SuggestionScenario[] = [
   {
     kind: "single",
     id: "remove-1-column",
+    feedback: [
+      {
+        severity: "high",
+        note: "Removing the column re-creates Left column as a new block outside the columns. The diff therefore shows it as inserted, as if it were new, credited to whoever removed the column.",
+      },
+    ],
     title: "Remove a column",
     category: "Multi-column",
     description: "A two-column layout loses one of its columns.",
@@ -1580,7 +1823,9 @@ export const scenarios: SuggestionScenario[] = [
       ),
   },
 
-  // --- Large diffs (the shared testDocument — every block type at once) ---
+  // Use partial blocks so the editor generates IDs instead of preserving the
+  // empty IDs in the fully populated exporter test fixture.
+  // --- Large diffs (the shared test document — every block type at once) ---
   {
     kind: "single",
     id: "large-diff-add-all",
@@ -1591,16 +1836,10 @@ export const scenarios: SuggestionScenario[] = [
     initial: [{ id: "anchor", type: "paragraph", content: "Document start" }],
     apply: (editor) =>
       editor.insertBlocks(
-        testDocument as unknown as GalleryPartialBlock[],
+        testDocumentBlocks as unknown as GalleryPartialBlock[],
         "anchor",
         "after",
       ),
-    feedback: [
-      {
-        severity: "high",
-        note: "formatting changes should not show up in the diff, the diff should indicate content has been added",
-      },
-    ],
   },
   {
     kind: "single",
@@ -1609,7 +1848,7 @@ export const scenarios: SuggestionScenario[] = [
     category: "Large diffs",
     description:
       "Remove every block of the shared test document, leaving a single paragraph — a stress test for large diffs.",
-    initial: testDocument as unknown as GalleryPartialBlock[],
+    initial: testDocumentBlocks as unknown as GalleryPartialBlock[],
     apply: (editor) =>
       editor.replaceBlocks(editor.document, [
         { type: "paragraph", content: "(all content removed)" },

@@ -8,6 +8,7 @@ import {
   focusOnEditor,
   sleep,
   waitForSelector,
+  waitForSelectorDetached,
 } from "../../utils/editor.js";
 import { clickAt, getRect, moveMouseOverElement } from "../../utils/mouse.js";
 
@@ -15,6 +16,21 @@ import { clickAt, getRect, moveMouseOverElement } from "../../utils/mouse.js";
 async function doubleClickElement(element: Element) {
   const { x, y, width, height } = getRect(element);
   await clickAt(x + width / 2, y + height / 2, 2);
+}
+
+/**
+ * Clicks the comment mark near its left edge. ProseMirror counts a click within
+ * 500ms and 10px of the previous one in the editor as a double/triple click
+ * (which skips `handleClick`, so no thread opens). The clicks on the comment
+ * UI in between happen outside the editor and don't reset that count, so
+ * clicking the centre right after double-clicking the word to select it is
+ * flaky.
+ */
+async function clickThreadMark() {
+  const { x, y, height } = getRect(
+    await waitForSelector("span.bn-thread-mark"),
+  );
+  await clickAt(x + 2, y + height / 2);
 }
 
 /** Resolves once exactly `count` elements match `selector`. */
@@ -90,7 +106,7 @@ describe("Check Comments functionality", () => {
 
     await userEvent.keyboard("{Enter}");
     await expectSelectorCount(".bn-thread", 0);
-    await userEvent.click(await waitForSelector("span.bn-thread-mark"));
+    await clickThreadMark();
     await expectSelectorCount(".bn-thread-comment", 1);
     expect(document.querySelector(".bn-thread-comment")?.textContent).toContain(
       "second line",
@@ -131,7 +147,12 @@ describe("Check Comments functionality", () => {
     // Wait for comment composer to close.
     await expectSelectorCount(".bn-thread", 0);
 
-    await userEvent.click(await waitForSelector("span.bn-thread-mark"));
+    // Click away from the mark so reopening is not a third click in the
+    // initial text-selection double-click, even on fast CI runners.
+    await userEvent.click(
+      await waitForSelector(`${EDITOR_SELECTOR} .bn-block-content`),
+    );
+    await clickThreadMark();
     await expectElement(
       await waitForSelector(".bn-thread-comment"),
     ).toBeVisible();
@@ -146,7 +167,7 @@ describe("Check Comments functionality", () => {
     await userEvent.click(await waitForSelector('[data-test="addreaction"]'));
     const firstPickerButtons = await waitForEmojiButtons();
     await userEvent.click(firstPickerButtons[0]);
-    await expectSelectorCount("em-emoji-picker", 0);
+    await waitForSelectorDetached("em-emoji-picker");
     await expectSelectorCount(".bn-comment-reaction", 1);
 
     // Add a second reaction via the add-reaction badge.
@@ -157,7 +178,7 @@ describe("Check Comments functionality", () => {
     // toggling the first one off.
     const secondPickerButtons = await waitForEmojiButtons(6);
     await userEvent.click(secondPickerButtons[5]);
-    await expectSelectorCount("em-emoji-picker", 0);
+    await waitForSelectorDetached("em-emoji-picker");
     await expectSelectorCount(".bn-comment-reaction", 2);
   });
 

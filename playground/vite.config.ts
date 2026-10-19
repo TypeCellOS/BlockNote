@@ -6,6 +6,7 @@ import Inspect from "vite-plugin-inspect";
 import tailwindcss from "@tailwindcss/vite";
 
 import { defineConfig } from "vite-plus";
+import { buildCacheInputs } from "../scripts/build-cache-inputs.js";
 
 const devAliases: Record<string, string> = {
   "@blocknote/core": resolve(__dirname, "../packages/core/src"),
@@ -73,7 +74,7 @@ export default defineConfig(((conf: { command: string }) => ({
       build: {
         command: "tsc && vp build",
         input: [
-          { auto: true },
+          ...buildCacheInputs("playground"),
           { pattern: "!**/*.tsbuildinfo", base: "workspace" },
         ],
         output: ["dist/**"],

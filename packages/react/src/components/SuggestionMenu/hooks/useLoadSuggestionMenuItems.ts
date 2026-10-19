@@ -1,3 +1,4 @@
+/* eslint-disable react/refs -- Refs track request freshness and the last completed query without triggering extra renders. */
 import { useEffect, useRef, useState } from "react";
 
 // Hook which loads the items for a suggestion menu and returns them along with
@@ -21,6 +22,7 @@ export function useLoadSuggestionMenuItems<T>(
     const thisQuery = query;
     currentQuery.current = query;
 
+    // eslint-disable-next-line react/set-state-in-effect -- Expose the loading transition as soon as a new request starts.
     setLoading(true);
 
     void getItems(query).then((items) => {

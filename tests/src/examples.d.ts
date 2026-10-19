@@ -61,3 +61,14 @@ declare module "@examples/07-collaboration/14-suggestion-gallery/src/gallerySche
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   export type GalleryPartialBlock = PartialBlock<any, any, any>;
 }
+
+// The suggestion gallery's Versioning merge, shared with the versioning test so
+// both attribute changes the same way (see the note at the top).
+declare module "@examples/07-collaboration/14-suggestion-gallery/src/scenarioDocs" {
+  import type * as Y from "@y/y";
+  export function createVersionMerge(beforeDoc: Y.Doc): {
+    doc: Y.Doc;
+    attributions: Y.ContentMap;
+    apply(update: Uint8Array, user: string): void;
+  };
+}

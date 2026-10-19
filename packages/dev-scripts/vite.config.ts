@@ -1,15 +1,17 @@
 import { defineConfig } from "vite-plus";
+import { buildCacheInputs } from "../../scripts/build-cache-inputs.js";
 
 export default defineConfig({
   run: {
     tasks: {
       build: {
-        command: "tsc",
+        command:
+          "tsc --project tsconfig.json --composite false --incremental false --rootDir .",
         input: [
-          { auto: true },
+          ...buildCacheInputs("packages/dev-scripts"),
           { pattern: "!**/*.tsbuildinfo", base: "workspace" },
         ],
-        output: ["dist/**"],
+        output: ["dist/**", "types/**", "!dist/*.tsbuildinfo"],
       },
       "gen:examples": {
         command: "tsx examples/gen.ts",

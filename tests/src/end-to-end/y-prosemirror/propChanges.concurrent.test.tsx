@@ -3,9 +3,6 @@
  * Vitest browser-mode tests for two-user concurrent prop-change
  * suggestions. Same shape as `basicText.concurrent.test.tsx` but the
  * edits are block-level prop changes rather than content edits.
- *
- * The "no `y-attributed-*` mark for block-prop changes" known issue (tracked in
- * the suggestion gallery's "Prop changes" scenarios) applies here too.
  */
 import { expect, test } from "vite-plus/test";
 import { expectScreenshot, expectVisible } from "./fixtures/browserExpect.js";
@@ -58,8 +55,8 @@ test("concurrent: A changes textColor, B changes backgroundColor", async () => {
   // B: change backgroundColor to yellow.
   textColorVsBgColor.applyB(userB.editor);
 
-  // Prop changes don't generate y-attributed marks, so we poll on the
-  // individual editor doc states instead.
+  // Poll on the individual editor doc states to confirm the merge,
+  // then snapshot the rendered diff below.
   type ColorProps = { textColor?: string; backgroundColor?: string };
   await expect
     .poll(() => (userA.editor.document[0]?.props as ColorProps)?.textColor)

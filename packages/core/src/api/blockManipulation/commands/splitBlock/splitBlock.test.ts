@@ -3,11 +3,12 @@ import { TextSelection } from "prosemirror-state";
 import { describe, expect, it } from "vite-plus/test";
 
 import {
-  getBlockInfo,
+  getBlockInfoFromNode,
   getBlockInfoFromSelection,
   getNodeId,
 } from "../../../getBlockInfoFromPos.js";
 import { getNodeById } from "../../../nodeUtil.js";
+import { layoutSchema } from "../../layoutBlocks/layoutBlocks.fixture.js";
 import { setupTestEnv } from "../../setupTestEnv.js";
 import { splitBlockCommand } from "./splitBlock.js";
 
@@ -17,9 +18,10 @@ function splitBlock(
   posInBlock: number,
   keepType?: boolean,
   keepProps?: boolean,
+  keepChildren?: boolean,
 ) {
   getEditor()._tiptapEditor.commands.command(
-    splitBlockCommand(posInBlock, keepType, keepProps),
+    splitBlockCommand(posInBlock, keepType, keepProps, keepChildren),
   );
 }
 
@@ -33,16 +35,14 @@ function setSelectionWithOffset(
     throw new Error(`Block with ID ${targetBlockId} not found`);
   }
 
-  const info = getBlockInfo(posInfo);
+  const info = getBlockInfoFromNode(posInfo.node, posInfo.posBeforeNode);
 
-  if (!info.isBlockContainer) {
+  if (!info.hasContent) {
     throw new Error("Target block is not a block container");
   }
 
   getEditor().transact((tr) =>
-    tr.setSelection(
-      TextSelection.create(doc, info.blockContent.beforePos + offset + 1),
-    ),
+    tr.setSelection(TextSelection.create(doc, info.contentStart + offset)),
   );
 }
 
@@ -139,7 +139,7 @@ describe("Test splitBlocks", () => {
     splitBlock(getEditor().transact((tr) => tr.selection.anchor));
 
     const blockId = getEditor().transact((tr) =>
-      getNodeId(getBlockInfoFromSelection(tr).bnBlock.node, tr.doc),
+      getNodeId(getBlockInfoFromSelection(tr).block.node, tr.doc),
     );
 
     const anchorIsAtStartOfNewBlock =
@@ -148,4 +148,217 @@ describe("Test splitBlocks", () => {
 
     expect(anchorIsAtStartOfNewBlock).toBeTruthy();
   });
+});
+
+// `splitBlockTr` splits two levels deep (`blockContent` and its
+// `blockContainer`), which assumes the block's parent is a children holder that
+// accepts another `blockContainer`. A layout block's children holder is a
+// different node type than `blockGroup`, so these pin that the split lands
+// inside the layout block rather than tearing it open.
+describe("Test splitBlocks inside layout blocks", () => {
+  const getLayoutEditor = setupTestEnv({
+    schema: layoutSchema,
+    document: [
+      { id: "before", type: "paragraph", content: "Before" },
+      {
+        id: "callout-0",
+        type: "callout",
+        children: [
+          {
+            id: "callout-child-0",
+            type: "paragraph",
+            content: "Callout child",
+          },
+          {
+            id: "callout-child-1",
+            type: "heading",
+            content: "Callout heading",
+            children: [
+              {
+                id: "nested-child",
+                type: "paragraph",
+                content: "Nested child",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        id: "grid-0",
+        type: "grid",
+        children: [
+          {
+            id: "cell-0",
+            type: "gridCell",
+            children: [
+              { id: "cell-0-p", type: "paragraph", content: "Cell zero" },
+            ],
+          },
+          {
+            id: "cell-1",
+            type: "gridCell",
+            children: [
+              { id: "cell-1-p", type: "paragraph", content: "Cell one" },
+            ],
+          },
+        ],
+      },
+    ],
+  });
+
+  function splitLayoutBlock(
+    blockId: string,
+    offset: number,
+    keepChildren = false,
+  ) {
+    const editor = getLayoutEditor();
+
+    const posInBlock = editor.transact((tr) => {
+      const posInfo = getNodeById(blockId, tr.doc);
+      if (!posInfo) {
+        throw new Error(`Block with ID ${blockId} not found`);
+      }
+
+      const info = getBlockInfoFromNode(posInfo.node, posInfo.posBeforeNode);
+
+      // A layout block has no content to offset into, so we aim at the node
+      // itself, which is where a `NodeSelection` on it would put the anchor.
+      return info.hasContent
+        ? info.content.beforePos + offset + 1
+        : info.block.beforePos;
+    });
+
+    return editor._tiptapEditor.commands.command(
+      splitBlockCommand(posInBlock, true, undefined, keepChildren),
+    );
+  }
+
+  function textOf(block: { content?: any }) {
+    return (block.content as { text: string }[]).map((c) => c.text).join("");
+  }
+
+  it("Splits a block inside a layout block in place", () => {
+    expect(splitLayoutBlock("callout-child-0", 7)).toBe(true);
+
+    const document = getLayoutEditor().document;
+
+    expect(document.map((block) => block.id)).toEqual([
+      "before",
+      "callout-0",
+      "grid-0",
+    ]);
+
+    const callout = document[1];
+    expect(callout.type).toBe("callout");
+    expect(callout.children.map(textOf)).toEqual([
+      "Callout",
+      " child",
+      "Callout heading",
+    ]);
+
+    expect(() => getLayoutEditor().prosemirrorState.doc.check()).not.toThrow();
+  });
+
+  it("Moves the block's children to the second half of the split", () => {
+    expect(splitLayoutBlock("callout-child-1", 7)).toBe(true);
+
+    const callout = getLayoutEditor().document[1];
+
+    expect(callout.children.map(textOf)).toEqual([
+      "Callout child",
+      "Callout",
+      " heading",
+    ]);
+    // The children follow the second half, as they do at the top level.
+    expect(callout.children[1].children).toEqual([]);
+    expect(callout.children[2].children.map((child) => child.id)).toEqual([
+      "nested-child",
+    ]);
+
+    expect(() => getLayoutEditor().prosemirrorState.doc.check()).not.toThrow();
+  });
+
+  it("Keeps the block's children on the first half with `keepChildren`", () => {
+    expect(splitLayoutBlock("callout-child-1", 7, true)).toBe(true);
+
+    const callout = getLayoutEditor().document[1];
+
+    expect(callout.children.map(textOf)).toEqual([
+      "Callout child",
+      "Callout",
+      " heading",
+    ]);
+    expect(callout.children[2].children).toEqual([]);
+    expect(callout.children[1].children.map((child) => child.id)).toEqual([
+      "nested-child",
+    ]);
+
+    expect(() => getLayoutEditor().prosemirrorState.doc.check()).not.toThrow();
+  });
+
+  it("Splits a block inside a nested layout block", () => {
+    expect(splitLayoutBlock("cell-0-p", 4)).toBe(true);
+
+    const grid = getLayoutEditor().document[2];
+
+    expect(grid.type).toBe("grid");
+    expect(grid.children.map((cell) => cell.id)).toEqual(["cell-0", "cell-1"]);
+    expect(grid.children[0].children.map(textOf)).toEqual(["Cell", " zero"]);
+    expect(grid.children[1].children.map(textOf)).toEqual(["Cell one"]);
+
+    expect(() => getLayoutEditor().prosemirrorState.doc.check()).not.toThrow();
+  });
+
+  it("Does not split a layout block itself", () => {
+    const before = getLayoutEditor().document;
+
+    expect(splitLayoutBlock("callout-0", 0)).toBe(false);
+
+    expect(getLayoutEditor().document).toEqual(before);
+  });
+});
+
+// By default the children follow the text after the caret into the second
+// block. `keepChildren` (a closed toggle) keeps them with the first half,
+// except at the start, where the whole content moves down.
+describe("split child ownership", () => {
+  it.each([
+    ["start", false, "second"],
+    ["middle", false, "second"],
+    ["end", false, "second"],
+    ["start", true, "second"],
+    ["middle", true, "first"],
+    ["end", true, "first"],
+  ] as const)(
+    "splitting at the %s with keepChildren %s leaves the children with the %s block",
+    (where, keepChildren, owner) => {
+      const editor = getEditor();
+      const id = "paragraph-with-children";
+      const children = editor.getBlock(id)!.children;
+      const target = getNodeById(id, editor.prosemirrorState.doc)!;
+      const info = getBlockInfoFromNode(target.node, target.posBeforeNode);
+      if (!info.hasContent) {
+        throw new Error("Expected content block");
+      }
+      const offset =
+        where === "start"
+          ? 0
+          : where === "end"
+            ? info.contentEnd - info.contentStart
+            : 4;
+      setSelectionWithOffset(editor.prosemirrorState.doc, id, offset);
+      splitBlock(
+        editor.prosemirrorState.selection.from,
+        undefined,
+        undefined,
+        keepChildren,
+      );
+      const index = editor.document.findIndex((block) => block.id === id);
+      const [first, second] = editor.document.slice(index, index + 2);
+      expect((owner === "first" ? first : second).children).toEqual(children);
+      expect((owner === "first" ? second : first).children).toEqual([]);
+      expect(editor.getTextCursorPosition().block.id).toBe(second.id);
+      expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+    },
+  );
 });
