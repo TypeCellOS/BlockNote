@@ -71,7 +71,7 @@ describe("typst exporter mappings", () => {
     "should embed vector SVG renders and stay PDF/UA-1 conformant",
     { timeout: 20000 },
     async () => {
-      // The browser default renderer produces SVG (`renderDiagramToSVG`);
+      // The default renderer produces SVG (`renderDiagramToSVG`);
       // this covers that path end-to-end with the SVG stub.
       const exporter = createExporter({ renderDiagram: renderDiagramSVG });
 
@@ -115,10 +115,16 @@ describe("typst exporter mappings", () => {
   it("should render vector diagrams outside the browser by default", async () => {
     const exporter = createExporter();
 
-    const typst = await exporter.toTypst(diagramDocument);
+    const typst = await exporter.toTypst(diagramDocument, { title: "Diagram" });
     expect(typst).toContain('image("/assets/asset-0"');
     const svg = exporter.assetFiles.get("/assets/asset-0");
     expect(svg).toBeDefined();
     expect(new TextDecoder().decode(svg)).toContain("pele-flowchart");
+
+    const pdf = await compileTypstForTesting(typst, {
+      assets: exporter.assetFiles,
+      pdfStandard: "ua-1",
+    });
+    expect(pdf.length).toBeGreaterThan(0);
   });
 });
