@@ -1,7 +1,6 @@
 import type { ExportImage } from "@blocknote/core";
 
 import { renderToSizedSVG } from "./renderToSizedSVG.js";
-import { DEFAULT_DIAGRAM_FONT_FAMILY } from "./svgFontFamily.js";
 
 /**
  * Renders Mermaid source to an {@link ExportImage} (with the diagram's
@@ -32,7 +31,7 @@ const DEFAULT_RASTER_SCALE = 2;
 export async function renderDiagramToImage(
   source: string,
   scale: number = DEFAULT_RASTER_SCALE,
-  fontFamily: string = DEFAULT_DIAGRAM_FONT_FAMILY,
+  fontFamily?: string,
 ): ReturnType<RenderDiagram> {
   // The explicit dimensions must be on the SVG itself, not the `Image`
   // element below: the element's width/height only affect layout, while
@@ -45,7 +44,7 @@ export async function renderDiagramToImage(
   // upscaling a 1x raster.
   const result = await renderToSizedSVG(source, { scale, fontFamily });
   if (result.error !== undefined) {
-    return { error: result.error };
+    return result;
   }
   const { svg, width, height } = result;
 

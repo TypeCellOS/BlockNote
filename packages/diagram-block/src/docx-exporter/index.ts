@@ -81,7 +81,7 @@ export function createDiagramBlockMapping(options?: {
       (typeof document !== "undefined" ? renderDiagramToImage : undefined);
     if (!renderDiagram) {
       throw new Error(
-        "Rendering diagrams to images requires a browser. When exporting elsewhere, pass a `renderDiagram` function to `createDiagramBlockMapping` (e.g. backed by @mermaid-js/mermaid-cli or a Kroki server).",
+        "Default PNG rasterization requires a browser. When exporting elsewhere, pass a `renderDiagram` function with a server-side rasterizer to `createDiagramBlockMapping`.",
       );
     }
 

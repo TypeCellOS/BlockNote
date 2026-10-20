@@ -1,6 +1,6 @@
 import { PeleError, renderAsync } from "pele/lazy";
 
-import { DEFAULT_DIAGRAM_FONT_FAMILY } from "./svgFontFamily.js";
+export const DEFAULT_DIAGRAM_FONT_FAMILY = '"Inter", sans-serif';
 
 let diagramId = 0;
 

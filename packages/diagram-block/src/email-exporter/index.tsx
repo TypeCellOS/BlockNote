@@ -32,8 +32,8 @@ const MAX_WIDTH_PIXELS = 600;
  * diagrams as images, with the Mermaid source as the alt text. Rendering
  * uses Pele with browser PNG rasterization by default; when
  * exporting elsewhere (e.g. server-side email rendering), pass a
- * `renderDiagram` function backed by e.g. `@mermaid-js/mermaid-cli` or a
- * Kroki server. Images are embedded as data URLs by default; pass an
+ * `renderDiagram` function with a server-side rasterizer.
+ * Images are embedded as data URLs by default; pass an
  * `imageDelivery` (e.g. `createCIDImageDelivery` from
  * `@blocknote/xl-email-exporter`) to deliver them as inline `cid:`
  * attachments instead, which more email clients display. Invalid sources
@@ -69,7 +69,7 @@ export function createDiagramBlockMapping(options?: {
       (typeof document !== "undefined" ? renderDiagramToImage : undefined);
     if (!renderDiagram) {
       throw new Error(
-        "Rendering diagrams to images requires a browser. When exporting elsewhere, pass a `renderDiagram` function to `createDiagramBlockMapping` (e.g. backed by @mermaid-js/mermaid-cli or a Kroki server).",
+        "Default PNG rasterization requires a browser. When exporting elsewhere, pass a `renderDiagram` function with a server-side rasterizer to `createDiagramBlockMapping`.",
       );
     }
 
