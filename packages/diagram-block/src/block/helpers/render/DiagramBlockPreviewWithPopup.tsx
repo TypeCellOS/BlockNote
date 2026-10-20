@@ -42,24 +42,25 @@ export function useDiagramSVG(source: string, fontFamilyElement?: Element) {
     // Rendering is asynchronous, so bail out if the source changed (or the
     // block was removed) before it finished.
     let stale = false;
-    void (async () => {
-      const result = await renderDiagram(source, { fontFamily });
-      if (stale) {
-        return;
-      }
-      if (result.error !== undefined) {
-        setError(result.error);
-      } else {
-        setSVG(result.svg);
-        setError(undefined);
-      }
-    })().catch((cause: unknown) => {
-      if (!stale) {
-        // Unexpected failures belong to the host's React error boundary, not
-        // the source-error UI. Never expose arbitrary exception messages there.
-        setFailure({ cause });
-      }
-    });
+    void renderDiagram(source, { fontFamily })
+      .then((result) => {
+        if (stale) {
+          return;
+        }
+        if (result.error !== undefined) {
+          setError(result.error);
+        } else {
+          setSVG(result.svg);
+          setError(undefined);
+        }
+      })
+      .catch((cause: unknown) => {
+        if (!stale) {
+          // Unexpected failures belong to the host's React error boundary, not
+          // the source-error UI. Never expose arbitrary exception messages there.
+          setFailure({ cause });
+        }
+      });
 
     return () => {
       stale = true;

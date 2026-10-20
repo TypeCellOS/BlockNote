@@ -2,8 +2,7 @@ import { describe, expect, test } from "vite-plus/test";
 
 import { renderDiagramToSVG } from "./renderDiagramToSVG.js";
 
-// Browser unit tests for the SVG renderer used by the Typst
-// exporter mapping. Runs in the tests package's browser suite.
+// The SVG export adapter works without a browser DOM.
 describe("renderDiagramToSVG", () => {
   test(
     "renders Mermaid source to sized, foreignObject-free SVG",
@@ -49,8 +48,6 @@ describe("renderDiagramToSVG", () => {
       }
       const svg = new TextDecoder().decode(result.image.data);
       expect(svg).toContain("Inter 18pt");
-      // The renderer uses the export font rather than Mermaid's font stack.
-      expect(svg).not.toContain("trebuchet");
     },
   );
 

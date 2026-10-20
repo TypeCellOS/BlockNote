@@ -30,15 +30,6 @@ type DiagramBlock = BlockFromConfigNoChildren<
 // (and untranslated English) - the editor is where the author sees and
 // fixes it. Styled muted like the
 // other exporters' placeholders.
-function errorMessage(
-  exporter: ODTExporter<any, any, any>,
-  source: string,
-): string {
-  return getDiagramExporterDictionary(exporter).invalid_diagram(
-    source.split("\n")[0],
-  );
-}
-
 function errorParagraph(source: string, exporter: ODTExporter<any, any, any>) {
   const styleName = exporter.registerStyle((name) =>
     createElement(
@@ -57,7 +48,9 @@ function errorParagraph(source: string, exporter: ODTExporter<any, any, any>) {
     createElement(
       "text:span",
       { "text:style-name": styleName },
-      errorMessage(exporter, source),
+      getDiagramExporterDictionary(exporter).invalid_diagram(
+        source.split("\n")[0],
+      ),
     ),
   );
 }
@@ -102,7 +95,7 @@ export function createDiagramBlockMapping(options?: {
       (typeof document !== "undefined" ? renderDiagramToImage : undefined);
     if (!renderDiagram) {
       throw new Error(
-        "Rendering diagrams to images requires a browser. When exporting elsewhere, pass a `renderDiagram` function to `createDiagramBlockMapping` (e.g. backed by @mermaid-js/mermaid-cli or a Kroki server).",
+        "Default PNG rasterization requires a browser. When exporting elsewhere, pass a `renderDiagram` function with a server-side rasterizer to `createDiagramBlockMapping`.",
       );
     }
 

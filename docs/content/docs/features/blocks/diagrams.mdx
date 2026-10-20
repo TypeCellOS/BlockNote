@@ -68,6 +68,8 @@ The example below wires them all up.
 
 Stored diagrams and Markdown fences still use Mermaid source, so existing documents need no migration. Pele has its own layout and visual style. Mermaid themes and `themeVariables` do not apply; use [Pele's CSS variables](https://pele.run/theming) to customize previews. Arbitrary HTML labels and external Mermaid plugins such as ZenUML are not supported.
 
+The renderer switch removes the exported Mermaid-specific helpers `initializeMermaid`, `defaultMermaidOptions`, `trimDiagramSVG`, `setSVGFontFamily`, and `withSVGFontFamily`. If you used these helpers directly, replace rendering with `renderDiagram`, or use `renderDiagramToSVG` / `renderDiagramToImage` for export images. Pass the font family to the renderer instead of rewriting the resulting SVG. Global initialization and DOM-based trimming are no longer needed.
+
 ## Theming
 
 Diagram previews automatically inherit your editor's theme, including live light/dark changes. No diagram-specific configuration is needed:

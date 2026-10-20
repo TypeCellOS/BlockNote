@@ -23,7 +23,7 @@ export async function renderDiagramToSVG(
     fontFamily: options?.fontFamily,
   });
   if (result.error !== undefined) {
-    return { error: result.error };
+    return result;
   }
 
   return {
