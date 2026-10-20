@@ -5,7 +5,7 @@ description: Mermaid diagram blocks for BlockNote — rendered as diagrams in th
 
 # Diagrams
 
-The `@blocknote/diagram-block` package adds a **diagram block**: authored as [Mermaid](https://mermaid.js.org/) source in a source popup, rendered as the diagram it describes — flowcharts, sequence diagrams, Gantt charts, and everything else Mermaid supports.
+The `@blocknote/diagram-block` package adds a **diagram block**: authored as [Mermaid](https://mermaid.js.org/) source in a source popup and rendered by [Pele](https://pele.run/). Diagram renderers load on demand, supporting flowcharts, sequence diagrams, Gantt charts, and other [supported diagram types](https://pele.run/compatibility).
 
 <Callout type="info">
   This block is only available in React (`@blocknote/react`).
@@ -64,6 +64,29 @@ The example below wires them all up.
 
 <Example name="custom-schema/diagram-block" />
 
+## Renderer compatibility
+
+Stored diagrams and Markdown fences still use Mermaid source, so existing documents need no migration. Pele has its own layout and visual style. Mermaid themes and `themeVariables` do not apply; use [Pele's CSS variables](https://pele.run/theming) to customize previews. Arbitrary HTML labels and external Mermaid plugins such as ZenUML are not supported.
+
+## Theming
+
+Diagram previews automatically inherit your editor's theme, including live light/dark changes. No diagram-specific configuration is needed:
+
+- **Mantine:** uses BlockNote's colors and corner radius, including values from a custom `theme` object.
+- **Ariakit / React:** uses the shared `--bn-*` theme variables.
+- **Shadcn:** uses the host's semantic color variables (`--background`, `--foreground`, `--muted`, `--border`, `--primary`, and `--destructive`), `--radius`, and `--chart-1` through `--chart-5`. These must contain complete CSS colors, as in Shadcn's current themes. Missing variables fall back to BlockNote's palette. Dark mode follows the host's token changes, typically through its `.dark` class.
+
+Chart series use BlockNote's highlight colors, or Shadcn's chart tokens when available. To override individual diagram colors without changing the rest of the editor, set [Pele variables](https://pele.run/theming) on your editor container or a diagram:
+
+```css
+.bn-root {
+  --pele-accent: #6366f1;
+  --pele-radius: 8px;
+}
+```
+
+Explicit colors authored in Mermaid `style` / `classDef` rules take precedence over theme defaults. Editor theme variables affect previews only; exported images use the standalone renderer's defaults. Use a custom `renderDiagram` export callback to supply a different export palette.
+
 ## Exporting
 
 Diagrams export to every format BlockNote supports. [Markdown](/docs/features/export/markdown) works out of the box — diagrams export as ` ```mermaid ` fenced code blocks, their common Markdown notation.
@@ -95,9 +118,8 @@ The factory takes one option:
 ```typescript
 createDiagramBlockMapping(options?: {
   /**
-   * Renders the Mermaid source to an image. Defaults to the built-in
-   * Mermaid renderer, which only works in the browser - see "Exporting
-   * server-side" below.
+   * Renders the Mermaid source to an image. Defaults to Pele, producing
+   * PNG for DOCX, ODT, and email, or vector SVG for Typst / PDF.
    */
   renderDiagram?: RenderDiagram;
 });
@@ -109,7 +131,9 @@ The email subpath's factory additionally takes an `imageDelivery` option: some e
 
 ### Exporting server-side
 
-Rendering Mermaid source to an image requires a browser, so the built-in renderer only works for client-side exports. When exporting server-side, pass a `renderDiagram` function to `createDiagramBlockMapping` — without one, a server-side export throws:
+Typst / PDF exports work on the server out of the box: Pele produces vector SVG without a browser. Labels use the exporter's font family; make those fonts available to the PDF compiler. Exports resolve Pele's default colors so standalone SVG consumers do not need CSS variables; preview-only CSS overrides are not included.
+
+DOCX, ODT, and email use PNG images. Their built-in rasterizer requires browser canvas. For server-side exports to those formats, pass a `renderDiagram` function to `createDiagramBlockMapping`; without one, the export throws:
 
 ```typescript
 import { createDiagramBlockMapping } from "@blocknote/diagram-block/docx-exporter";
@@ -125,4 +149,4 @@ const renderDiagram: RenderDiagram = async (source) => {
 createDiagramBlockMapping({ renderDiagram });
 ```
 
-Common choices for the server-side renderer are [`@mermaid-js/mermaid-cli`](https://github.com/mermaid-js/mermaid-cli) (renders in a headless browser) or a [Kroki](https://kroki.io) server. Invalid Mermaid source is an expected failure — return it as `{ error }` rather than throwing, and the export renders the error placeholder for that block instead of failing.
+For example, render SVG using Pele's `renderAsync` from `pele/lazy` and rasterize it with a server-side SVG-to-PNG tool. Invalid Mermaid source is an expected failure: return it as `{ error }` rather than throwing, and the export renders the error placeholder for that block instead of failing.

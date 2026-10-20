@@ -112,7 +112,7 @@ describe("pdf/ua export through the complete typst pipeline in the browser", () 
       expect(typ).toContain("Invalid diagram");
       expect(typ).toContain("Invalid formula");
 
-      // The default browser renderer produced a real Mermaid render as
+      // The default renderer produced a real Pele render as
       // vector SVG, and the document's images resolved to registered assets.
       // (Asset paths are extension-less; identify the formats by bytes.)
       const assetBytes = [...exporter.assetFiles.values()];

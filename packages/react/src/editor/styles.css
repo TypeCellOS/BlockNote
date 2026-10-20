@@ -95,6 +95,32 @@
   font-family: var(--bn-font-family);
 }
 
+/* Optional diagram blocks inherit the same theme as the editor and its
+   portalled previews. CSS-only colors update without re-rendering the SVG.
+   Low specificity lets applications override any --pele-* variable. Fonts
+   are passed to Pele at render time so label measurement matches the editor. */
+:where(.bn-root) {
+  --pele-bg: var(--bn-colors-editor-background);
+  --pele-fg: var(--bn-colors-editor-text);
+  --pele-muted: var(--bn-colors-side-menu);
+  --pele-line: var(--bn-colors-editor-text);
+  --pele-surface: var(--bn-colors-hovered-background);
+  --pele-surface-alt: var(--bn-colors-menu-background);
+  --pele-border: var(--bn-colors-border);
+  --pele-accent: var(--bn-colors-highlights-blue-text);
+  --pele-critical: var(--bn-colors-highlights-red-text);
+  --pele-error: var(--bn-colors-highlights-red-text);
+  --pele-radius: var(--bn-border-radius);
+  --pele-series-1: var(--bn-colors-highlights-blue-text);
+  --pele-series-2: var(--bn-colors-highlights-orange-text);
+  --pele-series-3: var(--bn-colors-highlights-green-text);
+  --pele-series-4: var(--bn-colors-highlights-red-text);
+  --pele-series-5: var(--bn-colors-highlights-purple-text);
+  --pele-series-6: var(--bn-colors-highlights-pink-text);
+  --pele-series-7: var(--bn-colors-highlights-yellow-text);
+  --pele-series-8: var(--bn-colors-highlights-brown-text);
+}
+
 /* Editor body styling */
 
 /* Editor styling */

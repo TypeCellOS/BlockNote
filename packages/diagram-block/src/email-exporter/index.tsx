@@ -30,7 +30,7 @@ const MAX_WIDTH_PIXELS = 600;
 /**
  * Creates an email block mapping for `@blocknote/diagram-block` that embeds
  * diagrams as images, with the Mermaid source as the alt text. Rendering
- * runs in the browser by default (Mermaid can't render outside of it); when
+ * uses Pele with browser PNG rasterization by default; when
  * exporting elsewhere (e.g. server-side email rendering), pass a
  * `renderDiagram` function backed by e.g. `@mermaid-js/mermaid-cli` or a
  * Kroki server. Images are embedded as data URLs by default; pass an
