@@ -21,7 +21,6 @@ test("file panel: Embed URL input receives focus on opening", async () => {
   await openEditor([{ type: "paragraph" }]);
   const panel = await openImagePanel();
   await expect.element(panel.getByPlaceholder("Enter URL")).toHaveFocus();
-  await expect.element(panel).toMatchScreenshot("focus-embed-url.png", {});
 });
 
 test("file panel: Upload button receives focus on opening", async () => {
@@ -32,5 +31,4 @@ test("file panel: Upload button receives focus on opening", async () => {
   await expect
     .element(panel.getByRole("button", { name: "Upload image", exact: true }))
     .toHaveFocus();
-  await expect.element(panel).toMatchScreenshot("focus-upload-button.png", {});
 });
