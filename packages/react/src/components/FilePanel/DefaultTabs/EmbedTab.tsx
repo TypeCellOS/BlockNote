@@ -75,6 +75,7 @@ export const EmbedTab = <
         }
       >
         <Components.FilePanel.TextInput
+          autoFocus
           className={"bn-text-input"}
           placeholder={dict.file_panel.embed.url_placeholder}
           value={currentURL}
