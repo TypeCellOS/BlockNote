@@ -1,3 +1,4 @@
+import { TableMap } from "prosemirror-tables";
 import { Mark, Node, Slice } from "@tiptap/pm/model";
 import type { Block } from "../../blocks/defaultBlocks.js";
 import { isLayoutNode } from "../../schema/blocks/children.js";
@@ -72,11 +73,16 @@ export function contentNodeToTableContent<
     rows: [],
   };
 
-  /**
-   * A matrix of boolean values indicating whether a cell is a header.
-   * The first index is the row index, the second index is the cell index.
-   */
-  const headerMatrix: boolean[][] = [];
+  // Include slots covered by row/column spans when identifying header bands.
+  const map = TableMap.get(contentNode);
+  const headerMatrix = Array.from({ length: map.height }, (_, row) =>
+    Array.from(
+      { length: map.width },
+      (_, col) =>
+        contentNode.nodeAt(map.map[row * map.width + col])?.type.spec
+          .tableRole === "header_cell",
+    ),
+  );
 
   contentNode.content.forEach((rowNode, _offset, rowIndex) => {
     const row: TableContent<I, S>["rows"][0] = {
@@ -93,12 +99,7 @@ export function contentNodeToTableContent<
       });
     }
 
-    row.cells = rowNode.content.content.map((cellNode, cellIndex) => {
-      if (!headerMatrix[rowIndex]) {
-        headerMatrix[rowIndex] = [];
-      }
-      // Mark the cell as a header if it is a tableHeader node.
-      headerMatrix[rowIndex][cellIndex] = cellNode.type.name === "tableHeader";
+    row.cells = rowNode.content.content.map((cellNode) => {
       // Convert cell content to inline content and merge adjacent styled text nodes
       const content = cellNode.content.content
         .map((child) =>

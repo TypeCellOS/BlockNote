@@ -1,5 +1,7 @@
+import { UniqueID } from "../../../../extensions/tiptap-extensions/UniqueID/UniqueID.js";
 import { DOMSerializer, Fragment, Node } from "prosemirror-model";
 
+import { createTableSerializer } from "../../../../blocks/Table/TableAccessibility/createTableSerializer.js";
 import { PartialBlock } from "../../../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
 import {
@@ -57,7 +59,7 @@ export function serializeInlineContentExternalHTML<
   editor: BlockNoteEditor<any, I, S>,
   blockContent: PartialBlock<BSchema, I, S>["content"],
   serializer: DOMSerializer,
-  options?: { document?: Document; blockType?: string },
+  options?: { document?: Document; blockType?: string; blockId?: string },
 ) {
   let nodes: Node[];
 
@@ -78,6 +80,12 @@ export function serializeInlineContentExternalHTML<
     );
   } else if (blockContent.type === "tableContent") {
     nodes = tableContentToNodes(blockContent, editor.pmSchema);
+    serializer = createTableSerializer(
+      serializer,
+      editor.pmSchema.nodes.table.create(null, nodes),
+      options?.blockId ?? UniqueID.options.generateID(),
+      options?.document ?? document,
+    );
   } else {
     throw new UnreachableCaseError(blockContent.type);
   }
@@ -351,7 +359,11 @@ function serializeBlock<
         editor,
         block.content as any, // TODO
         serializer,
-        { ...options, blockType: block.type },
+        {
+          ...options,
+          blockType: block.type,
+          blockId: block.id,
+        },
       );
 
       ret.contentDOM.appendChild(ic);

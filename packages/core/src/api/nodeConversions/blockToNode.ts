@@ -217,7 +217,6 @@ export function tableContentToNodes<
     const isHeaderRow = headerRows[rowIndex];
     for (let cellIndex = 0; cellIndex < row.cells.length; cellIndex++) {
       const cell = row.cells[cellIndex];
-      const isHeaderCol = headerCols[cellIndex];
       /**
        * The attributes of the cell to apply to the node
        */
@@ -235,6 +234,8 @@ export function tableContentToNodes<
         },
         { type: "table", content: tableContent } as any,
       );
+
+      const isHeaderCol = headerCols[absoluteCellIndex.col];
 
       // Assume the column width is the width of the cell at the absolute cell index
       let colwidth: (number | undefined)[] | null = columnWidths[
