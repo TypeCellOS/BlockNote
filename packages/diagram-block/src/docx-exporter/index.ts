@@ -47,10 +47,9 @@ function errorParagraph(
 
 /**
  * Creates a DOCX block mapping for `@blocknote/diagram-block` that embeds
- * diagrams as images. Rendering runs in the browser by default (Mermaid
- * can't render outside of it); when exporting elsewhere (e.g. server-side),
- * pass a `renderDiagram` function backed by e.g. `@mermaid-js/mermaid-cli`
- * or a Kroki server. Invalid sources render an error placeholder (mirroring
+ * diagrams as PNG images using Pele and browser canvas. When exporting
+ * server-side, pass a `renderDiagram` function with a server-side rasterizer.
+ * Invalid sources render an error placeholder (mirroring
  * the editor):
  *
  * ```ts

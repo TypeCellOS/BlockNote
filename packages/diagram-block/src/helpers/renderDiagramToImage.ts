@@ -8,10 +8,8 @@ import { DEFAULT_DIAGRAM_FONT_FAMILY } from "./svgFontFamily.js";
  * natural dimensions in pixels). Invalid sources are expected (they're user
  * input), so they're returned as a typed error - with a message safe to show
  * to readers - rather than thrown; unexpected failures (environment,
- * renderer infrastructure) throw. The default implementations
- * ({@link renderDiagramToImage}, {@link renderDiagramToSVG}) need a browser
- * - Mermaid can't render outside of it; exporters running elsewhere plug in
- * their own (e.g. backed by `@mermaid-js/mermaid-cli` or a Kroki server).
+ * renderer infrastructure) throw. PNG rasterization needs a browser;
+ * {@link renderDiagramToSVG} also works on the server using Pele.
  */
 export type RenderDiagram = (
   source: string,
@@ -28,9 +26,8 @@ const DEFAULT_RASTER_SCALE = 2;
  * as images when exporting documents to PDF/DOCX/ODT. Labels rasterize in
  * `fontFamily` (resolved by the browser, so the family should be loaded in
  * the page) - by default BlockNote's UI font, so exported diagrams match
- * the surrounding document rather than standing out in Mermaid's own font.
- * Invalid sources are returned as a typed error. Browser-only - Mermaid
- * can't render outside of it.
+ * the surrounding document. Invalid sources are returned as a typed error.
+ * Browser-only because rasterization uses Image and canvas.
  */
 export async function renderDiagramToImage(
   source: string,
@@ -41,10 +38,9 @@ export async function renderDiagramToImage(
   // element below: the element's width/height only affect layout, while
   // canvas rasterization uses the SVG's intrinsic size - without one, Safari
   // falls back to a default size (and older Firefox refuses to draw the
-  // image to a canvas at all). WebKit also honors a leftover `max-width`
-  // style during canvas rasterization - rendering the diagram letterboxed at
-  // a fraction of the canvas - so the stripped style matters here too. The
-  // scale goes into the SVG's dimensions (rather than only the canvas), so
+  // image to a canvas at all). Pele's fixed-size output also avoids responsive
+  // max-width styles that can letterbox the image in WebKit. The scale goes
+  // into the SVG's dimensions (rather than only the canvas), so
   // browsers rasterize the vector at the full canvas resolution instead of
   // upscaling a 1x raster.
   const result = await renderToSizedSVG(source, { scale, fontFamily });

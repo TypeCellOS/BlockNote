@@ -19,7 +19,7 @@ import { screenshotFull } from "../../utils/screenshotFull.js";
 // An invalid diagram and an invalid formula, whose typed errors must render
 // as placeholders without failing the export. Unlike the packages' node
 // suites, this exercises the real error classes through vite's
-// bundling/interop of mermaid and mathjax-full - e.g. a mis-resolved
+// bundling/interop of Pele and mathjax-full - e.g. a mis-resolved
 // `TexError` import only breaks here (and in real apps), not in node.
 export const invalidDiagramBlock = {
   id: "invalid-diagram",

@@ -112,11 +112,13 @@ describe("typst exporter mappings", () => {
     ).toHaveLength(0);
   });
 
-  it("should require a renderer outside the browser", async () => {
+  it("should render vector diagrams outside the browser by default", async () => {
     const exporter = createExporter();
 
-    await expect(exporter.toTypst(diagramDocument)).rejects.toThrow(
-      "pass a `renderDiagram` function",
-    );
+    const typst = await exporter.toTypst(diagramDocument);
+    expect(typst).toContain('image("/assets/asset-0"');
+    const svg = exporter.assetFiles.get("/assets/asset-0");
+    expect(svg).toBeDefined();
+    expect(new TextDecoder().decode(svg)).toContain("pele-flowchart");
   });
 });
