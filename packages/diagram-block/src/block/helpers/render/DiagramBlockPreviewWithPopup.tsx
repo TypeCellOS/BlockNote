@@ -20,6 +20,7 @@ import { DiagramBlockConfig } from "../../createReactDiagramBlockSpec.js";
 export function useDiagramSVG(source: string, fontFamilyElement?: Element) {
   const [svg, setSVG] = useState("");
   const [error, setError] = useState<string | undefined>(undefined);
+  const [failure, setFailure] = useState<{ cause: unknown }>();
 
   useEffect(() => {
     if (!source.trim()) {
@@ -52,12 +53,22 @@ export function useDiagramSVG(source: string, fontFamilyElement?: Element) {
         setSVG(result.svg);
         setError(undefined);
       }
-    })();
+    })().catch((cause: unknown) => {
+      if (!stale) {
+        // Unexpected failures belong to the host's React error boundary, not
+        // the source-error UI. Never expose arbitrary exception messages there.
+        setFailure({ cause });
+      }
+    });
 
     return () => {
       stale = true;
     };
   }, [source, fontFamilyElement]);
+
+  if (failure) {
+    throw failure.cause;
+  }
 
   return { svg, error };
 }
