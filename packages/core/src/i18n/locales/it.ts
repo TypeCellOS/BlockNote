@@ -252,6 +252,9 @@ export const it: Dictionary = {
   suggestion_menu: {
     no_items_title: "Nessun elemento trovato",
   },
+  language_picker: {
+    default: "Automatico",
+  },
   color_picker: {
     text_title: "Testo",
     background_title: "Sfondo",

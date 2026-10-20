@@ -7,6 +7,7 @@
       {
         "attrs": {
           "backgroundColor": "default",
+          "lang": undefined,
           "textAlignment": "left",
           "textColor": "default",
         },
@@ -28,6 +29,7 @@
               {
                 "attrs": {
                   "backgroundColor": "default",
+                  "lang": undefined,
                   "textAlignment": "left",
                   "textColor": "default",
                 },
@@ -50,6 +52,7 @@
               {
                 "attrs": {
                   "backgroundColor": "default",
+                  "lang": undefined,
                   "textAlignment": "left",
                   "textColor": "default",
                 },
@@ -79,6 +82,7 @@
         "attrs": {
           "backgroundColor": "default",
           "isToggleable": true,
+          "lang": undefined,
           "level": 2,
           "textAlignment": "left",
           "textColor": "default",
@@ -101,6 +105,7 @@
               {
                 "attrs": {
                   "backgroundColor": "default",
+                  "lang": undefined,
                   "textAlignment": "left",
                   "textColor": "default",
                 },

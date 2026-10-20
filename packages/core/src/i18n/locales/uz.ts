@@ -295,6 +295,9 @@ export const uz: Dictionary = {
     no_items_title: "hech narsa topilmadi",
   },
 
+  language_picker: {
+    default: "Avtomatik",
+  },
   color_picker: {
     text_title: "Matn",
     background_title: "Fon",

@@ -271,6 +271,9 @@ export const zhTW: Dictionary = {
   suggestion_menu: {
     no_items_title: "無相符項目",
   },
+  language_picker: {
+    default: "自動",
+  },
   color_picker: {
     text_title: "文字",
     background_title: "背景色",

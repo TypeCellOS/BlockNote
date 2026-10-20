@@ -276,6 +276,9 @@ export const fr: Dictionary = {
   suggestion_menu: {
     no_items_title: "Aucun élément trouvé",
   },
+  language_picker: {
+    default: "Auto",
+  },
   color_picker: {
     text_title: "Texte",
     background_title: "Fond",

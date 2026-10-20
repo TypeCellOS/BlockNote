@@ -231,6 +231,9 @@ export const he: Dictionary = {
   suggestion_menu: {
     no_items_title: "לא נמצאו פריטים",
   },
+  language_picker: {
+    default: "אוטומטי",
+  },
   color_picker: {
     text_title: "טקסט",
     background_title: "רקע",

@@ -87,6 +87,7 @@ describe("Test y (v14) utils", () => {
         id: "1",
         type: "heading",
         props: {
+          lang: undefined,
           backgroundColor: "blue",
           textColor: "yellow",
           textAlignment: "right",
@@ -116,6 +117,7 @@ describe("Test y (v14) utils", () => {
             id: "2",
             type: "paragraph",
             props: {
+              lang: undefined,
               backgroundColor: "red",
               textAlignment: "left",
               textColor: "default",
@@ -133,6 +135,7 @@ describe("Test y (v14) utils", () => {
             id: "3",
             type: "bulletListItem",
             props: {
+              lang: undefined,
               backgroundColor: "default",
               textColor: "default",
               textAlignment: "left",
@@ -220,6 +223,7 @@ describe("Test y (v14) utils", () => {
         id: "1",
         type: "paragraph",
         props: {
+          lang: undefined,
           backgroundColor: "default",
           textColor: "default",
           textAlignment: "left",
@@ -237,6 +241,7 @@ describe("Test y (v14) utils", () => {
         id: "2",
         type: "paragraph",
         props: {
+          lang: undefined,
           backgroundColor: "default",
           textColor: "default",
           textAlignment: "center",
@@ -260,6 +265,7 @@ describe("Test y (v14) utils", () => {
         id: "1",
         type: "bulletListItem",
         props: {
+          lang: undefined,
           backgroundColor: "default",
           textColor: "default",
           textAlignment: "left",
@@ -276,6 +282,7 @@ describe("Test y (v14) utils", () => {
             id: "2",
             type: "bulletListItem",
             props: {
+              lang: undefined,
               backgroundColor: "default",
               textColor: "default",
               textAlignment: "left",
@@ -292,6 +299,7 @@ describe("Test y (v14) utils", () => {
                 id: "3",
                 type: "bulletListItem",
                 props: {
+                  lang: undefined,
                   backgroundColor: "default",
                   textColor: "default",
                   textAlignment: "left",
@@ -308,6 +316,7 @@ describe("Test y (v14) utils", () => {
                     id: "4",
                     type: "bulletListItem",
                     props: {
+                      lang: undefined,
                       backgroundColor: "default",
                       textColor: "default",
                       textAlignment: "left",
@@ -337,6 +346,7 @@ describe("Test y (v14) utils", () => {
         id: "1",
         type: "numberedListItem",
         props: {
+          lang: undefined,
           backgroundColor: "default",
           textColor: "default",
           textAlignment: "left",
@@ -354,6 +364,7 @@ describe("Test y (v14) utils", () => {
         id: "2",
         type: "numberedListItem",
         props: {
+          lang: undefined,
           backgroundColor: "default",
           textColor: "default",
           textAlignment: "left",
@@ -370,6 +381,7 @@ describe("Test y (v14) utils", () => {
             id: "3",
             type: "numberedListItem",
             props: {
+              lang: undefined,
               backgroundColor: "default",
               textColor: "default",
               textAlignment: "left",
@@ -395,6 +407,7 @@ describe("Test y (v14) utils", () => {
         id: "1",
         type: "checkListItem",
         props: {
+          lang: undefined,
           backgroundColor: "default",
           textColor: "default",
           textAlignment: "left",
@@ -413,6 +426,7 @@ describe("Test y (v14) utils", () => {
         id: "2",
         type: "checkListItem",
         props: {
+          lang: undefined,
           backgroundColor: "default",
           textColor: "default",
           textAlignment: "left",
@@ -430,6 +444,7 @@ describe("Test y (v14) utils", () => {
             id: "3",
             type: "checkListItem",
             props: {
+              lang: undefined,
               backgroundColor: "default",
               textColor: "default",
               textAlignment: "left",
@@ -456,6 +471,7 @@ describe("Test y (v14) utils", () => {
         id: "1",
         type: "toggleListItem",
         props: {
+          lang: undefined,
           backgroundColor: "default",
           textColor: "default",
           textAlignment: "left",
@@ -472,6 +488,7 @@ describe("Test y (v14) utils", () => {
             id: "2",
             type: "paragraph",
             props: {
+              lang: undefined,
               backgroundColor: "default",
               textColor: "default",
               textAlignment: "left",
@@ -533,6 +550,7 @@ describe("Test y (v14) utils", () => {
         id: "1",
         type: "quote",
         props: {
+          lang: undefined,
           backgroundColor: "default",
           textColor: "default",
         },
@@ -550,6 +568,7 @@ describe("Test y (v14) utils", () => {
             id: "2",
             type: "paragraph",
             props: {
+              lang: undefined,
               backgroundColor: "default",
               textColor: "default",
               textAlignment: "left",
@@ -575,6 +594,7 @@ describe("Test y (v14) utils", () => {
         id: "1",
         type: "heading",
         props: {
+          lang: undefined,
           backgroundColor: "default",
           textColor: "default",
           textAlignment: "left",
@@ -594,6 +614,7 @@ describe("Test y (v14) utils", () => {
         id: "2",
         type: "heading",
         props: {
+          lang: undefined,
           backgroundColor: "default",
           textColor: "default",
           textAlignment: "left",
@@ -613,6 +634,7 @@ describe("Test y (v14) utils", () => {
         id: "3",
         type: "heading",
         props: {
+          lang: undefined,
           backgroundColor: "default",
           textColor: "default",
           textAlignment: "left",
@@ -631,6 +653,7 @@ describe("Test y (v14) utils", () => {
             id: "4",
             type: "paragraph",
             props: {
+              lang: undefined,
               backgroundColor: "default",
               textColor: "default",
               textAlignment: "left",
@@ -656,6 +679,7 @@ describe("Test y (v14) utils", () => {
         id: "1",
         type: "paragraph",
         props: {
+          lang: undefined,
           backgroundColor: "default",
           textColor: "default",
           textAlignment: "left",
@@ -703,6 +727,7 @@ describe("Test y (v14) utils", () => {
         id: "2",
         type: "paragraph",
         props: {
+          lang: undefined,
           backgroundColor: "default",
           textColor: "default",
           textAlignment: "left",
@@ -870,6 +895,7 @@ describe("Test y (v14) utils", () => {
         id: "1",
         type: "paragraph",
         props: {
+          lang: undefined,
           backgroundColor: "default",
           textColor: "default",
           textAlignment: "left",
@@ -894,6 +920,7 @@ describe("Test y (v14) utils", () => {
         id: "3",
         type: "paragraph",
         props: {
+          lang: undefined,
           backgroundColor: "default",
           textColor: "default",
           textAlignment: "left",
@@ -917,6 +944,7 @@ describe("Test y (v14) utils", () => {
         id: "1",
         type: "heading",
         props: {
+          lang: undefined,
           backgroundColor: "blue",
           textColor: "yellow",
           textAlignment: "center",
@@ -938,6 +966,7 @@ describe("Test y (v14) utils", () => {
         id: "2",
         type: "paragraph",
         props: {
+          lang: undefined,
           backgroundColor: "red",
           textColor: "default",
           textAlignment: "right",
@@ -983,6 +1012,7 @@ describe("Test y (v14) utils", () => {
             id: "3",
             type: "bulletListItem",
             props: {
+              lang: undefined,
               backgroundColor: "default",
               textColor: "default",
               textAlignment: "left",
@@ -1002,6 +1032,7 @@ describe("Test y (v14) utils", () => {
         id: "4",
         type: "quote",
         props: {
+          lang: undefined,
           backgroundColor: "default",
           textColor: "default",
         },
@@ -1035,6 +1066,7 @@ describe("Test y (v14) utils", () => {
         id: "6",
         type: "checkListItem",
         props: {
+          lang: undefined,
           backgroundColor: "default",
           textColor: "default",
           textAlignment: "left",
@@ -1053,6 +1085,7 @@ describe("Test y (v14) utils", () => {
         id: "7",
         type: "checkListItem",
         props: {
+          lang: undefined,
           backgroundColor: "default",
           textColor: "default",
           textAlignment: "left",

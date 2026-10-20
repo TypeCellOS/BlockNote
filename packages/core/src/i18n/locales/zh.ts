@@ -271,6 +271,9 @@ export const zh: Dictionary = {
   suggestion_menu: {
     no_items_title: "无匹配项",
   },
+  language_picker: {
+    default: "自动",
+  },
   color_picker: {
     text_title: "文本",
     background_title: "背景色",

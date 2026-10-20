@@ -2,7 +2,7 @@
 // Note that props are always optional when used as "input"
 // (i.e., when creating a PartialBlock, for example by calling `insertBlocks({...})`)
 //
-// However, internally they're always set to `default`, unless a prop is marked optional
+// Internally they use `default`; a default of undefined represents an optional value.
 //
 // At some point we should migrate this to zod or effect-schema
 export type PropSpec<PType extends boolean | number | string> =
@@ -54,7 +54,7 @@ export type Props<PSchema extends PropSchema> = {
             : string
           : never
   ) extends infer T
-    ? PSchema[PName] extends { optional: true }
+    ? PSchema[PName] extends { default: undefined }
       ? T | undefined
       : T
     : never;

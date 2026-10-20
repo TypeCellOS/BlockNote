@@ -18,6 +18,34 @@ export const parseTestInstancesHTML: TestInstance<
 >[] = [
   {
     testCase: {
+      name: "language/explicit",
+      content: '<p lang="fr">Bonjour</p>',
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "language/regional",
+      content: '<p lang="en-GB">Hello</p>',
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "language/empty",
+      content: '<p lang="">Unknown language</p>',
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "language/data-attribute",
+      content: '<p data-lang="fr">Bonjour</p>',
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
       name: "basicBlockTypes",
       content: `<h1>Heading 1</h1>
 <h2>Heading 2</h2>

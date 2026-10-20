@@ -36,6 +36,12 @@ export const exportParseEqualityTestInstancesHTML: TestInstance<
   TestInlineContentSchema,
   TestStyleSchema
 >[] = [
+  ...exportTestInstancesBlockNoteHTML
+    .filter(({ testCase }) => testCase.name.startsWith("language/"))
+    .map(({ testCase }) => ({
+      testCase,
+      executeTest: testExportParseEqualityHTML,
+    })),
   {
     testCase: {
       name: "schema/blocks",

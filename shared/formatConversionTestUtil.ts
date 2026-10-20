@@ -176,9 +176,17 @@ export function partialBlockToBlockForTesting<
     children: [] as any,
     ...partialBlock,
   };
+  withDefaults.props = { ...withDefaults.props };
 
   Object.entries(schema[partialBlock.type!].propSchema).forEach(
     ([propKey, propValue]) => {
+      // Optional props with no value are omitted by nodeToBlock on import.
+      if (
+        propValue.default === undefined &&
+        withDefaults.props[propKey] === undefined
+      ) {
+        delete withDefaults.props[propKey];
+      }
       if (
         withDefaults.props[propKey] === undefined &&
         propValue.default !== undefined

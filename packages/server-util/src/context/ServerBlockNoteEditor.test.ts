@@ -10,6 +10,7 @@ describe("Test ServerBlockNoteEditor", () => {
       id: "1",
       type: "heading",
       props: {
+        lang: undefined,
         backgroundColor: "blue",
         textColor: "yellow",
         textAlignment: "right",
@@ -39,6 +40,7 @@ describe("Test ServerBlockNoteEditor", () => {
           id: "2",
           type: "paragraph",
           props: {
+            lang: undefined,
             backgroundColor: "red",
             textAlignment: "left",
             textColor: "default",
@@ -56,6 +58,7 @@ describe("Test ServerBlockNoteEditor", () => {
           id: "3",
           type: "bulletListItem",
           props: {
+            lang: undefined,
             backgroundColor: "default",
             textColor: "default",
             textAlignment: "left",

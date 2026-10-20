@@ -273,6 +273,9 @@ export const ru: Dictionary = {
   suggestion_menu: {
     no_items_title: "ничего не найдено",
   },
+  language_picker: {
+    default: "Авто",
+  },
   color_picker: {
     text_title: "Текст",
     background_title: "Задний фон",
