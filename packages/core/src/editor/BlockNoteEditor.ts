@@ -533,6 +533,10 @@ export class BlockNoteEditor<
         scrollMargin: { top: 72, bottom: 72, left: 0, right: 0 },
         ...newOptions._tiptapOptions?.editorProps,
         attributes: {
+          // Let ReadOnlyExtension supply the role dynamically instead of
+          // inheriting TipTap's unconditional textbox role. Explicit consumer
+          // roles below still take precedence.
+          role: "",
           // As of TipTap v2.5.0 the tabIndex is removed when the editor is not
           // editable, so you can't focus it. We want to revert this as we have
           // UI behaviour that relies on it.

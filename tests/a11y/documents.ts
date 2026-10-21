@@ -100,7 +100,57 @@ export const blockExamples = {
 
 export const defaultSchemaDocument: PartialBlock[] = [
   { id: "start", type: "paragraph", content: "Start of document" },
-  ...Object.entries(blockExamples).map(([id, block]) => ({ ...block, id })),
+  ...Object.entries(blockExamples).flatMap(([id, block]): PartialBlock[] => {
+    const first = { ...block, id };
+    // Adjacent items exercise list ownership/counts rather than only isolated
+    // one-item lists. Switching types also exercises list boundaries.
+    switch (block.type) {
+      case "bulletListItem":
+        return [
+          {
+            ...first,
+            children: [
+              {
+                type: "paragraph",
+                content: "Explanation inside the list item",
+              },
+              { type: "bulletListItem", content: "First nested bullet" },
+              { type: "bulletListItem", content: "Second nested bullet" },
+            ],
+          },
+          {
+            id: `${id}-second`,
+            type: block.type,
+            content: "Second bullet list item",
+          },
+        ];
+      case "numberedListItem":
+        return [
+          first,
+          {
+            id: `${id}-second`,
+            type: block.type,
+            content: "Second numbered list item",
+          },
+        ];
+      case "checkListItem":
+        return [
+          first,
+          { id: `${id}-second`, type: block.type, content: "Second task" },
+        ];
+      case "toggleListItem":
+        return [
+          first,
+          {
+            id: `${id}-second`,
+            type: block.type,
+            content: "Second toggle list item",
+          },
+        ];
+      default:
+        return [first];
+    }
+  }),
   ...[2, 3, 4, 5, 6].map((level) => ({
     id: `heading-${level}`,
     type: "heading" as const,

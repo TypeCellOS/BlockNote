@@ -35,6 +35,7 @@ export const createNumberedListItemBlockSpec = createBlockSpec(
       emptyEnterResets: true,
     },
     meta: {
+      listItem: true,
       isolating: false,
     },
     parse(element) {

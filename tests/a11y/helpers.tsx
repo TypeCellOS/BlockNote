@@ -4,6 +4,7 @@ import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { useCreateBlockNote } from "@blocknote/react";
 import { render } from "vitest-browser-react";
+export { cleanup } from "vitest-browser-react";
 import axe from "axe-core";
 import { expect, type TestContext } from "vite-plus/test";
 import { commands, page, server } from "vite-plus/test/browser";
@@ -18,6 +19,7 @@ export const selectToLineEndKey =
 // typed RPC boundary here, as the existing browser test utilities do.
 const browserCommands = commands as typeof commands & {
   startReader(): Promise<void>;
+  nextReader(): Promise<string>;
   pressKey(key: string): Promise<string | undefined>;
   readTranscript(): Promise<string[]>;
   stopReader(): Promise<void>;
@@ -58,9 +60,11 @@ export async function openEditor(
       theme={theme}
     />,
   );
-  await expect.element(page.getByRole("textbox")).toBeVisible();
   await expect
-    .element(page.getByRole("textbox"))
+    .element(page.getByRole(editable ? "textbox" : "document"))
+    .toBeVisible();
+  await expect
+    .element(page.getByRole(editable ? "textbox" : "document"))
     .toHaveAttribute("contenteditable", String(editable));
   await document.fonts.ready;
   if (screenReader) {
@@ -106,6 +110,10 @@ export function readSelection() {
     offset: selection?.focusOffset ?? 0,
     text: selection?.toString() ?? "",
   };
+}
+
+export async function nextReader() {
+  return browserCommands.nextReader();
 }
 
 export async function pressKey(key: string) {
