@@ -1,3 +1,7 @@
+// The start of a side menu drag. It selects the dragged blocks, makes the drag
+// image, and puts the blocks into the drag data. Other files handle the drag
+// after `dragstart`.
+
 import { Node } from "prosemirror-model";
 import { NodeSelection, Selection } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";

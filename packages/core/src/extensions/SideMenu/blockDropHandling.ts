@@ -1,3 +1,8 @@
+// Routes side menu drags between editors. It finds the editor that a drag event
+// is for, sends drag events near an editor into that editor, and removes the
+// dragged blocks from their editor after a drop in another editor. It does not
+// decide where the blocks go in an editor: the `DropCursor` extension does.
+
 import { DOMParser, Slice } from "@tiptap/pm/model";
 import { TextSelection } from "@tiptap/pm/state";
 import { EditorView } from "@tiptap/pm/view";
