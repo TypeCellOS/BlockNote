@@ -11,7 +11,7 @@ afterEach(saveTranscript);
 
 // Record selection → toolbar → block-type menu → Escape → editor.
 // Individual control actions and focus rings are covered by the browser tests.
-// TODO: Enable once announcements clearly communicate entering the toolbar.
+// Screen reader announcements do not clearly communicate entering the toolbar.
 test.skip("formatting toolbar: Paragraph", async () => {
   await openEditor(toolbarDocument);
   const { toolbar } = await focusToolbarControl("Paragraph");

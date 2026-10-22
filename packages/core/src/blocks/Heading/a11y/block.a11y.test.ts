@@ -3,6 +3,7 @@ import { page } from "vite-plus/test/browser";
 import { openEditor, pressKey } from "@root/tests/a11y/helpers.js";
 
 // Toggle headings represent interactive blocks in this accessibility vertical slice.
+// Keyboard access to toggle controls from within an editable block is not implemented.
 test.skip("editable toggle heading: toggle is keyboard accessible while the editor has focus", async () => {
   // TODO: The keyboard interaction for controls within an editable editor is TBD.
   // Reach the toggle while the editor has focus, expand/collapse its children,
@@ -30,7 +31,10 @@ test("read-only toggle heading: Tab reaches the toggle and Enter expands/collaps
     ],
     { editable: false },
   );
-  const toggle = page.getByRole("button", { name: "Details", exact: true });
+  const toggle = page.getByRole("button", {
+    name: "Expand or collapse",
+    exact: true,
+  });
   const content = page.getByText("Nested read-only content", { exact: true });
   await expect.element(content).not.toBeVisible();
   await expect.element(toggle).toHaveAttribute("aria-expanded", "false");
