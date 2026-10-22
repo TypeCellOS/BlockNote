@@ -170,6 +170,7 @@ test("formatting toolbar: Unnest block", async () => {
     .toBeInTheDocument();
 });
 
+// The focused URL input lacks a distinct focus outline; the visual accessibility requirement is not met.
 test.skip("formatting toolbar: Create link", async () => {
   await openEditor(toolbarDocument);
   await setupToolbar("Create link");
@@ -190,6 +191,7 @@ test.skip("formatting toolbar: Create link", async () => {
   await expect.element(page.getByRole("textbox")).toHaveFocus();
 });
 
+// File/media blocks cannot be selected with Tab to expose their formatting toolbar actions.
 test.skip("read-only formatting toolbar: Tab selects a file block and reaches its actions", async () => {
   // TODO: Open an editor with editable: false and a populated image/file block.
   // Select the block with Tab, verify its formatting toolbar opens, then Tab
