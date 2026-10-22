@@ -35,7 +35,7 @@ export function VersioningSidebarHeader(props: { onClose?: () => void }) {
   const editor = useBlockNoteEditor();
   const Components = useComponentsContext()!;
   const dict = useDictionary();
-  const { store, canCompare } = useVersioning();
+  const { store, canCompare, canRename } = useVersioning();
   const {
     comparisonMode,
     setComparisonMode,
@@ -100,17 +100,19 @@ export function VersioningSidebarHeader(props: { onClose?: () => void }) {
           aria-label={dict.versioning.title}
           className="bn-action-toolbar bn-versioning-sidebar-header-actions"
         >
-          <HeaderButton
-            label={
-              namedOnly
-                ? dict.versioning.show_all
-                : dict.versioning.show_named_only
-            }
-            isSelected={namedOnly}
-            onClick={toggleNamedOnly}
-          >
-            <RiBookmarkLine size={16} />
-          </HeaderButton>
+          {canRename && (
+            <HeaderButton
+              label={
+                namedOnly
+                  ? dict.versioning.show_all
+                  : dict.versioning.show_named_only
+              }
+              isSelected={namedOnly}
+              onClick={toggleNamedOnly}
+            >
+              <RiBookmarkLine size={16} />
+            </HeaderButton>
+          )}
           {canCompare && (
             <HeaderButton
               label={

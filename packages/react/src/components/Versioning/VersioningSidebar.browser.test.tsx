@@ -2415,6 +2415,23 @@ describe("VersioningSidebar", () => {
     expect(document.activeElement).toBe(control);
   });
 
+  it("hides the named-version filter when storage cannot rename versions", async () => {
+    const { endpoints } = createFakeEndpoints();
+    const editor = createEditor({ ...endpoints, rename: undefined });
+    render(
+      <VersioningTestView editor={editor}>
+        <VersioningSidebar />
+      </VersioningTestView>,
+    );
+    await act(async () => {});
+
+    expect(mode(editor).canRename).toBe(false);
+    expect(
+      page.getByRole("button", { name: "Show named versions only" }).elements(),
+    ).toHaveLength(0);
+    expect(rows()).toHaveLength(3);
+  });
+
   it("gives every header control an accessible name", async () => {
     await setup({ onClose: () => {} });
 
