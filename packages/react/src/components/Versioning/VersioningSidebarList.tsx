@@ -43,6 +43,7 @@ export function VersioningSidebarList() {
     state.mode === "versions" && state.history.status === "pending";
 
   const listId = useId();
+  const initiallyFocused = useRef(false);
   const focusedRowId = useRef<string | undefined>(undefined);
   const listRef = useRef<HTMLDivElement>(null);
   const paginationRef = useRef<HTMLDivElement>(null);
@@ -91,6 +92,11 @@ export function VersioningSidebarList() {
   }, [list.loaded, listing, listError, nextCursor, rows, versioning]);
 
   useIsomorphicLayoutEffect(() => {
+    if (!initiallyFocused.current && rows.length > 0) {
+      initiallyFocused.current = true;
+      focusRow(0);
+      return;
+    }
     if (!focusedRowId.current) {
       return;
     }

@@ -1696,7 +1696,7 @@ describe("VersioningSidebar", () => {
   it("scrubs previews with arrow keys, Home and End without wrapping", async () => {
     const { editor } = await setup();
 
-    act(() => rows()[0]!.focus());
+    expect(document.activeElement).toBe(rows()[0]);
     await act(async () => userEvent.keyboard("{ArrowDown}"));
     expect(document.activeElement).toBe(rows()[1]);
     expect(viewState(mode(editor))).toMatchObject({ snapshotId: NAMED.id });
