@@ -91,6 +91,7 @@ export const UploadTab = <
   return (
     <Components.FilePanel.TabPanel className={"bn-tab-panel"}>
       <Components.FilePanel.FileInput
+        autoFocus
         className="bn-file-input"
         data-test="upload-input"
         accept={accept}

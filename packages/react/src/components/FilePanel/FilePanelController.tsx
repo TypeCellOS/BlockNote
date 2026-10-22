@@ -45,7 +45,12 @@ export const FilePanelController = (props: {
         ...props.floatingUIOptions?.useFloatingOptions,
       },
       focusManagerProps: {
-        disabled: true,
+        // Move keyboard focus into the panel when it opens, including when
+        // inserting a file block from the slash menu.
+        disabled: false,
+        // The default panel focuses its input. Custom panels retain the
+        // focus manager's default of focusing their first control.
+        initialFocus: props.filePanel ? 0 : -1,
         ...props.floatingUIOptions?.focusManagerProps,
       },
       elementProps: {
@@ -55,7 +60,7 @@ export const FilePanelController = (props: {
         ...props.floatingUIOptions?.elementProps,
       },
     }),
-    [blockId, editor, filePanel, props.floatingUIOptions],
+    [blockId, editor, filePanel, props.filePanel, props.floatingUIOptions],
   );
 
   const Component = props.filePanel || FilePanel;
