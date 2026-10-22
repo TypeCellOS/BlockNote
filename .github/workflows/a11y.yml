@@ -81,8 +81,8 @@ jobs:
       - name: Configure VoiceOver
         working-directory: tests
         run: |
-          pnpm dlx @guidepup/setup@0.29.1 setup --ci
-          pnpm dlx @guidepup/setup@0.29.1 install
+          pnpm dlx @guidepup/setup@0.29.3 setup --ci
+          pnpm dlx @guidepup/setup@0.29.3 install
 
       - name: Record runner version
         run: sw_vers
