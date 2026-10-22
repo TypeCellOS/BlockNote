@@ -17,6 +17,42 @@ import { updateBlock, updateBlockTr } from "./updateBlock.js";
 const getEditor = setupTestEnv();
 
 describe("Test updateBlock undo/redo", () => {
+  it("undoes divider autoformat before undoing the typed dashes", () => {
+    const editor = getEditor();
+    editor.replaceBlocks(editor.document, [
+      { id: "autoformat-paragraph", type: "paragraph", content: "" },
+    ]);
+    editor.setTextCursorPosition("autoformat-paragraph", "start");
+    const view = editor.prosemirrorView;
+    // Keep fixture preparation out of the typed text's undo item.
+    view.dispatch(closeHistory(view.state.tr));
+
+    for (const text of "---") {
+      const { from, to } = view.state.selection;
+      const insertText = () => view.state.tr.insertText(text, from, to);
+      const handled = view.someProp("handleTextInput", (handler) =>
+        handler(view, from, to, text, insertText),
+      );
+      if (!handled) {
+        view.dispatch(insertText());
+      }
+    }
+
+    expect(editor.document).toHaveLength(1);
+    expect(editor.document[0].type).toBe("divider");
+
+    expect(editor.undo()).toBe(true);
+    expect(editor.document[0]).toMatchObject({
+      type: "paragraph",
+      content: [{ type: "text", text: "---", styles: {} }],
+    });
+    expect(view.state.selection.empty).toBe(true);
+    expect(view.state.selection.$from.parentOffset).toBe(3);
+
+    expect(editor.undo()).toBe(true);
+    expect(view.state.doc.textContent).toBe("");
+  });
+
   it.each([
     ["paragraph", "divider"],
     ["heading", "divider"],
