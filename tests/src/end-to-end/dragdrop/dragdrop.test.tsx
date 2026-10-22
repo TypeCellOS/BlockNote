@@ -391,6 +391,42 @@ describe.skipIf(browserName === "firefox")("Dragging layout blocks", () => {
     }
   });
 
+  // The preview is outside the editor, so it copies the editor's theme,
+  // classes and width, and app CSS that sizes the editor does not apply.
+  test("draws the drag preview like the editor", async () => {
+    const appCSS = document.createElement("style");
+    appCSS.textContent = ".bn-editor { min-height: 500px; }";
+    document.head.appendChild(appCSS);
+    await renderEditors([
+      {
+        id: "table",
+        type: "table",
+        content: { type: "tableContent", rows: [{ cells: ["A", "B"] }] },
+      },
+    ]);
+
+    await startBlockDrag(handleOf("table"));
+    try {
+      const preview = await waitForSelector(".bn-drag-preview");
+      const copy = preview.querySelector('[data-id="table"]')!;
+      expect(copy.getBoundingClientRect().width).toBe(
+        block("table").getBoundingClientRect().width,
+      );
+      expect(preview.getBoundingClientRect().height).toBeLessThan(500);
+      expect(
+        getComputedStyle(preview.querySelector("td")!).borderTopStyle,
+      ).toBe("solid");
+      expect(preview.getAttribute("data-color-scheme")).toBe(
+        document
+          .querySelector(".bn-container")!
+          .getAttribute("data-color-scheme"),
+      );
+    } finally {
+      await dropDraggedBlock(block("table"), true);
+      appCSS.remove();
+    }
+  });
+
   test("moves a namedOnly layout block in its list, without a copy of the list", async () => {
     await renderEditors([
       {
@@ -454,6 +490,8 @@ describe.skipIf(browserName === "firefox")("Dropping into a block", () => {
         steps: 5,
       },
     ]);
+    // The drop goes into the toggle once it is highlighted.
+    await waitForSelector("[data-drop-target]");
     // Hovers before the drop, as a user does, which gave ProseMirror the time
     // to draw the toggle again.
     await sleep(200);
