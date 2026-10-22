@@ -177,7 +177,7 @@ describe("Office HTML parsing", () => {
 
   it("preserves Google Docs blank paragraphs but leaves inline breaks alone", () => {
     const blocks = createEditor().tryParseHTMLToBlocks(
-      '<b id="docs-internal-guid-test" style="font-weight:normal"><p>First<br>line</p><br><br><p>Last</p></b>',
+      '<b id="docs-internal-guid-test" style="font-weight:normal"><p>First<br>line</p>\n<!-- gap --><br>\n<br><!-- gap -->\n<p>Last</p></b>',
     );
     expect(blocks).toMatchObject([
       { type: "paragraph", content: [{ text: "First\nline", styles: {} }] },

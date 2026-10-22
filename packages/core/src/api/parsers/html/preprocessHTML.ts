@@ -116,7 +116,7 @@ function normalizeWordLists(root: HTMLElement) {
 // Google Docs uses direct BR children for empty blocks, but copied inline
 // fragments use those same BR elements for hard breaks. Only replace breaks
 // bounded by blocks, other breaks, or the edge of the wrapper.
-function isBlockBoundary(node: ChildNode | null): boolean {
+function isBlockBoundary(node: ChildNode | undefined): boolean {
   if (!node) {
     return true;
   }
@@ -163,27 +163,16 @@ export function defaultHTMLPreprocessor(html: string): string {
   }
 
   for (const wrapper of root.querySelectorAll(googleDocsWrapper)) {
-    for (const child of Array.from(wrapper.children)) {
-      let before = child.previousSibling;
-      let after = child.nextSibling;
-      while (
-        before &&
-        (before.nodeType === 8 ||
-          (before.nodeType === 3 && !before.textContent?.trim()))
-      ) {
-        before = before.previousSibling;
-      }
-      while (
-        after &&
-        (after.nodeType === 8 ||
-          (after.nodeType === 3 && !after.textContent?.trim()))
-      ) {
-        after = after.nextSibling;
-      }
+    const children = Array.from(wrapper.childNodes).filter(
+      (node) =>
+        node.nodeType !== 8 &&
+        (node.nodeType !== 3 || !!node.textContent?.trim()),
+    );
+    for (const [index, child] of children.entries()) {
       if (
-        child.tagName === "BR" &&
-        isBlockBoundary(before) &&
-        isBlockBoundary(after)
+        child.nodeName === "BR" &&
+        isBlockBoundary(children[index - 1]) &&
+        isBlockBoundary(children[index + 1])
       ) {
         const paragraph = document.createElement("p");
         // The schema drops empty paragraphs; use the same temporary placeholder
