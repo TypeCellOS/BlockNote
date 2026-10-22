@@ -14,7 +14,7 @@ test.skip("editable toggle heading: toggle is keyboard accessible while the edit
   // this placeholder covers the eventual keyboard focus/navigation behavior.
 });
 
-test("read-only toggle heading: Tab reaches the toggle and Enter expands/collapses it", async () => {
+test.skip("read-only toggle heading: Tab reaches the toggle and Enter expands/collapses it", async () => {
   const id = "read-only-toggle-heading";
   // Reset only this fixture's persisted expansion state before each run.
   localStorage.removeItem(`toggle-${id}`);

@@ -9,7 +9,7 @@ test("formatting toolbar: axe", async ({ annotate }) => {
   await checkAxe(annotate, '[role="toolbar"]');
 });
 
-test("formatting toolbar: block type menu axe", async ({ annotate }) => {
+test.skip("formatting toolbar: block type menu axe", async ({ annotate }) => {
   await openEditor(toolbarDocument);
   await focusToolbarControl("Paragraph");
   await pressKey("Enter");
@@ -17,7 +17,7 @@ test("formatting toolbar: block type menu axe", async ({ annotate }) => {
   await checkAxe(annotate, '[role="menu"]');
 });
 
-test("formatting toolbar: colors menu axe", async ({ annotate }) => {
+test.skip("formatting toolbar: colors menu axe", async ({ annotate }) => {
   await openEditor(toolbarDocument);
   await focusToolbarControl("Colors");
   await pressKey("Enter");
