@@ -243,6 +243,9 @@ export const ko: Dictionary = {
   suggestion_menu: {
     no_items_title: "항목을 찾을 수 없음",
   },
+  language_picker: {
+    default: "자동",
+  },
   color_picker: {
     text_title: "텍스트",
     background_title: "배경",

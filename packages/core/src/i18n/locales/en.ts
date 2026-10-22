@@ -230,6 +230,9 @@ export const en = {
   suggestion_menu: {
     no_items_title: "No items found",
   },
+  language_picker: {
+    default: "Auto",
+  },
   color_picker: {
     text_title: "Text",
     background_title: "Background",

@@ -13,6 +13,7 @@
           {
             "attrs": {
               "backgroundColor": "default",
+              "lang": undefined,
               "textAlignment": "left",
               "textColor": "default",
             },

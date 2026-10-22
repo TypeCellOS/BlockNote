@@ -243,6 +243,9 @@ export const hr: Dictionary = {
   suggestion_menu: {
     no_items_title: "Stavke nisu pronađene",
   },
+  language_picker: {
+    default: "Automatski",
+  },
   color_picker: {
     text_title: "Tekst",
     background_title: "Pozadina",

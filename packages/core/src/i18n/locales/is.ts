@@ -243,6 +243,9 @@ export const is: Dictionary = {
   suggestion_menu: {
     no_items_title: "Engir hlutir fundust",
   },
+  language_picker: {
+    default: "Sjálfvirkt",
+  },
   color_picker: {
     text_title: "Texti",
     background_title: "Bakgrunnur",

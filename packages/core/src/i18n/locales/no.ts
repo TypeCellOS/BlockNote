@@ -248,6 +248,9 @@ export const no: Dictionary = {
   suggestion_menu: {
     no_items_title: "Ingen elementer funnet",
   },
+  language_picker: {
+    default: "Automatisk",
+  },
   color_picker: {
     text_title: "Tekst",
     background_title: "Bakgrunn",

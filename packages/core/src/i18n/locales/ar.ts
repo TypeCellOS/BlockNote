@@ -215,6 +215,9 @@ export const ar: Dictionary = {
   suggestion_menu: {
     no_items_title: "لم يتم العثور على عناصر",
   },
+  language_picker: {
+    default: "تلقائي",
+  },
   color_picker: {
     text_title: "نص",
     background_title: "خلفية",

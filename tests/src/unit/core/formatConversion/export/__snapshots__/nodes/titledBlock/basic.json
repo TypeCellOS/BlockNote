@@ -23,6 +23,7 @@
               {
                 "attrs": {
                   "backgroundColor": "default",
+                  "lang": undefined,
                   "textAlignment": "left",
                   "textColor": "default",
                 },
@@ -45,6 +46,7 @@
               {
                 "attrs": {
                   "backgroundColor": "default",
+                  "lang": undefined,
                   "textAlignment": "left",
                   "textColor": "default",
                 },
