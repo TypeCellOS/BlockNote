@@ -21,6 +21,7 @@ function normalizeWordLists(root: HTMLElement) {
     element: HTMLElement;
     level: number;
     lastItem: HTMLLIElement;
+    nextNumber: number | undefined;
   }[] = [];
   let listID: string | undefined;
 
@@ -42,21 +43,43 @@ function normalizeWordLists(root: HTMLElement) {
     listID = id;
 
     let marker = "";
+    const markers: Element[] = [];
     for (const span of Array.from(paragraph.querySelectorAll("span[style]"))) {
-      if (getMSOList(span)?.toLowerCase() === "ignore") {
+      if (
+        getMSOList(span)?.toLowerCase() === "ignore" &&
+        !markers.some((parent) => parent.contains(span))
+      ) {
         marker += span.textContent;
-        span.remove();
+        markers.push(span);
       }
     }
     marker = marker.trim();
-    const tag = /^(?:\d+|[a-z]+)[.)]$/i.test(marker) ? "ol" : "ul";
+    const numericMarker = marker.match(/^(?:([0-9]+)[.)]|\(([0-9]+)\))$/);
+    const start = numericMarker
+      ? Number(numericMarker[1] ?? numericMarker[2])
+      : undefined;
+    const ordered = numericMarker || /^[a-z]+[.)]$/i.test(marker);
+    // Do not discard labels we cannot represent, such as multilevel "1.2.".
+    // Leave these as paragraphs with their original marker and formatting.
+    if (
+      (!ordered && marker && !/^[·•o▪●○■□‣⁃\-\uF000-\uF8FF]$/u.test(marker)) ||
+      (start !== undefined && !Number.isSafeInteger(start))
+    ) {
+      stack.length = 0;
+      continue;
+    }
+    const tag = ordered ? "ol" : "ul";
+    for (const span of markers) {
+      span.remove();
+    }
 
     while (stack.length && stack[stack.length - 1].level > level) {
       stack.pop();
     }
     if (
       stack[stack.length - 1]?.level === level &&
-      stack[stack.length - 1].element.tagName.toLowerCase() !== tag
+      (stack[stack.length - 1].element.tagName.toLowerCase() !== tag ||
+        (start !== undefined && stack[stack.length - 1].nextNumber !== start))
     ) {
       stack.pop();
     }
@@ -71,8 +94,7 @@ function normalizeWordLists(root: HTMLElement) {
     let current = stack[stack.length - 1];
     if (!current || current.level !== level) {
       const element = root.ownerDocument.createElement(tag);
-      const start = Number.parseInt(marker, 10);
-      if (tag === "ol" && start > 1) {
+      if (start !== undefined) {
         element.setAttribute("start", String(start));
       }
       if (current) {
@@ -80,14 +102,30 @@ function normalizeWordLists(root: HTMLElement) {
       } else {
         paragraph.before(element);
       }
-      current = { element, level, lastItem: item };
+      current = { element, level, lastItem: item, nextNumber: undefined };
       stack.push(current);
     }
 
     current.element.append(item);
     current.lastItem = item;
+    current.nextNumber = start === undefined ? undefined : start + 1;
     item.append(paragraph);
   }
+}
+
+// Google Docs uses direct BR children for empty blocks, but copied inline
+// fragments use those same BR elements for hard breaks. Only replace breaks
+// bounded by blocks, other breaks, or the edge of the wrapper.
+function isBlockBoundary(node: ChildNode | null): boolean {
+  if (!node) {
+    return true;
+  }
+  return (
+    node.nodeType === 1 &&
+    /^(BR|P|DIV|H[1-6]|UL|OL|TABLE|BLOCKQUOTE|PRE|HR|FIGURE)$/.test(
+      node.nodeName,
+    )
+  );
 }
 
 /**
@@ -126,7 +164,27 @@ export function defaultHTMLPreprocessor(html: string): string {
 
   for (const wrapper of root.querySelectorAll(googleDocsWrapper)) {
     for (const child of Array.from(wrapper.children)) {
-      if (child.tagName === "BR") {
+      let before = child.previousSibling;
+      let after = child.nextSibling;
+      while (
+        before &&
+        (before.nodeType === 8 ||
+          (before.nodeType === 3 && !before.textContent?.trim()))
+      ) {
+        before = before.previousSibling;
+      }
+      while (
+        after &&
+        (after.nodeType === 8 ||
+          (after.nodeType === 3 && !after.textContent?.trim()))
+      ) {
+        after = after.nextSibling;
+      }
+      if (
+        child.tagName === "BR" &&
+        isBlockBoundary(before) &&
+        isBlockBoundary(after)
+      ) {
         const paragraph = document.createElement("p");
         // The schema drops empty paragraphs; use the same temporary placeholder
         // as the HTML exporter. HTMLToBlocks removes it after parsing.

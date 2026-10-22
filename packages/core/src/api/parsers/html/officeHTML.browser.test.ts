@@ -28,6 +28,25 @@ function wordItem(text: string, level = 1, marker = "·", list = "l0") {
   return `<p style="mso-list: ${list} level${level} lfo1"><span style="mso-list:Ignore">${marker}&nbsp;</span>${text}<o:p></o:p></p>`;
 }
 
+function createPasteEvent(data: Record<string, string>) {
+  const event = new ClipboardEvent("paste", {
+    clipboardData: new DataTransfer(),
+    bubbles: true,
+    cancelable: true,
+  });
+  if (!event.clipboardData) {
+    throw new Error(
+      "Synthetic paste events must provide a clipboard data store",
+    );
+  }
+  // Firefox creates its own store rather than retaining the constructor's store.
+  for (const [type, value] of Object.entries(data)) {
+    event.clipboardData.setData(type, value);
+    expect(event.clipboardData.getData(type)).toBe(value);
+  }
+  return event;
+}
+
 describe("Office HTML parsing", () => {
   it("reconstructs Word lists, retaining formatting and nesting", () => {
     const blocks = createEditor().tryParseHTMLToBlocks(
@@ -90,6 +109,72 @@ describe("Office HTML parsing", () => {
     expect(blocks).toHaveLength(2);
   });
 
+  it("preserves the start of a numbered item that has nested children", () => {
+    const blocks = createEditor().tryParseHTMLToBlocks(
+      wordItem("Parent", 1, "4.") +
+        wordItem("Child", 2, "3.") +
+        wordItem("Next", 1, "5."),
+    );
+    expect(blocks).toMatchObject([
+      {
+        type: "numberedListItem",
+        props: { start: 4 },
+        children: [{ type: "numberedListItem", props: { start: 3 } }],
+      },
+      { type: "numberedListItem" },
+    ]);
+    expect(blocks[1].props).not.toHaveProperty("start");
+  });
+
+  it("preserves numbering gaps and restarts through HTML round trips", () => {
+    const editor = createEditor();
+    const blocks = editor.tryParseHTMLToBlocks(
+      wordItem("First", 1, "4.") +
+        wordItem("Gap", 1, "7.") +
+        wordItem("Next", 1, "8.") +
+        wordItem("Restart", 1, "1.", "l1") +
+        wordItem("Last", 1, "2.", "l1"),
+    );
+    expect(
+      blocks.map((block) =>
+        block.type === "numberedListItem" ? block.props.start : undefined,
+      ),
+    ).toEqual([4, 7, undefined, 1, undefined]);
+    for (const html of [
+      editor.blocksToHTMLLossy(blocks),
+      editor.blocksToFullHTML(blocks),
+    ]) {
+      expect(
+        editor.tryParseHTMLToBlocks(html).map((block) => block.props),
+      ).toEqual(blocks.map((block) => block.props));
+    }
+    const root = document.createElement("div");
+    root.innerHTML = editor.blocksToFullHTML(blocks);
+    expect(
+      Array.from(
+        root.querySelectorAll('[data-content-type="numberedListItem"]'),
+        (item) => item.getAttribute("data-index"),
+      ),
+    ).toEqual(["4", "7", "8", "1", "2"]);
+  });
+
+  it("recognizes parenthesized numbers and retains unsupported Word labels", () => {
+    const blocks = createEditor().tryParseHTMLToBlocks(
+      wordItem("Number", 1, "(3)") +
+        wordItem("Multilevel", 1, "1.2.") +
+        wordItem("Unknown", 1, "Section A:"),
+    );
+    expect(blocks).toMatchObject([
+      {
+        type: "numberedListItem",
+        props: { start: 3 },
+        content: [{ text: "Number" }],
+      },
+      { type: "paragraph", content: [{ text: "1.2.\u00a0Multilevel" }] },
+      { type: "paragraph", content: [{ text: "Section A:\u00a0Unknown" }] },
+    ]);
+  });
+
   it("preserves Google Docs blank paragraphs but leaves inline breaks alone", () => {
     const blocks = createEditor().tryParseHTMLToBlocks(
       '<b id="docs-internal-guid-test" style="font-weight:normal"><p>First<br>line</p><br><br><p>Last</p></b>',
@@ -110,6 +195,29 @@ describe("Office HTML parsing", () => {
     expect(blocks).toMatchObject([
       { type: "paragraph", content: [{ text: "·\u00a0Unchanged" }] },
     ]);
+  });
+
+  it.each([
+    ["First<br>Last", "First\nLast"],
+    ["<span>First</span><br><span>Last</span>", "First\nLast"],
+    ["First \n<br>\n Last", "First \nLast"],
+  ])(
+    "keeps hard breaks in Google Docs inline fragments: %s",
+    (fragment, text) => {
+      const blocks = createEditor().tryParseHTMLToBlocks(
+        `<b id="docs-internal-guid-test" style="font-weight:normal">${fragment}</b>`,
+      );
+      expect(blocks).toHaveLength(1);
+      expect(blocks[0]).toMatchObject({
+        type: "paragraph",
+        content: [{ text }],
+      });
+    },
+  );
+
+  it("leaves unrelated HTML unchanged", () => {
+    const html = "<div><p>Original</p><br><p>Last</p></div>";
+    expect(defaultHTMLPreprocessor(html)).toBe(html);
   });
 
   it("can replace the built-in normalization", () => {
@@ -147,15 +255,8 @@ describe("Office HTML parsing", () => {
     containers.push(container);
     editor.mount(container);
     const html = wordItem("Original");
-    const clipboardData = new DataTransfer();
-    clipboardData.setData("text/html", html);
-    clipboardData.setData("text/plain", "Original");
     editor.prosemirrorView.dom.dispatchEvent(
-      new ClipboardEvent("paste", {
-        clipboardData,
-        bubbles: true,
-        cancelable: true,
-      }),
+      createPasteEvent({ "text/html": html, "text/plain": "Original" }),
     );
     expect(preprocessHTML).toHaveBeenCalledExactlyOnceWith(html);
     expect(editor.document[0]).toMatchObject({
@@ -172,6 +273,27 @@ describe("Office HTML parsing", () => {
     containers.push(container);
     editor.mount(container);
     editor.pasteHTML("<p>Original</p>", true);
+    expect(preprocessHTML).not.toHaveBeenCalled();
+    expect(editor.document[0]).toMatchObject({
+      content: [{ text: "Original" }],
+    });
+  });
+
+  it("does not preprocess internal BlockNote clipboard HTML", () => {
+    const preprocessHTML = vi.fn(() => "<p>Changed</p>");
+    const editor = createEditor({ preprocessHTML });
+    const container = document.createElement("div");
+    document.body.append(container);
+    containers.push(container);
+    editor.mount(container);
+    editor.prosemirrorView.dom.dispatchEvent(
+      createPasteEvent({
+        "blocknote/html": editor.blocksToFullHTML([
+          { type: "paragraph", content: "Original" },
+        ]),
+        "text/html": "<p>Fallback</p>",
+      }),
+    );
     expect(preprocessHTML).not.toHaveBeenCalled();
     expect(editor.document[0]).toMatchObject({
       content: [{ text: "Original" }],

@@ -28,6 +28,9 @@ removes Word paragraph-end placeholders, and preserves blank paragraphs copied f
 Google Docs. This also applies when importing HTML with `tryParseHTMLToBlocks` or
 inserting it with `pasteHTML`.
 
+Word list numbering retains numeric starts, gaps, and restarts. Labels that
+BlockNote cannot represent, such as `1.2.`, stay as text instead of being removed.
+
 ### Custom HTML preprocessing
 
 Use the `preprocessHTML` editor option to replace the source normalization. The

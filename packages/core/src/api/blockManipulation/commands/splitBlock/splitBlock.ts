@@ -59,7 +59,16 @@ export const splitBlockTr = (
     },
     {
       type: keepType ? info.content.node.type : schema.nodes["paragraph"],
-      attrs: keepProps ? { ...info.content.node.attrs } : {},
+      attrs: keepProps
+        ? {
+            ...info.content.node.attrs,
+            // The second half continues the sequence, rather than copying a
+            // numbering restart from the original item.
+            ...(info.blockNoteType === "numberedListItem" && {
+              start: undefined,
+            }),
+          }
+        : {},
     },
   ];
 

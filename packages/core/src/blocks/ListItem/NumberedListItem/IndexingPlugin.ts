@@ -28,7 +28,12 @@ function calculateListItemIndex(
   tr: Transaction,
   map: Map<Node, number>,
 ): { index: number; isFirst: boolean; hasStart: boolean } {
-  const hasStart = !!node.firstChild!.attrs["start"];
+  const start = node.firstChild!.attrs["start"];
+  const hasStart = typeof start === "number" && Number.isFinite(start);
+  if (hasStart) {
+    map.set(node, start);
+    return { index: start, isFirst: true, hasStart };
+  }
 
   // Fast path: previous sibling already in cache
   const blockInfo = getBlockInfoFromNode(node, pos);
@@ -64,6 +69,12 @@ function calculateListItemIndex(
       break;
     }
     chain.push({ node: curNode, pos: curBeforePos - curNode.nodeSize });
+    // A restart is the beginning of this numbering sequence, even when it
+    // follows another numbered item and has not been visited in this traversal.
+    const curStart = curNode.firstChild!.attrs["start"];
+    if (typeof curStart === "number" && Number.isFinite(curStart)) {
+      break;
+    }
     const nextPrev = tr.doc.resolve(curInfo.block.beforePos).nodeBefore;
     curBeforePos = curInfo.block.beforePos;
     curNode = nextPrev;
@@ -85,12 +96,13 @@ function calculateListItemIndex(
     ? map.get(predecessorNode)
     : undefined;
 
-  if (predecessorIndex !== undefined) {
+  const chainStart = lastInChain.node.firstChild!.attrs["start"];
+  if (predecessorIndex !== undefined && chainStart === undefined) {
     index = predecessorIndex;
     isFirst = false;
   } else {
     // Start of a new list
-    index = (lastInChain.node.firstChild!.attrs["start"] || 1) - 1;
+    index = (chainStart ?? 1) - 1;
     isFirst = true;
   }
 
