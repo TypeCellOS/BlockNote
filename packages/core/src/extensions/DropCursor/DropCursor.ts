@@ -167,6 +167,9 @@ export const DropCursorExtension = createExtension<
   const onDragStart = (event: Event) => {
     const e = event as DragEvent;
     dragSourceElement = e.target instanceof Element ? e.target : null;
+    // A drop from another document ends the drag there, without a `dragend`
+    // in this one.
+    blocksDropped = false;
   };
 
   const onDragOver = (event: Event) => {

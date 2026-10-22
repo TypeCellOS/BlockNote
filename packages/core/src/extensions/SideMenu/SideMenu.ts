@@ -469,7 +469,9 @@ export const SideMenuExtension = createExtension(
         // in the menu (#3165). Only when the focus is in the side menu (its
         // menus render in it) or lost, not when it moved elsewhere, e.g. to
         // an input that a menu item opened.
-        const active = document.activeElement;
+        // In a shadow root, the document's active element is the shadow host.
+        const active =
+          editor.prosemirrorView.root.activeElement ?? document.activeElement;
         const focusLost = !active || active === document.body;
         const focusInSideMenu = !!menuElement && menuElement.contains(active);
         if (focusLost || focusInSideMenu) {
