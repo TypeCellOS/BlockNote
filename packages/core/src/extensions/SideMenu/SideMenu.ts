@@ -320,6 +320,9 @@ export const SideMenuExtension = createExtension(
           () => {
             if (isDragOrigin) {
               endBlockDrag();
+              // The menu stayed at the dragged block's old place during the
+              // drag. The next pointer move shows it at the block there.
+              hideMenu();
             }
           },
           { signal, capture: true },
@@ -430,12 +433,6 @@ export const SideMenuExtension = createExtension(
         isDragOrigin = true;
         dragStart(event, block, editor);
       },
-
-      /**
-       * @deprecated Does nothing: the side menu ends a drag by itself, when
-       * the handle's `dragend` reaches the document. Remove the call.
-       */
-      blockDragEnd() {},
 
       /**
        * Whether the side menu is currently frozen (e.g. because the drag handle

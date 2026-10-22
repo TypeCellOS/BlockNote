@@ -42,6 +42,7 @@ import { executeSlashCommand } from "../../utils/slashmenu.js";
 // types `expect` from an internal module, so the augmentation doesn't attach.
 // Type the accessor locally.
 type ElementMatchers = {
+  toHaveFocus(): Promise<void>;
   not: { toBeVisible(): Promise<void> };
 };
 type ElementExpect = (element: Element | null) => ElementMatchers;
@@ -517,7 +518,7 @@ describe.skipIf(browserName === "firefox")(
       ]);
 
       await dragAndDropBlock(block("a"), block("b"), false);
-      await sleep(100);
+      await expectElement(editors[0].prosemirrorView.dom).toHaveFocus();
       expect(ids(editors[0].document)).toEqual(["b", "a"]);
       // A text cursor shows no formatting toolbar.
       await waitForSelectorDetached(".bn-formatting-toolbar");
@@ -537,11 +538,37 @@ describe.skipIf(browserName === "firefox")(
         block("toggle").querySelector(".bn-block-content")!,
         false,
       );
-      await sleep(100);
+      await expectElement(editors[0].prosemirrorView.dom).toHaveFocus();
       expect(ids(editors[0].document[0].children)).toEqual(["dragged"]);
 
       await userEvent.keyboard(`{${MOD}>}z{/${MOD}}`);
       expect(ids(editors[0].document)).toEqual(["toggle", "dragged"]);
+    });
+
+    test("shows no formatting toolbar after undoing a drop", async () => {
+      await renderEditors([
+        { id: "a", type: "paragraph", content: "A" },
+        { id: "b", type: "paragraph", content: "B" },
+      ]);
+
+      await dragAndDropBlock(block("a"), block("b"), false);
+      await expectElement(editors[0].prosemirrorView.dom).toHaveFocus();
+      await userEvent.keyboard(`{${MOD}>}z{/${MOD}}`);
+      expect(ids(editors[0].document)).toEqual(["a", "b"]);
+      await waitForSelectorDetached(".bn-formatting-toolbar");
+    });
+
+    // The menu stays at the dragged block's old place during the drag. The next
+    // pointer move shows it again, at the block under the pointer.
+    test("hides the side menu after a drop", async () => {
+      await renderEditors([
+        { id: "a", type: "paragraph", content: "A" },
+        { id: "b", type: "paragraph", content: "B" },
+      ]);
+
+      await dragAndDropBlock(block("a"), block("b"), false);
+      await waitForSelectorDetached(".bn-side-menu");
+      expect(ids(editors[0].document)).toEqual(["b", "a"]);
     });
 
     // A dropped block without text has no place for a text cursor.
@@ -553,9 +580,8 @@ describe.skipIf(browserName === "firefox")(
       ]);
 
       await dragAndDropBlock(block("image"), block("b"), false);
-      await sleep(300);
+      await expectElement(editors[0].prosemirrorView.dom).toHaveFocus();
       expect(ids(editors[0].document)).toEqual(["a", "b", "image"]);
-      expect(editors[0].isFocused()).toBe(true);
       await waitForSelectorDetached(".bn-formatting-toolbar");
 
       await userEvent.keyboard(`{${MOD}>}z{/${MOD}}`);

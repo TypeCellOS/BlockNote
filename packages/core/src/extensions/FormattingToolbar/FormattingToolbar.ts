@@ -1,10 +1,11 @@
-import { Selection, TextSelection } from "prosemirror-state";
+import { NodeSelection, Selection, TextSelection } from "prosemirror-state";
 
 import {
   createExtension,
   createStore,
 } from "../../editor/BlockNoteExtension.js";
 import { isTouchDevice } from "../../util/browser.js";
+import { MultipleNodeSelection } from "../SideMenu/MultipleNodeSelection.js";
 
 export const FormattingToolbarExtension = createExtension(({ editor }) => {
   const store = createStore(false);
@@ -14,6 +15,16 @@ export const FormattingToolbarExtension = createExtension(({ editor }) => {
       // Don't show if the selection is empty, or is a text selection with no
       // text.
       if (tr.selection.empty) {
+        return false;
+      }
+
+      // Don't show if whole blocks are selected. A block drag selects the
+      // dragged blocks, and undoing the drop selects them again.
+      if (
+        tr.selection instanceof MultipleNodeSelection ||
+        (tr.selection instanceof NodeSelection &&
+          tr.selection.node.type.isInGroup("bnBlock"))
+      ) {
         return false;
       }
 
