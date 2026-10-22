@@ -761,31 +761,16 @@ function serializeInlineContent(el: Element): string {
 
       switch (tag) {
         case "strong":
-        case "b": {
-          const inner = serializeInlineContent(childEl);
-          const { content, trailing } = extractTrailingWhitespace(inner);
-          if (content) {
-            result += `**${content}**${trailing}`;
-          } else {
-            // All whitespace — just output it without emphasis
-            result += trailing;
-          }
+        case "b":
+          result += wrapWithDelimiter(serializeInlineContent(childEl), "**");
           break;
-        }
         case "em":
-        case "i": {
-          const inner = serializeInlineContent(childEl);
-          const { content, trailing } = extractTrailingWhitespace(inner);
-          if (content) {
-            result += `*${content}*${trailing}`;
-          } else {
-            result += trailing;
-          }
+        case "i":
+          result += wrapWithDelimiter(serializeInlineContent(childEl), "*");
           break;
-        }
         case "s":
         case "del":
-          result += `~~${serializeInlineContent(childEl)}~~`;
+          result += wrapWithDelimiter(serializeInlineContent(childEl), "~~");
           break;
         case "code": {
           const text = childEl.textContent || "";
@@ -861,19 +846,31 @@ function serializeInlineContent(el: Element): string {
 }
 
 /**
- * Extract trailing whitespace from emphasis content.
- * Moves trailing spaces outside the emphasis delimiters to produce valid markdown.
- * E.g., `<strong>Bold </strong>` → `**Bold** ` instead of `**Bold **`.
+ * Wrap emphasis/strikethrough content in its delimiters.
+ * An opening delimiter followed by whitespace, or a closing delimiter preceded
+ * by whitespace, is not parsed as emphasis, so leading and trailing spaces are
+ * moved outside the delimiters to produce valid markdown.
+ * E.g., `<strong> Bold </strong>` → ` **Bold** ` instead of `** Bold **`.
+ * All-whitespace content is output as-is, without delimiters.
  */
-function extractTrailingWhitespace(text: string): {
+function wrapWithDelimiter(text: string, delimiter: string): string {
+  const { leading, content, trailing } = extractSurroundingWhitespace(text);
+  if (!content) {
+    return text;
+  }
+  return `${leading}${delimiter}${content}${delimiter}${trailing}`;
+}
+
+function extractSurroundingWhitespace(text: string): {
+  leading: string;
   content: string;
   trailing: string;
 } {
-  const match = text.match(/^(.*?)(\s*)$/);
+  const match = text.match(/^(\s*)(.*?)(\s*)$/);
   if (match) {
-    return { content: match[1], trailing: match[2] };
+    return { leading: match[1], content: match[2], trailing: match[3] };
   }
-  return { content: text, trailing: "" };
+  return { leading: "", content: text, trailing: "" };
 }
 
 /**
