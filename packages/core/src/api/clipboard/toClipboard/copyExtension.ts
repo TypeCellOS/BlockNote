@@ -144,10 +144,10 @@ export function selectedFragmentToHTML<
   // selected text instead of markdown.
   const { $from, $to } = view.state.selection;
   const parentBlockType = $from.parent.type.name;
-  const parentBlockSpec = editor.blockImplementations[parentBlockType as any];
+  const parentBlockSpec =
+    editor.schema.blockSpecs[parentBlockType as keyof BSchema];
   const isPurelyInsideCodeBlock =
-    $from.sameParent($to) &&
-    parentBlockSpec?.implementation.meta?.code === true;
+    $from.sameParent($to) && parentBlockSpec?.implementation.meta.code === true;
 
   const markdown = isPurelyInsideCodeBlock
     ? view.state.doc.textBetween($from.pos, $to.pos)

@@ -45,7 +45,7 @@ export function collectHighlightNodeTypes(schema: {
       (blockSpec): blockSpec is LooseBlockSpec =>
         typeof (blockSpec as LooseBlockSpec)?.config === "object" &&
         (blockSpec as LooseBlockSpec).config.content === "plain" &&
-        !!(blockSpec as LooseBlockSpec).implementation?.meta?.highlight,
+        !!(blockSpec as LooseBlockSpec).implementation.meta.highlight,
     )
     .map((blockSpec) => blockSpec.config.type);
 

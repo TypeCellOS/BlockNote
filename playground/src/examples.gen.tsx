@@ -846,7 +846,7 @@ export const examples = {
           slug: "ui-components",
         },
         readme:
-          "This example demonstrates how to use the `DRAG_EXCLUSION_CLASSNAME` to create separate drag & drop areas that don't interfere with BlockNote's built-in block drag & drop functionality.\n\n## Features\n\n- **Drag Exclusion**: Elements with the `bn-drag-exclude` classname are treated as separate drag & drop operations\n- **Independent Drag Areas**: Create custom drag & drop functionality alongside BlockNote's editor\n- **No Interference**: Custom drag operations won't trigger BlockNote's block reordering\n- **Side-by-side Demo**: Shows the editor and custom drag area working independently\n\n## How It Works\n\nBy adding the `DRAG_EXCLUSION_CLASSNAME` (`bn-drag-exclude`) to an element, you tell BlockNote's drag & drop handlers to ignore all drag events within that element and its children. This allows you to implement your own custom drag & drop logic without conflicts.\n\nThe exclusion check works by traversing up the DOM tree from the drag event target, checking if any ancestor has the exclusion classname. If found, BlockNote's handlers return early, leaving your custom handlers in full control.\n\n## Code Highlights\n\n### Import the constant:\n\n```tsx\nimport { DRAG_EXCLUSION_CLASSNAME } from \"@blocknote/core\";\n```\n\n### Apply it to your custom drag area:\n\n```tsx\n<div className={\"drag-demo-section \" + DRAG_EXCLUSION_CLASSNAME}>\n  {/* Your custom drag & drop UI */}\n  <div draggable onDragStart={handleDragStart} onDrop={handleDrop}>\n    Custom draggable items\n  </div>\n</div>\n```\n\n## Use Cases\n\n- **Custom UI elements**: Add draggable components within or near the editor\n- **File upload areas**: Create drag-and-drop file upload zones\n- **Sortable lists**: Implement custom sortable lists alongside the editor\n- **External integrations**: Integrate with third-party drag & drop libraries\n\n**Relevant Docs:**\n\n- [Side Menu (Drag Handle)](/docs/react/components/side-menu)\n- [Editor Setup](/docs/getting-started/editor-setup)",
+          "This example demonstrates how to use the `DRAG_EXCLUSION_CLASSNAME` to create separate drag & drop areas that don't interfere with BlockNote's built-in block drag & drop functionality.\n\n## Features\n\n- **Drag Exclusion**: Elements with the `bn-drag-exclude` classname are treated as separate drag & drop operations\n- **Independent Drag Areas**: Create custom drag & drop functionality alongside BlockNote's editor\n- **No Interference**: Custom drag operations won't trigger BlockNote's block reordering\n- **Side-by-side Demo**: Shows the editor and custom drag area working independently\n\n## How It Works\n\nBy adding the `DRAG_EXCLUSION_CLASSNAME` (`bn-drag-exclude`) to an element, you tell BlockNote's drag & drop handlers to ignore all drag events within that element and its children. This allows you to implement your own custom drag & drop logic without conflicts.\n\nThe exclusion check works by traversing up the DOM tree from the drag event target, checking if any ancestor has the exclusion classname. If found, BlockNote's handlers return early, leaving your custom handlers in full control.\n\n## Code Highlights\n\n### Import the constant:\n\n```tsx\nimport { DRAG_EXCLUSION_CLASSNAME } from \"@blocknote/core/extensions\";\n```\n\n### Apply it to your custom drag area:\n\n```tsx\n<div className={\"drag-demo-section \" + DRAG_EXCLUSION_CLASSNAME}>\n  {/* Your custom drag & drop UI */}\n  <div draggable onDragStart={handleDragStart} onDrop={handleDrop}>\n    Custom draggable items\n  </div>\n</div>\n```\n\n## Use Cases\n\n- **Custom UI elements**: Add draggable components within or near the editor\n- **File upload areas**: Create drag-and-drop file upload zones\n- **Sortable lists**: Implement custom sortable lists alongside the editor\n- **External integrations**: Integrate with third-party drag & drop libraries\n\n**Relevant Docs:**\n\n- [Side Menu (Drag Handle)](/docs/react/components/side-menu)\n- [Editor Setup](/docs/getting-started/editor-setup)",
       },
       {
         projectSlug: "suggestion-menus-grouping-ordering",
@@ -1305,13 +1305,7 @@ export const examples = {
           playground: true,
           docs: true,
           author: "matthewlipski",
-          tags: [
-            "Intermediate",
-            "Blocks",
-            "Custom Schemas",
-            "Suggestion Menus",
-            "Slash Menu",
-          ],
+          tags: ["Intermediate", "Blocks", "Custom Schemas"],
           dependencies: {
             "@mantine/core": "^9.0.2",
             "react-icons": "^5.5.0",
@@ -1323,7 +1317,7 @@ export const examples = {
           slug: "custom-schema",
         },
         readme:
-          'In this example, we create a custom `Alert` block which is used to emphasize text.\n\n**Try it out:** Click the "!" icon to change the alert type!\n\n**Relevant Docs:**\n\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)',
+          'In this example, we create a custom `Alert` block which is used to emphasize text.\n\n**Try it out:** Click the "!" icon to change the alert type!\n\n**Relevant Docs:**\n\n- [Alert Block with Full UX](/examples/custom-schema/alert-block-full-ux)\n- [Alert Block with Title and Body](/examples/custom-schema/alert-block-with-title-and-body)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)',
       },
       {
         projectSlug: "suggestion-menus-mentions",
@@ -1430,25 +1424,7 @@ export const examples = {
           slug: "custom-schema",
         },
         readme:
-          'In this example, we create a custom `Alert` block which is used to emphasize text, same as in the [minimal `Alert` block example](/examples/custom-schema/alert-block). However, in this example, we also add a command to insert the block via the Slash Menu, and an entry in the Formatting Toolbar\'s Block Type Select to change the current block to an `Alert`.\n\n**Try it out:** Press the "/" key to open the Slash Menu and insert an `Alert` block! Or highlight text in a paragraph, then change the block type to an `Alert` using the Block Type Select in the Formatting Toolbar!\n\n**Relevant Docs:**\n\n- [Minimal Alert Block Example](/examples/custom-schema/alert-block)\n- [Changing Slash Menu Items](/docs/react/components/suggestion-menus)\n- [Changing Block Type Select Items](/docs/react/components/formatting-toolbar)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)',
-      },
-      {
-        projectSlug: "toggleable-blocks",
-        fullSlug: "custom-schema/toggleable-blocks",
-        pathFromRoot: "examples/06-custom-schema/06-toggleable-blocks",
-        config: {
-          playground: true,
-          docs: true,
-          author: "matthewlipski",
-          tags: ["Basic"],
-        },
-        title: "Toggleable Custom Blocks",
-        group: {
-          pathFromRoot: "examples/06-custom-schema",
-          slug: "custom-schema",
-        },
-        readme:
-          "This example shows how to create custom blocks with a toggle button to show/hide their children, like with the default toggle heading and list item blocks. This is done using the use the `ToggleWrapper` component from `@blocknote/react`.\n\n**Relevant Docs:**\n\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Default Schema](/docs/features/blocks)",
+          'In this example, we create a custom `Alert` block which is used to emphasize text, same as in the [minimal `Alert` block example](/examples/custom-schema/alert-block). However, in this example, we also add a command to insert the block via the Slash Menu, and an entry in the Formatting Toolbar\'s Block Type Select to change the current block to an `Alert`.\n\n**Try it out:** Press the "/" key to open the Slash Menu and insert an `Alert` block! Or highlight text in a paragraph, then change the block type to an `Alert` using the Block Type Select in the Formatting Toolbar!\n\n**Relevant Docs:**\n\n- [Minimal Alert Block Example](/examples/custom-schema/alert-block)\n- [Alert Block with Title and Body](/examples/custom-schema/alert-block-with-title-and-body)\n- [Changing Slash Menu Items](/docs/react/components/suggestion-menus)\n- [Changing Block Type Select Items](/docs/react/components/formatting-toolbar)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)',
       },
       {
         projectSlug: "configuring-blocks",
@@ -1485,6 +1461,33 @@ export const examples = {
         },
         readme:
           "In this example, we create a custom block which renders a simple HTML paragraph with placeholder text. The block has no editable content.\n\n**Relevant Docs:**\n\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)",
+      },
+      {
+        projectSlug: "layout-block",
+        fullSlug: "custom-schema/layout-block",
+        pathFromRoot: "examples/06-custom-schema/09-layout-block",
+        config: {
+          playground: true,
+          docs: true,
+          author: "nickthesick",
+          tags: [
+            "Intermediate",
+            "Blocks",
+            "Custom Schemas",
+            "Suggestion Menus",
+            "Slash Menu",
+          ],
+          dependencies: {
+            "react-icons": "^5.5.0",
+          } as any,
+        },
+        title: "Layout Block",
+        group: {
+          pathFromRoot: "examples/06-custom-schema",
+          slug: "custom-schema",
+        },
+        readme:
+          'In this example, we create a custom `Panel` block that holds other blocks as its body, such as a panel containing headings and paragraphs.\n\nThe block sets `layoutOnly: true` on `BlockConfig`, which makes it a layout block: it has no content of its own, only child blocks. It draws its box in `renderFrame`, and its child blocks go where `slotRef` is attached. At runtime, they are in `block.children`.\n\nWe also wire up a Slash Menu item to insert the panel.\n\n**Try it out:**\n\n- Press the "/" key inside the panel\'s body and add a code block, heading, or list.\n- Insert a new panel via the Slash Menu (search "panel").\n\n**Relevant Docs:**\n\n- [Layout Blocks](/docs/features/custom-schemas/layout-blocks)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)',
       },
       {
         projectSlug: "math-block",
@@ -1564,6 +1567,74 @@ export const examples = {
         },
         readme:
           'In this example, we build custom blocks on the source-with-preview pattern — the same building blocks behind BlockNote\'s math and diagram blocks. A custom "CSV table" block renders its comma-separated source as a table, and a custom "color" inline content renders a CSS color as a swatch. Both show the rendered preview in place, while the source is edited in a popup.\n\n**Try it out:** Click the table or a color chip to edit its source!\n\n**Relevant Docs:**\n\n- [Source with Preview Blocks](/docs/features/custom-schemas/source-with-preview)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Custom Inline Content](/docs/features/custom-schemas/custom-inline-content)',
+      },
+      {
+        projectSlug: "alert-block-with-title-and-body",
+        fullSlug: "custom-schema/alert-block-with-title-and-body",
+        pathFromRoot:
+          "examples/06-custom-schema/13-alert-block-with-title-and-body",
+        config: {
+          playground: true,
+          docs: true,
+          author: "nickthesick",
+          tags: ["Intermediate", "Blocks", "Custom Schemas"],
+          dependencies: {
+            "@mantine/core": "^9.0.2",
+            "react-icons": "^5.5.0",
+          } as any,
+        },
+        title: "Alert Block with Title and Body",
+        group: {
+          pathFromRoot: "examples/06-custom-schema",
+          slug: "custom-schema",
+        },
+        readme:
+          "In this example, we extend the [`Alert` block](/examples/custom-schema/alert-block) with a title and a body: the alert's text is its title, and its child blocks are the body.\n\nThe block has `content: \"inline\"`, so the title is ordinary inline content: formatting, links, and multiplayer cursors all work. Its child blocks are in `block.children` at runtime. `render` draws the title row, the same as in the Alert example, and `renderFrame` draws the alert's box around the title and the body together. Its `experimental_keyboard` settings keep the body inside the alert: Enter in the title adds a first child block, Shift-Tab doesn't move child blocks out, and Enter in an empty last child block leaves the alert.\n\n**Try it out:**\n\n- Click the icon to change the alert type.\n- Press Enter at the end of the alert's title to add a block to its body.\n- Press Enter in an empty last block of the body to leave the alert.\n- Press Backspace at the start of the first block in the body to merge it back into the title.\n- Press \"/\" in the body and add a code block, heading, or list.\n\n**Relevant Docs:**\n\n- [Minimal Alert Block Example](/examples/custom-schema/alert-block)\n- [Alert Block with Full UX](/examples/custom-schema/alert-block-full-ux)\n- [Block Frames](/docs/features/custom-schemas/custom-blocks#block-frames)\n- [Layout Blocks and Block Frames](/docs/features/custom-schemas/layout-blocks#layout-blocks-and-block-frames)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)",
+      },
+      {
+        projectSlug: "tabs-block",
+        fullSlug: "custom-schema/tabs-block",
+        pathFromRoot: "examples/06-custom-schema/14-tabs-block",
+        config: {
+          playground: true,
+          docs: true,
+          author: "yousefed",
+          tags: ["Intermediate", "Blocks", "Custom Schemas"],
+          dependencies: {
+            "react-icons": "^5.5.0",
+            "@dnd-kit/core": "^6.3.1",
+            "@dnd-kit/sortable": "^10.0.0",
+            "@dnd-kit/utilities": "^3.2.2",
+          } as any,
+        },
+        title: "Tabs Block",
+        group: {
+          pathFromRoot: "examples/06-custom-schema",
+          slug: "custom-schema",
+        },
+        readme:
+          "A tab set built on the layout block API. `tabs` is a layout block whose\n`children` are restricted to `tab` panels, and `tab` is a `placeable:\n\"namedOnly\"` layout block, so a panel can only ever exist inside a tab set —\nthe schema enforces both. Both blocks are layout blocks (`layoutOnly: true`), so\nthey declare only `renderFrame`, and the child blocks go where `slotRef` is\nattached.\n\nEach panel holds any block. A panel's label is document content and lives in\nits props. Which panel is open is not: it belongs to each reader, so it is kept\noutside the document, in `localStorage` keyed by the tab set's id. Switching\ntabs is therefore not an undo step and is not sent to collaborators.\n\n**Try it out:** Click a tab to open it, click the open tab for its menu, and\ndrag a tab to reorder it.\n\n## What a tab set needs beyond the layout block API\n\n**Revealing the panel the caret lands in.** A hidden panel is still part of the\ndocument, so the editor will move content into it: Backspace at the start of\nthe block after a tab set pulls that block into the last panel, which may not\nbe the open one. `useRevealCaretPanel` opens whichever panel the caret ends up\nin, using `editor.onSelectionChange`, so every route in (Backspace, Delete,\narrow keys, drag and drop, paste) is covered at once.\n\n**Moving the caret when a tab is clicked.** An explicit switch takes the caret\nwith it when the caret was inside the set. Otherwise the reveal above would\nimmediately reopen the panel it was left in.\n\n**A menu instead of buttons.** Clicking the open tab opens a menu to rename,\nmove or delete it. It is built from `useComponentsContext()`, so it matches\nwhichever UI library the editor uses.\n\n**Drag to reorder.** Tabs are sortable with dnd-kit. A tab keeps its block id\nwhen it moves, so the reader's open tab follows it.\n\n**Empty tabs stay.** The tab set sets `children.dissolve` to `false`. A tab\nis content, not layout: an empty tab is still a tab, and when the last tab is\nremoved, the tab set stays with a new, empty tab. (A column list dissolves:\nan empty column is removed, and one column left is just its blocks.)\n\n**Relevant Docs:**\n\n- [Layout Blocks](/docs/features/custom-schemas/layout-blocks)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)",
+      },
+      {
+        projectSlug: "stepper-block",
+        fullSlug: "custom-schema/stepper-block",
+        pathFromRoot: "examples/06-custom-schema/15-stepper-block",
+        config: {
+          playground: true,
+          docs: true,
+          author: "yousefed",
+          tags: ["Intermediate", "Blocks", "Custom Schemas"],
+          dependencies: {
+            "react-icons": "^5.5.0",
+          } as any,
+        },
+        title: "Stepper Block",
+        group: {
+          pathFromRoot: "examples/06-custom-schema",
+          slug: "custom-schema",
+        },
+        readme:
+          'Numbered steps built on the layout block API. `stepper` is a layout block\nrestricted to `step` children, and `step` is a `placeable: "namedOnly"`\nlayout block, so a step can only exist inside a stepper.\n\nEach step holds any blocks: headings, lists, code. The numbers are a CSS\ncounter, so they stay correct as steps are added, removed, reordered or\nundone. Nothing in the document has to be kept in sync.\n\n**Add step** below the last step adds an untitled one.\n\nBoth blocks are layout blocks (`layoutOnly: true`), so they declare only\n`renderFrame`, and the child blocks go where `slotRef` is attached. A step can\nonly be inside a stepper, so it gets no drag handle by default. The step sets\n`meta: { draggable: true }` to keep it, so the side menu can move or delete a\nstep.\n\n## Things worth knowing\n\n**Enter starts the next step.** By default, Enter on an empty block at the end\nof a step moves that block out below the whole stepper, so the keyboard alone\ncannot start a new step. `enterStartsNextStep` makes Enter work the way it does\nin a list:\n\n1. Enter at the end of a step adds a block to that step.\n2. Enter again, on the empty block, starts the next step and puts the caret\n   in its title.\n3. Enter again, on the empty title, leaves the stepper. It leaves a paragraph\n   behind, not the empty heading the step was created with.\n\nThe block\'s `experimental_keyboard` settings cannot insert a new step, so this\nis written as an extension, passed as the third argument of\n`createReactBlockSpec`.\n\n## Known limitations\n\n**The title is not enforced.** A step has no text of its own: its title is\nsimply its first child, a heading. The user can turn that heading into any\nother block, delete it, or put blocks above it. A real title needs a block\nwith its own text that may only appear inside a stepper, and the layout block API\ncannot express that yet: `placeable: "namedOnly"` requires a layout block (a\nblock without content), and `children.allow` can only name layout blocks.\n\n**Empty steps stay.** The stepper sets `children.dissolve` to `false`, so a\nstep that holds only an empty paragraph is not removed, and the stepper stays\nwhen its last step is removed.\n\n## What the layout block API gives you for free\n\n- Backspace at the start of a step\'s title first turns it into a paragraph.\n  A second Backspace moves it to the end of the previous step, or above the\n  stepper if it is in the first step.\n- A step stays when its blocks are removed. When the last step is removed,\n  the stepper stays and gets a new step with an empty paragraph.\n- Shift-Tab unnests inside a step and stops at the step\'s edge.\n\n**Relevant Docs:**\n\n- [Layout Blocks](/docs/features/custom-schemas/layout-blocks)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)',
       },
       {
         projectSlug: "draggable-inline-content",
@@ -1650,7 +1721,7 @@ export const examples = {
           tags: ["Advanced", "Saving/Loading", "Collaboration"],
           dependencies: {
             "y-partykit": "^0.0.25",
-            yjs: "^13.6.27",
+            yjs: "^13.6.33",
           } as any,
         },
         title: "Collaborative Editing with PartyKit",
@@ -1676,7 +1747,7 @@ export const examples = {
             "@liveblocks/react-blocknote": "^3.19.5",
             "@liveblocks/react-tiptap": "^3.19.5",
             "@liveblocks/react-ui": "^3.19.5",
-            yjs: "^13.6.27",
+            yjs: "^13.6.33",
           } as any,
         },
         title: "Collaborative Editing with Liveblocks",
@@ -1759,7 +1830,7 @@ export const examples = {
           tags: ["Advanced", "Comments", "Collaboration"],
           dependencies: {
             "y-partykit": "^0.0.25",
-            yjs: "^13.6.27",
+            yjs: "^13.6.33",
             "@mantine/core": "^9.0.2",
           } as any,
         },
@@ -1782,7 +1853,7 @@ export const examples = {
           tags: ["Advanced", "Development", "Collaboration"],
           dependencies: {
             "y-partykit": "^0.0.25",
-            yjs: "^13.6.27",
+            yjs: "^13.6.33",
           } as any,
         },
         title: "Ghost Writer",
@@ -1804,7 +1875,7 @@ export const examples = {
           tags: ["Advanced", "Development", "Collaboration"],
           dependencies: {
             "y-partykit": "^0.0.25",
-            yjs: "^13.6.27",
+            yjs: "^13.6.33",
           } as any,
         },
         title: "Collaborative Editing with Forking",
@@ -1825,7 +1896,7 @@ export const examples = {
           author: "matthewlipski",
           tags: ["Advanced", "Comments", "Testing"],
           dependencies: {
-            yjs: "^13.6.27",
+            yjs: "^13.6.33",
           } as any,
         },
         title: "Comments Testing",
@@ -1842,13 +1913,13 @@ export const examples = {
         pathFromRoot: "examples/07-collaboration/10-suggestion-multi-editor",
         config: {
           playground: true,
-          docs: true,
+          docs: false,
           author: "nperez0111",
           tags: ["Advanced", "Saving/Loading", "Collaboration"],
           dependencies: {
             "@y/protocols": "^1.0.6-rc.1",
-            "@y/y": "^14.0.0-rc.23",
-            "@y/prosemirror": "^2.0.0-6",
+            "@y/y": "^14.0.0-rc.26",
+            "@y/prosemirror": "^2.0.0-15",
             "@y/websocket": "^4.0.0-rc.2",
           } as any,
         },
@@ -1866,22 +1937,26 @@ export const examples = {
         pathFromRoot: "examples/07-collaboration/11-versioning-yjs13",
         config: {
           playground: true,
-          docs: true,
+          docs: false,
           author: "yousefed",
           tags: ["Advanced", "Development", "Collaboration"],
           dependencies: {
+            "@y/prosemirror": "^2.0.0-15",
+            "@y/protocols": "^1.0.6-rc.1",
+            "@y/y": "^14.0.0-rc.26",
             "y-websocket": "^2.1.0",
-            yjs: "^13.6.27",
-            lib0: "^0.2.99",
+            yjs: "^13.6.33",
+            lib0: "^0.2.119",
+            "y-prosemirror": "^1.3.7",
           } as any,
         },
-        title: "Local Storage Versioning (yjs v13)",
+        title: "Local Storage Versioning (Yjs v13, Experimental)",
         group: {
           pathFromRoot: "examples/07-collaboration",
           slug: "collaboration",
         },
         readme:
-          'This example shows how to use the `VersioningExtension` with collaborative editing using `yjs` (v13). Snapshots are stored in localStorage using Yjs state updates.\n\n**Try it out:** Edit the document, then click the "Version History" button to open the sidebar. From there you can save snapshots, preview older versions, rename them, and restore them.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Real-time collaboration](/docs/features/collaboration)',
+          'This experimental playground example shows how to use `YjsVersioningExtension` with collaborative editing using Yjs v13. Snapshots are stored in localStorage using Yjs state updates.\n\nThe sidebar opens on a document with a few versions already in its history. You can preview, compare, rename, and restore a version. `DiffVersioningExtension` highlights insertions and deletions when comparing versions. It uses Yjs v14 internally for rendering, while the live collaborative document stays on Yjs v13. Diffs show content changes, not their original authors. Restoring replaces the live document content and saves the previous content as a "Backup" version. The editor is read-only while the sidebar is open: close it to edit the document, then reopen it with the "History" button and name the current version to save it.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Real-time collaboration](/docs/features/collaboration)',
       },
       {
         projectSlug: "multi-doc-versioning",
@@ -1895,8 +1970,9 @@ export const examples = {
           dependencies: {
             "@y/protocols": "^1.0.6-rc.1",
             "@y/websocket": "^4.0.0-3",
-            "@y/y": "^14.0.0-rc.23",
-            lib0: "1.0.0-rc.22",
+            "@y/y": "^14.0.0-rc.26",
+            lib0: "1.0.0-rc.36",
+            "@y/prosemirror": "^2.0.0-15",
           } as any,
         },
         title: "YHub Multi-Doc",
@@ -1905,7 +1981,7 @@ export const examples = {
           slug: "collaboration",
         },
         readme:
-          "This example shows a multi-document collaborative editor with per-document version history, using BlockNote's `VersioningExtension` and Y.js v14.\n\n**Features:**\n\n- User picker (per-tab identity via `sessionStorage`)\n- Left sidebar with document list (create, rename, delete)\n- Collaborative editing with Y.js (including suggestion mode)\n- Right sidebar with version history powered by `VersioningSidebar`\n- Per-document versioning backed by `localStorage`\n- Open multiple tabs with different users via the `?as=` URL param\n\n**Relevant Docs:**\n\n- [Versioning](https://www.blocknotejs.org/docs/collaboration/versioning)\n- [Y.js Collaboration](https://www.blocknotejs.org/docs/collaboration)",
+          'This example shows a multi-document collaborative editor with per-document version history, using BlockNote\'s `YVersioningExtension` and Y.js v14. Sync and history both come from [YHub](https://github.com/yjs/yhub), which records every edit and groups them into versions.\n\nA first visit creates a sample document whose history already has several versions by several users, so the history sidebar has something to show right away. The editor is read-only while the sidebar is open: close it to edit, then reopen it with the "History" button.\n\n**Features:**\n\n- User picker (per-tab identity via `sessionStorage`)\n- Left sidebar with document list (create, rename, delete)\n- Collaborative editing with Y.js (including suggestion mode)\n- Right sidebar with version history powered by `VersioningSidebar`\n- Per-document version history backed by YHub\n- Open multiple tabs with different users via the `?as=` URL param\n\n**Relevant Docs:**\n\n- [Versioning](https://www.blocknotejs.org/docs/collaboration/versioning)\n- [Y.js Collaboration](https://www.blocknotejs.org/docs/collaboration)',
       },
       {
         projectSlug: "versioning-yjs14",
@@ -1917,11 +1993,11 @@ export const examples = {
           author: "yousefed",
           tags: ["Advanced", "Development", "Collaboration"],
           dependencies: {
-            "@y/prosemirror": "^2.0.0-6",
+            "@y/prosemirror": "^2.0.0-15",
             "@y/protocols": "^1.0.6-rc.1",
             "@y/websocket": "^4.0.0-3",
-            "@y/y": "^14.0.0-rc.23",
-            lib0: "1.0.0-rc.22",
+            "@y/y": "^14.0.0-rc.26",
+            lib0: "1.0.0-rc.36",
           } as any,
         },
         title: "YHub Versioning (@y/y v14)",
@@ -1930,7 +2006,7 @@ export const examples = {
           slug: "collaboration",
         },
         readme:
-          'This example shows how to use the `VersioningExtension` with collaborative editing using `@y/y` (v14). Snapshots are stored in localStorage using Yjs v2 state updates.\n\n**Try it out:** Edit the document, then click the "Version History" button to open the sidebar. From there you can save snapshots, preview older versions, rename them, and restore them.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Real-time collaboration](/docs/features/collaboration)',
+          'This example shows how to use `YVersioningExtension` with collaborative editing using `@y/y` (v14). Version history comes from [YHub](https://github.com/yjs/yhub), which records every edit and groups them into versions.\n\nThe sidebar opens on a document seeded with several versions by several users, so you can preview them, compare them, rename them, and restore them right away. The editor is read-only while the sidebar is open: close it to edit the document, then reopen it with the "History" button.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Real-time collaboration](/docs/features/collaboration)',
       },
       {
         projectSlug: "suggestion-gallery",
@@ -1942,9 +2018,10 @@ export const examples = {
           author: "yousefed",
           tags: ["Advanced", "Development", "Collaboration"],
           dependencies: {
+            "@blocknote/diagram-block": "latest",
             "@blocknote/xl-multi-column": "latest",
             "@y/protocols": "^1.0.6-rc.1",
-            "@y/y": "^14.0.0-rc.23",
+            "@y/y": "^14.0.0-rc.26",
           } as any,
         },
         title: "Suggestion Scenarios Gallery",
@@ -1993,8 +2070,9 @@ export const examples = {
           author: "yousefed",
           tags: ["Extension"],
           dependencies: {
-            "@y/y": "^14.0.0-rc.23",
-            "@y/prosemirror": "^2.0.0-6",
+            "@y/y": "^14.0.0-rc.26",
+            "@y/prosemirror": "^2.0.0-15",
+            "react-icons": "^5.5.0",
           } as any,
         },
         title: "In-Memory Versioning",
@@ -2003,7 +2081,7 @@ export const examples = {
           slug: "extensions",
         },
         readme:
-          'This example shows how to use the `VersioningExtension` without any collaboration layer (no Yjs required). Snapshots are stored in memory using ProseMirror JSON.\n\n**Try it out:** Edit the document, then use the Version History sidebar to save snapshots, preview older versions, rename them, and restore them. You can hide the sidebar with the close button and reopen it with the "History" button.',
+          'This example shows how to use `InMemoryVersioningExtension` without a collaboration layer. It seeds history with ProseMirror document JSON, which the extension converts to immutable documents using the editor\'s schema. `initialVersions` also accepts BlockNote JSON as arrays of partial blocks.\n\nThe sidebar opens on a document with a few versions already in its history, including an automatic unnamed version, so you can preview them, compare them, rename them, restore them, and try the named-only filter right away. The editor is read-only while the sidebar is open: close it to edit the document, then reopen it with the "History" button.',
       },
     ],
   },
@@ -2095,7 +2173,7 @@ export const examples = {
             "@mantine/core": "^9.0.2",
             ai: "^6.0.5",
             "y-partykit": "^0.0.25",
-            yjs: "^13.6.27",
+            yjs: "^13.6.33",
           } as any,
         },
         title: "AI + Ghost Writer",
@@ -2120,7 +2198,7 @@ export const examples = {
             "@mantine/core": "^9.0.2",
             ai: "^6.0.5",
             "y-partykit": "^0.0.25",
-            yjs: "^13.6.27",
+            yjs: "^13.6.33",
           } as any,
         },
         title: "AI manual execution",

@@ -526,7 +526,7 @@ exports[`Test updateBlock > Update nested paragraph to column list 1`] = `
                     "type": "text",
                   },
                 ],
-                "id": "2",
+                "id": "1",
                 "props": {
                   "backgroundColor": "default",
                   "textAlignment": "left",
@@ -536,7 +536,7 @@ exports[`Test updateBlock > Update nested paragraph to column list 1`] = `
               },
             ],
             "content": undefined,
-            "id": "1",
+            "id": "0",
             "props": {
               "width": 1,
             },
@@ -553,7 +553,7 @@ exports[`Test updateBlock > Update nested paragraph to column list 1`] = `
                     "type": "text",
                   },
                 ],
-                "id": "4",
+                "id": "3",
                 "props": {
                   "backgroundColor": "default",
                   "textAlignment": "left",
@@ -563,7 +563,7 @@ exports[`Test updateBlock > Update nested paragraph to column list 1`] = `
               },
             ],
             "content": undefined,
-            "id": "3",
+            "id": "2",
             "props": {
               "width": 1,
             },
@@ -571,7 +571,7 @@ exports[`Test updateBlock > Update nested paragraph to column list 1`] = `
           },
         ],
         "content": undefined,
-        "id": "0",
+        "id": "nested-paragraph-0",
         "props": {},
         "type": "columnList",
       },
@@ -941,7 +941,7 @@ exports[`Test updateBlock > Update paragraph to column list 1`] = `
                 "type": "text",
               },
             ],
-            "id": "2",
+            "id": "1",
             "props": {
               "backgroundColor": "default",
               "textAlignment": "left",
@@ -951,7 +951,7 @@ exports[`Test updateBlock > Update paragraph to column list 1`] = `
           },
         ],
         "content": undefined,
-        "id": "1",
+        "id": "0",
         "props": {
           "width": 1,
         },
@@ -968,7 +968,7 @@ exports[`Test updateBlock > Update paragraph to column list 1`] = `
                 "type": "text",
               },
             ],
-            "id": "4",
+            "id": "3",
             "props": {
               "backgroundColor": "default",
               "textAlignment": "left",
@@ -978,7 +978,7 @@ exports[`Test updateBlock > Update paragraph to column list 1`] = `
           },
         ],
         "content": undefined,
-        "id": "3",
+        "id": "2",
         "props": {
           "width": 1,
         },
@@ -986,7 +986,7 @@ exports[`Test updateBlock > Update paragraph to column list 1`] = `
       },
     ],
     "content": undefined,
-    "id": "0",
+    "id": "paragraph-0",
     "props": {},
     "type": "columnList",
   },

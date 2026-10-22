@@ -1,14 +1,45 @@
 import type { BlockNoteEditor } from "@blocknote/core";
 import {
-  UniqueID,
   createExtension,
   fragmentToBlocks,
-  getBlockInfo,
+  getBlockInfoFromNode,
+  getNodeById,
   nodeToBlock,
 } from "@blocknote/core";
+import { UniqueID } from "@blocknote/core/extensions";
+import type { Node } from "prosemirror-model";
 import { Plugin } from "prosemirror-state";
 import type { EditorView } from "prosemirror-view";
 import { detectEdgePosition } from "./multiColumnDropCursor.js";
+
+/**
+ * Whether the drop target is one of the dragged blocks, or inside one: the
+ * blocks are being dropped onto themselves. E.g. a block selection that spans
+ * the paragraph above a column list and the whole list, dragged by one of the
+ * list's blocks and dropped on a column's edge. Removing the dragged blocks
+ * would take the target with them.
+ */
+function targetInDraggedBlocks(
+  doc: Node,
+  draggedBlockIds: Set<string>,
+  targetId: string,
+): boolean {
+  const target = getNodeById(targetId, doc);
+  if (!target) {
+    throw new Error(`Drop target "${targetId}" is not in the document`);
+  }
+  for (const id of draggedBlockIds) {
+    const dragged = getNodeById(id, doc);
+    if (
+      dragged &&
+      dragged.posBeforeNode <= target.posBeforeNode &&
+      target.posBeforeNode < dragged.posBeforeNode + dragged.node.nodeSize
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
 
 /**
  * Creates a ProseMirror plugin that handles drop events for multi-column layouts.
@@ -26,7 +57,10 @@ export function createMultiColumnHandleDropPlugin(
           return false; // Let ProseMirror handle the drop (e.g. outside editor bounds)
         }
 
-        const blockInfo = getBlockInfo(edgePos);
+        const blockInfo = getBlockInfoFromNode(
+          edgePos.node,
+          edgePos.posBeforeNode,
+        );
 
         // Only handle edge drops (left/right)
         if (edgePos.position === "regular") {
@@ -48,24 +82,38 @@ export function createMultiColumnHandleDropPlugin(
           // emptied target in the same position, so do nothing. This also
           // keeps the column's ID and width instead of resetting them.
           let allTargetChildrenDragged = true;
-          blockInfo.bnBlock.node.forEach((child) => {
+          blockInfo.block.node.forEach((child) => {
             if (!draggedBlockIds.has(child.attrs.id)) {
               allTargetChildrenDragged = false;
             }
           });
-          if (allTargetChildrenDragged) {
+          if (
+            allTargetChildrenDragged &&
+            draggedBlockIds.size === blockInfo.block.node.childCount
+          ) {
             return true;
           }
 
           // Insert new column in existing columnList
           const parentBlock = view.state.doc
-            .resolve(blockInfo.bnBlock.beforePos)
+            .resolve(blockInfo.block.beforePos)
             .node();
 
           const columnList = nodeToBlock<any, any, any>(
             parentBlock,
             view.state.doc,
           );
+
+          // The user is dropping the blocks on a list they hold - do nothing.
+          if (
+            targetInDraggedBlocks(
+              view.state.doc,
+              draggedBlockIds,
+              columnList.id,
+            )
+          ) {
+            return true;
+          }
 
           // Normalize column widths to average of 1
           // In a `columnList`, we expect that the average width of each column
@@ -94,7 +142,7 @@ export function createMultiColumnHandleDropPlugin(
             });
           }
 
-          const targetColumnId = blockInfo.bnBlock.node.attrs.id;
+          const targetColumnId = blockInfo.block.node.attrs.id;
 
           // Tracks which of the dragged blocks were already in the column
           // list - removing those from their old position is handled by
@@ -113,36 +161,39 @@ export function createMultiColumnHandleDropPlugin(
                 blocksAlreadyInColumnList.add(block.id);
                 return false;
               }),
-            }))
-            // Remove empty columns (can happen when dragged blocks are
-            // removed).
-            .filter((column) => column.children.length > 0);
+            }));
 
-          // The insertion index is computed on the remaining columns, as
-          // removing an emptied column before the drop target shifts the
-          // target's position in the list.
-          const targetIndex = remainingColumns.findIndex(
+          // Count surviving columns before the original drop boundary. This
+          // also works when the selection empties the target column itself.
+          const originalTargetIndex = columnList.children.findIndex(
             (column) => column.id === targetColumnId,
           );
-          if (targetIndex === -1) {
-            // The target column can only be missing if the drag emptied it,
-            // which is handled as a no-op above.
+          if (originalTargetIndex === -1) {
+            // The drop target comes from this column list, so it is one of
+            // its columns. If it is not, the two come from different
+            // documents. Without this check, the new column goes to an
+            // incorrect position and no error shows.
             throw new Error(
-              "Drop target column not found in the remaining columns",
+              "The drop target column is not a column of its column list.",
             );
           }
-          const insertionIndex =
-            edgePos.position === "left" ? targetIndex : targetIndex + 1;
+          const boundary =
+            originalTargetIndex + (edgePos.position === "right" ? 1 : 0);
+          const insertionIndex = remainingColumns
+            .slice(0, boundary)
+            .filter((column) => column.children.length > 0).length;
 
           // Insert the dragged blocks as a new column in the correct
           // position.
-          const newChildren = remainingColumns.toSpliced(insertionIndex, 0, {
-            type: "column",
-            children: draggedBlocks,
-            props: {},
-            content: undefined,
-            id: UniqueID.options.generateID(),
-          });
+          const newChildren = remainingColumns
+            .filter((column) => column.children.length > 0)
+            .toSpliced(insertionIndex, 0, {
+              type: "column",
+              children: draggedBlocks,
+              props: {},
+              content: undefined,
+              id: UniqueID.options.generateID(),
+            });
 
           const blocksToRemove = draggedBlocks.filter(
             (block) =>
@@ -153,16 +204,22 @@ export function createMultiColumnHandleDropPlugin(
             editor.removeBlocks(blocksToRemove);
           }
 
-          editor.updateBlock(columnList, {
-            children: newChildren,
-          });
+          if (newChildren.length === 1) {
+            editor.replaceBlocks([columnList], draggedBlocks);
+          } else {
+            editor.updateBlock(columnList, {
+              children: newChildren,
+            });
+          }
         } else {
           // Create new columnList with blocks as columns
-          const block = nodeToBlock(blockInfo.bnBlock.node, view.state.doc);
+          const block = nodeToBlock(blockInfo.block.node, view.state.doc);
 
-          // The user is dropping next to one of the blocks being dragged - do
-          // nothing.
-          if (draggedBlockIds.has(block.id)) {
+          // The user is dropping next to one of the blocks being dragged, or
+          // next to a block inside one - do nothing.
+          if (
+            targetInDraggedBlocks(view.state.doc, draggedBlockIds, block.id)
+          ) {
             return true;
           }
 

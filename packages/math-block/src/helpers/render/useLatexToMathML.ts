@@ -1,3 +1,4 @@
+/* eslint-disable react/refs -- This render-phase cache retains the last valid MathML while a new source fails to parse. */
 import { useRef } from "react";
 
 import { latexToHTMLString } from "../latexToHTMLString.js";

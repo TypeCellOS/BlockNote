@@ -84,7 +84,7 @@ export const UploadTab = <
   }
 
   const spec = editor.schema.blockSpecs[block.type];
-  const accept = spec.implementation.meta?.fileBlockAccept?.length
+  const accept = spec.implementation.meta.fileBlockAccept?.length
     ? spec.implementation.meta.fileBlockAccept.join(",")
     : "*/*";
 

@@ -1,3 +1,4 @@
+/* eslint-disable react/refs -- The ref caches the external store snapshot so useSyncExternalStore receives a stable value. */
 import { CommentsExtension } from "@blocknote/core/comments";
 import { ThreadData } from "@blocknote/core/comments";
 import { useCallback, useRef, useSyncExternalStore } from "react";

@@ -174,6 +174,9 @@ export const YCursorExtension = createExtension(
           : undefined,
       ].filter((a) => a !== undefined),
       dependsOn: ["ySync"],
+      clearCursor() {
+        awareness?.setLocalStateField("cursor", null);
+      },
       updateUser(user: CollaborationUser) {
         awareness?.setLocalStateField("user", user);
       },

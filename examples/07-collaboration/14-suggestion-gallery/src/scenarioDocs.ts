@@ -64,7 +64,7 @@ export function buildSuggestionScenarioDocs(
     const suggestionDoc = cloneDoc(baseDoc, { isSuggestionDoc: true });
     suggestionDoc.clientID = i + 2;
     const manager = Y.createDiffRenderer(baseDoc, suggestionDoc, {
-      attrs: createAttributionStore(suggestionDoc, (tr) =>
+      attributions: createAttributionStore(suggestionDoc, (tr) =>
         tr.local ? id : null,
       ),
     });
@@ -78,7 +78,7 @@ export function buildSuggestionScenarioDocs(
           const doc = cloneDoc(baseDoc, { isSuggestionDoc: true });
           doc.clientID = authorIds.length + 2;
           const manager = Y.createDiffRenderer(baseDoc, doc, {
-            attrs: createAttributionStore(doc, (tr) =>
+            attributions: createAttributionStore(doc, (tr) =>
               authorIds.includes(String(tr.origin)) ? String(tr.origin) : null,
             ),
           });
@@ -92,7 +92,7 @@ export function buildSuggestionScenarioDocs(
 
 /**
  * In-memory attribution store — records the author of each transaction into a
- * mutable `Y.Attributions` so suggestion marks render in their author's color.
+ * mutable `Y.ContentMap` so suggestion marks render in their author's color.
  * `resolveUserId` returns the author id, or null to leave a change unattributed
  * (the base seed and the manager's own base→suggestion flow carry no author).
  * Mirrors the store in `concurrentSuggestionFixture.tsx`.
@@ -100,8 +100,8 @@ export function buildSuggestionScenarioDocs(
 export function createAttributionStore(
   doc: Y.Doc,
   resolveUserId: (tr: any) => string | null,
-): Y.Attributions {
-  const attrs = new Y.Attributions();
+): Y.ContentMap {
+  const attrs = Y.createContentMap();
   doc.on("beforeObserverCalls", (tr: any) => {
     const userId = resolveUserId(tr);
     if (userId == null) {
@@ -125,6 +125,46 @@ export function createAttributionStore(
     }
   });
   return attrs;
+}
+
+/**
+ * The merge that Versioning mode diffs against Version 1: each user's updates
+ * applied onto a copy of `beforeDoc`, attributed the way a server like YHub
+ * does. A user is credited with what their update inserts and with what it
+ * deletes itself, not with content Yjs removes because another user deleted
+ * its parent. Deleted content is kept, as stored history keeps it.
+ */
+export function createVersionMerge(beforeDoc: Y.Doc) {
+  const doc = new Y.Doc({ gc: false });
+  Y.applyUpdate(doc, Y.encodeStateAsUpdate(beforeDoc));
+  const attributions = Y.createContentMap();
+  // Recorded before the doc's observers run, so a re-render on update sees it.
+  doc.on("beforeObserverCalls", (tr: any) => {
+    if (typeof tr.origin === "string" && !tr.insertSet.isEmpty()) {
+      Y.insertIntoIdMap(
+        attributions.inserts,
+        Y.createIdMapFromIdSet(tr.insertSet, [
+          Y.createContentAttribute("insert", tr.origin),
+        ]),
+      );
+    }
+  });
+  const baseDeletes = Y.createDeleteSetFromStructStore(beforeDoc.store);
+  return {
+    doc,
+    attributions,
+    /** Merge one of `user`'s updates. */
+    apply(update: Uint8Array, user: string) {
+      Y.insertIntoIdMap(
+        attributions.deletes,
+        Y.createIdMapFromIdSet(
+          Y.diffIdSet(Y.decodeUpdate(update).ds, baseDeletes),
+          [Y.createContentAttribute("delete", user)],
+        ),
+      );
+      Y.applyUpdate(doc, update, user);
+    },
+  };
 }
 
 // (single- and multi-author suggestion docs are built by

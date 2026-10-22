@@ -41,7 +41,10 @@ export const EditLinkMenuItems = (
   const [currentText, setCurrentText] = useState<string>(text);
 
   useEffect(() => {
+    // Reset the controlled form when a different link is selected.
+    // eslint-disable-next-line react/set-state-in-effect
     setCurrentUrl(url);
+    // eslint-disable-next-line react/set-state-in-effect
     setCurrentText(text);
   }, [text, url]);
 

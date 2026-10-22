@@ -1,4 +1,13 @@
 .bn-gallery {
+  color-scheme: light dark;
+  --gallery-text: light-dark(#333, #e0e0e0);
+  --gallery-muted: light-dark(#666, #aaa);
+  --gallery-border: light-dark(#e6e6e6, #484848);
+  --gallery-surface: light-dark(#fafafa, #2e2e2e);
+  --gallery-hover: light-dark(#f2f2f2, #383838);
+  --gallery-selected: light-dark(#e7f1ff, #193b59);
+  --gallery-accent: light-dark(#1971c2, #91caff);
+  color: var(--gallery-text);
   display: grid;
   grid-template-columns: 240px 1fr;
   gap: 16px;
@@ -9,7 +18,7 @@
 
 .bn-gallery-sidebar {
   overflow-y: auto;
-  border-right: 1px solid #e6e6e6;
+  border-right: 1px solid var(--gallery-border);
   padding-right: 12px;
 }
 
@@ -17,7 +26,7 @@
   font-size: 14px;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #888;
+  color: var(--gallery-muted);
   margin: 0 0 12px;
 }
 
@@ -28,7 +37,7 @@
 .bn-gallery-category-label {
   font-size: 12px;
   font-weight: 600;
-  color: #aaa;
+  color: var(--gallery-muted);
   margin-bottom: 4px;
 }
 
@@ -42,20 +51,22 @@
   background: transparent;
   cursor: pointer;
   font-size: 14px;
-  color: #333;
+  color: var(--gallery-text);
 }
 
 .bn-gallery-item:hover {
-  background: #f2f2f2;
+  background: var(--gallery-hover);
 }
 
-.bn-gallery-item--active {
-  background: #e7f1ff;
-  color: #1971c2;
+.bn-gallery-item--active,
+.bn-gallery-item--active:hover {
+  background: var(--gallery-selected);
+  color: var(--gallery-accent);
   font-weight: 600;
 }
 
 .bn-gallery-main {
+  min-width: 0;
   overflow-y: auto;
 }
 
@@ -69,7 +80,7 @@
 
 .bn-gallery-modes {
   display: inline-flex;
-  border: 1px solid #d8d8d8;
+  border: 1px solid var(--gallery-border);
   border-radius: 8px;
   overflow: hidden;
   flex-shrink: 0;
@@ -78,14 +89,14 @@
 .bn-gallery-mode {
   padding: 6px 14px;
   border: none;
-  background: #fff;
+  background: var(--gallery-surface);
   cursor: pointer;
   font-size: 14px;
-  color: #555;
+  color: var(--gallery-text);
 }
 
 .bn-gallery-mode + .bn-gallery-mode {
-  border-left: 1px solid #d8d8d8;
+  border-left: 1px solid var(--gallery-border);
 }
 
 .bn-gallery-mode--active {
@@ -94,33 +105,25 @@
   font-weight: 600;
 }
 
-.bn-gallery-editors--three {
-  grid-template-columns: 1fr 1fr 1fr;
-}
-
-.bn-gallery-editors--four {
-  grid-template-columns: 1fr 1fr 1fr 1fr;
-}
-
 .bn-gallery-title {
   font-size: 20px;
   margin: 0 0 4px;
 }
 
 .bn-gallery-description {
-  color: #666;
+  color: var(--gallery-muted);
   margin: 0 0 16px;
   max-width: 60ch;
 }
 
 .bn-gallery-editors {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr));
   gap: 12px;
 }
 
 .bn-gallery-pane {
-  border: 1px solid #e6e6e6;
+  border: 1px solid var(--gallery-border);
   border-radius: 8px;
   padding: 8px;
   min-width: 0;
@@ -129,16 +132,16 @@
 .bn-gallery-pane-label {
   font-size: 12px;
   font-weight: 600;
-  color: #888;
+  color: var(--gallery-muted);
   padding: 4px 8px;
 }
 
 .bn-gallery-feedback {
-  border: 1px solid #ececec;
+  border: 1px solid var(--gallery-border);
   border-radius: 8px;
   padding: 10px 12px;
   margin-bottom: 16px;
-  background: #fafafa;
+  background: var(--gallery-surface);
 }
 
 .bn-gallery-feedback-title {
@@ -146,7 +149,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #888;
+  color: var(--gallery-muted);
   margin-bottom: 6px;
 }
 
@@ -156,13 +159,13 @@
   align-items: baseline;
   font-size: 13px;
   line-height: 1.45;
-  color: #444;
+  color: var(--gallery-text);
   padding: 5px 0 5px 8px;
   border-left: 3px solid transparent;
 }
 
 .bn-gallery-feedback-item + .bn-gallery-feedback-item {
-  border-top: 1px solid #efefef;
+  border-top: 1px solid var(--gallery-border);
 }
 
 .bn-gallery-feedback-item--high {
@@ -194,10 +197,28 @@
 }
 
 .bn-gallery-feedback-item--info {
-  border-left-color: #1971c2;
+  border-left-color: var(--gallery-accent);
 }
 
 .bn-gallery-feedback-item--info .bn-gallery-feedback-badge {
-  background: #e7f1ff;
-  color: #1971c2;
+  background: var(--gallery-selected);
+  color: var(--gallery-accent);
+}
+
+@media (max-width: 700px) {
+  .bn-gallery {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+
+  .bn-gallery-sidebar {
+    max-height: 240px;
+    border-right: none;
+    border-bottom: 1px solid var(--gallery-border);
+    padding-bottom: 12px;
+  }
+
+  .bn-gallery-header {
+    flex-wrap: wrap;
+  }
 }

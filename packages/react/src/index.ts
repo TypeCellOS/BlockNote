@@ -24,7 +24,6 @@ export * from "./blocks/SourceWithPreview/block/useSourceBlockPreviewPopup.js";
 export * from "./blocks/SourceWithPreview/inlineContent/SourceInlineContentWithPreview.js";
 export * from "./blocks/SourceWithPreview/inlineContent/useSourceInlineContentPreviewPopup.js";
 export * from "./blocks/Video/block.js";
-export * from "./blocks/ToggleWrapper/ToggleWrapper.js";
 
 export * from "./components/FormattingToolbar/DefaultButtons/AddCommentButton.js";
 export * from "./components/FormattingToolbar/DefaultButtons/AddTiptapCommentButton.js";
@@ -48,6 +47,7 @@ export * from "./components/FormattingToolbar/FormattingToolbarController.js";
 export * from "./components/FormattingToolbar/MobileFormattingToolbarController.js";
 export {
   PortalElementOverride,
+  RenderInPortalElement,
   usePortalElement,
 } from "./editor/PortalElementOverride.js";
 export * from "./editor/UIModeContext.js";
@@ -131,9 +131,6 @@ export { default as FloatingThreadController } from "./components/Comments/Float
 export * from "./components/Comments/Thread.js";
 export * from "./components/Comments/ThreadsSidebar.js";
 export * from "./components/Comments/useThreads.js";
-
-export * from "./components/Versioning/useVersionUsers.js";
-export * from "./components/Versioning/VersioningSidebar.js";
 
 export * from "./hooks/useActiveStyles.js";
 export * from "./hooks/useBlockNoteEditor.js";
