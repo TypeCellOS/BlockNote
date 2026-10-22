@@ -2,7 +2,7 @@
  * @vitest-environment jsdom
  */
 import { Plugin, PluginKey } from "prosemirror-state";
-import { describe, expect, it, vi } from "vite-plus/test";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 
 import { createExtension } from "../../BlockNoteExtension.js";
 import { BlockNoteEditor } from "../../BlockNoteEditor.js";
@@ -14,6 +14,130 @@ function createMountedEditor(
   editor.mount(document.createElement("div"));
   return editor;
 }
+
+describe("runtime extension lifecycle", () => {
+  const cleanups: Array<() => void> = [];
+  afterEach(() => {
+    for (const cleanup of cleanups.splice(0).reverse()) {
+      cleanup();
+    }
+  });
+
+  function createEditor() {
+    const editor = BlockNoteEditor.create();
+    const host = document.createElement("div");
+    document.body.append(host);
+    cleanups.push(() => {
+      editor.unmount();
+      editor._tiptapEditor.destroy();
+      host.remove();
+    });
+    editor.mount(host);
+    return { editor, host };
+  }
+
+  it("mounts nested plugin-less extensions once and cleans them up", () => {
+    const { editor, host } = createEditor();
+    const parentCleanup = vi.fn();
+    const childCleanup = vi.fn();
+    const parentMount = vi.fn(() => parentCleanup);
+    const childMount = vi.fn(() => childCleanup);
+    const child = { key: "child", mount: childMount };
+    const parent = {
+      key: "parent",
+      mount: parentMount,
+      blockNoteExtensions: [() => child],
+    };
+    editor.registerExtension(parent);
+    editor.registerExtension(parent);
+    expect(parentMount).toHaveBeenCalledTimes(1);
+    expect(childMount).toHaveBeenCalledTimes(1);
+    editor.unregisterExtension([parent, child]);
+    expect(parentCleanup).toHaveBeenCalledTimes(1);
+    expect(childCleanup).toHaveBeenCalledTimes(1);
+    editor.registerExtension(parent);
+    editor.unmount();
+    editor.mount(host);
+    expect(parentMount).toHaveBeenCalledTimes(3);
+    expect(childMount).toHaveBeenCalledTimes(3);
+  });
+
+  it("allows cleanup to re-register the same instance after plugin removal", () => {
+    const { editor, host } = createEditor();
+    const key = new PluginKey("cleanup-identical");
+    const plugin = new Plugin({ key });
+    let resurrect = true;
+    let registrationError: unknown;
+    const mount = vi.fn(() => () => {
+      if (resurrect) {
+        resurrect = false;
+        try {
+          editor.registerExtension(extension);
+        } catch (error) {
+          registrationError = error;
+        }
+      }
+    });
+    const extension = {
+      key: "cleanup-identical",
+      prosemirrorPlugins: [plugin],
+      mount,
+    };
+    editor.registerExtension(extension);
+    editor.unregisterExtension(extension);
+    expect(registrationError).toBeUndefined();
+    expect(editor.getExtension(extension.key)).toBe(extension);
+    expect(mount).toHaveBeenCalledTimes(2);
+    expect(key.get(editor.prosemirrorState)).toBe(plugin);
+    editor.unmount();
+    editor.mount(host);
+    expect(key.get(editor.prosemirrorState)).toBe(plugin);
+  });
+
+  it("does not mount an extension removed by an earlier mount hook", () => {
+    const { editor } = createEditor();
+    const childMount = vi.fn();
+    const child = { key: "removed-child", mount: childMount };
+    editor.registerExtension([
+      {
+        key: "removing-parent",
+        mount() {
+          editor.unregisterExtension(child);
+        },
+      },
+      child,
+    ]);
+    expect(editor.getExtension(child.key)).toBeUndefined();
+    expect(childMount).not.toHaveBeenCalled();
+  });
+
+  it("mounts runtime extensions and cleans them up when removed", () => {
+    let mounts = 0;
+    let unmounts = 0;
+    const extension = createExtension(() => ({
+      key: "runtime-lifecycle",
+      mount({ signal }: { signal: AbortSignal }) {
+        expect(signal.aborted).toBe(false);
+        mounts++;
+        return () => {
+          unmounts++;
+        };
+      },
+    }));
+    const { editor, host } = createEditor();
+    editor.registerExtension(extension());
+    expect(mounts).toBe(1);
+    const instance = editor.getExtension(extension)!;
+    editor.unregisterExtension(extension);
+    expect(unmounts).toBe(1);
+    editor.registerExtension(instance);
+    expect(mounts).toBe(2);
+    editor.unmount();
+    expect(unmounts).toBe(2);
+    editor.mount(host);
+    expect(mounts).toBe(3);
+  });
+});
 
 describe("Extension keyboard shortcuts", () => {
   it("validates shortcut names at initialization", () => {
