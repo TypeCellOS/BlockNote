@@ -8,6 +8,12 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../../../schema/index.js";
+import { isLayoutNode } from "../../../../schema/blocks/children.js";
+import {
+  FRAME_SLOT_ATTRIBUTE,
+  renderFrameDOM,
+} from "../../../../schema/blocks/frame.js";
+import { isDocumentFragment } from "../../../../schema/blocks/internal.js";
 import { UnreachableCaseError } from "../../../../util/typescript.js";
 import {
   inlineContentToNodes,
@@ -176,6 +182,52 @@ export function serializeInlineContentExternalHTML<
   return fragment;
 }
 
+/** A block's external HTML, before the serializer post-processes it. */
+type BlockOutput = {
+  dom: HTMLElement | DocumentFragment;
+  contentDOM?: HTMLElement;
+  childrenDOM?: HTMLElement;
+};
+
+/**
+ * The block's output for external HTML, and the frame to put it into. The
+ * block's own `toExternalHTML` replaces the default export, frame included.
+ * By default, a layout block is its frame, with the children in the slot, and
+ * any other block is `render`'s output, which the caller puts into the
+ * block's frame (if it draws one).
+ */
+function renderBlockOutput(
+  blockImplementation: BlockImplementation,
+  block: any,
+  editor: BlockNoteEditor<any, any, any>,
+  isLayoutBlock: boolean,
+  nestingLevel: number,
+): { output: BlockOutput; frame?: { dom: HTMLElement; slot: HTMLElement } } {
+  const external = blockImplementation.toExternalHTML?.call({}, block, editor, {
+    nestingLevel,
+  });
+  if (external) {
+    return { output: external };
+  }
+
+  const frame = renderFrameDOM(editor, block);
+  if (isLayoutBlock) {
+    if (!frame) {
+      throw new Error(
+        `Layout block "${block.type}" drew no frame. This is a bug in BlockNote.`,
+      );
+    }
+    return { output: { dom: frame.dom, childrenDOM: frame.slot } };
+  }
+
+  if (!blockImplementation.render) {
+    throw new Error(
+      `Block "${block.type}" has no \`render\`. This is a bug in BlockNote.`,
+    );
+  }
+  return { output: blockImplementation.render.call({}, block, editor), frame };
+}
+
 /**
  * TODO: there's still quite some logic that handles getting and filtering properties,
  * we should make sure the `toExternalHTML` methods of default blocks actually handle this,
@@ -224,27 +276,27 @@ function serializeBlock<
 
   const blockImplementation = editor.blockImplementations[block.type as any]
     .implementation as BlockImplementation;
-  const ret =
-    blockImplementation.toExternalHTML?.call(
-      {},
-      { ...block, props } as any,
-      editor as any,
-      {
-        nestingLevel,
-      },
-    ) ||
-    blockImplementation.render.call(
-      {},
-      { ...block, props } as any,
-      editor as any,
-    );
+  const blockWithDefaults = { ...block, props, children: block.children ?? [] };
+  const isLayoutBlock = isLayoutNode(editor.pmSchema.nodes[block.type as any]);
+  const { output: ret, frame } = renderBlockOutput(
+    blockImplementation,
+    blockWithDefaults,
+    editor,
+    isLayoutBlock,
+    nestingLevel,
+  );
 
   const elementFragment = doc.createDocumentFragment();
 
-  if ((ret.dom as HTMLElement).classList.contains("bn-block-content")) {
+  let rootElement: HTMLElement | undefined;
+  if (!isDocumentFragment(ret.dom)) {
+    rootElement = ret.dom;
+  }
+
+  if (rootElement?.classList.contains("bn-block-content")) {
     const blockContentDataAttributes = [
       ...attrs,
-      ...Array.from((ret.dom as HTMLElement).attributes),
+      ...Array.from(rootElement.attributes),
     ].filter(
       (attr) =>
         attr.name.startsWith("data") &&
@@ -256,26 +308,40 @@ function serializeBlock<
         attr.name !== "data-editable",
     );
 
-    // ret.dom = ret.dom.firstChild! as any;
     for (const attr of blockContentDataAttributes) {
-      (ret.dom.firstChild! as HTMLElement).setAttribute(attr.name, attr.value);
+      (rootElement.firstChild! as HTMLElement).setAttribute(
+        attr.name,
+        attr.value,
+      );
     }
 
-    addAttributesAndRemoveClasses(ret.dom.firstChild! as HTMLElement);
+    addAttributesAndRemoveClasses(rootElement.firstChild! as HTMLElement);
     if (nestingLevel > 0) {
-      (ret.dom.firstChild! as HTMLElement).setAttribute(
+      (rootElement.firstChild! as HTMLElement).setAttribute(
         "data-nesting-level",
         nestingLevel.toString(),
       );
     }
-    elementFragment.append(...Array.from(ret.dom.childNodes));
+    elementFragment.append(...Array.from(rootElement.childNodes));
   } else {
     elementFragment.append(ret.dom);
+    if (isLayoutBlock) {
+      // Like a regular block's type marker (`data-content-type`), a
+      // layout block's markers stay out of external HTML: it parses back only
+      // through the block's `parse`, like any other block. Its props stay as
+      // `data-*` attributes. This mirrors the unwrapping of a regular block's
+      // `.bn-block-content` above: the spec's hooks produce the editor's
+      // structure with its markers, and this serializer strips them.
+      // TODO: consider not adding the markers in the first place (only the
+      // node view and the internal serializer need them), instead of adding
+      // and then stripping them. If so, change it for regular blocks too
+      // (`wrapInBlockStructure`), so both kinds of block keep one rule.
+      rootElement?.removeAttribute("data-node-type");
+      rootElement?.removeAttribute("data-id");
+      ret.childrenDOM?.removeAttribute(FRAME_SLOT_ATTRIBUTE);
+    }
     if (nestingLevel > 0) {
-      (ret.dom as HTMLElement).setAttribute(
-        "data-nesting-level",
-        nestingLevel.toString(),
-      );
+      rootElement?.setAttribute("data-nesting-level", nestingLevel.toString());
     }
   }
 
@@ -301,13 +367,20 @@ function serializeBlock<
     // tables) fill their `contentDOM` with child blocks later on, and code
     // blocks would turn the placeholder into literal content.
     const blockNodeType = editor.pmSchema.nodes[block.type as any];
-    if (
-      blockNodeType?.inlineContent &&
-      !blockNodeType.spec.code &&
-      ret.contentDOM.childNodes.length === 0
-    ) {
+    const needsPlaceholder =
+      !!blockNodeType?.inlineContent && !blockNodeType.spec.code;
+    if (needsPlaceholder && ret.contentDOM.childNodes.length === 0) {
       ret.contentDOM.appendChild(doc.createTextNode(EMPTY_BLOCK_PLACEHOLDER));
     }
+  }
+
+  // Where the block's children go: where the block placed them, else in the
+  // slot of the frame around its content.
+  let childrenDOM = ret.childrenDOM;
+  if (frame) {
+    frame.slot.append(elementFragment);
+    elementFragment.append(frame.dom);
+    childrenDOM = frame.slot;
   }
 
   let listType = undefined;
@@ -362,18 +435,20 @@ function serializeBlock<
       }
     }
 
-    if ("childrenDOM" in ret && ret.childrenDOM) {
+    if (childrenDOM) {
       // block specifies where children should go (e.g. toggle blocks
-      // place children inside <details>)
-      ret.childrenDOM.append(childFragment);
+      // place children inside <details>, or a frame's slot)
+      childrenDOM.append(childFragment);
     } else if (
-      editor.pmSchema.nodes[block.type as any].isInGroup("blockContent")
+      editor.pmSchema.nodes[block.type as any].isInGroup("blockContent") ||
+      !ret.contentDOM
     ) {
-      // default "blockContainer" style blocks are flattened (no "nested block" support) for externalHTML, so append the child fragment to the outer fragment
+      // default "blockContainer" style blocks are flattened (no "nested block" support) for externalHTML, so append the child fragment to the outer fragment.
+      // So does a layout block whose own export places its children nowhere.
       fragment.append(childFragment);
     } else {
       // for columns / column lists, do use nesting
-      ret.contentDOM?.append(childFragment);
+      ret.contentDOM.append(childFragment);
     }
   }
 }

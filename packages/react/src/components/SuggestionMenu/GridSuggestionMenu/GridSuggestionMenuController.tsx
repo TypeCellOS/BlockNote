@@ -3,7 +3,6 @@ import {
   SuggestionMenu,
   SuggestionMenuOptions,
 } from "@blocknote/core/extensions";
-import { autoPlacement, offset, shift, size } from "@floating-ui/react";
 import { FC, useEffect, useMemo } from "react";
 
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
@@ -14,6 +13,7 @@ import {
 } from "../../../hooks/useExtension.js";
 import { PortalElementOverride } from "../../../editor/PortalElementOverride.js";
 import { FloatingUIOptions } from "../../Popovers/FloatingUIOptions.js";
+import { suggestionMenuMiddleware } from "../suggestionMenuMiddleware.js";
 import {
   GenericPopover,
   GenericPopoverReference,
@@ -135,22 +135,7 @@ export function GridSuggestionMenuController<
           }
         },
         placement: "bottom-start",
-        middleware: [
-          offset(10),
-          // Flips the menu placement to maximize the space available, and prevents
-          // the menu from being cut off by the confines of the screen.
-          autoPlacement({
-            allowedPlacements: ["bottom-start", "top-start"],
-            padding: 10,
-          }),
-          shift(),
-          size({
-            apply({ elements, availableHeight }) {
-              elements.floating.style.maxHeight = `${Math.max(0, availableHeight)}px`;
-            },
-            padding: 10,
-          }),
-        ],
+        middleware: suggestionMenuMiddleware,
         ...props.floatingUIOptions?.useFloatingOptions,
       },
       focusManagerProps: {

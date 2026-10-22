@@ -1,6 +1,7 @@
 import * as path from "path";
 import { webpackStats } from "rollup-plugin-webpack-stats";
 import { configDefaults, defineConfig, type UserConfig } from "vite-plus";
+import { buildCacheInputs } from "../../scripts/build-cache-inputs.js";
 
 // https://vitejs.dev/config/
 export default defineConfig(
@@ -9,9 +10,10 @@ export default defineConfig(
       run: {
         tasks: {
           build: {
-            command: "tsc && vp build",
+            command:
+              "tsc --project tsconfig.json --composite false --incremental false --rootDir . && vp build",
             input: [
-              { auto: true },
+              ...buildCacheInputs("packages/xl-typst-exporter"),
               { pattern: "!**/*.tsbuildinfo", base: "workspace" },
             ],
             // `types/**` must be declared too: a cache replay that restores only

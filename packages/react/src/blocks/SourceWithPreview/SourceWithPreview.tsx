@@ -1,3 +1,4 @@
+/* eslint-disable react/refs -- This render-phase cache commits preview errors without a stale-preview frame on popup close. */
 import { BlockNoteEditor } from "@blocknote/core";
 import { MouseEvent, ReactNode, useId, useRef } from "react";
 import { MdKeyboardReturn } from "react-icons/md";

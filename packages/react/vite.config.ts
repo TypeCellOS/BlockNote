@@ -3,6 +3,7 @@ import * as path from "path";
 import { webpackStats } from "rollup-plugin-webpack-stats";
 import { configDefaults, defineConfig, type UserConfig } from "vite-plus";
 import pkg from "./package.json";
+import { buildCacheInputs } from "../../scripts/build-cache-inputs.js";
 // import eslintPlugin from "vite-plugin-eslint";
 
 // https://vitejs.dev/config/
@@ -12,9 +13,10 @@ export default defineConfig(
       run: {
         tasks: {
           build: {
-            command: "tsc && vp build",
+            command:
+              "tsc --project tsconfig.json --composite false --incremental false --rootDir . && vp build",
             input: [
-              { auto: true },
+              ...buildCacheInputs("packages/react"),
               { pattern: "!**/*.tsbuildinfo", base: "workspace" },
             ],
             // `types/**` must be declared too: a cache replay that restores only
@@ -26,7 +28,8 @@ export default defineConfig(
       test: {
         environment: "jsdom",
         setupFiles: ["./vitestSetup.ts"],
-        // Browser tests run in the tests package's Docker browser suite.
+        // `.browser.test` files need a real browser; the tests package's
+        // browser suite runs them.
         exclude: [...configDefaults.exclude, "**/*.browser.test.*"],
       },
       plugins: [react(), webpackStats()],
@@ -51,6 +54,7 @@ export default defineConfig(
         lib: {
           entry: {
             "blocknote-react": path.resolve(__dirname, "src/index.ts"),
+            versioning: path.resolve(__dirname, "src/versioning.ts"),
           },
           name: "blocknote-react",
           cssFileName: "style",

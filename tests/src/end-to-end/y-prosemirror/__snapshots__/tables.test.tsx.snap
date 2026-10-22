@@ -49,6 +49,7 @@ exports[`suggestion mode: add column 1`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -122,6 +123,7 @@ exports[`suggestion mode: add column 2`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -151,19 +153,23 @@ exports[`suggestion mode: add column 3`] = `
             <tableParagraph>B1</tableParagraph>
           </tableCell>
           <y-attributed-insert userIds="">
-            <tableCell
-              backgroundColor="default"
-              colspan="1"
-              rowspan="1"
-              textAlignment="left"
-              textColor="default"
+            <y-attributed-attrs
+              changes="{&quot;textColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;backgroundColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;colspan&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;rowspan&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;colwidth&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
             >
-              <y-attributed-insert userIds="">
-                <tableParagraph>
-                  <y-attributed-insert userIds="">C1</y-attributed-insert>
-                </tableParagraph>
-              </y-attributed-insert>
-            </tableCell>
+              <tableCell
+                backgroundColor="default"
+                colspan="1"
+                rowspan="1"
+                textAlignment="left"
+                textColor="default"
+              >
+                <y-attributed-insert userIds="">
+                  <tableParagraph>
+                    <y-attributed-insert userIds="">C1</y-attributed-insert>
+                  </tableParagraph>
+                </y-attributed-insert>
+              </tableCell>
+            </y-attributed-attrs>
           </y-attributed-insert>
         </tableRow>
         <tableRow>
@@ -186,19 +192,23 @@ exports[`suggestion mode: add column 3`] = `
             <tableParagraph>B2</tableParagraph>
           </tableCell>
           <y-attributed-insert userIds="">
-            <tableCell
-              backgroundColor="default"
-              colspan="1"
-              rowspan="1"
-              textAlignment="left"
-              textColor="default"
+            <y-attributed-attrs
+              changes="{&quot;textColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;backgroundColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;colspan&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;rowspan&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;colwidth&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
             >
-              <y-attributed-insert userIds="">
-                <tableParagraph>
-                  <y-attributed-insert userIds="">C2</y-attributed-insert>
-                </tableParagraph>
-              </y-attributed-insert>
-            </tableCell>
+              <tableCell
+                backgroundColor="default"
+                colspan="1"
+                rowspan="1"
+                textAlignment="left"
+                textColor="default"
+              >
+                <y-attributed-insert userIds="">
+                  <tableParagraph>
+                    <y-attributed-insert userIds="">C2</y-attributed-insert>
+                  </tableParagraph>
+                </y-attributed-insert>
+              </tableCell>
+            </y-attributed-attrs>
           </y-attributed-insert>
         </tableRow>
       </table>
@@ -256,6 +266,7 @@ exports[`suggestion mode: add row 1`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -331,6 +342,7 @@ exports[`suggestion mode: add row 2`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -383,34 +395,42 @@ exports[`suggestion mode: add row 3`] = `
         <y-attributed-insert userIds="">
           <tableRow>
             <y-attributed-insert userIds="">
-              <tableCell
-                backgroundColor="default"
-                colspan="1"
-                rowspan="1"
-                textAlignment="left"
-                textColor="default"
+              <y-attributed-attrs
+                changes="{&quot;textColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;backgroundColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;colspan&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;rowspan&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;colwidth&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
               >
-                <y-attributed-insert userIds="">
-                  <tableParagraph>
-                    <y-attributed-insert userIds="">A3</y-attributed-insert>
-                  </tableParagraph>
-                </y-attributed-insert>
-              </tableCell>
+                <tableCell
+                  backgroundColor="default"
+                  colspan="1"
+                  rowspan="1"
+                  textAlignment="left"
+                  textColor="default"
+                >
+                  <y-attributed-insert userIds="">
+                    <tableParagraph>
+                      <y-attributed-insert userIds="">A3</y-attributed-insert>
+                    </tableParagraph>
+                  </y-attributed-insert>
+                </tableCell>
+              </y-attributed-attrs>
             </y-attributed-insert>
             <y-attributed-insert userIds="">
-              <tableCell
-                backgroundColor="default"
-                colspan="1"
-                rowspan="1"
-                textAlignment="left"
-                textColor="default"
+              <y-attributed-attrs
+                changes="{&quot;textColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;backgroundColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;colspan&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;rowspan&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;colwidth&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
               >
-                <y-attributed-insert userIds="">
-                  <tableParagraph>
-                    <y-attributed-insert userIds="">B3</y-attributed-insert>
-                  </tableParagraph>
-                </y-attributed-insert>
-              </tableCell>
+                <tableCell
+                  backgroundColor="default"
+                  colspan="1"
+                  rowspan="1"
+                  textAlignment="left"
+                  textColor="default"
+                >
+                  <y-attributed-insert userIds="">
+                    <tableParagraph>
+                      <y-attributed-insert userIds="">B3</y-attributed-insert>
+                    </tableParagraph>
+                  </y-attributed-insert>
+                </tableCell>
+              </y-attributed-attrs>
             </y-attributed-insert>
           </tableRow>
         </y-attributed-insert>
@@ -469,6 +489,7 @@ exports[`suggestion mode: change column background color 1`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -522,6 +543,7 @@ exports[`suggestion mode: change column background color 2`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -532,15 +554,19 @@ exports[`suggestion mode: change column background color 3`] = `
     <blockContainer id="table">
       <table textColor="default">
         <tableRow>
-          <tableCell
-            backgroundColor="green"
-            colspan="1"
-            rowspan="1"
-            textAlignment="left"
-            textColor="default"
+          <y-attributed-attrs
+            changes="{&quot;backgroundColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
           >
-            <tableParagraph>A1</tableParagraph>
-          </tableCell>
+            <tableCell
+              backgroundColor="green"
+              colspan="1"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>A1</tableParagraph>
+            </tableCell>
+          </y-attributed-attrs>
           <tableCell
             backgroundColor="default"
             colspan="1"
@@ -552,15 +578,19 @@ exports[`suggestion mode: change column background color 3`] = `
           </tableCell>
         </tableRow>
         <tableRow>
-          <tableCell
-            backgroundColor="green"
-            colspan="1"
-            rowspan="1"
-            textAlignment="left"
-            textColor="default"
+          <y-attributed-attrs
+            changes="{&quot;backgroundColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
           >
-            <tableParagraph>A2</tableParagraph>
-          </tableCell>
+            <tableCell
+              backgroundColor="green"
+              colspan="1"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>A2</tableParagraph>
+            </tableCell>
+          </y-attributed-attrs>
           <tableCell
             backgroundColor="default"
             colspan="1"
@@ -626,6 +656,7 @@ exports[`suggestion mode: merge two cells 1`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -679,6 +710,7 @@ exports[`suggestion mode: merge two cells 2`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -689,33 +721,41 @@ exports[`suggestion mode: merge two cells 3`] = `
     <blockContainer id="table">
       <table textColor="default">
         <tableRow>
-          <tableCell
-            backgroundColor="default"
-            colspan="2"
-            colwidth=","
-            rowspan="1"
-            textAlignment="left"
-            textColor="default"
+          <y-attributed-attrs
+            changes="{&quot;colspan&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;colwidth&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
           >
-            <tableParagraph>
-              A1
-              <y-attributed-insert userIds="">+B1</y-attributed-insert>
-            </tableParagraph>
-          </tableCell>
-          <y-attributed-delete userIds="">
             <tableCell
               backgroundColor="default"
-              colspan="1"
+              colspan="2"
+              colwidth=","
               rowspan="1"
               textAlignment="left"
               textColor="default"
             >
-              <y-attributed-delete userIds="">
-                <tableParagraph>
-                  <y-attributed-delete userIds="">B1</y-attributed-delete>
-                </tableParagraph>
-              </y-attributed-delete>
+              <tableParagraph>
+                A1
+                <y-attributed-insert userIds="">+B1</y-attributed-insert>
+              </tableParagraph>
             </tableCell>
+          </y-attributed-attrs>
+          <y-attributed-delete userIds="">
+            <y-attributed-attrs
+              changes="{&quot;textColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;backgroundColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;colspan&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;rowspan&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;colwidth&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
+            >
+              <tableCell
+                backgroundColor="default"
+                colspan="1"
+                rowspan="1"
+                textAlignment="left"
+                textColor="default"
+              >
+                <y-attributed-delete userIds="">
+                  <tableParagraph>
+                    <y-attributed-delete userIds="">B1</y-attributed-delete>
+                  </tableParagraph>
+                </y-attributed-delete>
+              </tableCell>
+            </y-attributed-attrs>
           </y-attributed-delete>
         </tableRow>
         <tableRow>
@@ -738,17 +778,21 @@ exports[`suggestion mode: merge two cells 3`] = `
             <tableParagraph>B2</tableParagraph>
           </tableCell>
           <y-attributed-insert userIds="">
-            <tableCell
-              backgroundColor="default"
-              colspan="1"
-              rowspan="1"
-              textAlignment="left"
-              textColor="default"
+            <y-attributed-attrs
+              changes="{&quot;textColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;backgroundColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;colspan&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;rowspan&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;colwidth&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
             >
-              <y-attributed-insert userIds="">
-                <tableParagraph></tableParagraph>
-              </y-attributed-insert>
-            </tableCell>
+              <tableCell
+                backgroundColor="default"
+                colspan="1"
+                rowspan="1"
+                textAlignment="left"
+                textColor="default"
+              >
+                <y-attributed-insert userIds="">
+                  <tableParagraph></tableParagraph>
+                </y-attributed-insert>
+              </tableCell>
+            </y-attributed-attrs>
           </y-attributed-insert>
         </tableRow>
       </table>
@@ -806,6 +850,7 @@ exports[`suggestion mode: remove column 1`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -839,6 +884,7 @@ exports[`suggestion mode: remove column 2`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -859,19 +905,23 @@ exports[`suggestion mode: remove column 3`] = `
             <tableParagraph>A1</tableParagraph>
           </tableCell>
           <y-attributed-delete userIds="">
-            <tableCell
-              backgroundColor="default"
-              colspan="1"
-              rowspan="1"
-              textAlignment="left"
-              textColor="default"
+            <y-attributed-attrs
+              changes="{&quot;textColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;backgroundColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;colspan&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;rowspan&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;colwidth&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
             >
-              <y-attributed-delete userIds="">
-                <tableParagraph>
-                  <y-attributed-delete userIds="">B1</y-attributed-delete>
-                </tableParagraph>
-              </y-attributed-delete>
-            </tableCell>
+              <tableCell
+                backgroundColor="default"
+                colspan="1"
+                rowspan="1"
+                textAlignment="left"
+                textColor="default"
+              >
+                <y-attributed-delete userIds="">
+                  <tableParagraph>
+                    <y-attributed-delete userIds="">B1</y-attributed-delete>
+                  </tableParagraph>
+                </y-attributed-delete>
+              </tableCell>
+            </y-attributed-attrs>
           </y-attributed-delete>
         </tableRow>
         <tableRow>
@@ -885,19 +935,23 @@ exports[`suggestion mode: remove column 3`] = `
             <tableParagraph>A2</tableParagraph>
           </tableCell>
           <y-attributed-delete userIds="">
-            <tableCell
-              backgroundColor="default"
-              colspan="1"
-              rowspan="1"
-              textAlignment="left"
-              textColor="default"
+            <y-attributed-attrs
+              changes="{&quot;textColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;backgroundColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;colspan&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;rowspan&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;colwidth&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
             >
-              <y-attributed-delete userIds="">
-                <tableParagraph>
-                  <y-attributed-delete userIds="">B2</y-attributed-delete>
-                </tableParagraph>
-              </y-attributed-delete>
-            </tableCell>
+              <tableCell
+                backgroundColor="default"
+                colspan="1"
+                rowspan="1"
+                textAlignment="left"
+                textColor="default"
+              >
+                <y-attributed-delete userIds="">
+                  <tableParagraph>
+                    <y-attributed-delete userIds="">B2</y-attributed-delete>
+                  </tableParagraph>
+                </y-attributed-delete>
+              </tableCell>
+            </y-attributed-attrs>
           </y-attributed-delete>
         </tableRow>
       </table>
@@ -955,6 +1009,7 @@ exports[`suggestion mode: remove row 1`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -986,6 +1041,7 @@ exports[`suggestion mode: remove row 2`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -1018,34 +1074,42 @@ exports[`suggestion mode: remove row 3`] = `
         <y-attributed-delete userIds="">
           <tableRow>
             <y-attributed-delete userIds="">
-              <tableCell
-                backgroundColor="default"
-                colspan="1"
-                rowspan="1"
-                textAlignment="left"
-                textColor="default"
+              <y-attributed-attrs
+                changes="{&quot;textColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;backgroundColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;colspan&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;rowspan&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;colwidth&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
               >
-                <y-attributed-delete userIds="">
-                  <tableParagraph>
-                    <y-attributed-delete userIds="">A2</y-attributed-delete>
-                  </tableParagraph>
-                </y-attributed-delete>
-              </tableCell>
+                <tableCell
+                  backgroundColor="default"
+                  colspan="1"
+                  rowspan="1"
+                  textAlignment="left"
+                  textColor="default"
+                >
+                  <y-attributed-delete userIds="">
+                    <tableParagraph>
+                      <y-attributed-delete userIds="">A2</y-attributed-delete>
+                    </tableParagraph>
+                  </y-attributed-delete>
+                </tableCell>
+              </y-attributed-attrs>
             </y-attributed-delete>
             <y-attributed-delete userIds="">
-              <tableCell
-                backgroundColor="default"
-                colspan="1"
-                rowspan="1"
-                textAlignment="left"
-                textColor="default"
+              <y-attributed-attrs
+                changes="{&quot;textColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;backgroundColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;colspan&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;rowspan&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;colwidth&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
               >
-                <y-attributed-delete userIds="">
-                  <tableParagraph>
-                    <y-attributed-delete userIds="">B2</y-attributed-delete>
-                  </tableParagraph>
-                </y-attributed-delete>
-              </tableCell>
+                <tableCell
+                  backgroundColor="default"
+                  colspan="1"
+                  rowspan="1"
+                  textAlignment="left"
+                  textColor="default"
+                >
+                  <y-attributed-delete userIds="">
+                    <tableParagraph>
+                      <y-attributed-delete userIds="">B2</y-attributed-delete>
+                    </tableParagraph>
+                  </y-attributed-delete>
+                </tableCell>
+              </y-attributed-attrs>
             </y-attributed-delete>
           </tableRow>
         </y-attributed-delete>
@@ -1094,6 +1158,7 @@ exports[`suggestion mode: split a merged cell 1`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -1147,6 +1212,7 @@ exports[`suggestion mode: split a merged cell 2`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -1157,19 +1223,9 @@ exports[`suggestion mode: split a merged cell 3`] = `
     <blockContainer id="table">
       <table textColor="default">
         <tableRow>
-          <tableCell
-            backgroundColor="default"
-            colspan="1"
-            rowspan="1"
-            textAlignment="left"
-            textColor="default"
+          <y-attributed-attrs
+            changes="{&quot;colspan&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;colwidth&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
           >
-            <tableParagraph>
-              A1
-              <y-attributed-delete userIds="">+B1</y-attributed-delete>
-            </tableParagraph>
-          </tableCell>
-          <y-attributed-insert userIds="">
             <tableCell
               backgroundColor="default"
               colspan="1"
@@ -1177,12 +1233,30 @@ exports[`suggestion mode: split a merged cell 3`] = `
               textAlignment="left"
               textColor="default"
             >
-              <y-attributed-insert userIds="">
-                <tableParagraph>
-                  <y-attributed-insert userIds="">B1</y-attributed-insert>
-                </tableParagraph>
-              </y-attributed-insert>
+              <tableParagraph>
+                A1
+                <y-attributed-delete userIds="">+B1</y-attributed-delete>
+              </tableParagraph>
             </tableCell>
+          </y-attributed-attrs>
+          <y-attributed-insert userIds="">
+            <y-attributed-attrs
+              changes="{&quot;textColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;backgroundColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;colspan&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;rowspan&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;colwidth&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
+            >
+              <tableCell
+                backgroundColor="default"
+                colspan="1"
+                rowspan="1"
+                textAlignment="left"
+                textColor="default"
+              >
+                <y-attributed-insert userIds="">
+                  <tableParagraph>
+                    <y-attributed-insert userIds="">B1</y-attributed-insert>
+                  </tableParagraph>
+                </y-attributed-insert>
+              </tableCell>
+            </y-attributed-attrs>
           </y-attributed-insert>
         </tableRow>
         <tableRow>
@@ -1260,6 +1334,7 @@ exports[`suggestion mode: update text in cell 1`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -1313,6 +1388,7 @@ exports[`suggestion mode: update text in cell 2`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;

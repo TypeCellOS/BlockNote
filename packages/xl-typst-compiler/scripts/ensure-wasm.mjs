@@ -26,7 +26,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { homedir } from "node:os";
-import { dirname, join } from "node:path";
+import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const packageDir = dirname(dirname(fileURLToPath(import.meta.url)));
@@ -62,7 +62,9 @@ function inputHash() {
       .devDependencies["wasm-pack"],
   );
   for (const file of listRustInputs()) {
-    hash.update(file);
+    // Cache identity must not depend on the checkout location (host runner,
+    // Playwright container, local checkout, and Vercel use different paths).
+    hash.update(relative(packageDir, file));
     hash.update(readFileSync(file));
   }
   return hash.digest("hex");
