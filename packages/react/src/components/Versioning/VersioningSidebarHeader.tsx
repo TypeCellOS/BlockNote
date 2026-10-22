@@ -100,7 +100,7 @@ export function VersioningSidebarHeader(props: { onClose?: () => void }) {
           aria-label={dict.versioning.title}
           className="bn-action-toolbar bn-versioning-sidebar-header-actions"
         >
-          {canRename && (
+          {(canRename || namedOnly) && (
             <HeaderButton
               label={
                 namedOnly
