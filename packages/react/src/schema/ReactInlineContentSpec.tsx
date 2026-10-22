@@ -2,7 +2,6 @@ import {
   addInlineContentAttributes,
   addInlineContentKeyboardShortcuts,
   BlockNoteEditor,
-  camelToDataKebab,
   createInternalInlineContentSpec,
   CustomInlineContentConfig,
   CustomInlineContentImplementation,
@@ -19,6 +18,7 @@ import {
   Props,
   PropSchema,
   propsToAttributes,
+  propsToDataAttributes,
   StyleSchema,
 } from "@blocknote/core";
 import { Node } from "@tiptap/core";
@@ -89,18 +89,8 @@ export function InlineContentWrapper<
       className={"bn-inline-content-section"}
       // Sets content type attribute
       data-inline-content-type={props.inlineContentType}
-      // Adds props as HTML attributes in kebab-case with "data-" prefix. Skips
-      // props set to their default values.
-      {...Object.fromEntries(
-        Object.entries(props.inlineContentProps)
-          .filter(([prop, value]) => {
-            const spec = props.propSchema[prop];
-            return value !== spec.default;
-          })
-          .map(([prop, value]) => {
-            return [camelToDataKebab(prop), value];
-          }),
-      )}
+      // Adds the props as `data-*` attributes, leaving out those at their default.
+      {...propsToDataAttributes(props.inlineContentProps, props.propSchema)}
     >
       {props.children}
     </NodeViewWrapper>

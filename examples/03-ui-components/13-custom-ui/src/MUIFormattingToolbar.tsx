@@ -115,8 +115,8 @@ function MUIBlockTypeSelect() {
 
   // Gets the default items for the select.
   const defaultBlockTypeSelectItems = useMemo(
-    () => blockTypeSelectItems(editor.dictionary),
-    [editor.dictionary],
+    () => blockTypeSelectItems(editor),
+    [editor],
   );
 
   // Gets the selected item.

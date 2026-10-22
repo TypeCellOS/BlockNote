@@ -1,7 +1,5 @@
-import {
-  BlockNoteEditor,
-  SourceBlockWithPreviewExtension,
-} from "@blocknote/core";
+import { BlockNoteEditor } from "@blocknote/core";
+import { SourceBlockWithPreviewExtension } from "@blocknote/core/extensions";
 
 import {
   useExtension,

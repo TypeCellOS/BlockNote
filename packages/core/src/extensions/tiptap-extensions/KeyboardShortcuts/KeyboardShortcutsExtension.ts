@@ -1,39 +1,106 @@
-import { Extension } from "@tiptap/core";
-import { Fragment, Node } from "prosemirror-model";
-import { NodeSelection, TextSelection } from "prosemirror-state";
+import { type ChainedCommands, Extension } from "@tiptap/core";
+import { Fragment, type Node } from "prosemirror-model";
+import {
+  NodeSelection,
+  Selection,
+  TextSelection,
+  Transaction,
+} from "prosemirror-state";
 
 import {
-  getBottomNestedBlockInfo,
-  getNextBlockInfo,
-  getParentBlockInfo,
-  getPrevBlockInfo,
   mergeBlocksCommand,
+  getMergeContent,
 } from "../../../api/blockManipulation/commands/mergeBlocks/mergeBlocks.js";
 import {
   liftItem,
   nestBlock,
   unnestBlock,
 } from "../../../api/blockManipulation/commands/nestBlock/nestBlock.js";
-import { fixColumnList } from "../../../api/blockManipulation/commands/replaceBlocks/util/fixColumnList.js";
+import { fixLayoutBlocksById } from "../../../api/blockManipulation/layoutBlocks/fixLayoutBlock.js";
+import { nodeToBlock } from "../../../api/nodeConversions/nodeToBlock.js";
+import { isLayoutNode } from "../../../schema/blocks/children.js";
 import { splitBlockCommand } from "../../../api/blockManipulation/commands/splitBlock/splitBlock.js";
 import { updateBlockCommand } from "../../../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import {
-  getBlockInfoFromResolvedPos,
+  type BlockInfo,
+  ascendToInsertablePos,
+  getInsertionPos,
+  getAncestorLayoutBlocks,
+  getFirstLeafBlock,
+  getBlockInfoAt,
+  getBlockInfoFromNode,
   getBlockInfoFromSelection,
+  getLastDescendantBlockInfo,
+  getNextBlockInfo,
+  getParentBlockInfo,
+  getPrevBlockInfo,
+  blockEdgeSelection,
 } from "../../../api/getBlockInfoFromPos.js";
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 import { FilePanelExtension } from "../../FilePanel/FilePanel.js";
 import { FormattingToolbarExtension } from "../../FormattingToolbar/FormattingToolbar.js";
 
+// Move a block across a layout block boundary, repair its former ancestors, and
+// map the caret through any repairs that change the insertion position.
+function moveBlockOutAndPlaceCaret(
+  tr: Transaction,
+  block: BlockInfo["block"],
+  insertAt: number,
+) {
+  const layoutBlocksToFix = getAncestorLayoutBlocks(tr.doc, block.beforePos);
+  tr.delete(block.beforePos, block.afterPos);
+  const insertionPos = tr.mapping.map(insertAt);
+  tr.insert(insertionPos, block.node);
+  const stepsBeforeFix = tr.steps.length;
+  fixLayoutBlocksById(tr, layoutBlocksToFix);
+  tr.setSelection(
+    TextSelection.near(
+      tr.doc.resolve(tr.mapping.slice(stepsBeforeFix).map(insertionPos) + 1),
+    ),
+  );
+}
+
+// Delete a following block, retaining its children and any compatible text.
+// A sole child also removes its child group instead of leaving an empty body.
+function deleteBlockAndAppendContent(
+  chain: ChainedCommands,
+  current: Extract<BlockInfo, { hasContent: true }>,
+  next: Extract<BlockInfo, { hasContent: true }>,
+  remove: Pick<BlockInfo["block"], "beforePos" | "afterPos"> = next.block,
+) {
+  return chain
+    .insertContentAt(
+      next.block.afterPos,
+      next.children?.node.content || Fragment.empty,
+    )
+    .deleteRange({ from: remove.beforePos, to: remove.afterPos })
+    .insertContentAt(current.contentEnd, getMergeContent(current, next) ?? null)
+    .setTextSelection(current.contentEnd)
+    .scrollIntoView()
+    .run();
+}
+
 export const KeyboardShortcutsExtension = Extension.create<{
   editor: BlockNoteEditor<any, any, any>;
   tabBehavior: "prefer-navigate-ui" | "prefer-indent";
+  selectAllBehavior: "block-first" | "document";
 }>({
   priority: 50,
 
   // TODO: The shortcuts need a refactor. Do we want to use a command priority
   //  design as there is now, or clump the logic into a single function?
   addKeyboardShortcuts() {
+    const bnEditor = this.options.editor;
+    // The `keyboard` settings of the block that `node` holds, in `doc`.
+    function keyboardOf(node: Node, doc: Node) {
+      const block = nodeToBlock(node, doc);
+      return bnEditor.schema.blockSpecs[block.type].implementation.keyboard(
+        block,
+      );
+    }
+    function canOutdentFrom(doc: Node) {
+      return (parent: Node) => keyboardOf(parent, doc).childrenCanOutdent;
+    }
     // handleBackspace is partially adapted from https://github.com/ueberdosis/tiptap/blob/ed56337470efb4fd277128ab7ef792b37cfae992/packages/core/src/extensions/keymap.ts
     const handleBackspace = () =>
       this.editor.commands.first(({ chain, commands }) => [
@@ -41,52 +108,65 @@ export const KeyboardShortcutsExtension = Extension.create<{
         () => commands.deleteSelection(),
         // Undoes an input rule if one was triggered in the last editor state change.
         () => commands.undoInputRule(),
-        // Reverts block content type to a paragraph if the selection is at the start of the block.
+        // Resets the block (`keyboard.resetsTo`, a paragraph by default) if the
+        // selection is at the start of the block and the block isn't already
+        // in that form.
         () =>
           commands.command(({ state }) => {
             const blockInfo = getBlockInfoFromSelection(state);
-            if (!blockInfo.isBlockContainer) {
+            if (!blockInfo.hasContent) {
               return false;
             }
 
             const selectionAtBlockStart =
-              state.selection.from === blockInfo.blockContent.beforePos + 1;
-            const isParagraph =
-              blockInfo.blockContent.node.type.name === "paragraph";
-
-            if (selectionAtBlockStart && !isParagraph) {
-              return commands.command(
-                updateBlockCommand(blockInfo.bnBlock.beforePos, {
-                  type: "paragraph",
-                  props: {},
-                }),
-              );
+              state.selection.from === blockInfo.contentStart;
+            if (!selectionAtBlockStart) {
+              return false;
             }
 
-            return false;
+            const resetsTo = keyboardOf(
+              blockInfo.block.node,
+              state.doc,
+            ).resetsTo;
+            const content = blockInfo.content.node;
+            const alreadyReset =
+              content.type.name === resetsTo.type &&
+              Object.entries(resetsTo.props ?? {}).every(
+                ([prop, value]) => content.attrs[prop] === value,
+              );
+            if (alreadyReset) {
+              return false;
+            }
+
+            return commands.command(
+              updateBlockCommand(blockInfo.block.beforePos, resetsTo as any),
+            );
           }),
         // Merges at the start of the block, into the preceding sibling
         // (or its deepest descendant) or parent. Both must have inline content.
         () =>
           commands.command(({ state }) => {
             const blockInfo = getBlockInfoFromSelection(state);
-            if (!blockInfo.isBlockContainer) {
+            if (!blockInfo.hasContent) {
               return false;
             }
-            const { bnBlock: blockContainer, blockContent } = blockInfo;
+            const { block: blockContainer } = blockInfo;
 
-            // Crossing a column-list boundary moves the block into the last
-            // column first; the following handler owns that operation.
-            const prevBlockInfo = getPrevBlockInfo(
+            const prevSibling = getPrevBlockInfo(
               state.doc,
-              blockContainer.beforePos,
+              blockInfo.block.beforePos,
             );
-            if (prevBlockInfo && !prevBlockInfo.isBlockContainer) {
+            // A preceding layout block takes the move branch below. Otherwise
+            // the block merges into the block above (its last descendant), or
+            // into its parent when it has no previous sibling;
+            // mergeBlocksCommand decides whether their contents are
+            // compatible.
+            if (prevSibling && !prevSibling.hasContent) {
               return false;
             }
 
             const selectionAtBlockStart =
-              state.selection.from === blockContent.beforePos + 1;
+              state.selection.from === blockInfo.contentStart;
             const selectionEmpty = state.selection.empty;
 
             const posBetweenBlocks = blockContainer.beforePos;
@@ -100,99 +180,65 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
             return false;
           }),
-        // If the previous block is a columnList, moves the current block to
-        // the end of the last column in it.
+        // Move into the preceding layout block's trailing slot, or out of the
+        // current layout block when this is its first block.
         () =>
           commands.command(({ state, tr, dispatch }) => {
             const blockInfo = getBlockInfoFromSelection(state);
-            if (!blockInfo.isBlockContainer) {
+            if (
+              !blockInfo.hasContent ||
+              state.selection.from !== blockInfo.contentStart
+            ) {
               return false;
             }
 
-            const selectionAtBlockStart =
-              state.selection.from === blockInfo.blockContent.beforePos + 1;
-            if (!selectionAtBlockStart) {
-              return false;
-            }
-
-            const prevBlockInfo = getPrevBlockInfo(
-              state.doc,
-              blockInfo.bnBlock.beforePos,
-            );
-            if (!prevBlockInfo || prevBlockInfo.isBlockContainer) {
-              return false;
-            }
-
-            if (dispatch) {
-              const columnAfterPos = prevBlockInfo.bnBlock.afterPos - 1;
-              const $blockAfterPos = tr.doc.resolve(columnAfterPos - 1);
-
-              tr.delete(
-                blockInfo.bnBlock.beforePos,
-                blockInfo.bnBlock.afterPos,
-              );
-              tr.insert($blockAfterPos.pos, blockInfo.bnBlock.node);
-              tr.setSelection(
-                TextSelection.near(tr.doc.resolve($blockAfterPos.pos + 1)),
-              );
-
-              return true;
-            }
-
-            return false;
-          }),
-        // If the block is the first in a column, moves it to the end of the
-        // previous column. If there is no previous column, moves it above the
-        // columnList.
-        () =>
-          commands.command(({ state, tr, dispatch }) => {
-            const blockInfo = getBlockInfoFromSelection(state);
-            if (!blockInfo.isBlockContainer) {
-              return false;
-            }
-
-            const selectionAtBlockStart =
-              tr.selection.from === blockInfo.blockContent.beforePos + 1;
-            if (!selectionAtBlockStart) {
-              return false;
-            }
-
-            const $pos = tr.doc.resolve(blockInfo.bnBlock.beforePos);
-
-            const prevBlock = $pos.nodeBefore;
-            if (prevBlock) {
-              return false;
-            }
-
-            const parentBlock = $pos.node();
-            if (parentBlock.type.name !== "column") {
-              return false;
-            }
-
-            const $blockPos = tr.doc.resolve(blockInfo.bnBlock.beforePos);
-            const $columnPos = tr.doc.resolve($blockPos.before());
-            const columnListPos = $columnPos.before();
-
-            if (dispatch) {
-              tr.delete(
-                blockInfo.bnBlock.beforePos,
-                blockInfo.bnBlock.afterPos,
-              );
-              fixColumnList(tr, columnListPos);
-
-              if ($columnPos.pos === columnListPos + 1) {
-                tr.insert(columnListPos, blockInfo.bnBlock.node);
-                tr.setSelection(
-                  TextSelection.near(tr.doc.resolve(columnListPos)),
+            const blockType = blockInfo.block.node.type;
+            let target = getPrevBlockInfo(tr.doc, blockInfo.block.beforePos);
+            let insertionPos: number | undefined;
+            if (target) {
+              if (target.hasContent) {
+                return false;
+              }
+            } else {
+              const $pos = tr.doc.resolve(blockInfo.block.beforePos);
+              if (!isLayoutNode($pos.parent.type)) {
+                return false;
+              }
+              const $layoutBlockPos = tr.doc.resolve($pos.before());
+              // Between columns, move into the previous column. Outside a
+              // layout block, move above the closest boundary that accepts us.
+              const prevSibling = $layoutBlockPos.nodeBefore;
+              if (
+                isLayoutNode($layoutBlockPos.parent.type) &&
+                prevSibling &&
+                isLayoutNode(prevSibling.type)
+              ) {
+                target = getBlockInfoFromNode(
+                  prevSibling,
+                  $layoutBlockPos.pos - prevSibling.nodeSize,
                 );
               } else {
-                tr.insert($columnPos.pos - 1, blockInfo.bnBlock.node);
-                tr.setSelection(
-                  TextSelection.near(tr.doc.resolve($columnPos.pos)),
+                insertionPos = ascendToInsertablePos(
+                  tr.doc,
+                  $layoutBlockPos.pos,
+                  blockType,
                 );
               }
             }
-
+            if (target) {
+              insertionPos = getInsertionPos(
+                tr.doc,
+                target,
+                "last-child",
+                blockType,
+              )?.pos;
+            }
+            if (insertionPos === undefined) {
+              return false;
+            }
+            if (dispatch) {
+              moveBlockOutAndPlaceCaret(tr, blockInfo.block, insertionPos);
+            }
             return true;
           }),
         // Removes an empty inline block when merging is impossible. Its
@@ -201,49 +247,43 @@ export const KeyboardShortcutsExtension = Extension.create<{
           commands.command(({ state, tr, dispatch }) => {
             const blockInfo = getBlockInfoFromSelection(state);
             if (
-              !blockInfo.isBlockContainer ||
+              !blockInfo.hasContent ||
               !state.selection.empty ||
-              blockInfo.blockContent.node.type.spec.content !== "inline*" ||
-              blockInfo.blockContent.node.content.size !== 0
+              blockInfo.contentKind !== "inline" ||
+              !blockInfo.isContentEmpty
             ) {
               return false;
             }
             const prevBlockInfo = getPrevBlockInfo(
               state.doc,
-              blockInfo.bnBlock.beforePos,
+              blockInfo.block.beforePos,
             );
             const parent = !prevBlockInfo
-              ? getParentBlockInfo(state.doc, blockInfo.bnBlock.beforePos)
+              ? getParentBlockInfo(state.doc, blockInfo.block.beforePos)
               : undefined;
             const target = prevBlockInfo
-              ? getBottomNestedBlockInfo(state.doc, prevBlockInfo)
+              ? getLastDescendantBlockInfo(prevBlockInfo)
               : parent;
-            if (!target?.isBlockContainer) {
+            if (!target?.hasContent) {
               return false;
             }
             if (dispatch) {
               if (
-                parent?.childContainer?.node.childCount === 1 &&
-                !blockInfo.childContainer
+                parent?.children?.node.childCount === 1 &&
+                !blockInfo.children
               ) {
-                tr.delete(
-                  parent.childContainer.beforePos,
-                  parent.childContainer.afterPos,
-                );
+                tr.delete(parent.children.beforePos, parent.children.afterPos);
               } else {
                 tr.replaceWith(
-                  blockInfo.bnBlock.beforePos,
-                  blockInfo.bnBlock.afterPos,
-                  blockInfo.childContainer?.node.content ?? Fragment.empty,
+                  blockInfo.block.beforePos,
+                  blockInfo.block.afterPos,
+                  blockInfo.children?.node.content ?? Fragment.empty,
                 );
               }
               tr.setSelection(
-                target.blockContent.node.type.spec.content === ""
-                  ? NodeSelection.create(tr.doc, target.blockContent.beforePos)
-                  : TextSelection.near(
-                      tr.doc.resolve(target.blockContent.afterPos - 1),
-                      -1,
-                    ),
+                target.contentKind === "none"
+                  ? NodeSelection.create(tr.doc, target.content.beforePos)
+                  : TextSelection.near(tr.doc.resolve(target.contentEnd), -1),
               );
               tr.scrollIntoView();
             }
@@ -256,49 +296,48 @@ export const KeyboardShortcutsExtension = Extension.create<{
           commands.command(({ state, tr, dispatch }) => {
             const blockInfo = getBlockInfoFromSelection(state);
 
-            if (!blockInfo.isBlockContainer) {
+            if (!blockInfo.hasContent) {
               return false;
             }
 
             const selectionAtBlockStart =
-              state.selection.from === blockInfo.blockContent.beforePos + 1;
+              state.selection.from === blockInfo.contentStart;
             const selectionEmpty = state.selection.empty;
 
             const prevBlockInfo = getPrevBlockInfo(
               state.doc,
-              blockInfo.bnBlock.beforePos,
+              blockInfo.block.beforePos,
             );
 
             if (prevBlockInfo && selectionAtBlockStart && selectionEmpty) {
-              const bottomBlock = getBottomNestedBlockInfo(
-                state.doc,
-                prevBlockInfo,
-              );
+              // An emptied layout block has no content to merge with, so the
+              // guard below rejects it — the merge branch above only fires
+              // for a previous block with content of its own.
+              const bottomBlock = getLastDescendantBlockInfo(prevBlockInfo);
 
-              if (!bottomBlock.isBlockContainer) {
+              if (!bottomBlock.hasContent) {
                 return false;
               }
 
               const prevBlockNotTableAndNoContent =
-                bottomBlock.blockContent.node.type.spec.content === "" ||
-                (bottomBlock.blockContent.node.type.spec.content ===
-                  "inline*" &&
-                  bottomBlock.blockContent.node.childCount === 0);
+                bottomBlock.contentKind === "none" ||
+                (bottomBlock.contentKind === "inline" &&
+                  bottomBlock.isContentEmpty);
 
               if (prevBlockNotTableAndNoContent) {
                 if (dispatch) {
                   tr.delete(
-                    blockInfo.bnBlock.beforePos,
-                    blockInfo.bnBlock.afterPos,
+                    blockInfo.block.beforePos,
+                    blockInfo.block.afterPos,
                   );
                   tr.replaceWith(
-                    bottomBlock.bnBlock.beforePos,
-                    bottomBlock.bnBlock.afterPos,
-                    blockInfo.bnBlock.node,
+                    bottomBlock.block.beforePos,
+                    bottomBlock.block.afterPos,
+                    blockInfo.block.node,
                   );
                   tr.setSelection(
                     TextSelection.near(
-                      tr.doc.resolve(bottomBlock.bnBlock.beforePos + 2),
+                      tr.doc.resolve(bottomBlock.block.beforePos + 2),
                     ),
                   );
                   tr.scrollIntoView();
@@ -315,9 +354,9 @@ export const KeyboardShortcutsExtension = Extension.create<{
           commands.command(({ state, tr }) => {
             const blockInfo = getBlockInfoFromSelection(state);
             if (
-              !blockInfo.isBlockContainer ||
+              !blockInfo.hasContent ||
               !state.selection.empty ||
-              state.selection.from !== blockInfo.blockContent.beforePos + 1
+              state.selection.from !== blockInfo.contentStart
             ) {
               return false;
             }
@@ -325,6 +364,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
               tr,
               tr.doc.type.schema.nodes["blockContainer"],
               tr.doc.type.schema.nodes["blockGroup"],
+              canOutdentFrom(tr.doc),
             );
           }),
       ]);
@@ -341,60 +381,38 @@ export const KeyboardShortcutsExtension = Extension.create<{
         () =>
           commands.command(({ state }) => {
             const blockInfo = getBlockInfoFromSelection(state);
-            if (!blockInfo.isBlockContainer || !blockInfo.childContainer) {
+            if (!blockInfo.hasContent || !blockInfo.children) {
               return false;
             }
-            const { blockContent, childContainer } = blockInfo;
+            const { children } = blockInfo;
+
+            // A block can have an empty children node (the `childContainer`
+            // group), but then there is no first child to pull anything out
+            // of.
+            if (children.node.childCount === 0) {
+              return false;
+            }
 
             const selectionAtBlockEnd =
-              state.selection.from === blockContent.afterPos - 1;
+              state.selection.from === blockInfo.contentEnd;
             const selectionEmpty = state.selection.empty;
 
-            const firstChildBlockInfo = getBlockInfoFromResolvedPos(
-              state.doc.resolve(childContainer.beforePos + 1),
+            const firstChildBlockInfo = getBlockInfoAt(
+              state.doc,
+              children.childrenStart,
             );
-            if (!firstChildBlockInfo.isBlockContainer) {
+            if (!firstChildBlockInfo.hasContent) {
               return false;
             }
 
             if (selectionAtBlockEnd && selectionEmpty) {
-              const firstChildBlockContent =
-                firstChildBlockInfo.blockContent.node;
-              const firstChildBlockHasInlineContent =
-                firstChildBlockContent.type.spec.content === "inline*";
-              const blockHasInlineContent =
-                blockContent.node.type.spec.content === "inline*";
-
-              return (
-                chain()
-                  // Un-nests child block's children if necessary.
-                  .insertContentAt(
-                    firstChildBlockInfo.bnBlock.afterPos,
-                    firstChildBlockInfo.childContainer?.node.content ||
-                      Fragment.empty,
-                  )
-                  .deleteRange(
-                    // Deletes whole child container if there's only one child.
-                    childContainer.node.childCount === 1
-                      ? {
-                          from: childContainer.beforePos,
-                          to: childContainer.afterPos,
-                        }
-                      : {
-                          from: firstChildBlockInfo.bnBlock.beforePos,
-                          to: firstChildBlockInfo.bnBlock.afterPos,
-                        },
-                  )
-                  // Appends inline content from child block if possible.
-                  .insertContentAt(
-                    state.selection.from,
-                    firstChildBlockHasInlineContent && blockHasInlineContent
-                      ? firstChildBlockContent.content
-                      : null,
-                  )
-                  .setTextSelection(state.selection.from)
-                  .scrollIntoView()
-                  .run()
+              return deleteBlockAndAppendContent(
+                chain(),
+                blockInfo,
+                firstChildBlockInfo,
+                children.node.childCount === 1
+                  ? children
+                  : firstChildBlockInfo.block,
               );
             }
 
@@ -406,21 +424,21 @@ export const KeyboardShortcutsExtension = Extension.create<{
         () =>
           commands.command(({ state }) => {
             const blockInfo = getBlockInfoFromSelection(state);
-            if (!blockInfo.isBlockContainer) {
+            if (!blockInfo.hasContent) {
               return false;
             }
-            const { bnBlock: blockContainer, blockContent } = blockInfo;
+            const { block: blockContainer } = blockInfo;
 
             const nextBlockInfo = getNextBlockInfo(
               state.doc,
-              blockInfo.bnBlock.beforePos,
+              blockInfo.block.beforePos,
             );
-            if (!nextBlockInfo || !nextBlockInfo.isBlockContainer) {
+            if (!nextBlockInfo || !nextBlockInfo.hasContent) {
               return false;
             }
 
             const selectionAtBlockEnd =
-              state.selection.from === blockContent.afterPos - 1;
+              state.selection.from === blockInfo.contentEnd;
             const selectionEmpty = state.selection.empty;
 
             const posBetweenBlocks = blockContainer.afterPos;
@@ -434,105 +452,49 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
             return false;
           }),
-        // If the next block is a columnList, moves the first block from its
-        // first column to after the current block.
+        // Pull the next leaf across a layout block boundary. It may be inside
+        // the next sibling layout block, or follow the layout blocks we're leaving.
         () =>
           commands.command(({ state, tr, dispatch }) => {
             const blockInfo = getBlockInfoFromSelection(state);
-            if (!blockInfo.isBlockContainer) {
+            if (
+              !blockInfo.hasContent ||
+              state.selection.from !== blockInfo.contentEnd
+            ) {
               return false;
             }
 
-            const selectionAtBlockEnd =
-              state.selection.from === blockInfo.blockContent.afterPos - 1;
-            if (!selectionAtBlockEnd) {
+            let $boundary = tr.doc.resolve(blockInfo.block.afterPos);
+            while (
+              !$boundary.nodeAfter &&
+              $boundary.depth > 0 &&
+              isLayoutNode($boundary.parent.type)
+            ) {
+              $boundary = tr.doc.resolve($boundary.after());
+            }
+            const nextNode = $boundary.nodeAfter;
+            if (!nextNode) {
               return false;
             }
 
-            const nextBlockInfo = getNextBlockInfo(
-              state.doc,
-              blockInfo.bnBlock.beforePos,
+            const crossedBoundary = $boundary.pos !== blockInfo.block.afterPos;
+            if (!crossedBoundary && !isLayoutNode(nextNode.type)) {
+              return false;
+            }
+            const target = getFirstLeafBlock(
+              getBlockInfoFromNode(nextNode, $boundary.pos),
             );
-            if (!nextBlockInfo || nextBlockInfo.isBlockContainer) {
+            if (!target) {
               return false;
             }
 
             if (dispatch) {
-              const columnBeforePos = nextBlockInfo.bnBlock.beforePos + 1;
-              const $blockBeforePos = tr.doc.resolve(columnBeforePos + 1);
-
-              tr.delete(
-                $blockBeforePos.pos,
-                $blockBeforePos.pos + $blockBeforePos.nodeAfter!.nodeSize,
-              );
-              fixColumnList(tr, nextBlockInfo.bnBlock.beforePos);
-              tr.insert(blockInfo.bnBlock.afterPos, $blockBeforePos.nodeAfter!);
-              tr.setSelection(
-                TextSelection.near(tr.doc.resolve($blockBeforePos.pos)),
-              );
-
-              return true;
-            }
-
-            return false;
-          }),
-        // If the block is the last in a column, moves it to the start of the
-        // next column. If there is no next column, moves it below the
-        // columnList.
-        () =>
-          commands.command(({ state, tr, dispatch }) => {
-            const blockInfo = getBlockInfoFromSelection(state);
-            if (!blockInfo.isBlockContainer) {
-              return false;
-            }
-
-            const selectionAtBlockEnd =
-              tr.selection.from === blockInfo.blockContent.afterPos - 1;
-            if (!selectionAtBlockEnd) {
-              return false;
-            }
-
-            const $pos = tr.doc.resolve(blockInfo.bnBlock.afterPos);
-
-            const nextBlock = $pos.nodeAfter;
-            if (nextBlock) {
-              return false;
-            }
-
-            const parentBlock = $pos.node();
-            if (parentBlock.type.name !== "column") {
-              return false;
-            }
-
-            const $blockEndPos = tr.doc.resolve(blockInfo.bnBlock.afterPos);
-            const $columnEndPos = tr.doc.resolve($blockEndPos.after());
-            const columnListEndPos = $columnEndPos.after();
-
-            if (dispatch) {
-              // Position before first block in next column, or first block
-              // after columnList if there is no next column.
-              const nextBlockBeforePos =
-                $columnEndPos.pos === columnListEndPos - 1
-                  ? columnListEndPos
-                  : $columnEndPos.pos + 1;
-              const nextBlockInfo = getBlockInfoFromResolvedPos(
-                tr.doc.resolve(nextBlockBeforePos),
-              );
-
-              tr.delete(
-                nextBlockInfo.bnBlock.beforePos,
-                nextBlockInfo.bnBlock.afterPos,
-              );
-              fixColumnList(
+              moveBlockOutAndPlaceCaret(
                 tr,
-                columnListEndPos - $columnEndPos.node().nodeSize,
-              );
-              tr.insert($blockEndPos.pos, nextBlockInfo.bnBlock.node);
-              tr.setSelection(
-                TextSelection.near(tr.doc.resolve(nextBlockBeforePos)),
+                target.block,
+                blockInfo.block.afterPos,
               );
             }
-
             return true;
           }),
         // Deletes the next block at either the same or lower nesting level, if
@@ -543,72 +505,39 @@ export const KeyboardShortcutsExtension = Extension.create<{
         () =>
           commands.command(({ state }) => {
             const blockInfo = getBlockInfoFromSelection(state);
-            if (!blockInfo.isBlockContainer) {
+            if (!blockInfo.hasContent) {
               return false;
             }
-            const { blockContent } = blockInfo;
 
             const selectionAtBlockEnd =
-              state.selection.from === blockContent.afterPos - 1;
+              state.selection.from === blockInfo.contentEnd;
             const selectionEmpty = state.selection.empty;
 
             if (selectionAtBlockEnd && selectionEmpty) {
-              const getNextBlockInfoAtAnyLevel = (
-                doc: Node,
-                beforePos: number,
-              ) => {
-                const nextBlockInfo = getNextBlockInfo(doc, beforePos);
-                if (nextBlockInfo) {
-                  return nextBlockInfo;
-                }
-
-                const parentBlockInfo = getParentBlockInfo(doc, beforePos);
-                if (!parentBlockInfo) {
-                  return undefined;
-                }
-
-                return getNextBlockInfoAtAnyLevel(
-                  doc,
-                  parentBlockInfo.bnBlock.beforePos,
+              let nextBlockInfo: BlockInfo | undefined;
+              let ancestor: BlockInfo | undefined = blockInfo;
+              while (ancestor) {
+                nextBlockInfo = getNextBlockInfo(
+                  state.doc,
+                  ancestor.block.beforePos,
                 );
-              };
-
-              const nextBlockInfo = getNextBlockInfoAtAnyLevel(
-                state.doc,
-                blockInfo.bnBlock.beforePos,
-              );
-              if (!nextBlockInfo || !nextBlockInfo.isBlockContainer) {
+                if (nextBlockInfo) {
+                  break;
+                }
+                ancestor = getParentBlockInfo(
+                  state.doc,
+                  ancestor.block.beforePos,
+                );
+              }
+              if (!nextBlockInfo || !nextBlockInfo.hasContent) {
                 return false;
               }
 
-              const nextBlockContent = nextBlockInfo.blockContent.node;
-              const nextBlockHasInlineContent =
-                nextBlockContent.type.spec.content === "inline*";
-              const blockHasInlineContent =
-                blockContent.node.type.spec.content === "inline*";
-
-              return (
-                chain()
-                  // Un-nests next block's children if necessary.
-                  .insertContentAt(
-                    nextBlockInfo.bnBlock.afterPos,
-                    nextBlockInfo.childContainer?.node.content ||
-                      Fragment.empty,
-                  )
-                  .deleteRange({
-                    from: nextBlockInfo.bnBlock.beforePos,
-                    to: nextBlockInfo.bnBlock.afterPos,
-                  })
-                  // Appends inline content from child block if possible.
-                  .insertContentAt(
-                    state.selection.from,
-                    nextBlockHasInlineContent && blockHasInlineContent
-                      ? nextBlockContent.content
-                      : null,
-                  )
-                  .setTextSelection(state.selection.from)
-                  .scrollIntoView()
-                  .run()
+              return deleteBlockAndAppendContent(
+                chain(),
+                blockInfo,
+                nextBlockInfo,
+                nextBlockInfo.block,
               );
             }
 
@@ -619,54 +548,35 @@ export const KeyboardShortcutsExtension = Extension.create<{
         () =>
           commands.command(({ state }) => {
             const blockInfo = getBlockInfoFromSelection(state);
-            if (!blockInfo.isBlockContainer) {
+            if (!blockInfo.hasContent) {
               return false;
             }
 
             const blockEmpty =
-              blockInfo.blockContent.node.childCount === 0 &&
-              blockInfo.blockContent.node.type.spec.content === "inline*";
+              blockInfo.isContentEmpty && blockInfo.contentKind === "inline";
 
             if (blockEmpty) {
               const nextBlockInfo = getNextBlockInfo(
                 state.doc,
-                blockInfo.bnBlock.beforePos,
+                blockInfo.block.beforePos,
               );
-              if (!nextBlockInfo || !nextBlockInfo.isBlockContainer) {
+              if (!nextBlockInfo || !nextBlockInfo.hasContent) {
                 return false;
               }
 
-              let chainedCommands = chain();
+              const chainedCommands = chain();
 
-              if (
-                nextBlockInfo.blockContent.node.type.spec.content ===
-                "tableRow+"
-              ) {
-                const tableBlockStartPos = blockInfo.bnBlock.afterPos + 1;
-                const tableBlockContentStartPos = tableBlockStartPos + 1;
-                const firstRowStartPos = tableBlockContentStartPos + 1;
-                const firstCellStartPos = firstRowStartPos + 1;
-                const firstCellParagraphStartPos = firstCellStartPos + 1;
-
-                chainedCommands = chainedCommands.setTextSelection(
-                  firstCellParagraphStartPos,
+              chainedCommands.command(({ tr }) => {
+                tr.setSelection(
+                  blockEdgeSelection(tr.doc, nextBlockInfo, "start"),
                 );
-              } else if (
-                nextBlockInfo.blockContent.node.type.spec.content === ""
-              ) {
-                chainedCommands = chainedCommands.setNodeSelection(
-                  nextBlockInfo.blockContent.beforePos,
-                );
-              } else {
-                chainedCommands = chainedCommands.setTextSelection(
-                  nextBlockInfo.blockContent.beforePos + 1,
-                );
-              }
+                return true;
+              });
 
               return chainedCommands
                 .deleteRange({
-                  from: blockInfo.bnBlock.beforePos,
-                  to: blockInfo.bnBlock.afterPos,
+                  from: blockInfo.block.beforePos,
+                  to: blockInfo.block.afterPos,
                 })
                 .scrollIntoView()
                 .run();
@@ -681,45 +591,40 @@ export const KeyboardShortcutsExtension = Extension.create<{
           commands.command(({ state }) => {
             const blockInfo = getBlockInfoFromSelection(state);
 
-            if (!blockInfo.isBlockContainer) {
+            if (!blockInfo.hasContent) {
               return false;
             }
 
             const selectionAtBlockEnd =
-              state.selection.from === blockInfo.blockContent.afterPos - 1;
+              state.selection.from === blockInfo.contentEnd;
             const selectionEmpty = state.selection.empty;
 
             const nextBlockInfo = getNextBlockInfo(
               state.doc,
-              blockInfo.bnBlock.beforePos,
+              blockInfo.block.beforePos,
             );
             if (!nextBlockInfo) {
               return false;
             }
-            if (!nextBlockInfo.isBlockContainer) {
+            if (!nextBlockInfo.hasContent) {
               return false;
             }
 
             if (nextBlockInfo && selectionAtBlockEnd && selectionEmpty) {
               const nextBlockNotTableAndNoContent =
-                nextBlockInfo.blockContent.node.type.spec.content === "" ||
-                (nextBlockInfo.blockContent.node.type.spec.content ===
-                  "inline*" &&
-                  nextBlockInfo.blockContent.node.childCount === 0);
+                nextBlockInfo.contentKind === "none" ||
+                (nextBlockInfo.contentKind === "inline" &&
+                  nextBlockInfo.isContentEmpty);
 
               if (nextBlockNotTableAndNoContent) {
-                const childBlocks =
-                  nextBlockInfo.bnBlock.node.lastChild!.content;
                 return chain()
                   .deleteRange({
-                    from: nextBlockInfo.bnBlock.beforePos,
-                    to: nextBlockInfo.bnBlock.afterPos,
+                    from: nextBlockInfo.block.beforePos,
+                    to: nextBlockInfo.block.afterPos,
                   })
                   .insertContentAt(
-                    blockInfo.bnBlock.afterPos,
-                    nextBlockInfo.bnBlock.node.childCount === 2
-                      ? childBlocks
-                      : null,
+                    blockInfo.block.afterPos,
+                    nextBlockInfo.children?.node.content ?? null,
                   )
                   .run();
               }
@@ -731,15 +636,39 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
     const handleEnter = (withShift = false) => {
       return this.editor.commands.first(({ commands, tr }) => [
+        // Resets an empty block (`keyboard.resetsTo`) if it resets on Enter
+        // (`keyboard.emptyEnterResets`), e.g. an empty list item turns into a
+        // paragraph. Its children stay.
+        () =>
+          commands.command(({ state }) => {
+            const blockInfo = getBlockInfoFromSelection(state);
+            if (
+              !blockInfo.hasContent ||
+              !state.selection.empty ||
+              !blockInfo.isContentEmpty
+            ) {
+              return false;
+            }
+            const keyboard = keyboardOf(blockInfo.block.node, state.doc);
+            if (!keyboard.emptyEnterResets) {
+              return false;
+            }
+            return commands.command(
+              updateBlockCommand(
+                blockInfo.block.beforePos,
+                keyboard.resetsTo as any,
+              ),
+            );
+          }),
         // Removes a level of nesting if the block is empty & indented, while the selection is also empty & at the start
         // of the block.
         () =>
           commands.command(({ state, tr }) => {
             const blockInfo = getBlockInfoFromSelection(state);
-            if (!blockInfo.isBlockContainer) {
+            if (!blockInfo.hasContent) {
               return false;
             }
-            const { bnBlock: blockContainer, blockContent } = blockInfo;
+            const { block: blockContainer } = blockInfo;
 
             const { depth } = state.doc.resolve(blockContainer.beforePos);
 
@@ -747,7 +676,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
               state.selection.$anchor.parentOffset === 0;
             const selectionEmpty =
               state.selection.anchor === state.selection.head;
-            const blockEmpty = blockContent.node.childCount === 0;
+            const blockEmpty = blockInfo.isContentEmpty;
             const blockIndented = depth > 1;
 
             if (
@@ -756,16 +685,32 @@ export const KeyboardShortcutsExtension = Extension.create<{
               blockEmpty &&
               blockIndented
             ) {
+              // Only outdents where the parent says so
+              // (`keyboard.emptyChildEnter: "outdent"`); otherwise the block
+              // leaves at the end, or a new child is added, further down.
+              const parent = getParentBlockInfo(
+                state.doc,
+                blockContainer.beforePos,
+              );
+              if (
+                parent &&
+                keyboardOf(parent.block.node, state.doc).emptyChildEnter !==
+                  "outdent"
+              ) {
+                return false;
+              }
               return liftItem(
                 tr,
                 tr.doc.type.schema.nodes["blockContainer"],
                 tr.doc.type.schema.nodes["blockGroup"],
+                canOutdentFrom(tr.doc),
               );
             }
 
             return false;
           }),
-        // Creates a hard break if block is configured to do so.
+        // Creates a hard break if the block is configured to do so
+        // (`keyboard.enter` / `keyboard.shiftEnter`).
         () =>
           commands.command(({ state }) => {
             const blockInfo = getBlockInfoFromSelection(state);
@@ -773,29 +718,12 @@ export const KeyboardShortcutsExtension = Extension.create<{
             const blockSpec =
               this.options.editor.schema.blockSpecs[blockInfo.blockNoteType];
 
-            // NOTE: This likely doesn't work as intended - `blockSchema[type]`
-            // holds the block *config* (type/propSchema/content), which carries
-            // no `meta`, so `meta?.hardBreakShortcut` is always `undefined` and
-            // this falls back to the default. It should read from the block
-            // spec's implementation instead (i.e.
-            // `editor.schema.blockSpecs[type].implementation.meta`), the way the
-            // syntax-highlighting extension reads `meta.highlight`. Left as-is
-            // for a follow-up pass.
-            const blockHardBreakShortcut =
-              blockSpec?.implementation?.meta?.hardBreakShortcut ??
-              "shift+enter";
-
-            if (blockHardBreakShortcut === "none") {
-              return false;
-            }
+            const keyboard = keyboardOf(blockInfo.block.node, state.doc);
 
             if (
-              // If shortcut is not configured, or is configured as "shift+enter",
-              // create a hard break for shift+enter, but not for enter.
-              (blockHardBreakShortcut === "shift+enter" && withShift) ||
-              // If shortcut is configured as "enter", create a hard break for
-              // both enter and shift+enter.
-              blockHardBreakShortcut === "enter"
+              // Enter as a line break makes Shift-Enter one too.
+              keyboard.enter === "line-break" ||
+              (withShift && keyboard.shiftEnter === "line-break")
             ) {
               // "plain" blocks (e.g. code/math/diagram source) hold text only
               // (their content is `text*`), which can't contain a `hardBreak`
@@ -825,23 +753,93 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
             return false;
           }),
+        // If the block is empty and the last child of a block whose empty
+        // children exit at the end (`keyboard.emptyChildEnter:
+        // "exit-at-end"`, the default for layout blocks), moves the block out
+        // (double Enter exits the layout block). The block lands at the nearest enclosing position that
+        // accepts it. E.g. out of a column it skips the columnList, which
+        // holds only columns, and lands below it. Without this, Enter only
+        // ever creates new blocks within the layout block, so the cursor could
+        // never leave a trailing layout block. Shift+Enter still adds spacing
+        // inside a layout block. The first block of a body stays put: it is
+        // where the body begins, not a way out of it.
+        () =>
+          commands.command(({ state, tr, dispatch }) => {
+            const blockInfo = getBlockInfoFromSelection(state);
+            if (!blockInfo.hasContent) {
+              return false;
+            }
+
+            const selectionEmpty =
+              state.selection.anchor === state.selection.head;
+            const blockEmpty = blockInfo.isContentEmpty;
+            if (!selectionEmpty || !blockEmpty) {
+              return false;
+            }
+
+            const $pos = tr.doc.resolve(blockInfo.block.beforePos);
+            // Only fires on the layout block's last child.
+            if (tr.doc.resolve(blockInfo.block.afterPos).nodeAfter !== null) {
+              return false;
+            }
+
+            const owner = getParentBlockInfo(tr.doc, blockInfo.block.beforePos);
+            if (!owner) {
+              return false;
+            }
+            if (
+              keyboardOf(owner.block.node, tr.doc).emptyChildEnter !==
+              "exit-at-end"
+            ) {
+              return false;
+            }
+            // The first block of a body stays put: it is where the body
+            // begins, not a way out of it. (A layout block's own first child has
+            // no such role, so it may still leave.)
+            if ($pos.index() === 0 && owner.hasContent) {
+              return false;
+            }
+
+            const ownerAfterPos = ascendToInsertablePos(
+              tr.doc,
+              owner.block.afterPos,
+              state.schema.nodes["blockContainer"],
+              "after",
+            );
+            if (ownerAfterPos === undefined) {
+              return false;
+            }
+
+            if (dispatch) {
+              moveBlockOutAndPlaceCaret(tr, blockInfo.block, ownerAfterPos);
+              tr.scrollIntoView();
+            }
+
+            return true;
+          }),
         // Creates a new block and moves the selection to it if the current one is empty, while the selection is also
         // empty & at the start of the block.
         () =>
           commands.command(({ state, dispatch, tr }) => {
             const blockInfo = getBlockInfoFromSelection(state);
-            if (!blockInfo.isBlockContainer) {
+            if (!blockInfo.hasContent) {
               return false;
             }
-            const { bnBlock: blockContainer, blockContent } = blockInfo;
+            const { block: blockContainer } = blockInfo;
 
             const selectionAtBlockStart =
               state.selection.$anchor.parentOffset === 0;
             const selectionEmpty =
               state.selection.anchor === state.selection.head;
-            const blockEmpty = blockContent.node.childCount === 0;
+            const blockEmpty = blockInfo.isContentEmpty;
 
-            if (selectionAtBlockStart && selectionEmpty && blockEmpty) {
+            if (
+              selectionAtBlockStart &&
+              selectionEmpty &&
+              blockEmpty &&
+              keyboardOf(blockInfo.block.node, state.doc).enter !==
+                "into-children"
+            ) {
               const newBlockInsertionPos = blockContainer.afterPos;
               const newBlockContentPos = newBlockInsertionPos + 2;
 
@@ -855,7 +853,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
                   [
                     state.schema.nodes["paragraph"].createAndFill() ||
                       undefined,
-                    blockInfo.childContainer?.node,
+                    blockInfo.children?.node,
                   ].filter((node) => node !== undefined),
                 )!;
 
@@ -868,10 +866,10 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
                 // Deletes old block's children, as they have been moved to
                 // the new one.
-                if (blockInfo.childContainer) {
+                if (blockInfo.children) {
                   tr.delete(
-                    blockInfo.childContainer.beforePos,
-                    blockInfo.childContainer.afterPos,
+                    blockInfo.children.beforePos,
+                    blockInfo.children.afterPos,
                   );
                 }
               }
@@ -881,28 +879,129 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
             return false;
           }),
+        // Enter at the start of non-empty content inserts an empty block above
+        // it: the same type when the block's splits keep their type (lists),
+        // a paragraph otherwise, with default props. The block itself, with
+        // its id, props (e.g. a checklist item's checked state) and children,
+        // stays where it is (#550).
+        () =>
+          commands.command(({ state, tr, dispatch }) => {
+            const blockInfo = getBlockInfoFromSelection(state);
+            if (
+              !blockInfo.hasContent ||
+              blockInfo.contentKind === "table" ||
+              !state.selection.empty ||
+              blockInfo.isContentEmpty ||
+              state.selection.from !== blockInfo.contentStart
+            ) {
+              return false;
+            }
+
+            if (dispatch) {
+              const contentType = keyboardOf(blockInfo.block.node, state.doc)
+                .splitKeepsType
+                ? blockInfo.content.node.type
+                : state.schema.nodes["paragraph"];
+              const newBlock = state.schema.nodes["blockContainer"].create(
+                undefined,
+                contentType.create(),
+              );
+              tr.insert(blockInfo.block.beforePos, newBlock).scrollIntoView();
+            }
+
+            return true;
+          }),
+        // Enter in the content of a block whose Enter goes into its children
+        // (`keyboard.enter: "into-children"`, e.g. an open toggle) starts its
+        // children rather than splitting the block in two: whatever follows
+        // the cursor becomes the first child, and the existing children stay
+        // where they are.
+        () =>
+          commands.command(({ state, tr, dispatch }) => {
+            const blockInfo = getBlockInfoFromSelection(state);
+            if (!blockInfo.hasContent) {
+              return false;
+            }
+
+            if (
+              keyboardOf(blockInfo.block.node, state.doc).enter !==
+              "into-children"
+            ) {
+              return false;
+            }
+            if (!state.selection.empty) {
+              return false;
+            }
+            if (
+              state.selection.from < blockInfo.contentStart ||
+              state.selection.from > blockInfo.contentEnd
+            ) {
+              return false;
+            }
+
+            if (dispatch) {
+              // Everything after the cursor moves into the new block, so
+              // splitting the title mid-way puts its tail at the top of the
+              // body instead of handing the body to a new sibling.
+              const tail = blockInfo.content.node.cut(
+                state.selection.from - blockInfo.contentStart,
+              );
+              const newBlock = state.schema.nodes["blockContainer"].create(
+                undefined,
+                state.schema.nodes["paragraph"].create(undefined, tail.content),
+              );
+
+              tr.delete(state.selection.from, blockInfo.contentEnd);
+
+              const body = getBlockInfoAt(
+                tr.doc,
+                blockInfo.block.beforePos,
+              ).children;
+              // Without a body yet, one is created around the new block.
+              const insertPos = body
+                ? body.childrenStart
+                : tr.mapping.map(blockInfo.content.afterPos);
+              tr.insert(
+                insertPos,
+                body
+                  ? newBlock
+                  : state.schema.nodes["blockGroup"].create(
+                      undefined,
+                      newBlock,
+                    ),
+              )
+                .setSelection(
+                  new TextSelection(tr.doc.resolve(insertPos + (body ? 2 : 3))),
+                )
+                .scrollIntoView();
+            }
+
+            return true;
+          }),
         // Splits the current block, moving content inside that's after the cursor to a new text block below. Also
         // deletes the selection beforehand, if it's not empty.
         () =>
           commands.command(({ state, chain }) => {
             const blockInfo = getBlockInfoFromSelection(state);
-            if (!blockInfo.isBlockContainer) {
+            if (!blockInfo.hasContent) {
               return false;
             }
-            const { blockContent } = blockInfo;
 
             const selectionAtBlockStart =
               state.selection.$anchor.parentOffset === 0;
-            const blockEmpty = blockContent.node.childCount === 0;
+            const blockEmpty = blockInfo.isContentEmpty;
 
             if (!blockEmpty) {
+              const keyboard = keyboardOf(blockInfo.block.node, state.doc);
+              const keepType = selectionAtBlockStart || keyboard.splitKeepsType;
               chain()
                 .deleteSelection()
                 .command(
                   splitBlockCommand(
                     state.selection.from,
+                    keepType,
                     selectionAtBlockStart,
-                    selectionAtBlockStart,
+                    keyboard.splitKeepsChildren,
                   ),
                 )
                 .scrollIntoView()
@@ -916,42 +1015,27 @@ export const KeyboardShortcutsExtension = Extension.create<{
       ]);
     };
 
+    const options = this.options;
+    function handleTab(shift: boolean) {
+      const { editor, tabBehavior } = options;
+      if (
+        tabBehavior !== "prefer-indent" &&
+        (editor.getExtension(FormattingToolbarExtension)?.store.state ||
+          editor.getExtension(FilePanelExtension)?.store.state !== undefined)
+      ) {
+        // Let the browser navigate into and out of an open toolbar.
+        return false;
+      }
+      return shift ? unnestBlock(editor) : nestBlock(editor);
+    }
+
     return {
       Backspace: handleBackspace,
       Delete: handleDelete,
       Enter: () => handleEnter(),
       "Shift-Enter": () => handleEnter(true),
-      // Always returning true for tab key presses ensures they're not captured by the browser. Otherwise, they blur the
-      // editor since the browser will try to use tab for keyboard navigation.
-      Tab: () => {
-        if (
-          this.options.tabBehavior !== "prefer-indent" &&
-          (this.options.editor.getExtension(FormattingToolbarExtension)?.store
-            .state ||
-            this.options.editor.getExtension(FilePanelExtension)?.store
-              .state !== undefined)
-          // TODO need to check if the link toolbar is open or another alternative entirely
-        ) {
-          // don't handle tabs if a toolbar is shown, so we can tab into / out of it
-          return false;
-        }
-        return nestBlock(this.options.editor);
-      },
-      "Shift-Tab": () => {
-        if (
-          this.options.tabBehavior !== "prefer-indent" &&
-          (this.options.editor.getExtension(FormattingToolbarExtension)?.store
-            .state ||
-            this.options.editor.getExtension(FilePanelExtension)?.store
-              .state !== undefined)
-          // TODO need to check if the link toolbar is open or another alternative entirely
-          // other menu types?
-        ) {
-          // don't handle tabs if a toolbar is shown, so we can tab into / out of it
-          return false;
-        }
-        return unnestBlock(this.options.editor);
-      },
+      Tab: () => handleTab(false),
+      "Shift-Tab": () => handleTab(true),
       "Shift-Mod-ArrowUp": () => {
         this.options.editor.moveBlocksUp();
         return true;
@@ -963,6 +1047,70 @@ export const KeyboardShortcutsExtension = Extension.create<{
       "Mod-z": () => this.options.editor.undo(),
       "Mod-y": () => this.options.editor.redo(),
       "Shift-Mod-z": () => this.options.editor.redo(),
+      "Mod-a": () => {
+        const view = this.editor.view;
+        const { doc, selection, tr } = view.state;
+
+        // By default, the first `Mod-a` selects the current block's content,
+        // and any subsequent `Mod-a` expands the selection to the whole
+        // document. We use `TextSelection`s rather than an `AllSelection` for the
+        // whole-document case as the latter creates from/to positions outside a
+        // block, causing errors when calling e.g. `getBlock`.
+        const wholeDocSelection = TextSelection.between(
+          Selection.atStart(doc).$from,
+          Selection.atEnd(doc).$to,
+        );
+
+        if (this.options.selectAllBehavior === "document") {
+          view.dispatch(tr.setSelection(wholeDocSelection));
+          return true;
+        }
+
+        // Selection covering just the current block's content. `between` snaps
+        // to the nearest inline positions inside the block, so it also handles
+        // blocks whose content isn't directly inline - e.g. table blocks, where
+        // it spans from the first cell to the last. Blocks without any inline
+        // content (e.g. images) are ignored, as `between` would then spill
+        // outside the block, and select-all falls through to the whole document.
+        let blockSelection: Selection | undefined;
+        const blockInfo = getBlockInfoFromSelection(view.state);
+        if (blockInfo.hasContent) {
+          const contentFrom = blockInfo.contentStart;
+          const contentTo = blockInfo.contentEnd;
+          const candidate = TextSelection.between(
+            doc.resolve(contentFrom),
+            doc.resolve(contentTo),
+          );
+
+          if (
+            !candidate.empty &&
+            candidate.from >= contentFrom &&
+            candidate.to <= contentTo
+          ) {
+            blockSelection = candidate;
+          }
+        }
+
+        // Expands to the whole document when there's no selectable block content
+        // to select first, when the selection already extends beyond the current
+        // block, or when the current block's content is already fully selected.
+        const selectWholeDoc =
+          !blockSelection ||
+          selection.from < blockSelection.from ||
+          selection.to > blockSelection.to ||
+          (selection.from === blockSelection.from &&
+            selection.to === blockSelection.to);
+
+        if (blockSelection && !selectWholeDoc) {
+          tr.setSelection(blockSelection).scrollIntoView();
+        } else {
+          tr.setSelection(wholeDocSelection);
+        }
+
+        view.dispatch(tr);
+
+        return true;
+      },
     };
   },
 });

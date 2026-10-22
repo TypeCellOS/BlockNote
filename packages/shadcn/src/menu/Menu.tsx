@@ -128,8 +128,16 @@ export const MenuItem = forwardRef<
   HTMLDivElement,
   ComponentProps["Generic"]["Menu"]["Item"]
 >((props, ref) => {
-  const { className, children, icon, checked, subTrigger, onClick, ...rest } =
-    props;
+  const {
+    className,
+    children,
+    icon,
+    checked,
+    disabled,
+    subTrigger,
+    onClick,
+    ...rest
+  } = props;
 
   assertEmpty(rest);
 
@@ -151,6 +159,7 @@ export const MenuItem = forwardRef<
         ref={ref}
         checked={checked}
         onClick={onClick}
+        disabled={disabled}
         // How-to-test: without the tap guard (here and on the plain item below), tapping a color focuses the item and closes the keyboard (covered by skinFocus, android, shadcn: "picking from the colors menu leaves focus in the editor").
         onMouseDown={preventFocusOnTap}
         {...rest}
@@ -166,6 +175,7 @@ export const MenuItem = forwardRef<
       className={className}
       ref={ref}
       onClick={onClick}
+      disabled={disabled}
       onMouseDown={preventFocusOnTap}
       {...rest}
     >

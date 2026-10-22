@@ -14,17 +14,20 @@ test("default schema: arrow-key document navigation", async () => {
   await navigateDefaultSchemaDocument();
 });
 
+// The editor has no separate focused state without an editing selection; Escape blurs to the body.
 test.skip("editor can receive focus without selecting content", async () => {
   // TODO: Focus the editor as a page element without an editing selection.
   // Tab/arrows should navigate the page; Enter should enter editing.
   // Escape currently blurs to body, which does not preserve this entry point.
 });
 
+// Whole-block selection requires Cmd+Click; no keyboard interaction is implemented.
 test.skip("keyboard selection extends to the entire block", async () => {
   // TODO: Extend a text selection to its whole block, leaving neighbours out.
   // Whole-block selection currently requires Cmd+Click; keyboard UX is TBD.
 });
 
+// The keyboard whole-block selection needed to capture its visual indicator is not implemented.
 test.skip("whole-block selection is visible", async () => {
   // TODO: Once keyboard block selection exists, snapshot its visual indicator.
   // TODO: Text selection, whole-document selection, and non-inline blocks.
@@ -121,6 +124,7 @@ test("read-only editor: Tab reaches inline links and leaves the editor", async (
   await expect.element(link).toHaveFocus();
 });
 
+// Read-only file/media blocks cannot be selected through the page tab order.
 test.skip("read-only editor: Tab selects blocks that expose a formatting toolbar", async () => {
   // TODO: Open a read-only document containing an image/file block between
   // ordinary paragraphs. Tab from Before editor to select that block, assert
