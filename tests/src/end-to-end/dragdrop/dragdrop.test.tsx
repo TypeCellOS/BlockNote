@@ -43,7 +43,6 @@ import { executeSlashCommand } from "../../utils/slashmenu.js";
 // Type the accessor locally.
 type ElementMatchers = {
   toHaveFocus(): Promise<void>;
-  not: { toBeVisible(): Promise<void> };
 };
 type ElementExpect = (element: Element | null) => ElementMatchers;
 const expectElement = (expect as unknown as { element: ElementExpect }).element;
@@ -144,9 +143,7 @@ describe("Check Block Dragging Functionality", () => {
 
       await dragAndDropBlock(IMAGE_SELECTOR, H_ONE_BLOCK_SELECTOR, false);
 
-      await expectElement(
-        document.querySelector(".bn-formatting-toolbar"),
-      ).not.toBeVisible();
+      await waitForSelectorDetached(".bn-formatting-toolbar");
     },
   );
 
