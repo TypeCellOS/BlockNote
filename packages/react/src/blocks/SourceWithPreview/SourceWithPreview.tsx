@@ -206,9 +206,6 @@ export const SourceWithPreview = (
               aria-invalid={error ? true : undefined}
               aria-describedby={error ? errorId : undefined}
             />
-            {inline && source.length === 0 && (
-              <br aria-hidden="true" contentEditable={false} />
-            )}
           </pre>
           <div
             className="bn-code-block-source-popup-ok-button-wrapper"

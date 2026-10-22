@@ -673,6 +673,16 @@ NESTED BLOCKS
   width: 0;
 }
 
+/* A block with a line box, so native inserts into an empty inline source land inside it, and native deletions that empty it don't remove it (#3234). */
+.bn-inline-content-section
+  .bn-code-block-source-popup-body
+  > pre
+  > code
+  > [data-node-view-content-react] {
+  display: block;
+  min-height: 1.5em;
+}
+
 .bn-code-block-source-popup-input-empty::before {
   color: currentColor;
   content: attr(data-placeholder);
