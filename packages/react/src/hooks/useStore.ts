@@ -3,7 +3,7 @@
 // See `packages/core/src/util/Store.ts` for why the store itself is vendored. This is the
 // matching React binding, kept behaviourally identical to `@tanstack/react-store@0.7.7` —
 // in particular the `shallow` default comparator, which `useCommentUsers` and
-// `useVersionUsers` rely on to avoid re-rendering when an unrelated user resolves.
+// `useSnapshotUsers` rely on to avoid re-rendering when an unrelated user resolves.
 
 import type { Store } from "@blocknote/core";
 import { useSyncExternalStoreWithSelector } from "use-sync-external-store/shim/with-selector";

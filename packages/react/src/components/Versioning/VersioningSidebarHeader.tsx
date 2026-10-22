@@ -1,5 +1,5 @@
 import { type ReactNode } from "react";
-import { GoDiff } from "react-icons/go";
+import { LuFileDiff } from "react-icons/lu";
 import { RiBookmarkLine, RiCloseLine } from "react-icons/ri";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
@@ -121,7 +121,7 @@ export function VersioningSidebarHeader(props: { onClose?: () => void }) {
               isSelected={comparisonMode}
               onClick={toggleComparison}
             >
-              <GoDiff size={16} />
+              <LuFileDiff size={16} />
             </HeaderButton>
           )}
         </Components.Generic.Toolbar.Root>

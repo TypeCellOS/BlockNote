@@ -12,8 +12,6 @@ export interface VersionSnapshot {
   name?: string;
   /** Author identifier or identifiers, resolved to users by the sidebar's user store. */
   by?: string | string[];
-  /** Optional additional text displayed beneath the version's name or timestamp. */
-  secondaryLabel?: string;
   /** Original version whose content produced this version through a restore. */
   restoredFrom?: { id: string; createdAt: number };
   /** Backend-specific metadata, opaque to the versioning controller. */

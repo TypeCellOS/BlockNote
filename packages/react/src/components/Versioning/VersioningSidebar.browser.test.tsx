@@ -692,7 +692,7 @@ describe("VersioningSidebar", () => {
     });
 
     await click(
-      page.getByRole("button", { name: "Turn on comparison", exact: true }),
+      page.getByRole("button", { name: "Show changes", exact: true }),
     );
     await act(async () => {});
 
@@ -763,7 +763,7 @@ describe("VersioningSidebar", () => {
         );
         await click(
           page.getByRole("button", {
-            name: "Turn on comparison",
+            name: "Show changes",
             exact: true,
           }),
         );
@@ -827,7 +827,7 @@ describe("VersioningSidebar", () => {
       ).toBeDefined();
       expect(
         page
-          .getByRole("button", { name: "Turn off comparison", exact: true })
+          .getByRole("button", { name: "Hide changes", exact: true })
           .element(),
       ).toBeDefined();
       expect(editor.isEditable).toBe(false);
@@ -1010,9 +1010,7 @@ describe("VersioningSidebar", () => {
       page.getByText("Comparing to", { exact: true }).element(),
     ).toBeDefined();
     expect(
-      page
-        .getByRole("button", { name: "Turn off comparison", exact: true })
-        .element(),
+      page.getByRole("button", { name: "Hide changes", exact: true }).element(),
     ).toBeDefined();
 
     await click(
@@ -1067,9 +1065,7 @@ describe("VersioningSidebar", () => {
     });
     expect(fake.endpoints.getContent).toHaveBeenCalled();
     expect(
-      page
-        .getByRole("button", { name: "Turn off comparison", exact: true })
-        .element(),
+      page.getByRole("button", { name: "Hide changes", exact: true }).element(),
     ).toBeDefined();
 
     // Selecting the source again keeps the chronological comparison.
@@ -1697,28 +1693,114 @@ describe("VersioningSidebar", () => {
   // Keyboard
   // -------------------------------------------------------------------------
 
-  it("moves through the list with the arrow keys and selects with Enter", async () => {
+  it("scrubs previews with arrow keys, Home and End without wrapping", async () => {
     const { editor } = await setup();
 
-    rows()[0]!.focus();
+    act(() => rows()[0]!.focus());
     await act(async () => userEvent.keyboard("{ArrowDown}"));
     expect(document.activeElement).toBe(rows()[1]);
+    expect(viewState(mode(editor))).toMatchObject({ snapshotId: NAMED.id });
+    expect(rows()[1]!.getAttribute("aria-current")).toBe("true");
 
     await act(async () => userEvent.keyboard("{End}"));
     expect(document.activeElement).toBe(rows()[2]);
+    expect(viewState(mode(editor))).toMatchObject({ snapshotId: AUTOMATIC.id });
+    await act(async () => userEvent.keyboard("{ArrowDown}"));
+    expect(document.activeElement).toBe(rows()[2]);
+    expect(rows()[2]!.getAttribute("aria-current")).toBe("true");
 
     await act(async () => userEvent.keyboard("{Home}"));
     expect(document.activeElement).toBe(rows()[0]);
+    expect(viewState(mode(editor)).mode).toBe("current");
+    await act(async () => userEvent.keyboard("{ArrowUp}"));
+    expect(document.activeElement).toBe(rows()[0]);
+    expect(rows()[0]!.getAttribute("aria-current")).toBe("true");
 
     await act(async () => userEvent.keyboard("{ArrowDown}"));
+    await act(async () => userEvent.keyboard("{ArrowDown}{ArrowUp}"));
+    expect(document.activeElement).toBe(rows()[1]);
+    expect(viewState(mode(editor))).toMatchObject({ snapshotId: NAMED.id });
     await act(async () => userEvent.keyboard("{Enter}"));
-    await act(async () => {});
+    await act(async () => userEvent.keyboard(" "));
 
     expect(viewState(mode(editor))).toEqual({
       mode: "snapshot",
       snapshotId: NAMED.id,
       compareToId: undefined,
     });
+  });
+
+  it("scrubs only visible named rows and retains comparison at either end", async () => {
+    const fake = createFakeEndpoints();
+    const older = { id: "older", createdAt: 500, name: "First draft" };
+    fake.setSnapshots([NAMED, AUTOMATIC, older]);
+    const { editor } = await setup(
+      { defaultNamedOnly: true, defaultComparisonMode: true },
+      fake,
+    );
+    act(() => rows()[0]!.focus());
+    await act(async () => userEvent.keyboard("{ArrowDown}"));
+    expect(document.activeElement).toBe(rows()[1]);
+    expect(viewState(mode(editor))).toEqual({
+      mode: "snapshot",
+      snapshotId: NAMED.id,
+      compareToId: older.id,
+    });
+    await act(async () => userEvent.keyboard("{ArrowDown}"));
+    expect(document.activeElement).toBe(rows()[2]);
+    expect(viewState(mode(editor))).toEqual({
+      mode: "snapshot",
+      snapshotId: older.id,
+      compareToId: undefined,
+    });
+    await act(async () => userEvent.keyboard("{ArrowUp}"));
+    expect(document.activeElement).toBe(rows()[1]);
+    expect(viewState(mode(editor))).toMatchObject({
+      snapshotId: NAMED.id,
+      compareToId: older.id,
+    });
+  });
+
+  it("keeps the latest scrub selected when older preview loads finish last", async () => {
+    const { editor, fake } = await setup();
+    const slow = deferred<VersionResult<unknown[]>>();
+    fake.endpoints.getContent.mockReturnValueOnce(slow.promise);
+    act(() => rows()[0]!.focus());
+    await act(async () => userEvent.keyboard("{ArrowDown}"));
+    expect(document.activeElement).toBe(rows()[1]);
+    expect(fake.endpoints.getContent).toHaveBeenCalledWith(
+      NAMED.id,
+      expect.any(AbortSignal),
+    );
+    await act(async () => userEvent.keyboard("{ArrowDown}"));
+    expect(document.activeElement).toBe(rows()[2]);
+    expect(viewState(mode(editor))).toMatchObject({ snapshotId: AUTOMATIC.id });
+    await act(async () => slow.resolve(success([])));
+    expect(document.activeElement).toBe(rows()[2]);
+    expect(rows()[2]!.getAttribute("aria-current")).toBe("true");
+    expect(viewState(mode(editor))).toMatchObject({ snapshotId: AUTOMATIC.id });
+  });
+
+  it("leaves rename and menu keys to their controls", async () => {
+    const { editor, fake } = await setup();
+    await click(rows()[1]!);
+    const input = nameInput(rows()[1]!);
+    await click(input);
+    await act(async () =>
+      userEvent.keyboard("{ArrowDown}{ArrowUp}{Home}{End} "),
+    );
+    expect(document.activeElement).toBe(input);
+    expect(viewState(mode(editor))).toMatchObject({ snapshotId: NAMED.id });
+    await act(async () => userEvent.keyboard("{Escape}"));
+    fake.endpoints.getContent.mockClear();
+    const item = await openMenuItem(rows()[1]!, /^Restore$/);
+    await act(async () => {
+      item.focus();
+      await userEvent.keyboard("{ArrowDown}{ArrowUp}");
+    });
+    expect(document.activeElement?.closest('[role="menu"]')).not.toBeNull();
+    expect(fake.endpoints.getContent).not.toHaveBeenCalled();
+    expect(viewState(mode(editor))).toMatchObject({ snapshotId: NAMED.id });
   });
 
   it("keeps a single tab stop for the whole list", async () => {
@@ -1922,7 +2004,7 @@ describe("VersioningSidebar", () => {
       const { editor } = await setup();
       const item = await openMenuItem(rows()[1]!, /^Delete$/);
       const close = page
-        .getByRole("button", { name: "Turn on comparison", exact: true })
+        .getByRole("button", { name: "Show changes", exact: true })
         .element();
       await act(async () => {
         item.focus();
@@ -2075,7 +2157,7 @@ describe("VersioningSidebar", () => {
         } else {
           await click(
             page.getByRole("button", {
-              name: comparison ? "Turn off comparison" : "Turn on comparison",
+              name: comparison ? "Hide changes" : "Show changes",
               exact: true,
             }),
           );
@@ -2203,14 +2285,10 @@ describe("VersioningSidebar", () => {
         compareToId: undefined,
       });
       expect(
-        page
-          .getByRole("button", { name: "Turn on comparison", exact: true })
-          .query(),
+        page.getByRole("button", { name: "Show changes", exact: true }).query(),
       ).not.toBeNull();
       expect(
-        page
-          .getByRole("button", { name: "Turn off comparison", exact: true })
-          .query(),
+        page.getByRole("button", { name: "Hide changes", exact: true }).query(),
       ).toBeNull();
       expect(rows()).toHaveLength(3);
       expect(page.getByRole("status").query()).toBeNull();
@@ -2325,7 +2403,7 @@ describe("VersioningSidebar", () => {
   it("does not steal focus after a removed version has been left", async () => {
     const { editor } = await setup({ onClose: () => {} });
     const control = page
-      .getByRole("button", { name: "Turn on comparison", exact: true })
+      .getByRole("button", { name: "Show changes", exact: true })
       .element();
     act(() => {
       rows()[1]!.focus();
@@ -2340,11 +2418,7 @@ describe("VersioningSidebar", () => {
   it("gives every header control an accessible name", async () => {
     await setup({ onClose: () => {} });
 
-    for (const name of [
-      "Show named versions only",
-      "Turn on comparison",
-      "Close",
-    ]) {
+    for (const name of ["Show named versions only", "Show changes", "Close"]) {
       expect(
         page.getByRole("button", { name, exact: true }).element(),
       ).toBeDefined();

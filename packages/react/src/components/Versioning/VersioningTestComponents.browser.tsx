@@ -230,7 +230,19 @@ function VersioningSnapshot(props: ComponentProps["Versioning"]["Snapshot"]) {
       {props.name}
       {props.date && <span>{props.date}</span>}
       {props.restoredFrom && <span>{props.restoredFrom}</span>}
-      {props.secondaryLabel && <span>{props.secondaryLabel}</span>}
+      {props.users?.map((user, index) => (
+        <span className="bn-snapshot-user" key={index}>
+          {index > 0 && <span aria-hidden="true">·</span>}
+          {typeof user !== "string" && user.color && (
+            <span
+              className="bn-snapshot-user-color"
+              aria-hidden="true"
+              style={{ backgroundColor: user.color }}
+            />
+          )}
+          {typeof user === "string" ? user : user.username}
+        </span>
+      ))}
       {props.comparingLabel && <span>{props.comparingLabel}</span>}
       {props.comparingIcon}
       {props.actions}
