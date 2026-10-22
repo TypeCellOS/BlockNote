@@ -13,11 +13,12 @@ import {
   TextWriter,
   ZipReader,
 } from "@zip.js/zip.js";
-import { Packer, Paragraph, TextRun } from "docx";
+import { Packer, Paragraph, Table, TableCell, TableRow, TextRun } from "docx";
 import { describe, expect, it } from "vite-plus/test";
 import xmlFormat from "xml-formatter";
 import { docxDefaultSchemaMappings } from "./defaultSchema/index.js";
 import { DOCXExporter } from "./docxExporter.js";
+import { createDOCXParagraph } from "./mapping.js";
 import { ColumnBlock, ColumnListBlock } from "@blocknote/xl-multi-column";
 import { partialBlocksToBlocksForTesting } from "@shared/formatConversionTestUtil.js";
 import { testResolveFileUrl } from "@shared/util/testFileResolver.js";
@@ -135,6 +136,206 @@ describe("exporter", () => {
       await expect(
         prettify(await getZIPEntryContent(entries, "docProps/core.xml")),
       ).toMatchFileSnapshot("__snapshots__/withCustomOptions/core.xml");
+    },
+  );
+
+  it("should indent nested paragraphs but not list items", async () => {
+    const schema = BlockNoteSchema.create();
+    const exporter = new DOCXExporter(schema, docxDefaultSchemaMappings, {
+      resolveFileUrl: testResolveFileUrl,
+    });
+    const doc = await exporter.toDocxJsDocument(
+      partialBlocksToBlocksForTesting(schema, [
+        {
+          type: "paragraph",
+          content: "root",
+          children: [
+            {
+              type: "paragraph",
+              content: "child",
+              children: [{ type: "paragraph", content: "grandchild" }],
+            },
+            {
+              type: "numberedListItem",
+              content: "numbered",
+              children: [
+                {
+                  type: "bulletListItem",
+                  content: "bullet",
+                  children: [{ type: "paragraph", content: "under-list" }],
+                },
+              ],
+            },
+          ],
+        },
+      ]),
+      { sectionOptions: {}, documentOptions: {}, locale: "en-US" },
+    );
+    const zip = new ZipReader(new BlobReader(await Packer.toBlob(doc)));
+    const xml = await getZIPEntryContent(
+      await zip.getEntries(),
+      "word/document.xml",
+    );
+    const paragraphs = xml.match(/<w:p[ >][\s\S]*?<\/w:p>/g) ?? [];
+
+    expect(
+      paragraphs.map((paragraph) => ({
+        text: [...paragraph.matchAll(/<w:t(?: [^>]*)?>(.*?)<\/w:t>/g)]
+          .map((match) => match[1])
+          .join(""),
+        tabs: (paragraph.match(/<w:tab\/>/g) ?? []).length,
+        numbered: paragraph.includes("<w:numPr>"),
+      })),
+    ).toEqual([
+      { text: "root", tabs: 0, numbered: false },
+      { text: "child", tabs: 1, numbered: false },
+      { text: "grandchild", tabs: 2, numbered: false },
+      { text: "numbered", tabs: 0, numbered: true },
+      { text: "bullet", tabs: 0, numbered: true },
+      { text: "under-list", tabs: 3, numbered: false },
+    ]);
+  });
+
+  it("should use mapping-declared indentation instead of block names", async () => {
+    const schema = BlockNoteSchema.create();
+    const exporter = new DOCXExporter(schema, {
+      ...docxDefaultSchemaMappings,
+      blockMapping: {
+        ...docxDefaultSchemaMappings.blockMapping,
+        paragraph: (block, exporter, level) =>
+          createDOCXParagraph({
+            children: exporter.transformInlineContent(block.content),
+            numbering: { reference: "blocknote-numbered-list", level },
+          }),
+        // Replacing a built-in list mapping with a plain paragraph must not
+        // silently retain the built-in mapping's indentation behavior.
+        numberedListItem: () => new Paragraph("plain replacement"),
+        // Raw custom paragraphs still work, but must opt into the helper to
+        // declare numbering indentation without relying on private docx fields.
+        heading: () =>
+          new Paragraph({
+            text: "raw numbered paragraph",
+            numbering: { reference: "blocknote-numbered-list", level: 2 },
+          }),
+      },
+    });
+    const doc = await exporter.toDocxJsDocument(
+      partialBlocksToBlocksForTesting(schema, [
+        {
+          type: "numberedListItem",
+          children: [
+            {
+              type: "paragraph",
+              content: "custom numbered paragraph",
+              children: [{ type: "numberedListItem" }, { type: "heading" }],
+            },
+          ],
+        },
+      ]),
+    );
+    const zip = new ZipReader(new BlobReader(await Packer.toBlob(doc)));
+    const xml = await getZIPEntryContent(
+      await zip.getEntries(),
+      "word/document.xml",
+    );
+    const paragraphs = xml.match(/<w:p[ >][\s\S]*?<\/w:p>/g) ?? [];
+    expect(
+      paragraphs.map((paragraph) => ({
+        tabs: (paragraph.match(/<w:tab\/>/g) ?? []).length,
+        numbered: paragraph.includes("<w:numPr>"),
+      })),
+    ).toEqual([
+      { tabs: 0, numbered: false },
+      { tabs: 0, numbered: true },
+      { tabs: 2, numbered: false },
+      { tabs: 2, numbered: true },
+    ]);
+  });
+
+  it("should pass real paragraphs to custom child-placement mappings", async () => {
+    const schema = BlockNoteSchema.create();
+    const exporter = new DOCXExporter(schema, {
+      ...docxDefaultSchemaMappings,
+      blockMapping: {
+        ...docxDefaultSchemaMappings.blockMapping,
+        paragraph: {
+          withChildren: (_block, _exporter, _level, _index, children) =>
+            new Table({
+              rows: [
+                new TableRow({
+                  children: [
+                    new TableCell({
+                      children: children.flat().map((child) => {
+                        expect(child).toBeInstanceOf(Paragraph);
+                        if (!(child instanceof Paragraph)) {
+                          throw new Error("Expected a docx paragraph");
+                        }
+                        return child;
+                      }),
+                    }),
+                  ],
+                }),
+              ],
+            }),
+        },
+      },
+    });
+    const doc = await exporter.toDocxJsDocument(
+      partialBlocksToBlocksForTesting(schema, [
+        {
+          type: "paragraph",
+          children: [
+            { type: "bulletListItem", content: "bullet" },
+            { type: "numberedListItem", content: "numbered" },
+          ],
+        },
+      ]),
+    );
+    const zip = new ZipReader(new BlobReader(await Packer.toBlob(doc)));
+    const xml = await getZIPEntryContent(
+      await zip.getEntries(),
+      "word/document.xml",
+    );
+    expect((xml.match(/<w:numPr>/g) ?? []).length).toBe(2);
+  });
+
+  it.each(["document", "columnList", "column"] as const)(
+    "should reject invalid layout results in a %s",
+    async (context) => {
+      const schema = BlockNoteSchema.create({
+        blockSpecs: {
+          ...defaultBlockSpecs,
+          column: ColumnBlock,
+          columnList: ColumnListBlock,
+        },
+      });
+      const exporter = new DOCXExporter(schema, docxDefaultSchemaMappings);
+      const blocks: PartialBlock<
+        typeof schema.blockSchema,
+        typeof schema.inlineContentSchema,
+        typeof schema.styleSchema
+      >[] =
+        context === "document"
+          ? [{ type: "column", children: [{ type: "paragraph" }] }]
+          : context === "columnList"
+            ? [{ type: "columnList", children: [{ type: "paragraph" }] }]
+            : [
+                {
+                  type: "columnList",
+                  children: [
+                    { type: "column", children: [{ type: "column" }] },
+                  ],
+                },
+              ];
+      const error =
+        context === "columnList"
+          ? "DOCX columnList children must be columns"
+          : `DOCX ${context} cannot contain a column directly`;
+      await expect(
+        exporter.transformBlocks(
+          partialBlocksToBlocksForTesting(schema, blocks),
+        ),
+      ).rejects.toThrow(error);
     },
   );
 
@@ -424,6 +625,11 @@ function prettify(sourceXml: string) {
 
   // Image relationship IDs are internal to docx and can change between releases.
   ret = ret.replace(/r:embed="[a-zA-Z0-9_-]*"/g, 'r:embed="FAKE-ID"');
+
+  // docx 9.13 omits empty optional drawing metadata; it means the same as "".
+  ret = ret.replace(/<wp:docPr\b[^>]*>/g, (tag) =>
+    tag.replace(/ (?:descr|title)=""/g, ""),
+  );
 
   // replace random ids like Id="rIdll8_ocxarmodcwrnsavfb"
   ret = ret.replace(/ Id="[a-zA-Z0-9_-]*"/g, ' Id="FAKE-ID"');
