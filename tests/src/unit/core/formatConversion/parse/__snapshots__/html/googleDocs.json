@@ -471,14 +471,7 @@ Hard Break",
   },
   {
     "children": [],
-    "content": [
-      {
-        "styles": {},
-        "text": "
-",
-        "type": "text",
-      },
-    ],
+    "content": [],
     "id": "21",
     "props": {
       "backgroundColor": "default",

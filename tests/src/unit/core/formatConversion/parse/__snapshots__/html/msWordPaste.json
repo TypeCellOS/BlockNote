@@ -89,13 +89,7 @@
   },
   {
     "children": [],
-    "content": [
-      {
-        "styles": {},
-        "text": " ",
-        "type": "text",
-      },
-    ],
+    "content": [],
     "id": "6",
     "props": {
       "backgroundColor": "default",

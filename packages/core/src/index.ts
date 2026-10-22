@@ -59,6 +59,7 @@ export * from "./api/nodeConversions/nodeToBlock.js";
 // for server-util (TODO: maybe move):
 export * from "./api/exporters/markdown/markdownExporter.js";
 export * from "./api/parsers/html/parseHTML.js";
+export * from "./api/parsers/html/preprocessHTML.js";
 export * from "./api/parsers/markdown/parseMarkdown.js";
 
 // TODO: for ai, remove?

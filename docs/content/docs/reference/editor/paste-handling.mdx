@@ -21,6 +21,33 @@ BlockNote, by default, attempts to paste content in the following order:
 
 You can change the default paste behavior by providing a custom paste handler, which will give you full control over how pasted content is inserted into the editor.
 
+## Word and Google Docs
+
+BlockNote automatically converts Microsoft Word list paragraphs into nested lists,
+removes Word paragraph-end placeholders, and preserves blank paragraphs copied from
+Google Docs. This also applies when importing HTML with `tryParseHTMLToBlocks` or
+inserting it with `pasteHTML`.
+
+### Custom HTML preprocessing
+
+Use the `preprocessHTML` editor option to replace the source normalization. The
+function receives the original HTML string and returns the HTML to parse. To extend
+the built-in handling, call `defaultHTMLPreprocessor` inside your function:
+
+```ts
+import { BlockNoteEditor, defaultHTMLPreprocessor } from "@blocknote/core";
+
+const editor = BlockNoteEditor.create({
+  preprocessHTML(html) {
+    return defaultHTMLPreprocessor(html).replaceAll("Old label", "New label");
+  },
+});
+```
+
+Set `preprocessHTML: false` to disable Word and Google Docs normalization. Neither
+the default nor custom preprocessing runs for internal BlockNote clipboard HTML or
+`pasteHTML(html, true)`. Preprocessing is not an HTML sanitizer.
+
 ## `pasteHandler` option
 
 The `pasteHandler` option is a function that receives the following arguments:

@@ -8,6 +8,7 @@ import {
 import { Block } from "../../../blocks/defaultBlocks.js";
 import { EMPTY_BLOCK_PLACEHOLDER } from "../../exporters/html/util/serializeBlocksExternalHTML.js";
 import { nodeToBlock } from "../../nodeConversions/nodeToBlock.js";
+import { defaultHTMLPreprocessor, HTMLPreprocessor } from "./preprocessHTML.js";
 import { nestedListsToBlockNoteStructure } from "./util/nestedLists.js";
 import { preprocessHTMLWhitespace } from "./util/normalizeWhitespace.js";
 
@@ -55,8 +56,14 @@ export function HTMLToBlocks<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema,
->(html: string, pmSchema: Schema): Block<BSchema, I, S>[] {
-  const htmlNode = nestedListsToBlockNoteStructure(html);
+>(
+  html: string,
+  pmSchema: Schema,
+  preprocessHTML: HTMLPreprocessor | false = defaultHTMLPreprocessor,
+): Block<BSchema, I, S>[] {
+  const htmlNode = nestedListsToBlockNoteStructure(
+    preprocessHTML === false ? html : preprocessHTML(html),
+  );
   preprocessHTMLWhitespace(htmlNode);
   const parser = DOMParser.fromSchema(pmSchema);
 
