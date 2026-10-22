@@ -29,33 +29,13 @@ for pkg in core react server-util mantine; do
   pnpm pack --pack-destination "$TARBALLS_DIR" 2>/dev/null
 done
 
-# Update package.json to point to tarballs
+# Fixed names, so that package.json does not change with the version
 cd "$TARBALLS_DIR"
-CORE_TGZ=$(ls blocknote-core-*.tgz)
-REACT_TGZ=$(ls blocknote-react-*.tgz)
-SERVER_TGZ=$(ls blocknote-server-util-*.tgz)
-MANTINE_TGZ=$(ls blocknote-mantine-*.tgz)
+for pkg in core react server-util mantine; do
+  mv blocknote-$pkg-*.tgz blocknote-$pkg.tgz
+done
 
 cd "$SCRIPT_DIR"
-cat > package.json << EOF
-{
-  "name": "@blocknote/nextjs-test-app",
-  "private": true,
-  "version": "0.0.0",
-  "dependencies": {
-    "@blocknote/core": "file:.tarballs/$CORE_TGZ",
-    "@blocknote/mantine": "file:.tarballs/$MANTINE_TGZ",
-    "@blocknote/react": "file:.tarballs/$REACT_TGZ",
-    "@blocknote/server-util": "file:.tarballs/$SERVER_TGZ",
-    "@mantine/core": "^9.0.2",
-    "@mantine/hooks": "^9.0.2",
-    "next": "^16.0.0",
-    "react": "^19.2.3",
-    "react-dom": "^19.2.3"
-  }
-}
-EOF
-
 # Install with npm (not pnpm — avoid workspace resolution)
 rm -rf node_modules .next package-lock.json
 npm install --ignore-scripts
