@@ -237,9 +237,6 @@ export const auth = betterAuth({
                 const userId = await resolveUserForCustomer(
                   payload.data.customer,
                 );
-                if (!userId) {
-                  return;
-                }
                 const authContext = await auth.$context;
                 if (payload.data.status === "active") {
                   const productId = payload.data.product_id;
@@ -313,14 +310,14 @@ async function resolveUserForCustomer(customer: {
   external_id?: string | null;
   email?: string | null;
   name?: string | null;
-}): Promise<string | null> {
+}): Promise<string> {
   // Authenticated purchase: the customer is already linked to a user.
   if (customer.external_id) {
     return customer.external_id;
   }
   const email = customer.email;
   if (!email) {
-    return null;
+    throw new Error("Polar customer has neither external_id nor email");
   }
 
   const authContext = await auth.$context;
