@@ -96,6 +96,7 @@ export function createLocalVersioning<
   storage: VersionStorage<Node>;
 } {
   let live: EditorState | undefined;
+  let closeView: (() => void) | undefined;
   let nextId = 0;
   const snapshots = new Map<
     string,
@@ -168,6 +169,23 @@ export function createLocalVersioning<
           live = undefined;
           throw error;
         }
+        function close() {
+          if (closed) {
+            return;
+          }
+          if (!live) {
+            throw new Error("Missing live editor state");
+          }
+          editor.prosemirrorView.updateState(
+            live.reconfigure({
+              plugins: editor.prosemirrorState.plugins,
+            }),
+          );
+          closed = true;
+          live = undefined;
+          closeView = undefined;
+        }
+        closeView = close;
         return {
           current,
           show({ content, comparison }) {
@@ -189,23 +207,10 @@ export function createLocalVersioning<
             editor.transact((tr) => {
               tr.replaceWith(0, tr.doc.content.size, document.content);
               tr.setMeta("addToHistory", false);
+              tr.setMeta("blocknoteVersionPreview", true);
             });
           },
-          close() {
-            if (closed) {
-              return;
-            }
-            if (!live) {
-              throw new Error("Missing live editor state");
-            }
-            editor.prosemirrorView.updateState(
-              live.reconfigure({
-                plugins: editor.prosemirrorState.plugins,
-              }),
-            );
-            closed = true;
-            live = undefined;
-          },
+          close,
         };
       },
     },
@@ -240,15 +245,12 @@ export function createLocalVersioning<
           return { ok: false, error: { type: "not-found" } };
         }
         const content = inEditorSchema(stored.content);
-        if (live) {
-          live = live.apply(
-            live.tr.replaceWith(0, live.doc.content.size, content.content),
-          );
-        } else {
-          editor.transact((tr) =>
-            tr.replaceWith(0, tr.doc.content.size, content.content),
-          );
-        }
+        // Restore the live state before dispatch so change listeners observe
+        // the restored document, not a change to the temporary preview.
+        closeView?.();
+        editor.transact((tr) =>
+          tr.replaceWith(0, tr.doc.content.size, content.content),
+        );
         return { ok: true, value: undefined };
       },
       async rename(id, name) {
