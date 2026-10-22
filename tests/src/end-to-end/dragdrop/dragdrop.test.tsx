@@ -20,13 +20,14 @@ import {
   PARAGRAPH_SELECTOR,
   PDF_SELECTOR,
 } from "../../utils/const.js";
-import { browserName, userEvent } from "../../utils/context.js";
+import { browserName, MOD, userEvent } from "../../utils/context.js";
 import { insertHeading, insertParagraph } from "../../utils/copypaste.js";
 import {
   compareDocToSnapshot,
   focusOnEditor,
   sleep,
   waitForSelector,
+  waitForSelectorDetached,
 } from "../../utils/editor.js";
 import {
   dragAndDropBlock,
@@ -464,3 +465,63 @@ describe.skipIf(browserName === "firefox")("Dropping into a block", () => {
     expect(ids(editors[0].document[0].children)).toEqual(["dragged"]);
   });
 });
+
+// Playwright doesn't correctly simulate drag events in Firefox.
+describe.skipIf(browserName === "firefox")(
+  "Focus after dragging a block",
+  () => {
+    // The drop leaves a text cursor in the editor, so the keyboard works on it
+    // right away, e.g. to undo the drop (#3165).
+    test("undoes a drop with the keyboard", async () => {
+      await renderEditors([
+        { id: "a", type: "paragraph", content: "A" },
+        { id: "b", type: "paragraph", content: "B" },
+      ]);
+
+      await dragAndDropBlock(block("a"), block("b"), false);
+      await sleep(100);
+      expect(ids(editors[0].document)).toEqual(["b", "a"]);
+      // A text cursor shows no formatting toolbar.
+      await waitForSelectorDetached(".bn-formatting-toolbar");
+
+      await userEvent.keyboard(`{${MOD}>}z{/${MOD}}`);
+      expect(ids(editors[0].document)).toEqual(["a", "b"]);
+    });
+
+    test("undoes a drop into a toggle with the keyboard", async () => {
+      await renderEditors([
+        { id: "toggle", type: "toggleListItem", content: "Toggle" },
+        { id: "dragged", type: "paragraph", content: "Dragged" },
+      ]);
+
+      await dragAndDropBlock(
+        block("dragged"),
+        block("toggle").querySelector(".bn-block-content")!,
+        false,
+      );
+      await sleep(100);
+      expect(ids(editors[0].document[0].children)).toEqual(["dragged"]);
+
+      await userEvent.keyboard(`{${MOD}>}z{/${MOD}}`);
+      expect(ids(editors[0].document)).toEqual(["toggle", "dragged"]);
+    });
+
+    // A dropped block without text has no place for a text cursor.
+    test("undoes a drop of an image with the keyboard", async () => {
+      await renderEditors([
+        { id: "a", type: "paragraph", content: "A" },
+        { id: "image", type: "image" },
+        { id: "b", type: "paragraph", content: "B" },
+      ]);
+
+      await dragAndDropBlock(block("image"), block("b"), false);
+      await sleep(300);
+      expect(ids(editors[0].document)).toEqual(["a", "b", "image"]);
+      expect(editors[0].isFocused()).toBe(true);
+      await waitForSelectorDetached(".bn-formatting-toolbar");
+
+      await userEvent.keyboard(`{${MOD}>}z{/${MOD}}`);
+      expect(ids(editors[0].document)).toEqual(["a", "image", "b"]);
+    });
+  },
+);

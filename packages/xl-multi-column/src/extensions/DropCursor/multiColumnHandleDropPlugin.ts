@@ -1,3 +1,7 @@
+// Drops blocks at the left or right edge of a block into a new column. It
+// makes the change in one transaction and leaves the selection on the dropped
+// blocks. ProseMirror and the `DropCursor` extension handle all other drops.
+
 import type { BlockNoteEditor } from "@blocknote/core";
 import {
   createExtension,
@@ -195,22 +199,28 @@ export function createMultiColumnHandleDropPlugin(
               id: UniqueID.options.generateID(),
             });
 
-          const blocksToRemove = draggedBlocks.filter(
-            (block) =>
-              editor.getBlock(block.id) &&
-              !blocksAlreadyInColumnList.has(block.id),
-          );
-          if (blocksToRemove.length > 0) {
-            editor.removeBlocks(blocksToRemove);
-          }
+          // One transaction, so one undo reverts the drop (#3197).
+          editor.transact(() => {
+            const blocksToRemove = draggedBlocks.filter(
+              (block) =>
+                editor.getBlock(block.id) &&
+                !blocksAlreadyInColumnList.has(block.id),
+            );
+            if (blocksToRemove.length > 0) {
+              editor.removeBlocks(blocksToRemove);
+            }
 
-          if (newChildren.length === 1) {
-            editor.replaceBlocks([columnList], draggedBlocks);
-          } else {
-            editor.updateBlock(columnList, {
-              children: newChildren,
-            });
-          }
+            if (newChildren.length === 1) {
+              editor.replaceBlocks([columnList], draggedBlocks);
+            } else {
+              editor.updateBlock(columnList, {
+                children: newChildren,
+              });
+            }
+            // The selection on the dropped blocks, as ProseMirror's drop
+            // leaves it. The drop cursor then focuses the editor.
+            editor.setTextCursorPosition(draggedBlocks.at(-1)!, "end");
+          });
         } else {
           // Create new columnList with blocks as columns
           const block = nodeToBlock(blockInfo.block.node, view.state.doc);
@@ -228,27 +238,30 @@ export function createMultiColumnHandleDropPlugin(
               ? [draggedBlocks, [block]]
               : [[block], draggedBlocks];
 
-          const blocksToRemove = draggedBlocks.filter((draggedBlock) =>
-            editor.getBlock(draggedBlock.id),
-          );
-          if (blocksToRemove.length > 0) {
-            editor.removeBlocks(blocksToRemove);
-          }
+          editor.transact(() => {
+            const blocksToRemove = draggedBlocks.filter((draggedBlock) =>
+              editor.getBlock(draggedBlock.id),
+            );
+            if (blocksToRemove.length > 0) {
+              editor.removeBlocks(blocksToRemove);
+            }
 
-          editor.replaceBlocks(
-            [block],
-            [
-              {
-                type: "columnList",
-                children: columns.map((children) => {
-                  return {
-                    type: "column",
-                    children,
-                  };
-                }),
-              },
-            ],
-          );
+            editor.replaceBlocks(
+              [block],
+              [
+                {
+                  type: "columnList",
+                  children: columns.map((children) => {
+                    return {
+                      type: "column",
+                      children,
+                    };
+                  }),
+                },
+              ],
+            );
+            editor.setTextCursorPosition(draggedBlocks.at(-1)!, "end");
+          });
         }
 
         return true; // Prevent default ProseMirror drop behavior
