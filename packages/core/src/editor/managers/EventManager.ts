@@ -177,8 +177,11 @@ export class EventManager<
     includeUpdatesFromRemote = true,
   ): Unsubscribe {
     return this.on("onChange", ({ transaction, appendedTransactions }) => {
-      if (!includeUpdatesFromRemote && isRemoteTransaction(transaction)) {
-        // don't trigger the callback if the changes are caused by a remote user
+      if (
+        transaction.getMeta("blocknoteVersionPreview") ||
+        (!includeUpdatesFromRemote && isRemoteTransaction(transaction))
+      ) {
+        // Don't trigger the callback for previews or excluded remote changes.
         return;
       }
       callback(this.editor, {
