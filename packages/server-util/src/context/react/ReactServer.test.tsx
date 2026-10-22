@@ -88,4 +88,22 @@ describe("Test ServerBlockNoteEditor with React blocks", () => {
 
     expect(html).toMatchSnapshot();
   });
+
+  // React leaves work queued after it renders a block, and its development
+  // build reads `window` there. In Node there is no `window` (#3230).
+  it("leaves no React work behind that needs window", async () => {
+    const testWindow = globalThis.window;
+    // @ts-expect-error -- Node has no `window`.
+    delete globalThis.window;
+    try {
+      const editor = ServerBlockNoteEditor.create({ schema });
+      await editor.blocksToMarkdownLossy([
+        { type: "simpleReactCustomParagraph", content: "Hello" },
+      ]);
+      // Gives React's scheduler its turn, after the export.
+      await new Promise((resolve) => setImmediate(resolve));
+    } finally {
+      globalThis.window = testWindow;
+    }
+  });
 });
