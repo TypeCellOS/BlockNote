@@ -919,12 +919,24 @@ NESTED BLOCKS
 }
 
 /* PLACEHOLDERS*/
-.bn-block-content:has(.ProseMirror-trailingBreak:only-child):after {
+/* Keep aligned placeholders full-width so list markers stay in place. */
+.bn-block-content:is(
+    [data-text-alignment="center"],
+    [data-text-alignment="right"]
+  )
+  .bn-inline-content:has(> .bn-placeholder) {
+  flex: 1;
+}
+
+.bn-placeholder {
+  /* A zero-height float leaves the caret on the empty line without requiring
+     absolute positioning and a full-width flex item for every empty block. */
+  float: inline-start;
+  height: 0;
+  width: 100%;
   font-style: italic;
-  /* Removes text cursor offset. */
-  margin-inline: -2px;
   pointer-events: none;
-  max-width: 100%;
+  user-select: none;
 }
 
 /* TEXT COLORS */
