@@ -19,7 +19,7 @@ export function useSnapshotUsers(
 
   // `byIds` is often a fresh array each render, so key the effect on its
   // contents rather than its identity to avoid re-loading on every render.
-  const byIdsKey = byIds.join(",");
+  const byIdsKey = JSON.stringify(byIds);
 
   useEffect(() => {
     void userStore.loadUsers(byIds);
