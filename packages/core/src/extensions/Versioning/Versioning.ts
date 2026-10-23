@@ -6,6 +6,7 @@ import type {
   StyleSchema,
 } from "../../schema/index.js";
 import { ReadOnlyExtension } from "../ReadOnly/ReadOnly.js";
+import { LoadingExtension } from "../Loading/Loading.js";
 import { createVersioning } from "./createVersioning.js";
 import type { VersionStorage, VersionViewAdapter } from "./types.js";
 import { scheduleScrollToFirstChange } from "./scrollToFirstChange.js";
@@ -126,17 +127,24 @@ export function createVersioningExtension<
         return getConfiguration().userStore;
       },
       mount() {
+        const loading = editor.getExtension(LoadingExtension);
+        let releaseLoading: (() => void) | undefined;
         const unsubscribe = mode.store.subscribe(({ currentVal }) => {
-          editor.domElement?.classList.toggle(
-            "bn-loading",
-            currentVal.mode === "versions" && currentVal.pending !== undefined,
-          );
+          if (
+            currentVal.mode === "versions" &&
+            currentVal.pending !== undefined
+          ) {
+            releaseLoading ??= loading?.acquire();
+          } else {
+            releaseLoading?.();
+            releaseLoading = undefined;
+          }
         });
 
         return () => {
           mode.close();
           unsubscribe();
-          editor.domElement?.classList.remove("bn-loading");
+          releaseLoading?.();
         };
       },
     });
