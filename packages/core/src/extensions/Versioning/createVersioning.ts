@@ -499,7 +499,9 @@ export function createVersioning<Content, Attributions>(options: {
         return { status: "error", error: removed.error };
       }
       if (!active.lifetime.signal.aborted) {
-        invalidateHistory(active);
+        // Both deletion and continuous-history removal clear the named marker.
+        // Keep cached checkpoints for pagination, but not as named baselines.
+        applyNamingResult(active, { type: "snapshotRenamed", id });
         // Missing page metadata does not prove deletion. Continuous-history
         // providers may only clear a name, leaving its content available.
         const state = store.state;

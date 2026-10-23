@@ -468,15 +468,18 @@ it("creates from frozen current even while displaying history", async () => {
 it("keeps a selected checkpoint when removal only clears its name", async () => {
   const { mode, show } = setup({
     remove: async () => success(undefined),
-    list: async () => success({ snapshots: [{ id: "old", createdAt: 1 }] }),
+    list: async () =>
+      success({ snapshots: [{ id: "old", createdAt: 1, name: "Draft" }] }),
   });
   mode.open();
+  await mode.list();
   await mode.select({ type: "snapshot", id: "old" });
   show.mockClear();
   expect(await mode.remove("old")).toEqual({ status: "done" });
   expect(show).not.toHaveBeenCalled();
   expect(mode.store.state).toMatchObject({
     displayed: { type: "snapshot", id: "old" },
+    history: { data: [{ id: "old", createdAt: 1, name: undefined }] },
   });
 });
 
@@ -941,7 +944,14 @@ describe("pagination", () => {
         await mode.rename(newest.id, "Fresh");
       }
       expect(mode.store.state).toMatchObject({
-        history: { status: "success", data: [fresh] },
+        history: {
+          status: "success",
+          data: [
+            operation === "dirty refresh"
+              ? { ...fresh, name: undefined }
+              : fresh,
+          ],
+        },
       });
       await mode.loadMore();
       stale.resolve(success({ snapshots: [newest, oldest] }));
