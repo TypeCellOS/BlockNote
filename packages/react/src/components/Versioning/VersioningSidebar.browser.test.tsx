@@ -2119,8 +2119,9 @@ describe("VersioningSidebar", () => {
       { namedOnly: true, selection: "baseline" },
       { namedOnly: true, selection: "unrelated" },
       { namedOnly: false, selection: "deleted" },
+      { namedOnly: false, selection: "baseline" },
     ] as const)(
-      "keeps selection and comparison when deletion only clears a name ($namedOnly, $selection)",
+      "keeps selection and reconciles the visible baseline when deletion only clears a name ($namedOnly, $selection)",
       async ({ namedOnly, selection }) => {
         const fake = createFakeEndpoints();
         const older = { id: "older", createdAt: 500, name: "First draft" };
@@ -2158,7 +2159,12 @@ describe("VersioningSidebar", () => {
             ? { mode: "snapshot", snapshotId: NAMED.id, compareToId: undefined }
             : {
                 mode: "current",
-                compareToId: selection === "baseline" ? NAMED.id : undefined,
+                compareToId:
+                  selection === "baseline"
+                    ? namedOnly
+                      ? older.id
+                      : NAMED.id
+                    : undefined,
               },
         );
         expect(
