@@ -449,6 +449,8 @@ export const uz: Dictionary = {
     deleted_by: (users: string) => `O'chirgan: ${users}`,
     changed: "O'zgartirildi",
     changed_by: (users: string) => `O'zgartirgan: ${users}`,
+    moved: "Ko'chirildi",
+    moved_by: (users: string) => `Ko'chirgan: ${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `Formatlash o'zgarishi (${formats}), o'zgartirgan: ${users}`,
   },

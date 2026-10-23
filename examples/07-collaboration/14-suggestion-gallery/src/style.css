@@ -105,6 +105,23 @@
   font-weight: 600;
 }
 
+.bn-gallery-experiments {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 16px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: var(--gallery-muted);
+}
+
+.bn-gallery-experiments label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
 .bn-gallery-title {
   font-size: 20px;
   margin: 0 0 4px;
