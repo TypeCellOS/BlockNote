@@ -486,14 +486,14 @@ describe("VersioningSidebar", () => {
     });
     await expect
       .element(page.getByRole("alert"))
-      .toHaveTextContent(de.versioning.history_load_failed);
+      .toMatchTextContent(de.versioning.history_load_failed);
     expect(listSnapshots).toHaveBeenCalledTimes(3);
     await act(async () => {
       await userEvent.click(rows()[1]!);
     });
     await expect
       .element(page.getByRole("status", { name: "Preview" }))
-      .toHaveTextContent("a");
+      .toMatchTextContent("a");
     await expect.element(loadMore).toBeEnabled();
     await act(async () => {
       await loadMore.click();
@@ -505,7 +505,7 @@ describe("VersioningSidebar", () => {
     });
     await expect
       .element(page.getByRole("status", { name: "Preview" }))
-      .toHaveTextContent("a / b");
+      .toMatchTextContent("a / b");
   });
 
   it.each([undefined, "Published"])(

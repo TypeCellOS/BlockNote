@@ -260,7 +260,7 @@ test.each(["mantine", "ariakit", "shadcn"] as const)(
     rows[0]!.focus();
     await userEvent.keyboard("{ArrowDown}{Enter}");
     await vi.waitFor(() =>
-      expect(rows[1]).toHaveAttribute("aria-current", "true"),
+      expect(rows[1].getAttribute("aria-current")).toBe("true"),
     );
 
     await userEvent.hover(rows[1]!);
@@ -304,7 +304,9 @@ test.each(["mantine", "ariakit", "shadcn"] as const)(
       region.querySelector('button[aria-label="Turn on comparison"]')!,
     );
     await clickElement(rows[1]!);
-    await vi.waitFor(() => expect(rows[2]).toHaveClass("comparing"));
+    await vi.waitFor(() =>
+      expect(rows[2].classList.contains("comparing")).toBe(true),
+    );
 
     await userEvent.hover(rows[2]!);
     const menuButton = rows[2]!.querySelector<HTMLButtonElement>(
@@ -322,12 +324,12 @@ test.each(["mantine", "ariakit", "shadcn"] as const)(
     });
     await clickElement(nameItem);
     await vi.waitFor(() => {
-      expect(menuButton).toHaveAttribute("aria-expanded", "false");
+      expect(menuButton.getAttribute("aria-expanded")).toBe("false");
       const input = rows[2]!.querySelector('input[aria-label="Version name"]');
       expect(input).not.toBeNull();
       expect(document.activeElement).toBe(input);
-      expect(rows[1]).toHaveAttribute("aria-current", "true");
-      expect(rows[2]).toHaveClass("comparing");
+      expect(rows[1].getAttribute("aria-current")).toBe("true");
+      expect(rows[2].classList.contains("comparing")).toBe(true);
     });
     await expectElement(region).toMatchScreenshot(
       `versioning-${skin}-comparison-baseline-naming`,
@@ -346,7 +348,7 @@ test.each(["mantine", "ariakit", "shadcn"] as const)(
     // Keep Current selected, but compare against the oldest stored version
     // rather than its automatic previous-version baseline.
     await vi.waitFor(() =>
-      expect(rows[0]).toHaveAttribute("aria-current", "true"),
+      expect(rows[0].getAttribute("aria-current")).toBe("true"),
     );
     await userEvent.hover(rows[2]!);
     await clickElement(
@@ -365,8 +367,8 @@ test.each(["mantine", "ariakit", "shadcn"] as const)(
     });
     await clickElement(compareItem);
     await vi.waitFor(() => {
-      expect(rows[0]).toHaveAttribute("aria-current", "true");
-      expect(rows[2]).toHaveClass("comparing");
+      expect(rows[0].getAttribute("aria-current")).toBe("true");
+      expect(rows[2].classList.contains("comparing")).toBe(true);
     });
 
     const baselineName = rows[2]!.querySelector<HTMLInputElement>(
@@ -376,13 +378,13 @@ test.each(["mantine", "ariakit", "shadcn"] as const)(
     await userEvent.keyboard("{Enter}");
 
     await vi.waitFor(() => {
-      expect(baselineName).toHaveValue("Renamed baseline");
+      expect(baselineName.value).toBe("Renamed baseline");
       expect(rows[2]!.getAttribute("aria-label")).toContain("Renamed baseline");
       expect(document.activeElement).toBe(rows[2]);
-      expect(rows[0]).toHaveAttribute("aria-current", "true");
-      expect(rows[2]).not.toHaveAttribute("aria-current", "true");
-      expect(rows[2]).toHaveClass("comparing");
-      expect(rows[1]).not.toHaveClass("comparing");
+      expect(rows[0].getAttribute("aria-current")).toBe("true");
+      expect(rows[2].getAttribute("aria-current")).not.toBe("true");
+      expect(rows[2].classList.contains("comparing")).toBe(true);
+      expect(rows[1].classList.contains("comparing")).toBe(false);
     });
   },
 );
@@ -449,7 +451,7 @@ test.each([
       const ordinary = rows[1]!;
 
       await vi.waitFor(() =>
-        expect(selected).toHaveAttribute("aria-current", "true"),
+        expect(selected.getAttribute("aria-current")).toBe("true"),
       );
 
       expect(root.closest(".bn-container")).toBeNull();

@@ -18,8 +18,10 @@ export default defineConfig({
         command: "node scripts/copy-package-readmes.mjs",
         // These copies are outputs, not inputs: automatic tracking of the
         // destination checks would make a fresh checkout miss every time.
-        input: ["README.md", "scripts/copy-package-readmes.mjs"],
-        output: ["packages/core/README.md", "packages/react/README.md"],
+        cache: {
+          input: ["README.md", "scripts/copy-package-readmes.mjs"],
+          output: ["packages/core/README.md", "packages/react/README.md"],
+        },
       },
       // The release script is interactive and produces only side-effects
       // (git commit/tag/push, npm publish). It reads a stable file set
@@ -37,6 +39,8 @@ export default defineConfig({
   // declaring projects here. Each entry points at the package's
   // `vite.config.ts`, which carries that package's own `test` block.
   test: {
+    // Preserve Vitest 4 mock history during the toolchain upgrade.
+    clearMocks: false,
     projects: [
       "./packages/ariakit/vite.config.ts",
       "./packages/code-block/vite.config.ts",
