@@ -17,23 +17,27 @@ export default defineConfig(
             // locally (pinned in rust/rust-toolchain.toml).
             command:
               "node scripts/ensure-wasm.mjs && tsc --project tsconfig.json --composite false --incremental false --rootDir . && vp build",
-            input: [
-              ...buildCacheInputs("packages/xl-typst-compiler"),
-              { pattern: "!**/*.tsbuildinfo", base: "workspace" },
-              "rust/Cargo.toml",
-              "rust/Cargo.lock",
-              "rust/rust-toolchain.toml",
-              "rust/src/**",
-              "!rust/target/**",
-            ],
-            // `types/**` must be declared too: a cache replay that restores
-            // only dist/ leaves consumers without declarations. pkg/** is
-            // produced by ensure-wasm and replayed with the rest.
-            output: ["dist/**", "types/**", "pkg/**", "!dist/*.tsbuildinfo"],
+            cache: {
+              input: [
+                ...buildCacheInputs("packages/xl-typst-compiler"),
+                { pattern: "!**/*.tsbuildinfo", base: "workspace" },
+                "rust/Cargo.toml",
+                "rust/Cargo.lock",
+                "rust/rust-toolchain.toml",
+                "rust/src/**",
+                "!rust/target/**",
+              ],
+              // `types/**` must be declared too: a cache replay that restores
+              // only dist/ leaves consumers without declarations. pkg/** is
+              // produced by ensure-wasm and replayed with the rest.
+              output: ["dist/**", "types/**", "pkg/**", "!dist/*.tsbuildinfo"],
+            },
           },
         },
       },
       test: {
+        // Preserve Vitest 4 mock history during the toolchain upgrade.
+        clearMocks: false,
         environment: "node",
         testTimeout: 30000,
       },
