@@ -19,24 +19,25 @@
   --bn-colors-border: oklch(95% 0 0);
   --bn-colors-side-menu: oklch(85% 0 0);
 
-  --bn-colors-highlights-gray-text: oklch(51.6% 0 0);
+  /* Highlight backgrounds target Display P3; narrower displays gamut-map them. */
+  --bn-colors-highlights-gray-text: oklch(51.4% 0 0);
   --bn-colors-highlights-gray-background: oklch(93% 0 0);
   --bn-colors-highlights-brown-text: oklch(48.5% 0.06 50);
   --bn-colors-highlights-brown-background: oklch(93% 0.015 50);
-  --bn-colors-highlights-red-text: oklch(50.5% 0.1 25);
-  --bn-colors-highlights-red-background: oklch(93% 0.025 25);
-  --bn-colors-highlights-orange-text: oklch(50.5% 0.1 65);
-  --bn-colors-highlights-orange-background: oklch(93% 0.025 65);
-  --bn-colors-highlights-yellow-text: oklch(50.5% 0.1 95);
-  --bn-colors-highlights-yellow-background: oklch(93% 0.025 95);
-  --bn-colors-highlights-green-text: oklch(50.5% 0.1 135);
-  --bn-colors-highlights-green-background: oklch(93% 0.025 135);
-  --bn-colors-highlights-blue-text: oklch(50.5% 0.1 235);
-  --bn-colors-highlights-blue-background: oklch(93% 0.025 235);
-  --bn-colors-highlights-purple-text: oklch(50.5% 0.1 300);
-  --bn-colors-highlights-purple-background: oklch(93% 0.025 300);
-  --bn-colors-highlights-pink-text: oklch(50.5% 0.1 345);
-  --bn-colors-highlights-pink-background: oklch(93% 0.025 345);
+  --bn-colors-highlights-red-text: oklch(50.5% 0.11 35);
+  --bn-colors-highlights-red-background: oklch(93% 0.04 35);
+  --bn-colors-highlights-orange-text: oklch(50.5% 0.11 65);
+  --bn-colors-highlights-orange-background: oklch(93% 0.04 65);
+  --bn-colors-highlights-yellow-text: oklch(50.5% 0.11 95);
+  --bn-colors-highlights-yellow-background: oklch(93% 0.04 95);
+  --bn-colors-highlights-green-text: oklch(50.5% 0.11 135);
+  --bn-colors-highlights-green-background: oklch(93% 0.04 135);
+  --bn-colors-highlights-blue-text: oklch(50.5% 0.11 235);
+  --bn-colors-highlights-blue-background: oklch(93% 0.04 235);
+  --bn-colors-highlights-purple-text: oklch(50.5% 0.11 300);
+  --bn-colors-highlights-purple-background: oklch(93% 0.04 300);
+  --bn-colors-highlights-pink-text: oklch(50.5% 0.11 345);
+  --bn-colors-highlights-pink-background: oklch(93% 0.04 345);
 
   --bn-font-family:
     "Inter", "Inter fallback", "SF Pro Display", -apple-system,
@@ -71,24 +72,25 @@
   --bn-colors-border: oklch(20% 0 0);
   --bn-colors-side-menu: oklch(60% 0 0);
 
+  /* Highlight backgrounds target Display P3; narrower displays gamut-map them. */
   --bn-colors-highlights-gray-text: oklch(71.5% 0 0);
   --bn-colors-highlights-gray-background: oklch(34% 0 0);
   --bn-colors-highlights-brown-text: oklch(73% 0.06 50);
   --bn-colors-highlights-brown-background: oklch(34% 0.035 50);
-  --bn-colors-highlights-red-text: oklch(75% 0.1 25);
-  --bn-colors-highlights-red-background: oklch(34% 0.065 25);
+  --bn-colors-highlights-red-text: oklch(75% 0.1 35);
+  --bn-colors-highlights-red-background: oklch(34% 0.08 35);
   --bn-colors-highlights-orange-text: oklch(75% 0.1 65);
-  --bn-colors-highlights-orange-background: oklch(34% 0.065 65);
+  --bn-colors-highlights-orange-background: oklch(34% 0.08 65);
   --bn-colors-highlights-yellow-text: oklch(75% 0.1 95);
-  --bn-colors-highlights-yellow-background: oklch(34% 0.065 95);
+  --bn-colors-highlights-yellow-background: oklch(34% 0.08 95);
   --bn-colors-highlights-green-text: oklch(75% 0.1 135);
-  --bn-colors-highlights-green-background: oklch(34% 0.065 135);
+  --bn-colors-highlights-green-background: oklch(34% 0.08 135);
   --bn-colors-highlights-blue-text: oklch(75% 0.1 235);
-  --bn-colors-highlights-blue-background: oklch(34% 0.065 235);
+  --bn-colors-highlights-blue-background: oklch(34% 0.08 235);
   --bn-colors-highlights-purple-text: oklch(75% 0.1 300);
-  --bn-colors-highlights-purple-background: oklch(34% 0.065 300);
+  --bn-colors-highlights-purple-background: oklch(34% 0.08 300);
   --bn-colors-highlights-pink-text: oklch(75% 0.1 345);
-  --bn-colors-highlights-pink-background: oklch(34% 0.065 345);
+  --bn-colors-highlights-pink-background: oklch(34% 0.08 345);
 }
 
 .bn-root {
