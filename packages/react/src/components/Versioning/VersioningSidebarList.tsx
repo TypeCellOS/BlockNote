@@ -160,8 +160,11 @@ export function VersioningSidebarList() {
       return;
     }
 
-    function scrubTo(index: number) {
-      const clamped = Math.max(0, Math.min(index, rows.length - 1));
+    function scrubTo(destination: number) {
+      const clamped = Math.max(0, Math.min(destination, rows.length - 1));
+      if (event.repeat && clamped === index) {
+        return;
+      }
       focusRow(clamped);
       // Start immediately rather than awaiting a previous preview. The versioning
       // extension cancels superseded loads so late results cannot select a row
