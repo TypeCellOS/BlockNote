@@ -101,17 +101,17 @@ describe("list items", () => {
     expect(editor.tryParseHTMLToBlocks(html)).toEqual(original);
     expect(editor.document).toEqual(original);
 
+    exported.remove();
     editor.isEditable = false;
-    const second = document.createElement("div");
-    document.body.append(second);
-    cleanups.push(() => second.remove());
-    second.innerHTML = editor.blocksToFullHTML(original);
-    expect(lists(second)).toEqual(lists(exported));
-    const ids = Array.from(
-      document.querySelectorAll("[role=listitem]"),
-      (item) => item.id,
-    );
-    expect(new Set(ids).size).toBe(ids.length);
+    expect(lists(host)).toEqual([
+      ["a", "b"],
+      ["nested-a", "nested-b"],
+      ["inside"],
+      ["restart"],
+      ["bullet"],
+      ["custom-a", "custom-b"],
+    ]);
+    expect(host.querySelector('[role="listitem"]')!.id).toBe("a");
   });
 
   it("exports partial list blocks without IDs and preserves empty items", () => {
@@ -120,7 +120,7 @@ describe("list items", () => {
       { type: "bulletListItem" },
       { type: "bulletListItem" },
     ]);
-    // The export creates DOM IDs without adding persistent block IDs.
+    // The export assigns block IDs and reuses them for list ownership.
     const exported = document.createElement("div");
     host.after(exported);
     cleanups.push(() => exported.remove());
@@ -141,6 +141,7 @@ describe("list items", () => {
       "bulletListItem",
     ]);
     expect(blocks.map((block) => block.content)).toEqual([[], []]);
+    expect(blocks.map((block) => encodeURIComponent(block.id))).toEqual(ids);
   });
 
   it("exposes read-only content as a document and restores input semantics", () => {
@@ -291,19 +292,13 @@ describe("list items", () => {
     expect(host.querySelector('[role="listitem"]')).toBeNull();
   });
 
-  it("namespaces IDs across editors and works in read-only mode", () => {
-    const first = createEditor();
-    const second = createEditor();
-    for (const { editor, host } of [first, second]) {
-      editor.replaceBlocks(editor.document, [
-        { id: "same id", type: "bulletListItem" },
-      ]);
-      editor.isEditable = false;
-      expect(lists(host)).toEqual([["same id"]]);
-      expect(editor.document[0].id).toBe("same id");
-    }
-    expect(first.host.querySelector('[role="listitem"]')!.id).not.toBe(
-      second.host.querySelector('[role="listitem"]')!.id,
-    );
+  it("uses block IDs for ownership and escapes whitespace", () => {
+    const { editor, host } = createEditor();
+    editor.replaceBlocks(editor.document, [
+      { id: "same id", type: "bulletListItem" },
+    ]);
+    expect(lists(host)).toEqual([["same id"]]);
+    expect(editor.document[0].id).toBe("same id");
+    expect(host.querySelector('[role="listitem"]')!.id).toBe("same%20id");
   });
 });

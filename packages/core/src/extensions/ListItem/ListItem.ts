@@ -3,7 +3,6 @@ import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
 
 import { createExtension } from "../../editor/BlockNoteExtension.js";
-import { UniqueID } from "../tiptap-extensions/UniqueID/UniqueID.js";
 
 import {
   createListOwner,
@@ -22,8 +21,6 @@ export const listItemPluginKey = new PluginKey<ListDecorations>(
 
 /** Numbers list items and supplies list ownership in read-only mode. */
 export const ListItemExtension = createExtension(({ editor }) => {
-  let prefix: string | undefined;
-
   function decorate(doc: Node): ListDecorations {
     const decorations: Decoration[] = [];
     const accessibilityDecorations: Decoration[] = [];
@@ -67,14 +64,12 @@ export const ListItemExtension = createExtension(({ editor }) => {
           );
         },
         (items) => {
-          prefix ??= `bn-list-item-${UniqueID.options.generateID()}`;
           const ids = items.map(({ node, pos }) => {
-            // Namespace each editor and escape whitespace in caller-supplied IDs.
-            const id = `${prefix}-${
+            // aria-owns is space-separated, so escape caller-supplied IDs.
+            const id =
               typeof node.attrs.id === "string"
-                ? `id-${encodeURIComponent(node.attrs.id)}`
-                : `pos-${pos}`
-            }`;
+                ? encodeURIComponent(node.attrs.id)
+                : `bn-list-item-pos-${pos}`;
             // Include children inside their parent list item's semantics.
             accessibilityDecorations.push(
               Decoration.node(pos, pos + node.nodeSize, {

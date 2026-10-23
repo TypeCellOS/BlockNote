@@ -2,15 +2,12 @@ import {
   createListOwner,
   walkListSiblings,
 } from "../../../../extensions/ListItem/listItems.js";
-import { UniqueID } from "../../../../extensions/tiptap-extensions/UniqueID/UniqueID.js";
 
 /** Mirrors ListItemExtension for static full HTML, where plugins do not run. */
 export function addListItemAttributes(
   element: HTMLElement,
   isListItem: (type: string) => boolean,
 ) {
-  let prefix: string | undefined;
-  let nextId = 0;
   // A frame/layout can host siblings outside a blockGroup. Group by the actual
   // parent instead of assuming all blocks are direct blockGroup children.
   const parents = new Set(
@@ -44,9 +41,8 @@ export function addListItemAttributes(
       ({ content }, index) =>
         content!.setAttribute("data-index", String(index)),
       (items) => {
-        prefix ??= `bn-list-item-${UniqueID.options.generateID()}`;
         const ids = items.map(({ block }) => {
-          const id = `${prefix}-${nextId++}`;
+          const id = encodeURIComponent(block.getAttribute("data-id")!);
           block.setAttribute("id", id);
           block.setAttribute("role", "listitem");
           return id;
