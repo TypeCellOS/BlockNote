@@ -22,5 +22,10 @@
     "skipLibCheck": true,
     "noErrorTruncation": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": [
+    "src/**/*.a11y.test.ts",
+    "src/**/*.screen-reader.test.ts",
+    "src/**/a11y/**"
+  ]
 }

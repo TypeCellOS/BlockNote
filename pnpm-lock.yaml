@@ -6756,6 +6756,9 @@ importers:
       '@blocknote/xl-typst-exporter':
         specifier: workspace:^
         version: link:../packages/xl-typst-exporter
+      '@guidepup/guidepup':
+        specifier: ^0.35.0
+        version: 0.35.0
       '@playwright/test':
         specifier: 1.60.0
         version: 1.60.0
@@ -6798,6 +6801,9 @@ importers:
       '@y/y':
         specifier: 14.0.0-rc.26
         version: 14.0.0-rc.26
+      axe-core:
+        specifier: 4.13.0
+        version: 4.13.0
       htmlfy:
         specifier: ^0.6.7
         version: 0.6.7
@@ -8028,6 +8034,9 @@ packages:
         optional: true
       tailwindcss:
         optional: true
+
+  '@guidepup/guidepup@0.35.0':
+    resolution: {integrity: sha512-US64a++RucCtLfoq/DqnjzaHYpKzERVYmhtsWViz38MyklICICDpb50AKLn9sbxUwTceK2rS0fjDy7fYpWK/QA==}
 
   '@handlewithcare/prosemirror-inputrules@0.1.4':
     resolution: {integrity: sha512-GMqlBeG2MKM+tXEFd2N+wIv5z4VvJTg8JtfJUrdjvFq2W6v+AW8oTgiWyFw8L3iEQwvtQcVJxU873iB0LXUNNw==}
@@ -12383,6 +12392,10 @@ packages:
     resolution: {integrity: sha512-wvUjBtSGN7+7SjNpq/9M2Tg350UZD3q62IFZLbRAR1bSMlCo1ZaeW+BJ+D090e4hIIZLBcTDWe4Mh4jvUDajzQ==}
     engines: {node: '>= 0.4'}
 
+  axe-core@4.13.0:
+    resolution: {integrity: sha512-UzGt8zg7Ny8djbYMhxl2zuEevVa7r2gJjYY5Lwr1xM7+XU2nd6CkIWFTVcCIbAP63vSz71NaVyyuSk9lHKcy0A==}
+    engines: {node: '>=4'}
+
   axios@1.15.0:
     resolution: {integrity: sha512-wWyJDlAatxk30ZJer+GeCWS209sA42X+N5jU2jy6oHTp7ufw8uzUTVFBX9+wTfAlhiJXGS0Bq7X6efruWjuK9Q==}
 
@@ -15449,6 +15462,10 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
+  plist@4.0.0:
+    resolution: {integrity: sha512-4dOqNo0Y2NpfSf9q4+zr4bh7pzNWeckIam34Z0KYJhg8qtNNfh59VbD+Yna5SjwcxawVvLKx5w5FtuCijpEF4Q==}
+    engines: {node: '>=18'}
+
   png-js@2.0.0:
     resolution: {integrity: sha512-GdzJuUMc6ZSpxFJWVxtOH1bzYHym+TOnveqUjb+VJIbZWbZzyiRGFiKhbiielfpYbgMlhHVhsJ0FTazfuRFkMA==}
 
@@ -17018,6 +17035,10 @@ packages:
 
   xml@1.0.1:
     resolution: {integrity: sha512-huCv9IH9Tcf95zuYCsQraZtWnJvBtLVE0QHMOs8bWyZAFZNDcYjsPq1nEx8jKA9y+Beo9v+7OBPRisQTjinQMw==}
+
+  xmlbuilder@15.1.1:
+    resolution: {integrity: sha512-yMqGBqtXyeN1e3TGYvgNgDVZ3j84W4cwkOXQswghol6APgZWaff9lnbvN7MHYJOiXsvGPXtjTYJEiC9J2wv9Eg==}
+    engines: {node: '>=8.0'}
 
   xmlchars@2.2.0:
     resolution: {integrity: sha512-JZnDKK8B0RCDw84FNdDAIpZK+JuJw+s7Lz8nksI7SIuU3UXJJslUthsi+uWBUYOwPFwW7W7PRLRfUKpxjtjFCw==}
@@ -18622,6 +18643,13 @@ snapshots:
       '@types/react': 19.2.14
       next: 16.3.0(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(@playwright/test@1.60.0)(@types/node@25.9.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       tailwindcss: 4.2.2
+
+  '@guidepup/guidepup@0.35.0':
+    dependencies:
+      debug: 4.4.3
+      plist: 4.0.0
+    transitivePeerDependencies:
+      - supports-color
 
   '@handlewithcare/prosemirror-inputrules@0.1.4(prosemirror-model@1.25.12)(prosemirror-state@1.4.4)(prosemirror-view@1.42.5)':
     dependencies:
@@ -23025,6 +23053,8 @@ snapshots:
     dependencies:
       possible-typed-array-names: 1.1.0
 
+  axe-core@4.13.0: {}
+
   axios@1.15.0:
     dependencies:
       follow-redirects: 1.16.0
@@ -26487,6 +26517,11 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.2
 
+  plist@4.0.0:
+    dependencies:
+      '@xmldom/xmldom': 0.9.10
+      xmlbuilder: 15.1.1
+
   png-js@2.0.0:
     dependencies:
       fflate: 0.8.3
@@ -28432,6 +28467,8 @@ snapshots:
   xml-parser-xo@4.1.5: {}
 
   xml@1.0.1: {}
+
+  xmlbuilder@15.1.1: {}
 
   xmlchars@2.2.0: {}
 
