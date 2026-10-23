@@ -1,4 +1,5 @@
 import { parseAutolinkLiteral } from "../../parsers/markdown/autolink.js";
+import { wrapWithDelimiter } from "./wrapWithDelimiter.js";
 
 /**
  * Custom HTML-to-Markdown serializer for BlockNote.
@@ -843,34 +844,6 @@ function serializeInlineContent(el: Element): string {
   }
 
   return result;
-}
-
-/**
- * Wrap emphasis/strikethrough content in its delimiters.
- * An opening delimiter followed by whitespace, or a closing delimiter preceded
- * by whitespace, is not parsed as emphasis, so leading and trailing spaces are
- * moved outside the delimiters to produce valid markdown.
- * E.g., `<strong> Bold </strong>` → ` **Bold** ` instead of `** Bold **`.
- * All-whitespace content is output as-is, without delimiters.
- */
-function wrapWithDelimiter(text: string, delimiter: string): string {
-  const { leading, content, trailing } = extractSurroundingWhitespace(text);
-  if (!content) {
-    return text;
-  }
-  return `${leading}${delimiter}${content}${delimiter}${trailing}`;
-}
-
-function extractSurroundingWhitespace(text: string): {
-  leading: string;
-  content: string;
-  trailing: string;
-} {
-  const match = text.match(/^(\s*)(.*?)(\s*)$/);
-  if (match) {
-    return { leading: match[1], content: match[2], trailing: match[3] };
-  }
-  return { leading: "", content: text, trailing: "" };
 }
 
 /**
