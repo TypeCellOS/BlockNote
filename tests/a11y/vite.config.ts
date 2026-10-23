@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import { defineConfig } from "vite-plus";
 import { playwright } from "vite-plus/test/browser/providers/playwright";
 import {
+  nextReader,
   startReader,
   pressKey,
   readTranscript,
@@ -78,7 +79,13 @@ export default defineConfig({
           name: reader ?? "a11y-browser",
         },
       ],
-      commands: { startReader, pressKey, readTranscript, stopReader },
+      commands: {
+        nextReader,
+        startReader,
+        pressKey,
+        readTranscript,
+        stopReader,
+      },
       expect: {
         toMatchScreenshot: {
           comparatorName: "pixelmatch",

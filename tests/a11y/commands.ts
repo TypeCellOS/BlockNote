@@ -49,3 +49,9 @@ export const readTranscript: BrowserCommand<[]> = async () =>
   (await reader()).spokenPhraseLog();
 export const stopReader: BrowserCommand<[]> = async () =>
   (await reader()).stop();
+
+export const nextReader: BrowserCommand<[]> = async () => {
+  const screenReader = await reader();
+  await screenReader.next();
+  return screenReader.lastSpokenPhrase();
+};
