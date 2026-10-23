@@ -51,7 +51,98 @@ afterEach(() => {
   cleanups.splice(0).forEach((cleanup) => cleanup());
 });
 
-describe("list accessibility", () => {
+describe("list items", () => {
+  it("exports numbering and ownership from an editable editor and round trips", () => {
+    const { editor, host } = createEditor(true);
+    editor.replaceBlocks(editor.document, [
+      {
+        id: "a",
+        type: "numberedListItem",
+        props: { start: 4 },
+        children: [
+          { id: "note", type: "paragraph", content: "Explanation" },
+          { id: "nested-a", type: "numberedListItem", props: { start: 8 } },
+          { id: "nested-b", type: "numberedListItem" },
+        ],
+      },
+      { id: "b", type: "numberedListItem" },
+      {
+        id: "break",
+        type: "paragraph",
+        children: [
+          { id: "inside", type: "numberedListItem", props: { start: 20 } },
+        ],
+      },
+      { id: "restart", type: "numberedListItem" },
+      { id: "bullet", type: "bulletListItem", content: "Bullet" },
+      { id: "custom-a", type: "customItem", content: "Custom one" },
+      { id: "custom-b", type: "customItem", content: "Custom two" },
+    ]);
+    const original = editor.document;
+    const html = editor.blocksToFullHTML(original);
+    expect(host.querySelector("[aria-owns]")).toBeNull();
+    const exported = document.createElement("div");
+    document.body.append(exported);
+    cleanups.push(() => exported.remove());
+    exported.innerHTML = html;
+    expect(lists(exported)).toEqual([
+      ["a", "b"],
+      ["nested-a", "nested-b"],
+      ["inside"],
+      ["restart"],
+      ["bullet"],
+      ["custom-a", "custom-b"],
+    ]);
+    expect(
+      Array.from(exported.querySelectorAll("[data-index]"), (element) =>
+        element.getAttribute("data-index"),
+      ),
+    ).toEqual(["4", "8", "9", "5", "20", "1"]);
+    expect(editor.tryParseHTMLToBlocks(html)).toEqual(original);
+    expect(editor.document).toEqual(original);
+
+    editor.isEditable = false;
+    const second = document.createElement("div");
+    document.body.append(second);
+    cleanups.push(() => second.remove());
+    second.innerHTML = editor.blocksToFullHTML(original);
+    expect(lists(second)).toEqual(lists(exported));
+    const ids = Array.from(
+      document.querySelectorAll("[role=listitem]"),
+      (item) => item.id,
+    );
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it("exports partial list blocks without IDs and preserves empty items", () => {
+    const { editor, host } = createEditor(true);
+    const html = editor.blocksToFullHTML([
+      { type: "bulletListItem" },
+      { type: "bulletListItem" },
+    ]);
+    // The export creates DOM IDs without adding persistent block IDs.
+    const exported = document.createElement("div");
+    host.after(exported);
+    cleanups.push(() => exported.remove());
+    exported.innerHTML = html;
+    expect(exported.querySelectorAll("[role=list]")).toHaveLength(1);
+    const ids = exported
+      .querySelector("[aria-owns]")!
+      .getAttribute("aria-owns")!
+      .split(" ");
+    expect(ids).toHaveLength(2);
+    expect(new Set(ids).size).toBe(2);
+    ids.forEach((id) =>
+      expect(exported.contains(document.getElementById(id))).toBe(true),
+    );
+    const blocks = editor.tryParseHTMLToBlocks(html);
+    expect(blocks.map((block) => block.type)).toEqual([
+      "bulletListItem",
+      "bulletListItem",
+    ]);
+    expect(blocks.map((block) => block.content)).toEqual([[], []]);
+  });
+
   it("exposes read-only content as a document and restores input semantics", () => {
     const { editor, host } = createEditor(true);
     const root = host;
@@ -88,6 +179,43 @@ describe("list accessibility", () => {
     expect(lists(host)).toEqual([["a"], ["b"]]);
     readOnly.setReadOnly(false, "preview");
     expect(host.querySelector('[aria-owns], [role="listitem"]')).toBeNull();
+  });
+
+  it("keeps numbering in both modes while list boundaries and starts change", () => {
+    const { editor, host } = createEditor(true);
+    function indices() {
+      return Array.from(host.querySelectorAll("[data-index]"), (item) =>
+        Number(item.getAttribute("data-index")),
+      );
+    }
+    editor.replaceBlocks(editor.document, [
+      {
+        id: "a",
+        type: "numberedListItem",
+        props: { start: 4 },
+        children: [
+          { type: "numberedListItem", props: { start: 8 } },
+          { type: "numberedListItem" },
+        ],
+      },
+      { id: "b", type: "numberedListItem", props: { start: 20 } },
+      { id: "c", type: "numberedListItem" },
+    ]);
+    // A start on a later item only takes effect when it begins a new run.
+    expect(indices()).toEqual([4, 8, 9, 5, 6]);
+    editor.isEditable = false;
+    expect(indices()).toEqual([4, 8, 9, 5, 6]);
+    expect(lists(host)[0]).toEqual(["a", "b", "c"]);
+    editor.updateBlock("a", { type: "paragraph" });
+    expect(indices()).toEqual([8, 9, 20, 21]);
+    expect(lists(host)).toHaveLength(2);
+    editor.isEditable = true;
+    expect(indices()).toEqual([8, 9, 20, 21]);
+    expect(host.querySelector('[aria-owns], [role="listitem"]')).toBeNull();
+    editor.updateBlock("b", { props: { start: 3 } });
+    expect(indices()).toEqual([8, 9, 3, 4]);
+    editor.isEditable = false;
+    expect(indices()).toEqual([8, 9, 3, 4]);
   });
 
   it("groups same-type siblings and supports custom list items", () => {

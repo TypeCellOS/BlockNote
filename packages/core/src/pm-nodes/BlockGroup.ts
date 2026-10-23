@@ -15,6 +15,8 @@ export const BlockGroup = Node.create<{
   },
   parseHTML() {
     return [
+      // Exported accessibility owners are chrome, not document blocks.
+      { tag: "div[data-bn-list-owner]", ignore: true },
       {
         tag: "div",
         getAttrs: (element) => {
