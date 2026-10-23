@@ -45,6 +45,10 @@
       "import": "./dist/blocknote-math-block.js",
       "require": "./dist/blocknote-math-block.cjs"
     },
+    "./style.css": {
+      "import": "./src/style.css",
+      "style": "./src/style.css"
+    },
     "./docx-exporter": {
       "types": "./types/src/docx-exporter/index.d.ts",
       "import": "./dist/docx-exporter.js",

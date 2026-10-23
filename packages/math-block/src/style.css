@@ -1,0 +1,2 @@
+/* KaTeX's stylesheet: the editor shows each formula with KaTeX's HTML output. */
+@import "katex/dist/katex.min.css";
