@@ -14,6 +14,7 @@ export type VersioningEvent =
     }
   | { type: "closed"; restoring?: boolean }
   | { type: "historyStarted"; operation: "refresh" | "loadMore" }
+  | { type: "historyInvalidated" }
   | {
       type: "historyFailed";
       operation: "refresh" | "loadMore";
@@ -67,6 +68,12 @@ export function reduceVersioningState(
     return state;
   }
   switch (event.type) {
+    case "historyInvalidated":
+      return {
+        ...state,
+        mode: "versions",
+        history: { status: "success", data: state.history.data ?? [] },
+      };
     case "historyStarted":
       return {
         ...state,

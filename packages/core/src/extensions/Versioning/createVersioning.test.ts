@@ -257,7 +257,7 @@ it("defers storage access and binds detached rename to the original storage", as
 });
 
 it.each(["create", "rename"] as const)(
-  "publishes a successful %s locally before refresh and keeps success if refresh fails",
+  "publishes a successful %s locally and defers refresh until pagination",
   async (operation) => {
     const original = { id: "old", createdAt: 5, name: "Original" };
     const refresh = deferred<VersionResult<VersionSnapshotPage>>();
@@ -276,6 +276,15 @@ it.each(["create", "rename"] as const)(
       operation === "create"
         ? mode.create("Submitted")
         : mode.rename("old", "Submitted");
+    expect(await saving).toEqual({ status: "done" });
+    expect(list).toHaveBeenCalledOnce();
+    expect(mode.store.state).toMatchObject({
+      history: {
+        status: "success",
+        data: [{ ...original, name: "Submitted" }],
+      },
+    });
+    const loading = mode.loadMore();
     await vi.waitFor(() =>
       expect(mode.store.state).toMatchObject({
         history: {
@@ -285,7 +294,10 @@ it.each(["create", "rename"] as const)(
       }),
     );
     refresh.resolve({ ok: false, error: { type: "network" } });
-    expect(await saving).toEqual({ status: "done" });
+    expect(await loading).toEqual({
+      status: "error",
+      error: { type: "network" },
+    });
     expect(mode.store.state).toMatchObject({
       history: {
         status: "error",
@@ -791,7 +803,7 @@ describe("pagination", () => {
     });
   });
 
-  it("resets pagination after naming and creation and verifies deleted selected content", async () => {
+  it("retains pagination after mutations and verifies deleted selected content", async () => {
     let snapshots = [newest, middle, oldest];
     const created = { id: "created", createdAt: 110 };
     const { mode, show } = setup({
@@ -827,18 +839,141 @@ describe("pagination", () => {
     await mode.loadMore();
     await mode.rename(oldest.id, "Old draft");
     await mode.create();
+    const namedOldest = { ...oldest, name: "Old draft" };
     expect(mode.store.state).toMatchObject({
       history: {
-        data: [created, newest],
+        data: [created, newest, middle, namedOldest],
       },
     });
     await mode.select({ type: "snapshot", id: middle.id });
     await mode.remove(middle.id);
     expect(mode.store.state).toMatchObject({
       displayed: { type: "current" },
-      history: { data: [created, newest] },
+      history: { data: [created, newest, middle, namedOldest] },
     });
     expect(show.mock.lastCall?.[0].content).toBe("frozen");
+    await mode.loadMore();
+    expect(mode.store.state).toMatchObject({
+      history: { data: [created, newest, namedOldest] },
+      nextCursor: undefined,
+    });
+  });
+
+  it("buffers dirty pages, deduplicates them, and retries without shrinking the list", async () => {
+    const page = deferred<VersionResult<VersionSnapshotPage>>();
+    const fresh = { ...newest, name: "Fresh" };
+    const list = vi
+      .fn<VersionStorage<string>["list"]>()
+      .mockResolvedValueOnce(
+        success({ snapshots: [newest, middle], nextCursor: "old" }),
+      )
+      .mockResolvedValueOnce(
+        success({ snapshots: [fresh], nextCursor: "middle" }),
+      )
+      .mockReturnValueOnce(page.promise)
+      .mockResolvedValueOnce(
+        success({ snapshots: [fresh], nextCursor: "middle" }),
+      )
+      .mockResolvedValueOnce(
+        success({ snapshots: [fresh, middle], nextCursor: "oldest" }),
+      )
+      .mockResolvedValueOnce(
+        success({ snapshots: [oldest], nextCursor: "next" }),
+      );
+    const { mode } = setup({ list, rename: async () => success(undefined) });
+    mode.open();
+    await mode.list();
+    await mode.rename(newest.id, "Fresh");
+    expect(list).toHaveBeenCalledOnce();
+    const loading = mode.loadMore();
+    expect(mode.loadMore()).toBe(loading);
+    await vi.waitFor(() => expect(list).toHaveBeenCalledTimes(3));
+    expect(mode.store.state).toMatchObject({
+      history: { status: "pending", data: [fresh, middle] },
+      nextCursor: "old",
+    });
+    page.resolve({ ok: false, error: { type: "network" } });
+    await loading;
+    expect(mode.store.state).toMatchObject({
+      history: { status: "error", data: [fresh, middle] },
+      nextCursor: "old",
+    });
+    await mode.loadMore();
+    expect(list.mock.calls.slice(1).map(([, cursor]) => cursor)).toEqual([
+      undefined,
+      "middle",
+      undefined,
+      "middle",
+      "oldest",
+    ]);
+    expect(mode.store.state).toMatchObject({
+      history: { status: "success", data: [fresh, middle, oldest] },
+      nextCursor: "next",
+    });
+  });
+
+  it.each(["loadMore", "list", "dirty refresh"] as const)(
+    "cancels a stale %s on mutation and permits pagination",
+    async (operation) => {
+      const stale = deferred<VersionResult<VersionSnapshotPage>>();
+      const fresh = { ...newest, name: "Fresh" };
+      const list = vi
+        .fn<VersionStorage<string>["list"]>()
+        .mockResolvedValueOnce(
+          success({ snapshots: [newest], nextCursor: "old" }),
+        )
+        .mockReturnValueOnce(stale.promise)
+        .mockResolvedValueOnce(success({ snapshots: [fresh, middle] }));
+      const { mode } = setup({
+        list,
+        rename: async () => success(undefined),
+        remove: async () => success(undefined),
+      });
+      mode.open();
+      await mode.list();
+      if (operation === "dirty refresh") {
+        await mode.rename(newest.id, "Fresh");
+      }
+      const pending = operation === "list" ? mode.list() : mode.loadMore();
+      if (operation === "dirty refresh") {
+        await mode.remove(newest.id);
+      } else {
+        await mode.rename(newest.id, "Fresh");
+      }
+      expect(mode.store.state).toMatchObject({
+        history: { status: "success", data: [fresh] },
+      });
+      await mode.loadMore();
+      stale.resolve(success({ snapshots: [newest, oldest] }));
+      expect(await pending).toEqual({ status: "cancelled" });
+      expect(mode.store.state).toMatchObject({
+        history: { status: "success", data: [fresh, middle] },
+      });
+    },
+  );
+
+  it("clears dirty history on manual refresh and keeps the normal append cursor", async () => {
+    const list = vi
+      .fn<VersionStorage<string>["list"]>()
+      .mockResolvedValueOnce(
+        success({ snapshots: [newest, middle], nextCursor: "old" }),
+      )
+      .mockResolvedValueOnce(
+        success({ snapshots: [newest], nextCursor: "fresh" }),
+      )
+      .mockResolvedValueOnce(success({ snapshots: [middle] }));
+    const { mode } = setup({ list, rename: async () => success(undefined) });
+    mode.open();
+    await mode.list();
+    await mode.rename(newest.id, "Named");
+    await mode.list();
+    expect(mode.store.state).toMatchObject({ history: { data: [newest] } });
+    await mode.loadMore();
+    expect(list.mock.calls.map(([, cursor]) => cursor)).toEqual([
+      undefined,
+      undefined,
+      "fresh",
+    ]);
   });
 
   it("allows a manual load after the initial page fails", async () => {
