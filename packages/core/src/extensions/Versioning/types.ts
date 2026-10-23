@@ -146,6 +146,8 @@ export interface VersionStorage<Content, Attributions = never> {
    * Name current. Snapshot stores save `content` from {@link VersionView.current};
    * continuous-history stores must identify the captured checkpoint, not a later one.
    * Success returns checkpoint metadata. No checkpoint to name is a typed failure.
+   * The controller keeps local metadata and refreshes history on the next
+   * pagination request.
    */
   create?: (
     content: Content,
@@ -160,11 +162,12 @@ export interface VersionStorage<Content, Attributions = never> {
    * restored Current.
    */
   restore?: (id: string) => Promise<VersionResult<void>>;
-  /** Change a stored version's name; `undefined` clears it. Refresh {@link VersionStorage.list} afterward. */
+  /** Change a stored version's name; `undefined` clears it. History is refreshed on the next pagination request. */
   rename?: (id: string, name?: string) => Promise<VersionResult<void>>;
   /**
    * Remove a stored version, or only its name on continuous-history backends.
-   * The controller refreshes {@link VersionStorage.list} and reconciles selection.
+   * The controller reconciles selection immediately and refreshes history on the
+   * next pagination request. Existing rows remain visible until that refresh.
    */
   remove?: (id: string) => Promise<VersionResult<void>>;
 }
