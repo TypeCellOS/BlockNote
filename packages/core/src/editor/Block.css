@@ -43,13 +43,26 @@ BASIC STYLES
   position: absolute;
   inset: 0;
   border-radius: 4px;
-  background-color: rgba(100, 160, 255, 0.08);
-  box-shadow: inset 0 0 0 4px rgba(100, 160, 255, 0.3);
+  background-color: color-mix(
+    in srgb,
+    var(--bn-colors-highlights-blue-text, rgb(100, 160, 255)) 8%,
+    transparent
+  );
+  box-shadow: inset 0 0 0 4px
+    color-mix(
+      in srgb,
+      var(--bn-colors-highlights-blue-text, rgb(100, 160, 255)) 30%,
+      transparent
+    );
   pointer-events: none;
 }
 
 .bn-inline-content .ProseMirror-selectednode::after {
-  background-color: rgba(100, 160, 255, 0.3);
+  background-color: color-mix(
+    in srgb,
+    var(--bn-colors-highlights-blue-text, rgb(100, 160, 255)) 30%,
+    transparent
+  );
   box-shadow: none;
 }
 
@@ -253,16 +266,20 @@ NESTED BLOCKS
 
 /* QUOTES */
 [data-content-type="quote"] blockquote {
-  border-left: 2px solid rgb(125, 121, 122);
-  color: rgb(125, 121, 122);
+  border-left: 2px solid var(--bn-colors-side-menu, rgb(125, 121, 122));
+  color: var(--bn-colors-highlights-gray-text, #646362);
   margin: 0;
   padding-left: 1em;
+}
+
+[data-content-type="quote"] blockquote:where(.dark, .dark *) {
+  color: var(--bn-colors-highlights-gray-text, #bebdb8);
 }
 
 /* DIVIDERS */
 [data-content-type="divider"] hr {
   border: none;
-  border-top: 1px solid rgb(125, 121, 122);
+  border-top: 1px solid var(--bn-colors-side-menu, rgb(125, 121, 122));
   margin: 0.5em 0;
   flex: 1;
 }
@@ -360,7 +377,7 @@ NESTED BLOCKS
 
 /* Toggle */
 .bn-toggle-button {
-  color: var(--bn-colors-editor-text);
+  color: var(--bn-colors-editor-text, #3f3f3f);
   padding: 3px;
 }
 
@@ -420,11 +437,15 @@ NESTED BLOCKS
 
 .bn-toggle-add-block-button {
   font-size: 16px;
-  color: var(--bn-colors-side-menu);
+  color: var(--bn-colors-highlights-gray-text, #646362);
   font-weight: normal;
   margin-left: 22px;
   padding-inline: 2px;
   width: fit-content;
+}
+
+.bn-toggle-add-block-button:where(.dark, .dark *) {
+  color: var(--bn-colors-highlights-gray-text, #bebdb8);
 }
 
 .bn-toggle-button,
@@ -439,7 +460,7 @@ NESTED BLOCKS
 
 .bn-toggle-button:hover,
 .bn-toggle-add-block-button:hover {
-  background-color: var(--bn-colors-hovered-background);
+  background-color: var(--bn-colors-hovered-background, #efefef);
 }
 
 /* Keep the marker on the group so it inherits through attribution wrappers
@@ -620,11 +641,11 @@ NESTED BLOCKS
 }
 
 .bn-preview-with-source-popup[data-open="true"] .bn-source-block-popup {
-  background-color: var(--bn-colors-menu-background);
+  background-color: var(--bn-colors-menu-background, #ffffff);
   border: var(--bn-border);
   border-radius: var(--bn-border-radius-medium);
   box-shadow: var(--bn-shadow-medium);
-  color: var(--bn-colors-menu-text);
+  color: var(--bn-colors-menu-text, #3f3f3f);
   height: unset;
   z-index: 1;
 }
@@ -675,7 +696,7 @@ NESTED BLOCKS
 
 .bn-code-block-source-error {
   border-top: var(--bn-border);
-  color: var(--bn-colors-highlights-red-text);
+  color: var(--bn-colors-highlights-red-text, #e03e3e);
   font-size: 0.8em;
   padding: 8px 16px;
   white-space: pre-wrap !important;
@@ -691,10 +712,10 @@ NESTED BLOCKS
 .bn-code-block-source-popup-ok-button {
   align-items: center;
   appearance: none;
-  background-color: rgb(37, 99, 235);
+  background-color: var(--bn-colors-selected-background, rgb(37, 99, 235));
   border: none;
   border-radius: var(--bn-border-radius-small);
-  color: white;
+  color: var(--bn-colors-selected-text, white);
   cursor: pointer;
   display: flex;
   font-size: 0.8em;
@@ -709,7 +730,8 @@ NESTED BLOCKS
 }
 
 .bn-code-block-source-popup-ok-button:hover {
-  background-color: rgb(29, 78, 216);
+  background-color: var(--bn-colors-hovered-background, rgb(29, 78, 216));
+  color: var(--bn-colors-hovered-text, white);
 }
 
 .bn-preview-with-source-popup:has(.bn-preview-placeholder) {
@@ -718,9 +740,12 @@ NESTED BLOCKS
 
 .bn-preview-placeholder {
   align-items: center;
-  background-color: rgb(242, 241, 238);
+  background-color: var(
+    --bn-colors-highlights-gray-background,
+    rgb(242, 241, 238)
+  );
   border-radius: 4px;
-  color: rgb(95, 91, 92);
+  color: var(--bn-colors-highlights-gray-text, rgb(95, 91, 92));
   display: flex;
 }
 
@@ -735,13 +760,16 @@ NESTED BLOCKS
 }
 
 .bn-preview-placeholder:where(.dark, .dark *) {
-  background-color: rgb(70, 70, 70);
-  color: rgb(190, 190, 190);
+  background-color: var(
+    --bn-colors-highlights-gray-background,
+    rgb(70, 70, 70)
+  );
+  color: var(--bn-colors-editor-text, #cfcfcf);
 }
 
 .bn-editor[contenteditable="true"]
   .bn-preview-placeholder:not(.bn-preview-placeholder-error):hover {
-  background-color: rgb(225, 225, 225);
+  background-color: var(--bn-colors-hovered-background, rgb(225, 225, 225));
 }
 
 .bn-editor[contenteditable="true"]
@@ -749,12 +777,12 @@ NESTED BLOCKS
     .dark,
     .dark *
   ) {
-  background-color: rgb(90, 90, 90);
+  background-color: var(--bn-colors-hovered-background, rgb(90, 90, 90));
 }
 
 .bn-preview-placeholder-error {
-  background-color: var(--bn-colors-highlights-red-background);
-  color: var(--bn-colors-highlights-red-text);
+  background-color: var(--bn-colors-highlights-red-background, #fbe4e4);
+  color: var(--bn-colors-highlights-red-text, #e03e3e);
 }
 
 .bn-preview-placeholder-icon {
@@ -802,7 +830,7 @@ NESTED BLOCKS
 .bn-block-content[data-content-type="pageBreak"] > div {
   width: 100%;
   height: 0;
-  border-top: dotted rgb(125, 121, 122) 2px;
+  border-top: dotted var(--bn-colors-side-menu, rgb(125, 121, 122)) 2px;
   margin-block: 11px;
 }
 
@@ -833,23 +861,29 @@ NESTED BLOCKS
 
 [data-file-block] .bn-add-file-button {
   align-items: center;
-  background-color: rgb(242, 241, 238);
+  background-color: var(
+    --bn-colors-highlights-gray-background,
+    rgb(242, 241, 238)
+  );
   border-radius: 4px;
-  color: rgb(125, 121, 122);
+  color: var(--bn-colors-highlights-gray-text, #646362);
   display: flex;
   gap: 10px;
   padding: 12px;
 }
 
 [data-file-block] .bn-add-file-button:where(.dark, .dark *) {
-  background-color: rgb(70, 70, 70);
-  color: rgb(190, 190, 190);
+  background-color: var(
+    --bn-colors-highlights-gray-background,
+    rgb(70, 70, 70)
+  );
+  color: var(--bn-colors-editor-text, #cfcfcf);
 }
 
 .bn-editor[contenteditable="true"] [data-file-block] .bn-add-file-button:hover,
 [data-file-block] .bn-file-name-with-icon:hover,
 .ProseMirror-selectednode .bn-file-name-with-icon {
-  background-color: rgb(225, 225, 225);
+  background-color: var(--bn-colors-hovered-background, rgb(225, 225, 225));
 }
 
 .bn-editor[contenteditable="true"]
@@ -857,7 +891,7 @@ NESTED BLOCKS
   .bn-add-file-button:hover:where(.dark, .dark *),
 [data-file-block] .bn-file-name-with-icon:hover:where(.dark, .dark *),
 .ProseMirror-selectednode .bn-file-name-with-icon:where(.dark, .dark *) {
-  background-color: rgb(90, 90, 90);
+  background-color: var(--bn-colors-hovered-background, rgb(90, 90, 90));
 }
 
 [data-file-block] .bn-add-file-button-icon,
@@ -934,93 +968,93 @@ NESTED BLOCKS
    down to it. */
 [data-style-type="textColor"][data-value="gray"],
 [data-text-color="gray"] {
-  color: #9b9a97;
+  color: var(--bn-colors-highlights-gray-text, #9b9a97);
 }
 
 [data-style-type="textColor"][data-value="brown"],
 [data-text-color="brown"] {
-  color: #64473a;
+  color: var(--bn-colors-highlights-brown-text, #64473a);
 }
 
 [data-style-type="textColor"][data-value="red"],
 [data-text-color="red"] {
-  color: #e03e3e;
+  color: var(--bn-colors-highlights-red-text, #e03e3e);
 }
 
 [data-style-type="textColor"][data-value="orange"],
 [data-text-color="orange"] {
-  color: #d9730d;
+  color: var(--bn-colors-highlights-orange-text, #d9730d);
 }
 
 [data-style-type="textColor"][data-value="yellow"],
 [data-text-color="yellow"] {
-  color: #dfab01;
+  color: var(--bn-colors-highlights-yellow-text, #dfab01);
 }
 
 [data-style-type="textColor"][data-value="green"],
 [data-text-color="green"] {
-  color: #4d6461;
+  color: var(--bn-colors-highlights-green-text, #4d6461);
 }
 
 [data-style-type="textColor"][data-value="blue"],
 [data-text-color="blue"] {
-  color: #0b6e99;
+  color: var(--bn-colors-highlights-blue-text, #0b6e99);
 }
 
 [data-style-type="textColor"][data-value="purple"],
 [data-text-color="purple"] {
-  color: #6940a5;
+  color: var(--bn-colors-highlights-purple-text, #6940a5);
 }
 
 [data-style-type="textColor"][data-value="pink"],
 [data-text-color="pink"] {
-  color: #ad1a72;
+  color: var(--bn-colors-highlights-pink-text, #ad1a72);
 }
 
 /* BACKGROUND COLORS */
 [data-style-type="backgroundColor"][data-value="gray"],
 [data-background-color="gray"] {
-  background-color: #ebeced;
+  background-color: var(--bn-colors-highlights-gray-background, #ebeced);
 }
 
 [data-style-type="backgroundColor"][data-value="brown"],
 [data-background-color="brown"] {
-  background-color: #e9e5e3;
+  background-color: var(--bn-colors-highlights-brown-background, #e9e5e3);
 }
 
 [data-style-type="backgroundColor"][data-value="red"],
 [data-background-color="red"] {
-  background-color: #fbe4e4;
+  background-color: var(--bn-colors-highlights-red-background, #fbe4e4);
 }
 
 [data-style-type="backgroundColor"][data-value="orange"],
 [data-background-color="orange"] {
-  background-color: #f6e9d9;
+  background-color: var(--bn-colors-highlights-orange-background, #f6e9d9);
 }
 
 [data-style-type="backgroundColor"][data-value="yellow"],
 [data-background-color="yellow"] {
-  background-color: #fbf3db;
+  background-color: var(--bn-colors-highlights-yellow-background, #fbf3db);
 }
 
 [data-style-type="backgroundColor"][data-value="green"],
 [data-background-color="green"] {
-  background-color: #ddedea;
+  background-color: var(--bn-colors-highlights-green-background, #ddedea);
 }
 
 [data-style-type="backgroundColor"][data-value="blue"],
 [data-background-color="blue"] {
-  background-color: #ddebf1;
+  background-color: var(--bn-colors-highlights-blue-background, #ddebf1);
 }
 
 [data-style-type="backgroundColor"][data-value="purple"],
 [data-background-color="purple"] {
-  background-color: #eae4f2;
+  background-color: var(--bn-colors-highlights-purple-background, #eae4f2);
 }
 
 [data-style-type="backgroundColor"][data-value="pink"],
 [data-background-color="pink"] {
-  background-color: #f4dfeb;
+  background-color: var(--bn-colors-highlights-pink-background, #f4dfeb);
 }
 
 /* TEXT ALIGNMENT */
@@ -1068,14 +1102,14 @@ passes through the column list. */
 .bn-editor[contenteditable="true"]
   .bn-column-list-hovered
   > .bn-block-column:not(:last-child) {
-  box-shadow: 4px 0 0 #eee;
+  box-shadow: 4px 0 0 var(--bn-colors-border, #eee);
   transition: box-shadow 0.2s ease 0.2s;
 }
 
 .bn-editor[contenteditable="true"]
   .bn-column-list-hovered
   > .bn-block-column:not(:last-child):where(.dark, .dark *) {
-  box-shadow: 4px 0 0 rgb(70, 70, 70);
+  box-shadow: 4px 0 0 var(--bn-colors-border, rgb(70, 70, 70));
 }
 
 /* The border between two columns when the cursor is near their boundary or
@@ -1084,7 +1118,7 @@ managed by the multi-column package's column resize plugin. */
 .bn-editor[contenteditable="true"]
   .bn-column-list-hovered
   > .bn-block-column.bn-column-resize-border {
-  box-shadow: 4px 0 0 #ccc;
+  box-shadow: 4px 0 0 var(--bn-colors-side-menu, #ccc);
   cursor: col-resize;
   transition: box-shadow 0.2s ease;
 }
@@ -1092,7 +1126,7 @@ managed by the multi-column package's column resize plugin. */
 .bn-editor[contenteditable="true"]
   .bn-column-list-hovered
   > .bn-block-column.bn-column-resize-border:where(.dark, .dark *) {
-  box-shadow: 4px 0 0 rgb(110, 110, 110);
+  box-shadow: 4px 0 0 var(--bn-colors-side-menu, rgb(110, 110, 110));
 }
 
 .bn-editor[contenteditable="true"]
@@ -1115,11 +1149,19 @@ managed by the multi-column package's column resize plugin. */
 }
 
 .bn-thread-mark:not([data-orphan="true"]) {
-  background: rgba(255, 200, 0, 0.15);
+  background: color-mix(
+    in srgb,
+    var(--bn-colors-highlights-yellow-text, rgb(255, 200, 0)) 15%,
+    transparent
+  );
 }
 
 .bn-thread-mark .bn-thread-mark-selected {
-  background: rgba(255, 200, 0, 0.25);
+  background: color-mix(
+    in srgb,
+    var(--bn-colors-highlights-yellow-text, rgb(255, 200, 0)) 25%,
+    transparent
+  );
 }
 
 div[data-type="modification"] {
@@ -1128,7 +1170,11 @@ div[data-type="modification"] {
 
 .bn-root ins,
 .bn-root del {
-  background-color: color-mix(in srgb, var(--user-color-light) 50%, white);
+  background-color: color-mix(
+    in srgb,
+    var(--user-color-light) 50%,
+    var(--bn-colors-editor-background, white)
+  );
   color: var(--user-color-dark);
   position: relative;
   text-decoration: none;
@@ -1142,7 +1188,7 @@ div[data-type="modification"] {
   background-color: color-mix(
     in srgb,
     var(--user-color-light) 25%,
-    var(--bn-colors-editor-background)
+    var(--bn-colors-editor-background, #1f1f1f)
   );
   color: var(--user-color-light);
 }
@@ -1157,7 +1203,11 @@ serialized/static output, where the wrapper is a real, painted box.
 */
 .bn-suggestion-mark {
   --bn-suggestion-token-color: currentColor;
-  background-color: color-mix(in srgb, var(--user-color-light) 50%, white);
+  background-color: color-mix(
+    in srgb,
+    var(--user-color-light) 50%,
+    var(--bn-colors-editor-background, white)
+  );
   color: var(--user-color-dark);
   border-radius: 4px;
 }
@@ -1167,7 +1217,7 @@ serialized/static output, where the wrapper is a real, painted box.
   background-color: color-mix(
     in srgb,
     var(--user-color-light) 25%,
-    var(--bn-suggestion-surface, var(--bn-colors-editor-background))
+    var(--bn-suggestion-surface, var(--bn-colors-editor-background, #1f1f1f))
   );
   color: white;
 }
@@ -1184,7 +1234,11 @@ that wrap content with no `.bn-block-content` of their own (e.g. a deleted table
 row/cell). Block deletions that *do* wrap blocks are restyled per-block below.
 */
 .bn-suggestion-node > * {
-  background-color: color-mix(in srgb, var(--user-color-light) 50%, white);
+  background-color: color-mix(
+    in srgb,
+    var(--user-color-light) 50%,
+    var(--bn-colors-editor-background, white)
+  );
   border-radius: 4px;
 }
 
@@ -1192,7 +1246,7 @@ row/cell). Block deletions that *do* wrap blocks are restyled per-block below.
   background-color: color-mix(
     in srgb,
     var(--user-color-light) 25%,
-    var(--bn-colors-editor-background)
+    var(--bn-colors-editor-background, #1f1f1f)
   );
 }
 
@@ -1219,7 +1273,7 @@ that wrap blocks get a per-block badge below instead.
   vertical-align: middle;
   /* Use the editor's text color (themed for light/dark) rather than inheriting,
      which would pick up the deleted content's user color. */
-  color: var(--bn-colors-editor-text);
+  color: var(--bn-colors-editor-text, #3f3f3f);
 }
 
 /*
@@ -1305,7 +1359,11 @@ counts as one too: its source sits in a hidden popup, so its text marks don't sh
   /* The card bleeds this far into the gutters on both sides, so tinting a block
      never shifts its content sideways. */
   --bn-suggestion-card-inset: 6px;
-  background-color: color-mix(in srgb, var(--user-color-light) 50%, white);
+  background-color: color-mix(
+    in srgb,
+    var(--user-color-light) 50%,
+    var(--bn-colors-editor-background, white)
+  );
   border-radius: 6px;
   /* A hairline in the author's color, so a pale tint still reads as a card. */
   box-shadow: 0 0 0 1px
@@ -1327,7 +1385,7 @@ counts as one too: its source sits in a hidden popup, so its text marks don't sh
   background-color: color-mix(
     in srgb,
     var(--user-color-light) 25%,
-    var(--bn-colors-editor-background)
+    var(--bn-colors-editor-background, #1f1f1f)
   );
 }
 
@@ -1338,9 +1396,18 @@ counts as one too: its source sits in a hidden popup, so its text marks don't sh
 .bn-block-content:not(.bn-suggestion-node *)
   .bn-preview-with-source-popup:has(.bn-source-block-popup .bn-suggestion-mark)
   .bn-preview-container {
-  background-color: color-mix(in srgb, #c9efe9 50%, white);
+  background-color: color-mix(
+    in srgb,
+    var(--bn-colors-highlights-green-background, #c9efe9) 50%,
+    var(--bn-colors-editor-background, white)
+  );
   border-radius: 6px;
-  box-shadow: 0 0 0 1px color-mix(in srgb, #0f6e62 25%, transparent);
+  box-shadow: 0 0 0 1px
+    color-mix(
+      in srgb,
+      var(--bn-colors-highlights-green-text, #0f6e62) 25%,
+      transparent
+    );
 }
 
 .dark.bn-root
@@ -1349,8 +1416,8 @@ counts as one too: its source sits in a hidden popup, so its text marks don't sh
   .bn-preview-container {
   background-color: color-mix(
     in srgb,
-    #c9efe9 25%,
-    var(--bn-colors-editor-background)
+    var(--bn-colors-highlights-green-background, #c9efe9) 25%,
+    var(--bn-colors-editor-background, #1f1f1f)
   );
 }
 
@@ -1401,7 +1468,7 @@ card's own 3px, the label's 16px line box, and 2px of breathing room under it.
   text-transform: uppercase;
   /* Use the editor's text color (themed for light/dark) rather than inheriting,
      which would pick up the suggestion's user color. */
-  color: var(--bn-colors-editor-text);
+  color: var(--bn-colors-editor-text, #3f3f3f);
 }
 
 /*
@@ -1430,7 +1497,11 @@ left untouched so only the dotted underline carries the color. Both the inline
 /* On hover, reveal the author's color as a filled background. */
 [data-type="modification"] .bn-suggestion-mark:hover,
 [data-type="modification"] .bn-suggestion-node:hover > * {
-  background-color: color-mix(in srgb, var(--user-color-light) 50%, white);
+  background-color: color-mix(
+    in srgb,
+    var(--user-color-light) 50%,
+    var(--bn-colors-editor-background, white)
+  );
   border-radius: 4px;
 }
 
@@ -1439,7 +1510,7 @@ left untouched so only the dotted underline carries the color. Both the inline
   background-color: color-mix(
     in srgb,
     var(--user-color-light) 25%,
-    var(--bn-colors-editor-background)
+    var(--bn-colors-editor-background, #1f1f1f)
   );
 }
 
