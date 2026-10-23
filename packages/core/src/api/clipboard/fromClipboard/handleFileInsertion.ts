@@ -192,7 +192,13 @@ export async function handleFileInsertion<
         return;
       }
 
-      const updateData = await editor.uploadFile(file, insertedBlockId);
+      const updateData = await editor
+        .uploadFile(file, insertedBlockId)
+        .catch(() => undefined);
+
+      if (updateData === undefined || !editor.getBlock(insertedBlockId)) {
+        continue;
+      }
 
       const updatedFileBlock =
         typeof updateData === "string"
