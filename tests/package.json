@@ -20,6 +20,7 @@
     "@blocknote/xl-multi-column": "workspace:^",
     "@blocknote/xl-pdf-exporter": "workspace:^",
     "@blocknote/xl-typst-exporter": "workspace:^",
+    "@opentelemetry/api": "1.10.0",
     "@playwright/test": "1.60.0",
     "@shikijs/core": "^4.4.3",
     "@shikijs/engine-javascript": "^4.4.3",

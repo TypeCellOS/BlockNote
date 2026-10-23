@@ -6756,6 +6756,9 @@ importers:
       '@blocknote/xl-typst-exporter':
         specifier: workspace:^
         version: link:../packages/xl-typst-exporter
+      '@opentelemetry/api':
+        specifier: 1.10.0
+        version: 1.10.0
       '@playwright/test':
         specifier: 1.60.0
         version: 1.60.0
