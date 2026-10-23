@@ -52,18 +52,11 @@ export const createNumberedListItemBlockSpec = createBlockSpec(
         parent.tagName === "OL" ||
         (parent.tagName === "DIV" && parent.parentElement?.tagName === "OL")
       ) {
-        const list = parent.tagName === "OL" ? parent : parent.parentElement!;
-        const firstItem = parent === list ? element : parent;
-        const start = list.getAttribute("start");
-        const startIndex = Number(start);
+        const startIndex = parseInt(parent.getAttribute("start") || "1");
 
         const defaultProps = parseDefaultProps(element);
 
-        if (
-          firstItem.previousElementSibling ||
-          start === null ||
-          !Number.isSafeInteger(startIndex)
-        ) {
+        if (element.previousElementSibling || startIndex === 1) {
           return defaultProps;
         }
 

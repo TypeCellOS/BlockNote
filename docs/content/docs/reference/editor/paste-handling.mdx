@@ -25,31 +25,15 @@ You can change the default paste behavior by providing a custom paste handler, w
 
 BlockNote automatically converts Microsoft Word list paragraphs into nested lists,
 removes Word paragraph-end placeholders, and preserves blank paragraphs copied from
-Google Docs. This also applies when importing HTML with `tryParseHTMLToBlocks` or
-inserting it with `pasteHTML`.
+Google Docs. This applies to external HTML pasted from the clipboard.
 
-Word list numbering retains numeric starts, gaps, and restarts. Labels that
-BlockNote cannot represent, such as `1.2.`, stay as text instead of being removed.
+This is a best-effort conversion into BlockNote's block types, not exact source
+formatting preservation. Unsupported list labels, such as `iv.` or `1.2.`, stay as
+text instead of being removed.
 
-### Custom HTML preprocessing
-
-Use the `preprocessHTML` editor option to replace the source normalization. The
-function receives the original HTML string and returns the HTML to parse. To extend
-the built-in handling, call `defaultHTMLPreprocessor` inside your function:
-
-```ts
-import { BlockNoteEditor, defaultHTMLPreprocessor } from "@blocknote/core";
-
-const editor = BlockNoteEditor.create({
-  preprocessHTML(html) {
-    return defaultHTMLPreprocessor(html).replaceAll("Old label", "New label");
-  },
-});
-```
-
-Set `preprocessHTML: false` to disable Word and Google Docs normalization. Neither
-the default nor custom preprocessing runs for internal BlockNote clipboard HTML or
-`pasteHTML(html, true)`. Preprocessing is not an HTML sanitizer.
+To replace this behavior, use a custom `pasteHandler` and handle the HTML before
+calling `editor.pasteHTML`. Calling `defaultPasteHandler` keeps the built-in
+normalization. Internal BlockNote clipboard content bypasses this normalization.
 
 ## `pasteHandler` option
 

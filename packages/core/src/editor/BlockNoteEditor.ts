@@ -10,7 +10,6 @@ import { Node, Schema } from "prosemirror-model";
 import type { BlockPlacement } from "../api/getBlockInfoFromPos.js";
 import type { BlocksChanged } from "../api/getBlocksChangedByTransaction.js";
 import { blockToNode } from "../api/nodeConversions/blockToNode.js";
-import type { HTMLPreprocessor } from "../api/parsers/html/preprocessHTML.js";
 import {
   Block,
   BlockNoteSchema,
@@ -246,17 +245,6 @@ export interface BlockNoteEditorOptions<
       plainTextAsMarkdown?: boolean;
     }) => boolean | undefined;
   }) => boolean | undefined;
-
-  /**
-   * Transforms HTML before parsing in `tryParseHTMLToBlocks` and `pasteHTML`,
-   * including clipboard pastes. Defaults to `defaultHTMLPreprocessor`, which
-   * normalizes Microsoft Word and Google Docs HTML. Set to `false` to disable
-   * source normalization, or provide a function to replace it. Import and call
-   * `defaultHTMLPreprocessor` from your function to extend the defaults.
-   *
-   * Not applied to `pasteHTML(html, true)` or internal BlockNote clipboard HTML.
-   */
-  preprocessHTML?: HTMLPreprocessor | false;
 
   /**
    * Resolve a URL of a file block to one that can be displayed or downloaded. This can be used for creating authenticated URL or
@@ -632,10 +620,7 @@ export class BlockNoteEditor<
     // Initialize managers
     this._blockManager = new BlockManager(this as any);
 
-    this._exportManager = new ExportManager(
-      this as any,
-      options.preprocessHTML,
-    );
+    this._exportManager = new ExportManager(this as any);
     this._selectionManager = new SelectionManager(this as any);
     this._stateManager = new StateManager(this as any);
     this._styleManager = new StyleManager(this as any);

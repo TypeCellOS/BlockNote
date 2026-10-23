@@ -24,9 +24,11 @@ const addIndexToNumberedListItems = (element: HTMLElement) => {
         '[data-content-type="numberedListItem"]',
       );
 
-    const start = numberedListItem.getAttribute("data-start");
-    if (start !== null || !prevNumberedListItem) {
-      numberedListItem.setAttribute("data-index", start ?? "1");
+    if (!prevNumberedListItem) {
+      numberedListItem.setAttribute(
+        "data-index",
+        numberedListItem.getAttribute("data-start") || "1",
+      );
     } else {
       const prevNumberedListItemIndex =
         prevNumberedListItem.getAttribute("data-index");

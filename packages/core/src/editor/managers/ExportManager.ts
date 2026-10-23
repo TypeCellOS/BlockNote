@@ -2,7 +2,6 @@ import { createExternalHTMLExporter } from "../../api/exporters/html/externalHTM
 import { createInternalHTMLSerializer } from "../../api/exporters/html/internalHTMLSerializer.js";
 import { blocksToMarkdown } from "../../api/exporters/markdown/markdownExporter.js";
 import { HTMLToBlocks } from "../../api/parsers/html/parseHTML.js";
-import { HTMLPreprocessor } from "../../api/parsers/html/preprocessHTML.js";
 import {
   markdownToBlocks,
   markdownToHTML,
@@ -26,10 +25,7 @@ export class ExportManager<
   ISchema extends InlineContentSchema = DefaultInlineContentSchema,
   SSchema extends StyleSchema = DefaultStyleSchema,
 > {
-  constructor(
-    private editor: BlockNoteEditor<BSchema, ISchema, SSchema>,
-    private preprocessHTML?: HTMLPreprocessor | false,
-  ) {}
+  constructor(private editor: BlockNoteEditor<BSchema, ISchema, SSchema>) {}
 
   /**
    * Exports blocks into a simplified HTML string. To better conform to HTML standards, children of blocks which aren't list
@@ -77,7 +73,7 @@ export class ExportManager<
   public tryParseHTMLToBlocks(
     html: string,
   ): Block<BSchema, ISchema, SSchema>[] {
-    return HTMLToBlocks(html, this.editor.pmSchema, this.preprocessHTML);
+    return HTMLToBlocks(html, this.editor.pmSchema);
   }
 
   /**

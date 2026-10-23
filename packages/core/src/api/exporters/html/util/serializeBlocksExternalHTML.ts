@@ -391,16 +391,17 @@ function serializeBlock<
   }
 
   if (listType) {
-    const start = "start" in props ? props.start : undefined;
-    const hasStart = typeof start === "number" && Number.isFinite(start);
-    if (
-      fragment.lastChild?.nodeName !== listType ||
-      (listType === "OL" && hasStart)
-    ) {
+    if (fragment.lastChild?.nodeName !== listType) {
       const list = doc.createElement(listType);
 
-      if (listType === "OL" && hasStart) {
-        list.setAttribute("start", String(start));
+      if (
+        listType === "OL" &&
+        "start" in props &&
+        props.start &&
+        props?.start !== 1
+      ) {
+        // eslint-disable-next-line @typescript-eslint/no-base-to-string
+        list.setAttribute("start", String(props.start));
       }
       fragment.append(list);
     }
