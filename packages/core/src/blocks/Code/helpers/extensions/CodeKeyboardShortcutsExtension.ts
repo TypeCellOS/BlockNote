@@ -6,6 +6,22 @@ export const CodeKeyboardShortcutsExtension =
     createExtension({
       key,
       keyboardShortcuts: {
+        "Mod-Alt-c": ({ editor }) => {
+          const cursorPosition = editor.getTextCursorPosition();
+
+          if (
+            editor.schema.blockSchema[cursorPosition.block.type].content !==
+            "inline"
+          ) {
+            return false;
+          }
+
+          editor.updateBlock(cursorPosition.block, {
+            type: blockType,
+            props: {},
+          });
+          return true;
+        },
         Delete: ({ editor }) => {
           return editor.transact((tr) => {
             const { block } = editor.getTextCursorPosition();
