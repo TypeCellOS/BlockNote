@@ -66,8 +66,8 @@ export class ServerBlockNoteEditor<
     globalThis.document = this.jsdom.window.document;
     (globalThis as any).window = this.jsdom.window;
     (globalThis as any).window.__TEST_OPTIONS = (
-      prevWindow as any
-    )?.__TEST_OPTIONS;
+      (prevWindow as any) ?? globalThis
+    ).__TEST_OPTIONS;
     try {
       return await fn();
     } finally {

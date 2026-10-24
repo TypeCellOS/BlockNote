@@ -6,7 +6,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vite-plus/test";
 const TEST_APP_DIR = path.resolve(__dirname, "../../../nextjs-test-app");
 let PORT: number;
 let BASE_URL: string;
-const MODE = (process.env.NEXTJS_TEST_MODE || "dev") as "dev" | "build";
+const MODE = process.env.NEXTJS_TEST_MODE as "dev" | "build" | undefined;
 
 let nextProcess: ChildProcess;
 let serverOutput = "";
@@ -16,13 +16,12 @@ let serverErrors = "";
  * Regression test for #942: @blocknote/server-util must work in Next.js
  * App Router server contexts (API routes) with serverExternalPackages.
  *
- * Set NEXTJS_TEST_MODE=build to test against a production build (slower
- * but catches different issues). Defaults to dev mode for fast iteration.
+ * Runs only when NEXTJS_TEST_MODE is set, as it packs the packages and
+ * installs them with npm: `dev`, or `build` for a production build (slower
+ * but catches different issues).
  */
-// TODO: Re-enable once @y/prosemirror v14 compatibility issues are resolved.
-// Currently fails because @y/y no longer exports `Text` (needed by @y/prosemirror's
-// sync-plugin) and stale tarball builds cause missing chunk errors.
-describe.skip(`server-util in Next.js App Router (#942) [${MODE}]`, () => {
+const describeIf = MODE ? describe : describe.skip;
+describeIf(`server-util in Next.js App Router (#942) [${MODE}]`, () => {
   beforeAll(async () => {
     PORT = await getPort({ portRange: [3900, 4100] });
     BASE_URL = `http://localhost:${PORT}`;
