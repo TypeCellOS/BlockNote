@@ -17,7 +17,7 @@ Use the `createReactInlineContentSpec` function to create a custom inline conten
 function createReactInlineContentSpec(
   blockConfig: CustomInlineContentConfig,
   blockImplementation: ReactInlineContentImplementation,
-  extensions?: BlockNoteExtension[],
+  extensions?: (Extension | ExtensionFactoryInstance)[],
 ): InlineContentSpec;
 ```
 
