@@ -282,7 +282,7 @@ importers:
         version: 0.7.1
       docx:
         specifier: ^9.9.0
-        version: 9.9.0
+        version: 9.14.0
       framer-motion:
         specifier: ^12.26.2
         version: 12.38.0(@emotion/is-prop-valid@1.4.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
@@ -5613,7 +5613,7 @@ importers:
         version: 2.8.26
       docx:
         specifier: ^9.9.0
-        version: 9.9.0
+        version: 9.14.0
       react:
         specifier: ^19.2.5
         version: 19.2.5
@@ -5741,7 +5741,7 @@ importers:
         version: 2.8.26
       docx:
         specifier: ^9.9.0
-        version: 9.9.0
+        version: 9.14.0
       mathjax-full:
         specifier: ^3.2.2
         version: 3.2.2
@@ -6179,7 +6179,7 @@ importers:
         version: 6.0.3
       docx:
         specifier: ^9.9.0
-        version: 9.9.0
+        version: 9.14.0
       image-meta:
         specifier: ^0.2.2
         version: 0.2.2
@@ -6629,7 +6629,7 @@ importers:
         version: 10.4.21(postcss@8.5.14)
       docx:
         specifier: ^9.9.0
-        version: 9.9.0
+        version: 9.14.0
       katex:
         specifier: ^0.18.9
         version: 0.18.9
@@ -12927,9 +12927,9 @@ packages:
     resolution: {integrity: sha512-35mSku4ZXK0vfCuHEDAwt55dg2jNajHZ1odvF+8SSr82EsZY4QmXfuWso8oEd8zRhVObSN18aM0CjSdoBX7zIw==}
     engines: {node: '>=0.10.0'}
 
-  docx@9.9.0:
-    resolution: {integrity: sha512-qefptMMO31ZCfVnFANQWSLtnvUrYkqd7cLr+Bi4e+kl4LvYOmdk314iwp8XHHyQs3TPtPcQwqgZgN/MJxT7Ttw==}
-    engines: {node: '>=10'}
+  docx@9.14.0:
+    resolution: {integrity: sha512-3QGcC5CUBvyYZsFPpuKy9Mv1j4BOoKjH9angjjDzrqx2GnnXH6ogt/CUVQ3gexN46yKDsl8gcOFNl0jjvlDxhg==}
+    engines: {node: '>=16'}
 
   dom-accessibility-api@0.5.16:
     resolution: {integrity: sha512-X7BJ2yElsnOJ30pZF4uIIDfBEVgF4XEBxL9Bxhy6dnrm5hkzqmsWHGTiHqRiITNhMyFLyAiWndIJP7Z1NTteDg==}
@@ -15743,10 +15743,6 @@ packages:
   safer-buffer@2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
 
-  sax@1.6.0:
-    resolution: {integrity: sha512-6R3J5M4AcbtLUdZmRv2SygeVaM7IhrLXu9BmnOGmmACak8fiUtOsYNWUS4uK7upbmHIBbLBeFeI//477BKLBzA==}
-    engines: {node: '>=11.0.0'}
-
   saxes@6.0.0:
     resolution: {integrity: sha512-xAg7SOnEhrm5zI3puOOKyy1OMcMlIJZYNJY7xLBwSze0UjhPLnWfj2GF2EpT0jmzaJKIWKHLsaSSajf35bcYnA==}
     engines: {node: '>=v12.22.7'}
@@ -16772,10 +16768,6 @@ packages:
     resolution: {integrity: sha512-+8qTc3zv2UcJ1v9IsSIce37Dl4MQG14Cp7tWrwmy202UaI1wqRukw5QMX1JHsV+DX64yw77EgGsj2s5wGvuMbQ==}
     engines: {node: '>= 16'}
 
-  xml-js@1.6.11:
-    resolution: {integrity: sha512-7rVi2KMfwfWFl+GpPg6m80IVMWXLRjO+PxTq7V2CDhoGak0wzYzFgUY2m4XJ47OGdXd8eLE8EmwfAmdjw7lC1g==}
-    hasBin: true
-
   xml-name-validator@5.0.0:
     resolution: {integrity: sha512-EvGK8EJ3DhaHfbRlETOWAS5pO9MZITeauHKJyb8wyajUfQUenkIg2MvLDTZ4T/TgIcm3HU0TFBgWWboAZ30UHg==}
     engines: {node: '>=18'}
@@ -16783,9 +16775,6 @@ packages:
   xml-parser-xo@4.1.5:
     resolution: {integrity: sha512-TxyRxk9sTOUg3glxSIY6f0nfuqRll2OEF8TspLgh5mZkLuBgheCn3zClcDSGJ58TvNmiwyCCuat4UajPud/5Og==}
     engines: {node: '>= 16'}
-
-  xml@1.0.1:
-    resolution: {integrity: sha512-huCv9IH9Tcf95zuYCsQraZtWnJvBtLVE0QHMOs8bWyZAFZNDcYjsPq1nEx8jKA9y+Beo9v+7OBPRisQTjinQMw==}
 
   xmlchars@2.2.0:
     resolution: {integrity: sha512-JZnDKK8B0RCDw84FNdDAIpZK+JuJw+s7Lz8nksI7SIuU3UXJJslUthsi+uWBUYOwPFwW7W7PRLRfUKpxjtjFCw==}
@@ -23247,14 +23236,12 @@ snapshots:
     dependencies:
       esutils: 2.0.3
 
-  docx@9.9.0:
+  docx@9.14.0:
     dependencies:
       '@types/node': 25.9.5
       hash.js: 1.1.7
       jszip: 3.10.1
       nanoid: 6.0.1
-      xml: 1.0.1
-      xml-js: 1.6.11
 
   dom-accessibility-api@0.5.16: {}
 
@@ -26621,8 +26608,6 @@ snapshots:
 
   safer-buffer@2.1.2: {}
 
-  sax@1.6.0: {}
-
   saxes@6.0.0:
     dependencies:
       xmlchars: 2.2.0
@@ -27840,15 +27825,9 @@ snapshots:
     dependencies:
       xml-parser-xo: 4.1.5
 
-  xml-js@1.6.11:
-    dependencies:
-      sax: 1.6.0
-
   xml-name-validator@5.0.0: {}
 
   xml-parser-xo@4.1.5: {}
-
-  xml@1.0.1: {}
 
   xmlchars@2.2.0: {}
 
