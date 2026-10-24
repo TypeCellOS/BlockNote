@@ -111,6 +111,19 @@ export class ExtensionManager {
         this.addExtension(extension);
       }
     }
+
+    // Add the extensions from inline content specs (the built-in text and link
+    // specs have none)
+    for (const inlineContent of Object.values(
+      this.editor.schema.inlineContentSpecs,
+    )) {
+      if (!("extensions" in inlineContent)) {
+        continue;
+      }
+      for (const extension of inlineContent.extensions ?? []) {
+        this.addExtension(extension);
+      }
+    }
   }
 
   private mountExtension(extension: Extension): void {
