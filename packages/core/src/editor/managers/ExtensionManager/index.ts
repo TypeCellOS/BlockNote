@@ -124,6 +124,13 @@ export class ExtensionManager {
         this.addExtension(extension);
       }
     }
+
+    // Add the extensions from style specs
+    for (const style of Object.values(this.editor.schema.styleSpecs)) {
+      for (const extension of style.extensions ?? []) {
+        this.addExtension(extension);
+      }
+    }
   }
 
   private mountExtension(extension: Extension): void {

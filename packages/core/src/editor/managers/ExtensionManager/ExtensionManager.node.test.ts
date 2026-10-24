@@ -245,6 +245,8 @@ it("registers extensions and plugins from editor options, nested extensions, and
   const nested = registration("nested");
   const block = registration("block");
   const inline = registration("inline");
+  const style = registration("style");
+  const styleChild = registration("style-child");
   const blockSpec = createBlockSpec(
     { type: "customBlock", propSchema: {}, content: "inline" },
     { render },
@@ -256,6 +258,13 @@ it("registers extensions and plugins from editor options, nested extensions, and
   const styleSpec = createStyleSpec(
     { type: "customStyle", propSchema: "boolean" },
     { render },
+    [
+      style.extension(),
+      createExtension({
+        key: "style-parent",
+        blockNoteExtensions: [styleChild.extension()],
+      }),
+    ],
   );
   const inlinePlugin = new Plugin({ key: new PluginKey("inline-node") });
   const stylePlugin = new Plugin({ key: new PluginKey("style-mark") });
@@ -309,6 +318,8 @@ it("registers extensions and plugins from editor options, nested extensions, and
     nested,
     block,
     inline,
+    style,
+    styleChild,
   ]) {
     expect(editor.getExtension(extension)).toBeDefined();
     expect(plugins).toContain(plugin);
