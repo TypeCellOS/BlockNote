@@ -50,6 +50,10 @@ async function settleFrames(count = 3) {
   }
 }
 
+function selectionIsEmpty(): boolean {
+  return (window as any).ProseMirror.state.selection.empty;
+}
+
 function activeUrlInput() {
   const active = document.activeElement;
   return active instanceof HTMLInputElement && active.name === "url"
@@ -103,6 +107,31 @@ describe("Mobile formatting toolbar", () => {
     await settleFrames();
 
     expect(document.querySelector(MOBILE_TOOLBAR_SELECTOR)).toBeNull();
+    expect(document.querySelector(".bn-formatting-toolbar")).toBeNull();
+  });
+
+  // iOS Safari hands focus back to the editor without the keyboard after a
+  // tap on its collapsed address bar. The selection used to survive the blur,
+  // so the desktop toolbar showed over it, and without the keyboard no tap
+  // could clear it.
+  test("focus returning without the keyboard brings back neither the selection nor a toolbar", async () => {
+    await focusOnEditor();
+    await userEvent.keyboard("Mobile toolbar");
+    await userEvent.keyboard("{Shift>}{Home}{/Shift}");
+
+    await page.viewport(VIEWPORT_WIDTH, KEYBOARD_OPEN);
+    await waitForSelector(MOBILE_TOOLBAR_SELECTOR);
+
+    const editorElement = document.querySelector<HTMLElement>(EDITOR_SELECTOR)!;
+    editorElement.blur();
+    await page.viewport(VIEWPORT_WIDTH, KEYBOARD_CLOSED);
+    await settleFrames();
+
+    // No gesture: the keyboard stays closed.
+    editorElement.focus();
+    await settleFrames();
+
+    expect(selectionIsEmpty()).toBe(true);
     expect(document.querySelector(".bn-formatting-toolbar")).toBeNull();
   });
 
