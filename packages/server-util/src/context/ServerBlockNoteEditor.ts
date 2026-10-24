@@ -26,11 +26,52 @@ import {
 import { BlockNoteViewRaw } from "@blocknote/react";
 import { Node } from "@tiptap/pm/model";
 import * as jsdom from "jsdom";
+import { createRequire } from "node:module";
 import * as React from "react";
 import { createElement } from "react";
 import { flushSync } from "react-dom";
 import { createRoot } from "react-dom/client";
 import type * as Y from "yjs";
+
+type ReactScheduler = {
+  unstable_scheduleCallback: (priority: number, callback: () => void) => void;
+  unstable_IdlePriority: number;
+};
+
+/**
+ * The scheduler instance that `react-dom` uses, resolved from its location.
+ * `undefined` when `react-dom` can't be resolved at runtime, e.g. in a bundle.
+ */
+function reactDOMScheduler(): ReactScheduler | undefined {
+  // `__filename` in the CommonJS build, `import.meta.url` in the ES build.
+  const require = createRequire(
+    typeof __filename === "string" ? __filename : import.meta.url,
+  );
+  let reactDOMPath: string;
+  try {
+    reactDOMPath = require.resolve("react-dom");
+  } catch {
+    return undefined;
+  }
+  return createRequire(reactDOMPath)("scheduler") as ReactScheduler;
+}
+
+/**
+ * Resolves once React's scheduler has run the work queued before it, or after
+ * one turn of the event loop when the scheduler can't be found.
+ */
+function reactSchedulerIdle() {
+  const scheduler = reactDOMScheduler();
+  return new Promise<void>((resolve) => {
+    if (scheduler) {
+      scheduler.unstable_scheduleCallback(scheduler.unstable_IdlePriority, () =>
+        resolve(),
+      );
+    } else {
+      setImmediate(resolve);
+    }
+  });
+}
 
 /**
  * Use the ServerBlockNoteEditor to interact with BlockNote documents in a server (nodejs) environment.
@@ -71,8 +112,14 @@ export class ServerBlockNoteEditor<
     try {
       return await fn();
     } finally {
-      globalThis.document = prevDocument;
-      globalThis.window = prevWindow;
+      try {
+        // React leaves work queued after a render, which reads `window.event`
+        // in its development build. It runs before the globals are restored.
+        await reactSchedulerIdle();
+      } finally {
+        globalThis.document = prevDocument;
+        globalThis.window = prevWindow;
+      }
     }
   }
 
