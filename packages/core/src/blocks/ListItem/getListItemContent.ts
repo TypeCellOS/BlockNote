@@ -77,10 +77,11 @@ export function getListItemContent(
 
   // Structure above is `blockGroup<blockContainer<any>[]>`
   // We want to extract the first `blockContainer` node's content, and see if it is a text block.
-  const listItemsFirstChild = blockGroupNode.firstChild?.firstChild;
+  const firstBlockContainer = blockGroupNode.firstChild;
+  const listItemsFirstChild = firstBlockContainer?.firstChild;
 
   // If the first node is not a text block, then it's first child is not compatible with the list item node.
-  if (!listItemsFirstChild?.isTextblock) {
+  if (!firstBlockContainer || !listItemsFirstChild?.isTextblock) {
     // So, we do not try inserting anything into the list item, and instead return anything we found as children for the list item.
     return Fragment.from(blockGroupNode);
   }
@@ -93,11 +94,13 @@ export function getListItemContent(
     listItemsFirstChild.content,
   );
 
-  // We have `blockGroup<listItemsFirstChild, ...blockContainer<any>[]>`
-  // We want to extract out the rest of the nodes as `<...blockContainer<any>[]>`
-  const remainingListItemChildren = blockGroupNode.content.cut(
-    // +2 for the `blockGroup` node's start and end markers
-    listItemsFirstChild.nodeSize + 2,
+  // We have `blockGroup<blockContainer<listItemsFirstChild, blockGroup?>, ...blockContainer<any>[]>`
+  // We want to extract out the rest of the nodes as `<...blockContainer<any>[]>`.
+  // The first block's own children (e.g. a parsed `<details>` body) come first.
+  const firstBlockChildren =
+    firstBlockContainer.maybeChild(1)?.content ?? Fragment.empty;
+  const remainingListItemChildren = firstBlockChildren.append(
+    blockGroupNode.content.cut(firstBlockContainer.nodeSize),
   );
   const hasRemainingListItemChildren = remainingListItemChildren.size > 0;
 
