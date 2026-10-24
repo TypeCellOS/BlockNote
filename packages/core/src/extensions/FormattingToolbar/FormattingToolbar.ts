@@ -1,9 +1,10 @@
-import { TextSelection } from "prosemirror-state";
+import { Selection, TextSelection } from "prosemirror-state";
 
 import {
   createExtension,
   createStore,
 } from "../../editor/BlockNoteExtension.js";
+import { isTouchDevice } from "../../util/browser.js";
 
 export const FormattingToolbarExtension = createExtension(({ editor }) => {
   const store = createStore(false);
@@ -83,6 +84,19 @@ export const FormattingToolbarExtension = createExtension(({ editor }) => {
         (_editor, { focused }) => {
           if (!focused) {
             store.setState(false);
+            // On touch, leaving the editor also ends the selection. A phone
+            // can hand focus back without the keyboard (see the window blur
+            // listener below): the old selection then showed the desktop
+            // toolbar, and without the keyboard no tap cleared it. A tablet
+            // with a mouse or hardware keyboard loses the selection on blur
+            // too, unlike a desktop.
+            if (isTouchDevice()) {
+              editor.transact((tr) => {
+                if (!tr.selection.empty) {
+                  tr.setSelection(Selection.near(tr.selection.$head));
+                }
+              });
+            }
             return;
           }
           if (preventShowWhileMouseDown || preventShowWhileDragging) {
@@ -98,6 +112,21 @@ export const FormattingToolbarExtension = createExtension(({ editor }) => {
         },
         { includeEditorUI: true },
       );
+      // A tap on iOS Safari's collapsed address bar only blurs the window: the
+      // editor keeps DOM focus, so no focusout reaches the handler above, and
+      // Safari later hands that focus back without the keyboard. On touch,
+      // drop the editor's focus along with the window's so the handler runs.
+      if (isTouchDevice()) {
+        window.addEventListener(
+          "blur",
+          () => {
+            if (editor.isFocused()) {
+              editor.blur();
+            }
+          },
+          { signal },
+        );
+      }
 
       // To mimic Notion's behavior, we listen to the mouse down event to set the `preventShowWhileMouseDown` flag
       dom.addEventListener(
