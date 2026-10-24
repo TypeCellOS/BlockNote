@@ -1,5 +1,27 @@
 @import "@blocknote/react/style.css";
 
+/* Use Shadcn's semantic colors (including .dark changes) when provided by
+   the host. Missing tokens fall back to the shared BlockNote theme. Keep
+   specificity low so direct --pele-* customizations still take precedence. */
+:where(.bn-root.bn-shadcn) {
+  --pele-bg: var(--background, var(--bn-colors-editor-background));
+  --pele-fg: var(--foreground, var(--bn-colors-editor-text));
+  --pele-muted: var(--muted-foreground, var(--bn-colors-side-menu));
+  --pele-line: var(--foreground, var(--bn-colors-editor-text));
+  --pele-surface: var(--muted, var(--bn-colors-hovered-background));
+  --pele-surface-alt: var(--card, var(--bn-colors-menu-background));
+  --pele-border: var(--border, var(--bn-colors-border));
+  --pele-accent: var(--primary, var(--bn-colors-highlights-blue-text));
+  --pele-critical: var(--destructive, var(--bn-colors-highlights-red-text));
+  --pele-error: var(--destructive, var(--bn-colors-highlights-red-text));
+  --pele-radius: var(--radius, var(--bn-border-radius));
+  --pele-series-1: var(--chart-1, var(--bn-colors-highlights-blue-text));
+  --pele-series-2: var(--chart-2, var(--bn-colors-highlights-orange-text));
+  --pele-series-3: var(--chart-3, var(--bn-colors-highlights-green-text));
+  --pele-series-4: var(--chart-4, var(--bn-colors-highlights-red-text));
+  --pele-series-5: var(--chart-5, var(--bn-colors-highlights-purple-text));
+}
+
 .bn-shadcn svg:not([class*="size-"]) {
   width: revert;
   height: revert;

@@ -43,10 +43,8 @@ function errorText(
  * diagrams as vector SVG images (crisp at any zoom), in a tagged Figure
  * carrying the diagram source as its alt text (PDF/UA requires figures to
  * have one). Labels render in the exporter's own `fontFamily`, matching the
- * document. Rendering runs in the browser by default (Mermaid can't render
- * outside of it); when exporting elsewhere (e.g. server-side), pass a
- * `renderDiagram` function backed by e.g. `@mermaid-js/mermaid-cli` or a
- * Kroki server (raster output like PNG works too). Invalid sources render
+ * document. Pele renders SVG in browsers and on the server. A custom
+ * `renderDiagram` function can override it (PNG works too). Invalid sources render
  * an error placeholder (mirroring the editor):
  *
  * ```ts
@@ -83,14 +81,7 @@ export function createDiagramBlockMapping(options?: {
       .join(", ")}, sans-serif`;
     const renderDiagram =
       options?.renderDiagram ??
-      (typeof document !== "undefined"
-        ? (s: string) => renderDiagramToSVG(s, { fontFamily })
-        : undefined);
-    if (!renderDiagram) {
-      throw new Error(
-        "Rendering diagrams to images requires a browser. When exporting elsewhere, pass a `renderDiagram` function to `createDiagramBlockMapping` (e.g. backed by @mermaid-js/mermaid-cli or a Kroki server).",
-      );
-    }
+      ((s: string) => renderDiagramToSVG(s, { fontFamily }));
 
     const result = await renderDiagram(source);
     if (result.error !== undefined) {
@@ -117,7 +108,7 @@ export function createDiagramBlockMapping(options?: {
 
 /**
  * Typst block mapping for `@blocknote/diagram-block` with the default
- * options - see {@link createDiagramBlockMapping}. Browser-only; when
- * exporting elsewhere, use the factory to pass a `renderDiagram` function.
+ * options - see {@link createDiagramBlockMapping}. Works in browsers and
+ * on the server; use the factory to override the renderer.
  */
 export const diagramBlockMapping = createDiagramBlockMapping();

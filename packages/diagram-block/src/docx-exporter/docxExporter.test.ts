@@ -67,7 +67,7 @@ describe("docx exporter mappings", () => {
   });
 
   it("should throw a descriptive error without a renderer outside the browser", async () => {
-    // The built-in Mermaid renderer can't work here, and silently degrading
+    // The built-in PNG rasterizer can't work here, and silently degrading
     // is worse than failing loudly - the error names the `renderDiagram`
     // option to pass.
     const exporter = createExporter(diagramBlockMapping);

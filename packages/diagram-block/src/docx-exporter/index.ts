@@ -47,10 +47,9 @@ function errorParagraph(
 
 /**
  * Creates a DOCX block mapping for `@blocknote/diagram-block` that embeds
- * diagrams as images. Rendering runs in the browser by default (Mermaid
- * can't render outside of it); when exporting elsewhere (e.g. server-side),
- * pass a `renderDiagram` function backed by e.g. `@mermaid-js/mermaid-cli`
- * or a Kroki server. Invalid sources render an error placeholder (mirroring
+ * diagrams as PNG images using Pele and browser canvas. When exporting
+ * server-side, pass a `renderDiagram` function with a server-side rasterizer.
+ * Invalid sources render an error placeholder (mirroring
  * the editor):
  *
  * ```ts
@@ -82,7 +81,7 @@ export function createDiagramBlockMapping(options?: {
       (typeof document !== "undefined" ? renderDiagramToImage : undefined);
     if (!renderDiagram) {
       throw new Error(
-        "Rendering diagrams to images requires a browser. When exporting elsewhere, pass a `renderDiagram` function to `createDiagramBlockMapping` (e.g. backed by @mermaid-js/mermaid-cli or a Kroki server).",
+        "Default PNG rasterization requires a browser. When exporting elsewhere, pass a `renderDiagram` function with a server-side rasterizer to `createDiagramBlockMapping`.",
       );
     }
 
