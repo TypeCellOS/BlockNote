@@ -56,7 +56,10 @@ function mount() {
 }
 
 afterEach(() => {
-  sideMenu().blockDragEnd();
+  // Ends the drag as the browser does, which removes the drag image.
+  editor.prosemirrorView.dom.parentElement!.dispatchEvent(
+    new DragEvent("dragend", { bubbles: true }),
+  );
   editor._tiptapEditor.destroy();
   root.remove();
 });
