@@ -226,6 +226,10 @@ export function createReactInlineContentSpec<
                   contentRef={(element) => {
                     ref(element);
                     if (element) {
+                      // The initial React ref runs before TipTap creates the
+                      // content DOM. Mark its target so the node view can attach
+                      // the content there once its constructor resumes.
+                      element.dataset.nodeViewContent = "";
                       element.dataset.editable = "";
                     }
                   }}
