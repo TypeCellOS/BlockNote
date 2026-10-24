@@ -1,4 +1,5 @@
 import { Component, ReactNode } from "react";
+import { BlockNoteEditor } from "@blocknote/core";
 import { createRoot, Root } from "react-dom/client";
 import { afterEach, beforeEach, expect, test, vi } from "vite-plus/test";
 
@@ -35,14 +36,16 @@ class Boundary extends Component<
 }
 
 function Preview({ source }: { source: string }) {
-  const { svg, error } = useDiagramSVG(source);
+  const { svg, error } = useDiagramSVG(source, editor);
   return <span>{error ?? svg}</span>;
 }
 
 let host: HTMLDivElement;
 let root: Root;
+let editor: BlockNoteEditor;
 
 beforeEach(() => {
+  editor = BlockNoteEditor.create();
   host = document.createElement("div");
   document.body.append(host);
   // These tests deliberately exercise the boundary, not console reporting.
@@ -51,6 +54,7 @@ beforeEach(() => {
 
 afterEach(() => {
   root.unmount();
+  editor.unmount();
   host.remove();
   vi.resetAllMocks();
 });

@@ -92,7 +92,7 @@
   "dependencies": {
     "@blocknote/core": "workspace:^",
     "@blocknote/react": "workspace:^",
-    "pele": "^1.5.2"
+    "pele": "^1.9.0"
   },
   "devDependencies": {
     "@blocknote/shared": "workspace:^",
