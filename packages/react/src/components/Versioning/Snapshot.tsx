@@ -4,7 +4,7 @@ import {
   type VersionSnapshot,
 } from "@blocknote/core/extensions";
 import { useEffect, useRef, type KeyboardEvent } from "react";
-import { GoDiff } from "react-icons/go";
+import { LuFileDiff } from "react-icons/lu";
 import { RiMoreFill } from "react-icons/ri";
 
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
@@ -13,7 +13,7 @@ import { usePortalElement } from "../../editor/PortalElementOverride.js";
 import { useVersioning, useVersioningState } from "./useVersioning.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { usePreviewRow } from "./usePreviewRow.js";
-import { useSnapshotLabel } from "./useVersionUsers.js";
+import { useSnapshotUsers } from "./useSnapshotUsers.js";
 import { VersionName } from "./VersionName.js";
 import { useVersioningSidebar } from "./VersioningSidebarContext.js";
 import { VersionSnapshotProvider } from "./VersionSnapshotContext.js";
@@ -109,7 +109,10 @@ export function Snapshot(props: {
   const state = getSnapshotState(view, snapshot, isCurrent);
   const selected = isSelectedState(state);
   const comparing = state === "comparison-baseline";
-  const secondaryLabel = useSnapshotLabel(snapshot);
+  const users = useSnapshotUsers(snapshot);
+  const authorLabel = users
+    ?.map((user) => (typeof user === "string" ? user : user.username))
+    .join(", ");
   const dateString = formatVersionDate(snapshot.createdAt);
   const rowDate =
     isCurrent || isStart || snapshot.name !== undefined
@@ -132,7 +135,7 @@ export function Snapshot(props: {
     snapshot.name ?? placeholder,
     rowDate,
     comparing ? dict.versioning.comparing_to : undefined,
-    secondaryLabel,
+    authorLabel,
   ]
     .filter(Boolean)
     .join(", ");
@@ -261,9 +264,9 @@ export function Snapshot(props: {
         }
         date={rowDate}
         restoredFrom={restoredFrom}
-        secondaryLabel={secondaryLabel}
+        users={users}
         comparingLabel={comparing ? dict.versioning.comparing_to : undefined}
-        comparingIcon={comparing ? <GoDiff size={14} /> : undefined}
+        comparingIcon={comparing ? <LuFileDiff size={14} /> : undefined}
       />
     </VersionSnapshotProvider>
   );

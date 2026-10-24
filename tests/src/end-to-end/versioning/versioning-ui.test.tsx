@@ -26,13 +26,19 @@ import { useEffect, useState } from "react";
 import { userEvent } from "../../utils/context.js";
 import { expectElement } from "../../utils/editor.js";
 import { clickAt, getRect } from "../../utils/mouse.js";
+import { screenshotFull } from "../../utils/screenshotFull.js";
 
 const CURRENT: VersionSnapshot = {
   id: "current",
   createdAt: Date.UTC(2024, 0, 4),
 };
 const SNAPSHOTS: VersionSnapshot[] = [
-  { id: "named", createdAt: Date.UTC(2024, 0, 3), name: "Draft" },
+  {
+    id: "named",
+    createdAt: Date.UTC(2024, 0, 3),
+    name: "Draft",
+    by: ["alex", "morgan"],
+  },
   { id: "automatic", createdAt: Date.UTC(2024, 0, 2) },
 ];
 
@@ -62,6 +68,22 @@ function createEndpoints(): VersionStorage<unknown[], unknown> {
 
 const Versions = createVersioningExtension(() => ({
   storage: createEndpoints(),
+  resolveUsers: async () => [
+    {
+      id: "alex",
+      username: "Alexandra Johnson",
+      avatarUrl: "",
+      color: "#c92a2a",
+      colorLight: "#ffa8a8",
+    },
+    {
+      id: "morgan",
+      username: "Morgan Williams",
+      avatarUrl: "",
+      color: "#1864ab",
+      colorLight: "#a5d8ff",
+    },
+  ],
   adapter: {
     supportsComparison: true,
     open() {
@@ -190,12 +212,17 @@ test("renders every versioning skin in light and dark themes", async () => {
     expect(
       document.querySelectorAll('[role="region"][aria-label="History"]'),
     ).toHaveLength(6);
+    expect(document.querySelectorAll(".bn-snapshot-users")).toHaveLength(6);
+    for (const authors of document.querySelectorAll(".bn-snapshot-users")) {
+      expect(authors.textContent).toContain("Alexandra Johnson");
+      expect(authors.textContent).toContain("Morgan Williams");
+    }
   });
 
   const matrix = document.querySelector<HTMLElement>(
     '[data-test="versioning-skin-matrix"]',
   )!;
-  await expectElement(matrix).toMatchScreenshot("versioning-skins-light-dark");
+  await screenshotFull(matrix, "versioning-skins-light-dark");
 });
 
 test.each(
@@ -301,7 +328,7 @@ test.each(["mantine", "ariakit", "shadcn"] as const)(
     )!;
     const rows = await waitForRows(region);
     await clickElement(
-      region.querySelector('button[aria-label="Turn on comparison"]')!,
+      region.querySelector('button[aria-label="Show changes"]')!,
     );
     await clickElement(rows[1]!);
     await vi.waitFor(() =>

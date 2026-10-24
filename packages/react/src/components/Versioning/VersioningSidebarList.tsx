@@ -43,6 +43,7 @@ export function VersioningSidebarList() {
     state.mode === "versions" && state.history.status === "pending";
 
   const listId = useId();
+  const initiallyFocused = useRef(false);
   const focusedRowId = useRef<string | undefined>(undefined);
   const listRef = useRef<HTMLDivElement>(null);
   const paginationRef = useRef<HTMLDivElement>(null);
@@ -91,6 +92,11 @@ export function VersioningSidebarList() {
   }, [list.loaded, listing, listError, nextCursor, rows, versioning]);
 
   useIsomorphicLayoutEffect(() => {
+    if (!initiallyFocused.current && rows.length > 0) {
+      initiallyFocused.current = true;
+      focusRow(0);
+      return;
+    }
     if (!focusedRowId.current) {
       return;
     }
@@ -148,28 +154,40 @@ export function VersioningSidebarList() {
   }
 
   function handleKeyDown(event: KeyboardEvent, index: number) {
-    // Text inputs (the inline rename) and the row menu handle their own keys.
-    const target = event.target as HTMLElement;
-    if (target.tagName === "INPUT" || target.closest(".bn-snapshot-menu")) {
+    // Descendant controls own their keys, including portaled menu items whose
+    // events still bubble through the row in React.
+    if (event.target !== event.currentTarget) {
       return;
+    }
+
+    function scrubTo(destination: number) {
+      const clamped = Math.max(0, Math.min(destination, rows.length - 1));
+      if (event.repeat && clamped === index) {
+        return;
+      }
+      focusRow(clamped);
+      // Start immediately rather than awaiting a previous preview. The versioning
+      // extension cancels superseded loads so late results cannot select a row
+      // that keyboard focus has already left.
+      void run(() => previewRow(rows[clamped]!.snapshot));
     }
 
     switch (event.key) {
       case "ArrowDown":
         event.preventDefault();
-        focusRow(index + 1);
+        scrubTo(index + 1);
         break;
       case "ArrowUp":
         event.preventDefault();
-        focusRow(index - 1);
+        scrubTo(index - 1);
         break;
       case "Home":
         event.preventDefault();
-        focusRow(0);
+        scrubTo(0);
         break;
       case "End":
         event.preventDefault();
-        focusRow(rows.length - 1);
+        scrubTo(rows.length - 1);
         break;
       case "Enter":
       case " ":
