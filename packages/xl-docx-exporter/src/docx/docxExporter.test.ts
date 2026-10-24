@@ -13,7 +13,15 @@ import {
   TextWriter,
   ZipReader,
 } from "@zip.js/zip.js";
-import { Packer, Paragraph, Table, TableCell, TableRow, TextRun } from "docx";
+import {
+  Document,
+  Packer,
+  Paragraph,
+  Table,
+  TableCell,
+  TableRow,
+  TextRun,
+} from "docx";
 import { describe, expect, it } from "vite-plus/test";
 import xmlFormat from "xml-formatter";
 import { docxDefaultSchemaMappings } from "./defaultSchema/index.js";
@@ -63,7 +71,7 @@ describe("exporter", () => {
     ).toMatchFileSnapshot("__snapshots__/basic/document.xml");
     await expect(
       prettify(await getZIPEntryContent(entries, "word/styles.xml")),
-    ).toMatchFileSnapshot("__snapshots__/basic/styles.xml");
+    ).toMatchFileSnapshot(await stylesSnapshotPath("basic"));
   });
 
   it(
@@ -597,10 +605,12 @@ describe("exporter", () => {
     { timeout: 10000 },
     async () => {
       const entries = await exportAndGetStylesEntries();
+      const styles = await getZIPEntryContent(entries, "word/styles.xml");
 
-      await expect(
-        prettify(await getZIPEntryContent(entries, "word/styles.xml")),
-      ).toMatchFileSnapshot("__snapshots__/noLocale/styles.xml");
+      expect(styles).not.toMatch(/<w:lang\b/);
+      await expect(prettify(styles)).toMatchFileSnapshot(
+        await stylesSnapshotPath("noLocale"),
+      );
     },
   );
 
@@ -609,13 +619,34 @@ describe("exporter", () => {
     { timeout: 10000 },
     async () => {
       const entries = await exportAndGetStylesEntries("fr-FR");
+      const styles = await getZIPEntryContent(entries, "word/styles.xml");
 
-      await expect(
-        prettify(await getZIPEntryContent(entries, "word/styles.xml")),
-      ).toMatchFileSnapshot("__snapshots__/withLocale/styles.xml");
+      expect(styles).toContain('<w:lang w:val="fr-FR"');
+      await expect(prettify(styles)).toMatchFileSnapshot(
+        await stylesSnapshotPath("withLocale"),
+      );
     },
   );
 });
+
+async function stylesSnapshotPath(
+  scenario: "basic" | "noLocale" | "withLocale",
+) {
+  // docx 9.14 adds Bibliography, TOC1-9 and LineNumber defaults. Keep full
+  // reviewed snapshots for both default sets, rather than stripping styles or
+  // making the locked 9.9 output adopt newer defaults. Probe a separate plain
+  // Document, NOT the exporter output: losing a style in our export must fail,
+  // not silently select a different baseline. Unreviewed XML changes still fail.
+  const control = new Document({ sections: [{ children: [] }] });
+  const entries = await new ZipReader(
+    new BlobReader(await Packer.toBlob(control)),
+  ).getEntries();
+  const styles = await getZIPEntryContent(entries, "word/styles.xml");
+  const file = styles.includes('w:styleId="TOC1"')
+    ? "styles-docx-9.14.xml"
+    : "styles.xml";
+  return `__snapshots__/${scenario}/${file}`;
+}
 
 function prettify(sourceXml: string) {
   let ret = xmlFormat(sourceXml);
