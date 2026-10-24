@@ -1,26 +1,32 @@
-// @vitest-environment node
+// @vitest-environment jsdom
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Extension as TiptapExtension } from "@tiptap/core";
 import { afterEach, describe, expect, it } from "vite-plus/test";
 
+import { BlockNoteSchema } from "../../../blocks/BlockNoteSchema.js";
+import { createBlockSpec } from "../../../schema/blocks/createSpec.js";
+import { createInlineContentSpec } from "../../../schema/inlineContent/createSpec.js";
+import { createStyleSpec } from "../../../schema/styles/createSpec.js";
 import { createExtension } from "../../BlockNoteExtension.js";
 import { BlockNoteEditor } from "../../BlockNoteEditor.js";
 
-const editors: BlockNoteEditor[] = [];
+const editors: Array<{ unmount(): void }> = [];
+const hosts: HTMLElement[] = [];
 afterEach(() => {
   for (const editor of editors.splice(0)) {
-    editor._tiptapEditor.destroy();
+    editor.unmount();
+  }
+  for (const host of hosts.splice(0)) {
+    host.remove();
   }
 });
 
-function rebuildPlugins(editor: BlockNoteEditor) {
-  // This is the state-only step Tiptap performs on every mount. No view is
-  // required to prove that its plugin source disagrees with BlockNote's registry.
-  editor.prosemirrorView.updateState(
-    editor.prosemirrorState.reconfigure({
-      plugins: editor._tiptapEditor.extensionManager.plugins,
-    }),
-  );
+function remountEditor(editor: Pick<BlockNoteEditor, "mount" | "unmount">) {
+  editor.unmount();
+  const host = document.createElement("div");
+  document.body.append(host);
+  hosts.push(host);
+  editor.mount(host);
 }
 
 describe("runtime extension plugin source", () => {
@@ -66,7 +72,7 @@ describe("runtime extension plugin source", () => {
       ],
     });
     editors.push(editor);
-    rebuildPlugins(editor);
+    remountEditor(editor);
     editor.replaceBlocks(editor.document, [
       { type: "paragraph", content: "Keep content" },
     ]);
@@ -78,7 +84,7 @@ describe("runtime extension plugin source", () => {
     expect(key.getState(editor.prosemirrorState)).toBe(2);
     expect(retainedKey.getState(editor.prosemirrorState)).toBe(99);
     expect(editor.prosemirrorState.doc.textContent).toBe("Keep content");
-    rebuildPlugins(editor);
+    remountEditor(editor);
     expect(key.getState(editor.prosemirrorState)).toBe(2);
   });
   it("does not reinstall a removed extension", () => {
@@ -89,10 +95,10 @@ describe("runtime extension plugin source", () => {
     }));
     const editor = BlockNoteEditor.create({ extensions: [extension()] });
     editors.push(editor);
-    rebuildPlugins(editor);
+    remountEditor(editor);
     expect(key.get(editor.prosemirrorState)).toBeDefined();
     editor.unregisterExtension(extension);
-    rebuildPlugins(editor);
+    remountEditor(editor);
     expect(key.get(editor.prosemirrorState)).toBeUndefined();
   });
 
@@ -107,13 +113,13 @@ describe("runtime extension plugin source", () => {
     });
     const editor = BlockNoteEditor.create();
     editors.push(editor);
-    rebuildPlugins(editor);
+    remountEditor(editor);
     editor.registerExtension({ key: "added", prosemirrorPlugins: [plugin] });
     editor.replaceBlocks(editor.document, [
       { type: "paragraph", content: "Changed" },
     ]);
     expect(key.getState(editor.prosemirrorState)).toBe(1);
-    rebuildPlugins(editor);
+    remountEditor(editor);
     expect(key.get(editor.prosemirrorState)).toBe(plugin);
     expect(key.getState(editor.prosemirrorState)).toBe(1);
   });
@@ -130,12 +136,12 @@ describe("runtime extension plugin source", () => {
     };
     const editor = BlockNoteEditor.create({ extensions: [() => original] });
     editors.push(editor);
-    rebuildPlugins(editor);
+    remountEditor(editor);
     editor.replaceExtension(original, replacement);
     expect(editor.prosemirrorState.plugins.at(-1)).toBe(
       replacement.prosemirrorPlugins[0],
     );
-    rebuildPlugins(editor);
+    remountEditor(editor);
     expect(key.get(editor.prosemirrorState)).toBe(
       replacement.prosemirrorPlugins[0],
     );
@@ -162,10 +168,10 @@ describe("runtime extension plugin source", () => {
       ],
     });
     editors.push(editor);
-    rebuildPlugins(editor);
+    remountEditor(editor);
     editor.registerExtension({ key: "runtime", prosemirrorPlugins: [added] });
     expect(editor.prosemirrorState.plugins.at(-1)).toBe(added);
-    rebuildPlugins(editor);
+    remountEditor(editor);
     expect(editor.prosemirrorState.plugins.at(-1)).toBe(added);
   });
 
@@ -206,4 +212,108 @@ describe("runtime extension plugin source", () => {
     expect(remove(editor, "first")).toBe(first);
     expect(remove(editor, ["second"])).toEqual([second]);
   });
+});
+
+it("registers extensions and plugins from editor options, nested extensions, and schema specs", () => {
+  function render() {
+    const dom = document.createElement("span");
+    return { dom, contentDOM: dom };
+  }
+
+  function registration(key: string) {
+    const plugin = new Plugin({ key: new PluginKey(key) });
+    const nestedPlugin = new Plugin({ key: new PluginKey(`${key}-nested`) });
+    const extension = createExtension(() => ({
+      key,
+      prosemirrorPlugins: [plugin],
+      tiptapExtensions: [
+        TiptapExtension.create({
+          name: `${key}-tiptap`,
+          addExtensions: () => [
+            TiptapExtension.create({
+              name: `${key}-nested`,
+              addProseMirrorPlugins: () => [nestedPlugin],
+            }),
+          ],
+        }),
+      ],
+    }));
+    return { extension, plugin, nestedPlugin };
+  }
+
+  const options = registration("options");
+  const nested = registration("nested");
+  const block = registration("block");
+  const inline = registration("inline");
+  const blockSpec = createBlockSpec(
+    { type: "customBlock", propSchema: {}, content: "inline" },
+    { render },
+  )();
+  const inlineSpec = createInlineContentSpec(
+    { type: "customInline", propSchema: {}, content: "styled" },
+    { render },
+  );
+  const styleSpec = createStyleSpec(
+    { type: "customStyle", propSchema: "boolean" },
+    { render },
+  );
+  const inlinePlugin = new Plugin({ key: new PluginKey("inline-node") });
+  const stylePlugin = new Plugin({ key: new PluginKey("style-mark") });
+  const schema = BlockNoteSchema.create().extend({
+    blockSpecs: {
+      customBlock: { ...blockSpec, extensions: [block.extension()] },
+    },
+    inlineContentSpecs: {
+      customInline: {
+        ...inlineSpec,
+        extensions: [inline.extension()],
+        implementation: {
+          ...inlineSpec.implementation,
+          node: inlineSpec.implementation.node.extend({
+            addProseMirrorPlugins: () => [inlinePlugin],
+          }),
+        },
+      },
+    },
+    styleSpecs: {
+      customStyle: {
+        ...styleSpec,
+        implementation: {
+          render,
+          mark: styleSpec.implementation.mark.extend({
+            addProseMirrorPlugins: () => [stylePlugin],
+          }),
+        },
+      },
+    },
+  });
+  const editor = BlockNoteEditor.create({
+    schema,
+    extensions: [
+      options.extension(),
+      createExtension({
+        key: "parent",
+        blockNoteExtensions: [nested.extension()],
+      }),
+    ],
+  });
+  editors.push(editor);
+  remountEditor(editor);
+  const plugins = editor.prosemirrorState.plugins;
+
+  expect(editor.pmSchema.nodes.customBlock).toBeDefined();
+  expect(editor.pmSchema.nodes.customInline).toBeDefined();
+  expect(editor.pmSchema.marks.customStyle).toBeDefined();
+  for (const { extension, plugin, nestedPlugin } of [
+    options,
+    nested,
+    block,
+    inline,
+  ]) {
+    expect(editor.getExtension(extension)).toBeDefined();
+    expect(plugins).toContain(plugin);
+    expect(plugins).toContain(nestedPlugin);
+  }
+  expect(plugins).toContain(inlinePlugin);
+  expect(plugins).toContain(stylePlugin);
 });
