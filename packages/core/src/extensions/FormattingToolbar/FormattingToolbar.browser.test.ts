@@ -56,4 +56,25 @@ describe("Formatting toolbar focus", () => {
     expect(editor.transact((tr) => tr.selection.empty)).toBe(false);
     expect(toolbar.store.state).toBe(true);
   });
+
+  // Only touch devices drop the editor's focus when the window blurs; a
+  // desktop keeps it, e.g. across a switch to another window and back.
+  it("keeps focus, the selection and the toolbar when only the window blurs", async () => {
+    const toolbar = editor.getExtension(FormattingToolbarExtension)!;
+    editor.focus();
+    editor.transact((tr) =>
+      tr.setSelection(TextSelection.create(tr.doc, 3, 11)),
+    );
+    expect(toolbar.store.state).toBe(true);
+
+    // WebKit's page blur: `blur` on the focused element, without focusout and
+    // without moving `document.activeElement`, then on the window.
+    editor.prosemirrorView.dom.dispatchEvent(new FocusEvent("blur"));
+    window.dispatchEvent(new FocusEvent("blur"));
+    await settle();
+
+    expect(editor.isFocused()).toBe(true);
+    expect(editor.transact((tr) => tr.selection.empty)).toBe(false);
+    expect(toolbar.store.state).toBe(true);
+  });
 });

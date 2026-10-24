@@ -110,10 +110,10 @@ describe("Mobile formatting toolbar", () => {
     expect(document.querySelector(".bn-formatting-toolbar")).toBeNull();
   });
 
-  // iOS Safari hands focus back to the editor without the keyboard after a
-  // tap on its collapsed address bar. The selection used to survive the blur,
-  // so the desktop toolbar showed over it, and without the keyboard no tap
-  // could clear it.
+  // A real blur, then focus coming back without a gesture (a programmatic
+  // `focus()`), so the keyboard stays closed. The selection used to survive
+  // the blur, so the desktop toolbar showed over it, and without the keyboard
+  // no tap could clear it.
   test("focus returning without the keyboard brings back neither the selection nor a toolbar", async () => {
     await focusOnEditor();
     await userEvent.keyboard("Mobile toolbar");
@@ -147,6 +147,9 @@ describe("Mobile formatting toolbar", () => {
     await waitForSelector(MOBILE_TOOLBAR_SELECTOR);
 
     const editorElement = document.querySelector<HTMLElement>(EDITOR_SELECTOR)!;
+    // WebKit's page blur: `blur` on the focused element, without focusout and
+    // without moving `document.activeElement`, then on the window.
+    editorElement.dispatchEvent(new FocusEvent("blur"));
     window.dispatchEvent(new FocusEvent("blur"));
     await page.viewport(VIEWPORT_WIDTH, KEYBOARD_CLOSED);
     await settleFrames();

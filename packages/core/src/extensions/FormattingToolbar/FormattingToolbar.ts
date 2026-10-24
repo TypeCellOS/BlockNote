@@ -121,7 +121,7 @@ export const FormattingToolbarExtension = createExtension(({ editor }) => {
           "blur",
           () => {
             if (editor.isFocused()) {
-              editor.prosemirrorView.dom.blur();
+              editor.blur();
             }
           },
           { signal },
