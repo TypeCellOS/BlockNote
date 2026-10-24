@@ -91,6 +91,33 @@ describe("column edge drops", () => {
   });
 });
 
+// The drop removes the dragged blocks and then creates or updates the column
+// list. When the two edits aren't adjacent, they used to land in separate
+// undo steps, so a single undo brought back the target but not the dragged
+// blocks.
+describe("undoing an edge drop", () => {
+  it.each([
+    ["creates a column list", ["paragraph-2"], "paragraph-1"],
+    ["adds a column", ["paragraph-0"], "column-1"],
+  ])("restores the document in one step when the drop %s", (_, ids, target) => {
+    const editor = getEditor();
+    const before = editor.document;
+    // Start a new undo group, so that the drop isn't merged with the
+    // `beforeEach` setup.
+    const now = Date.now();
+    const dateNow = vi.spyOn(Date, "now").mockReturnValue(now + 1000);
+    try {
+      expect(dropOnEdge(ids, target, "left")).toBe(true);
+    } finally {
+      dateNow.mockRestore();
+    }
+    expect(editor.document).not.toEqual(before);
+
+    editor.undo();
+    expect(editor.document).toEqual(before);
+  });
+});
+
 // Dropping blocks onto themselves does nothing, like dropping a block next to
 // itself. Removing the dragged blocks from where they are used to remove the
 // drop target with them, and the handler then threw when it updated the
