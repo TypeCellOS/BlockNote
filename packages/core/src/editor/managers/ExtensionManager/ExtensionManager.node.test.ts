@@ -254,6 +254,7 @@ it("registers extensions and plugins from editor options, nested extensions, and
   const inlineSpec = createInlineContentSpec(
     { type: "customInline", propSchema: {}, content: "styled" },
     { render },
+    [inline.extension()],
   );
   const styleSpec = createStyleSpec(
     { type: "customStyle", propSchema: "boolean" },
@@ -275,7 +276,6 @@ it("registers extensions and plugins from editor options, nested extensions, and
     inlineContentSpecs: {
       customInline: {
         ...inlineSpec,
-        extensions: [inline.extension()],
         implementation: {
           ...inlineSpec.implementation,
           node: inlineSpec.implementation.node.extend({
