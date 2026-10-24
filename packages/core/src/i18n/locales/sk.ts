@@ -442,6 +442,9 @@ export const sk = {
     action_failed: "Niečo sa pokazilo. Skúste to znova.",
     history_load_failed: "Nepodarilo sa načítať históriu verzií",
   },
+  table_of_contents: {
+    title: "Obsah",
+  },
   exporter: {
     open_file: "Otvoriť súbor",
     open_video_file: "Otvoriť video",

@@ -1096,3 +1096,42 @@ we just don't display it in CSS instead. */
 .bn-mantine[data-mantine-color-scheme="dark"] .bn-snapshot-comparing-to {
   color: var(--mantine-primary-color-3);
 }
+
+/* Table of contents */
+.bn-mantine .bn-table-of-contents-title {
+  color: var(--mantine-color-dimmed);
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  padding-inline-start: 12px;
+}
+
+.bn-mantine .bn-table-of-contents-item {
+  border-radius: var(--mantine-radius-sm);
+  color: var(--mantine-color-dimmed);
+  display: block;
+  font-size: 14px;
+  line-height: 20px;
+  padding-block: 4px;
+  padding-inline-end: 8px;
+  text-align: start;
+  transition:
+    background-color 0.12s ease,
+    color 0.12s ease;
+  width: 100%;
+}
+
+.bn-mantine .bn-table-of-contents-item:hover {
+  background-color: var(--mantine-color-default-hover);
+  color: var(--mantine-color-text);
+}
+
+/* Color only: a bolder active entry could rewrap and move the ones below. */
+.bn-mantine .bn-table-of-contents-item[aria-current="location"] {
+  color: var(--mantine-color-text);
+}
+
+.bn-mantine .bn-table-of-contents-item:focus-visible {
+  outline: 2px solid var(--mantine-primary-color-filled);
+  outline-offset: -2px;
+}

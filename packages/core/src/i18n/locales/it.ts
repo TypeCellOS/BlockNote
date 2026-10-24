@@ -466,6 +466,9 @@ export const it: Dictionary = {
     action_failed: "Qualcosa è andato storto. Riprova.",
     history_load_failed: "Impossibile caricare la cronologia delle versioni",
   },
+  table_of_contents: {
+    title: "Indice",
+  },
   exporter: {
     open_file: "Apri file",
     open_video_file: "Apri video",

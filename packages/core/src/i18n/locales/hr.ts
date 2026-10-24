@@ -458,6 +458,9 @@ export const hr: Dictionary = {
     action_failed: "Nešto je pošlo po zlu. Pokušajte ponovno.",
     history_load_failed: "Učitavanje povijesti verzija nije uspjelo",
   },
+  table_of_contents: {
+    title: "Sadržaj",
+  },
   exporter: {
     open_file: "Otvori datoteku",
     open_video_file: "Otvori videozapis",

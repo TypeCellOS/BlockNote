@@ -27,6 +27,10 @@ import { SuggestionMenuLoader } from "./suggestionMenu/SuggestionMenuLoader.js";
 import { AttributionTooltip } from "./attributionMarks/AttributionTooltip.js";
 import { ExtendButton } from "./tableHandle/ExtendButton.js";
 import { TableHandle } from "./tableHandle/TableHandle.js";
+import {
+  Item as TableOfContentsItem,
+  Root as TableOfContentsRoot,
+} from "./tableOfContents/TableOfContents.js";
 import { Toolbar, ToolbarButton, ToolbarSelect } from "./toolbar/Toolbar.js";
 import { Card, CardSection, ExpandSectionsPrompt } from "./comments/Card.js";
 import { Comment } from "./comments/Comment.js";
@@ -82,6 +86,10 @@ export const components: Components = {
   TableHandle: {
     Root: TableHandle,
     ExtendButton: ExtendButton,
+  },
+  TableOfContents: {
+    Root: TableOfContentsRoot,
+    Item: TableOfContentsItem,
   },
   Comments: {
     Comment: Comment,

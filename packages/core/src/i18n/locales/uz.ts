@@ -478,6 +478,9 @@ export const uz: Dictionary = {
     action_failed: "Xatolik yuz berdi. Qayta urinib ko‘ring.",
     history_load_failed: "Versiyalar tarixini yuklab bo‘lmadi",
   },
+  table_of_contents: {
+    title: "Mundarija",
+  },
   exporter: {
     open_file: "Faylni ochish",
     open_video_file: "Videoni ochish",

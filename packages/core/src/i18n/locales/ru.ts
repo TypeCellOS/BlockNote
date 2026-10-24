@@ -488,6 +488,9 @@ export const ru: Dictionary = {
     action_failed: "Что-то пошло не так. Попробуйте ещё раз.",
     history_load_failed: "Не удалось загрузить историю версий",
   },
+  table_of_contents: {
+    title: "Содержание",
+  },
   exporter: {
     open_file: "Открыть файл",
     open_video_file: "Открыть видео",

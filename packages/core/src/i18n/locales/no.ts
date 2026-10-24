@@ -462,6 +462,9 @@ export const no: Dictionary = {
     action_failed: "Noe gikk galt. Prøv igjen.",
     history_load_failed: "Kunne ikke laste versjonshistorikken",
   },
+  table_of_contents: {
+    title: "Innhold",
+  },
   exporter: {
     open_file: "Åpne fil",
     open_video_file: "Åpne video",

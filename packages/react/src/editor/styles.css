@@ -304,6 +304,14 @@ SideMenuController offsets its position to keep it centered on the line. */
   border: 2px solid #23405b;
 }
 
+/* Table of contents: the outline's list. The skins style its title and
+   entries. */
+.bn-table-of-contents-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
 /* Screen-reader-only text (the loading announcement). */
 .bn-visually-hidden {
   clip: rect(0 0 0 0);

@@ -445,6 +445,9 @@ export const nl: Dictionary = {
     action_failed: "Er is iets misgegaan. Probeer het opnieuw.",
     history_load_failed: "Versiegeschiedenis kon niet worden geladen",
   },
+  table_of_contents: {
+    title: "Inhoud",
+  },
   exporter: {
     open_file: "Bestand openen",
     open_video_file: "Video openen",

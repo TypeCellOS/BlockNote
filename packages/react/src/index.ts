@@ -122,6 +122,9 @@ export * from "./components/TableHandles/TableHandleMenu/DefaultButtons/DeleteBu
 export * from "./components/TableHandles/TableHandleMenu/TableHandleMenu.js";
 export * from "./components/TableHandles/TableHandleMenu/TableHandleMenuProps.js";
 
+export * from "./components/TableOfContents/TableOfContents.js";
+export * from "./components/TableOfContents/useTableOfContents.js";
+
 // TODO: Revise comments exports/packaging
 export * from "./components/Comments/Comment.js";
 export * from "./components/Comments/Comments.js";
