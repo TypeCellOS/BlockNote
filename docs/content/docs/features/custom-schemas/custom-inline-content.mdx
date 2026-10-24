@@ -11,12 +11,13 @@ In addition to the default inline content types that BlockNote offers, you can a
 
 ## Creating a Custom Inline Content Type
 
-Use the `createReactInlineContentSpec` function to create a custom inline content type. This function takes two arguments:
+Use the `createReactInlineContentSpec` function to create a custom inline content type. This function takes three arguments:
 
 ```typescript
 function createReactInlineContentSpec(
   blockConfig: CustomInlineContentConfig,
   blockImplementation: ReactInlineContentImplementation,
+  extensions?: BlockNoteExtension[],
 ): InlineContentSpec;
 ```
 
@@ -156,6 +157,12 @@ type ReactCustomInlineContentImplementation = {
   _Note that since inline content is, by definition, inline, your component
   should also return an HTML inline element._
 </Callout>
+
+### Inline Content Extensions
+
+While the example on this page doesn't use it, `createReactInlineContentSpec` takes a third, optional argument `extensions`. This is for adding editor `extensions` that are specific to the inline content, which you can find out more about [here](/docs/features/extensions).
+
+For example, inline math from `@blocknote/math-block` uses an extension to turn `$...$` typed in the editor into inline math.
 
 ## Adding Custom Inline Content to the Editor
 
