@@ -34,6 +34,10 @@ import { GridSuggestionMenuItem } from "./suggestionMenu/gridSuggestionMenu/Grid
 import { GridSuggestionMenuLoader } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenuLoader.js";
 import { ExtendButton } from "./tableHandle/ExtendButton.js";
 import { TableHandle } from "./tableHandle/TableHandle.js";
+import {
+  Item as TableOfContentsItem,
+  Root as TableOfContentsRoot,
+} from "./tableOfContents/TableOfContents.js";
 import { Toolbar } from "./toolbar/Toolbar.js";
 import { ToolbarButton } from "./toolbar/ToolbarButton.js";
 import { ToolbarSelect } from "./toolbar/ToolbarSelect.js";
@@ -85,6 +89,10 @@ export const components: Components = {
   TableHandle: {
     Root: TableHandle,
     ExtendButton: ExtendButton,
+  },
+  TableOfContents: {
+    Root: TableOfContentsRoot,
+    Item: TableOfContentsItem,
   },
   Generic: {
     Badge: {

@@ -429,6 +429,9 @@ export const ar: Dictionary = {
     action_failed: "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
     history_load_failed: "تعذر تحميل سجل الإصدارات",
   },
+  table_of_contents: {
+    title: "المحتويات",
+  },
   exporter: {
     open_file: "فتح الملف",
     open_video_file: "فتح الفيديو",

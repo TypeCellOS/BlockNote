@@ -490,6 +490,9 @@ export const fr: Dictionary = {
     action_failed: "Une erreur s'est produite. Veuillez réessayer.",
     history_load_failed: "Impossible de charger l'historique des versions",
   },
+  table_of_contents: {
+    title: "Sommaire",
+  },
   exporter: {
     open_file: "Ouvrir le fichier",
     open_video_file: "Ouvrir la vidéo",

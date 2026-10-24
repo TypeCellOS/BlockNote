@@ -484,6 +484,9 @@ export const ja: Dictionary = {
     action_failed: "問題が発生しました。もう一度お試しください。",
     history_load_failed: "バージョン履歴を読み込めませんでした",
   },
+  table_of_contents: {
+    title: "目次",
+  },
   exporter: {
     open_file: "ファイルを開く",
     open_video_file: "動画を開く",

@@ -1,0 +1,41 @@
+---
+title: Table of Contents
+description: An outline of the document's headings that follows the reader's position and scrolls to a heading when clicked.
+---
+
+# Table of Contents
+
+The `TableOfContents` component shows an outline of the document's headings. It highlights the entry of the section being read as the editor scrolls, and clicking an entry scrolls to its heading.
+
+<Example name="extensions/table-of-contents" />
+
+Add `TableOfContentsExtension` to the editor, and render `TableOfContents` somewhere within your `BlockNoteView`. To show it elsewhere in your application's layout, e.g. in a sidebar, use [`RenderInPortalElement`](/docs/react/components#placing-blocknote-ui-in-your-own-layout).
+
+```tsx
+import { TableOfContentsExtension } from "@blocknote/core/extensions";
+import { BlockNoteView } from "@blocknote/mantine";
+import { TableOfContents, useCreateBlockNote } from "@blocknote/react";
+
+const editor = useCreateBlockNote({
+  extensions: [TableOfContentsExtension()],
+});
+
+<BlockNoteView editor={editor}>
+  <TableOfContents />
+</BlockNoteView>;
+```
+
+## Extension Options
+
+<AutoTypeTable
+  path="../packages/core/src/extensions/TableOfContents/TableOfContents.ts"
+  name="TableOfContentsOptions"
+/>
+
+## Component Props
+
+**`onNavigate`**: Called when an entry is clicked, e.g. to close the popover the outline is shown in.
+
+## Custom UI
+
+To build your own outline, use the `useTableOfContents` hook. It returns the `entries` (each with the heading's `blockId`, `title`, `level` and `depth`), the `activeBlockId` of the section being read, and `scrollToEntry(blockId)`.

@@ -444,6 +444,9 @@ export const en = {
     action_failed: "Something went wrong. Please try again.",
     history_load_failed: "Failed to load version history",
   },
+  table_of_contents: {
+    title: "Contents",
+  },
   exporter: {
     open_file: "Open file",
     open_video_file: "Open video",

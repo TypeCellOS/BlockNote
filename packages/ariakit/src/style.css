@@ -723,3 +723,64 @@
 .bn-ariakit .bn-thread.selected .bn-ak-expand-sections-prompt {
   color: var(--bn-colors-selected-text);
 }
+
+/* Table of contents */
+.bn-ariakit .bn-table-of-contents-title {
+  color: hsl(204 4% 40%);
+  font-size: 12px;
+  font-weight: 600;
+  margin: 0 0 8px;
+  padding-inline-start: 12px;
+}
+
+.bn-ariakit .bn-table-of-contents-title:where(.dark, .dark *) {
+  color: hsl(204 8% 70%);
+}
+
+.bn-ariakit .bn-table-of-contents-item {
+  background: none;
+  border: none;
+  border-radius: 0.375rem;
+  color: hsl(204 4% 40%);
+  cursor: pointer;
+  display: block;
+  font: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  padding-block: 4px;
+  padding-inline-end: 8px;
+  text-align: start;
+  transition:
+    background-color 0.12s ease,
+    color 0.12s ease;
+  width: 100%;
+}
+
+.bn-ariakit .bn-table-of-contents-item:where(.dark, .dark *) {
+  color: hsl(204 8% 70%);
+}
+
+.bn-ariakit .bn-table-of-contents-item:hover {
+  background-color: hsl(204 20% 96%);
+  color: hsl(204 4% 0%);
+}
+
+.bn-ariakit .bn-table-of-contents-item:hover:where(.dark, .dark *) {
+  background-color: hsl(204 4% 22%);
+  color: hsl(204 20% 100%);
+}
+
+/* Color only: a bolder active entry could rewrap and move the ones below. */
+.bn-ariakit .bn-table-of-contents-item[aria-current="location"] {
+  color: hsl(204 4% 0%);
+}
+
+.bn-ariakit
+  .bn-table-of-contents-item[aria-current="location"]:where(.dark, .dark *) {
+  color: hsl(204 20% 100%);
+}
+
+.bn-ariakit .bn-table-of-contents-item[data-focus-visible] {
+  outline: 2px solid hsl(204 100% 40%);
+  outline-offset: -2px;
+}

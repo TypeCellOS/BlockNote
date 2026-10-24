@@ -444,6 +444,9 @@ export const he: Dictionary = {
     action_failed: "משהו השתבש. נסו שוב.",
     history_load_failed: "טעינת היסטוריית הגרסאות נכשלה",
   },
+  table_of_contents: {
+    title: "תוכן העניינים",
+  },
   exporter: {
     open_file: "פתח קובץ",
     open_video_file: "פתח וידאו",
