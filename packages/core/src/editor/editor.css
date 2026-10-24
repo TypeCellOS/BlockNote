@@ -100,6 +100,10 @@
   left: -1px;
 }
 
+/* The inline label, for backwards compatibility: browsers without anchor
+   positioning, cursors from `renderCursor` and the AI agent cursor. Labels
+   that `floatCursorLabel` sets up get the anchored label below, whose rules
+   override these and must stay after them. */
 .bn-editor .bn-collaboration-cursor__base .bn-collaboration-cursor__label {
   pointer-events: none;
   border-radius: 0 1.5px 1.5px 0;
@@ -133,6 +137,110 @@
   border-radius: 3px 3px 3px 0;
 
   transition: all 0.2s;
+}
+
+/* The label of a remote cursor (see `floatCursorLabel`) is anchored to its
+   caret and `fixed`, so a scroll container around the caret, e.g. a table,
+   doesn't clip it. At the edges of the screen, it goes below the caret or to
+   its left (`data-placement`). Its box always has its full size; it opens by
+   growing from the caret (`clip-path`). The closed label is the marker at the
+   top of the caret. Browsers without anchor positioning show the
+   label inline, as before. */
+@supports (position-anchor: --a) {
+  .bn-editor
+    .bn-collaboration-cursor__base[data-floating-label]
+    .bn-collaboration-cursor__label {
+    position: fixed;
+    /* Above the content that comes after the caret, e.g. the next table cell. */
+    z-index: 1;
+    inset: auto;
+    /* Above the caret, from its left. `floatCursorLabel` picks the side
+       (`data-placement`), so the label can't be flipped away from it. */
+    bottom: anchor(top);
+    left: anchor(left);
+    /* Hidden when the caret is scrolled out of view. */
+    position-visibility: anchors-visible;
+    max-height: 1.1rem;
+    max-width: 20rem;
+    padding: 0.1rem 0.3rem;
+    /* The corner at the caret is square (see `data-placement`). */
+    border-radius: 3px 3px 3px 0;
+    /* Closed: only the corner at the caret, moved onto the top of the caret,
+       which is the marker. It grows to the whole label. */
+    clip-path: inset(calc(100% - 5px) calc(100% - 4px) 0 0);
+    margin-bottom: -4px;
+    transition:
+      clip-path 0.2s,
+      margin 0.2s;
+  }
+
+  /* Below the caret, the closed label can't be the marker at the top of the
+     caret. It is hidden, and the marker is drawn on the caret instead. */
+  .bn-editor
+    .bn-collaboration-cursor__base[data-floating-label]
+    .bn-collaboration-cursor__label[data-placement^="bottom"] {
+    opacity: 0;
+    transition:
+      clip-path 0.2s,
+      margin 0.2s,
+      opacity 0.05s 0.15s;
+  }
+
+  .bn-editor
+    .bn-collaboration-cursor__base[data-floating-label]:not([data-active]):has(
+      .bn-collaboration-cursor__label[data-placement^="bottom"]
+    )
+    .bn-collaboration-cursor__caret::before {
+    content: "";
+    position: absolute;
+    top: -1px;
+    left: 0;
+    width: 4px;
+    height: 5px;
+    background-color: inherit;
+    border-radius: 0 1.5px 1.5px 0;
+  }
+
+  .bn-editor
+    .bn-collaboration-cursor__base[data-floating-label]
+    .bn-collaboration-cursor__label[data-placement="bottom-start"] {
+    top: anchor(bottom);
+    bottom: auto;
+    border-radius: 0 3px 3px 3px;
+    clip-path: inset(0 calc(100% - 4px) calc(100% - 5px) 0);
+  }
+
+  .bn-editor
+    .bn-collaboration-cursor__base[data-floating-label]
+    .bn-collaboration-cursor__label[data-placement="top-end"] {
+    right: anchor(right);
+    left: auto;
+    border-radius: 3px 3px 0 3px;
+    clip-path: inset(calc(100% - 5px) 0 0 calc(100% - 4px));
+  }
+
+  .bn-editor
+    .bn-collaboration-cursor__base[data-floating-label]
+    .bn-collaboration-cursor__label[data-placement="bottom-end"] {
+    top: anchor(bottom);
+    bottom: auto;
+    right: anchor(right);
+    left: auto;
+    border-radius: 3px 0 3px 3px;
+    clip-path: inset(0 0 calc(100% - 5px) calc(100% - 4px));
+  }
+
+  .bn-editor
+    .bn-collaboration-cursor__base[data-floating-label][data-active]
+    .bn-collaboration-cursor__label {
+    clip-path: inset(0);
+    margin: 0;
+    opacity: 1;
+    transition:
+      clip-path 0.2s,
+      margin 0.2s,
+      opacity 0.05s;
+  }
 }
 
 .bn-editor [data-content-type="table"] .tableWrapper {
