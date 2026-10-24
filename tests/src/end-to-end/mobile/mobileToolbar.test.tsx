@@ -135,6 +135,27 @@ describe("Mobile formatting toolbar", () => {
     expect(document.querySelector(".bn-formatting-toolbar")).toBeNull();
   });
 
+  // The tap on iOS Safari's address bar blurs only the window: the editor
+  // keeps DOM focus, so without dropping it no focusout ever reached the
+  // editor and the selection survived.
+  test("a window blur that leaves the editor focused ends the selection", async () => {
+    await focusOnEditor();
+    await userEvent.keyboard("Mobile toolbar");
+    await userEvent.keyboard("{Shift>}{Home}{/Shift}");
+
+    await page.viewport(VIEWPORT_WIDTH, KEYBOARD_OPEN);
+    await waitForSelector(MOBILE_TOOLBAR_SELECTOR);
+
+    const editorElement = document.querySelector<HTMLElement>(EDITOR_SELECTOR)!;
+    window.dispatchEvent(new FocusEvent("blur"));
+    await page.viewport(VIEWPORT_WIDTH, KEYBOARD_CLOSED);
+    await settleFrames();
+
+    expect(document.activeElement).not.toBe(editorElement);
+    expect(selectionIsEmpty()).toBe(true);
+    expect(document.querySelector(".bn-formatting-toolbar")).toBeNull();
+  });
+
   test("shows while the virtual keyboard is open and hides when it closes", async () => {
     await focusOnEditor();
     await userEvent.keyboard("Mobile toolbar");
