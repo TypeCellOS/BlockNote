@@ -105,30 +105,16 @@ export class ExtensionManager {
       this.addExtension(extension);
     }
 
-    // Add the extensions from blocks specs
-    for (const block of Object.values(this.editor.schema.blockSpecs)) {
-      for (const extension of block.extensions ?? []) {
-        this.addExtension(extension);
-      }
-    }
-
-    // Add the extensions from inline content specs (the built-in text and link
-    // specs have none)
-    for (const inlineContent of Object.values(
+    // Add the extensions from block, inline content, and style specs
+    for (const specs of [
+      this.editor.schema.blockSpecs,
       this.editor.schema.inlineContentSpecs,
-    )) {
-      if (!("extensions" in inlineContent)) {
-        continue;
-      }
-      for (const extension of inlineContent.extensions ?? []) {
-        this.addExtension(extension);
-      }
-    }
-
-    // Add the extensions from style specs
-    for (const style of Object.values(this.editor.schema.styleSpecs)) {
-      for (const extension of style.extensions ?? []) {
-        this.addExtension(extension);
+      this.editor.schema.styleSpecs,
+    ]) {
+      for (const spec of Object.values(specs)) {
+        for (const extension of spec.extensions ?? []) {
+          this.addExtension(extension);
+        }
       }
     }
   }
