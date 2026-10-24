@@ -6,8 +6,10 @@ import {
 import { useEffect, useState } from "react";
 import { SiMermaid } from "react-icons/si";
 
-import { plainContentToString } from "@blocknote/core";
+import { plainContentToString, type BlockNoteEditor } from "@blocknote/core";
+import type { MathRenderer } from "../../../helpers/MathRenderer.js";
 import { renderDiagram } from "../../../helpers/renderDiagram.js";
+import { getDiagramMathRenderer } from "../../../helpers/getDiagramMathRenderer.js";
 import { getDiagramDictionary } from "../../../i18n/dictionary.js";
 import { DiagramBlockConfig } from "../../createReactDiagramBlockSpec.js";
 
@@ -17,10 +19,14 @@ import { DiagramBlockConfig } from "../../createReactDiagramBlockSpec.js";
  * has fully rendered, and swapping inline SVG commits in a single frame - so
  * the preview never flashes.
  */
-export function useDiagramSVG(source: string, fontFamilyElement?: Element) {
+export function useDiagramSVG(
+  source: string,
+  editor: BlockNoteEditor<any, any, any>,
+) {
   const [svg, setSVG] = useState("");
   const [error, setError] = useState<string | undefined>(undefined);
   const [failure, setFailure] = useState<{ cause: unknown }>();
+  const mathRenderer = editor.getExtension<MathRenderer>("math-render");
 
   useEffect(() => {
     if (!source.trim()) {
@@ -35,14 +41,17 @@ export function useDiagramSVG(source: string, fontFamilyElement?: Element) {
 
     // Read the font at render time, not at mount - the computed font is
     // themeable via CSS, so a memoized read would go stale on theme changes.
-    const fontFamily = fontFamilyElement
-      ? getComputedStyle(fontFamilyElement).fontFamily
+    const fontFamily = editor.domElement
+      ? getComputedStyle(editor.domElement).fontFamily
       : undefined;
 
     // Rendering is asynchronous, so bail out if the source changed (or the
     // block was removed) before it finished.
     let stale = false;
-    void renderDiagram(source, { fontFamily })
+    void renderDiagram(source, {
+      fontFamily,
+      math: getDiagramMathRenderer(editor),
+    })
       .then((result) => {
         if (stale) {
           return;
@@ -65,7 +74,7 @@ export function useDiagramSVG(source: string, fontFamilyElement?: Element) {
     return () => {
       stale = true;
     };
-  }, [source, fontFamilyElement]);
+  }, [source, editor, mathRenderer]);
 
   if (failure) {
     throw failure.cause;
@@ -80,7 +89,7 @@ export const DiagramBlockPreviewWithPopup = (
   // Diagrams render in the editor's computed font, so they match the document
   // they live in - the block renders inside the editor, so the element is
   // mounted by the time the hook's effect reads its style.
-  const { svg, error } = useDiagramSVG(source, props.editor.domElement);
+  const { svg, error } = useDiagramSVG(source, props.editor);
   const dict = getDiagramDictionary(props.editor).block;
 
   return (
