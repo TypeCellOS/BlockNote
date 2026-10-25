@@ -111,3 +111,81 @@ describe("blockToNode: plain-block backwards compatibility (write path)", () => 
     editor._tiptapEditor.destroy();
   });
 });
+
+function getColwidths(tableNode: Node): (number[] | null)[][] {
+  const colwidths: (number[] | null)[][] = [];
+  tableNode.forEach((rowNode) => {
+    const rowColwidths: (number[] | null)[] = [];
+    rowNode.forEach((cellNode) => {
+      rowColwidths.push(cellNode.attrs.colwidth);
+    });
+    colwidths.push(rowColwidths);
+  });
+  return colwidths;
+}
+
+describe("blockToNode: tables", () => {
+  it("resolves column widths to absolute columns with colspans and rowspans", () => {
+    const editor = BlockNoteEditor.create();
+
+    /**
+     *  | 1-1 (rowspan 2) | 1-2 (colspan 2)  |
+     *  |                 | 2-1   | 2-2      |
+     */
+    const node = blockToNode(
+      {
+        type: "table",
+        content: {
+          type: "tableContent",
+          columnWidths: [100, 200, 300],
+          rows: [
+            {
+              cells: [
+                { type: "tableCell", props: { rowspan: 2 }, content: "1-1" },
+                { type: "tableCell", props: { colspan: 2 }, content: "1-2" },
+              ],
+            },
+            { cells: ["2-1", "2-2"] },
+          ],
+        },
+      } as any,
+      editor.pmSchema,
+    );
+
+    expect(getColwidths(node.firstChild!)).toEqual([
+      [[100], [200, 300]],
+      [[200], [300]],
+    ]);
+
+    editor._tiptapEditor.destroy();
+  });
+
+  it("converts large tables in time linear in the number of cells", () => {
+    const editor = BlockNoteEditor.create();
+
+    function convertTable(rowCount: number) {
+      const start = performance.now();
+      const node = blockToNode(
+        {
+          type: "table",
+          content: {
+            type: "tableContent",
+            rows: Array.from({ length: rowCount }, (_, row) => ({
+              cells: Array.from({ length: 5 }, (_, col) => `${row}-${col}`),
+            })),
+          },
+        } as any,
+        editor.pmSchema,
+      );
+      expect(node.firstChild!.childCount).toBe(rowCount);
+      return performance.now() - start;
+    }
+
+    convertTable(100);
+    // 10,000 cells: well under a second when the occupancy grid is built once
+    // per table, tens of seconds when it is rebuilt for every cell.
+    expect(convertTable(2000)).toBeLessThan(2000);
+
+    editor._tiptapEditor.destroy();
+  });
+});

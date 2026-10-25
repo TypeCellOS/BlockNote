@@ -22,7 +22,7 @@ import {
 } from "../../schema/blocks/children.js";
 import { getColspan, isPartialTableCell } from "../../util/table.js";
 import { UnreachableCaseError } from "../../util/typescript.js";
-import { getAbsoluteTableCells } from "../blockManipulation/tables/tables.js";
+import { getTableCellOccupancyGrid } from "../blockManipulation/tables/tables.js";
 import { getStyleSchema, isPlainContentNodeType } from "../pmUtil.js";
 
 /**
@@ -192,6 +192,27 @@ export function inlineContentToNodes<
 }
 
 /**
+ * Maps each cell's relative position (row index, index within the row) to the
+ * absolute column of its top-left corner in the occupancy grid.
+ */
+function getAbsoluteColumnIndices(
+  occupancyGrid: ReturnType<typeof getTableCellOccupancyGrid>,
+): number[][] {
+  const absoluteColumnIndices: number[][] = [];
+  for (const gridRow of occupancyGrid) {
+    for (let col = 0; col < gridRow.length; col++) {
+      const occupant = gridRow[col];
+      if (!occupant) {
+        continue;
+      }
+      const rowIndices = (absoluteColumnIndices[occupant.row] ??= []);
+      rowIndices[occupant.col] ??= col;
+    }
+  }
+  return absoluteColumnIndices;
+}
+
+/**
  * converts an array of inline content elements to prosemirror nodes
  */
 export function tableContentToNodes<
@@ -211,6 +232,14 @@ export function tableContentToNodes<
 
   const columnWidths: (number | undefined)[] = tableContent.columnWidths ?? [];
 
+  // Colwidths are absolutely referenced to the table, so we need to resolve
+  // each cell's relative index to its absolute column index. The occupancy
+  // grid is built and scanned once per table, since doing so for every cell
+  // makes the conversion quadratic in the number of cells.
+  const absoluteColumnIndices = getAbsoluteColumnIndices(
+    getTableCellOccupancyGrid({ type: "table", content: tableContent } as any),
+  );
+
   for (let rowIndex = 0; rowIndex < tableContent.rows.length; rowIndex++) {
     const row = tableContent.rows[rowIndex];
     const columnNodes: Node[] = [];
@@ -227,20 +256,18 @@ export function tableContentToNodes<
        */
       let content: Fragment | Node | readonly Node[] | null = null;
 
-      // Colwidths are absolutely referenced to the table, so we need to resolve the relative cell index to the absolute cell index
-      const absoluteCellIndex = getAbsoluteTableCells(
-        {
-          row: rowIndex,
-          col: cellIndex,
-        },
-        { type: "table", content: tableContent } as any,
-      );
+      const absoluteColumnIndex = absoluteColumnIndices[rowIndex]?.[cellIndex];
+      if (absoluteColumnIndex === undefined) {
+        throw new Error(
+          `Unable to resolve relative table cell indices for table, cell at ${rowIndex},${cellIndex} is not occupied`,
+        );
+      }
 
       // Assume the column width is the width of the cell at the absolute cell index
       let colwidth: (number | undefined)[] | null = columnWidths[
-        absoluteCellIndex.col
+        absoluteColumnIndex
       ]
-        ? [columnWidths[absoluteCellIndex.col]]
+        ? [columnWidths[absoluteColumnIndex]]
         : null;
 
       if (!cell) {
@@ -262,7 +289,7 @@ export function tableContentToNodes<
           // If the cell has a > 1 colspan, we need to get the column width for each cell in the span
           colwidth = new Array(colspan).fill(false).map((_, i) => {
             // Starting from the absolute column index, get the column width for each cell in the span
-            return columnWidths[absoluteCellIndex.col + i] ?? undefined;
+            return columnWidths[absoluteColumnIndex + i] ?? undefined;
           });
         }
       } else {
