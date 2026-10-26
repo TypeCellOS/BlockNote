@@ -1,6 +1,12 @@
 import type { Dictionary } from "../dictionary.js";
 
 export const is: Dictionary = {
+  locale: "is",
+  emoji_picker: {
+    search: "Leita",
+    search_no_results: "Engin tjákn fundust",
+    loading: "Hleð…",
+  },
   slash_menu: {
     heading: {
       title: "Fyrirsögn 1",
