@@ -63,6 +63,140 @@ function createPasteEvent(data: Record<string, string>) {
 }
 
 describe("Office clipboard HTML", () => {
+  // Clipboard samples from CKEditor 5's paste-from-office/tests/_data at
+  // https://github.com/ckeditor/ckeditor5/tree/e7c72a94f7cc6be9dff5ae0bfb81af3eaa42f62d/packages/ckeditor5-paste-from-office/tests/_data
+  // Word captures omit the generated head except for source identification.
+  // Keep fragment whitespace intact. Snapshots omit only generated block IDs.
+  // Copyright (c) 2003-2026, CKSource Holding sp. z o.o.
+  // Upstream license notice (GPL-2.0-or-later or commercial):
+  // https://github.com/ckeditor/ckeditor5/blob/e7c72a94f7cc6be9dff5ae0bfb81af3eaa42f62d/packages/ckeditor5/LICENSE.md
+  it.each([
+    [
+      "Word formatting",
+      // basic-styles/multiple-styles-multiline/input.word2016.html
+      `<meta name=ProgId content=Word.Document>
+<!--StartFragment-->
+
+<p class=MsoNormal><span lang=PL style='mso-ansi-language:PL'>Line <b
+	style='mso-bidi-font-weight:normal'>bold</b> and <i style='mso-bidi-font-style:
+normal'>italics</i><o:p></o:p></span></p>
+
+<p class=MsoNormal><span lang=PL style='mso-ansi-language:PL'>Line <b
+	style='mso-bidi-font-weight:normal'><u>foo</u></b><u> bar</u><o:p></o:p></span></p>
+
+<p class=MsoNormal><s>Third</s> line <b style='mso-bidi-font-weight:normal'>styling,
+	<i style='mso-bidi-font-style:normal'>space on e</i>nd </b><o:p></o:p></p>
+
+<!--EndFragment-->
+`,
+    ],
+    [
+      "Word mixed lists",
+      // list/mixed-elements/input.word.html
+      `<!--StartFragment-->
+
+<p class=MsoNormal style='margin-left:22.8pt;text-indent:-14.15pt;mso-list:
+l0 level1 lfo1;tab-stops:list 22.8pt'><![if !supportLists]><span lang=EN-US
+                                                                 style='font-size:10.0pt;mso-bidi-font-size:11.0pt;line-height:107%;font-family:
+Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
+        style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span lang=EN-US style='font-family:"Arial",sans-serif'>One
+Asdlkfj alksdfj <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:22.8pt;text-indent:-14.15pt;mso-list:
+l0 level1 lfo1;tab-stops:list 22.8pt'><![if !supportLists]><span lang=EN-US
+                                                                 style='font-size:10.0pt;mso-bidi-font-size:11.0pt;line-height:107%;font-family:
+Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
+        style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span lang=EN-US style='font-family:"Arial",sans-serif'>Two
+Asdlkfjalksdfj lkasjdf lkasj dflka sdf<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:23.05pt;text-indent:-14.2pt;mso-list:
+l0 level1 lfo1;tab-stops:list 23.05pt'><![if !supportLists]><span lang=EN-US
+                                                                  style='font-size:10.0pt;mso-bidi-font-size:11.0pt;line-height:107%;font-family:
+Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
+        style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span lang=EN-US style='font-family:"Arial",sans-serif'>Three
+Alskdfj alksdfj lkasj df<o:p></o:p></span></p>
+
+<ul style='margin-top:0cm' type=disc>
+    <ul style='margin-top:0cm' type=circle>
+        <li class=MsoNormal style='mso-list:l0 level2 lfo1;tab-stops:list 72.0pt'><span
+                lang=EN-US style='font-family:"Arial",sans-serif'>Three sub one Asldkfjalksdfj
+laksjdf<o:p></o:p></span></li>
+        <li class=MsoNormal style='mso-list:l0 level2 lfo1;tab-stops:list 72.0pt'><span
+                lang=EN-US style='font-family:"Arial",sans-serif'>Three sub two Alskdfjlaksjfd
+lkasd f<o:p></o:p></span></li>
+    </ul>
+</ul>
+
+<p class=MsoNormal style='margin-left:22.8pt;text-indent:-14.15pt;mso-list:
+l0 level1 lfo1;tab-stops:list 22.8pt'><![if !supportLists]><span lang=EN-US
+                                                                 style='font-size:10.0pt;mso-bidi-font-size:11.0pt;line-height:107%;font-family:
+Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
+        style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span lang=EN-US style='font-family:"Arial",sans-serif'>Four
+Asldkfjalkfdj lkasd<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:22.8pt;text-indent:-14.15pt;mso-list:
+l0 level1 lfo1;tab-stops:list 23.05pt'><![if !supportLists]><span lang=EN-US
+                                                                  style='font-size:10.0pt;mso-bidi-font-size:11.0pt;line-height:107%;font-family:
+Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
+        style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span lang=EN-US style='font-family:"Arial",sans-serif'>Five
+Alskdfj laksdfjlak jd<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:22.8pt;text-indent:-14.15pt;mso-list:
+l0 level1 lfo1;tab-stops:list 22.8pt'><![if !supportLists]><span lang=EN-US
+                                                                 style='font-size:10.0pt;mso-bidi-font-size:11.0pt;line-height:107%;font-family:
+Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
+        style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span lang=EN-US style='font-family:"Arial",sans-serif'>Six
+Alskdfj laksjdf lak<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:58.25pt;text-indent:-14.2pt;mso-list:
+l0 level2 lfo1;tab-stops:list 58.25pt'><![if !supportLists]><span lang=EN-US
+                                                                  style='font-size:10.0pt;mso-bidi-font-size:11.0pt;line-height:107%;font-family:
+"Courier New";mso-fareast-font-family:"Courier New"'><span style='mso-list:
+Ignore'>o<span style='font:7.0pt "Times New Roman"'>&nbsp; </span></span></span><![endif]><span
+        lang=EN-US style='font-family:"Arial",sans-serif'>Six sub one Alsdkfj <o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:22.8pt;text-indent:-14.15pt;mso-list:
+l0 level1 lfo1;tab-stops:list 22.8pt'><![if !supportLists]><span lang=EN-US
+                                                                 style='font-size:10.0pt;mso-bidi-font-size:11.0pt;line-height:107%;font-family:
+Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
+        style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span lang=EN-US style='font-family:"Arial",sans-serif'>Seven
+asdfasdfadf alksd flaksjdf laksjd alksjdf askljd f</span><span lang=EN-US><o:p></o:p></span></p>
+
+<!--EndFragment-->
+`,
+    ],
+    [
+      "Google Docs paragraphs",
+      // paste-from-google-docs/br-paragraph/simple-paragraphs/input.html
+      `<meta charset='utf-8'><meta charset="utf-8"><b style="font-weight:normal;" id="docs-internal-guid-795b8732-7fff-0188-0241-50e6b4f4fe0f"><br /><h1 dir="ltr" style="line-height:1.38;margin-top:10pt;margin-bottom:0pt;"><span style="font-size:16pt;font-family:'Trebuchet MS';color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">A</span></h1><br /><p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"><span style="font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">B</span></p><br /></b>
+`,
+    ],
+    [
+      "Google Docs mixed lists",
+      // paste-from-google-docs/lists/mixed-list/input.html
+      `<meta charset='utf-8'><meta charset="utf-8"><b style="font-weight:normal;" id="docs-internal-guid-6aba46e4-7fff-ffbf-43f7-6080e7ecadb8"><ol style="margin-top:0pt;margin-bottom:0pt;"><li dir="ltr" style="list-style-type:decimal;font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;"><p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"><span style="font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">1</span></p></li><ul style="margin-top:0pt;margin-bottom:0pt;"><li dir="ltr" style="list-style-type:circle;font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;"><p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"><span style="font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">A</span></p></li><ol style="margin-top:0pt;margin-bottom:0pt;"><li dir="ltr" style="list-style-type:lower-roman;font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;"><p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"><span style="font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">1</span></p></li></ol></ul><li dir="ltr" style="list-style-type:decimal;font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;"><p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"><span style="font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">2</span></p></li><li dir="ltr" style="list-style-type:decimal;font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;"><p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"><span style="font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">3</span></p></li><ul style="margin-top:0pt;margin-bottom:0pt;"><li dir="ltr" style="list-style-type:circle;font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;"><p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"><span style="font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">A</span></p></li><li dir="ltr" style="list-style-type:circle;font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;"><p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"><span style="font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">B</span></p></li></ul></ol><ul style="margin-top:0pt;margin-bottom:0pt;"><li dir="ltr" style="list-style-type:disc;font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;"><p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"><span style="font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">A</span></p></li><ol style="margin-top:0pt;margin-bottom:0pt;"><li dir="ltr" style="list-style-type:lower-alpha;font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;"><p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"><span style="font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">1</span></p></li><li dir="ltr" style="list-style-type:lower-alpha;font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;"><p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"><span style="font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">2</span></p></li></ol></ul></b>
+`,
+    ],
+  ])("parses captured clipboard HTML: %s", (_name, html) => {
+    const blocks = parseOfficeHTML(html);
+
+    function withoutIds(blocks: ReturnType<typeof parseOfficeHTML>): object[] {
+      return blocks.map(({ id: _id, children, ...block }) => ({
+        ...block,
+        children: withoutIds(children),
+      }));
+    }
+
+    expect(withoutIds(blocks)).toMatchSnapshot();
+  });
+
   it("reconstructs Word lists, retaining formatting and nesting", () => {
     const blocks = parseOfficeHTML(
       wordItem("<strong>First</strong>").replace(

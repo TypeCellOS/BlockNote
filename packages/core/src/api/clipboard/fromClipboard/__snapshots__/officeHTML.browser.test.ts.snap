@@ -1,0 +1,557 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Office clipboard HTML > parses captured clipboard HTML: Google Docs mixed lists 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {
+                  "backgroundColor": "transparent",
+                  "textColor": "rgb(0, 0, 0)",
+                },
+                "text": "1",
+                "type": "text",
+              },
+            ],
+            "props": {
+              "backgroundColor": "transparent",
+              "textAlignment": "left",
+              "textColor": "rgb(0, 0, 0)",
+            },
+            "type": "numberedListItem",
+          },
+        ],
+        "content": [
+          {
+            "styles": {
+              "backgroundColor": "transparent",
+              "textColor": "rgb(0, 0, 0)",
+            },
+            "text": "A",
+            "type": "text",
+          },
+        ],
+        "props": {
+          "backgroundColor": "transparent",
+          "textAlignment": "left",
+          "textColor": "rgb(0, 0, 0)",
+        },
+        "type": "bulletListItem",
+      },
+    ],
+    "content": [
+      {
+        "styles": {
+          "backgroundColor": "transparent",
+          "textColor": "rgb(0, 0, 0)",
+        },
+        "text": "1",
+        "type": "text",
+      },
+    ],
+    "props": {
+      "backgroundColor": "transparent",
+      "textAlignment": "left",
+      "textColor": "rgb(0, 0, 0)",
+    },
+    "type": "numberedListItem",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {
+          "backgroundColor": "transparent",
+          "textColor": "rgb(0, 0, 0)",
+        },
+        "text": "2",
+        "type": "text",
+      },
+    ],
+    "props": {
+      "backgroundColor": "transparent",
+      "textAlignment": "left",
+      "textColor": "rgb(0, 0, 0)",
+    },
+    "type": "numberedListItem",
+  },
+  {
+    "children": [
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {
+              "backgroundColor": "transparent",
+              "textColor": "rgb(0, 0, 0)",
+            },
+            "text": "A",
+            "type": "text",
+          },
+        ],
+        "props": {
+          "backgroundColor": "transparent",
+          "textAlignment": "left",
+          "textColor": "rgb(0, 0, 0)",
+        },
+        "type": "bulletListItem",
+      },
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {
+              "backgroundColor": "transparent",
+              "textColor": "rgb(0, 0, 0)",
+            },
+            "text": "B",
+            "type": "text",
+          },
+        ],
+        "props": {
+          "backgroundColor": "transparent",
+          "textAlignment": "left",
+          "textColor": "rgb(0, 0, 0)",
+        },
+        "type": "bulletListItem",
+      },
+    ],
+    "content": [
+      {
+        "styles": {
+          "backgroundColor": "transparent",
+          "textColor": "rgb(0, 0, 0)",
+        },
+        "text": "3",
+        "type": "text",
+      },
+    ],
+    "props": {
+      "backgroundColor": "transparent",
+      "textAlignment": "left",
+      "textColor": "rgb(0, 0, 0)",
+    },
+    "type": "numberedListItem",
+  },
+  {
+    "children": [
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {
+              "backgroundColor": "transparent",
+              "textColor": "rgb(0, 0, 0)",
+            },
+            "text": "1",
+            "type": "text",
+          },
+        ],
+        "props": {
+          "backgroundColor": "transparent",
+          "textAlignment": "left",
+          "textColor": "rgb(0, 0, 0)",
+        },
+        "type": "numberedListItem",
+      },
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {
+              "backgroundColor": "transparent",
+              "textColor": "rgb(0, 0, 0)",
+            },
+            "text": "2",
+            "type": "text",
+          },
+        ],
+        "props": {
+          "backgroundColor": "transparent",
+          "textAlignment": "left",
+          "textColor": "rgb(0, 0, 0)",
+        },
+        "type": "numberedListItem",
+      },
+    ],
+    "content": [
+      {
+        "styles": {
+          "backgroundColor": "transparent",
+          "textColor": "rgb(0, 0, 0)",
+        },
+        "text": "A",
+        "type": "text",
+      },
+    ],
+    "props": {
+      "backgroundColor": "transparent",
+      "textAlignment": "left",
+      "textColor": "rgb(0, 0, 0)",
+    },
+    "type": "bulletListItem",
+  },
+]
+`;
+
+exports[`Office clipboard HTML > parses captured clipboard HTML: Google Docs paragraphs 1`] = `
+[
+  {
+    "children": [],
+    "content": [],
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {
+          "backgroundColor": "transparent",
+          "textColor": "rgb(0, 0, 0)",
+        },
+        "text": "A",
+        "type": "text",
+      },
+    ],
+    "props": {
+      "backgroundColor": "default",
+      "isToggleable": false,
+      "level": 1,
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "heading",
+  },
+  {
+    "children": [],
+    "content": [],
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {
+          "backgroundColor": "transparent",
+          "textColor": "rgb(0, 0, 0)",
+        },
+        "text": "B",
+        "type": "text",
+      },
+    ],
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]
+`;
+
+exports[`Office clipboard HTML > parses captured clipboard HTML: Word formatting 1`] = `
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Line ",
+        "type": "text",
+      },
+      {
+        "styles": {
+          "bold": true,
+        },
+        "text": "bold",
+        "type": "text",
+      },
+      {
+        "styles": {},
+        "text": " and ",
+        "type": "text",
+      },
+      {
+        "styles": {
+          "italic": true,
+        },
+        "text": "italics",
+        "type": "text",
+      },
+    ],
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Line ",
+        "type": "text",
+      },
+      {
+        "styles": {
+          "bold": true,
+          "underline": true,
+        },
+        "text": "foo",
+        "type": "text",
+      },
+      {
+        "styles": {
+          "underline": true,
+        },
+        "text": " bar",
+        "type": "text",
+      },
+    ],
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {
+          "strike": true,
+        },
+        "text": "Third",
+        "type": "text",
+      },
+      {
+        "styles": {},
+        "text": " line ",
+        "type": "text",
+      },
+      {
+        "styles": {
+          "bold": true,
+        },
+        "text": "styling, ",
+        "type": "text",
+      },
+      {
+        "styles": {
+          "bold": true,
+          "italic": true,
+        },
+        "text": "space on e",
+        "type": "text",
+      },
+      {
+        "styles": {
+          "bold": true,
+        },
+        "text": "nd ",
+        "type": "text",
+      },
+    ],
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]
+`;
+
+exports[`Office clipboard HTML > parses captured clipboard HTML: Word mixed lists 1`] = `
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "One Asdlkfj alksdfj ",
+        "type": "text",
+      },
+    ],
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "bulletListItem",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Two Asdlkfjalksdfj lkasjdf lkasj dflka sdf",
+        "type": "text",
+      },
+    ],
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "bulletListItem",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Three Alskdfj alksdfj lkasj df",
+        "type": "text",
+      },
+    ],
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "bulletListItem",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Three sub one Asldkfjalksdfj laksjdf",
+        "type": "text",
+      },
+    ],
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "bulletListItem",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Three sub two Alskdfjlaksjfd lkasd f",
+        "type": "text",
+      },
+    ],
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "bulletListItem",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Four Asldkfjalkfdj lkasd",
+        "type": "text",
+      },
+    ],
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "bulletListItem",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Five Alskdfj laksdfjlak jd",
+        "type": "text",
+      },
+    ],
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "bulletListItem",
+  },
+  {
+    "children": [
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Six sub one Alsdkfj ",
+            "type": "text",
+          },
+        ],
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "bulletListItem",
+      },
+    ],
+    "content": [
+      {
+        "styles": {},
+        "text": "Six Alskdfj laksjdf lak",
+        "type": "text",
+      },
+    ],
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "bulletListItem",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Seven asdfasdfadf alksd flaksjdf laksjd alksjdf askljd f",
+        "type": "text",
+      },
+    ],
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "bulletListItem",
+  },
+]
+`;
