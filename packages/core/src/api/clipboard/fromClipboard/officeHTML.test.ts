@@ -3,26 +3,14 @@ import { afterEach, describe, expect, it } from "vite-plus/test";
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 import { normalizeOfficeHTML } from "./normalizeOfficeHTML.js";
 
-// These tests exercise browser HTML parsing and native clipboard events.
+// DOM parsing tests run in the core package's jsdom environment.
 const editors: BlockNoteEditor[] = [];
-const containers: HTMLElement[] = [];
 
 function createEditor(
   options: Parameters<typeof BlockNoteEditor.create>[0] = {},
 ) {
   const editor = BlockNoteEditor.create(options);
   editors.push(editor);
-  return editor;
-}
-
-function mountEditor(
-  options: Parameters<typeof BlockNoteEditor.create>[0] = {},
-) {
-  const editor = createEditor(options);
-  const container = document.createElement("div");
-  document.body.append(container);
-  containers.push(container);
-  editor.mount(container);
   return editor;
 }
 
@@ -34,32 +22,10 @@ afterEach(() => {
   for (const editor of editors.splice(0)) {
     editor._tiptapEditor.destroy();
   }
-  for (const container of containers.splice(0)) {
-    container.remove();
-  }
 });
 
 function wordItem(text: string, level = 1, marker = "·", list = "l0") {
   return `<p style="mso-list: ${list} level${level} lfo1"><span style="mso-list:Ignore">${marker}&nbsp;</span>${text}<o:p></o:p></p>`;
-}
-
-function createPasteEvent(data: Record<string, string>) {
-  const event = new ClipboardEvent("paste", {
-    clipboardData: new DataTransfer(),
-    bubbles: true,
-    cancelable: true,
-  });
-  if (!event.clipboardData) {
-    throw new Error(
-      "Synthetic paste events must provide a clipboard data store",
-    );
-  }
-  // Firefox creates its own store rather than retaining the constructor's store.
-  for (const [type, value] of Object.entries(data)) {
-    event.clipboardData.setData(type, value);
-    expect(event.clipboardData.getData(type)).toBe(value);
-  }
-  return event;
 }
 
 describe("Office clipboard HTML", () => {
@@ -347,85 +313,255 @@ asdfasdfadf alksd flaksjdf laksjd alksjdf askljd f</span><span lang=EN-US><o:p><
     const html = "<div><p>Original</p><br><p>Last</p></div>";
     expect(normalizeOfficeHTML(html)).toBe(html);
   });
+});
 
-  it("can replace the default behavior with an existing pasteHandler", () => {
-    const editor = mountEditor({
-      pasteHandler: ({ editor }) => {
-        editor.pasteHTML("<h2>Replacement</h2>");
-        return true;
-      },
-    });
-    editor.prosemirrorView.dom.dispatchEvent(
-      createPasteEvent({ "text/html": wordItem("Original") }),
-    );
-    expect(editor.document[0]).toMatchObject({
-      type: "heading",
-      props: { level: 2 },
-      content: [{ text: "Replacement" }],
-    });
-  });
+function normalizedDOM(html: string) {
+  const root = document.createElement("div");
+  root.innerHTML = normalizeOfficeHTML(html);
+  return root;
+}
 
-  it("keeps normalization when a custom pasteHandler delegates to the default", () => {
-    const editor = mountEditor({
-      pasteHandler: ({ defaultPasteHandler }) => defaultPasteHandler(),
-    });
-    editor.prosemirrorView.dom.dispatchEvent(
-      createPasteEvent({ "text/html": wordItem("Original") }),
-    );
-    expect(editor.document[0]).toMatchObject({
-      type: "bulletListItem",
-      content: [{ text: "Original" }],
-    });
-  });
+function paragraph(text: string, level = 1, list = "l0", lfo = 1) {
+  return `<p style="mso-list:${list} level${level} lfo${lfo}"><span style="mso-list:Ignore">·&nbsp;</span>${text}</p>`;
+}
 
-  it("normalizes Word HTML in the default clipboard handler", () => {
-    const editor = mountEditor();
-    const html = wordItem("Original");
-    editor.prosemirrorView.dom.dispatchEvent(
-      createPasteEvent({ "text/html": html, "text/plain": "Original" }),
-    );
-    expect(editor.document[0]).toMatchObject({
-      type: "bulletListItem",
-      content: [{ text: "Original" }],
-    });
-  });
+function nativeItem(text: string, level = 2, list = "l0", lfo = 1) {
+  return `<li style="mso-list:${list} level${level} lfo${lfo}">${text}</li>`;
+}
 
-  it("preserves Google Docs blank paragraphs in the default clipboard handler", () => {
-    const editor = mountEditor();
-    editor.prosemirrorView.dom.dispatchEvent(
-      createPasteEvent({
-        "text/html":
-          '<b id="docs-internal-guid-test" style="font-weight:normal"><p>First</p><br><p>Last</p></b>',
-      }),
+function expectedItem(
+  text: string,
+  children: object[] = [],
+  type = "bulletListItem",
+) {
+  return { type, content: [{ text }], children };
+}
+
+describe("Word clipboard list transitions", () => {
+  // Reduced from the captured list/mixed-elements/input.word.html sample above:
+  // a level-one paragraph followed by <ul><ul> whose li elements explicitly
+  // identify the same list and level two.
+  it("attaches wrapped native subitems to the preceding paragraph item", () => {
+    const blocks = parseOfficeHTML(
+      paragraph("One") +
+        paragraph("Three") +
+        `<ul>\n<!-- Word wrapper --><ul>${nativeItem("Three sub one")}${nativeItem("Three sub two")}</ul>\n</ul>` +
+        paragraph("Four"),
     );
-    expect(editor.document).toMatchObject([
-      { type: "paragraph", content: [{ text: "First" }] },
-      { type: "paragraph", content: [] },
-      { type: "paragraph", content: [{ text: "Last" }] },
+    expect(blocks).toHaveLength(3);
+    expect(blocks).toMatchObject([
+      expectedItem("One"),
+      expectedItem("Three", [
+        expectedItem("Three sub one"),
+        expectedItem("Three sub two"),
+      ]),
+      expectedItem("Four"),
     ]);
   });
 
-  it("does not normalize programmatic HTML pastes", () => {
-    const editor = mountEditor();
-    editor.pasteHTML(wordItem("Original"));
-    expect(editor.document[0]).toMatchObject({
-      type: "paragraph",
-      content: [{ text: "·\u00a0Original" }],
-    });
+  it("continues native siblings and lets later paragraphs nest under the last one", () => {
+    const blocks = parseOfficeHTML(
+      paragraph("First") +
+        `<ul>${nativeItem("Second", 1)}${nativeItem("Third", 1)}</ul>` +
+        paragraph("Third child", 2) +
+        paragraph("Last"),
+    );
+    expect(blocks).toHaveLength(4);
+    expect(blocks).toMatchObject([
+      expectedItem("First"),
+      expectedItem("Second"),
+      expectedItem("Third", [expectedItem("Third child")]),
+      expectedItem("Last"),
+    ]);
   });
 
-  it("does not preprocess internal BlockNote clipboard HTML", () => {
-    const editor = mountEditor();
-    editor.prosemirrorView.dom.dispatchEvent(
-      createPasteEvent({
-        "blocknote/html": editor.blocksToFullHTML([
-          { type: "paragraph", content: "Original" },
-        ]),
-        "text/html": "<p>Fallback</p>",
-      }),
+  it("uses an existing native item as the parent of a following paragraph item", () => {
+    const blocks = parseOfficeHTML(
+      `<ol>${nativeItem("Parent", 1)}</ol>` +
+        paragraph("Child", 2) +
+        paragraph("Sibling"),
     );
-    expect(editor.document[0]).toMatchObject({
-      content: [{ text: "Original" }],
-    });
+    expect(blocks).toHaveLength(2);
+    expect(blocks).toMatchObject([
+      expectedItem("Parent", [expectedItem("Child")], "numberedListItem"),
+      expectedItem("Sibling"),
+    ]);
+  });
+
+  it("preserves native ordered child lists and inline formatting", () => {
+    const blocks = parseOfficeHTML(
+      paragraph("Parent") +
+        `<ul><ol>${nativeItem("<strong>Child</strong>")}</ol></ul>` +
+        paragraph("Grandchild", 3) +
+        paragraph("Next child", 2),
+    );
+    expect(blocks).toHaveLength(1);
+    expect(blocks).toMatchObject([
+      expectedItem("Parent", [
+        {
+          ...expectedItem(
+            "Child",
+            [expectedItem("Grandchild")],
+            "numberedListItem",
+          ),
+          content: [{ text: "Child", styles: { bold: true } }],
+        },
+        expectedItem("Next child"),
+      ]),
+    ]);
+  });
+
+  it.each([
+    ["different list", `<ul><ul>${nativeItem("Child", 2, "l1")}</ul></ul>`],
+    [
+      "different instance",
+      `<ul><ul>${nativeItem("Child", 2, "l0", 2)}</ul></ul>`,
+    ],
+    ["skipped level", `<ul><ul>${nativeItem("Child", 3)}</ul></ul>`],
+    ["missing metadata", "<ul><ul><li>Child</li></ul></ul>"],
+    [
+      "inconsistent metadata",
+      `<ul><ul>${nativeItem("Child")}${nativeItem("Other", 2, "l1")}</ul></ul>`,
+    ],
+    ["wrapper text", `<ul>Keep me<ul>${nativeItem("Child")}</ul></ul>`],
+  ])("does not guess a native parent with %s", (_name, native) => {
+    const root = normalizedDOM(paragraph("Parent") + native);
+    expect(root.querySelectorAll(":scope > ul")).toHaveLength(2);
+    expect(root.firstElementChild?.querySelector("li > ul")).toBeNull();
+    // The uncertain native fragment is preserved, rather than flattened here.
+    const original = document.createElement("div");
+    original.innerHTML = native;
+    expect(root.lastElementChild?.outerHTML).toBe(original.innerHTML);
+  });
+
+  it.each(["<p>Boundary</p>", "Boundary", "<p><o:p>&nbsp;</o:p></p>"])(
+    "does not attach native subitems across a content boundary: %s",
+    (boundary) => {
+      const root = normalizedDOM(
+        paragraph("Parent") +
+          boundary +
+          `<ul><ul>${nativeItem("Child")}</ul></ul>` +
+          paragraph("Last"),
+      );
+      expect(root.querySelectorAll(":scope > ul")).toHaveLength(3);
+      expect(root.firstElementChild?.querySelector("li > ul")).toBeNull();
+      expect(root.lastElementChild?.textContent).toBe("Last");
+    },
+  );
+
+  it("keeps transitions local to a table cell", () => {
+    const root = normalizedDOM(
+      `<table><tbody><tr><td>${paragraph("Cell parent")}<ul><ul>${nativeItem("Cell child")}</ul></ul></td><td><ul><ul>${nativeItem("Other cell")}</ul></ul>${paragraph("Other parent")}</td></tr></tbody></table>` +
+        paragraph("Outside"),
+    );
+    const cells = root.querySelectorAll("td");
+    expect(cells[0].querySelectorAll(":scope > ul")).toHaveLength(1);
+    expect(cells[0].querySelector("li > ul > li")?.textContent).toBe(
+      "Cell child",
+    );
+    expect(cells[1].querySelectorAll(":scope > ul")).toHaveLength(2);
+    expect(root.querySelector(":scope > ul")?.textContent).toBe("Outside");
+    expect(root.textContent).toBe(
+      "Cell parentCell childOther cellOther parentOutside",
+    );
+  });
+
+  it("does not create a second list around a native item's styled paragraph", () => {
+    const html = `<ul>${nativeItem('<p style="mso-list:l0 level1 lfo1">Content</p>', 1)}</ul>`;
+    const root = normalizedDOM(html);
+    expect(root.querySelectorAll("li")).toHaveLength(1);
+    expect(root.querySelector("li > ul")).toBeNull();
+    expect(root.textContent).toBe("Content");
+    expect(parseOfficeHTML(html)).toMatchObject([expectedItem("Content")]);
+  });
+});
+
+describe("Google Docs clipboard normalization", () => {
+  // Source shapes are reduced from the repository's googleDocs parse fixture
+  // (tests/src/unit/core/formatConversion/parse/parseTestInstances.ts), plus
+  // CKEditor 5's captured Firefox paragraph wrapper:
+  // https://github.com/ckeditor/ckeditor5/blob/e7c72a94f7cc6be9dff5ae0bfb81af3eaa42f62d/packages/ckeditor5-paste-from-office/tests/_data/paste-from-google-docs/bold-wrapper/simple-text/input.firefox.html
+  // Copyright (c) 2003-2026, CKSource Holding sp. z o.o.
+  // Upstream license (GPL-2.0-or-later or commercial):
+  // https://github.com/ckeditor/ckeditor5/blob/e7c72a94f7cc6be9dff5ae0bfb81af3eaa42f62d/packages/ckeditor5/LICENSE.md
+  // Break-only selections below are synthetic boundary cases using those shapes.
+  it.each(["p", "h1", "span"])(
+    "preserves hard breaks in a source-marked %s without adding paragraphs",
+    (tag) => {
+      const blocks = parseOfficeHTML(
+        `<${tag} id="docs-internal-guid-test"><br><br></${tag}>`,
+      );
+      expect(blocks).toMatchObject([
+        {
+          type: tag === "h1" ? "heading" : "paragraph",
+          ...(tag === "h1" ? { props: { level: 1 } } : {}),
+          content: [{ text: "\n\n", styles: {} }],
+          children: [],
+        },
+      ]);
+      expect(blocks).toHaveLength(1);
+    },
+  );
+
+  it("keeps a Firefox paragraph wrapper's inline styles and hard breaks", () => {
+    const blocks = parseOfficeHTML(
+      '<meta charset="utf-8"><p dir="ltr" id="docs-internal-guid-firefox"><span style="font-weight:400;white-space:pre-wrap">Plain</span><br><span style="font-weight:700;font-style:italic">Bold italic</span></p>',
+    );
+    expect(blocks).toMatchObject([
+      {
+        type: "paragraph",
+        content: [
+          { text: "Plain\n", styles: {} },
+          { text: "Bold italic", styles: { bold: true, italic: true } },
+        ],
+        children: [],
+      },
+    ]);
+    expect(blocks).toHaveLength(1);
+  });
+
+  it("keeps hard breaks when a source wrapper is inside a paragraph", () => {
+    const blocks = parseOfficeHTML(
+      '<p><b id="docs-internal-guid-test" style="font-weight:normal"><br><br></b></p>',
+    );
+    expect(blocks).toMatchObject([
+      {
+        type: "paragraph",
+        content: [{ text: "\n\n", styles: {} }],
+        children: [],
+      },
+    ]);
+    expect(blocks).toHaveLength(1);
+  });
+
+  it("preserves blank paragraphs around lists and tables without expanding their hard breaks", () => {
+    const blocks = parseOfficeHTML(
+      '<b id="docs-internal-guid-test" style="font-weight:normal"><br><ul><li><p>Bullet<br>line</p><ol><li>Number</li></ol></li></ul><br><div><table><tbody><tr><td><p>Cell<br>line</p></td></tr></tbody></table></div><br></b>',
+    );
+    expect(blocks).toMatchObject([
+      { type: "paragraph", content: [] },
+      {
+        type: "bulletListItem",
+        content: [{ text: "Bullet\nline", styles: {} }],
+        children: [
+          {
+            type: "numberedListItem",
+            content: [{ text: "Number", styles: {} }],
+            children: [],
+          },
+        ],
+      },
+      { type: "paragraph", content: [] },
+      {
+        type: "table",
+        content: {
+          rows: [
+            { cells: [{ content: [{ text: "Cell\nline", styles: {} }] }] },
+          ],
+        },
+      },
+      { type: "paragraph", content: [] },
+    ]);
+    expect(blocks).toHaveLength(5);
   });
 });

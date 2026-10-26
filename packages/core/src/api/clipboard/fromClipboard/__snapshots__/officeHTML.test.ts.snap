@@ -425,43 +425,44 @@ exports[`Office clipboard HTML > parses captured clipboard HTML: Word mixed list
     "type": "bulletListItem",
   },
   {
-    "children": [],
+    "children": [
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Three sub one Asldkfjalksdfj laksjdf",
+            "type": "text",
+          },
+        ],
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "bulletListItem",
+      },
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Three sub two Alskdfjlaksjfd lkasd f",
+            "type": "text",
+          },
+        ],
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "bulletListItem",
+      },
+    ],
     "content": [
       {
         "styles": {},
         "text": "Three Alskdfj alksdfj lkasj df",
-        "type": "text",
-      },
-    ],
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "bulletListItem",
-  },
-  {
-    "children": [],
-    "content": [
-      {
-        "styles": {},
-        "text": "Three sub one Asldkfjalksdfj laksjdf",
-        "type": "text",
-      },
-    ],
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "bulletListItem",
-  },
-  {
-    "children": [],
-    "content": [
-      {
-        "styles": {},
-        "text": "Three sub two Alskdfjlaksjfd lkasd f",
         "type": "text",
       },
     ],
