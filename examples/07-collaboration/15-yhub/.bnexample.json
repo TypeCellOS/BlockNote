@@ -1,7 +1,7 @@
 {
   "playground": true,
   "docs": true,
-  "author": "",
+  "author": "nickthesick",
   "tags": ["Advanced", "Saving/Loading", "Collaboration"],
   "dependencies": {
     "@y/prosemirror": "^2.0.0-15",
