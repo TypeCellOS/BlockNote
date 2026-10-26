@@ -23,6 +23,8 @@ describe("createStreamToolsArraySchema definitions", () => {
       properties: {
         value: { type: "string", enum: ["one", "two"] },
         constructor: { type: "string" } satisfies JSONSchema7Definition,
+        valueOf: { type: "number" } satisfies JSONSchema7Definition,
+        toString: { type: "boolean" } satisfies JSONSchema7Definition,
         enabled: true,
         forbidden: false,
       },
@@ -33,6 +35,8 @@ describe("createStreamToolsArraySchema definitions", () => {
       properties: {
         forbidden: false,
         constructor: { type: "string" } satisfies JSONSchema7Definition,
+        toString: { type: "boolean" } satisfies JSONSchema7Definition,
+        valueOf: { type: "number" } satisfies JSONSchema7Definition,
         enabled: true,
         value: { enum: ["one", "two"], type: "string" },
       },
