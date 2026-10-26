@@ -35,6 +35,7 @@
     "@vitest/ui": "5.0.5",
     "@y/protocols": "^1.0.6-rc.1",
     "@y/y": "^14.0.0-rc.26",
+    "frimousse": "^0.4.0",
     "htmlfy": "^0.6.7",
     "pdfjs-dist": "^4.10.38",
     "react": "^19.2.5",

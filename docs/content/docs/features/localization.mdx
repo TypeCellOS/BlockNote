@@ -25,11 +25,13 @@ BlockNote supports the following languages out of the box:
 - **Japanese** (`ja`) - 日本語
 - **Korean** (`ko`) - 한국어
 - **Norwegian** (`no`) - Norsk
+- **Persian** (`fa`) - فارسی
 - **Polish** (`pl`) - Polski
 - **Portuguese** (`pt`) - Português
 - **Russian** (`ru`) - Русский
 - **Slovak** (`sk`) - Slovenčina
 - **Spanish** (`es`) - Español
+- **Turkish** (`tr`) - Türkçe
 - **Ukrainian** (`uk`) - Українська
 - **Uzbek** (`uz`) - O'zbekcha
 - **Vietnamese** (`vi`) - Tiếng Việt
@@ -109,6 +111,32 @@ function CustomEditor() {
 ## Dictionary Structure
 
 The dictionary object contains translations for various parts of the editor:
+
+### Locale
+
+The optional `locale` field selects the localized emoji names, categories,
+skin-tone names, and search terms used by the emoji picker. BlockNote's bundled
+dictionaries already set this field. When creating a custom dictionary, set it
+to the matching locale code; if it is omitted or unsupported, the emoji data
+falls back to English.
+
+```tsx
+const customFrenchDictionary = {
+  ...fr,
+  locale: "fr",
+  // Your translated or customized dictionary fields.
+};
+```
+
+The picker interface strings use the same dictionary as the rest of BlockNote:
+
+```tsx
+emoji_picker: {
+  search: "Search",
+  search_no_results: "No emoji found",
+  loading: "Loading…",
+}
+```
 
 ### Placeholders
 
@@ -203,6 +231,8 @@ To add support for a new language, you can:
 
 When creating translations, make sure to:
 
+- Set `locale` to the matching locale code so the emoji picker uses the
+  appropriate localized data
 - Translate all text strings in the dictionary
 - Maintain the same structure as the English dictionary
 - Test the translations with different content types
