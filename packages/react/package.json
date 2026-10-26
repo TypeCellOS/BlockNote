@@ -55,12 +55,13 @@
   "exports": {
     ".": {
       "types": "./types/src/index.d.ts",
-      "import": "./dist/blocknote-react.js"
+      "import": "./dist/blocknote-react.js",
+      "default": "./dist/blocknote-react.js"
     },
     "./versioning": {
       "types": "./types/src/versioning.d.ts",
       "import": "./dist/versioning.js",
-      "require": "./dist/versioning.cjs"
+      "default": "./dist/versioning.js"
     },
     "./style.css": {
       "import": "./dist/style.css",

@@ -55,7 +55,8 @@
   "exports": {
     ".": {
       "types": "./types/src/index.d.ts",
-      "import": "./dist/blocknote-mantine.js"
+      "import": "./dist/blocknote-mantine.js",
+      "default": "./dist/blocknote-mantine.js"
     },
     "./style.css": {
       "import": "./src/style.css",

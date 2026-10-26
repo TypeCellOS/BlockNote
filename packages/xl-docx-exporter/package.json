@@ -55,7 +55,8 @@
   "exports": {
     ".": {
       "types": "./types/src/index.d.ts",
-      "import": "./dist/blocknote-xl-docx-exporter.js"
+      "import": "./dist/blocknote-xl-docx-exporter.js",
+      "default": "./dist/blocknote-xl-docx-exporter.js"
     }
   },
   "scripts": {

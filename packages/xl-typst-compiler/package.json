@@ -58,7 +58,8 @@
   "exports": {
     ".": {
       "types": "./types/src/index.d.ts",
-      "import": "./dist/blocknote-xl-typst-compiler.js"
+      "import": "./dist/blocknote-xl-typst-compiler.js",
+      "default": "./dist/blocknote-xl-typst-compiler.js"
     },
     "./pkg": {
       "types": "./pkg/blocknote_typst_wasm.d.ts",

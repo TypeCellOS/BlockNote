@@ -55,7 +55,8 @@
   "exports": {
     ".": {
       "types": "./types/src/index.d.ts",
-      "import": "./dist/blocknote-ariakit.js"
+      "import": "./dist/blocknote-ariakit.js",
+      "default": "./dist/blocknote-ariakit.js"
     },
     "./style.css": {
       "import": "./dist/style.css",

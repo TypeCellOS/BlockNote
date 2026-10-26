@@ -55,7 +55,8 @@
   "exports": {
     ".": {
       "types": "./types/src/index.d.ts",
-      "import": "./dist/blocknote-server-util.js"
+      "import": "./dist/blocknote-server-util.js",
+      "default": "./dist/blocknote-server-util.js"
     }
   },
   "scripts": {

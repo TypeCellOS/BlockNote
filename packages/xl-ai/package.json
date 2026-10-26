@@ -56,7 +56,8 @@
   "exports": {
     ".": {
       "types": "./types/src/index.d.ts",
-      "import": "./dist/blocknote-xl-ai.js"
+      "import": "./dist/blocknote-xl-ai.js",
+      "default": "./dist/blocknote-xl-ai.js"
     },
     "./style.css": {
       "import": "./dist/style.css",
@@ -64,11 +65,13 @@
     },
     "./locales": {
       "types": "./types/src/i18n/locales/index.d.ts",
-      "import": "./dist/locales.js"
+      "import": "./dist/locales.js",
+      "default": "./dist/locales.js"
     },
     "./server": {
       "types": "./types/src/server.d.ts",
-      "import": "./dist/server.js"
+      "import": "./dist/server.js",
+      "default": "./dist/server.js"
     }
   },
   "scripts": {

@@ -53,7 +53,8 @@
   "exports": {
     ".": {
       "types": "./types/src/index.d.ts",
-      "import": "./dist/blocknote-xl-email-exporter.js"
+      "import": "./dist/blocknote-xl-email-exporter.js",
+      "default": "./dist/blocknote-xl-email-exporter.js"
     }
   },
   "scripts": {

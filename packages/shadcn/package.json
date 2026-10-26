@@ -55,7 +55,8 @@
   "exports": {
     ".": {
       "types": "./types/src/index.d.ts",
-      "import": "./dist/blocknote-shadcn.js"
+      "import": "./dist/blocknote-shadcn.js",
+      "default": "./dist/blocknote-shadcn.js"
     },
     "./style.css": {
       "import": "./dist/style.css",

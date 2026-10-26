@@ -58,23 +58,28 @@
   "exports": {
     ".": {
       "types": "./types/src/index.d.ts",
-      "import": "./dist/blocknote-diagram-block.js"
+      "import": "./dist/blocknote-diagram-block.js",
+      "default": "./dist/blocknote-diagram-block.js"
     },
     "./docx-exporter": {
       "types": "./types/src/docx-exporter/index.d.ts",
-      "import": "./dist/docx-exporter.js"
+      "import": "./dist/docx-exporter.js",
+      "default": "./dist/docx-exporter.js"
     },
     "./odt-exporter": {
       "types": "./types/src/odt-exporter/index.d.ts",
-      "import": "./dist/odt-exporter.js"
+      "import": "./dist/odt-exporter.js",
+      "default": "./dist/odt-exporter.js"
     },
     "./email-exporter": {
       "types": "./types/src/email-exporter/index.d.ts",
-      "import": "./dist/email-exporter.js"
+      "import": "./dist/email-exporter.js",
+      "default": "./dist/email-exporter.js"
     },
     "./typst-exporter": {
       "types": "./types/src/typst-exporter/index.d.ts",
-      "import": "./dist/typst-exporter.js"
+      "import": "./dist/typst-exporter.js",
+      "default": "./dist/typst-exporter.js"
     }
   },
   "scripts": {

@@ -49,7 +49,8 @@
   "exports": {
     ".": {
       "types": "./types/src/index.d.ts",
-      "import": "./dist/blocknote-xl-typst-exporter.js"
+      "import": "./dist/blocknote-xl-typst-exporter.js",
+      "default": "./dist/blocknote-xl-typst-exporter.js"
     }
   },
   "scripts": {

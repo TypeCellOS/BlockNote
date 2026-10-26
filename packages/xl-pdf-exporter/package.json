@@ -52,11 +52,13 @@
   "exports": {
     ".": {
       "types": "./types/src/index.d.ts",
-      "import": "./dist/blocknote-xl-pdf-exporter.js"
+      "import": "./dist/blocknote-xl-pdf-exporter.js",
+      "default": "./dist/blocknote-xl-pdf-exporter.js"
     },
     "./react-pdf": {
       "types": "./types/src/react-pdf/index.d.ts",
-      "import": "./dist/react-pdf.js"
+      "import": "./dist/react-pdf.js",
+      "default": "./dist/react-pdf.js"
     }
   },
   "scripts": {

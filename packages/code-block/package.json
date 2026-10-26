@@ -53,7 +53,8 @@
   "exports": {
     ".": {
       "types": "./types/src/index.d.ts",
-      "import": "./dist/blocknote-code-block.js"
+      "import": "./dist/blocknote-code-block.js",
+      "default": "./dist/blocknote-code-block.js"
     }
   },
   "scripts": {
