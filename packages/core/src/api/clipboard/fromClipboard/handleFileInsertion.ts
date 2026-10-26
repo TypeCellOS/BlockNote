@@ -196,6 +196,7 @@ export async function handleFileInsertion<
         .uploadFile(file, insertedBlockId)
         .catch(() => undefined);
 
+      // Skip the block update after failure or deletion, but process remaining files.
       if (updateData === undefined || !editor.getBlock(insertedBlockId)) {
         continue;
       }
