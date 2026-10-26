@@ -58,7 +58,7 @@ export default defineConfig(
         },
       },
       build: {
-        sourcemap: true,
+        sourcemap: false,
         lib: {
           entry: {
             "blocknote-xl-typst-exporter": path.resolve(
@@ -67,9 +67,8 @@ export default defineConfig(
             ),
           },
           name: "blocknote-xl-typst-exporter",
-          formats: ["es", "cjs"],
-          fileName: (format, entryName) =>
-            format === "es" ? `${entryName}.js` : `${entryName}.cjs`,
+          formats: ["es"],
+          fileName: (_format, entryName) => `${entryName}.js`,
         },
         rollupOptions: {
           external: (source) =>

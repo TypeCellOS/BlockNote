@@ -74,7 +74,7 @@ export default defineConfig(
               } as Record<string, string>),
       },
       build: {
-        sourcemap: true,
+        sourcemap: false,
         lib: {
           entry: {
             "blocknote-math-block": path.resolve(__dirname, "src/index.ts"),
@@ -96,9 +96,8 @@ export default defineConfig(
             ),
           },
           name: "blocknote-math-block",
-          formats: ["es", "cjs"],
-          fileName: (format, entryName) =>
-            format === "es" ? `${entryName}.js` : `${entryName}.cjs`,
+          formats: ["es"],
+          fileName: (_format, entryName) => `${entryName}.js`,
         },
         rollupOptions: {
           // make sure to externalize deps that shouldn't be bundled
@@ -131,11 +130,6 @@ export default defineConfig(
               source.startsWith("@blocknote/") ||
               source.startsWith("node:")
             );
-          },
-          output: {
-            // Provide global variables to use in the UMD build
-            // for externalized deps
-            globals: {},
           },
         },
       },
