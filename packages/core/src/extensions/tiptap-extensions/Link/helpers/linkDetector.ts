@@ -137,7 +137,7 @@ function countChar(str: string, ch: string): number {
  */
 function extractTld(hostname: string): string {
   const parts = hostname.split(".");
-  return parts[parts.length - 1].toLowerCase();
+  return (parts.at(-1) ?? "").toLowerCase();
 }
 
 function isValidTld(hostname: string): boolean {

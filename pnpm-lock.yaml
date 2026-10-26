@@ -5989,12 +5989,6 @@ importers:
       ai:
         specifier: ^6.0.5
         version: 6.0.5(zod@4.6.7)
-      lodash.isequal:
-        specifier: ^4.5.0
-        version: 4.5.0
-      lodash.merge:
-        specifier: ^4.6.2
-        version: 4.6.2
       prosemirror-changeset:
         specifier: ^2.4.2
         version: 2.4.2
@@ -6053,12 +6047,6 @@ importers:
       '@types/json-schema':
         specifier: ^7.0.15
         version: 7.0.15
-      '@types/lodash.isequal':
-        specifier: ^4.5.8
-        version: 4.5.8
-      '@types/lodash.merge':
-        specifier: ^4.6.9
-        version: 4.6.9
       '@types/node':
         specifier: 25.9.5
         version: 25.9.5
@@ -11248,12 +11236,6 @@ packages:
   '@types/lodash.groupby@4.6.9':
     resolution: {integrity: sha512-z2xtCX2ko7GrqORnnYea4+ksT7jZNAvaOcLd6mP9M7J09RHvJs06W8BGdQQAX8ARef09VQLdeRilSOcfHlDQJQ==}
 
-  '@types/lodash.isequal@4.5.8':
-    resolution: {integrity: sha512-uput6pg4E/tj2LGxCZo9+y27JNyB2OZuuI/T5F+ylVDYuqICLG2/ktjxx0v6GvVntAf8TvEzeQLcV0ffRirXuA==}
-
-  '@types/lodash.merge@4.6.9':
-    resolution: {integrity: sha512-23sHDPmzd59kUgWyKGiOMO2Qb9YtqRO/x4IhkgNUiPQ1+5MUVqi6bCZeq9nBJ17msjIMbEIO5u+XW4Kz6aGUhQ==}
-
   '@types/lodash@4.17.24':
     resolution: {integrity: sha512-gIW7lQLZbue7lRSWEFql49QJJWThrTFFeIMJdp3eH4tKoxm1OvEPg02rm4wCCSHS0cL3/Fizimb35b7k8atwsQ==}
 
@@ -14362,10 +14344,6 @@ packages:
 
   lodash.debounce@4.0.8:
     resolution: {integrity: sha512-FT1yDzDYEoYWhnSGnpE/4Kj1fLZkDFyqRb7fNt6FdYOSxlUWAtp42Eh6Wb0rGIv/m9Bgo7x4GhQbm5Ys4SG5ow==}
-
-  lodash.isequal@4.5.0:
-    resolution: {integrity: sha512-pDo3lu8Jhfjqls6GkMgpahsF9kCyayhgykjyLMNFTKWrpVdAQtYyB4muAMWozBB4ig/dtWAmsMxLEI8wuz+DYQ==}
-    deprecated: This package is deprecated. Use require('node:util').isDeepStrictEqual instead.
 
   lodash.merge@4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
@@ -21514,14 +21492,6 @@ snapshots:
     dependencies:
       '@types/lodash': 4.17.24
 
-  '@types/lodash.isequal@4.5.8':
-    dependencies:
-      '@types/lodash': 4.17.24
-
-  '@types/lodash.merge@4.6.9':
-    dependencies:
-      '@types/lodash': 4.17.24
-
   '@types/lodash@4.17.24': {}
 
   '@types/mdast@4.0.4':
@@ -24769,8 +24739,6 @@ snapshots:
   lodash-es@4.18.1: {}
 
   lodash.debounce@4.0.8: {}
-
-  lodash.isequal@4.5.0: {}
 
   lodash.merge@4.6.2: {}
 

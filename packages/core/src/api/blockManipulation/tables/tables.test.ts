@@ -1815,11 +1815,12 @@ describe("Test cropEmptyRowsOrColumns", () => {
           ...simpleTable,
           content: {
             ...simpleTable.content,
-            rows: simpleTable.content.rows.concat([
+            rows: [
+              ...simpleTable.content.rows,
               {
                 cells: [emptyCell, emptyCell],
               },
-            ]),
+            ],
           },
         },
         "rows",
@@ -1847,11 +1848,12 @@ describe("Test cropEmptyRowsOrColumns", () => {
           ...tableWithColspan,
           content: {
             ...tableWithColspan.content,
-            rows: tableWithColspan.content.rows.concat([
+            rows: [
+              ...tableWithColspan.content.rows,
               {
                 cells: [emptyCell, emptyCell, emptyCell],
               },
-            ]),
+            ],
           },
         },
         "rows",
@@ -1888,11 +1890,12 @@ describe("Test cropEmptyRowsOrColumns", () => {
           ...tableWithRowspan,
           content: {
             ...tableWithRowspan.content,
-            rows: tableWithRowspan.content.rows.concat([
+            rows: [
+              ...tableWithRowspan.content.rows,
               {
                 cells: [emptyCell, emptyCell, emptyCell],
               },
-            ]),
+            ],
           },
         },
         "rows",
@@ -1932,11 +1935,12 @@ describe("Test cropEmptyRowsOrColumns", () => {
           ...tableWithColspanAndRowspan,
           content: {
             ...tableWithColspanAndRowspan.content,
-            rows: tableWithColspanAndRowspan.content.rows.concat([
+            rows: [
+              ...tableWithColspanAndRowspan.content.rows,
               {
                 cells: [emptyCell, emptyCell, emptyCell],
               },
-            ]),
+            ],
           },
         },
         "rows",
@@ -1985,11 +1989,12 @@ describe("Test cropEmptyRowsOrColumns", () => {
           ...tableWithComplexRowspansAndColspans,
           content: {
             ...tableWithComplexRowspansAndColspans.content,
-            rows: tableWithComplexRowspansAndColspans.content.rows.concat([
+            rows: [
+              ...tableWithComplexRowspansAndColspans.content.rows,
               {
                 cells: [emptyCell, emptyCell, emptyCell, emptyCell],
               },
-            ]),
+            ],
           },
         },
         "rows",
