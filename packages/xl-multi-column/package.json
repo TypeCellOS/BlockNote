@@ -9,7 +9,7 @@
     "directory": "packages/xl-multi-column"
   },
   "license": "GPL-3.0 OR PROPRIETARY",
-  "version": "0.55.0",
+  "version": "0.56.0",
   "files": [
     "dist",
     "types",
@@ -70,7 +70,7 @@
     "@tiptap/core": "^3.31.3",
     "prosemirror-model": "^1.25.11",
     "prosemirror-state": "^1.4.4",
-    "prosemirror-view": "^1.42.4"
+    "prosemirror-view": "^1.42.5"
   },
   "devDependencies": {
     "@blocknote/shared": "workspace:^",

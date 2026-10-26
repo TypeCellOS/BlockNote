@@ -3,6 +3,7 @@ import * as path from "path";
 import { webpackStats } from "rollup-plugin-webpack-stats";
 import { defineConfig, loadEnv, type UserConfig } from "vite-plus";
 import pkg from "./package.json";
+import { buildCacheInputs } from "../../scripts/build-cache-inputs.js";
 // import eslintPlugin from "vite-plugin-eslint";
 
 // https://vitejs.dev/config/
@@ -12,32 +13,44 @@ export default defineConfig(
       run: {
         tasks: {
           build: {
-            command: "tsc && vp build",
-            input: [
-              { auto: true },
-              { pattern: "!**/*.tsbuildinfo", base: "workspace" },
-            ],
-            // `types/**` must be declared too: a cache replay that restores only
-            // dist/ leaves consumers without declarations (tsc is skipped).
-            output: ["dist/**", "types/**", "!dist/*.tsbuildinfo"],
+            command:
+              "tsc --project tsconfig.json --composite false --incremental false --rootDir . && vp build",
+            cache: {
+              input: [
+                ...buildCacheInputs("packages/xl-ai"),
+                { pattern: "!**/*.tsbuildinfo", base: "workspace" },
+              ],
+              // `types/**` must be declared too: a cache replay that restores only
+              // dist/ leaves consumers without declarations (tsc is skipped).
+              output: ["dist/**", "types/**", "!dist/*.tsbuildinfo"],
+            },
           },
           test: {
             command:
               'NODE_EXTRA_CA_CERTS="$(mkcert -CAROOT)/rootCA.pem" vp test --run',
-            input: [
-              { auto: true },
-              { pattern: "!**/.vite-temp/**", base: "workspace" },
-              { pattern: "!**/node_modules/.vite/**", base: "workspace" },
-              { pattern: "!**/*.tsbuildinfo", base: "workspace" },
-            ],
+            cache: {
+              input: [
+                { auto: true },
+                { pattern: "!**/.vite-temp/**", base: "workspace" },
+                { pattern: "!**/node_modules/.vite/**", base: "workspace" },
+                { pattern: "!**/*.tsbuildinfo", base: "workspace" },
+              ],
+            },
           },
         },
       },
       test: {
+        // Preserve Vitest 4 mock history during the toolchain upgrade.
+        clearMocks: false,
         environment: "jsdom",
         setupFiles: ["./vitestSetup.ts"],
         // https://vitest.dev/guide/features.html#environment-variables
-        env: loadEnv(conf.mode, __dirname, ""),
+        // Only tests need the full environment. Loading it during a build
+        // fingerprints unrelated per-run CI variables and prevents reuse.
+        env:
+          conf.command === "build"
+            ? undefined
+            : loadEnv(conf.mode, __dirname, ""),
       },
       plugins: [react(), webpackStats()],
       // used so that vitest resolves the core package from the sources instead of the built version

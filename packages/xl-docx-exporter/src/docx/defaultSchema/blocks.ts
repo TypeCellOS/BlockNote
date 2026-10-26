@@ -25,6 +25,11 @@ import {
   TextRun,
 } from "docx";
 import { clampListLevel } from "../listLevels.js";
+import {
+  createDOCXParagraph,
+  DOCXBlockResult,
+  docxContent,
+} from "../mapping.js";
 import { Table } from "../util/Table.js";
 
 type BSchema = DefaultBlockSchema & {
@@ -103,10 +108,7 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
   BSchema,
   any,
   any,
-  | Promise<Paragraph[] | Paragraph | DocxTable>
-  | Paragraph[]
-  | Paragraph
-  | DocxTable,
+  DOCXBlockResult,
   ParagraphChild
 > = {
   paragraph: (block, exporter) => {
@@ -127,7 +129,7 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
     });
   },
   numberedListItem: (block, exporter, nestingLevel, numberingInstance) => {
-    return new Paragraph({
+    return createDOCXParagraph({
       ...blockPropsToStyles(block.props, exporter.options.colors),
       children: exporter.transformInlineContent(block.content),
       numbering: {
@@ -140,7 +142,7 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
     });
   },
   bulletListItem: (block, exporter, nestingLevel, numberingInstance) => {
-    return new Paragraph({
+    return createDOCXParagraph({
       ...blockPropsToStyles(block.props, exporter.options.colors),
       children: exporter.transformInlineContent(block.content),
       numbering: {
@@ -227,54 +229,64 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
       },
     });
   },
-  column: (block, _exporter, _nestingLevel, _numberedListIndex, children) => {
-    return new TableCell({
-      width: {
-        size: `${block.props.width * 100}%`,
-        type: "pct",
-      },
-      children: (children || []).flatMap((child) => {
-        if (Array.isArray(child)) {
-          return child;
-        }
-
-        return [child];
-      }),
-    }) as any;
+  column: {
+    withChildren: (
+      block,
+      _exporter,
+      _nestingLevel,
+      _numberedListIndex,
+      children,
+    ) => {
+      return {
+        type: "column",
+        width: block.props.width,
+        children: docxContent(children.flat(), "column"),
+      };
+    },
   },
-  columnList: (
-    _block,
-    _exporter,
-    _nestingLevel,
-    _numberedListIndex,
-    children,
-  ) => {
-    return new DocxTable({
-      layout: "autofit",
-      borders: {
-        bottom: { style: "nil" },
-        top: { style: "nil" },
-        left: { style: "nil" },
-        right: { style: "nil" },
-        insideHorizontal: { style: "nil" },
-        insideVertical: { style: "nil" },
-      },
-      rows: [
-        new TableRow({
-          children: (children as unknown as TableCell[]).map(
-            (cell, _index, children) => {
+  columnList: {
+    withChildren: (
+      _block,
+      _exporter,
+      _nestingLevel,
+      _numberedListIndex,
+      children,
+    ) => {
+      const columns = children.flat().map((child) => {
+        if (
+          child instanceof Paragraph ||
+          child instanceof DocxTable ||
+          child.type !== "column"
+        ) {
+          throw new Error("DOCX columnList children must be columns.");
+        }
+        return child;
+      });
+      return new DocxTable({
+        layout: "autofit",
+        borders: {
+          bottom: { style: "nil" },
+          top: { style: "nil" },
+          left: { style: "nil" },
+          right: { style: "nil" },
+          insideHorizontal: { style: "nil" },
+          insideVertical: { style: "nil" },
+        },
+        rows: [
+          new TableRow({
+            children: columns.map((column) => {
               return new TableCell({
                 width: {
-                  size: `${(parseFloat(`${cell.options.width?.size || "100%"}`) / (children.length * 100)) * 100}%`,
+                  size: `${(column.width * 100) / columns.length}%`,
                   type: "pct",
                 },
-                children: cell.options.children,
+                children: column.children,
               });
-            },
-          ),
-        }),
-      ],
-    });
+            }),
+          }),
+        ],
+      });
+    },
   },
   image: async (block, exporter) => {
     if (!block.props.url) {

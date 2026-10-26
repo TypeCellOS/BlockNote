@@ -1,3 +1,4 @@
+/* eslint-disable react/refs -- This render-phase cache commits preview errors without a stale-preview frame on popup close. */
 import { BlockNoteEditor } from "@blocknote/core";
 import { MouseEvent, ReactNode, useId, useRef } from "react";
 import { MdKeyboardReturn } from "react-icons/md";
@@ -205,9 +206,6 @@ export const SourceWithPreview = (
               aria-invalid={error ? true : undefined}
               aria-describedby={error ? errorId : undefined}
             />
-            {inline && source.length === 0 && (
-              <br aria-hidden="true" contentEditable={false} />
-            )}
           </pre>
           <div
             className="bn-code-block-source-popup-ok-button-wrapper"

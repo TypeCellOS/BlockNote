@@ -94,8 +94,16 @@ export const MenuItem = forwardRef<
   HTMLDivElement,
   ComponentProps["Generic"]["Menu"]["Item"]
 >((props, ref) => {
-  const { className, children, icon, checked, subTrigger, onClick, ...rest } =
-    props;
+  const {
+    className,
+    children,
+    icon,
+    checked,
+    disabled,
+    subTrigger,
+    onClick,
+    ...rest
+  } = props;
 
   assertEmpty(rest);
 
@@ -115,6 +123,7 @@ export const MenuItem = forwardRef<
         className={mergeCSSClasses("bn-ak-menu-item", className || "")}
         ref={ref}
         onClick={onClick}
+        disabled={disabled}
       >
         {icon}
         {children}
@@ -128,6 +137,7 @@ export const MenuItem = forwardRef<
       className={mergeCSSClasses("bn-ak-menu-item", className || "")}
       ref={ref}
       onClick={onClick}
+      disabled={disabled}
       // How-to-test: with hover focus on, tapping a color focuses the menu through the tap's compat mousemove and closes the keyboard (covered by skinFocus, android, ariakit: "picking from the colors menu leaves focus in the editor").
       focusOnHover={!preventFocusOnOpen}
       // How-to-test: without the tap guard, tapping a color focuses the item and closes the keyboard (covered by the same case).

@@ -11,7 +11,7 @@
     "directory": "packages/react"
   },
   "license": "MPL-2.0",
-  "version": "0.55.0",
+  "version": "0.56.0",
   "files": [
     "dist",
     "types",
@@ -56,6 +56,11 @@
     ".": {
       "types": "./types/src/index.d.ts",
       "import": "./dist/blocknote-react.js"
+    },
+    "./versioning": {
+      "types": "./types/src/versioning.d.ts",
+      "import": "./dist/versioning.js",
+      "require": "./dist/versioning.cjs"
     },
     "./style.css": {
       "import": "./dist/style.css",

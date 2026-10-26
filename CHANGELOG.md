@@ -1,3 +1,51 @@
+## 0.56.0 (2026-10-14)
+
+### 🚀 Features
+
+- Down arrow in block without content at end of doc creates paragraph (BLO-1364) ([#3113](https://github.com/TypeCellOS/BlockNote/pull/3113))
+- Update backspace handling in nested blocks (BLO-1326) ([#3124](https://github.com/TypeCellOS/BlockNote/pull/3124))
+- **core:** ⚠️ Rewrite side menu hover, add hoverMargin and dropMargin options ([#3179](https://github.com/TypeCellOS/BlockNote/pull/3179))
+- ⚠️ Rebuild version history and customize snapshot actions ([#3090](https://github.com/TypeCellOS/BlockNote/pull/3090))
+- Mod+A shortcut changes (BLO-1314) ([#2995](https://github.com/TypeCellOS/BlockNote/pull/2995))
+
+### 🔥 Performance
+
+- **core:** Reduce Inter font swap layout shift ([#3130](https://github.com/TypeCellOS/BlockNote/pull/3130))
+
+### 🩹 Fixes
+
+- **xl-email-exporter:** Escape text instead of injecting it as HTML ([#3100](https://github.com/TypeCellOS/BlockNote/pull/3100))
+- **core:** Remove unused source preview anchor ([#3099](https://github.com/TypeCellOS/BlockNote/pull/3099))
+- **core:** Use the default language for a code block typed without one ([#3024](https://github.com/TypeCellOS/BlockNote/pull/3024))
+- Inline code clears comments (BLO-1207) (BLO-1363) ([#2832](https://github.com/TypeCellOS/BlockNote/pull/2832))
+- **math-block:** Open math previews on the first click (BLO-1372) ([#3129](https://github.com/TypeCellOS/BlockNote/pull/3129))
+- Markdown autolink round trips (BLO-1369) ([#3115](https://github.com/TypeCellOS/BlockNote/pull/3115))
+- **math:** Update selected inline content styling ([#2983](https://github.com/TypeCellOS/BlockNote/pull/2983))
+- insertInlineContent adding content after cursor (BLO-1356) ([#3112](https://github.com/TypeCellOS/BlockNote/pull/3112))
+- **docx:** Align fresh-install snapshots with docx 9.8 ([#3139](https://github.com/TypeCellOS/BlockNote/pull/3139))
+- **core:** Don't throw when the placeholder style is already removed ([#3145](https://github.com/TypeCellOS/BlockNote/pull/3145))
+- Update DOCX snapshots for fresh dependency installs ([#3170](https://github.com/TypeCellOS/BlockNote/pull/3170))
+- **core:** Keep the formatting toolbar hidden when focus returns to editor UI ([#3187](https://github.com/TypeCellOS/BlockNote/pull/3187))
+- **core:** Don't reposition the suggestion menu on its own scroll ([#3188](https://github.com/TypeCellOS/BlockNote/pull/3188))
+- **react:** Place the suggestion menu below unless cramped, keep its side and width while filtering ([#3190](https://github.com/TypeCellOS/BlockNote/pull/3190))
+- **core:** Don't mark block changes from before the view exists ([#3193](https://github.com/TypeCellOS/BlockNote/pull/3193))
+- **core:** Dropping a block into a toggle with a real drag ([#3195](https://github.com/TypeCellOS/BlockNote/pull/3195))
+- **react:** Show the suggestion menu above its trigger when there is room for fewer than five items below ([#3198](https://github.com/TypeCellOS/BlockNote/pull/3198))
+- WebKit scrolling on block drop (BLO-1353) ([#3122](https://github.com/TypeCellOS/BlockNote/pull/3122))
+
+#### ⚠️ Breaking Changes
+
+- **core:** ⚠️ Rewrite side menu hover, add hoverMargin and dropMargin options ([#3179](https://github.com/TypeCellOS/BlockNote/pull/3179))
+- ⚠️ Rebuild version history and customize snapshot actions ([#3090](https://github.com/TypeCellOS/BlockNote/pull/3090))
+
+### ❤️ Thank You
+
+- Matthew Lipski
+- Yousef <yousefdardiry@gmail.com>
+- Nick Perez <nick@blocknotejs.org>
+- Adarshsm <adarshmudugal@gmail.com>
+- Rovshan Muradov
+
 ## 0.55.0 (2026-09-22)
 
 This release, we have promoted the mobile formatting toolbar from experimental to supported. We recommend you to check our [Mobile compatibility getting started guide for more information](https://www.blocknotejs.org/docs/getting-started#mobile-compatibility).

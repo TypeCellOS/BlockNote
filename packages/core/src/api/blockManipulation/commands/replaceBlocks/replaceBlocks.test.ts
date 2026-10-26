@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vite-plus/test";
 
 import { setupTestEnv } from "../../setupTestEnv.js";
+import { updateBlock } from "../updateBlock/updateBlock.js";
 import { removeAndInsertBlocks } from "./replaceBlocks.js";
 import { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
 import { PartialBlock } from "../../../../blocks/defaultBlocks.js";
@@ -231,5 +232,75 @@ describe("Test replaceBlocks", () => {
     );
 
     expect(getEditor().document).toMatchSnapshot();
+  });
+});
+
+// `removeAndInsertBlocks` walks the document while mutating it, so the
+// positions it reads go stale as it goes. It corrects for that with
+// `tr.mapping.slice(stepsBefore)`, where `stepsBefore` is the step count on
+// entry. The slice is what makes the function safe to call on a transaction
+// that already carries steps: an unsliced `tr.mapping` would re-apply the
+// caller's earlier steps to positions that already account for them, and the
+// resulting delete ranges would land on the wrong nodes.
+describe("Test replaceBlocks on a transaction that already has steps", () => {
+  it("Removes the right blocks across two calls in one transaction", () => {
+    const editor = getEditor();
+    const before = editor.document;
+
+    editor.transact((tr) => {
+      removeAndInsertBlocks(tr, ["paragraph-0"], []);
+      removeAndInsertBlocks(tr, ["paragraph-2"], []);
+    });
+
+    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+    expect(editor.document).toEqual(
+      before.filter(
+        (block) => block.id !== "paragraph-0" && block.id !== "paragraph-2",
+      ),
+    );
+  });
+
+  it("Removes the right block after the caller has already updated one", () => {
+    const editor = getEditor();
+    const before = editor.document;
+
+    editor.transact((tr) => {
+      // Changes the size of a block that sits before the one removed below,
+      // so the removal's positions are only correct if the earlier step is
+      // accounted for exactly once.
+      updateBlock(tr, "paragraph-0", {
+        type: "heading",
+        content: "Updated heading",
+      });
+      const inserted: PartialBlock<any, any, any>[] = [
+        { id: "inserted-paragraph", type: "paragraph", content: "Inserted" },
+      ];
+      removeAndInsertBlocks(tr, ["paragraph-2"], inserted);
+    });
+
+    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+
+    const updated = editor.getBlock("paragraph-0")!;
+    expect(updated.type).toBe("heading");
+    expect(updated.content).toEqual([
+      { type: "text", text: "Updated heading", styles: {} },
+    ]);
+
+    expect(editor.document.map((block) => block.id)).toEqual(
+      before.map((block) =>
+        block.id === "paragraph-2" ? "inserted-paragraph" : block.id,
+      ),
+    );
+    // Every block the two operations didn't target is left exactly as it was.
+    expect(
+      editor.document.filter(
+        (block) =>
+          block.id !== "paragraph-0" && block.id !== "inserted-paragraph",
+      ),
+    ).toEqual(
+      before.filter(
+        (block) => block.id !== "paragraph-0" && block.id !== "paragraph-2",
+      ),
+    );
   });
 });

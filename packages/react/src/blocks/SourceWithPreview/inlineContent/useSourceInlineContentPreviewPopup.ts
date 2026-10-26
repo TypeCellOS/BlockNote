@@ -1,7 +1,5 @@
-import {
-  BlockNoteEditor,
-  SourceInlineContentWithPreviewExtension,
-} from "@blocknote/core";
+import { BlockNoteEditor } from "@blocknote/core";
+import { SourceInlineContentWithPreviewExtension } from "@blocknote/core/extensions";
 import { TextSelection } from "@tiptap/pm/state";
 
 import {

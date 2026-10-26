@@ -5,12 +5,12 @@ import { NodeView } from "prosemirror-view";
 
 import { createExtension } from "../../editor/BlockNoteExtension.js";
 import {
+  applyDataAttributes,
   BlockConfig,
   createBlockSpecFromTiptapNode,
   TableContent,
 } from "../../schema/index.js";
 import { mergeCSSClasses } from "../../util/browser.js";
-import { camelToDataKebab } from "../../util/string.js";
 import { suggestionMarks } from "../../pm-nodes/suggestionMarks.js";
 import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers.js";
 import { defaultProps } from "../defaultProps.js";
@@ -277,15 +277,7 @@ const TiptapTableNode = Node.create({
             return false;
           }
 
-          for (const [propName, propSpec] of Object.entries(tablePropSchema)) {
-            const attrName = camelToDataKebab(propName);
-            const value = updatedNode.attrs[propName];
-            if (value !== propSpec.default) {
-              this.dom.setAttribute(attrName, String(value));
-            } else {
-              this.dom.removeAttribute(attrName);
-            }
-          }
+          applyDataAttributes(this.dom, updatedNode.attrs, tablePropSchema);
 
           return true;
         }

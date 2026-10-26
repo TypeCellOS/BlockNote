@@ -1,6 +1,5 @@
 import type { Project } from "../util";
 
-// TODO: the ../../ paths are broken
 const template = (
   project: Project,
 ) => `// AUTO-GENERATED FILE, DO NOT EDIT DIRECTLY
@@ -23,7 +22,7 @@ export default defineConfig(((conf: { command: string }) => ({
   resolve: {
     alias:
       conf.command === "build" ||
-      !fs.existsSync(path.resolve(__dirname, "../../packages/core/src"))
+      !fs.existsSync(path.resolve(__dirname, "../../../packages/core/src"))
         ? {}
         : ({
             // The repo-wide alias for the shared test-utils directory (private,
@@ -34,11 +33,11 @@ export default defineConfig(((conf: { command: string }) => ({
             // or, keep as is to load live from sources with live reload working
             "@blocknote/core": path.resolve(
               __dirname,
-              "../../packages/core/src/"
+              "../../../packages/core/src/"
             ),
             "@blocknote/react": path.resolve(
               __dirname,
-              "../../packages/react/src/"
+              "../../../packages/react/src/"
             ),
           } as any),
   },

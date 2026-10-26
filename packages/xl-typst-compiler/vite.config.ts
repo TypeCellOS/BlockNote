@@ -1,6 +1,7 @@
 import * as path from "path";
 import { webpackStats } from "rollup-plugin-webpack-stats";
 import { defineConfig, type UserConfig } from "vite-plus";
+import { buildCacheInputs } from "../../scripts/build-cache-inputs.js";
 
 // https://vitejs.dev/config/
 export default defineConfig(
@@ -14,21 +15,29 @@ export default defineConfig(
             // consumer of this task, including the Vercel builds, gets the
             // wasm without a separate step. Requires a Rust toolchain
             // locally (pinned in rust/rust-toolchain.toml).
-            command: "node scripts/ensure-wasm.mjs && tsc && vp build",
-            input: [
-              { auto: true },
-              { pattern: "!**/*.tsbuildinfo", base: "workspace" },
-              { pattern: "rust/**", base: "workspace" },
-              { pattern: "!rust/target/**", base: "workspace" },
-            ],
-            // `types/**` must be declared too: a cache replay that restores
-            // only dist/ leaves consumers without declarations. pkg/** is
-            // produced by ensure-wasm and replayed with the rest.
-            output: ["dist/**", "types/**", "pkg/**", "!dist/*.tsbuildinfo"],
+            command:
+              "node scripts/ensure-wasm.mjs && tsc --project tsconfig.json --composite false --incremental false --rootDir . && vp build",
+            cache: {
+              input: [
+                ...buildCacheInputs("packages/xl-typst-compiler"),
+                { pattern: "!**/*.tsbuildinfo", base: "workspace" },
+                "rust/Cargo.toml",
+                "rust/Cargo.lock",
+                "rust/rust-toolchain.toml",
+                "rust/src/**",
+                "!rust/target/**",
+              ],
+              // `types/**` must be declared too: a cache replay that restores
+              // only dist/ leaves consumers without declarations. pkg/** is
+              // produced by ensure-wasm and replayed with the rest.
+              output: ["dist/**", "types/**", "pkg/**", "!dist/*.tsbuildinfo"],
+            },
           },
         },
       },
       test: {
+        // Preserve Vitest 4 mock history during the toolchain upgrade.
+        clearMocks: false,
         environment: "node",
         testTimeout: 30000,
       },

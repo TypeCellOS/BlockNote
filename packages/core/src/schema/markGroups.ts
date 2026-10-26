@@ -1,4 +1,4 @@
-import { Editor, getExtensionField } from "@tiptap/core";
+import { Editor, flattenExtensions, getExtensionField } from "@tiptap/core";
 
 /**
  * ProseMirror mark group for "non-formatting" marks: comments and the
@@ -36,7 +36,9 @@ export function nonFormattingMarks(editor: Editor | undefined): string {
   if (!editor) {
     return "";
   }
-  const hasNonFormattingMark = editor.options.extensions.some((extension) => {
+  const hasNonFormattingMark = flattenExtensions(
+    editor.options.extensions,
+  ).some((extension) => {
     if (extension.type !== "mark") {
       return false;
     }
@@ -47,4 +49,34 @@ export function nonFormattingMarks(editor: Editor | undefined): string {
     );
   });
   return hasNonFormattingMark ? NON_FORMATTING_MARK_GROUP : "";
+}
+
+/**
+ * The `excludes` field value for marks which may coexist with annotation marks
+ * but should exclude all other marks.
+ *
+ * Returns `"_"` when no editor is available, preserving ProseMirror's default
+ * behavior for schema creation outside an editor.
+ */
+export function marksExcludingNonFormattingMarks(
+  editor: Editor | undefined,
+): string {
+  if (!editor) {
+    return "_";
+  }
+
+  return flattenExtensions(editor.options.extensions)
+    .filter((extension) => {
+      if (extension.type !== "mark") {
+        return false;
+      }
+
+      const group = getExtensionField(extension, "group") as string | undefined;
+      return (
+        typeof group !== "string" ||
+        !group.split(" ").includes(NON_FORMATTING_MARK_GROUP)
+      );
+    })
+    .map((extension) => extension.name)
+    .join(" ");
 }

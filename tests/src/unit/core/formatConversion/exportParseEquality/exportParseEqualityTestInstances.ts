@@ -662,6 +662,78 @@ export const exportParseEqualityTestInstancesMarkdown: TestInstance<
   },
   {
     testCase: {
+      name: "markdown/plainUrlLink",
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "link",
+              content: "https://example.com",
+              href: "https://example.com",
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportParseEqualityMarkdown,
+  },
+  {
+    testCase: {
+      name: "markdown/editorDetectedUrlLink",
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "link",
+              content: "https://invalid",
+              href: "https://invalid",
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportParseEqualityMarkdown,
+  },
+  {
+    testCase: {
+      name: "markdown/plainUrlLinkWithTerminalPunctuation",
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "link",
+              content: "https://example.com/path.",
+              href: "https://example.com/path.",
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportParseEqualityMarkdown,
+  },
+  {
+    testCase: {
+      name: "markdown/plainWwwLink",
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "link",
+              content: "www.example.com",
+              href: "www.example.com",
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportParseEqualityMarkdown,
+  },
+  {
+    testCase: {
       name: "markdown/image",
       content: [
         {
@@ -893,6 +965,54 @@ export const exportParseEqualityTestInstancesMarkdown: TestInstance<
                   content: "Deep checklist item",
                 },
               ],
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportParseEqualityMarkdown,
+  },
+  {
+    testCase: {
+      name: "markdown/styledSurroundingWhitespace",
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "text",
+              text: "Normal",
+              styles: {},
+            },
+            {
+              type: "text",
+              text: " bold",
+              styles: { bold: true },
+            },
+            {
+              type: "text",
+              text: " and",
+              styles: {},
+            },
+            {
+              type: "text",
+              text: " italic ",
+              styles: { italic: true },
+            },
+            {
+              type: "text",
+              text: "and",
+              styles: {},
+            },
+            {
+              type: "text",
+              text: " strike ",
+              styles: { strike: true },
+            },
+            {
+              type: "text",
+              text: "end",
+              styles: {},
             },
           ],
         },

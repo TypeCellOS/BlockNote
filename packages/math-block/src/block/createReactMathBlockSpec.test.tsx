@@ -134,7 +134,7 @@ describe("Math block source popup keyboard handling", () => {
       await flush();
       expect(isPopupOpen("math")).toBe(true);
 
-      // Math uses `hardBreakShortcut: "shift+enter"`, so unlike the diagram
+      // Math keeps the default Enter (no `keyboard.enter: "line-break"`), so unlike the diagram
       // block, a plain Enter closes the popup rather than extending the source
       // with a newline (that needs Shift+Enter - see the next test).
       pressKey("Enter");
@@ -264,12 +264,15 @@ describe("Math block source popup keyboard handling", () => {
       expect(isPopupOpen("math")).toBe(false);
 
       // Single-character keys are only blocked when no Ctrl/Cmd is held, so
-      // shortcuts pass through - keeping copy/select-all/find working.
+      // shortcuts pass through - keeping copy/find working.
       // (Cut/paste also pass through; that's a known limitation.)
       expect(pressKey("c", { ctrlKey: true })).toBe(false);
-      expect(pressKey("a", { ctrlKey: true })).toBe(false);
       expect(pressKey("f", { ctrlKey: true })).toBe(false);
       expect(pressKey("v", { metaKey: true })).toBe(false);
+      // Ctrl/Cmd-a is the exception: select-all is handled explicitly by
+      // the global keymap (see KeyboardShortcutsExtension), not deferred to the
+      // browser, so it reports as handled rather than passing through.
+      expect(pressKey("a", { ctrlKey: true })).toBe(true);
     });
 
     it("defers deletion keys to the default while the popup is open", async () => {
@@ -315,6 +318,34 @@ describe("Math block source popup keyboard handling", () => {
         { id: "math", type: "mathBlock", content: "a^2" },
       ]);
       editor.setTextCursorPosition("before", "start");
+    });
+
+    it("opens on the first click when selecting the math block rerenders its preview", async () => {
+      const formula = previewRoot("math").querySelector<HTMLElement>(
+        ".bn-preview-container .katex",
+      );
+      if (!formula) {
+        throw new Error("Math preview did not render");
+      }
+
+      formula.dispatchEvent(
+        new MouseEvent("mousedown", { bubbles: true, cancelable: true }),
+      );
+      editor.setTextCursorPosition("math", "start");
+      await flush();
+
+      // A native click can be lost if selection rerenders the element that
+      // received mousedown before the browser dispatches click.
+      expect(previewRoot("math").querySelector(".katex")).toBe(formula);
+      formula.dispatchEvent(
+        new MouseEvent("mouseup", { bubbles: true, cancelable: true }),
+      );
+      formula.dispatchEvent(
+        new MouseEvent("click", { bubbles: true, cancelable: true }),
+      );
+      await flush();
+
+      expect(isPopupOpen("math")).toBe(true);
     });
 
     it("opens the popup and places the cursor at the source end", async () => {

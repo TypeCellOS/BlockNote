@@ -1,3 +1,6 @@
+import { parseAutolinkLiteral } from "../../parsers/markdown/autolink.js";
+import { wrapWithDelimiter } from "./wrapWithDelimiter.js";
+
 /**
  * Custom HTML-to-Markdown serializer for BlockNote.
  * Replaces the unified/rehype-remark pipeline with a direct DOM-based implementation.
@@ -702,8 +705,17 @@ function serializeBlockLink(el: HTMLElement, ctx: SerializeContext): string {
  * a `)` inside the URL does not prematurely close the destination.
  */
 function formatLink(text: string, href: string): string {
-  if (!text || text === href) {
+  if (!text) {
     return href;
+  }
+  if (text === href) {
+    const autolink = parseAutolinkLiteral(href);
+    if (
+      !/^(https?:\/\/|www\.)/i.test(href) ||
+      (autolink?.href === href && autolink.value === href)
+    ) {
+      return href;
+    }
   }
   return `[${text}](${escapeLinkDestination(href)})`;
 }
@@ -750,31 +762,16 @@ function serializeInlineContent(el: Element): string {
 
       switch (tag) {
         case "strong":
-        case "b": {
-          const inner = serializeInlineContent(childEl);
-          const { content, trailing } = extractTrailingWhitespace(inner);
-          if (content) {
-            result += `**${content}**${trailing}`;
-          } else {
-            // All whitespace — just output it without emphasis
-            result += trailing;
-          }
+        case "b":
+          result += wrapWithDelimiter(serializeInlineContent(childEl), "**");
           break;
-        }
         case "em":
-        case "i": {
-          const inner = serializeInlineContent(childEl);
-          const { content, trailing } = extractTrailingWhitespace(inner);
-          if (content) {
-            result += `*${content}*${trailing}`;
-          } else {
-            result += trailing;
-          }
+        case "i":
+          result += wrapWithDelimiter(serializeInlineContent(childEl), "*");
           break;
-        }
         case "s":
         case "del":
-          result += `~~${serializeInlineContent(childEl)}~~`;
+          result += wrapWithDelimiter(serializeInlineContent(childEl), "~~");
           break;
         case "code": {
           const text = childEl.textContent || "";
@@ -847,22 +844,6 @@ function serializeInlineContent(el: Element): string {
   }
 
   return result;
-}
-
-/**
- * Extract trailing whitespace from emphasis content.
- * Moves trailing spaces outside the emphasis delimiters to produce valid markdown.
- * E.g., `<strong>Bold </strong>` → `**Bold** ` instead of `**Bold **`.
- */
-function extractTrailingWhitespace(text: string): {
-  content: string;
-  trailing: string;
-} {
-  const match = text.match(/^(.*?)(\s*)$/);
-  if (match) {
-    return { content: match[1], trailing: match[2] };
-  }
-  return { content: text, trailing: "" };
 }
 
 /**

@@ -1,273 +1,268 @@
+import type { Node } from "prosemirror-model";
+import { EditorState } from "prosemirror-state";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import type { Block } from "../../blocks/defaultBlocks.js";
+import { originalFactorySymbol } from "../../editor/managers/ExtensionManager/symbol.js";
+import type {
+  DefaultBlockSchema,
+  DefaultInlineContentSchema,
+  DefaultStyleSchema,
+  PartialBlock,
+} from "../../blocks/defaultBlocks.js";
+import type {
+  BlockSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "../../schema/index.js";
+import { blockToNode } from "../../api/nodeConversions/blockToNode.js";
+import { docToBlocks } from "../../api/nodeConversions/nodeToBlock.js";
 import type { DiffVersioningExtension } from "../../y/extensions/DiffVersioningExtension.js";
 import type {
-  PreviewController,
-  VersioningEndpoints,
-  VersioningExtensionOptions,
   VersionSnapshot,
-} from "./Versioning.js";
-import { CURRENT_VERSION_ID, sortSnapshotsNewestFirst } from "./Versioning.js";
+  VersionStorage,
+  VersionViewAdapter,
+} from "./types.js";
+import { createVersioningExtension } from "./Versioning.js";
+import type { UserStoreOrResolver } from "../../user/index.js";
 
-/**
- * Label shown on a diff's marks for the version that introduced the changes.
- * The previewed snapshot is the "new" side of the diff; the current-version
- * entry (previewing the live doc) has no name, so it reads "Current version".
- */
-function versionLabel(snapshot: VersionSnapshot): string {
-  if (snapshot.id === CURRENT_VERSION_ID) {
-    return "Current version";
-  }
-  return snapshot.name ?? "Unnamed version";
+/** ProseMirror JSON uses schema-defined node/mark names and attribute values. */
+export type ProseMirrorNodeJSON = {
+  type: string;
+  attrs?: Record<string, unknown>;
+  content?: ProseMirrorNodeJSON[];
+  marks?: Array<{ type: string; attrs?: Record<string, unknown> }>;
+  text?: string;
+};
+
+export type ProseMirrorDocumentJSON = ProseMirrorNodeJSON & { type: "doc" };
+
+export type LocalVersioningSeedOptions<
+  BSchema extends BlockSchema = DefaultBlockSchema,
+  ISchema extends InlineContentSchema = DefaultInlineContentSchema,
+  SSchema extends StyleSchema = DefaultStyleSchema,
+> = {
+  initialVersions?: Array<{
+    /** A partial-block array or ProseMirror document JSON, valid in this editor's schema. */
+    content:
+      | PartialBlock<BSchema, ISchema, SSchema>[]
+      | ProseMirrorDocumentJSON;
+    name?: string;
+    createdAt: number;
+  }>;
+};
+
+export type LocalVersioningOptions<
+  BSchema extends BlockSchema = DefaultBlockSchema,
+  ISchema extends InlineContentSchema = DefaultInlineContentSchema,
+  SSchema extends StyleSchema = DefaultStyleSchema,
+> = LocalVersioningSeedOptions<BSchema, ISchema, SSchema> & {
+  resolveUsers?: UserStoreOrResolver;
+  scrollToFirstChange?: boolean;
+};
+
+/** Install an independent in-memory history for this editor. */
+export function InMemoryVersioningExtension<
+  BSchema extends BlockSchema = DefaultBlockSchema,
+  ISchema extends InlineContentSchema = DefaultInlineContentSchema,
+  SSchema extends StyleSchema = DefaultStyleSchema,
+>(options?: LocalVersioningOptions<BSchema, ISchema, SSchema>) {
+  return function createLocalVersioningExtension({
+    editor,
+  }: {
+    editor: BlockNoteEditor<BSchema, ISchema, SSchema>;
+  }) {
+    const extension = createVersioningExtension(() => ({
+      ...createLocalVersioning(editor, options),
+      resolveUsers: options?.resolveUsers,
+      scrollToFirstChange: options?.scrollToFirstChange,
+    }))()({ editor });
+    // Register the public factory for editor.getExtension(factory).
+    Object.assign(extension, {
+      [originalFactorySymbol]: InMemoryVersioningExtension,
+    });
+    return extension;
+  };
 }
 
-// ---------------------------------------------------------------------------
-// Preview Controller
-// ---------------------------------------------------------------------------
+/** A separate editor state preserves live selection and undo without preview mappings. */
+export function createLocalVersioning<
+  BSchema extends BlockSchema,
+  ISchema extends InlineContentSchema,
+  SSchema extends StyleSchema,
+>(
+  editor: BlockNoteEditor<BSchema, ISchema, SSchema>,
+  options?: LocalVersioningSeedOptions<BSchema, ISchema, SSchema>,
+): {
+  adapter: VersionViewAdapter<Node>;
+  storage: VersionStorage<Node>;
+} {
+  let live: EditorState | undefined;
+  let nextId = 0;
+  const snapshots = new Map<
+    string,
+    { version: VersionSnapshot; content: Node }
+  >();
+  for (const entry of options?.initialVersions ?? []) {
+    const version = {
+      id: String(++nextId),
+      name: entry.name,
+      createdAt: entry.createdAt,
+    };
+    const content = entry.content;
+    const document = Array.isArray(content)
+      ? editor.pmSchema.topNodeType.createChecked(
+          null,
+          editor.pmSchema.nodes.blockGroup.createChecked(
+            null,
+            content.map((block) =>
+              blockToNode(block, editor.pmSchema, editor.schema.styleSchema),
+            ),
+          ),
+        )
+      : editor.pmSchema.nodeFromJSON(content);
+    // Invalid seeds are configuration errors, not recoverable editor input.
+    // nodeFromJSON does not check the whole content tree; container block
+    // conversion is also intentionally lenient, so validate both paths here.
+    if (document.type !== editor.pmSchema.topNodeType) {
+      throw new Error("Version content must be a ProseMirror document");
+    }
+    document.check();
+    snapshots.set(version.id, { version, content: document });
+  }
 
-/**
- * Create a {@link PreviewController} that swaps the BlockNote document in and
- * out using `editor.replaceBlocks`.
- *
- * When entering preview mode the current document is saved so it can be
- * restored on exit. Successive `enterPreview` calls without an intervening
- * `exitPreview` preserve the original saved document.
- */
-export function createInMemoryPreviewController(
-  editor: BlockNoteEditor<any, any, any>,
-): PreviewController<Block<any, any, any>[]> {
-  let savedDoc: Block<any, any, any>[] | undefined;
-  // True while a diff (attribution marks) is on screen, so exit/restore knows to
-  // route the cleanup through the diff extension's node-view rebuild.
-  let showingDiff = false;
-
-  const replaceDoc = (blocks: Block<any, any, any>[]) => {
-    editor.replaceBlocks(editor.document, blocks);
-  };
-
-  // The opt-in diff extension, if the consuming editor registered it. Looked up
-  // by key so this module keeps zero runtime dependency on `@y/*`.
-  const getDiff = () =>
-    editor.getExtension<typeof DiffVersioningExtension>("diffVersioning");
+  function inEditorSchema(content: Node): Node {
+    // ProseMirror matches node types by identity, not name. Seeded or loaded
+    // documents can come from another editor with a different schema instance.
+    return content.type.schema === editor.pmSchema
+      ? content
+      : editor.pmSchema.nodeFromJSON(content.toJSON());
+  }
 
   return {
-    // Comparison is only possible when the (opt-in) diff extension is present —
-    // otherwise previewing a comparison just statically shows the snapshot, so
-    // the UI shouldn't offer it. A getter (not a static `true`) so it's
-    // independent of the order the extensions were registered in: the diff
-    // extension is typically added after the versioning extension, and this is
-    // read lazily (on render) once both are registered.
-    get supportsComparison() {
-      return getDiff() !== undefined;
-    },
-    enterPreview(
-      snapshotContent: Block<any, any, any>[],
-      compareToContent?: Block<any, any, any>[],
-      _attributions?: unknown,
-      context?: { snapshot: VersionSnapshot; compareTo?: VersionSnapshot },
-    ) {
-      // Save the live doc on first enter (successive enters keep the original).
-      if (savedDoc === undefined) {
-        savedDoc = editor.document;
-      }
-
-      const diff = getDiff();
-      if (compareToContent && diff) {
-        // Render a diff of compareTo → snapshot, labelling the changes with the
-        // previewed version's name (the diff's single "author").
-        diff.renderDiff(
-          snapshotContent,
-          compareToContent,
-          context && versionLabel(context.snapshot),
+    adapter: {
+      get supportsComparison() {
+        return (
+          editor.getExtension<typeof DiffVersioningExtension>(
+            "diffVersioning",
+          ) !== undefined
         );
-        showingDiff = true;
-        return;
-      }
-
-      // No comparison requested, or no diff extension registered: just show the
-      // snapshot content statically.
-      showingDiff = false;
-      replaceDoc(snapshotContent);
-    },
-
-    exitPreview() {
-      if (savedDoc !== undefined) {
-        const diff = getDiff();
-        if (showingDiff && diff) {
-          diff.clearDiff(savedDoc);
-        } else {
-          replaceDoc(savedDoc);
+      },
+      open() {
+        if (live || editor.getExtension("ySync")) {
+          throw new Error(
+            "Local version views require an unbound local editor",
+          );
         }
-        savedDoc = undefined;
-        showingDiff = false;
-      }
-    },
-
-    applyRestore(snapshotContent: Block<any, any, any>[]) {
-      const diff = getDiff();
-      if (showingDiff && diff) {
-        diff.clearDiff(snapshotContent);
-      } else {
-        replaceDoc(snapshotContent);
-      }
-      // Clear saved doc — the restored content is now the live document.
-      savedDoc = undefined;
-      showingDiff = false;
-    },
-  };
-}
-
-// ---------------------------------------------------------------------------
-// Endpoints (in-memory storage)
-// ---------------------------------------------------------------------------
-
-/**
- * Create a {@link VersioningEndpoints} that stores snapshots entirely in
- * memory.  Useful for local-only / non-collaborative editors where you want
- * versioning without any persistence layer.
- *
- * Snapshots are stored as BlockNote document JSON (`Block[]`).
- */
-export function createInMemoryVersioningEndpoints(): VersioningEndpoints<
-  Block<any, any, any>[],
-  Block<any, any, any>[]
-> {
-  const snapshots: VersionSnapshot[] = [];
-  const contents = new Map<string, Block<any, any, any>[]>();
-  let nextId = 1;
-
-  // `Date.now()` only has millisecond resolution, so two snapshots created in
-  // the same tick would share a timestamp and `sortSnapshotsNewestFirst` (which
-  // has nothing else to order on) could list them oldest-first. Hand out
-  // strictly increasing timestamps so creation order is always preserved.
-  let lastTimestamp = 0;
-  function nextTimestamp() {
-    lastTimestamp = Math.max(Date.now(), lastTimestamp + 1);
-    return lastTimestamp;
-  }
-
-  return {
-    async list() {
-      return sortSnapshotsNewestFirst([...snapshots]);
-    },
-
-    async create(currentDoc, options) {
-      const now = nextTimestamp();
-      const id = String(nextId++);
-      const snapshot: VersionSnapshot = {
-        id,
-        name: options?.name,
-        createdAt: now,
-        updatedAt: now,
-      };
-      snapshots.push(snapshot);
-      contents.set(id, structuredClone(currentDoc));
-      return snapshot;
-    },
-
-    async restore(currentDoc, snapshot) {
-      // Stored snapshots always have string ids (only the synthetic current
-      // entry carries the symbol, and it never reaches these methods).
-      const id = String(snapshot.id);
-      const snapshotContent = contents.get(id);
-      if (!snapshotContent) {
-        throw new Error(`Snapshot ${id} not found`);
-      }
-
-      // Create a "Restored from …" snapshot of the current state before
-      // restoring, so the user can undo the restore.
-      const now = nextTimestamp();
-      const backupId = String(nextId++);
-      const backup: VersionSnapshot = {
-        id: backupId,
-        name: "Before restore",
-        createdAt: now,
-        updatedAt: now,
-        restoredFromSnapshotId: id,
-      };
-      snapshots.push(backup);
-      contents.set(backupId, structuredClone(currentDoc));
-
-      return structuredClone(snapshotContent);
-    },
-
-    async getContent(snapshot) {
-      const id = String(snapshot.id);
-      const content = contents.get(id);
-      if (!content) {
-        throw new Error(`Snapshot ${id} not found`);
-      }
-      return structuredClone(content);
-    },
-
-    async rename(snapshot, name) {
-      const stored = snapshots.find((s) => s.id === snapshot.id);
-      if (!stored) {
-        throw new Error(`Snapshot ${String(snapshot.id)} not found`);
-      }
-      stored.name = name;
-      stored.updatedAt = nextTimestamp();
-    },
-
-    async remove(snapshot) {
-      const index = snapshots.findIndex((s) => s.id === snapshot.id);
-      if (index === -1) {
-        throw new Error(`Snapshot ${String(snapshot.id)} not found`);
-      }
-      snapshots.splice(index, 1);
-      contents.delete(String(snapshot.id));
-    },
-  };
-}
-
-// ---------------------------------------------------------------------------
-// Adapter (convenience)
-// ---------------------------------------------------------------------------
-
-/**
- * Create all the options needed to wire a {@link VersioningExtension} with
- * fully in-memory storage and BlockNote JSON-based preview.
- *
- * @example
- * ```ts
- * import { VersioningExtension } from "@blocknote/core/extensions";
- * import { createInMemoryVersioningAdapter } from "@blocknote/core/extensions";
- *
- * const editor = BlockNoteEditor.create({
- *   extensions: [
- *     VersioningExtension(createInMemoryVersioningAdapter(editor)),
- *   ],
- * });
- * ```
- */
-export function createInMemoryVersioningAdapter(
-  editor: BlockNoteEditor<any, any, any>,
-): VersioningExtensionOptions<Block<any, any, any>[], Block<any, any, any>[]> {
-  const endpoints = createInMemoryVersioningEndpoints();
-
-  return {
-    // The raw endpoints are pure snapshot storage. The "current version" is a
-    // view concern owned by the adapter (it's the layer that knows about the
-    // live editor), so we wrap `list()` to always surface a current entry: the
-    // live document is the editable working copy, and the entry is how the user
-    // returns to live editing and compares against saved snapshots. No
-    // timestamp/author is tracked, so the row just reads "Current version"
-    // (see CurrentSnapshot in @blocknote/react).
-    endpoints: {
-      ...endpoints,
-      list: async () => {
-        const current: VersionSnapshot = {
-          id: CURRENT_VERSION_ID,
-          createdAt: Date.now(),
-          updatedAt: Date.now(),
+        live = editor.prosemirrorState;
+        const current = { content: live.doc, capturedAt: Date.now() };
+        let closed = false;
+        try {
+          editor.prosemirrorView.updateState(
+            EditorState.create({
+              doc: live.doc,
+              selection: live.selection,
+              plugins: live.plugins,
+            }),
+          );
+        } catch (error) {
+          editor.prosemirrorView.updateState(live);
+          live = undefined;
+          throw error;
+        }
+        return {
+          current,
+          show({ content, comparison }) {
+            if (closed) {
+              throw new Error("Version view is closed");
+            }
+            const diff =
+              editor.getExtension<typeof DiffVersioningExtension>(
+                "diffVersioning",
+              );
+            if (comparison && diff) {
+              diff.renderDiff(
+                docToBlocks(content),
+                docToBlocks(comparison.content),
+              );
+              return;
+            }
+            const document = inEditorSchema(content);
+            editor.transact((tr) => {
+              tr.replaceWith(0, tr.doc.content.size, document.content);
+              tr.setMeta("addToHistory", false);
+            });
+          },
+          close() {
+            if (closed) {
+              return;
+            }
+            if (!live) {
+              throw new Error("Missing live editor state");
+            }
+            editor.prosemirrorView.updateState(
+              live.reconfigure({
+                plugins: editor.prosemirrorState.plugins,
+              }),
+            );
+            closed = true;
+            live = undefined;
+          },
         };
-        return [current, ...(await endpoints.list())];
       },
     },
-    preview: createInMemoryPreviewController(editor),
-    getCurrentDocument: () => editor.document,
-    // The live document is already in the snapshot content format (`Block[]`),
-    // so previewing "current" as a diff just reuses the live blocks.
-    serializeCurrentContent: () => editor.document,
+    storage: {
+      historyIncludesBeginning: true,
+      async list(signal) {
+        signal.throwIfAborted();
+        return {
+          ok: true,
+          value: {
+            snapshots: Array.from(snapshots.values(), ({ version }) => ({
+              ...version,
+            })).sort((a, b) => b.createdAt - a.createdAt),
+          },
+        };
+      },
+      async getContent(id, signal) {
+        signal.throwIfAborted();
+        const stored = snapshots.get(id);
+        return stored
+          ? { ok: true, value: stored.content }
+          : { ok: false, error: { type: "not-found" } };
+      },
+      async create(content, name) {
+        const version = { id: String(++nextId), createdAt: Date.now(), name };
+        snapshots.set(version.id, { version, content });
+        return { ok: true, value: { ...version } };
+      },
+      async restore(id) {
+        const stored = snapshots.get(id);
+        if (!stored) {
+          return { ok: false, error: { type: "not-found" } };
+        }
+        const content = inEditorSchema(stored.content);
+        if (live) {
+          live = live.apply(
+            live.tr.replaceWith(0, live.doc.content.size, content.content),
+          );
+        } else {
+          editor.transact((tr) =>
+            tr.replaceWith(0, tr.doc.content.size, content.content),
+          );
+        }
+        return { ok: true, value: undefined };
+      },
+      async rename(id, name) {
+        const stored = snapshots.get(id);
+        if (!stored) {
+          return { ok: false, error: { type: "not-found" } };
+        }
+        stored.version.name = name;
+        return { ok: true, value: undefined };
+      },
+      async remove(id) {
+        snapshots.delete(id);
+        return { ok: true, value: undefined };
+      },
+    },
   };
 }

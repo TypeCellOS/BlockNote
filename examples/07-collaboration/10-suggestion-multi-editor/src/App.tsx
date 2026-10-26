@@ -4,8 +4,9 @@ import "@blocknote/mantine/style.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import { useCreateBlockNote } from "@blocknote/react";
 import { Awareness } from "@y/protocols/awareness";
-import { withCollaboration } from "@blocknote/core/y";
+import { SuggestionsExtension, withCollaboration } from "@blocknote/core/y";
 import * as Y from "@y/y";
+import { useEffect } from "react";
 
 const doc = new Y.Doc();
 const provider = {
@@ -25,7 +26,7 @@ provider2.awareness.setLocalStateField("user", {
   color: "#6eeb83",
 });
 
-const attrs = new Y.Attributions();
+const attrs = Y.createContentMap();
 
 // Batch timestamps: reuse the same timestamp for edits from the same user
 // within a 10-second window of inactivity.
@@ -58,46 +59,41 @@ function getBatchedTimestamp(userName: string): number {
   return batchTimestamps.get(userName)!;
 }
 
-// Track attributions per user for each doc
+// Record attribution before observers render local changes. The update event is
+// too late for the local suggestion marks, though remote peers see the metadata.
 function trackAttributions(
   trackedDoc: Y.Doc,
   userName: string,
-  attributions: Y.Attributions,
+  attributions: Y.ContentMap,
 ) {
-  trackedDoc.on(
-    "update",
-    (
-      update: Uint8Array,
-      _origin: unknown,
-      _ydoc: Y.Doc,
-      tr: { local: boolean },
-    ) => {
-      if (!tr.local) return;
-      const contentIds = Y.createContentIdsFromUpdate(update);
-      const timestamp = getBatchedTimestamp(userName);
-      Y.insertIntoIdMap(
-        attributions.inserts,
-        Y.createIdMapFromIdSet(contentIds.inserts, [
-          Y.createContentAttribute("insert", userName),
-          Y.createContentAttribute("insertAt", timestamp),
-        ]),
-      );
-      Y.insertIntoIdMap(
-        attributions.deletes,
-        Y.createIdMapFromIdSet(contentIds.deletes, [
-          Y.createContentAttribute("delete", userName),
-          Y.createContentAttribute("deleteAt", timestamp),
-        ]),
-      );
-    },
-  );
+  trackedDoc.on("beforeObserverCalls", (tr) => {
+    if (!tr.local) return;
+    const timestamp = getBatchedTimestamp(userName);
+    Y.insertIntoIdMap(
+      attributions.inserts,
+      Y.createIdMapFromIdSet(tr.insertSet, [
+        Y.createContentAttribute("insert", userName),
+        Y.createContentAttribute("insertAt", timestamp),
+      ]),
+    );
+    Y.insertIntoIdMap(
+      attributions.deletes,
+      Y.createIdMapFromIdSet(tr.deleteSet, [
+        Y.createContentAttribute("delete", userName),
+        Y.createContentAttribute("deleteAt", timestamp),
+      ]),
+    );
+  });
 }
 
 // Track local changes on each doc with a distinct user name
 trackAttributions(doc, "Alice", attrs);
 trackAttributions(doc2, "Bob", attrs);
 
+// Register attribution tracking before the renderers' beforeObserverCalls
+// listeners so they see the local author's metadata on their first render.
 const suggestingDoc = new Y.Doc({ isSuggestionDoc: true });
+trackAttributions(suggestingDoc, "Charlie", attrs);
 const suggestingProvider = {
   awareness: new Awareness(suggestingDoc),
 };
@@ -105,10 +101,13 @@ suggestingProvider.awareness.setLocalStateField("user", {
   name: "Charlie",
   color: "#ffbc42",
 });
-const suggestingRenderer = Y.createDiffRenderer(doc, suggestingDoc, { attrs });
+const suggestingRenderer = Y.createDiffRenderer(doc, suggestingDoc, {
+  attributions: attrs,
+});
 suggestingRenderer.suggestionMode = false;
 
 const suggestionModeDoc = new Y.Doc({ isSuggestionDoc: true });
+trackAttributions(suggestionModeDoc, "Debbie", attrs);
 const suggestionModeProvider = {
   awareness: new Awareness(suggestionModeDoc),
 };
@@ -117,13 +116,9 @@ suggestionModeProvider.awareness.setLocalStateField("user", {
   color: "#ee6352",
 });
 const suggestionModeRenderer = Y.createDiffRenderer(doc, suggestionModeDoc, {
-  attrs,
+  attributions: attrs,
 });
 suggestionModeRenderer.suggestionMode = true;
-
-// Track local changes on suggestion docs with distinct user names
-trackAttributions(suggestingDoc, "Charlie", attrs);
-trackAttributions(suggestionModeDoc, "Debbie", attrs);
 
 // Function to sync two documents
 function syncDocs(sourceDoc: Y.Doc, targetDoc: Y.Doc) {
@@ -151,13 +146,17 @@ setupTwoWaySync(suggestingDoc, suggestionModeDoc);
 function Editor({
   fragment,
   provider,
-  renderer,
+  suggestions,
   userName,
   userColor,
 }: {
-  fragment: Y.Type;
+  fragment: Y.Node;
   provider: { awareness?: Awareness };
-  renderer?: Y.DiffRenderer;
+  suggestions?: {
+    doc: Y.Doc;
+    renderer: Y.DiffRenderer;
+    mode: "view" | "edit";
+  };
   userName: string;
   userColor: string;
 }) {
@@ -166,13 +165,29 @@ function Editor({
       collaboration: {
         fragment,
         provider,
-        renderer,
+        suggestionDoc: suggestions?.doc,
+        renderer: suggestions?.renderer,
         user: { name: userName, color: userColor },
       },
     }),
   );
 
-  return <BlockNoteView editor={editor} />;
+  useEffect(() => {
+    if (!suggestions) {
+      return;
+    }
+
+    const extension = editor.getExtension(SuggestionsExtension)!;
+    if (suggestions.mode === "edit") {
+      extension.enableSuggestions();
+    } else {
+      extension.viewSuggestions();
+    }
+  }, [editor, suggestions]);
+
+  return (
+    <BlockNoteView editor={editor} editable={suggestions?.mode !== "view"} />
+  );
 }
 
 export default function App() {
@@ -217,9 +232,13 @@ export default function App() {
         <div style={{ flex: 1 }}>
           View Suggestions (Charlie)
           <Editor
-            fragment={suggestingDoc.get("doc")}
+            fragment={doc.get("doc")}
             provider={suggestingProvider}
-            renderer={suggestingRenderer}
+            suggestions={{
+              doc: suggestingDoc,
+              renderer: suggestingRenderer,
+              mode: "view",
+            }}
             userName="Charlie"
             userColor="#ffbc42"
           />
@@ -227,9 +246,13 @@ export default function App() {
         <div style={{ flex: 1 }}>
           Suggestion Mode (Debbie)
           <Editor
-            fragment={suggestionModeDoc.get("doc")}
+            fragment={doc.get("doc")}
             provider={suggestionModeProvider}
-            renderer={suggestionModeRenderer}
+            suggestions={{
+              doc: suggestionModeDoc,
+              renderer: suggestionModeRenderer,
+              mode: "edit",
+            }}
             userName="Debbie"
             userColor="#ee6352"
           />

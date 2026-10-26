@@ -26,6 +26,12 @@ import { Exporter, ExporterOptions } from "@blocknote/core";
 import { corsProxyResolveFileUrl } from "@shared/api/corsProxy.js";
 import { loadFileBuffer } from "@shared/util/fileUtil.js";
 import { DOCX_LIST_LEVEL_COUNT } from "./listLevels.js";
+import {
+  DOCXBlock,
+  DOCXBlockResult,
+  docxContent,
+  isTabIndentedParagraph,
+} from "./mapping.js";
 
 // get constructor arg type from Document
 type DocumentOptions = Partial<ConstructorParameters<typeof Document>[0]>;
@@ -47,7 +53,7 @@ export class DOCXExporter<
   B,
   I,
   S,
-  Promise<Paragraph[] | Paragraph | Table> | Paragraph[] | Paragraph | Table,
+  DOCXBlockResult,
   ParagraphChild,
   IRunPropertiesOptions,
   TextRun
@@ -56,7 +62,7 @@ export class DOCXExporter<
     /**
      * The schema of your editor. The mappings are automatically typed checked against this schema.
      */
-    protected readonly schema: BlockNoteSchema<B, I, S>,
+    schema: BlockNoteSchema<B, I, S>,
     /**
      * The mappings that map the BlockNote schema to the docxjs content.
      * Pass {@link docxDefaultSchemaMappings} for the default schema.
@@ -65,10 +71,7 @@ export class DOCXExporter<
       NoInfer<B>,
       NoInfer<I>,
       NoInfer<S>,
-      | Promise<Paragraph[] | Paragraph | Table>
-      | Paragraph[]
-      | Paragraph
-      | Table,
+      DOCXBlockResult,
       ParagraphChild,
       IRunPropertiesOptions,
       TextRun
@@ -130,7 +133,17 @@ export class DOCXExporter<
     blocks: Block<B, I, S>[],
     nestingLevel = 0,
   ): Promise<Array<Paragraph | Table>> {
-    const ret: Array<Paragraph | Table> = [];
+    return docxContent(
+      await this.transformBlockResults(blocks, nestingLevel),
+      "document",
+    );
+  }
+
+  private async transformBlockResults(
+    blocks: Block<B, I, S>[],
+    nestingLevel: number,
+  ): Promise<DOCXBlock[]> {
+    const ret: DOCXBlock[] = [];
 
     // The top-level call starts a fresh document, so restart instance numbering.
     if (nestingLevel === 0) {
@@ -156,39 +169,39 @@ export class DOCXExporter<
         runListType = undefined;
       }
 
-      let children = await this.transformBlocks(b.children, nestingLevel + 1);
+      const children = await this.transformBlockResults(
+        b.children,
+        nestingLevel + 1,
+      );
 
-      if (!["columnList", "column"].includes(b.type)) {
-        children = children.map((c, _i) => {
+      const placesChildren = this.placesChildren(b);
+      if (!placesChildren) {
+        for (const child of children) {
           // NOTE: nested tables not supported (we can't insert the new Tab before a table)
-          if (
-            c instanceof Paragraph &&
-            !(c as any).properties.numberingReferences.length
-          ) {
-            c.addRunToFront(
+          if (isTabIndentedParagraph(child)) {
+            child.addRunToFront(
               new TextRun({
                 children: [new Tab()],
               }),
             );
           }
-          return c;
-        });
+        }
       }
 
       // The `numberedListIndex` slot carries the numbering instance for the docx
       // block mappings (bullet/numbered list items); other block types ignore it.
       const self = await this.mapBlock(
-        b as any,
+        b,
         nestingLevel,
         numberingInstance,
         children,
-      ); // TODO: any
-      if (["columnList", "column"].includes(b.type)) {
-        ret.push(self as Table);
-      } else if (Array.isArray(self)) {
-        ret.push(...self, ...children);
-      } else {
-        ret.push(self, ...children);
+      );
+      const mapped = Array.isArray(self) ? self : [self];
+      ret.push(...mapped);
+      // A layout block's mapping is handed its children and places them itself,
+      // so they must not be appended after it as well.
+      if (!placesChildren) {
+        ret.push(...children);
       }
     }
     return ret;

@@ -7,6 +7,7 @@ import {
 } from "@tiptap/core";
 import { type Command, type Transaction } from "@tiptap/pm/state";
 import { Node, Schema } from "prosemirror-model";
+import type { BlockPlacement } from "../api/getBlockInfoFromPos.js";
 import type { BlocksChanged } from "../api/getBlocksChangedByTransaction.js";
 import { blockToNode } from "../api/nodeConversions/blockToNode.js";
 import {
@@ -20,6 +21,7 @@ import {
 import {
   BlockChangeExtension,
   DropCursorOptions,
+  SideMenuOptions,
 } from "../extensions/index.js";
 import { UniqueID } from "../extensions/tiptap-extensions/UniqueID/UniqueID.js";
 import type { Dictionary } from "../i18n/dictionary.js";
@@ -58,6 +60,10 @@ import {
   StyleManager,
 } from "./managers/index.js";
 import type { Selection } from "./selectionTypes.js";
+import type {
+  ExtensionSelection,
+  ExtensionSelector,
+} from "./managers/ExtensionManager/index.js";
 import { transformPasted } from "./transformPasted.js";
 
 export type BlockCache<
@@ -102,7 +108,7 @@ export interface BlockNoteEditorOptions<
   dictionary?: Dictionary & Record<string, any>;
 
   /**
-   * Disable internal extensions (based on keys / extension name)
+   * Disable internal extensions (based on keys / extension name).
    *
    * @note Advanced
    */
@@ -124,6 +130,13 @@ export interface BlockNoteEditorOptions<
    * @remarks `DropCursorOptions`
    */
   dropCursor?: DropCursorOptions;
+
+  /**
+   * Options for the side menu, the menu with the drag handle and "+" button
+   * next to the block under the mouse.
+   * @remarks `SideMenuOptions`
+   */
+  sideMenu?: SideMenuOptions;
 
   /**
    * The content that should be in the editor when it's created, represented as an array of {@link PartialBlock} objects.
@@ -259,6 +272,15 @@ export interface BlockNoteEditorOptions<
   setIdAttribute?: boolean;
 
   /**
+   * Determines behavior when pressing Cmd+A (Mac) or Ctrl+A (Windows/Linux).
+   * - `"block-first"`: Selects the current block's content first, then the whole document on a subsequent press.
+   * - `"document"`: Selects the whole document immediately.
+   * Selecting the current block scrolls it into view; selecting the whole document preserves the scroll position.
+   * @default "block-first"
+   */
+  selectAllBehavior?: "block-first" | "document";
+
+  /**
    * Determines behavior when pressing Tab (or Shift-Tab) while multiple blocks are selected and a toolbar is open.
    * - `"prefer-navigate-ui"`: Changes focus to the toolbar. User must press Escape to close toolbar before indenting blocks. Better for keyboard accessibility.
    * - `"prefer-indent"`: Always indents selected blocks, regardless of toolbar state. Keyboard navigation of toolbars not possible.
@@ -351,6 +373,8 @@ export class BlockNoteEditor<
   SSchema extends StyleSchema = DefaultStyleSchema,
 > extends EventEmitter<{
   create: void;
+  /** Emitted when the editor is permanently destroyed, not on unmount. */
+  destroy: void;
 }> {
   /**
    * The underlying prosemirror schema
@@ -359,6 +383,7 @@ export class BlockNoteEditor<
 
   public readonly _tiptapEditor: TiptapEditor & {
     contentComponent: any;
+    isEditorContentInitialized?: boolean;
   };
 
   /**
@@ -499,6 +524,8 @@ export class BlockNoteEditor<
     const tiptapOptions: EditorOptions = {
       ...blockNoteTipTapOptions,
       ...newOptions._tiptapOptions,
+      // ReadOnlyExtension owns editability, including the initial application preference.
+      editable: true,
       element: null,
       autofocus: newOptions.autofocus ?? false,
       extensions: tiptapExtensions,
@@ -559,6 +586,13 @@ export class BlockNoteEditor<
         tiptapOptions.parseOptions,
       );
 
+      // `blockToNode` is lenient, and `createDocument` builds from JSON
+      // without validating, so without this check the initial document is
+      // never validated. A container below its `children.min` would reach
+      // the editor and stay there, while the same blocks passed to
+      // `insertBlocks` would have been rejected.
+      doc.check();
+
       this._tiptapEditor = new TiptapEditor({
         ...tiptapOptions,
         content: doc.toJSON(),
@@ -578,6 +612,9 @@ export class BlockNoteEditor<
     });
     this._tiptapEditor.on("unmount", () => {
       this.headless = true;
+    });
+    this._tiptapEditor.on("destroy", () => {
+      this.emit("destroy");
     });
 
     // Initialize managers
@@ -671,11 +708,27 @@ export class BlockNoteEditor<
   }
 
   /**
-   * Remove extension(s) from the editor
+   * Remove extension(s) and return the removed instance(s) for later registration.
+   * Removed ProseMirror plugin state is not retained.
    */
-  public unregisterExtension: ExtensionManager["unregisterExtension"] = (
-    ...args: Parameters<ExtensionManager["unregisterExtension"]>
-  ) => this._extensionManager.unregisterExtension(...args);
+  public unregisterExtension<const T extends ExtensionFactory>(
+    extension: T,
+  ): ReturnType<ReturnType<T>> | undefined;
+  public unregisterExtension<const T extends Extension>(
+    extension: T,
+  ): T | undefined;
+  public unregisterExtension(extensions: ExtensionSelector[]): Extension[];
+  public unregisterExtension(
+    extension: ExtensionSelector,
+  ): Extension | undefined;
+  public unregisterExtension(
+    extension: ExtensionSelection,
+  ): Extension | Extension[] | undefined;
+  public unregisterExtension(
+    extension: ExtensionSelection,
+  ): Extension | Extension[] | undefined {
+    return this._extensionManager.unregisterExtension(extension);
+  }
 
   /**
    * Register extension(s) to the editor
@@ -729,12 +782,17 @@ export class BlockNoteEditor<
    */
   public mount = (element: HTMLElement) => {
     this._tiptapEditor.mount({ mount: element });
+    // TipTap's ReactRenderer uses this flag to render new node/mark views
+    // synchronously. Otherwise, inserting React-styled text can place the
+    // caret before it because its contentDOM is not attached yet.
+    this._tiptapEditor.isEditorContentInitialized = true;
   };
 
   /**
    * Unmount the editor from the DOM element it is bound to
    */
   public unmount = () => {
+    this._tiptapEditor.isEditorContentInitialized = false;
     this._tiptapEditor.unmount();
   };
 
@@ -1069,7 +1127,10 @@ export class BlockNoteEditor<
   }
 
   /**
-   * Makes the editor editable or locks it, depending on the argument passed.
+   * Sets the application's editable preference. Feature read-only restrictions
+   * still apply when set to true.
+   * Plugins can temporarily prevent editing without changing this setting.
+   * The getter reports whether editing is currently allowed by both.
    * @param editable True to make the editor editable, or false to lock it.
    */
   public set isEditable(editable: boolean) {
@@ -1081,13 +1142,14 @@ export class BlockNoteEditor<
    * error if the reference block could not be found.
    * @param blocksToInsert An array of partial blocks that should be inserted.
    * @param referenceBlock An identifier for an existing block, at which the new blocks should be inserted.
-   * @param placement Whether the blocks should be inserted just before, just after, or nested inside the
-   * `referenceBlock`.
+   * @param placement Where the blocks go relative to the `referenceBlock`: as its previous (`"before"`) or next
+   * (`"after"`) sibling, or nested inside it as its first (`"first-child"`) or last (`"last-child"`) children. Throws
+   * an error if the `referenceBlock` (or its parent, for `"before"`/`"after"`) doesn't accept the blocks there.
    */
   public insertBlocks(
     blocksToInsert: PartialBlock<BSchema, ISchema, SSchema>[],
     referenceBlock: BlockIdentifier,
-    placement: "before" | "after" = "before",
+    placement: BlockPlacement = "before",
   ) {
     return this._blockManager.insertBlocks(
       blocksToInsert,

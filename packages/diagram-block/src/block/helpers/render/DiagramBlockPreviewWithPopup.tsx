@@ -29,7 +29,10 @@ export const useMermaidSVG = (source: string, fontFamilyElement?: Element) => {
 
   useEffect(() => {
     if (!source.trim()) {
+      // Clear the previous render when the external source becomes empty.
+      // eslint-disable-next-line react/set-state-in-effect
       setSVG("");
+      // eslint-disable-next-line react/set-state-in-effect
       setError(undefined);
 
       return;
