@@ -60,7 +60,8 @@
     },
     "./style.css": {
       "import": "./dist/style.css",
-      "style": "./dist/style.css"
+      "style": "./dist/style.css",
+      "default": "./dist/style.css"
     }
   },
   "scripts": {

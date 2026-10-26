@@ -61,7 +61,8 @@
     },
     "./style.css": {
       "import": "./dist/style.css",
-      "style": "./dist/style.css"
+      "style": "./dist/style.css",
+      "default": "./dist/style.css"
     },
     "./locales": {
       "types": "./types/src/i18n/locales/index.d.ts",

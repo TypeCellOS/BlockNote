@@ -60,11 +60,13 @@
     },
     "./style.css": {
       "import": "./src/style.css",
-      "style": "./src/style.css"
+      "style": "./src/style.css",
+      "default": "./src/style.css"
     },
     "./blocknoteStyles.css": {
       "import": "./src/blocknoteStyles.css",
-      "style": "./src/blocknoteStyles.css"
+      "style": "./src/blocknoteStyles.css",
+      "default": "./src/blocknoteStyles.css"
     }
   },
   "scripts": {

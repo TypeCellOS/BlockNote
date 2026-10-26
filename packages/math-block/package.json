@@ -63,7 +63,8 @@
     },
     "./style.css": {
       "import": "./src/style.css",
-      "style": "./src/style.css"
+      "style": "./src/style.css",
+      "default": "./src/style.css"
     },
     "./docx-exporter": {
       "types": "./types/src/docx-exporter/index.d.ts",
