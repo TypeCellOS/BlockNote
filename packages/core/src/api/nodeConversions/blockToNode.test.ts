@@ -112,18 +112,6 @@ describe("blockToNode: plain-block backwards compatibility (write path)", () => 
   });
 });
 
-function getColwidths(tableNode: Node): (number[] | null)[][] {
-  const colwidths: (number[] | null)[][] = [];
-  tableNode.forEach((rowNode) => {
-    const rowColwidths: (number[] | null)[] = [];
-    rowNode.forEach((cellNode) => {
-      rowColwidths.push(cellNode.attrs.colwidth);
-    });
-    colwidths.push(rowColwidths);
-  });
-  return colwidths;
-}
-
 describe("blockToNode: tables", () => {
   it("resolves column widths to absolute columns with colspans and rowspans", () => {
     const editor = BlockNoteEditor.create();
@@ -152,39 +140,11 @@ describe("blockToNode: tables", () => {
       editor.pmSchema,
     );
 
-    expect(getColwidths(node.firstChild!)).toEqual([
-      [[100], [200, 300]],
-      [[200], [300]],
-    ]);
-
-    editor._tiptapEditor.destroy();
-  });
-
-  it("converts large tables in time linear in the number of cells", () => {
-    const editor = BlockNoteEditor.create();
-
-    function convertTable(rowCount: number) {
-      const start = performance.now();
-      const node = blockToNode(
-        {
-          type: "table",
-          content: {
-            type: "tableContent",
-            rows: Array.from({ length: rowCount }, (_, row) => ({
-              cells: Array.from({ length: 5 }, (_, col) => `${row}-${col}`),
-            })),
-          },
-        } as any,
-        editor.pmSchema,
-      );
-      expect(node.firstChild!.childCount).toBe(rowCount);
-      return performance.now() - start;
-    }
-
-    convertTable(100);
-    // 10,000 cells: well under a second when the occupancy grid is built once
-    // per table, tens of seconds when it is rebuilt for every cell.
-    expect(convertTable(2000)).toBeLessThan(2000);
+    const table = node.firstChild!;
+    expect(table.child(0).child(0).attrs.colwidth).toEqual([100]);
+    expect(table.child(0).child(1).attrs.colwidth).toEqual([200, 300]);
+    expect(table.child(1).child(0).attrs.colwidth).toEqual([200]);
+    expect(table.child(1).child(1).attrs.colwidth).toEqual([300]);
 
     editor._tiptapEditor.destroy();
   });

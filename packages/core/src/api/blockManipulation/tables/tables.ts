@@ -322,6 +322,38 @@ export function getAbsoluteTableCells(
 }
 
 /**
+ * Builds a lookup from relative cell indices to their top-left absolute position.
+ * Reuse the returned function for constant-time lookups within the same table.
+ */
+export function getRelativeToAbsoluteTableCellMapping(
+  block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
+): (indices: RelativeCellIndices) => AbsoluteCellIndices {
+  const occupancyGrid = getTableCellOccupancyGrid(block);
+  const absoluteIndices: (AbsoluteCellIndices | undefined)[][] = [];
+  for (let row = 0; row < occupancyGrid.length; row++) {
+    const gridRow = occupancyGrid[row];
+    for (let col = 0; col < gridRow.length; col++) {
+      const occupant = gridRow[col];
+      if (!occupant) {
+        continue;
+      }
+      const rowIndices = (absoluteIndices[occupant.row] ??= []);
+      rowIndices[occupant.col] ??= { row, col };
+    }
+  }
+
+  return ({ row, col }) => {
+    const absolute = absoluteIndices[row]?.[col];
+    if (absolute === undefined) {
+      throw new Error(
+        `Unable to resolve relative table cell indices for table, cell at ${row},${col} is not occupied`,
+      );
+    }
+    return absolute;
+  };
+}
+
+/**
  * This will get the dimensions of the table block.
  *
  * @returns The height and width of the table.
