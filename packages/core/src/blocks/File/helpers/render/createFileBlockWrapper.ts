@@ -42,12 +42,16 @@ export const createFileBlockWrapper = (
 
     const destroyUploadStartHandler = editor.onUploadStart((blockId) => {
       if (blockId === block.id) {
-        wrapper.removeChild(addFileButton.dom);
-
         const loading = document.createElement("div");
         loading.className = "bn-file-loading-preview";
         loading.textContent = "Loading...";
-        wrapper.appendChild(loading);
+        wrapper.replaceChildren(loading);
+      }
+    });
+    const destroyUploadEndHandler = editor.onUploadEnd((blockId) => {
+      if (blockId === block.id) {
+        // A successful upload replaces this node view when its URL is set.
+        wrapper.replaceChildren(addFileButton.dom);
       }
     });
 
@@ -55,6 +59,7 @@ export const createFileBlockWrapper = (
       dom: wrapper,
       destroy: () => {
         destroyUploadStartHandler();
+        destroyUploadEndHandler();
         addFileButton.destroy();
       },
     };
