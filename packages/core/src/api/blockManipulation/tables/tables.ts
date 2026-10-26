@@ -462,9 +462,8 @@ export function getRelativeTableCells(
 export function getCellsAtRowHandle(
   block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
   relativeRowIndex: RelativeCellIndices["row"],
+  occupancyGrid: OccupancyGrid = getTableCellOccupancyGrid(block),
 ) {
-  const occupancyGrid = getTableCellOccupancyGrid(block);
-
   if (relativeRowIndex < 0 || relativeRowIndex >= occupancyGrid.length) {
     return [];
   }
@@ -500,10 +499,14 @@ export function getCellsAtRowHandle(
     );
 
   // Filter out duplicates based on row and col properties
-  return cells.filter((cell, index) => {
-    return (
-      cells.findIndex((c) => c.row === cell.row && c.col === cell.col) === index
-    );
+  const seen = new Set<string>();
+  return cells.filter(({ row, col }) => {
+    const key = `${row},${col}`;
+    if (seen.has(key)) {
+      return false;
+    }
+    seen.add(key);
+    return true;
   });
 }
 
@@ -541,9 +544,8 @@ export function getCellsAtRowHandle(
 export function getCellsAtColumnHandle(
   block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
   relativeColumnIndex: RelativeCellIndices["col"],
+  occupancyGrid: OccupancyGrid = getTableCellOccupancyGrid(block),
 ) {
-  const occupancyGrid = getTableCellOccupancyGrid(block);
-
   if (
     relativeColumnIndex < 0 ||
     relativeColumnIndex >= occupancyGrid[0].length
@@ -582,10 +584,14 @@ export function getCellsAtColumnHandle(
     );
 
   // Filter out duplicates based on row and col properties
-  return cells.filter((cell, index) => {
-    return (
-      cells.findIndex((c) => c.row === cell.row && c.col === cell.col) === index
-    );
+  const seen = new Set<string>();
+  return cells.filter(({ row, col }) => {
+    const key = `${row},${col}`;
+    if (seen.has(key)) {
+      return false;
+    }
+    seen.add(key);
+    return true;
   });
 }
 
@@ -835,10 +841,11 @@ export function canRowBeDraggedInto(
   block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
   draggingIndex: RelativeCellIndices["row"],
   targetRowIndex: RelativeCellIndices["row"],
+  targetCells: ReturnType<typeof getCellsAtRowHandle> = getCellsAtRowHandle(
+    block,
+    targetRowIndex,
+  ),
 ) {
-  // Check cells at the target row
-  const targetCells = getCellsAtRowHandle(block, targetRowIndex);
-
   // If no cells have rowspans > 1, dragging is always allowed
   const hasMergedCells = targetCells.some((cell) => getRowspan(cell.cell) > 1);
   if (!hasMergedCells) {
@@ -870,10 +877,11 @@ export function canColumnBeDraggedInto(
   block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
   draggingIndex: RelativeCellIndices["col"],
   targetColumnIndex: RelativeCellIndices["col"],
+  targetCells: ReturnType<typeof getCellsAtColumnHandle> = getCellsAtColumnHandle(
+    block,
+    targetColumnIndex,
+  ),
 ) {
-  // Check cells at the target column
-  const targetCells = getCellsAtColumnHandle(block, targetColumnIndex);
-
   // If no cells have colspans > 1, dragging is always allowed
   const hasMergedCells = targetCells.some((cell) => getColspan(cell.cell) > 1);
   if (!hasMergedCells) {
@@ -908,12 +916,8 @@ export function areInSameColumn(
   to: RelativeCellIndices,
   block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
 ) {
-  // Table indices are relative to the table, so we need to resolve the absolute cell indices
-  const anchorAbsoluteCellIndices = getAbsoluteTableCells(from, block);
-
-  // Table indices are relative to the table, so we need to resolve the absolute cell indices
-  const headAbsoluteCellIndices = getAbsoluteTableCells(to, block);
-
-  // Compare the column indices to determine the merge direction
-  return anchorAbsoluteCellIndices.col === headAbsoluteCellIndices.col;
+  // Resolve both relative cell positions using a single occupancy grid.
+  const getAbsolute = getRelativeToAbsoluteTableCellMapping(block);
+  // Compare absolute columns to determine the merge direction.
+  return getAbsolute(from).col === getAbsolute(to).col;
 }
