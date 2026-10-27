@@ -1,8 +1,3 @@
-// Handles drops into one editor. It shows the drop cursor: the line that shows
-// where the dragged content will go. It inserts blocks that go into a block,
-// e.g. a toggle (ProseMirror inserts all other drops). After a block drop, it
-// focuses the editor, with a text cursor at the end of the dropped blocks.
-
 import { Plugin, PluginKey, Selection } from "prosemirror-state";
 import { dropPoint } from "prosemirror-transform";
 import { Decoration, DecorationSet, type EditorView } from "prosemirror-view";
@@ -79,6 +74,7 @@ export const DropCursorExtension = createExtension<
   let dragSourceElement: Element | null = null;
   // Set when blocks are dropped in this editor, until the drag ends.
   let blocksDropped = false;
+  let focusTimeout: ReturnType<typeof setTimeout> | undefined;
 
   const config = {
     width: options.dropCursor?.width ?? 5,
@@ -170,6 +166,7 @@ export const DropCursorExtension = createExtension<
     // A drop from another document ends the drag there, without a `dragend`
     // in this one.
     blocksDropped = false;
+    clearTimeout(focusTimeout);
   };
 
   const onDragOver = (event: Event) => {
@@ -284,6 +281,12 @@ export const DropCursorExtension = createExtension<
       editor.prosemirrorView.editable &&
       ((event as DragEvent).dataTransfer?.types.includes("blocknote/html") ??
         false);
+    // A drop from another document or shadow root has no local dragend.
+    // Finish it after drop handlers run, unless dragend already did so.
+    clearTimeout(focusTimeout);
+    if (blocksDropped) {
+      focusTimeout = setTimeout(onRootDragEnd, 0);
+    }
   };
 
   const onDragEnd = () => {
@@ -297,6 +300,7 @@ export const DropCursorExtension = createExtension<
    * menu's handle, which is outside the editor.
    */
   function onRootDragEnd() {
+    clearTimeout(focusTimeout);
     if (!blocksDropped) {
       return;
     }
@@ -382,8 +386,7 @@ export const DropCursorExtension = createExtension<
           } else {
             editor.updateBlock(target, { children: draggedBlocks });
           }
-          // The selection on the dropped blocks, as ProseMirror's drop leaves
-          // it. `onRootDragEnd` then focuses the editor.
+          // Custom drops must also leave the cursor at the dropped blocks.
           editor.setTextCursorPosition(draggedBlocks.at(-1), "end");
         });
         return true;
@@ -414,6 +417,7 @@ export const DropCursorExtension = createExtension<
       // Clean up on unmount
       signal.addEventListener("abort", () => {
         clearTimeout(timeout);
+        clearTimeout(focusTimeout);
         setCursor(null);
       });
     },

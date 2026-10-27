@@ -1,9 +1,3 @@
-// The side menu: the "+" button and the drag handle next to the block under
-// the pointer. This file shows, hides and freezes the menu. It is also the
-// source of block drags: it starts a drag from the handle and cleans up after
-// it. `blockDropHandling.ts` routes the drag between editors, and the
-// `DropCursor` extension handles the drop.
-
 import { Plugin, PluginKey } from "@tiptap/pm/state";
 
 import { Block } from "../../blocks/defaultBlocks.js";
@@ -165,8 +159,8 @@ export const SideMenuExtension = createExtension(
     ) {
       // While a block is dragged by its handle, the menu must stay as it is:
       // the handle is the drag source, and if the menu hid or moved, React would
-      // remove it from the DOM, so its `dragend` (which removes the drag image)
-      // would never fire. The drop's document change
+      // remove it from the DOM, so its `dragend` (and `blockDragEnd`, which
+      // removes the drag image) would never fire. The drop's document change
       // otherwise re-resolves the block at the pointer's pre-drag position.
       if (menuFrozen || isDragOrigin) {
         // Frozen or dragging: keep the menu as it is.
@@ -312,22 +306,6 @@ export const SideMenuExtension = createExtension(
           signal,
         );
 
-        // Ends a drag of this side menu. The handle's `dragend` reaches the
-        // document, as the menu keeps the handle mounted while it is dragged
-        // (see `update`), so a custom side menu needs no wiring.
-        root.addEventListener(
-          "dragend",
-          () => {
-            if (isDragOrigin) {
-              endBlockDrag();
-              // The menu stayed at the dragged block's old place during the
-              // drag. The next pointer move shows it at the block there.
-              hideMenu();
-            }
-          },
-          { signal, capture: true },
-        );
-
         // Shows or updates the menu whenever the pointer moves, unless frozen.
         root.addEventListener(
           // `mousemove`, not `pointermove`: iOS Safari delivers a tap as a hover
@@ -435,6 +413,17 @@ export const SideMenuExtension = createExtension(
       },
 
       /**
+       * Ends a side menu drag. Call from the drag handle's `dragend` handler.
+       * Destination focus and selection are handled by the drop cursor.
+       */
+      blockDragEnd() {
+        endBlockDrag();
+        // The menu stayed at the dragged block's old place during the drag.
+        // The next pointer move shows it at the block there.
+        hideMenu();
+      },
+
+      /**
        * Whether the side menu is currently frozen (e.g. because the drag handle
        * menu is open).
        */
@@ -464,19 +453,21 @@ export const SideMenuExtension = createExtension(
       unfreezeMenu() {
         menuFrozen = false;
         hideMenu();
-        // Closing a menu of the side menu gives the focus back to the editor,
-        // so the keyboard works on it right away, e.g. to undo a change made
-        // in the menu (#3165). Only when the focus is in the side menu (its
-        // menus render in it) or lost, not when it moved elsewhere, e.g. to
-        // an input that a menu item opened.
-        // In a shadow root, the document's active element is the shadow host.
-        const active =
-          editor.prosemirrorView.root.activeElement ?? document.activeElement;
-        const focusLost = !active || active === document.body;
-        const focusInSideMenu = !!menuElement && menuElement.contains(active);
-        if (focusLost || focusInSideMenu) {
-          editor.focus();
+        // Restore keyboard focus after menu actions, but don't steal it from
+        // another input. In shadow roots, check the focused element, not its host.
+        const view = editor.prosemirrorView;
+        const ownerDocument = view.dom.ownerDocument;
+        const active = view.root.activeElement ?? ownerDocument.activeElement;
+        if (active && active !== ownerDocument.body) {
+          // Editor ownership alone also includes inputs in other panels.
+          if (
+            !editor.isWithinEditor(active) ||
+            !menuElement?.contains(active)
+          ) {
+            return;
+          }
         }
+        editor.focus();
       },
 
       /**

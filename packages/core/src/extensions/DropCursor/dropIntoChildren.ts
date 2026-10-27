@@ -1,7 +1,3 @@
-// Finds out if a block drag goes into the children of a block with
-// `meta.dropsIntoChildren`, e.g. a toggle. `DropCursor.ts` uses this to show the
-// cursor and to drop the blocks.
-
 import type { EditorView } from "prosemirror-view";
 
 import { fragmentToBlocks } from "../../api/nodeConversions/fragmentToBlocks.js";

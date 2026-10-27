@@ -1,7 +1,3 @@
-// Drops blocks at the left or right edge of a block into a new column. It
-// makes the change in one transaction and leaves the selection on the dropped
-// blocks. ProseMirror and the `DropCursor` extension handle all other drops.
-
 import type { BlockNoteEditor } from "@blocknote/core";
 import {
   createExtension,
@@ -217,8 +213,7 @@ export function createMultiColumnHandleDropPlugin(
                 children: newChildren,
               });
             }
-            // The selection on the dropped blocks, as ProseMirror's drop
-            // leaves it. The drop cursor then focuses the editor.
+            // Keep typing at the dropped blocks, not their old position.
             editor.setTextCursorPosition(draggedBlocks.at(-1)!, "end");
           });
         } else {

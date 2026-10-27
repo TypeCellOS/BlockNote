@@ -97,6 +97,7 @@ function initEditor(rootElement: HTMLElement) {
           sideMenu.blockDragStart(evt, block);
         }
       });
+      dragBtn.addEventListener("dragend", () => sideMenu.blockDragEnd());
       dragBtn.draggable = true;
       element.style.display = "none";
       element.appendChild(dragBtn);
