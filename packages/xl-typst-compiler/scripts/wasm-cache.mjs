@@ -1,0 +1,402 @@
+import { spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import {
+  copyFileSync,
+  existsSync,
+  lstatSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  renameSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
+import { homedir, tmpdir } from "node:os";
+import { dirname, join, relative } from "node:path";
+import { fileURLToPath } from "node:url";
+
+export const packageDir = dirname(dirname(fileURLToPath(import.meta.url)));
+export const outputFiles = [
+  "blocknote_typst_wasm.js",
+  "blocknote_typst_wasm.d.ts",
+  "blocknote_typst_wasm_bg.wasm",
+  "blocknote_typst_wasm_bg.wasm.d.ts",
+];
+const metadataFiles = [".build-hash", ".build-manifest.json"];
+const repository = "TypeCellOS/BlockNote";
+const maxBytes = 64 * 1024 * 1024;
+
+function sha256(data) {
+  return createHash("sha256").update(data).digest("hex");
+}
+
+export function inputHash(root = packageDir) {
+  const files = [
+    "rust/Cargo.toml",
+    "rust/Cargo.lock",
+    "rust/rust-toolchain.toml",
+    "scripts/ensure-wasm.mjs",
+    "scripts/wasm-cache.mjs",
+  ];
+  function walk(dir) {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const path = join(dir, entry.name);
+      if (entry.isDirectory()) {
+        walk(path);
+      } else {
+        files.push(relative(root, path).split("\\").join("/"));
+      }
+    }
+  }
+  walk(join(root, "rust/src"));
+  const version = JSON.parse(
+    readFileSync(join(root, "node_modules/wasm-pack/package.json"), "utf8"),
+  ).version;
+  return sha256(
+    JSON.stringify([
+      "typst-wasm-v2",
+      version,
+      ...files
+        .sort()
+        .map((file) => [file, sha256(readFileSync(join(root, file)))]),
+    ]),
+  );
+}
+
+export function artifactName(hash) {
+  return `typst-wasm-v2-${hash}`;
+}
+
+export function cacheRoot() {
+  return (
+    process.env.BLOCKNOTE_TYPST_CACHE_DIR ||
+    join(
+      process.env.XDG_CACHE_HOME || join(homedir(), ".cache"),
+      "blocknote",
+      "typst-wasm-v2",
+    )
+  );
+}
+
+export function writeManifest(dir, hash) {
+  const files = Object.fromEntries(
+    outputFiles.map((file) => [file, sha256(readFileSync(join(dir, file)))]),
+  );
+  writeFileSync(join(dir, ".build-hash"), hash);
+  writeFileSync(
+    join(dir, ".build-manifest.json"),
+    JSON.stringify({ hash, files }),
+  );
+}
+
+function parseJson(text) {
+  try {
+    return { value: JSON.parse(text) };
+  } catch (error) {
+    if (!(error instanceof SyntaxError)) {
+      throw error;
+    }
+    return { error: "invalid JSON" };
+  }
+}
+
+export function validateOutput(dir, hash) {
+  if (
+    ![...outputFiles, ...metadataFiles].every((file) => {
+      const path = join(dir, file);
+      return existsSync(path) && lstatSync(path).isFile();
+    })
+  ) {
+    return false;
+  }
+  const parsed = parseJson(
+    readFileSync(join(dir, ".build-manifest.json"), "utf8"),
+  );
+  const manifest = parsed.value;
+  return (
+    !parsed.error &&
+    manifest?.hash === hash &&
+    readFileSync(join(dir, ".build-hash"), "utf8") === hash &&
+    outputFiles.every(
+      (file) =>
+        manifest.files?.[file] === sha256(readFileSync(join(dir, file))),
+    )
+  );
+}
+
+// Call under the per-package build lock. Stage completely before replacing
+// outputs; never merge an incomplete download into the live package.
+export function installOutput(source, destination) {
+  mkdirSync(dirname(destination), { recursive: true });
+  const stage = mkdtempSync(join(dirname(destination), ".typst-stage-"));
+  try {
+    for (const file of [...outputFiles, ...metadataFiles]) {
+      copyFileSync(join(source, file), join(stage, file));
+    }
+    rmSync(destination, { recursive: true, force: true });
+    renameSync(stage, destination);
+  } finally {
+    rmSync(stage, { recursive: true, force: true });
+  }
+}
+
+export function storeOutput(source, hash, root = cacheRoot()) {
+  mkdirSync(root, { recursive: true });
+  const destination = join(root, hash);
+  if (validateOutput(destination, hash)) {
+    return;
+  }
+  const stage = mkdtempSync(join(root, ".typst-cache-"));
+  try {
+    for (const file of [...outputFiles, ...metadataFiles]) {
+      copyFileSync(join(source, file), join(stage, file));
+    }
+    // Atomic publication; another worktree may publish this same key first.
+    if (existsSync(destination)) {
+      // Leave invalid entries alone: readers reject them and can still build.
+      return;
+    }
+    try {
+      renameSync(stage, destination);
+    } catch (error) {
+      if (!["EEXIST", "ENOTEMPTY"].includes(error.code)) {
+        throw error;
+      }
+    }
+  } finally {
+    rmSync(stage, { recursive: true, force: true });
+  }
+}
+
+function githubToken() {
+  if (process.env.GH_TOKEN || process.env.GITHUB_TOKEN) {
+    return process.env.GH_TOKEN || process.env.GITHUB_TOKEN;
+  }
+  const result = spawnSync(
+    "gh",
+    ["auth", "token", "--hostname", "github.com"],
+    {
+      encoding: "utf8",
+      timeout: 5000,
+    },
+  );
+  if (
+    result.error &&
+    result.error.code !== "ENOENT" &&
+    result.error.code !== "ETIMEDOUT"
+  ) {
+    throw result.error;
+  }
+  return result.status === 0 ? result.stdout.trim() : undefined;
+}
+
+async function request(url, token, fetcher) {
+  try {
+    const response = await fetcher(url, {
+      headers: token
+        ? {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/vnd.github+json",
+          }
+        : {},
+      redirect: "manual",
+      signal: AbortSignal.timeout(15000),
+    });
+    return { response };
+  } catch (error) {
+    if (
+      !(error instanceof TypeError) &&
+      !["TimeoutError", "AbortError"].includes(error.name)
+    ) {
+      throw error;
+    }
+    return { error: "GitHub request unavailable" };
+  }
+}
+
+async function jsonRequest(url, token, fetcher) {
+  const result = await request(url, token, fetcher);
+  if (result.error) {
+    return result;
+  }
+  if (!result.response.ok) {
+    return { error: `GitHub returned HTTP ${result.response.status}` };
+  }
+  const body = await readBody(result.response);
+  return body.error ? body : parseJson(body.bytes.toString("utf8"));
+}
+
+async function readBody(response) {
+  try {
+    const chunks = [];
+    let size = 0;
+    if (!response.body) {
+      return { error: "empty GitHub response" };
+    }
+    for await (const chunk of response.body) {
+      size += chunk.length;
+      if (size > maxBytes) {
+        return { error: "GitHub response exceeds size limit" };
+      }
+      chunks.push(chunk);
+    }
+    return { bytes: Buffer.concat(chunks) };
+  } catch (error) {
+    if (
+      !(error instanceof TypeError) &&
+      !["TimeoutError", "AbortError"].includes(error.name)
+    ) {
+      throw error;
+    }
+    return { error: "GitHub download interrupted" };
+  }
+}
+
+export function trustedRun(run) {
+  return (
+    run?.event === "push" &&
+    run.head_branch === "main" &&
+    run.head_repository?.full_name === repository &&
+    run.repository?.full_name === repository &&
+    run.path === ".github/workflows/build.yml" &&
+    run.status === "completed" &&
+    run.conclusion === "success"
+  );
+}
+
+// Extract individual allowlisted files to buffers, never archive paths. This
+// also prevents zip traversal/symlinks from writing outside the staging dir.
+export function unpackArtifact(zip, dir, hash) {
+  const names = [...outputFiles, ...metadataFiles];
+  const listing = spawnSync("unzip", ["-Z1", zip], {
+    encoding: "utf8",
+    timeout: 10000,
+  });
+  if (listing.error && !["ENOENT", "ETIMEDOUT"].includes(listing.error.code)) {
+    throw listing.error;
+  }
+  if (listing.status !== 0) {
+    return { error: "artifact requires a working unzip command" };
+  }
+  const entries = listing.stdout.trim().split(/\r?\n/);
+  if (
+    entries.length !== names.length ||
+    new Set(entries).size !== names.length ||
+    entries.some((name) => !names.includes(name))
+  ) {
+    return { error: "unexpected artifact contents" };
+  }
+  for (const file of names) {
+    const result = spawnSync("unzip", ["-p", zip, file], {
+      maxBuffer: maxBytes,
+      timeout: 10000,
+    });
+    if (result.error && !["ENOBUFS", "ETIMEDOUT"].includes(result.error.code)) {
+      throw result.error;
+    }
+    if (result.status !== 0) {
+      return { error: "invalid artifact archive" };
+    }
+    writeFileSync(join(dir, file), result.stdout);
+  }
+  return validateOutput(dir, hash)
+    ? { restored: true }
+    : { error: "artifact checksum mismatch" };
+}
+
+export async function downloadOutput(
+  hash,
+  destination,
+  { token = githubToken(), fetcher = fetch } = {},
+) {
+  if (!token) {
+    return { error: "no GitHub credentials (use gh auth login or GH_TOKEN)" };
+  }
+  const deadline = AbortSignal.timeout(30000);
+  const fetchRequest = fetcher;
+  fetcher = (url, options) =>
+    fetchRequest(url, {
+      ...options,
+      signal: AbortSignal.any([deadline, options.signal]),
+    });
+  const base = `https://api.github.com/repos/${repository}/actions`;
+  const result = await jsonRequest(
+    `${base}/artifacts?name=${artifactName(hash)}&per_page=100`,
+    token,
+    fetcher,
+  );
+  if (result.error) {
+    return result;
+  }
+  if (!Array.isArray(result.value?.artifacts)) {
+    return { error: "invalid GitHub artifact listing" };
+  }
+  for (const artifact of result.value.artifacts) {
+    if (
+      artifact?.name !== artifactName(hash) ||
+      artifact.expired ||
+      !Number.isSafeInteger(artifact.id) ||
+      !Number.isSafeInteger(artifact.workflow_run?.id)
+    ) {
+      continue;
+    }
+    const run = await jsonRequest(
+      `${base}/runs/${artifact.workflow_run.id}`,
+      token,
+      fetcher,
+    );
+    if (run.error || !trustedRun(run.value)) {
+      continue;
+    }
+    const archive = await request(
+      `${base}/artifacts/${artifact.id}/zip`,
+      token,
+      fetcher,
+    );
+    if (archive.error) {
+      return archive;
+    }
+    const location = archive.response.headers.get("location");
+    if (
+      archive.response.status !== 302 ||
+      !location ||
+      !URL.canParse(location) ||
+      new URL(location).protocol !== "https:"
+    ) {
+      return { error: "artifact download unavailable" };
+    }
+    // Signed storage URL: never forward the GitHub token to another host.
+    const download = await request(location, undefined, fetcher);
+    if (download.error) {
+      return download;
+    }
+    if (!download.response.ok) {
+      return { error: "artifact download unavailable" };
+    }
+    const body = await readBody(download.response);
+    if (body.error) {
+      return body;
+    }
+    const temp = mkdtempSync(join(tmpdir(), "blocknote-typst-"));
+    try {
+      const zip = join(temp, "artifact.zip");
+      const output = join(temp, "output");
+      mkdirSync(output);
+      writeFileSync(zip, body.bytes);
+      const unpacked = unpackArtifact(zip, output, hash);
+      if (unpacked.error) {
+        return unpacked;
+      }
+      installOutput(output, destination);
+      return { restored: true };
+    } finally {
+      rmSync(temp, { recursive: true, force: true });
+    }
+  }
+  return { error: "no matching artifact from a successful main build" };
+}
+
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  console.log(inputHash());
+}

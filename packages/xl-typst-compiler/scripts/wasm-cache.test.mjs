@@ -1,0 +1,345 @@
+import { execFile, execFileSync } from "node:child_process";
+import {
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { promisify } from "node:util";
+import { afterEach, describe, expect, it } from "vite-plus/test";
+import {
+  artifactName,
+  downloadOutput,
+  inputHash,
+  installOutput,
+  outputFiles,
+  packageDir,
+  storeOutput,
+  trustedRun,
+  unpackArtifact,
+  validateOutput,
+  writeManifest,
+} from "./wasm-cache.mjs";
+
+const temps = [];
+function temp() {
+  const dir = mkdtempSync(join(tmpdir(), "typst-cache-test-"));
+  temps.push(dir);
+  return dir;
+}
+afterEach(() => {
+  for (const dir of temps.splice(0)) {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+function fixture() {
+  const root = temp();
+  for (const dir of [
+    "rust/src",
+    "scripts",
+    "node_modules/wasm-pack",
+    "node_modules/.bin",
+    "bin",
+  ]) {
+    mkdirSync(join(root, dir), { recursive: true });
+  }
+  for (const file of ["Cargo.toml", "Cargo.lock", "rust-toolchain.toml"]) {
+    writeFileSync(join(root, "rust", file), file);
+  }
+  writeFileSync(join(root, "rust/src/lib.rs"), "rust source");
+  writeFileSync(
+    join(root, "node_modules/wasm-pack/package.json"),
+    '{"version":"0.15.0"}',
+  );
+  for (const file of ["ensure-wasm.mjs", "wasm-cache.mjs"]) {
+    copyFileSync(
+      join(packageDir, "scripts", file),
+      join(root, "scripts", file),
+    );
+  }
+  return root;
+}
+
+function output(dir, hash) {
+  mkdirSync(dir, { recursive: true });
+  for (const file of outputFiles) {
+    writeFileSync(join(dir, file), `generated ${file}`);
+  }
+  writeManifest(dir, hash);
+}
+
+function zipOutput(dir) {
+  const zip = join(temp(), "artifact.zip");
+  execFileSync(
+    "zip",
+    ["-q", zip, ...outputFiles, ".build-hash", ".build-manifest.json"],
+    { cwd: dir },
+  );
+  return zip;
+}
+
+const run = {
+  event: "push",
+  head_branch: "main",
+  head_repository: { full_name: "TypeCellOS/BlockNote" },
+  repository: { full_name: "TypeCellOS/BlockNote" },
+  path: ".github/workflows/build.yml",
+  status: "completed",
+  conclusion: "success",
+};
+
+describe("WASM fingerprint and verification", () => {
+  it("is checkout-independent and ignores TypeScript-only changes", () => {
+    const first = fixture();
+    const second = fixture();
+    expect(inputHash(first)).toBe(inputHash(second));
+    writeFileSync(join(first, "wrapper.ts"), "changed TypeScript");
+    expect(inputHash(first)).toBe(inputHash(second));
+  });
+
+  it.each([
+    "rust/src/lib.rs",
+    "rust/src/new.rs",
+    "rust/Cargo.toml",
+    "rust/Cargo.lock",
+    "rust/rust-toolchain.toml",
+    "scripts/ensure-wasm.mjs",
+    "scripts/wasm-cache.mjs",
+    "node_modules/wasm-pack/package.json",
+  ])("invalidates after changing %s", (file) => {
+    const root = fixture();
+    const before = inputHash(root);
+    writeFileSync(
+      join(root, file),
+      file.endsWith("package.json") ? '{"version":"0.16.0"}' : "changed",
+    );
+    expect(inputHash(root)).not.toBe(before);
+  });
+
+  it("rejects missing, corrupt, stale, or malformed outputs", () => {
+    const dir = temp();
+    expect(validateOutput(dir, "hash")).toBe(false);
+    output(dir, "hash");
+    expect(validateOutput(dir, "hash")).toBe(true);
+    expect(validateOutput(dir, "other")).toBe(false);
+    writeFileSync(join(dir, outputFiles[0]), "corrupt");
+    expect(validateOutput(dir, "hash")).toBe(false);
+    output(dir, "hash");
+    writeFileSync(join(dir, ".build-manifest.json"), "broken json");
+    expect(validateOutput(dir, "hash")).toBe(false);
+  });
+
+  it("shares a verified output without merging stale destination files", () => {
+    const source = temp();
+    const cache = temp();
+    const destination = temp();
+    output(source, "hash");
+    storeOutput(source, "hash", cache);
+    storeOutput(source, "hash", cache);
+    writeFileSync(join(destination, "stale.js"), "stale");
+    installOutput(join(cache, "hash"), destination);
+    expect(validateOutput(destination, "hash")).toBe(true);
+    expect(existsSync(join(destination, "stale.js"))).toBe(false);
+  });
+});
+
+describe("GitHub artifacts", () => {
+  it.each([
+    { event: "pull_request" },
+    { head_branch: "feature" },
+    { head_repository: { full_name: "untrusted/fork" } },
+    { path: ".github/workflows/other.yml" },
+    { status: "in_progress" },
+    { conclusion: "failure" },
+  ])("rejects an untrusted producer: %j", (change) => {
+    expect(trustedRun({ ...run, ...change })).toBe(false);
+  });
+
+  it("downloads and verifies an exact hash without forwarding credentials to storage", async () => {
+    const source = temp();
+    const destination = temp();
+    output(source, "hash");
+    const zip = readFileSync(zipOutput(source));
+    const calls = [];
+    const responses = [
+      Response.json({
+        artifacts: [
+          {
+            name: artifactName("hash"),
+            id: 1,
+            expired: false,
+            workflow_run: { id: 2 },
+          },
+        ],
+      }),
+      Response.json(run),
+      new Response(null, {
+        status: 302,
+        headers: { location: "https://storage.example/artifact" },
+      }),
+      new Response(zip),
+    ];
+    const result = await downloadOutput("hash", destination, {
+      token: "test-token",
+      fetcher: async (url, options) => {
+        calls.push({ url, options });
+        return responses.shift();
+      },
+    });
+    expect(result).toEqual({ restored: true });
+    expect(validateOutput(destination, "hash")).toBe(true);
+    expect(calls[0].url).toContain(`name=${artifactName("hash")}`);
+    expect(calls[0].options.headers.Authorization).toBe("Bearer test-token");
+    expect(calls[3].options.headers.Authorization).toBeUndefined();
+  });
+
+  it("reports expected credential, network, authentication, and expiration misses", async () => {
+    expect(
+      (await downloadOutput("hash", temp(), { token: "" })).error,
+    ).toContain("credentials");
+    for (const fetcher of [
+      async () => {
+        throw new TypeError("offline");
+      },
+      async () => new Response(null, { status: 401 }),
+      async () => Response.json({ artifacts: [] }),
+      async () =>
+        Response.json({
+          artifacts: [{ name: artifactName("hash"), expired: true }],
+        }),
+    ]) {
+      expect(
+        (await downloadOutput("hash", temp(), { token: "token", fetcher }))
+          .error,
+      ).toBeTruthy();
+    }
+  });
+
+  it("does not swallow unexpected programming errors", async () => {
+    await expect(
+      downloadOutput("hash", temp(), {
+        token: "token",
+        fetcher: async () => {
+          throw new Error("bug");
+        },
+      }),
+    ).rejects.toThrow("bug");
+  });
+
+  it("rejects corrupt archives and unexpected archive paths", () => {
+    const source = temp();
+    output(source, "hash");
+    writeFileSync(join(source, outputFiles[0]), "corrupt");
+    expect(unpackArtifact(zipOutput(source), temp(), "hash").error).toContain(
+      "checksum",
+    );
+    output(source, "hash");
+    const zip = zipOutput(source);
+    writeFileSync(join(source, "unexpected"), "untrusted");
+    execFileSync("zip", ["-q", zip, "unexpected"], { cwd: source });
+    expect(unpackArtifact(zip, temp(), "hash").error).toContain("contents");
+  });
+});
+
+describe("build entry point", () => {
+  function buildOptions(root, extraEnv = {}) {
+    return {
+      encoding: "utf8",
+      env: {
+        ...process.env,
+        BLOCKNOTE_TYPST_CACHE_DIR: join(root, "shared-cache"),
+        BLOCKNOTE_TYPST_DOWNLOAD: "0",
+        BLOCKNOTE_TYPST_SOURCE_ONLY: "0",
+        ...extraEnv,
+      },
+    };
+  }
+
+  function build(root, extraEnv = {}, args = []) {
+    return execFileSync(
+      process.execPath,
+      [join(root, "scripts/ensure-wasm.mjs"), ...args],
+      buildOptions(root, extraEnv),
+    );
+  }
+
+  function fakeToolchain(root) {
+    writeFileSync(join(root, "bin/cargo"), "#!/bin/sh\nexit 0\n", {
+      mode: 0o755,
+    });
+    writeFileSync(
+      join(root, "node_modules/.bin/wasm-pack"),
+      `#!${process.execPath}
+const fs = require("node:fs");
+const path = require("node:path");
+const pkg = path.resolve("../pkg");
+setTimeout(() => {
+  fs.mkdirSync(pkg, { recursive: true });
+  for (const file of ${JSON.stringify(outputFiles)}) {
+    fs.writeFileSync(path.join(pkg, file), "compiled output");
+  }
+  fs.appendFileSync(path.resolve("../compilations"), "compiled\\n");
+  console.log("compiled");
+}, 100);
+`,
+      { mode: 0o755 },
+    );
+    return { PATH: `${join(root, "bin")}:${process.env.PATH}` };
+  }
+
+  it("restores a fresh checkout without invoking a compiler, then reuses pkg locally", () => {
+    const root = fixture();
+    const hash = inputHash(root);
+    output(join(root, "shared-cache", hash), hash);
+    expect(build(root)).toContain("restored shared WASM cache");
+    expect(validateOutput(join(root, "pkg"), hash)).toBe(true);
+    expect(build(root)).toBe("");
+    expect(existsSync(join(root, "node_modules/.typst-wasm.lock"))).toBe(false);
+  });
+
+  it("force and source-only bypass matching local and shared outputs", () => {
+    const root = fixture();
+    const hash = inputHash(root);
+    output(join(root, "pkg"), hash);
+    output(join(root, "shared-cache", hash), hash);
+    // A fake toolchain proves compilation is reached without paying for Rust.
+    const env = fakeToolchain(root);
+    expect(build(root, env, ["--force"])).toContain("compiled");
+    expect(build(root, { ...env, BLOCKNOTE_TYPST_SOURCE_ONLY: "1" })).toContain(
+      "compiled",
+    );
+  });
+
+  it("serializes cold builds and saves source output for another worktree", async () => {
+    const root = fixture();
+    const env = fakeToolchain(root);
+    const execute = promisify(execFile);
+    const results = await Promise.all([
+      execute(
+        process.execPath,
+        [join(root, "scripts/ensure-wasm.mjs")],
+        buildOptions(root, env),
+      ),
+      execute(
+        process.execPath,
+        [join(root, "scripts/ensure-wasm.mjs")],
+        buildOptions(root, env),
+      ),
+    ]);
+    expect(results.map((result) => result.stdout).join("")).toContain(
+      "compiled",
+    );
+    expect(readFileSync(join(root, "compilations"), "utf8")).toBe("compiled\n");
+    const other = fixture();
+    expect(
+      build(other, { BLOCKNOTE_TYPST_CACHE_DIR: join(root, "shared-cache") }),
+    ).toContain("restored shared WASM cache");
+    expect(validateOutput(join(other, "pkg"), inputHash(other))).toBe(true);
+  });
+});

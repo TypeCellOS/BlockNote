@@ -48,12 +48,40 @@ The wasm module (`pkg/`) is built from `rust/` (toolchain pinned in
 pnpm exec vp run --filter @blocknote/xl-typst-compiler build
 ```
 
-The build task self-provisions: `scripts/ensure-wasm.mjs` compiles `pkg/`
-from `rust/` when it is missing or stale (content-hashed), before the
-TypeScript build. It needs rustup locally (the pinned toolchain and wasm32
-target auto-install); on Vercel it bootstraps rustup itself and keeps the
-cargo caches under `node_modules/.cache`, so only the first build on a
-fresh cache pays the full compile. `npm run build:wasm` forces a rebuild.
+The build task checks the Rust sources, pinned toolchain, resolved wasm-pack
+version, and build scripts using one content hash shared with CI. Before the
+TypeScript build, it tries these paths in order:
+
+1. Reuse matching `pkg/` files after verifying their checksums.
+2. Restore matching files from the per-user cache (shared across worktrees).
+3. Download an exact-hash artifact from a successful `main` push of the
+   repository's build workflow. PR artifacts are never accepted.
+4. Compile from source with rustup (the pinned toolchain and wasm32 target
+   auto-install). CI/Vercel bootstrap rustup if needed; local machines need
+   rustup installed. Vercel keeps Rust caches under `node_modules/.cache`.
+
+Developer downloads require `gh auth login`, `GH_TOKEN`, or `GITHUB_TOKEN`
+with read access to Actions artifacts. No interactive authentication happens
+during builds. Missing credentials, offline requests, expired artifacts, and
+invalid downloads fall back to source compilation; downloads time out after
+30 seconds and require `unzip`. Artifacts are retained for 90 days, and a new
+fingerprint only becomes downloadable after a successful `main` build.
+
+The cache lives at `$XDG_CACHE_HOME/blocknote/typst-wasm-v2` (default
+`~/.cache/blocknote/typst-wasm-v2`). Override it with
+`BLOCKNOTE_TYPST_CACHE_DIR`. Entries are content-addressed and can be removed
+when no builds are running to reclaim disk space; there is no automatic eviction.
+Set `BLOCKNOTE_TYPST_DOWNLOAD=0` to disable remote downloads while keeping local
+reuse. `vp run --filter @blocknote/xl-typst-compiler build:wasm` bypasses all
+caches and forces source compilation. `BLOCKNOTE_TYPST_SOURCE_ONLY=1` also
+bypasses all WASM reuse; release builds use this with task caching disabled.
+
+Downloads are staged and checksum-verified before installation. The checksums
+detect corruption; trust comes from the restricted workflow producer, not the
+source hash alone. Simultaneous builds in one checkout are serialized. If a
+process is forcibly killed, remove `node_modules/.typst-wasm.lock` inside this
+package after confirming no build is still running.
+
 `pkg/` is a build output (not checked in); the published npm package
 includes it.
 
