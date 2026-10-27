@@ -38,11 +38,8 @@ function createEditorWithComment() {
     ),
   );
   editor.transact((tr) => tr.setSelection(TextSelection.create(tr.doc, 3, 8)));
-  const { clipboardHTML } = selectedFragmentToHTML(
-    editor.prosemirrorView!,
-    editor,
-  );
-  return { editor, clipboardHTML };
+  const clipboard = selectedFragmentToHTML(editor.prosemirrorView!, editor);
+  return { editor, ...clipboard };
 }
 
 function pasteAtEndOfTarget(editor: BlockNoteEditor, html: string) {
@@ -67,6 +64,21 @@ function commentedText(editor: BlockNoteEditor) {
 }
 
 describe("CommentsExtension", () => {
+  it("doesn't put comment marks or thread IDs on the clipboard", () => {
+    const { editor, clipboardHTML, externalHTML, markdown } =
+      createEditorWithComment();
+
+    for (const html of [clipboardHTML, externalHTML]) {
+      expect(html).toContain("Hello");
+      expect(html).not.toContain("bn-thread-mark");
+      expect(html).not.toContain("data-bn-thread-id");
+      expect(html).not.toContain("thread-1");
+    }
+    expect(markdown).toBe("Hello\n");
+    // Serializing the selection must not change the original anchor.
+    expect(commentedText(editor)).toEqual(["Hello"]);
+  });
+
   it("doesn't paste the comment of copied text", () => {
     const { editor, clipboardHTML } = createEditorWithComment();
 
@@ -79,16 +91,13 @@ describe("CommentsExtension", () => {
     expect(commentedText(editor)).toEqual(["Hello"]);
   });
 
-  it("keeps the comment of text moved by dragging", () => {
-    const { editor, clipboardHTML } = createEditorWithComment();
-    const view = editor.prosemirrorView!;
-    // Mark the paste as the drop of an internal drag-and-drop move.
-    (view as any).dragging = {
-      slice: view.state.selection.content(),
-      move: true,
-    };
+  it("doesn't strip comment marks from incoming HTML", () => {
+    const { editor } = createEditorWithComment();
 
-    pasteAtEndOfTarget(editor, clipboardHTML);
+    pasteAtEndOfTarget(
+      editor,
+      '<p><span class="bn-thread-mark" data-bn-thread-id="thread-1">Hello</span></p>',
+    );
 
     expect(commentedText(editor)).toEqual(["Hello", "Hello"]);
   });

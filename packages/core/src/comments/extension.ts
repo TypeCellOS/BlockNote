@@ -1,4 +1,4 @@
-import { Fragment, Node, Slice } from "prosemirror-model";
+import { Node } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
 import {
@@ -54,23 +54,6 @@ function getUpdatedThreadPositions(doc: Node, markType: string) {
     });
   });
   return threadPositions;
-}
-
-/**
- * Returns `fragment` without the marks of type `markType`.
- */
-function removeMarkFromFragment(fragment: Fragment, markType: string) {
-  const children: Node[] = [];
-  fragment.forEach((child) => {
-    const marks = child.marks.filter((mark) => mark.type.name !== markType);
-    const unmarked = child.mark(marks);
-    children.push(
-      unmarked.content.size > 0
-        ? unmarked.copy(removeMarkFromFragment(unmarked.content, markType))
-        : unmarked,
-    );
-  });
-  return Fragment.fromArray(children);
 }
 
 export const CommentsExtension = createExtension(
@@ -264,20 +247,6 @@ export const CommentsExtension = createExtension(
             decorations(state) {
               return (
                 PLUGIN_KEY.getState(state)?.decorations ?? DecorationSet.empty
-              );
-            },
-            transformPasted: (slice, view) => {
-              // A pasted copy of commented text would anchor a second range to
-              // the same thread. Moving text by dragging isn't a copy, so it
-              // keeps its comments.
-              if (view.dragging?.move) {
-                return slice;
-              }
-
-              return new Slice(
-                removeMarkFromFragment(slice.content, markType),
-                slice.openStart,
-                slice.openEnd,
               );
             },
             handleClick: (view, pos, event) => {
