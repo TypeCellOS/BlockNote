@@ -183,7 +183,8 @@ export function dragStart<
     const draggedBlockInSelection = from <= pos && pos < to;
     const multipleBlocksSelected =
       selection.$anchor.node() !== selection.$head.node() ||
-      selection instanceof MultipleNodeSelection;
+      (selection instanceof MultipleNodeSelection &&
+        selection.nodes.length > 1);
 
     if (draggedBlockInSelection && multipleBlocksSelected) {
       view.dispatch(

@@ -2,9 +2,51 @@ import { afterEach, expect, it } from "vite-plus/test";
 
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { SideMenuExtension } from "./SideMenu.js";
+import { MultipleNodeSelection } from "./MultipleNodeSelection.js";
+import { getNodeById } from "../../api/nodeUtil.js";
 import { unsetDragImage } from "./dragging.js";
 
 const cleanup: (() => void)[] = [];
+
+it("drags only the child when its parent has a single-block selection", () => {
+  const container = document.createElement("div");
+  document.body.appendChild(container);
+  cleanup.push(() => container.remove());
+  const editor = BlockNoteEditor.create({
+    initialContent: [
+      {
+        id: "parent",
+        type: "paragraph",
+        content: "Parent",
+        children: [{ id: "child", type: "paragraph", content: "Child" }],
+      },
+    ],
+  });
+  editor.mount(container);
+  cleanup.push(() => editor._tiptapEditor.destroy());
+  const view = editor.prosemirrorView;
+  cleanup.push(() => unsetDragImage(view.root));
+  const parent = getNodeById("parent", view.state.doc)!;
+  editor.transact((tr) =>
+    tr.setSelection(
+      MultipleNodeSelection.create(
+        tr.doc,
+        parent.posBeforeNode,
+        parent.posBeforeNode + parent.node.nodeSize,
+      ),
+    ),
+  );
+  editor
+    .getExtension(SideMenuExtension)!
+    .blockDragStart(
+      { dataTransfer: new DataTransfer(), clientY: 0 },
+      editor.getBlock("child")!,
+    );
+  expect(view.state.selection).toBeInstanceOf(MultipleNodeSelection);
+  expect(view.state.selection.content().content.firstChild?.attrs.id).toBe(
+    "child",
+  );
+});
 
 afterEach(() => {
   cleanup

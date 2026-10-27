@@ -7,6 +7,7 @@ import {
   nodeToBlock,
 } from "@blocknote/core";
 import { UniqueID } from "@blocknote/core/extensions";
+import { closeHistory } from "@tiptap/pm/history";
 import type { Node } from "prosemirror-model";
 import { Plugin } from "prosemirror-state";
 import type { EditorView } from "prosemirror-view";
@@ -75,6 +76,10 @@ export function createMultiColumnHandleDropPlugin(
           return false; // Let ProseMirror handle empty slice drops
         }
         const draggedBlockIds = new Set(draggedBlocks.map((block) => block.id));
+        let lastDraggedBlock = draggedBlocks.at(-1)!;
+        while (lastDraggedBlock.children.length > 0) {
+          lastDraggedBlock = lastDraggedBlock.children.at(-1)!;
+        }
 
         if (blockInfo.blockNoteType === "column") {
           // The user is dropping the target column's entire contents on the
@@ -214,7 +219,7 @@ export function createMultiColumnHandleDropPlugin(
               });
             }
             // Keep typing at the dropped blocks, not their old position.
-            editor.setTextCursorPosition(draggedBlocks.at(-1)!, "end");
+            editor.setTextCursorPosition(lastDraggedBlock, "end");
           });
         } else {
           // Create new columnList with blocks as columns
@@ -255,10 +260,12 @@ export function createMultiColumnHandleDropPlugin(
                 },
               ],
             );
-            editor.setTextCursorPosition(draggedBlocks.at(-1)!, "end");
+            editor.setTextCursorPosition(lastDraggedBlock, "end");
           });
         }
 
+        // Close after the drop: the next keystroke must be a separate undo step.
+        editor.transact((tr) => closeHistory(tr));
         return true; // Prevent default ProseMirror drop behavior
       },
     },
