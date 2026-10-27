@@ -105,6 +105,7 @@ function setDragImage(view: EditorView, from: number, to = from) {
   // the snapshot in Firefox and Safari. Taller than the cap, it would reach
   // into the page from above.
   Object.assign(preview.style, {
+    background: "transparent",
     position: "absolute",
     top: "-10000px",
     left: "0",
@@ -116,6 +117,8 @@ function setDragImage(view: EditorView, from: number, to = from) {
     overflow: "hidden",
   });
   Object.assign(editor.style, {
+    // Keep the editor's background out of the empty space around the blocks.
+    background: "transparent",
     width: `${(view.nodeDOM(from) as HTMLElement).offsetWidth}px`,
     height: "auto",
     minHeight: "0",
