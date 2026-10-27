@@ -2,12 +2,21 @@
  * @vitest-environment jsdom
  */
 import { TextSelection } from "prosemirror-state";
-import { describe, expect, it } from "vite-plus/test";
+import { afterEach, describe, expect, it } from "vite-plus/test";
 
 import { selectedFragmentToHTML } from "../api/clipboard/toClipboard/copyExtension.js";
 import { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
 import { CommentsExtension } from "./extension.js";
 import type { ThreadStore } from "./threadstore/ThreadStore.js";
+
+const editors: BlockNoteEditor[] = [];
+
+afterEach(() => {
+  for (const editor of editors) {
+    editor.unmount();
+  }
+  editors.length = 0;
+});
 
 // Creates an editor whose first paragraph ("Hello world") has a comment on
 // "Hello", and returns the clipboard HTML of copying that comment.
@@ -26,6 +35,7 @@ function createEditorWithComment() {
       CommentsExtension({ threadStore, resolveUsers: async () => [] }),
     ],
   });
+  editors.push(editor);
   editor.mount(document.createElement("div"));
   editor.transact((tr) =>
     tr.addMark(
