@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import { defineConfig } from "vite-plus";
 import { playwright } from "vite-plus/test/browser/providers/playwright";
 import {
+  readAriaSnapshot,
   startReader,
   pressKey,
   readTranscript,
@@ -59,7 +60,9 @@ export default defineConfig({
     },
     attachmentsDir: `test-results/a11y/${reader ?? "browser"}`,
     resolveSnapshotPath: (path, extension) =>
-      `${path}-snapshots/screen-reader/${reader ?? "browser"}${extension}`,
+      reader
+        ? `${path}-snapshots/screen-reader/${reader}${extension}`
+        : `${path}-snapshots/aria/browser${extension}`,
     browser: {
       enabled: true,
       headless: !reader,
@@ -78,7 +81,13 @@ export default defineConfig({
           name: reader ?? "a11y-browser",
         },
       ],
-      commands: { startReader, pressKey, readTranscript, stopReader },
+      commands: {
+        readAriaSnapshot,
+        startReader,
+        pressKey,
+        readTranscript,
+        stopReader,
+      },
       expect: {
         toMatchScreenshot: {
           comparatorName: "pixelmatch",

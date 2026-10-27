@@ -1,0 +1,415 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`formatting toolbar: Align text center > format applied 1`] = `
+"- toolbar:
+  - button "Paragraph":
+    - img
+    - text: Paragraph
+  - button "Bold":
+    - img
+  - button "Italic":
+    - img
+  - button "Underline":
+    - img
+  - button "Strike":
+    - img
+  - button "Align text left":
+    - img
+  - button "Align text center" [pressed]:
+    - img
+  - button "Align text right":
+    - img
+  - button "Colors": A
+  - button "Nest block":
+    - img
+  - button "Unnest block" [disabled]:
+    - img
+  - button "Create link":
+    - img"
+`;
+
+exports[`formatting toolbar: Align text left > format applied 1`] = `
+"- toolbar:
+  - button "Paragraph":
+    - img
+    - text: Paragraph
+  - button "Bold":
+    - img
+  - button "Italic":
+    - img
+  - button "Underline":
+    - img
+  - button "Strike":
+    - img
+  - button "Align text left" [pressed]:
+    - img
+  - button "Align text center":
+    - img
+  - button "Align text right":
+    - img
+  - button "Colors": A
+  - button "Nest block":
+    - img
+  - button "Unnest block" [disabled]:
+    - img
+  - button "Create link":
+    - img"
+`;
+
+exports[`formatting toolbar: Align text right > format applied 1`] = `
+"- toolbar:
+  - button "Paragraph":
+    - img
+    - text: Paragraph
+  - button "Bold":
+    - img
+  - button "Italic":
+    - img
+  - button "Underline":
+    - img
+  - button "Strike":
+    - img
+  - button "Align text left":
+    - img
+  - button "Align text center":
+    - img
+  - button "Align text right" [pressed]:
+    - img
+  - button "Colors": A
+  - button "Nest block":
+    - img
+  - button "Unnest block" [disabled]:
+    - img
+  - button "Create link":
+    - img"
+`;
+
+exports[`formatting toolbar: Block type select > block type menu 1`] = `
+"- menu "Paragraph":
+  - menuitem "Paragraph":
+    - img
+    - text: Paragraph
+  - menuitem "Heading 1":
+    - img
+    - text: Heading 1
+  - menuitem "Heading 2":
+    - img
+    - text: Heading 2
+  - menuitem "Heading 3":
+    - img
+    - text: Heading 3
+  - menuitem "Heading 4":
+    - img
+    - text: Heading 4
+  - menuitem "Heading 5":
+    - img
+    - text: Heading 5
+  - menuitem "Heading 6":
+    - img
+    - text: Heading 6
+  - menuitem "Toggle Heading 1":
+    - img
+    - text: Toggle Heading 1
+  - menuitem "Toggle Heading 2":
+    - img
+    - text: Toggle Heading 2
+  - menuitem "Toggle Heading 3":
+    - img
+    - text: Toggle Heading 3
+  - menuitem "Quote":
+    - img
+    - text: Quote
+  - menuitem "Toggle List":
+    - img
+    - text: Toggle List
+  - menuitem "Bullet List":
+    - img
+    - text: Bullet List
+  - menuitem "Numbered List":
+    - img
+    - text: Numbered List
+  - menuitem "Check List":
+    - img
+    - text: Check List"
+`;
+
+exports[`formatting toolbar: Block type select > heading applied 1`] = `
+"- textbox:
+  - paragraph: Preceding paragraph
+  - heading "Format this text" [level=1]
+  - paragraph: Following paragraph"
+`;
+
+exports[`formatting toolbar: Block type select > heading toolbar 1`] = `
+"- toolbar:
+  - button "Heading 1":
+    - img
+    - text: Heading 1
+  - button "Bold":
+    - img
+  - button "Italic":
+    - img
+  - button "Underline":
+    - img
+  - button "Strike":
+    - img
+  - button "Align text left" [pressed]:
+    - img
+  - button "Align text center":
+    - img
+  - button "Align text right":
+    - img
+  - button "Colors": A
+  - button "Nest block":
+    - img
+  - button "Unnest block" [disabled]:
+    - img
+  - button "Create link":
+    - img"
+`;
+
+exports[`formatting toolbar: Block type select > toolbar 1`] = `
+"- toolbar:
+  - button "Paragraph":
+    - img
+    - text: Paragraph
+  - button "Bold":
+    - img
+  - button "Italic":
+    - img
+  - button "Underline":
+    - img
+  - button "Strike":
+    - img
+  - button "Align text left" [pressed]:
+    - img
+  - button "Align text center":
+    - img
+  - button "Align text right":
+    - img
+  - button "Colors": A
+  - button "Nest block":
+    - img
+  - button "Unnest block" [disabled]:
+    - img
+  - button "Create link":
+    - img"
+`;
+
+exports[`formatting toolbar: Bold > format applied 1`] = `
+"- toolbar:
+  - button "Paragraph":
+    - img
+    - text: Paragraph
+  - button "Bold" [pressed]:
+    - img
+  - button "Italic":
+    - img
+  - button "Underline":
+    - img
+  - button "Strike":
+    - img
+  - button "Align text left" [pressed]:
+    - img
+  - button "Align text center":
+    - img
+  - button "Align text right":
+    - img
+  - button "Colors": A
+  - button "Nest block":
+    - img
+  - button "Unnest block" [disabled]:
+    - img
+  - button "Create link":
+    - img"
+`;
+
+exports[`formatting toolbar: Colors > color menu 1`] = `
+"- menu "Colors":
+  - text: Text
+  - menuitem "A Auto"
+  - menuitem "A Gray"
+  - menuitem "A Brown"
+  - menuitem "A Red"
+  - menuitem "A Orange"
+  - menuitem "A Yellow"
+  - menuitem "A Green"
+  - menuitem "A Blue"
+  - menuitem "A Purple"
+  - menuitem "A Pink"
+  - text: Background
+  - menuitem "A Auto"
+  - menuitem "A Gray"
+  - menuitem "A Brown"
+  - menuitem "A Red"
+  - menuitem "A Orange"
+  - menuitem "A Yellow"
+  - menuitem "A Green"
+  - menuitem "A Blue"
+  - menuitem "A Purple"
+  - menuitem "A Pink""
+`;
+
+exports[`formatting toolbar: Italic > format applied 1`] = `
+"- toolbar:
+  - button "Paragraph":
+    - img
+    - text: Paragraph
+  - button "Bold":
+    - img
+  - button "Italic" [pressed]:
+    - img
+  - button "Underline":
+    - img
+  - button "Strike":
+    - img
+  - button "Align text left" [pressed]:
+    - img
+  - button "Align text center":
+    - img
+  - button "Align text right":
+    - img
+  - button "Colors": A
+  - button "Nest block":
+    - img
+  - button "Unnest block" [disabled]:
+    - img
+  - button "Create link":
+    - img"
+`;
+
+exports[`formatting toolbar: Nest block > after nesting change 1`] = `
+"- textbox:
+  - paragraph: Preceding paragraph
+  - paragraph: Format this text"
+`;
+
+exports[`formatting toolbar: Nest block > before nesting change 1`] = `
+"- textbox:
+  - paragraph: Preceding paragraph
+  - paragraph: Format this text"
+`;
+
+exports[`formatting toolbar: Nest block > nesting controls 1`] = `
+"- toolbar:
+  - button "Paragraph":
+    - img
+    - text: Paragraph
+  - button "Bold":
+    - img
+  - button "Italic":
+    - img
+  - button "Underline":
+    - img
+  - button "Strike":
+    - img
+  - button "Align text left" [pressed]:
+    - img
+  - button "Align text center":
+    - img
+  - button "Align text right":
+    - img
+  - button "Colors": A
+  - button "Nest block" [disabled]:
+    - img
+  - button "Unnest block":
+    - img
+  - button "Create link":
+    - img"
+`;
+
+exports[`formatting toolbar: Strike > format applied 1`] = `
+"- toolbar:
+  - button "Paragraph":
+    - img
+    - text: Paragraph
+  - button "Bold":
+    - img
+  - button "Italic":
+    - img
+  - button "Underline":
+    - img
+  - button "Strike" [pressed]:
+    - img
+  - button "Align text left" [pressed]:
+    - img
+  - button "Align text center":
+    - img
+  - button "Align text right":
+    - img
+  - button "Colors": A
+  - button "Nest block":
+    - img
+  - button "Unnest block" [disabled]:
+    - img
+  - button "Create link":
+    - img"
+`;
+
+exports[`formatting toolbar: Underline > format applied 1`] = `
+"- toolbar:
+  - button "Paragraph":
+    - img
+    - text: Paragraph
+  - button "Bold":
+    - img
+  - button "Italic":
+    - img
+  - button "Underline" [pressed]:
+    - img
+  - button "Strike":
+    - img
+  - button "Align text left" [pressed]:
+    - img
+  - button "Align text center":
+    - img
+  - button "Align text right":
+    - img
+  - button "Colors": A
+  - button "Nest block":
+    - img
+  - button "Unnest block" [disabled]:
+    - img
+  - button "Create link":
+    - img"
+`;
+
+exports[`formatting toolbar: Unnest block > after nesting change 1`] = `
+"- textbox:
+  - paragraph: Preceding paragraph
+  - paragraph: Format this text"
+`;
+
+exports[`formatting toolbar: Unnest block > before nesting change 1`] = `
+"- textbox:
+  - paragraph: Preceding paragraph
+  - paragraph: Format this text"
+`;
+
+exports[`formatting toolbar: Unnest block > nesting controls 1`] = `
+"- toolbar:
+  - button "Paragraph":
+    - img
+    - text: Paragraph
+  - button "Bold":
+    - img
+  - button "Italic":
+    - img
+  - button "Underline":
+    - img
+  - button "Strike":
+    - img
+  - button "Align text left" [pressed]:
+    - img
+  - button "Align text center":
+    - img
+  - button "Align text right":
+    - img
+  - button "Colors": A
+  - button "Nest block":
+    - img
+  - button "Unnest block" [disabled]:
+    - img
+  - button "Create link":
+    - img"
+`;

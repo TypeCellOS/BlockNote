@@ -1,7 +1,11 @@
 import { toolbarDocument, focusToolbarControl } from "./helpers.js";
 import { expect, test } from "vite-plus/test";
 import { page, userEvent } from "vite-plus/test/browser";
-import { openEditor, pressKey } from "@root/tests/a11y/helpers.js";
+import {
+  checkAriaSnapshot,
+  openEditor,
+  pressKey,
+} from "@root/tests/a11y/helpers.js";
 
 async function setupToolbar(control: string) {
   const result = await focusToolbarControl(control);
@@ -16,10 +20,12 @@ async function setupToolbar(control: string) {
 
 test("formatting toolbar: Block type select", async () => {
   await openEditor(toolbarDocument);
-  await setupToolbar("Paragraph");
+  const { toolbar } = await setupToolbar("Paragraph");
+  await checkAriaSnapshot(toolbar, "toolbar");
   await pressKey("Enter");
   const menu = page.getByRole("menu");
   await expect.element(menu).toBeVisible();
+  await checkAriaSnapshot(menu, "block type menu");
   await pressKey("ArrowDown");
   await expect.element(menu.getByRole("menuitem").first()).toHaveFocus();
   await expect
@@ -41,6 +47,8 @@ test("formatting toolbar: Block type select", async () => {
     .toHaveTextContent("Format this text");
   await expect.element(menu).not.toBeInTheDocument();
   await expect.element(page.getByRole("textbox")).toHaveFocus();
+  await checkAriaSnapshot(page.getByRole("textbox"), "heading applied");
+  await checkAriaSnapshot(toolbar, "heading toolbar");
 });
 
 test("formatting toolbar: Bold", async () => {
@@ -48,6 +56,7 @@ test("formatting toolbar: Bold", async () => {
   const { button } = await setupToolbar("Bold");
   await pressKey("Enter");
   await expect.element(button).toHaveAttribute("aria-pressed", "true");
+  await checkAriaSnapshot(page.getByRole("toolbar"), "format applied");
 });
 
 test("formatting toolbar: Italic", async () => {
@@ -55,6 +64,7 @@ test("formatting toolbar: Italic", async () => {
   const { button } = await setupToolbar("Italic");
   await pressKey("Enter");
   await expect.element(button).toHaveAttribute("aria-pressed", "true");
+  await checkAriaSnapshot(page.getByRole("toolbar"), "format applied");
 });
 
 test("formatting toolbar: Underline", async () => {
@@ -62,6 +72,7 @@ test("formatting toolbar: Underline", async () => {
   const { button } = await setupToolbar("Underline");
   await pressKey("Enter");
   await expect.element(button).toHaveAttribute("aria-pressed", "true");
+  await checkAriaSnapshot(page.getByRole("toolbar"), "format applied");
 });
 
 test("formatting toolbar: Strike", async () => {
@@ -69,6 +80,7 @@ test("formatting toolbar: Strike", async () => {
   const { button } = await setupToolbar("Strike");
   await pressKey("Enter");
   await expect.element(button).toHaveAttribute("aria-pressed", "true");
+  await checkAriaSnapshot(page.getByRole("toolbar"), "format applied");
 });
 
 test("formatting toolbar: Align text left", async () => {
@@ -76,6 +88,7 @@ test("formatting toolbar: Align text left", async () => {
   const { button } = await setupToolbar("Align text left");
   await pressKey("Enter");
   await expect.element(button).toHaveAttribute("aria-pressed", "true");
+  await checkAriaSnapshot(page.getByRole("toolbar"), "format applied");
 });
 
 test("formatting toolbar: Align text center", async () => {
@@ -83,6 +96,7 @@ test("formatting toolbar: Align text center", async () => {
   const { button } = await setupToolbar("Align text center");
   await pressKey("Enter");
   await expect.element(button).toHaveAttribute("aria-pressed", "true");
+  await checkAriaSnapshot(page.getByRole("toolbar"), "format applied");
 });
 
 test("formatting toolbar: Align text right", async () => {
@@ -90,6 +104,7 @@ test("formatting toolbar: Align text right", async () => {
   const { button } = await setupToolbar("Align text right");
   await pressKey("Enter");
   await expect.element(button).toHaveAttribute("aria-pressed", "true");
+  await checkAriaSnapshot(page.getByRole("toolbar"), "format applied");
 });
 
 // Choose gray, verify it is applied to the selected text, and check that
@@ -99,6 +114,7 @@ test("formatting toolbar: Colors", async () => {
   await setupToolbar("Colors");
   await pressKey("Enter");
   await expect.element(page.getByRole("menu")).toBeVisible();
+  await checkAriaSnapshot(page.getByRole("menu"), "color menu");
   await pressKey("ArrowDown");
   await pressKey("ArrowDown");
   await expect
@@ -124,6 +140,7 @@ test("formatting toolbar: Nest block", async () => {
     { id: "format", type: "paragraph", content: "Format this text" },
   ]);
   await setupToolbar("Nest block");
+  await checkAriaSnapshot(page.getByRole("textbox"), "before nesting change");
   await pressKey("Enter");
   await expect
     .element(
@@ -139,6 +156,8 @@ test("formatting toolbar: Nest block", async () => {
       ),
     )
     .toBeInTheDocument();
+  await checkAriaSnapshot(page.getByRole("textbox"), "after nesting change");
+  await checkAriaSnapshot(page.getByRole("toolbar"), "nesting controls");
 });
 
 test("formatting toolbar: Unnest block", async () => {
@@ -153,6 +172,7 @@ test("formatting toolbar: Unnest block", async () => {
     },
   ]);
   await setupToolbar("Unnest block");
+  await checkAriaSnapshot(page.getByRole("textbox"), "before nesting change");
   await pressKey("Enter");
   await expect
     .element(
@@ -168,6 +188,8 @@ test("formatting toolbar: Unnest block", async () => {
       ),
     )
     .toBeInTheDocument();
+  await checkAriaSnapshot(page.getByRole("textbox"), "after nesting change");
+  await checkAriaSnapshot(page.getByRole("toolbar"), "nesting controls");
 });
 
 // The focused URL input lacks a distinct focus outline; the visual accessibility requirement is not met.
@@ -179,6 +201,7 @@ test.skip("formatting toolbar: Create link", async () => {
     document.querySelector<HTMLElement>(".bn-form-popover")!,
   );
   await expect.element(popover.getByPlaceholder("Edit URL")).toHaveFocus();
+  await checkAriaSnapshot(popover, "link popover");
   // TODO: The focused URL input currently has no distinct focus outline.
   await expect
     .element(popover)
