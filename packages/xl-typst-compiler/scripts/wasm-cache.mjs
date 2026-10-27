@@ -24,6 +24,7 @@ export const outputFiles = [
   "blocknote_typst_wasm_bg.wasm.d.ts",
 ];
 const metadataFiles = [".build-hash", ".build-manifest.json"];
+const cacheFiles = [...outputFiles, ...metadataFiles];
 const repository = "TypeCellOS/BlockNote";
 const maxBytes = 64 * 1024 * 1024;
 
@@ -103,7 +104,7 @@ function parseJson(text) {
 
 export function validateOutput(dir, hash) {
   if (
-    ![...outputFiles, ...metadataFiles].every((file) => {
+    !cacheFiles.every((file) => {
       const path = join(dir, file);
       return existsSync(path) && lstatSync(path).isFile();
     })
@@ -125,33 +126,35 @@ export function validateOutput(dir, hash) {
   );
 }
 
-// Call under the per-package build lock. Stage completely before replacing
-// outputs; never merge an incomplete download into the live package.
-export function installOutput(source, destination) {
-  mkdirSync(dirname(destination), { recursive: true });
-  const stage = mkdtempSync(join(dirname(destination), ".typst-stage-"));
+// Copy completely before publishing, and clean up even if copying fails.
+function withStagedOutput(source, parent, publish) {
+  mkdirSync(parent, { recursive: true });
+  const stage = mkdtempSync(join(parent, ".typst-stage-"));
   try {
-    for (const file of [...outputFiles, ...metadataFiles]) {
+    for (const file of cacheFiles) {
       copyFileSync(join(source, file), join(stage, file));
     }
-    rmSync(destination, { recursive: true, force: true });
-    renameSync(stage, destination);
+    publish(stage);
   } finally {
     rmSync(stage, { recursive: true, force: true });
   }
 }
 
+// Call under the per-package build lock. Never merge an incomplete download
+// into the live package.
+export function installOutput(source, destination) {
+  withStagedOutput(source, dirname(destination), (stage) => {
+    rmSync(destination, { recursive: true, force: true });
+    renameSync(stage, destination);
+  });
+}
+
 export function storeOutput(source, hash, root = cacheRoot()) {
-  mkdirSync(root, { recursive: true });
   const destination = join(root, hash);
   if (validateOutput(destination, hash)) {
     return;
   }
-  const stage = mkdtempSync(join(root, ".typst-cache-"));
-  try {
-    for (const file of [...outputFiles, ...metadataFiles]) {
-      copyFileSync(join(source, file), join(stage, file));
-    }
+  withStagedOutput(source, root, (stage) => {
     // Atomic publication; another worktree may publish this same key first.
     if (existsSync(destination)) {
       // Leave invalid entries alone: readers reject them and can still build.
@@ -164,9 +167,7 @@ export function storeOutput(source, hash, root = cacheRoot()) {
         throw error;
       }
     }
-  } finally {
-    rmSync(stage, { recursive: true, force: true });
-  }
+  });
 }
 
 function githubToken() {
@@ -268,7 +269,6 @@ export function trustedRun(run) {
 // Extract individual allowlisted files to buffers, never archive paths. This
 // also prevents zip traversal/symlinks from writing outside the staging dir.
 export function unpackArtifact(zip, dir, hash) {
-  const names = [...outputFiles, ...metadataFiles];
   const listing = spawnSync("unzip", ["-Z1", zip], {
     encoding: "utf8",
     timeout: 10000,
@@ -281,13 +281,13 @@ export function unpackArtifact(zip, dir, hash) {
   }
   const entries = listing.stdout.trim().split(/\r?\n/);
   if (
-    entries.length !== names.length ||
-    new Set(entries).size !== names.length ||
-    entries.some((name) => !names.includes(name))
+    entries.length !== cacheFiles.length ||
+    new Set(entries).size !== cacheFiles.length ||
+    entries.some((name) => !cacheFiles.includes(name))
   ) {
     return { error: "unexpected artifact contents" };
   }
-  for (const file of names) {
+  for (const file of cacheFiles) {
     const result = spawnSync("unzip", ["-p", zip, file], {
       maxBuffer: maxBytes,
       timeout: 10000,

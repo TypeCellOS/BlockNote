@@ -48,9 +48,9 @@ function commandExists(command, env) {
 async function ensureWasm() {
   const force = process.argv.includes("--force");
   // Publishing deliberately bypasses all reusable outputs, including local pkg/.
-  const sourceOnly = force || process.env.BLOCKNOTE_TYPST_SOURCE_ONLY === "1";
+  const sourceOnly = process.env.BLOCKNOTE_TYPST_SOURCE_ONLY === "1";
   const currentHash = inputHash();
-  if (!sourceOnly) {
+  if (!force && !sourceOnly) {
     if (validateOutput(pkgDir, currentHash)) {
       return;
     }
@@ -146,7 +146,7 @@ async function ensureWasm() {
   writeManifest(pkgDir, currentHash);
   // A forced developer rebuild can seed other worktrees too; release builds
   // intentionally do not read or write the shared developer cache.
-  if (process.env.BLOCKNOTE_TYPST_SOURCE_ONLY !== "1") {
+  if (!sourceOnly) {
     storeOutput(pkgDir, currentHash);
   }
   console.log("[ensure-wasm] done.");

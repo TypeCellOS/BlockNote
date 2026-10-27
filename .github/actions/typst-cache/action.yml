@@ -1,5 +1,9 @@
 name: Restore Typst WASM cache
 description: Reuse compiled Typst WASM after dependency installation
+outputs:
+  hash:
+    description: Content hash of the Typst WASM build inputs
+    value: ${{ steps.fingerprint.outputs.hash }}
 runs:
   using: composite
   steps:
