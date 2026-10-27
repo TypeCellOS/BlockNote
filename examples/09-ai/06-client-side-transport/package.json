@@ -20,9 +20,9 @@
     "@mantine/hooks": "^9.0.2",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
-    "@ai-sdk/groq": "^3.0.2",
+    "@ai-sdk/groq": "^4.0.70",
     "@blocknote/xl-ai": "latest",
-    "ai": "^6.0.5"
+    "ai": "^7.0.153"
   },
   "devDependencies": {
     "@types/react": "^19.2.3",

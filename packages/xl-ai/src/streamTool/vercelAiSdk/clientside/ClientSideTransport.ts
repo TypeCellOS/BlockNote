@@ -5,7 +5,6 @@ import {
   UIMessage,
   UIMessageChunk,
   convertToModelMessages,
-  generateText,
   streamText,
 } from "ai";
 import { injectDocumentStateMessages } from "../util/injectDocumentStateMessages.js";
@@ -66,11 +65,12 @@ export class ClientSideTransport<
       stream?: boolean;
 
       /**
-       * Additional options to pass to the AI SDK `streamText` / `generateText` functions
+       * Additional options to pass to the AI SDK `streamText` function.
+       * The prompt is supplied by the chat messages.
        */
-      _additionalOptions?:
-        | Partial<Parameters<typeof generateText>[0]>
-        | Partial<Parameters<typeof streamText>[0]>;
+      _additionalOptions?: Partial<
+        Omit<Parameters<typeof streamText>[0], "prompt">
+      >;
     },
   ) {}
 
@@ -84,14 +84,13 @@ export class ClientSideTransport<
 
     const ret = streamText({
       model,
-      system: this.opts.systemPrompt,
+      instructions: this.opts.systemPrompt,
       messages: await convertToModelMessages(
         injectDocumentStateMessages(messages),
       ),
       tools,
       toolChoice: "required",
-      // extra options for streamObject
-      ...((_additionalOptions ?? {}) as any),
+      ..._additionalOptions,
       // activeTools: ["applyDocumentOperations"],
     });
 
