@@ -34,7 +34,9 @@ function latexToDocxEquation(
   // component around the `m:oMath` root element - unwrap it, or it would
   // serialize as an (invalid) `<undefined>` element.
   const imported = ImportedXmlComponent.fromXmlString(
-    mml2omml(mathML.mathML),
+    // The converter doesn't re-escape decoded text when serializing OMML.
+    // Preserve KaTeX's XML entities so characters like < and & stay valid XML.
+    mml2omml(mathML.mathML, { disableDecode: true }),
   ) as any;
   return { equation: imported.root[0] as ImportedXmlComponent };
 }

@@ -96,3 +96,35 @@ describe("getSelectedLinkUrl", () => {
     expect(editor.getLinkMarkAtPos(from - 2)).toBeUndefined();
   });
 });
+
+describe("getSelectedText", () => {
+  it("separates text from different blocks with a newline", () => {
+    const editor = BlockNoteEditor.create({
+      initialContent: [
+        { type: "paragraph", content: "First" },
+        {
+          type: "paragraph",
+          content: "Second",
+          children: [{ type: "paragraph", content: "Nested" }],
+        },
+        { type: "heading", content: "Third" },
+      ],
+    });
+    editor.transact((tr) =>
+      tr.setSelection(TextSelection.create(tr.doc, 1, tr.doc.content.size - 1)),
+    );
+    expect(editor.getSelectedText()).toBe("First\nSecond\nNested\nThird");
+  });
+
+  it("returns the text of a selection within one block unchanged", () => {
+    const editor = BlockNoteEditor.create({
+      initialContent: [{ type: "paragraph", content: "Hello world" }],
+    });
+    editor.setTextCursorPosition(editor.document[0], "start");
+    const start = editor.prosemirrorState.selection.from;
+    editor.transact((tr) =>
+      tr.setSelection(TextSelection.create(tr.doc, start, start + 5)),
+    );
+    expect(editor.getSelectedText()).toBe("Hello");
+  });
+});

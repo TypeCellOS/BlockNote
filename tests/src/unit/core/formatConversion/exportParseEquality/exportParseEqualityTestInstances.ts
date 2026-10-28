@@ -1009,6 +1009,54 @@ export const exportParseEqualityTestInstancesMarkdown: TestInstance<
   },
   {
     testCase: {
+      name: "markdown/styledSurroundingWhitespace",
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "text",
+              text: "Normal",
+              styles: {},
+            },
+            {
+              type: "text",
+              text: " bold",
+              styles: { bold: true },
+            },
+            {
+              type: "text",
+              text: " and",
+              styles: {},
+            },
+            {
+              type: "text",
+              text: " italic ",
+              styles: { italic: true },
+            },
+            {
+              type: "text",
+              text: "and",
+              styles: {},
+            },
+            {
+              type: "text",
+              text: " strike ",
+              styles: { strike: true },
+            },
+            {
+              type: "text",
+              text: "end",
+              styles: {},
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportParseEqualityMarkdown,
+  },
+  {
+    testCase: {
       name: "markdown/specialCharEscaping",
       content: [
         {

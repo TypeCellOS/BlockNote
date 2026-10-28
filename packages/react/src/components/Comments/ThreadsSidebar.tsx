@@ -98,8 +98,8 @@ function sortThreads(
     // sort by latest comment in thread first
     return threads.sort(
       (a, b) =>
-        b.comments[b.comments.length - 1].createdAt.getTime() -
-        a.comments[a.comments.length - 1].createdAt.getTime(),
+        (b.comments.at(-1)?.createdAt ?? b.createdAt).getTime() -
+        (a.comments.at(-1)?.createdAt ?? a.createdAt).getTime(),
     );
   }
 
