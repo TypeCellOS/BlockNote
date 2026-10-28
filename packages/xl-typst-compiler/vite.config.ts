@@ -22,6 +22,12 @@ export default defineConfig(
             command:
               "node scripts/ensure-wasm.mjs && tsc --project tsconfig.json --composite false --incremental false --rootDir . && vp build",
             cache: {
+              env: [
+                "BLOCKNOTE_TYPST_CACHE_DIR",
+                "BLOCKNOTE_TYPST_DOWNLOAD",
+                "BLOCKNOTE_TYPST_SOURCE_ONLY",
+                "XDG_CACHE_HOME",
+              ],
               input: [
                 ...buildCacheInputs("packages/xl-typst-compiler"),
                 { pattern: "!**/*.tsbuildinfo", base: "workspace" },

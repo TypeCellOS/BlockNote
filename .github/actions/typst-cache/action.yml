@@ -10,7 +10,9 @@ runs:
     - name: Fingerprint Typst WASM inputs
       id: fingerprint
       shell: bash
-      run: echo "hash=$(node packages/xl-typst-compiler/scripts/wasm-cache.mjs)" >> "$GITHUB_OUTPUT"
+      run: |
+        hash=$(node packages/xl-typst-compiler/scripts/wasm-cache.mjs)
+        echo "hash=$hash" >> "$GITHUB_OUTPUT"
     # Cache just the distributable (~25 MB), not the multi-GB Rust target tree.
     # ensure-wasm.mjs still verifies its content hash before using this output.
     - name: Cache Typst WASM
