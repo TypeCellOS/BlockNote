@@ -1,5 +1,10 @@
 import type { Dictionary } from "@blocknote/core";
-import { EmojiPicker, type EmojiData, type EmojiDataResolver } from "frimousse";
+import {
+  EmojiPicker,
+  defaultEmojiDataResolver,
+  type EmojiData,
+  type EmojiDataResolver,
+} from "frimousse";
 
 type EmojiSupport = {
   emojiVersion: number;
@@ -105,9 +110,7 @@ export function filterEmojiDataForPlatform(
       const isSupportedVersion =
         emoji.version <= (emojiVersion ?? support.emojiVersion);
 
-      return emoji.countryFlag
-        ? isSupportedVersion && support.countryFlags
-        : isSupportedVersion;
+      return isSupportedVersion && (!emoji.countryFlag || support.countryFlags);
     }),
   };
 }
@@ -133,15 +136,16 @@ export function ActiveEmojiDisplay({
   label?: string;
   placeholder: string;
 }) {
-  return emoji ? (
+  return (
     <div className="bn-frimousse-active-emoji">
-      <span className="bn-frimousse-active-emoji-glyph">{emoji}</span>
-      <span className="bn-frimousse-active-emoji-label">{label}</span>
-    </div>
-  ) : (
-    <div className="bn-frimousse-active-emoji">
-      <span className="bn-frimousse-active-emoji-label bn-frimousse-active-emoji-placeholder">
-        {placeholder}
+      {emoji && (
+        <span className="bn-frimousse-active-emoji-glyph">{emoji}</span>
+      )}
+      <span
+        className="bn-frimousse-active-emoji-label"
+        data-placeholder={!emoji || undefined}
+      >
+        {emoji ? label : placeholder}
       </span>
     </div>
   );
@@ -149,20 +153,20 @@ export function ActiveEmojiDisplay({
 
 type Props = {
   columns?: number;
+  emojibaseUrl?: string;
   onEmojiSelect: (emoji: { native: string }) => void;
   onEscape?: () => void;
   locale: string;
   dictionary?: Dictionary["emoji_picker"];
-  emojibaseUrl?: string;
 };
 
 export default function FrimoussePicker({
   columns = 9,
+  emojibaseUrl,
   onEmojiSelect,
   onEscape,
   locale,
   dictionary,
-  emojibaseUrl,
 }: Props) {
   const placeholder = `${dictionary?.search ?? "Search"}…`;
 
@@ -172,7 +176,9 @@ export default function FrimoussePicker({
       locale={locale}
       columns={columns}
       emojibaseUrl={emojibaseUrl}
-      resolveEmojiData={emojibaseUrl ? undefined : resolveBlockNoteEmojiData}
+      resolveEmojiData={
+        emojibaseUrl ? defaultEmojiDataResolver : resolveBlockNoteEmojiData
+      }
       onEmojiSelect={(emoji) => onEmojiSelect({ native: emoji.emoji })}
       onKeyDownCapture={(event) => {
         if (event.key === "Escape" && onEscape) {
@@ -192,25 +198,7 @@ export default function FrimoussePicker({
         <EmojiPicker.Empty className="bn-frimousse-empty">
           {dictionary?.search_no_results ?? "No emoji found."}
         </EmojiPicker.Empty>
-        <EmojiPicker.List
-          components={{
-            CategoryHeader: ({ category, ...props }) => (
-              <div className="bn-frimousse-category-header" {...props}>
-                {category.label}
-              </div>
-            ),
-            Row: ({ children, ...props }) => (
-              <div className="bn-frimousse-row" {...props}>
-                {children}
-              </div>
-            ),
-            Emoji: ({ emoji, ...props }) => (
-              <button type="button" className="bn-frimousse-emoji" {...props}>
-                {emoji.emoji}
-              </button>
-            ),
-          }}
-        />
+        <EmojiPicker.List />
       </EmojiPicker.Viewport>
       <div className="bn-frimousse-footer">
         <EmojiPicker.ActiveEmoji>

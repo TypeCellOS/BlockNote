@@ -6,10 +6,18 @@ import {
 import {
   EmojiPicker,
   type EmojiDataResolver,
+  type EmojiPickerListEmojiProps,
   type SkinTone,
   useSkinTone,
 } from "frimousse";
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 
 import { useBlockNoteContext } from "../../../editor/BlockNoteContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
@@ -22,7 +30,33 @@ import {
 import { getSuggestionMenuItemId } from "../getSuggestionMenuItemId.js";
 
 const COLUMNS = 9;
-const blockNoteEmojiDataResolver: EmojiDataResolver = resolveBlockNoteEmojiData;
+const SelectedEmojiContext = createContext<string | undefined>(undefined);
+
+function InlineEmojiPickerEmoji({
+  emoji,
+  ...props
+}: EmojiPickerListEmojiProps) {
+  const selectedChar = useContext(SelectedEmojiContext);
+  const selected = emoji.emoji === selectedChar;
+
+  return (
+    <button
+      type="button"
+      className="bn-frimousse-emoji"
+      {...props}
+      data-selected={selected ? "" : undefined}
+      // Editor navigation owns selection; Frimousse still handles pointer/clicks.
+      data-active={undefined}
+      aria-selected={selected || undefined}
+    >
+      {emoji.emoji}
+    </button>
+  );
+}
+
+const inlineEmojiPickerComponents = {
+  Emoji: InlineEmojiPickerEmoji,
+};
 
 type EmojiPickerRow = {
   categoryIndex: number;
@@ -87,7 +121,7 @@ function moveEmojiPosition(
 ): EmojiPosition {
   const row = rows[position.row];
   if (!row) {
-    return { row: 0, column: 0 };
+    return position;
   }
 
   switch (key) {
@@ -108,43 +142,18 @@ function moveEmojiPosition(
         ? { row: position.row + 1, column: 0 }
         : position;
     }
-    case "ArrowUp": {
-      const previousRow = rows[position.row - 1];
-      return previousRow
-        ? {
-            row: position.row - 1,
-            column: Math.min(position.column, previousRow.emojis.length - 1),
-          }
-        : position;
-    }
+    case "ArrowUp":
     case "ArrowDown": {
-      const nextRow = rows[position.row + 1];
+      const rowIndex = position.row + (key === "ArrowUp" ? -1 : 1);
+      const nextRow = rows[rowIndex];
       return nextRow
         ? {
-            row: position.row + 1,
+            row: rowIndex,
             column: Math.min(position.column, nextRow.emojis.length - 1),
           }
         : position;
     }
   }
-}
-
-function getRowHeight(root: HTMLElement): number {
-  return (
-    Number.parseFloat(
-      getComputedStyle(root).getPropertyValue("--frimousse-row-height"),
-    ) || 32
-  );
-}
-
-function getCategoryHeaderHeight(root: HTMLElement): number {
-  return (
-    Number.parseFloat(
-      getComputedStyle(root).getPropertyValue(
-        "--frimousse-category-header-height",
-      ),
-    ) || 30
-  );
 }
 
 function findButtonAtPosition(
@@ -182,8 +191,13 @@ function scrollViewportTo(
     return;
   }
 
-  const rowHeight = getRowHeight(root);
-  const headerHeight = getCategoryHeaderHeight(root);
+  const style = getComputedStyle(root);
+  const rowHeight =
+    Number.parseFloat(style.getPropertyValue("--frimousse-row-height")) || 32;
+  const headerHeight =
+    Number.parseFloat(
+      style.getPropertyValue("--frimousse-category-header-height"),
+    ) || 30;
   const estimatedY =
     position.row * rowHeight + (categoryIndex + 1) * headerHeight;
   const viewportHeight = viewport.clientHeight;
@@ -192,7 +206,10 @@ function scrollViewportTo(
     estimatedY < viewport.scrollTop ||
     estimatedY + rowHeight > viewport.scrollTop + viewportHeight - headerHeight
   ) {
-    viewport.scrollTop = Math.max(0, estimatedY - viewportHeight / 3);
+    viewport.scrollTo({
+      top: Math.max(0, estimatedY - viewportHeight / 3),
+      behavior: "instant",
+    });
   }
 }
 
@@ -207,24 +224,17 @@ function emojiGlyph(
 
 function InlineEmojiPickerContent(props: {
   query: string;
-  closeMenu: () => void;
-  clearQuery: () => void;
+  insertEmoji: (emoji: string) => void;
   rootRef: React.RefObject<HTMLDivElement | null>;
   resolvedData?: ResolvedEmojiData;
 }) {
-  const { query, closeMenu, clearQuery, rootRef, resolvedData } = props;
-  const editor = useBlockNoteEditor();
-  const editorDOMElement = useEditorDOMElement(editor);
+  const { query, insertEmoji, rootRef, resolvedData } = props;
+  const editorDOMElement = useEditorDOMElement();
   const setContentEditableProps =
     useBlockNoteContext()!.setContentEditableProps!;
   const dict = useDictionary();
   const locale = dict.locale ?? "en";
   const [skinTone] = useSkinTone();
-  const emojiByGlyph = useMemo(
-    () =>
-      new Map(resolvedData?.data.emojis.map((emoji) => [emoji.emoji, emoji])),
-    [resolvedData],
-  );
 
   const [results, setResults] = useState<EmojiPickerResults>();
   const [selectedPosition, setSelectedPosition] = useState<EmojiPosition>({
@@ -308,15 +318,15 @@ function InlineEmojiPickerContent(props: {
       setSelectedButtonVisible(false);
       return;
     }
-    // Scroll first so frimousse can virtualise the target row.
-    scrollViewportTo(root, selectedPosition, selectedRow.categoryIndex);
-
     const btn = findButtonAtPosition(root, selectedPosition, selectedChar);
     if (btn) {
-      btn.scrollIntoView({ block: "nearest" });
+      btn.scrollIntoView({ block: "nearest", behavior: "instant" });
       markButtonSelected(root, btn, selectedIndex);
       setSelectedButtonVisible(true);
     } else {
+      // Virtualized-away rows have no DOM node (or ID) to scroll to. Bring
+      // the estimated row into range; the observer handles its exact button.
+      scrollViewportTo(root, selectedPosition, selectedRow.categoryIndex);
       setSelectedButtonVisible(false);
     }
   }, [rootRef, selectedChar, selectedIndex, selectedPosition, selectedRow]);
@@ -328,17 +338,18 @@ function InlineEmojiPickerContent(props: {
     if (!root) {
       return;
     }
-    const pickerRoot: HTMLDivElement = root;
 
     if (!selectedChar || !selectedRow || selectedIndex === undefined) {
       setSelectedButtonVisible(false);
       return;
     }
+
+    // Scroll only once per selection change. Subsequent virtualization updates
+    // must keep accessibility in sync without undoing manual mouse scrolling.
+    let scrollPending = true;
+    const pickerRoot = root;
     const selectedCharValue = selectedChar;
     const selectedIndexValue = selectedIndex;
-
-    // Ensure viewport is scrolled to the target area.
-    scrollViewportTo(pickerRoot, selectedPosition, selectedRow.categoryIndex);
 
     function updateSelectedButton() {
       const btn = findButtonAtPosition(
@@ -348,20 +359,20 @@ function InlineEmojiPickerContent(props: {
       );
       if (!btn) {
         setSelectedButtonVisible(false);
-        return false;
+        return;
       }
 
-      btn.scrollIntoView({ block: "nearest" });
+      if (scrollPending) {
+        scrollPending = false;
+        btn.scrollIntoView({ block: "nearest", behavior: "instant" });
+      }
       markButtonSelected(pickerRoot, btn, selectedIndexValue);
       setSelectedButtonVisible(true);
-      return true;
     }
 
-    const observer = new MutationObserver(() => {
-      updateSelectedButton();
-    });
+    const observer = new MutationObserver(updateSelectedButton);
 
-    observer.observe(pickerRoot, {
+    observer.observe(root, {
       attributeFilter: ["aria-label"],
       attributes: true,
       characterData: true,
@@ -372,15 +383,9 @@ function InlineEmojiPickerContent(props: {
     return () => observer.disconnect();
   }, [rootRef, selectedChar, selectedIndex, selectedPosition, selectedRow]);
 
-  function insertEmoji(emoji: Pick<FrimousseEmoji, "emoji" | "skins">) {
-    clearQuery();
-    closeMenu();
-    editor.insertInlineContent(emojiGlyph(emoji, skinTone) + " ");
-  }
-
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (!currentResults || !query.trim()) {
+      if (event.isComposing || !currentResults) {
         return;
       }
 
@@ -395,18 +400,20 @@ function InlineEmojiPickerContent(props: {
         key === "ArrowDown" ||
         key === "ArrowUp"
       ) {
-        event.preventDefault();
-        setSelectedPosition((position) =>
-          moveEmojiPosition(position, key, currentResults.rows),
+        const nextPosition = moveEmojiPosition(
+          selectedPosition,
+          key,
+          currentResults.rows,
         );
-      } else if (event.key === "Enter" && !event.isComposing) {
-        if (selectedEmoji) {
-          event.preventDefault();
-          event.stopPropagation();
-          clearQuery();
-          closeMenu();
-          editor.insertInlineContent(emojiGlyph(selectedEmoji, skinTone) + " ");
+        if (nextPosition === selectedPosition) {
+          return;
         }
+        event.preventDefault();
+        setSelectedPosition(nextPosition);
+      } else if (event.key === "Enter" && query.trim() && selectedChar) {
+        event.preventDefault();
+        event.stopPropagation();
+        insertEmoji(selectedChar);
       }
     };
 
@@ -415,14 +422,12 @@ function InlineEmojiPickerContent(props: {
       editorDOMElement?.removeEventListener("keydown", handleKeyDown, true);
     };
   }, [
-    clearQuery,
-    closeMenu,
     currentResults,
-    editor,
     editorDOMElement,
+    insertEmoji,
     query,
-    selectedEmoji,
-    skinTone,
+    selectedChar,
+    selectedPosition,
   ]);
 
   const placeholder = `${dict.emoji_picker.search}…`;
@@ -442,41 +447,9 @@ function InlineEmojiPickerContent(props: {
         <EmojiPicker.Empty className="bn-frimousse-empty">
           {dict.emoji_picker.search_no_results}
         </EmojiPicker.Empty>
-        <EmojiPicker.List
-          components={{
-            CategoryHeader: ({ category, ...headerProps }) => (
-              <div className="bn-frimousse-category-header" {...headerProps}>
-                {category.label}
-              </div>
-            ),
-            Row: ({ children, ...rowProps }) => (
-              <div className="bn-frimousse-row" {...rowProps}>
-                {children}
-              </div>
-            ),
-            Emoji: ({ emoji, ...emojiProps }) => (
-              <button
-                type="button"
-                className="bn-frimousse-emoji"
-                {...emojiProps}
-                data-selected={
-                  emojiGlyph(
-                    emojiByGlyph.get(emoji.emoji) ?? emoji,
-                    skinTone,
-                  ) === selectedChar
-                    ? ""
-                    : undefined
-                }
-                onClick={(event) => {
-                  emojiProps.onClick?.(event);
-                  insertEmoji(emojiByGlyph.get(emoji.emoji) ?? emoji);
-                }}
-              >
-                {emojiGlyph(emojiByGlyph.get(emoji.emoji) ?? emoji, skinTone)}
-              </button>
-            ),
-          }}
-        />
+        <SelectedEmojiContext.Provider value={selectedChar}>
+          <EmojiPicker.List components={inlineEmojiPickerComponents} />
+        </SelectedEmojiContext.Provider>
       </EmojiPicker.Viewport>
       <div className="bn-frimousse-footer">
         <ActiveEmojiDisplay
@@ -495,12 +468,13 @@ export function InlineEmojiPicker(props: {
   closeMenu: () => void;
   clearQuery: () => void;
 }) {
+  const editor = useBlockNoteEditor();
   const locale = useDictionary().locale ?? "en";
   const rootRef = useRef<HTMLDivElement>(null);
   const [resolvedData, setResolvedData] = useState<ResolvedEmojiData>();
   const [resolveEmojiData] = useState(() => {
     const resolver: EmojiDataResolver = async (resolvedLocale, options) => {
-      const data = await blockNoteEmojiDataResolver(resolvedLocale, options);
+      const data = await resolveBlockNoteEmojiData(resolvedLocale, options);
       if (!options.signal?.aborted) {
         setResolvedData({ locale: resolvedLocale, data });
       }
@@ -508,6 +482,12 @@ export function InlineEmojiPicker(props: {
     };
     return resolver;
   });
+
+  function insertEmoji(emoji: string) {
+    props.clearQuery();
+    props.closeMenu();
+    editor.insertInlineContent(emoji + " ");
+  }
 
   return (
     <EmojiPicker.Root
@@ -517,9 +497,11 @@ export function InlineEmojiPicker(props: {
       locale={locale}
       columns={COLUMNS}
       resolveEmojiData={resolveEmojiData}
+      onEmojiSelect={({ emoji }) => insertEmoji(emoji)}
     >
       <InlineEmojiPickerContent
-        {...props}
+        query={props.query}
+        insertEmoji={insertEmoji}
         rootRef={rootRef}
         resolvedData={resolvedData}
       />

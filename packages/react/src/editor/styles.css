@@ -411,7 +411,7 @@ SideMenuController offsets its position to keep it centered on the line. */
   user-select: none;
 }
 
-.bn-frimousse-category-header {
+.bn-frimousse-picker [frimousse-category-header] {
   padding: 12px 12px 6px;
   background-color: var(--bn-colors-menu-background);
   color: var(--bn-colors-side-menu);
@@ -419,12 +419,12 @@ SideMenuController offsets its position to keep it centered on the line. */
   font-weight: 500;
 }
 
-.bn-frimousse-row {
+.bn-frimousse-picker [frimousse-row] {
   padding-inline: 6px;
   scroll-margin-block: 6px;
 }
 
-.bn-frimousse-emoji {
+.bn-frimousse-picker [frimousse-emoji] {
   all: unset;
   display: flex;
   align-items: center;
@@ -437,13 +437,13 @@ SideMenuController offsets its position to keep it centered on the line. */
   cursor: pointer;
 }
 
-.bn-frimousse-emoji:hover,
-.bn-frimousse-emoji[data-active],
-.bn-frimousse-emoji[data-selected] {
+.bn-frimousse-picker [frimousse-emoji]:hover,
+.bn-frimousse-picker [frimousse-emoji][data-active],
+.bn-frimousse-picker [frimousse-emoji][data-selected] {
   background-color: var(--bn-colors-hovered-background);
 }
 
-.bn-frimousse-emoji:focus-visible {
+.bn-frimousse-picker [frimousse-emoji]:focus-visible {
   outline: 2px solid var(--bn-colors-editor-text);
   outline-offset: -2px;
 }
@@ -485,7 +485,7 @@ SideMenuController offsets its position to keep it centered on the line. */
   text-overflow: ellipsis;
 }
 
-.bn-frimousse-active-emoji-placeholder {
+.bn-frimousse-active-emoji-label[data-placeholder] {
   color: var(--bn-colors-side-menu);
 }
 

@@ -1,7 +1,7 @@
 import { defaultInlineContentSchema } from "@blocknote/core";
 import {
   SuggestionMenu,
-  SuggestionMenuOptions,
+  type SuggestionMenuOptions,
 } from "@blocknote/core/extensions";
 import { autoPlacement, offset, shift, size } from "@floating-ui/react";
 import { useEffect, useMemo } from "react";
@@ -23,13 +23,14 @@ import { InlineEmojiPicker } from "./InlineEmojiPicker.js";
 export function EmojiPickerController(props: {
   triggerCharacter: string;
   shouldOpen?: SuggestionMenuOptions["shouldOpen"];
+  minQueryLength?: number;
   floatingUIOptions?: FloatingUIOptions;
   portalElement?: HTMLElement | null;
 }) {
   const editor = useBlockNoteEditor();
   const editorDOMElement = useEditorDOMElement();
 
-  const { triggerCharacter, shouldOpen } = props;
+  const { triggerCharacter, shouldOpen, minQueryLength = 2 } = props;
 
   const suggestionMenu = useExtension(SuggestionMenu);
   const hasTextInlineContent =
@@ -102,7 +103,13 @@ export function EmojiPickerController(props: {
     ],
   );
 
-  if (!hasTextInlineContent || !state) {
+  if (
+    !hasTextInlineContent ||
+    !state ||
+    (!state.ignoreQueryLength &&
+      minQueryLength &&
+      (state.query.startsWith(" ") || state.query.length < minQueryLength))
+  ) {
     return null;
   }
 
