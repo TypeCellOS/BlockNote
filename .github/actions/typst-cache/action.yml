@@ -17,4 +17,4 @@ runs:
       uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
       with:
         path: packages/xl-typst-compiler/pkg
-        key: typst-wasm-v2-${{ steps.fingerprint.outputs.hash }}
+        key: typst-wasm-v3-${{ steps.fingerprint.outputs.hash }}

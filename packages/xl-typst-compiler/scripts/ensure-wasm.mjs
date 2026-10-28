@@ -22,6 +22,7 @@ import { mkdirSync, rmSync } from "node:fs";
 import { homedir } from "node:os";
 import { delimiter, join } from "node:path";
 import { setTimeout } from "node:timers/promises";
+import { buildWasm } from "./wasm-build.mjs";
 import {
   cacheRoot,
   downloadOutput,
@@ -33,7 +34,6 @@ import {
   writeManifest,
 } from "./wasm-cache.mjs";
 
-const rustDir = join(packageDir, "rust");
 const pkgDir = join(packageDir, "pkg");
 
 function commandExists(command, env) {
@@ -127,26 +127,7 @@ async function ensureWasm() {
   console.log(
     "[ensure-wasm] building the Typst compiler wasm (rust/ -> pkg/)…",
   );
-  execFileSync(
-    process.execPath,
-    [
-      join(packageDir, "node_modules", "wasm-pack", "run.js"),
-      "build",
-      ".",
-      "--target",
-      "web",
-      "--release",
-      "--out-dir",
-      "../pkg",
-      "--out-name",
-      "blocknote_typst_wasm",
-    ],
-    // cwd must be the crate directory: rustup resolves rust-toolchain.toml
-    // (the pinned toolchain + wasm32 target, auto-installed on first use) by
-    // walking up from the *working directory* - from packageDir a freshly
-    // bootstrapped rustup with no default toolchain finds nothing to run.
-    { stdio: "inherit", cwd: rustDir, env },
-  );
+  buildWasm(packageDir, env);
   if (inputHash() !== currentHash) {
     throw new Error(
       "Typst WASM inputs changed during compilation; rerun the build.",

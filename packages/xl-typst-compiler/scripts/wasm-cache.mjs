@@ -12,20 +12,19 @@ import {
   rmSync,
   writeFileSync,
 } from "node:fs";
-import { homedir, tmpdir } from "node:os";
+import { homedir } from "node:os";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import { FlateErrorCode, unzipSync } from "fflate";
+import { outputFiles } from "./wasm-build.mjs";
+
+export { outputFiles };
 
 export const packageDir = dirname(dirname(fileURLToPath(import.meta.url)));
-export const outputFiles = [
-  "blocknote_typst_wasm.js",
-  "blocknote_typst_wasm.d.ts",
-  "blocknote_typst_wasm_bg.wasm",
-  "blocknote_typst_wasm_bg.wasm.d.ts",
-];
-const metadataFiles = [".build-hash", ".build-manifest.json"];
-const cacheFiles = [...outputFiles, ...metadataFiles];
+// v3 uses one checksum manifest; v2's redundant .build-hash is not accepted
+// in archives. Separate keys avoid reusing immutable v2 CI/cache entries.
+const cacheFiles = [...outputFiles, ".build-manifest.json"];
+const cacheNamespace = "typst-wasm-v3";
 const repository = "TypeCellOS/BlockNote";
 const maxBytes = 64 * 1024 * 1024;
 
@@ -38,8 +37,7 @@ export function inputHash(root = packageDir) {
     "rust/Cargo.toml",
     "rust/Cargo.lock",
     "rust/rust-toolchain.toml",
-    "scripts/ensure-wasm.mjs",
-    "scripts/wasm-cache.mjs",
+    "scripts/wasm-build.mjs",
   ];
   function walk(dir) {
     for (const entry of readdirSync(dir, { withFileTypes: true })) {
@@ -57,7 +55,7 @@ export function inputHash(root = packageDir) {
   ).version;
   return sha256(
     JSON.stringify([
-      "typst-wasm-v2",
+      cacheNamespace,
       version,
       ...files
         .sort()
@@ -67,7 +65,7 @@ export function inputHash(root = packageDir) {
 }
 
 export function artifactName(hash) {
-  return `typst-wasm-v2-${hash}`;
+  return `${cacheNamespace}-${hash}`;
 }
 
 export function cacheRoot() {
@@ -76,7 +74,7 @@ export function cacheRoot() {
     join(
       process.env.XDG_CACHE_HOME || join(homedir(), ".cache"),
       "blocknote",
-      "typst-wasm-v2",
+      cacheNamespace,
     )
   );
 }
@@ -85,7 +83,8 @@ export function writeManifest(dir, hash) {
   const files = Object.fromEntries(
     outputFiles.map((file) => [file, sha256(readFileSync(join(dir, file)))]),
   );
-  writeFileSync(join(dir, ".build-hash"), hash);
+  // A source build can reuse an old pkg/ directory. Retire its v2 metadata too.
+  rmSync(join(dir, ".build-hash"), { force: true });
   writeFileSync(
     join(dir, ".build-manifest.json"),
     JSON.stringify({ hash, files }),
@@ -119,7 +118,6 @@ export function validateOutput(dir, hash) {
   return (
     !parsed.error &&
     manifest?.hash === hash &&
-    readFileSync(join(dir, ".build-hash"), "utf8") === hash &&
     outputFiles.every(
       (file) =>
         manifest.files?.[file] === sha256(readFileSync(join(dir, file))),
@@ -145,9 +143,13 @@ function withStagedOutput(source, parent, publish) {
 // into the live package.
 export function installOutput(source, destination) {
   withStagedOutput(source, dirname(destination), (stage) => {
-    rmSync(destination, { recursive: true, force: true });
-    renameSync(stage, destination);
+    publishOutput(stage, destination);
   });
+}
+
+function publishOutput(stage, destination) {
+  rmSync(destination, { recursive: true, force: true });
+  renameSync(stage, destination);
 }
 
 export function storeOutput(source, hash, root = cacheRoot()) {
@@ -390,18 +392,19 @@ export async function downloadOutput(
     if (body.error) {
       return body;
     }
-    const temp = mkdtempSync(join(tmpdir(), "blocknote-typst-"));
+    // Extract beside pkg/ so verified files can be renamed into place without
+    // another full copy (and without crossing filesystem boundaries).
+    mkdirSync(dirname(destination), { recursive: true });
+    const stage = mkdtempSync(join(dirname(destination), ".typst-stage-"));
     try {
-      const output = join(temp, "output");
-      mkdirSync(output);
-      const unpacked = unpackArtifact(body.bytes, output, hash);
+      const unpacked = unpackArtifact(body.bytes, stage, hash);
       if (unpacked.error) {
         return unpacked;
       }
-      installOutput(output, destination);
+      publishOutput(stage, destination);
       return { restored: true };
     } finally {
-      rmSync(temp, { recursive: true, force: true });
+      rmSync(stage, { recursive: true, force: true });
     }
   }
   return { error: "no matching artifact from a successful main build" };

@@ -11,7 +11,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { delimiter, join } from "node:path";
+import { delimiter, dirname, join } from "node:path";
 import { promisify } from "node:util";
 import { zipSync } from "fflate";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
@@ -29,6 +29,8 @@ import {
   writeManifest,
 } from "./wasm-cache.mjs";
 
+vi.mock("node:fs", { spy: true });
+
 const temps = [];
 function temp() {
   const dir = mkdtempSync(join(tmpdir(), "typst-cache-test-"));
@@ -36,6 +38,7 @@ function temp() {
   return dir;
 }
 afterEach(() => {
+  vi.clearAllMocks();
   vi.unstubAllEnvs();
   for (const dir of temps.splice(0)) {
     rmSync(dir, { recursive: true, force: true });
@@ -60,7 +63,7 @@ function fixture() {
     join(root, "node_modules/wasm-pack/package.json"),
     '{"version":"0.15.0"}',
   );
-  for (const file of ["ensure-wasm.mjs", "wasm-cache.mjs"]) {
+  for (const file of ["ensure-wasm.mjs", "wasm-cache.mjs", "wasm-build.mjs"]) {
     copyFileSync(
       join(packageDir, "scripts", file),
       join(root, "scripts", file),
@@ -80,7 +83,7 @@ function output(dir, hash) {
 function zipOutput(dir, extra = {}) {
   return zipSync({
     ...Object.fromEntries(
-      [...outputFiles, ".build-hash", ".build-manifest.json"].map((file) => [
+      [...outputFiles, ".build-manifest.json"].map((file) => [
         file,
         readFileSync(join(dir, file)),
       ]),
@@ -114,8 +117,7 @@ describe("WASM fingerprint and verification", () => {
     "rust/Cargo.toml",
     "rust/Cargo.lock",
     "rust/rust-toolchain.toml",
-    "scripts/ensure-wasm.mjs",
-    "scripts/wasm-cache.mjs",
+    "scripts/wasm-build.mjs",
     "node_modules/wasm-pack/package.json",
   ])("invalidates after changing %s", (file) => {
     const root = fixture();
@@ -125,6 +127,36 @@ describe("WASM fingerprint and verification", () => {
       file.endsWith("package.json") ? '{"version":"0.16.0"}' : "changed",
     );
     expect(inputHash(root)).not.toBe(before);
+  });
+
+  it.each(["scripts/ensure-wasm.mjs", "scripts/wasm-cache.mjs"])(
+    "preserves compilation identity after transport/orchestration changes to %s",
+    (file) => {
+      const root = fixture();
+      const before = inputHash(root);
+      writeFileSync(join(root, file), "// changed cache transport or logging");
+      expect(inputHash(root)).toBe(before);
+    },
+  );
+
+  it("uses the checksum manifest as its only metadata", () => {
+    const dir = temp();
+    writeFileSync(join(dir, ".build-hash"), "legacy v2 metadata");
+    output(dir, "hash");
+    expect(readdirSync(dir).sort()).toEqual(
+      [...outputFiles, ".build-manifest.json"].sort(),
+    );
+    expect(validateOutput(dir, "hash")).toBe(true);
+    expect(unpackArtifact(zipOutput(dir), temp(), "hash")).toEqual({
+      restored: true,
+    });
+    expect(
+      unpackArtifact(
+        zipOutput(dir, { ".build-hash": Buffer.from("hash") }),
+        temp(),
+        "hash",
+      ).error,
+    ).toContain("contents");
   });
 
   it("rejects missing, corrupt, stale, or malformed outputs", () => {
@@ -166,43 +198,61 @@ describe("GitHub artifacts", () => {
     expect(trustedRun({ ...run, ...change })).toBe(false);
   });
 
-  it("downloads and verifies an exact hash without forwarding credentials to storage", async () => {
-    const source = temp();
-    const destination = temp();
-    output(source, "hash");
-    const zip = zipOutput(source);
-    const calls = [];
-    const responses = [
-      Response.json({
-        artifacts: [
-          {
-            name: artifactName("hash"),
-            id: 1,
-            expired: false,
-            workflow_run: { id: 2 },
-          },
-        ],
-      }),
-      Response.json(run),
-      new Response(null, {
-        status: 302,
-        headers: { location: "https://storage.example/artifact" },
-      }),
-      new Response(zip),
-    ];
-    const result = await downloadOutput("hash", destination, {
-      token: "test-token",
-      fetcher: async (url, options) => {
-        calls.push({ url, options });
-        return responses.shift();
-      },
-    });
-    expect(result).toEqual({ restored: true });
-    expect(validateOutput(destination, "hash")).toBe(true);
-    expect(calls[0].url).toContain(`name=${artifactName("hash")}`);
-    expect(calls[0].options.headers.Authorization).toBe("Bearer test-token");
-    expect(calls[3].options.headers.Authorization).toBeUndefined();
-  });
+  it.each([false, true])(
+    "verifies downloads before installation (corrupt: %s) without forwarding credentials to storage",
+    async (corrupt) => {
+      const source = temp();
+      const parent = temp();
+      const destination = join(parent, "nested", "pkg");
+      output(destination, "previous");
+      output(source, "hash");
+      if (corrupt) {
+        writeFileSync(join(source, outputFiles[0]), "corrupt");
+      }
+      const zip = zipOutput(source);
+      const calls = [];
+      const responses = [
+        Response.json({
+          artifacts: [
+            {
+              name: artifactName("hash"),
+              id: 1,
+              expired: false,
+              workflow_run: { id: 2 },
+            },
+          ],
+        }),
+        Response.json(run),
+        new Response(null, {
+          status: 302,
+          headers: { location: "https://storage.example/artifact" },
+        }),
+        new Response(zip),
+      ];
+      vi.mocked(copyFileSync).mockClear();
+      const result = await downloadOutput("hash", destination, {
+        token: "test-token",
+        fetcher: async (url, options) => {
+          calls.push({ url, options });
+          return responses.shift();
+        },
+      });
+      expect(result).toEqual(
+        corrupt ? { error: "artifact checksum mismatch" } : { restored: true },
+      );
+      expect(validateOutput(destination, corrupt ? "previous" : "hash")).toBe(
+        true,
+      );
+      expect(readdirSync(dirname(destination))).toEqual(["pkg"]);
+      expect(calls[0].url).toContain(`name=${artifactName("hash")}`);
+      expect(calls[0].options.headers.Authorization).toBe("Bearer test-token");
+      expect(calls[3].options.headers.Authorization).toBeUndefined();
+      expect(vi.mocked(mkdtempSync).mock.calls.at(-1)[0]).toBe(
+        join(dirname(destination), ".typst-stage-"),
+      );
+      expect(copyFileSync).not.toHaveBeenCalled();
+    },
+  );
 
   it("reports expected credential, network, authentication, and expiration misses", async () => {
     expect(
@@ -330,6 +380,7 @@ setTimeout(() => {
     fs.writeFileSync(path.join(pkg, file), "compiled output");
   }
   fs.appendFileSync(path.resolve("../compilations"), "compiled\\n");
+  fs.writeFileSync(path.resolve("../compiler-args.json"), JSON.stringify(process.argv.slice(2)));
   console.log("compiled");
 }, 100);
 `,
@@ -384,6 +435,31 @@ setTimeout(() => {
     expect(build(root, { ...env, BLOCKNOTE_TYPST_SOURCE_ONLY: "1" })).toContain(
       "compiled",
     );
+  });
+
+  it("executes changed settings from the automatically hashed build contract", () => {
+    const root = fixture();
+    const before = inputHash(root);
+    const contract = join(root, "scripts/wasm-build.mjs");
+    writeFileSync(
+      contract,
+      readFileSync(contract, "utf8").replace('"web"', '"no-modules"'),
+    );
+    expect(inputHash(root)).not.toBe(before);
+    expect(build(root, fakeToolchain(root), ["--force"])).toContain("compiled");
+    expect(
+      JSON.parse(readFileSync(join(root, "compiler-args.json"), "utf8")),
+    ).toEqual([
+      "build",
+      ".",
+      "--target",
+      "no-modules",
+      "--release",
+      "--out-dir",
+      "../pkg",
+      "--out-name",
+      "blocknote_typst_wasm",
+    ]);
   });
 
   it("serializes cold builds and saves source output for another worktree", async () => {

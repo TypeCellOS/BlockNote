@@ -49,7 +49,11 @@ pnpm exec vp run --filter @blocknote/xl-typst-compiler build
 ```
 
 The build task checks the Rust sources, pinned toolchain, resolved wasm-pack
-version, and build scripts using one content hash shared with CI. Before the
+version, and the output-producing `scripts/wasm-build.mjs` contract using one
+content hash shared with CI. That contract owns the wasm-pack invocation and
+output file list and is hashed automatically; cache/download orchestration and
+logging changes do not invalidate otherwise identical WASM. Keep changes to
+compilation settings in that contract. Before the
 TypeScript build, it tries these paths in order:
 
 1. Reuse matching `pkg/` files after verifying their checksums.
@@ -69,8 +73,8 @@ or newer Node version is required.
 Artifacts are retained for 90 days, and a new
 fingerprint only becomes downloadable after a successful `main` build.
 
-The cache lives at `$XDG_CACHE_HOME/blocknote/typst-wasm-v2` (default
-`~/.cache/blocknote/typst-wasm-v2`). Override it with
+The cache lives at `$XDG_CACHE_HOME/blocknote/typst-wasm-v3` (default
+`~/.cache/blocknote/typst-wasm-v3`). Override it with
 `BLOCKNOTE_TYPST_CACHE_DIR`. Entries are content-addressed and can be removed
 when no builds are running to reclaim disk space; there is no automatic eviction.
 Set `BLOCKNOTE_TYPST_DOWNLOAD=0` to disable remote downloads while keeping local
@@ -78,7 +82,15 @@ reuse. `vp run --filter @blocknote/xl-typst-compiler build:wasm` bypasses all
 caches and forces source compilation. `BLOCKNOTE_TYPST_SOURCE_ONLY=1` also
 bypasses all WASM reuse; release builds use this with task caching disabled.
 
-Downloads are staged and checksum-verified before installation. The checksums
+The v3 cache/artifact schema contains four generated files and one
+`.build-manifest.json` recording the input hash and file checksums. It replaces
+v2's redundant `.build-hash` metadata with a new fingerprint and namespace:
+old local outputs rebuild or restore, v2 remote artifacts are not requested,
+and old shared-cache entries may be removed manually. A source build removes
+leftover `.build-hash` metadata from `pkg/`.
+
+Downloads are staged beside `pkg/` and checksum-verified before being renamed
+into place without a second output copy. The checksums
 detect corruption; trust comes from the restricted workflow producer, not the
 source hash alone. Simultaneous builds in one checkout are serialized. If a
 process is forcibly killed, remove `node_modules/.typst-wasm.lock` inside this
