@@ -28,13 +28,7 @@ export async function getDefaultEmojiPickerItems<
   // The loader owns canonical-locale caching and evicts rejected loads for retry.
   const data = await loadFrimousseData(editor.dictionary.locale ?? "en");
 
-  let emojisToShow = data.emojis;
-
-  if (query.trim() !== "") {
-    emojisToShow = searchEmojis(data.emojis, query, data.locale);
-  }
-
-  return emojisToShow.map((emoji) => ({
+  return searchEmojis(data.emojis, query, data.locale).map((emoji) => ({
     id: emoji.emoji,
     onItemClick: () => editor.insertInlineContent(emoji.emoji + " "),
   }));

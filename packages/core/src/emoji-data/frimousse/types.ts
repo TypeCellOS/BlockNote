@@ -1,3 +1,8 @@
+type SkinTones = Record<
+  "light" | "medium-light" | "medium" | "medium-dark" | "dark",
+  string
+>;
+
 export interface FrimousseEmoji {
   emoji: string;
   category: number;
@@ -5,10 +10,7 @@ export interface FrimousseEmoji {
   label: string;
   tags: string[];
   countryFlag?: true;
-  skins?: Record<
-    "light" | "medium-light" | "medium" | "medium-dark" | "dark",
-    string
-  >;
+  skins?: SkinTones;
 }
 
 export interface FrimousseCategory {
@@ -20,8 +22,5 @@ export interface FrimousseEmojiData {
   locale: string;
   emojis: FrimousseEmoji[];
   categories: FrimousseCategory[];
-  skinTones: Record<
-    "light" | "medium-light" | "medium" | "medium-dark" | "dark",
-    string
-  >;
+  skinTones: SkinTones;
 }

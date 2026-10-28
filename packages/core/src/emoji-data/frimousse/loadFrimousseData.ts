@@ -37,16 +37,20 @@ const LOCALE_ALIASES: Record<string, string> = {
 
 const cache = new Map<string, Promise<FrimousseEmojiData>>();
 
-const skinToneKeys = [
-  "light",
-  "medium-light",
-  "medium",
-  "medium-dark",
-  "dark",
-] as const;
+function mapSkinTones(
+  valueAt: (index: number) => string,
+): FrimousseEmojiData["skinTones"] {
+  return {
+    light: valueAt(0),
+    "medium-light": valueAt(1),
+    medium: valueAt(2),
+    "medium-dark": valueAt(3),
+    dark: valueAt(4),
+  };
+}
 
 function decodeFrimousseData(encoded: string): FrimousseEmojiData {
-  const [locale, categoryLabels, skinToneLabels, ...localizedEmojis] =
+  const [locale, categoryLabels, encodedSkinToneLabels, ...localizedEmojis] =
     encoded.split("\n");
   const categoryIndices = frimousseCategoryIndices.split(",").map(Number);
   const commonEmojis = frimousseCommonData.split("\n");
@@ -55,9 +59,7 @@ function decodeFrimousseData(encoded: string): FrimousseEmojiData {
     throw new Error(`Invalid Frimousse data for locale ${locale}`);
   }
 
-  const skinTones = Object.fromEntries(
-    skinToneKeys.map((key, index) => [key, skinToneLabels.split("|")[index]]),
-  ) as FrimousseEmojiData["skinTones"];
+  const skinToneLabels = encodedSkinToneLabels.split("|");
 
   return {
     locale,
@@ -65,21 +67,18 @@ function decodeFrimousseData(encoded: string): FrimousseEmojiData {
       index: categoryIndices[index],
       label,
     })),
-    skinTones,
+    skinTones: mapSkinTones((index) => skinToneLabels[index]),
     emojis: commonEmojis.map((common, index) => {
       const [emoji, category, version, countryFlag, encodedSkins] =
         common.split("\t");
       const [label, encodedTags] = localizedEmojis[index].split("\t");
       const skins = encodedSkins
-        ? (Object.fromEntries(
-            skinToneKeys.map((key, skinIndex) => [
-              key,
-              encodedSkins.replaceAll(
-                "|",
-                String.fromCodePoint(0x1f3fb + skinIndex),
-              ),
-            ]),
-          ) as NonNullable<FrimousseEmojiData["emojis"][number]["skins"]>)
+        ? mapSkinTones((skinIndex) =>
+            encodedSkins.replaceAll(
+              "|",
+              String.fromCodePoint(0x1f3fb + skinIndex),
+            ),
+          )
         : undefined;
 
       return {

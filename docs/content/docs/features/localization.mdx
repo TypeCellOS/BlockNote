@@ -55,25 +55,13 @@ function FrenchEditor() {
 
 ## Dynamic Language Switching
 
-You can dynamically change the language based on user preferences or your app's locale:
+The dictionary is selected when the editor is created. Pass `[language]` as the
+second argument to `useCreateBlockNote` to recreate it when the language changes,
+and key `BlockNoteView` by the language to reset its menus.
 
-```tsx
-import { useCreateBlockNote, BlockNoteView } from "@blocknote/react";
-import * as locales from "@blocknote/core/locales";
-
-function LocalizedEditor({ language = "en" }) {
-  const editor = useCreateBlockNote({
-    dictionary: locales[language as keyof typeof locales] || locales.en,
-  });
-
-  return <BlockNoteView editor={editor} />;
-}
-
-// Usage
-<LocalizedEditor language="fr" />
-<LocalizedEditor language="de" />
-<LocalizedEditor language="ja" />
-```
+To preserve content, save the document outside the editor and pass it back as
+`initialContent`. Recreating the editor resets its undo history and selection.
+The [localization example](#basic-localization) shows the complete implementation.
 
 ## Customizing Text Strings
 
@@ -119,14 +107,6 @@ skin-tone names, and search terms used by the emoji picker. BlockNote's bundled
 dictionaries already set this field. When creating a custom dictionary, set it
 to the matching locale code; if it is omitted or unsupported, the emoji data
 falls back to English.
-
-```tsx
-const customFrenchDictionary = {
-  ...fr,
-  locale: "fr",
-  // Your translated or customized dictionary fields.
-};
-```
 
 The picker interface strings use the same dictionary as the rest of BlockNote:
 

@@ -6789,9 +6789,6 @@ importers:
       '@y/y':
         specifier: 14.0.0-rc.26
         version: 14.0.0-rc.26
-      frimousse:
-        specifier: ^0.4.0
-        version: 0.4.0(react@19.2.5)(typescript@7.0.2)
       htmlfy:
         specifier: ^0.6.7
         version: 0.6.7

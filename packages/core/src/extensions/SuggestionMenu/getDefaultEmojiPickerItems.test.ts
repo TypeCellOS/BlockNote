@@ -6,9 +6,9 @@ import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { loadFrimousseData } from "../../emoji-data/index.js";
 import { getDefaultEmojiPickerItems } from "./getDefaultEmojiPickerItems.js";
 
-vi.mock("../../emoji-data/index.js", () => ({
+vi.mock("../../emoji-data/index.js", async () => ({
   loadFrimousseData: vi.fn(),
-  searchEmojis: vi.fn(),
+  ...(await import("../../emoji-data/searchEmojis.js")),
 }));
 
 it("retries emoji data after a failed load for the same editor locale", async () => {

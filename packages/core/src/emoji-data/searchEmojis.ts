@@ -24,28 +24,20 @@ export function searchEmojis(
     return emojis;
   }
 
-  const scores = new WeakMap<FrimousseEmoji, number>();
-
-  return emojis
-    .filter((emoji) => {
-      let score = 0;
-
-      if (foldSearchText(emoji.label, casingLocale).includes(searchText)) {
-        score += 10;
+  const matches: { emoji: FrimousseEmoji; score: number }[] = [];
+  for (const emoji of emojis) {
+    let score = foldSearchText(emoji.label, casingLocale).includes(searchText)
+      ? 10
+      : 0;
+    for (const tag of emoji.tags) {
+      if (foldSearchText(tag, casingLocale).includes(searchText)) {
+        score += 1;
       }
+    }
+    if (score > 0) {
+      matches.push({ emoji, score });
+    }
+  }
 
-      for (const tag of emoji.tags) {
-        if (foldSearchText(tag, casingLocale).includes(searchText)) {
-          score += 1;
-        }
-      }
-
-      if (score > 0) {
-        scores.set(emoji, score);
-        return true;
-      }
-
-      return false;
-    })
-    .sort((a, b) => (scores.get(b) ?? 0) - (scores.get(a) ?? 0));
+  return matches.sort((a, b) => b.score - a.score).map(({ emoji }) => emoji);
 }

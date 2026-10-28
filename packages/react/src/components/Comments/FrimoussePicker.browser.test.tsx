@@ -5,16 +5,20 @@ import { afterEach, expect, it, vi } from "vite-plus/test";
 import "../../editor/styles.css";
 import FrimoussePicker from "./FrimoussePicker.js";
 
-let host: HTMLDivElement;
+let host: HTMLFormElement;
 let root: Root;
 
 afterEach(() => {
   flushSync(() => root.unmount());
   host.remove();
+  vi.restoreAllMocks();
 });
 
-function renderPicker(customTheme = false) {
-  host = document.createElement("div");
+function renderPicker(
+  customTheme = false,
+  onEmojiSelect: (emoji: string) => void = () => {},
+) {
+  host = document.createElement("form");
   host.className = "bn-root";
   if (customTheme) {
     host.style.setProperty("--bn-colors-menu-background", "#182030");
@@ -27,7 +31,7 @@ function renderPicker(customTheme = false) {
   document.body.append(host);
   root = createRoot(host);
   flushSync(() => {
-    root.render(<FrimoussePicker locale="en" onEmojiSelect={() => {}} />);
+    root.render(<FrimoussePicker locale="en" onEmojiSelect={onEmojiSelect} />);
   });
 }
 
@@ -38,6 +42,21 @@ function visibleElement(selector: string): HTMLElement {
   expect(element).toBeDefined();
   return element!;
 }
+
+it("loads bundled emojis without fetching and selects a reaction without submitting its form", async () => {
+  const fetchSpy = vi.spyOn(globalThis, "fetch");
+  const onEmojiSelect = vi.fn();
+  renderPicker(false, onEmojiSelect);
+  const onSubmit = vi.fn((event: Event) => event.preventDefault());
+  host.addEventListener("submit", onSubmit);
+
+  const emoji = await vi.waitFor(() => visibleElement("[frimousse-emoji]"));
+  emoji.click();
+
+  expect(onEmojiSelect).toHaveBeenCalledWith(emoji.textContent);
+  expect(onSubmit).not.toHaveBeenCalled();
+  expect(fetchSpy).not.toHaveBeenCalled();
+});
 
 it("does not paint padded category headers over the first emoji row without a CSS reset", async () => {
   renderPicker();

@@ -1,17 +1,5 @@
 import { vi } from "vite-plus/test";
-import { userEvent } from "./context.js";
 import { EDITOR_SELECTOR, EMOJI_PICKER_SELECTOR } from "./const.js";
-
-export async function openEmojiPicker() {
-  await userEvent.keyboard(":");
-}
-
-export async function executeEmojiCommand(command: string) {
-  await openEmojiPicker();
-  await userEvent.keyboard(command);
-  await waitForSelectedEmoji();
-  await userEvent.keyboard("{Enter}");
-}
 
 /** Wait for both the rendered result and the editor's keyboard bridge. */
 export async function waitForSelectedEmoji() {

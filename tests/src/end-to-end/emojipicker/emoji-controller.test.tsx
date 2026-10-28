@@ -1,6 +1,10 @@
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
-import { EmojiPickerController, useCreateBlockNote } from "@blocknote/react";
+import {
+  EmojiPickerController,
+  GridSuggestionMenuController,
+  useCreateBlockNote,
+} from "@blocknote/react";
 import type { ComponentProps } from "react";
 import { expect, test, vi } from "vite-plus/test";
 import { render } from "vitest-browser-react";
@@ -9,6 +13,7 @@ import { EDITOR_SELECTOR, EMOJI_PICKER_SELECTOR } from "../../utils/const.js";
 import {
   focusOnEditor,
   waitForSelector,
+  waitForSelectorDetached,
   waitForTextInEditor,
 } from "../../utils/editor.js";
 import { waitForSelectedEmoji } from "../../utils/emojipicker.js";
@@ -21,6 +26,52 @@ function ConfiguredEditor(props: ComponentProps<typeof EmojiPickerController>) {
     </BlockNoteView>
   );
 }
+
+function LegacyGridEditor(props: { onPick: (id: string) => void }) {
+  const editor = useCreateBlockNote();
+  return (
+    <BlockNoteView editor={editor} emojiPicker={false}>
+      <GridSuggestionMenuController
+        triggerCharacter=":"
+        columns={2}
+        getItems={async () =>
+          ["first", "second"].map((id) => ({
+            id,
+            icon: <span>{id}</span>,
+            onItemClick: () => props.onPick(id),
+          }))
+        }
+      />
+    </BlockNoteView>
+  );
+}
+
+test("legacy grid supports custom items selected by keyboard and click", async () => {
+  const onPick = vi.fn();
+  await render(<LegacyGridEditor onPick={onPick} />);
+  await focusOnEditor();
+  await userEvent.keyboard(":custom");
+  await waitForSelector('.bn-grid-suggestion-menu-item[aria-selected="true"]');
+  await userEvent.keyboard("{ArrowRight}");
+  await vi.waitFor(() => {
+    expect(
+      document.querySelector(
+        '.bn-grid-suggestion-menu-item[aria-selected="true"]',
+      )?.textContent,
+    ).toBe("second");
+  });
+  await userEvent.keyboard("{Enter}");
+  expect(onPick).toHaveBeenCalledExactlyOnceWith("second");
+  await waitForSelectorDetached(".bn-grid-suggestion-menu");
+
+  await userEvent.keyboard(":custom");
+  await userEvent.click(
+    await waitForSelector("#bn-grid-suggestion-menu-item-0"),
+  );
+  expect(onPick.mock.calls).toEqual([["second"], ["first"]]);
+  await waitForSelectorDetached(".bn-grid-suggestion-menu");
+  expect(document.querySelector(EDITOR_SELECTOR)?.textContent).toBe("");
+});
 
 test("forwards floating configuration and nested overrides", async () => {
   const placement = vi.fn();

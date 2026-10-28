@@ -6,7 +6,7 @@ import { useDictionary } from "../../i18n/dictionary.js";
 import FrimoussePicker from "./FrimoussePicker.js";
 
 export const EmojiPicker = (props: {
-  onEmojiSelect: (emoji: { native: string }) => void;
+  onEmojiSelect: (emoji: string) => void;
   onOpenChange?: (open: boolean) => void;
   children: ReactNode;
 }) => {

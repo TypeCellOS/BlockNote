@@ -2,6 +2,10 @@
 
 Regenerate with `pnpm --filter @blocknote/core generate-emoji-data`.
 
+`generate.mjs` owns package/file loading and writing generated TypeScript modules.
+`format.mjs` owns pure transformations, precedence rules, positional validation,
+and encoding. Its tests use synthetic inputs without resolving dataset packages.
+
 The runtime contracts in `frimousse/types.ts` are handwritten; generation only
 writes data modules, not public types.
 
@@ -22,9 +26,14 @@ alongside its existing named export. Generation verifies emoji identity/order
 against the shared English data before writing positional locale rows.
 
 Search tags are compacted before encoding: empty tags, case-insensitive duplicates,
-and tags contained in the label are removed. Compaction uses explicit English
-casing for reproducibility, independently of the host locale. Runtime search still
+and tags contained in the label are removed. Compaction uses locale-independent
+Unicode casing (equivalent to English casing). Runtime search still
 uses the data's locale, as described below.
+
+Extra-locale labels prefer CLDR, then the overlay, then the English base. Tags
+are concatenated in CLDR → overlay → English order and compacted once by the
+encoder. Positional validation and encoding have no side effects, so synthetic
+fixtures can exercise the pipeline without reading or regenerating corpora.
 
 This compaction is **not ranking-neutral**: search adds a score for every matching
 stored tag, including when the label also matches. The checked-in data therefore

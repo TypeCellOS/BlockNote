@@ -1,4 +1,4 @@
-import type { Block, Dictionary } from "@blocknote/core";
+import type { Block } from "@blocknote/core";
 import * as locales from "@blocknote/core/locales";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
@@ -6,13 +6,10 @@ import "@blocknote/mantine/style.css";
 import { useCreateBlockNote } from "@blocknote/react";
 import { useRef, useState } from "react";
 
-// Every dictionary exported by `@blocknote/core/locales`, keyed by its
-// language code (the same key used in the export, e.g. `zhTW`).
-const dictionaries = locales;
-type Language = keyof typeof dictionaries;
+type Language = keyof typeof locales;
 
 function isLanguage(value: string): value is Language {
-  return Object.hasOwn(dictionaries, value);
+  return Object.hasOwn(locales, value);
 }
 
 // Human-readable names shown in the language picker.
@@ -43,37 +40,18 @@ const languageNames = {
   zhTW: "繁體中文",
 } satisfies Record<Language, string>;
 
-const languageKeys = Object.keys(dictionaries)
+const languageKeys = Object.keys(locales)
   .filter(isLanguage)
   .sort((a, b) => languageNames[a].localeCompare(languageNames[b]));
 
-// Creates the editor with the given dictionary. This is a separate component so
-// that changing its `key` (see below) re-mounts it, re-creating the editor
-// instance with the newly selected language.
-function LocalizedEditor(props: {
-  dictionary: Dictionary;
-  initialContent: Block[] | undefined;
-  onChange: (document: Block[]) => void;
-}) {
-  const editor = useCreateBlockNote({
-    dictionary: props.dictionary,
-    initialContent: props.initialContent,
-  });
-
-  return (
-    <BlockNoteView
-      editor={editor}
-      onChange={() => props.onChange(editor.document)}
-    />
-  );
-}
-
 export default function App() {
-  // The currently selected language.
   const [language, setLanguage] = useState<Language>("en");
-  // Keep the document outside the keyed component so language changes do not
-  // discard edits. A ref avoids re-rendering this component on every keystroke.
+  // Recreate the editor when the language changes, preserving its document.
   const document = useRef<Block[] | undefined>(undefined);
+  const editor = useCreateBlockNote(
+    { dictionary: locales[language], initialContent: document.current },
+    [language],
+  );
 
   return (
     <div>
@@ -95,14 +73,12 @@ export default function App() {
         </select>
       </label>
 
-      {/* Keying the editor by the language re-mounts it whenever the selection
-          changes, so the editor picks up the newly selected dictionary. */}
-      <LocalizedEditor
+      {/* Remount the UI so menus also reset to the new language. */}
+      <BlockNoteView
         key={language}
-        dictionary={dictionaries[language]}
-        initialContent={document.current}
-        onChange={(content) => {
-          document.current = content;
+        editor={editor}
+        onChange={() => {
+          document.current = editor.document;
         }}
       />
     </div>

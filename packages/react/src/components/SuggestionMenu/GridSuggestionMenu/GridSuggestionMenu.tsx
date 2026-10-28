@@ -1,4 +1,4 @@
-import { JSX, useMemo } from "react";
+import { useMemo } from "react";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
@@ -23,13 +23,9 @@ export function GridSuggestionMenu<T extends DefaultReactGridSuggestionItem>(
       />
     ) : null;
 
-  const renderedItems = useMemo<JSX.Element[]>(() => {
-    const renderedItems = [];
-
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-
-      renderedItems.push(
+  const renderedItems = useMemo(
+    () =>
+      items.map((item, i) => (
         <Components.GridSuggestionMenu.Item
           className={"bn-grid-suggestion-menu-item"}
           item={item}
@@ -37,12 +33,10 @@ export function GridSuggestionMenu<T extends DefaultReactGridSuggestionItem>(
           isSelected={i === selectedIndex}
           key={item.id}
           onClick={() => onItemClick?.(item)}
-        />,
-      );
-    }
-
-    return renderedItems;
-  }, [Components, items, onItemClick, selectedIndex]);
+        />
+      )),
+    [Components, items, onItemClick, selectedIndex],
+  );
 
   return (
     <Components.GridSuggestionMenu.Root

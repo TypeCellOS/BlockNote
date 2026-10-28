@@ -8,10 +8,7 @@ import {
   waitForSelector,
   waitForTextInEditor,
 } from "../../utils/editor.js";
-import {
-  openEmojiPicker,
-  waitForSelectedEmoji,
-} from "../../utils/emojipicker.js";
+import { waitForSelectedEmoji } from "../../utils/emojipicker.js";
 
 test("searches and inserts from localized emoji data without a CDN", async () => {
   const fetchSpy = vi.spyOn(globalThis, "fetch");
@@ -21,8 +18,7 @@ test("searches and inserts from localized emoji data without a CDN", async () =>
     await userEvent.selectOptions(await waitForSelector("select"), "fr");
     await waitForSelector(EDITOR_SELECTOR);
     await focusOnEditor();
-    await openEmojiPicker();
-    await userEvent.keyboard("zzzzzz");
+    await userEvent.keyboard(":zzzzzz");
     expect((await waitForSelector(".bn-frimousse-empty")).textContent).toBe(
       "Aucun emoji trouvé",
     );
@@ -50,8 +46,7 @@ test.each([
     await render(<App />);
     await userEvent.selectOptions(await waitForSelector("select"), language);
     await focusOnEditor();
-    await openEmojiPicker();
-    await userEvent.keyboard(query);
+    await userEvent.keyboard(`:${query}`);
 
     // These queries require accent folding / Turkish dotless-I casing. Testing
     // only the search helper misses Frimousse independently filtering the UI.
