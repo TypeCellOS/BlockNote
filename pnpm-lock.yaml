@@ -6269,6 +6269,9 @@ importers:
       '@tiptap/core':
         specifier: ^3.31.3
         version: 3.31.3(@tiptap/pm@3.31.3)
+      '@tiptap/pm':
+        specifier: ^3.31.3
+        version: 3.31.3
       prosemirror-model:
         specifier: 1.25.12
         version: 1.25.12

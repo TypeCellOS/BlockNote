@@ -1,5 +1,5 @@
 import { Node } from "prosemirror-model";
-import { NodeSelection, Selection } from "prosemirror-state";
+import { Selection } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 
 import { createExternalHTMLExporter } from "../../api/exporters/html/externalHTMLExporter.js";
@@ -183,7 +183,8 @@ export function dragStart<
     const draggedBlockInSelection = from <= pos && pos < to;
     const multipleBlocksSelected =
       selection.$anchor.node() !== selection.$head.node() ||
-      selection instanceof MultipleNodeSelection;
+      (selection instanceof MultipleNodeSelection &&
+        selection.nodes.length > 1);
 
     if (draggedBlockInSelection && multipleBlocksSelected) {
       view.dispatch(
@@ -191,8 +192,11 @@ export function dragStart<
       );
       setDragImage(view, from, to);
     } else {
+      // Unlike NodeSelection, this restores a visible selection on undo.
       view.dispatch(
-        view.state.tr.setSelection(NodeSelection.create(view.state.doc, pos)),
+        view.state.tr.setSelection(
+          MultipleNodeSelection.create(doc, pos, pos + posInfo.node.nodeSize),
+        ),
       );
       setDragImage(view, pos);
     }
