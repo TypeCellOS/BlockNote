@@ -1,7 +1,4 @@
-import {
-  createListOwner,
-  walkListSiblings,
-} from "../../../../extensions/ListItem/listItems.js";
+import { createListOwner } from "../../../../extensions/ListItem/createListOwner.js";
 
 /** Mirrors ListItemExtension for static full HTML, where plugins do not run. */
 export function addListItemAttributes(
@@ -17,7 +14,21 @@ export function addListItemAttributes(
     ),
   );
   for (const parent of parents) {
-    const siblings = Array.from(parent.children, (block) => {
+    let previousIndex: number | undefined;
+    let run: { type: string; first: Element; ids: string[] } | undefined;
+
+    function finishRun() {
+      if (run) {
+        parent.insertBefore(
+          createListOwner(element.ownerDocument, run.ids),
+          run.first,
+        );
+        run = undefined;
+      }
+    }
+
+    // Snapshot the children because finishing a list inserts its owner.
+    for (const block of Array.from(parent.children)) {
       // Do not mistake a nested child's content for this block's content.
       const content = block.matches('[data-node-type="blockOuter"]')
         ? Array.from(
@@ -27,32 +38,32 @@ export function addListItemAttributes(
               content.closest('[data-node-type="blockOuter"]') === block,
           )
         : undefined;
-      const type = content?.getAttribute("data-content-type") ?? undefined;
-      const start = content?.getAttribute("data-start");
-      return {
-        item: { block, content },
-        type,
-        start: start ? Number(start) : undefined,
-        listItem: !!type && isListItem(type),
-      };
-    });
-    walkListSiblings(
-      siblings,
-      ({ content }, index) =>
-        content!.setAttribute("data-index", String(index)),
-      (items) => {
-        const ids = items.map(({ block }) => {
-          const id = encodeURIComponent(block.getAttribute("data-id")!);
-          block.setAttribute("id", id);
-          block.setAttribute("role", "listitem");
-          return id;
-        });
-        parent.insertBefore(
-          createListOwner(element.ownerDocument, ids),
-          items[0].block,
-        );
-      },
-    );
+      const type = content?.getAttribute("data-content-type");
+
+      if (content && type === "numberedListItem") {
+        const index: number =
+          previousIndex === undefined
+            ? Number(content.getAttribute("data-start")) || 1
+            : previousIndex + 1;
+        content.setAttribute("data-index", String(index));
+        previousIndex = index;
+      } else {
+        previousIndex = undefined;
+      }
+
+      if (run && run.type !== type) {
+        finishRun();
+      }
+      if (type && isListItem(type)) {
+        const id = encodeURIComponent(block.getAttribute("data-id")!);
+        block.setAttribute("id", id);
+        block.setAttribute("role", "listitem");
+        (run ??= { type, first: block, ids: [] }).ids.push(id);
+      } else {
+        finishRun();
+      }
+    }
+    finishRun();
   }
   return element;
 }

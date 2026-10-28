@@ -37,7 +37,11 @@ function getDecorationSet(editor: BlockNoteEditor<any, any, any>) {
 function getDecoSpecs(editor: BlockNoteEditor<any, any, any>) {
   const decoSet = getDecorationSet(editor);
   const doc = editor._tiptapEditor.view.state.doc;
-  const decos = decoSet.find(0, doc.nodeSize - 2);
+  const decos = decoSet.find(
+    0,
+    doc.nodeSize - 2,
+    (spec) => spec.index !== undefined,
+  );
   return decos.map((d: any) => d.spec);
 }
 
@@ -45,7 +49,11 @@ function getDecoSpecs(editor: BlockNoteEditor<any, any, any>) {
 function getDataIndices(editor: BlockNoteEditor<any, any, any>) {
   const decoSet = getDecorationSet(editor);
   const doc = editor._tiptapEditor.view.state.doc;
-  const decos = decoSet.find(0, doc.nodeSize - 2);
+  const decos = decoSet.find(
+    0,
+    doc.nodeSize - 2,
+    (spec) => spec.index !== undefined,
+  );
   return decos.map((d: any) => {
     // Decoration attrs are stored on the decoration object
     const attrs = (d as any).type?.attrs ?? (d as any).attrs ?? (d as any).type;
