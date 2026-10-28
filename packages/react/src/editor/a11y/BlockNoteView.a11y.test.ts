@@ -78,6 +78,10 @@ test.describe("text spacing and resizing", () => {
     `);
     await screenshotFull(document.body, "default-schema-text-spacing.png", {
       comparatorOptions: { allowedMismatchedPixels: 10 },
+      // Video decoding differs across platforms; keep captions and layout in scope.
+      screenshotOptions: {
+        mask: [page.elementLocator(document.querySelector("video")!)],
+      },
     });
   });
 
@@ -90,6 +94,9 @@ test.describe("text spacing and resizing", () => {
       "default-schema-text-size-200-percent.png",
       {
         comparatorOptions: { allowedMismatchedPixels: 10 },
+        screenshotOptions: {
+          mask: [page.elementLocator(document.querySelector("video")!)],
+        },
       },
     );
   });

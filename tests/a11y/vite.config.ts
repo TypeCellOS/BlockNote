@@ -54,10 +54,10 @@ export default defineConfig({
     retry: 0,
     // Missing baselines fail unless explicitly generated with --update.
     update: false,
-    reporters: ["verbose", "html"],
-    outputFile: {
-      html: `playwright-report/a11y/${reader ?? "browser"}/index.html`,
-    },
+    reporters: [
+      "verbose",
+      ["html", { outputDir: `playwright-report/a11y/${reader ?? "browser"}` }],
+    ],
     attachmentsDir: `test-results/a11y/${reader ?? "browser"}`,
     resolveSnapshotPath: (path, extension) =>
       reader
