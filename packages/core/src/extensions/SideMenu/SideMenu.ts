@@ -413,11 +413,14 @@ export const SideMenuExtension = createExtension(
       },
 
       /**
-       * Handles drag & drop events for blocks.
+       * Ends a side menu drag. Call from the drag handle's `dragend` handler.
+       * Destination focus and selection are handled by the drop cursor.
        */
       blockDragEnd() {
         endBlockDrag();
-        editor.blur();
+        // The menu stayed at the dragged block's old place during the drag.
+        // The next pointer move shows it at the block there.
+        hideMenu();
       },
 
       /**
@@ -450,6 +453,21 @@ export const SideMenuExtension = createExtension(
       unfreezeMenu() {
         menuFrozen = false;
         hideMenu();
+        // Restore keyboard focus after menu actions, but don't steal it from
+        // another input. In shadow roots, check the focused element, not its host.
+        const view = editor.prosemirrorView;
+        const ownerDocument = view.dom.ownerDocument;
+        const active = view.root.activeElement ?? ownerDocument.activeElement;
+        if (active && active !== ownerDocument.body) {
+          // Editor ownership alone also includes inputs in other panels.
+          if (
+            !editor.isWithinEditor(active) ||
+            !menuElement?.contains(active)
+          ) {
+            return;
+          }
+        }
+        editor.focus();
       },
 
       /**

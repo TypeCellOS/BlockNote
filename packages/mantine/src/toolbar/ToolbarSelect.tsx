@@ -39,6 +39,9 @@ export const ToolbarSelect = forwardRef<
         exitDuration: 0,
       }}
       disabled={isDisabled}
+      // Item actions restore editor focus. Mantine's deferred return to the
+      // trigger would steal it back after the action has finished.
+      returnFocus={false}
       // Do not move focus to the dropdown when requested (mobile), as it blurs
       // the editor's contentEditable and dismisses the on-screen keyboard.
       trapFocus={preventFocusOnOpen ? false : undefined}

@@ -4,6 +4,7 @@ import { defineConfig } from "vite-plus";
 import { playwright } from "vite-plus/test/browser/providers/playwright";
 import {
   nextReader,
+  readAriaSnapshot,
   startReader,
   pressKey,
   readTranscript,
@@ -54,13 +55,15 @@ export default defineConfig({
     retry: 0,
     // Missing baselines fail unless explicitly generated with --update.
     update: false,
-    reporters: ["verbose", "html"],
-    outputFile: {
-      html: `playwright-report/a11y/${reader ?? "browser"}/index.html`,
-    },
+    reporters: [
+      "verbose",
+      ["html", { outputDir: `playwright-report/a11y/${reader ?? "browser"}` }],
+    ],
     attachmentsDir: `test-results/a11y/${reader ?? "browser"}`,
     resolveSnapshotPath: (path, extension) =>
-      `${path}-snapshots/screen-reader/${reader ?? "browser"}${extension}`,
+      reader
+        ? `${path}-snapshots/screen-reader/${reader}${extension}`
+        : `${path}-snapshots/aria/browser${extension}`,
     browser: {
       enabled: true,
       headless: !reader,
@@ -80,6 +83,7 @@ export default defineConfig({
         },
       ],
       commands: {
+        readAriaSnapshot,
         nextReader,
         startReader,
         pressKey,

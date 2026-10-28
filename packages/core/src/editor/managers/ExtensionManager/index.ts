@@ -105,10 +105,16 @@ export class ExtensionManager {
       this.addExtension(extension);
     }
 
-    // Add the extensions from blocks specs
-    for (const block of Object.values(this.editor.schema.blockSpecs)) {
-      for (const extension of block.extensions ?? []) {
-        this.addExtension(extension);
+    // Add the extensions from block, inline content, and style specs
+    for (const specs of [
+      this.editor.schema.blockSpecs,
+      this.editor.schema.inlineContentSpecs,
+      this.editor.schema.styleSpecs,
+    ]) {
+      for (const spec of Object.values(specs)) {
+        for (const extension of spec.extensions ?? []) {
+          this.addExtension(extension);
+        }
       }
     }
   }
@@ -348,9 +354,9 @@ export class ExtensionManager {
     }
 
     // ---- Add phase (no updatePlugins call) ----
-    const newExtensions = ([] as (Extension | ExtensionFactoryInstance)[])
-      .concat(toRegister)
-      .filter(Boolean) as (Extension | ExtensionFactoryInstance)[];
+    const newExtensions = (
+      Array.isArray(toRegister) ? toRegister : [toRegister]
+    ).filter(Boolean) as (Extension | ExtensionFactoryInstance)[];
 
     const registeredExtensions = newExtensions
       .map((ext) => this.addExtension(ext))

@@ -1256,7 +1256,8 @@ export class BlockNoteEditor<
   }
 
   /**
-   * Gets the currently selected text.
+   * Gets the currently selected text. Text from different blocks is separated
+   * by a newline.
    */
   public getSelectedText() {
     return this._styleManager.getSelectedText();

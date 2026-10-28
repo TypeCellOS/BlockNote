@@ -55,3 +55,8 @@ export const nextReader: BrowserCommand<[]> = async () => {
   await screenReader.next();
   return screenReader.lastSpokenPhrase();
 };
+
+export const readAriaSnapshot: BrowserCommand<[selector: string]> = async (
+  context,
+  selector,
+) => (await context.frame()).locator(selector).ariaSnapshot();
