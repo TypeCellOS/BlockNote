@@ -1,11 +1,15 @@
 import type { FrimousseEmoji } from "./frimousse/types.js";
 
 function foldSearchText(value: string, locale: string): string {
-  return value.toLocaleLowerCase(locale).replace(/\u0307/g, "");
+  return value
+    .toLocaleLowerCase(locale)
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "");
 }
 
 /**
- * Pass the data's locale for locale-aware casing. Defaults to English.
+ * Matches without accents or diacritics. Pass the data's locale for
+ * locale-aware casing. Defaults to English.
  */
 export function searchEmojis(
   emojis: FrimousseEmoji[],
