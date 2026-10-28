@@ -215,9 +215,10 @@ export function tableContentToNodes<
   // each cell's relative index to its absolute column index. The occupancy
   // grid is built and scanned once per table, since doing so for every cell
   // makes the conversion quadratic in the number of cells.
-  const getAbsolute = getRelativeToAbsoluteTableCellMapping(
-    { type: "table", content: tableContent } as any,
-  );
+  const getAbsolute = getRelativeToAbsoluteTableCellMapping({
+    type: "table",
+    content: tableContent,
+  } as any);
 
   for (let rowIndex = 0; rowIndex < tableContent.rows.length; rowIndex++) {
     const row = tableContent.rows[rowIndex];
@@ -239,7 +240,7 @@ export function tableContentToNodes<
         col: cellIndex,
       });
 
-      const isHeaderCol = headerCols[absoluteCellIndex.col];
+      const isHeaderCol = headerCols[absoluteColumnIndex];
 
       // Assume the column width is the width of the cell at the absolute cell index
       let colwidth: (number | undefined)[] | null = columnWidths[
