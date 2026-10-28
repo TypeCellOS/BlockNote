@@ -5575,8 +5575,8 @@ importers:
         specifier: workspace:^
         version: link:../react
       pele:
-        specifier: ^1.9.0
-        version: 1.9.0
+        specifier: ^1.12.0
+        version: 1.12.0
     devDependencies:
       '@blocknote/shared':
         specifier: workspace:^
@@ -14785,8 +14785,8 @@ packages:
   peberminta@0.9.0:
     resolution: {integrity: sha512-XIxfHpEuSJbITd1H3EeQwpcZbTLHc+VVr8ANI9t5sit565tsI4/xK3KWTUFE2e6QiangUkh3B0jihzmGnNrRsQ==}
 
-  pele@1.9.0:
-    resolution: {integrity: sha512-KUmBt7P5JduVKQaP6FKfXiRgH3LBVIKsmdgPJZU7jD3ye6F+Z8fbms+OjivE7rWY09Qx+5X65VKe/9ywKFJ9Sw==}
+  pele@1.12.0:
+    resolution: {integrity: sha512-3OdOK6rvkaTB569R4/I8U0H82MqPRxj7vfkbowa2rRhgSBPFhvWlfFy5eae0jP+2A6hE8abE17nsdyxJz2VBiQ==}
     engines: {node: '>=20'}
 
   perfect-debounce@2.1.0:
@@ -25034,7 +25034,7 @@ snapshots:
 
   peberminta@0.9.0: {}
 
-  pele@1.9.0: {}
+  pele@1.12.0: {}
 
   perfect-debounce@2.1.0: {}
 
