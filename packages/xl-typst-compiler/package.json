@@ -71,7 +71,6 @@
   },
   "scripts": {
     "dev": "vp dev",
-    "build:wasm": "node scripts/ensure-wasm.mjs --force",
     "lint": "vp lint src",
     "test": "vp test --run",
     "test-watch": "vp test watch",
@@ -79,6 +78,7 @@
   },
   "devDependencies": {
     "@types/node": "22.13.13",
+    "fflate": "^0.8.3",
     "rimraf": "^5.0.10",
     "rollup-plugin-webpack-stats": "^0.2.6",
     "typescript": "^7.0.2",

@@ -9,15 +9,25 @@ export default defineConfig(
     ({
       run: {
         tasks: {
+          "build:wasm": {
+            command: "node scripts/ensure-wasm.mjs --force",
+            cache: false,
+          },
           build: {
-            // ensure-wasm builds pkg/ from rust/ when missing or stale
+            // ensure-wasm restores or builds pkg/ when missing or stale
             // (content-hashed; see scripts/ensure-wasm.mjs) - so every
             // consumer of this task, including the Vercel builds, gets the
-            // wasm without a separate step. Requires a Rust toolchain
-            // locally (pinned in rust/rust-toolchain.toml).
+            // wasm without a separate step. Rust is needed locally only on
+            // a cache miss (pinned in rust/rust-toolchain.toml).
             command:
               "node scripts/ensure-wasm.mjs && tsc --project tsconfig.json --composite false --incremental false --rootDir . && vp build",
             cache: {
+              env: [
+                "BLOCKNOTE_TYPST_CACHE_DIR",
+                "BLOCKNOTE_TYPST_DOWNLOAD",
+                "BLOCKNOTE_TYPST_SOURCE_ONLY",
+                "XDG_CACHE_HOME",
+              ],
               input: [
                 ...buildCacheInputs("packages/xl-typst-compiler"),
                 { pattern: "!**/*.tsbuildinfo", base: "workspace" },
