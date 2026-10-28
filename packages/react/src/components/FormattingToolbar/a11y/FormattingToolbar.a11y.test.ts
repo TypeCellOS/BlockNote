@@ -47,8 +47,26 @@ test("formatting toolbar: Block type select", async () => {
     .toHaveTextContent("Format this text");
   await expect.element(menu).not.toBeInTheDocument();
   await expect.element(page.getByRole("textbox")).toHaveFocus();
+  // Mantine's deferred focus return runs after 10 ms. Check again after that
+  // window so transient editor focus cannot make this test pass.
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  await expect.element(page.getByRole("textbox")).toHaveFocus();
   await checkAriaSnapshot(page.getByRole("textbox"), "heading applied");
   await checkAriaSnapshot(toolbar, "heading toolbar");
+});
+
+test("formatting toolbar: Escape dismisses block type select and returns to the editor", async () => {
+  await openEditor(toolbarDocument);
+  const { toolbar } = await focusToolbarControl("Paragraph");
+  await pressKey("Enter");
+  const menu = page.getByRole("menu");
+  await expect.element(menu).toBeVisible();
+  await pressKey("ArrowDown");
+  await expect.element(menu.getByRole("menuitem").first()).toHaveFocus();
+  await pressKey("Escape");
+  await expect.element(menu).not.toBeInTheDocument();
+  await expect.element(toolbar).not.toBeInTheDocument();
+  await expect.element(page.getByRole("textbox")).toHaveFocus();
 });
 
 test("formatting toolbar: Bold", async () => {
