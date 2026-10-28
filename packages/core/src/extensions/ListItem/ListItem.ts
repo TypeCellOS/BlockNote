@@ -3,7 +3,6 @@ import type { Transaction } from "prosemirror-state";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
 
-import { getBlockInfoFromNode } from "../../api/getBlockInfoFromPos.js";
 import { getChangedRangeWithAttrs } from "../../api/getChangedRangeWithAttrs.js";
 import { createExtension } from "../../editor/BlockNoteExtension.js";
 import { createListOwner } from "./createListOwner.js";
@@ -16,280 +15,231 @@ export const listItemPluginKey = new PluginKey<ListDecorations>(
   "list-item-decorations",
 );
 
-/**
- * Calculate the index for a numbered list item based on its position and previous siblings.
- * Iteratively walks backwards to find the start of the contiguous list (or a cached entry),
- * then walks forward to populate the cache. This avoids deep recursion that would overflow
- * the stack on large documents.
- */
-function calculateListItemIndex(
+type ListChain = { pos: number; ids: string[] };
+type ListItemInfo = {
+  index: number | undefined;
+  isFirst: boolean;
+  hasStart: boolean;
+  chain: ListChain;
+};
+
+function blockType(node: Node | null) {
+  return node?.type.name === "blockContainer"
+    ? node.firstChild!.type.name
+    : undefined;
+}
+
+/** Walk back to a cached sibling or the start of the same-type list, then
+ * populate the cache forwards. Each item's ID is collected exactly once. */
+function getListItemInfo(
   node: Node,
   pos: number,
   tr: Transaction,
-  map: Map<Node, number>,
-): { index: number; isFirst: boolean; hasStart: boolean } {
-  const hasStart = !!node.firstChild!.attrs["start"];
-
-  // Fast path: previous sibling already in cache
-  const blockInfo = getBlockInfoFromNode(node, pos);
-  if (!blockInfo.hasContent) {
-    throw new Error("impossible");
-  }
-  const prevBlock = tr.doc.resolve(blockInfo.block.beforePos).nodeBefore;
-  const prevBlockIndex = prevBlock ? map.get(prevBlock) : undefined;
-  if (prevBlockIndex !== undefined) {
-    const index = prevBlockIndex + 1;
-    map.set(node, index);
-    return { index, isFirst: false, hasStart };
+  map: Map<Node, ListItemInfo>,
+): ListItemInfo {
+  const cached = map.get(node);
+  if (cached) {
+    return cached;
   }
 
-  // Walk backwards iteratively to collect the chain of consecutive
-  // numbered list items until we hit a cached entry, a non-list block,
-  // or the start of the parent.
-  const chain: { node: Node; pos: number }[] = [{ node, pos }];
-  let curNode = prevBlock;
-  let curBeforePos = blockInfo.block.beforePos;
-
-  while (curNode) {
-    const cachedIndex = map.get(curNode);
-    if (cachedIndex !== undefined) {
-      // Found a cached predecessor — start counting from here
+  const type = blockType(node);
+  const pending: { node: Node; pos: number }[] = [];
+  let current: Node | null = node;
+  let previous: ListItemInfo | undefined;
+  while (current && blockType(current) === type) {
+    previous = map.get(current);
+    if (previous) {
       break;
     }
-    const curInfo = getBlockInfoFromNode(
-      curNode,
-      curBeforePos - curNode.nodeSize,
-    );
-    if (curInfo.blockNoteType !== "numberedListItem") {
-      break;
-    }
-    chain.push({ node: curNode, pos: curBeforePos - curNode.nodeSize });
-    const nextPrev = tr.doc.resolve(curInfo.block.beforePos).nodeBefore;
-    curBeforePos = curInfo.block.beforePos;
-    curNode = nextPrev;
+    pending.push({ node: current, pos });
+    current = tr.doc.resolve(pos).nodeBefore;
+    pos -= current?.nodeSize ?? 0;
   }
 
-  // Walk forward (reverse of the collected chain) to assign indices
-  // The last element in chain is the furthest predecessor
-  let index: number;
-  let isFirst: boolean;
-
-  // Determine starting index from the block just before the chain
-  const lastInChain = chain[chain.length - 1];
-  const lastInfo = getBlockInfoFromNode(lastInChain.node, lastInChain.pos);
-  if (!lastInfo.hasContent) {
-    throw new Error("impossible");
-  }
-  const predecessorNode = tr.doc.resolve(lastInfo.block.beforePos).nodeBefore;
-  const predecessorIndex = predecessorNode
-    ? map.get(predecessorNode)
-    : undefined;
-
-  if (predecessorIndex !== undefined) {
-    index = predecessorIndex;
-    isFirst = false;
-  } else {
-    // Start of a new list
-    index = (lastInChain.node.firstChild!.attrs["start"] || 1) - 1;
-    isFirst = true;
-  }
-
-  // Assign indices from the end of the chain (furthest back) to the front (original node)
-  for (let i = chain.length - 1; i >= 0; i--) {
-    const entry = chain[i];
-    if (isFirst && i < chain.length - 1) {
-      // Only the very first item in the list gets isFirst
-      isFirst = false;
-    }
-    index++;
-    map.set(entry.node, index);
-  }
-
-  // isFirst is true only for the very first item in a new list:
-  // chain.length > 1 means we found predecessor list items, so not first.
-  return {
-    index,
-    isFirst:
-      chain.length === 1 ? isFirst || predecessorIndex === undefined : false,
-    hasStart,
+  const chain = previous?.chain ?? {
+    pos: pending[pending.length - 1].pos,
+    ids: [],
   };
+  for (let i = pending.length - 1; i >= 0; i--) {
+    const entry = pending[i];
+    const start = entry.node.firstChild!.attrs.start;
+    previous = {
+      index:
+        type === "numberedListItem"
+          ? previous?.index !== undefined
+            ? previous.index + 1
+            : start || 1
+          : undefined,
+      isFirst: i === pending.length - 1 && chain.ids.length === 0,
+      hasStart: !!start,
+      chain,
+    };
+    // aria-owns is space-separated, so escape caller-supplied IDs.
+    chain.ids.push(
+      typeof entry.node.attrs.id === "string"
+        ? encodeURIComponent(entry.node.attrs.id)
+        : `bn-list-item-pos-${entry.pos}`,
+    );
+    map.set(entry.node, previous);
+  }
+  return map.get(node)!;
 }
 
-/** Map existing decorations and update lists in the affected sibling groups. */
 function getDecorations(
   tr: Transaction,
   previousPluginState: ListDecorations,
   isListItem: (type: string) => boolean,
 ): ListDecorations {
-  const map = new Map<Node, number>();
+  const map = new Map<Node, ListItemInfo>();
   const nextDecorationSet = previousPluginState.decorations.map(
     tr.mapping,
     tr.doc,
   );
-  // Attribute-only steps (e.g. changing a list's start) have empty step maps.
   const range = getChangedRangeWithAttrs(tr) ?? {
     from: 0,
     to: tr.doc.content.size,
   };
   const decorationsToAdd: Decoration[] = [];
-  const decorationsToRemove: Decoration[] = [];
+  const decorationsToRemove = new Set<Decoration>();
+  const chains = new Set<ListChain>();
+  const completedGroups = new Set<Node>();
 
-  function visit(parent: Node, start: number) {
-    // An owner precedes its entire list, so a change in the middle can affect
-    // siblings before the changed range. Visit these siblings for ownership,
-    // while retaining the original change-scoped numbering and early exit.
-    let existingByPosition: Map<number, Decoration[]> | undefined;
-    const accessibilityToRemove = new Set<Decoration>();
-    let run: { pos: number; type: string; ids: string[] } | undefined;
-    let numberingComplete = false;
+  // Looking up each item with DecorationSet.find would repeatedly scan all
+  // the outer-block role decorations. Index the mapped decorations once.
+  const existing = new Map<number, Decoration[]>();
+  for (const decoration of nextDecorationSet.find()) {
+    const atPosition = existing.get(decoration.from) ?? [];
+    atPosition.push(decoration);
+    existing.set(decoration.from, atPosition);
+    const type = blockType(tr.doc.resolve(decoration.from).nodeAfter);
+    // A widget can survive deletion of the last item at a group's end.
+    if (decoration.spec.listOwner && (!type || !isListItem(type))) {
+      decorationsToRemove.add(decoration);
+    }
+  }
 
-    // Index mapped decorations once per sibling group. Repeated range queries
-    // would scan all the new outer-block role decorations for every item.
-    function decorationsAt(pos: number) {
-      if (!existingByPosition) {
-        existingByPosition = new Map();
-        for (const decoration of nextDecorationSet.find(
-          start,
-          start + parent.content.size,
-        )) {
-          // Nested lists are maintained by their own sibling traversal.
-          const blockPos =
-            decoration.spec.index !== undefined
-              ? decoration.from - 1
-              : decoration.from;
-          if (tr.doc.resolve(blockPos).parent !== parent) {
-            continue;
-          }
-          if (decoration.spec.listItem || decoration.spec.listOwner) {
-            accessibilityToRemove.add(decoration);
-          }
-          const atPosition = existingByPosition.get(decoration.from) ?? [];
-          atPosition.push(decoration);
-          existingByPosition.set(decoration.from, atPosition);
+  tr.doc.nodesBetween(
+    Math.max(0, range.from - 1),
+    tr.doc.content.size,
+    (node, pos, parent) => {
+      if (parent && completedGroups.has(parent)) {
+        return false;
+      }
+      const type = blockType(node);
+      const atPosition = existing.get(pos) ?? [];
+
+      // Splitting/deleting a list can change its preceding owner without
+      // visiting that first item. Collect the remaining prefix as well.
+      if (pos <= range.to) {
+        const before = tr.doc.resolve(pos).nodeBefore;
+        const beforeType = blockType(before);
+        if (before && beforeType && isListItem(beforeType)) {
+          chains.add(
+            getListItemInfo(before, pos - before.nodeSize, tr, map).chain,
+          );
         }
       }
-      return existingByPosition.get(pos) ?? [];
-    }
-
-    function finishRun() {
-      if (!run) {
+      if (!type || !isListItem(type)) {
+        for (const deco of atPosition) {
+          if (deco.spec.listItem || deco.spec.listOwner) {
+            decorationsToRemove.add(deco);
+          }
+        }
+        if (type) {
+          for (const deco of existing.get(pos + 1) ?? []) {
+            decorationsToRemove.add(deco);
+          }
+        }
         return;
       }
-      const { pos, ids } = run;
-      const key = ids.join(" ");
-      const existing = decorationsAt(pos).find((deco) => deco.spec.listOwner);
-      if (existing?.spec.key !== key) {
+
+      const { index, isFirst, hasStart, chain } = getListItemInfo(
+        node,
+        pos,
+        tr,
+        map,
+      );
+      chains.add(chain);
+      const id = chain.ids[chain.ids.length - 1];
+      const item = atPosition.find((deco) => deco.spec.listItem);
+      let matches = item?.spec.id === id && item.to === pos + node.nodeSize;
+      if (!matches) {
+        if (item) {
+          decorationsToRemove.add(item);
+        }
         decorationsToAdd.push(
-          Decoration.widget(
+          Decoration.node(
             pos,
-            (view) => createListOwner(view.dom.ownerDocument, ids),
-            { side: -1, key, ignoreSelection: true, listOwner: true },
+            pos + node.nodeSize,
+            { id, role: "listitem" },
+            { listItem: true, id },
           ),
         );
-      } else {
-        accessibilityToRemove.delete(existing);
       }
-      run = undefined;
-    }
-
-    parent.forEach((node, offset) => {
-      const pos = start + offset;
-      const type =
-        node.type.name === "blockContainer"
-          ? node.firstChild!.type.name
-          : undefined;
-      if (run && run.type !== type) {
-        finishRun();
-      }
-      if (type) {
-        const existing = decorationsAt(pos).find((deco) => deco.spec.listItem);
-        if (isListItem(type)) {
-          // aria-owns is space-separated, so escape caller-supplied IDs.
-          const id =
-            typeof node.attrs.id === "string"
-              ? encodeURIComponent(node.attrs.id)
-              : `bn-list-item-pos-${pos}`;
-          (run ??= { pos, type, ids: [] }).ids.push(id);
-          if (existing?.spec.id === id && existing.to === pos + node.nodeSize) {
-            accessibilityToRemove.delete(existing);
-          } else {
-            // The outer block includes nested lists and non-list children.
-            decorationsToAdd.push(
-              Decoration.node(
-                pos,
-                pos + node.nodeSize,
-                { id, role: "listitem" },
-                { listItem: true, id },
-              ),
-            );
+      if (!isFirst) {
+        for (const deco of atPosition) {
+          if (deco.spec.listOwner) {
+            decorationsToRemove.add(deco);
           }
         }
       }
 
-      if (
-        !numberingComplete &&
-        pos + node.nodeSize > range.from &&
-        type === "numberedListItem"
-      ) {
-        const { index, isFirst, hasStart } = calculateListItemIndex(
-          node,
-          pos,
-          tr,
-          map,
+      const numbered = existing.get(pos + 1) ?? [];
+      if (index !== undefined) {
+        const numberMatches = numbered.some(
+          (deco) =>
+            deco.spec.index === index &&
+            deco.spec.isFirst === isFirst &&
+            deco.spec.hasStart === hasStart,
         );
-        const blockNode = node.firstChild!;
-        const existingDecorations = decorationsAt(pos + 1).filter(
-          (deco) => deco.spec.index !== undefined,
-        );
-        if (
-          !existingDecorations.some(
-            (deco) =>
-              deco.spec.index === index &&
-              deco.spec.isFirst === isFirst &&
-              deco.spec.hasStart === hasStart,
-          )
-        ) {
-          decorationsToRemove.push(...existingDecorations);
+        matches &&= numberMatches;
+        if (!numberMatches) {
+          numbered.forEach((deco) => decorationsToRemove.add(deco));
           decorationsToAdd.push(
             Decoration.node(
               pos + 1,
-              pos + 1 + blockNode.nodeSize,
-              { "data-index": index.toString() },
+              pos + 1 + node.firstChild!.nodeSize,
+              { "data-index": String(index) },
               { index, isFirst, hasStart },
             ),
           );
-        } else if (pos >= range.to) {
-          // Subsequent numbered siblings are unchanged, just as in the
-          // original indexing plugin. Ownership still needs the full run.
-          numberingComplete = true;
         }
-      } else if (type && type !== "numberedListItem") {
-        // A type change can preserve a mapped node decoration's boundaries.
-        decorationsToRemove.push(
-          ...decorationsAt(pos + 1).filter(
-            (deco) => deco.spec.index !== undefined,
-          ),
-        );
+      } else {
+        numbered.forEach((deco) => decorationsToRemove.add(deco));
       }
 
-      // Only changed subtrees need their own sibling groups revisited.
-      if (
-        !node.isLeaf &&
-        !node.isTextblock &&
-        pos <= range.to &&
-        pos + node.nodeSize >= range.from
-      ) {
-        visit(node, pos + 1);
+      // As in the original indexing plugin, stop after a matching item past
+      // the change, but finish its chain so the owner's IDs are complete.
+      const next = tr.doc.resolve(pos + node.nodeSize).nodeAfter;
+      if (matches && pos >= range.to && parent && blockType(next) !== type) {
+        completedGroups.add(parent);
+        return false;
       }
-    });
-    finishRun();
-    decorationsToRemove.push(...accessibilityToRemove);
+      return undefined;
+    },
+  );
+
+  for (const { pos, ids } of chains) {
+    const key = ids.join(" ");
+    const owner = (existing.get(pos) ?? []).find((deco) => deco.spec.listOwner);
+    if (owner?.spec.key === key) {
+      continue;
+    }
+    if (owner) {
+      decorationsToRemove.add(owner);
+    }
+    decorationsToAdd.push(
+      Decoration.widget(
+        pos,
+        (view) => createListOwner(view.dom.ownerDocument, ids),
+        { side: -1, key, ignoreSelection: true, listOwner: true },
+      ),
+    );
   }
 
-  visit(tr.doc, 0);
   return {
     decorations: nextDecorationSet
-      .remove(decorationsToRemove)
+      .remove([...decorationsToRemove])
       .add(tr.doc, decorationsToAdd),
   };
 }
