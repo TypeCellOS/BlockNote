@@ -20,7 +20,7 @@
 import { execFileSync } from "node:child_process";
 import { mkdirSync, rmSync } from "node:fs";
 import { homedir } from "node:os";
-import { join } from "node:path";
+import { delimiter, join } from "node:path";
 import { setTimeout } from "node:timers/promises";
 import {
   cacheRoot,
@@ -85,16 +85,24 @@ async function ensureWasm() {
     env.CARGO_HOME = join(cacheDir, "cargo");
     env.RUSTUP_HOME = join(cacheDir, "rustup");
     env.CARGO_TARGET_DIR = join(cacheDir, "target");
-    env.PATH = `${join(env.CARGO_HOME, "bin")}:${env.PATH}`;
-  } else {
-    env.PATH = `${join(homedir(), ".cargo", "bin")}:${env.PATH}`;
   }
+  // Windows commonly spells this key `Path`; spreading process.env loses its
+  // case-insensitive lookup behavior, so retain the original key.
+  const pathKey =
+    process.platform === "win32"
+      ? Object.keys(env).find((key) => key.toUpperCase() === "PATH") || "PATH"
+      : "PATH";
+  const cargoBin = join(env.CARGO_HOME || join(homedir(), ".cargo"), "bin");
+  env[pathKey] = [cargoBin, env[pathKey]].filter(Boolean).join(delimiter);
 
   if (!commandExists("cargo", env)) {
     // CI covers GitHub Actions (whose ubuntu-24.04 images ship no Rust) and
-    // most other build services; only interactive dev machines get the
-    // do-it-yourself error.
-    if (!process.env.VERCEL && !process.env.CI) {
+    // most other build services. Windows needs its native rustup installer;
+    // interactive dev machines also install Rust themselves.
+    if (
+      process.platform === "win32" ||
+      (!process.env.VERCEL && !process.env.CI)
+    ) {
       console.error(
         "[ensure-wasm] pkg/ is missing or stale and no Rust toolchain was " +
           "found. Install rustup (https://rustup.rs) - the pinned toolchain " +
@@ -120,8 +128,9 @@ async function ensureWasm() {
     "[ensure-wasm] building the Typst compiler wasm (rust/ -> pkg/)…",
   );
   execFileSync(
-    join(packageDir, "node_modules", ".bin", "wasm-pack"),
+    process.execPath,
     [
+      join(packageDir, "node_modules", "wasm-pack", "run.js"),
       "build",
       ".",
       "--target",

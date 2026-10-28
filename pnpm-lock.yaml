@@ -6428,6 +6428,9 @@ importers:
       '@types/node':
         specifier: 25.9.5
         version: 25.9.5
+      fflate:
+        specifier: ^0.8.3
+        version: 0.8.3
       rimraf:
         specifier: ^5.0.10
         version: 5.0.10

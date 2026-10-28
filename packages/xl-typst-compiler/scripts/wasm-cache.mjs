@@ -15,6 +15,7 @@ import {
 import { homedir, tmpdir } from "node:os";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
+import { FlateErrorCode, unzipSync } from "fflate";
 
 export const packageDir = dirname(dirname(fileURLToPath(import.meta.url)));
 export const outputFiles = [
@@ -268,37 +269,48 @@ export function trustedRun(run) {
 
 // Extract individual allowlisted files to buffers, never archive paths. This
 // also prevents zip traversal/symlinks from writing outside the staging dir.
-export function unpackArtifact(zip, dir, hash) {
-  const listing = spawnSync("unzip", ["-Z1", zip], {
-    encoding: "utf8",
-    timeout: 10000,
-  });
-  if (listing.error && !["ENOENT", "ETIMEDOUT"].includes(listing.error.code)) {
-    throw listing.error;
+function readZip(bytes) {
+  const seen = new Set();
+  let size = 0;
+  let invalid = false;
+  try {
+    const files = unzipSync(bytes, {
+      filter(file) {
+        size += file.originalSize;
+        if (
+          !cacheFiles.includes(file.name) ||
+          seen.has(file.name) ||
+          !Number.isSafeInteger(file.originalSize) ||
+          file.originalSize < 0 ||
+          size > maxBytes
+        ) {
+          invalid = true;
+        }
+        seen.add(file.name);
+        return !invalid;
+      },
+    });
+    return invalid || seen.size !== cacheFiles.length
+      ? { error: "unexpected artifact contents or size" }
+      : { files };
+  } catch (error) {
+    if (
+      !(error instanceof RangeError) &&
+      !Object.values(FlateErrorCode).includes(error.code)
+    ) {
+      throw error;
+    }
+    return { error: "invalid artifact archive" };
   }
-  if (listing.status !== 0) {
-    return { error: "artifact requires a working unzip command" };
-  }
-  const entries = listing.stdout.trim().split(/\r?\n/);
-  if (
-    entries.length !== cacheFiles.length ||
-    new Set(entries).size !== cacheFiles.length ||
-    entries.some((name) => !cacheFiles.includes(name))
-  ) {
-    return { error: "unexpected artifact contents" };
+}
+
+export function unpackArtifact(bytes, dir, hash) {
+  const result = readZip(bytes);
+  if (result.error) {
+    return result;
   }
   for (const file of cacheFiles) {
-    const result = spawnSync("unzip", ["-p", zip, file], {
-      maxBuffer: maxBytes,
-      timeout: 10000,
-    });
-    if (result.error && !["ENOBUFS", "ETIMEDOUT"].includes(result.error.code)) {
-      throw result.error;
-    }
-    if (result.status !== 0) {
-      return { error: "invalid artifact archive" };
-    }
-    writeFileSync(join(dir, file), result.stdout);
+    writeFileSync(join(dir, file), result.files[file]);
   }
   return validateOutput(dir, hash)
     ? { restored: true }
@@ -380,11 +392,9 @@ export async function downloadOutput(
     }
     const temp = mkdtempSync(join(tmpdir(), "blocknote-typst-"));
     try {
-      const zip = join(temp, "artifact.zip");
       const output = join(temp, "output");
       mkdirSync(output);
-      writeFileSync(zip, body.bytes);
-      const unpacked = unpackArtifact(zip, output, hash);
+      const unpacked = unpackArtifact(body.bytes, output, hash);
       if (unpacked.error) {
         return unpacked;
       }

@@ -1,17 +1,20 @@
 import { execFile, execFileSync } from "node:child_process";
 import {
   copyFileSync,
+  cpSync,
   existsSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
+  readdirSync,
   rmSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { delimiter, join } from "node:path";
 import { promisify } from "node:util";
-import { afterEach, describe, expect, it } from "vite-plus/test";
+import { zipSync } from "fflate";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import {
   artifactName,
   downloadOutput,
@@ -33,6 +36,7 @@ function temp() {
   return dir;
 }
 afterEach(() => {
+  vi.unstubAllEnvs();
   for (const dir of temps.splice(0)) {
     rmSync(dir, { recursive: true, force: true });
   }
@@ -40,15 +44,14 @@ afterEach(() => {
 
 function fixture() {
   const root = temp();
-  for (const dir of [
-    "rust/src",
-    "scripts",
-    "node_modules/wasm-pack",
-    "node_modules/.bin",
-    "bin",
-  ]) {
+  for (const dir of ["rust/src", "scripts", "node_modules/wasm-pack", "bin"]) {
     mkdirSync(join(root, dir), { recursive: true });
   }
+  cpSync(
+    join(packageDir, "node_modules/fflate"),
+    join(root, "node_modules/fflate"),
+    { recursive: true, dereference: true },
+  );
   for (const file of ["Cargo.toml", "Cargo.lock", "rust-toolchain.toml"]) {
     writeFileSync(join(root, "rust", file), file);
   }
@@ -74,14 +77,16 @@ function output(dir, hash) {
   writeManifest(dir, hash);
 }
 
-function zipOutput(dir) {
-  const zip = join(temp(), "artifact.zip");
-  execFileSync(
-    "zip",
-    ["-q", zip, ...outputFiles, ".build-hash", ".build-manifest.json"],
-    { cwd: dir },
-  );
-  return zip;
+function zipOutput(dir, extra = {}) {
+  return zipSync({
+    ...Object.fromEntries(
+      [...outputFiles, ".build-hash", ".build-manifest.json"].map((file) => [
+        file,
+        readFileSync(join(dir, file)),
+      ]),
+    ),
+    ...extra,
+  });
 }
 
 const run = {
@@ -165,7 +170,7 @@ describe("GitHub artifacts", () => {
     const source = temp();
     const destination = temp();
     output(source, "hash");
-    const zip = readFileSync(zipOutput(source));
+    const zip = zipOutput(source);
     const calls = [];
     const responses = [
       Response.json({
@@ -240,11 +245,51 @@ describe("GitHub artifacts", () => {
       "checksum",
     );
     output(source, "hash");
-    const zip = zipOutput(source);
-    writeFileSync(join(source, "unexpected"), "untrusted");
-    execFileSync("zip", ["-q", zip, "unexpected"], { cwd: source });
+    const zip = zipSync({ "../escape": new Uint8Array([1]) });
     expect(unpackArtifact(zip, temp(), "hash").error).toContain("contents");
+    expect(
+      unpackArtifact(new Uint8Array([1, 2, 3]), temp(), "hash").error,
+    ).toContain("archive");
   });
+
+  it("extracts without system ZIP tools", () => {
+    const source = temp();
+    const destination = temp();
+    output(source, "hash");
+    const zip = zipOutput(source);
+    vi.stubEnv("PATH", "");
+    expect(unpackArtifact(zip, destination, "hash")).toEqual({
+      restored: true,
+    });
+    expect(validateOutput(destination, "hash")).toBe(true);
+  });
+
+  it.each(["duplicate entries", "oversized declared output"])(
+    "rejects %s before writing files",
+    (kind) => {
+      const source = temp();
+      output(source, "hash");
+      // fflate creates ZIPs without comments: the end record is the last 22 bytes,
+      // with the central-directory offset at +16. Mutate its metadata only.
+      const duplicate = Buffer.from(
+        zipOutput(source, { "blocknote_typst_wasm.jx": new Uint8Array([1]) }),
+      );
+      const directory = duplicate.readUInt32LE(duplicate.length - 6);
+      const name = duplicate.indexOf("blocknote_typst_wasm.jx", directory);
+      duplicate.write("blocknote_typst_wasm.js", name);
+      const oversized = Buffer.from(zipOutput(source));
+      oversized.writeUInt32LE(
+        64 * 1024 * 1024 + 1,
+        oversized.readUInt32LE(oversized.length - 6) + 24,
+      );
+      const zip = kind === "duplicate entries" ? duplicate : oversized;
+      const destination = temp();
+      expect(unpackArtifact(zip, destination, "hash").error).toContain(
+        "contents",
+      );
+      expect(readdirSync(destination)).toEqual([]);
+    },
+  );
 });
 
 describe("build entry point", () => {
@@ -274,7 +319,7 @@ describe("build entry point", () => {
       mode: 0o755,
     });
     writeFileSync(
-      join(root, "node_modules/.bin/wasm-pack"),
+      join(root, "node_modules/wasm-pack/run.js"),
       `#!${process.execPath}
 const fs = require("node:fs");
 const path = require("node:path");
@@ -290,7 +335,7 @@ setTimeout(() => {
 `,
       { mode: 0o755 },
     );
-    return { PATH: `${join(root, "bin")}:${process.env.PATH}` };
+    return { PATH: `${join(root, "bin")}${delimiter}${process.env.PATH}` };
   }
 
   it("restores a fresh checkout without invoking a compiler, then reuses pkg locally", () => {
@@ -300,6 +345,31 @@ setTimeout(() => {
     expect(build(root)).toContain("restored shared WASM cache");
     expect(validateOutput(join(root, "pkg"), hash)).toBe(true);
     expect(build(root)).toBe("");
+    expect(existsSync(join(root, "node_modules/.typst-wasm.lock"))).toBe(false);
+  });
+
+  it("reports missing Rust on Windows CI without attempting the Unix installer", async () => {
+    const root = fixture();
+    const preload = join(root, "windows.cjs");
+    writeFileSync(
+      preload,
+      'Object.defineProperty(process, "platform", { value: "win32" });',
+    );
+    const execute = promisify(execFile);
+    await expect(
+      execute(
+        process.execPath,
+        ["--require", preload, join(root, "scripts/ensure-wasm.mjs")],
+        buildOptions(root, {
+          CI: "1",
+          PATH: "",
+          CARGO_HOME: join(root, "missing-rust"),
+        }),
+      ),
+    ).rejects.toMatchObject({
+      code: 1,
+      stderr: expect.stringContaining("Install rustup"),
+    });
     expect(existsSync(join(root, "node_modules/.typst-wasm.lock"))).toBe(false);
   });
 

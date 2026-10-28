@@ -64,7 +64,9 @@ Developer downloads require `gh auth login`, `GH_TOKEN`, or `GITHUB_TOKEN`
 with read access to Actions artifacts. No interactive authentication happens
 during builds. Missing credentials, offline requests, expired artifacts, and
 invalid downloads fall back to source compilation; downloads time out after
-30 seconds and require `unzip`. Artifacts are retained for 90 days, and a new
+30 seconds. ZIP archives are read using `fflate`; no system `unzip` executable
+or newer Node version is required.
+Artifacts are retained for 90 days, and a new
 fingerprint only becomes downloadable after a successful `main` build.
 
 The cache lives at `$XDG_CACHE_HOME/blocknote/typst-wasm-v2` (default
@@ -81,6 +83,11 @@ detect corruption; trust comes from the restricted workflow producer, not the
 source hash alone. Simultaneous builds in one checkout are serialized. If a
 process is forcibly killed, remove `node_modules/.typst-wasm.lock` inside this
 package after confirming no build is still running.
+
+On native Windows, source builds invoke wasm-pack through Node rather than a
+shell shim. If Rust is missing, the build exits with rustup setup instructions
+instead of attempting the Unix installer. Native Windows has not been tested
+end to end.
 
 `pkg/` is a build output (not checked in); the published npm package
 includes it.
