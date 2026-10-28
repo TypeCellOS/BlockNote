@@ -187,6 +187,77 @@ describe("WASM fingerprint and verification", () => {
 });
 
 describe("GitHub artifacts", () => {
+  it.each([true, false])(
+    "downloads while trust is pending, then gates installation (trusted: %s)",
+    async (trusted) => {
+      const source = temp();
+      const destination = join(temp(), "pkg");
+      output(source, "hash");
+      output(destination, "previous");
+      const zip = zipOutput(source);
+      const metadata = Promise.withResolvers();
+      let storageSignal;
+      let storageStarted = false;
+      const pending = downloadOutput("hash", destination, {
+        token: "token",
+        fetcher: async (url, options) => {
+          if (url.includes("/artifacts?")) {
+            return Response.json({
+              artifacts: [
+                { name: artifactName("hash"), id: 1, workflow_run: { id: 2 } },
+              ],
+            });
+          }
+          if (url.endsWith("/runs/2")) {
+            return metadata.promise;
+          }
+          if (url.endsWith("/artifacts/1/zip")) {
+            return new Response(null, {
+              status: 302,
+              headers: { location: "https://storage.example/artifact" },
+            });
+          }
+          expect(url).toBe("https://storage.example/artifact");
+          expect(options.headers.Authorization).toBeUndefined();
+          storageStarted = true;
+          storageSignal = options.signal;
+          if (trusted) {
+            return new Response(zip);
+          }
+          return new Promise((resolve, reject) => {
+            options.signal.throwIfAborted();
+            options.signal.addEventListener(
+              "abort",
+              () => reject(options.signal.reason),
+              { once: true },
+            );
+          });
+        },
+      });
+      try {
+        // Drain the immediate mock HTTP work, without resolving producer trust.
+        await new Promise(setImmediate);
+        expect(storageStarted).toBe(true);
+        expect(validateOutput(destination, "previous")).toBe(true);
+        expect(readdirSync(dirname(destination))).toEqual(["pkg"]);
+      } finally {
+        metadata.resolve(
+          Response.json(trusted ? run : { ...run, event: "pull_request" }),
+        );
+        const result = await pending;
+        expect(result).toEqual(
+          trusted
+            ? { restored: true }
+            : { error: "no matching artifact from a successful main build" },
+        );
+      }
+      expect(storageSignal.aborted).toBe(true);
+      expect(validateOutput(destination, trusted ? "hash" : "previous")).toBe(
+        true,
+      );
+    },
+  );
+
   it.each([
     { event: "pull_request" },
     { head_branch: "feature" },

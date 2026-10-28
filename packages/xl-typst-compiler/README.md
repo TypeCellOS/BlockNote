@@ -89,6 +89,10 @@ old local outputs rebuild or restore, v2 remote artifacts are not requested,
 and old shared-cache entries may be removed manually. A source build removes
 leftover `.build-hash` metadata from `pkg/`.
 
+For each matching artifact, the producer trust check and archive download run
+in parallel. An untrusted producer aborts/discards the speculative download;
+no archive is extracted or installed before trust is established. Only one
+candidate is downloaded at a time.
 Downloads are staged beside `pkg/` and checksum-verified before being renamed
 into place without a second output copy. The checksums
 detect corruption; trust comes from the restricted workflow producer, not the

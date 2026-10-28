@@ -319,6 +319,30 @@ export function unpackArtifact(bytes, dir, hash) {
     : { error: "artifact checksum mismatch" };
 }
 
+async function downloadArchive(base, id, token, fetcher) {
+  const archive = await request(`${base}/artifacts/${id}/zip`, token, fetcher);
+  if (archive.error) {
+    return archive;
+  }
+  const location = archive.response.headers.get("location");
+  if (
+    archive.response.status !== 302 ||
+    !location ||
+    !URL.canParse(location) ||
+    new URL(location).protocol !== "https:"
+  ) {
+    return { error: "artifact download unavailable" };
+  }
+  // Signed storage URL: never forward the GitHub token to another host.
+  const download = await request(location, undefined, fetcher);
+  if (download.error) {
+    return download;
+  }
+  return download.response.ok
+    ? readBody(download.response)
+    : { error: "artifact download unavailable" };
+}
+
 export async function downloadOutput(
   hash,
   destination,
@@ -355,40 +379,31 @@ export async function downloadOutput(
     ) {
       continue;
     }
-    const run = await jsonRequest(
-      `${base}/runs/${artifact.workflow_run.id}`,
-      token,
-      fetcher,
-    );
-    if (run.error || !trustedRun(run.value)) {
+    // Speculate on one candidate at a time. Bytes may arrive before trust is
+    // known, but nothing is extracted or installed until both checks pass.
+    const controller = new AbortController();
+    const candidateFetch = (url, options) =>
+      fetcher(url, {
+        ...options,
+        signal: AbortSignal.any([controller.signal, options.signal]),
+      });
+    const [trusted, body] = await Promise.all([
+      jsonRequest(
+        `${base}/runs/${artifact.workflow_run.id}`,
+        token,
+        candidateFetch,
+      ).then((run) => {
+        const trusted = !run.error && trustedRun(run.value);
+        if (!trusted) {
+          controller.abort();
+        }
+        return trusted;
+      }),
+      downloadArchive(base, artifact.id, token, candidateFetch),
+    ]).finally(() => controller.abort());
+    if (!trusted) {
       continue;
     }
-    const archive = await request(
-      `${base}/artifacts/${artifact.id}/zip`,
-      token,
-      fetcher,
-    );
-    if (archive.error) {
-      return archive;
-    }
-    const location = archive.response.headers.get("location");
-    if (
-      archive.response.status !== 302 ||
-      !location ||
-      !URL.canParse(location) ||
-      new URL(location).protocol !== "https:"
-    ) {
-      return { error: "artifact download unavailable" };
-    }
-    // Signed storage URL: never forward the GitHub token to another host.
-    const download = await request(location, undefined, fetcher);
-    if (download.error) {
-      return download;
-    }
-    if (!download.response.ok) {
-      return { error: "artifact download unavailable" };
-    }
-    const body = await readBody(download.response);
     if (body.error) {
       return body;
     }
