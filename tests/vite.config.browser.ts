@@ -101,6 +101,8 @@ export default defineConfig(
         },
       },
       test: {
+        // Preserve Vitest 4 mock history during the toolchain upgrade.
+        clearMocks: false,
         name: "e2e",
         // Besides the end-to-end tests, this suite also runs the packages'
         // `.browser.test` files: unit tests for browser-only implementations
@@ -130,13 +132,12 @@ export default defineConfig(
         // Persist a navigable HTML report to tests/playwright-report/ (same
         // path the legacy Playwright HTML report used, so existing CI artifact
         // uploads keep working). The `html` reporter is provided by
-        // `@vitest/ui` — its peer-dep version must match vite-plus-test's
-        // expectation (4.1.5 at the time of writing); earlier 0.1.x doesn't
-        // ship the `/reporter` subexport and errors at startup.
-        reporters: ["default", "html"],
-        outputFile: { html: "./playwright-report/index.html" },
+        // `@vitest/ui`, whose version must match Vite Plus's bundled Vitest.
+        reporters: ["default", ["html", { outputDir: "./playwright-report" }]],
         browser: {
           enabled: true,
+          // Keep Vitest 4's partial, case-insensitive locator matching.
+          locators: { exact: false },
           // Global default tolerance for every `toMatchScreenshot` assertion.
           // The three browsers run in one contended Docker container and minor
           // anti-aliasing / sub-pixel font-rendering differences (e.g. a 24px /

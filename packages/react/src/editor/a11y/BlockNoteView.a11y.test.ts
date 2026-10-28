@@ -7,10 +7,15 @@ import { defaultSchemaDocument } from "@root/tests/a11y/documents.js";
 import { expect, test } from "vite-plus/test";
 import { page } from "vite-plus/test/browser";
 import { screenshotFull } from "@root/tests/src/utils/screenshotFull.js";
-import { openEditor, pressKey } from "@root/tests/a11y/helpers.js";
+import {
+  checkAriaSnapshot,
+  openEditor,
+  pressKey,
+} from "@root/tests/a11y/helpers.js";
 
 test("default schema: arrow-key document navigation", async () => {
   await openEditor(defaultSchemaDocument);
+  await checkAriaSnapshot(page.getByRole("textbox"), "default schema");
   await navigateDefaultSchemaDocument();
 });
 
@@ -73,6 +78,10 @@ test.describe("text spacing and resizing", () => {
     `);
     await screenshotFull(document.body, "default-schema-text-spacing.png", {
       comparatorOptions: { allowedMismatchedPixels: 10 },
+      // Video decoding differs across platforms; keep captions and layout in scope.
+      screenshotOptions: {
+        mask: [page.elementLocator(document.querySelector("video")!)],
+      },
     });
   });
 
@@ -85,6 +94,9 @@ test.describe("text spacing and resizing", () => {
       "default-schema-text-size-200-percent.png",
       {
         comparatorOptions: { allowedMismatchedPixels: 10 },
+        screenshotOptions: {
+          mask: [page.elementLocator(document.querySelector("video")!)],
+        },
       },
     );
   });
@@ -106,6 +118,7 @@ test("read-only editor: Tab reaches inline links and leaves the editor", async (
     ],
     { editable: false },
   );
+  await checkAriaSnapshot(page.getByRole("textbox"), "read-only editor");
   const link = page.getByRole("link", { name: "Documentation", exact: true });
   // The editor itself may be a tab stop; it must not trap focus before the link.
   for (

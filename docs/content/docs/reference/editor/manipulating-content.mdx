@@ -384,7 +384,7 @@ editor.insertInlineContent([
 getSelectedText(): string
 ```
 
-Retrieves the currently selected text as a plain string.
+Retrieves the currently selected text as a plain string. When the selection spans multiple blocks, the text of each block is separated by a newline.
 
 ```typescript
 const selectedText = editor.getSelectedText();

@@ -16,7 +16,7 @@ import {
   TextWriter,
   ZipReader,
 } from "@zip.js/zip.js";
-import { Packer } from "docx";
+import { Document, Packer, Paragraph } from "docx";
 import { describe, expect, it } from "vite-plus/test";
 import xmlFormat from "xml-formatter";
 
@@ -42,6 +42,57 @@ const prettify = (sourceXml: string) => {
 };
 
 describe("docx exporter mappings", () => {
+  it.each([
+    ["x < 0", "x&lt;0"],
+    [String.raw`\text{a\&b}`, "a&amp;b"],
+    [String.raw`\text{<tag>\&amp;}`, "&lt;tag&gt;&amp;amp;"],
+  ])(
+    "should preserve XML escaping in block and inline math: %s",
+    async (source, escaped) => {
+      const exporter = new DOCXExporter(
+        BlockNoteSchema.create(),
+        docxDefaultSchemaMappings,
+      );
+      const doc = new Document({
+        sections: [
+          {
+            children: [
+              mathBlockMapping(
+                {
+                  id: "math",
+                  type: "mathBlock",
+                  props: {},
+                  content: [{ type: "text", text: source, styles: {} }],
+                },
+                exporter,
+              ),
+              new Paragraph({
+                children: [
+                  inlineMathMapping(
+                    { type: "math", content: source },
+                    exporter,
+                  ),
+                ],
+              }),
+            ],
+          },
+        ],
+      });
+      const zip = new ZipReader(new BlobReader(await Packer.toBlob(doc)));
+      try {
+        const xml = await getZIPEntryContent(
+          await zip.getEntries(),
+          "word/document.xml",
+        );
+        expect(xml.match(/<m:oMath[ >]/g)).toHaveLength(2);
+        expect(xml.split(escaped)).toHaveLength(3);
+        expect(() => xmlFormat(xml)).not.toThrow();
+      } finally {
+        await zip.close();
+      }
+    },
+  );
+
   it("should export math as native equations", { timeout: 10000 }, async () => {
     // Assembled outside the constructor call as the schema doesn't include
     // the math specs - like the default mappings, the math entries just

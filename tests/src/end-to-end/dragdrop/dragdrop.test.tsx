@@ -20,13 +20,14 @@ import {
   PARAGRAPH_SELECTOR,
   PDF_SELECTOR,
 } from "../../utils/const.js";
-import { browserName, userEvent } from "../../utils/context.js";
+import { browserName, MOD, userEvent } from "../../utils/context.js";
 import { insertHeading, insertParagraph } from "../../utils/copypaste.js";
 import {
   compareDocToSnapshot,
   focusOnEditor,
   sleep,
   waitForSelector,
+  waitForSelectorDetached,
 } from "../../utils/editor.js";
 import {
   dragAndDropBlock,
@@ -41,7 +42,7 @@ import { executeSlashCommand } from "../../utils/slashmenu.js";
 // types `expect` from an internal module, so the augmentation doesn't attach.
 // Type the accessor locally.
 type ElementMatchers = {
-  not: { toBeVisible(): Promise<void> };
+  toHaveFocus(): Promise<void>;
 };
 type ElementExpect = (element: Element | null) => ElementMatchers;
 const expectElement = (expect as unknown as { element: ElementExpect }).element;
@@ -142,9 +143,7 @@ describe("Check Block Dragging Functionality", () => {
 
       await dragAndDropBlock(IMAGE_SELECTOR, H_ONE_BLOCK_SELECTOR, false);
 
-      await expectElement(
-        document.querySelector(".bn-formatting-toolbar"),
-      ).not.toBeVisible();
+      await waitForSelectorDetached(".bn-formatting-toolbar");
     },
   );
 
@@ -338,6 +337,28 @@ function block(id: string) {
   return document.querySelector(`[data-id="${id}"]`)!;
 }
 
+function expectVisibleBlockSelection(blockIds: string[]) {
+  const view = editors[0].prosemirrorView;
+  const selection = view.state.selection;
+  expect(selection.toJSON().type).toBe("multiple-node");
+  const selectedIds: string[] = [];
+  selection
+    .content()
+    .content.forEach((node) => selectedIds.push(node.attrs.id));
+  expect(selectedIds).toEqual(blockIds);
+  expect(selection.visible).toBe(true);
+  expect(view.dom.classList.contains("ProseMirror-hideselection")).toBe(false);
+
+  const nativeSelection = view.dom.ownerDocument.getSelection()!;
+  expect(nativeSelection.rangeCount).toBe(1);
+  expect(nativeSelection.isCollapsed).toBe(false);
+  const range = nativeSelection.getRangeAt(0);
+  for (const id of blockIds) {
+    expect(range.intersectsNode(block(id))).toBe(true);
+  }
+  expect(range.getBoundingClientRect().height).toBeGreaterThan(0);
+}
+
 /**
  * Where the mouse picks the block with the ID: the chrome of a layout block, or
  * else the block's element.
@@ -388,6 +409,42 @@ describe.skipIf(browserName === "firefox")("Dragging layout blocks", () => {
     } finally {
       // Releases the mouse also when a check fails, for the next tests.
       await dropDraggedBlock(block(id), true);
+    }
+  });
+
+  // The preview is outside the editor, so it copies the editor's theme,
+  // classes and width, and app CSS that sizes the editor does not apply.
+  test("draws the drag preview like the editor", async () => {
+    const appCSS = document.createElement("style");
+    appCSS.textContent = ".bn-editor { min-height: 500px; }";
+    document.head.appendChild(appCSS);
+    await renderEditors([
+      {
+        id: "table",
+        type: "table",
+        content: { type: "tableContent", rows: [{ cells: ["A", "B"] }] },
+      },
+    ]);
+
+    await startBlockDrag(handleOf("table"));
+    try {
+      const preview = await waitForSelector(".bn-drag-preview");
+      const copy = preview.querySelector('[data-id="table"]')!;
+      expect(copy.getBoundingClientRect().width).toBe(
+        block("table").getBoundingClientRect().width,
+      );
+      expect(preview.getBoundingClientRect().height).toBeLessThan(500);
+      expect(
+        getComputedStyle(preview.querySelector("td")!).borderTopStyle,
+      ).toBe("solid");
+      expect(preview.getAttribute("data-color-scheme")).toBe(
+        document
+          .querySelector(".bn-container")!
+          .getAttribute("data-color-scheme"),
+      );
+    } finally {
+      await dropDraggedBlock(block("table"), true);
+      appCSS.remove();
     }
   });
 
@@ -454,6 +511,8 @@ describe.skipIf(browserName === "firefox")("Dropping into a block", () => {
         steps: 5,
       },
     ]);
+    // The drop goes into the toggle once it is highlighted.
+    await waitForSelector("[data-drop-target]");
     // Hovers before the drop, as a user does, which gave ProseMirror the time
     // to draw the toggle again.
     await sleep(200);
@@ -464,3 +523,85 @@ describe.skipIf(browserName === "firefox")("Dropping into a block", () => {
     expect(ids(editors[0].document[0].children)).toEqual(["dragged"]);
   });
 });
+
+// Playwright doesn't correctly simulate drag events in Firefox.
+describe.skipIf(browserName === "firefox")(
+  "Focus after dragging a block",
+  () => {
+    // The drop leaves a text cursor in the editor, so the keyboard works on it
+    // right away, e.g. to undo the drop (#3165).
+    test("undoes a drop with the keyboard", async () => {
+      await renderEditors([
+        { id: "a", type: "paragraph", content: "A" },
+        { id: "b", type: "paragraph", content: "B" },
+      ]);
+
+      await dragAndDropBlock(block("a"), block("b"), false);
+      await expectElement(editors[0].prosemirrorView.dom).toHaveFocus();
+      expect(ids(editors[0].document)).toEqual(["b", "a"]);
+      await waitForSelectorDetached(".bn-side-menu");
+      // A text cursor shows no formatting toolbar.
+      await waitForSelectorDetached(".bn-formatting-toolbar");
+
+      await userEvent.keyboard(`{${MOD}>}z{/${MOD}}`);
+      expect(ids(editors[0].document)).toEqual(["a", "b"]);
+      await expectElement(editors[0].prosemirrorView.dom).toHaveFocus();
+      expectVisibleBlockSelection(["a"]);
+      await waitForSelectorDetached(".bn-formatting-toolbar");
+    });
+
+    test("undoes a drop into a toggle with the keyboard", async () => {
+      await renderEditors([
+        { id: "toggle", type: "toggleListItem", content: "Toggle" },
+        { id: "dragged", type: "paragraph", content: "Dragged" },
+      ]);
+
+      await dragAndDropBlock(
+        block("dragged"),
+        block("toggle").querySelector(".bn-block-content")!,
+        false,
+      );
+      await expectElement(editors[0].prosemirrorView.dom).toHaveFocus();
+      expect(ids(editors[0].document[0].children)).toEqual(["dragged"]);
+
+      await userEvent.keyboard(`{${MOD}>}z{/${MOD}}`);
+      expect(ids(editors[0].document)).toEqual(["toggle", "dragged"]);
+      expectVisibleBlockSelection(["dragged"]);
+    });
+
+    // A dropped block without text has no place for a text cursor.
+    test("undoes a drop of an image with the keyboard", async () => {
+      await renderEditors([
+        { id: "a", type: "paragraph", content: "A" },
+        { id: "image", type: "image" },
+        { id: "b", type: "paragraph", content: "B" },
+      ]);
+
+      await dragAndDropBlock(block("image"), block("b"), false);
+      await expectElement(editors[0].prosemirrorView.dom).toHaveFocus();
+      expect(ids(editors[0].document)).toEqual(["a", "b", "image"]);
+      await waitForSelectorDetached(".bn-formatting-toolbar");
+
+      await userEvent.keyboard(`{${MOD}>}z{/${MOD}}`);
+      expect(ids(editors[0].document)).toEqual(["a", "image", "b"]);
+      expectVisibleBlockSelection(["image"]);
+    });
+
+    test("restores a visible multi-block selection after undoing a drop", async () => {
+      await renderEditors([
+        { id: "a", type: "paragraph", content: "A" },
+        { id: "b", type: "paragraph", content: "B" },
+        { id: "c", type: "paragraph", content: "C" },
+      ]);
+      editors[0].setSelection("a", "b");
+
+      await dragAndDropBlock(block("a"), block("c"), false);
+      expect(ids(editors[0].document)).toEqual(["c", "a", "b"]);
+      await expectElement(editors[0].prosemirrorView.dom).toHaveFocus();
+      await userEvent.keyboard(`{${MOD}>}z{/${MOD}}`);
+      expect(ids(editors[0].document)).toEqual(["a", "b", "c"]);
+      expectVisibleBlockSelection(["a", "b"]);
+      await waitForSelectorDetached(".bn-formatting-toolbar");
+    });
+  },
+);

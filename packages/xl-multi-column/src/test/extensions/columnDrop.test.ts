@@ -1,4 +1,5 @@
 import { getNodeById } from "@blocknote/core";
+import { closeHistory } from "@tiptap/pm/history";
 import { Fragment, Slice } from "prosemirror-model";
 import { describe, expect, it, vi } from "vite-plus/test";
 
@@ -30,6 +31,36 @@ function dropOnEdge(ids: string[], target: string, position: "left" | "right") {
 }
 
 describe("column edge drops", () => {
+  it.each(["column-0", "paragraph-1"])(
+    "places the cursor in the final nested child when dropping beside %s",
+    (target) => {
+      const editor = getEditor();
+      dropOnEdge(["paragraph-0"], target, "right");
+      expect(editor.getTextCursorPosition().block.id).toBe(
+        "nested-paragraph-0",
+      );
+      expect(editor.prosemirrorState.selection.$from.parentOffset).toBe(
+        "Nested Paragraph 0".length,
+      );
+    },
+  );
+
+  it.each(["column-0", "paragraph-0"])(
+    "undoes immediate typing separately from the drop beside %s",
+    (target) => {
+      const editor = getEditor();
+      editor.transact((tr) => closeHistory(tr));
+      const before = editor.document;
+      dropOnEdge(["paragraph-1"], target, "right");
+      const dropped = editor.document;
+      editor.transact((tr) => tr.insertText("typed"));
+      expect(editor.undo()).toBe(true);
+      expect(editor.document).toEqual(dropped);
+      expect(editor.undo()).toBe(true);
+      expect(editor.document).toEqual(before);
+    },
+  );
+
   it.each(["left", "right"] as const)(
     "moves a mixed selection to an emptied target's %s edge",
     (edge) => {
