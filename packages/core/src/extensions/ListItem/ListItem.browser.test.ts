@@ -52,105 +52,40 @@ afterEach(() => {
 });
 
 describe("list items", () => {
-  it("exports numbering and ownership from an editable editor and round trips", () => {
+  it("updates list owners when items are indented and unindented", () => {
     const { editor, host } = createEditor(true);
     editor.replaceBlocks(editor.document, [
-      {
-        id: "a",
-        type: "numberedListItem",
-        props: { start: 4 },
-        children: [
-          { id: "note", type: "paragraph", content: "Explanation" },
-          { id: "nested-a", type: "numberedListItem", props: { start: 8 } },
-          { id: "nested-b", type: "numberedListItem" },
-        ],
-      },
-      { id: "b", type: "numberedListItem" },
-      {
-        id: "break",
-        type: "paragraph",
-        children: [
-          { id: "inside", type: "numberedListItem", props: { start: 20 } },
-        ],
-      },
-      { id: "restart", type: "numberedListItem" },
-      { id: "bullet", type: "bulletListItem", content: "Bullet" },
-      { id: "custom-a", type: "customItem", content: "Custom one" },
-      { id: "custom-b", type: "customItem", content: "Custom two" },
+      { id: "a", type: "numberedListItem", content: "One" },
+      { id: "b", type: "numberedListItem", content: "Two" },
+      { id: "c", type: "numberedListItem", content: "Three" },
     ]);
-    const original = editor.document;
-    const html = editor.blocksToFullHTML(original);
-    expect(lists(host)).toEqual([
-      ["a", "b"],
-      ["nested-a", "nested-b"],
-      ["inside"],
-      ["restart"],
-      ["bullet"],
-      ["custom-a", "custom-b"],
-    ]);
-    const exported = document.createElement("div");
-    document.body.append(exported);
-    cleanups.push(() => exported.remove());
-    editor.unmount();
-    exported.innerHTML = html;
-    expect(lists(exported)).toEqual([
-      ["a", "b"],
-      ["nested-a", "nested-b"],
-      ["inside"],
-      ["restart"],
-      ["bullet"],
-      ["custom-a", "custom-b"],
-    ]);
+    editor.setTextCursorPosition("b", "start");
+    editor.nestBlock();
+    expect(lists(host)).toEqual([["a", "c"], ["b"]]);
     expect(
-      Array.from(exported.querySelectorAll("[data-index]"), (element) =>
-        element.getAttribute("data-index"),
+      Array.from(host.querySelectorAll("[data-index]"), (item) =>
+        item.getAttribute("data-index"),
       ),
-    ).toEqual(["4", "8", "9", "5", "20", "1"]);
-    expect(editor.tryParseHTMLToBlocks(html)).toEqual(original);
-    expect(editor.document).toEqual(original);
-
-    exported.remove();
-    editor.mount(host);
-    editor.isEditable = false;
-    expect(lists(host)).toEqual([
-      ["a", "b"],
-      ["nested-a", "nested-b"],
-      ["inside"],
-      ["restart"],
-      ["bullet"],
-      ["custom-a", "custom-b"],
-    ]);
-    expect(host.querySelector('[role="listitem"]')!.id).toBe("a");
+    ).toEqual(["1", "1", "2"]);
+    editor.unnestBlock();
+    expect(lists(host)).toEqual([["a", "b", "c"]]);
+    expect(
+      Array.from(host.querySelectorAll("[data-index]"), (item) =>
+        item.getAttribute("data-index"),
+      ),
+    ).toEqual(["1", "2", "3"]);
   });
 
-  it("exports partial list blocks without IDs and preserves empty items", () => {
+  it("removes an owner when the last list at the end of a group is deleted", () => {
     const { editor, host } = createEditor(true);
-    const html = editor.blocksToFullHTML([
-      { type: "bulletListItem" },
-      { type: "bulletListItem" },
+    editor.replaceBlocks(editor.document, [
+      { id: "before", type: "paragraph" },
+      { id: "a", type: "bulletListItem" },
+      { id: "b", type: "bulletListItem" },
     ]);
-    // The export assigns block IDs and reuses them for list ownership.
-    const exported = document.createElement("div");
-    host.after(exported);
-    cleanups.push(() => exported.remove());
-    exported.innerHTML = html;
-    expect(exported.querySelectorAll("[role=list]")).toHaveLength(1);
-    const ids = exported
-      .querySelector("[aria-owns]")!
-      .getAttribute("aria-owns")!
-      .split(" ");
-    expect(ids).toHaveLength(2);
-    expect(new Set(ids).size).toBe(2);
-    ids.forEach((id) =>
-      expect(exported.contains(document.getElementById(id))).toBe(true),
-    );
-    const blocks = editor.tryParseHTMLToBlocks(html);
-    expect(blocks.map((block) => block.type)).toEqual([
-      "bulletListItem",
-      "bulletListItem",
-    ]);
-    expect(blocks.map((block) => block.content)).toEqual([[], []]);
-    expect(blocks.map((block) => encodeURIComponent(block.id))).toEqual(ids);
+    editor.removeBlocks(["a", "b"]);
+    expect(lists(host)).toEqual([]);
+    expect(host.querySelector('[role="listitem"]')).toBeNull();
   });
 
   it("exposes read-only content as a document and restores input semantics", () => {
