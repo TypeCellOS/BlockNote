@@ -14,22 +14,26 @@ export default defineConfig(
           build: {
             command:
               "tsc --project tsconfig.json --composite false --incremental false --rootDir . && vp build",
-            input: [
-              ...buildCacheInputs("packages/xl-pdf-exporter"),
-              { pattern: "!**/*.tsbuildinfo", base: "workspace" },
-            ],
-            // `types/**` must be declared too: a cache replay that restores only
-            // dist/ leaves consumers without declarations (tsc is skipped).
-            // Entries stored before this spec carried types/** replay stale
-            // declarations; editing this config invalidates them.
-            // (Invalidated again 2026-08: the Typst-compiler migration
-            // replaced pdfua/compileBrowser with pdfua/compileTypst and the
-            // export surface, and cached pre-migration types resurfaced.)
-            output: ["dist/**", "types/**", "!dist/*.tsbuildinfo"],
+            cache: {
+              input: [
+                ...buildCacheInputs("packages/xl-pdf-exporter"),
+                { pattern: "!**/*.tsbuildinfo", base: "workspace" },
+              ],
+              // `types/**` must be declared too: a cache replay that restores only
+              // dist/ leaves consumers without declarations (tsc is skipped).
+              // Entries stored before this spec carried types/** replay stale
+              // declarations; editing this config invalidates them.
+              // (Invalidated again 2026-08: the Typst-compiler migration
+              // replaced pdfua/compileBrowser with pdfua/compileTypst and the
+              // export surface, and cached pre-migration types resurfaced.)
+              output: ["dist/**", "types/**", "!dist/*.tsbuildinfo"],
+            },
           },
         },
       },
       test: {
+        // Preserve Vitest 4 mock history during the toolchain upgrade.
+        clearMocks: false,
         environment: "node",
         setupFiles: ["./vitestSetup.ts"],
         testTimeout: 15000,
@@ -73,7 +77,7 @@ export default defineConfig(
       },
       build: {
         // assetsInclude: ["**/*.woff", "**/*.woff2", "**/*.ttf", "**/*.otf"], // Add other font extensions if needed
-        sourcemap: true,
+        sourcemap: false,
         lib: {
           entry: {
             "blocknote-xl-pdf-exporter": path.resolve(
@@ -83,9 +87,8 @@ export default defineConfig(
             "react-pdf": path.resolve(__dirname, "src/react-pdf/index.ts"),
           },
           name: "blocknote-xl-pdf-exporter",
-          formats: ["es", "cjs"],
-          fileName: (format, entryName) =>
-            format === "es" ? `${entryName}.js` : `${entryName}.cjs`,
+          formats: ["es"],
+          fileName: (_format, entryName) => `${entryName}.js`,
         },
         rollupOptions: {
           // make sure to externalize deps that shouldn't be bundled
@@ -109,11 +112,6 @@ export default defineConfig(
               source.startsWith("@shikijs/") ||
               source.startsWith("node:")
             );
-          },
-          output: {
-            // Provide global variables to use in the UMD build
-            // for externalized deps
-            globals: {},
           },
         },
       },

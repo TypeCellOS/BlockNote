@@ -12,6 +12,7 @@ import {
 } from "@blocknote/math-block";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
+import "@blocknote/math-block/style.css";
 import {
   blockTypeSelectItems,
   FormattingToolbar,

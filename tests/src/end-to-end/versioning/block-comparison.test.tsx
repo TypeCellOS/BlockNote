@@ -12,6 +12,7 @@ import {
 } from "@blocknote/core/y";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
+import "@blocknote/math-block/style.css";
 import { createBundledHighlighter } from "@shikijs/core";
 import { createJavaScriptRegexEngine } from "@shikijs/engine-javascript";
 import { testDocument } from "@shared/testDocument.js";
