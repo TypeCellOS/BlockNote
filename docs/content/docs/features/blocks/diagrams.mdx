@@ -76,16 +76,45 @@ Diagram previews automatically inherit your editor's theme, including live light
 
 - **Mantine:** uses BlockNote's colors and corner radius, including values from a custom `theme` object.
 - **Ariakit / React:** uses the shared `--bn-*` theme variables.
-- **Shadcn:** uses the host's semantic color variables (`--background`, `--foreground`, `--muted`, `--border`, `--primary`, and `--destructive`), `--radius`, and `--chart-1` through `--chart-5`. These must contain complete CSS colors, as in Shadcn's current themes. Missing variables fall back to BlockNote's palette. Dark mode follows the host's token changes, typically through its `.dark` class.
+- **Shadcn:** uses the host's semantic color variables (`--background`, `--foreground`, `--muted`, `--primary`, and `--destructive`), `--radius`, and `--chart-1` through `--chart-5`. These must contain complete CSS colors, as in Shadcn's current themes. Missing variables fall back to BlockNote's palette. Dark mode follows the host's token changes, typically through its `.dark` class.
 
-Chart series use BlockNote's highlight colors, or Shadcn's chart tokens when available. To override individual diagram colors without changing the rest of the editor, set [Pele variables](https://pele.run/theming) on your editor container or a diagram:
+Diagrams reuse BlockNote's existing palette rather than introducing a separate diagram theme. Node fills match the editor background (white in the default light theme, dark gray in the default dark theme), with a secondary background for subgraphs:
+
+| Diagram colors | BlockNote defaults |
+| --- | --- |
+| Background, text, and connecting lines | Editor background and text |
+| Secondary text | Side-menu color |
+| Node fills | Editor background |
+| Subgraph fills | Hovered background |
+| Outlines | Editor text (dark in light mode, light in dark mode) |
+| Accent and critical/error colors | Blue and red text highlights |
+| Eight chart series | Blue, orange, green, red, purple, pink, yellow, and brown text highlights |
+
+Outlines use the text color rather than the editor's subtle UI border color so shapes remain distinguishable from their background. Shadcn replaces these with its semantic tokens where available; its five chart tokens replace the first five series colors, while series six through eight retain the shared defaults.
+
+You can customize every Pele color without changing BlockNote's editor palette or adding new BlockNote theme properties. Set `--pele-*` variables on `.bn-root` to include portalled previews, or on an individual diagram's `.pele` SVG. For example:
 
 ```css
 .bn-root {
   --pele-accent: #6366f1;
+  --pele-surface: #eef2ff;
+  --pele-border: #6366f1;
+  --pele-series-1: #4338ca;
+  --pele-series-2: #b45309;
+  --pele-series-3: #047857;
   --pele-radius: 8px;
 }
+
+.bn-root[data-color-scheme="dark"] {
+  --pele-accent: #a5b4fc;
+  --pele-surface: #312e81;
+  --pele-border: #a5b4fc;
+}
 ```
+
+Use the selector that controls your application's dark theme (for example, `.dark .bn-root` with Shadcn). UI borders and highlight colors are not necessarily a high-contrast diagram or categorical chart palette: check outlines, labels, and series in both themes. Pele repeats series colors after the eighth category, and some shapes use `--pele-bg` for text on a series fill, so choose contrasting colors.
+
+See [Pele's theming reference](https://pele.run/theming) for all variables, including `--pele-series-1` through `--pele-series-8`, contrasting text on source-defined fills (`--pele-fg-on-light` / `--pele-fg-on-dark`), and element-level styling. Font overrides must match the font used to measure labels; changing only `--pele-font` can make labels overflow their nodes.
 
 Explicit colors authored in Mermaid `style` / `classDef` rules take precedence over theme defaults. Editor theme variables affect previews only; exported images use the standalone renderer's defaults. Use a custom `renderDiagram` export callback to supply a different export palette.
 

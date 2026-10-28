@@ -114,9 +114,9 @@
   --pele-fg: var(--bn-colors-editor-text);
   --pele-muted: var(--bn-colors-side-menu);
   --pele-line: var(--bn-colors-editor-text);
-  --pele-surface: var(--bn-colors-hovered-background);
-  --pele-surface-alt: var(--bn-colors-menu-background);
-  --pele-border: var(--bn-colors-border);
+  --pele-surface: var(--bn-colors-editor-background);
+  --pele-surface-alt: var(--bn-colors-hovered-background);
+  --pele-border: var(--bn-colors-editor-text);
   --pele-accent: var(--bn-colors-highlights-blue-text);
   --pele-critical: var(--bn-colors-highlights-red-text);
   --pele-error: var(--bn-colors-highlights-red-text);

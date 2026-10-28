@@ -8,9 +8,9 @@
   --pele-fg: var(--foreground, var(--bn-colors-editor-text));
   --pele-muted: var(--muted-foreground, var(--bn-colors-side-menu));
   --pele-line: var(--foreground, var(--bn-colors-editor-text));
-  --pele-surface: var(--muted, var(--bn-colors-hovered-background));
-  --pele-surface-alt: var(--card, var(--bn-colors-menu-background));
-  --pele-border: var(--border, var(--bn-colors-border));
+  --pele-surface: var(--background, var(--bn-colors-editor-background));
+  --pele-surface-alt: var(--muted, var(--bn-colors-hovered-background));
+  --pele-border: var(--foreground, var(--bn-colors-editor-text));
   --pele-accent: var(--primary, var(--bn-colors-highlights-blue-text));
   --pele-critical: var(--destructive, var(--bn-colors-highlights-red-text));
   --pele-error: var(--destructive, var(--bn-colors-highlights-red-text));

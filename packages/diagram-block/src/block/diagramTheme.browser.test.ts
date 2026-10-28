@@ -29,20 +29,28 @@ async function diagram(
   roots.push(root);
   document.body.append(root);
   const svg = root.querySelector("svg")!;
-  const label = svg.querySelector("text")!;
+  const label = svg.querySelector(".pele-node text")!;
   const node = svg.querySelector(".pele-node rect")!;
   return { root, svg, label, node };
 }
 
 describe("diagram themes", () => {
   test("follows live light/dark changes without replacing the SVG", async () => {
-    const { root, svg, label, node } = await diagram("bn-mantine");
+    const { root, svg, label, node } = await diagram(
+      "bn-mantine",
+      "graph TD\n subgraph Group\n A[Start] --> B[End]\n end",
+    );
+    const cluster = svg.querySelector(".pele-cluster rect")!;
     expect(getComputedStyle(label).fill).toBe("rgb(63, 63, 63)");
-    expect(getComputedStyle(node).fill).toBe("rgb(239, 239, 239)");
+    expect(getComputedStyle(node).fill).toBe("rgb(255, 255, 255)");
+    expect(getComputedStyle(node).stroke).toBe("rgb(63, 63, 63)");
+    expect(getComputedStyle(cluster).fill).toBe("rgb(239, 239, 239)");
 
     root.dataset.colorScheme = "dark";
     expect(getComputedStyle(label).fill).toBe("rgb(207, 207, 207)");
-    expect(getComputedStyle(node).fill).toBe("rgb(22, 22, 22)");
+    expect(getComputedStyle(node).fill).toBe("rgb(31, 31, 31)");
+    expect(getComputedStyle(node).stroke).toBe("rgb(207, 207, 207)");
+    expect(getComputedStyle(cluster).fill).toBe("rgb(22, 22, 22)");
     expect(root.querySelector("svg")).toBe(svg);
   });
 
@@ -52,12 +60,12 @@ describe("diagram themes", () => {
     // Mantine's custom theme objects set these variables on the themed root;
     // CSS themes can set the same variables without depending on Mantine.
     first.root.style.setProperty("--bn-colors-editor-text", "#123456");
-    first.root.style.setProperty("--bn-colors-hovered-background", "#abcdef");
+    first.root.style.setProperty("--bn-colors-editor-background", "#abcdef");
     first.root.style.setProperty("--bn-colors-border", "#345678");
     first.root.style.setProperty("--bn-border-radius", "12px");
     expect(getComputedStyle(first.label).fill).toBe("rgb(18, 52, 86)");
     expect(getComputedStyle(first.node).fill).toBe("rgb(171, 205, 239)");
-    expect(getComputedStyle(first.node).stroke).toBe("rgb(52, 86, 120)");
+    expect(getComputedStyle(first.node).stroke).toBe("rgb(18, 52, 86)");
     expect(
       getComputedStyle(first.svg).getPropertyValue("--pele-radius").trim(),
     ).toBe("12px");
@@ -67,16 +75,17 @@ describe("diagram themes", () => {
   test("Shadcn uses its semantic tokens and updates with the host theme", async () => {
     const { root, label, node } = await diagram("bn-shadcn");
     root.style.setProperty("--foreground", "#112233");
-    root.style.setProperty("--muted", "#ddeeff");
+    root.style.setProperty("--background", "#ddeeff");
     root.style.setProperty("--border", "#445566");
     expect(getComputedStyle(label).fill).toBe("rgb(17, 34, 51)");
     expect(getComputedStyle(node).fill).toBe("rgb(221, 238, 255)");
-    expect(getComputedStyle(node).stroke).toBe("rgb(68, 85, 102)");
+    expect(getComputedStyle(node).stroke).toBe("rgb(17, 34, 51)");
 
     root.style.setProperty("--foreground", "#ddeeff");
-    root.style.setProperty("--muted", "#112233");
+    root.style.setProperty("--background", "#112233");
     expect(getComputedStyle(label).fill).toBe("rgb(221, 238, 255)");
     expect(getComputedStyle(node).fill).toBe("rgb(17, 34, 51)");
+    expect(getComputedStyle(node).stroke).toBe("rgb(221, 238, 255)");
   });
 
   test("chart colors follow BlockNote highlights and Shadcn chart tokens", async () => {
