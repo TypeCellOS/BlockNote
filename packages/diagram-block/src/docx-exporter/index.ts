@@ -6,10 +6,8 @@ import type {
 import { plainContentToString } from "@blocknote/core";
 import { AlignmentType, ImageRun, Paragraph, TextRun } from "docx";
 
-import {
-  RenderDiagram,
-  renderDiagramToImage,
-} from "../helpers/renderDiagramToImage.js";
+import type { RenderDiagram } from "../helpers/renderDiagramToImage.js";
+import { renderDiagramToSVG } from "../helpers/renderDiagramToSVG.js";
 import { getDiagramExporterDictionary } from "../i18n/dictionary.js";
 
 export type { RenderDiagram } from "../helpers/renderDiagramToImage.js";
@@ -47,8 +45,10 @@ function errorParagraph(
 
 /**
  * Creates a DOCX block mapping for `@blocknote/diagram-block` that embeds
- * diagrams as PNG images using Pele and browser canvas. When exporting
- * server-side, pass a `renderDiagram` function with a server-side rasterizer.
+ * diagrams as vector SVG using Pele, in browsers and on the server.
+ * Requires an SVG-capable DOCX viewer. The library-mandated raster fallback
+ * is transparent; older viewers do not display the diagram. Pass a custom
+ * raster `renderDiagram` function if those viewers need to be supported.
  * Invalid sources render an error placeholder (mirroring
  * the editor):
  *
@@ -76,25 +76,19 @@ export function createDiagramBlockMapping(options?: {
       return new Paragraph({});
     }
 
-    const renderDiagram =
-      options?.renderDiagram ??
-      (typeof document !== "undefined" ? renderDiagramToImage : undefined);
-    if (!renderDiagram) {
-      throw new Error(
-        "Default PNG rasterization requires a browser. When exporting elsewhere, pass a `renderDiagram` function with a server-side rasterizer to `createDiagramBlockMapping`.",
-      );
-    }
+    const renderDiagram = options?.renderDiagram ?? renderDiagramToSVG;
 
     const result = await renderDiagram(source);
     if (result.error !== undefined) {
       return errorParagraph(exporter, source);
     }
 
-    // Plugged-in renderers aren't required to produce PNGs; embed with the
-    // raster format the image declares. An unknown format is a renderer
+    // Plugged-in renderers may produce raster images; embed with the
+    // format the image declares. An unknown format is a renderer
     // contract violation - mislabeling the bytes would corrupt the document,
     // so it propagates as an error instead.
     const imageTypes = {
+      "image/svg+xml": "svg",
       "image/png": "png",
       "image/jpeg": "jpg",
       "image/gif": "gif",
@@ -104,7 +98,7 @@ export function createDiagramBlockMapping(options?: {
       imageTypes[result.image.mimeType as keyof typeof imageTypes];
     if (!imageType) {
       throw new Error(
-        `DOCX embeds support png/jpeg/gif/bmp diagram images, but the renderer produced "${result.image.mimeType}".`,
+        `DOCX embeds support svg/png/jpeg/gif/bmp diagram images, but the renderer produced "${result.image.mimeType}".`,
       );
     }
 
@@ -117,7 +111,17 @@ export function createDiagramBlockMapping(options?: {
       children: [
         new ImageRun({
           data: result.image.data,
-          type: imageType,
+          ...(imageType === "svg"
+            ? {
+                type: imageType,
+                // docx requires this field. Deliberately blank rather than
+                // adding a rasterizer solely for non-SVG viewers.
+                fallback: {
+                  type: "png",
+                  data: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR4nGNgAAIAAAUAAXpeqz8AAAAASUVORK5CYII=",
+                },
+              }
+            : { type: imageType }),
           transformation: {
             width: displayWidth,
             height: Math.round(
@@ -132,7 +136,6 @@ export function createDiagramBlockMapping(options?: {
 
 /**
  * DOCX block mapping for `@blocknote/diagram-block` with the default options
- * - see {@link createDiagramBlockMapping}. Browser-only; when exporting
- * elsewhere, use the factory to pass a `renderDiagram` function.
+ * - see {@link createDiagramBlockMapping}. Works in browsers and on the server.
  */
 export const diagramBlockMapping = createDiagramBlockMapping();
