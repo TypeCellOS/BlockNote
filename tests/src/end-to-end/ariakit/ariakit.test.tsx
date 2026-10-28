@@ -16,6 +16,7 @@ import {
 } from "../../utils/editor.js";
 import { mouseSequence, moveMouseOverElement } from "../../utils/mouse.js";
 import { executeSlashCommand } from "../../utils/slashmenu.js";
+import { waitForEmojiPickerLayout } from "../../utils/emojipicker.js";
 
 beforeEach(async () => {
   await render(<App />);
@@ -69,8 +70,7 @@ describe("Check Ariakit UI", () => {
     await userEvent.keyboard(":");
     await userEvent.keyboard("sm");
 
-    await waitForSelector(".bn-frimousse-picker .bn-frimousse-emoji");
-    await sleep(500);
+    await waitForEmojiPickerLayout();
     await expectElement(document.body).toMatchScreenshot(
       "ariakit-emoji-picker",
     );

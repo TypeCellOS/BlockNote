@@ -10,6 +10,8 @@ function foldSearchText(value: string, locale: string): string {
 /**
  * Matches without accents or diacritics. Pass the data's locale for
  * locale-aware casing. Defaults to English.
+ * Ranking counts matching stored tags; it does not reconstruct tags removed
+ * during data generation.
  */
 export function searchEmojis(
   emojis: FrimousseEmoji[],

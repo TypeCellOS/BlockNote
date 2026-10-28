@@ -84,6 +84,7 @@ export * from "./components/SideMenu/DragHandleMenu/DefaultItems/TableHeadersIte
 export * from "./components/SideMenu/DragHandleMenu/DragHandleMenu.js";
 
 export * from "./components/SuggestionMenu/SuggestionMenuController.js";
+export * from "./components/SuggestionMenu/EmojiPicker/EmojiPickerController.js";
 export * from "./components/SuggestionMenu/SuggestionMenuWrapper.js";
 export * from "./components/SuggestionMenu/getDefaultReactSlashMenuItems.js";
 export * from "./components/SuggestionMenu/hooks/useCloseSuggestionMenuNoItems.js";

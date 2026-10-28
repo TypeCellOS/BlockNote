@@ -1,5 +1,3 @@
-import type { FrimousseEmojiData } from "../../emoji-data/frimousse/types.js";
-
 import { defaultInlineContentSchema } from "../../blocks/defaultBlocks.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import {
@@ -8,24 +6,6 @@ import {
   StyleSchema,
 } from "../../schema/index.js";
 import { DefaultGridSuggestionItem } from "./DefaultGridSuggestionItem.js";
-
-let currentLocale: string | undefined;
-let dataPromise: Promise<FrimousseEmojiData> | undefined;
-
-async function loadEmojiData(locale?: string) {
-  const targetLocale = locale ?? "en";
-
-  if (dataPromise && currentLocale === targetLocale) {
-    return dataPromise;
-  }
-
-  currentLocale = targetLocale;
-  dataPromise = import("../../emoji-data/index.js").then(
-    ({ loadFrimousseData }) => loadFrimousseData(targetLocale),
-  );
-
-  return dataPromise;
-}
 
 export async function getDefaultEmojiPickerItems<
   BSchema extends BlockSchema,
@@ -43,12 +23,14 @@ export async function getDefaultEmojiPickerItems<
     return [];
   }
 
-  const data = await loadEmojiData(editor.dictionary.locale);
+  const { loadFrimousseData, searchEmojis } =
+    await import("../../emoji-data/index.js");
+  // The loader owns canonical-locale caching and evicts rejected loads for retry.
+  const data = await loadFrimousseData(editor.dictionary.locale ?? "en");
 
   let emojisToShow = data.emojis;
 
   if (query.trim() !== "") {
-    const { searchEmojis } = await import("../../emoji-data/index.js");
     emojisToShow = searchEmojis(data.emojis, query, data.locale);
   }
 

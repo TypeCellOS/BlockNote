@@ -163,14 +163,32 @@ describe("Check Comments functionality", () => {
     await userEvent.keyboard("{Escape}");
     await expectSelectorCount("[frimousse-root]", 0);
 
-    // Reopening after dismissing verifies that controlled popovers update their
-    // owner state when the UI library handles Escape.
+    // Exercise the UI library's outside-click dismissal too: Escape is handled
+    // directly by the picker, so it does not cover the popover callback.
     await userEvent.click(await waitForSelector('[data-test="addreaction"]'));
     await waitForEmojiButtons();
-    await userEvent.click(await waitForSelector("[frimousse-search]"));
-    await userEvent.keyboard("{ArrowDown}{Enter}");
+    // The picker overlaps the comment's centre. Click its exposed top-left
+    // corner instead of asking Playwright to click through the popover.
+    const commentRect = getRect(await waitForSelector(".bn-thread-comment"));
+    await clickAt(commentRect.x + 2, commentRect.y + 2);
+    await expectSelectorCount("[frimousse-root]", 0);
+
+    // Both dismissal paths must leave the owner ready to reopen and select.
+    await moveMouseOverElement(await waitForSelector(".bn-thread-comment"));
+    await userEvent.click(await waitForSelector('[data-test="addreaction"]'));
+    await waitForEmojiButtons();
+    await userEvent.fill(await waitForSelector("[frimousse-search]"), "frog");
+    await vi.waitFor(() => {
+      expect(emojiButtons().map((button) => button.textContent)).toEqual([
+        "🐸",
+      ]);
+    });
+    await userEvent.keyboard("{Enter}");
     await waitForSelectorDetached("[frimousse-root]");
     await expectSelectorCount(".bn-comment-reaction", 1);
+    expect(
+      document.querySelector(".bn-comment-reaction")?.textContent,
+    ).toContain("🐸");
 
     // Add a second reaction via the add-reaction badge.
     await moveMouseOverElement(await waitForSelector(".bn-thread-comment"));

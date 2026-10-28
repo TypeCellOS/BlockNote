@@ -21,6 +21,19 @@ Each locale module exposes its encoded string as a default export for the loader
 alongside its existing named export. Generation verifies emoji identity/order
 against the shared English data before writing positional locale rows.
 
+Search tags are compacted before encoding: empty tags, case-insensitive duplicates,
+and tags contained in the label are removed. Compaction uses explicit English
+casing for reproducibility, independently of the host locale. Runtime search still
+uses the data's locale, as described below.
+
+This compaction is **not ranking-neutral**: search adds a score for every matching
+stored tag, including when the label also matches. The checked-in data therefore
+defines ranking over the compacted tags, not over the original upstream corpus.
+Restoring upstream tag-weighted ranking requires changing the compaction policy
+and regenerating all locale modules together; changing only the generator or
+search scorer cannot recover the discarded information. Review ranking changes
+alongside any such regeneration.
+
 The shared data stores emoji identities, categories, versions, country-flag
 markers, and optional skin templates. A template uses `|` for each skin-tone
 modifier, including sequences with two modifiers. The loader substitutes each
@@ -57,5 +70,6 @@ Experiments with per-locale tag dictionaries reduced raw locale data by about
 17%, but increased gzip size by about 7%. Inverted indexes and sorting rows also
 increased gzip size. Sharing tag suffixes across languages reduced aggregate
 storage but increased the first-load download for several languages because of
-the extra shared chunk. These formats were not adopted. Preserve tag order and
-content when evaluating alternatives: search ranking counts matching tags.
+the extra shared chunk. These formats were not adopted. Preserve the current
+compacted tag order and content when evaluating encoding-only alternatives:
+search ranking counts matching stored tags.

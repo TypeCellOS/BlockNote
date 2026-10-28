@@ -387,12 +387,15 @@ function encodeList(values, context) {
     .join(LIST_SEPARATOR);
 }
 
-function compactSearchTags(label, tags) {
-  const normalizedLabel = normalizeSearchText(label).toLocaleLowerCase();
+export function compactSearchTags(label, tags) {
+  // Keep the existing English-cased encoding deterministic across host locales.
+  // Compaction is not ranking-neutral: search scores the remaining stored tags.
+  // Changing this policy requires regenerating and reviewing all locale modules.
+  const normalizedLabel = normalizeSearchText(label).toLocaleLowerCase("en");
   const seen = new Set();
 
   return tags.filter((tag) => {
-    const normalizedTag = normalizeSearchText(tag).toLocaleLowerCase();
+    const normalizedTag = normalizeSearchText(tag).toLocaleLowerCase("en");
     if (
       !normalizedTag ||
       seen.has(normalizedTag) ||
@@ -582,4 +585,9 @@ function main() {
   console.log("Done!");
 }
 
-main();
+if (
+  process.argv[1] &&
+  resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+) {
+  main();
+}

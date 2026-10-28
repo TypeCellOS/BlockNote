@@ -1,13 +1,17 @@
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
-import { useCreateBlockNote } from "@blocknote/react";
+import { EmojiPickerController, useCreateBlockNote } from "@blocknote/react";
 import type { ComponentProps } from "react";
 import { expect, test, vi } from "vite-plus/test";
 import { render } from "vitest-browser-react";
-import { EmojiPickerController } from "../../../../packages/react/src/components/SuggestionMenu/EmojiPicker/EmojiPickerController.js";
 import { userEvent } from "../../utils/context.js";
-import { EMOJI_PICKER_SELECTOR } from "../../utils/const.js";
-import { focusOnEditor, waitForSelector } from "../../utils/editor.js";
+import { EDITOR_SELECTOR, EMOJI_PICKER_SELECTOR } from "../../utils/const.js";
+import {
+  focusOnEditor,
+  waitForSelector,
+  waitForTextInEditor,
+} from "../../utils/editor.js";
+import { waitForSelectedEmoji } from "../../utils/emojipicker.js";
 
 function ConfiguredEditor(props: ComponentProps<typeof EmojiPickerController>) {
   const editor = useCreateBlockNote();
@@ -73,7 +77,17 @@ test("allows explicitly disabling the minimum query length", async () => {
   await render(<ConfiguredEditor triggerCharacter=":" minQueryLength={0} />);
   await focusOnEditor();
   await userEvent.keyboard(":");
-  await waitForSelector(EMOJI_PICKER_SELECTOR);
+  const selected = await waitForSelectedEmoji();
+  const emoji = selected.textContent;
+  expect(emoji).toBeTruthy();
+  await userEvent.keyboard("{Enter}");
+  await waitForTextInEditor(`${emoji} `);
+  expect(document.querySelector(EDITOR_SELECTOR)?.textContent).not.toContain(
+    ":",
+  );
+  await vi.waitFor(() =>
+    expect(document.querySelector(EMOJI_PICKER_SELECTOR)).toBeNull(),
+  );
 });
 
 test("respects shouldOpen", async () => {

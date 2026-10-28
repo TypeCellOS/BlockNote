@@ -14,7 +14,7 @@ import {
   createContext,
   useContext,
   useEffect,
-  useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -63,12 +63,6 @@ type EmojiPickerRow = {
   emojis: FrimousseEmoji[];
 };
 
-type EmojiPickerResults = {
-  locale: string;
-  query: string;
-  rows: EmojiPickerRow[];
-};
-
 type ResolvedEmojiData = {
   locale: string;
   data: FrimousseEmojiData;
@@ -79,13 +73,10 @@ type EmojiPosition = {
   column: number;
 };
 
-function getEmojiPickerRows(
-  data: FrimousseEmojiData,
-  query: string,
-): EmojiPickerRow[] {
+function getEmojiPickerRows(data: FrimousseEmojiData): EmojiPickerRow[] {
   const emojisByCategory = new Map<number, FrimousseEmoji[]>();
 
-  for (const emoji of searchEmojis(data.emojis, query, data.locale)) {
+  for (const emoji of data.emojis) {
     const categoryEmojis = emojisByCategory.get(emoji.category);
     if (categoryEmojis) {
       categoryEmojis.push(emoji);
@@ -112,6 +103,13 @@ function getEmojiPickerRows(
   }
 
   return rows;
+}
+
+function filterEmojiData(data: FrimousseEmojiData, query: string) {
+  return {
+    ...data,
+    emojis: searchEmojis(data.emojis, query, data.locale),
+  };
 }
 
 function moveEmojiPosition(
@@ -223,20 +221,19 @@ function emojiGlyph(
 }
 
 function InlineEmojiPickerContent(props: {
-  query: string;
   insertEmoji: (emoji: string) => void;
   rootRef: React.RefObject<HTMLDivElement | null>;
-  resolvedData?: ResolvedEmojiData;
+  data: FrimousseEmojiData | undefined;
+  onSkinToneChange: (skinTone: SkinTone) => void;
 }) {
-  const { query, insertEmoji, rootRef, resolvedData } = props;
+  const { insertEmoji, rootRef, data, onSkinToneChange } = props;
   const editorDOMElement = useEditorDOMElement();
   const setContentEditableProps =
     useBlockNoteContext()!.setContentEditableProps!;
   const dict = useDictionary();
-  const locale = dict.locale ?? "en";
   const [skinTone] = useSkinTone();
 
-  const [results, setResults] = useState<EmojiPickerResults>();
+  const rows = useMemo(() => (data ? getEmojiPickerRows(data) : []), [data]);
   const [selectedPosition, setSelectedPosition] = useState<EmojiPosition>({
     row: 0,
     column: 0,
@@ -244,31 +241,17 @@ function InlineEmojiPickerContent(props: {
   const [selectedButtonVisible, setSelectedButtonVisible] = useState(false);
 
   useEffect(() => {
-    setSelectedPosition({ row: 0, column: 0 });
-    setSelectedButtonVisible(false);
-  }, [query, locale]);
+    onSkinToneChange(skinTone);
+  }, [onSkinToneChange, skinTone]);
 
-  useEffect(() => {
-    if (resolvedData?.locale === locale) {
-      setResults({
-        locale,
-        query,
-        rows: getEmojiPickerRows(resolvedData.data, query),
-      });
-    }
-  }, [locale, query, resolvedData]);
-
-  const currentResults =
-    results?.locale === locale && results.query === query ? results : undefined;
-  const selectedRow = currentResults?.rows[selectedPosition.row];
+  const selectedRow = rows[selectedPosition.row];
   const selectedEmoji = selectedRow?.emojis[selectedPosition.column];
   const selectedChar = selectedEmoji && emojiGlyph(selectedEmoji, skinTone);
-  const selectedIndex = currentResults
-    ? currentResults.rows
-        .slice(0, selectedPosition.row)
-        .reduce((count, row) => count + row.emojis.length, 0) +
-      selectedPosition.column
-    : undefined;
+  const selectedIndex =
+    rows
+      .slice(0, selectedPosition.row)
+      .reduce((count, row) => count + row.emojis.length, 0) +
+    selectedPosition.column;
 
   useEffect(() => {
     setContentEditableProps((props) => ({
@@ -289,7 +272,7 @@ function InlineEmojiPickerContent(props: {
     setContentEditableProps((props) => ({
       ...props,
       "aria-activedescendant":
-        selectedButtonVisible && selectedEmoji && selectedIndex !== undefined
+        selectedButtonVisible && selectedEmoji
           ? getSuggestionMenuItemId(selectedIndex)
           : undefined,
     }));
@@ -306,44 +289,20 @@ function InlineEmojiPickerContent(props: {
     setContentEditableProps,
   ]);
 
-  // Attach the typed selection to its rendered button before paint when the
-  // virtualized row is already present.
-  useLayoutEffect(() => {
-    const root = rootRef.current;
-    if (!root) {
-      return;
-    }
-
-    if (!selectedChar || !selectedRow || selectedIndex === undefined) {
-      setSelectedButtonVisible(false);
-      return;
-    }
-    const btn = findButtonAtPosition(root, selectedPosition, selectedChar);
-    if (btn) {
-      btn.scrollIntoView({ block: "nearest", behavior: "instant" });
-      markButtonSelected(root, btn, selectedIndex);
-      setSelectedButtonVisible(true);
-    } else {
-      // Virtualized-away rows have no DOM node (or ID) to scroll to. Bring
-      // the estimated row into range; the observer handles its exact button.
-      scrollViewportTo(root, selectedPosition, selectedRow.categoryIndex);
-      setSelectedButtonVisible(false);
-    }
-  }, [rootRef, selectedChar, selectedIndex, selectedPosition, selectedRow]);
-
-  // Frimousse loads and virtualizes rows asynchronously. Observe those DOM
-  // changes instead of polling every animation frame while no row is present.
+  // Frimousse publishes its imperative Root ref after child layout effects.
+  // Wait until passive effects to synchronize the mounted button and observe
+  // asynchronous loading/virtualization, including on a keyed Root's first render.
   useEffect(() => {
     const root = rootRef.current;
     if (!root) {
       return;
     }
 
-    if (!selectedChar || !selectedRow || selectedIndex === undefined) {
+    if (!selectedChar || !selectedRow) {
+      // eslint-disable-next-line react/set-state-in-effect -- Visibility is synchronized with the virtualized DOM, not derived from emoji data alone.
       setSelectedButtonVisible(false);
       return;
     }
-
     // Scroll only once per selection change. Subsequent virtualization updates
     // must keep accessibility in sync without undoing manual mouse scrolling.
     let scrollPending = true;
@@ -379,17 +338,20 @@ function InlineEmojiPickerContent(props: {
       childList: true,
       subtree: true,
     });
+    if (!findButtonAtPosition(root, selectedPosition, selectedChar)) {
+      scrollViewportTo(root, selectedPosition, selectedRow.categoryIndex);
+    }
     updateSelectedButton();
     return () => observer.disconnect();
   }, [rootRef, selectedChar, selectedIndex, selectedPosition, selectedRow]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.isComposing || !currentResults) {
+      if (event.isComposing) {
         return;
       }
 
-      if (event.key.startsWith("Arrow") && currentResults.rows.length === 0) {
+      if (event.key.startsWith("Arrow") && rows.length === 0) {
         return;
       }
 
@@ -400,17 +362,13 @@ function InlineEmojiPickerContent(props: {
         key === "ArrowDown" ||
         key === "ArrowUp"
       ) {
-        const nextPosition = moveEmojiPosition(
-          selectedPosition,
-          key,
-          currentResults.rows,
-        );
+        const nextPosition = moveEmojiPosition(selectedPosition, key, rows);
         if (nextPosition === selectedPosition) {
           return;
         }
         event.preventDefault();
         setSelectedPosition(nextPosition);
-      } else if (event.key === "Enter" && query.trim() && selectedChar) {
+      } else if (event.key === "Enter" && selectedChar) {
         event.preventDefault();
         event.stopPropagation();
         insertEmoji(selectedChar);
@@ -421,25 +379,12 @@ function InlineEmojiPickerContent(props: {
     return () => {
       editorDOMElement?.removeEventListener("keydown", handleKeyDown, true);
     };
-  }, [
-    currentResults,
-    editorDOMElement,
-    insertEmoji,
-    query,
-    selectedChar,
-    selectedPosition,
-  ]);
+  }, [rows, editorDOMElement, insertEmoji, selectedChar, selectedPosition]);
 
   const placeholder = `${dict.emoji_picker.search}…`;
 
   return (
     <>
-      <EmojiPicker.Search
-        className="bn-frimousse-search-hidden"
-        value={query}
-        readOnly
-        tabIndex={-1}
-      />
       <EmojiPicker.Viewport>
         <EmojiPicker.Loading className="bn-frimousse-loading">
           {dict.emoji_picker.loading}
@@ -470,18 +415,32 @@ export function InlineEmojiPicker(props: {
 }) {
   const editor = useBlockNoteEditor();
   const locale = useDictionary().locale ?? "en";
-  const rootRef = useRef<HTMLDivElement>(null);
   const [resolvedData, setResolvedData] = useState<ResolvedEmojiData>();
-  const [resolveEmojiData] = useState(() => {
-    const resolver: EmojiDataResolver = async (resolvedLocale, options) => {
-      const data = await resolveBlockNoteEmojiData(resolvedLocale, options);
-      if (!options.signal?.aborted) {
-        setResolvedData({ locale: resolvedLocale, data });
+  const [skinTone, setSkinTone] = useState<SkinTone>("none");
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  // Keep the resolved corpus above the keyed Root so typing only filters it;
+  // it must not decode data or repeat platform-support detection per keystroke.
+  const data = useMemo(
+    () =>
+      resolvedData?.locale === locale
+        ? filterEmojiData(resolvedData.data, props.query)
+        : undefined,
+    [resolvedData, locale, props.query],
+  );
+  const resolveEmojiData = useMemo<EmojiDataResolver>(
+    () => async (resolvedLocale, options) => {
+      if (data) {
+        return data;
       }
-      return data;
-    };
-    return resolver;
-  });
+      const resolved = await resolveBlockNoteEmojiData(resolvedLocale, options);
+      if (!options.signal?.aborted) {
+        setResolvedData({ locale: resolvedLocale, data: resolved });
+      }
+      return filterEmojiData(resolved, props.query);
+    },
+    [data, props.query],
+  );
 
   function insertEmoji(emoji: string) {
     props.clearQuery();
@@ -491,19 +450,24 @@ export function InlineEmojiPicker(props: {
 
   return (
     <EmojiPicker.Root
+      // Frimousse reloads resolver data only on mount/locale changes. Keep its
+      // search empty and remount on query changes so the virtualized list and
+      // editor navigation consume exactly the same prefiltered results.
+      key={`${locale}:${props.query}`}
       ref={rootRef}
       id="bn-suggestion-menu"
       className="bn-frimousse-picker"
       locale={locale}
       columns={COLUMNS}
+      skinTone={skinTone}
       resolveEmojiData={resolveEmojiData}
       onEmojiSelect={({ emoji }) => insertEmoji(emoji)}
     >
       <InlineEmojiPickerContent
-        query={props.query}
         insertEmoji={insertEmoji}
         rootRef={rootRef}
-        resolvedData={resolvedData}
+        data={data}
+        onSkinToneChange={setSkinTone}
       />
     </EmojiPicker.Root>
   );

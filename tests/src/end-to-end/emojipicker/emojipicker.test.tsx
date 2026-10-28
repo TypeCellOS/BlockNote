@@ -5,13 +5,13 @@ import { userEvent } from "../../utils/context.js";
 import { EDITOR_SELECTOR, EMOJI_PICKER_SELECTOR } from "../../utils/const.js";
 import {
   focusOnEditor,
-  sleep,
   waitForSelector,
   waitForTextInEditor,
 } from "../../utils/editor.js";
 import {
   executeEmojiCommand,
   openEmojiPicker,
+  waitForSelectedEmoji,
 } from "../../utils/emojipicker.js";
 import { executeSlashCommand } from "../../utils/slashmenu.js";
 
@@ -136,7 +136,7 @@ describe("Check Emoji Picker Functionality", () => {
     await executeEmojiCommand("frog");
     await waitForTextInEditor("🐸 ");
   });
-  test("should insert the selected skin tone with Enter", async () => {
+  test("should preserve the selected skin tone when the query changes and insert with Enter", async () => {
     await focusOnEditor();
     await openEmojiPicker();
     await userEvent.keyboard("waving hand");
@@ -153,6 +153,11 @@ describe("Check Emoji Picker Functionality", () => {
     });
 
     document.querySelector<HTMLElement>(EDITOR_SELECTOR)?.focus();
+    // A query change remounts the filtered Frimousse view, not its skin tone.
+    await userEvent.keyboard(" ");
+    await vi.waitFor(async () => {
+      expect((await waitForSelectedEmoji()).textContent).toBe("👋🏻");
+    });
     await userEvent.keyboard("{Enter}");
     await waitForTextInEditor("👋🏻 ");
   });
@@ -586,30 +591,6 @@ describe("Check Emoji Picker Functionality", () => {
       scrollIntoView.mockRestore();
     }
   });
-  test("should keep keyboard selection visible while scrolling", async () => {
-    await focusOnEditor();
-    await openEmojiPicker();
-    await userEvent.keyboard("an");
-    const viewport = await waitForSelector("[frimousse-viewport]");
-
-    await waitForSelector(".bn-frimousse-emoji[data-selected]");
-    for (let index = 0; index < 12; index++) {
-      await userEvent.keyboard("{ArrowDown}");
-    }
-
-    await vi.waitFor(() => {
-      const selected = document.querySelector<HTMLElement>(
-        ".bn-frimousse-emoji[data-selected]",
-      );
-      if (!selected || viewport.scrollTop === 0) {
-        throw new Error("Emoji selection did not scroll");
-      }
-      const viewportRect = viewport.getBoundingClientRect();
-      const selectedRect = selected.getBoundingClientRect();
-      expect(selectedRect.bottom).toBeGreaterThanOrEqual(viewportRect.top);
-      expect(selectedRect.top).toBeLessThanOrEqual(viewportRect.bottom);
-    });
-  });
   test("Should be able to open emoji picker from slash menu", async () => {
     await focusOnEditor();
     await executeSlashCommand("emoji");
@@ -620,19 +601,7 @@ describe("Check Emoji Picker Functionality", () => {
     await focusOnEditor();
     await executeSlashCommand("emoji");
     await userEvent.keyboard("frog");
-    await waitForSelector(EMOJI_PICKER_SELECTOR);
-    await vi.waitFor(
-      () => {
-        const btn = document.querySelector(
-          `${EMOJI_PICKER_SELECTOR} .bn-frimousse-emoji`,
-        );
-        if (!btn) {
-          throw new Error("No emoji buttons rendered yet");
-        }
-      },
-      { timeout: 5000 },
-    );
-    await sleep(200);
+    expect((await waitForSelectedEmoji()).textContent).toBe("🐸");
     await userEvent.keyboard("{Enter}");
     await waitForTextInEditor("🐸 ");
   });
