@@ -118,7 +118,10 @@ test("read-only editor: Tab reaches inline links and leaves the editor", async (
     ],
     { editable: false },
   );
-  await checkAriaSnapshot(page.getByRole("textbox"), "read-only editor");
+  await checkAriaSnapshot(
+    page.getByRole("main").getByRole("document"),
+    "read-only editor",
+  );
   const link = page.getByRole("link", { name: "Documentation", exact: true });
   // The editor itself may be a tab stop; it must not trap focus before the link.
   for (

@@ -42,7 +42,10 @@ test("read-only toggle heading: Tab reaches the toggle and Enter expands/collaps
   const content = page.getByText("Nested read-only content", { exact: true });
   await expect.element(content).not.toBeVisible();
   await expect.element(toggle).toHaveAttribute("aria-expanded", "false");
-  await checkAriaSnapshot(page.getByRole("textbox"), "collapsed");
+  await checkAriaSnapshot(
+    page.getByRole("main").getByRole("document"),
+    "collapsed",
+  );
 
   // Start at Before editor and reach the toggle through the page's tab order.
   // Do not focus the button directly: that would hide a keyboard trap.
@@ -57,12 +60,18 @@ test("read-only toggle heading: Tab reaches the toggle and Enter expands/collaps
   await pressKey("Enter");
   await expect.element(content).toBeVisible();
   await expect.element(toggle).toHaveAttribute("aria-expanded", "true");
-  await checkAriaSnapshot(page.getByRole("textbox"), "expanded");
+  await checkAriaSnapshot(
+    page.getByRole("main").getByRole("document"),
+    "expanded",
+  );
   await expect.element(toggle).toHaveFocus();
   await pressKey("Enter");
   await expect.element(content).not.toBeVisible();
   await expect.element(toggle).toHaveAttribute("aria-expanded", "false");
-  await checkAriaSnapshot(page.getByRole("textbox"), "collapsed again");
+  await checkAriaSnapshot(
+    page.getByRole("main").getByRole("document"),
+    "collapsed again",
+  );
   await expect.element(toggle).toHaveFocus();
   await pressKey("Tab");
   await expect

@@ -13,14 +13,42 @@ exports[`default schema: arrow-key document navigation > default schema 1`] = `
     - code: code.
     - text: textColor. backgroundColor.
   - heading "Heading level one" [level=1]
-  - text: •
-  - paragraph: Bullet list item
-  - text: "1."
-  - paragraph: Numbered list item
-  - checkbox
-  - paragraph: Unchecked task
-  - button "Expand or collapse"
-  - paragraph: Toggle list item
+  - list:
+    - listitem:
+      - text: •
+      - paragraph: Bullet list item
+      - paragraph: Explanation inside the list item
+      - list:
+        - listitem:
+          - text: ◦
+          - paragraph: First nested bullet
+        - listitem:
+          - text: ◦
+          - paragraph: Second nested bullet
+    - listitem:
+      - text: •
+      - paragraph: Second bullet list item
+  - list:
+    - listitem:
+      - text: "1."
+      - paragraph: Numbered list item
+    - listitem:
+      - text: "2."
+      - paragraph: Second numbered list item
+  - list:
+    - listitem:
+      - checkbox
+      - paragraph: Unchecked task
+    - listitem:
+      - checkbox
+      - paragraph: Second task
+  - list:
+    - listitem:
+      - button "Expand or collapse"
+      - paragraph: Toggle list item
+    - listitem:
+      - button "Expand or collapse"
+      - paragraph: Second toggle list item
   - blockquote: Quoted text
   - code: const answer = 42;
   - separator
@@ -50,13 +78,15 @@ exports[`default schema: arrow-key document navigation > default schema 1`] = `
   - heading "Heading level 6" [level=6]
   - button "Expand or collapse"
   - heading "Toggle heading" [level=2]
-  - checkbox [checked]
-  - paragraph: Completed task
+  - list:
+    - listitem:
+      - checkbox [checked]
+      - paragraph: Completed task
   - paragraph: End of document"
 `;
 
 exports[`read-only editor: Tab reaches inline links and leaves the editor > read-only editor 1`] = `
-"- textbox:
+"- document:
   - paragraph:
     - link "Documentation":
       - /url: https://www.blocknotejs.org/"
