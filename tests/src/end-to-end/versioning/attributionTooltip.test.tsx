@@ -15,6 +15,7 @@ import {
 } from "@blocknote/math-block";
 import { BlockNoteView as MantineBlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
+import "@blocknote/math-block/style.css";
 import { createReactBlockSpec } from "@blocknote/react";
 import { expect, test, vi } from "vite-plus/test";
 import { render } from "vitest-browser-react";

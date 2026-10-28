@@ -7,6 +7,7 @@ import {
   nodeToBlock,
 } from "@blocknote/core";
 import { UniqueID } from "@blocknote/core/extensions";
+import { closeHistory } from "@tiptap/pm/history";
 import type { Node } from "prosemirror-model";
 import { Plugin } from "prosemirror-state";
 import type { EditorView } from "prosemirror-view";
@@ -75,6 +76,10 @@ export function createMultiColumnHandleDropPlugin(
           return false; // Let ProseMirror handle empty slice drops
         }
         const draggedBlockIds = new Set(draggedBlocks.map((block) => block.id));
+        let lastDraggedBlock = draggedBlocks.at(-1)!;
+        while (lastDraggedBlock.children.length > 0) {
+          lastDraggedBlock = lastDraggedBlock.children.at(-1)!;
+        }
 
         if (blockInfo.blockNoteType === "column") {
           // The user is dropping the target column's entire contents on the
@@ -195,22 +200,27 @@ export function createMultiColumnHandleDropPlugin(
               id: UniqueID.options.generateID(),
             });
 
-          const blocksToRemove = draggedBlocks.filter(
-            (block) =>
-              editor.getBlock(block.id) &&
-              !blocksAlreadyInColumnList.has(block.id),
-          );
-          if (blocksToRemove.length > 0) {
-            editor.removeBlocks(blocksToRemove);
-          }
+          // One transaction, so one undo reverts the drop (#3197).
+          editor.transact(() => {
+            const blocksToRemove = draggedBlocks.filter(
+              (block) =>
+                editor.getBlock(block.id) &&
+                !blocksAlreadyInColumnList.has(block.id),
+            );
+            if (blocksToRemove.length > 0) {
+              editor.removeBlocks(blocksToRemove);
+            }
 
-          if (newChildren.length === 1) {
-            editor.replaceBlocks([columnList], draggedBlocks);
-          } else {
-            editor.updateBlock(columnList, {
-              children: newChildren,
-            });
-          }
+            if (newChildren.length === 1) {
+              editor.replaceBlocks([columnList], draggedBlocks);
+            } else {
+              editor.updateBlock(columnList, {
+                children: newChildren,
+              });
+            }
+            // Keep typing at the dropped blocks, not their old position.
+            editor.setTextCursorPosition(lastDraggedBlock, "end");
+          });
         } else {
           // Create new columnList with blocks as columns
           const block = nodeToBlock(blockInfo.block.node, view.state.doc);
@@ -228,29 +238,34 @@ export function createMultiColumnHandleDropPlugin(
               ? [draggedBlocks, [block]]
               : [[block], draggedBlocks];
 
-          const blocksToRemove = draggedBlocks.filter((draggedBlock) =>
-            editor.getBlock(draggedBlock.id),
-          );
-          if (blocksToRemove.length > 0) {
-            editor.removeBlocks(blocksToRemove);
-          }
+          editor.transact(() => {
+            const blocksToRemove = draggedBlocks.filter((draggedBlock) =>
+              editor.getBlock(draggedBlock.id),
+            );
+            if (blocksToRemove.length > 0) {
+              editor.removeBlocks(blocksToRemove);
+            }
 
-          editor.replaceBlocks(
-            [block],
-            [
-              {
-                type: "columnList",
-                children: columns.map((children) => {
-                  return {
-                    type: "column",
-                    children,
-                  };
-                }),
-              },
-            ],
-          );
+            editor.replaceBlocks(
+              [block],
+              [
+                {
+                  type: "columnList",
+                  children: columns.map((children) => {
+                    return {
+                      type: "column",
+                      children,
+                    };
+                  }),
+                },
+              ],
+            );
+            editor.setTextCursorPosition(lastDraggedBlock, "end");
+          });
         }
 
+        // Close after the drop: the next keystroke must be a separate undo step.
+        editor.transact((tr) => closeHistory(tr));
         return true; // Prevent default ProseMirror drop behavior
       },
     },

@@ -95,6 +95,7 @@ export function createInlineContentSpecFromTipTapNode<
     InlineContentImplementation<CustomInlineContentConfig>,
     "node"
   >,
+  extensions?: (Extension | ExtensionFactoryInstance)[],
 ) {
   return createInternalInlineContentSpec(
     {
@@ -119,6 +120,7 @@ export function createInlineContentSpecFromTipTapNode<
       propSchema: P;
       content: "styled" | "none" | "plain";
     }>,
+    extensions,
   );
 }
 

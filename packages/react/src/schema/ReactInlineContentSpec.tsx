@@ -227,6 +227,11 @@ export function createReactInlineContentSpec<
                     ref(element);
                     if (element) {
                       element.dataset.editable = "";
+                      // Inline content inserted after the editor has mounted
+                      // renders before TipTap creates its contentDOM, so `ref`
+                      // can't mount it yet. TipTap then looks for this
+                      // attribute to know where to mount it instead.
+                      element.dataset.nodeViewContent = "";
                     }
                   }}
                   editor={editor}

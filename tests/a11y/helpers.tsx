@@ -18,6 +18,7 @@ export const selectToLineEndKey =
 // Vite+ does not re-export the augmentable BrowserCommands interface. Keep the
 // typed RPC boundary here, as the existing browser test utilities do.
 const browserCommands = commands as typeof commands & {
+  readAriaSnapshot(selector: string): Promise<string>;
   startReader(): Promise<void>;
   pressKey(key: string): Promise<string | undefined>;
   readTranscript(): Promise<string[]>;
@@ -142,4 +143,15 @@ export async function saveTranscript() {
   } finally {
     await browserCommands.stopReader();
   }
+}
+
+// Use Playwright's semantic snapshot through the provider, and Vitest's
+// snapshot storage so these baselines follow the same update policy as tests.
+export async function checkAriaSnapshot(
+  locator: ReturnType<typeof page.getByRole>,
+  name: string,
+) {
+  expect(
+    await browserCommands.readAriaSnapshot(locator.selector),
+  ).toMatchSnapshot(name);
 }

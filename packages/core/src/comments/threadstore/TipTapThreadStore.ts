@@ -79,9 +79,13 @@ export class TiptapThreadStore extends ThreadStore {
       },
     });
 
-    return this.tiptapCommentToCommentData(
-      thread.comments[thread.comments.length - 1],
-    );
+    const lastComment = thread.comments.at(-1);
+    if (!lastComment) {
+      throw new Error(
+        "Comment provider returned an empty thread after adding a comment",
+      );
+    }
+    return this.tiptapCommentToCommentData(lastComment);
   }
 
   /**
