@@ -3,7 +3,6 @@ import { webpackStats } from "rollup-plugin-webpack-stats";
 import { configDefaults, defineConfig } from "vite-plus";
 import pkg from "./package.json";
 import { buildCacheInputs } from "../../scripts/build-cache-inputs.js";
-// import eslintPlugin from "vite-plugin-eslint";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -12,17 +11,21 @@ export default defineConfig({
       build: {
         command:
           "tsc --project tsconfig.json --composite false --incremental false --rootDir . && vp build",
-        input: [
-          ...buildCacheInputs("packages/core"),
-          { pattern: "!**/*.tsbuildinfo", base: "workspace" },
-        ],
-        // `types/**` must be declared too: a cache replay that restores only
-        // dist/ leaves consumers without declarations (tsc is skipped).
-        output: ["dist/**", "types/**", "!dist/*.tsbuildinfo"],
+        cache: {
+          input: [
+            ...buildCacheInputs("packages/core"),
+            { pattern: "!**/*.tsbuildinfo", base: "workspace" },
+          ],
+          // `types/**` must be declared too: a cache replay that restores only
+          // dist/ leaves consumers without declarations (tsc is skipped).
+          output: ["dist/**", "types/**", "!dist/*.tsbuildinfo"],
+        },
       },
     },
   },
   test: {
+    // Preserve Vitest 4 mock history during the toolchain upgrade.
+    clearMocks: false,
     environment: "jsdom",
     setupFiles: ["./vitestSetup.ts"],
     // `.browser.test` files need a real browser; the tests package's browser
@@ -37,7 +40,7 @@ export default defineConfig({
   },
   plugins: [webpackStats()],
   build: {
-    sourcemap: true,
+    sourcemap: false,
     lib: {
       entry: {
         blocknote: path.resolve(__dirname, "src/index.ts"),
@@ -50,9 +53,8 @@ export default defineConfig({
       },
       name: "blocknote",
       cssFileName: "style",
-      formats: ["es", "cjs"],
-      fileName: (format, entryName) =>
-        format === "es" ? `${entryName}.js` : `${entryName}.cjs`,
+      formats: ["es"],
+      fileName: (_format, entryName) => `${entryName}.js`,
     },
     rollupOptions: {
       // make sure to externalize deps that shouldn't be bundled
@@ -76,11 +78,6 @@ export default defineConfig({
           source.startsWith("@shikijs/") ||
           source.startsWith("node:")
         );
-      },
-      output: {
-        // Provide global variables to use in the UMD build
-        // for externalized deps
-        globals: {},
       },
     },
   },

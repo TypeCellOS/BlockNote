@@ -1,5 +1,15 @@
 @import url("@blocknote/core/style.css");
 
+/* Give TipTap's empty content element the contentRef's minimum dimensions so
+   native input lands inside it, not beside it (#2142). Leave populated content
+   inline so text and formatting can wrap normally. */
+.bn-ic-react-node-view-renderer
+  :where([data-editable] > [data-node-view-content-react]:empty) {
+  display: inline-block;
+  min-height: inherit;
+  min-width: inherit;
+}
+
 /* Default theme params */
 .bn-root {
   --bn-colors-editor-text: oklch(37% 0 0);

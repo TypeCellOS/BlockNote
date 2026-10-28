@@ -49,3 +49,8 @@ export const readTranscript: BrowserCommand<[]> = async () =>
   (await reader()).spokenPhraseLog();
 export const stopReader: BrowserCommand<[]> = async () =>
   (await reader()).stop();
+
+export const readAriaSnapshot: BrowserCommand<[selector: string]> = async (
+  context,
+  selector,
+) => (await context.frame()).locator(selector).ariaSnapshot();

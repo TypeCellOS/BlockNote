@@ -7,10 +7,15 @@ import { defaultSchemaDocument } from "@root/tests/a11y/documents.js";
 import { expect, test } from "vite-plus/test";
 import { page } from "vite-plus/test/browser";
 import { screenshotFull } from "@root/tests/src/utils/screenshotFull.js";
-import { openEditor, pressKey } from "@root/tests/a11y/helpers.js";
+import {
+  checkAriaSnapshot,
+  openEditor,
+  pressKey,
+} from "@root/tests/a11y/helpers.js";
 
 test("default schema: arrow-key document navigation", async () => {
   await openEditor(defaultSchemaDocument);
+  await checkAriaSnapshot(page.getByRole("textbox"), "default schema");
   await navigateDefaultSchemaDocument();
 });
 
@@ -106,6 +111,7 @@ test("read-only editor: Tab reaches inline links and leaves the editor", async (
     ],
     { editable: false },
   );
+  await checkAriaSnapshot(page.getByRole("textbox"), "read-only editor");
   const link = page.getByRole("link", { name: "Documentation", exact: true });
   // The editor itself may be a tab stop; it must not trap focus before the link.
   for (

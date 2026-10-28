@@ -14,17 +14,21 @@ export default defineConfig(
           build: {
             command:
               "tsc --project tsconfig.json --composite false --incremental false --rootDir . && vp build",
-            input: [
-              ...buildCacheInputs("packages/code-block"),
-              { pattern: "!**/*.tsbuildinfo", base: "workspace" },
-            ],
-            // `types/**` must be declared too: a cache replay that restores only
-            // dist/ leaves consumers without declarations (tsc is skipped).
-            output: ["dist/**", "types/**", "!dist/*.tsbuildinfo"],
+            cache: {
+              input: [
+                ...buildCacheInputs("packages/code-block"),
+                { pattern: "!**/*.tsbuildinfo", base: "workspace" },
+              ],
+              // `types/**` must be declared too: a cache replay that restores only
+              // dist/ leaves consumers without declarations (tsc is skipped).
+              output: ["dist/**", "types/**", "!dist/*.tsbuildinfo"],
+            },
           },
         },
       },
       test: {
+        // Preserve Vitest 4 mock history during the toolchain upgrade.
+        clearMocks: false,
         setupFiles: ["./vitestSetup.ts"],
       },
       plugins: [webpackStats() as any],
@@ -40,15 +44,14 @@ export default defineConfig(
               } as Record<string, string>),
       },
       build: {
-        sourcemap: true,
+        sourcemap: false,
         lib: {
           entry: {
             "blocknote-code-block": path.resolve(__dirname, "src/index.ts"),
           },
           name: "blocknote-code-block",
-          formats: ["es", "cjs"],
-          fileName: (format, entryName) =>
-            format === "es" ? `${entryName}.js` : `${entryName}.cjs`,
+          formats: ["es"],
+          fileName: (_format, entryName) => `${entryName}.js`,
         },
         rollupOptions: {
           // make sure to externalize deps that shouldn't be bundled
@@ -72,11 +75,6 @@ export default defineConfig(
               source.startsWith("@shikijs/") ||
               source.startsWith("node:")
             );
-          },
-          output: {
-            // Provide global variables to use in the UMD build
-            // for externalized deps
-            globals: {},
           },
         },
       },

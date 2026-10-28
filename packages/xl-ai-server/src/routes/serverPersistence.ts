@@ -61,9 +61,8 @@ serverPersistenceRoute.post("/streamText", async (c) => {
   );
 
   // get results from tool parts to update the last message
-  if (messages.length > 0 && toolParts.length > 0) {
-    const lastMessage = messages[messages.length - 1];
-
+  const lastMessage = messages.at(-1);
+  if (lastMessage && toolParts.length > 0) {
     messages[messages.length - 1] = {
       ...lastMessage,
       parts: lastMessage.parts.map((part) => {
