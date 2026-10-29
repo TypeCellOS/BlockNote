@@ -1,4 +1,4 @@
-import { getNodeById } from "@blocknote/core";
+import { getBlockElementForNode, getNodeById } from "@blocknote/core";
 import { ReactNode, useMemo } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
@@ -9,10 +9,9 @@ export const BlockPopover = (
   props: FloatingUIOptions & {
     blockId: string | undefined;
     children: ReactNode;
-    portalElement?: HTMLElement | null;
   },
 ) => {
-  const { blockId, children, portalElement, ...floatingUIOptions } = props;
+  const { blockId, children, ...floatingUIOptions } = props;
 
   const editor = useBlockNoteEditor<any, any, any>();
 
@@ -29,26 +28,18 @@ export const BlockPopover = (
           return undefined;
         }
 
-        const { node } = editor.prosemirrorView.domAtPos(
-          nodePosInfo.posBeforeNode + 1,
+        const element = getBlockElementForNode(
+          editor.prosemirrorView,
+          nodePosInfo.posBeforeNode,
+          blockId,
         );
-        if (!(node instanceof Element)) {
-          return undefined;
-        }
-
-        return {
-          element: node,
-        };
+        return element ? { element } : undefined;
       }),
     [editor, blockId],
   );
 
   return (
-    <GenericPopover
-      reference={reference}
-      portalElement={portalElement}
-      {...floatingUIOptions}
-    >
+    <GenericPopover reference={reference} {...floatingUIOptions}>
       {blockId !== undefined && children}
     </GenericPopover>
   );

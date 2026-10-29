@@ -62,13 +62,18 @@ export class ReactEmailExporter<
   public transformStyledText(styledText: StyledText<S>) {
     const stylesArray = this.mapStyles(styledText.styles);
     const styles = Object.assign({}, ...stylesArray);
+    // The text is document content, so it has to go through React's escaping
+    // instead of `dangerouslySetInnerHTML` - rendering the newlines as `<br />`
+    // by hand would otherwise inject any markup the text happens to contain.
     return (
-      <span
-        style={styles}
-        dangerouslySetInnerHTML={{
-          __html: styledText.text.replace(/\n/g, "<br />"),
-        }}
-      />
+      <span style={styles}>
+        {styledText.text.split("\n").map((line, index) => (
+          <React.Fragment key={index}>
+            {index > 0 && <br />}
+            {line}
+          </React.Fragment>
+        ))}
+      </span>
     );
   }
 
@@ -87,11 +92,7 @@ export class ReactEmailExporter<
       j++, itemIndex++
     ) {
       const block = blocks[j];
-      const liContent = (await this.mapBlock(
-        block as any,
-        nestingLevel,
-        itemIndex,
-      )) as any;
+      const liContent = await this.mapBlock(block, nestingLevel, itemIndex);
       let nestedList: React.ReactElement<any>[] = [];
       if (block.children && block.children.length > 0) {
         nestedList = await this.renderNestedLists(
@@ -152,11 +153,11 @@ export class ReactEmailExporter<
           j++, itemIndex++
         ) {
           const listItem = children[j];
-          const liContent = (await this.mapBlock(
-            listItem as any,
+          const liContent = await this.mapBlock(
+            listItem,
             nestingLevel,
             itemIndex,
-          )) as any;
+          );
           const style = this.blocknoteDefaultPropsToReactEmailStyle(
             listItem.props as any,
           );
@@ -246,26 +247,17 @@ export class ReactEmailExporter<
         i = nextIndex;
         continue;
       }
-      // Multi-column blocks stack their content vertically in email (their
-      // mappings render nothing themselves). The columns' children are
-      // structural, not nested sub-content, so they render flat - no
-      // indentation wrapper, and at the *same* nesting level (a level bump
-      // per wrapper would report column content as deeply nested to
-      // level-sensitive mappings).
-      if (b.type === "columnList" || b.type === "column") {
-        ret.push(
-          <React.Fragment key={b.id}>
-            {await this.transformBlocks(b.children, nestingLevel)}
-          </React.Fragment>,
-        );
-        i++;
-        continue;
-      }
-
-      // Non-list blocks
+      const placesChildren = this.placesChildren(b);
       const children = await this.transformBlocks(b.children, nestingLevel + 1);
-      const self = (await this.mapBlock(b as any, nestingLevel, 0)) as any;
-      const style = this.blocknoteDefaultPropsToReactEmailStyle(b.props as any);
+      const self = await this.mapBlock(
+        b,
+        nestingLevel,
+        0,
+        placesChildren ? children : undefined,
+      );
+      const style = placesChildren
+        ? {}
+        : this.blocknoteDefaultPropsToReactEmailStyle(b.props);
 
       ret.push(
         <React.Fragment key={b.id}>
@@ -274,7 +266,7 @@ export class ReactEmailExporter<
           ) : (
             self
           )}
-          {children.length > 0 && (
+          {!placesChildren && children.length > 0 && (
             <div style={{ marginLeft: "24px" }}>{children}</div>
           )}
         </React.Fragment>,
@@ -392,7 +384,7 @@ export class ReactEmailExporter<
             : undefined,
     };
     return Object.fromEntries(
-      Object.entries(style).filter(([_, value]) => value !== undefined),
+      Object.entries(style).filter(([, value]) => value !== undefined),
     );
   }
 }

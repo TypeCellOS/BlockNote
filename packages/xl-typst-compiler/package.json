@@ -9,15 +9,37 @@
     "directory": "packages/xl-typst-compiler"
   },
   "license": "GPL-3.0 OR PROPRIETARY",
-  "version": "0.54.0",
+  "version": "0.56.0",
   "files": [
     "dist",
     "types",
     "src",
-    "pkg",
-    "rust",
+    "pkg/blocknote_typst_wasm.js",
+    "pkg/blocknote_typst_wasm.d.ts",
+    "pkg/blocknote_typst_wasm_bg.wasm",
+    "pkg/blocknote_typst_wasm_bg.wasm.d.ts",
+    "rust/src",
+    "rust/Cargo.toml",
+    "rust/Cargo.lock",
+    "rust/rust-toolchain.toml",
     "README.md",
-    "scripts"
+    "scripts",
+    "!**/*.cjs",
+    "!**/*.map",
+    "!**/*.test.*",
+    "!**/*.spec.*",
+    "!**/*.snap",
+    "!**/__test__/**",
+    "!**/__tests__/**",
+    "!**/tests/**",
+    "!**/__snapshots__/**",
+    "!**/__msw_snapshots__/**",
+    "!**/fixtures/**",
+    "!**/testUtil/**",
+    "!**/testUtils/**",
+    "!**/test-utils/**",
+    "!**/*.tsbuildinfo",
+    "!dist/webpack-stats.json"
   ],
   "keywords": [
     "typst",
@@ -31,13 +53,13 @@
   "type": "module",
   "source": "src/index.ts",
   "types": "./types/src/index.d.ts",
-  "main": "./dist/blocknote-xl-typst-compiler.cjs",
+  "main": "./dist/blocknote-xl-typst-compiler.js",
   "module": "./dist/blocknote-xl-typst-compiler.js",
   "exports": {
     ".": {
       "types": "./types/src/index.d.ts",
       "import": "./dist/blocknote-xl-typst-compiler.js",
-      "require": "./dist/blocknote-xl-typst-compiler.cjs"
+      "default": "./dist/blocknote-xl-typst-compiler.js"
     },
     "./pkg": {
       "types": "./pkg/blocknote_typst_wasm.d.ts",
@@ -49,7 +71,6 @@
   },
   "scripts": {
     "dev": "vp dev",
-    "build:wasm": "node scripts/ensure-wasm.mjs --force",
     "lint": "vp lint src",
     "test": "vp test --run",
     "test-watch": "vp test watch",
@@ -57,6 +78,7 @@
   },
   "devDependencies": {
     "@types/node": "22.13.13",
+    "fflate": "^0.8.3",
     "rimraf": "^5.0.10",
     "rollup-plugin-webpack-stats": "^0.2.6",
     "typescript": "^7.0.2",

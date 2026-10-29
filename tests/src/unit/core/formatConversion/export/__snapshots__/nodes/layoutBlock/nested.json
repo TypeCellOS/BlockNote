@@ -1,0 +1,66 @@
+[
+  {
+    "attrs": {
+      "flavor": "warning",
+      "id": "1",
+    },
+    "content": [
+      {
+        "attrs": {
+          "id": "2",
+        },
+        "content": [
+          {
+            "attrs": {
+              "backgroundColor": "default",
+              "isToggleable": false,
+              "level": 1,
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "content": [
+              {
+                "text": "Nested heading",
+                "type": "text",
+              },
+            ],
+            "type": "heading",
+          },
+        ],
+        "type": "blockContainer",
+      },
+      {
+        "attrs": {
+          "flavor": "info",
+          "id": "3",
+        },
+        "content": [
+          {
+            "attrs": {
+              "id": "4",
+            },
+            "content": [
+              {
+                "attrs": {
+                  "backgroundColor": "default",
+                  "textAlignment": "left",
+                  "textColor": "default",
+                },
+                "content": [
+                  {
+                    "text": "Inner callout child",
+                    "type": "text",
+                  },
+                ],
+                "type": "paragraph",
+              },
+            ],
+            "type": "blockContainer",
+          },
+        ],
+        "type": "callout",
+      },
+    ],
+    "type": "callout",
+  },
+]

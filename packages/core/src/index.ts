@@ -1,6 +1,12 @@
 export * from "./api/blockManipulation/commands/insertBlocks/insertBlocks.js";
 export * from "./api/blockManipulation/commands/replaceBlocks/replaceBlocks.js";
-export * from "./api/blockManipulation/commands/replaceBlocks/util/fixColumnList.js";
+export { isLayoutNode } from "./schema/blocks/children.js";
+export { getBlockElementForNode } from "./extensions/blockDOM.js";
+export { applyLayoutBlockAttributes } from "./schema/blocks/layoutBlockAttributes.js";
+export {
+  fixLayoutBlock,
+  isEmptyLayoutChild,
+} from "./api/blockManipulation/layoutBlocks/fixLayoutBlock.js";
 export * from "./api/blockManipulation/commands/updateBlock/updateBlock.js";
 export * from "./api/exporters/html/externalHTMLExporter.js";
 export * from "./api/exporters/html/internalHTMLSerializer.js";
@@ -11,12 +17,18 @@ export * from "./api/nodeUtil.js";
 export * from "./api/pmUtil.js";
 export * from "./blocks/index.js";
 export * from "./editor/BlockNoteEditor.js";
+export type { EditorFocusOptions } from "./editor/managers/EventManager.js";
 export * from "./editor/BlockNoteExtension.js";
 export * from "./editor/defaultColors.js";
 export * from "./editor/selectionTypes.js";
 export * from "./exporter/index.js";
-export * from "./extensions/index.js";
 export * from "./extensions-shared/UiElementPosition.js";
+export { getDefaultEmojiPickerItems } from "./extensions/SuggestionMenu/getDefaultEmojiPickerItems.js";
+export {
+  filterSuggestionItems,
+  getDefaultSlashMenuItems,
+  insertOrUpdateBlockForSlashMenu,
+} from "./extensions/SuggestionMenu/getDefaultSlashMenuItems.js";
 export * from "./i18n/dictionary.js";
 export * from "./schema/index.js";
 export * from "./user/index.js";
@@ -43,7 +55,6 @@ export { selectedFragmentToHTML } from "./api/clipboard/toClipboard/copyExtensio
 export * from "./api/nodeConversions/blockToNode.js";
 export * from "./api/nodeConversions/fragmentToBlocks.js";
 export * from "./api/nodeConversions/nodeToBlock.js";
-export * from "./extensions/tiptap-extensions/UniqueID/UniqueID.js";
 
 // for server-util (TODO: maybe move):
 export * from "./api/exporters/markdown/markdownExporter.js";

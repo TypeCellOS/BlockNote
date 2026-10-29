@@ -1,7 +1,7 @@
 import { TextInput as MantineTextInput } from "@mantine/core";
 
 import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
-import { ComponentProps } from "@blocknote/react";
+import { ComponentProps, useMergeRefs, useAutoFocus } from "@blocknote/react";
 import { forwardRef } from "react";
 
 export const TextInput = forwardRef<
@@ -20,7 +20,6 @@ export const TextInput = forwardRef<
     disabled,
     onKeyDown,
     onChange,
-    onSubmit,
     autoComplete,
     "aria-activedescendant": ariaActivedescendant,
     rightSection,
@@ -29,6 +28,11 @@ export const TextInput = forwardRef<
 
   assertEmpty(rest);
 
+  // Rationale (and the trap contract `data-autofocus` serves) in the hook.
+
+  const inputRef = useAutoFocus<HTMLInputElement>(autoFocus);
+  const setRefs = useMergeRefs([inputRef, ref]);
+
   return (
     <MantineTextInput
       size={"xs"}
@@ -36,19 +40,17 @@ export const TextInput = forwardRef<
         className || "",
         variant === "large" ? "bn-mt-input-large" : "",
       )}
-      ref={ref}
+      ref={setRefs}
       name={name}
       label={label}
       leftSection={icon}
       value={value}
-      autoFocus={autoFocus}
       data-autofocus={autoFocus ? "true" : undefined}
       rightSection={rightSection}
       placeholder={placeholder}
       disabled={disabled}
       onKeyDown={onKeyDown}
       onChange={onChange}
-      onSubmit={onSubmit}
       autoComplete={autoComplete}
       aria-activedescendant={ariaActivedescendant}
     />

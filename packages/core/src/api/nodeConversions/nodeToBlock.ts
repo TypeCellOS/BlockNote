@@ -1,5 +1,6 @@
 import { Mark, Node, Slice } from "@tiptap/pm/model";
 import type { Block } from "../../blocks/defaultBlocks.js";
+import { isLayoutNode } from "../../schema/blocks/children.js";
 import UniqueID from "../../extensions/tiptap-extensions/UniqueID/UniqueID.js";
 import type {
   BlockSchema,
@@ -19,8 +20,9 @@ import {
 } from "../../schema/inlineContent/types.js";
 import { UnreachableCaseError } from "../../util/typescript.js";
 import {
-  getBlockInfoWithManualOffset,
+  getBlockInfoFromNode,
   getNodeId,
+  isSuggestedDeletionNode,
 } from "../getBlockInfoFromPos.js";
 import {
   getBlockCache,
@@ -28,6 +30,32 @@ import {
   getInlineContentSchema,
   getStyleSchema,
 } from "../pmUtil.js";
+
+/**
+ * The text of a plain content node. Plain content can't carry marks, so text
+ * marked as deleted (in a version diff or a suggestion) would merge with its
+ * replacement (e.g. `x^2` → `y^3` reads `xy^23`) - keep only the result.
+ *
+ * Styled text (`contentNodeToInlineContent`) still includes deleted text; see
+ * the note there.
+ *
+ * TODO(suggestion mode): Do NOT keep this behavior when we implement suggestion
+ * mode. Converting nodes to blocks must preserve pending suggestions, not
+ * silently read deletions as accepted in `editor.document`, `onChange` or exports.
+ * We only accept filtering here because plain text content has no good
+ * representation of inline formatting, including insertion/deletion marks, and
+ * merging both versions produces invalid preview source. Suggestion mode needs
+ * to preserve that information and resolve the preview source separately.
+ */
+function plainContentText(node: Node): string {
+  let text = "";
+  node.forEach((child) => {
+    if (!isSuggestedDeletionNode(child)) {
+      text += child.textContent;
+    }
+  });
+  return text;
+}
 
 /**
  * Converts an internal (prosemirror) table node contentto a BlockNote Tablecontent
@@ -58,9 +86,7 @@ export function contentNodeToTableContent<
     if (rowIndex === 0) {
       rowNode.content.forEach((cellNode) => {
         let colWidth = cellNode.attrs.colwidth as null | undefined | number[];
-        if (colWidth === undefined || colWidth === null) {
-          colWidth = new Array(cellNode.attrs.colspan ?? 1).fill(undefined);
-        }
+        colWidth ??= new Array(cellNode.attrs.colspan ?? 1).fill(undefined);
         ret.columnWidths.push(...colWidth);
       });
     }
@@ -81,11 +107,10 @@ export function contentNodeToTableContent<
         // If the schema only allowed a single tableParagraph node, then the merging would not work and cause prosemirror to fit the content into a new cell
         .reduce(
           (acc, contentPartial) => {
-            if (!acc.length) {
+            const last = acc.at(-1);
+            if (!last) {
               return contentPartial;
             }
-
-            const last = acc[acc.length - 1];
             const first = contentPartial[0];
 
             // Only merge if the last and first content are both styled text nodes and have the same styles
@@ -147,6 +172,12 @@ export function contentNodeToInlineContent<
   const content: InlineContent<any, S>[] = [];
   let currentContent: InlineContent<any, S> | undefined = undefined;
 
+  // NOTE: unlike plain content (`plainContentText`), text marked as deleted in
+  // a version diff or suggestion is kept here, merged with its replacement. We
+  // might want to filter it too, but that changes what `editor.document`,
+  // `onChange` and exports report while suggestions show, and makes a block
+  // whose text is all deleted read as empty.
+
   // Most of the logic below is for handling links because in ProseMirror links are marks
   // while in BlockNote links are a type of inline content
   contentNode.content.forEach((node) => {
@@ -160,8 +191,11 @@ export function contentNodeToInlineContent<
           currentContent.text += "\n";
         } else if (isLinkInlineContent(currentContent)) {
           // Current content is a link.
-          currentContent.content[currentContent.content.length - 1].text +=
-            "\n";
+          const lastContent = currentContent.content.at(-1);
+          if (!lastContent) {
+            throw new Error("Link content is unexpectedly empty");
+          }
+          lastContent.text += "\n";
         } else {
           throw new Error("unexpected");
         }
@@ -263,15 +297,13 @@ export function contentNodeToInlineContent<
           // Node is a link (same type as current content).
           // Link URLs are the same.
           if (currentContent.href === linkMark.attrs.href) {
+            const lastContent = currentContent.content.at(-1);
+            if (!lastContent) {
+              throw new Error("Link content is unexpectedly empty");
+            }
             // Styles are the same.
-            if (
-              JSON.stringify(
-                currentContent.content[currentContent.content.length - 1]
-                  .styles,
-              ) === JSON.stringify(styles)
-            ) {
-              currentContent.content[currentContent.content.length - 1].text +=
-                node.textContent;
+            if (JSON.stringify(lastContent.styles) === JSON.stringify(styles)) {
+              lastContent.text += node.textContent;
             } else {
               // Styles are different.
               currentContent.content.push({
@@ -375,7 +407,7 @@ export function nodeToCustomInlineContent<
     ) as any; // TODO: is this safe? could we have Links here that are undesired?
   } else if (icConfig.content === "plain") {
     // Plain inline content is a single unstyled string.
-    content = node.textContent as any;
+    content = plainContentText(node) as any;
   } else {
     content = undefined;
   }
@@ -402,7 +434,7 @@ export function nodeToBlock<
   const styleSchema = getStyleSchema(schema) as S;
   const blockCache = getBlockCache(schema);
   if (!node.type.isInGroup("bnBlock")) {
-    throw Error("Node should be a bnBlock, but is instead: " + node.type.name);
+    throw Error("Node should be a block, but is instead: " + node.type.name);
   }
 
   const cachedBlock = blockCache?.get(node);
@@ -411,28 +443,28 @@ export function nodeToBlock<
     return cachedBlock;
   }
 
-  const blockInfo = getBlockInfoWithManualOffset(node, 0);
+  const blockInfo = getBlockInfoFromNode(node, 0);
 
   let id: string;
   try {
-    id = getNodeId(blockInfo.bnBlock.node, doc);
+    id = getNodeId(blockInfo.block.node, doc);
   } catch {
     // Only used for blocks converted from other formats.
     id = UniqueID.options.generateID();
   }
 
-  const blockSpec = blockSchema[blockInfo.blockNoteType];
+  const blockConfig = blockSchema[blockInfo.blockNoteType];
 
-  if (!blockSpec) {
+  if (!blockConfig) {
     throw Error("Block is of an unrecognized type: " + blockInfo.blockNoteType);
   }
 
   const props: any = {};
   for (const [attr, value] of Object.entries({
     ...node.attrs,
-    ...(blockInfo.isBlockContainer ? blockInfo.blockContent.node.attrs : {}),
+    ...(blockInfo.hasContent ? blockInfo.content.node.attrs : {}),
   })) {
-    const propSchema = blockSpec.propSchema;
+    const propSchema = blockConfig.propSchema;
 
     if (
       attr in propSchema &&
@@ -442,45 +474,43 @@ export function nodeToBlock<
     }
   }
 
-  const blockConfig = blockSchema[blockInfo.blockNoteType];
-
   const children: Block<BSchema, I, S>[] = [];
-  blockInfo.childContainer?.node.forEach((child) => {
+  blockInfo.children?.node.forEach((child) => {
     children.push(nodeToBlock(child, doc));
   });
 
   let content: Block<any, any, any>["content"];
 
-  if (blockConfig.content === "inline") {
-    if (!blockInfo.isBlockContainer) {
-      throw new Error("impossible");
+  // BlockInfo has already established whether content exists and its kind.
+  // Conversion only interprets that content; it does not resolve shape again.
+  switch (blockInfo.contentKind) {
+    case "inline":
+      content = contentNodeToInlineContent(
+        blockInfo.content.node,
+        inlineContentSchema,
+        styleSchema,
+      );
+      break;
+    case "table":
+      content = contentNodeToTableContent(
+        blockInfo.content.node,
+        inlineContentSchema,
+        styleSchema,
+      );
+      break;
+    case "plain": {
+      // Plain content is a single unstyled text item; an empty block is an
+      // empty array, matching inline content.
+      const text = plainContentText(blockInfo.content.node);
+      content = text.length > 0 ? [{ type: "text", text, styles: {} }] : [];
+      break;
     }
-    content = contentNodeToInlineContent(
-      blockInfo.blockContent.node,
-      inlineContentSchema,
-      styleSchema,
-    );
-  } else if (blockConfig.content === "table") {
-    if (!blockInfo.isBlockContainer) {
-      throw new Error("impossible");
-    }
-    content = contentNodeToTableContent(
-      blockInfo.blockContent.node,
-      inlineContentSchema,
-      styleSchema,
-    );
-  } else if (blockConfig.content === "plain") {
-    if (!blockInfo.isBlockContainer) {
-      throw new Error("impossible");
-    }
-    // Plain content is a single unstyled text item; an empty block is an
-    // empty array, matching inline content.
-    const text = blockInfo.blockContent.node.textContent;
-    content = text.length > 0 ? [{ type: "text", text, styles: {} }] : [];
-  } else if (blockConfig.content === "none") {
-    content = undefined;
-  } else {
-    throw new UnreachableCaseError(blockConfig.content);
+    case "none":
+    case undefined:
+      content = undefined;
+      break;
+    default:
+      throw new UnreachableCaseError(blockInfo);
   }
 
   const block = {
@@ -563,45 +593,58 @@ export function prosemirrorSliceToSlicedBlocks<
     blockCutAtStart: string | undefined;
     blockCutAtEnd: string | undefined;
   } {
-    if (node.type.name !== "blockGroup") {
+    // Both `blockGroup` and layout block nodes (columnList, column, callout,
+    // ...) hold block children directly, so both can be processed here.
+    if (node.type.name !== "blockGroup" && !isLayoutNode(node.type)) {
       throw new Error("unexpected");
     }
     const blocks: Block<BSchema, I, S>[] = [];
     let blockCutAtStart: string | undefined;
     let blockCutAtEnd: string | undefined;
 
-    node.forEach((blockContainer, _offset, index) => {
-      if (blockContainer.type.name !== "blockContainer") {
-        throw new Error("unexpected");
-      }
-      if (blockContainer.childCount === 0) {
-        return;
-      }
-      if (blockContainer.childCount === 0 || blockContainer.childCount > 2) {
-        throw new Error(
-          "unexpected, blockContainer.childCount: " + blockContainer.childCount,
-        );
-      }
-
+    // Each child is a block's node: a `blockContainer` for a regular block,
+    // or a layout block node (columnList, column, callout, ...) for a layout block
+    // block.
+    node.forEach((blockNode, _offset, index) => {
       const isFirstBlock = index === 0;
       const isLastBlock = index === node.childCount - 1;
 
-      if (blockContainer.firstChild!.type.name === "blockGroup") {
-        // this is the parent where a selection starts within one of its children,
-        // e.g.:
-        // A
-        // ├── B
-        // selection starts within B, then this blockContainer is A, but we don't care about A
-        // so let's descend into B and continue processing
-        if (!isFirstBlock) {
+      const isLayoutBlock = isLayoutNode(blockNode.type);
+      if (!isLayoutBlock) {
+        if (blockNode.type.name !== "blockContainer") {
           throw new Error("unexpected");
         }
+        if (blockNode.childCount === 0) {
+          return;
+        }
+        if (blockNode.childCount > 2) {
+          throw new Error(
+            "unexpected, blockContainer.childCount: " + blockNode.childCount,
+          );
+        }
+      }
+
+      const omittedParent =
+        !isLayoutBlock && blockNode.firstChild!.type.name === "blockGroup";
+      if (omittedParent && !isFirstBlock) {
+        throw new Error("unexpected");
+      }
+
+      // Open layout blocks and regular parents whose content was cut away both
+      // contribute their selected children, without their own wrapper.
+      if (
+        omittedParent ||
+        (isLayoutBlock &&
+          ((isFirstBlock && openStart > 0) || (isLastBlock && openEnd > 0)))
+      ) {
         const ret = processNode(
-          blockContainer.firstChild!,
-          Math.max(0, openStart - 1),
+          isLayoutBlock ? blockNode : blockNode.firstChild!,
+          isFirstBlock ? Math.max(0, openStart - 1) : 0,
           isLastBlock ? Math.max(0, openEnd - 1) : 0,
         );
-        blockCutAtStart = ret.blockCutAtStart;
+        if (isFirstBlock) {
+          blockCutAtStart = ret.blockCutAtStart;
+        }
         if (isLastBlock) {
           blockCutAtEnd = ret.blockCutAtEnd;
         }
@@ -609,9 +652,16 @@ export function prosemirrorSliceToSlicedBlocks<
         return;
       }
 
-      const block = nodeToBlock(blockContainer, slice.content.firstChild!);
+      if (isLayoutBlock) {
+        blocks.push(
+          nodeToBlock<BSchema, I, S>(blockNode, slice.content.firstChild!),
+        );
+        return;
+      }
+
+      const block = nodeToBlock(blockNode, slice.content.firstChild!);
       const childGroup =
-        blockContainer.childCount > 1 ? blockContainer.child(1) : undefined;
+        blockNode.childCount > 1 ? blockNode.child(1) : undefined;
 
       let childBlocks: Block<BSchema, I, S>[] = [];
       if (childGroup) {

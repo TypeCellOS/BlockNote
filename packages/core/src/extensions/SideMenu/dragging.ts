@@ -1,5 +1,5 @@
 import { Node } from "prosemirror-model";
-import { NodeSelection, Selection } from "prosemirror-state";
+import { Selection } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 
 import { createExternalHTMLExporter } from "../../api/exporters/html/externalHTMLExporter.js";
@@ -8,7 +8,6 @@ import { fragmentToBlocks } from "../../api/nodeConversions/fragmentToBlocks.js"
 import { getNodeById } from "../../api/nodeUtil.js";
 import { Block } from "../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import { UiElementPosition } from "../../extensions-shared/UiElementPosition.js";
 import {
   BlockSchema,
   InlineContentSchema,
@@ -17,15 +16,6 @@ import {
 import { MultipleNodeSelection } from "./MultipleNodeSelection.js";
 
 let dragImageElement: Element | undefined;
-
-export type SideMenuState<
-  BSchema extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema,
-> = UiElementPosition & {
-  // The block that the side menu is attached to.
-  block: Block<BSchema, I, S>;
-};
 
 function blockPositionsFromSelection(selection: Selection, doc: Node) {
   // Absolute positions just before the first block spanned by the selection, and just after the last block. Having the
@@ -71,59 +61,76 @@ function setDragImage(view: EditorView, from: number, to = from) {
     to += view.state.doc.resolve(from + 1).node().nodeSize;
   }
 
-  // Parent element is cloned to remove all unselected children without affecting the editor content.
-  const parentClone = view.domAtPos(from).node.cloneNode(true) as Element;
-  const parent = view.domAtPos(from).node as Element;
-
-  const getElementIndex = (parentElement: Element, targetElement: Element) =>
-    Array.prototype.indexOf.call(parentElement.children, targetElement);
-
-  const firstSelectedBlockIndex = getElementIndex(
-    parent,
-    // Expects from position to be just before the first selected block.
-    view.domAtPos(from + 1).node.parentElement!,
-  );
-  const lastSelectedBlockIndex = getElementIndex(
-    parent,
-    // Expects to position to be just after the last selected block.
-    view.domAtPos(to - 1).node.parentElement!,
-  );
-
-  for (let i = parent.childElementCount - 1; i >= 0; i--) {
-    if (i > lastSelectedBlockIndex || i < firstSelectedBlockIndex) {
-      parentClone.removeChild(parentClone.children[i]);
+  // A copy of the element that holds the dragged blocks, without its other
+  // children: a copy of each dragged block's element. The holding element can
+  // have no box of its own (`display: contents`, e.g. the slot of a React
+  // layout block), but the preview needs one.
+  const blocks = view.domAtPos(from).node.cloneNode(false) as HTMLElement;
+  blocks.style.removeProperty("display");
+  for (let pos = from; pos < to; pos += view.state.doc.nodeAt(pos)!.nodeSize) {
+    const blockDOM = view.nodeDOM(pos);
+    if (!blockDOM) {
+      throw new Error(`The dragged block at ${pos} has no DOM.`);
     }
+    blocks.appendChild(blockDOM.cloneNode(true));
   }
-
-  // dataTransfer.setDragImage(element) only works if element is attached to the DOM.
-  unsetDragImage(view.root);
-  dragImageElement = parentClone;
 
   // Browsers may have CORS policies which prevents iframes from being
   // manipulated, so better to stay on the safe side and remove them from the
   // drag preview. The drag preview doesn't work with embedded documents
   // (iframe/embed/object) anyway, and including an <embed> (e.g. a PDF)
   // can prevent the drag from initiating at all.
-  const embeddedDocs = dragImageElement.querySelectorAll(
-    "iframe, embed, object",
-  );
-  embeddedDocs.forEach((el) => el.parentElement?.removeChild(el));
+  blocks
+    .querySelectorAll("iframe, embed, object")
+    .forEach((el) => el.parentElement?.removeChild(el));
 
-  // TODO: This is hacky, need a better way of assigning classes to the editor so that they can also be applied to the
-  //  drag preview.
-  const classes = view.dom.className.split(" ");
-  const inheritedClasses = classes
-    .filter(
-      (className) =>
-        className !== "ProseMirror" &&
-        className !== "bn-root" &&
-        className !== "bn-editor",
-    )
-    .join(" ");
+  // The preview is outside the editor, so it copies what styles the blocks
+  // there: the theme of the editor's container (classes, color scheme, theme
+  // variables), the editor's classes, and the blocks' width, so that text
+  // wraps and images scale as in the editor.
+  const container = view.dom.parentElement?.closest(".bn-root");
+  const preview =
+    (container?.cloneNode(false) as HTMLElement | undefined) ??
+    document.createElement("div");
+  preview.removeAttribute("id");
+  preview.classList.add("bn-drag-preview");
+  const editor = document.createElement("div");
+  editor.className = view.dom.className;
+  editor.appendChild(blocks);
+  preview.appendChild(editor);
 
-  dragImageElement.className =
-    dragImageElement.className + " bn-drag-preview " + inheritedClasses;
+  // The layout is inline, so that app CSS on the copied classes (e.g. a height
+  // on `.bn-editor`) does not change it. The preview is off-screen, as the
+  // browser only needs it for its snapshot: `opacity` would also hide it in
+  // the snapshot in Firefox and Safari. Taller than the cap, it would reach
+  // into the page from above.
+  Object.assign(preview.style, {
+    background: "transparent",
+    position: "absolute",
+    top: "-10000px",
+    left: "0",
+    margin: "0",
+    padding: "10px",
+    height: "auto",
+    minHeight: "0",
+    maxHeight: "75vh",
+    overflow: "hidden",
+  });
+  Object.assign(editor.style, {
+    // Keep the editor's background out of the empty space around the blocks.
+    background: "transparent",
+    width: `${(view.nodeDOM(from) as HTMLElement).offsetWidth}px`,
+    height: "auto",
+    minHeight: "0",
+    maxHeight: "none",
+    margin: "0",
+    padding: "0",
+    overflow: "visible",
+  });
 
+  // dataTransfer.setDragImage(element) only works if element is attached to the DOM.
+  unsetDragImage(view.root);
+  dragImageElement = preview;
   if (view.root instanceof ShadowRoot) {
     view.root.appendChild(dragImageElement);
   } else {
@@ -176,7 +183,8 @@ export function dragStart<
     const draggedBlockInSelection = from <= pos && pos < to;
     const multipleBlocksSelected =
       selection.$anchor.node() !== selection.$head.node() ||
-      selection instanceof MultipleNodeSelection;
+      (selection instanceof MultipleNodeSelection &&
+        selection.nodes.length > 1);
 
     if (draggedBlockInSelection && multipleBlocksSelected) {
       view.dispatch(
@@ -184,8 +192,11 @@ export function dragStart<
       );
       setDragImage(view, from, to);
     } else {
+      // Unlike NodeSelection, this restores a visible selection on undo.
       view.dispatch(
-        view.state.tr.setSelection(NodeSelection.create(view.state.doc, pos)),
+        view.state.tr.setSelection(
+          MultipleNodeSelection.create(doc, pos, pos + posInfo.node.nodeSize),
+        ),
       );
       setDragImage(view, pos);
     }
@@ -205,6 +216,13 @@ export function dragStart<
 
     e.dataTransfer.clearData();
     e.dataTransfer.setData("blocknote/html", clipboardHTML);
+    // The type of the dragged blocks' parent. The editors parse the blocks
+    // into it (see `blockDropHandling.ts`), so that a block that only this
+    // parent can hold is not wrapped in a new copy of it.
+    e.dataTransfer.setData(
+      "blocknote/parent",
+      view.state.selection.$from.parent.type.name,
+    );
     e.dataTransfer.setData("text/html", externalHTML);
     e.dataTransfer.setData("text/plain", plainText);
     e.dataTransfer.effectAllowed = "move";

@@ -1,12 +1,81 @@
+import { closeHistory } from "@tiptap/pm/history";
+import { ReplaceStep, Transform } from "prosemirror-transform";
 import { describe, expect, it } from "vite-plus/test";
 
-import type { PartialBlock } from "../../../../blocks/defaultBlocks.js";
-import { getBlockInfo } from "../../../getBlockInfoFromPos.js";
+import type {
+  DefaultBlockSchema,
+  DefaultInlineContentSchema,
+  DefaultStyleSchema,
+  PartialBlock,
+} from "../../../../blocks/defaultBlocks.js";
+import { getBlockInfoFromNode } from "../../../getBlockInfoFromPos.js";
 import { getNodeById } from "../../../nodeUtil.js";
+import { layoutSchema } from "../../layoutBlocks/layoutBlocks.fixture.js";
 import { setupTestEnv } from "../../setupTestEnv.js";
-import { updateBlock } from "./updateBlock.js";
+import { updateBlock, updateBlockTr } from "./updateBlock.js";
 
 const getEditor = setupTestEnv();
+
+describe("Test updateBlock undo/redo", () => {
+  it("undoes divider autoformat before undoing the typed dashes", () => {
+    const editor = getEditor();
+    editor.replaceBlocks(editor.document, [
+      { id: "autoformat-paragraph", type: "paragraph", content: "" },
+    ]);
+    editor.setTextCursorPosition("autoformat-paragraph", "start");
+    const view = editor.prosemirrorView;
+    // Keep fixture preparation out of the typed text's undo item.
+    view.dispatch(closeHistory(view.state.tr));
+
+    for (const text of "---") {
+      const { from, to } = view.state.selection;
+      const insertText = () => view.state.tr.insertText(text, from, to);
+      const handled = view.someProp("handleTextInput", (handler) =>
+        handler(view, from, to, text, insertText),
+      );
+      if (!handled) {
+        view.dispatch(insertText());
+      }
+    }
+
+    expect(editor.document).toHaveLength(1);
+    expect(editor.document[0].type).toBe("divider");
+
+    expect(editor.undo()).toBe(true);
+    expect(editor.document[0]).toMatchObject({
+      type: "paragraph",
+      content: [{ type: "text", text: "---", styles: {} }],
+    });
+    expect(view.state.selection.empty).toBe(true);
+    expect(view.state.selection.$from.parentOffset).toBe(3);
+
+    expect(editor.undo()).toBe(true);
+    expect(view.state.doc.textContent).toBe("");
+  });
+
+  it.each([
+    ["paragraph", "divider"],
+    ["heading", "divider"],
+    ["codeBlock", "image"],
+    ["divider", "paragraph"],
+    ["paragraph", "heading"],
+  ] as const)("can undo and redo %s → %s", (from, to) => {
+    const editor = getEditor();
+    editor.updateBlock("empty-paragraph", { type: from });
+    const before = editor.prosemirrorState.doc;
+    // Isolate the conversion from fixture preparation.
+    editor.prosemirrorView.dispatch(closeHistory(editor.prosemirrorState.tr));
+    editor.updateBlock("empty-paragraph", { type: to });
+    const after = editor.prosemirrorState.doc;
+    expect(editor.getBlock("empty-paragraph")?.type).toBe(to);
+    after.check();
+
+    expect(editor.undo()).toBe(true);
+    expect(editor.prosemirrorState.doc.eq(before)).toBe(true);
+    expect(editor.redo()).toBe(true);
+    expect(editor.prosemirrorState.doc.eq(after)).toBe(true);
+  });
+});
 
 describe("Test updateBlock typing", () => {
   it("Type is inferred correctly", () => {
@@ -177,11 +246,13 @@ describe("Test updateBlock", () => {
   });
 
   it("Update partial (offset start)", () => {
-    const info = getBlockInfo(
-      getNodeById("heading-with-everything", getEditor().prosemirrorState.doc)!,
-    );
+    const posInfo = getNodeById(
+      "heading-with-everything",
+      getEditor().prosemirrorState.doc,
+    )!;
+    const info = getBlockInfoFromNode(posInfo.node, posInfo.posBeforeNode);
 
-    if (!info.isBlockContainer) {
+    if (!info.hasContent) {
       throw new Error("heading-with-everything is not a block container");
     }
 
@@ -198,7 +269,7 @@ describe("Test updateBlock", () => {
             },
           ],
         },
-        info.blockContent.beforePos + 9,
+        info.content.beforePos + 9,
       ),
     );
 
@@ -206,11 +277,13 @@ describe("Test updateBlock", () => {
   });
 
   it("Update partial (offset start + end)", () => {
-    const info = getBlockInfo(
-      getNodeById("heading-with-everything", getEditor().prosemirrorState.doc)!,
-    );
+    const posInfo = getNodeById(
+      "heading-with-everything",
+      getEditor().prosemirrorState.doc,
+    )!;
+    const info = getBlockInfoFromNode(posInfo.node, posInfo.posBeforeNode);
 
-    if (!info.isBlockContainer) {
+    if (!info.hasContent) {
       throw new Error("heading-with-everything is not a block container");
     }
 
@@ -227,8 +300,8 @@ describe("Test updateBlock", () => {
             },
           ],
         },
-        info.blockContent.beforePos + 9,
-        info.blockContent.beforePos + 9,
+        info.content.beforePos + 9,
+        info.content.beforePos + 9,
       ),
     );
 
@@ -236,11 +309,13 @@ describe("Test updateBlock", () => {
   });
 
   it("Update partial (props + offset end)", () => {
-    const info = getBlockInfo(
-      getNodeById("heading-with-everything", getEditor().prosemirrorState.doc)!,
-    );
+    const posInfo = getNodeById(
+      "heading-with-everything",
+      getEditor().prosemirrorState.doc,
+    )!;
+    const info = getBlockInfoFromNode(posInfo.node, posInfo.posBeforeNode);
 
-    if (!info.isBlockContainer) {
+    if (!info.hasContent) {
       throw new Error("heading-with-everything is not a block container");
     }
 
@@ -261,7 +336,7 @@ describe("Test updateBlock", () => {
           ],
         },
         undefined,
-        info.blockContent.beforePos + 8,
+        info.content.beforePos + 8,
       );
     });
 
@@ -269,15 +344,14 @@ describe("Test updateBlock", () => {
   });
 
   it("Update partial (table cell)", () => {
-    const info = getBlockInfo(
-      getNodeById("table-0", getEditor().prosemirrorState.doc)!,
-    );
+    const posInfo = getNodeById("table-0", getEditor().prosemirrorState.doc)!;
+    const info = getBlockInfoFromNode(posInfo.node, posInfo.posBeforeNode);
 
-    if (!info.isBlockContainer) {
+    if (!info.hasContent) {
       throw new Error("table-0 is not a block container");
     }
 
-    const cell = info.blockContent.node.resolve(2);
+    const cell = info.content.node.resolve(2);
 
     getEditor().transact((tr) =>
       updateBlock(
@@ -290,8 +364,8 @@ describe("Test updateBlock", () => {
             rows: [{ cells: ["updated cell 1"] }],
           },
         },
-        info.blockContent.beforePos + 2,
-        info.blockContent.beforePos + 2 + cell.node().nodeSize,
+        info.content.beforePos + 2,
+        info.content.beforePos + 2 + cell.node().nodeSize,
       ),
     );
 
@@ -299,15 +373,14 @@ describe("Test updateBlock", () => {
   });
 
   it("Update partial (table row)", () => {
-    const info = getBlockInfo(
-      getNodeById("table-0", getEditor().prosemirrorState.doc)!,
-    );
+    const posInfo = getNodeById("table-0", getEditor().prosemirrorState.doc)!;
+    const info = getBlockInfoFromNode(posInfo.node, posInfo.posBeforeNode);
 
-    if (!info.isBlockContainer) {
+    if (!info.hasContent) {
       throw new Error("table-0 is not a block container");
     }
 
-    const cell = info.blockContent.node.resolve(1);
+    const cell = info.content.node.resolve(1);
 
     getEditor().transact((tr) =>
       updateBlock(
@@ -324,8 +397,8 @@ describe("Test updateBlock", () => {
             ],
           },
         },
-        info.blockContent.beforePos + 1,
-        info.blockContent.beforePos + 1 + cell.node().nodeSize,
+        info.content.beforePos + 1,
+        info.content.beforePos + 1 + cell.node().nodeSize,
       ),
     );
 
@@ -626,6 +699,59 @@ describe("Test updateBlock", () => {
  * only a small part changed.
  */
 describe("Test updateBlock minimal steps", () => {
+  it.each([
+    ["paragraph", "divider"],
+    ["heading", "divider"],
+    ["codeBlock", "image"],
+  ] as const)(
+    "%s → %s replaces only the empty content node and can be inverted",
+    (from, to) => {
+      const editor = getEditor();
+      editor.updateBlock("paragraph-with-children", {
+        content: [],
+        props: { backgroundColor: "red" },
+      });
+      editor.updateBlock("paragraph-with-children", { type: from });
+      const before = editor.prosemirrorState.doc;
+      const original = getNodeById("paragraph-with-children", before)!;
+      const contentPos = original.posBeforeNode + 1;
+      const tr = new Transform(before);
+      updateBlockTr<
+        DefaultBlockSchema,
+        DefaultInlineContentSchema,
+        DefaultStyleSchema
+      >(tr, original.posBeforeNode, { type: to });
+
+      // Only the paragraph's two structural tokens become one leaf token.
+      // Its enclosing container and nonempty children must not be replaced.
+      expect(tr.steps).toHaveLength(1);
+      const step = tr.steps[0];
+      expect(step).toBeInstanceOf(ReplaceStep);
+      if (!(step instanceof ReplaceStep)) {
+        throw new Error("Expected a single content-node ReplaceStep");
+      }
+      expect(step.from).toBe(contentPos);
+      expect(step.to).toBe(contentPos + 2);
+      expect(step.slice.size).toBe(1);
+      expect(step.slice.content.firstChild?.type.name).toBe(to);
+      const updated = getNodeById("paragraph-with-children", tr.doc)!;
+      expect(updated.node.attrs).toEqual(original.node.attrs);
+      expect(updated.node.child(1)).toBe(original.node.child(1));
+      expect(getNodeById("paragraph-0", tr.doc)!.node).toBe(
+        getNodeById("paragraph-0", before)!.node,
+      );
+      expect(getNodeById("paragraph-9", tr.doc)!.node).toBe(
+        getNodeById("paragraph-9", before)!.node,
+      );
+      tr.doc.check();
+
+      const inverse = new Transform(tr.doc);
+      inverse.step(step.invert(before));
+      expect(inverse.doc.eq(before)).toBe(true);
+      inverse.doc.check();
+    },
+  );
+
   // Runs `updateBlock` in a throwaway transaction and returns the resulting
   // steps as JSON for inspection.
   const getSteps = (blockId: string, update: PartialBlock<any, any, any>) => {
@@ -934,13 +1060,12 @@ describe("Test updateBlock minimal steps", () => {
 
   it("Type change with offset content replace stays minimal and valid", () => {
     const editor = getEditor();
-    const info = getBlockInfo(
-      getNodeById(
-        "paragraph-with-styled-content",
-        editor.prosemirrorState.doc,
-      )!,
-    );
-    if (!info.isBlockContainer) {
+    const posInfo = getNodeById(
+      "paragraph-with-styled-content",
+      editor.prosemirrorState.doc,
+    )!;
+    const info = getBlockInfoFromNode(posInfo.node, posInfo.posBeforeNode);
+    if (!info.hasContent) {
       throw new Error("paragraph-with-styled-content is not a block container");
     }
 
@@ -959,8 +1084,8 @@ describe("Test updateBlock minimal steps", () => {
           props: { level: 3 },
           content: [{ type: "text", text: " with NEW ", styles: {} }],
         },
-        info.blockContent.beforePos + 1 + "Paragraph".length,
-        info.blockContent.beforePos + 1 + "Paragraph with styled ".length,
+        info.content.beforePos + 1 + "Paragraph".length,
+        info.content.beforePos + 1 + "Paragraph with styled ".length,
       );
       steps = tr.steps.map((s) => s.toJSON());
     });
@@ -972,7 +1097,235 @@ describe("Test updateBlock minimal steps", () => {
     expect(block.props.level).toBe(3);
     // The styled text on either side of the replaced range is preserved.
     expect(block.content[0].text).toBe("Paragraph");
-    expect(block.content[block.content.length - 1].text).toBe("content");
+    expect(block.content.at(-1)?.text).toBe("content");
     expect(() => editor._tiptapEditor.state.doc.check()).not.toThrow();
+  });
+});
+
+// Changing a block's type across the content/layout block divide can't happen in
+// place, so `updateBlock` rebuilds the node and has to decide what to do with
+// the content the old shape held and the new one can't. These tests pin that
+// decision. Assertions are explicit rather than snapshotted because the point
+// is *where* the carried content ends up.
+describe("Test updateBlock content carry-over", () => {
+  const getLayoutEditor = setupTestEnv({
+    schema: layoutSchema,
+    document: [
+      {
+        id: "paragraph-with-text",
+        type: "paragraph",
+        content: "Paragraph with text",
+      },
+      {
+        id: "empty-paragraph",
+        type: "paragraph",
+      },
+      {
+        id: "paragraph-with-text-and-children",
+        type: "paragraph",
+        content: "Parent text",
+        children: [
+          {
+            id: "existing-child",
+            type: "paragraph",
+            content: "Existing child",
+          },
+        ],
+      },
+      {
+        id: "table-0",
+        type: "table",
+        content: {
+          type: "tableContent",
+          rows: [{ cells: ["Cell 1", "Cell 2"] }],
+        },
+      },
+      {
+        id: "callout-0",
+        type: "callout",
+        children: [
+          {
+            id: "callout-child",
+            type: "paragraph",
+            content: "Callout child",
+          },
+        ],
+      },
+    ],
+  });
+
+  // A block that changes shape is rebuilt rather than updated in place. The
+  // rebuilt block keeps its ID, so comments and other references to it stay
+  // valid. Before, it got a new ID; the first and the last test check this.
+  it("Moves inline content into a child paragraph when becoming a layout block", () => {
+    const editor = getLayoutEditor();
+    editor.transact((tr) =>
+      updateBlock(tr, "paragraph-with-text", { type: "callout" }),
+    );
+
+    const block = editor.document[0] as any;
+    expect(block.type).toBe("callout");
+    expect(block.id).toBe("paragraph-with-text");
+    expect(block.children).toHaveLength(1);
+    expect(block.children[0].type).toBe("paragraph");
+    expect(block.children[0].content).toEqual([
+      { type: "text", text: "Paragraph with text", styles: {} },
+    ]);
+    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+  });
+
+  it("Fills a layout block's children when there is no content to carry", () => {
+    const editor = getLayoutEditor();
+    editor.transact((tr) =>
+      updateBlock(tr, "empty-paragraph", { type: "pair" }),
+    );
+
+    // An empty paragraph carries nothing, so the rebuilt node holds just the
+    // empty fill its content expression requires — two callouts for the
+    // pair's `min: 2`, each with the one empty block a callout needs.
+    const block = editor.document[1] as any;
+    expect(block.type).toBe("pair");
+    expect(block.children.map((child: any) => child.type)).toEqual([
+      "callout",
+      "callout",
+    ]);
+    for (const callout of block.children) {
+      expect(callout.children.map((child: any) => child.content)).toEqual([[]]);
+    }
+    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+  });
+
+  it("Puts carried content before existing children", () => {
+    const editor = getLayoutEditor();
+    editor.transact((tr) =>
+      updateBlock(tr, "paragraph-with-text-and-children", { type: "callout" }),
+    );
+
+    // The paragraph holding the carried text takes the place the text used to
+    // occupy, i.e. above the children that were already nested under it.
+    const block = editor.document[2] as any;
+    expect(block.type).toBe("callout");
+    expect(block.children.map((child: any) => child.content[0].text)).toEqual([
+      "Parent text",
+      "Existing child",
+    ]);
+    expect(block.children[1].id).toBe("existing-child");
+    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+  });
+
+  it("Drops table content when becoming a layout block", () => {
+    const editor = getLayoutEditor();
+    // Table content isn't an inline array, so there is no sensible paragraph to
+    // wrap it in. It's dropped, and the layout block seeds as if the block had
+    // been empty.
+    expect(() =>
+      editor.transact((tr) => updateBlock(tr, "table-0", { type: "callout" })),
+    ).not.toThrow();
+
+    const block = editor.document[3] as any;
+    expect(block.type).toBe("callout");
+    expect(block.content).toBeUndefined();
+    expect(block.children).toHaveLength(1);
+    expect(block.children[0].type).toBe("paragraph");
+    expect(block.children[0].content).toEqual([]);
+    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+  });
+
+  it.each(["paragraph-with-text", "callout-0"])(
+    "Rejects conversion of %s rather than dropping incompatible children",
+    (id) => {
+      const editor = getLayoutEditor();
+      const before = editor.prosemirrorState.doc;
+      expect(() =>
+        editor.transact((tr) => updateBlock(tr, id, { type: "grid" })),
+      ).toThrow();
+      expect(editor.prosemirrorState.doc.eq(before)).toBe(true);
+    },
+  );
+
+  it("Allows explicit replacement children when converting to a restricted layout block", () => {
+    const editor = getLayoutEditor();
+    editor.transact((tr) =>
+      updateBlock(tr, "callout-0", {
+        type: "grid",
+        children: [
+          {
+            type: "gridCell",
+            children: [{ type: "paragraph", content: "Replacement" }],
+          },
+          { type: "gridCell", children: [{ type: "paragraph" }] },
+        ],
+      }),
+    );
+    expect(editor.document[4].type).toBe("grid");
+    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+  });
+
+  it("Keeps a layout block's children when changing between layout block types", () => {
+    const editor = getLayoutEditor();
+    editor.transact((tr) => updateBlock(tr, "callout-0", { type: "box" }));
+
+    // Neither layout block holds content of its own, so the children move across
+    // untouched rather than being re-seeded.
+    const block = editor.document[4] as any;
+    expect(block.type).toBe("box");
+    expect(block.children.map((child: any) => child.id)).toEqual([
+      "callout-child",
+    ]);
+    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+  });
+
+  it("Keeps a layout block's children alongside the content it gains", () => {
+    const editor = getLayoutEditor();
+    editor.transact((tr) =>
+      updateBlock(tr, "callout-0", {
+        type: "heading",
+        content: "Now a heading",
+      }),
+    );
+
+    // The layout block had nowhere to put inline content; the heading does, so
+    // the given content lands there and the children stay nested under it.
+    const block = editor.document[4] as any;
+    expect(block.type).toBe("heading");
+    expect(block.content).toEqual([
+      { type: "text", text: "Now a heading", styles: {} },
+    ]);
+    expect(block.children.map((child: any) => child.id)).toEqual([
+      "callout-child",
+    ]);
+    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+  });
+
+  it("Updates a layout block's props without rebuilding it", () => {
+    const editor = getLayoutEditor();
+    editor.transact((tr) =>
+      updateBlock(tr, "callout-0", { props: { flavor: "warning" } }),
+    );
+
+    // No shape change, so this is an in-place attribute update: the layout block
+    // keeps its ID (unlike the type changes above) and its children.
+    const block = editor.document[4] as any;
+    expect(block.id).toBe("callout-0");
+    expect(block.props.flavor).toBe("warning");
+    expect(block.children.map((child: any) => child.id)).toEqual([
+      "callout-child",
+    ]);
+    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+  });
+
+  it("Keeps a layout block's children and invents no content when becoming a block", () => {
+    const editor = getLayoutEditor();
+    editor.transact((tr) =>
+      updateBlock(tr, "callout-0", { type: "paragraph" }),
+    );
+
+    const block = editor.document[4] as any;
+    expect(block.type).toBe("paragraph");
+    expect(block.id).toBe("callout-0");
+    expect(block.content).toEqual([]);
+    expect(block.children).toHaveLength(1);
+    expect(block.children[0].id).toBe("callout-child");
+    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
   });
 });

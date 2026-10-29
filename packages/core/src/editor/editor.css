@@ -41,6 +41,7 @@
   font-weight: normal;
   font-family:
     "Inter",
+    "Inter fallback",
     "SF Pro Display",
     -apple-system,
     BlinkMacSystemFont,
@@ -62,28 +63,6 @@
   position: absolute;
   z-index: 20;
   background-color: #adf;
-  pointer-events: none;
-}
-
-.bn-drag-preview {
-  position: absolute;
-  top: 0;
-  left: 0;
-  padding: 10px;
-  /* Sort of a hack but seems like the most reliable solution. */
-  /* Drag preview element needs to be within bounds of the document area or it
-   won't work in some cases. */
-  /* Negative z-index covers most cases, but the element can still be visible
-   if UI elements are translucent. */
-  /* Setting opacity has no effect on the drag preview but does affect the
-   element. Unless it's set to 0, in which case the drag preview also becomes
-   hidden. So setting it to an extremely low value instead makes the element
-   functionally invisible while not affecting the drag preview itself. */
-  opacity: 0.001;
-  /* The element is kept in the DOM after setDragImage captures its snapshot,
-   so it can overlap the editor and block drops in that area. Disabling
-   pointer-events lets drag/drop events pass through to the editor while
-   leaving the captured preview unaffected. */
   pointer-events: none;
 }
 
@@ -194,4 +173,63 @@ For the ShowSelectionPlugin
 [data-show-selection] {
   background-color: highlight;
   padding: 2px 0;
+}
+
+/* Preview loading indicator. Override the color and size on the editor. */
+.bn-editor.bn-loading::before {
+  animation:
+    bn-loader-rotate 1s linear infinite,
+    bn-loader-clip 2s linear infinite;
+  border: calc(5 * var(--bn-loader-size, 1px)) solid
+    var(--bn-loader-color, currentColor);
+  border-radius: 50%;
+  box-sizing: border-box;
+  display: block;
+  height: calc(48 * var(--bn-loader-size, 1px));
+  width: calc(48 * var(--bn-loader-size, 1px));
+}
+
+/* Keep the editor's loader visible while scrolling without moving content. */
+.bn-editor.bn-loading > .bn-block-group {
+  opacity: 0.4;
+  transition: opacity 0.2s ease;
+}
+
+.bn-editor.bn-loading::before {
+  content: "";
+  margin: 0 auto calc(-48 * var(--bn-loader-size, 1px));
+  position: sticky;
+  top: 16px;
+  z-index: 1;
+}
+
+@keyframes bn-loader-rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes bn-loader-clip {
+  0% {
+    clip-path: polygon(50% 50%, 0 0, 0 0, 0 0, 0 0, 0 0);
+  }
+  25% {
+    clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 0, 100% 0, 100% 0);
+  }
+  50% {
+    clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 100%, 100% 100%, 100% 100%);
+  }
+  75% {
+    clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 100%, 0 100%, 0 100%);
+  }
+  100% {
+    clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 100%, 0 100%, 0 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bn-editor.bn-loading::before {
+    animation: none;
+    clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 100%, 0 100%, 0 100%);
+  }
 }

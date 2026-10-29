@@ -141,11 +141,11 @@ editor.forEachBlock((block) => {
 insertBlocks(
   blocksToInsert: PartialBlock[],
   referenceBlock: BlockIdentifier,
-  placement: "before" | "after" = "before"
-): void
+  placement: "before" | "after" | "first-child" | "last-child" = "before"
+): Block[]
 ```
 
-Inserts new blocks relative to an existing block.
+Inserts new blocks relative to an existing block. `"before"` and `"after"` make the new blocks siblings of the reference block; `"first-child"` and `"last-child"` nest them inside it. Returns the inserted blocks.
 
 ```typescript
 // Insert a paragraph before an existing block
@@ -164,7 +164,19 @@ editor.insertBlocks(
   "existing-block-id",
   "after",
 );
+
+// Insert a paragraph as the last child of an existing block
+editor.insertBlocks(
+  [{ type: "paragraph", content: "Nested paragraph" }],
+  "existing-block-id",
+  "last-child",
+);
 ```
+
+`placement` says where the new blocks go, relative to the reference block:
+
+- `"before"` and `"after"`: as its siblings, directly before or after it.
+- `"first-child"` and `"last-child"`: as its children, at the start or at the end. The reference block does not need to have children yet.
 
 ### Updating Blocks
 
@@ -372,7 +384,7 @@ editor.insertInlineContent([
 getSelectedText(): string
 ```
 
-Retrieves the currently selected text as a plain string.
+Retrieves the currently selected text as a plain string. When the selection spans multiple blocks, the text of each block is separated by a newline.
 
 ```typescript
 const selectedText = editor.getSelectedText();
@@ -390,7 +402,7 @@ if (selectedText) {
 getActiveStyles(): Styles
 ```
 
-Returns the active text styles at the current cursor position or at the end of the current selection.
+Returns the active text styles at the current cursor position or at the end of the current selection. With an empty selection, this includes styles enabled for upcoming text: for example, turning on bold before typing makes `activeStyles.bold` true even when the surrounding text is not bold.
 
 ```typescript
 const activeStyles = editor.getActiveStyles();
@@ -413,7 +425,7 @@ if (activeStyles.textColor) {
 getSelectedLinkUrl(): string | undefined
 ```
 
-Returns the URL of the last link in the current selection, or `undefined` if no links are selected.
+Returns the URL of the link the current selection starts in, or `undefined` if it does not start in a link.
 
 ```typescript
 const linkUrl = editor.getSelectedLinkUrl();

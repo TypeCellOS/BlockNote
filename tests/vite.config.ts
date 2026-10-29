@@ -1,5 +1,6 @@
 import * as path from "path";
 import { defineConfig, type UserConfig } from "vite-plus";
+import { buildCacheInputs } from "../scripts/build-cache-inputs.js";
 
 // https://vitejs.dev/config/
 export default defineConfig(
@@ -9,28 +10,38 @@ export default defineConfig(
         tasks: {
           build: {
             command: "tsc",
-            input: [
-              { auto: true },
-              { pattern: "!**/*.tsbuildinfo", base: "workspace" },
-            ],
+            cache: {
+              input: [
+                ...buildCacheInputs("tests"),
+                { pattern: "!**/*.tsbuildinfo", base: "workspace" },
+              ],
+            },
           },
           test: {
             command: "vp test --run",
-            input: [
-              { auto: true },
-              { pattern: "!**/.next/**", base: "workspace" },
-              {
-                pattern: "!tests/nextjs-test-app/node_modules/**",
-                base: "workspace",
-              },
-            ],
+            cache: {
+              input: [
+                { auto: true },
+                { pattern: "!**/.next/**", base: "workspace" },
+                {
+                  pattern: "!tests/nextjs-test-app/node_modules/**",
+                  base: "workspace",
+                },
+              ],
+            },
           },
         },
       },
       test: {
+        // Preserve Vitest 4 mock history during the toolchain upgrade.
+        clearMocks: false,
         environment: "jsdom",
         setupFiles: ["./vitestSetup.ts"],
-        include: ["./src/unit/**/*.test.ts", "./src/unit/**/*.test.tsx"],
+        include: [
+          "./src/unit/**/*.test.ts",
+          "./src/unit/**/*.test.tsx",
+          "../examples/07-collaboration/12-multi-doc-versioning/src/*.test.ts",
+        ],
       },
       resolve: {
         alias:
@@ -48,6 +59,14 @@ export default defineConfig(
                 "@blocknote/react": path.resolve(
                   __dirname,
                   "../packages/react/src/",
+                ),
+                "@blocknote/ariakit": path.resolve(
+                  __dirname,
+                  "../packages/ariakit/src/",
+                ),
+                "@blocknote/shadcn": path.resolve(
+                  __dirname,
+                  "../packages/shadcn/src/",
                 ),
                 "@blocknote/mantine": path.resolve(
                   __dirname,

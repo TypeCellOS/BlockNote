@@ -1,0 +1,102 @@
+.stepper {
+  /* The rail runs behind the step numbers, from the first one down to the
+     "+" of "Add step". It is drawn once here rather than per step, so it
+     needs no "is this the last step" logic. */
+  position: relative;
+  margin: 8px 0;
+}
+
+.stepper::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  /* The centre of the first number. */
+  top: 33px;
+  bottom: 12px;
+  width: 1px;
+  background: var(--bn-colors-border);
+}
+
+/* Numbering is a CSS counter, so it stays correct as steps are added,
+   removed, dragged or undone - nothing to keep in sync in the document. */
+.stepper-steps {
+  counter-reset: step;
+}
+
+.step {
+  display: flex;
+  /* The side menu of a block in a step is at the left of that block. This gap
+     is wider than the side menu (48px), so the menu does not cover the
+     number. */
+  gap: 12px;
+  padding-bottom: 8px;
+}
+
+.step-rail {
+  flex: none;
+  width: 25px;
+  /* Centres the number on the first line of a step's title. The title is a
+     heading, and its first line starts 21px below its top: 18px of heading
+     spacing and 3px of line spacing. */
+  padding-top: 21px;
+}
+
+/* Every circle gets the editor's background so the rail passes behind it. */
+.step-number,
+.stepper-add-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 25px;
+  height: 25px;
+  box-sizing: border-box;
+  border: 1px solid var(--bn-colors-border);
+  border-radius: 999px;
+  background: var(--bn-colors-editor-background);
+  color: var(--bn-colors-side-menu);
+  font: inherit;
+  font-size: 0.8rem;
+  padding: 0;
+  user-select: none;
+}
+
+.step-number {
+  counter-increment: step;
+  color: var(--bn-colors-editor-text);
+}
+
+.step-number::before {
+  content: counter(step);
+}
+
+.stepper-add:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 1px;
+}
+
+.step-body {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Do not remove the top spacing of the step's title (a heading). The side
+   menu is centred on the first line of a heading with the default spacing
+   only. With less spacing, the menu is below the line. */
+
+.stepper-add {
+  display: flex;
+  align-items: center;
+  /* The same as the gap of a step, so "Add step" aligns with the steps. */
+  gap: 12px;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+  color: var(--bn-colors-side-menu);
+}
+
+.stepper-add:hover {
+  color: var(--bn-colors-hovered-text);
+}

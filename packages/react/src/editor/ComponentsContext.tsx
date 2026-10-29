@@ -1,13 +1,16 @@
 import {
+  ReactElement,
   ChangeEvent,
   ComponentType,
   createContext,
   CSSProperties,
+  FocusEvent,
   ForwardedRef,
   HTMLInputAutoCompleteAttribute,
   KeyboardEvent,
   MouseEvent,
   ReactNode,
+  RefObject,
   useContext,
 } from "react";
 
@@ -15,7 +18,16 @@ import { BlockNoteEditor, User } from "@blocknote/core";
 import { DefaultReactGridSuggestionItem } from "../components/SuggestionMenu/GridSuggestionMenu/types.js";
 import { DefaultReactSuggestionItem } from "../components/SuggestionMenu/types.js";
 
+export type VersioningSnapshotState =
+  | "default"
+  | "selected"
+  | "comparison-source"
+  | "comparison-baseline";
+
 type ToolbarRootType = {
+  "aria-label"?: string;
+  /** Keep Tab within floating toolbars. Disable for toolbars embedded in a panel. */
+  trapFocus?: boolean;
   className?: string;
   children?: ReactNode;
   onMouseEnter?: () => void;
@@ -47,6 +59,14 @@ type ToolbarSelectType = {
     isDisabled?: boolean;
   }[];
   isDisabled?: boolean;
+  portalElement: HTMLElement | null;
+  /**
+   * When true, the UI library must not move focus into the surface when it
+   * opens (the mobile toolbar: a focus move blurs the editor and closes the
+   * on-screen keyboard). An input inside that asks for focus itself still
+   * gets it.
+   */
+  preventFocusOnOpen?: boolean;
 };
 
 type MenuButtonType = {
@@ -81,7 +101,15 @@ export type ComponentProps = {
     };
     Button: {
       className?: string;
-      onClick: () => void;
+      /**
+       * Explicit, because the skins' underlying buttons disagree on the
+       * default (Mantine's is `type="button"`, shadcn's was `"submit"`) and
+       * a submit button inside a `Form.Root` must reliably submit on every
+       * skin. `"submit"` buttons need no `onClick` - the form's `onSubmit`
+       * is the single commit path, so clicking cannot fire twice.
+       */
+      type: "button" | "submit";
+      onClick?: () => void;
     } & (
       | { children: ReactNode; label?: string }
       | { children?: undefined; label: string }
@@ -102,7 +130,7 @@ export type ComponentProps = {
       value: string;
       placeholder: string;
       onChange: (event: ChangeEvent<HTMLInputElement>) => void;
-      onKeyDown: (event: KeyboardEvent) => void;
+      onKeyDown?: (event: KeyboardEvent) => void;
     };
   };
   LinkToolbar: {
@@ -242,23 +270,65 @@ export type ComponentProps = {
      * snapshot rows).
      */
     Sidebar: {
+      "aria-label"?: string;
       className?: string;
       children?: ReactNode;
     };
+    /** The sidebar heading and its filter, comparison, and close actions. */
+    Header: {
+      className?: string;
+      title: string;
+      actions: ReactNode;
+      closeAction?: ReactNode;
+    };
+    /** A version name, rendered as text or as an inline controlled field. */
+    Name:
+      | {
+          mode: "display";
+          value: string;
+        }
+      | {
+          mode: "editing";
+          value: string;
+          placeholder: string;
+          "aria-label": string;
+          inputRef: RefObject<HTMLInputElement | null>;
+          onChange: (event: ChangeEvent<HTMLInputElement>) => void;
+          onClick: (event: MouseEvent<HTMLInputElement>) => void;
+          onKeyDown: (event: KeyboardEvent<HTMLInputElement>) => void;
+          onBlur: (event: FocusEvent<HTMLInputElement>) => void;
+        };
     /**
-     * A single row in the version-history sidebar — the live "current version"
-     * entry or a stored snapshot.
+     * A single row in the version-history sidebar — the current version or a
+     * stored one. Rendered as a `role="listitem"` inside the sidebar's list,
+     * which is why it takes the roving-tabindex and focus props below.
      */
     Snapshot: {
+      "aria-label"?: string;
       className?: string;
-      /** Whether this row is the version currently shown in the editor. */
-      selected?: boolean;
-      /** Whether this row is the baseline the current diff is compared against. */
-      comparing?: boolean;
+      id?: string;
+      /** The row's mutually exclusive selection and comparison state. */
+      state: VersioningSnapshotState;
+      /** `0` for the active row of the roving tabindex, `-1` for the rest. */
+      tabIndex?: number;
+      /** Whether this row's content is still loading. */
+      "aria-busy"?: boolean;
       onClick?: () => void;
+      onKeyDown?: (event: KeyboardEvent) => void;
+      onFocus?: () => void;
       /** Row actions (e.g. the "..." menu), revealed on hover. */
       actions?: ReactNode;
-      children?: ReactNode;
+      name: ReactNode;
+      date?: string;
+      restoredFrom?: string;
+      /** Complete core users, or raw IDs for authors that have not resolved. */
+      users?: (User | string)[];
+      comparingLabel?: string;
+      comparingIcon?: ReactNode;
+    };
+    /** The spinner shown while versions (or a preview) are loading. */
+    Loader: {
+      className?: string;
     };
   };
   AttributionTooltip: {
@@ -303,6 +373,20 @@ export type ComponentProps = {
     Form: {
       Root: {
         children?: ReactNode;
+        /**
+         * Called on the form's `submit` event. Implementations must render a
+         * real `<form>` and `preventDefault`: native submission is the only
+         * path that works for every input source — mobile IMEs commit
+         * through it without dispatching any key event.
+         */
+        onSubmit?: () => void;
+        /**
+         * The form's submit control, rendered inside the `<form>`. Usually
+         * `ScreenReaderOnlySubmit`; a visible `type="submit"` button to make
+         * it the form's one affordance (the embed tab); or `"none"` — then
+         * the form must have exactly one field, or Enter submits nothing.
+         */
+        submitButton: ReactElement | "none";
       };
       TextInput: {
         className?: string;
@@ -315,9 +399,8 @@ export type ComponentProps = {
         placeholder?: string;
         disabled?: boolean;
         value: string;
-        onKeyDown: (event: KeyboardEvent<HTMLInputElement>) => void;
+        onKeyDown?: (event: KeyboardEvent<HTMLInputElement>) => void;
         onChange: (event: ChangeEvent<HTMLInputElement>) => void;
-        onSubmit?: () => void;
         autoComplete?: HTMLInputAutoCompleteAttribute;
         "aria-activedescendant"?: string;
         ref?: ForwardedRef<HTMLInputElement>;
@@ -333,6 +416,9 @@ export type ComponentProps = {
           | "bottom"
           | "left"
           | `${"top" | "right" | "bottom" | "left"}-${"start" | "end"}`;
+        portalElement: HTMLElement | null;
+        /** See `ToolbarSelect.preventFocusOnOpen`. */
+        preventFocusOnOpen?: boolean;
         children?: ReactNode;
       };
       Divider: {
@@ -347,6 +433,7 @@ export type ComponentProps = {
         className?: string;
         children?: ReactNode;
 
+        disabled?: boolean;
         subTrigger?: boolean;
         icon?: ReactNode;
         checked?: boolean;
@@ -372,7 +459,7 @@ export type ComponentProps = {
           | "bottom"
           | "left"
           | `${"top" | "right" | "bottom" | "left"}-${"start" | "end"}`;
-        portalRoot?: HTMLElement | null;
+        portalElement: HTMLElement | null;
         children?: ReactNode;
       };
       Content: {
@@ -402,9 +489,9 @@ export type Components = {
   // only needed as Generic Root/etc elements are 1 level of nesting deeper
   Generic: {
     [GenericComponents in keyof ComponentProps["Generic"]]: {
-      [Component in keyof ComponentProps["Generic"][GenericComponents]]: ComponentType<
-        ComponentProps["Generic"][GenericComponents][Component]
-      >;
+      [
+        Component in keyof ComponentProps["Generic"][GenericComponents]
+      ]: ComponentType<ComponentProps["Generic"][GenericComponents][Component]>;
     };
   };
 };

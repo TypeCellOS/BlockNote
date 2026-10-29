@@ -1,23 +1,10 @@
-import {
-  BlockNoteEditor,
-  BlockSchema,
-  DefaultBlockSchema,
-  DefaultInlineContentSchema,
-  DefaultStyleSchema,
-  Dictionary,
-  InlineContentSchema,
-  mergeCSSClasses,
-  StyleSchema,
-} from "@blocknote/core";
-import { CommentsExtension } from "@blocknote/core/comments";
-import { TextSelection } from "@tiptap/pm/state";
-import { memo, useCallback } from "react";
+import { BlockNoteEditor, Dictionary, mergeCSSClasses } from "@blocknote/core";
+import { CommentEditorSubmitExtension } from "@blocknote/core/comments";
+import { memo } from "react";
 import {
   Components,
   useComponentsContext,
 } from "../../editor/ComponentsContext.js";
-import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
-import { useExtension } from "../../hooks/useExtension.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { CommentEditor } from "./CommentEditor.js";
 
@@ -53,39 +40,29 @@ const FloatingComposerActionsComponent = memo(
  *
  * It's used when the user highlights a parts of the document to create a new comment / thread.
  */
-export function FloatingComposer<
-  B extends BlockSchema = DefaultBlockSchema,
-  I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema,
->(props: {
+export function FloatingComposer(props: {
   /**
    * The (empty) editor used to compose the new comment. Created and owned by
    * the `FloatingComposerController`, so it can check for unsaved text before
-   * the composer is dismissed.
+   * the composer is dismissed. Includes `CommentEditorSubmitExtension` with
+   * the callback that creates the thread.
    */
   newCommentEditor: BlockNoteEditor<any, any, any>;
 }) {
-  const editor = useBlockNoteEditor<B, I, S>();
   const newCommentEditor = props.newCommentEditor;
-
-  const comments = useExtension(CommentsExtension);
 
   const Components = useComponentsContext()!;
   const dict = useDictionary();
 
-  const onSave = useCallback(async () => {
-    // (later) For REST API, we should implement a loading state and error state
-    await comments.createThread({
-      initialComment: {
-        body: newCommentEditor.document,
-      },
-    });
-    comments.stopPendingComment();
-    editor.transact((tr) => {
-      tr.setSelection(TextSelection.create(tr.doc, tr.selection.to));
-    });
-    editor.focus();
-  }, [comments, newCommentEditor, editor]);
+  const submitExtension = newCommentEditor.getExtension(
+    CommentEditorSubmitExtension,
+  );
+  if (!submitExtension) {
+    throw new Error(
+      "FloatingComposer's newCommentEditor must include CommentEditorSubmitExtension.",
+    );
+  }
+  const onSave = submitExtension.submit;
 
   return (
     <Components.Comments.Card className={"bn-thread"}>

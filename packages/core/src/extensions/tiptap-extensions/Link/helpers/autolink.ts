@@ -1,12 +1,9 @@
 import type { NodeWithPos } from "@tiptap/core";
-import {
-  combineTransactionSteps,
-  findChildrenInRange,
-  getChangedRanges,
-  getMarksBetween,
-} from "@tiptap/core";
+import { findChildrenInRange, getMarksBetween } from "@tiptap/core";
 import type { MarkType } from "@tiptap/pm/model";
 import { Plugin, PluginKey } from "@tiptap/pm/state";
+import { combineTransactionSteps } from "../../../../api/combineTransactionSteps.js";
+import { getChangedRanges } from "../../../../api/getChangedRanges.js";
 import type { LinkMatch } from "./linkDetector.js";
 import { tokenizeLink } from "./linkDetector.js";
 
@@ -58,9 +55,7 @@ export function autolink(options: AutolinkOptions): Plugin {
       }
 
       const { tr } = newState;
-      const transform = combineTransactionSteps(oldState.doc, [
-        ...transactions,
-      ]);
+      const transform = combineTransactionSteps(oldState.doc, transactions);
       const changes = getChangedRanges(transform);
 
       changes.forEach(({ newRange }) => {
@@ -109,8 +104,7 @@ export function autolink(options: AutolinkOptions): Plugin {
             return;
           }
 
-          const lastWordBeforeSpace =
-            wordsBeforeWhitespace[wordsBeforeWhitespace.length - 1];
+          const lastWordBeforeSpace = wordsBeforeWhitespace.at(-1) ?? "";
           const lastWordAndBlockOffset =
             textBlock.pos +
             textBeforeWhitespace.lastIndexOf(lastWordBeforeSpace);

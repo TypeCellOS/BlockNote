@@ -1,9 +1,27 @@
 import tailwindcss from "@tailwindcss/vite";
 import * as fs from "fs";
 import * as path from "path";
-import { defineConfig, type UserConfig } from "vite-plus";
+import { configDefaults, defineConfig, type UserConfig } from "vite-plus";
 import { playwright } from "vite-plus/test/browser/providers/playwright";
 import { positionalMouse } from "./src/utils/positionalMouse.js";
+import { imeComposition } from "./src/utils/imeComposition.js";
+
+// For the desktop instances: end-to-end/mobile runs only in the "android"
+// instance. An instance-level `exclude` replaces the resolved base exclude
+// (including CLI exclusions), so apply the CI split at both levels.
+const CI_EXCLUDE =
+  process.env.BLOCKNOTE_E2E_GROUP === "non-pdf"
+    ? [
+        "**/typstPdfImages.test.tsx",
+        "../packages/xl-pdf-exporter/src/pdfua/compileTypst.browser.test.ts",
+      ]
+    : [];
+const DESKTOP_EXCLUDE = [
+  ...configDefaults.exclude,
+  ...CI_EXCLUDE,
+  "**/end-to-end/mobile/**",
+];
+import { restoreTouchEmulation } from "./src/utils/restoreTouchEmulation.js";
 
 // 1280x720 matches the old Playwright defaults so visual baselines have room.
 // Used as the playwright context viewport for every browser instance.
@@ -83,6 +101,8 @@ export default defineConfig(
         },
       },
       test: {
+        // Preserve Vitest 4 mock history during the toolchain upgrade.
+        clearMocks: false,
         name: "e2e",
         // Besides the end-to-end tests, this suite also runs the packages'
         // `.browser.test` files: unit tests for browser-only implementations
@@ -93,6 +113,8 @@ export default defineConfig(
           "./src/end-to-end/**/*.test.tsx",
           "../packages/*/src/**/*.browser.test.{ts,tsx}",
         ],
+        exclude: [...configDefaults.exclude, ...CI_EXCLUDE],
+
         setupFiles: ["./vitestSetup.browser.ts"],
         // Running three browsers concurrently inside one Docker container already
         // saturates CPU; layering per-browser file parallelism on top causes
@@ -110,13 +132,12 @@ export default defineConfig(
         // Persist a navigable HTML report to tests/playwright-report/ (same
         // path the legacy Playwright HTML report used, so existing CI artifact
         // uploads keep working). The `html` reporter is provided by
-        // `@vitest/ui` — its peer-dep version must match vite-plus-test's
-        // expectation (4.1.5 at the time of writing); earlier 0.1.x doesn't
-        // ship the `/reporter` subexport and errors at startup.
-        reporters: ["default", "html"],
-        outputFile: { html: "./playwright-report/index.html" },
+        // `@vitest/ui`, whose version must match Vite Plus's bundled Vitest.
+        reporters: ["default", ["html", { outputDir: "./playwright-report" }]],
         browser: {
           enabled: true,
+          // Keep Vitest 4's partial, case-insensitive locator matching.
+          locators: { exact: false },
           // Global default tolerance for every `toMatchScreenshot` assertion.
           // The three browsers run in one contended Docker container and minor
           // anti-aliasing / sub-pixel font-rendering differences (e.g. a 24px /
@@ -144,7 +165,7 @@ export default defineConfig(
           // still show in the HTML report (errors + stack traces don't depend
           // on these shots), so disable them. See `e2e:report` to view.
           screenshotFailures: false,
-          commands: { positionalMouse },
+          commands: { positionalMouse, imeComposition, restoreTouchEmulation },
           instances: [
             {
               browser: "chromium",
@@ -156,12 +177,89 @@ export default defineConfig(
                   "--disable-dev-shm-usage",
                 ],
               },
+              // end-to-end/mobile runs only in the "android" instance below.
+              exclude: DESKTOP_EXCLUDE,
             },
             {
               browser: "firefox",
+              exclude: DESKTOP_EXCLUDE,
             },
             {
               browser: "webkit",
+              exclude: DESKTOP_EXCLUDE,
+            },
+            {
+              // Android-emulated chromium: mobile-specific end-to-end tests.
+              // The context makes `isTouchDevice()` genuinely true and puts
+              // prosemirror-view on its Android code paths (it samples the
+              // user agent at module load), so the mobile tests need no
+              // platform stubs. See tests/src/end-to-end/mobile/.
+              browser: "chromium",
+              name: "android",
+              launchOptions: {
+                args: [
+                  "--no-sandbox",
+                  "--disable-setuid-sandbox",
+                  "--disable-dev-shm-usage",
+                ],
+              },
+              provider: playwright({
+                contextOptions: {
+                  viewport: { width: 393, height: 727 },
+                  userAgent:
+                    "Mozilla/5.0 (Linux; Android 12; SM-S901B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Mobile Safari/537.36",
+                  isMobile: true,
+                  hasTouch: true,
+                },
+              }),
+              // One principle decides membership: a suite runs here when it can
+              // go red for a mobile-conditional reason no other suite here
+              // already pins. Tests whose driving idiom doesn't translate to
+              // touch emulation (positional mouse drags) carry
+              // `skipIf(onAndroid)` guards; product behavior is never
+              // skipped. No blanket screenshot suites — android baselines
+              // would double maintenance for viewport-independent artifacts;
+              // mobile visuals get curated tests with their own baselines.
+              // (form/ and copypaste/ were tried and dropped: no distinct
+              // mobile-conditional failure mode — see #3031.)
+              include: [
+                // Mobile-specific product behavior: the toolbar/popover
+                // lifecycle, IME delivery routes, touch link taps.
+                "./src/end-to-end/mobile/**/*.test.tsx",
+                // The browser facts Form.Root rests on (implicit submission,
+                // composition), re-asserted under mobile emulation flags.
+                "./src/end-to-end/platform/**/*.test.tsx",
+                // Synthesized Enter through the keymap chain — the #3001
+                // fix's primary consumer, exercised across every handler.
+                "./src/end-to-end/keyboardhandlers/**/*.test.tsx",
+                // Synthesized Enter through the suggestion menu's own key
+                // handling — a distinct consumer from the keymap chain.
+                "./src/end-to-end/emojipicker/**/*.test.tsx",
+              ],
+            },
+            {
+              // iOS-emulated: WebKit with an iPhone UA makes prosemirror-view
+              // take its iOS input paths (Enter left to the browser, the
+              // native split read back from the DOM with a 200ms fallback),
+              // which the android instance cannot reach. That path broke
+              // under #2912's node view mutation filter and shipped in 0.53;
+              // androidEnter.test.tsx pins it here. Not emulated: iOS
+              // Safari's tap-as-hover, the soft keyboard, focus and zoom
+              // (release checklist). Playwright's WebKit leaves
+              // `navigator.maxTouchPoints` at 0 for `hasTouch`; the setup
+              // stubs it to 5, the one stub of this instance.
+              browser: "webkit",
+              name: "ios",
+              provider: playwright({
+                contextOptions: {
+                  viewport: { width: 393, height: 727 },
+                  userAgent:
+                    "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1",
+                  isMobile: true,
+                  hasTouch: true,
+                },
+              }),
+              include: ["./src/end-to-end/mobile/**/*.test.tsx"],
             },
           ],
         },

@@ -220,6 +220,7 @@ export const de: Dictionary = {
   toggle_blocks: {
     add_block_button:
       "Leerer aufklappbarer Bereich. Klicken, um einen Block hinzuzufügen.",
+    toggle_button: "Aufklappen oder zuklappen",
   },
   code_block: {
     add_source_button_text: "Quellcode hinzufügen",
@@ -428,10 +429,39 @@ export const de: Dictionary = {
   suggestion_changes: {
     formatting_change: "Formatierungsänderung",
     deleted: "Gelöscht",
+    inserted: "Eingefügt",
     inserted_by: (users: string) => `Eingefügt von: ${users}`,
     deleted_by: (users: string) => `Gelöscht von: ${users}`,
+    changed: "Geändert",
+    changed_by: (users: string) => `Geändert von: ${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `Formatierungsänderung (${formats}) von: ${users}`,
+  },
+  versioning: {
+    start_of_document: "Anfang des Dokuments",
+    compare_since_beginning_menuitem: "Seit Beginn vergleichen",
+    title: "Verlauf",
+    close: "Schließen",
+    show_named_only: "Nur benannte Versionen anzeigen",
+    show_all: "Alle Versionen anzeigen",
+    comparison_on: "Änderungen anzeigen",
+    comparison_off: "Änderungen ausblenden",
+    versions_list: "Versionen",
+    empty: "Noch keine Versionen",
+    empty_named_only: "Keine benannten Versionen",
+    current_version: "Aktuelle Version",
+    before_restore: "Vor der Wiederherstellung",
+    comparing_to: "Verglichen mit",
+    restored_from: (date: string) => `Wiederhergestellt aus ${date}`,
+    more_actions: "Weitere Aktionen",
+    version_name_input: "Versionsname",
+    name_version_menuitem: "Diese Version benennen",
+    rename_menuitem: "Umbenennen",
+    compare_with_menuitem: "Mit dieser Version vergleichen",
+    restore_menuitem: "Wiederherstellen",
+    delete_menuitem: "Löschen",
+    action_failed: "Etwas ist schiefgelaufen. Bitte versuche es erneut.",
+    history_load_failed: "Versionsverlauf konnte nicht geladen werden",
   },
   exporter: {
     open_file: "Datei öffnen",
@@ -439,6 +469,9 @@ export const de: Dictionary = {
     open_audio_file: "Audio öffnen",
   },
   generic: {
+    loading: "Wird geladen...",
+    load_more: "Mehr laden",
     ctrl_shortcut: "Strg",
+    form_submit: "OK",
   },
 };

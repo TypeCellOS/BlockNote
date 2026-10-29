@@ -9,11 +9,27 @@
     "directory": "packages/xl-multi-column"
   },
   "license": "GPL-3.0 OR PROPRIETARY",
-  "version": "0.54.0",
+  "version": "0.56.0",
   "files": [
     "dist",
     "types",
-    "src"
+    "src",
+    "!**/*.cjs",
+    "!**/*.map",
+    "!**/*.test.*",
+    "!**/*.spec.*",
+    "!**/*.snap",
+    "!**/__test__/**",
+    "!**/__tests__/**",
+    "!**/tests/**",
+    "!**/__snapshots__/**",
+    "!**/__msw_snapshots__/**",
+    "!**/fixtures/**",
+    "!**/testUtil/**",
+    "!**/testUtils/**",
+    "!**/test-utils/**",
+    "!**/*.tsbuildinfo",
+    "!dist/webpack-stats.json"
   ],
   "keywords": [
     "react",
@@ -32,13 +48,13 @@
   "type": "module",
   "source": "src/index.ts",
   "types": "./types/src/index.d.ts",
-  "main": "./dist/blocknote-xl-multi-column.cjs",
+  "main": "./dist/blocknote-xl-multi-column.js",
   "module": "./dist/blocknote-xl-multi-column.js",
   "exports": {
     ".": {
       "types": "./types/src/index.d.ts",
       "import": "./dist/blocknote-xl-multi-column.js",
-      "require": "./dist/blocknote-xl-multi-column.cjs"
+      "default": "./dist/blocknote-xl-multi-column.js"
     }
   },
   "scripts": {
@@ -52,10 +68,11 @@
   "dependencies": {
     "@blocknote/core": "workspace:^",
     "@blocknote/react": "workspace:^",
-    "@tiptap/core": "^3.29.2",
+    "@tiptap/core": "^3.31.3",
+    "@tiptap/pm": "^3.31.3",
     "prosemirror-model": "^1.25.11",
     "prosemirror-state": "^1.4.4",
-    "prosemirror-view": "^1.42.2"
+    "prosemirror-view": "^1.42.5"
   },
   "devDependencies": {
     "@blocknote/shared": "workspace:^",

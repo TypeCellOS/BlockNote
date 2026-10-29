@@ -1,9 +1,11 @@
-import { TextSelection } from "prosemirror-state";
+import { NodeSelection, Selection, TextSelection } from "prosemirror-state";
 
 import {
   createExtension,
   createStore,
 } from "../../editor/BlockNoteExtension.js";
+import { isTouchDevice } from "../../util/browser.js";
+import { MultipleNodeSelection } from "../SideMenu/MultipleNodeSelection.js";
 
 export const FormattingToolbarExtension = createExtension(({ editor }) => {
   const store = createStore(false);
@@ -13,6 +15,16 @@ export const FormattingToolbarExtension = createExtension(({ editor }) => {
       // Don't show if the selection is empty, or is a text selection with no
       // text.
       if (tr.selection.empty) {
+        return false;
+      }
+
+      // Don't show if whole blocks are selected. A block drag selects the
+      // dragged blocks, and undoing the drop selects them again.
+      if (
+        tr.selection instanceof MultipleNodeSelection ||
+        (tr.selection instanceof NodeSelection &&
+          tr.selection.node.type.isInGroup("bnBlock"))
+      ) {
         return false;
       }
 
@@ -70,6 +82,62 @@ export const FormattingToolbarExtension = createExtension(({ editor }) => {
         // re-evaluate whether the toolbar should be shown
         store.setState(shouldShow());
       });
+      // The selection survives a blur, so without this the state would too:
+      // on a phone, tapping the page away from the editor closes the
+      // keyboard, and a controller mounting after that showed the toolbar over
+      // a blurred editor. Focus within the editor's own UI (a toolbar button,
+      // a popover's input) still counts as focused, and the event only fires
+      // once a focus handoff has settled. Known edge: with focus inside the
+      // toolbar (a menu open), scrolling the selection out of view hides the
+      // toolbar and the browser drops that focus, so the toolbar is gone until
+      // the next selection change.
+      const unsubscribeOnFocusChange = editor.onFocusChange(
+        (_editor, { focused }) => {
+          if (!focused) {
+            store.setState(false);
+            // On touch, leaving the editor also ends the selection. A phone
+            // can hand focus back without the keyboard (see the window blur
+            // listener below): the old selection then showed the desktop
+            // toolbar, and without the keyboard no tap cleared it. A tablet
+            // with a mouse or hardware keyboard loses the selection on blur
+            // too, unlike a desktop.
+            if (isTouchDevice()) {
+              editor.transact((tr) => {
+                if (!tr.selection.empty) {
+                  tr.setSelection(Selection.near(tr.selection.$head));
+                }
+              });
+            }
+            return;
+          }
+          if (preventShowWhileMouseDown || preventShowWhileDragging) {
+            return;
+          }
+          // Focus that comes back into the editor's UI rather than its
+          // content (e.g. a click on the drag handle) is not about the
+          // selection: showing the toolbar then would put it over the menu
+          // the UI opens.
+          if (editor.isFocused()) {
+            store.setState(shouldShow());
+          }
+        },
+        { includeEditorUI: true },
+      );
+      // A tap on iOS Safari's collapsed address bar only blurs the window: the
+      // editor keeps DOM focus, so no focusout reaches the handler above, and
+      // Safari later hands that focus back without the keyboard. On touch,
+      // drop the editor's focus along with the window's so the handler runs.
+      if (isTouchDevice()) {
+        window.addEventListener(
+          "blur",
+          () => {
+            if (editor.isFocused()) {
+              editor.blur();
+            }
+          },
+          { signal },
+        );
+      }
 
       // To mimic Notion's behavior, we listen to the mouse down event to set the `preventShowWhileMouseDown` flag
       dom.addEventListener(
@@ -122,6 +190,7 @@ export const FormattingToolbarExtension = createExtension(({ editor }) => {
       signal.addEventListener("abort", () => {
         unsubscribeOnChange();
         unsubscribeOnSelectionChange();
+        unsubscribeOnFocusChange();
       });
     },
   } as const;

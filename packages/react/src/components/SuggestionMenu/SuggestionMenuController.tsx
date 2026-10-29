@@ -4,13 +4,14 @@ import {
   SuggestionMenuOptions,
   filterSuggestionItems,
 } from "@blocknote/core/extensions";
-import { autoPlacement, offset, shift, size } from "@floating-ui/react";
 import { FC, useEffect, useMemo } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useEditorDOMElement } from "../../hooks/useEditorDomElement.js";
 import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
+import { PortalElementOverride } from "../../editor/PortalElementOverride.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
+import { suggestionMenuMiddleware } from "./suggestionMenuMiddleware.js";
 import {
   GenericPopover,
   GenericPopoverReference,
@@ -40,10 +41,10 @@ export function SuggestionMenuController<
     floatingUIOptions?: FloatingUIOptions;
     /**
      * Override the DOM node this floating element portals into. Falls back to
-     * `editor.portalElement` (which by default is mounted inside `bn-container`)
+     * the ambient portal target (the element wrapping the editor by default)
      * when omitted.
      */
-    portalElement?: HTMLElement | null;
+    portalElement?: HTMLElement;
   } & (ItemType<GetItemsType> extends DefaultReactSuggestionItem
     ? {
         // can be undefined
@@ -114,6 +115,18 @@ export function SuggestionMenuController<
           | undefined,
         getBoundingClientRect: () => state?.referencePos || new DOMRect(),
       }) satisfies GenericPopoverReference,
+    equalityFn: (a, b) => {
+      // Ignore fresh rectangle/callback identities when the anchor has not moved.
+      const aRect = a.getBoundingClientRect();
+      const bRect = b.getBoundingClientRect();
+      return (
+        a.element === b.element &&
+        aRect.x === bRect.x &&
+        aRect.y === bRect.y &&
+        aRect.width === bRect.width &&
+        aRect.height === bRect.height
+      );
+    },
   });
 
   const floatingUIOptions = useMemo<FloatingUIOptions>(
@@ -127,22 +140,7 @@ export function SuggestionMenuController<
           }
         },
         placement: "bottom-start",
-        middleware: [
-          offset(10),
-          // Flips the menu placement to maximize the space available, and prevents
-          // the menu from being cut off by the confines of the screen.
-          autoPlacement({
-            allowedPlacements: ["bottom-start", "top-start"],
-            padding: 10,
-          }),
-          shift(),
-          size({
-            apply({ elements, availableHeight }) {
-              elements.floating.style.maxHeight = `${Math.max(0, availableHeight)}px`;
-            },
-            padding: 10,
-          }),
-        ],
+        middleware: suggestionMenuMiddleware,
         ...props.floatingUIOptions?.useFloatingOptions,
       },
       focusManagerProps: {
@@ -177,23 +175,21 @@ export function SuggestionMenuController<
   }
 
   return (
-    <GenericPopover
-      reference={reference}
-      portalElement={props.portalElement}
-      {...floatingUIOptions}
-    >
-      {triggerCharacter && (
-        <SuggestionMenuWrapper
-          query={state.query}
-          closeMenu={suggestionMenu.closeMenu}
-          clearQuery={suggestionMenu.clearQuery}
-          getItems={getItemsOrDefault}
-          suggestionMenuComponent={
-            suggestionMenuComponent || SuggestionMenu<ItemType<GetItemsType>>
-          }
-          onItemClick={onItemClickOrDefault}
-        />
-      )}
-    </GenericPopover>
+    <PortalElementOverride target={props.portalElement}>
+      <GenericPopover reference={reference} {...floatingUIOptions}>
+        {triggerCharacter && (
+          <SuggestionMenuWrapper
+            query={state.query}
+            closeMenu={suggestionMenu.closeMenu}
+            clearQuery={suggestionMenu.clearQuery}
+            getItems={getItemsOrDefault}
+            suggestionMenuComponent={
+              suggestionMenuComponent || SuggestionMenu<ItemType<GetItemsType>>
+            }
+            onItemClick={onItemClickOrDefault}
+          />
+        )}
+      </GenericPopover>
+    </PortalElementOverride>
   );
 }

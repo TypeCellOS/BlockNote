@@ -6,6 +6,22 @@ export const CodeKeyboardShortcutsExtension =
     createExtension({
       key,
       keyboardShortcuts: {
+        "Mod-Alt-c": ({ editor }) => {
+          const cursorPosition = editor.getTextCursorPosition();
+
+          if (
+            editor.schema.blockSchema[cursorPosition.block.type].content !==
+            "inline"
+          ) {
+            return false;
+          }
+
+          editor.updateBlock(cursorPosition.block, {
+            type: blockType,
+            props: {},
+          });
+          return true;
+        },
         Delete: ({ editor }) => {
           return editor.transact((tr) => {
             const { block } = editor.getTextCursorPosition();
@@ -103,8 +119,13 @@ export const CodeKeyboardShortcutsExtension =
           find: /^```(.*?)\s$/,
           replace: ({ match }) => {
             const languageName = match[1].trim();
+            // Without a language suffix there is nothing to resolve, so fall
+            // back to the default rather than storing an empty language that
+            // no highlighter can render.
             const attributes = {
-              language: getLanguageId(options, languageName) ?? languageName,
+              language:
+                getLanguageId(options, languageName) ??
+                (languageName || options.defaultLanguage || "text"),
             };
 
             return {

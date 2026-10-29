@@ -6,12 +6,26 @@ import {
   createPageBreakBlockSpec,
   defaultBlockSpecs,
 } from "@blocknote/core";
+import { ColumnBlock, ColumnListBlock } from "@blocknote/xl-multi-column";
 import { testDocument } from "@shared/testDocument.js";
+
+// Schema including the multi-column blocks, matching the shared testDocument.
+// The columns are layout blocks, so the exporter only recognizes them as
+// such (and lets their mappings place the children) when they're in the
+// schema it was constructed with.
+const fullSchema = BlockNoteSchema.create({
+  blockSpecs: {
+    ...defaultBlockSpecs,
+    pageBreak: createPageBreakBlockSpec(),
+    column: ColumnBlock,
+    columnList: ColumnListBlock,
+  },
+});
 
 describe("react email exporter", () => {
   it("should export a document (HTML snapshot)", async () => {
     const exporter = new ReactEmailExporter(
-      BlockNoteSchema.create(),
+      fullSchema,
       reactEmailDefaultSchemaMappings,
     );
 
@@ -21,12 +35,7 @@ describe("react email exporter", () => {
 
   it("should export a document with preview", async () => {
     const exporter = new ReactEmailExporter(
-      BlockNoteSchema.create({
-        blockSpecs: {
-          ...defaultBlockSpecs,
-          pageBreak: createPageBreakBlockSpec(),
-        },
-      }),
+      fullSchema,
       reactEmailDefaultSchemaMappings,
     );
 
@@ -38,12 +47,7 @@ describe("react email exporter", () => {
 
   it("should export a document with multiple preview lines", async () => {
     const exporter = new ReactEmailExporter(
-      BlockNoteSchema.create({
-        blockSpecs: {
-          ...defaultBlockSpecs,
-          pageBreak: createPageBreakBlockSpec(),
-        },
-      }),
+      fullSchema,
       reactEmailDefaultSchemaMappings,
     );
 
@@ -118,6 +122,37 @@ describe("react email exporter", () => {
 
     const html = await exporter.toReactEmailDocument(styledDocument as any);
     expect(html).toMatchSnapshot("__snapshots__/reactEmailExporterStyledText");
+  });
+
+  it("should escape HTML characters in text content", async () => {
+    const exporter = new ReactEmailExporter(
+      BlockNoteSchema.create(),
+      reactEmailDefaultSchemaMappings,
+    );
+
+    const untrustedDocument = [
+      {
+        id: "1",
+        type: "paragraph",
+        content: [
+          {
+            type: "text",
+            text: "x < 10 & y > 20\n<script>alert(1)</script>",
+            styles: {},
+          },
+        ],
+        children: [],
+        props: {},
+      },
+    ];
+
+    const html = await exporter.toReactEmailDocument(untrustedDocument as any);
+
+    expect(html).not.toContain("<script>");
+    expect(html).toContain("x &lt; 10 &amp; y &gt; 20");
+    expect(html).toContain("&lt;script&gt;alert(1)&lt;/script&gt;");
+    // Newlines still become line breaks.
+    expect(html).toContain("<br");
   });
 
   it("should handle document with links", async () => {
@@ -655,7 +690,7 @@ describe("react email exporter", () => {
 
   it("should handle document with custom body styles", async () => {
     const exporter = new ReactEmailExporter(
-      BlockNoteSchema.create(),
+      fullSchema,
       reactEmailDefaultSchemaMappings,
     );
 

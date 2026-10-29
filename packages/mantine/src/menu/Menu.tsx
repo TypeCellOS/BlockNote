@@ -16,7 +16,15 @@ const SubMenuContext = createContext<
 >(undefined);
 
 export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
-  const { children, onOpenChange, position, sub, ...rest } = props;
+  const {
+    children,
+    onOpenChange,
+    position,
+    portalElement,
+    preventFocusOnOpen,
+    sub,
+    ...rest
+  } = props;
 
   assertEmpty(rest);
 
@@ -24,7 +32,6 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
     return (
       <MantineMenu.Sub
         transitionProps={{ duration: 250, exitDelay: 250 }}
-        withinPortal={false}
         middlewares={{ flip: true, shift: true, inline: false, size: true }}
         onChange={onOpenChange}
         position={position}
@@ -36,7 +43,11 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
 
   return (
     <MantineMenu
-      withinPortal={false}
+      withinPortal={!!portalElement}
+      portalProps={portalElement ? { target: portalElement } : undefined}
+      // Do not move focus to the dropdown when requested (mobile), as it blurs
+      // the editor's contentEditable and dismisses the on-screen keyboard.
+      trapFocus={preventFocusOnOpen ? false : undefined}
       middlewares={{ flip: true, shift: true, inline: false, size: true }}
       onChange={onOpenChange}
       position={position}
@@ -51,8 +62,16 @@ export const MenuItem = forwardRef<
   HTMLButtonElement & HTMLDivElement,
   ComponentProps["Generic"]["Menu"]["Item"]
 >((props, ref) => {
-  const { className, children, icon, checked, subTrigger, onClick, ...rest } =
-    props;
+  const {
+    className,
+    children,
+    icon,
+    checked,
+    disabled,
+    subTrigger,
+    onClick,
+    ...rest
+  } = props;
 
   // false, because rest props can be added by mantine when button is used as a trigger
   // assertEmpty in this case is only used at typescript level, not runtime level
@@ -72,6 +91,7 @@ export const MenuItem = forwardRef<
           ) : null
         }
         onClick={onClick}
+        disabled={disabled}
         {...rest}
       >
         {children}
@@ -92,6 +112,7 @@ export const MenuItem = forwardRef<
         ) : null
       }
       onClick={onClick}
+      disabled={disabled}
       {...rest}
     >
       {children}

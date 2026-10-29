@@ -11,11 +11,28 @@
     "directory": "packages/core"
   },
   "license": "MPL-2.0",
-  "version": "0.54.0",
+  "version": "0.56.0",
   "files": [
-    "dist",
-    "types",
-    "src"
+    "dist/*.js",
+    "dist/*.css",
+    "types/**/*.d.ts",
+    "src/fonts",
+    "!**/*.cjs",
+    "!**/*.map",
+    "!**/*.test.*",
+    "!**/*.spec.*",
+    "!**/*.snap",
+    "!**/__test__/**",
+    "!**/__tests__/**",
+    "!**/tests/**",
+    "!**/__snapshots__/**",
+    "!**/__msw_snapshots__/**",
+    "!**/fixtures/**",
+    "!**/testUtil/**",
+    "!**/testUtils/**",
+    "!**/test-utils/**",
+    "!**/*.tsbuildinfo",
+    "!dist/webpack-stats.json"
   ],
   "keywords": [
     "react",
@@ -32,55 +49,54 @@
   ],
   "description": "A \"Notion-style\" block-based extensible text editor built on top of Prosemirror and Tiptap.",
   "type": "module",
-  "source": "src/index.ts",
   "types": "./types/src/index.d.ts",
-  "main": "./dist/blocknote.cjs",
+  "main": "./dist/blocknote.js",
   "module": "./dist/blocknote.js",
   "exports": {
     ".": {
       "types": "./types/src/index.d.ts",
       "import": "./dist/blocknote.js",
-      "require": "./dist/blocknote.cjs"
+      "default": "./dist/blocknote.js"
     },
     "./style.css": {
       "import": "./dist/style.css",
-      "require": "./dist/style.css",
-      "style": "./dist/style.css"
+      "style": "./dist/style.css",
+      "default": "./dist/style.css"
     },
     "./fonts/inter.css": {
       "import": "./src/fonts/inter.css",
-      "require": "./src/fonts/inter.css",
-      "style": "./src/fonts/inter.css"
+      "style": "./src/fonts/inter.css",
+      "default": "./src/fonts/inter.css"
     },
     "./comments": {
       "types": "./types/src/comments/index.d.ts",
       "import": "./dist/comments.js",
-      "require": "./dist/comments.cjs"
+      "default": "./dist/comments.js"
     },
     "./blocks": {
       "types": "./types/src/blocks/index.d.ts",
       "import": "./dist/blocks.js",
-      "require": "./dist/blocks.cjs"
+      "default": "./dist/blocks.js"
     },
     "./locales": {
       "types": "./types/src/i18n/index.d.ts",
       "import": "./dist/locales.js",
-      "require": "./dist/locales.cjs"
+      "default": "./dist/locales.js"
     },
     "./extensions": {
       "types": "./types/src/extensions/index.d.ts",
       "import": "./dist/extensions.js",
-      "require": "./dist/extensions.cjs"
+      "default": "./dist/extensions.js"
     },
     "./yjs": {
       "types": "./types/src/yjs/index.d.ts",
       "import": "./dist/yjs.js",
-      "require": "./dist/yjs.cjs"
+      "default": "./dist/yjs.js"
     },
     "./y": {
       "types": "./types/src/y/index.d.ts",
       "import": "./dist/y.js",
-      "require": "./dist/y.cjs"
+      "default": "./dist/y.js"
     }
   },
   "scripts": {
@@ -97,24 +113,24 @@
     "@emoji-mart/data": "^1.2.1",
     "@handlewithcare/prosemirror-inputrules": "^0.1.4",
     "@shikijs/types": "^4.4.3",
-    "@tiptap/core": "^3.29.2",
-    "@tiptap/extension-bold": "^3.29.2",
-    "@tiptap/extension-code": "^3.29.2",
-    "@tiptap/extension-italic": "^3.29.2",
-    "@tiptap/extension-strike": "^3.29.2",
-    "@tiptap/extension-text": "^3.29.2",
-    "@tiptap/extension-underline": "^3.29.2",
-    "@tiptap/extensions": "^3.29.2",
-    "@tiptap/pm": "^3.29.2",
+    "@tiptap/core": "^3.31.3",
+    "@tiptap/extension-bold": "^3.31.3",
+    "@tiptap/extension-code": "^3.31.3",
+    "@tiptap/extension-italic": "^3.31.3",
+    "@tiptap/extension-strike": "^3.31.3",
+    "@tiptap/extension-text": "^3.31.3",
+    "@tiptap/extension-underline": "^3.31.3",
+    "@tiptap/extensions": "^3.31.3",
+    "@tiptap/pm": "^3.31.3",
     "emoji-mart": "^5.6.0",
     "fast-deep-equal": "^3.1.3",
-    "lib0": "1.0.0-rc.22",
+    "lib0": "1.0.0-rc.36",
     "prosemirror-highlight": "^0.15.3",
     "prosemirror-model": "^1.25.11",
     "prosemirror-state": "^1.4.4",
     "prosemirror-tables": "^1.8.5",
-    "prosemirror-transform": "^1.12.0",
-    "prosemirror-view": "^1.42.2"
+    "prosemirror-transform": "^1.12.1",
+    "prosemirror-view": "^1.42.5"
   },
   "devDependencies": {
     "jsdom": "^29.0.2",
@@ -124,15 +140,15 @@
     "vite-plus": "catalog:",
     "y-prosemirror": "^1.3.7",
     "y-protocols": "^1.0.6",
-    "yjs": "^13.6.27"
+    "yjs": "^13.6.33"
   },
   "peerDependencies": {
-    "@y/prosemirror": "^2.0.0-6",
+    "@y/prosemirror": "^2.0.0-15",
     "@y/protocols": "^1.0.6-rc.1",
-    "@y/y": "^14.0.0-rc.23",
+    "@y/y": "^14.0.0-rc.26",
     "y-prosemirror": "^1.3.7",
     "y-protocols": "^1.0.6",
-    "yjs": "^13.6.27"
+    "yjs": "^13.6.33"
   },
   "peerDependenciesMeta": {
     "@y/y": {

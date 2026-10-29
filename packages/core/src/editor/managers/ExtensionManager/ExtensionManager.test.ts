@@ -2,7 +2,7 @@
  * @vitest-environment jsdom
  */
 import { Plugin, PluginKey } from "prosemirror-state";
-import { describe, expect, it } from "vite-plus/test";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 
 import { createExtension } from "../../BlockNoteExtension.js";
 import { BlockNoteEditor } from "../../BlockNoteEditor.js";
@@ -14,6 +14,240 @@ function createMountedEditor(
   editor.mount(document.createElement("div"));
   return editor;
 }
+
+describe("runtime extension lifecycle", () => {
+  const cleanups: Array<() => void> = [];
+  afterEach(() => {
+    for (const cleanup of cleanups.splice(0).reverse()) {
+      cleanup();
+    }
+  });
+
+  function createEditor() {
+    const editor = BlockNoteEditor.create();
+    const host = document.createElement("div");
+    document.body.append(host);
+    cleanups.push(() => {
+      editor.unmount();
+      editor._tiptapEditor.destroy();
+      host.remove();
+    });
+    editor.mount(host);
+    return { editor, host };
+  }
+
+  it("mounts nested plugin-less extensions once and cleans them up", () => {
+    const { editor, host } = createEditor();
+    const parentCleanup = vi.fn();
+    const childCleanup = vi.fn();
+    const parentMount = vi.fn(() => parentCleanup);
+    const childMount = vi.fn(() => childCleanup);
+    const child = { key: "child", mount: childMount };
+    const parent = {
+      key: "parent",
+      mount: parentMount,
+      blockNoteExtensions: [() => child],
+    };
+    editor.registerExtension(parent);
+    editor.registerExtension(parent);
+    expect(parentMount).toHaveBeenCalledTimes(1);
+    expect(childMount).toHaveBeenCalledTimes(1);
+    editor.unregisterExtension([parent, child]);
+    expect(parentCleanup).toHaveBeenCalledTimes(1);
+    expect(childCleanup).toHaveBeenCalledTimes(1);
+    editor.registerExtension(parent);
+    editor.unmount();
+    editor.mount(host);
+    expect(parentMount).toHaveBeenCalledTimes(3);
+    expect(childMount).toHaveBeenCalledTimes(3);
+  });
+
+  it("cleans up removed controllers even when replacement plugins conflict", () => {
+    const { editor } = createEditor();
+    const key = new PluginKey("replacement-collision");
+    const cleanup = vi.fn();
+    const removed = { key: "removed-before-conflict", mount: () => cleanup };
+    editor.registerExtension([
+      removed,
+      {
+        key: "retained-before-conflict",
+        prosemirrorPlugins: [new Plugin({ key })],
+      },
+    ]);
+    expect(() =>
+      editor.replaceExtension(removed, {
+        key: "conflicting-replacement",
+        prosemirrorPlugins: [new Plugin({ key })],
+      }),
+    ).toThrow(/keyed plugin/);
+    expect(cleanup).toHaveBeenCalledTimes(1);
+    editor.unmount();
+    expect(cleanup).toHaveBeenCalledTimes(1);
+  });
+
+  it("allows cleanup to re-register the same instance after plugin removal", () => {
+    const { editor, host } = createEditor();
+    const key = new PluginKey("cleanup-identical");
+    const plugin = new Plugin({ key });
+    let resurrect = true;
+    let registrationError: unknown;
+    const mount = vi.fn(() => () => {
+      if (resurrect) {
+        resurrect = false;
+        try {
+          editor.registerExtension(extension);
+        } catch (error) {
+          registrationError = error;
+        }
+      }
+    });
+    const extension = {
+      key: "cleanup-identical",
+      prosemirrorPlugins: [plugin],
+      mount,
+    };
+    editor.registerExtension(extension);
+    editor.unregisterExtension(extension);
+    expect(registrationError).toBeUndefined();
+    expect(editor.getExtension(extension.key)).toBe(extension);
+    expect(mount).toHaveBeenCalledTimes(2);
+    expect(key.get(editor.prosemirrorState)).toBe(plugin);
+    editor.unmount();
+    editor.mount(host);
+    expect(key.get(editor.prosemirrorState)).toBe(plugin);
+  });
+
+  it("does not mount an extension removed by an earlier mount hook", () => {
+    const { editor } = createEditor();
+    const childMount = vi.fn();
+    const child = { key: "removed-child", mount: childMount };
+    editor.registerExtension([
+      {
+        key: "removing-parent",
+        mount() {
+          editor.unregisterExtension(child);
+        },
+      },
+      child,
+    ]);
+    expect(editor.getExtension(child.key)).toBeUndefined();
+    expect(childMount).not.toHaveBeenCalled();
+  });
+
+  it("mounts runtime extensions and cleans them up when removed", () => {
+    let mounts = 0;
+    let unmounts = 0;
+    const extension = createExtension(() => ({
+      key: "runtime-lifecycle",
+      mount({ signal }: { signal: AbortSignal }) {
+        expect(signal.aborted).toBe(false);
+        mounts++;
+        return () => {
+          unmounts++;
+        };
+      },
+    }));
+    const { editor, host } = createEditor();
+    editor.registerExtension(extension());
+    expect(mounts).toBe(1);
+    const instance = editor.getExtension(extension)!;
+    editor.unregisterExtension(extension);
+    expect(unmounts).toBe(1);
+    editor.registerExtension(instance);
+    expect(mounts).toBe(2);
+    editor.unmount();
+    expect(unmounts).toBe(2);
+    editor.mount(host);
+    expect(mounts).toBe(3);
+  });
+});
+
+describe("Extension keyboard shortcuts", () => {
+  it("validates shortcut names at initialization", () => {
+    expect(() =>
+      createMountedEditor([
+        createExtension({
+          key: "invalid-shortcut",
+          keyboardShortcuts: { "InvalidModifier-k": () => true },
+        }),
+      ]),
+    ).toThrow("Unrecognized modifier name: InvalidModifier");
+  });
+
+  it("preserves the outer event for fallback matching after a nested key event", () => {
+    const nestedEvent = new KeyboardEvent("keydown", {
+      key: "x",
+      bubbles: true,
+    });
+    const nested = vi.fn(() => true);
+    const fallback = vi.fn(() => true);
+    const editor = createMountedEditor([
+      createExtension({
+        key: "nested-shortcuts",
+        keyboardShortcuts: {
+          "Shift-K": ({ editor }) => {
+            editor.prosemirrorView.dom.dispatchEvent(nestedEvent);
+            return false;
+          },
+          K: fallback,
+          x: nested,
+        },
+      }),
+    ]);
+    const outerEvent = new KeyboardEvent("keydown", {
+      key: "K",
+      keyCode: 75,
+      shiftKey: true,
+      bubbles: true,
+      cancelable: true,
+    });
+    editor.prosemirrorView.dom.dispatchEvent(outerEvent);
+    expect(nested).toHaveBeenCalledExactlyOnceWith({
+      editor,
+      event: nestedEvent,
+    });
+    expect(fallback).toHaveBeenCalledExactlyOnceWith({
+      editor,
+      event: outerEvent,
+    });
+    expect(outerEvent.defaultPrevented).toBe(true);
+    editor.unmount();
+  });
+
+  it("forwards the original event and preserves modifier matching and fallthrough", () => {
+    const first = vi.fn(() => false);
+    const second = vi.fn(() => true);
+    const editor = createMountedEditor([
+      createExtension({
+        key: "first-shortcut",
+        runsBefore: ["second-shortcut"],
+        keyboardShortcuts: { "Ctrl-Shift-k": first },
+      }),
+      createExtension({
+        key: "second-shortcut",
+        keyboardShortcuts: { "Ctrl-Shift-k": second },
+      }),
+    ]);
+    const event = new KeyboardEvent("keydown", {
+      key: "K",
+      keyCode: 75,
+      ctrlKey: true,
+      shiftKey: true,
+      repeat: true,
+      bubbles: true,
+      cancelable: true,
+    });
+    editor.prosemirrorView.dom.dispatchEvent(event);
+    expect(first).toHaveBeenCalledExactlyOnceWith({ editor, event });
+    expect(second).toHaveBeenCalledExactlyOnceWith({ editor, event });
+    expect(event.defaultPrevented).toBe(true);
+    editor.prosemirrorView.dom.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "k", bubbles: true }),
+    );
+    expect(first).toHaveBeenCalledOnce();
+    editor.unmount();
+  });
+});
 
 /**
  * Returns the index of the plugin identified by `key` within the editor's

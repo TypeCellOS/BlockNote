@@ -3,6 +3,7 @@ import { Badge, BadgeGroup } from "./badge/Badge.js";
 import { Card, CardSection, ExpandSectionsPrompt } from "./comments/Card.js";
 import { Comment } from "./comments/Comment.js";
 import { Editor } from "./comments/Editor.js";
+import { Form } from "./form/Form.js";
 import { TextInput } from "./form/TextInput.js";
 import {
   Menu,
@@ -37,6 +38,8 @@ import { Toolbar } from "./toolbar/Toolbar.js";
 import { ToolbarButton } from "./toolbar/ToolbarButton.js";
 import { ToolbarSelect } from "./toolbar/ToolbarSelect.js";
 import {
+  Header as VersioningHeader,
+  Name as VersioningName,
   Sidebar as VersioningSidebar,
   Snapshot as VersioningSnapshot,
 } from "./versioning/Versioning.js";
@@ -89,7 +92,7 @@ export const components: Components = {
       Group: BadgeGroup,
     },
     Form: {
-      Root: (props) => <div>{props.children}</div>,
+      Root: Form,
       TextInput: TextInput,
     },
     Menu: {
@@ -121,6 +124,11 @@ export const components: Components = {
   },
   Versioning: {
     Sidebar: VersioningSidebar,
+    Header: VersioningHeader,
+    Name: VersioningName,
     Snapshot: VersioningSnapshot,
+    // The sidebar's loader is the same dots/spinner as the suggestion menu's —
+    // one spinner per UI package, not one per feature.
+    Loader: SuggestionMenuLoader,
   },
 };

@@ -4,7 +4,7 @@ import {
   Extension,
   ExtensionFactoryInstance,
 } from "../../editor/BlockNoteExtension.js";
-import { camelToDataKebab } from "../../util/string.js";
+import { propsToDataAttributes, setDataAttributes } from "../dataAttributes.js";
 import { PropSchema, Props } from "../propTypes.js";
 import {
   CustomInlineContentConfig,
@@ -34,17 +34,12 @@ export function addInlineContentAttributes<
 } {
   // Sets content type attribute
   element.dom.setAttribute("data-inline-content-type", inlineContentType);
-  // Adds props as HTML attributes in kebab-case with "data-" prefix. Skips props
-  // set to their default values.
-  Object.entries(inlineContentProps)
-    .filter(([prop, value]) => {
-      const spec = propSchema[prop];
-      return value !== spec?.default;
-    })
-    .map(([prop, value]) => {
-      return [camelToDataKebab(prop), value];
-    })
-    .forEach(([prop, value]) => element.dom.setAttribute(prop, value));
+  // Adds the props as `data-*` attributes, leaving out those at their default.
+  // Set only: the element is the author's, and their own attributes stay.
+  setDataAttributes(
+    element.dom,
+    propsToDataAttributes(inlineContentProps, propSchema),
+  );
 
   if (element.contentDOM) {
     element.contentDOM.setAttribute("data-editable", "");
@@ -100,6 +95,7 @@ export function createInlineContentSpecFromTipTapNode<
     InlineContentImplementation<CustomInlineContentConfig>,
     "node"
   >,
+  extensions?: (Extension | ExtensionFactoryInstance)[],
 ) {
   return createInternalInlineContentSpec(
     {
@@ -124,6 +120,7 @@ export function createInlineContentSpecFromTipTapNode<
       propSchema: P;
       content: "styled" | "none" | "plain";
     }>,
+    extensions,
   );
 }
 

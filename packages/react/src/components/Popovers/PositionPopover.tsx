@@ -10,10 +10,9 @@ export const PositionPopover = (
   props: FloatingUIOptions & {
     position: { from: number; to?: number } | undefined;
     children: ReactNode;
-    portalElement?: HTMLElement | null;
   },
 ) => {
-  const { position, children, portalElement, ...floatingUIOptions } = props;
+  const { position, children, ...floatingUIOptions } = props;
   const { from, to } = position || {};
 
   const editor = useBlockNoteEditor<any, any, any>();
@@ -35,11 +34,7 @@ export const PositionPopover = (
   }, [editor, editorDOMElement, from, to]);
 
   return (
-    <GenericPopover
-      reference={reference}
-      portalElement={portalElement}
-      {...floatingUIOptions}
-    >
+    <GenericPopover reference={reference} {...floatingUIOptions}>
       {position !== undefined && children}
     </GenericPopover>
   );

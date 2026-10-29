@@ -1,13 +1,14 @@
 import App from "@examples/07-collaboration/09-comments-testing/src/App";
 import { beforeEach, describe, expect, test, vi } from "vite-plus/test";
 import { render } from "vitest-browser-react";
-import { browserName, page, userEvent } from "../../utils/context.js";
+import { browserName, MOD, page, userEvent } from "../../utils/context.js";
 import { EDITOR_SELECTOR, LINK_BUTTON_SELECTOR } from "../../utils/const.js";
 import {
   expectElement,
   focusOnEditor,
   sleep,
   waitForSelector,
+  waitForSelectorDetached,
 } from "../../utils/editor.js";
 import { clickAt, getRect, moveMouseOverElement } from "../../utils/mouse.js";
 
@@ -15,6 +16,21 @@ import { clickAt, getRect, moveMouseOverElement } from "../../utils/mouse.js";
 async function doubleClickElement(element: Element) {
   const { x, y, width, height } = getRect(element);
   await clickAt(x + width / 2, y + height / 2, 2);
+}
+
+/**
+ * Clicks the comment mark near its left edge. ProseMirror counts a click within
+ * 500ms and 10px of the previous one in the editor as a double/triple click
+ * (which skips `handleClick`, so no thread opens). The clicks on the comment
+ * UI in between happen outside the editor and don't reset that count, so
+ * clicking the centre right after double-clicking the word to select it is
+ * flaky.
+ */
+async function clickThreadMark() {
+  const { x, y, height } = getRect(
+    await waitForSelector("span.bn-thread-mark"),
+  );
+  await clickAt(x + 2, y + height / 2);
 }
 
 /** Resolves once exactly `count` elements match `selector`. */
@@ -59,6 +75,63 @@ beforeEach(async () => {
 });
 
 describe("Check Comments functionality", () => {
+  test("Enter submits comments, replies and edits; Shift+Enter inserts a line break", async () => {
+    await focusOnEditor();
+    await userEvent.keyboard("hello");
+    await doubleClickElement(page.getByText("hello").element());
+    await userEvent.click(await waitForSelector('[data-test="addcomment"]'));
+    const composer = await waitForSelector(
+      '.bn-comment-editor [contenteditable="true"]',
+    );
+
+    // Empty comments cannot be submitted, and Enter must not add a block.
+    await userEvent.keyboard("{Enter}");
+    expect(composer.querySelectorAll(".bn-block-content")).toHaveLength(1);
+    await expectSelectorCount(".bn-thread", 1);
+
+    await userEvent.keyboard("first line{Shift>}{Enter}{/Shift}second line");
+    expect(composer.querySelectorAll(".bn-block-content")).toHaveLength(1);
+    expect(composer.querySelector("br")).not.toBeNull();
+
+    // Enter used to confirm IME composition must not submit the comment.
+    composer.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        key: "Enter",
+        isComposing: true,
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    await expectSelectorCount(".bn-thread", 1);
+
+    await userEvent.keyboard("{Enter}");
+    await expectSelectorCount(".bn-thread", 0);
+    await clickThreadMark();
+    await expectSelectorCount(".bn-thread-comment", 1);
+    expect(document.querySelector(".bn-thread-comment")?.textContent).toContain(
+      "second line",
+    );
+
+    await userEvent.click(
+      await waitForSelector('.bn-thread-composer [contenteditable="true"]'),
+    );
+    await userEvent.keyboard("reply{Enter}");
+    await expectSelectorCount(".bn-thread-comment", 2);
+    await moveMouseOverElement(await waitForSelector(".bn-thread-comment"));
+    await userEvent.click(await waitForSelector('[data-test="moreactions"]'));
+    await userEvent.click(page.getByRole("menuitem", { name: "Edit comment" }));
+    await userEvent.click(
+      await waitForSelector('.bn-thread-comment [contenteditable="true"]'),
+    );
+    await userEvent.keyboard("{End} edited{Enter}");
+    await expectSelectorCount('.bn-thread-comment [contenteditable="true"]', 0);
+    await vi.waitFor(() => {
+      expect(
+        document.querySelector(".bn-thread-comment")?.textContent,
+      ).toContain("edited");
+    });
+  });
+
   test("Should be able to add reactions", async () => {
     await focusOnEditor();
 
@@ -74,7 +147,12 @@ describe("Check Comments functionality", () => {
     // Wait for comment composer to close.
     await expectSelectorCount(".bn-thread", 0);
 
-    await userEvent.click(await waitForSelector("span.bn-thread-mark"));
+    // Click away from the mark so reopening is not a third click in the
+    // initial text-selection double-click, even on fast CI runners.
+    await userEvent.click(
+      await waitForSelector(`${EDITOR_SELECTOR} .bn-block-content`),
+    );
+    await clickThreadMark();
     await expectElement(
       await waitForSelector(".bn-thread-comment"),
     ).toBeVisible();
@@ -89,7 +167,7 @@ describe("Check Comments functionality", () => {
     await userEvent.click(await waitForSelector('[data-test="addreaction"]'));
     const firstPickerButtons = await waitForEmojiButtons();
     await userEvent.click(firstPickerButtons[0]);
-    await expectSelectorCount("em-emoji-picker", 0);
+    await waitForSelectorDetached("em-emoji-picker");
     await expectSelectorCount(".bn-comment-reaction", 1);
 
     // Add a second reaction via the add-reaction badge.
@@ -100,7 +178,7 @@ describe("Check Comments functionality", () => {
     // toggling the first one off.
     const secondPickerButtons = await waitForEmojiButtons(6);
     await userEvent.click(secondPickerButtons[5]);
-    await expectSelectorCount("em-emoji-picker", 0);
+    await waitForSelectorDetached("em-emoji-picker");
     await expectSelectorCount(".bn-comment-reaction", 2);
   });
 
@@ -130,6 +208,36 @@ describe("Check Comments functionality", () => {
 
     await expectElement(
       await waitForSelector("span.bn-thread-mark"),
+    ).toBeVisible();
+  });
+
+  test("Should preserve existing comments when adding a code mark", async () => {
+    await focusOnEditor();
+
+    await userEvent.keyboard("hello");
+    await doubleClickElement(page.getByText("hello").element());
+
+    await userEvent.click(await waitForSelector('[data-test="addcomment"]'));
+    await waitForSelector(".bn-thread");
+
+    await userEvent.keyboard("test comment");
+    await userEvent.click(await waitForSelector('button[data-test="save"]'));
+
+    // Re-select the commented text and toggle inline code on it (Cmd/Ctrl+E).
+    await doubleClickElement(
+      document.querySelectorAll("span.bn-thread-mark")[0] as HTMLElement,
+    );
+    await userEvent.keyboard(`{${MOD}>}e{/${MOD}}`);
+
+    // The comment must be preserved, and the text must now also be inline code,
+    // i.e. the comment and code marks coexist on the same text.
+    await expectElement(
+      await waitForSelector("span.bn-thread-mark"),
+    ).toBeVisible();
+    await expectElement(
+      await waitForSelector(
+        "span.bn-thread-mark code, code span.bn-thread-mark",
+      ),
     ).toBeVisible();
   });
 

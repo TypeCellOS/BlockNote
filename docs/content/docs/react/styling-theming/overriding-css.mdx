@@ -21,7 +21,7 @@ BlockNote uses classes with the `bn-` prefix to style editor elements. Here are 
 
 #### Editor Structure
 
-- `.bn-root`: Container class both the floating menus / toolbars and the editor
+- `.bn-root`: Themed root for the editor or portalled UI. An editor can have multiple roots.
 - `.bn-container`: Container around `.bn-editor`
 - `.bn-editor`: Main editor element (the "contenteditable").
 - `.bn-block`: Individual block element (including nested).
@@ -36,9 +36,24 @@ BlockNote uses classes with the `bn-` prefix to style editor elements. Here are 
 - `.bn-drag-handle-menu`: Drag handle menu.
 - `.bn-suggestion-menu`: Suggestion menu.
 
+Menus and popovers may be portalled outside the toolbar or button that opened them. Target their own classes under `.bn-root` rather than relying on a toolbar or `.bn-container` ancestor. See [Configuring Portal Targets](/docs/react/components#configuring-portal-targets).
+
 ### BlockNote CSS Attributes
 
 BlockNote uses data attributes to target specific block types and properties:
 
 - `[data-content-type="blockType"]`: Targets blocks of type `blockType`.
 - `[data-propName="propValue"]`: Targets blocks with specific prop values. If the value is the same as the default value, the `data-propName` attribute will not be added.
+
+## Links
+
+Links in the editor use the browser's default link styling. BlockNote sets this with a rule of zero CSS specificity, so any `a` rule in your own stylesheet overrides it.
+
+Tailwind's preflight reset also targets `a`. In Tailwind v4 the reset lives in a cascade layer, so BlockNote's rule still applies. In Tailwind v3 the reset wins and links look like plain text; restore them with:
+
+```css
+.bn-editor a {
+  color: revert;
+  text-decoration: revert;
+}
+```

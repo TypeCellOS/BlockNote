@@ -11,11 +11,27 @@
     "directory": "packages/math-block"
   },
   "license": "MPL-2.0",
-  "version": "0.54.0",
+  "version": "0.56.0",
   "files": [
     "dist",
     "types",
-    "src"
+    "src",
+    "!**/*.cjs",
+    "!**/*.map",
+    "!**/*.test.*",
+    "!**/*.spec.*",
+    "!**/*.snap",
+    "!**/__test__/**",
+    "!**/__tests__/**",
+    "!**/tests/**",
+    "!**/__snapshots__/**",
+    "!**/__msw_snapshots__/**",
+    "!**/fixtures/**",
+    "!**/testUtil/**",
+    "!**/testUtils/**",
+    "!**/test-utils/**",
+    "!**/*.tsbuildinfo",
+    "!dist/webpack-stats.json"
   ],
   "keywords": [
     "react",
@@ -37,33 +53,38 @@
   "type": "module",
   "source": "src/index.ts",
   "types": "./types/src/index.d.ts",
-  "main": "./dist/blocknote-math-block.cjs",
+  "main": "./dist/blocknote-math-block.js",
   "module": "./dist/blocknote-math-block.js",
   "exports": {
     ".": {
       "types": "./types/src/index.d.ts",
       "import": "./dist/blocknote-math-block.js",
-      "require": "./dist/blocknote-math-block.cjs"
+      "default": "./dist/blocknote-math-block.js"
+    },
+    "./style.css": {
+      "import": "./src/style.css",
+      "style": "./src/style.css",
+      "default": "./src/style.css"
     },
     "./docx-exporter": {
       "types": "./types/src/docx-exporter/index.d.ts",
       "import": "./dist/docx-exporter.js",
-      "require": "./dist/docx-exporter.cjs"
+      "default": "./dist/docx-exporter.js"
     },
     "./odt-exporter": {
       "types": "./types/src/odt-exporter/index.d.ts",
       "import": "./dist/odt-exporter.js",
-      "require": "./dist/odt-exporter.cjs"
+      "default": "./dist/odt-exporter.js"
     },
     "./email-exporter": {
       "types": "./types/src/email-exporter/index.d.ts",
       "import": "./dist/email-exporter.js",
-      "require": "./dist/email-exporter.cjs"
+      "default": "./dist/email-exporter.js"
     },
     "./typst-exporter": {
       "types": "./types/src/typst-exporter/index.d.ts",
       "import": "./dist/typst-exporter.js",
-      "require": "./dist/typst-exporter.cjs"
+      "default": "./dist/typst-exporter.js"
     }
   },
   "scripts": {
@@ -77,8 +98,8 @@
     "@blocknote/core": "workspace:^",
     "@blocknote/react": "workspace:^",
     "@handlewithcare/prosemirror-inputrules": "^0.1.4",
-    "katex": "^0.16.11",
-    "prosemirror-model": "^1.25.4",
+    "katex": "^0.18.9",
+    "prosemirror-model": "^1.25.11",
     "prosemirror-state": "^1.4.4"
   },
   "devDependencies": {
@@ -93,7 +114,7 @@
     "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.3",
     "@zip.js/zip.js": "^2.8.8",
-    "docx": "^9.6.1",
+    "docx": "^9.9.0",
     "mathjax-full": "^3.2.2",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
@@ -111,7 +132,7 @@
     "@blocknote/xl-email-exporter": "workspace:^",
     "@blocknote/xl-odt-exporter": "workspace:^",
     "@react-email/components": "^1.0.12",
-    "docx": "^9.6.1",
+    "docx": "^9.8.0",
     "mathjax-full": "^3.2.2",
     "mathml2omml": "^0.5.0",
     "react": "^18.0 || ^19.0 || >= 19.0.0-rc",
