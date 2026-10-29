@@ -1,5 +1,6 @@
 import { DOMSerializer, Fragment, Node } from "prosemirror-model";
 
+import { UniqueID } from "../../../../extensions/tiptap-extensions/UniqueID/UniqueID.js";
 import { PartialBlock } from "../../../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
 import {
@@ -156,7 +157,12 @@ function serializeBlock<
   const children = block.children || [];
 
   const impl = editor.blockImplementations[block.type as any].implementation;
-  const fullBlock = { ...block, props, children } as any;
+  const fullBlock = {
+    ...block,
+    id: block.id ?? UniqueID.options.generateID(),
+    props,
+    children,
+  } as any;
 
   if (isLayoutNode(editor.pmSchema.nodes[block.type as any])) {
     // A layout block is its frame. `renderFrameDOM` stamps the frame's root with
@@ -204,7 +210,7 @@ function serializeBlock<
   // wrap the block in a blockContainer
   const bc = BC_NODE.spec?.toDOM?.(
     BC_NODE.create({
-      id: block.id,
+      id: fullBlock.id,
       ...props,
     }),
   ) as {

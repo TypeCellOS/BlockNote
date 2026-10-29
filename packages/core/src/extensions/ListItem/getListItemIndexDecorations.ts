@@ -1,9 +1,8 @@
 import type { Node } from "@tiptap/pm/model";
 import type { Transaction } from "@tiptap/pm/state";
-import { Plugin, PluginKey } from "@tiptap/pm/state";
 import { Decoration, DecorationSet } from "@tiptap/pm/view";
 
-import { getBlockInfoFromNode } from "../../../api/getBlockInfoFromPos.js";
+import { getBlockInfoFromNode } from "../../api/getBlockInfoFromPos.js";
 
 // Loosely based on https://github.com/ueberdosis/tiptap/blob/7ac01ef0b816a535e903b5ca92492bff110a71ae/packages/extension-mathematics/src/MathematicsPlugin.ts (MIT)
 
@@ -119,16 +118,13 @@ function calculateListItemIndex(
  * Get the decorations for the current state based on the previous state,
  * and the transaction that was applied to get to the current state
  */
-function getDecorations(
+export function getListItemIndexDecorations(
   tr: Transaction,
-  previousPluginState: { decorations: DecorationSet },
+  previousDecorations: DecorationSet,
 ) {
   const map = new Map<Node, number>();
 
-  const nextDecorationSet = previousPluginState.decorations.map(
-    tr.mapping,
-    tr.doc,
-  );
+  const nextDecorationSet = previousDecorations.map(tr.mapping, tr.doc);
 
   // Find the start of the first change to limit traversal scope.
   // We only need to check from the change point forward, since earlier
@@ -198,42 +194,11 @@ function getDecorations(
     nextDecorationSet.find(deco.from, deco.to),
   );
 
-  return {
-    decorations: nextDecorationSet
+  return (
+    nextDecorationSet
       // Remove existing decorations that are going to be replaced
       .remove(decorationsToRemove)
       // Add any new decorations
-      .add(tr.doc, decorationsToAdd),
-  };
+      .add(tr.doc, decorationsToAdd)
+  );
 }
-
-/**
- * This plugin adds decorations to numbered list items to display their index.
- */
-export const NumberedListIndexingDecorationPlugin = () => {
-  return new Plugin<{ decorations: DecorationSet }>({
-    key: new PluginKey("numbered-list-indexing-decorations"),
-
-    state: {
-      init(_config, state) {
-        // We create an empty transaction to get the decorations for the initial state based on the initial content
-        return getDecorations(state.tr, {
-          decorations: DecorationSet.empty,
-        });
-      },
-      apply(tr, previousPluginState) {
-        if (!tr.docChanged && previousPluginState.decorations) {
-          // Selection-only changes don't affect list indices, just reuse existing decorations
-          return previousPluginState;
-        }
-        return getDecorations(tr, previousPluginState);
-      },
-    },
-
-    props: {
-      decorations(state) {
-        return this.getState(state)?.decorations ?? DecorationSet.empty;
-      },
-    },
-  });
-};

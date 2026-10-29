@@ -8,39 +8,9 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../../schema/index.js";
+import { addListAccessibilityAttributes } from "./util/addListAccessibilityAttributes.js";
+import { addListItemIndexAttributes } from "./util/addListItemIndexAttributes.js";
 import { serializeBlocksInternalHTML } from "./util/serializeBlocksInternalHTML.js";
-
-// This is normally handled using decorations in the
-// `NumberedListIndexingDecorationPlugin`. This does not run when exporting, so
-// we have to add the necessary HTML attributes ourselves.
-const addIndexToNumberedListItems = (element: HTMLElement) => {
-  const numberedListItems = element.querySelectorAll(
-    '[data-content-type="numberedListItem"]',
-  );
-  numberedListItems.forEach((numberedListItem) => {
-    const prevNumberedListItem = numberedListItem
-      .closest(".bn-block-outer")
-      ?.previousElementSibling?.querySelector(
-        '[data-content-type="numberedListItem"]',
-      );
-
-    if (!prevNumberedListItem) {
-      numberedListItem.setAttribute(
-        "data-index",
-        numberedListItem.getAttribute("data-start") || "1",
-      );
-    } else {
-      const prevNumberedListItemIndex =
-        prevNumberedListItem.getAttribute("data-index");
-      numberedListItem.setAttribute(
-        "data-index",
-        (parseInt(prevNumberedListItemIndex || "0") + 1).toString(),
-      );
-    }
-  });
-
-  return element;
-};
 
 // Makes the checkboxes in check list items read-only, as the HTML should be
 // static and therefore read-only when rendered.
@@ -152,7 +122,14 @@ export const createInternalHTMLSerializer = <
   // functionality so that the rendered HTML looks identical to that of a live
   // editor.
   const transforms: ((element: HTMLElement) => HTMLElement)[] = [
-    addIndexToNumberedListItems,
+    addListItemIndexAttributes,
+    // Static exports need list semantics even when the source editor is editable.
+    (element) =>
+      addListAccessibilityAttributes(
+        element,
+        (type) =>
+          !!editor.schema.blockSpecs[type]?.implementation.meta.listItem,
+      ),
     makeCheckListItemsReadOnly,
     forceToggleBlocksShow,
     addTableMinCellWidths,

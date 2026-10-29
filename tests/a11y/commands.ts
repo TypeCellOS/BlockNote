@@ -50,6 +50,12 @@ export const readTranscript: BrowserCommand<[]> = async () =>
 export const stopReader: BrowserCommand<[]> = async () =>
   (await reader()).stop();
 
+export const nextReader: BrowserCommand<[]> = async () => {
+  const screenReader = await reader();
+  await screenReader.next();
+  return screenReader.lastSpokenPhrase();
+};
+
 export const readAriaSnapshot: BrowserCommand<[selector: string]> = async (
   context,
   selector,

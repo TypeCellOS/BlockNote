@@ -99,6 +99,14 @@ export interface BlockConfigMeta<
    * block's source is hidden behind its preview and edited via the popup.
    */
   hasPreview?: boolean;
+
+  /**
+   * Exposes this block as an accessible list item in read-only mode. Siblings of the
+   * same block type form a list. Does not change markers, keyboard behavior,
+   * or HTML export.
+   * @default false
+   */
+  listItem?: boolean;
 }
 
 /**

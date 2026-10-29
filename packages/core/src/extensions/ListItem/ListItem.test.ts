@@ -1,13 +1,13 @@
 import { Selection } from "prosemirror-state";
 import { afterEach, describe, expect, it } from "vite-plus/test";
 
-import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
+import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 
 /**
  * @vitest-environment jsdom
  */
 
-const PLUGIN_KEY = "numbered-list-indexing-decorations$";
+import { listItemPluginKey } from "./ListItem.js";
 
 // Track editors created in each test so we can unmount them in afterEach —
 // otherwise prosemirror-view's DOMObserver leaves a setTimeout alive that
@@ -30,18 +30,18 @@ function createEditor() {
 
 function getDecorationSet(editor: BlockNoteEditor<any, any, any>) {
   const view = editor._tiptapEditor.view;
-  const plugin = view.state.plugins.find((p) => (p as any).key === PLUGIN_KEY);
-  if (!plugin) {
-    throw new Error("IndexingPlugin not found");
-  }
-  return plugin.getState(view.state)!.decorations;
+  return listItemPluginKey.getState(view.state)!.indexDecorations;
 }
 
 /** Returns all decoration specs in document order. */
 function getDecoSpecs(editor: BlockNoteEditor<any, any, any>) {
   const decoSet = getDecorationSet(editor);
   const doc = editor._tiptapEditor.view.state.doc;
-  const decos = decoSet.find(0, doc.nodeSize - 2);
+  const decos = decoSet.find(
+    0,
+    doc.nodeSize - 2,
+    (spec) => spec.index !== undefined,
+  );
   return decos.map((d: any) => d.spec);
 }
 
@@ -49,7 +49,11 @@ function getDecoSpecs(editor: BlockNoteEditor<any, any, any>) {
 function getDataIndices(editor: BlockNoteEditor<any, any, any>) {
   const decoSet = getDecorationSet(editor);
   const doc = editor._tiptapEditor.view.state.doc;
-  const decos = decoSet.find(0, doc.nodeSize - 2);
+  const decos = decoSet.find(
+    0,
+    doc.nodeSize - 2,
+    (spec) => spec.index !== undefined,
+  );
   return decos.map((d: any) => {
     // Decoration attrs are stored on the decoration object
     const attrs = (d as any).type?.attrs ?? (d as any).attrs ?? (d as any).type;
@@ -71,7 +75,7 @@ function setBlocks(
   );
 }
 
-describe("IndexingPlugin: basic numbering", () => {
+describe("ListItemExtension: basic numbering", () => {
   it("assigns sequential indices to a contiguous numbered list", () => {
     const editor = createEditor();
     setBlocks(editor, [
@@ -118,7 +122,7 @@ describe("IndexingPlugin: basic numbering", () => {
   });
 });
 
-describe("IndexingPlugin: updates on structural changes", () => {
+describe("ListItemExtension: updates on structural changes", () => {
   it("updates indices when a block is deleted from the middle", () => {
     const editor = createEditor();
     setBlocks(editor, [
@@ -233,7 +237,7 @@ describe("IndexingPlugin: updates on structural changes", () => {
   });
 });
 
-describe("IndexingPlugin: typing preserves indices (early exit)", () => {
+describe("ListItemExtension: typing preserves indices", () => {
   it("indices unchanged after typing in the first block", () => {
     const editor = createEditor();
     setBlocks(editor, [
@@ -295,7 +299,7 @@ describe("IndexingPlugin: typing preserves indices (early exit)", () => {
   });
 });
 
-describe("IndexingPlugin: decoration specs", () => {
+describe("ListItemExtension: decoration specs", () => {
   it("decorations have correct spec with index, isFirst, hasStart", () => {
     const editor = createEditor();
     setBlocks(editor, [
@@ -328,7 +332,7 @@ describe("IndexingPlugin: decoration specs", () => {
   });
 });
 
-describe("IndexingPlugin: selection-only transactions", () => {
+describe("ListItemExtension: selection-only transactions", () => {
   it("does not recompute decorations on selection change", () => {
     const editor = createEditor();
     setBlocks(editor, [

@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import { defineConfig } from "vite-plus";
 import { playwright } from "vite-plus/test/browser/providers/playwright";
 import {
+  nextReader,
   readAriaSnapshot,
   startReader,
   pressKey,
@@ -84,6 +85,7 @@ export default defineConfig({
       ],
       commands: {
         readAriaSnapshot,
+        nextReader,
         startReader,
         pressKey,
         readTranscript,
