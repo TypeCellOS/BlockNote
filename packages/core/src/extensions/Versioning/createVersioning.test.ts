@@ -465,23 +465,66 @@ it("creates from frozen current even while displaying history", async () => {
   expect(create).toHaveBeenCalledWith("frozen", "Named", 10);
 });
 
-it("keeps a selected checkpoint when removal only clears its name", async () => {
-  const { mode, show } = setup({
-    remove: async () => success(undefined),
-    list: async () =>
-      success({ snapshots: [{ id: "old", createdAt: 1, name: "Draft" }] }),
-  });
-  mode.open();
-  await mode.list();
-  await mode.select({ type: "snapshot", id: "old" });
-  show.mockClear();
-  expect(await mode.remove("old")).toEqual({ status: "done" });
-  expect(show).not.toHaveBeenCalled();
-  expect(mode.store.state).toMatchObject({
-    displayed: { type: "snapshot", id: "old" },
-    history: { data: [{ id: "old", createdAt: 1, name: undefined }] },
-  });
-});
+it.each([true, false])(
+  "keeps a checkpoint when removal only clears its name (selected: %s)",
+  async (selected) => {
+    const { mode, show } = setup({
+      remove: async () => success(undefined),
+      list: async () =>
+        success({ snapshots: [{ id: "old", createdAt: 1, name: "Draft" }] }),
+    });
+    mode.open();
+    await mode.list();
+    if (selected) {
+      await mode.select({ type: "snapshot", id: "old" });
+    }
+    show.mockClear();
+    expect(await mode.remove("old")).toEqual({ status: "done" });
+    expect(show).not.toHaveBeenCalled();
+    expect(mode.store.state).toMatchObject({
+      displayed: selected
+        ? { type: "snapshot", id: "old" }
+        : { type: "current" },
+      history: { data: [{ id: "old", createdAt: 1, name: undefined }] },
+    });
+  },
+);
+
+it.each([true, false])(
+  "removes a deleted row immediately without pagination (selected: %s)",
+  async (selected) => {
+    let deleted = false;
+    const remaining = { id: "older", createdAt: 0, name: "First draft" };
+    const list = vi.fn(async () =>
+      success({
+        snapshots: [{ id: "old", createdAt: 1, name: "Draft" }, remaining],
+      }),
+    );
+    const { mode } = setup({
+      list,
+      remove: async () => {
+        deleted = true;
+        return success(undefined);
+      },
+      getContent: async (id) =>
+        deleted && id === "old"
+          ? { ok: false, error: { type: "not-found" } }
+          : success(id),
+    });
+    mode.open();
+    await mode.list();
+    if (selected) {
+      await mode.select({ type: "snapshot", id: "old" });
+    }
+    expect(await mode.remove("old")).toEqual({ status: "done" });
+    expect(mode.store.state).toMatchObject({
+      displayed: { type: "current" },
+      history: { status: "success", data: [remaining] },
+      nextCursor: undefined,
+    });
+    expect(list).toHaveBeenCalledOnce();
+  },
+);
 
 it("returns to frozen current if removal deletes the selected content", async () => {
   let deleted = false;
@@ -852,7 +895,7 @@ describe("pagination", () => {
     await mode.remove(middle.id);
     expect(mode.store.state).toMatchObject({
       displayed: { type: "current" },
-      history: { data: [created, newest, middle, namedOldest] },
+      history: { data: [created, newest, namedOldest] },
     });
     expect(show.mock.lastCall?.[0].content).toBe("frozen");
     await mode.loadMore();

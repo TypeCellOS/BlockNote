@@ -2074,9 +2074,7 @@ describe("VersioningSidebar", () => {
         expect(page.getByRole("list").element().contains(item)).toBe(false);
         expect(editor.isWithinEditor(item)).toBe(true);
         await click(item);
-        await act(async () => {
-          await mode(editor).loadMore();
-        });
+        await act(async () => {});
 
         expect(rows()).toHaveLength(2);
         expect(document.activeElement).toBe(nextRow);
@@ -2195,10 +2193,6 @@ describe("VersioningSidebar", () => {
         compareToId: undefined,
       });
       expect(editor.isEditable).toBe(false);
-      expect(rows()).toHaveLength(3);
-      await act(async () => {
-        await ext.loadMore();
-      });
       expect(rows()).toHaveLength(2);
     });
 

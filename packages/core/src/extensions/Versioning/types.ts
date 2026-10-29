@@ -167,7 +167,8 @@ export interface VersionStorage<Content, Attributions = never> {
   /**
    * Remove a stored version, or only its name on continuous-history backends.
    * The controller reconciles selection immediately and refreshes history on the
-   * next pagination request. Existing rows remain visible until that refresh.
+   * next pagination request. Confirmed deleted content is removed immediately;
+   * checkpoints whose content remains available only lose their name.
    */
   remove?: (id: string) => Promise<VersionResult<void>>;
 }

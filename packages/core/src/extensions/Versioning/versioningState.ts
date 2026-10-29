@@ -31,6 +31,7 @@ export type VersioningEvent =
   | { type: "selectionShown"; target: VersionSelection; compareTo?: string }
   | { type: "restoreChanged"; restoring: boolean }
   | { type: "snapshotRenamed"; id: string; name?: string }
+  | { type: "snapshotRemoved"; id: string }
   | { type: "snapshotCreated"; snapshot: VersionSnapshot };
 
 function mergeSnapshots(snapshots: VersionSnapshot[]) {
@@ -136,6 +137,17 @@ export function reduceVersioningState(
             snapshot.id === event.id
               ? { ...snapshot, name: event.name }
               : snapshot,
+          ),
+        },
+      };
+    case "snapshotRemoved":
+      return {
+        ...state,
+        mode: "versions",
+        history: {
+          status: "success",
+          data: (state.history.data ?? []).filter(
+            (snapshot) => snapshot.id !== event.id,
           ),
         },
       };

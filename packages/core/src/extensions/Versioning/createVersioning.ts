@@ -502,19 +502,17 @@ export function createVersioning<Content, Attributions>(options: {
         // Both deletion and continuous-history removal clear the named marker.
         // Keep cached checkpoints for pagination, but not as named baselines.
         applyNamingResult(active, { type: "snapshotRenamed", id });
-        // Missing page metadata does not prove deletion. Continuous-history
-        // providers may only clear a name, leaving its content available.
-        const state = store.state;
-        if (state.mode === "versions" && references(active, state, id)) {
-          const content = await storage.getContent(id, active.lifetime.signal);
+        // Check even unselected rows: continuous-history providers only clear
+        // a name, while snapshot stores delete the content and its cached row.
+        const content = await storage.getContent(id, active.lifetime.signal);
+        if (
+          !active.lifetime.signal.aborted &&
+          !content.ok &&
+          content.error.type === "not-found"
+        ) {
+          publish(active.lifetime.signal, { type: "snapshotRemoved", id });
           const current = store.state;
-          if (
-            !active.lifetime.signal.aborted &&
-            !content.ok &&
-            content.error.type === "not-found" &&
-            current.mode === "versions" &&
-            references(active, current, id)
-          ) {
+          if (current.mode === "versions" && references(active, current, id)) {
             await select(
               (current.displayed.type === "snapshot" &&
                 current.displayed.id === id) ||
