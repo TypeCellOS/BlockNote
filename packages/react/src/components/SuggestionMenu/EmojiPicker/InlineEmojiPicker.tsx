@@ -293,12 +293,7 @@ function InlineEmojiPickerContent(props: {
 
   return (
     <>
-      <EmojiPicker.Search
-        className="bn-frimousse-search-hidden"
-        value={query}
-        readOnly
-        tabIndex={-1}
-      />
+      <EmojiPicker.Search hidden value={query} readOnly tabIndex={-1} />
       <EmojiPicker.Viewport>
         {!data && (
           <EmojiPicker.Loading className="bn-frimousse-loading">
