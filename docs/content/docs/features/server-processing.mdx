@@ -8,17 +8,43 @@ path: /docs/server-side-processing
 
 While you can use the `BlockNoteEditor` on the client side, you can also use `ServerBlockNoteEditor` from `@blocknote/server-util` to process BlockNote documents on the server.
 
-For example, use the following code to convert a BlockNote document to HTML on the server:
+Install `@blocknote/server-util`:
+
+```bash
+pnpm add @blocknote/server-util
+```
+
+For HTML or Markdown processing, pass a document to the editor. The included JSDOM factory provides a ready-to-use implementation:
 
 ```tsx
 import { ServerBlockNoteEditor } from "@blocknote/server-util";
+import { getDocument } from "@blocknote/server-util/dom";
 
-const editor = ServerBlockNoteEditor.create();
-const html = await editor.blocksToFullHTML(blocks);
+const document = getDocument();
+const editor = ServerBlockNoteEditor.create({}, document);
+const html = await editor.blocksToFullHTML([
+  { type: "paragraph", content: "Hello" },
+]);
 ```
 
 `ServerBlockNoteEditor.create` takes the same BlockNoteEditorOptions as `useCreateBlockNote` and `BlockNoteEditor.create` ([see docs](/docs/getting-started)),
 so you can pass the same configuration (for example, your custom schema) to your server-side BlockNote editor as on the client.
+
+## DOM lifetime and isolation
+
+`ServerBlockNoteEditor.create(options, document)` accepts a document from a compatible DOM implementation. Share one document across all editors in a rendering environment. If no document is passed, the editor falls back to the global `window` and `document`. Importing the factory or creating a document does not install globals.
+
+React and custom block renderers need global DOM access. On first DOM use, the editor binds the supplied document and its `defaultView` persistently if neither global exists, reuses a matching pair, and rejects partial or conflicting environments. It never swaps or disposes them. Use a document attached to a window, not a detached document whose `defaultView` is `null`.
+
+Keep the DOM and these globals alive for the lifetime of the rendering environment. Do not restore previous globals or close the DOM after an export: React can still read the DOM from scheduled work after an export resolves and its temporary root is unmounted. The export promise means the output is ready, not that asynchronous work started by custom components has finished.
+
+Nested exports and exports from different editors share this stable DOM without swapping globals. JSON, ProseMirror, and Yjs conversions do not require DOM setup.
+
+Installing DOM globals affects browser-environment detection in other libraries. If your application cannot accept this, initialize the DOM, editor, schema, and providers inside a dedicated worker or process, and send document data into it. Use the same DOM implementation for related APIs (for example, DOM events and their abort signals); mixing Node and DOM implementations can cause incompatibilities. Terminate the worker or process to dispose the rendering environment, rather than tearing down the DOM while React can still run.
+
+### Custom DOM implementations
+
+Pass your implementation's document directly as the second argument to `ServerBlockNoteEditor.create`. No adapter or acquisition/release hooks are needed. The main `@blocknote/server-util` entry point does not load JSDOM.
 
 ## Functions for converting blocks
 
@@ -52,6 +78,8 @@ const html = await editor.withReactContext(
   async () => editor.blocksToFullHTML(blocks),
 );
 ```
+
+Serialize `withReactContext` calls on the same editor, because its context renderer is editor-local mutable state. Use separate editor instances for concurrent context-dependent exports. Custom React blocks continue to use the same callback-ref API as on the client.
 
 ## Next.js App Router
 

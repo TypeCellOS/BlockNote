@@ -42,6 +42,11 @@
       "import": "./dist/blocknote-server-util.js",
       "require": "./dist/blocknote-server-util.cjs"
     },
+    "./dom": {
+      "types": "./types/src/dom.d.ts",
+      "import": "./dist/blocknote-server-util-dom.js",
+      "require": "./dist/blocknote-server-util-dom.cjs"
+    },
     "./style.css": {
       "import": "./dist/style.css",
       "require": "./dist/style.css",
