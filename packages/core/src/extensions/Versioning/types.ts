@@ -193,7 +193,7 @@ export type VersioningState =
       /** Stored baseline identifier used by the displayed comparison, if any. */
       compareTo?: string;
       /** Requested selection still loading; {@link VersioningState.displayed} remains visible. */
-      pending?: VersionSelection;
+      pending?: VersionSelection & { compareTo?: string };
       /**
        * History loading status. Previously loaded {@link VersionSnapshot} rows
        * remain available during refresh or failure; errors contain safe classifications.

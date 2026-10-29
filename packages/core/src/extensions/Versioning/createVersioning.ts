@@ -333,8 +333,12 @@ export function createVersioning<Content, Attributions>(options: {
     const request = active.selection.start();
     const { signal } = request;
     active.selectionBaseline = selectionOptions?.compareTo;
-    publish(signal, { type: "selectionStarted", target });
     const baselineId = selectionOptions?.compareTo;
+    publish(signal, {
+      type: "selectionStarted",
+      target,
+      compareTo: baselineId,
+    });
     try {
       const result = await loadDisplay(active, target, baselineId, signal);
       if (signal.aborted) {

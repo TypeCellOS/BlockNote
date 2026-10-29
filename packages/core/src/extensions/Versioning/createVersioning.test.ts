@@ -88,6 +88,12 @@ describe("published state transitions", () => {
     const pending = reduceVersioningState(shown, {
       type: "selectionStarted",
       target: { type: "current" },
+      compareTo: "a",
+    });
+    expect(pending).toMatchObject({
+      displayed: { type: "snapshot", id: "a" },
+      compareTo: "b",
+      pending: { type: "current", compareTo: "a" },
     });
     expect(
       reduceVersioningState(pending, { type: "selectionFailed" }),

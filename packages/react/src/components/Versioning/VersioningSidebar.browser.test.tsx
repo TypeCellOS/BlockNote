@@ -1842,6 +1842,26 @@ describe("VersioningSidebar", () => {
     });
   });
 
+  it("moves the comparison baseline with the pending keyboard selection", async () => {
+    const { editor, fake } = await setup({ defaultComparisonMode: true });
+    const slow = deferred<VersionResult<unknown[]>>();
+    fake.endpoints.getContent.mockReturnValueOnce(slow.promise);
+    act(() => rows()[0]!.focus());
+    await act(async () => userEvent.keyboard("{ArrowDown}"));
+
+    expect(rows()[1]!.getAttribute("aria-current")).toBe("true");
+    expect(rows()[2]!.textContent).toContain("Comparing to");
+    expect(viewState(mode(editor)).mode).toBe("current");
+
+    await act(async () => userEvent.keyboard("{ArrowDown}"));
+    expect(rows()[2]!.getAttribute("aria-current")).toBe("true");
+    expect(page.getByText("Comparing to", { exact: true }).query()).toBeNull();
+
+    await act(async () => slow.resolve(success([])));
+    expect(rows()[2]!.getAttribute("aria-current")).toBe("true");
+    expect(page.getByText("Comparing to", { exact: true }).query()).toBeNull();
+  });
+
   it("keeps the latest scrub selected when older preview loads finish last", async () => {
     const { editor, fake } = await setup();
     const slow = deferred<VersionResult<unknown[]>>();

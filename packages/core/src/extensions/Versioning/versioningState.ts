@@ -26,7 +26,7 @@ export type VersioningEvent =
       snapshots: VersionSnapshot[];
       nextCursor?: string;
     }
-  | { type: "selectionStarted"; target: VersionSelection }
+  | { type: "selectionStarted"; target: VersionSelection; compareTo?: string }
   | { type: "selectionFailed" }
   | { type: "selectionShown"; target: VersionSelection; compareTo?: string }
   | { type: "restoreChanged"; restoring: boolean }
@@ -111,7 +111,10 @@ export function reduceVersioningState(
         },
       };
     case "selectionStarted":
-      return { ...state, pending: event.target };
+      return {
+        ...state,
+        pending: { ...event.target, compareTo: event.compareTo },
+      };
     case "selectionFailed":
       return { ...state, pending: undefined };
     case "selectionShown":

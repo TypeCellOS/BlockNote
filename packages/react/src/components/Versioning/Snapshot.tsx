@@ -31,10 +31,11 @@ function getSnapshotState(
       return "default";
     case "versions": {
       const selection = view.pending ?? view.displayed;
+      const compareTo = view.pending ? view.pending.compareTo : view.compareTo;
       if (selection.type === "current" ? isCurrent : selection.id === row.id) {
-        return view.compareTo === undefined ? "selected" : "comparison-source";
+        return compareTo === undefined ? "selected" : "comparison-source";
       }
-      return view.compareTo === row.id ? "comparison-baseline" : "default";
+      return compareTo === row.id ? "comparison-baseline" : "default";
     }
   }
 }
