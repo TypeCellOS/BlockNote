@@ -48,6 +48,13 @@ export function VersioningSidebarList() {
   const listRef = useRef<HTMLDivElement>(null);
   const paginationRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const pendingNavigation = useRef<
+    | {
+        after: string;
+        namedOnly: boolean;
+      }
+    | undefined
+  >(undefined);
   const nextCursor = state.mode === "versions" ? state.nextCursor : undefined;
 
   const focusRow = useCallback((index: number) => {
@@ -68,6 +75,73 @@ export function VersioningSidebarList() {
     () => (list.loaded ? getVisibleVersionRows(list, namedOnly) : []),
     [list, namedOnly],
   );
+
+  const needsOlderPage = useCallback(
+    (index: number) =>
+      nextCursor !== undefined &&
+      (!rows[index] ||
+        (versioning.historyIncludesBeginning &&
+          rows[index]!.snapshot.id ===
+            (list.loaded ? list.snapshots.at(-1)?.id : undefined))),
+    [nextCursor, rows, versioning.historyIncludesBeginning, list],
+  );
+
+  async function advanceAfterPage(after: string) {
+    const navigation = { after, namedOnly };
+    pendingNavigation.current = navigation;
+    try {
+      return await run(async () => {
+        while (pendingNavigation.current === navigation) {
+          const outcome = await versioning.loadMore();
+          if (outcome.status !== "done") {
+            return outcome;
+          }
+          // Let the newly loaded rows mount before moving native focus.
+          await new Promise<void>((resolve) => {
+            requestAnimationFrame(() => resolve());
+          });
+          if (
+            pendingNavigation.current !== navigation ||
+            focusedRowId.current !== after
+          ) {
+            return { status: "cancelled" };
+          }
+          const latest = versioning.store.state;
+          const latestList = getVersionList(latest);
+          if (latest.mode !== "versions" || !latestList.loaded) {
+            return { status: "cancelled" };
+          }
+          const latestRows = getVisibleVersionRows(latestList, namedOnly);
+          const index = latestRows.findIndex(
+            (row) => row.snapshot.id === after,
+          );
+          if (index === -1) {
+            return { status: "cancelled" };
+          }
+          const next = latestRows[index + 1];
+          if (
+            latest.nextCursor !== undefined &&
+            (!next ||
+              (versioning.historyIncludesBeginning &&
+                next.snapshot.id === latestList.snapshots.at(-1)?.id))
+          ) {
+            continue;
+          }
+          if (!next) {
+            return { status: "done" };
+          }
+          pendingNavigation.current = undefined;
+          focusRow(index + 1);
+          return previewRow(next.snapshot);
+        }
+        return { status: "cancelled" };
+      });
+    } finally {
+      if (pendingNavigation.current === navigation) {
+        pendingNavigation.current = undefined;
+      }
+    }
+  }
 
   useEffect(() => {
     if (!list.loaded || listing || listError || nextCursor === undefined) {
@@ -160,7 +234,15 @@ export function VersioningSidebarList() {
       return;
     }
 
-    function scrubTo(destination: number) {
+    function scrubTo(destination: number, waitForPage = false) {
+      if (waitForPage && pendingNavigation.current) {
+        return;
+      }
+      pendingNavigation.current = undefined;
+      if (waitForPage && needsOlderPage(destination)) {
+        void advanceAfterPage(rows[index]!.snapshot.id);
+        return;
+      }
       const clamped = Math.max(0, Math.min(destination, rows.length - 1));
       if (event.repeat && clamped === index) {
         return;
@@ -175,7 +257,7 @@ export function VersioningSidebarList() {
     switch (event.key) {
       case "ArrowDown":
         event.preventDefault();
-        scrubTo(index + 1);
+        scrubTo(index + 1, true);
         break;
       case "ArrowUp":
         event.preventDefault();
@@ -192,6 +274,7 @@ export function VersioningSidebarList() {
       case "Enter":
       case " ":
         event.preventDefault();
+        pendingNavigation.current = undefined;
         void run(() => previewRow(rows[index]!.snapshot));
         break;
       default:
@@ -207,6 +290,9 @@ export function VersioningSidebarList() {
         aria-label={dict.versioning.versions_list}
         aria-busy={listing || undefined}
         ref={listRef}
+        onPointerDown={() => {
+          pendingNavigation.current = undefined;
+        }}
         onBlur={(event) => {
           // Registered editor menus can live outside the list's DOM.
           const target = event.relatedTarget;
@@ -216,6 +302,7 @@ export function VersioningSidebarList() {
             target.closest('[role="menu"]');
           if (!event.currentTarget.contains(target) && !inEditorMenu) {
             focusedRowId.current = undefined;
+            pendingNavigation.current = undefined;
           }
         }}
       >
@@ -234,6 +321,7 @@ export function VersioningSidebarList() {
             }
             onKeyDown={(event) => handleKeyDown(event, index)}
             onFocus={() => {
+              pendingNavigation.current = undefined;
               focusedRowId.current = snapshot.id;
               setActiveIndex(index);
             }}

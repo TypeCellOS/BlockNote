@@ -1811,6 +1811,83 @@ describe("VersioningSidebar", () => {
     });
   });
 
+  it.each([false, true])(
+    "waits for older pages before scrubbing past loaded history, namedOnly=%s",
+    async (namedOnly) => {
+      const olderPage = deferred<VersionResult<VersionSnapshotPage>>();
+      const start = { id: "first", createdAt: 0, name: "Beginning" };
+      const older = { id: "older", createdAt: 500, name: "Earlier" };
+      const fake = createFakeEndpoints(undefined, true);
+      fake.setSnapshots([NAMED, AUTOMATIC, older, start]);
+      const list = vi
+        .fn<VersionStorage<unknown[], unknown>["list"]>()
+        .mockResolvedValueOnce(
+          success({
+            snapshots: [NAMED, AUTOMATIC, start],
+            nextCursor: "hidden",
+          }),
+        )
+        .mockReturnValueOnce(olderPage.promise)
+        .mockResolvedValueOnce(success({ snapshots: [older] }));
+      const editor = createEditor({ ...fake.endpoints, list });
+      render(
+        <VersioningTestView editor={editor}>
+          <VersioningSidebar defaultNamedOnly={namedOnly} />
+        </VersioningTestView>,
+      );
+      await act(async () => {});
+      const index = namedOnly ? 1 : 2;
+      const selected = namedOnly ? NAMED : AUTOMATIC;
+      await click(rows()[index]!);
+      act(() => rows()[index]!.focus());
+      await act(async () => userEvent.keyboard("{ArrowDown}{ArrowDown}"));
+      expect(document.activeElement).toBe(rows()[index]);
+      expect(viewState(mode(editor))).toMatchObject({
+        snapshotId: selected.id,
+      });
+
+      // A page containing no new visible rows must not consume the arrow press.
+      await act(async () =>
+        olderPage.resolve(
+          success({ snapshots: [AUTOMATIC], nextCursor: "older" }),
+        ),
+      );
+      await vi.waitFor(() =>
+        expect(viewState(mode(editor))).toMatchObject({ snapshotId: older.id }),
+      );
+      expect(document.activeElement).toBe(rows()[index + 1]);
+      await act(async () => userEvent.keyboard("{ArrowDown}"));
+      expect(viewState(mode(editor))).toMatchObject({ snapshotId: start.id });
+    },
+  );
+
+  it("cancels navigation across a pending page when moving elsewhere", async () => {
+    const olderPage = deferred<VersionResult<VersionSnapshotPage>>();
+    const start = { id: "first", createdAt: 0, name: "Beginning" };
+    const older = { id: "older", createdAt: 500, name: "Earlier" };
+    const fake = createFakeEndpoints(undefined, true);
+    fake.setSnapshots([NAMED, AUTOMATIC, older, start]);
+    const list = vi
+      .fn<VersionStorage<unknown[], unknown>["list"]>()
+      .mockResolvedValueOnce(
+        success({ snapshots: [NAMED, AUTOMATIC, start], nextCursor: "older" }),
+      )
+      .mockReturnValueOnce(olderPage.promise);
+    const editor = createEditor({ ...fake.endpoints, list });
+    render(
+      <VersioningTestView editor={editor}>
+        <VersioningSidebar />
+      </VersioningTestView>,
+    );
+    await act(async () => {});
+    await click(rows()[2]!);
+    act(() => rows()[2]!.focus());
+    await act(async () => userEvent.keyboard("{ArrowDown}{ArrowUp}"));
+    await act(async () => olderPage.resolve(success({ snapshots: [older] })));
+    expect(document.activeElement).toBe(rows()[1]);
+    expect(viewState(mode(editor))).toMatchObject({ snapshotId: NAMED.id });
+  });
+
   it("scrubs only visible named rows and retains comparison at either end", async () => {
     const fake = createFakeEndpoints();
     const older = { id: "older", createdAt: 500, name: "First draft" };
