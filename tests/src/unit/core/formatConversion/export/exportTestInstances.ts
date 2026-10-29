@@ -775,6 +775,54 @@ export const exportTestInstancesBlockNoteHTML: TestInstance<
     },
     executeTest: testExportBlockNoteHTML,
   },
+  {
+    testCase: {
+      name: "style/surroundingWhitespace",
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "text",
+              text: "Normal",
+              styles: {},
+            },
+            {
+              type: "text",
+              text: " bold",
+              styles: { bold: true },
+            },
+            {
+              type: "text",
+              text: " and",
+              styles: {},
+            },
+            {
+              type: "text",
+              text: " italic ",
+              styles: { italic: true },
+            },
+            {
+              type: "text",
+              text: "and",
+              styles: {},
+            },
+            {
+              type: "text",
+              text: " strike ",
+              styles: { strike: true },
+            },
+            {
+              type: "text",
+              text: "end",
+              styles: {},
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
   // Numbered list with custom start
   {
     testCase: {

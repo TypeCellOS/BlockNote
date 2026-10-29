@@ -6,6 +6,7 @@ import {
 import { ColumnBlock, ColumnListBlock } from "@blocknote/xl-multi-column";
 import { Text } from "@react-pdf/renderer";
 import { testDocument } from "@shared/testDocument.js";
+import { testResolveFileUrl } from "@shared/util/testFileResolver.js";
 import reactElementToJSXString from "react-element-to-jsx-string";
 import { describe, expect, it } from "vite-plus/test";
 import { pdfDefaultSchemaMappings } from "./defaultSchema/index.js";
@@ -22,6 +23,7 @@ describe("exporter", () => {
         },
       }),
       pdfDefaultSchemaMappings,
+      { resolveFileUrl: testResolveFileUrl },
     );
 
     const transformed = await exporter.toReactPDFDocument(testDocument);
@@ -47,6 +49,7 @@ describe("exporter", () => {
         },
       }),
       pdfDefaultSchemaMappings,
+      { resolveFileUrl: testResolveFileUrl },
     );
 
     const transformed = await exporter.toReactPDFDocument(testDocument, {

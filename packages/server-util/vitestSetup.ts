@@ -1,11 +1,18 @@
+import { JSDOM } from "jsdom";
 import { afterEach, beforeEach } from "vite-plus/test";
 
-// No `window`, as in the Node apps that use this package. The editor reads
-// `__TEST_OPTIONS` off `globalThis` when there is no `window`.
+// Own one persistent DOM for this test environment, including React's queued
+// work between tests. ServerBlockNoteEditor must never replace or close it.
+const dom = new JSDOM();
+Object.assign(globalThis, {
+  window: dom.window,
+  document: dom.window.document,
+});
+
 beforeEach(() => {
-  (globalThis as { __TEST_OPTIONS?: object }).__TEST_OPTIONS = {};
+  (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS = {};
 });
 
 afterEach(() => {
-  delete (globalThis as { __TEST_OPTIONS?: object }).__TEST_OPTIONS;
+  delete (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS;
 });

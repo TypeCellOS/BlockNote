@@ -182,8 +182,35 @@
   border-color: rgb(255 255 255 / 0.6);
 }
 
+.bn-shadcn .bn-snapshot-users {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  overflow: visible;
+  white-space: normal;
+}
+
+.bn-shadcn .bn-snapshot-user {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.bn-shadcn .bn-snapshot-user-color {
+  background-color: currentColor;
+  border-radius: 50%;
+  flex: none;
+  height: 8px;
+  width: 8px;
+}
+
+.bn-shadcn .bn-snapshot-user-color:where(.dark, .dark *) {
+  background-color: var(--bn-user-color-light);
+}
+
 .bn-shadcn .bn-snapshot.selected .bn-snapshot-original-date,
-.bn-shadcn .bn-snapshot.selected .bn-snapshot-secondary-label,
 .bn-shadcn .bn-snapshot.selected .bn-snapshot-menu-trigger {
   color: color-mix(in srgb, var(--primary-foreground) 90%, transparent);
 }

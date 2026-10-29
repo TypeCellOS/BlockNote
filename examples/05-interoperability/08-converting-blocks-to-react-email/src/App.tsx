@@ -10,6 +10,7 @@ import { filterSuggestionItems } from "@blocknote/core/extensions";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
+import "@blocknote/math-block/style.css";
 import {
   SuggestionMenuController,
   getDefaultReactSlashMenuItems,

@@ -490,6 +490,44 @@ export const exportParseEqualityTestInstancesMarkdown: TestInstance<
   },
   {
     testCase: {
+      name: "markdown/numberedListItemWithDetailsText",
+      content: [
+        {
+          type: "numberedListItem",
+          content: "<details>",
+        },
+      ],
+    },
+    executeTest: testExportParseEqualityMarkdown,
+  },
+  {
+    testCase: {
+      name: "markdown/paragraphWithHtmlLikeText",
+      content: [
+        {
+          type: "paragraph",
+          content:
+            "Tags like <b>, </b> and <!-- note --> stay text, and 1 < 2.",
+        },
+      ],
+    },
+    executeTest: testExportParseEqualityMarkdown,
+  },
+  {
+    testCase: {
+      name: "markdown/paragraphWithBackslashBeforeHtmlLikeText",
+      content: [
+        {
+          type: "paragraph",
+          content:
+            "Escaped \\<details> and \\\\<b> stay text, as does C:\\Users.",
+        },
+      ],
+    },
+    executeTest: testExportParseEqualityMarkdown,
+  },
+  {
+    testCase: {
       name: "markdown/nestedLists",
       content: [
         {
@@ -965,6 +1003,54 @@ export const exportParseEqualityTestInstancesMarkdown: TestInstance<
                   content: "Deep checklist item",
                 },
               ],
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportParseEqualityMarkdown,
+  },
+  {
+    testCase: {
+      name: "markdown/styledSurroundingWhitespace",
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "text",
+              text: "Normal",
+              styles: {},
+            },
+            {
+              type: "text",
+              text: " bold",
+              styles: { bold: true },
+            },
+            {
+              type: "text",
+              text: " and",
+              styles: {},
+            },
+            {
+              type: "text",
+              text: " italic ",
+              styles: { italic: true },
+            },
+            {
+              type: "text",
+              text: "and",
+              styles: {},
+            },
+            {
+              type: "text",
+              text: " strike ",
+              styles: { strike: true },
+            },
+            {
+              type: "text",
+              text: "end",
+              styles: {},
             },
           ],
         },

@@ -115,6 +115,18 @@ export function SuggestionMenuController<
           | undefined,
         getBoundingClientRect: () => state?.referencePos || new DOMRect(),
       }) satisfies GenericPopoverReference,
+    equalityFn: (a, b) => {
+      // Ignore fresh rectangle/callback identities when the anchor has not moved.
+      const aRect = a.getBoundingClientRect();
+      const bRect = b.getBoundingClientRect();
+      return (
+        a.element === b.element &&
+        aRect.x === bRect.x &&
+        aRect.y === bRect.y &&
+        aRect.width === bRect.width &&
+        aRect.height === bRect.height
+      );
+    },
   });
 
   const floatingUIOptions = useMemo<FloatingUIOptions>(

@@ -1,5 +1,6 @@
 // Mirrors ReactServer.test.tsx — see packages/server-util/src/context/react/ReactServer.test.tsx
 import { ServerBlockNoteEditor } from "@blocknote/server-util";
+import { getDocument } from "@blocknote/server-util/dom";
 // import {
 //   BlockNoteSchema,
 //   defaultBlockSpecs,
@@ -8,6 +9,9 @@ import { ServerBlockNoteEditor } from "@blocknote/server-util";
 // import { createReactBlockSpec } from "@blocknote/react";
 // import { createContext, useContext } from "react";
 import { schema } from "../../shared-schema";
+
+// Keep one DOM across requests and development hot reloads.
+const document = globalThis.document ?? getDocument();
 
 // Context block test from ReactServer.test.tsx — commented out because React's
 // server bundle forbids createContext at runtime, even with dynamic require().
@@ -46,7 +50,7 @@ export async function GET() {
 
   // Mirrors ReactServer.test.tsx: "works for simple blocks"
   try {
-    const editor = ServerBlockNoteEditor.create({ schema });
+    const editor = ServerBlockNoteEditor.create({ schema }, document);
     const html = await editor.blocksToFullHTML([
       {
         id: "1",
@@ -96,7 +100,7 @@ export async function GET() {
 
   // blocksToHTMLLossy with default blocks
   try {
-    const editor = ServerBlockNoteEditor.create({ schema });
+    const editor = ServerBlockNoteEditor.create({ schema }, document);
     const html = await editor.blocksToHTMLLossy([
       {
         type: "paragraph",
@@ -113,7 +117,7 @@ export async function GET() {
 
   // Yjs roundtrip
   try {
-    const editor = ServerBlockNoteEditor.create({ schema });
+    const editor = ServerBlockNoteEditor.create({ schema }, document);
     const blocks = [
       {
         type: "paragraph",

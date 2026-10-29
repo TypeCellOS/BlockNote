@@ -66,28 +66,6 @@
   pointer-events: none;
 }
 
-.bn-drag-preview {
-  position: absolute;
-  top: 0;
-  left: 0;
-  padding: 10px;
-  /* Sort of a hack but seems like the most reliable solution. */
-  /* Drag preview element needs to be within bounds of the document area or it
-   won't work in some cases. */
-  /* Negative z-index covers most cases, but the element can still be visible
-   if UI elements are translucent. */
-  /* Setting opacity has no effect on the drag preview but does affect the
-   element. Unless it's set to 0, in which case the drag preview also becomes
-   hidden. So setting it to an extremely low value instead makes the element
-   functionally invisible while not affecting the drag preview itself. */
-  opacity: 0.001;
-  /* The element is kept in the DOM after setDragImage captures its snapshot,
-   so it can overlap the editor and block drops in that area. Disabling
-   pointer-events lets drag/drop events pass through to the editor while
-   leaving the captured preview unaffected. */
-  pointer-events: none;
-}
-
 .bn-editor .bn-collaboration-cursor__base {
   position: relative;
 }

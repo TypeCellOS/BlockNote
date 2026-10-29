@@ -131,9 +131,7 @@ export class BlockManager<
           return false;
         }
 
-        const children = reverse
-          ? block.children.slice().reverse()
-          : block.children;
+        const children = reverse ? block.children.toReversed() : block.children;
 
         if (!traverseBlockArray(children)) {
           return false;

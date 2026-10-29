@@ -1,4 +1,5 @@
 import { parseAutolinkLiteral } from "../../parsers/markdown/autolink.js";
+import { wrapWithDelimiter } from "./wrapWithDelimiter.js";
 
 /**
  * Custom HTML-to-Markdown serializer for BlockNote.
@@ -754,38 +755,23 @@ function serializeInlineContent(el: Element): string {
 
   for (const child of Array.from(el.childNodes)) {
     if (child.nodeType === 3 /* Node.TEXT_NODE */) {
-      result += child.textContent || "";
+      result += escapeHtmlLikeText(child.textContent || "");
     } else if (child.nodeType === 1 /* Node.ELEMENT_NODE */) {
       const childEl = child as HTMLElement;
       const tag = childEl.tagName.toLowerCase();
 
       switch (tag) {
         case "strong":
-        case "b": {
-          const inner = serializeInlineContent(childEl);
-          const { content, trailing } = extractTrailingWhitespace(inner);
-          if (content) {
-            result += `**${content}**${trailing}`;
-          } else {
-            // All whitespace — just output it without emphasis
-            result += trailing;
-          }
+        case "b":
+          result += wrapWithDelimiter(serializeInlineContent(childEl), "**");
           break;
-        }
         case "em":
-        case "i": {
-          const inner = serializeInlineContent(childEl);
-          const { content, trailing } = extractTrailingWhitespace(inner);
-          if (content) {
-            result += `*${content}*${trailing}`;
-          } else {
-            result += trailing;
-          }
+        case "i":
+          result += wrapWithDelimiter(serializeInlineContent(childEl), "*");
           break;
-        }
         case "s":
         case "del":
-          result += `~~${serializeInlineContent(childEl)}~~`;
+          result += wrapWithDelimiter(serializeInlineContent(childEl), "~~");
           break;
         case "code": {
           const text = childEl.textContent || "";
@@ -861,19 +847,16 @@ function serializeInlineContent(el: Element): string {
 }
 
 /**
- * Extract trailing whitespace from emphasis content.
- * Moves trailing spaces outside the emphasis delimiters to produce valid markdown.
- * E.g., `<strong>Bold </strong>` → `**Bold** ` instead of `**Bold **`.
+ * Escape `<` where the markdown parser would read raw HTML or an autolink, so
+ * text like `<details>` loads back as text. A `<` before a space or digit
+ * stays as is, as in `1 < 2`. Backslashes right before an escaped `<` are
+ * doubled too, so `\<details>` doesn't become an escaped backslash plus HTML.
  */
-function extractTrailingWhitespace(text: string): {
-  content: string;
-  trailing: string;
-} {
-  const match = text.match(/^(.*?)(\s*)$/);
-  if (match) {
-    return { content: match[1], trailing: match[2] };
-  }
-  return { content: text, trailing: "" };
+function escapeHtmlLikeText(text: string): string {
+  return text.replace(
+    /(\\*)<(?=[A-Za-z/!?])/g,
+    (_, backslashes: string) => `${backslashes}${backslashes}\\<`,
+  );
 }
 
 /**

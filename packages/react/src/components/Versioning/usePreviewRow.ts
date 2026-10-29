@@ -34,7 +34,7 @@ export function usePreviewRow(): (
   row: VersionSnapshot,
   options?: { compareTo?: CompareTarget; namedOnly?: boolean },
 ) => Promise<VersionOperationResult> {
-  const { select, store } = useVersioning();
+  const { select, store, historyIncludesBeginning } = useVersioning();
   const { comparisonMode, namedOnly } = useVersioningSidebar();
 
   return useCallback(
@@ -63,6 +63,16 @@ export function usePreviewRow(): (
             row,
             options?.namedOnly ?? namedOnly,
           )?.id;
+          // The pinned beginning is not adjacent while older pages are missing.
+          const state = store.state;
+          if (
+            historyIncludesBeginning &&
+            state.mode === "versions" &&
+            state.nextCursor !== undefined &&
+            compareToId === list.snapshots.at(-1)?.id
+          ) {
+            compareToId = undefined;
+          }
           break;
         }
         case "snapshot":
@@ -77,6 +87,6 @@ export function usePreviewRow(): (
 
       return select(target, { compareTo: compareToId });
     },
-    [store, comparisonMode, namedOnly, select],
+    [store, comparisonMode, namedOnly, select, historyIncludesBeginning],
   );
 }

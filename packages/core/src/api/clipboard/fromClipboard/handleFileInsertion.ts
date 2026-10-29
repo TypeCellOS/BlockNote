@@ -105,20 +105,24 @@ export async function handleFileInsertion<
 
   event.preventDefault();
 
-  for (let i = 0; i < items.length; i++) {
+  // Capture files before awaiting uploads, while event data is still available.
+  const files = Array.from(items, (item) => ({
+    file: item.getAsFile(),
+    type: item.type,
+  }));
+
+  for (const { file, type } of files) {
     // Gets file block corresponding to MIME type.
     let fileBlockType = "file";
     for (const blockSpec of Object.values(editor.schema.blockSpecs)) {
       for (const mimeType of blockSpec.implementation.meta.fileBlockAccept ||
         []) {
         const isFileExtension = mimeType.startsWith(".");
-        const file = items[i].getAsFile();
-
         if (file) {
           if (
             (!isFileExtension &&
               file.type &&
-              checkMIMETypesMatch(items[i].type, mimeType)) ||
+              checkMIMETypesMatch(type, mimeType)) ||
             (isFileExtension &&
               checkFileExtensionsMatch(
                 "." + file.name.split(".").pop(),
@@ -132,7 +136,6 @@ export async function handleFileInsertion<
       }
     }
 
-    const file = items[i].getAsFile();
     if (file) {
       const fileBlock = {
         type: fileBlockType,
@@ -192,7 +195,14 @@ export async function handleFileInsertion<
         return;
       }
 
-      const updateData = await editor.uploadFile(file, insertedBlockId);
+      const updateData = await editor
+        .uploadFile(file, insertedBlockId)
+        .catch(() => undefined);
+
+      // Skip the block update after failure or deletion, but process remaining files.
+      if (updateData === undefined || !editor.getBlock(insertedBlockId)) {
+        continue;
+      }
 
       const updatedFileBlock =
         typeof updateData === "string"

@@ -17,7 +17,7 @@ npm install @blocknote/math-block
 
 ## Adding to your editor
 
-The package exports `createReactMathBlockSpec` (the block) and `createReactInlineMathSpec` (the inline content). Add them to your schema's `blockSpecs` and `inlineContentSpecs` respectively:
+The package exports `createReactMathBlockSpec` (the block) and `createReactInlineMathSpec` (the inline content). Add them to your schema's `blockSpecs` and `inlineContentSpecs` respectively, and import the package's stylesheet, which styles the rendered formulas:
 
 ```tsx
 import { BlockNoteSchema } from "@blocknote/core";
@@ -25,6 +25,7 @@ import {
   createReactMathBlockSpec,
   createReactInlineMathSpec,
 } from "@blocknote/math-block";
+import "@blocknote/math-block/style.css";
 
 const schema = BlockNoteSchema.create().extend({
   blockSpecs: {

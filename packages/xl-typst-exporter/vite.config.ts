@@ -12,19 +12,23 @@ export default defineConfig(
           build: {
             command:
               "tsc --project tsconfig.json --composite false --incremental false --rootDir . && vp build",
-            input: [
-              ...buildCacheInputs("packages/xl-typst-exporter"),
-              { pattern: "!**/*.tsbuildinfo", base: "workspace" },
-            ],
-            // `types/**` must be declared too: a cache replay that restores only
-            // dist/ leaves consumers without declarations (tsc is skipped).
-            // Entries stored before this spec carried types/** replay stale
-            // declarations; editing this config invalidates them.
-            output: ["dist/**", "types/**", "!dist/*.tsbuildinfo"],
+            cache: {
+              input: [
+                ...buildCacheInputs("packages/xl-typst-exporter"),
+                { pattern: "!**/*.tsbuildinfo", base: "workspace" },
+              ],
+              // `types/**` must be declared too: a cache replay that restores only
+              // dist/ leaves consumers without declarations (tsc is skipped).
+              // Entries stored before this spec carried types/** replay stale
+              // declarations; editing this config invalidates them.
+              output: ["dist/**", "types/**", "!dist/*.tsbuildinfo"],
+            },
           },
         },
       },
       test: {
+        // Preserve Vitest 4 mock history during the toolchain upgrade.
+        clearMocks: false,
         environment: "node",
         // `.browser.test` files need a real browser; the tests package's
         // browser suite runs them.
@@ -54,7 +58,7 @@ export default defineConfig(
         },
       },
       build: {
-        sourcemap: true,
+        sourcemap: false,
         lib: {
           entry: {
             "blocknote-xl-typst-exporter": path.resolve(
@@ -63,9 +67,8 @@ export default defineConfig(
             ),
           },
           name: "blocknote-xl-typst-exporter",
-          formats: ["es", "cjs"],
-          fileName: (format, entryName) =>
-            format === "es" ? `${entryName}.js` : `${entryName}.cjs`,
+          formats: ["es"],
+          fileName: (_format, entryName) => `${entryName}.js`,
         },
         rollupOptions: {
           external: (source) =>

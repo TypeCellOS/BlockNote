@@ -8,16 +8,18 @@ import { pathToFileURL } from "node:url";
 
 const packagesDir = resolve(import.meta.dirname, "../../../../packages");
 
-function entry(dir) {
+function entry(dir, subpath = ".") {
   const pkg = JSON.parse(
     readFileSync(join(packagesDir, dir, "package.json"), "utf8"),
   );
-  return pathToFileURL(resolve(packagesDir, dir, pkg.exports["."].import)).href;
+  return pathToFileURL(resolve(packagesDir, dir, pkg.exports[subpath].import))
+    .href;
 }
 
 const { BlockNoteSchema } = await import(entry("core"));
 const { createReactBlockSpec } = await import(entry("react"));
 const { ServerBlockNoteEditor } = await import(entry("server-util"));
+const { getDocument } = await import(entry("server-util", "./dom"));
 const { createReactInlineMathSpec, createReactMathBlockSpec } = await import(
   entry("math-block")
 );
@@ -64,7 +66,7 @@ const blocks = [
   },
 ];
 
-const editor = ServerBlockNoteEditor.create({ schema });
+const editor = ServerBlockNoteEditor.create({ schema }, getDocument());
 await editor.blocksToMarkdownLossy(blocks);
 await editor.blocksToHTMLLossy(blocks);
 await editor.blocksToFullHTML(blocks);
