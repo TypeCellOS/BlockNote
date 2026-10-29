@@ -270,6 +270,9 @@ export const ja: Dictionary = {
   suggestion_menu: {
     no_items_title: "アイテムが見つかりません",
   },
+  language_picker: {
+    default: "自動",
+  },
   color_picker: {
     text_title: "文字色",
     background_title: "背景色",

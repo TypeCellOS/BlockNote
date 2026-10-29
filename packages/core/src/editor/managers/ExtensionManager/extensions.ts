@@ -32,6 +32,7 @@ import {
 } from "../../../extensions/index.js";
 import {
   BackgroundColorExtension,
+  LanguageExtension,
   HardBreak,
   KeyboardShortcutsExtension,
   LinkExtension,
@@ -83,6 +84,7 @@ export function getDefaultTiptapExtensions(
       });
     }) as any[]),
 
+    LanguageExtension,
     TextColorExtension,
 
     BackgroundColorExtension,

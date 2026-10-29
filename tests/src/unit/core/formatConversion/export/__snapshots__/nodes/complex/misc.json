@@ -8,6 +8,7 @@
         "attrs": {
           "backgroundColor": "blue",
           "isToggleable": false,
+          "lang": undefined,
           "level": 2,
           "textAlignment": "right",
           "textColor": "yellow",
@@ -50,6 +51,7 @@
               {
                 "attrs": {
                   "backgroundColor": "red",
+                  "lang": undefined,
                   "textAlignment": "left",
                   "textColor": "default",
                 },
@@ -72,6 +74,7 @@
               {
                 "attrs": {
                   "backgroundColor": "default",
+                  "lang": undefined,
                   "textAlignment": "left",
                   "textColor": "default",
                 },

@@ -198,6 +198,9 @@ export const fa = {
   suggestion_menu: {
     no_items_title: "موردی یافت نشد",
   },
+  language_picker: {
+    default: "خودکار",
+  },
   color_picker: {
     text_title: "متن",
     background_title: "پس‌زمینه",

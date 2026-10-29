@@ -229,6 +229,9 @@ export const sk = {
   suggestion_menu: {
     no_items_title: "Nenašli sa žiadne položky",
   },
+  language_picker: {
+    default: "Automaticky",
+  },
   color_picker: {
     text_title: "Text",
     background_title: "Pozadie",

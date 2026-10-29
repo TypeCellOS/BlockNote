@@ -255,6 +255,9 @@ export const uk: Dictionary = {
   suggestion_menu: {
     no_items_title: "Нічого не знайдено",
   },
+  language_picker: {
+    default: "Авто",
+  },
   color_picker: {
     text_title: "Текст",
     background_title: "Фон",

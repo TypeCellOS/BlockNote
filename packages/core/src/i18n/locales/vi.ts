@@ -229,6 +229,9 @@ export const vi: Dictionary = {
   suggestion_menu: {
     no_items_title: "Không tìm thấy mục nào",
   },
+  language_picker: {
+    default: "Tự động",
+  },
   color_picker: {
     text_title: "Văn bản",
     background_title: "Nền",

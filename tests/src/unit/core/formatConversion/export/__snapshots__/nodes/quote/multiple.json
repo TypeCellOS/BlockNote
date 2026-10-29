@@ -7,6 +7,7 @@
       {
         "attrs": {
           "backgroundColor": "default",
+          "lang": undefined,
           "textColor": "default",
         },
         "content": [
@@ -28,6 +29,7 @@
       {
         "attrs": {
           "backgroundColor": "default",
+          "lang": undefined,
           "textColor": "default",
         },
         "content": [

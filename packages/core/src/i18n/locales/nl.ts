@@ -231,6 +231,9 @@ export const nl: Dictionary = {
   suggestion_menu: {
     no_items_title: "Geen items gevonden",
   },
+  language_picker: {
+    default: "Automatisch",
+  },
   color_picker: {
     text_title: "Tekst",
     background_title: "Achtergrond",

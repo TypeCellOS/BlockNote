@@ -5,3 +5,4 @@ export * from "./TextAlignment/TextAlignmentExtension.js";
 export * from "./TextColor/TextColorExtension.js";
 export * from "./UniqueID/UniqueID.js";
 export * from "./Link/link.js";
+export * from "./Language/LanguageExtension.js";
