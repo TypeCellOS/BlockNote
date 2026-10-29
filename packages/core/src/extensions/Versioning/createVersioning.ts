@@ -115,13 +115,17 @@ export function createVersioning<Content, Attributions>(options: {
   }
 
   function close() {
+    finishSession("discard");
+  }
+
+  function finishSession(reason: "discard" | "restore") {
     if (!session) {
       return;
     }
     const closing = session;
     session = undefined;
     closing.lifetime.abort();
-    closing.view.close();
+    closing.view.close(reason);
     dispatch({ type: "closed", restoring });
     setReadOnly(restoring);
   }
@@ -377,7 +381,7 @@ export function createVersioning<Content, Attributions>(options: {
       if (!result.ok) {
         return { status: "error", error: result.error };
       }
-      close();
+      finishSession("restore");
       return { status: "done" };
     } finally {
       restoring = false;

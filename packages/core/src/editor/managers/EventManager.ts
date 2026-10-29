@@ -5,6 +5,7 @@ import {
 } from "../../api/getBlocksChangedByTransaction.js";
 import { Transaction } from "prosemirror-state";
 import { EventEmitter } from "../../util/EventEmitter.js";
+import type { VersioningController } from "../../extensions/Versioning/Versioning.js";
 import {
   BlockSchema,
   InlineContentSchema,
@@ -178,6 +179,8 @@ export class EventManager<
   ): Unsubscribe {
     return this.on("onChange", ({ transaction, appendedTransactions }) => {
       if (
+        this.editor.getExtension<VersioningController>("versioning")
+          ?.isPreviewOpen ||
         transaction.getMeta("blocknoteVersionPreview") ||
         (!includeUpdatesFromRemote && isRemoteTransaction(transaction))
       ) {

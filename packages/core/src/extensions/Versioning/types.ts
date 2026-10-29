@@ -70,8 +70,10 @@ export interface VersionView<Content, Attributions> {
   /**
    * Discard the temporary view and restore live bindings and undo state.
    * Safe to call repeatedly. Does not apply a {@link VersionStorage.restore}.
+   * `restore` reconnects after a successful restore and may publish the restored
+   * live content as a document change; ordinary preview cleanup stays silent.
    */
-  close(): void;
+  close(reason?: "discard" | "restore"): void;
 }
 
 /**

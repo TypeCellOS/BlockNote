@@ -21,7 +21,10 @@ import type {
   VersionStorage,
   VersionViewAdapter,
 } from "./types.js";
-import { createVersioningExtension } from "./Versioning.js";
+import {
+  createVersioningExtension,
+  type VersioningController,
+} from "./Versioning.js";
 import type { UserStoreOrResolver } from "../../user/index.js";
 
 /** ProseMirror JSON uses schema-defined node/mark names and attribute values. */
@@ -207,7 +210,6 @@ export function createLocalVersioning<
             editor.transact((tr) => {
               tr.replaceWith(0, tr.doc.content.size, document.content);
               tr.setMeta("addToHistory", false);
-              tr.setMeta("blocknoteVersionPreview", true);
             });
           },
           close,
@@ -247,10 +249,21 @@ export function createLocalVersioning<
         const content = inEditorSchema(stored.content);
         // Restore the live state before dispatch so change listeners observe
         // the restored document, not a change to the temporary preview.
+        const versioning =
+          editor.getExtension<VersioningController>("versioning");
+        const restoringPreview = versioning?.isPreviewOpen === true;
+        versioning?.close();
+        // The adapter can also be used directly, without a controller.
         closeView?.();
-        editor.transact((tr) =>
-          tr.replaceWith(0, tr.doc.content.size, content.content),
-        );
+        editor.transact((tr) => {
+          tr.replaceWith(0, tr.doc.content.size, content.content);
+          // Closing reinstalls fresh undo history; the restore itself must not
+          // become an undoable edit in that history. Direct live restores keep
+          // their existing undo behavior.
+          if (restoringPreview) {
+            tr.setMeta("addToHistory", false);
+          }
+        });
         return { ok: true, value: undefined };
       },
       async rename(id, name) {
