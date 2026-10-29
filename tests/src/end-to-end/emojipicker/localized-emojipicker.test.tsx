@@ -38,8 +38,8 @@ test("searches and inserts from localized emoji data without a CDN", async () =>
 });
 
 test.each([
-  { language: "fr", query: "soléil" },
-  { language: "tr", query: "IŞIK" },
+  { language: "fr", query: "SOLEIL" },
+  { language: "tr", query: "ışık" },
 ])(
   "keeps displayed results and Enter selection consistent for $language query $query",
   async ({ language, query }) => {
@@ -48,8 +48,8 @@ test.each([
     await focusOnEditor();
     await userEvent.keyboard(`:${query}`);
 
-    // These queries require accent folding / Turkish dotless-I casing. Testing
-    // only the search helper misses Frimousse independently filtering the UI.
+    // The editor's keyboard model and Frimousse's native search must agree on
+    // the first displayed result and the emoji inserted by Enter.
     const selected = await waitForSelectedEmoji();
     const visibleButtons = Array.from(
       document.querySelectorAll<HTMLButtonElement>(".bn-frimousse-emoji"),

@@ -62,7 +62,7 @@ describe("emoji picker model", () => {
     const labelMatch = { ...emoji(1), label: "Café" };
     const unrelated = emoji(2, 4);
     const source = data([tagMatch, unrelated, labelMatch]);
-    const filtered = filterEmojiData(source, "CAFE");
+    const filtered = filterEmojiData(source, "CAFÉ");
 
     expect(filtered.emojis).toEqual([labelMatch, tagMatch]);
     expect(filtered.emojis[0]).toBe(labelMatch);
@@ -70,16 +70,16 @@ describe("emoji picker model", () => {
     expect(filtered.categories).toBe(source.categories);
     expect(filtered.skinTones).toBe(source.skinTones);
     expect(source.emojis).toEqual([tagMatch, unrelated, labelMatch]);
-    expect(filterEmojiData(source, "  ").emojis).toBe(source.emojis);
+    expect(filterEmojiData(source, "").emojis).toBe(source.emojis);
     expect(filterEmojiData(source, "no match").emojis).toEqual([]);
   });
 
-  it("uses the corpus locale for casing", () => {
+  it("uses Frimousse's locale-independent casing", () => {
     const dotless = { ...emoji(0), label: "ırmak" };
     const dotted = { ...emoji(1), label: "incir" };
     const source = { ...data([dotless, dotted]), locale: "tr" };
 
-    expect(filterEmojiData(source, "I").emojis).toEqual([dotless]);
+    expect(filterEmojiData(source, "I").emojis).toEqual([dotted]);
     expect(filterEmojiData(source, "i").emojis).toEqual([dotted]);
   });
 

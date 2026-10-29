@@ -1,7 +1,6 @@
-import {
-  searchEmojis,
-  type FrimousseEmoji,
-  type FrimousseEmojiData,
+import type {
+  FrimousseEmoji,
+  FrimousseEmojiData,
 } from "@blocknote/core/emoji-data";
 
 export const EMOJI_PICKER_COLUMNS = 9;
@@ -55,9 +54,27 @@ export function getEmojiPickerRows(data: FrimousseEmojiData): EmojiPickerRow[] {
 }
 
 export function filterEmojiData(data: FrimousseEmojiData, query: string) {
+  if (!query) {
+    return data;
+  }
+
+  // Mirror Frimousse's native search (frimousse/src/data/emoji-picker.ts) so
+  // editor keyboard navigation follows the same ordering as its virtualized UI.
+  const searchText = query.toLowerCase().trim();
+  const matches = data.emojis
+    .map((emoji) => ({
+      emoji,
+      score:
+        (emoji.label.toLowerCase().includes(searchText) ? 10 : 0) +
+        emoji.tags.filter((tag) => tag.toLowerCase().includes(searchText))
+          .length,
+    }))
+    .filter(({ score }) => score > 0)
+    .sort((first, second) => second.score - first.score);
+
   return {
     ...data,
-    emojis: searchEmojis(data.emojis, query, data.locale),
+    emojis: matches.map(({ emoji }) => emoji),
   };
 }
 
