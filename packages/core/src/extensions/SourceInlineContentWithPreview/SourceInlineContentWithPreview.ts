@@ -134,18 +134,7 @@ export const SourceInlineContentWithPreviewExtension = createExtension(
           signal,
         });
 
-        function handleBlur(event: FocusEvent) {
-          // Keep the popup open while selecting error text or returning to the source.
-          if (
-            event.relatedTarget === dom ||
-            (event.relatedTarget instanceof Element &&
-              dom.contains(event.relatedTarget) &&
-              event.relatedTarget.closest(".bn-code-block-source-error"))
-          ) {
-            return;
-          }
-          store.setState({ selected: undefined });
-        }
+        const handleBlur = () => store.setState({ selected: undefined });
         dom.addEventListener("blur", handleBlur, { capture: true, signal });
       },
     };

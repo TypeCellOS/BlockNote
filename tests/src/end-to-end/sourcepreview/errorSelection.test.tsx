@@ -71,6 +71,7 @@ test.each<Kind>(["mathBlock", "diagram", "math"])(
 
     // Drag across the first word using real mouse events. A DOM-only selection
     // wouldn't reproduce Firefox resetting the selection after mouseup (#3138).
+    await userEvent.hover(error);
     const text = error.firstChild!;
     const word = (text.textContent ?? "").match(/\S+/)![0];
     const range = document.createRange();
@@ -84,7 +85,6 @@ test.each<Kind>(["mathBlock", "diagram", "math"])(
       { type: "up" },
     ]);
     await vi.waitFor(() => {
-      expect(document.activeElement).toBe(error);
       expect(window.getSelection()?.toString()).toBe(word);
       expect(
         error
@@ -92,13 +92,27 @@ test.each<Kind>(["mathBlock", "diagram", "math"])(
           ?.getAttribute("data-open"),
       ).toBe("true");
     });
+    const source = document.querySelector<HTMLElement>(
+      ".bn-source-block-popup code",
+    )!;
+    const originalSource = source.textContent;
+    // The editor still has focus, but its shortcuts must not edit or submit
+    // the source while the native selection belongs to the error text.
+    await userEvent.keyboard("{Enter}{Backspace}");
+    expect(source.textContent).toBe(originalSource);
+    expect(
+      error.closest(".bn-preview-with-source-popup")?.getAttribute("data-open"),
+    ).toBe("true");
     // Playwright WebKit does not support the native clipboard round trip.
     // Still exercise selection, focus recovery, and dismissal in that browser.
     if (browserName !== "webkit") {
       await userEvent.keyboard(`{${MOD}>}c{/${MOD}}`);
+      await userEvent.keyboard(`{${MOD}>}v{/${MOD}}`);
+      await userEvent.keyboard(`{${MOD}>}x{/${MOD}}`);
+      expect(source.textContent).toBe(originalSource);
     }
 
-    // Focus leaving the error must close the popup.
+    // Focus leaving the editor must close the popup.
     const textarea = document.querySelector<HTMLTextAreaElement>("textarea")!;
     await userEvent.click(textarea);
     expect(
@@ -108,14 +122,9 @@ test.each<Kind>(["mathBlock", "diagram", "math"])(
       document.querySelector<HTMLElement>(".bn-preview-container")!,
     );
     await userEvent.click(error);
-    expect(document.activeElement).toBe(error);
 
     // Moving directly back from the error to the source must keep it editable.
-    const source = document.querySelector<HTMLElement>(
-      ".bn-source-block-popup code",
-    )!;
     await userEvent.click(source);
-    const originalSource = source.textContent;
     await userEvent.keyboard("{End}x");
     await vi.waitFor(() =>
       expect(source.textContent).toBe(originalSource + "x"),
