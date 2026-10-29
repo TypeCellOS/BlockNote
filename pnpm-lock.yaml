@@ -183,7 +183,7 @@ importers:
         version: 3.1.18
       '@polar-sh/better-auth':
         specifier: ^2.0.0
-        version: 2.1.0(@polar-sh/sdk@1.0.2)(@stripe/react-stripe-js@4.0.2(@stripe/stripe-js@7.9.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(@stripe/stripe-js@7.9.0)(better-auth@1.7.14(@opentelemetry/api@1.10.0)(next@16.3.0(@babel/core@7.29.0)(@opentelemetry/api@1.10.0)(@playwright/test@1.60.0)(@types/node@25.9.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(pg@8.20.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(vitest@5.0.5))(react@19.2.5)(zod@4.3.6)
+        version: 2.1.0(@polar-sh/sdk@1.0.2)(@stripe/react-stripe-js@4.0.2(@stripe/stripe-js@7.9.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(@stripe/stripe-js@7.9.0)(better-auth@1.7.7(@opentelemetry/api@1.10.0)(next@16.3.0(@babel/core@7.29.0)(@opentelemetry/api@1.10.0)(@playwright/test@1.60.0)(@types/node@25.9.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(pg@8.20.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(vitest@5.0.5))(react@19.2.5)(zod@4.3.6)
       '@polar-sh/sdk':
         specifier: ^1.0.1
         version: 1.0.2
@@ -273,7 +273,7 @@ importers:
         version: 6.0.5(zod@4.3.6)
       better-auth:
         specifier: ~1.7.7
-        version: 1.7.14(@opentelemetry/api@1.10.0)(next@16.3.0(@babel/core@7.29.0)(@opentelemetry/api@1.10.0)(@playwright/test@1.60.0)(@types/node@25.9.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(pg@8.20.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(vitest@5.0.5)
+        version: 1.7.7(@opentelemetry/api@1.10.0)(next@16.3.0(@babel/core@7.29.0)(@opentelemetry/api@1.10.0)(@playwright/test@1.60.0)(@types/node@25.9.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(pg@8.20.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(vitest@5.0.5)
       better-sqlite3:
         specifier: ^12.6.2
         version: 12.8.0
@@ -12481,65 +12481,6 @@ packages:
     engines: {node: '>=6.0.0'}
     hasBin: true
 
-  better-auth@1.7.14:
-    resolution: {integrity: sha512-QxDCI0pOCCHDYmruisKhKyrvOJ6Icv9xg0RA6ZUysfKFXENYwhNNpwUlkE/NmViH2nDMgkKcymmLr55pnpR9vw==}
-    peerDependencies:
-      '@lynx-js/react': '*'
-      '@prisma/client': ^5.0.0 || ^6.0.0 || ^7.0.0
-      '@sveltejs/kit': ^2.0.0 || ^3.0.0
-      '@tanstack/react-start': ^1.0.0
-      '@tanstack/solid-start': ^1.0.0
-      drizzle-kit: '>=0.31.4 || >=1.0.0-beta.1'
-      drizzle-orm: ^0.45.2 || >=1.0.0-rc.1 <2.0.0
-      mongodb: ^6.0.0 || ^7.0.0
-      mysql2: ^3.0.0
-      next: ^14.0.0 || ^15.0.0 || ^16.0.0
-      pg: ^8.0.0
-      prisma: ^5.0.0 || ^6.0.0 || ^7.0.0
-      react: ^18.0.0 || ^19.0.0
-      react-dom: ^18.0.0 || ^19.0.0
-      solid-js: ^1.0.0
-      svelte: ^4.0.0 || ^5.0.0
-      vitest: 5.0.5
-      vue: ^3.0.0
-    peerDependenciesMeta:
-      '@lynx-js/react':
-        optional: true
-      '@prisma/client':
-        optional: true
-      '@sveltejs/kit':
-        optional: true
-      '@tanstack/react-start':
-        optional: true
-      '@tanstack/solid-start':
-        optional: true
-      drizzle-kit:
-        optional: true
-      drizzle-orm:
-        optional: true
-      mongodb:
-        optional: true
-      mysql2:
-        optional: true
-      next:
-        optional: true
-      pg:
-        optional: true
-      prisma:
-        optional: true
-      react:
-        optional: true
-      react-dom:
-        optional: true
-      solid-js:
-        optional: true
-      svelte:
-        optional: true
-      vitest:
-        optional: true
-      vue:
-        optional: true
-
   better-auth@1.7.7:
     resolution: {integrity: sha512-Zhgxi/c5ylmfB/sX+nwnBbsFf/j6k0L8DvL6CJXZSrXgxc5pPMC/e7j812zNd4L4B4ELmdURCPw3X8nAOUdcjw==}
     peerDependencies:
@@ -19823,12 +19764,12 @@ snapshots:
       '@polar-sh/sdk': 1.0.2
       zod: 4.6.7
 
-  '@polar-sh/better-auth@2.1.0(@polar-sh/sdk@1.0.2)(@stripe/react-stripe-js@4.0.2(@stripe/stripe-js@7.9.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(@stripe/stripe-js@7.9.0)(better-auth@1.7.14(@opentelemetry/api@1.10.0)(next@16.3.0(@babel/core@7.29.0)(@opentelemetry/api@1.10.0)(@playwright/test@1.60.0)(@types/node@25.9.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(pg@8.20.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(vitest@5.0.5))(react@19.2.5)(zod@4.3.6)':
+  '@polar-sh/better-auth@2.1.0(@polar-sh/sdk@1.0.2)(@stripe/react-stripe-js@4.0.2(@stripe/stripe-js@7.9.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(@stripe/stripe-js@7.9.0)(better-auth@1.7.7(@opentelemetry/api@1.10.0)(next@16.3.0(@babel/core@7.29.0)(@opentelemetry/api@1.10.0)(@playwright/test@1.60.0)(@types/node@25.9.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(pg@8.20.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(vitest@5.0.5))(react@19.2.5)(zod@4.3.6)':
     dependencies:
       '@polar-sh/adapter-utils': 1.1.0
       '@polar-sh/checkout': 0.4.3(@stripe/react-stripe-js@4.0.2(@stripe/stripe-js@7.9.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(@stripe/stripe-js@7.9.0)(react@19.2.5)
       '@polar-sh/sdk': 1.0.2
-      better-auth: 1.7.14(@opentelemetry/api@1.10.0)(next@16.3.0(@babel/core@7.29.0)(@opentelemetry/api@1.10.0)(@playwright/test@1.60.0)(@types/node@25.9.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(pg@8.20.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(vitest@5.0.5)
+      better-auth: 1.7.7(@opentelemetry/api@1.10.0)(next@16.3.0(@babel/core@7.29.0)(@opentelemetry/api@1.10.0)(@playwright/test@1.60.0)(@types/node@25.9.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(pg@8.20.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(vitest@5.0.5)
       zod: 4.3.6
     transitivePeerDependencies:
       - '@stripe/react-stripe-js'
@@ -23207,34 +23148,6 @@ snapshots:
   baseline-browser-mapping@2.10.17: {}
 
   baseline-browser-mapping@2.11.21: {}
-
-  better-auth@1.7.14(@opentelemetry/api@1.10.0)(next@16.3.0(@babel/core@7.29.0)(@opentelemetry/api@1.10.0)(@playwright/test@1.60.0)(@types/node@25.9.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(pg@8.20.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(vitest@5.0.5):
-    dependencies:
-      '@better-auth/core': 1.7.14(@better-auth/utils@0.5.1)(@better-fetch/fetch@1.3.2)(@opentelemetry/api@1.10.0)(better-call@1.4.0(zod@4.3.6))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5)
-      '@better-auth/drizzle-adapter': 1.7.14(@better-auth/core@1.7.14(@better-auth/utils@0.5.1)(@better-fetch/fetch@1.3.3)(@opentelemetry/api@1.10.0)(better-call@1.4.4(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(@better-auth/utils@0.5.1)
-      '@better-auth/kysely-adapter': 1.7.14(@better-auth/core@1.7.14(@better-auth/utils@0.5.1)(@better-fetch/fetch@1.3.3)(@opentelemetry/api@1.10.0)(better-call@1.4.4(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(@better-auth/utils@0.5.1)(kysely@0.29.7)
-      '@better-auth/memory-adapter': 1.7.14(@better-auth/core@1.7.14(@better-auth/utils@0.5.1)(@better-fetch/fetch@1.3.3)(@opentelemetry/api@1.10.0)(better-call@1.4.4(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(@better-auth/utils@0.5.1)
-      '@better-auth/mongo-adapter': 1.7.14(@better-auth/core@1.7.14(@better-auth/utils@0.5.1)(@better-fetch/fetch@1.3.3)(@opentelemetry/api@1.10.0)(better-call@1.4.4(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(@better-auth/utils@0.5.1)
-      '@better-auth/prisma-adapter': 1.7.14(@better-auth/core@1.7.14(@better-auth/utils@0.5.1)(@better-fetch/fetch@1.3.3)(@opentelemetry/api@1.10.0)(better-call@1.4.4(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(@better-auth/utils@0.5.1)
-      '@better-auth/telemetry': 1.7.14(@better-auth/core@1.7.14(@better-auth/utils@0.5.1)(@better-fetch/fetch@1.3.3)(@opentelemetry/api@1.10.0)(better-call@1.4.4(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(@better-auth/utils@0.5.1)(@better-fetch/fetch@1.3.3)
-      '@better-auth/utils': 0.5.1
-      '@better-fetch/fetch': 1.3.3
-      '@noble/ciphers': 2.4.0
-      '@noble/hashes': 2.4.0
-      better-call: 1.4.4(zod@4.6.7)
-      defu: 6.1.6
-      jose: 6.2.13
-      kysely: 0.29.7
-      nanostores: 1.5.5
-      zod: 4.6.7
-    optionalDependencies:
-      next: 16.3.0(@babel/core@7.29.0)(@opentelemetry/api@1.10.0)(@playwright/test@1.60.0)(@types/node@25.9.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
-      pg: 8.20.0
-      react: 19.2.5
-      react-dom: 19.2.5(react@19.2.5)
-      vitest: 5.0.5(@opentelemetry/api@1.10.0)(@types/node@25.9.5)(@vitest/browser-playwright@5.0.5)(@vitest/browser-preview@5.0.5)(@vitest/ui@5.0.5)(jsdom@29.0.2(@noble/hashes@2.4.0)(canvas@3.1.0))(msw@2.11.5(@types/node@25.9.5)(typescript@7.0.2))(vite@8.0.8(@types/node@25.9.5)(esbuild@0.27.5)(jiti@2.7.0)(terser@5.51.2)(tsx@4.21.0)(yaml@2.9.0))
-    transitivePeerDependencies:
-      - '@opentelemetry/api'
 
   better-auth@1.7.7(@opentelemetry/api@1.10.0)(next@16.3.0(@babel/core@7.29.0)(@opentelemetry/api@1.10.0)(@playwright/test@1.60.0)(@types/node@25.9.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(pg@8.20.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(vitest@5.0.5):
     dependencies:
