@@ -115,9 +115,12 @@ export function createVersioningExtension<
                 if (reason === "restore") {
                   previewOpen = false;
                 }
-                view.close(reason);
-                editor.registerExtension(undoExtensions);
-                previewOpen = false;
+                try {
+                  view.close(reason);
+                  editor.registerExtension(undoExtensions);
+                } finally {
+                  previewOpen = false;
+                }
               },
             };
           } catch (error) {
