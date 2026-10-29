@@ -12,7 +12,7 @@ function getBlockContent(block: Element | null) {
 }
 
 /** Mirrors ListItemExtension for static full HTML, where plugins do not run. */
-export function addListItemAttributes(
+export function addListAccessibilityAttributes(
   element: HTMLElement,
   isListItem: (type: string) => boolean,
 ) {
@@ -20,7 +20,7 @@ export function addListItemAttributes(
   for (const block of blocks) {
     const content = getBlockContent(block);
     const type = content?.getAttribute("data-content-type");
-    if (!type || (type !== "numberedListItem" && !isListItem(type))) {
+    if (!type || !isListItem(type)) {
       continue;
     }
     const previousContent = getBlockContent(block.previousElementSibling);
@@ -29,7 +29,6 @@ export function addListItemAttributes(
       continue;
     }
 
-    let index = Number(content?.getAttribute("data-start")) || 1;
     const ids: string[] = [];
     let item: Element | null = block;
     while (item) {
@@ -37,15 +36,10 @@ export function addListItemAttributes(
       if (itemContent?.getAttribute("data-content-type") !== type) {
         break;
       }
-      if (type === "numberedListItem") {
-        itemContent.setAttribute("data-index", String(index++));
-      }
-      if (isListItem(type)) {
-        const id = encodeURIComponent(item.getAttribute("data-id")!);
-        item.setAttribute("id", id);
-        item.setAttribute("role", "listitem");
-        ids.push(id);
-      }
+      const id = encodeURIComponent(item.getAttribute("data-id")!);
+      item.setAttribute("id", id);
+      item.setAttribute("role", "listitem");
+      ids.push(id);
       item = item.nextElementSibling;
     }
     if (ids.length > 0) {

@@ -30,7 +30,7 @@ function createEditor() {
 
 function getDecorationSet(editor: BlockNoteEditor<any, any, any>) {
   const view = editor._tiptapEditor.view;
-  return listItemPluginKey.getState(view.state)!.decorations;
+  return listItemPluginKey.getState(view.state)!.indexDecorations;
 }
 
 /** Returns all decoration specs in document order. */
