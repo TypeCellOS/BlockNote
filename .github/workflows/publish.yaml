@@ -47,7 +47,11 @@ jobs:
       # rustup auto-provisions the pinned toolchain from
       # rust/rust-toolchain.toml.
       - name: Build packages
-        run: vp run -r build
+        run: vp run --no-cache -r build
+        env:
+          # Release provenance must come from this source checkout, not reused
+          # developer/CI WASM outputs or Vite task-cache replay.
+          BLOCKNOTE_TYPST_SOURCE_ONLY: "1"
 
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:

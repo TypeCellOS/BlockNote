@@ -2032,6 +2032,30 @@ export const examples = {
         readme:
           "Browse the suggestion (track-changes) rendering scenarios interactively. Each\nentry sets up a base document and applies a change in suggestion mode, so you can\nsee how insertions, deletions and type changes are visualized as a diff.\n\nThe **Base** pane (left) is read-only and shows the document before the change.\nThe **Suggestion** pane (right) is editable — keep typing to create more\nsuggestions on top.\n\nThese are the same scenarios covered by the y-prosemirror visual tests; the\nper-scenario definitions live in `src/scenarios.ts` so the tests and this gallery\nstay in sync.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/editor-basics/setup)\n- [Collaboration](/docs/collaboration/real-time-collaboration)",
       },
+      {
+        projectSlug: "yhub",
+        fullSlug: "collaboration/yhub",
+        pathFromRoot: "examples/07-collaboration/15-yhub",
+        config: {
+          playground: true,
+          docs: true,
+          author: "",
+          tags: ["Advanced", "Saving/Loading", "Collaboration"],
+          dependencies: {
+            "@y/prosemirror": "^2.0.0-15",
+            "@y/protocols": "^1.0.6-rc.1",
+            "@y/websocket": "^4.0.0-3",
+            "@y/y": "^14.0.0-rc.26",
+          } as any,
+        },
+        title: "Collaborative Editing with YHub",
+        group: {
+          pathFromRoot: "examples/07-collaboration",
+          slug: "collaboration",
+        },
+        readme:
+          "This example uses [YHub](https://github.com/yjs/yhub) and Yjs v14 to sync a BlockNote document and share user cursors over WebSocket. It connects to a public demo server, so don't enter private information.\n\n**Try it out:** Open this page in another browser tab or window to edit the same document together.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Collaboration](/docs/features/collaboration)\n- [YHub](https://github.com/yjs/yhub)",
+      },
     ],
   },
   extensions: {

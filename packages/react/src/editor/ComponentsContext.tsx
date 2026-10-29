@@ -321,7 +321,8 @@ export type ComponentProps = {
       name: ReactNode;
       date?: string;
       restoredFrom?: string;
-      secondaryLabel?: string;
+      /** Complete core users, or raw IDs for authors that have not resolved. */
+      users?: (User | string)[];
       comparingLabel?: string;
       comparingIcon?: ReactNode;
     };

@@ -76,6 +76,15 @@ export const MenuTrigger = (
   } else {
     return (
       <ShadCNComponents.DropdownMenu.DropdownMenuTrigger
+        // Base UI normally opens on mouse-down, but a draggable trigger must
+        // stay closed until a click completes. Native dragging suppresses that
+        // click, so starting or finishing a drag won't open the menu.
+        // Skip pointer-down too: Base UI records the pointer type there and
+        // then ignores the click, assuming mouse-down already handled it.
+        // Only skip Base UI's handlers, not the browser defaults, so native
+        // dragging and focus still work. Keep click and keyboard handling intact.
+        onPointerDown={(event) => event.preventBaseUIHandler()}
+        onMouseDown={(event) => event.preventBaseUIHandler()}
         render={children as ReactElement}
       />
     );

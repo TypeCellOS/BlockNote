@@ -50,6 +50,10 @@ async function settleFrames(count = 3) {
   }
 }
 
+function selectionIsEmpty(): boolean {
+  return (window as any).ProseMirror.state.selection.empty;
+}
+
 function activeUrlInput() {
   const active = document.activeElement;
   return active instanceof HTMLInputElement && active.name === "url"
@@ -103,6 +107,55 @@ describe("Mobile formatting toolbar", () => {
     await settleFrames();
 
     expect(document.querySelector(MOBILE_TOOLBAR_SELECTOR)).toBeNull();
+    expect(document.querySelector(".bn-formatting-toolbar")).toBeNull();
+  });
+
+  // A real blur, then focus coming back without a gesture (a programmatic
+  // `focus()`), so the keyboard stays closed. The selection used to survive
+  // the blur, so the desktop toolbar showed over it, and without the keyboard
+  // no tap could clear it.
+  test("focus returning without the keyboard brings back neither the selection nor a toolbar", async () => {
+    await focusOnEditor();
+    await userEvent.keyboard("Mobile toolbar");
+    await userEvent.keyboard("{Shift>}{Home}{/Shift}");
+
+    await page.viewport(VIEWPORT_WIDTH, KEYBOARD_OPEN);
+    await waitForSelector(MOBILE_TOOLBAR_SELECTOR);
+
+    const editorElement = document.querySelector<HTMLElement>(EDITOR_SELECTOR)!;
+    editorElement.blur();
+    await page.viewport(VIEWPORT_WIDTH, KEYBOARD_CLOSED);
+    await settleFrames();
+
+    // No gesture: the keyboard stays closed.
+    editorElement.focus();
+    await settleFrames();
+
+    expect(selectionIsEmpty()).toBe(true);
+    expect(document.querySelector(".bn-formatting-toolbar")).toBeNull();
+  });
+
+  // The tap on iOS Safari's address bar blurs only the window: the editor
+  // keeps DOM focus, so without dropping it no focusout ever reached the
+  // editor and the selection survived.
+  test("a window blur that leaves the editor focused ends the selection", async () => {
+    await focusOnEditor();
+    await userEvent.keyboard("Mobile toolbar");
+    await userEvent.keyboard("{Shift>}{Home}{/Shift}");
+
+    await page.viewport(VIEWPORT_WIDTH, KEYBOARD_OPEN);
+    await waitForSelector(MOBILE_TOOLBAR_SELECTOR);
+
+    const editorElement = document.querySelector<HTMLElement>(EDITOR_SELECTOR)!;
+    // WebKit's page blur: `blur` on the focused element, without focusout and
+    // without moving `document.activeElement`, then on the window.
+    editorElement.dispatchEvent(new FocusEvent("blur"));
+    window.dispatchEvent(new FocusEvent("blur"));
+    await page.viewport(VIEWPORT_WIDTH, KEYBOARD_CLOSED);
+    await settleFrames();
+
+    expect(document.activeElement).not.toBe(editorElement);
+    expect(selectionIsEmpty()).toBe(true);
     expect(document.querySelector(".bn-formatting-toolbar")).toBeNull();
   });
 

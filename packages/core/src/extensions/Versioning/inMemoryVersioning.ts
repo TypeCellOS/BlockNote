@@ -21,7 +21,10 @@ import type {
   VersionStorage,
   VersionViewAdapter,
 } from "./types.js";
-import { createVersioningExtension } from "./Versioning.js";
+import {
+  createVersioningExtension,
+  type VersioningController,
+} from "./Versioning.js";
 import type { UserStoreOrResolver } from "../../user/index.js";
 
 /** ProseMirror JSON uses schema-defined node/mark names and attribute values. */
@@ -96,6 +99,7 @@ export function createLocalVersioning<
   storage: VersionStorage<Node>;
 } {
   let live: EditorState | undefined;
+  let closeView: (() => void) | undefined;
   let nextId = 0;
   const snapshots = new Map<
     string,
@@ -168,6 +172,23 @@ export function createLocalVersioning<
           live = undefined;
           throw error;
         }
+        function close() {
+          if (closed) {
+            return;
+          }
+          if (!live) {
+            throw new Error("Missing live editor state");
+          }
+          editor.prosemirrorView.updateState(
+            live.reconfigure({
+              plugins: editor.prosemirrorState.plugins,
+            }),
+          );
+          closed = true;
+          live = undefined;
+          closeView = undefined;
+        }
+        closeView = close;
         return {
           current,
           show({ content, comparison }) {
@@ -191,21 +212,7 @@ export function createLocalVersioning<
               tr.setMeta("addToHistory", false);
             });
           },
-          close() {
-            if (closed) {
-              return;
-            }
-            if (!live) {
-              throw new Error("Missing live editor state");
-            }
-            editor.prosemirrorView.updateState(
-              live.reconfigure({
-                plugins: editor.prosemirrorState.plugins,
-              }),
-            );
-            closed = true;
-            live = undefined;
-          },
+          close,
         };
       },
     },
@@ -240,15 +247,23 @@ export function createLocalVersioning<
           return { ok: false, error: { type: "not-found" } };
         }
         const content = inEditorSchema(stored.content);
-        if (live) {
-          live = live.apply(
-            live.tr.replaceWith(0, live.doc.content.size, content.content),
-          );
-        } else {
-          editor.transact((tr) =>
-            tr.replaceWith(0, tr.doc.content.size, content.content),
-          );
-        }
+        // Restore the live state before dispatch so change listeners observe
+        // the restored document, not a change to the temporary preview.
+        const versioning =
+          editor.getExtension<VersioningController>("versioning");
+        const restoringPreview = versioning?.isPreviewOpen === true;
+        versioning?.close();
+        // The adapter can also be used directly, without a controller.
+        closeView?.();
+        editor.transact((tr) => {
+          tr.replaceWith(0, tr.doc.content.size, content.content);
+          // Closing reinstalls fresh undo history; the restore itself must not
+          // become an undoable edit in that history. Direct live restores keep
+          // their existing undo behavior.
+          if (restoringPreview) {
+            tr.setMeta("addToHistory", false);
+          }
+        });
         return { ok: true, value: undefined };
       },
       async rename(id, name) {

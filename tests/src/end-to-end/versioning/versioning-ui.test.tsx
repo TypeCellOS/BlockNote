@@ -26,13 +26,19 @@ import { useEffect, useState } from "react";
 import { userEvent } from "../../utils/context.js";
 import { expectElement } from "../../utils/editor.js";
 import { clickAt, getRect } from "../../utils/mouse.js";
+import { screenshotFull } from "../../utils/screenshotFull.js";
 
 const CURRENT: VersionSnapshot = {
   id: "current",
   createdAt: Date.UTC(2024, 0, 4),
 };
 const SNAPSHOTS: VersionSnapshot[] = [
-  { id: "named", createdAt: Date.UTC(2024, 0, 3), name: "Draft" },
+  {
+    id: "named",
+    createdAt: Date.UTC(2024, 0, 3),
+    name: "Draft",
+    by: ["alex", "morgan"],
+  },
   { id: "automatic", createdAt: Date.UTC(2024, 0, 2) },
 ];
 
@@ -62,6 +68,22 @@ function createEndpoints(): VersionStorage<unknown[], unknown> {
 
 const Versions = createVersioningExtension(() => ({
   storage: createEndpoints(),
+  resolveUsers: async () => [
+    {
+      id: "alex",
+      username: "Alexandra Johnson",
+      avatarUrl: "",
+      color: "#c92a2a",
+      colorLight: "#ffa8a8",
+    },
+    {
+      id: "morgan",
+      username: "Morgan Williams",
+      avatarUrl: "",
+      color: "#1864ab",
+      colorLight: "#a5d8ff",
+    },
+  ],
   adapter: {
     supportsComparison: true,
     open() {
@@ -190,12 +212,17 @@ test("renders every versioning skin in light and dark themes", async () => {
     expect(
       document.querySelectorAll('[role="region"][aria-label="History"]'),
     ).toHaveLength(6);
+    expect(document.querySelectorAll(".bn-snapshot-users")).toHaveLength(6);
+    for (const authors of document.querySelectorAll(".bn-snapshot-users")) {
+      expect(authors.textContent).toContain("Alexandra Johnson");
+      expect(authors.textContent).toContain("Morgan Williams");
+    }
   });
 
   const matrix = document.querySelector<HTMLElement>(
     '[data-test="versioning-skin-matrix"]',
   )!;
-  await expectElement(matrix).toMatchScreenshot("versioning-skins-light-dark");
+  await screenshotFull(matrix, "versioning-skins-light-dark");
 });
 
 test.each(
@@ -260,7 +287,7 @@ test.each(["mantine", "ariakit", "shadcn"] as const)(
     rows[0]!.focus();
     await userEvent.keyboard("{ArrowDown}{Enter}");
     await vi.waitFor(() =>
-      expect(rows[1]).toHaveAttribute("aria-current", "true"),
+      expect(rows[1].getAttribute("aria-current")).toBe("true"),
     );
 
     await userEvent.hover(rows[1]!);
@@ -301,10 +328,12 @@ test.each(["mantine", "ariakit", "shadcn"] as const)(
     )!;
     const rows = await waitForRows(region);
     await clickElement(
-      region.querySelector('button[aria-label="Turn on comparison"]')!,
+      region.querySelector('button[aria-label="Show changes"]')!,
     );
     await clickElement(rows[1]!);
-    await vi.waitFor(() => expect(rows[2]).toHaveClass("comparing"));
+    await vi.waitFor(() =>
+      expect(rows[2].classList.contains("comparing")).toBe(true),
+    );
 
     await userEvent.hover(rows[2]!);
     const menuButton = rows[2]!.querySelector<HTMLButtonElement>(
@@ -322,12 +351,12 @@ test.each(["mantine", "ariakit", "shadcn"] as const)(
     });
     await clickElement(nameItem);
     await vi.waitFor(() => {
-      expect(menuButton).toHaveAttribute("aria-expanded", "false");
+      expect(menuButton.getAttribute("aria-expanded")).toBe("false");
       const input = rows[2]!.querySelector('input[aria-label="Version name"]');
       expect(input).not.toBeNull();
       expect(document.activeElement).toBe(input);
-      expect(rows[1]).toHaveAttribute("aria-current", "true");
-      expect(rows[2]).toHaveClass("comparing");
+      expect(rows[1].getAttribute("aria-current")).toBe("true");
+      expect(rows[2].classList.contains("comparing")).toBe(true);
     });
     await expectElement(region).toMatchScreenshot(
       `versioning-${skin}-comparison-baseline-naming`,
@@ -346,7 +375,7 @@ test.each(["mantine", "ariakit", "shadcn"] as const)(
     // Keep Current selected, but compare against the oldest stored version
     // rather than its automatic previous-version baseline.
     await vi.waitFor(() =>
-      expect(rows[0]).toHaveAttribute("aria-current", "true"),
+      expect(rows[0].getAttribute("aria-current")).toBe("true"),
     );
     await userEvent.hover(rows[2]!);
     await clickElement(
@@ -365,8 +394,8 @@ test.each(["mantine", "ariakit", "shadcn"] as const)(
     });
     await clickElement(compareItem);
     await vi.waitFor(() => {
-      expect(rows[0]).toHaveAttribute("aria-current", "true");
-      expect(rows[2]).toHaveClass("comparing");
+      expect(rows[0].getAttribute("aria-current")).toBe("true");
+      expect(rows[2].classList.contains("comparing")).toBe(true);
     });
 
     const baselineName = rows[2]!.querySelector<HTMLInputElement>(
@@ -376,13 +405,13 @@ test.each(["mantine", "ariakit", "shadcn"] as const)(
     await userEvent.keyboard("{Enter}");
 
     await vi.waitFor(() => {
-      expect(baselineName).toHaveValue("Renamed baseline");
+      expect(baselineName.value).toBe("Renamed baseline");
       expect(rows[2]!.getAttribute("aria-label")).toContain("Renamed baseline");
       expect(document.activeElement).toBe(rows[2]);
-      expect(rows[0]).toHaveAttribute("aria-current", "true");
-      expect(rows[2]).not.toHaveAttribute("aria-current", "true");
-      expect(rows[2]).toHaveClass("comparing");
-      expect(rows[1]).not.toHaveClass("comparing");
+      expect(rows[0].getAttribute("aria-current")).toBe("true");
+      expect(rows[2].getAttribute("aria-current")).not.toBe("true");
+      expect(rows[2].classList.contains("comparing")).toBe(true);
+      expect(rows[1].classList.contains("comparing")).toBe(false);
     });
   },
 );
@@ -449,7 +478,7 @@ test.each([
       const ordinary = rows[1]!;
 
       await vi.waitFor(() =>
-        expect(selected).toHaveAttribute("aria-current", "true"),
+        expect(selected.getAttribute("aria-current")).toBe("true"),
       );
 
       expect(root.closest(".bn-container")).toBeNull();

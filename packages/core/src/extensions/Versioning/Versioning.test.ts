@@ -1,5 +1,7 @@
+// @vitest-environment jsdom
 import { afterEach, expect, it, vi } from "vite-plus/test";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { LoadingExtension } from "../Loading/Loading.js";
 import { DiffVersioningExtension } from "../../y/extensions/DiffVersioningExtension.js";
 import { createLocalVersioning } from "./inMemoryVersioning.js";
 import { createVersioningExtension } from "./Versioning.js";
@@ -59,18 +61,41 @@ function setup(scrollToFirstChange = true, loadContent?: () => Promise<void>) {
     editor._tiptapEditor.destroy();
     host.remove();
   });
-  const scroll = vi
-    .spyOn(Element.prototype, "scrollIntoView")
-    .mockImplementation(() => {});
+  // jsdom has no scrolling implementation. Assert scheduling and targeting only.
+  const scroll = vi.fn();
+  const originalScroll = Object.getOwnPropertyDescriptor(
+    Element.prototype,
+    "scrollIntoView",
+  );
+  Object.defineProperty(Element.prototype, "scrollIntoView", {
+    configurable: true,
+    value: scroll,
+  });
+  cleanup.push(() => {
+    if (originalScroll) {
+      Object.defineProperty(
+        Element.prototype,
+        "scrollIntoView",
+        originalScroll,
+      );
+    } else {
+      Reflect.deleteProperty(Element.prototype, "scrollIntoView");
+    }
+  });
   vi.useFakeTimers();
   mode.open();
   return { editor, mode, scroll };
 }
 
-it("scrolls to the first rendered change when comparing stored snapshots", async () => {
+it("schedules scrolling to the first change when comparing stored snapshots", async () => {
   const { editor, mode, scroll } = setup();
   await mode.select({ type: "snapshot", id: "2" }, { compareTo: "1" });
-  expect(editor.domElement!.querySelector("[data-user-ids]")).not.toBeNull();
+  const mark = editor.domElement!.querySelector("[data-user-ids]")!;
+  expect(mark).not.toBeNull();
+  // Supply a visible box explicitly because jsdom does not calculate layout.
+  vi.spyOn(mark, "getBoundingClientRect").mockReturnValue(
+    new DOMRect(0, 0, 100, 20),
+  );
   await vi.advanceTimersByTimeAsync(SCROLL_TO_FIRST_CHANGE_DELAY_MS);
   expect(scroll).toHaveBeenCalledWith({ block: "center", behavior: "smooth" });
 });
@@ -113,6 +138,15 @@ it("clears the preview loader even for a fast selection", async () => {
   const selection = mode.select({ type: "snapshot", id: "1" });
   expect(editor.domElement!.classList.contains("bn-loading")).toBe(true);
   await selection;
+  expect(editor.domElement!.classList.contains("bn-loading")).toBe(false);
+});
+
+it("preserves other features' loading tokens when a preview finishes", async () => {
+  const { editor, mode } = setup();
+  const release = editor.getExtension(LoadingExtension)!.acquire();
+  await mode.select({ type: "snapshot", id: "1" });
+  expect(editor.domElement!.classList.contains("bn-loading")).toBe(true);
+  release();
   expect(editor.domElement!.classList.contains("bn-loading")).toBe(false);
 });
 

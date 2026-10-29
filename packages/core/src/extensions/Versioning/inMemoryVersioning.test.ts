@@ -475,7 +475,46 @@ it("isolates displayed content and preserves live undo across open/show/close", 
   }
 });
 
-it("restores into the saved live state, then closes the isolated view", async () => {
+it.each([false, true])(
+  "does not publish previews as changes, with comparison %s",
+  async (compare) => {
+    const editor = BlockNoteEditor.create({
+      initialContent: [{ id: "paragraph", content: "live" }],
+      extensions: [
+        DiffVersioningExtension(),
+        InMemoryVersioningExtension({
+          initialVersions: [
+            { content: [{ id: "paragraph", content: "saved" }], createdAt: 1 },
+          ],
+        }),
+      ],
+    });
+    const mode = editor.getExtension(InMemoryVersioningExtension)!;
+    const changes: string[] = [];
+    editor.onChange(() =>
+      changes.push(editor.prosemirrorState.doc.textContent),
+    );
+    try {
+      mode.open();
+      expect(
+        await mode.select(
+          compare ? { type: "current" } : { type: "snapshot", id: "1" },
+          compare ? { compareTo: "1" } : undefined,
+        ),
+      ).toEqual({ status: "done" });
+      await mode.select({ type: "current" });
+      mode.close();
+      expect(changes).toEqual([]);
+      editor.updateBlock("paragraph", { content: "edited" });
+      expect(changes).toEqual(["edited"]);
+    } finally {
+      mode.dispose();
+      editor._tiptapEditor.destroy();
+    }
+  },
+);
+
+it("publishes a restore as a live document change after closing the isolated view", async () => {
   const extension = createVersioningExtension(createLocalVersioning);
   const editor = BlockNoteEditor.create({ extensions: [extension()] });
   const mode = editor.getExtension(extension)!;
@@ -495,12 +534,22 @@ it("restores into the saved live state, then closes the isolated view", async ()
       { type: "paragraph", content: "Latest" },
     ]);
     mode.open();
+    const changes: string[] = [];
+    editor.onChange(() =>
+      changes.push(editor.prosemirrorState.doc.textContent),
+    );
     await mode.select({ type: "snapshot", id: saved.id });
     await mode.select({ type: "current" });
     expect(editor.prosemirrorState.doc.textContent).toBe("Latest");
+    changes.length = 0;
     await mode.restore(saved.id);
+    expect(changes).toEqual(["Original"]);
     expect(editor.prosemirrorState.doc.textContent).toBe("Original");
     expect(editor.isEditable).toBe(true);
+    editor.replaceBlocks(editor.document, [
+      { type: "paragraph", content: "After restore" },
+    ]);
+    expect(changes).toEqual(["Original", "After restore"]);
   } finally {
     mode.dispose();
     editor._tiptapEditor.destroy();

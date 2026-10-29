@@ -7,11 +7,15 @@ import {
   multiColumnDropCursor,
   withMultiColumn,
 } from "@blocknote/xl-multi-column";
-import { beforeEach, describe, test } from "vite-plus/test";
+import { beforeEach, describe, expect, test } from "vite-plus/test";
 import { render } from "vitest-browser-react";
 import { EDITOR_SELECTOR } from "../../utils/const.js";
-import { browserName, page, userEvent } from "../../utils/context.js";
-import { compareDocToSnapshot, waitForSelector } from "../../utils/editor.js";
+import { browserName, MOD, page, userEvent } from "../../utils/context.js";
+import {
+  compareDocToSnapshot,
+  getDoc,
+  waitForSelector,
+} from "../../utils/editor.js";
 import { clickAt, dragAndDropBlock, getRect } from "../../utils/mouse.js";
 
 // A two-column layout where the left column contains a single block, for
@@ -135,6 +139,46 @@ describe("Check Multi-Column Drop Behaviour", () => {
       );
 
       await compareDocToSnapshot("dragOnlyBlockToOtherSide");
+    },
+  );
+
+  // The drop leaves a text cursor at the end of the dropped block, so typing
+  // continues there (#3165).
+  test.skipIf(browserName === "firefox")(
+    "Check typing after dragging a block to a new column",
+    async () => {
+      await focusOnOutsideParagraph();
+
+      await dragAndDropBlock(
+        page.getByText("Paragraph outside columns").element(),
+        blockContent("Right block 2"),
+        false,
+      );
+      await userEvent.keyboard("X");
+
+      expect(
+        page.getByText("Paragraph outside columnsX").element(),
+      ).toBeDefined();
+    },
+  );
+
+  // The drop used to take several undo steps, the first of which removed the
+  // dropped block (#3197).
+  test.skipIf(browserName === "firefox")(
+    "Check undoing a drag of a block to a new column",
+    async () => {
+      await focusOnOutsideParagraph();
+      const before = getDoc();
+
+      await dragAndDropBlock(
+        page.getByText("Paragraph outside columns").element(),
+        blockContent("Right block 2"),
+        false,
+      );
+      expect(getDoc()).not.toEqual(before);
+
+      await userEvent.keyboard(`{${MOD}>}z{/${MOD}}`);
+      expect(getDoc()).toEqual(before);
     },
   );
 

@@ -14,6 +14,7 @@ import {
 import { acceptedMIMETypes } from "./acceptedMIMETypes.js";
 import { handleFileInsertion } from "./handleFileInsertion.js";
 import { handleVSCodePaste } from "./handleVSCodePaste.js";
+import { normalizeOfficeHTML } from "./normalizeOfficeHTML.js";
 
 function defaultPasteHandler({
   event,
@@ -95,7 +96,7 @@ function defaultPasteHandler({
   }
 
   if (format === "text/html") {
-    editor.pasteHTML(data);
+    editor.pasteHTML(normalizeOfficeHTML(data));
     return true;
   }
 
