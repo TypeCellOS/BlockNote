@@ -1,4 +1,4 @@
-import type { PartialBlock } from "@blocknote/core";
+import type { BlockNoteEditor, PartialBlock } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
@@ -29,12 +29,14 @@ function EditorFixture({
   initialContent,
   editable,
   theme,
+  uploadFile,
 }: {
   initialContent: PartialBlock[];
   editable: boolean;
   theme: "light" | "dark";
+  uploadFile?: BlockNoteEditor["uploadFile"];
 }) {
-  const editor = useCreateBlockNote({ initialContent });
+  const editor = useCreateBlockNote({ initialContent, uploadFile });
   return (
     <main style={{ maxWidth: 900, margin: "80px auto", padding: 24 }}>
       <h1>BlockNote accessibility fixture</h1>
@@ -50,7 +52,12 @@ export async function openEditor(
   {
     editable = true,
     theme = "light",
-  }: { editable?: boolean; theme?: "light" | "dark" } = {},
+    uploadFile,
+  }: {
+    editable?: boolean;
+    theme?: "light" | "dark";
+    uploadFile?: BlockNoteEditor["uploadFile"];
+  } = {},
 ) {
   await page.viewport(1280, 900);
   await render(
@@ -58,6 +65,7 @@ export async function openEditor(
       initialContent={initialContent}
       editable={editable}
       theme={theme}
+      uploadFile={uploadFile}
     />,
   );
   await expect.element(page.getByRole("textbox")).toBeVisible();

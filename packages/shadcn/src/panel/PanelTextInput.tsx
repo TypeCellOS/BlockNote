@@ -1,5 +1,5 @@
 import { assertEmpty } from "@blocknote/core";
-import { ComponentProps } from "@blocknote/react";
+import { ComponentProps, useAutoFocus, useMergeRefs } from "@blocknote/react";
 import { forwardRef } from "react";
 
 import { cn } from "../lib/utils.js";
@@ -9,9 +9,20 @@ export const PanelTextInput = forwardRef<
   HTMLInputElement,
   ComponentProps["FilePanel"]["TextInput"]
 >((props, ref) => {
-  const { className, value, placeholder, onKeyDown, onChange, ...rest } = props;
+  const {
+    autoFocus,
+    className,
+    value,
+    placeholder,
+    onKeyDown,
+    onChange,
+    ...rest
+  } = props;
 
   assertEmpty(rest);
+
+  const inputRef = useAutoFocus<HTMLInputElement>(autoFocus);
+  const mergedRef = useMergeRefs([ref, inputRef]);
 
   const ShadCNComponents = useShadCNComponentsContext()!;
 
@@ -19,7 +30,7 @@ export const PanelTextInput = forwardRef<
     <ShadCNComponents.Input.Input
       data-test={"embed-input"}
       className={cn(className, "w-80 max-w-full")}
-      ref={ref}
+      ref={mergedRef}
       value={value}
       placeholder={placeholder}
       onKeyDown={onKeyDown}
