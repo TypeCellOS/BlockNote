@@ -12,6 +12,7 @@ import type {
   VersionStorage,
   VersionView,
   VersionViewAdapter,
+  VersionSnapshot,
 } from "./types.js";
 
 /** One replaceable read per slot. The session lifetime cancels both slots. */
@@ -56,6 +57,7 @@ export function createVersioning<Content, Attributions>(options: {
     selectionBaseline?: string;
     history: ReturnType<typeof createRequestSlot>;
     loadingMore?: Promise<VersionOperationResult>;
+    historyDirty?: boolean;
   };
   let session: Session | undefined;
   let disposed = false;
@@ -113,13 +115,17 @@ export function createVersioning<Content, Attributions>(options: {
   }
 
   function close() {
+    finishSession("discard");
+  }
+
+  function finishSession(reason: "discard" | "restore") {
     if (!session) {
       return;
     }
     const closing = session;
     session = undefined;
     closing.lifetime.abort();
-    closing.view.close();
+    closing.view.close(reason);
     dispatch({ type: "closed", restoring });
     setReadOnly(restoring);
   }
@@ -134,7 +140,7 @@ export function createVersioning<Content, Attributions>(options: {
     return readHistory(active, { operation: "refresh" });
   }
 
-  /** Append one page. Concurrent callers share the same request. */
+  /** Append one page, rebuilding invalidated history first. Concurrent callers share a request. */
   function loadMore(): Promise<VersionOperationResult> {
     const active = session;
     const state = store.state;
@@ -143,6 +149,12 @@ export function createVersioning<Content, Attributions>(options: {
     }
     if (active.loadingMore) {
       return active.loadingMore;
+    }
+    if (active.historyDirty) {
+      return readHistory(active, {
+        operation: "refresh",
+        growPast: state.history.data?.length ?? 0,
+      });
     }
     if (
       state.history.status === "error" &&
@@ -161,37 +173,54 @@ export function createVersioning<Content, Attributions>(options: {
 
   function readHistory(
     active: Session,
-    read: { operation: "refresh" } | { operation: "loadMore"; cursor: string },
+    read:
+      | { operation: "refresh"; growPast?: number }
+      | { operation: "loadMore"; cursor: string },
   ): Promise<VersionOperationResult> {
     const { signal } = active.history.start();
     publish(signal, { type: "historyStarted", operation: read.operation });
     const pending = (async (): Promise<VersionOperationResult> => {
       try {
-        const result = await options.storage.list(
-          signal,
-          read.operation === "refresh" ? undefined : read.cursor,
-        );
-        if (signal.aborted) {
-          return { status: "cancelled" };
+        const snapshots = new Map<string, VersionSnapshot>();
+        let cursor = read.operation === "loadMore" ? read.cursor : undefined;
+        // Keep loaded rows visible until their replacement and the next page are ready.
+        while (true) {
+          const result = await options.storage.list(signal, cursor);
+          if (signal.aborted) {
+            return { status: "cancelled" };
+          }
+          if (!result.ok) {
+            publish(signal, {
+              type: "historyFailed",
+              operation: read.operation,
+              error: result.error,
+            });
+            return { status: "error", error: result.error };
+          }
+          if (cursor !== undefined && result.value.nextCursor === cursor) {
+            throw new Error("Version history cursor did not advance");
+          }
+          for (const snapshot of result.value.snapshots) {
+            snapshots.set(snapshot.id, snapshot);
+          }
+          cursor = result.value.nextCursor;
+          if (
+            read.operation === "loadMore" ||
+            read.growPast === undefined ||
+            snapshots.size > read.growPast ||
+            cursor === undefined
+          ) {
+            break;
+          }
         }
-        if (!result.ok) {
-          publish(signal, {
-            type: "historyFailed",
-            operation: read.operation,
-            error: result.error,
-          });
-          return { status: "error", error: result.error };
-        }
-        if (
-          read.operation === "loadMore" &&
-          result.value.nextCursor === read.cursor
-        ) {
-          throw new Error("Version history cursor did not advance");
+        if (read.operation === "refresh") {
+          active.historyDirty = false;
         }
         const loaded = publish(signal, {
           type: "historyLoaded",
           operation: read.operation,
-          ...result.value,
+          snapshots: [...snapshots.values()],
+          nextCursor: cursor,
         });
         if (signal.aborted) {
           return { status: "cancelled" };
@@ -217,7 +246,10 @@ export function createVersioning<Content, Attributions>(options: {
         }
       }
     })();
-    if (read.operation === "loadMore" && !signal.aborted) {
+    if (
+      (read.operation === "loadMore" || read.growPast !== undefined) &&
+      !signal.aborted
+    ) {
       active.loadingMore = pending;
     }
     return pending;
@@ -287,10 +319,10 @@ export function createVersioning<Content, Attributions>(options: {
       const state = store.state;
       const latest =
         state.mode === "versions" ? state.history.data?.[0] : undefined;
-      if (!latest) {
-        return { status: "unavailable" };
+      // Empty history has no stored Current; fall back to the opening capture.
+      if (latest) {
+        target = { type: "snapshot", id: latest.id };
       }
-      target = { type: "snapshot", id: latest.id };
     }
     if (
       selectionOptions?.compareTo !== undefined &&
@@ -301,8 +333,12 @@ export function createVersioning<Content, Attributions>(options: {
     const request = active.selection.start();
     const { signal } = request;
     active.selectionBaseline = selectionOptions?.compareTo;
-    publish(signal, { type: "selectionStarted", target });
     const baselineId = selectionOptions?.compareTo;
+    publish(signal, {
+      type: "selectionStarted",
+      target,
+      compareTo: baselineId,
+    });
     try {
       const result = await loadDisplay(active, target, baselineId, signal);
       if (signal.aborted) {
@@ -349,7 +385,7 @@ export function createVersioning<Content, Attributions>(options: {
       if (!result.ok) {
         return { status: "error", error: result.error };
       }
-      close();
+      finishSession("restore");
       return { status: "done" };
     } finally {
       restoring = false;
@@ -360,16 +396,23 @@ export function createVersioning<Content, Attributions>(options: {
     }
   }
 
-  async function refreshAfterNaming(
+  function invalidateHistory(active: Session) {
+    active.history.cancel();
+    active.loadingMore = undefined;
+    active.historyDirty = true;
+    publish(active.lifetime.signal, { type: "historyInvalidated" });
+  }
+
+  function applyNamingResult(
     active: Session,
     event: Extract<
       VersioningEvent,
       { type: "snapshotRenamed" | "snapshotCreated" }
     >,
   ) {
-    publish(active.lifetime.signal, event);
     if (!active.lifetime.signal.aborted) {
-      await list();
+      invalidateHistory(active);
+      publish(active.lifetime.signal, event);
     }
   }
 
@@ -387,7 +430,7 @@ export function createVersioning<Content, Attributions>(options: {
       return { status: "error", error: result.error };
     }
     if (active) {
-      await refreshAfterNaming(active, { type: "snapshotRenamed", id, name });
+      applyNamingResult(active, { type: "snapshotRenamed", id, name });
     }
     return { status: "done" };
   }
@@ -447,7 +490,7 @@ export function createVersioning<Content, Attributions>(options: {
       if (!result.ok) {
         return { status: "error", error: result.error };
       }
-      await refreshAfterNaming(active, {
+      applyNamingResult(active, {
         type: "snapshotCreated",
         snapshot: result.value,
       });
@@ -464,20 +507,37 @@ export function createVersioning<Content, Attributions>(options: {
         return { status: "error", error: removed.error };
       }
       if (!active.lifetime.signal.aborted) {
-        await list();
-        // Missing page metadata does not prove deletion. Continuous-history
-        // providers may only clear a name, leaving its content available.
-        const state = store.state;
-        if (state.mode === "versions" && references(active, state, id)) {
-          const content = await storage.getContent(id, active.lifetime.signal);
-          const current = store.state;
+        const historyWasUnloaded =
+          store.state.mode === "versions" &&
+          store.state.history.data === undefined;
+        // Both deletion and continuous-history removal clear the named marker.
+        // Keep cached checkpoints for pagination, but not as named baselines.
+        applyNamingResult(active, { type: "snapshotRenamed", id });
+        // Check even unselected rows: continuous-history providers only clear
+        // a name, while snapshot stores delete the content and its cached row.
+        let content: VersionResult<Content>;
+        try {
+          content = await storage.getContent(id, active.lifetime.signal);
+        } catch (error) {
+          const signal = active.lifetime.signal;
           if (
-            !active.lifetime.signal.aborted &&
-            !content.ok &&
-            content.error.type === "not-found" &&
-            current.mode === "versions" &&
-            references(active, current, id)
+            signal.aborted &&
+            (error === signal.reason ||
+              (error instanceof DOMException && error.name === "AbortError"))
           ) {
+            return { status: "done" };
+          }
+          throw error;
+        }
+        if (
+          !active.lifetime.signal.aborted &&
+          !content.ok &&
+          content.error.type === "not-found"
+        ) {
+          invalidateHistory(active);
+          publish(active.lifetime.signal, { type: "snapshotRemoved", id });
+          const current = store.state;
+          if (current.mode === "versions" && references(active, current, id)) {
             await select(
               (current.displayed.type === "snapshot" &&
                 current.displayed.id === id) ||
@@ -487,6 +547,9 @@ export function createVersioning<Content, Attributions>(options: {
                 : current.displayed,
             );
           }
+        }
+        if (historyWasUnloaded && !active.lifetime.signal.aborted) {
+          await list();
         }
       }
       return { status: "done" };

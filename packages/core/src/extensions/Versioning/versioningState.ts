@@ -14,6 +14,7 @@ export type VersioningEvent =
     }
   | { type: "closed"; restoring?: boolean }
   | { type: "historyStarted"; operation: "refresh" | "loadMore" }
+  | { type: "historyInvalidated" }
   | {
       type: "historyFailed";
       operation: "refresh" | "loadMore";
@@ -25,11 +26,12 @@ export type VersioningEvent =
       snapshots: VersionSnapshot[];
       nextCursor?: string;
     }
-  | { type: "selectionStarted"; target: VersionSelection }
+  | { type: "selectionStarted"; target: VersionSelection; compareTo?: string }
   | { type: "selectionFailed" }
   | { type: "selectionShown"; target: VersionSelection; compareTo?: string }
   | { type: "restoreChanged"; restoring: boolean }
   | { type: "snapshotRenamed"; id: string; name?: string }
+  | { type: "snapshotRemoved"; id: string }
   | { type: "snapshotCreated"; snapshot: VersionSnapshot };
 
 function mergeSnapshots(snapshots: VersionSnapshot[]) {
@@ -67,6 +69,12 @@ export function reduceVersioningState(
     return state;
   }
   switch (event.type) {
+    case "historyInvalidated":
+      return {
+        ...state,
+        mode: "versions",
+        history: { status: "success", data: state.history.data ?? [] },
+      };
     case "historyStarted":
       return {
         ...state,
@@ -103,7 +111,10 @@ export function reduceVersioningState(
         },
       };
     case "selectionStarted":
-      return { ...state, pending: event.target };
+      return {
+        ...state,
+        pending: { ...event.target, compareTo: event.compareTo },
+      };
     case "selectionFailed":
       return { ...state, pending: undefined };
     case "selectionShown":
@@ -129,6 +140,17 @@ export function reduceVersioningState(
             snapshot.id === event.id
               ? { ...snapshot, name: event.name }
               : snapshot,
+          ),
+        },
+      };
+    case "snapshotRemoved":
+      return {
+        ...state,
+        mode: "versions",
+        history: {
+          status: "success",
+          data: (state.history.data ?? []).filter(
+            (snapshot) => snapshot.id !== event.id,
           ),
         },
       };
