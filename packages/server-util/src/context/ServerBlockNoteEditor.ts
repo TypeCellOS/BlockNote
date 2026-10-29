@@ -35,7 +35,9 @@ function getDOMDocument(document?: Document): Document {
   document ??= globalThis.document;
   const window = document?.defaultView;
   if (!window) {
-    throw new Error();
+    throw new Error(
+      "ServerBlockNoteEditor requires a document with a window (defaultView). Pass a document, such as getDocument() from @blocknote/server-util/dom, or define matching window and document globals.",
+    );
   }
 
   // React can access globals after an export returns. Bind once, never swap.
@@ -46,7 +48,9 @@ function getDOMDocument(document?: Document): Document {
     Object.assign(globalThis, { window, document });
   }
   if (globalThis.window !== window || globalThis.document !== document) {
-    throw new Error();
+    throw new Error(
+      "ServerBlockNoteEditor found partial or conflicting DOM globals. Use one document consistently, or remove partial or conflicting globals before initializing the rendering environment.",
+    );
   }
   return document;
 }

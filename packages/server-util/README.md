@@ -2,7 +2,7 @@
 
 Process BlockNote documents on the server with `ServerBlockNoteEditor`.
 
-HTML/Markdown operations and React context rendering require an
+HTML/Markdown operations and React context rendering require a
 persistent DOM. Pass `getDocument()` from `@blocknote/server-util/dom`
 as the second argument to `ServerBlockNoteEditor.create(options, document)`,
 or provide a document from another compatible implementation. Share one
