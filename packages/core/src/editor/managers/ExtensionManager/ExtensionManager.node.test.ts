@@ -30,6 +30,167 @@ function remountEditor(editor: Pick<BlockNoteEditor, "mount" | "unmount">) {
 }
 
 describe("runtime extension plugin source", () => {
+  function createEditor(
+    options?: Parameters<typeof BlockNoteEditor.create>[0],
+  ) {
+    const editor = BlockNoteEditor.create(options);
+    editors.push(editor);
+    remountEditor(editor);
+    return editor;
+  }
+
+  it("installs nested plugins in dependency order and retains that order on rebuild", () => {
+    const syncKey = new PluginKey<number>("sync");
+    const cursorKey = new PluginKey<number | undefined>("cursor");
+    const sync = new Plugin({
+      key: syncKey,
+      state: { init: () => 42, apply: (_tr, value) => value },
+    });
+    const cursor = new Plugin({
+      key: cursorKey,
+      state: {
+        init: (_config, state) => syncKey.getState(state),
+        apply: (_tr, value) => value,
+      },
+    });
+    const parent = new Plugin({ key: new PluginKey("parent") });
+    const editor = createEditor();
+    editor.registerExtension({
+      key: "parent",
+      prosemirrorPlugins: [parent],
+      blockNoteExtensions: [
+        () => ({ key: "cursor", prosemirrorPlugins: [cursor] }),
+        () => ({
+          key: "group",
+          blockNoteExtensions: [
+            () => ({
+              key: "sync",
+              runsBefore: ["cursor"],
+              prosemirrorPlugins: [sync],
+            }),
+          ],
+        }),
+      ],
+    });
+    expect(cursorKey.getState(editor.prosemirrorState)).toBe(42);
+    const expected = [sync, cursor, parent];
+    expect(
+      editor.prosemirrorState.plugins.filter((p) => expected.includes(p)),
+    ).toEqual(expected);
+    remountEditor(editor);
+    expect(
+      editor.prosemirrorState.plugins.filter((p) => expected.includes(p)),
+    ).toEqual(expected);
+  });
+
+  it("exposes earlier registrations to factories and plugin initializers", () => {
+    const editor = createEditor();
+    const dependency = { key: "dependency", value: 42 };
+    const key = new PluginKey<number | undefined>("lookup");
+    editor.registerExtension([
+      dependency,
+      ({ editor }) => {
+        expect(editor.getExtension(dependency.key)).toBe(dependency);
+        return {
+          key: "consumer",
+          prosemirrorPlugins: [
+            new Plugin({
+              key,
+              state: {
+                init() {
+                  return editor.getExtension<typeof dependency>(dependency.key)
+                    ?.value;
+                },
+                apply: (_tr, value) => value,
+              },
+            }),
+          ],
+        };
+      },
+    ]);
+    expect(key.getState(editor.prosemirrorState)).toBe(42);
+  });
+
+  it("does not silently remove an unrelated plugin with the same key", () => {
+    const key = new PluginKey("collision");
+    const original = new Plugin({ key });
+    const editor = createEditor({
+      extensions: [() => ({ key: "original", prosemirrorPlugins: [original] })],
+    });
+    const retained = {
+      key: "reentrant-before-collision",
+      prosemirrorPlugins: [new Plugin({})],
+    };
+    const child = createExtension(() => ({
+      key: "collision-child",
+      prosemirrorPlugins: [new Plugin({ key })],
+    }));
+    const parent = createExtension(({ editor }) => {
+      editor.registerExtension(retained);
+      return {
+        key: "collision",
+        blockNoteExtensions: [child()],
+      };
+    });
+    expect(() => editor.registerExtension(parent())).toThrow(/keyed plugin/);
+    expect(key.get(editor.prosemirrorState)).toBe(original);
+    expect(editor.getExtension("collision")).toBeUndefined();
+    expect(editor.getExtension(parent)).toBeUndefined();
+    expect(editor.getExtension(child)).toBeUndefined();
+    expect(editor.getExtension(retained.key)).toBe(retained);
+    // Reusing the rejected keys in reverse order must not see stale edges.
+    editor.registerExtension([
+      { key: "collision", runsBefore: ["collision-child"] },
+      { key: "collision-child" },
+    ]);
+    remountEditor(editor);
+    expect(key.get(editor.prosemirrorState)).toBe(original);
+    expect(editor.prosemirrorState.plugins).toContain(
+      retained.prosemirrorPlugins[0],
+    );
+  });
+
+  it("retains registrations made inside another factory", () => {
+    const editor = createEditor();
+    const plugin = new Plugin({});
+    const inner = { key: "inner", prosemirrorPlugins: [plugin] };
+    editor.registerExtension(({ editor }) => {
+      editor.registerExtension(inner);
+      return { key: "outer" };
+    });
+    expect(editor.getExtension(inner.key)).toBe(inner);
+    expect(editor.prosemirrorState.plugins).toContain(plugin);
+    remountEditor(editor);
+    expect(editor.prosemirrorState.plugins).toContain(plugin);
+  });
+
+  it("removes obsolete parent dependency edges before validating a replacement", () => {
+    const childPlugin = new Plugin({});
+    const parentPlugin = new Plugin({});
+    const parent = {
+      key: "former-parent",
+      blockNoteExtensions: [
+        () => ({ key: "former-child", prosemirrorPlugins: [childPlugin] }),
+      ],
+    };
+    const editor = createEditor();
+    editor.registerExtension(parent);
+    editor.replaceExtension(parent, {
+      key: parent.key,
+      runsBefore: ["former-child"],
+      prosemirrorPlugins: [parentPlugin],
+    });
+    // The old child-before-parent edge would create a false cycle.
+    const expected = [parentPlugin, childPlugin];
+    expect(
+      editor.prosemirrorState.plugins.filter((p) => expected.includes(p)),
+    ).toEqual(expected);
+    remountEditor(editor);
+    expect(
+      editor.prosemirrorState.plugins.filter((p) => expected.includes(p)),
+    ).toEqual(expected);
+  });
+
   it("resets selected plugin state without resetting retained plugins", () => {
     const key = new PluginKey<number>("reset");
     const retainedKey = new PluginKey<number>("retained");
