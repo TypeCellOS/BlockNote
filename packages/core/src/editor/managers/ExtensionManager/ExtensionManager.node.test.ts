@@ -117,13 +117,37 @@ describe("runtime extension plugin source", () => {
     const editor = createEditor({
       extensions: [() => ({ key: "original", prosemirrorPlugins: [original] })],
     });
-    expect(() =>
-      editor.registerExtension({
+    const retained = {
+      key: "reentrant-before-collision",
+      prosemirrorPlugins: [new Plugin({})],
+    };
+    const child = createExtension(() => ({
+      key: "collision-child",
+      prosemirrorPlugins: [new Plugin({ key })],
+    }));
+    const parent = createExtension(({ editor }) => {
+      editor.registerExtension(retained);
+      return {
         key: "collision",
-        prosemirrorPlugins: [new Plugin({ key })],
-      }),
-    ).toThrow(/keyed plugin/);
+        blockNoteExtensions: [child()],
+      };
+    });
+    expect(() => editor.registerExtension(parent())).toThrow(/keyed plugin/);
     expect(key.get(editor.prosemirrorState)).toBe(original);
+    expect(editor.getExtension("collision")).toBeUndefined();
+    expect(editor.getExtension(parent)).toBeUndefined();
+    expect(editor.getExtension(child)).toBeUndefined();
+    expect(editor.getExtension(retained.key)).toBe(retained);
+    // Reusing the rejected keys in reverse order must not see stale edges.
+    editor.registerExtension([
+      { key: "collision", runsBefore: ["collision-child"] },
+      { key: "collision-child" },
+    ]);
+    remountEditor(editor);
+    expect(key.get(editor.prosemirrorState)).toBe(original);
+    expect(editor.prosemirrorState.plugins).toContain(
+      retained.prosemirrorPlugins[0],
+    );
   });
 
   it("retains registrations made inside another factory", () => {

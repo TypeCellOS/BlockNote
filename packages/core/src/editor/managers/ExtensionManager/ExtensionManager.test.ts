@@ -62,6 +62,29 @@ describe("runtime extension lifecycle", () => {
     expect(childMount).toHaveBeenCalledTimes(3);
   });
 
+  it("cleans up removed controllers even when replacement plugins conflict", () => {
+    const { editor } = createEditor();
+    const key = new PluginKey("replacement-collision");
+    const cleanup = vi.fn();
+    const removed = { key: "removed-before-conflict", mount: () => cleanup };
+    editor.registerExtension([
+      removed,
+      {
+        key: "retained-before-conflict",
+        prosemirrorPlugins: [new Plugin({ key })],
+      },
+    ]);
+    expect(() =>
+      editor.replaceExtension(removed, {
+        key: "conflicting-replacement",
+        prosemirrorPlugins: [new Plugin({ key })],
+      }),
+    ).toThrow(/keyed plugin/);
+    expect(cleanup).toHaveBeenCalledTimes(1);
+    editor.unmount();
+    expect(cleanup).toHaveBeenCalledTimes(1);
+  });
+
   it("allows cleanup to re-register the same instance after plugin removal", () => {
     const { editor, host } = createEditor();
     const key = new PluginKey("cleanup-identical");

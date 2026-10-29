@@ -7,7 +7,12 @@ import {
   Extension as TiptapExtension,
 } from "@tiptap/core";
 import { keydownHandler } from "@tiptap/pm/keymap";
-import { Plugin, PluginKey, TextSelection } from "prosemirror-state";
+import {
+  type EditorState,
+  Plugin,
+  PluginKey,
+  TextSelection,
+} from "prosemirror-state";
 import { updateBlockTr } from "../../../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import { setTextCursorPosition } from "../../../api/blockManipulation/selections/textCursorPosition.js";
 import {
@@ -384,74 +389,117 @@ export class ExtensionManager {
       }
     }
 
-    const newExtensions = Array.isArray(toRegister) ? toRegister : [toRegister];
-    const extensionsBefore = new Set(this.extensions);
-    for (const extension of newExtensions) {
-      this.addExtension(extension);
-    }
-    // Recursive registration adds more than the returned parent instance.
-    const registeredExtensions = this.extensions.filter(
-      (extension) => !extensionsBefore.has(extension),
-    );
-    // Keep construction-time and unmanaged Tiptap plugins in their existing
-    // positions. Reinsert existing runtime plugins in dependency order. Include
-    // registrations made inside factories, but not newly prepared plugins:
-    // their keys must not silently displace unrelated installed plugins.
-    for (const extension of this.runtimeExtensions) {
-      for (const plugin of this.extensionPlugins.get(extension) ?? []) {
-        pluginRefsToRemove.add(plugin);
-        const key = getPluginKey(plugin);
-        if (key) {
-          pluginKeysToRemove.add(key);
+    let registeredExtensions: Extension[] = [];
+    try {
+      const newExtensions = Array.isArray(toRegister)
+        ? toRegister
+        : [toRegister];
+      const extensionsBefore = new Set(this.extensions);
+      for (const extension of newExtensions) {
+        this.addExtension(extension);
+      }
+      // Recursive registration adds more than the returned parent instance.
+      registeredExtensions = this.extensions.filter(
+        (extension) => !extensionsBefore.has(extension),
+      );
+      // Keep construction-time and unmanaged Tiptap plugins in their existing
+      // positions. Reinsert existing runtime plugins in dependency order. Include
+      // registrations made inside factories, but not newly prepared plugins:
+      // their keys must not silently displace unrelated installed plugins.
+      for (const extension of this.runtimeExtensions) {
+        for (const plugin of this.extensionPlugins.get(extension) ?? []) {
+          pluginRefsToRemove.add(plugin);
+          const key = getPluginKey(plugin);
+          if (key) {
+            pluginKeysToRemove.add(key);
+          }
         }
       }
-    }
-    for (const extension of registeredExtensions) {
-      // A factory may already have registered this extension reentrantly.
-      if (this.runtimeExtensions.has(extension)) {
-        continue;
-      }
-      this.runtimeExtensions.add(extension);
-      if (extension?.tiptapExtensions) {
-        // eslint-disable-next-line no-console
-        console.warn(
-          `Extension ${extension.key} has tiptap extensions, but these cannot be changed after initializing the editor. Please separate the extension into multiple extensions if you want to add them, or re-initialize the editor.`,
-          extension,
-        );
+      const uncommittedExtensions = registeredExtensions.filter(
+        (extension) => !this.runtimeExtensions.has(extension),
+      );
+      for (const extension of registeredExtensions) {
+        // A factory may already have registered this extension reentrantly.
+        if (this.runtimeExtensions.has(extension)) {
+          continue;
+        }
+        this.runtimeExtensions.add(extension);
+        if (extension?.tiptapExtensions) {
+          // eslint-disable-next-line no-console
+          console.warn(
+            `Extension ${extension.key} has tiptap extensions, but these cannot be changed after initializing the editor. Please separate the extension into multiple extensions if you want to add them, or re-initialize the editor.`,
+            extension,
+          );
+        }
+
+        if (extension?.inputRules?.length) {
+          // eslint-disable-next-line no-console
+          console.warn(
+            `Extension ${extension.key} has input rules, but these cannot be changed after initializing the editor. Please separate the extension into multiple extensions if you want to add them, or re-initialize the editor.`,
+            extension,
+          );
+        }
+
+        this.getProsemirrorPluginsFromExtension(extension);
       }
 
-      if (extension?.inputRules?.length) {
-        // eslint-disable-next-line no-console
-        console.warn(
-          `Extension ${extension.key} has input rules, but these cannot be changed after initializing the editor. Please separate the extension into multiple extensions if you want to add them, or re-initialize the editor.`,
-          extension,
+      const currentState = this.editor.prosemirrorState;
+      const plugins = [
+        ...currentState.plugins.filter((plugin) => {
+          const key = getPluginKey(plugin);
+          return (
+            !pluginRefsToRemove.has(plugin) &&
+            !(key && pluginKeysToRemove.has(key))
+          );
+        }),
+        ...this.getRuntimePlugins(),
+      ];
+      const unchanged =
+        plugins.length === currentState.plugins.length &&
+        plugins.every(
+          (plugin, index) => plugin === currentState.plugins[index],
         );
+      if (!unchanged || options?.resetPluginStateFor.length) {
+        let state: EditorState;
+        try {
+          state = this.reconfigurePlugins(
+            plugins,
+            options?.resetPluginStateFor,
+          );
+        } catch (error) {
+          // Reconfiguration is off-view: none of these additions were installed.
+          // Preserve registrations already committed reentrantly by factories.
+          const rejected = new Set(uncommittedExtensions);
+          this.extensions = this.extensions.filter(
+            (extension) => !rejected.has(extension),
+          );
+          for (const extension of rejected) {
+            this.runtimeExtensions.delete(extension);
+            this.extensionPlugins.delete(extension);
+            for (const [key, dependents] of this.blockNoteExtensionDependents) {
+              dependents.delete(extension.key);
+              if (!dependents.size) {
+                this.blockNoteExtensionDependents.delete(key);
+              }
+            }
+          }
+          for (const [factory, extension] of this.extensionFactories) {
+            if (rejected.has(extension)) {
+              this.extensionFactories.delete(factory);
+            }
+          }
+          throw error;
+        }
+        // View hooks can throw after observing the new state. Do not pretend
+        // those failures can be rolled back by editing the extension registry.
+        this.editor.prosemirrorView.updateState(state);
       }
-
-      this.getProsemirrorPluginsFromExtension(extension);
-    }
-
-    const currentState = this.editor.prosemirrorState;
-    const plugins = [
-      ...currentState.plugins.filter((plugin) => {
-        const key = getPluginKey(plugin);
-        return (
-          !pluginRefsToRemove.has(plugin) &&
-          !(key && pluginKeysToRemove.has(key))
-        );
-      }),
-      ...this.getRuntimePlugins(),
-    ];
-    const unchanged =
-      plugins.length === currentState.plugins.length &&
-      plugins.every((plugin, index) => plugin === currentState.plugins[index]);
-    if (!unchanged || options?.resetPluginStateFor.length) {
-      this.updatePlugins(() => plugins, options?.resetPluginStateFor);
-    }
-    // Cleanup sees the committed registry and complete plugin set. Nothing
-    // below overwrites changes made by reentrant registrations.
-    for (const controller of controllers) {
-      controller.abort();
+    } finally {
+      // Detached controllers must not leak when plugin preparation fails.
+      // Cleanup may register extensions reentrantly; do not overwrite them.
+      for (const controller of controllers) {
+        controller.abort();
+      }
     }
     for (const extension of registeredExtensions) {
       this.mountExtension(extension);
@@ -459,14 +507,12 @@ export class ExtensionManager {
   }
 
   /**
-   * Allows resetting the current prosemirror state's plugins
-   * @param update - A function that takes the current plugins and returns the new plugins
-   * @returns void
+   * Prepare plugin state off-view, including any requested keyed-state resets.
    */
-  private updatePlugins(
-    update: (plugins: Plugin[]) => Plugin[],
+  private reconfigurePlugins(
+    plugins: Plugin[],
     resetPluginStateFor?: readonly PluginKey[],
-  ): void {
+  ) {
     const currentState = this.editor.prosemirrorState;
     // Reconfigure an intermediate state off-view to drop selected keyed state.
     // New plugins initialize before any view hooks can see a torn binding, and
@@ -479,11 +525,9 @@ export class ExtensionManager {
           ),
         })
       : currentState;
-    const state = baseState.reconfigure({
-      plugins: update(currentState.plugins.slice()),
+    return baseState.reconfigure({
+      plugins,
     });
-
-    this.editor.prosemirrorView.updateState(state);
   }
 
   private getExtensionPriority() {
