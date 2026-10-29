@@ -12,19 +12,20 @@ import { useSyncExternalStoreWithSelector } from "use-sync-external-store/shim/w
  * Subscribe to a {@link Store}, optionally selecting a slice of its state.
  *
  * The component re-renders only when the selected value changes under a
- * {@link shallow} comparison, so selectors are free to build a fresh object,
+ * comparison (defaults to {@link shallow}), so selectors are free to build a fresh object,
  * `Map` or `Set` on each call.
  */
 export function useStore<TState, TSelected = NoInfer<TState>>(
   store: Store<TState>,
   selector: (state: TState) => TSelected = (d) => d as unknown as TSelected,
+  equalityFn: (a: TSelected, b: TSelected) => boolean = shallow,
 ): TSelected {
   return useSyncExternalStoreWithSelector(
     store.subscribe,
     () => store.state,
     () => store.state,
     selector,
-    shallow,
+    equalityFn,
   );
 }
 

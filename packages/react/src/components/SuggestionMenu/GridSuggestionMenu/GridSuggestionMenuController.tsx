@@ -111,25 +111,30 @@ export function GridSuggestionMenuController<
   }, [suggestionMenu, triggerCharacter, shouldOpen]);
 
   const state = useExtensionState(SuggestionMenu);
-  // The suggestion menu plugin creates a new `referencePos` object on every
-  // update, also when the menu does not move. A new reference makes
-  // `GenericPopover` set the position reference again, which is one more React
-  // update for each keystroke. Fast typing then exceeds the React limit of 50
-  // nested updates (error 185), so the reference changes only with the values.
-  const { x, y, width, height } = state?.referencePos ?? {};
-  const reference = useMemo<GenericPopoverReference>(
-    () => ({
-      // Use first child as the editor DOM element may itself be scrollable.
-      // For FloatingUI to auto-update the position during scrolling, the
-      // `contextElement` must be a descendant of the scroll container.
-      element: (editorDOMElement?.firstChild || undefined) as
-        | Element
-        | undefined,
-      getBoundingClientRect: () =>
-        x === undefined ? new DOMRect() : new DOMRect(x, y, width, height),
-    }),
-    [editorDOMElement, x, y, width, height],
-  );
+  const reference = useExtensionState(SuggestionMenu, {
+    selector: (state) =>
+      ({
+        // Use first child as the editor DOM element may itself be scrollable.
+        // For FloatingUI to auto-update the position during scrolling, the
+        // `contextElement` must be a descendant of the scroll container.
+        element: (editorDOMElement?.firstChild || undefined) as
+          | Element
+          | undefined,
+        getBoundingClientRect: () => state?.referencePos || new DOMRect(),
+      }) satisfies GenericPopoverReference,
+    equalityFn: (a, b) => {
+      // Ignore fresh rectangle/callback identities when the anchor has not moved.
+      const aRect = a.getBoundingClientRect();
+      const bRect = b.getBoundingClientRect();
+      return (
+        a.element === b.element &&
+        aRect.x === bRect.x &&
+        aRect.y === bRect.y &&
+        aRect.width === bRect.width &&
+        aRect.height === bRect.height
+      );
+    },
+  });
 
   const floatingUIOptions = useMemo<FloatingUIOptions>(
     () => ({
