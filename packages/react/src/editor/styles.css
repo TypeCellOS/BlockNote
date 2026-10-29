@@ -286,6 +286,18 @@ SideMenuController offsets its position to keep it centered on the line. */
   flex-grow: 1;
 }
 
+/* Keep hover actions in the tab order and reveal them when focus enters. */
+.bn-comment-toolbar[data-show="hover"] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+*:hover > .bn-comment-toolbar[data-show="hover"],
+*:focus-within > .bn-comment-toolbar[data-show="hover"] {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 /* Thread sidebar styling */
 .bn-threads-sidebar {
   border-radius: var(--bn-border-radius-medium);

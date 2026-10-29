@@ -3,6 +3,7 @@ import { ReactNode, useState } from "react";
 import { useBlockNoteContext } from "../../editor/BlockNoteContext.js";
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { usePortalElement } from "../../editor/PortalElementOverride.js";
+import { useDictionary } from "../../i18n/dictionary.js";
 import Picker from "./EmojiMartPicker.js";
 
 export const EmojiPicker = (props: {
@@ -11,6 +12,7 @@ export const EmojiPicker = (props: {
   children: ReactNode;
 }) => {
   const [open, setOpen] = useState(false);
+  const dict = useDictionary();
 
   const Components = useComponentsContext()!;
   const blockNoteContext = useBlockNoteContext()!;
@@ -20,6 +22,9 @@ export const EmojiPicker = (props: {
     <Components.Generic.Popover.Root open={open} portalElement={portalElement}>
       <Components.Generic.Popover.Trigger>
         <div
+          aria-label={dict.comments.actions.add_reaction}
+          // The child control handles keyboard activation.
+          tabIndex={-1}
           onClick={(event) => {
             // Needed as the Picker component's onClickOutside handler
             // fires immediately after otherwise, preventing the popover

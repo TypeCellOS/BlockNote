@@ -1,10 +1,6 @@
 import { assertEmpty } from "@blocknote/core";
-import {
-  ComponentProps,
-  useDictionary,
-  useFocusWithin,
-} from "@blocknote/react";
-import { forwardRef, useState } from "react";
+import { ComponentProps, useDictionary } from "@blocknote/react";
+import { forwardRef } from "react";
 
 import { cn } from "../lib/utils.js";
 import { useShadCNComponentsContext } from "../ShadCNComponentsContext.js";
@@ -77,26 +73,13 @@ export const Comment = forwardRef<
 
   assertEmpty(rest);
 
-  const [hovered, setHovered] = useState(false);
-  const { focused, ref: focusRef } = useFocusWithin();
-
-  const doShowActions =
-    actions &&
-    (showActions === true ||
-      showActions === undefined ||
-      (showActions === "hover" && hovered) ||
-      focused ||
-      emojiPickerOpen);
-
   return (
-    <div
-      ref={ref}
-      className={cn(className, "relative flex flex-col gap-2")}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      {doShowActions ? (
-        <div className={"absolute top-0 right-0 z-10"} ref={focusRef}>
+    <div ref={ref} className={cn(className, "relative flex flex-col gap-2")}>
+      {actions && (showActions !== false || emojiPickerOpen) ? (
+        <div
+          className={"bn-comment-toolbar absolute top-0 right-0 z-10"}
+          data-show={emojiPickerOpen ? true : (showActions ?? true)}
+        >
           {actions}
         </div>
       ) : null}
