@@ -319,10 +319,10 @@ export function createVersioning<Content, Attributions>(options: {
       const state = store.state;
       const latest =
         state.mode === "versions" ? state.history.data?.[0] : undefined;
-      if (!latest) {
-        return { status: "unavailable" };
+      // Empty history has no stored Current; fall back to the opening capture.
+      if (latest) {
+        target = { type: "snapshot", id: latest.id };
       }
-      target = { type: "snapshot", id: latest.id };
     }
     if (
       selectionOptions?.compareTo !== undefined &&
@@ -507,17 +507,34 @@ export function createVersioning<Content, Attributions>(options: {
         return { status: "error", error: removed.error };
       }
       if (!active.lifetime.signal.aborted) {
+        const historyWasUnloaded =
+          store.state.mode === "versions" &&
+          store.state.history.data === undefined;
         // Both deletion and continuous-history removal clear the named marker.
         // Keep cached checkpoints for pagination, but not as named baselines.
         applyNamingResult(active, { type: "snapshotRenamed", id });
         // Check even unselected rows: continuous-history providers only clear
         // a name, while snapshot stores delete the content and its cached row.
-        const content = await storage.getContent(id, active.lifetime.signal);
+        let content: VersionResult<Content>;
+        try {
+          content = await storage.getContent(id, active.lifetime.signal);
+        } catch (error) {
+          const signal = active.lifetime.signal;
+          if (
+            signal.aborted &&
+            (error === signal.reason ||
+              (error instanceof DOMException && error.name === "AbortError"))
+          ) {
+            return { status: "done" };
+          }
+          throw error;
+        }
         if (
           !active.lifetime.signal.aborted &&
           !content.ok &&
           content.error.type === "not-found"
         ) {
+          invalidateHistory(active);
           publish(active.lifetime.signal, { type: "snapshotRemoved", id });
           const current = store.state;
           if (current.mode === "versions" && references(active, current, id)) {
@@ -530,6 +547,9 @@ export function createVersioning<Content, Attributions>(options: {
                 : current.displayed,
             );
           }
+        }
+        if (historyWasUnloaded && !active.lifetime.signal.aborted) {
+          await list();
         }
       }
       return { status: "done" };

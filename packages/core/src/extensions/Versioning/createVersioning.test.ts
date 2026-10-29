@@ -180,6 +180,115 @@ function setup(overrides: Partial<VersionStorage<string>> = {}) {
   };
 }
 
+describe("deletion reconciliation", () => {
+  it("returns to frozen current after deleting the last checkpoint without a Current row", async () => {
+    let removed = false;
+    const { mode, show } = setup({
+      showCurrentVersion: false,
+      list: async () => success({ snapshots: [{ id: "a", createdAt: 9 }] }),
+      remove: async () => {
+        removed = true;
+        return success(undefined);
+      },
+      getContent: async () =>
+        removed ? { ok: false, error: { type: "not-found" } } : success("a"),
+    });
+    mode.open();
+    await mode.list();
+    await mode.remove("a");
+    expect(mode.store.state).toMatchObject({
+      displayed: { type: "current" },
+      pending: undefined,
+    });
+    expect(show).toHaveBeenLastCalledWith({
+      content: "frozen",
+      target: { type: "current" },
+    });
+  });
+
+  it("cancels a history read started while confirming deletion", async () => {
+    const content = deferred<VersionResult<string>>();
+    const stale = deferred<VersionResult<VersionSnapshotPage>>();
+    let reads = 0;
+    const { mode } = setup({
+      list: async () =>
+        ++reads === 1
+          ? success({ snapshots: [{ id: "a", createdAt: 9 }] })
+          : stale.promise,
+      remove: async () => success(undefined),
+      getContent: () => content.promise,
+    });
+    mode.open();
+    await mode.list();
+    const removing = mode.remove("a");
+    await Promise.resolve();
+    const refreshing = mode.list();
+    content.resolve({ ok: false, error: { type: "not-found" } });
+    await removing;
+    stale.resolve(success({ snapshots: [{ id: "a", createdAt: 9 }] }));
+    expect(await refreshing).toEqual({ status: "cancelled" });
+    expect(mode.store.state).toMatchObject({ history: { data: [] } });
+  });
+
+  it("restarts an unloaded history request after deletion", async () => {
+    const first = deferred<VersionResult<VersionSnapshotPage>>();
+    const list = vi
+      .fn()
+      .mockImplementationOnce(() => first.promise)
+      .mockResolvedValue(
+        success({ snapshots: [{ id: "other", createdAt: 8 }] }),
+      );
+    const { mode } = setup({
+      list,
+      remove: async () => success(undefined),
+      getContent: async () => ({ ok: false, error: { type: "not-found" } }),
+    });
+    mode.open();
+    const loading = mode.list();
+    await mode.remove("a");
+    expect(mode.store.state).toMatchObject({
+      history: { data: [{ id: "other" }] },
+    });
+    first.resolve(success({ snapshots: [{ id: "a", createdAt: 9 }] }));
+    expect(await loading).toEqual({ status: "cancelled" });
+  });
+
+  it("reports successful deletion when its reconciliation read is aborted", async () => {
+    const { mode } = setup({
+      remove: async () => success(undefined),
+      getContent: (_id, signal) =>
+        new Promise((_resolve, reject) => {
+          signal.addEventListener("abort", () => reject(signal.reason), {
+            once: true,
+          });
+        }),
+    });
+    mode.open();
+    const removing = mode.remove("a");
+    await Promise.resolve();
+    mode.close();
+    await expect(removing).resolves.toEqual({ status: "done" });
+  });
+
+  it("does not hide an unrelated reconciliation failure after closing", async () => {
+    const failure = new Error("broken provider");
+    const { mode } = setup({
+      remove: async () => success(undefined),
+      getContent: (_id, signal) =>
+        new Promise((_resolve, reject) => {
+          signal.addEventListener("abort", () => reject(failure), {
+            once: true,
+          });
+        }),
+    });
+    mode.open();
+    const removing = mode.remove("a");
+    await Promise.resolve();
+    mode.close();
+    await expect(removing).rejects.toBe(failure);
+  });
+});
+
 it.each([undefined, true, false])(
   "opens history with showCurrentVersion=%s",
   async (showCurrentVersion) => {
