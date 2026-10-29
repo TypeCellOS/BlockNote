@@ -81,6 +81,14 @@ const showcase: PartialBlock[] = [
   },
 ];
 
+function resetToggleState() {
+  for (const key of Object.keys(localStorage)) {
+    if (key.startsWith("toggle-removed-") || key.startsWith("toggle-added-")) {
+      localStorage.removeItem(key);
+    }
+  }
+}
+
 for (const theme of ["light", "dark"] as const) {
   // Match the static all-blocks test's browser and full-resolution capture setup.
   // The comparison styling is browser-independent; iframe captures are not.
@@ -88,6 +96,8 @@ for (const theme of ["light", "dark"] as const) {
     `default schema comparison in ${theme}`,
     { timeout: 90000 },
     async () => {
+      // Retries reuse these block IDs, including after a timed-out capture.
+      resetToggleState();
       expect(new Set(blockTypes(showcase))).toEqual(
         new Set(Object.keys(defaultBlockSpecs)),
       );
@@ -235,18 +245,12 @@ for (const theme of ["light", "dark"] as const) {
           },
         });
       } finally {
+        // Clear persisted state before any asynchronous teardown can fail.
+        resetToggleState();
         await page.viewport(1280, 720);
         view?.close();
         await screen.unmount();
         doc.destroy();
-        for (const key of Object.keys(localStorage)) {
-          if (
-            key.startsWith("toggle-removed-") ||
-            key.startsWith("toggle-added-")
-          ) {
-            localStorage.removeItem(key);
-          }
-        }
       }
     },
   );
