@@ -44,6 +44,7 @@ export default defineConfig({
   },
   test: {
     name: "a11y",
+    setupFiles: [fileURLToPath(new URL("./setup.ts", import.meta.url))],
     include: [
       reader
         ? "../packages/*/src/**/*.screen-reader.test.ts"

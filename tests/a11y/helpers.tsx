@@ -8,6 +8,7 @@ export { cleanup } from "vitest-browser-react";
 import axe from "axe-core";
 import { expect, type TestContext } from "vite-plus/test";
 import { commands, page, server } from "vite-plus/test/browser";
+import { waitForEditorFocus } from "./setup.js";
 import "./style.css";
 
 export const screenReader =
@@ -118,6 +119,7 @@ export async function nextReader() {
 }
 
 export async function pressKey(key: string) {
+  await waitForEditorFocus();
   return browserCommands.pressKey(key);
 }
 
