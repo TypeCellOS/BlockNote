@@ -2125,7 +2125,7 @@ export const examples = {
           dependencies: {
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^9.0.2",
-            ai: "^6.0.5",
+            ai: "^7.0.153",
           } as any,
         },
         title: "Rich Text editor AI integration",
@@ -2148,7 +2148,7 @@ export const examples = {
           dependencies: {
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^9.0.2",
-            ai: "^6.0.5",
+            ai: "^7.0.153",
           } as any,
         },
         title: "AI Playground",
@@ -2171,7 +2171,7 @@ export const examples = {
           dependencies: {
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^9.0.2",
-            ai: "^6.0.5",
+            ai: "^7.0.153",
             "react-icons": "^5.5.0",
           } as any,
         },
@@ -2195,7 +2195,7 @@ export const examples = {
           dependencies: {
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^9.0.2",
-            ai: "^6.0.5",
+            ai: "^7.0.153",
             "y-partykit": "^0.0.25",
             yjs: "^13.6.33",
           } as any,
@@ -2220,7 +2220,7 @@ export const examples = {
           dependencies: {
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^9.0.2",
-            ai: "^6.0.5",
+            ai: "^7.0.153",
             "y-partykit": "^0.0.25",
             yjs: "^13.6.33",
           } as any,
@@ -2243,10 +2243,10 @@ export const examples = {
           author: "yousefed",
           tags: ["AI", "llm"],
           dependencies: {
-            "@ai-sdk/groq": "^3.0.2",
+            "@ai-sdk/groq": "^4.0.70",
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^9.0.2",
-            ai: "^6.0.5",
+            ai: "^7.0.153",
           } as any,
         },
         title: "AI Integration with ClientSideTransport",
@@ -2269,7 +2269,7 @@ export const examples = {
           dependencies: {
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^9.0.2",
-            ai: "^6.0.5",
+            ai: "^7.0.153",
           } as any,
         },
         title: "AI Integration with server LLM message persistence",
