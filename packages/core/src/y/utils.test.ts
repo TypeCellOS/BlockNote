@@ -1289,12 +1289,19 @@ describe("yNodeToTransaction", () => {
       deleted.marks
         .filter((mark) => mark.type.name === "y-attributed-delete")
         .map((mark) => mark.toJSON()),
-    ).toEqual([{ type: "y-attributed-delete", attrs: { userIds: ["bob"] } }]);
+    ).toEqual([
+      { type: "y-attributed-delete", attrs: { userIds: ["bob"], moved: null } },
+    ]);
     expect(
       inserted.marks
         .filter((mark) => mark.type.name === "y-attributed-insert")
         .map((mark) => mark.toJSON()),
-    ).toEqual([{ type: "y-attributed-insert", attrs: { userIds: ["bob"] } }]);
+    ).toEqual([
+      {
+        type: "y-attributed-insert",
+        attrs: { userIds: ["bob"], moved: null },
+      },
+    ]);
     const heading = inserted.firstChild!;
     expect(heading.type.name).toBe("heading");
     expect(heading.attrs.level).toBe(2);
