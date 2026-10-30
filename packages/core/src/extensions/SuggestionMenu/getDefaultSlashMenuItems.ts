@@ -95,10 +95,13 @@ export function insertOrUpdateBlockForSlashMenu<
         currentBlock.content.length === 0))
   ) {
     newBlock = editor.updateBlock(currentBlock, block);
-    // Inline conversions preserve content, so keep updateBlock's mapped caret.
-    // Other updates may move it out (e.g. replacing content or creating columns),
-    // so reset the cursor to the new block in those cases.
-    if (!convertsExistingText) {
+    // Preserve the mapped caret for same-content-type updates. A structural
+    // change (e.g. inline text to a table or columns) can map it outside the
+    // updated block, so explicitly enter the new block in that case.
+    if (
+      editor.schema.blockSchema[currentBlock.type].content !==
+      editor.schema.blockSchema[newBlock.type].content
+    ) {
       editor.setTextCursorPosition(newBlock);
     }
   } else {

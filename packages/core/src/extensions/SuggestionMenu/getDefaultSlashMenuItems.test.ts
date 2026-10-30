@@ -71,6 +71,26 @@ describe("slash-menu block conversion (#2236)", () => {
     ]);
   });
 
+  it("enters a table replacing an empty paragraph before other content", () => {
+    editor = BlockNoteEditor.create({
+      initialContent: [
+        { id: "source", type: "paragraph" },
+        { id: "following", type: "paragraph", content: "Following text" },
+      ],
+    });
+    editor.setTextCursorPosition("source", "start");
+
+    insertOrUpdateBlockForSlashMenu(editor, {
+      type: "table",
+      content: { type: "tableContent", rows: [{ cells: ["Cell"] }] },
+    });
+
+    expect(editor.getTextCursorPosition().block).toMatchObject({
+      id: "source",
+      type: "table",
+    });
+  });
+
   it("still inserts non-inline blocks below existing text", () => {
     editor = BlockNoteEditor.create({
       initialContent: [
