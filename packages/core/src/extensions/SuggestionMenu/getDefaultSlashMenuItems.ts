@@ -53,8 +53,8 @@ function setSelectionToNextContentEditableBlock<
   }
 }
 
-// Checks if the current block is empty or only contains a slash, and if so,
-// updates the current block instead of inserting a new one below. If the new
+// Updates an empty/slash-only block, or converts an inline-content block when
+// choosing another inline type at its start, instead of inserting below. If the new
 // block doesn't contain editable content, the cursor is moved to the next block
 // that does.
 export function insertOrUpdateBlockForSlashMenu<
@@ -73,13 +73,27 @@ export function insertOrUpdateBlockForSlashMenu<
 
   let newBlock: Block<BSchema, I, S>;
 
+  const { selection } = editor.prosemirrorState;
+  // The menu has already removed the slash/query. A collapsed cursor at the
+  // start of the remaining text means we should convert that block in place.
+  // Only convert between inline-content types when no replacement content was
+  // supplied, so the existing text is preserved; other items insert below.
+  const convertsExistingText =
+    selection.empty &&
+    selection.$from.parentOffset === 0 &&
+    editor.schema.blockSchema[currentBlock.type].content === "inline" &&
+    block.type !== undefined &&
+    editor.schema.blockSchema[block.type].content === "inline" &&
+    block.content === undefined;
+
   if (
-    Array.isArray(currentBlock.content) &&
-    ((currentBlock.content.length === 1 &&
-      isStyledTextInlineContent(currentBlock.content[0]) &&
-      currentBlock.content[0].type === "text" &&
-      currentBlock.content[0].text === "/") ||
-      currentBlock.content.length === 0)
+    convertsExistingText ||
+    (Array.isArray(currentBlock.content) &&
+      ((currentBlock.content.length === 1 &&
+        isStyledTextInlineContent(currentBlock.content[0]) &&
+        currentBlock.content[0].type === "text" &&
+        currentBlock.content[0].text === "/") ||
+        currentBlock.content.length === 0))
   ) {
     newBlock = editor.updateBlock(currentBlock, block);
     // We make sure to reset the cursor position to the new block as calling
