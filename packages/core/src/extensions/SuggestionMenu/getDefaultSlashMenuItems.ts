@@ -95,10 +95,12 @@ export function insertOrUpdateBlockForSlashMenu<
         currentBlock.content.length === 0))
   ) {
     newBlock = editor.updateBlock(currentBlock, block);
-    // We make sure to reset the cursor position to the new block as calling
-    // `updateBlock` may move it out. This generally happens when the content
-    // changes, or the update makes the block multi-column.
-    editor.setTextCursorPosition(newBlock);
+    // Inline conversions preserve content, so keep updateBlock's mapped caret.
+    // Other updates may move it out (e.g. replacing content or creating columns),
+    // so reset the cursor to the new block in those cases.
+    if (!convertsExistingText) {
+      editor.setTextCursorPosition(newBlock);
+    }
   } else {
     newBlock = editor.insertBlocks([block], currentBlock, "after")[0];
     editor.setTextCursorPosition(editor.getTextCursorPosition().nextBlock!);
