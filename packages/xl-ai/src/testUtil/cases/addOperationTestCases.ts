@@ -99,4 +99,39 @@ export const addOperationTestCases: DocumentOperationTestCase[] = [
     ],
     userPrompt: `write a new paragraph with the text 'You look great today!'`,
   },
+  {
+    editor: getSimpleEditor,
+    description: "add a link to google.com",
+    baseToolCalls: [
+      {
+        type: "add",
+        blocks: [
+          {
+            type: "paragraph",
+            content: [
+              {
+                type: "text",
+                text: "Check this out ",
+              },
+              {
+                type: "link",
+                content: [
+                  {
+                    type: "text",
+                    text: "here",
+                    styles: {},
+                  },
+                ],
+                href: "https://www.google.com",
+              },
+            ],
+          },
+        ],
+        referenceId: "ref2",
+        position: "after",
+      },
+    ],
+    userPrompt:
+      "add a paragraph with the text 'Check this out' and a link with text 'here' to 'https://www.google.com' after the last sentence",
+  },
 ];
