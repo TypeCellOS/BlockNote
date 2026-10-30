@@ -17,7 +17,7 @@ if [ -n "$(ls -A "$CONSUMER_DIR")" ]; then
 fi
 
 # No setup cache: every run uses the current sources, manifests and tarballs.
-cp -R "$SCRIPT_DIR/app" "$SCRIPT_DIR/next.config.ts" "$SCRIPT_DIR/tsconfig.json" "$SCRIPT_DIR/package.json" "$CONSUMER_DIR/"
+cp -R "$SCRIPT_DIR/app" "$SCRIPT_DIR/next.config.ts" "$SCRIPT_DIR/tsconfig.json" "$SCRIPT_DIR/package.json" "$SCRIPT_DIR/pnpm-workspace.yaml" "$CONSUMER_DIR/"
 TARBALLS_DIR="$CONSUMER_DIR/.tarballs"
 mkdir "$TARBALLS_DIR"
 
@@ -38,4 +38,4 @@ cd "$CONSUMER_DIR"
 # Next.js serverExternalPackages rather than pnpm's default symlink layout.
 # Direct fixture dependencies are pinned. Transitives still resolve fresh:
 # tarball integrity changes with every package build, so no frozen lockfile.
-pnpm --ignore-workspace install --node-linker=hoisted --lockfile=false --ignore-scripts
+pnpm install --node-linker=hoisted --lockfile=false --ignore-scripts
