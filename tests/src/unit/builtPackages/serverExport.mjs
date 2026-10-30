@@ -78,9 +78,21 @@ for (const output of [markdown, lossyHTML, fullHTML]) {
     assert.ok(output.includes(text), `Export is missing ${text}`);
   }
 }
+assert.ok(markdown.includes("$x^2$"), "Inline math is missing from Markdown");
+assert.ok(
+  markdown.includes("$$\na^2 + b^2 = c^2\n$$"),
+  "Display math is missing from Markdown",
+);
 for (const html of [lossyHTML, fullHTML]) {
   assert.ok(html.includes("<math"), "MathML is missing");
-  assert.ok(html.includes("application/x-tex"), "Math source is missing");
+  for (const formula of ["x^2", "a^2 + b^2 = c^2"]) {
+    assert.ok(
+      html.includes(
+        `<annotation encoding="application/x-tex">${formula}</annotation>`,
+      ),
+      `MathML annotation is missing ${formula}`,
+    );
+  }
   assert.ok(html.includes("A --&gt; B"), "Diagram source is missing");
 }
 // Node runs React's queued work before it exits. A crash there (#3230) gives a

@@ -67,16 +67,10 @@ export async function GET() {
 
   const allPassed = Object.values(results).every((v) => v.startsWith("PASS"));
 
+  // React's server bundle forbids createContext; that coverage remains in
+  // ReactServer.test.tsx rather than being reported as a passing scenario here.
   return Response.json(
-    {
-      allPassed,
-      results,
-      // This is not an executed or passing scenario. React's server bundle
-      // forbids createContext; context coverage lives in ReactServer.test.tsx.
-      skipped: {
-        reactContextBlock: "createContext not available in React server bundle",
-      },
-    },
+    { allPassed, results },
     { status: allPassed ? 200 : 500 },
   );
 }

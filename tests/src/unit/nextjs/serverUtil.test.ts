@@ -137,47 +137,33 @@ describeIf(`server-util in Next.js App Router (#942) [${MODE}]`, () => {
 
   afterAll(async () => {
     try {
-      const child = nextProcess;
-      if (child?.pid != null) {
-        const pid = child.pid;
-        await new Promise<void>((resolve, reject) => {
-          // Start the timer before signaling, and cancel it when the child exits.
-          const timer = setTimeout(() => {
-            try {
-              process.kill(-pid, "SIGKILL");
-            } catch (error) {
-              if (
-                !(
-                  error instanceof Error &&
-                  "code" in error &&
-                  error.code === "ESRCH"
-                )
-              ) {
-                reject(error);
-                return;
-              }
-            }
-            resolve();
-          }, 5_000);
-          child.once("exit", () => {
-            clearTimeout(timer);
-            resolve();
-          });
+      if (nextProcess?.pid != null) {
+        // This is a disposable server. Kill the entire detached group, then
+        // wait for its children too, not just the pnpm wrapper, before deleting it.
+        const deadline = Date.now() + 5_000;
+        for (let signal: NodeJS.Signals | 0 = "SIGKILL"; ; signal = 0) {
           try {
-            process.kill(-pid, "SIGTERM");
+            process.kill(-nextProcess.pid, signal);
           } catch (error) {
-            clearTimeout(timer);
-            if (
-              error instanceof Error &&
-              "code" in error &&
-              error.code === "ESRCH"
-            ) {
-              resolve();
+            if (error instanceof Error && "code" in error) {
+              if (error.code === "ESRCH") {
+                break;
+              }
+              // A denied existence probe does not establish disappearance.
+              if (signal !== 0 || error.code !== "EPERM") {
+                throw error;
+              }
             } else {
-              reject(error);
+              throw error;
             }
           }
-        });
+          if (Date.now() >= deadline) {
+            throw new Error(
+              `Next.js process group ${nextProcess.pid} did not exit`,
+            );
+          }
+          await new Promise((resolve) => setTimeout(resolve, 25));
+        }
       }
     } finally {
       if (testAppDir) {
@@ -206,25 +192,8 @@ describeIf(`server-util in Next.js App Router (#942) [${MODE}]`, () => {
   it("ServerBlockNoteEditor works in API route (mirrors ReactServer.test.tsx)", async () => {
     const res = await fetchFromServer("/api/server-util");
     const text = await res.text();
-    let body: any;
-    try {
-      body = JSON.parse(text);
-    } catch {
-      const nextDataMatch = text.match(
-        /<script id="__NEXT_DATA__"[^>]*>(.*?)<\/script>/,
-      );
-      let errorMessage = `Next.js returned ${res.status}`;
-      if (nextDataMatch) {
-        try {
-          errorMessage =
-            JSON.parse(nextDataMatch[1])?.err?.message || errorMessage;
-        } catch {
-          // ignore invalid JSON
-        }
-      }
-      throw new Error(errorMessage);
-    }
-    expect(res.status).toBe(200);
+    expect(res.status, `${text}\n${serverOutput}\n${serverErrors}`).toBe(200);
+    const body = JSON.parse(text);
     if (!body.allPassed) {
       throw new Error(
         `Failed results: ${JSON.stringify(body.results, null, 2)}`,
@@ -233,8 +202,6 @@ describeIf(`server-util in Next.js App Router (#942) [${MODE}]`, () => {
 
     // Verify individual results match ReactServer.test.tsx scenarios
     expect(body.results.simpleReactBlock).toMatch(/^PASS:/);
-    expect(body.results).not.toHaveProperty("reactContextBlock");
-    expect(body.skipped.reactContextBlock).toContain("createContext");
     expect(body.results.blocksToHTMLLossy).toMatch(/^PASS:/);
     expect(body.results.yDocRoundtrip).toMatch(/^PASS:/);
   }, 30_000);
@@ -243,31 +210,7 @@ describeIf(`server-util in Next.js App Router (#942) [${MODE}]`, () => {
     const res = await fetchFromServer("/editor");
     const html = await res.text();
 
-    if (res.status !== 200) {
-      const nextDataMatch = html.match(
-        /<script id="__NEXT_DATA__"[^>]*>(.*?)<\/script>/,
-      );
-      const digestMatch = html.match(/digest="([^"]+)"/);
-      let errorDetail = "";
-      if (nextDataMatch) {
-        try {
-          errorDetail = JSON.parse(nextDataMatch[1])?.err?.message;
-        } catch {
-          // ignore invalid JSON
-        }
-      }
-      if (!errorDetail && digestMatch) {
-        errorDetail = `digest: ${digestMatch[1]}`;
-      }
-      if (!errorDetail) {
-        errorDetail = html.substring(0, 500);
-      }
-      const recentOutput = serverOutput.slice(-1000);
-      const recentErrors = serverErrors.slice(-1000);
-      throw new Error(
-        `Editor page returned ${res.status}: ${errorDetail}\n\nServer stdout:\n${recentOutput}\n\nServer stderr:\n${recentErrors}`,
-      );
-    }
+    expect(res.status, `${html}\n${serverOutput}\n${serverErrors}`).toBe(200);
 
     expect(html).toContain("BlockNote Editor Test");
     expect(html).toContain("editor-wrapper");
