@@ -1,6 +1,12 @@
 import { Dictionary } from "../dictionary.js";
 
 export const ko: Dictionary = {
+  locale: "ko",
+  emoji_picker: {
+    search: "검색",
+    search_no_results: "이모지를 찾을 수 없습니다",
+    loading: "로드 중…",
+  },
   slash_menu: {
     heading: {
       title: "제목1",
