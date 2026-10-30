@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ESNext", "DOM"],
+    "jsx": "react-jsx",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "types": ["node", "vite-plus/client"],
+    "paths": {
+      "@root/*": ["../../*"]
+    }
+  },
+  "include": [
+    "./**/*.ts",
+    "./**/*.tsx",
+    "../../packages/*/src/**/*.a11y.test.ts",
+    "../../packages/*/src/**/*.axe.test.ts",
+    "../../packages/*/src/**/*.screen-reader.test.ts",
+    "../../packages/*/src/**/a11y/*.ts"
+  ]
+}

@@ -1,0 +1,63 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`default schema: arrow-key document navigation > default schema 1`] = `
+"- textbox:
+  - paragraph: Start of document
+  - paragraph:
+    - text: Plain text.
+    - link "BlockNote documentation":
+      - /url: https://www.blocknotejs.org/
+    - strong: bold.
+    - emphasis: italic.
+    - text: underline. strike.
+    - code: code.
+    - text: textColor. backgroundColor.
+  - heading "Heading level one" [level=1]
+  - text: •
+  - paragraph: Bullet list item
+  - text: "1."
+  - paragraph: Numbered list item
+  - checkbox
+  - paragraph: Unchecked task
+  - button "Expand or collapse"
+  - paragraph: Toggle list item
+  - blockquote: Quoted text
+  - code: const answer = 42;
+  - separator
+  - table:
+    - rowgroup:
+      - row "Name Description":
+        - columnheader "Name":
+          - paragraph: Name
+        - columnheader "Description":
+          - paragraph: Description
+      - row "Example Table cell":
+        - cell "Example":
+          - paragraph: Example
+        - cell "Table cell":
+          - paragraph: Table cell
+  - figure "Blue square":
+    - img "Example image"
+    - text: Blue square
+  - figure "A short test tone"
+  - figure "A flower moving in the breeze"
+  - img
+  - paragraph: example.txt
+  - heading "Heading level 2" [level=2]
+  - heading "Heading level 3" [level=3]
+  - heading "Heading level 4" [level=4]
+  - heading "Heading level 5" [level=5]
+  - heading "Heading level 6" [level=6]
+  - button "Expand or collapse"
+  - heading "Toggle heading" [level=2]
+  - checkbox [checked]
+  - paragraph: Completed task
+  - paragraph: End of document"
+`;
+
+exports[`read-only editor: Tab reaches inline links and leaves the editor > read-only editor 1`] = `
+"- textbox:
+  - paragraph:
+    - link "Documentation":
+      - /url: https://www.blocknotejs.org/"
+`;

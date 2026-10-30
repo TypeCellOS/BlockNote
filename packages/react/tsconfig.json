@@ -22,6 +22,11 @@
     "emitDeclarationOnly": true
   },
   "include": ["src"],
+  "exclude": [
+    "src/**/*.a11y.test.ts",
+    "src/**/*.screen-reader.test.ts",
+    "src/**/a11y/**"
+  ],
   "references": [
     {
       "path": "../core"

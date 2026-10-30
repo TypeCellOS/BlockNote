@@ -1,6 +1,7 @@
 {
   "files": [],
   "references": [
+    { "path": "./tests/a11y" },
     { "path": "./packages/core" },
     { "path": "./packages/code-block" },
     { "path": "./packages/react" },
