@@ -8,12 +8,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vite-plus/test";
 const FIXTURE_DIR = path.resolve(__dirname, "../../../nextjs-test-app");
 // pnpm 11 otherwise reinstalls before exec using its default isolated linker,
 // undoing setup.sh's hoisted install and duplicating externalized packages.
-const NEXT_ARGS = [
-  "--ignore-workspace",
-  "--config.verify-deps-before-run=false",
-  "exec",
-  "next",
-];
+const NEXT_ARGS = ["--config.verify-deps-before-run=false", "exec", "next"];
 let testAppDir: string | undefined;
 let PORT: number;
 let BASE_URL: string;
@@ -171,6 +166,36 @@ describeIf(`server-util in Next.js App Router (#942) [${MODE}]`, () => {
       }
     }
   }, 15_000);
+
+  it("resolves packed BlockNote packages throughout the dependency graph", () => {
+    execFileSync(
+      process.execPath,
+      [
+        "--input-type=module",
+        "-e",
+        `
+      import assert from "node:assert/strict";
+      import { createRequire } from "node:module";
+      const require = createRequire(process.cwd() + "/package.json");
+      for (const name of ["core", "react", "server-util", "mantine"]) {
+        const manifestPath = process.cwd() + "/node_modules/@blocknote/" + name + "/package.json";
+        const manifest = require(manifestPath);
+        const fromPackage = createRequire(manifestPath);
+        for (const dependency of Object.keys(manifest.dependencies ?? {})) {
+          if (dependency.startsWith("@blocknote/")) {
+            assert.equal(
+              fromPackage.resolve(dependency),
+              require.resolve(dependency),
+              name + " must use the packed " + dependency
+            );
+          }
+        }
+      }
+    `,
+      ],
+      { cwd: testAppDir, stdio: "pipe" },
+    );
+  });
 
   it("cannot resolve workspace-only packages from the installed consumer", () => {
     execFileSync(

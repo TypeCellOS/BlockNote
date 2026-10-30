@@ -25,6 +25,7 @@ import {
   moveMouseOverElement,
 } from "../../utils/mouse.js";
 import { executeSlashCommand } from "../../utils/slashmenu.js";
+import { waitForEmojiPickerLayout } from "../../utils/emojipicker.js";
 
 // ShadCN portals the dropdown outside .bn-side-menu.
 const DRAG_HANDLE_MENU_SELECTOR = ".bn-drag-handle-menu";
@@ -87,7 +88,7 @@ describe("Check ShadCN UI", () => {
     await userEvent.keyboard(":");
     await userEvent.keyboard("sm");
 
-    await sleep(500);
+    await waitForEmojiPickerLayout();
     await expectElement(document.body).toMatchScreenshot("shadcn-emoji-picker");
   });
   test("Check side menu", async () => {

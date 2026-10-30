@@ -84,18 +84,13 @@ export * from "./components/SideMenu/DragHandleMenu/DefaultItems/TableHeadersIte
 export * from "./components/SideMenu/DragHandleMenu/DragHandleMenu.js";
 
 export * from "./components/SuggestionMenu/SuggestionMenuController.js";
+export * from "./components/SuggestionMenu/EmojiPicker/EmojiPickerController.js";
 export * from "./components/SuggestionMenu/SuggestionMenuWrapper.js";
 export * from "./components/SuggestionMenu/getDefaultReactSlashMenuItems.js";
 export * from "./components/SuggestionMenu/hooks/useCloseSuggestionMenuNoItems.js";
 export * from "./components/SuggestionMenu/hooks/useLoadSuggestionMenuItems.js";
 export * from "./components/SuggestionMenu/hooks/useSuggestionMenuKeyboardNavigation.js";
 export * from "./components/SuggestionMenu/types.js";
-
-export * from "./components/SuggestionMenu/GridSuggestionMenu/GridSuggestionMenuController.js";
-export * from "./components/SuggestionMenu/GridSuggestionMenu/GridSuggestionMenuWrapper.js";
-export * from "./components/SuggestionMenu/GridSuggestionMenu/getDefaultReactEmojiPickerItems.js";
-export * from "./components/SuggestionMenu/GridSuggestionMenu/hooks/useGridSuggestionMenuKeyboardNavigation.js";
-export * from "./components/SuggestionMenu/GridSuggestionMenu/types.js";
 
 export * from "./components/FilePanel/DefaultTabs/EmbedTab.js";
 export * from "./components/FilePanel/DefaultTabs/UploadTab.js";

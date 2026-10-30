@@ -13,6 +13,12 @@ import { writeFileSync, readFileSync, mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
+import {
+  buildFrimousseData,
+  encodeFrimousseCommonData,
+  encodeFrimousseData,
+  localizeEmoji,
+} from "./format.mjs";
 
 const require = createRequire(import.meta.url);
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -26,18 +32,6 @@ const CLDR_ANNOTATIONS_DERIVED_DIR = resolve(
   dirname(require.resolve("cldr-annotations-derived-full/package.json")),
   "annotationsDerived",
 );
-
-// Skin tone key mapping: emojibase tone number → Frimousse skin tone key
-const TONE_MAP = {
-  1: "light",
-  2: "medium-light",
-  3: "medium",
-  4: "medium-dark",
-  5: "dark",
-};
-
-// Emojibase groups to exclude
-const EXCLUDED_GROUPS = new Set([2]); // component
 
 // Locales with full emojibase data
 const EMOJIBASE_LOCALES = [
@@ -58,9 +52,6 @@ const EMOJIBASE_LOCALES = [
   "zh",
   "zh-hant",
 ];
-
-// Extra locales without emojibase data — use English base + existing search overlays
-const EXTRA_LOCALES = ["ar", "fa", "he", "hr", "is", "sk", "tr", "uz"];
 
 function loadCldrAnnotations(locale) {
   const annotationsPath = resolve(
@@ -253,232 +244,20 @@ const EXTRA_LOCALE_METADATA = {
   },
 };
 
-// Correct labels in the upstream message files that are untranslated or wrong.
-const EMOJIBASE_LABEL_OVERRIDES = {
-  de: { skinTones: { "medium-dark": "Mitteldunkler Hautton" } },
-  ja: { categories: { 3: "動物と自然", 6: "アクティビティ" } },
-  nl: { categories: { 1: "Mensen en lichaam", 9: "Vlaggen" } },
-};
-
-function capitalize(str, locale) {
-  return str.charAt(0).toLocaleUpperCase(locale) + str.slice(1);
-}
-
-function toVarName(locale) {
-  return locale.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
-}
-
-function decodeHtmlEntities(str) {
-  return str.replace(/&(?:amp|lt|gt|quot|#39);/g, (entity) => {
-    switch (entity) {
-      case "&amp;":
-        return "&";
-      case "&lt;":
-        return "<";
-      case "&gt;":
-        return ">";
-      case "&quot;":
-        return '"';
-      case "&#39;":
-        return "'";
-      default:
-        throw new Error(`Unexpected HTML entity: ${entity}`);
-    }
-  });
-}
-
-function getSkinToneVariations(emoji) {
-  if (!emoji.skins) {
-    return undefined;
-  }
-  const variations = {};
-  for (const skin of emoji.skins) {
-    if (typeof skin.tone === "number" && TONE_MAP[skin.tone]) {
-      variations[TONE_MAP[skin.tone]] = skin.emoji;
-    }
-  }
-  return Object.keys(variations).length === 5 ? variations : undefined;
-}
-
-function normalizeSearchText(value) {
-  return value.replace(/\s+/g, " ").trim();
-}
-
-function buildFrimousseData(emojis, messages, locale) {
-  const labelOverrides = EMOJIBASE_LABEL_OVERRIDES[locale];
-  const countryFlagSubgroups = new Set(
-    messages.subgroups
-      .filter(
-        (subgroup) =>
-          subgroup.key === "country-flag" ||
-          subgroup.key === "subdivision-flag",
-      )
-      .map((subgroup) => subgroup.order),
-  );
-
-  const filteredGroups = messages.groups.filter((g) => g.key !== "component");
-  const filteredEmojis = emojis.filter(
-    (e) => "group" in e && !EXCLUDED_GROUPS.has(e.group),
-  );
-
-  const categories = filteredGroups.map((g) => ({
-    index: g.order,
-    label:
-      labelOverrides?.categories?.[g.order] ??
-      capitalize(decodeHtmlEntities(g.message), locale),
-  }));
-
-  const skinTones = {};
-  for (const key of Object.values(TONE_MAP)) {
-    const found = messages.skinTones.find((skinTone) => skinTone.key === key);
-    if (found) {
-      skinTones[key] =
-        labelOverrides?.skinTones?.[key] ?? capitalize(found.message, locale);
-    }
-  }
-
-  const formattedEmojis = filteredEmojis.map((emoji) => {
-    const entry = {
-      emoji: emoji.emoji,
-      category: emoji.group,
-      version: emoji.version,
-      label: capitalize(normalizeSearchText(emoji.label), locale),
-      tags: (emoji.tags ?? []).map(normalizeSearchText),
-    };
-    if (countryFlagSubgroups.has(emoji.subgroup)) {
-      entry.countryFlag = true;
-    }
-    const skins = getSkinToneVariations(emoji);
-    if (skins) {
-      entry.skins = skins;
-    }
-    return entry;
-  });
-
-  return {
-    locale,
-    emojis: formattedEmojis,
-    categories,
-    skinTones,
-  };
-}
-
-const FIELD_SEPARATOR = "\t";
-const LIST_SEPARATOR = "|";
-
-function assertEncodable(value, context) {
-  if (
-    value.includes(FIELD_SEPARATOR) ||
-    value.includes(LIST_SEPARATOR) ||
-    value.includes("\n") ||
-    value.includes("\r")
-  ) {
-    throw new Error(`Cannot encode ${context}: ${JSON.stringify(value)}`);
-  }
-}
-
-function encodeList(values, context) {
-  return values
-    .map((value) => {
-      value = normalizeSearchText(value);
-      assertEncodable(value, context);
-      return value;
-    })
-    .join(LIST_SEPARATOR);
-}
-
-function compactSearchTags(label, tags) {
-  const normalizedLabel = normalizeSearchText(label).toLocaleLowerCase();
-  const seen = new Set();
-
-  return tags.filter((tag) => {
-    const normalizedTag = normalizeSearchText(tag).toLocaleLowerCase();
-    if (
-      !normalizedTag ||
-      seen.has(normalizedTag) ||
-      normalizedLabel.includes(normalizedTag)
-    ) {
-      return false;
-    }
-    seen.add(normalizedTag);
-    return true;
-  });
-}
-
 function writeFrimousseCommonData(frimousseDir, data) {
-  const categoryIndices = data.categories.map(({ index }) => index).join(",");
-  const emojis = data.emojis
-    .map((emoji) => {
-      assertEncodable(emoji.emoji, `emoji ${emoji.emoji}`);
-      // Store one template instead of all five nearly identical variants.
-      // Verify every upstream variation so a future exception fails generation
-      // rather than silently changing the emoji rendered by the picker.
-      const skins = emoji.skins?.light.replaceAll("🏻", "|") ?? "";
-      if (emoji.skins) {
-        Object.values(emoji.skins).forEach((skin, index) => {
-          if (
-            skins.replaceAll("|", String.fromCodePoint(0x1f3fb + index)) !==
-            skin
-          ) {
-            throw new Error(`Cannot encode skin tones for ${emoji.emoji}`);
-          }
-        });
-      }
-      return [
-        emoji.emoji,
-        emoji.category,
-        emoji.version,
-        emoji.countryFlag ? "1" : "",
-        skins,
-      ].join(FIELD_SEPARATOR);
-    })
-    .join("\n");
-
+  const { categoryIndices, emojis, shortcodes } =
+    encodeFrimousseCommonData(data);
   writeFileSync(
     resolve(frimousseDir, "common.ts"),
-    `// THIS FILE IS AUTO-GENERATED. DO NOT EDIT DIRECTLY.\n// Regenerate with: pnpm --filter @blocknote/core generate-emoji-data\n\nexport const frimousseCategoryIndices: string = ${JSON.stringify(categoryIndices)};\nexport const frimousseCommonData: string = ${JSON.stringify(emojis)};\n`,
+    `// THIS FILE IS AUTO-GENERATED. DO NOT EDIT DIRECTLY.\n// Regenerate with: pnpm --filter @blocknote/core generate-emoji-data\n\nexport const frimousseCategoryIndices: string = ${JSON.stringify(categoryIndices)};\nexport const frimousseCommonData: string = ${JSON.stringify(emojis)};\nexport const frimousseShortcodes: string = ${JSON.stringify(shortcodes)};\n`,
   );
 }
 
-function writeFrimousseData(
-  frimousseDir,
-  locale,
-  data,
-  expectedCategoryIndices,
-  expectedEmojis,
-) {
-  const categoryIndices = data.categories.map(({ index }) => index).join(",");
-  if (categoryIndices !== expectedCategoryIndices) {
-    throw new Error(`Category indices differ for locale ${locale}`);
-  }
-  if (
-    data.emojis.length !== expectedEmojis.length ||
-    data.emojis.some(
-      (emoji, index) => emoji.emoji !== expectedEmojis[index].emoji,
-    )
-  ) {
-    throw new Error(`Emoji order differs for locale ${locale}`);
-  }
-  const categoryLabels = encodeList(
-    data.categories.map(({ label }) => label),
-    `category labels for ${locale}`,
-  );
-  const skinTones = encodeList(
-    Object.values(data.skinTones),
-    `skin tones for ${locale}`,
-  );
-  const emojis = data.emojis
-    .map((emoji) => {
-      assertEncodable(emoji.label, `label for ${emoji.emoji} in ${locale}`);
-      const tags = encodeList(
-        compactSearchTags(emoji.label, emoji.tags),
-        `tags for ${emoji.emoji} in ${locale}`,
-      );
-      return tags ? `${emoji.label}${FIELD_SEPARATOR}${tags}` : emoji.label;
-    })
-    .join("\n");
-  const encoded = [locale, categoryLabels, skinTones, emojis].join("\n");
-  const varName = toVarName(locale) + "FrimousseData";
+function writeFrimousseData(frimousseDir, data, commonData) {
+  const { locale } = data;
+  const encoded = encodeFrimousseData(data, commonData);
+  const varName =
+    locale.replace(/-([a-z])/g, (_, c) => c.toUpperCase()) + "FrimousseData";
   // A type annotation prevents declaration emit from copying the entire corpus
   // into a string literal type in each .d.ts file.
   writeFileSync(
@@ -496,15 +275,11 @@ function generateFrimousseData() {
   // Load English base data (needed for extra locales)
   const enEmojis = require("emojibase-data/en/data.json");
   const enMessages = require("emojibase-data/en/messages.json");
-  const commonData = buildFrimousseData(enEmojis, enMessages, "en");
-  const commonCategoryIndices = commonData.categories
-    .map(({ index }) => index)
-    .join(",");
+  // The same iamcal/emoji-data short names used by legacy Emoji Mart. Keying by
+  // canonical hexcode works for every locale, including presentation selectors.
+  const shortcodes = require("emojibase-data/en/shortcodes/iamcal.json");
+  const commonData = buildFrimousseData(enEmojis, enMessages, "en", shortcodes);
   writeFrimousseCommonData(frimousseDir, commonData);
-
-  const englishEmojisByEmoji = new Map(
-    enEmojis.map((emoji) => [emoji.emoji, emoji]),
-  );
 
   // Generate for standard emojibase locales
   for (const locale of EMOJIBASE_LOCALES) {
@@ -512,17 +287,12 @@ function generateFrimousseData() {
     const messages = require(`emojibase-data/${locale}/messages.json`);
     const data = buildFrimousseData(emojis, messages, locale);
 
-    writeFrimousseData(
-      frimousseDir,
-      locale,
-      data,
-      commonCategoryIndices,
-      commonData.emojis,
-    );
+    writeFrimousseData(frimousseDir, data, commonData);
   }
 
   // Generate for extra locales using English base + search overlays
-  for (const locale of EXTRA_LOCALES) {
+  const extraLocales = Object.entries(EXTRA_LOCALE_METADATA);
+  for (const [locale, metadata] of extraLocales) {
     const getCldrAnnotation = loadCldrAnnotations(locale);
     const overlay = JSON.parse(
       readFileSync(resolve(SEARCH_OVERLAYS_DIR, `${locale}.json`), "utf-8"),
@@ -530,56 +300,25 @@ function generateFrimousseData() {
 
     // Start from English base data
     const data = buildFrimousseData(enEmojis, enMessages, locale);
-    const metadata = EXTRA_LOCALE_METADATA[locale];
     data.categories = metadata.categories;
     data.skinTones = metadata.skinTones;
 
-    // Apply localized labels/tags from search overlay
-    for (const emoji of data.emojis) {
-      const enEmoji = englishEmojisByEmoji.get(emoji.emoji);
-      if (!enEmoji) {
-        continue;
-      }
-      const loc = overlay[emoji.emoji];
-      if (loc) {
-        if (loc.name) {
-          emoji.label = capitalize(loc.name, locale);
-        }
-        if (loc.keywords.length > 0) {
-          emoji.tags = [
-            ...new Set([...loc.keywords, ...emoji.tags, ...enEmoji.tags]),
-          ];
-        }
-      }
-
-      const annotation = getCldrAnnotation(emoji.emoji);
-      if (annotation?.tts?.[0]) {
-        emoji.label = capitalize(annotation.tts[0], locale);
-      }
-      if (annotation?.default) {
-        emoji.tags = [
-          ...new Set([...annotation.default, ...emoji.tags, ...enEmoji.tags]),
-        ];
-      }
-    }
-
-    writeFrimousseData(
-      frimousseDir,
-      locale,
-      data,
-      commonCategoryIndices,
-      commonData.emojis,
+    data.emojis = data.emojis.map((emoji) =>
+      localizeEmoji(
+        emoji,
+        overlay[emoji.emoji],
+        getCldrAnnotation(emoji.emoji),
+        locale,
+      ),
     );
+
+    writeFrimousseData(frimousseDir, data, commonData);
   }
 
   console.log(
-    `  Generated ${EMOJIBASE_LOCALES.length + EXTRA_LOCALES.length} locale files + shared data`,
+    `  Generated ${EMOJIBASE_LOCALES.length + extraLocales.length} locale files + shared data`,
   );
 }
 
-function main() {
-  generateFrimousseData();
-  console.log("Done!");
-}
-
-main();
+generateFrimousseData();
+console.log("Done!");

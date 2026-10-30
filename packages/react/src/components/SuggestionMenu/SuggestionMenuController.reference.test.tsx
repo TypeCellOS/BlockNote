@@ -5,7 +5,7 @@ import { createRoot, type Root } from "react-dom/client";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 
 import { BlockNoteViewRaw } from "../../editor/BlockNoteView.js";
-import { GridSuggestionMenuController } from "./GridSuggestionMenu/GridSuggestionMenuController.js";
+import { SuggestionMenuPopover } from "./SuggestionMenuPopover.js";
 import { SuggestionMenuController } from "./SuggestionMenuController.js";
 
 declare global {
@@ -98,11 +98,13 @@ describe("suggestion menu reference", () => {
     expect(new Set(referencesWhileTyping).size).toBe(1);
   });
 
-  it("keeps the grid menu reference while the menu does not move", async () => {
+  it("keeps the shared emoji popover reference while the menu does not move", async () => {
     const editor = BlockNoteEditor.create();
     await render(
       <BlockNoteViewRaw editor={editor} slashMenu={false} emojiPicker={false}>
-        <GridSuggestionMenuController triggerCharacter=":" columns={10} />
+        <SuggestionMenuPopover triggerCharacter=":">
+          {() => null}
+        </SuggestionMenuPopover>
       </BlockNoteViewRaw>,
     );
 

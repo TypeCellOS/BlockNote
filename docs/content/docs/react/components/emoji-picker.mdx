@@ -1,0 +1,36 @@
+---
+title: Emoji Picker
+description: Insert emoji with the built-in localized picker and configure its trigger and visibility.
+---
+
+# Emoji Picker
+
+The Emoji Picker is enabled by default. Type `:` followed by at least two non-whitespace characters to search, or select the emoji item in the Slash Menu.
+
+The picker uses [Frimousse](https://frimousse.liveblocks.io/) and loads emoji labels and search keywords for the editor's [locale](/docs/features/localization).
+
+## Disabling the Picker
+
+Pass `emojiPicker={false}` to `BlockNoteView` to disable the default inline picker.
+
+## Configuring the Picker
+
+To configure the trigger or minimum query length, disable the default picker and mount `EmojiPickerController` inside `BlockNoteView`:
+
+```tsx
+import { BlockNoteView } from "@blocknote/mantine";
+import "@blocknote/mantine/style.css";
+import { EmojiPickerController, useCreateBlockNote } from "@blocknote/react";
+
+export default function Editor() {
+  const editor = useCreateBlockNote();
+
+  return (
+    <BlockNoteView editor={editor} emojiPicker={false}>
+      <EmojiPickerController triggerCharacter=":" minQueryLength={3} />
+    </BlockNoteView>
+  );
+}
+```
+
+The controller also accepts `shouldOpen`, `floatingUIOptions`, and `portalElement` for controlling when and where it opens. Set `minQueryLength={0}` to allow opening immediately after the trigger.

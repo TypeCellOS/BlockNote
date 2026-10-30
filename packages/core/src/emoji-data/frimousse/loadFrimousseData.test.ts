@@ -5,6 +5,60 @@ import { searchEmojis } from "../searchEmojis.js";
 import { loadFrimousseData } from "./loadFrimousseData.js";
 
 describe("localized emoji data", () => {
+  it.each([
+    "ar",
+    "de",
+    "en",
+    "es",
+    "fa",
+    "fr",
+    "he",
+    "hr",
+    "is",
+    "it",
+    "ja",
+    "ko",
+    "nb",
+    "nl",
+    "pl",
+    "pt",
+    "ru",
+    "sk",
+    "tr",
+    "uk",
+    "uz",
+    "vi",
+    "zh",
+    "zh-hant",
+  ])("keeps legacy Emoji Mart shortcodes searchable in %s", async (locale) => {
+    const { emojis } = await loadFrimousseData(locale);
+    // Both inline search and Frimousse's comment picker search labels and tags.
+    // Include single-name mappings, multiple aliases, and presentation selectors.
+    for (const [query, identity] of [
+      ["heart_eyes", "😍"],
+      ["thumbsup", "👍"],
+      ["+1", "👍"],
+      ["slightly_smiling_face", "🙂"],
+      ["hankey", "💩"],
+      ["shit", "💩"],
+      ["staff_of_aesculapius", "⚕"],
+    ]) {
+      const matches = emojis.filter((emoji) =>
+        [emoji.label, ...emoji.tags].some((value) =>
+          value.toLowerCase().includes(query),
+        ),
+      );
+      expect(
+        matches.map(({ emoji }) => emoji.replaceAll("\uFE0F", "")),
+      ).toContain(identity);
+    }
+    for (const { tags } of emojis) {
+      expect(new Set(tags.map((tag) => tag.toLowerCase())).size).toBe(
+        tags.length,
+      );
+    }
+  });
+
   it("reuses decoded data for concurrent loads, aliases, and fallbacks", async () => {
     const [english, concurrent, regional, fallback, anotherFallback] =
       await Promise.all(
