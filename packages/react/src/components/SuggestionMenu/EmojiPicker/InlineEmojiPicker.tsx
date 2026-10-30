@@ -216,11 +216,13 @@ function InlineEmojiPickerContent(props: {
       setActiveDescendant(btn.id);
     }
 
+    // Frimousse filters asynchronously and virtualizes rows independently of our
+    // selection. Track mounted buttons to keep aria-activedescendant valid when
+    // manual scrolling removes/restores them. Text changes also matter: changing
+    // skin tone can reuse the same button instead of mounting a new one.
     const observer = new MutationObserver(updateSelectedButton);
 
     observer.observe(root, {
-      attributeFilter: ["aria-label"],
-      attributes: true,
       characterData: true,
       childList: true,
       subtree: true,
