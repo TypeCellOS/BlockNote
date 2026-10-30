@@ -1,5 +1,6 @@
 import { createBlockConfig } from "@blocknote/core";
 import { createReactBlockSpec } from "@blocknote/react";
+import { MathRenderExtension } from "../helpers/MathRenderExtension.js";
 
 import { MathBlockInputRulesExtension } from "./helpers/extensions/MathBlockInputRulesExtension.js";
 import {
@@ -35,5 +36,5 @@ export const createReactMathBlockSpec = createReactBlockSpec(
     render: MathBlockPreviewWithPopup,
     toExternalHTML: BlockMathMLElement,
   },
-  [MathBlockInputRulesExtension],
+  [MathBlockInputRulesExtension, MathRenderExtension],
 );

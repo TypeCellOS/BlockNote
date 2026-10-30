@@ -11,9 +11,7 @@ export const createDiagramBlockConfig = createBlockConfig(
   () =>
     ({
       type: "diagram" as const,
-      // The block is semantically a diagram; Mermaid is its (only, for now)
-      // rendering engine. An `engine` prop with a "mermaid" default can be
-      // added later without breaking stored documents.
+      // Store Mermaid source, independently of the renderer (Pele).
       propSchema: {},
       content: "plain" as const,
     }) as const,

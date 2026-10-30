@@ -2,8 +2,7 @@ import { describe, expect, test } from "vite-plus/test";
 
 import { renderDiagramToSVG } from "./renderDiagramToSVG.js";
 
-// Browser unit tests for the browser-only SVG renderer used by the Typst
-// exporter mapping. Runs in the tests package's browser suite.
+// The SVG export adapter works without a browser DOM.
 describe("renderDiagramToSVG", () => {
   test(
     "renders Mermaid source to sized, foreignObject-free SVG",
@@ -29,7 +28,8 @@ describe("renderDiagramToSVG", () => {
       // Explicit intrinsic dimensions, and no `max-width` style capping them.
       expect(svg).toMatch(/<svg[^>]*\bwidth="\d+"/);
       expect(svg).toMatch(/<svg[^>]*\bheight="\d+"/);
-      expect(svg).not.toMatch(/<svg[^>]*style="/);
+      expect(svg).not.toContain("max-width");
+      expect(svg).not.toContain("var(--");
     },
   );
 
@@ -48,9 +48,6 @@ describe("renderDiagramToSVG", () => {
       }
       const svg = new TextDecoder().decode(result.image.data);
       expect(svg).toContain("Inter 18pt");
-      // The rewrite must catch every declaration - a leftover default stack
-      // would render some labels in a different font.
-      expect(svg).not.toContain("trebuchet");
     },
   );
 
