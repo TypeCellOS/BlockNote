@@ -1,49 +1,10 @@
 // Mirrors ReactServer.test.tsx — see packages/server-util/src/context/react/ReactServer.test.tsx
 import { ServerBlockNoteEditor } from "@blocknote/server-util";
 import { getDocument } from "@blocknote/server-util/dom";
-// import {
-//   BlockNoteSchema,
-//   defaultBlockSpecs,
-//   defaultProps,
-// } from "@blocknote/core";
-// import { createReactBlockSpec } from "@blocknote/react";
-// import { createContext, useContext } from "react";
 import { schema } from "../../shared-schema";
 
 // Keep one DOM across requests and development hot reloads.
 const document = globalThis.document ?? getDocument();
-
-// Context block test from ReactServer.test.tsx — commented out because React's
-// server bundle forbids createContext at runtime, even with dynamic require().
-//
-// const TestContext = createContext<true | undefined>(undefined);
-//
-// const ReactContextParagraphComponent = (props: any) => {
-//   const testData = useContext(TestContext);
-//   if (testData === undefined) {
-//     throw Error();
-//   }
-//   return <div ref={props.contentRef} />;
-// };
-//
-// const ReactContextParagraph = createReactBlockSpec(
-//   {
-//     type: "reactContextParagraph" as const,
-//     propSchema: defaultProps,
-//     content: "inline" as const,
-//   },
-//   {
-//     render: ReactContextParagraphComponent,
-//   },
-// );
-//
-// const schemaWithContext = BlockNoteSchema.create({
-//   blockSpecs: {
-//     ...defaultBlockSpecs,
-//     simpleReactCustomParagraph: schema.blockSpecs.simpleReactCustomParagraph,
-//     reactContextParagraph: ReactContextParagraph(),
-//   },
-// });
 
 export async function GET() {
   const results: Record<string, string> = {};
@@ -67,36 +28,6 @@ export async function GET() {
   } catch (e: any) {
     results["simpleReactBlock"] = `FAIL: ${e.message}`;
   }
-
-  // Mirrors ReactServer.test.tsx: "works for blocks with context"
-  // SKIPPED — React's server bundle forbids createContext at runtime.
-  results["reactContextBlock"] =
-    `PASS: skipped (createContext not available in React server bundle)`;
-  //
-  // try {
-  //   const editor = ServerBlockNoteEditor.create({ schema: schemaWithContext });
-  //   const html = await editor.withReactContext(
-  //     ({ children }) => (
-  //       <TestContext.Provider value={true}>{children}</TestContext.Provider>
-  //     ),
-  //     async () =>
-  //       editor.blocksToFullHTML([
-  //         {
-  //           id: "1",
-  //           type: "reactContextParagraph",
-  //           content: "React Context Paragraph",
-  //         },
-  //       ] as any),
-  //   );
-  //   if (!html.includes("data-content-type")) {
-  //     throw new Error(
-  //       `Expected html to contain rendered block, got: ${html}`,
-  //     );
-  //   }
-  //   results["reactContextBlock"] = `PASS: ${html.substring(0, 200)}`;
-  // } catch (e: any) {
-  //   results["reactContextBlock"] = `FAIL: ${e.message}`;
-  // }
 
   // blocksToHTMLLossy with default blocks
   try {
@@ -137,7 +68,15 @@ export async function GET() {
   const allPassed = Object.values(results).every((v) => v.startsWith("PASS"));
 
   return Response.json(
-    { allPassed, results },
+    {
+      allPassed,
+      results,
+      // This is not an executed or passing scenario. React's server bundle
+      // forbids createContext; context coverage lives in ReactServer.test.tsx.
+      skipped: {
+        reactContextBlock: "createContext not available in React server bundle",
+      },
+    },
     { status: allPassed ? 200 : 500 },
   );
 }

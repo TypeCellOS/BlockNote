@@ -1,6 +1,7 @@
 // Exports a document with React and optional blocks through
 // `ServerBlockNoteEditor`, in plain Node from the build output, as a server
 // app does.
+import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { join, resolve } from "node:path";
@@ -67,9 +68,21 @@ const blocks = [
 ];
 
 const editor = ServerBlockNoteEditor.create({ schema }, getDocument());
-await editor.blocksToMarkdownLossy(blocks);
-await editor.blocksToHTMLLossy(blocks);
-await editor.blocksToFullHTML(blocks);
+const markdown = await editor.blocksToMarkdownLossy(blocks);
+const lossyHTML = await editor.blocksToHTMLLossy(blocks);
+const fullHTML = await editor.blocksToFullHTML(blocks);
+// Deliberately small content checks, not rendering snapshots. Completion alone
+// would also accept empty exports or optional-block error placeholders.
+for (const output of [markdown, lossyHTML, fullHTML]) {
+  for (const text of ["React block", "Left", "Right", "graph TD"]) {
+    assert.ok(output.includes(text), `Export is missing ${text}`);
+  }
+}
+for (const html of [lossyHTML, fullHTML]) {
+  assert.ok(html.includes("<math"), "MathML is missing");
+  assert.ok(html.includes("application/x-tex"), "Math source is missing");
+  assert.ok(html.includes("A --&gt; B"), "Diagram source is missing");
+}
 // Node runs React's queued work before it exits. A crash there (#3230) gives a
 // non-zero exit code, which fails the test.
 console.log("exported");
