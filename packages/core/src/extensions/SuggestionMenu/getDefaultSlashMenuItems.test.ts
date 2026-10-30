@@ -41,6 +41,8 @@ describe("slash-menu block conversion (#2236)", () => {
         content: [{ type: "text", text: "Existing text", styles: {} }],
       });
       expect(editor.getTextCursorPosition().block.id).toBe("source");
+      expect(editor.prosemirrorState.selection.empty).toBe(true);
+      expect(editor.prosemirrorState.selection.$from.parentOffset).toBe(offset);
     },
   );
 
