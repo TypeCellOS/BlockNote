@@ -54,7 +54,7 @@ function setSelectionToNextContentEditableBlock<
 }
 
 // Updates an empty/slash-only block, or converts an inline-content block when
-// choosing another inline type at its start, instead of inserting below. If the new
+// choosing another inline type at any caret position, instead of inserting below. If the new
 // block doesn't contain editable content, the cursor is moved to the next block
 // that does.
 export function insertOrUpdateBlockForSlashMenu<
@@ -74,13 +74,12 @@ export function insertOrUpdateBlockForSlashMenu<
   let newBlock: Block<BSchema, I, S>;
 
   const { selection } = editor.prosemirrorState;
-  // The menu has already removed the slash/query. A collapsed cursor at the
-  // start of the remaining text means we should convert that block in place.
+  // The menu has already removed the slash/query. With a collapsed cursor,
+  // choosing an inline block type converts the current block at any position.
   // Only convert between inline-content types when no replacement content was
   // supplied, so the existing text is preserved; other items insert below.
   const convertsExistingText =
     selection.empty &&
-    selection.$from.parentOffset === 0 &&
     editor.schema.blockSchema[currentBlock.type].content === "inline" &&
     block.type !== undefined &&
     editor.schema.blockSchema[block.type].content === "inline" &&
