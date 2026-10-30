@@ -53,10 +53,10 @@ function setSelectionToNextContentEditableBlock<
   }
 }
 
-// Checks if the current block is empty or only contains a slash, and if so,
-// updates the current block instead of inserting a new one below. If the new
-// block doesn't contain editable content, the cursor is moved to the next block
-// that does.
+// Updates an empty/slash-only block, or converts an inline-content block when
+// choosing another inline type at the start of the block, instead of inserting
+// below. If the new block doesn't contain editable content, the cursor is moved
+// to the next block that does.
 export function insertOrUpdateBlockForSlashMenu<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
@@ -73,19 +73,39 @@ export function insertOrUpdateBlockForSlashMenu<
 
   let newBlock: Block<BSchema, I, S>;
 
+  const { selection } = editor.prosemirrorState;
+  // The menu has already removed the slash/query. With a collapsed cursor,
+  // choosing an inline block type at the start converts the current block.
+  // At other positions, insert a new block below without changing existing text.
+  // Only convert between inline-content types when no replacement content was
+  // supplied, so the existing text is preserved; other items insert below.
+  const convertsExistingText =
+    selection.empty &&
+    selection.$from.parentOffset === 0 &&
+    editor.schema.blockSchema[currentBlock.type].content === "inline" &&
+    block.type !== undefined &&
+    editor.schema.blockSchema[block.type].content === "inline" &&
+    block.content === undefined;
+
   if (
-    Array.isArray(currentBlock.content) &&
-    ((currentBlock.content.length === 1 &&
-      isStyledTextInlineContent(currentBlock.content[0]) &&
-      currentBlock.content[0].type === "text" &&
-      currentBlock.content[0].text === "/") ||
-      currentBlock.content.length === 0)
+    convertsExistingText ||
+    (Array.isArray(currentBlock.content) &&
+      ((currentBlock.content.length === 1 &&
+        isStyledTextInlineContent(currentBlock.content[0]) &&
+        currentBlock.content[0].type === "text" &&
+        currentBlock.content[0].text === "/") ||
+        currentBlock.content.length === 0))
   ) {
     newBlock = editor.updateBlock(currentBlock, block);
-    // We make sure to reset the cursor position to the new block as calling
-    // `updateBlock` may move it out. This generally happens when the content
-    // changes, or the update makes the block multi-column.
-    editor.setTextCursorPosition(newBlock);
+    // Preserve the mapped caret for same-content-type updates. A structural
+    // change (e.g. inline text to a table or columns) can map it outside the
+    // updated block, so explicitly enter the new block in that case.
+    if (
+      editor.schema.blockSchema[currentBlock.type].content !==
+      editor.schema.blockSchema[newBlock.type].content
+    ) {
+      editor.setTextCursorPosition(newBlock);
+    }
   } else {
     newBlock = editor.insertBlocks([block], currentBlock, "after")[0];
     editor.setTextCursorPosition(editor.getTextCursorPosition().nextBlock!);

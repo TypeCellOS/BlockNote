@@ -97,6 +97,10 @@ test("suggestion mode: change block type of a block with children", async () => 
   // TODO: should this be editor.document[0], or expose .documentWithoutDeletions?
   await expect.poll(() => editor.document[1]?.type).toBe("heading");
 
+  // The type updates before the asynchronous suggestion decorations settle.
+  // Wait for the final attributed structure before capturing its styling.
+  await waitForSuggestion(editor);
+
   await expectScreenshot(
     screen.getByTestId("editor-root"),
     "nesting-change-parent-type",
