@@ -2033,6 +2033,24 @@ export const examples = {
         readme:
           'This example shows how to use `InMemoryVersioningExtension` without a collaboration layer. It seeds history with ProseMirror document JSON, which the extension converts to immutable documents using the editor\'s schema. `initialVersions` also accepts BlockNote JSON as arrays of partial blocks.\n\nThe sidebar opens on a document with a few versions already in its history, including an automatic unnamed version, so you can preview them, compare them, rename them, restore them, and try the named-only filter right away. The editor is read-only while the sidebar is open: close it to edit the document, then reopen it with the "History" button.',
       },
+      {
+        projectSlug: "table-of-contents",
+        fullSlug: "extensions/table-of-contents",
+        pathFromRoot: "examples/08-extensions/03-table-of-contents",
+        config: {
+          playground: true,
+          docs: true,
+          author: "RovshanMuradov",
+          tags: ["Extension", "UI Components"],
+        },
+        title: "Table of Contents",
+        group: {
+          pathFromRoot: "examples/08-extensions",
+          slug: "extensions",
+        },
+        readme:
+          "This example shows an outline of the document's headings next to the editor, using `TableOfContentsExtension` and the `TableOfContents` component. The entry of the section being read is highlighted as the editor scrolls, and the outline follows edits to the headings.\n\n**Try it out:** Scroll the document, click an entry to jump to its heading, or add a heading and see it appear in the outline.\n\n**Relevant Docs:**\n\n- [Table of Contents](/docs/react/components/table-of-contents)\n- [Editor Setup](/docs/getting-started/editor-setup)",
+      },
     ],
   },
   ai: {

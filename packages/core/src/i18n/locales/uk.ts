@@ -474,6 +474,9 @@ export const uk: Dictionary = {
     action_failed: "Щось пішло не так. Спробуйте ще раз.",
     history_load_failed: "Не вдалося завантажити історію версій",
   },
+  table_of_contents: {
+    title: "Зміст",
+  },
   exporter: {
     open_file: "Відкрити файл",
     open_video_file: "Відкрити відео",

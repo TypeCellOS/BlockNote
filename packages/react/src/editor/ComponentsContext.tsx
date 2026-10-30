@@ -301,6 +301,26 @@ export type ComponentProps = {
       className?: string;
     };
   };
+  TableOfContents: {
+    /** The outline's `<nav>` landmark, headed by its title. */
+    Root: {
+      className?: string;
+      title: string;
+      children?: ReactNode;
+    };
+    /**
+     * The button of an entry, which scrolls to its heading. When active, it
+     * carries `aria-current="location"`.
+     */
+    Item: {
+      className?: string;
+      /** 0 for the top level of the outline, 1 for the level below, ... */
+      depth: number;
+      isActive: boolean;
+      onClick: () => void;
+      children: ReactNode;
+    };
+  };
   AttributionTooltip: {
     /**
      * The attribution tooltip shown when hovering a suggestion mark. Positioned

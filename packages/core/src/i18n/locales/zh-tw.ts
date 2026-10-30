@@ -491,6 +491,9 @@ export const zhTW: Dictionary = {
     action_failed: "發生錯誤，請再試一次。",
     history_load_failed: "無法載入版本歷史記錄",
   },
+  table_of_contents: {
+    title: "目錄",
+  },
   exporter: {
     open_file: "開啟檔案",
     open_video_file: "開啟影片",

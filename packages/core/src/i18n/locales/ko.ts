@@ -463,6 +463,9 @@ export const ko: Dictionary = {
     action_failed: "문제가 발생했습니다. 다시 시도해 주세요.",
     history_load_failed: "버전 기록을 불러오지 못했습니다",
   },
+  table_of_contents: {
+    title: "목차",
+  },
   exporter: {
     open_file: "파일 열기",
     open_video_file: "동영상 열기",
