@@ -438,7 +438,7 @@ SideMenuController offsets its position to keep it centered on the line. */
 }
 
 .bn-frimousse-picker [frimousse-search]:focus-visible {
-  outline: 2px solid var(--bn-colors-hovered-text);
+  outline: 2px solid var(--bn-colors-side-menu);
   outline-offset: -2px;
 }
 

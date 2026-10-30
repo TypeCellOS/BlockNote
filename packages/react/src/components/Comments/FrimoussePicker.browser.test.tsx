@@ -27,6 +27,7 @@ function renderPicker(
     host.style.setProperty("--bn-colors-editor-text", "#000000");
     host.style.setProperty("--bn-colors-hovered-background", "#273244");
     host.style.setProperty("--bn-colors-hovered-text", "#eeeeee");
+    host.style.setProperty("--bn-colors-side-menu", "#8899aa");
   }
   host.style.color = "var(--bn-colors-menu-text)";
   document.body.append(host);
@@ -99,3 +100,17 @@ it.each([false, true])(
     });
   },
 );
+
+it("uses a theme-colored focus indicator instead of a text-colored search border", async () => {
+  renderPicker(true);
+
+  await vi.waitFor(() => {
+    const search = visibleElement("[frimousse-search]");
+    search.focus();
+    expect(search.matches(":focus-visible")).toBe(true);
+    const style = getComputedStyle(search);
+    expect(style.outlineStyle).toBe("solid");
+    expect(style.outlineWidth).toBe("2px");
+    expect(style.outlineColor).toBe("rgb(136, 153, 170)");
+  });
+});
