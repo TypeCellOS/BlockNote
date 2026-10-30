@@ -67,7 +67,7 @@ export type BlockNoteDefaultUIProps = {
 
   /**
    * Whether the emoji picker should be enabled.
-   * @see {@link https://blocknotejs.org/docs/advanced/grid-suggestion-menus#emoji-picker}
+   * @see {@link https://blocknotejs.org/docs/react/components/emoji-picker}
    */
   emojiPicker?: boolean;
 

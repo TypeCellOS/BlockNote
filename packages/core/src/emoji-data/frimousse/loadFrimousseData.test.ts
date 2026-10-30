@@ -1,7 +1,6 @@
 // @vitest-environment node
 import { describe, expect, it } from "vite-plus/test";
 
-import { searchEmojis } from "../searchEmojis.js";
 import { loadFrimousseData } from "./loadFrimousseData.js";
 
 describe("localized emoji data", () => {
@@ -101,42 +100,6 @@ describe("localized emoji data", () => {
       "So‘lagi oqayotgan",
     ]);
   });
-
-  it("preserves order for blank searches and matches Turkish dotted I", async () => {
-    const turkish = await loadFrimousseData("tr");
-    expect(searchEmojis(turkish.emojis, "  ")).toBe(turkish.emojis);
-    expect(searchEmojis(turkish.emojis, "isviçre")).toEqual(
-      expect.arrayContaining([expect.objectContaining({ emoji: "🇨🇭" })]),
-    );
-    expect(searchEmojis(turkish.emojis, "ısvıçre")).not.toEqual(
-      expect.arrayContaining([expect.objectContaining({ emoji: "🇨🇭" })]),
-    );
-  });
-
-  it.each(["tr", "TR-tr"])(
-    "matches both Turkish I pairs with explicit locale %s",
-    async (locale) => {
-      const { emojis } = await loadFrimousseData(locale);
-      for (const query of ["ışık", "IŞIK"]) {
-        expect(searchEmojis(emojis, query, locale)).toEqual(
-          expect.arrayContaining([expect.objectContaining({ emoji: "💡" })]),
-        );
-      }
-      for (const query of ["Irak", "IRAK", "ırak"]) {
-        expect(searchEmojis(emojis, query, locale)).toEqual(
-          expect.arrayContaining([expect.objectContaining({ emoji: "🇮🇶" })]),
-        );
-      }
-      for (const query of ["isviçre", "İSVİÇRE", "I\u0307SVI\u0307ÇRE"]) {
-        expect(searchEmojis(emojis, query, locale)).toEqual(
-          expect.arrayContaining([expect.objectContaining({ emoji: "🇨🇭" })]),
-        );
-      }
-      expect(searchEmojis(emojis, "ısvıçre", locale)).not.toEqual(
-        expect.arrayContaining([expect.objectContaining({ emoji: "🇨🇭" })]),
-      );
-    },
-  );
 
   it("corrects upstream category and skin-tone translations", async () => {
     const [dutch, japanese, german] = await Promise.all(

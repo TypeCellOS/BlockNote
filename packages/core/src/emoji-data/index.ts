@@ -1,5 +1,3 @@
-export { searchEmojis } from "./searchEmojis.js";
-
 export type {
   FrimousseEmojiData,
   FrimousseEmoji,

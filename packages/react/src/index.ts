@@ -92,12 +92,6 @@ export * from "./components/SuggestionMenu/hooks/useLoadSuggestionMenuItems.js";
 export * from "./components/SuggestionMenu/hooks/useSuggestionMenuKeyboardNavigation.js";
 export * from "./components/SuggestionMenu/types.js";
 
-export * from "./components/SuggestionMenu/GridSuggestionMenu/GridSuggestionMenuController.js";
-export * from "./components/SuggestionMenu/GridSuggestionMenu/GridSuggestionMenuWrapper.js";
-export * from "./components/SuggestionMenu/GridSuggestionMenu/getDefaultReactEmojiPickerItems.js";
-export * from "./components/SuggestionMenu/GridSuggestionMenu/hooks/useGridSuggestionMenuKeyboardNavigation.js";
-export * from "./components/SuggestionMenu/GridSuggestionMenu/types.js";
-
 export * from "./components/FilePanel/DefaultTabs/EmbedTab.js";
 export * from "./components/FilePanel/DefaultTabs/UploadTab.js";
 export * from "./components/FilePanel/FilePanel.js";

@@ -264,12 +264,6 @@ const testComponents: Components = {
     Label: Container,
     Loader: Empty,
   },
-  GridSuggestionMenu: {
-    Root: Container,
-    EmptyItem: Container,
-    Item: Container,
-    Loader: Container,
-  },
   TableHandle: { Root: Container, ExtendButton: Container },
   Comments: {
     Card: Container,

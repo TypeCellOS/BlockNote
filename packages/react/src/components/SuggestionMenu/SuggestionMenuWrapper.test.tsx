@@ -9,7 +9,6 @@ import {
   vi,
 } from "vite-plus/test";
 
-import { GridSuggestionMenuWrapper } from "./GridSuggestionMenu/GridSuggestionMenuWrapper.js";
 import { SuggestionMenuWrapper } from "./SuggestionMenuWrapper.js";
 
 const mocks = vi.hoisted(() => ({
@@ -45,15 +44,6 @@ vi.mock("./hooks/useSuggestionMenuKeyboardNavigation.js", () => ({
   }),
 }));
 
-vi.mock(
-  "./GridSuggestionMenu/hooks/useGridSuggestionMenuKeyboardNavigation.js",
-  () => ({
-    useGridSuggestionMenuKeyboardNavigation: () => ({
-      selectedIndex: mocks.selectedIndex,
-    }),
-  }),
-);
-
 type ContentEditableProps = {
   "aria-activedescendant"?: string;
   "aria-controls"?: string;
@@ -87,7 +77,7 @@ function Menu() {
   return null;
 }
 
-function renderWrapper(type: "list" | "grid") {
+function renderWrapper() {
   const commonProps = {
     query: "",
     closeMenu: vi.fn(),
@@ -97,46 +87,32 @@ function renderWrapper(type: "list" | "grid") {
 
   return act(async () => {
     root.render(
-      type === "list" ? (
-        <SuggestionMenuWrapper
-          {...commonProps}
-          suggestionMenuComponent={Menu}
-        />
-      ) : (
-        <GridSuggestionMenuWrapper
-          {...commonProps}
-          columns={2}
-          gridSuggestionMenuComponent={Menu}
-        />
-      ),
+      <SuggestionMenuWrapper {...commonProps} suggestionMenuComponent={Menu} />,
     );
   });
 }
 
-describe.each(["list", "grid"] as const)(
-  "%s suggestion menu wrapper",
-  (type) => {
-    it("updates and clears aria-activedescendant", async () => {
-      mocks.selectedIndex = 0;
-      await renderWrapper(type);
-      expect(contentEditableProps["aria-activedescendant"]).toBe(
-        "bn-suggestion-menu-item-0",
-      );
+describe("list suggestion menu wrapper", () => {
+  it("updates and clears aria-activedescendant", async () => {
+    mocks.selectedIndex = 0;
+    await renderWrapper();
+    expect(contentEditableProps["aria-activedescendant"]).toBe(
+      "bn-suggestion-menu-item-0",
+    );
 
-      mocks.selectedIndex = 2;
-      await renderWrapper(type);
-      expect(contentEditableProps["aria-activedescendant"]).toBe(
-        "bn-suggestion-menu-item-2",
-      );
+    mocks.selectedIndex = 2;
+    await renderWrapper();
+    expect(contentEditableProps["aria-activedescendant"]).toBe(
+      "bn-suggestion-menu-item-2",
+    );
 
-      mocks.selectedIndex = undefined;
-      await renderWrapper(type);
-      expect(contentEditableProps["aria-activedescendant"]).toBeUndefined();
+    mocks.selectedIndex = undefined;
+    await renderWrapper();
+    expect(contentEditableProps["aria-activedescendant"]).toBeUndefined();
 
-      mocks.selectedIndex = 0;
-      await renderWrapper(type);
-      await act(async () => root.unmount());
-      expect(contentEditableProps["aria-activedescendant"]).toBeUndefined();
-    });
-  },
-);
+    mocks.selectedIndex = 0;
+    await renderWrapper();
+    await act(async () => root.unmount());
+    expect(contentEditableProps["aria-activedescendant"]).toBeUndefined();
+  });
+});

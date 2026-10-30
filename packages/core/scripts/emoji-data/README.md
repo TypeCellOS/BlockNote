@@ -27,8 +27,7 @@ against the shared English data before writing positional locale rows.
 
 Search tags are compacted before encoding: empty tags, case-insensitive duplicates,
 and tags contained in the label are removed. Compaction uses locale-independent
-Unicode casing (equivalent to English casing). Runtime search still
-uses the data's locale, as described below.
+Unicode casing (equivalent to English casing), matching Frimousse's runtime search.
 
 Extra-locale labels prefer CLDR, then the overlay, then the English base. Tags
 are concatenated in CLDR → overlay → English order and compacted once by the
@@ -54,11 +53,6 @@ for their canonical locale. This avoids decoding another 1,906 emoji objects for
 each alias or concurrent request; rejected loads are evicted so they can retry.
 Fallback removes locale subtags from right to left and resolves aliases at each
 step, preserving scripts (`zh-Hant-TW`) and regional aliases (`no-NO`).
-
-Call `searchEmojis(data.emojis, query, data.locale)` for locale-aware casing of
-both labels and tags, including any English search aliases in localized data.
-The locale is optional and defaults to English. Every language uses
-`toLocaleLowerCase`; the locale is normalized to its language once per search.
 
 ## Size comparison
 
