@@ -57,6 +57,11 @@
       "types": "./types/src/index.d.ts",
       "import": "./dist/blocknote-server-util.js",
       "default": "./dist/blocknote-server-util.js"
+    },
+    "./dom": {
+      "types": "./types/src/dom.d.ts",
+      "import": "./dist/blocknote-server-util-dom.js",
+      "default": "./dist/blocknote-server-util-dom.js"
     }
   },
   "scripts": {

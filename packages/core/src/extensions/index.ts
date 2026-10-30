@@ -6,6 +6,7 @@ export * from "./History/History.js";
 export * from "./InlineContentBoundaryEdit/InlineContentBoundaryEdit.js";
 export * from "./LinkToolbar/LinkToolbar.js";
 export * from "./LinkToolbar/protocols.js";
+export * from "./Loading/Loading.js";
 export * from "./NodeSelectionKeyboard/NodeSelectionKeyboard.js";
 export * from "./Placeholder/Placeholder.js";
 export * from "./PositionMapping/PositionMapping.js";

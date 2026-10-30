@@ -71,6 +71,11 @@ each alias or concurrent request; rejected loads are evicted so they can retry.
 Fallback removes locale subtags from right to left and resolves aliases at each
 step, preserving scripts (`zh-Hant-TW`) and regional aliases (`no-NO`).
 
+Call `searchEmojis(data.emojis, query, data.locale)` for locale-aware casing of
+both labels and tags, including any English search aliases in localized data.
+The locale is optional and defaults to English. Every language uses
+`toLocaleLowerCase`; the locale is normalized to its language once per search.
+
 ## Shortcode coverage and shared size
 
 Shortcodes are stored once in the shared module, not repeated in the 24 locale

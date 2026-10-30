@@ -51,6 +51,8 @@ export function useExtensionState<
   ctx?: {
     editor?: BlockNoteEditor<any, any, any>;
     selector?: (state: NoInfer<ExtractStore<TStore>>) => TSelected;
+    /** Custom selector equality check. Defaults to a shallow comparison. */
+    equalityFn?: (a: NoInfer<TSelected>, b: NoInfer<TSelected>) => boolean;
   },
 ): TSelected {
   const extension = useExtension(
@@ -61,5 +63,9 @@ export function useExtensionState<
   if (!store) {
     throw new Error("Store not found on plugin", { cause: { plugin } });
   }
-  return useStore<ExtractStore<TStore>, TSelected>(store, ctx?.selector as any);
+  return useStore<ExtractStore<TStore>, TSelected>(
+    store,
+    ctx?.selector,
+    ctx?.equalityFn,
+  );
 }

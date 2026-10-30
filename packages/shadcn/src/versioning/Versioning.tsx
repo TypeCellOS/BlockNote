@@ -94,7 +94,7 @@ export const Snapshot = forwardRef<
     name,
     date,
     restoredFrom,
-    secondaryLabel,
+    users,
     comparingLabel,
     comparingIcon,
     ...rest
@@ -144,11 +144,28 @@ export const Snapshot = forwardRef<
             {restoredFrom}
           </div>
         )}
-        {secondaryLabel && (
-          <div className="bn-snapshot-secondary-label text-muted-foreground leading-[1.3]">
-            {secondaryLabel}
+        {users?.length ? (
+          <div className="bn-snapshot-users leading-[1.3]">
+            {users.map((user, index) => (
+              <span className="bn-snapshot-user" key={index}>
+                {index > 0 && <span aria-hidden="true">·</span>}
+                {typeof user !== "string" && user.color && (
+                  <span
+                    className="bn-snapshot-user-color"
+                    aria-hidden="true"
+                    style={{
+                      color: user.color,
+                      ...{
+                        "--bn-user-color-light": user.colorLight ?? user.color,
+                      },
+                    }}
+                  />
+                )}
+                <span>{typeof user === "string" ? user : user.username}</span>
+              </span>
+            ))}
           </div>
-        )}
+        ) : null}
       </div>
       {actions && (
         <div

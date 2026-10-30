@@ -18,6 +18,7 @@ import type {
 } from "../../schema/index.js";
 import { CollaborationOptions } from "./index.js";
 import { ForkYDocExtension } from "./ForkYDoc.js";
+import { LoadingExtension } from "../../extensions/Loading/Loading.js";
 
 /**
  * Maps a Y attribution to BlockNote's `y-attributed-*` mark attrs.
@@ -103,69 +104,80 @@ export const YSyncExtension = createExtension(
       | "getAttributionMarkClassName"
     >
   >) => {
+    // Persist across mounts: after syncing an empty document, the fragment can
+    // still be empty and the provider can report unsynced on disconnect.
+    let ready = false;
     return {
       key: "ySync",
       fragment: options.fragment,
-      mount: ({ signal }: { signal: AbortSignal }) => {
+      mount({ signal }: { signal: AbortSignal }) {
+        // Bind early so remote content can arrive, but prevent edits to an
+        // empty document that may still be loading. Cached content is safe
+        // to edit offline without waiting for the provider.
+        const { fragment, provider } = options;
+        const synced =
+          provider && "synced" in provider ? provider.synced : undefined;
+        ready ||= fragment.length > 0 || synced !== false;
+
+        if (!ready && provider) {
+          if (!("on" in provider) || typeof provider.on !== "function") {
+            throw new Error(
+              "YSync: an unsynced provider must support sync events",
+            );
+          }
+          const loading = editor.getExtension(LoadingExtension);
+          const releaseLoading = loading?.acquire() ?? (() => {});
+
+          function onSynced(synced: boolean) {
+            if (synced !== true || ready || signal.aborted) {
+              return;
+            }
+            ready = true;
+            releaseLoading();
+          }
+          function onContent() {
+            onSynced(fragment.length > 0);
+          }
+
+          fragment.observe(onContent);
+          provider.on("synced", onSynced);
+          signal.addEventListener(
+            "abort",
+            () => {
+              fragment.unobserve(onContent);
+              if ("off" in provider && typeof provider.off === "function") {
+                provider.off("synced", onSynced);
+              }
+              releaseLoading();
+            },
+            { once: true },
+          );
+          // Content or synchronization may have arrived during setup.
+          onContent();
+          if ("synced" in provider && provider.synced === true) {
+            onSynced(true);
+          }
+        }
+
         // The sync plugin reconnects an existing configuration when its view is
         // recreated. Do not switch an active suggestion editor back to the
         // base fragment on remount.
         if (
+          signal.aborted ||
           ySyncPluginKey.getState(editor.prosemirrorState)?.ytype ||
           editor.getExtension(ForkYDocExtension)?.store.state.isForked
         ) {
           return;
         }
 
-        const configure = () => {
-          if (
-            signal.aborted ||
-            editor.getExtension(ForkYDocExtension)?.store.state.isForked
-          ) {
-            return;
-          }
-          editor.exec(
-            configureYProsemirror({
-              ytype: options.fragment,
-              // purposefully not passing `renderer` here, this is only for syncing the main doc, not switching to suggestion mode
-              // In the future, we may want view suggestion mode to be the default, and then we can decide how to indicate that through the options.
-              // For now though, we are leaving suggestion mode as experimental and must be explicitly enabled through the SuggestionsExtension.
-            }),
-          );
-        };
-
-        if (
-          options.provider &&
-          "synced" in options.provider &&
-          typeof options.provider.synced === "boolean"
-        ) {
-          if (options.provider["synced"]) {
-            configure();
-          } else if (
-            "on" in options.provider &&
-            typeof options.provider.on === "function"
-          ) {
-            const provider = options.provider;
-            const onSynced = (synced: boolean) => {
-              if (synced) {
-                configure();
-              }
-            };
-            options.provider.on("synced", onSynced);
-            return () => {
-              if ("off" in provider && typeof provider.off === "function") {
-                provider.off("synced", onSynced);
-              }
-            };
-          } else {
-            throw new Error(
-              "YSyncExtension: provider must have a 'synced' boolean or an 'on' method to listen for 'sync'",
-            );
-          }
-        } else {
-          configure();
-        }
-        return;
+        editor.exec(
+          configureYProsemirror({
+            ytype: options.fragment,
+            // purposefully not passing `renderer` here, this is only for syncing the main doc, not switching to suggestion mode
+            // In the future, we may want view suggestion mode to be the default, and then we can decide how to indicate that through the options.
+            // For now though, we are leaving suggestion mode as experimental and must be explicitly enabled through the SuggestionsExtension.
+          }),
+        );
       },
       prosemirrorPlugins: [
         syncPlugin({

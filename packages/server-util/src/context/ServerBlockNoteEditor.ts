@@ -25,12 +25,35 @@ import {
 
 import { BlockNoteViewRaw } from "@blocknote/react";
 import { Node } from "@tiptap/pm/model";
-import * as jsdom from "jsdom";
 import * as React from "react";
 import { createElement } from "react";
 import { flushSync } from "react-dom";
 import { createRoot } from "react-dom/client";
 import type * as Y from "yjs";
+
+function getDOMDocument(document?: Document): Document {
+  document ??= globalThis.document;
+  const window = document?.defaultView;
+  if (!window) {
+    throw new Error(
+      "ServerBlockNoteEditor requires a document with a window (defaultView). Pass a document, such as getDocument() from @blocknote/server-util/dom, or define matching window and document globals.",
+    );
+  }
+
+  // React can access globals after an export returns. Bind once, never swap.
+  if (
+    typeof globalThis.window === "undefined" &&
+    typeof globalThis.document === "undefined"
+  ) {
+    Object.assign(globalThis, { window, document });
+  }
+  if (globalThis.window !== window || globalThis.document !== document) {
+    throw new Error(
+      "ServerBlockNoteEditor found partial or conflicting DOM globals. Use one document consistently, or remove partial or conflicting globals before initializing the rendering environment.",
+    );
+  }
+  return document;
+}
 
 /**
  * Use the ServerBlockNoteEditor to interact with BlockNote documents in a server (nodejs) environment.
@@ -46,50 +69,30 @@ export class ServerBlockNoteEditor<
   public readonly editor: BlockNoteEditor<BSchema, ISchema, SSchema>;
 
   /**
-   * We currently use a JSDOM instance to mock document and window methods
-   *
-   * A possible improvement could be to make this:
-   * a) pluggable so other shims can be used as well
-   * b) obsolete, but for this all blocks should be React based and we need to remove all references to document / window
-   *    from the core / react package. (and even then, it's likely some custom blocks would still use document / window methods)
+   * Calls a function with the supplied document, falling back to the global DOM.
+   * Nested and concurrent exports use the same globals without swapping them.
    */
-  private jsdom = new jsdom.JSDOM();
-
-  /**
-   * Calls a function with mocking window and document using JSDOM
-   *
-   * We could make this obsolete by passing in a document / window object to the render / serialize methods of Blocks
-   */
-  public async _withJSDOM<T>(fn: () => Promise<T>) {
-    const prevWindow = globalThis.window;
-    const prevDocument = globalThis.document;
-    globalThis.document = this.jsdom.window.document;
-    (globalThis as any).window = this.jsdom.window;
-    (globalThis as any).window.__TEST_OPTIONS = (
-      prevWindow as any
-    )?.__TEST_OPTIONS;
-    try {
-      return await fn();
-    } finally {
-      globalThis.document = prevDocument;
-      globalThis.window = prevWindow;
-    }
+  public async _withDOM<T>(fn: (document: Document) => Promise<T>) {
+    return fn(getDOMDocument(this.document));
   }
 
   public static create<
     BSchema extends BlockSchema = DefaultBlockSchema,
     ISchema extends InlineContentSchema = DefaultInlineContentSchema,
     SSchema extends StyleSchema = DefaultStyleSchema,
-  >(options: Partial<BlockNoteEditorOptions<BSchema, ISchema, SSchema>> = {}) {
-    return new ServerBlockNoteEditor(options) as ServerBlockNoteEditor<
-      BSchema,
-      ISchema,
-      SSchema
-    >;
+  >(
+    options: Partial<BlockNoteEditorOptions<BSchema, ISchema, SSchema>> = {},
+    document?: Document,
+  ) {
+    return new ServerBlockNoteEditor(
+      options,
+      document,
+    ) as ServerBlockNoteEditor<BSchema, ISchema, SSchema>;
   }
 
   protected constructor(
     options: Partial<BlockNoteEditorOptions<any, any, any>>,
+    private readonly document?: Document,
   ) {
     this.editor = BlockNoteEditor.create(options) as any;
   }
@@ -186,14 +189,14 @@ export class ServerBlockNoteEditor<
   public async blocksToHTMLLossy(
     blocks: PartialBlock<BSchema, ISchema, SSchema>[],
   ): Promise<string> {
-    return this._withJSDOM(async () => {
+    return this._withDOM(async (document) => {
       const exporter = createExternalHTMLExporter(
         this.editor.pmSchema,
         this.editor,
       );
 
       return exporter.exportBlocks(blocks, {
-        document: this.jsdom.window.document,
+        document,
       });
     });
   }
@@ -210,14 +213,14 @@ export class ServerBlockNoteEditor<
   public async blocksToFullHTML(
     blocks: PartialBlock<BSchema, ISchema, SSchema>[],
   ): Promise<string> {
-    return this._withJSDOM(async () => {
+    return this._withDOM(async (document) => {
       const exporter = createInternalHTMLSerializer(
         this.editor.pmSchema,
         this.editor,
       );
 
       return exporter.serializeBlocks(blocks, {
-        document: this.jsdom.window.document,
+        document,
       });
     });
   }
@@ -232,7 +235,7 @@ export class ServerBlockNoteEditor<
   public async tryParseHTMLToBlocks(
     html: string,
   ): Promise<Block<BSchema, ISchema, SSchema>[]> {
-    return this._withJSDOM(async () => {
+    return this._withDOM(async () => {
       return this.editor.tryParseHTMLToBlocks(html);
     });
   }
@@ -248,9 +251,9 @@ export class ServerBlockNoteEditor<
   public async blocksToMarkdownLossy(
     blocks: PartialBlock<BSchema, ISchema, SSchema>[],
   ): Promise<string> {
-    return this._withJSDOM(async () => {
+    return this._withDOM(async (document) => {
       return blocksToMarkdown(blocks, this.editor.pmSchema, this.editor, {
-        document: this.jsdom.window.document,
+        document,
       });
     });
   }
@@ -265,7 +268,7 @@ export class ServerBlockNoteEditor<
   public async tryParseMarkdownToBlocks(
     markdown: string,
   ): Promise<Block<BSchema, ISchema, SSchema>[]> {
-    return this._withJSDOM(async () => {
+    return this._withDOM(async () => {
       return this.editor.tryParseMarkdownToBlocks(markdown);
     });
   }
@@ -285,10 +288,8 @@ export class ServerBlockNoteEditor<
     );
    */
   public async withReactContext<T>(comp: React.FC<any>, fn: () => Promise<T>) {
-    return this._withJSDOM(async () => {
-      const tmpRoot = createRoot(
-        this.jsdom.window.document.createElement("div"),
-      );
+    return this._withDOM(async (document) => {
+      const tmpRoot = createRoot(document.createElement("div"));
 
       flushSync(() => {
         tmpRoot.render(
@@ -314,7 +315,6 @@ export class ServerBlockNoteEditor<
         return await fn();
       } finally {
         tmpRoot.unmount();
-        await new Promise((resolve) => setTimeout(resolve, 3));
       }
     });
   }
