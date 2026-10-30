@@ -465,6 +465,10 @@ on touch devices (e.g. the mobile formatting toolbar). */
   height: fit-content;
   justify-items: center;
   max-height: inherit;
+  box-sizing: border-box;
+  max-width: 100vw;
+  overflow-x: auto;
+  overscroll-behavior-x: none;
   overflow-y: auto;
   padding: 20px;
 }
