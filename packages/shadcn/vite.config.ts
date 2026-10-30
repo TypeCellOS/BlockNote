@@ -68,6 +68,16 @@ export default defineConfig(
           // make sure to externalize deps that shouldn't be bundled
           // into your library
           external: (source) => {
+            // Bundle lucide-react into the output (tree-shaken) so consumers
+            // don't need to install it as a runtime dependency.
+            const bundledDeps = ["lucide-react"];
+            if (
+              bundledDeps.some(
+                (dep) => source === dep || source.startsWith(dep + "/"),
+              )
+            ) {
+              return false;
+            }
             if (
               Object.keys({
                 ...pkg.dependencies,
