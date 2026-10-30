@@ -240,7 +240,11 @@ describe("Check Emoji Picker Functionality", () => {
       const selected = document.querySelector<HTMLButtonElement>(
         ".bn-frimousse-emoji[data-selected]",
       );
-      if (selected?.textContent !== "🔟") {
+      if (
+        selected?.closest("[aria-rowindex]")?.getAttribute("aria-rowindex") !==
+          "1" ||
+        selected.getAttribute("aria-colindex") !== "3"
+      ) {
         throw new Error("Selection did not clamp to the partial row");
       }
       return selected;
@@ -300,7 +304,7 @@ describe("Check Emoji Picker Functionality", () => {
       if (key === "ArrowRight" || key === "ArrowDown") {
         await userEvent.keyboard("{ArrowRight}".repeat(8) + "{ArrowDown}");
         await waitForSelector(
-          '.bn-frimousse-emoji[data-selected][aria-label="Keycap: 10"]',
+          '[aria-rowindex="1"] .bn-frimousse-emoji[data-selected][aria-colindex="3"]',
         );
       }
       const offset = editorCaretOffset(editor);
@@ -377,7 +381,7 @@ describe("Check Emoji Picker Functionality", () => {
     const editor = await waitForSelector(EDITOR_SELECTOR);
     await userEvent.keyboard(":keycap");
     await waitForSelector(
-      '.bn-frimousse-emoji[data-selected][aria-label="Keycap: #"]',
+      '[aria-rowindex="0"] .bn-frimousse-emoji[data-selected][aria-colindex="0"]',
     );
     await userEvent.keyboard("{ArrowRight}");
 
@@ -385,7 +389,10 @@ describe("Check Emoji Picker Functionality", () => {
       const selected = document.querySelector(
         ".bn-frimousse-emoji[data-selected]",
       );
-      expect(selected?.getAttribute("aria-label")).toBe("Keycap: *");
+      expect(selected?.getAttribute("aria-colindex")).toBe("1");
+      expect(
+        selected?.closest("[aria-rowindex]")?.getAttribute("aria-rowindex"),
+      ).toBe("0");
       expect(selected?.getAttribute("aria-selected")).toBe("true");
       expect(
         document.querySelectorAll('.bn-frimousse-emoji[aria-selected="true"]'),
@@ -394,7 +401,8 @@ describe("Check Emoji Picker Functionality", () => {
     });
 
     // Query again after Frimousse's asynchronous filtering/virtualization.
-    const firstSelector = '.bn-frimousse-emoji[aria-label="Keycap: #"]';
+    const firstSelector =
+      '[aria-rowindex="0"] .bn-frimousse-emoji[aria-colindex="0"]';
     const first = await waitForSelector(firstSelector);
     first.dispatchEvent(new PointerEvent("pointerover", { bubbles: true }));
     await new Promise(requestAnimationFrame);
@@ -457,11 +465,11 @@ describe("Check Emoji Picker Functionality", () => {
       const viewport = await waitForSelector("[frimousse-viewport]");
       await waitForSelectedEmoji();
 
-      // Native scrolling, like a wheel/scrollbar, must not cause the DOM
-      // observer to pull the unchanged keyboard selection back into view.
+      // Native scrolling, like a wheel/scrollbar, must not pull the unchanged
+      // keyboard selection back into view.
       async function scrollTo(top: number) {
         viewport.scrollTop = top;
-        // Allow scroll events, virtualization, and its MutationObserver to run.
+        // Allow scroll events, virtualization, and button effects to run.
         for (let frame = 0; frame < 3; frame++) {
           await new Promise(requestAnimationFrame);
         }

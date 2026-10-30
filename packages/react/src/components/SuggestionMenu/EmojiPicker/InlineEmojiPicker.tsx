@@ -7,6 +7,7 @@ import {
 } from "frimousse";
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -19,6 +20,7 @@ import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorDOMElement } from "../../../hooks/useEditorDomElement.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
 import { resolveBlockNoteEmojiData } from "../../../util/emojiPickerData.js";
+import { useMergeRefs } from "../../../util/mergeRefs.js";
 import { ActiveEmojiDisplay } from "../../Comments/FrimoussePicker.js";
 import { getSuggestionMenuItemId } from "../getSuggestionMenuItemId.js";
 import { useCloseSuggestionMenuNoItems } from "../hooks/useCloseSuggestionMenuNoItems.js";
@@ -31,20 +33,38 @@ import {
 } from "./emojiPickerModel.js";
 
 const SelectedEmojiContext = createContext<string | undefined>(undefined);
+const RegisterEmojiContext = createContext<
+  ((emoji: string, button: HTMLButtonElement) => () => void) | undefined
+>(undefined);
 const INITIAL_POSITION: EmojiPosition = { row: 0, column: 0 };
 
 function InlineEmojiPickerEmoji({
   emoji,
+  ref,
   ...props
 }: EmojiPickerListEmojiProps) {
   const selectedChar = useContext(SelectedEmojiContext);
   const selected = emoji.emoji === selectedChar;
+  const registerEmoji = useContext(RegisterEmojiContext);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const mergedRef = useMergeRefs([ref, buttonRef]);
+  const columnIndex = props["aria-colindex"];
+
+  useEffect(() => {
+    const button = buttonRef.current;
+    // Frimousse also renders these components in a hidden sizing row.
+    if (button?.closest("[aria-rowindex]")) {
+      return registerEmoji?.(emoji.emoji, button);
+    }
+    return undefined;
+  }, [emoji.emoji, columnIndex, registerEmoji]);
 
   return (
     <button
       type="button"
       className="bn-frimousse-emoji"
       {...props}
+      ref={mergedRef}
       data-selected={selected ? "" : undefined}
       // Editor navigation owns selection; Frimousse still handles pointer/clicks.
       data-active={undefined}
@@ -65,28 +85,17 @@ type ResolvedEmojiData = {
 };
 
 function findButtonAtPosition(
-  root: HTMLElement,
+  buttons: Map<string, HTMLButtonElement>,
   position: EmojiPosition,
   emoji: string,
 ): HTMLButtonElement | null {
-  const row = root.querySelector<HTMLElement>(
-    `[aria-rowindex="${position.row}"]`,
-  );
-  const button = row?.querySelectorAll<HTMLButtonElement>(
-    ".bn-frimousse-emoji",
-  )[position.column];
-  return button?.textContent === emoji ? button : null;
-}
-
-function markButtonSelected(
-  root: HTMLElement,
-  button: HTMLButtonElement,
-  selectedIndex: number,
-) {
-  root
-    .querySelectorAll<HTMLElement>("[id^='bn-suggestion-menu-item-']")
-    .forEach((element) => element.removeAttribute("id"));
-  button.id = getSuggestionMenuItemId(selectedIndex)!;
+  const button = buttons.get(emoji);
+  return button?.closest("[aria-rowindex]")?.getAttribute("aria-rowindex") ===
+    String(position.row) &&
+    button.getAttribute("aria-colindex") === String(position.column) &&
+    button.textContent === emoji
+    ? button
+    : null;
 }
 
 function scrollViewportTo(
@@ -133,6 +142,21 @@ function InlineEmojiPickerContent(props: {
     useBlockNoteContext()!.setContentEditableProps!;
   const dict = useDictionary();
   const [skinTone] = useSkinTone();
+  const buttons = useRef(new Map<string, HTMLButtonElement>());
+  const syncSelectedButton = useRef<(() => void) | undefined>(undefined);
+  const registerEmoji = useCallback(
+    (emoji: string, button: HTMLButtonElement) => {
+      buttons.current.set(emoji, button);
+      syncSelectedButton.current?.();
+      return () => {
+        if (buttons.current.get(emoji) === button) {
+          buttons.current.delete(emoji);
+          syncSelectedButton.current?.();
+        }
+      };
+    },
+    [],
+  );
 
   const rows = useMemo(() => (data ? getEmojiPickerRows(data) : []), [data]);
   const [selection, setSelection] = useState({
@@ -174,8 +198,7 @@ function InlineEmojiPickerContent(props: {
   }, [setContentEditableProps]);
 
   // Frimousse publishes its imperative Root ref after child layout effects.
-  // Wait until passive effects to synchronize the mounted button and observe
-  // asynchronous loading/virtualization.
+  // Wait until passive effects before scrolling to an unmounted selection.
   useEffect(() => {
     function setActiveDescendant(id: string | undefined) {
       setContentEditableProps((props) =>
@@ -193,16 +216,20 @@ function InlineEmojiPickerContent(props: {
     // Scroll only once per selection change. Subsequent virtualization updates
     // must keep accessibility in sync without undoing manual mouse scrolling.
     let scrollPending = true;
-    const pickerRoot = root;
     const selectedCharValue = selectedChar;
     const selectedIndexValue = selectedIndex;
+    let activeButton: HTMLButtonElement | null = null;
 
     function updateSelectedButton() {
       const btn = findButtonAtPosition(
-        pickerRoot,
+        buttons.current,
         selectedPosition,
         selectedCharValue,
       );
+      if (activeButton !== btn) {
+        activeButton?.removeAttribute("id");
+        activeButton = btn;
+      }
       if (!btn) {
         setActiveDescendant(undefined);
         return;
@@ -212,27 +239,21 @@ function InlineEmojiPickerContent(props: {
         scrollPending = false;
         btn.scrollIntoView({ block: "nearest", behavior: "instant" });
       }
-      markButtonSelected(pickerRoot, btn, selectedIndexValue);
+      btn.id = getSuggestionMenuItemId(selectedIndexValue)!;
       setActiveDescendant(btn.id);
     }
 
-    // Frimousse filters asynchronously and virtualizes rows independently of our
-    // selection. Track mounted buttons to keep aria-activedescendant valid when
-    // manual scrolling removes/restores them. Text changes also matter: changing
-    // skin tone can reuse the same button instead of mounting a new one.
-    const observer = new MutationObserver(updateSelectedButton);
-
-    observer.observe(root, {
-      characterData: true,
-      childList: true,
-      subtree: true,
-    });
-    if (!findButtonAtPosition(root, selectedPosition, selectedChar)) {
+    // Button effects report async filtering, virtualization and skin-tone changes.
+    syncSelectedButton.current = updateSelectedButton;
+    if (
+      !findButtonAtPosition(buttons.current, selectedPosition, selectedChar)
+    ) {
       scrollViewportTo(root, selectedPosition, selectedRow.categoryIndex);
     }
     updateSelectedButton();
     return () => {
-      observer.disconnect();
+      syncSelectedButton.current = undefined;
+      activeButton?.removeAttribute("id");
       setActiveDescendant(undefined);
     };
   }, [
@@ -268,10 +289,8 @@ function InlineEmojiPickerContent(props: {
         event.stopPropagation();
         // Frimousse schedules filtering asynchronously. Only insert once its
         // rendered grid has caught up with the keyboard model's selection.
-        const root = rootRef.current;
         if (
-          root &&
-          findButtonAtPosition(root, selectedPosition, selectedChar)
+          findButtonAtPosition(buttons.current, selectedPosition, selectedChar)
         ) {
           insertEmoji(selectedChar);
         }
@@ -287,7 +306,6 @@ function InlineEmojiPickerContent(props: {
     editorDOMElement,
     insertEmoji,
     query,
-    rootRef,
     selectedChar,
     selectedPosition,
   ]);
@@ -307,7 +325,9 @@ function InlineEmojiPickerContent(props: {
           {dict.emoji_picker.search_no_results}
         </EmojiPicker.Empty>
         <SelectedEmojiContext.Provider value={selectedChar}>
-          <EmojiPicker.List components={inlineEmojiPickerComponents} />
+          <RegisterEmojiContext.Provider value={registerEmoji}>
+            <EmojiPicker.List components={inlineEmojiPickerComponents} />
+          </RegisterEmojiContext.Provider>
         </SelectedEmojiContext.Provider>
       </EmojiPicker.Viewport>
       <div className="bn-frimousse-footer">
