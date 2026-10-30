@@ -319,13 +319,43 @@ describe("Check Emoji Picker Functionality", () => {
     async (key) => {
       await focusOnEditor();
       const editor = await waitForSelector(EDITOR_SELECTOR);
-      await userEvent.keyboard(":zzzzzz");
+      await userEvent.keyboard(":qq");
       expect((await waitForSelector(".bn-frimousse-empty")).textContent).toBe(
         "No emoji found",
       );
       await expectPickerToLeaveKeyUnhandled(editor, key);
     },
   );
+  test("should dismiss only after more than three unmatched query characters", async () => {
+    await focusOnEditor();
+    const editor = await waitForSelector(EDITOR_SELECTOR);
+    await userEvent.keyboard(":qqq");
+    await waitForSelector(".bn-frimousse-empty");
+    expect(document.querySelector(EMOJI_PICKER_SELECTOR)).not.toBeNull();
+
+    await userEvent.keyboard("q");
+    await vi.waitFor(() => {
+      expect(document.querySelector(EMOJI_PICKER_SELECTOR)).toBeNull();
+      expect(editor.getAttribute("aria-activedescendant")).toBeNull();
+      expect(editor.textContent).toBe(":qqqq");
+      expect(document.activeElement).toBe(editor);
+    });
+  });
+  test("should count unmatched characters from the last useful query", async () => {
+    await focusOnEditor();
+    await userEvent.keyboard(":frog");
+    await waitForSelectedEmoji();
+
+    await userEvent.keyboard("zzz");
+    await waitForSelector(".bn-frimousse-empty");
+    expect(document.querySelector(EMOJI_PICKER_SELECTOR)).not.toBeNull();
+
+    await userEvent.keyboard("z");
+    await vi.waitFor(() =>
+      expect(document.querySelector(EMOJI_PICKER_SELECTOR)).toBeNull(),
+    );
+    await waitForTextInEditor(":frogzzzz");
+  });
   test("should dismiss with Escape and continue typing at the same caret", async () => {
     await focusOnEditor();
     const editor = await waitForSelector(EDITOR_SELECTOR);

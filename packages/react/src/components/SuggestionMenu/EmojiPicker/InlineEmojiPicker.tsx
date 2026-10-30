@@ -21,6 +21,7 @@ import { useDictionary } from "../../../i18n/dictionary.js";
 import { resolveBlockNoteEmojiData } from "../../../util/emojiPickerData.js";
 import { ActiveEmojiDisplay } from "../../Comments/FrimoussePicker.js";
 import { getSuggestionMenuItemId } from "../getSuggestionMenuItemId.js";
+import { useCloseSuggestionMenuNoItems } from "../hooks/useCloseSuggestionMenuNoItems.js";
 import {
   EMOJI_PICKER_COLUMNS,
   filterEmojiData,
@@ -337,6 +338,12 @@ export function InlineEmojiPicker(props: {
         ? filterEmojiData(resolvedData.data, props.query)
         : undefined,
     [resolvedData, locale, props.query],
+  );
+  useCloseSuggestionMenuNoItems(
+    data?.emojis ?? [],
+    // Unresolved localized data is loading, not an unmatched query.
+    data ? props.query : undefined,
+    props.closeMenu,
   );
   const [resolveEmojiData] = useState(() => {
     const resolver: EmojiDataResolver = async (resolvedLocale, options) => {

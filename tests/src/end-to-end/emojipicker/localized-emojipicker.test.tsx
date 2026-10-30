@@ -18,13 +18,11 @@ test("searches and inserts from localized emoji data without a CDN", async () =>
     await userEvent.selectOptions(await waitForSelector("select"), "fr");
     await waitForSelector(EDITOR_SELECTOR);
     await focusOnEditor();
-    await userEvent.keyboard(":zzzzzz");
+    await userEvent.keyboard(":qq");
     expect((await waitForSelector(".bn-frimousse-empty")).textContent).toBe(
       "Aucun emoji trouvé",
     );
-    await userEvent.keyboard(
-      "{Backspace}{Backspace}{Backspace}{Backspace}{Backspace}{Backspace}",
-    );
+    await userEvent.keyboard("{Backspace}{Backspace}");
     await userEvent.keyboard("soleil");
     await userEvent.click(
       await waitForSelector('.bn-frimousse-emoji[aria-label="Soleil"]'),
