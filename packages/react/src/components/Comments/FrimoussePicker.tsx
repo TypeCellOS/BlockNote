@@ -27,7 +27,7 @@ type Props = {
   onEmojiSelect: (emoji: string) => void;
   onEscape?: () => void;
   locale: string;
-  dictionary?: Dictionary["emoji_picker"];
+  dictionary: Dictionary["emoji_picker"];
 };
 
 export default function FrimoussePicker({
@@ -36,7 +36,7 @@ export default function FrimoussePicker({
   locale,
   dictionary,
 }: Props) {
-  const placeholder = `${dictionary?.search ?? "Search"}…`;
+  const placeholder = `${dictionary.search}…`;
 
   return (
     <EmojiPicker.Root
@@ -51,16 +51,13 @@ export default function FrimoussePicker({
         }
       }}
     >
-      <EmojiPicker.Search
-        placeholder={dictionary?.search ?? "Search"}
-        autoFocus
-      />
+      <EmojiPicker.Search placeholder={dictionary.search} autoFocus />
       <EmojiPicker.Viewport>
         <EmojiPicker.Loading className="bn-frimousse-loading">
-          {dictionary?.loading ?? "Loading…"}
+          {dictionary.loading}
         </EmojiPicker.Loading>
         <EmojiPicker.Empty className="bn-frimousse-empty">
-          {dictionary?.search_no_results ?? "No emoji found."}
+          {dictionary.search_no_results}
         </EmojiPicker.Empty>
         <EmojiPicker.List />
       </EmojiPicker.Viewport>

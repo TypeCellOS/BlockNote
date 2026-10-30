@@ -1,3 +1,4 @@
+import { en } from "@blocknote/core/locales";
 import { flushSync } from "react-dom";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, expect, it, vi } from "vite-plus/test";
@@ -31,7 +32,13 @@ function renderPicker(
   document.body.append(host);
   root = createRoot(host);
   flushSync(() => {
-    root.render(<FrimoussePicker locale="en" onEmojiSelect={onEmojiSelect} />);
+    root.render(
+      <FrimoussePicker
+        locale="en"
+        dictionary={en.emoji_picker}
+        onEmojiSelect={onEmojiSelect}
+      />,
+    );
   });
 }
 
