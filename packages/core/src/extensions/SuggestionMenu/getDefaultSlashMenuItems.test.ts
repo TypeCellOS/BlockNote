@@ -12,12 +12,33 @@ afterEach(() => {
 });
 
 describe("slash-menu block conversion (#2236)", () => {
+  it("converts the existing paragraph to a quote at its start", () => {
+    editor = BlockNoteEditor.create({
+      initialContent: [
+        { id: "source", type: "paragraph", content: "Existing text" },
+      ],
+    });
+    // The suggestion menu removes its slash/query before invoking the item.
+    editor.setTextCursorPosition("source", "start");
+
+    insertOrUpdateBlockForSlashMenu(editor, { type: "quote" });
+
+    expect(editor.document).toHaveLength(1);
+    expect(editor.document[0]).toMatchObject({
+      id: "source",
+      type: "quote",
+      content: [{ type: "text", text: "Existing text", styles: {} }],
+    });
+    expect(editor.getTextCursorPosition().block.id).toBe("source");
+    expect(editor.prosemirrorState.selection.empty).toBe(true);
+    expect(editor.prosemirrorState.selection.$from.parentOffset).toBe(0);
+  });
+
   it.each([
-    ["start", 0],
     ["middle", 8],
     ["end", 13],
   ] as const)(
-    "converts the existing paragraph to a quote at its %s",
+    "inserts a new quote below when invoked at the paragraph's %s",
     (_position, offset) => {
       editor = BlockNoteEditor.create({
         initialContent: [
@@ -34,15 +55,18 @@ describe("slash-menu block conversion (#2236)", () => {
 
       insertOrUpdateBlockForSlashMenu(editor, { type: "quote" });
 
-      expect(editor.document).toHaveLength(1);
+      expect(editor.document).toHaveLength(2);
       expect(editor.document[0]).toMatchObject({
         id: "source",
-        type: "quote",
+        type: "paragraph",
         content: [{ type: "text", text: "Existing text", styles: {} }],
       });
-      expect(editor.getTextCursorPosition().block.id).toBe("source");
+      expect(editor.document[1]).toMatchObject({ type: "quote", content: [] });
+      expect(editor.getTextCursorPosition().block.id).toBe(
+        editor.document[1].id,
+      );
       expect(editor.prosemirrorState.selection.empty).toBe(true);
-      expect(editor.prosemirrorState.selection.$from.parentOffset).toBe(offset);
+      expect(editor.prosemirrorState.selection.$from.parentOffset).toBe(0);
     },
   );
 
@@ -52,7 +76,7 @@ describe("slash-menu block conversion (#2236)", () => {
         { id: "source", type: "paragraph", content: "Existing text" },
       ],
     });
-    editor.setTextCursorPosition("source", "end");
+    editor.setTextCursorPosition("source", "start");
 
     insertOrUpdateBlockForSlashMenu(editor, {
       type: "quote",
