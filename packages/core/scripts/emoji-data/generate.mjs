@@ -245,10 +245,11 @@ const EXTRA_LOCALE_METADATA = {
 };
 
 function writeFrimousseCommonData(frimousseDir, data) {
-  const { categoryIndices, emojis } = encodeFrimousseCommonData(data);
+  const { categoryIndices, emojis, shortcodes } =
+    encodeFrimousseCommonData(data);
   writeFileSync(
     resolve(frimousseDir, "common.ts"),
-    `// THIS FILE IS AUTO-GENERATED. DO NOT EDIT DIRECTLY.\n// Regenerate with: pnpm --filter @blocknote/core generate-emoji-data\n\nexport const frimousseCategoryIndices: string = ${JSON.stringify(categoryIndices)};\nexport const frimousseCommonData: string = ${JSON.stringify(emojis)};\n`,
+    `// THIS FILE IS AUTO-GENERATED. DO NOT EDIT DIRECTLY.\n// Regenerate with: pnpm --filter @blocknote/core generate-emoji-data\n\nexport const frimousseCategoryIndices: string = ${JSON.stringify(categoryIndices)};\nexport const frimousseCommonData: string = ${JSON.stringify(emojis)};\nexport const frimousseShortcodes: string = ${JSON.stringify(shortcodes)};\n`,
   );
 }
 
@@ -274,7 +275,10 @@ function generateFrimousseData() {
   // Load English base data (needed for extra locales)
   const enEmojis = require("emojibase-data/en/data.json");
   const enMessages = require("emojibase-data/en/messages.json");
-  const commonData = buildFrimousseData(enEmojis, enMessages, "en");
+  // The same iamcal/emoji-data short names used by legacy Emoji Mart. Keying by
+  // canonical hexcode works for every locale, including presentation selectors.
+  const shortcodes = require("emojibase-data/en/shortcodes/iamcal.json");
+  const commonData = buildFrimousseData(enEmojis, enMessages, "en", shortcodes);
   writeFrimousseCommonData(frimousseDir, commonData);
 
   // Generate for standard emojibase locales

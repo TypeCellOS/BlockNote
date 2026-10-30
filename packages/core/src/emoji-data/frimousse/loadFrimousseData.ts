@@ -1,5 +1,9 @@
 import type { FrimousseEmojiData } from "./types.js";
-import { frimousseCategoryIndices, frimousseCommonData } from "./common.js";
+import {
+  frimousseCategoryIndices,
+  frimousseCommonData,
+  frimousseShortcodes,
+} from "./common.js";
 
 type DataModule = { default: string };
 
@@ -54,8 +58,12 @@ function decodeFrimousseData(encoded: string): FrimousseEmojiData {
     encoded.split("\n");
   const categoryIndices = frimousseCategoryIndices.split(",").map(Number);
   const commonEmojis = frimousseCommonData.split("\n");
+  const shortcodes = frimousseShortcodes.split("\n");
 
-  if (localizedEmojis.length !== commonEmojis.length) {
+  if (
+    localizedEmojis.length !== commonEmojis.length ||
+    shortcodes.length !== commonEmojis.length
+  ) {
     throw new Error(`Invalid Frimousse data for locale ${locale}`);
   }
 
@@ -72,6 +80,18 @@ function decodeFrimousseData(encoded: string): FrimousseEmojiData {
       const [emoji, category, version, countryFlag, encodedSkins] =
         common.split("\t");
       const [label, encodedTags] = localizedEmojis[index].split("\t");
+      const tags = encodedTags ? encodedTags.split("|") : [];
+      // Keep localized keyword order; compact appended aliases just like the
+      // generator. English casing matches Frimousse's search and compaction.
+      const seen = new Set(tags.map((tag) => tag.toLowerCase()));
+      const normalizedLabel = label.toLowerCase();
+      for (const shortcode of shortcodes[index].split("|")) {
+        const normalized = shortcode.toLowerCase();
+        if (!seen.has(normalized) && !normalizedLabel.includes(normalized)) {
+          tags.push(shortcode);
+          seen.add(normalized);
+        }
+      }
       const skins = encodedSkins
         ? mapSkinTones((skinIndex) =>
             encodedSkins.replaceAll(
@@ -86,7 +106,7 @@ function decodeFrimousseData(encoded: string): FrimousseEmojiData {
         category: Number(category),
         version: Number(version),
         label,
-        tags: encodedTags ? encodedTags.split("|") : [],
+        tags,
         ...(countryFlag ? { countryFlag: true as const } : {}),
         ...(skins ? { skins } : {}),
       };

@@ -3,11 +3,51 @@ import { expect, it } from "vite-plus/test";
 
 // Pure transformations: no generator entry point or translation corpora needed.
 import {
+  buildFrimousseData,
   compactSearchTags,
   encodeFrimousseCommonData,
   encodeFrimousseData,
   localizeEmoji,
 } from "./format.mjs";
+
+it("encodes canonical single/multiple shortcodes once, without changing localized tags", () => {
+  const data = buildFrimousseData(
+    [
+      {
+        hexcode: "1F60D",
+        emoji: "😍",
+        label: "amour",
+        group: 0,
+        version: 1,
+        tags: ["aimer"],
+      },
+      { hexcode: "1F44D", emoji: "👍️", label: "pouce", group: 0, version: 1 },
+      {
+        hexcode: "1FAE9",
+        emoji: "🫩",
+        label: "fatigué",
+        group: 0,
+        version: 16,
+      },
+    ],
+    {
+      groups: [{ order: 0, key: "faces", message: "visages" }],
+      subgroups: [],
+      skinTones: [],
+    },
+    "fr",
+    { "1F60D": "heart_eyes", "1F44D": ["+1", "thumbsup", "THUMBSUP", ""] },
+  );
+  expect(encodeFrimousseCommonData(data)).toEqual({
+    categoryIndices: "0",
+    emojis: "😍\t0\t1\t\t\n👍️\t0\t1\t\t\n🫩\t0\t16\t\t",
+    shortcodes: "heart_eyes\n+1|thumbsup\n",
+  });
+  expect(data.emojis.map(({ tags }) => tags)).toEqual([["aimer"], [], []]);
+  expect(encodeFrimousseData(data, data)).toBe(
+    "fr\nVisages\n\nAmour\taimer\nPouce\nFatigué",
+  );
+});
 
 it.each([
   ["IRIS", ["iris", "I", "ISLAND", "island"], ["ISLAND"]],
@@ -69,6 +109,7 @@ it("encodes shared flags and skin templates, rejecting nonuniform variants", () 
   expect(encodeFrimousseCommonData(data)).toEqual({
     categoryIndices: "0,1",
     emojis: "🧑‍🤝‍🧑\t1\t12\t\t🧑|‍🤝‍🧑|\n🇨🇭\t1\t1\t1\t",
+    shortcodes: "\n",
   });
   emoji.skins.dark = "invalid";
   expect(() => encodeFrimousseCommonData(data)).toThrow(

@@ -60,7 +60,7 @@ function normalizeSearchText(value) {
   return value.replace(/\s+/g, " ").trim();
 }
 
-export function buildFrimousseData(emojis, messages, locale) {
+export function buildFrimousseData(emojis, messages, locale, shortcodes = {}) {
   const labelOverrides = EMOJIBASE_LABEL_OVERRIDES[locale];
   const countryFlagSubgroups = new Set(
     messages.subgroups
@@ -94,12 +94,15 @@ export function buildFrimousseData(emojis, messages, locale) {
   }
 
   const formattedEmojis = filteredEmojis.map((emoji) => {
+    const aliases = shortcodes[emoji.hexcode];
     const entry = {
       emoji: emoji.emoji,
       category: emoji.group,
       version: emoji.version,
       label: capitalize(normalizeSearchText(emoji.label), locale),
       tags: (emoji.tags ?? []).map(normalizeSearchText),
+      // Build-only metadata, encoded once in common.ts rather than per locale.
+      shortcodes: typeof aliases === "string" ? [aliases] : (aliases ?? []),
     };
     if (countryFlagSubgroups.has(emoji.subgroup)) {
       entry.countryFlag = true;
@@ -194,16 +197,27 @@ export function encodeFrimousseCommonData(data) {
           }
         });
       }
-      return [
+      const fields = [
         emoji.emoji,
         emoji.category,
         emoji.version,
         emoji.countryFlag ? "1" : "",
         skins,
-      ].join(FIELD_SEPARATOR);
+      ];
+      return fields.join(FIELD_SEPARATOR);
     })
     .join("\n");
-  return { categoryIndices, emojis };
+  // Group like data together for better gzip/Brotli compression, retaining
+  // positional alignment (including empty rows) with the shared emoji corpus.
+  const shortcodes = data.emojis
+    .map((emoji) =>
+      encodeList(
+        compactSearchTags("", emoji.shortcodes ?? []),
+        `shortcodes for ${emoji.emoji}`,
+      ),
+    )
+    .join("\n");
+  return { categoryIndices, emojis, shortcodes };
 }
 
 export function encodeFrimousseData(data, commonData) {
