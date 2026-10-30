@@ -891,6 +891,31 @@ export const examples = {
         readme:
           "By default, BlockNote's floating components (formatting toolbar, slash menu, table handles, etc.) mount next to the editor, inside its `bn-container` (or inside whatever you render `BlockNoteViewEditor` into). The `portalElements` prop on `BlockNoteView` lets you change that: globally via `default`, or per component by key. The menus and popovers a floating component opens follow it wherever it mounts.\n\nThis example renders two editors side-by-side, both wrapped in a small `overflow: hidden` container. The left editor uses the default, so the slash menu is clipped by the editor's bounds. The right editor passes `portalElements={{ default: document.body }}` so the floating components escape the wrapper and render fully.\n\n```tsx\n<BlockNoteView editor={editor} portalElements={{ default: document.body }} />\n```\n\n**Relevant Docs:**\n\n- [UI Components](/docs/react/components)\n- [Mobile Formatting Toolbar](/docs/react/components/formatting-toolbar#mobile-formatting-toolbar)",
       },
+      {
+        projectSlug: "table-reordering-visualization",
+        fullSlug: "ui-components/table-reordering-visualization",
+        pathFromRoot:
+          "examples/03-ui-components/21-table-reordering-visualization",
+        config: {
+          playground: true,
+          docs: false,
+          author: "must",
+          tags: [
+            "Intermediate",
+            "UI Components",
+            "Tables",
+            "Drag & Drop",
+            "Appearance & Styling",
+          ],
+        },
+        title: "Table Reordering Visualization",
+        group: {
+          pathFromRoot: "examples/03-ui-components",
+          slug: "ui-components",
+        },
+        readme:
+          "BlockNote gives table row/column dragging visual feedback out of the box: a\nsnapshot of the row/column follows the cursor, the row/column being dragged is\ntinted and outlined, and a drop indicator marks where it would land.\n\nThis example shows how to restyle a table - and those built-in drag\naffordances - to match your own product, using a Microsoft Loop-inspired look:\n\n- **Restyled tables**: rounded card look, muted header row, hairline\n  borders, and a row-hover highlight instead of a harsh black grid.\n- **Retuned drag affordances**: the built-in drag source highlight, drop\n  indicator and drag snapshot recolored to the same palette.\n\n## How It Works\n\nEverything here is CSS - no additional extensions or event handling.\nBlockNote's `TableHandlesExtension` owns the whole drag lifecycle and\nexposes it through classes you can target:\n\n| Class                      | What it's on                                   |\n| -------------------------- | ---------------------------------------------- |\n| `bn-table-drag-source-row` | every cell of the row being dragged            |\n| `bn-table-drag-source-col` | every cell of the column being dragged         |\n| `bn-table-drop-cursor`     | a bar on the edge the row/column would drop at |\n| `bn-table-drag-preview`    | the snapshot shown next to the cursor          |\n\nThe first three are ProseMirror decorations inside the editor, so they're\nscoped under `.bn-editor [data-content-type=\"table\"]` like any other table\nstyle. The snapshot lives outside the live editor, but copies its DOM styling\ncontext, so those same table styles apply to it. Its outer wrapper also carries\n`bn-table-drag-preview` for preview-specific overrides. The source tint uses\n`--bn-table-drag-source-color` so it layers over existing cell backgrounds.\n\n`tableStyles.css` does the restyling; `App.tsx` provides an initial table with\n`headerRows: 1` so the header styling is visible right away.\n\n## Known Limitations\n\n- **Keyboard and touch**: BlockNote's table drag handles are `draggable` +\n  `onDragStart` only today (see `TableHandle.tsx`) - there's no\n  keyboard-operable reorder path, and native HTML5 drag-and-drop isn't\n  supported on touch browsers at all. Both are gaps in BlockNote's table-drag\n  feature as a whole, not something this example introduces or fixes.\n- **Accessibility**: for the same reason, there's no keyboard focus\n  restoration to verify after a reorder - the interaction can't be reached by\n  keyboard in the first place yet.\n\n**Relevant Docs:**\n\n- [Tables](/docs/features/blocks/tables)\n- [Overriding CSS](/docs/react/styling-theming/overriding-css)\n- [Editor Setup](/docs/getting-started/editor-setup)",
+      },
     ],
   },
   theming: {
