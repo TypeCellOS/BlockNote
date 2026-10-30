@@ -107,6 +107,7 @@ export function wrapTableRows(f: Fragment, schema: Schema) {
  * which cases are excluded.
  */
 export function transformPasted(slice: Slice, view: EditorView) {
+  slice = unwrapNestedSliceStart(slice, view);
   let f = Fragment.from(slice.content);
   f = wrapTableRows(f, view.state.schema);
 
@@ -177,6 +178,62 @@ export function transformPasted(slice: Slice, view: EditorView) {
     }
   }
   return new Slice(f, slice.openStart, slice.openEnd);
+}
+
+/**
+ * Copying a selection that starts in a nested block and ends in a shallower
+ * one produces a slice whose start is open deeper than its end, e.g.:
+ *
+ * `blockGroup > blockContainer > blockGroup > blockContainer > paragraph`
+ *
+ * The outer `blockContainer` has no content of its own, only the nested
+ * `blockGroup`. When the slice's start is open deeper than the paste
+ * position, ProseMirror has nowhere to put the slice's outermost level and
+ * drops it, i.e. every block after the nested one, and sometimes the whole
+ * paste.
+ *
+ * To fix this, we unwrap these empty outer `blockContainer`s, moving their
+ * nested blocks up a level, until the slice fits. Pasting into a block that
+ * is nested deeply enough already works, so the slice is left as-is.
+ */
+function unwrapNestedSliceStart(slice: Slice, view: EditorView): Slice {
+  // `transformPasted` is also called for drop events, where the slice will be
+  // inserted at the drop position rather than the current selection.
+  if (view.dragging) {
+    return slice;
+  }
+
+  const depth = view.state.selection.$from.depth;
+  let content = slice.content;
+  let openStart = slice.openStart;
+
+  while (openStart > depth) {
+    const blockGroup = content.firstChild;
+    const blockContainer = blockGroup?.firstChild;
+    const nestedBlockGroup = blockContainer?.firstChild;
+    if (
+      content.childCount !== 1 ||
+      blockGroup?.type.name !== "blockGroup" ||
+      // The empty `blockContainer` must not also be the slice's end.
+      blockGroup.childCount < 2 ||
+      blockContainer?.type.name !== "blockContainer" ||
+      blockContainer.childCount !== 1 ||
+      nestedBlockGroup?.type.name !== "blockGroup"
+    ) {
+      break;
+    }
+
+    content = Fragment.from(
+      blockGroup.copy(
+        nestedBlockGroup.content.append(
+          blockGroup.content.cut(blockContainer.nodeSize),
+        ),
+      ),
+    );
+    openStart -= 2;
+  }
+
+  return new Slice(content, openStart, slice.openEnd);
 }
 
 /**
