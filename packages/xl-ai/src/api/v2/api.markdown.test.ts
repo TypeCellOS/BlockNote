@@ -536,7 +536,7 @@ describe("markdown", () => {
             {
               cells: [
                 { type: "tableCell", content: "merged", props: { colspan: 2 } },
-                "x",
+                { type: "tableCell", content: "x" },
               ],
             },
             { cells: ["a", "b", "c"] },
