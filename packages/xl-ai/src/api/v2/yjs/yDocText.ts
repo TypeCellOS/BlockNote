@@ -1,4 +1,4 @@
-import type { BlockNoteEditor } from "@blocknote/core";
+import { type BlockNoteEditor, docToBlocks } from "@blocknote/core";
 import {
   updateYFragment,
   yDocToBlocks,
@@ -14,6 +14,7 @@ import {
 } from "../api.js";
 import type { TextFormat } from "../formats/types.js";
 import { applyOperations } from "../operations/applyOperations.js";
+import { addMissingBlockIds } from "../operations/blockIds.js";
 
 export type YDocTextOptions = {
   format: TextFormat;
@@ -104,6 +105,9 @@ function docFromState(state: Uint8Array): Y.Doc {
  * marks that are not in the Block JSON stay, for example comments (if the
  * editor has the comments extension).
  *
+ * The copy is the document as an editor has it: an empty fragment gives one
+ * empty block, and each block has an ID.
+ *
  * Writes each ProseMirror step to `ydoc` alone, in one Yjs transaction. Thus,
  * each Yjs change is as small as its step, and other clients get one update.
  */
@@ -113,20 +117,24 @@ function writeText(
   fragmentName: string,
   options: TextUpdateOptions,
 ): TextUpdate {
+  const fragment = ydoc.getXmlFragment(fragmentName);
+  const read = yXmlFragmentToProseMirrorRootNode(fragment, editor.pmSchema);
+  const tr = EditorState.create({
+    doc: read.type.createAndFill(null, read.content) ?? read,
+  }).tr;
+  addMissingBlockIds(tr);
+
   const update = computeBlocksUpdate(editor, {
     ...options,
-    current: yDocToBlocks(editor, ydoc, fragmentName),
+    current: docToBlocks(tr.doc),
   });
-  if (update.operations.length === 0) {
+  applyOperations(tr, update.operations);
+  if (tr.steps.length === 0) {
     return update;
   }
 
-  const fragment = ydoc.getXmlFragment(fragmentName);
-  let doc = yXmlFragmentToProseMirrorRootNode(fragment, editor.pmSchema);
-  const tr = EditorState.create({ doc }).tr;
-  applyOperations(tr, update.operations);
-
   const meta = { mapping: new Map(), isOMark: new Map() };
+  let doc = tr.before;
   ydoc.transact(() => {
     updateYFragment(ydoc, fragment, doc, meta);
     for (const step of tr.steps) {

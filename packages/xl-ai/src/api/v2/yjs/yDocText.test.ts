@@ -8,7 +8,7 @@ import {
 import { describe, expect, it } from "vite-plus/test";
 import * as Y from "yjs";
 
-import { markdownFormat } from "../index.js";
+import { markdownFormat, plainTextFormat } from "../index.js";
 import {
   addComment,
   commentedText,
@@ -121,6 +121,47 @@ describe("updateYDocFromText", () => {
     Y.applyUpdate(replica, result.update);
 
     expect(yDocToBlocks(editor, replica)).toEqual(blocks());
+  });
+});
+
+describe.each([
+  { name: "markdown", format: markdownFormat },
+  { name: "plain text", format: plainTextFormat },
+])("empty and cleared documents ($name)", ({ format }) => {
+  const editor = BlockNoteEditor.create();
+
+  /** The IDs of all blocks in the Y.Doc, from its XML. */
+  function idsOf(ydoc: Y.Doc): (string | undefined)[] {
+    return [
+      ...ydoc
+        .getXmlFragment("prosemirror")
+        .createTreeWalker(
+          (node) =>
+            node instanceof Y.XmlElement && node.nodeName === "blockcontainer",
+        ),
+    ].map((node) => (node as Y.XmlElement).getAttribute("id"));
+  }
+
+  it("writes text to an empty Y.Doc", () => {
+    const ydoc = new Y.Doc();
+    updateYDocFromText(editor, ydoc, { format, text: "Hello" });
+
+    expect(getYDocText(editor, ydoc, { format }).trim()).toBe("Hello");
+    expect(idsOf(ydoc).every((id) => typeof id === "string")).toBe(true);
+  });
+
+  it("clears a document, and writes text again", () => {
+    const ydoc = blocksToYDoc(
+      editor,
+      BlockNoteEditor.create({
+        initialContent: [{ type: "paragraph", content: "Old text" }],
+      }).document,
+    );
+    updateYDocFromText(editor, ydoc, { format, text: "" });
+    updateYDocFromText(editor, ydoc, { format, text: "New text" });
+
+    expect(getYDocText(editor, ydoc, { format }).trim()).toBe("New text");
+    expect(idsOf(ydoc).every((id) => typeof id === "string")).toBe(true);
   });
 });
 

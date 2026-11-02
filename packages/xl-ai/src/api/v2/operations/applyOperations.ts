@@ -14,6 +14,7 @@ import type { Transaction } from "prosemirror-state";
 import { ReplaceStep, type Step } from "prosemirror-transform";
 
 import type { LensPartialBlock } from "../blocks/types.js";
+import { addMissingBlockIds } from "./blockIds.js";
 import { addInlineContentSteps } from "./inlineSteps.js";
 import type { BlockOperation } from "./types.js";
 
@@ -43,6 +44,9 @@ export function applyBlockOperations(
  * - Inline content changes through the smallest ProseMirror steps (see
  *   `addInlineContentSteps`).
  * - A move moves the ProseMirror node of the block, with its children.
+ *
+ * At the end, each block has an ID, also a block that ProseMirror made to
+ * fill an empty group.
  */
 export function applyOperations(
   tr: Transaction,
@@ -69,6 +73,7 @@ export function applyOperations(
         break;
     }
   }
+  addMissingBlockIds(tr);
 }
 
 function find(tr: Transaction, id: string) {
