@@ -8,6 +8,7 @@ import { UniqueID } from "@blocknote/core/extensions";
 
 import { alignBlocks } from "./alignment/alignBlocks.js";
 import { flattenBlocks } from "./blocks/flatten.js";
+import { BlockTree } from "./blocks/tree.js";
 import type { ContentKind, LensBlock } from "./blocks/types.js";
 import type { TextFormat } from "./formats/types.js";
 import { applyBlockOperations } from "./operations/applyOperations.js";
@@ -90,6 +91,11 @@ export type JSONUpdateOptions = {
    * `editor.document` from a read, with changes). A block with the ID of a
    * block in the document is that block. A block without an ID is a new
    * block. A missing field gets its default value.
+   *
+   * A block ID can identify only one block. Thus, a block gets a new ID if an
+   * earlier block of the JSON has its ID, or (with `base`) if its ID is not
+   * in `base` but is in the current document, as the ID of a block of
+   * another writer.
    */
   document: readonly PartialBlock<any, any, any>[];
   /** The document at the version that the client read (see {@link TextUpdateOptions}). */
@@ -103,15 +109,31 @@ export type JSONUpdateOptions = {
  * the blocks and fields that the client changed. With `base`, they keep the
  * changes of other writers (see `rebase/`).
  */
+/**
+ * The result of a JSON update: the update, or an error if the JSON is not a
+ * valid document for the schema of the editor (for example an unknown block
+ * type, or content of the wrong kind).
+ */
+export type JSONUpdate =
+  | (TextUpdate & { error?: undefined })
+  | { error: "invalid-document" };
+
 export function computeJSONUpdate(
   editor: BlockNoteEditor<any, any, any>,
   options: JSONUpdateOptions,
-): TextUpdate {
+): JSONUpdate {
   const current: LensBlock[] = editor.document;
   const base = options.base ?? current;
+  const target = toBlocks(
+    editor,
+    withUniqueIds(options.document, base, current),
+  );
+  if (target === undefined) {
+    return { error: "invalid-document" };
+  }
   return updateToTarget(
     editor,
-    { target: toBlocks(editor, options.document), warnings: [] },
+    { target, warnings: [] },
     { base, current, rebase: options.base !== undefined },
   );
 }
@@ -120,25 +142,72 @@ export function computeJSONUpdate(
 export function updateDocumentFromJSON(
   editor: BlockNoteEditor<any, any, any>,
   options: JSONUpdateOptions,
-): TextUpdate {
+): JSONUpdate {
   const update = computeJSONUpdate(editor, options);
-  applyBlockOperations(editor, update.operations);
+  if (update.error === undefined) {
+    applyBlockOperations(editor, update.operations);
+  }
   return update;
 }
 
-/** Full blocks with IDs, from partial blocks: through ProseMirror nodes, as the editor stores them. */
+/**
+ * Full blocks with IDs, from partial blocks: through ProseMirror nodes, as
+ * the editor stores them. Returns `undefined` if the blocks are not valid for
+ * the schema.
+ */
 function toBlocks(
   editor: BlockNoteEditor<any, any, any>,
   blocks: readonly PartialBlock<any, any, any>[],
-): LensBlock[] {
+): LensBlock[] | undefined {
   const schema = editor.pmSchema;
-  const nodes = blocks.map((block) => blockToNode(block, schema));
+  let nodes;
+  try {
+    nodes = blocks.map((block) => blockToNode(block, schema));
+  } catch {
+    // `blockToNode` throws for blocks that do not fit the schema. For JSON
+    // from a client, this is an expected failure.
+    return undefined;
+  }
   return docToBlocks(
     schema.nodes["doc"].create(
       null,
       schema.nodes["blockGroup"].create(null, nodes),
     ),
   );
+}
+
+/**
+ * Returns the blocks without IDs where an ID cannot identify the block: a
+ * later block with the ID of an earlier block, or a block with an ID that is
+ * not in `base` but is in `current` (a block of another writer). These
+ * blocks are new blocks, and get new IDs.
+ */
+function withUniqueIds(
+  blocks: readonly PartialBlock<any, any, any>[],
+  base: readonly LensBlock[],
+  current: readonly LensBlock[],
+): PartialBlock<any, any, any>[] {
+  const inBase = new Set(new BlockTree(base).ids);
+  const inCurrent = new Set(new BlockTree(current).ids);
+  const used = new Set<string>();
+  function fix(
+    block: PartialBlock<any, any, any>,
+  ): PartialBlock<any, any, any> {
+    const { id, children, ...fields } = block;
+    const keep =
+      typeof id === "string" &&
+      !used.has(id) &&
+      (inBase.has(id) || !inCurrent.has(id));
+    if (keep) {
+      used.add(id);
+    }
+    return {
+      ...fields,
+      ...(keep ? { id } : {}),
+      ...(children === undefined ? {} : { children: children.map(fix) }),
+    };
+  }
+  return blocks.map(fix);
 }
 
 /**

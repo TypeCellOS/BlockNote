@@ -95,10 +95,18 @@ The client's changes apply to the current document, by block ID. If both sides c
 ```typescript
 import { updateDocumentFromJSON } from "@blocknote/xl-ai/text-lens";
 
-updateDocumentFromJSON(editor, { document: changedBlocks, base });
+const result = updateDocumentFromJSON(editor, {
+  document: changedBlocks,
+  base,
+});
+if (result.error !== undefined) {
+  // The JSON does not fit the schema of the editor. The document did not change.
+}
 ```
 
-A block without an ID is a new block.
+A block without an ID is a new block. An ID can identify only one block. Thus, a block gets a new ID if an earlier block of the JSON has the same ID, or (with `base`) if another user added a block with that ID after the client read the document.
+
+If the JSON does not fit the schema of the editor (for example an unknown block type or style), the result is `{ error: "invalid-document" }`.
 
 ## Y.Doc
 
@@ -121,7 +129,7 @@ const { update } = updateYDocFromText(editor, ydoc, {
 // Send `update` to the other clients.
 ```
 
-The `editor` gives the schema and the conversions. To keep comments, give an editor with the comments extension.
+The `editor` gives the schema and the conversions. To keep comments, give an editor with the comments extension. If the Y.Doc has content that the schema of the editor cannot read (for example a block type of a different schema), the functions throw an error, and the Y.Doc does not change.
 
 The `strategy` option selects how the write merges with the changes of other users:
 
@@ -142,7 +150,7 @@ A result can contain these warnings:
 
 ## Example Server
 
-The [text lens server example](https://github.com/TypeCellOS/BlockNote/tree/main/examples/02-backend/05-text-lens-server) is an HTTP server with Hono. It gives a document as BlockNote JSON, markdown, HTML and plain text, and accepts a changed document back in each format. It keeps the versions in memory, and uses the `Base-Version` header for writes from an older version.
+The [text lens server example](https://github.com/TypeCellOS/BlockNote/tree/main/examples/02-backend/05-text-lens-server) is an HTTP server with Hono. It gives a document as BlockNote JSON, markdown, HTML and plain text, and accepts a changed document back in each format. It keeps the versions in memory, and uses the `Base-Version` header for writes from an older version. The response of a write gives the document after the write, with the changes of other users, and its version for the next write.
 
 ## How It Works
 

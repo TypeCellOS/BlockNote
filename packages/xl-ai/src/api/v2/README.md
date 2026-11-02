@@ -10,7 +10,9 @@ In lens terms, the document is the source and the text is the view. The `seriali
 - `computeTextUpdate(editor, { format, text, base })`: returns the operations that change the document to agree with the text. The operations use block IDs. The result also contains warnings (a discriminated union).
   - `base` is optional. It is the document (Block JSON) at the version that the client read. Get it from your version history. Without `base`, the text applies to the current document.
 - `updateDocumentFromText(editor, { format, text, base })`: computes the operations and applies them in one transaction.
-- `computeJSONUpdate(editor, { document, base })` and `updateDocumentFromJSON(editor, { document, base })`: the same for a full document as BlockNote JSON. The JSON contains the block IDs, thus the blocks pair by ID, not by text. Only the changed blocks and fields change, and with `base`, the changes of other writers stay. A block without an ID is a new block.
+- `computeJSONUpdate(editor, { document, base })` and `updateDocumentFromJSON(editor, { document, base })`: the same for a full document as BlockNote JSON. The JSON contains the block IDs, thus the blocks pair by ID, not by text. Only the changed blocks and fields change, and with `base`, the changes of other writers stay.
+  - A block without an ID is a new block. An ID can identify only one block. Thus, a block gets a new ID if an earlier block of the JSON has its ID, or (with `base`) if its ID is not in `base` but is in the current document (a block that another writer added).
+  - If the JSON does not fit the schema of the editor (for example an unknown block type, an unknown style, or content in a block without content), the result is `{ error: "invalid-document" }`, and the document does not change. The props are not examined, as in `editor.insertBlocks`.
 - `yjs/yDocText.ts`, for a Y.Doc (Yjs v13). It is a separate entry point, thus code without Yjs does not load Yjs:
   - `getYDocText(editor, ydoc, { format })`: returns the document as text.
   - `updateYDocFromText(editor, ydoc, { format, text, base, strategy })`: writes the text back. `base` is the Yjs state (`Y.encodeStateAsUpdate`) at the version that the client read. The result contains the Yjs update to send to the other clients, the operations and the warnings.
@@ -42,16 +44,17 @@ The pipeline computes the changes of the text as operations for `base`. A strate
 
 The rebase rules (`rebase/rebaseOperations.ts`) find each block by its ID:
 
-| Operation | Case                                               | Result                                                                                                                                                                                                                                             |
-| --------- | -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Update    | The block is in the current document               | A three-way merge of each field: the base block, the base block with the update, and the current block. If both sides changed a field, the text wins. The content merges character by character.                                                   |
-| Update    | Another writer removed the block                   | Not applied. Warning `change-to-removed-block`.                                                                                                                                                                                                    |
-| Insert    | Another writer removed the reference block         | The block goes to the position of the reference block in `base`: after the nearest earlier sibling that still exists, or first in the parent. If the parent is also gone, the position of the parent. At the top level, the start of the document. |
-| Move      | The block is already at the position               | Not done. Thus, a move that both sides did is done one time.                                                                                                                                                                                       |
-| Move      | Another writer removed the block                   | Not applied. Warning `change-to-removed-block`.                                                                                                                                                                                                    |
-| Move      | The reference is gone, or it is in the moved block | The position of the reference block in `base`, as for an insert.                                                                                                                                                                                   |
-| Delete    | Another writer removed the block                   | Nothing.                                                                                                                                                                                                                                           |
-| Delete    | Another writer changed the block or its children   | Removed. Warning `removed-changed-block`.                                                                                                                                                                                                          |
+| Operation | Case                                               | Result                                                                                                                                                                                                                                                                                                              |
+| --------- | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Update    | The block is in the current document               | A three-way merge of each field: the base block, the base block with the update, and the current block. If both sides changed a field, the text wins. The content merges character by character. A change that both sides made applies one time. If both sides added text at the same position, the two texts stay. |
+| Update    | Another writer removed the block                   | Not applied. Warning `change-to-removed-block`.                                                                                                                                                                                                                                                                     |
+| Insert    | Another writer removed the reference block         | The block goes to the position of the reference block in `base`: after the nearest earlier sibling that still exists, or first in the parent. If the parent is also gone, the position of the parent. At the top level, the start of the document. A position in a block that the client removes is not used.       |
+| Move      | The block is already at the position               | Not done. Thus, a move that both sides did is done one time.                                                                                                                                                                                                                                                        |
+| Move      | Another writer removed the block                   | Not applied. Warning `change-to-removed-block`.                                                                                                                                                                                                                                                                     |
+| Move      | The reference is gone, or it is in the moved block | The position of the reference block in `base`, as for an insert.                                                                                                                                                                                                                                                    |
+| Delete    | Another writer removed the block                   | Nothing.                                                                                                                                                                                                                                                                                                            |
+| Delete    | Another writer changed the block or its children   | Removed. Warning `removed-changed-block`.                                                                                                                                                                                                                                                                           |
+| Delete    | The block has blocks that the client keeps         | These blocks move out first, to the position of the removed block. Examples are a block that another writer moved into the removed block, at any depth.                                                                                                                                                             |
 
 PutPut (two writes give the same result as the last write) is not true. For example, if a client removes a block and adds it again, the result is a new block.
 
@@ -59,7 +62,7 @@ PutPut (two writes give the same result as the last write) is not true. For exam
 
 The identity of a block follows the location of its text, not the similarity of its content (`alignment/`):
 
-1. Blocks with equal text match first (a longest common subsequence). For a block without text (for example an image), the key is its type.
+1. Blocks with equal text match first (a longest common subsequence). For a block without text (for example an image), the key is its type, props and content. For large edits, the match first finds anchors: blocks with a text that is in each side one time (the patience method).
 2. Between these anchors, a word diff of the block texts finds the overlap of each pair of blocks. Two blocks match if each block has its largest overlap with the other, and the overlap is at least half of the shorter text. Thus, a paragraph with eight new sentences stays the same block, with its ID and props.
 3. If one block on each side stays between two matches, the two blocks have the same position. They match if their content has the same shape (text, table, or the same type without content). Thus, a paragraph with fully new text at the same position stays the same block.
 4. Of the blocks without a match, two blocks match if they have equal, non-empty text that no other block without a match has, on either side. Thus, a block that the text moves keeps its ID, props and comments. The plan then moves the block.
@@ -89,15 +92,15 @@ The merge of a block (`merge/block.ts`) merges the type, each prop of the three 
 5. **Rebase** the operations to the current document, if `base` is older (see "Concurrent writes").
 6. **Apply** the operations to a ProseMirror transaction (`operations/applyOperations.ts`). The type and props of a block change through `updateBlockTr`. Inline content changes through the smallest ProseMirror steps: a `ReplaceStep` for each changed run, and mark steps for style changes. A move moves the ProseMirror node of the block. Thus, unchanged text keeps its identity and its comments, also in a moved block, and a collaboration binding sees only small changes.
 
-For a Y.Doc, `updateYDocFromText` reads the Y.XmlFragment as a ProseMirror document with the schema of the editor (not as Block JSON, which has no comment marks). It applies the operations to that document, and writes each ProseMirror step to the target Y.Doc alone (`updateYFragment`), in one Yjs transaction. The strategy selects only the target: the current Y.Doc, or a copy of `base`. To keep comments, give an editor that has the comments extension, so that its schema has the comment mark.
+For a Y.Doc, `updateYDocFromText` reads the Y.XmlFragment as a ProseMirror document with the schema of the editor (not as Block JSON, which has no comment marks). The read uses a copy of the Y.Doc, because y-prosemirror removes the content that the schema cannot read. If the copy changed, the read throws an error, and the Y.Doc does not change. It applies the operations to that document, and writes each ProseMirror step to the target Y.Doc alone (`updateYFragment`), in one Yjs transaction. The strategy selects only the target: the current Y.Doc, or a copy of `base`. To keep comments, give an editor that has the comments extension, so that its schema has the comment mark.
 
 ## Modules
 
 Each module imports only modules that are before it in this list. Thus, there are no import cycles.
 
-- `diff/`: the Myers match of two sequences. This module does not import BlockNote.
+- `diff/`: the Myers match of two sequences, and the anchored match (the patience method) for large inputs. This module does not import BlockNote.
 - `blocks/`: the block JSON types of the lens, flat lists of blocks, JSON equality, the update between two blocks, and `BlockTree` (the parent and the children of each block, by ID).
-- `formats/`: `TextFormat` (`serialize` and `parse`), with markdown and plain text.
+- `formats/`: `TextFormat` (`serialize` and `parse`), with markdown, HTML and plain text.
 - `alignment/` and `merge/`: the identity of blocks, and the three-way merges.
 - `projection/`: the view of a document and its links to the source blocks.
 - `target/`: the planner. It gives the target document.
@@ -110,9 +113,10 @@ Each module imports only modules that are before it in this list. Thus, there ar
 
 - Each module has a unit test file next to it (`file.ts` and `file.test.ts`).
 - The `api.*.test.ts` files examine the full pipeline:
-  - `api.laws.test.ts`: the laws, on two documents, in the two formats.
-  - `api.properties.test.ts`: the laws on 60 random documents with random edits, in the two formats. Each case has a seed, thus you can run a failed case again.
-  - `api.markdown.test.ts` and `api.plainText.test.ts`: examples in each format.
+  - `api.laws.test.ts`: the laws, on two documents, in the three formats.
+  - `api.properties.test.ts`: the laws on 60 random documents with random edits, in the three formats, and 150 random line edits. Each case has a seed, thus you can run a failed case again.
+  - `api.markdown.test.ts`, `api.html.test.ts` and `api.plainText.test.ts`: examples in each format.
+  - `api.json.test.ts`: the JSON API.
   - `api.removals.test.ts`: removals, where content is lost. Examine these expected results carefully.
   - `api.concurrent.test.ts`: writes from an older version without Yjs, also on 40 random pairs of writers in each format.
 - `yjs/yDocText.test.ts`: the Y.Doc API. The concurrent cases run for the two strategies.
@@ -165,5 +169,9 @@ The branch `fix/markdown-roundtrip` fixes the markdown conversion: one round tri
 
 - Yjs v14 (`@y/y` and `@y/prosemirror`).
 - IDs in the text.
+- A source map from the format. Some formats show a block as a part of the text that the parse does not give back as one block (for example a file block as a link in a list item). The view block then has no link, and a change to it does not apply (warning `unlinked-block-changed`).
+- A block without content (for example an image) links to its view block by its type only, because the format can lose its props. If a hidden image is next to a changed image, the change can go to the hidden image.
+- Columns: markdown shows the blocks of columns as blocks after each other. If the text adds a block between the blocks of two columns, the planner closes the column list, and the blocks of the next column move out of it. The column then gets an empty paragraph.
+- In jsdom, the markdown export of many paragraphs in list items is quadratic, because each move of an element recomputes the index of its siblings.
 - A block that the text moves and also changes. The lens does not find it. The block is removed and inserted again, with a new ID.
 - Table rows with a different number of cells. Examples are added or removed columns, and changed rows with merged cells (the format shows them as separate cells). The result for these rows is the row from the text. The cell colors and merged cells of these rows are lost.

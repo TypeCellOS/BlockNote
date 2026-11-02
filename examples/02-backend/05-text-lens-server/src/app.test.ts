@@ -84,6 +84,31 @@ describe("text lens server", () => {
     );
   });
 
+  it("gives the document after the write, with the changes of other writers, for the next write", async () => {
+    const { get, put } = setup();
+    const text = await (await get("text")).text();
+    await put("text", text.replace("The end", "The end, from A"), "1");
+
+    // B writes from version 1. The response has the change of A too.
+    const response = await put(
+      "text",
+      text.replace("Hello world", "Hello from B"),
+      "1",
+    );
+    const result = await response.json();
+    expect(response.headers.get("Document-Version")).toBe("3");
+    expect(result).toMatchObject({
+      version: 3,
+      text: "Hello from B\n\nThe end, from A",
+    });
+
+    // The next write of B is from the version of the text that B has.
+    await put("text", result.text.replace("from B", "again from B"), "3");
+    expect(await (await get("text")).text()).toBe(
+      "Hello again from B\n\nThe end, from A",
+    );
+  });
+
   it("writes JSON back, by block ID", async () => {
     const { get, put } = setup();
     const document = await (await get("json")).json();
@@ -92,6 +117,8 @@ describe("text lens server", () => {
     const response = await put("json", JSON.stringify(document), "1");
 
     expect(await response.json()).toMatchObject({
+      version: 2,
+      document: [{ id: "intro" }, { id: "end", props: { textColor: "red" } }],
       operations: [
         { type: "update", id: "end", update: { props: { textColor: "red" } } },
       ],
@@ -101,8 +128,28 @@ describe("text lens server", () => {
   it("gives an error for an unknown base version, invalid JSON, and an unknown format", async () => {
     const { put, get } = setup();
     expect((await put("markdown", "x", "42")).status).toBe(409);
+    expect((await put("markdown", "x", "latest")).status).toBe(409);
     expect((await put("json", "{")).status).toBe(400);
-    expect((await put("json", '[{ "type": "unknown" }]')).status).toBe(400);
     expect((await get("pdf")).status).toBe(404);
+    expect((await get("toString")).status).toBe(404);
+    expect((await put("toString", "x")).status).toBe(404);
+  });
+
+  it("gives an error for JSON that is not a valid document, and does not change the document", async () => {
+    const { put, get } = setup();
+    for (const body of [
+      "{}",
+      "[1]",
+      '[{ "type": "unknown" }]',
+      '[{ "type": "toString" }]',
+      '[{ "type": "paragraph", "children": "x" }]',
+      '[{ "type": "paragraph", "content": [{ "type": "unknown" }] }]',
+    ]) {
+      expect(await (await put("json", body)).json()).toEqual({
+        error: "invalid-document",
+      });
+    }
+    expect((await get("markdown")).headers.get("Document-Version")).toBe("1");
+    expect(await (await get("text")).text()).toBe("Hello world\n\nThe end");
   });
 });

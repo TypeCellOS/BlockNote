@@ -10,6 +10,7 @@ export {
   computeJSONUpdate,
   computeTextUpdate,
   getDocumentText,
+  type JSONUpdate,
   type JSONUpdateOptions,
   type TextUpdate,
   type TextUpdateOptions,

@@ -9,25 +9,44 @@ import {
   updateDocumentFromJSON,
   updateDocumentFromText,
 } from "@blocknote/xl-ai/text-lens";
-import { type Context, Hono } from "hono";
+import { Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
 
 import type { DocumentStore } from "./documents.js";
 
-/** The text formats, by the name in the URL. */
-const textFormats: Record<string, { format: TextFormat; contentType: string }> =
-  {
-    markdown: {
-      format: markdownFormat,
-      contentType: "text/markdown; charset=utf-8",
-    },
-    html: { format: htmlFormat, contentType: "text/html; charset=utf-8" },
-    text: { format: plainTextFormat, contentType: "text/plain; charset=utf-8" },
-  };
+/** A format of the API: BlockNote JSON, or a text format of the text lens. */
+type Format =
+  | { type: "json" }
+  | { type: "text"; format: TextFormat; contentType: string };
+
+/** The formats, by the name in the URL. */
+const formats: Record<string, Format> = {
+  json: { type: "json" },
+  markdown: {
+    type: "text",
+    format: markdownFormat,
+    contentType: "text/markdown; charset=utf-8",
+  },
+  html: {
+    type: "text",
+    format: htmlFormat,
+    contentType: "text/html; charset=utf-8",
+  },
+  text: {
+    type: "text",
+    format: plainTextFormat,
+    contentType: "text/plain; charset=utf-8",
+  },
+};
+
+/** The format with a name from the URL. `Object.hasOwn` ignores names like `toString`. */
+function formatOf(name: string): Format | undefined {
+  return Object.hasOwn(formats, name) ? formats[name] : undefined;
+}
 
 /**
- * The version of the document that a response shows, or that a write
- * creates. A client sends it back in `Base-Version` with its next write.
+ * The version of the document that a response shows. With its next write, a
+ * client sends the version of the text that it has in `Base-Version`.
  */
 const VERSION_HEADER = "Document-Version";
 /** The version of the document that the client read before it changed the text. */
@@ -45,32 +64,43 @@ type ClientError = { status: 400 | 404 | 409; error: string };
  *   applies only the changes, and keeps the data that the format does not
  *   show. Send the version that the client read in the `Base-Version`
  *   header. Then the write keeps the changes that other writers made after
- *   that version.
+ *   that version. The response gives the document after the write (with
+ *   the changes of other writers) and its version, for the next write.
  */
 export function createApp(store: DocumentStore) {
   const app = new Hono();
   app.use("/documents/*", bodyLimit({ maxSize: 5 * 1024 * 1024 }));
 
   app.get("/documents/:id/:format", (c) => {
-    const { editor, version } = store.current(c.req.param("id"));
-    c.header(VERSION_HEADER, String(version));
-    const format = c.req.param("format");
-    if (format === "json") {
-      return c.json(editor.document);
-    }
-    const text = textFormats[format];
-    if (text === undefined) {
+    const format = formatOf(c.req.param("format"));
+    if (format === undefined) {
       return c.json({ error: "unknown-format" }, 404);
     }
-    return c.body(getDocumentText(editor, text.format), 200, {
-      "Content-Type": text.contentType,
+    const { editor, version } = store.current(c.req.param("id"));
+    c.header(VERSION_HEADER, String(version));
+    if (format.type === "json") {
+      return c.json(editor.document);
+    }
+    return c.body(getDocumentText(editor, format.format), 200, {
+      "Content-Type": format.contentType,
     });
   });
 
   app.put("/documents/:id/:format", async (c) => {
+    const format = formatOf(c.req.param("format"));
+    if (format === undefined) {
+      return c.json({ error: "unknown-format" }, 404);
+    }
+    const body = await c.req.text();
+    // From here, the handler is synchronous. Thus, no other write can change
+    // the document between this write and its commit.
     const id = c.req.param("id");
     const { editor } = store.current(id);
-    const result = await write(c, editor, store, id);
+    const base = readBase(c.req.header(BASE_HEADER), store, id);
+    if (base !== undefined && "error" in base) {
+      return c.json({ error: base.error }, base.status);
+    }
+    const result = write(editor, format, body, base?.blocks);
     if ("error" in result) {
       return c.json({ error: result.error }, result.status);
     }
@@ -79,44 +109,47 @@ export function createApp(store: DocumentStore) {
         ? store.commit(id)
         : store.current(id).version;
     c.header(VERSION_HEADER, String(version));
-    return c.json({ version, ...result });
+    return c.json({ version, ...read(editor, format), ...result });
   });
 
   return app;
 }
 
-/** Applies the body of a PUT request to the document. */
-async function write(
-  c: Context,
+/** The document in a format, for the body of a write response. */
+function read(
   editor: BlockNoteEditor<any, any, any>,
-  store: DocumentStore,
-  id: string,
-): Promise<TextUpdate | ClientError> {
-  const base = readBase(c.req.header(BASE_HEADER), store, id);
-  if (base !== undefined && "error" in base) {
-    return base;
-  }
+  format: Format,
+): { document: Block<any, any, any>[] } | { text: string } {
+  return format.type === "json"
+    ? { document: editor.document }
+    : { text: getDocumentText(editor, format.format) };
+}
 
-  const format = c.req.param("format");
-  if (format === "json") {
-    const document = parseDocument(await c.req.text(), editor);
-    if ("error" in document) {
-      return document;
-    }
-    return updateDocumentFromJSON(editor, {
-      document: document.blocks,
-      base: base?.blocks,
+/** Applies the body of a PUT request to the document. */
+function write(
+  editor: BlockNoteEditor<any, any, any>,
+  format: Format,
+  body: string,
+  base: Block<any, any, any>[] | undefined,
+): TextUpdate | ClientError {
+  if (format.type === "text") {
+    return updateDocumentFromText(editor, {
+      format: format.format,
+      text: body,
+      base,
     });
   }
-  const text = textFormats[format];
-  if (text === undefined) {
-    return { status: 404, error: "unknown-format" };
+  const document = parseDocument(body);
+  if ("error" in document) {
+    return document;
   }
-  return updateDocumentFromText(editor, {
-    format: text.format,
-    text: await c.req.text(),
-    base: base?.blocks,
+  const update = updateDocumentFromJSON(editor, {
+    document: document.blocks,
+    base,
   });
+  return update.error === undefined
+    ? update
+    : { status: 400, error: update.error };
 }
 
 /** Reads the `Base-Version` header. Without the header, there is no base. */
@@ -136,10 +169,12 @@ function readBase(
     : { blocks };
 }
 
-/** Parses a JSON body: an array of blocks with known block types. */
+/**
+ * Parses a JSON body: an array of blocks. This checks only the shape of the
+ * tree. `updateDocumentFromJSON` checks the blocks against the schema.
+ */
 function parseDocument(
   body: string,
-  editor: BlockNoteEditor<any, any, any>,
 ): { blocks: PartialBlock<any, any, any>[] } | ClientError {
   let json: unknown;
   try {
@@ -147,25 +182,24 @@ function parseDocument(
   } catch {
     return { status: 400, error: "invalid-json" };
   }
-  if (!Array.isArray(json) || !json.every((block) => isBlock(block, editor))) {
+  if (!isBlockList(json)) {
     return { status: 400, error: "invalid-document" };
   }
   return { blocks: json };
 }
 
-function isBlock(
-  value: unknown,
-  editor: BlockNoteEditor<any, any, any>,
-): value is PartialBlock<any, any, any> {
-  if (typeof value !== "object" || value === null) {
+function isBlockList(value: unknown): value is PartialBlock<any, any, any>[] {
+  return Array.isArray(value) && value.every(isBlock);
+}
+
+function isBlock(value: unknown): boolean {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
     return false;
   }
-  const { type, children } = value as { type?: unknown; children?: unknown };
+  const { id, type, children } = value as Record<string, unknown>;
   return (
-    typeof type === "string" &&
-    type in editor.schema.blockSchema &&
-    (children === undefined ||
-      (Array.isArray(children) &&
-        children.every((child) => isBlock(child, editor))))
+    (id === undefined || typeof id === "string") &&
+    (type === undefined || typeof type === "string") &&
+    (children === undefined || isBlockList(children))
   );
 }

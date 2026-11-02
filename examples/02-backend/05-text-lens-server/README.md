@@ -15,12 +15,21 @@ The server listens on port 3010 (set `PORT` for a different port). It keeps the 
 
 ## API
 
-| Request                      | Result                                                                                                 |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------ |
-| `GET /documents/:id/:format` | The document as `json`, `markdown`, `html` or `text`. The `Document-Version` header gives its version. |
-| `PUT /documents/:id/:format` | Writes the changed document back. The response gives the new version, the operations and the warnings. |
+| Request                      | Result                                                                                                                           |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /documents/:id/:format` | The document as `json`, `markdown`, `html` or `text`. The `Document-Version` header gives its version.                           |
+| `PUT /documents/:id/:format` | Writes the changed document back. The response gives the document after the write, its version, the operations and the warnings. |
 
-For a write, send the version that the client read in the `Base-Version` header. Then the server merges the write with the changes that other writers made after that version. Without the header, the write applies to the current document. An unknown base version gives the status 409.
+For a write, send the version that the client read in the `Base-Version` header. Then the server merges the write with the changes that other writers made after that version. Without the header, the write applies to the current document.
+
+The response of a write is JSON: `version`, the document after the write (`text` for a text format, `document` for `json`), `operations` and `warnings`. The document after the write has the changes of other writers too. For the next write, change this document and send this version as `Base-Version`.
+
+| Status | Error                  | Cause                                                                              |
+| ------ | ---------------------- | ---------------------------------------------------------------------------------- |
+| 400    | `invalid-json`         | The body of a `json` write is not JSON.                                            |
+| 400    | `invalid-document`     | The body of a `json` write is not a list of blocks for the schema of the document. |
+| 404    | `unknown-format`       | The format is not `json`, `markdown`, `html` or `text`.                            |
+| 409    | `unknown-base-version` | The `Base-Version` header does not give a version of the document.                 |
 
 The server does not use `If-Match`, because RFC 9110 requires the status 412 for a stale `If-Match`. This server merges a stale write.
 
@@ -43,6 +52,6 @@ curl http://localhost:3010/documents/demo/json
 
 - `src/dom.ts` installs a DOM for the markdown and HTML conversions of BlockNote.
 - `src/documents.ts` keeps each document in a BlockNote editor, and keeps every version as BlockNote JSON. A real server keeps the versions in a database, or uses a Y.Doc and `@blocknote/xl-ai/text-lens/yjs`.
-- `src/app.ts` has the routes. A text write calls `updateDocumentFromText`, and a JSON write calls `updateDocumentFromJSON`, with the document of the base version as `base`.
+- `src/app.ts` has the routes. A text write calls `updateDocumentFromText`, and a JSON write calls `updateDocumentFromJSON`, with the document of the base version as `base`. After the server reads the body, a write is synchronous until its commit. Thus, two writes cannot mix.
 
 A real server also needs authentication. The body of a request can be at most 5 MB.
