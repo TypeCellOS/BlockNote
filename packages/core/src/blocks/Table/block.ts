@@ -21,35 +21,21 @@ export const tablePropSchema = {
 };
 
 /**
- * Normalizes HTML cell spans, keeping rowspans within the containing table.
+ * Reads HTML cell spans, keeping rowspans within the containing table.
  */
 function parseTableSpan(
   element: HTMLElement,
   attribute: "colspan" | "rowspan",
 ): number {
-  const raw = element.getAttribute(attribute);
-  if (raw === null || !/^[0-9]+$/.test(raw)) {
-    return 1;
-  }
-  const value = Number(raw);
-  // Reject malformed spans before they reach table layout/array allocation.
-  // These upper bounds are the limits for HTML table cell spans.
-  const max = attribute === "colspan" ? 1000 : 65534;
-  if (!Number.isInteger(value) || value <= 0 || value > max) {
-    return 1;
-  }
+  const raw = element.getAttribute(attribute) ?? "";
+  const value = /^[0-9]+$/.test(raw) ? Number(raw) : 1;
   if (attribute === "colspan") {
     return value;
   }
 
   const row = element.closest("tr");
   const table = row?.closest("table");
-  if (!row || !table) {
-    return 1;
-  }
-
-  // The native rows collection excludes nested tables and stays current.
-  return Math.min(value, table.rows.length - row.rowIndex);
+  return row && table ? Math.min(value, table.rows.length - row.rowIndex) : 1;
 }
 
 const TiptapTableHeader = Node.create<{
