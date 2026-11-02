@@ -422,6 +422,14 @@ function serializeBlock<
       nestingLevel + 1,
       options,
     );
+    if (childrenDOM) {
+      // block specifies where children should go (e.g. toggle blocks
+      // place children inside <details>, or a frame's slot). All children
+      // go there, also nested lists, so that the children keep their order.
+      childrenDOM.append(childFragment);
+      return;
+    }
+
     if (
       fragment.lastChild?.nodeName === "UL" ||
       fragment.lastChild?.nodeName === "OL"
@@ -435,11 +443,7 @@ function serializeBlock<
       }
     }
 
-    if (childrenDOM) {
-      // block specifies where children should go (e.g. toggle blocks
-      // place children inside <details>, or a frame's slot)
-      childrenDOM.append(childFragment);
-    } else if (
+    if (
       editor.pmSchema.nodes[block.type as any].isInGroup("blockContent") ||
       !ret.contentDOM
     ) {

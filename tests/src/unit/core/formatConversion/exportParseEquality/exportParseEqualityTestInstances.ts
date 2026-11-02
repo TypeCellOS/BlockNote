@@ -238,6 +238,34 @@ export const exportParseEqualityTestInstancesHTML: TestInstance<
     },
     executeTest: testExportParseEqualityHTML,
   },
+  // The children of a toggle keep their order, also if some children are
+  // list items and some are not.
+  {
+    testCase: {
+      name: "lists/toggleListItemWithMixedChildren",
+      content: [
+        {
+          type: "toggleListItem",
+          content: "Toggle List Item",
+          children: [
+            {
+              type: "numberedListItem",
+              content: "Numbered child",
+            },
+            {
+              type: "paragraph",
+              content: "Paragraph child",
+            },
+            {
+              type: "bulletListItem",
+              content: "Bullet child",
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportParseEqualityHTML,
+  },
   {
     testCase: {
       name: "lists/toggleHeading",
