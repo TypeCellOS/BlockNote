@@ -169,9 +169,11 @@ export function selectedFragmentToHTML<
   const isPurelyInsideCodeBlock =
     $from.sameParent($to) && parentBlockSpec?.implementation.meta.code === true;
 
+  // The text/plain data is for a person to read, so it has no markdown
+  // escapes (for example `\*` or `https\://`).
   const markdown = isPurelyInsideCodeBlock
     ? view.state.doc.textBetween($from.pos, $to.pos)
-    : cleanHTMLToMarkdown(externalHTML);
+    : cleanHTMLToMarkdown(externalHTML, { escapes: "none" });
 
   return { clipboardHTML, externalHTML, markdown };
 }

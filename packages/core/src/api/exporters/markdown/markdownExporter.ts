@@ -9,10 +9,15 @@ import {
 } from "../../../schema/index.js";
 import { createExternalHTMLExporter } from "../html/externalHTMLExporter.js";
 import { EMPTY_BLOCK_PLACEHOLDER } from "../html/util/serializeBlocksExternalHTML.js";
-import { htmlToMarkdown } from "./htmlToMarkdown.js";
+import { htmlToMarkdown, HTMLToMarkdownOptions } from "./htmlToMarkdown.js";
+
+export type { HTMLToMarkdownOptions, TextEscapes } from "./htmlToMarkdown.js";
 
 // Needs to be sync because it's used in drag handler event (SideMenuExtension)
-export function cleanHTMLToMarkdown(cleanHTMLString: string) {
+export function cleanHTMLToMarkdown(
+  cleanHTMLString: string,
+  options: HTMLToMarkdownOptions = {},
+) {
   // The external HTML exporter fills empty inline-content blocks with a
   // placeholder character so they survive an HTML round trip (see
   // `EMPTY_BLOCK_PLACEHOLDER`). Markdown has no need for that placeholder, so we
@@ -21,7 +26,7 @@ export function cleanHTMLToMarkdown(cleanHTMLString: string) {
     .split(EMPTY_BLOCK_PLACEHOLDER)
     .join("");
 
-  return htmlToMarkdown(withoutPlaceholder);
+  return htmlToMarkdown(withoutPlaceholder, options);
 }
 
 export function blocksToMarkdown<

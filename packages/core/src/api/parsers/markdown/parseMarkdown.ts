@@ -18,7 +18,7 @@ export function markdownToBlocks<
   I extends InlineContentSchema,
   S extends StyleSchema,
 >(markdown: string, pmSchema: Schema): Block<BSchema, I, S>[] {
-  const htmlString = markdownToHTML(markdown);
+  const htmlString = markdownToHtml(markdown, { target: "blocks" });
 
   return HTMLToBlocks(htmlString, pmSchema);
 }

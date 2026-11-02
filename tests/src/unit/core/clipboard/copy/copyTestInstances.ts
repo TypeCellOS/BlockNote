@@ -796,6 +796,35 @@ export const copyTestInstancesHTML: TestInstance<
     },
     executeTest: testCopyHTML,
   },
+  // Text with markdown syntax characters. The text/plain data is for a person
+  // to read, so it must have no markdown escapes (for example `\*` or
+  // `https\://`).
+  {
+    testCase: {
+      name: "markdownSyntaxText",
+      document: [
+        {
+          type: "paragraph",
+          content: "# Not a heading",
+        },
+        {
+          type: "paragraph",
+          content: "*details* in snake_case at https://example.com, 1 < 2",
+        },
+      ],
+      getCopySelection: (doc) => {
+        const startPos = getPosOfTextNode(doc, "# Not a heading");
+        const endPos = getPosOfTextNode(
+          doc,
+          "*details* in snake_case at https://example.com, 1 < 2",
+          true,
+        );
+
+        return TextSelection.create(doc, startPos, endPos);
+      },
+    },
+    executeTest: testCopyHTML,
+  },
 ];
 
 // text/plain payloads — exercises the same selections as above but snapshots

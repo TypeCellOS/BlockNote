@@ -212,7 +212,9 @@ export function dragStart<
     const blocks = fragmentToBlocks(selectedSlice.content);
     const externalHTML = externalHTMLExporter.exportBlocks(blocks, {});
 
-    const plainText = cleanHTMLToMarkdown(externalHTML);
+    // The text/plain data is for a person to read, so it has no markdown
+    // escapes (for example `\*` or `https\://`).
+    const plainText = cleanHTMLToMarkdown(externalHTML, { escapes: "none" });
 
     e.dataTransfer.clearData();
     e.dataTransfer.setData("blocknote/html", clipboardHTML);

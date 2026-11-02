@@ -1,5 +1,6 @@
 import { isVideoUrl } from "../../../util/string.js";
 import { findLinks } from "../../../extensions/tiptap-extensions/Link/helpers/linkDetector.js";
+import { EMPTY_BLOCK_PLACEHOLDER } from "../../exporters/html/util/serializeBlocksExternalHTML.js";
 import { parseAutolinkLiteral } from "./autolink.js";
 
 /**
@@ -46,6 +47,12 @@ type InlineTokenizer = (
   allowLinks: boolean,
 ) => { html: string; end: number } | null;
 
+/**
+ * The ASCII punctuation characters. As in CommonMark, a backslash before one
+ * of these characters gives the literal character.
+ */
+const ASCII_PUNCTUATION = "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~";
+
 function tryBackslashEscape(
   text: string,
   i: number,
@@ -54,12 +61,13 @@ function tryBackslashEscape(
     return null;
   }
   const next = text[i + 1];
-  // Hard line break: backslash at end of line
+  // A backslash at the end of a line is a hard break. Do not put a newline
+  // after the `<br>`, because the HTML parser changes it into a space at the
+  // start of the next line.
   if (next === "\n") {
-    return { html: "<br>\n", end: i + 2 };
+    return { html: "<br>", end: i + 2 };
   }
-  // Escapable characters
-  if ("\\`*_{}[]()#+-.!~|<>".includes(next)) {
+  if (ASCII_PUNCTUATION.includes(next)) {
     return { html: escapeHtml(next), end: i + 2 };
   }
   return null;
@@ -228,7 +236,7 @@ function trySoftBreak(
   i: number,
 ): { html: string; end: number } | null {
   if (text[i] === "\n") {
-    return { html: "<br>\n", end: i + 1 };
+    return { html: "<br>", end: i + 1 };
   }
   return null;
 }
@@ -331,7 +339,7 @@ function parseInline(text: string, allowLinks = true): string {
       text[i - 2] === " "
     ) {
       result = result.replace(/ +$/, "");
-      result += "<br>\n";
+      result += "<br>";
       i++;
       continue;
     }
@@ -582,7 +590,30 @@ function parseDestinationAndTitle(raw: string): {
     }
   }
 
-  return { url, title };
+  // As in CommonMark, backslash escapes also apply in the URL and the title.
+  return {
+    url: removeBackslashEscapes(url),
+    title: title === undefined ? undefined : removeBackslashEscapes(title),
+  };
+}
+
+/**
+ * Remove the backslash from each backslash escape (a backslash before an
+ * ASCII punctuation character).
+ */
+function removeBackslashEscapes(text: string): string {
+  let result = "";
+  for (let i = 0; i < text.length; i++) {
+    if (
+      text[i] === "\\" &&
+      i + 1 < text.length &&
+      ASCII_PUNCTUATION.includes(text[i + 1])
+    ) {
+      i++;
+    }
+    result += text[i];
+  }
+  return result;
 }
 
 function parseDelimited(
@@ -802,6 +833,28 @@ function isHtmlBlockStart(line: string): boolean {
 
 // ─── Block-Level Tokenizer ──────────────────────────────────────────────────
 
+/**
+ * Match the opening line of a fenced code block. As in CommonMark, the info
+ * string after a backtick fence cannot contain a backtick. Thus a line that
+ * starts with a code span (for example ```` ```a``` ````) is not a fence.
+ */
+function matchCodeFence(line: string): RegExpMatchArray | null {
+  return line.match(/^ {0,3}(?:(`{3,})([^`]*)|(~{3,})(.*))$/);
+}
+
+/** Returns true if the line starts a block, which ends a paragraph. */
+function interruptsParagraph(line: string): boolean {
+  return (
+    /^#{1,6}(?:[ \t]|$)/.test(line) ||
+    /^(?:`{3,}[^`]*|~{3,}.*)$/.test(line) ||
+    /^\s{0,3}>/.test(line) ||
+    /^(\s{0,3})([-*_])\s*(\2\s*){2,}$/.test(line) ||
+    /^\s*([-*+]|\d+[.)])\s+/.test(line) ||
+    /^\s*\|(.+\|)+\s*$/.test(line) ||
+    isHtmlBlockStart(line)
+  );
+}
+
 function tokenize(markdown: string): Token[] {
   const lines = markdown.split("\n");
   const tokens: Token[] = [];
@@ -819,12 +872,12 @@ function tokenize(markdown: string): Token[] {
     }
 
     // Fenced code block (0-3 leading spaces allowed per CommonMark)
-    const fenceMatch = line.match(/^ {0,3}(`{3,}|~{3,})(.*)$/);
+    const fenceMatch = matchCodeFence(line);
     if (fenceMatch) {
-      const fence = fenceMatch[1];
+      const fence = fenceMatch[1] ?? fenceMatch[3];
       const fenceChar = fence[0];
       const fenceLen = fence.length;
-      const language = fenceMatch[2].trim();
+      const language = (fenceMatch[2] ?? fenceMatch[4]).trim();
       const codeLines: string[] = [];
       i++;
       while (i < lines.length) {
@@ -851,12 +904,16 @@ function tokenize(markdown: string): Token[] {
     // - Closing `#` sequence requires a preceding space (so `### foo###`
     //   keeps the trailing #s as text, while `### foo ###` strips them).
     // - Trailing whitespace is always stripped from the heading content.
-    const headingMatch = line.match(/^(#{1,6})\s+(.+?)(?:\s+#+\s*|\s*)$/);
+    // - A line with only the `#` sequence is an empty heading (as in
+    //   CommonMark).
+    const headingMatch = line.match(
+      /^(#{1,6})(?:[ \t]+(.*?))?(?:[ \t]+#+)?[ \t]*$/,
+    );
     if (headingMatch) {
       tokens.push({
         type: "heading",
         level: headingMatch[1].length,
-        content: headingMatch[2],
+        content: headingMatch[2] ?? "",
       });
       prevLineWasBlank = false;
       i++;
@@ -960,8 +1017,10 @@ function tokenize(markdown: string): Token[] {
     }
 
     // List item (bullet, ordered, or task)
+    // The marker and the checkbox can be at the end of the line, as in an
+    // empty list item.
     const listItemMatch = line.match(
-      /^(\s*)([-*+]|\d+[.)])(\s+)(\[[ xX]\] )?(.*)$/,
+      /^(\s*)([-*+]|\d+[.)])(\s+|$)(\[[ xX]\](?:[ \t]+|$))?(.*)$/,
     );
     if (listItemMatch) {
       const indent = listItemMatch[1].length;
@@ -984,12 +1043,10 @@ function tokenize(markdown: string): Token[] {
         listType = "bullet";
       }
 
-      // Content indent = column where content actually starts
-      const contentIndent =
-        indent +
-        marker.length +
-        markerSpaces.length +
-        (checkbox ? checkbox.length : 0);
+      // The content indent is the column where the content starts. For a task
+      // list item, the checkbox is a part of the content (as in GFM). The
+      // child blocks align with the checkbox, not with the text after it.
+      const contentIndent = indent + marker.length + markerSpaces.length;
 
       // Minimum indent for child content: anything indented past the marker
       // (sub-lists can start at indent > marker position)
@@ -1051,15 +1108,41 @@ function tokenize(markdown: string): Token[] {
         i++;
       }
 
+      // The lines right after the first line continue its paragraph (for
+      // example after a hard break), up to a blank line or a line that starts
+      // a block. This is the same as for a paragraph outside a list. Also, a
+      // line with only a list marker (an empty list item at the end of the
+      // document) starts a block here.
+      let paragraphLineCount = 0;
+      if (firstLineContent.trim() !== "") {
+        while (
+          paragraphLineCount < subLines.length &&
+          subLines[paragraphLineCount].trim() !== "" &&
+          !interruptsParagraph(subLines[paragraphLineCount]) &&
+          !/^\s*([-*+]|\d+[.)])$/.test(subLines[paragraphLineCount])
+        ) {
+          paragraphLineCount++;
+        }
+      }
+      const paragraphLines = [
+        firstLineContent,
+        ...subLines
+          .slice(0, paragraphLineCount)
+          .map((l) => l.replace(/^[ \t]+/, "")),
+      ];
+
       // Build the list item token
       // If there are sub-lines, they become child content (recursively tokenized)
       // Don't trim — preserve relative indentation of sub-lines
-      const childContent = subLines.join("\n").replace(/^\n+|\n+$/g, "");
+      const childContent = subLines
+        .slice(paragraphLineCount)
+        .join("\n")
+        .replace(/^\n+|\n+$/g, "");
       tokens.push({
         type: "listItem",
         listType,
         indent,
-        content: firstLineContent.trim(),
+        content: paragraphLines.join("\n").trim(),
         start,
         checked,
         childContent: childContent || undefined,
@@ -1095,25 +1178,7 @@ function tokenize(markdown: string): Token[] {
         break;
       }
       // Stop on block-level element
-      if (/^(#{1,6})\s/.test(nextLine)) {
-        break;
-      }
-      if (/^(`{3,}|~{3,})/.test(nextLine)) {
-        break;
-      }
-      if (/^\s{0,3}>/.test(nextLine)) {
-        break;
-      }
-      if (/^(\s{0,3})([-*_])\s*(\2\s*){2,}$/.test(nextLine)) {
-        break;
-      }
-      if (/^\s*([-*+]|\d+[.)])\s+/.test(nextLine)) {
-        break;
-      }
-      if (/^\s*\|(.+\|)+\s*$/.test(nextLine)) {
-        break;
-      }
-      if (isHtmlBlockStart(nextLine)) {
+      if (interruptsParagraph(nextLine)) {
         break;
       }
       // Check if next-next line is setext marker
@@ -1251,7 +1316,27 @@ function parseAlignments(
 
 // ─── HTML Emitter ────────────────────────────────────────────────────────────
 
-function tokensToHtml(tokens: Token[]): string {
+/** Options for the HTML that `markdownToHtml` makes. */
+export type MarkdownToHtmlOptions = {
+  /**
+   * The reader of the HTML:
+   * - `"html"` (the default): any HTML reader.
+   * - `"blocks"`: BlockNote's HTML parser, which makes blocks from the HTML.
+   *   The HTML then has these changes:
+   *   - An empty block (an empty list item, an empty heading, or a paragraph
+   *     with only a `<br>` tag) gets `EMPTY_BLOCK_PLACEHOLDER`. Without it,
+   *     the HTML parser drops the block or makes a hard break. The HTML
+   *     parser removes the placeholder after the parse.
+   *   - An image in text moves out of the text (see `moveImagesOutOfText`).
+   *     BlockNote has no inline images, so the HTML parser drops them.
+   */
+  target?: "html" | "blocks";
+};
+
+/** A paragraph with only a `<br>` tag, which is an empty paragraph. */
+const EMPTY_PARAGRAPH = /^<br\s*\/?>$/i;
+
+function tokensToHtml(tokens: Token[], options: MarkdownToHtmlOptions): string {
   let html = "";
   let i = 0;
 
@@ -1261,14 +1346,22 @@ function tokensToHtml(tokens: Token[]): string {
     switch (token.type) {
       case "heading": {
         const t = token as HeadingToken;
-        html += `<h${t.level}>${parseInline(t.content)}</h${t.level}>`;
+        const content =
+          t.content === "" && options.target === "blocks"
+            ? EMPTY_BLOCK_PLACEHOLDER
+            : parseInline(t.content);
+        html += `<h${t.level}>${content}</h${t.level}>`;
         i++;
         break;
       }
 
       case "paragraph": {
         const t = token as ParagraphToken;
-        html += `<p>${parseInline(t.content)}</p>`;
+        const content =
+          options.target === "blocks" && EMPTY_PARAGRAPH.test(t.content)
+            ? EMPTY_BLOCK_PLACEHOLDER
+            : parseInline(t.content);
+        html += `<p>${content}</p>`;
         i++;
         break;
       }
@@ -1287,7 +1380,7 @@ function tokensToHtml(tokens: Token[]): string {
         const t = token as BlockquoteToken;
         // Recursively parse blockquote content as markdown
         const innerTokens = tokenize(t.content);
-        const innerHtml = tokensToHtml(innerTokens);
+        const innerHtml = tokensToHtml(innerTokens, options);
         html += `<blockquote>${innerHtml}</blockquote>`;
         i++;
         break;
@@ -1300,7 +1393,7 @@ function tokensToHtml(tokens: Token[]): string {
 
       case "listItem": {
         // Collect consecutive list items and build nested list structure
-        const listHtml = emitListItems(tokens, i);
+        const listHtml = emitListItems(tokens, i, options);
         html += listHtml.html;
         i = listHtml.nextIndex;
         break;
@@ -1331,6 +1424,7 @@ function tokensToHtml(tokens: Token[]): string {
 function emitListItems(
   tokens: Token[],
   startIdx: number,
+  options: MarkdownToHtmlOptions,
 ): { html: string; nextIndex: number } {
   let html = "";
   let i = startIdx;
@@ -1362,17 +1456,22 @@ function emitListItems(
     }
 
     // Emit list item
+    const inlineHtml = parseInline(item.content);
+    const content =
+      inlineHtml === "" && options.target === "blocks"
+        ? EMPTY_BLOCK_PLACEHOLDER
+        : inlineHtml;
     if (item.listType === "task") {
       const checkedAttr = item.checked ? " checked" : "";
-      html += `<li><input type="checkbox" disabled${checkedAttr}><p>${parseInline(item.content)}</p>`;
+      html += `<li><input type="checkbox" disabled${checkedAttr}><p>${content}</p>`;
     } else {
-      html += `<li><p>${parseInline(item.content)}</p>`;
+      html += `<li><p>${content}</p>`;
     }
 
     // Render child content (nested items, continuation paragraphs, etc.)
     if (item.childContent) {
       const childTokens = tokenize(item.childContent);
-      html += tokensToHtml(childTokens);
+      html += tokensToHtml(childTokens, options);
     }
 
     html += `</li>`;
@@ -1438,7 +1537,144 @@ function emitTable(table: TableToken): string {
  * Convert a markdown string to an HTML string.
  * This is a direct replacement for the unified/remark/rehype pipeline.
  */
-export function markdownToHtml(markdown: string): string {
+export function markdownToHtml(
+  markdown: string,
+  options: MarkdownToHtmlOptions = {},
+): string {
   const tokens = tokenize(markdown);
-  return tokensToHtml(tokens);
+  const html = tokensToHtml(tokens, options);
+  return options.target === "blocks" ? moveImagesOutOfText(html) : html;
+}
+
+// ─── Images In Text ──────────────────────────────────────────────────────────
+
+/**
+ * BlockNote has no inline images: an image is a block. Thus move each image
+ * (or video) out of the text, so that the HTML parser does not drop it:
+ * - In a paragraph block, split the paragraph around the image. The result is
+ *   a paragraph, an image block and a paragraph.
+ * - In other text (for example in a link, in emphasis, in a heading or in the
+ *   text of a list item), replace the image with a link to it. In a link (for
+ *   example a README badge `[![x](y)](z)`), replace the image with its alt
+ *   text, so that the link stays.
+ *
+ * An image that is the only content of a paragraph block stays, because the
+ * HTML parser makes an image block from it. An image that is not in text (for
+ * example in a `<figure>`) also stays.
+ */
+function moveImagesOutOfText(html: string): string {
+  // Use a document that is not the active document, so that the HTML from
+  // the markdown does not load images or run event handlers (see
+  // `nestedListsToBlockNoteStructure`).
+  const container = document.implementation
+    .createHTMLDocument("title")
+    .createElement("div");
+  container.innerHTML = html;
+  for (const media of Array.from(container.querySelectorAll("img, video"))) {
+    const textElement = media.closest("p, h1, h2, h3, h4, h5, h6, td, th");
+    if (!textElement) {
+      continue;
+    }
+    if (
+      media.parentElement === textElement &&
+      isParagraphBlock(textElement, container)
+    ) {
+      if (hasOtherContent(textElement, media)) {
+        splitParagraphAt(media);
+      }
+    } else {
+      replaceWithLink(media);
+    }
+  }
+  return container.innerHTML;
+}
+
+/**
+ * Returns true if the element is a paragraph block: a `<p>` at the top level,
+ * or a child `<p>` of a list item (not the first `<p>`, which is the text of
+ * the list item).
+ */
+function isParagraphBlock(element: Element, container: Element): boolean {
+  if (element.tagName !== "P") {
+    return false;
+  }
+  const parent = element.parentElement;
+  return (
+    parent === container ||
+    (parent?.tagName === "LI" && parent.querySelector(":scope > p") !== element)
+  );
+}
+
+/** Returns true if the paragraph has content other than the image. */
+function hasOtherContent(paragraph: Element, media: Element): boolean {
+  return Array.from(paragraph.childNodes).some(
+    (node) =>
+      node !== media &&
+      !(node.nodeType === 3 && node.textContent?.trim() === "") &&
+      !(node.nodeType === 1 && (node as Element).tagName === "BR"),
+  );
+}
+
+/**
+ * Split the paragraph of the image into the paragraph before the image, the
+ * image, and a new paragraph after the image. Remove the whitespace and the
+ * hard breaks at the split, and remove a paragraph that becomes empty.
+ */
+function splitParagraphAt(media: Element) {
+  const before = media.parentElement!;
+  const after = before.ownerDocument.createElement("p");
+  while (media.nextSibling) {
+    after.append(media.nextSibling);
+  }
+  before.after(media, after);
+  trimParagraphEdge(before, "end");
+  trimParagraphEdge(after, "start");
+  for (const paragraph of [before, after]) {
+    if (paragraph.childNodes.length === 0) {
+      paragraph.remove();
+    }
+  }
+}
+
+/** Remove the whitespace and the `<br>` tags at one edge of a paragraph. */
+function trimParagraphEdge(paragraph: Element, edge: "start" | "end") {
+  for (;;) {
+    const node = edge === "start" ? paragraph.firstChild : paragraph.lastChild;
+    if (!node) {
+      return;
+    }
+    if (node.nodeType === 1 && (node as Element).tagName === "BR") {
+      node.remove();
+    } else if (node.nodeType === 3) {
+      const text = node.textContent ?? "";
+      const trimmed = edge === "start" ? text.trimStart() : text.trimEnd();
+      if (trimmed === "") {
+        node.remove();
+      } else {
+        node.textContent = trimmed;
+        return;
+      }
+    } else {
+      return;
+    }
+  }
+}
+
+/**
+ * Replace the image with a link to it, with the alt text (or the URL) as the
+ * link text. In a link, replace the image with the text only.
+ */
+function replaceWithLink(media: Element) {
+  const url = media.getAttribute("src") || media.getAttribute("data-url") || "";
+  const text =
+    media.getAttribute("alt") || media.getAttribute("data-name") || url;
+  const doc = media.ownerDocument;
+  if (media.closest("a")) {
+    media.replaceWith(doc.createTextNode(text));
+    return;
+  }
+  const link = doc.createElement("a");
+  link.setAttribute("href", url);
+  link.textContent = text;
+  media.replaceWith(link);
 }

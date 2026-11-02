@@ -2,10 +2,8 @@ import { createExternalHTMLExporter } from "../../api/exporters/html/externalHTM
 import { createInternalHTMLSerializer } from "../../api/exporters/html/internalHTMLSerializer.js";
 import { blocksToMarkdown } from "../../api/exporters/markdown/markdownExporter.js";
 import { HTMLToBlocks } from "../../api/parsers/html/parseHTML.js";
-import {
-  markdownToBlocks,
-  markdownToHTML,
-} from "../../api/parsers/markdown/parseMarkdown.js";
+import { markdownToBlocks } from "../../api/parsers/markdown/parseMarkdown.js";
+import { markdownToHtml } from "../../api/parsers/markdown/markdownToHtml.js";
 import {
   Block,
   DefaultBlockSchema,
@@ -131,7 +129,9 @@ export class ExportManager<
    * @param markdown The markdown to paste.
    */
   public pasteMarkdown(markdown: string) {
-    const html = markdownToHTML(markdown);
+    // The HTML goes to BlockNote's HTML parser (in `pasteHTML`), so make it
+    // for that parser, the same as `tryParseMarkdownToBlocks`.
+    const html = markdownToHtml(markdown, { target: "blocks" });
     return this.pasteHTML(html);
   }
 }
