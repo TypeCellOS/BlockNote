@@ -148,7 +148,7 @@ Each module imports only modules that are before it in this list. Thus, there ar
 A result can contain warnings (`TextUpdateWarning`). A warning tells you that a part of the text did not apply as written, or that data was lost:
 
 - `multi-part-block-replaced`: the text changed a block that the format shows as more than one block (for example a code block with blank lines, in plain text). The blocks of the text replace the block. Its hidden data is lost.
-- `unlinked-block-changed`: the text changed a block of the view that has no source block. The change does not apply.
+- `unlinked-block-changed`: the text changed a part of the text that does not come from one document block (`text` is that part). The change does not apply.
 - `block-shape-replaced`: the format shows the block with content of a different shape (for example a table as lines of text), and the text changed that content. The block takes the type of the text block. Its old content is lost.
 - `change-to-removed-block` (rebase): the text changed or moved a block that another writer removed. The change does not apply.
 - `removed-changed-block` (rebase): the text removed a block that another writer changed. The block is removed, with the changes of the other writer.

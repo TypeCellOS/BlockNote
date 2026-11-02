@@ -283,7 +283,7 @@ describe("planTarget", () => {
       }),
     ).toEqual({
       target: ["a"],
-      warnings: [{ type: "unlinked-block-changed", viewIndex: 1 }],
+      warnings: [{ type: "unlinked-block-changed", text: "x" }],
     });
   });
 });

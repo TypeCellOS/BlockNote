@@ -1,4 +1,5 @@
 import { blockKey } from "../blocks/json.js";
+import { blockToText } from "../blocks/text.js";
 import { BlockTree } from "../blocks/tree.js";
 import type {
   BlockFields,
@@ -19,10 +20,11 @@ export type PlanWarning =
    */
   | { type: "multi-part-block-replaced"; id: string }
   /**
-   * The text changed or removed a view block without a link to a source
-   * block. The planner cannot apply this change, thus it does not use it.
+   * The text changed or removed a part of the text that does not come from
+   * one document block (`text` is that part, as the format shows it). The
+   * planner cannot apply this change, thus it does not use it.
    */
-  | { type: "unlinked-block-changed"; viewIndex: number }
+  | { type: "unlinked-block-changed"; text: string }
   /**
    * The format shows the block with content of a different shape (for
    * example a table as lines of text), and the text changed that content.
@@ -107,7 +109,10 @@ export function planTarget(input: PlanInput): Plan {
         j === -1 ||
         blockKey(viewBlock.block) !== blockKey(incoming[j].block)
       ) {
-        warnings.push({ type: "unlinked-block-changed", viewIndex: v });
+        warnings.push({
+          type: "unlinked-block-changed",
+          text: blockToText(viewBlock.block),
+        });
       }
       if (j !== -1) {
         skipped.add(j);
