@@ -90,6 +90,7 @@ The merge of a block (`merge/block.ts`) merges the type, each prop of the three 
 3. **Plan the target document** (`target/`): the document as the text asks for it, as Block JSON with IDs. A source block with a match stays, with the three-way merge of its fields. A new block gets a new ID. The blocks go in the order of the text, in the parent that the text shows. One pass builds the tree, with a stack of the open ancestors. Two rules keep data that the format does not show:
    - A block keeps a nesting that the format does not show (for example a paragraph in a bullet, in markdown), if the text did not change its nesting and the parent is still open. A new block before such a block goes into the same nesting. Thus, the child stays nested.
    - Blocks that the format does not show stay at their positions, with their parent. If the planner removes their parent, or all the visible blocks around them, it also removes them.
+   - The layout blocks of the target change to fit their child rules (`target/fitLayout.ts`, for the JSON API too): a column without blocks goes, and a column list with one column becomes the blocks of that column. ProseMirror would fill them with new empty blocks.
 4. **Diff** (`operations/diffDocuments.ts`): the operations that change the document into the target. An update for each block with changed fields. In each parent, the blocks that keep their order stay (a longest common subsequence of the child IDs). Each other block goes after the block before it: a move, or an insert for a new block. The deletes come last. Thus, the blocks that stay moved out of the removed blocks first.
 5. **Rebase** the operations to the current document, if `base` is older (see "Concurrent writes").
 6. **Apply** the operations to a ProseMirror transaction (`operations/applyOperations.ts`). The type and props of a block change through `updateBlockTr`. Inline content changes through the smallest ProseMirror steps: a `ReplaceStep` for each changed run, and mark steps for style changes. A move moves the ProseMirror node of the block. Thus, unchanged text keeps its identity and its comments, also in a moved block, and a collaboration binding sees only small changes.
@@ -116,7 +117,7 @@ Each module imports only modules that are before it in this list. Thus, there ar
 - Each module has a unit test file next to it (`file.ts` and `file.test.ts`).
 - The `api.*.test.ts` files examine the full pipeline:
   - `api.laws.test.ts`: the laws, on two documents, in the three formats.
-  - `api.properties.test.ts`: the laws on 200 random documents with random edits, in the three formats, and on 400 random line edits in markdown. Each case has a seed, thus you can run a failed case again. Two seeds fail because of the nested-list problem of the markdown parser (see "Problems in BlockNote"). They are marked as known failures.
+  - `api.properties.test.ts`: the laws on 200 random documents with random edits, in the three formats, on 100 random documents with columns, and on 400 random line edits in markdown. Each case has a seed, thus you can run a failed case again. Two seeds fail because of the nested-list problem of the markdown parser (see "Problems in BlockNote"). They are marked as known failures.
   - `api.markdown.test.ts`, `api.html.test.ts` and `api.plainText.test.ts`: examples in each format.
   - `api.json.test.ts`: the JSON API.
   - `api.removals.test.ts`: removals, where content is lost. Examine these expected results carefully.
@@ -172,7 +173,6 @@ The branch `fix/markdown-roundtrip` fixes the markdown conversion: one round tri
 - Yjs v14 (`@y/y` and `@y/prosemirror`).
 - IDs in the text.
 - A source map from the format. Some formats show a block as a part of the text that the parse does not give back as one block (for example a file block as a link in a list item). The view block then has no link, and a change to it does not apply (warning `unlinked-block-changed`).
-- Columns: if the text moves the only block of a column out of the column list, the column stays with an empty paragraph, as after a drag in the editor (`moveBlocks` does not remove emptied columns). The text then shows an extra `<br>`.
 - In jsdom, the markdown export of many paragraphs in list items is quadratic, because each move of an element recomputes the index of its siblings.
 - A block that the text moves and also changes. The lens does not find it. The block is removed and inserted again, with a new ID.
 - Table rows with a different number of cells. Examples are added or removed columns, and changed rows with merged cells (the format shows them as separate cells). The result for these rows is the row from the text. The cell colors and merged cells of these rows are lost.

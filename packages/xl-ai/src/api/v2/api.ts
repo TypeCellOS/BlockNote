@@ -19,6 +19,7 @@ import {
   type RebaseWarning,
   rebaseOperations,
 } from "./rebase/rebaseOperations.js";
+import { fitLayout, type LayoutRule } from "./target/fitLayout.js";
 import { type PlanWarning, planTarget } from "./target/planTarget.js";
 
 /** Returns the document in the format. A client reads this text, changes it, and writes it back. */
@@ -212,8 +213,10 @@ function withUniqueIds(
 
 /**
  * Returns the update that changes `current` to the target document of the
- * plan. The diff gives the operations for `base`. If `base` is older than
- * `current` (`rebase`), the rebase moves them to `current` (see `rebase/`).
+ * plan. First, the layout blocks of the target change to fit the schema (see
+ * `fitLayout`). The diff gives the operations for `base`. If `base` is older
+ * than `current` (`rebase`), the rebase moves them to `current` (see
+ * `rebase/`).
  */
 function updateToTarget(
   editor: BlockNoteEditor<any, any, any>,
@@ -225,15 +228,18 @@ function updateToTarget(
   },
 ): TextUpdate {
   const { base, current } = documents;
-  const operations =
-    plan.target === base ? [] : diffDocuments(base, plan.target);
+  const target =
+    plan.target === base
+      ? base
+      : fitLayout(plan.target, (type) => layoutRuleOf(editor, type));
+  const operations = target === base ? [] : diffDocuments(base, target);
   if (!documents.rebase) {
     return { operations, warnings: plan.warnings };
   }
   const rebased = rebaseOperations({
     base,
     current,
-    target: plan.target,
+    target,
     operations,
     contentKindOf: (type) => contentKindOf(editor, type),
   });
@@ -275,6 +281,28 @@ function planTextUpdate(
     newId: () => UniqueID.options.generateID(),
   });
   return { target, warnings };
+}
+
+/** The child rule of a layout block type, or `undefined` for other types. */
+function layoutRuleOf(
+  editor: BlockNoteEditor<any, any, any>,
+  type: string,
+): LayoutRule | undefined {
+  const config = editor.schema.blockSchema[type];
+  if (config?.layoutOnly !== true) {
+    return undefined;
+  }
+  const children = config.children;
+  return {
+    minChildren:
+      children !== undefined && "min" in children ? (children.min ?? 1) : 1,
+    namedOnly: config.placeable === "namedOnly",
+    dissolves: !(
+      children !== undefined &&
+      "dissolve" in children &&
+      children.dissolve === false
+    ),
+  };
 }
 
 function contentKindOf(

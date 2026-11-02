@@ -704,4 +704,56 @@ describe("markdown", () => {
     ]);
     expect(end.content).toMatchObject([{ text: "End" }]);
   });
+
+  it("moves the only block of a column out, and the column list becomes the other column", () => {
+    const editor = createColumnsEditor();
+    editor.insertBlocks(
+      [{ id: "p", type: "paragraph", content: "P" }],
+      "list",
+      "after",
+    );
+
+    updateDocumentFromText(editor, {
+      format: markdownFormat,
+      text: "Alpha\n\nP\n\nBeta\n",
+    });
+
+    expect(editor.document.map((block) => block.id)).toEqual(["a", "p", "b"]);
+    expect(getDocumentText(editor, markdownFormat)).toBe(
+      "Alpha\n\nP\n\nBeta\n",
+    );
+  });
+
+  it("removes the only block of a column, and keeps a column with an empty paragraph", () => {
+    const editor = createColumnsEditor();
+    editor.insertBlocks(
+      [
+        {
+          id: "c3",
+          type: "column",
+          children: [{ id: "empty", type: "paragraph" }],
+        },
+      ],
+      "c2",
+      "after",
+    );
+    expect(getDocumentText(editor, markdownFormat)).toBe(
+      "Alpha\n\nBeta\n\n<br>\n",
+    );
+
+    updateDocumentFromText(editor, {
+      format: markdownFormat,
+      text: "Alpha\n\n<br>\n",
+    });
+
+    expect(
+      editor.document[0].children.map((column) => [
+        column.id,
+        column.children.map((block) => block.id),
+      ]),
+    ).toEqual([
+      ["c1", ["a"]],
+      ["c3", ["empty"]],
+    ]);
+  });
 });

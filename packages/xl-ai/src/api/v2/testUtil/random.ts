@@ -161,6 +161,41 @@ export function randomDocument(random: Random): PartialBlock[] {
 }
 
 /**
+ * Returns a random document (see {@link randomDocument}) in which some runs
+ * of top-level blocks are in column lists, with 2 or 3 columns of 1 or 2
+ * blocks. The editor needs the multi-column schema.
+ */
+export function randomDocumentWithColumns(
+  random: Random,
+): PartialBlock<any, any, any>[] {
+  const blocks = randomDocument(random);
+  const result: PartialBlock<any, any, any>[] = [];
+  let index = 0;
+  while (index < blocks.length) {
+    if (index + 2 > blocks.length || !random.chance(0.3)) {
+      result.push(blocks[index]);
+      index++;
+      continue;
+    }
+    const columns: PartialBlock<any, any, any>[] = [];
+    for (let c = 0; c < 2 + random.int(2) && index < blocks.length; c++) {
+      const size = 1 + random.int(2);
+      columns.push({
+        type: "column",
+        children: blocks.slice(index, index + size),
+      });
+      index += size;
+    }
+    if (columns.length >= 2) {
+      result.push({ type: "columnList", children: columns });
+    } else {
+      result.push(...(columns[0].children ?? []));
+    }
+  }
+  return result;
+}
+
+/**
  * Applies one random edit to a text. The edit works on the paragraphs of the
  * text (the parts between blank lines), so that it is valid for each format.
  */

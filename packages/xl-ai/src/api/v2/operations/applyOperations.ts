@@ -77,7 +77,13 @@ export function applyOperations(
         moveBlock(tr, operation);
         break;
       case "delete":
-        removeAndInsertBlocks(tr, [operation.id], []);
+        // The target fits the layout rules (see `fitLayout`). Thus, the
+        // repair of layout blocks in core is not necessary here. It also
+        // removes a column with only an empty paragraph, which the target
+        // can keep.
+        removeAndInsertBlocks(tr, [operation.id], [], {
+          fixLayoutBlocks: false,
+        });
         break;
     }
   }

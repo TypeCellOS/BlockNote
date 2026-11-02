@@ -1,4 +1,9 @@
-import { BlockNoteEditor } from "@blocknote/core";
+import {
+  BlockNoteEditor,
+  BlockNoteSchema,
+  defaultBlockSpecs,
+} from "@blocknote/core";
+import { withMultiColumn } from "@blocknote/xl-multi-column";
 import { describe, expect, it } from "vite-plus/test";
 
 import {
@@ -7,6 +12,7 @@ import {
   htmlFormat,
   markdownFormat,
   plainTextFormat,
+  type TextFormat,
   updateDocumentFromText,
 } from "./index.js";
 import { flattenBlocks } from "./blocks/flatten.js";
@@ -14,7 +20,9 @@ import type { LensBlock } from "./blocks/types.js";
 import { canonicalText } from "./testUtil/canonical.js";
 import {
   createRandom,
+  type Random,
   randomDocument,
+  randomDocumentWithColumns,
   randomEdit,
   randomLineEdit,
 } from "./testUtil/random.js";
@@ -28,6 +36,7 @@ import {
 const SEEDS = Array.from({ length: 60 }, (_, i) => i + 1);
 const LAW_SEEDS = Array.from({ length: 200 }, (_, i) => i + 1);
 const LINE_EDIT_SEEDS = Array.from({ length: 400 }, (_, i) => i + 1000);
+const COLUMN_SEEDS = Array.from({ length: 100 }, (_, i) => i + 1);
 
 /**
  * Seeds that fail because of a problem in BlockNote, not in the lens: the
@@ -58,6 +67,40 @@ function eachSeed(
   }
 }
 
+/**
+ * Makes random edits to the text of the editor, writes the text back, and
+ * examines GetPut, PutGet and PutTwice.
+ */
+function expectLaws(
+  editor: BlockNoteEditor<any, any, any>,
+  format: TextFormat,
+  random: Random,
+) {
+  const text = getDocumentText(editor, format);
+
+  // GetPut, also without the shortcut for equal text.
+  expect(
+    computeTextUpdate(editor, { format, text: `${text}\n` }).operations,
+  ).toEqual([]);
+
+  let edited = text;
+  for (let i = 0; i <= random.int(3); i++) {
+    edited = randomEdit(random, edited);
+  }
+  const update = updateDocumentFromText(editor, { format, text: edited });
+  expect(update.warnings).toEqual([]);
+
+  // PutGet, modulo the normalization of the format.
+  expect(canonicalText(editor, format, getDocumentText(editor, format))).toBe(
+    canonicalText(editor, format, edited),
+  );
+
+  // PutTwice.
+  expect(
+    computeTextUpdate(editor, { format, text: edited }).operations,
+  ).toEqual([]);
+}
+
 const formats = [
   { name: "markdown", format: markdownFormat },
   { name: "plain text", format: plainTextFormat },
@@ -74,29 +117,21 @@ describe.each(formats)("$name", ({ name, format }) => {
       const editor = BlockNoteEditor.create({
         initialContent: randomDocument(random),
       });
-      const text = getDocumentText(editor, format);
+      expectLaws(editor, format, random);
+    },
+  );
 
-      // GetPut, also without the shortcut for equal text.
-      expect(
-        computeTextUpdate(editor, { format, text: `${text}\n` }).operations,
-      ).toEqual([]);
-
-      let edited = text;
-      for (let i = 0; i <= random.int(3); i++) {
-        edited = randomEdit(random, edited);
-      }
-      const update = updateDocumentFromText(editor, { format, text: edited });
-      expect(update.warnings).toEqual([]);
-
-      // PutGet, modulo the normalization of the format.
-      expect(
-        canonicalText(editor, format, getDocumentText(editor, format)),
-      ).toBe(canonicalText(editor, format, edited));
-
-      // PutTwice.
-      expect(
-        computeTextUpdate(editor, { format, text: edited }).operations,
-      ).toEqual([]);
+  it.each(COLUMN_SEEDS)(
+    "keeps the laws for a document with columns, for seed %i",
+    (seed) => {
+      const random = createRandom(seed);
+      const editor = BlockNoteEditor.create({
+        schema: withMultiColumn(
+          BlockNoteSchema.create({ blockSpecs: defaultBlockSpecs }),
+        ),
+        initialContent: randomDocumentWithColumns(random),
+      });
+      expectLaws(editor, format, random);
     },
   );
 
