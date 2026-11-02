@@ -1,11 +1,6 @@
 import type { PartialBlock } from "@blocknote/core";
-import { expect } from "vite-plus/test";
 import { page } from "vite-plus/test/browser";
-import {
-  pressKey,
-  readSelection,
-  selectToLineEndKey,
-} from "@root/tests/a11y/helpers.js";
+import { pressKey, selectToLineEndKey } from "@root/tests/a11y/helpers.js";
 
 // The middle paragraph is selected; its neighbours provide navigation context.
 export const toolbarDocument: PartialBlock[] = [
@@ -14,31 +9,75 @@ export const toolbarDocument: PartialBlock[] = [
   { id: "following", type: "paragraph", content: "Following paragraph" },
 ];
 
-// Enter the editor from "Before editor", select its second line, then Tab to
-// the requested control. Each test supplies its own document before calling this.
-// Shared by browser assertions and the native screen reader journey.
-export async function focusToolbarControl(control: string) {
+// Start from "Before editor" after openEditor(). Keep the navigation steps
+// identical to focusToolbarItemWithAssertions in the keyboard suite.
+export async function focusToolbarItem(toolbarItem: string) {
+  await focusEditor();
+  const toolbar = await openToolbar();
+  await focusToolbar();
+  const target = toolbar.getByRole("button", {
+    name: toolbarItem,
+    exact: true,
+  });
+  while (document.activeElement !== target.element()) {
+    await focusNextToolbarItem();
+  }
+  return { toolbar, button: target };
+}
+
+export function documentForToolbarItem(toolbarItem: string): PartialBlock[] {
+  if (toolbarItem === "Unnest block") {
+    return [
+      {
+        id: "preceding",
+        type: "paragraph",
+        content: "Preceding paragraph",
+        children: [
+          { id: "format", type: "paragraph", content: "Format this text" },
+        ],
+      },
+    ];
+  }
+  return toolbarDocument;
+}
+
+// Each action has a single starting point; callers own focus assertions.
+export async function focusEditor() {
   await pressKey("Tab");
-  await expect.element(page.getByRole("textbox")).toHaveFocus();
-  // Move from the first line to the target and select to its end (OS-specific key).
+  return page.getByRole("textbox");
+}
+
+// Select the second line to expose the formatting toolbar.
+export async function openToolbar() {
   await pressKey("ArrowDown");
   await pressKey(selectToLineEndKey);
-  await expect.poll(async () => readSelection().text).toBe("Format this text");
-  const toolbar = page.getByRole("toolbar");
-  await expect.element(toolbar).toBeVisible();
-  await expect.poll(() => toolbar.getByRole("button").all().length).toBe(12);
+  return page.getByRole("toolbar");
+}
 
-  const button = toolbar.getByRole("button", { name: control, exact: true });
-  await expect.element(button).toBeEnabled();
-  // Bound traversal to report unreachable controls without looping forever.
-  for (let step = 0; step < 15; step++) {
-    if (button.element() === document.activeElement) {
-      break;
-    }
-    await pressKey("Tab");
-  }
-  await expect
-    .element(button, { message: `${control} is reachable with Tab` })
-    .toHaveFocus();
-  return { toolbar, button };
+export async function focusToolbar() {
+  await pressKey("Tab");
+}
+
+export async function focusNextToolbarItem() {
+  await pressKey("Tab");
+}
+
+export async function activateToolbarButton() {
+  await pressKey("Enter");
+}
+
+export async function openToolbarMenu() {
+  await pressKey("Enter");
+}
+
+export async function focusNextMenuItem() {
+  await pressKey("ArrowDown");
+}
+
+export async function activateMenuItem() {
+  await pressKey("Enter");
+}
+
+export async function openToolbarPopover() {
+  await pressKey("Enter");
 }

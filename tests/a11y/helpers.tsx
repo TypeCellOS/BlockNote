@@ -1,11 +1,12 @@
-import type { PartialBlock } from "@blocknote/core";
+import type { BlockNoteEditor, PartialBlock } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { useCreateBlockNote } from "@blocknote/react";
+import { useEffect } from "react";
 import { render } from "vitest-browser-react";
 import axe from "axe-core";
-import { expect, type TestContext } from "vite-plus/test";
+import { expect, vi, type TestContext } from "vite-plus/test";
 import { commands, page, server } from "vite-plus/test/browser";
 import { waitForEditorFocus } from "./setup.js";
 import "./style.css";
@@ -29,12 +30,17 @@ function EditorFixture({
   initialContent,
   editable,
   theme,
+  onReady,
 }: {
   initialContent: PartialBlock[];
   editable: boolean;
   theme: "light" | "dark";
+  onReady?: (editor: BlockNoteEditor) => void;
 }) {
   const editor = useCreateBlockNote({ initialContent });
+  useEffect(() => {
+    onReady?.(editor);
+  }, [editor, onReady]);
   return (
     <main style={{ maxWidth: 900, margin: "80px auto", padding: 24 }}>
       <h1>BlockNote accessibility fixture</h1>
@@ -50,14 +56,24 @@ export async function openEditor(
   {
     editable = true,
     theme = "light",
-  }: { editable?: boolean; theme?: "light" | "dark" } = {},
+    onReady,
+  }: {
+    editable?: boolean;
+    theme?: "light" | "dark";
+    onReady?: (editor: BlockNoteEditor) => void;
+  } = {},
 ) {
+  let editor!: BlockNoteEditor;
   await page.viewport(1280, 900);
   await render(
     <EditorFixture
       initialContent={initialContent}
       editable={editable}
       theme={theme}
+      onReady={(value) => {
+        editor = value;
+        onReady?.(value);
+      }}
     />,
   );
   await expect.element(page.getByRole("textbox")).toBeVisible();
@@ -73,6 +89,24 @@ export async function openEditor(
       .element()
       .focus();
   }
+  return editor;
+}
+
+type EditorMethod = keyof {
+  [
+    Key in keyof BlockNoteEditor as BlockNoteEditor[Key] extends (
+      ...args: never[]
+    ) => unknown
+      ? Key
+      : never
+  ]: BlockNoteEditor[Key];
+};
+
+export function spyOnEditorFunction<Method extends EditorMethod>(
+  editor: BlockNoteEditor,
+  method: Method,
+) {
+  return vi.spyOn(editor, method);
 }
 
 export async function checkAxe(
