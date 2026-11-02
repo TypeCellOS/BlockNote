@@ -15,13 +15,16 @@ export const latexToHTMLString = (
       error: undefined,
     };
   } catch (error) {
+    if (!(error instanceof katex.ParseError)) {
+      throw error;
+    }
     return {
       htmlString: katex.renderToString(latex, {
         throwOnError: false,
         displayMode: !inline,
         output: external ? "mathml" : "htmlAndMathml",
       }),
-      error: error instanceof Error ? error.message : String(error),
+      error: error.message,
     };
   }
 };

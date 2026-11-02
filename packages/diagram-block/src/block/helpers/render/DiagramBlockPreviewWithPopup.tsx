@@ -3,19 +3,15 @@ import {
   ReactCustomBlockRenderProps,
   SourceBlockWithPreview,
 } from "@blocknote/react";
-import mermaid from "mermaid";
 import { useEffect, useState } from "react";
 import { SiMermaid } from "react-icons/si";
 
-import { plainContentToString } from "@blocknote/core";
-import { initializeMermaid } from "../../../helpers/initializeMermaid.js";
-import { withSVGFontFamily } from "../../../helpers/svgFontFamily.js";
-import { trimDiagramSVG } from "../../../helpers/trimDiagramSVG.js";
+import { plainContentToString, type BlockNoteEditor } from "@blocknote/core";
+import type { MathRenderer } from "../../../helpers/MathRenderer.js";
+import { renderDiagram } from "../../../helpers/renderDiagram.js";
+import { getDiagramMathRenderer } from "../../../helpers/getDiagramMathRenderer.js";
 import { getDiagramDictionary } from "../../../i18n/dictionary.js";
 import { DiagramBlockConfig } from "../../createReactDiagramBlockSpec.js";
-
-// Each render call needs its own element ID.
-let mermaidElementId = 0;
 
 /**
  * Renders the Mermaid source to an SVG string. The current diagram (or the
@@ -23,9 +19,14 @@ let mermaidElementId = 0;
  * has fully rendered, and swapping inline SVG commits in a single frame - so
  * the preview never flashes.
  */
-export const useMermaidSVG = (source: string, fontFamilyElement?: Element) => {
+export function useDiagramSVG(
+  source: string,
+  editor: BlockNoteEditor<any, any, any>,
+) {
   const [svg, setSVG] = useState("");
   const [error, setError] = useState<string | undefined>(undefined);
+  const [failure, setFailure] = useState<{ cause: unknown }>();
+  const mathRenderer = editor.getExtension<MathRenderer>("math-render");
 
   useEffect(() => {
     if (!source.trim()) {
@@ -38,48 +39,49 @@ export const useMermaidSVG = (source: string, fontFamilyElement?: Element) => {
       return;
     }
 
-    initializeMermaid();
-
     // Read the font at render time, not at mount - the computed font is
     // themeable via CSS, so a memoized read would go stale on theme changes.
-    const fontFamily = fontFamilyElement
-      ? getComputedStyle(fontFamilyElement).fontFamily
+    const fontFamily = editor.domElement
+      ? getComputedStyle(editor.domElement).fontFamily
       : undefined;
 
     // Rendering is asynchronous, so bail out if the source changed (or the
     // block was removed) before it finished.
     let stale = false;
-    void (async () => {
-      // The rendered SVG carries the given ID into the document, and Mermaid
-      // removes any existing element with that ID when rendering. So each
-      // render gets a fresh ID - reusing one makes Mermaid yank the displayed
-      // diagram out of the page mid-render.
-      const id = `mermaid-preview-${mermaidElementId++}`;
-      try {
-        await mermaid.parse(source);
-        const { svg } = await mermaid.render(id, source);
-        if (!stale) {
-          // Diagrams display in the editor's own font (see
-          // `setSVGFontFamily`) - the same treatment the export renderers
-          // apply, so the preview shows what exports produce.
-          const trimmed = trimDiagramSVG(svg);
-          setSVG(fontFamily ? withSVGFontFamily(trimmed, fontFamily) : trimmed);
+    void renderDiagram(source, {
+      fontFamily,
+      math: getDiagramMathRenderer(editor),
+    })
+      .then((result) => {
+        if (stale) {
+          return;
+        }
+        if (result.error !== undefined) {
+          setError(result.error);
+        } else {
+          setSVG(result.svg);
           setError(undefined);
         }
-      } catch (err) {
+      })
+      .catch((cause: unknown) => {
         if (!stale) {
-          setError(err instanceof Error ? err.message : String(err));
+          // Unexpected failures belong to the host's React error boundary, not
+          // the source-error UI. Never expose arbitrary exception messages there.
+          setFailure({ cause });
         }
-      }
-    })();
+      });
 
     return () => {
       stale = true;
     };
-  }, [source, fontFamilyElement]);
+  }, [source, editor, mathRenderer]);
+
+  if (failure) {
+    throw failure.cause;
+  }
 
   return { svg, error };
-};
+}
 export const DiagramBlockPreviewWithPopup = (
   props: ReactCustomBlockRenderProps<DiagramBlockConfig>,
 ) => {
@@ -87,7 +89,7 @@ export const DiagramBlockPreviewWithPopup = (
   // Diagrams render in the editor's computed font, so they match the document
   // they live in - the block renders inside the editor, so the element is
   // mounted by the time the hook's effect reads its style.
-  const { svg, error } = useMermaidSVG(source, props.editor.domElement);
+  const { svg, error } = useDiagramSVG(source, props.editor);
   const dict = getDiagramDictionary(props.editor).block;
 
   return (
@@ -101,7 +103,7 @@ export const DiagramBlockPreviewWithPopup = (
       preview={
         svg ? (
           <div
-            // Centers the diagram - Mermaid's SVG is left-aligned otherwise.
+            // Center diagrams narrower than the editor.
             style={{ display: "flex", justifyContent: "center" }}
             role="img"
             aria-label={dict.preview_label}
