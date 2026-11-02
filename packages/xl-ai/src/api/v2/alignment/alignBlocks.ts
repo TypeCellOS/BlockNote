@@ -16,6 +16,13 @@ import { type Overlap, textOverlaps, wordSize } from "./overlap.js";
 const MIN_SHARE = 0.5;
 
 /**
+ * Two blocks that are the same block: `a[aIndex]` and `b[bIndex]`. Unlike a
+ * `MatchedPair`, the pairs of moved blocks (rule 4 of {@link alignBlocks})
+ * can cross the other pairs.
+ */
+export type BlockPair = { aIndex: number; bIndex: number };
+
+/**
  * Aligns two flat block lists, one to one. The identity of a block follows
  * the location of its text:
  *
@@ -37,8 +44,8 @@ const MIN_SHARE = 0.5;
 export function alignBlocks(
   a: readonly FlatBlock[],
   b: readonly FlatBlock[],
-): MatchedPair[] {
-  const pairs: MatchedPair[] = [];
+): BlockPair[] {
+  const pairs: BlockPair[] = [];
   for (const { gap, anchor } of gaps(
     anchorsOf(a, b, alignmentKey),
     a.length,
@@ -71,8 +78,8 @@ export function alignBlocks(
 function movedPairs(
   a: readonly FlatBlock[],
   b: readonly FlatBlock[],
-  pairs: readonly MatchedPair[],
-): MatchedPair[] {
+  pairs: readonly BlockPair[],
+): BlockPair[] {
   const matchedA = new Set(pairs.map((pair) => pair.aIndex));
   const matchedB = new Set(pairs.map((pair) => pair.bIndex));
   /** The index of each unique key of a block without a match. Blocks with empty text do not count. */
@@ -90,7 +97,7 @@ function movedPairs(
     return indexes;
   }
   const keysB = uniqueKeys(b, matchedB);
-  const moved: MatchedPair[] = [];
+  const moved: BlockPair[] = [];
   for (const [key, aIndex] of uniqueKeys(a, matchedA)) {
     const bIndex = keysB.get(key);
     if (aIndex !== undefined && bIndex !== undefined) {
@@ -270,7 +277,9 @@ function mutualBestPairs({
         MIN_SHARE * Math.min(sizesA[overlap.aIndex], sizesB[overlap.bIndex]),
     )
     .sort((x, y) => x.aIndex - y.aIndex || x.bIndex - y.bIndex);
-  const coverage = (overlap: Overlap) => overlap.size / sizesA[overlap.aIndex];
+  function coverage(overlap: Overlap) {
+    return overlap.size / sizesA[overlap.aIndex];
+  }
 
   const bestOfA = new Map<number, Overlap>();
   const bestOfB = new Map<number, Overlap>();

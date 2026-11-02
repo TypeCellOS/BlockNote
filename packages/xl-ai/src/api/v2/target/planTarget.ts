@@ -6,7 +6,7 @@ import type {
   FlatBlock,
   LensBlock,
 } from "../blocks/types.js";
-import type { MatchedPair } from "../diff/types.js";
+import type { BlockPair } from "../alignment/alignBlocks.js";
 import { mergeBlock } from "../merge/block.js";
 import type { Projection } from "../projection/projectDocument.js";
 
@@ -39,7 +39,7 @@ export type PlanInput = {
   /** The blocks from the incoming text, in a flat list. */
   incoming: FlatBlock[];
   /** The matches of `projection.view` (a side) to `incoming` (b side). */
-  alignment: MatchedPair[];
+  alignment: BlockPair[];
   contentKindOf: (type: string) => ContentKind;
   /** Gives the ID of a new block. */
   newId: () => string;

@@ -105,12 +105,13 @@ function backtrack(
 
   for (let d = finalD; d >= 0; d--) {
     const slice = trace[d];
-    // Diagonal k has the index `k + d + 1` in the copy for step d.
-    const get = (k: number) => slice[k + d + 1];
     const k = x - y;
     const prevK =
-      k === -d || (k !== d && get(k - 1) < get(k + 1)) ? k + 1 : k - 1;
-    const prevX = get(prevK);
+      k === -d ||
+      (k !== d && diagonal(slice, d, k - 1) < diagonal(slice, d, k + 1))
+        ? k + 1
+        : k - 1;
+    const prevX = diagonal(slice, d, prevK);
     const prevY = prevX - prevK;
 
     while (x > prevX && y > prevY) {
@@ -126,4 +127,9 @@ function backtrack(
   }
 
   return pairs.reverse();
+}
+
+/** The value of diagonal `k` in the copy for step `d`. Diagonal `k` has the index `k + d + 1`. */
+function diagonal(slice: ArrayLike<number>, d: number, k: number): number {
+  return slice[k + d + 1];
 }

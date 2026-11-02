@@ -13,7 +13,7 @@ import type { MatchedPair } from "./types.js";
  *
  * Thus, the Myers diff gets small ranges, and the limit of its edit distance
  * applies only inside a range. The result is a common subsequence, in
- * ascending order. It is not always the longest one.
+ * order. It is not always the longest one.
  */
 export function anchoredMatch<T>(
   a: readonly T[],

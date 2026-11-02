@@ -56,7 +56,7 @@ export type TextUpdateOptions = {
  * block IDs, some props and styles, and blocks that the format does not render.
  *
  * If the text did not change, there are no operations. This is also true if
- * only the formatting changed and the format makes it the same, for example
+ * only the markup changed and the format gives the same blocks, for example
  * `*` and `-` bullets in markdown.
  */
 export function computeTextUpdate(

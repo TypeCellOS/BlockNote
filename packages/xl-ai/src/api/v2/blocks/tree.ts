@@ -14,28 +14,32 @@ export class BlockTree {
   private readonly children = new Map<string | undefined, string[]>();
 
   constructor(blocks: readonly LensBlock[]) {
-    const visit = (list: readonly LensBlock[], parent: string | undefined) => {
-      for (const block of list) {
-        this.byId.set(block.id, block);
-        this.parents.set(block.id, parent);
-        this.childrenOf(parent).push(block.id);
-        visit(block.children, block.id);
-      }
-    };
-    visit(blocks, undefined);
+    this.add(blocks, undefined);
   }
 
   /** The IDs of all blocks, in document order (pre-order). */
   get ids(): string[] {
     const result: string[] = [];
-    const visit = (parent: string | undefined) => {
-      for (const id of this.childrenOf(parent)) {
-        result.push(id);
-        visit(id);
-      }
-    };
-    visit(undefined);
+    this.collectIds(undefined, result);
     return result;
+  }
+
+  /** Adds the blocks (with their descendants) as children of `parent`. */
+  private add(list: readonly LensBlock[], parent: string | undefined) {
+    for (const block of list) {
+      this.byId.set(block.id, block);
+      this.parents.set(block.id, parent);
+      this.childrenOf(parent).push(block.id);
+      this.add(block.children, block.id);
+    }
+  }
+
+  /** Adds the IDs of the descendants of `parent` to `result`, in pre-order. */
+  private collectIds(parent: string | undefined, result: string[]) {
+    for (const id of this.childrenOf(parent)) {
+      result.push(id);
+      this.collectIds(id, result);
+    }
   }
 
   has(id: string): boolean {

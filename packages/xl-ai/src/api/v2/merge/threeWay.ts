@@ -32,8 +32,9 @@ export function mergeValue<T>(base: T, ours: T, theirs: T): T {
  * does not contain keys with the value `undefined`.
  */
 export function mergeRecords<R extends object>(base: R, ours: R, theirs: R): R {
-  const read = (record: R, key: string) =>
-    (record as Record<string, unknown>)[key];
+  function read(record: R, key: string) {
+    return (record as Record<string, unknown>)[key];
+  }
   const result: Record<string, unknown> = {};
   for (const key of new Set([
     ...Object.keys(base),

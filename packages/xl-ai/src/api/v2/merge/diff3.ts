@@ -66,8 +66,9 @@ export function diff3<T>(
     const triple = { base: unit, ours: ours[toA[i]], theirs: theirs[toB[i]] };
     return isContext(triple) ? triple : undefined;
   });
-  const contextFrom = (from: number) =>
-    contexts.slice(from).find((triple) => triple !== undefined);
+  function contextFrom(from: number) {
+    return contexts.slice(from).find((triple) => triple !== undefined);
+  }
   let before: StableTriple<T> | undefined;
 
   const merged: T[] = [];

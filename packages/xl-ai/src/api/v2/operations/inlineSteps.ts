@@ -139,8 +139,6 @@ export function addInlineContentSteps(
     bNext = pair.bIndex + 1;
   }
 
-  const offsetOf = (units: Unit[], index: number, size: number) =>
-    index < units.length ? units[index].offset : size;
   for (const run of runs.reverse()) {
     const from = start + offsetOf(a, run.aStart, current.content.size);
     const to = start + offsetOf(a, run.aEnd, current.content.size);
@@ -190,4 +188,9 @@ function withoutShortRuns(
       return run.length >= MIN_EQUAL_RUN || atStart || atEnd;
     })
     .flat();
+}
+
+/** The offset of the unit at `index`, or `size` after the last unit. */
+function offsetOf(units: Unit[], index: number, size: number): number {
+  return index < units.length ? units[index].offset : size;
 }

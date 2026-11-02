@@ -22,7 +22,7 @@ There is no storage interface. The consumer keeps the versions, as full Block JS
 
 The tests examine these laws (`api.laws.test.ts`, and `api.properties.test.ts` on random documents):
 
-- **GetPut**: if a client writes back the text that it read, there are no operations. This is also true for text with only normalized formatting changes, for example `*` and `-` bullets.
+- **GetPut**: if a client writes back the text that it read, there are no operations. This is also true for text in which only the markup changed and the format gives the same blocks, for example `*` and `-` bullets.
 - **PutGet**: if the document did not change after the client read the text, a read after a write gives the written text. Two texts are equal if their canonical forms are equal. The canonical form is the result of round trips (parse, then serialize) until the text does not change.
 - **PutTwice**: if a client writes the same text two times, the second write gives no operations.
 - **Retention**: blocks that an edit does not touch keep their ID, type, props and content.
