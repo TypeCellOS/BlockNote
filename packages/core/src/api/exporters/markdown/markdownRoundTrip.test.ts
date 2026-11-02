@@ -624,6 +624,32 @@ describe("Markdown round trip", () => {
       },
     );
 
+    it.each([
+      ["a hard break at the start", "<br> a", "a"],
+      ["two hard breaks at the start", "<br><br>a", "a"],
+      ["a hard break at the end", "a<br>", "a"],
+      ["a space after a hard break", "a<br> b", "a\nb"],
+    ])("removes %s, as the exporter does", (_, md, text) => {
+      expect(parse(md)[0].content).toEqual([
+        { type: "text", text, styles: {} },
+      ]);
+    });
+
+    it("parses a paragraph with only hard breaks as an empty paragraph", () => {
+      expect(parse("<br><br>")).toMatchObject([
+        { type: "paragraph", content: [] },
+      ]);
+    });
+
+    it("removes the hard break at the start of a heading and a list item", () => {
+      expect(
+        parse("# <br> a\n\n* <br> b").map((block) => block.content),
+      ).toEqual([
+        [{ type: "text", text: "a", styles: {} }],
+        [{ type: "text", text: "b", styles: {} }],
+      ]);
+    });
+
     it("removes the indent of a paragraph line with four or more spaces", () => {
       expect(parse("     a\n\tb")[0].content).toEqual([
         { type: "text", text: "a\nb", styles: {} },

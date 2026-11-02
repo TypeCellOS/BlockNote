@@ -1333,6 +1333,10 @@ export type MarkdownToHtmlOptions = {
    *     parser removes the placeholder after the parse.
    *   - An image in text moves out of the text (see `moveImagesOutOfText`).
    *     BlockNote has no inline images, so the HTML parser drops them.
+   *   - The whitespace and the hard breaks at the start and at the end of a
+   *     text, and the whitespace after a hard break, are removed (see
+   *     `trimText`). The markdown exporter does not write them. Thus, the
+   *     parse gives the same blocks as a round trip of these blocks.
    */
   target?: "html" | "blocks";
 };
@@ -1547,7 +1551,54 @@ export function markdownToHtml(
 ): string {
   const tokens = tokenize(markdown);
   const html = tokensToHtml(tokens, options);
-  return options.target === "blocks" ? moveImagesOutOfText(html) : html;
+  return options.target === "blocks" ? prepareForBlocks(html) : html;
+}
+
+/** The elements that contain the text of a block, or of a table cell. */
+const TEXT_ELEMENTS = "p, h1, h2, h3, h4, h5, h6, td, th";
+
+/** Changes the HTML for BlockNote's HTML parser (see `MarkdownToHtmlOptions`). */
+function prepareForBlocks(html: string): string {
+  // Use a document that is not the active document, so that the HTML from
+  // the markdown does not load images or run event handlers (see
+  // `nestedListsToBlockNoteStructure`).
+  const container = document.implementation
+    .createHTMLDocument("title")
+    .createElement("div");
+  container.innerHTML = html;
+  moveImagesOutOfText(container);
+  for (const element of Array.from(container.querySelectorAll(TEXT_ELEMENTS))) {
+    trimText(element);
+  }
+  return container.innerHTML;
+}
+
+/**
+ * Removes the whitespace and the hard breaks at the start and at the end of
+ * the text, and the whitespace after each hard break. The markdown exporter
+ * does not write them. A block that becomes empty gets
+ * `EMPTY_BLOCK_PLACEHOLDER`, as an empty paragraph does. Without it, the HTML
+ * parser drops the block.
+ */
+function trimText(element: Element) {
+  if (element.childNodes.length === 0) {
+    return;
+  }
+  trimParagraphEdge(element, "start");
+  trimParagraphEdge(element, "end");
+  for (const br of Array.from(element.getElementsByTagName("br"))) {
+    const next = br.nextSibling;
+    if (next?.nodeType === 3) {
+      next.textContent = (next.textContent ?? "").trimStart();
+    }
+  }
+  if (
+    element.childNodes.length === 0 &&
+    element.tagName !== "TD" &&
+    element.tagName !== "TH"
+  ) {
+    element.textContent = EMPTY_BLOCK_PLACEHOLDER;
+  }
 }
 
 // ─── Images In Text ──────────────────────────────────────────────────────────
@@ -1566,16 +1617,9 @@ export function markdownToHtml(
  * HTML parser makes an image block from it. An image that is not in text (for
  * example in a `<figure>`) also stays.
  */
-function moveImagesOutOfText(html: string): string {
-  // Use a document that is not the active document, so that the HTML from
-  // the markdown does not load images or run event handlers (see
-  // `nestedListsToBlockNoteStructure`).
-  const container = document.implementation
-    .createHTMLDocument("title")
-    .createElement("div");
-  container.innerHTML = html;
+function moveImagesOutOfText(container: Element) {
   for (const media of Array.from(container.querySelectorAll("img, video"))) {
-    const textElement = media.closest("p, h1, h2, h3, h4, h5, h6, td, th");
+    const textElement = media.closest(TEXT_ELEMENTS);
     if (!textElement) {
       continue;
     }
@@ -1590,7 +1634,6 @@ function moveImagesOutOfText(html: string): string {
       replaceWithLink(media);
     }
   }
-  return container.innerHTML;
 }
 
 /**
