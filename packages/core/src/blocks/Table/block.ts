@@ -27,7 +27,11 @@ function parseTableSpan(
   element: HTMLElement,
   attribute: "colspan" | "rowspan",
 ): number {
-  const value = Number(element.getAttribute(attribute));
+  const raw = element.getAttribute(attribute);
+  if (raw === null || !/^[0-9]+$/.test(raw)) {
+    return 1;
+  }
+  const value = Number(raw);
   // Reject malformed spans before they reach table layout/array allocation.
   // These upper bounds are the limits for HTML table cell spans.
   const max = attribute === "colspan" ? 1000 : 65534;
@@ -44,11 +48,8 @@ function parseTableSpan(
     return 1;
   }
 
-  // Nested tables' rows do not contribute to this table's height.
-  const rows = Array.from(table.querySelectorAll("tr")).filter(
-    (candidate) => candidate.closest("table") === table,
-  );
-  return Math.min(value, rows.length - rows.indexOf(row));
+  // The native rows collection excludes nested tables and stays current.
+  return Math.min(value, table.rows.length - row.rowIndex);
 }
 
 const TiptapTableHeader = Node.create<{
