@@ -307,6 +307,20 @@ describe("markdown", () => {
     expect(editor.getBlock("underlined")).toBeDefined();
   });
 
+  it("two joined paragraphs keep the ID of the first paragraph, also if the second is larger", () => {
+    const editor = createEditor([
+      { id: "first", type: "paragraph", content: "First part is here." },
+      {
+        id: "second",
+        type: "paragraph",
+        content: "Second part follows with more words than the first.",
+      },
+    ]);
+    write(editor, (md) => md.replace(".\n\nSecond", ". Second"));
+
+    expect(editor.document.map((block) => block.id)).toEqual(["first"]);
+  });
+
   it("keeps nesting and blocks that markdown does not show, when other text changes", () => {
     const editor = createEditor();
     write(editor, (md) =>

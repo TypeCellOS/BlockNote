@@ -105,6 +105,20 @@ describe("alignBlocks", () => {
     ).toEqual([[0, 0]]);
   });
 
+  it("matches two joined blocks to the first block, also if the second block is larger", () => {
+    expect(
+      align(
+        flat(
+          "First part is here.",
+          "Second part follows with more words than the first.",
+        ),
+        flat(
+          "First part is here. Second part follows with more words than the first.",
+        ),
+      ),
+    ).toEqual([[0, 0]]);
+  });
+
   it("matches blocks without text by their type and position", () => {
     expect(align(flat("a", image(), "b"), flat("a", image(), "b"))).toEqual([
       [0, 0],

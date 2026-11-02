@@ -20,9 +20,9 @@ const MIN_SHARE = 0.5;
  *
  * 1. Blocks with equal text match first (see {@link alignmentKey}), with a
  *    longest common subsequence.
- * 2. Between these anchors, two blocks match if each block has its largest
- *    overlap with the other, and the overlap is at least half of the shorter
- *    text. Thus, a block with added sentences stays the same block.
+ * 2. Between these anchors, two blocks match if they prefer each other (see
+ *    {@link mutualBestPairs}), and the overlap is at least half of the
+ *    shorter text. Thus, a block with added sentences stays the same block.
  * 3. If one block on each side stays between two matches, the two blocks have
  *    the same position. If their content has the same shape, they match.
  *    Thus, a block with fully new text at the same position stays the same
@@ -218,8 +218,15 @@ function gapTexts(
 }
 
 /**
- * Returns the pairs where each block has its largest overlap with the other
- * block, and the overlap is at least {@link MIN_SHARE} of the shorter text.
+ * Returns the pairs of blocks that prefer each other, if the overlap is at
+ * least {@link MIN_SHARE} of the shorter text:
+ *
+ * - A block of `a` (the view) prefers the block of `b` with the largest
+ *   overlap. Thus, a split block stays the part with most of its text.
+ * - A block of `b` (the text) prefers the block of `a` that it covers best:
+ *   the largest part of the text of that block. Thus, two joined blocks stay
+ *   the first block, because the joined text covers the two blocks fully.
+ *
  * On a tie, the earlier block wins. The overlaps come from one diff, thus the
  * pairs do not cross.
  */
@@ -228,19 +235,24 @@ function mutualBestPairs({
   sizesA,
   sizesB,
 }: ReturnType<typeof gapTexts>): MatchedPair[] {
-  const large = overlaps.filter(
-    (overlap) =>
-      overlap.size >=
-      MIN_SHARE * Math.min(sizesA[overlap.aIndex], sizesB[overlap.bIndex]),
-  );
+  const large = overlaps
+    .filter(
+      (overlap) =>
+        overlap.size >=
+        MIN_SHARE * Math.min(sizesA[overlap.aIndex], sizesB[overlap.bIndex]),
+    )
+    .sort((x, y) => x.aIndex - y.aIndex || x.bIndex - y.bIndex);
+  const coverage = (overlap: Overlap) => overlap.size / sizesA[overlap.aIndex];
 
   const bestOfA = new Map<number, Overlap>();
   const bestOfB = new Map<number, Overlap>();
   for (const overlap of large) {
-    if ((bestOfA.get(overlap.aIndex)?.size ?? 0) < overlap.size) {
+    const ofA = bestOfA.get(overlap.aIndex);
+    if (ofA === undefined || ofA.size < overlap.size) {
       bestOfA.set(overlap.aIndex, overlap);
     }
-    if ((bestOfB.get(overlap.bIndex)?.size ?? 0) < overlap.size) {
+    const ofB = bestOfB.get(overlap.bIndex);
+    if (ofB === undefined || coverage(ofB) < coverage(overlap)) {
       bestOfB.set(overlap.bIndex, overlap);
     }
   }
