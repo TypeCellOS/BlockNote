@@ -64,7 +64,7 @@ async function render(items: DefaultReactSuggestionItem[]) {
   );
 }
 
-it("gives items that share a title or group distinct keys", async () => {
+it("gives items that share a title or group name distinct keys", async () => {
   const consoleError = vi.spyOn(console, "error");
 
   expect(
@@ -73,12 +73,16 @@ it("gives items that share a title or group distinct keys", async () => {
       item("image.png", "Page B", "Images"),
       item("logo.png", "Page A", "Logos"),
       item("image.png", "Page C", "Images"),
+      item("notes.txt", "Page D", "undefined"),
+      item("readme.txt", "Page E"),
     ]),
   ).toEqual([
     "image.png Page A",
     "image.png Page B",
     "logo.png Page A",
     "image.png Page C",
+    "notes.txt Page D",
+    "readme.txt Page E",
   ]);
 
   const duplicateKeyWarnings = consoleError.mock.calls.filter((args) =>

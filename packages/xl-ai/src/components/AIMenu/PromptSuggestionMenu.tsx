@@ -18,7 +18,9 @@ import {
 } from "react";
 
 export type PromptSuggestionMenuProps = {
-  items: DefaultReactSuggestionItem[];
+  // `key` identifies an item across renders, so it keeps its row when the
+  // list is filtered. Without it, the row key falls back to the title.
+  items: (DefaultReactSuggestionItem & { key?: string })[];
   onManualPromptSubmit: (userPrompt: string) => void;
   promptText?: string;
   onPromptTextChange?: (userPrompt: string) => void;
@@ -54,7 +56,7 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
     [onPromptTextChange, setInternalPromptText, promptText],
   );
 
-  const items: DefaultReactSuggestionItem[] = useMemo(() => {
+  const items = useMemo(() => {
     return filterSuggestionItems(props.items, promptTextToUse);
   }, [promptTextToUse, props.items]);
 
@@ -150,13 +152,17 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
           id={"ai-suggestion-menu"}
         >
           {items.map((item, i) => {
-            // Titles don't have to be unique, so each key pairs the title
-            // with how many earlier items share it.
+            // Titles don't have to be unique, so the fallback key pairs the
+            // title with how many earlier items share it.
             const titleCount = seenTitles.get(item.title) ?? 0;
             seenTitles.set(item.title, titleCount + 1);
             return (
               <Components.SuggestionMenu.Item
-                key={`${titleCount}:${item.title}`}
+                key={
+                  item.key !== undefined
+                    ? `key:${item.key}`
+                    : `title:${titleCount}:${item.title}`
+                }
                 className={mergeCSSClasses(
                   "bn-suggestion-menu-item",
                   item.size === "small" ? "bn-suggestion-menu-item-small" : "",

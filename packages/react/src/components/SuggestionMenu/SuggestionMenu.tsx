@@ -37,7 +37,7 @@ export function SuggestionMenu<T extends DefaultReactSuggestionItem>(
         renderedItems.push(
           <Components.SuggestionMenu.Label
             className={"bn-suggestion-menu-label"}
-            key={`label:${groupCount}:${currentGroup}`}
+            key={JSON.stringify(["label", groupCount, currentGroup ?? null])}
           >
             {currentGroup}
           </Components.SuggestionMenu.Label>,
