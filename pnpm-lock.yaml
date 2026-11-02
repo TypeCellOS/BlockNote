@@ -1390,6 +1390,34 @@ importers:
         specifier: ^8.0.0
         version: 8.0.8(@types/node@25.9.5)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.51.2)(tsx@4.21.0)(yaml@2.9.0)
 
+  examples/02-backend/05-text-lens-server:
+    dependencies:
+      '@blocknote/core':
+        specifier: workspace:^
+        version: link:../../../packages/core
+      '@blocknote/server-util':
+        specifier: workspace:^
+        version: link:../../../packages/server-util
+      '@blocknote/xl-ai':
+        specifier: workspace:^
+        version: link:../../../packages/xl-ai
+      '@hono/node-server':
+        specifier: ^1.19.5
+        version: 1.19.14(hono@4.12.14)
+      hono:
+        specifier: ^4.10.3
+        version: 4.12.14
+    devDependencies:
+      '@types/node':
+        specifier: 25.9.5
+        version: 25.9.5
+      vite-node:
+        specifier: ^6.0.0
+        version: 6.0.0(@types/node@25.9.5)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.51.2)(tsx@4.21.0)(yaml@2.9.0)
+      vite-plus:
+        specifier: 'catalog:'
+        version: 1.4.0(@opentelemetry/api@1.10.0)(@types/node@25.9.5)(@vitest/browser-playwright@5.0.5)(esbuild@0.27.5)(jiti@2.7.0)(jsdom@29.0.2(@noble/hashes@2.4.0)(canvas@3.1.0))(msw@2.11.5(@types/node@25.9.5)(typescript@7.0.2))(playwright@1.60.0)(terser@5.51.2)(tsx@4.21.0)(typescript@7.0.2)(yaml@2.9.0)
+
   examples/03-ui-components/01-ui-elements-remove:
     dependencies:
       '@blocknote/ariakit':

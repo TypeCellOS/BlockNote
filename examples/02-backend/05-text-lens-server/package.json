@@ -1,0 +1,23 @@
+{
+  "name": "@blocknote/example-backend-text-lens-server",
+  "description": "An HTTP server that reads and writes BlockNote documents as JSON, markdown, HTML and plain text, with the text lens of @blocknote/xl-ai.",
+  "private": true,
+  "type": "module",
+  "version": "0.57.0",
+  "scripts": {
+    "start": "vite-node src/server.ts",
+    "test": "vp test run"
+  },
+  "dependencies": {
+    "@blocknote/core": "workspace:^",
+    "@blocknote/server-util": "workspace:^",
+    "@blocknote/xl-ai": "workspace:^",
+    "@hono/node-server": "^1.19.5",
+    "hono": "^4.10.3"
+  },
+  "devDependencies": {
+    "@types/node": "22.13.13",
+    "vite-node": "^6.0.0",
+    "vite-plus": "catalog:"
+  }
+}
