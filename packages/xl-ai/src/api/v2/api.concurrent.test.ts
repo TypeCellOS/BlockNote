@@ -132,6 +132,21 @@ describe("a write from an older version", () => {
     ]);
   });
 
+  it("keeps a block that another writer moved into a block that the text removes", () => {
+    const editor = createEditor([
+      { id: "a", type: "paragraph", content: "Alpha" },
+      { id: "b", type: "bulletListItem", content: "Beta" },
+      { id: "c", type: "bulletListItem", content: "Gamma" },
+    ]);
+    const client = read(editor);
+    write(editor, read(editor), (text) =>
+      replaceOnce(text, "* Gamma", "  * Gamma"),
+    );
+    write(editor, client, (text) => replaceOnce(text, "* Beta\n", ""));
+
+    expect(documentShape(editor.document)).toEqual(["a", "c"]);
+  });
+
   it("does one move if two writers make the same move", () => {
     const editor = createEditor(fruit);
     const client = read(editor);

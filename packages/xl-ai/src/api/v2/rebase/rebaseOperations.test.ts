@@ -248,6 +248,23 @@ describe("rebaseOperations", () => {
       });
     });
 
+    it("moves a block that the text keeps out of a removed block, if another writer moved it there", () => {
+      expect(
+        rebase(
+          [block("a"), block("b"), block("c"), block("d")],
+          [block("a"), block("b", "b", [block("c"), block("d")])],
+          [{ type: "delete", id: "b" }],
+        ),
+      ).toEqual({
+        operations: [
+          { type: "move", id: "c", reference: "b", placement: "before" },
+          { type: "move", id: "d", reference: "b", placement: "before" },
+          { type: "delete", id: "b" },
+        ],
+        warnings: [],
+      });
+    });
+
     it("removes a block in which another writer added a child, with a warning", () => {
       expect(
         rebase(

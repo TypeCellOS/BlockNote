@@ -1,3 +1,4 @@
+import { withoutChildren } from "../blocks/flatten.js";
 import { deepEqual } from "../blocks/json.js";
 import { BlockTree } from "../blocks/tree.js";
 import type { ContentKind, LensBlock } from "../blocks/types.js";
@@ -44,6 +45,32 @@ export type RebaseResult = {
 export function rebaseOperations(input: RebaseInput): RebaseResult {
   const base = new BlockTree(input.base);
   const tree = new BlockTree(input.current);
+  // The blocks of `base` that the operations remove: each removed block, with
+  // its descendants in `base`.
+  const removed = new Set<string>();
+  function markRemoved(id: string) {
+    removed.add(id);
+    for (const child of base.childrenOf(id)) {
+      markRemoved(child);
+    }
+  }
+  for (const operation of input.operations) {
+    if (operation.type === "delete") {
+      markRemoved(operation.id);
+    }
+  }
+
+  /** Returns true if another writer changed the block or a block in it (in the current tree). */
+  function changedByOthers(id: string): boolean {
+    return (
+      !base.has(id) ||
+      !deepEqual(
+        withoutChildren(tree.block(id)),
+        withoutChildren(base.block(id)),
+      ) ||
+      tree.childrenOf(id).some(changedByOthers)
+    );
+  }
   const operations: BlockOperation[] = [];
   const warnings: RebaseWarning[] = [];
 
@@ -142,7 +169,22 @@ export function rebaseOperations(input: RebaseInput): RebaseResult {
           // Another writer removed the block, or the block went with a removed ancestor.
           break;
         }
-        if (!deepEqual(tree.block(id), base.block(id))) {
+        // Another writer can have moved a block that the text keeps into the
+        // removed block. That block moves out first, to the position of the
+        // removed block.
+        // A copy, because `place` changes the list of children.
+        for (const child of [...tree.childrenOf(id)]) {
+          if (base.has(child) && !removed.has(child)) {
+            operations.push({
+              type: "move",
+              id: child,
+              reference: id,
+              placement: "before",
+            });
+            tree.place(child, id, "before");
+          }
+        }
+        if (changedByOthers(id)) {
           warnings.push({ type: "removed-changed-block", id });
         }
         operations.push(operation);
