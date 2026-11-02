@@ -501,4 +501,27 @@ describe("markdown", () => {
       });
     });
   });
+
+  it("keeps a comment in a table cell when the text changes another cell", () => {
+    const editor = createCommentEditor([
+      {
+        id: "table",
+        type: "table",
+        content: {
+          type: "tableContent",
+          rows: [{ cells: ["Commented cell", "Other"] }, { cells: ["c", "d"] }],
+        },
+      },
+    ]);
+    const comment = addComment(editor, "Commented");
+
+    write(editor, (md) => replaceOnce(md, "Other", "Changed"));
+
+    expect(JSON.stringify(editor.getBlock("table")?.content)).toContain(
+      "Changed",
+    );
+    expect(commentedText(editor.prosemirrorState.doc, comment)).toBe(
+      "Commented",
+    );
+  });
 });
