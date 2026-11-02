@@ -1,3 +1,4 @@
+import { deepEqual } from "../blocks/json.js";
 import type { MatchedPair } from "../diff/types.js";
 
 /** Matched units of base, ours and theirs: a stable point of the merge. */
@@ -41,8 +42,9 @@ export type Diff3Handlers<T> = {
  * - A base unit with a match on the two sides is stable. `handlers.stable`
  *   merges it.
  * - Between stable units, the side that changed wins. If only theirs is
- *   different from the base, theirs wins. If not, ours wins. Thus, ours also
- *   wins a conflict, where the two sides changed.
+ *   different from the base, theirs wins. If the two sides made the same
+ *   change, it applies one time. If not, ours wins. Thus, ours also wins a
+ *   conflict, where the two sides changed.
  * - Two inserts at the same position can both stay (see
  *   `handlers.keepBothInserts`).
  */
@@ -95,7 +97,11 @@ export function diff3<T>(
     const ja2 = i2 < base.length ? toA[i2] : ours.length;
     const jb2 = i2 < base.length ? toB[i2] : theirs.length;
 
-    if (isUnchanged(toA, i, i2, ja, ja2, base, ours, handlers.same)) {
+    if (
+      deepEqual(ours.slice(ja, ja2), theirs.slice(jb, jb2)) ||
+      isUnchanged(toA, i, i2, ja, ja2, base, ours, handlers.same)
+    ) {
+      // The two sides made the same change, or ours made no change.
       merged.push(...theirs.slice(jb, jb2));
     } else {
       if (i === i2 && handlers.keepBothInserts) {

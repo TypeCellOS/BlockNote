@@ -205,4 +205,21 @@ describe("plain text", () => {
       );
     });
   });
+
+  it("keeps many hidden blocks in a row", () => {
+    const editor = createEditor([
+      { id: "first", type: "paragraph", content: "First" },
+      ...Array.from({ length: 6000 }, (_, i) => ({
+        id: `empty${i}`,
+        type: "paragraph" as const,
+      })),
+      { id: "last", type: "paragraph", content: "Last" },
+    ]);
+    write(editor, (text) => replaceOnce(text, "Last", "Last, edited"));
+
+    expect(editor.document).toHaveLength(6002);
+    expect(editor.getBlock("last")?.content).toMatchObject([
+      { text: "Last, edited" },
+    ]);
+  });
 });

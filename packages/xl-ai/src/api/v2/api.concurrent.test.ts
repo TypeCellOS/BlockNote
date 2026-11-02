@@ -188,6 +188,34 @@ describe("a write from an older version", () => {
     ).toEqual(["New", "Two", "End"]);
   });
 
+  it("applies a write that a client sends two times one time", () => {
+    const editor = createEditor([
+      { id: "p", type: "paragraph", content: "Intro." },
+    ]);
+    const client = read(editor);
+    write(editor, client, (text) =>
+      replaceOnce(text, "Intro.", "Intro. Added."),
+    );
+    write(editor, client, (text) =>
+      replaceOnce(text, "Intro.", "Intro. Added."),
+    );
+
+    expect(editor.getBlock("p")?.content).toMatchObject([
+      { text: "Intro. Added." },
+    ]);
+  });
+
+  it("applies the same fix of two writers one time", () => {
+    const editor = createEditor([
+      { id: "p", type: "paragraph", content: "helo" },
+    ]);
+    const client = read(editor);
+    write(editor, read(editor), (text) => replaceOnce(text, "helo", "hello"));
+    write(editor, client, (text) => replaceOnce(text, "helo", "hello"));
+
+    expect(editor.getBlock("p")?.content).toMatchObject([{ text: "hello" }]);
+  });
+
   it("does one move if two writers make the same move", () => {
     const editor = createEditor(fruit);
     const client = read(editor);

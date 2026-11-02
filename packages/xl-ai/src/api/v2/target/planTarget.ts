@@ -267,14 +267,17 @@ export function planTarget(input: PlanInput): Plan {
     if (parent !== undefined) {
       const present = new Set(parent.children.map((child) => child.id));
       // The hidden blocks to insert after each block (or first, for `undefined`).
+      // The hidden blocks after each present block (first for
+      // `undefined`), in source order.
       const after = new Map<string | undefined, LensBlock[]>();
       let last: string | undefined;
       for (const id of siblings) {
         if (invisibleIds.has(id) && kept.has(id) && !nodeOf.has(id)) {
           const block = node(id, source.block(id));
           nodeOf.set(id, block);
-          after.set(last, [...(after.get(last) ?? []), block]);
-          last = id;
+          const list = after.get(last) ?? [];
+          list.push(block);
+          after.set(last, list);
         } else if (present.has(id)) {
           last = id;
         }
@@ -301,7 +304,6 @@ function withInserts(
   function insertAfter(id: string | undefined) {
     for (const block of after.get(id) ?? []) {
       result.push(block);
-      insertAfter(block.id);
     }
   }
   insertAfter(undefined);

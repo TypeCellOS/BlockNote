@@ -46,9 +46,13 @@ export function mergeBlock(
   // merge, for example a table with merged cells (the format shows them as
   // separate cells).
   const content =
-    !contentChanged && contentKindOf(theirs.type) === kind
-      ? theirs.content
-      : mergeContent(base, ours, theirs, kind, options);
+    contentKindOf(theirs.type) !== kind
+      ? // The kind of content changed: theirs has no content of this kind to
+        // merge with. Thus, the content of ours applies as it is.
+        contentOfKind(ours.content, kind)
+      : contentChanged
+        ? mergeContent(base, ours, theirs, kind, options)
+        : theirs.content;
 
   return { type, props: mergeProps(base, ours, theirs, type), content };
 }
@@ -142,4 +146,14 @@ function mergeContent(
 function toPlainContent(content: LensInlineContent[]): LensInlineContent[] {
   const text = inlineContentToText(content);
   return text.length > 0 ? [{ type: "text", text, styles: {} }] : [];
+}
+
+/** The content of ours for a block with content of this kind: plain content has only text. */
+function contentOfKind(
+  content: LensBlockContent,
+  kind: ContentKind,
+): LensBlockContent {
+  return kind === "plain" && Array.isArray(content)
+    ? toPlainContent(content)
+    : content;
 }

@@ -114,6 +114,17 @@ describe("mergeBlock", () => {
     });
   });
 
+  it("does not merge content if the kind of content changes: hidden whitespace does not go into a code block", () => {
+    expect(
+      mergeBlock(
+        block("paragraph", {}, text("Hello world")),
+        block("codeBlock", {}, text("Hello world")),
+        block("paragraph", {}, text("Hello world ")),
+        contentKindOf,
+      ).content,
+    ).toEqual(text("Hello world"));
+  });
+
   it("sets a prop that only ours has", () => {
     const base = block("paragraph", {}, text("a"));
     expect(

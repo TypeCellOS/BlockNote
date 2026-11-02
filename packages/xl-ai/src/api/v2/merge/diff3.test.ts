@@ -39,6 +39,11 @@ describe("diff3", () => {
     expect(merge("ab", "aXb", "aYb", true)).toBe("aYXb");
   });
 
+  it("applies a change that the two sides made one time", () => {
+    expect(merge("helo", "hello", "hello")).toBe("hello");
+    expect(merge("ab", "aXb", "aXb", true)).toBe("aXb");
+  });
+
   it("gives the change of ours for a conflict", () => {
     expect(merge("abc", "aYc", "aXc")).toBe("aYc");
   });
