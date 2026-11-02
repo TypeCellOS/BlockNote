@@ -7,7 +7,7 @@ import {
   type InlineUnit,
   toUnits,
 } from "./inlineUnits.js";
-import { mergeRecords, mergeValue } from "./threeWay.js";
+import { type MergeOptions, mergeRecords, mergeValue } from "./threeWay.js";
 
 /**
  * Three-way merge (diff3) of inline content, character by character (see
@@ -26,6 +26,7 @@ export function mergeInlineContent(
   base: readonly LensInlineContent[],
   ours: readonly LensInlineContent[],
   theirs: readonly LensInlineContent[],
+  options: MergeOptions = {},
 ): LensInlineContent[] {
   const o = toUnits(base);
   const a = toUnits(ours);
@@ -40,6 +41,7 @@ export function mergeInlineContent(
       // example "**bold **" becomes "**bold** "). Thus, whitespace does not
       // show the styles around it.
       isContext: ({ base }) => base.kind === "char" && !/\s/u.test(base.char),
+      keepBothInserts: options.concurrent,
     }),
   );
 }

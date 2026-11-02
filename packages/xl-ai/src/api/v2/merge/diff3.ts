@@ -19,6 +19,12 @@ export type Diff3Handlers<T> = {
   ours: (units: T[], context: RunContext<T>) => T[];
   /** Returns true if a stable triple can be a context. By default, all can. */
   isContext?: (triple: StableTriple<T>) => boolean;
+  /**
+   * If true, two inserts at the same position (without base units between
+   * the stable units) both stay: first the inserts of theirs, then the
+   * inserts of ours. If not, ours wins, as in a conflict.
+   */
+  keepBothInserts?: boolean;
 };
 
 /**
@@ -30,6 +36,8 @@ export type Diff3Handlers<T> = {
  * - Between stable units, the side that changed wins. If only theirs is
  *   different from the base, theirs wins. If not, ours wins. Thus, ours also
  *   wins a conflict, where the two sides changed.
+ * - Two inserts at the same position can both stay (see
+ *   `handlers.keepBothInserts`).
  */
 export function diff3<T>(
   base: readonly T[],
@@ -82,6 +90,9 @@ export function diff3<T>(
     if (isUnchanged(toA, i, i2, ja, ja2)) {
       merged.push(...theirs.slice(jb, jb2));
     } else {
+      if (i === i2 && handlers.keepBothInserts) {
+        merged.push(...theirs.slice(jb, jb2));
+      }
       merged.push(
         ...handlers.ours(ours.slice(ja, ja2), {
           before,

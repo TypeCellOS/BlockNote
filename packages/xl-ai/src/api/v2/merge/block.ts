@@ -9,7 +9,7 @@ import {
 } from "../blocks/types.js";
 import { mergeInlineContent } from "./inline.js";
 import { mergeTableContent } from "./table.js";
-import { mergeRecords, mergeValue } from "./threeWay.js";
+import { type MergeOptions, mergeRecords, mergeValue } from "./threeWay.js";
 
 /**
  * Three-way merge of the fields of one block (see `threeWay.ts` for the
@@ -32,6 +32,7 @@ export function mergeBlock(
   ours: BlockFields,
   theirs: BlockFields,
   contentKindOf: (type: string) => ContentKind,
+  options: MergeOptions = {},
 ): BlockFields {
   const contentChanged = !deepEqual(base.content, ours.content);
   const merged = mergeValue(base.type, ours.type, theirs.type);
@@ -47,7 +48,7 @@ export function mergeBlock(
   const content =
     !contentChanged && contentKindOf(theirs.type) === kind
       ? theirs.content
-      : mergeContent(base, ours, theirs, kind);
+      : mergeContent(base, ours, theirs, kind, options);
 
   return { type, props: mergeProps(base, ours, theirs, type), content };
 }
@@ -99,6 +100,7 @@ function mergeContent(
   ours: BlockFields,
   theirs: BlockFields,
   kind: ContentKind,
+  options: MergeOptions,
 ): LensBlockContent {
   switch (kind) {
     case "none":
@@ -109,7 +111,12 @@ function mergeContent(
         isTableContent(ours.content) &&
         isTableContent(theirs.content)
       ) {
-        return mergeTableContent(base.content, ours.content, theirs.content);
+        return mergeTableContent(
+          base.content,
+          ours.content,
+          theirs.content,
+          options,
+        );
       }
       return ours.content;
     case "inline":
@@ -119,7 +126,12 @@ function mergeContent(
       }
       const merged =
         Array.isArray(base.content) && Array.isArray(theirs.content)
-          ? mergeInlineContent(base.content, ours.content, theirs.content)
+          ? mergeInlineContent(
+              base.content,
+              ours.content,
+              theirs.content,
+              options,
+            )
           : ours.content;
       return kind === "plain" ? toPlainContent(merged) : merged;
     }

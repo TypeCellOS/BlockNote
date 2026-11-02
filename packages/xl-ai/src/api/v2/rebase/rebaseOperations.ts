@@ -134,6 +134,7 @@ export function rebaseOperations(input: RebaseInput): RebaseResult {
             patchBlock(base.block(id), operation.update),
             theirs,
             input.contentKindOf,
+            { concurrent: true },
           ),
         );
         if (update !== undefined) {

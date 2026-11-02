@@ -4,7 +4,12 @@ import { myersMatch } from "../diff/myers.js";
 import { diff3, type RunContext } from "./diff3.js";
 
 /** Merges three strings character by character, with the default handlers. */
-function merge(base: string, ours: string, theirs: string) {
+function merge(
+  base: string,
+  ours: string,
+  theirs: string,
+  keepBothInserts = false,
+) {
   const o = Array.from(base);
   const a = Array.from(ours);
   const b = Array.from(theirs);
@@ -12,6 +17,7 @@ function merge(base: string, ours: string, theirs: string) {
   return diff3(o, a, b, myersMatch(o, a, equals), myersMatch(o, b, equals), {
     stable: ({ theirs }) => theirs,
     ours: (units) => units,
+    keepBothInserts,
   }).join("");
 }
 
@@ -26,6 +32,11 @@ describe("diff3", () => {
 
   it("keeps changes of the two sides at different positions", () => {
     expect(merge("abcde", "aYcde", "abcXe")).toBe("aYcXe");
+  });
+
+  it("keeps two inserts at the same position if the handlers say so: first theirs, then ours", () => {
+    expect(merge("ab", "aXb", "aYb")).toBe("aXb");
+    expect(merge("ab", "aXb", "aYb", true)).toBe("aYXb");
   });
 
   it("gives the change of ours for a conflict", () => {

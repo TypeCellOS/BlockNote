@@ -132,6 +132,23 @@ describe("a write from an older version", () => {
     ]);
   });
 
+  it("keeps the text of two writers who add text at the same position", () => {
+    const editor = createEditor([
+      { id: "p", type: "paragraph", content: "Intro." },
+    ]);
+    const client = read(editor);
+    write(editor, read(editor), (text) =>
+      replaceOnce(text, "Intro.", "Intro. Added by A."),
+    );
+    write(editor, client, (text) =>
+      replaceOnce(text, "Intro.", "Intro. Added by B."),
+    );
+
+    expect(editor.getBlock("p")?.content).toMatchObject([
+      { text: "Intro. Added by A. Added by B." },
+    ]);
+  });
+
   it("keeps a block that another writer moved into a block that the text removes", () => {
     const editor = createEditor([
       { id: "a", type: "paragraph", content: "Alpha" },

@@ -4,7 +4,7 @@ import { myersMatch } from "../diff/myers.js";
 import type { MatchedPair } from "../diff/types.js";
 import { diff3 } from "./diff3.js";
 import { mergeInlineContent } from "./inline.js";
-import { mergeRecords, mergeValue } from "./threeWay.js";
+import { type MergeOptions, mergeRecords, mergeValue } from "./threeWay.js";
 
 type Row = LensTableCell[];
 
@@ -22,6 +22,7 @@ export function mergeTableContent(
   base: LensTableContent,
   ours: LensTableContent,
   theirs: LensTableContent,
+  options: MergeOptions = {},
 ): LensTableContent {
   const baseRows = rowsOf(base);
   const ourRows = rowsOf(ours);
@@ -36,9 +37,12 @@ export function mergeTableContent(
     {
       stable: ({ base: baseRow, ours: ourRow, theirs: theirRow }) =>
         baseRow.length === ourRow.length && baseRow.length === theirRow.length
-          ? ourRow.map((cell, c) => mergeCell(baseRow[c], cell, theirRow[c]))
+          ? ourRow.map((cell, c) =>
+              mergeCell(baseRow[c], cell, theirRow[c], options),
+            )
           : ourRow,
       ours: (units) => units,
+      keepBothInserts: options.concurrent,
     },
   );
 
@@ -115,10 +119,16 @@ function mergeCell(
   base: LensTableCell,
   ours: LensTableCell,
   theirs: LensTableCell,
+  options: MergeOptions,
 ): LensTableCell {
   return {
     type: "tableCell",
     props: mergeRecords(base.props, ours.props, theirs.props),
-    content: mergeInlineContent(base.content, ours.content, theirs.content),
+    content: mergeInlineContent(
+      base.content,
+      ours.content,
+      theirs.content,
+      options,
+    ),
   };
 }

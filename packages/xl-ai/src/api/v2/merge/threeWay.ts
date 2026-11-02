@@ -1,6 +1,16 @@
 import { deepEqual } from "../blocks/json.js";
 
 /**
+ * The options of the merges in this folder. `concurrent` is true if `theirs`
+ * is a later version with the changes of other writers (the rebase), not the
+ * document of a view (the planner). Then two inserts at the same position
+ * both stay. In the planner, an insert of `theirs` at the position of an
+ * insert of `ours` is a difference that the format makes (for example
+ * whitespace). Thus, it does not stay.
+ */
+export type MergeOptions = { concurrent?: boolean };
+
+/**
  * The three-way rule for all merges in this folder, with one vocabulary:
  *
  * - `base`: the common start of the two sides.
