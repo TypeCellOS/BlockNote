@@ -70,7 +70,8 @@ describe("exporter", () => {
     });
 
     // Like in the editor, the first item of a list sets the number it starts
-    // at; a start number on a later item is ignored.
+    // at, and a start of 0 counts as 1; a start number on a later item is
+    // ignored.
     const transformed = await exporter.toReactPDFDocument(
       partialBlocksToBlocksForTesting(schema, [
         { type: "numberedListItem", content: "five", props: { start: 5 } },
@@ -78,12 +79,31 @@ describe("exporter", () => {
         { type: "numberedListItem", content: "seven", props: { start: 2 } },
         { type: "paragraph", content: "a paragraph breaks the list" },
         { type: "numberedListItem", content: "one" },
+        { type: "paragraph", content: "a paragraph breaks the list" },
+        { type: "numberedListItem", content: "zero", props: { start: 0 } },
+        { type: "paragraph", content: "a paragraph breaks the list" },
+        {
+          type: "numberedListItem",
+          content: "minus one",
+          props: { start: -1 },
+        },
+        { type: "numberedListItem", content: "zero" },
+        { type: "numberedListItem", content: "one", props: { start: 9 } },
       ]),
     );
     const listMarkers = [
       ...reactElementToJSXString(transformed).matchAll(/listMarker="([^"]*)"/g),
     ].map((match) => match[1]);
 
-    expect(listMarkers).toEqual(["5.", "6.", "7.", "1."]);
+    expect(listMarkers).toEqual([
+      "5.",
+      "6.",
+      "7.",
+      "1.",
+      "1.",
+      "-1.",
+      "0.",
+      "1.",
+    ]);
   });
 });

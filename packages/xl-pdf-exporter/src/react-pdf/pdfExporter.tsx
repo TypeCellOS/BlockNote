@@ -169,18 +169,20 @@ export class PDFExporter<
   ): Promise<React.ReactElement<Text>[]> {
     const ret: React.ReactElement<Text>[] = [];
     let numberedListIndex = 0;
+    let previousBlockType: string | undefined;
 
     for (const b of blocks) {
       if (b.type === "numberedListItem") {
-        numberedListIndex++;
         // Like in the editor, only the first item of a list sets its start
-        // number.
-        if (numberedListIndex === 1 && b.props.start !== undefined) {
-          numberedListIndex = b.props.start as number;
-        }
+        // number, and a start of 0 counts as 1.
+        numberedListIndex =
+          previousBlockType === "numberedListItem"
+            ? numberedListIndex + 1
+            : (b.props.start as number | undefined) || 1;
       } else {
         numberedListIndex = 0;
       }
+      previousBlockType = b.type;
       const children = await this.transformBlocks(b.children, nestingLevel + 1);
       const self = await this.mapBlock(
         b,

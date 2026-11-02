@@ -195,12 +195,12 @@ export class DOCXExporter<
           runInstance = ++this.numberingInstanceCounter;
           runListType = b.type;
           // Like in the editor, the first item of a numbered list sets the
-          // number it starts at.
+          // number it starts at, and a start of 0 counts as 1.
           const start =
             b.type === "numberedListItem"
               ? (b.props as { start?: number }).start
               : undefined;
-          if (start !== undefined && start !== 1) {
+          if (start && start !== 1) {
             this.numberedListStarts.set(runInstance, start);
           }
         }

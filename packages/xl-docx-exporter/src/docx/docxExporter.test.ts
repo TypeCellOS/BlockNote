@@ -571,6 +571,9 @@ describe("exporter", () => {
           props: { start: 5 },
         },
         { type: "numberedListItem", content: "six again" },
+        { type: "paragraph", content: "a paragraph breaks the list" },
+        { type: "numberedListItem", content: "zero", props: { start: 0 } },
+        { type: "numberedListItem", content: "two" },
       ];
 
       const exporter = new DOCXExporter(schema, docxDefaultSchemaMappings, {
@@ -601,6 +604,8 @@ describe("exporter", () => {
         "1. one",
         "5. five again",
         "6. six again",
+        "1. zero",
+        "2. two",
       ]);
     },
   );
