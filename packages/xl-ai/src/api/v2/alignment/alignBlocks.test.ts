@@ -113,8 +113,7 @@ describe("alignBlocks", () => {
     ]);
   });
 
-  it("does not match a moved block", () => {
-    // The pairs cannot cross. Thus, the alignment keeps the longer run.
+  it("matches a moved block by its unique text", () => {
     expect(
       align(
         flat("one x", "two y", "three z"),
@@ -123,7 +122,24 @@ describe("alignBlocks", () => {
     ).toEqual([
       [1, 0],
       [2, 1],
+      [0, 2],
     ]);
+  });
+
+  it("does not match a moved block if its text is not unique", () => {
+    // The text "same" is on two blocks without a match in the second list.
+    expect(
+      align(flat("same", "a b", "c d"), flat("a b", "c d", "same", "same")),
+    ).toEqual([
+      [1, 0],
+      [2, 1],
+    ]);
+  });
+
+  it("does not match a moved block that changed, or a moved empty block", () => {
+    expect(
+      align(flat("one x", "", "two y"), flat("two y", "one x!", "")),
+    ).toEqual([[2, 0]]);
   });
 });
 

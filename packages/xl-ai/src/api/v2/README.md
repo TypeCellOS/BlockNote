@@ -61,8 +61,9 @@ The identity of a block follows the location of its text, not the similarity of 
 1. Blocks with equal text match first (a longest common subsequence). For a block without text (for example an image), the key is its type.
 2. Between these anchors, a word diff of the block texts finds the overlap of each pair of blocks. Two blocks match if each block has its largest overlap with the other, and the overlap is at least half of the shorter text. Thus, a paragraph with eight new sentences stays the same block, with its ID and props.
 3. If one block on each side stays between two matches, the two blocks have the same position. They match if their content has the same shape (text, table, or the same type without content). Thus, a paragraph with fully new text at the same position stays the same block.
+4. Of the blocks without a match, two blocks match if they have equal, non-empty text that no other block without a match has, on either side. Thus, a block that the text moves keeps its ID, props and comments. The plan then moves the block.
 
-A split paragraph keeps its ID on the part with the most of its text. Two joined paragraphs keep the ID of the first paragraph. A moved block is removed and inserted again, with a new ID.
+A split paragraph keeps its ID on the part with the most of its text. Two joined paragraphs keep the ID of the first paragraph. A block that moved and also changed gets a new ID.
 
 ## The three-way merge
 
@@ -143,5 +144,5 @@ Each module imports only modules that are before it in this list. Thus, there ar
 
 - Yjs v14 (`@y/y` and `@y/prosemirror`).
 - HTML as a format, and IDs in the text.
-- Moves in the text. If the client moves a paragraph to a different place in the text, the lens does not find it. The block is removed and inserted again, with a new ID.
+- A block that the text moves and also changes. The lens does not find it. The block is removed and inserted again, with a new ID.
 - Table rows with a different number of cells. Examples are added or removed columns, and changed rows with merged cells (the format shows them as separate cells). The result for these rows is the row from the text. The cell colors and merged cells of these rows are lost.

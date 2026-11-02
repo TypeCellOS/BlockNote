@@ -111,6 +111,26 @@ describe("a write from an older version", () => {
     );
   });
 
+  it("moves a block that another writer changed, and keeps the change", () => {
+    const editor = createEditor([
+      { id: "a", type: "paragraph", content: "Alpha" },
+      { id: "b", type: "paragraph", content: "Beta" },
+      { id: "c", type: "paragraph", content: "Gamma" },
+    ]);
+    const client = read(editor);
+    write(editor, read(editor), (text) =>
+      replaceOnce(text, "Gamma", "Gamma, edited"),
+    );
+    write(editor, client, (text) =>
+      replaceOnce(text, "Alpha\n\nBeta\n\nGamma", "Gamma\n\nAlpha\n\nBeta"),
+    );
+
+    expect(editor.document.map((block) => block.id)).toEqual(["c", "a", "b"]);
+    expect(editor.getBlock("c")?.content).toMatchObject([
+      { text: "Gamma, edited" },
+    ]);
+  });
+
   it("does one move if two writers make the same move", () => {
     const editor = createEditor(fruit);
     const client = read(editor);

@@ -15,8 +15,8 @@ import { type Overlap, textOverlaps, wordSize } from "./overlap.js";
 const MIN_SHARE = 0.5;
 
 /**
- * Aligns two flat block lists, one to one. The matched pairs do not cross.
- * The identity of a block follows the location of its text:
+ * Aligns two flat block lists, one to one. The identity of a block follows
+ * the location of its text:
  *
  * 1. Blocks with equal text match first (see {@link alignmentKey}), with a
  *    longest common subsequence.
@@ -27,9 +27,11 @@ const MIN_SHARE = 0.5;
  *    the same position. If their content has the same shape, they match.
  *    Thus, a block with fully new text at the same position stays the same
  *    block.
- *
- * The alignment does not find moved blocks. A block that moved across other
- * blocks has no match.
+ * 4. A block that moved: of the blocks without a match, two blocks match if
+ *    they have equal, non-empty text that no other block without a match has
+ *    on either side. Thus, a block that the text moves keeps its ID. These
+ *    pairs can cross the other pairs. A block that moved and changed has no
+ *    match.
  */
 export function alignBlocks(
   a: readonly FlatBlock[],
@@ -57,7 +59,38 @@ export function alignBlocks(
       pairs.push(anchor);
     }
   }
-  return pairs;
+  return [...pairs, ...movedPairs(a, b, pairs)];
+}
+
+/** Rule 4 of {@link alignBlocks}: pairs of moved blocks. */
+function movedPairs(
+  a: readonly FlatBlock[],
+  b: readonly FlatBlock[],
+  pairs: readonly MatchedPair[],
+): MatchedPair[] {
+  const matchedA = new Set(pairs.map((pair) => pair.aIndex));
+  const matchedB = new Set(pairs.map((pair) => pair.bIndex));
+  /** The index of each unique, non-empty text without a match. */
+  function uniqueTexts(blocks: readonly FlatBlock[], matched: Set<number>) {
+    const indexes = new Map<string, number | undefined>();
+    blocks.forEach(({ block }, index) => {
+      const text = blockToText(block);
+      if (!matched.has(index) && Array.isArray(block.content) && text.trim()) {
+        // A second block with the same text makes the text not unique.
+        indexes.set(text, indexes.has(text) ? undefined : index);
+      }
+    });
+    return indexes;
+  }
+  const textsB = uniqueTexts(b, matchedB);
+  const moved: MatchedPair[] = [];
+  for (const [text, aIndex] of uniqueTexts(a, matchedA)) {
+    const bIndex = textsB.get(text);
+    if (aIndex !== undefined && bIndex !== undefined) {
+      moved.push({ aIndex, bIndex });
+    }
+  }
+  return moved;
 }
 
 /**

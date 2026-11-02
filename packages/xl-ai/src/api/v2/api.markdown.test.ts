@@ -335,6 +335,35 @@ describe("markdown", () => {
       ["child-paragraph"],
     ]);
   });
+  it("a paragraph that the text moves keeps its ID, props and comments", () => {
+    const editor = createCommentEditor([
+      { id: "a", type: "paragraph", content: "First paragraph" },
+      {
+        id: "b",
+        type: "paragraph",
+        props: { textColor: "red" },
+        content: "Second paragraph",
+      },
+      { id: "c", type: "paragraph", content: "Third paragraph" },
+    ]);
+    const comment = addComment(editor, "Second");
+
+    const update = write(editor, (md) =>
+      replaceOnce(
+        md,
+        "Second paragraph\n\nThird paragraph",
+        "Third paragraph\n\nSecond paragraph",
+      ),
+    );
+
+    expect(update.operations.map((operation) => operation.type)).toEqual([
+      "move",
+    ]);
+    expect(editor.document.map((block) => block.id)).toEqual(["a", "c", "b"]);
+    expect(editor.getBlock("b")?.props).toMatchObject({ textColor: "red" });
+    expect(commentedText(editor.prosemirrorState.doc, comment)).toBe("Second");
+  });
+
   it("keeps a comment on text that the edit does not touch", () => {
     const editor = createCommentEditor([
       { id: "p", type: "paragraph", content: "Hello world" },
