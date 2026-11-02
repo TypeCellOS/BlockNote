@@ -68,6 +68,14 @@ describe("addInlineContentSteps", () => {
     expect(steps[0]).toBeInstanceOf(ReplaceStep);
   });
 
+  it("replaces a changed word with one step, also if it has letters in common", () => {
+    const editor = createEditor("The last word");
+    const steps = applySteps(editor, [text("The final word")]);
+
+    expect(steps).toHaveLength(1);
+    expect(steps[0]).toBeInstanceOf(ReplaceStep);
+  });
+
   it("changes only marks if only the styles changed", () => {
     const editor = createEditor("Hello world");
     const steps = applySteps(editor, [
