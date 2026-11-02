@@ -16,7 +16,11 @@ export type BlockPosition = TreePosition;
 export type BlockOperation =
   /** Changes the given fields of a block: type, props, content, or a mix. */
   | { type: "update"; id: string; update: LensPartialBlock }
-  /** Inserts a block without children. Later operations insert the children. */
+  /**
+   * Inserts a block. If all the blocks in it are new, they come with it, as
+   * its children. Else, it has no children, and later operations insert or
+   * move its children.
+   */
   | ({ type: "insert"; block: LensBlock } & BlockPosition)
   /** Moves a block, with its children. */
   | ({ type: "move"; id: string } & BlockPosition)

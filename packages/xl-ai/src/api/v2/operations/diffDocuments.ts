@@ -13,7 +13,9 @@ import type { BlockOperation, BlockPosition } from "./types.js";
  * - In each parent, the blocks that keep their order stay (a longest common
  *   subsequence of the child IDs). Each other block goes after the block
  *   before it in `target`, or first in its parent: a move for a block of
- *   `current`, or an insert for a new block.
+ *   `current`, or an insert for a new block. A new block with only new
+ *   blocks in it goes in one insert, with its children. Thus, a block that
+ *   must have children (for example a column list) is never empty.
  * - A delete for each block that is not in `target`. The deletes come last.
  *   Thus, the blocks that stay moved out of the removed blocks first.
  */
@@ -31,6 +33,11 @@ export function diffDocuments(
     if (update !== undefined) {
       operations.push({ type: "update", id, update });
     }
+  }
+
+  /** Returns true if the block and all the blocks in it are new. */
+  function isNewSubtree(id: string): boolean {
+    return !from.has(id) && to.childrenOf(id).every(isNewSubtree);
   }
 
   function placeChildren(parent: string | undefined) {
@@ -58,13 +65,17 @@ export function diffDocuments(
           ? { type: "move", id, ...position }
           : {
               type: "insert",
-              block: withoutChildren(to.block(id)),
+              block: isNewSubtree(id)
+                ? to.block(id)
+                : withoutChildren(to.block(id)),
               ...position,
             },
       );
     });
     for (const id of children) {
-      placeChildren(id);
+      if (!isNewSubtree(id)) {
+        placeChildren(id);
+      }
     }
   }
   placeChildren(undefined);
