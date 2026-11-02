@@ -27,6 +27,7 @@ export function resolveBlockMeta<
   return {
     ...meta,
     selectable: meta?.selectable ?? true,
+    listItem: meta?.listItem ?? false,
     code: isLayoutBlock ? false : (meta?.code ?? false),
     defining: isLayoutBlock ? true : (meta?.defining ?? true),
     isolating: isLayoutBlock ? false : (meta?.isolating ?? true),

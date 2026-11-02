@@ -7,6 +7,10 @@ import type { NodeView } from "@tiptap/pm/view";
 
 import type { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
 import {
+  listBlockAttributes,
+  listItemId,
+} from "../extensions/ListAccessibility/ListAccessibility.js";
+import {
   blockFrameView,
   findFrameSlot,
   frameNodeViewHooks,
@@ -149,6 +153,12 @@ export const BlockContainer = Node.create<{
         contentDOM: HTMLElement;
       };
       const editor = this.options.editor;
+      const listBlock = listBlockAttributes(
+        dom,
+        block,
+        props.innerDecorations,
+        (itemId) => listItemId(editor.prosemirrorView!, itemId),
+      );
       // The block's frame: React draws its own, otherwise the block's
       // vanilla `renderFrame`. A drawn frame goes inside `.bn-block`; a block
       // without one keeps its content and children in `.bn-block` itself.
@@ -169,6 +179,7 @@ export const BlockContainer = Node.create<{
         setBlockColorAttributes(block, attrs);
       }
 
+      const frameHooks = frameNodeViewHooks(frame);
       const nodeView: NodeView = {
         dom,
         contentDOM: frame.slot,
@@ -190,9 +201,26 @@ export const BlockContainer = Node.create<{
           if (!node.firstChild!.sameMarkup(before.firstChild!)) {
             setBlockColorAttributes(block, node.firstChild!.attrs);
           }
+          listBlock.update(innerDecorations);
           return true;
         },
-        ...frameNodeViewHooks(frame),
+        ...frameHooks,
+        destroy() {
+          listBlock.destroy();
+          frameHooks.destroy?.();
+        },
+        ignoreMutation(mutation) {
+          if (
+            mutation.type === "attributes" &&
+            (mutation.target === dom || mutation.target === block) &&
+            (mutation.attributeName === "role" ||
+              mutation.attributeName === "id" ||
+              mutation.attributeName === "aria-owns")
+          ) {
+            return true;
+          }
+          return frameHooks.ignoreMutation(mutation);
+        },
       };
       return nodeView;
     }) as unknown as NodeViewRenderer;

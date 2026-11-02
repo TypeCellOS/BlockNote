@@ -50,6 +50,14 @@ export interface BlockConfigMeta<
   selectable?: boolean;
 
   /**
+   * Whether this regular block participates in accessible lists. Consecutive
+   * sibling blocks of the same opted-in type form a list. This does not add
+   * markers, numbering, or keyboard behavior.
+   * @default false
+   */
+  listItem?: boolean;
+
+  /**
    * The accept mime types for the file block
    */
   fileBlockAccept?: string[];
@@ -112,7 +120,12 @@ export type ResolvedBlockConfigMeta<
   Required<
     Pick<
       BlockConfigMeta<TName, TProps>,
-      "selectable" | "code" | "defining" | "isolating" | "draggable"
+      | "selectable"
+      | "listItem"
+      | "code"
+      | "defining"
+      | "isolating"
+      | "draggable"
     >
   >;
 

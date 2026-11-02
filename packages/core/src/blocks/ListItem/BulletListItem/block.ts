@@ -33,6 +33,7 @@ export const createBulletListItemBlockSpec = createBlockSpec(
       emptyEnterResets: true,
     },
     meta: {
+      listItem: true,
       isolating: false,
     },
     parse(element) {

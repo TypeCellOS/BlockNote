@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vite-plus/test";
 
+import { BlockNoteSchema } from "../../blocks/BlockNoteSchema.js";
+import { createBlockSpec } from "./createSpec.js";
 import { resolveBlockMeta } from "./meta.js";
 
 describe("resolveBlockMeta", () => {
@@ -10,6 +12,7 @@ describe("resolveBlockMeta", () => {
       defining: true,
       isolating: true,
       draggable: true,
+      listItem: false,
     });
   });
 
@@ -26,6 +29,7 @@ describe("resolveBlockMeta", () => {
       defining: true,
       isolating: false,
       draggable: true,
+      listItem: false,
       highlight,
     });
   });
@@ -49,5 +53,71 @@ describe("resolveBlockMeta", () => {
       resolveBlockMeta(undefined, { layoutOnly: true, placeable: "anywhere" })
         .draggable,
     ).toBe(true);
+  });
+});
+
+describe("list item metadata", () => {
+  it("defaults to non-list while preserving explicit opt-ins and opt-outs", () => {
+    expect(resolveBlockMeta(undefined, {}).listItem).toBe(false);
+    expect(resolveBlockMeta({ listItem: true }, {}).listItem).toBe(true);
+    expect(resolveBlockMeta({ listItem: false }, {}).listItem).toBe(false);
+  });
+
+  it.each([
+    "bulletListItem",
+    "numberedListItem",
+    "checkListItem",
+    "toggleListItem",
+  ] as const)("opts the built-in %s into list semantics", (type) => {
+    const schema = BlockNoteSchema.create();
+    expect(schema.blockSpecs[type].implementation.meta.listItem).toBe(true);
+  });
+
+  it("does not opt other built-in blocks into list semantics", () => {
+    const schema = BlockNoteSchema.create();
+    for (const [type, spec] of Object.entries(schema.blockSpecs)) {
+      if (
+        ![
+          "bulletListItem",
+          "numberedListItem",
+          "checkListItem",
+          "toggleListItem",
+        ].includes(type)
+      ) {
+        expect(spec.implementation.meta.listItem, type).toBe(false);
+      }
+    }
+  });
+
+  it("lets a regular custom block opt in without a numbered-list block", () => {
+    const customListItem = createBlockSpec(
+      { type: "customListItem", propSchema: {}, content: "inline" },
+      {
+        meta: { listItem: true },
+        render() {
+          throw new Error("Metadata tests must not render a block");
+        },
+      },
+    )();
+    const custom = createBlockSpec(
+      { type: "custom", propSchema: {}, content: "inline" },
+      {
+        render() {
+          throw new Error("Metadata tests must not render a block");
+        },
+      },
+    )();
+    const schema = BlockNoteSchema.create({
+      blockSpecs: { customListItem, custom },
+    });
+
+    expect(schema.blockSpecs.custom.implementation.meta.listItem).toBe(false);
+    expect(Object.keys(schema.blockSpecs)).toEqual([
+      "customListItem",
+      "custom",
+    ]);
+    expect(schema.blockSpecs.customListItem.implementation.meta.listItem).toBe(
+      true,
+    );
   });
 });

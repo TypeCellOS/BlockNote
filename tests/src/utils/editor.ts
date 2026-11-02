@@ -96,6 +96,7 @@ export async function compareDocToSnapshot(name: string) {
 // the bare `vitest` module, but its own `expect` is typed from an internal
 // module, so the augmentation doesn't attach. Type the accessor locally.
 type ElementMatchers = {
+  toMatchAriaInlineSnapshot(snapshot: string): Promise<void>;
   toMatchScreenshot(
     name?: string,
     options?: {
