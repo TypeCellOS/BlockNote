@@ -8,77 +8,75 @@ import type { MatchedPair } from "./types.js";
  * 1. The keys that are in `a` one time and in `b` one time are anchors. The
  *    longest increasing subsequence of these pairs gives the anchors that do
  *    not cross.
- * 2. Between the anchors, the function matches again, in the same way. A
- *    range without anchors goes to {@link myersMatch}.
+ * 2. Between two anchors, {@link myersMatch} matches the items.
  *
- * Thus, the Myers diff gets small ranges, and the limit of its edit distance
- * applies only inside a range. The result is a common subsequence, in
- * order. It is not always the longest one.
+ * Thus, the limit of the edit distance of the Myers diff applies only between
+ * two anchors. The patience method of git also finds anchors again between
+ * two anchors. That is not necessary here: the Myers diff gives the best
+ * match between two anchors, unless the range needs more edits than its
+ * limit. Without that recursion, the time has a limit, also for inputs that
+ * give one new anchor at each level.
+ *
+ * The result is a common subsequence, in order. It is not always the longest
+ * one.
  */
 export function anchoredMatch<T>(
   a: readonly T[],
   b: readonly T[],
   keyOf: (item: T) => string,
 ): MatchedPair[] {
+  const keysA = a.map(keyOf);
+  const keysB = b.map(keyOf);
   const pairs: MatchedPair[] = [];
-  match(0, a.length, 0, b.length);
+  let aNext = 0;
+  let bNext = 0;
+  for (const anchor of uniqueAnchors(keysA, keysB)) {
+    matchRange(anchor.aIndex, anchor.bIndex);
+    pairs.push(anchor);
+    aNext = anchor.aIndex + 1;
+    bNext = anchor.bIndex + 1;
+  }
+  matchRange(a.length, b.length);
   return pairs;
 
-  function match(aStart: number, aEnd: number, bStart: number, bEnd: number) {
-    const anchors = uniqueAnchors(aStart, aEnd, bStart, bEnd);
-    if (anchors.length === 0) {
-      for (const pair of myersMatch(
-        a.slice(aStart, aEnd),
-        b.slice(bStart, bEnd),
-        (x, y) => keyOf(x) === keyOf(y),
-      )) {
-        pairs.push({
-          aIndex: aStart + pair.aIndex,
-          bIndex: bStart + pair.bIndex,
-        });
-      }
-      return;
+  /** Matches the items from the last anchor to the end indexes, with the Myers diff. */
+  function matchRange(aEnd: number, bEnd: number) {
+    for (const pair of myersMatch(
+      keysA.slice(aNext, aEnd),
+      keysB.slice(bNext, bEnd),
+      (x, y) => x === y,
+    )) {
+      pairs.push({ aIndex: aNext + pair.aIndex, bIndex: bNext + pair.bIndex });
     }
-    let aNext = aStart;
-    let bNext = bStart;
-    for (const anchor of anchors) {
-      match(aNext, anchor.aIndex, bNext, anchor.bIndex);
-      pairs.push(anchor);
-      aNext = anchor.aIndex + 1;
-      bNext = anchor.bIndex + 1;
-    }
-    match(aNext, aEnd, bNext, bEnd);
   }
+}
 
-  /** The anchors of the ranges: pairs of keys that are unique on each side, without crossings. */
-  function uniqueAnchors(
-    aStart: number,
-    aEnd: number,
-    bStart: number,
-    bEnd: number,
-  ): MatchedPair[] {
-    const inA = uniqueIndexes(a, aStart, aEnd);
-    const inB = uniqueIndexes(b, bStart, bEnd);
-    const candidates: MatchedPair[] = [];
-    for (const [key, aIndex] of inA) {
-      const bIndex = inB.get(key);
-      if (aIndex !== undefined && bIndex !== undefined) {
-        candidates.push({ aIndex, bIndex });
-      }
+/** The anchors: pairs of keys that are unique on each side, without crossings. */
+function uniqueAnchors(
+  keysA: readonly string[],
+  keysB: readonly string[],
+): MatchedPair[] {
+  const inB = uniqueIndexes(keysB);
+  const candidates: MatchedPair[] = [];
+  for (const [key, aIndex] of uniqueIndexes(keysA)) {
+    const bIndex = inB.get(key);
+    if (aIndex !== undefined && bIndex !== undefined) {
+      candidates.push({ aIndex, bIndex });
     }
-    candidates.sort((x, y) => x.aIndex - y.aIndex);
-    return longestIncreasing(candidates);
   }
+  // A map keeps the order in which its keys were added. A unique key was
+  // added at its only index. Thus, the candidates are in the order of
+  // `aIndex`.
+  return longestIncreasing(candidates);
+}
 
-  /** The index of each key that is in `items[start, end)` one time. A key that repeats maps to `undefined`. */
-  function uniqueIndexes(items: readonly T[], start: number, end: number) {
-    const indexes = new Map<string, number | undefined>();
-    for (let index = start; index < end; index++) {
-      const key = keyOf(items[index]);
-      indexes.set(key, indexes.has(key) ? undefined : index);
-    }
-    return indexes;
-  }
+/** The index of each key that is in `keys` one time. A key that repeats maps to `undefined`. */
+function uniqueIndexes(keys: readonly string[]) {
+  const indexes = new Map<string, number | undefined>();
+  keys.forEach((key, index) => {
+    indexes.set(key, indexes.has(key) ? undefined : index);
+  });
+  return indexes;
 }
 
 /** The longest subsequence of the pairs (sorted by `aIndex`) in which `bIndex` increases. */

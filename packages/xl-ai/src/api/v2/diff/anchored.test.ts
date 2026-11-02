@@ -35,6 +35,22 @@ describe("anchoredMatch", () => {
     expect(pairs.every((pair) => a[pair.aIndex] === b[pair.bIndex])).toBe(true);
   });
 
+  it("is fast for a sequence in which each level of anchors gives one new anchor", () => {
+    // x1 x0 x2 x1 x3 x2 ...: each key is in `a` two times, except the first
+    // and the last key.
+    const count = 40_000;
+    const a = Array.from({ length: count }, (_, i) => [
+      `x${i + 1}`,
+      `x${i}`,
+    ]).flat();
+    const b = Array.from({ length: count + 1 }, (_, i) => `x${i}`);
+
+    const start = performance.now();
+    const pairs = anchoredMatch(a, b, same);
+    expect(performance.now() - start).toBeLessThan(2000);
+    expect(pairs.every((pair) => a[pair.aIndex] === b[pair.bIndex])).toBe(true);
+  });
+
   it("gives pairs that do not cross", () => {
     const a = ["a", "b", "c", "d"];
     const b = ["c", "a", "b", "d"];
