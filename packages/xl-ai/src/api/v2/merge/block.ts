@@ -9,7 +9,7 @@ import {
 } from "../blocks/types.js";
 import { mergeInlineContent } from "./inline.js";
 import { mergeTableContent } from "./table.js";
-import { mergeRecords } from "./threeWay.js";
+import { mergeRecords, mergeValue } from "./threeWay.js";
 
 /**
  * Three-way merge of the fields of one block (see `threeWay.ts` for the
@@ -18,10 +18,14 @@ import { mergeRecords } from "./threeWay.js";
  * is the block at the version that the client read, `ours` is that block
  * with the update, and `theirs` is the current block.
  *
- * The type changes only if `ours` changed it. Thus, a toggle list item stays
- * a toggle, although markdown shows it as a bullet. The merge merges each
- * prop of the three blocks. It merges inline content character by character,
- * and tables cell by cell.
+ * The type changes only if a side changed it. Thus, a toggle list item stays
+ * a toggle, although markdown shows it as a bullet. There is one exception:
+ * if `ours` changed the content, and that type cannot hold the content of
+ * `ours`, the type of `ours` wins. An example is a table that a format shows
+ * as lines of text: a change of these lines makes the block a paragraph.
+ *
+ * The merge merges each prop (see {@link mergeProps}). It merges inline
+ * content character by character, and tables cell by cell.
  */
 export function mergeBlock(
   base: BlockFields,
@@ -29,22 +33,65 @@ export function mergeBlock(
   theirs: BlockFields,
   contentKindOf: (type: string) => ContentKind,
 ): BlockFields {
-  const type = base.type !== ours.type ? ours.type : theirs.type;
+  const contentChanged = !deepEqual(base.content, ours.content);
+  const merged = mergeValue(base.type, ours.type, theirs.type);
+  const type =
+    contentChanged && !canHold(contentKindOf(merged), ours.content)
+      ? ours.type
+      : merged;
   const kind = contentKindOf(type);
   // If the content did not change, the content of theirs stays as one item.
   // This is also correct for content that a piece-by-piece merge cannot
   // merge, for example a table with merged cells (the format shows them as
   // separate cells).
   const content =
-    deepEqual(base.content, ours.content) && contentKindOf(theirs.type) === kind
+    !contentChanged && contentKindOf(theirs.type) === kind
       ? theirs.content
       : mergeContent(base, ours, theirs, kind);
 
-  return {
-    type,
-    props: mergeRecords(base.props, ours.props, theirs.props),
-    content,
-  };
+  return { type, props: mergeProps(base, ours, theirs, type), content };
+}
+
+/** Returns true if a block with content of this kind can hold the content. */
+function canHold(kind: ContentKind, content: LensBlockContent): boolean {
+  switch (kind) {
+    case "inline":
+    case "plain":
+      return Array.isArray(content);
+    case "table":
+      return isTableContent(content);
+    case "none":
+      return content === undefined;
+  }
+}
+
+/**
+ * Merges the props of the result type. If `ours` and `theirs` have the same
+ * type, all keys of the three blocks count, because a block can lack a prop.
+ * If not, only the props of the side with the result type are valid for that
+ * type. For a key that the other side also has, the values merge.
+ */
+function mergeProps(
+  base: BlockFields,
+  ours: BlockFields,
+  theirs: BlockFields,
+  type: string,
+): Record<string, unknown> {
+  if (ours.type === theirs.type) {
+    return mergeRecords(base.props, ours.props, theirs.props);
+  }
+  const [side, other] = type === ours.type ? [ours, theirs] : [theirs, ours];
+  const props: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(side.props)) {
+    const merged =
+      key in other.props
+        ? mergeValue(base.props[key], ours.props[key], theirs.props[key])
+        : value;
+    if (merged !== undefined) {
+      props[key] = merged;
+    }
+  }
+  return props;
 }
 
 function mergeContent(

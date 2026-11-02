@@ -1,9 +1,13 @@
 import { describe, expect, it } from "vite-plus/test";
 
+import { blockToText } from "./blocks/text.js";
+import type { LensBlock } from "./blocks/types.js";
+
 import {
   getDocumentText,
   markdownFormat,
   plainTextFormat,
+  type TextFormat,
   updateDocumentFromText,
 } from "./index.js";
 import {
@@ -124,5 +128,41 @@ describe("removals (review closely)", () => {
     ]);
     expect(editor.getBlock("code")).toBeUndefined();
     expect(getDocumentText(editor, plainTextFormat)).toBe(text);
+  });
+  it("a changed block that the format shows with content of a different shape becomes a block of the text", () => {
+    // A format that shows each block as one paragraph of text, also a table.
+    const textOnly: TextFormat = {
+      serialize: (_editor, blocks) => blocks.map(blockToText).join("\n\n"),
+      parse: (_editor, text) =>
+        text.split("\n\n").map((line): LensBlock => ({
+          id: "",
+          type: "paragraph",
+          props: {},
+          content: [{ type: "text", text: line, styles: {} }],
+          children: [],
+        })),
+    };
+    const editor = createEditor([
+      {
+        id: "table",
+        type: "table",
+        content: { type: "tableContent", rows: [{ cells: ["Alpha", "Beta"] }] },
+      },
+      { id: "end", type: "paragraph", content: "End" },
+    ]);
+    const text = getDocumentText(editor, textOnly);
+
+    const update = updateDocumentFromText(editor, {
+      format: textOnly,
+      text: text.replace("Beta", "Gamma"),
+    });
+
+    expect(update.warnings).toEqual([
+      { type: "block-shape-replaced", id: "table" },
+    ]);
+    expect(editor.getBlock("table")).toMatchObject({ type: "paragraph" });
+    expect(getDocumentText(editor, textOnly)).toBe(
+      text.replace("Beta", "Gamma"),
+    );
   });
 });

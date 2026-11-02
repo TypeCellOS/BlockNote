@@ -132,13 +132,23 @@ Each module imports only modules that are before it in this list. Thus, there ar
 - `@blocknote/core/yjs` exports `updateYFragment` and `yXmlFragmentToProseMirrorRootNode` (from y-prosemirror). The Yjs API uses them to read and change a Y.Doc without an editor view.
 - `@blocknote/xl-ai` has `yjs` as an optional peer dependency.
 
-## Problems in BlockNote that the tests found
+## Warnings
 
-- The markdown parser adds a space after a hard break: `a\` and `b` on the next line become `a`, a hard break, and ` b`. The cause is the HTML step: the parser changes the newline after `<br>` to a space.
-- If the hard break is at the end of a paragraph, the serializer writes the added space on a line of its own. The next parse reads that line as an empty line. Thus, the `\` is at the end of the paragraph, and it becomes a backslash character. Thus, one round trip does not always give the canonical form, and the hard break is lost.
-- The serializer does not escape `#` at the start of a paragraph. Thus, a paragraph with the text `# x` becomes a heading after one round trip.
-- The parser removes images in a paragraph: `text ![alt](url) more` becomes `text  more`.
-- The markdown exporter renders the children of a toggle with indentation, but the parser reads them as top-level blocks. It renders a paragraph in a bullet without nesting.
+A result can contain warnings (`TextUpdateWarning`). A warning tells you that a part of the text did not apply as written, or that data was lost:
+
+- `multi-part-block-replaced`: the text changed a block that the format shows as more than one block (for example a code block with blank lines, in plain text). The blocks of the text replace the block. Its hidden data is lost.
+- `unlinked-block-changed`: the text changed a block of the view that has no source block. The change does not apply.
+- `block-shape-replaced`: the format shows the block with content of a different shape (for example a table as lines of text), and the text changed that content. The block takes the type of the text block. Its old content is lost.
+- `change-to-removed-block` (rebase): the text changed or moved a block that another writer removed. The change does not apply.
+- `removed-changed-block` (rebase): the text removed a block that another writer changed. The block is removed, with the changes of the other writer.
+
+## Problems in BlockNote
+
+The branch `fix/markdown-roundtrip` fixes the markdown conversion: one round trip now gives the canonical form. These problems stay:
+
+- A list item that has both a paragraph and a nested list: the HTML parser moves the nested list out of the list item.
+- Italic text directly before bold text (`*a***b**`): the parser does not use the delimiter rules of CommonMark.
+- HTML paste removes an image in a paragraph (markdown parse splits the paragraph around the image).
 
 ## Items that are not done
 

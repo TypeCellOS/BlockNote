@@ -22,7 +22,14 @@ export type PlanWarning =
    * The text changed or removed a view block without a link to a source
    * block. The planner cannot apply this change, thus it does not use it.
    */
-  | { type: "unlinked-block-changed"; viewIndex: number };
+  | { type: "unlinked-block-changed"; viewIndex: number }
+  /**
+   * The format shows the block with content of a different shape (for
+   * example a table as lines of text), and the text changed that content.
+   * The block takes the type of the text block. Thus, its old content and
+   * the props of its old type are lost.
+   */
+  | { type: "block-shape-replaced"; id: string };
 
 export type PlanInput = {
   /** The document that gets the text. */
@@ -220,15 +227,20 @@ export function planTarget(input: PlanInput): Plan {
       nodes[j] = block;
       continue;
     }
-    const block = node(
-      id,
-      mergeBlock(
-        view[incomingToView[j]].block,
-        incoming[j].block,
-        source.block(id),
-        contentKindOf,
-      ),
+    const viewBlock = view[incomingToView[j]].block;
+    const merged = mergeBlock(
+      viewBlock,
+      incoming[j].block,
+      source.block(id),
+      contentKindOf,
     );
+    if (
+      viewBlock.type === incoming[j].block.type &&
+      merged.type !== source.block(id).type
+    ) {
+      warnings.push({ type: "block-shape-replaced", id });
+    }
+    const block = node(id, merged);
     const parent = nestingUnchanged(j) ? sourceParent(id) : undefined;
     attach(block, parent ?? textParent(j));
     nodeOf.set(id, block);

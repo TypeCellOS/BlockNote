@@ -77,6 +77,55 @@ describe("mergeBlock", () => {
     expect(merged.props).toEqual({ textAlignment: "center" });
   });
 
+  it("takes the type of ours if the result type cannot hold the changed content", () => {
+    // A format shows the table as a line of text, and the text changes it.
+    const merged = mergeBlock(
+      block("paragraph", {}, text("a")),
+      block("paragraph", {}, text("a, edited")),
+      block(
+        "table",
+        { textColor: "red" },
+        {
+          type: "tableContent" as const,
+          columnWidths: [undefined],
+          rows: [{ cells: [text("a")] }],
+        },
+      ),
+      contentKindOf,
+    );
+    expect(merged).toEqual({
+      type: "paragraph",
+      props: {},
+      content: text("a, edited"),
+    });
+  });
+
+  it("takes only the props of the new type if theirs changed the type", () => {
+    expect(
+      mergeBlock(
+        block("bulletListItem", { textColor: "red" }, text("a")),
+        block("bulletListItem", { textColor: "blue" }, text("a")),
+        block("heading", { level: 2, textColor: "red" }, text("a")),
+        contentKindOf,
+      ),
+    ).toMatchObject({
+      type: "heading",
+      props: { level: 2, textColor: "blue" },
+    });
+  });
+
+  it("sets a prop that only ours has", () => {
+    const base = block("paragraph", {}, text("a"));
+    expect(
+      mergeBlock(
+        base,
+        block("paragraph", { textColor: "red" }, text("a")),
+        base,
+        contentKindOf,
+      ).props,
+    ).toEqual({ textColor: "red" });
+  });
+
   it("removes styles from plain content", () => {
     const merged = mergeBlock(
       block("paragraph", {}, text("code")),
