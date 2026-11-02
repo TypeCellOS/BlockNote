@@ -52,7 +52,7 @@ export function diffDocuments(
           ? { reference: children[index - 1], placement: "after" }
           : parent !== undefined
             ? { reference: parent, placement: "first-child" }
-            : { reference: firstBlock(current).id, placement: "before" };
+            : { placement: "start" };
       operations.push(
         from.has(id)
           ? { type: "move", id, ...position }
@@ -77,12 +77,4 @@ export function diffDocuments(
   }
 
   return operations;
-}
-
-function firstBlock(document: readonly LensBlock[]): LensBlock {
-  const first = document[0];
-  if (first === undefined) {
-    throw new Error("Document has no blocks");
-  }
-  return first;
 }

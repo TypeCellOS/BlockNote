@@ -1,5 +1,6 @@
 import {
   type BlockNoteEditor,
+  type BlockPlacement,
   blockToNode,
   getBlockInfoAt,
   getInsertionPos,
@@ -21,7 +22,7 @@ import {
 } from "../blocks/types.js";
 import { addMissingBlockIds } from "./blockIds.js";
 import { addInlineContentSteps } from "./inlineSteps.js";
-import type { BlockOperation } from "./types.js";
+import type { BlockOperation, BlockPosition } from "./types.js";
 
 /**
  * Applies the operations to the editor in sequence, in one transaction.
@@ -62,14 +63,16 @@ export function applyOperations(
       case "update":
         updateBlock(tr, operation.id, operation.update);
         break;
-      case "insert":
+      case "insert": {
+        const { reference, placement } = resolvePosition(tr, operation);
         insertBlocks(
           tr,
           [operation.block as PartialBlock],
-          operation.reference,
-          operation.placement,
+          reference,
+          placement,
         );
         break;
+      }
       case "move":
         moveBlock(tr, operation);
         break;
@@ -141,16 +144,19 @@ function moveBlock(
   // goes back into the document directly after this.
   removeAndInsertBlocks(tr, [operation.id], [], { fixLayoutBlocks: false });
 
-  const reference = find(tr, operation.reference);
+  // Resolve the position after the block is out: "start" can then refer to
+  // the next block.
+  const { reference: referenceId, placement } = resolvePosition(tr, operation);
+  const reference = find(tr, referenceId);
   const target = getInsertionPos(
     tr.doc,
     getBlockInfoAt(tr.doc, reference.posBeforeNode),
-    operation.placement,
+    placement,
     node.type,
   );
   if (target === null) {
     throw new Error(
-      `Block ${operation.id} cannot go ${operation.placement} block ${operation.reference}`,
+      `Block ${operation.id} cannot go ${placement} block ${referenceId}`,
     );
   }
   const fragment = Fragment.from(
@@ -237,4 +243,24 @@ function tableCells(table: Node, start: number) {
     });
   });
   return cells;
+}
+
+/**
+ * Returns the position relative to a block. The start of the document is the
+ * position before the first top-level block. A BlockNote document always has
+ * one, also a document that ProseMirror filled.
+ */
+function resolvePosition(
+  tr: Transaction,
+  position: BlockPosition,
+): { reference: string; placement: BlockPlacement } {
+  if (position.placement !== "start") {
+    return position;
+  }
+  const first = tr.doc.firstChild?.firstChild;
+  const id: unknown = first?.attrs.id;
+  if (typeof id !== "string") {
+    throw new Error("The document has no first block with an ID");
+  }
+  return { reference: id, placement: "before" };
 }

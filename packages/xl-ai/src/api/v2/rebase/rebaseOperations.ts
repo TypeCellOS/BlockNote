@@ -58,12 +58,9 @@ export function rebaseOperations(input: RebaseInput): RebaseResult {
   }
 
   /** Returns true if a block at the position would be in a block that the client removes. */
-  function inRemovedBlock({ reference, placement }: BlockPosition): boolean {
+  function inRemovedBlock(position: BlockPosition): boolean {
     for (
-      let parent =
-        placement === "first-child" || placement === "last-child"
-          ? reference
-          : tree.parent(reference);
+      let parent = tree.parentAt(position);
       parent !== undefined;
       parent = tree.parent(parent)
     ) {
@@ -109,11 +106,7 @@ export function rebaseOperations(input: RebaseInput): RebaseResult {
     if (parent !== undefined) {
       return { reference: parent, placement: "first-child" };
     }
-    const first = tree.childrenOf(undefined)[0];
-    if (first === undefined) {
-      throw new Error("Document has no blocks");
-    }
-    return { reference: first, placement: "before" };
+    return { placement: "start" };
   }
 
   /**
@@ -123,6 +116,9 @@ export function rebaseOperations(input: RebaseInput): RebaseResult {
    * with the same check.
    */
   function available(position: BlockPosition, moved?: string): BlockPosition {
+    if (position.placement === "start") {
+      return position;
+    }
     const { reference } = position;
     if (
       tree.has(reference) &&
@@ -134,11 +130,8 @@ export function rebaseOperations(input: RebaseInput): RebaseResult {
     if (!base.has(reference)) {
       throw new Error(`Inserted block ${reference} is not available`);
     }
-    const fallback = basePosition(reference);
     // The start of the document is the last fallback.
-    return fallback.placement === "before"
-      ? fallback
-      : available(fallback, moved);
+    return available(basePosition(reference), moved);
   }
 
   for (const operation of input.operations) {
@@ -167,8 +160,12 @@ export function rebaseOperations(input: RebaseInput): RebaseResult {
       }
       case "insert": {
         const position = available(operation);
-        operations.push({ ...operation, ...position });
-        tree.place(operation.block.id, position.reference, position.placement);
+        operations.push({
+          type: "insert",
+          block: operation.block,
+          ...position,
+        });
+        tree.place(operation.block.id, position);
         break;
       }
       case "move": {
@@ -178,12 +175,11 @@ export function rebaseOperations(input: RebaseInput): RebaseResult {
           break;
         }
         const position = available(operation, id);
-        if (
-          position.reference !== id &&
-          !tree.isAt(id, position.reference, position.placement)
-        ) {
+        const toItself =
+          position.placement !== "start" && position.reference === id;
+        if (!toItself && !tree.isAt(id, position)) {
           operations.push({ type: "move", id, ...position });
-          tree.place(id, position.reference, position.placement);
+          tree.place(id, position);
         }
         break;
       }
@@ -204,7 +200,7 @@ export function rebaseOperations(input: RebaseInput): RebaseResult {
             reference: id,
             placement: "before",
           });
-          tree.place(kept, id, "before");
+          tree.place(kept, { reference: id, placement: "before" });
         }
         if (changedByOthers(id)) {
           warnings.push({ type: "removed-changed-block", id });

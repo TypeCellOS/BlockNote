@@ -39,7 +39,11 @@ export function projectDocument(
   document: readonly LensBlock[],
 ): Projection {
   const text = format.serialize(editor, document);
-  const viewBlocks = flattenBlocks(format.parse(editor, text));
+  // The parse of the text of an empty document can give a block (for example
+  // one empty paragraph). That block comes from no document block, thus an
+  // empty document has no view blocks.
+  const viewBlocks =
+    document.length === 0 ? [] : flattenBlocks(format.parse(editor, text));
   const sourceBlocks = flattenBlocks(document);
   const links = linkBlocks(sourceBlocks, viewBlocks);
 

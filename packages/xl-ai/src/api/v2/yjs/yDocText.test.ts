@@ -150,6 +150,26 @@ describe.each([
     expect(idsOf(ydoc).every((id) => typeof id === "string")).toBe(true);
   });
 
+  it("writes text with a base from an empty Y.Doc", () => {
+    const ydoc = new Y.Doc();
+    updateYDocFromText(editor, ydoc, {
+      format,
+      text: "Hello",
+      base: Y.encodeStateAsUpdate(ydoc),
+    });
+
+    expect(getYDocText(editor, ydoc, { format }).trim()).toBe("Hello");
+  });
+
+  it("keeps the text of another writer, if the base is an empty Y.Doc", () => {
+    const ydoc = new Y.Doc();
+    const base = Y.encodeStateAsUpdate(ydoc);
+    updateYDocFromText(editor, ydoc, { format, text: "Other" });
+    updateYDocFromText(editor, ydoc, { format, text: "Hello", base });
+
+    expect(getYDocText(editor, ydoc, { format }).trim()).toBe("Hello\n\nOther");
+  });
+
   it("clears a document, and writes text again", () => {
     const ydoc = blocksToYDoc(
       editor,

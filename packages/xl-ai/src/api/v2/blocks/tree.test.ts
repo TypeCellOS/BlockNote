@@ -40,10 +40,10 @@ describe("BlockTree", () => {
 
   it("places a new block at each kind of position", () => {
     const tree = new BlockTree(document);
-    tree.place("n1", "a", "before");
-    tree.place("n2", "b", "after");
-    tree.place("n3", "e", "first-child");
-    tree.place("n4", "e", "last-child");
+    tree.place("n1", { reference: "a", placement: "before" });
+    tree.place("n2", { reference: "b", placement: "after" });
+    tree.place("n3", { reference: "e", placement: "first-child" });
+    tree.place("n4", { reference: "e", placement: "last-child" });
 
     expect(tree.ids).toEqual(["n1", "a", "b", "c", "n2", "d", "e", "n3", "n4"]);
     expect(tree.parent("n3")).toBe("e");
@@ -51,7 +51,7 @@ describe("BlockTree", () => {
 
   it("moves a block with its children", () => {
     const tree = new BlockTree(document);
-    tree.place("b", "e", "after");
+    tree.place("b", { reference: "e", placement: "after" });
 
     expect(tree.ids).toEqual(["a", "d", "e", "b", "c"]);
     expect(tree.parent("b")).toBeUndefined();
@@ -59,12 +59,18 @@ describe("BlockTree", () => {
 
   it("tells if a block is at a position", () => {
     const tree = new BlockTree(document);
-    expect(tree.isAt("d", "b", "after")).toBe(true);
-    expect(tree.isAt("b", "d", "before")).toBe(true);
-    expect(tree.isAt("b", "a", "first-child")).toBe(true);
-    expect(tree.isAt("d", "a", "last-child")).toBe(true);
-    expect(tree.isAt("d", "a", "first-child")).toBe(false);
-    expect(tree.isAt("e", "a", "after")).toBe(true);
+    expect(tree.isAt("d", { reference: "b", placement: "after" })).toBe(true);
+    expect(tree.isAt("b", { reference: "d", placement: "before" })).toBe(true);
+    expect(tree.isAt("b", { reference: "a", placement: "first-child" })).toBe(
+      true,
+    );
+    expect(tree.isAt("d", { reference: "a", placement: "last-child" })).toBe(
+      true,
+    );
+    expect(tree.isAt("d", { reference: "a", placement: "first-child" })).toBe(
+      false,
+    );
+    expect(tree.isAt("e", { reference: "a", placement: "after" })).toBe(true);
   });
 
   it("removes a block with its descendants", () => {
@@ -73,5 +79,16 @@ describe("BlockTree", () => {
 
     expect(tree.ids).toEqual(["e"]);
     expect(tree.has("c")).toBe(false);
+  });
+
+  it("places a block at the start of the document, also of an empty document", () => {
+    const tree = new BlockTree([block("a")]);
+    tree.place("n", { placement: "start" });
+    expect(tree.childrenOf(undefined)).toEqual(["n", "a"]);
+    expect(tree.isAt("n", { placement: "start" })).toBe(true);
+
+    const empty = new BlockTree([]);
+    empty.place("m", { placement: "start" });
+    expect(empty.childrenOf(undefined)).toEqual(["m"]);
   });
 });

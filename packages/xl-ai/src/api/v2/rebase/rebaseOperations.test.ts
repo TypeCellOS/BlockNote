@@ -182,7 +182,7 @@ describe("rebaseOperations", () => {
         rebase(base, [block("a"), block("c")], [insert("b")]).operations,
       ).toEqual([insert("a")]);
       expect(rebase(base, [block("c")], [insert("b")]).operations).toEqual([
-        { ...insert("c"), placement: "before" },
+        { type: "insert", block: insert("b").block, placement: "start" },
       ]);
     });
 
@@ -312,7 +312,7 @@ describe("rebaseOperations", () => {
         ),
       ).toEqual({
         operations: [
-          { type: "move", id: "two", reference: "p", placement: "before" },
+          { type: "move", id: "two", placement: "start" },
           { type: "delete", id: "p" },
         ],
         warnings: [{ type: "change-to-removed-block", id: "one" }],

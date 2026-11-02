@@ -3,6 +3,16 @@ import type { BlockPlacement } from "@blocknote/core";
 import type { LensBlock } from "./types.js";
 
 /**
+ * A position in a block tree: relative to the block `reference` (see
+ * `BlockNoteEditor.insertBlocks`), or the start of the document, before the
+ * first top-level block. The start needs no block, thus it is also a position
+ * in an empty document.
+ */
+export type TreePosition =
+  | { reference: string; placement: BlockPlacement }
+  | { placement: "start" };
+
+/**
  * The shape of a document: the parent and the children of each block, by ID.
  * `place` and `remove` change the shape, but not the blocks. Thus, the rebase
  * can follow operations, but it does not apply them.
@@ -89,28 +99,27 @@ export class BlockTree {
   }
 
   /** Returns true if the block is at the position. */
-  isAt(id: string, reference: string, placement: BlockPlacement): boolean {
-    const parent = this.parentAt(reference, placement);
+  isAt(id: string, position: TreePosition): boolean {
+    const parent = this.parentAt(position);
     const siblings = this.childrenOf(parent);
     return (
       this.parents.get(id) === parent &&
       siblings.indexOf(id) ===
         indexAt(
           siblings.filter((sibling) => sibling !== id),
-          reference,
-          placement,
+          position,
         )
     );
   }
 
   /** Puts a new block at the position, or moves a block (with its children) to it. */
-  place(id: string, reference: string, placement: BlockPlacement) {
+  place(id: string, position: TreePosition) {
     if (this.parents.has(id)) {
       this.detach(id);
     }
-    const parent = this.parentAt(reference, placement);
+    const parent = this.parentAt(position);
     const siblings = this.childrenOf(parent);
-    siblings.splice(indexAt(siblings, reference, placement), 0, id);
+    siblings.splice(indexAt(siblings, position), 0, id);
     this.parents.set(id, parent);
   }
 
@@ -133,30 +142,31 @@ export class BlockTree {
     siblings.splice(siblings.indexOf(id), 1);
   }
 
-  /** The parent of a block at the position. */
-  private parentAt(
-    reference: string,
-    placement: BlockPlacement,
-  ): string | undefined {
-    return placement === "before" || placement === "after"
-      ? this.parents.get(reference)
-      : reference;
+  /** The parent of a block at the position (`undefined` for the top level). */
+  parentAt(position: TreePosition): string | undefined {
+    switch (position.placement) {
+      case "start":
+        return undefined;
+      case "before":
+      case "after":
+        return this.parents.get(position.reference);
+      case "first-child":
+      case "last-child":
+        return position.reference;
+    }
   }
 }
 
 /** The index of a block at the position, in the children of its parent. */
-function indexAt(
-  siblings: readonly string[],
-  reference: string,
-  placement: BlockPlacement,
-): number {
-  switch (placement) {
-    case "before":
-      return siblings.indexOf(reference);
-    case "after":
-      return siblings.indexOf(reference) + 1;
+function indexAt(siblings: readonly string[], position: TreePosition): number {
+  switch (position.placement) {
+    case "start":
     case "first-child":
       return 0;
+    case "before":
+      return siblings.indexOf(position.reference);
+    case "after":
+      return siblings.indexOf(position.reference) + 1;
     case "last-child":
       return siblings.length;
   }

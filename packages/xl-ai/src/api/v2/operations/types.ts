@@ -1,9 +1,11 @@
-import type { BlockPlacement } from "@blocknote/core";
-
+import type { TreePosition } from "../blocks/tree.js";
 import type { LensBlock, LensPartialBlock } from "../blocks/types.js";
 
-/** The position of a block, relative to the block `reference` (see `BlockNoteEditor.insertBlocks`). */
-export type BlockPosition = { reference: string; placement: BlockPlacement };
+/**
+ * The position of a block: relative to the block `reference` (see
+ * `BlockNoteEditor.insertBlocks`), or the start of the document.
+ */
+export type BlockPosition = TreePosition;
 
 /**
  * A change to the document, with block IDs. The operations run in sequence.

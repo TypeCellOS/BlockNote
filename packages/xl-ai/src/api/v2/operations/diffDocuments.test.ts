@@ -34,20 +34,13 @@ describe("diffDocuments", () => {
     ]);
   });
 
-  it("inserts a new first block before the first block", () => {
+  it("inserts a new first block at the start of the document", () => {
     expect(
       diffDocuments(
         [block("a"), block("b")],
         [block("n"), block("a"), block("b")],
       ),
-    ).toEqual([
-      {
-        type: "insert",
-        block: block("n"),
-        reference: "a",
-        placement: "before",
-      },
-    ]);
+    ).toEqual([{ type: "insert", block: block("n"), placement: "start" }]);
   });
 
   it("inserts the children of a new block in the new block", () => {
@@ -70,7 +63,7 @@ describe("diffDocuments", () => {
         [block("a"), block("b"), block("c")],
         [block("c"), block("a"), block("b")],
       ),
-    ).toEqual([{ type: "move", id: "c", reference: "a", placement: "before" }]);
+    ).toEqual([{ type: "move", id: "c", placement: "start" }]);
   });
 
   it("moves a block to a different parent", () => {
@@ -88,7 +81,7 @@ describe("diffDocuments", () => {
         [block("c"), block("e")],
       ),
     ).toEqual([
-      { type: "move", id: "c", reference: "p", placement: "before" },
+      { type: "move", id: "c", placement: "start" },
       { type: "delete", id: "p" },
     ]);
   });

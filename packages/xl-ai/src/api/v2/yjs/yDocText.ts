@@ -75,8 +75,17 @@ export function updateYDocFromText(
     strategy?: MergeStrategy;
   },
 ): YDocTextUpdate {
-  const { base, strategy = "rebase", ...textOptions } = options;
+  const { strategy = "rebase", base: baseState, ...textOptions } = options;
   const fragment = options.fragment ?? DEFAULT_FRAGMENT;
+  const baseDoc = baseState === undefined ? undefined : docFromState(baseState);
+  // A base without content and a Y.Doc without content are the same empty
+  // document: no other writer changed it.
+  const base =
+    baseDoc !== undefined &&
+    (baseDoc.getXmlFragment(fragment).length > 0 ||
+      ydoc.getXmlFragment(fragment).length > 0)
+      ? baseDoc
+      : undefined;
 
   if (base === undefined || strategy === "rebase") {
     const before = Y.encodeStateVector(ydoc);
@@ -85,12 +94,12 @@ export function updateYDocFromText(
       base:
         base === undefined
           ? undefined
-          : docToBlocks(readDocument(editor, docFromState(base), fragment)),
+          : docToBlocks(readDocument(editor, base, fragment)),
     });
     return { ...update, update: Y.encodeStateAsUpdate(ydoc, before) };
   }
 
-  const copy = docFromState(base);
+  const copy = base;
   const baseVector = Y.encodeStateVector(copy);
   const update = writeText(editor, copy, fragment, textOptions);
   const yUpdate = Y.encodeStateAsUpdate(copy, baseVector);
