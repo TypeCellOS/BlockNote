@@ -4,6 +4,7 @@ import { describe, expect, it } from "vite-plus/test";
 import {
   computeTextUpdate,
   getDocumentText,
+  htmlFormat,
   markdownFormat,
   plainTextFormat,
   updateDocumentFromText,
@@ -181,6 +182,7 @@ describe("a write from an older version", () => {
 describe.each([
   { name: "markdown", format: markdownFormat },
   { name: "plain text", format: plainTextFormat },
+  { name: "HTML", format: htmlFormat },
 ])("random pairs of writers ($name)", ({ format }) => {
   it.each(Array.from({ length: 40 }, (_, i) => i + 1))(
     "keeps the changes of the two writers for seed %i",

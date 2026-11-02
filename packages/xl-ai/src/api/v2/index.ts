@@ -14,6 +14,7 @@ export {
   type TextUpdateWarning,
   updateDocumentFromText,
 } from "./api.js";
+export { htmlFormat } from "./formats/html.js";
 export { markdownFormat } from "./formats/markdown.js";
 export { plainTextFormat } from "./formats/plainText.js";
 export type { TextFormat } from "./formats/types.js";

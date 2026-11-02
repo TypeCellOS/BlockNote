@@ -4,6 +4,7 @@ import { describe, expect, it } from "vite-plus/test";
 import {
   computeTextUpdate,
   getDocumentText,
+  htmlFormat,
   markdownFormat,
   plainTextFormat,
   updateDocumentFromText,
@@ -24,6 +25,7 @@ const SEEDS = Array.from({ length: 60 }, (_, i) => i + 1);
 const formats = [
   { name: "markdown", format: markdownFormat },
   { name: "plain text", format: plainTextFormat },
+  { name: "HTML", format: htmlFormat },
 ];
 
 describe.each(formats)("$name", ({ format }) => {

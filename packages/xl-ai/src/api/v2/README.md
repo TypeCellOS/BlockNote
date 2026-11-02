@@ -1,6 +1,6 @@
-# Text lens: write markdown or plain text back to a document
+# Text lens: write markdown, HTML or plain text back to a document
 
-With this API, a client can read a document as text (markdown or plain text), change the text, and write it back. A write does not replace the document. It applies only the changes, and keeps the data that the text format does not show: block IDs, colors, alignment, underline, toggles, empty paragraphs, nesting that markdown removes, and comments on text that did not change.
+With this API, a client can read a document as text (markdown, HTML or plain text), change the text, and write it back. A write does not replace the document. It applies only the changes, and keeps the data that the text format does not show: block IDs, colors, alignment, underline, toggles, empty paragraphs, nesting that markdown removes, and comments on text that did not change.
 
 In lens terms, the document is the source and the text is the view. The `serialize` function of the format is `get`. This folder supplies `put`.
 
@@ -13,7 +13,7 @@ In lens terms, the document is the source and the text is the view. The `seriali
 - `yjs/yDocText.ts`, for a Y.Doc (Yjs v13). It is a separate entry point, thus code without Yjs does not load Yjs:
   - `getYDocText(editor, ydoc, { format })`: returns the document as text.
   - `updateYDocFromText(editor, ydoc, { format, text, base, strategy })`: writes the text back. `base` is the Yjs state (`Y.encodeStateAsUpdate`) at the version that the client read. The result contains the Yjs update to send to the other clients, the operations and the warnings.
-- Formats: `markdownFormat` and `plainTextFormat`. A format is two functions, `serialize` and `parse` (see `formats/types.ts`).
+- Formats: `markdownFormat`, `htmlFormat` and `plainTextFormat`. A format is two functions, `serialize` and `parse` (see `formats/types.ts`). HTML shows more than markdown (for example colors, alignment and underline), thus a client can also change these.
 
 There is no storage interface. The consumer keeps the versions, as full Block JSON or as full Yjs states. A version history must keep full documents in any case, because only a full document shows props, nesting and colors.
 
@@ -153,6 +153,6 @@ The branch `fix/markdown-roundtrip` fixes the markdown conversion: one round tri
 ## Items that are not done
 
 - Yjs v14 (`@y/y` and `@y/prosemirror`).
-- HTML as a format, and IDs in the text.
+- IDs in the text.
 - A block that the text moves and also changes. The lens does not find it. The block is removed and inserted again, with a new ID.
 - Table rows with a different number of cells. Examples are added or removed columns, and changed rows with merged cells (the format shows them as separate cells). The result for these rows is the row from the text. The cell colors and merged cells of these rows are lost.

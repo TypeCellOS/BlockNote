@@ -3,6 +3,7 @@ import { describe, expect, it } from "vite-plus/test";
 import {
   computeTextUpdate,
   getDocumentText,
+  htmlFormat,
   markdownFormat,
   plainTextFormat,
   updateDocumentFromText,
@@ -34,17 +35,49 @@ const documents = [
   { name: "rich document", create: () => createEditor() },
 ];
 
-const formats = [
-  { name: "markdown", format: markdownFormat },
-  { name: "plain text", format: plainTextFormat },
-];
+/** The parts of a text (blocks at the top level), for the edits of the tests. */
+type Codec = {
+  split: (text: string) => string[];
+  join: (parts: string[]) => string;
+  /** A new paragraph with the text. */
+  paragraph: (text: string) => string;
+  /** Returns true if the part is a paragraph with one line of plain text. */
+  isPlain: (part: string) => boolean;
+  /** The part with `suffix` at the end of its text. */
+  append: (part: string, suffix: string) => string;
+};
 
-/** A paragraph of text with one line, in the two formats. */
-const PLAIN_PARAGRAPH = /^[A-Za-z][^\n]*$/;
+/** Markdown and plain text: a blank line separates the parts. */
+const blankLineCodec: Codec = {
+  split: (text) => text.split("\n\n"),
+  join: (parts) => parts.join("\n\n"),
+  paragraph: (text) => text,
+  isPlain: (part) => /^[A-Za-z][^\n]*$/.test(part),
+  append: (part, suffix) => part + suffix,
+};
+
+/** HTML: the parts are the top-level elements. */
+const htmlCodec: Codec = {
+  split: (html) => {
+    const template = document.createElement("template");
+    template.innerHTML = html;
+    return [...template.content.children].map((element) => element.outerHTML);
+  },
+  join: (parts) => parts.join(""),
+  paragraph: (text) => `<p>${text}</p>`,
+  isPlain: (part) => /^<p>[A-Za-z][^<]*<\/p>$/.test(part),
+  append: (part, suffix) => part.replace(/<\/p>$/, `${suffix}</p>`),
+};
+
+const formats = [
+  { name: "markdown", format: markdownFormat, codec: blankLineCodec },
+  { name: "plain text", format: plainTextFormat, codec: blankLineCodec },
+  { name: "HTML", format: htmlFormat, codec: htmlCodec },
+];
 
 type Edit = {
   name: string;
-  apply: (paragraphs: string[]) => string[];
+  apply: (parts: string[], codec: Codec) => string[];
   /** The number of blocks with changed fields that the edit can touch. */
   retention: "all-kept" | "one-changed" | "survivors-unchanged" | "none";
 };
@@ -52,51 +85,51 @@ type Edit = {
 const edits: Edit[] = [
   {
     name: "insert a paragraph at the start",
-    apply: (paragraphs) => ["Inserted paragraph", ...paragraphs],
+    apply: (parts, codec) => [codec.paragraph("Inserted paragraph"), ...parts],
     retention: "all-kept",
   },
   {
     name: "insert a paragraph in the middle",
-    apply: (paragraphs) => {
-      const middle = Math.floor(paragraphs.length / 2);
+    apply: (parts, codec) => {
+      const middle = Math.floor(parts.length / 2);
       return [
-        ...paragraphs.slice(0, middle),
-        "Inserted paragraph",
-        ...paragraphs.slice(middle),
+        ...parts.slice(0, middle),
+        codec.paragraph("Inserted paragraph"),
+        ...parts.slice(middle),
       ];
     },
     retention: "all-kept",
   },
   {
     name: "insert a paragraph at the end",
-    apply: (paragraphs) => [...paragraphs, "Inserted paragraph"],
+    apply: (parts, codec) => [...parts, codec.paragraph("Inserted paragraph")],
     retention: "all-kept",
   },
   {
     name: "change a paragraph",
-    apply: (paragraphs) => {
-      const index = paragraphs.findIndex((p) => PLAIN_PARAGRAPH.test(p));
-      return paragraphs.map((p, i) => (i === index ? `${p} (edited)` : p));
+    apply: (parts, codec) => {
+      const index = parts.findIndex(codec.isPlain);
+      return parts.map((part, i) =>
+        i === index ? codec.append(part, " (edited)") : part,
+      );
     },
     retention: "one-changed",
   },
   {
     name: "remove a paragraph",
-    apply: (paragraphs) => {
-      const index = paragraphs.findIndex((p) => PLAIN_PARAGRAPH.test(p));
-      return paragraphs.filter((_, i) => i !== index);
+    apply: (parts, codec) => {
+      const index = parts.findIndex(codec.isPlain);
+      return parts.filter((_, i) => i !== index);
     },
     retention: "survivors-unchanged",
   },
   {
     name: "swap two paragraphs",
-    apply: (paragraphs) => {
-      const index = paragraphs.findIndex(
-        (p, i) =>
-          PLAIN_PARAGRAPH.test(p) &&
-          PLAIN_PARAGRAPH.test(paragraphs[i + 1] ?? ""),
+    apply: (parts, codec) => {
+      const index = parts.findIndex(
+        (part, i) => codec.isPlain(part) && codec.isPlain(parts[i + 1] ?? ""),
       );
-      const result = [...paragraphs];
+      const result = [...parts];
       [result[index], result[index + 1]] = [result[index + 1], result[index]];
       return result;
     },
@@ -105,7 +138,7 @@ const edits: Edit[] = [
 ];
 
 describe.each(documents)("$name", ({ create }) => {
-  describe.each(formats)("$name", ({ format }) => {
+  describe.each(formats)("$name", ({ format, codec }) => {
     it("GetPut: a write of the text that the client read changes nothing", () => {
       const editor = create();
       const text = getDocumentText(editor, format);
@@ -125,8 +158,8 @@ describe.each(documents)("$name", ({ create }) => {
       function editAndWrite() {
         const editor = create();
         const before = blockFieldsById(editor);
-        const text = apply(getDocumentText(editor, format).split("\n\n")).join(
-          "\n\n",
+        const text = codec.join(
+          apply(codec.split(getDocumentText(editor, format)), codec),
         );
         const update = updateDocumentFromText(editor, { format, text });
         return { editor, before, text, update };
