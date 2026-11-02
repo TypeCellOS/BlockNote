@@ -2,6 +2,8 @@ import { act, type ReactNode } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, expect, it, vi } from "vite-plus/test";
 
+import type { DefaultReactSuggestionItem } from "@blocknote/react";
+
 import { PromptSuggestionMenu } from "./PromptSuggestionMenu.js";
 
 // Defined once, so every render gets the same component types and React can
@@ -44,7 +46,10 @@ const items = [
   { key: "second", title: "Translate", subtext: "German", aliases: ["de"] },
 ].map((item) => ({ ...item, onItemClick: () => undefined }));
 
-async function render(promptText: string, menuItems: typeof items = items) {
+async function render(
+  promptText: string,
+  menuItems: DefaultReactSuggestionItem[] = items,
+) {
   await act(async () =>
     root.render(
       <PromptSuggestionMenu
@@ -99,4 +104,14 @@ it("keeps a renamed copy's row when the item that shares its key is filtered out
     "Translate formally French",
   ]);
   expect(rows[0]).toBe(copyRow);
+});
+
+it("keeps a row when an earlier item with the same title and no key is filtered out", async () => {
+  const menuItems = items.map(({ key: _key, ...item }) => item);
+  const [, germanRow] = await render("", menuItems);
+
+  const rows = await render("de", menuItems);
+
+  expect(rows.map((row) => row.textContent)).toEqual(["Translate German"]);
+  expect(rows[0]).toBe(germanRow);
 });

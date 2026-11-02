@@ -100,3 +100,23 @@ it("keeps each item's row when the list is filtered", async () => {
   ]);
   expect(container.querySelector("[role=option]")).toBe(imageRow);
 });
+
+it("keeps a keyed item's row when an item with the same title is filtered out", async () => {
+  const first = { ...item("image.png", "Page A"), key: "attachment-a" };
+  const second = { ...item("image.png", "Page B"), key: "attachment-b" };
+  await render([first, second]);
+  const secondRow = container.querySelectorAll("[role=option]")[1];
+
+  expect(await render([second])).toEqual(["image.png Page B"]);
+  expect(container.querySelector("[role=option]")).toBe(secondRow);
+});
+
+it("keeps a renamed copy's row when the item that shares its key is filtered out", async () => {
+  const original = { ...item("Heading", "Top-level heading"), key: "heading" };
+  const copy = { ...original, title: "Big title" };
+  await render([original, copy]);
+  const copyRow = container.querySelectorAll("[role=option]")[1];
+
+  expect(await render([copy])).toEqual(["Big title Top-level heading"]);
+  expect(container.querySelector("[role=option]")).toBe(copyRow);
+});

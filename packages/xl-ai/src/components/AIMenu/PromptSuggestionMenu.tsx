@@ -3,6 +3,7 @@ import { filterSuggestionItems } from "@blocknote/core/extensions";
 import {
   ScreenReaderOnlySubmit,
   DefaultReactSuggestionItem,
+  getSuggestionMenuItemKeys,
   useComponentsContext,
   useSuggestionMenuKeyboardHandler,
 } from "@blocknote/react";
@@ -18,9 +19,7 @@ import {
 } from "react";
 
 export type PromptSuggestionMenuProps = {
-  // `key` identifies an item across renders, so it keeps its row when the
-  // list is filtered. Without it, the title identifies the item.
-  items: (DefaultReactSuggestionItem & { key?: string })[];
+  items: DefaultReactSuggestionItem[];
   onManualPromptSubmit: (userPrompt: string) => void;
   promptText?: string;
   onPromptTextChange?: (userPrompt: string) => void;
@@ -56,26 +55,25 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
     [onPromptTextChange, setInternalPromptText, promptText],
   );
 
-  // Row keys come from the unfiltered list, so a row keeps its key while the
-  // prompt filters items out. An item is identified by its `key`, or by its
-  // title without one. Neither has to be unique, so the row key also counts
-  // how many earlier items share that identity.
-  const rowKeys = useMemo(() => {
-    const seenIdentities = new Map<string, number>();
-    return new Map(
-      props.items.map((item) => {
-        const identity =
-          item.key !== undefined ? `key:${item.key}` : `title:${item.title}`;
-        const count = seenIdentities.get(identity) ?? 0;
-        seenIdentities.set(identity, count + 1);
-        return [item, `${count}:${identity}`] as const;
-      }),
-    );
+  // Keys come from the unfiltered list, so each row keeps its key while the
+  // prompt filters items out, even when items repeat.
+  const keyedItems = useMemo(() => {
+    const keys = getSuggestionMenuItemKeys(props.items);
+    return props.items.map((item, i) => ({ item, key: keys[i] }));
   }, [props.items]);
 
-  const items = useMemo(() => {
-    return filterSuggestionItems(props.items, promptTextToUse);
-  }, [promptTextToUse, props.items]);
+  const visibleKeyedItems = useMemo(
+    () =>
+      keyedItems.filter(
+        ({ item }) => filterSuggestionItems([item], promptTextToUse).length > 0,
+      ),
+    [keyedItems, promptTextToUse],
+  );
+
+  const items = useMemo(
+    () => visibleKeyedItems.map(({ item }) => item),
+    [visibleKeyedItems],
+  );
 
   const { selectedIndex, setSelectedIndex, handler } =
     useSuggestionMenuKeyboardHandler(items, (item) => item.onItemClick());
@@ -168,7 +166,7 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
         >
           {items.map((item, i) => (
             <Components.SuggestionMenu.Item
-              key={rowKeys.get(item)}
+              key={visibleKeyedItems[i].key}
               className={mergeCSSClasses(
                 "bn-suggestion-menu-item",
                 item.size === "small" ? "bn-suggestion-menu-item-small" : "",
