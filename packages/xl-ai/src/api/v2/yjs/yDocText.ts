@@ -1,9 +1,9 @@
 import { type BlockNoteEditor, docToBlocks } from "@blocknote/core";
 import {
   updateYFragment,
-  yDocToBlocks,
   yXmlFragmentToProseMirrorRootNode,
 } from "@blocknote/core/yjs";
+import type { Node } from "prosemirror-model";
 import { EditorState } from "prosemirror-state";
 import * as Y from "yjs";
 
@@ -15,6 +15,9 @@ import {
 import type { TextFormat } from "../formats/types.js";
 import { applyOperations } from "../operations/applyOperations.js";
 import { addMissingBlockIds } from "../operations/blockIds.js";
+
+/** The name of the Y.XmlFragment of a BlockNote document, if the options do not give one. */
+const DEFAULT_FRAGMENT = "prosemirror";
 
 export type YDocTextOptions = {
   format: TextFormat;
@@ -48,7 +51,9 @@ export function getYDocText(
 ): string {
   return options.format.serialize(
     editor,
-    yDocToBlocks(editor, ydoc, options.fragment),
+    docToBlocks(
+      readDocument(editor, ydoc, options.fragment ?? DEFAULT_FRAGMENT),
+    ),
   );
 }
 
@@ -71,7 +76,7 @@ export function updateYDocFromText(
   },
 ): YDocTextUpdate {
   const { base, strategy = "rebase", ...textOptions } = options;
-  const fragment = options.fragment ?? "prosemirror";
+  const fragment = options.fragment ?? DEFAULT_FRAGMENT;
 
   if (base === undefined || strategy === "rebase") {
     const before = Y.encodeStateVector(ydoc);
@@ -80,7 +85,7 @@ export function updateYDocFromText(
       base:
         base === undefined
           ? undefined
-          : yDocToBlocks(editor, docFromState(base), fragment),
+          : docToBlocks(readDocument(editor, docFromState(base), fragment)),
     });
     return { ...update, update: Y.encodeStateAsUpdate(ydoc, before) };
   }
@@ -91,6 +96,34 @@ export function updateYDocFromText(
   const yUpdate = Y.encodeStateAsUpdate(copy, baseVector);
   Y.applyUpdate(ydoc, yUpdate);
   return { ...update, update: yUpdate };
+}
+
+/**
+ * Reads the fragment of the Y.Doc as a ProseMirror document, with the schema
+ * of the editor. y-prosemirror removes content that the schema cannot read
+ * from the Y.Doc. Thus, the function reads a copy, and gives an error if the
+ * schema cannot read all of it. Then nothing changes and nothing is lost.
+ */
+function readDocument(
+  editor: BlockNoteEditor<any, any, any>,
+  ydoc: Y.Doc,
+  fragmentName: string,
+): Node {
+  const copy = docFromState(Y.encodeStateAsUpdate(ydoc));
+  let changed = false;
+  copy.on("update", () => {
+    changed = true;
+  });
+  const doc = yXmlFragmentToProseMirrorRootNode(
+    copy.getXmlFragment(fragmentName),
+    editor.pmSchema,
+  );
+  if (changed) {
+    throw new Error(
+      "The schema of the editor cannot read all content of the Y.Doc. Use an editor with the schema and the extensions of the document (for example comments).",
+    );
+  }
+  return doc;
 }
 
 function docFromState(state: Uint8Array): Y.Doc {
@@ -118,7 +151,7 @@ function writeText(
   options: TextUpdateOptions,
 ): TextUpdate {
   const fragment = ydoc.getXmlFragment(fragmentName);
-  const read = yXmlFragmentToProseMirrorRootNode(fragment, editor.pmSchema);
+  const read = readDocument(editor, ydoc, fragmentName);
   const tr = EditorState.create({
     doc: read.type.createAndFill(null, read.content) ?? read,
   }).tr;

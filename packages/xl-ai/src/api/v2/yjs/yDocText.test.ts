@@ -396,3 +396,33 @@ describe.each<MergeStrategy>(["rebase", "yjs"])(
     });
   },
 );
+
+describe("an editor with a schema that does not fit the Y.Doc", () => {
+  it("gives an error, and does not change the Y.Doc", () => {
+    const withComments = createCommentEditor([
+      { id: "p", type: "paragraph", content: "Alpha text" },
+    ]);
+    addComment(withComments, "Alpha");
+    const ydoc = new Y.Doc();
+    updateYFragment(
+      ydoc,
+      ydoc.getXmlFragment("prosemirror"),
+      withComments.prosemirrorState.doc,
+      { mapping: new Map(), isOMark: new Map() },
+    );
+    const before = Y.encodeStateAsUpdate(ydoc);
+    // This editor does not have the comments extension.
+    const editor = BlockNoteEditor.create();
+
+    expect(() => getYDocText(editor, ydoc, { format: markdownFormat })).toThrow(
+      /cannot read all content/,
+    );
+    expect(() =>
+      updateYDocFromText(editor, ydoc, {
+        format: markdownFormat,
+        text: "Alpha text, edited",
+      }),
+    ).toThrow(/cannot read all content/);
+    expect(Y.encodeStateAsUpdate(ydoc)).toEqual(before);
+  });
+});
