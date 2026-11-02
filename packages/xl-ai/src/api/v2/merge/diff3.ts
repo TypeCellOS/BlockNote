@@ -25,6 +25,13 @@ export type Diff3Handlers<T> = {
    * inserts of ours. If not, ours wins, as in a conflict.
    */
   keepBothInserts?: boolean;
+  /**
+   * Returns true if a matched unit of ours is the same as its base unit. By
+   * default, a match is the same unit. Give this function if the matches can
+   * pair changed units (for example rows with changed text at the same
+   * position). Then a side with a changed unit is not unchanged.
+   */
+  same?: (base: T, other: T) => boolean;
 };
 
 /**
@@ -87,7 +94,7 @@ export function diff3<T>(
     const ja2 = i2 < base.length ? toA[i2] : ours.length;
     const jb2 = i2 < base.length ? toB[i2] : theirs.length;
 
-    if (isUnchanged(toA, i, i2, ja, ja2)) {
+    if (isUnchanged(toA, i, i2, ja, ja2, base, ours, handlers.same)) {
       merged.push(...theirs.slice(jb, jb2));
     } else {
       if (i === i2 && handlers.keepBothInserts) {
@@ -118,19 +125,28 @@ function indexMap(pairs: readonly MatchedPair[], length: number): Int32Array {
   return map;
 }
 
-/** Returns true if `base[from, to)` maps one to one to `[otherFrom, otherTo)`. Then, that side made no change. */
-function isUnchanged(
+/**
+ * Returns true if `base[from, to)` maps one to one to `[otherFrom, otherTo)`,
+ * and (with `same`) each pair is the same. Then, that side made no change.
+ */
+function isUnchanged<T>(
   map: Int32Array,
   from: number,
   to: number,
   otherFrom: number,
   otherTo: number,
+  base: readonly T[],
+  other: readonly T[],
+  same: ((base: T, other: T) => boolean) | undefined,
 ): boolean {
   if (to - from !== otherTo - otherFrom) {
     return false;
   }
   for (let k = 0; k < to - from; k++) {
-    if (map[from + k] !== otherFrom + k) {
+    if (
+      map[from + k] !== otherFrom + k ||
+      (same !== undefined && !same(base[from + k], other[otherFrom + k]))
+    ) {
       return false;
     }
   }

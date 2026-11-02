@@ -1,3 +1,4 @@
+import { deepEqual } from "../blocks/json.js";
 import { inlineContentToText, tableCellsContent } from "../blocks/text.js";
 import type { LensTableCell, LensTableContent } from "../blocks/types.js";
 import { myersMatch } from "../diff/myers.js";
@@ -12,9 +13,10 @@ type Row = LensTableCell[];
  * Three-way merge of table content, row by row (diff3, see `alignRows`) and
  * cell by cell.
  *
- * - If a row is in the three tables with the same number of cells, the merge
- *   merges each cell: its content and its props (for example its background
- *   color). If not, the result is the row of ours.
+ * - If a row is in the three tables (with the same number of cells), the
+ *   merge merges each cell: its content and its props (for example its
+ *   background color). If not, and ours changed it, the result is the row of
+ *   ours.
  * - The merge removes rows that only the round trip added. An example is the
  *   empty header row that markdown gives to a table without a header row.
  */
@@ -35,14 +37,16 @@ export function mergeTableContent(
     alignRows(baseRows, ourRows),
     alignRows(baseRows, theirRows),
     {
+      // A stable row has the same number of cells on the three sides (see
+      // `alignRows`).
       stable: ({ base: baseRow, ours: ourRow, theirs: theirRow }) =>
-        baseRow.length === ourRow.length && baseRow.length === theirRow.length
-          ? ourRow.map((cell, c) =>
-              mergeCell(baseRow[c], cell, theirRow[c], options),
-            )
-          : ourRow,
+        ourRow.map((cell, c) =>
+          mergeCell(baseRow[c], cell, theirRow[c], options),
+        ),
       ours: (units) => units,
       keepBothInserts: options.concurrent,
+      // `alignRows` also pairs rows with changed text.
+      same: (baseRow, otherRow) => deepEqual(baseRow, otherRow),
     },
   );
 

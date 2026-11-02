@@ -524,4 +524,30 @@ describe("markdown", () => {
       "Commented",
     );
   });
+
+  it("changes a row with a merged cell: the row of the text replaces the row", () => {
+    const editor = createEditor([
+      {
+        id: "table",
+        type: "table",
+        content: {
+          type: "tableContent",
+          rows: [
+            {
+              cells: [
+                { type: "tableCell", content: "merged", props: { colspan: 2 } },
+                "x",
+              ],
+            },
+            { cells: ["a", "b", "c"] },
+          ],
+        },
+      },
+    ]);
+    write(editor, (md) => replaceOnce(md, "| x ", "| y "));
+
+    expect(JSON.stringify(editor.getBlock("table")?.content)).toContain(
+      '"text":"y"',
+    );
+  });
 });
