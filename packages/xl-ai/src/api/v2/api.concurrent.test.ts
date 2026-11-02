@@ -7,7 +7,7 @@ import {
   markdownFormat,
   plainTextFormat,
   updateDocumentFromText,
-} from "./api.js";
+} from "./index.js";
 import { flattenBlocks } from "./blocks/flatten.js";
 import type { LensBlock } from "./blocks/types.js";
 import {

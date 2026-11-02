@@ -3,12 +3,12 @@ import { updateYFragment, yDocToBlocks } from "@blocknote/core/yjs";
 import * as Y from "yjs";
 
 import {
-  applyBlockOperations,
   computeTextUpdate,
-  type TextFormat,
   type TextUpdate,
   type TextUpdateOptions,
 } from "../api.js";
+import type { TextFormat } from "../formats/types.js";
+import { applyBlockOperations } from "../operations/applyOperations.js";
 
 export type YDocTextOptions = {
   format: TextFormat;

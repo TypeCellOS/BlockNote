@@ -7,7 +7,7 @@ import {
 import { describe, expect, it } from "vite-plus/test";
 import * as Y from "yjs";
 
-import { markdownFormat } from "../api.js";
+import { markdownFormat } from "../index.js";
 import {
   documentShape,
   replaceOnce,

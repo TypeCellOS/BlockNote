@@ -5,7 +5,7 @@ import {
   getDocumentText,
   plainTextFormat,
   updateDocumentFromText,
-} from "./api.js";
+} from "./index.js";
 import {
   blockFieldsById,
   createEditor,

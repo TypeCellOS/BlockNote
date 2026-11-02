@@ -73,6 +73,16 @@
       "types": "./types/src/server.d.ts",
       "import": "./dist/server.js",
       "default": "./dist/server.js"
+    },
+    "./text-lens": {
+      "types": "./types/src/api/v2/index.d.ts",
+      "import": "./dist/text-lens.js",
+      "default": "./dist/text-lens.js"
+    },
+    "./text-lens/yjs": {
+      "types": "./types/src/api/v2/yjs/index.d.ts",
+      "import": "./dist/text-lens-yjs.js",
+      "default": "./dist/text-lens-yjs.js"
     }
   },
   "scripts": {

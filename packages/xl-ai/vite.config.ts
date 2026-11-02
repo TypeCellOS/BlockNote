@@ -82,6 +82,8 @@ export default defineConfig(
             "blocknote-xl-ai": path.resolve(__dirname, "src/index.ts"),
             locales: path.resolve(__dirname, "src/i18n/locales/index.ts"),
             server: path.resolve(__dirname, "src/server.ts"),
+            "text-lens": path.resolve(__dirname, "src/api/v2/index.ts"),
+            "text-lens-yjs": path.resolve(__dirname, "src/api/v2/yjs/index.ts"),
           },
           name: "blocknote-xl-ai",
           cssFileName: "style",

@@ -7,7 +7,7 @@ import {
   markdownFormat,
   plainTextFormat,
   updateDocumentFromText,
-} from "./api.js";
+} from "./index.js";
 import { canonicalText } from "./testUtil/canonical.js";
 import { createRandom, randomDocument, randomEdit } from "./testUtil/random.js";
 

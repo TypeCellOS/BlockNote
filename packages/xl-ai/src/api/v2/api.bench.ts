@@ -6,7 +6,7 @@ import {
   getDocumentText,
   markdownFormat,
   plainTextFormat,
-} from "./api.js";
+} from "./index.js";
 import { richDocument } from "./testUtil/fixtures.js";
 
 /**

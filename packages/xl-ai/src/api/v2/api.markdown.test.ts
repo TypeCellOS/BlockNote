@@ -6,7 +6,7 @@ import {
   getDocumentText,
   markdownFormat,
   updateDocumentFromText,
-} from "./api.js";
+} from "./index.js";
 import { isTableContent } from "./blocks/types.js";
 import {
   createEditor,

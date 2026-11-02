@@ -15,14 +15,6 @@ import {
 } from "./rebase/rebaseOperations.js";
 import { type PlanWarning, planTarget } from "./target/planTarget.js";
 
-export { markdownFormat } from "./formats/markdown.js";
-export { plainTextFormat } from "./formats/plainText.js";
-export type { TextFormat } from "./formats/types.js";
-export { applyBlockOperations } from "./operations/applyOperations.js";
-export type { PlanWarning } from "./target/planTarget.js";
-export type { RebaseWarning } from "./rebase/rebaseOperations.js";
-export type { BlockOperation, BlockPosition } from "./operations/types.js";
-
 /** Returns the document in the format. A client reads this text, changes it, and writes it back. */
 export function getDocumentText(
   editor: BlockNoteEditor<any, any, any>,
