@@ -165,4 +165,45 @@ describe("removals (review closely)", () => {
       text.replace("Beta", "Gamma"),
     );
   });
+
+  it.each([
+    [
+      "after the removed block",
+      [
+        { id: "intro", type: "paragraph" as const, content: "Intro" },
+        { id: "end", type: "paragraph" as const, content: "Conclusion" },
+        { id: "hidden", type: "divider" as const },
+      ],
+      "Intro",
+    ],
+    [
+      "before the removed block",
+      [
+        { id: "hidden", type: "divider" as const },
+        { id: "first", type: "paragraph" as const, content: "First" },
+        { id: "second", type: "paragraph" as const, content: "Second" },
+      ],
+      "Second",
+    ],
+    [
+      "between two removed blocks",
+      [
+        { id: "first", type: "paragraph" as const, content: "First" },
+        { id: "a", type: "paragraph" as const, content: "A" },
+        { id: "hidden", type: "divider" as const },
+        { id: "b", type: "paragraph" as const, content: "B" },
+      ],
+      "First",
+    ],
+  ])(
+    "keeps a hidden block with data %s (plain text does not show a divider)",
+    (_, document, text) => {
+      const editor = createEditor(document);
+      expect(getDocumentText(editor, plainTextFormat)).not.toContain("---");
+
+      updateDocumentFromText(editor, { format: plainTextFormat, text });
+
+      expect(editor.getBlock("hidden")).toBeDefined();
+    },
+  );
 });

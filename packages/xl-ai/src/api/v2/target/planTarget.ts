@@ -331,9 +331,10 @@ function node(id: string, fields: BlockFields): LensBlock {
  * exceptions:
  *
  * - The planner removes their parent.
- * - The planner removes all the visible blocks around them, and no block in
- *   them stays. An example is an empty paragraph between two removed
- *   paragraphs.
+ * - An empty block (for example an empty paragraph) goes if the planner
+ *   removes all the visible blocks around it. An example is an empty
+ *   paragraph between two removed paragraphs. A hidden block with data (for
+ *   example a table in plain text) stays, because the text cannot show it.
  */
 function keepInvisibleBlocks(
   source: BlockTree,
@@ -382,6 +383,7 @@ function keepInvisibleBlocks(
     }
     const neighbors = neighborsOf.get(id) ?? [];
     if (
+      !isEmptyBlock(source.block(id)) ||
       hasKeptDescendant(id) ||
       neighbors.length === 0 ||
       neighbors.some((neighbor) => kept.has(neighbor))
@@ -389,6 +391,11 @@ function keepInvisibleBlocks(
       kept.add(id);
     }
   }
+}
+
+/** Returns true for a block with inline content, without text and without children. */
+function isEmptyBlock(block: LensBlock): boolean {
+  return isEmptyTextBlock(block) && block.children.length === 0;
 }
 
 /** Returns true for a block with inline content and no text. */
