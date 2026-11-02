@@ -5,18 +5,22 @@ import { afterEach, beforeEach, expect, it, vi } from "vite-plus/test";
 import { SuggestionMenu } from "./SuggestionMenu.js";
 import type { DefaultReactSuggestionItem } from "./types.js";
 
+// Defined once, so every render gets the same component types and React can
+// reuse rows across renders.
+const components = vi.hoisted(() => ({
+  SuggestionMenu: {
+    Root: (props: { children: ReactNode }) => <div>{props.children}</div>,
+    Item: (props: { item: DefaultReactSuggestionItem }) => (
+      <div role="option">{`${props.item.title} ${props.item.subtext}`}</div>
+    ),
+    Label: (props: { children: ReactNode }) => <div>{props.children}</div>,
+    EmptyItem: () => null,
+    Loader: () => null,
+  },
+}));
+
 vi.mock("../../editor/ComponentsContext.js", () => ({
-  useComponentsContext: () => ({
-    SuggestionMenu: {
-      Root: (props: { children: ReactNode }) => <div>{props.children}</div>,
-      Item: (props: { item: DefaultReactSuggestionItem }) => (
-        <div role="option">{`${props.item.title} ${props.item.subtext}`}</div>
-      ),
-      Label: (props: { children: ReactNode }) => <div>{props.children}</div>,
-      EmptyItem: () => null,
-      Loader: () => null,
-    },
-  }),
+  useComponentsContext: () => components,
 }));
 
 vi.mock("../../i18n/dictionary.js", () => ({
@@ -81,4 +85,14 @@ it("gives items that share a title or group distinct keys", async () => {
     String(args[0]).includes("two children with the same key"),
   );
   expect(duplicateKeyWarnings).toEqual([]);
+});
+
+it("keeps each item's row when the list is filtered", async () => {
+  await render([item("logo.png", "Page A"), item("image.png", "Page B")]);
+  const imageRow = container.querySelectorAll("[role=option]")[1];
+
+  expect(await render([item("image.png", "Page B")])).toEqual([
+    "image.png Page B",
+  ]);
+  expect(container.querySelector("[role=option]")).toBe(imageRow);
 });

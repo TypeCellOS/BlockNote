@@ -120,6 +120,8 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
     }
   }, [disabled]);
 
+  const seenTitles = new Map<string, number>();
+
   return (
     <div className={"bn-combobox"}>
       <Components.Generic.Form.Root
@@ -147,19 +149,25 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
           className={"bn-combobox-items"}
           id={"ai-suggestion-menu"}
         >
-          {items.map((item, i) => (
-            <Components.SuggestionMenu.Item
-              key={i}
-              className={mergeCSSClasses(
-                "bn-suggestion-menu-item",
-                item.size === "small" ? "bn-suggestion-menu-item-small" : "",
-              )}
-              id={`bn-suggestion-menu-item-${i}`}
-              isSelected={i === selectedIndex}
-              onClick={item.onItemClick}
-              item={item}
-            />
-          ))}
+          {items.map((item, i) => {
+            // Titles don't have to be unique, so each key pairs the title
+            // with how many earlier items share it.
+            const titleCount = seenTitles.get(item.title) ?? 0;
+            seenTitles.set(item.title, titleCount + 1);
+            return (
+              <Components.SuggestionMenu.Item
+                key={`${titleCount}:${item.title}`}
+                className={mergeCSSClasses(
+                  "bn-suggestion-menu-item",
+                  item.size === "small" ? "bn-suggestion-menu-item-small" : "",
+                )}
+                id={`bn-suggestion-menu-item-${i}`}
+                isSelected={i === selectedIndex}
+                onClick={item.onItemClick}
+                item={item}
+              />
+            );
+          })}
         </Components.SuggestionMenu.Root>
       )}
     </div>

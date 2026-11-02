@@ -19,25 +19,33 @@ export function SuggestionMenu<T extends DefaultReactSuggestionItem>(
       />
     ) : null;
 
-  // Keys use the item's index, because titles and group names don't have to
-  // be unique.
   const renderedItems = useMemo<JSX.Element[]>(() => {
     let currentGroup: string | undefined = undefined;
     const renderedItems = [];
+    // Titles and group names don't have to be unique, so each key pairs the
+    // text with how many earlier rows share it. Rows keep their keys when the
+    // list is filtered, as long as no earlier duplicate is removed.
+    const seenTitles = new Map<string, number>();
+    const seenGroups = new Map<string | undefined, number>();
 
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
       if (item.group !== currentGroup) {
         currentGroup = item.group;
+        const groupCount = seenGroups.get(currentGroup) ?? 0;
+        seenGroups.set(currentGroup, groupCount + 1);
         renderedItems.push(
           <Components.SuggestionMenu.Label
             className={"bn-suggestion-menu-label"}
-            key={`label-${i}`}
+            key={`label:${groupCount}:${currentGroup}`}
           >
             {currentGroup}
           </Components.SuggestionMenu.Label>,
         );
       }
+
+      const titleCount = seenTitles.get(item.title) ?? 0;
+      seenTitles.set(item.title, titleCount + 1);
 
       renderedItems.push(
         <Components.SuggestionMenu.Item
@@ -48,7 +56,7 @@ export function SuggestionMenu<T extends DefaultReactSuggestionItem>(
           item={item}
           id={`bn-suggestion-menu-item-${i}`}
           isSelected={i === selectedIndex}
-          key={`item-${i}`}
+          key={`${titleCount}:${item.title}`}
           onClick={() => onItemClick?.(item)}
         />,
       );
