@@ -1,0 +1,51 @@
+import { deepEqual } from "./json.js";
+import type { BlockFields, LensBlock, LensPartialBlock } from "./types.js";
+
+/**
+ * Returns the update that changes the fields of `block` to `target`, or
+ * `undefined` if they are equal. The update contains only the changed fields
+ * and props. If the type changes, the update contains all props of the new
+ * type.
+ */
+export function diffBlock(
+  block: BlockFields,
+  target: BlockFields,
+): LensPartialBlock | undefined {
+  const update: LensPartialBlock = {};
+
+  if (target.type !== block.type) {
+    update.type = target.type;
+    update.props = target.props;
+  } else {
+    const props = Object.fromEntries(
+      Object.entries(target.props).filter(
+        ([key, value]) => !deepEqual(value, block.props[key]),
+      ),
+    );
+    if (Object.keys(props).length > 0) {
+      update.props = props;
+    }
+  }
+
+  if (!deepEqual(target.content, block.content)) {
+    update.content = target.content;
+  }
+
+  return Object.keys(update).length > 0 ? update : undefined;
+}
+
+/** Returns `block` with the fields of `update` (the reverse of {@link diffBlock}). */
+export function patchBlock(
+  block: LensBlock,
+  update: LensPartialBlock,
+): LensBlock {
+  return {
+    ...block,
+    type: update.type ?? block.type,
+    props:
+      update.type === undefined
+        ? { ...block.props, ...update.props }
+        : (update.props ?? {}),
+    content: "content" in update ? update.content : block.content,
+  };
+}

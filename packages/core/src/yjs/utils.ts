@@ -5,6 +5,13 @@ import {
 } from "y-prosemirror";
 import * as Y from "yjs";
 
+/**
+ * Updates a Y.XmlFragment to agree with a ProseMirror node, with the smallest
+ * changes that y-prosemirror finds. Server code can use it to write
+ * ProseMirror changes to a Y.Doc without an editor view.
+ */
+export { updateYFragment } from "y-prosemirror";
+
 import {
   type Block,
   type BlockNoteEditor,

@@ -130,6 +130,12 @@
   },
   "peerDependencies": {
     "react": "^18.0 || ^19.0 || >= 19.0.0-rc",
-    "react-dom": "^18.0 || ^19.0 || >= 19.0.0-rc"
+    "react-dom": "^18.0 || ^19.0 || >= 19.0.0-rc",
+    "yjs": "^13.6.33"
+  },
+  "peerDependenciesMeta": {
+    "yjs": {
+      "optional": true
+    }
   }
 }

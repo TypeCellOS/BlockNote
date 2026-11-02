@@ -1,0 +1,162 @@
+import { describe, expect, it } from "vite-plus/test";
+
+import type { FlatBlock, LensBlock } from "../blocks/types.js";
+import {
+  alignBlocks,
+  alignmentKey,
+  canBeSameBlock,
+  linkBlocks,
+} from "./alignBlocks.js";
+
+function paragraph(text: string): LensBlock {
+  return {
+    id: "",
+    type: "paragraph",
+    props: {},
+    content: [{ type: "text", text, styles: {} }],
+    children: [],
+  };
+}
+
+function image(): LensBlock {
+  return { id: "", type: "image", props: {}, content: undefined, children: [] };
+}
+
+function flat(...blocks: (string | LensBlock)[]): FlatBlock[] {
+  return blocks.map((block) => ({
+    block: typeof block === "string" ? paragraph(block) : block,
+    parentIndex: undefined,
+  }));
+}
+
+function align(a: FlatBlock[], b: FlatBlock[]) {
+  return alignBlocks(a, b).map((pair) => [pair.aIndex, pair.bIndex]);
+}
+
+describe("alignBlocks", () => {
+  it("matches blocks with equal text", () => {
+    expect(align(flat("a b", "c d"), flat("a b", "c d"))).toEqual([
+      [0, 0],
+      [1, 1],
+    ]);
+  });
+
+  it("matches the other blocks after an insert", () => {
+    expect(
+      align(flat("first", "second"), flat("new", "first", "second")),
+    ).toEqual([
+      [0, 1],
+      [1, 2],
+    ]);
+  });
+
+  it("matches a block with many added sentences", () => {
+    const added = " More text here. And even more text. And a lot more text.";
+    expect(
+      align(
+        flat("Top", "One sentence.", "Bottom"),
+        flat("Top", "New block", `One sentence.${added}`, "Bottom"),
+      ),
+    ).toEqual([
+      [0, 0],
+      [1, 2],
+      [2, 3],
+    ]);
+  });
+
+  it("matches a block with fully new text at the same position", () => {
+    expect(
+      align(
+        flat("Top", "Old text", "Bottom"),
+        flat("Top", "New words", "Bottom"),
+      ),
+    ).toEqual([
+      [0, 0],
+      [1, 1],
+      [2, 2],
+    ]);
+  });
+
+  it("does not match blocks with a small overlap at different positions", () => {
+    // "world" is less than half of the two texts.
+    expect(
+      align(
+        flat("Hello big world"),
+        flat("Something else", "Goodbye small world"),
+      ),
+    ).toEqual([]);
+  });
+
+  it("matches a split block to the part with the most text", () => {
+    expect(
+      align(
+        flat("Colored centered paragraph"),
+        flat("Colored centered", "paragraph"),
+      ),
+    ).toEqual([[0, 0]]);
+  });
+
+  it("matches two joined blocks to the first block", () => {
+    expect(
+      align(
+        flat("Underlined words here", "Last paragraph"),
+        flat("Underlined words here. Last paragraph"),
+      ),
+    ).toEqual([[0, 0]]);
+  });
+
+  it("matches blocks without text by their type and position", () => {
+    expect(align(flat("a", image(), "b"), flat("a", image(), "b"))).toEqual([
+      [0, 0],
+      [1, 1],
+      [2, 2],
+    ]);
+  });
+
+  it("does not match a moved block", () => {
+    // The pairs cannot cross. Thus, the alignment keeps the longer run.
+    expect(
+      align(
+        flat("one x", "two y", "three z"),
+        flat("two y", "three z", "one x"),
+      ),
+    ).toEqual([
+      [1, 0],
+      [2, 1],
+    ]);
+  });
+});
+
+describe("linkBlocks", () => {
+  it("links each view block to the source block with most of its text", () => {
+    expect(
+      linkBlocks(
+        flat("Title", "const a = 1;\n\nconst b = 2;", paragraph(""), "End"),
+        flat("Title", "const a = 1;", "const b = 2;", "End"),
+      ),
+    ).toEqual([0, 1, 1, 3]);
+  });
+
+  it("does not link a view block without a source", () => {
+    expect(linkBlocks(flat("a"), flat("a", "unrelated"))).toEqual([
+      0,
+      undefined,
+    ]);
+  });
+});
+
+describe("alignmentKey", () => {
+  it("is the text for blocks with inline content, and the type for other blocks", () => {
+    expect(alignmentKey(paragraph("a"))).toBe("text:a");
+    expect(alignmentKey(paragraph(""))).toBe("text:");
+    expect(alignmentKey(image())).toBe("type:image");
+  });
+});
+
+describe("canBeSameBlock", () => {
+  it("is true for blocks with content of the same shape", () => {
+    expect(canBeSameBlock(paragraph("a"), paragraph("b"))).toBe(true);
+    expect(canBeSameBlock(paragraph("a"), image())).toBe(false);
+    expect(canBeSameBlock(image(), image())).toBe(true);
+  });
+});
