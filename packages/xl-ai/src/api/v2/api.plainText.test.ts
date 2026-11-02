@@ -170,4 +170,39 @@ describe("plain text", () => {
       { text: "Total sales grew" },
     ]);
   });
+
+  describe("a block that the format shows as more than one part", () => {
+    const blocks = [
+      {
+        id: "code",
+        type: "codeBlock" as const,
+        content: "first\n\nsecond",
+      },
+      { id: "end", type: "paragraph" as const, content: "End" },
+    ];
+
+    it("is replaced, with a warning, if the text swaps its parts", () => {
+      const editor = createEditor(blocks);
+      const update = write(editor, () => "second\n\nfirst\n\nEnd");
+
+      expect(update.warnings).toEqual([
+        { type: "multi-part-block-replaced", id: "code" },
+      ]);
+      expect(getDocumentText(editor, plainTextFormat)).toBe(
+        "second\n\nfirst\n\nEnd",
+      );
+    });
+
+    it("is replaced, with a warning, if the text puts a block between its parts", () => {
+      const editor = createEditor(blocks);
+      const update = write(editor, () => "first\n\nEnd\n\nsecond");
+
+      expect(update.warnings).toEqual([
+        { type: "multi-part-block-replaced", id: "code" },
+      ]);
+      expect(getDocumentText(editor, plainTextFormat)).toBe(
+        "first\n\nEnd\n\nsecond",
+      );
+    });
+  });
 });

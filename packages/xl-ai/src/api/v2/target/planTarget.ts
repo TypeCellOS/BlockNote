@@ -75,16 +75,22 @@ export function planTarget(input: PlanInput): Plan {
   }
 
   // 1. Find the source blocks that stay, and the incoming block of each.
-  // A multi-part block stays only if the text did not change its parts.
+  // A multi-part block stays only if the text did not change its parts: each
+  // part is in the text, unchanged, and the parts are next to each other in
+  // the same order.
   const replaced = new Set<string>();
   for (const id of multiPartIds) {
-    const unchanged = view.every(
-      (viewBlock, v) =>
-        viewBlock.sourceId !== id ||
-        (viewToIncoming[v] !== -1 &&
-          blockKey(viewBlock.block) ===
-            blockKey(incoming[viewToIncoming[v]].block)),
+    const parts = view.flatMap((viewBlock, v) =>
+      viewBlock.sourceId === id ? [v] : [],
     );
+    const unchanged = parts.every((v, k) => {
+      const j = viewToIncoming[v];
+      return (
+        j !== -1 &&
+        blockKey(view[v].block) === blockKey(incoming[j].block) &&
+        (k === 0 || j === viewToIncoming[parts[k - 1]] + 1)
+      );
+    });
     if (!unchanged) {
       replaced.add(id);
       warnings.push({ type: "multi-part-block-replaced", id });
