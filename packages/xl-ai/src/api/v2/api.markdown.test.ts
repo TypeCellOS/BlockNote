@@ -437,4 +437,24 @@ describe("markdown", () => {
       "end",
     ]);
   });
+
+  it("a small change in each of many bullets keeps the ID of each bullet", () => {
+    const editor = createEditor(
+      Array.from({ length: 300 }, (_, i) => ({
+        id: `b${i}`,
+        type: "bulletListItem" as const,
+        content: `Item ${i} alpha beta gamma delta epsilon`,
+      })),
+    );
+    const update = write(editor, (md) =>
+      md.replaceAll("alpha", "omega").replaceAll("beta", "zeta"),
+    );
+
+    expect(
+      update.operations.filter((operation) => operation.type !== "update"),
+    ).toEqual([]);
+    expect(editor.document.map((block) => block.id)).toEqual(
+      Array.from({ length: 300 }, (_, i) => `b${i}`),
+    );
+  });
 });

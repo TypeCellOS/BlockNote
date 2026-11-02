@@ -1,0 +1,48 @@
+import { describe, expect, it } from "vite-plus/test";
+
+import { anchoredMatch } from "./anchored.js";
+import { myersMatch } from "./myers.js";
+
+const same = (x: string) => x;
+
+describe("anchoredMatch", () => {
+  it("gives the same result as the Myers diff for a small change", () => {
+    const a = "the quick brown fox jumps".split(" ");
+    const b = "the quick red fox jumps high".split(" ");
+    expect(anchoredMatch(a, b, same)).toEqual(
+      myersMatch(a, b, (x, y) => x === y),
+    );
+  });
+
+  it("matches large inputs with more changes than the Myers limit", () => {
+    // 2,000 changes, more than the limit of the Myers diff (1,000). Myers
+    // matches only the common prefix and suffix.
+    const a = Array.from({ length: 1000 }, (_, i) => [
+      `id${i}`,
+      "old",
+      "x",
+    ]).flat();
+    const b = Array.from({ length: 1000 }, (_, i) => [
+      `id${i}`,
+      "new",
+      "x",
+    ]).flat();
+    expect(myersMatch(a, b, (x, y) => x === y)).toHaveLength(2);
+
+    const pairs = anchoredMatch(a, b, same);
+    // Each "id" and each "x" stays.
+    expect(pairs).toHaveLength(2000);
+    expect(pairs.every((pair) => a[pair.aIndex] === b[pair.bIndex])).toBe(true);
+  });
+
+  it("gives pairs that do not cross", () => {
+    const a = ["a", "b", "c", "d"];
+    const b = ["c", "a", "b", "d"];
+    const pairs = anchoredMatch(a, b, same);
+    expect(pairs).toEqual([
+      { aIndex: 0, bIndex: 1 },
+      { aIndex: 1, bIndex: 2 },
+      { aIndex: 3, bIndex: 3 },
+    ]);
+  });
+});

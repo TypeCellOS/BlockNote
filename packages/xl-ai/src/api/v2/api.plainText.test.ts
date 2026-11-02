@@ -121,4 +121,29 @@ describe("plain text", () => {
       "end",
     ]);
   });
+
+  it("a small change in each of many paragraphs keeps the ID and props of each paragraph", () => {
+    const editor = createEditor(
+      Array.from({ length: 300 }, (_, i) => ({
+        id: `p${i}`,
+        type: "paragraph" as const,
+        props: { textColor: "red" },
+        content: `Paragraph ${i} alpha beta gamma delta epsilon`,
+      })),
+    );
+    const update = write(editor, (text) =>
+      text.replaceAll("alpha", "omega").replaceAll("beta", "zeta"),
+    );
+
+    expect(update.operations).toHaveLength(300);
+    expect(
+      update.operations.every((operation) => operation.type === "update"),
+    ).toBe(true);
+    expect(editor.document.map((block) => block.id)).toEqual(
+      Array.from({ length: 300 }, (_, i) => `p${i}`),
+    );
+    expect(
+      editor.document.every((block) => block.props.textColor === "red"),
+    ).toBe(true);
+  });
 });

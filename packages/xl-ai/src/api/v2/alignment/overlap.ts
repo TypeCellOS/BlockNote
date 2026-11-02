@@ -1,4 +1,4 @@
-import { myersMatch } from "../diff/myers.js";
+import { anchoredMatch } from "../diff/anchored.js";
 
 /** The size of the text that `a[aIndex]` and `b[bIndex]` have in common. */
 export type Overlap = { aIndex: number; bIndex: number; size: number };
@@ -12,8 +12,9 @@ type Token = { owner: number; key: string; size: number };
 /**
  * Returns the size of the text that each pair of texts has in common. The
  * function diffs the words of all texts of `a` against the words of all texts
- * of `b`. Then it counts, for each pair, the characters of the words that the
- * diff keeps together. Characters that are not words do not count.
+ * of `b` (see `anchoredMatch`, which also works for large changes). Then it
+ * counts, for each pair, the characters of the words that the diff keeps
+ * together. Characters that are not words do not count.
  *
  * Because one diff aligns the full sequences, the result does not cross: a
  * text can only share words with texts at the same position or later.
@@ -24,7 +25,7 @@ export function textOverlaps(
 ): Overlap[] {
   const tokensA = tokensOf(a);
   const tokensB = tokensOf(b);
-  const pairs = myersMatch(tokensA, tokensB, (x, y) => x.key === y.key);
+  const pairs = anchoredMatch(tokensA, tokensB, (token) => token.key);
 
   const overlaps = new Map<string, Overlap>();
   for (const pair of pairs) {
