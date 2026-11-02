@@ -19,7 +19,7 @@ import {
 
 export type PromptSuggestionMenuProps = {
   // `key` identifies an item across renders, so it keeps its row when the
-  // list is filtered. Without it, the row key falls back to the title.
+  // list is filtered. Without it, the title identifies the item.
   items: (DefaultReactSuggestionItem & { key?: string })[];
   onManualPromptSubmit: (userPrompt: string) => void;
   promptText?: string;
@@ -122,7 +122,7 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
     }
   }, [disabled]);
 
-  const seenTitles = new Map<string, number>();
+  const seenIdentities = new Map<string, number>();
 
   return (
     <div className={"bn-combobox"}>
@@ -152,17 +152,18 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
           id={"ai-suggestion-menu"}
         >
           {items.map((item, i) => {
-            // Titles don't have to be unique, so the fallback key pairs the
-            // title with how many earlier items share it.
-            const titleCount = seenTitles.get(item.title) ?? 0;
-            seenTitles.set(item.title, titleCount + 1);
+            // An item is identified by its `key`, or by its title without
+            // one. Neither has to be unique, so the row key also counts how
+            // many earlier items share that identity.
+            const identity =
+              item.key !== undefined
+                ? `key:${item.key}`
+                : `title:${item.title}`;
+            const count = seenIdentities.get(identity) ?? 0;
+            seenIdentities.set(identity, count + 1);
             return (
               <Components.SuggestionMenu.Item
-                key={
-                  item.key !== undefined
-                    ? `key:${item.key}`
-                    : `title:${titleCount}:${item.title}`
-                }
+                key={`${count}:${identity}`}
                 className={mergeCSSClasses(
                   "bn-suggestion-menu-item",
                   item.size === "small" ? "bn-suggestion-menu-item-small" : "",

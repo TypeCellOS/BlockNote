@@ -36,6 +36,7 @@ beforeEach(() => {
 
 afterEach(async () => {
   await act(async () => root.unmount());
+  vi.restoreAllMocks();
 });
 
 const items = [
@@ -43,11 +44,11 @@ const items = [
   { key: "second", title: "Translate", subtext: "German", aliases: ["de"] },
 ].map((item) => ({ ...item, onItemClick: () => undefined }));
 
-async function render(promptText: string) {
+async function render(promptText: string, menuItems: typeof items = items) {
   await act(async () =>
     root.render(
       <PromptSuggestionMenu
-        items={items}
+        items={menuItems}
         promptText={promptText}
         onManualPromptSubmit={() => undefined}
       />,
@@ -63,4 +64,23 @@ it("keeps an item's row by its key when an item with the same title is filtered 
 
   expect(rows.map((row) => row.textContent)).toEqual(["Translate German"]);
   expect(rows[0]).toBe(germanRow);
+});
+
+it("gives items that share a key distinct row keys", async () => {
+  const consoleError = vi.spyOn(console, "error");
+  const [french] = items;
+
+  const rows = await render("", [
+    french,
+    { ...french, title: "Translate to French (formal)" },
+  ]);
+
+  expect(rows.map((row) => row.textContent)).toEqual([
+    "Translate French",
+    "Translate to French (formal) French",
+  ]);
+  const duplicateKeyWarnings = consoleError.mock.calls.filter((args) =>
+    String(args[0]).includes("two children with the same key"),
+  );
+  expect(duplicateKeyWarnings).toEqual([]);
 });
