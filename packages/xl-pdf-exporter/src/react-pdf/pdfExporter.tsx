@@ -173,7 +173,9 @@ export class PDFExporter<
     for (const b of blocks) {
       if (b.type === "numberedListItem") {
         numberedListIndex++;
-        if (b.props.start !== undefined) {
+        // Like in the editor, only the first item of a list sets its start
+        // number.
+        if (numberedListIndex === 1 && b.props.start !== undefined) {
           numberedListIndex = b.props.start as number;
         }
       } else {

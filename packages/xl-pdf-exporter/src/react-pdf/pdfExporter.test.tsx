@@ -5,6 +5,7 @@ import {
 } from "@blocknote/core";
 import { ColumnBlock, ColumnListBlock } from "@blocknote/xl-multi-column";
 import { Text } from "@react-pdf/renderer";
+import { partialBlocksToBlocksForTesting } from "@shared/formatConversionTestUtil.js";
 import { testDocument } from "@shared/testDocument.js";
 import { testResolveFileUrl } from "@shared/util/testFileResolver.js";
 import reactElementToJSXString from "react-element-to-jsx-string";
@@ -60,5 +61,29 @@ describe("exporter", () => {
     await expect(str).toMatchFileSnapshot(
       "__snapshots__/exampleWithHeaderAndFooter.jsx",
     );
+  });
+
+  it("should start each numbered list at its start number", async () => {
+    const schema = BlockNoteSchema.create();
+    const exporter = new PDFExporter(schema, pdfDefaultSchemaMappings, {
+      resolveFileUrl: testResolveFileUrl,
+    });
+
+    // Like in the editor, the first item of a list sets the number it starts
+    // at; a start number on a later item is ignored.
+    const transformed = await exporter.toReactPDFDocument(
+      partialBlocksToBlocksForTesting(schema, [
+        { type: "numberedListItem", content: "five", props: { start: 5 } },
+        { type: "numberedListItem", content: "six" },
+        { type: "numberedListItem", content: "seven", props: { start: 2 } },
+        { type: "paragraph", content: "a paragraph breaks the list" },
+        { type: "numberedListItem", content: "one" },
+      ]),
+    );
+    const listMarkers = [
+      ...reactElementToJSXString(transformed).matchAll(/listMarker="([^"]*)"/g),
+    ].map((match) => match[1]);
+
+    expect(listMarkers).toEqual(["5.", "6.", "7.", "1."]);
   });
 });
