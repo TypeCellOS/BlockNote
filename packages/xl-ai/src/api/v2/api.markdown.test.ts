@@ -321,15 +321,14 @@ describe("markdown", () => {
       replaceOnce(md, "\n  * Child bullet", "\n* Child bullet"),
     );
 
-    // In the markdown, "Paragraph nested in a bullet" comes after the
-    // outdented bullet. Thus, it cannot stay nested in "Parent bullet".
-    expect(documentShape(editor.document).slice(0, 6)).toEqual([
+    // In the markdown, the indented "Paragraph nested in a bullet" comes
+    // after the outdented bullet. Thus, it is now a child of that bullet.
+    expect(documentShape(editor.document).slice(0, 5)).toEqual([
       "colored",
       "heading",
       "bullet",
       "child-bullet",
-      "child-paragraph",
-      "numbered",
+      ["child-paragraph"],
     ]);
   });
   it("keeps a comment on text that the edit does not touch", () => {

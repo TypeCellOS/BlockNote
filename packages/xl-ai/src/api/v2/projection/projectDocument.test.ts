@@ -18,6 +18,8 @@ describe("projectDocument", () => {
         ],
       },
       { id: "empty", type: "paragraph" },
+      // Markdown does not show an image without a URL.
+      { id: "no-url", type: "image" },
       {
         id: "code",
         type: "codeBlock",
@@ -43,15 +45,16 @@ describe("projectDocument", () => {
     ).toEqual([
       ["heading", "heading"],
       ["bullet", "bulletListItem"],
-      // Markdown shows the nested paragraph without nesting.
       ["nested", "paragraph"],
+      // Markdown shows an empty paragraph as a <br> line.
+      ["empty", "paragraph"],
       ["code", "codeBlock"],
     ]);
   });
 
   it("finds blocks that the format does not show", () => {
     const projection = projectDocument(editor, markdownFormat, editor.document);
-    expect([...projection.invisibleIds]).toEqual(["empty"]);
+    expect([...projection.invisibleIds]).toEqual(["no-url"]);
   });
 
   it("finds blocks that the format shows as more than one block", () => {

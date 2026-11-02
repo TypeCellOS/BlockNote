@@ -29,11 +29,13 @@ describe("removals (review closely)", () => {
     updateDocumentFromText(editor, { format: markdownFormat, text });
 
     expect(editor.getBlock("bullet")).toBeUndefined();
+    // The indented paragraph after the bullet is a child of the bullet in
+    // the markdown.
     expect(documentShape(editor.document).slice(0, 4)).toEqual([
       "colored",
       "heading",
       "child-bullet",
-      "child-paragraph",
+      ["child-paragraph"],
     ]);
   });
 
@@ -87,10 +89,14 @@ describe("removals (review closely)", () => {
     const editor = createEditor();
     updateDocumentFromText(editor, { format: markdownFormat, text: "" });
 
-    expect(getDocumentText(editor, markdownFormat)).toBe("\n");
-    for (const id of ["colored", "table", "image", "empty-1", "last"]) {
+    // The document always has one block. An empty paragraph is a <br> line.
+    expect(getDocumentText(editor, markdownFormat)).toBe("<br>\n");
+    for (const id of ["colored", "table", "image", "last"]) {
       expect(editor.getBlock(id)).toBeUndefined();
     }
+    // The empty text gives one empty paragraph. It matches the empty
+    // paragraph "empty-1", thus that block stays as the only block.
+    expect(editor.document.map((block) => block.id)).toEqual(["empty-1"]);
   });
 
   it("replaces a block that renders as more than one paragraph if one paragraph changes", () => {
