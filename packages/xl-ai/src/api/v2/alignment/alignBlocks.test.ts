@@ -6,6 +6,7 @@ import {
   alignmentKey,
   canBeSameBlock,
   linkBlocks,
+  linkKey,
 } from "./alignBlocks.js";
 
 function paragraph(text: string): LensBlock {
@@ -176,10 +177,33 @@ describe("linkBlocks", () => {
 });
 
 describe("alignmentKey", () => {
-  it("is the text for blocks with inline content, and the type for other blocks", () => {
+  it("is the text for blocks with inline content, and all fields for blocks without content", () => {
     expect(alignmentKey(paragraph("a"))).toBe("text:a");
     expect(alignmentKey(paragraph(""))).toBe("text:");
-    expect(alignmentKey(image())).toBe("type:image");
+    expect(alignmentKey(image())).toBe('block:{"props":{},"type":"image"}');
+  });
+
+  it("is different for a table and a paragraph with the same text", () => {
+    const table: LensBlock = {
+      id: "",
+      type: "table",
+      props: {},
+      content: {
+        type: "tableContent",
+        columnWidths: [undefined, undefined],
+        rows: [{ cells: [[{ type: "text", text: "a", styles: {} }]] }],
+      },
+      children: [],
+    };
+    expect(alignmentKey(table)).not.toBe(alignmentKey(paragraph("a")));
+    expect(linkKey(table)).not.toBe(linkKey(paragraph("a")));
+  });
+});
+
+describe("linkKey", () => {
+  it("is the type for blocks without content, because a format can lose their fields", () => {
+    expect(linkKey(image())).toBe("type:image");
+    expect(linkKey(paragraph("a"))).toBe("text:a");
   });
 });
 

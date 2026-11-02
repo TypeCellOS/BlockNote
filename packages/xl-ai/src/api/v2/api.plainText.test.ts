@@ -148,4 +148,26 @@ describe("plain text", () => {
       ),
     ).toBe(true);
   });
+
+  it("does not link a paragraph to a hidden table with the same text", () => {
+    const editor = createEditor([
+      {
+        id: "table",
+        type: "table",
+        content: {
+          type: "tableContent",
+          rows: [{ cells: ["Total", "sales"] }],
+        },
+      },
+      { id: "p", type: "paragraph", content: "Total sales" },
+    ]);
+    write(editor, (text) =>
+      replaceOnce(text, "Total sales", "Total sales grew"),
+    );
+
+    expect(editor.getBlock("table")?.type).toBe("table");
+    expect(editor.getBlock("p")?.content).toMatchObject([
+      { text: "Total sales grew" },
+    ]);
+  });
 });

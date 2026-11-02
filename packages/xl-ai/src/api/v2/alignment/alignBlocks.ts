@@ -1,3 +1,4 @@
+import { blockKey } from "../blocks/json.js";
 import { blockToText } from "../blocks/text.js";
 import {
   type FlatBlock,
@@ -28,17 +29,21 @@ const MIN_SHARE = 0.5;
  *    Thus, a block with fully new text at the same position stays the same
  *    block.
  * 4. A block that moved: of the blocks without a match, two blocks match if
- *    they have equal, non-empty text that no other block without a match has
- *    on either side. Thus, a block that the text moves keeps its ID. These
- *    pairs can cross the other pairs. A block that moved and changed has no
- *    match.
+ *    they have an equal key (not an empty text) that no other block without
+ *    a match has on either side. Thus, a block that the text moves keeps its
+ *    ID. These pairs can cross the other pairs. A block that moved and
+ *    changed has no match.
  */
 export function alignBlocks(
   a: readonly FlatBlock[],
   b: readonly FlatBlock[],
 ): MatchedPair[] {
   const pairs: MatchedPair[] = [];
-  for (const { gap, anchor } of gaps(anchorsOf(a, b), a.length, b.length)) {
+  for (const { gap, anchor } of gaps(
+    anchorsOf(a, b, alignmentKey),
+    a.length,
+    b.length,
+  )) {
     const inGap = mutualBestPairs(gapTexts(a, b, gap)).map((pair) => ({
       aIndex: gap.aStart + pair.aIndex,
       bIndex: gap.bStart + pair.bIndex,
@@ -70,22 +75,24 @@ function movedPairs(
 ): MatchedPair[] {
   const matchedA = new Set(pairs.map((pair) => pair.aIndex));
   const matchedB = new Set(pairs.map((pair) => pair.bIndex));
-  /** The index of each unique, non-empty text without a match. */
-  function uniqueTexts(blocks: readonly FlatBlock[], matched: Set<number>) {
+  /** The index of each unique key of a block without a match. Blocks with empty text do not count. */
+  function uniqueKeys(blocks: readonly FlatBlock[], matched: Set<number>) {
     const indexes = new Map<string, number | undefined>();
     blocks.forEach(({ block }, index) => {
-      const text = blockToText(block);
-      if (!matched.has(index) && Array.isArray(block.content) && text.trim()) {
-        // A second block with the same text makes the text not unique.
-        indexes.set(text, indexes.has(text) ? undefined : index);
+      const emptyText =
+        Array.isArray(block.content) && !blockToText(block).trim();
+      if (!matched.has(index) && !emptyText) {
+        const key = alignmentKey(block);
+        // A second block with the same key makes the key not unique.
+        indexes.set(key, indexes.has(key) ? undefined : index);
       }
     });
     return indexes;
   }
-  const textsB = uniqueTexts(b, matchedB);
+  const keysB = uniqueKeys(b, matchedB);
   const moved: MatchedPair[] = [];
-  for (const [text, aIndex] of uniqueTexts(a, matchedA)) {
-    const bIndex = textsB.get(text);
+  for (const [key, aIndex] of uniqueKeys(a, matchedA)) {
+    const bIndex = keysB.get(key);
     if (aIndex !== undefined && bIndex !== undefined) {
       moved.push({ aIndex, bIndex });
     }
@@ -110,7 +117,7 @@ export function linkBlocks(
 ): (number | undefined)[] {
   const links: (number | undefined)[] = new Array(view.length);
   for (const { gap, anchor } of gaps(
-    anchorsOf(source, view),
+    anchorsOf(source, view, linkKey),
     source.length,
     view.length,
   )) {
@@ -136,14 +143,31 @@ export function linkBlocks(
 }
 
 /**
- * Returns the key that aligns a block: its text, or its type for a block that
- * cannot have text (for example an image).
+ * Returns the key that aligns two blocks of the same format (in
+ * {@link alignBlocks}). The key of a text block is its text, and the key of a
+ * table is its text, with a different prefix. The key of another block is
+ * all its fields, for example the URL of an image. Blocks with equal keys
+ * are the same block.
  */
 export function alignmentKey(block: LensBlock): string {
-  const text = blockToText(block);
-  return Array.isArray(block.content) || text.length > 0
-    ? `text:${text}`
-    : `type:${block.type}`;
+  if (Array.isArray(block.content)) {
+    return `text:${blockToText(block)}`;
+  }
+  if (isTableContent(block.content)) {
+    return `table:${blockToText(block)}`;
+  }
+  return `block:${blockKey(block)}`;
+}
+
+/**
+ * Returns the key that links a document block to its view block (in
+ * {@link linkBlocks}). The format can lose fields of a block (for example the
+ * width of an image). Thus, a block without content links by its type only.
+ */
+export function linkKey(block: LensBlock): string {
+  return block.content === undefined
+    ? `type:${block.type}`
+    : alignmentKey(block);
 }
 
 /**
@@ -161,10 +185,14 @@ export function canBeSameBlock(a: LensBlock, b: LensBlock): boolean {
   return a.type === b.type;
 }
 
-function anchorsOf(a: readonly FlatBlock[], b: readonly FlatBlock[]) {
+function anchorsOf(
+  a: readonly FlatBlock[],
+  b: readonly FlatBlock[],
+  keyOf: (block: LensBlock) => string,
+) {
   return myersMatch(
-    a.map((flat) => alignmentKey(flat.block)),
-    b.map((flat) => alignmentKey(flat.block)),
+    a.map((flat) => keyOf(flat.block)),
+    b.map((flat) => keyOf(flat.block)),
     (x, y) => x === y,
   );
 }

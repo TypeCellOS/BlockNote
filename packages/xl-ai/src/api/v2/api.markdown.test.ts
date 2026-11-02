@@ -457,4 +457,48 @@ describe("markdown", () => {
       Array.from({ length: 300 }, (_, i) => `b${i}`),
     );
   });
+
+  describe("images keep their hidden props", () => {
+    const images = [
+      {
+        id: "a",
+        type: "image" as const,
+        props: { url: "https://example.com/a.png", previewWidth: 100 },
+      },
+      {
+        id: "b",
+        type: "image" as const,
+        props: { url: "https://example.com/b.png", previewWidth: 500 },
+      },
+      { id: "end", type: "paragraph" as const, content: "End" },
+    ];
+
+    it("when the text swaps two images", () => {
+      const editor = createEditor(images);
+      write(editor, (md) => {
+        const [a, b, ...rest] = md.split("\n\n");
+        return [b, a, ...rest].join("\n\n");
+      });
+
+      expect(editor.getBlock("a")?.props).toMatchObject({
+        url: "https://example.com/a.png",
+        previewWidth: 100,
+      });
+      expect(editor.getBlock("b")?.props).toMatchObject({
+        url: "https://example.com/b.png",
+        previewWidth: 500,
+      });
+    });
+
+    it("when the text removes the first of two images", () => {
+      const editor = createEditor(images);
+      write(editor, (md) => md.split("\n\n").slice(1).join("\n\n"));
+
+      expect(editor.getBlock("a")).toBeUndefined();
+      expect(editor.getBlock("b")?.props).toMatchObject({
+        url: "https://example.com/b.png",
+        previewWidth: 500,
+      });
+    });
+  });
 });
