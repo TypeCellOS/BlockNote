@@ -7,11 +7,14 @@
  * a separate entry point. Thus, code without Yjs does not load Yjs.
  */
 export {
+  computeJSONUpdate,
   computeTextUpdate,
   getDocumentText,
+  type JSONUpdateOptions,
   type TextUpdate,
   type TextUpdateOptions,
   type TextUpdateWarning,
+  updateDocumentFromJSON,
   updateDocumentFromText,
 } from "./api.js";
 export { htmlFormat } from "./formats/html.js";

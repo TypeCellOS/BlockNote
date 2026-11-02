@@ -10,6 +10,7 @@ In lens terms, the document is the source and the text is the view. The `seriali
 - `computeTextUpdate(editor, { format, text, base })`: returns the operations that change the document to agree with the text. The operations use block IDs. The result also contains warnings (a discriminated union).
   - `base` is optional. It is the document (Block JSON) at the version that the client read. Get it from your version history. Without `base`, the text applies to the current document.
 - `updateDocumentFromText(editor, { format, text, base })`: computes the operations and applies them in one transaction.
+- `computeJSONUpdate(editor, { document, base })` and `updateDocumentFromJSON(editor, { document, base })`: the same for a full document as BlockNote JSON. The JSON contains the block IDs, thus the blocks pair by ID, not by text. Only the changed blocks and fields change, and with `base`, the changes of other writers stay. A block without an ID is a new block.
 - `yjs/yDocText.ts`, for a Y.Doc (Yjs v13). It is a separate entry point, thus code without Yjs does not load Yjs:
   - `getYDocText(editor, ydoc, { format })`: returns the document as text.
   - `updateYDocFromText(editor, ydoc, { format, text, base, strategy })`: writes the text back. `base` is the Yjs state (`Y.encodeStateAsUpdate`) at the version that the client read. The result contains the Yjs update to send to the other clients, the operations and the warnings.
