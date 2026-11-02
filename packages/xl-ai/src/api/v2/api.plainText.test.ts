@@ -143,7 +143,9 @@ describe("plain text", () => {
       Array.from({ length: 300 }, (_, i) => `p${i}`),
     );
     expect(
-      editor.document.every((block) => block.props.textColor === "red"),
+      editor.document.every(
+        (block) => (block.props as { textColor?: string }).textColor === "red",
+      ),
     ).toBe(true);
   });
 });
