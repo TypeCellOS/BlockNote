@@ -20,6 +20,17 @@ export const tablePropSchema = {
   textColor: defaultProps.textColor,
 };
 
+function parseTableSpan(
+  element: HTMLElement,
+  attribute: "colspan" | "rowspan",
+): number {
+  const value = Number(element.getAttribute(attribute));
+  // Reject malformed spans before they reach table layout/array allocation.
+  // These upper bounds are the limits for HTML table cell spans.
+  const max = attribute === "colspan" ? 1000 : 65534;
+  return Number.isInteger(value) && value > 0 && value <= max ? value : 1;
+}
+
 const TiptapTableHeader = Node.create<{
   HTMLAttributes: Record<string, any>;
 }>({
@@ -48,9 +59,11 @@ const TiptapTableHeader = Node.create<{
     return {
       colspan: {
         default: 1,
+        parseHTML: (element) => parseTableSpan(element, "colspan"),
       },
       rowspan: {
         default: 1,
+        parseHTML: (element) => parseTableSpan(element, "rowspan"),
       },
       colwidth: {
         default: null,
@@ -112,9 +125,11 @@ const TiptapTableCell = Node.create<{
     return {
       colspan: {
         default: 1,
+        parseHTML: (element) => parseTableSpan(element, "colspan"),
       },
       rowspan: {
         default: 1,
+        parseHTML: (element) => parseTableSpan(element, "rowspan"),
       },
       colwidth: {
         default: null,
