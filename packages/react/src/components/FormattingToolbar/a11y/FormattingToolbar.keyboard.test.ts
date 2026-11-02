@@ -1,3 +1,4 @@
+import { toolbarDocument, nestedToolbarDocument } from "./fixtures.js";
 import { expect, test } from "vite-plus/test";
 import { page } from "vite-plus/test/browser";
 import { openEditor, pressKey } from "@root/tests/a11y/helpers.js";
@@ -7,12 +8,10 @@ import {
   focusNextMenuItem,
   activateMenuItem,
   openToolbarPopover,
-  documentForToolbarItem,
   focusEditor,
   openToolbar,
   focusToolbar,
   focusNextToolbarItem,
-  toolbarDocument,
 } from "./helpers.js";
 
 // Same navigation as the shared focusToolbarItem, with focus assertions.
@@ -37,7 +36,6 @@ async function focusToolbarItemWithAssertions(toolbarItem: string) {
 }
 
 async function checkToolbarItemFocus(toolbarItem: string) {
-  await openEditor(documentForToolbarItem(toolbarItem));
   const { toolbar } = await focusToolbarItemWithAssertions(toolbarItem);
   await expect
     .element(toolbar)
@@ -86,6 +84,7 @@ async function checkToolbarPopoverKeyboard(
 }
 
 test("formatting toolbar: Paragraph", async () => {
+  await openEditor(toolbarDocument);
   await checkToolbarMenuKeyboard(
     "Paragraph",
     () => page.getByRole("menuitem", { name: "Heading 1", exact: true }),
@@ -94,34 +93,42 @@ test("formatting toolbar: Paragraph", async () => {
 });
 
 test("formatting toolbar: Bold", async () => {
+  await openEditor(toolbarDocument);
   await checkToolbarButtonKeyboard("Bold");
 });
 
 test("formatting toolbar: Italic", async () => {
+  await openEditor(toolbarDocument);
   await checkToolbarButtonKeyboard("Italic");
 });
 
 test("formatting toolbar: Underline", async () => {
+  await openEditor(toolbarDocument);
   await checkToolbarButtonKeyboard("Underline");
 });
 
 test("formatting toolbar: Strike", async () => {
+  await openEditor(toolbarDocument);
   await checkToolbarButtonKeyboard("Strike");
 });
 
 test("formatting toolbar: Align text left", async () => {
+  await openEditor(toolbarDocument);
   await checkToolbarButtonKeyboard("Align text left");
 });
 
 test("formatting toolbar: Align text center", async () => {
+  await openEditor(toolbarDocument);
   await checkToolbarButtonKeyboard("Align text center");
 });
 
 test("formatting toolbar: Align text right", async () => {
+  await openEditor(toolbarDocument);
   await checkToolbarButtonKeyboard("Align text right");
 });
 
 test("formatting toolbar: Colors", async () => {
+  await openEditor(toolbarDocument);
   await checkToolbarMenuKeyboard("Colors", () =>
     page.elementLocator(
       document.querySelector<HTMLElement>('[data-test="text-color-gray"]')!,
@@ -130,14 +137,17 @@ test("formatting toolbar: Colors", async () => {
 });
 
 test("formatting toolbar: Nest block", async () => {
+  await openEditor(toolbarDocument);
   await checkToolbarButtonKeyboard("Nest block");
 });
 
 test("formatting toolbar: Unnest block", async () => {
+  await openEditor(nestedToolbarDocument);
   await checkToolbarButtonKeyboard("Unnest block");
 });
 
 test("formatting toolbar: Create link", async () => {
+  await openEditor(toolbarDocument);
   await checkToolbarPopoverKeyboard(
     "Create link",
     page.getByPlaceholder("Edit URL"),

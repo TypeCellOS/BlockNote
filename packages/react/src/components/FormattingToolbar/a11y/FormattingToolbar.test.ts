@@ -1,7 +1,7 @@
+import { toolbarDocument, nestedToolbarDocument } from "./fixtures.js";
 import { expect, test, vi, afterEach } from "vite-plus/test";
 import { openEditor, spyOnEditorFunction } from "@root/tests/a11y/helpers.js";
 import {
-  documentForToolbarItem,
   focusToolbarItem,
   activateToolbarButton,
   openToolbarMenu,
@@ -12,7 +12,7 @@ import {
 afterEach(() => vi.restoreAllMocks());
 
 test("formatting toolbar: Bold", async () => {
-  const editor = await openEditor(documentForToolbarItem("Bold"));
+  const editor = await openEditor(toolbarDocument);
   const command = spyOnEditorFunction(editor, "toggleStyles");
   await focusToolbarItem("Bold");
   await activateToolbarButton();
@@ -20,7 +20,7 @@ test("formatting toolbar: Bold", async () => {
 });
 
 test("formatting toolbar: Italic", async () => {
-  const editor = await openEditor(documentForToolbarItem("Italic"));
+  const editor = await openEditor(toolbarDocument);
   const command = spyOnEditorFunction(editor, "toggleStyles");
   await focusToolbarItem("Italic");
   await activateToolbarButton();
@@ -28,7 +28,7 @@ test("formatting toolbar: Italic", async () => {
 });
 
 test("formatting toolbar: Underline", async () => {
-  const editor = await openEditor(documentForToolbarItem("Underline"));
+  const editor = await openEditor(toolbarDocument);
   const command = spyOnEditorFunction(editor, "toggleStyles");
   await focusToolbarItem("Underline");
   await activateToolbarButton();
@@ -36,7 +36,7 @@ test("formatting toolbar: Underline", async () => {
 });
 
 test("formatting toolbar: Strike", async () => {
-  const editor = await openEditor(documentForToolbarItem("Strike"));
+  const editor = await openEditor(toolbarDocument);
   const command = spyOnEditorFunction(editor, "toggleStyles");
   await focusToolbarItem("Strike");
   await activateToolbarButton();
@@ -44,7 +44,7 @@ test("formatting toolbar: Strike", async () => {
 });
 
 test("formatting toolbar: Align text left", async () => {
-  const editor = await openEditor(documentForToolbarItem("Align text left"));
+  const editor = await openEditor(toolbarDocument);
   const block = editor.getBlock("format")!;
   const command = spyOnEditorFunction(editor, "updateBlock");
   await focusToolbarItem("Align text left");
@@ -55,7 +55,7 @@ test("formatting toolbar: Align text left", async () => {
 });
 
 test("formatting toolbar: Align text center", async () => {
-  const editor = await openEditor(documentForToolbarItem("Align text center"));
+  const editor = await openEditor(toolbarDocument);
   const block = editor.getBlock("format")!;
   const command = spyOnEditorFunction(editor, "updateBlock");
   await focusToolbarItem("Align text center");
@@ -66,7 +66,7 @@ test("formatting toolbar: Align text center", async () => {
 });
 
 test("formatting toolbar: Align text right", async () => {
-  const editor = await openEditor(documentForToolbarItem("Align text right"));
+  const editor = await openEditor(toolbarDocument);
   const block = editor.getBlock("format")!;
   const command = spyOnEditorFunction(editor, "updateBlock");
   await focusToolbarItem("Align text right");
@@ -77,7 +77,7 @@ test("formatting toolbar: Align text right", async () => {
 });
 
 test("formatting toolbar: Colors", async () => {
-  const editor = await openEditor(documentForToolbarItem("Colors"));
+  const editor = await openEditor(toolbarDocument);
   const command = spyOnEditorFunction(editor, "addStyles");
   await focusToolbarItem("Colors");
   await openToolbarMenu();
@@ -88,7 +88,7 @@ test("formatting toolbar: Colors", async () => {
 });
 
 test("formatting toolbar: Nest block", async () => {
-  const editor = await openEditor(documentForToolbarItem("Nest block"));
+  const editor = await openEditor(toolbarDocument);
   const command = spyOnEditorFunction(editor, "nestBlock");
   await focusToolbarItem("Nest block");
   await activateToolbarButton();
@@ -96,7 +96,7 @@ test("formatting toolbar: Nest block", async () => {
 });
 
 test("formatting toolbar: Unnest block", async () => {
-  const editor = await openEditor(documentForToolbarItem("Unnest block"));
+  const editor = await openEditor(nestedToolbarDocument);
   const command = spyOnEditorFunction(editor, "unnestBlock");
   await focusToolbarItem("Unnest block");
   await activateToolbarButton();
@@ -104,7 +104,7 @@ test("formatting toolbar: Unnest block", async () => {
 });
 
 test("formatting toolbar: Paragraph", async () => {
-  const editor = await openEditor(documentForToolbarItem("Paragraph"));
+  const editor = await openEditor(toolbarDocument);
   const block = editor.getBlock("format")!;
   const command = spyOnEditorFunction(editor, "updateBlock");
   await focusToolbarItem("Paragraph");

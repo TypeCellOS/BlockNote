@@ -1,3 +1,4 @@
+import { toolbarDocument } from "./fixtures.js";
 import { afterEach, expect, test } from "vite-plus/test";
 import { page } from "vite-plus/test/browser";
 import {
@@ -5,7 +6,7 @@ import {
   pressKey,
   saveTranscript,
 } from "@root/tests/a11y/helpers.js";
-import { toolbarDocument, focusToolbarItem } from "./helpers.js";
+import { focusToolbarItem } from "./helpers.js";
 
 afterEach(saveTranscript);
 

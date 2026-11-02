@@ -109,22 +109,9 @@ export function spyOnEditorFunction<Method extends EditorMethod>(
   return vi.spyOn(editor, method);
 }
 
-export async function checkAxe(
-  annotate: TestContext["annotate"],
-  scope?: string,
-) {
-  const results = await axe.run(scope ? { include: [scope] } : document.body, {
-    rules: { "target-size": { enabled: true } },
-  });
-  for (const result of results.incomplete) {
-    for (const node of result.nodes) {
-      await annotate(
-        `axe manual review: ${result.id} — ${result.help}\nTarget: ${JSON.stringify(node.target)}\n${node.failureSummary ?? ""}\n${result.helpUrl}`,
-        "warning",
-      );
-    }
-  }
-  expect(results.violations, "axe violations").toEqual([]);
+export async function pressKey(key: string) {
+  await waitForEditorFocus();
+  return browserCommands.pressKey(key);
 }
 
 export function readSelection() {
@@ -144,9 +131,33 @@ export function readSelection() {
   };
 }
 
-export async function pressKey(key: string) {
-  await waitForEditorFocus();
-  return browserCommands.pressKey(key);
+export async function checkAxe(
+  annotate: TestContext["annotate"],
+  scope?: string,
+) {
+  const results = await axe.run(scope ? { include: [scope] } : document.body, {
+    rules: { "target-size": { enabled: true } },
+  });
+  for (const result of results.incomplete) {
+    for (const node of result.nodes) {
+      await annotate(
+        `axe manual review: ${result.id} — ${result.help}\nTarget: ${JSON.stringify(node.target)}\n${node.failureSummary ?? ""}\n${result.helpUrl}`,
+        "warning",
+      );
+    }
+  }
+  expect(results.violations, "axe violations").toEqual([]);
+}
+
+// Use Playwright's semantic snapshot through the provider, and Vitest's
+// snapshot storage so these baselines follow the same update policy as tests.
+export async function checkAriaSnapshot(
+  locator: ReturnType<typeof page.getByRole>,
+  name: string,
+) {
+  expect(
+    await browserCommands.readAriaSnapshot(locator.selector),
+  ).toMatchSnapshot(name);
 }
 
 // Register with afterEach in screen-reader tests. Stop the reader even when
@@ -162,15 +173,4 @@ export async function saveTranscript() {
   } finally {
     await browserCommands.stopReader();
   }
-}
-
-// Use Playwright's semantic snapshot through the provider, and Vitest's
-// snapshot storage so these baselines follow the same update policy as tests.
-export async function checkAriaSnapshot(
-  locator: ReturnType<typeof page.getByRole>,
-  name: string,
-) {
-  expect(
-    await browserCommands.readAriaSnapshot(locator.selector),
-  ).toMatchSnapshot(name);
 }
