@@ -27,6 +27,24 @@ export type HTMLToMarkdownOptions = {
 };
 
 /**
+ * Returns the child elements of an element. In jsdom, the time of each
+ * indexed access to `children` grows with the number of children. Thus,
+ * `Array.from(element.children)` is slow for a large document on a server.
+ * A walk over the siblings is linear.
+ */
+function childElements(element: Element): Element[] {
+  const result: Element[] = [];
+  for (
+    let child = element.firstElementChild;
+    child !== null;
+    child = child.nextElementSibling
+  ) {
+    result.push(child);
+  }
+  return result;
+}
+
+/**
  * Convert an HTML string (from BlockNote's external HTML exporter) to markdown.
  */
 export function htmlToMarkdown(
@@ -66,7 +84,7 @@ function nestListItemChildren(parent: Element) {
   if (parent.tagName === "DETAILS") {
     restoreToggleChildrenOrder(parent);
   }
-  for (const child of Array.from(parent.children)) {
+  for (const child of childElements(parent)) {
     const listItem = findParentListItem(child);
     if (listItem) {
       listItem.append(child);
@@ -103,7 +121,7 @@ function restoreToggleChildrenOrder(details: Element) {
  * children back into the list item, so now the lists are adjacent.
  */
 function joinAdjacentLists(parent: Element) {
-  for (const list of Array.from(parent.children)) {
+  for (const list of childElements(parent)) {
     if (list.parentNode !== parent || !isListElement(list)) {
       continue;
     }
@@ -129,7 +147,7 @@ function joinAdjacentLists(parent: Element) {
  * list has one nesting level.
  */
 function splitListAtLevelChanges(list: Element) {
-  const items = Array.from(list.children);
+  const items = childElements(list);
   const level = getNestingLevel(list);
   const splitIndex = items.findIndex(
     (item) => item.tagName === "LI" && getNestingLevel(item) !== level,
@@ -299,7 +317,7 @@ function serializeHeading(el: HTMLElement, ctx: SerializeContext): string {
 
 function serializeBlockquote(el: HTMLElement, ctx: SerializeContext): string {
   // Check if blockquote contains block-level elements (like <p>)
-  const blockChildren = Array.from(el.children).filter((child) => {
+  const blockChildren = childElements(el).filter((child) => {
     const tag = child.tagName.toLowerCase();
     return ["p", "ul", "ol", "pre", "blockquote", "table", "hr"].includes(tag);
   });
@@ -416,7 +434,7 @@ function serializeUnorderedList(
   ctx: SerializeContext,
 ): string {
   let result = "";
-  const items = Array.from(el.children).filter(
+  const items = childElements(el).filter(
     (child) => child.tagName.toLowerCase() === "li",
   );
 
@@ -435,7 +453,7 @@ function serializeUnorderedList(
 
 function serializeOrderedList(el: HTMLElement, ctx: SerializeContext): string {
   let result = "";
-  const items = Array.from(el.children).filter(
+  const items = childElements(el).filter(
     (child) => child.tagName.toLowerCase() === "li",
   );
   const startNum = parseInt(el.getAttribute("start") || "1", 10);
@@ -461,7 +479,7 @@ function serializeListItem(
   let checkbox: HTMLInputElement | null = null;
   let details: HTMLElement | null = null;
 
-  for (const child of Array.from(el.children)) {
+  for (const child of childElements(el)) {
     const tag = child.tagName.toLowerCase();
     if (tag === "input" && (child as HTMLInputElement).type === "checkbox") {
       checkbox = child as HTMLInputElement;
@@ -521,14 +539,14 @@ function serializeListItem(
   // For toggle items, also serialize children inside the details element
   if (details) {
     const summary = details.querySelector("summary");
-    for (const child of Array.from(details.children)) {
+    for (const child of childElements(details)) {
       if (child !== summary) {
         result += serializeListItemChild(child, childCtx);
       }
     }
   }
 
-  const children = Array.from(el.children);
+  const children = childElements(el);
   for (const child of children) {
     const childTag = child.tagName.toLowerCase();
 
@@ -583,7 +601,7 @@ function getFirstContentElement(
   li: HTMLElement,
   checkbox: HTMLInputElement | null,
 ): HTMLElement | null {
-  for (const child of Array.from(li.children)) {
+  for (const child of childElements(li)) {
     if (child === checkbox) {
       continue;
     }
@@ -961,7 +979,7 @@ function serializeDetails(el: HTMLElement, ctx: SerializeContext): string {
   if (heading) {
     let result = serializeHeading(heading as HTMLElement, ctx);
     // Also serialize non-summary children of details
-    for (const child of Array.from(el.children)) {
+    for (const child of childElements(el)) {
       if (child !== summary) {
         result += serializeNode(child, ctx);
       }
