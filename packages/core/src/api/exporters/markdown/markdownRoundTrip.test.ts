@@ -610,6 +610,26 @@ describe("Markdown round trip", () => {
   });
 
   describe("whitespace", () => {
+    it.each([
+      ["four spaces", "    <br>"],
+      ["a tab", "\t<br>"],
+      ["four spaces after a paragraph", "a\n\n    <br>"],
+    ])(
+      "parses an indented <br> line with %s as an empty paragraph",
+      (_, md) => {
+        expect(parse(md).at(-1)).toMatchObject({
+          type: "paragraph",
+          content: [],
+        });
+      },
+    );
+
+    it("removes the indent of a paragraph line with four or more spaces", () => {
+      expect(parse("     a\n\tb")[0].content).toEqual([
+        { type: "text", text: "a\nb", styles: {} },
+      ]);
+    });
+
     it("removes the whitespace at the start and at the end of the text", () => {
       const blocks: PartialBlock[] = [
         { type: "paragraph", content: "  a  " },

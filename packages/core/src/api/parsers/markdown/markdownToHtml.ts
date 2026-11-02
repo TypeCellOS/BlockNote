@@ -1192,14 +1192,18 @@ function tokenize(markdown: string): Token[] {
       paraLines.push(nextLine);
       i++;
     }
-    // CommonMark allows up to 3 leading spaces of indent on paragraph lines.
+    // CommonMark removes the spaces and tabs at the start of each paragraph
+    // line. This parser has no indented code blocks, thus a line with 4 or
+    // more spaces is also a paragraph line. Without this, a paragraph with
+    // only an indented `<br>` is not an empty paragraph (see
+    // `EMPTY_PARAGRAPH`).
     // Also strip trailing whitespace from the final line so a trailing
     // hard-break sequence (`  \n` at end of paragraph) doesn't leak as
     // literal trailing spaces in the rendered output.
     tokens.push({
       type: "paragraph",
       content: paraLines
-        .map((l) => l.replace(/^ {1,3}/, ""))
+        .map((l) => l.replace(/^[ \t]+/, ""))
         .join("\n")
         .replace(/[ \t]+$/, ""),
     });
