@@ -17,7 +17,7 @@ const MIN_SHARE = 0.5;
 
 /**
  * Two blocks that are the same block: `a[aIndex]` and `b[bIndex]`. Unlike a
- * `MatchedPair`, the pairs of moved blocks (rule 4 of {@link alignBlocks})
+ * `MatchedPair`, the pairs of moved blocks (rule 3 of {@link alignBlocks})
  * can cross the other pairs.
  */
 export type BlockPair = { aIndex: number; bIndex: number };
@@ -31,50 +31,83 @@ export type BlockPair = { aIndex: number; bIndex: number };
  * 2. Between these anchors, two blocks match if they prefer each other (see
  *    {@link mutualBestPairs}), and the overlap is at least half of the
  *    shorter text. Thus, a block with added sentences stays the same block.
- * 3. If one block on each side stays between two matches, the two blocks have
- *    the same position. If their content has the same shape, they match.
- *    Thus, a block with fully new text at the same position stays the same
- *    block.
- * 4. A block that moved: of the blocks without a match, two blocks match if
+ * 3. A block that moved: of the blocks without a match, two blocks match if
  *    they have an equal key (not an empty text) that no other block without
  *    a match has on either side. Thus, a block that the text moves keeps its
  *    ID. These pairs can cross the other pairs. A block that moved and
  *    changed has no match.
+ * 4. If one block on each side stays between two matches of rules 1 and 2
+ *    (the moved blocks do not count), the two blocks have the same position.
+ *    If their content has the same shape, they match. Thus, a block with
+ *    fully new text at the same position stays the same block.
+ *
+ * An equal text is a stronger sign than a position. Thus, rule 3 comes
+ * before rule 4: a moved block does not match a different block at its new
+ * position.
  */
 export function alignBlocks(
   a: readonly FlatBlock[],
   b: readonly FlatBlock[],
 ): BlockPair[] {
-  const pairs: BlockPair[] = [];
+  // Rules 1 and 2. These pairs are in order.
+  const ordered: MatchedPair[] = [];
   for (const { gap, anchor } of gaps(
     anchorsOf(a, b, alignmentKey),
     a.length,
     b.length,
   )) {
-    const inGap = mutualBestPairs(gapTexts(a, b, gap)).map((pair) => ({
-      aIndex: gap.aStart + pair.aIndex,
-      bIndex: gap.bStart + pair.bIndex,
-    }));
-    for (const sub of gaps(inGap, gap.aEnd, gap.bEnd, gap)) {
-      if (
-        sub.gap.aEnd - sub.gap.aStart === 1 &&
-        sub.gap.bEnd - sub.gap.bStart === 1 &&
-        canBeSameBlock(a[sub.gap.aStart].block, b[sub.gap.bStart].block)
-      ) {
-        pairs.push({ aIndex: sub.gap.aStart, bIndex: sub.gap.bStart });
-      }
-      if (sub.anchor) {
-        pairs.push(sub.anchor);
-      }
+    for (const pair of mutualBestPairs(gapTexts(a, b, gap))) {
+      ordered.push({
+        aIndex: gap.aStart + pair.aIndex,
+        bIndex: gap.bStart + pair.bIndex,
+      });
     }
     if (anchor) {
-      pairs.push(anchor);
+      ordered.push(anchor);
     }
   }
-  return [...pairs, ...movedPairs(a, b, pairs)];
+  const moved = movedPairs(a, b, ordered);
+  return [...ordered, ...moved, ...samePositionPairs(a, b, ordered, moved)];
 }
 
-/** Rule 4 of {@link alignBlocks}: pairs of moved blocks. */
+/** Rule 4 of {@link alignBlocks}: pairs of blocks at the same position. */
+function samePositionPairs(
+  a: readonly FlatBlock[],
+  b: readonly FlatBlock[],
+  ordered: readonly MatchedPair[],
+  moved: readonly BlockPair[],
+): BlockPair[] {
+  const movedA = new Set(moved.map((pair) => pair.aIndex));
+  const movedB = new Set(moved.map((pair) => pair.bIndex));
+  /** The only index in `[start, end)` that is not in `except`, or `undefined`. */
+  function onlyIndex(start: number, end: number, except: Set<number>) {
+    let only: number | undefined;
+    for (let index = start; index < end; index++) {
+      if (!except.has(index)) {
+        if (only !== undefined) {
+          return undefined;
+        }
+        only = index;
+      }
+    }
+    return only;
+  }
+  const pairs: BlockPair[] = [];
+  for (const { gap } of gaps(ordered, a.length, b.length)) {
+    const aIndex = onlyIndex(gap.aStart, gap.aEnd, movedA);
+    const bIndex = onlyIndex(gap.bStart, gap.bEnd, movedB);
+    if (
+      aIndex !== undefined &&
+      bIndex !== undefined &&
+      canBeSameBlock(a[aIndex].block, b[bIndex].block)
+    ) {
+      pairs.push({ aIndex, bIndex });
+    }
+  }
+  return pairs;
+}
+
+/** Rule 3 of {@link alignBlocks}: pairs of moved blocks. */
 function movedPairs(
   a: readonly FlatBlock[],
   b: readonly FlatBlock[],
@@ -117,6 +150,11 @@ function movedPairs(
  * overlap is at least half of the view block text. More than one view block
  * can link to one source block. An example is a code block with a blank line,
  * which gives two paragraphs in plain text.
+ *
+ * A view block at a different position than its source block (for example a
+ * nested list that the HTML of a toggle block shows after the other
+ * children) has no link. With a link, the planner would move the source
+ * block to the position of the view block, also if the text did not change.
  */
 export function linkBlocks(
   source: readonly FlatBlock[],
@@ -208,17 +246,17 @@ function anchorsOf(
 type Gap = { aStart: number; aEnd: number; bStart: number; bEnd: number };
 
 /**
- * Returns the gaps before, between and after the pairs, in a range of the two
- * lists. `anchor` is the pair after the gap, or `undefined` for the last gap.
+ * Returns the gaps before, between and after the pairs, in the two lists.
+ * `anchor` is the pair after the gap, or `undefined` for the last gap.
  */
 function gaps(
   pairs: readonly MatchedPair[],
   aEnd: number,
   bEnd: number,
-  start: { aStart: number; bStart: number } = { aStart: 0, bStart: 0 },
 ): { gap: Gap; anchor: MatchedPair | undefined }[] {
   const result: { gap: Gap; anchor: MatchedPair | undefined }[] = [];
-  let { aStart, bStart } = start;
+  let aStart = 0;
+  let bStart = 0;
   for (const pair of pairs) {
     result.push({
       gap: { aStart, aEnd: pair.aIndex, bStart, bEnd: pair.bIndex },

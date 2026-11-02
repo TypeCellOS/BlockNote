@@ -30,8 +30,11 @@ function flat(...blocks: (string | LensBlock)[]): FlatBlock[] {
   }));
 }
 
+/** The pairs, sorted by `aIndex`. The order of the pairs is not part of the result. */
 function align(a: FlatBlock[], b: FlatBlock[]) {
-  return alignBlocks(a, b).map((pair) => [pair.aIndex, pair.bIndex]);
+  return alignBlocks(a, b)
+    .map((pair) => [pair.aIndex, pair.bIndex])
+    .sort((x, y) => x[0] - y[0]);
 }
 
 describe("alignBlocks", () => {
@@ -135,9 +138,38 @@ describe("alignBlocks", () => {
         flat("two y", "three z", "one x"),
       ),
     ).toEqual([
+      [0, 2],
       [1, 0],
       [2, 1],
-      [0, 2],
+    ]);
+  });
+
+  it("matches a moved block by its text before a block at the same position", () => {
+    // "Heading" moves to the position of the removed block "gone".
+    expect(
+      align(
+        flat("Heading", "a b", "gone", "c d"),
+        flat("a b", "Heading", "c d"),
+      ),
+    ).toEqual([
+      [0, 1],
+      [1, 0],
+      [3, 2],
+    ]);
+  });
+
+  it("does not count a moved block in the gap of a block at the same position", () => {
+    // "Heading" moves next to "old text", which the text changes fully.
+    expect(
+      align(
+        flat("Heading", "a b", "old text", "c d"),
+        flat("a b", "Heading", "new words", "c d"),
+      ),
+    ).toEqual([
+      [0, 1],
+      [1, 0],
+      [2, 2],
+      [3, 3],
     ]);
   });
 

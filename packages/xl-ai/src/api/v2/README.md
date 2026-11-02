@@ -62,10 +62,12 @@ PutPut (two writes give the same result as the last write) is not true. For exam
 
 The identity of a block follows the location of its text, not the similarity of its content (`alignment/`):
 
-1. Blocks with equal text match first (a longest common subsequence). For a block without text (for example an image), the key is its type, props and content. For large edits, the match first finds anchors: blocks with a text that is in each side one time (the patience method).
-2. Between these anchors, a word diff of the block texts finds the overlap of each pair of blocks. Two blocks match if each block has its largest overlap with the other, and the overlap is at least half of the shorter text. Thus, a paragraph with eight new sentences stays the same block, with its ID and props.
-3. If one block on each side stays between two matches, the two blocks have the same position. They match if their content has the same shape (text, table, or the same type without content). Thus, a paragraph with fully new text at the same position stays the same block.
-4. Of the blocks without a match, two blocks match if they have equal, non-empty text that no other block without a match has, on either side. Thus, a block that the text moves keeps its ID, props and comments. The plan then moves the block.
+1. Blocks with equal text match first (a longest common subsequence). For a block without text (for example an image), the key is its type, props and content.
+2. Between these anchors, a word diff of the block texts finds the overlap of each pair of blocks (for large edits, with anchors: words that are in each side one time, the patience method). Two blocks match if each block has its largest overlap with the other, and the overlap is at least half of the shorter text. Thus, a paragraph with eight new sentences stays the same block, with its ID and props.
+3. Of the blocks without a match, two blocks match if they have equal, non-empty text that no other block without a match has, on either side. Thus, a block that the text moves keeps its ID, props and comments. The plan then moves the block.
+4. If one block on each side stays between two matches of rules 1 and 2 (the moved blocks do not count), the two blocks have the same position. They match if their content has the same shape (text, table, or the same type without content). Thus, a paragraph with fully new text at the same position stays the same block.
+
+An equal text is a stronger sign than a position. Thus, a moved block does not match a different block at its new position.
 
 A split paragraph keeps its ID on the part with the most of its text. Two joined paragraphs keep the ID of the first paragraph. A block that moved and also changed gets a new ID.
 
@@ -152,14 +154,14 @@ Each module imports only modules that are before it in this list. Thus, there ar
 A result can contain warnings (`TextUpdateWarning`). A warning tells you that a part of the text did not apply as written, or that data was lost:
 
 - `multi-part-block-replaced`: the text changed a block that the format shows as more than one block (for example a code block with blank lines, in plain text). The blocks of the text replace the block. Its hidden data is lost.
-- `unlinked-block-changed`: the text changed a part of the text that does not come from one document block (`text` is that part). The change does not apply.
+- `unlinked-block-changed`: the text changed a part of the text that does not come from one document block (`text` is that part). The change does not apply. An empty block of the view without a document block gives no warning, because the text cannot change data of it. An example is the list item that the markdown parse adds around an image after a nested list.
 - `block-shape-replaced`: the format shows the block with content of a different shape (for example a table as lines of text), and the text changed that content. The block takes the type of the text block. Its old content is lost.
 - `change-to-removed-block` (rebase): the text changed or moved a block that another writer removed. The change does not apply.
 - `removed-changed-block` (rebase): the text removed a block that another writer changed. The block is removed, with the changes of the other writer.
 
 ## Problems in BlockNote
 
-The branch `fix/markdown-roundtrip` fixes the markdown conversion: one round trip now gives the canonical form. These problems stay:
+The branch `fix/markdown-roundtrip` fixes the markdown conversion: one round trip now gives the canonical form, and the parse removes the whitespace that the exporter does not write. It also fixes the HTML export of a toggle with list items and other blocks as children, which changed their order. These problems stay:
 
 - A list item that has both a paragraph and a nested list: the HTML parser moves the nested list out of the list item.
 - Italic text directly before bold text (`*a***b**`): the parser does not use the delimiter rules of CommonMark.

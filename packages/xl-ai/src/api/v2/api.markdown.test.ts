@@ -550,4 +550,48 @@ describe("markdown", () => {
       '"text":"y"',
     );
   });
+
+  it("moves a heading next to an image after a nested list, and keeps the heading", () => {
+    // The markdown parse puts the image after the nested list in a new,
+    // empty list item, which has no document block. The heading moves to the
+    // position of that list item.
+    const editor = createEditor([
+      { id: "title", type: "heading", content: "Title" },
+      {
+        id: "item",
+        type: "toggleListItem",
+        content: "Item",
+        children: [
+          { id: "task", type: "checkListItem", content: "Task" },
+          {
+            id: "image",
+            type: "image",
+            props: { url: "https://example.com/a.png" },
+          },
+        ],
+      },
+      { id: "end", type: "paragraph", content: "End" },
+    ]);
+    const markdown = getDocumentText(editor, markdownFormat);
+    expect(markdown).toContain("# Title\n\n");
+    const text = markdown
+      .replace("# Title\n\n", "")
+      .replace("  ![]", "# Title\n\n  ![]");
+
+    const update = updateDocumentFromText(editor, {
+      format: markdownFormat,
+      text,
+    });
+
+    expect(update.warnings).toEqual([]);
+    expect(editor.getBlock("title")?.content).toMatchObject([
+      { text: "Title" },
+    ]);
+    expect(editor.document.map((block) => block.id)).toEqual([
+      "item",
+      "title",
+      "image",
+      "end",
+    ]);
+  });
 });

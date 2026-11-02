@@ -22,7 +22,8 @@ export type PlanWarning =
   /**
    * The text changed or removed a part of the text that does not come from
    * one document block (`text` is that part, as the format shows it). The
-   * planner cannot apply this change, thus it does not use it.
+   * planner cannot apply this change, thus it does not use it. An empty view
+   * block without a document block gives no warning.
    */
   | { type: "unlinked-block-changed"; text: string }
   /**
@@ -105,18 +106,23 @@ export function planTarget(input: PlanInput): Plan {
     const j = viewToIncoming[v];
     const { sourceId } = viewBlock;
     if (sourceId === undefined) {
-      if (
-        j === -1 ||
-        blockKey(viewBlock.block) !== blockKey(incoming[j].block)
-      ) {
+      const unchanged =
+        j !== -1 && blockKey(viewBlock.block) === blockKey(incoming[j].block);
+      if (unchanged) {
+        skipped.add(j);
+      } else if (!isEmptyTextBlock(viewBlock.block)) {
         warnings.push({
           type: "unlinked-block-changed",
           text: blockToText(viewBlock.block),
         });
+        if (j !== -1) {
+          skipped.add(j);
+        }
       }
-      if (j !== -1) {
-        skipped.add(j);
-      }
+      // Else, the view block is empty, and has no source. An example is the
+      // list item that the markdown parse adds around an image after a
+      // nested list. The text cannot change data of it, thus there is no
+      // warning, and its pair (if there is one) is a block of the text.
     } else if (j !== -1 && !replaced.has(sourceId)) {
       if (kept.has(sourceId)) {
         // Another part of a multi-part block. The first part is the block.
@@ -383,4 +389,9 @@ function keepInvisibleBlocks(
       kept.add(id);
     }
   }
+}
+
+/** Returns true for a block with inline content and no text. */
+function isEmptyTextBlock(block: LensBlock): boolean {
+  return Array.isArray(block.content) && blockToText(block) === "";
 }
