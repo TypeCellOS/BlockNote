@@ -164,6 +164,30 @@ describe("a write from an older version", () => {
     expect(documentShape(editor.document)).toEqual(["a", "c"]);
   });
 
+  it("keeps the blocks that the text keeps, if the text removes their parent and another writer removed a sibling", () => {
+    const editor = createEditor([
+      {
+        id: "parent",
+        type: "bulletListItem",
+        content: "Parent",
+        children: [
+          { id: "one", type: "bulletListItem", content: "One" },
+          { id: "two", type: "bulletListItem", content: "Two" },
+        ],
+      },
+      { id: "end", type: "paragraph", content: "End" },
+    ]);
+    const client = read(editor);
+    write(editor, read(editor), (text) => replaceOnce(text, "  * One\n", ""));
+    write(editor, client, () => "* One\n* New\n* Two\n\nEnd\n");
+
+    expect(
+      editor.document.map(
+        (block) => (block.content as { text: string }[])[0]?.text,
+      ),
+    ).toEqual(["New", "Two", "End"]);
+  });
+
   it("does one move if two writers make the same move", () => {
     const editor = createEditor(fruit);
     const client = read(editor);

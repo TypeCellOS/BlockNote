@@ -20,6 +20,37 @@ function block(
   };
 }
 
+/**
+ * The target of the operations, as a flat list: the blocks of `base` that
+ * the operations do not remove (or that they move out), and the inserted
+ * blocks. The rebase uses only the IDs of the target.
+ */
+function targetOf(base: LensBlock[], operations: BlockOperation[]) {
+  const removed = new Set(
+    operations.flatMap((op) => (op.type === "delete" ? [op.id] : [])),
+  );
+  const moved = new Set(
+    operations.flatMap((op) => (op.type === "move" ? [op.id] : [])),
+  );
+  const target: LensBlock[] = [];
+  function visit(blocks: LensBlock[], inRemoved: boolean) {
+    for (const block of blocks) {
+      const gone = removed.has(block.id) || (inRemoved && !moved.has(block.id));
+      if (!gone) {
+        target.push({ ...block, children: [] });
+      }
+      visit(block.children, gone);
+    }
+  }
+  visit(base, false);
+  for (const op of operations) {
+    if (op.type === "insert") {
+      target.push(op.block);
+    }
+  }
+  return target;
+}
+
 function rebase(
   base: LensBlock[],
   current: LensBlock[],
@@ -28,6 +59,7 @@ function rebase(
   return rebaseOperations({
     base,
     current,
+    target: targetOf(base, operations),
     operations,
     contentKindOf: () => "inline",
   });
@@ -263,6 +295,45 @@ describe("rebaseOperations", () => {
         ],
         warnings: [],
       });
+    });
+
+    it("keeps a block that the text moves out of a removed block, if the reference of the move is gone", () => {
+      // Base: P[One, Two], End. Another writer removed One. The text removes
+      // P, and moves One and Two out of it.
+      expect(
+        rebase(
+          [block("p", "P", [block("one"), block("two")]), block("end")],
+          [block("p", "P", [block("two")]), block("end")],
+          [
+            { type: "move", id: "one", reference: "p", placement: "after" },
+            { type: "move", id: "two", reference: "one", placement: "after" },
+            { type: "delete", id: "p" },
+          ],
+        ),
+      ).toEqual({
+        operations: [
+          { type: "move", id: "two", reference: "p", placement: "before" },
+          { type: "delete", id: "p" },
+        ],
+        warnings: [{ type: "change-to-removed-block", id: "one" }],
+      });
+    });
+
+    it("moves a kept block at any depth out of a removed block", () => {
+      // Another writer moved c into b, which is in a, which the text removes.
+      expect(
+        rebase(
+          [block("a", "a", [block("b")]), block("c")],
+          [block("a", "a", [block("b", "b", [block("c")])])],
+          [
+            { type: "move", id: "b", reference: "a", placement: "after" },
+            { type: "delete", id: "a" },
+          ],
+        ).operations,
+      ).toEqual([
+        { type: "move", id: "b", reference: "a", placement: "after" },
+        { type: "delete", id: "a" },
+      ]);
     });
 
     it("removes a block in which another writer added a child, with a warning", () => {

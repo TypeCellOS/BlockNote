@@ -77,11 +77,10 @@ export function computeBlocksUpdate(
 ): TextUpdate {
   const { current } = options;
   const base = options.base ?? current;
-  return rebaseIfOlder(
+  return updateToTarget(
     editor,
     planTextUpdate(editor, options.format, base, options.text),
-    options.base,
-    current,
+    { base, current, rebase: options.base !== undefined },
   );
 }
 
@@ -110,12 +109,10 @@ export function computeJSONUpdate(
 ): TextUpdate {
   const current: LensBlock[] = editor.document;
   const base = options.base ?? current;
-  const operations = diffDocuments(base, toBlocks(editor, options.document));
-  return rebaseIfOlder(
+  return updateToTarget(
     editor,
-    { operations, warnings: [] },
-    options.base,
-    current,
+    { target: toBlocks(editor, options.document), warnings: [] },
+    { base, current, rebase: options.base !== undefined },
   );
 }
 
@@ -145,28 +142,35 @@ function toBlocks(
 }
 
 /**
- * Returns the update for the current document. The operations of `update`
- * are for `base`. If `base` is the current document (no `base`), they are
- * already for it. If not, the rebase moves them (see `rebase/`).
+ * Returns the update that changes `current` to the target document of the
+ * plan. The diff gives the operations for `base`. If `base` is older than
+ * `current` (`rebase`), the rebase moves them to `current` (see `rebase/`).
  */
-function rebaseIfOlder(
+function updateToTarget(
   editor: BlockNoteEditor<any, any, any>,
-  update: TextUpdate,
-  base: readonly LensBlock[] | undefined,
-  current: readonly LensBlock[],
+  plan: { target: readonly LensBlock[]; warnings: PlanWarning[] },
+  documents: {
+    base: readonly LensBlock[];
+    current: readonly LensBlock[];
+    rebase: boolean;
+  },
 ): TextUpdate {
-  if (base === undefined) {
-    return update;
+  const { base, current } = documents;
+  const operations =
+    plan.target === base ? [] : diffDocuments(base, plan.target);
+  if (!documents.rebase) {
+    return { operations, warnings: plan.warnings };
   }
   const rebased = rebaseOperations({
     base,
     current,
-    operations: update.operations,
+    target: plan.target,
+    operations,
     contentKindOf: (type) => contentKindOf(editor, type),
   });
   return {
     operations: rebased.operations,
-    warnings: [...update.warnings, ...rebased.warnings],
+    warnings: [...plan.warnings, ...rebased.warnings],
   };
 }
 
@@ -180,16 +184,16 @@ export function updateDocumentFromText(
   return update;
 }
 
-/** Plans the operations that change `document` to agree with `text`. */
+/** Plans the target document: `document` as `text` asks for it. */
 function planTextUpdate(
   editor: BlockNoteEditor<any, any, any>,
   format: TextFormat,
   document: readonly LensBlock[],
   text: string,
-): TextUpdate {
+): { target: readonly LensBlock[]; warnings: PlanWarning[] } {
   const projection = projectDocument(editor, format, document);
   if (text === projection.text) {
-    return { operations: [], warnings: [] };
+    return { target: document, warnings: [] };
   }
 
   const incoming = flattenBlocks(format.parse(editor, text));
@@ -201,7 +205,7 @@ function planTextUpdate(
     contentKindOf: (type) => contentKindOf(editor, type),
     newId: () => UniqueID.options.generateID(),
   });
-  return { operations: diffDocuments(document, target), warnings };
+  return { target, warnings };
 }
 
 function contentKindOf(

@@ -17,6 +17,11 @@ export type RebaseInput = {
   base: readonly LensBlock[];
   /** A later version of `base`, with the changes of other writers. */
   current: readonly LensBlock[];
+  /**
+   * The document that the operations make from `base`. Its blocks are the
+   * blocks that the client keeps or inserts.
+   */
+  target: readonly LensBlock[];
   operations: readonly BlockOperation[];
   contentKindOf: (type: string) => ContentKind;
 };
@@ -45,19 +50,35 @@ export type RebaseResult = {
 export function rebaseOperations(input: RebaseInput): RebaseResult {
   const base = new BlockTree(input.base);
   const tree = new BlockTree(input.current);
-  // The blocks of `base` that the operations remove: each removed block, with
-  // its descendants in `base`.
-  const removed = new Set<string>();
-  function markRemoved(id: string) {
-    removed.add(id);
-    for (const child of base.childrenOf(id)) {
-      markRemoved(child);
-    }
+  const wanted = new Set(new BlockTree(input.target).ids);
+
+  /** Returns true if the client removes the block: it is in `base`, but not in the target. */
+  function removedByClient(id: string): boolean {
+    return base.has(id) && !wanted.has(id);
   }
-  for (const operation of input.operations) {
-    if (operation.type === "delete") {
-      markRemoved(operation.id);
+
+  /** Returns true if a block at the position would be in a block that the client removes. */
+  function inRemovedBlock({ reference, placement }: BlockPosition): boolean {
+    for (
+      let parent =
+        placement === "first-child" || placement === "last-child"
+          ? reference
+          : tree.parent(reference);
+      parent !== undefined;
+      parent = tree.parent(parent)
+    ) {
+      if (removedByClient(parent)) {
+        return true;
+      }
     }
+    return false;
+  }
+
+  /** The highest blocks in the block (in the current tree) that the client keeps. */
+  function keptBlocksIn(id: string): string[] {
+    return tree
+      .childrenOf(id)
+      .flatMap((child) => (wanted.has(child) ? [child] : keptBlocksIn(child)));
   }
 
   /** Returns true if another writer changed the block or a block in it (in the current tree). */
@@ -96,15 +117,17 @@ export function rebaseOperations(input: RebaseInput): RebaseResult {
   }
 
   /**
-   * Returns `position`, if its reference block is in the tree, and not in the
-   * block that moves. If not, returns the position of the reference block in
-   * `base`, with the same check.
+   * Returns `position`, if its reference block is in the tree, not in the
+   * block that moves, and the position is not in a block that the client
+   * removes. If not, returns the position of the reference block in `base`,
+   * with the same check.
    */
   function available(position: BlockPosition, moved?: string): BlockPosition {
     const { reference } = position;
     if (
       tree.has(reference) &&
-      (moved === undefined || !tree.isWithin(reference, moved))
+      (moved === undefined || !tree.isWithin(reference, moved)) &&
+      !inRemovedBlock(position)
     ) {
       return position;
     }
@@ -170,20 +193,18 @@ export function rebaseOperations(input: RebaseInput): RebaseResult {
           // Another writer removed the block, or the block went with a removed ancestor.
           break;
         }
-        // Another writer can have moved a block that the text keeps into the
-        // removed block. That block moves out first, to the position of the
-        // removed block.
-        // A copy, because `place` changes the list of children.
-        for (const child of [...tree.childrenOf(id)]) {
-          if (base.has(child) && !removed.has(child)) {
-            operations.push({
-              type: "move",
-              id: child,
-              reference: id,
-              placement: "before",
-            });
-            tree.place(child, id, "before");
-          }
+        // The removed block can contain blocks that the client keeps, at any
+        // depth: blocks that another writer moved into it, or new blocks of
+        // the text that a fallback put there. These blocks move out first, to
+        // the position of the removed block.
+        for (const kept of keptBlocksIn(id)) {
+          operations.push({
+            type: "move",
+            id: kept,
+            reference: id,
+            placement: "before",
+          });
+          tree.place(kept, id, "before");
         }
         if (changedByOthers(id)) {
           warnings.push({ type: "removed-changed-block", id });
