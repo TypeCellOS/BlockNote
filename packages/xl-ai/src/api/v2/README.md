@@ -116,7 +116,7 @@ Each module imports only modules that are before it in this list. Thus, there ar
 - Each module has a unit test file next to it (`file.ts` and `file.test.ts`).
 - The `api.*.test.ts` files examine the full pipeline:
   - `api.laws.test.ts`: the laws, on two documents, in the three formats.
-  - `api.properties.test.ts`: the laws on 60 random documents with random edits, in the three formats, and 150 random line edits. Each case has a seed, thus you can run a failed case again.
+  - `api.properties.test.ts`: the laws on 200 random documents with random edits, in the three formats, and on 400 random line edits in markdown. Each case has a seed, thus you can run a failed case again. Two seeds fail because of the nested-list problem of the markdown parser (see "Problems in BlockNote"). They are marked as known failures.
   - `api.markdown.test.ts`, `api.html.test.ts` and `api.plainText.test.ts`: examples in each format.
   - `api.json.test.ts`: the JSON API.
   - `api.removals.test.ts`: removals, where content is lost. Examine these expected results carefully.
