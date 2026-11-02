@@ -3,7 +3,7 @@ import { afterEach, expect, test, vi } from "vite-plus/test";
 
 import { getDiagramMathRenderer } from "./getDiagramMathRenderer.js";
 import { renderDiagram } from "./renderDiagram.js";
-import type { MathRenderer } from "./MathRenderer.js";
+import type { MathRenderer } from "./DiagramMathRenderer.js";
 
 const editors: BlockNoteEditor[] = [];
 afterEach(() => {

@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { SiMermaid } from "react-icons/si";
 
 import { plainContentToString, type BlockNoteEditor } from "@blocknote/core";
-import type { MathRenderer } from "../../../helpers/MathRenderer.js";
+import type { MathRenderer } from "../../../helpers/DiagramMathRenderer.js";
 import { renderDiagram } from "../../../helpers/renderDiagram.js";
 import { getDiagramMathRenderer } from "../../../helpers/getDiagramMathRenderer.js";
 import { getDiagramDictionary } from "../../../i18n/dictionary.js";

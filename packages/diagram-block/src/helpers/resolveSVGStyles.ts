@@ -3,7 +3,10 @@
  * custom properties (notably Typst's SVG renderer). Keep preview SVG themeable.
  * Only presentation attributes are changed, never labels or accessibility text.
  */
-export function resolveSVGStyles(svg: string): string {
+export function resolveSVGStyles(
+  svg: string,
+  dimensions: { width: number; height: number },
+): string {
   const rootStyle = svg.match(/^<svg\b[^>]*\bstyle="([^"]*)"/)?.[1] ?? "";
   const variables = new Map(
     [...rootStyle.matchAll(/(?:^|;)(--[\w-]+):([^;]*)/g)].map((match) => [
@@ -28,7 +31,14 @@ export function resolveSVGStyles(svg: string): string {
     );
   }
 
-  return svg.replace(/<[^>]+>/g, (tag) =>
+  // Only rewrite the root's dimensions, never node/label markup.
+  const sizedSVG = svg.replace(/^<svg\b[^>]*>/, (root) =>
+    root
+      .replace(/\bwidth="[^"]*"/, `width="${dimensions.width}"`)
+      .replace(/\bheight="[^"]*"/, `height="${dimensions.height}"`),
+  );
+
+  return sizedSVG.replace(/<[^>]+>/g, (tag) =>
     tag.replace(
       /\s(style|fill|stroke|color|font-family|font-weight|stop-color|flood-color)="([^"]*)"/g,
       (_attribute: string, name: string, value: string) =>
