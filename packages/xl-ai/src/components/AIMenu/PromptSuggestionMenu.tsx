@@ -149,7 +149,7 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
         >
           {items.map((item, i) => (
             <Components.SuggestionMenu.Item
-              key={item.title}
+              key={i}
               className={mergeCSSClasses(
                 "bn-suggestion-menu-item",
                 item.size === "small" ? "bn-suggestion-menu-item-small" : "",

@@ -19,6 +19,8 @@ export function SuggestionMenu<T extends DefaultReactSuggestionItem>(
       />
     ) : null;
 
+  // Keys use the item's index, because titles and group names don't have to
+  // be unique.
   const renderedItems = useMemo<JSX.Element[]>(() => {
     let currentGroup: string | undefined = undefined;
     const renderedItems = [];
@@ -30,7 +32,7 @@ export function SuggestionMenu<T extends DefaultReactSuggestionItem>(
         renderedItems.push(
           <Components.SuggestionMenu.Label
             className={"bn-suggestion-menu-label"}
-            key={currentGroup}
+            key={`label-${i}`}
           >
             {currentGroup}
           </Components.SuggestionMenu.Label>,
@@ -46,7 +48,7 @@ export function SuggestionMenu<T extends DefaultReactSuggestionItem>(
           item={item}
           id={`bn-suggestion-menu-item-${i}`}
           isSelected={i === selectedIndex}
-          key={item.title}
+          key={`item-${i}`}
           onClick={() => onItemClick?.(item)}
         />,
       );
