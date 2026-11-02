@@ -16,6 +16,23 @@ import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers.js";
 import { defaultProps } from "../defaultProps.js";
 import { EMPTY_CELL_WIDTH, TableExtension } from "./TableExtension.js";
 
+/**
+ * Parses the `colwidth` attribute of a table cell: one width for each column
+ * that the cell spans, separated by commas. An empty or invalid width is
+ * `undefined`. If no width is valid, the result is `null` (no widths), as
+ * for a cell without the attribute.
+ */
+function parseColwidth(value: string | null): (number | undefined)[] | null {
+  if (!value) {
+    return null;
+  }
+  const widths = value.split(",").map((width) => {
+    const parsed = parseInt(width, 10);
+    return Number.isNaN(parsed) ? undefined : parsed;
+  });
+  return widths.some((width) => width !== undefined) ? widths : null;
+}
+
 export const tablePropSchema = {
   textColor: defaultProps.textColor,
 };
@@ -54,14 +71,7 @@ const TiptapTableHeader = Node.create<{
       },
       colwidth: {
         default: null,
-        parseHTML: (element) => {
-          const colwidth = element.getAttribute("colwidth");
-          const value = colwidth
-            ? colwidth.split(",").map((width) => parseInt(width, 10))
-            : null;
-
-          return value;
-        },
+        parseHTML: (element) => parseColwidth(element.getAttribute("colwidth")),
       },
     };
   },
@@ -118,14 +128,7 @@ const TiptapTableCell = Node.create<{
       },
       colwidth: {
         default: null,
-        parseHTML: (element) => {
-          const colwidth = element.getAttribute("colwidth");
-          const value = colwidth
-            ? colwidth.split(",").map((width) => parseInt(width, 10))
-            : null;
-
-          return value;
-        },
+        parseHTML: (element) => parseColwidth(element.getAttribute("colwidth")),
       },
     };
   },

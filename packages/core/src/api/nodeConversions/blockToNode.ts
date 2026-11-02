@@ -215,9 +215,10 @@ export function tableContentToNodes<
   // each cell's relative index to its absolute column index. The occupancy
   // grid is built and scanned once per table, since doing so for every cell
   // makes the conversion quadratic in the number of cells.
-  const getAbsolute = getRelativeToAbsoluteTableCellMapping(
-    { type: "table", content: tableContent } as any,
-  );
+  const getAbsolute = getRelativeToAbsoluteTableCellMapping({
+    type: "table",
+    content: tableContent,
+  } as any);
 
   for (let rowIndex = 0; rowIndex < tableContent.rows.length; rowIndex++) {
     const row = tableContent.rows[rowIndex];
@@ -264,10 +265,15 @@ export function tableContentToNodes<
 
         if (colspan > 1) {
           // If the cell has a > 1 colspan, we need to get the column width for each cell in the span
-          colwidth = new Array(colspan).fill(false).map((_, i) => {
+          const widths = new Array(colspan).fill(false).map((_, i) => {
             // Starting from the absolute column index, get the column width for each cell in the span
             return columnWidths[absoluteColumnIndex + i] ?? undefined;
           });
+          // Without a width for any column of the span, the cell has no
+          // widths. Thus, the HTML does not get an empty `colwidth=","`.
+          colwidth = widths.some((width) => width !== undefined)
+            ? widths
+            : null;
         }
       } else {
         content = inlineContentToNodes(
