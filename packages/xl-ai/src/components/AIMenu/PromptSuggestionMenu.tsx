@@ -56,6 +56,23 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
     [onPromptTextChange, setInternalPromptText, promptText],
   );
 
+  // Row keys come from the unfiltered list, so a row keeps its key while the
+  // prompt filters items out. An item is identified by its `key`, or by its
+  // title without one. Neither has to be unique, so the row key also counts
+  // how many earlier items share that identity.
+  const rowKeys = useMemo(() => {
+    const seenIdentities = new Map<string, number>();
+    return new Map(
+      props.items.map((item) => {
+        const identity =
+          item.key !== undefined ? `key:${item.key}` : `title:${item.title}`;
+        const count = seenIdentities.get(identity) ?? 0;
+        seenIdentities.set(identity, count + 1);
+        return [item, `${count}:${identity}`] as const;
+      }),
+    );
+  }, [props.items]);
+
   const items = useMemo(() => {
     return filterSuggestionItems(props.items, promptTextToUse);
   }, [promptTextToUse, props.items]);
@@ -122,8 +139,6 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
     }
   }, [disabled]);
 
-  const seenIdentities = new Map<string, number>();
-
   return (
     <div className={"bn-combobox"}>
       <Components.Generic.Form.Root
@@ -151,30 +166,19 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
           className={"bn-combobox-items"}
           id={"ai-suggestion-menu"}
         >
-          {items.map((item, i) => {
-            // An item is identified by its `key`, or by its title without
-            // one. Neither has to be unique, so the row key also counts how
-            // many earlier items share that identity.
-            const identity =
-              item.key !== undefined
-                ? `key:${item.key}`
-                : `title:${item.title}`;
-            const count = seenIdentities.get(identity) ?? 0;
-            seenIdentities.set(identity, count + 1);
-            return (
-              <Components.SuggestionMenu.Item
-                key={`${count}:${identity}`}
-                className={mergeCSSClasses(
-                  "bn-suggestion-menu-item",
-                  item.size === "small" ? "bn-suggestion-menu-item-small" : "",
-                )}
-                id={`bn-suggestion-menu-item-${i}`}
-                isSelected={i === selectedIndex}
-                onClick={item.onItemClick}
-                item={item}
-              />
-            );
-          })}
+          {items.map((item, i) => (
+            <Components.SuggestionMenu.Item
+              key={rowKeys.get(item)}
+              className={mergeCSSClasses(
+                "bn-suggestion-menu-item",
+                item.size === "small" ? "bn-suggestion-menu-item-small" : "",
+              )}
+              id={`bn-suggestion-menu-item-${i}`}
+              isSelected={i === selectedIndex}
+              onClick={item.onItemClick}
+              item={item}
+            />
+          ))}
         </Components.SuggestionMenu.Root>
       )}
     </div>

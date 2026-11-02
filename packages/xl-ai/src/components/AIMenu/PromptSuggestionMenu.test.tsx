@@ -84,3 +84,19 @@ it("gives items that share a key distinct row keys", async () => {
   );
   expect(duplicateKeyWarnings).toEqual([]);
 });
+
+it("keeps a renamed copy's row when the item that shares its key is filtered out", async () => {
+  const [french] = items;
+  const menuItems = [
+    french,
+    { ...french, title: "Translate formally", aliases: ["formal"] },
+  ];
+  const [, copyRow] = await render("", menuItems);
+
+  const rows = await render("formal", menuItems);
+
+  expect(rows.map((row) => row.textContent)).toEqual([
+    "Translate formally French",
+  ]);
+  expect(rows[0]).toBe(copyRow);
+});
