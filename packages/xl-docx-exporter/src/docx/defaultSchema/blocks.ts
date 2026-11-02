@@ -24,6 +24,7 @@ import {
   TableRow,
   TextRun,
 } from "docx";
+import type { DOCXExporter } from "../docxExporter.js";
 import { clampListLevel } from "../listLevels.js";
 import {
   createDOCXParagraph,
@@ -133,7 +134,11 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
       ...blockPropsToStyles(block.props, exporter.options.colors),
       children: exporter.transformInlineContent(block.content),
       numbering: {
-        reference: "blocknote-numbered-list",
+        // Lists that don't start at 1 use a numbering definition with their
+        // start number.
+        reference: (
+          exporter as DOCXExporter<any, any, any>
+        ).numberedListReference(numberingInstance),
         level: clampListLevel(nestingLevel),
         // Each distinct list gets its own instance so separate lists don't
         // continue each other's numbering (see DOCXExporter.transformBlocks).
