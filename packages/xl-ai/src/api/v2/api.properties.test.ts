@@ -8,6 +8,8 @@ import {
   plainTextFormat,
   updateDocumentFromText,
 } from "./index.js";
+import { flattenBlocks } from "./blocks/flatten.js";
+import type { LensBlock } from "./blocks/types.js";
 import { canonicalText } from "./testUtil/canonical.js";
 import { createRandom, randomDocument, randomEdit } from "./testUtil/random.js";
 
@@ -54,4 +56,38 @@ describe.each(formats)("$name", ({ format }) => {
       computeTextUpdate(editor, { format, text: edited }).operations,
     ).toEqual([]);
   });
+
+  it.each(SEEDS)(
+    "keeps all block IDs if the text swaps two paragraphs, for seed %i",
+    (seed) => {
+      const random = createRandom(seed);
+      const editor = BlockNoteEditor.create({
+        initialContent: randomDocument(random),
+      });
+      const parts = getDocumentText(editor, format).split("\n\n");
+      // Simple paragraphs: one line that starts with a letter, with a text
+      // that no other part has.
+      const simple = (part: string | undefined) =>
+        part !== undefined &&
+        /^\p{L}[^\n]*$/u.test(part) &&
+        parts.filter((other) => other === part).length === 1;
+      const candidates = parts
+        .map((_, index) => index)
+        .filter((index) => simple(parts[index]) && simple(parts[index + 1]));
+      if (candidates.length === 0) {
+        return;
+      }
+      const index = random.pick(candidates);
+      [parts[index], parts[index + 1]] = [parts[index + 1], parts[index]];
+      const ids = () =>
+        flattenBlocks(editor.document as LensBlock[])
+          .map(({ block }) => block.id)
+          .sort();
+      const before = ids();
+
+      updateDocumentFromText(editor, { format, text: parts.join("\n\n") });
+
+      expect(ids()).toEqual(before);
+    },
+  );
 });
