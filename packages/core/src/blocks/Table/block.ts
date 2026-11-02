@@ -20,6 +20,9 @@ export const tablePropSchema = {
   textColor: defaultProps.textColor,
 };
 
+/**
+ * Normalizes HTML cell spans, keeping rowspans within the containing table.
+ */
 function parseTableSpan(
   element: HTMLElement,
   attribute: "colspan" | "rowspan",
@@ -28,7 +31,24 @@ function parseTableSpan(
   // Reject malformed spans before they reach table layout/array allocation.
   // These upper bounds are the limits for HTML table cell spans.
   const max = attribute === "colspan" ? 1000 : 65534;
-  return Number.isInteger(value) && value > 0 && value <= max ? value : 1;
+  if (!Number.isInteger(value) || value <= 0 || value > max) {
+    return 1;
+  }
+  if (attribute === "colspan") {
+    return value;
+  }
+
+  const row = element.closest("tr");
+  const table = row?.closest("table");
+  if (!row || !table) {
+    return 1;
+  }
+
+  // Nested tables' rows do not contribute to this table's height.
+  const rows = Array.from(table.querySelectorAll("tr")).filter(
+    (candidate) => candidate.closest("table") === table,
+  );
+  return Math.min(value, rows.length - rows.indexOf(row));
 }
 
 const TiptapTableHeader = Node.create<{
