@@ -26,8 +26,9 @@ import { getYDocText, updateYDocFromText } from "../yjs/index.js";
  *
  *   TEXT_LENS_BENCH=1 vp test run src/api/v2/benchmarks --silent=false
  *
- * Set TEXT_LENS_BENCH_SIZES (for example "1000,5000") for other sizes. The
- * result is a table of the median times in milliseconds.
+ * Set TEXT_LENS_BENCH_SIZES (for example "1000,5000") for other sizes, and
+ * TEXT_LENS_BENCH_FORMATS (for example "markdown,plain text") for some
+ * formats only. The result is a table of the median times in milliseconds.
  */
 
 const RUNS = 3;
@@ -78,11 +79,14 @@ async function median<T>(
   return Math.round(times[Math.floor(times.length / 2)]);
 }
 
-const formats: [string, TextFormat][] = [
-  ["markdown", markdownFormat],
-  ["HTML", htmlFormat],
-  ["plain text", plainTextFormat],
-];
+const selectedFormats = process.env.TEXT_LENS_BENCH_FORMATS?.split(",");
+const formats = (
+  [
+    ["markdown", markdownFormat],
+    ["HTML", htmlFormat],
+    ["plain text", plainTextFormat],
+  ] satisfies [string, TextFormat][]
+).filter(([name]) => selectedFormats?.includes(name) ?? true);
 
 describe.runIf(process.env.TEXT_LENS_BENCH)("large documents", () => {
   it(

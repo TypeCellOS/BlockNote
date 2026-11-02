@@ -249,26 +249,56 @@ export function planTarget(input: PlanInput): Plan {
 
   // 3. The hidden blocks that are not in the tree yet stay at their source
   // positions: in their parent, after the last earlier sibling that is there.
-  for (const id of source.ids) {
-    if (!invisibleIds.has(id) || !kept.has(id) || nodeOf.has(id)) {
-      continue;
-    }
-    const parentId = source.parent(id);
+  // In document order, thus a parent is in the tree before its children.
+  function placeHiddenBlocks(parentId: string | undefined) {
     const parent = parentId === undefined ? root : nodeOf.get(parentId);
-    if (parent === undefined) {
-      continue;
-    }
     const siblings = source.childrenOf(parentId);
-    const earlier = new Set(siblings.slice(0, siblings.indexOf(id)));
-    const index = parent.children.findLastIndex((child) =>
-      earlier.has(child.id),
-    );
-    const block = node(id, source.block(id));
-    parent.children.splice(index + 1, 0, block);
-    nodeOf.set(id, block);
+    if (parent !== undefined) {
+      const present = new Set(parent.children.map((child) => child.id));
+      // The hidden blocks to insert after each block (or first, for `undefined`).
+      const after = new Map<string | undefined, LensBlock[]>();
+      let last: string | undefined;
+      for (const id of siblings) {
+        if (invisibleIds.has(id) && kept.has(id) && !nodeOf.has(id)) {
+          const block = node(id, source.block(id));
+          nodeOf.set(id, block);
+          after.set(last, [...(after.get(last) ?? []), block]);
+          last = id;
+        } else if (present.has(id)) {
+          last = id;
+        }
+      }
+      if (after.size > 0) {
+        parent.children = withInserts(parent.children, after);
+      }
+    }
+    for (const id of siblings) {
+      placeHiddenBlocks(id);
+    }
   }
+  placeHiddenBlocks(undefined);
 
   return { target: root.children, warnings };
+}
+
+/** Returns `children` with the blocks of `after` after the block with each ID (first for `undefined`). */
+function withInserts(
+  children: readonly LensBlock[],
+  after: ReadonlyMap<string | undefined, readonly LensBlock[]>,
+): LensBlock[] {
+  const result: LensBlock[] = [];
+  function insertAfter(id: string | undefined) {
+    for (const block of after.get(id) ?? []) {
+      result.push(block);
+      insertAfter(block.id);
+    }
+  }
+  insertAfter(undefined);
+  for (const child of children) {
+    result.push(child);
+    insertAfter(child.id);
+  }
+  return result;
 }
 
 function node(id: string, fields: BlockFields): LensBlock {
@@ -297,6 +327,31 @@ function keepInvisibleBlocks(
       .some((child) => kept.has(child) || hasKeptDescendant(child));
   }
 
+  // The nearest visible sibling before and after each block. One pass for
+  // each list of siblings, thus the time is linear.
+  const neighborsOf = new Map<string, string[]>();
+  for (const parentId of [undefined, ...source.ids]) {
+    const siblings = source.childrenOf(parentId);
+    const before: (string | undefined)[] = [];
+    let previous: string | undefined;
+    for (const id of siblings) {
+      before.push(previous);
+      if (!invisibleIds.has(id)) {
+        previous = id;
+      }
+    }
+    let next: string | undefined;
+    for (let i = siblings.length - 1; i >= 0; i--) {
+      neighborsOf.set(
+        siblings[i],
+        [before[i], next].filter((neighbor) => neighbor !== undefined),
+      );
+      if (!invisibleIds.has(siblings[i])) {
+        next = siblings[i];
+      }
+    }
+  }
+
   // In document order. Thus, the decision for the parent of a block comes first.
   for (const id of source.ids) {
     if (!invisibleIds.has(id)) {
@@ -306,13 +361,7 @@ function keepInvisibleBlocks(
     if (parentId !== undefined && !kept.has(parentId)) {
       continue;
     }
-    const siblings = source.childrenOf(parentId);
-    const index = siblings.indexOf(id);
-    const visible = (sibling: string) => !invisibleIds.has(sibling);
-    const neighbors = [
-      siblings.slice(0, index).reverse().find(visible),
-      siblings.slice(index + 1).find(visible),
-    ].filter((neighbor) => neighbor !== undefined);
+    const neighbors = neighborsOf.get(id) ?? [];
     if (
       hasKeptDescendant(id) ||
       neighbors.length === 0 ||
