@@ -12,7 +12,12 @@ import {
 import { flattenBlocks } from "./blocks/flatten.js";
 import type { LensBlock } from "./blocks/types.js";
 import { canonicalText } from "./testUtil/canonical.js";
-import { createRandom, randomDocument, randomEdit } from "./testUtil/random.js";
+import {
+  createRandom,
+  randomDocument,
+  randomEdit,
+  randomLineEdit,
+} from "./testUtil/random.js";
 
 /**
  * Property tests: the laws (see `api.laws.test.ts`) on random documents with
@@ -90,6 +95,38 @@ describe.each(formats)("$name", ({ format }) => {
       updateDocumentFromText(editor, { format, text: parts.join("\n\n") });
 
       expect(ids()).toEqual(before);
+    },
+  );
+});
+
+/**
+ * The laws for edits that change the structure in markdown: the nesting of
+ * list items, block types and checkboxes (see `randomLineEdit`).
+ */
+describe("markdown, edits of lines", () => {
+  const format = markdownFormat;
+  it.each(Array.from({ length: 150 }, (_, i) => i + 1000))(
+    "keeps the laws for seed %i",
+    (seed) => {
+      const random = createRandom(seed);
+      const editor = BlockNoteEditor.create({
+        initialContent: randomDocument(random),
+      });
+      let edited = getDocumentText(editor, format);
+      for (let i = 0; i <= random.int(3); i++) {
+        edited = randomLineEdit(random, edited);
+      }
+      const update = updateDocumentFromText(editor, { format, text: edited });
+      expect(update.warnings).toEqual([]);
+
+      // PutGet, modulo the normalization of the format.
+      expect(
+        canonicalText(editor, format, getDocumentText(editor, format)),
+      ).toBe(canonicalText(editor, format, edited));
+      // PutTwice.
+      expect(
+        computeTextUpdate(editor, { format, text: edited }).operations,
+      ).toEqual([]);
     },
   );
 });

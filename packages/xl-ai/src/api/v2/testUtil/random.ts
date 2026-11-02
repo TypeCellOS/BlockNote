@@ -216,3 +216,41 @@ export function randomEdit(random: Random, text: string): string {
   }
   return paragraphs.join("\n\n");
 }
+
+/**
+ * Applies one random edit to one line of a markdown text: a change of the
+ * nesting of a list item, of the type of a block, or of a checkbox. These
+ * edits change the structure, not only the text.
+ */
+export function randomLineEdit(random: Random, text: string): string {
+  const lines = text.split("\n");
+  const index = random.int(lines.length);
+  const line = lines[index];
+  const edits: (() => string)[] = [
+    // Indent a list item.
+    () => (/^\s*([*-]|\d+\.) /.test(line) ? `  ${line}` : line),
+    // Outdent a list item.
+    () => line.replace(/^ {2}/, ""),
+    // Change a bullet into a numbered list item, and back.
+    () =>
+      /^(\s*)[*-] /.test(line)
+        ? line.replace(/^(\s*)[*-] /, "$11. ")
+        : line.replace(/^(\s*)\d+\. /, "$1* "),
+    // Change a paragraph into a heading, or the level of a heading.
+    () =>
+      /^#{1,5} /.test(line)
+        ? `#${line}`
+        : /^\p{L}/u.test(line)
+          ? `## ${line}`
+          : line,
+    // Change a heading into a paragraph.
+    () => line.replace(/^#{1,6} /, ""),
+    // Check or clear a checkbox.
+    () =>
+      line.includes("[ ]")
+        ? line.replace("[ ]", "[x]")
+        : line.replace("[x]", "[ ]"),
+  ];
+  lines[index] = random.pick(edits)();
+  return lines.join("\n");
+}
