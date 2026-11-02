@@ -1,5 +1,4 @@
-import { BlockNoteEditor } from "@blocknote/core";
-import { CommentsExtension, type ThreadStore } from "@blocknote/core/comments";
+import type { BlockNoteEditor } from "@blocknote/core";
 import { describe, expect, it } from "vite-plus/test";
 
 import {
@@ -8,6 +7,11 @@ import {
   updateDocumentFromText,
 } from "./index.js";
 import { isTableContent } from "./blocks/types.js";
+import {
+  addComment,
+  commentedText,
+  createCommentEditor,
+} from "./testUtil/comments.js";
 import {
   createEditor,
   documentShape,
@@ -332,34 +336,38 @@ describe("markdown", () => {
     ]);
   });
   it("keeps a comment on text that the edit does not touch", () => {
-    const threadStore = {
-      subscribe: () => () => {},
-      getThreads: () => new Map(),
-    } as unknown as ThreadStore;
-    const editor = BlockNoteEditor.create({
-      initialContent: [{ id: "p", type: "paragraph", content: "Hello world" }],
-      trailingBlock: false,
-      extensions: [
-        CommentsExtension({ threadStore, resolveUsers: async () => [] }),
-      ],
-    });
-    const comment = editor.pmSchema.marks.comment.create({
-      threadId: "thread-1",
-      orphan: false,
-    });
-    // "Hello" is at the positions 3 to 8.
-    editor.transact((tr) => tr.addMark(3, 8, comment));
+    const editor = createCommentEditor([
+      { id: "p", type: "paragraph", content: "Hello world" },
+    ]);
+    const comment = addComment(editor, "Hello");
 
     write(editor, (md) => replaceOnce(md, "Hello world", "Hello brave world"));
 
-    let commented = "";
-    editor.prosemirrorState.doc.descendants((node) => {
-      if (node.isText && comment.isInSet(node.marks)) {
-        commented += node.text;
-      }
-    });
-    expect(commented).toBe("Hello");
+    expect(commentedText(editor.prosemirrorState.doc, comment)).toBe("Hello");
   });
+
+  it("keeps a comment on a block that the text moves", () => {
+    const editor = createCommentEditor([
+      {
+        id: "fruit",
+        type: "bulletListItem",
+        content: "Fruit",
+        children: [{ id: "pears", type: "bulletListItem", content: "Pears" }],
+      },
+      { id: "end", type: "paragraph", content: "End" },
+    ]);
+    const comment = addComment(editor, "Pears");
+
+    const update = write(editor, (md) =>
+      replaceOnce(md, "  * Pears", "* Pears"),
+    );
+
+    expect(update.operations.map((operation) => operation.type)).toEqual([
+      "move",
+    ]);
+    expect(commentedText(editor.prosemirrorState.doc, comment)).toBe("Pears");
+  });
+
   it("a new block between a paragraph and its nested child goes into the paragraph, thus the child stays nested", () => {
     const editor = createEditor([
       {

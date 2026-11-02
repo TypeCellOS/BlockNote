@@ -1,14 +1,19 @@
-import { BlockNoteEditor } from "@blocknote/core";
-import { updateYFragment, yDocToBlocks } from "@blocknote/core/yjs";
+import type { BlockNoteEditor } from "@blocknote/core";
+import {
+  updateYFragment,
+  yDocToBlocks,
+  yXmlFragmentToProseMirrorRootNode,
+} from "@blocknote/core/yjs";
+import { EditorState } from "prosemirror-state";
 import * as Y from "yjs";
 
 import {
-  computeTextUpdate,
+  computeBlocksUpdate,
   type TextUpdate,
   type TextUpdateOptions,
 } from "../api.js";
 import type { TextFormat } from "../formats/types.js";
-import { applyBlockOperations } from "../operations/applyOperations.js";
+import { applyOperations } from "../operations/applyOperations.js";
 
 export type YDocTextOptions = {
   format: TextFormat;
@@ -94,10 +99,13 @@ function docFromState(state: Uint8Array): Y.Doc {
 }
 
 /**
- * Applies the text to the document of `ydoc` with an editor without a view.
- * Writes each ProseMirror step to `ydoc` alone. Thus, each Yjs change is as
- * small as its step, also if one transaction changes text at more than one
- * place.
+ * Applies the text to the document of `ydoc`. The operations apply to a
+ * ProseMirror copy of the fragment, with the schema of the editor. Thus,
+ * marks that are not in the Block JSON stay, for example comments (if the
+ * editor has the comments extension).
+ *
+ * Writes each ProseMirror step to `ydoc` alone, in one Yjs transaction. Thus,
+ * each Yjs change is as small as its step, and other clients get one update.
  */
 function writeText(
   editor: BlockNoteEditor<any, any, any>,
@@ -105,33 +113,30 @@ function writeText(
   fragmentName: string,
   options: TextUpdateOptions,
 ): TextUpdate {
-  const fragment = ydoc.getXmlFragment(fragmentName);
-  const blocks = yDocToBlocks(editor, ydoc, fragmentName);
-  const lens = BlockNoteEditor.create({
-    schema: editor.schema,
-    initialContent: blocks.length > 0 ? blocks : undefined,
-    trailingBlock: false,
+  const update = computeBlocksUpdate(editor, {
+    ...options,
+    current: yDocToBlocks(editor, ydoc, fragmentName),
   });
+  if (update.operations.length === 0) {
+    return update;
+  }
 
-  const update = computeTextUpdate(lens, options);
+  const fragment = ydoc.getXmlFragment(fragmentName);
+  let doc = yXmlFragmentToProseMirrorRootNode(fragment, editor.pmSchema);
+  const tr = EditorState.create({ doc }).tr;
+  applyOperations(tr, update.operations);
+
   const meta = { mapping: new Map(), isOMark: new Map() };
-  let doc = lens.prosemirrorState.doc;
-  const write = () => updateYFragment(ydoc, fragment, doc, meta);
-
-  // One Yjs transaction, thus other clients get one update.
   ydoc.transact(() => {
-    write();
-    for (const step of applyBlockOperations(lens, update.operations)) {
+    updateYFragment(ydoc, fragment, doc, meta);
+    for (const step of tr.steps) {
       const result = step.apply(doc);
       if (result.doc === null) {
         throw new Error(`Step does not apply again: ${result.failed}`);
       }
       doc = result.doc;
-      write();
+      updateYFragment(ydoc, fragment, doc, meta);
     }
-    // Also write the changes that plugins appended to the transaction.
-    doc = lens.prosemirrorState.doc;
-    write();
   });
   return update;
 }

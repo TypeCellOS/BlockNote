@@ -85,9 +85,9 @@ The merge of a block (`merge/block.ts`) merges the type, each prop of the three 
    - Blocks that the format does not show stay at their positions, with their parent. If the planner removes their parent, or all the visible blocks around them, it also removes them.
 4. **Diff** (`operations/diffDocuments.ts`): the operations that change the document into the target. An update for each block with changed fields. In each parent, the blocks that keep their order stay (a longest common subsequence of the child IDs). Each other block goes after the block before it: a move, or an insert for a new block. The deletes come last. Thus, the blocks that stay moved out of the removed blocks first.
 5. **Rebase** the operations to the current document, if `base` is older (see "Concurrent writes").
-6. **Apply** the operations (`operations/applyOperations.ts`). The type and props of a block change through `updateBlock`. Inline content changes through the smallest ProseMirror steps: a `ReplaceStep` for each changed run, and mark steps for style changes. Thus, unchanged text keeps its identity and its comments, and a collaboration binding sees only small changes.
+6. **Apply** the operations to a ProseMirror transaction (`operations/applyOperations.ts`). The type and props of a block change through `updateBlockTr`. Inline content changes through the smallest ProseMirror steps: a `ReplaceStep` for each changed run, and mark steps for style changes. A move moves the ProseMirror node of the block. Thus, unchanged text keeps its identity and its comments, also in a moved block, and a collaboration binding sees only small changes.
 
-For a Y.Doc, `updateYDocFromText` applies the operations in an editor without a view, and writes each ProseMirror step to the target Y.Doc alone (`updateYFragment`), in one Yjs transaction. The strategy selects only the target: the current Y.Doc, or a copy of `base`.
+For a Y.Doc, `updateYDocFromText` reads the Y.XmlFragment as a ProseMirror document with the schema of the editor (not as Block JSON, which has no comment marks). It applies the operations to that document, and writes each ProseMirror step to the target Y.Doc alone (`updateYFragment`), in one Yjs transaction. The strategy selects only the target: the current Y.Doc, or a copy of `base`. To keep comments, give an editor that has the comments extension, so that its schema has the comment mark.
 
 ## Modules
 
@@ -128,7 +128,7 @@ Each module imports only modules that are before it in this list. Thus, there ar
 
 ## Changes outside this folder
 
-- `@blocknote/core/yjs` exports `updateYFragment` (from y-prosemirror). The Yjs API uses it to write ProseMirror changes to a Y.Doc without an editor view.
+- `@blocknote/core/yjs` exports `updateYFragment` and `yXmlFragmentToProseMirrorRootNode` (from y-prosemirror). The Yjs API uses them to read and change a Y.Doc without an editor view.
 - `@blocknote/xl-ai` has `yjs` as an optional peer dependency.
 
 ## Problems in BlockNote that the tests found

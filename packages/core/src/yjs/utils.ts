@@ -6,11 +6,16 @@ import {
 import * as Y from "yjs";
 
 /**
- * Updates a Y.XmlFragment to agree with a ProseMirror node, with the smallest
- * changes that y-prosemirror finds. Server code can use it to write
- * ProseMirror changes to a Y.Doc without an editor view.
+ * Reads a Y.XmlFragment as a ProseMirror node (`yXmlFragmentToProseMirrorRootNode`),
+ * and updates a Y.XmlFragment to agree with a ProseMirror node, with the
+ * smallest changes that y-prosemirror finds (`updateYFragment`). Server code
+ * can use them to change a Y.Doc without an editor view. Unlike Block JSON,
+ * the ProseMirror node keeps all marks, for example comments.
  */
-export { updateYFragment } from "y-prosemirror";
+export {
+  updateYFragment,
+  yXmlFragmentToProseMirrorRootNode,
+} from "y-prosemirror";
 
 import {
   type Block,

@@ -3,11 +3,17 @@ import {
   blocksToYDoc,
   updateYFragment,
   yDocToBlocks,
+  yXmlFragmentToProseMirrorRootNode,
 } from "@blocknote/core/yjs";
 import { describe, expect, it } from "vite-plus/test";
 import * as Y from "yjs";
 
 import { markdownFormat } from "../index.js";
+import {
+  addComment,
+  commentedText,
+  createCommentEditor,
+} from "../testUtil/comments.js";
 import {
   documentShape,
   replaceOnce,
@@ -306,3 +312,46 @@ describe("concurrent writes (strategy rebase): conflicts", () => {
     ]);
   });
 });
+
+describe.each<MergeStrategy>(["rebase", "yjs"])(
+  "comments (strategy %s)",
+  (strategy) => {
+    /** A Y.Doc from an editor with comments. Block JSON does not contain comment marks, thus the test writes the ProseMirror document. */
+    function setupWithComments() {
+      const editor = createCommentEditor(fruit);
+      const kept = addComment(editor, "Apples");
+      const moved = addComment(editor, "Pears");
+      const ydoc = new Y.Doc();
+      const fragment = ydoc.getXmlFragment("prosemirror");
+      updateYFragment(ydoc, fragment, editor.prosemirrorState.doc, {
+        mapping: new Map(),
+        isOMark: new Map(),
+      });
+      const write = (edit: (text: string) => string) =>
+        updateYDocFromText(editor, ydoc, {
+          format: markdownFormat,
+          text: edit(getYDocText(editor, ydoc, { format: markdownFormat })),
+          base: Y.encodeStateAsUpdate(ydoc),
+          strategy,
+        });
+      const doc = () =>
+        yXmlFragmentToProseMirrorRootNode(fragment, editor.pmSchema);
+      return { kept, moved, write, doc };
+    }
+
+    it("keeps the comments of the document when the text changes another block", () => {
+      const { kept, moved, write, doc } = setupWithComments();
+      write((text) => replaceOnce(text, "End", "The end"));
+
+      expect(commentedText(doc(), kept)).toBe("Apples");
+      expect(commentedText(doc(), moved)).toBe("Pears");
+    });
+
+    it("keeps the comment of a block that the text moves", () => {
+      const { moved, write, doc } = setupWithComments();
+      write((text) => replaceOnce(text, "  * Pears", "* Pears"));
+
+      expect(commentedText(doc(), moved)).toBe("Pears");
+    });
+  },
+);

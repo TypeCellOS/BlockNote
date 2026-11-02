@@ -58,7 +58,19 @@ export function computeTextUpdate(
   editor: BlockNoteEditor<any, any, any>,
   options: TextUpdateOptions,
 ): TextUpdate {
-  const current: LensBlock[] = editor.document;
+  return computeBlocksUpdate(editor, { ...options, current: editor.document });
+}
+
+/**
+ * {@link computeTextUpdate} for the document `current`, which does not have
+ * to be the document of the editor. The editor supplies the schema and the
+ * conversions. The Y.Doc API uses this.
+ */
+export function computeBlocksUpdate(
+  editor: BlockNoteEditor<any, any, any>,
+  options: TextUpdateOptions & { current: readonly LensBlock[] },
+): TextUpdate {
+  const { current } = options;
   const base = options.base ?? current;
   const plan = planTextUpdate(editor, options.format, base, options.text);
   if (options.base === undefined) {
