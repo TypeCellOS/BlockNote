@@ -172,7 +172,7 @@ The branch `fix/markdown-roundtrip` fixes the markdown conversion: one round tri
 - Yjs v14 (`@y/y` and `@y/prosemirror`).
 - IDs in the text.
 - A source map from the format. Some formats show a block as a part of the text that the parse does not give back as one block (for example a file block as a link in a list item). The view block then has no link, and a change to it does not apply (warning `unlinked-block-changed`).
-- Columns: markdown shows the blocks of columns as blocks after each other. If the text adds a block between the blocks of two columns, the planner closes the column list, and the blocks of the next column move out of it. The column then gets an empty paragraph.
+- Columns: if the text moves the only block of a column out of the column list, the column stays with an empty paragraph, as after a drag in the editor (`moveBlocks` does not remove emptied columns). The text then shows an extra `<br>`.
 - In jsdom, the markdown export of many paragraphs in list items is quadratic, because each move of an element recomputes the index of its siblings.
 - A block that the text moves and also changes. The lens does not find it. The block is removed and inserted again, with a new ID.
 - Table rows with a different number of cells. Examples are added or removed columns, and changed rows with merged cells (the format shows them as separate cells). The result for these rows is the row from the text. The cell colors and merged cells of these rows are lost.

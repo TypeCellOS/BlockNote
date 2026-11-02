@@ -1,4 +1,9 @@
-import type { BlockNoteEditor } from "@blocknote/core";
+import {
+  BlockNoteEditor,
+  BlockNoteSchema,
+  defaultBlockSpecs,
+} from "@blocknote/core";
+import { withMultiColumn } from "@blocknote/xl-multi-column";
 import { describe, expect, it } from "vite-plus/test";
 
 import {
@@ -17,6 +22,33 @@ import {
   documentShape,
   replaceOnce,
 } from "./testUtil/fixtures.js";
+
+/** An editor with two columns: "Alpha" in column c1 and "Beta" in column c2. */
+function createColumnsEditor() {
+  return BlockNoteEditor.create({
+    schema: withMultiColumn(
+      BlockNoteSchema.create({ blockSpecs: defaultBlockSpecs }),
+    ),
+    initialContent: [
+      {
+        id: "list",
+        type: "columnList",
+        children: [
+          {
+            id: "c1",
+            type: "column",
+            children: [{ id: "a", type: "paragraph", content: "Alpha" }],
+          },
+          {
+            id: "c2",
+            type: "column",
+            children: [{ id: "b", type: "paragraph", content: "Beta" }],
+          },
+        ],
+      },
+    ],
+  });
+}
 
 function write(
   editor: BlockNoteEditor<any, any, any>,
@@ -619,5 +651,57 @@ describe("markdown", () => {
       url: "https://example.com/x.png",
       previewWidth: 300,
     });
+  });
+
+  it("swaps two columns if the text swaps their blocks, without a new column", () => {
+    const editor = createColumnsEditor();
+
+    const update = updateDocumentFromText(editor, {
+      format: markdownFormat,
+      text: "Beta\n\nAlpha\n",
+    });
+
+    expect(update.operations).toEqual([
+      { type: "move", id: "c1", reference: "c2", placement: "after" },
+    ]);
+    expect(
+      editor.document[0].children.map((column) => [
+        column.id,
+        column.children.map((block) => block.id),
+      ]),
+    ).toEqual([
+      ["c2", ["b"]],
+      ["c1", ["a"]],
+    ]);
+    expect(getDocumentText(editor, markdownFormat)).toBe("Beta\n\nAlpha\n");
+  });
+
+  it("keeps the columns if the text adds a block between the blocks of two columns", () => {
+    const editor = createColumnsEditor();
+    expect(getDocumentText(editor, markdownFormat)).toBe("Alpha\n\nBeta\n");
+
+    updateDocumentFromText(editor, {
+      format: markdownFormat,
+      text: "Alpha\n\nTop\n\nBeta\n\nEnd\n",
+    });
+
+    const [list, end] = editor.document;
+    expect(list.id).toBe("list");
+    expect(
+      list.children.map((column) => [
+        column.id,
+        column.children.map((block) => block.content),
+      ]),
+    ).toEqual([
+      ["c1", [[{ type: "text", text: "Alpha", styles: {} }]]],
+      [
+        "c2",
+        [
+          [{ type: "text", text: "Top", styles: {} }],
+          [{ type: "text", text: "Beta", styles: {} }],
+        ],
+      ],
+    ]);
+    expect(end.content).toMatchObject([{ text: "End" }]);
   });
 });

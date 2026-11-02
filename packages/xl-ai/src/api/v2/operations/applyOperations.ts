@@ -139,13 +139,7 @@ function moveBlock(
   tr: Transaction,
   operation: Extract<BlockOperation, { type: "move" }>,
 ) {
-  const { node } = find(tr, operation.id);
-  // Take the block out. Do not fix the layout blocks here, because the block
-  // goes back into the document directly after this.
-  removeAndInsertBlocks(tr, [operation.id], [], { fixLayoutBlocks: false });
-
-  // Resolve the position after the block is out: "start" can then refer to
-  // the next block.
+  const { node, posBeforeNode } = find(tr, operation.id);
   const { reference: referenceId, placement } = resolvePosition(tr, operation);
   const reference = find(tr, referenceId);
   const target = getInsertionPos(
@@ -159,10 +153,38 @@ function moveBlock(
       `Block ${operation.id} cannot go ${placement} block ${referenceId}`,
     );
   }
+  // Put the block at its new position first, and then take it out at its old
+  // position. Between the two steps, the block is in the document two times.
+  // Thus, its old parent never has too few children. With the other order,
+  // the removal of a column from a column list with two columns gives a
+  // column list with one column, and ProseMirror adds a new empty column.
   const fragment = Fragment.from(
     target.wrapIn === undefined ? node : target.wrapIn.create(null, node),
   );
   tr.step(new ReplaceStep(target.pos, target.pos, new Slice(fragment, 0, 0)));
+  const insert = tr.mapping.maps[tr.mapping.maps.length - 1];
+  removeAt(
+    tr,
+    insert.map(posBeforeNode, 1),
+    insert.map(posBeforeNode + node.nodeSize, -1),
+  );
+}
+
+/**
+ * Removes the block from `from` to `to`. If it is the only child of a nested
+ * block group, the group goes too, as in `removeAndInsertBlocks`.
+ */
+function removeAt(tr: Transaction, from: number, to: number) {
+  const $from = tr.doc.resolve(from);
+  if (
+    $from.parent.type.name === "blockGroup" &&
+    $from.node($from.depth - 1).type.name !== "doc" &&
+    $from.parent.childCount === 1
+  ) {
+    tr.delete($from.before(), $from.after());
+  } else {
+    tr.delete(from, to);
+  }
 }
 
 /**
