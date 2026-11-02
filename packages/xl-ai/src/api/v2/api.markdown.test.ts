@@ -594,4 +594,30 @@ describe("markdown", () => {
       "end",
     ]);
   });
+
+  it("changes the visible image, not an image that markdown does not show", () => {
+    // An image without a URL (before an upload) has no markdown.
+    const editor = createEditor([
+      { id: "p", type: "paragraph", content: "Images" },
+      { id: "empty", type: "image", props: { url: "" } },
+      {
+        id: "shown",
+        type: "image",
+        props: { url: "https://example.com/b.png", previewWidth: 300 },
+      },
+    ]);
+    const markdown = getDocumentText(editor, markdownFormat);
+    expect(markdown).toContain("b.png");
+
+    updateDocumentFromText(editor, {
+      format: markdownFormat,
+      text: markdown.replace("b.png", "x.png"),
+    });
+
+    expect(editor.getBlock("empty")?.props).toMatchObject({ url: "" });
+    expect(editor.getBlock("shown")?.props).toMatchObject({
+      url: "https://example.com/x.png",
+      previewWidth: 300,
+    });
+  });
 });

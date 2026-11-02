@@ -44,7 +44,16 @@ export function projectDocument(
   // empty document has no view blocks.
   const viewBlocks =
     document.length === 0 ? [] : flattenBlocks(format.parse(editor, text));
-  const sourceBlocks = flattenBlocks(document);
+  // A block without content links to its view block by its type only (see
+  // `linkKey`). A block of that kind that the format renders as no text (for
+  // example an image without a URL, in markdown) has no view block. Thus, it
+  // does not take part in the links, and cannot take the link of a visible
+  // block of the same type.
+  const sourceBlocks = flattenBlocks(document).filter(
+    ({ block }) =>
+      block.content !== undefined ||
+      format.serialize(editor, [block]).trim() !== "",
+  );
   const links = linkBlocks(sourceBlocks, viewBlocks);
 
   const linkCounts = new Map<string, number>();
@@ -62,7 +71,7 @@ export function projectDocument(
 
   const invisibleIds = new Set<string>();
   const multiPartIds = new Set<string>();
-  for (const { block } of sourceBlocks) {
+  for (const { block } of flattenBlocks(document)) {
     const count = linkCounts.get(block.id) ?? 0;
     if (count === 0) {
       invisibleIds.add(block.id);

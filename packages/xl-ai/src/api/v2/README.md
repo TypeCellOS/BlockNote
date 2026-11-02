@@ -85,7 +85,7 @@ The merge of a block (`merge/block.ts`) merges the type, each prop of the three 
 
 ## Pipeline
 
-1. **Project** (`projection/`): render `base` (or the current document, if there is no `base`) and parse it back. The result is the _view_. Link each view block to the source block that gave it, with the same overlap as in step 2 of the identity rules. A view block links to the source block that has most of its words.
+1. **Project** (`projection/`): render `base` (or the current document, if there is no `base`) and parse it back. The result is the _view_. Link each view block to the source block that gave it, with the same overlap as in step 2 of the identity rules. A view block links to the source block that has most of its words. A block without content (for example an image) links by its type, because the format can lose its props. A block without content that the format renders as no text (for example an image without a URL, in markdown) does not take part in the links.
 2. **Parse** the incoming text and **align** it with the view (`alignment/`, see the identity rules above).
 3. **Plan the target document** (`target/`): the document as the text asks for it, as Block JSON with IDs. A source block with a match stays, with the three-way merge of its fields. A new block gets a new ID. The blocks go in the order of the text, in the parent that the text shows. One pass builds the tree, with a stack of the open ancestors. Two rules keep data that the format does not show:
    - A block keeps a nesting that the format does not show (for example a paragraph in a bullet, in markdown), if the text did not change its nesting and the parent is still open. A new block before such a block goes into the same nesting. Thus, the child stays nested.
@@ -172,7 +172,6 @@ The branch `fix/markdown-roundtrip` fixes the markdown conversion: one round tri
 - Yjs v14 (`@y/y` and `@y/prosemirror`).
 - IDs in the text.
 - A source map from the format. Some formats show a block as a part of the text that the parse does not give back as one block (for example a file block as a link in a list item). The view block then has no link, and a change to it does not apply (warning `unlinked-block-changed`).
-- A block without content (for example an image) links to its view block by its type only, because the format can lose its props. If a hidden image is next to a changed image, the change can go to the hidden image.
 - Columns: markdown shows the blocks of columns as blocks after each other. If the text adds a block between the blocks of two columns, the planner closes the column list, and the blocks of the next column move out of it. The column then gets an empty paragraph.
 - In jsdom, the markdown export of many paragraphs in list items is quadratic, because each move of an element recomputes the index of its siblings.
 - A block that the text moves and also changes. The lens does not find it. The block is removed and inserted again, with a new ID.
