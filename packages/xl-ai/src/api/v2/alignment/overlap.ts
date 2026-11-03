@@ -81,7 +81,9 @@ function tokensOf(texts: readonly OverlapText[]): Token[] {
     const hasWords = own.some((token) => token.size > 0);
     tokens.push({ owner, key: `\u0001${key}`, size: hasWords ? 0 : 1 });
     if (hasWords) {
-      tokens.push(...own);
+      for (const token of own) {
+        tokens.push(token);
+      }
     }
     tokens.push({ owner, key: "\u0000", size: 0 });
   });

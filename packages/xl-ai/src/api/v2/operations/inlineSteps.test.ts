@@ -116,4 +116,33 @@ describe("addInlineContentSteps", () => {
     applySteps(editor, [text("I 😁")]);
     expect(editor.getBlock("p")?.content).toEqual([text("I 😁")]);
   });
+
+  it("makes at most 200 steps for a large change of one block, and keeps a comment on its unchanged text", () => {
+    // 500 words, and the text changes each one: 500 changed runs.
+    const words = Array.from({ length: 500 }, (_, i) => `w${i}`);
+    const editor = createEditor(words.join(" "));
+    const comment = editor.pmSchema.marks.comment.create({
+      threadId: "thread-1",
+      orphan: false,
+    });
+    // The space after "w250" has a comment. The paragraph text starts at 3.
+    const at = 3 + words.slice(0, 251).join(" ").length;
+    editor.transact((tr) => tr.addMark(at, at + 1, comment));
+
+    const steps = applySteps(editor, [
+      text(words.map((word) => `${word}x`).join(" ")),
+    ]);
+
+    expect(steps.length).toBeLessThanOrEqual(200);
+    let commented = "";
+    editor.prosemirrorState.doc.descendants((node) => {
+      if (node.isText && comment.isInSet(node.marks)) {
+        commented += node.text;
+      }
+    });
+    expect(commented).toBe(" ");
+    expect(editor.getBlock("p")?.content).toEqual([
+      text(words.map((word) => `${word}x`).join(" ")),
+    ]);
+  });
 });

@@ -121,7 +121,7 @@ export function withoutMergedCells(table: LensTableContent): LensTableContent {
       rows: rows.map((cells) => ({ cells: cells.map(single) })),
     };
   }
-  const width = Math.max(0, ...grid.widths);
+  const width = grid.widths.reduce((max, w) => Math.max(max, w), 0);
   const expanded = rows.map(() =>
     Array.from({ length: width }, (): LensTableCell | undefined => undefined),
   );

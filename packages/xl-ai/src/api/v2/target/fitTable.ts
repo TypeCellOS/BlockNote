@@ -53,7 +53,7 @@ export function fitTable(table: LensTableContent): LensTableContent {
   if (widths === undefined) {
     return fitTable(withoutMergedCells(table));
   }
-  const width = Math.max(0, ...widths);
+  const width = widths.reduce((max, w) => Math.max(max, w), 0);
   if (widths.every((rowWidth) => rowWidth === width)) {
     return table;
   }

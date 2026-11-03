@@ -1,5 +1,5 @@
-import type { Fragment, Mark, Node } from "prosemirror-model";
-import { Slice } from "prosemirror-model";
+import type { Mark, Node } from "prosemirror-model";
+import { Fragment, Slice } from "prosemirror-model";
 import type { Transform } from "prosemirror-transform";
 
 import { alignText, charKind, type TextUnit } from "../diff/text.js";
@@ -112,8 +112,7 @@ export function addInlineContentSteps(
 
   // Replace the changed runs, from the end. Thus, the positions of the runs
   // before each run do not move.
-  const runs: { aStart: number; aEnd: number; bStart: number; bEnd: number }[] =
-    [];
+  const runs: Run[] = [];
   let aNext = 0;
   let bNext = 0;
   for (const pair of [...pairs, { aIndex: a.length, bIndex: b.length }]) {
@@ -129,19 +128,69 @@ export function addInlineContentSteps(
     bNext = pair.bIndex + 1;
   }
 
-  for (const run of runs.reverse()) {
-    const from = start + offsetOf(a, run.aStart, current.content.size);
-    const to = start + offsetOf(a, run.aEnd, current.content.size);
-    const slice = new Slice(
-      target.cut(
-        offsetOf(b, run.bStart, target.size),
-        offsetOf(b, run.bEnd, target.size),
-      ),
-      0,
-      0,
+  const size = current.content.size;
+  for (const parts of joinNearRuns(runs).reverse()) {
+    // A joined run: the changed parts from the target, and the unchanged
+    // text between them from the document (with its marks, for example
+    // comments, and after the mark steps).
+    let content = Fragment.empty;
+    parts.forEach((part, k) => {
+      if (k > 0) {
+        content = content.append(
+          tr.doc.slice(
+            start + offsetOf(a, parts[k - 1].aEnd, size),
+            start + offsetOf(a, part.aStart, size),
+          ).content,
+        );
+      }
+      content = content.append(
+        target.cut(
+          offsetOf(b, part.bStart, target.size),
+          offsetOf(b, part.bEnd, target.size),
+        ),
+      );
+    });
+    tr.replace(
+      start + offsetOf(a, parts[0].aStart, size),
+      start + offsetOf(a, parts[parts.length - 1].aEnd, size),
+      new Slice(content, 0, 0),
     );
-    tr.replace(from, to, slice);
   }
+}
+
+/**
+ * The maximum number of replace steps for the content of one block. A
+ * transaction keeps the document after each step, and each step in one text
+ * copies that text. Thus, many steps in a long text use much memory (for
+ * example a rename on each of 15,000 lines of a code block: 4 GB).
+ */
+const MAX_RUNS = 200;
+
+type Run = { aStart: number; aEnd: number; bStart: number; bEnd: number };
+
+/**
+ * Returns the runs in groups, at most {@link MAX_RUNS} groups: the runs with
+ * the shortest unchanged parts between them join. One step then replaces a
+ * group, and it writes the unchanged parts between the runs again, with
+ * their marks. Only a large change of one block has more runs.
+ */
+function joinNearRuns(runs: readonly Run[]): Run[][] {
+  if (runs.length <= MAX_RUNS) {
+    return runs.map((run) => [run]);
+  }
+  // The length of the unchanged part before each run (after the first run).
+  const gaps = runs.slice(1).map((run, k) => run.aStart - runs[k].aEnd);
+  // Join each gap that is at most this long. Then at most MAX_RUNS groups stay.
+  const limit = [...gaps].sort((x, y) => x - y)[runs.length - MAX_RUNS - 1];
+  const groups: Run[][] = [[runs[0]]];
+  runs.slice(1).forEach((run, k) => {
+    if (gaps[k] <= limit) {
+      groups[groups.length - 1].push(run);
+    } else {
+      groups.push([run]);
+    }
+  });
+  return groups;
 }
 
 /** The offset of the unit at `index`, or `size` after the last unit. */

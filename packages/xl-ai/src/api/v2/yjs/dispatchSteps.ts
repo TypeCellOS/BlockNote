@@ -89,7 +89,9 @@ function sendGroup(
   const added: Step[] = [];
   function onTransaction(event: { appendedTransactions: Transaction[] }) {
     for (const appended of event.appendedTransactions) {
-      added.push(...appended.steps);
+      for (const step of appended.steps) {
+        added.push(step);
+      }
     }
   }
   editor._tiptapEditor.on("transaction", onTransaction);

@@ -1,3 +1,4 @@
+import { anchoredMatch } from "./anchored.js";
 import { myersMatch } from "./myers.js";
 import type { MatchedPair } from "./types.js";
 
@@ -46,7 +47,9 @@ export function alignText(
 ): MatchedPair[] {
   const tokensA = tokenize(a);
   const tokensB = tokenize(b);
-  const tokenPairs = myersMatch(tokensA, tokensB, (x, y) => x.key === y.key);
+  // Anchors (tokens that each side has one time) keep the diff fast and
+  // exact also for a long block with many changes (see `anchoredMatch`).
+  const tokenPairs = anchoredMatch(tokensA, tokensB, (token) => token.key);
 
   const pairs: MatchedPair[] = [];
   let aPos = 0;
@@ -54,14 +57,18 @@ export function alignText(
   for (const tokenPair of tokenPairs) {
     const tokenA = tokensA[tokenPair.aIndex];
     const tokenB = tokensB[tokenPair.bIndex];
-    pairs.push(...alignGap(a, b, aPos, tokenA.start, bPos, tokenB.start));
+    for (const pair of alignGap(a, b, aPos, tokenA.start, bPos, tokenB.start)) {
+      pairs.push(pair);
+    }
     for (let k = 0; k < tokenA.end - tokenA.start; k++) {
       pairs.push({ aIndex: tokenA.start + k, bIndex: tokenB.start + k });
     }
     aPos = tokenA.end;
     bPos = tokenB.end;
   }
-  pairs.push(...alignGap(a, b, aPos, a.length, bPos, b.length));
+  for (const pair of alignGap(a, b, aPos, a.length, bPos, b.length)) {
+    pairs.push(pair);
+  }
   return pairs;
 }
 

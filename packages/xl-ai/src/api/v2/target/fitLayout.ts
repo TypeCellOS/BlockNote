@@ -94,8 +94,12 @@ export function fitLayout<T extends LayoutTree<T>>(
         held.push(child);
       } else if (ruleOf(typeOf(child))?.namedOnly) {
         const inner = place(parent, child.children ?? []);
-        held.push(...inner.held);
-        lifted.push(...inner.lifted);
+        for (const block of inner.held) {
+          held.push(block);
+        }
+        for (const block of inner.lifted) {
+          lifted.push(block);
+        }
       } else {
         lifted.push(child);
       }
