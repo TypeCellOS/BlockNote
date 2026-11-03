@@ -261,24 +261,23 @@
             },
             "type": "bulletListItem",
           },
-        ],
-        "content": [
           {
-            "styles": {},
-            "text": "Bullet List Item",
-            "type": "text",
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Paragraph",
+                "type": "text",
+              },
+            ],
+            "id": "17",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
           },
-        ],
-        "id": "15",
-        "props": {
-          "backgroundColor": "default",
-          "textAlignment": "left",
-          "textColor": "default",
-        },
-        "type": "bulletListItem",
-      },
-      {
-        "children": [
           {
             "children": [],
             "content": [
@@ -369,11 +368,11 @@
         "content": [
           {
             "styles": {},
-            "text": "Paragraph",
+            "text": "Bullet List Item",
             "type": "text",
           },
         ],
-        "id": "17",
+        "id": "15",
         "props": {
           "backgroundColor": "default",
           "textAlignment": "left",

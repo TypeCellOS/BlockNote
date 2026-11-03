@@ -13,26 +13,26 @@
         },
         "type": "checkListItem",
       },
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Paragraph",
+            "type": "text",
+          },
+        ],
+        "id": "3",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
     ],
     "content": [],
     "id": "1",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "bulletListItem",
-  },
-  {
-    "children": [],
-    "content": [
-      {
-        "styles": {},
-        "text": "Paragraph",
-        "type": "text",
-      },
-    ],
-    "id": "3",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",

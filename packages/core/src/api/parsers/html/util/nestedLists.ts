@@ -30,8 +30,13 @@ function isWhitespaceNode(node: Node) {
  */
 function liftNestedListsToParent(element: HTMLElement) {
   element.querySelectorAll("li > ul, li > ol").forEach((list) => {
-    const index = getChildIndex(list);
     const parentListItem = list.parentElement!;
+    // An earlier list of the same list item moved this list out already
+    // (see below).
+    if (parentListItem.tagName !== "LI") {
+      return;
+    }
+    const index = getChildIndex(list);
     const siblingsAfter = Array.from(parentListItem.childNodes).slice(
       index + 1,
     );
@@ -42,18 +47,62 @@ function liftNestedListsToParent(element: HTMLElement) {
 
     parentListItem.insertAdjacentElement("afterend", list);
 
-    siblingsAfter.reverse().forEach((sibling) => {
-      if (isWhitespaceNode(sibling)) {
-        return;
-      }
-      const siblingContainer = document.createElement("li");
-      siblingContainer.append(sibling);
-      list.insertAdjacentElement("afterend", siblingContainer);
-    });
+    // The content after the nested list is also a child of the list item,
+    // after the nested list (`createGroups` puts it in the block group of
+    // the list item). Text and inline elements go into a paragraph.
+    let last: Element = list;
+    for (const block of asBlocks(siblingsAfter)) {
+      last.insertAdjacentElement("afterend", block);
+      last = block;
+    }
     if (parentListItem.childNodes.length === 0) {
       parentListItem.remove();
     }
   });
+}
+
+/** Elements that are blocks. Other nodes are inline content. */
+const BLOCK_TAGS = new Set([
+  "P",
+  "DIV",
+  "UL",
+  "OL",
+  "LI",
+  "H1",
+  "H2",
+  "H3",
+  "H4",
+  "H5",
+  "H6",
+  "BLOCKQUOTE",
+  "PRE",
+  "TABLE",
+  "FIGURE",
+  "HR",
+  "DETAILS",
+]);
+
+/**
+ * The nodes as block elements: a block element stays, and each run of
+ * inline nodes (text, links, emphasis) goes into a new paragraph. Runs of
+ * whitespace only are dropped.
+ */
+function asBlocks(nodes: Node[]): Element[] {
+  const blocks: Element[] = [];
+  let paragraph: HTMLParagraphElement | undefined;
+  for (const node of nodes) {
+    if (node.nodeType === 1 && BLOCK_TAGS.has((node as Element).tagName)) {
+      blocks.push(node as Element);
+      paragraph = undefined;
+    } else if (paragraph !== undefined || !isWhitespaceNode(node)) {
+      if (paragraph === undefined) {
+        paragraph = node.ownerDocument!.createElement("p");
+        blocks.push(paragraph);
+      }
+      paragraph.append(node);
+    }
+  }
+  return blocks;
 }
 
 /**
@@ -90,9 +139,11 @@ function createGroups(element: HTMLElement) {
     blockGroup.setAttribute("data-node-type", "blockGroup");
     blockContainer.append(blockGroup);
 
+    // The nested lists, and the blocks after them that
+    // `liftNestedListsToParent` moved out of the list item.
     while (
-      blockContainer.nextElementSibling?.nodeName === "UL" ||
-      blockContainer.nextElementSibling?.nodeName === "OL"
+      blockContainer.nextElementSibling !== null &&
+      blockContainer.nextElementSibling.nodeName !== "LI"
     ) {
       blockGroup.append(blockContainer.nextElementSibling);
     }

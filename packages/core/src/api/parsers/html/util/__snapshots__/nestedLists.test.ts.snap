@@ -36,9 +36,9 @@ exports[`Lift nested lists > Lifts multiple bullet lists with content in between
           <li>
              Nested Bullet List Item 2
           </li>
-       </ul></div></div><div><li>
+       </ul><p>
        In between content
-       </li><div data-node-type="blockGroup"><ul>
+       </p><ul>
           <li>
              Nested Bullet List Item 3
           </li>
@@ -81,9 +81,9 @@ exports[`Lift nested lists > Lifts nested bullet lists with content after nested
           <li>
              Nested Bullet List Item 2
           </li>
-       </ul></div></div><li>
+       </ul><p>
        More content in list item 1
-    </li>
+    </p></div></div>
     <li>
     Bullet List Item 2
     </li>
