@@ -1,11 +1,10 @@
-import { Selection, TextSelection } from "prosemirror-state";
+import { Plugin, Selection, TextSelection } from "prosemirror-state";
 
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import {
   createExtension,
   createStore,
 } from "../../editor/BlockNoteExtension.js";
-import { ReadOnlyExtension } from "../ReadOnly/ReadOnly.js";
 
 /**
  * Inline-content counterpart of {@link SourceBlockWithPreviewExtension}. A
@@ -15,7 +14,8 @@ import { ReadOnlyExtension } from "../ReadOnly/ReadOnly.js";
  * rather than the extension being configured with a type.
  *
  * Unlike the block version, the popup isn't toggled with a separate state flag:
- * it's open exactly when the selection is inside the inline content's source.
+ * it's open when the editor is editable and the selection is inside the inline
+ * content's source.
  * The store therefore only tracks which inline content (by its position) holds
  * the selection - moving the selection in opens its popup, moving it out closes
  * it. Since the source popup is always laid out (just hidden via opacity), the
@@ -39,7 +39,7 @@ export const SourceInlineContentWithPreviewExtension = createExtension(
         ?.hasPreview;
 
     // Moves the selection out of the inline content, to just `"before"` or
-    // `"after"` it, which closes the popup via the selection-change handler
+    // `"after"` it, which closes the popup via the plugin view update
     // below. Lets the keyboard commit-and-exit the source the same way arrowing
     // past its edge does, keeps Enter from splitting the block while editing the
     // source, and lets the up/down arrows step out of the source rather than
@@ -68,6 +68,33 @@ export const SourceInlineContentWithPreviewExtension = createExtension(
     return {
       key: "sourceInlineContentWithPreview",
       store,
+      prosemirrorPlugins: [
+        new Plugin({
+          view: (view) => {
+            let wasEditable = view.editable;
+            return {
+              update(view, prevState) {
+                if (
+                  view.editable === wasEditable &&
+                  view.state.selection.eq(prevState.selection)
+                ) {
+                  return;
+                }
+                wasEditable = view.editable;
+                // Read effective editability after the view has applied the
+                // transaction, including batched toggles and plugin restrictions.
+                const { $from } = view.state.selection;
+                store.setState({
+                  selected:
+                    view.editable && nodeHasPreview($from.node().type.name)
+                      ? $from.before()
+                      : undefined,
+                });
+              },
+            };
+          },
+        }),
+      ],
       keyboardShortcuts: {
         Enter: moveSelectionOut("after"),
         "Shift-Enter": moveSelectionOut("after"),
@@ -93,39 +120,6 @@ export const SourceInlineContentWithPreviewExtension = createExtension(
         },
       },
       mount: ({ dom, signal }) => {
-        // The popup is open when the selection is inside the inline content
-        // and the editor is editable. Read-only editors still allow selection.
-        function updateSelected(isEditable: boolean) {
-          editor.transact((tr) => {
-            const { $from } = tr.selection;
-            store.setState({
-              selected:
-                isEditable && nodeHasPreview($from.node().type.name)
-                  ? $from.before()
-                  : undefined,
-            });
-          });
-        }
-
-        const unsubscribeSelectionChange = editor.onSelectionChange(() => {
-          updateSelected(editor.isEditable);
-        });
-        signal.addEventListener("abort", unsubscribeSelectionChange);
-
-        // Editability can change without moving the selection out of the source.
-        const unsubscribeReadOnlyChange = editor
-          .getExtension(ReadOnlyExtension)
-          ?.store.subscribe(({ currentVal }) => {
-            // The view may still reflect the previous editability inside a
-            // batched transaction, so use the updated read-only state directly.
-            updateSelected(
-              currentVal.isEditable && currentVal.enabledSet.size === 0,
-            );
-          });
-        if (unsubscribeReadOnlyChange) {
-          signal.addEventListener("abort", unsubscribeReadOnlyChange);
-        }
-
         // Sets `visibility: hidden` on the popup for a single frame when pressing up/down arrow
         // keys. The popup is normally hidden through `opacity: 0`, which means it's still visible
         // to the browser for navigation. Therefore, the up/down arrows can sometimes move the

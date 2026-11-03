@@ -1,9 +1,13 @@
 import "@blocknote/core/style.css";
 
-import { BlockNoteEditor, BlockNoteSchema } from "@blocknote/core";
+import {
+  BlockNoteEditor,
+  BlockNoteSchema,
+  createExtension,
+} from "@blocknote/core";
 import { SourceInlineContentWithPreviewExtension } from "@blocknote/core/extensions";
 import { BlockNoteViewRaw } from "@blocknote/react";
-import { TextSelection } from "prosemirror-state";
+import { Plugin, TextSelection } from "prosemirror-state";
 import { flushSync } from "react-dom";
 import { createRoot } from "react-dom/client";
 import { expect, it, vi } from "vite-plus/test";
@@ -15,14 +19,23 @@ const schema = BlockNoteSchema.create().extend({
 });
 
 it.each([
-  { editable: false, batched: false },
-  { editable: true, batched: false },
-  { editable: true, batched: true },
+  { editable: false, batched: false, pluginReadOnly: false },
+  { editable: true, batched: false, pluginReadOnly: false },
+  { editable: true, batched: true, pluginReadOnly: false },
+  { editable: true, batched: false, pluginReadOnly: true },
+  { editable: true, batched: true, pluginReadOnly: true },
 ])(
   "inline math popup follows editability (#3291): %j",
-  async ({ editable, batched }) => {
+  async ({ editable, batched, pluginReadOnly }) => {
+    const pluginEditability = createExtension(() => ({
+      key: "testPluginEditability",
+      prosemirrorPlugins: [
+        new Plugin({ props: { editable: () => !pluginReadOnly } }),
+      ],
+    }));
     const editor = BlockNoteEditor.create({
       schema,
+      extensions: [pluginEditability()],
       trailingBlock: false,
       initialContent: [
         {
@@ -63,13 +76,13 @@ it.each([
       expect(
         editor.getExtension(SourceInlineContentWithPreviewExtension)!.store
           .state.selected,
-      ).toBe(editable ? mathPos : undefined);
+      ).toBe(editable && !pluginReadOnly ? mathPos : undefined);
       await vi.waitFor(() =>
         expect(
           host
             .querySelector(".bn-preview-with-source-popup")
             ?.getAttribute("data-open"),
-        ).toBe(String(editable)),
+        ).toBe(String(editable && !pluginReadOnly)),
       );
 
       if (editable) {
@@ -110,13 +123,13 @@ it.each([
         expect(
           editor.getExtension(SourceInlineContentWithPreviewExtension)!.store
             .state.selected,
-        ).toBe(mathPos);
+        ).toBe(pluginReadOnly ? undefined : mathPos);
         await vi.waitFor(() =>
           expect(
             host
               .querySelector(".bn-preview-with-source-popup")
               ?.getAttribute("data-open"),
-          ).toBe("true"),
+          ).toBe(String(!pluginReadOnly)),
         );
       }
     } finally {
@@ -128,17 +141,36 @@ it.each([
 );
 
 it("mounts inline source popup tracking without the readOnly extension", () => {
-  const editor = BlockNoteEditor.create({ disableExtensions: ["readOnly"] });
+  const editor = BlockNoteEditor.create({
+    schema,
+    disableExtensions: ["readOnly"],
+    initialContent: [
+      { type: "paragraph", content: [{ type: "math", content: "x^2" }] },
+    ],
+  });
   const host = document.createElement("div");
   document.body.append(host);
 
   try {
     editor.mount(host);
     expect(editor.prosemirrorView).toBeDefined();
+    let mathPos: number | undefined;
+    editor.prosemirrorState.doc.descendants((node, pos) => {
+      if (node.type.name === "math") {
+        mathPos = pos;
+      }
+    });
+    if (mathPos === undefined) {
+      throw new Error("Inline math node not found");
+    }
+    const sourcePos = mathPos + 1;
+    editor.transact((tr) =>
+      tr.setSelection(TextSelection.create(tr.doc, sourcePos)),
+    );
     expect(
       editor.getExtension(SourceInlineContentWithPreviewExtension)!.store.state
         .selected,
-    ).toBeUndefined();
+    ).toBe(mathPos);
   } finally {
     editor._tiptapEditor.destroy();
     host.remove();
