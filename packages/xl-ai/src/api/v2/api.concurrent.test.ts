@@ -433,6 +433,29 @@ function randomSchedule(random: Random, count: number) {
   return schedule;
 }
 
+describe("a write from an older version, with blocks that the client moves", () => {
+  it("indents a block under the position that the client wants, if another writer removed the block before it", () => {
+    const editor = createEditor([
+      { id: "a", type: "bulletListItem", content: "Apples" },
+      { id: "b", type: "bulletListItem", content: "Bananas" },
+      { id: "c", type: "bulletListItem", content: "Cherries" },
+      { id: "end", type: "paragraph", content: "End" },
+    ]);
+    const client = read(editor);
+    editor.removeBlocks(["b"]);
+
+    write(editor, client, (text) =>
+      replaceOnce(
+        replaceOnce(text, "* Bananas", "  * Bananas"),
+        "* Cherries",
+        "  * Cherries",
+      ),
+    );
+
+    expect(documentShape(editor.document)).toEqual(["a", ["c"], "end"]);
+  });
+});
+
 describe("a write from an older version, with blocks that another writer moved", () => {
   it("moves a block after a new block that the rebase put into the moved block", () => {
     const editor = createEditor([

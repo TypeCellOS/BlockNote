@@ -62,7 +62,7 @@ export type RebaseResult = {
  *   `merge/block.ts`. If both sides changed a field, the update wins.
  * - An insert or a move goes to the same position. If another writer removed
  *   the reference block, the block goes to the position of the reference
- *   block in `base` (see `available`).
+ *   block in the target (see `available`).
  * - A block that no position can have (a column whose column list another
  *   writer removed) becomes its children there, as in `fitLayout`.
  * - A move to the position that the block already has is not necessary.
@@ -138,11 +138,12 @@ export function rebaseOperations(input: RebaseInput): RebaseResult {
    * Returns `position` for the block `placed`, if its reference block is in
    * the tree, not in the block that moves, the position is not in a block
    * that the client removes, and the parent at the position can have the
-   * block. If not, returns the position of the reference block in `base`,
-   * with the same check. A new block of the client is not in `base`: then
-   * its position in the target applies. The start of the document is the
-   * last fallback. Returns `undefined` if the top level cannot have the
-   * block either (a column).
+   * block. If not, returns the position of the reference block in the
+   * target (where the client wants it), with the same check. A reference
+   * block that the client removes is not in the target: then its position
+   * in `base` applies. The start of the document is the last fallback.
+   * Returns `undefined` if the top level cannot have the block either (a
+   * column).
    */
   function available(
     position: BlockPosition,
@@ -164,9 +165,9 @@ export function rebaseOperations(input: RebaseInput): RebaseResult {
       return { reference, placement };
     }
     return available(
-      base.has(reference)
-        ? positionIn(base, reference)
-        : positionIn(targetTree, reference),
+      targetTree.has(reference)
+        ? positionIn(targetTree, reference)
+        : positionIn(base, reference),
       placed,
     );
   }
