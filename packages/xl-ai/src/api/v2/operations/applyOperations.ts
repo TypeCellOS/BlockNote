@@ -58,11 +58,19 @@ export function applyOperations(
   tr: Transaction,
   operations: readonly BlockOperation[],
 ): void {
-  for (const operation of operations) {
+  for (let index = 0; index < operations.length; index++) {
+    const operation = operations[index];
     switch (operation.type) {
-      case "update":
-        updateBlock(tr, operation.id, operation.update);
+      case "update": {
+        const run: Extract<BlockOperation, { type: "update" }>[] = [];
+        while (operations[index]?.type === "update") {
+          run.push(operations[index] as (typeof run)[number]);
+          index++;
+        }
+        index--;
+        updateBlocks(tr, run);
         break;
+      }
       case "insert": {
         const { reference, placement } = resolvePosition(tr, operation);
         insertBlocks(
@@ -99,20 +107,56 @@ function find(tr: Transaction, id: string) {
 }
 
 /**
- * Updates a block. The type and props go through `updateBlockTr`. Inline
- * content goes through the smallest ProseMirror steps. Thus, text that did
- * not change keeps its identity and its comments.
+ * Applies a run of updates. An update does not change the structure of the
+ * document. It changes only the positions after the start of its block.
+ * Thus, one walk of the document gives the position of each block, and the
+ * updates apply from the last block to the first: then each position stays
+ * correct. This is linear in the size of the document.
  */
-function updateBlock(tr: Transaction, id: string, update: LensPartialBlock) {
+function updateBlocks(
+  tr: Transaction,
+  updates: readonly Extract<BlockOperation, { type: "update" }>[],
+) {
+  const positions = new Map<string, number>();
+  tr.doc.descendants((node, pos) => {
+    if (node.type.isInGroup("bnBlock") && typeof node.attrs.id === "string") {
+      positions.set(node.attrs.id, pos);
+    }
+    // The text of a block contains no blocks.
+    return !node.isTextblock;
+  });
+  const withPositions = updates.map((update) => {
+    const pos = positions.get(update.id);
+    if (pos === undefined) {
+      throw new Error(`Block ${update.id} is not in the document`);
+    }
+    return { pos, update: update.update };
+  });
+  withPositions.sort((a, b) => b.pos - a.pos);
+  for (const { pos, update } of withPositions) {
+    updateBlock(tr, pos, update);
+  }
+}
+
+/**
+ * Updates the block at `posBeforeNode`. The type and props go through
+ * `updateBlockTr`. Inline content goes through the smallest ProseMirror
+ * steps. Thus, text that did not change keeps its identity and its comments.
+ * The block keeps its start position.
+ */
+function updateBlock(
+  tr: Transaction,
+  posBeforeNode: number,
+  update: LensPartialBlock,
+) {
   const { content, ...fields } = update;
   if (fields.type !== undefined || fields.props !== undefined) {
-    updateBlockTr(tr, find(tr, id).posBeforeNode, fields as PartialBlock);
+    updateBlockTr(tr, posBeforeNode, fields as PartialBlock);
   }
   if (!("content" in update)) {
     return;
   }
 
-  const { posBeforeNode } = find(tr, id);
   if (isTableContent(content) && updateTableCells(tr, posBeforeNode, content)) {
     return;
   }

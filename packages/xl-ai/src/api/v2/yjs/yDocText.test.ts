@@ -8,7 +8,13 @@ import {
 import { describe, expect, it } from "vite-plus/test";
 import * as Y from "yjs";
 
-import { markdownFormat, plainTextFormat } from "../index.js";
+import {
+  getDocumentText,
+  htmlFormat,
+  markdownFormat,
+  plainTextFormat,
+  updateDocumentFromText,
+} from "../index.js";
 import {
   addComment,
   commentedText,
@@ -25,6 +31,11 @@ import {
   updateYDocFromText,
 } from "./yDocText.js";
 import { valid } from "../testUtil/valid.js";
+import {
+  createRandom,
+  randomDocument,
+  randomEdit,
+} from "../testUtil/random.js";
 
 const fruit: PartialBlock[] = [
   {
@@ -251,6 +262,26 @@ describe.each<MergeStrategy>(["rebase", "yjs"])(
       ]);
     });
 
+    it("keeps the change of another writer between two changes of the client in one paragraph", () => {
+      const { read, write, block } = setup([
+        { id: "p", type: "paragraph", content: "Alpha one two three Omega" },
+      ]);
+      const a = read();
+      const b = read();
+
+      write(b, (text) => replaceOnce(text, "two", "TWO"));
+      write(
+        a,
+        (text) =>
+          replaceOnce(replaceOnce(text, "Alpha", "First"), "Omega", "Last"),
+        strategy,
+      );
+
+      expect(block("p")?.content).toMatchObject([
+        { text: "First one TWO three Last" },
+      ]);
+    });
+
     it("keeps a block that another writer fully rewrote", () => {
       const { read, write, block } = setup();
       const a = read();
@@ -466,5 +497,35 @@ describe("an editor with a schema that does not fit the Y.Doc", () => {
       ),
     ).toThrow(/cannot read all content/);
     expect(Y.encodeStateAsUpdate(ydoc)).toEqual(before);
+  });
+});
+
+/**
+ * The Y.Doc API writes each step to the Y element of its block (see
+ * `writeSteps`). The result must be the same document as a write to an
+ * editor.
+ */
+describe.each([
+  { name: "markdown", format: markdownFormat },
+  { name: "plain text", format: plainTextFormat },
+  { name: "HTML", format: htmlFormat },
+])("Y.Doc and editor give the same document ($name)", ({ format }) => {
+  it.each(Array.from({ length: 40 }, (_, i) => i + 1))("seed %i", (seed) => {
+    const random = createRandom(seed);
+    const editor = BlockNoteEditor.create({
+      initialContent: randomDocument(random),
+    });
+    const ydoc = blocksToYDoc(editor, editor.document);
+    let text = getDocumentText(editor, format);
+    for (let i = 0; i <= random.int(3); i++) {
+      text = randomEdit(random, text);
+    }
+
+    valid(updateDocumentFromText(editor, { format, text }));
+    valid(updateYDocFromText(BlockNoteEditor.create(), ydoc, { format, text }));
+
+    expect(getYDocText(BlockNoteEditor.create(), ydoc, { format })).toBe(
+      getDocumentText(editor, format),
+    );
   });
 });

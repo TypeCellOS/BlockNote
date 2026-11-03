@@ -1,8 +1,5 @@
 import { type BlockNoteEditor, docToBlocks } from "@blocknote/core";
-import {
-  updateYFragment,
-  yXmlFragmentToProseMirrorRootNode,
-} from "@blocknote/core/yjs";
+import { yXmlFragmentToProseMirrorRootNode } from "@blocknote/core/yjs";
 import type { Node } from "prosemirror-model";
 import { EditorState } from "prosemirror-state";
 import * as Y from "yjs";
@@ -16,6 +13,7 @@ import {
 import type { TextFormat } from "../formats/types.js";
 import { applyOperations } from "../operations/applyOperations.js";
 import { addMissingBlockIds } from "../operations/blockIds.js";
+import { writeSteps } from "./writeSteps.js";
 
 /** The name of the Y.XmlFragment of a BlockNote document, if the options do not give one. */
 const DEFAULT_FRAGMENT = "prosemirror";
@@ -168,8 +166,9 @@ function docFromState(state: Uint8Array): Y.Doc {
  * The copy is the document as an editor has it: an empty fragment gives one
  * empty block, and each block has an ID.
  *
- * Writes each ProseMirror step to `ydoc` alone, in one Yjs transaction. Thus,
- * each Yjs change is as small as its step, and other clients get one update.
+ * Writes each ProseMirror step to `ydoc` alone, in one Yjs transaction (see
+ * `writeSteps`). Thus, each Yjs change is as small as its step, and other
+ * clients get one update.
  */
 function writeText(
   editor: BlockNoteEditor<any, any, any>,
@@ -196,18 +195,6 @@ function writeText(
     return update;
   }
 
-  const meta = { mapping: new Map(), isOMark: new Map() };
-  let doc = tr.before;
-  ydoc.transact(() => {
-    updateYFragment(ydoc, fragment, doc, meta);
-    for (const step of tr.steps) {
-      const result = step.apply(doc);
-      if (result.doc === null) {
-        throw new Error(`Step does not apply again: ${result.failed}`);
-      }
-      doc = result.doc;
-      updateYFragment(ydoc, fragment, doc, meta);
-    }
-  });
+  writeSteps(ydoc, fragment, tr);
   return update;
 }
