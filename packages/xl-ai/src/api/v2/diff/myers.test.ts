@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vite-plus/test";
 
 import { expectValidMatching } from "../testUtil/matching.js";
-import { bisectMatch, myersMatch } from "./myers.js";
+import { myersMatch } from "./myers.js";
 
 const equals = (x: string, y: string) => x === y;
 
@@ -34,7 +34,6 @@ describe("myersMatch", () => {
   });
 
   it("matches only the common prefix and suffix after the work limit", () => {
-    // More than 1,000 edits, thus the search in linear space, with no work.
     const a = ["x", ...Array.from({ length: 1100 }, () => "a"), "x"];
     const b = ["x", ...Array.from({ length: 1100 }, () => "b"), "x"];
     expect(myersMatch(a, b, equals, 0)).toEqual([
@@ -58,11 +57,9 @@ describe("myersMatch", () => {
       const b = Array.from({ length: random(120) }, () =>
         String(random(alphabet)),
       );
-      for (const match of [myersMatch, bisectMatch]) {
-        const pairs = match(a, b, equals);
-        expectValidMatching(pairs, a, b);
-        expect(pairs.length).toBe(lcsLength(a, b));
-      }
+      const pairs = myersMatch(a, b, equals);
+      expectValidMatching(pairs, a, b);
+      expect(pairs.length).toBe(lcsLength(a, b));
     }
   });
 

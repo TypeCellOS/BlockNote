@@ -102,7 +102,7 @@ For a Y.Doc, `updateYDocFromText` writes through an editor that is bound to the 
 
 Each module imports only modules that are before it in this list. Thus, there are no import cycles.
 
-- `diff/`: the Myers match of two sequences (with a trace up to 1,000 edits, and in linear space with a work limit above that), and the anchored match (the patience method) for large inputs. This module does not import BlockNote.
+- `diff/`: the Myers match of two sequences (in linear space, with a work limit), and the anchored match (the patience method) for large inputs. This module does not import BlockNote.
 - `blocks/`: the block JSON types of the lens, flat lists of blocks, JSON equality, the update between two blocks, and `BlockTree` (the parent and the children of each block, by ID).
 - `formats/`: `TextFormat` (`serialize` and `parse`), with markdown, HTML and plain text.
 - `alignment/` and `merge/`: the identity of blocks, and the three-way merges.

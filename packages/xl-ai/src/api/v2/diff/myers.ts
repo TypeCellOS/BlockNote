@@ -1,173 +1,12 @@
 import type { MatchedPair } from "./types.js";
 
 /**
- * The maximum edit distance of the search with a trace (see
- * {@link myersMatch}). The memory of that search increases with the square
- * of the edit distance.
- */
-const MAX_TRACE_EDIT_DISTANCE = 1000;
-
-/**
- * The default limit of the work of the search in linear space (see
- * {@link bisectMatch}): the number of steps on the diagonals (each step is at
- * most one comparison). The time for this work is about 0.1 to 0.4 s. An
- * edit distance of 1,000 in sequences of 2,000 items is about 1,000,000
- * steps.
+ * The default limit of the work of {@link myersMatch}: the number of steps on
+ * the diagonals (each step is at most one comparison). The time for this
+ * work is about 0.1 to 0.4 s. An edit distance of 1,000 in sequences of
+ * 2,000 items is about 1,000,000 steps.
  */
 export const DEFAULT_MAX_WORK = 10_000_000;
-
-/**
- * Matches `a` and `b` with the Myers O(ND) diff algorithm. The result is a
- * longest common subsequence, as matched pairs.
- *
- * The function always matches the common prefix and the common suffix. For
- * the rest, it uses the search with a trace, if the edit distance is at most
- * 1,000. Else, it uses the search in linear space ({@link bisectMatch}),
- * with the work limit `maxWork`. The two searches can give different
- * subsequences of the same length. The search with a trace was the only one
- * before, thus its results stay the same.
- */
-export function myersMatch<A, B>(
-  a: readonly A[],
-  b: readonly B[],
-  equals: (a: A, b: B) => boolean,
-  maxWork = DEFAULT_MAX_WORK,
-): MatchedPair[] {
-  const pairs: MatchedPair[] = [];
-
-  let start = 0;
-  while (start < a.length && start < b.length && equals(a[start], b[start])) {
-    pairs.push({ aIndex: start, bIndex: start });
-    start++;
-  }
-
-  let aEnd = a.length;
-  let bEnd = b.length;
-  const suffix: MatchedPair[] = [];
-  while (aEnd > start && bEnd > start && equals(a[aEnd - 1], b[bEnd - 1])) {
-    aEnd--;
-    bEnd--;
-    suffix.push({ aIndex: aEnd, bIndex: bEnd });
-  }
-
-  const middle =
-    traceMatch(
-      a,
-      b,
-      start,
-      aEnd,
-      start,
-      bEnd,
-      equals,
-      MAX_TRACE_EDIT_DISTANCE,
-    ) ??
-    bisectMatch(
-      a.slice(start, aEnd),
-      b.slice(start, bEnd),
-      equals,
-      maxWork,
-    ).map((pair) => ({
-      aIndex: start + pair.aIndex,
-      bIndex: start + pair.bIndex,
-    }));
-  pairs.push(...middle);
-  pairs.push(...suffix.reverse());
-  return pairs;
-}
-
-/**
- * The Myers diff with a trace of each step, for the ranges. The memory
- * increases with the square of the edit distance. Returns `undefined` if the
- * ranges need more than `maxEditDistance` edits.
- */
-function traceMatch<A, B>(
-  a: readonly A[],
-  b: readonly B[],
-  aStart: number,
-  aEnd: number,
-  bStart: number,
-  bEnd: number,
-  equals: (a: A, b: B) => boolean,
-  maxEditDistance: number,
-): MatchedPair[] | undefined {
-  const n = aEnd - aStart;
-  const m = bEnd - bStart;
-  if (n === 0 || m === 0) {
-    return [];
-  }
-
-  const max = Math.min(n + m, maxEditDistance);
-  // `v[k + offset]` is the largest x on diagonal k (k = x - y).
-  const offset = max + 1;
-  const v = new Int32Array(2 * max + 3);
-  // `trace[d]` is a copy of `v` for the diagonals -(d+1) to (d+1), before
-  // step d. The backtrack of step d reads only that copy.
-  const trace: Int32Array[] = [];
-
-  for (let d = 0; d <= max; d++) {
-    trace.push(v.slice(offset - d - 1, offset + d + 2));
-    for (let k = -d; k <= d; k += 2) {
-      let x =
-        k === -d || (k !== d && v[k - 1 + offset] < v[k + 1 + offset])
-          ? v[k + 1 + offset]
-          : v[k - 1 + offset] + 1;
-      let y = x - k;
-      while (x < n && y < m && equals(a[aStart + x], b[bStart + y])) {
-        x++;
-        y++;
-      }
-      v[k + offset] = x;
-      if (x >= n && y >= m) {
-        return backtrack(trace, d, n, m, aStart, bStart);
-      }
-    }
-  }
-
-  return undefined;
-}
-
-function backtrack(
-  trace: Int32Array[],
-  finalD: number,
-  n: number,
-  m: number,
-  aStart: number,
-  bStart: number,
-): MatchedPair[] {
-  const pairs: MatchedPair[] = [];
-  let x = n;
-  let y = m;
-
-  for (let d = finalD; d >= 0; d--) {
-    const slice = trace[d];
-    const k = x - y;
-    const prevK =
-      k === -d ||
-      (k !== d && diagonal(slice, d, k - 1) < diagonal(slice, d, k + 1))
-        ? k + 1
-        : k - 1;
-    const prevX = diagonal(slice, d, prevK);
-    const prevY = prevX - prevK;
-
-    while (x > prevX && y > prevY) {
-      x--;
-      y--;
-      pairs.push({ aIndex: aStart + x, bIndex: bStart + y });
-    }
-
-    if (d > 0) {
-      x = prevX;
-      y = prevY;
-    }
-  }
-
-  return pairs.reverse();
-}
-
-/** The value of diagonal `k` in the copy for step `d`. Diagonal `k` has the index `k + d + 1`. */
-function diagonal(slice: ArrayLike<number>, d: number, k: number): number {
-  return slice[k + d + 1];
-}
 
 /**
  * Matches `a` and `b` with the Myers O(ND) diff algorithm, in linear space
@@ -180,7 +19,7 @@ function diagonal(slice: ArrayLike<number>, d: number, k: number): number {
  * their common prefix and suffix. The result is then a common subsequence,
  * but not always the longest one. The memory is O(N + M).
  */
-export function bisectMatch<A, B>(
+export function myersMatch<A, B>(
   a: readonly A[],
   b: readonly B[],
   equals: (a: A, b: B) => boolean,
