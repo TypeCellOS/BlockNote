@@ -1158,6 +1158,25 @@ type InlineOptions = {
   escapes: TextEscapes;
 };
 
+/**
+ * The delimiter of a bold run. It is `**`, but after italic text (which ends
+ * with `*`) the result would be `*a***b**`, which the parser does not read
+ * as italic and bold. Then the delimiter is `__`, if the bold run can close
+ * there: the character after it is not a letter, a digit or `_`.
+ */
+function strongDelimiter(
+  before: string,
+  content: string,
+  next: Node | null,
+): string {
+  const after = next?.textContent?.[0] ?? "";
+  return before.endsWith("*") &&
+    !/^\s/.test(content) &&
+    !/[\p{L}\p{N}_]/u.test(after)
+    ? "__"
+    : "**";
+}
+
 /** Serialize inline nodes. */
 function serializeInlineNodes(el: Element, options: InlineOptions): string {
   let result = "";
@@ -1171,12 +1190,14 @@ function serializeInlineNodes(el: Element, options: InlineOptions): string {
 
       switch (tag) {
         case "strong":
-        case "b":
+        case "b": {
+          const content = serializeInlineNodes(childEl, options);
           result += wrapWithDelimiter(
-            serializeInlineNodes(childEl, options),
-            "**",
+            content,
+            strongDelimiter(result, content, childEl.nextSibling),
           );
           break;
+        }
         case "em":
         case "i":
           result += wrapWithDelimiter(

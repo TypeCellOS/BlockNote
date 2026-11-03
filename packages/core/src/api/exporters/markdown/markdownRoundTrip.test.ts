@@ -575,6 +575,20 @@ describe("Markdown round trip", () => {
       expectStable(blocks);
     });
 
+    it("keeps italic text right before bold text, with __ for the bold", () => {
+      const blocks: PartialBlock[] = [
+        {
+          type: "paragraph",
+          content: [
+            { type: "text", text: "a", styles: { italic: true } },
+            { type: "text", text: "b", styles: { bold: true } },
+          ],
+        },
+      ];
+      expect(serialize(blocks)).toBe("*a*__b__\n");
+      expectStable(blocks);
+    });
+
     it("parses a text with italic runs next to each other into a stable form", () => {
       const once = serialize(parse("*~~a~~]* b"));
       expect(serialize(parse(once))).toBe(once);
@@ -1112,21 +1126,10 @@ describe("Markdown round trip", () => {
 
     // Cause: the markdown parser (`parseDelimited` in `markdownToHtml.ts`)
     // does not use the CommonMark rules for delimiter runs. It cannot close
-    // `*` emphasis with the first `*` of a run like `***`. As a result, the
-    // parser does not read italic text right before bold text (`*a***b**`)
-    // correctly.
-    it.fails("keeps italic text right before bold text", () => {
-      expectStable([
-        {
-          type: "paragraph",
-          content: [
-            { type: "text", text: "a", styles: { italic: true } },
-            { type: "text", text: "b", styles: { bold: true } },
-          ],
-        },
-      ]);
-    });
-
+    // `*` emphasis with the first `*` of a run like `***`. The exporter
+    // writes `__` for bold right after italic (see `strongDelimiter`), but
+    // runs that end at the same position (italic at the end of bold text)
+    // still give `***`.
     it.fails("gives the same markdown for adjacent bold and italic runs (property test)", () => {
       expect(
         findUnstableSeeds(
