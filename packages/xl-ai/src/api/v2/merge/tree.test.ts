@@ -168,4 +168,55 @@ describe("mergeTree", () => {
     );
     expect(shape(result.blocks)).toEqual(["new", "z"]);
   });
+
+  it("puts a new block of ours after the column list, if theirs removed its column", () => {
+    const column = (id: string, children: LensBlock[]) =>
+      block(id, children, id, "column");
+    const list = (children: LensBlock[]) =>
+      block("list", children, "list", "columnList");
+    const base = [
+      list([
+        column("c1", [block("a")]),
+        column("c2", [block("b")]),
+        column("c3", [block("g")]),
+      ]),
+      block("z"),
+    ];
+    const result = merge(
+      base,
+      [
+        list([
+          column("c1", [block("a")]),
+          column("c2", [block("b")]),
+          column("c3", [block("g"), block("new")]),
+        ]),
+        block("z"),
+      ],
+      [
+        list([column("c1", [block("a")]), column("c2", [block("b")])]),
+        block("z"),
+      ],
+      // A column list holds only columns, and a column only in a column list.
+      (parent, child) => (child === "column") === (parent === "columnList"),
+    );
+    expect(shape(result.blocks)).toEqual([
+      "list",
+      ["c1", ["a"], "c2", ["b"]],
+      "new",
+      "z",
+    ]);
+    expect(result.warnings).toEqual([]);
+  });
+
+  it("does not see a new block before a block as a move of that block", () => {
+    // Ours adds a block before b. Theirs removed b. No warning: ours did not change b.
+    const base = [block("a"), block("b")];
+    const result = merge(
+      base,
+      [block("a"), block("new"), block("b")],
+      [block("a")],
+    );
+    expect(shape(result.blocks)).toEqual(["a", "new"]);
+    expect(result.warnings).toEqual([]);
+  });
 });

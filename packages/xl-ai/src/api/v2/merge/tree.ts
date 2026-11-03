@@ -56,6 +56,36 @@ export function mergeTree(input: {
   const theirs = new BlockTree(input.theirs);
   const warnings: RebaseWarning[] = [];
 
+  /** The merged fields of each block, and whether the two sides changed the same part. */
+  const fieldsMemo = new Map<string, { block: LensBlock; conflict: boolean }>();
+  function fieldsOf(id: string): { block: LensBlock; conflict: boolean } {
+    let fields = fieldsMemo.get(id);
+    if (fields === undefined) {
+      fields = {
+        block: withoutChildren((ours.has(id) ? ours : theirs).block(id)),
+        conflict: false,
+      };
+      if (base.has(id) && ours.has(id) && theirs.has(id)) {
+        let conflict = false;
+        const merged = mergeBlock(
+          base.block(id),
+          ours.block(id),
+          theirs.block(id),
+          input.contentKindOf,
+          {
+            concurrent: true,
+            onConflict: () => {
+              conflict = true;
+            },
+          },
+        );
+        fields = { block: { id, ...merged, children: [] }, conflict };
+      }
+      fieldsMemo.set(id, fields);
+    }
+    return fields;
+  }
+
   const staysMemo = new Map<string, boolean>();
   function stays(id: string): boolean {
     let result = staysMemo.get(id);
@@ -91,10 +121,19 @@ export function mergeTree(input: {
     const parentInOurs = ours.parent(id);
     return parentInOurs !== base.parent(id) ? parentInOurs : theirs.parent(id);
   }
-  /** The parent in the result: the chosen parent, or the place of a chosen parent that goes. */
+  /**
+   * The parent in the result: the chosen parent, or the first ancestor of it
+   * that stays and can hold the block. An example is a new paragraph of the
+   * client in a column that another writer removed: the column list cannot
+   * hold the paragraph, thus it goes to the parent of the column list.
+   */
   function parentOf(id: string): string | undefined {
     let parent = chosenParent(id);
-    while (parent !== undefined && !stays(parent)) {
+    while (
+      parent !== undefined &&
+      (!stays(parent) ||
+        !input.canContain(fieldsOf(parent).block.type, fieldsOf(id).block.type))
+    ) {
       parent = chosenParent(parent);
     }
     return parent;
@@ -189,35 +228,49 @@ export function mergeTree(input: {
         keepBothInserts: "ours-first",
       },
     );
-    const order = new Set(merged);
-    // Each block of the parent is in one of the lists. This is a guard.
+    const order = [...new Set(merged)];
+    // A block whose parent in its side cannot hold it (see `parentOf`) is in
+    // none of the lists. It goes after the child of the parent that holds it
+    // in its side, and after the other blocks there.
+    const placed = new Set(order);
+    const anchorOf = new Map<string, string | undefined>();
     for (const id of expected) {
-      order.add(id);
+      if (placed.has(id)) {
+        continue;
+      }
+      const anchor = ancestorIn(ours.has(id) ? ours : theirs, id, parent);
+      let index = anchor === undefined ? -1 : order.indexOf(anchor);
+      if (index === -1) {
+        index = order.length;
+      } else {
+        index++;
+        while (index < order.length && anchorOf.get(order[index]) === anchor) {
+          index++;
+        }
+      }
+      order.splice(index, 0, id);
+      placed.add(id);
+      anchorOf.set(id, anchor);
     }
-    return [...order];
+    return order;
   }
 
-  function fieldsOf(id: string): LensBlock {
-    if (base.has(id) && ours.has(id) && theirs.has(id)) {
-      let conflict = false;
-      const merged = mergeBlock(
-        base.block(id),
-        ours.block(id),
-        theirs.block(id),
-        input.contentKindOf,
-        {
-          concurrent: true,
-          onConflict: () => {
-            conflict = true;
-          },
-        },
-      );
-      if (conflict) {
-        warnings.push({ type: "conflicting-change", id });
+  /** The ancestor of the block in the side that is a child of `parent`, or `undefined`. */
+  function ancestorIn(
+    side: BlockTree,
+    id: string,
+    parent: string | undefined,
+  ): string | undefined {
+    for (
+      let current: string | undefined = side.parent(id);
+      current !== undefined;
+      current = side.parent(current)
+    ) {
+      if (side.parent(current) === parent) {
+        return current;
       }
-      return { id, ...merged, children: [] };
     }
-    return withoutChildren((ours.has(id) ? ours : theirs).block(id));
+    return undefined;
   }
 
   /**
@@ -228,7 +281,11 @@ export function mergeTree(input: {
    */
   function build(parent: LensBlock | undefined): LensBlock[] {
     return childOrder(parent?.id).flatMap((id) => {
-      const block = fieldsOf(id);
+      const fields = fieldsOf(id);
+      if (fields.conflict) {
+        warnings.push({ type: "conflicting-change", id });
+      }
+      const block = { ...fields.block };
       block.children = build(block);
       return input.canContain(parent?.type, block.type)
         ? [block]
@@ -258,8 +315,23 @@ export function mergeTree(input: {
     return (
       diffBlock(base.block(id), ours.block(id)) !== undefined ||
       ours.parent(id) !== base.parent(id) ||
-      ours.previousSibling(id) !== base.previousSibling(id)
+      previousKept(ours, id) !== previousKept(base, id)
     );
+  }
+
+  /**
+   * The previous sibling of the block in the side, of the blocks that base
+   * and `ours` both have. Thus, a new block or a removed block next to the
+   * block is not a move of it.
+   */
+  function previousKept(side: BlockTree, id: string): string | undefined {
+    const siblings = side.childrenOf(side.parent(id));
+    for (let i = siblings.indexOf(id) - 1; i >= 0; i--) {
+      if (base.has(siblings[i]) && ours.has(siblings[i])) {
+        return siblings[i];
+      }
+    }
+    return undefined;
   }
 
   /** Returns true if another writer changed the block or a block in it. */
