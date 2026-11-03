@@ -45,7 +45,10 @@ describe("anchoredMatch", () => {
 
     const start = performance.now();
     const pairs = anchoredMatch(a, b, same);
-    expect(performance.now() - start).toBeLessThan(2000);
+    // Usually less than one second. With a new search for anchors between
+    // each two anchors, the time is quadratic: some minutes. The limit is
+    // high, because other tests can run at the same time.
+    expect(performance.now() - start).toBeLessThan(20_000);
     expect(pairs.every((pair) => a[pair.aIndex] === b[pair.bIndex])).toBe(true);
   });
 
