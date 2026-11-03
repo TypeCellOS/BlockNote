@@ -47,8 +47,13 @@ export function randomSentence(random: Random) {
   return text[0].toUpperCase() + text.slice(1) + ".";
 }
 
+/**
+ * Returns 1 to 3 runs of text, each with random styles. Some runs are links.
+ * A space separates the runs. The last run has no space at the end.
+ */
 function randomInlineContent(random: Random) {
-  return Array.from({ length: 1 + random.int(3) }, () => {
+  const count = 1 + random.int(3);
+  return Array.from({ length: count }, (_, index) => {
     const styles: Record<string, string | boolean> = {};
     for (const style of ["bold", "italic", "underline", "strike"]) {
       if (random.chance(0.2)) {
@@ -58,12 +63,23 @@ function randomInlineContent(random: Random) {
     if (random.chance(0.15)) {
       styles.textColor = random.pick(["red", "blue"]);
     }
-    return {
-      type: "text" as const,
-      text: `${words(random, 1 + random.int(5))} `,
-      styles,
-    };
-  });
+    const text = words(random, 1 + random.int(5));
+    const space = index < count - 1 ? " " : "";
+    if (random.chance(0.1)) {
+      // The space after a link is not a part of the link.
+      return [
+        {
+          type: "link" as const,
+          href: `https://example.com/${random.int(100)}`,
+          content: [{ type: "text" as const, text, styles }],
+        },
+        ...(space === ""
+          ? []
+          : [{ type: "text" as const, text: space, styles: {} }]),
+      ];
+    }
+    return [{ type: "text" as const, text: `${text}${space}`, styles }];
+  }).flat();
 }
 
 function randomProps(random: Random): {
