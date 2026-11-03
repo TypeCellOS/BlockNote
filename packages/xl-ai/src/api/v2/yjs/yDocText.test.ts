@@ -7,6 +7,7 @@ import {
 import { withMultiColumn } from "@blocknote/xl-multi-column";
 import {
   blocksToYDoc,
+  ForkYDocExtension,
   withCollaboration,
   yDocToBlocks,
 } from "@blocknote/core/yjs";
@@ -889,4 +890,27 @@ describe("a base with an update that the Y.Doc does not have yet", () => {
       );
     },
   );
+});
+
+describe("an editor that shows a fork of the Y.Doc", () => {
+  it("gives an error, and does not change the Y.Doc or the fork", () => {
+    const ydoc = blocksToYDoc(BlockNoteEditor.create(), [
+      { id: "a", type: "paragraph", content: "Alpha" },
+    ]);
+    const fragment = ydoc.getXmlFragment("prosemirror");
+    const editor = bindEditor(fragment);
+    const fork = editor.getExtension(ForkYDocExtension)!;
+    fork.fork();
+    const before = Y.encodeStateAsUpdate(ydoc);
+
+    expect(() =>
+      updateYDocFromText(editor, fragment, {
+        format: markdownFormat,
+        text: "Alpha edited\n",
+      }),
+    ).toThrow("fork");
+    expect(fork.store.state.isForked).toBe(true);
+    expect(Y.encodeStateAsUpdate(ydoc)).toEqual(before);
+    fork.merge({ keepChanges: false });
+  });
 });

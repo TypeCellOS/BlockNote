@@ -32,7 +32,11 @@ import {
  */
 export type MergeStrategy = "rebase" | "yjs";
 
-/** The result of a write to a Y.Doc. On an error, the Y.Doc does not change. */
+/**
+ * The result of a write to a Y.Doc. On an error (also an exception), the
+ * write does not change the Y.Doc. Only the updates of `base` that the Y.Doc
+ * did not have yet apply (see `updateYDocFromText`).
+ */
 export type YDocTextUpdate =
   | (ValidTextUpdate & {
       /** The Yjs update of the write. Send it to the other clients, if no provider does that. */
@@ -74,6 +78,13 @@ export function updateYDocFromText(
   if (fork === undefined || editor.headless || ydoc === null) {
     throw new Error(
       "The editor must be bound to the fragment of a Y.Doc (withCollaboration), and mounted.",
+    );
+  }
+  if (fork.store.state.isForked) {
+    // The write would go into that fork, and its merge would end the fork of
+    // the app (for example a version preview).
+    throw new Error(
+      "The editor shows a fork of the Y.Doc (for example a version preview). End the fork first.",
     );
   }
   const { base, strategy = "rebase", ...textOptions } = options;
