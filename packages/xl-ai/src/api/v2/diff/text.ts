@@ -93,34 +93,21 @@ function alignGap(
   while (aStart < aEnd && bStart < bEnd && isSameSpace(aEnd - 1, bEnd - 1)) {
     after.unshift({ aIndex: --aEnd, bIndex: --bEnd });
   }
-  return [...before, ...alignRest(a, b, aStart, aEnd, bStart, bEnd), ...after];
-}
-
-/** The character matches in the gap, if they cover enough of it (see {@link MIN_GAP_MATCH_RATIO}). */
-function alignRest(
-  a: readonly TextUnit[],
-  b: readonly TextUnit[],
-  aStart: number,
-  aEnd: number,
-  bStart: number,
-  bEnd: number,
-): MatchedPair[] {
-  const gapLength = aEnd - aStart + (bEnd - bStart);
-  if (aStart === aEnd || bStart === bEnd) {
-    return [];
-  }
+  // The character matches in the rest, if they cover enough of it (see
+  // MIN_GAP_MATCH_RATIO).
   const matches = myersMatch(
     a.slice(aStart, aEnd),
     b.slice(bStart, bEnd),
     (x, y) => x.key === y.key,
   );
-  if (2 * matches.length < MIN_GAP_MATCH_RATIO * gapLength) {
-    return [];
-  }
-  return matches.map((pair) => ({
-    aIndex: aStart + pair.aIndex,
-    bIndex: bStart + pair.bIndex,
-  }));
+  const rest =
+    2 * matches.length < MIN_GAP_MATCH_RATIO * (aEnd - aStart + bEnd - bStart)
+      ? []
+      : matches.map((pair) => ({
+          aIndex: aStart + pair.aIndex,
+          bIndex: bStart + pair.bIndex,
+        }));
+  return [...before, ...rest, ...after];
 }
 
 type Token = { start: number; end: number; key: string };

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vite-plus/test";
 
-import { blockToText, inlineContentToText, tableCellsContent } from "./text.js";
+import { blockToText, inlineContentToText } from "./text.js";
 import type {
   LensBlock,
   LensInlineContent,
@@ -36,15 +36,6 @@ const table: LensTableContent = {
   ],
 };
 
-describe("tableCellsContent", () => {
-  it("returns the content of cells in the two forms", () => {
-    expect(table.rows.map(tableCellsContent)).toEqual([
-      [[styled("A")], [styled("B")]],
-      [[styled("c")], [styled("d")]],
-    ]);
-  });
-});
-
 describe("blockToText", () => {
   function block(content: LensBlock["content"]): LensBlock {
     return { id: "a", type: "x", props: {}, content, children: [] };
@@ -54,7 +45,7 @@ describe("blockToText", () => {
     expect(blockToText(block([styled("hello")]))).toBe("hello");
   });
 
-  it("returns the text of table cells, one row on each line", () => {
+  it("returns the text of table cells in the two forms, one row on each line", () => {
     expect(blockToText(block(table))).toBe("A B\nc d");
   });
 

@@ -1,9 +1,9 @@
+import { cellRows } from "./tableGrid.js";
 import {
   isStyledText,
   isTableContent,
   type LensBlock,
   type LensInlineContent,
-  type LensTableContent,
 } from "./types.js";
 
 /** Returns the text of inline content or plain content. Custom inline content without text gives no text. */
@@ -24,13 +24,6 @@ export function inlineContentToText(
   return text;
 }
 
-/** Returns the cells of a table row as inline content. A row can contain cells in two forms. */
-export function tableCellsContent(
-  row: LensTableContent["rows"][number],
-): LensInlineContent[][] {
-  return row.cells.map((cell) => (Array.isArray(cell) ? cell : cell.content));
-}
-
 /** Returns the text of the block itself, not of its children: inline content, plain content or table cells. */
 export function blockToText(block: LensBlock): string {
   const content = block.content;
@@ -38,8 +31,10 @@ export function blockToText(block: LensBlock): string {
     return inlineContentToText(content);
   }
   if (isTableContent(content)) {
-    return content.rows
-      .map((row) => tableCellsContent(row).map(inlineContentToText).join(" "))
+    return cellRows(content)
+      .map((cells) =>
+        cells.map((cell) => inlineContentToText(cell.content)).join(" "),
+      )
       .join("\n");
   }
   return "";

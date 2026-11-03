@@ -9,7 +9,7 @@ import type { LensBlock } from "../blocks/types.js";
  * the current document and a base of the same Y.Doc agree (see
  * {@link withDistinctIds}).
  */
-export function distinctId(id: string, used: ReadonlySet<string>): string {
+function distinctId(id: string, used: ReadonlySet<string>): string {
   if (!used.has(id)) {
     return id;
   }

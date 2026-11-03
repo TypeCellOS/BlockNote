@@ -47,24 +47,11 @@ export function toUnits(
   const units: InlineUnit[] = [];
   let shadows = 0;
   for (const item of content) {
-    if (isStyledText(item)) {
-      for (const char of item.text) {
-        units.push({
-          kind: "char",
-          char,
-          styles: item.styles,
-          href: undefined,
-        });
-      }
-    } else if (isLink(item)) {
-      for (const styledText of item.content) {
+    if (isStyledText(item) || isLink(item)) {
+      const href = isLink(item) ? item.href : undefined;
+      for (const styledText of isLink(item) ? item.content : [item]) {
         for (const char of styledText.text) {
-          units.push({
-            kind: "char",
-            char,
-            styles: styledText.styles,
-            href: item.href,
-          });
+          units.push({ kind: "char", char, styles: styledText.styles, href });
         }
       }
     } else {
@@ -168,17 +155,6 @@ function sameStyles(a: LensStyles, b: LensStyles) {
   return stableStringify(a) === stableStringify(b);
 }
 
-/** Returns true if two units have the same character or the same atom. This does not compare styles. */
-function sameUnit(a: InlineUnit, b: InlineUnit): boolean {
-  if (a.kind === "char" && b.kind === "char") {
-    return a.char === b.char;
-  }
-  if (a.kind === "atom" && b.kind === "atom") {
-    return a.key === b.key;
-  }
-  return false;
-}
-
 /**
  * Aligns two unit sequences (see `alignText`). The alignment does not compare
  * styles. The merge does that in a different step.
@@ -203,5 +179,5 @@ export function sameUnitWithStyles(a: InlineUnit, b: InlineUnit): boolean {
       a.char === b.char && a.href === b.href && sameStyles(a.styles, b.styles)
     );
   }
-  return sameUnit(a, b);
+  return a.kind === "atom" && b.kind === "atom" && a.key === b.key;
 }

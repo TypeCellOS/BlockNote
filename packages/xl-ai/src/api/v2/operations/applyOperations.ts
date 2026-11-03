@@ -397,16 +397,26 @@ function updateTableCells(
     { type: "table", content } as PartialBlock,
     tr.doc.type.schema,
   ).firstChild;
+  if (!info.hasContent || target === null) {
+    return false;
+  }
+  const table = info.content.node;
+  const cells = tableCells(table, info.content.beforePos + 1);
+  const targetCells = tableCells(target, 0);
+  // The same rows, and the same cells in them: each with the same type and
+  // the same number of paragraphs.
   if (
-    !info.hasContent ||
-    target === null ||
-    !sameTableShape(info.content.node, target)
+    table.childCount !== target.childCount ||
+    cells.length !== targetCells.length ||
+    cells.some(
+      ({ node, row }, i) =>
+        row !== targetCells[i].row ||
+        node.type !== targetCells[i].node.type ||
+        node.childCount !== targetCells[i].node.childCount,
+    )
   ) {
     return false;
   }
-
-  const cells = tableCells(info.content.node, info.content.beforePos + 1);
-  const targetCells = tableCells(target, 0);
   // From the last cell to the first. Thus, a change does not move the
   // positions of the cells before it.
   for (let i = cells.length - 1; i >= 0; i--) {
@@ -426,34 +436,21 @@ function updateTableCells(
 }
 
 /** Returns true if two table nodes have the same rows, with the same number and types of cells. */
-function sameTableShape(a: Node, b: Node): boolean {
-  if (a.childCount !== b.childCount) {
-    return false;
-  }
-  for (let r = 0; r < a.childCount; r++) {
-    const rowA = a.child(r);
-    const rowB = b.child(r);
-    if (rowA.childCount !== rowB.childCount) {
-      return false;
-    }
-    for (let c = 0; c < rowA.childCount; c++) {
-      const cellA = rowA.child(c);
-      const cellB = rowB.child(c);
-      if (cellA.type !== cellB.type || cellA.childCount !== cellB.childCount) {
-        return false;
-      }
-    }
-  }
-  return true;
-}
-
-/** The cells of a table node, in document order, with their positions. `start` is the position of the start of the table content. */
+/**
+ * The cells of a table node, in document order, with their positions and the
+ * index of their row. `start` is the position of the start of the table
+ * content.
+ */
 function tableCells(table: Node, start: number) {
-  const cells: { node: Node; pos: number }[] = [];
-  table.forEach((row, rowOffset) => {
+  const cells: { node: Node; pos: number; row: number }[] = [];
+  table.forEach((row, rowOffset, rowIndex) => {
     row.forEach((cell, cellOffset) => {
       // The row starts at `start + rowOffset`; its content starts one later.
-      cells.push({ node: cell, pos: start + rowOffset + 1 + cellOffset });
+      cells.push({
+        node: cell,
+        pos: start + rowOffset + 1 + cellOffset,
+        row: rowIndex,
+      });
     });
   });
   return cells;

@@ -36,7 +36,7 @@ export function dispatchUpdate(
  * transaction has the meta `preventAutolink`: the autolink plugin of the
  * editor must not change a URL of the text into a link.
  */
-export function dispatchToEditor(
+function dispatchToEditor(
   editor: BlockNoteEditor<any, any, any>,
   steps: readonly Step[],
 ) {

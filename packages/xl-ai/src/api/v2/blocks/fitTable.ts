@@ -2,7 +2,7 @@ import { flattenBlocks } from "./flatten.js";
 import {
   cellRows,
   emptyCell,
-  gridWidths,
+  gridOf,
   hasMergedCells,
   withoutMergedCells,
 } from "./tableGrid.js";
@@ -49,7 +49,7 @@ export function fitTables(blocks: readonly LensBlock[]): LensBlock[] {
  * - A short row gets empty cells at its end.
  */
 export function fitTable(table: LensTableContent): LensTableContent {
-  const widths = gridWidths(cellRows(table));
+  const widths = gridOf(cellRows(table))?.widths;
   if (widths === undefined) {
     return fitTable(withoutMergedCells(table));
   }

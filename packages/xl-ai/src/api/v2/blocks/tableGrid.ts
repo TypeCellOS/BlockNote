@@ -31,7 +31,7 @@ function asCell(cell: LensInlineContent[] | LensTableCell): LensTableCell {
 
 /** A cell without text and without a style. */
 export function emptyCell(): LensTableCell {
-  return { type: "tableCell", props: { ...CELL_PROPS }, content: [] };
+  return asCell([]);
 }
 
 function spanOf(value: unknown): number {
@@ -52,11 +52,12 @@ export function hasMergedCells(table: LensTableContent): boolean {
 
 /**
  * The positions of the grid that each cell covers: for each row, the column
- * of each of its cells. `undefined` if the spans do not fit: two cells cover
+ * of each of its cells, and the width of each row. `undefined` if the spans
+ * do not fit: two cells cover
  * one position, a cell goes below the last row, or a row has a position
  * without a cell before a position with a cell.
  */
-function cellColumns(
+export function gridOf(
   rows: readonly LensTableCell[][],
 ): { columns: number[][]; widths: number[] } | undefined {
   const taken = rows.map(() => new Set<number>());
@@ -95,13 +96,6 @@ function cellColumns(
   return hasGap ? undefined : { columns, widths };
 }
 
-/** The width of each row on the grid, or `undefined` if the spans do not fit (see {@link cellColumns}). */
-export function gridWidths(
-  rows: readonly LensTableCell[][],
-): number[] | undefined {
-  return cellColumns(rows)?.widths;
-}
-
 /**
  * The table without merged cells: each cell covers one position, and each
  * position that a merged cell covered gets an empty cell. A format without
@@ -114,7 +108,7 @@ export function withoutMergedCells(table: LensTableContent): LensTableContent {
     ...cell,
     props: { ...cell.props, colspan: 1, rowspan: 1 },
   });
-  const grid = cellColumns(rows);
+  const grid = gridOf(rows);
   if (grid === undefined) {
     return {
       ...table,
