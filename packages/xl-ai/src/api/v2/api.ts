@@ -164,7 +164,12 @@ function jsonUpdate(
   }
   return updateToTarget(
     editor,
-    { target: withUniqueIds(blocks, base, current), warnings: [] },
+    {
+      target: withUniqueIds(blocks, base, current, (type) =>
+        isLayoutType(editor, type),
+      ),
+      warnings: [],
+    },
     { base, current, rebase: options.base !== undefined },
   );
 }
@@ -249,21 +254,27 @@ function toBlockGroup(
 
 /**
  * Returns the blocks with a new ID where an ID cannot identify the block: a
- * later block with the ID of an earlier block, or a block with an ID that is
- * not in `base` but is in `current` (a block of another writer). These
- * blocks are new blocks.
+ * later block with the ID of an earlier block, a block with an ID that is
+ * not in `base` but is in `current` (a block of another writer), or a block
+ * that changes between a layout type and another type (for example a column
+ * that becomes a paragraph: it cannot change in place). These blocks are new
+ * blocks.
  */
 function withUniqueIds(
   blocks: readonly LensBlock[],
   base: readonly LensBlock[],
   current: readonly LensBlock[],
+  isLayout: (type: string) => boolean,
 ): LensBlock[] {
   const inBase = new Set(new BlockTree(base).ids);
-  const inCurrent = new Set(new BlockTree(current).ids);
+  const inCurrent = new BlockTree(current).byId;
   const used = new Set<string>();
   function fix(block: LensBlock): LensBlock {
+    const before = inCurrent.get(block.id);
     const keep =
-      !used.has(block.id) && (inBase.has(block.id) || !inCurrent.has(block.id));
+      !used.has(block.id) &&
+      (inBase.has(block.id) || before === undefined) &&
+      (before === undefined || isLayout(before.type) === isLayout(block.type));
     const id = keep ? block.id : UniqueID.options.generateID();
     used.add(id);
     return { ...block, id, children: block.children.map(fix) };
@@ -420,6 +431,13 @@ function canContain(
     return rule.allow.includes(child);
   }
   return !("exclude" in rule && rule.exclude?.includes(child));
+}
+
+function isLayoutType(
+  editor: BlockNoteEditor<any, any, any>,
+  type: string,
+): boolean {
+  return editor.schema.blockSchema[type]?.layoutOnly === true;
 }
 
 function contentKindOf(

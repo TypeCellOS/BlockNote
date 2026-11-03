@@ -215,6 +215,15 @@ function updateBlock(
   update: LensPartialBlock,
 ) {
   const { content, ...fields } = update;
+  if (
+    fields.type !== undefined &&
+    changesContentKind(tr, posBeforeNode, fields.type)
+  ) {
+    // For example a paragraph that becomes a table: the new type needs its
+    // content in the same change.
+    updateBlockTr(tr, posBeforeNode, update as PartialBlock);
+    return;
+  }
   if (fields.type !== undefined || fields.props !== undefined) {
     updateBlockTr(tr, posBeforeNode, fields as PartialBlock);
   }
@@ -247,6 +256,21 @@ function updateBlock(
     info.content.node,
     target,
   );
+}
+
+/**
+ * Returns true if the block at the position and the new type do not both
+ * have inline content (for example a paragraph and a table).
+ */
+function changesContentKind(
+  tr: Transaction,
+  posBeforeNode: number,
+  type: string,
+): boolean {
+  const info = getBlockInfoAt(tr.doc, posBeforeNode);
+  const current = info.hasContent ? info.content.node : undefined;
+  const next = tr.doc.type.schema.nodes[type];
+  return !(current?.isTextblock && next?.isTextblock);
 }
 
 /** Moves the ProseMirror node of a block (with its children) to the position. */

@@ -272,4 +272,107 @@ describe("JSON", () => {
       ),
     ).toEqual([["a"], ["b"]]);
   });
+
+  describe("type changes with the same ID", () => {
+    function columnsEditor(content: JSONUpdateOptions["document"]) {
+      return BlockNoteEditor.create({
+        schema: withMultiColumn(
+          BlockNoteSchema.create({ blockSpecs: defaultBlockSpecs }),
+        ),
+        initialContent: content as any,
+      });
+    }
+    const twoColumns = [
+      {
+        id: "list",
+        type: "columnList",
+        children: [
+          {
+            id: "cA",
+            type: "column",
+            children: [{ id: "a", type: "paragraph", content: "A" }],
+          },
+          {
+            id: "cB",
+            type: "column",
+            children: [{ id: "b", type: "paragraph", content: "B" }],
+          },
+        ],
+      },
+    ] as JSONUpdateOptions["document"];
+
+    it("changes a paragraph into a table", () => {
+      const editor = createEditor([
+        { id: "p", type: "paragraph", content: "Hello" },
+      ]);
+
+      update(editor, {
+        document: [
+          {
+            id: "p",
+            type: "table",
+            content: {
+              type: "tableContent",
+              rows: [{ cells: ["x", "y"] }],
+            },
+          },
+        ],
+      });
+
+      expect(editor.getBlock("p")?.type).toBe("table");
+    });
+
+    it("changes a column into a top-level paragraph, as a new block", () => {
+      const editor = columnsEditor(twoColumns);
+
+      update(editor, {
+        document: [{ id: "cA", type: "paragraph", content: "Was a column" }],
+      });
+
+      expect(editor.document.map((block) => block.type)).toEqual(["paragraph"]);
+      expect(editor.document[0].content).toMatchObject([
+        { text: "Was a column" },
+      ]);
+    });
+
+    it("changes a paragraph into a column list, as a new block", () => {
+      const editor = columnsEditor([
+        { id: "p", type: "paragraph", content: "P" },
+      ]);
+
+      update(editor, {
+        document: [
+          {
+            id: "p",
+            type: "columnList",
+            children: [
+              {
+                type: "column",
+                children: [{ type: "paragraph", content: "x" }],
+              },
+              {
+                type: "column",
+                children: [{ type: "paragraph", content: "y" }],
+              },
+            ],
+          },
+        ] as JSONUpdateOptions["document"],
+      });
+
+      expect(editor.document.map((block) => block.type)).toEqual([
+        "columnList",
+      ]);
+      expect(editor.document[0].children).toHaveLength(2);
+    });
+
+    it("changes a column list into a paragraph, as a new block", () => {
+      const editor = columnsEditor(twoColumns);
+
+      update(editor, {
+        document: [{ id: "list", type: "paragraph", content: "Was columns" }],
+      });
+
+      expect(editor.document.map((block) => block.type)).toEqual(["paragraph"]);
+    });
+  });
 });
