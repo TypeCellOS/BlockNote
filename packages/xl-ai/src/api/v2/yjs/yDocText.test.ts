@@ -166,14 +166,27 @@ describe.each([
     expect(getYDocText(editor, ydoc, { format }).trim()).toBe("Hello");
   });
 
-  it("keeps the text of another writer, if the base is an empty Y.Doc", () => {
-    const ydoc = new Y.Doc();
-    const base = Y.encodeStateAsUpdate(ydoc);
-    valid(updateYDocFromText(editor, ydoc, { format, text: "Other" }));
-    valid(updateYDocFromText(editor, ydoc, { format, text: "Hello", base }));
+  it.each<MergeStrategy>(["rebase", "yjs"])(
+    "keeps the text of another writer, if the base is an empty Y.Doc (strategy %s)",
+    (strategy) => {
+      const ydoc = new Y.Doc();
+      const base = Y.encodeStateAsUpdate(ydoc);
+      valid(updateYDocFromText(editor, ydoc, { format, text: "Other" }));
+      valid(
+        updateYDocFromText(editor, ydoc, {
+          format,
+          text: "Hello",
+          base,
+          strategy,
+        }),
+      );
 
-    expect(getYDocText(editor, ydoc, { format }).trim()).toBe("Hello\n\nOther");
-  });
+      expect(getYDocText(editor, ydoc, { format }).trim()).toBe(
+        "Hello\n\nOther",
+      );
+      expect(ydoc.getXmlFragment("prosemirror").length).toBe(1);
+    },
+  );
 
   it("clears a document, and writes text again", () => {
     const ydoc = blocksToYDoc(

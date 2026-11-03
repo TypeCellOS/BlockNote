@@ -40,7 +40,7 @@ With concurrent changes (a write with an older `base`), PutGet is not true. The 
 The pipeline computes the changes of the text as operations for `base`. A strategy applies them:
 
 - **`"rebase"`** (the default, and the only strategy without Yjs): `rebase/` moves the operations to the current document. Then they apply to the current document. With Yjs, they apply to the current Y.Doc.
-- **`"yjs"`** (only `updateYDocFromText`): the operations apply to a Yjs copy of `base`. Then Yjs merges the copy into the Y.Doc. In the Yjs binding now, a move is a removal and an insert. Thus, concurrent moves give two blocks with the same ID, or a change to a moved block is lost. The tests for these cases are marked as known failures (`it.fails`). A Yjs binding with a flat document model will remove this problem. Then, the tests will tell you to remove the marks.
+- **`"yjs"`** (only `updateYDocFromText`): the operations apply to a Yjs copy of `base`. Then Yjs merges the copy into the Y.Doc. In the Yjs binding now, a move is a removal and an insert. Thus, concurrent moves give two blocks with the same ID, or a change to a moved block is lost. The tests for these cases are marked as known failures (`it.fails`). A Yjs binding with a flat document model will remove this problem. Then, the tests will tell you to remove the marks. A write from an empty `base` uses `"rebase"`: a copy of an empty base gets its own root block group, and Yjs cannot merge two new root structures into one.
 
 The rebase rules (`rebase/rebaseOperations.ts`) find each block by its ID:
 

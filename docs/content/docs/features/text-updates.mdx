@@ -136,7 +136,7 @@ The `editor` gives the schema and the conversions. To keep comments, give an edi
 The `strategy` option selects how the write merges with the changes of other users:
 
 - `"rebase"` (the default): the changes of the client apply to the current document, by block ID, as for a document without Yjs.
-- `"yjs"`: the changes apply to a copy of `base`, and Yjs merges the copy. In the Yjs binding now, a move is a removal and an insert. Thus, if two writers move the same block, or one moves it and the other changes it, the result can have two blocks with the same ID or lose the change.
+- `"yjs"`: the changes apply to a copy of `base`, and Yjs merges the copy. In the Yjs binding now, a move is a removal and an insert. Thus, if two writers move the same block, or one moves it and the other changes it, the result can have two blocks with the same ID or lose the change. A write from an empty `base` always uses `"rebase"`, because Yjs cannot merge two new documents into one.
 
 ## Warnings
 

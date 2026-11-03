@@ -67,7 +67,8 @@ export function getYDocText(
  * after that version. `strategy` selects how (the default is "rebase").
  *
  * With the "yjs" strategy, the operations of the result are for `base`. With
- * the "rebase" strategy, they are for the current document.
+ * the "rebase" strategy, they are for the current document. A write from an
+ * empty base always uses the "rebase" strategy.
  */
 export function updateYDocFromText(
   editor: BlockNoteEditor<any, any, any>,
@@ -91,7 +92,15 @@ export function updateYDocFromText(
       ? baseDoc
       : undefined;
 
-  if (base === undefined || strategy === "rebase") {
+  // A copy of an empty base gets its own root block group. Yjs cannot merge
+  // two new root structures into one: the Y.Doc would have two root block
+  // groups, and a read would show only one. Thus, a write from an empty
+  // base uses the "rebase" strategy.
+  if (
+    base === undefined ||
+    strategy === "rebase" ||
+    base.getXmlFragment(fragment).length === 0
+  ) {
     const before = Y.encodeStateVector(ydoc);
     const update = writeText(editor, ydoc, fragment, {
       ...textOptions,
