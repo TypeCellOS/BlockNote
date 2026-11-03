@@ -84,4 +84,42 @@ describe("fitLayout", () => {
       ],
     ]);
   });
+
+  describe("with the child rules of the schema", () => {
+    // A column list holds only columns, and a column is only in a column list.
+    const canContain = (parent: string | undefined, child: string) =>
+      (child === "column") === (parent === "columnList");
+    function fitWithRules(blocks: LensBlock[]) {
+      return shape(fitLayout(blocks, (type) => rules[type], canContain));
+    }
+
+    it("moves a block that its parent cannot hold to after the parent", () => {
+      expect(
+        fitWithRules([
+          block("list", "columnList", [
+            block("c1", "column", [block("a")]),
+            block("c2", "column", [block("b")]),
+            block("new"),
+          ]),
+          block("z"),
+        ]),
+      ).toEqual([
+        [
+          "list",
+          [
+            ["c1", ["a"]],
+            ["c2", ["b"]],
+          ],
+        ],
+        "new",
+        "z",
+      ]);
+    });
+
+    it("changes a column outside a column list to its blocks", () => {
+      expect(
+        fitWithRules([block("c3", "column", [block("new")]), block("z")]),
+      ).toEqual(["new", "z"]);
+    });
+  });
 });

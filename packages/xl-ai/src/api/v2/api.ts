@@ -285,7 +285,11 @@ function updateToTarget(
     const result = fitTables(
       keepLayout
         ? blocks
-        : fitLayout(blocks, (type) => layoutRuleOf(editor, type)),
+        : fitLayout(
+            blocks,
+            (type) => layoutRuleOf(editor, type),
+            (parent, child) => canContain(editor, parent, child),
+          ),
     );
     return {
       operations: diffDocuments(current, result),
@@ -300,7 +304,6 @@ function updateToTarget(
     ours: plan.target,
     theirs: current,
     contentKindOf: (type) => contentKindOf(editor, type),
-    canContain: (parent, child) => canContain(editor, parent, child),
   });
   return update(merged.blocks, [...plan.warnings, ...merged.warnings]);
 }

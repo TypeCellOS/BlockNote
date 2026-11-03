@@ -40,16 +40,15 @@ export type RebaseWarning =
  *   both stay.
  * - The fields of a block: a three-way merge (see `mergeBlock`). If both
  *   sides changed the same part, `ours` wins, with a warning.
- * - A block that its parent in the result cannot hold becomes its children
- *   (see `build`).
+ *
+ * The merge does not know the schema. The fit of the result moves a block
+ * that its parent cannot hold (see `fitLayout`).
  */
 export function mergeTree(input: {
   base: readonly LensBlock[];
   ours: readonly LensBlock[];
   theirs: readonly LensBlock[];
   contentKindOf: (type: string) => ContentKind;
-  /** Returns true if a block of the type `parent` (`undefined` for the top level) can have a child of the type `child`. */
-  canContain: (parent: string | undefined, child: string) => boolean;
 }): { blocks: LensBlock[]; warnings: RebaseWarning[] } {
   const base = new BlockTree(input.base);
   const ours = new BlockTree(input.ours);
@@ -121,19 +120,10 @@ export function mergeTree(input: {
     const parentInOurs = ours.parent(id);
     return parentInOurs !== base.parent(id) ? parentInOurs : theirs.parent(id);
   }
-  /**
-   * The parent in the result: the chosen parent, or the first ancestor of it
-   * that stays and can hold the block. An example is a new paragraph of the
-   * client in a column that another writer removed: the column list cannot
-   * hold the paragraph, thus it goes to the parent of the column list.
-   */
+  /** The parent in the result: the chosen parent, or the place of a chosen parent that goes. */
   function parentOf(id: string): string | undefined {
     let parent = chosenParent(id);
-    while (
-      parent !== undefined &&
-      (!stays(parent) ||
-        !input.canContain(fieldsOf(parent).block.type, fieldsOf(id).block.type))
-    ) {
+    while (parent !== undefined && !stays(parent)) {
       parent = chosenParent(parent);
     }
     return parent;
@@ -228,68 +218,27 @@ export function mergeTree(input: {
         keepBothInserts: "ours-first",
       },
     );
-    const order = [...new Set(merged)];
-    // A block whose parent in its side cannot hold it (see `parentOf`) is in
-    // none of the lists. It goes after the child of the parent that holds it
-    // in its side, and after the other blocks there.
-    const placed = new Set(order);
-    const anchorOf = new Map<string, string | undefined>();
+    const order = new Set(merged);
+    // Each block of the parent is in one of the lists. This is a guard.
     for (const id of expected) {
-      if (placed.has(id)) {
-        continue;
-      }
-      const anchor = ancestorIn(ours.has(id) ? ours : theirs, id, parent);
-      let index = anchor === undefined ? -1 : order.indexOf(anchor);
-      if (index === -1) {
-        index = order.length;
-      } else {
-        index++;
-        while (index < order.length && anchorOf.get(order[index]) === anchor) {
-          index++;
-        }
-      }
-      order.splice(index, 0, id);
-      placed.add(id);
-      anchorOf.set(id, anchor);
+      order.add(id);
     }
-    return order;
-  }
-
-  /** The ancestor of the block in the side that is a child of `parent`, or `undefined`. */
-  function ancestorIn(
-    side: BlockTree,
-    id: string,
-    parent: string | undefined,
-  ): string | undefined {
-    for (
-      let current: string | undefined = side.parent(id);
-      current !== undefined;
-      current = side.parent(current)
-    ) {
-      if (side.parent(current) === parent) {
-        return current;
-      }
-    }
-    return undefined;
+    return [...order];
   }
 
   /**
-   * The blocks of the parent in the result. A block that the parent cannot
-   * hold becomes its children there. An example is a new column of the
-   * client in a column list that another writer removed: the column goes to
-   * the place of the column list, where a column cannot be.
+   * The blocks of the parent in the result. The result does not know the
+   * schema: for example, a new paragraph of the client in a column that
+   * another writer removed is in the column list. The fit of the result (see
+   * `fitLayout`) moves it.
    */
-  function build(parent: LensBlock | undefined): LensBlock[] {
-    return childOrder(parent?.id).flatMap((id) => {
+  function build(parent: string | undefined): LensBlock[] {
+    return childOrder(parent).map((id) => {
       const fields = fieldsOf(id);
       if (fields.conflict) {
         warnings.push({ type: "conflicting-change", id });
       }
-      const block = { ...fields.block };
-      block.children = build(block);
-      return input.canContain(parent?.type, block.type)
-        ? [block]
-        : block.children;
+      return { ...fields.block, children: build(id) };
     });
   }
   const blocks = build(undefined);

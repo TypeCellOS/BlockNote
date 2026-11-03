@@ -19,19 +19,12 @@ function block(
   };
 }
 
-function merge(
-  base: LensBlock[],
-  ours: LensBlock[],
-  theirs: LensBlock[],
-  canContain = (parent: string | undefined, child: string) =>
-    child !== "column" || parent === "columnList",
-) {
+function merge(base: LensBlock[], ours: LensBlock[], theirs: LensBlock[]) {
   return mergeTree({
     base,
     ours,
     theirs,
     contentKindOf: (type) => (type === "column" ? "none" : "inline"),
-    canContain,
   });
 }
 
@@ -144,7 +137,7 @@ describe("mergeTree", () => {
     expect(shape(result.blocks)).toEqual(["a", ["b"]]);
   });
 
-  it("gives the children of a block that its parent cannot hold", () => {
+  it("puts a new column of ours into the place of its column list, if theirs removed the list", () => {
     // Ours adds a column to a column list. Theirs removed the column list.
     const column = (id: string, children: LensBlock[]) =>
       block(id, children, id, "column");
@@ -166,10 +159,11 @@ describe("mergeTree", () => {
       ],
       [block("z")],
     );
-    expect(shape(result.blocks)).toEqual(["new", "z"]);
+    // The fit of the result changes the column to its blocks (see `fitLayout`).
+    expect(shape(result.blocks)).toEqual(["c3", ["new"], "z"]);
   });
 
-  it("puts a new block of ours after the column list, if theirs removed its column", () => {
+  it("puts a new block of ours into the column list, if theirs removed its column", () => {
     const column = (id: string, children: LensBlock[]) =>
       block(id, children, id, "column");
     const list = (children: LensBlock[]) =>
@@ -196,13 +190,11 @@ describe("mergeTree", () => {
         list([column("c1", [block("a")]), column("c2", [block("b")])]),
         block("z"),
       ],
-      // A column list holds only columns, and a column only in a column list.
-      (parent, child) => (child === "column") === (parent === "columnList"),
     );
+    // The fit of the result moves it to after the list (see `fitLayout`).
     expect(shape(result.blocks)).toEqual([
       "list",
-      ["c1", ["a"], "c2", ["b"]],
-      "new",
+      ["c1", ["a"], "c2", ["b"], "new"],
       "z",
     ]);
     expect(result.warnings).toEqual([]);
