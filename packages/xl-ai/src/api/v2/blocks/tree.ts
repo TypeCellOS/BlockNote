@@ -65,9 +65,4 @@ export class BlockTree {
     }
     return list;
   }
-
-  previousSibling(id: string): string | undefined {
-    const siblings = this.childrenOf(this.parents.get(id));
-    return siblings[siblings.indexOf(id) - 1];
-  }
 }

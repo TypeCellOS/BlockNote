@@ -18,15 +18,13 @@ const document = [
 ];
 
 describe("BlockTree", () => {
-  it("knows the parent, the children and the siblings of each block", () => {
+  it("knows the parent and the children of each block", () => {
     const tree = new BlockTree(document);
     expect(tree.ids).toEqual(["a", "b", "c", "d", "e"]);
     expect(tree.parent("c")).toBe("b");
     expect(tree.parent("a")).toBeUndefined();
     expect(tree.childrenOf("a")).toEqual(["b", "d"]);
     expect(tree.childrenOf(undefined)).toEqual(["a", "e"]);
-    expect(tree.previousSibling("d")).toBe("b");
-    expect(tree.previousSibling("b")).toBeUndefined();
     expect(tree.block("c")).toBe(document[0].children[0].children[0]);
     expect(tree.has("x")).toBe(false);
   });
