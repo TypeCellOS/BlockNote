@@ -102,9 +102,10 @@ export function applyOperations(
  * collaboration binding, a suggestion plugin or a selection sees only the
  * changed blocks.
  *
- * The steps that make a list longer apply first, and the steps that make a
- * list shorter after them. Thus, each step gives a valid document, also for
- * a list with a minimum number of children (for example a column list).
+ * Each step only inserts or only removes. The inserts apply first, then the
+ * removals. Thus, each step gives a valid document, also for a list with a
+ * minimum number of children (for example a column list). A collaboration
+ * binding can then also send each step alone (see `yjs/dispatchSteps.ts`).
  */
 function applyStructure(tr: Transaction, target: BlockShape[]) {
   const schema = tr.doc.type.schema;
@@ -116,13 +117,8 @@ function applyStructure(tr: Transaction, target: BlockShape[]) {
     return !node.isTextblock;
   });
 
-  /** A replacement of `count` old children, from `from` to `to`, with `content`. */
-  type Replacement = {
-    from: number;
-    to: number;
-    count: number;
-    content: Node[];
-  };
+  /** A replacement of the old children from `from` to `to` with `content`. */
+  type Replacement = { from: number; to: number; content: Node[] };
   const replacements: Replacement[] = [];
   const rootGroup = tr.doc.firstChild;
   if (rootGroup === null) {
@@ -130,18 +126,24 @@ function applyStructure(tr: Transaction, target: BlockShape[]) {
   }
   diffList(rootGroup, 0, target);
 
-  const grows = (r: Replacement) => r.content.length >= r.count;
+  // Each replacement is an insert and a removal. Inserts never give an
+  // invalid list, thus they apply first. Then the removals.
   const first = tr.steps.length;
-  for (const r of [
-    ...replacements.filter(grows),
-    ...replacements.filter((r) => !grows(r)),
-  ]) {
+  const steps = [
+    ...replacements.flatMap(({ from, content }) =>
+      content.length > 0 ? [{ from, to: from, content }] : [],
+    ),
+    ...replacements.flatMap(({ from, to }) =>
+      to > from ? [{ from, to, content: [] }] : [],
+    ),
+  ];
+  for (const { from, to, content } of steps) {
     const mapping = tr.mapping.slice(first);
     tr.step(
       new ReplaceStep(
-        mapping.map(r.from),
-        mapping.map(r.to),
-        new Slice(Fragment.from(r.content), 0, 0),
+        mapping.map(from),
+        mapping.map(to),
+        new Slice(Fragment.from(content), 0, 0),
       ),
     );
   }
@@ -165,14 +167,13 @@ function applyStructure(tr: Transaction, target: BlockShape[]) {
         const content = [
           schema.nodes["blockGroup"].create(null, shapes.map(build)),
         ];
-        replacements.push({ from: groupPos, to: groupPos, count: 0, content });
+        replacements.push({ from: groupPos, to: groupPos, content });
       }
     } else if (shapes.length === 0) {
       // A block group needs a child, thus it goes with its last child.
       replacements.push({
         from: groupPos,
         to: groupPos + group.nodeSize,
-        count: group.childCount,
         content: [],
       });
     } else {
@@ -199,7 +200,7 @@ function applyStructure(tr: Transaction, target: BlockShape[]) {
         throw new Error(`A block of type ${list.type.name} cannot be empty`);
       }
       const content = childBlocks(filled);
-      replacements.push({ from: pos + 1, to: end, count: old.length, content });
+      replacements.push({ from: pos + 1, to: end, content });
       return;
     }
     const pairs = myersMatch(
@@ -217,7 +218,6 @@ function applyStructure(tr: Transaction, target: BlockShape[]) {
         replacements.push({
           from: i < old.length ? old[i].pos : end,
           to: pair.aIndex < old.length ? old[pair.aIndex].pos : end,
-          count: pair.aIndex - i,
           content: shapes.slice(k, pair.bIndex).map(build),
         });
       }

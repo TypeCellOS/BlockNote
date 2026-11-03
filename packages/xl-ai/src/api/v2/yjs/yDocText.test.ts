@@ -673,3 +673,82 @@ describe.each<MergeStrategy>(["rebase", "yjs"])(
     });
   },
 );
+
+describe("changes of other writers in a list with more than one structural change", () => {
+  const blocks: PartialBlock[] = [
+    { id: "a", type: "paragraph", content: "Alpha" },
+    { id: "b", type: "paragraph", content: "Beta" },
+    { id: "c", type: "paragraph", content: "Gamma" },
+  ];
+
+  it("keeps a change of another client that arrives after the write in its block", () => {
+    const ydoc = blocksToYDoc(BlockNoteEditor.create(), blocks);
+    const other = new Y.Doc();
+    Y.applyUpdate(other, Y.encodeStateAsUpdate(ydoc));
+    // The other client changes Alpha. The lens does not have this change yet.
+    bindEditor(other.getXmlFragment("prosemirror")).updateBlock("a", {
+      content: "Alpha of the other client",
+    });
+
+    // The text adds a block at the start and at the end of the list.
+    const fragment = ydoc.getXmlFragment("prosemirror");
+    const editor = bindEditor(fragment);
+    valid(
+      updateYDocFromText(editor, fragment, {
+        format: markdownFormat,
+        text: "First\n\nAlpha\n\nBeta\n\nGamma\n\nLast\n",
+      }),
+    );
+    Y.applyUpdate(ydoc, Y.encodeStateAsUpdate(other));
+
+    expect(getDocumentText(editor, markdownFormat)).toBe(
+      "First\n\nAlpha of the other client\n\nBeta\n\nGamma\n\nLast\n",
+    );
+  });
+
+  it.each(["rebase", "yjs"] as const)(
+    "keeps a change of another writer in its block, with inserts at two places (strategy %s)",
+    (strategy) => {
+      const ydoc = blocksToYDoc(BlockNoteEditor.create(), blocks);
+      const fragment = ydoc.getXmlFragment("prosemirror");
+      const editor = bindEditor(fragment);
+      const base = Y.encodeStateAsUpdate(ydoc);
+      editor.updateBlock("a", { content: "Alpha edited" });
+
+      valid(
+        updateYDocFromText(editor, fragment, {
+          format: markdownFormat,
+          text: "First\n\nAlpha\n\nBeta\n\nGamma\n\nLast\n",
+          base,
+          strategy,
+        }),
+      );
+      expect(getDocumentText(editor, markdownFormat)).toBe(
+        "First\n\nAlpha edited\n\nBeta\n\nGamma\n\nLast\n",
+      );
+    },
+  );
+
+  it.each(["rebase", "yjs"] as const)(
+    "keeps a change of another writer to a block that a move passes (strategy %s)",
+    (strategy) => {
+      const ydoc = blocksToYDoc(BlockNoteEditor.create(), blocks);
+      const fragment = ydoc.getXmlFragment("prosemirror");
+      const editor = bindEditor(fragment);
+      const base = Y.encodeStateAsUpdate(ydoc);
+      editor.updateBlock("b", { content: "Beta edited" });
+
+      valid(
+        updateYDocFromText(editor, fragment, {
+          format: markdownFormat,
+          text: "Gamma\n\nAlpha\n\nBeta\n",
+          base,
+          strategy,
+        }),
+      );
+      expect(getDocumentText(editor, markdownFormat)).toBe(
+        "Gamma\n\nAlpha\n\nBeta edited\n",
+      );
+    },
+  );
+});
