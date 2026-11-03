@@ -133,9 +133,9 @@ export const createVideoBlockSpec = createBlockSpec(
         }
       }
 
-      return {
-        dom: video,
-      };
+      return block.props.showPreview
+        ? { dom: video }
+        : createLinkWithCaption(video, "");
     },
     runsBefore: ["file"],
   }),

@@ -152,9 +152,9 @@ export const audioToExternalHTML =
       }
     }
 
-    return {
-      dom: audio,
-    };
+    return block.props.showPreview
+      ? { dom: audio }
+      : createLinkWithCaption(audio, "");
   };
 
 export const createAudioBlockSpec = createBlockSpec(

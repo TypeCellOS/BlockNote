@@ -84,12 +84,6 @@ export const createFileBlockSpec = createBlockSpec(createFileBlockConfig, {
     fileSrcLink.href = block.props.url;
     fileSrcLink.textContent = block.props.name || block.props.url;
 
-    if (block.props.caption) {
-      return createLinkWithCaption(fileSrcLink, block.props.caption);
-    }
-
-    return {
-      dom: fileSrcLink,
-    };
+    return createLinkWithCaption(fileSrcLink, block.props.caption);
   },
 });

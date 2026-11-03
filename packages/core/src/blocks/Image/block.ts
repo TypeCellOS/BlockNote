@@ -174,9 +174,9 @@ export const imageToExternalHTML =
       }
     }
 
-    return {
-      dom: image,
-    };
+    return block.props.showPreview
+      ? { dom: image }
+      : createLinkWithCaption(image, "");
   };
 
 export const createImageBlockSpec = createBlockSpec(
