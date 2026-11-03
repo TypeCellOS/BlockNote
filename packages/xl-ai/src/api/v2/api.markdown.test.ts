@@ -26,6 +26,7 @@ import {
   documentShape,
   replaceOnce,
 } from "./testUtil/fixtures.js";
+import { canonicalText } from "./testUtil/canonical.js";
 import { valid } from "./testUtil/valid.js";
 
 /** An editor with two columns: "Alpha" in column c1 and "Beta" in column c2. */
@@ -1149,6 +1150,38 @@ describe("a table with merged cells", () => {
     expect(getDocumentText(editor, markdownFormat)).toContain("Changed");
     expect(update.warnings).toEqual([
       { type: "merged-cells-removed", id: "t" },
+    ]);
+  });
+});
+
+describe("a nesting that the format does not show", () => {
+  it("does not stay under a parent whose type the text changes", () => {
+    // Markdown does not show the child of a paragraph as nested. Under a
+    // bullet, it would show it, thus the child becomes the next block.
+    const editor = BlockNoteEditor.create({
+      initialContent: [
+        {
+          id: "parent",
+          type: "paragraph",
+          content: "Parent",
+          children: [{ id: "child", type: "paragraph", content: "Child" }],
+        },
+        { id: "end", type: "paragraph", content: "End" },
+      ],
+    });
+    const text = replaceOnce(
+      getDocumentText(editor, markdownFormat),
+      "Parent",
+      "* Parent",
+    );
+    valid(updateDocumentFromText(editor, { format: markdownFormat, text }));
+    expect(getDocumentText(editor, markdownFormat)).toBe(
+      canonicalText(editor, markdownFormat, text),
+    );
+    expect(editor.document.map((block) => block.id)).toEqual([
+      "parent",
+      "child",
+      "end",
     ]);
   });
 });

@@ -204,9 +204,9 @@ export function planTarget(input: PlanInput): Plan {
 
   /**
    * Returns the target node of the source parent of kept block `id`, if the
-   * block can stay in it: the parent and the ancestors stay, and the parent
-   * is an open ancestor. Hidden ancestors without a node get one here. If
-   * not, returns `undefined`.
+   * block can stay in it: the parent and the ancestors stay, the parent is an
+   * open ancestor, and the parent keeps its type. Hidden ancestors without a
+   * node get one here. If not, returns `undefined`.
    */
   function sourceParent(id: string): LensBlock | undefined {
     const hidden: string[] = [];
@@ -219,7 +219,11 @@ export function planTarget(input: PlanInput): Plan {
     if (
       parent === undefined ||
       !stack.includes(parent) ||
-      hidden.some((ancestor) => !kept.has(ancestor))
+      hidden.some((ancestor) => !kept.has(ancestor)) ||
+      // The format did not show the nesting under the type of the source
+      // parent. Under a new type (for example a bullet instead of a
+      // paragraph), the format can show it, thus the text decides.
+      (visible !== undefined && parent.type !== source.block(visible).type)
     ) {
       return undefined;
     }
