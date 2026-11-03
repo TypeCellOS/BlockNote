@@ -167,7 +167,7 @@ A result can contain warnings (`TextUpdateWarning`). A warning tells you that a 
 The branch `fix/markdown-roundtrip` fixes the markdown conversion: one round trip now gives the canonical form, and the parse removes the whitespace that the exporter does not write. It also fixes the HTML export of a toggle with list items and other blocks as children, which changed their order. These problems stay:
 
 - A list item that has both a paragraph and a nested list: the HTML parser moves the nested list out of the list item.
-- Delimiter runs like `***`: the parser does not use the delimiter rules of CommonMark. The exporter writes `*a*__b__` for italic text directly before bold text, but italic text at the end of bold text still gives `***` (for example `**a *b***`).
+- Delimiter runs like `***`: the parser does not use the delimiter rules of CommonMark. The exporter writes underscores where it can (`*a*__b__`, `**a _b_**`), but not next to a letter or a digit, or for text with `_`. There, runs like `***` stay.
 - HTML paste removes an image in a paragraph (markdown parse splits the paragraph around the image).
 
 ## Items that are not done
