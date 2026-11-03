@@ -115,6 +115,7 @@ Each module imports only modules that are before it in this list. Thus, there ar
   - `api.json.test.ts`: the JSON API.
   - `api.removals.test.ts`: removals, where content is lost. Examine these expected results carefully.
   - `api.concurrent.test.ts`: writes from an older version without Yjs, also on 40 random pairs of writers and 40 random groups of three or four writers in each format.
+  - `api.fuzz.test.ts`: 150 random documents with all kinds of blocks (tables, files and images with captions, code blocks with blank lines, deep nesting, mentions, columns) in each format, with random edits. It examines the format contract (each view block with text links to a document block) and the laws.
 - `yjs/yDocText.test.ts`: the Y.Doc API. The concurrent cases run for the two strategies.
 - `testUtil/` contains the shared test documents and helpers.
 - `api.bench.ts` measures a document with about 1,140 blocks. Run it with `vp test bench --run --reporter=verbose src/api/v2/api.bench.ts`. The mean times in jsdom were:
@@ -132,11 +133,11 @@ Each module imports only modules that are before it in this list. Thus, there ar
 
   | Format     | Read     | Write with one change | Write from an older version | Y.Doc write | Align, plan and diff |
   | ---------- | -------- | --------------------- | --------------------------- | ----------- | -------------------- |
-  | Markdown   | 1,448 ms | 4,471 ms              | 4,518 ms                    | 4,967 ms    | 40 ms                |
-  | HTML       | 659 ms   | 3,373 ms              | 3,434 ms                    | 3,864 ms    | 44 ms                |
-  | Plain text | 3 ms     | 78 ms                 | 80 ms                       | 514 ms      | 44 ms                |
+  | Markdown   | 1,535 ms | 9,188 ms              | 9,483 ms                    | 9,916 ms    | 102 ms               |
+  | HTML       | 780 ms   | 7,185 ms              | 6,916 ms                    | 7,429 ms    | 93 ms                |
+  | Plain text | 3 ms     | 389 ms                | 435 ms                      | 902 ms      | 60 ms                |
 
-  The stages of the lens (align, plan, diff) are linear. A write that changes the text of many blocks is also linear. For example, a plain text that changes all of 4,000 paragraphs takes 0.2 s for an editor and 1.3 s for a Y.Doc. 900 new paragraphs in 9,000 paragraphs take 3.3 s for a Y.Doc. For a Y.Doc, most of the time is the render of the editor view in jsdom. For text, most of the time goes to the markdown and HTML conversions of BlockNote, and to the parse of the text.
+  The stages of the lens (align, plan, diff) are linear. A write that changes the text of many blocks is also linear. For example, a plain text that changes all of 4,000 paragraphs takes 0.2 s for an editor and 1.3 s for a Y.Doc. 900 new paragraphs in 9,000 paragraphs take 3.3 s for a Y.Doc. For a Y.Doc, most of the time is the render of the editor view in jsdom. For text, most of the time goes to the markdown and HTML conversions of BlockNote: the projection makes two round trips (the view, and the parts of the blocks, see "Project"), and the write parses the text of the client.
 
 ## Changes outside this folder
 
