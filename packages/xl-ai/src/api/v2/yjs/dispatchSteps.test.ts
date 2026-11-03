@@ -1,4 +1,5 @@
 import { BlockNoteEditor } from "@blocknote/core";
+import { Plugin } from "prosemirror-state";
 import { describe, expect, it } from "vite-plus/test";
 
 import { dispatchSteps } from "./dispatchSteps.js";
@@ -67,6 +68,46 @@ describe("dispatchSteps", () => {
     expect(editor.document.map((block) => block.content)).toMatchObject([
       [{ text: "First one two Omega" }],
       [{ text: "Bravo" }],
+    ]);
+  });
+
+  it("moves the later steps if a plugin changes the document between two transactions", () => {
+    // A plugin that puts "!" at the start of the first paragraph after each
+    // change. Thus, the second transaction must apply after that character.
+    const editor = BlockNoteEditor.create({
+      initialContent: [
+        { id: "a", type: "paragraph", content: "!Alpha one two Omega" },
+      ],
+      trailingBlock: false,
+    });
+    editor._tiptapEditor.registerPlugin(
+      new Plugin({
+        appendTransaction(transactions, _old, state) {
+          const first = state.doc.firstChild?.firstChild?.firstChild;
+          if (
+            !transactions.some((tr) => tr.docChanged) ||
+            first === null ||
+            first === undefined ||
+            first.textContent.startsWith("!")
+          ) {
+            return null;
+          }
+          // The text of the first block starts 3 positions into the document.
+          return state.tr.insertText("!", 3);
+        },
+      }),
+    );
+    const tr = editor.prosemirrorState.tr;
+    const alpha = positionOf(editor, "Alpha");
+    const omega = positionOf(editor, "Omega");
+    // The first step removes the "!": the plugin then adds it again.
+    tr.delete(alpha - 1, alpha);
+    tr.insertText("Last", omega - 1, omega + 4);
+
+    dispatchSteps(editor, tr);
+
+    expect(editor.getBlock("a")?.content).toMatchObject([
+      { text: "!Alpha one two Last" },
     ]);
   });
 });

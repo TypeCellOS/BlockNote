@@ -109,10 +109,21 @@ export function updateYDocFromText(
     const unchanged =
       baseFragment === undefined ||
       (baseFragment.length === 0 && fragment.length === 0);
-    update = writeThroughBinding(editor, {
-      ...textOptions,
-      base: unchanged ? undefined : yXmlFragmentToBlocks(editor, baseFragment),
-    });
+    // The write goes to a fork of the current Y.Doc. Thus, a write that
+    // fails in the middle does not change the Y.Doc.
+    fork.fork();
+    try {
+      update = writeThroughBinding(editor, {
+        ...textOptions,
+        base: unchanged
+          ? undefined
+          : yXmlFragmentToBlocks(editor, baseFragment),
+      });
+    } finally {
+      fork.merge({
+        keepChanges: update !== undefined && update.error === undefined,
+      });
+    }
   }
   return update.error === undefined
     ? { ...update, update: Y.encodeStateAsUpdate(ydoc, before) }

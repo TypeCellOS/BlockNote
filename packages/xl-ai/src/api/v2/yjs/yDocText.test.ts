@@ -10,6 +10,7 @@ import {
   withCollaboration,
   yDocToBlocks,
 } from "@blocknote/core/yjs";
+import { Plugin } from "prosemirror-state";
 import { describe, expect, it } from "vite-plus/test";
 import * as Y from "yjs";
 
@@ -781,5 +782,42 @@ describe("a base with two blocks with one ID", () => {
     expect(result.warnings).toEqual([
       { type: "change-to-removed-block", id: "a-2" },
     ]);
+  });
+});
+
+describe("a write that fails in the middle", () => {
+  it("does not change the Y.Doc", () => {
+    const ydoc = blocksToYDoc(BlockNoteEditor.create(), [
+      { id: "a", type: "paragraph", content: "x Alpha one two Omega end" },
+      { id: "b", type: "paragraph", content: "Beta" },
+    ]);
+    const fragment = ydoc.getXmlFragment("prosemirror");
+    const editor = bindEditor(fragment);
+    // The inline steps go from the end of the text to its start. A plugin
+    // removes "x Alpha one" after the text gets "Last". The second step of
+    // the write (which changes "Alpha") then cannot apply.
+    editor._tiptapEditor.registerPlugin(
+      new Plugin({
+        appendTransaction(_transactions, _old, state) {
+          let range: [number, number] | undefined;
+          state.doc.descendants((node, pos) => {
+            const text = node.isText ? (node.text ?? "") : "";
+            if (text.includes("Last") && text.includes("Alpha")) {
+              range = [pos, pos + "x Alpha one".length];
+            }
+          });
+          return range === undefined ? null : state.tr.delete(...range);
+        },
+      }),
+    );
+    const before = readText(fragment, markdownFormat);
+
+    expect(() =>
+      updateYDocFromText(editor, fragment, {
+        format: markdownFormat,
+        text: "x First one two Last end\n\nBeta\n",
+      }),
+    ).toThrow();
+    expect(readText(fragment, markdownFormat)).toBe(before);
   });
 });
