@@ -61,9 +61,12 @@ export const createCheckListItemBlockSpec = createBlockSpec(
         parent.tagName === "UL" ||
         (parent.tagName === "DIV" && parent.parentElement?.tagName === "UL")
       ) {
+        // The checkbox of this list item, not of a nested list item (for
+        // example a check list item in a toggle list item).
         const checkbox =
-          (element.querySelector("input[type=checkbox]") as HTMLInputElement) ||
-          null;
+          Array.from(
+            element.querySelectorAll<HTMLInputElement>("input[type=checkbox]"),
+          ).find((input) => input.closest("li") === element) ?? null;
 
         if (checkbox === null) {
           return undefined;
