@@ -9,6 +9,8 @@ import { describe, expect, it } from "vite-plus/test";
 
 import {
   computeJSONUpdate,
+  getDocumentText,
+  htmlFormat,
   type JSONUpdateOptions,
   updateDocumentFromJSON,
   type ValidTextUpdate,
@@ -122,6 +124,11 @@ describe("JSON", () => {
           content: [{ type: "text", text: "x", styles: { unknown: true } }],
         },
       ],
+      // Prop values that do not fit the prop schema. A heading level "1 x"
+      // would give the element name "h1 x", and each later read would throw.
+      [{ type: "heading", props: { level: "1 x" }, content: "Hello" }],
+      [{ type: "checkListItem", props: { checked: "yes" }, content: "Task" }],
+      [{ type: "paragraph", props: { textAlignment: "diagonal" } }],
     ]) {
       expect(
         updateDocumentFromJSON(editor, {
@@ -132,6 +139,7 @@ describe("JSON", () => {
       });
     }
     expect(editor.document).toEqual(before);
+    expect(() => getDocumentText(editor, htmlFormat)).not.toThrow();
   });
 
   it("gives a new ID to a later block with the ID of an earlier block", () => {

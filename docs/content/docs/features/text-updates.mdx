@@ -108,7 +108,7 @@ const result = updateDocumentFromJSON(editor, {
 
 A block without an ID is a new block. An ID can identify only one block. Thus, a block gets a new ID if an earlier block of the JSON has the same ID, or (with `base`) if another user added a block with that ID after the client read the document.
 
-If the JSON does not fit the schema of the editor (for example an unknown block type or style), the result is `{ error: "invalid-document" }`, as for a text.
+If the JSON does not fit the schema of the editor (for example an unknown block type or style, or a prop value that the block type does not have), the result is `{ error: "invalid-document" }`, as for a text.
 
 ## Y.Doc
 

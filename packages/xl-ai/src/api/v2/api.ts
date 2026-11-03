@@ -10,6 +10,7 @@ import type { Transaction } from "prosemirror-state";
 
 import { alignBlocks } from "./alignment/alignBlocks.js";
 import { flattenBlocks } from "./blocks/flatten.js";
+import { propsFit } from "./blocks/props.js";
 import { BlockTree } from "./blocks/tree.js";
 import type { ContentKind, LensBlock } from "./blocks/types.js";
 import type { TextFormat } from "./formats/types.js";
@@ -240,6 +241,9 @@ function toBlockGroup(
 ): Node | undefined {
   const schema = editor.pmSchema;
   try {
+    if (!propsFit(editor.schema.blockSchema, blocks)) {
+      return undefined;
+    }
     const group = schema.nodes["blockGroup"].create(
       null,
       blocks.map((block) => blockToNode(block, schema)),
@@ -250,8 +254,9 @@ function toBlockGroup(
     }
     return group;
   } catch {
-    // `blockToNode` and `check` throw for blocks that do not fit the
-    // schema. For input from a client, this is an expected failure.
+    // `propsFit`, `blockToNode` and `check` throw for blocks that do not
+    // fit the schema (for example `children` that are not an array). For
+    // input from a client, this is an expected failure.
     return undefined;
   }
 }
