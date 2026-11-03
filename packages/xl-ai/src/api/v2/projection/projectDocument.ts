@@ -41,8 +41,9 @@ export function projectDocument(
   editor: BlockNoteEditor<any, any, any>,
   format: TextFormat,
   document: readonly LensBlock[],
+  /** The text of the document in the format, if the caller has it. */
+  text = format.serialize(editor, document),
 ): Projection {
-  const text = format.serialize(editor, document);
   // The parse of the text of an empty document can give a block (for example
   // one empty paragraph). That block comes from no document block, thus an
   // empty document has no view blocks.
@@ -99,7 +100,7 @@ export function projectDocument(
     sources: readonly FlatBlock[],
     text: string,
   ): { part: FlatBlock; source: number }[] {
-    const marker = unusedCharacter(text);
+    const marker = unusedMarker(text);
     const separator: LensBlock = {
       id: "",
       type: "paragraph",
@@ -157,13 +158,26 @@ export function projectDocument(
   }
 }
 
-/** A character of the Unicode private use area that `text` does not contain. */
-function unusedCharacter(text: string): string {
-  for (let code = 0xe000; code <= 0xf8ff; code++) {
+/**
+ * A string of characters of the Unicode private use area that `text` does
+ * not contain: one character, or else two.
+ */
+function unusedMarker(text: string): string {
+  const first = 0xe000;
+  const count = 0xf8ff - first + 1;
+  for (let code = first; code < first + count; code++) {
     const char = String.fromCharCode(code);
     if (!text.includes(char)) {
       return char;
     }
   }
-  throw new Error("The text contains all private use characters");
+  for (let a = first; a < first + count; a++) {
+    for (let b = first; b < first + count; b++) {
+      const pair = String.fromCharCode(a, b);
+      if (!text.includes(pair)) {
+        return pair;
+      }
+    }
+  }
+  throw new Error("The text contains all pairs of private use characters");
 }

@@ -2,6 +2,7 @@ import { BlockNoteEditor } from "@blocknote/core";
 import { describe, expect, it } from "vite-plus/test";
 
 import {
+  computeTextUpdate,
   getDocumentText,
   plainTextFormat,
   updateDocumentFromText,
@@ -273,5 +274,51 @@ describe("plain text, a part of a block without words", () => {
       { type: "multi-part-block-replaced", id: "c" },
     ]);
     expect(getDocumentText(editor, plainTextFormat)).toContain("} // end");
+  });
+});
+
+describe("special characters at the edges of the text", () => {
+  it("does not see a byte order mark at the start of the text as content", () => {
+    const editor = BlockNoteEditor.create({
+      initialContent: [{ type: "paragraph", content: "Hello" }],
+    });
+    const text = `\uFEFF${getDocumentText(editor, plainTextFormat)}`;
+    const update = valid(
+      computeTextUpdate(editor, { format: plainTextFormat, text }),
+    );
+    expect(update.operations).toEqual([]);
+  });
+
+  it("keeps a byte order mark that the document has", () => {
+    const editor = BlockNoteEditor.create({
+      initialContent: [{ type: "paragraph", content: "\uFEFFHello" }],
+    });
+    const text = getDocumentText(editor, plainTextFormat);
+    const update = valid(
+      computeTextUpdate(editor, { format: plainTextFormat, text }),
+    );
+    expect(update.operations).toEqual([]);
+  });
+
+  it("accepts a document with all private use characters", () => {
+    // The projection separates the blocks with a character that the text
+    // does not contain (see `projectDocument`).
+    let all = "";
+    for (let code = 0xe000; code <= 0xf8ff; code++) {
+      all += String.fromCharCode(code);
+    }
+    const editor = BlockNoteEditor.create({
+      initialContent: [
+        { type: "paragraph", content: "Hello" },
+        { type: "paragraph", content: all },
+      ],
+    });
+    const text = replaceOnce(
+      getDocumentText(editor, plainTextFormat),
+      "Hello",
+      "Hello there",
+    );
+    valid(updateDocumentFromText(editor, { format: plainTextFormat, text }));
+    expect(getDocumentText(editor, plainTextFormat)).toBe(text);
   });
 });

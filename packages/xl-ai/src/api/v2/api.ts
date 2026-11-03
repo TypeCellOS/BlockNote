@@ -327,13 +327,18 @@ function planTextUpdate(
 ):
   | { error?: undefined; target: readonly LensBlock[]; warnings: PlanWarning[] }
   | { error: "invalid-document" } {
+  const serialized = format.serialize(editor, document);
   // A byte order mark at the start of a text (for example of a file) is not
-  // content.
-  const content = text.startsWith("\uFEFF") ? text.slice(1) : text;
-  const projection = projectDocument(editor, format, document);
-  if (content === projection.text) {
+  // content, unless the document starts with that character.
+  const content =
+    text.startsWith("\uFEFF") && !serialized.startsWith("\uFEFF")
+      ? text.slice(1)
+      : text;
+  // An unchanged text needs no projection.
+  if (content === serialized) {
     return { target: document, warnings: [] };
   }
+  const projection = projectDocument(editor, format, document, serialized);
 
   const parsed = toStoredBlocks(editor, format.parse(editor, content));
   if (parsed === undefined) {
