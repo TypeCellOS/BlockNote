@@ -7,6 +7,7 @@ import { withMultiColumn } from "@blocknote/xl-multi-column";
 import { describe, expect, it } from "vite-plus/test";
 
 import {
+  computeTextUpdate,
   getDocumentText,
   htmlFormat,
   updateDocumentFromText,
@@ -17,6 +18,7 @@ import {
   createCommentEditor,
 } from "./testUtil/comments.js";
 import { createEditor, replaceOnce } from "./testUtil/fixtures.js";
+import { valid } from "./testUtil/valid.js";
 
 function write(
   editor: BlockNoteEditor<any, any, any>,
@@ -152,5 +154,33 @@ describe("HTML", () => {
         column.children.map((block) => block.id),
       ),
     ).toEqual([["a"], ["b"]]);
+  });
+});
+
+describe("HTML, a change of the type of a parent", () => {
+  it("gives no operations for a second write of the same text, after a toggle becomes a bullet", () => {
+    const editor = createEditor([
+      {
+        type: "toggleListItem",
+        content: "Alpha",
+        children: [
+          {
+            type: "heading",
+            content: "Gamma",
+            children: [{ type: "numberedListItem", content: "Zeta" }],
+          },
+        ],
+      },
+    ]);
+    const text = getDocumentText(editor, htmlFormat)
+      .replace('<details open=""><summary>', "")
+      .replace("</summary>", "")
+      .replace("</details>", "");
+
+    valid(updateDocumentFromText(editor, { format: htmlFormat, text }));
+
+    expect(
+      valid(computeTextUpdate(editor, { format: htmlFormat, text })).operations,
+    ).toEqual([]);
   });
 });

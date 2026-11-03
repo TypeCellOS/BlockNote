@@ -173,13 +173,22 @@ export function planTarget(input: PlanInput): Plan {
     return root;
   }
 
-  /** Returns true if the text shows kept incoming block `j` with the nesting of its view block. */
+  /**
+   * Returns true if the text shows kept incoming block `j` with the nesting
+   * of its view block: the same parent, with the same type. A format can
+   * show the children of different types in different ways (for example
+   * HTML, the children of a toggle and of a bullet). Thus, after a change of
+   * the parent type, a nesting that the view did not show can show.
+   */
   function nestingUnchanged(j: number): boolean {
     const textParentIndex = incoming[j].parentIndex;
     const viewParentIndex = view[incomingToView[j]].parentIndex;
     return textParentIndex === undefined
       ? viewParentIndex === undefined
-      : incomingToView[textParentIndex] === viewParentIndex;
+      : incomingToView[textParentIndex] === viewParentIndex &&
+          viewParentIndex !== undefined &&
+          view[viewParentIndex].block.type ===
+            incoming[textParentIndex].block.type;
   }
 
   /**
