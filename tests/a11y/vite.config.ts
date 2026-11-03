@@ -47,8 +47,9 @@ export default defineConfig({
     include: [
       reader
         ? "../packages/*/src/**/*.screen-reader.test.ts"
-        : "../packages/*/src/**/*.{a11y,axe}.test.ts",
+        : "../packages/*/src/**/a11y/*.test.ts",
     ],
+    exclude: reader ? [] : ["**/*.screen-reader.test.ts"],
     testTimeout: reader ? 300_000 : 120_000,
     hookTimeout: 30_000,
     fileParallelism: false,
