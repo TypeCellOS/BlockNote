@@ -18,7 +18,7 @@ import type {
 } from "./blocks/types.js";
 import { toStoredBlocks } from "./formats/stored.js";
 import type { TextFormat } from "./formats/types.js";
-import { fixBlockIds } from "./operations/blockIds.js";
+import { fixBlockIds, withDistinctIds } from "./operations/blockIds.js";
 import {
   applyOperations,
   dispatchToEditor,
@@ -105,7 +105,8 @@ export function computeBlocksUpdate(
     keepLayout?: boolean;
   },
 ): TextUpdate {
-  const { base, current } = options;
+  const { current } = options;
+  const base = options.base && withDistinctIds(options.base);
   const plan = planTextUpdate(
     editor,
     options.format,
@@ -176,15 +177,16 @@ function jsonUpdate(
   if (blocks === undefined) {
     return { error: "invalid-document" };
   }
+  const base = options.base && withDistinctIds(options.base);
   return updateToTarget(
     editor,
     {
-      target: withUniqueIds(blocks, options.base ?? current, current, (type) =>
+      target: withUniqueIds(blocks, base ?? current, current, (type) =>
         isLayoutType(editor, type),
       ),
       warnings: [],
     },
-    { base: options.base, current, keepLayout: false },
+    { base, current, keepLayout: false },
   );
 }
 

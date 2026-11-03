@@ -752,3 +752,34 @@ describe("changes of other writers in a list with more than one structural chang
     },
   );
 });
+
+describe("a base with two blocks with one ID", () => {
+  it("does not duplicate content, and gives a warning for the change that it cannot apply", () => {
+    const ydoc = blocksToYDoc(BlockNoteEditor.create(), [
+      { id: "a", type: "paragraph", content: "Alpha" },
+      { id: "a", type: "paragraph", content: "Alpha copy" },
+      { id: "b", type: "paragraph", content: "Beta" },
+    ]);
+    const fragment = ydoc.getXmlFragment("prosemirror");
+    // The editor gives the two blocks new IDs (UniqueID), but the Y.Doc and
+    // thus the base keep the duplicate. The lens cannot find the copy.
+    const editor = bindEditor(fragment);
+    const base = Y.encodeStateAsUpdate(ydoc);
+    const text = getDocumentText(editor, markdownFormat);
+    editor.updateBlock("b", { content: "Beta 2" });
+
+    const result = valid(
+      updateYDocFromText(editor, fragment, {
+        format: markdownFormat,
+        text: replaceOnce(text, "Alpha copy", "Alpha copy edited"),
+        base,
+      }),
+    );
+    expect(getDocumentText(editor, markdownFormat)).toBe(
+      "Alpha\n\nAlpha copy\n\nBeta 2\n",
+    );
+    expect(result.warnings).toEqual([
+      { type: "change-to-removed-block", id: "a-2" },
+    ]);
+  });
+});

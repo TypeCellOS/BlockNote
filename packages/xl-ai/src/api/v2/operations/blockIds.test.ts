@@ -2,7 +2,8 @@ import { BlockNoteEditor } from "@blocknote/core";
 import { EditorState } from "prosemirror-state";
 import { describe, expect, it } from "vite-plus/test";
 
-import { fixBlockIds } from "./blockIds.js";
+import type { LensBlock } from "../blocks/types.js";
+import { fixBlockIds, withDistinctIds } from "./blockIds.js";
 
 describe("fixBlockIds", () => {
   it("gives an ID to each block without an ID, and keeps the other IDs", () => {
@@ -48,7 +49,25 @@ describe("fixBlockIds", () => {
         ids.push(node.attrs.id);
       }
     });
-    expect(ids[0]).toBe("x");
-    expect(ids[1]).not.toBe("x");
+    expect(ids).toEqual(["x", "x-2"]);
+  });
+});
+
+describe("withDistinctIds", () => {
+  it("gives the blocks the IDs that fixBlockIds gives the document", () => {
+    const block = (id: string, children: LensBlock[] = []): LensBlock => ({
+      id,
+      type: "paragraph",
+      props: {},
+      content: [],
+      children,
+    });
+    const ids = (blocks: LensBlock[]): string[] =>
+      blocks.flatMap((b) => [b.id, ...ids(b.children)]);
+    expect(
+      ids(
+        withDistinctIds([block("x", [block("x")]), block("x-2"), block("y")]),
+      ),
+    ).toEqual(["x", "x-2", "x-2-2", "y"]);
   });
 });
