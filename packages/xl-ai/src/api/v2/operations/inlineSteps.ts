@@ -2,26 +2,17 @@ import type { Fragment, Mark, Node } from "prosemirror-model";
 import { Slice } from "prosemirror-model";
 import type { Transform } from "prosemirror-transform";
 
-import { myersMatch } from "../diff/myers.js";
-import type { MatchedPair } from "../diff/types.js";
-
-/**
- * The minimum length of a run of equal units between two changes. A shorter
- * run is part of the change. Thus, a changed word is one change, not a change
- * of each part between equal letters.
- */
-const MIN_EQUAL_RUN = 3;
+import { alignText, charKind, type TextUnit } from "../diff/text.js";
 
 /**
  * One unit of inline content in ProseMirror: a character (a code point, thus
  * never half of a surrogate pair) or an inline node that is not text.
  */
-type Unit = {
+type Unit = TextUnit & {
   /** The offset from the start of the content. */
   offset: number;
   size: number;
-  /** Equal keys have equal text or nodes. The key does not include marks. */
-  key: string;
+  /** The marks. The key does not include them. */
   marks: readonly Mark[];
 };
 
@@ -35,6 +26,7 @@ function unitsOf(content: Fragment): Unit[] {
           offset: charOffset,
           size: char.length,
           key: char,
+          kind: charKind(char),
           marks: node.marks,
         });
         charOffset += char.length;
@@ -44,6 +36,7 @@ function unitsOf(content: Fragment): Unit[] {
         offset,
         size: node.nodeSize,
         key: `\u0000${JSON.stringify(node.mark([]).toJSON())}`,
+        kind: "other",
         marks: node.marks,
       });
     }
@@ -76,11 +69,8 @@ export function addInlineContentSteps(
 ) {
   const a = unitsOf(current.content);
   const b = unitsOf(target);
-  const pairs = withoutShortRuns(
-    myersMatch(a, b, (x, y) => x.key === y.key),
-    a.length,
-    b.length,
-  );
+  // The alignment of the merge. Thus, a changed word is one change.
+  const pairs = alignText(a, b);
 
   // Mark steps do not move positions. Thus, add them first. Adjacent changes
   // of the same mark become one step.
@@ -152,42 +142,6 @@ export function addInlineContentSteps(
     );
     tr.replace(from, to, slice);
   }
-}
-
-/**
- * Removes the runs of matched pairs that are shorter than
- * {@link MIN_EQUAL_RUN} and have a change on the two sides. Runs at the start
- * or the end of the content stay.
- */
-function withoutShortRuns(
-  pairs: readonly MatchedPair[],
-  aLength: number,
-  bLength: number,
-): MatchedPair[] {
-  const runs: MatchedPair[][] = [];
-  for (const pair of pairs) {
-    const run = runs.at(-1);
-    const last = run?.at(-1);
-    if (
-      run !== undefined &&
-      last !== undefined &&
-      pair.aIndex === last.aIndex + 1 &&
-      pair.bIndex === last.bIndex + 1
-    ) {
-      run.push(pair);
-    } else {
-      runs.push([pair]);
-    }
-  }
-  return runs
-    .filter((run) => {
-      const first = run[0];
-      const last = run[run.length - 1];
-      const atStart = first.aIndex === 0 && first.bIndex === 0;
-      const atEnd = last.aIndex === aLength - 1 && last.bIndex === bLength - 1;
-      return run.length >= MIN_EQUAL_RUN || atStart || atEnd;
-    })
-    .flat();
 }
 
 /** The offset of the unit at `index`, or `size` after the last unit. */

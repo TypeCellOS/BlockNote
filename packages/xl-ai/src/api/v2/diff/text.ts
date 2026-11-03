@@ -1,0 +1,120 @@
+import { myersMatch } from "./myers.js";
+import type { MatchedPair } from "./types.js";
+
+/**
+ * A unit of a text for {@link alignText}: a character, or an item that is
+ * not text (for example a mention), as one unit. Units with equal keys are
+ * equal.
+ */
+export type TextUnit = { key: string; kind: "word" | "space" | "other" };
+
+const WORD_CHAR = /[\p{L}\p{N}_]/u;
+const WHITESPACE_CHAR = /\s/u;
+
+/** Returns the kind of a character (see {@link TextUnit}). */
+export function charKind(char: string): TextUnit["kind"] {
+  if (WORD_CHAR.test(char)) {
+    return "word";
+  }
+  return WHITESPACE_CHAR.test(char) ? "space" : "other";
+}
+
+/**
+ * The minimum part of a gap between matched tokens that character matches must
+ * cover. If the matches cover less, the alignment does not use them. These
+ * characters are the same only by chance, for example in a new sentence. Their
+ * old styles and marks must not go to random characters of the new text.
+ */
+const MIN_GAP_MATCH_RATIO = 0.5;
+
+/**
+ * Aligns two texts in two steps:
+ *
+ * 1. By tokens: words and single other units, without whitespace. Thus, a
+ *    word matches at each position, also at the end of the text, and a
+ *    changed word is one change.
+ * 2. By units, in the gaps between matched tokens. Thus, whitespace matches
+ *    only between matched tokens.
+ *
+ * The merge and the apply use this alignment. Thus, the apply keeps the
+ * same characters that the merge keeps.
+ */
+export function alignText(
+  a: readonly TextUnit[],
+  b: readonly TextUnit[],
+): MatchedPair[] {
+  const tokensA = tokenize(a);
+  const tokensB = tokenize(b);
+  const tokenPairs = myersMatch(tokensA, tokensB, (x, y) => x.key === y.key);
+
+  const pairs: MatchedPair[] = [];
+  let aPos = 0;
+  let bPos = 0;
+  for (const tokenPair of tokenPairs) {
+    const tokenA = tokensA[tokenPair.aIndex];
+    const tokenB = tokensB[tokenPair.bIndex];
+    pairs.push(...alignGap(a, b, aPos, tokenA.start, bPos, tokenB.start));
+    for (let k = 0; k < tokenA.end - tokenA.start; k++) {
+      pairs.push({ aIndex: tokenA.start + k, bIndex: tokenB.start + k });
+    }
+    aPos = tokenA.end;
+    bPos = tokenB.end;
+  }
+  pairs.push(...alignGap(a, b, aPos, a.length, bPos, b.length));
+  return pairs;
+}
+
+function alignGap(
+  a: readonly TextUnit[],
+  b: readonly TextUnit[],
+  aStart: number,
+  aEnd: number,
+  bStart: number,
+  bEnd: number,
+): MatchedPair[] {
+  const gapLength = aEnd - aStart + (bEnd - bStart);
+  if (aStart === aEnd || bStart === bEnd) {
+    return [];
+  }
+  const matches = myersMatch(
+    a.slice(aStart, aEnd),
+    b.slice(bStart, bEnd),
+    (x, y) => x.key === y.key,
+  );
+  if (2 * matches.length < MIN_GAP_MATCH_RATIO * gapLength) {
+    return [];
+  }
+  return matches.map((pair) => ({
+    aIndex: aStart + pair.aIndex,
+    bIndex: bStart + pair.bIndex,
+  }));
+}
+
+type Token = { start: number; end: number; key: string };
+
+/** Makes tokens: a run of word units, or one other unit. Whitespace is not in a token. */
+function tokenize(units: readonly TextUnit[]): Token[] {
+  const tokens: Token[] = [];
+  let i = 0;
+  while (i < units.length) {
+    const { kind } = units[i];
+    let end = i + 1;
+    if (kind === "word") {
+      while (end < units.length && units[end].kind === "word") {
+        end++;
+      }
+    }
+    if (kind !== "space") {
+      tokens.push({
+        start: i,
+        end,
+        key: units
+          .slice(i, end)
+          .map((unit) => unit.key)
+          .join(""),
+      });
+    }
+    i = end;
+  }
+  return tokens;
+}
