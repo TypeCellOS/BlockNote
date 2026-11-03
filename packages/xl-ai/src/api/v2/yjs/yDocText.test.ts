@@ -5,7 +5,11 @@ import {
   type PartialBlock,
 } from "@blocknote/core";
 import { withMultiColumn } from "@blocknote/xl-multi-column";
-import { blocksToYDoc, yDocToBlocks } from "@blocknote/core/yjs";
+import {
+  blocksToYDoc,
+  withCollaboration,
+  yDocToBlocks,
+} from "@blocknote/core/yjs";
 import { describe, expect, it } from "vite-plus/test";
 import * as Y from "yjs";
 
@@ -120,6 +124,24 @@ describe("updateYDocFromText", () => {
     );
 
     expect(block("p")?.content).toEqual([{ type: "text", text, styles: {} }]);
+  });
+
+  it("throws an error if the editor is not bound to the Y.Doc, or not mounted", () => {
+    const ydoc = new Y.Doc();
+    const fragment = ydoc.getXmlFragment("prosemirror");
+    const options = { format: markdownFormat, text: "Hello" };
+
+    expect(() =>
+      updateYDocFromText(BlockNoteEditor.create(), fragment, options),
+    ).toThrow(/bound to the fragment/);
+    const notMounted = BlockNoteEditor.create(
+      withCollaboration({
+        collaboration: { fragment, user: { name: "Lens", color: "#000000" } },
+      }),
+    );
+    expect(() => updateYDocFromText(notMounted, fragment, options)).toThrow(
+      /mounted/,
+    );
   });
 
   it("changes nothing if the text did not change", () => {

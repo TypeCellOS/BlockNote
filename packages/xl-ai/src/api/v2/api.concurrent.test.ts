@@ -743,3 +743,104 @@ describe("a write from an older version, with columns", () => {
     ]);
   });
 });
+
+describe("a write from an older version, with a table", () => {
+  function createTableEditor() {
+    return createEditor([
+      {
+        id: "t",
+        type: "table",
+        content: {
+          type: "tableContent",
+          rows: [
+            { cells: ["Head A", "Head B"] },
+            {
+              cells: [
+                "alpha",
+                {
+                  type: "tableCell",
+                  props: { backgroundColor: "yellow" },
+                  content: ["beta"],
+                },
+              ],
+            },
+            { cells: ["gamma", "delta"] },
+          ],
+        },
+      },
+    ]);
+  }
+  /** The text and the background color of each cell. */
+  function cells(editor: BlockNoteEditor<any, any, any>) {
+    const content = editor.getBlock("t")?.content as {
+      rows: {
+        cells: {
+          content: { text: string }[];
+          props: Record<string, unknown>;
+        }[];
+      }[];
+    };
+    return content.rows.map((row) =>
+      row.cells.map(
+        (cell) =>
+          `${cell.content.map((item) => item.text).join("")}:${cell.props.backgroundColor}`,
+      ),
+    );
+  }
+  /** Another writer changes the text and the color of the cell "beta". */
+  function changeCell(editor: BlockNoteEditor<any, any, any>, color: string) {
+    editor.updateBlock("t", {
+      content: {
+        type: "tableContent",
+        rows: [
+          { cells: ["Head A", "Head B"] },
+          {
+            cells: [
+              "alpha",
+              {
+                type: "tableCell",
+                props: { backgroundColor: color },
+                content: ["beta two"],
+              },
+            ],
+          },
+          { cells: ["gamma", "delta"] },
+        ],
+      },
+    });
+  }
+
+  it("keeps the change of another writer to a different cell", () => {
+    const editor = createTableEditor();
+    const client = read(editor);
+    changeCell(editor, "red");
+
+    write(editor, client, (text) => replaceOnce(text, "gamma", "gamma two"));
+
+    expect(cells(editor)).toEqual([
+      ["Head A:default", "Head B:default"],
+      ["alpha:default", "beta two:red"],
+      ["gamma two:default", "delta:default"],
+    ]);
+  });
+
+  it("keeps the change of another writer to a cell, if the client adds a row", () => {
+    const editor = createTableEditor();
+    const client = read(editor);
+    changeCell(editor, "yellow");
+
+    write(editor, client, (text) => {
+      const lines = text.split("\n");
+      const gamma = lines.findIndex((line) => line.includes("gamma"));
+      lines.splice(gamma + 1, 0, "| epsilon | zeta |");
+      return lines.join("\n");
+    });
+
+    expect(cells(editor)).toEqual([
+      ["Head A:default", "Head B:default"],
+      ["alpha:default", "beta two:yellow"],
+      ["gamma:default", "delta:default"],
+      ["epsilon:default", "zeta:default"],
+    ]);
+  });
+});
