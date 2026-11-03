@@ -55,3 +55,5 @@ curl http://localhost:3010/documents/demo/json
 - `src/app.ts` has the routes. A text write calls `updateDocumentFromText`, and a JSON write calls `updateDocumentFromJSON`, with the document of the base version as `base`. After the server reads the body, a write is synchronous until its commit. Thus, two writes cannot mix.
 
 A real server also needs authentication. The body of a request can be at most 5 MB.
+
+The JSON route rejects a tree with more than 100 levels. The text routes have no limit for the nesting: the markdown and HTML parsers of BlockNote use recursion for nested blocks. Thus, a very deep nesting in a text (for example 20,000 quote markers in markdown) overflows the stack of the parser, and the response is 500. A deep HTML list can take many seconds. A real server must parse untrusted text in a worker, with a time limit.
