@@ -524,6 +524,24 @@ export const parseTestInstancesHTML: TestInstance<
   },
   {
     testCase: {
+      name: "tableCellTextAlignStyle",
+      content: `<table>
+  <tbody>
+    <tr>
+      <th style="text-align: center">Center</th>
+      <th align="right">Right</th>
+    </tr>
+    <tr>
+      <td style="text-align: justify">Justify</td>
+      <td style="text-align: start">Start</td>
+    </tr>
+  </tbody>
+</table>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
       name: "divs",
       content: `<div>Single Div</div>
 <div>
