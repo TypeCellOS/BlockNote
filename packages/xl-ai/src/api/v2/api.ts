@@ -64,7 +64,7 @@ export type TextUpdateOptions = {
    * The document at the version that the client read, if it is older than
    * the document of the editor. Get it from your version history. The result
    * then keeps the changes that other writers made after that version (see
-   * `rebase/`). Without `base`, the text applies to the current document.
+   * `merge/tree.ts`). Without `base`, the text applies to the current document.
    */
   base?: readonly LensBlock[];
 };
@@ -144,7 +144,7 @@ export type JSONUpdateOptions = {
  * document of the client, as BlockNote JSON. The JSON contains the block IDs,
  * thus the blocks pair by ID, not by their text. The operations change only
  * the blocks and fields that the client changed. With `base`, they keep the
- * changes of other writers (see `rebase/`).
+ * changes of other writers (see `merge/tree.ts`).
  */
 export function computeJSONUpdate(
   editor: BlockNoteEditor<any, any, any>,
@@ -246,7 +246,8 @@ function withUniqueIds(
  * Returns the update that changes `current` to the target document of the
  * plan. The plan is for `base`, or for `current` if there is no `base`. A
  * plan without changes gives no operations. With `base` (an older version),
- * the operations for `base` move to `current` (see `rebase/`).
+ * the target merges three-way with `current` (see `mergeTree`), and the
+ * operations change `current` to the result.
  *
  * The layout blocks of the result change to fit their child rules (see
  * `fitLayout`), unless `keepLayout` is set: without `base`, in the target;

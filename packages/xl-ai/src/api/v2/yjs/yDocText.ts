@@ -18,8 +18,9 @@ import { dispatchSteps } from "./dispatchSteps.js";
 /**
  * How a write merges the text with the changes of other writers after `base`:
  *
- * - `"rebase"`: the lens moves the changes of the text to the current
- *   document (see `rebase/`), and the editor applies them there.
+ * - `"rebase"`: the lens merges the text with the current document (a
+ *   three-way merge of the block trees, see `merge/tree.ts`), and the editor
+ *   applies the result.
  * - `"yjs"`: the editor applies the changes of the text to a fork of the
  *   Y.Doc at `base` (see `ForkYDocExtension`), and Yjs merges the fork into
  *   the Y.Doc. In the Yjs binding now, a move is a removal and an insert.
