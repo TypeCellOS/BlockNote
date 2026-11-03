@@ -268,12 +268,14 @@ describe("plain text, a part of a block without words", () => {
       }),
     );
 
-    // Plain text shows the code block as two parts. The change of a part
-    // replaces the block (see "multi-part-block-replaced").
-    expect(update.warnings).toEqual([
-      { type: "multi-part-block-replaced", id: "c" },
-    ]);
-    expect(getDocumentText(editor, plainTextFormat)).toContain("} // end");
+    // Plain text shows the code block as two parts. The change of a part is
+    // a change of the code block: its type and language stay.
+    expect(update.warnings).toEqual([]);
+    expect(editor.getBlock("c")).toMatchObject({
+      type: "codeBlock",
+      props: { language: "javascript" },
+      content: [{ text: "if (a) {\n  b();\n\n} // end" }],
+    });
   });
 });
 

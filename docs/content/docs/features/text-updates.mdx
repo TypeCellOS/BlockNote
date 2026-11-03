@@ -155,7 +155,7 @@ A result can contain these warnings:
 
 | Warning                     | Meaning                                                                                                                                                                     |
 | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `multi-part-block-replaced` | The text changed a block that the format shows as more than one block (for example a code block with blank lines, in plain text). The blocks of the text replace the block. |
+| `multi-part-block-replaced` | The format shows the block as more than one block (for example a code block with blank lines, in plain text), and the text moved, removed or split a part. The blocks of the text replace the block. A change of the text of the parts merges into the block, without this warning. |
 | `unlinked-block-changed`    | The text changed a part of the text that does not come from one block. The change does not apply.                                                                           |
 | `block-shape-replaced`      | The format shows the block with content of a different shape (for example a table as text), and the text changed it. The block becomes a block of the text.                 |
 | `change-to-removed-block`   | The client changed or moved a block that another user removed. The change does not apply.                                                                                   |

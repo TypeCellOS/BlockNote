@@ -14,10 +14,12 @@ import type { Projection } from "../projection/projectDocument.js";
 
 export type PlanWarning =
   /**
-   * The text changed a block that renders as more than one view block. An
-   * example is a code block with blank lines, in plain text. The blocks of
-   * the text replace the block. Thus, the data that the format does not show
-   * is lost.
+   * The text moved, removed or split a part of a block that renders as more
+   * than one view block, or that block has no text. An example is a code
+   * block with blank lines, in plain text. The blocks of the text replace
+   * the block. Thus, the data that the format does not show is lost. A
+   * change of the text of the parts merges into the block (see
+   * `joinParts`).
    */
   | { type: "multi-part-block-replaced"; id: string }
   /**
@@ -86,10 +88,12 @@ export function planTarget(input: PlanInput): Plan {
   }
 
   // 1. Find the source blocks that stay, and the block of the text for each.
-  // A multi-part block stays only if the text did not change its parts: each
-  // part is in the text, unchanged, and the parts are next to each other in
-  // the same order.
+  // A multi-part block stays if its parts are in the text, next to each
+  // other, in the same order. If the text changed a part, the parts join
+  // again (see `joinParts`), and the joined text merges as the block. Else,
+  // the blocks of the text replace the block.
   const replaced = new Set<string>();
+  const joined = new Map<string, { view: LensBlock; incoming: LensBlock }>();
   const partsOf = new Map<string, number[]>();
   view.forEach(({ sourceId }, v) => {
     if (sourceId !== undefined && multiPartIds.has(sourceId)) {
@@ -102,17 +106,28 @@ export function planTarget(input: PlanInput): Plan {
     }
   });
   for (const [id, parts] of partsOf) {
-    const unchanged = parts.every((v, k) => {
+    const together = parts.every((v, k) => {
       const j = viewToIncoming[v];
-      return (
-        j !== -1 &&
-        blockKey(view[v].block) === blockKey(incoming[j].block) &&
-        (k === 0 || j === viewToIncoming[parts[k - 1]] + 1)
-      );
+      return j !== -1 && (k === 0 || j === viewToIncoming[parts[k - 1]] + 1);
     });
-    if (!unchanged) {
+    const textParts = together
+      ? parts.map((v) => incoming[viewToIncoming[v]].block)
+      : [];
+    const viewParts = parts.map((v) => view[v].block);
+    if (
+      together &&
+      viewParts.every((part, k) => blockKey(part) === blockKey(textParts[k]))
+    ) {
+      continue;
+    }
+    const join = together
+      ? joinParts(source.block(id), viewParts, textParts)
+      : undefined;
+    if (join === undefined) {
       replaced.add(id);
       warnings.push({ type: "multi-part-block-replaced", id });
+    } else {
+      joined.set(id, join);
     }
   }
   const kept = new Set<string>();
@@ -373,16 +388,19 @@ export function planTarget(input: PlanInput): Plan {
       nodes[j] = block;
       continue;
     }
-    const viewBlock = view[incomingToView[j]].block;
+    const viewBlock = joined.get(id)?.view ?? view[incomingToView[j]].block;
+    const textBlock = joined.get(id)?.incoming ?? incoming[j].block;
     const merged = mergeBlock(
       viewBlock,
-      incoming[j].block,
+      textBlock,
       source.block(id),
       contentKindOf,
-      { shadowOf: input.shadowOf },
+      {
+        shadowOf: input.shadowOf,
+      },
     );
     if (
-      viewBlock.type === incoming[j].block.type &&
+      viewBlock.type === textBlock.type &&
       merged.type !== source.block(id).type
     ) {
       warnings.push({ type: "block-shape-replaced", id });
@@ -446,6 +464,57 @@ function withInserts(
     insertAfter(child.id);
   }
   return result;
+}
+
+/**
+ * The parts of a multi-part block in the view and in the text, joined to
+ * one block each, with the text that is between the parts in the source
+ * block. Thus, a change of the text of a part is a change of the block (for
+ * example a code block with a blank line, in plain text). `undefined` if the
+ * block or a part has no text, or if the text of the source block does not
+ * contain the parts of the view, in order.
+ */
+function joinParts(
+  sourceBlock: LensBlock,
+  viewParts: readonly LensBlock[],
+  textParts: readonly LensBlock[],
+): { view: LensBlock; incoming: LensBlock } | undefined {
+  const parts = [...viewParts, ...textParts];
+  if (
+    !Array.isArray(sourceBlock.content) ||
+    !parts.every((part) => Array.isArray(part.content))
+  ) {
+    return undefined;
+  }
+  const sourceText = blockToText(sourceBlock);
+  /** The text before each part, and after the last part. */
+  const between: string[] = [];
+  let cursor = 0;
+  for (const part of viewParts) {
+    const text = blockToText(part);
+    const at = sourceText.indexOf(text, cursor);
+    if (at === -1) {
+      return undefined;
+    }
+    between.push(sourceText.slice(cursor, at));
+    cursor = at + text.length;
+  }
+  between.push(sourceText.slice(cursor));
+  const textItem = (text: string): LensInlineContent[] =>
+    text === "" ? [] : [{ type: "text", text, styles: {} }];
+  function join(blocks: readonly LensBlock[]): LensBlock {
+    return {
+      ...blocks[0],
+      content: [
+        ...blocks.flatMap((block, k) => [
+          ...textItem(between[k]),
+          ...(block.content as LensInlineContent[]),
+        ]),
+        ...textItem(between[blocks.length]),
+      ],
+    };
+  }
+  return { view: join(viewParts), incoming: join(textParts) };
 }
 
 function node(id: string, fields: BlockFields): LensBlock {

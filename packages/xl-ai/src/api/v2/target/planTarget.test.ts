@@ -242,7 +242,8 @@ describe("planTarget", () => {
     ).toEqual(["col:", ["x:x2", "y"], "e"]);
   });
 
-  it("replaces a changed multi-part block, and gives a warning", () => {
+  it("merges a change of a part into the multi-part block", () => {
+    // The parts join again, with the blank line between them.
     expect(
       plan({
         document: [paragraph("m", "x\n\ny")],
@@ -251,8 +252,23 @@ describe("planTarget", () => {
         pairs: same,
         multiPartIds: ["m"],
       }),
+    ).toEqual({ target: ["m:x\n\ny2"], warnings: [] });
+  });
+
+  it("replaces a multi-part block if its parts are not next to each other, and gives a warning", () => {
+    expect(
+      plan({
+        document: [paragraph("m", "x\n\ny")],
+        view: [viewBlock("m", "x"), viewBlock("m", "y")],
+        incoming: [flat("x"), flat("new"), flat("y")],
+        pairs: [
+          [0, 0],
+          [1, 2],
+        ],
+        multiPartIds: ["m"],
+      }),
     ).toEqual({
-      target: ["new1:x", "new2:y2"],
+      target: ["new1:x", "new2:new", "new3:y"],
       warnings: [{ type: "multi-part-block-replaced", id: "m" }],
     });
   });

@@ -106,7 +106,7 @@ describe("removals (review closely)", () => {
     expect(editor.document.map((block) => block.id)).toEqual(["empty-1"]);
   });
 
-  it("replaces a block that renders as more than one paragraph if one paragraph changes", () => {
+  it("keeps a block that renders as more than one paragraph if the text of a paragraph changes", () => {
     const editor = createEditor([
       {
         id: "code",
@@ -122,10 +122,32 @@ describe("removals (review closely)", () => {
       "const b = 3;",
     );
     const update = valid(
-      updateDocumentFromText(editor, {
-        format: plainTextFormat,
-        text,
-      }),
+      updateDocumentFromText(editor, { format: plainTextFormat, text }),
+    );
+
+    // The parts join again, with the blank line between them.
+    expect(update.warnings).toEqual([]);
+    expect(editor.getBlock("code")).toMatchObject({
+      type: "codeBlock",
+      props: { language: "javascript" },
+      content: [{ text: "const a = 1;\n\nconst b = 3;" }],
+    });
+    expect(getDocumentText(editor, plainTextFormat)).toBe(text);
+  });
+
+  it("replaces a block that renders as more than one paragraph if the text moves a paragraph", () => {
+    const editor = createEditor([
+      {
+        id: "code",
+        type: "codeBlock",
+        props: { language: "javascript" },
+        content: "const a = 1;\n\nconst b = 2;",
+      },
+      { id: "after", type: "paragraph", content: "After" },
+    ]);
+    const text = "const b = 2;\n\nconst a = 1;\n\nAfter";
+    const update = valid(
+      updateDocumentFromText(editor, { format: plainTextFormat, text }),
     );
 
     expect(update.warnings).toEqual([
@@ -134,6 +156,7 @@ describe("removals (review closely)", () => {
     expect(editor.getBlock("code")).toBeUndefined();
     expect(getDocumentText(editor, plainTextFormat)).toBe(text);
   });
+
   it("a changed block that the format shows with content of a different shape becomes a block of the text", () => {
     // A format that shows each block as one paragraph of text, also a table.
     const textOnly: TextFormat = {
