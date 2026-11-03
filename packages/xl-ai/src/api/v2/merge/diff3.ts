@@ -26,11 +26,11 @@ export type Diff3Handlers<T> = {
   /** Returns true if a stable triple can be a context. By default, all can. */
   isContext?: (triple: StableTriple<T>) => boolean;
   /**
-   * If true, two inserts at the same position (without base units between
-   * the stable units) both stay: first the inserts of theirs, then the
-   * inserts of ours. If not, ours wins, as in a conflict.
+   * If set, two inserts at the same position (without base units between
+   * the stable units) both stay, in the given order. If not, ours wins, as
+   * in a conflict.
    */
-  keepBothInserts?: boolean;
+  keepBothInserts?: "theirs-first" | "ours-first";
   /**
    * Returns true if a matched unit of ours is the same as its base unit. By
    * default, a match is the same unit. Give this function if the matches can
@@ -111,19 +111,23 @@ export function diff3<T>(
       // The two sides made the same change, or ours made no change.
       merged.push(...theirs.slice(jb, jb2));
     } else {
-      if (i === i2 && handlers.keepBothInserts) {
-        merged.push(...theirs.slice(jb, jb2));
-      } else if (
+      const both = i === i2 ? handlers.keepBothInserts : undefined;
+      if (
+        both === undefined &&
         !isUnchanged(toB, i, i2, jb, jb2, base, theirs, handlers.same)
       ) {
         handlers.conflict?.();
       }
+      const theirsUnits = both === undefined ? [] : theirs.slice(jb, jb2);
+      const oursUnits = handlers.ours(ours.slice(ja, ja2), {
+        before,
+        after: contextsAfter[i2],
+        replaced: { base: base.slice(i, i2), theirs: theirs.slice(jb, jb2) },
+      });
       merged.push(
-        ...handlers.ours(ours.slice(ja, ja2), {
-          before,
-          after: contextsAfter[i2],
-          replaced: { base: base.slice(i, i2), theirs: theirs.slice(jb, jb2) },
-        }),
+        ...(both === "ours-first"
+          ? [...oursUnits, ...theirsUnits]
+          : [...theirsUnits, ...oursUnits]),
       );
     }
 

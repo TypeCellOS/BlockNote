@@ -26,10 +26,7 @@ import {
 import { diffDocuments } from "./operations/diffDocuments.js";
 import type { BlockOperation } from "./operations/types.js";
 import { projectDocument } from "./projection/projectDocument.js";
-import {
-  type RebaseWarning,
-  rebaseOperations,
-} from "./rebase/rebaseOperations.js";
+import { mergeTree, type RebaseWarning } from "./merge/tree.js";
 import { fitLayout, type LayoutRule } from "./target/fitLayout.js";
 import { type PlanWarning, planTarget } from "./target/planTarget.js";
 
@@ -283,20 +280,16 @@ function updateToTarget(
       warnings: plan.warnings,
     };
   }
-  const rebased = rebaseOperations({
+  const merged = mergeTree({
     base,
-    current,
-    target: plan.target,
-    operations: diffDocuments(base, plan.target),
+    ours: plan.target,
+    theirs: current,
     contentKindOf: (type) => contentKindOf(editor, type),
     canContain: (parent, child) => canContain(editor, parent, child),
   });
   return {
-    operations: [
-      ...rebased.operations,
-      ...diffDocuments(rebased.result, fit(rebased.result)),
-    ],
-    warnings: [...plan.warnings, ...rebased.warnings],
+    operations: diffDocuments(current, fit(merged.blocks)),
+    warnings: [...plan.warnings, ...merged.warnings],
   };
 }
 

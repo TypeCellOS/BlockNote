@@ -8,7 +8,7 @@ function merge(
   base: string,
   ours: string,
   theirs: string,
-  keepBothInserts = false,
+  keepBothInserts?: "theirs-first" | "ours-first",
 ) {
   const o = Array.from(base);
   const a = Array.from(ours);
@@ -34,14 +34,15 @@ describe("diff3", () => {
     expect(merge("abcde", "aYcde", "abcXe")).toBe("aYcXe");
   });
 
-  it("keeps two inserts at the same position if the handlers say so: first theirs, then ours", () => {
+  it("keeps two inserts at the same position if the handlers say so, in the given order", () => {
     expect(merge("ab", "aXb", "aYb")).toBe("aXb");
-    expect(merge("ab", "aXb", "aYb", true)).toBe("aYXb");
+    expect(merge("ab", "aXb", "aYb", "theirs-first")).toBe("aYXb");
+    expect(merge("ab", "aXb", "aYb", "ours-first")).toBe("aXYb");
   });
 
   it("applies a change that the two sides made one time", () => {
     expect(merge("helo", "hello", "hello")).toBe("hello");
-    expect(merge("ab", "aXb", "aXb", true)).toBe("aXb");
+    expect(merge("ab", "aXb", "aXb", "theirs-first")).toBe("aXb");
   });
 
   it("gives the change of ours for a conflict", () => {

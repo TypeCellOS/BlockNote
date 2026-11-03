@@ -42,7 +42,7 @@ export function mergeInlineContent(
       // example "**bold **" becomes "**bold** "). Thus, whitespace does not
       // show the styles around it.
       isContext: ({ base }) => base.kind === "char" && !/\s/u.test(base.char),
-      keepBothInserts: options.concurrent,
+      keepBothInserts: options.concurrent ? "theirs-first" : undefined,
       conflict: options.onConflict,
       // The alignment pairs characters without their styles. Thus, a
       // character with a changed style is a change.

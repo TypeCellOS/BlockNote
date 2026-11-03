@@ -44,7 +44,7 @@ export function mergeTableContent(
           mergeCell(baseRow[c], cell, theirRow[c], options),
         ),
       ours: (units) => units,
-      keepBothInserts: options.concurrent,
+      keepBothInserts: options.concurrent ? "theirs-first" : undefined,
       conflict: options.onConflict,
       // `alignRows` also pairs rows with changed text.
       same: (baseRow, otherRow) => deepEqual(baseRow, otherRow),
