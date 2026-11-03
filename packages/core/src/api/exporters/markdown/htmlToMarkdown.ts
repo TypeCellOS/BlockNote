@@ -1045,9 +1045,31 @@ function mergeSameSiblingRuns(parent: Node) {
       next.remove();
       continue;
     }
+    if (next && isSameElement(child, next)) {
+      // For example `<em><s>a</s></em><em>b</em>`. Without the merge, the
+      // markdown closes and opens the same delimiter at one position
+      // (`*~~a~~**b*`), and the parser reads `**` as text.
+      (child as Element).append(...Array.from(next.childNodes));
+      next.remove();
+      continue;
+    }
     mergeSameSiblingRuns(child);
     child = next;
   }
+}
+
+/** Returns true for two elements with the same markdown syntax: the same tag, and the same link. */
+function isSameElement(a: Node, b: Node): boolean {
+  if (a.nodeType !== 1 || b.nodeType !== 1) {
+    return false;
+  }
+  const x = a as Element;
+  const y = b as Element;
+  return (
+    MARKDOWN_INLINE_TAGS.has(x.tagName) &&
+    x.tagName === y.tagName &&
+    x.getAttribute("href") === y.getAttribute("href")
+  );
 }
 
 /**

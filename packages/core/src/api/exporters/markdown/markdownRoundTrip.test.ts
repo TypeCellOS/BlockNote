@@ -529,6 +529,28 @@ describe("Markdown round trip", () => {
     });
   });
 
+  describe("adjacent styles", () => {
+    it("writes one italic run for an italic text with a part that is also struck", () => {
+      const blocks: PartialBlock[] = [
+        {
+          type: "paragraph",
+          content: [
+            { type: "text", text: "a", styles: { italic: true, strike: true } },
+            { type: "text", text: "]", styles: { italic: true } },
+            { type: "text", text: " b", styles: {} },
+          ],
+        },
+      ];
+      expect(serialize(blocks)).toBe("*~~a~~\\]* b\n");
+      expectStable(blocks);
+    });
+
+    it("parses a text with italic runs next to each other into a stable form", () => {
+      const once = serialize(parse("*~~a~~]* b"));
+      expect(serialize(parse(once))).toBe(once);
+    });
+  });
+
   describe("markdown syntax in text", () => {
     it.each([
       "# x",
