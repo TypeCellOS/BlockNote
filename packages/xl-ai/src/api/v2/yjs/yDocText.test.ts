@@ -355,21 +355,14 @@ describe.each<MergeStrategy>(["rebase", "yjs"])(
       });
     });
 
-    it("does one move if two writers make the same move", () => {
+    itMoves("does one move if two writers make the same move", () => {
       const { read, write, blocks } = setup(fruit);
       const a = read();
       const b = read();
 
       write(a, (text) => replaceOnce(text, "  * Pears", "* Pears"));
-      const update = write(
-        b,
-        (text) => replaceOnce(text, "  * Pears", "* Pears"),
-        strategy,
-      );
+      write(b, (text) => replaceOnce(text, "  * Pears", "* Pears"), strategy);
 
-      // With the "yjs" strategy, the merge would give two blocks with the ID
-      // "pears". Thus, the write uses the "rebase" strategy.
-      expect(update.strategy).toBe("rebase");
       expect(documentShape(blocks())).toEqual([
         "fruit",
         ["apples"],

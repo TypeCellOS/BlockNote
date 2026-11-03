@@ -31,13 +31,9 @@ export type YDocTextOptions = {
  *   document (see `rebase/`), and applies them there.
  * - `"yjs"`: the lens applies the changes of the text to a copy of `base`,
  *   and Yjs merges the copy into the document. In the Yjs binding now, a move
- *   is a removal and an insert. Thus, if another writer changes a block that
- *   the text moves, the change is lost. A flat document model in the binding
- *   will remove this problem. Yjs does not know the schema. If the merge
- *   gives a document that does not fit the schema (for example a block group
- *   without blocks, if two writers keep different blocks), or two blocks with
- *   the same ID (two writers move the same block), the write uses the
- *   "rebase" strategy.
+ *   is a removal and an insert. Thus, concurrent moves give duplicate blocks
+ *   or lose changes. A flat document model in the binding will remove this
+ *   problem.
  */
 export type MergeStrategy = "rebase" | "yjs";
 
@@ -46,11 +42,6 @@ export type YDocTextUpdate =
   | (ValidTextUpdate & {
       /** The Yjs update that the write applied. Send it to the other clients. */
       update: Uint8Array;
-      /**
-       * The strategy that the write used. It can be "rebase" for a write with
-       * the "yjs" strategy (see {@link MergeStrategy}).
-       */
-      strategy: MergeStrategy;
     })
   | { error: "invalid-document" };
 
@@ -73,9 +64,8 @@ export function getYDocText(
  * the document (`base`). The result keeps the changes that other writers made
  * after that version. `strategy` selects how (the default is "rebase").
  *
- * The `strategy` of the result tells which strategy the write used. With the
- * "yjs" strategy, the operations of the result are for `base`. With the
- * "rebase" strategy, they are for the current document. A write from an
+ * With the "yjs" strategy, the operations of the result are for `base`. With
+ * the "rebase" strategy, they are for the current document. A write from an
  * empty base always uses the "rebase" strategy.
  */
 export function updateYDocFromText(
@@ -109,11 +99,20 @@ export function updateYDocFromText(
     strategy === "rebase" ||
     base.getXmlFragment(fragment).length === 0
   ) {
-    return rebaseWrite();
+    const before = Y.encodeStateVector(ydoc);
+    const update = writeText(editor, ydoc, fragment, {
+      ...textOptions,
+      base:
+        base === undefined
+          ? undefined
+          : docToBlocks(readDocument(editor, base, fragment)),
+    });
+    return update.error === undefined
+      ? { ...update, update: Y.encodeStateAsUpdate(ydoc, before) }
+      : update;
   }
 
-  // A copy, because `rebaseWrite` reads `base`.
-  const copy = docFromState(Y.encodeStateAsUpdate(base));
+  const copy = base;
   const baseVector = Y.encodeStateVector(copy);
   // The layout blocks stay, also if they become empty: Yjs cannot merge the
   // removal of a column with a block that another writer adds to it.
@@ -125,46 +124,8 @@ export function updateYDocFromText(
     return update;
   }
   const yUpdate = Y.encodeStateAsUpdate(copy, baseVector);
-  const merged = docFromState(Y.encodeStateAsUpdate(ydoc));
-  Y.applyUpdate(merged, yUpdate);
-  const mergedDocument = tryReadDocument(editor, merged, fragment);
-  if (mergedDocument === undefined || !hasUniqueBlockIds(mergedDocument)) {
-    return rebaseWrite();
-  }
   Y.applyUpdate(ydoc, yUpdate);
-  return { ...update, update: yUpdate, strategy: "yjs" };
-
-  function rebaseWrite(): YDocTextUpdate {
-    const before = Y.encodeStateVector(ydoc);
-    const update = writeText(editor, ydoc, fragment, {
-      ...textOptions,
-      base:
-        base === undefined
-          ? undefined
-          : docToBlocks(readDocument(editor, base, fragment)),
-    });
-    return update.error === undefined
-      ? {
-          ...update,
-          update: Y.encodeStateAsUpdate(ydoc, before),
-          strategy: "rebase",
-        }
-      : update;
-  }
-}
-
-/** Returns true if no two blocks of the document have the same ID. */
-function hasUniqueBlockIds(doc: Node): boolean {
-  const ids = new Set<unknown>();
-  let unique = true;
-  doc.descendants((node) => {
-    if (node.type.isInGroup("bnBlock") && node.attrs.id !== null) {
-      unique &&= !ids.has(node.attrs.id);
-      ids.add(node.attrs.id);
-    }
-    return unique;
-  });
-  return unique;
+  return { ...update, update: yUpdate };
 }
 
 /**
@@ -178,21 +139,6 @@ function readDocument(
   ydoc: Y.Doc,
   fragmentName: string,
 ): Node {
-  const doc = tryReadDocument(editor, ydoc, fragmentName);
-  if (doc === undefined) {
-    throw new Error(
-      "The schema of the editor cannot read all content of the Y.Doc. Use an editor with the schema and the extensions of the document (for example comments).",
-    );
-  }
-  return doc;
-}
-
-/** Reads the fragment as `readDocument` does. Returns `undefined` if the schema cannot read all of it. */
-function tryReadDocument(
-  editor: BlockNoteEditor<any, any, any>,
-  ydoc: Y.Doc,
-  fragmentName: string,
-): Node | undefined {
   const copy = docFromState(Y.encodeStateAsUpdate(ydoc));
   let changed = false;
   copy.on("update", () => {
@@ -202,7 +148,12 @@ function tryReadDocument(
     copy.getXmlFragment(fragmentName),
     editor.pmSchema,
   );
-  return changed ? undefined : doc;
+  if (changed) {
+    throw new Error(
+      "The schema of the editor cannot read all content of the Y.Doc. Use an editor with the schema and the extensions of the document (for example comments).",
+    );
+  }
+  return doc;
 }
 
 function docFromState(state: Uint8Array): Y.Doc {
