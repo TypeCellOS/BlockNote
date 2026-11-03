@@ -1,4 +1,5 @@
 import { DOMParser, Schema } from "prosemirror-model";
+import { normalizeImportedTables } from "../../../blocks/Table/normalizeImportedTables.js";
 import {
   BlockSchema,
   InlineContentSchema,
@@ -64,9 +65,10 @@ export function HTMLToBlocks<
   // const doc = pmSchema.nodes["doc"].createAndFill()!;
   // and context: doc.resolve(3),
 
-  const parentNode = parser.parse(htmlNode, {
+  const parsedNode = parser.parse(htmlNode, {
     topNode: pmSchema.nodes["blockGroup"].create(),
   });
+  const parentNode = normalizeImportedTables(parsedNode);
 
   const blocks: Block<BSchema, I, S>[] = [];
 
