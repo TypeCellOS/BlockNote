@@ -93,7 +93,11 @@ export function computeTextUpdate(
  */
 export function computeBlocksUpdate(
   editor: BlockNoteEditor<any, any, any>,
-  options: TextUpdateOptions & { current: readonly LensBlock[] },
+  options: TextUpdateOptions & {
+    current: readonly LensBlock[];
+    /** Keep the layout blocks, also if they become empty (see `updateToTarget`). */
+    keepLayout?: boolean;
+  },
 ): TextUpdate {
   const { current } = options;
   const base = options.base ?? current;
@@ -105,6 +109,7 @@ export function computeBlocksUpdate(
     base,
     current,
     rebase: options.base !== undefined,
+    keepLayout: options.keepLayout,
   });
 }
 
@@ -268,10 +273,15 @@ function withUniqueIds(
 
 /**
  * Returns the update that changes `current` to the target document of the
- * plan. First, the layout blocks of the target change to fit the schema (see
- * `fitLayout`), if there is no rebase. The diff gives the operations for
- * `base`. If `base` is older than `current` (`rebase`), the rebase moves
- * them to `current` (see `rebase/`).
+ * plan. The diff gives the operations for `base`. If `base` is older than
+ * `current` (`rebase`), the rebase moves them to `current` (see `rebase/`).
+ *
+ * The layout blocks of the result change to fit their child rules (see
+ * `fitLayout`), unless `keepLayout` is set: without a rebase, in the target;
+ * with a rebase, in the result on the current document, with more
+ * operations. The client did not change the layout blocks, and in the
+ * current document they can have blocks of other writers (for example a
+ * column that another writer added). Thus, the rule applies to the result.
  */
 function updateToTarget(
   editor: BlockNoteEditor<any, any, any>,
@@ -280,30 +290,38 @@ function updateToTarget(
     base: readonly LensBlock[];
     current: readonly LensBlock[];
     rebase: boolean;
+    keepLayout?: boolean;
   },
 ): ValidTextUpdate {
   const { base, current } = documents;
-  // For a write from an older version, the layout blocks of the target do
-  // not change. The client did not remove them, and in the current document
-  // they can have blocks of other writers, for example a new column.
-  const target =
-    plan.target === base || documents.rebase
-      ? plan.target
-      : fitLayout(plan.target, (type) => layoutRuleOf(editor, type));
-  const operations = target === base ? [] : diffDocuments(base, target);
-  if (!documents.rebase) {
-    return { operations, warnings: plan.warnings };
+  function fit(blocks: readonly LensBlock[]): LensBlock[] {
+    return fitLayout(blocks, (type) => layoutRuleOf(editor, type));
   }
+  if (!documents.rebase) {
+    const target =
+      plan.target === base || documents.keepLayout
+        ? plan.target
+        : fit(plan.target);
+    return {
+      operations: target === base ? [] : diffDocuments(base, target),
+      warnings: plan.warnings,
+    };
+  }
+  const operations =
+    plan.target === base ? [] : diffDocuments(base, plan.target);
   const rebased = rebaseOperations({
     base,
     current,
-    target,
+    target: plan.target,
     operations,
     contentKindOf: (type) => contentKindOf(editor, type),
     canContain: (parent, child) => canContain(editor, parent, child),
   });
+  const layout = documents.keepLayout
+    ? []
+    : diffDocuments(rebased.result, fit(rebased.result));
   return {
-    operations: rebased.operations,
+    operations: [...rebased.operations, ...layout],
     warnings: [...plan.warnings, ...rebased.warnings],
   };
 }

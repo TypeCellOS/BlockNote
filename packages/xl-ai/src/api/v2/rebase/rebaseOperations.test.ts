@@ -51,7 +51,7 @@ function targetOf(base: LensBlock[], operations: BlockOperation[]) {
   return target;
 }
 
-function rebase(
+function rebaseAll(
   base: LensBlock[],
   current: LensBlock[],
   operations: BlockOperation[],
@@ -64,6 +64,20 @@ function rebase(
     contentKindOf: () => "inline",
     canContain: () => true,
   });
+}
+
+/** The operations and warnings of the rebase (see `rebaseAll` for the result tree). */
+function rebase(
+  base: LensBlock[],
+  current: LensBlock[],
+  operations: BlockOperation[],
+) {
+  const { operations: rebased, warnings } = rebaseAll(
+    base,
+    current,
+    operations,
+  );
+  return { operations: rebased, warnings };
 }
 
 const insert = (
@@ -356,5 +370,22 @@ describe("rebaseOperations", () => {
         ),
       ).toEqual({ operations: [], warnings: [] });
     });
+  });
+
+  it("gives the tree of the current document after the operations", () => {
+    const base = [block("a"), block("b"), block("c")];
+    // Another writer moved c into b.
+    const current = [block("a"), block("b", "b", [block("c")])];
+    const { result } = rebaseAll(base, current, [
+      { type: "move", id: "a", reference: "b", placement: "after" },
+      insert("a", "n"),
+    ]);
+
+    function shape(blocks: LensBlock[]): unknown[] {
+      return blocks.map((b) =>
+        b.children.length > 0 ? [b.id, shape(b.children)] : b.id,
+      );
+    }
+    expect(shape(result)).toEqual([["b", ["c"]], "a", "n"]);
   });
 });

@@ -8,8 +8,6 @@ import {
   inlineContentToNodes,
   insertBlocks,
   type PartialBlock,
-  fixLayoutBlock,
-  isLayoutNode,
   updateBlockTr,
 } from "@blocknote/core";
 import { Fragment, type Node, Slice } from "prosemirror-model";
@@ -109,7 +107,6 @@ export function applyOperations(
     }
   }
   removeFillBlocks(tr, expected);
-  repairEmptiedLayoutBlocks(tr, expected);
   addMissingBlockIds(tr);
 }
 
@@ -164,48 +161,6 @@ function removeFillBlocks(tr: Transaction, expected: ReadonlySet<string>) {
       tr.delete(pos, pos + node.nodeSize);
     }
   }
-}
-
-/**
- * Repairs the layout blocks that the operations emptied. ProseMirror fills
- * an emptied column with a new empty paragraph, which is a fill block (see
- * `removeFillBlocks`). Thus, a layout block in which all children are fill
- * blocks is empty. Its layout parent (for example a column list) gets the
- * repair of core (`fixLayoutBlock`): the empty column goes, and a column
- * list with too few columns becomes the blocks in it.
- *
- * Without a rebase, the target fits the layout rules already (see
- * `fitLayout`). A rebase can empty a column of the current document.
- */
-function repairEmptiedLayoutBlocks(
-  tr: Transaction,
-  expected: ReadonlySet<string>,
-) {
-  const parents: number[] = [];
-  tr.doc.descendants((node, pos) => {
-    let emptied = false;
-    node.forEach((child) => {
-      emptied ||=
-        isLayoutNode(child.type) && hasOnlyFillBlocks(child, expected);
-    });
-    if (isLayoutNode(node.type) && emptied) {
-      parents.push(pos);
-    }
-    return !node.isTextblock;
-  });
-  // From the end, so that the positions before each repair stay correct.
-  for (const pos of parents.reverse()) {
-    fixLayoutBlock(tr, pos);
-  }
-}
-
-/** Returns true for a block with children, in which all children are fill blocks. */
-function hasOnlyFillBlocks(node: Node, expected: ReadonlySet<string>): boolean {
-  let only = node.childCount > 0;
-  node.forEach((child) => {
-    only &&= isFill(child, expected);
-  });
-  return only;
 }
 
 function find(tr: Transaction, id: string) {

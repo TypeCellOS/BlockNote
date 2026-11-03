@@ -526,4 +526,26 @@ describe("a write from an older version, with columns", () => {
 
     expect(editor.document.map((block) => block.id)).toEqual(["b", "end"]);
   });
+
+  it("keeps a column with an empty paragraph, also with a base", () => {
+    const editor = createColumnsEditor([
+      {
+        id: "cA",
+        type: "column",
+        children: [
+          { id: "empty", type: "paragraph", props: { backgroundColor: "red" } },
+        ],
+      },
+      column("cB", "x", "Xray"),
+      column("cC", "y", "Yankee"),
+    ]);
+    const client = read(editor);
+
+    write(editor, client, (text) => replaceOnce(text, "Xray\n\n", ""));
+
+    expect(columnsShape(editor)).toEqual([
+      ["cA", ["empty"]],
+      ["cC", ["y"]],
+    ]);
+  });
 });

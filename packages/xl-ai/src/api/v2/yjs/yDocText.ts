@@ -114,7 +114,12 @@ export function updateYDocFromText(
 
   const copy = base;
   const baseVector = Y.encodeStateVector(copy);
-  const update = writeText(editor, copy, fragment, textOptions);
+  // The layout blocks stay, also if they become empty: Yjs cannot merge the
+  // removal of a column with a block that another writer adds to it.
+  const update = writeText(editor, copy, fragment, {
+    ...textOptions,
+    keepLayout: true,
+  });
   if (update.error !== undefined) {
     return update;
   }
@@ -174,7 +179,7 @@ function writeText(
   editor: BlockNoteEditor<any, any, any>,
   ydoc: Y.Doc,
   fragmentName: string,
-  options: TextUpdateOptions,
+  options: TextUpdateOptions & { keepLayout?: boolean },
 ): TextUpdate {
   const fragment = ydoc.getXmlFragment(fragmentName);
   const read = readDocument(editor, ydoc, fragmentName);

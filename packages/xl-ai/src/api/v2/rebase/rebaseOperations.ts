@@ -44,6 +44,13 @@ export type RebaseResult = {
   /** The operations for `current`. */
   operations: BlockOperation[];
   warnings: RebaseWarning[];
+  /**
+   * The tree of `current` after the operations: its blocks, in their new
+   * parents and order. The fields of updated blocks are the fields of
+   * `current`. Use it for rules on the structure, for example the layout
+   * rules (see `fitLayout`).
+   */
+  result: LensBlock[];
 };
 
 /**
@@ -106,6 +113,7 @@ export function rebaseOperations(input: RebaseInput): RebaseResult {
   }
   const operations: BlockOperation[] = [];
   const warnings: RebaseWarning[] = [];
+  const inserted = new Map<string, LensBlock>();
 
   /**
    * Returns the position of a block in `tree`: after the sibling before it,
@@ -247,6 +255,7 @@ export function rebaseOperations(input: RebaseInput): RebaseResult {
         break;
       }
       case "insert": {
+        inserted.set(operation.block.id, operation.block);
         const position = available(operation, {
           type: operation.block.type,
         });
@@ -283,5 +292,22 @@ export function rebaseOperations(input: RebaseInput): RebaseResult {
     }
   }
 
-  return { operations, warnings };
+  /** The blocks of `parent` in the tree after the operations. */
+  function resultOf(parent: string | undefined): LensBlock[] {
+    return tree.childrenOf(parent).map((id) => {
+      const block = tree.byId.get(id) ?? inserted.get(id);
+      if (block === undefined) {
+        throw new Error(`Block ${id} is not in the tree`);
+      }
+      const children = resultOf(id);
+      // An inserted block with new children has them in its insert only.
+      return {
+        ...block,
+        children:
+          children.length === 0 && inserted.has(id) ? block.children : children,
+      };
+    });
+  }
+
+  return { operations, warnings, result: resultOf(undefined) };
 }

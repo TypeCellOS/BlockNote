@@ -1,4 +1,10 @@
-import { BlockNoteEditor, type PartialBlock } from "@blocknote/core";
+import {
+  BlockNoteEditor,
+  BlockNoteSchema,
+  defaultBlockSpecs,
+  type PartialBlock,
+} from "@blocknote/core";
+import { withMultiColumn } from "@blocknote/xl-multi-column";
 import {
   blocksToYDoc,
   updateYFragment,
@@ -602,3 +608,63 @@ describe("Y.Doc writes after a move of a nested block", () => {
     expect(ydoc).toEqual(editor);
   });
 });
+
+describe.each<MergeStrategy>(["rebase", "yjs"])(
+  "concurrent writes with columns (strategy %s)",
+  (strategy) => {
+    it("keeps a block that another writer added to a column, when the text empties the other column", () => {
+      const editor = BlockNoteEditor.create({
+        schema: withMultiColumn(
+          BlockNoteSchema.create({ blockSpecs: defaultBlockSpecs }),
+        ),
+      });
+      const ydoc = blocksToYDoc(
+        editor,
+        BlockNoteEditor.create({
+          schema: editor.schema,
+          initialContent: [
+            {
+              id: "list",
+              type: "columnList",
+              children: [
+                {
+                  id: "cA",
+                  type: "column",
+                  children: [{ id: "a", type: "paragraph", content: "Alpha" }],
+                },
+                {
+                  id: "cB",
+                  type: "column",
+                  children: [{ id: "b", type: "paragraph", content: "Bravo" }],
+                },
+              ],
+            },
+            { id: "end", type: "paragraph", content: "End" },
+          ] as PartialBlock<any, any, any>[],
+        }).document,
+      );
+      const format = markdownFormat;
+      const text = getYDocText(editor, ydoc, { format });
+      const base = Y.encodeStateAsUpdate(ydoc);
+      // Another writer adds a block after Alpha, in column A.
+      valid(
+        updateYDocFromText(editor, ydoc, {
+          format,
+          text: text.replace("Alpha", "Alpha\n\nAdded by other"),
+        }),
+      );
+
+      valid(
+        updateYDocFromText(editor, ydoc, {
+          format,
+          text: text.replace("Bravo\n\n", ""),
+          base,
+          strategy,
+        }),
+      );
+
+      expect(getYDocText(editor, ydoc, { format })).toContain("Added by other");
+      expect(getYDocText(editor, ydoc, { format })).not.toContain("Bravo");
+    });
+  },
+);
