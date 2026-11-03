@@ -269,9 +269,9 @@ function withUniqueIds(
 /**
  * Returns the update that changes `current` to the target document of the
  * plan. First, the layout blocks of the target change to fit the schema (see
- * `fitLayout`). The diff gives the operations for `base`. If `base` is older
- * than `current` (`rebase`), the rebase moves them to `current` (see
- * `rebase/`).
+ * `fitLayout`), if there is no rebase. The diff gives the operations for
+ * `base`. If `base` is older than `current` (`rebase`), the rebase moves
+ * them to `current` (see `rebase/`).
  */
 function updateToTarget(
   editor: BlockNoteEditor<any, any, any>,
@@ -283,9 +283,12 @@ function updateToTarget(
   },
 ): ValidTextUpdate {
   const { base, current } = documents;
+  // For a write from an older version, the layout blocks of the target do
+  // not change. The client did not remove them, and in the current document
+  // they can have blocks of other writers, for example a new column.
   const target =
-    plan.target === base
-      ? base
+    plan.target === base || documents.rebase
+      ? plan.target
       : fitLayout(plan.target, (type) => layoutRuleOf(editor, type));
   const operations = target === base ? [] : diffDocuments(base, target);
   if (!documents.rebase) {
@@ -297,6 +300,7 @@ function updateToTarget(
     target,
     operations,
     contentKindOf: (type) => contentKindOf(editor, type),
+    canContain: (parent, child) => canContain(editor, parent, child),
   });
   return {
     operations: rebased.operations,
@@ -367,6 +371,37 @@ function layoutRuleOf(
       children.dissolve === false
     ),
   };
+}
+
+/**
+ * Returns true if a block of the type `parent` (`undefined` for the top
+ * level) can have a child of the type `child`, by the child rules of the
+ * block configs. A block placeable "namedOnly" (a column) is only in a
+ * parent that allows its type by name.
+ */
+function canContain(
+  editor: BlockNoteEditor<any, any, any>,
+  parent: string | undefined,
+  child: string,
+): boolean {
+  const rule =
+    parent === undefined
+      ? undefined
+      : editor.schema.blockSchema[parent]?.children;
+  if (editor.schema.blockSchema[child]?.placeable === "namedOnly") {
+    return (
+      rule !== undefined &&
+      Array.isArray(rule.allow) &&
+      rule.allow.includes(child)
+    );
+  }
+  if (rule === undefined) {
+    return true;
+  }
+  if (Array.isArray(rule.allow)) {
+    return rule.allow.includes(child);
+  }
+  return !("exclude" in rule && rule.exclude?.includes(child));
 }
 
 function contentKindOf(

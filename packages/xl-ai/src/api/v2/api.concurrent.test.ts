@@ -1,4 +1,10 @@
-import { BlockNoteEditor, type PartialBlock } from "@blocknote/core";
+import {
+  BlockNoteEditor,
+  BlockNoteSchema,
+  defaultBlockSpecs,
+  type PartialBlock,
+} from "@blocknote/core";
+import { withMultiColumn } from "@blocknote/xl-multi-column";
 import { describe, expect, it } from "vite-plus/test";
 
 import {
@@ -318,4 +324,129 @@ describe.each([
       }
     },
   );
+});
+
+describe("a write from an older version, with blocks that another writer moved", () => {
+  it("moves a block after a new block that the rebase put into the moved block", () => {
+    const editor = createEditor([
+      { id: "x", type: "paragraph", content: "Xtext" },
+      { id: "p", type: "paragraph", content: "Ptext" },
+      { id: "q", type: "paragraph", content: "Qtext" },
+    ]);
+    const client = read(editor);
+    // Another writer nests Q in X.
+    editor.removeBlocks(["q"]);
+    editor.updateBlock("x", {
+      children: [{ id: "q", type: "paragraph", content: "Qtext" }],
+    });
+
+    write(editor, client, () => "Ptext\n\nQtext\n\nNew\n\nXtext\n");
+
+    expect(getDocumentText(editor, format)).toContain("New");
+    expect(editor.getBlock("x")).toBeDefined();
+    expect(editor.getBlock("p")).toBeDefined();
+  });
+});
+
+describe("a write from an older version, with columns", () => {
+  function createColumnsEditor(
+    columns: PartialBlock<any, any, any>[],
+  ): BlockNoteEditor<any, any, any> {
+    return BlockNoteEditor.create({
+      schema: withMultiColumn(
+        BlockNoteSchema.create({ blockSpecs: defaultBlockSpecs }),
+      ),
+      initialContent: [
+        { id: "list", type: "columnList", children: columns },
+        { id: "end", type: "paragraph", content: "End" },
+      ],
+    });
+  }
+  function column(
+    id: string,
+    blockId: string,
+    text: string,
+  ): PartialBlock<any, any, any> {
+    return {
+      id,
+      type: "column",
+      children: [{ id: blockId, type: "paragraph", content: text }],
+    };
+  }
+  function columnsShape(editor: BlockNoteEditor<any, any, any>) {
+    return editor.document[0].children.map((c) => [
+      c.id,
+      c.children.map((block) => block.id),
+    ]);
+  }
+
+  it("keeps a block that another writer moved into a column whose block the client removes", () => {
+    const editor = createColumnsEditor([
+      column("c1", "a", "Alpha"),
+      column("c2", "b", "Beta"),
+      column("c3", "g", "Gamma"),
+    ]);
+    const client = read(editor);
+    // Another writer moves End into column c2.
+    editor.removeBlocks(["end"]);
+    editor.insertBlocks(
+      [{ id: "end", type: "paragraph", content: "End" }],
+      "b",
+      "after",
+    );
+
+    write(editor, client, (text) => replaceOnce(text, "Beta\n\n", ""));
+
+    expect(columnsShape(editor)).toEqual([
+      ["c1", ["a"]],
+      ["c2", ["end"]],
+      ["c3", ["g"]],
+    ]);
+  });
+
+  it("keeps a column that another writer added, when the client removes the block of another column", () => {
+    const editor = createColumnsEditor([
+      column("c1", "a", "Alpha"),
+      column("c2", "b", "Beta"),
+    ]);
+    const client = read(editor);
+    // Another writer adds a third column.
+    editor.insertBlocks([column("c3", "g", "Gamma")], "c2", "after");
+
+    write(editor, client, (text) => replaceOnce(text, "Alpha\n\n", ""));
+
+    expect(editor.getBlock("g")).toBeDefined();
+    expect(editor.getBlock("b")).toBeDefined();
+    expect(editor.getBlock("a")).toBeUndefined();
+  });
+
+  it("removes a column that the client empties, if no other writer changed it", () => {
+    const editor = createColumnsEditor([
+      column("c1", "a", "Alpha"),
+      column("c2", "b", "Beta"),
+      column("c3", "g", "Gamma"),
+    ]);
+    const client = read(editor);
+    editor.updateBlock("end", { content: "End, edited" });
+
+    write(editor, client, (text) => replaceOnce(text, "Beta\n\n", ""));
+
+    expect(columnsShape(editor)).toEqual([
+      ["c1", ["a"]],
+      ["c3", ["g"]],
+    ]);
+  });
+
+  it("dissolves a column list with one column left, after the client empties the other column", () => {
+    const editor = createColumnsEditor([
+      column("c1", "a", "Alpha"),
+      column("c2", "b", "Beta"),
+    ]);
+    const client = read(editor);
+    editor.updateBlock("end", { content: "End, edited" });
+
+    write(editor, client, (text) => replaceOnce(text, "Alpha\n\n", ""));
+
+    expect(editor.document.map((block) => block.id)).toEqual(["b", "end"]);
+  });
 });

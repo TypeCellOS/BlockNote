@@ -24,6 +24,12 @@ export type RebaseInput = {
   target: readonly LensBlock[];
   operations: readonly BlockOperation[];
   contentKindOf: (type: string) => ContentKind;
+  /**
+   * Returns true if a block of the type `parent` (`undefined` for the top
+   * level) can have a child of the type `child`. For example, a column list
+   * has only columns, and a column is only in a column list.
+   */
+  canContain: (parent: string | undefined, child: string) => boolean;
 };
 
 export type RebaseResult = {
@@ -41,7 +47,7 @@ export type RebaseResult = {
  *   `merge/block.ts`. If both sides changed a field, the update wins.
  * - An insert or a move goes to the same position. If another writer removed
  *   the reference block, the block goes to the position of the reference
- *   block in `base` (see {@link basePosition}).
+ *   block in `base` (see `available`).
  * - A move to the position that the block already has is not necessary.
  *   Thus, a move that both sides did is done one time.
  * - Changes to a block that another writer removed are not applied.
@@ -50,7 +56,8 @@ export type RebaseResult = {
 export function rebaseOperations(input: RebaseInput): RebaseResult {
   const base = new BlockTree(input.base);
   const tree = new BlockTree(input.current);
-  const wanted = new Set(new BlockTree(input.target).ids);
+  const targetTree = new BlockTree(input.target);
+  const wanted = new Set(targetTree.ids);
 
   /** Returns true if the client removes the block: it is in `base`, but not in the target. */
   function removedByClient(id: string): boolean {
@@ -93,16 +100,16 @@ export function rebaseOperations(input: RebaseInput): RebaseResult {
   const warnings: RebaseWarning[] = [];
 
   /**
-   * Returns the position of a block in `base`: after the sibling before it,
+   * Returns the position of a block in `tree`: after the sibling before it,
    * or first in its parent. At the start of the top level, the position is
    * the start of the document.
    */
-  function basePosition(id: string): BlockPosition {
-    const previous = base.previousSibling(id);
+  function positionIn(tree: BlockTree, id: string): BlockPosition {
+    const previous = tree.previousSibling(id);
     if (previous !== undefined) {
       return { reference: previous, placement: "after" };
     }
-    const parent = base.parent(id);
+    const parent = tree.parent(id);
     if (parent !== undefined) {
       return { reference: parent, placement: "first-child" };
     }
@@ -110,28 +117,50 @@ export function rebaseOperations(input: RebaseInput): RebaseResult {
   }
 
   /**
-   * Returns `position`, if its reference block is in the tree, not in the
-   * block that moves, and the position is not in a block that the client
-   * removes. If not, returns the position of the reference block in `base`,
-   * with the same check.
+   * Returns `position` for the block `placed`, if its reference block is in
+   * the tree, not in the block that moves, the position is not in a block
+   * that the client removes, and the parent at the position can have the
+   * block. If not, returns the position of the reference block in `base`,
+   * with the same check. A new block of the client is not in `base`: then
+   * its position in the target applies.
    */
-  function available(position: BlockPosition, moved?: string): BlockPosition {
+  function available(
+    position: BlockPosition,
+    placed: { type: string; moved?: string },
+  ): BlockPosition {
     if (position.placement === "start") {
       return position;
     }
     const { reference } = position;
     if (
       tree.has(reference) &&
-      (moved === undefined || !tree.isWithin(reference, moved)) &&
-      !inRemovedBlock(position)
+      (placed.moved === undefined || !tree.isWithin(reference, placed.moved)) &&
+      !inRemovedBlock(position) &&
+      fitsParent(position, placed.type)
     ) {
       return position;
     }
-    if (!base.has(reference)) {
-      throw new Error(`Inserted block ${reference} is not available`);
-    }
     // The start of the document is the last fallback.
-    return available(basePosition(reference), moved);
+    return available(
+      base.has(reference)
+        ? positionIn(base, reference)
+        : positionIn(targetTree, reference),
+      placed,
+    );
+  }
+
+  /** Returns true if the parent at the position (in the current tree) can have a block of the type. */
+  function fitsParent(position: BlockPosition, type: string): boolean {
+    const parent = tree.parentAt(position);
+    return input.canContain(
+      parent === undefined ? undefined : typeOf(parent),
+      type,
+    );
+  }
+
+  /** The type of a block in the current tree. A block that the client inserts is only in the target. */
+  function typeOf(id: string): string {
+    return (tree.byId.has(id) ? tree : targetTree).block(id).type;
   }
 
   for (const operation of input.operations) {
@@ -159,7 +188,9 @@ export function rebaseOperations(input: RebaseInput): RebaseResult {
         break;
       }
       case "insert": {
-        const position = available(operation);
+        const position = available(operation, {
+          type: operation.block.type,
+        });
         operations.push({
           type: "insert",
           block: operation.block,
@@ -174,7 +205,10 @@ export function rebaseOperations(input: RebaseInput): RebaseResult {
           warnings.push({ type: "change-to-removed-block", id });
           break;
         }
-        const position = available(operation, id);
+        const position = available(operation, {
+          type: tree.block(id).type,
+          moved: id,
+        });
         const toItself =
           position.placement !== "start" && position.reference === id;
         if (!toItself && !tree.isAt(id, position)) {
@@ -194,13 +228,12 @@ export function rebaseOperations(input: RebaseInput): RebaseResult {
         // the text that a fallback put there. These blocks move out first, to
         // the position of the removed block.
         for (const kept of keptBlocksIn(id)) {
-          operations.push({
-            type: "move",
-            id: kept,
-            reference: id,
-            placement: "before",
-          });
-          tree.place(kept, { reference: id, placement: "before" });
+          const position = available(
+            { reference: id, placement: "before" },
+            { type: typeOf(kept), moved: kept },
+          );
+          operations.push({ type: "move", id: kept, ...position });
+          tree.place(kept, position);
         }
         if (changedByOthers(id)) {
           warnings.push({ type: "removed-changed-block", id });

@@ -62,6 +62,7 @@ function rebase(
     target: targetOf(base, operations),
     operations,
     contentKindOf: () => "inline",
+    canContain: () => true,
   });
 }
 

@@ -8,7 +8,8 @@ import {
   inlineContentToNodes,
   insertBlocks,
   type PartialBlock,
-  removeAndInsertBlocks,
+  fixLayoutBlock,
+  isLayoutNode,
   updateBlockTr,
 } from "@blocknote/core";
 import { Fragment, type Node, Slice } from "prosemirror-model";
@@ -84,18 +85,56 @@ export function applyOperations(
       case "move":
         moveBlock(tr, operation);
         break;
-      case "delete":
-        // The target fits the layout rules (see `fitLayout`). Thus, the
-        // repair of layout blocks in core is not necessary here. It also
-        // removes a column with only an empty paragraph, which the target
-        // can keep.
-        removeAndInsertBlocks(tr, [operation.id], [], {
-          fixLayoutBlocks: false,
-        });
+      case "delete": {
+        // Not `removeAndInsertBlocks`: it needs an ID on each block, and
+        // its layout repair also removes a column with only an empty
+        // paragraph, which the target can keep.
+        const { node, posBeforeNode } = find(tr, operation.id);
+        removeAt(tr, posBeforeNode, posBeforeNode + node.nodeSize);
         break;
+      }
     }
   }
+  repairEmptiedLayoutBlocks(tr);
   addMissingBlockIds(tr);
+}
+
+/**
+ * Repairs the layout blocks that the operations emptied. ProseMirror fills
+ * an emptied column with a new empty paragraph, without an ID. Each block of
+ * the operations has an ID. Thus, a layout block in which no child has an ID
+ * is empty. Its layout parent (for example a column list) gets the repair of
+ * core (`fixLayoutBlock`): the empty column goes, and a column list with too
+ * few columns becomes the blocks in it.
+ *
+ * Without a rebase, the target fits the layout rules already (see
+ * `fitLayout`). A rebase can empty a column of the current document.
+ */
+function repairEmptiedLayoutBlocks(tr: Transaction) {
+  const parents: number[] = [];
+  tr.doc.descendants((node, pos) => {
+    let emptied = false;
+    node.forEach((child) => {
+      emptied ||= isLayoutNode(child.type) && hasOnlyFillBlocks(child);
+    });
+    if (isLayoutNode(node.type) && emptied) {
+      parents.push(pos);
+    }
+    return !node.isTextblock;
+  });
+  // From the end, so that the positions before each repair stay correct.
+  for (const pos of parents.reverse()) {
+    fixLayoutBlock(tr, pos);
+  }
+}
+
+/** Returns true for a block with children, in which no child has an ID. */
+function hasOnlyFillBlocks(node: Node): boolean {
+  let only = node.childCount > 0;
+  node.forEach((child) => {
+    only &&= child.type.isInGroup("bnBlock") && !child.attrs.id;
+  });
+  return only;
 }
 
 function find(tr: Transaction, id: string) {
