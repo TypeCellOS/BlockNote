@@ -199,6 +199,10 @@ export const pt: Dictionary = {
     add_block_button: "Toggle vazio. Clique para adicionar um bloco.",
     toggle_button: "Expandir ou recolher",
   },
+  block_nesting: {
+    indented: (level: number) => `Recuo aumentado, nível ${level}`,
+    outdented: (level: number) => `Recuo diminuído, nível ${level}`,
+  },
   code_block: {
     add_source_button_text: "Adicionar código-fonte",
     ok_button_text: "OK",

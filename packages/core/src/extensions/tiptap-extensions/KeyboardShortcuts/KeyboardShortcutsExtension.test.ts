@@ -21,6 +21,7 @@ import {
   BlockNoteEditor,
   type BlockNoteEditorOptions,
 } from "../../../editor/BlockNoteEditor.js";
+import { fr } from "../../../i18n/locales/index.js";
 import { createBlockSpec } from "../../../schema/index.js";
 
 // Blocks configured with the deprecated `meta.hardBreakShortcut`, which still
@@ -921,6 +922,111 @@ describe("KeyboardShortcutsExtension Shift-Tab", () => {
       ]
     `);
     editor._tiptapEditor.destroy();
+  });
+});
+
+// #2812: indenting with Tab only changed the block visually, so screen reader
+// users got no feedback that it worked, or at which level the block ended up.
+describe("KeyboardShortcutsExtension Tab announcements", () => {
+  function createMountedEditor(cursorId: string) {
+    const wrapper = document.createElement("div");
+    const mountPoint = document.createElement("div");
+    wrapper.appendChild(mountPoint);
+    document.body.appendChild(wrapper);
+    const editor = BlockNoteEditor.create({
+      schema,
+      initialContent: [
+        { id: "a", type: "paragraph", content: "Parent" },
+        { id: "b", type: "paragraph", content: "Child" },
+      ],
+    });
+    editor.mount(mountPoint);
+    editor.setTextCursorPosition(cursorId, "start");
+    return { editor, wrapper };
+  }
+
+  function liveRegion(wrapper: HTMLElement) {
+    return wrapper.querySelector<HTMLElement>("[aria-live]");
+  }
+
+  function pressTab(editor: BlockNoteEditor<any, any, any>, shiftKey = false) {
+    keyDown(editor, { key: "Tab", code: "Tab", shiftKey });
+  }
+
+  it("renders a polite live region outside the contenteditable", () => {
+    const { editor, wrapper } = createMountedEditor("b");
+    const region = liveRegion(wrapper);
+
+    expect(region).not.toBeNull();
+    expect(region!.getAttribute("aria-live")).toBe("polite");
+    expect(region!.getAttribute("role")).toBe("status");
+    expect(editor.domElement!.contains(region)).toBe(false);
+    expect(region!.textContent).toBe("");
+
+    editor._tiptapEditor.destroy();
+    wrapper.remove();
+  });
+
+  it("announces the new level on Tab and Shift-Tab", () => {
+    const { editor, wrapper } = createMountedEditor("b");
+
+    pressTab(editor);
+    expect(outline(editor.document)[0].children).toHaveLength(1);
+    expect(liveRegion(wrapper)!.textContent).toBe("Indented, level 2");
+
+    pressTab(editor, true);
+    expect(editor.document).toHaveLength(2);
+    expect(liveRegion(wrapper)!.textContent).toBe("Outdented, level 1");
+
+    editor._tiptapEditor.destroy();
+    wrapper.remove();
+  });
+
+  it("announces nothing when the block can't be indented", () => {
+    const { editor, wrapper } = createMountedEditor("a");
+
+    pressTab(editor);
+    pressTab(editor, true);
+
+    expect(editor.document).toHaveLength(2);
+    expect(liveRegion(wrapper)!.textContent).toBe("");
+
+    editor._tiptapEditor.destroy();
+    wrapper.remove();
+  });
+
+  it("uses the editor's dictionary", () => {
+    const wrapper = document.createElement("div");
+    const mountPoint = document.createElement("div");
+    wrapper.appendChild(mountPoint);
+    document.body.appendChild(wrapper);
+    const editor = BlockNoteEditor.create({
+      schema,
+      dictionary: fr,
+      initialContent: [
+        { id: "a", type: "paragraph", content: "Parent" },
+        { id: "b", type: "paragraph", content: "Child" },
+      ],
+    });
+    editor.mount(mountPoint);
+    editor.setTextCursorPosition("b", "start");
+
+    pressTab(editor);
+    expect(liveRegion(wrapper)!.textContent).toBe("Retrait augmenté, niveau 2");
+
+    editor._tiptapEditor.destroy();
+    wrapper.remove();
+  });
+
+  it("removes the live region when the editor unmounts", () => {
+    const { editor, wrapper } = createMountedEditor("b");
+    expect(liveRegion(wrapper)).not.toBeNull();
+
+    editor.unmount();
+    expect(liveRegion(wrapper)).toBeNull();
+
+    editor._tiptapEditor.destroy();
+    wrapper.remove();
   });
 });
 

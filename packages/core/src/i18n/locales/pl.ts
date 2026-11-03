@@ -199,6 +199,10 @@ export const pl: Dictionary = {
       "Brak bloków do rozwinięcia. Kliknij, aby dodać pierwszego.",
     toggle_button: "Rozwiń lub zwiń",
   },
+  block_nesting: {
+    indented: (level: number) => `Zwiększono wcięcie, poziom ${level}`,
+    outdented: (level: number) => `Zmniejszono wcięcie, poziom ${level}`,
+  },
   code_block: {
     add_source_button_text: "Dodaj kod źródłowy",
     ok_button_text: "OK",

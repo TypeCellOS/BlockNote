@@ -268,6 +268,10 @@ export const uz: Dictionary = {
     add_block_button: "Bo‘sh toggle. Blok qo‘shish uchun bosing.",
     toggle_button: "Yoyish yoki yig‘ish",
   },
+  block_nesting: {
+    indented: (level: number) => `Chekinish oshirildi, daraja ${level}`,
+    outdented: (level: number) => `Chekinish kamaytirildi, daraja ${level}`,
+  },
 
   code_block: {
     add_source_button_text: "Manba kodini qoʻshish",

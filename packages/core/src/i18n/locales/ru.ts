@@ -250,6 +250,10 @@ export const ru: Dictionary = {
     add_block_button: "Пустой переключатель. Нажмите, чтобы добавить блок.",
     toggle_button: "Развернуть или свернуть",
   },
+  block_nesting: {
+    indented: (level: number) => `Отступ увеличен, уровень ${level}`,
+    outdented: (level: number) => `Отступ уменьшен, уровень ${level}`,
+  },
   code_block: {
     add_source_button_text: "Добавить исходный код",
     ok_button_text: "ОК",
