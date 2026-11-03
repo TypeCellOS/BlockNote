@@ -1,4 +1,4 @@
-import { BlockNoteEditor } from "@blocknote/core";
+import { BlockNoteEditor, type PartialBlock } from "@blocknote/core";
 import { describe, expect, it } from "vite-plus/test";
 
 import {
@@ -14,6 +14,7 @@ import {
   documentShape,
   replaceOnce,
 } from "./testUtil/fixtures.js";
+import { richSchema } from "./testUtil/richRandom.js";
 import { valid } from "./testUtil/valid.js";
 
 function write(
@@ -322,5 +323,36 @@ describe("special characters at the edges of the text", () => {
     );
     valid(updateDocumentFromText(editor, { format: plainTextFormat, text }));
     expect(getDocumentText(editor, plainTextFormat)).toBe(text);
+  });
+});
+
+describe("an item that plain text does not show", () => {
+  it("keeps a mention next to a word that the text changes", () => {
+    const editor = BlockNoteEditor.create({
+      schema: richSchema,
+      initialContent: [
+        {
+          id: "p",
+          type: "paragraph",
+          content: [
+            { type: "text", text: "Ask ", styles: {} },
+            { type: "mention", props: { user: "Bob" } },
+            { type: "text", text: "today please", styles: {} },
+          ],
+        },
+      ] as PartialBlock<any, any, any>[],
+    });
+    const text = getDocumentText(editor, plainTextFormat);
+    valid(
+      updateDocumentFromText(editor, {
+        format: plainTextFormat,
+        text: replaceOnce(text, "today", "tomorrow"),
+      }),
+    );
+    expect(editor.getBlock("p")?.content).toMatchObject([
+      { type: "text", text: "Ask " },
+      { type: "mention", props: { user: "Bob" } },
+      { type: "text", text: "tomorrow please" },
+    ]);
   });
 });

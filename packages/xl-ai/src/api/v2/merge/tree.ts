@@ -216,6 +216,9 @@ export function mergeTree(input: {
         // Two writers add blocks at one position: the blocks of the client
         // come first, as the client wrote them after the block before.
         keepBothInserts: "ours-first",
+        // A block of theirs in this list stays (each unit of the lists stays,
+        // see `sideChildren`), also next to a change of the client.
+        keepTheirs: () => true,
       },
     );
     const order = new Set(merged);

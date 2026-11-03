@@ -211,4 +211,16 @@ describe("mergeTree", () => {
     expect(shape(result.blocks)).toEqual(["a", "new"]);
     expect(result.warnings).toEqual([]);
   });
+
+  it("keeps a new block of theirs at its position, next to a block that ours moves", () => {
+    // Theirs adds z after x. Ours moves x after q. The run of x is a
+    // conflict that ours wins, but z stays there (not at the end).
+    const base = [block("p"), block("x"), block("q"), block("r")];
+    const result = merge(
+      base,
+      [block("p"), block("q"), block("x"), block("r")],
+      [block("p"), block("x"), block("z"), block("q"), block("r")],
+    );
+    expect(shape(result.blocks)).toEqual(["p", "z", "q", "x", "r"]);
+  });
 });

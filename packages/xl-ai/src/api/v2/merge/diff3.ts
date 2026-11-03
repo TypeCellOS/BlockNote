@@ -32,6 +32,14 @@ export type Diff3Handlers<T> = {
    */
   keepBothInserts?: "theirs-first" | "ours-first";
   /**
+   * Returns true for a unit of theirs without a base unit that stays in a run
+   * that ours wins: for example a mention that the format does not show (in
+   * the planner), or a new block of another writer (in the tree merge). It
+   * stays before the units of ours if it is before the units of theirs with
+   * a base unit in the run, else after them.
+   */
+  keepTheirs?: (unit: T) => boolean;
+  /**
    * Returns true if a matched unit of ours is the same as its base unit. By
    * default, a match is the same unit. Give this function if the matches can
    * pair changed units (for example rows with changed text at the same
@@ -63,6 +71,11 @@ export function diff3<T>(
 ): T[] {
   const toA = indexMap(baseToOurs, base.length);
   const toB = indexMap(baseToTheirs, base.length);
+  /** The units of theirs with a base unit. */
+  const theirsMatched = new Uint8Array(theirs.length);
+  for (const pair of baseToTheirs) {
+    theirsMatched[pair.bIndex] = 1;
+  }
 
   const isContext = handlers.isContext ?? (() => true);
   // The context triple at each base index, or `undefined`.
@@ -109,7 +122,9 @@ export function diff3<T>(
       isUnchanged(toA, i, i2, ja, ja2, base, ours, handlers.same)
     ) {
       // The two sides made the same change, or ours made no change.
-      merged.push(...theirs.slice(jb, jb2));
+      for (let j = jb; j < jb2; j++) {
+        merged.push(theirs[j]);
+      }
     } else {
       const both = i === i2 ? handlers.keepBothInserts : undefined;
       if (
@@ -124,11 +139,26 @@ export function diff3<T>(
         after: contextsAfter[i2],
         replaced: { base: base.slice(i, i2), theirs: theirs.slice(jb, jb2) },
       });
-      merged.push(
-        ...(both === "ours-first"
+      // The units of theirs that stay in a run that ours wins.
+      const keptBefore: T[] = [];
+      const keptAfter: T[] = [];
+      if (both === undefined && handlers.keepTheirs !== undefined) {
+        let afterMatch = false;
+        for (let j = jb; j < jb2; j++) {
+          if (theirsMatched[j] === 1) {
+            afterMatch = true;
+          } else if (handlers.keepTheirs(theirs[j])) {
+            (afterMatch ? keptAfter : keptBefore).push(theirs[j]);
+          }
+        }
+      }
+      const run =
+        both === "ours-first"
           ? [...oursUnits, ...theirsUnits]
-          : [...theirsUnits, ...oursUnits]),
-      );
+          : [...theirsUnits, ...oursUnits];
+      for (const unit of [...keptBefore, ...run, ...keptAfter]) {
+        merged.push(unit);
+      }
     }
 
     i = i2;

@@ -9,6 +9,7 @@ function merge(
   ours: string,
   theirs: string,
   keepBothInserts?: "theirs-first" | "ours-first",
+  keepTheirs?: (unit: string) => boolean,
 ) {
   const o = Array.from(base);
   const a = Array.from(ours);
@@ -18,6 +19,7 @@ function merge(
     stable: ({ theirs }) => theirs,
     ours: (units) => units,
     keepBothInserts,
+    keepTheirs,
   }).join("");
 }
 
@@ -96,5 +98,14 @@ describe("diff3", () => {
     expect(contexts.map((context) => context.replaced)).toEqual([
       { base: ["X"], theirs: ["Z"] },
     ]);
+  });
+
+  it("keeps the units of theirs that keepTheirs selects in a run that ours wins", () => {
+    // Theirs adds "@" before "b", ours changes "b" to "Y": ours wins the run.
+    const isAt = (unit: string) => unit === "@";
+    expect(merge("abc", "aYc", "a@bc")).toBe("aYc");
+    expect(merge("abc", "aYc", "a@bc", undefined, isAt)).toBe("a@Yc");
+    // After the units of theirs with a base unit, the unit goes after ours.
+    expect(merge("abc", "aYc", "ab@c", undefined, isAt)).toBe("aY@c");
   });
 });

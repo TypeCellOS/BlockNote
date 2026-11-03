@@ -46,6 +46,13 @@ export function mergeInlineContent(
       // show the styles around it.
       isContext: ({ base }) => base.kind === "char" && !/\s/u.test(base.char),
       keepBothInserts: options.concurrent ? "theirs-first" : undefined,
+      // In the planner, an item of theirs without a base unit is an item that
+      // the format does not show (for example a mention in plain text). The
+      // text cannot remove it, thus it stays. Whitespace is not an item: the
+      // format can change it.
+      keepTheirs: options.concurrent
+        ? undefined
+        : (unit) => unit.kind === "atom",
       conflict: options.onConflict,
       // The alignment pairs characters without their styles. Thus, a
       // character with a changed style is a change.
