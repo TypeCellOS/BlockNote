@@ -44,17 +44,37 @@ export function projectDocument(
   // empty document has no view blocks.
   const viewBlocks =
     document.length === 0 ? [] : flattenBlocks(format.parse(editor, text));
+  const sourceBlocks = flattenBlocks(document);
   // A block without content links to its view block by its type only (see
   // `linkKey`). A block of that kind that the format renders as no text (for
   // example an image without a URL, in markdown) has no view block. Thus, it
   // does not take part in the links, and cannot take the link of a visible
-  // block of the same type.
-  const sourceBlocks = flattenBlocks(document).filter(
-    ({ block }) =>
-      block.content !== undefined ||
-      format.serialize(editor, [block]).trim() !== "",
+  // block of the same type. If the format does not show the type at all (for
+  // example a file block in markdown, which is a paragraph with a link and a
+  // paragraph with its caption), the block links to the view blocks that it
+  // gives alone.
+  const shownTypes = new Set(viewBlocks.map(({ block }) => block.type));
+  const linkSources = sourceBlocks.flatMap((flat, source) => {
+    if (flat.block.content !== undefined) {
+      return [{ flat, source }];
+    }
+    const own = format.serialize(editor, [flat.block]);
+    if (own.trim() === "") {
+      return [];
+    }
+    return shownTypes.has(flat.block.type)
+      ? [{ flat, source }]
+      : flattenBlocks(format.parse(editor, own)).map((part) => ({
+          flat: part,
+          source,
+        }));
+  });
+  const links = linkBlocks(
+    linkSources.map(({ flat }) => flat),
+    viewBlocks,
+  ).map((index) =>
+    index === undefined ? undefined : linkSources[index].source,
   );
-  const links = linkBlocks(sourceBlocks, viewBlocks);
 
   const linkCounts = new Map<string, number>();
   const view: ViewBlock[] = viewBlocks.map((flat, v) => {
@@ -71,7 +91,7 @@ export function projectDocument(
 
   const invisibleIds = new Set<string>();
   const multiPartIds = new Set<string>();
-  for (const { block } of flattenBlocks(document)) {
+  for (const { block } of sourceBlocks) {
     const count = linkCounts.get(block.id) ?? 0;
     if (count === 0) {
       invisibleIds.add(block.id);

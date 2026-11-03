@@ -907,3 +907,105 @@ describe("markdown", () => {
     });
   });
 });
+
+/**
+ * Markdown does not show some block types: a file block is a paragraph with
+ * a link and a paragraph with its caption, and a video is an image. These
+ * paragraphs and images link to the block that gives them (see
+ * `projectDocument`).
+ */
+describe("markdown, blocks that markdown shows as other blocks", () => {
+  const format = markdownFormat;
+  function createMediaEditor() {
+    return createEditor([
+      { id: "a", type: "paragraph", content: "Alpha" },
+      {
+        id: "f",
+        type: "file",
+        props: {
+          url: "https://example.com/report.pdf",
+          name: "report.pdf",
+          caption: "Q3",
+        },
+      },
+      {
+        id: "v",
+        type: "video",
+        props: { url: "https://example.com/clip.mp4", name: "clip.mp4" },
+      },
+      { id: "z", type: "paragraph", content: "Zulu" },
+    ]);
+  }
+  const fileText = "[report.pdf](https://example.com/report.pdf)\n\nQ3\n\n";
+  const videoText = "![clip.mp4](https://example.com/clip.mp4)\n\n";
+
+  it("removes a file block if the text removes its lines", () => {
+    const editor = createMediaEditor();
+    const text = getDocumentText(editor, format);
+
+    valid(
+      updateDocumentFromText(editor, {
+        format,
+        text: replaceOnce(text, fileText, ""),
+      }),
+    );
+
+    expect(editor.document.map((block) => block.id)).toEqual(["a", "v", "z"]);
+  });
+
+  it("moves a file block with its props if the text moves its lines", () => {
+    const editor = createMediaEditor();
+    const text = getDocumentText(editor, format);
+
+    const update = valid(
+      updateDocumentFromText(editor, {
+        format,
+        text: `${replaceOnce(text, fileText, "")}\n${fileText}`,
+      }),
+    );
+
+    expect(update.warnings).toEqual([]);
+    expect(editor.document.map((block) => block.id)).toEqual([
+      "a",
+      "v",
+      "z",
+      "f",
+    ]);
+    expect(editor.getBlock("f")?.props).toMatchObject({
+      url: "https://example.com/report.pdf",
+      caption: "Q3",
+    });
+  });
+
+  it("removes a video if the text removes its image", () => {
+    const editor = createMediaEditor();
+    const text = getDocumentText(editor, format);
+
+    valid(
+      updateDocumentFromText(editor, {
+        format,
+        text: replaceOnce(text, videoText, ""),
+      }),
+    );
+
+    expect(editor.document.map((block) => block.id)).toEqual(["a", "f", "z"]);
+  });
+
+  it("replaces a file block with the paragraphs of the text if the text changes its caption, with a warning", () => {
+    const editor = createMediaEditor();
+    const text = getDocumentText(editor, format);
+
+    const update = valid(
+      updateDocumentFromText(editor, {
+        format,
+        text: replaceOnce(text, "\n\nQ3\n\n", "\n\nQ3, final\n\n"),
+      }),
+    );
+
+    expect(update.warnings).toEqual([
+      { type: "multi-part-block-replaced", id: "f" },
+    ]);
+    expect(editor.getBlock("f")).toBeUndefined();
+    expect(getDocumentText(editor, format)).toContain("Q3, final");
+  });
+});
