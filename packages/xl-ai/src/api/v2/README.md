@@ -75,6 +75,15 @@ All merges in `merge/` use one rule and one vocabulary (`merge/threeWay.ts`):
 
 If `ours` is different from `base`, the result is `ours`. If not, the result is `theirs`. In the planner, `base` is the view block, `ours` is the block from the text, and `theirs` is the block in the document. In the rebase, `base` is the block at the version that the client read, `ours` is that block with the update, and `theirs` is the current block.
 
+In the planner, this merge is the transport of the edits from the view to the text onto the document. The view is the document as the format shows it. Thus, where the text did not change the view, the document block stays as it is, with the data that the format does not show. The rules for that data are rules of the transport:
+
+- A changed region (between two units that the three sides have) takes the text of the client. This is the rule of `diff3` for a changed chunk. A transport of single edits through links from each view character to a document character does not work: the format removes and changes whitespace, thus these links are partial.
+- An item that the format does not show stays (`keepTheirs` in `merge/inline.ts`).
+- The shadow of an item links its text in the view to the item (see below).
+- New text gets the hidden styles and the link of the text that it replaces (see below).
+
+In the rebase, `theirs` contains the changes of other writers. There, the same merge is a three-way merge of two sets of changes.
+
 The merge of a block (`merge/block.ts`) merges the type, each prop of the three blocks, and the content. It merges inline content character by character (diff3, `merge/inline.ts`), and tables row by row and cell by cell (`merge/table.ts`). The characters align by words first, then by characters between the matched words. A word token has no whitespace, thus a word matches at each position. New text that replaces old text gets the hidden styles and the link of the old text, if all the old text has them. Thus, a changed word keeps the hidden underline of the word that it replaces. Inserted text gets such a style only if the text on its two sides has it. Thus, new text at the edge of a styled run does not get the style. This is also true at the start and at the end of the content: for example, text after a link at the end does not become a part of the link. Some formats show custom inline content as text (markdown shows a mention as "@Bob"), and the parse gives back only that text. In the planner, the merge then uses that text as a shadow of the item: the characters of one serialize and parse of the item alone. If the text keeps all characters of the shadow, the item stays. If the text changes them, the text replaces the item.
 
 ## Pipeline
