@@ -92,16 +92,17 @@ export const SourceInlineContentWithPreviewExtension = createExtension(
         },
       },
       mount: ({ dom, signal }) => {
-        // The popup is open exactly when the selection is inside the inline
-        // content, so we just track which inline content (if any) holds it.
+        // The popup is open when the selection is inside the inline content
+        // and the editor is editable. Read-only editors still allow selection.
         const unsubscribeSelectionChange = editor.onSelectionChange(() => {
           const { $from } = editor.prosemirrorState.selection;
           const node = $from.node();
 
           store.setState({
-            selected: nodeHasPreview(node.type.name)
-              ? $from.before()
-              : undefined,
+            selected:
+              editor.isEditable && nodeHasPreview(node.type.name)
+                ? $from.before()
+                : undefined,
           });
         });
         signal.addEventListener("abort", unsubscribeSelectionChange);
