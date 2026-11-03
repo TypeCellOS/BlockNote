@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vite-plus/test";
 
 import type { LensBlock } from "./types.js";
-import { diffBlock, patchBlock } from "./update.js";
+import { diffBlock } from "./update.js";
 
 const block: LensBlock = {
   id: "a",
@@ -41,33 +41,5 @@ describe("diffBlock", () => {
       props: { level: 2, textColor: "red" },
       content: block.content,
     });
-  });
-});
-
-describe("patchBlock", () => {
-  it("applies an update that diffBlock made", () => {
-    const target = {
-      type: "paragraph",
-      props: { textColor: "blue", textAlignment: "left" },
-      content: [],
-    };
-    const update = diffBlock(block, target);
-    if (update === undefined) {
-      throw new Error("Expected an update");
-    }
-    expect(patchBlock(block, update)).toEqual({ ...block, ...target });
-  });
-
-  it("replaces all props for a new type", () => {
-    expect(
-      patchBlock(block, { type: "heading", props: { level: 1 } }).props,
-    ).toEqual({ level: 1 });
-  });
-
-  it("sets content to undefined if the update says so", () => {
-    expect(
-      patchBlock(block, { type: "divider", props: {}, content: undefined })
-        .content,
-    ).toBeUndefined();
   });
 });

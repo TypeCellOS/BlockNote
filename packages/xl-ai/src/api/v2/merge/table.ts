@@ -1,6 +1,10 @@
 import { deepEqual } from "../blocks/json.js";
-import { hasMergedCells, withoutMergedCells } from "../blocks/tableGrid.js";
-import { inlineContentToText, tableCellsContent } from "../blocks/text.js";
+import {
+  cellRows,
+  hasMergedCells,
+  withoutMergedCells,
+} from "../blocks/tableGrid.js";
+import { inlineContentToText } from "../blocks/text.js";
 import type { LensTableCell, LensTableContent } from "../blocks/types.js";
 import { myersMatch } from "../diff/myers.js";
 import type { MatchedPair } from "../diff/types.js";
@@ -42,9 +46,9 @@ export function mergeTableContent(
   // The fields of the table belong to its rows: if the rows of the two sides
   // conflict, the fields come from the side whose rows win (ours).
   let rowConflict = false;
-  const baseRows = rowsOf(base);
-  const ourRows = rowsOf(ours);
-  const theirRows = rowsOf(theirs);
+  const baseRows = cellRows(base);
+  const ourRows = cellRows(ours);
+  const theirRows = cellRows(theirs);
 
   const rows = diff3(
     baseRows,
@@ -85,26 +89,6 @@ export function mergeTableContent(
     headerCols: field(base.headerCols, ours.headerCols, theirs.headerCols),
     rows: rows.map((cells) => ({ cells })),
   };
-}
-
-/** Returns the rows of the table, with all cells in tableCell form. A cell can also be only inline content. */
-function rowsOf(table: LensTableContent): Row[] {
-  return table.rows.map((row) => {
-    const contents = tableCellsContent(row);
-    return row.cells.map((cell, c) =>
-      Array.isArray(cell)
-        ? {
-            type: "tableCell",
-            props: {
-              backgroundColor: "default",
-              textColor: "default",
-              textAlignment: "left",
-            },
-            content: contents[c],
-          }
-        : cell,
-    );
-  });
 }
 
 function rowKey(row: Row): string {

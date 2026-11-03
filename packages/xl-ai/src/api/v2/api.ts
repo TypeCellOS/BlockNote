@@ -198,8 +198,8 @@ function jsonUpdate(
  * the blocks without an ID get an ID: the update is for the document with
  * these IDs, thus the operations refer only to IDs that the document has.
  * `dispatch` gets a transaction of the editor state with the steps of the
- * IDs and of the operations. The default dispatches them in one
- * transaction. On an error, the document does not change.
+ * IDs and of the operations (the default: see `dispatchUpdate`). On an
+ * error, the document does not change.
  */
 export function write(
   editor: BlockNoteEditor<any, any, any>,
