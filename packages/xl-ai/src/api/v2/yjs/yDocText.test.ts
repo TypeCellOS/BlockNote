@@ -821,3 +821,47 @@ describe("a write that fails in the middle", () => {
     expect(readText(fragment, markdownFormat)).toBe(before);
   });
 });
+
+describe("a base with an update that the Y.Doc does not have yet", () => {
+  it.each(["rebase", "yjs"] as const)(
+    "keeps the change of the client to the block of that update (strategy %s)",
+    (strategy) => {
+      const server = blocksToYDoc(BlockNoteEditor.create(), [
+        { id: "a", type: "paragraph", content: "Alpha" },
+        { id: "b", type: "paragraph", content: "Beta" },
+      ]);
+      const replica = new Y.Doc();
+      Y.applyUpdate(replica, Y.encodeStateAsUpdate(server));
+      // Another client adds a block on the replica. The server does not
+      // have it yet.
+      const before = Y.encodeStateVector(replica);
+      bindEditor(replica.getXmlFragment("prosemirror")).insertBlocks(
+        [{ type: "paragraph", content: "Gamma" }],
+        "b",
+        "after",
+      );
+      const inFlight = Y.encodeStateAsUpdate(replica, before);
+      // The client reads from the replica.
+      const text = readText(
+        replica.getXmlFragment("prosemirror"),
+        markdownFormat,
+      );
+      const base = Y.encodeStateAsUpdate(replica);
+
+      const fragment = server.getXmlFragment("prosemirror");
+      const result = valid(
+        updateYDocFromText(bindEditor(fragment), fragment, {
+          format: markdownFormat,
+          text: replaceOnce(text, "Gamma", "Gamma edited"),
+          base,
+          strategy,
+        }),
+      );
+      Y.applyUpdate(server, inFlight);
+      expect(result.warnings).toEqual([]);
+      expect(readText(fragment, markdownFormat)).toBe(
+        "Alpha\n\nBeta\n\nGamma edited\n",
+      );
+    },
+  );
+});

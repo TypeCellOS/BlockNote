@@ -79,6 +79,14 @@ export function updateYDocFromText(
   }
   const { base, strategy = "rebase", ...textOptions } = options;
   const before = Y.encodeStateVector(ydoc);
+  if (base !== undefined) {
+    // The client can read from a replica with an update that this Y.Doc does
+    // not have yet. Then `base` is not an older version of this Y.Doc, and
+    // the merge sees that update as removed. Yjs updates apply only one
+    // time, thus `base` makes this Y.Doc a newer version of it. The update
+    // of the result then contains that update too.
+    Y.applyUpdate(ydoc, base);
+  }
   const baseFragment =
     base === undefined
       ? undefined
