@@ -1,6 +1,6 @@
 /* eslint-disable react/refs -- This render-phase cache commits preview errors without a stale-preview frame on popup close. */
 import { BlockNoteEditor } from "@blocknote/core";
-import { MouseEvent, ReactNode, useId, useRef } from "react";
+import { MouseEvent, ReactNode, useCallback, useId, useRef } from "react";
 import { MdKeyboardReturn } from "react-icons/md";
 
 import { PreviewPlaceholder } from "./PreviewPlaceholder.js";
@@ -95,6 +95,42 @@ export const SourceWithPreview = (
     errorPreview,
     sourcePlaceholder,
   } = props;
+
+  // Clean up on ref detachment rather than returning a cleanup (React 18 support).
+  const errorCleanupRef = useRef<(() => void) | undefined>(undefined);
+  const errorRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      errorCleanupRef.current?.();
+      errorCleanupRef.current = undefined;
+      if (!node || !popup.isOpen) {
+        return;
+      }
+      const element = node;
+      const document = element.ownerDocument;
+      // These events target the document or the focused editor, not the error
+      // element. Keep ProseMirror from reading a native selection inside the
+      // non-editable error as a document selection or copying the source instead.
+      function stopErrorSelectionEvent(event: Event) {
+        const selection = document.getSelection();
+        if (
+          element.contains(selection?.anchorNode ?? null) &&
+          element.contains(selection?.focusNode ?? null)
+        ) {
+          event.stopImmediatePropagation();
+        }
+      }
+      const events = ["selectionchange", "copy", "cut", "paste", "keydown"];
+      for (const event of events) {
+        document.addEventListener(event, stopErrorSelectionEvent, true);
+      }
+      errorCleanupRef.current = () => {
+        for (const event of events) {
+          document.removeEventListener(event, stopErrorSelectionEvent, true);
+        }
+      };
+    },
+    [popup.isOpen],
+  );
 
   // Whether the error has been "committed": shown while the popup was
   // closed. The last-good preview only stays up within the editing session
@@ -232,10 +268,14 @@ export const SourceWithPreview = (
           </div>
         </div>
         <div
+          ref={errorRef}
           id={errorId}
           className="bn-code-block-source-error"
           contentEditable={false}
           style={{ display: error ? "block" : "none" }}
+          // Stop ProseMirror's mouse handler before it can replace the native
+          // text selection. React's bubbling handler runs after ProseMirror's.
+          onMouseDownCapture={(event) => event.stopPropagation()}
           // Announced while editing (the popup is open); silenced & removed
           // from the tree once the popup closes, where the compact error
           // preview takes over.

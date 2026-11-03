@@ -1,4 +1,10 @@
 export const fa = {
+  locale: "fa",
+  emoji_picker: {
+    search: "جستجو",
+    search_no_results: "ایموجی‌ای پیدا نشد",
+    loading: "در حال بارگذاری…",
+  },
   slash_menu: {
     heading: {
       title: "عنوان ۱",
@@ -394,8 +400,8 @@ export const fa = {
     close: "بستن",
     show_named_only: "فقط نسخه‌های نام‌گذاری‌شده نمایش داده شود",
     show_all: "نمایش همه نسخه‌ها",
-    comparison_on: "روشن کردن مقایسه",
-    comparison_off: "خاموش کردن مقایسه",
+    comparison_on: "نمایش تغییرات",
+    comparison_off: "پنهان کردن تغییرات",
     versions_list: "نسخه‌ها",
     empty: "هنوز نسخه‌ای وجود ندارد",
     empty_named_only: "نسخه‌ای با نام وجود ندارد",

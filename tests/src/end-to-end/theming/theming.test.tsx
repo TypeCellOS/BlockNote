@@ -16,6 +16,7 @@ import {
 } from "../../utils/editor.js";
 import { moveMouseOverElement, mouseSequence } from "../../utils/mouse.js";
 import { executeSlashCommand } from "../../utils/slashmenu.js";
+import { waitForEmojiPickerLayout } from "../../utils/emojipicker.js";
 
 // Vitest browser mode has no per-test `colorScheme` knob (the playwright
 // provider only takes it on the instance level via contextOptions). The editor
@@ -95,7 +96,7 @@ describe("Check Dark Theme is Automatically Applied", () => {
     await userEvent.keyboard(":");
     await userEvent.keyboard("sm");
 
-    await sleep(500);
+    await waitForEmojiPickerLayout();
     await expectElement(document.body).toMatchScreenshot("dark-emoji-picker");
   });
   test("Should show dark side menu", async () => {

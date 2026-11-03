@@ -1723,6 +1723,32 @@ Invalid schemeless domains stay plain: www.invalid_domain.com`,
     },
     executeTest: testParseMarkdown,
   },
+  // A list item whose first block is a `<details>` toggle. The toggle's text
+  // becomes the list item's content, and its children stay nested under it.
+  {
+    testCase: {
+      name: "numberedListItemStartsWithDetails",
+      content: `1. <details>`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "checkListItemStartsWithDetails",
+      content: `- [ ] <details>`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "numberedListItemStartsWithDetailsAndBody",
+      content: `1. <details>
+   <summary>Summary</summary>
+   Body
+   </details>`,
+    },
+    executeTest: testParseMarkdown,
+  },
   // Ordered list with start number
   {
     testCase: {

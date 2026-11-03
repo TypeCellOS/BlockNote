@@ -12,8 +12,6 @@ export interface VersionSnapshot {
   name?: string;
   /** Author identifier or identifiers, resolved to users by the sidebar's user store. */
   by?: string | string[];
-  /** Optional additional text displayed beneath the version's name or timestamp. */
-  secondaryLabel?: string;
   /** Original version whose content produced this version through a restore. */
   restoredFrom?: { id: string; createdAt: number };
   /** Backend-specific metadata, opaque to the versioning controller. */
@@ -72,8 +70,10 @@ export interface VersionView<Content, Attributions> {
   /**
    * Discard the temporary view and restore live bindings and undo state.
    * Safe to call repeatedly. Does not apply a {@link VersionStorage.restore}.
+   * `restore` reconnects after a successful restore and may publish the restored
+   * live content as a document change; ordinary preview cleanup stays silent.
    */
-  close(): void;
+  close(reason?: "discard" | "restore"): void;
 }
 
 /**
@@ -148,6 +148,8 @@ export interface VersionStorage<Content, Attributions = never> {
    * Name current. Snapshot stores save `content` from {@link VersionView.current};
    * continuous-history stores must identify the captured checkpoint, not a later one.
    * Success returns checkpoint metadata. No checkpoint to name is a typed failure.
+   * The controller keeps local metadata and refreshes history on the next
+   * pagination request.
    */
   create?: (
     content: Content,
@@ -162,11 +164,13 @@ export interface VersionStorage<Content, Attributions = never> {
    * restored Current.
    */
   restore?: (id: string) => Promise<VersionResult<void>>;
-  /** Change a stored version's name; `undefined` clears it. Refresh {@link VersionStorage.list} afterward. */
+  /** Change a stored version's name; `undefined` clears it. History is refreshed on the next pagination request. */
   rename?: (id: string, name?: string) => Promise<VersionResult<void>>;
   /**
    * Remove a stored version, or only its name on continuous-history backends.
-   * The controller refreshes {@link VersionStorage.list} and reconciles selection.
+   * The controller reconciles selection immediately and refreshes history on the
+   * next pagination request. Confirmed deleted content is removed immediately;
+   * checkpoints whose content remains available only lose their name.
    */
   remove?: (id: string) => Promise<VersionResult<void>>;
 }
@@ -189,7 +193,7 @@ export type VersioningState =
       /** Stored baseline identifier used by the displayed comparison, if any. */
       compareTo?: string;
       /** Requested selection still loading; {@link VersioningState.displayed} remains visible. */
-      pending?: VersionSelection;
+      pending?: VersionSelection & { compareTo?: string };
       /**
        * History loading status. Previously loaded {@link VersionSnapshot} rows
        * remain available during refresh or failure; errors contain safe classifications.

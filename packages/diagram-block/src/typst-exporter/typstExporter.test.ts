@@ -71,7 +71,7 @@ describe("typst exporter mappings", () => {
     "should embed vector SVG renders and stay PDF/UA-1 conformant",
     { timeout: 20000 },
     async () => {
-      // The browser default renderer produces SVG (`renderDiagramToSVG`);
+      // The default renderer produces SVG (`renderDiagramToSVG`);
       // this covers that path end-to-end with the SVG stub.
       const exporter = createExporter({ renderDiagram: renderDiagramSVG });
 
@@ -112,11 +112,37 @@ describe("typst exporter mappings", () => {
     ).toHaveLength(0);
   });
 
-  it("should require a renderer outside the browser", async () => {
-    const exporter = createExporter();
+  it.each([
+    "graph TD\n A[Start] --> B[End]",
+    "sequenceDiagram\n Alice->>Bob: Hello",
+    "classDiagram\n Animal <|-- Duck",
+    "stateDiagram-v2\n [*] --> Active",
+    'pie\n "One" : 1\n "Two" : 2',
+    "journey\n title My day\n section Work\n Task: 5: Me",
+  ])(
+    "compiles real server-rendered diagrams to PDF/UA-1: %s",
+    async (source) => {
+      const exporter = createExporter();
 
-    await expect(exporter.toTypst(diagramDocument)).rejects.toThrow(
-      "pass a `renderDiagram` function",
-    );
-  });
+      const typst = await exporter.toTypst(
+        [
+          {
+            ...diagramDocument[0],
+            content: [{ type: "text", text: source, styles: {} }],
+          },
+        ],
+        { title: "Diagram" },
+      );
+      expect(typst).toContain('image("/assets/asset-0"');
+      const svg = exporter.assetFiles.get("/assets/asset-0");
+      expect(svg).toBeDefined();
+      expect(new TextDecoder().decode(svg)).toContain("pele");
+
+      const pdf = await compileTypstForTesting(typst, {
+        assets: exporter.assetFiles,
+        pdfStandard: "ua-1",
+      });
+      expect(pdf.length).toBeGreaterThan(0);
+    },
+  );
 });

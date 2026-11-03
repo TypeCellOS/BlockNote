@@ -1,6 +1,12 @@
 import { Dictionary } from "../dictionary.js";
 
 export const de: Dictionary = {
+  locale: "de",
+  emoji_picker: {
+    search: "Suchen",
+    search_no_results: "Kein Emoji gefunden",
+    loading: "Wird geladen…",
+  },
   slash_menu: {
     heading: {
       title: "Überschrift 1",
@@ -444,8 +450,8 @@ export const de: Dictionary = {
     close: "Schließen",
     show_named_only: "Nur benannte Versionen anzeigen",
     show_all: "Alle Versionen anzeigen",
-    comparison_on: "Vergleich einschalten",
-    comparison_off: "Vergleich ausschalten",
+    comparison_on: "Änderungen anzeigen",
+    comparison_off: "Änderungen ausblenden",
     versions_list: "Versionen",
     empty: "Noch keine Versionen",
     empty_named_only: "Keine benannten Versionen",

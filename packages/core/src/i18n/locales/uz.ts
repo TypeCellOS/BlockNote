@@ -1,6 +1,12 @@
 import { Dictionary } from "../dictionary.js";
 
 export const uz: Dictionary = {
+  locale: "uz",
+  emoji_picker: {
+    search: "Qidirish",
+    search_no_results: "Emoji topilmadi",
+    loading: "Yuklanmoqda…",
+  },
   slash_menu: {
     heading: {
       title: "1-darajali sarlavha",
@@ -459,8 +465,8 @@ export const uz: Dictionary = {
     close: "Yopish",
     show_named_only: "Faqat nomlangan versiyalarni ko'rsatish",
     show_all: "Barcha versiyalarni ko'rsatish",
-    comparison_on: "Taqqoslashni yoqish",
-    comparison_off: "Taqqoslashni o'chirish",
+    comparison_on: "O'zgarishlarni ko'rsatish",
+    comparison_off: "O'zgarishlarni yashirish",
     versions_list: "Versiyalar",
     empty: "Hozircha versiyalar yo'q",
     empty_named_only: "Nomlangan versiyalar yo'q",

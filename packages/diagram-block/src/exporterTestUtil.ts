@@ -15,8 +15,8 @@ export const diagramDocument = [
   },
 ] as any;
 
-// A stub renderer, standing in for e.g. mermaid-cli on a server - the real
-// (browser-only) Mermaid rendering is covered by its `.browser.test`.
+// A stub rasterizer, standing in for a custom server PNG renderer. Real Pele
+// SVG rendering is covered by node tests; browser tests cover PNG rasterization.
 export const renderDiagram: RenderDiagram = async () => ({
   image: {
     mimeType: "image/png",
@@ -31,7 +31,7 @@ export const renderInvalidDiagram: RenderDiagram = async () => ({
   error: "No diagram type detected",
 });
 
-// An SVG-producing stub, standing in for the browser `renderDiagramToSVG`
+// An SVG-producing stub, standing in for the default `renderDiagramToSVG`
 // default of the Typst exporter mapping.
 export const renderDiagramSVG: RenderDiagram = async () => ({
   image: {

@@ -1,6 +1,12 @@
 import type { Dictionary } from "../dictionary.js";
 
 export const zh: Dictionary = {
+  locale: "zh",
+  emoji_picker: {
+    search: "搜索",
+    search_no_results: "未找到表情符号",
+    loading: "加载中…",
+  },
   slash_menu: {
     heading: {
       title: "一级标题",
@@ -466,8 +472,8 @@ export const zh: Dictionary = {
     close: "关闭",
     show_named_only: "仅显示已命名的版本",
     show_all: "显示所有版本",
-    comparison_on: "开启对比",
-    comparison_off: "关闭对比",
+    comparison_on: "显示更改",
+    comparison_off: "隐藏更改",
     versions_list: "版本",
     empty: "暂无版本",
     empty_named_only: "暂无命名版本",

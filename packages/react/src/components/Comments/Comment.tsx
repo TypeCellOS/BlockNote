@@ -79,9 +79,7 @@ const CommentEditorActionsComponent = memo(
             ))}
             {canAddReaction && (
               <EmojiPicker
-                onEmojiSelect={(emoji: { native: string }) =>
-                  onReactionSelect(emoji.native)
-                }
+                onEmojiSelect={onReactionSelect}
                 onOpenChange={onEmojiPickerOpenChange}
               >
                 <Components.Generic.Badge.Root
@@ -263,9 +261,7 @@ export const Comment = ({
       >
         {canAddReaction && (
           <EmojiPicker
-            onEmojiSelect={(emoji: { native: string }) =>
-              onReactionSelect(emoji.native)
-            }
+            onEmojiSelect={onReactionSelect}
             onOpenChange={setEmojiPickerOpen}
           >
             <Components.Generic.Toolbar.Button

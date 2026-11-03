@@ -5,6 +5,7 @@ import {
 } from "../../api/getBlocksChangedByTransaction.js";
 import { Transaction } from "prosemirror-state";
 import { EventEmitter } from "../../util/EventEmitter.js";
+import type { VersioningController } from "../../extensions/Versioning/Versioning.js";
 import {
   BlockSchema,
   InlineContentSchema,
@@ -177,8 +178,13 @@ export class EventManager<
     includeUpdatesFromRemote = true,
   ): Unsubscribe {
     return this.on("onChange", ({ transaction, appendedTransactions }) => {
-      if (!includeUpdatesFromRemote && isRemoteTransaction(transaction)) {
-        // don't trigger the callback if the changes are caused by a remote user
+      if (
+        this.editor.getExtension<VersioningController>("versioning")
+          ?.isPreviewOpen ||
+        transaction.getMeta("blocknoteVersionPreview") ||
+        (!includeUpdatesFromRemote && isRemoteTransaction(transaction))
+      ) {
+        // Don't trigger the callback for previews or excluded remote changes.
         return;
       }
       callback(this.editor, {
