@@ -6,7 +6,6 @@ import {
   alignmentKey,
   canBeSameBlock,
   linkBlocks,
-  linkKey,
 } from "./alignBlocks.js";
 
 function paragraph(text: string): LensBlock {
@@ -191,19 +190,29 @@ describe("alignBlocks", () => {
 });
 
 describe("linkBlocks", () => {
-  it("links each view block to the source block with most of its text", () => {
+  it("links the view blocks to the parts with equal keys, and the other blocks in order", () => {
+    // The view shows the second part as a heading, with a different text.
     expect(
       linkBlocks(
-        flat("Title", "const a = 1;\n\nconst b = 2;", paragraph(""), "End"),
         flat("Title", "const a = 1;", "const b = 2;", "End"),
+        flat("Title", "const a = 1;", "# const b = 2;", "End"),
       ),
-    ).toEqual([0, 1, 1, 3]);
+    ).toEqual([0, 1, 2, 3]);
   });
 
-  it("does not link a view block without a source", () => {
+  it("does not link a view block without a part", () => {
     expect(linkBlocks(flat("a"), flat("a", "unrelated"))).toEqual([
       0,
       undefined,
+    ]);
+  });
+
+  it("does not link blocks between anchors if the number of blocks is different", () => {
+    expect(linkBlocks(flat("a", "b", "z"), flat("a", "x", "y", "z"))).toEqual([
+      0,
+      undefined,
+      undefined,
+      2,
     ]);
   });
 });
@@ -228,14 +237,6 @@ describe("alignmentKey", () => {
       children: [],
     };
     expect(alignmentKey(table)).not.toBe(alignmentKey(paragraph("a")));
-    expect(linkKey(table)).not.toBe(linkKey(paragraph("a")));
-  });
-});
-
-describe("linkKey", () => {
-  it("is the type for blocks without content, because a format can lose their fields", () => {
-    expect(linkKey(image())).toBe("type:image");
-    expect(linkKey(paragraph("a"))).toBe("text:a");
   });
 });
 

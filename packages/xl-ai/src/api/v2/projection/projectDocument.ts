@@ -1,7 +1,7 @@
 import type { BlockNoteEditor } from "@blocknote/core";
 
 import { linkBlocks } from "../alignment/alignBlocks.js";
-import { flattenBlocks } from "../blocks/flatten.js";
+import { flattenBlocks, withoutChildren } from "../blocks/flatten.js";
 import type { FlatBlock, LensBlock } from "../blocks/types.js";
 import { toStoredBlocks } from "../formats/stored.js";
 import type { TextFormat } from "../formats/types.js";
@@ -32,7 +32,9 @@ export type Projection = {
 
 /**
  * Renders the document in the format and parses it back. Then links each view
- * block to the source block that gave it (see `linkBlocks`).
+ * block to the source block that gave it: each source block also makes the
+ * round trip alone, and the view blocks of the document link to these parts
+ * (see `linkBlocks`).
  */
 export function projectDocument(
   editor: BlockNoteEditor<any, any, any>,
@@ -46,36 +48,27 @@ export function projectDocument(
   const viewBlocks =
     document.length === 0 ? [] : flattenBlocks(parseStored(text));
   const sourceBlocks = flattenBlocks(document);
-  // A block without content links to its view block by its type only (see
-  // `linkKey`). A block of that kind that the format renders as no text (for
-  // example an image without a URL, in markdown) has no view block. Thus, it
-  // does not take part in the links, and cannot take the link of a visible
-  // block of the same type. If the format does not show the type at all (for
-  // example a file block in markdown, which is a paragraph with a link and a
-  // paragraph with its caption), the block links to the view blocks that it
-  // gives alone.
-  const shownTypes = new Set(viewBlocks.map(({ block }) => block.type));
-  const linkSources = sourceBlocks.flatMap((flat, source) => {
-    if (flat.block.content !== undefined) {
-      return [{ flat, source }];
+  // The parts of each source block: the view blocks that the block gives
+  // alone, without its children. Thus, the source of each part is known. A
+  // block that the format renders as no text (for example an image without
+  // a URL, in markdown) has no parts. A block can have more than one part
+  // (for example a code block with a blank line, in plain text). A layout
+  // block (for example a column) is not a document without its children:
+  // the parse fills it with new blocks. Thus, its part is the block.
+  const parts = sourceBlocks.flatMap(({ block }, source) => {
+    if (editor.schema.blockSchema[block.type]?.layoutOnly === true) {
+      const part = { block: withoutChildren(block), parentIndex: undefined };
+      return [{ part, source }];
     }
-    const own = format.serialize(editor, [flat.block]);
-    if (own.trim() === "") {
-      return [];
-    }
-    return shownTypes.has(flat.block.type)
-      ? [{ flat, source }]
-      : flattenBlocks(parseStored(own)).map((part) => ({
-          flat: part,
-          source,
-        }));
+    const own = format.serialize(editor, [withoutChildren(block)]);
+    return own.trim() === ""
+      ? []
+      : flattenBlocks(parseStored(own)).map((part) => ({ part, source }));
   });
   const links = linkBlocks(
-    linkSources.map(({ flat }) => flat),
+    parts.map(({ part }) => part),
     viewBlocks,
-  ).map((index) =>
-    index === undefined ? undefined : linkSources[index].source,
-  );
+  ).map((index) => (index === undefined ? undefined : parts[index].source));
 
   const linkCounts = new Map<string, number>();
   const view: ViewBlock[] = viewBlocks.map((flat, v) => {

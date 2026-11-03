@@ -141,44 +141,40 @@ function movedPairs(
 }
 
 /**
- * Links each block of `view` to the block of `source` that gave it. `view`
- * comes from a round trip of `source` through a text format. Returns the
- * source index for each view block, or `undefined`.
+ * Links each block of `view` to the part that gave it. `parts` are the view
+ * blocks that each source block gives alone, in document order, and `view`
+ * is the parse of the text of the full document. Thus, the two lists come
+ * from the same blocks. They are different only where the format renders a
+ * block differently in the full document (for example as a part of a
+ * different block). Returns the part index for each view block, or
+ * `undefined`.
  *
- * Blocks with equal text link first. Between these anchors, a view block
- * links to the source block that has the largest overlap with it, if the
- * overlap is at least half of the view block text. More than one view block
- * can link to one source block. An example is a code block with a blank line,
- * which gives two paragraphs in plain text.
+ * Blocks with equal keys link first (see {@link alignmentKey}). Between
+ * these anchors, if the two sides have the same number of blocks, the blocks
+ * link in order, if their content has the same shape.
  *
- * A view block at a different position than its source block (for example a
- * nested list that the HTML of a toggle block shows after the other
- * children) has no link. With a link, the planner would move the source
- * block to the position of the view block, also if the text did not change.
+ * A view block at a different position than its part (for example a nested
+ * list that the HTML of a toggle block shows after the other children) has
+ * no link. With a link, the planner would move the source block to the
+ * position of the view block, also if the text did not change.
  */
 export function linkBlocks(
-  source: readonly FlatBlock[],
+  parts: readonly FlatBlock[],
   view: readonly FlatBlock[],
 ): (number | undefined)[] {
   const links: (number | undefined)[] = new Array(view.length);
   for (const { gap, anchor } of gaps(
-    anchorsOf(source, view, linkKey),
-    source.length,
+    anchorsOf(parts, view, alignmentKey),
+    parts.length,
     view.length,
   )) {
-    const { overlaps, sizesB } = gapTexts(source, view, gap, true);
-    const best = new Map<number, Overlap>();
-    for (const overlap of overlaps) {
-      const current = best.get(overlap.bIndex);
+    const size = gap.aEnd - gap.aStart;
+    for (let i = 0; size === gap.bEnd - gap.bStart && i < size; i++) {
       if (
-        overlap.size >= MIN_SHARE * sizesB[overlap.bIndex] &&
-        (current === undefined || overlap.size > current.size)
+        canBeSameBlock(parts[gap.aStart + i].block, view[gap.bStart + i].block)
       ) {
-        best.set(overlap.bIndex, overlap);
+        links[gap.bStart + i] = gap.aStart + i;
       }
-    }
-    for (const [viewIndex, overlap] of best) {
-      links[gap.bStart + viewIndex] = gap.aStart + overlap.aIndex;
     }
     if (anchor) {
       links[anchor.bIndex] = anchor.aIndex;
@@ -202,17 +198,6 @@ export function alignmentKey(block: LensBlock): string {
     return `table:${blockToText(block)}`;
   }
   return `block:${blockKey(block)}`;
-}
-
-/**
- * Returns the key that links a document block to its view block (in
- * {@link linkBlocks}). The format can lose fields of a block (for example the
- * width of an image). Thus, a block without content links by its type only.
- */
-export function linkKey(block: LensBlock): string {
-  return block.content === undefined
-    ? `type:${block.type}`
-    : alignmentKey(block);
 }
 
 /**
@@ -273,12 +258,10 @@ function gaps(
  * Returns the overlaps of the blocks in a gap, and the word size of the text
  * of each block. The indices are relative to the start of the gap.
  */
-/** The overlaps of the texts in the gap (see `textOverlaps` for `countAll`). */
 function gapTexts(
   a: readonly FlatBlock[],
   b: readonly FlatBlock[],
   { aStart, aEnd, bStart, bEnd }: Gap,
-  countAll = false,
 ) {
   const textsA = a.slice(aStart, aEnd).map((flat) => blockToText(flat.block));
   const textsB = b.slice(bStart, bEnd).map((flat) => blockToText(flat.block));
@@ -286,9 +269,9 @@ function gapTexts(
     overlaps:
       textsA.length === 0 || textsB.length === 0
         ? []
-        : textOverlaps(textsA, textsB, countAll),
-    sizesA: textsA.map((text) => wordSize(text, countAll)),
-    sizesB: textsB.map((text) => wordSize(text, countAll)),
+        : textOverlaps(textsA, textsB),
+    sizesA: textsA.map((text) => wordSize(text)),
+    sizesB: textsB.map((text) => wordSize(text)),
   };
 }
 
