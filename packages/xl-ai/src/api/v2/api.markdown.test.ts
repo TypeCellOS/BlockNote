@@ -716,7 +716,7 @@ describe("markdown", () => {
     expect(end.content).toMatchObject([{ text: "End" }]);
   });
 
-  it("moves the only block of a column out, and the column list becomes the other column", () => {
+  it("puts a block that the text moves between the blocks of two columns into the next column", () => {
     const editor = createColumnsEditor();
     editor.insertBlocks(
       [{ id: "p", type: "paragraph", content: "P" }],
@@ -731,7 +731,17 @@ describe("markdown", () => {
       }),
     );
 
-    expect(editor.document.map((block) => block.id)).toEqual(["a", "p", "b"]);
+    // The column list stays: the text did not change Alpha and Beta.
+    expect(editor.document.map((block) => block.id)).toEqual(["list"]);
+    expect(
+      editor.document[0].children.map((column) => [
+        column.id,
+        column.children.map((block) => block.id),
+      ]),
+    ).toEqual([
+      ["c1", ["a"]],
+      ["c2", ["p", "b"]],
+    ]);
     expect(getDocumentText(editor, markdownFormat)).toBe(
       "Alpha\n\nP\n\nBeta\n",
     );
@@ -787,5 +797,31 @@ describe("markdown", () => {
 
     expect(getDocumentText(editor, markdownFormat)).toBe("X\n\nY\n");
     expect(new Set(editor.document.map((block) => block.id)).size).toBe(2);
+  });
+
+  it("keeps the column list if the text swaps a top-level block with the block of a column", () => {
+    const editor = createColumnsEditor();
+    editor.insertBlocks(
+      [{ id: "x", type: "paragraph", content: "Xray" }],
+      "list",
+      "before",
+    );
+    expect(getDocumentText(editor, markdownFormat)).toBe(
+      "Xray\n\nAlpha\n\nBeta\n",
+    );
+
+    updateDocumentFromText(editor, {
+      format: markdownFormat,
+      text: "Alpha\n\nXray\n\nBeta\n",
+    });
+
+    expect(getDocumentText(editor, markdownFormat)).toBe(
+      "Alpha\n\nXray\n\nBeta\n",
+    );
+    const list = editor.getBlock("list");
+    expect(list?.children.map((column) => column.id)).toEqual(["c1", "c2"]);
+    expect(editor.getBlock("c2")?.children.map((block) => block.id)).toContain(
+      "b",
+    );
   });
 });

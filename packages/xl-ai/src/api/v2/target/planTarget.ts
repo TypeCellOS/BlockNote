@@ -218,6 +218,15 @@ export function planTarget(input: PlanInput): Plan {
    * does not show. The new block then goes into the same nesting, before it.
    */
   function nestingOfNext(j: number): LensBlock | undefined {
+    const next = nextKept(j);
+    return next !== undefined ? sourceParent(keptIdOf[next]!) : undefined;
+  }
+
+  /**
+   * The index of the next kept block after block `j`, if it has the same
+   * text parent and keeps the nesting of its view block. Else `undefined`.
+   */
+  function nextKept(j: number): number | undefined {
     let next = j + 1;
     while (
       next < incoming.length &&
@@ -225,12 +234,37 @@ export function planTarget(input: PlanInput): Plan {
     ) {
       next++;
     }
-    const nextId = keptIdOf[next];
-    return nextId !== undefined &&
+    return keptIdOf[next] !== undefined &&
       incoming[next].parentIndex === incoming[j].parentIndex &&
       nestingUnchanged(next)
-      ? sourceParent(nextId)
+      ? next
       : undefined;
+  }
+
+  /**
+   * Returns true if the next kept block after block `j` needs a hidden block
+   * that is open below `parent`. If block `j` went into `parent`, it would
+   * close that hidden block, and the next block could not go back into it.
+   * An example is a top-level block that the text puts between the blocks
+   * of two columns. This does not change the tree.
+   */
+  function nextNeedsOpenHiddenBlock(j: number, parent: LensBlock): boolean {
+    const next = nextKept(j);
+    if (next === undefined) {
+      return false;
+    }
+    const depth = stack.indexOf(parent);
+    for (
+      let ancestor = source.parent(keptIdOf[next]!);
+      ancestor !== undefined && invisibleIds.has(ancestor);
+      ancestor = source.parent(ancestor)
+    ) {
+      const block = nodeOf.get(ancestor);
+      if (block !== undefined && stack.indexOf(block) > depth) {
+        return true;
+      }
+    }
+    return false;
   }
 
   for (let j = 0; j < incoming.length; j++) {
@@ -259,7 +293,14 @@ export function planTarget(input: PlanInput): Plan {
     }
     const block = node(id, merged);
     const parent = nestingUnchanged(j) ? sourceParent(id) : undefined;
-    attach(block, parent ?? textParent(j));
+    // A block between two blocks of an open hidden block (for example the
+    // blocks of two columns) goes into the nesting of the next block, as a
+    // new block does. Thus, the hidden block stays open for the next block.
+    const between =
+      parent !== undefined && nextNeedsOpenHiddenBlock(j, parent)
+        ? nestingOfNext(j)
+        : undefined;
+    attach(block, between ?? parent ?? textParent(j));
     nodeOf.set(id, block);
     nodes[j] = block;
   }
