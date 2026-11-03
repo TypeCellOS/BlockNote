@@ -82,7 +82,7 @@ All merges in `merge/` use one rule and one vocabulary (`merge/threeWay.ts`):
 
 If `ours` is different from `base`, the result is `ours`. If not, the result is `theirs`. In the planner, `base` is the view block, `ours` is the block from the text, and `theirs` is the block in the document. In the rebase, `base` is the block at the version that the client read, `ours` is that block with the update, and `theirs` is the current block.
 
-The merge of a block (`merge/block.ts`) merges the type, each prop of the three blocks, and the content. It merges inline content character by character (diff3, `merge/inline.ts`), and tables row by row and cell by cell (`merge/table.ts`). New text gets a style that the format does not show only if the text on its two sides has the style (at the start or end of the content, the one side). Thus, new text at the edge of a styled run does not get the style.
+The merge of a block (`merge/block.ts`) merges the type, each prop of the three blocks, and the content. It merges inline content character by character (diff3, `merge/inline.ts`), and tables row by row and cell by cell (`merge/table.ts`). The characters align by words first (without whitespace, thus a word matches at each position), then by characters between the matched words. New text that replaces old text gets the styles and the link that the format does not show, if all the old text has them: thus, a changed word keeps the hidden underline of the word that it replaces. Inserted text gets such a style only if the text on its two sides has it. Thus, new text at the edge of a styled run, or at the start or the end of the content, does not get the style, and text after a link at the end does not become a part of the link.
 
 ## Pipeline
 

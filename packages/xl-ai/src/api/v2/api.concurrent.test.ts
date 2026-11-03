@@ -515,6 +515,24 @@ describe("a write from an older version with a conflict", () => {
     });
   });
 
+  it("keeps a style that the client adds to the last word, if another writer adds text after it", () => {
+    const editor = createEditor([
+      { id: "p", type: "paragraph", content: "Read the manual" },
+    ]);
+    const client = read(editor);
+    editor.updateBlock("p", {
+      content: "Read the manual today, and then the guide.",
+    });
+
+    write(editor, client, (text) => replaceOnce(text, "manual", "**manual**"));
+
+    expect(editor.getBlock("p")?.content).toEqual([
+      { type: "text", text: "Read the ", styles: {} },
+      { type: "text", text: "manual", styles: { bold: true } },
+      { type: "text", text: " today, and then the guide.", styles: {} },
+    ]);
+  });
+
   it("gives no warning for changes to different parts of one block", () => {
     const editor = createEditor([
       { id: "p", type: "paragraph", content: "One two three four" },

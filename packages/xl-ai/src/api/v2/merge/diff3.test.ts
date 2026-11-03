@@ -69,8 +69,31 @@ describe("diff3", () => {
       {
         before: { base: "a", ours: "a", theirs: "a" },
         after: { base: "b", ours: "b", theirs: "b" },
+        replaced: { base: [], theirs: [] },
       },
-      { before: { base: "b", ours: "b", theirs: "b" }, after: undefined },
+      {
+        before: { base: "b", ours: "b", theirs: "b" },
+        after: undefined,
+        replaced: { base: [], theirs: [] },
+      },
+    ]);
+  });
+
+  it("gives the ours handler the units of base and theirs that the run replaces", () => {
+    const contexts: RunContext<string>[] = [];
+    const o = Array.from("aXb");
+    const a = Array.from("aYb");
+    const b = Array.from("aZb");
+    const equals = (x: string, y: string) => x === y;
+    diff3(o, a, b, myersMatch(o, a, equals), myersMatch(o, b, equals), {
+      stable: ({ theirs }) => theirs,
+      ours: (units, context) => {
+        contexts.push(context);
+        return units;
+      },
+    });
+    expect(contexts.map((context) => context.replaced)).toEqual([
+      { base: ["X"], theirs: ["Z"] },
     ]);
   });
 });

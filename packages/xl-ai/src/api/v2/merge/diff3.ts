@@ -5,12 +5,15 @@ import type { MatchedPair } from "../diff/types.js";
 export type StableTriple<T> = { base: T; ours: T; theirs: T };
 
 /**
- * The nearest stable triples before and after a run, that `isContext`
- * accepts. A side is `undefined` if there is no such triple on that side.
+ * The context of a run of ours: the nearest stable triples before and after
+ * it, that `isContext` accepts (a side is `undefined` if there is no such
+ * triple on that side), and the units of base and theirs that the run
+ * replaces (empty for an insert).
  */
 export type RunContext<T> = {
   before: StableTriple<T> | undefined;
   after: StableTriple<T> | undefined;
+  replaced: { base: T[]; theirs: T[] };
 };
 
 export type Diff3Handlers<T> = {
@@ -70,8 +73,10 @@ export function diff3<T>(
     const triple = { base: unit, ours: ours[toA[i]], theirs: theirs[toB[i]] };
     return isContext(triple) ? triple : undefined;
   });
-  function contextFrom(from: number) {
-    return contexts.slice(from).find((triple) => triple !== undefined);
+  // The first context triple at each base index or after it, from the end.
+  const contextsAfter = new Array<StableTriple<T> | undefined>(base.length + 1);
+  for (let k = base.length - 1; k >= 0; k--) {
+    contextsAfter[k] = contexts[k] ?? contextsAfter[k + 1];
   }
   let before: StableTriple<T> | undefined;
 
@@ -116,7 +121,8 @@ export function diff3<T>(
       merged.push(
         ...handlers.ours(ours.slice(ja, ja2), {
           before,
-          after: contextFrom(i2),
+          after: contextsAfter[i2],
+          replaced: { base: base.slice(i, i2), theirs: theirs.slice(jb, jb2) },
         }),
       );
     }

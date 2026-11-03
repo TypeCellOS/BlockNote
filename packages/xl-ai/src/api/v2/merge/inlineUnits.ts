@@ -122,8 +122,10 @@ const MIN_GAP_MATCH_RATIO = 0.5;
 /**
  * Aligns two unit sequences in two steps:
  *
- * 1. By tokens: words and single other characters, with their whitespace.
- * 2. By characters, in the gaps between matched tokens.
+ * 1. By tokens: words and single other characters, without whitespace. Thus,
+ *    a word matches at each position, also at the end of the text.
+ * 2. By characters, in the gaps between matched tokens. Thus, whitespace
+ *    matches only between matched tokens.
  *
  * The alignment does not compare styles. The merge does that in a different step.
  */
@@ -197,33 +199,36 @@ function unitKey(unit: InlineUnit) {
   return unit.kind === "char" ? unit.char : `\u0000${unit.key}`;
 }
 
-/**
- * Makes tokens: a run of word characters, or one other unit, with the
- * whitespace after it. Whitespace at the start is a token alone. Thus, a
- * single space cannot match between two texts that have no words in common.
- */
+/** Makes tokens: a run of word characters, or one other unit. Whitespace is not in a token. */
 function tokenize(units: readonly InlineUnit[]): Token[] {
   const tokens: Token[] = [];
   let i = 0;
   while (i < units.length) {
     const kind = charClass(units[i]);
     let end = i + 1;
-    if (kind !== "other") {
-      while (end < units.length && charClass(units[end]) === kind) {
+    if (kind === "word") {
+      while (end < units.length && charClass(units[end]) === "word") {
         end++;
       }
     }
     if (kind !== "space") {
-      while (end < units.length && charClass(units[end]) === "space") {
-        end++;
-      }
+      tokens.push({
+        start: i,
+        end,
+        key: units.slice(i, end).map(unitKey).join(""),
+      });
     }
-    tokens.push({
-      start: i,
-      end,
-      key: units.slice(i, end).map(unitKey).join(""),
-    });
     i = end;
   }
   return tokens;
+}
+
+/** Returns true if two units are the same: the same character with the same styles and link, or the same atom. */
+export function sameUnitWithStyles(a: InlineUnit, b: InlineUnit): boolean {
+  if (a.kind === "char" && b.kind === "char") {
+    return (
+      a.char === b.char && a.href === b.href && sameStyles(a.styles, b.styles)
+    );
+  }
+  return sameUnit(a, b);
 }

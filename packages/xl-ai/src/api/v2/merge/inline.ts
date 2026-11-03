@@ -5,6 +5,7 @@ import {
   alignUnits,
   fromUnits,
   type InlineUnit,
+  sameUnitWithStyles,
   toUnits,
 } from "./inlineUnits.js";
 import { type MergeOptions, mergeRecords, mergeValue } from "./threeWay.js";
@@ -43,6 +44,9 @@ export function mergeInlineContent(
       isContext: ({ base }) => base.kind === "char" && !/\s/u.test(base.char),
       keepBothInserts: options.concurrent,
       conflict: options.onConflict,
+      // The alignment pairs characters without their styles. Thus, a
+      // character with a changed style is a change.
+      same: sameUnitWithStyles,
     }),
   );
 }
@@ -65,26 +69,32 @@ function mergeStable(
 
 /**
  * New text from ours has no base or theirs for a merge. Thus, the merge uses
- * the nearest stable characters on the two sides (`context`) as the base and
- * theirs:
+ * a context as the base and theirs, to give the new text the styles and the
+ * link that the format does not show (for example underline in markdown):
  *
- * - A style that the format does not show (for example underline in markdown)
- *   goes to the new text if the text on the two sides has it. Thus, new text
- *   at the edge of a styled run does not get the style. At the start or the
- *   end of the content, there is only one side, and the new text gets its
- *   style.
- * - A style that ours set to a different value than the base stays as ours
- *   sets it.
+ * - New text that replaces old text uses the styles and the link that all
+ *   the old text has. Thus, a changed word keeps the hidden styles of the
+ *   word that it replaces.
+ * - Inserted text uses the nearest stable characters on the two sides. It
+ *   gets a style or a link only if the two sides have it. Thus, new text at
+ *   the edge of a styled run, or at the start or the end of the content,
+ *   does not get the style.
+ *
+ * A style that ours set to a different value than the base stays as ours
+ * sets it.
  */
 function inheritHiddenStyles(
   unit: InlineUnit,
-  { before, after }: RunContext<InlineUnit>,
+  { before, after, replaced }: RunContext<InlineUnit>,
 ): InlineUnit {
   if (unit.kind !== "char") {
     return unit;
   }
-  const fromBefore = inheritFrom(unit, before ?? after);
-  const fromAfter = inheritFrom(unit, after ?? before);
+  const old = commonOf(replaced.base, replaced.theirs);
+  const sides = (old !== undefined ? [old, old] : [before, after]).map(
+    (context) => inheritFrom(unit, context),
+  );
+  const [fromBefore, fromAfter] = sides;
   if (fromBefore === undefined || fromAfter === undefined) {
     return unit;
   }
@@ -110,6 +120,45 @@ function inheritHiddenStyles(
       ? fromBefore.href
       : unit.href,
   };
+}
+
+/**
+ * The styles and the link that all characters of the replaced base and of
+ * the replaced theirs have, as one triple. Whitespace does not count (see
+ * `isContext`). `undefined` if a side has no such character.
+ */
+function commonOf(
+  base: readonly InlineUnit[],
+  theirs: readonly InlineUnit[],
+): StableTriple<InlineUnit> | undefined {
+  const common = (units: readonly InlineUnit[]) => {
+    const chars = units.filter(
+      (unit): unit is InlineUnit & { kind: "char" } =>
+        unit.kind === "char" && !/\s/u.test(unit.char),
+    );
+    if (chars.length === 0) {
+      return undefined;
+    }
+    const styles: LensStyles = {};
+    for (const [key, value] of Object.entries(chars[0].styles)) {
+      if (chars.every((char) => char.styles[key] === value)) {
+        styles[key] = value;
+      }
+    }
+    const { href } = chars[0];
+    const unit: InlineUnit = {
+      kind: "char",
+      char: "",
+      styles,
+      href: chars.every((char) => char.href === href) ? href : undefined,
+    };
+    return unit;
+  };
+  const baseUnit = common(base);
+  const theirsUnit = common(theirs);
+  return baseUnit === undefined || theirsUnit === undefined
+    ? undefined
+    : { base: baseUnit, ours: baseUnit, theirs: theirsUnit };
 }
 
 /** The styles and link of the new character, merged with one stable character as the base and theirs. */

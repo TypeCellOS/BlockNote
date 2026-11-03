@@ -319,12 +319,15 @@ describe("markdown", () => {
       ),
     );
 
+    // The new text at the end of the content does not get the hidden
+    // underline (see `merge/inline.ts`).
     expect(editor.getBlock("underlined")?.content).toEqual([
       {
         type: "text",
-        text: `Underlined words here.${sentences}`,
+        text: "Underlined words here",
         styles: { underline: true },
       },
+      { type: "text", text: `.${sentences}`, styles: {} },
     ]);
   });
 

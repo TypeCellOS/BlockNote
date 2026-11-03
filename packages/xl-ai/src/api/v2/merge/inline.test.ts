@@ -39,14 +39,52 @@ describe("mergeInlineContent", () => {
     ).toEqual([text("first", bold), text(", please.")]);
   });
 
-  it("gives a hidden style to new text at the end of the content", () => {
+  it("gives no hidden style to new text at the end of the content", () => {
     expect(
       mergeInlineContent(
         [text("hello")],
         [text("hello world")],
         [text("hello", underline)],
       ),
-    ).toEqual([text("hello world", underline)]);
+    ).toEqual([text("hello", underline), text(" world")]);
+  });
+
+  it("gives the hidden styles of a replaced word to the new word", () => {
+    expect(
+      mergeInlineContent(
+        [text("the red car")],
+        [text("the blue car")],
+        [text("the "), text("red", underline), text(" car")],
+      ),
+    ).toEqual([text("the "), text("blue", underline), text(" car")]);
+  });
+
+  it("keeps the hidden styles of the last word if the text adds words after it", () => {
+    expect(
+      mergeInlineContent(
+        [text("Read the manual")],
+        [text("Read the manual today, and then the guide.")],
+        [text("Read the "), text("manual", underline)],
+      ),
+    ).toEqual([
+      text("Read the "),
+      text("manual", underline),
+      text(" today, and then the guide."),
+    ]);
+  });
+
+  it("gives no link to new text after a link at the end of the content", () => {
+    expect(
+      mergeInlineContent(
+        [text("See the docs")],
+        [text("See the docs for all the details.")],
+        [text("See the "), link("docs", "https://example.com")],
+      ),
+    ).toEqual([
+      text("See the "),
+      link("docs", "https://example.com"),
+      text(" for all the details."),
+    ]);
   });
 
   it("applies styles that ours changed", () => {
