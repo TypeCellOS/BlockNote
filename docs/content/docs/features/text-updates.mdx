@@ -16,7 +16,7 @@ A write does not replace the document. It applies only the changes of the text. 
 npm install @blocknote/xl-ai
 ```
 
-The text updates are in the `@blocknote/xl-ai/text-lens` entry point. On a server, the markdown and HTML conversions need a DOM (see [Server-side Processing](/docs/features/server-processing)).
+The text updates are in the `@blocknote/xl-ai/text-lens` entry point. On a server, the markdown and HTML conversions need a DOM (see [Server-side Processing](/docs/features/server-processing)). For a Y.Doc, also install `yjs` (see [Y.Doc](#ydoc)).
 
 ## Read and Write Text
 
@@ -43,9 +43,9 @@ if (result.error === undefined) {
 }
 ```
 
-`updateDocumentFromText` applies the changes in one transaction. `operations` lists the changes by block ID, and `warnings` lists changes that did not apply as written (see [Warnings](#warnings)). To compute the operations without applying them, use `computeTextUpdate` with the same options.
+`updateDocumentFromText` applies the changes in one transaction. `operations` lists the changes by block ID, and `warnings` lists changes that did not apply as written (see [Warnings](#warnings)). To compute the operations, but not apply them, use `computeTextUpdate` with the same options.
 
-If the text gives blocks that do not fit the schema of the editor (for example an HTML table cell that spans more rows than the table has), the result is `{ error: "invalid-document" }`, and the document does not change.
+If the text gives blocks that do not fit the schema of the editor, the result is `{ error: "invalid-document" }`, and the document does not change. An example is an HTML table cell that spans more rows than the table has.
 
 The formats are `markdownFormat`, `htmlFormat` and `plainTextFormat`. HTML shows more data than markdown (for example colors and underline), thus a client can also change that data.
 
@@ -106,9 +106,9 @@ const result = updateDocumentFromJSON(editor, {
 });
 ```
 
-A block without an ID is a new block. An ID can identify only one block. Thus, a block gets a new ID if an earlier block of the JSON has the same ID, or (with `base`) if another user added a block with that ID after the client read the document.
+A block without an ID is a new block. An ID can identify only one block. Thus, a block gets a new ID if an earlier block of the JSON has the same ID. With `base`, a block also gets a new ID if another user added a block with that ID after the client read the document.
 
-If the JSON does not fit the schema of the editor (for example an unknown block type or style, or a prop value that the block type does not have), the result is `{ error: "invalid-document" }`, as for a text.
+If the JSON does not fit the schema of the editor, the result is `{ error: "invalid-document" }`, as for a text. Examples are an unknown block type or style, and a prop value that the block type does not have.
 
 ## Y.Doc
 

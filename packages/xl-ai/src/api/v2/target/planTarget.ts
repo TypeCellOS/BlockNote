@@ -14,8 +14,8 @@ import type { Projection } from "../projection/projectDocument.js";
 export type PlanWarning =
   /**
    * The text changed a block that renders as more than one view block. An
-   * example is a code block with blank lines, in plain text. The incoming
-   * blocks replace the block. Thus, the data that the format does not show
+   * example is a code block with blank lines, in plain text. The blocks of
+   * the text replace the block. Thus, the data that the format does not show
    * is lost.
    */
   | { type: "multi-part-block-replaced"; id: string }
@@ -39,7 +39,7 @@ export type PlanInput = {
   document: readonly LensBlock[];
   /** `document` as the format shows it. */
   projection: Projection;
-  /** The blocks from the incoming text, in a flat list. */
+  /** The blocks of the text, in a flat list. */
   incoming: FlatBlock[];
   /** The matches of `projection.view` (a side) to `incoming` (b side). */
   alignment: BlockPair[];
@@ -72,7 +72,7 @@ export function planTarget(input: PlanInput): Plan {
 
   const viewToIncoming = new Int32Array(view.length).fill(-1);
   const incomingToView = new Int32Array(incoming.length).fill(-1);
-  /** The incoming blocks that the text moved (rule 3 of `alignBlocks`). */
+  /** The blocks of the text that the text moved (rule 3 of `alignBlocks`). */
   const moved = new Set<number>();
   for (const pair of input.alignment) {
     viewToIncoming[pair.aIndex] = pair.bIndex;
@@ -82,7 +82,7 @@ export function planTarget(input: PlanInput): Plan {
     }
   }
 
-  // 1. Find the source blocks that stay, and the incoming block of each.
+  // 1. Find the source blocks that stay, and the block of the text for each.
   // A multi-part block stays only if the text did not change its parts: each
   // part is in the text, unchanged, and the parts are next to each other in
   // the same order.
@@ -158,7 +158,7 @@ export function planTarget(input: PlanInput): Plan {
     stack.push(block);
   }
 
-  /** The target node of the nearest text ancestor of incoming block `j` that has a node, or the root. */
+  /** The target node of the nearest text ancestor of text block `j` that has a node, or the root. */
   function textParent(j: number): LensBlock {
     for (
       let p = incoming[j].parentIndex;
@@ -174,7 +174,7 @@ export function planTarget(input: PlanInput): Plan {
   }
 
   /**
-   * Returns true if the text shows kept incoming block `j` with the nesting
+   * Returns true if the text shows kept text block `j` with the nesting
    * of its view block: the same parent, with the same type. A format can
    * show the children of different types in different ways (for example
    * HTML, the children of a toggle and of a bullet). Thus, after a change of

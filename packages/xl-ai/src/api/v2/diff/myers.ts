@@ -89,8 +89,8 @@ export function myersMatch<A, B>(
     forward[offset + 1] = 0;
     backward[offset + 1] = 0;
     const delta = n - m;
-    // If delta is odd, the forward search finds the meeting point. Else the
-    // backward search finds it.
+    // If delta is odd, the forward search finds the point where the two
+    // searches meet. Else the backward search finds it.
     const forwardMeets = delta % 2 !== 0;
     // Diagonals outside the ranges: the searches skip them.
     let forwardStart = 0;
