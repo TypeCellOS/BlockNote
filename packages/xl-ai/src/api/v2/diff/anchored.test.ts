@@ -14,9 +14,8 @@ describe("anchoredMatch", () => {
     );
   });
 
-  it("matches large inputs with more changes than the Myers limit", () => {
-    // 2,000 changes, more than the limit of the Myers diff (1,000). Myers
-    // matches only the common prefix and suffix.
+  it("matches large inputs with many changes", () => {
+    // 2,000 changes. The anchors find the unique "id" items first.
     const a = Array.from({ length: 1000 }, (_, i) => [
       `id${i}`,
       "old",
@@ -27,7 +26,6 @@ describe("anchoredMatch", () => {
       "new",
       "x",
     ]).flat();
-    expect(myersMatch(a, b, (x, y) => x === y)).toHaveLength(2);
 
     const pairs = anchoredMatch(a, b, same);
     // Each "id" and each "x" stays.

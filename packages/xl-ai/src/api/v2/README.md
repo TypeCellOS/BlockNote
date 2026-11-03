@@ -102,7 +102,7 @@ For a Y.Doc, `updateYDocFromText` reads the Y.XmlFragment as a ProseMirror docum
 
 Each module imports only modules that are before it in this list. Thus, there are no import cycles.
 
-- `diff/`: the Myers match of two sequences, and the anchored match (the patience method) for large inputs. This module does not import BlockNote.
+- `diff/`: the Myers match of two sequences (with a trace up to 1,000 edits, and in linear space with a work limit above that), and the anchored match (the patience method) for large inputs. This module does not import BlockNote.
 - `blocks/`: the block JSON types of the lens, flat lists of blocks, JSON equality, the update between two blocks, and `BlockTree` (the parent and the children of each block, by ID).
 - `formats/`: `TextFormat` (`serialize` and `parse`), with markdown, HTML and plain text.
 - `alignment/` and `merge/`: the identity of blocks, and the three-way merges.
@@ -176,7 +176,7 @@ The branch `fix/markdown-roundtrip` fixes the markdown conversion: one round tri
 - A source map from the format. Some formats show a block as a part of the text that the parse does not give back as one block (for example a file block as a link in a list item). The view block then has no link, and a change to it does not apply (warning `unlinked-block-changed`).
 - Columns: a text that puts a top-level block between the blocks of two columns (for example a swap of a top-level paragraph and the block of a column) closes the column list in the planner. The planner cannot open it again. Thus, the blocks of the next columns move out, and the column list dissolves.
 - A split by another writer: the rebase merges each block by its ID. If another writer splits a block, and the client changes the text of the second part, the change applies to the first block, and the new second block keeps the old text. The result has that text two times, without a warning.
-- The limit of the Myers diff (1,000 edits): if the text of one block needs more edits than that, the alignment finds only the common start and end. For a write from an older version, the text of the client then wins in that block, and the changes of the other writer in it are lost, without a warning. For a write of the current version, styles that the format does not show can go to the wrong characters. A fix is a Myers diff in linear space without that limit for the tokens. The cost for a large change of a large block (for example a code block of 10,000 lines) is then quadratic.
+- A block that another writer rewrote: if another writer changes almost all words of a block (for example the case of each word), the alignment of the old and the new text finds nothing in common. If the client also changes that block, the text of the client wins in the block, and the changes of the other writer in it are lost, without a warning.
 - In jsdom, the markdown export of many paragraphs in list items is quadratic, because each move of an element recomputes the index of its siblings.
 - A block that the text moves and also changes. The lens does not find it. The block is removed and inserted again, with a new ID.
 - Table rows with a different number of cells. Examples are added or removed columns, and changed rows with merged cells (the format shows them as separate cells). The result for these rows is the row from the text. The cell colors and merged cells of these rows are lost.
