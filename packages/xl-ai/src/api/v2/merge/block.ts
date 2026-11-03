@@ -3,6 +3,8 @@ import { inlineContentToText } from "../blocks/text.js";
 import {
   type BlockFields,
   type ContentKind,
+  contentShape,
+  type ContentShape,
   isTableContent,
   type LensBlockContent,
   type LensInlineContent,
@@ -66,17 +68,17 @@ export function mergeBlock(
   };
 }
 
+/** The shape of the content that a block with content of each kind holds. */
+const SHAPE_OF_KIND: Record<ContentKind, ContentShape> = {
+  inline: "text",
+  plain: "text",
+  table: "table",
+  none: "none",
+};
+
 /** Returns true if a block with content of this kind can hold the content. */
 function canHold(kind: ContentKind, content: LensBlockContent): boolean {
-  switch (kind) {
-    case "inline":
-    case "plain":
-      return Array.isArray(content);
-    case "table":
-      return isTableContent(content);
-    case "none":
-      return content === undefined;
-  }
+  return contentShape(content) === SHAPE_OF_KIND[kind];
 }
 
 /**

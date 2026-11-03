@@ -1,8 +1,8 @@
 import { blockKey } from "../blocks/json.js";
 import { blockToText } from "../blocks/text.js";
 import {
+  contentShape,
   type FlatBlock,
-  isTableContent,
   type LensBlock,
 } from "../blocks/types.js";
 import { myersMatch } from "../diff/myers.js";
@@ -177,13 +177,10 @@ export function linkBlocks(
  * are the same block.
  */
 export function alignmentKey(block: LensBlock): string {
-  if (Array.isArray(block.content)) {
-    return `text:${blockToText(block)}`;
-  }
-  if (isTableContent(block.content)) {
-    return `table:${blockToText(block)}`;
-  }
-  return `block:${blockKey(block)}`;
+  const shape = contentShape(block.content);
+  return shape === "none"
+    ? `block:${blockKey(block)}`
+    : `${shape}:${blockToText(block)}`;
 }
 
 /**
@@ -192,13 +189,10 @@ export function alignmentKey(block: LensBlock): string {
  * content), a table, or no content with the same block type.
  */
 export function canBeSameBlock(a: LensBlock, b: LensBlock): boolean {
-  if (Array.isArray(a.content) || Array.isArray(b.content)) {
-    return Array.isArray(a.content) && Array.isArray(b.content);
-  }
-  if (isTableContent(a.content) || isTableContent(b.content)) {
-    return isTableContent(a.content) && isTableContent(b.content);
-  }
-  return a.type === b.type;
+  const shape = contentShape(a.content);
+  return (
+    shape === contentShape(b.content) && (shape !== "none" || a.type === b.type)
+  );
 }
 
 function overlapText(block: LensBlock): OverlapText {

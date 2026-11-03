@@ -92,3 +92,13 @@ export function isTableContent(
     content.type === "tableContent"
   );
 }
+
+/** The shape of the content of a block: text (inline content or plain content), a table, or no content. */
+export type ContentShape = "text" | "table" | "none";
+
+export function contentShape(content: LensBlockContent): ContentShape {
+  if (Array.isArray(content)) {
+    return "text";
+  }
+  return isTableContent(content) ? "table" : "none";
+}
