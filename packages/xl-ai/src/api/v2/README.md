@@ -143,7 +143,7 @@ Each module imports only modules that are before it in this list. Thus, there ar
   | HTML       | 818 ms   | 4,568 ms              | 3,449 ms                    | 3,812 ms    | 46 ms                |
   | Plain text | 2 ms     | 76 ms                 | 89 ms                       | 374 ms      | 26 ms                |
 
-  The stages of the lens (align, plan, diff) are linear. Most of the time goes to the markdown and HTML conversions of BlockNote, and to the parse of the text.
+  The stages of the lens (align, plan, diff) are linear. The writes are linear in the number of changed blocks too: a plain text that changes all of 4,000 paragraphs takes 0.2 s for an editor and 0.4 s for a Y.Doc. Most of the time goes to the markdown and HTML conversions of BlockNote, and to the parse of the text.
 
 ## Changes outside this folder
 
