@@ -222,8 +222,9 @@ describe("markdown normalization", () => {
 
 /**
  * A mounted editor has the plugins for a user who types, for example the
- * autolink plugin, which changes a URL into a link. A write of a text is
- * not typing: the laws must hold also in a mounted editor.
+ * autolink plugin, which changes a URL into a link. A write of a text does
+ * not come from a user who types. Thus, the laws must be true also in a
+ * mounted editor.
  */
 describe("a mounted editor", () => {
   function createMountedEditor() {

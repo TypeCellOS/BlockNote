@@ -95,7 +95,7 @@ The client's changes apply to the current document, by block ID. If both sides c
 
 ## BlockNote JSON
 
-`updateDocumentFromJSON` applies a full document as BlockNote JSON in the same way. The JSON contains the block IDs, thus the blocks pair by ID. Only the changed blocks and fields change, and with `base`, the changes of other users stay:
+`updateDocumentFromJSON` applies a full document as BlockNote JSON in the same way. The JSON contains the block IDs, thus the blocks pair by ID. Only the changed blocks and fields change, and with `base`, the changes of other users stay. A field that the JSON of a block does not have gets its default value, thus send each block with all its fields:
 
 ```typescript
 import { updateDocumentFromJSON } from "@blocknote/xl-ai/text-lens";

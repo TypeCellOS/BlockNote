@@ -267,9 +267,8 @@ export function planTarget(input: PlanInput): Plan {
    *   show (for example a column). There are two exceptions. A block that
    *   the text moved to a place outside its hidden blocks (none of them is
    *   open, and the next kept block is not in one of them) does not keep
-   *   that nesting. A block
-   *   between two blocks of an open hidden block (for example the blocks of
-   *   two columns) does not close it.
+   *   that nesting. A block between two blocks of an open hidden block (for
+   *   example the blocks of two columns) does not close it.
    * - In these cases, and if the source parent is not open any more, the
    *   block goes where a new block goes: into the nesting of the next kept
    *   block, or else into the parent of the text.
@@ -328,7 +327,7 @@ export function planTarget(input: PlanInput): Plan {
   /**
    * Returns true if the next kept block after block `j` needs a hidden block
    * that is open below `parent`. If block `j` went into `parent`, it would
-   * close that hidden block, and the next block could not go back into it.
+   * close that hidden block, and the next block cannot go back into it.
    * An example is a top-level block that the text puts between the blocks
    * of two columns. This does not change the tree.
    */
@@ -390,7 +389,6 @@ export function planTarget(input: PlanInput): Plan {
     const siblings = source.childrenOf(parentId);
     if (parent !== undefined) {
       const present = new Set(parent.children.map((child) => child.id));
-      // The hidden blocks to insert after each block (or first, for `undefined`).
       // The hidden blocks after each present block (first for
       // `undefined`), in source order.
       const after = new Map<string | undefined, LensBlock[]>();
