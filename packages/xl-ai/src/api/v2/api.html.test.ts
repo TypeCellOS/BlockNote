@@ -1,4 +1,9 @@
-import type { BlockNoteEditor } from "@blocknote/core";
+import {
+  BlockNoteEditor,
+  BlockNoteSchema,
+  defaultBlockSpecs,
+} from "@blocknote/core";
+import { withMultiColumn } from "@blocknote/xl-multi-column";
 import { describe, expect, it } from "vite-plus/test";
 
 import {
@@ -124,4 +129,28 @@ describe("HTML", () => {
       expect(editor.document).toEqual(before);
     },
   );
+
+  it("puts two paragraphs into a new column list, without extra columns", () => {
+    const editor = BlockNoteEditor.create({
+      schema: withMultiColumn(
+        BlockNoteSchema.create({ blockSpecs: defaultBlockSpecs }),
+      ),
+      initialContent: [
+        { id: "a", type: "paragraph", content: "Alpha" },
+        { id: "b", type: "paragraph", content: "Beta" },
+      ],
+    });
+
+    updateDocumentFromText(editor, {
+      format: htmlFormat,
+      text: '<div class="bn-block-column-list"><div class="bn-block-column"><p>Alpha</p></div><div class="bn-block-column"><p>Beta</p></div></div>',
+    });
+
+    expect(editor.document).toHaveLength(1);
+    expect(
+      editor.document[0].children.map((column) =>
+        column.children.map((block) => block.id),
+      ),
+    ).toEqual([["a"], ["b"]]);
+  });
 });

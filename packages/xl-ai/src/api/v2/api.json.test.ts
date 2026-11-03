@@ -243,4 +243,33 @@ describe("JSON", () => {
     ).toEqual({ error: "invalid-document" });
     expect(editor.prosemirrorState.doc).toBe(before);
   });
+
+  it("puts two blocks into a new column list, without extra columns", () => {
+    const editor = BlockNoteEditor.create({
+      schema: withMultiColumn(
+        BlockNoteSchema.create({ blockSpecs: defaultBlockSpecs }),
+      ),
+      initialContent: initial.slice(0, 2),
+    });
+    const [a, b] = copy(editor.document);
+
+    update(editor, {
+      document: [
+        {
+          type: "columnList",
+          children: [
+            { type: "column", children: [a] },
+            { type: "column", children: [b] },
+          ],
+        },
+      ],
+    });
+
+    expect(editor.document).toHaveLength(1);
+    expect(
+      editor.document[0].children.map((column) =>
+        column.children.map((block) => block.id),
+      ),
+    ).toEqual([["a"], ["b"]]);
+  });
 });

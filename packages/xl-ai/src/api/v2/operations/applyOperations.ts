@@ -18,6 +18,7 @@ import { ReplaceStep, type Step } from "prosemirror-transform";
 
 import {
   isTableContent,
+  type LensBlock,
   type LensPartialBlock,
   type LensTableContent,
 } from "../blocks/types.js";
@@ -59,6 +60,18 @@ export function applyOperations(
   tr: Transaction,
   operations: readonly BlockOperation[],
 ): void {
+  // The blocks that the document has after the operations: the blocks of
+  // the document now (each with an ID), and the inserted blocks. Another
+  // block is a block that core or ProseMirror made to fill a parent (see
+  // `removeFillBlocks`).
+  addMissingBlockIds(tr);
+  const expected = blockIdsOf(tr.doc);
+  for (const operation of operations) {
+    if (operation.type === "insert") {
+      addIds(operation.block, expected);
+    }
+  }
+
   for (let index = 0; index < operations.length; index++) {
     const operation = operations[index];
     switch (operation.type) {
@@ -95,27 +108,85 @@ export function applyOperations(
       }
     }
   }
-  repairEmptiedLayoutBlocks(tr);
+  removeFillBlocks(tr, expected);
+  repairEmptiedLayoutBlocks(tr, expected);
   addMissingBlockIds(tr);
+}
+
+/** The IDs of all the blocks of the document. */
+function blockIdsOf(doc: Node): Set<string> {
+  const ids = new Set<string>();
+  doc.descendants((node) => {
+    if (node.type.isInGroup("bnBlock") && typeof node.attrs.id === "string") {
+      ids.add(node.attrs.id);
+    }
+    return !node.isTextblock;
+  });
+  return ids;
+}
+
+function addIds(block: LensBlock, ids: Set<string>) {
+  ids.add(block.id);
+  for (const child of block.children) {
+    addIds(child, ids);
+  }
+}
+
+/** Returns true for a block that core or ProseMirror made to fill a parent (see `applyOperations`). */
+function isFill(node: Node, expected: ReadonlySet<string>): boolean {
+  return (
+    node.type.isInGroup("bnBlock") &&
+    (typeof node.attrs.id !== "string" || !expected.has(node.attrs.id))
+  );
+}
+
+/**
+ * Removes the fill blocks that their parent does not need. Core and
+ * ProseMirror fill a block with too few children with new blocks, for
+ * example a new column list before the moves of its columns (core
+ * `blockToNode` gives it two new columns). After the moves, the column list
+ * does not need them.
+ */
+function removeFillBlocks(tr: Transaction, expected: ReadonlySet<string>) {
+  const fills: number[] = [];
+  tr.doc.descendants((node, pos) => {
+    if (isFill(node, expected)) {
+      fills.push(pos);
+    }
+    return !node.isTextblock;
+  });
+  // From the end: a block is after its parent. Thus, the children go first,
+  // and the positions before each removal stay correct.
+  for (const pos of fills.reverse()) {
+    const $pos = tr.doc.resolve(pos);
+    const node = $pos.nodeAfter;
+    if (node && $pos.parent.canReplace($pos.index(), $pos.index() + 1)) {
+      tr.delete(pos, pos + node.nodeSize);
+    }
+  }
 }
 
 /**
  * Repairs the layout blocks that the operations emptied. ProseMirror fills
- * an emptied column with a new empty paragraph, without an ID. Each block of
- * the operations has an ID. Thus, a layout block in which no child has an ID
- * is empty. Its layout parent (for example a column list) gets the repair of
- * core (`fixLayoutBlock`): the empty column goes, and a column list with too
- * few columns becomes the blocks in it.
+ * an emptied column with a new empty paragraph, which is a fill block (see
+ * `removeFillBlocks`). Thus, a layout block in which all children are fill
+ * blocks is empty. Its layout parent (for example a column list) gets the
+ * repair of core (`fixLayoutBlock`): the empty column goes, and a column
+ * list with too few columns becomes the blocks in it.
  *
  * Without a rebase, the target fits the layout rules already (see
  * `fitLayout`). A rebase can empty a column of the current document.
  */
-function repairEmptiedLayoutBlocks(tr: Transaction) {
+function repairEmptiedLayoutBlocks(
+  tr: Transaction,
+  expected: ReadonlySet<string>,
+) {
   const parents: number[] = [];
   tr.doc.descendants((node, pos) => {
     let emptied = false;
     node.forEach((child) => {
-      emptied ||= isLayoutNode(child.type) && hasOnlyFillBlocks(child);
+      emptied ||=
+        isLayoutNode(child.type) && hasOnlyFillBlocks(child, expected);
     });
     if (isLayoutNode(node.type) && emptied) {
       parents.push(pos);
@@ -128,11 +199,11 @@ function repairEmptiedLayoutBlocks(tr: Transaction) {
   }
 }
 
-/** Returns true for a block with children, in which no child has an ID. */
-function hasOnlyFillBlocks(node: Node): boolean {
+/** Returns true for a block with children, in which all children are fill blocks. */
+function hasOnlyFillBlocks(node: Node, expected: ReadonlySet<string>): boolean {
   let only = node.childCount > 0;
   node.forEach((child) => {
-    only &&= child.type.isInGroup("bnBlock") && !child.attrs.id;
+    only &&= isFill(child, expected);
   });
   return only;
 }
