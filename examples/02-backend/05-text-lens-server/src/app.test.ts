@@ -156,6 +156,11 @@ describe("text lens server", () => {
       '[{ "type": "toString" }]',
       '[{ "type": "paragraph", "children": "x" }]',
       '[{ "type": "paragraph", "content": [{ "type": "unknown" }] }]',
+      // 20,000 levels of children.
+      "[" +
+        '{ "type": "paragraph", "children": ['.repeat(20_000) +
+        "]}".repeat(20_000) +
+        "]",
     ]) {
       expect(await (await put("json", body)).json()).toEqual({
         error: "invalid-document",

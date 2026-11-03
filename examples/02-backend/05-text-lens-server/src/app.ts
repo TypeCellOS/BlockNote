@@ -195,18 +195,32 @@ function parseDocument(
   return { blocks: json };
 }
 
-function isBlockList(value: unknown): value is PartialBlock<any, any, any>[] {
-  return Array.isArray(value) && value.every(isBlock);
-}
+/** The maximum nesting depth of a JSON document. */
+const MAX_DEPTH = 100;
 
-function isBlock(value: unknown): boolean {
-  if (typeof value !== "object" || value === null || Array.isArray(value)) {
-    return false;
+/** Checks the full tree without recursion, and at most `MAX_DEPTH` levels deep. */
+function isBlockList(value: unknown): value is PartialBlock<any, any, any>[] {
+  const lists: { list: unknown; depth: number }[] = [{ list: value, depth: 1 }];
+  for (let next = lists.pop(); next !== undefined; next = lists.pop()) {
+    const { list, depth } = next;
+    if (!Array.isArray(list) || depth > MAX_DEPTH) {
+      return false;
+    }
+    for (const block of list) {
+      if (typeof block !== "object" || block === null || Array.isArray(block)) {
+        return false;
+      }
+      const { id, type, children } = block as Record<string, unknown>;
+      if (
+        (id !== undefined && typeof id !== "string") ||
+        (type !== undefined && typeof type !== "string")
+      ) {
+        return false;
+      }
+      if (children !== undefined) {
+        lists.push({ list: children, depth: depth + 1 });
+      }
+    }
   }
-  const { id, type, children } = value as Record<string, unknown>;
-  return (
-    (id === undefined || typeof id === "string") &&
-    (type === undefined || typeof type === "string") &&
-    (children === undefined || isBlockList(children))
-  );
+  return true;
 }
