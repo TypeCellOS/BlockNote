@@ -3,6 +3,12 @@ import { anchoredMatch } from "../diff/anchored.js";
 /** The size of the text that `a[aIndex]` and `b[bIndex]` have in common. */
 export type Overlap = { aIndex: number; bIndex: number; size: number };
 
+/**
+ * A text for {@link textOverlaps}, with the key of its block. Equal keys are
+ * equal blocks (see `alignmentKey`).
+ */
+export type OverlapText = { text: string; key: string };
+
 /** Words, and single characters that are not words and not whitespace. */
 const TOKEN = /[\p{L}\p{N}_]+|[^\s\p{L}\p{N}_]/gu;
 const WORD = /^[\p{L}\p{N}_]/u;
@@ -20,8 +26,8 @@ type Token = { owner: number; key: string; size: number };
  * text can only share words with texts at the same position or later.
  */
 export function textOverlaps(
-  a: readonly string[],
-  b: readonly string[],
+  a: readonly OverlapText[],
+  b: readonly OverlapText[],
 ): Overlap[] {
   const tokensA = tokensOf(a);
   const tokensB = tokensOf(b);
@@ -45,25 +51,37 @@ export function textOverlaps(
   return [...overlaps.values()];
 }
 
-/** Returns the number of word characters in the text. */
-export function wordSize(text: string): number {
+/** Returns the number of word characters in the text, or 1 for a text without words. */
+export function wordSize(text: OverlapText): number {
   return tokensOf([text]).reduce((sum, token) => sum + token.size, 0);
 }
 
 /**
- * Splits the texts into tokens, with a separator after each text. The
- * separator has the size 0. A token that is not a word has the size 0, also.
- * Thus, two texts with only the same punctuation are not the same text.
+ * Splits the texts into tokens:
+ *
+ * - First a token for the key. If the key is unique, the anchors of the diff
+ *   include it (see `anchoredMatch`). Thus, a block with an equal text aligns
+ *   as one block, before its words can align with other blocks. A text
+ *   without words is only this token, with the size 1. Thus, it overlaps
+ *   fully with a text that has the same key (for example an image with the
+ *   same URL, or an empty paragraph).
+ * - The words and the single other characters. A token that is not a word
+ *   has the size 0. Thus, two texts with only the same punctuation are not
+ *   the same text.
+ * - A separator, with the size 0.
  */
-function tokensOf(texts: readonly string[]): Token[] {
+function tokensOf(texts: readonly OverlapText[]): Token[] {
   const tokens: Token[] = [];
-  texts.forEach((text, owner) => {
-    for (const [token] of text.toLowerCase().matchAll(TOKEN)) {
-      tokens.push({
-        owner,
-        key: token,
-        size: WORD.test(token) ? token.length : 0,
-      });
+  texts.forEach(({ text, key }, owner) => {
+    const own = Array.from(text.toLowerCase().matchAll(TOKEN), ([token]) => ({
+      owner,
+      key: token,
+      size: WORD.test(token) ? token.length : 0,
+    }));
+    const hasWords = own.some((token) => token.size > 0);
+    tokens.push({ owner, key: `\u0001${key}`, size: hasWords ? 0 : 1 });
+    if (hasWords) {
+      tokens.push(...own);
     }
     tokens.push({ owner, key: "\u0000", size: 0 });
   });

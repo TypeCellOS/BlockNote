@@ -75,7 +75,7 @@ export function planTarget(input: PlanInput): Plan {
 
   const viewToIncoming = new Int32Array(view.length).fill(-1);
   const incomingToView = new Int32Array(incoming.length).fill(-1);
-  /** The blocks of the text that the text moved (rule 3 of `alignBlocks`). */
+  /** The blocks of the text that the text moved (rule 2 of `alignBlocks`). */
   const moved = new Set<number>();
   for (const pair of input.alignment) {
     viewToIncoming[pair.aIndex] = pair.bIndex;

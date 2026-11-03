@@ -182,10 +182,37 @@ describe("alignBlocks", () => {
     ]);
   });
 
-  it("does not match a moved block that changed, or a moved empty block", () => {
+  it("does not match a moved block that changed", () => {
     expect(
-      align(flat("one x", "", "two y"), flat("two y", "one x!", "")),
-    ).toEqual([[2, 0]]);
+      align(
+        flat("alpha beta", "gamma delta", "epsilon zeta"),
+        flat("gamma delta", "epsilon zeta", "alpha omega"),
+      ),
+    ).toEqual([
+      [1, 0],
+      [2, 1],
+    ]);
+  });
+
+  it("keeps the changed blocks aligned if a block moves past them", () => {
+    // The moved block has an equal text, the other blocks do not. The
+    // changed blocks still match, and the moved block matches by rule 2.
+    expect(
+      align(
+        flat("alpha one two three", "beta four five six", "moved item", "end"),
+        flat(
+          "moved item",
+          "alpha one two three x",
+          "beta four five six y",
+          "end",
+        ),
+      ),
+    ).toEqual([
+      [0, 1],
+      [1, 2],
+      [2, 0],
+      [3, 3],
+    ]);
   });
 });
 

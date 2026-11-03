@@ -53,10 +53,9 @@ The formats are `markdownFormat`, `htmlFormat` and `plainTextFormat`. HTML shows
 
 The text does not contain block IDs. The identity of a block follows the location of its text:
 
-1. Blocks with equal text are the same block.
-2. Between these blocks, two blocks are the same if they share most of their words. Thus, a paragraph with many new sentences keeps its ID and props.
-3. A block that the text moves keeps its ID, if no other block has the same text.
-4. If one block on each side stays between two pairs, the two blocks are the same block. Thus, a paragraph with fully new text at the same position keeps its ID.
+1. Two blocks are the same block if they share most of their words. One comparison of all the words of the document decides this. Thus, a block with equal text is the same block, and a paragraph with many new sentences keeps its ID and props. If a block moves past changed blocks, the changed blocks also keep their IDs.
+2. A block that the text moves keeps its ID, if no other block has the same text.
+3. If one block on each side stays between two pairs, the two blocks are the same block. Thus, a paragraph with fully new text at the same position keeps its ID.
 
 A split paragraph keeps its ID on the part with most of its text. Two joined paragraphs keep the ID of the first paragraph.
 
@@ -184,5 +183,5 @@ The [text lens server example](https://github.com/TypeCellOS/BlockNote/tree/main
 2. **Parse**: the text of the client gives the blocks of the text.
 3. **Align**: the view blocks and the blocks of the text pair by the location of their text (see [Which Block Is the Same Block](#which-block-is-the-same-block)).
 4. **Merge and plan**: each pair merges three ways. The base is the view block, "ours" is the block of the text, and "theirs" is the document block. A field that the text changed takes the value of the text. Other fields keep the value of the document, thus data that the format does not show stays. The result is the target document.
-5. **Diff**: the target document and the document give the operations, by block ID.
-6. **Apply**: the operations become the smallest ProseMirror steps. Unchanged text keeps its identity and its comments, and a collaboration binding sees only the small changes. For an older `base`, the operations first move to the current document.
+5. **Diff**: the target document and the document give the operations, by block ID. For an older `base`, the target first merges with the current document (a three-way merge of the block trees), and the diff is against the current document.
+6. **Apply**: the operations become the smallest ProseMirror steps. Unchanged text keeps its identity and its comments, and a collaboration binding sees only the small changes.

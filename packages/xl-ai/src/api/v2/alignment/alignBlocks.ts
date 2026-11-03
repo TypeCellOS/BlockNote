@@ -7,7 +7,12 @@ import {
 } from "../blocks/types.js";
 import { myersMatch } from "../diff/myers.js";
 import type { MatchedPair } from "../diff/types.js";
-import { type Overlap, textOverlaps, wordSize } from "./overlap.js";
+import {
+  type Overlap,
+  type OverlapText,
+  textOverlaps,
+  wordSize,
+} from "./overlap.js";
 
 /**
  * The minimum part of a text that two blocks must have in common to match by
@@ -17,7 +22,7 @@ const MIN_SHARE = 0.5;
 
 /**
  * Two blocks that are the same block: `a[aIndex]` and `b[bIndex]`. Unlike a
- * `MatchedPair`, the pairs of moved blocks (rule 3 of {@link alignBlocks})
+ * `MatchedPair`, the pairs of moved blocks (rule 2 of {@link alignBlocks})
  * can cross the other pairs. These pairs have `moved: true`.
  */
 export type BlockPair = { aIndex: number; bIndex: number; moved?: true };
@@ -26,51 +31,41 @@ export type BlockPair = { aIndex: number; bIndex: number; moved?: true };
  * Aligns two flat block lists, one to one. The identity of a block follows
  * the location of its text:
  *
- * 1. Blocks with equal text match first (see {@link alignmentKey}), with a
- *    longest common subsequence.
- * 2. Between these anchors, two blocks match if they prefer each other (see
- *    {@link mutualBestPairs}), and the overlap is at least half of the
- *    shorter text. Thus, a block with added sentences stays the same block.
- * 3. A block that moved: of the blocks without a match, two blocks match if
+ * 1. One word diff of the texts of all blocks finds the overlap of each pair
+ *    of blocks (see `textOverlaps`). It aligns the most words, thus a run of
+ *    changed blocks stays aligned, also if a block moves past them. Two
+ *    blocks match if they prefer each other (see {@link mutualBestPairs}),
+ *    and the overlap is at least half of the shorter text. Thus, a block with
+ *    equal text matches, and a block with added sentences stays the same
+ *    block. A block without words (for example an image or an empty
+ *    paragraph) overlaps with a block with an equal key (see
+ *    {@link alignmentKey}).
+ * 2. A block that moved: of the blocks without a match, two blocks match if
  *    they have an equal key (not an empty text) that no other block without
  *    a match has on either side. Thus, a block that the text moves keeps its
  *    ID. These pairs can cross the other pairs. A block that moved and
  *    changed has no match.
- * 4. If one block on each side stays between two matches of rules 1 and 2
- *    (the moved blocks do not count), the two blocks have the same position.
- *    If their content has the same shape, they match. Thus, a block with
- *    fully new text at the same position stays the same block.
+ * 3. If one block on each side stays between two matches of rule 1 (the
+ *    moved blocks do not count), the two blocks have the same position. If
+ *    their content has the same shape, they match. Thus, a block with fully
+ *    new text at the same position stays the same block.
  *
- * An equal text is a stronger sign than a position. Thus, rule 3 comes
- * before rule 4: a moved block does not match a different block at its new
+ * An equal text is a stronger sign than a position. Thus, rule 2 comes
+ * before rule 3: a moved block does not match a different block at its new
  * position.
  */
 export function alignBlocks(
   a: readonly FlatBlock[],
   b: readonly FlatBlock[],
 ): BlockPair[] {
-  // Rules 1 and 2. These pairs are in order.
-  const ordered: MatchedPair[] = [];
-  for (const { gap, anchor } of gaps(
-    anchorsOf(a, b, alignmentKey),
-    a.length,
-    b.length,
-  )) {
-    for (const pair of mutualBestPairs(gapTexts(a, b, gap))) {
-      ordered.push({
-        aIndex: gap.aStart + pair.aIndex,
-        bIndex: gap.bStart + pair.bIndex,
-      });
-    }
-    if (anchor) {
-      ordered.push(anchor);
-    }
-  }
+  const ordered = mutualBestPairs(
+    gapTexts(a, b, { aStart: 0, aEnd: a.length, bStart: 0, bEnd: b.length }),
+  );
   const moved = movedPairs(a, b, ordered);
   return [...ordered, ...moved, ...samePositionPairs(a, b, ordered, moved)];
 }
 
-/** Rule 4 of {@link alignBlocks}: pairs of blocks at the same position. */
+/** Rule 3 of {@link alignBlocks}: pairs of blocks at the same position. */
 function samePositionPairs(
   a: readonly FlatBlock[],
   b: readonly FlatBlock[],
@@ -107,7 +102,7 @@ function samePositionPairs(
   return pairs;
 }
 
-/** Rule 3 of {@link alignBlocks}: pairs of moved blocks. */
+/** Rule 2 of {@link alignBlocks}: pairs of moved blocks. */
 function movedPairs(
   a: readonly FlatBlock[],
   b: readonly FlatBlock[],
@@ -263,16 +258,20 @@ function gapTexts(
   b: readonly FlatBlock[],
   { aStart, aEnd, bStart, bEnd }: Gap,
 ) {
-  const textsA = a.slice(aStart, aEnd).map((flat) => blockToText(flat.block));
-  const textsB = b.slice(bStart, bEnd).map((flat) => blockToText(flat.block));
+  const textsA = a.slice(aStart, aEnd).map(({ block }) => overlapText(block));
+  const textsB = b.slice(bStart, bEnd).map(({ block }) => overlapText(block));
   return {
     overlaps:
       textsA.length === 0 || textsB.length === 0
         ? []
         : textOverlaps(textsA, textsB),
-    sizesA: textsA.map((text) => wordSize(text)),
-    sizesB: textsB.map((text) => wordSize(text)),
+    sizesA: textsA.map(wordSize),
+    sizesB: textsB.map(wordSize),
   };
+}
+
+function overlapText(block: LensBlock): OverlapText {
+  return { text: blockToText(block), key: alignmentKey(block) };
 }
 
 /**
