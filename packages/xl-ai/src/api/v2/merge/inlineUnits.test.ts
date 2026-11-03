@@ -34,6 +34,23 @@ describe("fromUnits", () => {
     expect(fromUnits(toUnits(content))).toEqual(content);
   });
 
+  it("gives back an item from its shadow, but not if its characters got a style", () => {
+    const mention = {
+      type: "mention",
+      props: { user: "Bob" },
+      content: undefined,
+    } as LensInlineContent;
+    const units = toUnits([mention], () => "@Bob");
+    expect(fromUnits(units)).toEqual([mention]);
+
+    const bold = units.map((unit) =>
+      unit.kind === "char" ? { ...unit, styles: { bold: true } } : unit,
+    );
+    expect(fromUnits(bold)).toEqual([
+      { type: "text", text: "@Bob", styles: { bold: true } },
+    ]);
+  });
+
   it("joins adjacent text with equal styles", () => {
     expect(
       fromUnits(

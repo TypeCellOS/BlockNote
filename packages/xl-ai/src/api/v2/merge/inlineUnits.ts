@@ -88,7 +88,12 @@ export function toUnits(
   return units;
 }
 
-/** Returns true if the units from `start` are all characters of one shadow, in order. */
+/**
+ * Returns true if the units from `start` are all characters of one shadow,
+ * in order, without a style or a link (a shadow starts without them, see
+ * {@link toUnits}). If the text gave the characters a style or a link (for
+ * example "**@Bob**" in markdown), they stay text with it.
+ */
 function isFullShadow(units: readonly InlineUnit[], start: number): boolean {
   const first = units[start];
   if (first.kind !== "char" || first.shadow?.index !== 0) {
@@ -100,7 +105,9 @@ function isFullShadow(units: readonly InlineUnit[], start: number): boolean {
     if (
       unit?.kind !== "char" ||
       unit.shadow?.id !== id ||
-      unit.shadow.index !== k
+      unit.shadow.index !== k ||
+      unit.href !== undefined ||
+      Object.keys(unit.styles).length > 0
     ) {
       return false;
     }
