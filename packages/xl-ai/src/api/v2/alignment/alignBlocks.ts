@@ -166,7 +166,7 @@ export function linkBlocks(
     source.length,
     view.length,
   )) {
-    const { overlaps, sizesB } = gapTexts(source, view, gap);
+    const { overlaps, sizesB } = gapTexts(source, view, gap, true);
     const best = new Map<number, Overlap>();
     for (const overlap of overlaps) {
       const current = best.get(overlap.bIndex);
@@ -273,10 +273,12 @@ function gaps(
  * Returns the overlaps of the blocks in a gap, and the word size of the text
  * of each block. The indices are relative to the start of the gap.
  */
+/** The overlaps of the texts in the gap (see `textOverlaps` for `countAll`). */
 function gapTexts(
   a: readonly FlatBlock[],
   b: readonly FlatBlock[],
   { aStart, aEnd, bStart, bEnd }: Gap,
+  countAll = false,
 ) {
   const textsA = a.slice(aStart, aEnd).map((flat) => blockToText(flat.block));
   const textsB = b.slice(bStart, bEnd).map((flat) => blockToText(flat.block));
@@ -284,9 +286,9 @@ function gapTexts(
     overlaps:
       textsA.length === 0 || textsB.length === 0
         ? []
-        : textOverlaps(textsA, textsB),
-    sizesA: textsA.map(wordSize),
-    sizesB: textsB.map(wordSize),
+        : textOverlaps(textsA, textsB, countAll),
+    sizesA: textsA.map((text) => wordSize(text, countAll)),
+    sizesB: textsB.map((text) => wordSize(text, countAll)),
   };
 }
 

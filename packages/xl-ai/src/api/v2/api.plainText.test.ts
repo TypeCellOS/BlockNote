@@ -244,3 +244,34 @@ describe("plain text, a new editor", () => {
     ]);
   });
 });
+
+describe("plain text, a part of a block without words", () => {
+  it("links a part with only punctuation to its block", () => {
+    const editor = BlockNoteEditor.create({
+      initialContent: [
+        {
+          id: "c",
+          type: "codeBlock",
+          props: { language: "javascript" },
+          content: "if (a) {\n  b();\n\n}",
+        },
+        { id: "p", type: "paragraph", content: "After" },
+      ],
+    });
+    const text = getDocumentText(editor, plainTextFormat);
+
+    const update = valid(
+      updateDocumentFromText(editor, {
+        format: plainTextFormat,
+        text: text.replace("\n\n}", "\n\n} // end"),
+      }),
+    );
+
+    // Plain text shows the code block as two parts. The change of a part
+    // replaces the block (see "multi-part-block-replaced").
+    expect(update.warnings).toEqual([
+      { type: "multi-part-block-replaced", id: "c" },
+    ]);
+    expect(getDocumentText(editor, plainTextFormat)).toContain("} // end");
+  });
+});

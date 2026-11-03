@@ -22,9 +22,10 @@ type Token = { owner: number; key: string; size: number };
 export function textOverlaps(
   a: readonly string[],
   b: readonly string[],
+  countAll = false,
 ): Overlap[] {
-  const tokensA = tokensOf(a);
-  const tokensB = tokensOf(b);
+  const tokensA = tokensOf(a, countAll);
+  const tokensB = tokensOf(b, countAll);
   const pairs = anchoredMatch(tokensA, tokensB, (token) => token.key);
 
   const overlaps = new Map<string, Overlap>();
@@ -45,23 +46,27 @@ export function textOverlaps(
   return [...overlaps.values()];
 }
 
-/** Returns the number of word characters in the text. */
-export function wordSize(text: string): number {
-  return tokensOf([text]).reduce((sum, token) => sum + token.size, 0);
+/** Returns the number of word characters in the text (with `countAll`, of all characters that are not whitespace). */
+export function wordSize(text: string, countAll = false): number {
+  return tokensOf([text], countAll).reduce((sum, token) => sum + token.size, 0);
 }
 
 /**
  * Splits the texts into tokens, with a separator after each text. The
- * separator and the tokens that are not words have the size 0.
+ * separator has the size 0. A token that is not a word has the size 0, also,
+ * unless `countAll` is set. The identity rules count only words: two texts
+ * with only the same punctuation are not the same text. The links of a view
+ * count all characters: the view comes from the document, thus a part of
+ * the view with only punctuation (for example "}") comes from a block too.
  */
-function tokensOf(texts: readonly string[]): Token[] {
+function tokensOf(texts: readonly string[], countAll: boolean): Token[] {
   const tokens: Token[] = [];
   texts.forEach((text, owner) => {
     for (const [token] of text.toLowerCase().matchAll(TOKEN)) {
       tokens.push({
         owner,
         key: token,
-        size: WORD.test(token) ? token.length : 0,
+        size: countAll || WORD.test(token) ? token.length : 0,
       });
     }
     tokens.push({ owner, key: "\u0000", size: 0 });
