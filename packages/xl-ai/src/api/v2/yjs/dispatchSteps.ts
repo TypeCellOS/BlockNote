@@ -8,6 +8,8 @@ import {
   type Step,
 } from "prosemirror-transform";
 
+import { dispatchToEditor } from "../operations/applyOperations.js";
+
 /**
  * Dispatches the steps of the transaction to the editor, in transactions in
  * which no two steps change the same text block.
@@ -32,7 +34,7 @@ export function dispatchSteps(
   tr.steps.forEach((step, index) => {
     const textBlock = textBlockOf(tr.docs[index], step);
     if (textBlock !== undefined && changed.includes(textBlock)) {
-      dispatch(editor, group);
+      dispatchToEditor(editor, group);
       group = [];
       changed = [];
     }
@@ -43,17 +45,7 @@ export function dispatchSteps(
       changed.push(map.map(textBlock, -1));
     }
   });
-  dispatch(editor, group);
-}
-
-function dispatch(editor: BlockNoteEditor<any, any, any>, steps: Step[]) {
-  if (steps.length > 0) {
-    editor.transact((tr) => {
-      for (const step of steps) {
-        tr.step(step);
-      }
-    });
-  }
+  dispatchToEditor(editor, group);
 }
 
 /**

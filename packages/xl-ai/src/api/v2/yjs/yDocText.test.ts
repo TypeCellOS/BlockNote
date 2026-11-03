@@ -108,6 +108,20 @@ describe("updateYDocFromText", () => {
     });
   });
 
+  it("writes a URL of a plain text as text, not as a link", () => {
+    const { editor, ydoc, block } = setup([
+      { id: "p", type: "paragraph", content: "Alpha end" },
+    ]);
+    const fragment = ydoc.getXmlFragment("prosemirror");
+    const text = "Alpha https://example.com end";
+
+    valid(
+      updateYDocFromText(editor, fragment, { format: plainTextFormat, text }),
+    );
+
+    expect(block("p")?.content).toEqual([{ type: "text", text, styles: {} }]);
+  });
+
   it("changes nothing if the text did not change", () => {
     const { ydoc, read, write } = setup();
     const before = Y.encodeStateVector(ydoc);

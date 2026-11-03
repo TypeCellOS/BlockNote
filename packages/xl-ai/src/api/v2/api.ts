@@ -14,7 +14,10 @@ import { BlockTree } from "./blocks/tree.js";
 import type { ContentKind, LensBlock } from "./blocks/types.js";
 import type { TextFormat } from "./formats/types.js";
 import { addMissingBlockIds } from "./operations/blockIds.js";
-import { applyOperations } from "./operations/applyOperations.js";
+import {
+  applyOperations,
+  dispatchToEditor,
+} from "./operations/applyOperations.js";
 import { diffDocuments } from "./operations/diffDocuments.js";
 import type { BlockOperation } from "./operations/types.js";
 import { projectDocument } from "./projection/projectDocument.js";
@@ -176,44 +179,27 @@ function jsonUpdate(
 }
 
 /**
- * Computes an update for the document of the editor, and applies it, in one
- * transaction (see {@link prepareWrite}). On an error, the document does not
- * change.
+ * Computes an update for the document of the editor, and applies it. First,
+ * the blocks without an ID get an ID: the update is for the document with
+ * these IDs, thus the operations refer only to IDs that the document has.
+ * `dispatch` gets a transaction of the editor state with the steps of the
+ * IDs and of the operations. The default dispatches them in one
+ * transaction. On an error, the document does not change.
  */
-function write(
+export function write(
   editor: BlockNoteEditor<any, any, any>,
   compute: (current: readonly LensBlock[]) => TextUpdate,
+  dispatch: (tr: Transaction) => void = (tr) =>
+    dispatchToEditor(editor, tr.steps),
 ): TextUpdate {
-  const { update, tr } = prepareWrite(editor, compute);
-  if (update.error === undefined) {
-    editor.transact((next) => {
-      for (const step of tr.steps) {
-        next.step(step);
-      }
-    });
-  }
-  return update;
-}
-
-/**
- * Computes an update for the document of the editor, and a transaction of
- * the editor state with the steps of the update. The transaction is not
- * dispatched. Its first steps give an ID to each block without an ID. The
- * update is for the document with these IDs. Thus, the operations refer only
- * to IDs that the document has. On an error, the transaction has only the ID
- * steps.
- */
-export function prepareWrite(
-  editor: BlockNoteEditor<any, any, any>,
-  compute: (current: readonly LensBlock[]) => TextUpdate,
-): { update: TextUpdate; tr: Transaction } {
   const tr = editor.prosemirrorState.tr;
   addMissingBlockIds(tr);
   const update = compute(docToBlocks(tr.doc));
   if (update.error === undefined) {
     applyOperations(tr, update.operations);
+    dispatch(tr);
   }
-  return { update, tr };
+  return update;
 }
 
 /**

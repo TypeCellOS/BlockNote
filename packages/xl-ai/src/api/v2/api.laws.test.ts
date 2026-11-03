@@ -219,3 +219,38 @@ describe("markdown normalization", () => {
     ).toEqual([]);
   });
 });
+
+/**
+ * A mounted editor has the plugins for a user who types, for example the
+ * autolink plugin, which changes a URL into a link. A write of a text is
+ * not typing: the laws must hold also in a mounted editor.
+ */
+describe("a mounted editor", () => {
+  function createMountedEditor() {
+    const editor = createEditor([
+      { id: "p", type: "paragraph", content: "Alpha end" },
+    ]);
+    editor.mount(document.createElement("div"));
+    return editor;
+  }
+
+  it("keeps a URL of a plain text as text", () => {
+    const editor = createMountedEditor();
+    const text = "Alpha https://example.com end";
+
+    valid(updateDocumentFromText(editor, { format: plainTextFormat, text }));
+
+    expect(editor.getBlock("p")?.content).toEqual([
+      { type: "text", text, styles: {} },
+    ]);
+  });
+
+  it("gives back the markdown text of an escaped URL", () => {
+    const editor = createMountedEditor();
+    const text = "Alpha https\\://example.com end\n";
+
+    valid(updateDocumentFromText(editor, { format: markdownFormat, text }));
+
+    expect(getDocumentText(editor, markdownFormat)).toBe(text);
+  });
+});

@@ -8,10 +8,10 @@ import * as Y from "yjs";
 
 import {
   computeBlocksUpdate,
-  prepareWrite,
   type TextUpdate,
   type TextUpdateOptions,
   type ValidTextUpdate,
+  write,
 } from "../api.js";
 import { dispatchSteps } from "./dispatchSteps.js";
 
@@ -93,9 +93,14 @@ export function updateYDocFromText(
     try {
       // The layout blocks stay, also if they become empty: Yjs cannot merge
       // the removal of a column with a block that another writer adds to it.
-      update = write(editor, { ...textOptions, keepLayout: true });
+      update = writeThroughBinding(editor, {
+        ...textOptions,
+        keepLayout: true,
+      });
     } finally {
-      fork.merge({ keepChanges: update?.error === undefined });
+      fork.merge({
+        keepChanges: update !== undefined && update.error === undefined,
+      });
     }
   } else {
     // A base without content and a Y.Doc without content are the same empty
@@ -103,7 +108,7 @@ export function updateYDocFromText(
     const unchanged =
       baseFragment === undefined ||
       (baseFragment.length === 0 && fragment.length === 0);
-    update = write(editor, {
+    update = writeThroughBinding(editor, {
       ...textOptions,
       base: unchanged ? undefined : yXmlFragmentToBlocks(editor, baseFragment),
     });
@@ -114,17 +119,15 @@ export function updateYDocFromText(
 }
 
 /** Computes the update for the document of the editor, and dispatches its steps (see `dispatchSteps`). */
-function write(
+function writeThroughBinding(
   editor: BlockNoteEditor<any, any, any>,
   options: Omit<Parameters<typeof computeBlocksUpdate>[1], "current">,
 ): TextUpdate {
-  const { update, tr } = prepareWrite(editor, (current) =>
-    computeBlocksUpdate(editor, { ...options, current }),
+  return write(
+    editor,
+    (current) => computeBlocksUpdate(editor, { ...options, current }),
+    (tr) => dispatchSteps(editor, tr),
   );
-  if (update.error === undefined) {
-    dispatchSteps(editor, tr);
-  }
-  return update;
 }
 
 function docFromState(state: Uint8Array): Y.Doc {

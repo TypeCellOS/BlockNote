@@ -35,9 +35,30 @@ export function applyBlockOperations(
   if (operations.length === 0) {
     return [];
   }
-  return editor.transact((tr) => {
-    applyOperations(tr, operations);
-    return [...tr.steps];
+  const tr = editor.prosemirrorState.tr;
+  applyOperations(tr, operations);
+  dispatchToEditor(editor, tr.steps);
+  return [...tr.steps];
+}
+
+/**
+ * Dispatches the steps to the editor, in one transaction. The steps come
+ * from a text or from operations, not from a user who types. Thus, the
+ * transaction has the meta `preventAutolink`: the autolink plugin of the
+ * editor must not change a URL of the text into a link.
+ */
+export function dispatchToEditor(
+  editor: BlockNoteEditor<any, any, any>,
+  steps: readonly Step[],
+) {
+  if (steps.length === 0) {
+    return;
+  }
+  editor.transact((tr) => {
+    tr.setMeta("preventAutolink", true);
+    for (const step of steps) {
+      tr.step(step);
+    }
   });
 }
 
