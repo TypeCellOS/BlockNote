@@ -65,6 +65,7 @@ export function mergeTableContent(
           mergeCell(baseRow[c], cell, theirRow[c], options),
         ),
       ours: (units) => units,
+      // As for text (see `merge/inline.ts`): the rows that applied first stay first.
       keepBothInserts: options.concurrent ? "theirs-first" : undefined,
       conflict: () => {
         rowConflict = true;

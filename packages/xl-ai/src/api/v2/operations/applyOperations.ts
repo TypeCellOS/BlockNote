@@ -435,7 +435,6 @@ function updateTableCells(
   return true;
 }
 
-/** Returns true if two table nodes have the same rows, with the same number and types of cells. */
 /**
  * The cells of a table node, in document order, with their positions and the
  * index of their row. `start` is the position of the start of the table

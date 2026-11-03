@@ -137,6 +137,18 @@ describe("mergeTree", () => {
     expect(shape(result.blocks)).toEqual(["a", ["b"]]);
   });
 
+  it("keeps a block at the place of ours if theirs moved it into a new block", () => {
+    // Ours moves "x" out of "p" (and removes "p"). Theirs moves "x" into its
+    // new block "w". The parent of ours wins, thus "x" is at the top level.
+    const base = [block("p", [block("x")]), block("y")];
+    const result = merge(
+      base,
+      [block("x"), block("y")],
+      [block("w", [block("x")]), block("y")],
+    );
+    expect(shape(result.blocks)).toEqual(["x", "w", "y"]);
+  });
+
   it("puts a new column of ours into the place of its column list, if theirs removed the list", () => {
     // Ours adds a column to a column list. Theirs removed the column list.
     const column = (id: string, children: LensBlock[]) =>

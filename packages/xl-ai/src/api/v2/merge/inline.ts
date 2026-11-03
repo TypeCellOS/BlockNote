@@ -45,6 +45,10 @@ export function mergeInlineContent(
       // example "**bold **" becomes "**bold** "). Thus, whitespace does not
       // show the styles around it.
       isContext: ({ base }) => base.kind === "char" && !/\s/u.test(base.char),
+      // Two writers add text at one position: the text that applied first
+      // (of the other writer) stays first. Thus, two additions at the end
+      // read in the order of the writes. (The tree merge puts the blocks of
+      // the client first, see `merge/tree.ts`.)
       keepBothInserts: options.concurrent ? "theirs-first" : undefined,
       // In the planner, an item of theirs without a base unit is an item that
       // the format does not show (for example a mention in plain text). The

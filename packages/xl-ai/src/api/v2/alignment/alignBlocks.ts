@@ -138,9 +138,9 @@ function movedPairs(
  * these anchors, if the two sides have the same number of blocks, the blocks
  * link in order, if their content has the same shape.
  *
- * A view block at a different position than its part (for example a nested
- * list that the HTML of a toggle block shows after the other children) has
- * no link. With a link, the planner would move the source block to the
+ * A view block at a different position than its part (a format that renders
+ * a block in a different order in the full document than alone) has no
+ * link. With a link, the planner would move the source block to the
  * position of the view block, also if the text did not change.
  */
 export function linkBlocks(

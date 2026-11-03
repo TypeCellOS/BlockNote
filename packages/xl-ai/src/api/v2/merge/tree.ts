@@ -193,10 +193,13 @@ export function mergeTree(input: {
     if (expected.length === 0) {
       return [];
     }
-    const lists = [base, ours, theirs].map((side) =>
-      sideChildren(side, parent),
+    const o = sideChildren(base, parent);
+    // A side that moved a block of this list to a parent that lost (see
+    // `parentOf`, for example in a cycle) does not remove the block here.
+    // Thus, the block stays at its base place in that side.
+    const [a, b] = [ours, theirs].map((side) =>
+      withBasePlaces(sideChildren(side, parent), o, expected),
     );
-    const [o, a, b] = lists;
     const same = (x: string, y: string) => x === y;
     const merged = diff3(
       o,
@@ -215,10 +218,15 @@ export function mergeTree(input: {
         keepTheirs: () => true,
       },
     );
+    // If both sides moved a block to different places in this list, it is
+    // there two times: the first place (the place of the client) wins.
     const order = new Set(merged);
-    // Each block of the parent is in one of the lists. This is a guard.
-    for (const id of expected) {
-      order.add(id);
+    // Each block of the parent is in the list of ours or of theirs, and the
+    // merge keeps each unit of theirs and each unit that no side removed.
+    // Thus, a missing block is a bug.
+    const lost = expected.find((id) => !order.has(id));
+    if (lost !== undefined) {
+      throw new Error(`The tree merge lost block ${lost}`);
     }
     return [...order];
   }
@@ -293,4 +301,31 @@ export function mergeTree(input: {
   }
 
   return { blocks, warnings };
+}
+
+/**
+ * Returns `list` with each block of `baseList` that `expected` has and
+ * `list` does not have, at its base place: after the nearest earlier block
+ * of `baseList` that the list has.
+ */
+function withBasePlaces(
+  list: readonly string[],
+  baseList: readonly string[],
+  expected: readonly string[],
+): string[] {
+  const has = new Set(list);
+  const keep = new Set(expected);
+  const result = [...list];
+  baseList.forEach((id, i) => {
+    if (has.has(id) || !keep.has(id)) {
+      return;
+    }
+    let before = i - 1;
+    while (before >= 0 && !has.has(baseList[before])) {
+      before--;
+    }
+    result.splice(before < 0 ? 0 : result.indexOf(baseList[before]) + 1, 0, id);
+    has.add(id);
+  });
+  return result;
 }

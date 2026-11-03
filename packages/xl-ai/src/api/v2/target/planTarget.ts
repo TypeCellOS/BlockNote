@@ -67,7 +67,9 @@ export type Plan = { target: LensBlock[]; warnings: PlanWarning[] };
  *   block before such a block goes into the same nesting.
  * - Source blocks without a view block (blocks that the format does not show)
  *   stay at their positions, with their parent. If the planner removes their
- *   parent, or all the visible blocks around them, it also removes them.
+ *   parent, it also removes them. An empty hidden block (for example an
+ *   empty paragraph) also goes if the planner removes all the visible blocks
+ *   around it.
  */
 export function planTarget(input: PlanInput): Plan {
   const { view, invisibleIds, multiParts } = input.projection;
