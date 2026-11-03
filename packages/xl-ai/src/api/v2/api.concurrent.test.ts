@@ -756,11 +756,11 @@ describe("a write from an older version, with a table", () => {
             { cells: ["Head A", "Head B"] },
             {
               cells: [
-                "alpha",
+                { type: "tableCell", content: "alpha" },
                 {
                   type: "tableCell",
                   props: { backgroundColor: "yellow" },
-                  content: ["beta"],
+                  content: "beta",
                 },
               ],
             },
@@ -783,31 +783,32 @@ describe("a write from an older version, with a table", () => {
     return content.rows.map((row) =>
       row.cells.map(
         (cell) =>
-          `${cell.content.map((item) => item.text).join("")}:${cell.props.backgroundColor}`,
+          `${cell.content.map((item) => item.text).join("")}:${String(cell.props.backgroundColor)}`,
       ),
     );
   }
   /** Another writer changes the text and the color of the cell "beta". */
   function changeCell(editor: BlockNoteEditor<any, any, any>, color: string) {
-    editor.updateBlock("t", {
+    const update: PartialBlock = {
       content: {
         type: "tableContent",
         rows: [
           { cells: ["Head A", "Head B"] },
           {
             cells: [
-              "alpha",
+              { type: "tableCell", content: "alpha" },
               {
                 type: "tableCell",
                 props: { backgroundColor: color },
-                content: ["beta two"],
+                content: "beta two",
               },
             ],
           },
           { cells: ["gamma", "delta"] },
         ],
       },
-    });
+    };
+    editor.updateBlock("t", update);
   }
 
   it("keeps the change of another writer to a different cell", () => {
