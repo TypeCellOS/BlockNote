@@ -136,13 +136,13 @@ Each module imports only modules that are before it in this list. Thus, there ar
 
   The benchmark runs only five times. The reason is jsdom, not a memory leak: for each `<details open>` element (the export of a toggle block), jsdom starts a timer for the `toggle` event. Until the timer runs, it keeps the element and the full exported tree. The runs do not let the event loop turn, thus the timers do not run. After one turn of the event loop, the memory is free. In Chromium, the memory is also free after the task.
 
-- `benchmarks/largeDocuments.test.ts` measures documents of 1,000 to 10,000 blocks in each format, and each stage of the pipeline. Run it with `TEXT_LENS_BENCH=1 vp test run src/api/v2/benchmarks --silent=false`. The median times in jsdom for 10,000 blocks, on a machine under load, were:
+- `benchmarks/largeDocuments.test.ts` measures documents of 1,000 to 10,000 blocks in each format, and each stage of the pipeline. Run it with `TEXT_LENS_BENCH=1 vp test run src/api/v2/benchmarks --silent=false`. The median times in jsdom for 10,000 blocks were:
 
   | Format     | Read     | Write with one change | Write from an older version | Y.Doc write | Align, plan and diff |
   | ---------- | -------- | --------------------- | --------------------------- | ----------- | -------------------- |
-  | Markdown   | 1,445 ms | 4,333 ms              | 4,357 ms                    | 5,769 ms    | 43 ms                |
-  | HTML       | 818 ms   | 4,568 ms              | 3,449 ms                    | 3,812 ms    | 46 ms                |
-  | Plain text | 2 ms     | 76 ms                 | 89 ms                       | 374 ms      | 26 ms                |
+  | Markdown   | 1,448 ms | 4,471 ms              | 4,518 ms                    | 4,967 ms    | 40 ms                |
+  | HTML       | 659 ms   | 3,373 ms              | 3,434 ms                    | 3,864 ms    | 44 ms                |
+  | Plain text | 3 ms     | 78 ms                 | 80 ms                       | 514 ms      | 44 ms                |
 
   The stages of the lens (align, plan, diff) are linear. A write that changes the text of many blocks is linear too: a plain text that changes all of 4,000 paragraphs takes 0.2 s for an editor and 0.4 s for a Y.Doc. Many inserts in a Y.Doc are fast too (see the Y.Doc step above). Most of the time goes to the markdown and HTML conversions of BlockNote, and to the parse of the text.
 
