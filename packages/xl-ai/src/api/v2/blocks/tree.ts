@@ -9,6 +9,7 @@ export class BlockTree {
   readonly byId = new Map<string, LensBlock>();
   private readonly parents = new Map<string, string | undefined>();
   private readonly children = new Map<string | undefined, string[]>();
+  private readonly indexes = new Map<string, number>();
 
   constructor(blocks: readonly LensBlock[]) {
     this.add(blocks, undefined);
@@ -26,7 +27,9 @@ export class BlockTree {
     for (const block of list) {
       this.byId.set(block.id, block);
       this.parents.set(block.id, parent);
-      this.childrenOf(parent).push(block.id);
+      const siblings = this.childrenOf(parent);
+      this.indexes.set(block.id, siblings.length);
+      siblings.push(block.id);
       this.add(block.children, block.id);
     }
   }
@@ -49,6 +52,15 @@ export class BlockTree {
       throw new Error(`Block ${id} is not in the document`);
     }
     return block;
+  }
+
+  /** The index of a block in the children of its parent. */
+  index(id: string): number {
+    const index = this.indexes.get(id);
+    if (index === undefined) {
+      throw new Error(`Block ${id} is not in the document`);
+    }
+    return index;
   }
 
   /** The parent of a block, or `undefined` for a top-level block. */

@@ -278,7 +278,7 @@ export function mergeTree(input: {
    */
   function previousKept(side: BlockTree, id: string): string | undefined {
     const siblings = side.childrenOf(side.parent(id));
-    for (let i = siblings.indexOf(id) - 1; i >= 0; i--) {
+    for (let i = side.index(id) - 1; i >= 0; i--) {
       if (base.has(siblings[i]) && ours.has(siblings[i])) {
         return siblings[i];
       }

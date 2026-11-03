@@ -25,6 +25,8 @@ describe("BlockTree", () => {
     expect(tree.parent("a")).toBeUndefined();
     expect(tree.childrenOf("a")).toEqual(["b", "d"]);
     expect(tree.childrenOf(undefined)).toEqual(["a", "e"]);
+    expect(tree.index("d")).toBe(1);
+    expect(tree.index("e")).toBe(1);
     expect(tree.block("c")).toBe(document[0].children[0].children[0]);
     expect(tree.has("x")).toBe(false);
   });
