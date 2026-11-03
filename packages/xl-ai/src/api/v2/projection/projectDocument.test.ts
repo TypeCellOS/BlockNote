@@ -28,13 +28,6 @@ describe("projectDocument", () => {
     ],
   });
 
-  it("renders the document as the format does", () => {
-    const projection = projectDocument(editor, markdownFormat, editor.document);
-    expect(projection.text).toBe(
-      markdownFormat.serialize(editor, editor.document),
-    );
-  });
-
   it("links each view block to its source block", () => {
     const projection = projectDocument(editor, markdownFormat, editor.document);
     expect(
@@ -64,7 +57,7 @@ describe("projectDocument", () => {
       plainTextFormat,
       editor.document,
     );
-    expect([...projection.multiPartIds]).toEqual(["code"]);
+    expect([...projection.multiParts.keys()]).toEqual(["code"]);
     expect(
       projection.view.filter((viewBlock) => viewBlock.sourceId === "code"),
     ).toHaveLength(2);

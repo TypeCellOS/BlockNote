@@ -55,34 +55,28 @@ export function mergeTree(input: {
   const theirs = new BlockTree(input.theirs);
   const warnings: RebaseWarning[] = [];
 
-  /** The merged fields of each block, and whether the two sides changed the same part. */
-  const fieldsMemo = new Map<string, { block: LensBlock; conflict: boolean }>();
+  /** The merged fields of a block, and whether the two sides changed the same part. */
   function fieldsOf(id: string): { block: LensBlock; conflict: boolean } {
-    let fields = fieldsMemo.get(id);
-    if (fields === undefined) {
-      fields = {
+    if (!(base.has(id) && ours.has(id) && theirs.has(id))) {
+      return {
         block: withoutChildren((ours.has(id) ? ours : theirs).block(id)),
         conflict: false,
       };
-      if (base.has(id) && ours.has(id) && theirs.has(id)) {
-        let conflict = false;
-        const merged = mergeBlock(
-          base.block(id),
-          ours.block(id),
-          theirs.block(id),
-          input.contentKindOf,
-          {
-            concurrent: true,
-            onConflict: () => {
-              conflict = true;
-            },
-          },
-        );
-        fields = { block: { id, ...merged, children: [] }, conflict };
-      }
-      fieldsMemo.set(id, fields);
     }
-    return fields;
+    let conflict = false;
+    const merged = mergeBlock(
+      base.block(id),
+      ours.block(id),
+      theirs.block(id),
+      input.contentKindOf,
+      {
+        concurrent: true,
+        onConflict: () => {
+          conflict = true;
+        },
+      },
+    );
+    return { block: { id, ...merged, children: [] }, conflict };
   }
 
   const staysMemo = new Map<string, boolean>();

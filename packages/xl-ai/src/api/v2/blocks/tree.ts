@@ -17,9 +17,8 @@ export class BlockTree {
 
   /** The IDs of all blocks, in document order (pre-order). */
   get ids(): string[] {
-    const result: string[] = [];
-    this.collectIds(undefined, result);
-    return result;
+    // `add` adds each block before its children.
+    return [...this.byId.keys()];
   }
 
   /** Adds the blocks (with their descendants) as children of `parent`. */
@@ -31,14 +30,6 @@ export class BlockTree {
       this.indexes.set(block.id, siblings.length);
       siblings.push(block.id);
       this.add(block.children, block.id);
-    }
-  }
-
-  /** Adds the IDs of the descendants of `parent` to `result`, in pre-order. */
-  private collectIds(parent: string | undefined, result: string[]) {
-    for (const id of this.childrenOf(parent)) {
-      result.push(id);
-      this.collectIds(id, result);
     }
   }
 

@@ -70,7 +70,7 @@ export type Plan = { target: LensBlock[]; warnings: PlanWarning[] };
  *   parent, or all the visible blocks around them, it also removes them.
  */
 export function planTarget(input: PlanInput): Plan {
-  const { view, invisibleIds, multiPartIds } = input.projection;
+  const { view, invisibleIds, multiParts } = input.projection;
   const { incoming, contentKindOf } = input;
   const source = new BlockTree(input.document);
   const warnings: PlanWarning[] = [];
@@ -96,18 +96,7 @@ export function planTarget(input: PlanInput): Plan {
   /** The block of the text that replaces a multi-part block and keeps its ID. */
   const replacementIdOf = new Map<number, string>();
   const joined = new Map<string, { view: LensBlock; incoming: LensBlock }>();
-  const partsOf = new Map<string, number[]>();
-  view.forEach(({ sourceId }, v) => {
-    if (sourceId !== undefined && multiPartIds.has(sourceId)) {
-      const parts = partsOf.get(sourceId);
-      if (parts === undefined) {
-        partsOf.set(sourceId, [v]);
-      } else {
-        parts.push(v);
-      }
-    }
-  });
-  for (const [id, parts] of partsOf) {
+  for (const [id, parts] of multiParts) {
     const together = parts.every((v, k) => {
       const j = viewToIncoming[v];
       return j !== -1 && (k === 0 || j === viewToIncoming[parts[k - 1]] + 1);
@@ -244,12 +233,8 @@ export function planTarget(input: PlanInput): Plan {
    * node get one here. If not, returns `undefined`.
    */
   function sourceParent(id: string): LensBlock | undefined {
-    const hidden: string[] = [];
-    let visible = source.parent(id);
-    while (visible !== undefined && invisibleIds.has(visible)) {
-      hidden.push(visible);
-      visible = source.parent(visible);
-    }
+    const hidden = hiddenAncestors(id);
+    const visible = source.parent(hidden.at(-1) ?? id);
     let parent = visible === undefined ? root : nodeOf.get(visible);
     if (
       parent === undefined ||
@@ -380,21 +365,14 @@ export function planTarget(input: PlanInput): Plan {
    */
   function nextNeedsOpenHiddenBlock(j: number, parent: LensBlock): boolean {
     const next = nextKept(j);
-    if (next === undefined) {
-      return false;
-    }
     const depth = stack.indexOf(parent);
-    for (
-      let ancestor = source.parent(keptIdOf[next]!);
-      ancestor !== undefined && invisibleIds.has(ancestor);
-      ancestor = source.parent(ancestor)
-    ) {
-      const block = nodeOf.get(ancestor);
-      if (block !== undefined && stack.indexOf(block) > depth) {
-        return true;
-      }
-    }
-    return false;
+    return (
+      next !== undefined &&
+      hiddenAncestors(keptIdOf[next]!).some((ancestor) => {
+        const block = nodeOf.get(ancestor);
+        return block !== undefined && stack.indexOf(block) > depth;
+      })
+    );
   }
 
   for (let j = 0; j < incoming.length; j++) {

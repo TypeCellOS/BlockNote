@@ -58,10 +58,14 @@ function plan(input: {
   const { target, warnings } = planTarget({
     document: input.document,
     projection: {
-      text: "",
       view: input.view,
       invisibleIds: new Set(input.invisibleIds),
-      multiPartIds: new Set(input.multiPartIds),
+      multiParts: new Map(
+        (input.multiPartIds ?? []).map((id) => [
+          id,
+          input.view.flatMap((block, v) => (block.sourceId === id ? [v] : [])),
+        ]),
+      ),
     },
     incoming: input.incoming,
     alignment: input.pairs.map(([aIndex, bIndex]): MatchedPair => ({

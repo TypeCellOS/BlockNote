@@ -18,9 +18,7 @@ export type ViewBlock = FlatBlock & {
 
 /** A document as a text format shows it, with links to the blocks of the document. */
 export type Projection = {
-  /** The document, rendered in the format. A client reads this text. */
-  text: string;
-  /** `text`, parsed back into a flat list: the document as the format shows it. */
+  /** The text of the document, parsed back into a flat list: the document as the format shows it. */
   view: ViewBlock[];
   /**
    * Source blocks without a link from a view block, because they render as no
@@ -28,8 +26,8 @@ export type Projection = {
    * them, thus they stay where they are.
    */
   invisibleIds: Set<string>;
-  /** Source blocks with links from more than one view block. */
-  multiPartIds: Set<string>;
+  /** The source blocks with links from more than one view block: the indexes of these view blocks, in order. */
+  multiParts: Map<string, number[]>;
 };
 
 /**
@@ -57,7 +55,8 @@ export function projectDocument(
     viewBlocks,
   ).map((index) => (index === undefined ? undefined : parts[index].source));
 
-  const linkCounts = new Map<string, number>();
+  /** The view blocks of each source block. */
+  const viewsOf = new Map<string, number[]>();
   const view: ViewBlock[] = viewBlocks.map((flat, v) => {
     const sourceIndex = links[v];
     const sourceId =
@@ -65,23 +64,23 @@ export function projectDocument(
         ? undefined
         : sourceBlocks[sourceIndex].block.id;
     if (sourceId !== undefined) {
-      linkCounts.set(sourceId, (linkCounts.get(sourceId) ?? 0) + 1);
+      const views = viewsOf.get(sourceId);
+      if (views === undefined) {
+        viewsOf.set(sourceId, [v]);
+      } else {
+        views.push(v);
+      }
     }
     return { ...flat, sourceId };
   });
 
-  const invisibleIds = new Set<string>();
-  const multiPartIds = new Set<string>();
-  for (const { block } of sourceBlocks) {
-    const count = linkCounts.get(block.id) ?? 0;
-    if (count === 0) {
-      invisibleIds.add(block.id);
-    } else if (count > 1) {
-      multiPartIds.add(block.id);
-    }
-  }
-
-  return { text, view, invisibleIds, multiPartIds };
+  const invisibleIds = new Set(
+    sourceBlocks.map(({ block }) => block.id).filter((id) => !viewsOf.has(id)),
+  );
+  const multiParts = new Map(
+    [...viewsOf].filter(([, views]) => views.length > 1),
+  );
+  return { view, invisibleIds, multiParts };
 
   /**
    * The parts of each source block: the view blocks that the block gives
