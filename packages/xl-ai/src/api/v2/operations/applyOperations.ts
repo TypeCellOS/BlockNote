@@ -1,12 +1,9 @@
 import {
   type BlockNoteEditor,
-  type BlockPlacement,
   blockToNode,
+  docToBlocks,
   getBlockInfoAt,
-  getInsertionPos,
-  getNodeById,
   inlineContentToNodes,
-  insertBlocks,
   type PartialBlock,
   updateBlockTr,
 } from "@blocknote/core";
@@ -16,13 +13,13 @@ import { ReplaceStep, type Step } from "prosemirror-transform";
 
 import {
   isTableContent,
-  type LensBlock,
   type LensPartialBlock,
   type LensTableContent,
 } from "../blocks/types.js";
 import { fixBlockIds } from "./blockIds.js";
+import { applyToBlocks, type BlockShape } from "./applyToBlocks.js";
 import { addInlineContentSteps } from "./inlineSteps.js";
-import type { BlockOperation, BlockPosition } from "./types.js";
+import type { BlockOperation } from "./types.js";
 
 /**
  * Applies the operations to the editor in sequence, in one transaction.
@@ -63,133 +60,178 @@ export function dispatchToEditor(
 }
 
 /**
- * Applies the operations to the document of a ProseMirror transaction, in
- * sequence. The document can come from an editor or from a Y.Doc.
+ * Applies the operations to the document of a ProseMirror transaction. The
+ * document can come from an editor or from a Y.Doc.
  *
  * The operations change only what they must. Thus, data that is not in the
  * Block JSON stays, for example comments:
- * - Inline content changes through the smallest ProseMirror steps (see
- *   `addInlineContentSteps`).
- * - A move moves the ProseMirror node of the block, with its children.
+ * - An update changes the block in place: inline content through the
+ *   smallest ProseMirror steps (see `addInlineContentSteps`).
+ * - The inserts, the moves and the removals give the structure of the
+ *   result (see `applyToBlocks`). Each block whose children change is
+ *   replaced, in one step, with its new children: the ProseMirror nodes of
+ *   the blocks that the document has (a moved block keeps its node, with
+ *   its comments), and new nodes. A step with a valid result is never
+ *   filled with new blocks.
  *
- * At the end, each block has an ID, also a block that ProseMirror made to
- * fill an empty group.
+ * At the end, each block has one ID that no other block has.
  */
 export function applyOperations(
   tr: Transaction,
   operations: readonly BlockOperation[],
 ): void {
-  // The blocks that the document has after the operations: the blocks of
-  // the document now (each with an ID), and the inserted blocks. Another
-  // block is a block that core or ProseMirror made to fill a parent (see
-  // `removeFillBlocks`).
   fixBlockIds(tr);
-  const expected = blockIdsOf(tr.doc);
-  for (const operation of operations) {
-    if (operation.type === "insert") {
-      addIds(operation.block, expected);
-    }
-  }
-
-  for (let index = 0; index < operations.length; index++) {
-    const operation = operations[index];
-    switch (operation.type) {
-      case "update": {
-        const run: Extract<BlockOperation, { type: "update" }>[] = [];
-        while (operations[index]?.type === "update") {
-          run.push(operations[index] as (typeof run)[number]);
-          index++;
-        }
-        index--;
-        updateBlocks(tr, run);
-        break;
-      }
-      case "insert": {
-        const { reference, placement } = resolvePosition(tr, operation);
-        insertBlocks(
-          tr,
-          [operation.block as PartialBlock],
-          reference,
-          placement,
-        );
-        break;
-      }
-      case "move":
-        moveBlock(tr, operation);
-        break;
-      case "delete": {
-        // Not `removeAndInsertBlocks`: it needs an ID on each block, and
-        // its layout repair also removes a column with only an empty
-        // paragraph, which the target can keep.
-        const { node, posBeforeNode } = find(tr, operation.id);
-        removeAt(tr, posBeforeNode, posBeforeNode + node.nodeSize);
-        break;
-      }
-    }
-  }
-  removeFillBlocks(tr, expected);
-  fixBlockIds(tr);
-}
-
-/** The IDs of all the blocks of the document. */
-function blockIdsOf(doc: Node): Set<string> {
-  const ids = new Set<string>();
-  doc.descendants((node) => {
-    if (node.type.isInGroup("bnBlock") && typeof node.attrs.id === "string") {
-      ids.add(node.attrs.id);
-    }
-    return !node.isTextblock;
-  });
-  return ids;
-}
-
-function addIds(block: LensBlock, ids: Set<string>) {
-  ids.add(block.id);
-  for (const child of block.children) {
-    addIds(child, ids);
-  }
-}
-
-/** Returns true for a block that core or ProseMirror made to fill a parent (see `applyOperations`). */
-function isFill(node: Node, expected: ReadonlySet<string>): boolean {
-  return (
-    node.type.isInGroup("bnBlock") &&
-    (typeof node.attrs.id !== "string" || !expected.has(node.attrs.id))
+  const updates = operations.flatMap((operation) =>
+    operation.type === "update" ? [operation] : [],
   );
+  if (updates.length > 0) {
+    updateBlocks(tr, updates);
+  }
+  if (updates.length < operations.length) {
+    applyStructure(tr, applyToBlocks(docToBlocks(tr.doc), operations));
+  }
+  fixBlockIds(tr);
 }
 
 /**
- * Removes the fill blocks that their parent does not need. Core and
- * ProseMirror fill a block with too few children with new blocks, for
- * example a new column list before the moves of its columns (core
- * `blockToNode` gives it two new columns). After the moves, the column list
- * does not need them.
+ * Makes the structure of the document agree with `target`: each block whose
+ * children (by ID) are different is replaced with a node with the new
+ * children. The replacements go from the last one to the first, thus each
+ * position stays correct. A replaced block contains all changes below it.
  */
-function removeFillBlocks(tr: Transaction, expected: ReadonlySet<string>) {
-  const fills: number[] = [];
+function applyStructure(tr: Transaction, target: BlockShape[]) {
+  const schema = tr.doc.type.schema;
+  const nodes = new Map<string, { node: Node; pos: number }>();
   tr.doc.descendants((node, pos) => {
-    if (isFill(node, expected)) {
-      fills.push(pos);
+    if (node.type.isInGroup("bnBlock")) {
+      nodes.set(node.attrs.id, { node, pos });
     }
     return !node.isTextblock;
   });
-  // From the end: a block is after its parent. Thus, the children go first,
-  // and the positions before each removal stay correct.
-  for (const pos of fills.reverse()) {
-    const $pos = tr.doc.resolve(pos);
-    const node = $pos.nodeAfter;
-    if (node && $pos.parent.canReplace($pos.index(), $pos.index() + 1)) {
-      tr.delete(pos, pos + node.nodeSize);
+
+  const replacements: { from: number; to: number; nodes: Node[] }[] = [];
+  const rootGroup = tr.doc.firstChild;
+  if (rootGroup === null) {
+    throw new Error("The document has no block group");
+  }
+  if (!sameChildren(childBlocks(rootGroup), target)) {
+    const blocks = target.map(build);
+    replacements.push({
+      from: 1,
+      to: 1 + rootGroup.content.size,
+      // A document always has one block.
+      nodes:
+        blocks.length > 0
+          ? blocks
+          : [schema.nodes["blockContainer"].createAndFill()!],
+    });
+  } else {
+    findReplacements(target);
+  }
+  replacements.sort((a, b) => b.from - a.from);
+  for (const { from, to, nodes: content } of replacements) {
+    tr.step(new ReplaceStep(from, to, new Slice(Fragment.from(content), 0, 0)));
+  }
+
+  /** Adds a replacement for each block whose children are different, at the top of each changed subtree. */
+  function findReplacements(shapes: readonly BlockShape[]) {
+    for (const shape of shapes) {
+      const found = existing(shape.block.id);
+      if (sameChildren(childBlocks(found.node), shape.children)) {
+        findReplacements(shape.children);
+      } else {
+        replacements.push({
+          from: found.pos,
+          to: found.pos + found.node.nodeSize,
+          nodes: [build(shape)],
+        });
+      }
     }
+  }
+
+  function existing(id: string) {
+    const found = nodes.get(id);
+    if (found === undefined) {
+      throw new Error(`Block ${id} is not in the document`);
+    }
+    return found;
+  }
+
+  /** Returns true if the nodes are the blocks of the shapes, in order. */
+  function sameChildren(
+    blocks: readonly Node[],
+    shapes: readonly BlockShape[],
+  ) {
+    return (
+      blocks.length === shapes.length &&
+      blocks.every((block, i) => block.attrs.id === shapes[i].block.id)
+    );
+  }
+
+  /** Returns true if the node has the structure of the shape, at all depths. */
+  function sameStructure(node: Node, shape: BlockShape): boolean {
+    const children = childBlocks(node);
+    return (
+      sameChildren(children, shape.children) &&
+      children.every((child, i) => sameStructure(child, shape.children[i]))
+    );
+  }
+
+  /** The node of the shape: the node of the document if its structure is the same, else a new node with the nodes of its children. */
+  function build(shape: BlockShape): Node {
+    const found = nodes.get(shape.block.id);
+    if (found !== undefined && sameStructure(found.node, shape)) {
+      return found.node;
+    }
+    const shell =
+      found?.node ??
+      blockToNode({ ...shape.block, children: [] } as PartialBlock, schema);
+    return withChildren(shell, shape.children.map(build));
   }
 }
 
-function find(tr: Transaction, id: string) {
-  const found = getNodeById(id, tr.doc);
-  if (found === undefined) {
-    throw new Error(`Block ${id} is not in the document`);
+/** The child blocks of a block node (in its block group, or in the node itself for a layout block), or of a block group. */
+function childBlocks(node: Node): Node[] {
+  const children: Node[] = [];
+  node.forEach((child) => {
+    if (child.type.isInGroup("bnBlock")) {
+      children.push(child);
+    } else if (child.type.name === "blockGroup") {
+      child.forEach((grandchild) => children.push(grandchild));
+    }
+  });
+  return children;
+}
+
+/**
+ * The block node with other children. A block with content keeps its
+ * content node (thus its text and comments), and gets a block group for
+ * the children. A layout block (for example a column) holds the children
+ * directly. If the children do not fit the layout block (an empty column of
+ * the "yjs" strategy, see `keepLayout`), the schema fills it.
+ */
+function withChildren(block: Node, children: readonly Node[]): Node {
+  const schema = block.type.schema;
+  if (block.type.name === "blockContainer") {
+    const content = block.firstChild;
+    if (content === null) {
+      throw new Error("A block has no content node");
+    }
+    return block.type.create(
+      block.attrs,
+      children.length > 0
+        ? [content, schema.nodes["blockGroup"].create(null, children)]
+        : [content],
+      block.marks,
+    );
   }
-  return found;
+  const filled = block.type.createAndFill(block.attrs, children, block.marks);
+  if (filled === null) {
+    throw new Error(
+      `The children do not fit a block of type ${block.type.name}`,
+    );
+  }
+  return filled;
 }
 
 /**
@@ -294,59 +336,6 @@ function changesContentKind(
   return !(current?.isTextblock && next?.isTextblock);
 }
 
-/** Moves the ProseMirror node of a block (with its children) to the position. */
-function moveBlock(
-  tr: Transaction,
-  operation: Extract<BlockOperation, { type: "move" }>,
-) {
-  const { node, posBeforeNode } = find(tr, operation.id);
-  const { reference: referenceId, placement } = resolvePosition(tr, operation);
-  const reference = find(tr, referenceId);
-  const target = getInsertionPos(
-    tr.doc,
-    getBlockInfoAt(tr.doc, reference.posBeforeNode),
-    placement,
-    node.type,
-  );
-  if (target === null) {
-    throw new Error(
-      `Block ${operation.id} cannot go ${placement} block ${referenceId}`,
-    );
-  }
-  // Put the block at its new position first, and then take it out at its old
-  // position. Between the two steps, the block is in the document two times.
-  // Thus, its old parent never has too few children. With the other order,
-  // the removal of a column from a column list with two columns gives a
-  // column list with one column, and ProseMirror adds a new empty column.
-  const fragment = Fragment.from(
-    target.wrapIn === undefined ? node : target.wrapIn.create(null, node),
-  );
-  tr.step(new ReplaceStep(target.pos, target.pos, new Slice(fragment, 0, 0)));
-  const insert = tr.mapping.maps[tr.mapping.maps.length - 1];
-  removeAt(
-    tr,
-    insert.map(posBeforeNode, 1),
-    insert.map(posBeforeNode + node.nodeSize, -1),
-  );
-}
-
-/**
- * Removes the block from `from` to `to`. If it is the only child of a nested
- * block group, the group goes too, as in `removeAndInsertBlocks`.
- */
-function removeAt(tr: Transaction, from: number, to: number) {
-  const $from = tr.doc.resolve(from);
-  if (
-    $from.parent.type.name === "blockGroup" &&
-    $from.node($from.depth - 1).type.name !== "doc" &&
-    $from.parent.childCount === 1
-  ) {
-    tr.delete($from.before(), $from.after());
-  } else {
-    tr.delete(from, to);
-  }
-}
-
 /**
  * Updates a table cell by cell, if the new table has the same rows and cells
  * (the same number and the same cell types). A cell with changed attributes
@@ -425,24 +414,4 @@ function tableCells(table: Node, start: number) {
     });
   });
   return cells;
-}
-
-/**
- * Returns the position relative to a block. The start of the document is the
- * position before the first top-level block. A BlockNote document always has
- * one, also a document that ProseMirror filled.
- */
-function resolvePosition(
-  tr: Transaction,
-  position: BlockPosition,
-): { reference: string; placement: BlockPlacement } {
-  if (position.placement !== "start") {
-    return position;
-  }
-  const first = tr.doc.firstChild?.firstChild;
-  const id: unknown = first?.attrs.id;
-  if (typeof id !== "string") {
-    throw new Error("The document has no first block with an ID");
-  }
-  return { reference: id, placement: "before" };
 }
