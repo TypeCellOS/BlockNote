@@ -118,11 +118,11 @@ Each module imports only modules that are before it in this list. Thus, there ar
 - Each module has a unit test file next to it (`file.ts` and `file.test.ts`).
 - The `api.*.test.ts` files examine the full pipeline:
   - `api.laws.test.ts`: the laws, on two documents, in the three formats.
-  - `api.properties.test.ts`: the laws on 200 random documents with random edits, in the three formats, on 100 random documents with columns, and on 400 random line edits in markdown. Each case has a seed, thus you can run a failed case again. Two seeds fail because of the nested-list problem of the markdown parser (see "Problems in BlockNote"). They are marked as known failures.
+  - `api.properties.test.ts`: the laws on 200 random documents with random edits, in the three formats, on 100 random documents with columns, and on 400 random line edits in markdown. Each case has a seed, thus you can run a failed case again.
   - `api.markdown.test.ts`, `api.html.test.ts` and `api.plainText.test.ts`: examples in each format.
   - `api.json.test.ts`: the JSON API.
   - `api.removals.test.ts`: removals, where content is lost. Examine these expected results carefully.
-  - `api.concurrent.test.ts`: writes from an older version without Yjs, also on 40 random pairs of writers in each format.
+  - `api.concurrent.test.ts`: writes from an older version without Yjs, also on 40 random pairs of writers and 40 random groups of three or four writers in each format.
 - `yjs/yDocText.test.ts`: the Y.Doc API. The concurrent cases run for the two strategies.
 - `testUtil/` contains the shared test documents and helpers.
 - `api.bench.ts` measures a document with about 1,140 blocks. Run it with `vp test bench --run --reporter=verbose src/api/v2/api.bench.ts`. The mean times in jsdom were:
@@ -156,7 +156,7 @@ Each module imports only modules that are before it in this list. Thus, there ar
 A result can contain warnings (`TextUpdateWarning`). A warning tells you that a part of the text did not apply as written, or that data was lost:
 
 - `multi-part-block-replaced`: the text changed a block that the format shows as more than one block (for example a code block with blank lines, in plain text). The blocks of the text replace the block. Its hidden data is lost.
-- `unlinked-block-changed`: the text changed a part of the text that does not come from one document block (`text` is that part). The change does not apply. An empty block of the view without a document block gives no warning, because the text cannot change data of it. An example is the list item that the markdown parse adds around an image after a nested list.
+- `unlinked-block-changed`: the text changed a part of the text that does not come from one document block (`text` is that part). The change does not apply. An empty block of the view without a document block gives no warning, because the text cannot change data of it.
 - `block-shape-replaced`: the format shows the block with content of a different shape (for example a table as lines of text), and the text changed that content. The block takes the type of the text block. Its old content is lost.
 - `change-to-removed-block` (rebase): the text changed or moved a block that another writer removed. The change does not apply.
 - `removed-changed-block` (rebase): the text removed a block that another writer changed. The block is removed, with the changes of the other writer.
@@ -164,9 +164,8 @@ A result can contain warnings (`TextUpdateWarning`). A warning tells you that a 
 
 ## Problems in BlockNote
 
-The branch `fix/markdown-roundtrip` fixes the markdown conversion: one round trip now gives the canonical form, and the parse removes the whitespace that the exporter does not write. It also fixes the HTML export of a toggle with list items and other blocks as children, which changed their order. These problems stay:
+The branch `fix/markdown-roundtrip` fixes the markdown conversion: one round trip now gives the canonical form, and the parse removes the whitespace that the exporter does not write. It also fixes the HTML export of a toggle with list items and other blocks as children, which changed their order, and the HTML parse of a list item with blocks around a nested list, which moved these blocks out of the list item. These problems stay:
 
-- A list item that has both a paragraph and a nested list: the HTML parser moves the nested list out of the list item.
 - Delimiter runs like `***`: the parser does not use the delimiter rules of CommonMark. The exporter writes underscores where it can (`*a*__b__`, `**a _b_**`), but not next to a letter or a digit, or for text with `_`. There, runs like `***` stay.
 - HTML paste removes an image in a paragraph (markdown parse splits the paragraph around the image).
 

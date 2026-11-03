@@ -40,35 +40,6 @@ const LINE_EDIT_SEEDS = Array.from({ length: 400 }, (_, i) => i + 1000);
 const COLUMN_SEEDS = Array.from({ length: 100 }, (_, i) => i + 1);
 
 /**
- * Seeds that fail because of a problem in BlockNote, not in the lens: the
- * markdown parser moves a block after a nested list out of the list item
- * (see "Problems in BlockNote" in the README). These tests are marked as
- * known failures. When the problem is fixed, the tests fail, and tell you to
- * remove the marks.
- */
-const PARSER_PROBLEMS = {
-  laws: { markdown: [161] } as Record<string, number[]>,
-  lineEdits: [1358],
-};
-
-/** Runs the test for each seed. The seeds in `known` must fail. */
-function eachSeed(
-  seeds: readonly number[],
-  known: readonly number[],
-  name: string,
-  test: (seed: number) => void,
-) {
-  for (const seed of seeds) {
-    if (known.includes(seed)) {
-      it.fails(`${name} ${seed} (known problem in BlockNote)`, () =>
-        test(seed));
-    } else {
-      it(`${name} ${seed}`, () => test(seed));
-    }
-  }
-}
-
-/**
  * Makes random edits to the text of the editor, writes the text back, and
  * examines GetPut, PutGet and PutTwice.
  */
@@ -110,19 +81,14 @@ const formats = [
   { name: "HTML", format: htmlFormat },
 ];
 
-describe.each(formats)("$name", ({ name, format }) => {
-  eachSeed(
-    LAW_SEEDS,
-    PARSER_PROBLEMS.laws[name] ?? [],
-    "keeps the laws for seed",
-    (seed) => {
-      const random = createRandom(seed);
-      const editor = BlockNoteEditor.create({
-        initialContent: randomDocument(random),
-      });
-      expectLaws(editor, format, random);
-    },
-  );
+describe.each(formats)("$name", ({ format }) => {
+  it.each(LAW_SEEDS)("keeps the laws for seed %i", (seed) => {
+    const random = createRandom(seed);
+    const editor = BlockNoteEditor.create({
+      initialContent: randomDocument(random),
+    });
+    expectLaws(editor, format, random);
+  });
 
   it.each(COLUMN_SEEDS)(
     "keeps the laws for a document with columns, for seed %i",
@@ -181,32 +147,27 @@ describe.each(formats)("$name", ({ name, format }) => {
  */
 describe("markdown, edits of lines", () => {
   const format = markdownFormat;
-  eachSeed(
-    LINE_EDIT_SEEDS,
-    PARSER_PROBLEMS.lineEdits,
-    "keeps the laws for seed",
-    (seed) => {
-      const random = createRandom(seed);
-      const editor = BlockNoteEditor.create({
-        initialContent: randomDocument(random),
-      });
-      let edited = getDocumentText(editor, format);
-      for (let i = 0; i <= random.int(3); i++) {
-        edited = randomLineEdit(random, edited);
-      }
-      const update = valid(
-        updateDocumentFromText(editor, { format, text: edited }),
-      );
-      expect(update.warnings).toEqual([]);
+  it.each(LINE_EDIT_SEEDS)("keeps the laws for seed %i", (seed) => {
+    const random = createRandom(seed);
+    const editor = BlockNoteEditor.create({
+      initialContent: randomDocument(random),
+    });
+    let edited = getDocumentText(editor, format);
+    for (let i = 0; i <= random.int(3); i++) {
+      edited = randomLineEdit(random, edited);
+    }
+    const update = valid(
+      updateDocumentFromText(editor, { format, text: edited }),
+    );
+    expect(update.warnings).toEqual([]);
 
-      // PutGet, modulo the normalization of the format.
-      expect(
-        canonicalText(editor, format, getDocumentText(editor, format)),
-      ).toBe(canonicalText(editor, format, edited));
-      // PutTwice.
-      expect(
-        valid(computeTextUpdate(editor, { format, text: edited })).operations,
-      ).toEqual([]);
-    },
-  );
+    // PutGet, modulo the normalization of the format.
+    expect(canonicalText(editor, format, getDocumentText(editor, format))).toBe(
+      canonicalText(editor, format, edited),
+    );
+    // PutTwice.
+    expect(
+      valid(computeTextUpdate(editor, { format, text: edited })).operations,
+    ).toEqual([]);
+  });
 });
