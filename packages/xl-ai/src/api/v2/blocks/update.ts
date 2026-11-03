@@ -4,8 +4,10 @@ import type { BlockFields, LensBlock, LensPartialBlock } from "./types.js";
 /**
  * Returns the update that changes the fields of `block` to `target`, or
  * `undefined` if they are equal. The update contains only the changed fields
- * and props. If the type changes, the update contains all props of the new
- * type.
+ * and props. If the type changes, the update contains all props and the
+ * content of the new type. Equal content in Block JSON can be different
+ * content in ProseMirror for a different type: for example, `"\n"` is a hard
+ * break in a paragraph, but a line end in a code block.
  */
 export function diffBlock(
   block: BlockFields,
@@ -27,7 +29,7 @@ export function diffBlock(
     }
   }
 
-  if (!deepEqual(target.content, block.content)) {
+  if (target.type !== block.type || !deepEqual(target.content, block.content)) {
     update.content = target.content;
   }
 

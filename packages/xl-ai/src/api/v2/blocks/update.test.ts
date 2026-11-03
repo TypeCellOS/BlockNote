@@ -27,14 +27,20 @@ describe("diffBlock", () => {
     ).toEqual({ props: { textColor: "blue" }, content });
   });
 
-  it("returns all props for a new type", () => {
+  it("returns all props and the content for a new type", () => {
+    // The content is equal in Block JSON, but a new type can store it in a
+    // different way (for example a line end in a code block).
     expect(
       diffBlock(block, {
         type: "heading",
         props: { level: 2, textColor: "red" },
         content: block.content,
       }),
-    ).toEqual({ type: "heading", props: { level: 2, textColor: "red" } });
+    ).toEqual({
+      type: "heading",
+      props: { level: 2, textColor: "red" },
+      content: block.content,
+    });
   });
 });
 

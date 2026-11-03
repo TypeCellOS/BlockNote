@@ -7,6 +7,7 @@ import { withMultiColumn } from "@blocknote/xl-multi-column";
 import { describe, expect, it } from "vite-plus/test";
 
 import {
+  computeTextUpdate,
   getDocumentText,
   markdownFormat,
   updateDocumentFromText,
@@ -1010,5 +1011,25 @@ describe("markdown, blocks that markdown shows as other blocks", () => {
     ]);
     expect(editor.getBlock("f")).toBeUndefined();
     expect(getDocumentText(editor, format)).toContain("Q3, final");
+  });
+});
+
+describe("markdown, a change of the content kind", () => {
+  it("keeps the line break of a paragraph that the text changes into a code block", () => {
+    const editor = createEditor([
+      { id: "p", type: "paragraph", content: "line one\nline two" },
+    ]);
+    const text = "```\nline one\nline two\n```\n";
+
+    valid(updateDocumentFromText(editor, { format: markdownFormat, text }));
+
+    expect(editor.getBlock("p")).toMatchObject({
+      type: "codeBlock",
+      content: [{ type: "text", text: "line one\nline two", styles: {} }],
+    });
+    expect(
+      valid(computeTextUpdate(editor, { format: markdownFormat, text }))
+        .operations,
+    ).toEqual([]);
   });
 });

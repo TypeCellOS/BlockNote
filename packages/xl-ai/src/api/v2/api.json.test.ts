@@ -384,3 +384,27 @@ describe("JSON", () => {
     });
   });
 });
+
+describe("JSON, a change of the content kind", () => {
+  it("gives a hard break, not a line end in the text, for a code block that becomes a paragraph", () => {
+    const editor = createEditor([
+      { id: "c", type: "codeBlock", content: "line one\nline two" },
+    ]);
+
+    valid(
+      updateDocumentFromJSON(editor, {
+        document: [
+          { id: "c", type: "paragraph", content: "line one\nline two" },
+        ],
+      }),
+    );
+
+    const nodes: string[] = [];
+    editor.prosemirrorState.doc.firstChild?.firstChild?.firstChild?.forEach(
+      (node) => {
+        nodes.push(`${node.type.name}:${node.text ?? ""}`);
+      },
+    );
+    expect(nodes).toEqual(["text:line one", "hardBreak:", "text:line two"]);
+  });
+});

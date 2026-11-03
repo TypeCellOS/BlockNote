@@ -370,12 +370,15 @@ function planTextUpdate(
 ):
   | { error?: undefined; target: readonly LensBlock[]; warnings: PlanWarning[] }
   | { error: "invalid-document" } {
+  // A byte order mark at the start of a text (for example of a file) is not
+  // content.
+  const content = text.startsWith("\uFEFF") ? text.slice(1) : text;
   const projection = projectDocument(editor, format, document);
-  if (text === projection.text) {
+  if (content === projection.text) {
     return { target: document, warnings: [] };
   }
 
-  const parsed = format.parse(editor, text);
+  const parsed = format.parse(editor, content);
   if (!fitsSchema(editor, parsed)) {
     return { error: "invalid-document" };
   }

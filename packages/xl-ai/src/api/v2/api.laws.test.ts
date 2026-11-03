@@ -254,3 +254,33 @@ describe("a mounted editor", () => {
     expect(getDocumentText(editor, markdownFormat)).toBe(text);
   });
 });
+
+describe("a byte order mark", () => {
+  it.each([
+    { name: "markdown", format: markdownFormat },
+    { name: "plain text", format: plainTextFormat },
+    { name: "HTML", format: htmlFormat },
+  ])("at the start of the text changes nothing ($name)", ({ format }) => {
+    const editor = createEditor([
+      { id: "a", type: "paragraph", content: "Alpha" },
+      { id: "b", type: "paragraph", content: "Beta" },
+    ]);
+    const text = `\uFEFF${getDocumentText(editor, format)}`;
+
+    expect(
+      valid(computeTextUpdate(editor, { format, text })).operations,
+    ).toEqual([]);
+  });
+});
+
+describe("line ends", () => {
+  it("reads markdown with \\r\\n line ends as the same text", () => {
+    const editor = createSharedDocumentEditor();
+    const text = getDocumentText(editor, markdownFormat).replace(/\n/g, "\r\n");
+
+    expect(
+      valid(computeTextUpdate(editor, { format: markdownFormat, text }))
+        .operations,
+    ).toEqual([]);
+  });
+});
