@@ -1,5 +1,15 @@
-import { type Block, BlockNoteEditor } from "@blocknote/core";
+import {
+  type Block,
+  BlockNoteEditor,
+  BlockNoteSchema,
+  defaultBlockSpecs,
+  type PartialBlock,
+} from "@blocknote/core";
+import { withMultiColumn } from "@blocknote/xl-multi-column";
+import type { Step } from "prosemirror-transform";
 import { describe, expect, it } from "vite-plus/test";
+
+import type { LensBlock } from "../blocks/types.js";
 
 import { applyBlockOperations } from "./applyOperations.js";
 
@@ -78,5 +88,109 @@ describe("applyBlockOperations", () => {
         { type: "move", id: "a", reference: "missing", placement: "after" },
       ]),
     ).toThrow();
+  });
+});
+
+describe("the steps of a structure change", () => {
+  /** The kind of each step: an insert, a removal, or a replacement. */
+  function kinds(steps: readonly Step[]) {
+    return steps.map((step) => {
+      const { from, to, slice } = step.toJSON() as {
+        from: number;
+        to: number;
+        slice?: unknown;
+      };
+      if (from === to) {
+        return "insert";
+      }
+      return slice === undefined ? "remove" : "replace";
+    });
+  }
+
+  it("inserts a block with one step that only inserts", () => {
+    const editor = createEditor();
+    const steps = applyBlockOperations(editor, [
+      {
+        type: "insert",
+        block: paragraph("new", "New"),
+        reference: "a",
+        placement: "after",
+      },
+    ]);
+    expect(kinds(steps)).toEqual(["insert"]);
+    expect(shape(editor.document)).toEqual(["A", "New", "B", "C"]);
+  });
+
+  it("moves a block with an insert step and a removal step", () => {
+    const editor = createEditor();
+    const steps = applyBlockOperations(editor, [
+      { type: "move", id: "c", reference: "a", placement: "before" },
+    ]);
+    expect(kinds(steps)).toEqual(["insert", "remove"]);
+    expect(shape(editor.document)).toEqual(["C", "A", "B"]);
+  });
+
+  it("removes the block group of a block without children", () => {
+    const editor = BlockNoteEditor.create({
+      initialContent: [
+        {
+          id: "a",
+          type: "paragraph",
+          content: "A",
+          children: [{ id: "child", type: "paragraph", content: "Child" }],
+        },
+      ],
+    });
+    const steps = applyBlockOperations(editor, [
+      { type: "delete", id: "child" },
+    ]);
+    expect(kinds(steps)).toEqual(["remove"]);
+    expect(shape(editor.document)).toEqual(["A"]);
+  });
+
+  it("keeps the minimum number of columns at each step", () => {
+    const schema = withMultiColumn(
+      BlockNoteSchema.create({ blockSpecs: defaultBlockSpecs }),
+    );
+    const column = (id: string): LensBlock => ({
+      id,
+      type: "column",
+      props: {},
+      content: undefined,
+      children: [paragraph(`${id}-text`, id)],
+    });
+    const editor = BlockNoteEditor.create({
+      schema,
+      initialContent: [
+        {
+          id: "list",
+          type: "columnList",
+          children: [column("k"), column("x"), column("y")],
+        },
+      ] as PartialBlock<any, any, any>[],
+    });
+    // The removal of x and y gives one column, if it comes before the
+    // insert of the two new columns.
+    applyBlockOperations(editor, [
+      {
+        type: "insert",
+        block: column("n1"),
+        reference: "k",
+        placement: "before",
+      },
+      {
+        type: "insert",
+        block: column("n2"),
+        reference: "k",
+        placement: "before",
+      },
+      { type: "delete", id: "x" },
+      { type: "delete", id: "y" },
+    ]);
+    expect(editor.document[0].children.map((block) => block.id)).toEqual([
+      "n1",
+      "n2",
+      "k",
+    ]);
   });
 });

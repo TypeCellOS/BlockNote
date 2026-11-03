@@ -17,6 +17,7 @@ import {
   type LensTableContent,
 } from "../blocks/types.js";
 import { fixBlockIds } from "./blockIds.js";
+import { myersMatch } from "../diff/myers.js";
 import { applyToBlocks, type BlockShape } from "./applyToBlocks.js";
 import { addInlineContentSteps } from "./inlineSteps.js";
 import type { BlockOperation } from "./types.js";
@@ -68,11 +69,11 @@ export function dispatchToEditor(
  * - An update changes the block in place: inline content through the
  *   smallest ProseMirror steps (see `addInlineContentSteps`).
  * - The inserts, the moves and the removals give the structure of the
- *   result (see `applyToBlocks`). Each block whose children change is
- *   replaced, in one step, with its new children: the ProseMirror nodes of
- *   the blocks that the document has (a moved block keeps its node, with
- *   its comments), and new nodes. A step with a valid result is never
- *   filled with new blocks.
+ *   result (see `applyToBlocks`). In each list of children, each run of
+ *   changed children is replaced in one step (see `applyStructure`), with
+ *   the ProseMirror nodes of the blocks that the document has (a moved
+ *   block keeps its node, with its comments) and new nodes. Only a list
+ *   that must have children and has none gets the fill of the schema.
  *
  * At the end, each block has one ID that no other block has.
  */
@@ -94,97 +95,162 @@ export function applyOperations(
 }
 
 /**
- * Makes the structure of the document agree with `target`: each block whose
- * children (by ID) are different is replaced with a node with the new
- * children. The replacements go from the last one to the first, thus each
- * position stays correct. A replaced block contains all changes below it.
+ * Makes the structure of the document agree with `target`. In each list of
+ * children, the children that stay (a common subsequence of IDs) keep their
+ * nodes and positions, and each run of children between them is replaced
+ * in one step. Thus, an insert is one step that only inserts, and a
+ * collaboration binding, a suggestion plugin or a selection sees only the
+ * changed blocks.
+ *
+ * The steps that make a list longer apply first, and the steps that make a
+ * list shorter after them. Thus, each step gives a valid document, also for
+ * a list with a minimum number of children (for example a column list).
  */
 function applyStructure(tr: Transaction, target: BlockShape[]) {
   const schema = tr.doc.type.schema;
-  const nodes = new Map<string, { node: Node; pos: number }>();
-  tr.doc.descendants((node, pos) => {
+  const nodes = new Map<string, Node>();
+  tr.doc.descendants((node) => {
     if (node.type.isInGroup("bnBlock")) {
-      nodes.set(node.attrs.id, { node, pos });
+      nodes.set(node.attrs.id, node);
     }
     return !node.isTextblock;
   });
 
-  const replacements: { from: number; to: number; nodes: Node[] }[] = [];
+  /** A replacement of `count` old children, from `from` to `to`, with `content`. */
+  type Replacement = {
+    from: number;
+    to: number;
+    count: number;
+    content: Node[];
+  };
+  const replacements: Replacement[] = [];
   const rootGroup = tr.doc.firstChild;
   if (rootGroup === null) {
     throw new Error("The document has no block group");
   }
-  if (!sameChildren(childBlocks(rootGroup), target)) {
-    const blocks = target.map(build);
-    replacements.push({
-      from: 1,
-      to: 1 + rootGroup.content.size,
-      // A document always has one block.
-      nodes:
-        blocks.length > 0
-          ? blocks
-          : [schema.nodes["blockContainer"].createAndFill()!],
-    });
-  } else {
-    findReplacements(target);
-  }
-  replacements.sort((a, b) => b.from - a.from);
-  for (const { from, to, nodes: content } of replacements) {
-    tr.step(new ReplaceStep(from, to, new Slice(Fragment.from(content), 0, 0)));
+  diffList(rootGroup, 0, target);
+
+  const grows = (r: Replacement) => r.content.length >= r.count;
+  const first = tr.steps.length;
+  for (const r of [
+    ...replacements.filter(grows),
+    ...replacements.filter((r) => !grows(r)),
+  ]) {
+    const mapping = tr.mapping.slice(first);
+    tr.step(
+      new ReplaceStep(
+        mapping.map(r.from),
+        mapping.map(r.to),
+        new Slice(Fragment.from(r.content), 0, 0),
+      ),
+    );
   }
 
-  /** Adds a replacement for each block whose children are different, at the top of each changed subtree. */
-  function findReplacements(shapes: readonly BlockShape[]) {
-    for (const shape of shapes) {
-      const found = existing(shape.block.id);
-      if (sameChildren(childBlocks(found.node), shape.children)) {
-        findReplacements(shape.children);
-      } else {
-        replacements.push({
-          from: found.pos,
-          to: found.pos + found.node.nodeSize,
-          nodes: [build(shape)],
-        });
-      }
-    }
-  }
-
-  function existing(id: string) {
-    const found = nodes.get(id);
-    if (found === undefined) {
-      throw new Error(`Block ${id} is not in the document`);
-    }
-    return found;
-  }
-
-  /** Returns true if the nodes are the blocks of the shapes, in order. */
-  function sameChildren(
-    blocks: readonly Node[],
+  /** Adds the replacements that change the children of the block at `pos` to `shapes`. */
+  function diffChildren(
+    block: Node,
+    pos: number,
     shapes: readonly BlockShape[],
   ) {
-    return (
-      blocks.length === shapes.length &&
-      blocks.every((block, i) => block.attrs.id === shapes[i].block.id)
+    if (block.type.name !== "blockContainer") {
+      // A layout block holds its children directly.
+      diffList(block, pos, shapes);
+      return;
+    }
+    const groupPos = pos + 1 + block.child(0).nodeSize;
+    const group = block.maybeChild(1);
+    if (group === null) {
+      // A block without children gets a block group for its new children.
+      if (shapes.length > 0) {
+        const content = [
+          schema.nodes["blockGroup"].create(null, shapes.map(build)),
+        ];
+        replacements.push({ from: groupPos, to: groupPos, count: 0, content });
+      }
+    } else if (shapes.length === 0) {
+      // A block group needs a child, thus it goes with its last child.
+      replacements.push({
+        from: groupPos,
+        to: groupPos + group.nodeSize,
+        count: group.childCount,
+        content: [],
+      });
+    } else {
+      diffList(group, groupPos, shapes);
+    }
+  }
+
+  /**
+   * Adds the replacements that change the children of `list` (a block group
+   * or a layout block at `pos`) to `shapes`: one for each run of children
+   * between the children that stay.
+   */
+  function diffList(list: Node, pos: number, shapes: readonly BlockShape[]) {
+    const old: { node: Node; pos: number }[] = [];
+    list.forEach((child, offset) => {
+      old.push({ node: child, pos: pos + 1 + offset });
+    });
+    const end = pos + list.nodeSize - 1;
+    if (shapes.length === 0) {
+      // A list without children (the document, or an empty column of the
+      // "yjs" strategy, see `keepLayout`) gets the fill of the schema.
+      const filled = list.type.createAndFill(list.attrs);
+      if (filled === null) {
+        throw new Error(`A block of type ${list.type.name} cannot be empty`);
+      }
+      const content = childBlocks(filled);
+      replacements.push({ from: pos + 1, to: end, count: old.length, content });
+      return;
+    }
+    const pairs = myersMatch(
+      old.map(({ node }) => node.attrs.id as string),
+      shapes.map((shape) => shape.block.id),
+      (a, b) => a === b,
     );
+    let i = 0;
+    let k = 0;
+    for (const pair of [
+      ...pairs,
+      { aIndex: old.length, bIndex: shapes.length },
+    ]) {
+      if (pair.aIndex > i || pair.bIndex > k) {
+        replacements.push({
+          from: i < old.length ? old[i].pos : end,
+          to: pair.aIndex < old.length ? old[pair.aIndex].pos : end,
+          count: pair.aIndex - i,
+          content: shapes.slice(k, pair.bIndex).map(build),
+        });
+      }
+      if (pair.aIndex < old.length) {
+        const kept = old[pair.aIndex];
+        diffChildren(kept.node, kept.pos, shapes[pair.bIndex].children);
+      }
+      i = pair.aIndex + 1;
+      k = pair.bIndex + 1;
+    }
   }
 
   /** Returns true if the node has the structure of the shape, at all depths. */
   function sameStructure(node: Node, shape: BlockShape): boolean {
     const children = childBlocks(node);
     return (
-      sameChildren(children, shape.children) &&
-      children.every((child, i) => sameStructure(child, shape.children[i]))
+      children.length === shape.children.length &&
+      children.every(
+        (child, i) =>
+          child.attrs.id === shape.children[i].block.id &&
+          sameStructure(child, shape.children[i]),
+      )
     );
   }
 
   /** The node of the shape: the node of the document if its structure is the same, else a new node with the nodes of its children. */
   function build(shape: BlockShape): Node {
     const found = nodes.get(shape.block.id);
-    if (found !== undefined && sameStructure(found.node, shape)) {
-      return found.node;
+    if (found !== undefined && sameStructure(found, shape)) {
+      return found;
     }
     const shell =
-      found?.node ??
+      found ??
       blockToNode({ ...shape.block, children: [] } as PartialBlock, schema);
     return withChildren(shell, shape.children.map(build));
   }
