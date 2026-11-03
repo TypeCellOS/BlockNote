@@ -22,8 +22,9 @@ import * as Y from "yjs";
  *
  * Each step writes only the innermost block that contains it
  * (`updateYFragment` on the Y element of that block). Thus, a change in a
- * block costs time for that block only. A step at the top level (for
- * example an insert of a top-level block) writes the full document.
+ * block costs time for that block only. A step that inserts or removes whole
+ * blocks in a block group changes the Y children of that group directly
+ * (see `replaceChildren`). Other steps write the full document.
  */
 export function writeSteps(
   ydoc: Y.Doc,
@@ -38,6 +39,7 @@ export function writeSteps(
       // The Y tree agrees with `doc` before the step. Thus, the path of the
       // block in `doc` gives its Y element.
       const block = blockOfStep(doc, step, fragment);
+      const children = block ? undefined : childrenOfStep(doc, step, fragment);
       const result = step.apply(doc);
       if (result.doc === null) {
         throw new Error(`Step does not apply again: ${result.failed}`);
@@ -46,6 +48,8 @@ export function writeSteps(
       const node = block && doc.nodeAt(block.pos);
       if (node && block && node.type.name === block.element.nodeName) {
         updateYFragment(ydoc, block.element, node, meta);
+      } else if (children) {
+        replaceChildren(ydoc, children, meta);
       } else {
         updateYFragment(ydoc, fragment, doc, meta);
       }
@@ -96,6 +100,77 @@ function elementAt(
     current = child;
   }
   return current as Y.XmlElement;
+}
+
+/**
+ * A step that replaces whole children of one parent with new nodes: the Y
+ * element of the parent, the index of the first replaced child, the number
+ * of replaced children, and the new nodes. `undefined` for other steps.
+ */
+type ChildrenReplace = {
+  parent: Y.XmlElement | Y.XmlFragment;
+  index: number;
+  count: number;
+  nodes: readonly Node[];
+};
+
+function childrenOfStep(
+  doc: Node,
+  step: Step,
+  fragment: Y.XmlFragment,
+): ChildrenReplace | undefined {
+  if (
+    !(step instanceof ReplaceStep) ||
+    step.slice.openStart !== 0 ||
+    step.slice.openEnd !== 0
+  ) {
+    return undefined;
+  }
+  const $from = doc.resolve(step.from);
+  const $to = doc.resolve(step.to);
+  const depth = $from.depth;
+  // A position directly in a parent that is not a text block is between two
+  // of its children.
+  if (
+    $to.depth !== depth ||
+    $from.parent !== $to.parent ||
+    $from.parent.isTextblock
+  ) {
+    return undefined;
+  }
+  const nodes: Node[] = [];
+  step.slice.content.forEach((node) => nodes.push(node));
+  if (nodes.some((node) => node.isText)) {
+    return undefined;
+  }
+  const parent = depth === 0 ? fragment : elementAt(fragment, $from, depth);
+  return (
+    parent && {
+      parent,
+      index: $from.index(),
+      count: $to.index() - $from.index(),
+      nodes,
+    }
+  );
+}
+
+/**
+ * Removes the replaced Y children, and adds a new Y element for each new
+ * node. `updateYFragment` then fills only the new element from its node.
+ */
+function replaceChildren(
+  ydoc: Y.Doc,
+  { parent, index, count, nodes }: ChildrenReplace,
+  meta: Parameters<typeof updateYFragment>[3],
+) {
+  if (count > 0) {
+    parent.delete(index, count);
+  }
+  nodes.forEach((node, i) => {
+    const element = new Y.XmlElement(node.type.name);
+    parent.insert(index + i, [element]);
+    updateYFragment(ydoc, element, node, meta);
+  });
 }
 
 /** The range that the step changes, in the document before the step. */
