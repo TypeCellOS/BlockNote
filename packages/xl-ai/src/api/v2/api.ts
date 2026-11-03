@@ -12,7 +12,13 @@ import { alignBlocks } from "./alignment/alignBlocks.js";
 import { flattenBlocks } from "./blocks/flatten.js";
 import { propsFit } from "./blocks/props.js";
 import { BlockTree } from "./blocks/tree.js";
-import type { ContentKind, LensBlock } from "./blocks/types.js";
+import { stableStringify } from "./blocks/json.js";
+import { inlineContentToText } from "./blocks/text.js";
+import type {
+  ContentKind,
+  LensBlock,
+  LensInlineContent,
+} from "./blocks/types.js";
 import type { TextFormat } from "./formats/types.js";
 import { addMissingBlockIds } from "./operations/blockIds.js";
 import {
@@ -389,9 +395,49 @@ function planTextUpdate(
     incoming,
     alignment: alignBlocks(projection.view, incoming),
     contentKindOf: (type) => contentKindOf(editor, type),
+    shadowOf: shadowsOf(editor, format),
     newId: () => UniqueID.options.generateID(),
   });
   return { target, warnings };
+}
+
+/**
+ * Returns the text that the format shows for an inline item that its parse
+ * does not give back, for example "@Bob" for a mention in markdown (see
+ * `MergeOptions.shadowOf`). `undefined` if the parse gives back an item of
+ * that type. One serialize and one parse for each different item.
+ */
+function shadowsOf(
+  editor: BlockNoteEditor<any, any, any>,
+  format: TextFormat,
+): (item: LensInlineContent) => string | undefined {
+  const shadows = new Map<string, string | undefined>();
+  return (item) => {
+    const key = stableStringify(item);
+    if (!shadows.has(key)) {
+      const [block] = format.parse(
+        editor,
+        format.serialize(editor, [
+          {
+            id: "",
+            type: "paragraph",
+            props: {},
+            content: [item],
+            children: [],
+          },
+        ]),
+      );
+      const content = block?.content;
+      shadows.set(
+        key,
+        Array.isArray(content) &&
+          !content.some((part) => part.type === item.type)
+          ? inlineContentToText(content)
+          : undefined,
+      );
+    }
+    return shadows.get(key);
+  };
 }
 
 /** The child rule of a layout block type, or `undefined` for other types. */

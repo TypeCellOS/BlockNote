@@ -17,6 +17,10 @@ import type { MatchedPair } from "../diff/types.js";
  *   code point. Thus, a unit never contains half of a surrogate pair.
  * - One unit for each item of custom inline content, for example a mention.
  *   The merge compares this unit as one item.
+ * - With `shadowOf`, an item that the format shows as text is the characters
+ *   of that text, its shadow (see `MergeOptions.shadowOf`). Each character
+ *   knows its item. If all characters of a shadow stay, {@link fromUnits}
+ *   gives back the item.
  */
 export type InlineUnit =
   | {
@@ -24,11 +28,24 @@ export type InlineUnit =
       char: string;
       styles: LensStyles;
       href: string | undefined;
+      shadow?: Shadow;
     }
   | { kind: "atom"; item: LensInlineContent; key: string };
 
-export function toUnits(content: readonly LensInlineContent[]): InlineUnit[] {
+/** A character of the shadow of an item: the item, the shadow (`id`), and the index of the character in the shadow. */
+type Shadow = {
+  item: LensInlineContent;
+  id: number;
+  index: number;
+  length: number;
+};
+
+export function toUnits(
+  content: readonly LensInlineContent[],
+  shadowOf?: (item: LensInlineContent) => string | undefined,
+): InlineUnit[] {
   const units: InlineUnit[] = [];
+  let shadows = 0;
   for (const item of content) {
     if (isStyledText(item)) {
       for (const char of item.text) {
@@ -51,18 +68,62 @@ export function toUnits(content: readonly LensInlineContent[]): InlineUnit[] {
         }
       }
     } else {
-      units.push({ kind: "atom", item, key: stableStringify(item) });
+      const chars = Array.from(shadowOf?.(item) ?? "");
+      if (chars.length === 0) {
+        units.push({ kind: "atom", item, key: stableStringify(item) });
+        continue;
+      }
+      const id = shadows++;
+      chars.forEach((char, index) => {
+        units.push({
+          kind: "char",
+          char,
+          styles: {},
+          href: undefined,
+          shadow: { item, id, index, length: chars.length },
+        });
+      });
     }
   }
   return units;
 }
 
-/** The inverse of {@link toUnits}. Puts adjacent characters with equal styles and link in one item. */
+/** Returns true if the units from `start` are all characters of one shadow, in order. */
+function isFullShadow(units: readonly InlineUnit[], start: number): boolean {
+  const first = units[start];
+  if (first.kind !== "char" || first.shadow?.index !== 0) {
+    return false;
+  }
+  const { id, length } = first.shadow;
+  for (let k = 0; k < length; k++) {
+    const unit = units[start + k];
+    if (
+      unit?.kind !== "char" ||
+      unit.shadow?.id !== id ||
+      unit.shadow.index !== k
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
+
+/**
+ * The inverse of {@link toUnits}. Puts adjacent characters with equal styles
+ * and link in one item. A full shadow gives back its item. The characters of
+ * a shadow that is not full (the text changed it) stay text.
+ */
 export function fromUnits(units: readonly InlineUnit[]): LensInlineContent[] {
   const content: LensInlineContent[] = [];
-  for (const unit of units) {
+  for (let i = 0; i < units.length; i++) {
+    const unit = units[i];
     if (unit.kind === "atom") {
       content.push(unit.item);
+      continue;
+    }
+    if (unit.shadow !== undefined && isFullShadow(units, i)) {
+      content.push(unit.shadow.item);
+      i += unit.shadow.length - 1;
       continue;
     }
 

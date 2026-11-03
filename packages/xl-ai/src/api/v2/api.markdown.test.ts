@@ -2,6 +2,9 @@ import {
   BlockNoteEditor,
   BlockNoteSchema,
   defaultBlockSpecs,
+  createInlineContentSpec,
+  defaultInlineContentSpecs,
+  type PartialBlock,
 } from "@blocknote/core";
 import { withMultiColumn } from "@blocknote/xl-multi-column";
 import { describe, expect, it } from "vite-plus/test";
@@ -1031,5 +1034,85 @@ describe("markdown, a change of the content kind", () => {
       valid(computeTextUpdate(editor, { format: markdownFormat, text }))
         .operations,
     ).toEqual([]);
+  });
+});
+
+/**
+ * Markdown shows a mention (custom inline content) as its text, for example
+ * "@Bob". The parse gives back that text, not the mention. The merge finds
+ * the mention by that text (see `MergeOptions.shadowOf`).
+ */
+describe("markdown, custom inline content", () => {
+  const format = markdownFormat;
+  const mention = createInlineContentSpec(
+    { type: "mention", propSchema: { user: { default: "" } }, content: "none" },
+    {
+      render: (inlineContent) => {
+        const dom = document.createElement("span");
+        dom.textContent = `@${inlineContent.props.user}`;
+        return { dom };
+      },
+    },
+  );
+  function createMentionEditor() {
+    return BlockNoteEditor.create({
+      schema: BlockNoteSchema.create({
+        inlineContentSpecs: { ...defaultInlineContentSpecs, mention },
+      }),
+      initialContent: [
+        {
+          id: "p",
+          type: "paragraph",
+          content: [
+            { type: "text", text: "Hi ", styles: {} },
+            { type: "mention", props: { user: "Bob" } },
+            { type: "text", text: " and welcome", styles: {} },
+          ],
+        },
+      ] as PartialBlock<any, any, any>[],
+    });
+  }
+
+  it.each([
+    ["Hi", "Hello"],
+    ["and", "or"],
+  ])(
+    "keeps a mention if the text changes the word %s next to it",
+    (word, replacement) => {
+      const editor = createMentionEditor();
+      const text = getDocumentText(editor, format);
+
+      valid(
+        updateDocumentFromText(editor, {
+          format,
+          text: replaceOnce(text, word, replacement),
+        }),
+      );
+
+      expect(editor.getBlock("p")?.content).toMatchObject([
+        { type: "text", text: `${word === "Hi" ? replacement : "Hi"} ` },
+        { type: "mention", props: { user: "Bob" } },
+        {
+          type: "text",
+          text: ` ${word === "and" ? replacement : "and"} welcome`,
+        },
+      ]);
+    },
+  );
+
+  it("changes a mention into text if the text changes the text of the mention", () => {
+    const editor = createMentionEditor();
+    const text = getDocumentText(editor, format);
+
+    valid(
+      updateDocumentFromText(editor, {
+        format,
+        text: replaceOnce(text, "@Bob", "@Alice"),
+      }),
+    );
+
+    expect(editor.getBlock("p")?.content).toEqual([
+      { type: "text", text: "Hi @Alice and welcome", styles: {} },
+    ]);
   });
 });

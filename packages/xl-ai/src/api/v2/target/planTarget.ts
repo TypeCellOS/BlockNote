@@ -6,6 +6,7 @@ import type {
   ContentKind,
   FlatBlock,
   LensBlock,
+  LensInlineContent,
 } from "../blocks/types.js";
 import type { BlockPair } from "../alignment/alignBlocks.js";
 import { mergeBlock } from "../merge/block.js";
@@ -44,6 +45,8 @@ export type PlanInput = {
   /** The matches of `projection.view` (a side) to `incoming` (b side). */
   alignment: BlockPair[];
   contentKindOf: (type: string) => ContentKind;
+  /** The text that the format shows for an inline item that it does not give back (see `MergeOptions.shadowOf`). */
+  shadowOf?: (item: LensInlineContent) => string | undefined;
   /** Gives the ID of a new block. */
   newId: () => string;
 };
@@ -365,6 +368,7 @@ export function planTarget(input: PlanInput): Plan {
       incoming[j].block,
       source.block(id),
       contentKindOf,
+      { shadowOf: input.shadowOf },
     );
     if (
       viewBlock.type === incoming[j].block.type &&

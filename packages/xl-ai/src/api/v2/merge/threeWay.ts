@@ -1,4 +1,5 @@
 import { deepEqual } from "../blocks/json.js";
+import type { LensInlineContent } from "../blocks/types.js";
 
 /**
  * The options of the merges in this folder. `concurrent` is true if `theirs`
@@ -16,6 +17,13 @@ export type MergeOptions = {
    * a warning.
    */
   onConflict?: () => void;
+  /**
+   * The text that the format shows for an inline item that its parse does
+   * not give back (for example "@Bob" for a mention in markdown), or
+   * `undefined`. Only the planner sets this: there, `base` and `ours` come
+   * from the format, thus they have that text where `theirs` has the item.
+   */
+  shadowOf?: (item: LensInlineContent) => string | undefined;
 };
 
 /**

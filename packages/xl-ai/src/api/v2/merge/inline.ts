@@ -31,7 +31,7 @@ export function mergeInlineContent(
 ): LensInlineContent[] {
   const o = toUnits(base);
   const a = toUnits(ours);
-  const b = toUnits(theirs);
+  const b = toUnits(theirs, options.shadowOf);
 
   return fromUnits(
     diff3(o, a, b, alignUnits(o, a), alignUnits(o, b), {
@@ -61,6 +61,7 @@ function mergeStable(
       char: ours.char,
       styles: mergeRecords(base.styles, ours.styles, theirs.styles, options),
       href: mergeValue(base.href, ours.href, theirs.href, options),
+      shadow: theirs.shadow,
     };
   }
   // An atom only matches an equal atom. Thus, the three are the same item.
