@@ -163,6 +163,48 @@ export function rebaseOperations(input: RebaseInput): RebaseResult {
     return (tree.byId.has(id) ? tree : targetTree).block(id).type;
   }
 
+  /**
+   * Removes the block, if it is still in the tree. The block of `base` can
+   * contain blocks that the client also removes, but that another writer
+   * moved out of it. These blocks go too: the client removed them.
+   */
+  function removeBlock(id: string) {
+    const movedOut = base
+      .descendantsOf(id)
+      .filter(
+        (descendant) =>
+          removedByClient(descendant) &&
+          tree.has(descendant) &&
+          !tree.isWithin(descendant, id),
+      );
+    if (tree.has(id)) {
+      // The removed block can contain blocks that the client keeps, at any
+      // depth: blocks that another writer moved into it, or new blocks of
+      // the text that a fallback put there. These blocks move out first, to
+      // the position of the removed block.
+      for (const kept of keptBlocksIn(id)) {
+        const position = available(
+          { reference: id, placement: "before" },
+          { type: typeOf(kept), moved: kept },
+        );
+        operations.push({ type: "move", id: kept, ...position });
+        tree.place(kept, position);
+      }
+      if (changedByOthers(id)) {
+        warnings.push({ type: "removed-changed-block", id });
+      }
+      operations.push({ type: "delete", id });
+      tree.remove(id);
+    }
+    // Else, another writer removed the block, or the block went with a
+    // removed ancestor.
+    for (const descendant of movedOut) {
+      if (tree.has(descendant)) {
+        removeBlock(descendant);
+      }
+    }
+  }
+
   for (const operation of input.operations) {
     switch (operation.type) {
       case "update": {
@@ -218,28 +260,7 @@ export function rebaseOperations(input: RebaseInput): RebaseResult {
         break;
       }
       case "delete": {
-        const { id } = operation;
-        if (!tree.has(id)) {
-          // Another writer removed the block, or the block went with a removed ancestor.
-          break;
-        }
-        // The removed block can contain blocks that the client keeps, at any
-        // depth: blocks that another writer moved into it, or new blocks of
-        // the text that a fallback put there. These blocks move out first, to
-        // the position of the removed block.
-        for (const kept of keptBlocksIn(id)) {
-          const position = available(
-            { reference: id, placement: "before" },
-            { type: typeOf(kept), moved: kept },
-          );
-          operations.push({ type: "move", id: kept, ...position });
-          tree.place(kept, position);
-        }
-        if (changedByOthers(id)) {
-          warnings.push({ type: "removed-changed-block", id });
-        }
-        operations.push(operation);
-        tree.remove(id);
+        removeBlock(operation.id);
         break;
       }
     }

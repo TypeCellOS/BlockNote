@@ -348,6 +348,25 @@ describe("a write from an older version, with blocks that another writer moved",
   });
 });
 
+describe("a write from an older version that removes blocks", () => {
+  it("removes a child that another writer moved out of a block that the client removes", () => {
+    const editor = createEditor(fruit);
+    const client = read(editor);
+    // Another writer outdents Apples.
+    editor.removeBlocks(["apples"]);
+    editor.insertBlocks(
+      [{ id: "apples", type: "bulletListItem", content: "Apples" }],
+      "fruit",
+      "after",
+    );
+
+    // The client removes Fruit and its children.
+    write(editor, client, () => "End\n");
+
+    expect(editor.document.map((block) => block.id)).toEqual(["end"]);
+  });
+});
+
 describe("a write from an older version, with columns", () => {
   function createColumnsEditor(
     columns: PartialBlock<any, any, any>[],

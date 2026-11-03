@@ -84,6 +84,17 @@ export class BlockTree {
     return siblings[siblings.indexOf(id) - 1];
   }
 
+  /** The IDs of all the blocks in the block, at any depth. */
+  descendantsOf(id: string): string[] {
+    const descendants: string[] = [];
+    const stack = [...this.childrenOf(id)];
+    for (let next = stack.pop(); next !== undefined; next = stack.pop()) {
+      descendants.push(next);
+      stack.push(...this.childrenOf(next));
+    }
+    return descendants;
+  }
+
   /** Returns true if `id` is `ancestor`, or a descendant of it. */
   isWithin(id: string, ancestor: string): boolean {
     for (
