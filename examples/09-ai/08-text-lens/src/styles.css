@@ -1,0 +1,142 @@
+.text-lens {
+  --text-lens-border: #d0d4da;
+  --text-lens-muted: #5f6672;
+  --text-lens-surface: #f6f7f9;
+  --text-lens-insert: #c9f2d0;
+  --text-lens-delete: #ffd5d5;
+
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+@media (prefers-color-scheme: dark) {
+  .text-lens {
+    --text-lens-border: #3a3f47;
+    --text-lens-muted: #a3a9b3;
+    --text-lens-surface: #23262b;
+    --text-lens-insert: #1f4d2a;
+    --text-lens-delete: #5c2626;
+  }
+}
+
+@media (max-width: 800px) {
+  .text-lens {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.text-lens h2 {
+  font-size: 16px;
+  margin: 0 auto 0 0;
+}
+
+.text-lens h3 {
+  font-size: 14px;
+  margin: 0 0 4px;
+}
+
+.text-lens-pane {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.text-lens-toolbar {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.text-lens-toolbar button,
+.text-lens-toolbar select {
+  background: var(--text-lens-surface);
+  border: 1px solid var(--text-lens-border);
+  border-radius: 4px;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  padding: 4px 8px;
+}
+
+.text-lens-toolbar button:disabled,
+.text-lens-toolbar select:disabled {
+  opacity: 0.5;
+}
+
+.text-lens-editor {
+  border: 1px solid var(--text-lens-border);
+  border-radius: 4px;
+  flex: 1;
+  min-height: 480px;
+  padding: 8px 0;
+}
+
+.text-lens-text {
+  background: var(--text-lens-surface);
+  border: 1px solid var(--text-lens-border);
+  border-radius: 4px;
+  box-sizing: border-box;
+  color: inherit;
+  flex: 1;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  min-height: 480px;
+  padding: 8px;
+  resize: vertical;
+  width: 100%;
+}
+
+.text-lens-hint {
+  color: var(--text-lens-muted);
+  font-size: 13px;
+  margin: 0;
+}
+
+.text-lens-panel {
+  border: 1px solid var(--text-lens-border);
+  border-radius: 4px;
+  font-size: 13px;
+  grid-column: 1 / -1;
+  padding: 8px 12px;
+}
+
+.text-lens-panel h2 {
+  margin-bottom: 8px;
+}
+
+.text-lens-panel ul {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  margin: 0;
+  padding-left: 16px;
+}
+
+.text-lens-columns {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.text-lens-error {
+  color: #c62828;
+}
+
+/*
+The suggestions of the text: insertions in green, deletions in red. The
+selectors have three classes. Thus, they also apply over the rules of the
+dark theme (`.dark.bn-root ins`).
+*/
+.text-lens .text-lens-editor .bn-editor ins,
+.text-lens .text-lens-editor .bn-editor ins .bn-inline-content {
+  background-color: var(--text-lens-insert);
+  text-decoration: none;
+}
+
+.text-lens .text-lens-editor .bn-editor del,
+.text-lens .text-lens-editor .bn-editor del .bn-inline-content {
+  background-color: var(--text-lens-delete);
+  text-decoration: line-through;
+}

@@ -14,6 +14,17 @@ const devAliases: Record<string, string> = {
   "@blocknote/ariakit": resolve(__dirname, "../packages/ariakit/src"),
   "@blocknote/mantine": resolve(__dirname, "../packages/mantine/src"),
   "@blocknote/shadcn": resolve(__dirname, "../packages/shadcn/src"),
+  // The text lens entry points are not files at the root of `src/`. An alias
+  // matches each import that starts with its key, and the first match wins.
+  // Thus, these aliases come before the alias of `@blocknote/xl-ai`.
+  "@blocknote/xl-ai/text-lens/yjs": resolve(
+    __dirname,
+    "../packages/xl-ai/src/api/v2/yjs/index.ts",
+  ),
+  "@blocknote/xl-ai/text-lens": resolve(
+    __dirname,
+    "../packages/xl-ai/src/api/v2/index.ts",
+  ),
   "@blocknote/xl-ai": resolve(__dirname, "../packages/xl-ai/src"),
   "@blocknote/xl-docx-exporter": resolve(
     __dirname,

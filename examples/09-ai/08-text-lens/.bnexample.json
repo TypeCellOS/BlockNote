@@ -1,0 +1,11 @@
+{
+  "playground": true,
+  "docs": true,
+  "author": "yousefed",
+  "tags": ["AI", "llm", "Import/Export"],
+  "dependencies": {
+    "@blocknote/xl-ai": "latest",
+    "@handlewithcare/prosemirror-suggest-changes": "^0.1.8",
+    "prosemirror-transform": "^1.12.1"
+  }
+}

@@ -188,7 +188,7 @@ export const examples = {
           slug: "basic",
         },
         readme:
-          "In this example, we pass in a custom dictionary to change the interface of the editor to use Dutch (NL) strings.\n\nYou can also provide your own dictionary to customize the strings used in the editor, or submit a Pull Request to add support for your language of your choice.\n\n**Relevant Docs:**\n\n- [Localization](/docs/features/localization)",
+          "In this example, we use a dropdown to switch the editor between all of the languages that BlockNote ships with, by passing the matching dictionary from `@blocknote/core/locales` to the editor. Selecting a language re-mounts the editor so the interface strings update immediately. The document is saved outside the editor and restored on re-mount, preserving your content (but not the undo history or selection).\n\nYou can also provide your own dictionary to customize the strings used in the editor, or submit a Pull Request to add support for your language of your choice.\n\n**Relevant Docs:**\n\n- [Localization](/docs/features/localization)",
       },
       {
         projectSlug: "custom-placeholder",
@@ -1965,7 +1965,7 @@ export const examples = {
         config: {
           playground: true,
           docs: true,
-          author: "",
+          author: "nickthesick",
           tags: ["Advanced", "Saving/Loading", "Collaboration"],
           dependencies: {
             "@y/prosemirror": "^2.0.0-15",
@@ -2205,6 +2205,29 @@ export const examples = {
         },
         readme:
           "This example shows how to setup to add AI integration while handling the LLM calls (in this case, using the Vercel AI SDK) on your server, using a custom executor.\n\nInstead of sending all messages, these are kept server-side and we only submit the latest message.",
+      },
+      {
+        projectSlug: "text-lens",
+        fullSlug: "ai/text-lens",
+        pathFromRoot: "examples/09-ai/08-text-lens",
+        config: {
+          playground: true,
+          docs: true,
+          author: "yousefed",
+          tags: ["AI", "llm", "Import/Export"],
+          dependencies: {
+            "@blocknote/xl-ai": "latest",
+            "@handlewithcare/prosemirror-suggest-changes": "^0.1.8",
+            "prosemirror-transform": "^1.12.1",
+          } as any,
+        },
+        title: "Text Lens with AI Suggestions",
+        group: {
+          pathFromRoot: "examples/09-ai",
+          slug: "ai",
+        },
+        readme:
+          'This example shows a document as markdown or plain text next to the editor, and writes the changed text back with the text lens (`@blocknote/xl-ai/text-lens`). The changes of the text show as AI suggestions in the editor. A write applies only the changes, and keeps the data that the text does not show: block IDs, colors, underline, alignment, nesting and image widths.\n\n**Try it out:** Change a word in the text, change a different block in the live editor, and then change the text again: the edit of the live editor stays.\n\n**How it works:**\n\n- The base is the document at the time when the text was read. Each write sends the full text with the base. Thus, the write keeps the edits that the live editor made after that time.\n- A write starts 500 ms after the last change in the text.\n- Each write first rejects the suggestions of the last write. A deletion stays in the document until a user accepts it. Thus, without this step, the next write reads the deleted text as content. Then the write applies the full text again, as new suggestions.\n- "Accept all" and "Reject all" end the suggestions. Then the current document becomes the new base, and the text shows it.\n- "Set as new base" makes the current document the base, and shows it in the text. Use it to see the edits of the live editor in the text. This button and the format switch are available only when there are no suggestions.\n- The "Last write" panel shows the operations and the warnings of the last write.\n\n**How the suggestions apply** (see `src/suggestTextUpdate.ts`):\n\n1. `computeTextUpdate` computes the operations on a copy of the clean document, in an editor without a view.\n2. `applyBlockOperations` on that copy gives the steps of the updates. These steps change only the changed text.\n3. An insert, a move or a delete applies with `insertBlocks` and `removeAndInsertBlocks` of `@blocknote/core`, with one step for each block. `applyBlockOperations` replaces a full block group in one step, and the suggestions then show all the blocks of that group as deleted and inserted.\n4. `transformToSuggestionTransaction` of `prosemirror-suggest-changes` changes these steps into suggestions.\n\n**Limits:**\n\n- A move shows as a deletion and an insertion. If you accept it, the block gets a new ID.\n- Text that you type in the live editor inside a suggestion gets the mark of that suggestion. The next write removes it.\n\n**Relevant Docs:**\n\n- [Text Updates](/docs/features/text-updates)\n- [Getting Started with BlockNote AI](/docs/features/ai/getting-started)',
       },
     ],
   },
