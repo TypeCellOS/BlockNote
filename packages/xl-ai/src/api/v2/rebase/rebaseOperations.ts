@@ -63,6 +63,8 @@ export type RebaseResult = {
  * - An insert or a move goes to the same position. If another writer removed
  *   the reference block, the block goes to the position of the reference
  *   block in `base` (see `available`).
+ * - A block that no position can have (a column whose column list another
+ *   writer removed) becomes its children there, as in `fitLayout`.
  * - A move to the position that the block already has is not necessary.
  *   Thus, a move that both sides did is done one time.
  * - Changes to a block that another writer removed are not applied.
@@ -138,31 +140,88 @@ export function rebaseOperations(input: RebaseInput): RebaseResult {
    * that the client removes, and the parent at the position can have the
    * block. If not, returns the position of the reference block in `base`,
    * with the same check. A new block of the client is not in `base`: then
-   * its position in the target applies.
+   * its position in the target applies. The start of the document is the
+   * last fallback. Returns `undefined` if the top level cannot have the
+   * block either (a column).
    */
   function available(
     position: BlockPosition,
     placed: { type: string; moved?: string },
-  ): BlockPosition {
+  ): BlockPosition | undefined {
     if (position.placement === "start") {
-      return position;
+      return fitsParent(position, placed.type)
+        ? { placement: "start" }
+        : undefined;
     }
-    const { reference } = position;
+    const { reference, placement } = position;
     if (
       tree.has(reference) &&
       (placed.moved === undefined || !tree.isWithin(reference, placed.moved)) &&
       !inRemovedBlock(position) &&
       fitsParent(position, placed.type)
     ) {
-      return position;
+      // Only the position: `position` can be an operation, with more fields.
+      return { reference, placement };
     }
-    // The start of the document is the last fallback.
     return available(
       base.has(reference)
         ? positionIn(base, reference)
         : positionIn(targetTree, reference),
       placed,
     );
+  }
+
+  /**
+   * Inserts the block at the position (see `available`). If no position can
+   * have the block (a column whose column list another writer removed), its
+   * children go there instead, as `fitLayout` does with a column outside a
+   * column list. The later operations of the client that refer to the block
+   * then use their fallback positions.
+   */
+  function insert(block: LensBlock, position: BlockPosition) {
+    const fitted = available(position, { type: block.type });
+    if (fitted === undefined) {
+      block.children.forEach((child, index) =>
+        insert(
+          child,
+          index === 0
+            ? position
+            : { reference: block.children[index - 1].id, placement: "after" },
+        ),
+      );
+      return;
+    }
+    inserted.set(block.id, block);
+    operations.push({ type: "insert", block, ...fitted });
+    tree.place(block.id, fitted);
+  }
+
+  /**
+   * Moves the block to the position (see `available`), if it is not there.
+   * If no position can have the block, its children move there instead, as
+   * in `insert`. The block stays, and the layout rule on the result removes
+   * it if it is empty.
+   */
+  function move(id: string, position: BlockPosition) {
+    const fitted = available(position, { type: typeOf(id), moved: id });
+    if (fitted === undefined) {
+      tree
+        .childrenOf(id)
+        .forEach((child, index, children) =>
+          move(
+            child,
+            index === 0
+              ? position
+              : { reference: children[index - 1], placement: "after" },
+          ),
+        );
+      return;
+    }
+    const toItself = fitted.placement !== "start" && fitted.reference === id;
+    if (!toItself && !tree.isAt(id, fitted)) {
+      operations.push({ type: "move", id, ...fitted });
+      tree.place(id, fitted);
+    }
   }
 
   /** Returns true if the parent at the position (in the current tree) can have a block of the type. */
@@ -199,12 +258,7 @@ export function rebaseOperations(input: RebaseInput): RebaseResult {
       // the text that a fallback put there. These blocks move out first, to
       // the position of the removed block.
       for (const kept of keptBlocksIn(id)) {
-        const position = available(
-          { reference: id, placement: "before" },
-          { type: typeOf(kept), moved: kept },
-        );
-        operations.push({ type: "move", id: kept, ...position });
-        tree.place(kept, position);
+        move(kept, { reference: id, placement: "before" });
       }
       if (changedByOthers(id)) {
         warnings.push({ type: "removed-changed-block", id });
@@ -255,33 +309,14 @@ export function rebaseOperations(input: RebaseInput): RebaseResult {
         break;
       }
       case "insert": {
-        inserted.set(operation.block.id, operation.block);
-        const position = available(operation, {
-          type: operation.block.type,
-        });
-        operations.push({
-          type: "insert",
-          block: operation.block,
-          ...position,
-        });
-        tree.place(operation.block.id, position);
+        insert(operation.block, operation);
         break;
       }
       case "move": {
-        const { id } = operation;
-        if (!tree.has(id)) {
-          warnings.push({ type: "change-to-removed-block", id });
-          break;
-        }
-        const position = available(operation, {
-          type: tree.block(id).type,
-          moved: id,
-        });
-        const toItself =
-          position.placement !== "start" && position.reference === id;
-        if (!toItself && !tree.isAt(id, position)) {
-          operations.push({ type: "move", id, ...position });
-          tree.place(id, position);
+        if (tree.has(operation.id)) {
+          move(operation.id, operation);
+        } else {
+          warnings.push({ type: "change-to-removed-block", id: operation.id });
         }
         break;
       }

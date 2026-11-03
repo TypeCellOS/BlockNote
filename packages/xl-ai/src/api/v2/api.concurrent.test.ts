@@ -24,7 +24,12 @@ import {
   documentShape,
   replaceOnce,
 } from "./testUtil/fixtures.js";
-import { createRandom, randomDocument, randomEdit } from "./testUtil/random.js";
+import {
+  createRandom,
+  type Random,
+  randomDocument,
+  randomEdit,
+} from "./testUtil/random.js";
 import { valid } from "./testUtil/valid.js";
 
 /**
@@ -326,6 +331,108 @@ describe.each([
   );
 });
 
+/**
+ * Random groups of three or four writers. Each writer reads a version, edits
+ * its text, and writes it later, with the version that it read as the base.
+ * The reads and the writes come in a random order. Thus, a writer can read a
+ * version that contains the writes of some other writers. Each case has a
+ * seed.
+ *
+ * The result must contain the change of each writer to each block that no
+ * other writer changed or removed. A change is the result of the write of
+ * that writer alone, on the version that it read. After the last write, a
+ * write of the text of the result must change nothing.
+ */
+describe.each([
+  { name: "markdown", format: markdownFormat },
+  { name: "plain text", format: plainTextFormat },
+  { name: "HTML", format: htmlFormat },
+])("random groups of writers ($name)", ({ format }) => {
+  it.each(Array.from({ length: 40 }, (_, i) => i + 1))(
+    "keeps the changes of each writer for seed %i",
+    (seed) => {
+      const random = createRandom(seed);
+      const editor = BlockNoteEditor.create({
+        initialContent: randomDocument(random),
+      });
+
+      type Writer = {
+        base: LensBlock[];
+        text: string;
+        change: ReturnType<typeof diffBlocks> & {
+          after: ReturnType<typeof blockFieldsById>;
+        };
+      };
+      const writers: Writer[] = [];
+      for (const { writer, step } of randomSchedule(
+        random,
+        3 + random.int(2),
+      )) {
+        if (step === "read") {
+          const base: LensBlock[] = editor.document;
+          const text = randomEdit(random, getDocumentText(editor, format));
+          writers[writer] = { base, text, change: alone(base, text) };
+        } else {
+          const { base, text } = writers[writer];
+          valid(updateDocumentFromText(editor, { format, text, base }));
+        }
+      }
+      const result = blockFieldsById(editor);
+
+      const ids = flattenBlocks(editor.document as LensBlock[]).map(
+        ({ block }) => block.id,
+      );
+      expect(new Set(ids).size).toBe(ids.length);
+
+      writers.forEach(({ change }, writer) => {
+        const others = writers.filter((_, other) => other !== writer);
+        const untouched = (id: string) =>
+          others.every(
+            ({ change }) =>
+              !change.changed.includes(id) && !change.removed.includes(id),
+          );
+        for (const id of change.changed.filter(untouched)) {
+          expect(result.get(id), `block ${id}`).toEqual(change.after.get(id));
+        }
+        for (const id of change.removed.filter(untouched)) {
+          expect(result.has(id), `block ${id}`).toBe(false);
+        }
+      });
+
+      const text = getDocumentText(editor, format);
+      expect(
+        valid(computeTextUpdate(editor, { format, text })).operations,
+      ).toEqual([]);
+
+      /** Returns the changes of one writer alone, by block ID. */
+      function alone(base: LensBlock[], text: string): Writer["change"] {
+        const single = BlockNoteEditor.create({ initialContent: base });
+        const before = blockFieldsById(single);
+        valid(updateDocumentFromText(single, { format, text }));
+        const after = blockFieldsById(single);
+        return { after, ...diffBlocks(before, after) };
+      }
+    },
+  );
+});
+
+/**
+ * A random order of the reads and the writes of `count` writers. The read of
+ * each writer comes before its write.
+ */
+function randomSchedule(random: Random, count: number) {
+  const done = Array.from({ length: count }, () => 0);
+  const schedule: { writer: number; step: "read" | "write" }[] = [];
+  for (let left = 2 * count; left > 0; left--) {
+    const writer = random.pick(
+      done.flatMap((steps, writer) => (steps < 2 ? [writer] : [])),
+    );
+    schedule.push({ writer, step: done[writer] === 0 ? "read" : "write" });
+    done[writer]++;
+  }
+  return schedule;
+}
+
 describe("a write from an older version, with blocks that another writer moved", () => {
   it("moves a block after a new block that the rebase put into the moved block", () => {
     const editor = createEditor([
@@ -546,6 +653,31 @@ describe("a write from an older version, with columns", () => {
     expect(columnsShape(editor)).toEqual([
       ["cA", ["empty"]],
       ["cC", ["y"]],
+    ]);
+  });
+
+  it("puts the blocks of a new column where the column list was, if another writer removed the column list", () => {
+    const editor = createColumnsEditor([
+      column("c1", "a", "Alpha"),
+      column("c2", "b", "Beta"),
+    ]);
+    const base = editor.document;
+    const text = replaceOnce(
+      getDocumentText(editor, htmlFormat),
+      "Beta</p></div>",
+      'Beta</p></div><div class="bn-block-column"><p>Gamma</p><p>Delta</p></div>',
+    );
+    // Another writer removes the column list.
+    editor.removeBlocks(["list"]);
+
+    valid(updateDocumentFromText(editor, { format: htmlFormat, text, base }));
+
+    expect(
+      editor.document.map((block) => [block.type, block.content]),
+    ).toMatchObject([
+      ["paragraph", [{ text: "Gamma" }]],
+      ["paragraph", [{ text: "Delta" }]],
+      ["paragraph", [{ text: "End" }]],
     ]);
   });
 });
