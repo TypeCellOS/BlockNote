@@ -125,6 +125,16 @@ describe("text lens server", () => {
     });
   });
 
+  it("reads children: null as no children", async () => {
+    const { get, put } = setup();
+    const document = await (await get("json")).json();
+    document[1].children = null;
+
+    const response = await put("json", JSON.stringify(document), "1");
+
+    expect(response.status).toBe(200);
+  });
+
   it("gives an error for an unknown base version, invalid JSON, and an unknown format", async () => {
     const { put, get } = setup();
     expect((await put("markdown", "x", "42")).status).toBe(409);

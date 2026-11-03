@@ -217,7 +217,8 @@ function isBlockList(value: unknown): value is PartialBlock<any, any, any>[] {
       ) {
         return false;
       }
-      if (children !== undefined) {
+      // `null` children are no children, as in the lens.
+      if (children !== undefined && children !== null) {
         lists.push({ list: children, depth: depth + 1 });
       }
     }
