@@ -161,8 +161,14 @@ The branch `fix/markdown-roundtrip` fixes these problems:
 - The markdown round trip: one round trip now gives the canonical form, and the parse removes the whitespace that the exporter does not write.
 - The HTML export of a toggle with list items and other blocks as children changed their order.
 - The HTML parse of a list item with blocks around a nested list moved these blocks out of the list item.
+- In markdown, the caption of a file in a list item joined the next paragraph.
+- In markdown, an image, a video or an audio block without a URL exported as nothing, but the parse of a figure without `src` gave such a block. Now, with a caption, it exports as that figure.
+- In HTML, two adjacent file links (a file block without a caption, or media without a preview) became one paragraph.
+- Each markdown parse made a new HTML document. In jsdom, each parse then became slower than the one before.
 
 These problems stay:
+
+- The HTML export writes a prop of a block two times: as a `data-*` attribute and in the visible markup (for example `data-text-alignment` and `style="text-align: …"`, or `data-caption` and `<figcaption>`). The parse reads the attribute. Thus, a client that changes only the visible markup gets no change, and no warning. Change the `data-*` attribute too.
 
 - Delimiter runs like `***`: the parser does not use the delimiter rules of CommonMark. The exporter writes underscores where it can (`*a*__b__`, `**a _b_**`), but not next to a letter or a digit, or for text with `_`. There, runs like `***` stay.
 - HTML paste removes an image in a paragraph (markdown parse splits the paragraph around the image).
