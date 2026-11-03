@@ -26,6 +26,7 @@ import {
   randomEdit,
   randomLineEdit,
 } from "./testUtil/random.js";
+import { valid } from "./testUtil/valid.js";
 
 /**
  * Property tests: the laws (see `api.laws.test.ts`) on random documents with
@@ -80,14 +81,16 @@ function expectLaws(
 
   // GetPut, also without the shortcut for equal text.
   expect(
-    computeTextUpdate(editor, { format, text: `${text}\n` }).operations,
+    valid(computeTextUpdate(editor, { format, text: `${text}\n` })).operations,
   ).toEqual([]);
 
   let edited = text;
   for (let i = 0; i <= random.int(3); i++) {
     edited = randomEdit(random, edited);
   }
-  const update = updateDocumentFromText(editor, { format, text: edited });
+  const update = valid(
+    updateDocumentFromText(editor, { format, text: edited }),
+  );
   expect(update.warnings).toEqual([]);
 
   // PutGet, modulo the normalization of the format.
@@ -97,7 +100,7 @@ function expectLaws(
 
   // PutTwice.
   expect(
-    computeTextUpdate(editor, { format, text: edited }).operations,
+    valid(computeTextUpdate(editor, { format, text: edited })).operations,
   ).toEqual([]);
 }
 
@@ -163,7 +166,9 @@ describe.each(formats)("$name", ({ name, format }) => {
           .sort();
       const before = ids();
 
-      updateDocumentFromText(editor, { format, text: parts.join("\n\n") });
+      valid(
+        updateDocumentFromText(editor, { format, text: parts.join("\n\n") }),
+      );
 
       expect(ids()).toEqual(before);
     },
@@ -189,7 +194,9 @@ describe("markdown, edits of lines", () => {
       for (let i = 0; i <= random.int(3); i++) {
         edited = randomLineEdit(random, edited);
       }
-      const update = updateDocumentFromText(editor, { format, text: edited });
+      const update = valid(
+        updateDocumentFromText(editor, { format, text: edited }),
+      );
       expect(update.warnings).toEqual([]);
 
       // PutGet, modulo the normalization of the format.
@@ -198,7 +205,7 @@ describe("markdown, edits of lines", () => {
       ).toBe(canonicalText(editor, format, edited));
       // PutTwice.
       expect(
-        computeTextUpdate(editor, { format, text: edited }).operations,
+        valid(computeTextUpdate(editor, { format, text: edited })).operations,
       ).toEqual([]);
     },
   );

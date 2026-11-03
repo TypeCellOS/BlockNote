@@ -22,6 +22,7 @@ import {
   documentShape,
   replaceOnce,
 } from "./testUtil/fixtures.js";
+import { valid } from "./testUtil/valid.js";
 
 /** An editor with two columns: "Alpha" in column c1 and "Beta" in column c2. */
 function createColumnsEditor() {
@@ -55,7 +56,9 @@ function write(
   edit: (markdown: string) => string,
 ) {
   const text = edit(getDocumentText(editor, markdownFormat));
-  return updateDocumentFromText(editor, { format: markdownFormat, text });
+  return valid(
+    updateDocumentFromText(editor, { format: markdownFormat, text }),
+  );
 }
 
 const originalShape = [
@@ -610,10 +613,12 @@ describe("markdown", () => {
       .replace("# Title\n\n", "")
       .replace("  ![]", "# Title\n\n  ![]");
 
-    const update = updateDocumentFromText(editor, {
-      format: markdownFormat,
-      text,
-    });
+    const update = valid(
+      updateDocumentFromText(editor, {
+        format: markdownFormat,
+        text,
+      }),
+    );
 
     expect(update.warnings).toEqual([]);
     expect(editor.getBlock("title")?.content).toMatchObject([
@@ -641,10 +646,12 @@ describe("markdown", () => {
     const markdown = getDocumentText(editor, markdownFormat);
     expect(markdown).toContain("b.png");
 
-    updateDocumentFromText(editor, {
-      format: markdownFormat,
-      text: markdown.replace("b.png", "x.png"),
-    });
+    valid(
+      updateDocumentFromText(editor, {
+        format: markdownFormat,
+        text: markdown.replace("b.png", "x.png"),
+      }),
+    );
 
     expect(editor.getBlock("empty")?.props).toMatchObject({ url: "" });
     expect(editor.getBlock("shown")?.props).toMatchObject({
@@ -656,10 +663,12 @@ describe("markdown", () => {
   it("swaps two columns if the text swaps their blocks, without a new column", () => {
     const editor = createColumnsEditor();
 
-    const update = updateDocumentFromText(editor, {
-      format: markdownFormat,
-      text: "Beta\n\nAlpha\n",
-    });
+    const update = valid(
+      updateDocumentFromText(editor, {
+        format: markdownFormat,
+        text: "Beta\n\nAlpha\n",
+      }),
+    );
 
     expect(update.operations).toEqual([
       { type: "move", id: "c1", reference: "c2", placement: "after" },
@@ -680,10 +689,12 @@ describe("markdown", () => {
     const editor = createColumnsEditor();
     expect(getDocumentText(editor, markdownFormat)).toBe("Alpha\n\nBeta\n");
 
-    updateDocumentFromText(editor, {
-      format: markdownFormat,
-      text: "Alpha\n\nTop\n\nBeta\n\nEnd\n",
-    });
+    valid(
+      updateDocumentFromText(editor, {
+        format: markdownFormat,
+        text: "Alpha\n\nTop\n\nBeta\n\nEnd\n",
+      }),
+    );
 
     const [list, end] = editor.document;
     expect(list.id).toBe("list");
@@ -713,10 +724,12 @@ describe("markdown", () => {
       "after",
     );
 
-    updateDocumentFromText(editor, {
-      format: markdownFormat,
-      text: "Alpha\n\nP\n\nBeta\n",
-    });
+    valid(
+      updateDocumentFromText(editor, {
+        format: markdownFormat,
+        text: "Alpha\n\nP\n\nBeta\n",
+      }),
+    );
 
     expect(editor.document.map((block) => block.id)).toEqual(["a", "p", "b"]);
     expect(getDocumentText(editor, markdownFormat)).toBe(
@@ -741,10 +754,12 @@ describe("markdown", () => {
       "Alpha\n\nBeta\n\n<br>\n",
     );
 
-    updateDocumentFromText(editor, {
-      format: markdownFormat,
-      text: "Alpha\n\n<br>\n",
-    });
+    valid(
+      updateDocumentFromText(editor, {
+        format: markdownFormat,
+        text: "Alpha\n\n<br>\n",
+      }),
+    );
 
     expect(
       editor.document[0].children.map((column) => [
@@ -755,5 +770,22 @@ describe("markdown", () => {
       ["c1", ["a"]],
       ["c3", ["empty"]],
     ]);
+  });
+
+  it("writes to an editor with a block without an ID", () => {
+    // In an editor without a view, `removeBlocks` can leave a block without
+    // an ID. `editor.document` then shows a new ID on each read.
+    const editor = createEditor([{ id: "a", type: "paragraph", content: "A" }]);
+    editor.removeBlocks(["a"]);
+
+    valid(
+      updateDocumentFromText(editor, {
+        format: markdownFormat,
+        text: "X\n\nY\n",
+      }),
+    );
+
+    expect(getDocumentText(editor, markdownFormat)).toBe("X\n\nY\n");
+    expect(new Set(editor.document.map((block) => block.id)).size).toBe(2);
   });
 });

@@ -24,6 +24,7 @@ import {
   type MergeStrategy,
   updateYDocFromText,
 } from "./yDocText.js";
+import { valid } from "../testUtil/valid.js";
 
 const fruit: PartialBlock[] = [
   {
@@ -63,12 +64,14 @@ function setup(initialContent: PartialBlock[] = richDocument) {
       edit: (text: string) => string,
       strategy?: MergeStrategy,
     ) =>
-      updateYDocFromText(editor, ydoc, {
-        ...options,
-        text: edit(client.text),
-        base: client.base,
-        strategy,
-      }),
+      valid(
+        updateYDocFromText(editor, ydoc, {
+          ...options,
+          text: edit(client.text),
+          base: client.base,
+          strategy,
+        }),
+      ),
     /** A user changes the document in an editor. */
     change: (edit: (editor: BlockNoteEditor<any, any, any>) => void) => {
       const userEditor = BlockNoteEditor.create({
@@ -144,7 +147,7 @@ describe.each([
 
   it("writes text to an empty Y.Doc", () => {
     const ydoc = new Y.Doc();
-    updateYDocFromText(editor, ydoc, { format, text: "Hello" });
+    valid(updateYDocFromText(editor, ydoc, { format, text: "Hello" }));
 
     expect(getYDocText(editor, ydoc, { format }).trim()).toBe("Hello");
     expect(idsOf(ydoc).every((id) => typeof id === "string")).toBe(true);
@@ -152,11 +155,13 @@ describe.each([
 
   it("writes text with a base from an empty Y.Doc", () => {
     const ydoc = new Y.Doc();
-    updateYDocFromText(editor, ydoc, {
-      format,
-      text: "Hello",
-      base: Y.encodeStateAsUpdate(ydoc),
-    });
+    valid(
+      updateYDocFromText(editor, ydoc, {
+        format,
+        text: "Hello",
+        base: Y.encodeStateAsUpdate(ydoc),
+      }),
+    );
 
     expect(getYDocText(editor, ydoc, { format }).trim()).toBe("Hello");
   });
@@ -164,8 +169,8 @@ describe.each([
   it("keeps the text of another writer, if the base is an empty Y.Doc", () => {
     const ydoc = new Y.Doc();
     const base = Y.encodeStateAsUpdate(ydoc);
-    updateYDocFromText(editor, ydoc, { format, text: "Other" });
-    updateYDocFromText(editor, ydoc, { format, text: "Hello", base });
+    valid(updateYDocFromText(editor, ydoc, { format, text: "Other" }));
+    valid(updateYDocFromText(editor, ydoc, { format, text: "Hello", base }));
 
     expect(getYDocText(editor, ydoc, { format }).trim()).toBe("Hello\n\nOther");
   });
@@ -177,8 +182,8 @@ describe.each([
         initialContent: [{ type: "paragraph", content: "Old text" }],
       }).document,
     );
-    updateYDocFromText(editor, ydoc, { format, text: "" });
-    updateYDocFromText(editor, ydoc, { format, text: "New text" });
+    valid(updateYDocFromText(editor, ydoc, { format, text: "" }));
+    valid(updateYDocFromText(editor, ydoc, { format, text: "New text" }));
 
     expect(getYDocText(editor, ydoc, { format }).trim()).toBe("New text");
     expect(idsOf(ydoc).every((id) => typeof id === "string")).toBe(true);
@@ -389,12 +394,14 @@ describe.each<MergeStrategy>(["rebase", "yjs"])(
         isOMark: new Map(),
       });
       const write = (edit: (text: string) => string) =>
-        updateYDocFromText(editor, ydoc, {
-          format: markdownFormat,
-          text: edit(getYDocText(editor, ydoc, { format: markdownFormat })),
-          base: Y.encodeStateAsUpdate(ydoc),
-          strategy,
-        });
+        valid(
+          updateYDocFromText(editor, ydoc, {
+            format: markdownFormat,
+            text: edit(getYDocText(editor, ydoc, { format: markdownFormat })),
+            base: Y.encodeStateAsUpdate(ydoc),
+            strategy,
+          }),
+        );
       const doc = () =>
         yXmlFragmentToProseMirrorRootNode(fragment, editor.pmSchema);
       return { kept, moved, write, doc };
@@ -438,10 +445,12 @@ describe("an editor with a schema that does not fit the Y.Doc", () => {
       /cannot read all content/,
     );
     expect(() =>
-      updateYDocFromText(editor, ydoc, {
-        format: markdownFormat,
-        text: "Alpha text, edited",
-      }),
+      valid(
+        updateYDocFromText(editor, ydoc, {
+          format: markdownFormat,
+          text: "Alpha text, edited",
+        }),
+      ),
     ).toThrow(/cannot read all content/);
     expect(Y.encodeStateAsUpdate(ydoc)).toEqual(before);
   });

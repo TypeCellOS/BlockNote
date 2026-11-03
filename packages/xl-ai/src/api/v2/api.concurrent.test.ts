@@ -19,6 +19,7 @@ import {
   replaceOnce,
 } from "./testUtil/fixtures.js";
 import { createRandom, randomDocument, randomEdit } from "./testUtil/random.js";
+import { valid } from "./testUtil/valid.js";
 
 /**
  * Writes of a text from an older version (`base`) to a document without Yjs.
@@ -38,11 +39,13 @@ function write(
   client: ReturnType<typeof read>,
   edit: (text: string) => string,
 ) {
-  return updateDocumentFromText(editor, {
-    format,
-    text: edit(client.text),
-    base: client.base,
-  });
+  return valid(
+    updateDocumentFromText(editor, {
+      format,
+      text: edit(client.text),
+      base: client.base,
+    }),
+  );
 }
 
 const fruit: PartialBlock[] = [
@@ -66,9 +69,9 @@ describe("a write from an older version", () => {
       replaceOnce(text, "Last paragraph", "Last paragraph, edited"),
     );
 
-    expect(computeTextUpdate(editor, { format, ...client }).operations).toEqual(
-      [],
-    );
+    expect(
+      valid(computeTextUpdate(editor, { format, ...client })).operations,
+    ).toEqual([]);
   });
 
   it("keeps the changes of another writer in a different block", () => {
@@ -284,15 +287,15 @@ describe.each([
       function alone(edited: string) {
         const single = BlockNoteEditor.create({ initialContent: base });
         const before = blockFieldsById(single);
-        updateDocumentFromText(single, { format, text: edited });
+        valid(updateDocumentFromText(single, { format, text: edited }));
         const after = blockFieldsById(single);
         return { after, ...diffBlocks(before, after) };
       }
       const a = alone(textA);
       const b = alone(textB);
 
-      updateDocumentFromText(editor, { format, text: textA });
-      updateDocumentFromText(editor, { format, text: textB, base });
+      valid(updateDocumentFromText(editor, { format, text: textA }));
+      valid(updateDocumentFromText(editor, { format, text: textB, base }));
       const result = blockFieldsById(editor);
 
       const ids = flattenBlocks(editor.document as LensBlock[]).map(

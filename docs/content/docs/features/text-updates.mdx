@@ -34,13 +34,18 @@ const editor = BlockNoteEditor.create({ initialContent });
 const markdown = getDocumentText(editor, markdownFormat);
 
 // A client changes the markdown. Then write it back.
-const { operations, warnings } = updateDocumentFromText(editor, {
+const result = updateDocumentFromText(editor, {
   format: markdownFormat,
   text: changedMarkdown,
 });
+if (result.error === undefined) {
+  const { operations, warnings } = result;
+}
 ```
 
 `updateDocumentFromText` applies the changes in one transaction. `operations` lists the changes by block ID, and `warnings` lists changes that did not apply as written (see [Warnings](#warnings)). To compute the operations without applying them, use `computeTextUpdate` with the same options.
+
+If the text gives blocks that do not fit the schema of the editor (for example an HTML table cell that spans more rows than the table has), the result is `{ error: "invalid-document" }`, and the document does not change.
 
 The formats are `markdownFormat`, `htmlFormat` and `plainTextFormat`. HTML shows more data than markdown (for example colors and underline), thus a client can also change that data.
 
@@ -99,14 +104,11 @@ const result = updateDocumentFromJSON(editor, {
   document: changedBlocks,
   base,
 });
-if (result.error !== undefined) {
-  // The JSON does not fit the schema of the editor. The document did not change.
-}
 ```
 
 A block without an ID is a new block. An ID can identify only one block. Thus, a block gets a new ID if an earlier block of the JSON has the same ID, or (with `base`) if another user added a block with that ID after the client read the document.
 
-If the JSON does not fit the schema of the editor (for example an unknown block type or style), the result is `{ error: "invalid-document" }`.
+If the JSON does not fit the schema of the editor (for example an unknown block type or style), the result is `{ error: "invalid-document" }`, as for a text.
 
 ## Y.Doc
 

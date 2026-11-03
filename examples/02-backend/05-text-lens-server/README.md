@@ -24,12 +24,12 @@ For a write, send the version that the client read in the `Base-Version` header.
 
 The response of a write is JSON: `version`, the document after the write (`text` for a text format, `document` for `json`), `operations` and `warnings`. The document after the write has the changes of other writers too. For the next write, change this document and send this version as `Base-Version`.
 
-| Status | Error                  | Cause                                                                              |
-| ------ | ---------------------- | ---------------------------------------------------------------------------------- |
-| 400    | `invalid-json`         | The body of a `json` write is not JSON.                                            |
-| 400    | `invalid-document`     | The body of a `json` write is not a list of blocks for the schema of the document. |
-| 404    | `unknown-format`       | The format is not `json`, `markdown`, `html` or `text`.                            |
-| 409    | `unknown-base-version` | The `Base-Version` header does not give a version of the document.                 |
+| Status | Error                  | Cause                                                                                                                                                   |
+| ------ | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 400    | `invalid-json`         | The body of a `json` write is not JSON.                                                                                                                 |
+| 400    | `invalid-document`     | The body is not a document for the schema (for example a JSON block of an unknown type, or an HTML table cell that spans more rows than the table has). |
+| 404    | `unknown-format`       | The format is not `json`, `markdown`, `html` or `text`.                                                                                                 |
+| 409    | `unknown-base-version` | The `Base-Version` header does not give a version of the document.                                                                                      |
 
 The server does not use `If-Match`, because RFC 9110 requires the status 412 for a stale `If-Match`. This server merges a stale write.
 

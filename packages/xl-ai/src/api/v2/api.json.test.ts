@@ -3,9 +3,9 @@ import { describe, expect, it } from "vite-plus/test";
 
 import {
   computeJSONUpdate,
-  type JSONUpdate,
   type JSONUpdateOptions,
   updateDocumentFromJSON,
+  type ValidTextUpdate,
 } from "./index.js";
 import {
   addComment,
@@ -13,6 +13,7 @@ import {
   createCommentEditor,
 } from "./testUtil/comments.js";
 import { createEditor } from "./testUtil/fixtures.js";
+import { valid } from "./testUtil/valid.js";
 
 const initial = [
   { id: "a", type: "paragraph" as const, content: "Alpha" },
@@ -29,12 +30,8 @@ function copy(blocks: Block<any, any, any>[]): Block<any, any, any>[] {
 function update(
   editor: Parameters<typeof updateDocumentFromJSON>[0],
   options: JSONUpdateOptions,
-): Exclude<JSONUpdate, { error: string }> {
-  const result = updateDocumentFromJSON(editor, options);
-  if (result.error !== undefined) {
-    throw new Error(`Unexpected error: ${result.error}`);
-  }
-  return result;
+): ValidTextUpdate {
+  return valid(updateDocumentFromJSON(editor, options));
 }
 
 describe("JSON", () => {
@@ -194,5 +191,17 @@ describe("JSON", () => {
     update(editor, { document });
 
     expect(editor.getBlock("new")?.content).toMatchObject([{ text: "New" }]);
+  });
+
+  it("reads children: null as no children, without an exception", () => {
+    const editor = createEditor(initial);
+
+    update(editor, {
+      document: [
+        { id: "a", type: "paragraph", content: "Alpha", children: null },
+      ] as unknown as JSONUpdateOptions["document"],
+    });
+
+    expect(editor.document.map((block) => block.id)).toEqual(["a"]);
   });
 });

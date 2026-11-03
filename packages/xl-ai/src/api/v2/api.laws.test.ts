@@ -15,6 +15,7 @@ import {
   diffBlocks,
 } from "./testUtil/fixtures.js";
 import { canonicalText } from "./testUtil/canonical.js";
+import { valid } from "./testUtil/valid.js";
 
 /**
  * The lens laws (see the README). The tests examine them on two documents, in
@@ -143,14 +144,14 @@ describe.each(documents)("$name", ({ create }) => {
       const editor = create();
       const text = getDocumentText(editor, format);
 
-      expect(computeTextUpdate(editor, { format, text })).toEqual({
+      expect(valid(computeTextUpdate(editor, { format, text }))).toEqual({
         operations: [],
         warnings: [],
       });
       // This text is not equal to the text that the client read. Thus, it goes
       // through the full pipeline.
       expect(
-        computeTextUpdate(editor, { format, text: `\n${text}\n\n` }),
+        valid(computeTextUpdate(editor, { format, text: `\n${text}\n\n` })),
       ).toEqual({ operations: [], warnings: [] });
     });
 
@@ -161,7 +162,7 @@ describe.each(documents)("$name", ({ create }) => {
         const text = codec.join(
           apply(codec.split(getDocumentText(editor, format)), codec),
         );
-        const update = updateDocumentFromText(editor, { format, text });
+        const update = valid(updateDocumentFromText(editor, { format, text }));
         return { editor, before, text, update };
       }
 
@@ -175,9 +176,9 @@ describe.each(documents)("$name", ({ create }) => {
 
       it("PutTwice: a second write of the same text changes nothing", () => {
         const { editor, text } = editAndWrite();
-        expect(computeTextUpdate(editor, { format, text }).operations).toEqual(
-          [],
-        );
+        expect(
+          valid(computeTextUpdate(editor, { format, text })).operations,
+        ).toEqual([]);
       });
 
       it("keeps the blocks that the edit does not touch", () => {
@@ -213,7 +214,8 @@ describe("markdown normalization", () => {
       "$1- ",
     );
     expect(
-      computeTextUpdate(editor, { format: markdownFormat, text }).operations,
+      valid(computeTextUpdate(editor, { format: markdownFormat, text }))
+        .operations,
     ).toEqual([]);
   });
 });

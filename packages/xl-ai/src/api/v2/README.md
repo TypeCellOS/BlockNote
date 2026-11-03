@@ -7,9 +7,9 @@ In lens terms, the document is the source and the text is the view. The `seriali
 ## API
 
 - `getDocumentText(editor, format)`: returns the document as text.
-- `computeTextUpdate(editor, { format, text, base })`: returns the operations that change the document to agree with the text. The operations use block IDs. The result also contains warnings (a discriminated union).
+- `computeTextUpdate(editor, { format, text, base })`: returns the operations that change the document to agree with the text. The operations use block IDs. The result also contains warnings (a discriminated union). If the text gives blocks that do not fit the schema (for example an HTML table cell that spans more rows than the table has), the result is `{ error: "invalid-document" }`.
   - `base` is optional. It is the document (Block JSON) at the version that the client read. Get it from your version history. Without `base`, the text applies to the current document.
-- `updateDocumentFromText(editor, { format, text, base })`: computes the operations and applies them in one transaction.
+- `updateDocumentFromText(editor, { format, text, base })`: computes the operations and applies them in one transaction. First, the blocks without an ID get an ID (in an editor without a view, `removeBlocks` can leave such a block, and `editor.document` then shows a new ID on each read).
 - `computeJSONUpdate(editor, { document, base })` and `updateDocumentFromJSON(editor, { document, base })`: the same for a full document as BlockNote JSON. The JSON contains the block IDs, thus the blocks pair by ID, not by text. Only the changed blocks and fields change, and with `base`, the changes of other writers stay.
   - A block without an ID is a new block. An ID can identify only one block. Thus, a block gets a new ID if an earlier block of the JSON has its ID, or (with `base`) if its ID is not in `base` but is in the current document (a block that another writer added).
   - If the JSON does not fit the schema of the editor (for example an unknown block type, an unknown style, or content in a block without content), the result is `{ error: "invalid-document" }`, and the document does not change. The props are not examined, as in `editor.insertBlocks`.

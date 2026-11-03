@@ -11,6 +11,7 @@ import {
   computeBlocksUpdate,
   type TextUpdate,
   type TextUpdateOptions,
+  type ValidTextUpdate,
 } from "../api.js";
 import type { TextFormat } from "../formats/types.js";
 import { applyOperations } from "../operations/applyOperations.js";
@@ -38,10 +39,13 @@ export type YDocTextOptions = {
  */
 export type MergeStrategy = "rebase" | "yjs";
 
-export type YDocTextUpdate = TextUpdate & {
-  /** The Yjs update that the write applied. Send it to the other clients. */
-  update: Uint8Array;
-};
+/** The result of a write to a Y.Doc. On an error, the Y.Doc does not change. */
+export type YDocTextUpdate =
+  | (ValidTextUpdate & {
+      /** The Yjs update that the write applied. Send it to the other clients. */
+      update: Uint8Array;
+    })
+  | { error: "invalid-document" };
 
 /** Returns the document of the Y.Doc as text. */
 export function getYDocText(
@@ -96,12 +100,17 @@ export function updateYDocFromText(
           ? undefined
           : docToBlocks(readDocument(editor, base, fragment)),
     });
-    return { ...update, update: Y.encodeStateAsUpdate(ydoc, before) };
+    return update.error === undefined
+      ? { ...update, update: Y.encodeStateAsUpdate(ydoc, before) }
+      : update;
   }
 
   const copy = base;
   const baseVector = Y.encodeStateVector(copy);
   const update = writeText(editor, copy, fragment, textOptions);
+  if (update.error !== undefined) {
+    return update;
+  }
   const yUpdate = Y.encodeStateAsUpdate(copy, baseVector);
   Y.applyUpdate(ydoc, yUpdate);
   return { ...update, update: yUpdate };
@@ -170,6 +179,9 @@ function writeText(
     ...options,
     current: docToBlocks(tr.doc),
   });
+  if (update.error !== undefined) {
+    return update;
+  }
   applyOperations(tr, update.operations);
   if (tr.steps.length === 0) {
     return update;

@@ -135,6 +135,18 @@ describe("text lens server", () => {
     expect((await put("toString", "x")).status).toBe(404);
   });
 
+  it("gives an error for an HTML table that does not fit the schema", async () => {
+    const { put, get } = setup();
+    const html =
+      '<table><tbody><tr><td rowspan="3">A</td><td>B</td></tr><tr><td>C</td><td>D</td></tr></tbody></table>';
+
+    const response = await put("html", html);
+
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({ error: "invalid-document" });
+    expect((await get("markdown")).headers.get("Document-Version")).toBe("1");
+  });
+
   it("gives an error for JSON that is not a valid document, and does not change the document", async () => {
     const { put, get } = setup();
     for (const body of [

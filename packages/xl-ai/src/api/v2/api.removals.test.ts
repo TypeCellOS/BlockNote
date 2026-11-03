@@ -15,6 +15,7 @@ import {
   documentShape,
   replaceOnce,
 } from "./testUtil/fixtures.js";
+import { valid } from "./testUtil/valid.js";
 
 /**
  * If a client removes text, the lens removes the blocks that gave that text.
@@ -30,7 +31,7 @@ describe("removals (review closely)", () => {
       "* Parent bullet\n  * Child bullet",
       "* Child bullet",
     );
-    updateDocumentFromText(editor, { format: markdownFormat, text });
+    valid(updateDocumentFromText(editor, { format: markdownFormat, text }));
 
     expect(editor.getBlock("bullet")).toBeUndefined();
     // The indented paragraph after the bullet is a child of the bullet in
@@ -49,7 +50,7 @@ describe("removals (review closely)", () => {
     const start = markdown.indexOf("<figure>");
     const end = markdown.indexOf("line two") + "line two".length;
     const text = markdown.slice(0, start) + markdown.slice(end + 2);
-    updateDocumentFromText(editor, { format: markdownFormat, text });
+    valid(updateDocumentFromText(editor, { format: markdownFormat, text }));
 
     // The image, the paragraph with the line break, and the two empty
     // paragraphs between them.
@@ -67,7 +68,7 @@ describe("removals (review closely)", () => {
       "line one\\\nline two\n\n",
       "",
     );
-    updateDocumentFromText(editor, { format: markdownFormat, text });
+    valid(updateDocumentFromText(editor, { format: markdownFormat, text }));
 
     expect(editor.getBlock("hard-break")).toBeUndefined();
     expect(editor.getBlock("empty-1")).toBeDefined();
@@ -81,17 +82,19 @@ describe("removals (review closely)", () => {
       "Colored centered paragraph\n\n",
       "",
     );
-    const update = updateDocumentFromText(editor, {
-      format: plainTextFormat,
-      text,
-    });
+    const update = valid(
+      updateDocumentFromText(editor, {
+        format: plainTextFormat,
+        text,
+      }),
+    );
 
     expect(update.operations).toEqual([{ type: "delete", id: "colored" }]);
   });
 
   it("empty text removes all blocks that the format shows", () => {
     const editor = createEditor();
-    updateDocumentFromText(editor, { format: markdownFormat, text: "" });
+    valid(updateDocumentFromText(editor, { format: markdownFormat, text: "" }));
 
     // The document always has one block. An empty paragraph is a <br> line.
     expect(getDocumentText(editor, markdownFormat)).toBe("<br>\n");
@@ -118,10 +121,12 @@ describe("removals (review closely)", () => {
       "const b = 2;",
       "const b = 3;",
     );
-    const update = updateDocumentFromText(editor, {
-      format: plainTextFormat,
-      text,
-    });
+    const update = valid(
+      updateDocumentFromText(editor, {
+        format: plainTextFormat,
+        text,
+      }),
+    );
 
     expect(update.warnings).toEqual([
       { type: "multi-part-block-replaced", id: "code" },
@@ -152,10 +157,12 @@ describe("removals (review closely)", () => {
     ]);
     const text = getDocumentText(editor, textOnly);
 
-    const update = updateDocumentFromText(editor, {
-      format: textOnly,
-      text: text.replace("Beta", "Gamma"),
-    });
+    const update = valid(
+      updateDocumentFromText(editor, {
+        format: textOnly,
+        text: text.replace("Beta", "Gamma"),
+      }),
+    );
 
     expect(update.warnings).toEqual([
       { type: "block-shape-replaced", id: "table" },
@@ -201,7 +208,7 @@ describe("removals (review closely)", () => {
       const editor = createEditor(document);
       expect(getDocumentText(editor, plainTextFormat)).not.toContain("---");
 
-      updateDocumentFromText(editor, { format: plainTextFormat, text });
+      valid(updateDocumentFromText(editor, { format: plainTextFormat, text }));
 
       expect(editor.getBlock("hidden")).toBeDefined();
     },

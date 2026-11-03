@@ -8,6 +8,7 @@ import {
   type TextUpdate,
   updateDocumentFromJSON,
   updateDocumentFromText,
+  type ValidTextUpdate,
 } from "@blocknote/xl-ai/text-lens";
 import { Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
@@ -101,7 +102,7 @@ export function createApp(store: DocumentStore) {
       return c.json({ error: base.error }, base.status);
     }
     const result = write(editor, format, body, base?.blocks);
-    if ("error" in result) {
+    if (result.error !== undefined) {
       return c.json({ error: result.error }, result.status);
     }
     const version =
@@ -131,22 +132,27 @@ function write(
   format: Format,
   body: string,
   base: Block<any, any, any>[] | undefined,
-): TextUpdate | ClientError {
+): ValidTextUpdate | ClientError {
   if (format.type === "text") {
-    return updateDocumentFromText(editor, {
-      format: format.format,
-      text: body,
-      base,
-    });
+    return orClientError(
+      updateDocumentFromText(editor, {
+        format: format.format,
+        text: body,
+        base,
+      }),
+    );
   }
   const document = parseDocument(body);
   if ("error" in document) {
     return document;
   }
-  const update = updateDocumentFromJSON(editor, {
-    document: document.blocks,
-    base,
-  });
+  return orClientError(
+    updateDocumentFromJSON(editor, { document: document.blocks, base }),
+  );
+}
+
+/** The update, or the status 400 if the text or the JSON does not fit the schema. */
+function orClientError(update: TextUpdate): ValidTextUpdate | ClientError {
   return update.error === undefined
     ? update
     : { status: 400, error: update.error };
@@ -171,7 +177,8 @@ function readBase(
 
 /**
  * Parses a JSON body: an array of blocks. This checks only the shape of the
- * tree. `updateDocumentFromJSON` checks the blocks against the schema.
+ * tree, for the types. `updateDocumentFromJSON` checks the blocks against
+ * the schema.
  */
 function parseDocument(
   body: string,

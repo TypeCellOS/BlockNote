@@ -10,11 +10,11 @@ export {
   computeJSONUpdate,
   computeTextUpdate,
   getDocumentText,
-  type JSONUpdate,
   type JSONUpdateOptions,
   type TextUpdate,
   type TextUpdateOptions,
   type TextUpdateWarning,
+  type ValidTextUpdate,
   updateDocumentFromJSON,
   updateDocumentFromText,
 } from "./api.js";

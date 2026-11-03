@@ -13,13 +13,16 @@ import {
   documentShape,
   replaceOnce,
 } from "./testUtil/fixtures.js";
+import { valid } from "./testUtil/valid.js";
 
 function write(
   editor: BlockNoteEditor<any, any, any>,
   edit: (text: string) => string,
 ) {
   const text = edit(getDocumentText(editor, plainTextFormat));
-  return updateDocumentFromText(editor, { format: plainTextFormat, text });
+  return valid(
+    updateDocumentFromText(editor, { format: plainTextFormat, text }),
+  );
 }
 
 describe("plain text", () => {

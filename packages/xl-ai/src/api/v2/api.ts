@@ -5,13 +5,15 @@ import {
   type PartialBlock,
 } from "@blocknote/core";
 import { UniqueID } from "@blocknote/core/extensions";
+import type { Node } from "prosemirror-model";
 
 import { alignBlocks } from "./alignment/alignBlocks.js";
 import { flattenBlocks } from "./blocks/flatten.js";
 import { BlockTree } from "./blocks/tree.js";
 import type { ContentKind, LensBlock } from "./blocks/types.js";
 import type { TextFormat } from "./formats/types.js";
-import { applyBlockOperations } from "./operations/applyOperations.js";
+import { addMissingBlockIds } from "./operations/blockIds.js";
+import { applyOperations } from "./operations/applyOperations.js";
 import { diffDocuments } from "./operations/diffDocuments.js";
 import type { BlockOperation } from "./operations/types.js";
 import { projectDocument } from "./projection/projectDocument.js";
@@ -32,10 +34,21 @@ export function getDocumentText(
 
 export type TextUpdateWarning = PlanWarning | RebaseWarning;
 
-export type TextUpdate = {
+/** A write that applies: its operations and its warnings. */
+export type ValidTextUpdate = {
+  error?: undefined;
   operations: BlockOperation[];
   warnings: TextUpdateWarning[];
 };
+
+/**
+ * The result of a write: the operations and the warnings, or an error. The
+ * error `"invalid-document"` tells that the text or the JSON gives blocks
+ * that do not fit the schema of the editor (for example an unknown block
+ * type, or a table cell that spans more rows than the table has). Then the
+ * document does not change.
+ */
+export type TextUpdate = ValidTextUpdate | { error: "invalid-document" };
 
 export type TextUpdateOptions = {
   format: TextFormat;
@@ -60,6 +73,11 @@ export type TextUpdateOptions = {
  * If the text did not change, there are no operations. This is also true if
  * only the markup changed and the format gives the same blocks, for example
  * `*` and `-` bullets in markdown.
+ *
+ * The operations refer to the blocks of `editor.document` by ID. In an
+ * editor without a view, a block can have no ID (for example after
+ * `removeBlocks` removed all blocks). {@link updateDocumentFromText} gives
+ * these blocks an ID first.
  */
 export function computeTextUpdate(
   editor: BlockNoteEditor<any, any, any>,
@@ -79,11 +97,15 @@ export function computeBlocksUpdate(
 ): TextUpdate {
   const { current } = options;
   const base = options.base ?? current;
-  return updateToTarget(
-    editor,
-    planTextUpdate(editor, options.format, base, options.text),
-    { base, current, rebase: options.base !== undefined },
-  );
+  const plan = planTextUpdate(editor, options.format, base, options.text);
+  if (plan.error !== undefined) {
+    return plan;
+  }
+  return updateToTarget(editor, plan, {
+    base,
+    current,
+    rebase: options.base !== undefined,
+  });
 }
 
 export type JSONUpdateOptions = {
@@ -110,65 +132,83 @@ export type JSONUpdateOptions = {
  * the blocks and fields that the client changed. With `base`, they keep the
  * changes of other writers (see `rebase/`).
  */
-/**
- * The result of a JSON update: the update, or an error if the JSON is not a
- * valid document for the schema of the editor (for example an unknown block
- * type, or content of the wrong kind).
- */
-export type JSONUpdate =
-  | (TextUpdate & { error?: undefined })
-  | { error: "invalid-document" };
-
 export function computeJSONUpdate(
   editor: BlockNoteEditor<any, any, any>,
   options: JSONUpdateOptions,
-): JSONUpdate {
-  const current: LensBlock[] = editor.document;
-  const base = options.base ?? current;
-  const target = toBlocks(
-    editor,
-    withUniqueIds(options.document, base, current),
-  );
-  if (target === undefined) {
-    return { error: "invalid-document" };
-  }
-  return updateToTarget(
-    editor,
-    { target, warnings: [] },
-    { base, current, rebase: options.base !== undefined },
-  );
+): TextUpdate {
+  return jsonUpdate(editor, options, editor.document);
 }
 
 /** Computes the operations with {@link computeJSONUpdate}, and applies them to the editor in one transaction. */
 export function updateDocumentFromJSON(
   editor: BlockNoteEditor<any, any, any>,
   options: JSONUpdateOptions,
-): JSONUpdate {
-  const update = computeJSONUpdate(editor, options);
-  if (update.error === undefined) {
-    applyBlockOperations(editor, update.operations);
+): TextUpdate {
+  return write(editor, (current) => jsonUpdate(editor, options, current));
+}
+
+function jsonUpdate(
+  editor: BlockNoteEditor<any, any, any>,
+  options: JSONUpdateOptions,
+  current: readonly LensBlock[],
+): TextUpdate {
+  const base = options.base ?? current;
+  const blocks = toBlocks(editor, options.document);
+  if (blocks === undefined) {
+    return { error: "invalid-document" };
   }
-  return update;
+  return updateToTarget(
+    editor,
+    { target: withUniqueIds(blocks, base, current), warnings: [] },
+    { base, current, rebase: options.base !== undefined },
+  );
+}
+
+/**
+ * Computes an update for the document of the editor, and applies it, in one
+ * transaction. First, the blocks without an ID get an ID. Thus, the
+ * operations refer only to IDs that the document has.
+ */
+function write(
+  editor: BlockNoteEditor<any, any, any>,
+  compute: (current: readonly LensBlock[]) => TextUpdate,
+): TextUpdate {
+  return editor.transact((tr) => {
+    addMissingBlockIds(tr);
+    const update = compute(docToBlocks(tr.doc));
+    if (update.error === undefined) {
+      applyOperations(tr, update.operations);
+    }
+    return update;
+  });
+}
+
+/**
+ * Returns true if the blocks fit the schema of the editor. The parse of a
+ * text can give blocks that do not fit, for example an HTML table cell that
+ * spans more rows than the table has.
+ */
+function fitsSchema(
+  editor: BlockNoteEditor<any, any, any>,
+  blocks: readonly LensBlock[],
+): boolean {
+  return toNodes(editor, blocks) !== undefined;
 }
 
 /**
  * Full blocks with IDs, from partial blocks: through ProseMirror nodes, as
- * the editor stores them. Returns `undefined` if the blocks are not valid for
- * the schema.
+ * the editor stores them. A block without an ID gets a new ID. Returns
+ * `undefined` if the blocks do not fit the schema.
  */
 function toBlocks(
   editor: BlockNoteEditor<any, any, any>,
   blocks: readonly PartialBlock<any, any, any>[],
 ): LensBlock[] | undefined {
-  const schema = editor.pmSchema;
-  let nodes;
-  try {
-    nodes = blocks.map((block) => blockToNode(block, schema));
-  } catch {
-    // `blockToNode` throws for blocks that do not fit the schema. For JSON
-    // from a client, this is an expected failure.
+  const nodes = toNodes(editor, blocks);
+  if (nodes === undefined) {
     return undefined;
   }
+  const schema = editor.pmSchema;
   return docToBlocks(
     schema.nodes["doc"].create(
       null,
@@ -177,36 +217,40 @@ function toBlocks(
   );
 }
 
+/** The ProseMirror nodes of the blocks, or `undefined` if the blocks do not fit the schema. */
+function toNodes(
+  editor: BlockNoteEditor<any, any, any>,
+  blocks: readonly PartialBlock<any, any, any>[],
+): Node[] | undefined {
+  try {
+    return blocks.map((block) => blockToNode(block, editor.pmSchema));
+  } catch {
+    // `blockToNode` throws for blocks that do not fit the schema. For input
+    // from a client, this is an expected failure.
+    return undefined;
+  }
+}
+
 /**
- * Returns the blocks without IDs where an ID cannot identify the block: a
+ * Returns the blocks with a new ID where an ID cannot identify the block: a
  * later block with the ID of an earlier block, or a block with an ID that is
  * not in `base` but is in `current` (a block of another writer). These
- * blocks are new blocks, and get new IDs.
+ * blocks are new blocks.
  */
 function withUniqueIds(
-  blocks: readonly PartialBlock<any, any, any>[],
+  blocks: readonly LensBlock[],
   base: readonly LensBlock[],
   current: readonly LensBlock[],
-): PartialBlock<any, any, any>[] {
+): LensBlock[] {
   const inBase = new Set(new BlockTree(base).ids);
   const inCurrent = new Set(new BlockTree(current).ids);
   const used = new Set<string>();
-  function fix(
-    block: PartialBlock<any, any, any>,
-  ): PartialBlock<any, any, any> {
-    const { id, children, ...fields } = block;
+  function fix(block: LensBlock): LensBlock {
     const keep =
-      typeof id === "string" &&
-      !used.has(id) &&
-      (inBase.has(id) || !inCurrent.has(id));
-    if (keep) {
-      used.add(id);
-    }
-    return {
-      ...fields,
-      ...(keep ? { id } : {}),
-      ...(children === undefined ? {} : { children: children.map(fix) }),
-    };
+      !used.has(block.id) && (inBase.has(block.id) || !inCurrent.has(block.id));
+    const id = keep ? block.id : UniqueID.options.generateID();
+    used.add(id);
+    return { ...block, id, children: block.children.map(fix) };
   }
   return blocks.map(fix);
 }
@@ -226,7 +270,7 @@ function updateToTarget(
     current: readonly LensBlock[];
     rebase: boolean;
   },
-): TextUpdate {
+): ValidTextUpdate {
   const { base, current } = documents;
   const target =
     plan.target === base
@@ -249,14 +293,17 @@ function updateToTarget(
   };
 }
 
-/** Computes the operations with {@link computeTextUpdate}, and applies them to the editor in one transaction. */
+/**
+ * Computes the operations with {@link computeTextUpdate}, and applies them to
+ * the editor in one transaction. First, the blocks without an ID get an ID.
+ */
 export function updateDocumentFromText(
   editor: BlockNoteEditor<any, any, any>,
   options: TextUpdateOptions,
 ): TextUpdate {
-  const update = computeTextUpdate(editor, options);
-  applyBlockOperations(editor, update.operations);
-  return update;
+  return write(editor, (current) =>
+    computeBlocksUpdate(editor, { ...options, current }),
+  );
 }
 
 /** Plans the target document: `document` as `text` asks for it. */
@@ -265,13 +312,19 @@ function planTextUpdate(
   format: TextFormat,
   document: readonly LensBlock[],
   text: string,
-): { target: readonly LensBlock[]; warnings: PlanWarning[] } {
+):
+  | { error?: undefined; target: readonly LensBlock[]; warnings: PlanWarning[] }
+  | { error: "invalid-document" } {
   const projection = projectDocument(editor, format, document);
   if (text === projection.text) {
     return { target: document, warnings: [] };
   }
 
-  const incoming = flattenBlocks(format.parse(editor, text));
+  const parsed = format.parse(editor, text);
+  if (!fitsSchema(editor, parsed)) {
+    return { error: "invalid-document" };
+  }
+  const incoming = flattenBlocks(parsed);
   const { target, warnings } = planTarget({
     document,
     projection,
