@@ -451,8 +451,11 @@ function node(id: string, fields: BlockFields): LensBlock {
  * - The planner removes their parent.
  * - An empty block (for example an empty paragraph) goes if the planner
  *   removes all the visible blocks around it. An example is an empty
- *   paragraph between two removed paragraphs. A hidden block with data (for
- *   example a table in plain text) stays, because the text cannot show it.
+ *   paragraph between two removed paragraphs. In a document with only empty
+ *   blocks at the top level (for example a new editor), these blocks go:
+ *   the text gives all blocks. A hidden block with data
+ *   (for example a table in plain text) stays, because the text cannot show
+ *   it.
  */
 function keepInvisibleBlocks(
   source: BlockTree,
@@ -490,6 +493,12 @@ function keepInvisibleBlocks(
     }
   }
 
+  // A document with only empty blocks at the top level (for example a new
+  // editor) has no content that the text did not give.
+  const topHasContent = source
+    .childrenOf(undefined)
+    .some((id) => !isEmptyBlock(source.block(id)));
+
   // In document order. Thus, the decision for the parent of a block comes first.
   for (const id of source.ids) {
     if (!invisibleIds.has(id)) {
@@ -503,8 +512,11 @@ function keepInvisibleBlocks(
     if (
       !isEmptyBlock(source.block(id)) ||
       hasKeptDescendant(id) ||
-      neighbors.length === 0 ||
-      neighbors.some((neighbor) => kept.has(neighbor))
+      neighbors.some((neighbor) => kept.has(neighbor)) ||
+      // An empty block without visible siblings stays in a kept parent, and
+      // at a top level with other content (for example next to column lists
+      // that the format does not show).
+      (neighbors.length === 0 && (parentId !== undefined || topHasContent))
     ) {
       kept.add(id);
     }

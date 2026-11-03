@@ -1,4 +1,4 @@
-import type { BlockNoteEditor } from "@blocknote/core";
+import { BlockNoteEditor } from "@blocknote/core";
 import { describe, expect, it } from "vite-plus/test";
 
 import {
@@ -223,6 +223,24 @@ describe("plain text", () => {
     expect(editor.document).toHaveLength(6002);
     expect(editor.getBlock("last")?.content).toMatchObject([
       { text: "Last, edited" },
+    ]);
+  });
+});
+
+describe("plain text, a new editor", () => {
+  it("gives only the blocks of the text, without the empty block of the new editor", () => {
+    const editor = BlockNoteEditor.create();
+
+    valid(
+      updateDocumentFromText(editor, {
+        format: plainTextFormat,
+        text: "Hello\n\nWorld",
+      }),
+    );
+
+    expect(editor.document.map((block) => block.content)).toMatchObject([
+      [{ text: "Hello" }],
+      [{ text: "World" }],
     ]);
   });
 });

@@ -20,7 +20,7 @@ import type {
   LensInlineContent,
 } from "./blocks/types.js";
 import type { TextFormat } from "./formats/types.js";
-import { addMissingBlockIds } from "./operations/blockIds.js";
+import { fixBlockIds } from "./operations/blockIds.js";
 import {
   applyOperations,
   dispatchToEditor,
@@ -208,7 +208,7 @@ export function write(
     dispatchToEditor(editor, tr.steps),
 ): TextUpdate {
   const tr = editor.prosemirrorState.tr;
-  addMissingBlockIds(tr);
+  fixBlockIds(tr);
   const update = compute(docToBlocks(tr.doc));
   if (update.error === undefined) {
     applyOperations(tr, update.operations);

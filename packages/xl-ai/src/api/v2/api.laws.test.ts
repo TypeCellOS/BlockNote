@@ -284,3 +284,32 @@ describe("line ends", () => {
     ).toEqual([]);
   });
 });
+
+describe("a document with two blocks with one ID", () => {
+  it("changes only the block whose text changed", () => {
+    const editor = createEditor([
+      {
+        id: "x",
+        type: "paragraph",
+        props: { textColor: "red" },
+        content: "Alpha",
+      },
+      { id: "x", type: "paragraph", content: "Beta" },
+    ]);
+    const text = getDocumentText(editor, markdownFormat);
+
+    const update = valid(
+      updateDocumentFromText(editor, {
+        format: markdownFormat,
+        text: text.replace("Beta", "Beta two"),
+      }),
+    );
+
+    expect(update.warnings).toEqual([]);
+    expect(editor.document.map((block) => block.props)).toMatchObject([
+      { textColor: "red" },
+      { textColor: "default" },
+    ]);
+    expect(editor.document[1].content).toMatchObject([{ text: "Beta two" }]);
+  });
+});

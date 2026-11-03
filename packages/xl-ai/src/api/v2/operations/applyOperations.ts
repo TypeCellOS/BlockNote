@@ -20,7 +20,7 @@ import {
   type LensPartialBlock,
   type LensTableContent,
 } from "../blocks/types.js";
-import { addMissingBlockIds } from "./blockIds.js";
+import { fixBlockIds } from "./blockIds.js";
 import { addInlineContentSteps } from "./inlineSteps.js";
 import type { BlockOperation, BlockPosition } from "./types.js";
 
@@ -83,7 +83,7 @@ export function applyOperations(
   // the document now (each with an ID), and the inserted blocks. Another
   // block is a block that core or ProseMirror made to fill a parent (see
   // `removeFillBlocks`).
-  addMissingBlockIds(tr);
+  fixBlockIds(tr);
   const expected = blockIdsOf(tr.doc);
   for (const operation of operations) {
     if (operation.type === "insert") {
@@ -128,7 +128,7 @@ export function applyOperations(
     }
   }
   removeFillBlocks(tr, expected);
-  addMissingBlockIds(tr);
+  fixBlockIds(tr);
 }
 
 /** The IDs of all the blocks of the document. */

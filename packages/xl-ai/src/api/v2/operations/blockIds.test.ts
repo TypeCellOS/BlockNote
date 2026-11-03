@@ -2,9 +2,9 @@ import { BlockNoteEditor } from "@blocknote/core";
 import { EditorState } from "prosemirror-state";
 import { describe, expect, it } from "vite-plus/test";
 
-import { addMissingBlockIds } from "./blockIds.js";
+import { fixBlockIds } from "./blockIds.js";
 
-describe("addMissingBlockIds", () => {
+describe("fixBlockIds", () => {
   it("gives an ID to each block without an ID, and keeps the other IDs", () => {
     const editor = BlockNoteEditor.create({
       initialContent: [{ id: "a", type: "paragraph", content: "A" }],
@@ -16,7 +16,7 @@ describe("addMissingBlockIds", () => {
       throw new Error("The schema cannot fill a document");
     }
     const tr = EditorState.create({ doc: filled }).tr;
-    addMissingBlockIds(tr);
+    fixBlockIds(tr);
 
     const ids: unknown[] = [];
     tr.doc.descendants((node) => {
@@ -28,7 +28,27 @@ describe("addMissingBlockIds", () => {
     expect(typeof ids[0]).toBe("string");
 
     const kept = EditorState.create({ doc: editor.prosemirrorState.doc }).tr;
-    addMissingBlockIds(kept);
+    fixBlockIds(kept);
     expect(kept.steps).toHaveLength(0);
+  });
+
+  it("gives a new ID to a later block with the ID of an earlier block", () => {
+    const editor = BlockNoteEditor.create({
+      initialContent: [
+        { id: "x", type: "paragraph", content: "A" },
+        { id: "x", type: "paragraph", content: "B" },
+      ],
+    });
+    const tr = EditorState.create({ doc: editor.prosemirrorState.doc }).tr;
+    fixBlockIds(tr);
+
+    const ids: unknown[] = [];
+    tr.doc.descendants((node) => {
+      if (node.type.name === "blockContainer") {
+        ids.push(node.attrs.id);
+      }
+    });
+    expect(ids[0]).toBe("x");
+    expect(ids[1]).not.toBe("x");
   });
 });
