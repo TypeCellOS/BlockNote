@@ -1,16 +1,13 @@
 import {
   type BlockNoteEditor,
-  blockToNode,
   docToBlocks,
   type PartialBlock,
 } from "@blocknote/core";
 import { UniqueID } from "@blocknote/core/extensions";
-import type { Node } from "prosemirror-model";
 import type { Transaction } from "prosemirror-state";
 
 import { alignBlocks } from "./alignment/alignBlocks.js";
 import { flattenBlocks } from "./blocks/flatten.js";
-import { propsFit } from "./blocks/props.js";
 import { BlockTree } from "./blocks/tree.js";
 import { stableStringify } from "./blocks/json.js";
 import { inlineContentToText } from "./blocks/text.js";
@@ -19,6 +16,7 @@ import type {
   LensBlock,
   LensInlineContent,
 } from "./blocks/types.js";
+import { toStoredBlocks } from "./formats/stored.js";
 import type { TextFormat } from "./formats/types.js";
 import { fixBlockIds } from "./operations/blockIds.js";
 import {
@@ -174,7 +172,7 @@ function jsonUpdate(
   // The layout rule applies to the JSON of the client, before the
   // conversion: the conversion fills a layout block with too few children
   // with new blocks (for example a column list with one column).
-  const blocks = toBlocks(
+  const blocks = toStoredBlocks(
     editor,
     fitLayout(options.document, (type) => layoutRuleOf(editor, type)),
   );
@@ -215,64 +213,6 @@ export function write(
     dispatch(tr);
   }
   return update;
-}
-
-/**
- * Returns true if the blocks fit the schema of the editor. The parse of a
- * text can give blocks that do not fit, for example an HTML table cell that
- * spans more rows than the table has.
- */
-function fitsSchema(
-  editor: BlockNoteEditor<any, any, any>,
-  blocks: readonly LensBlock[],
-): boolean {
-  return toBlockGroup(editor, blocks) !== undefined;
-}
-
-/**
- * Full blocks with IDs, from partial blocks: through ProseMirror nodes, as
- * the editor stores them. A block without an ID gets a new ID. Returns
- * `undefined` if the blocks do not fit the schema.
- */
-function toBlocks(
-  editor: BlockNoteEditor<any, any, any>,
-  blocks: readonly PartialBlock<any, any, any>[],
-): LensBlock[] | undefined {
-  const group = toBlockGroup(editor, blocks);
-  return group === undefined
-    ? undefined
-    : docToBlocks(editor.pmSchema.nodes["doc"].create(null, group));
-}
-
-/**
- * The blocks as a top-level ProseMirror block group, or `undefined` if the
- * blocks do not fit the schema (also deep in the tree, for example a column
- * outside a column list).
- */
-function toBlockGroup(
-  editor: BlockNoteEditor<any, any, any>,
-  blocks: readonly PartialBlock<any, any, any>[],
-): Node | undefined {
-  const schema = editor.pmSchema;
-  try {
-    if (!propsFit(editor.schema.blockSchema, blocks)) {
-      return undefined;
-    }
-    const group = schema.nodes["blockGroup"].create(
-      null,
-      blocks.map((block) => blockToNode(block, schema)),
-    );
-    // An empty list of blocks is valid: the write removes all blocks.
-    if (blocks.length > 0) {
-      group.check();
-    }
-    return group;
-  } catch {
-    // `propsFit`, `blockToNode` and `check` throw for blocks that do not
-    // fit the schema (for example `children` that are not an array). For
-    // input from a client, this is an expected failure.
-    return undefined;
-  }
 }
 
 /**
@@ -390,8 +330,8 @@ function planTextUpdate(
     return { target: document, warnings: [] };
   }
 
-  const parsed = format.parse(editor, content);
-  if (!fitsSchema(editor, parsed)) {
+  const parsed = toStoredBlocks(editor, format.parse(editor, content));
+  if (parsed === undefined) {
     return { error: "invalid-document" };
   }
   const incoming = flattenBlocks(parsed);

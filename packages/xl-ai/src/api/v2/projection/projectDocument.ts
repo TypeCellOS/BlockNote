@@ -3,6 +3,7 @@ import type { BlockNoteEditor } from "@blocknote/core";
 import { linkBlocks } from "../alignment/alignBlocks.js";
 import { flattenBlocks } from "../blocks/flatten.js";
 import type { FlatBlock, LensBlock } from "../blocks/types.js";
+import { toStoredBlocks } from "../formats/stored.js";
 import type { TextFormat } from "../formats/types.js";
 
 export type ViewBlock = FlatBlock & {
@@ -43,7 +44,7 @@ export function projectDocument(
   // one empty paragraph). That block comes from no document block, thus an
   // empty document has no view blocks.
   const viewBlocks =
-    document.length === 0 ? [] : flattenBlocks(format.parse(editor, text));
+    document.length === 0 ? [] : flattenBlocks(parseStored(text));
   const sourceBlocks = flattenBlocks(document);
   // A block without content links to its view block by its type only (see
   // `linkKey`). A block of that kind that the format renders as no text (for
@@ -64,7 +65,7 @@ export function projectDocument(
     }
     return shownTypes.has(flat.block.type)
       ? [{ flat, source }]
-      : flattenBlocks(format.parse(editor, own)).map((part) => ({
+      : flattenBlocks(parseStored(own)).map((part) => ({
           flat: part,
           source,
         }));
@@ -101,4 +102,17 @@ export function projectDocument(
   }
 
   return { text, view, invisibleIds, multiPartIds };
+
+  /**
+   * The parse of a text of the document, in the form that the document
+   * stores blocks (as the blocks of a text of a client, see `api.ts`). The
+   * text comes from the document, thus its blocks fit the schema.
+   */
+  function parseStored(source: string): LensBlock[] {
+    const blocks = toStoredBlocks(editor, format.parse(editor, source));
+    if (blocks === undefined) {
+      throw new Error("The text of the document does not fit its schema");
+    }
+    return blocks;
+  }
 }

@@ -184,3 +184,20 @@ describe("HTML, a change of the type of a parent", () => {
     ).toEqual([]);
   });
 });
+
+describe("HTML, a parse in a form that the document does not store", () => {
+  it("gives no operations for a second write of the same text", () => {
+    const editor = createEditor([{ id: "p", type: "paragraph", content: "x" }]);
+    // The quote joins its paragraphs with hard breaks. The parse gives
+    // "note\n" (italic) and "\nipsum". The document stores "note\n\n"
+    // (italic) and "ipsum".
+    const text =
+      "<blockquote><p><em>note</em></p><p>￼</p><p>ipsum</p></blockquote>";
+
+    valid(updateDocumentFromText(editor, { format: htmlFormat, text }));
+
+    expect(
+      valid(computeTextUpdate(editor, { format: htmlFormat, text })).operations,
+    ).toEqual([]);
+  });
+});
