@@ -579,9 +579,38 @@ export function createReactBlockSpec<
                   );
                 }
 
-                return ReactNodeViewRenderer(BlockNodeView, {
+                const nodeView = ReactNodeViewRenderer(BlockNodeView, {
                   className: "bn-react-node-view-renderer",
-                })(this.props!) as ReturnType<
+                })(this.props!);
+                // Before React mounts, TipTap returns a placeholder with no
+                // contentDOM. Only the live ReactNodeView needs this workaround.
+                if (nodeView instanceof ReactNodeView) {
+                  const ignoreMutation = nodeView.ignoreMutation.bind(nodeView);
+                  Object.assign(nodeView, {
+                    ignoreMutation(mutation) {
+                      const contentDOM = nodeView.contentDOM;
+                      if (
+                        contentDOM &&
+                        mutation.type === "childList" &&
+                        mutation.target === contentDOM.parentElement &&
+                        ![
+                          ...mutation.addedNodes,
+                          ...mutation.removedNodes,
+                        ].includes(contentDOM)
+                      ) {
+                        // TipTap's contentDOM.contains check misses native mobile
+                        // Enter cloning contentDOM into a sibling. Observe that
+                        // boundary, but not React attaching/detaching contentDOM.
+                        // Open upstream PR (currently insufficient for this
+                        // nested wrapper): https://github.com/ueberdosis/tiptap/pull/8355
+                        // Recheck this workaround when that behavior changes.
+                        return false;
+                      }
+                      return ignoreMutation(mutation);
+                    },
+                  } satisfies Pick<ReactNodeView, "ignoreMutation">);
+                }
+                return nodeView as ReturnType<
                   NonNullable<BlockImplementation["render"]>
                 >;
               } else {
