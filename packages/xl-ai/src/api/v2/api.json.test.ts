@@ -1,4 +1,10 @@
-import type { Block } from "@blocknote/core";
+import {
+  type Block,
+  BlockNoteEditor,
+  BlockNoteSchema,
+  defaultBlockSpecs,
+} from "@blocknote/core";
+import { withMultiColumn } from "@blocknote/xl-multi-column";
 import { describe, expect, it } from "vite-plus/test";
 
 import {
@@ -203,5 +209,38 @@ describe("JSON", () => {
     });
 
     expect(editor.document.map((block) => block.id)).toEqual(["a"]);
+  });
+
+  it("gives an error for a column outside a column list", () => {
+    const editor = BlockNoteEditor.create({
+      schema: withMultiColumn(
+        BlockNoteSchema.create({ blockSpecs: defaultBlockSpecs }),
+      ),
+      initialContent: initial,
+    });
+
+    expect(
+      updateDocumentFromJSON(editor, {
+        document: [
+          {
+            type: "column",
+            children: [{ type: "paragraph", content: "In a column" }],
+          },
+        ],
+      }),
+    ).toEqual({ error: "invalid-document" });
+  });
+
+  it("does not add IDs to the document on an error", () => {
+    const editor = createEditor(initial);
+    editor.removeBlocks(["a", "b", "c"]);
+    const before = editor.prosemirrorState.doc;
+
+    expect(
+      updateDocumentFromJSON(editor, {
+        document: [{ type: "unknown" }] as JSONUpdateOptions["document"],
+      }),
+    ).toEqual({ error: "invalid-document" });
+    expect(editor.prosemirrorState.doc).toBe(before);
   });
 });

@@ -166,21 +166,26 @@ function jsonUpdate(
 
 /**
  * Computes an update for the document of the editor, and applies it, in one
- * transaction. First, the blocks without an ID get an ID. Thus, the
- * operations refer only to IDs that the document has.
+ * transaction. The update is for the document in which the blocks without an
+ * ID have an ID. Thus, the operations refer only to IDs that the document
+ * has. On an error, the document does not change.
  */
 function write(
   editor: BlockNoteEditor<any, any, any>,
   compute: (current: readonly LensBlock[]) => TextUpdate,
 ): TextUpdate {
-  return editor.transact((tr) => {
-    addMissingBlockIds(tr);
-    const update = compute(docToBlocks(tr.doc));
-    if (update.error === undefined) {
+  const withIds = editor.prosemirrorState.tr;
+  addMissingBlockIds(withIds);
+  const update = compute(docToBlocks(withIds.doc));
+  if (update.error === undefined) {
+    editor.transact((tr) => {
+      for (const step of withIds.steps) {
+        tr.step(step);
+      }
       applyOperations(tr, update.operations);
-    }
-    return update;
-  });
+    });
+  }
+  return update;
 }
 
 /**
@@ -192,7 +197,7 @@ function fitsSchema(
   editor: BlockNoteEditor<any, any, any>,
   blocks: readonly LensBlock[],
 ): boolean {
-  return toNodes(editor, blocks) !== undefined;
+  return toBlockGroup(editor, blocks) !== undefined;
 }
 
 /**
@@ -204,29 +209,35 @@ function toBlocks(
   editor: BlockNoteEditor<any, any, any>,
   blocks: readonly PartialBlock<any, any, any>[],
 ): LensBlock[] | undefined {
-  const nodes = toNodes(editor, blocks);
-  if (nodes === undefined) {
-    return undefined;
-  }
-  const schema = editor.pmSchema;
-  return docToBlocks(
-    schema.nodes["doc"].create(
-      null,
-      schema.nodes["blockGroup"].create(null, nodes),
-    ),
-  );
+  const group = toBlockGroup(editor, blocks);
+  return group === undefined
+    ? undefined
+    : docToBlocks(editor.pmSchema.nodes["doc"].create(null, group));
 }
 
-/** The ProseMirror nodes of the blocks, or `undefined` if the blocks do not fit the schema. */
-function toNodes(
+/**
+ * The blocks as a top-level ProseMirror block group, or `undefined` if the
+ * blocks do not fit the schema (also deep in the tree, for example a column
+ * outside a column list).
+ */
+function toBlockGroup(
   editor: BlockNoteEditor<any, any, any>,
   blocks: readonly PartialBlock<any, any, any>[],
-): Node[] | undefined {
+): Node | undefined {
+  const schema = editor.pmSchema;
   try {
-    return blocks.map((block) => blockToNode(block, editor.pmSchema));
+    const group = schema.nodes["blockGroup"].create(
+      null,
+      blocks.map((block) => blockToNode(block, schema)),
+    );
+    // An empty list of blocks is valid: the write removes all blocks.
+    if (blocks.length > 0) {
+      group.check();
+    }
+    return group;
   } catch {
-    // `blockToNode` throws for blocks that do not fit the schema. For input
-    // from a client, this is an expected failure.
+    // `blockToNode` and `check` throw for blocks that do not fit the
+    // schema. For input from a client, this is an expected failure.
     return undefined;
   }
 }

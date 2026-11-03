@@ -123,12 +123,14 @@ const text = getYDocText(editor, ydoc, { format: markdownFormat });
 const base = Y.encodeStateAsUpdate(ydoc);
 
 // ... later:
-const { update } = updateYDocFromText(editor, ydoc, {
+const result = updateYDocFromText(editor, ydoc, {
   format: markdownFormat,
   text: changedText,
   base,
 });
-// Send `update` to the other clients.
+if (result.error === undefined) {
+  // Send `result.update` to the other clients.
+}
 ```
 
 The `editor` gives the schema and the conversions. To keep comments, give an editor with the comments extension. If the Y.Doc has content that the schema of the editor cannot read (for example a block type of a different schema), the functions throw an error, and the Y.Doc does not change.
