@@ -18,6 +18,8 @@ export type Diff3Handlers<T> = {
   stable: (triple: StableTriple<T>) => T;
   /** Changes a run of units that ours added or changed. */
   ours: (units: T[], context: RunContext<T>) => T[];
+  /** Called when ours wins a run that theirs also changed, in a different way. */
+  conflict?: () => void;
   /** Returns true if a stable triple can be a context. By default, all can. */
   isContext?: (triple: StableTriple<T>) => boolean;
   /**
@@ -106,6 +108,10 @@ export function diff3<T>(
     } else {
       if (i === i2 && handlers.keepBothInserts) {
         merged.push(...theirs.slice(jb, jb2));
+      } else if (
+        !isUnchanged(toB, i, i2, jb, jb2, base, theirs, handlers.same)
+      ) {
+        handlers.conflict?.();
       }
       merged.push(
         ...handlers.ours(ours.slice(ja, ja2), {

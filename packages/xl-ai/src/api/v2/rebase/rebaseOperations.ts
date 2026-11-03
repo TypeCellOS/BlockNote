@@ -10,7 +10,15 @@ export type RebaseWarning =
   /** The text changed or moved a block that another writer removed. The change is not applied. */
   | { type: "change-to-removed-block"; id: string }
   /** The text removed a block that another writer changed. The block is removed, with the changes of the other writer. */
-  | { type: "removed-changed-block"; id: string };
+  | { type: "removed-changed-block"; id: string }
+  /**
+   * The text and another writer changed the same part of a block (a part of
+   * its text, a style, or a prop) in different ways. The change of the text
+   * applies there, and the change of the other writer there is lost. An
+   * example is a block that another writer rewrote, or split into two
+   * blocks.
+   */
+  | { type: "conflicting-change"; id: string };
 
 export type RebaseInput = {
   /** The document that the operations were made for. */
@@ -214,6 +222,7 @@ export function rebaseOperations(input: RebaseInput): RebaseResult {
           break;
         }
         const theirs = tree.block(id);
+        let conflict = false;
         const update = diffBlock(
           theirs,
           mergeBlock(
@@ -221,9 +230,17 @@ export function rebaseOperations(input: RebaseInput): RebaseResult {
             patchBlock(base.block(id), operation.update),
             theirs,
             input.contentKindOf,
-            { concurrent: true },
+            {
+              concurrent: true,
+              onConflict: () => {
+                conflict = true;
+              },
+            },
           ),
         );
+        if (conflict) {
+          warnings.push({ type: "conflicting-change", id });
+        }
         if (update !== undefined) {
           operations.push({ type: "update", id, update });
         }

@@ -89,7 +89,7 @@ updateDocumentFromText(editor, {
   height={270}
 />
 
-The client's changes apply to the current document, by block ID. If both sides changed the same field, the client wins. If the client removes a block that another user changed, the block is removed, with a warning. Without `base`, the text applies to the current document, thus a text from an older version changes the newer changes back.
+The client's changes apply to the current document, by block ID. If both sides changed the same field, the client wins, with the warning `conflicting-change`. If the client removes a block that another user changed, the block is removed, with a warning. Without `base`, the text applies to the current document, thus a text from an older version changes the newer changes back.
 
 `base` must be the full document (BlockNote JSON) of that version. A version history keeps full documents anyway, because only a full document shows props and nesting.
 
@@ -144,13 +144,14 @@ The `strategy` option selects how the write merges with the changes of other use
 
 A result can contain these warnings:
 
-| Warning                     | Meaning                                                                                                                                     |
-| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Warning                     | Meaning                                                                                                                                                                     |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `multi-part-block-replaced` | The text changed a block that the format shows as more than one block (for example a code block with blank lines, in plain text). The blocks of the text replace the block. |
-| `unlinked-block-changed`    | The text changed a part of the text that does not come from one block. The change does not apply.                                          |
-| `block-shape-replaced`      | The format shows the block with content of a different shape (for example a table as text), and the text changed it. The block becomes a block of the text. |
-| `change-to-removed-block`   | The client changed or moved a block that another user removed. The change does not apply.                                                  |
-| `removed-changed-block`     | The client removed a block that another user changed. The block is removed.                                                                 |
+| `unlinked-block-changed`    | The text changed a part of the text that does not come from one block. The change does not apply.                                                                           |
+| `block-shape-replaced`      | The format shows the block with content of a different shape (for example a table as text), and the text changed it. The block becomes a block of the text.                 |
+| `change-to-removed-block`   | The client changed or moved a block that another user removed. The change does not apply.                                                                                   |
+| `removed-changed-block`     | The client removed a block that another user changed. The block is removed.                                                                                                 |
+| `conflicting-change`        | The client and another user changed the same part of a block (a part of its text, a style, or a prop). The change of the client applies there.                              |
 
 ## Example Server
 

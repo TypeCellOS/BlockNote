@@ -45,6 +45,7 @@ export function mergeTableContent(
         ),
       ours: (units) => units,
       keepBothInserts: options.concurrent,
+      conflict: options.onConflict,
       // `alignRows` also pairs rows with changed text.
       same: (baseRow, otherRow) => deepEqual(baseRow, otherRow),
     },
@@ -56,9 +57,20 @@ export function mergeTableContent(
       base.columnWidths,
       ours.columnWidths,
       theirs.columnWidths,
+      options,
     ),
-    headerRows: mergeValue(base.headerRows, ours.headerRows, theirs.headerRows),
-    headerCols: mergeValue(base.headerCols, ours.headerCols, theirs.headerCols),
+    headerRows: mergeValue(
+      base.headerRows,
+      ours.headerRows,
+      theirs.headerRows,
+      options,
+    ),
+    headerCols: mergeValue(
+      base.headerCols,
+      ours.headerCols,
+      theirs.headerCols,
+      options,
+    ),
     rows: rows.map((cells) => ({ cells })),
   };
 }
@@ -127,7 +139,7 @@ function mergeCell(
 ): LensTableCell {
   return {
     type: "tableCell",
-    props: mergeRecords(base.props, ours.props, theirs.props),
+    props: mergeRecords(base.props, ours.props, theirs.props, options),
     content: mergeInlineContent(
       base.content,
       ours.content,

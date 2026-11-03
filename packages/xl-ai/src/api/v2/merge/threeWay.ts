@@ -8,7 +8,15 @@ import { deepEqual } from "../blocks/json.js";
  * insert of `ours` is a difference that the format makes (for example
  * whitespace). Thus, it does not stay.
  */
-export type MergeOptions = { concurrent?: boolean };
+export type MergeOptions = {
+  concurrent?: boolean;
+  /**
+   * Called when `ours` and `theirs` changed the same value (or the same part
+   * of a text) in different ways. `ours` then wins. The rebase uses this for
+   * a warning.
+   */
+  onConflict?: () => void;
+};
 
 /**
  * The three-way rule for all merges in this folder, with one vocabulary:
@@ -23,15 +31,31 @@ export type MergeOptions = { concurrent?: boolean };
  * result is `theirs`. Thus, data that `base` does not show stays, and `ours`
  * wins a conflict.
  */
-export function mergeValue<T>(base: T, ours: T, theirs: T): T {
-  return deepEqual(base, ours) ? theirs : ours;
+export function mergeValue<T>(
+  base: T,
+  ours: T,
+  theirs: T,
+  options: MergeOptions = {},
+): T {
+  if (deepEqual(base, ours)) {
+    return theirs;
+  }
+  if (!deepEqual(base, theirs) && !deepEqual(ours, theirs)) {
+    options.onConflict?.();
+  }
+  return ours;
 }
 
 /**
  * Applies {@link mergeValue} to each key of the three objects. The result
  * does not contain keys with the value `undefined`.
  */
-export function mergeRecords<R extends object>(base: R, ours: R, theirs: R): R {
+export function mergeRecords<R extends object>(
+  base: R,
+  ours: R,
+  theirs: R,
+  options: MergeOptions = {},
+): R {
   function read(record: R, key: string) {
     return (record as Record<string, unknown>)[key];
   }
@@ -45,6 +69,7 @@ export function mergeRecords<R extends object>(base: R, ours: R, theirs: R): R {
       read(base, key),
       read(ours, key),
       read(theirs, key),
+      options,
     );
     if (value !== undefined) {
       result[key] = value;

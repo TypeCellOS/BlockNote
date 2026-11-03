@@ -34,7 +34,7 @@ export function mergeInlineContent(
 
   return fromUnits(
     diff3(o, a, b, alignUnits(o, a), alignUnits(o, b), {
-      stable: mergeStable,
+      stable: (triple) => mergeStable(triple, options),
       ours: (units, context) =>
         units.map((unit) => inheritHiddenStyles(unit, context)),
       // The round trip can move whitespace across a style boundary (for
@@ -42,21 +42,21 @@ export function mergeInlineContent(
       // show the styles around it.
       isContext: ({ base }) => base.kind === "char" && !/\s/u.test(base.char),
       keepBothInserts: options.concurrent,
+      conflict: options.onConflict,
     }),
   );
 }
 
-function mergeStable({
-  base,
-  ours,
-  theirs,
-}: StableTriple<InlineUnit>): InlineUnit {
+function mergeStable(
+  { base, ours, theirs }: StableTriple<InlineUnit>,
+  options: MergeOptions,
+): InlineUnit {
   if (base.kind === "char" && ours.kind === "char" && theirs.kind === "char") {
     return {
       kind: "char",
       char: ours.char,
-      styles: mergeRecords(base.styles, ours.styles, theirs.styles),
-      href: mergeValue(base.href, ours.href, theirs.href),
+      styles: mergeRecords(base.styles, ours.styles, theirs.styles, options),
+      href: mergeValue(base.href, ours.href, theirs.href, options),
     };
   }
   // An atom only matches an equal atom. Thus, the three are the same item.

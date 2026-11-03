@@ -35,7 +35,7 @@ export function mergeBlock(
   options: MergeOptions = {},
 ): BlockFields {
   const contentChanged = !deepEqual(base.content, ours.content);
-  const merged = mergeValue(base.type, ours.type, theirs.type);
+  const merged = mergeValue(base.type, ours.type, theirs.type, options);
   const type =
     contentChanged && !canHold(contentKindOf(merged), ours.content)
       ? ours.type
@@ -54,7 +54,11 @@ export function mergeBlock(
         ? mergeContent(base, ours, theirs, kind, options)
         : theirs.content;
 
-  return { type, props: mergeProps(base, ours, theirs, type), content };
+  return {
+    type,
+    props: mergeProps(base, ours, theirs, type, options),
+    content,
+  };
 }
 
 /** Returns true if a block with content of this kind can hold the content. */
@@ -81,16 +85,22 @@ function mergeProps(
   ours: BlockFields,
   theirs: BlockFields,
   type: string,
+  options: MergeOptions,
 ): Record<string, unknown> {
   if (ours.type === theirs.type) {
-    return mergeRecords(base.props, ours.props, theirs.props);
+    return mergeRecords(base.props, ours.props, theirs.props, options);
   }
   const [side, other] = type === ours.type ? [ours, theirs] : [theirs, ours];
   const props: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(side.props)) {
     const merged =
       key in other.props
-        ? mergeValue(base.props[key], ours.props[key], theirs.props[key])
+        ? mergeValue(
+            base.props[key],
+            ours.props[key],
+            theirs.props[key],
+            options,
+          )
         : value;
     if (merged !== undefined) {
       props[key] = merged;

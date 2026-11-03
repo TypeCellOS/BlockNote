@@ -348,6 +348,64 @@ describe("a write from an older version, with blocks that another writer moved",
   });
 });
 
+describe("a write from an older version with a conflict", () => {
+  it("gives a warning if the client and another writer change the same word", () => {
+    const editor = createEditor(fruit);
+    const client = read(editor);
+    editor.updateBlock("end", { content: "The finish" });
+
+    const update = write(editor, client, (text) =>
+      replaceOnce(text, "End", "Stop"),
+    );
+
+    expect(update.warnings).toEqual([
+      { type: "conflicting-change", id: "end" },
+    ]);
+    expect(editor.getBlock("end")?.content).toMatchObject([{ text: "Stop" }]);
+  });
+
+  it("gives no warning for changes to different parts of one block", () => {
+    const editor = createEditor([
+      { id: "p", type: "paragraph", content: "One two three four" },
+    ]);
+    const client = read(editor);
+    editor.updateBlock("p", { content: "One two three four five" });
+
+    const update = write(editor, client, (text) =>
+      replaceOnce(text, "One", "Zero"),
+    );
+
+    expect(update.warnings).toEqual([]);
+    expect(editor.getBlock("p")?.content).toMatchObject([
+      { text: "Zero two three four five" },
+    ]);
+  });
+
+  it("gives a warning if another writer split the block that the client changes", () => {
+    const editor = createEditor([
+      {
+        id: "a",
+        type: "paragraph",
+        content: "First half of the text. Second half of the text.",
+      },
+    ]);
+    const client = read(editor);
+    // Another writer splits the block.
+    editor.updateBlock("a", { content: "First half of the text." });
+    editor.insertBlocks(
+      [{ id: "a2", type: "paragraph", content: "Second half of the text." }],
+      "a",
+      "after",
+    );
+
+    const update = write(editor, client, (text) =>
+      replaceOnce(text, "Second half of the", "Second half of the changed"),
+    );
+
+    expect(update.warnings).toEqual([{ type: "conflicting-change", id: "a" }]);
+  });
+});
+
 describe("a write from an older version that removes blocks", () => {
   it("removes a child that another writer moved out of a block that the client removes", () => {
     const editor = createEditor(fruit);
