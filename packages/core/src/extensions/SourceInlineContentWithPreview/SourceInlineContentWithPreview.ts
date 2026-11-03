@@ -5,6 +5,7 @@ import {
   createExtension,
   createStore,
 } from "../../editor/BlockNoteExtension.js";
+import { ReadOnlyExtension } from "../ReadOnly/ReadOnly.js";
 
 /**
  * Inline-content counterpart of {@link SourceBlockWithPreviewExtension}. A
@@ -106,6 +107,16 @@ export const SourceInlineContentWithPreviewExtension = createExtension(
           });
         });
         signal.addEventListener("abort", unsubscribeSelectionChange);
+
+        // Editability can change without moving the selection out of the source.
+        const unsubscribeReadOnlyChange = editor
+          .getExtension(ReadOnlyExtension)!
+          .store.subscribe(() => {
+            if (!editor.isEditable) {
+              store.setState({ selected: undefined });
+            }
+          });
+        signal.addEventListener("abort", unsubscribeReadOnlyChange);
 
         // Sets `visibility: hidden` on the popup for a single frame when pressing up/down arrow
         // keys. The popup is normally hidden through `opacity: 0`, which means it's still visible

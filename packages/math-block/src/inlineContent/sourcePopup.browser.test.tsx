@@ -67,6 +67,25 @@ it.each([false, true])(
             ?.getAttribute("data-open"),
         ).toBe(String(editable)),
       );
+
+      if (editable) {
+        flushSync(() => {
+          editor.isEditable = false;
+        });
+
+        expect(editor.prosemirrorState.selection.from).toBe(sourcePos);
+        expect(
+          editor.getExtension(SourceInlineContentWithPreviewExtension)!.store
+            .state.selected,
+        ).toBeUndefined();
+        await vi.waitFor(() =>
+          expect(
+            host
+              .querySelector(".bn-preview-with-source-popup")
+              ?.getAttribute("data-open"),
+          ).toBe("false"),
+        );
+      }
     } finally {
       root.unmount();
       editor._tiptapEditor.destroy();
