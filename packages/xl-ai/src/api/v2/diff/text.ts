@@ -33,8 +33,9 @@ const MIN_GAP_MATCH_RATIO = 0.5;
  * 1. By tokens: words and single other units, without whitespace. Thus, a
  *    word matches at each position, also at the end of the text, and a
  *    changed word is one change.
- * 2. By units, in the gaps between matched tokens. Thus, whitespace matches
- *    only between matched tokens.
+ * 2. By units, in the gaps between matched tokens. Equal whitespace at the
+ *    edges of a gap matches first. Thus, whitespace matches only next to
+ *    matched tokens and between matched characters.
  *
  * The merge and the apply use this alignment. Thus, the apply keeps the
  * same characters that the merge keeps.
@@ -65,6 +66,31 @@ export function alignText(
 }
 
 function alignGap(
+  a: readonly TextUnit[],
+  b: readonly TextUnit[],
+  aStart: number,
+  aEnd: number,
+  bStart: number,
+  bEnd: number,
+): MatchedPair[] {
+  // Equal whitespace at the edges of the gap stays with the token next to
+  // it. Thus, the space between two changed words is stable, and two writers
+  // can change the two words.
+  const isSameSpace = (i: number, j: number) =>
+    a[i].kind === "space" && a[i].key === b[j].key;
+  const before: MatchedPair[] = [];
+  while (aStart < aEnd && bStart < bEnd && isSameSpace(aStart, bStart)) {
+    before.push({ aIndex: aStart++, bIndex: bStart++ });
+  }
+  const after: MatchedPair[] = [];
+  while (aStart < aEnd && bStart < bEnd && isSameSpace(aEnd - 1, bEnd - 1)) {
+    after.unshift({ aIndex: --aEnd, bIndex: --bEnd });
+  }
+  return [...before, ...alignRest(a, b, aStart, aEnd, bStart, bEnd), ...after];
+}
+
+/** The character matches in the gap, if they cover enough of it (see {@link MIN_GAP_MATCH_RATIO}). */
+function alignRest(
   a: readonly TextUnit[],
   b: readonly TextUnit[],
   aStart: number,

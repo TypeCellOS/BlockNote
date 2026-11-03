@@ -16,7 +16,7 @@ function kept(a: string, b: string): string {
 
 describe("alignText", () => {
   it("matches equal words, also at a different position", () => {
-    expect(kept("one two three", "zero one two four")).toBe("one two");
+    expect(kept("one two three", "zero one two four")).toBe("one two ");
   });
 
   it("matches the characters of a word with a small change", () => {
@@ -29,5 +29,10 @@ describe("alignText", () => {
 
   it("matches the whitespace between matched tokens", () => {
     expect(kept("a b", "a  b")).toBe("a b");
+  });
+
+  it("matches the whitespace next to a matched token, also between two changed words", () => {
+    expect(kept("alpha delta", "beta delta")).toBe(" delta");
+    expect(kept("alpha delta", "alpha gamma")).toBe("alpha ");
   });
 });
