@@ -286,9 +286,18 @@ function serializeNode(node: Node, ctx: SerializeContext): string {
 // ─── Block Serializers ───────────────────────────────────────────────────────
 
 function serializeParagraph(el: HTMLElement, ctx: SerializeContext): string {
-  const content = serializeParagraphText(el, ctx.escapes);
+  return paragraphBlock(serializeParagraphText(el, ctx.escapes), ctx);
+}
+
+/**
+ * A paragraph of markdown: at the top level, with a blank line after it. In a
+ * list item (a child block, or a part of a child block, for example the
+ * caption of a file), with a blank line before it. If not, the parser reads
+ * it as a part of the text before it.
+ */
+function paragraphBlock(content: string, ctx: SerializeContext): string {
   if (ctx.inListItem) {
-    return content;
+    return "\n" + ctx.indent + indentLines(content, ctx.indent) + "\n";
   }
   return ctx.indent + content + "\n\n";
 }
@@ -570,17 +579,18 @@ function serializeListItemChild(
   childCtx: SerializeContext,
 ): string {
   const childTag = child.tagName.toLowerCase();
-  if (childTag === "ul" || childTag === "ol") {
-    // A nested list comes directly after the marker line, with no blank line.
-    return serializeNode(child, childCtx);
+  if (childTag === "div") {
+    // The parts of a block (for example the link and the caption of a file
+    // block) are blocks of the list item, with the same rules.
+    return childElements(child)
+      .map((part) => serializeListItemChild(part, childCtx))
+      .join("");
   }
-  if (childTag === "p") {
-    // A paragraph in a list item must have a blank line before it. If not,
-    // the parser reads it as a part of the text on the marker line.
-    const content = serializeParagraphText(child, childCtx.escapes);
-    return (
-      "\n" + childCtx.indent + indentLines(content, childCtx.indent) + "\n"
-    );
+  if (["ul", "ol", "p", "a"].includes(childTag)) {
+    // A nested list comes directly after the marker line, with no blank
+    // line. A paragraph and a block link add their blank line (see
+    // `paragraphBlock`).
+    return serializeNode(child, childCtx);
   }
   // Other child blocks (for example code blocks and quotes) add their own
   // newlines after them. Put a blank line before them, so that the parser
@@ -892,10 +902,7 @@ function escapeHtmlText(value: string): string {
 function serializeBlockLink(el: HTMLElement, ctx: SerializeContext): string {
   const href = el.getAttribute("href") || "";
   const text = el.textContent?.trim() || "";
-  if (!href) {
-    return ctx.indent + text + "\n\n";
-  }
-  return ctx.indent + formatLink(text, href) + "\n\n";
+  return paragraphBlock(href ? formatLink(text, href) : text, ctx);
 }
 
 /**

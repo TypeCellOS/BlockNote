@@ -1188,6 +1188,32 @@ describe("Markdown round trip", () => {
       ]);
     });
 
+    it("keeps the caption of a file in a list item apart from the next paragraph", () => {
+      const blocks: PartialBlock[] = [
+        {
+          type: "bulletListItem",
+          content: "Item",
+          children: [
+            {
+              type: "file",
+              props: {
+                url: "https://example.com/a.pdf",
+                name: "a.pdf",
+                caption: "Caption",
+              },
+            },
+          ],
+        },
+        { type: "paragraph", content: "Next paragraph" },
+      ];
+      expectStable(blocks);
+      const parsed = parse(serialize(editor.document));
+      expect(parsed.at(-1)).toMatchObject({
+        type: "paragraph",
+        content: [{ text: "Next paragraph" }],
+      });
+    });
+
     it("gives the same markdown for mixed list item children (property test)", () => {
       expect(
         findUnstableSeeds(
