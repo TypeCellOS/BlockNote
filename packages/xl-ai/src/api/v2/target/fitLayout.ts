@@ -1,21 +1,4 @@
-/**
- * The child rule of a layout block (a block with `layoutOnly: true` in its
- * config, for example a column list or a column).
- */
-export type LayoutRule = {
-  /** The minimum number of children. */
-  minChildren: number;
-  /**
-   * True if the block can only be a child of its layout parent, for example a
-   * column (`placeable: "namedOnly"`).
-   */
-  namedOnly: boolean;
-  /**
-   * True if the block with too few children becomes the blocks in it, for
-   * example a column list with one column (`children.dissolve`).
-   */
-  dissolves: boolean;
-};
+import type { LayoutRule } from "../blocks/schema.js";
 
 /**
  * Returns the blocks with each layout block changed to fit its child rule,

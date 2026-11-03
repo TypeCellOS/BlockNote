@@ -2,6 +2,7 @@ import type { BlockNoteEditor } from "@blocknote/core";
 
 import { linkBlocks } from "../alignment/alignBlocks.js";
 import { flattenBlocks, withoutChildren } from "../blocks/flatten.js";
+import { schemaRulesOf } from "../blocks/schema.js";
 import { blockToText } from "../blocks/text.js";
 import type { FlatBlock, LensBlock } from "../blocks/types.js";
 import { toStoredBlocks } from "../formats/stored.js";
@@ -108,8 +109,9 @@ export function projectDocument(
       content: [{ type: "text", text: marker, styles: {} }],
       children: [],
     };
+    const { layoutRuleOf } = schemaRulesOf(editor);
     const isLayout = ({ block }: FlatBlock) =>
-      editor.schema.blockSchema[block.type]?.layoutOnly === true;
+      layoutRuleOf(block.type) !== undefined;
     const alone = sources.flatMap((flat, source) =>
       isLayout(flat) ? [] : [source],
     );

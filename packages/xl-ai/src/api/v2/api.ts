@@ -4,18 +4,14 @@ import {
   type PartialBlock,
 } from "@blocknote/core";
 import { UniqueID } from "@blocknote/core/extensions";
-import type { Transaction } from "prosemirror-state";
 
 import { alignBlocks } from "./alignment/alignBlocks.js";
 import { flattenBlocks } from "./blocks/flatten.js";
+import { type SchemaRules, schemaRulesOf } from "./blocks/schema.js";
 import { BlockTree } from "./blocks/tree.js";
 import { stableStringify } from "./blocks/json.js";
 import { inlineContentToText } from "./blocks/text.js";
-import type {
-  ContentKind,
-  LensBlock,
-  LensInlineContent,
-} from "./blocks/types.js";
+import type { LensBlock, LensInlineContent } from "./blocks/types.js";
 import { toStoredBlocks } from "./formats/stored.js";
 import type { TextFormat } from "./formats/types.js";
 import { fixBlockIds, withDistinctIds } from "./operations/blockIds.js";
@@ -25,7 +21,7 @@ import { diffDocuments } from "./operations/diffDocuments.js";
 import type { BlockOperation } from "./operations/types.js";
 import { projectDocument } from "./projection/projectDocument.js";
 import { mergeTree, type RebaseWarning } from "./merge/tree.js";
-import { fitLayout, type LayoutRule } from "./target/fitLayout.js";
+import { fitLayout } from "./target/fitLayout.js";
 import {
   type FitWarning,
   fitTables,
@@ -98,9 +94,9 @@ export function computeTextUpdate(
 /**
  * {@link computeTextUpdate} for the document `current`, which does not have
  * to be the document of the editor. The editor supplies the schema and the
- * conversions. The Y.Doc API uses this.
+ * conversions.
  */
-export function computeBlocksUpdate(
+function computeBlocksUpdate(
   editor: BlockNoteEditor<any, any, any>,
   options: TextUpdateOptions & {
     current: readonly LensBlock[];
@@ -119,7 +115,7 @@ export function computeBlocksUpdate(
   if (plan.error !== undefined) {
     return plan;
   }
-  return updateToTarget(editor, plan, {
+  return updateToTarget(schemaRulesOf(editor), plan, {
     base,
     current,
     keepLayout: options.keepLayout ?? false,
@@ -157,7 +153,7 @@ export function computeJSONUpdate(
   return jsonUpdate(editor, options, editor.document);
 }
 
-/** Computes the operations with {@link computeJSONUpdate}, and applies them to the editor in one transaction. */
+/** Computes the operations with {@link computeJSONUpdate}, and applies them to the editor (see {@link write}). */
 export function updateDocumentFromJSON(
   editor: BlockNoteEditor<any, any, any>,
   options: JSONUpdateOptions,
@@ -173,19 +169,23 @@ function jsonUpdate(
   // The layout rule applies to the JSON of the client, before the
   // conversion: the conversion fills a layout block with too few children
   // with new blocks (for example a column list with one column).
+  const rules = schemaRulesOf(editor);
   const blocks = toStoredBlocks(
     editor,
-    fitLayout(options.document, (type) => layoutRuleOf(editor, type)),
+    fitLayout(options.document, rules.layoutRuleOf),
   );
   if (blocks === undefined) {
     return { error: "invalid-document" };
   }
   const base = options.base && withDistinctIds(options.base);
   return updateToTarget(
-    editor,
+    rules,
     {
-      target: withUniqueIds(blocks, base ?? current, current, (type) =>
-        isLayoutType(editor, type),
+      target: withUniqueIds(
+        blocks,
+        base ?? current,
+        current,
+        rules.layoutRuleOf,
       ),
       warnings: [],
     },
@@ -197,21 +197,20 @@ function jsonUpdate(
  * Computes an update for the document of the editor, and applies it. First,
  * the blocks without an ID get an ID: the update is for the document with
  * these IDs, thus the operations refer only to IDs that the document has.
- * `dispatch` gets a transaction of the editor state with the steps of the
- * IDs and of the operations (the default: see `dispatchUpdate`). On an
- * error, the document does not change.
+ * The steps of the IDs and of the operations go to the editor in one
+ * transaction, or, for an editor that is bound to a Y.Doc, in groups (see
+ * `dispatchUpdate`). On an error, the document does not change.
  */
-export function write(
+function write(
   editor: BlockNoteEditor<any, any, any>,
   compute: (current: readonly LensBlock[]) => TextUpdate,
-  dispatch: (tr: Transaction) => void = (tr) => dispatchUpdate(editor, tr),
 ): TextUpdate {
   const tr = editor.prosemirrorState.tr;
   fixBlockIds(tr);
   const update = compute(docToBlocks(tr.doc));
   if (update.error === undefined) {
     applyOperations(tr, update.operations);
-    dispatch(tr);
+    dispatchUpdate(editor, tr);
   }
   return update;
 }
@@ -228,7 +227,7 @@ function withUniqueIds(
   blocks: readonly LensBlock[],
   base: readonly LensBlock[],
   current: readonly LensBlock[],
-  isLayout: (type: string) => boolean,
+  layoutRuleOf: SchemaRules["layoutRuleOf"],
 ): LensBlock[] {
   const inBase = new Set(new BlockTree(base).ids);
   const inCurrent = new BlockTree(current).byId;
@@ -238,7 +237,9 @@ function withUniqueIds(
     const keep =
       !used.has(block.id) &&
       (inBase.has(block.id) || before === undefined) &&
-      (before === undefined || isLayout(before.type) === isLayout(block.type));
+      (before === undefined ||
+        (layoutRuleOf(before.type) === undefined) ===
+          (layoutRuleOf(block.type) === undefined));
     const id = keep ? block.id : UniqueID.options.generateID();
     used.add(id);
     return { ...block, id, children: block.children.map(fix) };
@@ -261,7 +262,7 @@ function withUniqueIds(
  * column that another writer added). Thus, the rule applies to the result.
  */
 function updateToTarget(
-  editor: BlockNoteEditor<any, any, any>,
+  rules: SchemaRules,
   plan: { target: readonly LensBlock[]; warnings: PlanWarning[] },
   documents: {
     /** The document at the version that the client read, if it is older than `current`. */
@@ -274,44 +275,48 @@ function updateToTarget(
   if (plan.target === (base ?? current)) {
     return { operations: [], warnings: plan.warnings };
   }
-  /** The result fit to the rules of the schema and of the tables, and the operations to it. */
-  function update(
-    blocks: readonly LensBlock[],
-    warnings: TextUpdateWarning[],
-  ): ValidTextUpdate {
-    const result = fitTables(
-      keepLayout
-        ? blocks
-        : fitLayout(
-            blocks,
-            (type) => layoutRuleOf(editor, type),
-            (parent, child) => canContain(editor, parent, child),
-          ),
-    );
-    return {
-      operations: diffDocuments(current, result),
-      warnings: [...warnings, ...mergedCellsRemoved(current, result)],
-    };
-  }
-  if (base === undefined) {
-    return update(plan.target, plan.warnings);
-  }
-  const merged = mergeTree({
-    base,
-    ours: plan.target,
-    theirs: current,
-    contentKindOf: (type) => contentKindOf(editor, type),
-  });
-  return update(merged.blocks, [...plan.warnings, ...merged.warnings]);
+  const merged: { blocks: readonly LensBlock[]; warnings: RebaseWarning[] } =
+    base === undefined
+      ? { blocks: plan.target, warnings: [] }
+      : mergeTree({
+          base,
+          ours: plan.target,
+          theirs: current,
+          contentKindOf: rules.contentKindOf,
+        });
+  const result = fitTables(
+    keepLayout
+      ? merged.blocks
+      : fitLayout(merged.blocks, rules.layoutRuleOf, rules.canContain),
+  );
+  return {
+    operations: diffDocuments(current, result),
+    warnings: [
+      ...plan.warnings,
+      ...merged.warnings,
+      ...mergedCellsRemoved(current, result),
+    ],
+  };
 }
 
 /**
  * Computes the operations with {@link computeTextUpdate}, and applies them to
- * the editor in one transaction. First, the blocks without an ID get an ID.
+ * the editor (see {@link write}). First, the blocks without an ID get an ID.
  */
 export function updateDocumentFromText(
   editor: BlockNoteEditor<any, any, any>,
   options: TextUpdateOptions,
+): TextUpdate {
+  return writeText(editor, options);
+}
+
+/**
+ * {@link updateDocumentFromText}, with the option `keepLayout` (see
+ * {@link updateToTarget}). The Y.Doc API uses this.
+ */
+export function writeText(
+  editor: BlockNoteEditor<any, any, any>,
+  options: TextUpdateOptions & { keepLayout?: boolean },
 ): TextUpdate {
   return write(editor, (current) =>
     computeBlocksUpdate(editor, { ...options, current }),
@@ -345,16 +350,15 @@ function planTextUpdate(
     return { error: "invalid-document" };
   }
   const incoming = flattenBlocks(parsed);
-  const { target, warnings } = planTarget({
+  return planTarget({
     document,
     projection,
     incoming,
     alignment: alignBlocks(projection.view, incoming),
-    contentKindOf: (type) => contentKindOf(editor, type),
+    contentKindOf: schemaRulesOf(editor).contentKindOf,
     shadowOf: shadowsOf(editor, format),
     newId: () => UniqueID.options.generateID(),
   });
-  return { target, warnings };
 }
 
 /**
@@ -394,75 +398,4 @@ function shadowsOf(
     }
     return shadows.get(key);
   };
-}
-
-/** The child rule of a layout block type, or `undefined` for other types. */
-function layoutRuleOf(
-  editor: BlockNoteEditor<any, any, any>,
-  type: string,
-): LayoutRule | undefined {
-  const config = editor.schema.blockSchema[type];
-  if (config?.layoutOnly !== true) {
-    return undefined;
-  }
-  const children = config.children;
-  return {
-    minChildren:
-      children !== undefined && "min" in children ? (children.min ?? 1) : 1,
-    namedOnly: config.placeable === "namedOnly",
-    dissolves: !(
-      children !== undefined &&
-      "dissolve" in children &&
-      children.dissolve === false
-    ),
-  };
-}
-
-/**
- * Returns true if a block of the type `parent` (`undefined` for the top
- * level) can have a child of the type `child`, by the child rules of the
- * block configs. A block placeable "namedOnly" (a column) is only in a
- * parent that allows its type by name.
- */
-function canContain(
-  editor: BlockNoteEditor<any, any, any>,
-  parent: string | undefined,
-  child: string,
-): boolean {
-  const rule =
-    parent === undefined
-      ? undefined
-      : editor.schema.blockSchema[parent]?.children;
-  if (editor.schema.blockSchema[child]?.placeable === "namedOnly") {
-    return (
-      rule !== undefined &&
-      Array.isArray(rule.allow) &&
-      rule.allow.includes(child)
-    );
-  }
-  if (rule === undefined) {
-    return true;
-  }
-  if (Array.isArray(rule.allow)) {
-    return rule.allow.includes(child);
-  }
-  return !("exclude" in rule && rule.exclude?.includes(child));
-}
-
-function isLayoutType(
-  editor: BlockNoteEditor<any, any, any>,
-  type: string,
-): boolean {
-  return editor.schema.blockSchema[type]?.layoutOnly === true;
-}
-
-function contentKindOf(
-  editor: BlockNoteEditor<any, any, any>,
-  type: string,
-): ContentKind {
-  const config = editor.schema.blockSchema[type];
-  if (config === undefined) {
-    throw new Error(`Block type "${type}" is not in the editor's schema`);
-  }
-  return config.content;
 }

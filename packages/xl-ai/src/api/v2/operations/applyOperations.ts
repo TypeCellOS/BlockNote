@@ -24,8 +24,11 @@ import { addInlineContentSteps } from "./inlineSteps.js";
 import type { BlockOperation } from "./types.js";
 
 /**
- * Applies the operations to the editor in sequence, in one transaction.
- * Returns the ProseMirror steps of the transaction.
+ * Applies the operations to the editor in sequence. Returns the ProseMirror
+ * steps of the operations, as they apply to the editor state before the
+ * write. The editor gets them in one transaction, or, for an editor that is
+ * bound to a Y.Doc, in groups (see `dispatchUpdate`). There, the steps of
+ * other plugins can come between the groups.
  */
 export function applyBlockOperations(
   editor: BlockNoteEditor<any, any, any>,

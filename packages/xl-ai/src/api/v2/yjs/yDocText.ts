@@ -7,11 +7,10 @@ import {
 import * as Y from "yjs";
 
 import {
-  computeBlocksUpdate,
   type TextUpdate,
   type TextUpdateOptions,
   type ValidTextUpdate,
-  write,
+  writeText,
 } from "../api.js";
 
 /**
@@ -102,60 +101,41 @@ export function updateYDocFromText(
       ? undefined
       : findTypeInOtherYdoc(fragment, docFromState(base));
 
+  // With the "yjs" strategy, the write goes to a fork of the Y.Doc at
+  // `base`, and Yjs merges it. Else, it goes to a fork of the current
+  // Y.Doc: thus, a write that fails in the middle does not change the Y.Doc.
+  const yjs =
+    strategy === "yjs" && baseFragment !== undefined && baseFragment.length > 0;
+  // A base without content and a Y.Doc without content are the same empty
+  // document: no other writer changed it.
+  const unchanged =
+    baseFragment === undefined ||
+    (baseFragment.length === 0 && fragment.length === 0);
   let update: TextUpdate | undefined;
-  if (
-    strategy === "yjs" &&
-    baseFragment !== undefined &&
-    baseFragment.length > 0
-  ) {
-    fork.fork({ initialUpdate: base });
-    try {
-      // The layout blocks stay, also if they become empty: Yjs cannot merge
-      // the removal of a column with a block that another writer adds to it.
-      update = writeThroughBinding(editor, {
-        ...textOptions,
-        keepLayout: true,
-      });
-    } finally {
-      fork.merge({
-        keepChanges: update !== undefined && update.error === undefined,
-      });
-    }
-  } else {
-    // A base without content and a Y.Doc without content are the same empty
-    // document: no other writer changed it.
-    const unchanged =
-      baseFragment === undefined ||
-      (baseFragment.length === 0 && fragment.length === 0);
-    // The write goes to a fork of the current Y.Doc. Thus, a write that
-    // fails in the middle does not change the Y.Doc.
-    fork.fork();
-    try {
-      update = writeThroughBinding(editor, {
-        ...textOptions,
-        base: unchanged
-          ? undefined
-          : yXmlFragmentToBlocks(editor, baseFragment),
-      });
-    } finally {
-      fork.merge({
-        keepChanges: update !== undefined && update.error === undefined,
-      });
-    }
+  fork.fork({ initialUpdate: yjs ? base : undefined });
+  try {
+    update = writeText(
+      editor,
+      yjs
+        ? // The layout blocks stay, also if they become empty: Yjs cannot
+          // merge the removal of a column with a block that another writer
+          // adds to it.
+          { ...textOptions, keepLayout: true }
+        : {
+            ...textOptions,
+            base: unchanged
+              ? undefined
+              : yXmlFragmentToBlocks(editor, baseFragment),
+          },
+    );
+  } finally {
+    fork.merge({
+      keepChanges: update !== undefined && update.error === undefined,
+    });
   }
   return update.error === undefined
     ? { ...update, update: Y.encodeStateAsUpdate(ydoc, before) }
     : update;
-}
-
-/** Computes the update for the document of the editor, and dispatches its steps (see `dispatchUpdate`). */
-function writeThroughBinding(
-  editor: BlockNoteEditor<any, any, any>,
-  options: Omit<Parameters<typeof computeBlocksUpdate>[1], "current">,
-): TextUpdate {
-  return write(editor, (current) =>
-    computeBlocksUpdate(editor, { ...options, current }),
-  );
 }
 
 function docFromState(state: Uint8Array): Y.Doc {

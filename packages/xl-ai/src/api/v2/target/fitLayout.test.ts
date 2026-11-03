@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vite-plus/test";
 
 import type { LensBlock } from "../blocks/types.js";
-import { fitLayout, type LayoutRule } from "./fitLayout.js";
+import type { LayoutRule } from "../blocks/schema.js";
+import { fitLayout } from "./fitLayout.js";
 
 const rules: Record<string, LayoutRule> = {
   columnList: { minChildren: 2, namedOnly: false, dissolves: true },
