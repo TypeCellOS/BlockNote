@@ -1,6 +1,7 @@
 import { isVideoUrl } from "../../../util/string.js";
 import { findLinks } from "../../../extensions/tiptap-extensions/Link/helpers/linkDetector.js";
 import { EMPTY_BLOCK_PLACEHOLDER } from "../../exporters/html/util/serializeBlocksExternalHTML.js";
+import { detachedDoc } from "../html/util/nestedLists.js";
 import { parseAutolinkLiteral } from "./autolink.js";
 
 /**
@@ -1561,12 +1562,9 @@ const TEXT_ELEMENTS = "p, h1, h2, h3, h4, h5, h6, td, th";
 
 /** Changes the HTML for BlockNote's HTML parser (see `MarkdownToHtmlOptions`). */
 function prepareForBlocks(html: string): string {
-  // Use a document that is not the active document, so that the HTML from
-  // the markdown does not load images or run event handlers (see
-  // `nestedListsToBlockNoteStructure`).
-  const container = document.implementation
-    .createHTMLDocument("title")
-    .createElement("div");
+  // The HTML from the markdown does not load images or run event handlers
+  // in this document (see `detachedDoc`).
+  const container = detachedDoc().createElement("div");
   container.innerHTML = html;
   // A `<br>` outside a text, for example after an HTML block, is an empty
   // paragraph, as a `<br>` line is. Without this, the HTML parser makes a

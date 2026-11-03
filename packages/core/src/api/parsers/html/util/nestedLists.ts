@@ -186,7 +186,13 @@ function isListItemChild(element: Element | null): element is Element {
 // prevent XSS, similar to https://github.com/ProseMirror/prosemirror-view/blob/1251b2b412656a2a06263e4187574beb43651273/src/clipboard.ts#L204
 // https://github.com/TypeCellOS/BlockNote/issues/601
 let _detachedDoc: Document | null = null;
-function detachedDoc() {
+/**
+ * A document that is not the active document, for HTML that the parsers
+ * read. Its elements do not load images or run event handlers. All calls
+ * share one document: a new document for each parse is slow, and in jsdom
+ * each parse becomes slower than the one before.
+ */
+export function detachedDoc() {
   return (
     _detachedDoc ||
     (_detachedDoc = document.implementation.createHTMLDocument("title"))
