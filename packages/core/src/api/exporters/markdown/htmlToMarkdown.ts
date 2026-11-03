@@ -766,10 +766,8 @@ function formatSeparatorRow(colWidths: number[], colCount: number): string {
 function serializeImage(el: HTMLElement, ctx: SerializeContext): string {
   const src = el.getAttribute("src") || "";
   const alt = el.getAttribute("alt") || "";
-  // Empty placeholder — preserve the block-level break, matching how
-  // serializeParagraph/serializeHeading emit `\n\n` for empty content.
   if (!src) {
-    return "\n\n";
+    return serializeWithoutUrl("img", el, ctx);
   }
   return ctx.indent + `![${alt}](${src})\n\n`;
 }
@@ -778,15 +776,30 @@ function serializeVideo(el: HTMLElement, ctx: SerializeContext): string {
   const src = el.getAttribute("src") || el.getAttribute("data-url") || "";
   const name = el.getAttribute("data-name") || el.getAttribute("title") || "";
   if (!src) {
-    return "\n\n";
+    return serializeWithoutUrl("video", el, ctx);
   }
   return ctx.indent + `![${name}](${src})\n\n`;
+}
+
+/**
+ * A media block without a URL. With a caption, it is a figure without `src`:
+ * the markdown parser reads it back as the same block. Without a caption, it
+ * is an empty placeholder: the block-level break stays, as for an empty
+ * paragraph or heading.
+ */
+function serializeWithoutUrl(
+  kind: "img" | "video" | "audio",
+  el: HTMLElement,
+  ctx: SerializeContext,
+): string {
+  const caption = el.getAttribute("data-caption") || "";
+  return caption ? serializeMediaFigure(kind, "", "", caption, ctx) : "\n\n";
 }
 
 function serializeAudio(el: HTMLElement, ctx: SerializeContext): string {
   const src = el.getAttribute("src") || "";
   if (!src) {
-    return "\n\n";
+    return serializeWithoutUrl("audio", el, ctx);
   }
   // Audio has no markdown syntax, so emit raw HTML. The markdown parser
   // passes <audio> blocks through verbatim and BlockNote's audio block parser
@@ -851,7 +864,9 @@ function serializeMediaFigure(
   captionText: string,
   ctx: SerializeContext,
 ): string {
-  if (!src) {
+  // Without a URL and a caption, the block shows nothing. With a caption,
+  // the figure has no `src`, thus the parse gives the same block back.
+  if (!src && !captionText) {
     return "";
   }
 
@@ -873,10 +888,11 @@ function serializeMediaFigure(
         ? ` data-name="${escapeHtmlAttr(descriptor)}"`
         : "";
 
+  const srcAttr = src ? ` src="${escapeHtmlAttr(src)}"` : "";
   const tag =
     kind === "img"
-      ? `<img${descAttr} src="${escapeHtmlAttr(src)}">`
-      : `<${kind} src="${escapeHtmlAttr(src)}"${descAttr} controls></${kind}>`;
+      ? `<img${descAttr}${srcAttr}>`
+      : `<${kind}${srcAttr}${descAttr} controls></${kind}>`;
 
   const captionPart = captionText
     ? `<figcaption>${escapeHtmlText(captionText)}</figcaption>`

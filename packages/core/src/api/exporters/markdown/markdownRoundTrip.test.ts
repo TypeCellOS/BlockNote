@@ -951,6 +951,21 @@ describe("Markdown round trip", () => {
   });
 
   describe("empty blocks", () => {
+    it.each(["image", "video", "audio"] as const)(
+      "shows the caption of an %s without a URL, and parses it back",
+      (type) => {
+        const blocks: PartialBlock[] = [
+          { type: "paragraph", content: "Text" },
+          { type, props: { caption: "Caption" } },
+        ];
+        expectStable(blocks);
+        expect(parse(serialize(editor.document))[1]).toMatchObject({
+          type,
+          props: { url: "", caption: "Caption" },
+        });
+      },
+    );
+
     it("writes an empty paragraph as a <br> line and reads it back", () => {
       const blocks: PartialBlock[] = [
         { type: "paragraph", content: "a" },
