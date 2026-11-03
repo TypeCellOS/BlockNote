@@ -104,17 +104,20 @@ export function computeBlocksUpdate(
     keepLayout?: boolean;
   },
 ): TextUpdate {
-  const { current } = options;
-  const base = options.base ?? current;
-  const plan = planTextUpdate(editor, options.format, base, options.text);
+  const { base, current } = options;
+  const plan = planTextUpdate(
+    editor,
+    options.format,
+    base ?? current,
+    options.text,
+  );
   if (plan.error !== undefined) {
     return plan;
   }
   return updateToTarget(editor, plan, {
     base,
     current,
-    rebase: options.base !== undefined,
-    keepLayout: options.keepLayout,
+    keepLayout: options.keepLayout ?? false,
   });
 }
 
@@ -162,7 +165,6 @@ function jsonUpdate(
   options: JSONUpdateOptions,
   current: readonly LensBlock[],
 ): TextUpdate {
-  const base = options.base ?? current;
   const blocks = toBlocks(editor, options.document);
   if (blocks === undefined) {
     return { error: "invalid-document" };
@@ -170,12 +172,12 @@ function jsonUpdate(
   return updateToTarget(
     editor,
     {
-      target: withUniqueIds(blocks, base, current, (type) =>
+      target: withUniqueIds(blocks, options.base ?? current, current, (type) =>
         isLayoutType(editor, type),
       ),
       warnings: [],
     },
-    { base, current, rebase: options.base !== undefined },
+    { base: options.base, current, keepLayout: false },
   );
 }
 
@@ -293,12 +295,13 @@ function withUniqueIds(
 
 /**
  * Returns the update that changes `current` to the target document of the
- * plan. The diff gives the operations for `base`. If `base` is older than
- * `current` (`rebase`), the rebase moves them to `current` (see `rebase/`).
+ * plan. The plan is for `base`, or for `current` if there is no `base`. A
+ * plan without changes gives no operations. With `base` (an older version),
+ * the operations for `base` move to `current` (see `rebase/`).
  *
  * The layout blocks of the result change to fit their child rules (see
- * `fitLayout`), unless `keepLayout` is set: without a rebase, in the target;
- * with a rebase, in the result on the current document, with more
+ * `fitLayout`), unless `keepLayout` is set: without `base`, in the target;
+ * with `base`, in the result on the current document, with more
  * operations. The client did not change the layout blocks, and in the
  * current document they can have blocks of other writers (for example a
  * column that another writer added). Thus, the rule applies to the result.
@@ -307,41 +310,40 @@ function updateToTarget(
   editor: BlockNoteEditor<any, any, any>,
   plan: { target: readonly LensBlock[]; warnings: PlanWarning[] },
   documents: {
-    base: readonly LensBlock[];
+    /** The document at the version that the client read, if it is older than `current`. */
+    base: readonly LensBlock[] | undefined;
     current: readonly LensBlock[];
-    rebase: boolean;
-    keepLayout?: boolean;
+    keepLayout: boolean;
   },
 ): ValidTextUpdate {
-  const { base, current } = documents;
-  function fit(blocks: readonly LensBlock[]): LensBlock[] {
-    return fitLayout(blocks, (type) => layoutRuleOf(editor, type));
+  const { base, current, keepLayout } = documents;
+  if (plan.target === (base ?? current)) {
+    return { operations: [], warnings: plan.warnings };
   }
-  if (!documents.rebase) {
-    const target =
-      plan.target === base || documents.keepLayout
-        ? plan.target
-        : fit(plan.target);
+  function fit(blocks: readonly LensBlock[]): readonly LensBlock[] {
+    return keepLayout
+      ? blocks
+      : fitLayout(blocks, (type) => layoutRuleOf(editor, type));
+  }
+  if (base === undefined) {
     return {
-      operations: target === base ? [] : diffDocuments(base, target),
+      operations: diffDocuments(current, fit(plan.target)),
       warnings: plan.warnings,
     };
   }
-  const operations =
-    plan.target === base ? [] : diffDocuments(base, plan.target);
   const rebased = rebaseOperations({
     base,
     current,
     target: plan.target,
-    operations,
+    operations: diffDocuments(base, plan.target),
     contentKindOf: (type) => contentKindOf(editor, type),
     canContain: (parent, child) => canContain(editor, parent, child),
   });
-  const layout = documents.keepLayout
-    ? []
-    : diffDocuments(rebased.result, fit(rebased.result));
   return {
-    operations: [...rebased.operations, ...layout],
+    operations: [
+      ...rebased.operations,
+      ...diffDocuments(rebased.result, fit(rebased.result)),
+    ],
     warnings: [...plan.warnings, ...rebased.warnings],
   };
 }
