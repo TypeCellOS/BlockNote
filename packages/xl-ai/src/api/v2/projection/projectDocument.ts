@@ -2,6 +2,7 @@ import type { BlockNoteEditor } from "@blocknote/core";
 
 import { linkBlocks } from "../alignment/alignBlocks.js";
 import { flattenBlocks, withoutChildren } from "../blocks/flatten.js";
+import { blockToText } from "../blocks/text.js";
 import type { FlatBlock, LensBlock } from "../blocks/types.js";
 import { toStoredBlocks } from "../formats/stored.js";
 import type { TextFormat } from "../formats/types.js";
@@ -48,23 +49,7 @@ export function projectDocument(
   const viewBlocks =
     document.length === 0 ? [] : flattenBlocks(parseStored(text));
   const sourceBlocks = flattenBlocks(document);
-  // The parts of each source block: the view blocks that the block gives
-  // alone, without its children. Thus, the source of each part is known. A
-  // block that the format renders as no text (for example an image without
-  // a URL, in markdown) has no parts. A block can have more than one part
-  // (for example a code block with a blank line, in plain text). A layout
-  // block (for example a column) is not a document without its children:
-  // the parse fills it with new blocks. Thus, its part is the block.
-  const parts = sourceBlocks.flatMap(({ block }, source) => {
-    if (editor.schema.blockSchema[block.type]?.layoutOnly === true) {
-      const part = { block: withoutChildren(block), parentIndex: undefined };
-      return [{ part, source }];
-    }
-    const own = format.serialize(editor, [withoutChildren(block)]);
-    return own.trim() === ""
-      ? []
-      : flattenBlocks(parseStored(own)).map((part) => ({ part, source }));
-  });
+  const parts = partsOf(sourceBlocks, text);
   const links = linkBlocks(
     parts.map(({ part }) => part),
     viewBlocks,
@@ -97,6 +82,68 @@ export function projectDocument(
   return { text, view, invisibleIds, multiPartIds };
 
   /**
+   * The parts of each source block: the view blocks that the block gives
+   * alone, without its children. Thus, the source of each part is known. A
+   * block that the format renders as no text (for example an image without a
+   * URL, in markdown) has no parts. A block can have more than one part (for
+   * example a code block with a blank line, in plain text). A layout block
+   * (for example a column) is not a document without its children: the parse
+   * fills it with new blocks. Thus, its part is the block.
+   *
+   * One round trip gives the parts of all blocks: the blocks alone, at the
+   * top level, with a separator between them. The separator is a paragraph
+   * with only a character that the text does not contain. A format that does
+   * not keep these paragraphs apart from the blocks is a bug.
+   */
+  function partsOf(
+    sources: readonly FlatBlock[],
+    text: string,
+  ): { part: FlatBlock; source: number }[] {
+    const marker = unusedCharacter(text);
+    const separator: LensBlock = {
+      id: "",
+      type: "paragraph",
+      props: {},
+      content: [{ type: "text", text: marker, styles: {} }],
+      children: [],
+    };
+    const isLayout = ({ block }: FlatBlock) =>
+      editor.schema.blockSchema[block.type]?.layoutOnly === true;
+    const alone = sources.flatMap((flat, source) =>
+      isLayout(flat) ? [] : [source],
+    );
+    const own = format.serialize(
+      editor,
+      alone.flatMap((source, k) => {
+        const block = withoutChildren(sources[source].block);
+        return k === 0 ? [block] : [separator, block];
+      }),
+    );
+    const parsed = own.trim() === "" ? [] : flattenBlocks(parseStored(own));
+    const groups: FlatBlock[][] = [[]];
+    for (const flat of parsed) {
+      if (
+        flat.parentIndex === undefined &&
+        blockToText(flat.block) === marker
+      ) {
+        groups.push([]);
+      } else {
+        groups[groups.length - 1].push(flat);
+      }
+    }
+    if (alone.length > 0 && groups.length !== alone.length) {
+      throw new Error("The format did not keep the blocks apart");
+    }
+    let next = 0;
+    return sources.flatMap((flat, source) =>
+      (isLayout(flat)
+        ? [{ ...flat, parentIndex: undefined }]
+        : groups[next++]
+      ).map((part) => ({ part, source })),
+    );
+  }
+
+  /**
    * The parse of a text of the document, in the form that the document
    * stores blocks (as the blocks of a text of a client, see `api.ts`). The
    * text comes from the document, thus its blocks fit the schema.
@@ -108,4 +155,15 @@ export function projectDocument(
     }
     return blocks;
   }
+}
+
+/** A character of the Unicode private use area that `text` does not contain. */
+function unusedCharacter(text: string): string {
+  for (let code = 0xe000; code <= 0xf8ff; code++) {
+    const char = String.fromCharCode(code);
+    if (!text.includes(char)) {
+      return char;
+    }
+  }
+  throw new Error("The text contains all private use characters");
 }
