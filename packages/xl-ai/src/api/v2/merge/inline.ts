@@ -36,8 +36,11 @@ export function mergeInlineContent(
   return fromUnits(
     diff3(o, a, b, alignUnits(o, a), alignUnits(o, b), {
       stable: (triple) => mergeStable(triple, options),
-      ours: (units, context) =>
-        units.map((unit) => inheritHiddenStyles(unit, context)),
+      ours: (units, context) => {
+        // The styles of the replaced text, one time for the run.
+        const old = commonOf(context.replaced.base, context.replaced.theirs);
+        return units.map((unit) => inheritHiddenStyles(unit, context, old));
+      },
       // The round trip can move whitespace across a style boundary (for
       // example "**bold **" becomes "**bold** "). Thus, whitespace does not
       // show the styles around it.
@@ -86,12 +89,13 @@ function mergeStable(
  */
 function inheritHiddenStyles(
   unit: InlineUnit,
-  { before, after, replaced }: RunContext<InlineUnit>,
+  { before, after }: RunContext<InlineUnit>,
+  /** The styles of the replaced text (see {@link commonOf}). */
+  old: StableTriple<InlineUnit> | undefined,
 ): InlineUnit {
   if (unit.kind !== "char") {
     return unit;
   }
-  const old = commonOf(replaced.base, replaced.theirs);
   const sides = (old !== undefined ? [old, old] : [before, after]).map(
     (context) => inheritFrom(unit, context),
   );
