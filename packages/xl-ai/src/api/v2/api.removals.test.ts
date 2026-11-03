@@ -153,7 +153,9 @@ describe("removals (review closely)", () => {
     expect(update.warnings).toEqual([
       { type: "multi-part-block-replaced", id: "code" },
     ]);
-    expect(editor.getBlock("code")).toBeUndefined();
+    // The paragraph of the largest part keeps the ID. The code block (its
+    // type and language) is lost.
+    expect(editor.getBlock("code")).toMatchObject({ type: "paragraph" });
     expect(getDocumentText(editor, plainTextFormat)).toBe(text);
   });
 

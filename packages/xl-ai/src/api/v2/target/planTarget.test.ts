@@ -268,7 +268,9 @@ describe("planTarget", () => {
         multiPartIds: ["m"],
       }),
     ).toEqual({
-      target: ["new1:x", "new2:new", "new3:y"],
+      // The block of the largest part keeps the ID (here the first of two
+      // parts with the same length).
+      target: ["m:x", "new1:new", "new2:y"],
       warnings: [{ type: "multi-part-block-replaced", id: "m" }],
     });
   });

@@ -93,6 +93,8 @@ export function planTarget(input: PlanInput): Plan {
   // again (see `joinParts`), and the joined text merges as the block. Else,
   // the blocks of the text replace the block.
   const replaced = new Set<string>();
+  /** The block of the text that replaces a multi-part block and keeps its ID. */
+  const replacementIdOf = new Map<number, string>();
   const joined = new Map<string, { view: LensBlock; incoming: LensBlock }>();
   const partsOf = new Map<string, number[]>();
   view.forEach(({ sourceId }, v) => {
@@ -126,6 +128,24 @@ export function planTarget(input: PlanInput): Plan {
     if (join === undefined) {
       replaced.add(id);
       warnings.push({ type: "multi-part-block-replaced", id });
+      // The block of the text with the largest part keeps the ID, as for a
+      // split block. Thus, two writers that replace the block do not both
+      // add its text.
+      let largest: number | undefined;
+      for (const v of parts) {
+        const j = viewToIncoming[v];
+        if (
+          j !== -1 &&
+          (largest === undefined ||
+            blockToText(view[v].block).length >
+              blockToText(view[incomingToView[largest]].block).length)
+        ) {
+          largest = j;
+        }
+      }
+      if (largest !== undefined) {
+        replacementIdOf.set(largest, id);
+      }
     } else {
       joined.set(id, join);
     }
@@ -383,7 +403,10 @@ export function planTarget(input: PlanInput): Plan {
     }
     const id = keptIdOf[j];
     if (id === undefined) {
-      const block = node(input.newId(), incoming[j].block);
+      const block = node(
+        replacementIdOf.get(j) ?? input.newId(),
+        incoming[j].block,
+      );
       attach(block, nestingOfNext(j) ?? textParent(j));
       nodes[j] = block;
       continue;

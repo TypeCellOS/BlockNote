@@ -1013,7 +1013,9 @@ describe("markdown, blocks that markdown shows as other blocks", () => {
     expect(update.warnings).toEqual([
       { type: "multi-part-block-replaced", id: "f" },
     ]);
-    expect(editor.getBlock("f")).toBeUndefined();
+    // The paragraph of the largest part keeps the ID, without the data of
+    // the file block.
+    expect(editor.getBlock("f")?.type).toBe("paragraph");
     expect(getDocumentText(editor, format)).toContain("Q3, final");
   });
 });
