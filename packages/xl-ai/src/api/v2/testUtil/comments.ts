@@ -2,19 +2,23 @@ import { BlockNoteEditor, type PartialBlock } from "@blocknote/core";
 import { CommentsExtension, type ThreadStore } from "@blocknote/core/comments";
 import type { Mark, Node } from "prosemirror-model";
 
-/** An editor with the comments extension, so that its schema has the comment mark. */
-export function createCommentEditor(initialContent: PartialBlock[]) {
+/** Editor options with the comments extension, so that the schema has the comment mark. */
+export function commentEditorOptions() {
   const threadStore = {
     subscribe: () => () => {},
     getThreads: () => new Map(),
   } as unknown as ThreadStore;
-  return BlockNoteEditor.create({
-    initialContent,
+  return {
     trailingBlock: false,
     extensions: [
       CommentsExtension({ threadStore, resolveUsers: async () => [] }),
     ],
-  });
+  };
+}
+
+/** An editor with the comments extension (see {@link commentEditorOptions}). */
+export function createCommentEditor(initialContent: PartialBlock[]) {
+  return BlockNoteEditor.create({ initialContent, ...commentEditorOptions() });
 }
 
 /**
@@ -45,11 +49,22 @@ export function addComment(
   return comment;
 }
 
-/** Returns the text that has the comment mark. */
+/**
+ * Returns the text that has the comment mark. The mark can come from another
+ * editor (another schema): thus, the marks compare by their type name and
+ * thread ID.
+ */
 export function commentedText(doc: Node, comment: Mark): string {
   let result = "";
   doc.descendants((node) => {
-    if (node.isText && comment.isInSet(node.marks)) {
+    if (
+      node.isText &&
+      node.marks.some(
+        (mark) =>
+          mark.type.name === comment.type.name &&
+          mark.attrs.threadId === comment.attrs.threadId,
+      )
+    ) {
       result += node.text;
     }
   });

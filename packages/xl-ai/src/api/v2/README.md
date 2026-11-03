@@ -14,8 +14,8 @@ In lens terms, the document is the source and the text is the view. The `seriali
   - A block without an ID is a new block. An ID can identify only one block. Thus, a block gets a new ID if an earlier block of the JSON has its ID, or (with `base`) if its ID is not in `base` but is in the current document (a block that another writer added).
   - If the JSON does not fit the schema of the editor (for example an unknown block type, an unknown style, or content in a block without content), the result is `{ error: "invalid-document" }`, and the document does not change. The props are not examined, as in `editor.insertBlocks`.
 - `yjs/yDocText.ts`, for a Y.Doc (Yjs v13). It is a separate entry point, thus code without Yjs does not load Yjs:
-  - `getYDocText(editor, ydoc, { format })`: returns the document as text.
-  - `updateYDocFromText(editor, ydoc, { format, text, base, strategy })`: writes the text back. `base` is the Yjs state (`Y.encodeStateAsUpdate`) at the version that the client read. The result contains the Yjs update to send to the other clients, the operations and the warnings.
+  - `updateYDocFromText(editor, fragment, { format, text, base, strategy })`: writes the text back, through an editor that is bound to the fragment (`withCollaboration` of `@blocknote/core/yjs`) and mounted, as a client. `base` is the Yjs state (`Y.encodeStateAsUpdate`) at the version that the client read. The result contains the Yjs update to send to the other clients, the operations and the warnings.
+  - To read the text, use `getDocumentText` on the bound editor.
 - Formats: `markdownFormat`, `htmlFormat` and `plainTextFormat`. A format is two functions, `serialize` and `parse` (see `formats/types.ts`). HTML shows more than markdown (for example colors, alignment and underline), thus a client can also change these.
 
 There is no storage interface. The consumer keeps the versions, as full Block JSON or as full Yjs states. A version history must keep full documents in any case, because only a full document shows props, nesting and colors.
@@ -39,8 +39,8 @@ With concurrent changes (a write with an older `base`), PutGet is not true. The 
 
 The pipeline computes the changes of the text as operations for `base`. A strategy applies them:
 
-- **`"rebase"`** (the default, and the only strategy without Yjs): `rebase/` moves the operations to the current document. Then they apply to the current document. With Yjs, they apply to the current Y.Doc.
-- **`"yjs"`** (only `updateYDocFromText`): the operations apply to a Yjs copy of `base`. Then Yjs merges the copy into the Y.Doc. In the Yjs binding now, a move is a removal and an insert. Thus, concurrent moves give two blocks with the same ID, or a change to a moved block is lost. The tests for these cases are marked as known failures (`it.fails`). A Yjs binding with a flat document model will remove this problem. Then, the tests will tell you to remove the marks. A write from an empty `base` uses `"rebase"`: a copy of an empty base gets its own root block group, and Yjs cannot merge two new root structures into one.
+- **`"rebase"`** (the default, and the only strategy without Yjs): `rebase/` moves the operations to the current document. Then they apply to the current document. With Yjs, they apply to the bound editor, and the binding writes them to the Y.Doc.
+- **`"yjs"`** (only `updateYDocFromText`): the editor forks the Y.Doc at `base` (`ForkYDocExtension` of core), the operations apply to the fork, and Yjs merges the fork into the Y.Doc. In the Yjs binding now, a move is a removal and an insert. Thus, if two writers move the same block, the block is there two times, with the same ID, and if another writer changes a block that the text moves, the change is lost. The tests for these cases are marked as known failures (`it.fails`). A Yjs binding with a flat document model will remove this problem. Then, the tests will tell you to remove the marks. Yjs does not know the schema: as in each client, y-prosemirror removes the content of a merged document that does not fit the schema. A write from an empty `base` uses `"rebase"`: a fork of an empty base gets its own root block group, and Yjs cannot merge two new root structures into one.
 
 The rebase rules (`rebase/rebaseOperations.ts`) find each block by its ID:
 
@@ -96,7 +96,7 @@ The merge of a block (`merge/block.ts`) merges the type, each prop of the three 
 5. **Rebase** the operations to the current document, if `base` is older (see "Concurrent writes").
 6. **Apply** the operations to a ProseMirror transaction (`operations/applyOperations.ts`). The type and props of a block change through `updateBlockTr`. Inline content changes through the smallest ProseMirror steps: a `ReplaceStep` for each changed run, and mark steps for style changes. A move moves the ProseMirror node of the block. Thus, unchanged text keeps its identity and its comments, also in a moved block, and a collaboration binding sees only small changes. Core and ProseMirror fill a block with too few children with new blocks (for example a new column list before the moves of its columns). At the end, these blocks go if their parent does not need them: the blocks of the document and of the inserts are known, thus another block is such a fill block.
 
-For a Y.Doc, `updateYDocFromText` reads the Y.XmlFragment as a ProseMirror document with the schema of the editor (not as Block JSON, which has no comment marks). The read uses a copy of the Y.Doc, because y-prosemirror removes the content that the schema cannot read. If the copy changed, the read throws an error, and the Y.Doc does not change. It applies the operations to that document, and writes each ProseMirror step to the target Y.Doc alone, in one Yjs transaction (`yjs/writeSteps.ts`). A step writes only the Y element of the innermost block that contains it (`updateYFragment`), found by its path. Thus, a change in a block costs time for that block only. A step that inserts or removes whole blocks at the top level changes the Y children of the top-level group directly (in a nested group, the step writes the Y element of the parent block). Other steps write the full document. 900 new paragraphs in 9,000 paragraphs take 1.8 s (0.9 s for an editor). One diff of the full document is not correct for the "yjs" strategy: for a paragraph with two changes, it replaces the text between them, and Yjs then adds a change of another writer there a second time. The strategy selects only the target: the current Y.Doc, or a copy of `base`. To keep comments, give an editor that has the comments extension, so that its schema has the comment mark.
+For a Y.Doc, `updateYDocFromText` writes through an editor that is bound to the Y.Doc, as a client. The y-prosemirror binding then reads and writes the Y.Doc, as for each other client: the lens has no reader or writer of its own for Yjs. The editor must be mounted, because y-prosemirror makes its binding in the editor view. Give the editor the schema and the extensions of the other clients (for example comments): when an editor binds to a Y.Doc, y-prosemirror removes the content that its schema cannot read. For each transaction, y-prosemirror writes one diff for each text block, from the first changed character to the last. For a paragraph with two changes, that diff replaces the text between them, and Yjs then moves a concurrent change of another writer there. Thus, the steps go to the editor in transactions in which no two steps change the same text block (`yjs/dispatchSteps.ts`): each Yjs change is as small as its step, as for a user who types. A write that changes many blocks one time each is one transaction.
 
 ## Modules
 
@@ -148,7 +148,6 @@ Each module imports only modules that are before it in this list. Thus, there ar
 
 ## Changes outside this folder
 
-- `@blocknote/core/yjs` exports `updateYFragment` and `yXmlFragmentToProseMirrorRootNode` (from y-prosemirror). The Yjs API uses them to read and change a Y.Doc without an editor view.
 - `@blocknote/xl-ai` has `yjs` as an optional peer dependency.
 
 ## Warnings
@@ -168,6 +167,7 @@ The branch `fix/markdown-roundtrip` fixes the markdown conversion: one round tri
 
 - Delimiter runs like `***`: the parser does not use the delimiter rules of CommonMark. The exporter writes underscores where it can (`*a*__b__`, `**a _b_**`), but not next to a letter or a digit, or for text with `_`. There, runs like `***` stay.
 - HTML paste removes an image in a paragraph (markdown parse splits the paragraph around the image).
+- Duplicate block IDs in a Y.Doc (for example after two clients move the same block): the unique ID extension gives new IDs to the copies in the editor, but y-prosemirror does not write these IDs to the Y.Doc, because it makes the change during the sync of a remote update. Thus, each client can show different IDs for these blocks.
 
 ## Items that are not done
 

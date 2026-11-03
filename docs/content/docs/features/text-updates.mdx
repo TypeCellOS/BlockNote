@@ -112,33 +112,43 @@ If the JSON does not fit the schema of the editor (for example an unknown block 
 
 ## Y.Doc
 
-For a collaborative document in a Y.Doc, use the `@blocknote/xl-ai/text-lens/yjs` entry point. `base` is the Yjs state of the version that the client read:
+For a collaborative document in a Y.Doc, use the `@blocknote/xl-ai/text-lens/yjs` entry point. The lens writes through an editor that is bound to the Y.Doc, as a client. Create it with `withCollaboration`, with the schema and the extensions of your other clients, and mount it: the Yjs binding works in the editor view. On a server, mount it on an element that is not in a page. `base` is the Yjs state of the version that the client read:
 
 ```typescript
+import { BlockNoteEditor } from "@blocknote/core";
+import { withCollaboration } from "@blocknote/core/yjs";
 import * as Y from "yjs";
-import { markdownFormat } from "@blocknote/xl-ai/text-lens";
-import { getYDocText, updateYDocFromText } from "@blocknote/xl-ai/text-lens/yjs";
+import { getDocumentText, markdownFormat } from "@blocknote/xl-ai/text-lens";
+import { updateYDocFromText } from "@blocknote/xl-ai/text-lens/yjs";
 
-const text = getYDocText(editor, ydoc, { format: markdownFormat });
+const fragment = ydoc.getXmlFragment("document-store");
+const editor = BlockNoteEditor.create(
+  withCollaboration({
+    collaboration: { fragment, user: { name: "Server", color: "#888888" } },
+  }),
+);
+editor.mount(document.createElement("div"));
+
+const text = getDocumentText(editor, markdownFormat);
 const base = Y.encodeStateAsUpdate(ydoc);
 
 // ... later:
-const result = updateYDocFromText(editor, ydoc, {
+const result = updateYDocFromText(editor, fragment, {
   format: markdownFormat,
   text: changedText,
   base,
 });
 if (result.error === undefined) {
-  // Send `result.update` to the other clients.
+  // Send `result.update` to the other clients, if no provider does that.
 }
 ```
 
-The `editor` gives the schema and the conversions. To keep comments, give an editor with the comments extension. If the Y.Doc has content that the schema of the editor cannot read (for example a block type of a different schema), the functions throw an error, and the Y.Doc does not change.
+When an editor binds to a Y.Doc, the Yjs binding removes the content that the schema of the editor cannot read. Thus, give the editor the same schema and extensions as your other clients (for example comments).
 
 The `strategy` option selects how the write merges with the changes of other users:
 
 - `"rebase"` (the default): the changes of the client apply to the current document, by block ID, as for a document without Yjs.
-- `"yjs"`: the changes apply to a copy of `base`, and Yjs merges the copy. In the Yjs binding now, a move is a removal and an insert. Thus, if two writers move the same block, or one moves it and the other changes it, the result can have two blocks with the same ID or lose the change. A write from an empty `base` always uses `"rebase"`, because Yjs cannot merge two new documents into one.
+- `"yjs"`: the editor applies the changes to a fork of the Y.Doc at `base`, and Yjs merges the fork. In the Yjs binding now, a move is a removal and an insert. Thus, if two users move the same block, the block is there two times, and if the client moves a block that another user changes, the change is lost. A write from an empty `base` always uses `"rebase"`, because Yjs cannot merge two new documents into one.
 
 ## Warnings
 

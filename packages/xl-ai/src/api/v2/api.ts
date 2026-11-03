@@ -6,6 +6,7 @@ import {
 } from "@blocknote/core";
 import { UniqueID } from "@blocknote/core/extensions";
 import type { Node } from "prosemirror-model";
+import type { Transaction } from "prosemirror-state";
 
 import { alignBlocks } from "./alignment/alignBlocks.js";
 import { flattenBlocks } from "./blocks/flatten.js";
@@ -176,26 +177,43 @@ function jsonUpdate(
 
 /**
  * Computes an update for the document of the editor, and applies it, in one
- * transaction. The update is for the document in which the blocks without an
- * ID have an ID. Thus, the operations refer only to IDs that the document
- * has. On an error, the document does not change.
+ * transaction (see {@link prepareWrite}). On an error, the document does not
+ * change.
  */
 function write(
   editor: BlockNoteEditor<any, any, any>,
   compute: (current: readonly LensBlock[]) => TextUpdate,
 ): TextUpdate {
-  const withIds = editor.prosemirrorState.tr;
-  addMissingBlockIds(withIds);
-  const update = compute(docToBlocks(withIds.doc));
+  const { update, tr } = prepareWrite(editor, compute);
   if (update.error === undefined) {
-    editor.transact((tr) => {
-      for (const step of withIds.steps) {
-        tr.step(step);
+    editor.transact((next) => {
+      for (const step of tr.steps) {
+        next.step(step);
       }
-      applyOperations(tr, update.operations);
     });
   }
   return update;
+}
+
+/**
+ * Computes an update for the document of the editor, and a transaction of
+ * the editor state with the steps of the update. The transaction is not
+ * dispatched. Its first steps give an ID to each block without an ID. The
+ * update is for the document with these IDs. Thus, the operations refer only
+ * to IDs that the document has. On an error, the transaction has only the ID
+ * steps.
+ */
+export function prepareWrite(
+  editor: BlockNoteEditor<any, any, any>,
+  compute: (current: readonly LensBlock[]) => TextUpdate,
+): { update: TextUpdate; tr: Transaction } {
+  const tr = editor.prosemirrorState.tr;
+  addMissingBlockIds(tr);
+  const update = compute(docToBlocks(tr.doc));
+  if (update.error === undefined) {
+    applyOperations(tr, update.operations);
+  }
+  return { update, tr };
 }
 
 /**

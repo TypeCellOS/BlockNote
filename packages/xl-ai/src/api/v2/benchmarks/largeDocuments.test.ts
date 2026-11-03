@@ -18,7 +18,8 @@ import { diffDocuments } from "../operations/diffDocuments.js";
 import { projectDocument } from "../projection/projectDocument.js";
 import { planTarget } from "../target/planTarget.js";
 import { richDocument } from "../testUtil/fixtures.js";
-import { getYDocText, updateYDocFromText } from "../yjs/index.js";
+import { bindEditor } from "../testUtil/yjs.js";
+import { updateYDocFromText } from "../yjs/index.js";
 
 /**
  * Benchmarks for large documents. They do not run in a normal test run. Run
@@ -125,7 +126,10 @@ describe.runIf(process.env.TEXT_LENS_BENCH)("large documents", () => {
 
           // The same document in a Y.Doc.
           const ydoc = blocksToYDoc(editor, editor.document);
-          const yText = getYDocText(editor, ydoc, { format });
+          const yText = getDocumentText(
+            bindEditor(ydoc.getXmlFragment("prosemirror")),
+            format,
+          );
           const yEdited =
             yText.slice(0, yText.indexOf("Last paragraph", yText.length / 2)) +
             "Changed. " +
@@ -148,17 +152,20 @@ describe.runIf(process.env.TEXT_LENS_BENCH)("large documents", () => {
                 base: document,
               }),
             ),
+            // A new client of a copy of the Y.Doc for each run. The bind is
+            // not in the time.
             "Y.Doc write": await median(
-              (copy) =>
-                updateYDocFromText(editor, copy, {
+              ({ client, fragment }) =>
+                updateYDocFromText(client, fragment, {
                   format,
                   text: yEdited,
-                  base: Y.encodeStateAsUpdate(copy),
+                  base: Y.encodeStateAsUpdate(ydoc),
                 }),
               () => {
                 const copy = new Y.Doc();
                 Y.applyUpdate(copy, Y.encodeStateAsUpdate(ydoc));
-                return copy;
+                const fragment = copy.getXmlFragment("prosemirror");
+                return { client: bindEditor(fragment), fragment };
               },
             ),
             "· project": await median(() => {

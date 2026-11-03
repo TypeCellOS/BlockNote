@@ -5,12 +5,7 @@ import {
   type PartialBlock,
 } from "@blocknote/core";
 import { withMultiColumn } from "@blocknote/xl-multi-column";
-import {
-  blocksToYDoc,
-  updateYFragment,
-  yDocToBlocks,
-  yXmlFragmentToProseMirrorRootNode,
-} from "@blocknote/core/yjs";
+import { blocksToYDoc, yDocToBlocks } from "@blocknote/core/yjs";
 import { describe, expect, it } from "vite-plus/test";
 import * as Y from "yjs";
 
@@ -24,18 +19,15 @@ import {
 import {
   addComment,
   commentedText,
-  createCommentEditor,
+  commentEditorOptions,
 } from "../testUtil/comments.js";
 import {
   documentShape,
   replaceOnce,
   richDocument,
 } from "../testUtil/fixtures.js";
-import {
-  getYDocText,
-  type MergeStrategy,
-  updateYDocFromText,
-} from "./yDocText.js";
+import { bindEditor, readText } from "../testUtil/yjs.js";
+import { type MergeStrategy, updateYDocFromText } from "./yDocText.js";
 import { valid } from "../testUtil/valid.js";
 import {
   createRandom,
@@ -57,14 +49,18 @@ const fruit: PartialBlock[] = [
   { id: "end", type: "paragraph", content: "End" },
 ];
 
+/** An editor that gives the schema to read the Y.Doc directly, without a binding. */
+const reader = BlockNoteEditor.create();
+
 function setup(initialContent: PartialBlock[] = richDocument) {
-  const editor = BlockNoteEditor.create();
   const ydoc = blocksToYDoc(
-    editor,
+    reader,
     BlockNoteEditor.create({ initialContent }).document,
   );
-  const options = { format: markdownFormat };
-  const blocks = () => yDocToBlocks(editor, ydoc);
+  const fragment = ydoc.getXmlFragment("prosemirror");
+  const editor = bindEditor(fragment);
+  const format = markdownFormat;
+  const blocks = () => yDocToBlocks(reader, ydoc);
 
   return {
     editor,
@@ -73,7 +69,7 @@ function setup(initialContent: PartialBlock[] = richDocument) {
     block: (id: string) => blocks().find((candidate) => candidate.id === id),
     /** A client reads the text. It keeps the Yjs state as the base of a later write. */
     read: () => ({
-      text: getYDocText(editor, ydoc, options),
+      text: getDocumentText(editor, format),
       base: Y.encodeStateAsUpdate(ydoc),
     }),
     /** A client writes back a changed copy of the text that it read. */
@@ -83,28 +79,18 @@ function setup(initialContent: PartialBlock[] = richDocument) {
       strategy?: MergeStrategy,
     ) =>
       valid(
-        updateYDocFromText(editor, ydoc, {
-          ...options,
+        updateYDocFromText(editor, fragment, {
+          format,
           text: edit(client.text),
           base: client.base,
           strategy,
         }),
       ),
-    /** A user changes the document in an editor. */
+    /** Another user changes the document in an editor. */
     change: (edit: (editor: BlockNoteEditor<any, any, any>) => void) => {
-      const userEditor = BlockNoteEditor.create({
-        initialContent: blocks(),
-        trailingBlock: false,
-      });
-      edit(userEditor);
-      ydoc.transact(() =>
-        updateYFragment(
-          ydoc,
-          ydoc.getXmlFragment("prosemirror"),
-          userEditor.prosemirrorState.doc,
-          { mapping: new Map(), isOMark: new Map() },
-        ),
-      );
+      const user = bindEditor(fragment);
+      edit(user);
+      user._tiptapEditor.destroy();
     },
   };
 }
@@ -132,7 +118,7 @@ describe("updateYDocFromText", () => {
   });
 
   it("returns the Yjs update for the other clients", () => {
-    const { editor, ydoc, read, write, blocks } = setup();
+    const { ydoc, read, write, blocks } = setup();
     const replica = new Y.Doc();
     Y.applyUpdate(replica, Y.encodeStateAsUpdate(ydoc));
 
@@ -141,7 +127,7 @@ describe("updateYDocFromText", () => {
     );
     Y.applyUpdate(replica, result.update);
 
-    expect(yDocToBlocks(editor, replica)).toEqual(blocks());
+    expect(yDocToBlocks(reader, replica)).toEqual(blocks());
   });
 });
 
@@ -149,8 +135,6 @@ describe.each([
   { name: "markdown", format: markdownFormat },
   { name: "plain text", format: plainTextFormat },
 ])("empty and cleared documents ($name)", ({ format }) => {
-  const editor = BlockNoteEditor.create();
-
   /** The IDs of all blocks in the Y.Doc, from its XML. */
   function idsOf(ydoc: Y.Doc): (string | undefined)[] {
     return [
@@ -165,33 +149,46 @@ describe.each([
 
   it("writes text to an empty Y.Doc", () => {
     const ydoc = new Y.Doc();
-    valid(updateYDocFromText(editor, ydoc, { format, text: "Hello" }));
+    const fragment = ydoc.getXmlFragment("prosemirror");
+    valid(
+      updateYDocFromText(bindEditor(fragment), fragment, {
+        format,
+        text: "Hello",
+      }),
+    );
 
-    expect(getYDocText(editor, ydoc, { format }).trim()).toBe("Hello");
+    expect(readText(fragment, format).trim()).toBe("Hello");
     expect(idsOf(ydoc).every((id) => typeof id === "string")).toBe(true);
   });
 
   it("writes text with a base from an empty Y.Doc", () => {
     const ydoc = new Y.Doc();
+    const fragment = ydoc.getXmlFragment("prosemirror");
     valid(
-      updateYDocFromText(editor, ydoc, {
+      updateYDocFromText(bindEditor(fragment), fragment, {
         format,
         text: "Hello",
         base: Y.encodeStateAsUpdate(ydoc),
       }),
     );
 
-    expect(getYDocText(editor, ydoc, { format }).trim()).toBe("Hello");
+    expect(readText(fragment, format).trim()).toBe("Hello");
   });
 
   it.each<MergeStrategy>(["rebase", "yjs"])(
     "keeps the text of another writer, if the base is an empty Y.Doc (strategy %s)",
     (strategy) => {
       const ydoc = new Y.Doc();
+      const fragment = ydoc.getXmlFragment("prosemirror");
       const base = Y.encodeStateAsUpdate(ydoc);
-      valid(updateYDocFromText(editor, ydoc, { format, text: "Other" }));
       valid(
-        updateYDocFromText(editor, ydoc, {
+        updateYDocFromText(bindEditor(fragment), fragment, {
+          format,
+          text: "Other",
+        }),
+      );
+      valid(
+        updateYDocFromText(bindEditor(fragment), fragment, {
           format,
           text: "Hello",
           base,
@@ -199,24 +196,24 @@ describe.each([
         }),
       );
 
-      expect(getYDocText(editor, ydoc, { format }).trim()).toBe(
-        "Hello\n\nOther",
-      );
-      expect(ydoc.getXmlFragment("prosemirror").length).toBe(1);
+      expect(readText(fragment, format).trim()).toBe("Hello\n\nOther");
+      expect(fragment.length).toBe(1);
     },
   );
 
   it("clears a document, and writes text again", () => {
     const ydoc = blocksToYDoc(
-      editor,
+      reader,
       BlockNoteEditor.create({
         initialContent: [{ type: "paragraph", content: "Old text" }],
       }).document,
     );
-    valid(updateYDocFromText(editor, ydoc, { format, text: "" }));
-    valid(updateYDocFromText(editor, ydoc, { format, text: "New text" }));
+    const fragment = ydoc.getXmlFragment("prosemirror");
+    const editor = bindEditor(fragment);
+    valid(updateYDocFromText(editor, fragment, { format, text: "" }));
+    valid(updateYDocFromText(editor, fragment, { format, text: "New text" }));
 
-    expect(getYDocText(editor, ydoc, { format }).trim()).toBe("New text");
+    expect(readText(fragment, format).trim()).toBe("New text");
     expect(idsOf(ydoc).every((id) => typeof id === "string")).toBe(true);
   });
 });
@@ -433,28 +430,26 @@ describe("concurrent writes (strategy rebase): conflicts", () => {
 describe.each<MergeStrategy>(["rebase", "yjs"])(
   "comments (strategy %s)",
   (strategy) => {
-    /** A Y.Doc from an editor with comments. Block JSON does not contain comment marks, thus the test writes the ProseMirror document. */
+    /** A Y.Doc with comments, from a client with the comments extension. */
     function setupWithComments() {
-      const editor = createCommentEditor(fruit);
-      const kept = addComment(editor, "Apples");
-      const moved = addComment(editor, "Pears");
       const ydoc = new Y.Doc();
       const fragment = ydoc.getXmlFragment("prosemirror");
-      updateYFragment(ydoc, fragment, editor.prosemirrorState.doc, {
-        mapping: new Map(),
-        isOMark: new Map(),
-      });
+      const editor = bindEditor(fragment, commentEditorOptions());
+      editor.replaceBlocks(editor.document, fruit);
+      const kept = addComment(editor, "Apples");
+      const moved = addComment(editor, "Pears");
       const write = (edit: (text: string) => string) =>
         valid(
-          updateYDocFromText(editor, ydoc, {
+          updateYDocFromText(editor, fragment, {
             format: markdownFormat,
-            text: edit(getYDocText(editor, ydoc, { format: markdownFormat })),
+            text: edit(getDocumentText(editor, markdownFormat)),
             base: Y.encodeStateAsUpdate(ydoc),
             strategy,
           }),
         );
+      /** The document of the Y.Doc, as a new client with comments reads it. */
       const doc = () =>
-        yXmlFragmentToProseMirrorRootNode(fragment, editor.pmSchema);
+        bindEditor(fragment, commentEditorOptions()).prosemirrorState.doc;
       return { kept, moved, write, doc };
     }
 
@@ -475,42 +470,10 @@ describe.each<MergeStrategy>(["rebase", "yjs"])(
   },
 );
 
-describe("an editor with a schema that does not fit the Y.Doc", () => {
-  it("gives an error, and does not change the Y.Doc", () => {
-    const withComments = createCommentEditor([
-      { id: "p", type: "paragraph", content: "Alpha text" },
-    ]);
-    addComment(withComments, "Alpha");
-    const ydoc = new Y.Doc();
-    updateYFragment(
-      ydoc,
-      ydoc.getXmlFragment("prosemirror"),
-      withComments.prosemirrorState.doc,
-      { mapping: new Map(), isOMark: new Map() },
-    );
-    const before = Y.encodeStateAsUpdate(ydoc);
-    // This editor does not have the comments extension.
-    const editor = BlockNoteEditor.create();
-
-    expect(() => getYDocText(editor, ydoc, { format: markdownFormat })).toThrow(
-      /cannot read all content/,
-    );
-    expect(() =>
-      valid(
-        updateYDocFromText(editor, ydoc, {
-          format: markdownFormat,
-          text: "Alpha text, edited",
-        }),
-      ),
-    ).toThrow(/cannot read all content/);
-    expect(Y.encodeStateAsUpdate(ydoc)).toEqual(before);
-  });
-});
-
 /**
- * The Y.Doc API writes each step to the Y element of its block (see
- * `writeSteps`). The result must be the same document as a write to an
- * editor.
+ * The Y.Doc API writes through the binding of an editor, in transactions
+ * with one change for each text block (see `dispatchSteps`). The result must
+ * be the same document as a write to an editor without Yjs.
  */
 describe.each([
   { name: "markdown", format: markdownFormat },
@@ -531,18 +494,18 @@ describe.each([
     const editor = BlockNoteEditor.create({
       initialContent: randomDocument(random),
     });
-    const ydoc = blocksToYDoc(editor, editor.document);
+    const fragment = blocksToYDoc(editor, editor.document).getXmlFragment(
+      "prosemirror",
+    );
     let text = getDocumentText(editor, format);
     for (let i = 0; i <= random.int(3); i++) {
       text = edit(random, text);
     }
 
     valid(updateDocumentFromText(editor, { format, text }));
-    valid(updateYDocFromText(BlockNoteEditor.create(), ydoc, { format, text }));
+    valid(updateYDocFromText(bindEditor(fragment), fragment, { format, text }));
 
-    expect(getYDocText(BlockNoteEditor.create(), ydoc, { format })).toBe(
-      getDocumentText(editor, format),
-    );
+    expect(readText(fragment, format)).toBe(getDocumentText(editor, format));
   });
 });
 
@@ -577,19 +540,24 @@ describe("Y.Doc writes after a move of a nested block", () => {
 
   /** The block IDs of the Y.Doc and of an editor after the same write. */
   function write(text: string) {
-    const editor = BlockNoteEditor.create();
     const ydoc = blocksToYDoc(
-      editor,
+      reader,
       BlockNoteEditor.create({ initialContent: nested }).document,
     );
-    valid(updateYDocFromText(editor, ydoc, { format: markdownFormat, text }));
+    const fragment = ydoc.getXmlFragment("prosemirror");
+    valid(
+      updateYDocFromText(bindEditor(fragment), fragment, {
+        format: markdownFormat,
+        text,
+      }),
+    );
     const reference = BlockNoteEditor.create({ initialContent: nested });
     valid(updateDocumentFromText(reference, { format: markdownFormat, text }));
     function ids(blocks: { id: string; children: any[] }[]): string[] {
       return blocks.flatMap((block) => [block.id, ...ids(block.children)]);
     }
     return {
-      ydoc: ids(yDocToBlocks(editor, ydoc)),
+      ydoc: ids(yDocToBlocks(reader, ydoc)),
       editor: ids(reference.document),
     };
   }
@@ -613,15 +581,13 @@ describe.each<MergeStrategy>(["rebase", "yjs"])(
   "concurrent writes with columns (strategy %s)",
   (strategy) => {
     it("keeps a block that another writer added to a column, when the text empties the other column", () => {
-      const editor = BlockNoteEditor.create({
-        schema: withMultiColumn(
-          BlockNoteSchema.create({ blockSpecs: defaultBlockSpecs }),
-        ),
-      });
+      const schema = withMultiColumn(
+        BlockNoteSchema.create({ blockSpecs: defaultBlockSpecs }),
+      );
       const ydoc = blocksToYDoc(
-        editor,
+        BlockNoteEditor.create({ schema }),
         BlockNoteEditor.create({
-          schema: editor.schema,
+          schema,
           initialContent: [
             {
               id: "list",
@@ -643,19 +609,21 @@ describe.each<MergeStrategy>(["rebase", "yjs"])(
           ] as PartialBlock<any, any, any>[],
         }).document,
       );
+      const fragment = ydoc.getXmlFragment("prosemirror");
+      const editor = bindEditor(fragment, { schema });
       const format = markdownFormat;
-      const text = getYDocText(editor, ydoc, { format });
+      const text = getDocumentText(editor, format);
       const base = Y.encodeStateAsUpdate(ydoc);
       // Another writer adds a block after Alpha, in column A.
       valid(
-        updateYDocFromText(editor, ydoc, {
+        updateYDocFromText(bindEditor(fragment, { schema }), fragment, {
           format,
           text: text.replace("Alpha", "Alpha\n\nAdded by other"),
         }),
       );
 
       valid(
-        updateYDocFromText(editor, ydoc, {
+        updateYDocFromText(editor, fragment, {
           format,
           text: text.replace("Bravo\n\n", ""),
           base,
@@ -663,8 +631,9 @@ describe.each<MergeStrategy>(["rebase", "yjs"])(
         }),
       );
 
-      expect(getYDocText(editor, ydoc, { format })).toContain("Added by other");
-      expect(getYDocText(editor, ydoc, { format })).not.toContain("Bravo");
+      const result = readText(fragment, format, { schema });
+      expect(result).toContain("Added by other");
+      expect(result).not.toContain("Bravo");
     });
   },
 );
