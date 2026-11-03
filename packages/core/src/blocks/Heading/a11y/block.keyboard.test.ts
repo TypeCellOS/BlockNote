@@ -41,7 +41,7 @@ test("read-only toggle heading: Tab reaches the toggle and Enter expands/collaps
   await openEditor(toggleHeadingDocument, { editable: false });
   const toggleButton = await focusToggleHeadingWithAssertions();
   await expect
-    .element(page.getByRole("textbox"))
+    .element(page.getByRole("main").getByRole("document"))
     .toMatchScreenshot("toggle-heading-focused.png", {});
   await activateToggleHeading();
   await expect.element(toggleButton).toHaveFocus();

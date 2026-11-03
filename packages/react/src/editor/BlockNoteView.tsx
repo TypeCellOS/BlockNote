@@ -400,12 +400,6 @@ const ContentEditableElement = (props: {
 }) => {
   const { autoFocus, mount, contentEditableProps } = props;
   return (
-    <div
-      aria-autocomplete="list"
-      aria-haspopup="listbox"
-      data-bn-autofocus={autoFocus}
-      ref={mount}
-      {...contentEditableProps}
-    />
+    <div data-bn-autofocus={autoFocus} ref={mount} {...contentEditableProps} />
   );
 };

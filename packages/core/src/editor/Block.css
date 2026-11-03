@@ -347,6 +347,8 @@ NESTED BLOCKS
 
 /* Checked */
 .bn-block-content[data-content-type="checkListItem"] > div:has(> input) {
+  /* Keep vertical caret navigation out of the non-editable checkbox wrapper. */
+  user-select: none;
   height: 24px;
 }
 

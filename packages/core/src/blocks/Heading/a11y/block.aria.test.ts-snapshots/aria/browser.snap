@@ -1,19 +1,19 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`read-only toggle heading: Tab reaches the toggle and Enter expands/collapses it > collapsed 1`] = `
-"- textbox:
+"- document:
   - button "Expand or collapse"
   - heading "Details" [level=2]"
 `;
 
 exports[`read-only toggle heading: Tab reaches the toggle and Enter expands/collapses it > collapsed again 1`] = `
-"- textbox:
+"- document:
   - button "Expand or collapse"
   - heading "Details" [level=2]"
 `;
 
 exports[`read-only toggle heading: Tab reaches the toggle and Enter expands/collapses it > expanded 1`] = `
-"- textbox:
+"- document:
   - button "Expand or collapse" [expanded]
   - heading "Details" [level=2]
   - paragraph: Nested read-only content"

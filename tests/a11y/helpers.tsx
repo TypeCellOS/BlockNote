@@ -76,9 +76,11 @@ export async function openEditor(
       }}
     />,
   );
-  await expect.element(page.getByRole("textbox")).toBeVisible();
   await expect
-    .element(page.getByRole("textbox"))
+    .element(page.getByRole(editable ? "textbox" : "document"))
+    .toBeVisible();
+  await expect
+    .element(page.getByRole(editable ? "textbox" : "document"))
     .toHaveAttribute("contenteditable", String(editable));
   await document.fonts.ready;
   if (screenReader) {
