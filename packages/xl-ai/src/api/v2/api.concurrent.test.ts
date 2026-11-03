@@ -494,6 +494,27 @@ describe("a write from an older version with a conflict", () => {
     expect(editor.getBlock("end")?.content).toMatchObject([{ text: "Stop" }]);
   });
 
+  it("gives a warning if another writer changed the block into a type that cannot hold the text of the client", () => {
+    const editor = createEditor([
+      { id: "p", type: "paragraph", content: "Alpha beta gamma" },
+    ]);
+    const client = read(editor);
+    editor.updateBlock("p", {
+      type: "image",
+      props: { url: "https://example.com/a.png" },
+    });
+
+    const update = write(editor, client, (text) =>
+      replaceOnce(text, "gamma", "delta"),
+    );
+
+    expect(update.warnings).toEqual([{ type: "conflicting-change", id: "p" }]);
+    expect(editor.getBlock("p")).toMatchObject({
+      type: "paragraph",
+      content: [{ text: "Alpha beta delta" }],
+    });
+  });
+
   it("gives no warning for changes to different parts of one block", () => {
     const editor = createEditor([
       { id: "p", type: "paragraph", content: "One two three four" },
