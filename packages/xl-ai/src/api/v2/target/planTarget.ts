@@ -90,10 +90,18 @@ export function planTarget(input: PlanInput): Plan {
   // part is in the text, unchanged, and the parts are next to each other in
   // the same order.
   const replaced = new Set<string>();
-  for (const id of multiPartIds) {
-    const parts = view.flatMap((viewBlock, v) =>
-      viewBlock.sourceId === id ? [v] : [],
-    );
+  const partsOf = new Map<string, number[]>();
+  view.forEach(({ sourceId }, v) => {
+    if (sourceId !== undefined && multiPartIds.has(sourceId)) {
+      const parts = partsOf.get(sourceId);
+      if (parts === undefined) {
+        partsOf.set(sourceId, [v]);
+      } else {
+        parts.push(v);
+      }
+    }
+  });
+  for (const [id, parts] of partsOf) {
     const unchanged = parts.every((v, k) => {
       const j = viewToIncoming[v];
       return (

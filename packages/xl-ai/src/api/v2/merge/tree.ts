@@ -106,31 +106,34 @@ export function mergeTree(input: {
   /**
    * Gives the parent of `ours` to each block on a cycle of parents. A cycle
    * needs a parent of `theirs` that is not the parent of `ours` (each side
-   * alone is a tree). Thus, each round removes the cycle.
+   * alone is a tree). Thus, each round removes the cycles that it finds. Each
+   * round walks up from each block one time: a block that a walk passed is
+   * not walked again.
    */
   function breakCycles() {
     for (let changed = true; changed;) {
       changed = false;
-      for (const id of staying) {
+      /** The walk that passed each block. */
+      const walkOf = new Map<string, number>();
+      staying.forEach((id, walk) => {
         const path: string[] = [];
-        for (
-          let current: string | undefined = id;
-          current !== undefined && !path.includes(current);
-          current = parentOf(current)
-        ) {
+        let current: string | undefined = id;
+        while (current !== undefined && !walkOf.has(current)) {
+          walkOf.set(current, walk);
           path.push(current);
-          const next = parentOf(current);
-          if (next !== undefined && path.includes(next)) {
-            for (const block of path.slice(path.indexOf(next))) {
-              if (ours.has(block) && !oursWins.has(block)) {
-                oursWins.add(block);
-                changed = true;
-              }
-            }
-            break;
+          current = parentOf(current);
+        }
+        if (current === undefined || walkOf.get(current) !== walk) {
+          // The top level, or a block of an earlier walk: no new cycle.
+          return;
+        }
+        for (const block of path.slice(path.indexOf(current))) {
+          if (ours.has(block) && !oursWins.has(block)) {
+            oursWins.add(block);
+            changed = true;
           }
         }
-      }
+      });
     }
   }
 
@@ -140,18 +143,18 @@ export function mergeTree(input: {
    * whose parent in the result is `parent` count.
    */
   function sideChildren(side: BlockTree, parent: string | undefined): string[] {
-    const result: string[] = [];
+    const result = new Set<string>();
     const visit = (ids: readonly string[]) => {
       for (const id of ids) {
         if (!stays(id)) {
           visit(side.childrenOf(id));
-        } else if (parentOf(id) === parent && !result.includes(id)) {
-          result.push(id);
+        } else if (parentOf(id) === parent) {
+          result.add(id);
         }
       }
     };
     visit(side.childrenOf(parent));
-    return result;
+    return [...result];
   }
 
   const childrenByParent = new Map<string | undefined, string[]>();
@@ -186,14 +189,12 @@ export function mergeTree(input: {
         keepBothInserts: "ours-first",
       },
     );
-    const order = [...new Set(merged)];
+    const order = new Set(merged);
     // Each block of the parent is in one of the lists. This is a guard.
     for (const id of expected) {
-      if (!order.includes(id)) {
-        order.push(id);
-      }
+      order.add(id);
     }
-    return order;
+    return [...order];
   }
 
   function fieldsOf(id: string): LensBlock {
