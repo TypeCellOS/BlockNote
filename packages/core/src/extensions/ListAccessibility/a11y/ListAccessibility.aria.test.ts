@@ -1,10 +1,7 @@
 import { test } from "vite-plus/test";
 import { page } from "vite-plus/test/browser";
 
-import {
-  checkAriaSnapshot,
-  openEditor,
-} from "@root/tests/a11y/helpers.js";
+import { checkAriaSnapshot, openEditor } from "@root/tests/a11y/helpers.js";
 
 test("nested and sibling list items expose list semantics", async () => {
   await openEditor([
@@ -35,7 +32,11 @@ test("numbered list starts and nested numbering appear in the accessibility tree
       content: "First item",
       children: [
         { id: "nested-first", type: "numberedListItem", content: "Nested one" },
-        { id: "nested-second", type: "numberedListItem", content: "Nested two" },
+        {
+          id: "nested-second",
+          type: "numberedListItem",
+          content: "Nested two",
+        },
       ],
     },
     { id: "second", type: "numberedListItem", content: "Second item" },
