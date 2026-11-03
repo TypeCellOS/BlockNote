@@ -1032,7 +1032,40 @@ function mergeSameRuns(el: Element, escapes: TextEscapes) {
     wrapper.replaceWith(...Array.from(wrapper.childNodes));
   }
   el.normalize();
+  unwrapWhitespaceRuns(el);
   mergeSameSiblingRuns(el);
+}
+
+/** The inline elements with delimiters that need text that is not whitespace. */
+const DELIMITER_TAGS = new Set(["STRONG", "B", "EM", "I", "S", "DEL"]);
+
+/**
+ * A run of only whitespace cannot have a delimiter of its own: `** **` is
+ * not bold. Thus, such a run keeps only the elements that a run next to it
+ * continues (the same tag before or after it). The other elements have no
+ * effect in markdown, and the exporter removes them. Then, for example,
+ * `<s>a</s><strong><s> </s></strong><s>b</s>` becomes one strike run. Without
+ * this, the strike run splits at the space.
+ */
+function unwrapWhitespaceRuns(el: Element) {
+  for (const element of Array.from(el.querySelectorAll("*"))) {
+    if (
+      DELIMITER_TAGS.has(element.tagName) &&
+      (element.textContent ?? "").trim() === "" &&
+      !continuesNeighbor(element)
+    ) {
+      element.replaceWith(...Array.from(element.childNodes));
+    }
+  }
+}
+
+/** Returns true if the node before or after the element has the same tag. */
+function continuesNeighbor(element: Element): boolean {
+  return [element.previousSibling, element.nextSibling].some(
+    (neighbor) =>
+      neighbor?.nodeType === 1 &&
+      (neighbor as Element).tagName === element.tagName,
+  );
 }
 
 function mergeSameSiblingRuns(parent: Node) {

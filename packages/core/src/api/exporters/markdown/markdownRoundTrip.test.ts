@@ -545,6 +545,36 @@ describe("Markdown round trip", () => {
       expectStable(blocks);
     });
 
+    it("keeps a strike run over a space that is also bold", () => {
+      const blocks: PartialBlock[] = [
+        {
+          type: "paragraph",
+          content: [
+            { type: "text", text: "a", styles: { strike: true } },
+            { type: "text", text: " ", styles: { bold: true, strike: true } },
+            { type: "text", text: "b", styles: { strike: true } },
+          ],
+        },
+      ];
+      expect(serialize(blocks)).toBe("~~a b~~\n");
+      expectStable(blocks);
+    });
+
+    it("splits a strike run at a space that is not struck", () => {
+      const blocks: PartialBlock[] = [
+        {
+          type: "paragraph",
+          content: [
+            { type: "text", text: "a", styles: { strike: true } },
+            { type: "text", text: " ", styles: { bold: true } },
+            { type: "text", text: "b", styles: { strike: true } },
+          ],
+        },
+      ];
+      expect(serialize(blocks)).toBe("~~a~~ ~~b~~\n");
+      expectStable(blocks);
+    });
+
     it("parses a text with italic runs next to each other into a stable form", () => {
       const once = serialize(parse("*~~a~~]* b"));
       expect(serialize(parse(once))).toBe(once);
