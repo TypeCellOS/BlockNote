@@ -12,7 +12,7 @@ test("read-only toggle heading: Tab reaches the toggle and Enter expands/collaps
   resetToggleHeading();
   await openEditor(toggleHeadingDocument, { editable: false });
   await focusToggleHeading();
-  const editor = page.getByRole("textbox");
+  const editor = page.getByRole("main").getByRole("document");
   await checkAriaSnapshot(editor, "collapsed");
   await activateToggleHeading();
   await checkAriaSnapshot(editor, "expanded");

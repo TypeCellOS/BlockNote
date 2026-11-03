@@ -86,7 +86,7 @@ exports[`default schema: arrow-key document navigation > default schema 1`] = `
 `;
 
 exports[`read-only editor: Tab reaches inline links and leaves the editor > read-only editor 1`] = `
-"- textbox:
+"- document:
   - paragraph:
     - link "Documentation":
       - /url: https://www.blocknotejs.org/"

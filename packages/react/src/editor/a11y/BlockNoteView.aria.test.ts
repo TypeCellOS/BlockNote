@@ -14,5 +14,8 @@ test("default schema: arrow-key document navigation", async () => {
 test("read-only editor: Tab reaches inline links and leaves the editor", async () => {
   await openEditor(readOnlyLinkDocument, { editable: false });
   await focusReadOnlyLink();
-  await checkAriaSnapshot(page.getByRole("textbox"), "read-only editor");
+  await checkAriaSnapshot(
+    page.getByRole("main").getByRole("document"),
+    "read-only editor",
+  );
 });

@@ -42,6 +42,14 @@ export const ReadOnlyExtension = createExtension(
         new Plugin({
           key: PLUGIN_KEY,
           props: {
+            attributes: (): Record<string, string> =>
+              store.state.isEditable && store.state.enabledSet.size === 0
+                ? {
+                    role: "textbox",
+                    "aria-autocomplete": "list",
+                    "aria-haspopup": "listbox",
+                  }
+                : { role: "document" },
             editable: () =>
               store.state.isEditable && store.state.enabledSet.size === 0,
           },
