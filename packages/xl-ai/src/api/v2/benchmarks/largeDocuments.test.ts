@@ -67,6 +67,7 @@ const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
 async function median<T>(
   run: (input: T) => unknown,
   prepare: () => T = () => undefined as T,
+  finish: (input: T) => void = () => {},
 ): Promise<number> {
   const times: number[] = [];
   for (let i = 0; i < RUNS; i++) {
@@ -75,6 +76,7 @@ async function median<T>(
     const start = performance.now();
     run(input);
     times.push(performance.now() - start);
+    finish(input);
   }
   times.sort((a, b) => a - b);
   return Math.round(times[Math.floor(times.length / 2)]);
@@ -126,10 +128,9 @@ describe.runIf(process.env.TEXT_LENS_BENCH)("large documents", () => {
 
           // The same document in a Y.Doc.
           const ydoc = blocksToYDoc(editor, editor.document);
-          const yText = getDocumentText(
-            bindEditor(ydoc.getXmlFragment("prosemirror")),
-            format,
-          );
+          const reader = bindEditor(ydoc.getXmlFragment("prosemirror"));
+          const yText = getDocumentText(reader, format);
+          reader._tiptapEditor.destroy();
           const yEdited =
             yText.slice(0, yText.indexOf("Last paragraph", yText.length / 2)) +
             "Changed. " +
@@ -167,6 +168,8 @@ describe.runIf(process.env.TEXT_LENS_BENCH)("large documents", () => {
                 const fragment = copy.getXmlFragment("prosemirror");
                 return { client: bindEditor(fragment), fragment };
               },
+              // An editor of 10,000 blocks with a DOM is large in memory.
+              ({ client }) => client._tiptapEditor.destroy(),
             ),
             "· project": await median(() => {
               projection = projectDocument(editor, format, document);
