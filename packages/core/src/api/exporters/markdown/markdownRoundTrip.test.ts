@@ -589,6 +589,52 @@ describe("Markdown round trip", () => {
       expectStable(blocks);
     });
 
+    it.each([
+      [
+        "bold text that ends in bold italic",
+        [
+          { type: "text", text: "a ", styles: { bold: true } },
+          { type: "text", text: "b", styles: { bold: true, italic: true } },
+        ],
+        "**a _b_**\n",
+      ],
+      [
+        "bold text that starts in bold italic",
+        [
+          { type: "text", text: "b", styles: { bold: true, italic: true } },
+          { type: "text", text: " a", styles: { bold: true } },
+        ],
+        "**_b_ a**\n",
+      ],
+    ] as const)("keeps %s, with _ for the italic", (_, content, markdown) => {
+      const blocks: PartialBlock[] = [
+        { type: "paragraph", content: [...content] },
+      ];
+      expect(serialize(blocks)).toBe(markdown);
+      expectStable(blocks);
+      expect(parse(markdown)[0].content).toEqual(content);
+    });
+
+    it.each([
+      [
+        "italic text that ends in bold italic",
+        [
+          { type: "text", text: "a ", styles: { italic: true } },
+          { type: "text", text: "b", styles: { bold: true, italic: true } },
+        ],
+      ],
+      [
+        "italic text that starts in bold italic",
+        [
+          { type: "text", text: "b", styles: { bold: true, italic: true } },
+          { type: "text", text: " a", styles: { italic: true } },
+        ],
+      ],
+    ] as const)("keeps %s stable", (_, content) => {
+      // The space at the edge of the italic run moves out of the delimiter.
+      expectStable([{ type: "paragraph", content: [...content] }]);
+    });
+
     it("parses a text with italic runs next to each other into a stable form", () => {
       const once = serialize(parse("*~~a~~]* b"));
       expect(serialize(parse(once))).toBe(once);
@@ -1127,9 +1173,9 @@ describe("Markdown round trip", () => {
     // Cause: the markdown parser (`parseDelimited` in `markdownToHtml.ts`)
     // does not use the CommonMark rules for delimiter runs. It cannot close
     // `*` emphasis with the first `*` of a run like `***`. The exporter
-    // writes `__` for bold right after italic (see `strongDelimiter`), but
-    // runs that end at the same position (italic at the end of bold text)
-    // still give `***`.
+    // writes underscores where it can (see `strongDelimiter` and
+    // `edgeDelimiter`), but not next to a letter or a digit, or for text
+    // with `_`. There, runs like `***` stay.
     it.fails("gives the same markdown for adjacent bold and italic runs (property test)", () => {
       expect(
         findUnstableSeeds(

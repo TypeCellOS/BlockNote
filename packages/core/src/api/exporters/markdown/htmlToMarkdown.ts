@@ -1158,6 +1158,49 @@ type InlineOptions = {
   escapes: TextEscapes;
 };
 
+const BOLD_TAGS = new Set(["STRONG", "B"]);
+const ITALIC_TAGS = new Set(["EM", "I"]);
+
+/** A character next to which an underscore delimiter cannot open or close. */
+const WORD_CHAR = /[\p{L}\p{N}_]/u;
+
+/**
+ * The delimiter of emphasis (`star` is `*` or `**`) at the start or the end
+ * of a parent with the other emphasis (`parentTags`). The two delimiters are
+ * next to each other there, and give a run like `***` (`**a *b***`), which
+ * the parser does not read. Thus, the delimiter is then `_` or `__`
+ * (`**a _b_**`), if the underscores can open and close: the character on
+ * the other side of the element is not a letter, a digit or `_`. The
+ * content must not contain `_`: the parser reads it as a delimiter. An
+ * element that is the only child stays with `*` (`***a***`): the parser
+ * reads that.
+ */
+function edgeDelimiter(
+  element: Element,
+  content: string,
+  star: string,
+  parentTags: ReadonlySet<string>,
+): string {
+  const parent = element.parentElement;
+  const first = element.previousSibling === null;
+  const last = element.nextSibling === null;
+  if (
+    parent === null ||
+    !parentTags.has(parent.tagName) ||
+    first === last ||
+    content.includes("_")
+  ) {
+    return star;
+  }
+  const before = first
+    ? ""
+    : (element.previousSibling?.textContent ?? "").slice(-1);
+  const after = last ? "" : (element.nextSibling?.textContent ?? "").charAt(0);
+  return WORD_CHAR.test(before) || WORD_CHAR.test(after)
+    ? star
+    : star.replaceAll("*", "_");
+}
+
 /**
  * The delimiter of a bold run. It is `**`, but after italic text (which ends
  * with `*`) the result would be `*a***b**`, which the parser does not read
@@ -1172,7 +1215,8 @@ function strongDelimiter(
   const after = next?.textContent?.[0] ?? "";
   return before.endsWith("*") &&
     !/^\s/.test(content) &&
-    !/[\p{L}\p{N}_]/u.test(after)
+    !content.includes("_") &&
+    !WORD_CHAR.test(after)
     ? "__"
     : "**";
 }
@@ -1192,19 +1236,24 @@ function serializeInlineNodes(el: Element, options: InlineOptions): string {
         case "strong":
         case "b": {
           const content = serializeInlineNodes(childEl, options);
+          const edge = edgeDelimiter(childEl, content, "**", ITALIC_TAGS);
           result += wrapWithDelimiter(
             content,
-            strongDelimiter(result, content, childEl.nextSibling),
+            edge !== "**"
+              ? edge
+              : strongDelimiter(result, content, childEl.nextSibling),
           );
           break;
         }
         case "em":
-        case "i":
+        case "i": {
+          const content = serializeInlineNodes(childEl, options);
           result += wrapWithDelimiter(
-            serializeInlineNodes(childEl, options),
-            "*",
+            content,
+            edgeDelimiter(childEl, content, "*", BOLD_TAGS),
           );
           break;
+        }
         case "s":
         case "del":
           result += wrapWithDelimiter(
