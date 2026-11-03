@@ -2,6 +2,7 @@ import { BlockNoteEditor } from "@blocknote/core";
 import { Plugin } from "prosemirror-state";
 import { describe, expect, it } from "vite-plus/test";
 
+import { applyOperations } from "./applyOperations.js";
 import { dispatchSteps } from "./dispatch.js";
 
 /** The editor, and a counter of its transactions that change the document. */
@@ -69,6 +70,33 @@ describe("dispatchSteps", () => {
       [{ text: "First one two Omega" }],
       [{ text: "Bravo" }],
     ]);
+  });
+
+  it("dispatches changes of the props of different blocks in one transaction", () => {
+    const { editor, transactions } = setup();
+    const tr = editor.prosemirrorState.tr;
+    applyOperations(tr, [
+      {
+        type: "update",
+        id: "a",
+        update: { props: { textAlignment: "center" } },
+      },
+      {
+        type: "update",
+        id: "b",
+        update: { props: { textAlignment: "right" } },
+      },
+    ]);
+
+    dispatchSteps(editor, tr);
+
+    expect(transactions()).toBe(1);
+    expect(editor.getBlock("a")?.props).toMatchObject({
+      textAlignment: "center",
+    });
+    expect(editor.getBlock("b")?.props).toMatchObject({
+      textAlignment: "right",
+    });
   });
 
   it("moves the later steps if a plugin changes the document between two transactions", () => {

@@ -3,9 +3,11 @@ import type { Node } from "prosemirror-model";
 import type { Transaction } from "prosemirror-state";
 import {
   AddMarkStep,
-  RemoveMarkStep,
-  ReplaceStep,
+  AttrStep,
   Mapping,
+  RemoveMarkStep,
+  ReplaceAroundStep,
+  ReplaceStep,
   type Step,
   Transform,
 } from "prosemirror-transform";
@@ -53,15 +55,16 @@ export function dispatchToEditor(
  * Dispatches the steps of the transaction to the editor, in transactions that
  * y-prosemirror writes to the Y.Doc without changes to other blocks:
  *
- * - A step that is not in one text block (for example the insert or the
+ * - A step that changes a list of children (for example the insert or the
  *   removal of blocks) goes alone. y-prosemirror compares a list of children
  *   only from its start and from its end. It writes the children between the
  *   first and the last change in place, one by one. Thus, with two changes
  *   in one list, or a change that inserts or removes children next to other
  *   changes, a block can get the content of a different block, and a change
  *   of another writer goes into the wrong block.
- * - The other steps go in groups in which no two steps change the same
- *   block. For each transaction, y-prosemirror writes one diff for each text
+ * - The other steps (in a text block, or a change of the attributes or the
+ *   type of one node, see `blockOf`) go in groups in which no two steps
+ *   change the same block. For each transaction, y-prosemirror writes one diff for each text
  *   block: from the first changed character to the last. Thus, for a
  *   paragraph with two changes in one transaction, it replaces the text
  *   between them, and Yjs then moves or duplicates a change of another writer
@@ -105,9 +108,9 @@ export function dispatchSteps(
 function groupEnd(pending: Transform, start: number): number {
   const changed = new Set<string>();
   for (let index = start; index < pending.steps.length; index++) {
-    const block = textBlockOf(pending.docs[index], pending.steps[index]);
+    const block = blockOf(pending.docs[index], pending.steps[index]);
     if (block === undefined) {
-      // A step that is not in one text block goes alone.
+      // A step that changes a list of children goes alone.
       return index === start ? index + 1 : index;
     }
     if (changed.has(block)) {
@@ -178,11 +181,26 @@ function rebaseSteps(
 }
 
 /**
- * The ID of the block whose text block contains the full range of the step,
- * in `doc` (the document before the step). `undefined` for a step that is not
- * in one text block, for example the insert of a block.
+ * The ID of the block that the step changes, if the step changes no list of
+ * children, in `doc` (the document before the step): a step in one text
+ * block, or a step that changes only the attributes or the type of one node
+ * (for example the props of a block, or the color of a table cell).
+ * `undefined` for another step, for example the insert of a block.
  */
-function textBlockOf(doc: Node, step: Step): string | undefined {
+function blockOf(doc: Node, step: Step): string | undefined {
+  if (step instanceof AttrStep) {
+    return blockAt(doc, step.pos);
+  }
+  if (
+    step instanceof ReplaceAroundStep &&
+    step.insert === 1 &&
+    step.gapFrom === step.from + 1 &&
+    step.gapTo === step.to - 1 &&
+    doc.nodeAt(step.from)?.nodeSize === step.to - step.from
+  ) {
+    // The node at `from` gets a new type or new attributes (setNodeMarkup).
+    return blockAt(doc, step.from);
+  }
   if (
     !(
       step instanceof ReplaceStep ||
@@ -196,10 +214,20 @@ function textBlockOf(doc: Node, step: Step): string | undefined {
   if (!$from.parent.isTextblock || step.to > $from.end()) {
     return undefined;
   }
-  for (let depth = $from.depth; depth > 0; depth--) {
-    const node = $from.node(depth);
-    if (node.type.isInGroup("bnBlock")) {
-      return node.attrs.id;
+  return blockAt(doc, step.from);
+}
+
+/** The ID of the block of the node at `pos`, or of the block that contains it. */
+function blockAt(doc: Node, pos: number): string | undefined {
+  const node = doc.nodeAt(pos);
+  if (node?.type.isInGroup("bnBlock")) {
+    return node.attrs.id;
+  }
+  const $pos = doc.resolve(pos);
+  for (let depth = $pos.depth; depth > 0; depth--) {
+    const ancestor = $pos.node(depth);
+    if (ancestor.type.isInGroup("bnBlock")) {
+      return ancestor.attrs.id;
     }
   }
   return undefined;
