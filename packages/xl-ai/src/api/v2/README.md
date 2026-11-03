@@ -167,6 +167,7 @@ The branch `fix/markdown-roundtrip` fixes the markdown conversion: one round tri
 
 - Delimiter runs like `***`: the parser does not use the delimiter rules of CommonMark. The exporter writes underscores where it can (`*a*__b__`, `**a _b_**`), but not next to a letter or a digit, or for text with `_`. There, runs like `***` stay.
 - HTML paste removes an image in a paragraph (markdown parse splits the paragraph around the image).
+- The HTML export of a file block is a link (with a paragraph for the caption). The parse does not read it back as a file block. Thus, in HTML, a change to a file block replaces it with the blocks of the text, as in markdown.
 - Duplicate block IDs in a Y.Doc (for example after two clients move the same block): the unique ID extension gives new IDs to the copies in the editor, but y-prosemirror does not write these IDs to the Y.Doc, because it makes the change during the sync of a remote update. Thus, each client can show different IDs for these blocks.
 
 ## Items that are not done
