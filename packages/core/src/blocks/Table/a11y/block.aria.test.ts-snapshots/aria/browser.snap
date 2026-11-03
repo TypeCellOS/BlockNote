@@ -1,0 +1,22 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`merged table cells preserve row and column header roles > merged table 1`] = `
+"- textbox:
+  - table:
+    - rowgroup:
+      - row "Region Apples Pears":
+        - columnheader "Region":
+          - paragraph: Region
+        - columnheader "Apples":
+          - paragraph: Apples
+        - columnheader "Pears":
+          - paragraph: Pears
+      - row "North Combined total":
+        - rowheader "North":
+          - paragraph: North
+        - cell "Combined total":
+          - paragraph: Combined total
+      - row "South":
+        - rowheader "South":
+          - paragraph: South"
+`;
