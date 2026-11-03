@@ -95,28 +95,36 @@ export const SourceInlineContentWithPreviewExtension = createExtension(
       mount: ({ dom, signal }) => {
         // The popup is open when the selection is inside the inline content
         // and the editor is editable. Read-only editors still allow selection.
-        const unsubscribeSelectionChange = editor.onSelectionChange(() => {
-          const { $from } = editor.prosemirrorState.selection;
-          const node = $from.node();
-
-          store.setState({
-            selected:
-              editor.isEditable && nodeHasPreview(node.type.name)
-                ? $from.before()
-                : undefined,
+        function updateSelected(isEditable: boolean) {
+          editor.transact((tr) => {
+            const { $from } = tr.selection;
+            store.setState({
+              selected:
+                isEditable && nodeHasPreview($from.node().type.name)
+                  ? $from.before()
+                  : undefined,
+            });
           });
+        }
+
+        const unsubscribeSelectionChange = editor.onSelectionChange(() => {
+          updateSelected(editor.isEditable);
         });
         signal.addEventListener("abort", unsubscribeSelectionChange);
 
         // Editability can change without moving the selection out of the source.
         const unsubscribeReadOnlyChange = editor
-          .getExtension(ReadOnlyExtension)!
-          .store.subscribe(() => {
-            if (!editor.isEditable) {
-              store.setState({ selected: undefined });
-            }
+          .getExtension(ReadOnlyExtension)
+          ?.store.subscribe(({ currentVal }) => {
+            // The view may still reflect the previous editability inside a
+            // batched transaction, so use the updated read-only state directly.
+            updateSelected(
+              currentVal.isEditable && currentVal.enabledSet.size === 0,
+            );
           });
-        signal.addEventListener("abort", unsubscribeReadOnlyChange);
+        if (unsubscribeReadOnlyChange) {
+          signal.addEventListener("abort", unsubscribeReadOnlyChange);
+        }
 
         // Sets `visibility: hidden` on the popup for a single frame when pressing up/down arrow
         // keys. The popup is normally hidden through `opacity: 0`, which means it's still visible

@@ -14,9 +14,13 @@ const schema = BlockNoteSchema.create().extend({
   inlineContentSpecs: { math: createReactInlineMathSpec() },
 });
 
-it.each([false, true])(
-  "only opens selected inline math when editable (editable: %s, #3291)",
-  async (editable) => {
+it.each([
+  { editable: false, batched: false },
+  { editable: true, batched: false },
+  { editable: true, batched: true },
+])(
+  "inline math popup follows editability (#3291): %j",
+  async ({ editable, batched }) => {
     const editor = BlockNoteEditor.create({
       schema,
       trailingBlock: false,
@@ -70,7 +74,13 @@ it.each([false, true])(
 
       if (editable) {
         flushSync(() => {
-          editor.isEditable = false;
+          if (batched) {
+            editor.transact(() => {
+              editor.isEditable = false;
+            });
+          } else {
+            editor.isEditable = false;
+          }
         });
 
         expect(editor.prosemirrorState.selection.from).toBe(sourcePos);
@@ -85,6 +95,29 @@ it.each([false, true])(
               ?.getAttribute("data-open"),
           ).toBe("false"),
         );
+
+        flushSync(() => {
+          if (batched) {
+            editor.transact(() => {
+              editor.isEditable = true;
+            });
+          } else {
+            editor.isEditable = true;
+          }
+        });
+
+        expect(editor.prosemirrorState.selection.from).toBe(sourcePos);
+        expect(
+          editor.getExtension(SourceInlineContentWithPreviewExtension)!.store
+            .state.selected,
+        ).toBe(mathPos);
+        await vi.waitFor(() =>
+          expect(
+            host
+              .querySelector(".bn-preview-with-source-popup")
+              ?.getAttribute("data-open"),
+          ).toBe("true"),
+        );
       }
     } finally {
       root.unmount();
@@ -93,3 +126,21 @@ it.each([false, true])(
     }
   },
 );
+
+it("mounts inline source popup tracking without the readOnly extension", () => {
+  const editor = BlockNoteEditor.create({ disableExtensions: ["readOnly"] });
+  const host = document.createElement("div");
+  document.body.append(host);
+
+  try {
+    editor.mount(host);
+    expect(editor.prosemirrorView).toBeDefined();
+    expect(
+      editor.getExtension(SourceInlineContentWithPreviewExtension)!.store.state
+        .selected,
+    ).toBeUndefined();
+  } finally {
+    editor._tiptapEditor.destroy();
+    host.remove();
+  }
+});
