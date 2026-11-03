@@ -8,14 +8,16 @@ import type { Node } from "prosemirror-model";
 
 import { propsFit } from "../blocks/props.js";
 import type { LensBlock } from "../blocks/types.js";
+import { fitTables } from "../target/fitTable.js";
 
 /**
  * Returns the blocks in the form that the document stores them: through the
  * ProseMirror nodes of the schema of the editor, and back to Block JSON. A
  * block without an ID gets a new ID, and a missing field gets its default
  * value. ProseMirror can also change the content (for example the hard
- * breaks at the edge of a styled run). Thus, blocks in this form compare
- * equal to the blocks of the document.
+ * breaks at the edge of a styled run). A table with a short row gets empty
+ * cells, as the table plugin of the editor does (see `fitTable`). Thus,
+ * blocks in this form compare equal to the blocks of the document.
  *
  * Returns `undefined` if the blocks do not fit the schema, also deep in the
  * tree: for example a column outside a column list, or a prop value that is
@@ -28,7 +30,7 @@ export function toStoredBlocks(
   const group = toBlockGroup(editor, blocks);
   return group === undefined
     ? undefined
-    : docToBlocks(editor.pmSchema.nodes["doc"].create(null, group));
+    : fitTables(docToBlocks(editor.pmSchema.nodes["doc"].create(null, group)));
 }
 
 function toBlockGroup(

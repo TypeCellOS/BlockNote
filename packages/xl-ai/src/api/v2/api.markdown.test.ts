@@ -1116,3 +1116,39 @@ describe("markdown, custom inline content", () => {
     ]);
   });
 });
+
+describe("a table with merged cells", () => {
+  it("applies a change of a row under a cell that spans two rows, without the merged cells, with a warning", () => {
+    const editor = BlockNoteEditor.create({
+      initialContent: [
+        {
+          id: "t",
+          type: "table",
+          content: {
+            type: "tableContent",
+            rows: [
+              {
+                cells: [
+                  { type: "tableCell", props: { rowspan: 2 }, content: "A" },
+                  "B",
+                ],
+              },
+              { cells: ["C"] },
+            ],
+          },
+        },
+      ] as PartialBlock[],
+    });
+    const text = getDocumentText(editor, markdownFormat);
+    const update = valid(
+      updateDocumentFromText(editor, {
+        format: markdownFormat,
+        text: replaceOnce(text, "| C", "| Changed"),
+      }),
+    );
+    expect(getDocumentText(editor, markdownFormat)).toContain("Changed");
+    expect(update.warnings).toEqual([
+      { type: "merged-cells-removed", id: "t" },
+    ]);
+  });
+});

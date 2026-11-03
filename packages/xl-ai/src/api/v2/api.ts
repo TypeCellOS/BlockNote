@@ -28,6 +28,11 @@ import type { BlockOperation } from "./operations/types.js";
 import { projectDocument } from "./projection/projectDocument.js";
 import { mergeTree, type RebaseWarning } from "./merge/tree.js";
 import { fitLayout, type LayoutRule } from "./target/fitLayout.js";
+import {
+  type FitWarning,
+  fitTables,
+  mergedCellsRemoved,
+} from "./target/fitTable.js";
 import { type PlanWarning, planTarget } from "./target/planTarget.js";
 
 /** Returns the document in the format. A client reads this text, changes it, and writes it back. */
@@ -38,7 +43,7 @@ export function getDocumentText(
   return format.serialize(editor, editor.document);
 }
 
-export type TextUpdateWarning = PlanWarning | RebaseWarning;
+export type TextUpdateWarning = PlanWarning | RebaseWarning | FitWarning;
 
 /** A write that applies: its operations and its warnings. */
 export type ValidTextUpdate = {
@@ -272,16 +277,23 @@ function updateToTarget(
   if (plan.target === (base ?? current)) {
     return { operations: [], warnings: plan.warnings };
   }
-  function fit(blocks: readonly LensBlock[]): readonly LensBlock[] {
-    return keepLayout
-      ? blocks
-      : fitLayout(blocks, (type) => layoutRuleOf(editor, type));
+  /** The result fit to the rules of the schema and of the tables, and the operations to it. */
+  function update(
+    blocks: readonly LensBlock[],
+    warnings: TextUpdateWarning[],
+  ): ValidTextUpdate {
+    const result = fitTables(
+      keepLayout
+        ? blocks
+        : fitLayout(blocks, (type) => layoutRuleOf(editor, type)),
+    );
+    return {
+      operations: diffDocuments(current, result),
+      warnings: [...warnings, ...mergedCellsRemoved(current, result)],
+    };
   }
   if (base === undefined) {
-    return {
-      operations: diffDocuments(current, fit(plan.target)),
-      warnings: plan.warnings,
-    };
+    return update(plan.target, plan.warnings);
   }
   const merged = mergeTree({
     base,
@@ -290,10 +302,7 @@ function updateToTarget(
     contentKindOf: (type) => contentKindOf(editor, type),
     canContain: (parent, child) => canContain(editor, parent, child),
   });
-  return {
-    operations: diffDocuments(current, fit(merged.blocks)),
-    warnings: [...plan.warnings, ...merged.warnings],
-  };
+  return update(merged.blocks, [...plan.warnings, ...merged.warnings]);
 }
 
 /**

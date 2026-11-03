@@ -1,4 +1,5 @@
 import { deepEqual } from "../blocks/json.js";
+import { hasMergedCells, withoutMergedCells } from "../blocks/tableGrid.js";
 import { inlineContentToText, tableCellsContent } from "../blocks/text.js";
 import type { LensTableCell, LensTableContent } from "../blocks/types.js";
 import { myersMatch } from "../diff/myers.js";
@@ -19,6 +20,8 @@ type Row = LensTableCell[];
  *   ours.
  * - The merge removes rows that only the round trip added. An example is the
  *   empty header row that markdown gives to a table without a header row.
+ * - A table with merged cells in a format without merged cells loses its
+ *   merged cells when the text changes it (see `withoutMergedCells`).
  */
 export function mergeTableContent(
   base: LensTableContent,
@@ -26,6 +29,16 @@ export function mergeTableContent(
   theirs: LensTableContent,
   options: MergeOptions = {},
 ): LensTableContent {
+  if (!hasMergedCells(base) && hasMergedCells(theirs)) {
+    // A format without merged cells (markdown, plain text) shows a merged
+    // cell as the cell and empty cells at the positions that it covers. The
+    // rows of the document then align with the rows of the text only without
+    // the merged cells. If the text did not change the table, it keeps them.
+    if (deepEqual(base, ours)) {
+      return theirs;
+    }
+    theirs = withoutMergedCells(theirs);
+  }
   const baseRows = rowsOf(base);
   const ourRows = rowsOf(ours);
   const theirRows = rowsOf(theirs);

@@ -26,3 +26,4 @@ export { applyBlockOperations } from "./operations/applyOperations.js";
 export type { BlockOperation, BlockPosition } from "./operations/types.js";
 export type { RebaseWarning } from "./merge/tree.js";
 export type { PlanWarning } from "./target/planTarget.js";
+export type { FitWarning } from "./target/fitTable.js";
