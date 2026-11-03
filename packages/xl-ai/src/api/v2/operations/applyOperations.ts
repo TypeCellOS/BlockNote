@@ -18,6 +18,7 @@ import {
 } from "../blocks/types.js";
 import { fixBlockIds } from "./blockIds.js";
 import { dispatchUpdate } from "./dispatch.js";
+import { gaps, isChanged } from "../diff/gaps.js";
 import { myersMatch } from "../diff/myers.js";
 import { applyToBlocks, type BlockShape } from "./applyToBlocks.js";
 import { addInlineContentSteps } from "./inlineSteps.js";
@@ -191,25 +192,18 @@ function applyStructure(tr: Transaction, target: BlockShape[]) {
       shapes.map((shape) => shape.block.id),
       (a, b) => a === b,
     );
-    let i = 0;
-    let k = 0;
-    for (const pair of [
-      ...pairs,
-      { aIndex: old.length, bIndex: shapes.length },
-    ]) {
-      if (pair.aIndex > i || pair.bIndex > k) {
+    for (const gap of gaps(pairs, old.length, shapes.length)) {
+      if (isChanged(gap)) {
         replacements.push({
-          from: i < old.length ? old[i].pos : end,
-          to: pair.aIndex < old.length ? old[pair.aIndex].pos : end,
-          content: shapes.slice(k, pair.bIndex).map(build),
+          from: gap.aStart < old.length ? old[gap.aStart].pos : end,
+          to: gap.aEnd < old.length ? old[gap.aEnd].pos : end,
+          content: shapes.slice(gap.bStart, gap.bEnd).map(build),
         });
       }
-      if (pair.aIndex < old.length) {
-        const kept = old[pair.aIndex];
-        diffChildren(kept.node, kept.pos, shapes[pair.bIndex].children);
+      if (gap.anchor) {
+        const kept = old[gap.anchor.aIndex];
+        diffChildren(kept.node, kept.pos, shapes[gap.anchor.bIndex].children);
       }
-      i = pair.aIndex + 1;
-      k = pair.bIndex + 1;
     }
   }
 

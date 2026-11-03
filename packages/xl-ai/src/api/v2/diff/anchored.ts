@@ -1,3 +1,4 @@
+import { gaps } from "./gaps.js";
 import { myersMatch } from "./myers.js";
 import type { MatchedPair } from "./types.js";
 
@@ -28,53 +29,59 @@ export function anchoredMatch<T>(
   const keysA = a.map(keyOf);
   const keysB = b.map(keyOf);
   const pairs: MatchedPair[] = [];
-  let aNext = 0;
-  let bNext = 0;
-  for (const anchor of uniqueAnchors(keysA, keysB)) {
-    matchRange(anchor.aIndex, anchor.bIndex);
-    pairs.push(anchor);
-    aNext = anchor.aIndex + 1;
-    bNext = anchor.bIndex + 1;
-  }
-  matchRange(a.length, b.length);
-  return pairs;
-
-  /** Matches the items from the last anchor to the end indexes, with the Myers diff. */
-  function matchRange(aEnd: number, bEnd: number) {
+  // The anchors: the unique pairs without crossings.
+  const anchors = longestIncreasing(uniquePairs(keysA, keysB));
+  for (const { aStart, aEnd, bStart, bEnd, anchor } of gaps(
+    anchors,
+    a.length,
+    b.length,
+  )) {
     for (const pair of myersMatch(
-      keysA.slice(aNext, aEnd),
-      keysB.slice(bNext, bEnd),
+      keysA.slice(aStart, aEnd),
+      keysB.slice(bStart, bEnd),
       (x, y) => x === y,
     )) {
-      pairs.push({ aIndex: aNext + pair.aIndex, bIndex: bNext + pair.bIndex });
+      pairs.push({
+        aIndex: aStart + pair.aIndex,
+        bIndex: bStart + pair.bIndex,
+      });
+    }
+    if (anchor) {
+      pairs.push(anchor);
     }
   }
+  return pairs;
 }
 
-/** The anchors: pairs of keys that are unique on each side, without crossings. */
-function uniqueAnchors(
-  keysA: readonly string[],
-  keysB: readonly string[],
+/**
+ * Returns the pairs of equal keys that are in `keysA` one time and in
+ * `keysB` one time, in the order of `aIndex`. The pairs can cross. A key
+ * `undefined` does not count.
+ */
+export function uniquePairs(
+  keysA: readonly (string | undefined)[],
+  keysB: readonly (string | undefined)[],
 ): MatchedPair[] {
   const inB = uniqueIndexes(keysB);
-  const candidates: MatchedPair[] = [];
+  const pairs: MatchedPair[] = [];
+  // A map keeps the order in which its keys were added. A unique key was
+  // added at its only index. Thus, the pairs are in the order of `aIndex`.
   for (const [key, aIndex] of uniqueIndexes(keysA)) {
     const bIndex = inB.get(key);
     if (aIndex !== undefined && bIndex !== undefined) {
-      candidates.push({ aIndex, bIndex });
+      pairs.push({ aIndex, bIndex });
     }
   }
-  // A map keeps the order in which its keys were added. A unique key was
-  // added at its only index. Thus, the candidates are in the order of
-  // `aIndex`.
-  return longestIncreasing(candidates);
+  return pairs;
 }
 
 /** The index of each key that is in `keys` one time. A key that repeats maps to `undefined`. */
-function uniqueIndexes(keys: readonly string[]) {
+function uniqueIndexes(keys: readonly (string | undefined)[]) {
   const indexes = new Map<string, number | undefined>();
   keys.forEach((key, index) => {
-    indexes.set(key, indexes.has(key) ? undefined : index);
+    if (key !== undefined) {
+      indexes.set(key, indexes.has(key) ? undefined : index);
+    }
   });
   return indexes;
 }

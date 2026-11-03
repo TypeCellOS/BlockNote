@@ -2,6 +2,7 @@ import type { Mark, Node } from "prosemirror-model";
 import { Fragment, Slice } from "prosemirror-model";
 import type { Transform } from "prosemirror-transform";
 
+import { gaps, isChanged } from "../diff/gaps.js";
 import { alignText, charKind, type TextUnit } from "../diff/text.js";
 
 /**
@@ -112,21 +113,7 @@ export function addInlineContentSteps(
 
   // Replace the changed runs, from the end. Thus, the positions of the runs
   // before each run do not move.
-  const runs: Run[] = [];
-  let aNext = 0;
-  let bNext = 0;
-  for (const pair of [...pairs, { aIndex: a.length, bIndex: b.length }]) {
-    if (pair.aIndex > aNext || pair.bIndex > bNext) {
-      runs.push({
-        aStart: aNext,
-        aEnd: pair.aIndex,
-        bStart: bNext,
-        bEnd: pair.bIndex,
-      });
-    }
-    aNext = pair.aIndex + 1;
-    bNext = pair.bIndex + 1;
-  }
+  const runs: Run[] = gaps(pairs, a.length, b.length).filter(isChanged);
 
   const size = current.content.size;
   for (const parts of joinNearRuns(runs).reverse()) {

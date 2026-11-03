@@ -6,6 +6,7 @@ import {
 } from "../blocks/tableGrid.js";
 import { inlineContentToText } from "../blocks/text.js";
 import type { LensTableCell, LensTableContent } from "../blocks/types.js";
+import { gaps } from "../diff/gaps.js";
 import { myersMatch } from "../diff/myers.js";
 import type { MatchedPair } from "../diff/types.js";
 import { diff3 } from "./diff3.js";
@@ -103,26 +104,25 @@ function rowKey(row: Row): string {
 function alignRows(a: Row[], b: Row[]): MatchedPair[] {
   const exact = myersMatch(a, b, (x, y) => rowKey(x) === rowKey(y));
   const pairs: MatchedPair[] = [];
-  let aStart = 0;
-  let bStart = 0;
-  for (const next of [...exact, { aIndex: a.length, bIndex: b.length }]) {
-    const gap = next.aIndex - aStart;
+  for (const { aStart, aEnd, bStart, bEnd, anchor } of gaps(
+    exact,
+    a.length,
+    b.length,
+  )) {
+    const size = aEnd - aStart;
     if (
-      gap > 0 &&
-      gap === next.bIndex - bStart &&
+      size === bEnd - bStart &&
       a
-        .slice(aStart, next.aIndex)
+        .slice(aStart, aEnd)
         .every((row, k) => row.length === b[bStart + k].length)
     ) {
-      for (let k = 0; k < gap; k++) {
+      for (let k = 0; k < size; k++) {
         pairs.push({ aIndex: aStart + k, bIndex: bStart + k });
       }
     }
-    if (next.aIndex < a.length) {
-      pairs.push(next);
+    if (anchor) {
+      pairs.push(anchor);
     }
-    aStart = next.aIndex + 1;
-    bStart = next.bIndex + 1;
   }
   return pairs;
 }

@@ -6,6 +6,8 @@ import {
   type LensBlock,
 } from "../blocks/types.js";
 import { myersMatch } from "../diff/myers.js";
+import { uniquePairs } from "../diff/anchored.js";
+import { gaps } from "../diff/gaps.js";
 import type { MatchedPair } from "../diff/types.js";
 import {
   type Overlap,
@@ -58,9 +60,7 @@ export function alignBlocks(
   a: readonly FlatBlock[],
   b: readonly FlatBlock[],
 ): BlockPair[] {
-  const ordered = mutualBestPairs(
-    gapTexts(a, b, { aStart: 0, aEnd: a.length, bStart: 0, bEnd: b.length }),
-  );
+  const ordered = mutualBestPairs(a, b);
   const moved = movedPairs(a, b, ordered);
   return [...ordered, ...moved, ...samePositionPairs(a, b, ordered, moved)];
 }
@@ -88,7 +88,7 @@ function samePositionPairs(
     return only;
   }
   const pairs: BlockPair[] = [];
-  for (const { gap } of gaps(ordered, a.length, b.length)) {
+  for (const gap of gaps(ordered, a.length, b.length)) {
     const aIndex = onlyIndex(gap.aStart, gap.aEnd, movedA);
     const bIndex = onlyIndex(gap.bStart, gap.bEnd, movedB);
     if (
@@ -110,29 +110,19 @@ function movedPairs(
 ): BlockPair[] {
   const matchedA = new Set(pairs.map((pair) => pair.aIndex));
   const matchedB = new Set(pairs.map((pair) => pair.bIndex));
-  /** The index of each unique key of a block without a match. Blocks with empty text do not count. */
-  function uniqueKeys(blocks: readonly FlatBlock[], matched: Set<number>) {
-    const indexes = new Map<string, number | undefined>();
-    blocks.forEach(({ block }, index) => {
-      const emptyText =
-        Array.isArray(block.content) && !blockToText(block).trim();
-      if (!matched.has(index) && !emptyText) {
-        const key = alignmentKey(block);
-        // A second block with the same key makes the key not unique.
-        indexes.set(key, indexes.has(key) ? undefined : index);
-      }
-    });
-    return indexes;
+  /** The key of each block without a match. Blocks with empty text do not count. */
+  function keysOf(blocks: readonly FlatBlock[], matched: Set<number>) {
+    return blocks.map(({ block }, index) =>
+      matched.has(index) ||
+      (Array.isArray(block.content) && !blockToText(block).trim())
+        ? undefined
+        : alignmentKey(block),
+    );
   }
-  const keysB = uniqueKeys(b, matchedB);
-  const moved: BlockPair[] = [];
-  for (const [key, aIndex] of uniqueKeys(a, matchedA)) {
-    const bIndex = keysB.get(key);
-    if (aIndex !== undefined && bIndex !== undefined) {
-      moved.push({ aIndex, bIndex, moved: true });
-    }
-  }
-  return moved;
+  return uniquePairs(keysOf(a, matchedA), keysOf(b, matchedB)).map((pair) => ({
+    ...pair,
+    moved: true,
+  }));
 }
 
 /**
@@ -158,11 +148,12 @@ export function linkBlocks(
   view: readonly FlatBlock[],
 ): (number | undefined)[] {
   const links: (number | undefined)[] = new Array(view.length);
-  for (const { gap, anchor } of gaps(
-    anchorsOf(parts, view, alignmentKey),
-    parts.length,
-    view.length,
-  )) {
+  const anchors = myersMatch(
+    parts.map(({ block }) => alignmentKey(block)),
+    view.map(({ block }) => alignmentKey(block)),
+    (x, y) => x === y,
+  );
+  for (const gap of gaps(anchors, parts.length, view.length)) {
     const size = gap.aEnd - gap.aStart;
     for (let i = 0; size === gap.bEnd - gap.bStart && i < size; i++) {
       if (
@@ -171,8 +162,8 @@ export function linkBlocks(
         links[gap.bStart + i] = gap.aStart + i;
       }
     }
-    if (anchor) {
-      links[anchor.bIndex] = anchor.aIndex;
+    if (gap.anchor) {
+      links[gap.anchor.bIndex] = gap.anchor.aIndex;
     }
   }
   return links;
@@ -210,66 +201,6 @@ export function canBeSameBlock(a: LensBlock, b: LensBlock): boolean {
   return a.type === b.type;
 }
 
-function anchorsOf(
-  a: readonly FlatBlock[],
-  b: readonly FlatBlock[],
-  keyOf: (block: LensBlock) => string,
-) {
-  return myersMatch(
-    a.map((flat) => keyOf(flat.block)),
-    b.map((flat) => keyOf(flat.block)),
-    (x, y) => x === y,
-  );
-}
-
-/** The blocks between two matched pairs: `a[aStart, aEnd)` and `b[bStart, bEnd)`. */
-type Gap = { aStart: number; aEnd: number; bStart: number; bEnd: number };
-
-/**
- * Returns the gaps before, between and after the pairs, in the two lists.
- * `anchor` is the pair after the gap, or `undefined` for the last gap.
- */
-function gaps(
-  pairs: readonly MatchedPair[],
-  aEnd: number,
-  bEnd: number,
-): { gap: Gap; anchor: MatchedPair | undefined }[] {
-  const result: { gap: Gap; anchor: MatchedPair | undefined }[] = [];
-  let aStart = 0;
-  let bStart = 0;
-  for (const pair of pairs) {
-    result.push({
-      gap: { aStart, aEnd: pair.aIndex, bStart, bEnd: pair.bIndex },
-      anchor: pair,
-    });
-    aStart = pair.aIndex + 1;
-    bStart = pair.bIndex + 1;
-  }
-  result.push({ gap: { aStart, aEnd, bStart, bEnd }, anchor: undefined });
-  return result;
-}
-
-/**
- * Returns the overlaps of the blocks in a gap, and the word size of the text
- * of each block. The indices are relative to the start of the gap.
- */
-function gapTexts(
-  a: readonly FlatBlock[],
-  b: readonly FlatBlock[],
-  { aStart, aEnd, bStart, bEnd }: Gap,
-) {
-  const textsA = a.slice(aStart, aEnd).map(({ block }) => overlapText(block));
-  const textsB = b.slice(bStart, bEnd).map(({ block }) => overlapText(block));
-  return {
-    overlaps:
-      textsA.length === 0 || textsB.length === 0
-        ? []
-        : textOverlaps(textsA, textsB),
-    sizesA: textsA.map(wordSize),
-    sizesB: textsB.map(wordSize),
-  };
-}
-
 function overlapText(block: LensBlock): OverlapText {
   return { text: blockToText(block), key: alignmentKey(block) };
 }
@@ -287,11 +218,18 @@ function overlapText(block: LensBlock): OverlapText {
  * On a tie, the earlier block wins. The overlaps come from one diff, thus the
  * pairs do not cross.
  */
-function mutualBestPairs({
-  overlaps,
-  sizesA,
-  sizesB,
-}: ReturnType<typeof gapTexts>): MatchedPair[] {
+function mutualBestPairs(
+  a: readonly FlatBlock[],
+  b: readonly FlatBlock[],
+): MatchedPair[] {
+  const textsA = a.map(({ block }) => overlapText(block));
+  const textsB = b.map(({ block }) => overlapText(block));
+  const overlaps =
+    textsA.length === 0 || textsB.length === 0
+      ? []
+      : textOverlaps(textsA, textsB);
+  const sizesA = textsA.map(wordSize);
+  const sizesB = textsB.map(wordSize);
   const large = overlaps
     .filter(
       (overlap) =>
