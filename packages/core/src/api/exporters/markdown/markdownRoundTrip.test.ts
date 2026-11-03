@@ -1154,14 +1154,11 @@ describe("Markdown round trip", () => {
     });
   });
 
-  describe("known failures", () => {
-    // Cause: the HTML parser (`nestedListsToBlockNoteStructure` in
-    // `parsers/html/util/nestedLists.ts`) moves a nested list out of its
-    // `<li>`. It puts the blocks after the nested list into new list items.
-    // Also, if a block comes before the nested list, the nested list does not
-    // become a child of the list item. As a result, a list item with a
-    // paragraph and a nested list loses its structure.
-    it.fails("keeps a list item with a paragraph and a nested list", () => {
+  describe("list items with mixed children", () => {
+    // The HTML parser (`nestedListsToBlockNoteStructure`) makes all the
+    // nodes after the own content of a list item its children, in order:
+    // also the blocks before and after a nested list.
+    it("keeps a list item with a paragraph and a nested list", () => {
       expectStable([
         {
           type: "bulletListItem",
@@ -1174,7 +1171,7 @@ describe("Markdown round trip", () => {
       ]);
     });
 
-    it.fails("gives the same markdown for mixed list item children (property test)", () => {
+    it("gives the same markdown for mixed list item children (property test)", () => {
       expect(
         findUnstableSeeds(
           { ...STABLE_FEATURES, mixedListItemChildren: true },
@@ -1182,7 +1179,9 @@ describe("Markdown round trip", () => {
         ),
       ).toEqual([]);
     });
+  });
 
+  describe("known failures", () => {
     // Cause: the markdown parser (`parseDelimited` in `markdownToHtml.ts`)
     // does not use the CommonMark rules for delimiter runs. It cannot close
     // `*` emphasis with the first `*` of a run like `***`. The exporter
