@@ -10,7 +10,44 @@ import {
   Transform,
 } from "prosemirror-transform";
 
-import { dispatchToEditor } from "../operations/applyOperations.js";
+/**
+ * Dispatches the steps of a write to the editor. For an editor that is bound
+ * to a Y.Doc (it has the "ySync" extension), see {@link dispatchSteps}. For
+ * another editor, one transaction: thus, one undo reverts the write.
+ *
+ * `tr` must be a transaction of the current state of the editor.
+ */
+export function dispatchUpdate(
+  editor: BlockNoteEditor<any, any, any>,
+  tr: Transaction,
+) {
+  if (editor.getExtension("ySync") === undefined) {
+    dispatchToEditor(editor, tr.steps);
+  } else {
+    dispatchSteps(editor, tr);
+  }
+}
+
+/**
+ * Dispatches the steps to the editor, in one transaction. The steps come
+ * from a text or from operations, not from a user who types. Thus, the
+ * transaction has the meta `preventAutolink`: the autolink plugin of the
+ * editor must not change a URL of the text into a link.
+ */
+export function dispatchToEditor(
+  editor: BlockNoteEditor<any, any, any>,
+  steps: readonly Step[],
+) {
+  if (steps.length === 0) {
+    return;
+  }
+  editor.transact((tr) => {
+    tr.setMeta("preventAutolink", true);
+    for (const step of steps) {
+      tr.step(step);
+    }
+  });
+}
 
 /**
  * Dispatches the steps of the transaction to the editor, in transactions that

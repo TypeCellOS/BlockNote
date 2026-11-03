@@ -707,6 +707,31 @@ describe("changes of other writers in a list with more than one structural chang
     );
   });
 
+  it("keeps a change of another client in its block, also with the API for an editor", () => {
+    // updateDocumentFromText on an editor that is bound to a Y.Doc (for
+    // example AI in a collaborative editor) uses the same transactions.
+    const ydoc = blocksToYDoc(BlockNoteEditor.create(), blocks);
+    const other = new Y.Doc();
+    Y.applyUpdate(other, Y.encodeStateAsUpdate(ydoc));
+    bindEditor(other.getXmlFragment("prosemirror")).updateBlock("a", {
+      content: "Alpha of the other client",
+    });
+
+    const fragment = ydoc.getXmlFragment("prosemirror");
+    const editor = bindEditor(fragment);
+    valid(
+      updateDocumentFromText(editor, {
+        format: markdownFormat,
+        text: "First\n\nAlpha\n\nBeta\n\nGamma\n\nLast\n",
+      }),
+    );
+    Y.applyUpdate(ydoc, Y.encodeStateAsUpdate(other));
+
+    expect(getDocumentText(editor, markdownFormat)).toBe(
+      "First\n\nAlpha of the other client\n\nBeta\n\nGamma\n\nLast\n",
+    );
+  });
+
   it.each(["rebase", "yjs"] as const)(
     "keeps a change of another writer in its block, with inserts at two places (strategy %s)",
     (strategy) => {

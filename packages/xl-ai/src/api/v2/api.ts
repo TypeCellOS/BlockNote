@@ -19,10 +19,8 @@ import type {
 import { toStoredBlocks } from "./formats/stored.js";
 import type { TextFormat } from "./formats/types.js";
 import { fixBlockIds, withDistinctIds } from "./operations/blockIds.js";
-import {
-  applyOperations,
-  dispatchToEditor,
-} from "./operations/applyOperations.js";
+import { applyOperations } from "./operations/applyOperations.js";
+import { dispatchUpdate } from "./operations/dispatch.js";
 import { diffDocuments } from "./operations/diffDocuments.js";
 import type { BlockOperation } from "./operations/types.js";
 import { projectDocument } from "./projection/projectDocument.js";
@@ -206,8 +204,7 @@ function jsonUpdate(
 export function write(
   editor: BlockNoteEditor<any, any, any>,
   compute: (current: readonly LensBlock[]) => TextUpdate,
-  dispatch: (tr: Transaction) => void = (tr) =>
-    dispatchToEditor(editor, tr.steps),
+  dispatch: (tr: Transaction) => void = (tr) => dispatchUpdate(editor, tr),
 ): TextUpdate {
   const tr = editor.prosemirrorState.tr;
   fixBlockIds(tr);

@@ -13,7 +13,6 @@ import {
   type ValidTextUpdate,
   write,
 } from "../api.js";
-import { dispatchSteps } from "./dispatchSteps.js";
 
 /**
  * How a write merges the text with the changes of other writers after `base`:
@@ -138,15 +137,13 @@ export function updateYDocFromText(
     : update;
 }
 
-/** Computes the update for the document of the editor, and dispatches its steps (see `dispatchSteps`). */
+/** Computes the update for the document of the editor, and dispatches its steps (see `dispatchUpdate`). */
 function writeThroughBinding(
   editor: BlockNoteEditor<any, any, any>,
   options: Omit<Parameters<typeof computeBlocksUpdate>[1], "current">,
 ): TextUpdate {
-  return write(
-    editor,
-    (current) => computeBlocksUpdate(editor, { ...options, current }),
-    (tr) => dispatchSteps(editor, tr),
+  return write(editor, (current) =>
+    computeBlocksUpdate(editor, { ...options, current }),
   );
 }
 

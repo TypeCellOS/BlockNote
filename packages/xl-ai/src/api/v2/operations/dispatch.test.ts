@@ -2,7 +2,7 @@ import { BlockNoteEditor } from "@blocknote/core";
 import { Plugin } from "prosemirror-state";
 import { describe, expect, it } from "vite-plus/test";
 
-import { dispatchSteps } from "./dispatchSteps.js";
+import { dispatchSteps } from "./dispatch.js";
 
 /** The editor, and a counter of its transactions that change the document. */
 function setup() {

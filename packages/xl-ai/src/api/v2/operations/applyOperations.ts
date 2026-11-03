@@ -17,6 +17,7 @@ import {
   type LensTableContent,
 } from "../blocks/types.js";
 import { fixBlockIds } from "./blockIds.js";
+import { dispatchUpdate } from "./dispatch.js";
 import { myersMatch } from "../diff/myers.js";
 import { applyToBlocks, type BlockShape } from "./applyToBlocks.js";
 import { addInlineContentSteps } from "./inlineSteps.js";
@@ -35,29 +36,8 @@ export function applyBlockOperations(
   }
   const tr = editor.prosemirrorState.tr;
   applyOperations(tr, operations);
-  dispatchToEditor(editor, tr.steps);
+  dispatchUpdate(editor, tr);
   return [...tr.steps];
-}
-
-/**
- * Dispatches the steps to the editor, in one transaction. The steps come
- * from a text or from operations, not from a user who types. Thus, the
- * transaction has the meta `preventAutolink`: the autolink plugin of the
- * editor must not change a URL of the text into a link.
- */
-export function dispatchToEditor(
-  editor: BlockNoteEditor<any, any, any>,
-  steps: readonly Step[],
-) {
-  if (steps.length === 0) {
-    return;
-  }
-  editor.transact((tr) => {
-    tr.setMeta("preventAutolink", true);
-    for (const step of steps) {
-      tr.step(step);
-    }
-  });
 }
 
 /**
@@ -105,7 +85,7 @@ export function applyOperations(
  * Each step only inserts or only removes. The inserts apply first, then the
  * removals. Thus, each step gives a valid document, also for a list with a
  * minimum number of children (for example a column list). A collaboration
- * binding can then also send each step alone (see `yjs/dispatchSteps.ts`).
+ * binding can then also send each step alone (see `dispatchSteps`).
  */
 function applyStructure(tr: Transaction, target: BlockShape[]) {
   const schema = tr.doc.type.schema;
