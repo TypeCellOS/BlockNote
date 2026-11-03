@@ -1568,13 +1568,13 @@ function prepareForBlocks(html: string): string {
   container.innerHTML = html;
   // A `<br>` outside a text, for example after an HTML block, is an empty
   // paragraph, as a `<br>` line is. Without this, the HTML parser makes a
-  // paragraph with a hard break, which a round trip changes.
-  for (const br of Array.from(container.children)) {
-    if (br.tagName === "BR") {
-      const paragraph = container.ownerDocument.createElement("p");
-      paragraph.textContent = EMPTY_BLOCK_PLACEHOLDER;
-      br.replaceWith(paragraph);
-    }
+  // paragraph with a hard break, which a round trip changes. The selector
+  // gives a static list: in jsdom, each item of the live `children` list
+  // walks the children again.
+  for (const br of Array.from(container.querySelectorAll(":scope > br"))) {
+    const paragraph = container.ownerDocument.createElement("p");
+    paragraph.textContent = EMPTY_BLOCK_PLACEHOLDER;
+    br.replaceWith(paragraph);
   }
   moveImagesOutOfText(container);
   for (const element of Array.from(container.querySelectorAll(TEXT_ELEMENTS))) {
