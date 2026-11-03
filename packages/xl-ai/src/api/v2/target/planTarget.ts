@@ -236,19 +236,20 @@ export function planTarget(input: PlanInput): Plan {
     return next !== undefined ? sourceParent(keptIdOf[next]!) : undefined;
   }
 
+  // The index of the first kept block at or after each index, from the end.
+  const keptFrom = new Int32Array(incoming.length + 1).fill(-1);
+  for (let k = incoming.length - 1; k >= 0; k--) {
+    keptFrom[k] =
+      !skipped.has(k) && keptIdOf[k] !== undefined ? k : keptFrom[k + 1];
+  }
+
   /**
    * The index of the next kept block after block `j`, if it has the same
    * text parent and keeps the nesting of its view block. Else `undefined`.
    */
   function nextKept(j: number): number | undefined {
-    let next = j + 1;
-    while (
-      next < incoming.length &&
-      (skipped.has(next) || keptIdOf[next] === undefined)
-    ) {
-      next++;
-    }
-    return keptIdOf[next] !== undefined &&
+    const next = keptFrom[j + 1];
+    return next !== -1 &&
       incoming[next].parentIndex === incoming[j].parentIndex &&
       nestingUnchanged(next)
       ? next
