@@ -762,6 +762,19 @@ describe("Markdown round trip", () => {
       ]);
     });
 
+    it("parses a <br> after an HTML block as an empty paragraph", () => {
+      expect(
+        parse("Before\n\n<p>red</p>\n<br>\n\nAfter\n").map(
+          (block) => block.content,
+        ),
+      ).toEqual([
+        [{ type: "text", text: "Before", styles: {} }],
+        [{ type: "text", text: "red", styles: {} }],
+        [],
+        [{ type: "text", text: "After", styles: {} }],
+      ]);
+    });
+
     it("removes the indent of a paragraph line with four or more spaces", () => {
       expect(parse("     a\n\tb")[0].content).toEqual([
         { type: "text", text: "a\nb", styles: {} },
