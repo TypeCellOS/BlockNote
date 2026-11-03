@@ -79,4 +79,32 @@ describe("mergeTableContent", () => {
     );
     expect(merged.rows[0].cells).toEqual([cell("A"), cell("B"), cell("C")]);
   });
+
+  it("takes the fields of the table from the side whose rows win a conflict", () => {
+    // Theirs adds a column and a header row. Ours adds a row. The rows
+    // conflict, and the rows of ours win: thus also the header rows of ours.
+    let conflicts = 0;
+    const merged = mergeTableContent(
+      table([
+        [cell("a"), cell("b")],
+        [cell("c"), cell("d")],
+      ]),
+      table([
+        [cell("a"), cell("b")],
+        [cell("c"), cell("d")],
+        [cell("e"), cell("f")],
+      ]),
+      table(
+        [
+          [cell("a"), cell("b"), cell("x")],
+          [cell("c"), cell("d"), cell("y")],
+        ],
+        1,
+      ),
+      { concurrent: true, onConflict: () => conflicts++ },
+    );
+    expect(merged.headerRows).toBeUndefined();
+    expect(merged.rows.map((row) => row.cells.length)).toEqual([2, 2, 2]);
+    expect(conflicts).toBeGreaterThan(0);
+  });
 });

@@ -39,6 +39,9 @@ export function mergeTableContent(
     }
     theirs = withoutMergedCells(theirs);
   }
+  // The fields of the table belong to its rows: if the rows of the two sides
+  // conflict, the fields come from the side whose rows win (ours).
+  let rowConflict = false;
   const baseRows = rowsOf(base);
   const ourRows = rowsOf(ours);
   const theirRows = rowsOf(theirs);
@@ -58,32 +61,28 @@ export function mergeTableContent(
         ),
       ours: (units) => units,
       keepBothInserts: options.concurrent ? "theirs-first" : undefined,
-      conflict: options.onConflict,
+      conflict: () => {
+        rowConflict = true;
+        options.onConflict?.();
+      },
       // `alignRows` also pairs rows with changed text.
       same: (baseRow, otherRow) => deepEqual(baseRow, otherRow),
     },
   );
 
+  const field = <T>(baseValue: T, ourValue: T, theirValue: T): T =>
+    rowConflict
+      ? ourValue
+      : mergeValue(baseValue, ourValue, theirValue, options);
   return {
     type: "tableContent",
-    columnWidths: mergeValue(
+    columnWidths: field(
       base.columnWidths,
       ours.columnWidths,
       theirs.columnWidths,
-      options,
     ),
-    headerRows: mergeValue(
-      base.headerRows,
-      ours.headerRows,
-      theirs.headerRows,
-      options,
-    ),
-    headerCols: mergeValue(
-      base.headerCols,
-      ours.headerCols,
-      theirs.headerCols,
-      options,
-    ),
+    headerRows: field(base.headerRows, ours.headerRows, theirs.headerRows),
+    headerCols: field(base.headerCols, ours.headerCols, theirs.headerCols),
     rows: rows.map((cells) => ({ cells })),
   };
 }
