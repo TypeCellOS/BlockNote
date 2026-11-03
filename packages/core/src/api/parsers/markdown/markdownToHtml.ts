@@ -856,7 +856,9 @@ function interruptsParagraph(line: string): boolean {
 }
 
 function tokenize(markdown: string): Token[] {
-  const lines = markdown.split("\n");
+  // A line ends with "\n", "\r\n" or "\r" (CommonMark). Text from a form or
+  // from a Windows file has "\r\n".
+  const lines = markdown.split(/\r\n?|\n/);
   const tokens: Token[] = [];
   let i = 0;
   let prevLineWasBlank = true; // treat start of document as after blank

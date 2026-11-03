@@ -723,6 +723,23 @@ describe("Markdown round trip", () => {
 
   describe("whitespace", () => {
     it.each([
+      ["\\r\\n", "\r\n"],
+      ["\\r", "\r"],
+    ])("reads %s as a line end", (_, end) => {
+      const md = "# Title\n\n* Item\n  * Child\n\nText\nmore\n";
+      // The blocks without their IDs: each parse gives new IDs.
+      const withoutIds = (blocks: Block[]) =>
+        JSON.parse(
+          JSON.stringify(blocks, (key, value) =>
+            key === "id" ? undefined : value,
+          ),
+        );
+      expect(withoutIds(parse(md.replace(/\n/g, end)))).toEqual(
+        withoutIds(parse(md)),
+      );
+    });
+
+    it.each([
       ["four spaces", "    <br>"],
       ["a tab", "\t<br>"],
       ["four spaces after a paragraph", "a\n\n    <br>"],
