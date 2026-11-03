@@ -535,6 +535,10 @@ export const parseTestInstancesHTML: TestInstance<
       <td style="text-align: justify">Justify</td>
       <td style="text-align: start">Start</td>
     </tr>
+    <tr>
+      <td align="RIGHT">Upper</td>
+      <td data-text-alignment="center" style="text-align: right">Precedence</td>
+    </tr>
   </tbody>
 </table>`,
     },

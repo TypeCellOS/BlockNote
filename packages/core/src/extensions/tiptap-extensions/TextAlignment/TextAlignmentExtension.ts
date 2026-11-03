@@ -22,7 +22,11 @@ export const TextAlignmentExtension = Extension.create({
               // `align` attribute, as used by HTML from other sources.
               const alignment =
                 element.getAttribute("data-text-alignment") ??
-                (element.style.textAlign || element.getAttribute("align"));
+                (
+                  element.style.textAlign ||
+                  element.getAttribute("align") ||
+                  ""
+                ).toLowerCase();
 
               return defaultProps.textAlignment.values.find(
                 (value) => value === alignment,
