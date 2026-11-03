@@ -35,6 +35,7 @@ import {
   createRandom,
   randomDocument,
   randomEdit,
+  randomLineEdit,
 } from "../testUtil/random.js";
 
 const fruit: PartialBlock[] = [
@@ -509,8 +510,17 @@ describe.each([
   { name: "markdown", format: markdownFormat },
   { name: "plain text", format: plainTextFormat },
   { name: "HTML", format: htmlFormat },
-])("Y.Doc and editor give the same document ($name)", ({ format }) => {
-  it.each(Array.from({ length: 40 }, (_, i) => i + 1))("seed %i", (seed) => {
+])("Y.Doc and editor give the same document ($name)", ({ name, format }) => {
+  const edits = [
+    { kind: "paragraph", edit: randomEdit },
+    // Edits of lines change the nesting, thus they move nested blocks.
+    ...(name === "markdown" ? [{ kind: "line", edit: randomLineEdit }] : []),
+  ];
+  it.each(
+    edits.flatMap(({ kind, edit }) =>
+      Array.from({ length: 40 }, (_, i) => ({ kind, edit, seed: i + 1 })),
+    ),
+  )("$kind edits, seed $seed", ({ edit, seed }) => {
     const random = createRandom(seed);
     const editor = BlockNoteEditor.create({
       initialContent: randomDocument(random),
@@ -518,7 +528,7 @@ describe.each([
     const ydoc = blocksToYDoc(editor, editor.document);
     let text = getDocumentText(editor, format);
     for (let i = 0; i <= random.int(3); i++) {
-      text = randomEdit(random, text);
+      text = edit(random, text);
     }
 
     valid(updateDocumentFromText(editor, { format, text }));
@@ -527,5 +537,68 @@ describe.each([
     expect(getYDocText(BlockNoteEditor.create(), ydoc, { format })).toBe(
       getDocumentText(editor, format),
     );
+  });
+});
+
+describe("Y.Doc writes after a move of a nested block", () => {
+  const nested: PartialBlock[] = [
+    {
+      id: "p",
+      type: "bulletListItem",
+      content: "p",
+      children: [{ id: "p1", type: "bulletListItem", content: "p1" }],
+    },
+    {
+      id: "q",
+      type: "bulletListItem",
+      content: "q",
+      children: [
+        {
+          id: "x",
+          type: "bulletListItem",
+          content: "x",
+          children: [{ id: "z", type: "bulletListItem", content: "z" }],
+        },
+      ],
+    },
+    {
+      id: "r",
+      type: "bulletListItem",
+      content: "r",
+      children: [{ id: "r1", type: "bulletListItem", content: "r1" }],
+    },
+  ];
+
+  /** The block IDs of the Y.Doc and of an editor after the same write. */
+  function write(text: string) {
+    const editor = BlockNoteEditor.create();
+    const ydoc = blocksToYDoc(
+      editor,
+      BlockNoteEditor.create({ initialContent: nested }).document,
+    );
+    valid(updateYDocFromText(editor, ydoc, { format: markdownFormat, text }));
+    const reference = BlockNoteEditor.create({ initialContent: nested });
+    valid(updateDocumentFromText(reference, { format: markdownFormat, text }));
+    function ids(blocks: { id: string; children: any[] }[]): string[] {
+      return blocks.flatMap((block) => [block.id, ...ids(block.children)]);
+    }
+    return {
+      ydoc: ids(yDocToBlocks(editor, ydoc)),
+      editor: ids(reference.document),
+    };
+  }
+
+  it("removes a child of a block that the text moved into another parent", () => {
+    const { ydoc, editor } = write("* p\n  * p1\n  * x\n* q\n* r\n  * r1\n");
+    expect(editor).toEqual(["p", "p1", "x", "q", "r", "r1"]);
+    expect(ydoc).toEqual(editor);
+  });
+
+  it("moves a block out of a moved block one time", () => {
+    const { ydoc, editor } = write(
+      "* p\n  * p1\n  * x\n* q\n* r\n  * r1\n  * z\n",
+    );
+    expect(editor).toEqual(["p", "p1", "x", "q", "r", "r1", "z"]);
+    expect(ydoc).toEqual(editor);
   });
 });
