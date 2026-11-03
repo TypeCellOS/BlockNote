@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vite-plus/test";
 
-import type { LensTableCell, LensTableContent } from "../blocks/types.js";
+import type { LensTableCell, LensTableContent } from "./types.js";
 import { fitTable } from "./fitTable.js";
 
 function cell(text: string, colspan = 1, rowspan = 1): LensTableCell {

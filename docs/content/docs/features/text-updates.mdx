@@ -53,7 +53,7 @@ The formats are `markdownFormat`, `htmlFormat` and `plainTextFormat`. HTML shows
 
 The text does not contain block IDs. The identity of a block follows the location of its text:
 
-1. Two blocks are the same block if they share most of their words: at least half of the words of the shorter block. One comparison of all the words of the document decides this. Thus, a block with equal text is the same block, and a paragraph with many new sentences keeps its ID and props. If a block moves past changed blocks, the changed blocks also keep their IDs.
+1. Two blocks are the same block if each one is the best match of the other, and they share at least half of the letters and digits of the shorter block. One comparison of all the words of the document decides this. Thus, a block with equal text is the same block, and a paragraph with many new sentences keeps its ID and props. If a block moves past changed blocks, the changed blocks also keep their IDs.
 2. A block that the text moves keeps its ID, if no other block has the same text.
 3. If one block on each side stays between two pairs, the two blocks are the same block. Thus, a paragraph with fully new text at the same position keeps its ID.
 

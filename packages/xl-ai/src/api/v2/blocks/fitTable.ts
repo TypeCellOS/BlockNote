@@ -1,16 +1,16 @@
-import { flattenBlocks } from "../blocks/flatten.js";
+import { flattenBlocks } from "./flatten.js";
 import {
   cellRows,
   emptyCell,
   gridWidths,
   hasMergedCells,
   withoutMergedCells,
-} from "../blocks/tableGrid.js";
+} from "./tableGrid.js";
 import {
   isTableContent,
   type LensBlock,
   type LensTableContent,
-} from "../blocks/types.js";
+} from "./types.js";
 
 /**
  * A table lost its merged cells. A format without merged cells (markdown,

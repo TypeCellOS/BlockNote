@@ -30,7 +30,7 @@ import {
   type FitWarning,
   fitTables,
   mergedCellsRemoved,
-} from "./target/fitTable.js";
+} from "./blocks/fitTable.js";
 import { type PlanWarning, planTarget } from "./target/planTarget.js";
 
 /** Returns the document in the format. A client reads this text, changes it, and writes it back. */
