@@ -408,3 +408,69 @@ describe("JSON, a change of the content kind", () => {
     expect(nodes).toEqual(["text:line one", "hardBreak:", "text:line two"]);
   });
 });
+
+describe("JSON, the layout rules", () => {
+  function createColumnsEditor() {
+    return BlockNoteEditor.create({
+      schema: withMultiColumn(
+        BlockNoteSchema.create({ blockSpecs: defaultBlockSpecs }),
+      ),
+      initialContent: [
+        {
+          id: "list",
+          type: "columnList",
+          children: [
+            {
+              id: "c1",
+              type: "column",
+              children: [{ id: "a", type: "paragraph", content: "Alpha" }],
+            },
+            {
+              id: "c2",
+              type: "column",
+              children: [{ id: "b", type: "paragraph", content: "Beta" }],
+            },
+          ],
+        },
+      ],
+    });
+  }
+
+  it("dissolves a column list if the JSON removes one of its two columns", () => {
+    const editor = createColumnsEditor();
+    const [list] = editor.document;
+
+    valid(
+      updateDocumentFromJSON(editor, {
+        document: [{ ...list, children: [list.children[0]] }],
+      }),
+    );
+
+    expect(editor.document.map((block) => block.id)).toEqual(["a"]);
+  });
+
+  it("removes a column that the JSON empties, and dissolves the column list", () => {
+    const editor = createColumnsEditor();
+    const [list] = editor.document;
+    const [first, second] = list.children;
+
+    valid(
+      updateDocumentFromJSON(editor, {
+        document: [
+          {
+            ...list,
+            children: [
+              {
+                ...first,
+                children: [...first.children, ...second.children],
+              },
+              { ...second, children: [] },
+            ],
+          },
+        ],
+      }),
+    );
+
+    expect(editor.document.map((block) => block.id)).toEqual(["a", "b"]);
+  });
+});

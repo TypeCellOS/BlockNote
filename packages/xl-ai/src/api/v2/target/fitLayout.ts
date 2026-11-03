@@ -1,5 +1,3 @@
-import type { LensBlock } from "../blocks/types.js";
-
 /**
  * The child rule of a layout block (a block with `layoutOnly: true` in its
  * config, for example a column list or a column).
@@ -35,14 +33,19 @@ export type LayoutRule = {
  * block of the text. The target must fit the schema, because ProseMirror
  * fills a layout block with too few children with new empty blocks.
  */
-export function fitLayout(
-  blocks: readonly LensBlock[],
+export function fitLayout<T extends LayoutTree<T>>(
+  blocks: readonly T[],
   ruleOf: (type: string) => LayoutRule | undefined,
-): LensBlock[] {
+): T[] {
   return blocks.flatMap(fit);
 
-  function fit(block: LensBlock): LensBlock[] {
-    const rule = ruleOf(block.type);
+  function fit(block: T): T[] {
+    const rule = ruleOf(block.type ?? "paragraph");
+    // Children that are not a list (JSON of a client) stay. Then the schema
+    // check gives the error for them.
+    if (!Array.isArray(block.children)) {
+      return [block];
+    }
     const children = block.children.flatMap(fit);
     if (rule === undefined || rule.namedOnly) {
       // A column stays. Its layout parent decides if it goes.
@@ -53,14 +56,28 @@ export function fitLayout(
       return [{ ...block, children: kept }];
     }
     return kept.flatMap((child) =>
-      ruleOf(child.type)?.namedOnly ? child.children : [child],
+      ruleOf(child.type ?? "paragraph")?.namedOnly
+        ? (child.children ?? [])
+        : [child],
     );
   }
 
-  function isEmptyLayoutBlock(block: LensBlock): boolean {
-    const rule = ruleOf(block.type);
+  function isEmptyLayoutBlock(block: T): boolean {
+    const rule = ruleOf(block.type ?? "paragraph");
     return (
-      rule !== undefined && rule.minChildren > 0 && block.children.length === 0
+      rule !== undefined &&
+      rule.minChildren > 0 &&
+      (block.children ?? []).length === 0
     );
   }
 }
+
+/**
+ * The shape that the layout rule needs: a block type and children. Blocks of
+ * the lens and partial blocks of a JSON client both have it. A missing type
+ * is a paragraph.
+ */
+export type LayoutTree<T> = {
+  type?: string;
+  children?: readonly T[] | null;
+};

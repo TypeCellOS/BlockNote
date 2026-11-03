@@ -171,7 +171,13 @@ function jsonUpdate(
   options: JSONUpdateOptions,
   current: readonly LensBlock[],
 ): TextUpdate {
-  const blocks = toBlocks(editor, options.document);
+  // The layout rule applies to the JSON of the client, before the
+  // conversion: the conversion fills a layout block with too few children
+  // with new blocks (for example a column list with one column).
+  const blocks = toBlocks(
+    editor,
+    fitLayout(options.document, (type) => layoutRuleOf(editor, type)),
+  );
   if (blocks === undefined) {
     return { error: "invalid-document" };
   }
