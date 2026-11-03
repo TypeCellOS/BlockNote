@@ -824,4 +824,86 @@ describe("markdown", () => {
       "b",
     );
   });
+
+  describe("moves of blocks in columns", () => {
+    function createEditorWithTwoBlocksInEachColumn() {
+      return BlockNoteEditor.create({
+        schema: withMultiColumn(
+          BlockNoteSchema.create({ blockSpecs: defaultBlockSpecs }),
+        ),
+        initialContent: [
+          { id: "top", type: "paragraph", content: "Top" },
+          {
+            id: "list",
+            type: "columnList",
+            children: [
+              {
+                id: "cA",
+                type: "column",
+                children: [
+                  { id: "a1", type: "paragraph", content: "Alpha one" },
+                  { id: "a2", type: "paragraph", content: "Alpha two" },
+                ],
+              },
+              {
+                id: "cB",
+                type: "column",
+                children: [
+                  { id: "b1", type: "paragraph", content: "Bravo one" },
+                  { id: "b2", type: "paragraph", content: "Bravo two" },
+                ],
+              },
+            ],
+          },
+          { id: "end", type: "paragraph", content: "End" },
+        ],
+      });
+    }
+    function shape(editor: BlockNoteEditor<any, any, any>): unknown[] {
+      function of(blocks: { id: string; children: any[] }[]): unknown[] {
+        return blocks.map((block) =>
+          block.children.length > 0 ? [block.id, of(block.children)] : block.id,
+        );
+      }
+      return of(editor.document);
+    }
+
+    it("moves a block of a column to the start, out of the column list", () => {
+      const editor = createEditorWithTwoBlocksInEachColumn();
+
+      updateDocumentFromText(editor, {
+        format: markdownFormat,
+        text: "Bravo two\n\nTop\n\nAlpha one\n\nAlpha two\n\nBravo one\n\nEnd\n",
+      });
+
+      expect(shape(editor)).toEqual([
+        "b2",
+        "top",
+        [
+          "list",
+          [
+            ["cA", ["a1", "a2"]],
+            ["cB", ["b1"]],
+          ],
+        ],
+        "end",
+      ]);
+    });
+
+    it("keeps the other blocks of the columns if the text swaps two blocks of two columns", () => {
+      const editor = createEditorWithTwoBlocksInEachColumn();
+
+      updateDocumentFromText(editor, {
+        format: markdownFormat,
+        text: "Top\n\nAlpha one\n\nBravo one\n\nAlpha two\n\nBravo two\n\nEnd\n",
+      });
+
+      expect(getDocumentText(editor, markdownFormat)).toBe(
+        "Top\n\nAlpha one\n\nBravo one\n\nAlpha two\n\nBravo two\n\nEnd\n",
+      );
+      // The blocks that the text did not move stay in their columns.
+      expect(editor.getBlock("cA")?.children.map((b) => b.id)).toContain("a1");
+      expect(editor.getBlock("cB")?.children.map((b) => b.id)).toContain("b2");
+    });
+  });
 });

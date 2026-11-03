@@ -72,9 +72,14 @@ export function planTarget(input: PlanInput): Plan {
 
   const viewToIncoming = new Int32Array(view.length).fill(-1);
   const incomingToView = new Int32Array(incoming.length).fill(-1);
+  /** The incoming blocks that the text moved (rule 3 of `alignBlocks`). */
+  const moved = new Set<number>();
   for (const pair of input.alignment) {
     viewToIncoming[pair.aIndex] = pair.bIndex;
     incomingToView[pair.bIndex] = pair.aIndex;
+    if (pair.moved) {
+      moved.add(pair.bIndex);
+    }
   }
 
   // 1. Find the source blocks that stay, and the incoming block of each.
@@ -242,6 +247,72 @@ export function planTarget(input: PlanInput): Plan {
   }
 
   /**
+   * The parent of kept block `j` (with the source ID `id`) in the target:
+   *
+   * - If the text changed the nesting of the block, the parent of the text.
+   * - Else, the source parent, with the nesting that the format does not
+   *   show (for example a column). There are two exceptions. A block that
+   *   the text moved to a place outside its hidden blocks (none of them is
+   *   open, and the next kept block is not in one of them) does not keep
+   *   that nesting. A block
+   *   between two blocks of an open hidden block (for example the blocks of
+   *   two columns) does not close it.
+   * - In these cases, and if the source parent is not open any more, the
+   *   block goes where a new block goes: into the nesting of the next kept
+   *   block, or else into the parent of the text.
+   */
+  function keptParent(j: number, id: string): LensBlock {
+    if (!nestingUnchanged(j)) {
+      return textParent(j);
+    }
+    const asNew = () => nestingOfNext(j) ?? textParent(j);
+    if (moved.has(j) && !isNearHiddenAncestor(j, id)) {
+      return asNew();
+    }
+    const parent = sourceParent(id);
+    if (parent === undefined) {
+      return asNew();
+    }
+    return nextNeedsOpenHiddenBlock(j, parent)
+      ? (nestingOfNext(j) ?? parent)
+      : parent;
+  }
+
+  /** The hidden ancestors of a source block: the ancestors up to the first visible one. */
+  function hiddenAncestors(id: string): string[] {
+    const ancestors: string[] = [];
+    for (
+      let ancestor = source.parent(id);
+      ancestor !== undefined && invisibleIds.has(ancestor);
+      ancestor = source.parent(ancestor)
+    ) {
+      ancestors.push(ancestor);
+    }
+    return ancestors;
+  }
+
+  /**
+   * Returns true if a hidden ancestor of kept block `j` is at its new place:
+   * the ancestor is open, or the next kept block is also in it.
+   */
+  function isNearHiddenAncestor(j: number, id: string): boolean {
+    const own = hiddenAncestors(id);
+    if (own.some((ancestor) => isOpen(ancestor))) {
+      return true;
+    }
+    const next = nextKept(j);
+    const ofNext = new Set(
+      next === undefined ? [] : hiddenAncestors(keptIdOf[next]!),
+    );
+    return own.some((ancestor) => ofNext.has(ancestor));
+  }
+
+  function isOpen(id: string): boolean {
+    const block = nodeOf.get(id);
+    return block !== undefined && stack.includes(block);
+  }
+
+  /**
    * Returns true if the next kept block after block `j` needs a hidden block
    * that is open below `parent`. If block `j` went into `parent`, it would
    * close that hidden block, and the next block could not go back into it.
@@ -292,15 +363,7 @@ export function planTarget(input: PlanInput): Plan {
       warnings.push({ type: "block-shape-replaced", id });
     }
     const block = node(id, merged);
-    const parent = nestingUnchanged(j) ? sourceParent(id) : undefined;
-    // A block between two blocks of an open hidden block (for example the
-    // blocks of two columns) goes into the nesting of the next block, as a
-    // new block does. Thus, the hidden block stays open for the next block.
-    const between =
-      parent !== undefined && nextNeedsOpenHiddenBlock(j, parent)
-        ? nestingOfNext(j)
-        : undefined;
-    attach(block, between ?? parent ?? textParent(j));
+    attach(block, keptParent(j, id));
     nodeOf.set(id, block);
     nodes[j] = block;
   }

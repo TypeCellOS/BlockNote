@@ -18,9 +18,9 @@ const MIN_SHARE = 0.5;
 /**
  * Two blocks that are the same block: `a[aIndex]` and `b[bIndex]`. Unlike a
  * `MatchedPair`, the pairs of moved blocks (rule 3 of {@link alignBlocks})
- * can cross the other pairs.
+ * can cross the other pairs. These pairs have `moved: true`.
  */
-export type BlockPair = { aIndex: number; bIndex: number };
+export type BlockPair = { aIndex: number; bIndex: number; moved?: true };
 
 /**
  * Aligns two flat block lists, one to one. The identity of a block follows
@@ -134,7 +134,7 @@ function movedPairs(
   for (const [key, aIndex] of uniqueKeys(a, matchedA)) {
     const bIndex = keysB.get(key);
     if (aIndex !== undefined && bIndex !== undefined) {
-      moved.push({ aIndex, bIndex });
+      moved.push({ aIndex, bIndex, moved: true });
     }
   }
   return moved;
