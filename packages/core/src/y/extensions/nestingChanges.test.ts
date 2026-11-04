@@ -25,6 +25,9 @@ function collaborativeEditor(doc: Y.Doc): Editor {
       collaboration: {
         fragment: doc.get("doc"),
         user: { name: "Test", color: "#ff0000" },
+        experimental: {
+          versionDiffFixes: "implicitDeleteAttributionAndRecreatedBlocks",
+        },
       },
     }),
   );
@@ -288,8 +291,7 @@ describe("version diff of a nesting change", () => {
     return changed;
   }
 
-  // Known limitation: a type change or a move re-creates the block, so the diff shows it deleted and inserted again. #3166 has a hacky prototype fix.
-  it.fails("shows an indent as a moved block, leaving the new parent unchanged", () => {
+  it("shows an indent as a moved block, leaving the new parent unchanged", () => {
     expect(
       diffOf(
         (editor) => {
@@ -304,8 +306,7 @@ describe("version diff of a nesting change", () => {
     ).toEqual([">X"]);
   });
 
-  // Known limitation: a type change or a move re-creates the block, so the diff shows it deleted and inserted again. #3166 has a hacky prototype fix.
-  it.fails("shows an unindent as a moved block, leaving the old parent unchanged", () => {
+  it("shows an unindent as a moved block, leaving the old parent unchanged", () => {
     expect(
       diffOf(
         (editor) => {
