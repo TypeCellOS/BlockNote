@@ -1,0 +1,53 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`nested and sibling list items expose list semantics > nested and sibling list semantics 1`] = `
+"- textbox:
+  - list:
+    - listitem:
+      - text: •
+      - paragraph: Parent item
+      - list:
+        - listitem:
+          - text: ◦
+          - paragraph: Nested one
+        - listitem:
+          - text: ◦
+          - paragraph: Nested two
+    - listitem:
+      - text: •
+      - paragraph: Sibling item"
+`;
+
+exports[`numbered list indexing restarts after a non-list block > numbered list indexing restarts after separator 1`] = `
+"- textbox:
+  - list:
+    - listitem:
+      - text: "1."
+      - paragraph: First
+    - listitem:
+      - text: "2."
+      - paragraph: Second
+  - paragraph: Separator
+  - list:
+    - listitem:
+      - text: "1."
+      - paragraph: Restart"
+`;
+
+exports[`numbered list starts and nested numbering appear in the accessibility tree > numbered list starts and nested list semantics 1`] = `
+"- textbox:
+  - list:
+    - listitem:
+      - text: "4."
+      - paragraph: First item
+      - list:
+        - listitem:
+          - text: "1."
+          - paragraph: Nested one
+        - listitem:
+          - text: "2."
+          - paragraph: Nested two
+    - listitem:
+      - text: "5."
+      - paragraph: Second item"
+`;

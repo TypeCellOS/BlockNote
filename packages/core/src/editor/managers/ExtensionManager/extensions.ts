@@ -9,6 +9,7 @@ import { Gapcursor } from "@tiptap/extensions/gap-cursor";
 import { createDropFileExtension } from "../../../api/clipboard/fromClipboard/fileDropExtension.js";
 import { createPasteFromClipboardExtension } from "../../../api/clipboard/fromClipboard/pasteExtension.js";
 import { createCopyToClipboardExtension } from "../../../api/clipboard/toClipboard/copyExtension.js";
+import { ListAccessibilityExtension } from "../../../extensions/ListAccessibility/ListAccessibility.js";
 import {
   BlockChangeExtension,
   DropCursorExtension,
@@ -174,6 +175,7 @@ export function getDefaultExtensions(
         : {}),
     }),
     LinkToolbarExtension(options),
+    ListAccessibilityExtension(),
     NodeSelectionKeyboardExtension(),
     PlaceholderExtension(options),
     ReadOnlyExtension({ editable: options._tiptapOptions?.editable }),

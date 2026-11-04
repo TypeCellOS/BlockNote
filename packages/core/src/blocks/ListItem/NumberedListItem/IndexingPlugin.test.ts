@@ -233,7 +233,7 @@ describe("IndexingPlugin: updates on structural changes", () => {
   });
 });
 
-describe("IndexingPlugin: typing preserves indices (early exit)", () => {
+describe("IndexingPlugin: typing preserves indices", () => {
   it("indices unchanged after typing in the first block", () => {
     const editor = createEditor();
     setBlocks(editor, [
@@ -292,6 +292,23 @@ describe("IndexingPlugin: typing preserves indices (early exit)", () => {
 
     const indicesAfter = getDataIndices(editor);
     expect(indicesAfter).toEqual(indicesBefore);
+  });
+
+  it("preserves decoration metadata through inline edits", () => {
+    const editor = createEditor();
+    setBlocks(editor, [
+      { type: "numberedListItem", content: "a" },
+      { type: "numberedListItem", content: "b" },
+    ]);
+
+    const before = getDecoSpecs(editor);
+    const view = editor._tiptapEditor.view;
+    view.dispatch(view.state.tr.insertText("x", 4));
+
+    const after = getDecoSpecs(editor);
+    expect(after).toEqual(before);
+    expect(after[0]).toBe(before[0]);
+    expect(after[1]).toBe(before[1]);
   });
 });
 

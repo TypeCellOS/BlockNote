@@ -113,7 +113,10 @@ describe("Test ServerBlockNoteEditor", () => {
 
   it("converts to HTML (blocksToFullHTML)", async () => {
     const html = await editor.blocksToFullHTML(blocks);
-    expect(html).toMatchSnapshot();
+    // Export scopes are random; keep the list roles and item index in scope.
+    expect(
+      html.replaceAll(/bn-html-list-[0-9a-f-]{36}-/g, "bn-html-list-export-"),
+    ).toMatchSnapshot();
   });
 
   it("converts to and from markdown (blocksToMarkdownLossy)", async () => {

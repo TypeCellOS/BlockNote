@@ -1,4 +1,5 @@
 import { DOMSerializer, Fragment, Node } from "prosemirror-model";
+import { uuidv4 } from "lib0/random";
 
 import { PartialBlock } from "../../../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
@@ -20,6 +21,36 @@ import {
   markFrameSlot,
   renderFrameDOM,
 } from "../../../../schema/blocks/frame.js";
+
+type SerializedListItem = {
+  outer: HTMLElement;
+  inner: HTMLElement;
+  id: string;
+};
+
+// Keep the representation here: the first outer wrapper owns a list, whose
+// natural first child and explicitly owned later children encompass whole items.
+function addListAttributes(items: SerializedListItem[]) {
+  if (items.length === 0) {
+    return;
+  }
+  for (const item of items) {
+    item.inner.setAttribute("role", "listitem");
+    item.inner.setAttribute("id", item.id);
+  }
+  const owner = items[0].outer;
+  owner.setAttribute("role", "list");
+  if (items.length > 1) {
+    owner.setAttribute(
+      "aria-owns",
+      items
+        .slice(1)
+        .map((item) => item.id)
+        .join(" "),
+    );
+  }
+}
+
 export function serializeInlineContentInternalHTML<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
@@ -172,7 +203,7 @@ function serializeBlock<
     if (children.length > 0) {
       frame.slot.append(serializeBlocks(editor, children, serializer, options));
     }
-    return frame.dom;
+    return { dom: frame.dom, listItemDOM: undefined };
   }
 
   // Every block but a layout block declares `render` (`validateRenderHooks`).
@@ -234,7 +265,7 @@ function serializeBlock<
       serializeBlocksInternalHTML(editor, children, serializer, options),
     );
   }
-  return bc.dom;
+  return { dom: bc.dom, listItemDOM: bc.contentDOM };
 }
 
 function serializeBlocks<
@@ -249,11 +280,39 @@ function serializeBlocks<
 ) {
   const doc = options?.document ?? document;
   const fragment = doc.createDocumentFragment();
+  // Separate from document IDs and the mounted editor's namespace. Random
+  // scopes let exports from independent workers/page loads share a document.
+  const scope = uuidv4();
+  let runType: string | undefined;
+  let run: SerializedListItem[] = [];
 
-  for (const block of blocks) {
-    const blockDOM = serializeBlock(editor, block, serializer, options);
-    fragment.appendChild(blockDOM);
+  for (const [index, block] of blocks.entries()) {
+    const { dom, listItemDOM } = serializeBlock(
+      editor,
+      block,
+      serializer,
+      options,
+    );
+    const type = block.type;
+    const listItem =
+      listItemDOM &&
+      type !== undefined &&
+      editor.blockImplementations[type].implementation.meta?.listItem === true;
+    if (!listItem || type !== runType) {
+      addListAttributes(run);
+      run = [];
+      runType = listItem ? type : undefined;
+    }
+    if (listItem && listItemDOM) {
+      run.push({
+        outer: dom,
+        inner: listItemDOM,
+        id: `bn-html-list-${scope}-${index}`,
+      });
+    }
+    fragment.appendChild(dom);
   }
+  addListAttributes(run);
 
   return fragment;
 }
