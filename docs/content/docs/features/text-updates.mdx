@@ -180,7 +180,7 @@ The [text lens server example](https://github.com/TypeCellOS/BlockNote/tree/main
   height={395}
 />
 
-1. **Project**: the document goes through the format and back. The result is the view: the document as the format shows it. Each block also goes through the format alone. Thus, each view block links to the document block that gave it.
+1. **Project**: the document goes through the format and back. The result is the view: the document as the format shows it. Most view blocks show a document block as it is: the same text at the same place. Each other block also goes through the format alone. Thus, each view block links to the document block that gave it.
 2. **Parse**: the text of the client gives the blocks of the text.
 3. **Align**: the view blocks and the blocks of the text pair by the location of their text (see [Which Block Is the Same Block](#which-block-is-the-same-block)).
 4. **Merge and plan**: each pair merges three ways. The base is the view block, "ours" is the block of the text, and "theirs" is the document block. A field that the text changed takes the value of the text. Other fields keep the value of the document, thus data that the format does not show stays. The result is the target document.

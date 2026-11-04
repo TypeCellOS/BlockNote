@@ -1,8 +1,12 @@
-import { BlockNoteEditor } from "@blocknote/core";
+import { BlockNoteEditor, BlockNoteSchema } from "@blocknote/core";
+import { withMultiColumn } from "@blocknote/xl-multi-column";
 import { describe, expect, it } from "vite-plus/test";
 
+import { blockToText } from "../blocks/text.js";
+import type { LensBlock } from "../blocks/types.js";
 import { markdownFormat } from "../formats/markdown.js";
 import { plainTextFormat } from "../formats/plainText.js";
+import type { TextFormat } from "../formats/types.js";
 import { projectDocument } from "./projectDocument.js";
 
 describe("projectDocument", () => {
@@ -61,5 +65,64 @@ describe("projectDocument", () => {
     expect(
       projection.view.filter((viewBlock) => viewBlock.sourceId === "code"),
     ).toHaveLength(2);
+  });
+
+  it("makes the round trip only for the blocks that the view does not show as they are", () => {
+    // The IDs of the blocks of each call of `serialize` (a separator has no ID).
+    const calls: string[][] = [];
+    const spy: TextFormat = {
+      serialize: (blockEditor, blocks) => {
+        calls.push(blocks.map((block) => block.id).filter((id) => id !== ""));
+        return markdownFormat.serialize(blockEditor, blocks);
+      },
+      parse: (blockEditor, text) => markdownFormat.parse(blockEditor, text),
+    };
+    projectDocument(editor, spy, editor.document);
+    // The view, then the round trip of the empty paragraph and the image
+    // (markdown does not show an image without a URL). The view shows the
+    // other blocks as they are.
+    expect(calls).toEqual([
+      ["heading", "bullet", "empty", "no-url", "code"],
+      ["empty", "no-url"],
+    ]);
+  });
+
+  it("gives a block of the round trip the neighbors that it has in the text", () => {
+    // In the text, a blank line comes after the first paragraph. Thus, plain
+    // text removes the white space at its end, and the view does not show
+    // it as it is. Its round trip needs a separator after it: else, its
+    // part keeps the white space, and does not link to the view block.
+    const columns = BlockNoteEditor.create({
+      schema: withMultiColumn(BlockNoteSchema.create()),
+      initialContent: [
+        {
+          type: "columnList",
+          children: [
+            {
+              type: "column",
+              children: [{ id: "a", type: "paragraph", content: "A\n  " }],
+            },
+            {
+              type: "column",
+              children: [{ id: "b", type: "paragraph", content: "B" }],
+            },
+          ],
+        },
+      ],
+    });
+    const projection = projectDocument(
+      columns,
+      plainTextFormat,
+      columns.document as LensBlock[],
+    );
+    expect(
+      projection.view.map((viewBlock) => [
+        viewBlock.sourceId,
+        blockToText(viewBlock.block),
+      ]),
+    ).toEqual([
+      ["a", "A"],
+      ["b", "B"],
+    ]);
   });
 });

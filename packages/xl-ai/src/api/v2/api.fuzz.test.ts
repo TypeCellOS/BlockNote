@@ -1,9 +1,12 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import { describe, expect, it } from "vite-plus/test";
 
+import { alignmentKey } from "./alignment/alignBlocks.js";
 import { flattenBlocks } from "./blocks/flatten.js";
+import { schemaRulesOf } from "./blocks/schema.js";
 import { blockToText } from "./blocks/text.js";
 import type { LensBlock } from "./blocks/types.js";
+import { toStoredBlocks } from "./formats/stored.js";
 import {
   computeTextUpdate,
   getDocumentText,
@@ -13,7 +16,7 @@ import {
   type TextFormat,
   updateDocumentFromText,
 } from "./index.js";
-import { projectDocument } from "./projection/projectDocument.js";
+import { projectDocument, shownBlocks } from "./projection/projectDocument.js";
 import { canonicalText } from "./testUtil/canonical.js";
 import { createRandom } from "./testUtil/random.js";
 import {
@@ -50,11 +53,30 @@ describe.each([
         // The format contract: each view block with text comes from one
         // document block. Thus, the round trip of the full document agrees
         // with the round trip of each block alone (see `projectDocument`).
-        const unlinked = projectDocument(editor, format, document)
-          .view.filter((v) => v.sourceId === undefined)
+        const projection = projectDocument(editor, format, document);
+        const unlinked = projection.view
+          .filter((v) => v.sourceId === undefined)
           .map((v) => blockToText(v.block))
           .filter((value) => value !== "");
         expect(unlinked).toEqual([]);
+        // A block that the view shows as it is makes no round trip alone.
+        // Thus, alone, it must give the same block (see `shownBlocks`). A
+        // layout block never makes the round trip.
+        const sources = flattenBlocks(document);
+        const { layoutRuleOf } = schemaRulesOf(editor);
+        for (const source of shownBlocks(sources, projection.view)) {
+          const { block } = sources[source];
+          if (layoutRuleOf(block.type) !== undefined) {
+            continue;
+          }
+          const alone = toStoredBlocks(
+            editor,
+            format.parse(editor, format.serialize(editor, [block])),
+          );
+          expect(
+            flattenBlocks(alone ?? []).map((part) => alignmentKey(part.block)),
+          ).toEqual([alignmentKey(block)]);
+        }
 
         // GetPut.
         const getPut = computeTextUpdate(editor, { format, text });
