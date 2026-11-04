@@ -5,6 +5,7 @@ import {
   existsSync,
   mkdirSync,
   readFileSync,
+  rmSync,
   unlinkSync,
   writeFileSync,
 } from "node:fs";
@@ -25,8 +26,8 @@ class AppiumError extends Error {
   }
 }
 
-function request(method, path, body) {
-  const url = new URL(`${server.replace(/\/$/, "")}${path}`);
+function request(method, path, body, endpoint = server) {
+  const url = new URL(`${endpoint.replace(/\/$/, "")}${path}`);
   const data = body === undefined ? undefined : JSON.stringify(body);
   return new Promise((resolveRequest, reject) => {
     const send = url.protocol === "https:" ? httpsRequest : httpRequest;
@@ -71,9 +72,14 @@ function request(method, path, body) {
   });
 }
 
-async function deleteSession(sessionId) {
+async function deleteSession(sessionId, endpoint = server) {
   try {
-    return await request("DELETE", `/session/${sessionId}`);
+    return await request(
+      "DELETE",
+      `/session/${sessionId}`,
+      undefined,
+      endpoint,
+    );
   } catch (error) {
     // An expired session is already closed. Do not mistake transport/server
     // failures for expiry: keep its saved ID available for a later retry.
@@ -121,15 +127,16 @@ if (action === "create") {
     },
   });
   try {
-    write(sessionFile, JSON.stringify(session, null, 2));
+    write(sessionFile, JSON.stringify({ ...session, server }, null, 2));
   } catch (error) {
     // Without a saved ID, a later `close` cannot find the new remote session.
     try {
       await deleteSession(session.sessionId);
+      rmSync(sessionFile, { force: true });
     } catch (cleanupError) {
       throw new AggregateError(
         [error, cleanupError],
-        `Could not save or close Appium session ${session.sessionId}`,
+        `Could not save or clean up Appium session ${session.sessionId}`,
       );
     }
     throw error;
@@ -139,10 +146,17 @@ if (action === "create") {
   });
   result = session;
 } else {
-  const { sessionId } = JSON.parse(readFileSync(sessionFile, "utf8"));
+  const { sessionId, server: savedServer } = JSON.parse(
+    readFileSync(sessionFile, "utf8"),
+  );
+  if (!savedServer) {
+    throw new Error(
+      "session.json has no saved Appium endpoint; add its confirmed server URL before using this session",
+    );
+  }
   const base = `/session/${sessionId}`;
   function call(method, path, body) {
-    return request(method, `${base}${path}`, body);
+    return request(method, `${base}${path}`, body, savedServer);
   }
   async function native(run) {
     const context = await call("GET", "/context");
@@ -234,7 +248,7 @@ if (action === "create") {
       );
       break;
     case "close":
-      result = await deleteSession(sessionId);
+      result = await deleteSession(sessionId, savedServer);
       unlinkSync(sessionFile);
       break;
     default:

@@ -90,8 +90,10 @@ node "$SKILL_DIR/scripts/device.mjs" create "$UDID" "$PAGE_URL"
 
 The helper disables hardware-keyboard connection, sets Safari's initial URL,
 allows 60 seconds for webviews, and sets script timeout to 30 seconds. Session
-IDs are saved outside the checkout and become stale after session deletion.
-Set `APPIUM_URL` if not using `http://127.0.0.1:4723`.
+IDs and their Appium endpoint are saved outside the checkout. Subsequent commands
+use that saved endpoint, including cleanup. Set `APPIUM_URL` before creation if
+not using `http://127.0.0.1:4723`. For an older session file without an endpoint,
+add its confirmed URL as the `server` field before running commands.
 
 ## 3. Drive real input, inspect through WebKit
 
