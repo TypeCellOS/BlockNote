@@ -1,5 +1,5 @@
 /** @vitest-environment jsdom */
-import { Plugin } from "prosemirror-state";
+import { Plugin, TextSelection } from "prosemirror-state";
 import {
   afterEach,
   beforeEach,
@@ -8,6 +8,9 @@ import {
   it,
   vi,
 } from "vite-plus/test";
+import { BlockNoteSchema } from "../../blocks/BlockNoteSchema.js";
+import { SourceInlineContentWithPreviewExtension } from "../../extensions/SourceInlineContentWithPreview/SourceInlineContentWithPreview.js";
+import { createInlineContentSpec } from "../../schema/inlineContent/createSpec.js";
 import { BlockNoteEditor } from "../BlockNoteEditor.js";
 import { createExtension } from "../BlockNoteExtension.js";
 
@@ -25,6 +28,65 @@ describe("StateManager editability", () => {
     key: "testRestriction",
     prosemirrorPlugins: [new Plugin({ props: { editable: () => false } })],
   }));
+
+  it.each(["application", "plugin"] as const)(
+    "reconciles inline popup state after remounting with the %s restriction",
+    (source) => {
+      editor.unmount();
+      const preview = createInlineContentSpec(
+        { type: "preview", propSchema: {}, content: "plain" },
+        {
+          meta: { hasPreview: true },
+          render() {
+            const dom = document.createElement("span");
+            return { dom, contentDOM: dom };
+          },
+        },
+      );
+      const schema = BlockNoteSchema.create().extend({
+        inlineContentSpecs: { preview },
+      });
+      const previewEditor = BlockNoteEditor.create({
+        schema,
+        extensions: source === "plugin" ? [restriction()] : [],
+        initialContent: [
+          { type: "paragraph", content: [{ type: "preview", content: "x" }] },
+        ],
+      });
+      const host = document.createElement("div");
+      try {
+        previewEditor.mount(host);
+        let previewPos = -1;
+        previewEditor.prosemirrorState.doc.descendants((node, pos) => {
+          if (node.type.name === "preview") {
+            previewPos = pos;
+          }
+        });
+        expect(previewPos).toBeGreaterThan(0);
+        previewEditor.transact((tr) =>
+          tr.setSelection(TextSelection.create(tr.doc, previewPos + 1)),
+        );
+        const popup = previewEditor.getExtension(
+          SourceInlineContentWithPreviewExtension,
+        )!;
+        expect(popup.store.state.selected).toBe(
+          source === "plugin" ? undefined : previewPos,
+        );
+        previewEditor.unmount();
+        if (source === "application") {
+          previewEditor.isEditable = false;
+        }
+        previewEditor.mount(host);
+        expect(previewEditor.isEditable).toBe(false);
+        expect(previewEditor.prosemirrorState.selection.from).toBe(
+          previewPos + 1,
+        );
+        expect(popup.store.state.selected).toBeUndefined();
+      } finally {
+        previewEditor.unmount();
+      }
+    },
+  );
 
   it.each(["mount", "register", "replace", "unregister"] as const)(
     "allows editability subscribers to register plugins during %s without duplicate views",
