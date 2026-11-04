@@ -1,4 +1,4 @@
-import { BlockNoteEditor } from "@blocknote/core";
+import type { BlockNoteEditor } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
@@ -17,7 +17,7 @@ import {
   type TextUpdate,
   type TextUpdateOptions,
 } from "@blocknote/xl-ai/text-lens";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { describeOperation, describeWarning } from "./describe";
 import { initialContent } from "./initialContent";
@@ -67,13 +67,6 @@ export default function App() {
     extensions: [AIExtension()],
     initialContent,
   });
-  // An editor without a view, with the same schema. The lens computes each
-  // write on it (see `suggestTextUpdate`).
-  const scratch = useMemo(
-    () =>
-      BlockNoteEditor.create({ schema: editor.schema, trailingBlock: false }),
-    [editor],
-  );
   const ai = useExtension(AIExtension, { editor });
 
   const [formatName, setFormatName] = useState<FormatName>("markdown");
@@ -94,7 +87,7 @@ export default function App() {
 
   function write(nextText: string) {
     setLastWrite(
-      suggestTextUpdate(editor, scratch, {
+      suggestTextUpdate(editor, {
         format: formats[formatName],
         text: nextText,
         base: base.document,

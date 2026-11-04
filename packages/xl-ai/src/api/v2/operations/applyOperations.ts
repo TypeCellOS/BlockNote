@@ -1,5 +1,4 @@
 import {
-  type BlockNoteEditor,
   blockToNode,
   docToBlocks,
   getBlockInfoAt,
@@ -9,7 +8,7 @@ import {
 } from "@blocknote/core";
 import { Fragment, type Node, Slice } from "prosemirror-model";
 import type { Transaction } from "prosemirror-state";
-import { ReplaceStep, type Step } from "prosemirror-transform";
+import { ReplaceStep } from "prosemirror-transform";
 
 import {
   isTableContent,
@@ -17,32 +16,11 @@ import {
   type LensTableContent,
 } from "../blocks/types.js";
 import { fixBlockIds } from "./blockIds.js";
-import { dispatchUpdate } from "./dispatch.js";
 import { gaps, isChanged } from "../diff/gaps.js";
 import { myersMatch } from "../diff/myers.js";
 import { applyToBlocks, type BlockShape } from "./applyToBlocks.js";
 import { addInlineContentSteps } from "./inlineSteps.js";
 import type { BlockOperation } from "./types.js";
-
-/**
- * Applies the operations to the editor in sequence. Returns the ProseMirror
- * steps of the operations, as they apply to the editor state before the
- * write. The editor gets them in one transaction, or, for an editor that is
- * bound to a Y.Doc, in groups (see `dispatchUpdate`). There, the steps of
- * other plugins can come between the groups.
- */
-export function applyBlockOperations(
-  editor: BlockNoteEditor<any, any, any>,
-  operations: readonly BlockOperation[],
-): readonly Step[] {
-  if (operations.length === 0) {
-    return [];
-  }
-  const tr = editor.prosemirrorState.tr;
-  applyOperations(tr, operations);
-  dispatchUpdate(editor, tr);
-  return [...tr.steps];
-}
 
 /**
  * Applies the operations to the document of a ProseMirror transaction. The
@@ -59,7 +37,12 @@ export function applyBlockOperations(
  *   block keeps its node, with its comments) and new nodes. Only a list
  *   that must have children and has none gets the fill of the schema.
  *
- * At the end, each block has one ID that no other block has.
+ * At the end, each block has one ID that no other block has. The caller
+ * dispatches the transaction. Thus, a caller can show the steps as
+ * suggestions, for example. Note: for an editor that is bound to a Y.Doc,
+ * use `updateDocumentFromText` or `updateYDocFromText`. y-prosemirror v13
+ * can write a change into a different block if one transaction has inserts
+ * and other changes (see `dispatchUpdate`).
  */
 export function applyOperations(
   tr: Transaction,

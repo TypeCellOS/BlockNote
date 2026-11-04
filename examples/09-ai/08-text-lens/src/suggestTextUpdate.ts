@@ -8,7 +8,7 @@ import {
   UnreachableCaseError,
 } from "@blocknote/core";
 import {
-  applyBlockOperations,
+  applyOperations,
   type BlockOperation,
   type BlockPosition,
   computeTextUpdate,
@@ -21,7 +21,6 @@ import {
 } from "@handlewithcare/prosemirror-suggest-changes";
 import type { Node } from "prosemirror-model";
 import type { Transaction } from "prosemirror-state";
-import { Step } from "prosemirror-transform";
 
 /** The marks of `AIExtension` that show a suggestion. */
 const SUGGESTION_MARKS = new Set(["insertion", "deletion", "modification"]);
@@ -44,16 +43,12 @@ export function hasSuggestions(doc: Node): boolean {
  * 1. Revert the suggestions of the last write. A deletion stays in the
  *    document until a user accepts it. Thus, without this step, the lens
  *    reads the deleted text as content.
- * 2. Copy the clean document to `scratch`, and compute the update there.
- * 3. Apply the operations to the editor in one transaction, as suggestions.
- *
- * `scratch` is an editor without a view, with the schema of `editor`. It
- * supplies the ProseMirror steps of the updates. `applyBlockOperations`
- * dispatches its steps. Thus, it cannot write to `editor` directly.
+ * 2. Compute the update for the clean document.
+ * 3. Apply the operations to one transaction of the editor, and make that
+ *    transaction a suggestion.
  */
 export function suggestTextUpdate(
   editor: BlockNoteEditor<any, any, any>,
-  scratch: BlockNoteEditor<any, any, any>,
   options: TextUpdateOptions,
 ): TextUpdate {
   if (hasSuggestions(editor.prosemirrorState.doc)) {
@@ -64,25 +59,20 @@ export function suggestTextUpdate(
     );
   }
 
-  copyDocument(editor, scratch);
-  const update = computeTextUpdate(scratch, options);
+  const update = computeTextUpdate(editor, options);
   if (update.error !== undefined || update.operations.length === 0) {
     return update;
   }
 
-  // An update changes a block in place, with the smallest steps (one step
-  // for each changed run of text). The suggestion transform marks only the
-  // text of these steps.
-  const updateSteps = applyBlockOperations(
-    scratch,
-    update.operations.filter((operation) => operation.type === "update"),
-  ).map((step) => Step.fromJSON(editor.pmSchema, step.toJSON()));
-
   editor.exec((state, dispatch) => {
     const tr = state.tr;
-    for (const step of updateSteps) {
-      tr.step(step);
-    }
+    // An update changes a block in place, with the smallest steps (one step
+    // for each changed run of text). The suggestion transform marks only the
+    // text of these steps.
+    applyOperations(
+      tr,
+      update.operations.filter((operation) => operation.type === "update"),
+    );
     for (const operation of update.operations) {
       applyStructureOperation(tr, operation);
     }
@@ -101,29 +91,9 @@ export function suggestTextUpdate(
 }
 
 /**
- * Makes the document of `scratch` equal to the document of `editor`. The
- * two editors have different schema objects. Thus, the copy goes through
- * JSON.
- */
-function copyDocument(
-  editor: BlockNoteEditor<any, any, any>,
-  scratch: BlockNoteEditor<any, any, any>,
-) {
-  const doc = scratch.pmSchema.nodeFromJSON(
-    editor.prosemirrorState.doc.toJSON(),
-  );
-  scratch.transact((tr) => {
-    tr.replaceWith(0, tr.doc.content.size, doc.content);
-  });
-  if (!scratch.prosemirrorState.doc.eq(doc)) {
-    throw new Error("The scratch editor changed the copy of the document");
-  }
-}
-
-/**
  * Applies an insert, a move or a delete with one step for each block.
- * `applyBlockOperations` replaces a full block group in one step. The
- * suggestion transform then marks all blocks of that group as deleted and
+ * `applyOperations` replaces each run of changed blocks in one step. The
+ * suggestion transform then marks all blocks of that run as deleted and
  * inserted. The updates are already in the transaction.
  */
 function applyStructureOperation(tr: Transaction, operation: BlockOperation) {

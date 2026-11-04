@@ -15,9 +15,9 @@ This example shows a document as markdown or plain text next to the editor, and 
 
 **How the suggestions apply** (see `src/suggestTextUpdate.ts`):
 
-1. `computeTextUpdate` computes the operations on a copy of the clean document, in an editor without a view.
-2. `applyBlockOperations` on that copy gives the steps of the updates. These steps change only the changed text.
-3. An insert, a move or a delete applies with `insertBlocks` and `removeAndInsertBlocks` of `@blocknote/core`, with one step for each block. `applyBlockOperations` replaces a full block group in one step, and the suggestions then show all the blocks of that group as deleted and inserted.
+1. `computeTextUpdate` computes the operations on the clean document (after a revert of the suggestions of the last write).
+2. `applyOperations` applies the updates to one transaction of the editor. These steps change only the changed text.
+3. An insert, a move or a delete applies with `insertBlocks` and `removeAndInsertBlocks` of `@blocknote/core`, with one step for each block. `applyOperations` replaces each run of changed blocks in one step, and the suggestions then show all the blocks of that run as deleted and inserted.
 4. `transformToSuggestionTransaction` of `prosemirror-suggest-changes` changes these steps into suggestions.
 
 **Limits:**

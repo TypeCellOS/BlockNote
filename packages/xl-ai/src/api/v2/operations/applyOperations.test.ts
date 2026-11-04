@@ -11,7 +11,21 @@ import { describe, expect, it } from "vite-plus/test";
 
 import type { LensBlock } from "../blocks/types.js";
 
-import { applyBlockOperations } from "./applyOperations.js";
+import { applyOperations } from "./applyOperations.js";
+import type { BlockOperation } from "./types.js";
+
+/** Applies the operations in one transaction of the editor, and returns its steps. */
+function apply(
+  editor: BlockNoteEditor<any, any, any>,
+  operations: readonly BlockOperation[],
+): readonly Step[] {
+  let steps: readonly Step[] = [];
+  editor.transact((tr) => {
+    applyOperations(tr, operations);
+    steps = [...tr.steps];
+  });
+  return steps;
+}
 
 function createEditor() {
   return BlockNoteEditor.create({
@@ -45,10 +59,10 @@ const paragraph = (id: string, value: string) => ({
   children: [],
 });
 
-describe("applyBlockOperations", () => {
+describe("applyOperations", () => {
   it("applies the operations in sequence", () => {
     const editor = createEditor();
-    applyBlockOperations(editor, [
+    apply(editor, [
       { type: "update", id: "a", update: { content: text("A2") } },
       {
         type: "insert",
@@ -77,14 +91,14 @@ describe("applyBlockOperations", () => {
   it("does not change the document for an empty list", () => {
     const editor = createEditor();
     const before = editor.document;
-    applyBlockOperations(editor, []);
+    apply(editor, []);
     expect(editor.document).toEqual(before);
   });
 
   it("throws an error if an operation refers to a block that does not exist", () => {
     const editor = createEditor();
     expect(() =>
-      applyBlockOperations(editor, [
+      apply(editor, [
         { type: "move", id: "a", reference: "missing", placement: "after" },
       ]),
     ).toThrow();
@@ -109,7 +123,7 @@ describe("the steps of a structure change", () => {
 
   it("inserts a block with one step that only inserts", () => {
     const editor = createEditor();
-    const steps = applyBlockOperations(editor, [
+    const steps = apply(editor, [
       {
         type: "insert",
         block: paragraph("new", "New"),
@@ -123,7 +137,7 @@ describe("the steps of a structure change", () => {
 
   it("moves a block with an insert step and a removal step", () => {
     const editor = createEditor();
-    const steps = applyBlockOperations(editor, [
+    const steps = apply(editor, [
       { type: "move", id: "c", reference: "a", placement: "before" },
     ]);
     expect(kinds(steps)).toEqual(["insert", "remove"]);
@@ -141,9 +155,7 @@ describe("the steps of a structure change", () => {
         },
       ],
     });
-    const steps = applyBlockOperations(editor, [
-      { type: "delete", id: "child" },
-    ]);
+    const steps = apply(editor, [{ type: "delete", id: "child" }]);
     expect(kinds(steps)).toEqual(["remove"]);
     expect(shape(editor.document)).toEqual(["A"]);
   });
@@ -171,7 +183,7 @@ describe("the steps of a structure change", () => {
     });
     // The removal of x and y gives one column, if it comes before the
     // insert of the two new columns.
-    applyBlockOperations(editor, [
+    apply(editor, [
       {
         type: "insert",
         block: column("n1"),
