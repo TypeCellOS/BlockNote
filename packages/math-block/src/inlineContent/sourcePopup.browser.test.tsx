@@ -64,6 +64,21 @@ it.each([
       }
       const sourcePos = mathPos + 1;
 
+      async function expectPopup(open: boolean) {
+        expect(editor.prosemirrorState.selection.from).toBe(sourcePos);
+        expect(
+          editor.getExtension(SourceInlineContentWithPreviewExtension)!.store
+            .state.selected,
+        ).toBe(open ? mathPos : undefined);
+        await vi.waitFor(() =>
+          expect(
+            host
+              .querySelector(".bn-preview-with-source-popup")
+              ?.getAttribute("data-open"),
+          ).toBe(String(open)),
+        );
+      }
+
       // Read-only ProseMirror views still move the selection on click. Exercise
       // that selection path directly, independently of the guarded preview click.
       flushSync(() => {
@@ -72,18 +87,7 @@ it.each([
         );
       });
 
-      expect(editor.prosemirrorState.selection.from).toBe(sourcePos);
-      expect(
-        editor.getExtension(SourceInlineContentWithPreviewExtension)!.store
-          .state.selected,
-      ).toBe(editable && !pluginReadOnly ? mathPos : undefined);
-      await vi.waitFor(() =>
-        expect(
-          host
-            .querySelector(".bn-preview-with-source-popup")
-            ?.getAttribute("data-open"),
-        ).toBe(String(editable && !pluginReadOnly)),
-      );
+      await expectPopup(editable && !pluginReadOnly);
 
       if (editable) {
         flushSync(() => {
@@ -96,18 +100,7 @@ it.each([
           }
         });
 
-        expect(editor.prosemirrorState.selection.from).toBe(sourcePos);
-        expect(
-          editor.getExtension(SourceInlineContentWithPreviewExtension)!.store
-            .state.selected,
-        ).toBeUndefined();
-        await vi.waitFor(() =>
-          expect(
-            host
-              .querySelector(".bn-preview-with-source-popup")
-              ?.getAttribute("data-open"),
-          ).toBe("false"),
-        );
+        await expectPopup(false);
 
         flushSync(() => {
           if (batched) {
@@ -119,18 +112,7 @@ it.each([
           }
         });
 
-        expect(editor.prosemirrorState.selection.from).toBe(sourcePos);
-        expect(
-          editor.getExtension(SourceInlineContentWithPreviewExtension)!.store
-            .state.selected,
-        ).toBe(pluginReadOnly ? undefined : mathPos);
-        await vi.waitFor(() =>
-          expect(
-            host
-              .querySelector(".bn-preview-with-source-popup")
-              ?.getAttribute("data-open"),
-          ).toBe(String(!pluginReadOnly)),
-        );
+        await expectPopup(!pluginReadOnly);
       }
     } finally {
       root.unmount();
@@ -140,10 +122,9 @@ it.each([
   },
 );
 
-it("mounts inline source popup tracking without the readOnly extension", () => {
+it("tracks inline source popups through the editor API", () => {
   const editor = BlockNoteEditor.create({
     schema,
-    disableExtensions: ["readOnly"],
     initialContent: [
       { type: "paragraph", content: [{ type: "math", content: "x^2" }] },
     ],
@@ -167,6 +148,16 @@ it("mounts inline source popup tracking without the readOnly extension", () => {
     editor.transact((tr) =>
       tr.setSelection(TextSelection.create(tr.doc, sourcePos)),
     );
+    expect(
+      editor.getExtension(SourceInlineContentWithPreviewExtension)!.store.state
+        .selected,
+    ).toBe(mathPos);
+    editor.isEditable = false;
+    expect(
+      editor.getExtension(SourceInlineContentWithPreviewExtension)!.store.state
+        .selected,
+    ).toBeUndefined();
+    editor.isEditable = true;
     expect(
       editor.getExtension(SourceInlineContentWithPreviewExtension)!.store.state
         .selected,

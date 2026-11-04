@@ -2,7 +2,6 @@ import {
   createExtension,
   createStore,
 } from "../../editor/BlockNoteExtension.js";
-import { ReadOnlyExtension } from "../ReadOnly/ReadOnly.js";
 
 /** Keeps the editor read-only and the loader visible until every token is released. */
 export const LoadingExtension = createExtension(({ editor }) => {
@@ -11,8 +10,7 @@ export const LoadingExtension = createExtension(({ editor }) => {
       if (state.size > 0 === prevState.size > 0) {
         return;
       }
-      const readOnly = editor.getExtension(ReadOnlyExtension);
-      readOnly?.setReadOnly(state.size > 0, "loading");
+      editor.setReadOnly(state.size > 0, "loading");
     },
   });
 

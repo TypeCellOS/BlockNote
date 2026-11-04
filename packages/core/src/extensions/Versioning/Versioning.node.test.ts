@@ -5,7 +5,6 @@ import {
   createVersioningExtension,
   type VersioningController,
 } from "./Versioning.js";
-import { ReadOnlyExtension } from "../ReadOnly/ReadOnly.js";
 import { success } from "./__test__/result.js";
 import type { VersionDisplay } from "./types.js";
 
@@ -168,7 +167,7 @@ it("publishes restored live content when reconnecting a detached binding", async
 
 it("configures once per editor during construction", async () => {
   const configure = vi.fn((editor: BlockNoteEditor) => {
-    expect(editor.getExtension(ReadOnlyExtension)).toBeDefined();
+    expect(editor.isEditable).toBe(true);
     expect(editor.document).toHaveLength(1);
     expect(
       editor.getExtension<VersioningController>("versioning")?.store.state,

@@ -29,6 +29,7 @@ import type {
   ExtensionFactoryInstance,
   ExtensionFactory,
 } from "../../BlockNoteExtension.js";
+import type { StateManager } from "../StateManager.js";
 import { originalFactorySymbol } from "./symbol.js";
 import {
   getDefaultExtensions,
@@ -83,6 +84,7 @@ export class ExtensionManager {
   constructor(
     private editor: BlockNoteEditor<any, any, any>,
     private options: BlockNoteEditorOptions<any, any, any>,
+    private stateManager: StateManager,
   ) {
     /**
      * When the editor is first mounted, we need to initialize all the extensions
@@ -326,6 +328,20 @@ export class ExtensionManager {
       | ExtensionFactoryInstance
       | (Extension | ExtensionFactoryInstance)[],
     options?: { resetPluginStateFor: readonly PluginKey[] },
+  ): void {
+    const previous = this.stateManager.updatingView;
+    this.stateManager.updatingView = true;
+    try {
+      this.updateExtensions(toUnregister, toRegister, options);
+    } finally {
+      this.stateManager.updatingView = previous;
+    }
+  }
+
+  private updateExtensions(
+    ...[toUnregister, toRegister, options]: Parameters<
+      ExtensionManager["replaceExtension"]
+    >
   ): void {
     const extensionsToRemove = new Set(this.resolveExtensions(toUnregister));
 
