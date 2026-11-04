@@ -71,6 +71,14 @@ describe("plainTextFormat.parse", () => {
     ]);
   });
 
+  it("removes lines with only white space at the end of the text, as before another block", () => {
+    // A block that ends with a hard break and a space gives the same text at
+    // the end of the document and before another block.
+    expect(texts("a\n ")).toEqual(texts("a\n \n\nb").slice(0, 1));
+    expect(texts("a\n ")).toEqual([[{ type: "text", text: "a", styles: {} }]]);
+    expect(texts(" \na")).toEqual([[{ type: "text", text: "a", styles: {} }]]);
+  });
+
   it("accepts Windows line breaks", () => {
     expect(texts("a\r\n\r\nb")).toHaveLength(2);
   });

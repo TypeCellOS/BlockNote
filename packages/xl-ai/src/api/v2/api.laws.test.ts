@@ -314,3 +314,61 @@ describe("a document with two blocks with one ID", () => {
     expect(editor.document[1].content).toMatchObject([{ text: "Beta two" }]);
   });
 });
+
+/**
+ * A text can give a block that the format does not show: the round trip of
+ * that block alone gives nothing. A broken HTML tag can give such a block.
+ * The write does not keep it. Else, the view does not show it after the
+ * write, and each later write of the same text adds it again (PutTwice).
+ */
+describe("a block of the text that the format does not show", () => {
+  it.each([
+    // Markdown: an image without a URL exports as nothing.
+    { name: "markdown", format: markdownFormat, text: "Alpha\n\n<img>\n" },
+    // HTML: a paragraph with only white space exports as `<p> </p>`, and
+    // the parse drops that paragraph.
+    {
+      name: "HTML",
+      format: htmlFormat,
+      text: '<p>Alpha</p><p data-background-color="blue">\uFFFC\n\n</p>',
+    },
+  ])("is not in the document after the write ($name)", ({ format, text }) => {
+    const editor = createEditor([
+      { id: "a", type: "paragraph", content: "Alpha" },
+    ]);
+    valid(updateDocumentFromText(editor, { format, text }));
+
+    expect(editor.document.map((block) => block.id)).toEqual(["a"]);
+    // PutTwice.
+    expect(
+      valid(computeTextUpdate(editor, { format, text })).operations,
+    ).toEqual([]);
+    // PutGet.
+    expect(canonicalText(editor, format, getDocumentText(editor, format))).toBe(
+      canonicalText(editor, format, text),
+    );
+  });
+});
+
+describe("plain text: white space at the end of a block", () => {
+  it("keeps the laws if the client removes the block after a block that ends with a hard break", () => {
+    const editor = createEditor([
+      { id: "a", type: "paragraph", content: "Alpha\n " },
+      { id: "b", type: "paragraph", content: "Beta" },
+    ]);
+    const text = "Alpha";
+    valid(updateDocumentFromText(editor, { format: plainTextFormat, text }));
+
+    expect(
+      canonicalText(
+        editor,
+        plainTextFormat,
+        getDocumentText(editor, plainTextFormat),
+      ),
+    ).toBe(canonicalText(editor, plainTextFormat, text));
+    expect(
+      valid(computeTextUpdate(editor, { format: plainTextFormat, text }))
+        .operations,
+    ).toEqual([]);
+  });
+});

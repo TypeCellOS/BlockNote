@@ -32,16 +32,21 @@ function blocksToPlainText(blocks: readonly LensBlock[]): string {
 }
 
 function plainTextToBlocks(text: string): LensBlock[] {
-  return text
-    .replace(/\r\n?/g, "\n")
-    .replace(/^\n+|\n+$/g, "")
-    .split(/\n(?:[ \t]*\n)+/)
-    .filter((paragraph) => paragraph.trim().length > 0)
-    .map((paragraph) => ({
-      id: "",
-      type: "paragraph",
-      props: {},
-      content: [{ type: "text", text: paragraph, styles: {} }],
-      children: [],
-    }));
+  return (
+    text
+      .replace(/\r\n?/g, "\n")
+      // Lines with only white space at the start and at the end of the text
+      // go, as between two blocks (see the split below). Thus, the text of a
+      // block does not depend on the block after it.
+      .replace(/^(?:[ \t]*\n)+|(?:\n[ \t]*)+$/g, "")
+      .split(/\n(?:[ \t]*\n)+/)
+      .filter((paragraph) => paragraph.trim().length > 0)
+      .map((paragraph) => ({
+        id: "",
+        type: "paragraph",
+        props: {},
+        content: [{ type: "text", text: paragraph, styles: {} }],
+        children: [],
+      }))
+  );
 }

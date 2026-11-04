@@ -110,46 +110,22 @@ export function projectDocument(
     view: readonly FlatBlock[],
     text: string,
   ): { part: FlatBlock; source: number }[] {
-    const marker = unusedMarker(text);
-    const separator: LensBlock = {
-      id: "",
-      type: "paragraph",
-      props: {},
-      content: [{ type: "text", text: marker, styles: {} }],
-      children: [],
-    };
     const { layoutRuleOf } = schemaRulesOf(editor);
     const shown = shownBlocks(sources, view);
     const notLayout = sources.flatMap(({ block }, source) =>
       layoutRuleOf(block.type) === undefined ? [source] : [],
     );
     const alone = notLayout.filter((source) => !shown.has(source));
-    const before = alone[0] !== notLayout[0];
-    const after = alone[alone.length - 1] !== notLayout[notLayout.length - 1];
-    const batch = [
-      separator,
-      ...alone.flatMap((source) => [
-        withoutChildren(sources[source].block),
-        separator,
-      ]),
-    ].slice(before ? 0 : 1, after ? undefined : -1);
-    const own = alone.length === 0 ? "" : format.serialize(editor, batch);
-    const parsed = own.trim() === "" ? [] : flattenBlocks(parseStored(own));
-    const groups: FlatBlock[][] = [[]];
-    for (const flat of parsed) {
-      if (
-        flat.parentIndex === undefined &&
-        blockToText(flat.block) === marker
-      ) {
-        groups.push([]);
-      } else {
-        groups[groups.length - 1].push(flat);
-      }
-    }
-    const ownGroups = groups.slice(before ? 1 : 0, after ? -1 : undefined);
-    if (alone.length > 0 && ownGroups.length !== alone.length) {
-      throw new Error("The format did not keep the blocks apart");
-    }
+    const ownGroups = roundTripAlone(
+      editor,
+      format,
+      alone.map((source) => sources[source].block),
+      text,
+      {
+        before: alone[0] !== notLayout[0],
+        after: alone[alone.length - 1] !== notLayout[notLayout.length - 1],
+      },
+    );
     const partsOfAlone = new Map(
       alone.map((source, k) => [source, ownGroups[k]]),
     );
@@ -172,6 +148,110 @@ export function projectDocument(
     }
     return blocks;
   }
+}
+
+/**
+ * The round trip of each block alone, without its children, in one
+ * serialize and one parse: the blocks at the top level, with a separator
+ * between them. The separator is a paragraph with only a character that
+ * `text` does not contain. A format that does not keep these paragraphs
+ * apart from the blocks is a bug. With `edges`, a separator also comes before
+ * the first block or after the last block: the parse of a block can depend
+ * on the block next to it (for example, plain text removes the white space
+ * at the end of a block only before a blank line). Returns the view blocks
+ * that each block gives.
+ */
+export function roundTripAlone(
+  editor: BlockNoteEditor<any, any, any>,
+  format: TextFormat,
+  blocks: readonly LensBlock[],
+  text: string,
+  edges: { before: boolean; after: boolean },
+): FlatBlock[][] {
+  if (blocks.length === 0) {
+    return [];
+  }
+  const marker = unusedMarker(text);
+  const separator: LensBlock = {
+    id: "",
+    type: "paragraph",
+    props: {},
+    content: [{ type: "text", text: marker, styles: {} }],
+    children: [],
+  };
+  const batch = [
+    separator,
+    ...blocks.flatMap((block) => [withoutChildren(block), separator]),
+  ].slice(edges.before ? 0 : 1, edges.after ? undefined : -1);
+  const own = format.serialize(editor, batch);
+  const stored =
+    own.trim() === "" ? [] : toStoredBlocks(editor, format.parse(editor, own));
+  if (stored === undefined) {
+    throw new Error("The round trip of a block does not fit the schema");
+  }
+  const groups: FlatBlock[][] = [[]];
+  for (const flat of flattenBlocks(stored)) {
+    if (flat.parentIndex === undefined && blockToText(flat.block) === marker) {
+      groups.push([]);
+    } else {
+      groups[groups.length - 1].push(flat);
+    }
+  }
+  const result = groups.slice(
+    edges.before ? 1 : 0,
+    edges.after ? -1 : undefined,
+  );
+  if (result.length !== blocks.length) {
+    throw new Error("The format did not keep the blocks apart");
+  }
+  return result;
+}
+
+/**
+ * Returns the blocks of a text without the blocks that the format does not
+ * show: the round trip of such a block alone gives no block. An example is
+ * an image without a URL in markdown, which a broken HTML tag in the text
+ * can give. The text cannot keep such a block: after the write, the view
+ * does not show it, thus each later write of the same text would add it
+ * again (PutTwice). Only a block without text and without children that no
+ * view block shows (by key) needs the round trip.
+ */
+export function withoutHiddenBlocks(
+  editor: BlockNoteEditor<any, any, any>,
+  format: TextFormat,
+  blocks: readonly LensBlock[],
+  view: readonly FlatBlock[],
+  text: string,
+): readonly LensBlock[] {
+  const viewKeys = new Set(view.map(({ block }) => alignmentKey(block)));
+  const candidates: LensBlock[] = [];
+  function collect(list: readonly LensBlock[]) {
+    for (const block of list) {
+      if (
+        block.children.length === 0 &&
+        blockToText(block).trim() === "" &&
+        !viewKeys.has(alignmentKey(block))
+      ) {
+        candidates.push(block);
+      }
+      collect(block.children);
+    }
+  }
+  collect(blocks);
+  const parts = roundTripAlone(editor, format, candidates, text, {
+    before: true,
+    after: true,
+  });
+  const hidden = new Set(candidates.filter((_, k) => parts[k].length === 0));
+  if (hidden.size === 0) {
+    return blocks;
+  }
+  function keep(list: readonly LensBlock[]): LensBlock[] {
+    return list.flatMap((block) =>
+      hidden.has(block) ? [] : [{ ...block, children: keep(block.children) }],
+    );
+  }
+  return keep(blocks);
 }
 
 /**

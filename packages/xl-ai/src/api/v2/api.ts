@@ -20,6 +20,7 @@ import { dispatchUpdate } from "./operations/dispatch.js";
 import { diffDocuments } from "./operations/diffDocuments.js";
 import type { BlockOperation } from "./operations/types.js";
 import { documentText, formatCache } from "./projection/cache.js";
+import { withoutHiddenBlocks } from "./projection/projectDocument.js";
 import { mergeTree, type RebaseWarning } from "./merge/tree.js";
 import { fitLayout } from "./target/fitLayout.js";
 import {
@@ -330,7 +331,9 @@ function planTextUpdate(
   if (parsed === undefined) {
     return { error: "invalid-document" };
   }
-  const incoming = flattenBlocks(parsed);
+  const incoming = flattenBlocks(
+    withoutHiddenBlocks(editor, format, parsed, projection.view, content),
+  );
   return planTarget({
     document,
     projection,
