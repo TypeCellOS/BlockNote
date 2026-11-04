@@ -7,6 +7,88 @@ import { expect, it } from "vite-plus/test";
 import { BlockNoteViewRaw } from "../editor/BlockNoteView.js";
 import { createReactBlockSpec } from "./ReactBlockSpec.js";
 
+it("keeps inline block state when React adds or removes contentDOM siblings", async () => {
+  let mounts = 0;
+  const stateful = createReactBlockSpec(
+    { type: "stateful", propSchema: {}, content: "inline" },
+    {
+      render: function StatefulBlock({ contentRef }) {
+        const [count, setCount] = useState(0);
+        const [showDetails, setShowDetails] = useState(false);
+        useEffect(() => {
+          mounts++;
+        }, []);
+        return (
+          <div>
+            <button contentEditable={false} onClick={() => setCount(count + 1)}>
+              Count: {count}
+            </button>
+            <button
+              contentEditable={false}
+              onClick={() => setShowDetails(!showDetails)}
+            >
+              Toggle details
+            </button>
+            <div ref={contentRef}>
+              {showDetails && <aside contentEditable={false}>Details</aside>}
+            </div>
+          </div>
+        );
+      },
+    },
+  )();
+  const editor = BlockNoteEditor.create({
+    schema: BlockNoteSchema.create().extend({ blockSpecs: { stateful } }),
+    initialContent: [{ type: "stateful", content: "Editable text" }],
+  });
+  const host = document.createElement("div");
+  document.body.append(host);
+  const root = createRoot(host);
+  try {
+    flushSync(() => {
+      root.render(
+        <BlockNoteViewRaw
+          editor={editor}
+          formattingToolbar={false}
+          linkToolbar={false}
+          sideMenu={false}
+          slashMenu={false}
+        />,
+      );
+    });
+    await expect.poll(() => host.querySelectorAll("button").length).toBe(2);
+    const button = host.querySelector("button")!;
+    const toggle = host.querySelectorAll("button")[1];
+    const content = host.querySelector("[data-node-view-content-react]");
+    flushSync(() => button.click());
+    const initialMounts = mounts;
+    const documentBefore = editor.document;
+    for (const visible of [true, false]) {
+      flushSync(() => toggle.click());
+      // Deliver mutations and allow ProseMirror's deferred DOM read to run.
+      await new Promise<void>((resolve) => setTimeout(resolve, 100));
+      expect(host.querySelector("button")).toBe(button);
+      expect(button.textContent).toBe("Count: 1");
+      expect(host.querySelector("aside") !== null).toBe(visible);
+      expect(host.querySelector("[data-node-view-content-react]")).toBe(
+        content,
+      );
+      expect(mounts).toBe(initialMounts);
+      expect(editor.document).toEqual(documentBefore);
+    }
+    content!.textContent = "Native edit";
+    await expect
+      .poll(() => editor.document[0])
+      .toMatchObject({
+        content: [{ type: "text", text: "Native edit" }],
+      });
+  } finally {
+    root.unmount();
+    editor._tiptapEditor.destroy();
+    host.remove();
+  }
+});
+
 it.each([false, true])(
   "keeps custom block state across wrapper attribute changes, framed=%s",
   async (framed) => {

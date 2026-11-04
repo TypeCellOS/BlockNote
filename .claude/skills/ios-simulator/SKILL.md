@@ -17,6 +17,8 @@ not automated regression coverage or proof of physical-device/iPad/IME behavior.
 
 - macOS, full Xcode selected, an installed iOS runtime, and Node.js/pnpm.
 - Docker for browser tests. Use only `vp` / `pnpm`, not npm/yarn.
+- Optional for recording review: FFmpeg (`ffmpeg` and `ffprobe`, available via
+  `brew install ffmpeg`) for the contact-sheet commands in the debugging reference.
 - A local Safari-accessible dev server from **this checkout**. Another worktree
   may own the usual port; verify the URL rather than assuming port 5173.
 - An approved external temporary directory for sessions, logs, captures and driver

@@ -596,11 +596,19 @@ export function createReactBlockSpec<
                         ![
                           ...mutation.addedNodes,
                           ...mutation.removedNodes,
-                        ].includes(contentDOM)
+                        ].includes(contentDOM) &&
+                        [...mutation.addedNodes, ...mutation.removedNodes].some(
+                          (node) =>
+                            node.nodeType === 1 &&
+                            (node as Element).hasAttribute(
+                              "data-node-view-content-react",
+                            ),
+                        )
                       ) {
                         // TipTap's contentDOM.contains check misses native mobile
                         // Enter cloning contentDOM into a sibling. Observe that
-                        // boundary, but not React attaching/detaching contentDOM.
+                        // boundary only for cloned content containers, not React
+                        // chrome or attaching/detaching the real contentDOM.
                         // Open upstream PR (currently insufficient for this
                         // nested wrapper): https://github.com/ueberdosis/tiptap/pull/8355
                         // Recheck this workaround when that behavior changes.

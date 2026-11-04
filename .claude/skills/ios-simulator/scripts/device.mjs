@@ -18,6 +18,13 @@ mkdirSync(artifacts, { recursive: true });
 const sessionFile = resolve(artifacts, "session.json");
 const server = process.env.APPIUM_URL ?? "http://127.0.0.1:4723";
 
+class AppiumError extends Error {
+  constructor(message, code) {
+    super(message);
+    this.code = code;
+  }
+}
+
 function request(method, path, body) {
   const url = new URL(`${server.replace(/\/$/, "")}${path}`);
   const data = body === undefined ? undefined : JSON.stringify(body);
@@ -40,7 +47,12 @@ function request(method, path, body) {
           try {
             const result = JSON.parse(text);
             if (res.statusCode >= 400 || result.value?.error) {
-              reject(new Error(`${method} ${path}: ${text}`));
+              reject(
+                new AppiumError(
+                  `${method} ${path}: ${text}`,
+                  result.value?.error,
+                ),
+              );
             } else {
               resolveRequest(result.value);
             }
@@ -57,6 +69,19 @@ function request(method, path, body) {
     req.on("error", reject);
     req.end(data);
   });
+}
+
+async function deleteSession(sessionId) {
+  try {
+    return await request("DELETE", `/session/${sessionId}`);
+  } catch (error) {
+    // An expired session is already closed. Do not mistake transport/server
+    // failures for expiry: keep its saved ID available for a later retry.
+    if (error instanceof AppiumError && error.code === "invalid session id") {
+      return null;
+    }
+    throw error;
+  }
 }
 
 function write(path, data) {
@@ -95,7 +120,20 @@ if (action === "create") {
       },
     },
   });
-  write(sessionFile, JSON.stringify(session, null, 2));
+  try {
+    write(sessionFile, JSON.stringify(session, null, 2));
+  } catch (error) {
+    // Without a saved ID, a later `close` cannot find the new remote session.
+    try {
+      await deleteSession(session.sessionId);
+    } catch (cleanupError) {
+      throw new AggregateError(
+        [error, cleanupError],
+        `Could not save or close Appium session ${session.sessionId}`,
+      );
+    }
+    throw error;
+  }
   await request("POST", `/session/${session.sessionId}/timeouts`, {
     script: 30_000,
   });
@@ -196,7 +234,7 @@ if (action === "create") {
       );
       break;
     case "close":
-      result = await call("DELETE", "");
+      result = await deleteSession(sessionId);
       unlinkSync(sessionFile);
       break;
     default:
