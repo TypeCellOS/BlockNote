@@ -55,6 +55,8 @@ export function createVersioningExtension<
     }
 
     let previewOpen = false;
+    function noop() {}
+    let releaseEditingLock = noop;
 
     const mode = createVersioning<Content, Attributions>({
       get storage() {
@@ -129,7 +131,14 @@ export function createVersioningExtension<
         },
       },
       setReadOnly(enabled) {
-        editor.setReadOnly(enabled, "versioning");
+        if (enabled) {
+          if (releaseEditingLock === noop) {
+            releaseEditingLock = editor.acquireEditingLock();
+          }
+        } else {
+          releaseEditingLock();
+          releaseEditingLock = noop;
+        }
       },
     });
     const key = "versioning";

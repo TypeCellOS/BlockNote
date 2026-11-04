@@ -22,6 +22,7 @@ it("does not publish binding changes while opening, switching or closing a previ
       adapter: {
         supportsComparison: true,
         open() {
+          expect(editor.isEditable).toBe(false);
           show("opening");
           return {
             current: { content: "live", capturedAt: 1 },
@@ -44,6 +45,7 @@ it("does not publish binding changes while opening, switching or closing a previ
         async restore() {
           // Like local storage, restore the live view before editing it.
           editor.getExtension<VersioningController>("versioning")!.close();
+          expect(editor.isEditable).toBe(false);
           live = "restored";
           show(live);
           return success(undefined);
@@ -67,11 +69,13 @@ it("does not publish binding changes while opening, switching or closing a previ
     await mode.select({ type: "current" }, { compareTo: "old" });
     await mode.select({ type: "current" });
     mode.close();
+    expect(editor.isEditable).toBe(true);
     expect(changes).toEqual([]);
     editor.updateBlock("paragraph", { content: "edited" });
     expect(changes).toEqual(["edited"]);
     mode.open();
     await mode.restore("old");
+    expect(editor.isEditable).toBe(true);
     expect(changes).toEqual(["edited", "restored"]);
   } finally {
     mode.dispose();
@@ -107,6 +111,7 @@ it("resumes change notifications if acquiring a preview throws", () => {
     expect(() => editor.getExtension(Versions)!.open()).toThrow(
       "Cannot open preview",
     );
+    expect(editor.isEditable).toBe(true);
     expect(changes).toEqual([]);
     editor.updateBlock("paragraph", { content: "edited" });
     expect(changes).toEqual(["edited"]);
@@ -218,10 +223,17 @@ it("configures once per editor during construction", async () => {
       expect(mode.canRename).toBe(false);
       expect(await mode.rename("missing")).toEqual({ status: "unavailable" });
       mode.open();
+      mode.open();
+      expect(editor.isEditable).toBe(false);
       expect(await mode.list()).toEqual({ status: "done" });
       mode.close();
+      expect(editor.isEditable).toBe(true);
+      const releaseOther = editor.acquireEditingLock();
       mode.open();
       mode.close();
+      expect(editor.isEditable).toBe(false);
+      releaseOther();
+      expect(editor.isEditable).toBe(true);
       expect(configure).toHaveBeenCalledTimes(editors.length);
     }
     expect(editors[0].getExtension(Versions)!.userStore).not.toBe(

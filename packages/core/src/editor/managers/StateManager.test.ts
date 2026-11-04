@@ -139,27 +139,32 @@ describe("StateManager editability", () => {
     },
   );
 
-  it("keeps editing disabled until every feature releases its restriction", () => {
-    editor.setReadOnly(true, "preview");
-    editor.setReadOnly(true, "upload");
-    editor.setReadOnly(true, "upload");
+  it("keeps editing disabled until every independent lock is released", () => {
+    const releasePreview = editor.acquireEditingLock();
+    const releaseUpload = editor.acquireEditingLock();
     expect(editor.isEditable).toBe(false);
 
-    editor.setReadOnly(false, "preview");
-    editor.setReadOnly(false, "unrelated");
+    releasePreview();
+    releasePreview();
     expect(editor.isEditable).toBe(false);
 
-    editor.setReadOnly(false, "upload");
+    releaseUpload();
+    expect(editor.isEditable).toBe(true);
+
+    const releaseOther = editor.acquireEditingLock();
+    releaseUpload();
+    expect(editor.isEditable).toBe(false);
+    releaseOther();
     expect(editor.isEditable).toBe(true);
   });
 
   it("preserves the application's latest editable setting", () => {
-    editor.setReadOnly(true, "preview");
+    const release = editor.acquireEditingLock();
     editor.isEditable = true;
     expect(editor.isEditable).toBe(false);
 
     editor.isEditable = false;
-    editor.setReadOnly(false, "preview");
+    release();
     expect(editor.isEditable).toBe(false);
 
     editor.isEditable = true;
@@ -174,13 +179,14 @@ describe("StateManager editability", () => {
       editableStates.push(editor.isEditable);
     });
 
-    editor.setReadOnly(true, "preview");
+    const release = editor.acquireEditingLock();
     expect(editableStates.length).toBeGreaterThan(0);
     expect(editableStates.every((editable) => !editable)).toBe(true);
     editableStates.length = 0;
-    editor.setReadOnly(true, "preview");
+    const releaseOther = editor.acquireEditingLock();
+    releaseOther();
     expect(editableStates).toEqual([]);
-    editor.setReadOnly(false, "preview");
+    release();
 
     expect(editableStates.length).toBeGreaterThan(0);
     expect(editableStates.every((editable) => editable)).toBe(true);
@@ -198,14 +204,14 @@ describe("StateManager editability", () => {
     editor.isEditable = false;
     expect(metadata.filter((value) => value !== undefined)).toEqual([true]);
     metadata.length = 0;
-    editor.setReadOnly(true, "preview");
+    const releasePreview = editor.acquireEditingLock();
     editor.isEditable = true;
-    editor.setReadOnly(true, "upload");
-    editor.setReadOnly(false, "preview");
+    const releaseUpload = editor.acquireEditingLock();
+    releasePreview();
     expect(metadata).toEqual([]);
     expect(editor.isEditable).toBe(false);
 
-    editor.setReadOnly(false, "upload");
+    releaseUpload();
     expect(metadata.filter((value) => value !== undefined)).toEqual([true]);
     expect(editor.isEditable).toBe(true);
     expect(changes).not.toHaveBeenCalled();
@@ -261,14 +267,14 @@ describe("StateManager editability", () => {
   });
 
   it("composes with pending document and metadata-only transactions", () => {
-    editor.transact((tr) => {
+    const release = editor.transact((tr) => {
       tr.insertText("hello", 1);
-      editor.setReadOnly(true, "preview");
+      return editor.acquireEditingLock();
     });
     expect(editor.prosemirrorState.doc.textContent).toContain("hello");
     expect(editor.isEditable).toBe(false);
 
-    editor.transact(() => editor.setReadOnly(false, "preview"));
+    editor.transact(release);
     expect(editor.isEditable).toBe(true);
   });
 
@@ -357,31 +363,29 @@ describe("StateManager editability", () => {
       expectEditable(previous);
       editor.isEditable = !initiallyEditable;
       expectEditable(!initiallyEditable && (!mounted || pluginAllowsEditing));
-      editor.setReadOnly(true, "preview");
+      const releasePreview = editor.acquireEditingLock();
       expectEditable(false);
-      editor.setReadOnly(true, "preview");
+      const releaseUpload = editor.acquireEditingLock();
       expectEditable(false);
-      editor.setReadOnly(true, "upload");
-      editor.setReadOnly(false, "preview");
+      releasePreview();
       editor.isEditable = true;
       expectEditable(false);
-      editor.setReadOnly(false, "upload");
+      releaseUpload();
       expectEditable(!mounted || pluginAllowsEditing);
-      editor.setReadOnly(false, "unrelated");
+      releaseUpload();
       editor.isEditable = true;
       expectEditable(!mounted || pluginAllowsEditing);
-      editor.setReadOnly(true, "preview");
+      const releaseOther = editor.acquireEditingLock();
       expectEditable(false);
       editor.isEditable = false;
       expectEditable(false);
-      editor.setReadOnly(false, "preview");
+      releaseOther();
       expectEditable(false);
 
       unsubscribe();
       unsubscribe();
       editor.isEditable = true;
-      editor.setReadOnly(true, "preview");
-      editor.setReadOnly(false, "preview");
+      editor.acquireEditingLock()();
       expect(observed).toEqual(expected);
     },
   );
@@ -394,24 +398,25 @@ describe("StateManager editability", () => {
       });
       const unsubscribe = editor.onEditableChange(observed);
 
-      function setReadOnly(restricted: boolean) {
+      const release = editor.transact(() => {
+        let release: () => void;
         if (source === "application") {
-          editor.isEditable = !restricted;
+          editor.isEditable = false;
+          release = () => {
+            editor.isEditable = true;
+          };
         } else {
-          editor.setReadOnly(restricted, "preview");
+          release = editor.acquireEditingLock();
         }
-      }
-
-      editor.transact(() => {
-        setReadOnly(true);
         // The view has not received the transaction yet, but cannot override
         // the application's or a feature's read-only restriction.
         expect(editor.prosemirrorView.editable).toBe(true);
         expect(editor.isEditable).toBe(false);
         expect(observed.mock.calls).toEqual([[false]]);
+        return release;
       });
       expect(editor.prosemirrorView.editable).toBe(false);
-      editor.transact(() => setReadOnly(false));
+      editor.transact(release);
       expect(editor.prosemirrorView.editable).toBe(true);
       expect(editor.isEditable).toBe(true);
       expect(observed.mock.calls).toEqual([[false], [true]]);

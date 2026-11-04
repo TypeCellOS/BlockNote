@@ -8,8 +8,8 @@ import { BlockNoteEditor } from "../BlockNoteEditor.js";
 type EditabilityState = {
   /** The application's requested editing preference. */
   editable: boolean;
-  /** Independent feature keys currently preventing editing. */
-  restrictions: Set<string>;
+  /** Independent editing locks currently held by features. */
+  restrictions: Set<symbol>;
   /** Last mounted view's permission, or undefined when no view is mounted. */
   viewIsEditable: boolean | undefined;
   /** Suppress callbacks while ProseMirror is constructing plugin views. */
@@ -272,14 +272,20 @@ export class StateManager {
     this.editability.setState({ ...this.editability.state, editable });
   }
 
-  public setReadOnly(readOnly: boolean, key: string) {
-    const restrictions = new Set(this.editability.state.restrictions);
-    if (readOnly) {
-      restrictions.add(key);
-    } else {
-      restrictions.delete(key);
-    }
-    this.editability.setState({ ...this.editability.state, restrictions });
+  public acquireEditingLock(): () => void {
+    const token = Symbol();
+    this.editability.setState({
+      ...this.editability.state,
+      restrictions: new Set([...this.editability.state.restrictions, token]),
+    });
+    return () => {
+      if (!this.editability.state.restrictions.has(token)) {
+        return;
+      }
+      const restrictions = new Set(this.editability.state.restrictions);
+      restrictions.delete(token);
+      this.editability.setState({ ...this.editability.state, restrictions });
+    };
   }
 
   public onEditableChange(callback: (editable: boolean) => void) {

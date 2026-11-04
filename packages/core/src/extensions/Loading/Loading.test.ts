@@ -8,7 +8,6 @@ const loading = editor.getExtension(LoadingExtension)!;
 
 afterEach(() => {
   editor.isEditable = true;
-  editor.setReadOnly(false, "preview");
 });
 
 it("blocks editing until every loading token is released", () => {
@@ -30,12 +29,12 @@ it("blocks editing until every loading token is released", () => {
 it("preserves application and independent feature restrictions", () => {
   const release = loading.acquire();
   editor.isEditable = false;
-  editor.setReadOnly(true, "preview");
+  const releasePreview = editor.acquireEditingLock();
   release();
   expect(editor.isEditable).toBe(false);
   editor.isEditable = true;
   expect(editor.isEditable).toBe(false);
-  editor.setReadOnly(false, "preview");
+  releasePreview();
   expect(editor.isEditable).toBe(true);
 });
 
