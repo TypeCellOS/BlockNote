@@ -1166,12 +1166,12 @@ export class BlockNoteEditor<
   }
 
   /**
-   * Apply or release a feature's read-only restriction. Repeated calls with the
-   * same key are idempotent. Releasing one key preserves other restrictions
-   * and the application's isEditable preference.
+   * Prevent editing until the returned release function is called.
+   * Each call acquires an independent lock. Releasing it is idempotent and
+   * preserves other locks and the application's isEditable preference.
    */
-  public setReadOnly(readOnly: boolean, key: string) {
-    this._stateManager.setReadOnly(readOnly, key);
+  public acquireEditingLock(): () => void {
+    return this._stateManager.acquireEditingLock();
   }
 
   /**
