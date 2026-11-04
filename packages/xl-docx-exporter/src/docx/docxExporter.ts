@@ -43,6 +43,17 @@ const DEFAULT_TAB_STOP =
   /* 1 point is 20 twips */ 20;
 
 /**
+ * The numbering definition for numbered lists that start at `start`. Word takes
+ * a list's start number from its numbering definition, so lists that don't
+ * start at 1 need a definition of their own.
+ */
+function numberedListReferenceForStart(start: number) {
+  return start === 1
+    ? "blocknote-numbered-list"
+    : `blocknote-numbered-list-${start}`;
+}
+
+/**
  * Exports a BlockNote document to a .docx file using the docxjs library.
  */
 export class DOCXExporter<
@@ -127,6 +138,25 @@ export class DOCXExporter<
   private numberingInstanceCounter = 0;
 
   /**
+   * The start number of every numbered list that doesn't start at 1, by the
+   * list's numbering instance.
+   */
+  private numberedListStarts = new Map<number, number>();
+
+  /**
+   * The numbering definition (`reference`) for the numbered list with the given
+   * numbering instance, so that the list starts at its start number. Custom
+   * `numberedListItem` mappings can use it like the default mapping does.
+   */
+  public numberedListReference(numberingInstance: number | undefined) {
+    const start =
+      numberingInstance === undefined
+        ? undefined
+        : this.numberedListStarts.get(numberingInstance);
+    return numberedListReferenceForStart(start ?? 1);
+  }
+
+  /**
    * Mostly for internal use, you probably want to use `toBlob` or `toDocxJsDocument` instead.
    */
   public async transformBlocks(
@@ -148,6 +178,7 @@ export class DOCXExporter<
     // The top-level call starts a fresh document, so restart instance numbering.
     if (nestingLevel === 0) {
       this.numberingInstanceCounter = 0;
+      this.numberedListStarts.clear();
     }
 
     // A list in Word is a maximal run of consecutive sibling list items of the
@@ -163,6 +194,15 @@ export class DOCXExporter<
         if (b.type !== runListType) {
           runInstance = ++this.numberingInstanceCounter;
           runListType = b.type;
+          // Like in the editor, the first item of a numbered list sets the
+          // number it starts at, and a start of 0 counts as 1.
+          const start =
+            b.type === "numberedListItem"
+              ? (b.props as { start?: number }).start
+              : undefined;
+          if (start && start !== 1) {
+            this.numberedListStarts.set(runInstance, start);
+          }
         }
         numberingInstance = runInstance;
       } else {
@@ -274,27 +314,33 @@ export class DOCXExporter<
     // (#2226). These Unicode glyphs render in the document font, so they don't
     // depend on Symbol/Wingdings being installed.
     const bullets = ["•", "○", "▪"];
+    const generateNumberingConfig = (start: number) => ({
+      reference: numberedListReferenceForStart(start),
+      levels: Array.from({ length: DOCX_LIST_LEVEL_COUNT }, (_, i) => ({
+        start,
+        level: i,
+        format: LevelFormat.DECIMAL,
+        text: `%${i + 1}.`,
+        alignment: AlignmentType.LEFT,
+        style: {
+          paragraph: {
+            indent: {
+              left: DEFAULT_TAB_STOP * (i + 1),
+              hanging: DEFAULT_TAB_STOP,
+            },
+          },
+        },
+      })),
+    });
+
     return {
       numbering: {
         config: [
-          {
-            reference: "blocknote-numbered-list",
-            levels: Array.from({ length: DOCX_LIST_LEVEL_COUNT }, (_, i) => ({
-              start: 1,
-              level: i,
-              format: LevelFormat.DECIMAL,
-              text: `%${i + 1}.`,
-              alignment: AlignmentType.LEFT,
-              style: {
-                paragraph: {
-                  indent: {
-                    left: DEFAULT_TAB_STOP * (i + 1),
-                    hanging: DEFAULT_TAB_STOP,
-                  },
-                },
-              },
-            })),
-          },
+          // A numbered list definition for each start number in the document,
+          // as collected by `transformBlocks`.
+          ...[1, ...new Set(this.numberedListStarts.values())].map(
+            generateNumberingConfig,
+          ),
           {
             reference: "blocknote-bullet-list",
             levels: Array.from({ length: DOCX_LIST_LEVEL_COUNT }, (_, i) => ({
@@ -373,12 +419,15 @@ export class DOCXExporter<
       documentOptions: {},
     },
   ) {
+    // Transform the blocks first: the numbering config needs the start
+    // numbers of the document's numbered lists.
+    const transformedBlocks = await this.transformBlocks(blocks);
     const doc = new Document({
       ...(await this.createDefaultDocumentOptions(options.locale)),
       ...options.documentOptions,
       sections: [
         {
-          children: await this.transformBlocks(blocks),
+          children: transformedBlocks,
           ...options.sectionOptions,
         },
       ],

@@ -568,6 +568,80 @@ describe("exporter", () => {
     },
   );
 
+  it(
+    "should start each numbered list at its start number",
+    { timeout: 10000 },
+    async () => {
+      const schema = BlockNoteSchema.create({
+        blockSpecs: { ...defaultBlockSpecs },
+      });
+
+      // Like in the editor, the first item of a list sets the number it starts
+      // at; a start number on a later item is ignored. Two lists that start at
+      // the same number each start there.
+      const blocks: PartialBlock<
+        typeof schema.blockSchema,
+        typeof schema.inlineContentSchema,
+        typeof schema.styleSchema
+      >[] = [
+        { type: "numberedListItem", content: "five", props: { start: 5 } },
+        {
+          type: "numberedListItem",
+          content: "six",
+          children: [{ type: "numberedListItem", content: "nested one" }],
+        },
+        { type: "numberedListItem", content: "seven", props: { start: 2 } },
+        { type: "paragraph", content: "a paragraph breaks the list" },
+        { type: "numberedListItem", content: "three", props: { start: 3 } },
+        { type: "numberedListItem", content: "four" },
+        { type: "paragraph", content: "a paragraph breaks the list" },
+        { type: "numberedListItem", content: "one" },
+        { type: "paragraph", content: "a paragraph breaks the list" },
+        {
+          type: "numberedListItem",
+          content: "five again",
+          props: { start: 5 },
+        },
+        { type: "numberedListItem", content: "six again" },
+        { type: "paragraph", content: "a paragraph breaks the list" },
+        { type: "numberedListItem", content: "zero", props: { start: 0 } },
+        { type: "numberedListItem", content: "two" },
+      ];
+
+      const exporter = new DOCXExporter(schema, docxDefaultSchemaMappings, {
+        resolveFileUrl: testResolveFileUrl,
+      });
+
+      const doc = await exporter.toDocxJsDocument(
+        partialBlocksToBlocksForTesting(schema, blocks),
+        { sectionOptions: {}, documentOptions: {}, locale: "en-US" },
+      );
+
+      const entries = await new ZipReader(
+        new BlobReader(await Packer.toBlob(doc)),
+      ).getEntries();
+
+      expect(
+        renderListNumbers(
+          await getZIPEntryContent(entries, "word/document.xml"),
+          await getZIPEntryContent(entries, "word/numbering.xml"),
+        ),
+      ).toEqual([
+        "5. five",
+        "6. six",
+        "1. nested one",
+        "7. seven",
+        "3. three",
+        "4. four",
+        "1. one",
+        "5. five again",
+        "6. six again",
+        "1. zero",
+        "2. two",
+      ]);
+    },
+  );
+
   async function exportAndGetStylesEntries(locale?: string) {
     const exporter = new DOCXExporter(
       BlockNoteSchema.create({
@@ -678,6 +752,63 @@ async function stylesSnapshotPath(
     ? "styles-docx-9.14.xml"
     : "styles.xml";
   return `__snapshots__/${scenario}/${file}`;
+}
+
+/**
+ * Renders each numbered paragraph as Word numbers it: "<number>. <text>". A
+ * paragraph continues the numbering of its list (`w:numId`) at its level
+ * (`w:ilvl`). The first one starts at the list's `w:startOverride` for that
+ * level, or else at the level's `w:start` in the list's `w:abstractNum`.
+ */
+function renderListNumbers(documentXml: string, numberingXml: string) {
+  function startNumber(numId: string, level: string) {
+    const list = numberingXml.match(
+      new RegExp(`<w:num\\b[^>]*w:numId="${numId}"[^>]*>([\\s\\S]*?)</w:num>`),
+    )?.[1];
+    if (list === undefined) {
+      throw new Error(`numbering.xml has no list with w:numId ${numId}`);
+    }
+    const startOverride = list.match(
+      new RegExp(
+        `<w:lvlOverride w:ilvl="${level}">\\s*<w:startOverride w:val="(-?\\d+)"/>`,
+      ),
+    )?.[1];
+    if (startOverride !== undefined) {
+      return Number(startOverride);
+    }
+    const abstractNumId = list.match(/<w:abstractNumId w:val="(\d+)"\/>/)?.[1];
+    const abstractList = numberingXml.match(
+      new RegExp(
+        `<w:abstractNum\\b[^>]*w:abstractNumId="${abstractNumId}"[^>]*>([\\s\\S]*?)</w:abstractNum>`,
+      ),
+    )?.[1];
+    const start = abstractList
+      ?.match(
+        new RegExp(`<w:lvl\\b[^>]*w:ilvl="${level}"[^>]*>([\\s\\S]*?)</w:lvl>`),
+      )?.[1]
+      .match(/<w:start w:val="(-?\d+)"\/>/)?.[1];
+    return start === undefined ? 1 : Number(start);
+  }
+
+  const lastNumbers = new Map<string, number>();
+  const rendered: string[] = [];
+  for (const [paragraph] of documentXml.matchAll(/<w:p[ >][\s\S]*?<\/w:p>/g)) {
+    const numId = paragraph.match(/<w:numId w:val="(\d+)"\/>/)?.[1];
+    if (numId === undefined) {
+      continue;
+    }
+    const level = paragraph.match(/<w:ilvl w:val="(\d+)"\/>/)?.[1] ?? "0";
+    const key = `${numId}:${level}`;
+    const lastNumber = lastNumbers.get(key);
+    const number =
+      lastNumber === undefined ? startNumber(numId, level) : lastNumber + 1;
+    lastNumbers.set(key, number);
+    const text = [...paragraph.matchAll(/<w:t(?: [^>]*)?>(.*?)<\/w:t>/g)]
+      .map((match) => match[1])
+      .join("");
+    rendered.push(`${number}. ${text}`);
+  }
+  return rendered;
 }
 
 function prettify(sourceXml: string) {
