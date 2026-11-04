@@ -87,6 +87,7 @@ export * from "./components/SuggestionMenu/SuggestionMenuController.js";
 export * from "./components/SuggestionMenu/EmojiPicker/EmojiPickerController.js";
 export * from "./components/SuggestionMenu/SuggestionMenuWrapper.js";
 export * from "./components/SuggestionMenu/getDefaultReactSlashMenuItems.js";
+export * from "./components/SuggestionMenu/getSuggestionMenuItemKeys.js";
 export * from "./components/SuggestionMenu/hooks/useCloseSuggestionMenuNoItems.js";
 export * from "./components/SuggestionMenu/hooks/useLoadSuggestionMenuItems.js";
 export * from "./components/SuggestionMenu/hooks/useSuggestionMenuKeyboardNavigation.js";
