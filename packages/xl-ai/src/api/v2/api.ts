@@ -19,7 +19,7 @@ import { applyOperations } from "./operations/applyOperations.js";
 import { dispatchUpdate } from "./operations/dispatch.js";
 import { diffDocuments } from "./operations/diffDocuments.js";
 import type { BlockOperation } from "./operations/types.js";
-import { projectDocument } from "./projection/projectDocument.js";
+import { documentText, formatCache } from "./projection/cache.js";
 import { mergeTree, type RebaseWarning } from "./merge/tree.js";
 import { fitLayout } from "./target/fitLayout.js";
 import {
@@ -34,7 +34,7 @@ export function getDocumentText(
   editor: BlockNoteEditor<any, any, any>,
   format: TextFormat,
 ): string {
-  return format.serialize(editor, editor.document);
+  return documentText(editor, format, editor.document).text;
 }
 
 export type TextUpdateWarning = PlanWarning | RebaseWarning | FitWarning;
@@ -332,7 +332,11 @@ function planTextUpdate(
 ):
   | { error?: undefined; target: readonly LensBlock[]; warnings: PlanWarning[] }
   | { error: "invalid-document" } {
-  const serialized = format.serialize(editor, document);
+  const { text: serialized, projection: projectionOf } = documentText(
+    editor,
+    format,
+    document,
+  );
   // A byte order mark at the start of a text (for example of a file) is not
   // content, unless the document starts with that character.
   const content =
@@ -343,7 +347,7 @@ function planTextUpdate(
   if (content === serialized) {
     return { target: document, warnings: [] };
   }
-  const projection = projectDocument(editor, format, document, serialized);
+  const projection = projectionOf();
 
   const parsed = toStoredBlocks(editor, format.parse(editor, content));
   if (parsed === undefined) {
@@ -371,7 +375,7 @@ function shadowsOf(
   editor: BlockNoteEditor<any, any, any>,
   format: TextFormat,
 ): (item: LensInlineContent) => string | undefined {
-  const shadows = new Map<string, string | undefined>();
+  const { shadows } = formatCache(editor, format);
   return (item) => {
     const key = stableStringify(item);
     if (!shadows.has(key)) {
