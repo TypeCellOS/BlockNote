@@ -59,11 +59,27 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Marks the edge a dragged table row/column would be dropped at. */
 .bn-table-drop-cursor {
   position: absolute;
   z-index: 20;
   background-color: #adf;
   pointer-events: none;
+}
+
+/* Highlights the source row/column, separately from the destination cursor. */
+.bn-editor [data-content-type="table"] .bn-table-drag-source-row,
+.bn-editor [data-content-type="table"] .bn-table-drag-source-col {
+  /* A separate layer preserves the cell's own background color beneath the
+   translucent tint, in both light and dark themes. */
+  background-image: linear-gradient(
+    var(--bn-table-drag-source-color, rgb(170 221 255 / 22%)),
+    var(--bn-table-drag-source-color, rgb(170 221 255 / 22%))
+  );
+  /* An outline rather than a border, so it doesn't shift the cell's contents,
+   and inset so adjacent cells in the dragged row/column don't double it up. */
+  outline: 1.5px dashed #adf;
+  outline-offset: -1.5px;
 }
 
 .bn-editor .bn-collaboration-cursor__base {

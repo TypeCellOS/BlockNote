@@ -38,6 +38,15 @@ BlockNote uses classes with the `bn-` prefix to style editor elements. Here are 
 
 Menus and popovers may be portalled outside the toolbar or button that opened them. Target their own classes under `.bn-root` rather than relying on a toolbar or `.bn-container` ancestor. See [Configuring Portal Targets](/docs/react/components#configuring-portal-targets).
 
+#### Table Row & Column Dragging
+
+- `.bn-table-handle`: Row & column drag handles.
+- `.bn-table-drag-source-row` / `.bn-table-drag-source-col`: Every cell of the row/column being dragged.
+- `.bn-table-drop-cursor`: Bar marking the edge the row/column would be dropped at.
+- `.bn-table-drag-preview`: Snapshot of the row/column shown next to the cursor. It copies the editor's styling context, so normal table styles apply to it too.
+
+Set `--bn-table-drag-source-color` on the editor to customize the translucent source tint without replacing cell background colors.
+
 ### BlockNote CSS Attributes
 
 BlockNote uses data attributes to target specific block types and properties:
