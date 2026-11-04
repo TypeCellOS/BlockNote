@@ -209,6 +209,10 @@ export const he: Dictionary = {
     add_block_button: "מתג ריק. לחץ כדי להוסיף בלוק.",
     toggle_button: "הרחבה או כיווץ",
   },
+  block_nesting: {
+    indented: (level: number) => `ההזחה הוגדלה, רמה ${level}`,
+    outdented: (level: number) => `ההזחה הוקטנה, רמה ${level}`,
+  },
   code_block: {
     add_source_button_text: "הוסף קוד מקור",
     ok_button_text: "אישור",

@@ -229,6 +229,10 @@ export const it: Dictionary = {
     add_block_button: "Toggle vuoto. Clicca per aggiungere un blocco.",
     toggle_button: "Espandi o comprimi",
   },
+  block_nesting: {
+    indented: (level: number) => `Rientro aumentato, livello ${level}`,
+    outdented: (level: number) => `Rientro ridotto, livello ${level}`,
+  },
   code_block: {
     add_source_button_text: "Aggiungi codice sorgente",
     ok_button_text: "OK",

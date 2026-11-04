@@ -207,6 +207,10 @@ export const sk = {
     add_block_button: "Prázdne prepínanie. Kliknite pre pridanie bloku.",
     toggle_button: "Rozbaliť alebo zbaliť",
   },
+  block_nesting: {
+    indented: (level: number) => `Odsadenie zväčšené, úroveň ${level}`,
+    outdented: (level: number) => `Odsadenie zmenšené, úroveň ${level}`,
+  },
   code_block: {
     add_source_button_text: "Pridať zdrojový kód",
     ok_button_text: "OK",

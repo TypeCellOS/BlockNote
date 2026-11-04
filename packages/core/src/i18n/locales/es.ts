@@ -207,6 +207,10 @@ export const es: Dictionary = {
     add_block_button: "Toggle vacío. Haz clic para añadir un bloque.",
     toggle_button: "Expandir o contraer",
   },
+  block_nesting: {
+    indented: (level: number) => `Sangría aumentada, nivel ${level}`,
+    outdented: (level: number) => `Sangría reducida, nivel ${level}`,
+  },
   code_block: {
     add_source_button_text: "Agregar código fuente",
     ok_button_text: "Aceptar",

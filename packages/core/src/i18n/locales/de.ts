@@ -228,6 +228,10 @@ export const de: Dictionary = {
       "Leerer aufklappbarer Bereich. Klicken, um einen Block hinzuzufügen.",
     toggle_button: "Aufklappen oder zuklappen",
   },
+  block_nesting: {
+    indented: (level: number) => `Eingerückt, Ebene ${level}`,
+    outdented: (level: number) => `Ausgerückt, Ebene ${level}`,
+  },
   code_block: {
     add_source_button_text: "Quellcode hinzufügen",
     ok_button_text: "OK",

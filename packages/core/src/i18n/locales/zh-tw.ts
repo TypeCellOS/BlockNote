@@ -248,6 +248,10 @@ export const zhTW: Dictionary = {
     add_block_button: "空的切換區。點擊新增區塊。",
     toggle_button: "展開或收合",
   },
+  block_nesting: {
+    indented: (level: number) => `已增加縮排，第 ${level} 層`,
+    outdented: (level: number) => `已減少縮排，第 ${level} 層`,
+  },
   code_block: {
     add_source_button_text: "新增原始碼",
     ok_button_text: "確定",

@@ -247,6 +247,10 @@ export const ja: Dictionary = {
     add_block_button: "空のトグルです。クリックしてブロックを追加。",
     toggle_button: "展開または折りたたみ",
   },
+  block_nesting: {
+    indented: (level: number) => `インデントを増やしました、レベル ${level}`,
+    outdented: (level: number) => `インデントを減らしました、レベル ${level}`,
+  },
   code_block: {
     add_source_button_text: "ソースコードを追加",
     ok_button_text: "OK",
