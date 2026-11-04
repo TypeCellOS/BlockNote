@@ -1,6 +1,8 @@
+import { Node } from "@tiptap/pm/model";
 import { TextSelection } from "@tiptap/pm/state";
 import { afterEach, describe, expect, it } from "vite-plus/test";
 
+import { selectedFragmentToHTML } from "../api/clipboard/toClipboard/copyExtension.js";
 import { BlockNoteEditor } from "./BlockNoteEditor.js";
 
 /**
@@ -290,6 +292,124 @@ describe("paste into empty inline-content block", () => {
     expect(blocks[0].type).toBe("paragraph");
     expect(blocks[0].content).toEqual([
       { type: "text", text: "Existing added", styles: {} },
+    ]);
+  });
+});
+
+describe("paste a selection that starts in a nested block", () => {
+  // Returns the position just before (or after) the text node with the given
+  // text content.
+  function getPosOfText(doc: Node, text: string, after = false) {
+    let pos: number | undefined;
+    doc.descendants((node, nodePos) => {
+      if (node.isText && node.text === text) {
+        pos = nodePos + (after ? node.nodeSize : 0);
+      }
+      return pos === undefined;
+    });
+    return pos!;
+  }
+
+  // Copies the content from the start of `from` to the end of `to`, then
+  // pastes it at the end of `target`.
+  function copyPaste(
+    editor: BlockNoteEditor,
+    from: string,
+    to: string,
+    target: string,
+  ) {
+    editor.transact((tr) =>
+      tr.setSelection(
+        TextSelection.create(
+          tr.doc,
+          getPosOfText(tr.doc, from),
+          getPosOfText(tr.doc, to, true),
+        ),
+      ),
+    );
+    const { clipboardHTML } = selectedFragmentToHTML(
+      editor.prosemirrorView,
+      editor,
+    );
+    editor.transact((tr) =>
+      tr.setSelection(
+        TextSelection.create(tr.doc, getPosOfText(tr.doc, target, true)),
+      ),
+    );
+    editor.pasteHTML(clipboardHTML, true);
+  }
+
+  function createEditor() {
+    const editor = BlockNoteEditor.create({
+      initialContent: [
+        {
+          type: "paragraph",
+          content: "Parent",
+          children: [
+            {
+              type: "paragraph",
+              content: "Child",
+              children: [{ type: "paragraph", content: "Grandchild" }],
+            },
+          ],
+        },
+        { type: "paragraph", content: "Sibling" },
+        {
+          type: "paragraph",
+          content: "Target",
+          children: [{ type: "paragraph", content: "Nested target" }],
+        },
+      ],
+    });
+    mountEditor(editor);
+    return editor;
+  }
+
+  it("pastes all blocks into a top-level block", () => {
+    const editor = createEditor();
+
+    copyPaste(editor, "Child", "Sibling", "Target");
+
+    const blocks = editor.document;
+    expect(blocks[2].content).toEqual([
+      { type: "text", text: "TargetChild", styles: {} },
+    ]);
+    expect(blocks[2].children[0].content).toEqual([
+      { type: "text", text: "Grandchild", styles: {} },
+    ]);
+    expect(blocks[3].content).toEqual([
+      { type: "text", text: "Sibling", styles: {} },
+    ]);
+  });
+
+  it("pastes all blocks into a top-level block when starting two levels deep", () => {
+    const editor = createEditor();
+
+    copyPaste(editor, "Grandchild", "Sibling", "Target");
+
+    const blocks = editor.document;
+    expect(blocks[2].content).toEqual([
+      { type: "text", text: "TargetGrandchild", styles: {} },
+    ]);
+    expect(blocks[3].content).toEqual([
+      { type: "text", text: "Sibling", styles: {} },
+    ]);
+  });
+
+  it("keeps the relative nesting when pasting into a nested block", () => {
+    const editor = createEditor();
+
+    copyPaste(editor, "Child", "Sibling", "Nested target");
+
+    const blocks = editor.document;
+    expect(blocks[2].children[0].content).toEqual([
+      { type: "text", text: "Nested targetChild", styles: {} },
+    ]);
+    expect(blocks[2].children[0].children[0].content).toEqual([
+      { type: "text", text: "Grandchild", styles: {} },
+    ]);
+    expect(blocks[3].content).toEqual([
+      { type: "text", text: "Sibling", styles: {} },
     ]);
   });
 });
