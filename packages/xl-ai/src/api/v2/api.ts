@@ -249,9 +249,10 @@ function withUniqueIds(
  *
  * The layout blocks of the result change to fit their child rules (see
  * `fitLayout`): without `base`, in the target; with `base`, in the result
- * on the current document, with more operations. The client did not change the layout blocks, and in the
- * current document they can have blocks of other writers (for example a
- * column that another writer added). Thus, the rule applies to the result.
+ * on the current document, with more operations. The client did not change
+ * the layout blocks, and in the current document they can have blocks of
+ * other writers (for example a column that another writer added). Thus, the
+ * rule applies to the result.
  */
 function updateToTarget(
   rules: SchemaRules,

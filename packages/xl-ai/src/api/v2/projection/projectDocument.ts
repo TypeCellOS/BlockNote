@@ -23,8 +23,9 @@ export type Projection = {
   view: ViewBlock[];
   /**
    * Source blocks without a link from a view block, because they render as no
-   * text (for example empty paragraphs in markdown). The text cannot change
-   * them, thus they stay where they are.
+   * text (for example an image without a URL in markdown, or a block without
+   * text in plain text). The text cannot change them, thus they stay where
+   * they are.
    */
   invisibleIds: Set<string>;
   /** The source blocks with links from more than one view block: the indexes of these view blocks, in order. */
