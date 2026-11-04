@@ -97,10 +97,29 @@ function rowKey(row: Row): string {
   return row.map((cell) => inlineContentToText(cell.content)).join("\u0000");
 }
 
+/** Returns true if two rows have the same number of cells, and at least half of the cells have equal text. */
+function similarRows(a: Row, b: Row): boolean {
+  if (a.length !== b.length) {
+    return false;
+  }
+  let equal = 0;
+  a.forEach((cell, c) => {
+    if (
+      inlineContentToText(cell.content) === inlineContentToText(b[c].content)
+    ) {
+      equal++;
+    }
+  });
+  return 2 * equal >= a.length;
+}
+
 /**
  * Matches the rows with equal text. Then, between two matches, makes pairs by
  * position, if the two sides have the same number of rows and cells. These are
- * rows with changed text.
+ * rows with changed text. If the two sides have a different number of rows
+ * there (for example a changed row and a new row), a row with the same number
+ * of cells and at least half of its cells equal is the same row (as for
+ * blocks, see `MIN_SHARE` in `alignment/alignBlocks.ts`).
  */
 function alignRows(a: Row[], b: Row[]): MatchedPair[] {
   const exact = myersMatch(a, b, (x, y) => rowKey(x) === rowKey(y));
@@ -119,6 +138,17 @@ function alignRows(a: Row[], b: Row[]): MatchedPair[] {
     ) {
       for (let k = 0; k < size; k++) {
         pairs.push({ aIndex: aStart + k, bIndex: bStart + k });
+      }
+    } else {
+      for (const pair of myersMatch(
+        a.slice(aStart, aEnd),
+        b.slice(bStart, bEnd),
+        similarRows,
+      )) {
+        pairs.push({
+          aIndex: aStart + pair.aIndex,
+          bIndex: bStart + pair.bIndex,
+        });
       }
     }
     if (anchor) {

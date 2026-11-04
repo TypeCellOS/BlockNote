@@ -35,6 +35,29 @@ describe("mergeTableContent", () => {
     expect(merged.rows[0].cells[0]).toEqual(cell("A, edited", yellow));
   });
 
+  it("keeps the props of the cells of a changed row, if the text also adds a row", () => {
+    const merged = mergeTableContent(
+      table([
+        [cell("Head"), cell("Two")],
+        [cell("Apple"), cell("Banana")],
+      ]),
+      table([
+        [cell("Head"), cell("Two")],
+        [cell("Apple"), cell("Cherry")],
+        [cell("New"), cell("Row")],
+      ]),
+      table([
+        [cell("Head"), cell("Two")],
+        [cell("Apple", yellow), cell("Banana")],
+      ]),
+    );
+    expect(merged.rows.map((row) => row.cells)).toEqual([
+      [cell("Head"), cell("Two")],
+      [cell("Apple", yellow), cell("Cherry")],
+      [cell("New"), cell("Row")],
+    ]);
+  });
+
   it("removes a row that only the round trip added", () => {
     // Markdown gives an empty header row to a table without a header row.
     const merged = mergeTableContent(
