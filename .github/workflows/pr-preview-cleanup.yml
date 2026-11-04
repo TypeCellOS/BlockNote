@@ -23,7 +23,7 @@ jobs:
           persist-credentials: false
 
       - name: Remove PR preview
-        uses: rossjrw/pr-preview-action@ffa7509e91a3ec8dfc2e5536c4d5c1acdf7a6de9 # v1
+        uses: rossjrw/pr-preview-action@873417d2df72380da1f3978378fb58560bcde976 # v1
         with:
           preview-branch: gh-pages
           umbrella-dir: pr-preview

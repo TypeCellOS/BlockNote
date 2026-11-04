@@ -486,6 +486,13 @@ describe("Check Emoji Picker Functionality", () => {
       ] as const) {
         if (top === 0) {
           await userEvent.keyboard("{ArrowDown}".repeat(12));
+          // Wait for the final row to mount and its keyboard scroll to finish
+          // before testing manual scrolling; key delivery alone doesn't wait
+          // for Frimousse's virtualization and the selection effect.
+          await waitForSelector(
+            '[aria-rowindex="13"] .bn-frimousse-emoji[data-selected]',
+          );
+          await waitForSelectedEmoji();
           await scrollTo(0);
         }
         await vi.waitFor(() => {
@@ -538,7 +545,7 @@ describe("Check Emoji Picker Functionality", () => {
   test("should scroll to a mounted emoji without estimating its position", async () => {
     await focusOnEditor();
     await userEvent.keyboard(":an");
-    await waitForSelector(".bn-frimousse-emoji[data-selected]");
+    await waitForSelectedEmoji();
     const viewport = await waitForSelector("[frimousse-viewport]");
     viewport.scrollTop = 96;
     for (let frame = 0; frame < 3; frame++) {
