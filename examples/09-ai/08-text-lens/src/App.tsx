@@ -36,7 +36,7 @@ function isFormatName(value: string): value is FormatName {
 }
 
 /** The time after the last change in the text, before the write starts. */
-const WRITE_DELAY_MS = 500;
+const WRITE_DELAY_MS = 200;
 
 /**
  * The version that the text comes from: the document and its text at that

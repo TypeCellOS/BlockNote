@@ -7,7 +7,7 @@ This example shows a document as markdown or plain text next to the editor, and 
 **How it works:**
 
 - The base is the document at the time when the text was read. Each write sends the full text with the base. Thus, the write keeps the edits that the live editor made after that time.
-- A write starts 500 ms after the last change in the text.
+- A write starts 200 ms after the last change in the text.
 - Each write first rejects the suggestions of the last write. A deletion stays in the document until a user accepts it. Thus, without this step, the next write reads the deleted text as content. Then the write applies the full text again, as new suggestions.
 - "Accept all" and "Reject all" end the suggestions. Then the current document becomes the new base, and the text shows it.
 - "Set as new base" makes the current document the base, and shows it in the text. Use it to see the edits of the live editor in the text. This button and the format switch are available only when there are no suggestions.
