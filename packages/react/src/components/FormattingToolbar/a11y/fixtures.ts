@@ -17,3 +17,15 @@ export const nestedToolbarDocument: PartialBlock[] = [
     ],
   },
 ];
+
+// Left alignment must change the selected paragraph rather than reapply its default.
+export const centeredToolbarDocument: PartialBlock[] = [
+  { id: "preceding", type: "paragraph", content: "Preceding paragraph" },
+  {
+    id: "format",
+    type: "paragraph",
+    props: { textAlignment: "center" },
+    content: "Format this text",
+  },
+  { id: "following", type: "paragraph", content: "Following paragraph" },
+];

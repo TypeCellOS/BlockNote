@@ -6,7 +6,7 @@ import { useCreateBlockNote } from "@blocknote/react";
 import { useEffect } from "react";
 import { render } from "vitest-browser-react";
 import axe from "axe-core";
-import { expect, vi, type TestContext } from "vite-plus/test";
+import { expect, type TestContext } from "vite-plus/test";
 import { commands, page, server } from "vite-plus/test/browser";
 import { waitForEditorFocus } from "./setup.js";
 import "./style.css";
@@ -90,23 +90,6 @@ export async function openEditor(
       .focus();
   }
   return editor;
-}
-
-type EditorMethod = keyof {
-  [
-    Key in keyof BlockNoteEditor as BlockNoteEditor[Key] extends (
-      ...args: never[]
-    ) => unknown
-      ? Key
-      : never
-  ]: BlockNoteEditor[Key];
-};
-
-export function spyOnEditorFunction<Method extends EditorMethod>(
-  editor: BlockNoteEditor,
-  method: Method,
-) {
-  return vi.spyOn(editor, method);
 }
 
 export async function pressKey(key: string) {

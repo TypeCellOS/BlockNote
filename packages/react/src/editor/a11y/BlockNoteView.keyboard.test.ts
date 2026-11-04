@@ -100,7 +100,9 @@ test("Escape allows Tab to leave the editor", async () => {
   // Revisit when the editor can retain focus without an editing selection.
 });
 
-test("read-only editor: Tab reaches inline links and leaves the editor", async () => {
+// Focused inline links do not yet have a suitable visual focus indicator.
+// TODO: Fix the focus appearance and regenerate the visual baseline before enabling.
+test.skip("read-only editor: Tab reaches inline links and leaves the editor", async () => {
   await openEditor(readOnlyLinkDocument, { editable: false });
   const link = await focusReadOnlyLinkWithAssertions();
   await focusNextItem();

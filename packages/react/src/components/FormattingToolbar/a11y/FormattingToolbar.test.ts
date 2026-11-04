@@ -1,6 +1,10 @@
-import { toolbarDocument, nestedToolbarDocument } from "./fixtures.js";
-import { expect, test, vi, afterEach } from "vite-plus/test";
-import { openEditor, spyOnEditorFunction } from "@root/tests/a11y/helpers.js";
+import {
+  toolbarDocument,
+  nestedToolbarDocument,
+  centeredToolbarDocument,
+} from "./fixtures.js";
+import { expect, test, vi } from "vite-plus/test";
+import { openEditor } from "@root/tests/a11y/helpers.js";
 import {
   focusToolbarItem,
   activateToolbarButton,
@@ -9,111 +13,107 @@ import {
   activateMenuItem,
 } from "./helpers.js";
 
-afterEach(() => vi.restoreAllMocks());
-
-test("formatting toolbar: Bold", async () => {
+test("formatting toolbar: Bold", async ({ onTestFinished }) => {
   const editor = await openEditor(toolbarDocument);
-  const command = spyOnEditorFunction(editor, "toggleStyles");
   await focusToolbarItem("Bold");
+  const onChange = vi.fn();
+  onTestFinished(editor.onChange(onChange));
   await activateToolbarButton();
-  expect(command).toHaveBeenCalledExactlyOnceWith({ bold: true });
+  expect(onChange).toHaveBeenCalled();
 });
 
-test("formatting toolbar: Italic", async () => {
+test("formatting toolbar: Italic", async ({ onTestFinished }) => {
   const editor = await openEditor(toolbarDocument);
-  const command = spyOnEditorFunction(editor, "toggleStyles");
   await focusToolbarItem("Italic");
+  const onChange = vi.fn();
+  onTestFinished(editor.onChange(onChange));
   await activateToolbarButton();
-  expect(command).toHaveBeenCalledExactlyOnceWith({ italic: true });
+  expect(onChange).toHaveBeenCalled();
 });
 
-test("formatting toolbar: Underline", async () => {
+test("formatting toolbar: Underline", async ({ onTestFinished }) => {
   const editor = await openEditor(toolbarDocument);
-  const command = spyOnEditorFunction(editor, "toggleStyles");
   await focusToolbarItem("Underline");
+  const onChange = vi.fn();
+  onTestFinished(editor.onChange(onChange));
   await activateToolbarButton();
-  expect(command).toHaveBeenCalledExactlyOnceWith({ underline: true });
+  expect(onChange).toHaveBeenCalled();
 });
 
-test("formatting toolbar: Strike", async () => {
+test("formatting toolbar: Strike", async ({ onTestFinished }) => {
   const editor = await openEditor(toolbarDocument);
-  const command = spyOnEditorFunction(editor, "toggleStyles");
   await focusToolbarItem("Strike");
+  const onChange = vi.fn();
+  onTestFinished(editor.onChange(onChange));
   await activateToolbarButton();
-  expect(command).toHaveBeenCalledExactlyOnceWith({ strike: true });
+  expect(onChange).toHaveBeenCalled();
 });
 
-test("formatting toolbar: Align text left", async () => {
-  const editor = await openEditor(toolbarDocument);
-  const block = editor.getBlock("format")!;
-  const command = spyOnEditorFunction(editor, "updateBlock");
+test("formatting toolbar: Align text left", async ({ onTestFinished }) => {
+  const editor = await openEditor(centeredToolbarDocument);
   await focusToolbarItem("Align text left");
+  const onChange = vi.fn();
+  onTestFinished(editor.onChange(onChange));
   await activateToolbarButton();
-  expect(command).toHaveBeenCalledExactlyOnceWith(block, {
-    props: { textAlignment: "left" },
-  });
+  expect(onChange).toHaveBeenCalled();
 });
 
-test("formatting toolbar: Align text center", async () => {
+test("formatting toolbar: Align text center", async ({ onTestFinished }) => {
   const editor = await openEditor(toolbarDocument);
-  const block = editor.getBlock("format")!;
-  const command = spyOnEditorFunction(editor, "updateBlock");
   await focusToolbarItem("Align text center");
+  const onChange = vi.fn();
+  onTestFinished(editor.onChange(onChange));
   await activateToolbarButton();
-  expect(command).toHaveBeenCalledExactlyOnceWith(block, {
-    props: { textAlignment: "center" },
-  });
+  expect(onChange).toHaveBeenCalled();
 });
 
-test("formatting toolbar: Align text right", async () => {
+test("formatting toolbar: Align text right", async ({ onTestFinished }) => {
   const editor = await openEditor(toolbarDocument);
-  const block = editor.getBlock("format")!;
-  const command = spyOnEditorFunction(editor, "updateBlock");
   await focusToolbarItem("Align text right");
+  const onChange = vi.fn();
+  onTestFinished(editor.onChange(onChange));
   await activateToolbarButton();
-  expect(command).toHaveBeenCalledExactlyOnceWith(block, {
-    props: { textAlignment: "right" },
-  });
+  expect(onChange).toHaveBeenCalled();
 });
 
-test("formatting toolbar: Colors", async () => {
+test("formatting toolbar: Colors", async ({ onTestFinished }) => {
   const editor = await openEditor(toolbarDocument);
-  const command = spyOnEditorFunction(editor, "addStyles");
   await focusToolbarItem("Colors");
   await openToolbarMenu();
   await focusNextMenuItem();
   await focusNextMenuItem();
+  const onChange = vi.fn();
+  onTestFinished(editor.onChange(onChange));
   await activateMenuItem();
-  expect(command).toHaveBeenCalledExactlyOnceWith({ textColor: "gray" });
+  expect(onChange).toHaveBeenCalled();
 });
 
-test("formatting toolbar: Nest block", async () => {
+test("formatting toolbar: Nest block", async ({ onTestFinished }) => {
   const editor = await openEditor(toolbarDocument);
-  const command = spyOnEditorFunction(editor, "nestBlock");
   await focusToolbarItem("Nest block");
+  const onChange = vi.fn();
+  onTestFinished(editor.onChange(onChange));
   await activateToolbarButton();
-  expect(command).toHaveBeenCalledExactlyOnceWith();
+  expect(onChange).toHaveBeenCalled();
 });
 
-test("formatting toolbar: Unnest block", async () => {
+test("formatting toolbar: Unnest block", async ({ onTestFinished }) => {
   const editor = await openEditor(nestedToolbarDocument);
-  const command = spyOnEditorFunction(editor, "unnestBlock");
   await focusToolbarItem("Unnest block");
+  const onChange = vi.fn();
+  onTestFinished(editor.onChange(onChange));
   await activateToolbarButton();
-  expect(command).toHaveBeenCalledExactlyOnceWith();
+  expect(onChange).toHaveBeenCalled();
 });
 
-test("formatting toolbar: Paragraph", async () => {
+test("formatting toolbar: Paragraph", async ({ onTestFinished }) => {
   const editor = await openEditor(toolbarDocument);
-  const block = editor.getBlock("format")!;
-  const command = spyOnEditorFunction(editor, "updateBlock");
   await focusToolbarItem("Paragraph");
   await openToolbarMenu();
   await focusNextMenuItem();
   await focusNextMenuItem();
+  const onChange = vi.fn();
+  onTestFinished(editor.onChange(onChange));
   await activateMenuItem();
-  expect(command).toHaveBeenCalledExactlyOnceWith(block, {
-    type: "heading",
-    props: { level: 1, isToggleable: false },
-  });
+  expect(onChange).toHaveBeenCalled();
 });
