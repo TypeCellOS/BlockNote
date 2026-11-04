@@ -144,10 +144,7 @@ if (result.error === undefined) {
 
 When an editor binds to a Y.Doc, the Yjs binding removes the content that the schema of the editor cannot read. Thus, give the editor the same schema and extensions as your other clients (for example comments).
 
-The `strategy` option selects how the write merges with the changes of other users:
-
-- `"rebase"` (the default): the changes of the client apply to the current document, by block ID, as for a document without Yjs.
-- `"yjs"`: the editor applies the changes to a fork of the Y.Doc at `base`, and Yjs merges the fork. In the Yjs binding now, a move is a removal and an insert. Thus, if two users move the same block, the block is there two times, and if the client moves a block that another user changes, the change is lost. A write from an empty `base` always uses `"rebase"`, because Yjs cannot merge two new documents into one.
+The write merges with the changes of other users by block ID, as for a document without Yjs. The Yjs binding (y-prosemirror v13) has limits for moves: if two users move the same block at the same time, the block can be there two times.
 
 ## Warnings
 

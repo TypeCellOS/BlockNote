@@ -10,26 +10,8 @@ import {
   type TextUpdate,
   type TextUpdateOptions,
   type ValidTextUpdate,
-  writeText,
+  updateDocumentFromText,
 } from "../api.js";
-
-/**
- * How a write merges the text with the changes of other writers after `base`:
- *
- * - `"rebase"`: the lens merges the text with the current document (a
- *   three-way merge of the block trees, see `merge/tree.ts`), and the editor
- *   applies the result.
- * - `"yjs"`: the editor applies the changes of the text to a fork of the
- *   Y.Doc at `base` (see `ForkYDocExtension`), and Yjs merges the fork into
- *   the Y.Doc. In the Yjs binding now, a move is a removal and an insert.
- *   Thus, if another writer changes a block that the text moves, the change
- *   is lost, and if two writers move the same block, the block is there two
- *   times, with the same ID in the Y.Doc. Yjs does not know the schema. As in
- *   each client, y-prosemirror removes the content of a merged document that
- *   does not fit the schema. A flat document model in the binding will remove
- *   these problems.
- */
-export type MergeStrategy = "rebase" | "yjs";
 
 /**
  * The result of a write to a Y.Doc. On an error (also an exception), the
@@ -56,12 +38,9 @@ export type YDocTextUpdate =
  * the content that the schema of the editor cannot read.
  *
  * The text can come from an older version of the document (`base`). The
- * result keeps the changes that other writers made after that version.
- * `strategy` selects how (the default is "rebase"). With the "yjs" strategy,
- * the operations of the result are for `base`. With the "rebase" strategy,
- * they are for the current document. A write from an empty base always uses
- * the "rebase" strategy: a fork of an empty document gets its own root block
- * group, and Yjs cannot merge two new root structures into one.
+ * result keeps the changes that other writers made after that version: the
+ * target of the text merges three-way with the current document (see
+ * `merge/tree.ts`), and the operations are for the current document.
  */
 export function updateYDocFromText(
   editor: BlockNoteEditor<any, any, any>,
@@ -69,7 +48,6 @@ export function updateYDocFromText(
   options: Omit<TextUpdateOptions, "base"> & {
     /** The Yjs state (`Y.encodeStateAsUpdate`) at the version that the client read. Without `base`, the text applies to the current document. */
     base?: Uint8Array;
-    strategy?: MergeStrategy;
   },
 ): YDocTextUpdate {
   const fork = editor.getExtension(ForkYDocExtension);
@@ -86,7 +64,7 @@ export function updateYDocFromText(
       "The editor shows a fork of the Y.Doc (for example a version preview). End the fork first.",
     );
   }
-  const { base, strategy = "rebase", ...textOptions } = options;
+  const { base, ...textOptions } = options;
   const before = Y.encodeStateVector(ydoc);
   if (base !== undefined) {
     // The client can read from a replica with an update that this Y.Doc does
@@ -101,33 +79,20 @@ export function updateYDocFromText(
       ? undefined
       : findTypeInOtherYdoc(fragment, docFromState(base));
 
-  // With the "yjs" strategy, the write goes to a fork of the Y.Doc at
-  // `base`, and Yjs merges it. Else, it goes to a fork of the current
-  // Y.Doc: thus, a write that fails in the middle does not change the Y.Doc.
-  const yjs =
-    strategy === "yjs" && baseFragment !== undefined && baseFragment.length > 0;
   // A base without content and a Y.Doc without content are the same empty
   // document: no other writer changed it.
   const unchanged =
     baseFragment === undefined ||
     (baseFragment.length === 0 && fragment.length === 0);
   let update: TextUpdate | undefined;
-  fork.fork({ initialUpdate: yjs ? base : undefined });
+  // The write goes to a fork of the Y.Doc. Thus, a write that fails in the
+  // middle does not change the Y.Doc.
+  fork.fork();
   try {
-    update = writeText(
-      editor,
-      yjs
-        ? // The layout blocks stay, also if they become empty: Yjs cannot
-          // merge the removal of a column with a block that another writer
-          // adds to it.
-          { ...textOptions, keepLayout: true }
-        : {
-            ...textOptions,
-            base: unchanged
-              ? undefined
-              : yXmlFragmentToBlocks(editor, baseFragment),
-          },
-    );
+    update = updateDocumentFromText(editor, {
+      ...textOptions,
+      base: unchanged ? undefined : yXmlFragmentToBlocks(editor, baseFragment),
+    });
   } finally {
     fork.merge({
       keepChanges: update !== undefined && update.error === undefined,

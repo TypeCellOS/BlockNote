@@ -98,11 +98,7 @@ export function computeTextUpdate(
  */
 function computeBlocksUpdate(
   editor: BlockNoteEditor<any, any, any>,
-  options: TextUpdateOptions & {
-    current: readonly LensBlock[];
-    /** Keep the layout blocks, also if they become empty (see `updateToTarget`). */
-    keepLayout?: boolean;
-  },
+  options: TextUpdateOptions & { current: readonly LensBlock[] },
 ): TextUpdate {
   const { current } = options;
   const base = options.base && withDistinctIds(options.base);
@@ -115,11 +111,7 @@ function computeBlocksUpdate(
   if (plan.error !== undefined) {
     return plan;
   }
-  return updateToTarget(schemaRulesOf(editor), plan, {
-    base,
-    current,
-    keepLayout: options.keepLayout ?? false,
-  });
+  return updateToTarget(schemaRulesOf(editor), plan, { base, current });
 }
 
 export type JSONUpdateOptions = {
@@ -189,7 +181,7 @@ function jsonUpdate(
       ),
       warnings: [],
     },
-    { base, current, keepLayout: false },
+    { base, current },
   );
 }
 
@@ -255,9 +247,8 @@ function withUniqueIds(
  * operations change `current` to the result.
  *
  * The layout blocks of the result change to fit their child rules (see
- * `fitLayout`), unless `keepLayout` is set: without `base`, in the target;
- * with `base`, in the result on the current document, with more
- * operations. The client did not change the layout blocks, and in the
+ * `fitLayout`): without `base`, in the target; with `base`, in the result
+ * on the current document, with more operations. The client did not change the layout blocks, and in the
  * current document they can have blocks of other writers (for example a
  * column that another writer added). Thus, the rule applies to the result.
  */
@@ -268,10 +259,9 @@ function updateToTarget(
     /** The document at the version that the client read, if it is older than `current`. */
     base: readonly LensBlock[] | undefined;
     current: readonly LensBlock[];
-    keepLayout: boolean;
   },
 ): ValidTextUpdate {
-  const { base, current, keepLayout } = documents;
+  const { base, current } = documents;
   if (plan.target === (base ?? current)) {
     return { operations: [], warnings: plan.warnings };
   }
@@ -285,9 +275,7 @@ function updateToTarget(
           contentKindOf: rules.contentKindOf,
         });
   const result = fitTables(
-    keepLayout
-      ? merged.blocks
-      : fitLayout(merged.blocks, rules.layoutRuleOf, rules.canContain),
+    fitLayout(merged.blocks, rules.layoutRuleOf, rules.canContain),
   );
   return {
     operations: diffDocuments(current, result),
@@ -306,17 +294,6 @@ function updateToTarget(
 export function updateDocumentFromText(
   editor: BlockNoteEditor<any, any, any>,
   options: TextUpdateOptions,
-): TextUpdate {
-  return writeText(editor, options);
-}
-
-/**
- * {@link updateDocumentFromText}, with the option `keepLayout` (see
- * {@link updateToTarget}). The Y.Doc API uses this.
- */
-export function writeText(
-  editor: BlockNoteEditor<any, any, any>,
-  options: TextUpdateOptions & { keepLayout?: boolean },
 ): TextUpdate {
   return write(editor, (current) =>
     computeBlocksUpdate(editor, { ...options, current }),

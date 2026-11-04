@@ -33,7 +33,7 @@ import {
   richDocument,
 } from "../testUtil/fixtures.js";
 import { bindEditor, readText } from "../testUtil/yjs.js";
-import { type MergeStrategy, updateYDocFromText } from "./yDocText.js";
+import { updateYDocFromText } from "./yDocText.js";
 import { valid } from "../testUtil/valid.js";
 import {
   createRandom,
@@ -82,14 +82,12 @@ function setup(initialContent: PartialBlock[] = richDocument) {
     write: (
       client: { text: string; base: Uint8Array },
       edit: (text: string) => string,
-      strategy?: MergeStrategy,
     ) =>
       valid(
         updateYDocFromText(editor, fragment, {
           format,
           text: edit(client.text),
           base: client.base,
-          strategy,
         }),
       ),
     /** Another user changes the document in an editor. */
@@ -213,31 +211,27 @@ describe.each([
     expect(readText(fragment, format).trim()).toBe("Hello");
   });
 
-  it.each<MergeStrategy>(["rebase", "yjs"])(
-    "keeps the text of another writer, if the base is an empty Y.Doc (strategy %s)",
-    (strategy) => {
-      const ydoc = new Y.Doc();
-      const fragment = ydoc.getXmlFragment("prosemirror");
-      const base = Y.encodeStateAsUpdate(ydoc);
-      valid(
-        updateYDocFromText(bindEditor(fragment), fragment, {
-          format,
-          text: "Other",
-        }),
-      );
-      valid(
-        updateYDocFromText(bindEditor(fragment), fragment, {
-          format,
-          text: "Hello",
-          base,
-          strategy,
-        }),
-      );
+  it("keeps the text of another writer, if the base is an empty Y.Doc", () => {
+    const ydoc = new Y.Doc();
+    const fragment = ydoc.getXmlFragment("prosemirror");
+    const base = Y.encodeStateAsUpdate(ydoc);
+    valid(
+      updateYDocFromText(bindEditor(fragment), fragment, {
+        format,
+        text: "Other",
+      }),
+    );
+    valid(
+      updateYDocFromText(bindEditor(fragment), fragment, {
+        format,
+        text: "Hello",
+        base,
+      }),
+    );
 
-      expect(readText(fragment, format).trim()).toBe("Hello\n\nOther");
-      expect(fragment.length).toBe(1);
-    },
-  );
+    expect(readText(fragment, format).trim()).toBe("Hello\n\nOther");
+    expect(fragment.length).toBe(1);
+  });
 
   it("clears a document, and writes text again", () => {
     const ydoc = blocksToYDoc(
@@ -256,182 +250,154 @@ describe.each([
   });
 });
 
-describe.each<MergeStrategy>(["rebase", "yjs"])(
-  "concurrent writes (strategy %s)",
-  (strategy) => {
-    /** A test that fails with the "yjs" strategy, until the Yjs binding has a flat document model. */
-    const itMoves = strategy === "yjs" ? it.fails : it;
+describe("concurrent writes", () => {
+  it("keeps the changes of other writers in different blocks", () => {
+    const { read, write, block } = setup();
+    const a = read();
+    const b = read();
 
-    it("keeps the changes of other writers in different blocks", () => {
-      const { read, write, block } = setup();
-      const a = read();
-      const b = read();
+    write(b, (text) =>
+      replaceOnce(text, "Last paragraph", "Last paragraph from B"),
+    );
+    write(a, (text) =>
+      replaceOnce(text, "Colored centered paragraph", "Colored by A"),
+    );
 
-      write(b, (text) =>
-        replaceOnce(text, "Last paragraph", "Last paragraph from B"),
-      );
-      write(
-        a,
-        (text) =>
-          replaceOnce(text, "Colored centered paragraph", "Colored by A"),
-        strategy,
-      );
+    expect(block("colored")?.content).toMatchObject([{ text: "Colored by A" }]);
+    expect(block("last")?.content).toMatchObject([
+      { text: "Last paragraph from B" },
+    ]);
+  });
 
-      expect(block("colored")?.content).toMatchObject([
-        { text: "Colored by A" },
-      ]);
-      expect(block("last")?.content).toMatchObject([
-        { text: "Last paragraph from B" },
-      ]);
+  it("merges changes of two writers in the same paragraph", () => {
+    const { read, write, block } = setup();
+    const a = read();
+    const b = read();
+
+    write(b, (text) =>
+      replaceOnce(text, "Last paragraph", "The last paragraph"),
+    );
+    write(a, (text) =>
+      replaceOnce(text, "Last paragraph", "Last paragraph, edited"),
+    );
+
+    expect(block("last")?.content).toMatchObject([
+      { text: "The last paragraph, edited" },
+    ]);
+  });
+
+  it("keeps the change of another writer between two changes of the client in one paragraph", () => {
+    const { read, write, block } = setup([
+      { id: "p", type: "paragraph", content: "Alpha one two three Omega" },
+    ]);
+    const a = read();
+    const b = read();
+
+    write(b, (text) => replaceOnce(text, "two", "TWO"));
+    write(a, (text) =>
+      replaceOnce(replaceOnce(text, "Alpha", "First"), "Omega", "Last"),
+    );
+
+    expect(block("p")?.content).toMatchObject([
+      { text: "First one TWO three Last" },
+    ]);
+  });
+
+  it("keeps a block that another writer fully rewrote", () => {
+    const { read, write, block } = setup();
+    const a = read();
+    const b = read();
+
+    write(b, (text) =>
+      replaceOnce(text, "Last paragraph", "Completely different words"),
+    );
+    write(a, (text) =>
+      replaceOnce(text, "Colored centered paragraph", "Colored"),
+    );
+
+    expect(block("last")?.content).toMatchObject([
+      { text: "Completely different words" },
+    ]);
+    expect(block("colored")?.content).toMatchObject([{ text: "Colored" }]);
+  });
+
+  it("changes the correct block of two blocks with the same text", () => {
+    const { read, write, change, block, blocks } = setup([
+      { id: "x", type: "paragraph", content: "Same" },
+      { id: "y", type: "paragraph", content: "Same" },
+      { id: "z", type: "paragraph", content: "End" },
+    ]);
+    const client = read();
+
+    change((editor) => editor.removeBlocks(["x"]));
+    write(client, (text) => text.replace("Same\n\nEnd", "Changed\n\nEnd"));
+
+    expect(blocks().map((candidate) => candidate.id)).toEqual(["y", "z"]);
+    expect(block("y")?.content).toMatchObject([{ text: "Changed" }]);
+  });
+
+  it("keeps a change to a block that another user dragged", () => {
+    const { read, write, change, block, blocks } = setup();
+    const client = read();
+
+    change((editor) => {
+      const last = editor.getBlock("last");
+      if (last === undefined) {
+        throw new Error("Block not found");
+      }
+      editor.removeBlocks(["last"]);
+      editor.insertBlocks([last], "colored", "before");
     });
+    write(client, (text) =>
+      replaceOnce(text, "Last paragraph", "Last paragraph, edited"),
+    );
 
-    it("merges changes of two writers in the same paragraph", () => {
-      const { read, write, block } = setup();
-      const a = read();
-      const b = read();
-
-      write(b, (text) =>
-        replaceOnce(text, "Last paragraph", "The last paragraph"),
-      );
-      write(
-        a,
-        (text) => replaceOnce(text, "Last paragraph", "Last paragraph, edited"),
-        strategy,
-      );
-
-      expect(block("last")?.content).toMatchObject([
-        { text: "The last paragraph, edited" },
-      ]);
+    expect(blocks().filter((candidate) => candidate.id === "last")).toEqual([
+      block("last"),
+    ]);
+    expect(blocks()[0]).toMatchObject({
+      id: "last",
+      content: [{ text: "Last paragraph, edited" }],
     });
+  });
 
-    it("keeps the change of another writer between two changes of the client in one paragraph", () => {
-      const { read, write, block } = setup([
-        { id: "p", type: "paragraph", content: "Alpha one two three Omega" },
-      ]);
-      const a = read();
-      const b = read();
+  it("does one move if two writers make the same move", () => {
+    const { read, write, blocks } = setup(fruit);
+    const a = read();
+    const b = read();
 
-      write(b, (text) => replaceOnce(text, "two", "TWO"));
-      write(
-        a,
-        (text) =>
-          replaceOnce(replaceOnce(text, "Alpha", "First"), "Omega", "Last"),
-        strategy,
-      );
+    write(a, (text) => replaceOnce(text, "  * Pears", "* Pears"));
+    write(b, (text) => replaceOnce(text, "  * Pears", "* Pears"));
 
-      expect(block("p")?.content).toMatchObject([
-        { text: "First one TWO three Last" },
-      ]);
-    });
+    expect(documentShape(blocks())).toEqual([
+      "fruit",
+      ["apples"],
+      "pears",
+      "end",
+    ]);
+  });
 
-    it("keeps a block that another writer fully rewrote", () => {
-      const { read, write, block } = setup();
-      const a = read();
-      const b = read();
+  it("keeps a change to a block that another writer moved", () => {
+    const { read, write, block, blocks } = setup(fruit);
+    const a = read();
+    const b = read();
 
-      write(b, (text) =>
-        replaceOnce(text, "Last paragraph", "Completely different words"),
-      );
-      write(
-        a,
-        (text) => replaceOnce(text, "Colored centered paragraph", "Colored"),
-        strategy,
-      );
+    write(a, (text) => replaceOnce(text, "  * Pears", "* Pears"));
+    write(b, (text) => replaceOnce(text, "Pears", "Pears and plums"));
 
-      expect(block("last")?.content).toMatchObject([
-        { text: "Completely different words" },
-      ]);
-      expect(block("colored")?.content).toMatchObject([{ text: "Colored" }]);
-    });
+    expect(documentShape(blocks())).toEqual([
+      "fruit",
+      ["apples"],
+      "pears",
+      "end",
+    ]);
+    expect(block("pears")?.content).toMatchObject([
+      { text: "Pears and plums" },
+    ]);
+  });
+});
 
-    it("changes the correct block of two blocks with the same text", () => {
-      const { read, write, change, block, blocks } = setup([
-        { id: "x", type: "paragraph", content: "Same" },
-        { id: "y", type: "paragraph", content: "Same" },
-        { id: "z", type: "paragraph", content: "End" },
-      ]);
-      const client = read();
-
-      change((editor) => editor.removeBlocks(["x"]));
-      write(
-        client,
-        (text) => text.replace("Same\n\nEnd", "Changed\n\nEnd"),
-        strategy,
-      );
-
-      expect(blocks().map((candidate) => candidate.id)).toEqual(["y", "z"]);
-      expect(block("y")?.content).toMatchObject([{ text: "Changed" }]);
-    });
-
-    itMoves("keeps a change to a block that another user dragged", () => {
-      const { read, write, change, block, blocks } = setup();
-      const client = read();
-
-      change((editor) => {
-        const last = editor.getBlock("last");
-        if (last === undefined) {
-          throw new Error("Block not found");
-        }
-        editor.removeBlocks(["last"]);
-        editor.insertBlocks([last], "colored", "before");
-      });
-      write(
-        client,
-        (text) => replaceOnce(text, "Last paragraph", "Last paragraph, edited"),
-        strategy,
-      );
-
-      expect(blocks().filter((candidate) => candidate.id === "last")).toEqual([
-        block("last"),
-      ]);
-      expect(blocks()[0]).toMatchObject({
-        id: "last",
-        content: [{ text: "Last paragraph, edited" }],
-      });
-    });
-
-    itMoves("does one move if two writers make the same move", () => {
-      const { read, write, blocks } = setup(fruit);
-      const a = read();
-      const b = read();
-
-      write(a, (text) => replaceOnce(text, "  * Pears", "* Pears"));
-      write(b, (text) => replaceOnce(text, "  * Pears", "* Pears"), strategy);
-
-      expect(documentShape(blocks())).toEqual([
-        "fruit",
-        ["apples"],
-        "pears",
-        "end",
-      ]);
-    });
-
-    itMoves("keeps a change to a block that another writer moved", () => {
-      const { read, write, block, blocks } = setup(fruit);
-      const a = read();
-      const b = read();
-
-      write(a, (text) => replaceOnce(text, "  * Pears", "* Pears"));
-      write(
-        b,
-        (text) => replaceOnce(text, "Pears", "Pears and plums"),
-        strategy,
-      );
-
-      expect(documentShape(blocks())).toEqual([
-        "fruit",
-        ["apples"],
-        "pears",
-        "end",
-      ]);
-      expect(block("pears")?.content).toMatchObject([
-        { text: "Pears and plums" },
-      ]);
-    });
-  },
-);
-
-describe("concurrent writes (strategy rebase): conflicts", () => {
+describe("concurrent writes: conflicts", () => {
   it("does not apply a change to a block that another writer removed, and gives a warning", () => {
     const { read, write, change, block } = setup();
     const client = read();
@@ -465,48 +431,44 @@ describe("concurrent writes (strategy rebase): conflicts", () => {
   });
 });
 
-describe.each<MergeStrategy>(["rebase", "yjs"])(
-  "comments (strategy %s)",
-  (strategy) => {
-    /** A Y.Doc with comments, from a client with the comments extension. */
-    function setupWithComments() {
-      const ydoc = new Y.Doc();
-      const fragment = ydoc.getXmlFragment("prosemirror");
-      const editor = bindEditor(fragment, commentEditorOptions());
-      editor.replaceBlocks(editor.document, fruit);
-      const kept = addComment(editor, "Apples");
-      const moved = addComment(editor, "Pears");
-      const write = (edit: (text: string) => string) =>
-        valid(
-          updateYDocFromText(editor, fragment, {
-            format: markdownFormat,
-            text: edit(getDocumentText(editor, markdownFormat)),
-            base: Y.encodeStateAsUpdate(ydoc),
-            strategy,
-          }),
-        );
-      /** The document of the Y.Doc, as a new client with comments reads it. */
-      const doc = () =>
-        bindEditor(fragment, commentEditorOptions()).prosemirrorState.doc;
-      return { kept, moved, write, doc };
-    }
+describe("comments", () => {
+  /** A Y.Doc with comments, from a client with the comments extension. */
+  function setupWithComments() {
+    const ydoc = new Y.Doc();
+    const fragment = ydoc.getXmlFragment("prosemirror");
+    const editor = bindEditor(fragment, commentEditorOptions());
+    editor.replaceBlocks(editor.document, fruit);
+    const kept = addComment(editor, "Apples");
+    const moved = addComment(editor, "Pears");
+    const write = (edit: (text: string) => string) =>
+      valid(
+        updateYDocFromText(editor, fragment, {
+          format: markdownFormat,
+          text: edit(getDocumentText(editor, markdownFormat)),
+          base: Y.encodeStateAsUpdate(ydoc),
+        }),
+      );
+    /** The document of the Y.Doc, as a new client with comments reads it. */
+    const doc = () =>
+      bindEditor(fragment, commentEditorOptions()).prosemirrorState.doc;
+    return { kept, moved, write, doc };
+  }
 
-    it("keeps the comments of the document when the text changes another block", () => {
-      const { kept, moved, write, doc } = setupWithComments();
-      write((text) => replaceOnce(text, "End", "The end"));
+  it("keeps the comments of the document when the text changes another block", () => {
+    const { kept, moved, write, doc } = setupWithComments();
+    write((text) => replaceOnce(text, "End", "The end"));
 
-      expect(commentedText(doc(), kept)).toBe("Apples");
-      expect(commentedText(doc(), moved)).toBe("Pears");
-    });
+    expect(commentedText(doc(), kept)).toBe("Apples");
+    expect(commentedText(doc(), moved)).toBe("Pears");
+  });
 
-    it("keeps the comment of a block that the text moves", () => {
-      const { moved, write, doc } = setupWithComments();
-      write((text) => replaceOnce(text, "  * Pears", "* Pears"));
+  it("keeps the comment of a block that the text moves", () => {
+    const { moved, write, doc } = setupWithComments();
+    write((text) => replaceOnce(text, "  * Pears", "* Pears"));
 
-      expect(commentedText(doc(), moved)).toBe("Pears");
-    });
-  },
-);
+    expect(commentedText(doc(), moved)).toBe("Pears");
+  });
+});
 
 /**
  * The Y.Doc API writes through the binding of an editor, in transactions
@@ -615,66 +577,62 @@ describe("Y.Doc writes after a move of a nested block", () => {
   });
 });
 
-describe.each<MergeStrategy>(["rebase", "yjs"])(
-  "concurrent writes with columns (strategy %s)",
-  (strategy) => {
-    it("keeps a block that another writer added to a column, when the text empties the other column", () => {
-      const schema = withMultiColumn(
-        BlockNoteSchema.create({ blockSpecs: defaultBlockSpecs }),
-      );
-      const ydoc = blocksToYDoc(
-        BlockNoteEditor.create({ schema }),
-        BlockNoteEditor.create({
-          schema,
-          initialContent: [
-            {
-              id: "list",
-              type: "columnList",
-              children: [
-                {
-                  id: "cA",
-                  type: "column",
-                  children: [{ id: "a", type: "paragraph", content: "Alpha" }],
-                },
-                {
-                  id: "cB",
-                  type: "column",
-                  children: [{ id: "b", type: "paragraph", content: "Bravo" }],
-                },
-              ],
-            },
-            { id: "end", type: "paragraph", content: "End" },
-          ] as PartialBlock<any, any, any>[],
-        }).document,
-      );
-      const fragment = ydoc.getXmlFragment("prosemirror");
-      const editor = bindEditor(fragment, { schema });
-      const format = markdownFormat;
-      const text = getDocumentText(editor, format);
-      const base = Y.encodeStateAsUpdate(ydoc);
-      // Another writer adds a block after Alpha, in column A.
-      valid(
-        updateYDocFromText(bindEditor(fragment, { schema }), fragment, {
-          format,
-          text: text.replace("Alpha", "Alpha\n\nAdded by other"),
-        }),
-      );
+describe("concurrent writes with columns", () => {
+  it("keeps a block that another writer added to a column, when the text empties the other column", () => {
+    const schema = withMultiColumn(
+      BlockNoteSchema.create({ blockSpecs: defaultBlockSpecs }),
+    );
+    const ydoc = blocksToYDoc(
+      BlockNoteEditor.create({ schema }),
+      BlockNoteEditor.create({
+        schema,
+        initialContent: [
+          {
+            id: "list",
+            type: "columnList",
+            children: [
+              {
+                id: "cA",
+                type: "column",
+                children: [{ id: "a", type: "paragraph", content: "Alpha" }],
+              },
+              {
+                id: "cB",
+                type: "column",
+                children: [{ id: "b", type: "paragraph", content: "Bravo" }],
+              },
+            ],
+          },
+          { id: "end", type: "paragraph", content: "End" },
+        ] as PartialBlock<any, any, any>[],
+      }).document,
+    );
+    const fragment = ydoc.getXmlFragment("prosemirror");
+    const editor = bindEditor(fragment, { schema });
+    const format = markdownFormat;
+    const text = getDocumentText(editor, format);
+    const base = Y.encodeStateAsUpdate(ydoc);
+    // Another writer adds a block after Alpha, in column A.
+    valid(
+      updateYDocFromText(bindEditor(fragment, { schema }), fragment, {
+        format,
+        text: text.replace("Alpha", "Alpha\n\nAdded by other"),
+      }),
+    );
 
-      valid(
-        updateYDocFromText(editor, fragment, {
-          format,
-          text: text.replace("Bravo\n\n", ""),
-          base,
-          strategy,
-        }),
-      );
+    valid(
+      updateYDocFromText(editor, fragment, {
+        format,
+        text: text.replace("Bravo\n\n", ""),
+        base,
+      }),
+    );
 
-      const result = readText(fragment, format, { schema });
-      expect(result).toContain("Added by other");
-      expect(result).not.toContain("Bravo");
-    });
-  },
-);
+    const result = readText(fragment, format, { schema });
+    expect(result).toContain("Added by other");
+    expect(result).not.toContain("Bravo");
+  });
+});
 
 describe("changes of other writers in a list with more than one structural change", () => {
   const blocks: PartialBlock[] = [
@@ -733,51 +691,43 @@ describe("changes of other writers in a list with more than one structural chang
     );
   });
 
-  it.each(["rebase", "yjs"] as const)(
-    "keeps a change of another writer in its block, with inserts at two places (strategy %s)",
-    (strategy) => {
-      const ydoc = blocksToYDoc(BlockNoteEditor.create(), blocks);
-      const fragment = ydoc.getXmlFragment("prosemirror");
-      const editor = bindEditor(fragment);
-      const base = Y.encodeStateAsUpdate(ydoc);
-      editor.updateBlock("a", { content: "Alpha edited" });
+  it("keeps a change of another writer in its block, with inserts at two places", () => {
+    const ydoc = blocksToYDoc(BlockNoteEditor.create(), blocks);
+    const fragment = ydoc.getXmlFragment("prosemirror");
+    const editor = bindEditor(fragment);
+    const base = Y.encodeStateAsUpdate(ydoc);
+    editor.updateBlock("a", { content: "Alpha edited" });
 
-      valid(
-        updateYDocFromText(editor, fragment, {
-          format: markdownFormat,
-          text: "First\n\nAlpha\n\nBeta\n\nGamma\n\nLast\n",
-          base,
-          strategy,
-        }),
-      );
-      expect(getDocumentText(editor, markdownFormat)).toBe(
-        "First\n\nAlpha edited\n\nBeta\n\nGamma\n\nLast\n",
-      );
-    },
-  );
+    valid(
+      updateYDocFromText(editor, fragment, {
+        format: markdownFormat,
+        text: "First\n\nAlpha\n\nBeta\n\nGamma\n\nLast\n",
+        base,
+      }),
+    );
+    expect(getDocumentText(editor, markdownFormat)).toBe(
+      "First\n\nAlpha edited\n\nBeta\n\nGamma\n\nLast\n",
+    );
+  });
 
-  it.each(["rebase", "yjs"] as const)(
-    "keeps a change of another writer to a block that a move passes (strategy %s)",
-    (strategy) => {
-      const ydoc = blocksToYDoc(BlockNoteEditor.create(), blocks);
-      const fragment = ydoc.getXmlFragment("prosemirror");
-      const editor = bindEditor(fragment);
-      const base = Y.encodeStateAsUpdate(ydoc);
-      editor.updateBlock("b", { content: "Beta edited" });
+  it("keeps a change of another writer to a block that a move passes", () => {
+    const ydoc = blocksToYDoc(BlockNoteEditor.create(), blocks);
+    const fragment = ydoc.getXmlFragment("prosemirror");
+    const editor = bindEditor(fragment);
+    const base = Y.encodeStateAsUpdate(ydoc);
+    editor.updateBlock("b", { content: "Beta edited" });
 
-      valid(
-        updateYDocFromText(editor, fragment, {
-          format: markdownFormat,
-          text: "Gamma\n\nAlpha\n\nBeta\n",
-          base,
-          strategy,
-        }),
-      );
-      expect(getDocumentText(editor, markdownFormat)).toBe(
-        "Gamma\n\nAlpha\n\nBeta edited\n",
-      );
-    },
-  );
+    valid(
+      updateYDocFromText(editor, fragment, {
+        format: markdownFormat,
+        text: "Gamma\n\nAlpha\n\nBeta\n",
+        base,
+      }),
+    );
+    expect(getDocumentText(editor, markdownFormat)).toBe(
+      "Gamma\n\nAlpha\n\nBeta edited\n",
+    );
+  });
 });
 
 describe("a base with two blocks with one ID", () => {
@@ -849,47 +799,43 @@ describe("a write that fails in the middle", () => {
 });
 
 describe("a base with an update that the Y.Doc does not have yet", () => {
-  it.each(["rebase", "yjs"] as const)(
-    "keeps the change of the client to the block of that update (strategy %s)",
-    (strategy) => {
-      const server = blocksToYDoc(BlockNoteEditor.create(), [
-        { id: "a", type: "paragraph", content: "Alpha" },
-        { id: "b", type: "paragraph", content: "Beta" },
-      ]);
-      const replica = new Y.Doc();
-      Y.applyUpdate(replica, Y.encodeStateAsUpdate(server));
-      // Another client adds a block on the replica. The server does not
-      // have it yet.
-      const before = Y.encodeStateVector(replica);
-      bindEditor(replica.getXmlFragment("prosemirror")).insertBlocks(
-        [{ type: "paragraph", content: "Gamma" }],
-        "b",
-        "after",
-      );
-      const inFlight = Y.encodeStateAsUpdate(replica, before);
-      // The client reads from the replica.
-      const text = readText(
-        replica.getXmlFragment("prosemirror"),
-        markdownFormat,
-      );
-      const base = Y.encodeStateAsUpdate(replica);
+  it("keeps the change of the client to the block of that update", () => {
+    const server = blocksToYDoc(BlockNoteEditor.create(), [
+      { id: "a", type: "paragraph", content: "Alpha" },
+      { id: "b", type: "paragraph", content: "Beta" },
+    ]);
+    const replica = new Y.Doc();
+    Y.applyUpdate(replica, Y.encodeStateAsUpdate(server));
+    // Another client adds a block on the replica. The server does not
+    // have it yet.
+    const before = Y.encodeStateVector(replica);
+    bindEditor(replica.getXmlFragment("prosemirror")).insertBlocks(
+      [{ type: "paragraph", content: "Gamma" }],
+      "b",
+      "after",
+    );
+    const inFlight = Y.encodeStateAsUpdate(replica, before);
+    // The client reads from the replica.
+    const text = readText(
+      replica.getXmlFragment("prosemirror"),
+      markdownFormat,
+    );
+    const base = Y.encodeStateAsUpdate(replica);
 
-      const fragment = server.getXmlFragment("prosemirror");
-      const result = valid(
-        updateYDocFromText(bindEditor(fragment), fragment, {
-          format: markdownFormat,
-          text: replaceOnce(text, "Gamma", "Gamma edited"),
-          base,
-          strategy,
-        }),
-      );
-      Y.applyUpdate(server, inFlight);
-      expect(result.warnings).toEqual([]);
-      expect(readText(fragment, markdownFormat)).toBe(
-        "Alpha\n\nBeta\n\nGamma edited\n",
-      );
-    },
-  );
+    const fragment = server.getXmlFragment("prosemirror");
+    const result = valid(
+      updateYDocFromText(bindEditor(fragment), fragment, {
+        format: markdownFormat,
+        text: replaceOnce(text, "Gamma", "Gamma edited"),
+        base,
+      }),
+    );
+    Y.applyUpdate(server, inFlight);
+    expect(result.warnings).toEqual([]);
+    expect(readText(fragment, markdownFormat)).toBe(
+      "Alpha\n\nBeta\n\nGamma edited\n",
+    );
+  });
 });
 
 describe("an editor that shows a fork of the Y.Doc", () => {
