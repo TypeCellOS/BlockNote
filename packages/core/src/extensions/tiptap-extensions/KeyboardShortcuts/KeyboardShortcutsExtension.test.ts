@@ -21,7 +21,7 @@ import {
   BlockNoteEditor,
   type BlockNoteEditorOptions,
 } from "../../../editor/BlockNoteEditor.js";
-import { fr } from "../../../i18n/locales/index.js";
+import { en, fr } from "../../../i18n/locales/index.js";
 import { createBlockSpec } from "../../../schema/index.js";
 
 // Blocks configured with the deprecated `meta.hardBreakShortcut`, which still
@@ -928,7 +928,10 @@ describe("KeyboardShortcutsExtension Shift-Tab", () => {
 // #2812: indenting with Tab only changed the block visually, so screen reader
 // users got no feedback that it worked, or at which level the block ended up.
 describe("KeyboardShortcutsExtension Tab announcements", () => {
-  function createMountedEditor(cursorId: string) {
+  function createMountedEditor(
+    cursorId: string,
+    options: Partial<BlockNoteEditorOptions<any, any, any>> = {},
+  ) {
     const wrapper = document.createElement("div");
     const mountPoint = document.createElement("div");
     wrapper.appendChild(mountPoint);
@@ -939,6 +942,7 @@ describe("KeyboardShortcutsExtension Tab announcements", () => {
         { id: "a", type: "paragraph", content: "Parent" },
         { id: "b", type: "paragraph", content: "Child" },
       ],
+      ...options,
     });
     editor.mount(mountPoint);
     editor.setTextCursorPosition(cursorId, "start");
@@ -995,24 +999,48 @@ describe("KeyboardShortcutsExtension Tab announcements", () => {
     wrapper.remove();
   });
 
-  it("uses the editor's dictionary", () => {
-    const wrapper = document.createElement("div");
-    const mountPoint = document.createElement("div");
-    wrapper.appendChild(mountPoint);
-    document.body.appendChild(wrapper);
-    const editor = BlockNoteEditor.create({
-      schema,
-      dictionary: fr,
+  it("announces deeper levels", () => {
+    const { editor, wrapper } = createMountedEditor("c", {
       initialContent: [
-        { id: "a", type: "paragraph", content: "Parent" },
-        { id: "b", type: "paragraph", content: "Child" },
+        {
+          id: "a",
+          type: "paragraph",
+          content: "Parent",
+          children: [
+            { id: "b", type: "paragraph", content: "Child" },
+            { id: "c", type: "paragraph", content: "Grandchild" },
+          ],
+        },
       ],
     });
-    editor.mount(mountPoint);
-    editor.setTextCursorPosition("b", "start");
+
+    pressTab(editor);
+    expect(outline(editor.document)[0].children[0].children).toHaveLength(1);
+    expect(liveRegion(wrapper)!.textContent).toBe("Indented, level 3");
+
+    editor._tiptapEditor.destroy();
+    wrapper.remove();
+  });
+
+  it("uses the editor's dictionary", () => {
+    const { editor, wrapper } = createMountedEditor("b", { dictionary: fr });
 
     pressTab(editor);
     expect(liveRegion(wrapper)!.textContent).toBe("Retrait augmenté, niveau 2");
+
+    editor._tiptapEditor.destroy();
+    wrapper.remove();
+  });
+
+  it("falls back to English for dictionaries without block_nesting", () => {
+    const { block_nesting: _blockNesting, ...dictionary } = en;
+    const { editor, wrapper } = createMountedEditor("b", {
+      // @ts-expect-error Simulate a dictionary authored before block_nesting existed.
+      dictionary,
+    });
+
+    pressTab(editor);
+    expect(liveRegion(wrapper)!.textContent).toBe("Indented, level 2");
 
     editor._tiptapEditor.destroy();
     wrapper.remove();

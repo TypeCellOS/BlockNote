@@ -469,6 +469,9 @@ export class BlockNoteEditor<
     if (this.dictionary.emoji_picker === undefined) {
       this.dictionary.emoji_picker = en.emoji_picker;
     }
+    if (this.dictionary.block_nesting === undefined) {
+      this.dictionary.block_nesting = en.block_nesting;
+    }
     this.settings = {
       tables: {
         splitCells: options?.tables?.splitCells ?? false,
