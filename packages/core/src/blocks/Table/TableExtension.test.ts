@@ -1,6 +1,6 @@
 import { GapCursor } from "@tiptap/pm/gapcursor";
 import { TextSelection } from "prosemirror-state";
-import { CellSelection } from "prosemirror-tables";
+import { CellSelection, mergeCells } from "prosemirror-tables";
 import {
   afterAll,
   beforeAll,
@@ -12,6 +12,7 @@ import {
 
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { TableHandlesExtension } from "../../extensions/TableHandles/TableHandles.js";
+import { mapTableCell } from "../../util/table.js";
 import type { PartialBlock } from "../defaultBlocks.js";
 
 /**
@@ -227,5 +228,67 @@ describe("TableHandlesExtension.getCellSelection", () => {
 
     expect(getCellSelection()?.from).toEqual({ row: 1, col: 1 });
     expect(getCellSelection()?.to).toEqual({ row: 1, col: 1 });
+  });
+});
+
+describe("Merging table cells", () => {
+  let editor: BlockNoteEditor;
+  const div = document.createElement("div");
+
+  beforeAll(() => {
+    editor = BlockNoteEditor.create();
+    editor.mount(div);
+  });
+
+  afterAll(() => {
+    editor._tiptapEditor.destroy();
+    editor = undefined as any;
+  });
+
+  it("merges every cell into one cell without adding a column", () => {
+    editor.replaceBlocks(editor.document, [
+      {
+        type: "table",
+        content: {
+          type: "tableContent",
+          rows: [
+            { cells: ["Cell 1", "Cell 2", "Cell 3"] },
+            { cells: ["Cell 4", "Cell 5", "Cell 6"] },
+          ],
+        },
+      },
+    ]);
+
+    const cellPositions: number[] = [];
+    editor.prosemirrorState.doc.descendants((node, pos) => {
+      if (node.type.name === "tableCell") {
+        cellPositions.push(pos);
+      }
+      return true;
+    });
+    editor.transact((tr) =>
+      tr.setSelection(
+        CellSelection.create(
+          tr.doc,
+          cellPositions[0],
+          cellPositions[cellPositions.length - 1],
+        ) as any,
+      ),
+    );
+
+    expect(editor.exec(mergeCells)).toBe(true);
+
+    const table = editor.document[0];
+    if (table.type !== "table") {
+      throw new Error("Expected a table block");
+    }
+    // The second row is fully covered by the merged cell's rowspan, so it has
+    // no cells of its own.
+    expect(table.content.rows.map((row) => row.cells.length)).toEqual([1, 0]);
+    expect(mapTableCell(table.content.rows[0].cells[0]).props).toMatchObject({
+      colspan: 3,
+      rowspan: 2,
+    });
+    expect(table.content.columnWidths).toHaveLength(3);
   });
 });
