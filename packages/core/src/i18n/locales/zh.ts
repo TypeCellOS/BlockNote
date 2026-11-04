@@ -491,6 +491,9 @@ export const zh: Dictionary = {
     action_failed: "出错了，请重试。",
     history_load_failed: "无法加载版本历史记录",
   },
+  table_of_contents: {
+    title: "目录",
+  },
   exporter: {
     open_file: "打开文件",
     open_video_file: "打开视频",

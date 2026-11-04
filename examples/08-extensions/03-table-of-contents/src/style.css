@@ -1,0 +1,18 @@
+/* The editor scrolls in its own container, the outline stays beside it. */
+.layout {
+  display: flex;
+  height: calc(100vh - 20px);
+}
+
+.layout > .bn-container {
+  flex: 1;
+  min-width: 0;
+  overflow: auto;
+}
+
+.outline {
+  flex-shrink: 0;
+  overflow: auto;
+  padding: 16px 8px;
+  width: 240px;
+}

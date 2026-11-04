@@ -277,6 +277,7 @@ const testComponents: Components = {
     Loader: Empty,
   },
   TableHandle: { Root: Container, ExtendButton: Container },
+  TableOfContents: { Root: Container, Item: Container },
   Comments: {
     Card: Container,
     CardSection: Container,

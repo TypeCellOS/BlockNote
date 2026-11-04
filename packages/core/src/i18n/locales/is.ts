@@ -464,6 +464,9 @@ export const is: Dictionary = {
     action_failed: "Eitthvað fór úrskeiðis. Reyndu aftur.",
     history_load_failed: "Ekki tókst að hlaða útgáfusögu",
   },
+  table_of_contents: {
+    title: "Efnisyfirlit",
+  },
   exporter: {
     open_file: "Opna skrá",
     open_video_file: "Opna myndband",
