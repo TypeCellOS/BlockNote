@@ -215,6 +215,14 @@ function rows() {
     });
 }
 
+// The sidebar's loading indicator. Scoped to the sidebar because the editor
+// renders a status region of its own for screen reader announcements.
+function sidebarStatus() {
+  return page
+    .getByRole("region", { name: "History", exact: true })
+    .getByRole("status");
+}
+
 /** Capture the action runner so rejected promises can be asserted by the test. */
 async function setupWithRun(fake = createFakeEndpoints()) {
   let run!: VersioningSidebarContextValue["run"];
@@ -914,7 +922,7 @@ describe("VersioningSidebar", () => {
     expect(page.getByRole("alert").element().textContent).toBe(
       "Failed to load version history",
     );
-    expect(page.getByRole("status").query()).toBeNull();
+    expect(sidebarStatus().query()).toBeNull();
     expect(rows()).toHaveLength(0);
     expect(mode(editor).store.state).toMatchObject({
       mode: "versions",
@@ -944,7 +952,7 @@ describe("VersioningSidebar", () => {
     );
     expect(rows()).toHaveLength(3);
     expect(rows()[1]!.getAttribute("aria-current")).toBe("true");
-    expect(page.getByRole("status").query()).toBeNull();
+    expect(sidebarStatus().query()).toBeNull();
     await act(async () => {
       await versioning.list();
     });
@@ -2006,7 +2014,7 @@ describe("VersioningSidebar", () => {
       </VersioningTestView>,
     );
 
-    expect(page.getByRole("status").element()).toBeDefined();
+    expect(sidebarStatus().element()).toBeDefined();
     expect(
       page.getByText("Loading...", { exact: true }).element(),
     ).toBeDefined();
@@ -2016,7 +2024,7 @@ describe("VersioningSidebar", () => {
       release();
     });
 
-    expect(page.getByRole("status").query()).toBeNull();
+    expect(sidebarStatus().query()).toBeNull();
     expect(rows()).toHaveLength(3);
   });
 
@@ -2034,7 +2042,7 @@ describe("VersioningSidebar", () => {
     expect(page.getByRole("list").element().getAttribute("aria-busy")).toBe(
       "true",
     );
-    expect(page.getByRole("status").query()).toBeNull();
+    expect(sidebarStatus().query()).toBeNull();
     expect(rows()).toHaveLength(3);
     expect(rows()[1]).toBe(selectedRow);
     expect(selectedRow.getAttribute("aria-current")).toBe("true");
@@ -2060,7 +2068,7 @@ describe("VersioningSidebar", () => {
       const release = fake.block();
       const onClose = vi.fn();
       const { editor, view } = await setup({ onClose }, fake);
-      expect(page.getByRole("status").element()).toBeDefined();
+      expect(sidebarStatus().element()).toBeDefined();
 
       if (exit === "close") {
         await click(page.getByRole("button", { name: "Close", exact: true }));
@@ -2361,7 +2369,7 @@ describe("VersioningSidebar", () => {
         await act(async () => finishRestore());
         await vi.waitFor(() => {
           expect(viewState(mode(editor)).mode).toBe("current");
-          expect(page.getByRole("status").query()).toBeNull();
+          expect(sidebarStatus().query()).toBeNull();
           expect(rows()).toHaveLength(3);
           expect(rows().every((row) => !row.hasAttribute("aria-busy"))).toBe(
             true,
@@ -2434,7 +2442,7 @@ describe("VersioningSidebar", () => {
             history: { status: "success" },
           });
           expect(rows()).toHaveLength(3);
-          expect(page.getByRole("status").query()).toBeNull();
+          expect(sidebarStatus().query()).toBeNull();
           expect(
             page.getByRole("list").element().getAttribute("aria-busy"),
           ).toBeNull();
@@ -2481,7 +2489,7 @@ describe("VersioningSidebar", () => {
         page.getByRole("button", { name: "Hide changes", exact: true }).query(),
       ).toBeNull();
       expect(rows()).toHaveLength(3);
-      expect(page.getByRole("status").query()).toBeNull();
+      expect(sidebarStatus().query()).toBeNull();
       expect(page.getByRole("alert").element().textContent).toBe(
         "Something went wrong. Please try again.",
       );
