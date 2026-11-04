@@ -5,7 +5,6 @@ import type {
   InlineContentSchema,
   StyleSchema,
 } from "../../schema/index.js";
-import { ReadOnlyExtension } from "../ReadOnly/ReadOnly.js";
 import { LoadingExtension } from "../Loading/Loading.js";
 import { createVersioning } from "./createVersioning.js";
 import type { VersionStorage, VersionViewAdapter } from "./types.js";
@@ -56,6 +55,8 @@ export function createVersioningExtension<
     }
 
     let previewOpen = false;
+    function noop() {}
+    let releaseEditingLock = noop;
 
     const mode = createVersioning<Content, Attributions>({
       get storage() {
@@ -130,11 +131,14 @@ export function createVersioningExtension<
         },
       },
       setReadOnly(enabled) {
-        const readOnly = editor.getExtension(ReadOnlyExtension);
-        if (!readOnly) {
-          throw new Error("Versioning requires the ReadOnly extension");
+        if (enabled) {
+          if (releaseEditingLock === noop) {
+            releaseEditingLock = editor.acquireEditingLock();
+          }
+        } else {
+          releaseEditingLock();
+          releaseEditingLock = noop;
         }
-        readOnly.setReadOnly(enabled, "versioning");
       },
     });
     const key = "versioning";

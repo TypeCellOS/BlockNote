@@ -4,6 +4,7 @@ import {
   FocusPosition,
   getSchema,
   Editor as TiptapEditor,
+  Extension as TiptapExtension,
 } from "@tiptap/core";
 import { type Command, type Transaction } from "@tiptap/pm/state";
 import { Node, Schema } from "prosemirror-model";
@@ -520,14 +521,28 @@ export class BlockNoteEditor<
     this.resolveFileUrl = newOptions.resolveFileUrl;
 
     this._eventManager = new EventManager(this as any);
-    this._extensionManager = new ExtensionManager(this, newOptions);
+    this._stateManager = new StateManager(
+      this as any,
+      newOptions._tiptapOptions?.editable,
+    );
+    this._extensionManager = new ExtensionManager(
+      this,
+      newOptions,
+      this._stateManager,
+    );
 
     const tiptapExtensions = this._extensionManager.getTiptapExtensions();
+    tiptapExtensions.push(
+      TiptapExtension.create({
+        name: "blocknote-state",
+        addProseMirrorPlugins: () => this._stateManager.prosemirrorPlugins,
+      }),
+    );
 
     const tiptapOptions: EditorOptions = {
       ...blockNoteTipTapOptions,
       ...newOptions._tiptapOptions,
-      // ReadOnlyExtension owns editability, including the initial application preference.
+      // StateManager owns editability, including the initial application preference.
       editable: true,
       element: null,
       autofocus: newOptions.autofocus ?? false,
@@ -625,7 +640,6 @@ export class BlockNoteEditor<
 
     this._exportManager = new ExportManager(this as any);
     this._selectionManager = new SelectionManager(this as any);
-    this._stateManager = new StateManager(this as any);
     this._styleManager = new StyleManager(this as any);
 
     this.emit("create");
@@ -738,7 +752,7 @@ export class BlockNoteEditor<
    */
   public registerExtension: ExtensionManager["registerExtension"] = (
     ...args: Parameters<ExtensionManager["registerExtension"]>
-  ) => this._extensionManager.registerExtension(...args) as any;
+  ) => this._extensionManager.registerExtension(...args);
 
   /**
    * Atomically unregister old extensions and register new ones in a single
@@ -784,11 +798,17 @@ export class BlockNoteEditor<
    * @warning Not needed to call manually when using React, use BlockNoteView to take care of mounting
    */
   public mount = (element: HTMLElement) => {
-    this._tiptapEditor.mount({ mount: element });
-    // TipTap's ReactRenderer uses this flag to render new node/mark views
-    // synchronously. Otherwise, inserting React-styled text can place the
-    // caret before it because its contentDOM is not attached yet.
-    this._tiptapEditor.isEditorContentInitialized = true;
+    const previous = this._stateManager.updatingView;
+    this._stateManager.updatingView = true;
+    try {
+      this._tiptapEditor.mount({ mount: element });
+      // TipTap's ReactRenderer uses this flag to render new node/mark views
+      // synchronously. Otherwise, inserting React-styled text can place the
+      // caret before it because its contentDOM is not attached yet.
+      this._tiptapEditor.isEditorContentInitialized = true;
+    } finally {
+      this._stateManager.updatingView = previous;
+    }
   };
 
   /**
@@ -1138,6 +1158,20 @@ export class BlockNoteEditor<
    */
   public set isEditable(editable: boolean) {
     this._stateManager.isEditable = editable;
+  }
+
+  /** Subscribe to editability changes. Returns an unsubscribe function. */
+  public onEditableChange(callback: (editable: boolean) => void) {
+    return this._stateManager.onEditableChange(callback);
+  }
+
+  /**
+   * Prevent editing until the returned release function is called.
+   * Each call acquires an independent lock. Releasing it is idempotent and
+   * preserves other locks and the application's isEditable preference.
+   */
+  public acquireEditingLock(): () => void {
+    return this._stateManager.acquireEditingLock();
   }
 
   /**
