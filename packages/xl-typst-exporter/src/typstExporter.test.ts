@@ -373,7 +373,7 @@ describe("TypstExporter", () => {
     );
 
     // Colored through the default palette (COLORS_DEFAULT.red.text).
-    expect(typ).toContain('rgb("#e03e3e")');
+    expect(typ).toContain('rgb("#994a37")');
   });
 
   it("renders header-column cells with the header treatment", async () => {
