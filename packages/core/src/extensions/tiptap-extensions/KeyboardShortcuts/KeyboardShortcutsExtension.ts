@@ -1031,6 +1031,9 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
     return {
       Backspace: handleBackspace,
+      // iOS autocapitalization can set Shift on the first Delete after Return.
+      // Unlike Shift-Enter, this must run the same command, not a shifted variant.
+      "Shift-Backspace": handleBackspace,
       Delete: handleDelete,
       Enter: () => handleEnter(),
       "Shift-Enter": () => handleEnter(true),
