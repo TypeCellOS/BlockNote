@@ -38,9 +38,20 @@ describe("HTML", () => {
         content: "Hello",
       },
     ]);
-    write(editor, (html) =>
-      replaceOnce(html, 'data-text-color="red"', 'data-text-color="blue"'),
+    // The HTML of the same paragraph in blue. The export writes a color in
+    // the style and in a data attribute; the client changes both.
+    const blue = getDocumentText(
+      createEditor([
+        {
+          id: "p",
+          type: "paragraph",
+          props: { textColor: "blue" },
+          content: "Hello",
+        },
+      ]),
+      htmlFormat,
     );
+    write(editor, () => blue);
 
     expect(editor.getBlock("p")?.props).toMatchObject({ textColor: "blue" });
   });
