@@ -640,7 +640,9 @@ describe("concurrent writes with columns", () => {
     const format = markdownFormat;
     const text = getDocumentText(editor, format);
     const base = Y.encodeStateAsUpdate(ydoc);
-    // Another writer adds a block after Alpha, in column A.
+    // Another writer adds a block between Alpha and Bravo. Markdown does not
+    // show the columns, thus the block goes into column B, before Bravo (a
+    // new block goes into the nesting of the next block).
     valid(
       updateYDocFromText(bindEditor(fragment, { schema }), fragment, {
         format,
