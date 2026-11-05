@@ -1,5 +1,7 @@
 import type { PartialBlock } from "@blocknote/core";
 
+import type { Codec } from "./codecs.js";
+
 /** A random number generator with a seed (mulberry32), so that a failed case can be reproduced. */
 export function createRandom(seed: number) {
   let state = seed >>> 0;
@@ -212,12 +214,16 @@ export function randomDocumentWithColumns(
 }
 
 /**
- * Applies one random edit to a text. The edit works on the paragraphs of the
- * text (the parts between blank lines), so that it is valid for each format.
+ * Applies one random edit to a text. The edit works on the parts of the text
+ * (the blocks at the top level, see `Codec`), so that it is an edit of a block
+ * in each format.
  */
-export function randomEdit(random: Random, text: string): string {
-  const paragraphs = text.split("\n\n");
-  const index = random.int(paragraphs.length);
+export function randomEdit(random: Random, text: string, codec: Codec): string {
+  const parts = codec.split(text);
+  if (parts.length === 0) {
+    return codec.paragraph(randomSentence(random));
+  }
+  const index = random.int(parts.length);
   const edit = random.pick([
     "insert",
     "remove",
@@ -227,45 +233,61 @@ export function randomEdit(random: Random, text: string): string {
     "swap",
     "duplicate",
   ] as const);
+  const pick = (count: number) => random.int(count);
 
   switch (edit) {
     case "insert":
-      paragraphs.splice(index, 0, randomSentence(random));
+      parts.splice(index, 0, codec.paragraph(randomSentence(random)));
       break;
     case "remove":
-      paragraphs.splice(index, 1);
+      parts.splice(index, 1);
       break;
-    case "addWords": {
-      const paragraph = paragraphs[index];
-      const spaces = [...paragraph.matchAll(/ /g)].map((match) => match.index);
-      const at = spaces.length > 0 ? random.pick(spaces) : paragraph.length;
-      paragraphs[index] =
-        paragraph.slice(0, at) + ` ${words(random, 2)}` + paragraph.slice(at);
+    case "addWords":
+      parts[index] = codec.editText(parts[index], pick, (text) => {
+        const spaces = [...text.matchAll(/ /g)].map((match) => match.index);
+        const at = spaces.length > 0 ? random.pick(spaces) : text.length;
+        return text.slice(0, at) + ` ${words(random, 2)}` + text.slice(at);
+      });
       break;
-    }
     case "addSentences":
-      paragraphs[index] +=
-        " " +
-        Array.from({ length: 1 + random.int(8) }, () =>
-          randomSentence(random),
-        ).join(" ");
+      parts[index] = codec.editText(
+        parts[index],
+        pick,
+        (text) =>
+          text +
+          " " +
+          Array.from({ length: 1 + random.int(8) }, () =>
+            randomSentence(random),
+          ).join(" "),
+      );
       break;
     case "replaceText":
-      paragraphs[index] = randomSentence(random);
+      parts[index] = codec.paragraph(randomSentence(random));
       break;
     case "swap":
-      if (index + 1 < paragraphs.length) {
-        [paragraphs[index], paragraphs[index + 1]] = [
-          paragraphs[index + 1],
-          paragraphs[index],
-        ];
+      if (index + 1 < parts.length) {
+        [parts[index], parts[index + 1]] = [parts[index + 1], parts[index]];
       }
       break;
     case "duplicate":
-      paragraphs.splice(index, 0, paragraphs[index]);
+      parts.splice(index, 0, parts[index]);
       break;
   }
-  return paragraphs.join("\n\n");
+  return codec.join(parts);
+}
+
+/** Applies 1 to 3 random edits to a text (see `randomEdit`). */
+export function randomEdits(
+  random: Random,
+  text: string,
+  edit: (random: Random, text: string) => string,
+): string {
+  const count = 1 + random.int(3);
+  let edited = text;
+  for (let i = 0; i < count; i++) {
+    edited = edit(random, edited);
+  }
+  return edited;
 }
 
 /**

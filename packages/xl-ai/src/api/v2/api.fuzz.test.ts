@@ -18,7 +18,7 @@ import {
 } from "./index.js";
 import { projectDocument, shownBlocks } from "./projection/projectDocument.js";
 import { canonicalText } from "./testUtil/canonical.js";
-import { createRandom } from "./testUtil/random.js";
+import { createRandom, randomEdits } from "./testUtil/random.js";
 import {
   randomRichDocument,
   randomTextEdit,
@@ -84,10 +84,7 @@ describe.each([
           [],
         );
 
-        let edited = text;
-        for (let i = 0; i <= random.int(3); i++) {
-          edited = randomTextEdit(random, edited);
-        }
+        const edited = randomEdits(random, text, randomTextEdit);
         const update = updateDocumentFromText(editor, { format, text: edited });
         if (update.error !== undefined) {
           // A random edit of HTML markup can give HTML that does not fit the

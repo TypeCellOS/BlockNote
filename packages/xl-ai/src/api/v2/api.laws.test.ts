@@ -15,6 +15,7 @@ import {
   diffBlocks,
 } from "./testUtil/fixtures.js";
 import { canonicalText } from "./testUtil/canonical.js";
+import { type Codec, formatCases } from "./testUtil/codecs.js";
 import { valid } from "./testUtil/valid.js";
 
 /**
@@ -34,46 +35,6 @@ import { valid } from "./testUtil/valid.js";
 const documents = [
   { name: "shared test document", create: createSharedDocumentEditor },
   { name: "rich document", create: () => createEditor() },
-];
-
-/** The parts of a text (blocks at the top level), for the edits of the tests. */
-type Codec = {
-  split: (text: string) => string[];
-  join: (parts: string[]) => string;
-  /** A new paragraph with the text. */
-  paragraph: (text: string) => string;
-  /** Returns true if the part is a paragraph with one line of plain text. */
-  isPlain: (part: string) => boolean;
-  /** The part with `suffix` at the end of its text. */
-  append: (part: string, suffix: string) => string;
-};
-
-/** Markdown and plain text: a blank line separates the parts. */
-const blankLineCodec: Codec = {
-  split: (text) => text.split("\n\n"),
-  join: (parts) => parts.join("\n\n"),
-  paragraph: (text) => text,
-  isPlain: (part) => /^[A-Za-z][^\n]*$/.test(part),
-  append: (part, suffix) => part + suffix,
-};
-
-/** HTML: the parts are the top-level elements. */
-const htmlCodec: Codec = {
-  split: (html) => {
-    const template = document.createElement("template");
-    template.innerHTML = html;
-    return [...template.content.children].map((element) => element.outerHTML);
-  },
-  join: (parts) => parts.join(""),
-  paragraph: (text) => `<p>${text}</p>`,
-  isPlain: (part) => /^<p>[A-Za-z][^<]*<\/p>$/.test(part),
-  append: (part, suffix) => part.replace(/<\/p>$/, `${suffix}</p>`),
-};
-
-const formats = [
-  { name: "markdown", format: markdownFormat, codec: blankLineCodec },
-  { name: "plain text", format: plainTextFormat, codec: blankLineCodec },
-  { name: "HTML", format: htmlFormat, codec: htmlCodec },
 ];
 
 type Edit = {
@@ -139,7 +100,7 @@ const edits: Edit[] = [
 ];
 
 describe.each(documents)("$name", ({ create }) => {
-  describe.each(formats)("$name", ({ format, codec }) => {
+  describe.each(formatCases)("$name", ({ format, codec }) => {
     it("GetPut: a write of the text that the client read changes nothing", () => {
       const editor = create();
       const text = getDocumentText(editor, format);
