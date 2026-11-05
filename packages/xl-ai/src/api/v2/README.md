@@ -179,6 +179,7 @@ Each module imports only modules that are before it in this list. Thus, there ar
 ## Tests and benchmarks
 
 - Each module has a unit test file next to it (`file.ts` and `file.test.ts`).
+- The tests that do not need a DOM run in the node environment (`// @vitest-environment node`). The other tests run in jsdom: the markdown and HTML conversions of BlockNote need a DOM, and the binding to a Y.Doc needs a mounted editor view.
 - The `api.*.test.ts` files examine the full pipeline:
   - `api.laws.test.ts`: the laws, on two documents, in the three formats.
   - `api.properties.test.ts`: the laws on 200 random documents with random edits, in the three formats, on 100 random documents with columns, and on 400 random line edits in markdown. Each case has a seed, thus you can run a failed case again.

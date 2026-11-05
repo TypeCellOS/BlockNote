@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { BlockNoteEditor, type PartialBlock } from "@blocknote/core";
 import { describe, expect, it } from "vite-plus/test";
 

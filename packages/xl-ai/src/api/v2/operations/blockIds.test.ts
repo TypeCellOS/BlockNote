@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { BlockNoteEditor } from "@blocknote/core";
 import { EditorState } from "prosemirror-state";
 import { describe, expect, it } from "vite-plus/test";

@@ -11,12 +11,17 @@ setGlobalDispatcher(
 //   path.join(__dirname, "../xl-ai-server/localhost.pem")
 // );
 // debugger;
+// A test file with `@vitest-environment node` has no window.
 beforeEach(() => {
-  (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS = {};
+  if (typeof window !== "undefined") {
+    (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS = {};
+  }
 });
 
 afterEach(() => {
-  delete (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS;
+  if (typeof window !== "undefined") {
+    delete (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS;
+  }
 });
 
 // Mock ClipboardEvent
