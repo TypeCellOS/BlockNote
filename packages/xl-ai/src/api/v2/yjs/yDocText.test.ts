@@ -429,6 +429,34 @@ describe("concurrent writes: conflicts", () => {
       { type: "removed-changed-block", id: "last" },
     ]);
   });
+
+  it("does not change the Y.Doc, with onConflict reject, if there is a conflict", () => {
+    const { editor, ydoc, read, change } = setup();
+    const client = read();
+    change((user) => user.updateBlock("last", { content: "Last section" }));
+    const before = Y.encodeStateAsUpdate(ydoc);
+
+    const result = updateYDocFromText(
+      editor,
+      ydoc.getXmlFragment("prosemirror"),
+      {
+        format: markdownFormat,
+        text: replaceOnce(
+          replaceOnce(client.text, "Last paragraph", "Last part"),
+          "Colored centered paragraph",
+          "Colored text",
+        ),
+        base: client.base,
+        onConflict: "reject",
+      },
+    );
+
+    expect(result).toEqual({
+      error: "conflict",
+      conflicts: [{ type: "conflicting-change", id: "last" }],
+    });
+    expect(Y.encodeStateAsUpdate(ydoc)).toEqual(before);
+  });
 });
 
 describe("comments", () => {

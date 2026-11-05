@@ -47,27 +47,59 @@ export type ValidTextUpdate = {
   warnings: TextUpdateWarning[];
 };
 
+/** A write with `onConflict: "reject"` that has conflicts: nothing applies. */
+export type ConflictError = { error: "conflict"; conflicts: RebaseWarning[] };
+
 /**
- * The result of a write: the operations and the warnings, or an error. The
- * error `"invalid-document"` tells that the text or the JSON gives blocks
- * that do not fit the schema of the editor (for example an unknown block
- * type, or a table cell that spans more rows than the table has). Then the
- * document does not change.
+ * The result of a write: the operations and the warnings, or an error. Then
+ * the document does not change.
+ *
+ * - `"invalid-document"`: the text or the JSON gives blocks that do not fit
+ *   the schema of the editor (for example an unknown block type, or a table
+ *   cell that spans more rows than the table has).
+ * - `"conflict"`: see {@link WriteFromVersion}.
  */
-export type TextUpdate = ValidTextUpdate | { error: "invalid-document" };
+export type TextUpdate =
+  | ValidTextUpdate
+  | { error: "invalid-document" }
+  | ConflictError;
+
+/**
+ * The version that the client read, for a write from that version (`base`),
+ * and what a conflict with a change of another writer does (`onConflict`).
+ * `onConflict` needs `base`: a write without `base` has no conflicts.
+ */
+export type WriteFromVersion<Base> =
+  | {
+      /**
+       * The version that the client read, if it is older than the current
+       * document. Get it from your version history. The result then keeps
+       * the changes that other writers made after that version (see
+       * `merge/tree.ts`). Without `base`, the write applies to the current
+       * document.
+       */
+      base?: Base;
+      onConflict?: undefined;
+    }
+  | {
+      base: Base;
+      /**
+       * What a conflict (a {@link RebaseWarning}) does:
+       *
+       * - `"keep-current"` (the default): the change of the other writer
+       *   stays there, and the result has the warning. The other changes of
+       *   the client apply.
+       * - `"reject"`: nothing applies, and the result is the error
+       *   `"conflict"`, with the conflicts.
+       */
+      onConflict?: "keep-current" | "reject";
+    };
 
 export type TextUpdateOptions = {
   format: TextFormat;
   /** A text from {@link getDocumentText}, possibly with changes. */
   text: string;
-  /**
-   * The document at the version that the client read, if it is older than
-   * the document of the editor. Get it from your version history. The result
-   * then keeps the changes that other writers made after that version (see
-   * `merge/tree.ts`). Without `base`, the text applies to the current document.
-   */
-  base?: readonly LensBlock[];
-};
+} & WriteFromVersion<readonly LensBlock[]>;
 
 /**
  * Computes the operations that change the document of the editor to agree with
@@ -112,7 +144,11 @@ function computeBlocksUpdate(
   if (plan.error !== undefined) {
     return plan;
   }
-  return updateToTarget(schemaRulesOf(editor), plan, { base, current });
+  return updateToTarget(schemaRulesOf(editor), plan, {
+    base,
+    current,
+    onConflict: options.onConflict,
+  });
 }
 
 export type JSONUpdateOptions = {
@@ -128,9 +164,7 @@ export type JSONUpdateOptions = {
    * another writer.
    */
   document: readonly PartialBlock<any, any, any>[];
-  /** The document at the version that the client read (see {@link TextUpdateOptions}). */
-  base?: readonly LensBlock[];
-};
+} & WriteFromVersion<readonly LensBlock[]>;
 
 /**
  * Computes the operations that change the document of the editor to the
@@ -182,7 +216,7 @@ function jsonUpdate(
       ),
       warnings: [],
     },
-    { base, current },
+    { base, current, onConflict: options.onConflict },
   );
 }
 
@@ -247,6 +281,9 @@ function withUniqueIds(
  * the target merges three-way with `current` (see `mergeTree`), and the
  * operations change `current` to the result.
  *
+ * With `onConflict: "reject"`, a conflict of the merge gives the error
+ * `"conflict"`, and no operations.
+ *
  * The layout blocks of the result change to fit their child rules (see
  * `fitLayout`): without `base`, in the target; with `base`, in the result
  * on the current document, with more operations. The client did not change
@@ -261,8 +298,9 @@ function updateToTarget(
     /** The document at the version that the client read, if it is older than `current`. */
     base: readonly LensBlock[] | undefined;
     current: readonly LensBlock[];
+    onConflict: "keep-current" | "reject" | undefined;
   },
-): ValidTextUpdate {
+): ValidTextUpdate | ConflictError {
   const { base, current } = documents;
   if (plan.target === (base ?? current)) {
     return { operations: [], warnings: plan.warnings };
@@ -276,6 +314,9 @@ function updateToTarget(
           theirs: current,
           contentKindOf: rules.contentKindOf,
         });
+  if (documents.onConflict === "reject" && merged.warnings.length > 0) {
+    return { error: "conflict", conflicts: merged.warnings };
+  }
   const result = fitTables(
     fitLayout(merged.blocks, rules.layoutRuleOf, rules.canContain),
   );

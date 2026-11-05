@@ -9,6 +9,7 @@
 export {
   computeJSONUpdate,
   computeTextUpdate,
+  type ConflictError,
   getDocumentText,
   type JSONUpdateOptions,
   type TextUpdate,
@@ -17,6 +18,7 @@ export {
   type ValidTextUpdate,
   updateDocumentFromJSON,
   updateDocumentFromText,
+  type WriteFromVersion,
 } from "./api.js";
 export { htmlFormat } from "./formats/html.js";
 export { markdownFormat } from "./formats/markdown.js";

@@ -92,6 +92,25 @@ The client's changes apply to the current document, by block ID. If both sides c
 
 `base` must be the full document (BlockNote JSON) of that version. A version history keeps full documents anyway, because only a full document shows props and nesting.
 
+### Reject Conflicts
+
+Some clients must not lose a change, for example a tool that syncs a file that a person edits. For them, set `onConflict: "reject"`. Then a write with a conflict changes nothing, and the result is an error with the conflicts. The client can show them, or read the document again:
+
+```typescript
+const result = updateDocumentFromText(editor, {
+  format: markdownFormat,
+  text: changedText,
+  base,
+  onConflict: "reject",
+});
+if (result.error === "conflict") {
+  // result.conflicts: the warnings `conflicting-change`, `removed-changed-block`
+  // and `change-to-removed-block`, with the block IDs.
+}
+```
+
+The default is `onConflict: "keep-current"`: the other changes of the client apply, and the result has the warnings. `onConflict` needs `base`, because a write without `base` has no conflicts. The JSON and Y.Doc writes have the same option.
+
 ## BlockNote JSON
 
 `updateDocumentFromJSON` applies a full document as BlockNote JSON in the same way. The JSON contains the block IDs, thus the blocks pair by ID. Only the changed blocks and fields change, and with `base`, the changes of other users stay. A field that the JSON of a block does not have gets its default value, thus send each block with all its fields:

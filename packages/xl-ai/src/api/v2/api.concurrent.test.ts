@@ -13,6 +13,7 @@ import {
   htmlFormat,
   markdownFormat,
   plainTextFormat,
+  type TextUpdateOptions,
   updateDocumentFromText,
 } from "./index.js";
 import { flattenBlocks } from "./blocks/flatten.js";
@@ -638,6 +639,118 @@ describe("a write from an older version with a conflict", () => {
 
     expect(update.warnings).toEqual([{ type: "conflicting-change", id: "c" }]);
     expect(documentShape(editor.document)).toEqual(["a", ["c"], "b"]);
+  });
+});
+
+describe("a write from an older version with onConflict", () => {
+  function writeWith(
+    editor: BlockNoteEditor<any, any, any>,
+    client: ReturnType<typeof read>,
+    text: string,
+    onConflict: "keep-current" | "reject",
+  ) {
+    return updateDocumentFromText(editor, {
+      format,
+      text,
+      base: client.base,
+      onConflict,
+    });
+  }
+
+  it("rejects a write with a conflict, and does not change the document", () => {
+    const editor = createEditor(fruit);
+    const client = read(editor);
+    editor.updateBlock("end", { content: "The finish" });
+    const before = editor.document;
+
+    const update = writeWith(
+      editor,
+      client,
+      replaceOnce(replaceOnce(client.text, "End", "Stop"), "Fruit", "Fruits"),
+      "reject",
+    );
+
+    expect(update).toEqual({
+      error: "conflict",
+      conflicts: [{ type: "conflicting-change", id: "end" }],
+    });
+    expect(editor.document).toEqual(before);
+  });
+
+  it("rejects a write that removes a block that another writer changed", () => {
+    const editor = createEditor(fruit);
+    const client = read(editor);
+    editor.updateBlock("end", { content: "The end" });
+
+    const update = writeWith(
+      editor,
+      client,
+      replaceOnce(client.text, "End", ""),
+      "reject",
+    );
+
+    expect(update).toEqual({
+      error: "conflict",
+      conflicts: [{ type: "removed-changed-block", id: "end" }],
+    });
+  });
+
+  it("applies a write without a conflict, also with reject", () => {
+    const editor = createEditor(fruit);
+    const client = read(editor);
+    editor.updateBlock("end", { content: "The finish" });
+
+    const update = valid(
+      writeWith(
+        editor,
+        client,
+        replaceOnce(client.text, "Fruit", "Fruits"),
+        "reject",
+      ),
+    );
+
+    expect(update.warnings).toEqual([]);
+    expect(editor.getBlock("fruit")?.content).toMatchObject([
+      { text: "Fruits" },
+    ]);
+    expect(editor.getBlock("end")?.content).toMatchObject([
+      { text: "The finish" },
+    ]);
+  });
+
+  it("keeps the current document in a conflict with keep-current, the default", () => {
+    const run = (onConflict: "keep-current" | undefined) => {
+      const editor = createEditor(fruit);
+      const client = read(editor);
+      editor.updateBlock("end", { content: "The finish" });
+      const text = replaceOnce(
+        replaceOnce(client.text, "End", "Stop"),
+        "Fruit",
+        "Fruits",
+      );
+      const update = valid(
+        onConflict === undefined
+          ? updateDocumentFromText(editor, { format, text, base: client.base })
+          : writeWith(editor, client, text, onConflict),
+      );
+      return { warnings: update.warnings, document: blockFieldsById(editor) };
+    };
+
+    const keepCurrent = run("keep-current");
+    expect(keepCurrent.warnings).toEqual([
+      { type: "conflicting-change", id: "end" },
+    ]);
+    expect(run(undefined)).toEqual(keepCurrent);
+  });
+
+  it("needs base for onConflict (a type error without base)", () => {
+    // @ts-expect-error: a write without base has no conflicts.
+    const options: TextUpdateOptions = {
+      format,
+      text: "",
+      onConflict: "reject",
+    };
+    expect(options.onConflict).toBe("reject");
   });
 });
 

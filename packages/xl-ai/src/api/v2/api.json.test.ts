@@ -95,6 +95,25 @@ describe("JSON", () => {
     ]);
   });
 
+  it("rejects a write with a conflict, with onConflict reject", () => {
+    const editor = createEditor(initial);
+    const base = copy(editor.document);
+    const document = copy(base);
+    document[0].props.textColor = "red";
+    document[2].props.textColor = "green";
+    // Another writer changes the same prop of block c.
+    editor.updateBlock("c", { props: { textColor: "blue" } });
+    const before = editor.document;
+
+    expect(
+      updateDocumentFromJSON(editor, { document, base, onConflict: "reject" }),
+    ).toEqual({
+      error: "conflict",
+      conflicts: [{ type: "conflicting-change", id: "c" }],
+    });
+    expect(editor.document).toEqual(before);
+  });
+
   it("keeps a comment on text that the client did not change", () => {
     const editor = createCommentEditor([
       { id: "p", type: "paragraph", content: "Hello world" },

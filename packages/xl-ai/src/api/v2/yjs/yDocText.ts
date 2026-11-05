@@ -7,11 +7,13 @@ import {
 import * as Y from "yjs";
 
 import {
+  type ConflictError,
   type TextUpdate,
-  type TextUpdateOptions,
   type ValidTextUpdate,
   updateDocumentFromText,
+  type WriteFromVersion,
 } from "../api.js";
+import type { TextFormat } from "../formats/types.js";
 
 /**
  * The result of a write to a Y.Doc. On an error (also an exception), the
@@ -23,7 +25,8 @@ export type YDocTextUpdate =
       /** The Yjs update of the write. Send it to the other clients, if no provider does that. */
       update: Uint8Array;
     })
-  | { error: "invalid-document" };
+  | { error: "invalid-document" }
+  | ConflictError;
 
 /**
  * Writes text back to a Y.Doc, through an editor that is bound to the
@@ -37,7 +40,8 @@ export type YDocTextUpdate =
  * example comments). When an editor binds to a Y.Doc, y-prosemirror removes
  * the content that the schema of the editor cannot read.
  *
- * The text can come from an older version of the document (`base`). The
+ * The text can come from an older version of the document (`base`, the Yjs
+ * state `Y.encodeStateAsUpdate` at the version that the client read). The
  * result keeps the changes that other writers made after that version: the
  * target of the text merges three-way with the current document (see
  * `merge/tree.ts`), and the operations are for the current document.
@@ -45,10 +49,11 @@ export type YDocTextUpdate =
 export function updateYDocFromText(
   editor: BlockNoteEditor<any, any, any>,
   fragment: Y.XmlFragment,
-  options: Omit<TextUpdateOptions, "base"> & {
-    /** The Yjs state (`Y.encodeStateAsUpdate`) at the version that the client read. Without `base`, the text applies to the current document. */
-    base?: Uint8Array;
-  },
+  options: {
+    format: TextFormat;
+    /** A text from `getDocumentText`, possibly with changes. */
+    text: string;
+  } & WriteFromVersion<Uint8Array>,
 ): YDocTextUpdate {
   const fork = editor.getExtension(ForkYDocExtension);
   const ydoc = fragment.doc;
@@ -64,7 +69,7 @@ export function updateYDocFromText(
       "The editor shows a fork of the Y.Doc (for example a version preview). End the fork first.",
     );
   }
-  const { base, ...textOptions } = options;
+  const { base, onConflict, ...textOptions } = options;
   const before = Y.encodeStateVector(ydoc);
   if (base !== undefined) {
     // The client can read from a replica with an update that this Y.Doc does
@@ -89,10 +94,17 @@ export function updateYDocFromText(
   // middle does not change the Y.Doc.
   fork.fork();
   try {
-    update = updateDocumentFromText(editor, {
-      ...textOptions,
-      base: unchanged ? undefined : yXmlFragmentToBlocks(editor, baseFragment),
-    });
+    // Without changes of other writers, there is no conflict.
+    update = updateDocumentFromText(
+      editor,
+      unchanged
+        ? textOptions
+        : {
+            ...textOptions,
+            base: yXmlFragmentToBlocks(editor, baseFragment),
+            onConflict,
+          },
+    );
   } finally {
     fork.merge({
       keepChanges: update !== undefined && update.error === undefined,
