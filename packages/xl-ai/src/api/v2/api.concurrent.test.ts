@@ -396,9 +396,15 @@ describe("a write from an older version, with blocks that another writer moved",
 
     write(editor, client, () => "Ptext\n\nQtext\n\nNew\n\nXtext\n");
 
-    expect(getDocumentText(editor, format)).toContain("New");
-    expect(editor.getBlock("x")).toBeDefined();
-    expect(editor.getBlock("p")).toBeDefined();
+    // The text moves X after New. Q stays in X, where the other writer put it.
+    const [, inserted] = editor.document;
+    expect(inserted.content).toMatchObject([{ text: "New" }]);
+    expect(documentShape(editor.document)).toEqual([
+      "p",
+      inserted.id,
+      "x",
+      ["q"],
+    ]);
   });
 });
 
@@ -795,9 +801,12 @@ describe("a write from an older version, with columns", () => {
 
     write(editor, client, (text) => replaceOnce(text, "Alpha\n\n", ""));
 
-    expect(editor.getBlock("g")).toBeDefined();
-    expect(editor.getBlock("b")).toBeDefined();
-    expect(editor.getBlock("a")).toBeUndefined();
+    // Column c1 is empty, thus it goes. Two columns stay.
+    expect(documentShape(editor.document)).toEqual([
+      "list",
+      ["c2", ["b"], "c3", ["g"]],
+      "end",
+    ]);
   });
 
   it("removes a column that the client empties, if no other writer changed it", () => {

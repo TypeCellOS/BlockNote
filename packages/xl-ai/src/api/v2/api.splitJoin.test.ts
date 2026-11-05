@@ -292,10 +292,10 @@ describe("a join by the client, from an older version", () => {
 
     const update = write(editor, join(client.text), client.base);
 
-    expect(update.warnings).toContainEqual({
-      type: "removed-changed-block",
-      id: "b",
-    });
+    expect(update.warnings).toEqual([
+      { type: "conflicting-change", id: "b" },
+      { type: "removed-changed-block", id: "b" },
+    ]);
     expect(getDocumentText(editor, format)).toBe(
       "First block.\n\nSecond block.\n",
     );

@@ -10,6 +10,7 @@ import {
   updateDocumentFromText,
 } from "../index.js";
 import { columnSchema } from "../testUtil/fixtures.js";
+import { valid } from "../testUtil/valid.js";
 
 /**
  * Hard cases of the nesting rules of the planner (see `keptParent` and
@@ -27,10 +28,12 @@ describe("hidden blocks next to blocks that the text moves", () => {
     text: (read: string) => string,
   ): string {
     const editor = BlockNoteEditor.create({ schema, initialContent });
-    updateDocumentFromText(editor, {
-      format,
-      text: text(getDocumentText(editor, format)),
-    });
+    valid(
+      updateDocumentFromText(editor, {
+        format,
+        text: text(getDocumentText(editor, format)),
+      }),
+    );
     const shape = (blocks: readonly LensBlock[]): string =>
       blocks
         .map((block) =>

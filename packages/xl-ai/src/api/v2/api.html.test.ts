@@ -127,10 +127,12 @@ describe("HTML", () => {
       ],
     });
 
-    updateDocumentFromText(editor, {
-      format: htmlFormat,
-      text: '<div class="bn-block-column-list"><div class="bn-block-column"><p>Alpha</p></div><div class="bn-block-column"><p>Beta</p></div></div>',
-    });
+    valid(
+      updateDocumentFromText(editor, {
+        format: htmlFormat,
+        text: '<div class="bn-block-column-list"><div class="bn-block-column"><p>Alpha</p></div><div class="bn-block-column"><p>Beta</p></div></div>',
+      }),
+    );
 
     expect(editor.document).toHaveLength(1);
     expect(

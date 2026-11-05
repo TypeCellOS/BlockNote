@@ -130,6 +130,7 @@ describe("mergeTableContent", () => {
     );
     expect(merged.headerRows).toBe(1);
     expect(merged.rows.map((row) => row.cells.length)).toEqual([3, 3]);
-    expect(conflicts).toBeGreaterThan(0);
+    // One conflict: the change of theirs and the insert of ours touch.
+    expect(conflicts).toBe(1);
   });
 });

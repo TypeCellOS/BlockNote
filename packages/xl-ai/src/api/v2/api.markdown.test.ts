@@ -12,7 +12,8 @@ import {
   markdownFormat,
   updateDocumentFromText,
 } from "./index.js";
-import { isTableContent } from "./blocks/types.js";
+import { inlineContentToText } from "./blocks/text.js";
+import { isTableContent, type LensBlock } from "./blocks/types.js";
 import {
   addComment,
   commentedText,
@@ -29,6 +30,22 @@ import {
 import { canonicalText } from "./testUtil/canonical.js";
 import { valid } from "./testUtil/valid.js";
 import { mention } from "./testUtil/richRandom.js";
+
+/** The text of each cell of table block `id`, by row. */
+function cellTexts(
+  editor: BlockNoteEditor<any, any, any>,
+  id: string,
+): string[][] {
+  const content = (editor.getBlock(id) as LensBlock | undefined)?.content;
+  if (!isTableContent(content)) {
+    throw new Error(`Block ${id} is not a table`);
+  }
+  return content.rows.map((row) =>
+    row.cells.map((cell) =>
+      inlineContentToText(Array.isArray(cell) ? cell : cell.content),
+    ),
+  );
+}
 
 describe("markdown", () => {
   it("a changed paragraph keeps its ID, colors and alignment", () => {
@@ -352,9 +369,10 @@ describe("markdown", () => {
       replaceOnce(md, "Other", "Changed"),
     );
 
-    expect(JSON.stringify(editor.getBlock("table")?.content)).toContain(
-      "Changed",
-    );
+    expect(cellTexts(editor, "table")).toEqual([
+      ["Commented cell", "Changed"],
+      ["c", "d"],
+    ]);
     expect(commentedText(editor.prosemirrorState.doc, comment)).toBe(
       "Commented",
     );
@@ -379,11 +397,18 @@ describe("markdown", () => {
         },
       },
     ]);
-    writeText(editor, markdownFormat, (md) => replaceOnce(md, "| x ", "| y "));
-
-    expect(JSON.stringify(editor.getBlock("table")?.content)).toContain(
-      '"text":"y"',
+    const update = writeText(editor, markdownFormat, (md) =>
+      replaceOnce(md, "| x ", "| y "),
     );
+
+    // Markdown shows the merged cell as the cell and an empty cell.
+    expect(update.warnings).toEqual([
+      { type: "merged-cells-removed", id: "table" },
+    ]);
+    expect(cellTexts(editor, "table")).toEqual([
+      ["merged", "", "y"],
+      ["a", "b", "c"],
+    ]);
   });
 
   it("moves a heading next to an image after a nested list, and keeps the heading", () => {
@@ -610,19 +635,21 @@ describe("markdown", () => {
       "Xray\n\nAlpha\n\nBeta\n",
     );
 
-    updateDocumentFromText(editor, {
-      format: markdownFormat,
-      text: "Alpha\n\nXray\n\nBeta\n",
-    });
+    valid(
+      updateDocumentFromText(editor, {
+        format: markdownFormat,
+        text: "Alpha\n\nXray\n\nBeta\n",
+      }),
+    );
 
     expect(getDocumentText(editor, markdownFormat)).toBe(
       "Alpha\n\nXray\n\nBeta\n",
     );
-    const list = editor.getBlock("list");
-    expect(list?.children.map((column) => column.id)).toEqual(["c1", "c2"]);
-    expect(editor.getBlock("c2")?.children.map((block) => block.id)).toContain(
-      "b",
-    );
+    // Xray goes before Beta, into its column.
+    expect(documentShape(editor.document)).toEqual([
+      "list",
+      ["c1", ["a"], "c2", ["x", "b"]],
+    ]);
   });
 
   describe("moves of blocks in columns", () => {
@@ -660,10 +687,12 @@ describe("markdown", () => {
     it("moves a block of a column to the start, out of the column list", () => {
       const editor = createEditorWithTwoBlocksInEachColumn();
 
-      updateDocumentFromText(editor, {
-        format: markdownFormat,
-        text: "Bravo two\n\nTop\n\nAlpha one\n\nAlpha two\n\nBravo one\n\nEnd\n",
-      });
+      valid(
+        updateDocumentFromText(editor, {
+          format: markdownFormat,
+          text: "Bravo two\n\nTop\n\nAlpha one\n\nAlpha two\n\nBravo one\n\nEnd\n",
+        }),
+      );
 
       expect(documentShape(editor.document)).toEqual([
         "b2",
@@ -677,17 +706,24 @@ describe("markdown", () => {
     it("keeps the other blocks of the columns if the text swaps two blocks of two columns", () => {
       const editor = createEditorWithTwoBlocksInEachColumn();
 
-      updateDocumentFromText(editor, {
-        format: markdownFormat,
-        text: "Top\n\nAlpha one\n\nBravo one\n\nAlpha two\n\nBravo two\n\nEnd\n",
-      });
+      valid(
+        updateDocumentFromText(editor, {
+          format: markdownFormat,
+          text: "Top\n\nAlpha one\n\nBravo one\n\nAlpha two\n\nBravo two\n\nEnd\n",
+        }),
+      );
 
       expect(getDocumentText(editor, markdownFormat)).toBe(
         "Top\n\nAlpha one\n\nBravo one\n\nAlpha two\n\nBravo two\n\nEnd\n",
       );
-      // The blocks that the text did not move stay in their columns.
-      expect(editor.getBlock("cA")?.children.map((b) => b.id)).toContain("a1");
-      expect(editor.getBlock("cB")?.children.map((b) => b.id)).toContain("b2");
+      // The blocks that the text did not move stay in their columns. The
+      // moved block goes into the column of the next block.
+      expect(documentShape(editor.document)).toEqual([
+        "top",
+        "list",
+        ["cA", ["a1"], "cB", ["b1", "a2", "b2"]],
+        "end",
+      ]);
     });
   });
 });
@@ -915,9 +951,12 @@ describe("a table with merged cells", () => {
         text: replaceOnce(text, "| C", "| Changed"),
       }),
     );
-    expect(getDocumentText(editor, markdownFormat)).toContain("Changed");
     expect(update.warnings).toEqual([
       { type: "merged-cells-removed", id: "t" },
+    ]);
+    expect(cellTexts(editor, "t")).toEqual([
+      ["A", "B"],
+      ["", "Changed"],
     ]);
   });
 });

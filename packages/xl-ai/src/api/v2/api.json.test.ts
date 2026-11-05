@@ -107,37 +107,58 @@ describe("JSON", () => {
     expect(editor.document).toEqual(before);
   });
 
-  it("gives an error for a document that does not fit the schema, and does not change the document", () => {
-    const editor = createEditor(initial);
-    const before = copy(editor.document);
-
-    for (const document of [
-      [{ type: "unknown" }],
-      [{ type: "paragraph", content: [{ type: "unknown" }] }],
-      [{ type: "image", content: "Text in a block without content" }],
-      [
+  it.each([
+    { name: "an unknown block type", document: [{ type: "unknown" }] },
+    {
+      name: "an unknown inline content type",
+      document: [{ type: "paragraph", content: [{ type: "unknown" }] }],
+    },
+    {
+      name: "content in a block without content",
+      document: [{ type: "image", content: "Text in a block without content" }],
+    },
+    {
+      name: "an unknown style",
+      document: [
         {
           type: "paragraph",
           content: [{ type: "text", text: "x", styles: { unknown: true } }],
         },
       ],
-      // Prop values that do not fit the prop schema. A heading level "1 x"
-      // would give the element name "h1 x", and each later read would throw.
-      [{ type: "heading", props: { level: "1 x" }, content: "Hello" }],
-      [{ type: "checkListItem", props: { checked: "yes" }, content: "Task" }],
-      [{ type: "paragraph", props: { textAlignment: "diagonal" } }],
-    ]) {
+    },
+    // A heading level "1 x" would give the element name "h1 x", and each
+    // later read would throw.
+    {
+      name: "a heading level that does not fit the prop schema",
+      document: [
+        { type: "heading", props: { level: "1 x" }, content: "Hello" },
+      ],
+    },
+    {
+      name: "a checkbox value that does not fit the prop schema",
+      document: [
+        { type: "checkListItem", props: { checked: "yes" }, content: "Task" },
+      ],
+    },
+    {
+      name: "an alignment that does not fit the prop schema",
+      document: [{ type: "paragraph", props: { textAlignment: "diagonal" } }],
+    },
+  ])(
+    "gives an error for $name, and does not change the document",
+    ({ document }) => {
+      const editor = createEditor(initial);
+      const before = copy(editor.document);
+
       expect(
         updateDocumentFromJSON(editor, {
           document: document as JSONUpdateOptions["document"],
         }),
-      ).toEqual({
-        error: "invalid-document",
-      });
-    }
-    expect(editor.document).toEqual(before);
-    expect(() => getDocumentText(editor, htmlFormat)).not.toThrow();
-  });
+      ).toEqual({ error: "invalid-document" });
+      expect(editor.document).toEqual(before);
+      expect(() => getDocumentText(editor, htmlFormat)).not.toThrow();
+    },
+  );
 
   it("gives a new ID to a later block with the ID of an earlier block", () => {
     const editor = createEditor(initial);

@@ -743,9 +743,18 @@ describe.each(merges)("concurrent writes with columns (merge %s)", (merge) => {
       }),
     );
 
-    const result = readText(fragment, format, { schema });
-    expect(result).toContain("Added by other");
-    expect(result).not.toContain("Bravo");
+    // With `merge: "yjs"`, column B stays (`keepLayout`). The write empties
+    // it, thus it gets the fill of the schema: an empty paragraph, which
+    // markdown shows as `<br>`. The fill and the block of the other writer
+    // are two inserts at one position, and the client IDs select their order.
+    expect(readText(fragment, format, { schema })).toBeOneOf(
+      merge === "lens"
+        ? ["Alpha\n\nAdded by other\n\nEnd\n"]
+        : [
+            "Alpha\n\n<br>\n\nAdded by other\n\nEnd\n",
+            "Alpha\n\nAdded by other\n\n<br>\n\nEnd\n",
+          ],
+    );
   });
 });
 
