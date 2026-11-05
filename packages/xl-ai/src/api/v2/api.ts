@@ -182,6 +182,13 @@ export type JSONUpdateOptions = {
    * another writer.
    */
   document: readonly PartialBlock<any, any, any>[];
+  /**
+   * Experimental, off by default (see
+   * `TextUpdateOptions.experimentalTextMoves`). With `base`, the merge
+   * finds the splits and joins of other writers. The JSON gives no splits
+   * and joins of the client: its blocks pair by ID.
+   */
+  experimentalTextMoves?: boolean;
 } & WriteFromVersion<readonly LensBlock[]>;
 
 /**
@@ -234,7 +241,12 @@ function jsonUpdate(
       ),
       warnings: [],
     },
-    { base, current, onConflict: options.onConflict },
+    {
+      base,
+      current,
+      onConflict: options.onConflict,
+      groups: options.experimentalTextMoves === true ? [] : undefined,
+    },
   );
 }
 

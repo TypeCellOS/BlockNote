@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vite-plus/test";
 
-import type { LensInlineContent } from "../blocks/types.js";
-import { type GroupBlock, mergeGroupContent } from "./group.js";
+import { BlockTree } from "../blocks/tree.js";
+import type { LensBlock, LensInlineContent } from "../blocks/types.js";
+import {
+  connectedGroups,
+  type GroupBlock,
+  mergeGroupContent,
+  movedTextPairs,
+} from "./group.js";
 
 function text(value: string, styles: Record<string, string | boolean> = {}) {
   return { type: "text" as const, text: value, styles };
@@ -134,5 +140,50 @@ describe("mergeGroupContent", () => {
       ["n", [text("Omega.")]],
       ["p", [text("Beta gamma delta.")]],
     ]);
+  });
+});
+
+function tree(...entries: [string, string][]): BlockTree {
+  return new BlockTree(
+    entries.map(([id, value]): LensBlock => ({
+      id,
+      type: "paragraph",
+      props: {},
+      content: [text(value)],
+      children: [],
+    })),
+  );
+}
+
+describe("movedTextPairs", () => {
+  it("finds a split and a join, and not a replaced block", () => {
+    const base = tree(
+      ["p", "Alpha beta gamma. Delta epsilon zeta."],
+      ["a", "Eta theta."],
+      ["b", "Iota kappa lambda."],
+      ["r", "Mu nu xi omicron."],
+    );
+    const side = tree(
+      ["p", "Alpha beta gamma."],
+      ["n", "Delta epsilon zeta."],
+      ["a", "Eta theta. Iota kappa lambda."],
+      ["r2", "Pi rho sigma tau."],
+    );
+
+    expect(movedTextPairs(base, side)).toEqual([
+      ["p", "n"],
+      ["b", "a"],
+    ]);
+  });
+});
+
+describe("connectedGroups", () => {
+  it("joins the lists with an ID in common", () => {
+    // The order of the groups is not a part of the result.
+    expect(
+      connectedGroups([["a", "b"], ["c"], ["b", "d"]])
+        .map((group) => group.sort())
+        .sort((x, y) => x[0].localeCompare(y[0])),
+    ).toEqual([["a", "b", "d"], ["c"]]);
   });
 });

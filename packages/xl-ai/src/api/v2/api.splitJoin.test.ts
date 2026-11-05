@@ -10,6 +10,7 @@ import * as Y from "yjs";
 import {
   getDocumentText,
   markdownFormat,
+  updateDocumentFromJSON,
   updateDocumentFromText,
 } from "./index.js";
 import { canonicalText } from "./testUtil/canonical.js";
@@ -320,6 +321,96 @@ describe("a join by the client, from an older version", () => {
   });
 });
 
+describe("a split or a join of another writer, and a write from an older version", () => {
+  const blocks: PartialBlock[] = [
+    { id: "a", type: "paragraph", content: "First block." },
+    { id: "b", type: "paragraph", content: "Second block." },
+  ];
+  function joinByOtherWriter(editor: BlockNoteEditor<any, any, any>) {
+    editor.updateBlock("a", { content: "First block. Second block." });
+    editor.removeBlocks(["b"]);
+  }
+
+  it("gives the change of the client to the second part of a block that another writer split", () => {
+    const { editor, client } = readThenChange(
+      [{ id: "a", type: "paragraph", content: "First half. Second half." }],
+      (editor) => {
+        editor.updateBlock("a", { content: "First half." });
+        editor.insertBlocks(
+          [{ id: "a2", type: "paragraph", content: "Second half." }],
+          "a",
+          "after",
+        );
+      },
+    );
+
+    const update = write(
+      editor,
+      replaceOnce(client.text, "Second half.", "Second half, changed."),
+      client.base,
+    );
+
+    expect(update.warnings).toEqual([]);
+    expect(getDocumentText(editor, format)).toBe(
+      "First half.\n\nSecond half, changed.\n",
+    );
+    expect(editor.document.map((block) => block.id)).toEqual(["a", "a2"]);
+  });
+
+  it("gives the change of the client to the second block to the block that another writer joined", () => {
+    const { editor, client } = readThenChange(blocks, joinByOtherWriter);
+
+    const update = write(
+      editor,
+      replaceOnce(client.text, "Second block.", "Second block, edited."),
+      client.base,
+    );
+
+    expect(update.warnings).toEqual([]);
+    expect(getDocumentText(editor, format)).toBe(
+      "First block. Second block, edited.\n",
+    );
+  });
+
+  it("does not apply a change of the type of a block that another writer joined, and gives a warning", () => {
+    const { editor, client } = readThenChange(blocks, joinByOtherWriter);
+
+    const update = write(
+      editor,
+      replaceOnce(client.text, "Second block.", "## Second block."),
+      client.base,
+    );
+
+    expect(update.warnings).toEqual([
+      { type: "change-to-removed-block", id: "b" },
+    ]);
+    expect(getDocumentText(editor, format)).toBe(
+      "First block. Second block.\n",
+    );
+  });
+
+  it("gives the change of a JSON write to the block that another writer joined", () => {
+    const { editor, client } = readThenChange(blocks, joinByOtherWriter);
+
+    const update = valid(
+      updateDocumentFromJSON(editor, {
+        document: client.base.map((block) =>
+          block.id === "b"
+            ? { ...block, content: "Second block, edited." }
+            : block,
+        ),
+        base: client.base,
+        experimentalTextMoves: true,
+      }),
+    );
+
+    expect(update.warnings).toEqual([]);
+    expect(getDocumentText(editor, format)).toBe(
+      "First block. Second block, edited.\n",
+    );
+  });
+});
+
 describe("a split or a join of the client in a Y.Doc", () => {
   it("gives the changes of another writer to the moved text to the block that holds it", () => {
     const reader = BlockNoteEditor.create();
@@ -487,4 +578,8 @@ function splitJoinCases(splitByClient: boolean) {
 
 describe("a split or a join of the client, and a change of a different word, on random documents", () => {
   splitJoinCases(true);
+});
+
+describe("a split or a join of another writer, and a change of a different word, on random documents", () => {
+  splitJoinCases(false);
 });

@@ -1,4 +1,7 @@
+import { MIN_SHARE } from "../alignment/alignBlocks.js";
+import { textOverlaps, wordSize } from "../alignment/overlap.js";
 import { deepEqual } from "../blocks/json.js";
+import { blockToText } from "../blocks/text.js";
 import type { BlockTree } from "../blocks/tree.js";
 import {
   type BlockFields,
@@ -100,11 +103,15 @@ function unitsOf(
 }
 
 /**
- * The rebase of the groups of the client (see `mergeTree`): merges the
- * content of the blocks of each group as one text (see
- * {@link mergeGroupContent}). In each side, the blocks are in the order of
- * their text. The breaks align by their place in the text: thus, the changes
- * of other writers to the moved text go to the block that holds it, and the
+ * The rebase of the groups (see `mergeTree`): the groups of the client
+ * (from the plan), and the splits and joins of other writers (see
+ * {@link movedTextPairs}). Groups with a block in common are one group.
+ * Merges the content of the blocks of each group as one text (see
+ * {@link mergeGroupContent}). In each side, the blocks of `base` are in the
+ * order of `base` (a move of a block is not a change of its text), and each
+ * new block is after the block before it in the side. The breaks align by
+ * their place in the text: thus, the changes of one side to the moved text
+ * go to the block that holds it after the change of the other side, and the
  * moved text is not a removal from the old block.
  *
  * Returns the content of each block of a group, or `undefined` if the merge
@@ -125,12 +132,35 @@ export function mergeTextGroups(input: {
   const { base, ours, theirs } = input;
   const pieceOf = new Map<string, LensInlineContent[] | undefined>();
   const conflicts = new Set<string>();
-  for (const group of input.groups ?? []) {
-    const sides = [
-      { side: base, ids: group.base },
-      { side: ours, ids: group.ours },
-      { side: theirs, ids: group.base.filter((id) => theirs.has(id)) },
-    ];
+  const groups =
+    input.groups === undefined
+      ? []
+      : connectedGroups([
+          ...input.groups.map((group) => [...group.base, ...group.ours]),
+          ...movedTextPairs(base, theirs),
+        ]);
+  const orders = new Map<BlockTree, Map<string, number>>();
+  function byOrder(tree: BlockTree): (x: string, y: string) => number {
+    const order =
+      orders.get(tree) ?? new Map(tree.ids.map((id, index) => [id, index]));
+    orders.set(tree, order);
+    return (x, y) => (order.get(x) ?? 0) - (order.get(y) ?? 0);
+  }
+  function textOrder(side: BlockTree, ids: readonly string[]): string[] {
+    const inSide = ids.filter((id) => side.has(id)).sort(byOrder(side));
+    const result = inSide.filter((id) => base.has(id)).sort(byOrder(base));
+    inSide.forEach((id, k) => {
+      if (!base.has(id)) {
+        result.splice(k === 0 ? 0 : result.indexOf(inSide[k - 1]) + 1, 0, id);
+      }
+    });
+    return result;
+  }
+  for (const group of groups) {
+    const sides = [base, ours, theirs].map((side) => ({
+      side,
+      ids: textOrder(side, group),
+    }));
     const kinds = sides.flatMap(({ side, ids }) =>
       ids.map((id) => input.contentKindOf(side.block(id).type)),
     );
@@ -145,6 +175,7 @@ export function mergeTextGroups(input: {
         // writer changed: a conflict.
         changed:
           side === theirs &&
+          base.has(id) &&
           !ours.has(id) &&
           !sameFields(base.block(id), theirs.block(id)),
       })),
@@ -153,7 +184,7 @@ export function mergeTextGroups(input: {
       concurrent: true,
       onConflictIn: (id) => conflicts.add(id),
     });
-    for (const id of [...group.base, ...group.ours]) {
+    for (const id of group) {
       pieceOf.set(id, pieces.get(id));
     }
   }
@@ -162,4 +193,66 @@ export function mergeTextGroups(input: {
 
 function sameFields(a: BlockFields, b: BlockFields): boolean {
   return a.type === b.type && deepEqual(a.props, b.props);
+}
+
+/**
+ * Finds the splits and joins that `side` made after `base`: the pairs of
+ * blocks between which it moved text. Of the blocks with inline content
+ * that `side` changed, added or removed, two blocks with different IDs are a
+ * pair if their texts have at least half of the shorter text in common (see
+ * `textOverlaps`), and one of the two blocks is in `base` and in `side`.
+ * Examples are a block that `side` split (the block and the new part), and
+ * a block that `side` joined to the block before it. A block that `side`
+ * replaced with a new block is not a pair.
+ */
+export function movedTextPairs(
+  base: BlockTree,
+  side: BlockTree,
+): [string, string][] {
+  function changedIds(tree: BlockTree, other: BlockTree) {
+    return tree.ids.filter(
+      (id) =>
+        Array.isArray(tree.block(id).content) &&
+        (!other.has(id) ||
+          !deepEqual(tree.block(id).content, other.block(id).content)),
+    );
+  }
+  // The key of a text is the ID: thus, the texts of one block align first.
+  function textsOf(tree: BlockTree, ids: readonly string[]) {
+    return ids.map((id) => ({ text: blockToText(tree.block(id)), key: id }));
+  }
+  const before = changedIds(base, side);
+  const after = changedIds(side, base);
+  if (before.length === 0 || after.length === 0) {
+    return [];
+  }
+  const textsBefore = textsOf(base, before);
+  const textsAfter = textsOf(side, after);
+  return textOverlaps(textsBefore, textsAfter).flatMap(
+    ({ aIndex, bIndex, size }): [string, string][] => {
+      const [a, b] = [before[aIndex], after[bIndex]];
+      const shorter = Math.min(
+        wordSize(textsBefore[aIndex]),
+        wordSize(textsAfter[bIndex]),
+      );
+      return a !== b &&
+        size >= MIN_SHARE * shorter &&
+        (side.has(a) || base.has(b))
+        ? [[a, b]]
+        : [];
+    },
+  );
+}
+
+/** Joins the lists of IDs that have an ID in common, and returns the groups. */
+export function connectedGroups(lists: readonly string[][]): string[][] {
+  let groups: Set<string>[] = [];
+  for (const list of lists) {
+    const joined = new Set(list);
+    for (const group of groups.filter((g) => list.some((id) => g.has(id)))) {
+      group.forEach((id) => joined.add(id));
+    }
+    groups = [...groups.filter((g) => !list.some((id) => g.has(id))), joined];
+  }
+  return groups.map((group) => [...group]);
 }

@@ -20,7 +20,7 @@ import {
  * The minimum part of a text that two blocks must have in common to match by
  * their overlap.
  */
-const MIN_SHARE = 0.5;
+export const MIN_SHARE = 0.5;
 
 /**
  * Two blocks that are the same block: `a[aIndex]` and `b[bIndex]`. Unlike a

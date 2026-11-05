@@ -62,7 +62,11 @@ export function mergeTree(input: {
   ours: readonly LensBlock[];
   theirs: readonly LensBlock[];
   contentKindOf: (type: string) => ContentKind;
-  /** Experimental: the splits and joins of the client (see `TextGroup`). */
+  /**
+   * Experimental: the splits and joins of the client (see `TextGroup`). With
+   * groups (also none), the merge also finds the splits and joins of other
+   * writers (see `mergeTextGroups`).
+   */
   groups?: readonly TextGroup[];
 }): { blocks: LensBlock[]; warnings: RebaseWarning[] } {
   const base = new BlockTree(input.base);
@@ -345,11 +349,17 @@ export function mergeTree(input: {
     }
   }
 
-  /** Returns true if the client changed the fields, the parent or the place of the block. */
+  /**
+   * Returns true if the client changed the fields, the parent or the place
+   * of the block. For a block of a group, a change of its text moved with
+   * the text (see `mergeTextGroups`): only its type and props count.
+   */
   function changedByClient(id: string): boolean {
+    const changed = diffBlock(base.block(id), ours.block(id));
     return (
-      diffBlock(base.block(id), ours.block(id)) !== undefined ||
-      movedByClient(id)
+      (pieceOf.has(id)
+        ? changed?.type !== undefined || changed?.props !== undefined
+        : changed !== undefined) || movedByClient(id)
     );
   }
 
