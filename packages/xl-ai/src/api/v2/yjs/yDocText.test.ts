@@ -413,7 +413,7 @@ describe("concurrent writes: conflicts", () => {
     ]);
   });
 
-  it("removes a block that another writer changed, and gives a warning", () => {
+  it("keeps a block that the client removes and another writer changed, with a warning", () => {
     const { read, write, change, block } = setup();
     const client = read();
 
@@ -424,7 +424,7 @@ describe("concurrent writes: conflicts", () => {
       replaceOnce(text, "\n\nLast paragraph", ""),
     );
 
-    expect(block("last")).toBeUndefined();
+    expect(block("last")).toMatchObject({ props: { textColor: "green" } });
     expect(result.warnings).toEqual([
       { type: "removed-changed-block", id: "last" },
     ]);

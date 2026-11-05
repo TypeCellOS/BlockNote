@@ -88,7 +88,7 @@ updateDocumentFromText(editor, {
   height={270}
 />
 
-The client's changes apply to the current document, by block ID. If both sides changed the same part of a block (for example the same words, or the same prop), the change of the other user stays, and the client gets the warning `conflicting-change`. Thus, a write from an older version never reverts a change that it did not see. If the client removes a block that another user changed, the block is removed, with a warning. Without `base`, the text applies to the current document, thus a text from an older version changes the newer changes back.
+The client's changes apply to the current document, by block ID. If both sides changed the same part of a block (for example the same words, or the same prop), the change of the other user stays, and the client gets the warning `conflicting-change`. Thus, a write from an older version never reverts a change that it did not see. If the client removes a block that another user changed, the block stays, with the warning `removed-changed-block`. Without `base`, the text applies to the current document, thus a text from an older version changes the newer changes back.
 
 `base` must be the full document (BlockNote JSON) of that version. A version history keeps full documents anyway, because only a full document shows props and nesting.
 
@@ -156,7 +156,7 @@ A result can contain these warnings:
 | `unlinked-block-changed`    | The text changed a part of the text that does not come from one block. The change does not apply.                                                                           |
 | `block-shape-replaced`      | The format shows the block with content of a different shape (for example a table as text), and the text changed it. The block becomes a block of the text.                 |
 | `change-to-removed-block`   | The client changed or moved a block that another user removed. The change does not apply.                                                                                   |
-| `removed-changed-block`     | The client removed a block that another user changed. The block is removed.                                                                                                 |
+| `removed-changed-block`     | The client removed a block that another user changed (or a block in it). The blocks with a change of the other user stay.                                                  |
 | `conflicting-change`        | The client and another user changed the same part of a block (a part of its text, a style, a prop, its parent or its place). The change of the other user stays there.     |
 | `merged-cells-removed` | A table lost its merged cells. Markdown and plain text show merged cells as separate cells, thus a change of the table there removes them. |
 

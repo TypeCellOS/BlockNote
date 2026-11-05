@@ -45,7 +45,7 @@ export function describeWarning(warning: TextUpdateWarning): string {
     case "change-to-removed-block":
       return `${warning.type} ${shortId(warning.id)}: the text changed a block that the live editor removed. The change did not apply.`;
     case "removed-changed-block":
-      return `${warning.type} ${shortId(warning.id)}: the text removed a block that the live editor changed.`;
+      return `${warning.type} ${shortId(warning.id)}: the text removed a block that the live editor changed. The block stayed.`;
     case "conflicting-change":
       return `${warning.type} ${shortId(warning.id)}: the text and the live editor changed the same part of this block. The change of the live editor stayed.`;
     case "merged-cells-removed":

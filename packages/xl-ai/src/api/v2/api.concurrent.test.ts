@@ -642,6 +642,40 @@ describe("a write from an older version with a conflict", () => {
 });
 
 describe("a write from an older version that removes blocks", () => {
+  it("keeps a block that another writer changed, with a warning", () => {
+    const editor = createEditor(fruit);
+    const client = read(editor);
+    editor.updateBlock("end", { content: "The end" });
+
+    const update = write(editor, client, (text) =>
+      replaceOnce(text, "End", ""),
+    );
+
+    expect(update.warnings).toEqual([
+      { type: "removed-changed-block", id: "end" },
+    ]);
+    expect(editor.getBlock("end")?.content).toMatchObject([
+      { text: "The end" },
+    ]);
+  });
+
+  it("keeps a block and its child that another writer changed, with a warning, and removes the other child", () => {
+    const editor = createEditor(fruit);
+    const client = read(editor);
+    editor.updateBlock("pears", { content: "Green pears" });
+
+    // The client removes Fruit and its children.
+    const update = write(editor, client, () => "End\n");
+
+    expect(update.warnings).toEqual([
+      { type: "removed-changed-block", id: "fruit" },
+    ]);
+    expect(documentShape(editor.document)).toEqual(["fruit", ["pears"], "end"]);
+    expect(editor.getBlock("pears")?.content).toMatchObject([
+      { text: "Green pears" },
+    ]);
+  });
+
   it("removes a child that another writer moved out of a block that the client removes", () => {
     const editor = createEditor(fruit);
     const client = read(editor);

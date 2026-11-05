@@ -11,7 +11,11 @@ import { mergeValue } from "./threeWay.js";
 export type RebaseWarning =
   /** The client changed or moved a block that another writer removed. The change does not apply. */
   | { type: "change-to-removed-block"; id: string }
-  /** The client removed a block that another writer changed. The block is removed, with the changes of the other writer. */
+  /**
+   * The client removed a block that another writer changed (or a block in
+   * it). The removal does not apply to that block and to the blocks in it
+   * that another writer changed: they stay.
+   */
   | { type: "removed-changed-block"; id: string }
   /**
    * The client and another writer changed the same part of a block (a part
@@ -30,7 +34,8 @@ export type RebaseWarning =
  *
  * - Which blocks stay: a block of `ours` stays, unless another writer
  *   removed it. A new block of another writer stays if its parent stays. A
- *   block that the client removed goes.
+ *   block that the client removed goes, unless another writer changed it or
+ *   a removed block in it: then it stays.
  * - The parent of a block: a three-way merge (see `mergeValue`). If that
  *   parent goes, the block goes to the place of that parent. If the parents
  *   of the two sides make a cycle (each side moved a block into the other),
@@ -84,14 +89,21 @@ export function mergeTree(input: {
   }
 
   const staysMemo = new Map<string, boolean>();
+  const changedMemo = new Map<string, boolean>();
   function stays(id: string): boolean {
     let result = staysMemo.get(id);
     if (result === undefined) {
       if (ours.has(id)) {
         // Another writer removed a block of `base` that the client keeps.
         result = !base.has(id) || theirs.has(id);
-      } else if (base.has(id) || !theirs.has(id)) {
+      } else if (!theirs.has(id)) {
         result = false;
+      } else if (base.has(id)) {
+        // The client removed a block of `base`. If another writer changed it,
+        // or a block in it that the client also removed, it stays: a write
+        // from an older version does not remove a change that it did not
+        // see. The other blocks in it that the client removed go.
+        result = changedByOthers(id);
       } else {
         // A new block of another writer stays in its parent.
         const parent = theirs.parent(id);
@@ -345,16 +357,27 @@ export function mergeTree(input: {
     return undefined;
   }
 
-  /** Returns true if another writer changed the block or a block in it. */
+  /**
+   * Returns true if another writer changed the block, or a block in it that
+   * the client also removed (also a new block). Thus, the removal of the
+   * block by the client loses that change. A block in it that the client
+   * keeps (for example moves out) does not count.
+   */
   function changedByOthers(id: string): boolean {
-    return (
-      !base.has(id) ||
-      !deepEqual(
-        withoutChildren(theirs.block(id)),
-        withoutChildren(base.block(id)),
-      ) ||
-      theirs.childrenOf(id).some(changedByOthers)
-    );
+    let result = changedMemo.get(id);
+    if (result === undefined) {
+      result =
+        !base.has(id) ||
+        !deepEqual(
+          withoutChildren(theirs.block(id)),
+          withoutChildren(base.block(id)),
+        ) ||
+        theirs
+          .childrenOf(id)
+          .some((child) => !ours.has(child) && changedByOthers(child));
+      changedMemo.set(id, result);
+    }
+    return result;
   }
 
   return { blocks, warnings };

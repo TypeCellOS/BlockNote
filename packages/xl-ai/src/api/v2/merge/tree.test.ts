@@ -68,13 +68,27 @@ describe("mergeTree", () => {
     ]);
   });
 
-  it("removes a block that theirs changed, and gives a warning", () => {
+  it("keeps a block that ours removes and theirs changed, with a warning", () => {
     const base = [block("a"), block("b")];
     const result = merge(base, [block("a")], [block("a"), block("b", [], "B")]);
-    expect(shape(result.blocks)).toEqual(["a"]);
+    expect(shape(result.blocks)).toEqual(["a", "b"]);
+    expect(result.blocks[1].content).toEqual([
+      { type: "text", text: "B", styles: {} },
+    ]);
     expect(result.warnings).toEqual([
       { type: "removed-changed-block", id: "b" },
     ]);
+  });
+
+  it("removes a block that ours removes and theirs only moved", () => {
+    const base = [block("a"), block("b"), block("c")];
+    const result = merge(
+      base,
+      [block("a"), block("c")],
+      [block("b"), block("a"), block("c")],
+    );
+    expect(shape(result.blocks)).toEqual(["a", "c"]);
+    expect(result.warnings).toEqual([]);
   });
 
   it("puts a new block of ours into the place of its parent, if theirs removed the parent", () => {
@@ -98,14 +112,14 @@ describe("mergeTree", () => {
     expect(shape(result.blocks)).toEqual(["x", "z"]);
   });
 
-  it("removes a new block of theirs in a block that ours removes", () => {
+  it("keeps a block that ours removes, with a new block of theirs in it, with a warning", () => {
     const base = [block("p"), block("z")];
     const result = merge(
       base,
       [block("z")],
       [block("p", [block("n")]), block("z")],
     );
-    expect(shape(result.blocks)).toEqual(["z"]);
+    expect(shape(result.blocks)).toEqual(["p", ["n"], "z"]);
     expect(result.warnings).toEqual([
       { type: "removed-changed-block", id: "p" },
     ]);
