@@ -131,7 +131,11 @@ export function computeTextUpdate(
  */
 function computeBlocksUpdate(
   editor: BlockNoteEditor<any, any, any>,
-  options: TextUpdateOptions & { current: readonly LensBlock[] },
+  options: TextUpdateOptions & {
+    current: readonly LensBlock[];
+    /** Keep the layout blocks, also if they become empty (see `updateToTarget`). */
+    keepLayout?: boolean;
+  },
 ): TextUpdate {
   const { current } = options;
   const base = options.base && withDistinctIds(options.base);
@@ -148,6 +152,7 @@ function computeBlocksUpdate(
     base,
     current,
     onConflict: options.onConflict,
+    keepLayout: options.keepLayout,
   });
 }
 
@@ -285,11 +290,11 @@ function withUniqueIds(
  * `"conflict"`, and no operations.
  *
  * The layout blocks of the result change to fit their child rules (see
- * `fitLayout`): without `base`, in the target; with `base`, in the result
- * on the current document, with more operations. The client did not change
- * the layout blocks, and in the current document they can have blocks of
- * other writers (for example a column that another writer added). Thus, the
- * rule applies to the result.
+ * `fitLayout`), unless `keepLayout` is set: without `base`, in the target;
+ * with `base`, in the result on the current document, with more
+ * operations. The client did not change the layout blocks, and in the
+ * current document they can have blocks of other writers (for example a
+ * column that another writer added). Thus, the rule applies to the result.
  */
 function updateToTarget(
   rules: SchemaRules,
@@ -299,6 +304,7 @@ function updateToTarget(
     base: readonly LensBlock[] | undefined;
     current: readonly LensBlock[];
     onConflict: "keep-current" | "reject" | undefined;
+    keepLayout?: boolean;
   },
 ): ValidTextUpdate | ConflictError {
   const { base, current } = documents;
@@ -318,7 +324,9 @@ function updateToTarget(
     return { error: "conflict", conflicts: merged.warnings };
   }
   const result = fitTables(
-    fitLayout(merged.blocks, rules.layoutRuleOf, rules.canContain),
+    documents.keepLayout === true
+      ? merged.blocks
+      : fitLayout(merged.blocks, rules.layoutRuleOf, rules.canContain),
   );
   return {
     operations: diffDocuments(current, result),
@@ -337,6 +345,17 @@ function updateToTarget(
 export function updateDocumentFromText(
   editor: BlockNoteEditor<any, any, any>,
   options: TextUpdateOptions,
+): TextUpdate {
+  return writeText(editor, options);
+}
+
+/**
+ * {@link updateDocumentFromText}, with the option `keepLayout` (see
+ * {@link updateToTarget}). The Y.Doc write with `merge: "yjs"` uses this.
+ */
+export function writeText(
+  editor: BlockNoteEditor<any, any, any>,
+  options: TextUpdateOptions & { keepLayout?: boolean },
 ): TextUpdate {
   return write(editor, (current) =>
     computeBlocksUpdate(editor, { ...options, current }),

@@ -165,6 +165,8 @@ When an editor binds to a Y.Doc, the Yjs binding removes the content that the sc
 
 The write merges with the changes of other users by block ID, as for a document without Yjs. The Yjs binding (y-prosemirror v13) has limits for moves: if two users move the same block at the same time, the block can be there two times.
 
+With `merge: "yjs"`, Yjs merges the write instead. The changes of the client apply to a copy of the Y.Doc at `base`, and Yjs merges that copy into the Y.Doc. This option needs `base`. It does not allow `onConflict`, because Yjs merges without conflicts. With y-prosemirror v13, this option has more limits. A change of another user can be lost if the client moves, splits or joins the block, or changes its type. Also, a block that the client removes goes, with the changes of other users in it.
+
 ## Warnings
 
 A result can contain these warnings:

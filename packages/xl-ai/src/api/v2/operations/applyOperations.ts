@@ -161,7 +161,8 @@ function applyStructure(tr: Transaction, target: BlockShape[]) {
     const end = pos + list.nodeSize - 1;
     if (shapes.length === 0) {
       // A list without children (the document, or a column that the
-      // operations of a caller empty) gets the fill of the schema.
+      // operations of a caller or of `merge: "yjs"` empty, see
+      // `keepLayout`) gets the fill of the schema.
       const filled = list.type.createAndFill(list.attrs);
       if (filled === null) {
         throw new Error(`A block of type ${list.type.name} cannot be empty`);
@@ -234,7 +235,8 @@ function childBlocks(node: Node): Node[] {
  * content node (thus its text and comments), and gets a block group for
  * the children. A layout block (for example a column) holds the children
  * directly. If the children do not fit the layout block (for example a
- * column that the operations of a caller empty), the schema fills it.
+ * column that the operations of a caller or of `merge: "yjs"` empty), the
+ * schema fills it.
  */
 function withChildren(block: Node, children: readonly Node[]): Node {
   const schema = block.type.schema;
