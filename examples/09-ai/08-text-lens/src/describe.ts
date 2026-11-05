@@ -48,6 +48,8 @@ export function describeWarning(warning: TextUpdateWarning): string {
       return `${warning.type} ${shortId(warning.id)}: the text removed a block that the live editor changed.`;
     case "conflicting-change":
       return `${warning.type} ${shortId(warning.id)}: the text and the live editor changed the same part of this block. The text won.`;
+    case "merged-cells-removed":
+      return `${warning.type} ${shortId(warning.id)}: the format does not show merged cells. The change of this table removed them.`;
     default:
       throw new UnreachableCaseError(warning);
   }
