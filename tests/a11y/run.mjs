@@ -1,7 +1,6 @@
 // Browser checks run in Docker; --screen-reader runs natively on macOS/Windows.
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { mkdirSync } from "node:fs";
 
 const root = fileURLToPath(new URL("../../", import.meta.url));
 const args = process.argv.slice(2);
@@ -34,25 +33,15 @@ if (native) {
     },
   );
 } else {
-  mkdirSync(`${root}tests/test-results`, { recursive: true });
   result = spawnSync(
     "bash",
     [
       "tests/docker-run.sh",
       "-e",
       "CI=1",
-      "-v",
-      `${root}tests/a11y:/work/tests/a11y`,
-      "-v",
-      `${root}tests/test-results:/work/tests/test-results`,
-      "--entrypoint",
-      "/work/tests/node_modules/.bin/vp",
       "--",
-      "test",
-      "--config",
-      "a11y/vite.config.ts",
       "--run",
-      ...args,
+      ...(args[0] && !args[0].startsWith("-") ? args : ["/a11y/", ...args]),
     ],
     { cwd: root, stdio: "inherit" },
   );
