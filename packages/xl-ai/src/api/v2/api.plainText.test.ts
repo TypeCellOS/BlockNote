@@ -49,6 +49,24 @@ describe("plain text", () => {
     ]);
   });
 
+  it("gives new text in styled text the styles that plain text does not show", () => {
+    const editor = createEditor();
+    write(editor, (text) =>
+      replaceOnce(text, "red underlined", "red and dotted"),
+    );
+
+    expect(editor.getBlock("heading")?.content).toEqual([
+      { type: "text", text: "Bold", styles: { bold: true } },
+      { type: "text", text: " heading with ", styles: {} },
+      {
+        type: "text",
+        text: "red and dotted",
+        styles: { textColor: "red", underline: true },
+      },
+      { type: "text", text: " text", styles: {} },
+    ]);
+  });
+
   it("changes only the block with changed text", () => {
     const editor = createEditor();
     const before = blockFieldsById(editor);
