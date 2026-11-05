@@ -22,10 +22,10 @@ import { bindEditor } from "../testUtil/yjs.js";
 import { updateYDocFromText } from "../yjs/index.js";
 
 /**
- * Benchmarks for large documents. They do not run in a normal test run. Run
- * them with:
+ * Benchmarks for large documents. The normal test run does not run them. Run
+ * them from packages/xl-ai with:
  *
- *   TEXT_LENS_BENCH=1 vp test run src/api/v2/benchmarks --silent=false
+ *   vp test bench --run --silent=false src/api/v2/benchmarks
  *
  * Set TEXT_LENS_BENCH_SIZES (for example "1000,5000") for other sizes, and
  * TEXT_LENS_BENCH_FORMATS (for example "markdown,plain text") for some
@@ -91,7 +91,7 @@ const formats = (
   ] satisfies [string, TextFormat][]
 ).filter(([name]) => selectedFormats?.includes(name) ?? true);
 
-describe.runIf(process.env.TEXT_LENS_BENCH)("large documents", () => {
+describe("large documents", () => {
   it(
     "measures the API and each stage of the pipeline",
     async () => {

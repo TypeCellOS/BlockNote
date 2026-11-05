@@ -190,24 +190,17 @@ Each module imports only modules that are before it in this list. Thus, there ar
   - `api.fuzz.test.ts`: 150 random documents with all kinds of blocks (tables, files and images with captions, code blocks with blank lines, deep nesting, mentions, columns) in each format, with random edits. It examines the format contract (each view block with text links to a document block, and the round trip of a block that the view shows as it is gives that block alone) and the laws.
 - `yjs/yDocText.test.ts`: the Y.Doc API. The concurrent cases run for the two merges (`"lens"` and `"yjs"`). The conflicts and `onConflict: "reject"` are only for `"lens"`.
 - `testUtil/` contains the shared test documents and helpers.
-- `api.bench.ts` measures a document with about 1,140 blocks. Run it with `vp test bench --run --reporter=verbose src/api/v2/api.bench.ts`. The mean times in jsdom were:
+- `benchmarks/largeDocuments.bench.ts` measures documents of 1,000 to 10,000 blocks in each format, and each stage of the pipeline. The normal test run does not run it. Run it from `packages/xl-ai` with `vp test bench --run --silent=false src/api/v2/benchmarks`. The median times of 3 runs in jsdom for 10,000 blocks were:
 
-  | Format     | Read   | Write the same text | Write with one change |
-  | ---------- | ------ | ------------------- | --------------------- |
-  | Markdown   | 150 ms | 540 ms              | 520 ms                |
-  | Plain text | 0.4 ms | 30 ms               | 28 ms                 |
+  | Format     | Read | Write with one change | Write from an older version | Y.Doc write | Align, plan and diff |
+  | ---------- | ---- | --------------------- | --------------------------- | ----------- | -------------------- |
+  | Markdown   | 6 ms | 1,656 ms              | 1,725 ms                    | 8,752 ms    | 91 ms                |
+  | HTML       | 7 ms | 1,516 ms              | 1,527 ms                    | 7,908 ms    | 90 ms                |
+  | Plain text | 9 ms | 170 ms                | 187 ms                      | 3,791 ms    | 73 ms                |
 
-  The times depend on the machine. Run the benchmark again for a comparison. A markdown write renders the document one time (the view) and parses two texts (the view, and the text of the client). The blocks that the view does not show as they are (for example empty paragraphs) also make one round trip together (see "Project"). Most of the time goes to the markdown conversion of BlockNote.
+  The benchmark reads one version again, thus the read comes from the cache (see "Project"). The times depend on the machine, and at 10,000 blocks they also change between runs: for example, the HTML write from an older version took 6,902 ms in one run of all sizes, and 1,527 ms in a run of only this size. Run the benchmark again for a comparison.
 
-  The benchmark runs only five times. The reason is jsdom, not a memory leak: for each `<details open>` element (the export of a toggle block), jsdom starts a timer for the `toggle` event. Until the timer runs, it keeps the element and the full exported tree. The runs do not let the event loop turn, thus the timers do not run. After one turn of the event loop, the memory is free. In Chromium, the memory is also free after the task.
-
-- `benchmarks/largeDocuments.test.ts` measures documents of 1,000 to 10,000 blocks in each format, and each stage of the pipeline. Run it with `TEXT_LENS_BENCH=1 vp test run src/api/v2/benchmarks --silent=false`. The median times in jsdom for 10,000 blocks were:
-
-  | Format     | Read     | Write with one change | Write from an older version | Y.Doc write | Align, plan and diff |
-  | ---------- | -------- | --------------------- | --------------------------- | ----------- | -------------------- |
-  | Markdown   | 1,451 ms | 5,091 ms              | 5,039 ms                    | 8,342 ms    | 82 ms                |
-  | HTML       | 651 ms   | 3,588 ms              | 3,644 ms                    | 6,996 ms    | 88 ms                |
-  | Plain text | 14 ms    | 231 ms                | 260 ms                      | 3,435 ms    | 61 ms                |
+  Before each run, the benchmark lets the event loop turn. The reason is jsdom, not a memory leak: for each `<details open>` element (the export of a toggle block), jsdom starts a timer for the `toggle` event. Until the timer runs, it keeps the element and the full exported tree. After one turn of the event loop, the memory is free. In Chromium, the memory is also free after the task.
 
   The stages of the lens (align, plan, diff) are linear in the number of blocks. A Y.Doc write sends each insert or removal of blocks in its own transaction (see "Apply"), and y-prosemirror compares the document for each transaction. Thus, a Y.Doc write with many inserts or removals at different places takes time for each of them: for example, 0.7 s for 200 inserts in 2,000 blocks, and 8.7 s for 800 inserts in 8,000 blocks. For a Y.Doc, most of the time is the render of the editor view in jsdom. For text, most of the time goes to the markdown and HTML conversions of BlockNote: the projection makes one round trip of the document (the view) and one round trip of the blocks that the view does not show as they are (see "Project"), and the write parses the text of the client.
 
