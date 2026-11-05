@@ -479,7 +479,7 @@ describe("a write from an older version, with blocks that another writer moved",
 });
 
 describe("a write from an older version with a conflict", () => {
-  it("gives a warning if the client and another writer change the same word", () => {
+  it("keeps the change of another writer, with a warning, if the client changes the same word", () => {
     const editor = createEditor(fruit);
     const client = read(editor);
     editor.updateBlock("end", { content: "The finish" });
@@ -491,10 +491,12 @@ describe("a write from an older version with a conflict", () => {
     expect(update.warnings).toEqual([
       { type: "conflicting-change", id: "end" },
     ]);
-    expect(editor.getBlock("end")?.content).toMatchObject([{ text: "Stop" }]);
+    expect(editor.getBlock("end")?.content).toMatchObject([
+      { text: "The finish" },
+    ]);
   });
 
-  it("gives a warning if another writer changed the block into a type that cannot hold the text of the client", () => {
+  it("keeps the type of another writer, with a warning, if that type cannot hold the text of the client", () => {
     const editor = createEditor([
       { id: "p", type: "paragraph", content: "Alpha beta gamma" },
     ]);
@@ -510,8 +512,8 @@ describe("a write from an older version with a conflict", () => {
 
     expect(update.warnings).toEqual([{ type: "conflicting-change", id: "p" }]);
     expect(editor.getBlock("p")).toMatchObject({
-      type: "paragraph",
-      content: [{ text: "Alpha beta delta" }],
+      type: "image",
+      props: { url: "https://example.com/a.png" },
     });
   });
 
@@ -572,6 +574,70 @@ describe("a write from an older version with a conflict", () => {
     );
 
     expect(update.warnings).toEqual([{ type: "conflicting-change", id: "a" }]);
+    // The split stays, and the text does not show two times.
+    expect(getDocumentText(editor, format)).toBe(
+      "First half of the text.\n\nSecond half of the text.\n",
+    );
+  });
+
+  it("keeps a sentence that another writer removed, with a warning, if the client changes it", () => {
+    const editor = createEditor([
+      {
+        id: "p",
+        type: "paragraph",
+        content: "Alpha one. Beta two. Gamma three.",
+      },
+    ]);
+    const client = read(editor);
+    editor.updateBlock("p", { content: "Alpha one. Gamma three." });
+
+    const update = write(editor, client, (text) =>
+      replaceOnce(text, "Beta two.", "Beta 2."),
+    );
+
+    expect(update.warnings).toEqual([{ type: "conflicting-change", id: "p" }]);
+    // The removed sentence does not come back.
+    expect(getDocumentText(editor, format)).toBe("Alpha one. Gamma three.\n");
+  });
+
+  it("keeps a sentence that another writer adds, without a warning, if the client rewrites the rest of the block", () => {
+    const editor = createEditor([
+      { id: "p", type: "paragraph", content: "The cat sat on the mat." },
+    ]);
+    const client = read(editor);
+    editor.updateBlock("p", {
+      content: "The cat sat on the mat. It was warm.",
+    });
+
+    const update = write(editor, client, () => "A cat was sitting on a mat.\n");
+
+    expect(update.warnings).toEqual([]);
+    expect(getDocumentText(editor, format)).toBe(
+      "A cat was sitting on a mat. It was warm.\n",
+    );
+  });
+
+  it("keeps the parent of another writer, with a warning, if the client moves the block into a different parent", () => {
+    const items: PartialBlock[] = ["a", "b", "c"].map((id) => ({
+      id,
+      type: "bulletListItem",
+      content: id.toUpperCase(),
+    }));
+    const editor = createEditor(items);
+    const client = read(editor);
+    // Another writer indents C under A.
+    editor.removeBlocks(["c"]);
+    editor.updateBlock("a", {
+      children: [{ id: "c", type: "bulletListItem", content: "C" }],
+    });
+
+    // The client indents C under B.
+    const update = write(editor, client, (text) =>
+      replaceOnce(text, "* C", "  * C"),
+    );
+
+    expect(update.warnings).toEqual([{ type: "conflicting-change", id: "c" }]);
+    expect(documentShape(editor.document)).toEqual(["a", ["c"], "b"]);
   });
 });
 

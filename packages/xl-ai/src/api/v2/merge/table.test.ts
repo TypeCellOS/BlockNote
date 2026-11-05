@@ -105,7 +105,8 @@ describe("mergeTableContent", () => {
 
   it("takes the fields of the table from the side whose rows win a conflict", () => {
     // Theirs adds a column and a header row. Ours adds a row. The rows
-    // conflict, and the rows of ours win: thus also the header rows of ours.
+    // conflict, and in the rebase the rows of theirs win: thus also the
+    // header rows of theirs.
     let conflicts = 0;
     const merged = mergeTableContent(
       table([
@@ -126,8 +127,8 @@ describe("mergeTableContent", () => {
       ),
       { concurrent: true, onConflict: () => conflicts++ },
     );
-    expect(merged.headerRows).toBeUndefined();
-    expect(merged.rows.map((row) => row.cells.length)).toEqual([2, 2, 2]);
+    expect(merged.headerRows).toBe(1);
+    expect(merged.rows.map((row) => row.cells.length)).toEqual([3, 3]);
     expect(conflicts).toBeGreaterThan(0);
   });
 });

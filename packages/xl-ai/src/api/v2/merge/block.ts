@@ -24,8 +24,9 @@ import { type MergeOptions, mergeRecords, mergeValue } from "./threeWay.js";
  * a toggle, although markdown shows it as a bullet. There is one exception:
  * if `ours` changed the content, and that type cannot hold the content of
  * `ours`, the type of `ours` wins. An example is a table that a format shows
- * as lines of text: a change of these lines makes the block a paragraph. If
- * `theirs` changed the type, that is a conflict (see `MergeOptions`).
+ * as lines of text: a change of these lines makes the block a paragraph. In
+ * the rebase, that is a conflict: the type and the content of `theirs` win
+ * (see `MergeOptions`).
  *
  * The merge merges each prop (see {@link mergeProps}). It merges inline
  * content character by character, and tables cell by cell.
@@ -39,27 +40,31 @@ export function mergeBlock(
 ): BlockFields {
   const contentChanged = !deepEqual(base.content, ours.content);
   const merged = mergeValue(base.type, ours.type, theirs.type, options);
-  const oursWins =
-    contentChanged && !canHold(contentKindOf(merged), ours.content);
-  if (oursWins && merged !== ours.type) {
-    // The type of theirs cannot hold the content of ours: the type change
-    // of theirs is lost.
+  // The type of theirs cannot hold the content of ours.
+  const clash =
+    contentChanged &&
+    merged !== ours.type &&
+    !canHold(contentKindOf(merged), ours.content);
+  if (clash) {
     options.onConflict?.();
   }
-  const type = oursWins ? ours.type : merged;
+  const type = clash && !options.concurrent ? ours.type : merged;
   const kind = contentKindOf(type);
   // If the content did not change, the content of theirs stays as one item.
   // This is also correct for content that a piece-by-piece merge cannot
   // merge, for example a table with merged cells (the format shows them as
   // separate cells).
   const content =
-    contentKindOf(theirs.type) !== kind
-      ? // The kind of content changed: theirs has no content of this kind to
-        // merge with. Thus, the content of ours applies as it is.
-        contentOfKind(ours.content, kind)
-      : contentChanged
-        ? mergeContent(base, ours, theirs, kind, options)
-        : theirs.content;
+    clash && options.concurrent
+      ? // The change of the content of ours is lost.
+        theirs.content
+      : contentKindOf(theirs.type) !== kind
+        ? // The kind of content changed: theirs has no content of this kind
+          // to merge with. Thus, the content of ours applies as it is.
+          contentOfKind(ours.content, kind)
+        : contentChanged
+          ? mergeContent(base, ours, theirs, kind, options)
+          : theirs.content;
 
   return {
     type,

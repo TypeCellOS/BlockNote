@@ -4,17 +4,25 @@ import type { LensInlineContent } from "../blocks/types.js";
 /**
  * The options of the merges in this folder. `concurrent` is true if `theirs`
  * is a later version with the changes of other writers (the rebase), not the
- * document of a view (the planner). Then two inserts at the same position
- * both stay. In the planner, an insert of `theirs` at the position of an
- * insert of `ours` is a difference that the format makes (for example
- * whitespace). Thus, it does not stay.
+ * document of a view (the planner). This changes two rules:
+ *
+ * - A conflict: in the planner, `ours` (the text) wins, because `theirs` has
+ *   only data that the format does not show. In the rebase, `theirs` (the
+ *   current document) wins, because the client gets the warning: thus, the
+ *   client loses the conflicting part, and it can read the document again.
+ *   A write from an older version then never reverts a change that it did
+ *   not see.
+ * - Two inserts at the same position: in the rebase, both stay. In the
+ *   planner, an insert of `theirs` at the position of an insert of `ours` is
+ *   a difference that the format makes (for example whitespace). Thus, it
+ *   does not stay.
  */
 export type MergeOptions = {
   concurrent?: boolean;
   /**
    * Called when `ours` and `theirs` changed the same value (or the same part
-   * of a text) in different ways. `ours` then wins. The rebase uses this for
-   * a warning.
+   * of a text) in different ways (a conflict). The rebase uses this for a
+   * warning.
    */
   onConflict?: () => void;
   /**
@@ -36,8 +44,9 @@ export type MergeOptions = {
  *   does not show, and changes of other writers.
  *
  * If `ours` is different from `base`, the result is `ours`. If not, the
- * result is `theirs`. Thus, data that `base` does not show stays, and `ours`
- * wins a conflict.
+ * result is `theirs`. Thus, data that `base` does not show stays. If the two
+ * sides changed the value in different ways (a conflict), `ours` wins, and
+ * in the rebase `theirs` wins (see `MergeOptions`).
  */
 export function mergeValue<T>(
   base: T,
@@ -48,10 +57,11 @@ export function mergeValue<T>(
   if (deepEqual(base, ours)) {
     return theirs;
   }
-  if (!deepEqual(base, theirs) && !deepEqual(ours, theirs)) {
-    options.onConflict?.();
+  if (deepEqual(base, theirs) || deepEqual(ours, theirs)) {
+    return ours;
   }
-  return ours;
+  options.onConflict?.();
+  return options.concurrent ? theirs : ours;
 }
 
 /**

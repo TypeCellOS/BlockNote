@@ -21,14 +21,19 @@ export type Diff3Handlers<T> = {
   stable: (triple: StableTriple<T>) => T;
   /** Changes a run of units that ours added or changed. */
   ours: (units: T[], context: RunContext<T>) => T[];
-  /** Called when ours wins a run that theirs also changed, in a different way. */
+  /** Called when the two sides changed a run in different ways (a conflict). */
   conflict?: () => void;
+  /**
+   * The side that wins a conflict. By default, ours. The rebase gives a
+   * conflict to theirs, the current document (see `MergeOptions`).
+   */
+  conflictWinner?: "ours" | "theirs";
   /** Returns true if a stable triple can be a context. By default, all can. */
   isContext?: (triple: StableTriple<T>) => boolean;
   /**
    * If set, two inserts at the same position (without base units between
-   * the stable units) both stay, in the given order. If not, ours wins, as
-   * in a conflict.
+   * the stable units) both stay, in the given order. If not, they are a
+   * conflict.
    */
   keepBothInserts?: "theirs-first" | "ours-first";
   /**
@@ -56,8 +61,8 @@ export type Diff3Handlers<T> = {
  *   merges it.
  * - Between stable units, the side that changed wins. If only theirs is
  *   different from the base, theirs wins. If the two sides made the same
- *   change, it applies one time. If not, ours wins. Thus, ours also wins a
- *   conflict, where the two sides changed.
+ *   change, it applies one time. If not (a conflict), the side of
+ *   `handlers.conflictWinner` wins (by default, ours).
  * - Two inserts at the same position can both stay (see
  *   `handlers.keepBothInserts`).
  */
@@ -127,11 +132,20 @@ export function diff3<T>(
       }
     } else {
       const both = i === i2 ? handlers.keepBothInserts : undefined;
-      if (
+      const conflict =
         both === undefined &&
-        !isUnchanged(toB, i, i2, jb, jb2, base, theirs, handlers.same)
-      ) {
+        !isUnchanged(toB, i, i2, jb, jb2, base, theirs, handlers.same);
+      if (conflict) {
         handlers.conflict?.();
+      }
+      if (conflict && handlers.conflictWinner === "theirs") {
+        for (let j = jb; j < jb2; j++) {
+          merged.push(theirs[j]);
+        }
+        i = i2;
+        ja = ja2;
+        jb = jb2;
+        continue;
       }
       const theirsUnits = both === undefined ? [] : theirs.slice(jb, jb2);
       const oursUnits = handlers.ours(ours.slice(ja, ja2), {

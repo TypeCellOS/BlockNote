@@ -6,6 +6,7 @@ import { diffBlock } from "../blocks/update.js";
 import { myersMatch } from "../diff/myers.js";
 import { mergeBlock } from "./block.js";
 import { diff3 } from "./diff3.js";
+import { mergeValue } from "./threeWay.js";
 
 export type RebaseWarning =
   /** The client changed or moved a block that another writer removed. The change does not apply. */
@@ -14,10 +15,10 @@ export type RebaseWarning =
   | { type: "removed-changed-block"; id: string }
   /**
    * The client and another writer changed the same part of a block (a part
-   * of its text, a style, or a prop) in different ways. The change of the
-   * client applies there, and the change of the other writer there is
-   * lost. An example is a block that another writer rewrote, or split into
-   * two blocks.
+   * of its text, a style, a prop, its parent or its place) in different
+   * ways. The change of the other writer stays there, and the change of the
+   * client there does not apply. An example is a sentence that another
+   * writer removed and the client changed.
    */
   | { type: "conflicting-change"; id: string };
 
@@ -30,16 +31,19 @@ export type RebaseWarning =
  * - Which blocks stay: a block of `ours` stays, unless another writer
  *   removed it. A new block of another writer stays if its parent stays. A
  *   block that the client removed goes.
- * - The parent of a block: the parent of `ours` if the client changed it,
- *   else the parent of `theirs` (see `mergeValue`). If that parent goes, the
- *   block goes to the place of that parent. If the parents of the two sides
- *   make a cycle (each side moved a block into the other), the parents of
- *   `ours` win.
+ * - The parent of a block: a three-way merge (see `mergeValue`). If that
+ *   parent goes, the block goes to the place of that parent. If the parents
+ *   of the two sides make a cycle (each side moved a block into the other),
+ *   the parents of `theirs` win.
  * - The order of the children of each parent: a three-way merge of the
- *   lists of child IDs (`diff3`). If both sides add blocks at one position,
- *   both stay.
- * - The fields of a block: a three-way merge (see `mergeBlock`). If both
- *   sides changed the same part, `ours` wins, with a warning.
+ *   lists of child IDs (`diff3`). A block that one side moved goes to the
+ *   place of that side. If both sides add blocks at one position, both
+ *   stay.
+ * - The fields of a block: a three-way merge (see `mergeBlock`).
+ *
+ * If both sides changed the same part in different ways (a conflict), the
+ * part of `theirs` wins, and the block gets the warning `conflicting-change`
+ * (see `MergeOptions`).
  *
  * The merge does not know the schema. The fit of the result moves a block
  * that its parent cannot hold (see `fitLayout`).
@@ -98,21 +102,22 @@ export function mergeTree(input: {
     return result;
   }
 
-  /** The parents of `ours` that win over `theirs`, to break a cycle. */
-  const oursWins = new Set<string>();
+  /** The blocks with a conflict of the parent or of the place: a change of the client there does not apply. */
+  const conflicts = new Set<string>();
+  /** The blocks that get the parent of `theirs`, to break a cycle. */
+  const theirsWins = new Set<string>();
   /** The parent that the merge gives the block, before a parent that goes is replaced. */
   function chosenParent(id: string): string | undefined {
-    const inBase = base.has(id);
-    const inOurs = ours.has(id);
-    const inTheirs = theirs.has(id);
-    if (inOurs && (!inBase || !inTheirs || oursWins.has(id))) {
-      return ours.parent(id);
+    if (!theirs.has(id)) {
+      return (ours.has(id) ? ours : base).parent(id);
     }
-    if (!inOurs) {
-      return (inTheirs ? theirs : base).parent(id);
+    if (!ours.has(id) || !base.has(id) || theirsWins.has(id)) {
+      return theirs.parent(id);
     }
-    const parentInOurs = ours.parent(id);
-    return parentInOurs !== base.parent(id) ? parentInOurs : theirs.parent(id);
+    return mergeValue(base.parent(id), ours.parent(id), theirs.parent(id), {
+      concurrent: true,
+      onConflict: () => conflicts.add(id),
+    });
   }
   /** The parent in the result: the chosen parent, or the place of a chosen parent that goes. */
   function parentOf(id: string): string | undefined {
@@ -127,11 +132,11 @@ export function mergeTree(input: {
   breakCycles();
 
   /**
-   * Gives the parent of `ours` to each block on a cycle of parents. A cycle
-   * needs a parent of `theirs` that is not the parent of `ours` (each side
-   * alone is a tree). Thus, each round removes the cycles that it finds. Each
-   * round walks up from each block one time: a block that a walk passed is
-   * not walked again.
+   * Gives the parent of `theirs` to each block of `theirs` on a cycle of
+   * parents. A cycle needs a parent of `ours` that is not the parent of
+   * `theirs` (each side alone is a tree). Thus, each round removes the cycles
+   * that it finds. Each round walks up from each block one time: a block
+   * that a walk passed is not walked again.
    */
   function breakCycles() {
     for (let changed = true; changed;) {
@@ -151,9 +156,15 @@ export function mergeTree(input: {
           return;
         }
         for (const block of path.slice(path.indexOf(current))) {
-          if (ours.has(block) && !oursWins.has(block)) {
-            oursWins.add(block);
+          if (theirs.has(block) && !theirsWins.has(block)) {
+            theirsWins.add(block);
             changed = true;
+            if (
+              movedByClient(block) &&
+              ours.parent(block) !== theirs.parent(block)
+            ) {
+              conflicts.add(block);
+            }
           }
         }
       });
@@ -200,16 +211,23 @@ export function mergeTree(input: {
     const [a, b] = [ours, theirs].map((side) =>
       withBasePlaces(sideChildren(side, parent), o, expected),
     );
-    const same = (x: string, y: string) => x === y;
+    // One object for each ID in each side: the merge result then tells the
+    // side of each unit.
+    const [baseUnits, ourUnits, theirUnits] = [o, a, b].map((ids) =>
+      ids.map((id) => ({ id })),
+    );
+    const same = (x: { id: string }, y: { id: string }) => x.id === y.id;
+    const oursToBase = myersMatch(baseUnits, ourUnits, same);
+    const theirsToBase = myersMatch(baseUnits, theirUnits, same);
     const merged = diff3(
-      o,
-      a,
-      b,
-      myersMatch(o, a, same),
-      myersMatch(o, b, same),
+      baseUnits,
+      ourUnits,
+      theirUnits,
+      oursToBase,
+      theirsToBase,
       {
-        stable: ({ theirs: id }) => id,
-        ours: (ids) => ids,
+        stable: ({ theirs: unit }) => unit,
+        ours: (units) => units,
         // Two writers add blocks at one position: the blocks of the client
         // come first, as the client wrote them after the block before.
         keepBothInserts: "ours-first",
@@ -218,17 +236,47 @@ export function mergeTree(input: {
         keepTheirs: () => true,
       },
     );
+    // A unit without a base unit is a block that its side moved (or added).
     // If both sides moved a block to different places in this list, it is
-    // there two times: the first place (the place of the client) wins.
-    const order = new Set(merged);
+    // there two times. The place of the side that moved it wins. If the two
+    // sides moved it, that is a conflict: the place of theirs wins.
+    const fromOurs = new Set(ourUnits);
+    const movedUnits = new Set([...ourUnits, ...theirUnits]);
+    for (const pair of oursToBase) {
+      movedUnits.delete(ourUnits[pair.bIndex]);
+    }
+    for (const pair of theirsToBase) {
+      movedUnits.delete(theirUnits[pair.bIndex]);
+    }
+    const places = new Map<string, { id: string }[]>();
+    for (const unit of merged) {
+      places.set(unit.id, [...(places.get(unit.id) ?? []), unit]);
+    }
+    const order = merged.flatMap((unit) => {
+      const all = places.get(unit.id) ?? [];
+      if (all.length === 1) {
+        return [unit.id];
+      }
+      const oursPlace = all.find((place) => fromOurs.has(place));
+      const theirsPlace = all.find((place) => !fromOurs.has(place));
+      const oursMoved = oursPlace !== undefined && movedUnits.has(oursPlace);
+      const theirsMoved =
+        theirsPlace !== undefined && movedUnits.has(theirsPlace);
+      if (oursMoved && theirsMoved) {
+        conflicts.add(unit.id);
+      }
+      const winner = oursMoved && !theirsMoved ? oursPlace : theirsPlace;
+      return unit === winner ? [unit.id] : [];
+    });
     // Each block of the parent is in the list of ours or of theirs, and the
     // merge keeps each unit of theirs and each unit that no side removed.
     // Thus, a missing block is a bug.
-    const lost = expected.find((id) => !order.has(id));
+    const has = new Set(order);
+    const lost = expected.find((id) => !has.has(id));
     if (lost !== undefined) {
       throw new Error(`The tree merge lost block ${lost}`);
     }
-    return [...order];
+    return order;
   }
 
   /**
@@ -240,7 +288,7 @@ export function mergeTree(input: {
   function build(parent: string | undefined): LensBlock[] {
     return childOrder(parent).map((id) => {
       const fields = fieldsOf(id);
-      if (fields.conflict) {
+      if (fields.conflict || conflicts.has(id)) {
         warnings.push({ type: "conflicting-change", id });
       }
       return { ...fields.block, children: build(id) };
@@ -268,8 +316,17 @@ export function mergeTree(input: {
   function changedByClient(id: string): boolean {
     return (
       diffBlock(base.block(id), ours.block(id)) !== undefined ||
-      ours.parent(id) !== base.parent(id) ||
-      previousKept(ours, id) !== previousKept(base, id)
+      movedByClient(id)
+    );
+  }
+
+  /** Returns true if the client changed the parent or the place of a block of base. */
+  function movedByClient(id: string): boolean {
+    return (
+      base.has(id) &&
+      ours.has(id) &&
+      (ours.parent(id) !== base.parent(id) ||
+        previousKept(ours, id) !== previousKept(base, id))
     );
   }
 

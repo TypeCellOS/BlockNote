@@ -127,26 +127,50 @@ describe("mergeTree", () => {
     expect(shape(result.blocks)).toEqual(["a", "mine", "theirs", "z"]);
   });
 
-  it("gives the parents of ours if the two sides move two blocks into each other", () => {
+  it("gives the parents of theirs, with a warning, if the two sides move two blocks into each other", () => {
     const base = [block("a"), block("b")];
     const result = merge(
       base,
       [block("a", [block("b")])],
       [block("b", [block("a")])],
     );
-    expect(shape(result.blocks)).toEqual(["a", ["b"]]);
+    expect(shape(result.blocks)).toEqual(["b", ["a"]]);
+    expect(result.warnings).toEqual([{ type: "conflicting-change", id: "b" }]);
   });
 
-  it("keeps a block at the place of ours if theirs moved it into a new block", () => {
+  it("keeps a block at the place of theirs, with a warning, if the two sides move it to different parents", () => {
     // Ours moves "x" out of "p" (and removes "p"). Theirs moves "x" into its
-    // new block "w". The parent of ours wins, thus "x" is at the top level.
+    // new block "w". The parent of theirs wins, thus "x" is in "w".
     const base = [block("p", [block("x")]), block("y")];
     const result = merge(
       base,
       [block("x"), block("y")],
       [block("w", [block("x")]), block("y")],
     );
-    expect(shape(result.blocks)).toEqual(["x", "w", "y"]);
+    expect(shape(result.blocks)).toEqual(["w", ["x"], "y"]);
+    expect(result.warnings).toEqual([{ type: "conflicting-change", id: "x" }]);
+  });
+
+  it("keeps a block at the place of theirs, with a warning, if the two sides move it to different places in one list", () => {
+    const base = [block("a"), block("b"), block("c"), block("d")];
+    const result = merge(
+      base,
+      [block("b"), block("a"), block("c"), block("d")],
+      [block("b"), block("c"), block("d"), block("a")],
+    );
+    expect(shape(result.blocks)).toEqual(["b", "c", "d", "a"]);
+    expect(result.warnings).toEqual([{ type: "conflicting-change", id: "a" }]);
+  });
+
+  it("moves a block of the client, without a warning, if another writer moves a different block", () => {
+    const base = [block("a"), block("b"), block("c"), block("d")];
+    const result = merge(
+      base,
+      [block("b"), block("a"), block("c"), block("d")],
+      [block("a"), block("b"), block("d"), block("c")],
+    );
+    expect(shape(result.blocks)).toEqual(["b", "a", "d", "c"]);
+    expect(result.warnings).toEqual([]);
   });
 
   it("puts a new column of ours into the place of its column list, if theirs removed the list", () => {

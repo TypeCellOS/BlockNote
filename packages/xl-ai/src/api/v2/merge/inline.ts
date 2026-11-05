@@ -20,8 +20,10 @@ import { type MergeOptions, mergeRecords, mergeValue } from "./threeWay.js";
  *
  * Between these stable characters, the side that changed wins. If only
  * theirs is different from the base, theirs wins (for example whitespace
- * that the round trip changed). If not, ours wins. New text from ours gets
- * the hidden styles of the text around it (see {@link inheritHiddenStyles}).
+ * that the round trip changed). If the two sides changed the same part, ours
+ * wins, and in the rebase theirs wins (see `MergeOptions`). New text from
+ * ours gets the hidden styles of the text around it (see
+ * {@link inheritHiddenStyles}).
  */
 export function mergeInlineContent(
   base: readonly LensInlineContent[],
@@ -58,6 +60,7 @@ export function mergeInlineContent(
         ? undefined
         : (unit) => unit.kind === "atom",
       conflict: options.onConflict,
+      conflictWinner: options.concurrent ? "theirs" : "ours",
       // The alignment pairs characters without their styles. Thus, a
       // character with a changed style is a change.
       same: sameUnitWithStyles,

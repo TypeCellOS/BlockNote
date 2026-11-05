@@ -21,8 +21,8 @@ type Row = LensTableCell[];
  *
  * - If a row is in the three tables (with the same number of cells), the
  *   merge merges each cell: its content and its props (for example its
- *   background color). If not, and ours changed it, the result is the row of
- *   ours.
+ *   background color). If not, the row of the side that changed it wins
+ *   (for a conflict, see `MergeOptions`).
  * - The merge removes rows that only the round trip added. An example is the
  *   empty header row that markdown gives to a table without a header row.
  * - A table with merged cells in a format without merged cells loses its
@@ -45,7 +45,8 @@ export function mergeTableContent(
     theirs = withoutMergedCells(theirs);
   }
   // The fields of the table belong to its rows: if the rows of the two sides
-  // conflict, the fields come from the side whose rows win (ours).
+  // conflict, the fields come from the side whose rows win (ours, and in the
+  // rebase theirs, see `MergeOptions`).
   let rowConflict = false;
   const baseRows = cellRows(base);
   const ourRows = cellRows(ours);
@@ -71,6 +72,7 @@ export function mergeTableContent(
         rowConflict = true;
         options.onConflict?.();
       },
+      conflictWinner: options.concurrent ? "theirs" : "ours",
       // `alignRows` also pairs rows with changed text.
       same: (baseRow, otherRow) => deepEqual(baseRow, otherRow),
     },
@@ -78,7 +80,9 @@ export function mergeTableContent(
 
   const field = <T>(baseValue: T, ourValue: T, theirValue: T): T =>
     rowConflict
-      ? ourValue
+      ? options.concurrent
+        ? theirValue
+        : ourValue
       : mergeValue(baseValue, ourValue, theirValue, options);
   return {
     type: "tableContent",
