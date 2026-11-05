@@ -3,6 +3,7 @@ import { describe, expect, it } from "vite-plus/test";
 import type { FlatBlock, LensBlock } from "../blocks/types.js";
 import {
   alignBlocks,
+  alignBlocksAndMoves,
   alignmentKey,
   canBeSameBlock,
   linkBlocks,
@@ -120,6 +121,43 @@ describe("alignBlocks", () => {
         ),
       ),
     ).toEqual([[0, 0]]);
+  });
+
+  describe("with moves (experimental)", () => {
+    it("matches a split block to the first part, and gives the text of the other part as a move", () => {
+      expect(
+        alignBlocksAndMoves(
+          flat("Colored centered paragraph"),
+          flat("Colored", "centered paragraph"),
+          true,
+        ),
+      ).toEqual({
+        pairs: [{ aIndex: 0, bIndex: 0 }],
+        moves: [{ aIndex: 0, bIndex: 1, size: "centeredparagraph".length }],
+      });
+    });
+
+    it("gives the text that a join moved from the second block", () => {
+      expect(
+        alignBlocksAndMoves(
+          flat("Underlined words here", "Last paragraph"),
+          flat("Underlined words here. Last paragraph"),
+          true,
+        ).moves,
+      ).toEqual([{ aIndex: 1, bIndex: 0, size: "Lastparagraph".length }]);
+    });
+
+    it("does not give a pair at the same position to a part of a split block", () => {
+      // Without the move, rule 3 matches the removed block and the second
+      // part of the split block.
+      expect(
+        alignBlocksAndMoves(
+          flat("Alpha beta gamma delta epsilon", "Removed text"),
+          flat("Alpha beta", "gamma delta epsilon"),
+          true,
+        ).pairs,
+      ).toEqual([{ aIndex: 0, bIndex: 0 }]);
+    });
   });
 
   it("matches blocks without text by their type and position", () => {

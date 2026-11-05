@@ -102,3 +102,8 @@ export function contentShape(content: LensBlockContent): ContentShape {
   }
   return isTableContent(content) ? "table" : "none";
 }
+
+/** The inline content (or plain content) of a block, or no content for a block without it. */
+export function inlineContentOf(block: BlockFields): LensInlineContent[] {
+  return Array.isArray(block.content) ? block.content : [];
+}

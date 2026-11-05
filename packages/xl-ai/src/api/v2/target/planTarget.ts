@@ -1,15 +1,17 @@
 import { blockKey } from "../blocks/json.js";
 import { blockToText } from "../blocks/text.js";
 import { BlockTree } from "../blocks/tree.js";
-import type {
-  BlockFields,
-  ContentKind,
-  FlatBlock,
-  LensBlock,
-  LensInlineContent,
+import {
+  type BlockFields,
+  type ContentKind,
+  type FlatBlock,
+  inlineContentOf,
+  type LensBlock,
+  type LensInlineContent,
 } from "../blocks/types.js";
-import type { BlockPair } from "../alignment/alignBlocks.js";
+import type { BlockPair, TextMove } from "../alignment/alignBlocks.js";
 import { mergeBlock } from "../merge/block.js";
+import { mergeGroupContent, type TextGroup } from "../merge/group.js";
 import type { Projection } from "../projection/projectDocument.js";
 
 export type PlanWarning =
@@ -46,6 +48,8 @@ export type PlanInput = {
   incoming: FlatBlock[];
   /** The matches of `projection.view` (a side) to `incoming` (b side). */
   alignment: BlockPair[];
+  /** Experimental: the text that a split or a join moved (see `alignBlocksAndMoves`). */
+  moves?: readonly TextMove[];
   contentKindOf: (type: string) => ContentKind;
   /** The text that the format shows for an inline item that it does not give back (see `MergeOptions.shadowOf`). */
   shadowOf?: (item: LensInlineContent) => string | undefined;
@@ -53,7 +57,12 @@ export type PlanInput = {
   newId: () => string;
 };
 
-export type Plan = { target: LensBlock[]; warnings: PlanWarning[] };
+export type Plan = {
+  target: LensBlock[];
+  warnings: PlanWarning[];
+  /** Experimental: the splits and joins of the text, for the rebase (see `TextGroup`). */
+  groups: TextGroup[];
+};
 
 /**
  * Makes the target document: `document` as the text asks for it.
@@ -70,6 +79,8 @@ export type Plan = { target: LensBlock[]; warnings: PlanWarning[] };
  *   parent, it also removes them. An empty hidden block (for example an
  *   empty paragraph) also goes if the planner removes all the visible blocks
  *   around it.
+ * - Experimental, with `moves`: the content of the blocks between which a
+ *   split or a join moved text merges as one text (see `textGroups`).
  */
 export function planTarget(input: PlanInput): Plan {
   const { view, invisibleIds, multiParts } = input.projection;
@@ -176,6 +187,114 @@ export function planTarget(input: PlanInput): Plan {
     }
   });
   keepInvisibleBlocks(source, invisibleIds, kept);
+  /**
+   * Experimental. Finds the groups of blocks between which a split or a join
+   * moved text: the blocks that `moves` (see `alignBlocksAndMoves`) and their
+   * pairs connect. Merges the content of each group as one text (see
+   * `mergeGroupContent`): `base` is the view, `ours` is the text, and
+   * `theirs` is the document. Thus, the moved text keeps its hidden styles. A
+   * block of the text in a pair merges its type and props with its pair. A
+   * new block gets the type and the props of the text. Returns the groups, and
+   * the ID and the merged fields of each block of the text in a group.
+   *
+   * A group has only blocks with content of one kind (inline or plain), and
+   * each view block in it has its own source block. Else, its blocks merge
+   * one by one. Examples are a block that the format shows as more than one
+   * view block, and a paragraph that the text joins to a code block: the plain
+   * content of a code block cannot hold the inline items of the paragraph.
+   */
+  function textGroups() {
+    const { moves = [] } = input;
+    const groups: TextGroup[] = [];
+    const pieces = new Map<number, { id: string; fields: BlockFields }>();
+    if (moves.length === 0) {
+      return { groups, pieces };
+    }
+    // The moves and the pairs of their blocks come from one diff, thus they do
+    // not cross. In this order, a group is a run of edges in which each edge
+    // has a block of the edge before it.
+    const movedA = new Set(moves.map((move) => move.aIndex));
+    const movedB = new Set(moves.map((move) => move.bIndex));
+    const edges = [
+      ...moves,
+      ...input.alignment.filter(
+        (pair) => movedA.has(pair.aIndex) || movedB.has(pair.bIndex),
+      ),
+    ].sort((x, y) => x.aIndex - y.aIndex || x.bIndex - y.bIndex);
+    const runs: (typeof edges)[] = [];
+    for (const edge of edges) {
+      const last = runs.at(-1)?.at(-1);
+      if (last?.aIndex === edge.aIndex || last?.bIndex === edge.bIndex) {
+        runs.at(-1)?.push(edge);
+      } else {
+        runs.push([edge]);
+      }
+    }
+
+    for (const run of runs) {
+      const views = [...new Set(run.map((edge) => edge.aIndex))];
+      const texts = [...new Set(run.map((edge) => edge.bIndex))];
+      const sources = views.map((v) => view[v].sourceId);
+      // The blocks of the text have text, thus inline or plain content.
+      const kinds = new Set(
+        texts.map((j) => contentKindOf(incoming[j].block.type)),
+      );
+      if (
+        kinds.size > 1 ||
+        texts.some((j) => skipped.has(j)) ||
+        !sources.every(
+          (id): id is string =>
+            id !== undefined &&
+            !multiParts.has(id) &&
+            kinds.has(contentKindOf(source.block(id).type)),
+        )
+      ) {
+        continue;
+      }
+      const ids = texts.map((j) => keptIdOf[j] ?? input.newId());
+      const merged = mergeGroupContent(
+        views.map((v, k) => ({
+          id: sources[k],
+          content: inlineContentOf(view[v].block),
+        })),
+        texts.map((j, k) => ({
+          id: ids[k],
+          content: inlineContentOf(incoming[j].block),
+        })),
+        sources.map((id) => ({
+          id,
+          content: inlineContentOf(source.block(id)),
+        })),
+        { shadowOf: input.shadowOf },
+      );
+      texts.forEach((j, k) => {
+        const content = merged.get(ids[k]);
+        // In the planner, the text wins each conflict. Thus, each block of the
+        // text keeps its break.
+        if (content === undefined) {
+          throw new Error(`The merge of a group lost block ${ids[k]}`);
+        }
+        const v = incomingToView[j];
+        const text = incoming[j].block;
+        pieces.set(j, {
+          id: ids[k],
+          fields:
+            v === -1
+              ? { ...text, content }
+              : mergeBlock(
+                  view[v].block,
+                  text,
+                  source.block(sources[views.indexOf(v)]),
+                  contentKindOf,
+                  { content },
+                ),
+        });
+      });
+      groups.push({ base: sources, ours: ids });
+    }
+    return { groups, pieces };
+  }
+  const { groups, pieces } = textGroups();
 
   // 2. Build the target tree in the order of the text. The stack holds the
   // open ancestors: the last block at each depth. A block goes into an open
@@ -382,10 +501,11 @@ export function planTarget(input: PlanInput): Plan {
       continue;
     }
     const id = keptIdOf[j];
+    const piece = pieces.get(j);
     if (id === undefined) {
       const block = node(
-        replacementIdOf.get(j) ?? input.newId(),
-        incoming[j].block,
+        replacementIdOf.get(j) ?? piece?.id ?? input.newId(),
+        piece?.fields ?? incoming[j].block,
       );
       attach(block, nestingOfNext(j) ?? textParent(j));
       nodes[j] = block;
@@ -393,15 +513,11 @@ export function planTarget(input: PlanInput): Plan {
     }
     const viewBlock = joined.get(id)?.view ?? view[incomingToView[j]].block;
     const textBlock = joined.get(id)?.incoming ?? incoming[j].block;
-    const merged = mergeBlock(
-      viewBlock,
-      textBlock,
-      source.block(id),
-      contentKindOf,
-      {
+    const merged =
+      piece?.fields ??
+      mergeBlock(viewBlock, textBlock, source.block(id), contentKindOf, {
         shadowOf: input.shadowOf,
-      },
-    );
+      });
     if (
       viewBlock.type === textBlock.type &&
       merged.type !== source.block(id).type
@@ -447,7 +563,7 @@ export function planTarget(input: PlanInput): Plan {
   }
   placeHiddenBlocks(undefined);
 
-  return { target: root.children, warnings };
+  return { target: root.children, warnings, groups };
 }
 
 /** Returns `children` with the blocks of `after` after the block with each ID (first for `undefined`). */

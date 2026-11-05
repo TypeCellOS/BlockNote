@@ -29,16 +29,19 @@ import { type MergeOptions, mergeRecords, mergeValue } from "./threeWay.js";
  * (see `MergeOptions`).
  *
  * The merge merges each prop (see {@link mergeProps}). It merges inline
- * content character by character, and tables cell by cell.
+ * content character by character, and tables cell by cell. With
+ * `options.content`, the block gets that content: the merge of the content
+ * of a group of blocks (see `mergeGroupContent`).
  */
 export function mergeBlock(
   base: BlockFields,
   ours: BlockFields,
   theirs: BlockFields,
   contentKindOf: (type: string) => ContentKind,
-  options: MergeOptions = {},
+  options: MergeOptions & { content?: LensInlineContent[] } = {},
 ): BlockFields {
-  const contentChanged = !deepEqual(base.content, ours.content);
+  const contentChanged =
+    options.content === undefined && !deepEqual(base.content, ours.content);
   const merged = mergeValue(base.type, ours.type, theirs.type, options);
   // The type of theirs cannot hold the content of ours.
   const clash =
@@ -55,16 +58,18 @@ export function mergeBlock(
   // merge, for example a table with merged cells (the format shows them as
   // separate cells).
   const content =
-    clash && options.concurrent
-      ? // The change of the content of ours is lost.
-        theirs.content
-      : contentKindOf(theirs.type) !== kind
-        ? // The kind of content changed: theirs has no content of this kind
-          // to merge with. Thus, the content of ours applies as it is.
-          contentOfKind(ours.content, kind)
-        : contentChanged
-          ? mergeContent(base, ours, theirs, kind, options)
-          : theirs.content;
+    options.content !== undefined
+      ? contentOfKind(options.content, kind)
+      : clash && options.concurrent
+        ? // The change of the content of ours is lost.
+          theirs.content
+        : contentKindOf(theirs.type) !== kind
+          ? // The kind of content changed: theirs has no content of this kind
+            // to merge with. Thus, the content of ours applies as it is.
+            contentOfKind(ours.content, kind)
+          : contentChanged
+            ? mergeContent(base, ours, theirs, kind, options)
+            : theirs.content;
 
   return {
     type,

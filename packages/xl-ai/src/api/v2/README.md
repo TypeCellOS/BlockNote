@@ -10,6 +10,7 @@ In lens terms, the document is the source and the text is the view. The `seriali
 - `computeTextUpdate(editor, { format, text, base })`: returns the operations that change the document to agree with the text. The operations use block IDs. The result also contains warnings (a discriminated union). If the text gives blocks that do not fit the schema (for example an HTML table cell that spans more rows than the table has), the result is `{ error: "invalid-document" }`.
   - `base` is optional. It is the document (Block JSON) at the version that the client read. Get it from your version history. Without `base`, the text applies to the current document.
   - `onConflict` is optional, and only allowed with `base`: `"keep-current"` (the default) or `"reject"` (see "Concurrent writes"). With `"reject"`, a write with a conflict gives `{ error: "conflict", conflicts }`. The JSON and Y.Doc writes have the same option.
+  - `experimentalTextMoves` is optional, and off by default (see "Experimental: splits and joins move text"). The Y.Doc write has the same option.
 - `updateDocumentFromText(editor, { format, text, base })`: computes the operations and applies them: in one transaction, or for an editor that is bound to a Y.Doc, in groups (see "Apply"). First, the blocks without an ID get an ID (in an editor without a view, `removeBlocks` can leave such a block, and `editor.document` then shows a new ID on each read).
 - `computeJSONUpdate(editor, { document, base })` and `updateDocumentFromJSON(editor, { document, base })`: the same for a full document as BlockNote JSON. The JSON contains the block IDs, thus the blocks pair by ID, not by text. Only the changed blocks and fields change, and with `base`, the changes of other writers stay. A field that the JSON of a block does not have gets its default value: send each block with all its fields (for example from `editor.document`).
   - A block without an ID is a new block. An ID can identify only one block. Thus, a block gets a new ID if an earlier block of the JSON has its ID. With `base`, a block also gets a new ID if another writer added a block with its ID after `base`.
@@ -111,6 +112,18 @@ An equal text is a stronger sign than a position. Thus, a moved block does not m
 
 A split paragraph keeps its ID on the part with the most of its text. Two joined paragraphs keep the ID of the first paragraph. A block that moved and also changed gets a new ID.
 
+## Experimental: splits and joins move text
+
+The option `experimentalTextMoves` is off by default. Without it, the rules above apply, and the merges pair the blocks by ID only. Thus, for a merge, a split or a join removes text from one block and adds it to another (see "Items that are not done"). With the option:
+
+- **The first part of a split keeps the ID**, not the part with the most text (`alignBlocksAndMoves`). This is also the rule of the editor: Enter keeps the ID on the first part.
+- **The moves.** The overlaps of rule 1 also show the text that moved from one block to another: an overlap of at least half of the shorter text, of two blocks that do not match, if one of them matches a third block. Examples are the second part of a split paragraph, and the second paragraph of two joined paragraphs. Such a block is a part of the other block. Thus, rules 2 and 3 do not give it a match.
+- **The groups.** The blocks that the moves and their matches connect are a group. The content of a group merges as one text (`mergeGroupContent` in `merge/group.ts`): the content of its blocks in order, with a break at the start of each block. A split is a new break, and a join is a removed break. The breaks align by their place in the text, and the ID of a break that the three sides have merges three-way. A group has blocks with content of one kind (inline or plain) only, and each view block in it has its own source block. Else, the blocks merge one by one. An example is a paragraph that the text joins to a code block.
+- **The planner** merges a group with the view as `base`, the text as `ours` and the document as `theirs`. Thus, the moved text keeps its hidden styles (for example an underline in markdown). Two joined paragraphs get the props of the first paragraph: the props of the second paragraph are lost.
+- **The rebase** (with `base`) gets the groups of the plan. It merges a group with `base`, the target and the current document. Thus, a change of another writer to the moved text goes to the block that holds it after the write, and the moved text is not a removal from the old block. A split or a join changes the text where it occurs: if another writer changed that text, that is a conflict, and the split or the join there does not apply (`conflicting-change`). A block of a group stays only if the merge gives it content. If the client joins a block whose type or props another writer changed, the join does not apply: the block stays with its text (`removed-changed-block`).
+- With `merge: "yjs"`, only the planner uses the option: Yjs merges the moved text.
+- The comments on the moved text are lost. The apply inserts that text as new text, without the marks that Block JSON does not contain. To keep them, the apply must move the ProseMirror nodes.
+
 ## The three-way merge
 
 All merges in `merge/` use one rule and one vocabulary (`merge/threeWay.ts`):
@@ -170,6 +183,7 @@ Each module imports only modules that are before it in this list. Thus, there ar
   - `api.markdown.test.ts`, `api.html.test.ts` and `api.plainText.test.ts`: examples in each format.
   - `api.json.test.ts`: the JSON API.
   - `api.removals.test.ts`: removals, where content is lost. Examine these expected results carefully.
+  - `api.splitJoin.test.ts`: the option `experimentalTextMoves`: splits and joins in the text, also from an older version, and in a Y.Doc.
   - `api.concurrent.test.ts`: writes from an older version without Yjs, also on 40 random pairs of writers and 40 random groups of three or four writers in each format.
   - `api.fuzz.test.ts`: 150 random documents with all kinds of blocks (tables, files and images with captions, code blocks with blank lines, deep nesting, mentions, columns) in each format, with random edits. It examines the format contract (each view block with text links to a document block, and the round trip of a block that the view shows as it is gives that block alone) and the laws.
 - `yjs/yDocText.test.ts`: the Y.Doc API. The concurrent cases run for the two merges (`"lens"` and `"yjs"`). The conflicts and `onConflict: "reject"` are only for `"lens"`.
@@ -243,7 +257,7 @@ These problems stay:
 - A join in the text. The first block keeps its ID. The hidden data of the second block is lost: its props, the hidden styles of its text, and the comments on its text.
 - A split by the client, while another writer changes the part that goes to the new block (the part without the ID). The text of that part shows two times, with the warning `conflicting-change`: the block keeps the changed text (`theirs` wins the conflict), and the new block has the text of the client.
 - A join by the client, while another writer changes the second block. The text of the second block shows two times, with the warning `removed-changed-block`: the second block stays with the change, and the joined block has the text of the client.
-- The cause of the four items above: the merge pairs blocks by ID. A split or a join moves text from one block to another, and for the merge, that text was removed from one block and added to another.
+- The cause of the four items above: the merge pairs blocks by ID. A split or a join moves text from one block to another, and for the merge, that text was removed from one block and added to another. The option `experimentalTextMoves` removes this cause for the splits and joins of the text (see "Experimental: splits and joins move text").
 - A block that another writer rewrote. If another writer changes almost all words of a block (for example the case of each word), the alignment of the old and the new text finds nothing in common. If the client also changes that block, the text of the other writer stays. The change of the client is lost, with the warning `conflicting-change`.
 - In jsdom, the markdown export of many paragraphs in list items is quadratic, because each move of an element recomputes the index of its siblings.
 - A block that the text moves and also changes. The lens does not find it. The block is removed and inserted again, with a new ID.

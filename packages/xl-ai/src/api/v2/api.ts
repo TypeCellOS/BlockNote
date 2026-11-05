@@ -5,7 +5,7 @@ import {
 } from "@blocknote/core";
 import { UniqueID } from "@blocknote/core/extensions";
 
-import { alignBlocks } from "./alignment/alignBlocks.js";
+import { alignBlocksAndMoves } from "./alignment/alignBlocks.js";
 import { flattenBlocks } from "./blocks/flatten.js";
 import { type SchemaRules, schemaRulesOf } from "./blocks/schema.js";
 import { BlockTree } from "./blocks/tree.js";
@@ -21,6 +21,7 @@ import { diffDocuments } from "./operations/diffDocuments.js";
 import type { BlockOperation } from "./operations/types.js";
 import { documentText, formatCache } from "./projection/cache.js";
 import { withoutHiddenBlocks } from "./projection/projectDocument.js";
+import type { TextGroup } from "./merge/group.js";
 import { mergeTree, type RebaseWarning } from "./merge/tree.js";
 import { fitLayout } from "./target/fitLayout.js";
 import {
@@ -99,6 +100,15 @@ export type TextUpdateOptions = {
   format: TextFormat;
   /** A text from {@link getDocumentText}, possibly with changes. */
   text: string;
+  /**
+   * Experimental, off by default. A split or a join in the text moves text
+   * from one block to another (see "Splits and joins" in the README). The
+   * moved text keeps its hidden styles, and the first part of a split keeps
+   * the ID. With `base`, the changes of other writers to the moved text go to
+   * the block that holds it. Without this option, the merges pair the
+   * blocks by ID only.
+   */
+  experimentalTextMoves?: boolean;
 } & WriteFromVersion<readonly LensBlock[]>;
 
 /**
@@ -139,11 +149,13 @@ function computeBlocksUpdate(
 ): TextUpdate {
   const { current } = options;
   const base = options.base && withDistinctIds(options.base);
+  const textMoves = options.experimentalTextMoves === true;
   const plan = planTextUpdate(
     editor,
     options.format,
     base ?? current,
     options.text,
+    textMoves,
   );
   if (plan.error !== undefined) {
     return plan;
@@ -153,6 +165,7 @@ function computeBlocksUpdate(
     current,
     onConflict: options.onConflict,
     keepLayout: options.keepLayout,
+    groups: textMoves ? (plan.groups ?? []) : undefined,
   });
 }
 
@@ -305,6 +318,8 @@ function updateToTarget(
     current: readonly LensBlock[];
     onConflict: "keep-current" | "reject" | undefined;
     keepLayout?: boolean;
+    /** Experimental: the splits and joins of the client (see `mergeTree`). */
+    groups?: readonly TextGroup[];
   },
 ): ValidTextUpdate | ConflictError {
   const { base, current } = documents;
@@ -319,6 +334,7 @@ function updateToTarget(
           ours: plan.target,
           theirs: current,
           contentKindOf: rules.contentKindOf,
+          groups: documents.groups,
         });
   if (documents.onConflict === "reject" && merged.warnings.length > 0) {
     return { error: "conflict", conflicts: merged.warnings };
@@ -368,8 +384,15 @@ function planTextUpdate(
   format: TextFormat,
   document: readonly LensBlock[],
   text: string,
+  /** Experimental (see `TextUpdateOptions.experimentalTextMoves`). */
+  textMoves: boolean,
 ):
-  | { error?: undefined; target: readonly LensBlock[]; warnings: PlanWarning[] }
+  | {
+      error?: undefined;
+      target: readonly LensBlock[];
+      warnings: PlanWarning[];
+      groups?: TextGroup[];
+    }
   | { error: "invalid-document" } {
   const { text: serialized, projection: projectionOf } = documentText(
     editor,
@@ -395,11 +418,17 @@ function planTextUpdate(
   const incoming = flattenBlocks(
     withoutHiddenBlocks(editor, format, parsed, projection.view, content),
   );
+  const { pairs, moves } = alignBlocksAndMoves(
+    projection.view,
+    incoming,
+    textMoves,
+  );
   return planTarget({
     document,
     projection,
     incoming,
-    alignment: alignBlocks(projection.view, incoming),
+    alignment: pairs,
+    moves,
     contentKindOf: schemaRulesOf(editor).contentKindOf,
     shadowOf: shadowsOf(editor, format),
     newId: () => UniqueID.options.generateID(),
