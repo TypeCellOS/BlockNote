@@ -94,6 +94,26 @@ describe("a split in the text", () => {
     ]);
   });
 
+  it("gives the new part the hidden props of the block", () => {
+    const editor = createEditor([
+      {
+        id: "p",
+        type: "paragraph",
+        props: { textColor: "red", textAlignment: "center" },
+        content: "The first part has words. Second part.",
+      },
+    ]);
+    write(
+      editor,
+      replaceOnce(getDocumentText(editor, format), "words. ", "words.\n\n"),
+    );
+
+    expect(blocksOf(editor).map((block) => block.props)).toEqual([
+      { textColor: "red", textAlignment: "center" },
+      { textColor: "red", textAlignment: "center" },
+    ]);
+  });
+
   it("keeps the ID on the first part, also if the second part is larger", () => {
     const editor = createEditor([
       {

@@ -194,8 +194,10 @@ export function planTarget(input: PlanInput): Plan {
    * `mergeGroupContent`): `base` is the view, `ours` is the text, and
    * `theirs` is the document. Thus, the moved text keeps its hidden styles. A
    * block of the text in a pair merges its type and props with its pair. A
-   * new block gets the type and the props of the text. Returns the groups, and
-   * the ID and the merged fields of each block of the text in a group.
+   * new block (for example the second part of a split) merges them with the
+   * view block that gave it the most text: thus, it gets the hidden props of
+   * that block (for example its color). Returns the groups, and the ID and
+   * the merged fields of each block of the text in a group.
    *
    * A group has only blocks with content of one kind (inline or plain), and
    * each view block in it has its own source block. Else, its blocks merge
@@ -274,20 +276,21 @@ export function planTarget(input: PlanInput): Plan {
         if (content === undefined) {
           throw new Error(`The merge of a group lost block ${ids[k]}`);
         }
-        const v = incomingToView[j];
-        const text = incoming[j].block;
+        const v =
+          incomingToView[j] !== -1
+            ? incomingToView[j]
+            : moves
+                .filter((move) => move.bIndex === j)
+                .reduce((x, y) => (y.size > x.size ? y : x)).aIndex;
         pieces.set(j, {
           id: ids[k],
-          fields:
-            v === -1
-              ? { ...text, content }
-              : mergeBlock(
-                  view[v].block,
-                  text,
-                  source.block(sources[views.indexOf(v)]),
-                  contentKindOf,
-                  { content },
-                ),
+          fields: mergeBlock(
+            view[v].block,
+            incoming[j].block,
+            source.block(sources[views.indexOf(v)]),
+            contentKindOf,
+            { content },
+          ),
         });
       });
       groups.push({ base: sources, ours: ids });
