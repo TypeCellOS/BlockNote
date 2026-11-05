@@ -54,7 +54,29 @@ The three-way merge of the trees (`merge/tree.ts`) uses the block IDs. `base` is
 3. **The order.** For each parent, the lists of child IDs merge three-way (`diff3`). Thus, a move that both sides made happens one time. A block that one side moved goes to the place of that side. If both sides add blocks at one position, both stay: the blocks of the client first.
 4. **The fields.** Each field merges three-way (`merge/block.ts`).
 
-**Conflicts.** If the client and another writer changed the same part of a block in different ways (a part of its text, a style, a prop, its parent or its place), the current document wins there, and the client gets the warning `conflicting-change`. The client gets the warning, thus the client loses the conflicting part: it can read the document again and write again. Thus, a write from an older version never reverts a change that it did not see. Changes to different parts of one block are not a conflict: both stay.
+**Conflicts.** A conflict is a value that `ours` and `theirs` both changed from `base`, in different ways. One value is a range of characters, one style or link, one prop, the type, one table cell or row, the parent, or the place in the parent. Then `theirs` stays, and the client gets a warning. The client gets the warning, thus `ours` loses the conflicting part: the client can read the document again and write again. Thus, a write from an older version never reverts a change that it did not see.
+
+| Conflict                                 | Example                                                                                                   | Result                                    | Warning                   |
+| ---------------------------------------- | --------------------------------------------------------------------------------------------------------- | ----------------------------------------- | ------------------------- |
+| Text: the same characters                | `ours` and `theirs` change the same word, or `ours` changes a word in a sentence that `theirs` removed    | the text of `theirs` stays                | `conflicting-change`      |
+| A style or a link on the same characters | `ours` and `theirs` give a word different text colors                                                     | the style of `theirs` stays               | `conflicting-change`      |
+| A prop                                   | `ours` and `theirs` change the level of a heading to different values                                     | the value of `theirs` stays               | `conflicting-change`      |
+| The type                                 | `ours` makes the block a heading, `theirs` makes it a bullet                                              | the type and the content of `theirs` stay | `conflicting-change`      |
+| A table cell or row                      | `ours` and `theirs` change the same cell                                                                  | the cell or row of `theirs` stays         | `conflicting-change`      |
+| The parent                               | `ours` and `theirs` move the block into different parents, or each moves a block into the other (a cycle) | the parent of `theirs` stays              | `conflicting-change`      |
+| The place                                | `ours` and `theirs` move the block to different places in one parent                                      | the place of `theirs` stays               | `conflicting-change`      |
+| A change and a removal                   | `ours` changes or moves a block that `theirs` removed                                                     | the block stays removed                   | `change-to-removed-block` |
+| A removal and a change                   | `ours` removes a block that `theirs` changed, or that has a new block of `theirs` in it                   | the block stays, as `theirs` has it       | `removed-changed-block`   |
+
+These are not conflicts. Both changes stay, with no warning:
+
+- Changes to different blocks.
+- Changes to different parts of one block: different words, different styles (bold in `ours`, italic in `theirs`), or different props.
+- The same change in `ours` and `theirs`: it applies one time.
+- Two inserts at one position: both stay, the blocks of `ours` first.
+- A new block of `theirs`: it stays if its parent stays.
+- A new block of `ours` in a block that `theirs` removed: it goes to the place of that parent.
+- A block that `ours` removed and `theirs` only moved: it goes. A move is not a change of the block.
 
 With `onConflict: "reject"` (`WriteFromVersion`), a write with a conflict (any `RebaseWarning`) does not apply: the result is `{ error: "conflict", conflicts }`, and the document (or the Y.Doc) does not change. The default is `"keep-current"`. The type allows `onConflict` only with `base`.
 
