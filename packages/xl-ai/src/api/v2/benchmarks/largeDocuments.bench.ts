@@ -18,7 +18,7 @@ import { diffDocuments } from "../operations/diffDocuments.js";
 import { projectDocument } from "../projection/projectDocument.js";
 import { planTarget } from "../target/planTarget.js";
 import { richDocument } from "../testUtil/fixtures.js";
-import { bindEditor } from "../testUtil/yjs.js";
+import { bindEditor, unbindEditor } from "../testUtil/yjs.js";
 import { updateYDocFromText } from "../yjs/index.js";
 
 /**
@@ -130,7 +130,7 @@ describe("large documents", () => {
           const ydoc = blocksToYDoc(editor, editor.document);
           const reader = bindEditor(ydoc.getXmlFragment("prosemirror"));
           const yText = getDocumentText(reader, format);
-          reader._tiptapEditor.destroy();
+          unbindEditor(reader);
           const yEdited =
             yText.slice(0, yText.indexOf("Last paragraph", yText.length / 2)) +
             "Changed. " +
@@ -169,7 +169,7 @@ describe("large documents", () => {
                 return { client: bindEditor(fragment), fragment };
               },
               // An editor of 10,000 blocks with a DOM is large in memory.
-              ({ client }) => client._tiptapEditor.destroy(),
+              ({ client }) => unbindEditor(client),
             ),
             "· project": await median(() => {
               projection = projectDocument(editor, format, document);

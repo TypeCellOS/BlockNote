@@ -27,7 +27,7 @@ import {
   replaceOnce,
   richDocument,
 } from "../testUtil/fixtures.js";
-import { bindEditor, readText } from "../testUtil/yjs.js";
+import { bindEditor, readText, unbindEditor } from "../testUtil/yjs.js";
 import { updateYDocFromText } from "./yDocText.js";
 import { valid } from "../testUtil/valid.js";
 import { formatCases } from "../testUtil/codecs.js";
@@ -85,7 +85,7 @@ function setup(initialContent: PartialBlock[] = richDocument) {
     change: (edit: (editor: BlockNoteEditor<any, any, any>) => void) => {
       const user = bindEditor(fragment);
       edit(user);
-      user._tiptapEditor.destroy();
+      unbindEditor(user);
     },
   };
 }

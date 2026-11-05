@@ -1,5 +1,5 @@
 import type { Block } from "@blocknote/core";
-import { describe, expect, it } from "vite-plus/test";
+import { afterEach, describe, expect, it } from "vite-plus/test";
 
 import {
   computeTextUpdate,
@@ -206,11 +206,18 @@ describe("markdown normalization", () => {
  * mounted editor.
  */
 describe("a mounted editor", () => {
+  const mounted: ReturnType<typeof createEditor>[] = [];
+  afterEach(() => {
+    for (const editor of mounted.splice(0)) {
+      editor.unmount();
+    }
+  });
   function createMountedEditor() {
     const editor = createEditor([
       { id: "p", type: "paragraph", content: "Alpha end" },
     ]);
     editor.mount(document.createElement("div"));
+    mounted.push(editor);
     return editor;
   }
 

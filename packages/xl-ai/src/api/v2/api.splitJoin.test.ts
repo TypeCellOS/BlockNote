@@ -21,7 +21,7 @@ import {
   randomSentence,
 } from "./testUtil/random.js";
 import { valid } from "./testUtil/valid.js";
-import { bindEditor, readText } from "./testUtil/yjs.js";
+import { bindEditor, readText, unbindEditor } from "./testUtil/yjs.js";
 import { updateYDocFromText } from "./yjs/index.js";
 
 /**
@@ -428,7 +428,7 @@ describe("a split or a join of the client in a Y.Doc", () => {
     const other = bindEditor(fragment);
     other.updateBlock("a", { content: "First part. Second part, edited." });
     other.updateBlock("b", { content: "Third block, edited." });
-    other._tiptapEditor.destroy();
+    unbindEditor(other);
 
     // The client splits the first block and joins the second block to it.
     const update = valid(
