@@ -1,10 +1,4 @@
-import {
-  BlockNoteEditor,
-  BlockNoteSchema,
-  defaultBlockSpecs,
-  type PartialBlock,
-} from "@blocknote/core";
-import { withMultiColumn } from "@blocknote/xl-multi-column";
+import { BlockNoteEditor, type PartialBlock } from "@blocknote/core";
 import { describe, expect, it } from "vite-plus/test";
 
 import {
@@ -19,9 +13,11 @@ import { flattenBlocks } from "./blocks/flatten.js";
 import type { LensBlock } from "./blocks/types.js";
 import {
   blockFieldsById,
+  columnSchema,
   createEditor,
   diffBlocks,
   documentShape,
+  fruitDocument,
   replaceOnce,
 } from "./testUtil/fixtures.js";
 import {
@@ -59,19 +55,6 @@ function write(
     }),
   );
 }
-
-const fruit: PartialBlock[] = [
-  {
-    id: "fruit",
-    type: "bulletListItem",
-    content: "Fruit",
-    children: [
-      { id: "apples", type: "bulletListItem", content: "Apples" },
-      { id: "pears", type: "bulletListItem", content: "Pears" },
-    ],
-  },
-  { id: "end", type: "paragraph", content: "End" },
-];
 
 describe("a write from an older version", () => {
   it("changes nothing if the client did not change the text", () => {
@@ -232,7 +215,7 @@ describe("a write from an older version", () => {
   });
 
   it("does one move if two writers make the same move", () => {
-    const editor = createEditor(fruit);
+    const editor = createEditor(fruitDocument);
     const client = read(editor);
     write(editor, read(editor), (text) =>
       replaceOnce(text, "  * Pears", "* Pears"),
@@ -248,7 +231,7 @@ describe("a write from an older version", () => {
   });
 
   it("keeps a change to a block that another writer moved", () => {
-    const editor = createEditor(fruit);
+    const editor = createEditor(fruitDocument);
     const client = read(editor);
     write(editor, read(editor), (text) =>
       replaceOnce(text, "  * Pears", "* Pears"),
@@ -421,7 +404,7 @@ describe("a write from an older version, with blocks that another writer moved",
 
 describe("a write from an older version with a conflict", () => {
   it("keeps the change of another writer, with a warning, if the client changes the same word", () => {
-    const editor = createEditor(fruit);
+    const editor = createEditor(fruitDocument);
     const client = read(editor);
     editor.updateBlock("end", { content: "The finish" });
 
@@ -598,7 +581,7 @@ describe("a write from an older version with onConflict", () => {
   }
 
   it("rejects a write with a conflict, and does not change the document", () => {
-    const editor = createEditor(fruit);
+    const editor = createEditor(fruitDocument);
     const client = read(editor);
     editor.updateBlock("end", { content: "The finish" });
     const before = editor.document;
@@ -618,7 +601,7 @@ describe("a write from an older version with onConflict", () => {
   });
 
   it("rejects a write that removes a block that another writer changed", () => {
-    const editor = createEditor(fruit);
+    const editor = createEditor(fruitDocument);
     const client = read(editor);
     editor.updateBlock("end", { content: "The end" });
 
@@ -636,7 +619,7 @@ describe("a write from an older version with onConflict", () => {
   });
 
   it("applies a write without a conflict, also with reject", () => {
-    const editor = createEditor(fruit);
+    const editor = createEditor(fruitDocument);
     const client = read(editor);
     editor.updateBlock("end", { content: "The finish" });
 
@@ -660,7 +643,7 @@ describe("a write from an older version with onConflict", () => {
 
   it("keeps the current document in a conflict with keep-current, the default", () => {
     const run = (onConflict: "keep-current" | undefined) => {
-      const editor = createEditor(fruit);
+      const editor = createEditor(fruitDocument);
       const client = read(editor);
       editor.updateBlock("end", { content: "The finish" });
       const text = replaceOnce(
@@ -696,7 +679,7 @@ describe("a write from an older version with onConflict", () => {
 
 describe("a write from an older version that removes blocks", () => {
   it("keeps a block that another writer changed, with a warning", () => {
-    const editor = createEditor(fruit);
+    const editor = createEditor(fruitDocument);
     const client = read(editor);
     editor.updateBlock("end", { content: "The end" });
 
@@ -713,7 +696,7 @@ describe("a write from an older version that removes blocks", () => {
   });
 
   it("keeps a block and its child that another writer changed, with a warning, and removes the other child", () => {
-    const editor = createEditor(fruit);
+    const editor = createEditor(fruitDocument);
     const client = read(editor);
     editor.updateBlock("pears", { content: "Green pears" });
 
@@ -730,7 +713,7 @@ describe("a write from an older version that removes blocks", () => {
   });
 
   it("removes a child that another writer moved out of a block that the client removes", () => {
-    const editor = createEditor(fruit);
+    const editor = createEditor(fruitDocument);
     const client = read(editor);
     // Another writer outdents Apples.
     editor.removeBlocks(["apples"]);
@@ -752,9 +735,7 @@ describe("a write from an older version, with columns", () => {
     columns: PartialBlock<any, any, any>[],
   ): BlockNoteEditor<any, any, any> {
     return BlockNoteEditor.create({
-      schema: withMultiColumn(
-        BlockNoteSchema.create({ blockSpecs: defaultBlockSpecs }),
-      ),
+      schema: columnSchema,
       initialContent: [
         { id: "list", type: "columnList", children: columns },
         { id: "end", type: "paragraph", content: "End" },

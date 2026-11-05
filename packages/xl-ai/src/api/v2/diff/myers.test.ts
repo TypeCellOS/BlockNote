@@ -2,6 +2,7 @@ import { describe, expect, it } from "vite-plus/test";
 
 import { expectValidMatching } from "../testUtil/matching.js";
 import { myersMatch } from "./myers.js";
+import { createRandom } from "../testUtil/random.js";
 
 const equals = (x: string, y: string) => x === y;
 
@@ -43,12 +44,7 @@ describe("myersMatch", () => {
   });
 
   it("matches a longest common subsequence for random sequences", () => {
-    // A small random generator, for the same cases on each run.
-    let state = 1;
-    const random = (n: number) => {
-      state = (state * 1103515245 + 12345) % 2147483648;
-      return state % n;
-    };
+    const { int: random } = createRandom(1);
     for (let run = 0; run < 300; run++) {
       const alphabet = 1 + random(4);
       const a = Array.from({ length: random(120) }, () =>

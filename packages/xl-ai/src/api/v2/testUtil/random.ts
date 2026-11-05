@@ -39,7 +39,8 @@ const WORDS = [
   "café",
 ];
 
-function words(random: Random, count: number) {
+/** Returns `count` random words. */
+export function words(random: Random, count: number) {
   return Array.from({ length: count }, () => random.pick(WORDS)).join(" ");
 }
 

@@ -1,9 +1,4 @@
-import {
-  BlockNoteEditor,
-  BlockNoteSchema,
-  defaultBlockSpecs,
-} from "@blocknote/core";
-import { withMultiColumn } from "@blocknote/xl-multi-column";
+import { BlockNoteEditor } from "@blocknote/core";
 import { describe, expect, it } from "vite-plus/test";
 
 import {
@@ -12,16 +7,13 @@ import {
   htmlFormat,
   updateDocumentFromText,
 } from "./index.js";
-import { createEditor, replaceOnce } from "./testUtil/fixtures.js";
+import {
+  columnSchema,
+  createEditor,
+  replaceOnce,
+  writeText,
+} from "./testUtil/fixtures.js";
 import { valid } from "./testUtil/valid.js";
-
-function write(
-  editor: BlockNoteEditor<any, any, any>,
-  edit: (html: string) => string,
-) {
-  const text = edit(getDocumentText(editor, htmlFormat));
-  return updateDocumentFromText(editor, { format: htmlFormat, text });
-}
 
 describe("HTML", () => {
   it("changes a prop that HTML shows", () => {
@@ -46,7 +38,7 @@ describe("HTML", () => {
       ]),
       htmlFormat,
     );
-    write(editor, () => blue);
+    writeText(editor, htmlFormat, () => blue);
 
     expect(editor.getBlock("p")?.props).toMatchObject({ textColor: "blue" });
   });
@@ -55,7 +47,9 @@ describe("HTML", () => {
     const editor = createEditor([
       { id: "p", type: "paragraph", content: "Hello world" },
     ]);
-    write(editor, (html) => replaceOnce(html, "world", "<u>world</u>"));
+    writeText(editor, htmlFormat, (html) =>
+      replaceOnce(html, "world", "<u>world</u>"),
+    );
 
     expect(editor.getBlock("p")?.content).toEqual([
       { type: "text", text: "Hello ", styles: {} },
@@ -72,7 +66,9 @@ describe("HTML", () => {
         children: [{ id: "child", type: "paragraph", content: "Child" }],
       },
     ]);
-    write(editor, (html) => replaceOnce(html, ">Toggle<", ">Toggle, edited<"));
+    writeText(editor, htmlFormat, (html) =>
+      replaceOnce(html, ">Toggle<", ">Toggle, edited<"),
+    );
 
     const toggle = editor.getBlock("toggle");
     expect(toggle?.type).toBe("toggleListItem");
@@ -124,9 +120,7 @@ describe("HTML", () => {
 
   it("puts two paragraphs into a new column list, without extra columns", () => {
     const editor = BlockNoteEditor.create({
-      schema: withMultiColumn(
-        BlockNoteSchema.create({ blockSpecs: defaultBlockSpecs }),
-      ),
+      schema: columnSchema,
       initialContent: [
         { id: "a", type: "paragraph", content: "Alpha" },
         { id: "b", type: "paragraph", content: "Beta" },

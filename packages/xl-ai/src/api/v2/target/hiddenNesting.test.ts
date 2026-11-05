@@ -1,9 +1,4 @@
-import {
-  BlockNoteEditor,
-  BlockNoteSchema,
-  type PartialBlock,
-} from "@blocknote/core";
-import { withMultiColumn } from "@blocknote/xl-multi-column";
+import { BlockNoteEditor, type PartialBlock } from "@blocknote/core";
 import { describe, expect, it } from "vite-plus/test";
 
 import type { LensBlock } from "../blocks/types.js";
@@ -14,6 +9,7 @@ import {
   type TextFormat,
   updateDocumentFromText,
 } from "../index.js";
+import { columnSchema } from "../testUtil/fixtures.js";
 
 /**
  * Hard cases of the nesting rules of the planner (see `keptParent` and
@@ -22,7 +18,7 @@ import {
  * moves. A differential test of two planners found them.
  */
 describe("hidden blocks next to blocks that the text moves", () => {
-  const schema = withMultiColumn(BlockNoteSchema.create());
+  const schema = columnSchema;
 
   /** Writes the text, and returns the IDs of the document, with the children in brackets. */
   function write(

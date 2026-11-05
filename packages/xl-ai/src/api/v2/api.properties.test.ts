@@ -1,9 +1,4 @@
-import {
-  BlockNoteEditor,
-  BlockNoteSchema,
-  defaultBlockSpecs,
-} from "@blocknote/core";
-import { withMultiColumn } from "@blocknote/xl-multi-column";
+import { BlockNoteEditor } from "@blocknote/core";
 import { describe, expect, it } from "vite-plus/test";
 
 import {
@@ -25,6 +20,7 @@ import {
 } from "./testUtil/random.js";
 import { type Codec, formatCases } from "./testUtil/codecs.js";
 import { valid } from "./testUtil/valid.js";
+import { columnSchema } from "./testUtil/fixtures.js";
 
 /**
  * Property tests: the laws (see `api.laws.test.ts`) on random documents with
@@ -103,9 +99,7 @@ describe.each(formatCases)("$name", ({ name, format, codec }) => {
     (seed) => {
       const random = createRandom(seed);
       const editor = BlockNoteEditor.create({
-        schema: withMultiColumn(
-          BlockNoteSchema.create({ blockSpecs: defaultBlockSpecs }),
-        ),
+        schema: columnSchema,
         initialContent: randomDocumentWithColumns(random),
       });
       expectLaws(editor, format, codec, random);

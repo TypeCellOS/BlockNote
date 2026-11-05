@@ -1,10 +1,4 @@
-import {
-  type Block,
-  BlockNoteEditor,
-  BlockNoteSchema,
-  defaultBlockSpecs,
-} from "@blocknote/core";
-import { withMultiColumn } from "@blocknote/xl-multi-column";
+import { type Block, BlockNoteEditor } from "@blocknote/core";
 import { describe, expect, it } from "vite-plus/test";
 
 import {
@@ -15,7 +9,11 @@ import {
   updateDocumentFromJSON,
   type ValidTextUpdate,
 } from "./index.js";
-import { createEditor } from "./testUtil/fixtures.js";
+import {
+  columnSchema,
+  createColumnsEditor,
+  createEditor,
+} from "./testUtil/fixtures.js";
 import { valid } from "./testUtil/valid.js";
 
 const initial = [
@@ -220,9 +218,7 @@ describe("JSON", () => {
 
   it("gives an error for a column outside a column list", () => {
     const editor = BlockNoteEditor.create({
-      schema: withMultiColumn(
-        BlockNoteSchema.create({ blockSpecs: defaultBlockSpecs }),
-      ),
+      schema: columnSchema,
       initialContent: initial,
     });
 
@@ -253,9 +249,7 @@ describe("JSON", () => {
 
   it("puts two blocks into a new column list, without extra columns", () => {
     const editor = BlockNoteEditor.create({
-      schema: withMultiColumn(
-        BlockNoteSchema.create({ blockSpecs: defaultBlockSpecs }),
-      ),
+      schema: columnSchema,
       initialContent: initial.slice(0, 2),
     });
     const [a, b] = copy(editor.document);
@@ -283,9 +277,7 @@ describe("JSON", () => {
   describe("type changes with the same ID", () => {
     function columnsEditor(content: JSONUpdateOptions["document"]) {
       return BlockNoteEditor.create({
-        schema: withMultiColumn(
-          BlockNoteSchema.create({ blockSpecs: defaultBlockSpecs }),
-        ),
+        schema: columnSchema,
         initialContent: content as any,
       });
     }
@@ -409,32 +401,6 @@ describe("JSON, a change of the content kind", () => {
 });
 
 describe("JSON, the layout rules", () => {
-  function createColumnsEditor() {
-    return BlockNoteEditor.create({
-      schema: withMultiColumn(
-        BlockNoteSchema.create({ blockSpecs: defaultBlockSpecs }),
-      ),
-      initialContent: [
-        {
-          id: "list",
-          type: "columnList",
-          children: [
-            {
-              id: "c1",
-              type: "column",
-              children: [{ id: "a", type: "paragraph", content: "Alpha" }],
-            },
-            {
-              id: "c2",
-              type: "column",
-              children: [{ id: "b", type: "paragraph", content: "Beta" }],
-            },
-          ],
-        },
-      ],
-    });
-  }
-
   it("removes a column that the JSON empties, and dissolves the column list", () => {
     const editor = createColumnsEditor();
     const [list] = editor.document;

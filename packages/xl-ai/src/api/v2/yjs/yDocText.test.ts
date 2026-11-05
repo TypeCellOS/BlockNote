@@ -1,10 +1,4 @@
-import {
-  BlockNoteEditor,
-  BlockNoteSchema,
-  defaultBlockSpecs,
-  type PartialBlock,
-} from "@blocknote/core";
-import { withMultiColumn } from "@blocknote/xl-multi-column";
+import { BlockNoteEditor, type PartialBlock } from "@blocknote/core";
 import {
   blocksToYDoc,
   ForkYDocExtension,
@@ -27,7 +21,9 @@ import {
   commentEditorOptions,
 } from "../testUtil/comments.js";
 import {
+  columnSchema,
   documentShape,
+  fruitDocument,
   replaceOnce,
   richDocument,
 } from "../testUtil/fixtures.js";
@@ -43,19 +39,6 @@ import {
   randomEdits,
   randomLineEdit,
 } from "../testUtil/random.js";
-
-const fruit: PartialBlock[] = [
-  {
-    id: "fruit",
-    type: "bulletListItem",
-    content: "Fruit",
-    children: [
-      { id: "apples", type: "bulletListItem", content: "Apples" },
-      { id: "pears", type: "bulletListItem", content: "Pears" },
-    ],
-  },
-  { id: "end", type: "paragraph", content: "End" },
-];
 
 /** An editor that gives the schema to read the Y.Doc directly, without a binding. */
 const reader = BlockNoteEditor.create();
@@ -419,7 +402,7 @@ describe.each(merges)("concurrent writes (merge %s)", (merge) => {
   // Only for `merge: "yjs"` (see above).
   if (merge === "yjs") {
     itMoves("does one move if two writers make the same move", () => {
-      const { read, write, blocks } = setup(fruit);
+      const { read, write, blocks } = setup(fruitDocument);
       const a = read();
       const b = read();
 
@@ -435,7 +418,7 @@ describe.each(merges)("concurrent writes (merge %s)", (merge) => {
     });
 
     itMoves("keeps a change to a block that another writer moved", () => {
-      const { read, write, block, blocks } = setup(fruit);
+      const { read, write, block, blocks } = setup(fruitDocument);
       const a = read();
       const b = read();
 
@@ -457,7 +440,7 @@ describe.each(merges)("concurrent writes (merge %s)", (merge) => {
   itMoves(
     "keeps a change of another writer to a block that the text moves",
     () => {
-      const { read, write, block, blocks } = setup(fruit);
+      const { read, write, block, blocks } = setup(fruitDocument);
       const a = read();
       const b = read();
 
@@ -546,7 +529,7 @@ describe.each(merges)("comments (merge %s)", (merge) => {
     const ydoc = new Y.Doc();
     const fragment = ydoc.getXmlFragment("prosemirror");
     const editor = bindEditor(fragment, commentEditorOptions());
-    editor.replaceBlocks(editor.document, fruit);
+    editor.replaceBlocks(editor.document, fruitDocument);
     const kept = addComment(editor, "Apples");
     const moved = addComment(editor, "Pears");
     const write = (edit: (text: string) => string) =>
@@ -710,9 +693,7 @@ describe("Y.Doc writes after a move of a nested block", () => {
 
 describe.each(merges)("concurrent writes with columns (merge %s)", (merge) => {
   it("keeps a block that another writer added to a column, when the text empties the other column", () => {
-    const schema = withMultiColumn(
-      BlockNoteSchema.create({ blockSpecs: defaultBlockSpecs }),
-    );
+    const schema = columnSchema;
     const ydoc = blocksToYDoc(
       BlockNoteEditor.create({ schema }),
       BlockNoteEditor.create({

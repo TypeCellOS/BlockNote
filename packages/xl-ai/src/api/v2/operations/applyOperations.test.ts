@@ -1,11 +1,8 @@
 import {
   type Block,
   BlockNoteEditor,
-  BlockNoteSchema,
-  defaultBlockSpecs,
   type PartialBlock,
 } from "@blocknote/core";
-import { withMultiColumn } from "@blocknote/xl-multi-column";
 import type { Step } from "prosemirror-transform";
 import { describe, expect, it } from "vite-plus/test";
 
@@ -13,6 +10,7 @@ import type { LensBlock } from "../blocks/types.js";
 
 import { applyOperations } from "./applyOperations.js";
 import type { BlockOperation } from "./types.js";
+import { columnSchema } from "../testUtil/fixtures.js";
 
 /** Applies the operations in one transaction of the editor, and returns its steps. */
 function apply(
@@ -161,9 +159,7 @@ describe("the steps of a structure change", () => {
   });
 
   it("keeps the minimum number of columns at each step", () => {
-    const schema = withMultiColumn(
-      BlockNoteSchema.create({ blockSpecs: defaultBlockSpecs }),
-    );
+    const schema = columnSchema;
     const column = (id: string): LensBlock => ({
       id,
       type: "column",

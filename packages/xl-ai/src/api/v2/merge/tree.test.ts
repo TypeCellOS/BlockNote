@@ -2,6 +2,7 @@ import { describe, expect, it } from "vite-plus/test";
 
 import type { LensBlock } from "../blocks/types.js";
 import { mergeTree } from "./tree.js";
+import { documentShape } from "../testUtil/fixtures.js";
 
 function block(
   id: string,
@@ -28,19 +29,12 @@ function merge(base: LensBlock[], ours: LensBlock[], theirs: LensBlock[]) {
   });
 }
 
-/** The IDs of the tree, with the children of each block. For example `["a", ["b"]]` if b is in a. */
-function shape(blocks: LensBlock[]): unknown[] {
-  return blocks.flatMap((b) =>
-    b.children.length > 0 ? [b.id, shape(b.children)] : [b.id],
-  );
-}
-
 describe("mergeTree", () => {
   it("gives ours if theirs did not change", () => {
     const base = [block("a"), block("b")];
     const ours = [block("b"), block("a", [], "A")];
     const result = merge(base, ours, base);
-    expect(shape(result.blocks)).toEqual(["b", "a"]);
+    expect(documentShape(result.blocks)).toEqual(["b", "a"]);
     expect(result.blocks[1].content).toMatchObject([{ text: "A" }]);
     expect(result.warnings).toEqual([]);
   });
@@ -62,7 +56,7 @@ describe("mergeTree", () => {
   it("does not apply a change to a block that theirs removed, and gives a warning", () => {
     const base = [block("a"), block("b")];
     const result = merge(base, [block("a"), block("b", [], "B")], [block("a")]);
-    expect(shape(result.blocks)).toEqual(["a"]);
+    expect(documentShape(result.blocks)).toEqual(["a"]);
     expect(result.warnings).toEqual([
       { type: "change-to-removed-block", id: "b" },
     ]);
@@ -71,7 +65,7 @@ describe("mergeTree", () => {
   it("keeps a block that ours removes and theirs changed, with a warning", () => {
     const base = [block("a"), block("b")];
     const result = merge(base, [block("a")], [block("a"), block("b", [], "B")]);
-    expect(shape(result.blocks)).toEqual(["a", "b"]);
+    expect(documentShape(result.blocks)).toEqual(["a", "b"]);
     expect(result.blocks[1].content).toEqual([
       { type: "text", text: "B", styles: {} },
     ]);
@@ -87,7 +81,7 @@ describe("mergeTree", () => {
       [block("a"), block("c")],
       [block("b"), block("a"), block("c")],
     );
-    expect(shape(result.blocks)).toEqual(["a", "c"]);
+    expect(documentShape(result.blocks)).toEqual(["a", "c"]);
     expect(result.warnings).toEqual([]);
   });
 
@@ -98,7 +92,7 @@ describe("mergeTree", () => {
       [block("a"), block("p", [block("new")]), block("z")],
       [block("a"), block("z")],
     );
-    expect(shape(result.blocks)).toEqual(["a", "new", "z"]);
+    expect(documentShape(result.blocks)).toEqual(["a", "new", "z"]);
   });
 
   it("moves a block that ours keeps out of a block that ours removes, to its place", () => {
@@ -109,7 +103,7 @@ describe("mergeTree", () => {
       [block("x"), block("z")],
       [block("p", [block("x")]), block("z")],
     );
-    expect(shape(result.blocks)).toEqual(["x", "z"]);
+    expect(documentShape(result.blocks)).toEqual(["x", "z"]);
   });
 
   it("keeps a block that ours removes, with a new block of theirs in it, with a warning", () => {
@@ -119,7 +113,7 @@ describe("mergeTree", () => {
       [block("z")],
       [block("p", [block("n")]), block("z")],
     );
-    expect(shape(result.blocks)).toEqual(["p", ["n"], "z"]);
+    expect(documentShape(result.blocks)).toEqual(["p", ["n"], "z"]);
     expect(result.warnings).toEqual([
       { type: "removed-changed-block", id: "p" },
     ]);
@@ -128,7 +122,11 @@ describe("mergeTree", () => {
   it("does one move if the two sides make the same move", () => {
     const base = [block("a", [block("b")]), block("c")];
     const moved = [block("a"), block("b"), block("c")];
-    expect(shape(merge(base, moved, moved).blocks)).toEqual(["a", "b", "c"]);
+    expect(documentShape(merge(base, moved, moved).blocks)).toEqual([
+      "a",
+      "b",
+      "c",
+    ]);
   });
 
   it("keeps the two blocks if the two sides add a block at one position: ours first", () => {
@@ -138,7 +136,7 @@ describe("mergeTree", () => {
       [block("a"), block("mine"), block("z")],
       [block("a"), block("theirs"), block("z")],
     );
-    expect(shape(result.blocks)).toEqual(["a", "mine", "theirs", "z"]);
+    expect(documentShape(result.blocks)).toEqual(["a", "mine", "theirs", "z"]);
   });
 
   it("gives the parents of theirs, with a warning, if the two sides move two blocks into each other", () => {
@@ -148,7 +146,7 @@ describe("mergeTree", () => {
       [block("a", [block("b")])],
       [block("b", [block("a")])],
     );
-    expect(shape(result.blocks)).toEqual(["b", ["a"]]);
+    expect(documentShape(result.blocks)).toEqual(["b", ["a"]]);
     expect(result.warnings).toEqual([{ type: "conflicting-change", id: "b" }]);
   });
 
@@ -161,7 +159,7 @@ describe("mergeTree", () => {
       [block("x"), block("y")],
       [block("w", [block("x")]), block("y")],
     );
-    expect(shape(result.blocks)).toEqual(["w", ["x"], "y"]);
+    expect(documentShape(result.blocks)).toEqual(["w", ["x"], "y"]);
     expect(result.warnings).toEqual([{ type: "conflicting-change", id: "x" }]);
   });
 
@@ -172,7 +170,7 @@ describe("mergeTree", () => {
       [block("b"), block("a"), block("c"), block("d")],
       [block("b"), block("c"), block("d"), block("a")],
     );
-    expect(shape(result.blocks)).toEqual(["b", "c", "d", "a"]);
+    expect(documentShape(result.blocks)).toEqual(["b", "c", "d", "a"]);
     expect(result.warnings).toEqual([{ type: "conflicting-change", id: "a" }]);
   });
 
@@ -183,7 +181,7 @@ describe("mergeTree", () => {
       [block("b"), block("a"), block("c"), block("d")],
       [block("a"), block("b"), block("d"), block("c")],
     );
-    expect(shape(result.blocks)).toEqual(["b", "a", "d", "c"]);
+    expect(documentShape(result.blocks)).toEqual(["b", "a", "d", "c"]);
     expect(result.warnings).toEqual([]);
   });
 
@@ -210,7 +208,7 @@ describe("mergeTree", () => {
       [block("z")],
     );
     // The fit of the result changes the column to its blocks (see `fitLayout`).
-    expect(shape(result.blocks)).toEqual(["c3", ["new"], "z"]);
+    expect(documentShape(result.blocks)).toEqual(["c3", ["new"], "z"]);
   });
 
   it("puts a new block of ours into the column list, if theirs removed its column", () => {
@@ -242,7 +240,7 @@ describe("mergeTree", () => {
       ],
     );
     // The fit of the result moves it to after the list (see `fitLayout`).
-    expect(shape(result.blocks)).toEqual([
+    expect(documentShape(result.blocks)).toEqual([
       "list",
       ["c1", ["a"], "c2", ["b"], "new"],
       "z",
@@ -258,7 +256,7 @@ describe("mergeTree", () => {
       [block("a"), block("new"), block("b")],
       [block("a")],
     );
-    expect(shape(result.blocks)).toEqual(["a", "new"]);
+    expect(documentShape(result.blocks)).toEqual(["a", "new"]);
     expect(result.warnings).toEqual([]);
   });
 
@@ -271,6 +269,6 @@ describe("mergeTree", () => {
       [block("p"), block("q"), block("x"), block("r")],
       [block("p"), block("x"), block("z"), block("q"), block("r")],
     );
-    expect(shape(result.blocks)).toEqual(["p", "z", "q", "x", "r"]);
+    expect(documentShape(result.blocks)).toEqual(["p", "z", "q", "x", "r"]);
   });
 });

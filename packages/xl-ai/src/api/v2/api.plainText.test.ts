@@ -11,24 +11,15 @@ import {
   createEditor,
   documentShape,
   replaceOnce,
+  writeText,
 } from "./testUtil/fixtures.js";
 import { richSchema } from "./testUtil/richRandom.js";
 import { valid } from "./testUtil/valid.js";
 
-function write(
-  editor: BlockNoteEditor<any, any, any>,
-  edit: (text: string) => string,
-) {
-  const text = edit(getDocumentText(editor, plainTextFormat));
-  return valid(
-    updateDocumentFromText(editor, { format: plainTextFormat, text }),
-  );
-}
-
 describe("plain text", () => {
   it("a heading with changed text stays a heading and keeps its styles", () => {
     const editor = createEditor();
-    write(editor, (text) =>
+    writeText(editor, plainTextFormat, (text) =>
       replaceOnce(text, "Bold heading with", "Bold heading, edited, with"),
     );
 
@@ -49,7 +40,7 @@ describe("plain text", () => {
 
   it("gives new text in styled text the styles that plain text does not show", () => {
     const editor = createEditor();
-    write(editor, (text) =>
+    writeText(editor, plainTextFormat, (text) =>
       replaceOnce(text, "red underlined", "red and dotted"),
     );
 
@@ -67,7 +58,7 @@ describe("plain text", () => {
 
   it("inserts a new paragraph between blocks", () => {
     const editor = createEditor();
-    write(editor, (text) =>
+    writeText(editor, plainTextFormat, (text) =>
       replaceOnce(text, "A quote\n\n", "A quote\n\nA new paragraph\n\n"),
     );
 
@@ -81,7 +72,7 @@ describe("plain text", () => {
 
   it("keeps line breaks inside a paragraph", () => {
     const editor = createEditor();
-    write(editor, (text) =>
+    writeText(editor, plainTextFormat, (text) =>
       replaceOnce(text, "line one\nline two", "line one\nline 2"),
     );
 
@@ -99,7 +90,7 @@ describe("plain text", () => {
         content: `Paragraph ${i} alpha beta gamma delta epsilon`,
       })),
     );
-    const update = write(editor, (text) =>
+    const update = writeText(editor, plainTextFormat, (text) =>
       text.replaceAll("alpha", "omega").replaceAll("beta", "zeta"),
     );
 
@@ -129,7 +120,7 @@ describe("plain text", () => {
       },
       { id: "p", type: "paragraph", content: "Total sales" },
     ]);
-    write(editor, (text) =>
+    writeText(editor, plainTextFormat, (text) =>
       replaceOnce(text, "Total sales", "Total sales grew"),
     );
 
@@ -151,7 +142,11 @@ describe("plain text", () => {
 
     it("is replaced, with a warning, if the text swaps its parts", () => {
       const editor = createEditor(blocks);
-      const update = write(editor, () => "second\n\nfirst\n\nEnd");
+      const update = writeText(
+        editor,
+        plainTextFormat,
+        () => "second\n\nfirst\n\nEnd",
+      );
 
       expect(update.warnings).toEqual([
         { type: "multi-part-block-replaced", id: "code" },
@@ -163,7 +158,11 @@ describe("plain text", () => {
 
     it("is replaced, with a warning, if the text puts a block between its parts", () => {
       const editor = createEditor(blocks);
-      const update = write(editor, () => "first\n\nEnd\n\nsecond");
+      const update = writeText(
+        editor,
+        plainTextFormat,
+        () => "first\n\nEnd\n\nsecond",
+      );
 
       expect(update.warnings).toEqual([
         { type: "multi-part-block-replaced", id: "code" },
@@ -183,7 +182,9 @@ describe("plain text", () => {
       })),
       { id: "last", type: "paragraph", content: "Last" },
     ]);
-    write(editor, (text) => replaceOnce(text, "Last", "Last, edited"));
+    writeText(editor, plainTextFormat, (text) =>
+      replaceOnce(text, "Last", "Last, edited"),
+    );
 
     expect(editor.document).toHaveLength(6002);
     expect(editor.getBlock("last")?.content).toMatchObject([

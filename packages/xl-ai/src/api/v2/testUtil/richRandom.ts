@@ -7,7 +7,7 @@ import {
 } from "@blocknote/core";
 import { withMultiColumn } from "@blocknote/xl-multi-column";
 
-import type { Random } from "./random.js";
+import { type Random, words } from "./random.js";
 
 /** A custom inline content type: markdown and plain text show it as "@user". */
 export const mention = createInlineContentSpec(
@@ -28,12 +28,6 @@ export const richSchema = withMultiColumn(
     inlineContentSpecs: { ...defaultInlineContentSpecs, mention },
   }),
 );
-
-const WORDS = ["alpha", "beta", "gamma", "delta", "lorem", "ipsum", "café"];
-
-function words(random: Random, n: number) {
-  return Array.from({ length: n }, () => random.pick(WORDS)).join(" ");
-}
 
 function inline(random: Random): any[] {
   const parts: any[] = [];

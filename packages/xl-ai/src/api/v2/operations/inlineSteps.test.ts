@@ -3,27 +3,16 @@ import {
   getNodeById,
   inlineContentToNodes,
 } from "@blocknote/core";
-import { CommentsExtension, type ThreadStore } from "@blocknote/core/comments";
 import { Fragment } from "prosemirror-model";
 import { ReplaceStep } from "prosemirror-transform";
 import { describe, expect, it } from "vite-plus/test";
 
 import type { LensInlineContent } from "../blocks/types.js";
+import { commentedText, createCommentEditor } from "../testUtil/comments.js";
 import { addInlineContentSteps } from "./inlineSteps.js";
 
-const threadStore = {
-  subscribe: () => () => {},
-  getThreads: () => new Map(),
-} as unknown as ThreadStore;
-
 function createEditor(text: string) {
-  return BlockNoteEditor.create({
-    initialContent: [{ id: "p", type: "paragraph", content: text }],
-    trailingBlock: false,
-    extensions: [
-      CommentsExtension({ threadStore, resolveUsers: async () => [] }),
-    ],
-  });
+  return createCommentEditor([{ id: "p", type: "paragraph", content: text }]);
 }
 
 /** Applies the steps that change paragraph "p" to `content`, and returns the steps. */
@@ -101,13 +90,7 @@ describe("addInlineContentSteps", () => {
 
     applySteps(editor, [text("Hello brave world")]);
 
-    let commented = "";
-    editor.prosemirrorState.doc.descendants((node) => {
-      if (node.isText && comment.isInSet(node.marks)) {
-        commented += node.text;
-      }
-    });
-    expect(commented).toBe("Hello");
+    expect(commentedText(editor.prosemirrorState.doc, comment)).toBe("Hello");
     expect(editor.getBlock("p")?.content).toEqual([text("Hello brave world")]);
   });
 
@@ -134,13 +117,7 @@ describe("addInlineContentSteps", () => {
     ]);
 
     expect(steps.length).toBeLessThanOrEqual(200);
-    let commented = "";
-    editor.prosemirrorState.doc.descendants((node) => {
-      if (node.isText && comment.isInSet(node.marks)) {
-        commented += node.text;
-      }
-    });
-    expect(commented).toBe(" ");
+    expect(commentedText(editor.prosemirrorState.doc, comment)).toBe(" ");
     expect(editor.getBlock("p")?.content).toEqual([
       text(words.map((word) => `${word}x`).join(" ")),
     ]);

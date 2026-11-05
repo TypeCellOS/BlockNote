@@ -14,7 +14,7 @@ import {
   updateDocumentFromText,
 } from "./index.js";
 import { canonicalText } from "./testUtil/canonical.js";
-import { createEditor, replaceOnce } from "./testUtil/fixtures.js";
+import { createEditor, replaceOnce, styledText } from "./testUtil/fixtures.js";
 import {
   createRandom,
   type Random,
@@ -62,10 +62,6 @@ function blocksOf(editor: BlockNoteEditor<any, any, any>) {
   }));
 }
 
-function text(value: string, styles: Record<string, unknown> = {}) {
-  return { type: "text", text: value, styles };
-}
-
 describe("a split in the text", () => {
   it("gives the new part the hidden styles of its text", () => {
     const editor = createEditor([
@@ -87,11 +83,11 @@ describe("a split in the text", () => {
     const [first, second] = blocksOf(editor);
     expect(first).toMatchObject({
       id: "p",
-      content: [text("The first part has words.")],
+      content: [styledText("The first part has words.")],
     });
     expect(second.content).toEqual([
-      text("Second", { underline: true }),
-      text(" part."),
+      styledText("Second", { underline: true }),
+      styledText(" part."),
     ]);
   });
 
@@ -163,9 +159,9 @@ describe("a join in the text", () => {
         id: "a",
         props: {},
         content: [
-          text("First paragraph here. Second "),
-          text("underlined", { underline: true }),
-          text(" text."),
+          styledText("First paragraph here. Second "),
+          styledText("underlined", { underline: true }),
+          styledText(" text."),
         ],
       },
     ]);

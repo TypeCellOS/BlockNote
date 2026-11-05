@@ -8,10 +8,7 @@ import {
   mergeGroupContent,
   movedTextPairs,
 } from "./group.js";
-
-function text(value: string, styles: Record<string, string | boolean> = {}) {
-  return { type: "text" as const, text: value, styles };
-}
+import { styledText } from "../testUtil/fixtures.js";
 
 function blocks(...entries: [string, ...LensInlineContent[]][]): GroupBlock[] {
   return entries.map(([id, ...content]) => ({ id, content }));
@@ -20,30 +17,36 @@ function blocks(...entries: [string, ...LensInlineContent[]][]): GroupBlock[] {
 describe("mergeGroupContent", () => {
   it("splits the text of theirs at the new break of ours, and keeps its styles", () => {
     const merged = mergeGroupContent(
-      blocks(["p", text("Alpha beta. Gamma delta.")]),
-      blocks(["p", text("Alpha beta.")], ["n", text("Gamma delta.")]),
+      blocks(["p", styledText("Alpha beta. Gamma delta.")]),
+      blocks(
+        ["p", styledText("Alpha beta.")],
+        ["n", styledText("Gamma delta.")],
+      ),
       blocks([
         "p",
-        text("Alpha beta. "),
-        text("Gamma", { underline: true }),
-        text(" delta."),
+        styledText("Alpha beta. "),
+        styledText("Gamma", { underline: true }),
+        styledText(" delta."),
       ]),
       {},
     );
 
     expect([...merged]).toEqual([
-      ["p", [text("Alpha beta.")]],
-      ["n", [text("Gamma", { underline: true }), text(" delta.")]],
+      ["p", [styledText("Alpha beta.")]],
+      ["n", [styledText("Gamma", { underline: true }), styledText(" delta.")]],
     ]);
   });
 
   it("joins the texts of theirs where ours removed a break", () => {
     const merged = mergeGroupContent(
-      blocks(["a", text("Alpha beta.")], ["b", text("Gamma delta.")]),
-      blocks(["a", text("Alpha beta. Gamma delta.")]),
       blocks(
-        ["a", text("Alpha beta.")],
-        ["b", text("Gamma", { underline: true }), text(" delta.")],
+        ["a", styledText("Alpha beta.")],
+        ["b", styledText("Gamma delta.")],
+      ),
+      blocks(["a", styledText("Alpha beta. Gamma delta.")]),
+      blocks(
+        ["a", styledText("Alpha beta.")],
+        ["b", styledText("Gamma", { underline: true }), styledText(" delta.")],
       ),
       {},
     );
@@ -52,9 +55,9 @@ describe("mergeGroupContent", () => {
       [
         "a",
         [
-          text("Alpha beta. "),
-          text("Gamma", { underline: true }),
-          text(" delta."),
+          styledText("Alpha beta. "),
+          styledText("Gamma", { underline: true }),
+          styledText(" delta."),
         ],
       ],
     ]);
@@ -62,67 +65,82 @@ describe("mergeGroupContent", () => {
 
   it("gives a change of theirs in the moved text to the block that holds it", () => {
     const merged = mergeGroupContent(
-      blocks(["p", text("Alpha beta. Gamma delta.")]),
-      blocks(["p", text("Alpha beta.")], ["n", text("Gamma delta.")]),
-      blocks(["p", text("Alpha beta. Gamma epsilon.")]),
+      blocks(["p", styledText("Alpha beta. Gamma delta.")]),
+      blocks(
+        ["p", styledText("Alpha beta.")],
+        ["n", styledText("Gamma delta.")],
+      ),
+      blocks(["p", styledText("Alpha beta. Gamma epsilon.")]),
       { concurrent: true },
     );
 
     expect([...merged]).toEqual([
-      ["p", [text("Alpha beta.")]],
-      ["n", [text("Gamma epsilon.")]],
+      ["p", [styledText("Alpha beta.")]],
+      ["n", [styledText("Gamma epsilon.")]],
     ]);
   });
 
   it("does not split where theirs changed the text, and gives the conflict to the block", () => {
     const conflicts: string[] = [];
     const merged = mergeGroupContent(
-      blocks(["p", text("Alpha beta. Gamma delta.")]),
-      blocks(["p", text("Alpha beta.")], ["n", text("Gamma delta.")]),
-      blocks(["p", text("Alpha beta, gamma delta.")]),
+      blocks(["p", styledText("Alpha beta. Gamma delta.")]),
+      blocks(
+        ["p", styledText("Alpha beta.")],
+        ["n", styledText("Gamma delta.")],
+      ),
+      blocks(["p", styledText("Alpha beta, gamma delta.")]),
       { concurrent: true, onConflictIn: (id) => conflicts.push(id) },
     );
 
-    expect([...merged]).toEqual([["p", [text("Alpha beta, gamma delta.")]]]);
+    expect([...merged]).toEqual([
+      ["p", [styledText("Alpha beta, gamma delta.")]],
+    ]);
     expect(conflicts).toEqual(["p"]);
   });
 
   it("keeps a break of theirs that changed, if ours removed it", () => {
     const merged = mergeGroupContent(
-      blocks(["a", text("Alpha beta.")], ["b", text("Gamma delta.")]),
-      blocks(["a", text("Alpha beta. Gamma delta.")]),
+      blocks(
+        ["a", styledText("Alpha beta.")],
+        ["b", styledText("Gamma delta.")],
+      ),
+      blocks(["a", styledText("Alpha beta. Gamma delta.")]),
       [
-        { id: "a", content: [text("Alpha beta.")] },
-        { id: "b", content: [text("Gamma delta.")], changed: true },
+        { id: "a", content: [styledText("Alpha beta.")] },
+        { id: "b", content: [styledText("Gamma delta.")], changed: true },
       ],
       { concurrent: true },
     );
 
     expect([...merged]).toEqual([
-      ["a", [text("Alpha beta.")]],
-      ["b", [text("Gamma delta.")]],
+      ["a", [styledText("Alpha beta.")]],
+      ["b", [styledText("Gamma delta.")]],
     ]);
   });
 
   it("gives a conflict of a style in the moved text to the block that holds it", () => {
     const conflicts: string[] = [];
     const merged = mergeGroupContent(
-      blocks(["p", text("Alpha beta. "), text("Gamma", { textColor: "red" })]),
+      blocks([
+        "p",
+        styledText("Alpha beta. "),
+        styledText("Gamma", { textColor: "red" }),
+      ]),
       blocks(
-        ["p", text("Alpha beta.")],
-        ["n", text("Gamma", { textColor: "blue" })],
+        ["p", styledText("Alpha beta.")],
+        ["n", styledText("Gamma", { textColor: "blue" })],
       ),
       blocks([
         "p",
-        text("Alpha beta. "),
-        text("Gamma", { textColor: "green" }),
+        styledText("Alpha beta. "),
+        styledText("Gamma", { textColor: "green" }),
       ]),
       { concurrent: true, onConflictIn: (id) => conflicts.push(id) },
     );
 
     expect([...merged]).toEqual([
-      ["p", [text("Alpha beta.")]],
-      ["n", [text("Gamma", { textColor: "green" })]],
+      ["p", [styledText("Alpha beta.")]],
+      ["n", [styledText("Gamma", { textColor: "green" })]],
     ]);
     // One conflict for each character.
     expect(new Set(conflicts)).toEqual(new Set(["n"]));
@@ -130,15 +148,18 @@ describe("mergeGroupContent", () => {
 
   it("gives the moved text to the new block of a split of theirs, also if the second part keeps the ID", () => {
     const merged = mergeGroupContent(
-      blocks(["p", text("Alpha. Beta gamma delta.")]),
-      blocks(["p", text("Omega. Beta gamma delta.")]),
-      blocks(["n", text("Alpha.")], ["p", text("Beta gamma delta.")]),
+      blocks(["p", styledText("Alpha. Beta gamma delta.")]),
+      blocks(["p", styledText("Omega. Beta gamma delta.")]),
+      blocks(
+        ["n", styledText("Alpha.")],
+        ["p", styledText("Beta gamma delta.")],
+      ),
       { concurrent: true },
     );
 
     expect([...merged]).toEqual([
-      ["n", [text("Omega.")]],
-      ["p", [text("Beta gamma delta.")]],
+      ["n", [styledText("Omega.")]],
+      ["p", [styledText("Beta gamma delta.")]],
     ]);
   });
 });
@@ -149,7 +170,7 @@ function tree(...entries: [string, string][]): BlockTree {
       id,
       type: "paragraph",
       props: {},
-      content: [text(value)],
+      content: [styledText(value)],
       children: [],
     })),
   );

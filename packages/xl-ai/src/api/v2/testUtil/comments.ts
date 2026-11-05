@@ -1,13 +1,19 @@
 import { BlockNoteEditor, type PartialBlock } from "@blocknote/core";
-import { CommentsExtension, type ThreadStore } from "@blocknote/core/comments";
+import {
+  CommentsExtension,
+  DefaultThreadStoreAuth,
+} from "@blocknote/core/comments";
+import { YjsThreadStore } from "@blocknote/core/yjs";
 import type { Mark, Node } from "prosemirror-model";
+import * as Y from "yjs";
 
 /** Editor options with the comments extension, so that the schema has the comment mark. */
 export function commentEditorOptions() {
-  const threadStore = {
-    subscribe: () => () => {},
-    getThreads: () => new Map(),
-  } as unknown as ThreadStore;
+  const threadStore = new YjsThreadStore(
+    "lens",
+    new Y.Doc().getMap("threads"),
+    new DefaultThreadStoreAuth("lens", "editor"),
+  );
   return {
     trailingBlock: false,
     extensions: [

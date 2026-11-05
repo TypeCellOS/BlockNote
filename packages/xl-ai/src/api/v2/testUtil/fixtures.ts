@@ -1,5 +1,4 @@
 import {
-  type Block,
   BlockNoteEditor,
   BlockNoteSchema,
   createPageBreakBlockSpec,
@@ -9,8 +8,15 @@ import {
 import { withMultiColumn } from "@blocknote/xl-multi-column";
 import { testDocumentBlocks } from "@shared/testDocument.js";
 
+import {
+  getDocumentText,
+  type TextFormat,
+  updateDocumentFromText,
+  type ValidTextUpdate,
+} from "../index.js";
 import { flattenBlocks } from "../blocks/flatten.js";
-import type { LensBlock } from "../blocks/types.js";
+import type { LensBlock, LensStyledText, LensStyles } from "../blocks/types.js";
+import { valid } from "./valid.js";
 
 /**
  * A document with data that markdown and plain text do not show: colors,
@@ -136,6 +142,60 @@ export function createEditor(initialContent: PartialBlock[] = richDocument) {
   return BlockNoteEditor.create({ initialContent });
 }
 
+/** The default blocks, with the column blocks. */
+export const columnSchema = withMultiColumn(
+  BlockNoteSchema.create({ blockSpecs: defaultBlockSpecs }),
+);
+
+/** An editor with two columns: "Alpha" (block a) in column c1 and "Beta" (block b) in column c2. */
+export function createColumnsEditor() {
+  return BlockNoteEditor.create({
+    schema: columnSchema,
+    initialContent: [
+      {
+        id: "list",
+        type: "columnList",
+        children: [
+          {
+            id: "c1",
+            type: "column",
+            children: [{ id: "a", type: "paragraph", content: "Alpha" }],
+          },
+          {
+            id: "c2",
+            type: "column",
+            children: [{ id: "b", type: "paragraph", content: "Beta" }],
+          },
+        ],
+      },
+    ],
+  });
+}
+
+/** A bullet "Fruit" with the bullets "Apples" and "Pears" as children, and a paragraph "End". */
+export const fruitDocument: PartialBlock[] = [
+  {
+    id: "fruit",
+    type: "bulletListItem",
+    content: "Fruit",
+    children: [
+      { id: "apples", type: "bulletListItem", content: "Apples" },
+      { id: "pears", type: "bulletListItem", content: "Pears" },
+    ],
+  },
+  { id: "end", type: "paragraph", content: "End" },
+];
+
+/** Writes the text of the editor, changed by `edit`, back to the editor. The write must be valid. */
+export function writeText(
+  editor: BlockNoteEditor<any, any, any>,
+  format: TextFormat,
+  edit: (text: string) => string,
+): ValidTextUpdate {
+  const text = edit(getDocumentText(editor, format));
+  return valid(updateDocumentFromText(editor, { format, text }));
+}
+
 /** Makes an editor with the shared test document (`shared/testDocumentBlocks.ts`). */
 export function createSharedDocumentEditor() {
   return BlockNoteEditor.create({
@@ -194,13 +254,21 @@ export function diffBlocks(
   return { changed, removed, added };
 }
 
+type Tree = { id: string; children: readonly Tree[] };
+
 /** Returns the top-level block IDs, with nested children. For example, `["a", ["b", ["c"]]]` if c is in b. */
-export function documentShape(
-  blocks: Block<any, any, any>[],
-): (string | unknown[])[] {
+export function documentShape(blocks: readonly Tree[]): (string | unknown[])[] {
   return blocks.flatMap((block) =>
     block.children.length > 0
       ? [block.id, documentShape(block.children)]
       : [block.id],
   );
+}
+
+/** A text item of inline content, with the styles. */
+export function styledText(
+  value: string,
+  styles: LensStyles = {},
+): LensStyledText {
+  return { type: "text", text: value, styles };
 }

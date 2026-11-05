@@ -1,5 +1,4 @@
-import { BlockNoteEditor, BlockNoteSchema } from "@blocknote/core";
-import { withMultiColumn } from "@blocknote/xl-multi-column";
+import { BlockNoteEditor } from "@blocknote/core";
 import { describe, expect, it } from "vite-plus/test";
 
 import { blockToText } from "../blocks/text.js";
@@ -8,6 +7,7 @@ import { markdownFormat } from "../formats/markdown.js";
 import { plainTextFormat } from "../formats/plainText.js";
 import type { TextFormat } from "../formats/types.js";
 import { projectDocument } from "./projectDocument.js";
+import { columnSchema } from "../testUtil/fixtures.js";
 
 describe("projectDocument", () => {
   const editor = BlockNoteEditor.create({
@@ -93,7 +93,7 @@ describe("projectDocument", () => {
     // it as it is. Its round trip needs a separator after it: else, its
     // part keeps the white space, and does not link to the view block.
     const columns = BlockNoteEditor.create({
-      schema: withMultiColumn(BlockNoteSchema.create()),
+      schema: columnSchema,
       initialContent: [
         {
           type: "columnList",

@@ -1,12 +1,9 @@
 import {
   BlockNoteEditor,
   BlockNoteSchema,
-  defaultBlockSpecs,
-  createInlineContentSpec,
   defaultInlineContentSpecs,
   type PartialBlock,
 } from "@blocknote/core";
-import { withMultiColumn } from "@blocknote/xl-multi-column";
 import { describe, expect, it } from "vite-plus/test";
 
 import {
@@ -22,54 +19,21 @@ import {
   createCommentEditor,
 } from "./testUtil/comments.js";
 import {
+  columnSchema,
+  createColumnsEditor,
   createEditor,
   documentShape,
   replaceOnce,
+  writeText,
 } from "./testUtil/fixtures.js";
 import { canonicalText } from "./testUtil/canonical.js";
 import { valid } from "./testUtil/valid.js";
-
-/** An editor with two columns: "Alpha" in column c1 and "Beta" in column c2. */
-function createColumnsEditor() {
-  return BlockNoteEditor.create({
-    schema: withMultiColumn(
-      BlockNoteSchema.create({ blockSpecs: defaultBlockSpecs }),
-    ),
-    initialContent: [
-      {
-        id: "list",
-        type: "columnList",
-        children: [
-          {
-            id: "c1",
-            type: "column",
-            children: [{ id: "a", type: "paragraph", content: "Alpha" }],
-          },
-          {
-            id: "c2",
-            type: "column",
-            children: [{ id: "b", type: "paragraph", content: "Beta" }],
-          },
-        ],
-      },
-    ],
-  });
-}
-
-function write(
-  editor: BlockNoteEditor<any, any, any>,
-  edit: (markdown: string) => string,
-) {
-  const text = edit(getDocumentText(editor, markdownFormat));
-  return valid(
-    updateDocumentFromText(editor, { format: markdownFormat, text }),
-  );
-}
+import { mention } from "./testUtil/richRandom.js";
 
 describe("markdown", () => {
   it("a changed paragraph keeps its ID, colors and alignment", () => {
     const editor = createEditor();
-    const update = write(editor, (md) =>
+    const update = writeText(editor, markdownFormat, (md) =>
       replaceOnce(
         md,
         "Colored centered paragraph",
@@ -97,7 +61,7 @@ describe("markdown", () => {
 
   it("keeps underline on changed text and on new text in it", () => {
     const editor = createEditor();
-    write(editor, (md) =>
+    writeText(editor, markdownFormat, (md) =>
       replaceOnce(md, "Underlined words here", "Underlined words right here"),
     );
 
@@ -113,7 +77,9 @@ describe("markdown", () => {
   it("changes the level of a heading and keeps its text color and underline", () => {
     const editor = createEditor();
     const content = editor.getBlock("heading")?.content;
-    write(editor, (md) => replaceOnce(md, "## **Bold**", "### **Bold**"));
+    writeText(editor, markdownFormat, (md) =>
+      replaceOnce(md, "## **Bold**", "### **Bold**"),
+    );
 
     const heading = editor.getBlock("heading");
     expect(heading?.props).toMatchObject({ level: 3 });
@@ -123,7 +89,9 @@ describe("markdown", () => {
   it("changes a heading to a paragraph and keeps its text color and underline", () => {
     const editor = createEditor();
     const content = editor.getBlock("heading")?.content;
-    write(editor, (md) => replaceOnce(md, "## **Bold**", "**Bold**"));
+    writeText(editor, markdownFormat, (md) =>
+      replaceOnce(md, "## **Bold**", "**Bold**"),
+    );
 
     const paragraph = editor.getBlock("heading");
     expect(paragraph?.type).toBe("paragraph");
@@ -132,7 +100,9 @@ describe("markdown", () => {
 
   it("keeps a toggle as a toggle when its text changes (markdown shows it as a bullet)", () => {
     const editor = createEditor();
-    write(editor, (md) => replaceOnce(md, "* Toggle\n", "* Toggle, edited\n"));
+    writeText(editor, markdownFormat, (md) =>
+      replaceOnce(md, "* Toggle\n", "* Toggle, edited\n"),
+    );
 
     const toggle = editor.getBlock("toggle");
     expect(toggle?.type).toBe("toggleListItem");
@@ -141,14 +111,18 @@ describe("markdown", () => {
 
   it("changes the checked state of a checklist item", () => {
     const editor = createEditor();
-    write(editor, (md) => replaceOnce(md, "* [x] Checked", "* [ ] Checked"));
+    writeText(editor, markdownFormat, (md) =>
+      replaceOnce(md, "* [x] Checked", "* [ ] Checked"),
+    );
 
     expect(editor.getBlock("checked")?.props).toMatchObject({ checked: false });
   });
 
   it("keeps the language of a code block", () => {
     const editor = createEditor();
-    write(editor, (md) => replaceOnce(md, "const x = 1;", "const x = 2;"));
+    writeText(editor, markdownFormat, (md) =>
+      replaceOnce(md, "const x = 1;", "const x = 2;"),
+    );
 
     const code = editor.getBlock("code");
     expect(code?.props).toMatchObject({ language: "javascript" });
@@ -159,7 +133,7 @@ describe("markdown", () => {
 
   it("keeps the width and alignment of an image when its caption changes", () => {
     const editor = createEditor();
-    write(editor, (md) =>
+    writeText(editor, markdownFormat, (md) =>
       replaceOnce(md, "<figcaption>Caption<", "<figcaption>New caption<"),
     );
 
@@ -172,7 +146,9 @@ describe("markdown", () => {
 
   it("keeps the color of a table cell when its text changes", () => {
     const editor = createEditor();
-    write(editor, (md) => replaceOnce(md, "| c          |", "| c, edited  |"));
+    writeText(editor, markdownFormat, (md) =>
+      replaceOnce(md, "| c          |", "| c, edited  |"),
+    );
 
     const table = editor.getBlock("table")?.content;
     if (!isTableContent(table)) {
@@ -230,7 +206,7 @@ describe("markdown", () => {
 
   it("moves an outdented list item and keeps the block order of the text", () => {
     const editor = createEditor();
-    write(editor, (md) =>
+    writeText(editor, markdownFormat, (md) =>
       replaceOnce(md, "\n  * Child bullet", "\n* Child bullet"),
     );
 
@@ -257,7 +233,7 @@ describe("markdown", () => {
     ]);
     const comment = addComment(editor, "Second");
 
-    const update = write(editor, (md) =>
+    const update = writeText(editor, markdownFormat, (md) =>
       replaceOnce(
         md,
         "Second paragraph\n\nThird paragraph",
@@ -279,7 +255,9 @@ describe("markdown", () => {
     ]);
     const comment = addComment(editor, "Hello");
 
-    write(editor, (md) => replaceOnce(md, "Hello world", "Hello brave world"));
+    writeText(editor, markdownFormat, (md) =>
+      replaceOnce(md, "Hello world", "Hello brave world"),
+    );
 
     expect(commentedText(editor.prosemirrorState.doc, comment)).toBe("Hello");
   });
@@ -296,7 +274,7 @@ describe("markdown", () => {
       },
       { id: "end", type: "paragraph", content: "End" },
     ]);
-    write(editor, (md) =>
+    writeText(editor, markdownFormat, (md) =>
       replaceOnce(md, "first.\n\nA nested", "first.\n\nNew note.\n\nA nested"),
     );
 
@@ -328,7 +306,7 @@ describe("markdown", () => {
 
     it("when the text swaps two images", () => {
       const editor = createEditor(images);
-      write(editor, (md) => {
+      writeText(editor, markdownFormat, (md) => {
         const [a, b, ...rest] = md.split("\n\n");
         return [b, a, ...rest].join("\n\n");
       });
@@ -345,7 +323,9 @@ describe("markdown", () => {
 
     it("when the text removes the first of two images", () => {
       const editor = createEditor(images);
-      write(editor, (md) => md.split("\n\n").slice(1).join("\n\n"));
+      writeText(editor, markdownFormat, (md) =>
+        md.split("\n\n").slice(1).join("\n\n"),
+      );
 
       expect(editor.getBlock("a")).toBeUndefined();
       expect(editor.getBlock("b")?.props).toMatchObject({
@@ -368,7 +348,9 @@ describe("markdown", () => {
     ]);
     const comment = addComment(editor, "Commented");
 
-    write(editor, (md) => replaceOnce(md, "Other", "Changed"));
+    writeText(editor, markdownFormat, (md) =>
+      replaceOnce(md, "Other", "Changed"),
+    );
 
     expect(JSON.stringify(editor.getBlock("table")?.content)).toContain(
       "Changed",
@@ -397,7 +379,7 @@ describe("markdown", () => {
         },
       },
     ]);
-    write(editor, (md) => replaceOnce(md, "| x ", "| y "));
+    writeText(editor, markdownFormat, (md) => replaceOnce(md, "| x ", "| y "));
 
     expect(JSON.stringify(editor.getBlock("table")?.content)).toContain(
       '"text":"y"',
@@ -646,9 +628,7 @@ describe("markdown", () => {
   describe("moves of blocks in columns", () => {
     function createEditorWithTwoBlocksInEachColumn() {
       return BlockNoteEditor.create({
-        schema: withMultiColumn(
-          BlockNoteSchema.create({ blockSpecs: defaultBlockSpecs }),
-        ),
+        schema: columnSchema,
         initialContent: [
           { id: "top", type: "paragraph", content: "Top" },
           {
@@ -677,15 +657,6 @@ describe("markdown", () => {
         ],
       });
     }
-    function shape(editor: BlockNoteEditor<any, any, any>): unknown[] {
-      function of(blocks: { id: string; children: any[] }[]): unknown[] {
-        return blocks.map((block) =>
-          block.children.length > 0 ? [block.id, of(block.children)] : block.id,
-        );
-      }
-      return of(editor.document);
-    }
-
     it("moves a block of a column to the start, out of the column list", () => {
       const editor = createEditorWithTwoBlocksInEachColumn();
 
@@ -694,16 +665,11 @@ describe("markdown", () => {
         text: "Bravo two\n\nTop\n\nAlpha one\n\nAlpha two\n\nBravo one\n\nEnd\n",
       });
 
-      expect(shape(editor)).toEqual([
+      expect(documentShape(editor.document)).toEqual([
         "b2",
         "top",
-        [
-          "list",
-          [
-            ["cA", ["a1", "a2"]],
-            ["cB", ["b1"]],
-          ],
-        ],
+        "list",
+        ["cA", ["a1", "a2"], "cB", ["b1"]],
         "end",
       ]);
     });
@@ -857,16 +823,6 @@ describe("markdown, a change of the content kind", () => {
  */
 describe("markdown, custom inline content", () => {
   const format = markdownFormat;
-  const mention = createInlineContentSpec(
-    { type: "mention", propSchema: { user: { default: "" } }, content: "none" },
-    {
-      render: (inlineContent) => {
-        const dom = document.createElement("span");
-        dom.textContent = `@${inlineContent.props.user}`;
-        return { dom };
-      },
-    },
-  );
   function createMentionEditor() {
     return BlockNoteEditor.create({
       schema: BlockNoteSchema.create({
