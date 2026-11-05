@@ -25,8 +25,8 @@ import type { TextGroup } from "./merge/group.js";
 import { mergeTree, type RebaseWarning } from "./merge/tree.js";
 import { fitLayout } from "./target/fitLayout.js";
 import {
+  fitChangedTables,
   type FitWarning,
-  fitTables,
   mergedCellsRemoved,
 } from "./blocks/fitTable.js";
 import { type PlanWarning, planTarget } from "./target/planTarget.js";
@@ -351,10 +351,11 @@ function updateToTarget(
   if (documents.onConflict === "reject" && merged.warnings.length > 0) {
     return { error: "conflict", conflicts: merged.warnings };
   }
-  const result = fitTables(
+  const result = fitChangedTables(
     documents.keepLayout === true
       ? merged.blocks
       : fitLayout(merged.blocks, rules.layoutRuleOf, rules.canContain),
+    current,
   );
   return {
     operations: diffDocuments(current, result),

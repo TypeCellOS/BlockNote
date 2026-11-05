@@ -1,4 +1,5 @@
 import { flattenBlocks } from "./flatten.js";
+import { deepEqual } from "./json.js";
 import {
   cellRows,
   emptyCell,
@@ -23,16 +24,46 @@ export type FitWarning = { type: "merged-cells-removed"; id: string };
 
 /** Returns the blocks with each table fit to the rules of a table (see {@link fitTable}). */
 export function fitTables(blocks: readonly LensBlock[]): LensBlock[] {
-  function fit(block: LensBlock): LensBlock {
+  return mapTables(blocks, fitTable);
+}
+
+/**
+ * Returns the result of a write with each table that the write changed fit
+ * to the rules of a table (see {@link fitTable}). A table that is equal to
+ * the table with its ID in `current` stays as it is. The document can hold
+ * such a table (for example a table with a short row from a markdown
+ * import), and the table plugin of the editor fits only the tables that a
+ * transaction changes. Thus, a write does not change a table that the text
+ * did not change.
+ */
+export function fitChangedTables(
+  blocks: readonly LensBlock[],
+  current: readonly LensBlock[],
+): LensBlock[] {
+  const currentTables = new Map(
+    flattenBlocks(current).flatMap(({ block }) =>
+      isTableContent(block.content) ? [[block.id, block.content] as const] : [],
+    ),
+  );
+  return mapTables(blocks, (table, id) =>
+    deepEqual(table, currentTables.get(id)) ? table : fitTable(table),
+  );
+}
+
+function mapTables(
+  blocks: readonly LensBlock[],
+  fit: (table: LensTableContent, id: string) => LensTableContent,
+): LensBlock[] {
+  function map(block: LensBlock): LensBlock {
     return {
       ...block,
       content: isTableContent(block.content)
-        ? fitTable(block.content)
+        ? fit(block.content, block.id)
         : block.content,
-      children: block.children.map(fit),
+      children: block.children.map(map),
     };
   }
-  return blocks.map(fit);
+  return blocks.map(map);
 }
 
 /**

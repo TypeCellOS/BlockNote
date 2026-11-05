@@ -231,6 +231,37 @@ describe("markdown", () => {
     });
   });
 
+  it("does not change a table with a short row when the text changes another block", () => {
+    // A markdown import can give a table with a short row (for example the
+    // contributors table of many READMEs).
+    const editor = BlockNoteEditor.create({
+      initialContent: [
+        { id: "p", type: "paragraph", content: "Before" },
+        {
+          id: "t",
+          type: "table",
+          content: {
+            type: "tableContent",
+            rows: [{ cells: ["a", "b"] }, { cells: ["c"] }],
+          },
+        },
+      ],
+    });
+    const text = getDocumentText(editor, markdownFormat);
+
+    const update = valid(
+      computeTextUpdate(editor, {
+        format: markdownFormat,
+        text: replaceOnce(text, "Before", "Before, edited"),
+      }),
+    );
+
+    expect(update.operations.map((operation) => operation.type)).toEqual([
+      "update",
+    ]);
+    expect(update.operations[0]).toMatchObject({ id: "p" });
+  });
+
   it("a new paragraph at the top keeps all other blocks", () => {
     const editor = createEditor();
     const update = write(editor, (md) => `New first paragraph\n\n${md}`);
