@@ -32,7 +32,7 @@ The tests examine these laws (`api.laws.test.ts`, and `api.properties.test.ts` o
 - **PutTwice**: if a client writes the same text two times, the second write gives no operations.
 - **Retention**: blocks that an edit does not touch keep their ID, type, props and content.
 
-With concurrent changes (a write with an older `base`), PutGet is not true. The laws are then (`api.concurrent.test.ts`, also on random pairs of writers, and `yjs/yDocText.test.ts`):
+With concurrent changes (a write with an older `base`), PutGet is not true. The laws are then (`api.concurrent.test.ts`, also on random groups of writers, and `yjs/yDocText.test.ts`):
 
 - **No revert**: a write of the text from `base` without changes gives no operations.
 - **No lost updates**: changes of other writers to blocks that the text did not change stay. Two changes at different positions in one paragraph also stay. A block that another writer moved, dragged or fully rewrote is found by its ID.
@@ -182,14 +182,14 @@ Each module imports only modules that are before it in this list. Thus, there ar
 - The tests that do not need a DOM run in the node environment (`// @vitest-environment node`). The other tests run in jsdom: the markdown and HTML conversions of BlockNote need a DOM, and the binding to a Y.Doc needs a mounted editor view.
 - The `api.*.test.ts` files examine the full pipeline:
   - `api.laws.test.ts`: the laws, on two documents, in the three formats.
-  - `api.properties.test.ts`: the laws on 200 random documents with random edits, in the three formats, on 100 random documents with columns, and on 400 random line edits in markdown. Each case has a seed, thus you can run a failed case again.
+  - `api.properties.test.ts`: the laws on 200 random documents with random edits, in the three formats, on 100 random documents with columns, and on 400 random line edits in markdown. Each case has a seed, thus you can run a failed case again. The random edits change the blocks at the top level of each format (`testUtil/codecs.ts`). Two HTML seeds are not in the test, because of a known problem of core (see the test).
   - `api.markdown.test.ts`, `api.html.test.ts` and `api.plainText.test.ts`: examples in each format.
   - `api.json.test.ts`: the JSON API.
   - `api.removals.test.ts`: removals, where content is lost. Examine these expected results carefully.
   - `api.splitJoin.test.ts`: the option `experimentalTextMoves`: splits and joins of the client and of other writers, also in a Y.Doc and with the JSON API.
-  - `api.concurrent.test.ts`: writes from an older version without Yjs, also on 40 random pairs of writers and 40 random groups of three or four writers in each format.
+  - `api.concurrent.test.ts`: writes from an older version without Yjs, also on 40 random groups of two to four writers in each format.
   - `api.fuzz.test.ts`: 150 random documents with all kinds of blocks (tables, files and images with captions, code blocks with blank lines, deep nesting, mentions, columns) in each format, with random edits. It examines the format contract (each view block with text links to a document block, and the round trip of a block that the view shows as it is gives that block alone) and the laws.
-- `yjs/yDocText.test.ts`: the Y.Doc API. The concurrent cases run for the two merges (`"lens"` and `"yjs"`). The conflicts and `onConflict: "reject"` are only for `"lens"`.
+- `yjs/yDocText.test.ts`: the Y.Doc API: the write through a bound editor, the base as a Yjs state, the fork, the changes of other clients, and the same result as a write to an editor without Yjs, on random documents. The concurrent cases run for the two merges (`"lens"` and `"yjs"`). Some cases are only for `"yjs"`, because for `"lens"` they are the same as cases of `api.concurrent.test.ts`. The conflicts and `onConflict: "reject"` are only for `"lens"`. One HTML seed of the random documents is not in the test, because of a known problem of core (see the test).
 - `testUtil/` contains the shared test documents and helpers.
 - `benchmarks/largeDocuments.bench.ts` measures documents of 1,000 to 10,000 blocks in each format, and each stage of the pipeline. The normal test run does not run it. Run it from `packages/xl-ai` with `vp test bench --run --silent=false src/api/v2/benchmarks`. The median times of 3 runs in jsdom for 10,000 blocks were:
 
@@ -240,6 +240,8 @@ These problems stay:
 
 - Delimiter runs like `***`: the parser does not use the delimiter rules of CommonMark. The exporter writes underscores where it can (`*a*__b__`, `**a _b_**`), but not next to a letter or a digit, or for text with `_`. There, runs like `***` stay.
 - HTML paste removes an image in a paragraph (markdown parse splits the paragraph around the image).
+- The autolink plugin adds links to a change from Yjs (the change of another client, or the merge of a fork). If such a change covers more than one block, the plugin can link the last word of the first block. The editor then writes that link to the Y.Doc. The fix is a separate change of core ("autolink does not add links to a change from Yjs"). One HTML seed of `yjs/yDocText.test.ts` has this case.
+- The HTML parse ignores `data-nesting-level`. Thus, HTML hides the nesting of the children of a list item only if a child that is not a list item comes first. If a text puts a list item before such a hidden child, the list item goes into the same parent, and HTML then shows that nesting (PutGet is not true). Two HTML seeds of `api.properties.test.ts` have this case.
 - The markdown and HTML parsers use recursion for nested blocks. A text with a very deep nesting (for example 20,000 quote markers in markdown) overflows the stack. A server must parse untrusted text in a worker, with a time limit.
 - The HTML export of a file block is a link (with a paragraph for the caption). The parse does not read it back as a file block. Thus, in HTML, a change to a file block replaces it with the blocks of the text, as in markdown.
 - Duplicate block IDs in a Y.Doc (for example after two clients move the same block). The unique ID extension gives new IDs to the copies in the editor. But y-prosemirror does not write these IDs to the Y.Doc, because the extension makes the change during the sync of a remote update. Thus, each client can show different IDs for these blocks.

@@ -33,11 +33,10 @@ const LINE_EDIT_SEEDS = Array.from({ length: 400 }, (_, i) => i + 1000);
 const COLUMN_SEEDS = Array.from({ length: 100 }, (_, i) => i + 1);
 
 /**
- * HTML seeds that fail because of a known problem of core: the HTML parse
- * ignores `data-nesting-level`. Thus, HTML hides the nesting of the children
- * of a list item only if a child that is not a list item comes first. In
- * these seeds, the text puts a list item before such a hidden child, and the
- * list item goes into the same parent, where HTML shows it.
+ * HTML seeds that fail because of a known problem of core (see "Problems in
+ * BlockNote" in the README): the HTML parse ignores `data-nesting-level`. In
+ * these seeds, the text puts a list item before a hidden child of a list
+ * item, and the list item goes into the same parent, where HTML shows it.
  */
 const HTML_NESTING_SEEDS = { laws: [163], columns: [81] };
 
