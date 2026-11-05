@@ -224,6 +224,11 @@ These problems stay:
 - Yjs v14 (`@y/y` and `@y/prosemirror`).
 - IDs in the text.
 - A split by another writer: the rebase merges each block by its ID. If another writer splits a block, and the client changes the text of the second part, the change of the client does not apply, with the warning `conflicting-change`: for the rebase, the other writer removed that text from the first block.
+- A split in the text. The part with the most text keeps the ID, the props and the hidden styles. The other part is a new block, without the hidden props of the block (for example its color or its alignment).
+- A join in the text. The first block keeps its ID. The hidden data of the second block is lost: its props, the hidden styles of its text, and the comments on its text.
+- A split by the client, while another writer changes the part that goes to the new block (the part without the ID). The text of that part shows two times, with the warning `conflicting-change`: the block keeps the changed text (`theirs` wins the conflict), and the new block has the text of the client.
+- A join by the client, while another writer changes the second block. The text of the second block shows two times, with the warning `removed-changed-block`: the second block stays with the change, and the joined block has the text of the client.
+- The cause of the four items above: the merge pairs blocks by ID. A split or a join moves text from one block to another, and for the merge, that text was removed from one block and added to another.
 - A block that another writer rewrote. If another writer changes almost all words of a block (for example the case of each word), the alignment of the old and the new text finds nothing in common. If the client also changes that block, the text of the other writer stays. The change of the client is lost, with the warning `conflicting-change`.
 - In jsdom, the markdown export of many paragraphs in list items is quadratic, because each move of an element recomputes the index of its siblings.
 - A block that the text moves and also changes. The lens does not find it. The block is removed and inserted again, with a new ID.
