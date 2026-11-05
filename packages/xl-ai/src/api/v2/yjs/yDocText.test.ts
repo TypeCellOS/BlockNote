@@ -283,25 +283,33 @@ describe.each(merges)("concurrent writes (merge %s)", (merge) => {
    */
   const itMoves = merge === "yjs" ? it.fails : it;
 
-  it("keeps the changes of other writers in different blocks", () => {
-    const { read, write, block } = setup();
-    const a = read();
-    const b = read();
+  // Some tests are only for `merge: "yjs"`. With `"lens"`, the merge of the
+  // lens does the work, as without Yjs, and `api.concurrent.test.ts` has the
+  // same cases.
+  if (merge === "yjs") {
+    it("keeps the changes of other writers in different blocks", () => {
+      const { read, write, block } = setup();
+      const a = read();
+      const b = read();
 
-    write(b, (text) =>
-      replaceOnce(text, "Last paragraph", "Last paragraph from B"),
-    );
-    write(
-      a,
-      (text) => replaceOnce(text, "Colored centered paragraph", "Colored by A"),
-      merge,
-    );
+      write(b, (text) =>
+        replaceOnce(text, "Last paragraph", "Last paragraph from B"),
+      );
+      write(
+        a,
+        (text) =>
+          replaceOnce(text, "Colored centered paragraph", "Colored by A"),
+        merge,
+      );
 
-    expect(block("colored")?.content).toMatchObject([{ text: "Colored by A" }]);
-    expect(block("last")?.content).toMatchObject([
-      { text: "Last paragraph from B" },
-    ]);
-  });
+      expect(block("colored")?.content).toMatchObject([
+        { text: "Colored by A" },
+      ]);
+      expect(block("last")?.content).toMatchObject([
+        { text: "Last paragraph from B" },
+      ]);
+    });
+  }
 
   it("merges changes of two writers in the same paragraph", () => {
     const { read, write, block } = setup();
@@ -408,40 +416,43 @@ describe.each(merges)("concurrent writes (merge %s)", (merge) => {
     });
   });
 
-  itMoves("does one move if two writers make the same move", () => {
-    const { read, write, blocks } = setup(fruit);
-    const a = read();
-    const b = read();
+  // Only for `merge: "yjs"` (see above).
+  if (merge === "yjs") {
+    itMoves("does one move if two writers make the same move", () => {
+      const { read, write, blocks } = setup(fruit);
+      const a = read();
+      const b = read();
 
-    write(a, (text) => replaceOnce(text, "  * Pears", "* Pears"));
-    write(b, (text) => replaceOnce(text, "  * Pears", "* Pears"), merge);
+      write(a, (text) => replaceOnce(text, "  * Pears", "* Pears"));
+      write(b, (text) => replaceOnce(text, "  * Pears", "* Pears"), merge);
 
-    expect(documentShape(blocks())).toEqual([
-      "fruit",
-      ["apples"],
-      "pears",
-      "end",
-    ]);
-  });
+      expect(documentShape(blocks())).toEqual([
+        "fruit",
+        ["apples"],
+        "pears",
+        "end",
+      ]);
+    });
 
-  itMoves("keeps a change to a block that another writer moved", () => {
-    const { read, write, block, blocks } = setup(fruit);
-    const a = read();
-    const b = read();
+    itMoves("keeps a change to a block that another writer moved", () => {
+      const { read, write, block, blocks } = setup(fruit);
+      const a = read();
+      const b = read();
 
-    write(a, (text) => replaceOnce(text, "  * Pears", "* Pears"));
-    write(b, (text) => replaceOnce(text, "Pears", "Pears and plums"), merge);
+      write(a, (text) => replaceOnce(text, "  * Pears", "* Pears"));
+      write(b, (text) => replaceOnce(text, "Pears", "Pears and plums"), merge);
 
-    expect(documentShape(blocks())).toEqual([
-      "fruit",
-      ["apples"],
-      "pears",
-      "end",
-    ]);
-    expect(block("pears")?.content).toMatchObject([
-      { text: "Pears and plums" },
-    ]);
-  });
+      expect(documentShape(blocks())).toEqual([
+        "fruit",
+        ["apples"],
+        "pears",
+        "end",
+      ]);
+      expect(block("pears")?.content).toMatchObject([
+        { text: "Pears and plums" },
+      ]);
+    });
+  }
 
   itMoves(
     "keeps a change of another writer to a block that the text moves",

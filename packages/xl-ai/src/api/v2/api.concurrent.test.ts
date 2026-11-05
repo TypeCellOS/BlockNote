@@ -270,69 +270,7 @@ describe("a write from an older version", () => {
 });
 
 /**
- * Random pairs of writers. Writer A and writer B read the same version and
- * edit it. A writes first. Then B writes, with the version that it read as
- * the base. Each case has a seed.
- *
- * The result must contain the changes of each writer to the blocks that only
- * that writer changed. A change is the result of the write of that writer
- * alone.
- */
-describe.each(formatCases)(
-  "random pairs of writers ($name)",
-  ({ format, codec }) => {
-    it.each(Array.from({ length: 40 }, (_, i) => i + 1))(
-      "keeps the changes of the two writers for seed %i",
-      (seed) => {
-        const random = createRandom(seed);
-        const editor = BlockNoteEditor.create({
-          initialContent: randomDocument(random),
-        });
-        const base = editor.document;
-        const text = getDocumentText(editor, format);
-        const textA = randomEdit(random, text, codec);
-        const textB = randomEdit(random, text, codec);
-
-        /** Returns the changes of one writer alone, by block ID. */
-        function alone(edited: string) {
-          const single = BlockNoteEditor.create({ initialContent: base });
-          const before = blockFieldsById(single);
-          valid(updateDocumentFromText(single, { format, text: edited }));
-          const after = blockFieldsById(single);
-          return { after, ...diffBlocks(before, after) };
-        }
-        const a = alone(textA);
-        const b = alone(textB);
-
-        valid(updateDocumentFromText(editor, { format, text: textA }));
-        valid(updateDocumentFromText(editor, { format, text: textB, base }));
-        const result = blockFieldsById(editor);
-
-        const ids = flattenBlocks(editor.document as LensBlock[]).map(
-          ({ block }) => block.id,
-        );
-        expect(new Set(ids).size).toBe(ids.length);
-
-        const touched = (side: typeof a, id: string) =>
-          side.changed.includes(id) || side.removed.includes(id);
-        for (const [side, other] of [
-          [a, b],
-          [b, a],
-        ] as const) {
-          for (const id of side.changed.filter((id) => !touched(other, id))) {
-            expect(result.get(id), `block ${id}`).toEqual(side.after.get(id));
-          }
-          for (const id of side.removed.filter((id) => !touched(other, id))) {
-            expect(result.has(id), `block ${id}`).toBe(false);
-          }
-        }
-      },
-    );
-  },
-);
-
-/**
- * Random groups of three or four writers. Each writer reads a version, edits
+ * Random groups of two to four writers. Each writer reads a version, edits
  * its text, and writes it later, with the version that it read as the base.
  * The reads and the writes come in a random order. Thus, a writer can read a
  * version that contains the writes of some other writers. Each case has a
@@ -364,7 +302,7 @@ describe.each(formatCases)(
         const writers: Writer[] = [];
         for (const { writer, step } of randomSchedule(
           random,
-          3 + random.int(2),
+          2 + random.int(3),
         )) {
           if (step === "read") {
             const base: LensBlock[] = editor.document;

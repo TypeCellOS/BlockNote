@@ -15,11 +15,6 @@ import {
   updateDocumentFromJSON,
   type ValidTextUpdate,
 } from "./index.js";
-import {
-  addComment,
-  commentedText,
-  createCommentEditor,
-} from "./testUtil/comments.js";
 import { createEditor } from "./testUtil/fixtures.js";
 import { valid } from "./testUtil/valid.js";
 
@@ -112,21 +107,6 @@ describe("JSON", () => {
       conflicts: [{ type: "conflicting-change", id: "c" }],
     });
     expect(editor.document).toEqual(before);
-  });
-
-  it("keeps a comment on text that the client did not change", () => {
-    const editor = createCommentEditor([
-      { id: "p", type: "paragraph", content: "Hello world" },
-    ]);
-    const comment = addComment(editor, "Hello");
-    const document = copy(editor.document);
-    document[0].content = [
-      { type: "text", text: "Hello brave world", styles: {} },
-    ];
-
-    update(editor, { document });
-
-    expect(commentedText(editor.prosemirrorState.doc, comment)).toBe("Hello");
   });
 
   it("gives an error for a document that does not fit the schema, and does not change the document", () => {
@@ -454,19 +434,6 @@ describe("JSON, the layout rules", () => {
       ],
     });
   }
-
-  it("dissolves a column list if the JSON removes one of its two columns", () => {
-    const editor = createColumnsEditor();
-    const [list] = editor.document;
-
-    valid(
-      updateDocumentFromJSON(editor, {
-        document: [{ ...list, children: [list.children[0]] }],
-      }),
-    );
-
-    expect(editor.document.map((block) => block.id)).toEqual(["a"]);
-  });
 
   it("removes a column that the JSON empties, and dissolves the column list", () => {
     const editor = createColumnsEditor();

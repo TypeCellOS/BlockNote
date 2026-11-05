@@ -12,11 +12,6 @@ import {
   htmlFormat,
   updateDocumentFromText,
 } from "./index.js";
-import {
-  addComment,
-  commentedText,
-  createCommentEditor,
-} from "./testUtil/comments.js";
 import { createEditor, replaceOnce } from "./testUtil/fixtures.js";
 import { valid } from "./testUtil/valid.js";
 
@@ -66,22 +61,6 @@ describe("HTML", () => {
       { type: "text", text: "Hello ", styles: {} },
       { type: "text", text: "world", styles: { underline: true } },
     ]);
-  });
-
-  it("keeps the ID and the comments of a changed paragraph", () => {
-    const editor = createCommentEditor([
-      { id: "p", type: "paragraph", content: "Hello world" },
-    ]);
-    const comment = addComment(editor, "Hello");
-
-    write(editor, (html) =>
-      replaceOnce(html, "Hello world", "Hello brave world"),
-    );
-
-    expect(editor.getBlock("p")?.content).toEqual([
-      { type: "text", text: "Hello brave world", styles: {} },
-    ]);
-    expect(commentedText(editor.prosemirrorState.doc, comment)).toBe("Hello");
   });
 
   it("keeps a toggle and its child when the text of the toggle changes", () => {

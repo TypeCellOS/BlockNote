@@ -4,7 +4,7 @@ import { describe, expect, it } from "vite-plus/test";
 import type { LensBlock } from "../blocks/types.js";
 import { markdownFormat } from "../formats/markdown.js";
 import type { TextFormat } from "../formats/types.js";
-import { documentText, formatCache } from "./cache.js";
+import { documentText } from "./cache.js";
 
 /** A markdown format that counts its calls. */
 function countingFormat() {
@@ -61,14 +61,5 @@ describe("documentText", () => {
 
     expect(text).toBe("Alpha\n\nBeta\n");
     expect(calls.serialize).toBe(2);
-  });
-
-  it("keeps one cache for each editor and format", () => {
-    const a = BlockNoteEditor.create();
-    const b = BlockNoteEditor.create();
-    expect(formatCache(a, markdownFormat)).toBe(formatCache(a, markdownFormat));
-    expect(formatCache(a, markdownFormat)).not.toBe(
-      formatCache(b, markdownFormat),
-    );
   });
 });

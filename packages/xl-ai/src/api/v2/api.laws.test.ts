@@ -1,3 +1,4 @@
+import type { Block } from "@blocknote/core";
 import { describe, expect, it } from "vite-plus/test";
 
 import {
@@ -13,6 +14,7 @@ import {
   createEditor,
   createSharedDocumentEditor,
   diffBlocks,
+  documentShape,
 } from "./testUtil/fixtures.js";
 import { canonicalText } from "./testUtil/canonical.js";
 import { type Codec, formatCases } from "./testUtil/codecs.js";
@@ -28,8 +30,8 @@ import { valid } from "./testUtil/valid.js";
  *   text: two texts are equal if they render the same after a round trip.
  * - PutTwice: if a client writes the same text two times, the second write
  *   changes nothing.
- * - Retention: blocks that an edit does not touch keep their ID, type, props
- *   and content.
+ * - Retention: blocks that an edit does not touch keep their ID, type, props,
+ *   content and nesting.
  */
 
 const documents = [
@@ -116,45 +118,44 @@ describe.each(documents)("$name", ({ create }) => {
       ).toEqual({ operations: [], warnings: [] });
     });
 
-    describe.each(edits)("$name", ({ apply, retention }) => {
-      function editAndWrite() {
+    it.each(edits)(
+      "$name: PutGet, PutTwice and retention",
+      ({ apply, retention }) => {
         const editor = create();
         const before = blockFieldsById(editor);
+        const shape = documentShape(editor.document);
         const text = codec.join(
           apply(codec.split(getDocumentText(editor, format)), codec),
         );
         const update = valid(updateDocumentFromText(editor, { format, text }));
-        return { editor, before, text, update };
-      }
 
-      it("PutGet: a read gives the written text", () => {
-        const { editor, text, update } = editAndWrite();
+        // PutGet: a read gives the written text.
         expect(update.warnings).toEqual([]);
         expect(
           canonicalText(editor, format, getDocumentText(editor, format)),
         ).toBe(canonicalText(editor, format, text));
-      });
 
-      it("PutTwice: a second write of the same text changes nothing", () => {
-        const { editor, text } = editAndWrite();
+        // PutTwice: a second write of the same text changes nothing.
         expect(
           valid(computeTextUpdate(editor, { format, text })).operations,
         ).toEqual([]);
-      });
 
-      it("keeps the blocks that the edit does not touch", () => {
-        const { editor, before } = editAndWrite();
+        // Retention: the blocks that the edit does not touch stay, with
+        // their fields and their nesting.
         const { changed, removed } = diffBlocks(
           before,
           blockFieldsById(editor),
         );
+        const keptShape = shapeOf(editor.document, new Set(before.keys()));
         switch (retention) {
           case "all-kept":
             expect({ changed, removed }).toEqual({ changed: [], removed: [] });
+            expect(keptShape).toEqual(shape);
             break;
           case "one-changed":
             expect(removed).toEqual([]);
             expect(changed).toHaveLength(1);
+            expect(keptShape).toEqual(shape);
             break;
           case "survivors-unchanged":
             expect(changed).toEqual([]);
@@ -162,10 +163,27 @@ describe.each(documents)("$name", ({ create }) => {
           case "none":
             break;
         }
-      });
-    });
+      },
+    );
   });
 });
+
+/**
+ * The shape of the document (see `documentShape`) with only the blocks in
+ * `ids`. The children of another block (a new block) take its place.
+ */
+function shapeOf(
+  blocks: Block<any, any, any>[],
+  ids: ReadonlySet<string>,
+): unknown[] {
+  return blocks.flatMap((block) => {
+    const children = shapeOf(block.children, ids);
+    if (!ids.has(block.id)) {
+      return children;
+    }
+    return children.length > 0 ? [block.id, children] : [block.id];
+  });
+}
 
 describe("markdown normalization", () => {
   it("bullets with `-` instead of `*` change nothing", () => {

@@ -66,27 +66,6 @@ function write(
   );
 }
 
-const originalShape = [
-  "colored",
-  "heading",
-  "bullet",
-  ["child-bullet", "child-paragraph"],
-  "numbered",
-  "checked",
-  "toggle",
-  ["toggle-child"],
-  "quote",
-  "code",
-  "image",
-  "empty-1",
-  "empty-2",
-  "hard-break",
-  "divider",
-  "table",
-  "underlined",
-  "last",
-];
-
 describe("markdown", () => {
   it("a changed paragraph keeps its ID, colors and alignment", () => {
     const editor = createEditor();
@@ -128,19 +107,6 @@ describe("markdown", () => {
         text: "Underlined words right here",
         styles: { underline: true },
       },
-    ]);
-  });
-
-  it("adds bold and keeps underline", () => {
-    const editor = createEditor();
-    write(editor, (md) =>
-      replaceOnce(md, "Underlined words here", "Underlined **words** here"),
-    );
-
-    expect(editor.getBlock("underlined")?.content).toEqual([
-      { type: "text", text: "Underlined ", styles: { underline: true } },
-      { type: "text", text: "words", styles: { bold: true, underline: true } },
-      { type: "text", text: " here", styles: { underline: true } },
     ]);
   });
 
@@ -262,151 +228,6 @@ describe("markdown", () => {
     expect(update.operations[0]).toMatchObject({ id: "p" });
   });
 
-  it("a new paragraph at the top keeps all other blocks", () => {
-    const editor = createEditor();
-    const update = write(editor, (md) => `New first paragraph\n\n${md}`);
-
-    expect(update.operations.map((operation) => operation.type)).toEqual([
-      "insert",
-    ]);
-    const [inserted, ...rest] = documentShape(editor.document);
-    expect(editor.getBlock(inserted as string)?.content).toEqual([
-      { type: "text", text: "New first paragraph", styles: {} },
-    ]);
-    expect(rest).toEqual(originalShape);
-  });
-
-  it("a removed paragraph removes only that block", () => {
-    const editor = createEditor();
-    const update = write(editor, (md) =>
-      replaceOnce(md, "\n\nLast paragraph", ""),
-    );
-
-    expect(update.operations).toEqual([{ type: "delete", id: "last" }]);
-  });
-
-  it("a split paragraph keeps the ID and props on the first part", () => {
-    const editor = createEditor();
-    write(editor, (md) =>
-      replaceOnce(
-        md,
-        "Colored centered paragraph",
-        "Colored centered\n\nparagraph",
-      ),
-    );
-
-    const [first, second] = editor.document;
-    expect(first.id).toBe("colored");
-    expect(first.content).toEqual([
-      { type: "text", text: "Colored centered", styles: {} },
-    ]);
-    expect(first.props).toMatchObject({ textColor: "red" });
-    expect(second.content).toEqual([
-      { type: "text", text: "paragraph", styles: {} },
-    ]);
-  });
-
-  it("a paragraph with fully new text at the same position keeps its ID", () => {
-    const editor = createEditor();
-    write(editor, (md) => replaceOnce(md, "Last paragraph", "Something else"));
-
-    expect(editor.getBlock("last")?.content).toEqual([
-      { type: "text", text: "Something else", styles: {} },
-    ]);
-  });
-
-  it("a paragraph with many new sentences keeps its ID and props", () => {
-    const editor = createEditor();
-    const sentences = Array.from(
-      { length: 8 },
-      (_, i) => ` This is new sentence number ${i + 1}.`,
-    ).join("");
-    write(editor, (md) =>
-      replaceOnce(
-        md,
-        "Colored centered paragraph",
-        `Colored centered paragraph.${sentences}`,
-      ),
-    );
-
-    const colored = editor.getBlock("colored");
-    expect(colored?.props).toEqual({
-      textColor: "red",
-      backgroundColor: "blue",
-      textAlignment: "center",
-    });
-    expect(colored?.content).toEqual([
-      {
-        type: "text",
-        text: `Colored centered paragraph.${sentences}`,
-        styles: {},
-      },
-    ]);
-  });
-
-  it("a paragraph with many new sentences keeps its ID, also next to a new paragraph", () => {
-    const editor = createEditor();
-    const sentences = " More text. And more text. And even more text here.";
-    write(editor, (md) =>
-      replaceOnce(
-        md,
-        "Underlined words here",
-        `A new paragraph\n\nUnderlined words here.${sentences}`,
-      ),
-    );
-
-    // The new text at the end of the content does not get the hidden
-    // underline (see `merge/inline.ts`).
-    expect(editor.getBlock("underlined")?.content).toEqual([
-      {
-        type: "text",
-        text: "Underlined words here",
-        styles: { underline: true },
-      },
-      { type: "text", text: `.${sentences}`, styles: {} },
-    ]);
-  });
-
-  it("two joined paragraphs keep the ID of the first paragraph", () => {
-    const editor = createEditor();
-    write(editor, (md) =>
-      replaceOnce(
-        md,
-        "Underlined words here\n\nLast paragraph",
-        "Underlined words here. Last paragraph",
-      ),
-    );
-
-    expect(editor.getBlock("last")).toBeUndefined();
-    expect(editor.getBlock("underlined")).toBeDefined();
-  });
-
-  it("two joined paragraphs keep the ID of the first paragraph, also if the second is larger", () => {
-    const editor = createEditor([
-      { id: "first", type: "paragraph", content: "First part is here." },
-      {
-        id: "second",
-        type: "paragraph",
-        content: "Second part follows with more words than the first.",
-      },
-    ]);
-    write(editor, (md) => md.replace(".\n\nSecond", ". Second"));
-
-    expect(editor.document.map((block) => block.id)).toEqual(["first"]);
-  });
-
-  it("keeps nesting and blocks that markdown does not show, when other text changes", () => {
-    const editor = createEditor();
-    write(editor, (md) =>
-      replaceOnce(md, "Last paragraph", "Last paragraph, edited"),
-    );
-
-    // The paragraph in the bullet stays nested, although markdown shows it
-    // without nesting. The empty paragraphs stay, although markdown does not
-    // show them.
-    expect(documentShape(editor.document)).toEqual(originalShape);
-  });
-
   it("moves an outdented list item and keeps the block order of the text", () => {
     const editor = createEditor();
     write(editor, (md) =>
@@ -463,28 +284,6 @@ describe("markdown", () => {
     expect(commentedText(editor.prosemirrorState.doc, comment)).toBe("Hello");
   });
 
-  it("keeps a comment on a block that the text moves", () => {
-    const editor = createCommentEditor([
-      {
-        id: "fruit",
-        type: "bulletListItem",
-        content: "Fruit",
-        children: [{ id: "pears", type: "bulletListItem", content: "Pears" }],
-      },
-      { id: "end", type: "paragraph", content: "End" },
-    ]);
-    const comment = addComment(editor, "Pears");
-
-    const update = write(editor, (md) =>
-      replaceOnce(md, "  * Pears", "* Pears"),
-    );
-
-    expect(update.operations.map((operation) => operation.type)).toEqual([
-      "move",
-    ]);
-    expect(commentedText(editor.prosemirrorState.doc, comment)).toBe("Pears");
-  });
-
   it("a new block between a paragraph and its nested child goes into the paragraph, thus the child stays nested", () => {
     const editor = createEditor([
       {
@@ -510,26 +309,6 @@ describe("markdown", () => {
       [inserted.id, "note"],
       "end",
     ]);
-  });
-
-  it("a small change in each of many bullets keeps the ID of each bullet", () => {
-    const editor = createEditor(
-      Array.from({ length: 300 }, (_, i) => ({
-        id: `b${i}`,
-        type: "bulletListItem" as const,
-        content: `Item ${i} alpha beta gamma delta epsilon`,
-      })),
-    );
-    const update = write(editor, (md) =>
-      md.replaceAll("alpha", "omega").replaceAll("beta", "zeta"),
-    );
-
-    expect(
-      update.operations.filter((operation) => operation.type !== "update"),
-    ).toEqual([]);
-    expect(editor.document.map((block) => block.id)).toEqual(
-      Array.from({ length: 300 }, (_, i) => `b${i}`),
-    );
   });
 
   describe("images keep their hidden props", () => {

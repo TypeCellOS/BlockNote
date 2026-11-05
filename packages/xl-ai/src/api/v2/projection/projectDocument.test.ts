@@ -67,7 +67,7 @@ describe("projectDocument", () => {
     ).toHaveLength(2);
   });
 
-  it("makes the round trip only for the blocks that the view does not show as they are", () => {
+  it("makes the round trip only for the blocks that the view does not show as they are (a guard of the speed)", () => {
     // The IDs of the blocks of each call of `serialize` (a separator has no ID).
     const calls: string[][] = [];
     const spy: TextFormat = {

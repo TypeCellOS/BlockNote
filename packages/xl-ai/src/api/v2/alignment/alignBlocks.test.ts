@@ -55,7 +55,10 @@ describe("alignBlocks", () => {
   });
 
   it("matches a block with many added sentences", () => {
-    const added = " More text here. And even more text. And a lot more text.";
+    const added = Array.from(
+      { length: 8 },
+      (_, i) => ` This is new sentence number ${i + 1}.`,
+    ).join("");
     expect(
       align(
         flat("Top", "One sentence.", "Bottom"),
@@ -283,10 +286,11 @@ describe("linkBlocks", () => {
 });
 
 describe("alignmentKey", () => {
-  it("is the text for blocks with inline content, and all fields for blocks without content", () => {
-    expect(alignmentKey(paragraph("a"))).toBe("text:a");
-    expect(alignmentKey(paragraph(""))).toBe("text:");
-    expect(alignmentKey(image())).toBe('block:{"props":{},"type":"image"}');
+  it("is equal for blocks with the same text, and for equal blocks without content", () => {
+    expect(alignmentKey(paragraph("a"))).toBe(alignmentKey(paragraph("a")));
+    expect(alignmentKey(paragraph("a"))).not.toBe(alignmentKey(paragraph("b")));
+    expect(alignmentKey(image())).toBe(alignmentKey(image()));
+    expect(alignmentKey(image())).not.toBe(alignmentKey(paragraph("")));
   });
 
   it("is different for a table and a paragraph with the same text", () => {

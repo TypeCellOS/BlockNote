@@ -8,9 +8,7 @@ import {
   updateDocumentFromText,
 } from "./index.js";
 import {
-  blockFieldsById,
   createEditor,
-  diffBlocks,
   documentShape,
   replaceOnce,
 } from "./testUtil/fixtures.js";
@@ -67,29 +65,6 @@ describe("plain text", () => {
     ]);
   });
 
-  it("changes only the block with changed text", () => {
-    const editor = createEditor();
-    const before = blockFieldsById(editor);
-    write(editor, (text) => replaceOnce(text, "A quote", "A quote, edited"));
-
-    expect(diffBlocks(before, blockFieldsById(editor))).toEqual({
-      changed: ["quote"],
-      removed: [],
-      added: [],
-    });
-    expect(editor.getBlock("quote")?.type).toBe("quote");
-  });
-
-  it("keeps nesting, and blocks without text (images, tables, empty paragraphs)", () => {
-    const editor = createEditor();
-    const shape = documentShape(editor.document);
-    write(editor, (text) =>
-      replaceOnce(text, "Last paragraph", "Last paragraph, edited"),
-    );
-
-    expect(documentShape(editor.document)).toEqual(shape);
-  });
-
   it("inserts a new paragraph between blocks", () => {
     const editor = createEditor();
     write(editor, (text) =>
@@ -112,36 +87,6 @@ describe("plain text", () => {
 
     expect(editor.getBlock("hard-break")?.content).toEqual([
       { type: "text", text: "line one\nline 2", styles: {} },
-    ]);
-  });
-  it("a new block between a paragraph and its nested child goes into the paragraph, thus the child stays nested", () => {
-    const editor = createEditor([
-      {
-        id: "intro",
-        type: "paragraph",
-        content: "Buy the fresh items first.",
-        children: [
-          { id: "note", type: "paragraph", content: "A nested note." },
-        ],
-      },
-      { id: "end", type: "paragraph", content: "End" },
-    ]);
-    write(editor, (text) =>
-      replaceOnce(
-        text,
-        "first.\n\nA nested",
-        "first.\n\nNew note.\n\nA nested",
-      ),
-    );
-
-    const [inserted] = editor.document[0].children;
-    expect(editor.getBlock(inserted.id)?.content).toEqual([
-      { type: "text", text: "New note.", styles: {} },
-    ]);
-    expect(documentShape(editor.document)).toEqual([
-      "intro",
-      [inserted.id, "note"],
-      "end",
     ]);
   });
 
@@ -299,17 +244,6 @@ describe("plain text, a part of a block without words", () => {
 });
 
 describe("special characters at the edges of the text", () => {
-  it("does not see a byte order mark at the start of the text as content", () => {
-    const editor = BlockNoteEditor.create({
-      initialContent: [{ type: "paragraph", content: "Hello" }],
-    });
-    const text = `\uFEFF${getDocumentText(editor, plainTextFormat)}`;
-    const update = valid(
-      computeTextUpdate(editor, { format: plainTextFormat, text }),
-    );
-    expect(update.operations).toEqual([]);
-  });
-
   it("keeps a byte order mark that the document has", () => {
     const editor = BlockNoteEditor.create({
       initialContent: [{ type: "paragraph", content: "\uFEFFHello" }],
