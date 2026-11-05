@@ -28,5 +28,5 @@ export { applyOperations } from "./operations/applyOperations.js";
 export type { LensBlock } from "./blocks/types.js";
 export type { BlockOperation, BlockPosition } from "./operations/types.js";
 export type { RebaseWarning } from "./merge/tree.js";
-export type { PlanWarning } from "./target/planTarget.js";
-export type { FitWarning } from "./blocks/fitTable.js";
+export type { PlanWarning } from "./plan/planTarget.js";
+export type { FitWarning } from "./fit/fitTable.js";

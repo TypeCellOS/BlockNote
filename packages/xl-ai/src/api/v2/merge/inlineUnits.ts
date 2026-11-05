@@ -7,8 +7,8 @@ import {
   type LensStyledText,
   type LensStyles,
 } from "../blocks/types.js";
-import { alignText, charKind, type TextUnit } from "../diff/text.js";
-import type { MatchedPair } from "../diff/types.js";
+import { alignText, charKind, type TextUnit } from "../sequence/text.js";
+import type { MatchedPair } from "../sequence/types.js";
 
 /**
  * Inline content as a flat sequence of units:

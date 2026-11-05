@@ -16,7 +16,7 @@ import {
 } from "../index.js";
 import { diffDocuments } from "../operations/diffDocuments.js";
 import { projectDocument } from "../projection/projectDocument.js";
-import { planTarget } from "../target/planTarget.js";
+import { planTarget } from "../plan/planTarget.js";
 import { richDocument } from "../testUtil/fixtures.js";
 import { bindEditor, unbindEditor } from "../testUtil/yjs.js";
 import { updateYDocFromText } from "../yjs/index.js";

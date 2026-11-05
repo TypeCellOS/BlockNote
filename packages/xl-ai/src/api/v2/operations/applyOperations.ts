@@ -16,8 +16,8 @@ import {
   type LensTableContent,
 } from "../blocks/types.js";
 import { fixBlockIds } from "./blockIds.js";
-import { gaps, isChanged } from "../diff/gaps.js";
-import { myersMatch } from "../diff/myers.js";
+import { gaps, isChanged } from "../sequence/gaps.js";
+import { myersMatch } from "../sequence/myers.js";
 import { applyToBlocks, type BlockShape } from "./applyToBlocks.js";
 import { addInlineContentSteps } from "./inlineSteps.js";
 import type { BlockOperation } from "./types.js";

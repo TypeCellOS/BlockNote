@@ -1,6 +1,6 @@
 import { expect } from "vite-plus/test";
 
-import type { MatchedPair } from "../diff/types.js";
+import type { MatchedPair } from "../sequence/types.js";
 
 /** Makes sure that each pair matches equal elements, and that the pairs ascend on the two sides. */
 export function expectValidMatching<T>(

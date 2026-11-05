@@ -2,7 +2,7 @@ import { withoutChildren } from "../blocks/flatten.js";
 import { BlockTree } from "../blocks/tree.js";
 import type { LensBlock } from "../blocks/types.js";
 import { diffBlock } from "../blocks/update.js";
-import { myersMatch } from "../diff/myers.js";
+import { myersMatch } from "../sequence/myers.js";
 import type { BlockOperation, BlockPosition } from "./types.js";
 
 /**

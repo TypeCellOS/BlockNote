@@ -6,9 +6,9 @@ import {
 } from "../blocks/tableGrid.js";
 import { inlineContentToText } from "../blocks/text.js";
 import type { LensTableCell, LensTableContent } from "../blocks/types.js";
-import { gaps } from "../diff/gaps.js";
-import { myersMatch } from "../diff/myers.js";
-import type { MatchedPair } from "../diff/types.js";
+import { gaps } from "../sequence/gaps.js";
+import { myersMatch } from "../sequence/myers.js";
+import type { MatchedPair } from "../sequence/types.js";
 import { diff3 } from "./diff3.js";
 import { mergeInlineContent } from "./inline.js";
 import { type MergeOptions, mergeRecords, mergeValue } from "./threeWay.js";

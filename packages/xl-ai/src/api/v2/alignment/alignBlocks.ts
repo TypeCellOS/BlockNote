@@ -5,10 +5,10 @@ import {
   type FlatBlock,
   type LensBlock,
 } from "../blocks/types.js";
-import { myersMatch } from "../diff/myers.js";
-import { uniquePairs } from "../diff/anchored.js";
-import { gaps } from "../diff/gaps.js";
-import type { MatchedPair } from "../diff/types.js";
+import { myersMatch } from "../sequence/myers.js";
+import { uniquePairs } from "../sequence/anchored.js";
+import { gaps } from "../sequence/gaps.js";
+import type { MatchedPair } from "../sequence/types.js";
 import {
   type Overlap,
   type OverlapText,

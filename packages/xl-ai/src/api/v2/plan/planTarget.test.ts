@@ -2,7 +2,7 @@
 import { describe, expect, it } from "vite-plus/test";
 
 import type { FlatBlock, LensBlock } from "../blocks/types.js";
-import type { MatchedPair } from "../diff/types.js";
+import type { MatchedPair } from "../sequence/types.js";
 import type { ViewBlock } from "../projection/projectDocument.js";
 import { planTarget } from "./planTarget.js";
 

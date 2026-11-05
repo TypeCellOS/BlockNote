@@ -1,5 +1,5 @@
 import { deepEqual } from "../blocks/json.js";
-import type { MatchedPair } from "../diff/types.js";
+import type { MatchedPair } from "../sequence/types.js";
 
 /** Matched units of base, ours and theirs: a stable point of the merge. */
 export type StableTriple<T> = { base: T; ours: T; theirs: T };

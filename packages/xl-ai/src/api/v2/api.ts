@@ -23,13 +23,13 @@ import { documentText, formatCache } from "./projection/cache.js";
 import { withoutHiddenBlocks } from "./projection/projectDocument.js";
 import type { TextGroup } from "./merge/group.js";
 import { mergeTree, type RebaseWarning } from "./merge/tree.js";
-import { fitLayout } from "./target/fitLayout.js";
+import { fitLayout } from "./fit/fitLayout.js";
 import {
   fitChangedTables,
   type FitWarning,
   mergedCellsRemoved,
-} from "./blocks/fitTable.js";
-import { type PlanWarning, planTarget } from "./target/planTarget.js";
+} from "./fit/fitTable.js";
+import { type PlanWarning, planTarget } from "./plan/planTarget.js";
 
 /** Returns the document in the format. A client reads this text, changes it, and writes it back. */
 export function getDocumentText(

@@ -5,7 +5,7 @@ import { flattenBlocks, withoutChildren } from "../blocks/flatten.js";
 import { schemaRulesOf } from "../blocks/schema.js";
 import { blockToText } from "../blocks/text.js";
 import type { FlatBlock, LensBlock } from "../blocks/types.js";
-import { anchoredMatch } from "../diff/anchored.js";
+import { anchoredMatch } from "../sequence/anchored.js";
 import { toStoredBlocks } from "../formats/stored.js";
 import type { TextFormat } from "../formats/types.js";
 

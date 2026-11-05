@@ -3,7 +3,7 @@ import { deepEqual } from "../blocks/json.js";
 import { BlockTree } from "../blocks/tree.js";
 import type { ContentKind, LensBlock } from "../blocks/types.js";
 import { diffBlock } from "../blocks/update.js";
-import { myersMatch } from "../diff/myers.js";
+import { myersMatch } from "../sequence/myers.js";
 import { mergeBlock } from "./block.js";
 import { diff3 } from "./diff3.js";
 import { mergeTextGroups, type TextGroup } from "./group.js";
