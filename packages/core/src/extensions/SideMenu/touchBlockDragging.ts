@@ -21,9 +21,14 @@ const holdMovementTolerance = 8;
 /** Browsing changes native touch editing, not the application's edit permission. */
 export function createTouchBlockDraggingPlugin(isEditable: () => boolean) {
   function syncDOM(view: EditorView) {
-    view.dom.contentEditable = String(
+    const contentEditable = String(
       isEditable() && !browseKey.getState(view.state),
     );
+    // Even assigning the same attribute produces a mutation. Avoid waking PM's
+    // observer while focus moves to editor UI (for example the AI input).
+    if (view.dom.contentEditable !== contentEditable) {
+      view.dom.contentEditable = contentEditable;
+    }
   }
   return new Plugin({
     key: browseKey,
@@ -129,7 +134,9 @@ export function registerTouchBlockDragging({
   const root = view.root;
   const window = document.defaultView!;
   const viewport = window.visualViewport;
-  let touchInput = window.matchMedia("(pointer: coarse)").matches;
+  let touchInput =
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(pointer: coarse)").matches;
   let gesture: Gesture | undefined;
   let keyboard: Keyboard | undefined;
 
