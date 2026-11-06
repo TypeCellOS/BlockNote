@@ -1,13 +1,36 @@
 // @vitest-environment node
 import { BlockNoteEditor, BlockNoteSchema } from "@blocknote/core";
 import { expect, it } from "vite-plus/test";
+import type { EditorView } from "prosemirror-view";
 import { createReactMathBlockSpec } from "../../../block/createReactMathBlockSpec.js";
 import { createReactInlineMathSpec } from "../../createReactMathInlineContentSpec.js";
+import { MathInlineInputRulesExtension } from "./MathInlineInputRulesExtension.js";
 
 const schema = BlockNoteSchema.create().extend({
   blockSpecs: { mathBlock: createReactMathBlockSpec() },
   inlineContentSpecs: { math: createReactInlineMathSpec() },
 });
+
+function typeText(view: EditorView, value: string) {
+  for (const char of value) {
+    const { from, to } = view.state.selection;
+    const insert = () => view.state.tr.insertText(char, from, to);
+    if (
+      !view.state.plugins.some((plugin) =>
+        plugin.props.handleTextInput?.call(
+          plugin,
+          view,
+          from,
+          to,
+          char,
+          insert,
+        ),
+      )
+    ) {
+      view.dispatch(insert());
+    }
+  }
+}
 
 it.each(["$x$", "\\(x\\)", "$$ ", "\\[ "])(
   "Backspace restores the literal %s through the shared input-rule engine",
@@ -21,27 +44,7 @@ it.each(["$x$", "\\(x\\)", "$$ ", "\\[ "])(
           plugins: editor._tiptapEditor.extensionManager.plugins,
         }),
       );
-      function typeText(value: string) {
-        for (const char of value) {
-          const { from, to } = view.state.selection;
-          const insert = () => view.state.tr.insertText(char, from, to);
-          if (
-            !view.state.plugins.some((plugin) =>
-              plugin.props.handleTextInput?.call(
-                plugin,
-                view,
-                from,
-                to,
-                char,
-                insert,
-              ),
-            )
-          ) {
-            view.dispatch(insert());
-          }
-        }
-      }
-      typeText(text);
+      typeText(view, text);
       if (text.endsWith(" ")) {
         expect(editor.document[0].type).toBe("mathBlock");
       } else {
@@ -57,10 +60,28 @@ it.each(["$x$", "\\(x\\)", "$$ ", "\\[ "])(
       expect(editor.document[0].content).toEqual([
         { type: "text", text, styles: {} },
       ]);
-      typeText("x");
+      typeText(view, "x");
       expect(view.state.doc.textContent).toBe(text + "x");
     } finally {
       editor._tiptapEditor.destroy();
     }
   },
 );
+
+it("retains literal delimiters when registered without the math inline spec", () => {
+  const editor = BlockNoteEditor.create({
+    extensions: [MathInlineInputRulesExtension],
+  });
+  try {
+    const view = editor.prosemirrorView;
+    view.updateState(
+      view.state.reconfigure({
+        plugins: editor._tiptapEditor.extensionManager.plugins,
+      }),
+    );
+    typeText(view, "$x$ \\(y\\)");
+    expect(view.state.doc.textContent).toBe("$x$ \\(y\\)");
+  } finally {
+    editor._tiptapEditor.destroy();
+  }
+});

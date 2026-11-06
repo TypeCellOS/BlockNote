@@ -2,7 +2,7 @@ import {
   InputRule as ProseMirrorInputRule,
   inputRules,
 } from "@handlewithcare/prosemirror-inputrules";
-import { type Mark } from "prosemirror-model";
+import { Fragment, type Mark } from "prosemirror-model";
 import {
   type EditorState,
   Plugin,
@@ -40,18 +40,25 @@ function toInputRule(
         return null;
       }
       if (typeof replacement === "string" || Array.isArray(replacement)) {
-        return isEnter()
-          ? null
-          : state.tr.replaceWith(
-              start,
-              end,
-              inlineContentToNodes(
-                replacement,
-                state.schema,
-                undefined,
-                editor.schema.styleSchema,
-              ),
-            );
+        if (isEnter()) {
+          return null;
+        }
+        const nodes = inlineContentToNodes(
+          replacement,
+          state.schema,
+          undefined,
+          editor.schema.styleSchema,
+        );
+        const $start = state.doc.resolve(start);
+        const $end = state.doc.resolve(end);
+        return $start.sameParent($end) &&
+          $start.parent.canReplace(
+            $start.index(),
+            $end.index(),
+            Fragment.from(nodes),
+          )
+          ? state.tr.replaceWith(start, end, nodes)
+          : null;
       }
       if ("text" in replacement && "styles" in replacement) {
         return isEnter() || !replacement.text
@@ -60,7 +67,6 @@ function toInputRule(
               state,
               match[0],
               start,
-              end,
               replacement.text,
               stylesToMarks(
                 replacement.styles,
@@ -92,14 +98,13 @@ function toInputRule(
 }
 
 /**
- * Retain the requested text within the match. Optional leading whitespace is
+ * Retain the requested text within the match. Optional surrounding whitespace is
  * preserved; delimiters are deleted without replacing the marked content.
  */
 function applyStyles(
   state: EditorState,
   match: string,
   start: number,
-  end: number,
   content: string,
   marks: readonly Mark[],
 ) {
@@ -130,7 +135,10 @@ function applyStyles(
   if (excluded) {
     return null;
   }
-  const tr = state.tr.delete(contentEnd, end).delete(markStart, contentStart);
+  const delimiterEnd = Math.max(contentEnd, start + match.trimEnd().length);
+  const tr = state.tr
+    .delete(contentEnd, delimiterEnd)
+    .delete(markStart, contentStart);
   for (const mark of marks) {
     tr.addMark(markStart, markStart + content.length, mark);
     tr.removeStoredMark(mark.type);

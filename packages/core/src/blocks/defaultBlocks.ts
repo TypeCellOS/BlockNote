@@ -229,10 +229,10 @@ export const defaultStyleSpecs = {
           // Also convert pre-existing delimiters when a space follows them.
           {
             find: /(?<!`)`([^`]+)`(?!`) $/,
-            replace: ({ match }) => [
-              { type: "text", text: match[1], styles: { code: true } },
-              { type: "text", text: " ", styles: {} },
-            ],
+            replace: ({ match }) => ({
+              text: match[1],
+              styles: { code: true },
+            }),
           },
         ],
       }),

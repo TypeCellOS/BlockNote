@@ -7,6 +7,8 @@ import {
   InputRule as TiptapInputRule,
 } from "@tiptap/core";
 import { TextSelection } from "prosemirror-state";
+import { Node as TiptapNode } from "@tiptap/core";
+import { CommentMark } from "../comments/mark.js";
 import { createExtension, type InputRule } from "./BlockNoteExtension.js";
 import {
   BlockNoteEditor,
@@ -404,6 +406,56 @@ describe("input-rule history", () => {
       { type: "text", text: "(", styles: { bold: true } },
       { type: "text", text: "`ab` ", styles: {} },
     ]);
+  });
+
+  it("preserves comment annotations when a space triggers inline code", () => {
+    const editor = createEditor({
+      initialContent: [{ id: "paragraph", type: "paragraph", content: "`ab`" }],
+      _tiptapOptions: { extensions: [CommentMark] },
+    });
+    const view = editor.prosemirrorView;
+    const comment = view.state.schema.marks.comment.create({
+      threadId: "thread",
+    });
+    view.dispatch(view.state.tr.addMark(4, 6, comment));
+    editor.setTextCursorPosition("paragraph", "end");
+    typeText(editor, " ");
+    expect(view.state.doc.textContent).toBe("ab ");
+    expect(view.state.doc.rangeHasMark(3, 5, comment)).toBe(true);
+    expect(editor.document[0].content).toEqual([
+      { type: "text", text: "ab", styles: { code: true } },
+      { type: "text", text: " ", styles: {} },
+    ]);
+    expect(keyDown(editor, "Backspace")).toBe(true);
+    expect(view.state.doc.textContent).toBe("`ab` ");
+    expect(view.state.doc.rangeHasMark(4, 6, comment)).toBe(true);
+  });
+
+  it("declines inline nodes that do not fit the current textblock", () => {
+    const editor = createEditor({
+      _tiptapOptions: {
+        extensions: [
+          TiptapNode.create({
+            name: "plainText",
+            group: "blockContent",
+            content: "text*",
+          }),
+        ],
+      },
+      extensions: [
+        createExtension({
+          key: "incompatible-inline",
+          inputRules: [{ find: /->$/, replace: () => "\n" }],
+        }),
+      ],
+    });
+    const view = editor.prosemirrorView;
+    view.dispatch(
+      view.state.tr.setNodeMarkup(2, view.state.schema.nodes.plainText),
+    );
+    typeText(editor, "->");
+    expect(view.state.doc.textContent).toBe("->");
+    expect(view.state.doc.nodeAt(2)?.type.name).toBe("plainText");
   });
 
   it("keeps the original block rule callback contract", () => {

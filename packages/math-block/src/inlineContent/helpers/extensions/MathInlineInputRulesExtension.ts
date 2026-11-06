@@ -15,9 +15,10 @@ export const MathInlineInputRulesExtension = createExtension({
   key: "math-inline-input-rules",
   inputRules: [/\$([^$]+)\$$/, /\\\((.+?)\\\)$/].map((find) => ({
     find,
-    replace: ({ match }) => {
+    replace: ({ editor, match }) => {
       const source = match[1]?.trim();
-      return source
+      return source &&
+        editor.schema.inlineContentSchema[mathInlineContentConfig.type]
         ? [{ type: mathInlineContentConfig.type, content: source }]
         : undefined;
     },
