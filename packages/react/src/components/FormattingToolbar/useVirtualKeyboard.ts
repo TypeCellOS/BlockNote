@@ -1,11 +1,11 @@
+import { observeVirtualKeyboard, VirtualKeyboardState } from "@blocknote/core";
 import { useLayoutEffect, useState } from "react";
 
 // The tallest layout-equivalent viewport height seen so far — our stand-in for
 // "keyboard closed" — and the layout width it was measured at. Module scope so
 // they survive re-renders; the height only ever grows within a given width, so
 // refreshing it from a render pass is safe.
-let maxLayoutViewportHeight = 0;
-let baselineLayoutWidth = 0;
+let keyboardViewport: VirtualKeyboardState | undefined;
 
 /**
  * Whether the on-screen keyboard is open, from the current visual viewport. We
@@ -35,19 +35,12 @@ function isVirtualKeyboardOpen(): boolean {
   }
 
   const vp = window.visualViewport;
-  const scale = vp?.scale ?? 1;
-  const layoutHeight = (vp?.height ?? window.innerHeight) * scale;
-  const layoutWidth = document.documentElement.clientWidth;
-
-  // Orientation changed: the tallest height seen so far belongs to the other
-  // orientation, start measuring afresh.
-  if (Math.abs(layoutWidth - baselineLayoutWidth) > baselineLayoutWidth * 0.2) {
-    baselineLayoutWidth = layoutWidth;
-    maxLayoutViewportHeight = 0;
-  }
-
-  maxLayoutViewportHeight = Math.max(maxLayoutViewportHeight, layoutHeight);
-  return maxLayoutViewportHeight - layoutHeight > 150;
+  keyboardViewport = observeVirtualKeyboard(keyboardViewport, {
+    height: vp?.height ?? window.innerHeight,
+    scale: vp?.scale ?? 1,
+    layoutWidth: document.documentElement.clientWidth,
+  });
+  return keyboardViewport.open;
 }
 
 /**
@@ -162,8 +155,7 @@ export function useVirtualKeyboard(): boolean {
         }
         // The keyboard baseline goes with them: a later editor starts from
         // what it measures itself, not from a maximum seen on another page.
-        maxLayoutViewportHeight = 0;
-        baselineLayoutWidth = 0;
+        keyboardViewport = undefined;
       }
     };
   }, []);

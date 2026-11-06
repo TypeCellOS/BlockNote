@@ -95,7 +95,7 @@ export const FormattingToolbarExtension = createExtension(({ editor }) => {
         (_editor, { focused }) => {
           if (!focused) {
             store.setState(false);
-            // On touch, leaving the editor also ends the selection. A phone
+            // On touch, leaving the editor also ends a text selection. A phone
             // can hand focus back without the keyboard (see the window blur
             // listener below): the old selection then showed the desktop
             // toolbar, and without the keyboard no tap cleared it. A tablet
@@ -103,7 +103,12 @@ export const FormattingToolbarExtension = createExtension(({ editor }) => {
             // too, unlike a desktop.
             if (isTouchDevice()) {
               editor.transact((tr) => {
-                if (!tr.selection.empty) {
+                // Block selections survive manipulation without opening the
+                // software keyboard, including a touch drag-and-drop.
+                if (
+                  tr.selection.toJSON().type === "text" &&
+                  !tr.selection.empty
+                ) {
                   tr.setSelection(Selection.near(tr.selection.$head));
                 }
               });
