@@ -5,6 +5,8 @@ import {
   pressKey,
   checkAriaSnapshot,
   checkAxe,
+  readOutline,
+  checkFocusOutline,
   selectToLineEndKey,
 } from "@root/tests/a11y/helpers.js";
 import { focusToolbarItem } from "./testHelpers.js";
@@ -160,36 +162,6 @@ test.describe("behavior", () => {
 });
 
 test.describe("keyboard", () => {
-  function readOutline(element: Element) {
-    const style = getComputedStyle(element);
-    return {
-      width: Number.parseFloat(style.outlineWidth),
-      style: style.outlineStyle,
-      color: style.outlineColor,
-    };
-  }
-
-  async function checkFocusOutline(
-    target: ReturnType<typeof page.getByRole>,
-    unfocusedOutline: ReturnType<typeof readOutline>,
-  ) {
-    await expect
-      .poll(() => target.element().matches(":focus-visible"))
-      .toBe(true);
-    await expect
-      .poll(() => readOutline(target.element()))
-      .not.toEqual(unfocusedOutline);
-    await expect
-      .poll(() => readOutline(target.element()).width)
-      .toBeGreaterThan(0);
-    await expect
-      .poll(() => readOutline(target.element()).style)
-      .not.toMatch(/^(none|hidden)$/);
-    await expect
-      .poll(() => readOutline(target.element()).color)
-      .not.toMatch(/^(transparent|rgba\(0, 0, 0, 0\))$/);
-  }
-
   // Same navigation as the shared focusToolbarItem, with focus assertions.
   async function focusToolbarItemWithAssertions(toolbarItem: string) {
     await pressKey("Tab");

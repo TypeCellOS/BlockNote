@@ -97,6 +97,36 @@ export async function pressKey(key: string) {
   return browserCommands.pressKey(key);
 }
 
+export function readOutline(element: Element) {
+  const style = getComputedStyle(element);
+  return {
+    width: Number.parseFloat(style.outlineWidth),
+    style: style.outlineStyle,
+    color: style.outlineColor,
+  };
+}
+
+export async function checkFocusOutline(
+  target: ReturnType<typeof page.getByRole>,
+  unfocusedOutline: ReturnType<typeof readOutline>,
+) {
+  await expect
+    .poll(() => target.element().matches(":focus-visible"))
+    .toBe(true);
+  await expect
+    .poll(() => readOutline(target.element()))
+    .not.toEqual(unfocusedOutline);
+  await expect
+    .poll(() => readOutline(target.element()).width)
+    .toBeGreaterThan(0);
+  await expect
+    .poll(() => readOutline(target.element()).style)
+    .not.toMatch(/^(none|hidden)$/);
+  await expect
+    .poll(() => readOutline(target.element()).color)
+    .not.toMatch(/^(transparent|rgba\(0, 0, 0, 0\))$/);
+}
+
 export function readSelection() {
   const selection = document.getSelection();
   const node = selection?.focusNode;
