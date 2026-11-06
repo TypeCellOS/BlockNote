@@ -1,5 +1,6 @@
 import { Plugin, PluginKey, Selection, TextSelection } from "prosemirror-state";
 import { createExtension } from "../../editor/BlockNoteExtension.js";
+import { keyboardEventKey } from "../../util/keyboardEventKey.js";
 
 const PLUGIN_KEY = new PluginKey("inline-content-boundary-edit");
 
@@ -48,14 +49,16 @@ export const InlineContentBoundaryEditExtension = createExtension(
                 return false;
               }
 
-              const isTypedChar =
-                event.key.length === 1 && !event.ctrlKey && !event.metaKey;
+              // Safari autofill/dictation can send a keydown with no key.
+              const key = keyboardEventKey(event);
+              if (key === undefined) {
+                return false;
+              }
 
-              if (
-                !isTypedChar &&
-                event.key !== "Backspace" &&
-                event.key !== "Delete"
-              ) {
+              const isTypedChar =
+                key.length === 1 && !event.ctrlKey && !event.metaKey;
+
+              if (!isTypedChar && key !== "Backspace" && key !== "Delete") {
                 return false;
               }
 
@@ -73,10 +76,10 @@ export const InlineContentBoundaryEditExtension = createExtension(
               if (isTypedChar && node.content.size === 0) {
                 const tr = view.state.tr.insert(
                   contentFrom,
-                  view.state.schema.text(event.key),
+                  view.state.schema.text(key),
                 );
                 tr.setSelection(
-                  TextSelection.create(tr.doc, contentFrom + event.key.length),
+                  TextSelection.create(tr.doc, contentFrom + key.length),
                 );
                 view.dispatch(tr);
 
@@ -88,7 +91,7 @@ export const InlineContentBoundaryEditExtension = createExtension(
               // inside it) so it stays editable.
               if (
                 node.content.size > 0 &&
-                emptiesInlineContent(selection, event.key, {
+                emptiesInlineContent(selection, key, {
                   from: contentFrom,
                   to: contentTo,
                 })

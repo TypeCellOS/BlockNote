@@ -6,6 +6,7 @@ import {
   createStore,
 } from "../../editor/BlockNoteExtension.js";
 import { Block } from "../../blocks/index.js";
+import { keyboardEventKey } from "../../util/keyboardEventKey.js";
 
 /**
  * A single editor-wide extension that drives the source popup for blocks that
@@ -163,7 +164,13 @@ export const SourceBlockWithPreviewExtension = createExtension(
             return;
           }
 
-          if (event.key === "Backspace" || event.key === "Delete") {
+          // Safari autofill/dictation can send a keydown with no key.
+          const key = keyboardEventKey(event);
+          if (key === undefined) {
+            return;
+          }
+
+          if (key === "Backspace" || key === "Delete") {
             event.preventDefault();
             event.stopImmediatePropagation();
             editor.removeBlocks([block.id]);
@@ -172,8 +179,8 @@ export const SourceBlockWithPreviewExtension = createExtension(
           }
 
           if (
-            (event.key.length === 1 && !event.ctrlKey && !event.metaKey) ||
-            event.key === "Tab"
+            (key.length === 1 && !event.ctrlKey && !event.metaKey) ||
+            key === "Tab"
           ) {
             event.preventDefault();
             event.stopImmediatePropagation();
