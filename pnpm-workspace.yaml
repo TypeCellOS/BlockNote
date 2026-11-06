@@ -83,6 +83,7 @@ catalog:
   vite: ^8.0.0
   vite-plus: ^1.4.0
 minimumReleaseAgeExclude:
+  - frimousse
   - vite-plus
   - "@vitest/*"
   - vitest

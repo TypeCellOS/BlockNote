@@ -66,15 +66,34 @@ describe("docx exporter mappings", () => {
     expect(documentXML).not.toContain("w:drawing");
   });
 
-  it("should throw a descriptive error without a renderer outside the browser", async () => {
-    // The built-in Mermaid renderer can't work here, and silently degrading
-    // is worse than failing loudly - the error names the `renderDiagram`
-    // option to pass.
+  it("should embed real vector diagrams outside the browser by default", async () => {
+    expect(typeof document).toBe("undefined");
     const exporter = createExporter(diagramBlockMapping);
-
-    await expect(
-      exporter.toDocxJsDocument(diagramDocument, documentOptions),
-    ).rejects.toThrow("pass a `renderDiagram` function");
+    const doc = await exporter.toDocxJsDocument(
+      diagramDocument,
+      documentOptions,
+    );
+    const blob = await Packer.toBlob(doc);
+    const reader = new ZipReader(new BlobReader(blob));
+    const entries = await reader.getEntries();
+    const svg = entries.find((entry) => /media\/.*\.svg$/.test(entry.filename));
+    expect(svg).toBeDefined();
+    const source = await zipEntryContent(blob, svg!.filename);
+    expect(source).toContain("pele-flowchart");
+    expect(source).not.toContain("foreignObject");
+    expect(await zipEntryContent(blob, "word/document.xml")).toContain(
+      "asvg:svgBlip",
+    );
+    expect(await zipEntryContent(blob, "[Content_Types].xml")).toContain(
+      'ContentType="image/svg+xml"',
+    );
+    // docx requires a fallback field, but it is just a tiny blank image;
+    // the diagram itself is SVG, with no browser or server rasterizer.
+    const fallback = entries.find((entry) =>
+      /media\/.*\.png$/.test(entry.filename),
+    );
+    expect(fallback?.uncompressedSize).toBeLessThan(100);
+    await reader.close();
   });
 
   it("should render empty diagrams as an empty paragraph", async () => {

@@ -109,7 +109,7 @@ export default defineConfig(
         name: "e2e",
         // Besides the end-to-end tests, this suite also runs the packages'
         // `.browser.test` files: unit tests for browser-only implementations
-        // (canvas rasterization, Mermaid rendering), colocated with the code
+        // (canvas rasterization, diagram rendering), colocated with the code
         // they test but needing a real browser, plus colocated accessibility
         // tests. Native screen-reader tests use their own runner. The packages' own (node)
         // vitest configs exclude them.

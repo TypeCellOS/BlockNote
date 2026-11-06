@@ -23,7 +23,6 @@ export * from "./editor/defaultColors.js";
 export * from "./editor/selectionTypes.js";
 export * from "./exporter/index.js";
 export * from "./extensions-shared/UiElementPosition.js";
-export { getDefaultEmojiPickerItems } from "./extensions/SuggestionMenu/getDefaultEmojiPickerItems.js";
 export {
   filterSuggestionItems,
   getDefaultSlashMenuItems,

@@ -1,0 +1,8192 @@
+{
+  "😀": {
+    "name": "usmievavá tvár",
+    "keywords": ["radostný", "smiech", "úsmev", "veselý", "zuby"]
+  },
+  "😃": {
+    "name": "usmievavá tvár s veľkými očami",
+    "keywords": ["otvorené", "super", "ústa", "úsmev", "zuby"]
+  },
+  "😄": {
+    "name": "usmievavá tvár s usmievavými očami",
+    "keywords": ["oko", "otvorené", "smiech", "ústa", "úsmev"]
+  },
+  "😁": {
+    "name": "žiariaca tvár s usmievavými očami",
+    "keywords": ["oko", "radosť", "smiech", "úsmev", "zuby"]
+  },
+  "😆": {
+    "name": "usmievavá privretá tvár",
+    "keywords": ["oči", "otvorené", "smiech", "ústa", "úsmev", "zatvorené"]
+  },
+  "😅": {
+    "name": "usmievavá tvár s potom",
+    "keywords": ["nervózny", "otvorené", "stres", "studený", "ústa", "úsmev"]
+  },
+  "🤣": {
+    "name": "váľanie sa od smiechu",
+    "keywords": ["plač", "radosť", "slza", "smiech", "šťastný", "vtipné"]
+  },
+  "😂": {
+    "name": "tvár so slzami radosti",
+    "keywords": ["plač", "slza", "smiech", "vtipné"]
+  },
+  "🙂": {
+    "name": "mierne usmievavá tvár",
+    "keywords": ["šťastný", "úsmev"]
+  },
+  "🙃": {
+    "name": "tvár hore nohami",
+    "keywords": ["úsmev"]
+  },
+  "🫠": {
+    "name": "topiaca sa tvár",
+    "keywords": ["rozpúšťanie", "sarkazmus", "smiech", "teplo"]
+  },
+  "😉": {
+    "name": "žmurkajúca tvár",
+    "keywords": ["flirt", "sexi", "žmurkanie"]
+  },
+  "😊": {
+    "name": "usmievavá tvár s usmievavými očami (začervenanie)",
+    "keywords": ["oko", "spokojný", "úsmev", "začervenanie"]
+  },
+  "😇": {
+    "name": "usmievavá tvár s glóriou",
+    "keywords": [
+      "anjel",
+      "nevinný",
+      "pokojný",
+      "rozprávka",
+      "svätý",
+      "úsmev",
+      "víla"
+    ]
+  },
+  "🥰": {
+    "name": "usmievavá tvár so srdiečkami",
+    "keywords": ["láska", "obdiv", "romantika", "srdce", "úsmev"]
+  },
+  "😍": {
+    "name": "usmievavá tvár so srdiečkovými očami",
+    "keywords": ["143", "láska", "oko", "romantika", "srdcia", "úsmev"]
+  },
+  "🤩": {
+    "name": "ohúrená tvár",
+    "keywords": ["hviezdy", "nadšenie", "oči", "prekvapenie", "úsmev"]
+  },
+  "😘": {
+    "name": "tvár posielajúca bozk",
+    "keywords": ["bozk", "láska", "romantika", "srdce"]
+  },
+  "😗": {
+    "name": "bozkávajúca tvár",
+    "keywords": ["bozk", "flirt", "láska", "rande"]
+  },
+  "☺️": {
+    "name": "usmievavá tvár",
+    "keywords": ["relaxovaný", "šťastný", "úsmev"]
+  },
+  "😚": {
+    "name": "bozkávajúca tvár so zatvorenými očami",
+    "keywords": ["bozk", "láska", "oko", "rande", "začervenanie"]
+  },
+  "😙": {
+    "name": "bozkávajúca tvár s usmievavými očami",
+    "keywords": ["bozk", "láska", "noc", "oko", "rande", "úsmev"]
+  },
+  "🥲": {
+    "name": "usmievavá tvár so slzou",
+    "keywords": ["dojatý", "hrdý", "radosť", "šťastný", "vďačný"]
+  },
+  "😋": {
+    "name": "tvár vychutnávajúca si jedlo",
+    "keywords": ["chutné", "hlad", "jedlo", "plný", "úsmev"]
+  },
+  "😛": {
+    "name": "tvár s jazykom",
+    "keywords": ["jazyk", "super", "vyplazený"]
+  },
+  "😜": {
+    "name": "žmurkajúca tvár s jazykom",
+    "keywords": ["bláznivý", "jazyk", "vtip", "vyplazený", "žmurkanie"]
+  },
+  "🤪": {
+    "name": "potrhlá tvár",
+    "keywords": ["bláznivý", "oči", "potrhnutý"]
+  },
+  "😝": {
+    "name": "privretá tvár s jazykom",
+    "keywords": ["jazyk", "oči", "vyplazený", "zatvorené"]
+  },
+  "🤑": {
+    "name": "tvár s peniazmi v ústach",
+    "keywords": ["peniaze", "ústa"]
+  },
+  "🤗": {
+    "name": "usmievavá tvár s otvorenými rukami",
+    "keywords": ["objatie"]
+  },
+  "🤭": {
+    "name": "tvár s rukou na ústach",
+    "keywords": ["prekvapenie", "šok", "tajomstvo", "zachichotanie"]
+  },
+  "🫢": {
+    "name": "tvár s otvorenými očami a rukou na ústach",
+    "keywords": ["nedôvera", "prekvapenie", "šok", "ticho"]
+  },
+  "🫣": {
+    "name": "tvár nakúkajúca jedným okom",
+    "keywords": ["hanblivý", "nakuknutie", "skrývanie", "strach"]
+  },
+  "🤫": {
+    "name": "tvár prikladajúca prst na ústa",
+    "keywords": ["pst", "ticho"]
+  },
+  "🤔": {
+    "name": "premýšľajúca tvár",
+    "keywords": ["brada", "premýšľanie", "zamyslenie"]
+  },
+  "🫡": {
+    "name": "salutujúca tvár",
+    "keywords": ["rešpekt", "salutovanie"]
+  },
+  "🤐": {
+    "name": "tvár so zovretými ústami",
+    "keywords": ["tajomstvo", "ticho", "zips"]
+  },
+  "🤨": {
+    "name": "tvár so zdvihnutým obočím",
+    "keywords": ["nedôvera", "neschválenie", "pochybnosť", "prekvapenie"]
+  },
+  "😐️": {
+    "name": "neutrálna tvár",
+    "keywords": ["nezaujatý", "nudný", "prázdny", "trápny"]
+  },
+  "😑": {
+    "name": "tvár bez výrazu",
+    "keywords": ["nešťastný", "nevýrazný", "prázdny", "trápny"]
+  },
+  "😶": {
+    "name": "tvár bez úst",
+    "keywords": ["nemý", "tichý", "trápny", "utajenie"]
+  },
+  "🫥": {
+    "name": "tvár z bodkovanej čiary",
+    "keywords": ["nenápadný", "neviditeľný", "zmiznutie"]
+  },
+  "😶‍🌫️": {
+    "name": "tvár v oblakoch",
+    "keywords": ["hlava", "hmla", "zábudlivý"]
+  },
+  "😏": {
+    "name": "uškŕňajúca sa tvár",
+    "keywords": ["flirt", "prefíkaný", "sebavedomý", "úškrn"]
+  },
+  "😒": {
+    "name": "nepobavená tvár",
+    "keywords": ["nešťastný", "nuda", "otrávený", "žiarlivý"]
+  },
+  "🙄": {
+    "name": "tvár prevracajúca oči",
+    "keywords": ["otrávený", "povzdych"]
+  },
+  "😬": {
+    "name": "grimasa",
+    "keywords": ["trápny", "úsmev", "zubár"]
+  },
+  "😮‍💨": {
+    "name": "vydychujúca tvár",
+    "keywords": ["dych", "povzdych", "únava", "vydýchnutie", "vzdych"]
+  },
+  "🤥": {
+    "name": "klamlivá tvár",
+    "keywords": ["klamár", "klamstvo", "pinocchio"]
+  },
+  "🫨": {
+    "name": "trasúca sa tvár",
+    "keywords": ["panika", "prekvapenie", "šok", "zemetrasenie"]
+  },
+  "🙂‍↔️": {
+    "name": "krútenie hlavou",
+    "keywords": ["nie"]
+  },
+  "🙂‍↕️": {
+    "name": "prikyvovanie hlavou",
+    "keywords": ["áno"]
+  },
+  "😌": {
+    "name": "uľavená tvár",
+    "keywords": ["kľud", "mier", "pokoj", "úľava"]
+  },
+  "😔": {
+    "name": "zamyslená tvár",
+    "keywords": ["nešťastný", "smutný", "sklamaný", "stratený"]
+  },
+  "😪": {
+    "name": "ospalá tvár",
+    "keywords": ["dobrú noc", "plač", "smutný", "spánok", "unavený"]
+  },
+  "🤤": {
+    "name": "slintajúca tvár",
+    "keywords": []
+  },
+  "😴": {
+    "name": "spiaca tvár",
+    "keywords": [
+      "dobrú noc",
+      "posteľ",
+      "spánok",
+      "spanie",
+      "unavený",
+      "zívanie"
+    ]
+  },
+  "🫩": {
+    "name": "tvár s vakmi pod očami",
+    "keywords": ["nuda", "unavený", "vyčerpaný"]
+  },
+  "😷": {
+    "name": "tvár s rúškom",
+    "keywords": ["choroba", "doktor", "nachladnutie", "zárodky"]
+  },
+  "🤒": {
+    "name": "tvár s teplomerom",
+    "keywords": ["choroba", "nemoc"]
+  },
+  "🤕": {
+    "name": "tvár s obväzom na hlave",
+    "keywords": ["obväz", "zranenie"]
+  },
+  "🤢": {
+    "name": "tvár s nevoľnosťou",
+    "keywords": ["nechutné", "zvracanie"]
+  },
+  "🤮": {
+    "name": "vracajúca tvár",
+    "keywords": ["choroba", "nechutné", "zvracanie"]
+  },
+  "🤧": {
+    "name": "kýchajúca tvár",
+    "keywords": ["choroba", "chrípka", "horúčka", "kýchanie"]
+  },
+  "🥵": {
+    "name": "horúca tvár",
+    "keywords": ["horúčava", "potenie", "zomieranie"]
+  },
+  "🥶": {
+    "name": "premrznutá tvár",
+    "keywords": ["chlad", "mrznutie", "zima"]
+  },
+  "🥴": {
+    "name": "omámená tvár",
+    "keywords": ["opitý", "závrat", "zvlnené"]
+  },
+  "😵": {
+    "name": "tvár s preškrtnutými očami",
+    "keywords": ["choré", "mŕtvy", "omráčený", "unavený", "závrat"]
+  },
+  "😵‍💫": {
+    "name": "tvár so špirálovými očami",
+    "keywords": ["hypnotizovaný", "omráčený", "problém", "zmätený", "závrat"]
+  },
+  "🤯": {
+    "name": "explodujúca hlava",
+    "keywords": ["myseľ", "prekvapenie", "šok"]
+  },
+  "🤠": {
+    "name": "tvár s kovbojským klobúkom",
+    "keywords": ["kovbojka"]
+  },
+  "🥳": {
+    "name": "oslavujúca tvár",
+    "keywords": ["narodeniny", "oslava", "párty", "radosť"]
+  },
+  "🥸": {
+    "name": "tvár v prestrojení",
+    "keywords": ["fúzy", "inkognito", "okuliare", "prestrojenie", "špión"]
+  },
+  "😎": {
+    "name": "usmievavá tvár so slnečnými okuliarmi",
+    "keywords": ["pláž", "super", "štýl", "úsmev", "v pohode"]
+  },
+  "🤓": {
+    "name": "šprtská tvár",
+    "keywords": ["inteligentný", "múdry", "okuliare", "šikovný"]
+  },
+  "🧐": {
+    "name": "tvár s monoklom",
+    "keywords": ["bohatý", "elegantný", "honosný"]
+  },
+  "😕": {
+    "name": "zmätená tvár",
+    "keywords": ["nechápavý", "smutný", "zmätok"]
+  },
+  "🫤": {
+    "name": "tvár so šikmými ústami",
+    "keywords": ["frustrovaný", "pochybnosť", "sklamaný", "zmätok"]
+  },
+  "😟": {
+    "name": "ustarostená tvár",
+    "keywords": ["nervy", "smutný", "stres", "strach", "úzkosť"]
+  },
+  "🙁": {
+    "name": "mierne zamračená tvár",
+    "keywords": ["smutný", "zamračenie"]
+  },
+  "☹️": {
+    "name": "zamračená tvár",
+    "keywords": ["smutný", "zamračenie"]
+  },
+  "😮": {
+    "name": "tvár s otvorenými ústami",
+    "keywords": ["neuveriteľné", "prekvapenie", "šok", "zabudol"]
+  },
+  "😯": {
+    "name": "stíšená tvár",
+    "keywords": ["ohromený", "prekvapenie", "šok"]
+  },
+  "😲": {
+    "name": "ohromená tvár",
+    "keywords": ["neuveriteľné", "prekvapenie", "šok"]
+  },
+  "😳": {
+    "name": "začervenaná tvár",
+    "keywords": ["nevera", "omráčený", "prekvapenie", "trápny", "zaskočený"]
+  },
+  "🥺": {
+    "name": "prosebná tvár",
+    "keywords": ["oči", "prosba", "smútok", "šteniatkovské"]
+  },
+  "🥹": {
+    "name": "tvár zadržiavajúca slzy",
+    "keywords": ["dojatie", "hrdosť", "obdiv", "slzy", "vďačnosť"]
+  },
+  "😦": {
+    "name": "zamračená tvár s otvorenými ústami",
+    "keywords": ["prekvapenie", "strašidelné", "vystrašený", "zachytený"]
+  },
+  "😧": {
+    "name": "trýznená tvár",
+    "keywords": [
+      "nešťastný",
+      "prekvapenie",
+      "vystrašený",
+      "zabudol",
+      "zdesenie"
+    ]
+  },
+  "😨": {
+    "name": "vystrašená tvár",
+    "keywords": ["strach", "úzkosť", "vystrašený", "znepokojený"]
+  },
+  "😰": {
+    "name": "úzkostná tvár s potom",
+    "keywords": [
+      "modrá",
+      "nervózny",
+      "otvorené",
+      "studený",
+      "ústa",
+      "vystrašený"
+    ]
+  },
+  "😥": {
+    "name": "smutná ale uľavená tvár",
+    "keywords": [
+      "komplikované",
+      "studený pot",
+      "úzkostný",
+      "zabudnuté",
+      "zavretie"
+    ]
+  },
+  "😢": {
+    "name": "plačúca tvár",
+    "keywords": ["nešťastný", "plač", "slza", "smútok"]
+  },
+  "😭": {
+    "name": "hlasno plačúca tvár",
+    "keywords": ["nešťastný", "plač", "slzy", "vzlykanie"]
+  },
+  "😱": {
+    "name": "kričiaca tvár od strachu",
+    "keywords": ["krik", "prekvapenie", "strach", "šok", "vystrašený"]
+  },
+  "😖": {
+    "name": "zúfalá tvár",
+    "keywords": ["frustrovaný", "nahnevaný", "smutný", "zmätený"]
+  },
+  "😣": {
+    "name": "vytrvalá tvár",
+    "keywords": ["koncentrácia", "sústredenie"]
+  },
+  "😞": {
+    "name": "sklamaná tvár",
+    "keywords": ["nešťastný", "prehra", "sklamanie", "zlyhanie"]
+  },
+  "😓": {
+    "name": "skľúčená tvár s potom",
+    "keywords": ["nervózny", "smutný", "studený", "vystrašený"]
+  },
+  "😩": {
+    "name": "unavená tvár",
+    "keywords": ["hlad", "nešťastný", "plač", "spánok", "unavený", "zlyhanie"]
+  },
+  "😫": {
+    "name": "vyčerpaná tvár",
+    "keywords": ["kýchanie", "nešťastný", "spánok", "zdriemnutie"]
+  },
+  "🥱": {
+    "name": "zívajúca tvár",
+    "keywords": ["dobrú noc", "nuda", "spánok", "unavený", "zívanie"]
+  },
+  "😤": {
+    "name": "tvár s parou z nosa",
+    "keywords": ["hnev", "nahnevaný", "nešťastný", "triumf", "zúrivosť"]
+  },
+  "😡": {
+    "name": "zúrivá tvár",
+    "keywords": ["červená", "hnev", "nahnevaný", "nešťastný", "zúrivosť"]
+  },
+  "😠": {
+    "name": "nahnevaná tvár",
+    "keywords": ["hnev", "nahnevaný", "nešťastný", "zúrivosť"]
+  },
+  "🤬": {
+    "name": "tvár so symbolmi na ústach",
+    "keywords": ["cenzúra", "nadávanie", "nahnevaný"]
+  },
+  "😈": {
+    "name": "usmievavá tvár s rohmi",
+    "keywords": [
+      "démon",
+      "diabol",
+      "fialová",
+      "rozprávka",
+      "tieň",
+      "úsmev",
+      "víla",
+      "zlo"
+    ]
+  },
+  "👿": {
+    "name": "nahnevaná tvár s rohmi",
+    "keywords": [
+      "démon",
+      "diabol",
+      "fialová",
+      "imp",
+      "tieň",
+      "víla",
+      "zlo",
+      "zlomyseľný"
+    ]
+  },
+  "💀": {
+    "name": "lebka",
+    "keywords": ["monštrum", "smrť", "telo", "tvár", "víla"]
+  },
+  "☠️": {
+    "name": "lebka so skríženými hnátmi",
+    "keywords": ["kosť", "monštrum", "smrť"]
+  },
+  "💩": {
+    "name": "kôpka trusu",
+    "keywords": ["fujtajbl", "komiks", "monštrum", "smrad", "trus", "tvár"]
+  },
+  "🤡": {
+    "name": "tvár klauna",
+    "keywords": []
+  },
+  "👹": {
+    "name": "ohyzd",
+    "keywords": ["maska", "monštrum", "netvor", "strašidelné", "tvár", "víla"]
+  },
+  "👺": {
+    "name": "goblin",
+    "keywords": [
+      "maska",
+      "monštrum",
+      "nahnevaný",
+      "netvor",
+      "tvár",
+      "zlomyseľný"
+    ]
+  },
+  "👻": {
+    "name": "duch",
+    "keywords": [
+      "bú",
+      "halloween",
+      "hrôza",
+      "monštrum",
+      "strašenie",
+      "tvár",
+      "víla",
+      "vzrušený"
+    ]
+  },
+  "👽️": {
+    "name": "mimozemšťan",
+    "keywords": ["monštrum", "tvár", "ufo", "vesmír", "vesmírna loď", "víla"]
+  },
+  "👾": {
+    "name": "mimozemská príšera",
+    "keywords": [
+      "hra",
+      "hráč",
+      "monštrum",
+      "pixelové",
+      "tvár",
+      "ufo",
+      "vesmír",
+      "víla"
+    ]
+  },
+  "🤖": {
+    "name": "robot",
+    "keywords": ["monštrum", "tvár"]
+  },
+  "😺": {
+    "name": "usmievavá mačka",
+    "keywords": ["otvorené", "tvár", "úsmev", "zviera"]
+  },
+  "😸": {
+    "name": "usmievavá mačka s usmievavými očami",
+    "keywords": ["oko", "tvár", "úsmev", "zviera"]
+  },
+  "😹": {
+    "name": "mačka so slzami radosti",
+    "keywords": ["smiech", "tvár", "zviera"]
+  },
+  "😻": {
+    "name": "usmievavá mačka so srdiečkovými očami",
+    "keywords": ["láska", "oko", "srdce", "tvár", "zviera"]
+  },
+  "😼": {
+    "name": "mačka s krivým úsmevom",
+    "keywords": ["ironické", "tvár", "zviera"]
+  },
+  "😽": {
+    "name": "bozkávajúca mačka",
+    "keywords": ["bozk", "oči", "tvár", "zatvorené", "zviera"]
+  },
+  "🙀": {
+    "name": "unavená mačka",
+    "keywords": ["prekvapený", "tvár", "zviera"]
+  },
+  "😿": {
+    "name": "plačúca mačka",
+    "keywords": ["plač", "slza", "smutný", "tvár", "zviera"]
+  },
+  "😾": {
+    "name": "nafúkaná mačka",
+    "keywords": ["tvár", "zviera"]
+  },
+  "🙈": {
+    "name": "opica nič nevidím",
+    "keywords": [
+      "gesto",
+      "schovávanie",
+      "tajomstvo",
+      "tvár",
+      "zakázané",
+      "zľaknutý"
+    ]
+  },
+  "🙉": {
+    "name": "opica nič nepočujem",
+    "keywords": ["gesto", "počúvanie", "tajomstvo", "tvár", "uši", "zakázané"]
+  },
+  "🙊": {
+    "name": "opica nič nehovorím",
+    "keywords": ["gesto", "tajomstvo", "ticho", "tvár", "zakázané"]
+  },
+  "💌": {
+    "name": "ľúbostný list",
+    "keywords": ["list", "romantika", "srdce", "valentín"]
+  },
+  "💘": {
+    "name": "srdce so šípom",
+    "keywords": ["amor", "emócia", "láska", "rande", "romantika", "valentín"]
+  },
+  "💝": {
+    "name": "srdce so stužkou",
+    "keywords": ["emócia", "stužka", "valentín", "výročie"]
+  },
+  "💖": {
+    "name": "trblietavé srdce",
+    "keywords": ["emócia", "iskrivé", "nadšenie", "ráno", "trblietanie"]
+  },
+  "💗": {
+    "name": "rastúce srdce",
+    "keywords": ["emócia", "nadšenie", "nervozita", "pulz", "tep"]
+  },
+  "💓": {
+    "name": "bijúce srdce",
+    "keywords": ["emócia", "láska", "pulz", "srdce", "tep"]
+  },
+  "💞": {
+    "name": "krúžiace srdcia",
+    "keywords": ["emócia", "láska", "srdce", "výročie"]
+  },
+  "💕": {
+    "name": "dve srdcia",
+    "keywords": ["bozky", "emócia", "láska", "randenie", "srdce"]
+  },
+  "💟": {
+    "name": "srdcová dekorácia",
+    "keywords": ["biela", "emócia", "fialová", "srdiečko"]
+  },
+  "❣️": {
+    "name": "výkričník v tvare srdca",
+    "keywords": ["interpunkcia", "značka"]
+  },
+  "💔": {
+    "name": "zlomené srdce",
+    "keywords": ["emócia", "osamelosť", "smútok", "zlomený"]
+  },
+  "❤️‍🔥": {
+    "name": "horiace srdce",
+    "keywords": ["láska", "posadnutosť", "posvätné"]
+  },
+  "❤️‍🩹": {
+    "name": "uzdravujúce sa srdce",
+    "keywords": ["lepšie", "uzdravenie", "zotavovanie"]
+  },
+  "❤️": {
+    "name": "červené srdce",
+    "keywords": ["emócia", "láska"]
+  },
+  "🩷": {
+    "name": "ružové srdce",
+    "keywords": ["143", "láska", "roztomilý", "sladký"]
+  },
+  "🧡": {
+    "name": "oranžové srdce",
+    "keywords": ["143"]
+  },
+  "💛": {
+    "name": "žlté srdce",
+    "keywords": ["emócia", "láska"]
+  },
+  "💚": {
+    "name": "zelené srdce",
+    "keywords": ["emócia", "láska", "romantika"]
+  },
+  "💙": {
+    "name": "modré srdce",
+    "keywords": ["emócia", "láska", "romantika"]
+  },
+  "🩵": {
+    "name": "svetlomodré srdce",
+    "keywords": ["143", "láska", "nebo", "obľuba", "zvláštny"]
+  },
+  "💜": {
+    "name": "fialové srdce",
+    "keywords": ["emócia", "láska"]
+  },
+  "🤎": {
+    "name": "hnedé srdce",
+    "keywords": ["143"]
+  },
+  "🖤": {
+    "name": "čierne srdce",
+    "keywords": ["zlé", "zlomyseľné"]
+  },
+  "🩶": {
+    "name": "sivé srdce",
+    "keywords": ["143", "láska", "striebro"]
+  },
+  "🤍": {
+    "name": "biele srdce",
+    "keywords": ["143"]
+  },
+  "💋": {
+    "name": "odtlačok pobozkania",
+    "keywords": ["bozk", "emócia", "pery", "randenie", "romantika", "srdce"]
+  },
+  "💯": {
+    "name": "sto bodov",
+    "keywords": ["100", "dokonalé", "jasné", "plný", "pravda", "skóre", "verný"]
+  },
+  "💢": {
+    "name": "symbol hnevu",
+    "keywords": ["komiks", "nahnevaný", "rozčúlený"]
+  },
+  "💥": {
+    "name": "zrážka",
+    "keywords": ["bomba", "buchnúť", "explózia", "komiks", "náraz"]
+  },
+  "💫": {
+    "name": "závrat",
+    "keywords": ["komiks", "hviezda", "padajúci", "svietiaci"]
+  },
+  "💦": {
+    "name": "kvapky potu",
+    "keywords": ["kvapka", "komiks", "striekanie", "voda", "vypätie", "workout"]
+  },
+  "💨": {
+    "name": "uháňanie preč",
+    "keywords": ["beh", "dym", "komiks", "oblak", "rýchlo"]
+  },
+  "🕳️": {
+    "name": "diera",
+    "keywords": []
+  },
+  "💬": {
+    "name": "rečová bublina",
+    "keywords": ["bublina", "chat", "dialóg", "komiks", "správa", "text"]
+  },
+  "👁️‍🗨️": {
+    "name": "oko v bubline",
+    "keywords": ["svedok", "bublina"]
+  },
+  "🗨️": {
+    "name": "ľavá rečová bublina",
+    "keywords": ["bublina", "dialóg"]
+  },
+  "🗯️": {
+    "name": "pravá bublina hnevu",
+    "keywords": ["bublina", "nahnevaný"]
+  },
+  "💭": {
+    "name": "myšlienková bublina",
+    "keywords": [
+      "bublina",
+      "denné snenie",
+      "komiks",
+      "myšlienky",
+      "nápad",
+      "sen"
+    ]
+  },
+  "💤": {
+    "name": "ZZZ",
+    "keywords": ["dobrú noc", "komiks", "spánok", "spanie", "unavený"]
+  },
+  "👋": {
+    "name": "mávajúca ruka",
+    "keywords": ["ahoj", "čau", "dovidenia", "mávnutie", "pozdrav"]
+  },
+  "🤚": {
+    "name": "zdvihnutý chrbát ruky",
+    "keywords": []
+  },
+  "🖐️": {
+    "name": "ruka s roztiahnutými prstami",
+    "keywords": ["prst", "stop", "zdvihnutá"]
+  },
+  "✋️": {
+    "name": "zdvihnutá ruka",
+    "keywords": ["5", "päť", "stop", "vysoko"]
+  },
+  "🖖": {
+    "name": "vulkánsky pozdrav",
+    "keywords": ["prst", "ruka"]
+  },
+  "🫱": {
+    "name": "ruka smerujúca doprava",
+    "keywords": ["podanie ruky"]
+  },
+  "🫲": {
+    "name": "ruka smerujúca doľava",
+    "keywords": ["podanie ruky"]
+  },
+  "🫳": {
+    "name": "dlaň smerujúca dole",
+    "keywords": ["zahodenie"]
+  },
+  "🫴": {
+    "name": "dlaň smerujúca hore",
+    "keywords": ["privolanie"]
+  },
+  "🫷": {
+    "name": "ruka tlačiaca doľava",
+    "keywords": ["stop", "zastavenie"]
+  },
+  "🫸": {
+    "name": "ruka tlačiaca doprava",
+    "keywords": ["stop", "zastavenie"]
+  },
+  "👌": {
+    "name": "ruka OK",
+    "keywords": ["dobré", "fajn", "gesto", "jasné", "super", "štipka"]
+  },
+  "🤌": {
+    "name": "zovreté prsty",
+    "keywords": ["gesto", "ruka", "trpezlivosť", "zovreté"]
+  },
+  "🤏": {
+    "name": "štipka",
+    "keywords": ["málo", "množstvo", "prsty", "trocha"]
+  },
+  "✌️": {
+    "name": "ruka s víťazným znamením",
+    "keywords": ["mier", "v"]
+  },
+  "🤞": {
+    "name": "skrížené prsty",
+    "keywords": ["prst", "ruka", "šťastie"]
+  },
+  "🫰": {
+    "name": "ruka s ukazovákom a palcom skríženými",
+    "keywords": ["drahé", "láska", "peniaze", "srdce"]
+  },
+  "🤟": {
+    "name": "gesto ľúbim ťa",
+    "keywords": ["láska", "prsty", "ruka"]
+  },
+  "🤘": {
+    "name": "rocková ruka",
+    "keywords": ["prst", "ruka"]
+  },
+  "🤙": {
+    "name": "gesto zavolaj mi",
+    "keywords": ["ruka", "shaka"]
+  },
+  "👈️": {
+    "name": "chrbát ruky s ukazovákom vľavo",
+    "keywords": ["prst", "ruka", "ukázať"]
+  },
+  "👉️": {
+    "name": "chrbát ruky s ukazovákom vpravo",
+    "keywords": ["prst", "ruka", "ukázať"]
+  },
+  "👆️": {
+    "name": "chrbát ruky s ukazovákom hore",
+    "keywords": ["prst", "ruka", "ukázať"]
+  },
+  "🖕": {
+    "name": "prostredník",
+    "keywords": ["ruka"]
+  },
+  "👇️": {
+    "name": "chrbát ruky s ukazovákom dole",
+    "keywords": ["prst", "ruka", "ukázať"]
+  },
+  "☝️": {
+    "name": "ukazovák smerujúci hore",
+    "keywords": ["prst", "ruka", "ukázať"]
+  },
+  "🫵": {
+    "name": "ukazovák smerujúci na diváka",
+    "keywords": ["prst", "ruka", "ukázať"]
+  },
+  "👍️": {
+    "name": "palec hore",
+    "keywords": ["+1", "dobré", "áno", "palec", "ruka"]
+  },
+  "👎️": {
+    "name": "palec dole",
+    "keywords": ["-1", "nie", "nesúhlas", "palec", "ruka", "zlé"]
+  },
+  "✊️": {
+    "name": "zdvihnutá päsť",
+    "keywords": ["päsť", "solidarita", "zovretá"]
+  },
+  "👊": {
+    "name": "prichádzajúca päsť",
+    "keywords": [
+      "buchnúť",
+      "dohoda",
+      "hlava",
+      "kĺb",
+      "päsť",
+      "ruka",
+      "súhlas",
+      "úder",
+      "zovretá"
+    ]
+  },
+  "🤛": {
+    "name": "päsť smerujúca doľava",
+    "keywords": []
+  },
+  "🤜": {
+    "name": "päsť smerujúca doprava",
+    "keywords": []
+  },
+  "👏": {
+    "name": "tlieskajúce ruky",
+    "keywords": [
+      "blahoželanie",
+      "obdiv",
+      "potlesk",
+      "ruka",
+      "skvelé",
+      "súhlas",
+      "tlieskanie"
+    ]
+  },
+  "🙌": {
+    "name": "zdvíhanie rúk",
+    "keywords": ["gesto", "hurá", "oslava", "zdvihnuté"]
+  },
+  "🫶": {
+    "name": "ruky v tvare srdca",
+    "keywords": ["láska"]
+  },
+  "👐": {
+    "name": "otvorené ruky",
+    "keywords": ["objatie", "ruka"]
+  },
+  "🤲": {
+    "name": "zopnuté dlane smerom hore",
+    "keywords": ["dlane", "modlitba", "oslava", "prosba", "želanie"]
+  },
+  "🤝": {
+    "name": "podanie rúk",
+    "keywords": ["dohoda", "ruka", "stretnutie"]
+  },
+  "🙏": {
+    "name": "zopnuté ruky",
+    "keywords": ["ďakujem", "gesto", "modlitba", "prosba", "ruka"]
+  },
+  "✍️": {
+    "name": "píšuca ruka",
+    "keywords": ["písanie"]
+  },
+  "💅": {
+    "name": "lak na nechty",
+    "keywords": ["kozmetika", "manikúra", "starostlivosť"]
+  },
+  "🤳": {
+    "name": "selfie",
+    "keywords": ["fotoaparát", "telefón"]
+  },
+  "💪": {
+    "name": "napnutý biceps",
+    "keywords": [
+      "kulturistika",
+      "posilňovňa",
+      "ruka",
+      "sila",
+      "sval",
+      "tréning"
+    ]
+  },
+  "🦾": {
+    "name": "mechanická ruka",
+    "keywords": ["prístupnosť", "protéza"]
+  },
+  "🦿": {
+    "name": "mechanická noha",
+    "keywords": ["prístupnosť", "protéza"]
+  },
+  "🦵": {
+    "name": "noha",
+    "keywords": ["koleno", "kopanie", "končatina"]
+  },
+  "🦶": {
+    "name": "chodidlo",
+    "keywords": ["dupanie", "kopanie", "noha", "členok"]
+  },
+  "👂️": {
+    "name": "ucho",
+    "keywords": ["počúvanie", "počuť", "telo", "zvuk"]
+  },
+  "🦻": {
+    "name": "ucho s naslúchadlom",
+    "keywords": ["prístupnosť"]
+  },
+  "👃": {
+    "name": "nos",
+    "keywords": ["čuch", "telo", "vôňa"]
+  },
+  "🧠": {
+    "name": "mozog",
+    "keywords": ["inteligentný", "múdry"]
+  },
+  "🫀": {
+    "name": "anatomické srdce",
+    "keywords": ["orgán", "pulz", "tep"]
+  },
+  "🫁": {
+    "name": "pľúca",
+    "keywords": ["dych", "dýchanie", "orgán"]
+  },
+  "🦷": {
+    "name": "zub",
+    "keywords": ["biely", "zuby", "zubár"]
+  },
+  "🦴": {
+    "name": "kosť",
+    "keywords": ["kostra", "pes"]
+  },
+  "👀": {
+    "name": "oči",
+    "keywords": ["oko", "pohľad", "pozeranie", "telo", "tvár"]
+  },
+  "👁️": {
+    "name": "oko",
+    "keywords": ["1", "jedno", "telo"]
+  },
+  "👅": {
+    "name": "jazyk",
+    "keywords": ["oblizovanie", "slintanie", "telo"]
+  },
+  "👄": {
+    "name": "ústa",
+    "keywords": ["bozk", "krása", "pery", "rúž", "telo"]
+  },
+  "🫦": {
+    "name": "hryzenie pery",
+    "keywords": ["flirt", "nervózny", "strach", "úzkosť"]
+  },
+  "👶": {
+    "name": "bábätko",
+    "keywords": ["deti", "dojča", "mladý", "novorodenec", "tehotná"]
+  },
+  "🧒": {
+    "name": "dieťa",
+    "keywords": ["mladý", "vnuk"]
+  },
+  "👦": {
+    "name": "chlapec",
+    "keywords": ["dieťa", "mladý", "mladší", "syn", "vnuk"]
+  },
+  "👧": {
+    "name": "dievča",
+    "keywords": [
+      "dcéra",
+      "dieťa",
+      "mladá",
+      "mladšia",
+      "panna",
+      "vnučka",
+      "zverokruh"
+    ]
+  },
+  "🧑": {
+    "name": "osoba",
+    "keywords": ["dospelý"]
+  },
+  "👱": {
+    "name": "osoba: blond vlasy",
+    "keywords": ["blond", "osoba"]
+  },
+  "👨": {
+    "name": "muž",
+    "keywords": ["dospelý"]
+  },
+  "🧔": {
+    "name": "osoba: brada",
+    "keywords": ["brada", "fúzy", "osoba"]
+  },
+  "🧔‍♂️": {
+    "name": "muž: brada",
+    "keywords": ["brada", "fúzy", "muž"]
+  },
+  "🧔‍♀️": {
+    "name": "žena: brada",
+    "keywords": ["brada", "fúzy", "žena"]
+  },
+  "👨‍🦰": {
+    "name": "muž: ryšavé vlasy",
+    "keywords": ["dospelý", "muž", "ryšavé vlasy"]
+  },
+  "👨‍🦱": {
+    "name": "muž: kučeravé vlasy",
+    "keywords": ["dospelý", "kučeravé vlasy", "muž"]
+  },
+  "👨‍🦳": {
+    "name": "muž: biele vlasy",
+    "keywords": ["biele vlasy", "dospelý", "muž"]
+  },
+  "👨‍🦲": {
+    "name": "muž: plešatý",
+    "keywords": ["dospelý", "muž"]
+  },
+  "👩": {
+    "name": "žena",
+    "keywords": ["dáma", "dospelá"]
+  },
+  "👩‍🦰": {
+    "name": "žena: ryšavé vlasy",
+    "keywords": ["dáma", "dospelá", "ryšavé vlasy", "žena"]
+  },
+  "🧑‍🦰": {
+    "name": "osoba: ryšavé vlasy",
+    "keywords": ["dospelý", "osoba", "ryšavé vlasy"]
+  },
+  "👩‍🦱": {
+    "name": "žena: kučeravé vlasy",
+    "keywords": ["dáma", "dospelá", "kučeravé vlasy", "žena"]
+  },
+  "🧑‍🦱": {
+    "name": "osoba: kučeravé vlasy",
+    "keywords": ["dospelý", "kučeravé vlasy", "osoba"]
+  },
+  "👩‍🦳": {
+    "name": "žena: biele vlasy",
+    "keywords": ["biele vlasy", "dáma", "dospelá", "žena"]
+  },
+  "🧑‍🦳": {
+    "name": "osoba: biele vlasy",
+    "keywords": ["biele vlasy", "dospelý", "osoba"]
+  },
+  "👩‍🦲": {
+    "name": "žena: plešatá",
+    "keywords": ["dáma", "dospelá", "žena"]
+  },
+  "🧑‍🦲": {
+    "name": "osoba: plešatá",
+    "keywords": ["dospelý", "osoba"]
+  },
+  "👱‍♀️": {
+    "name": "žena: blond vlasy",
+    "keywords": ["blond", "žena"]
+  },
+  "👱‍♂️": {
+    "name": "muž: blond vlasy",
+    "keywords": ["blond", "muž"]
+  },
+  "🧓": {
+    "name": "staršia osoba",
+    "keywords": ["dospelý", "múdry", "starší"]
+  },
+  "👴": {
+    "name": "starý muž",
+    "keywords": ["dedko", "dospelý", "múdry", "plešatý", "starší"]
+  },
+  "👵": {
+    "name": "stará žena",
+    "keywords": ["babka", "dáma", "dospelá", "múdra", "staršia"]
+  },
+  "🙍": {
+    "name": "zamračená osoba",
+    "keywords": ["frustrovaný", "gesto", "naštvaný", "nespokojný", "otrávený"]
+  },
+  "🙍‍♂️": {
+    "name": "zamračený muž",
+    "keywords": ["frustrovaný", "gesto", "naštvaný", "nespokojný", "otrávený"]
+  },
+  "🙍‍♀️": {
+    "name": "zamračená žena",
+    "keywords": ["frustrovaný", "gesto", "naštvaný", "nespokojný", "otrávený"]
+  },
+  "🙎": {
+    "name": "nafúkaná osoba",
+    "keywords": ["grimasa", "nafúknutý", "nespokojný", "zamračenie"]
+  },
+  "🙎‍♂️": {
+    "name": "nafúkaný muž",
+    "keywords": ["grimasa", "nafúknutý", "nespokojný", "zamračenie"]
+  },
+  "🙎‍♀️": {
+    "name": "nafúkaná žena",
+    "keywords": ["grimasa", "nafúknutý", "nespokojný", "zamračenie"]
+  },
+  "🙅": {
+    "name": "osoba gestikulujúca NIE",
+    "keywords": ["gesto", "ruka", "zákaz"]
+  },
+  "🙅‍♂️": {
+    "name": "muž gestikulujúci NIE",
+    "keywords": ["gesto", "ruka", "zákaz"]
+  },
+  "🙅‍♀️": {
+    "name": "žena gestikulujúca NIE",
+    "keywords": ["gesto", "ruka", "zákaz"]
+  },
+  "🙆": {
+    "name": "osoba gestikulujúca OK",
+    "keywords": ["gesto", "ruka"]
+  },
+  "🙆‍♂️": {
+    "name": "muž gestikulujúci OK",
+    "keywords": ["gesto", "ruka"]
+  },
+  "🙆‍♀️": {
+    "name": "žena gestikulujúca OK",
+    "keywords": ["gesto", "ruka"]
+  },
+  "💁": {
+    "name": "osoba s rukou hore",
+    "keywords": ["drzé", "klebety", "sarkastické", "vážne", "vrtieť"]
+  },
+  "💁‍♂️": {
+    "name": "muž s rukou hore",
+    "keywords": ["drzé", "klebety", "sarkastické", "vážne", "vrtieť"]
+  },
+  "💁‍♀️": {
+    "name": "žena s rukou hore",
+    "keywords": ["drzé", "klebety", "sarkastické", "vážne", "vrtieť"]
+  },
+  "🙋": {
+    "name": "osoba zdvíhajúca ruku",
+    "keywords": ["gesto", "otázka", "prihlásenie"]
+  },
+  "🙋‍♂️": {
+    "name": "muž zdvíhajúci ruku",
+    "keywords": ["gesto", "otázka", "prihlásenie"]
+  },
+  "🙋‍♀️": {
+    "name": "žena zdvíhajúca ruku",
+    "keywords": ["gesto", "otázka", "prihlásenie"]
+  },
+  "🧏": {
+    "name": "nepočujúca osoba",
+    "keywords": ["gesto", "prístupnosť", "sluch", "ucho"]
+  },
+  "🧏‍♂️": {
+    "name": "nepočujúci muž",
+    "keywords": ["gesto", "prístupnosť", "sluch", "ucho"]
+  },
+  "🧏‍♀️": {
+    "name": "nepočujúca žena",
+    "keywords": ["gesto", "prístupnosť", "sluch", "ucho"]
+  },
+  "🙇": {
+    "name": "ukláňajúca sa osoba",
+    "keywords": ["gesto", "meditácia", "ospravedlnenie", "prosba"]
+  },
+  "🙇‍♂️": {
+    "name": "ukláňajúci sa muž",
+    "keywords": ["gesto", "meditácia", "ospravedlnenie", "prosba"]
+  },
+  "🙇‍♀️": {
+    "name": "ukláňajúca sa žena",
+    "keywords": ["gesto", "meditácia", "ospravedlnenie", "prosba"]
+  },
+  "🤦": {
+    "name": "osoba dávajúca si ruku na tvár",
+    "keywords": ["facepalm", "nevera", "prekvapenie", "šok"]
+  },
+  "🤦‍♂️": {
+    "name": "muž dávajúci si ruku na tvár",
+    "keywords": ["facepalm", "nevera", "prekvapenie", "šok"]
+  },
+  "🤦‍♀️": {
+    "name": "žena dávajúca si ruku na tvár",
+    "keywords": ["facepalm", "nevera", "prekvapenie", "šok"]
+  },
+  "🤷": {
+    "name": "osoba pokrčiaca plecami",
+    "keywords": ["ľahostajnosť", "možno", "neviem", "pochybnosť"]
+  },
+  "🤷‍♂️": {
+    "name": "muž pokrčiaci plecami",
+    "keywords": ["ľahostajnosť", "možno", "neviem", "pochybnosť"]
+  },
+  "🤷‍♀️": {
+    "name": "žena pokrčiaca plecami",
+    "keywords": ["ľahostajnosť", "možno", "neviem", "pochybnosť"]
+  },
+  "🧑‍⚕️": {
+    "name": "zdravotník",
+    "keywords": ["doktor", "lekár", "sestra", "terapeut"]
+  },
+  "👨‍⚕️": {
+    "name": "zdravotník",
+    "keywords": ["doktor", "lekár", "sestra", "terapeut"]
+  },
+  "👩‍⚕️": {
+    "name": "zdravotníčka",
+    "keywords": ["doktorka", "lekárka", "sestra", "terapeutka"]
+  },
+  "🧑‍🎓": {
+    "name": "študent",
+    "keywords": ["absolvent"]
+  },
+  "👨‍🎓": {
+    "name": "muž študent",
+    "keywords": ["absolvent"]
+  },
+  "👩‍🎓": {
+    "name": "žena študentka",
+    "keywords": ["absolventka"]
+  },
+  "🧑‍🏫": {
+    "name": "učiteľ",
+    "keywords": ["inštruktor", "lektor", "profesor"]
+  },
+  "👨‍🏫": {
+    "name": "učiteľ",
+    "keywords": ["inštruktor", "lektor", "profesor"]
+  },
+  "👩‍🏫": {
+    "name": "učiteľka",
+    "keywords": ["inštruktorka", "lektorka", "profesorka"]
+  },
+  "🧑‍⚖️": {
+    "name": "sudca",
+    "keywords": ["spravodlivosť", "váhy", "zákon"]
+  },
+  "👨‍⚖️": {
+    "name": "sudca",
+    "keywords": ["spravodlivosť", "váhy", "zákon"]
+  },
+  "👩‍⚖️": {
+    "name": "sudkyňa",
+    "keywords": ["spravodlivosť", "váhy", "zákon"]
+  },
+  "🧑‍🌾": {
+    "name": "farmár",
+    "keywords": ["roľník", "záhradník"]
+  },
+  "👨‍🌾": {
+    "name": "farmár",
+    "keywords": ["roľník", "záhradník"]
+  },
+  "👩‍🌾": {
+    "name": "farmárka",
+    "keywords": ["roľníčka", "záhradníčka"]
+  },
+  "🧑‍🍳": {
+    "name": "kuchár",
+    "keywords": ["šéfkuchár"]
+  },
+  "👨‍🍳": {
+    "name": "kuchár",
+    "keywords": ["šéfkuchár"]
+  },
+  "👩‍🍳": {
+    "name": "kuchárka",
+    "keywords": ["šéfkuchárka"]
+  },
+  "🧑‍🔧": {
+    "name": "mechanik",
+    "keywords": ["elektrikár", "inštalatér", "remeselník"]
+  },
+  "👨‍🔧": {
+    "name": "mechanik",
+    "keywords": ["elektrikár", "inštalatér", "remeselník"]
+  },
+  "👩‍🔧": {
+    "name": "mechanička",
+    "keywords": ["elektrikárka", "inštalatérka", "remeselníčka"]
+  },
+  "🧑‍🏭": {
+    "name": "pracovník v továrni",
+    "keywords": ["montáž", "priemysel"]
+  },
+  "👨‍🏭": {
+    "name": "muž pracovník v továrni",
+    "keywords": ["montáž", "priemysel"]
+  },
+  "👩‍🏭": {
+    "name": "žena pracovníčka v továrni",
+    "keywords": ["montáž", "priemysel"]
+  },
+  "🧑‍💼": {
+    "name": "kancelársky pracovník",
+    "keywords": ["architekt", "biznis", "manažér"]
+  },
+  "👨‍💼": {
+    "name": "kancelársky pracovník",
+    "keywords": ["architekt", "biznis", "manažér"]
+  },
+  "👩‍💼": {
+    "name": "kancelárska pracovníčka",
+    "keywords": ["architektka", "biznis", "manažérka"]
+  },
+  "🧑‍🔬": {
+    "name": "vedec",
+    "keywords": ["biológ", "chemik", "fyzik", "inžinier", "matematik"]
+  },
+  "👨‍🔬": {
+    "name": "vedec",
+    "keywords": ["biológ", "chemik", "fyzik", "inžinier", "matematik"]
+  },
+  "👩‍🔬": {
+    "name": "vedkyňa",
+    "keywords": [
+      "biologička",
+      "chemička",
+      "fyzička",
+      "inžinierka",
+      "matematička"
+    ]
+  },
+  "🧑‍💻": {
+    "name": "technológ",
+    "keywords": ["počítač", "programátor", "softvér", "vynálezca", "vývojár"]
+  },
+  "👨‍💻": {
+    "name": "technológ",
+    "keywords": ["počítač", "programátor", "softvér", "vynálezca", "vývojár"]
+  },
+  "👩‍💻": {
+    "name": "technologička",
+    "keywords": [
+      "počítač",
+      "programátorka",
+      "softvér",
+      "vynálezkyňa",
+      "vývojárka"
+    ]
+  },
+  "🧑‍🎤": {
+    "name": "spevák",
+    "keywords": ["herec", "hviezda", "rockstar", "zabávač"]
+  },
+  "👨‍🎤": {
+    "name": "spevák",
+    "keywords": ["herec", "hviezda", "rockstar", "zabávač"]
+  },
+  "👩‍🎤": {
+    "name": "speváčka",
+    "keywords": ["herečka", "hviezda", "rockstar", "zabávačka"]
+  },
+  "🧑‍🎨": {
+    "name": "umelec",
+    "keywords": ["paleta"]
+  },
+  "👨‍🎨": {
+    "name": "umelec",
+    "keywords": ["paleta"]
+  },
+  "👩‍🎨": {
+    "name": "umelkyňa",
+    "keywords": ["paleta"]
+  },
+  "🧑‍✈️": {
+    "name": "pilot",
+    "keywords": ["lietadlo"]
+  },
+  "👨‍✈️": {
+    "name": "pilot",
+    "keywords": ["lietadlo"]
+  },
+  "👩‍✈️": {
+    "name": "pilotka",
+    "keywords": ["lietadlo"]
+  },
+  "🧑‍🚀": {
+    "name": "astronaut",
+    "keywords": ["raketa", "vesmír"]
+  },
+  "👨‍🚀": {
+    "name": "astronaut",
+    "keywords": ["raketa", "vesmír"]
+  },
+  "👩‍🚀": {
+    "name": "astronautka",
+    "keywords": ["raketa", "vesmír"]
+  },
+  "🧑‍🚒": {
+    "name": "hasič",
+    "keywords": ["hasičské auto", "oheň"]
+  },
+  "👨‍🚒": {
+    "name": "hasič",
+    "keywords": ["hasičské auto", "oheň"]
+  },
+  "👩‍🚒": {
+    "name": "hasička",
+    "keywords": ["hasičské auto", "oheň"]
+  },
+  "👮": {
+    "name": "policajt",
+    "keywords": ["polícia", "zadržanie", "zákon", "zatknutie"]
+  },
+  "👮‍♂️": {
+    "name": "policajt (muž)",
+    "keywords": ["polícia", "zadržanie", "zákon", "zatknutie"]
+  },
+  "👮‍♀️": {
+    "name": "policajtka",
+    "keywords": ["polícia", "zadržanie", "zákon", "zatknutie"]
+  },
+  "🕵️": {
+    "name": "detektív",
+    "keywords": ["pátranie", "špión"]
+  },
+  "🕵️‍♂️": {
+    "name": "detektív (muž)",
+    "keywords": ["pátranie", "špión"]
+  },
+  "🕵️‍♀️": {
+    "name": "detektívka",
+    "keywords": ["pátranie", "špión"]
+  },
+  "💂": {
+    "name": "strážnik",
+    "keywords": ["buckingham", "helma", "londýn", "palác"]
+  },
+  "💂‍♂️": {
+    "name": "strážnik (muž)",
+    "keywords": ["buckingham", "helma", "londýn", "palác"]
+  },
+  "💂‍♀️": {
+    "name": "strážnička",
+    "keywords": ["buckingham", "helma", "londýn", "palác"]
+  },
+  "🥷": {
+    "name": "nindža",
+    "keywords": ["bojovník", "skryté", "tajný", "zabijak"]
+  },
+  "👷": {
+    "name": "stavebný robotník",
+    "keywords": ["helma", "oprava", "osoba", "prestavba", "prerábka", "stavba"]
+  },
+  "👷‍♂️": {
+    "name": "stavebný robotník (muž)",
+    "keywords": ["helma", "oprava", "prestavba", "prerábka", "stavba"]
+  },
+  "👷‍♀️": {
+    "name": "stavebná robotníčka",
+    "keywords": ["helma", "oprava", "prestavba", "prerábka", "stavba"]
+  },
+  "🫅": {
+    "name": "osoba s korunou",
+    "keywords": ["kráľovský", "monarcha", "vznešený"]
+  },
+  "🤴": {
+    "name": "princ",
+    "keywords": ["koruna", "kráľ", "rozprávka", "víla"]
+  },
+  "👸": {
+    "name": "princezná",
+    "keywords": ["koruna", "kráľovná", "rozprávka", "víla"]
+  },
+  "👳": {
+    "name": "osoba s turbanom",
+    "keywords": []
+  },
+  "👳‍♂️": {
+    "name": "muž s turbanom",
+    "keywords": []
+  },
+  "👳‍♀️": {
+    "name": "žena s turbanom",
+    "keywords": []
+  },
+  "👲": {
+    "name": "osoba s čiapočkou",
+    "keywords": ["čiapka", "čínska"]
+  },
+  "🧕": {
+    "name": "žena so šatkou na hlave",
+    "keywords": ["hidžáb", "šatka"]
+  },
+  "🤵": {
+    "name": "osoba v smokingu",
+    "keywords": ["formálne", "svadba"]
+  },
+  "🤵‍♂️": {
+    "name": "muž v smokingu",
+    "keywords": ["formálne", "svadba", "ženích"]
+  },
+  "🤵‍♀️": {
+    "name": "žena v smokingu",
+    "keywords": ["formálne", "svadba"]
+  },
+  "👰": {
+    "name": "osoba so závojom",
+    "keywords": ["svadba"]
+  },
+  "👰‍♂️": {
+    "name": "muž so závojom",
+    "keywords": ["svadba"]
+  },
+  "👰‍♀️": {
+    "name": "žena so závojom",
+    "keywords": ["nevesta", "svadba"]
+  },
+  "🤰": {
+    "name": "tehotná žena",
+    "keywords": []
+  },
+  "🫃": {
+    "name": "tehotný muž",
+    "keywords": ["brucho", "naplnený"]
+  },
+  "🫄": {
+    "name": "tehotná osoba",
+    "keywords": ["brucho", "naplnený"]
+  },
+  "🤱": {
+    "name": "dojčenie",
+    "keywords": ["bábätko", "dojča", "mama", "matka", "prsník"]
+  },
+  "👩‍🍼": {
+    "name": "žena kŕmiaca dieťa",
+    "keywords": ["dojčenie", "mama", "matka", "novorodenec", "opatrovateľka"]
+  },
+  "👨‍🍼": {
+    "name": "muž kŕmiaci dieťa",
+    "keywords": ["dojčenie", "novorodenec", "opatrovateľka", "otec", "tato"]
+  },
+  "🧑‍🍼": {
+    "name": "osoba kŕmiaca dieťa",
+    "keywords": ["dojčenie", "novorodenec", "opatrovateľka", "rodič"]
+  },
+  "👼": {
+    "name": "anjelik",
+    "keywords": ["cirkev", "rozprávka", "tvár", "víla"]
+  },
+  "🎅": {
+    "name": "Santa Claus",
+    "keywords": ["mikuláš", "oslava", "rozprávka", "sviatok", "vianoce"]
+  },
+  "🤶": {
+    "name": "pani Mikulášová",
+    "keywords": [
+      "mama",
+      "matka",
+      "mikuláš",
+      "oslava",
+      "rozprávka",
+      "sviatok",
+      "vianoce"
+    ]
+  },
+  "🧑‍🎄": {
+    "name": "pán/pani Mikuláš",
+    "keywords": ["mikuláš", "oslava", "rozprávka", "sviatok", "vianoce"]
+  },
+  "🦸": {
+    "name": "superhrdina",
+    "keywords": ["dobro", "superschopnosť"]
+  },
+  "🦸‍♂️": {
+    "name": "superhrdina (muž)",
+    "keywords": ["dobro", "superschopnosť"]
+  },
+  "🦸‍♀️": {
+    "name": "superhrdinka",
+    "keywords": ["dobro", "superschopnosť"]
+  },
+  "🦹": {
+    "name": "superzloduch",
+    "keywords": ["zlo", "zločin", "superschopnosť"]
+  },
+  "🦹‍♂️": {
+    "name": "superzloduch (muž)",
+    "keywords": ["zlo", "zločin", "superschopnosť"]
+  },
+  "🦹‍♀️": {
+    "name": "superzloduška",
+    "keywords": ["zlo", "zločin", "superschopnosť"]
+  },
+  "🧙": {
+    "name": "mág",
+    "keywords": ["čarodejník", "kúzlo", "mágia", "rozprávka"]
+  },
+  "🧙‍♂️": {
+    "name": "mág (muž)",
+    "keywords": ["čarodejník", "kúzlo", "mágia", "rozprávka"]
+  },
+  "🧙‍♀️": {
+    "name": "čarodejnica",
+    "keywords": ["čarodejník", "kúzlo", "mágia", "rozprávka"]
+  },
+  "🧚": {
+    "name": "víla",
+    "keywords": ["krídla", "mýtus", "osoba", "rozprávka"]
+  },
+  "🧚‍♂️": {
+    "name": "muž víla",
+    "keywords": ["krídla", "mýtus", "osoba", "rozprávka"]
+  },
+  "🧚‍♀️": {
+    "name": "žena víla",
+    "keywords": ["krídla", "mýtus", "osoba", "rozprávka"]
+  },
+  "🧛": {
+    "name": "upír",
+    "keywords": ["drakula", "halloween", "krv", "strašidelné", "tesáky", "zuby"]
+  },
+  "🧛‍♂️": {
+    "name": "upír (muž)",
+    "keywords": ["halloween", "krv", "strašidelné", "tesáky", "zuby"]
+  },
+  "🧛‍♀️": {
+    "name": "upírka",
+    "keywords": ["halloween", "krv", "strašidelné", "tesáky", "zuby"]
+  },
+  "🧜": {
+    "name": "morská bytosť",
+    "keywords": ["more", "oceán", "rozprávka", "trojzubec"]
+  },
+  "🧜‍♂️": {
+    "name": "vodník",
+    "keywords": ["more", "oceán", "poseidon", "rozprávka", "trojzubec"]
+  },
+  "🧜‍♀️": {
+    "name": "morská panna",
+    "keywords": ["more", "oceán", "rozprávka", "trojzubec"]
+  },
+  "🧝": {
+    "name": "elf",
+    "keywords": [
+      "čarovanie",
+      "elfovia",
+      "fantázia",
+      "folklór",
+      "mágia",
+      "magický",
+      "mýtus"
+    ]
+  },
+  "🧝‍♂️": {
+    "name": "elf (muž)",
+    "keywords": [
+      "čarovanie",
+      "elfovia",
+      "fantázia",
+      "folklór",
+      "mágia",
+      "magický",
+      "mýtus"
+    ]
+  },
+  "🧝‍♀️": {
+    "name": "elfka",
+    "keywords": [
+      "čarovanie",
+      "elfovia",
+      "fantázia",
+      "folklór",
+      "mágia",
+      "magický",
+      "mýtus"
+    ]
+  },
+  "🧞": {
+    "name": "džin",
+    "keywords": ["fantázia", "lampa", "mýtus", "prianie"]
+  },
+  "🧞‍♂️": {
+    "name": "džin (muž)",
+    "keywords": ["fantázia", "lampa", "mýtus", "prianie"]
+  },
+  "🧞‍♀️": {
+    "name": "žena džin",
+    "keywords": ["fantázia", "lampa", "mýtus", "prianie"]
+  },
+  "🧟": {
+    "name": "zombie",
+    "keywords": ["apokalypsa", "halloween", "hrôza", "smrť", "strašidelné"]
+  },
+  "🧟‍♂️": {
+    "name": "zombie muž",
+    "keywords": ["apokalypsa", "halloween", "hrôza", "smrť", "strašidelné"]
+  },
+  "🧟‍♀️": {
+    "name": "zombie žena",
+    "keywords": ["apokalypsa", "halloween", "hrôza", "smrť", "strašidelné"]
+  },
+  "🧌": {
+    "name": "trol",
+    "keywords": ["monštrum", "rozprávka", "víla"]
+  },
+  "💆": {
+    "name": "osoba dostávajúca masáž",
+    "keywords": ["relax", "salón", "spa", "terapia", "tvár"]
+  },
+  "💆‍♂️": {
+    "name": "muž dostávajúci masáž",
+    "keywords": ["relax", "salón", "spa", "terapia", "tvár"]
+  },
+  "💆‍♀️": {
+    "name": "žena dostávajúca masáž",
+    "keywords": ["relax", "salón", "spa", "terapia", "tvár"]
+  },
+  "💇": {
+    "name": "osoba na strihaní vlasov",
+    "keywords": ["holič", "kaderníctvo", "krása", "strih", "vlasy"]
+  },
+  "💇‍♂️": {
+    "name": "muž na strihaní vlasov",
+    "keywords": ["holič", "kaderníctvo", "krása", "strih", "vlasy"]
+  },
+  "💇‍♀️": {
+    "name": "žena na strihaní vlasov",
+    "keywords": ["holič", "kaderníctvo", "krása", "strih", "vlasy"]
+  },
+  "🚶": {
+    "name": "chodiaca osoba",
+    "keywords": ["chôdza", "chodec", "prechádzka"]
+  },
+  "🚶‍♂️": {
+    "name": "chodiaci muž",
+    "keywords": ["chôdza", "chodec", "prechádzka"]
+  },
+  "🚶‍♀️": {
+    "name": "chodiaca žena",
+    "keywords": ["chôdza", "chodec", "prechádzka"]
+  },
+  "🚶‍➡️": {
+    "name": "chodiaca osoba otočená doprava",
+    "keywords": ["chôdza", "chodec", "prechádzka"]
+  },
+  "🚶‍♀️‍➡️": {
+    "name": "chodiaca žena otočená doprava",
+    "keywords": ["chôdza", "chodec", "prechádzka"]
+  },
+  "🚶‍♂️‍➡️": {
+    "name": "chodiaci muž otočený doprava",
+    "keywords": ["chôdza", "chodec", "prechádzka"]
+  },
+  "🧍": {
+    "name": "stojaca osoba",
+    "keywords": ["stáť"]
+  },
+  "🧍‍♂️": {
+    "name": "stojaci muž",
+    "keywords": ["stáť"]
+  },
+  "🧍‍♀️": {
+    "name": "stojaca žena",
+    "keywords": ["stáť"]
+  },
+  "🧎": {
+    "name": "kľačiaca osoba",
+    "keywords": ["kľačať", "kolená"]
+  },
+  "🧎‍♂️": {
+    "name": "kľačiaci muž",
+    "keywords": ["kľačať", "kolená"]
+  },
+  "🧎‍♀️": {
+    "name": "kľačiaca žena",
+    "keywords": ["kľačať", "kolená"]
+  },
+  "🧎‍➡️": {
+    "name": "kľačiaca osoba otočená doprava",
+    "keywords": ["kľačať", "kolená"]
+  },
+  "🧎‍♀️‍➡️": {
+    "name": "kľačiaca žena otočená doprava",
+    "keywords": ["kľačať", "kolená"]
+  },
+  "🧎‍♂️‍➡️": {
+    "name": "kľačiaci muž otočený doprava",
+    "keywords": ["kľačať", "kolená"]
+  },
+  "🧑‍🦯": {
+    "name": "osoba s bielou palicou",
+    "keywords": ["nevidiaci", "prístupnosť"]
+  },
+  "🧑‍🦯‍➡️": {
+    "name": "osoba s bielou palicou otočená doprava",
+    "keywords": ["nevidiaci", "prístupnosť"]
+  },
+  "👨‍🦯": {
+    "name": "muž s bielou palicou",
+    "keywords": ["nevidiaci", "prístupnosť", "slepý"]
+  },
+  "👨‍🦯‍➡️": {
+    "name": "muž s bielou palicou otočený doprava",
+    "keywords": ["nevidiaci", "prístupnosť", "slepý"]
+  },
+  "👩‍🦯": {
+    "name": "žena s bielou palicou",
+    "keywords": ["nevidiaca", "prístupnosť", "slepá"]
+  },
+  "👩‍🦯‍➡️": {
+    "name": "žena s bielou palicou otočená doprava",
+    "keywords": ["nevidiaca", "prístupnosť", "slepá"]
+  },
+  "🧑‍🦼": {
+    "name": "osoba v elektrickom vozíku",
+    "keywords": ["prístupnosť"]
+  },
+  "🧑‍🦼‍➡️": {
+    "name": "osoba v elektrickom vozíku otočená doprava",
+    "keywords": ["prístupnosť"]
+  },
+  "👨‍🦼": {
+    "name": "muž v elektrickom vozíku",
+    "keywords": ["prístupnosť"]
+  },
+  "👨‍🦼‍➡️": {
+    "name": "muž v elektrickom vozíku otočený doprava",
+    "keywords": ["prístupnosť"]
+  },
+  "👩‍🦼": {
+    "name": "žena v elektrickom vozíku",
+    "keywords": ["prístupnosť"]
+  },
+  "👩‍🦼‍➡️": {
+    "name": "žena v elektrickom vozíku otočená doprava",
+    "keywords": ["prístupnosť"]
+  },
+  "🧑‍🦽": {
+    "name": "osoba v mechanickom vozíku",
+    "keywords": ["prístupnosť"]
+  },
+  "🧑‍🦽‍➡️": {
+    "name": "osoba v mechanickom vozíku otočená doprava",
+    "keywords": ["prístupnosť"]
+  },
+  "👨‍🦽": {
+    "name": "muž v mechanickom vozíku",
+    "keywords": ["prístupnosť"]
+  },
+  "👨‍🦽‍➡️": {
+    "name": "muž v mechanickom vozíku otočený doprava",
+    "keywords": ["prístupnosť"]
+  },
+  "👩‍🦽": {
+    "name": "žena v mechanickom vozíku",
+    "keywords": ["prístupnosť"]
+  },
+  "👩‍🦽‍➡️": {
+    "name": "žena v mechanickom vozíku otočená doprava",
+    "keywords": ["prístupnosť"]
+  },
+  "🏃": {
+    "name": "bežiaca osoba",
+    "keywords": ["beh", "maratón", "náhlenie", "pohyb", "preteky", "rýchlosť"]
+  },
+  "🏃‍♂️": {
+    "name": "bežiaci muž",
+    "keywords": ["beh", "maratón", "náhlenie", "pohyb", "preteky", "rýchlosť"]
+  },
+  "🏃‍♀️": {
+    "name": "bežiaca žena",
+    "keywords": ["beh", "maratón", "náhlenie", "pohyb", "preteky", "rýchlosť"]
+  },
+  "🏃‍➡️": {
+    "name": "bežiaca osoba otočená doprava",
+    "keywords": ["beh", "maratón", "náhlenie", "pohyb", "preteky", "rýchlosť"]
+  },
+  "🏃‍♀️‍➡️": {
+    "name": "bežiaca žena otočená doprava",
+    "keywords": ["beh", "maratón", "náhlenie", "pohyb", "preteky", "rýchlosť"]
+  },
+  "🏃‍♂️‍➡️": {
+    "name": "bežiaci muž otočený doprava",
+    "keywords": ["beh", "maratón", "náhlenie", "pohyb", "preteky", "rýchlosť"]
+  },
+  "💃": {
+    "name": "tancujúca žena",
+    "keywords": [
+      "elegantné",
+      "flamenco",
+      "salsa",
+      "tanec",
+      "tanečnica",
+      "tango"
+    ]
+  },
+  "🕺": {
+    "name": "tancujúci muž",
+    "keywords": ["elegantné", "flamenco", "salsa", "tanec", "tanečník", "tango"]
+  },
+  "🕴️": {
+    "name": "levitujúca osoba v obleku",
+    "keywords": ["biznis"]
+  },
+  "👯": {
+    "name": "ľudia so zajačími ušami",
+    "keywords": ["dvojča", "kamaráti", "párty", "tanečník", "zábava"]
+  },
+  "👯‍♂️": {
+    "name": "muži so zajačími ušami",
+    "keywords": ["dvojča", "kamaráti", "párty", "tanečník", "zábava"]
+  },
+  "👯‍♀️": {
+    "name": "ženy so zajačími ušami",
+    "keywords": ["dvojča", "kamarátky", "párty", "tanečnica", "zábava"]
+  },
+  "🧖": {
+    "name": "osoba v parnej miestnosti",
+    "keywords": ["relax", "sauna", "spa"]
+  },
+  "🧖‍♂️": {
+    "name": "muž v parnej miestnosti",
+    "keywords": ["relax", "sauna", "spa"]
+  },
+  "🧖‍♀️": {
+    "name": "žena v parnej miestnosti",
+    "keywords": ["relax", "sauna", "spa"]
+  },
+  "🧗": {
+    "name": "lezúca osoba",
+    "keywords": ["hora", "lezenie", "skala"]
+  },
+  "🧗‍♂️": {
+    "name": "lezúci muž",
+    "keywords": ["hora", "lezenie", "skala"]
+  },
+  "🧗‍♀️": {
+    "name": "lezúca žena",
+    "keywords": ["hora", "lezenie", "skala"]
+  },
+  "🤺": {
+    "name": "šermujúca osoba",
+    "keywords": ["meč", "šermiar"]
+  },
+  "🏇": {
+    "name": "dostihy",
+    "keywords": ["jazda", "jazdec", "kôň", "šport"]
+  },
+  "⛷️": {
+    "name": "lyžiar",
+    "keywords": ["lyže", "sneh"]
+  },
+  "🏂️": {
+    "name": "snoubordista",
+    "keywords": ["lyžovanie", "sneh", "šport", "snowboard"]
+  },
+  "🏌️": {
+    "name": "golfujúca osoba",
+    "keywords": ["golf", "jamka", "lopta", "odpal"]
+  },
+  "🏌️‍♂️": {
+    "name": "golfujúci muž",
+    "keywords": ["golf", "jamka", "lopta", "odpal"]
+  },
+  "🏌️‍♀️": {
+    "name": "golfujúca žena",
+    "keywords": ["golf", "jamka", "lopta", "odpal"]
+  },
+  "🏄️": {
+    "name": "surfujúca osoba",
+    "keywords": ["oceán", "pláž", "šport", "surf", "surfovanie", "vlny"]
+  },
+  "🏄‍♂️": {
+    "name": "surfujúci muž",
+    "keywords": ["oceán", "pláž", "šport", "surf", "surfovanie", "vlny"]
+  },
+  "🏄‍♀️": {
+    "name": "surfujúca žena",
+    "keywords": ["oceán", "pláž", "šport", "surf", "surfovanie", "vlny"]
+  },
+  "🚣": {
+    "name": "osoba veslujúca na lodi",
+    "keywords": ["jazero", "kanoe", "plavba", "rybolov", "veslo", "veslovanie"]
+  },
+  "🚣‍♂️": {
+    "name": "muž veslujúci na lodi",
+    "keywords": ["jazero", "kanoe", "plavba", "rybolov", "veslo", "veslovanie"]
+  },
+  "🚣‍♀️": {
+    "name": "žena veslujúca na lodi",
+    "keywords": ["jazero", "kanoe", "plavba", "rybolov", "veslo", "veslovanie"]
+  },
+  "🏊️": {
+    "name": "plávajúca osoba",
+    "keywords": ["plávanie", "plavec", "šport", "triatlon"]
+  },
+  "🏊‍♂️": {
+    "name": "plávajúci muž",
+    "keywords": ["plávanie", "plavec", "šport", "triatlon"]
+  },
+  "🏊‍♀️": {
+    "name": "plávajúca žena",
+    "keywords": ["plávanie", "plavec", "šport", "triatlon"]
+  },
+  "⛹️": {
+    "name": "osoba driblujúca s loptou",
+    "keywords": ["basketbal", "hráč", "šport"]
+  },
+  "⛹️‍♂️": {
+    "name": "muž driblujúci s loptou",
+    "keywords": ["basketbal", "hráč", "šport"]
+  },
+  "⛹️‍♀️": {
+    "name": "žena driblujúca s loptou",
+    "keywords": ["basketbal", "hráč", "šport"]
+  },
+  "🏋️": {
+    "name": "osoba zdvíhajúca váhy",
+    "keywords": [
+      "činka",
+      "kulturistika",
+      "posilňovanie",
+      "silový trojboj",
+      "vzpieranie"
+    ]
+  },
+  "🏋️‍♂️": {
+    "name": "muž zdvíhajúci váhy",
+    "keywords": [
+      "činka",
+      "kulturistika",
+      "posilňovanie",
+      "silový trojboj",
+      "vzpieranie"
+    ]
+  },
+  "🏋️‍♀️": {
+    "name": "žena zdvíhajúca váhy",
+    "keywords": [
+      "činka",
+      "kulturistika",
+      "posilňovanie",
+      "silový trojboj",
+      "vzpieranie"
+    ]
+  },
+  "🚴": {
+    "name": "osoba na bicykli",
+    "keywords": ["bicykel", "cyklista", "jazda", "šport"]
+  },
+  "🚴‍♂️": {
+    "name": "muž na bicykli",
+    "keywords": ["bicykel", "cyklista", "jazda", "šport"]
+  },
+  "🚴‍♀️": {
+    "name": "žena na bicykli",
+    "keywords": ["bicykel", "cyklista", "jazda", "šport"]
+  },
+  "🚵": {
+    "name": "osoba na horskom bicykli",
+    "keywords": ["bicykel", "cyklista", "jazda", "šport"]
+  },
+  "🚵‍♂️": {
+    "name": "muž na horskom bicykli",
+    "keywords": ["bicykel", "cyklista", "jazda", "šport"]
+  },
+  "🚵‍♀️": {
+    "name": "žena na horskom bicykli",
+    "keywords": ["bicykel", "cyklista", "jazda", "šport"]
+  },
+  "🤸": {
+    "name": "osoba robiaca hviezdu (gymnastika)",
+    "keywords": ["aktívny", "gymnastika", "nadšený", "premet", "šťastný"]
+  },
+  "🤸‍♂️": {
+    "name": "muž robiaci hviezdu (gymnastika)",
+    "keywords": ["aktívny", "gymnastika", "nadšený", "premet", "šťastný"]
+  },
+  "🤸‍♀️": {
+    "name": "žena robiaca hviezdu (gymnastika)",
+    "keywords": ["aktívny", "gymnastika", "nadšený", "premet", "šťastný"]
+  },
+  "🤼": {
+    "name": "zápasiaci ľudia",
+    "keywords": ["boj", "ring", "súboj", "turnaj", "zápasenie"]
+  },
+  "🤼‍♂️": {
+    "name": "zápasiaci muži",
+    "keywords": ["boj", "ring", "súboj", "turnaj", "zápasenie"]
+  },
+  "🤼‍♀️": {
+    "name": "zápasiace ženy",
+    "keywords": ["boj", "ring", "súboj", "turnaj", "zápasenie"]
+  },
+  "🤽": {
+    "name": "osoba hrajúca vodné pólo",
+    "keywords": ["plávanie", "šport"]
+  },
+  "🤽‍♂️": {
+    "name": "muž hrajúci vodné pólo",
+    "keywords": ["plávanie", "šport"]
+  },
+  "🤽‍♀️": {
+    "name": "žena hrajúca vodné pólo",
+    "keywords": ["plávanie", "šport"]
+  },
+  "🤾": {
+    "name": "osoba hrajúca hádzanú",
+    "keywords": ["atletika", "hod", "lopta", "šport"]
+  },
+  "🤾‍♂️": {
+    "name": "muž hrajúci hádzanú",
+    "keywords": ["atletika", "hod", "lopta", "šport"]
+  },
+  "🤾‍♀️": {
+    "name": "žena hrajúca hádzanú",
+    "keywords": ["atletika", "hod", "lopta", "šport"]
+  },
+  "🤹": {
+    "name": "žonglujúca osoba",
+    "keywords": ["rovnováha", "schopnosť", "zvládanie", "žonglovanie"]
+  },
+  "🤹‍♂️": {
+    "name": "žonglujúci muž",
+    "keywords": ["rovnováha", "schopnosť", "zvládanie", "žonglovanie"]
+  },
+  "🤹‍♀️": {
+    "name": "žonglujúca žena",
+    "keywords": ["rovnováha", "schopnosť", "zvládanie", "žonglovanie"]
+  },
+  "🧘": {
+    "name": "osoba v lotosovej pozícii",
+    "keywords": ["joga", "meditácia", "pokoj"]
+  },
+  "🧘‍♂️": {
+    "name": "muž v lotosovej pozícii",
+    "keywords": ["joga", "meditácia", "pokoj"]
+  },
+  "🧘‍♀️": {
+    "name": "žena v lotosovej pozícii",
+    "keywords": ["joga", "meditácia", "pokoj"]
+  },
+  "🛀": {
+    "name": "osoba vo vani",
+    "keywords": ["kúpeľ", "vaňa"]
+  },
+  "🛌": {
+    "name": "osoba v posteli",
+    "keywords": ["dobrú noc", "hotel", "spánok", "unavený"]
+  },
+  "🧑‍🤝‍🧑": {
+    "name": "ľudia držiaci sa za ruky",
+    "keywords": [
+      "dvojica",
+      "flirt",
+      "kamaráti",
+      "priatelia",
+      "randenie",
+      "ruka",
+      "spolu"
+    ]
+  },
+  "👭": {
+    "name": "ženy držiace sa za ruky",
+    "keywords": [
+      "dvojica",
+      "flirt",
+      "kamarátky",
+      "priateľky",
+      "randenie",
+      "ruka",
+      "sestry",
+      "spolu"
+    ]
+  },
+  "👫": {
+    "name": "žena a muž držiaci sa za ruky",
+    "keywords": [
+      "dvojica",
+      "flirt",
+      "kamaráti",
+      "priatelia",
+      "randenie",
+      "ruka",
+      "spolu"
+    ]
+  },
+  "👬": {
+    "name": "muži držiaci sa za ruky",
+    "keywords": [
+      "bratia",
+      "chlapci",
+      "dvojica",
+      "flirt",
+      "kamaráti",
+      "priatelia",
+      "randenie",
+      "ruka",
+      "spolu"
+    ]
+  },
+  "💏": {
+    "name": "bozk",
+    "keywords": [
+      "milovaní",
+      "osoba",
+      "pár",
+      "randenie",
+      "romantika",
+      "spolu",
+      "srdce",
+      "výročie"
+    ]
+  },
+  "👩‍❤️‍💋‍👨": {
+    "name": "bozk: žena, muž",
+    "keywords": [
+      "láska",
+      "milovaní",
+      "osoba",
+      "pár",
+      "randenie",
+      "romantika",
+      "spolu",
+      "srdce",
+      "výročie",
+      "žena"
+    ]
+  },
+  "👨‍❤️‍💋‍👨": {
+    "name": "bozk: muž, muž",
+    "keywords": [
+      "láska",
+      "milovaní",
+      "osoba",
+      "pár",
+      "randenie",
+      "romantika",
+      "spolu",
+      "srdce",
+      "výročie"
+    ]
+  },
+  "👩‍❤️‍💋‍👩": {
+    "name": "bozk: žena, žena",
+    "keywords": [
+      "láska",
+      "milovaní",
+      "osoba",
+      "pár",
+      "randenie",
+      "romantika",
+      "spolu",
+      "srdce",
+      "výročie"
+    ]
+  },
+  "💑": {
+    "name": "pár so srdcom",
+    "keywords": [
+      "láska",
+      "milovaní",
+      "osoba",
+      "randenie",
+      "romantika",
+      "spolu",
+      "vzťah"
+    ]
+  },
+  "👩‍❤️‍👨": {
+    "name": "pár so srdcom: žena, muž",
+    "keywords": [
+      "láska",
+      "milovaní",
+      "osoba",
+      "pobozkanie",
+      "randenie",
+      "romantika",
+      "spolu",
+      "srdce",
+      "výročie",
+      "žena"
+    ]
+  },
+  "👨‍❤️‍👨": {
+    "name": "pár so srdcom: muž, muž",
+    "keywords": [
+      "láska",
+      "milovaní",
+      "osoba",
+      "pobozkanie",
+      "randenie",
+      "romantika",
+      "spolu",
+      "srdce",
+      "výročie"
+    ]
+  },
+  "👩‍❤️‍👩": {
+    "name": "pár so srdcom: žena, žena",
+    "keywords": [
+      "láska",
+      "milovaní",
+      "osoba",
+      "pobozkanie",
+      "randenie",
+      "romantika",
+      "spolu",
+      "srdce",
+      "výročie"
+    ]
+  },
+  "👨‍👩‍👦": {
+    "name": "rodina: muž, žena, chlapec",
+    "keywords": ["dieťa", "muž", "rodina", "žena"]
+  },
+  "👨‍👩‍👧": {
+    "name": "rodina: muž, žena, dievča",
+    "keywords": ["dieťa", "muž", "rodina", "žena"]
+  },
+  "👨‍👩‍👧‍👦": {
+    "name": "rodina: muž, žena, dievča, chlapec",
+    "keywords": ["dieťa", "dievča", "muž", "rodina", "žena"]
+  },
+  "👨‍👩‍👦‍👦": {
+    "name": "rodina: muž, žena, chlapec, chlapec",
+    "keywords": ["dieťa", "muž", "rodina", "žena"]
+  },
+  "👨‍👩‍👧‍👧": {
+    "name": "rodina: muž, žena, dievča, dievča",
+    "keywords": ["dieťa", "muž", "rodina", "žena"]
+  },
+  "👨‍👨‍👦": {
+    "name": "rodina: muž, muž, chlapec",
+    "keywords": ["dieťa", "muž", "rodina"]
+  },
+  "👨‍👨‍👧": {
+    "name": "rodina: muž, muž, dievča",
+    "keywords": ["dieťa", "muž", "rodina"]
+  },
+  "👨‍👨‍👧‍👦": {
+    "name": "rodina: muž, muž, dievča, chlapec",
+    "keywords": ["dieťa", "dievča", "muž", "rodina"]
+  },
+  "👨‍👨‍👦‍👦": {
+    "name": "rodina: muž, muž, chlapec, chlapec",
+    "keywords": ["dieťa", "muž", "rodina"]
+  },
+  "👨‍👨‍👧‍👧": {
+    "name": "rodina: muž, muž, dievča, dievča",
+    "keywords": ["dieťa", "muž", "rodina"]
+  },
+  "👩‍👩‍👦": {
+    "name": "rodina: žena, žena, chlapec",
+    "keywords": ["dieťa", "rodina", "žena"]
+  },
+  "👩‍👩‍👧": {
+    "name": "rodina: žena, žena, dievča",
+    "keywords": ["dieťa", "rodina", "žena"]
+  },
+  "👩‍👩‍👧‍👦": {
+    "name": "rodina: žena, žena, dievča, chlapec",
+    "keywords": ["dieťa", "dievča", "rodina", "žena"]
+  },
+  "👩‍👩‍👦‍👦": {
+    "name": "rodina: žena, žena, chlapec, chlapec",
+    "keywords": ["dieťa", "rodina", "žena"]
+  },
+  "👩‍👩‍👧‍👧": {
+    "name": "rodina: žena, žena, dievča, dievča",
+    "keywords": ["dieťa", "rodina", "žena"]
+  },
+  "👨‍👦": {
+    "name": "rodina: muž, chlapec",
+    "keywords": ["dieťa", "muž", "rodina"]
+  },
+  "👨‍👦‍👦": {
+    "name": "rodina: muž, chlapec, chlapec",
+    "keywords": ["dieťa", "muž", "rodina"]
+  },
+  "👨‍👧": {
+    "name": "rodina: muž, dievča",
+    "keywords": ["dieťa", "muž", "rodina"]
+  },
+  "👨‍👧‍👦": {
+    "name": "rodina: muž, dievča, chlapec",
+    "keywords": ["chlapec", "dieťa", "dievča", "muž", "rodina"]
+  },
+  "👨‍👧‍👧": {
+    "name": "rodina: muž, dievča, dievča",
+    "keywords": ["dieťa", "muž", "rodina"]
+  },
+  "👩‍👦": {
+    "name": "rodina: žena, chlapec",
+    "keywords": ["dieťa", "rodina", "žena"]
+  },
+  "👩‍👦‍👦": {
+    "name": "rodina: žena, chlapec, chlapec",
+    "keywords": ["dieťa", "rodina", "žena"]
+  },
+  "👩‍👧": {
+    "name": "rodina: žena, dievča",
+    "keywords": ["dieťa", "rodina", "žena"]
+  },
+  "👩‍👧‍👦": {
+    "name": "rodina: žena, dievča, chlapec",
+    "keywords": ["chlapec", "dieťa", "dievča", "rodina", "žena"]
+  },
+  "👩‍👧‍👧": {
+    "name": "rodina: žena, dievča, dievča",
+    "keywords": ["dieťa", "rodina", "žena"]
+  },
+  "🗣️": {
+    "name": "hovoriaca hlava",
+    "keywords": ["silueta", "tvár", "hovoriť"]
+  },
+  "👤": {
+    "name": "busta v silhouete",
+    "keywords": ["záhadný", "tieň"]
+  },
+  "👥": {
+    "name": "busty v silhouete",
+    "keywords": ["kamarát", "kamaráti", "ľudia", "priateľ", "priatelia"]
+  },
+  "🫂": {
+    "name": "objímajúci sa ľudia",
+    "keywords": ["lúčenie", "náruč", "objatie", "priateľstvo", "útecha"]
+  },
+  "👪️": {
+    "name": "rodina",
+    "keywords": ["dieťa"]
+  },
+  "🧑‍🧑‍🧒": {
+    "name": "rodina: dospelý, dospelý, dieťa",
+    "keywords": ["dieťa", "dospelý", "rodina"]
+  },
+  "🧑‍🧑‍🧒‍🧒": {
+    "name": "rodina: dospelý, dospelý, dieťa, dieťa",
+    "keywords": ["dieťa", "dospelý", "rodina"]
+  },
+  "🧑‍🧒": {
+    "name": "rodina: dospelý, dieťa",
+    "keywords": ["dieťa", "dospelý", "rodina"]
+  },
+  "🧑‍🧒‍🧒": {
+    "name": "rodina: dospelý, dieťa, dieťa",
+    "keywords": ["dieťa", "dospelý", "rodina"]
+  },
+  "👣": {
+    "name": "stopy",
+    "keywords": ["bosé nohy", "chôdza", "na ceste", "odtlačok", "oblečenie"]
+  },
+  "🫆": {
+    "name": "odtlačok prsta",
+    "keywords": ["dôkaz", "identita", "kriminalistika", "stopa"]
+  },
+  "🐵": {
+    "name": "tvár opice",
+    "keywords": ["banán", "zviera"]
+  },
+  "🐒": {
+    "name": "opica",
+    "keywords": ["banán", "zviera"]
+  },
+  "🦍": {
+    "name": "gorila",
+    "keywords": ["zviera"]
+  },
+  "🦧": {
+    "name": "orangutan",
+    "keywords": ["opica", "zviera"]
+  },
+  "🐶": {
+    "name": "tvár psa",
+    "keywords": ["domáce zviera", "šteňa", "zviera"]
+  },
+  "🐕️": {
+    "name": "pes",
+    "keywords": ["domáce zviera", "zviera"]
+  },
+  "🦮": {
+    "name": "vodiaci pes",
+    "keywords": ["nevidiaci", "prístupnosť", "zviera"]
+  },
+  "🐕‍🦺": {
+    "name": "asistenčný pes",
+    "keywords": ["pomoc", "zviera"]
+  },
+  "🐩": {
+    "name": "pudel",
+    "keywords": ["kučeravý", "pes", "zviera"]
+  },
+  "🐺": {
+    "name": "vlk",
+    "keywords": ["tvár", "zviera"]
+  },
+  "🦊": {
+    "name": "líška",
+    "keywords": ["tvár", "zviera"]
+  },
+  "🦝": {
+    "name": "medvedík čistotný",
+    "keywords": ["prefíkaný", "zvedavý", "zviera"]
+  },
+  "🐱": {
+    "name": "tvár mačky",
+    "keywords": ["domáce zviera", "mačiatko", "zviera"]
+  },
+  "🐈️": {
+    "name": "mačka",
+    "keywords": ["domáce zviera", "mačiatko", "zviera"]
+  },
+  "🐈‍⬛": {
+    "name": "čierna mačka",
+    "keywords": ["halloween", "mačka", "nešťastie", "nešťastný"]
+  },
+  "🦁": {
+    "name": "lev",
+    "keywords": ["hrivá", "leo", "zverokruh", "zviera"]
+  },
+  "🐯": {
+    "name": "tvár tigra",
+    "keywords": ["dravec", "mačka", "zviera"]
+  },
+  "🐅": {
+    "name": "tiger",
+    "keywords": ["dravec", "mačka", "veľká", "zoo", "zviera"]
+  },
+  "🐆": {
+    "name": "leopard",
+    "keywords": ["dravec", "mačka", "veľká", "zoo", "zviera"]
+  },
+  "🐴": {
+    "name": "tvár koňa",
+    "keywords": ["dostihy", "farma", "zviera"]
+  },
+  "🫎": {
+    "name": "los",
+    "keywords": ["cicavec", "parohy", "zviera"]
+  },
+  "🫏": {
+    "name": "osol",
+    "keywords": ["cicavec", "mula", "tvrdohlavý", "zviera"]
+  },
+  "🐎": {
+    "name": "kôň",
+    "keywords": ["dostihy", "farma", "jazda", "zviera"]
+  },
+  "🦄": {
+    "name": "jednorožec",
+    "keywords": ["tvár"]
+  },
+  "🦓": {
+    "name": "zebra",
+    "keywords": ["pruhy", "zviera"]
+  },
+  "🦌": {
+    "name": "jeleň",
+    "keywords": ["zviera"]
+  },
+  "🦬": {
+    "name": "bizón",
+    "keywords": ["byvol", "stádo", "zviera"]
+  },
+  "🐮": {
+    "name": "tvár kravy",
+    "keywords": ["farma", "mlieko", "zviera"]
+  },
+  "🐂": {
+    "name": "vôl",
+    "keywords": ["byk", "farma", "zverokruh", "zviera"]
+  },
+  "🐃": {
+    "name": "vodný byvol",
+    "keywords": ["zoo", "zviera"]
+  },
+  "🐄": {
+    "name": "krava",
+    "keywords": ["farma", "mlieko", "muu", "zviera"]
+  },
+  "🐷": {
+    "name": "tvár prasaťa",
+    "keywords": ["bravčové", "farma", "zviera"]
+  },
+  "🐖": {
+    "name": "prasa",
+    "keywords": ["bravčové", "farma", "zviera"]
+  },
+  "🐗": {
+    "name": "diviak",
+    "keywords": ["prasa", "zviera"]
+  },
+  "🐽": {
+    "name": "prasačí rypák",
+    "keywords": ["farma", "tvár", "vôňa", "zviera"]
+  },
+  "🐏": {
+    "name": "baran",
+    "keywords": ["rohy", "zverokruh", "zviera", "zoo", "ovca"]
+  },
+  "🐑": {
+    "name": "ovca",
+    "keywords": ["baa", "farma", "vlna", "zviera"]
+  },
+  "🐐": {
+    "name": "koza",
+    "keywords": ["farma", "mlieko", "zverokruh", "zviera"]
+  },
+  "🐪": {
+    "name": "ťava",
+    "keywords": ["jednohrbá", "púšť", "zviera"]
+  },
+  "🐫": {
+    "name": "dvojhrbá ťava",
+    "keywords": ["baktrijská", "púšť", "zviera"]
+  },
+  "🦙": {
+    "name": "lama",
+    "keywords": ["alpaka", "guanako", "vikuňa", "vlna", "zviera"]
+  },
+  "🦒": {
+    "name": "žirafa",
+    "keywords": ["škvrny", "zviera"]
+  },
+  "🐘": {
+    "name": "slon",
+    "keywords": ["zviera"]
+  },
+  "🦣": {
+    "name": "mamut",
+    "keywords": ["kly", "vyhynutie", "vlnatý", "zviera"]
+  },
+  "🦏": {
+    "name": "nosorožec",
+    "keywords": ["zviera"]
+  },
+  "🦛": {
+    "name": "hroch",
+    "keywords": ["zviera"]
+  },
+  "🐭": {
+    "name": "tvár myši",
+    "keywords": ["zviera"]
+  },
+  "🐁": {
+    "name": "myš",
+    "keywords": ["zviera"]
+  },
+  "🐀": {
+    "name": "potkan",
+    "keywords": ["zviera"]
+  },
+  "🐹": {
+    "name": "škrečok",
+    "keywords": ["domáce zviera", "tvár", "zviera"]
+  },
+  "🐰": {
+    "name": "tvár zajaca",
+    "keywords": ["domáce zviera", "králik", "zviera"]
+  },
+  "🐇": {
+    "name": "zajac",
+    "keywords": ["domáce zviera", "králik", "zviera"]
+  },
+  "🐿️": {
+    "name": "burunduk",
+    "keywords": ["veverička", "zviera"]
+  },
+  "🦫": {
+    "name": "bobor",
+    "keywords": ["hrádza", "zuby", "zviera"]
+  },
+  "🦔": {
+    "name": "jež",
+    "keywords": ["ostnatý", "zviera"]
+  },
+  "🦇": {
+    "name": "netopier",
+    "keywords": ["upír", "zviera"]
+  },
+  "🐻": {
+    "name": "medveď",
+    "keywords": ["grizly", "med", "revanie", "tvár", "zviera"]
+  },
+  "🐻‍❄️": {
+    "name": "ľadový medveď",
+    "keywords": ["arktída", "biely", "zviera"]
+  },
+  "🐨": {
+    "name": "koala",
+    "keywords": ["austrália", "medveď", "tvár", "vačkovec", "zviera"]
+  },
+  "🐼": {
+    "name": "panda",
+    "keywords": ["bambus", "tvár", "zviera"]
+  },
+  "🦥": {
+    "name": "lenivec",
+    "keywords": ["lenivý", "pomalý"]
+  },
+  "🦦": {
+    "name": "vydra",
+    "keywords": ["hravá", "rybolov", "zviera"]
+  },
+  "🦨": {
+    "name": "skunk",
+    "keywords": ["smrad", "zviera"]
+  },
+  "🦘": {
+    "name": "klokan",
+    "keywords": ["skok", "vačkovec", "zviera"]
+  },
+  "🦡": {
+    "name": "jazvec",
+    "keywords": ["med", "otravovanie", "zviera"]
+  },
+  "🐾": {
+    "name": "stopy labiek",
+    "keywords": ["labky", "nohy", "odtlačok"]
+  },
+  "🦃": {
+    "name": "morka",
+    "keywords": ["ďakovanie", "vták"]
+  },
+  "🐔": {
+    "name": "sliepka",
+    "keywords": ["vták", "zviera"]
+  },
+  "🐓": {
+    "name": "kohút",
+    "keywords": ["vták", "zviera"]
+  },
+  "🐣": {
+    "name": "liahnuce sa kurča",
+    "keywords": ["dieťa", "vajce", "vták", "zviera"]
+  },
+  "🐤": {
+    "name": "kurčiatko",
+    "keywords": ["vták", "zviera"]
+  },
+  "🐥": {
+    "name": "kurčiatko spredu",
+    "keywords": ["novorodenec", "vták", "zviera"]
+  },
+  "🐦️": {
+    "name": "vták",
+    "keywords": ["zviera"]
+  },
+  "🐧": {
+    "name": "tučniak",
+    "keywords": ["antarktída", "vták", "zviera"]
+  },
+  "🕊️": {
+    "name": "holubica",
+    "keywords": ["let", "náboženstvo", "vták"]
+  },
+  "🦅": {
+    "name": "orol",
+    "keywords": ["vták", "zviera"]
+  },
+  "🦆": {
+    "name": "kačica",
+    "keywords": ["vták", "zviera"]
+  },
+  "🦢": {
+    "name": "labuť",
+    "keywords": ["labuťatko", "škaredé kačiatko", "vták", "zviera"]
+  },
+  "🦉": {
+    "name": "sova",
+    "keywords": ["múdrosť", "vták", "zviera"]
+  },
+  "🦤": {
+    "name": "dodo",
+    "keywords": ["vták", "vyhynutie", "zviera"]
+  },
+  "🪶": {
+    "name": "pierko",
+    "keywords": ["let", "vták"]
+  },
+  "🦩": {
+    "name": "plameniak",
+    "keywords": ["extravagantný", "tropický", "vták", "zviera"]
+  },
+  "🦚": {
+    "name": "páv",
+    "keywords": ["farebný", "hrdý", "pávica", "vták", "zviera"]
+  },
+  "🦜": {
+    "name": "papagáj",
+    "keywords": ["pirát", "rozprávanie", "vták", "zviera"]
+  },
+  "🪽": {
+    "name": "krídlo",
+    "keywords": ["let", "lietanie", "nebeský", "vták"]
+  },
+  "🐦‍⬛": {
+    "name": "čierny vták",
+    "keywords": ["havran", "krkavec", "vták", "vrana", "zviera"]
+  },
+  "🪿": {
+    "name": "hus",
+    "keywords": ["kŕdeľ", "vták", "zviera"]
+  },
+  "🐦‍🔥": {
+    "name": "fénix",
+    "keywords": [
+      "nesmrteľný",
+      "obnova",
+      "oheň",
+      "opätovné narodenie",
+      "povstanie",
+      "premena",
+      "sláva",
+      "vzostup"
+    ]
+  },
+  "🐸": {
+    "name": "žaba",
+    "keywords": ["tvár", "zviera"]
+  },
+  "🐊": {
+    "name": "krokodíl",
+    "keywords": ["zoo", "zviera"]
+  },
+  "🐢": {
+    "name": "korytnačka",
+    "keywords": ["zviera"]
+  },
+  "🦎": {
+    "name": "jašterica",
+    "keywords": ["plaz", "zviera"]
+  },
+  "🐍": {
+    "name": "had",
+    "keywords": ["hadonos", "zverokruh", "zviera"]
+  },
+  "🐲": {
+    "name": "tvár draka",
+    "keywords": ["rozprávka", "zviera"]
+  },
+  "🐉": {
+    "name": "drak",
+    "keywords": ["rozprávka", "zviera"]
+  },
+  "🦕": {
+    "name": "sauropod",
+    "keywords": ["brachiosaurus", "brontosaurus", "diplodok", "dinosaurus"]
+  },
+  "🦖": {
+    "name": "T-Rex",
+    "keywords": ["dinosaurus", "tyrannosaurus"]
+  },
+  "🐳": {
+    "name": "striekajúca veľryba",
+    "keywords": ["oceán", "pláž", "tvár", "zviera"]
+  },
+  "🐋": {
+    "name": "veľryba",
+    "keywords": ["oceán", "pláž", "zviera"]
+  },
+  "🐬": {
+    "name": "delfín",
+    "keywords": ["oceán", "pláž", "plutva", "zviera"]
+  },
+  "🦭": {
+    "name": "tuleň",
+    "keywords": ["oceán", "more", "zviera"]
+  },
+  "🐟️": {
+    "name": "ryba",
+    "keywords": ["pisces", "rybolov", "ryby", "večera", "zverokruh", "zviera"]
+  },
+  "🐠": {
+    "name": "tropická ryba",
+    "keywords": ["ryby", "zviera"]
+  },
+  "🐡": {
+    "name": "nafúkavec",
+    "keywords": ["ryba", "zviera"]
+  },
+  "🦈": {
+    "name": "žralok",
+    "keywords": ["ryba", "zviera"]
+  },
+  "🐙": {
+    "name": "chobotnica",
+    "keywords": ["oceán", "tvor", "zviera"]
+  },
+  "🐚": {
+    "name": "ulita",
+    "keywords": ["pláž", "more", "zviera"]
+  },
+  "🪸": {
+    "name": "koral",
+    "keywords": ["klíma", "more", "oceán", "útes"]
+  },
+  "🪼": {
+    "name": "medúza",
+    "keywords": ["akvárium", "more", "oceán", "piecha", "planktón", "zviera"]
+  },
+  "🦀": {
+    "name": "krab",
+    "keywords": ["rak", "zverokruh"]
+  },
+  "🦞": {
+    "name": "homár",
+    "keywords": ["klepetá", "morské plody", "zviera"]
+  },
+  "🦐": {
+    "name": "kreveta",
+    "keywords": ["jedlo", "malá", "morské plody"]
+  },
+  "🦑": {
+    "name": "kalamár",
+    "keywords": ["jedlo", "mäkkýš", "zviera"]
+  },
+  "🦪": {
+    "name": "ustrica",
+    "keywords": ["perla", "potápanie"]
+  },
+  "🐌": {
+    "name": "slimák",
+    "keywords": ["slizniak", "záhrada", "zviera", "príroda"]
+  },
+  "🦋": {
+    "name": "motýľ",
+    "keywords": ["hmyz", "krásny"]
+  },
+  "🐛": {
+    "name": "chrobák",
+    "keywords": ["hmyz", "záhrada", "zviera"]
+  },
+  "🐜": {
+    "name": "mravec",
+    "keywords": ["hmyz", "záhrada", "zviera"]
+  },
+  "🐝": {
+    "name": "včela medonosná",
+    "keywords": ["čmeliak", "hmyz", "jar", "med", "príroda", "zviera"]
+  },
+  "🪲": {
+    "name": "chrobák",
+    "keywords": ["hmyz"]
+  },
+  "🐞": {
+    "name": "lienka",
+    "keywords": ["hmyz", "príroda", "záhrada", "zviera"]
+  },
+  "🦗": {
+    "name": "koník (hmyz)",
+    "keywords": ["hmyz", "koník", "smerec"]
+  },
+  "🪳": {
+    "name": "šváb",
+    "keywords": ["hmyz", "škodca"]
+  },
+  "🕷️": {
+    "name": "pavúk",
+    "keywords": ["hmyz", "zviera"]
+  },
+  "🕸️": {
+    "name": "pavučina",
+    "keywords": []
+  },
+  "🦂": {
+    "name": "škorpión",
+    "keywords": ["zverokruh", "zviera"]
+  },
+  "🦟": {
+    "name": "komár",
+    "keywords": ["choroba", "hmyz", "malária", "škodca", "uhryznutie", "vírus"]
+  },
+  "🪰": {
+    "name": "mucha",
+    "keywords": ["červ", "choroba", "hmyz", "škodca"]
+  },
+  "🪱": {
+    "name": "červ",
+    "keywords": ["hmyz", "parazit", "žížala"]
+  },
+  "🦠": {
+    "name": "mikrób",
+    "keywords": ["améba", "baktéria", "veda", "vírus"]
+  },
+  "💐": {
+    "name": "kytica",
+    "keywords": [
+      "kvet",
+      "láska",
+      "narodeniny",
+      "rastlina",
+      "rande",
+      "romantika",
+      "výročie"
+    ]
+  },
+  "🌸": {
+    "name": "čerešňový kvet",
+    "keywords": ["jar", "kvet", "rastlina"]
+  },
+  "💮": {
+    "name": "biely kvet",
+    "keywords": []
+  },
+  "🪷": {
+    "name": "lotos",
+    "keywords": ["budhizmus", "fialový", "hinduizmus", "krása", "kvet", "pokoj"]
+  },
+  "🏵️": {
+    "name": "rozeta",
+    "keywords": ["rastlina"]
+  },
+  "🌹": {
+    "name": "ruža",
+    "keywords": [
+      "elegantný",
+      "kráska",
+      "kvet",
+      "láska",
+      "rastlina",
+      "červená",
+      "valentín"
+    ]
+  },
+  "🥀": {
+    "name": "zvädnutý kvet",
+    "keywords": ["umieranie"]
+  },
+  "🌺": {
+    "name": "ibištek",
+    "keywords": ["kvet", "rastlina"]
+  },
+  "🌻": {
+    "name": "slnečnica",
+    "keywords": ["kvet", "rastlina", "slnko", "vonku"]
+  },
+  "🌼": {
+    "name": "kvet",
+    "keywords": ["iskerník", "púpava", "rastlina"]
+  },
+  "🌷": {
+    "name": "tulipán",
+    "keywords": ["kvet", "kvitnutie", "rastlina", "rast"]
+  },
+  "🪻": {
+    "name": "hyacint",
+    "keywords": ["fialový", "jar", "kvet", "levanduľa", "rastlina"]
+  },
+  "🌱": {
+    "name": "sadenica",
+    "keywords": ["klíčok", "mladý", "rastlina"]
+  },
+  "🪴": {
+    "name": "kvetináč s rastlinou",
+    "keywords": ["dekorácia", "pestovanie"]
+  },
+  "🌲": {
+    "name": "ihličnatý strom",
+    "keywords": ["borovica", "les", "vianoce"]
+  },
+  "🌳": {
+    "name": "listnatý strom",
+    "keywords": ["les", "opadávanie", "prostredie", "zelený"]
+  },
+  "🌴": {
+    "name": "palma",
+    "keywords": ["pláž", "rastlina", "tropický"]
+  },
+  "🌵": {
+    "name": "kaktus",
+    "keywords": ["púšť", "rastlina", "sucho", "príroda"]
+  },
+  "🌾": {
+    "name": "snop ryže",
+    "keywords": ["klas", "obilie", "rastlina"]
+  },
+  "🌿": {
+    "name": "bylinka",
+    "keywords": ["list", "rastlina"]
+  },
+  "☘️": {
+    "name": "trojlístok",
+    "keywords": ["írsky", "rastlina"]
+  },
+  "🍀": {
+    "name": "štvorlístok",
+    "keywords": ["4", "írsky", "šťastie", "rastlina"]
+  },
+  "🍁": {
+    "name": "javorový list",
+    "keywords": ["padanie"]
+  },
+  "🍂": {
+    "name": "opadnutý list",
+    "keywords": ["jeseň", "padanie"]
+  },
+  "🍃": {
+    "name": "list vo vetre",
+    "keywords": ["fúkanie", "trepotanie"]
+  },
+  "🪹": {
+    "name": "prázdne hniezdo",
+    "keywords": ["domov", "hniezdenie", "konár"]
+  },
+  "🪺": {
+    "name": "hniezdo s vajíčkami",
+    "keywords": ["hniezdenie", "konár", "vajce", "vták"]
+  },
+  "🍄": {
+    "name": "hríb",
+    "keywords": ["huba"]
+  },
+  "🪾": {
+    "name": "holý strom",
+    "keywords": ["konáre", "kmeň", "sucho", "zima"]
+  },
+  "🍇": {
+    "name": "hrozno",
+    "keywords": ["ovocie"]
+  },
+  "🍈": {
+    "name": "melón",
+    "keywords": ["kantalup", "ovocie"]
+  },
+  "🍉": {
+    "name": "vodný melón",
+    "keywords": ["ovocie"]
+  },
+  "🍊": {
+    "name": "mandarínka",
+    "keywords": ["citrusy", "ovocie", "vitamín"]
+  },
+  "🍋": {
+    "name": "citrón",
+    "keywords": ["citrusy", "kyslý", "ovocie"]
+  },
+  "🍋‍🟩": {
+    "name": "limetka",
+    "keywords": [
+      "citrusy",
+      "kokteil",
+      "kyslý",
+      "margarita",
+      "mojito",
+      "ovocie",
+      "osviežujúci",
+      "salsa",
+      "tequila",
+      "tropický"
+    ]
+  },
+  "🍌": {
+    "name": "banán",
+    "keywords": ["draslík", "ovocie"]
+  },
+  "🍍": {
+    "name": "ananás",
+    "keywords": ["kokteil", "ovocie", "tropický"]
+  },
+  "🥭": {
+    "name": "mango",
+    "keywords": ["jedlo", "ovocie", "tropický"]
+  },
+  "🍎": {
+    "name": "červené jablko",
+    "keywords": ["diéta", "jablko", "ovocie", "zdravie", "zrelý"]
+  },
+  "🍏": {
+    "name": "zelené jablko",
+    "keywords": ["ovocie"]
+  },
+  "🍐": {
+    "name": "hruška",
+    "keywords": ["ovocie"]
+  },
+  "🍑": {
+    "name": "broskyňa",
+    "keywords": ["ovocie"]
+  },
+  "🍒": {
+    "name": "čerešne",
+    "keywords": ["bobule", "čerešňa", "červená", "ovocie"]
+  },
+  "🍓": {
+    "name": "jahoda",
+    "keywords": ["bobuľa", "ovocie"]
+  },
+  "🫐": {
+    "name": "čučoriedky",
+    "keywords": ["bobule", "jedlo", "ovocie"]
+  },
+  "🥝": {
+    "name": "kivi",
+    "keywords": ["jedlo"]
+  },
+  "🍅": {
+    "name": "paradajka",
+    "keywords": ["jedlo", "ovocie", "zelenina"]
+  },
+  "🫒": {
+    "name": "oliva",
+    "keywords": ["jedlo"]
+  },
+  "🥥": {
+    "name": "kokos",
+    "keywords": ["kokos", "piňa colada", "palma"]
+  },
+  "🥑": {
+    "name": "avokádo",
+    "keywords": ["jedlo", "ovocie"]
+  },
+  "🍆": {
+    "name": "baklažán",
+    "keywords": ["zelenina"]
+  },
+  "🥔": {
+    "name": "zemiak",
+    "keywords": ["jedlo", "zelenina"]
+  },
+  "🥕": {
+    "name": "mrkva",
+    "keywords": ["jedlo", "zelenina"]
+  },
+  "🌽": {
+    "name": "klas kukurice",
+    "keywords": ["farma", "kukurica", "plodiny"]
+  },
+  "🌶️": {
+    "name": "pálivá paprička",
+    "keywords": []
+  },
+  "🫑": {
+    "name": "paprika",
+    "keywords": ["jedlo", "zelenina"]
+  },
+  "🥒": {
+    "name": "uhorka",
+    "keywords": ["jedlo", "nakladačka", "zelenina"]
+  },
+  "🥬": {
+    "name": "zelený list",
+    "keywords": ["kapusta", "kel", "listový", "šalát"]
+  },
+  "🥦": {
+    "name": "brokolica",
+    "keywords": ["divá", "kapusta"]
+  },
+  "🧄": {
+    "name": "cesnak",
+    "keywords": ["dochucovadlo"]
+  },
+  "🧅": {
+    "name": "cibuľa",
+    "keywords": ["dochucovadlo"]
+  },
+  "🥜": {
+    "name": "arašidy",
+    "keywords": ["jedlo", "orech", "zelenina"]
+  },
+  "🫘": {
+    "name": "fazuľa",
+    "keywords": ["jedlo", "struky"]
+  },
+  "🌰": {
+    "name": "gaštan",
+    "keywords": ["mandľa", "rastlina"]
+  },
+  "🫚": {
+    "name": "koreň zázvoru",
+    "keywords": ["bylina", "korenie", "zdravie"]
+  },
+  "🫛": {
+    "name": "struk hrachu",
+    "keywords": ["edamame", "fazuľa", "sója", "zelenina"]
+  },
+  "🍄‍🟫": {
+    "name": "hnedá huba",
+    "keywords": [
+      "huby",
+      "jedlo",
+      "klobúčik",
+      "pizza",
+      "potraviny",
+      "príroda",
+      "výtrusok"
+    ]
+  },
+  "🫜": {
+    "name": "koreňová zelenina",
+    "keywords": ["cvikla", "reďkovka", "repa", "šalát"]
+  },
+  "🍞": {
+    "name": "chlieb",
+    "keywords": [
+      "bochník",
+      "jedlo",
+      "obilie",
+      "pečivo",
+      "reštaurácia",
+      "sacharidy"
+    ]
+  },
+  "🥐": {
+    "name": "croissant",
+    "keywords": ["chlieb", "francúzsky", "raňajky", "rožok"]
+  },
+  "🥖": {
+    "name": "bageta",
+    "keywords": ["francúzsky", "jedlo"]
+  },
+  "🫓": {
+    "name": "placka",
+    "keywords": ["chlieb", "jedlo", "pita"]
+  },
+  "🥨": {
+    "name": "praclík",
+    "keywords": ["spletený", "zvinutý"]
+  },
+  "🥯": {
+    "name": "bagel",
+    "keywords": ["chlieb", "pečivo", "raňajky"]
+  },
+  "🥞": {
+    "name": "palacinky",
+    "keywords": ["crêpe", "jedlo", "lievance", "raňajky"]
+  },
+  "🧇": {
+    "name": "vafľa",
+    "keywords": ["raňajky"]
+  },
+  "🧀": {
+    "name": "kúsok syra",
+    "keywords": []
+  },
+  "🍖": {
+    "name": "mäso s kosťou",
+    "keywords": []
+  },
+  "🍗": {
+    "name": "hydinové stehno",
+    "keywords": ["hlad", "kosť", "kura", "morka"]
+  },
+  "🥩": {
+    "name": "kus mäsa",
+    "keywords": ["kotleta", "rezeň", "steak"]
+  },
+  "🥓": {
+    "name": "slanina",
+    "keywords": ["jedlo", "mäso", "raňajky"]
+  },
+  "🍔": {
+    "name": "hamburger",
+    "keywords": ["burger", "hlad", "jedlo", "rýchle občerstvenie"]
+  },
+  "🍟": {
+    "name": "hranolky",
+    "keywords": ["fastfood", "jedlo"]
+  },
+  "🍕": {
+    "name": "pizza",
+    "keywords": ["hlad", "jedlo", "pepperoni", "syr"]
+  },
+  "🌭": {
+    "name": "hot dog",
+    "keywords": ["párok v rožku", "klobása"]
+  },
+  "🥪": {
+    "name": "sendvič",
+    "keywords": ["chlieb"]
+  },
+  "🌮": {
+    "name": "taco",
+    "keywords": ["mexické"]
+  },
+  "🌯": {
+    "name": "burrito",
+    "keywords": ["mexické", "wrap"]
+  },
+  "🫔": {
+    "name": "tamale",
+    "keywords": ["jedlo", "mexické"]
+  },
+  "🥙": {
+    "name": "plnený placok",
+    "keywords": ["falafel", "gyros", "jedlo", "kebab"]
+  },
+  "🧆": {
+    "name": "falafel",
+    "keywords": ["cícer"]
+  },
+  "🥚": {
+    "name": "vajce",
+    "keywords": ["jedlo", "raňajky"]
+  },
+  "🍳": {
+    "name": "varenie",
+    "keywords": [
+      "miešanie",
+      "panvica",
+      "raňajky",
+      "reštaurácia",
+      "vajce",
+      "vyprážanie"
+    ]
+  },
+  "🥘": {
+    "name": "panvica s jedlom",
+    "keywords": ["kastról", "paella"]
+  },
+  "🍲": {
+    "name": "hrniec s jedlom",
+    "keywords": ["guláš", "polievka"]
+  },
+  "🫕": {
+    "name": "fondue",
+    "keywords": ["čokoláda", "jedlo", "syr"]
+  },
+  "🥣": {
+    "name": "miska s lyžicou",
+    "keywords": ["cereálie", "kaša", "ovsená kaša", "raňajky"]
+  },
+  "🥗": {
+    "name": "zelený šalát",
+    "keywords": ["jedlo"]
+  },
+  "🍿": {
+    "name": "popcorn",
+    "keywords": ["film", "kukurica"]
+  },
+  "🧈": {
+    "name": "maslo",
+    "keywords": ["mliečne"]
+  },
+  "🧂": {
+    "name": "soľ",
+    "keywords": ["chuť", "koreniny", "slaný"]
+  },
+  "🥫": {
+    "name": "konzerva",
+    "keywords": []
+  },
+  "🍱": {
+    "name": "bento box",
+    "keywords": ["jedlo"]
+  },
+  "🍘": {
+    "name": "ryžový krekr",
+    "keywords": ["jedlo"]
+  },
+  "🍙": {
+    "name": "ryžová guľka",
+    "keywords": ["jedlo", "japonské"]
+  },
+  "🍚": {
+    "name": "varená ryža",
+    "keywords": ["jedlo"]
+  },
+  "🍛": {
+    "name": "ryža s kari",
+    "keywords": ["jedlo"]
+  },
+  "🍜": {
+    "name": "parujúca miska",
+    "keywords": ["cestoviny", "jedlo", "nudle", "pho", "ramen", "polievka"]
+  },
+  "🍝": {
+    "name": "špagety",
+    "keywords": ["cestoviny", "jedlo", "mäsové guľky", "reštaurácia"]
+  },
+  "🍠": {
+    "name": "pečený sladký zemiak",
+    "keywords": ["jedlo"]
+  },
+  "🍢": {
+    "name": "oden",
+    "keywords": ["jedlo", "kebab", "morské plody", "palička", "reštaurácia"]
+  },
+  "🍣": {
+    "name": "sushi",
+    "keywords": ["jedlo"]
+  },
+  "🍤": {
+    "name": "vyprážaná krevet",
+    "keywords": ["kreveta", "tempura"]
+  },
+  "🍥": {
+    "name": "rybí koláč so špirálou",
+    "keywords": ["jedlo", "pečivo", "reštaurácia"]
+  },
+  "🥮": {
+    "name": "mesačný koláč",
+    "keywords": ["festival", "jeseň"]
+  },
+  "🍡": {
+    "name": "dango",
+    "keywords": ["dezert", "japonské", "palička", "sladké"]
+  },
+  "🥟": {
+    "name": "knedľa",
+    "keywords": ["empanada", "gyoza", "halušky", "jiaozi", "pierogi"]
+  },
+  "🥠": {
+    "name": "keksík s veštbou",
+    "keywords": ["proroctvo"]
+  },
+  "🥡": {
+    "name": "krabička na jedlo so sebou",
+    "keywords": ["doručenie", "jedlo", "paličky"]
+  },
+  "🍦": {
+    "name": "zmrzlina z automatu",
+    "keywords": ["dezert", "jedlo", "reštaurácia", "sladké", "zmrzlina"]
+  },
+  "🍧": {
+    "name": "strúhaný ľad",
+    "keywords": ["dezert", "reštaurácia", "sladké"]
+  },
+  "🍨": {
+    "name": "zmrzlina",
+    "keywords": ["dezert", "jedlo", "reštaurácia", "sladké"]
+  },
+  "🍩": {
+    "name": "šiška",
+    "keywords": ["dezert", "donut", "jedlo", "raňajky", "sladké"]
+  },
+  "🍪": {
+    "name": "keks",
+    "keywords": ["čokoláda", "dezert", "sladké", "sušienka"]
+  },
+  "🎂": {
+    "name": "narodeninová torta",
+    "keywords": ["dezert", "narodeniny", "oslava", "pečivo", "sladké"]
+  },
+  "🍰": {
+    "name": "torta",
+    "keywords": ["dezert", "koláč", "pečivo", "plátok", "sladké"]
+  },
+  "🧁": {
+    "name": "košíček",
+    "keywords": ["cukor", "dezert", "posýpka", "sladké"]
+  },
+  "🥧": {
+    "name": "koláč",
+    "keywords": ["jablko", "dyňa", "mäso", "náplň", "ovocie", "pečivo"]
+  },
+  "🍫": {
+    "name": "čokoládová tyčinka",
+    "keywords": ["cukrík", "dezert", "halloween", "sladké", "zub"]
+  },
+  "🍬": {
+    "name": "cukrík",
+    "keywords": [
+      "dezert",
+      "halloween",
+      "obal",
+      "reštaurácia",
+      "sladké",
+      "zub",
+      "zubný kaz"
+    ]
+  },
+  "🍭": {
+    "name": "lízanka",
+    "keywords": ["cukrík", "dezert", "jedlo", "reštaurácia", "sladké"]
+  },
+  "🍮": {
+    "name": "puding",
+    "keywords": ["dezert", "krém", "sladké"]
+  },
+  "🍯": {
+    "name": "nádoba s medom",
+    "keywords": ["medvedík", "med", "nádoba", "sud", "sladké", "jedlo"]
+  },
+  "🍼": {
+    "name": "dojčenská fľaša",
+    "keywords": ["dojča", "mlieko", "narodenie", "novorodenec"]
+  },
+  "🥛": {
+    "name": "pohár mlieka",
+    "keywords": ["nápoj"]
+  },
+  "☕️": {
+    "name": "horúci nápoj",
+    "keywords": ["čaj", "káva", "kofeín", "ráno"]
+  },
+  "🫖": {
+    "name": "kanvica na čaj",
+    "keywords": ["čaj", "nápoj"]
+  },
+  "🍵": {
+    "name": "šálka bez ucha",
+    "keywords": ["čaj", "nápoj", "oolong", "pohár"]
+  },
+  "🍶": {
+    "name": "saké",
+    "keywords": ["bar", "fľaša", "nápoj", "pohár", "reštaurácia"]
+  },
+  "🍾": {
+    "name": "fľaša so streľajúcou zátkou",
+    "keywords": ["bar", "nápoj"]
+  },
+  "🍷": {
+    "name": "pohár vína",
+    "keywords": ["alkohol", "bar", "klub", "nápoj", "pitie"]
+  },
+  "🍸️": {
+    "name": "koktailový pohár",
+    "keywords": ["alkohol", "bar", "klub", "martini", "nápoj", "pitie"]
+  },
+  "🍹": {
+    "name": "tropický nápoj",
+    "keywords": ["alkohol", "bar", "klub", "koktail", "opitý", "párty", "pitie"]
+  },
+  "🍺": {
+    "name": "pivový pohár",
+    "keywords": [
+      "alkohol",
+      "bar",
+      "leto",
+      "nápoj",
+      "oktoberfest",
+      "pinta",
+      "pivo"
+    ]
+  },
+  "🍻": {
+    "name": "priateľské pripíjanie si pivom",
+    "keywords": ["alkohol", "bar", "na zdravie", "pitie", "štrngať"]
+  },
+  "🥂": {
+    "name": "pripíjajúce si poháre",
+    "keywords": ["nápoj", "oslava", "pohár", "pripiť si"]
+  },
+  "🥃": {
+    "name": "pohár na whisky",
+    "keywords": ["alkohol", "likér", "panák", "whisky"]
+  },
+  "🫗": {
+    "name": "vylievajúca sa tekutina",
+    "keywords": ["nehoda", "pohár", "rozliatie", "voda"]
+  },
+  "🥤": {
+    "name": "pohár so slamkou",
+    "keywords": ["nápoj", "šťava", "voda"]
+  },
+  "🧋": {
+    "name": "bublinkový čaj",
+    "keywords": ["jedlo", "mlieko", "perličky"]
+  },
+  "🧃": {
+    "name": "krabicový nápoj",
+    "keywords": ["nápoj", "slamka", "sladký"]
+  },
+  "🧉": {
+    "name": "maté",
+    "keywords": ["nápoj"]
+  },
+  "🧊": {
+    "name": "ľad",
+    "keywords": ["kocka", "ľadovec", "studený"]
+  },
+  "🥢": {
+    "name": "paličky na jedenie",
+    "keywords": ["hashi", "jeotgarak", "kuaizi"]
+  },
+  "🍽️": {
+    "name": "vidlička a nôž s tanierom",
+    "keywords": ["jedenie", "varenie", "večera"]
+  },
+  "🍴": {
+    "name": "vidlička a nôž",
+    "keywords": [
+      "hlad",
+      "jedenie",
+      "jedlo",
+      "obed",
+      "príbor",
+      "reštaurácia",
+      "večera"
+    ]
+  },
+  "🥄": {
+    "name": "lyžica",
+    "keywords": ["jedlo", "príbor"]
+  },
+  "🔪": {
+    "name": "kuchynský nôž",
+    "keywords": ["nástroj", "varenie", "zbraň"]
+  },
+  "🫙": {
+    "name": "nádoba",
+    "keywords": ["dochucovadlo", "omáčka", "prázdna"]
+  },
+  "🏺": {
+    "name": "amfora",
+    "keywords": ["nádoba", "nástroj", "nápoj", "varenie", "zbraň", "zverokruh"]
+  },
+  "🌍️": {
+    "name": "zemeguľa ukazujúca Európu a Afriku",
+    "keywords": ["afrika", "európa", "svet", "zem"]
+  },
+  "🌎️": {
+    "name": "zemeguľa ukazujúca Ameriku",
+    "keywords": ["svet", "zem"]
+  },
+  "🌏️": {
+    "name": "zemeguľa ukazujúca Áziu a Austráliu",
+    "keywords": ["austrália", "ázia", "svet", "zem"]
+  },
+  "🌐": {
+    "name": "zemeguľa s poludníkmi",
+    "keywords": ["internet", "svet", "web", "zem"]
+  },
+  "🗺️": {
+    "name": "mapa sveta",
+    "keywords": []
+  },
+  "🗾": {
+    "name": "mapa Japonska",
+    "keywords": []
+  },
+  "🧭": {
+    "name": "kompas",
+    "keywords": ["magnetický", "navigácia", "orientácia", "smer"]
+  },
+  "🏔️": {
+    "name": "zasnežený vrch",
+    "keywords": ["sneh", "zima"]
+  },
+  "⛰️": {
+    "name": "hora",
+    "keywords": []
+  },
+  "🌋": {
+    "name": "sopka",
+    "keywords": ["erupcia", "hora", "príroda"]
+  },
+  "🗻": {
+    "name": "hora Fudži",
+    "keywords": ["hora", "príroda"]
+  },
+  "🏕️": {
+    "name": "kempovanie",
+    "keywords": []
+  },
+  "🏖️": {
+    "name": "pláž s dáždnikom",
+    "keywords": []
+  },
+  "🏜️": {
+    "name": "púšť",
+    "keywords": []
+  },
+  "🏝️": {
+    "name": "pustý ostrov",
+    "keywords": []
+  },
+  "🏞️": {
+    "name": "národný park",
+    "keywords": []
+  },
+  "🏟️": {
+    "name": "štadión",
+    "keywords": []
+  },
+  "🏛️": {
+    "name": "klasická budova",
+    "keywords": []
+  },
+  "🏗️": {
+    "name": "stavba budovy",
+    "keywords": ["žeriav"]
+  },
+  "🧱": {
+    "name": "tehla",
+    "keywords": ["hlina", "malta", "múr"]
+  },
+  "🪨": {
+    "name": "kameň",
+    "keywords": ["balvan", "skala", "tvrdý"]
+  },
+  "🪵": {
+    "name": "drevo",
+    "keywords": ["guľatina", "polienko"]
+  },
+  "🛖": {
+    "name": "chatrč",
+    "keywords": ["dom", "domov", "jurta", "prístrešok"]
+  },
+  "🏘️": {
+    "name": "domy",
+    "keywords": ["dom"]
+  },
+  "🏚️": {
+    "name": "opustený dom",
+    "keywords": ["domov"]
+  },
+  "🏠️": {
+    "name": "dom",
+    "keywords": [
+      "budova",
+      "domov",
+      "krajina",
+      "predmestie",
+      "srdce",
+      "usadiť sa"
+    ]
+  },
+  "🏡": {
+    "name": "dom so záhradou",
+    "keywords": [
+      "budova",
+      "domov",
+      "krajina",
+      "predmestie",
+      "srdce",
+      "usadiť sa"
+    ]
+  },
+  "🏢": {
+    "name": "kancelárska budova",
+    "keywords": ["kancelária", "mesto", "práca"]
+  },
+  "🏣": {
+    "name": "japonská pošta",
+    "keywords": ["budova"]
+  },
+  "🏤": {
+    "name": "pošta",
+    "keywords": ["budova", "európska"]
+  },
+  "🏥": {
+    "name": "nemocnica",
+    "keywords": ["budova", "doktor", "medicína"]
+  },
+  "🏦": {
+    "name": "banka",
+    "keywords": ["budova"]
+  },
+  "🏨": {
+    "name": "hotel",
+    "keywords": ["budova"]
+  },
+  "🏩": {
+    "name": "hodinový hotel",
+    "keywords": ["budova"]
+  },
+  "🏪": {
+    "name": "večierka",
+    "keywords": ["budova", "nonstop"]
+  },
+  "🏫": {
+    "name": "škola",
+    "keywords": ["budova"]
+  },
+  "🏬": {
+    "name": "obchodný dom",
+    "keywords": ["budova"]
+  },
+  "🏭️": {
+    "name": "továreň",
+    "keywords": ["budova"]
+  },
+  "🏯": {
+    "name": "japonský hrad",
+    "keywords": ["budova"]
+  },
+  "🏰": {
+    "name": "hrad",
+    "keywords": ["budova", "európsky"]
+  },
+  "💒": {
+    "name": "svadba",
+    "keywords": ["kaplnka", "obrad", "romantika"]
+  },
+  "🗼": {
+    "name": "Tokijská veža",
+    "keywords": []
+  },
+  "🗽": {
+    "name": "Socha slobody",
+    "keywords": ["new york", "ny", "nyc"]
+  },
+  "⛪️": {
+    "name": "kostol",
+    "keywords": ["kresťanstvo", "kríž", "náboženstvo"]
+  },
+  "🕌": {
+    "name": "mešita",
+    "keywords": ["islam", "masdžid", "moslim", "náboženstvo"]
+  },
+  "🛕": {
+    "name": "hinduistický chrám",
+    "keywords": []
+  },
+  "🕍": {
+    "name": "synagóga",
+    "keywords": ["chrám", "judaizmus", "žid", "židovský"]
+  },
+  "⛩️": {
+    "name": "šintoistická svätyňa",
+    "keywords": ["náboženstvo"]
+  },
+  "🕋": {
+    "name": "kaaba",
+    "keywords": ["hadž", "islam", "moslim", "náboženstvo", "umra"]
+  },
+  "⛲️": {
+    "name": "fontána",
+    "keywords": []
+  },
+  "⛺️": {
+    "name": "stan",
+    "keywords": ["kempovanie"]
+  },
+  "🌁": {
+    "name": "hmlisto",
+    "keywords": ["hmla"]
+  },
+  "🌃": {
+    "name": "noc s hviezdami",
+    "keywords": ["hviezda"]
+  },
+  "🏙️": {
+    "name": "mestská scenéria",
+    "keywords": ["mesto"]
+  },
+  "🌄": {
+    "name": "východ slnka nad horami",
+    "keywords": ["ráno", "slnko"]
+  },
+  "🌅": {
+    "name": "východ slnka",
+    "keywords": ["príroda", "ráno", "slnko"]
+  },
+  "🌆": {
+    "name": "mestská scenéria za súmraku",
+    "keywords": ["budova", "mesto", "slnko", "súmrak", "večer", "západ slnka"]
+  },
+  "🌇": {
+    "name": "západ slnka",
+    "keywords": ["budova", "slnko", "súmrak"]
+  },
+  "🌉": {
+    "name": "most v noci",
+    "keywords": []
+  },
+  "♨️": {
+    "name": "horúce pramene",
+    "keywords": ["parenie"]
+  },
+  "🎠": {
+    "name": "kolotočový kôň",
+    "keywords": ["zábava"]
+  },
+  "🛝": {
+    "name": "šmykľavka na ihrisku",
+    "keywords": ["hra", "ihrisko", "lunapark"]
+  },
+  "🎡": {
+    "name": "ruské koleso",
+    "keywords": ["lunapark", "zábava"]
+  },
+  "🎢": {
+    "name": "horská dráha",
+    "keywords": ["lunapark", "zábava"]
+  },
+  "💈": {
+    "name": "holičský stĺp",
+    "keywords": ["holenie", "strih", "vlasy"]
+  },
+  "🎪": {
+    "name": "cirkusový stan",
+    "keywords": []
+  },
+  "🚂": {
+    "name": "lokomotíva",
+    "keywords": ["cestovanie", "para", "vlak", "železnica"]
+  },
+  "🚃": {
+    "name": "vagón",
+    "keywords": ["cestovanie", "električka", "vlak"]
+  },
+  "🚄": {
+    "name": "vysokorýchlostný vlak",
+    "keywords": ["rýchlosť", "shinkansen", "železnica"]
+  },
+  "🚅": {
+    "name": "rýchlovlak",
+    "keywords": ["cestovanie", "rýchlosť", "shinkansen", "železnica"]
+  },
+  "🚆": {
+    "name": "vlak",
+    "keywords": ["prišiel", "železnica"]
+  },
+  "🚇️": {
+    "name": "metro",
+    "keywords": ["cestovanie"]
+  },
+  "🚈": {
+    "name": "ľahká železnica",
+    "keywords": ["monorail", "prišiel", "železnica"]
+  },
+  "🚉": {
+    "name": "stanica",
+    "keywords": ["vlak", "železnica"]
+  },
+  "🚊": {
+    "name": "električka",
+    "keywords": []
+  },
+  "🚝": {
+    "name": "monorail",
+    "keywords": ["vozidlo"]
+  },
+  "🚞": {
+    "name": "horská železnica",
+    "keywords": ["auto", "výlet"]
+  },
+  "🚋": {
+    "name": "tramvajový vozeň",
+    "keywords": ["bus", "trolejbus"]
+  },
+  "🚌": {
+    "name": "autobus",
+    "keywords": ["škola", "vozidlo"]
+  },
+  "🚍️": {
+    "name": "prichádzajúci autobus",
+    "keywords": ["autá"]
+  },
+  "🚎": {
+    "name": "trolejbus",
+    "keywords": ["autobus", "električka"]
+  },
+  "🚐": {
+    "name": "minibus",
+    "keywords": ["autobus", "dodávka", "vozidlo"]
+  },
+  "🚑️": {
+    "name": "sanitka",
+    "keywords": ["pohotovosť", "vozidlo"]
+  },
+  "🚒": {
+    "name": "hasičské auto",
+    "keywords": []
+  },
+  "🚓": {
+    "name": "policajné auto",
+    "keywords": ["hliadka", "policajti"]
+  },
+  "🚔️": {
+    "name": "prichádzajúce policajné auto",
+    "keywords": []
+  },
+  "🚕": {
+    "name": "taxík",
+    "keywords": ["auto", "vozidlo", "žltý"]
+  },
+  "🚖": {
+    "name": "prichádzajúci taxík",
+    "keywords": ["autá", "žltý"]
+  },
+  "🚗": {
+    "name": "automobil",
+    "keywords": ["auto", "vozidlo"]
+  },
+  "🚘️": {
+    "name": "prichádzajúci automobil",
+    "keywords": ["auto", "autá", "vozidlo"]
+  },
+  "🚙": {
+    "name": "SUV",
+    "keywords": ["auto", "rekreačné", "vozidlo"]
+  },
+  "🛻": {
+    "name": "pickup",
+    "keywords": ["auto", "doprava", "korba"]
+  },
+  "🚚": {
+    "name": "dodávkové auto",
+    "keywords": ["auto", "vozidlo"]
+  },
+  "🚛": {
+    "name": "kĺbový kamión",
+    "keywords": ["auto", "kamión", "vozidlo"]
+  },
+  "🚜": {
+    "name": "traktor",
+    "keywords": ["vozidlo"]
+  },
+  "🏎️": {
+    "name": "pretekárske auto",
+    "keywords": ["rýchlosť"]
+  },
+  "🏍️": {
+    "name": "motorka",
+    "keywords": ["preteky"]
+  },
+  "🛵": {
+    "name": "skúter",
+    "keywords": []
+  },
+  "🦽": {
+    "name": "mechanický vozík",
+    "keywords": ["prístupnosť"]
+  },
+  "🦼": {
+    "name": "elektrický vozík",
+    "keywords": ["prístupnosť"]
+  },
+  "🛺": {
+    "name": "auto rikša",
+    "keywords": ["tuk-tuk"]
+  },
+  "🚲️": {
+    "name": "bicykel",
+    "keywords": ["cyklista", "cyklistika", "jazda"]
+  },
+  "🛴": {
+    "name": "kolobežka",
+    "keywords": []
+  },
+  "🛹": {
+    "name": "skateboard",
+    "keywords": ["doska", "korčule", "skater"]
+  },
+  "🛼": {
+    "name": "kolieskové korčule",
+    "keywords": ["korčule", "šport"]
+  },
+  "🚏": {
+    "name": "autobusová zastávka",
+    "keywords": []
+  },
+  "🛣️": {
+    "name": "diaľnica",
+    "keywords": ["cesta"]
+  },
+  "🛤️": {
+    "name": "železničná trať",
+    "keywords": ["vlak"]
+  },
+  "🛢️": {
+    "name": "sud s olejom",
+    "keywords": []
+  },
+  "⛽️": {
+    "name": "čerpacia stanica",
+    "keywords": ["benzín", "nafta", "palivo"]
+  },
+  "🛞": {
+    "name": "koleso",
+    "keywords": ["auto", "kruh", "pneumatika", "vozidlo"]
+  },
+  "🚨": {
+    "name": "policajné svetlo",
+    "keywords": ["alarm", "maják", "núdza", "siréna"]
+  },
+  "🚥": {
+    "name": "horizontálny semafor",
+    "keywords": ["križovatka", "signál", "stop"]
+  },
+  "🚦": {
+    "name": "vertikálny semafor",
+    "keywords": ["križovatka", "signál", "stop"]
+  },
+  "🛑": {
+    "name": "značka stop",
+    "keywords": ["osemuholník"]
+  },
+  "🚧": {
+    "name": "stavebné práce",
+    "keywords": ["bariéra"]
+  },
+  "⚓️": {
+    "name": "kotva",
+    "keywords": ["loď", "nástroj"]
+  },
+  "🛟": {
+    "name": "záchranný kruh",
+    "keywords": ["bezpečnosť", "plávanie", "záchrana"]
+  },
+  "⛵️": {
+    "name": "plachetnica",
+    "keywords": ["jachta", "more", "plavba"]
+  },
+  "🛶": {
+    "name": "kanoe",
+    "keywords": ["čln"]
+  },
+  "🚤": {
+    "name": "motorový čln",
+    "keywords": ["jazero", "leto", "luxus", "milionár", "čln"]
+  },
+  "🛳️": {
+    "name": "osobná loď",
+    "keywords": []
+  },
+  "⛴️": {
+    "name": "trajekt",
+    "keywords": ["cestujúci", "loď"]
+  },
+  "🛥️": {
+    "name": "motorový čln (loď)",
+    "keywords": []
+  },
+  "🚢": {
+    "name": "loď",
+    "keywords": ["cestovanie", "cestujúci", "plavidlo"]
+  },
+  "✈️": {
+    "name": "lietadlo",
+    "keywords": ["cestovanie", "let", "lietanie", "tryskáč"]
+  },
+  "🛩️": {
+    "name": "malé lietadlo",
+    "keywords": ["lietadlo"]
+  },
+  "🛫": {
+    "name": "odlet lietadla",
+    "keywords": ["check-in", "lietadlo", "odlety"]
+  },
+  "🛬": {
+    "name": "prílet lietadla",
+    "keywords": ["lietadlo", "pristátie", "prílety"]
+  },
+  "🪂": {
+    "name": "padák",
+    "keywords": ["zoskok"]
+  },
+  "💺": {
+    "name": "sedadlo",
+    "keywords": ["stolička"]
+  },
+  "🚁": {
+    "name": "helikoptéra",
+    "keywords": ["cestovanie", "vozidlo"]
+  },
+  "🚟": {
+    "name": "visutá železnica",
+    "keywords": []
+  },
+  "🚠": {
+    "name": "horská lanovka",
+    "keywords": ["gondola", "lanovka", "lyžovanie", "výťah"]
+  },
+  "🚡": {
+    "name": "visutá lanovka",
+    "keywords": ["gondola", "kabínka", "lanovka"]
+  },
+  "🛰️": {
+    "name": "satelit",
+    "keywords": ["vesmír"]
+  },
+  "🚀": {
+    "name": "raketa",
+    "keywords": ["cestovanie", "let", "vesmír"]
+  },
+  "🛸": {
+    "name": "lietajúci tanier",
+    "keywords": ["mimozemšťania", "ufo"]
+  },
+  "🛎️": {
+    "name": "zvonček na recepcii",
+    "keywords": ["hotel"]
+  },
+  "🧳": {
+    "name": "batožina",
+    "keywords": ["cestovanie", "kufor", "taška"]
+  },
+  "⌛️": {
+    "name": "presýpacie hodiny hotové",
+    "keywords": ["čas", "piesok"]
+  },
+  "⏳️": {
+    "name": "presýpacie hodiny bežiace",
+    "keywords": ["čas", "piesok"]
+  },
+  "⌚️": {
+    "name": "hodinky",
+    "keywords": ["čas"]
+  },
+  "⏰️": {
+    "name": "budík",
+    "keywords": ["čas", "hodiny"]
+  },
+  "⏱️": {
+    "name": "stopky",
+    "keywords": ["čas", "hodiny"]
+  },
+  "⏲️": {
+    "name": "časovač",
+    "keywords": []
+  },
+  "🕰️": {
+    "name": "stolové hodiny",
+    "keywords": ["čas"]
+  },
+  "🕛️": {
+    "name": "dvanásť hodín",
+    "keywords": ["12", "12:00", "čas", "hodiny"]
+  },
+  "🕧️": {
+    "name": "pol jednej",
+    "keywords": ["12", "12:30", "30", "čas", "dvanásť", "hodiny", "tridsať"]
+  },
+  "🕐️": {
+    "name": "jedna hodina",
+    "keywords": ["1", "1:00", "čas", "hodiny"]
+  },
+  "🕜️": {
+    "name": "pol druhej",
+    "keywords": ["1", "1:30", "30", "čas", "hodiny", "jeden", "tridsať"]
+  },
+  "🕑️": {
+    "name": "dve hodiny",
+    "keywords": ["2", "2:00", "čas", "hodiny"]
+  },
+  "🕝️": {
+    "name": "pol tretej",
+    "keywords": ["2", "2:30", "30", "čas", "dva", "hodiny", "tridsať"]
+  },
+  "🕒️": {
+    "name": "tri hodiny",
+    "keywords": ["3", "3:00", "čas", "hodiny"]
+  },
+  "🕞️": {
+    "name": "pol štvrtej",
+    "keywords": ["3", "30", "3:30", "čas", "hodiny", "tri", "tridsať"]
+  },
+  "🕓️": {
+    "name": "štyri hodiny",
+    "keywords": ["4", "4:00", "čas", "hodiny"]
+  },
+  "🕟️": {
+    "name": "pol piatej",
+    "keywords": ["30", "4", "4:30", "čas", "hodiny", "štyri", "tridsať"]
+  },
+  "🕔️": {
+    "name": "päť hodín",
+    "keywords": ["5", "5:00", "čas", "hodiny"]
+  },
+  "🕠️": {
+    "name": "pol šiestej",
+    "keywords": ["30", "5", "5:30", "čas", "hodiny", "päť", "tridsať"]
+  },
+  "🕕️": {
+    "name": "šesť hodín",
+    "keywords": ["6", "6:00", "čas", "hodiny"]
+  },
+  "🕡️": {
+    "name": "pol siedmej",
+    "keywords": ["30", "6", "6:30", "hodiny", "šesť", "tridsať"]
+  },
+  "🕖️": {
+    "name": "sedem hodín",
+    "keywords": ["0", "7", "7:00", "hodiny"]
+  },
+  "🕢️": {
+    "name": "pol ôsmej",
+    "keywords": ["30", "7", "7:30", "hodiny", "sedem", "tridsať"]
+  },
+  "🕗️": {
+    "name": "osem hodín",
+    "keywords": ["8", "8:00", "čas", "hodiny"]
+  },
+  "🕣️": {
+    "name": "pol deviatej",
+    "keywords": ["30", "8", "8:30", "čas", "hodiny", "osem", "tridsať"]
+  },
+  "🕘️": {
+    "name": "deväť hodín",
+    "keywords": ["9", "9:00", "čas", "hodiny"]
+  },
+  "🕤️": {
+    "name": "pol desiatej",
+    "keywords": ["30", "9", "9:30", "čas", "deväť", "hodiny", "tridsať"]
+  },
+  "🕙️": {
+    "name": "desať hodín",
+    "keywords": ["0", "10", "10:00", "hodiny"]
+  },
+  "🕥️": {
+    "name": "pol jedenástej",
+    "keywords": ["10", "10:30", "30", "čas", "desať", "hodiny", "tridsať"]
+  },
+  "🕚️": {
+    "name": "jedenásť hodín",
+    "keywords": ["11", "11:00", "čas", "hodiny"]
+  },
+  "🕦️": {
+    "name": "pol dvanástej",
+    "keywords": ["11", "11:30", "30", "čas", "hodiny", "jedenásť", "tridsať"]
+  },
+  "🌑": {
+    "name": "nov",
+    "keywords": ["tma", "vesmír"]
+  },
+  "🌒": {
+    "name": "dorastajúci kosáčik mesiaca",
+    "keywords": ["sny", "vesmír"]
+  },
+  "🌓": {
+    "name": "prvá štvrť mesiaca",
+    "keywords": ["vesmír"]
+  },
+  "🌔": {
+    "name": "dorastajúci mesiac",
+    "keywords": ["vesmír"]
+  },
+  "🌕️": {
+    "name": "spln",
+    "keywords": ["vesmír"]
+  },
+  "🌖": {
+    "name": "cúvajúci mesiac",
+    "keywords": ["vesmír"]
+  },
+  "🌗": {
+    "name": "posledná štvrť mesiaca",
+    "keywords": ["vesmír"]
+  },
+  "🌘": {
+    "name": "cúvajúci kosáčik mesiaca",
+    "keywords": ["vesmír"]
+  },
+  "🌙": {
+    "name": "kosáčik mesiaca",
+    "keywords": ["ramadán", "vesmír"]
+  },
+  "🌚": {
+    "name": "tvár novu",
+    "keywords": ["vesmír"]
+  },
+  "🌛": {
+    "name": "tvár prvej štvrte mesiaca",
+    "keywords": ["vesmír"]
+  },
+  "🌜️": {
+    "name": "tvár poslednej štvrte mesiaca",
+    "keywords": ["sny"]
+  },
+  "🌡️": {
+    "name": "teplomer",
+    "keywords": ["počasie"]
+  },
+  "☀️": {
+    "name": "slnko",
+    "keywords": ["jasný", "počasie", "slnečno", "vesmír"]
+  },
+  "🌝": {
+    "name": "tvár splnu",
+    "keywords": ["jasný"]
+  },
+  "🌞": {
+    "name": "slnko s tvárou",
+    "keywords": ["deň", "jasný", "pláž", "slnečno", "slnečné svetlo", "teplo"]
+  },
+  "🪐": {
+    "name": "planéta s prstencom",
+    "keywords": ["saturn"]
+  },
+  "⭐️": {
+    "name": "hviezda",
+    "keywords": ["astronómia", "biela", "hviezdy"]
+  },
+  "🌟": {
+    "name": "žiariaca hviezda",
+    "keywords": ["iskrivý", "lesk", "noc", "trblietanie", "víťazstvo", "žiara"]
+  },
+  "🌠": {
+    "name": "padajúca hviezda",
+    "keywords": ["noc", "padanie", "vesmír"]
+  },
+  "🌌": {
+    "name": "mliečna dráha",
+    "keywords": ["vesmír"]
+  },
+  "☁️": {
+    "name": "oblak",
+    "keywords": ["počasie"]
+  },
+  "⛅️": {
+    "name": "slnko za oblakom",
+    "keywords": ["oblačno", "počasie"]
+  },
+  "⛈️": {
+    "name": "oblak s bleskom a dažďom",
+    "keywords": ["búrka", "hrom"]
+  },
+  "🌤️": {
+    "name": "slnko za malým oblakom",
+    "keywords": ["počasie"]
+  },
+  "🌥️": {
+    "name": "slnko za veľkým oblakom",
+    "keywords": ["počasie"]
+  },
+  "🌦️": {
+    "name": "slnko za dažďovým oblakom",
+    "keywords": ["počasie"]
+  },
+  "🌧️": {
+    "name": "oblak s dažďom",
+    "keywords": ["počasie"]
+  },
+  "🌨️": {
+    "name": "oblak so snehom",
+    "keywords": ["chladno", "počasie"]
+  },
+  "🌩️": {
+    "name": "oblak s bleskom",
+    "keywords": ["počasie"]
+  },
+  "🌪️": {
+    "name": "tornádo",
+    "keywords": ["oblak", "počasie", "víchrica"]
+  },
+  "🌫️": {
+    "name": "hmla",
+    "keywords": ["oblak", "počasie"]
+  },
+  "🌬️": {
+    "name": "tvár vetra",
+    "keywords": ["fúkanie", "oblak"]
+  },
+  "🌀": {
+    "name": "cyklón",
+    "keywords": ["hurikán", "omámený", "počasie", "tajfún", "tornádo"]
+  },
+  "🌈": {
+    "name": "dúha",
+    "keywords": [
+      "dúhová vlajka",
+      "gay",
+      "glbt",
+      "glbtq",
+      "lesba",
+      "lgbt",
+      "lgbtq",
+      "lgbtqia",
+      "počasie",
+      "príroda",
+      "queer",
+      "dážď",
+      "trans",
+      "transrodový",
+      "hrdosť"
+    ]
+  },
+  "🌂": {
+    "name": "zatvorený dáždnik",
+    "keywords": ["oblečenie", "dážď"]
+  },
+  "☂️": {
+    "name": "dáždnik",
+    "keywords": ["dážď", "oblečenie"]
+  },
+  "☔️": {
+    "name": "dáždnik s kvapkami dažďa",
+    "keywords": ["dážď", "oblečenie", "počasie"]
+  },
+  "⛱️": {
+    "name": "zatvorený dáždnik na zemi",
+    "keywords": ["dážď", "slnko"]
+  },
+  "⚡️": {
+    "name": "vysoké napätie",
+    "keywords": ["blesk", "elektrina", "nebezpečenstvo", "príroda"]
+  },
+  "❄️": {
+    "name": "snehová vločka",
+    "keywords": ["chlad", "počasie", "sneh"]
+  },
+  "☃️": {
+    "name": "snehuliak",
+    "keywords": ["sneh"]
+  },
+  "⛄️": {
+    "name": "snehuliak bez snehu",
+    "keywords": []
+  },
+  "☄️": {
+    "name": "kométa",
+    "keywords": ["vesmír"]
+  },
+  "🔥": {
+    "name": "oheň",
+    "keywords": ["horiace", "nástroj", "plameň"]
+  },
+  "💧": {
+    "name": "kvapka",
+    "keywords": ["komiks", "počasie", "slza", "smútok", "studená", "voda"]
+  },
+  "🌊": {
+    "name": "morská vlna",
+    "keywords": ["príroda", "oceán", "surf", "surfovanie", "surfista"]
+  },
+  "🎃": {
+    "name": "tekvicový lampáš",
+    "keywords": ["halloween", "jack", "lampáš", "oslava", "tekvica"]
+  },
+  "🎄": {
+    "name": "vianočný stromček",
+    "keywords": ["oslava"]
+  },
+  "🎆": {
+    "name": "ohňostroj",
+    "keywords": ["oslava", "zábava"]
+  },
+  "🎇": {
+    "name": "prskavka",
+    "keywords": ["iskrenie", "oslava", "ohňostroj"]
+  },
+  "🧨": {
+    "name": "petarda",
+    "keywords": ["dynamit", "iskra", "oheň", "ohňostroj", "výbušnina"]
+  },
+  "✨️": {
+    "name": "iskričky",
+    "keywords": ["*", "hviezda", "kúzlo", "trblietky"]
+  },
+  "🎈": {
+    "name": "balón",
+    "keywords": ["narodeniny", "oslava"]
+  },
+  "🎉": {
+    "name": "konfetové delo",
+    "keywords": ["hurá", "narodeniny", "oslava", "párty", "super"]
+  },
+  "🎊": {
+    "name": "guľa s konfetami",
+    "keywords": ["oslava", "párty"]
+  },
+  "🎋": {
+    "name": "tanabata strom",
+    "keywords": ["banner", "japonské", "oslava"]
+  },
+  "🎍": {
+    "name": "vianočná dekorácia z borovice",
+    "keywords": ["bambus", "japonské", "oslava", "rastlina"]
+  },
+  "🎎": {
+    "name": "japonské bábiky",
+    "keywords": ["bábika", "festival", "oslava"]
+  },
+  "🎏": {
+    "name": "kapor koinobori",
+    "keywords": ["oslava"]
+  },
+  "🎐": {
+    "name": "veterný zvonček",
+    "keywords": ["oslava", "zvon"]
+  },
+  "🎑": {
+    "name": "obrad pozorovania mesiaca",
+    "keywords": ["oslava"]
+  },
+  "🧧": {
+    "name": "červená obálka",
+    "keywords": ["darček", "peniaze", "šťastie"]
+  },
+  "🎀": {
+    "name": "stužka",
+    "keywords": ["oslava"]
+  },
+  "🎁": {
+    "name": "zabalený darček",
+    "keywords": [
+      "box",
+      "darček",
+      "mašľa",
+      "narodeniny",
+      "oslava",
+      "prekvapenie",
+      "vianoce"
+    ]
+  },
+  "🎗️": {
+    "name": "pripomienková stužka",
+    "keywords": ["oslava"]
+  },
+  "🎟️": {
+    "name": "vstupenky",
+    "keywords": ["lístok"]
+  },
+  "🎫": {
+    "name": "lístok",
+    "keywords": ["vstupenka"]
+  },
+  "🎖️": {
+    "name": "vojenská medaila",
+    "keywords": ["ocenenie", "oslava"]
+  },
+  "🏆️": {
+    "name": "trofej",
+    "keywords": ["prvenstvo", "šport", "víťazstvo"]
+  },
+  "🏅": {
+    "name": "športová medaila",
+    "keywords": ["ocenenie", "víťaz", "zlato"]
+  },
+  "🥇": {
+    "name": "medaila za 1. miesto",
+    "keywords": ["prvé", "zlato"]
+  },
+  "🥈": {
+    "name": "medaila za 2. miesto",
+    "keywords": ["druhé", "striebro"]
+  },
+  "🥉": {
+    "name": "medaila za 3. miesto",
+    "keywords": ["bronz", "tretie"]
+  },
+  "⚽️": {
+    "name": "futbalová lopta",
+    "keywords": ["futbal", "šport"]
+  },
+  "⚾️": {
+    "name": "baseball",
+    "keywords": ["lopta", "šport"]
+  },
+  "🥎": {
+    "name": "softbal",
+    "keywords": ["lopta", "rukavica", "šport"]
+  },
+  "🏀": {
+    "name": "basketbal",
+    "keywords": ["kôš", "lopta", "šport"]
+  },
+  "🏐": {
+    "name": "volejbal",
+    "keywords": ["hra", "lopta"]
+  },
+  "🏈": {
+    "name": "americký futbal",
+    "keywords": ["lopta", "šport"]
+  },
+  "🏉": {
+    "name": "rugby",
+    "keywords": ["lopta", "šport"]
+  },
+  "🎾": {
+    "name": "tenis",
+    "keywords": ["lopta", "raketa", "šport"]
+  },
+  "🥏": {
+    "name": "lietajúci tanier (frisbee)",
+    "keywords": ["frisbee"]
+  },
+  "🎳": {
+    "name": "bowling",
+    "keywords": ["guľa", "hra", "šport", "strike"]
+  },
+  "🏏": {
+    "name": "kriket",
+    "keywords": ["lopta", "pálka"]
+  },
+  "🏑": {
+    "name": "pozemný hokej",
+    "keywords": ["hra", "lopta", "palica"]
+  },
+  "🏒": {
+    "name": "ľadový hokej",
+    "keywords": ["hra", "hokejka", "puk"]
+  },
+  "🥍": {
+    "name": "lakros",
+    "keywords": ["bránka", "hokejka", "lopta", "šport"]
+  },
+  "🏓": {
+    "name": "stolný tenis",
+    "keywords": ["hra", "lopta", "pálka", "ping pong", "stôl", "tenis"]
+  },
+  "🏸": {
+    "name": "bedminton",
+    "keywords": ["hra", "raketa", "rakytka", "vtáčik"]
+  },
+  "🥊": {
+    "name": "boxerská rukavica",
+    "keywords": []
+  },
+  "🥋": {
+    "name": "úbor na bojové umenia",
+    "keywords": ["judo", "karate", "taekwondo"]
+  },
+  "🥅": {
+    "name": "bránková sieť",
+    "keywords": []
+  },
+  "⛳️": {
+    "name": "golfová vlajočka",
+    "keywords": ["golf", "šport"]
+  },
+  "⛸️": {
+    "name": "korčuľa",
+    "keywords": ["korčuľovanie"]
+  },
+  "🎣": {
+    "name": "udica",
+    "keywords": ["rybolov", "šport", "zábava"]
+  },
+  "🤿": {
+    "name": "potápačská maska",
+    "keywords": ["šnorchlovanie"]
+  },
+  "🎽": {
+    "name": "pretekárske tričko",
+    "keywords": ["atletika", "šerpa"]
+  },
+  "🎿": {
+    "name": "lyže",
+    "keywords": ["lyžovanie", "šport", "sneh"]
+  },
+  "🛷": {
+    "name": "sane",
+    "keywords": ["sánky", "sneh"]
+  },
+  "🥌": {
+    "name": "curlingový kameň",
+    "keywords": ["hra", "kameň"]
+  },
+  "🎯": {
+    "name": "terč",
+    "keywords": ["cieľ", "hra", "šípka", "zábava", "zásah"]
+  },
+  "🪀": {
+    "name": "jojo",
+    "keywords": ["hračka"]
+  },
+  "🪁": {
+    "name": "šarkan",
+    "keywords": ["let", "vznášať sa"]
+  },
+  "🔫": {
+    "name": "vodná pištoľ",
+    "keywords": ["nástroj", "pištoľ", "revolver", "zbraň"]
+  },
+  "🎱": {
+    "name": "guľa 8 na biliard",
+    "keywords": ["biliard", "guľa", "hra"]
+  },
+  "🔮": {
+    "name": "krištáľová guľa",
+    "keywords": ["budúcnosť", "kúzlo", "nástroj", "osud", "rozprávka", "víla"]
+  },
+  "🪄": {
+    "name": "kúzelná palička",
+    "keywords": ["čarodejník"]
+  },
+  "🎮️": {
+    "name": "videohra",
+    "keywords": ["ovládač", "zábava"]
+  },
+  "🕹️": {
+    "name": "joystick",
+    "keywords": ["hra", "video", "videohra"]
+  },
+  "🎰": {
+    "name": "hrací automat",
+    "keywords": ["hazard", "hra", "kasíno"]
+  },
+  "🎲": {
+    "name": "hracia kocka",
+    "keywords": ["kocky", "zábava"]
+  },
+  "🧩": {
+    "name": "puzzle kúsok",
+    "keywords": ["skladačka"]
+  },
+  "🧸": {
+    "name": "plyšový medvedík",
+    "keywords": ["hračka", "plyš"]
+  },
+  "🪅": {
+    "name": "piňata",
+    "keywords": ["oslava", "párty", "sladkosti"]
+  },
+  "🪩": {
+    "name": "disko guľa",
+    "keywords": ["disco", "párty", "tanec", "trblietanie"]
+  },
+  "🪆": {
+    "name": "matriošky",
+    "keywords": ["bábika", "rusko"]
+  },
+  "♠️": {
+    "name": "pikové eso (karta pikov)",
+    "keywords": ["hra", "karta"]
+  },
+  "♥️": {
+    "name": "srdcová karta",
+    "keywords": ["emócia", "hra", "karta", "srdcia"]
+  },
+  "♦️": {
+    "name": "kárová karta",
+    "keywords": ["hra", "karta"]
+  },
+  "♣️": {
+    "name": "krížová karta",
+    "keywords": ["hra", "karta", "kríže"]
+  },
+  "♟️": {
+    "name": "šachový pešiak",
+    "keywords": ["obetný", "zneužiteľný"]
+  },
+  "🃏": {
+    "name": "žolík",
+    "keywords": ["karta", "hra", "žolík"]
+  },
+  "🀄️": {
+    "name": "mahjong: červený drak",
+    "keywords": ["hra"]
+  },
+  "🎴": {
+    "name": "hanafuda karty",
+    "keywords": ["hra", "japonské", "karta"]
+  },
+  "🎭️": {
+    "name": "divadelné umenie",
+    "keywords": ["divadlo", "herec", "herečka", "maska", "umenie", "zábava"]
+  },
+  "🖼️": {
+    "name": "obraz v ráme",
+    "keywords": ["múzeum", "rám", "umenie"]
+  },
+  "🎨": {
+    "name": "paleta umelca",
+    "keywords": [
+      "farebné",
+      "kreatívne",
+      "múzeum",
+      "umenie",
+      "umelecké",
+      "zábava"
+    ]
+  },
+  "🧵": {
+    "name": "niť",
+    "keywords": ["cievka", "šitie", "špagát"]
+  },
+  "🪡": {
+    "name": "šijacia ihla",
+    "keywords": ["niť", "šitie", "výšivka"]
+  },
+  "🧶": {
+    "name": "priadza",
+    "keywords": ["guľa", "háčkovanie", "pletenie"]
+  },
+  "🪢": {
+    "name": "uzol",
+    "keywords": ["povraz", "zauzlené"]
+  },
+  "👓️": {
+    "name": "okuliare",
+    "keywords": ["oblečenie", "oko"]
+  },
+  "🕶️": {
+    "name": "slnečné okuliare",
+    "keywords": ["oblečenie", "oko", "tmavé"]
+  },
+  "🥽": {
+    "name": "ochranné okuliare",
+    "keywords": ["oko", "ochrana", "potápanie", "zváranie"]
+  },
+  "🥼": {
+    "name": "laboratórny plášť",
+    "keywords": ["doktor", "experiment", "oblečenie", "vedec"]
+  },
+  "🦺": {
+    "name": "reflexná vesta",
+    "keywords": ["núdza"]
+  },
+  "👔": {
+    "name": "kravata",
+    "keywords": ["oblečenie", "práca", "seriózne", "tričko"]
+  },
+  "👕": {
+    "name": "tričko",
+    "keywords": ["casual", "golier", "modré", "nedeľa", "obchod", "oblečenie"]
+  },
+  "👖": {
+    "name": "rifle",
+    "keywords": ["casual", "modré", "nohavice", "obchod", "oblečenie"]
+  },
+  "🧣": {
+    "name": "šál",
+    "keywords": ["chlad", "krk"]
+  },
+  "🧤": {
+    "name": "rukavice",
+    "keywords": ["ruka"]
+  },
+  "🧥": {
+    "name": "kabát",
+    "keywords": ["bunda", "chlad"]
+  },
+  "🧦": {
+    "name": "ponožky",
+    "keywords": ["pančuchy"]
+  },
+  "👗": {
+    "name": "šaty",
+    "keywords": ["elegantné", "nakupovanie", "obchod", "oblečenie"]
+  },
+  "👘": {
+    "name": "kimono",
+    "keywords": ["oblečenie", "pohodlné"]
+  },
+  "🥻": {
+    "name": "sárí",
+    "keywords": ["oblečenie", "šaty"]
+  },
+  "🩱": {
+    "name": "jednodielne plavky",
+    "keywords": ["kúpanie"]
+  },
+  "🩲": {
+    "name": "spodná bielizeň",
+    "keywords": ["kúpanie", "plavky"]
+  },
+  "🩳": {
+    "name": "šortky",
+    "keywords": ["kúpanie", "nohavice", "plavky"]
+  },
+  "👙": {
+    "name": "bikiny",
+    "keywords": ["bazén", "oblečenie", "plavky", "pláž"]
+  },
+  "👚": {
+    "name": "dámske oblečenie",
+    "keywords": [
+      "blúzka",
+      "golier",
+      "nakupovanie",
+      "obchod",
+      "oblečenie",
+      "šaty",
+      "tričko",
+      "žena"
+    ]
+  },
+  "🪭": {
+    "name": "vejár",
+    "keywords": ["chladenie", "flirt", "tanec", "vejárovanie"]
+  },
+  "👛": {
+    "name": "peňaženka",
+    "keywords": ["elegantné", "mince", "nakupovanie", "oblečenie", "šaty"]
+  },
+  "👜": {
+    "name": "kabelka",
+    "keywords": [
+      "nakupovanie",
+      "oblečenie",
+      "peňaženka",
+      "šaty",
+      "taška",
+      "žena"
+    ]
+  },
+  "👝": {
+    "name": "listová kabelka",
+    "keywords": [
+      "kabelka",
+      "nakupovanie",
+      "obal",
+      "oblečenie",
+      "peňaženka",
+      "šaty"
+    ]
+  },
+  "🛍️": {
+    "name": "nákupné tašky",
+    "keywords": ["hotel", "taška"]
+  },
+  "🎒": {
+    "name": "batoh",
+    "keywords": ["škola", "taška"]
+  },
+  "🩴": {
+    "name": "žabky",
+    "keywords": ["pláž", "sandále", "zori"]
+  },
+  "👞": {
+    "name": "pánska topánka",
+    "keywords": [
+      "hnedá",
+      "kopnúť",
+      "muž",
+      "nakupovanie",
+      "noha",
+      "obchod",
+      "oblečenie",
+      "topánky"
+    ]
+  },
+  "👟": {
+    "name": "bežecká topánka",
+    "keywords": [
+      "atletika",
+      "kopnúť",
+      "nakupovanie",
+      "obchod",
+      "oblečenie",
+      "rýchlo",
+      "tenisky",
+      "topánky"
+    ]
+  },
+  "🥾": {
+    "name": "turistická topánka",
+    "keywords": ["hnedá", "kempovanie", "topánka", "vonku"]
+  },
+  "🥿": {
+    "name": "baleríny",
+    "keywords": ["balet", "papuča", "pohodlné", "topánka"]
+  },
+  "👠": {
+    "name": "lodičky",
+    "keywords": [
+      "elegantné",
+      "móda",
+      "nakupovanie",
+      "obchod",
+      "oblečenie",
+      "opätok",
+      "topánky",
+      "žena"
+    ]
+  },
+  "👡": {
+    "name": "dámska sandála",
+    "keywords": ["oblečenie", "topánka", "žena"]
+  },
+  "🩰": {
+    "name": "baletné topánky",
+    "keywords": ["tanec"]
+  },
+  "👢": {
+    "name": "dámska čižma",
+    "keywords": [
+      "nakupovanie",
+      "obchod",
+      "oblečenie",
+      "topánka",
+      "topánky",
+      "žena"
+    ]
+  },
+  "🪮": {
+    "name": "hrebeň na afro účes",
+    "keywords": ["afro", "hrebeň", "úprava"]
+  },
+  "👑": {
+    "name": "koruna",
+    "keywords": [
+      "kráľ",
+      "kráľovná",
+      "kráľovský",
+      "oblečenie",
+      "rodina",
+      "stredovek"
+    ]
+  },
+  "👒": {
+    "name": "dámsky klobúk",
+    "keywords": ["klobúky", "oblečenie", "párty", "záhrada", "žena"]
+  },
+  "🎩": {
+    "name": "cylinder",
+    "keywords": ["elegantné", "formálne", "kúzlo", "oblečenie"]
+  },
+  "🎓️": {
+    "name": "maturitná čiapka",
+    "keywords": ["klobúk", "oslava", "škola", "štúdium"]
+  },
+  "🧢": {
+    "name": "šiltovka",
+    "keywords": ["baseball", "otec"]
+  },
+  "🪖": {
+    "name": "vojenská prilba",
+    "keywords": ["armáda", "vojak", "vojna"]
+  },
+  "⛑️": {
+    "name": "záchranárska prilba",
+    "keywords": ["kríž", "pomoc", "tvár"]
+  },
+  "📿": {
+    "name": "ruženec",
+    "keywords": ["náboženstvo", "náhrdelník", "oblečenie"]
+  },
+  "💄": {
+    "name": "rúž",
+    "keywords": ["kozmetika", "make-up", "rande"]
+  },
+  "💍": {
+    "name": "prsteň",
+    "keywords": [
+      "diamant",
+      "manželstvo",
+      "romantika",
+      "svadba",
+      "zásnuby",
+      "žiarivý"
+    ]
+  },
+  "💎": {
+    "name": "drahokam",
+    "keywords": [
+      "diamant",
+      "klenot",
+      "peniaze",
+      "romantika",
+      "svadba",
+      "zásnuby"
+    ]
+  },
+  "🔇": {
+    "name": "stlmený reproduktor",
+    "keywords": ["stlmené", "ticho", "tichý", "zvuk"]
+  },
+  "🔈️": {
+    "name": "reproduktor s nízkou hlasitosťou",
+    "keywords": ["jemný", "zvuk"]
+  },
+  "🔉": {
+    "name": "reproduktor so strednou hlasitosťou",
+    "keywords": ["zvuk"]
+  },
+  "🔊": {
+    "name": "reproduktor s vysokou hlasitosťou",
+    "keywords": ["hlasný", "hudba", "zvuk"]
+  },
+  "📢": {
+    "name": "reproduktor",
+    "keywords": ["komunikácia", "verejnosť", "zvuk"]
+  },
+  "📣": {
+    "name": "megafón",
+    "keywords": ["povzbudzovanie", "zvuk"]
+  },
+  "📯": {
+    "name": "poštový roh",
+    "keywords": ["pošta"]
+  },
+  "🔔": {
+    "name": "zvonček",
+    "keywords": ["kostol", "prestávka", "zvuk"]
+  },
+  "🔕": {
+    "name": "zvonček s prečiarknutím",
+    "keywords": ["stlmené", "ticho", "zakázané", "zvuk"]
+  },
+  "🎼": {
+    "name": "hudobná partitúra",
+    "keywords": ["hudba", "nota"]
+  },
+  "🎵": {
+    "name": "hudobná nota",
+    "keywords": ["hudba", "zvuk"]
+  },
+  "🎶": {
+    "name": "hudobné noty",
+    "keywords": ["hudba", "nota", "zvuk"]
+  },
+  "🎙️": {
+    "name": "štúdiový mikrofón",
+    "keywords": ["hudba", "mikrofón"]
+  },
+  "🎚️": {
+    "name": "posuvník úrovne",
+    "keywords": ["hudba"]
+  },
+  "🎛️": {
+    "name": "ovládacie gombíky",
+    "keywords": ["hudba"]
+  },
+  "🎤": {
+    "name": "mikrofón",
+    "keywords": ["karaoke", "spievanie", "zvuk", "hudba"]
+  },
+  "🎧️": {
+    "name": "slúchadlo",
+    "keywords": ["zvuk"]
+  },
+  "📻️": {
+    "name": "rádio",
+    "keywords": ["video", "zábava"]
+  },
+  "🎷": {
+    "name": "saxofón",
+    "keywords": ["hudba", "nástroj"]
+  },
+  "🪗": {
+    "name": "akordeón",
+    "keywords": ["hudba", "nástroj"]
+  },
+  "🎸": {
+    "name": "gitara",
+    "keywords": ["hudba", "nástroj"]
+  },
+  "🎹": {
+    "name": "hudobná klávesnica",
+    "keywords": ["hudba", "klavír", "nástroj"]
+  },
+  "🎺": {
+    "name": "trúbka",
+    "keywords": ["hudba", "nástroj"]
+  },
+  "🎻": {
+    "name": "husle",
+    "keywords": ["hudba", "nástroj"]
+  },
+  "🪕": {
+    "name": "bendžo",
+    "keywords": ["hudba", "strunový nástroj"]
+  },
+  "🥁": {
+    "name": "bicie",
+    "keywords": ["hudba", "paličky"]
+  },
+  "🪘": {
+    "name": "dlhý bubon",
+    "keywords": ["hudba", "nástroj", "rytmus"]
+  },
+  "🪇": {
+    "name": "marakasy",
+    "keywords": ["hudba", "nástroj", "párty", "tanec"]
+  },
+  "🪈": {
+    "name": "flauta",
+    "keywords": ["hudba", "nástroj", "orchester"]
+  },
+  "🪉": {
+    "name": "harfa",
+    "keywords": ["hudba", "láska", "nástroj", "orchester"]
+  },
+  "📱": {
+    "name": "mobilný telefón",
+    "keywords": ["bunka", "komunikácia", "telefón"]
+  },
+  "📲": {
+    "name": "mobilný telefón so šípkou",
+    "keywords": ["komunikácia", "prijatie", "telefón", "volanie"]
+  },
+  "☎️": {
+    "name": "telefón",
+    "keywords": []
+  },
+  "📞": {
+    "name": "telefónne slúchadlo",
+    "keywords": ["komunikácia", "telefón"]
+  },
+  "📟️": {
+    "name": "pager",
+    "keywords": ["komunikácia"]
+  },
+  "📠": {
+    "name": "fax",
+    "keywords": ["komunikácia"]
+  },
+  "🔋": {
+    "name": "batéria",
+    "keywords": []
+  },
+  "🪫": {
+    "name": "vybitá batéria",
+    "keywords": ["elektronika", "energia"]
+  },
+  "🔌": {
+    "name": "elektrická zástrčka",
+    "keywords": ["elektrina"]
+  },
+  "💻️": {
+    "name": "notebook",
+    "keywords": ["kancelária", "osobný počítač", "počítač"]
+  },
+  "🖥️": {
+    "name": "stolový počítač",
+    "keywords": ["monitor"]
+  },
+  "🖨️": {
+    "name": "tlačiareň",
+    "keywords": ["počítač"]
+  },
+  "⌨️": {
+    "name": "klávesnica",
+    "keywords": ["počítač"]
+  },
+  "🖱️": {
+    "name": "počítačová myš",
+    "keywords": []
+  },
+  "🖲️": {
+    "name": "trackball",
+    "keywords": ["počítač"]
+  },
+  "💽": {
+    "name": "počítačový disk",
+    "keywords": ["minidisk", "optický"]
+  },
+  "💾": {
+    "name": "disketa",
+    "keywords": ["počítač"]
+  },
+  "💿️": {
+    "name": "optický disk",
+    "keywords": ["blu-ray", "cd", "dvd", "počítač"]
+  },
+  "📀": {
+    "name": "dvd",
+    "keywords": ["blu-ray", "cd", "disk", "optický", "počítač"]
+  },
+  "🧮": {
+    "name": "počítadlo",
+    "keywords": ["kalkulačka", "výpočet"]
+  },
+  "🎥": {
+    "name": "filmová kamera",
+    "keywords": ["bollywood", "film", "hollywood", "kino", "nahrávanie"]
+  },
+  "🎞️": {
+    "name": "filmové políčka",
+    "keywords": ["film", "kino"]
+  },
+  "📽️": {
+    "name": "filmový projektor",
+    "keywords": ["film", "kino", "video"]
+  },
+  "🎬️": {
+    "name": "filmová klapka",
+    "keywords": ["akcia", "film"]
+  },
+  "📺️": {
+    "name": "televízor",
+    "keywords": ["tv", "video"]
+  },
+  "📷️": {
+    "name": "fotoaparát",
+    "keywords": ["fotka", "selfie", "video", "výlet"]
+  },
+  "📸": {
+    "name": "fotoaparát s bleskom",
+    "keywords": ["video"]
+  },
+  "📹️": {
+    "name": "videokamera",
+    "keywords": ["video"]
+  },
+  "📼": {
+    "name": "videokazeta",
+    "keywords": ["páska", "staré", "vcr", "vhs", "video"]
+  },
+  "🔍️": {
+    "name": "lupa nahnutá vľavo",
+    "keywords": ["laboratórium", "nástroj", "veda", "vyhľadávanie"]
+  },
+  "🔎": {
+    "name": "lupa nahnutá vpravo",
+    "keywords": ["kontakt", "laboratórium", "nástroj", "veda", "vyhľadávanie"]
+  },
+  "🕯️": {
+    "name": "sviečka",
+    "keywords": ["svetlo"]
+  },
+  "💡": {
+    "name": "žiarovka",
+    "keywords": ["elektrina", "komiks", "nápad"]
+  },
+  "🔦": {
+    "name": "baterka",
+    "keywords": ["elektrická", "nástroj", "svetlo"]
+  },
+  "🏮": {
+    "name": "červený papierový lampión",
+    "keywords": ["bar", "reštaurácia", "svetlo"]
+  },
+  "🪔": {
+    "name": "olejová lampička",
+    "keywords": ["olej", "svetlo"]
+  },
+  "📔": {
+    "name": "zápisník s ozdobným obalom",
+    "keywords": ["kniha", "škola", "vzdelávanie", "zdobené", "písanie"]
+  },
+  "📕": {
+    "name": "zatvorená kniha",
+    "keywords": ["vzdelávanie"]
+  },
+  "📖": {
+    "name": "otvorená kniha",
+    "keywords": ["čítanie", "fantázia", "knižnica", "vedomosti", "vzdelávanie"]
+  },
+  "📗": {
+    "name": "zelená kniha",
+    "keywords": ["čítanie", "fantázia", "knižnica", "vzdelávanie"]
+  },
+  "📘": {
+    "name": "modrá kniha",
+    "keywords": ["čítanie", "fantázia", "knižnica", "vzdelávanie"]
+  },
+  "📙": {
+    "name": "oranžová kniha",
+    "keywords": ["čítanie", "fantázia", "knižnica", "vzdelávanie"]
+  },
+  "📚️": {
+    "name": "knihy",
+    "keywords": [
+      "čítanie",
+      "fantázia",
+      "kniha",
+      "knižnica",
+      "škola",
+      "štúdium",
+      "vedomosti",
+      "vzdelávanie"
+    ]
+  },
+  "📓": {
+    "name": "zápisník",
+    "keywords": []
+  },
+  "📒": {
+    "name": "zošit",
+    "keywords": ["poznámkový blok"]
+  },
+  "📃": {
+    "name": "zvinutá stránka",
+    "keywords": ["dokument", "papier"]
+  },
+  "📜": {
+    "name": "zvitok",
+    "keywords": ["papier"]
+  },
+  "📄": {
+    "name": "stránka smerom hore",
+    "keywords": ["dokument", "papier"]
+  },
+  "📰": {
+    "name": "noviny",
+    "keywords": ["komunikácia", "papier", "správy"]
+  },
+  "🗞️": {
+    "name": "zrolované noviny",
+    "keywords": ["noviny", "papier", "zrolované"]
+  },
+  "📑": {
+    "name": "záložky",
+    "keywords": ["značka"]
+  },
+  "🔖": {
+    "name": "záložka",
+    "keywords": ["značka"]
+  },
+  "🏷️": {
+    "name": "štítok",
+    "keywords": ["menovka"]
+  },
+  "💰️": {
+    "name": "vrece peňazí",
+    "keywords": [
+      "banka",
+      "bohatý",
+      "dolár",
+      "peniaze",
+      "stávka",
+      "výhra",
+      "zlato"
+    ]
+  },
+  "🪙": {
+    "name": "minca",
+    "keywords": ["bohatstvo", "dolár", "euro", "peniaze", "striebro", "zlato"]
+  },
+  "💴": {
+    "name": "bankovka jenov",
+    "keywords": ["banka", "bankovka", "mena", "peniaze"]
+  },
+  "💵": {
+    "name": "bankovka dolárov",
+    "keywords": ["banka", "bankovka", "mena", "peniaze"]
+  },
+  "💶": {
+    "name": "bankovka eur",
+    "keywords": ["100", "banka", "bankovka", "bohatý", "mena", "peniaze"]
+  },
+  "💷": {
+    "name": "bankovka libier",
+    "keywords": ["banka", "bankovka", "hotovosť", "libry", "mena", "peniaze"]
+  },
+  "💸": {
+    "name": "peniaze s krídlami",
+    "keywords": ["banka", "bankovka", "dolár", "let", "peniaze", "platba"]
+  },
+  "💳️": {
+    "name": "kreditná karta",
+    "keywords": ["banka", "hotovosť", "peniaze", "platba"]
+  },
+  "🧾": {
+    "name": "účtenka",
+    "keywords": ["dôkaz", "faktúra", "účtovníctvo"]
+  },
+  "💹": {
+    "name": "rastúci graf s jenom",
+    "keywords": ["banka", "graf", "mena", "peniaze", "rast", "trend"]
+  },
+  "✉️": {
+    "name": "obálka",
+    "keywords": ["e-mail", "list"]
+  },
+  "📧": {
+    "name": "e-mail",
+    "keywords": ["list", "pošta"]
+  },
+  "📨": {
+    "name": "prichádzajúca obálka",
+    "keywords": ["doručenie", "e-mail", "list", "pošta", "prijatie"]
+  },
+  "📩": {
+    "name": "obálka so šípkou",
+    "keywords": [
+      "e-mail",
+      "komunikácia",
+      "list",
+      "odoslané",
+      "odosielanie",
+      "pošta"
+    ]
+  },
+  "📤️": {
+    "name": "priečinok odoslaných",
+    "keywords": ["box", "email", "list", "odoslané", "pošta"]
+  },
+  "📥️": {
+    "name": "priečinok doručených",
+    "keywords": ["box", "doručené", "email", "list", "nula", "pošta"]
+  },
+  "📦️": {
+    "name": "balík",
+    "keywords": ["box", "doručenie", "komunikácia", "zásielka"]
+  },
+  "📫️": {
+    "name": "zatvorená schránka so zdvihnutou vlajočkou",
+    "keywords": ["komunikácia", "pošta", "schránka"]
+  },
+  "📪️": {
+    "name": "zatvorená schránka so spustenou vlajočkou",
+    "keywords": ["pošta", "schránka"]
+  },
+  "📬️": {
+    "name": "otvorená schránka so zdvihnutou vlajočkou",
+    "keywords": ["pošta", "schránka"]
+  },
+  "📭️": {
+    "name": "otvorená schránka so spustenou vlajočkou",
+    "keywords": ["pošta", "schránka"]
+  },
+  "📮": {
+    "name": "poštová schránka",
+    "keywords": ["pošta", "schránka"]
+  },
+  "🗳️": {
+    "name": "volebná urna s hlasovacím lístkom",
+    "keywords": []
+  },
+  "✏️": {
+    "name": "ceruzka",
+    "keywords": []
+  },
+  "✒️": {
+    "name": "hrot pera",
+    "keywords": ["pero"]
+  },
+  "🖋️": {
+    "name": "plniace pero",
+    "keywords": []
+  },
+  "🖊️": {
+    "name": "pero",
+    "keywords": ["guľôčkové"]
+  },
+  "🖌️": {
+    "name": "štetec",
+    "keywords": ["maľovanie"]
+  },
+  "🖍️": {
+    "name": "pastelka",
+    "keywords": []
+  },
+  "📝": {
+    "name": "poznámka",
+    "keywords": ["ceruzka", "komunikácia", "médiá", "poznámky"]
+  },
+  "💼": {
+    "name": "aktovka",
+    "keywords": ["kancelária"]
+  },
+  "📁": {
+    "name": "priečinok",
+    "keywords": []
+  },
+  "📂": {
+    "name": "otvorený priečinok",
+    "keywords": []
+  },
+  "🗂️": {
+    "name": "deliace kartotéky",
+    "keywords": []
+  },
+  "📅": {
+    "name": "kalendár",
+    "keywords": ["dátum"]
+  },
+  "📆": {
+    "name": "odtrhávací kalendár",
+    "keywords": []
+  },
+  "🗒️": {
+    "name": "špirálový poznámkový blok",
+    "keywords": ["blok", "poznámka"]
+  },
+  "🗓️": {
+    "name": "špirálový kalendár",
+    "keywords": ["blok"]
+  },
+  "📇": {
+    "name": "kartotéka",
+    "keywords": ["rolodex", "škola", "staré"]
+  },
+  "📈": {
+    "name": "rastúci graf",
+    "keywords": ["dáta", "graf", "rast", "trend"]
+  },
+  "📉": {
+    "name": "klesajúci graf",
+    "keywords": ["dáta", "graf", "pokles", "trend"]
+  },
+  "📊": {
+    "name": "stĺpcový graf",
+    "keywords": ["dáta", "graf"]
+  },
+  "📋️": {
+    "name": "podložka na písanie",
+    "keywords": ["poznámky", "zoznam"]
+  },
+  "📌": {
+    "name": "pripináčik",
+    "keywords": ["kolaž"]
+  },
+  "📍": {
+    "name": "okrúhly pripináčik",
+    "keywords": ["mapa", "poloha"]
+  },
+  "📎": {
+    "name": "kancelárska sponka",
+    "keywords": []
+  },
+  "🖇️": {
+    "name": "spojené kancelárske sponky",
+    "keywords": ["odkaz", "sponka"]
+  },
+  "📏": {
+    "name": "pravítko",
+    "keywords": ["matematika", "uhol"]
+  },
+  "📐": {
+    "name": "trojuholníkové pravítko",
+    "keywords": ["matematika", "pravítko", "trojuholník", "uhol"]
+  },
+  "✂️": {
+    "name": "nožnice",
+    "keywords": ["nástroj", "papier", "strihanie"]
+  },
+  "🗃️": {
+    "name": "box na kartotéku",
+    "keywords": []
+  },
+  "🗄️": {
+    "name": "kartotéková skriňa",
+    "keywords": ["dokumenty", "papier"]
+  },
+  "🗑️": {
+    "name": "odpadkový kôš",
+    "keywords": ["kôš", "odpad", "smetie"]
+  },
+  "🔒️": {
+    "name": "zamknuté",
+    "keywords": ["súkromné", "zámok", "zatvorené"]
+  },
+  "🔓️": {
+    "name": "odomknuté",
+    "keywords": ["otvorené", "prasknutý", "zámok"]
+  },
+  "🔏": {
+    "name": "zamknuté s perom",
+    "keywords": ["atrament", "hrot", "súkromie", "zámok"]
+  },
+  "🔐": {
+    "name": "zamknuté s kľúčom",
+    "keywords": ["bicykel", "zabezpečenie", "zámok", "zatvorené"]
+  },
+  "🔑": {
+    "name": "kľúč",
+    "keywords": ["heslo", "kľúče", "major", "odomknúť", "zámok"]
+  },
+  "🗝️": {
+    "name": "starý kľúč",
+    "keywords": ["stopa", "zámok"]
+  },
+  "🔨": {
+    "name": "kladivo",
+    "keywords": ["dom", "nástroj", "oprava", "zveľaďovanie"]
+  },
+  "🪓": {
+    "name": "sekera",
+    "keywords": ["drevo", "štiepanie"]
+  },
+  "⛏️": {
+    "name": "krompáč",
+    "keywords": ["baníctvo", "kladivo", "nástroj"]
+  },
+  "⚒️": {
+    "name": "kladivo a krompáč",
+    "keywords": ["nástroj"]
+  },
+  "🛠️": {
+    "name": "kladivo a francúzsky kľúč",
+    "keywords": ["nástroj"]
+  },
+  "🗡️": {
+    "name": "dýka",
+    "keywords": ["nôž", "zbraň"]
+  },
+  "⚔️": {
+    "name": "skrížené meče",
+    "keywords": ["zbraň"]
+  },
+  "💣️": {
+    "name": "bomba",
+    "keywords": ["buchnúť", "explózia", "horúce", "komiks", "nebezpečné"]
+  },
+  "🪃": {
+    "name": "bumerang",
+    "keywords": ["zbraň"]
+  },
+  "🏹": {
+    "name": "luk a šíp",
+    "keywords": ["lukostrelba", "nástroj", "strelec", "zbraň", "zverokruh"]
+  },
+  "🛡️": {
+    "name": "štít",
+    "keywords": ["zbraň"]
+  },
+  "🪚": {
+    "name": "tesárska píla",
+    "keywords": ["drevo", "nástroj", "rezanie"]
+  },
+  "🔧": {
+    "name": "francúzsky kľúč",
+    "keywords": ["dom", "nástroj", "zveľaďovanie"]
+  },
+  "🪛": {
+    "name": "skrutkovač",
+    "keywords": ["nástroj", "skrutka"]
+  },
+  "🔩": {
+    "name": "matica a skrutka",
+    "keywords": ["dom", "nástroj", "zveľaďovanie"]
+  },
+  "⚙️": {
+    "name": "ozubené koleso",
+    "keywords": ["nástroj"]
+  },
+  "🗜️": {
+    "name": "svorka",
+    "keywords": ["nástroj", "stlačenie", "zverák"]
+  },
+  "⚖️": {
+    "name": "váhy",
+    "keywords": ["spravodlivosť", "váha", "zverokruh"]
+  },
+  "🦯": {
+    "name": "biela palica",
+    "keywords": ["nevidiaci", "prístupnosť"]
+  },
+  "🔗": {
+    "name": "odkaz",
+    "keywords": ["odkazy"]
+  },
+  "⛓️‍💥": {
+    "name": "zlomená reťaz",
+    "keywords": ["sloboda", "zlomenie"]
+  },
+  "⛓️": {
+    "name": "reťaze",
+    "keywords": ["reťaz"]
+  },
+  "🪝": {
+    "name": "hák",
+    "keywords": ["chytiť", "zahnutý"]
+  },
+  "🧰": {
+    "name": "box na náradie",
+    "keywords": ["box", "červený", "mechanik", "náradie"]
+  },
+  "🧲": {
+    "name": "magnet",
+    "keywords": ["magnetický", "podkova", "pól", "prilákanie"]
+  },
+  "🪜": {
+    "name": "rebrík",
+    "keywords": ["stúpanie", "schodík"]
+  },
+  "🪏": {
+    "name": "lopata",
+    "keywords": ["záhrada", "sneh", "výkop"]
+  },
+  "⚗️": {
+    "name": "destilačný prístroj",
+    "keywords": ["chémia", "nástroj"]
+  },
+  "🧪": {
+    "name": "skúmavka",
+    "keywords": ["chémia", "experiment", "laboratórium", "veda"]
+  },
+  "🧫": {
+    "name": "Petriho miska",
+    "keywords": ["baktéria", "biológ", "biológia", "kultúra", "laboratórium"]
+  },
+  "🧬": {
+    "name": "DNA",
+    "keywords": ["biológ", "evolúcia", "génetika", "gény", "život"]
+  },
+  "🔬": {
+    "name": "mikroskop",
+    "keywords": ["experiment", "laboratórium", "nástroj", "veda"]
+  },
+  "🔭": {
+    "name": "ďalekohľad",
+    "keywords": ["kontakt", "mimozemský", "nástroj", "veda"]
+  },
+  "📡": {
+    "name": "satelitná anténa",
+    "keywords": ["kontakt", "miska", "mimozemšťania", "veda"]
+  },
+  "💉": {
+    "name": "injekčná striekačka",
+    "keywords": ["doktor", "chrípka", "choroba", "liek", "očkovanie"]
+  },
+  "🩸": {
+    "name": "kvapka krvi",
+    "keywords": ["darovanie", "krvácanie", "liek", "menštruácia", "zranenie"]
+  },
+  "💊": {
+    "name": "tabletka",
+    "keywords": ["choroba", "doktor", "drogy", "liek", "vitamín"]
+  },
+  "🩹": {
+    "name": "náplasť",
+    "keywords": []
+  },
+  "🩼": {
+    "name": "barla",
+    "keywords": ["pomoc", "zranenie"]
+  },
+  "🩺": {
+    "name": "stetoskop",
+    "keywords": ["doktor", "liek", "srdce"]
+  },
+  "🩻": {
+    "name": "röntgen",
+    "keywords": ["doktor", "kostra", "kosti", "lebka"]
+  },
+  "🚪": {
+    "name": "dvere",
+    "keywords": ["predné", "skriňa", "zadné"]
+  },
+  "🛗": {
+    "name": "výťah",
+    "keywords": ["prístupnosť", "zdvíhací"]
+  },
+  "🪞": {
+    "name": "zrkadlo",
+    "keywords": ["make-up", "odraz"]
+  },
+  "🪟": {
+    "name": "okno",
+    "keywords": ["rám", "otváranie", "priehľadné", "vzduch"]
+  },
+  "🛏️": {
+    "name": "posteľ",
+    "keywords": ["hotel", "spánok"]
+  },
+  "🛋️": {
+    "name": "gauč a lampa",
+    "keywords": ["hotel"]
+  },
+  "🪑": {
+    "name": "stolička",
+    "keywords": ["sedadlo", "sedieť"]
+  },
+  "🚽": {
+    "name": "záchod",
+    "keywords": ["kúpeľňa"]
+  },
+  "🪠": {
+    "name": "zvon na odpad",
+    "keywords": ["odpad", "prísavka", "záchod"]
+  },
+  "🚿": {
+    "name": "sprcha",
+    "keywords": ["voda"]
+  },
+  "🛁": {
+    "name": "vaňa",
+    "keywords": ["kúpeľ"]
+  },
+  "🪤": {
+    "name": "pasca na myši",
+    "keywords": ["syr", "vnadidlo"]
+  },
+  "🪒": {
+    "name": "žiletka",
+    "keywords": ["holenie", "ostrý"]
+  },
+  "🧴": {
+    "name": "fľaša s krémom",
+    "keywords": ["opaľovací krém", "šampón"]
+  },
+  "🧷": {
+    "name": "zicherka",
+    "keywords": ["plienka", "punk", "rocker"]
+  },
+  "🧹": {
+    "name": "metla",
+    "keywords": ["čarodejnica", "čistenie", "zametanie"]
+  },
+  "🧺": {
+    "name": "košík",
+    "keywords": ["farma", "piknik", "prádlo"]
+  },
+  "🧻": {
+    "name": "rolka papiera",
+    "keywords": ["toaletný papier", "utierky"]
+  },
+  "🪣": {
+    "name": "vedro",
+    "keywords": ["kanister"]
+  },
+  "🧼": {
+    "name": "mydlo",
+    "keywords": ["čistenie", "kúpanie", "mydlovanie"]
+  },
+  "🫧": {
+    "name": "bublinky",
+    "keywords": ["bublina", "čisté", "mydlo", "perla", "plávajúce"]
+  },
+  "🪥": {
+    "name": "zubná kefka",
+    "keywords": ["hygiena", "kúpeľňa", "zuby"]
+  },
+  "🧽": {
+    "name": "špongia",
+    "keywords": ["čistenie", "nasávanie", "pórovitá"]
+  },
+  "🧯": {
+    "name": "hasiaci prístroj",
+    "keywords": ["uhasenie"]
+  },
+  "🛒": {
+    "name": "nákupný vozík",
+    "keywords": ["vozík"]
+  },
+  "🚬": {
+    "name": "cigareta",
+    "keywords": ["fajčenie"]
+  },
+  "⚰️": {
+    "name": "rakva",
+    "keywords": ["mŕtvy", "smrť", "upír"]
+  },
+  "🪦": {
+    "name": "náhrobný kameň",
+    "keywords": ["cintorín", "hrob", "pamätník"]
+  },
+  "⚱️": {
+    "name": "pohrebná urna",
+    "keywords": ["popol", "smrť"]
+  },
+  "🧿": {
+    "name": "amulet nazar",
+    "keywords": ["amulet", "talizman", "zlé oko"]
+  },
+  "🪬": {
+    "name": "chamsa",
+    "keywords": ["amulet", "dlaň", "ochrana", "ruka"]
+  },
+  "🗿": {
+    "name": "moai",
+    "keywords": ["cestovanie", "socha", "tvár"]
+  },
+  "🪧": {
+    "name": "transparent",
+    "keywords": ["demonštrácia", "nápis", "protest"]
+  },
+  "🪪": {
+    "name": "identifikačná karta",
+    "keywords": ["dokument", "licencia", "preukaz"]
+  },
+  "🏧": {
+    "name": "značka bankomatu",
+    "keywords": ["bankomat", "hotovosť", "peniaze"]
+  },
+  "🚮": {
+    "name": "značka odpadkového koša",
+    "keywords": ["kôš"]
+  },
+  "🚰": {
+    "name": "pitná voda",
+    "keywords": []
+  },
+  "♿️": {
+    "name": "symbol vozíka",
+    "keywords": ["invalidný", "prístupnosť"]
+  },
+  "🚹️": {
+    "name": "pánske WC",
+    "keywords": ["kúpeľňa", "muž", "toaleta", "wc"]
+  },
+  "🚺️": {
+    "name": "dámske WC",
+    "keywords": ["kúpeľňa", "toaleta", "wc", "žena"]
+  },
+  "🚻": {
+    "name": "toalety",
+    "keywords": ["kúpeľňa", "toaleta", "wc"]
+  },
+  "🚼️": {
+    "name": "symbol pre bábätko",
+    "keywords": ["prebaľovanie"]
+  },
+  "🚾": {
+    "name": "WC",
+    "keywords": ["kúpeľňa", "toaleta", "wc"]
+  },
+  "🛂": {
+    "name": "pasová kontrola",
+    "keywords": []
+  },
+  "🛃": {
+    "name": "colnica",
+    "keywords": ["balenie"]
+  },
+  "🛄": {
+    "name": "výdaj batožiny",
+    "keywords": ["batožina", "cestovanie", "kufor", "let", "zavazadlo"]
+  },
+  "🛅": {
+    "name": "úschovňa batožiny",
+    "keywords": ["batožina", "kufor", "skrinka"]
+  },
+  "⚠️": {
+    "name": "upozornenie",
+    "keywords": ["opatrnosť"]
+  },
+  "🚸": {
+    "name": "prechod pre deti",
+    "keywords": ["deti", "premávka", "prechod"]
+  },
+  "⛔️": {
+    "name": "zákaz vstupu",
+    "keywords": ["zakázané"]
+  },
+  "🚫": {
+    "name": "zakázané",
+    "keywords": ["fajčenie", "vstup", "zákaz"]
+  },
+  "🚳": {
+    "name": "zákaz bicyklov",
+    "keywords": ["bicykel", "zakázané"]
+  },
+  "🚭️": {
+    "name": "zákaz fajčenia",
+    "keywords": ["fajčenie", "zakázané"]
+  },
+  "🚯": {
+    "name": "zákaz odhadzovania odpadkov",
+    "keywords": ["odpadky", "zakázané"]
+  },
+  "🚱": {
+    "name": "nepitná voda",
+    "keywords": ["suchá", "zakázané"]
+  },
+  "🚷": {
+    "name": "zákaz chodcov",
+    "keywords": ["chodec", "zakázané"]
+  },
+  "📵": {
+    "name": "zákaz mobilných telefónov",
+    "keywords": ["telefón", "zakázané"]
+  },
+  "🔞": {
+    "name": "zákaz vstupu do 18 rokov",
+    "keywords": ["18", "obmedzenie", "vek", "zakázané"]
+  },
+  "☢️": {
+    "name": "rádioaktívne",
+    "keywords": ["značka"]
+  },
+  "☣️": {
+    "name": "biologické riziko",
+    "keywords": ["značka"]
+  },
+  "⬆️": {
+    "name": "šípka hore",
+    "keywords": ["sever", "smer"]
+  },
+  "↗️": {
+    "name": "šípka hore-vpravo",
+    "keywords": ["severovýchod", "smer"]
+  },
+  "➡️": {
+    "name": "šípka doprava",
+    "keywords": ["smer", "východ"]
+  },
+  "↘️": {
+    "name": "šípka dole-vpravo",
+    "keywords": ["juhovýchod", "smer"]
+  },
+  "⬇️": {
+    "name": "šípka dole",
+    "keywords": ["juh", "smer"]
+  },
+  "↙️": {
+    "name": "šípka dole-vľavo",
+    "keywords": ["juhozápad", "smer"]
+  },
+  "⬅️": {
+    "name": "šípka doľava",
+    "keywords": ["smer", "západ"]
+  },
+  "↖️": {
+    "name": "šípka hore-vľavo",
+    "keywords": ["severozápad", "smer"]
+  },
+  "↕️": {
+    "name": "šípka hore-dole",
+    "keywords": []
+  },
+  "↔️": {
+    "name": "šípka doľava-doprava",
+    "keywords": []
+  },
+  "↩️": {
+    "name": "šípka doprava zatáčajúca vľavo",
+    "keywords": []
+  },
+  "↪️": {
+    "name": "šípka doľava zatáčajúca vpravo",
+    "keywords": []
+  },
+  "⤴️": {
+    "name": "šípka doprava zatáčajúca hore",
+    "keywords": []
+  },
+  "⤵️": {
+    "name": "šípka doprava zatáčajúca dole",
+    "keywords": []
+  },
+  "🔃": {
+    "name": "zvislé šípky v smere hodinových ručičiek",
+    "keywords": ["obnovenie", "opätovné načítanie", "šípka"]
+  },
+  "🔄": {
+    "name": "tlačidlo šípok proti smeru hodinových ručičiek",
+    "keywords": [
+      "obnovenie",
+      "opäť",
+      "opätovné načítanie",
+      "proti smeru hodinových ručičiek",
+      "šípka"
+    ]
+  },
+  "🔙": {
+    "name": "šípka SPÄŤ",
+    "keywords": []
+  },
+  "🔚": {
+    "name": "šípka KONIEC",
+    "keywords": []
+  },
+  "🔛": {
+    "name": "šípka ON!",
+    "keywords": ["značka"]
+  },
+  "🔜": {
+    "name": "šípka ČOSKORO",
+    "keywords": []
+  },
+  "🔝": {
+    "name": "šípka HORE",
+    "keywords": ["hore"]
+  },
+  "🛐": {
+    "name": "miesto uctievania",
+    "keywords": ["modlitba", "náboženstvo"]
+  },
+  "⚛️": {
+    "name": "symbol atómu",
+    "keywords": ["ateista"]
+  },
+  "🕉️": {
+    "name": "óm",
+    "keywords": ["hinduizmus", "náboženstvo"]
+  },
+  "✡️": {
+    "name": "Dávidova hviezda",
+    "keywords": ["judaizmus", "žid", "židovský"]
+  },
+  "☸️": {
+    "name": "koleso dharmy",
+    "keywords": ["budhizmus", "náboženstvo"]
+  },
+  "☯️": {
+    "name": "jin a jang",
+    "keywords": ["náboženstvo", "taoizmus"]
+  },
+  "✝️": {
+    "name": "latinský kríž",
+    "keywords": ["kresťanstvo", "náboženstvo"]
+  },
+  "☦️": {
+    "name": "pravoslávny kríž",
+    "keywords": ["kresťanstvo", "náboženstvo"]
+  },
+  "☪️": {
+    "name": "hviezda a polmesiac",
+    "keywords": ["islam", "moslim", "náboženstvo", "ramadán"]
+  },
+  "☮️": {
+    "name": "symbol mieru",
+    "keywords": ["uzdravenie"]
+  },
+  "🕎": {
+    "name": "menora",
+    "keywords": ["chanuka", "judaizmus", "náboženstvo", "svietnik"]
+  },
+  "🔯": {
+    "name": "bodkovaná šesťcípa hviezda",
+    "keywords": ["judaizmus", "osud", "židovský"]
+  },
+  "🪯": {
+    "name": "khanda",
+    "keywords": ["náboženstvo", "sikhizmus"]
+  },
+  "♈️": {
+    "name": "Baran",
+    "keywords": ["baran", "horoskop", "zverokruh"]
+  },
+  "♉️": {
+    "name": "Býk",
+    "keywords": ["býk", "horoskop", "vôl", "zverokruh"]
+  },
+  "♊️": {
+    "name": "Blíženci",
+    "keywords": ["blíženci", "horoskop", "zverokruh"]
+  },
+  "♋️": {
+    "name": "Rak",
+    "keywords": ["horoskop", "rak", "zverokruh"]
+  },
+  "♌️": {
+    "name": "Lev",
+    "keywords": ["horoskop", "lev", "zverokruh"]
+  },
+  "♍️": {
+    "name": "Panna",
+    "keywords": ["horoskop", "zverokruh"]
+  },
+  "♎️": {
+    "name": "Váhy",
+    "keywords": ["horoskop", "rovnováha", "spravodlivosť", "váhy", "zverokruh"]
+  },
+  "♏️": {
+    "name": "Škorpión",
+    "keywords": ["horoskop", "škorpión", "zverokruh"]
+  },
+  "♐️": {
+    "name": "Strelec",
+    "keywords": ["horoskop", "lukostrelec", "zverokruh"]
+  },
+  "♑️": {
+    "name": "Kozorožec",
+    "keywords": ["horoskop", "koza", "zverokruh"]
+  },
+  "♒️": {
+    "name": "Vodnár",
+    "keywords": ["horoskop", "voda", "zverokruh"]
+  },
+  "♓️": {
+    "name": "Ryby",
+    "keywords": ["horoskop", "ryba", "zverokruh"]
+  },
+  "⛎️": {
+    "name": "Hadonos",
+    "keywords": ["had", "zverokruh"]
+  },
+  "🔀": {
+    "name": "tlačidlo náhodného poradia",
+    "keywords": ["šípka", "skrížené"]
+  },
+  "🔁": {
+    "name": "tlačidlo opakovania",
+    "keywords": ["šípka", "v smere hodinových ručičiek"]
+  },
+  "🔂": {
+    "name": "tlačidlo opakovania jednej skladby",
+    "keywords": ["raz", "šípka", "v smere hodinových ručičiek"]
+  },
+  "▶️": {
+    "name": "tlačidlo prehrávania",
+    "keywords": ["šípka", "trojuholník"]
+  },
+  "⏩️": {
+    "name": "tlačidlo pretáčania dopredu",
+    "keywords": ["šípka"]
+  },
+  "⏭️": {
+    "name": "tlačidlo ďalšej skladby",
+    "keywords": ["šípka", "trojuholník"]
+  },
+  "⏯️": {
+    "name": "tlačidlo prehrať alebo pozastaviť",
+    "keywords": ["šípka", "trojuholník"]
+  },
+  "◀️": {
+    "name": "tlačidlo návratu",
+    "keywords": ["šípka", "trojuholník"]
+  },
+  "⏪️": {
+    "name": "tlačidlo pretáčania dozadu",
+    "keywords": ["šípka"]
+  },
+  "⏮️": {
+    "name": "tlačidlo predchádzajúcej skladby",
+    "keywords": ["šípka", "trojuholník"]
+  },
+  "🔼": {
+    "name": "tlačidlo hore",
+    "keywords": ["červená", "šípka"]
+  },
+  "⏫️": {
+    "name": "tlačidlo rýchlo hore",
+    "keywords": ["šípka"]
+  },
+  "🔽": {
+    "name": "tlačidlo dole",
+    "keywords": ["červená", "šípka"]
+  },
+  "⏬️": {
+    "name": "tlačidlo rýchlo dole",
+    "keywords": ["šípka"]
+  },
+  "⏸️": {
+    "name": "tlačidlo pozastavenia",
+    "keywords": ["dvojité", "zvislé čiary"]
+  },
+  "⏹️": {
+    "name": "tlačidlo zastavenia",
+    "keywords": ["štvorec"]
+  },
+  "⏺️": {
+    "name": "tlačidlo nahrávania",
+    "keywords": ["kruh"]
+  },
+  "⏏️": {
+    "name": "tlačidlo vysunutia",
+    "keywords": []
+  },
+  "🎦": {
+    "name": "kino",
+    "keywords": ["film", "kamera"]
+  },
+  "🔅": {
+    "name": "tlačidlo stlmenia jasu",
+    "keywords": ["jas", "nízky"]
+  },
+  "🔆": {
+    "name": "tlačidlo jasu",
+    "keywords": ["jas", "svetlo"]
+  },
+  "📶": {
+    "name": "signálové čiarky",
+    "keywords": ["komunikácia", "mobil", "signál", "telefón"]
+  },
+  "🛜": {
+    "name": "bezdrôtové pripojenie",
+    "keywords": [
+      "hotspot",
+      "internet",
+      "počítač",
+      "pripojenie",
+      "router",
+      "sieť",
+      "smartfón",
+      "širokopásmové pripojenie",
+      "wifi",
+      "wlan"
+    ]
+  },
+  "📳": {
+    "name": "režim vibrovania",
+    "keywords": ["komunikácia", "mobil", "telefón"]
+  },
+  "📴": {
+    "name": "vypnutý mobilný telefón",
+    "keywords": ["telefón"]
+  },
+  "♀️": {
+    "name": "ženský znak",
+    "keywords": ["žena"]
+  },
+  "♂️": {
+    "name": "mužský znak",
+    "keywords": ["muž"]
+  },
+  "⚧️": {
+    "name": "symbol transrodovosti",
+    "keywords": []
+  },
+  "✖️": {
+    "name": "násobenie",
+    "keywords": ["×", "krát", "zrušiť"]
+  },
+  "➕️": {
+    "name": "plus",
+    "keywords": ["+"]
+  },
+  "➖️": {
+    "name": "mínus",
+    "keywords": ["-", "matematika", "znamienko"]
+  },
+  "➗️": {
+    "name": "delenie",
+    "keywords": ["÷", "matematika", "znamienko"]
+  },
+  "🟰": {
+    "name": "znak rovná sa",
+    "keywords": ["matematika", "odpoveď", "rovnosť"]
+  },
+  "♾️": {
+    "name": "nekonečno",
+    "keywords": ["navždy", "univerzálny"]
+  },
+  "‼️": {
+    "name": "dvojitý výkričník",
+    "keywords": ["!", "!!", "interpunkcia"]
+  },
+  "⁉️": {
+    "name": "výkričník s otáznikom",
+    "keywords": ["!", "!?", "?", "interpunkcia"]
+  },
+  "❓️": {
+    "name": "červený otáznik",
+    "keywords": ["?", "interpunkcia"]
+  },
+  "❔️": {
+    "name": "biely otáznik",
+    "keywords": ["?", "interpunkcia", "obrys"]
+  },
+  "❕️": {
+    "name": "biely výkričník",
+    "keywords": ["!", "interpunkcia", "obrys"]
+  },
+  "❗️": {
+    "name": "červený výkričník",
+    "keywords": ["!", "interpunkcia"]
+  },
+  "〰️": {
+    "name": "vlnitá pomlčka",
+    "keywords": ["interpunkcia"]
+  },
+  "💱": {
+    "name": "zmenáreň",
+    "keywords": ["banka", "peniaze"]
+  },
+  "💲": {
+    "name": "znak dolára",
+    "keywords": ["dolár", "hotovosť", "mena", "peniaze", "platba"]
+  },
+  "⚕️": {
+    "name": "lekársky symbol",
+    "keywords": ["ezkulap", "liek", "palica"]
+  },
+  "♻️": {
+    "name": "symbol recyklácie",
+    "keywords": ["recyklácia"]
+  },
+  "⚜️": {
+    "name": "ľalia (heraldická)",
+    "keywords": ["rytieri"]
+  },
+  "🔱": {
+    "name": "trojzubcový symbol",
+    "keywords": ["kotva", "loď", "nástroj", "poseidon"]
+  },
+  "📛": {
+    "name": "menovka",
+    "keywords": []
+  },
+  "🔰": {
+    "name": "japonský symbol pre začiatočníka",
+    "keywords": ["list", "nástroj", "zelený", "žltý"]
+  },
+  "⭕️": {
+    "name": "prázdny červený kruh",
+    "keywords": ["veľký", "o"]
+  },
+  "✅️": {
+    "name": "tlačidlo so začiarknutím",
+    "keywords": ["dokončené", "hotové", "opravené", "✓"]
+  },
+  "☑️": {
+    "name": "zaškrtávacie políčko so značkou",
+    "keywords": ["odškrtnuté", "✓"]
+  },
+  "✔️": {
+    "name": "začiarknutie",
+    "keywords": ["hotové", "značka", "✓"]
+  },
+  "❌️": {
+    "name": "krížik",
+    "keywords": ["×", "zrušiť"]
+  },
+  "❎️": {
+    "name": "tlačidlo s krížikom",
+    "keywords": ["×", "štvorec", "zrušiť"]
+  },
+  "➰️": {
+    "name": "kučeravá slučka",
+    "keywords": ["kučera"]
+  },
+  "➿️": {
+    "name": "dvojitá kučeravá slučka",
+    "keywords": ["kučera"]
+  },
+  "〽️": {
+    "name": "značka striedania častí",
+    "keywords": []
+  },
+  "✳️": {
+    "name": "osemramenná hviezdička",
+    "keywords": ["*"]
+  },
+  "✴️": {
+    "name": "osemcípa hviezda",
+    "keywords": ["*"]
+  },
+  "❇️": {
+    "name": "trblietka",
+    "keywords": ["*"]
+  },
+  "©️": {
+    "name": "autorské práva",
+    "keywords": ["c"]
+  },
+  "®️": {
+    "name": "registrovaná ochranná známka",
+    "keywords": ["r"]
+  },
+  "™️": {
+    "name": "ochranná známka",
+    "keywords": ["tm"]
+  },
+  "🫟": {
+    "name": "škvrna",
+    "keywords": ["atrament", "farba", "rozliatie", "tekutina"]
+  },
+  "#️⃣": {
+    "name": "klávesa: #",
+    "keywords": ["klávesa"]
+  },
+  "*️⃣": {
+    "name": "klávesa: *",
+    "keywords": ["klávesa"]
+  },
+  "0️⃣": {
+    "name": "klávesa: 0",
+    "keywords": ["klávesa"]
+  },
+  "1️⃣": {
+    "name": "klávesa: 1",
+    "keywords": ["klávesa"]
+  },
+  "2️⃣": {
+    "name": "klávesa: 2",
+    "keywords": ["klávesa"]
+  },
+  "3️⃣": {
+    "name": "klávesa: 3",
+    "keywords": ["klávesa"]
+  },
+  "4️⃣": {
+    "name": "klávesa: 4",
+    "keywords": ["klávesa"]
+  },
+  "5️⃣": {
+    "name": "klávesa: 5",
+    "keywords": ["klávesa"]
+  },
+  "6️⃣": {
+    "name": "klávesa: 6",
+    "keywords": ["klávesa"]
+  },
+  "7️⃣": {
+    "name": "klávesa: 7",
+    "keywords": ["klávesa"]
+  },
+  "8️⃣": {
+    "name": "klávesa: 8",
+    "keywords": ["klávesa"]
+  },
+  "9️⃣": {
+    "name": "klávesa: 9",
+    "keywords": ["klávesa"]
+  },
+  "🔟": {
+    "name": "klávesa: 10",
+    "keywords": ["klávesa"]
+  },
+  "🔠": {
+    "name": "vstup: veľké latinské písmená",
+    "keywords": ["abcd", "písmená"]
+  },
+  "🔡": {
+    "name": "vstup: malé latinské písmená",
+    "keywords": ["abcd", "písmená"]
+  },
+  "🔢": {
+    "name": "vstup: čísla",
+    "keywords": ["1234"]
+  },
+  "🔣": {
+    "name": "vstup: symboly",
+    "keywords": ["%", "&", "♪", "〒"]
+  },
+  "🔤": {
+    "name": "vstup: latinské písmená",
+    "keywords": ["abc", "abeceda"]
+  },
+  "🅰️": {
+    "name": "tlačidlo A (krvná skupina)",
+    "keywords": ["krv", "skupina"]
+  },
+  "🆎": {
+    "name": "tlačidlo AB (krvná skupina)",
+    "keywords": ["krv", "skupina"]
+  },
+  "🅱️": {
+    "name": "tlačidlo B (krvná skupina)",
+    "keywords": ["krv", "skupina"]
+  },
+  "🆑": {
+    "name": "tlačidlo CL",
+    "keywords": []
+  },
+  "🆒": {
+    "name": "tlačidlo COOL",
+    "keywords": []
+  },
+  "🆓": {
+    "name": "tlačidlo FREE",
+    "keywords": []
+  },
+  "ℹ️": {
+    "name": "informácia",
+    "keywords": ["i"]
+  },
+  "🆔": {
+    "name": "tlačidlo ID",
+    "keywords": ["identita"]
+  },
+  "Ⓜ️": {
+    "name": "M v kruhu",
+    "keywords": ["kruh"]
+  },
+  "🆕": {
+    "name": "tlačidlo NEW",
+    "keywords": []
+  },
+  "🆖": {
+    "name": "tlačidlo NG",
+    "keywords": []
+  },
+  "🅾️": {
+    "name": "tlačidlo O (krvná skupina)",
+    "keywords": ["krv", "skupina"]
+  },
+  "🆗": {
+    "name": "tlačidlo OK",
+    "keywords": ["okej"]
+  },
+  "🅿️": {
+    "name": "tlačidlo P",
+    "keywords": ["parkovanie"]
+  },
+  "🆘": {
+    "name": "tlačidlo SOS",
+    "keywords": ["pomoc"]
+  },
+  "🆙": {
+    "name": "tlačidlo UP!",
+    "keywords": ["označiť", "hore"]
+  },
+  "🆚": {
+    "name": "tlačidlo VS",
+    "keywords": ["proti"]
+  },
+  "🈁": {
+    "name": "japonské tlačidlo „tu\"",
+    "keywords": ["katakana", "tu"]
+  },
+  "🈂️": {
+    "name": "japonské tlačidlo „poplatok za službu\"",
+    "keywords": ["katakana", "poplatok", "služba"]
+  },
+  "🈷️": {
+    "name": "japonské tlačidlo „mesačná suma\"",
+    "keywords": ["ideogram", "mesačná", "suma"]
+  },
+  "🈶": {
+    "name": "japonské tlačidlo „spoplatnené\"",
+    "keywords": ["ideogram", "nie zadarmo", "poplatok"]
+  },
+  "🈯️": {
+    "name": "japonské tlačidlo „rezervované\"",
+    "keywords": ["ideogram", "rezervované"]
+  },
+  "🉐": {
+    "name": "japonské tlačidlo „výhodná kúpa\"",
+    "keywords": ["ideogram", "výhodná kúpa"]
+  },
+  "🈹": {
+    "name": "japonské tlačidlo „zľava\"",
+    "keywords": ["ideogram", "zľava"]
+  },
+  "🈚️": {
+    "name": "japonské tlačidlo „zadarmo\"",
+    "keywords": ["ideogram", "poplatok", "zadarmo"]
+  },
+  "🈲": {
+    "name": "japonské tlačidlo „zakázané\"",
+    "keywords": ["ideogram", "zakázané"]
+  },
+  "🉑": {
+    "name": "japonské tlačidlo „prijateľné\"",
+    "keywords": ["ideogram", "prijateľné"]
+  },
+  "🈸": {
+    "name": "japonské tlačidlo „žiadosť\"",
+    "keywords": ["ideogram", "žiadosť"]
+  },
+  "🈴": {
+    "name": "japonské tlačidlo „vyhovujúci\"",
+    "keywords": ["ideogram", "známka", "vyhovujúci"]
+  },
+  "🈳": {
+    "name": "japonské tlačidlo „voľné miesta\"",
+    "keywords": ["ideogram", "voľné miesta"]
+  },
+  "㊗️": {
+    "name": "japonské tlačidlo „gratulujeme\"",
+    "keywords": ["blahoželanie", "ideogram"]
+  },
+  "㊙️": {
+    "name": "japonské tlačidlo „tajomstvo\"",
+    "keywords": ["ideogram", "tajomstvo"]
+  },
+  "🈺": {
+    "name": "japonské tlačidlo „otvorené\"",
+    "keywords": ["ideogram", "obchod", "otvorené"]
+  },
+  "🈵": {
+    "name": "japonské tlačidlo „obsadené\"",
+    "keywords": ["ideogram", "obsadené", "žiadne voľné miesta"]
+  },
+  "🔴": {
+    "name": "červený kruh",
+    "keywords": ["geometrický"]
+  },
+  "🟠": {
+    "name": "oranžový kruh",
+    "keywords": []
+  },
+  "🟡": {
+    "name": "žltý kruh",
+    "keywords": []
+  },
+  "🟢": {
+    "name": "zelený kruh",
+    "keywords": []
+  },
+  "🔵": {
+    "name": "modrý kruh",
+    "keywords": ["geometrický"]
+  },
+  "🟣": {
+    "name": "fialový kruh",
+    "keywords": []
+  },
+  "🟤": {
+    "name": "hnedý kruh",
+    "keywords": []
+  },
+  "⚫️": {
+    "name": "čierny kruh",
+    "keywords": ["geometrický"]
+  },
+  "⚪️": {
+    "name": "biely kruh",
+    "keywords": ["geometrický"]
+  },
+  "🟥": {
+    "name": "červený štvorec",
+    "keywords": ["karta", "trest"]
+  },
+  "🟧": {
+    "name": "oranžový štvorec",
+    "keywords": []
+  },
+  "🟨": {
+    "name": "žltý štvorec",
+    "keywords": ["karta", "trest"]
+  },
+  "🟩": {
+    "name": "zelený štvorec",
+    "keywords": []
+  },
+  "🟦": {
+    "name": "modrý štvorec",
+    "keywords": []
+  },
+  "🟪": {
+    "name": "fialový štvorec",
+    "keywords": []
+  },
+  "🟫": {
+    "name": "hnedý štvorec",
+    "keywords": []
+  },
+  "⬛️": {
+    "name": "veľký čierny štvorec",
+    "keywords": ["geometrický"]
+  },
+  "⬜️": {
+    "name": "veľký biely štvorec",
+    "keywords": ["geometrický"]
+  },
+  "◼️": {
+    "name": "stredný čierny štvorec",
+    "keywords": ["geometrický"]
+  },
+  "◻️": {
+    "name": "stredný biely štvorec",
+    "keywords": ["geometrický"]
+  },
+  "◾️": {
+    "name": "stredne malý čierny štvorec",
+    "keywords": ["geometrický"]
+  },
+  "◽️": {
+    "name": "stredne malý biely štvorec",
+    "keywords": ["geometrický"]
+  },
+  "▪️": {
+    "name": "malý čierny štvorec",
+    "keywords": ["geometrický"]
+  },
+  "▫️": {
+    "name": "malý biely štvorec",
+    "keywords": ["geometrický"]
+  },
+  "🔶": {
+    "name": "veľký oranžový diamant",
+    "keywords": ["geometrický"]
+  },
+  "🔷": {
+    "name": "veľký modrý diamant",
+    "keywords": ["geometrický"]
+  },
+  "🔸": {
+    "name": "malý oranžový diamant",
+    "keywords": ["geometrický"]
+  },
+  "🔹": {
+    "name": "malý modrý diamant",
+    "keywords": ["geometrický"]
+  },
+  "🔺": {
+    "name": "červený trojuholník smerujúci hore",
+    "keywords": ["geometrický"]
+  },
+  "🔻": {
+    "name": "červený trojuholník smerujúci dole",
+    "keywords": ["geometrický"]
+  },
+  "💠": {
+    "name": "diamant s bodkou",
+    "keywords": ["geometrický", "komiks"]
+  },
+  "🔘": {
+    "name": "rádiové tlačidlo",
+    "keywords": ["geometrický"]
+  },
+  "🔳": {
+    "name": "biele štvorcové tlačidlo",
+    "keywords": ["geometrický", "obrys"]
+  },
+  "🔲": {
+    "name": "čierne štvorcové tlačidlo",
+    "keywords": ["geometrický"]
+  },
+  "🏁": {
+    "name": "šachovnicová vlajka",
+    "keywords": ["preteky", "šport", "víťazstvo", "vlajky"]
+  },
+  "🚩": {
+    "name": "trojuholníková vlajočka",
+    "keywords": ["golf", "stavba", "stĺpik"]
+  },
+  "🎌": {
+    "name": "skrížené vlajky",
+    "keywords": ["japonské", "oslava"]
+  },
+  "🏴": {
+    "name": "čierna vlajka",
+    "keywords": ["vejúca"]
+  },
+  "🏳️": {
+    "name": "biela vlajka",
+    "keywords": ["vejúca"]
+  },
+  "🏳️‍🌈": {
+    "name": "dúhová vlajka",
+    "keywords": [
+      "bisexuál",
+      "gay",
+      "glbt",
+      "glbtq",
+      "lesba",
+      "lgbt",
+      "lgbtq",
+      "lgbtqia",
+      "queer",
+      "hrdosť",
+      "trans",
+      "transrodový"
+    ]
+  },
+  "🏳️‍⚧️": {
+    "name": "transrodová vlajka",
+    "keywords": ["biela", "modrá", "ružová"]
+  },
+  "🏴‍☠️": {
+    "name": "pirátska vlajka",
+    "keywords": ["poklad", "lebka"]
+  },
+  "🇦🇨": {
+    "name": "vlajka: Ostrov Nanebovstúpenia",
+    "keywords": ["AC", "vlajka"]
+  },
+  "🇦🇩": {
+    "name": "vlajka: Andorra",
+    "keywords": ["AD", "vlajka"]
+  },
+  "🇦🇪": {
+    "name": "vlajka: Spojené arabské emiráty",
+    "keywords": ["AE", "vlajka"]
+  },
+  "🇦🇫": {
+    "name": "vlajka: Afganistan",
+    "keywords": ["AF", "vlajka"]
+  },
+  "🇦🇬": {
+    "name": "vlajka: Antigua a Barbuda",
+    "keywords": ["AG", "vlajka"]
+  },
+  "🇦🇮": {
+    "name": "vlajka: Anguilla",
+    "keywords": ["AI", "vlajka"]
+  },
+  "🇦🇱": {
+    "name": "vlajka: Albánsko",
+    "keywords": ["AL", "vlajka"]
+  },
+  "🇦🇲": {
+    "name": "vlajka: Arménsko",
+    "keywords": ["AM", "vlajka"]
+  },
+  "🇦🇴": {
+    "name": "vlajka: Angola",
+    "keywords": ["AO", "vlajka"]
+  },
+  "🇦🇶": {
+    "name": "vlajka: Antarktída",
+    "keywords": ["AQ", "vlajka"]
+  },
+  "🇦🇷": {
+    "name": "vlajka: Argentína",
+    "keywords": ["AR", "vlajka"]
+  },
+  "🇦🇸": {
+    "name": "vlajka: Americká Samoa",
+    "keywords": ["AS", "vlajka"]
+  },
+  "🇦🇹": {
+    "name": "vlajka: Rakúsko",
+    "keywords": ["AT", "vlajka"]
+  },
+  "🇦🇺": {
+    "name": "vlajka: Austrália",
+    "keywords": ["AU", "vlajka"]
+  },
+  "🇦🇼": {
+    "name": "vlajka: Aruba",
+    "keywords": ["AW", "vlajka"]
+  },
+  "🇦🇽": {
+    "name": "vlajka: Alandy",
+    "keywords": ["AX", "vlajka"]
+  },
+  "🇦🇿": {
+    "name": "vlajka: Azerbajdžan",
+    "keywords": ["AZ", "vlajka"]
+  },
+  "🇧🇦": {
+    "name": "vlajka: Bosna a Hercegovina",
+    "keywords": ["BA", "vlajka"]
+  },
+  "🇧🇧": {
+    "name": "vlajka: Barbados",
+    "keywords": ["BB", "vlajka"]
+  },
+  "🇧🇩": {
+    "name": "vlajka: Bangladéš",
+    "keywords": ["BD", "vlajka"]
+  },
+  "🇧🇪": {
+    "name": "vlajka: Belgicko",
+    "keywords": ["BE", "vlajka"]
+  },
+  "🇧🇫": {
+    "name": "vlajka: Burkina Faso",
+    "keywords": ["BF", "vlajka"]
+  },
+  "🇧🇬": {
+    "name": "vlajka: Bulharsko",
+    "keywords": ["BG", "vlajka"]
+  },
+  "🇧🇭": {
+    "name": "vlajka: Bahrajn",
+    "keywords": ["BH", "vlajka"]
+  },
+  "🇧🇮": {
+    "name": "vlajka: Burundi",
+    "keywords": ["BI", "vlajka"]
+  },
+  "🇧🇯": {
+    "name": "vlajka: Benin",
+    "keywords": ["BJ", "vlajka"]
+  },
+  "🇧🇱": {
+    "name": "vlajka: Svätý Bartolomej",
+    "keywords": ["BL", "vlajka"]
+  },
+  "🇧🇲": {
+    "name": "vlajka: Bermudy",
+    "keywords": ["BM", "vlajka"]
+  },
+  "🇧🇳": {
+    "name": "vlajka: Brunej",
+    "keywords": ["BN", "vlajka"]
+  },
+  "🇧🇴": {
+    "name": "vlajka: Bolívia",
+    "keywords": ["BO", "vlajka"]
+  },
+  "🇧🇶": {
+    "name": "vlajka: Karibské Holandsko",
+    "keywords": ["BQ", "vlajka"]
+  },
+  "🇧🇷": {
+    "name": "vlajka: Brazília",
+    "keywords": ["BR", "vlajka"]
+  },
+  "🇧🇸": {
+    "name": "vlajka: Bahamy",
+    "keywords": ["BS", "vlajka"]
+  },
+  "🇧🇹": {
+    "name": "vlajka: Bhután",
+    "keywords": ["BT", "vlajka"]
+  },
+  "🇧🇻": {
+    "name": "vlajka: Bouvetov ostrov",
+    "keywords": ["BV", "vlajka"]
+  },
+  "🇧🇼": {
+    "name": "vlajka: Botswana",
+    "keywords": ["BW", "vlajka"]
+  },
+  "🇧🇾": {
+    "name": "vlajka: Bielorusko",
+    "keywords": ["BY", "vlajka"]
+  },
+  "🇧🇿": {
+    "name": "vlajka: Belize",
+    "keywords": ["BZ", "vlajka"]
+  },
+  "🇨🇦": {
+    "name": "vlajka: Kanada",
+    "keywords": ["CA", "vlajka"]
+  },
+  "🇨🇨": {
+    "name": "vlajka: Kokosové ostrovy",
+    "keywords": ["CC", "vlajka"]
+  },
+  "🇨🇩": {
+    "name": "vlajka: Kongo - Kinshasa",
+    "keywords": ["CD", "vlajka"]
+  },
+  "🇨🇫": {
+    "name": "vlajka: Stredoafrická republika",
+    "keywords": ["CF", "vlajka"]
+  },
+  "🇨🇬": {
+    "name": "vlajka: Kongo - Brazzaville",
+    "keywords": ["CG", "vlajka"]
+  },
+  "🇨🇭": {
+    "name": "vlajka: Švajčiarsko",
+    "keywords": ["CH", "vlajka"]
+  },
+  "🇨🇮": {
+    "name": "vlajka: Pobrežie Slonoviny",
+    "keywords": ["CI", "vlajka"]
+  },
+  "🇨🇰": {
+    "name": "vlajka: Cookove ostrovy",
+    "keywords": ["CK", "vlajka"]
+  },
+  "🇨🇱": {
+    "name": "vlajka: Čile",
+    "keywords": ["CL", "vlajka"]
+  },
+  "🇨🇲": {
+    "name": "vlajka: Kamerun",
+    "keywords": ["CM", "vlajka"]
+  },
+  "🇨🇳": {
+    "name": "vlajka: Čína",
+    "keywords": ["CN", "vlajka"]
+  },
+  "🇨🇴": {
+    "name": "vlajka: Kolumbia",
+    "keywords": ["CO", "vlajka"]
+  },
+  "🇨🇵": {
+    "name": "vlajka: Clippertonov ostrov",
+    "keywords": ["CP", "vlajka"]
+  },
+  "🇨🇶": {
+    "name": "vlajka: Sark",
+    "keywords": ["CQ", "vlajka"]
+  },
+  "🇨🇷": {
+    "name": "vlajka: Kostarika",
+    "keywords": ["CR", "vlajka"]
+  },
+  "🇨🇺": {
+    "name": "vlajka: Kuba",
+    "keywords": ["CU", "vlajka"]
+  },
+  "🇨🇻": {
+    "name": "vlajka: Kapverdy",
+    "keywords": ["CV", "vlajka"]
+  },
+  "🇨🇼": {
+    "name": "vlajka: Curaçao",
+    "keywords": ["CW", "vlajka"]
+  },
+  "🇨🇽": {
+    "name": "vlajka: Vianočný ostrov",
+    "keywords": ["CX", "vlajka"]
+  },
+  "🇨🇾": {
+    "name": "vlajka: Cyprus",
+    "keywords": ["CY", "vlajka"]
+  },
+  "🇨🇿": {
+    "name": "vlajka: Česko",
+    "keywords": ["CZ", "vlajka"]
+  },
+  "🇩🇪": {
+    "name": "vlajka: Nemecko",
+    "keywords": ["DE", "vlajka"]
+  },
+  "🇩🇬": {
+    "name": "vlajka: Diego García",
+    "keywords": ["DG", "vlajka"]
+  },
+  "🇩🇯": {
+    "name": "vlajka: Džibutsko",
+    "keywords": ["DJ", "vlajka"]
+  },
+  "🇩🇰": {
+    "name": "vlajka: Dánsko",
+    "keywords": ["DK", "vlajka"]
+  },
+  "🇩🇲": {
+    "name": "vlajka: Dominika",
+    "keywords": ["DM", "vlajka"]
+  },
+  "🇩🇴": {
+    "name": "vlajka: Dominikánska republika",
+    "keywords": ["DO", "vlajka"]
+  },
+  "🇩🇿": {
+    "name": "vlajka: Alžírsko",
+    "keywords": ["DZ", "vlajka"]
+  },
+  "🇪🇦": {
+    "name": "vlajka: Ceuta a Melilla",
+    "keywords": ["EA", "vlajka"]
+  },
+  "🇪🇨": {
+    "name": "vlajka: Ekvádor",
+    "keywords": ["EC", "vlajka"]
+  },
+  "🇪🇪": {
+    "name": "vlajka: Estónsko",
+    "keywords": ["EE", "vlajka"]
+  },
+  "🇪🇬": {
+    "name": "vlajka: Egypt",
+    "keywords": ["EG", "vlajka"]
+  },
+  "🇪🇭": {
+    "name": "vlajka: Západná Sahara",
+    "keywords": ["EH", "vlajka"]
+  },
+  "🇪🇷": {
+    "name": "vlajka: Eritrea",
+    "keywords": ["ER", "vlajka"]
+  },
+  "🇪🇸": {
+    "name": "vlajka: Španielsko",
+    "keywords": ["ES", "vlajka"]
+  },
+  "🇪🇹": {
+    "name": "vlajka: Etiópia",
+    "keywords": ["ET", "vlajka"]
+  },
+  "🇪🇺": {
+    "name": "vlajka: Európska únia",
+    "keywords": ["EU", "vlajka"]
+  },
+  "🇫🇮": {
+    "name": "vlajka: Fínsko",
+    "keywords": ["FI", "vlajka"]
+  },
+  "🇫🇯": {
+    "name": "vlajka: Fidži",
+    "keywords": ["FJ", "vlajka"]
+  },
+  "🇫🇰": {
+    "name": "vlajka: Falklandy",
+    "keywords": ["FK", "vlajka"]
+  },
+  "🇫🇲": {
+    "name": "vlajka: Mikronézia",
+    "keywords": ["FM", "vlajka"]
+  },
+  "🇫🇴": {
+    "name": "vlajka: Faerské ostrovy",
+    "keywords": ["FO", "vlajka"]
+  },
+  "🇫🇷": {
+    "name": "vlajka: Francúzsko",
+    "keywords": ["FR", "vlajka"]
+  },
+  "🇬🇦": {
+    "name": "vlajka: Gabon",
+    "keywords": ["GA", "vlajka"]
+  },
+  "🇬🇧": {
+    "name": "vlajka: Spojené kráľovstvo",
+    "keywords": ["GB", "vlajka"]
+  },
+  "🇬🇩": {
+    "name": "vlajka: Grenada",
+    "keywords": ["GD", "vlajka"]
+  },
+  "🇬🇪": {
+    "name": "vlajka: Gruzínsko",
+    "keywords": ["GE", "vlajka"]
+  },
+  "🇬🇫": {
+    "name": "vlajka: Francúzska Guyana",
+    "keywords": ["GF", "vlajka"]
+  },
+  "🇬🇬": {
+    "name": "vlajka: Guernsey",
+    "keywords": ["GG", "vlajka"]
+  },
+  "🇬🇭": {
+    "name": "vlajka: Ghana",
+    "keywords": ["GH", "vlajka"]
+  },
+  "🇬🇮": {
+    "name": "vlajka: Gibraltár",
+    "keywords": ["GI", "vlajka"]
+  },
+  "🇬🇱": {
+    "name": "vlajka: Grónsko",
+    "keywords": ["GL", "vlajka"]
+  },
+  "🇬🇲": {
+    "name": "vlajka: Gambia",
+    "keywords": ["GM", "vlajka"]
+  },
+  "🇬🇳": {
+    "name": "vlajka: Guinea",
+    "keywords": ["GN", "vlajka"]
+  },
+  "🇬🇵": {
+    "name": "vlajka: Guadeloupe",
+    "keywords": ["GP", "vlajka"]
+  },
+  "🇬🇶": {
+    "name": "vlajka: Rovníková Guinea",
+    "keywords": ["GQ", "vlajka"]
+  },
+  "🇬🇷": {
+    "name": "vlajka: Grécko",
+    "keywords": ["GR", "vlajka"]
+  },
+  "🇬🇸": {
+    "name": "vlajka: Južná Georgia a Južné Sandwichove ostrovy",
+    "keywords": ["GS", "vlajka"]
+  },
+  "🇬🇹": {
+    "name": "vlajka: Guatemala",
+    "keywords": ["GT", "vlajka"]
+  },
+  "🇬🇺": {
+    "name": "vlajka: Guam",
+    "keywords": ["GU", "vlajka"]
+  },
+  "🇬🇼": {
+    "name": "vlajka: Guinea-Bissau",
+    "keywords": ["GW", "vlajka"]
+  },
+  "🇬🇾": {
+    "name": "vlajka: Guyana",
+    "keywords": ["GY", "vlajka"]
+  },
+  "🇭🇰": {
+    "name": "vlajka: Hongkong (OAO Číny)",
+    "keywords": ["HK", "vlajka"]
+  },
+  "🇭🇲": {
+    "name": "vlajka: Heardov ostrov a McDonaldove ostrovy",
+    "keywords": ["HM", "vlajka"]
+  },
+  "🇭🇳": {
+    "name": "vlajka: Honduras",
+    "keywords": ["HN", "vlajka"]
+  },
+  "🇭🇷": {
+    "name": "vlajka: Chorvátsko",
+    "keywords": ["HR", "vlajka"]
+  },
+  "🇭🇹": {
+    "name": "vlajka: Haiti",
+    "keywords": ["HT", "vlajka"]
+  },
+  "🇭🇺": {
+    "name": "vlajka: Maďarsko",
+    "keywords": ["HU", "vlajka"]
+  },
+  "🇮🇨": {
+    "name": "vlajka: Kanárske ostrovy",
+    "keywords": ["IC", "vlajka"]
+  },
+  "🇮🇩": {
+    "name": "vlajka: Indonézia",
+    "keywords": ["ID", "vlajka"]
+  },
+  "🇮🇪": {
+    "name": "vlajka: Írsko",
+    "keywords": ["IE", "vlajka"]
+  },
+  "🇮🇱": {
+    "name": "vlajka: Izrael",
+    "keywords": ["IL", "vlajka"]
+  },
+  "🇮🇲": {
+    "name": "vlajka: Ostrov Man",
+    "keywords": ["IM", "vlajka"]
+  },
+  "🇮🇳": {
+    "name": "vlajka: India",
+    "keywords": ["IN", "vlajka"]
+  },
+  "🇮🇴": {
+    "name": "vlajka: Britské indickooceánske územie",
+    "keywords": ["IO", "vlajka"]
+  },
+  "🇮🇶": {
+    "name": "vlajka: Irak",
+    "keywords": ["IQ", "vlajka"]
+  },
+  "🇮🇷": {
+    "name": "vlajka: Irán",
+    "keywords": ["IR", "vlajka"]
+  },
+  "🇮🇸": {
+    "name": "vlajka: Island",
+    "keywords": ["IS", "vlajka"]
+  },
+  "🇮🇹": {
+    "name": "vlajka: Taliansko",
+    "keywords": ["IT", "vlajka"]
+  },
+  "🇯🇪": {
+    "name": "vlajka: Jersey",
+    "keywords": ["JE", "vlajka"]
+  },
+  "🇯🇲": {
+    "name": "vlajka: Jamajka",
+    "keywords": ["JM", "vlajka"]
+  },
+  "🇯🇴": {
+    "name": "vlajka: Jordánsko",
+    "keywords": ["JO", "vlajka"]
+  },
+  "🇯🇵": {
+    "name": "vlajka: Japonsko",
+    "keywords": ["JP", "vlajka"]
+  },
+  "🇰🇪": {
+    "name": "vlajka: Keňa",
+    "keywords": ["KE", "vlajka"]
+  },
+  "🇰🇬": {
+    "name": "vlajka: Kirgizsko",
+    "keywords": ["KG", "vlajka"]
+  },
+  "🇰🇭": {
+    "name": "vlajka: Kambodža",
+    "keywords": ["KH", "vlajka"]
+  },
+  "🇰🇮": {
+    "name": "vlajka: Kiribati",
+    "keywords": ["KI", "vlajka"]
+  },
+  "🇰🇲": {
+    "name": "vlajka: Komory",
+    "keywords": ["KM", "vlajka"]
+  },
+  "🇰🇳": {
+    "name": "vlajka: Svätý Krištof a Nevis",
+    "keywords": ["KN", "vlajka"]
+  },
+  "🇰🇵": {
+    "name": "vlajka: Severná Kórea",
+    "keywords": ["KP", "vlajka"]
+  },
+  "🇰🇷": {
+    "name": "vlajka: Južná Kórea",
+    "keywords": ["KR", "vlajka"]
+  },
+  "🇰🇼": {
+    "name": "vlajka: Kuvajt",
+    "keywords": ["KW", "vlajka"]
+  },
+  "🇰🇾": {
+    "name": "vlajka: Kajmanie ostrovy",
+    "keywords": ["KY", "vlajka"]
+  },
+  "🇰🇿": {
+    "name": "vlajka: Kazachstan",
+    "keywords": ["KZ", "vlajka"]
+  },
+  "🇱🇦": {
+    "name": "vlajka: Laos",
+    "keywords": ["LA", "vlajka"]
+  },
+  "🇱🇧": {
+    "name": "vlajka: Libanon",
+    "keywords": ["LB", "vlajka"]
+  },
+  "🇱🇨": {
+    "name": "vlajka: Svätá Lucia",
+    "keywords": ["LC", "vlajka"]
+  },
+  "🇱🇮": {
+    "name": "vlajka: Lichtenštajnsko",
+    "keywords": ["LI", "vlajka"]
+  },
+  "🇱🇰": {
+    "name": "vlajka: Srí Lanka",
+    "keywords": ["LK", "vlajka"]
+  },
+  "🇱🇷": {
+    "name": "vlajka: Libéria",
+    "keywords": ["LR", "vlajka"]
+  },
+  "🇱🇸": {
+    "name": "vlajka: Lesotho",
+    "keywords": ["LS", "vlajka"]
+  },
+  "🇱🇹": {
+    "name": "vlajka: Litva",
+    "keywords": ["LT", "vlajka"]
+  },
+  "🇱🇺": {
+    "name": "vlajka: Luxembursko",
+    "keywords": ["LU", "vlajka"]
+  },
+  "🇱🇻": {
+    "name": "vlajka: Lotyšsko",
+    "keywords": ["LV", "vlajka"]
+  },
+  "🇱🇾": {
+    "name": "vlajka: Líbya",
+    "keywords": ["LY", "vlajka"]
+  },
+  "🇲🇦": {
+    "name": "vlajka: Maroko",
+    "keywords": ["MA", "vlajka"]
+  },
+  "🇲🇨": {
+    "name": "vlajka: Monako",
+    "keywords": ["MC", "vlajka"]
+  },
+  "🇲🇩": {
+    "name": "vlajka: Moldavsko",
+    "keywords": ["MD", "vlajka"]
+  },
+  "🇲🇪": {
+    "name": "vlajka: Čierna Hora",
+    "keywords": ["ME", "vlajka"]
+  },
+  "🇲🇫": {
+    "name": "vlajka: Svätý Martin",
+    "keywords": ["MF", "vlajka"]
+  },
+  "🇲🇬": {
+    "name": "vlajka: Madagaskar",
+    "keywords": ["MG", "vlajka"]
+  },
+  "🇲🇭": {
+    "name": "vlajka: Marshallove ostrovy",
+    "keywords": ["MH", "vlajka"]
+  },
+  "🇲🇰": {
+    "name": "vlajka: Severné Macedónsko",
+    "keywords": ["MK", "vlajka"]
+  },
+  "🇲🇱": {
+    "name": "vlajka: Mali",
+    "keywords": ["ML", "vlajka"]
+  },
+  "🇲🇲": {
+    "name": "vlajka: Mjanmarsko (Barma)",
+    "keywords": ["MM", "vlajka"]
+  },
+  "🇲🇳": {
+    "name": "vlajka: Mongolsko",
+    "keywords": ["MN", "vlajka"]
+  },
+  "🇲🇴": {
+    "name": "vlajka: Macao (OAO Číny)",
+    "keywords": ["MO", "vlajka"]
+  },
+  "🇲🇵": {
+    "name": "vlajka: Severné Mariány",
+    "keywords": ["MP", "vlajka"]
+  },
+  "🇲🇶": {
+    "name": "vlajka: Martinik",
+    "keywords": ["MQ", "vlajka"]
+  },
+  "🇲🇷": {
+    "name": "vlajka: Mauritánia",
+    "keywords": ["MR", "vlajka"]
+  },
+  "🇲🇸": {
+    "name": "vlajka: Montserrat",
+    "keywords": ["MS", "vlajka"]
+  },
+  "🇲🇹": {
+    "name": "vlajka: Malta",
+    "keywords": ["MT", "vlajka"]
+  },
+  "🇲🇺": {
+    "name": "vlajka: Maurícius",
+    "keywords": ["MU", "vlajka"]
+  },
+  "🇲🇻": {
+    "name": "vlajka: Maldivy",
+    "keywords": ["MV", "vlajka"]
+  },
+  "🇲🇼": {
+    "name": "vlajka: Malawi",
+    "keywords": ["MW", "vlajka"]
+  },
+  "🇲🇽": {
+    "name": "vlajka: Mexiko",
+    "keywords": ["MX", "vlajka"]
+  },
+  "🇲🇾": {
+    "name": "vlajka: Malajzia",
+    "keywords": ["MY", "vlajka"]
+  },
+  "🇲🇿": {
+    "name": "vlajka: Mozambik",
+    "keywords": ["MZ", "vlajka"]
+  },
+  "🇳🇦": {
+    "name": "vlajka: Namíbia",
+    "keywords": ["NA", "vlajka"]
+  },
+  "🇳🇨": {
+    "name": "vlajka: Nová Kaledónia",
+    "keywords": ["NC", "vlajka"]
+  },
+  "🇳🇪": {
+    "name": "vlajka: Niger",
+    "keywords": ["NE", "vlajka"]
+  },
+  "🇳🇫": {
+    "name": "vlajka: Norfolk",
+    "keywords": ["NF", "vlajka"]
+  },
+  "🇳🇬": {
+    "name": "vlajka: Nigéria",
+    "keywords": ["NG", "vlajka"]
+  },
+  "🇳🇮": {
+    "name": "vlajka: Nikaragua",
+    "keywords": ["NI", "vlajka"]
+  },
+  "🇳🇱": {
+    "name": "vlajka: Holandsko",
+    "keywords": ["NL", "vlajka"]
+  },
+  "🇳🇴": {
+    "name": "vlajka: Nórsko",
+    "keywords": ["NO", "vlajka"]
+  },
+  "🇳🇵": {
+    "name": "vlajka: Nepál",
+    "keywords": ["NP", "vlajka"]
+  },
+  "🇳🇷": {
+    "name": "vlajka: Nauru",
+    "keywords": ["NR", "vlajka"]
+  },
+  "🇳🇺": {
+    "name": "vlajka: Niue",
+    "keywords": ["NU", "vlajka"]
+  },
+  "🇳🇿": {
+    "name": "vlajka: Nový Zéland",
+    "keywords": ["NZ", "vlajka"]
+  },
+  "🇴🇲": {
+    "name": "vlajka: Omán",
+    "keywords": ["OM", "vlajka"]
+  },
+  "🇵🇦": {
+    "name": "vlajka: Panama",
+    "keywords": ["PA", "vlajka"]
+  },
+  "🇵🇪": {
+    "name": "vlajka: Peru",
+    "keywords": ["PE", "vlajka"]
+  },
+  "🇵🇫": {
+    "name": "vlajka: Francúzska Polynézia",
+    "keywords": ["PF", "vlajka"]
+  },
+  "🇵🇬": {
+    "name": "vlajka: Papua-Nová Guinea",
+    "keywords": ["PG", "vlajka"]
+  },
+  "🇵🇭": {
+    "name": "vlajka: Filipíny",
+    "keywords": ["PH", "vlajka"]
+  },
+  "🇵🇰": {
+    "name": "vlajka: Pakistan",
+    "keywords": ["PK", "vlajka"]
+  },
+  "🇵🇱": {
+    "name": "vlajka: Poľsko",
+    "keywords": ["PL", "vlajka"]
+  },
+  "🇵🇲": {
+    "name": "vlajka: Saint-Pierre a Miquelon",
+    "keywords": ["PM", "vlajka"]
+  },
+  "🇵🇳": {
+    "name": "vlajka: Pitcairnove ostrovy",
+    "keywords": ["PN", "vlajka"]
+  },
+  "🇵🇷": {
+    "name": "vlajka: Portoriko",
+    "keywords": ["PR", "vlajka"]
+  },
+  "🇵🇸": {
+    "name": "vlajka: Palestínske územia",
+    "keywords": ["PS", "vlajka"]
+  },
+  "🇵🇹": {
+    "name": "vlajka: Portugalsko",
+    "keywords": ["PT", "vlajka"]
+  },
+  "🇵🇼": {
+    "name": "vlajka: Palau",
+    "keywords": ["PW", "vlajka"]
+  },
+  "🇵🇾": {
+    "name": "vlajka: Paraguaj",
+    "keywords": ["PY", "vlajka"]
+  },
+  "🇶🇦": {
+    "name": "vlajka: Katar",
+    "keywords": ["QA", "vlajka"]
+  },
+  "🇷🇪": {
+    "name": "vlajka: Reunion",
+    "keywords": ["RE", "vlajka"]
+  },
+  "🇷🇴": {
+    "name": "vlajka: Rumunsko",
+    "keywords": ["RO", "vlajka"]
+  },
+  "🇷🇸": {
+    "name": "vlajka: Srbsko",
+    "keywords": ["RS", "vlajka"]
+  },
+  "🇷🇺": {
+    "name": "vlajka: Rusko",
+    "keywords": ["RU", "vlajka"]
+  },
+  "🇷🇼": {
+    "name": "vlajka: Rwanda",
+    "keywords": ["RW", "vlajka"]
+  },
+  "🇸🇦": {
+    "name": "vlajka: Saudská Arábia",
+    "keywords": ["SA", "vlajka"]
+  },
+  "🇸🇧": {
+    "name": "vlajka: Šalamúnove ostrovy",
+    "keywords": ["SB", "vlajka"]
+  },
+  "🇸🇨": {
+    "name": "vlajka: Seychely",
+    "keywords": ["SC", "vlajka"]
+  },
+  "🇸🇩": {
+    "name": "vlajka: Sudán",
+    "keywords": ["SD", "vlajka"]
+  },
+  "🇸🇪": {
+    "name": "vlajka: Švédsko",
+    "keywords": ["SE", "vlajka"]
+  },
+  "🇸🇬": {
+    "name": "vlajka: Singapur",
+    "keywords": ["SG", "vlajka"]
+  },
+  "🇸🇭": {
+    "name": "vlajka: Svätá Helena",
+    "keywords": ["SH", "vlajka"]
+  },
+  "🇸🇮": {
+    "name": "vlajka: Slovinsko",
+    "keywords": ["SI", "vlajka"]
+  },
+  "🇸🇯": {
+    "name": "vlajka: Svalbard a Jan Mayen",
+    "keywords": ["SJ", "vlajka"]
+  },
+  "🇸🇰": {
+    "name": "vlajka: Slovensko",
+    "keywords": ["SK", "vlajka"]
+  },
+  "🇸🇱": {
+    "name": "vlajka: Sierra Leone",
+    "keywords": ["SL", "vlajka"]
+  },
+  "🇸🇲": {
+    "name": "vlajka: San Maríno",
+    "keywords": ["SM", "vlajka"]
+  },
+  "🇸🇳": {
+    "name": "vlajka: Senegal",
+    "keywords": ["SN", "vlajka"]
+  },
+  "🇸🇴": {
+    "name": "vlajka: Somálsko",
+    "keywords": ["SO", "vlajka"]
+  },
+  "🇸🇷": {
+    "name": "vlajka: Surinam",
+    "keywords": ["SR", "vlajka"]
+  },
+  "🇸🇸": {
+    "name": "vlajka: Južný Sudán",
+    "keywords": ["SS", "vlajka"]
+  },
+  "🇸🇹": {
+    "name": "vlajka: Svätý Tomáš a Princov ostrov",
+    "keywords": ["ST", "vlajka"]
+  },
+  "🇸🇻": {
+    "name": "vlajka: Salvádor",
+    "keywords": ["SV", "vlajka"]
+  },
+  "🇸🇽": {
+    "name": "vlajka: Sint Maarten",
+    "keywords": ["SX", "vlajka"]
+  },
+  "🇸🇾": {
+    "name": "vlajka: Sýria",
+    "keywords": ["SY", "vlajka"]
+  },
+  "🇸🇿": {
+    "name": "vlajka: Eswatini",
+    "keywords": ["SZ", "vlajka"]
+  },
+  "🇹🇦": {
+    "name": "vlajka: Tristan da Cunha",
+    "keywords": ["TA", "vlajka"]
+  },
+  "🇹🇨": {
+    "name": "vlajka: Turks a Caicos",
+    "keywords": ["TC", "vlajka"]
+  },
+  "🇹🇩": {
+    "name": "vlajka: Čad",
+    "keywords": ["TD", "vlajka"]
+  },
+  "🇹🇫": {
+    "name": "vlajka: Francúzske južné a antarktické územia",
+    "keywords": ["TF", "vlajka"]
+  },
+  "🇹🇬": {
+    "name": "vlajka: Togo",
+    "keywords": ["TG", "vlajka"]
+  },
+  "🇹🇭": {
+    "name": "vlajka: Thajsko",
+    "keywords": ["TH", "vlajka"]
+  },
+  "🇹🇯": {
+    "name": "vlajka: Tadžikistan",
+    "keywords": ["TJ", "vlajka"]
+  },
+  "🇹🇰": {
+    "name": "vlajka: Tokelau",
+    "keywords": ["TK", "vlajka"]
+  },
+  "🇹🇱": {
+    "name": "vlajka: Východný Timor",
+    "keywords": ["TL", "vlajka"]
+  },
+  "🇹🇲": {
+    "name": "vlajka: Turkménsko",
+    "keywords": ["TM", "vlajka"]
+  },
+  "🇹🇳": {
+    "name": "vlajka: Tunisko",
+    "keywords": ["TN", "vlajka"]
+  },
+  "🇹🇴": {
+    "name": "vlajka: Tonga",
+    "keywords": ["TO", "vlajka"]
+  },
+  "🇹🇷": {
+    "name": "vlajka: Turecko",
+    "keywords": ["TR", "vlajka"]
+  },
+  "🇹🇹": {
+    "name": "vlajka: Trinidad a Tobago",
+    "keywords": ["TT", "vlajka"]
+  },
+  "🇹🇻": {
+    "name": "vlajka: Tuvalu",
+    "keywords": ["TV", "vlajka"]
+  },
+  "🇹🇼": {
+    "name": "vlajka: Taiwan",
+    "keywords": ["TW", "vlajka"]
+  },
+  "🇹🇿": {
+    "name": "vlajka: Tanzánia",
+    "keywords": ["TZ", "vlajka"]
+  },
+  "🇺🇦": {
+    "name": "vlajka: Ukrajina",
+    "keywords": ["UA", "vlajka"]
+  },
+  "🇺🇬": {
+    "name": "vlajka: Uganda",
+    "keywords": ["UG", "vlajka"]
+  },
+  "🇺🇲": {
+    "name": "vlajka: Menšie odľahlé ostrovy USA",
+    "keywords": ["UM", "vlajka"]
+  },
+  "🇺🇳": {
+    "name": "vlajka: Organizácia Spojených národov",
+    "keywords": ["UN", "vlajka"]
+  },
+  "🇺🇸": {
+    "name": "vlajka: Spojené štáty",
+    "keywords": ["US", "vlajka"]
+  },
+  "🇺🇾": {
+    "name": "vlajka: Uruguaj",
+    "keywords": ["UY", "vlajka"]
+  },
+  "🇺🇿": {
+    "name": "vlajka: Uzbekistan",
+    "keywords": ["UZ", "vlajka"]
+  },
+  "🇻🇦": {
+    "name": "vlajka: Vatikán",
+    "keywords": ["VA", "vlajka"]
+  },
+  "🇻🇨": {
+    "name": "vlajka: Svätý Vincent a Grenadíny",
+    "keywords": ["VC", "vlajka"]
+  },
+  "🇻🇪": {
+    "name": "vlajka: Venezuela",
+    "keywords": ["VE", "vlajka"]
+  },
+  "🇻🇬": {
+    "name": "vlajka: Britské Panenské ostrovy",
+    "keywords": ["VG", "vlajka"]
+  },
+  "🇻🇮": {
+    "name": "vlajka: Americké Panenské ostrovy",
+    "keywords": ["VI", "vlajka"]
+  },
+  "🇻🇳": {
+    "name": "vlajka: Vietnam",
+    "keywords": ["VN", "vlajka"]
+  },
+  "🇻🇺": {
+    "name": "vlajka: Vanuatu",
+    "keywords": ["VU", "vlajka"]
+  },
+  "🇼🇫": {
+    "name": "vlajka: Wallis a Futuna",
+    "keywords": ["WF", "vlajka"]
+  },
+  "🇼🇸": {
+    "name": "vlajka: Samoa",
+    "keywords": ["WS", "vlajka"]
+  },
+  "🇽🇰": {
+    "name": "vlajka: Kosovo",
+    "keywords": ["XK", "vlajka"]
+  },
+  "🇾🇪": {
+    "name": "vlajka: Jemen",
+    "keywords": ["YE", "vlajka"]
+  },
+  "🇾🇹": {
+    "name": "vlajka: Mayotte",
+    "keywords": ["YT", "vlajka"]
+  },
+  "🇿🇦": {
+    "name": "vlajka: Južná Afrika",
+    "keywords": ["ZA", "vlajka"]
+  },
+  "🇿🇲": {
+    "name": "vlajka: Zambia",
+    "keywords": ["ZM", "vlajka"]
+  },
+  "🇿🇼": {
+    "name": "vlajka: Zimbabwe",
+    "keywords": ["ZW", "vlajka"]
+  },
+  "🏴󠁧󠁢󠁥󠁮󠁧󠁿": {
+    "name": "vlajka: Anglicko",
+    "keywords": ["gbeng", "vlajka"]
+  },
+  "🏴󠁧󠁢󠁳󠁣󠁴󠁿": {
+    "name": "vlajka: Škótsko",
+    "keywords": ["gbsct", "vlajka"]
+  },
+  "🏴󠁧󠁢󠁷󠁬󠁳󠁿": {
+    "name": "vlajka: Wales",
+    "keywords": ["gbwls", "vlajka"]
+  }
+}

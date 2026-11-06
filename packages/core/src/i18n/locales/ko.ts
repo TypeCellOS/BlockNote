@@ -1,6 +1,12 @@
 import { Dictionary } from "../dictionary.js";
 
 export const ko: Dictionary = {
+  locale: "ko",
+  emoji_picker: {
+    search: "검색",
+    search_no_results: "이모지를 찾을 수 없습니다",
+    loading: "로드 중…",
+  },
   slash_menu: {
     heading: {
       title: "제목1",
@@ -438,8 +444,8 @@ export const ko: Dictionary = {
     close: "닫기",
     show_named_only: "이름이 지정된 버전만 표시",
     show_all: "모든 버전 표시",
-    comparison_on: "비교 켜기",
-    comparison_off: "비교 끄기",
+    comparison_on: "변경 사항 표시",
+    comparison_off: "변경 사항 숨기기",
     versions_list: "버전",
     empty: "아직 버전이 없습니다",
     empty_named_only: "이름이 지정된 버전이 없습니다",

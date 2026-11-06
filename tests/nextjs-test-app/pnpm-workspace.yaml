@@ -1,0 +1,7 @@
+# Internal dependencies must use the same tarballs as the direct dependencies,
+# not the published packages that happen to have the same version.
+overrides:
+  "@blocknote/core": "$@blocknote/core"
+  "@blocknote/react": "$@blocknote/react"
+  "@blocknote/mantine": "$@blocknote/mantine"
+  "@blocknote/server-util": "$@blocknote/server-util"

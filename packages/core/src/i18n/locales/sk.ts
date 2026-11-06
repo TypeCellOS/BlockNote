@@ -1,4 +1,10 @@
 export const sk = {
+  locale: "sk",
+  emoji_picker: {
+    search: "Hľadať",
+    search_no_results: "Nenašli sa žiadne emoji",
+    loading: "Načítava sa…",
+  },
   slash_menu: {
     heading: {
       title: "Nadpis 1",
@@ -423,8 +429,8 @@ export const sk = {
     close: "Zavrieť",
     show_named_only: "Zobraziť iba pomenované verzie",
     show_all: "Zobraziť všetky verzie",
-    comparison_on: "Zapnúť porovnávanie",
-    comparison_off: "Vypnúť porovnávanie",
+    comparison_on: "Zobraziť zmeny",
+    comparison_off: "Skryť zmeny",
     versions_list: "Verzie",
     empty: "Zatiaľ žiadne verzie",
     empty_named_only: "Žiadne pomenované verzie",

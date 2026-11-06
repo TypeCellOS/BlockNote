@@ -1,3 +1,69 @@
+## 0.57.0 (2026-10-30)
+
+This release brings two major features:
+
+- **Version sidebar updates:** See who made changes with clearer author labels, and navigate version history using the keyboard. 💖 Sponsored by DINUM 🇫🇷.
+- **Localized emoji picker:** We’ve switched to Frimousse for a better picker experience. Emoji names and search are localized to your language, with keyboard navigation and skin-tone selection. Localized emoji data is loaded on demand, so every locale isn’t included in the initial bundle.
+
+### 🚀 Features
+
+- **core:** Accept extensions in createInlineContentSpec ([#3253](https://github.com/TypeCellOS/BlockNote/pull/3253))
+- **core:** Improve Word and Google Docs paste handling ([#3226](https://github.com/TypeCellOS/BlockNote/pull/3226))
+- Improve version history authors and keyboard navigation ([#3229](https://github.com/TypeCellOS/BlockNote/pull/3229))
+- **server-util:** ⚠️ Allow swappable DOM environments ([#3237](https://github.com/TypeCellOS/BlockNote/pull/3237))
+- **react:** Switch to the localized Frimousse emoji picker, with on-demand locale data ([#3120](https://github.com/TypeCellOS/BlockNote/pull/3120), [#3121](https://github.com/TypeCellOS/BlockNote/pull/3121))
+
+### 🔥 Performance
+
+- **core:** faster table building using occupancy grid ([#3262](https://github.com/TypeCellOS/BlockNote/pull/3262))
+- **typst:** Reuse content-addressed WASM builds ([#3268](https://github.com/TypeCellOS/BlockNote/pull/3268))
+
+### 🩹 Fixes
+
+- **core:** Restore undo of autoformat conversions ([#3164](https://github.com/TypeCellOS/BlockNote/pull/3164))
+- **docx:** Avoid private numbering APIs and simplify layout mappings ([#3225](https://github.com/TypeCellOS/BlockNote/pull/3225))
+- **core:** Keep the browser's default link styling under CSS resets ([#3060](https://github.com/TypeCellOS/BlockNote/pull/3060))
+- **core:** Register Mod-Alt-c code block shortcut ([#3242](https://github.com/TypeCellOS/BlockNote/pull/3242))
+- **math-block:** ⚠️ Move CSS to @blocknote/math-block/style.css ([#3238](https://github.com/TypeCellOS/BlockNote/pull/3238))
+- **math:** Native text input and deletion in an empty inline math source ([#3240](https://github.com/TypeCellOS/BlockNote/pull/3240))
+- **core:** Keep inline styles valid in md export with spaces ([#3233](https://github.com/TypeCellOS/BlockNote/pull/3233))
+- **core:** Register inline content spec extensions and mount their content correctly ([#3251](https://github.com/TypeCellOS/BlockNote/pull/3251))
+- **docx:** Preserve XML escaping in math equations ([47915324cf](https://github.com/TypeCellOS/BlockNote/commit/47915324cf))
+- **react:** Preserve native input in empty inline content ([#3254](https://github.com/TypeCellOS/BlockNote/pull/3254))
+- **core:** Restore file upload button after failed drop or paste ([#3247](https://github.com/TypeCellOS/BlockNote/pull/3247))
+- **core:** Formatting toolbar stuck after a tap on iOS Safari's address bar ([#3259](https://github.com/TypeCellOS/BlockNote/pull/3259))
+- **core:** Display drag previews in Firefox and Safari ([#3235](https://github.com/TypeCellOS/BlockNote/pull/3235))
+- **core:** Insert & upload all files that are dropped or pasted ([#3213](https://github.com/TypeCellOS/BlockNote/pull/3213))
+- **core:** Separate blocks with newlines in getSelectedText ([#3210](https://github.com/TypeCellOS/BlockNote/pull/3210))
+- **core:** Strip comments from copied text ([#3260](https://github.com/TypeCellOS/BlockNote/pull/3260))
+- **core:** Keep the editor focused dropping & moving blocks ([#3231](https://github.com/TypeCellOS/BlockNote/pull/3231))
+- **core:** Install nested extension plugins at runtime ([#3236](https://github.com/TypeCellOS/BlockNote/pull/3236))
+- **core:** Handle <details> in Markdown list item ([#3194](https://github.com/TypeCellOS/BlockNote/pull/3194))
+- **react:** Fast typing no longer breaks suggestion menus ([#3249](https://github.com/TypeCellOS/BlockNote/pull/3249))
+- **shadcn:** Better open menu drag dropdown behavior ([#3074](https://github.com/TypeCellOS/BlockNote/pull/3074))
+- **math:** Math/diagram errors are now selectable ([#3148](https://github.com/TypeCellOS/BlockNote/pull/3148))
+
+#### ⚠️ Breaking Changes
+
+- **build:** Packages are now ESM-only; CommonJS `require()` is no longer supported. ([#3118](https://github.com/TypeCellOS/BlockNote/pull/3118))
+- **server-util:** Pass a DOM `Document` to `ServerBlockNoteEditor.create` when using DOM-dependent operations in Node, unless DOM globals are already available. ([#3237](https://github.com/TypeCellOS/BlockNote/pull/3237))
+- **math-block:** Import `@blocknote/math-block/style.css` in your app to style math blocks. ([#3238](https://github.com/TypeCellOS/BlockNote/pull/3238))
+- **react:** The legacy grid emoji-picker API has been removed. Use `EmojiPickerController` for emoji selection or `SuggestionMenuController` for custom item collections. ([#3121](https://github.com/TypeCellOS/BlockNote/pull/3121))
+
+### ❤️ Thank You
+
+- Yousef ([@YousefED](https://github.com/YousefED))
+- Matthew Lipski ([@matthewlipski](https://github.com/matthewlipski))
+- Ben Sauer ([@sauerben](https://github.com/sauerben))
+- Safa Oueslati ([@safaweslati](https://github.com/safaweslati))
+- Jayesh Kugsiya ([@jkugsiya](https://github.com/jkugsiya))
+- Adarshsm ([@adarshsm](https://github.com/adarshsm))
+- Fer2d2 ([@fer2d2](https://github.com/fer2d2))
+- Nick The Sick ([@nperez0111](https://github.com/nperez0111))
+- Rovshan Muradov ([@RovshanMuradov](https://github.com/RovshanMuradov))
+- Galthran-wq ([@galthran-wq](https://github.com/galthran-wq))
+- Raphael Fakhri ([@RaphaelFakhri](https://github.com/RaphaelFakhri))
+
 ## 0.56.0 (2026-10-14)
 
 ### 🚀 Features

@@ -1,6 +1,12 @@
 import type { Dictionary } from "../dictionary.js";
 
 export const vi: Dictionary = {
+  locale: "vi",
+  emoji_picker: {
+    search: "Tìm kiếm",
+    search_no_results: "Không tìm thấy biểu tượng cảm xúc",
+    loading: "Đang tải…",
+  },
   slash_menu: {
     heading: {
       title: "Tiêu đề H1",
@@ -424,8 +430,8 @@ export const vi: Dictionary = {
     close: "Đóng",
     show_named_only: "Chỉ hiển thị các phiên bản đã đặt tên",
     show_all: "Hiển thị tất cả phiên bản",
-    comparison_on: "Bật so sánh",
-    comparison_off: "Tắt so sánh",
+    comparison_on: "Hiện thay đổi",
+    comparison_off: "Ẩn thay đổi",
     versions_list: "Phiên bản",
     empty: "Chưa có phiên bản nào",
     empty_named_only: "Không có phiên bản nào được đặt tên",

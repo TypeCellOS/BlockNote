@@ -90,7 +90,7 @@ export const Snapshot = forwardRef<
     name,
     date,
     restoredFrom,
-    secondaryLabel,
+    users,
     comparingLabel,
     comparingIcon,
     ...rest
@@ -137,9 +137,28 @@ export const Snapshot = forwardRef<
         {restoredFrom && (
           <Text className="bn-snapshot-original-date">{restoredFrom}</Text>
         )}
-        {secondaryLabel && (
-          <Text className="bn-snapshot-secondary-label">{secondaryLabel}</Text>
-        )}
+        {users?.length ? (
+          <div className="bn-snapshot-users">
+            {users.map((user, index) => (
+              <span className="bn-snapshot-user" key={index}>
+                {index > 0 && <span aria-hidden="true">·</span>}
+                {typeof user !== "string" && user.color && (
+                  <span
+                    className="bn-snapshot-user-color"
+                    aria-hidden="true"
+                    style={{
+                      color: user.color,
+                      ...{
+                        "--bn-user-color-light": user.colorLight ?? user.color,
+                      },
+                    }}
+                  />
+                )}
+                <span>{typeof user === "string" ? user : user.username}</span>
+              </span>
+            ))}
+          </div>
+        ) : null}
       </Stack>
       {actions && (
         <Box
