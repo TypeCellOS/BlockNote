@@ -17,7 +17,9 @@
       "propSchema": "boolean",
       "type": "bold",
     },
-    "extensions": undefined,
+    "extensions": [
+      [Function],
+    ],
     "implementation": {
       "mark": null,
       "render": [Function],
@@ -29,7 +31,9 @@
       "propSchema": "boolean",
       "type": "code",
     },
-    "extensions": undefined,
+    "extensions": [
+      [Function],
+    ],
     "implementation": {
       "mark": null,
       "render": [Function],
@@ -53,7 +57,9 @@
       "propSchema": "boolean",
       "type": "italic",
     },
-    "extensions": undefined,
+    "extensions": [
+      [Function],
+    ],
     "implementation": {
       "mark": null,
       "render": [Function],
@@ -77,7 +83,9 @@
       "propSchema": "boolean",
       "type": "strike",
     },
-    "extensions": undefined,
+    "extensions": [
+      [Function],
+    ],
     "implementation": {
       "mark": null,
       "render": [Function],
