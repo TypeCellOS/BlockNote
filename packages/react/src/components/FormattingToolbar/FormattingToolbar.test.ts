@@ -108,6 +108,12 @@ test.describe("behavior", () => {
     const editor = await openEditor(toolbarDocument);
     await focusToolbarItem("Colors");
     await pressKey("Enter");
+    const menu = page.getByRole("menu");
+    await expect.element(menu).toBeVisible();
+    // Mantine initially focuses a placeholder before the first menu item.
+    await expect
+      .element(menu.element().querySelector<HTMLElement>("[data-autofocus]"))
+      .toHaveFocus();
     await pressKey("ArrowDown");
     await pressKey("ArrowDown");
     const onChange = vi.fn();
@@ -138,6 +144,12 @@ test.describe("behavior", () => {
     const editor = await openEditor(toolbarDocument);
     await focusToolbarItem("Paragraph");
     await pressKey("Enter");
+    const menu = page.getByRole("menu");
+    await expect.element(menu).toBeVisible();
+    // Mantine initially focuses a placeholder before the first menu item.
+    await expect
+      .element(menu.element().querySelector<HTMLElement>("[data-autofocus]"))
+      .toHaveFocus();
     await pressKey("ArrowDown");
     await pressKey("ArrowDown");
     const onChange = vi.fn();
@@ -195,6 +207,10 @@ test.describe("keyboard", () => {
     await pressKey("Enter");
     const menu = page.getByRole("menu");
     await expect.element(menu).toBeVisible();
+    // Mantine initially focuses a placeholder before the first menu item.
+    await expect
+      .element(menu.element().querySelector<HTMLElement>("[data-autofocus]"))
+      .toHaveFocus();
     await pressKey("ArrowDown");
     await expect.element(menu.getByRole("menuitem").first()).toHaveFocus();
     if (screenshot) {
@@ -295,6 +311,10 @@ test.describe("keyboard", () => {
     await pressKey("Enter");
     const menu = page.getByRole("menu");
     await expect.element(menu).toBeVisible();
+    // Mantine initially focuses a placeholder before the first menu item.
+    await expect
+      .element(menu.element().querySelector<HTMLElement>("[data-autofocus]"))
+      .toHaveFocus();
     await pressKey("ArrowDown");
     await expect.element(menu.getByRole("menuitem").first()).toHaveFocus();
     await pressKey("Escape");
@@ -319,6 +339,12 @@ test.describe("ARIA", () => {
     const { toolbar, button } = await focusToolbarItem(toolbarMenu);
     await checkAriaSnapshot(button, "before activation");
     await pressKey("Enter");
+    const menu = page.getByRole("menu");
+    await expect.element(menu).toBeVisible();
+    // Mantine initially focuses a placeholder before the first menu item.
+    await expect
+      .element(menu.element().querySelector<HTMLElement>("[data-autofocus]"))
+      .toHaveFocus();
     await pressKey("ArrowDown");
     await pressKey("ArrowDown");
     await pressKey("Enter");
@@ -419,9 +445,7 @@ test.describe("axe", () => {
     await openEditor(toolbarDocument);
     await focusToolbarItem("Create link");
     await pressKey("Enter");
-    await expect
-      .element(document.querySelector<HTMLElement>(".bn-form-popover"))
-      .toBeVisible();
+    await expect.element(page.getByPlaceholder("Edit URL")).toBeVisible();
     await checkAxe(annotate, ".bn-form-popover");
   });
 });
