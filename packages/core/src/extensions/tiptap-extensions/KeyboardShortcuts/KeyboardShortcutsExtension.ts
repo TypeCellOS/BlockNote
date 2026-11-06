@@ -37,6 +37,7 @@ import {
   blockEdgeSelection,
 } from "../../../api/getBlockInfoFromPos.js";
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
+import { hasInputRule } from "../../../editor/inputRules.js";
 import { FilePanelExtension } from "../../FilePanel/FilePanel.js";
 import { FormattingToolbarExtension } from "../../FormattingToolbar/FormattingToolbar.js";
 
@@ -103,10 +104,13 @@ export const KeyboardShortcutsExtension = Extension.create<{
     }
     // handleBackspace is partially adapted from https://github.com/ueberdosis/tiptap/blob/ed56337470efb4fd277128ab7ef792b37cfae992/packages/core/src/extensions/keymap.ts
     const handleBackspace = () =>
+      // Undo a fresh conversion before deleting its selection (e.g. a divider).
+      // Run outside the Tiptap chain: history dispatches its own transaction.
+      (hasInputRule(this.editor.state) && bnEditor.undo()) ||
       this.editor.commands.first(({ chain, commands }) => [
         // Deletes the selection if it's not empty.
         () => commands.deleteSelection(),
-        // Undoes an input rule if one was triggered in the last editor state change.
+        // Preserve input-rule undo for custom Tiptap extensions.
         () => commands.undoInputRule(),
         // Resets the block (`keyboard.resetsTo`, a paragraph by default) if the
         // selection is at the start of the block and the block isn't already

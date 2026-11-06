@@ -1,6 +1,9 @@
 import { type AnyExtension } from "@tiptap/core";
 import type { Plugin as ProsemirrorPlugin } from "prosemirror-state";
-import type { PartialBlockNoDefaults } from "../schema/index.js";
+import type {
+  PartialBlockNoDefaults,
+  PartialInlineContent,
+} from "../schema/index.js";
 import { Store, StoreOptions } from "../util/Store.js";
 import type { BlockNoteEditor } from "./BlockNoteEditor.js";
 import { originalFactorySymbol } from "./managers/ExtensionManager/symbol.js";
@@ -48,8 +51,10 @@ export interface Extension<State = any, Key extends string = string> {
   readonly runsBefore?: ReadonlyArray<string>;
 
   /**
-   * Input rules for a block: An input rule is what is used to replace text in a block when a regular expression match is found.
-   * As an example, typing `#` in a paragraph block will trigger an input rule to replace the text with a heading block.
+   * Declarative input rules for blocks, styles, and inline content.
+   * Return a replacement from `replace`, or undefined to leave the match unchanged.
+   * The returned shape determines whether to update the block, apply styles,
+   * or replace inline content.
    */
   readonly inputRules?: ReadonlyArray<InputRule>;
 
@@ -103,16 +108,18 @@ export interface Extension<State = any, Key extends string = string> {
 
 /**
  * An input rule is what is used to replace text in a block when a regular expression match is found.
- * As an example, typing `#` in a paragraph block will trigger an input rule to replace the text with a heading block.
+ * As an example, typing `# ` in a paragraph block will trigger an input rule to replace the text with a heading block.
  */
-type InputRule = {
+export type InputRule = {
   /**
    * The regex to match when to trigger the input rule
    */
   find: RegExp;
   /**
    * The function to call when the input rule is matched
-   * @returns undefined if the input rule should not be triggered, or an object with the type and props to update the block
+   * @returns undefined if the input rule should not be triggered, an object with
+   * the type and props to update the block, an object with text and styles to
+   * apply formatting, or inline content to replace the matched text.
    */
   replace: (props: {
     /**
@@ -128,7 +135,11 @@ type InputRule = {
      * The editor instance
      */
     editor: BlockNoteEditor<any, any, any>;
-  }) => undefined | PartialBlockNoDefaults<any, any, any>;
+  }) =>
+    | undefined
+    | PartialBlockNoDefaults<any, any, any>
+    | { text: string; styles: Record<string, string | boolean> }
+    | PartialInlineContent<any, any>;
 };
 
 /**
