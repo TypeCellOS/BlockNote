@@ -9,6 +9,7 @@ import { parseFigureElement } from "../File/helpers/parse/parseFigureElement.js"
 import { createResizableFileBlockWrapper } from "../File/helpers/render/createResizableFileBlockWrapper.js";
 import { createFigureWithCaption } from "../File/helpers/toExternalHTML/createFigureWithCaption.js";
 import { createLinkWithCaption } from "../File/helpers/toExternalHTML/createLinkWithCaption.js";
+import { imageBlockAlt } from "./imageBlockAlt.js";
 import { parseImageElement } from "./parseImageElement.js";
 
 export const FILE_IMAGE_ICON_SVG =
@@ -117,9 +118,11 @@ export const imageRender =
     }
 
     // alt describes image content (per WCAG H86); figcaption (when present)
-    // is the contextual caption. Fall back to "" so unlabelled images are
-    // marked decorative rather than getting a noisy generic fallback.
-    image.alt = block.props.name || "";
+    // is the contextual caption. An inserted image is not decorative: when
+    // `name` is empty, show the URL's file name so a failed load stays
+    // identifiable. Display only — `imageBlockAlt` is not written to
+    // `props.name`.
+    image.alt = imageBlockAlt(block.props.name, block.props.url);
     image.contentEditable = "false";
     image.draggable = false;
     if (block.props.previewWidth) {
@@ -156,6 +159,8 @@ export const imageToExternalHTML =
     if (block.props.showPreview) {
       image = document.createElement("img");
       image.src = block.props.url;
+      // Leave alt empty when `name` is unset. `parse` copies `alt` into
+      // `name`, so the editor's display fallback must not be exported.
       image.alt = block.props.name || "";
       if (block.props.previewWidth) {
         image.width = block.props.previewWidth;
