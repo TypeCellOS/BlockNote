@@ -3,6 +3,7 @@ import {
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
+  applyBlockNoteRootTheme,
   mergeCSSClasses,
 } from "@blocknote/core";
 import React, {
@@ -211,12 +212,14 @@ function BlockNoteViewComponent<
   // `PortalElementOverride` creates outside React's tree.
   const applyThemedRoot = useCallback(
     (element: HTMLElement) => {
-      element.className = mergeCSSClasses(
-        "bn-root",
-        editorColorScheme,
-        className || "",
-      );
-      element.setAttribute("data-color-scheme", editorColorScheme);
+      applyBlockNoteRootTheme(element, {
+        className: mergeCSSClasses(
+          "bn-root",
+          editorColorScheme,
+          className || "",
+        ),
+        colorScheme: editorColorScheme,
+      });
       applyLibraryTheme?.(element);
     },
     [editorColorScheme, className, applyLibraryTheme],

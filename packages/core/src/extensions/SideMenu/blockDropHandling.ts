@@ -36,6 +36,8 @@ function findDropEditor(
     ? [target]
     : Array.from(view.root.querySelectorAll(".bn-editor")).filter(
         (editor) =>
+          // The floating preview clones editor markup, but owns no EditorView.
+          !editor.closest(".bn-drag-preview") &&
           distanceToRect(point, editor.getBoundingClientRect()) <= dropMargin,
       );
   const coords = event;
@@ -121,14 +123,19 @@ export function registerBlockDropHandlers(
     const dropPointBoundingBox = (
       view.dom.firstChild as HTMLElement
     ).getBoundingClientRect();
+    // Firefox can resolve the exact right/bottom edge to the document's end.
+    // Preserve the left/top boundary: it distinguishes dropping beside a layout
+    // from dropping inside its first column.
+    const insetX = Math.min(1, dropPointBoundingBox.width / 2);
+    const insetY = Math.min(1, dropPointBoundingBox.height / 2);
     const evt = Object.assign(new Event(event.type, event), {
       clientX: Math.min(
         Math.max(event.clientX, dropPointBoundingBox.left),
-        dropPointBoundingBox.left + dropPointBoundingBox.width,
+        dropPointBoundingBox.right - insetX,
       ),
       clientY: Math.min(
         Math.max(event.clientY, dropPointBoundingBox.top),
-        dropPointBoundingBox.top + dropPointBoundingBox.height,
+        dropPointBoundingBox.bottom - insetY,
       ),
       dataTransfer: event.dataTransfer,
       preventDefault: () => event.preventDefault(),

@@ -1,4 +1,4 @@
-import { Plugin, PluginKey, Selection } from "prosemirror-state";
+import { Plugin, PluginKey } from "prosemirror-state";
 import { dropPoint } from "prosemirror-transform";
 import { Decoration, DecorationSet, type EditorView } from "prosemirror-view";
 import {
@@ -12,6 +12,9 @@ import {
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { createExtension } from "../../editor/BlockNoteExtension.js";
 import { getDropIntoChildren } from "./dropIntoChildren.js";
+import { MultipleNodeSelection } from "../SideMenu/MultipleNodeSelection.js";
+import { getNodeById } from "../../api/nodeUtil.js";
+import { readDragSelection } from "../SideMenu/dragSelection.js";
 
 export const DRAG_EXCLUSION_CLASSNAME = "bn-drag-exclude";
 
@@ -73,7 +76,9 @@ export const DropCursorExtension = createExtension<
   let timeout = -1;
   let dragSourceElement: Element | null = null;
   // Set when blocks are dropped in this editor, until the drag ends.
-  let blocksDropped = false;
+  let pendingDrop:
+    | { selection: ReturnType<typeof readDragSelection>; touch: boolean }
+    | undefined;
   let focusTimeout: ReturnType<typeof setTimeout> | undefined;
 
   const config = {
@@ -165,7 +170,7 @@ export const DropCursorExtension = createExtension<
     dragSourceElement = e.target instanceof Element ? e.target : null;
     // A drop from another document ends the drag there, without a `dragend`
     // in this one.
-    blocksDropped = false;
+    pendingDrop = undefined;
     clearTimeout(focusTimeout);
   };
 
@@ -277,14 +282,19 @@ export const DropCursorExtension = createExtension<
   const onDrop = (event: Event) => {
     scheduleRemoval(20);
     // Only block drags carry `blocknote/html`, not text drags.
-    blocksDropped =
+    const transfer = (event as DragEvent).dataTransfer;
+    pendingDrop =
       editor.prosemirrorView.editable &&
-      ((event as DragEvent).dataTransfer?.types.includes("blocknote/html") ??
-        false);
+      transfer?.types.includes("blocknote/html")
+        ? {
+            selection: readDragSelection(transfer),
+            touch: transfer.getData("blocknote/touch-drag") === "true",
+          }
+        : undefined;
     // A drop from another document or shadow root has no local dragend.
     // Finish it after drop handlers run, unless dragend already did so.
     clearTimeout(focusTimeout);
-    if (blocksDropped) {
+    if (pendingDrop) {
       focusTimeout = setTimeout(onRootDragEnd, 0);
     }
   };
@@ -295,27 +305,36 @@ export const DropCursorExtension = createExtension<
   };
 
   /**
-   * Leaves the editor ready for the keyboard after blocks were dropped in it.
+   * Restores the selection category and appropriate focus after a block drop.
    * Listens on the root, as `dragend` fires on the drag source, e.g. the side
    * menu's handle, which is outside the editor.
    */
   function onRootDragEnd() {
+    // Sources outside the editable DOM (handles and touch lifts) do not reach
+    // its dragend listener. Cancellation must clear feedback even without drop.
+    onDragEnd();
     clearTimeout(focusTimeout);
-    if (!blocksDropped) {
+    const dropped = pendingDrop;
+    pendingDrop = undefined;
+    if (!dropped) {
       return;
     }
-    blocksDropped = false;
     const view = editor.prosemirrorView;
     // Firefox shows no text cursor after a drop until the editor is focused
     // again (#2128).
     view.dom.blur();
-    // A text cursor at the end of the dropped blocks, so the keyboard works on
-    // the editor right away, e.g. to undo the drop (#3165). The drop leaves the
-    // blocks selected, which would show the formatting toolbar.
+    // Focus is needed for undo (#3165), not a reason to change selection type.
+    const selection = view.state.selection;
     view.dispatch(
-      view.state.tr.setSelection(Selection.near(view.state.selection.$to, -1)),
+      view.state.tr.setSelection(
+        dropped.selection.restore(view.state.doc, selection),
+      ),
     );
-    view.focus();
+    // Focusing contenteditable opens the software keyboard even for a block
+    // selection. A touch block drop is manipulation, not entry into text editing.
+    if (dropped.selection.type !== "block" || !dropped.touch) {
+      view.focus();
+    }
   }
 
   // Drops the blocks where the cursor shows them: as the first children of
@@ -386,8 +405,20 @@ export const DropCursorExtension = createExtension<
           } else {
             editor.updateBlock(target, { children: draggedBlocks });
           }
-          // Custom drops must also leave the cursor at the dropped blocks.
-          editor.setTextCursorPosition(draggedBlocks.at(-1), "end");
+          // Mark the inserted block range after the content changes, in the
+          // same undo operation. Drag completion restores the bookmark once;
+          // restoring here too would lose descendant selections on completion.
+          editor.transact((tr) => {
+            const first = getNodeById(draggedBlocks[0].id, tr.doc)!;
+            const last = getNodeById(draggedBlocks.at(-1).id, tr.doc)!;
+            tr.setSelection(
+              MultipleNodeSelection.create(
+                tr.doc,
+                first.posBeforeNode,
+                last.posBeforeNode + last.node.nodeSize,
+              ),
+            );
+          });
         });
         return true;
       },
@@ -412,7 +443,6 @@ export const DropCursorExtension = createExtension<
       dom.addEventListener("dragover", onDragOver, { signal });
       dom.addEventListener("dragleave", onDragLeave, { signal });
       dom.addEventListener("drop", onDrop, { signal });
-      dom.addEventListener("dragend", onDragEnd, { signal });
 
       // Clean up on unmount
       signal.addEventListener("abort", () => {
