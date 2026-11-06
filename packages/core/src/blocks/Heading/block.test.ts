@@ -3,6 +3,8 @@ import {
   openEditor,
   checkAriaSnapshot,
   pressKey,
+  readOutline,
+  checkFocusOutline,
 } from "@root/tests/a11y/helpers.js";
 import { expect, test, vi, afterEach } from "vite-plus/test";
 import { focusToggleHeading } from "./testHelpers.js";
@@ -48,11 +50,13 @@ test.describe("keyboard", () => {
       exact: true,
     });
     await expect.element(toggleButton).toBeVisible();
+    const unfocusedOutline = readOutline(toggleButton.element());
 
     while (document.activeElement !== toggleButton.element()) {
       await pressKey("Tab");
     }
     await expect.element(toggleButton).toHaveFocus();
+    await checkFocusOutline(toggleButton, unfocusedOutline);
 
     return toggleButton;
   }
@@ -70,14 +74,11 @@ test.describe("keyboard", () => {
   });
 
   // The toggle heading focus indicator is not visually correct yet.
-  // TODO: Fix the focus appearance and regenerate the visual baseline before enabling.
+  // TODO: Fix the focus appearance before enabling.
   test.skip("read-only toggle heading: Tab reaches the toggle and Enter expands/collapses it", async () => {
     localStorage.removeItem("toggle-read-only-toggle-heading");
     await openEditor(toggleHeadingDocument, { editable: false });
     const toggleButton = await focusToggleHeadingWithAssertions();
-    await expect
-      .element(page.getByRole("textbox"))
-      .toMatchScreenshot("toggle-heading-focused.png", {});
     await pressKey("Enter");
     await expect.element(toggleButton).toHaveFocus();
     await pressKey("Enter");
