@@ -10,6 +10,8 @@ import {
   tableEditing,
 } from "prosemirror-tables";
 
+import { TableAccessibilityPlugin } from "./TableAccessibility/TableAccessibilityPlugin.js";
+
 export const RESIZE_MIN_WIDTH = 35;
 export const EMPTY_CELL_WIDTH = 120;
 export const EMPTY_CELL_HEIGHT = 31;
@@ -17,8 +19,9 @@ export const EMPTY_CELL_HEIGHT = 31;
 export const TableExtension = Extension.create({
   name: "BlockNoteTableExtension",
 
-  addProseMirrorPlugins: () => {
+  addProseMirrorPlugins() {
     return [
+      TableAccessibilityPlugin(),
       columnResizing({
         cellMinWidth: RESIZE_MIN_WIDTH,
         defaultCellMinWidth: EMPTY_CELL_WIDTH,

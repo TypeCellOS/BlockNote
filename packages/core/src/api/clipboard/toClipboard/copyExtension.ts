@@ -65,16 +65,17 @@ function fragmentToExternalHTML<
   );
 
   if (isWithinTable) {
-    if (selectedFragment.firstChild?.type.name === "table") {
-      // contentNodeToTableContent expects the fragment of the content of a table, not the table node itself
-      // but cellselection.content() returns the table node itself if all cells and columns are selected
-      selectedFragment = selectedFragment.firstChild.content;
-    }
+    // A full-table selection already includes the table node; partial cell
+    // selections contain rows that need a table wrapper for TableMap.
+    const table =
+      selectedFragment.firstChild?.type.name === "table"
+        ? selectedFragment.firstChild
+        : view.state.schema.nodes.table.create(null, selectedFragment);
 
     // first convert selection to blocknote-style table content, and then
     // pass this to the exporter
     const ic = contentNodeToTableContent(
-      selectedFragment as any,
+      table,
       editor.schema.inlineContentSchema,
       editor.schema.styleSchema,
     );
