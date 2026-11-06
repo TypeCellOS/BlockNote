@@ -68,7 +68,7 @@ it("does not move color attributes on newer documents", async () => {
 
   expect(fragment.toJSON()).toMatchInlineSnapshot(
     // The color attributes are on the paragraph, not the blockContainer.
-    `"<blockgroup><blockcontainer id="0"><paragraph backgroundColor="red" textAlignment="right" textColor="blue">Welcome to this demo!</paragraph></blockcontainer></blockgroup>"`,
+    `"<blockgroup><blockcontainer id="0"><paragraph backgroundColor="red" lang="undefined" textAlignment="right" textColor="blue">Welcome to this demo!</paragraph></blockcontainer></blockgroup>"`,
   );
 
   const tr = editor.prosemirrorState.tr;

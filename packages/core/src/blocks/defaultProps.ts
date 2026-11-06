@@ -7,6 +7,10 @@ import type { Props, PropSchema } from "../schema/index.js";
 // The dependency from schema on this file doesn't make sense
 
 export const defaultProps = {
+  lang: {
+    default: undefined,
+    type: "string" as const,
+  },
   backgroundColor: {
     default: "default" as const,
   },
@@ -23,6 +27,12 @@ export type DefaultProps = Props<typeof defaultProps>;
 
 export const parseDefaultProps = (element: HTMLElement) => {
   const props: Partial<DefaultProps> = {};
+
+  if (element.hasAttribute("data-lang")) {
+    props.lang = element.getAttribute("data-lang")!;
+  } else if (element.hasAttribute("lang")) {
+    props.lang = element.lang;
+  }
 
   // If the `data-` attribute is found, set the prop to the value, as this most
   // likely means the parsed element was exported by BlockNote originally.
@@ -55,6 +65,10 @@ export const addDefaultPropsExternalHTML = (
   props: Partial<DefaultProps>,
   element: HTMLElement,
 ) => {
+  if (props.lang !== undefined) {
+    element.lang = props.lang;
+  }
+
   if (
     props.backgroundColor &&
     props.backgroundColor !== defaultProps.backgroundColor.default
