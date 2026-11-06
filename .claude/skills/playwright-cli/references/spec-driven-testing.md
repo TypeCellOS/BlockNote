@@ -1,5 +1,7 @@
 # Spec-driven testing (plan → generate → heal)
 
+For BlockNote repository tests, use [testing-skill](../../testing-skill/SKILL.md) and its [accessibility conventions](../../testing-skill/references/accessibility-tests.md). The generic runner setup and one-test-per-file instructions here do not apply to BlockNote's Vitest browser suite.
+
 End-to-end workflow for authoring and maintaining Playwright tests using `playwright-cli`. The three sections below can be used independently:
 
 - **Planning** — explore the app, produce a spec file describing what to test.

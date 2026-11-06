@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ESNext", "DOM"],
+    "jsx": "react-jsx",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "types": ["node", "vite-plus/client"],
+    "paths": {
+      "@root/*": ["../../*"]
+    }
+  },
+  "include": [
+    "./**/*.ts",
+    "./**/*.tsx",
+    "../../packages/core/src/blocks/Heading/block.test.ts",
+    "../../packages/react/src/editor/BlockNoteView.test.ts",
+    "../../packages/react/src/components/FormattingToolbar/FormattingToolbar.test.ts",
+    "../../packages/*/src/**/*.screen-reader.test.ts",
+    "../../packages/core/src/blocks/Heading/testHelpers.ts",
+    "../../packages/react/src/editor/testHelpers.ts",
+    "../../packages/react/src/components/FormattingToolbar/testHelpers.ts"
+  ]
+}

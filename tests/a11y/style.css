@@ -1,0 +1,9 @@
+/* Test final UI states, including editor content and portalled menus, without
+   transient animation styles affecting axe scans or visual snapshots. */
+*,
+*::before,
+*::after {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}

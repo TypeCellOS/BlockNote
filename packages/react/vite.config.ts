@@ -34,7 +34,14 @@ export default defineConfig(
         setupFiles: ["./vitestSetup.ts"],
         // `.browser.test` files need a real browser; the tests package's
         // browser suite runs them.
-        exclude: [...configDefaults.exclude, "**/*.browser.test.*"],
+        exclude: [
+          ...configDefaults.exclude,
+          "**/*.browser.test.*",
+          "./src/editor/BlockNoteView.test.ts",
+          "./src/components/FormattingToolbar/FormattingToolbar.test.ts",
+          "**/*.axe.test.ts",
+          "**/*.screen-reader.test.ts",
+        ],
       },
       plugins: [react(), webpackStats()],
       // used so that vitest resolves the core package from the sources instead of the built version

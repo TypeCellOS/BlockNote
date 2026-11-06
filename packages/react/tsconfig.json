@@ -22,6 +22,13 @@
     "emitDeclarationOnly": true
   },
   "include": ["src"],
+  "exclude": [
+    "src/**/*.screen-reader.test.ts",
+    "src/editor/BlockNoteView.test.ts",
+    "src/editor/testHelpers.ts",
+    "src/components/FormattingToolbar/FormattingToolbar.test.ts",
+    "src/components/FormattingToolbar/testHelpers.ts"
+  ],
   "references": [
     {
       "path": "../core"
