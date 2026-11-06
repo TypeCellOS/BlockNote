@@ -17,10 +17,12 @@
   "include": [
     "./**/*.ts",
     "./**/*.tsx",
-    "../../packages/*/src/**/*.a11y.test.ts",
-    "../../packages/*/src/**/a11y/*.test.ts",
-    "../../packages/*/src/**/*.axe.test.ts",
+    "../../packages/core/src/blocks/Heading/block.test.ts",
+    "../../packages/react/src/editor/BlockNoteView.test.ts",
+    "../../packages/react/src/components/FormattingToolbar/FormattingToolbar.test.ts",
     "../../packages/*/src/**/*.screen-reader.test.ts",
-    "../../packages/*/src/**/a11y/*.ts"
+    "../../packages/core/src/blocks/Heading/testHelpers.ts",
+    "../../packages/react/src/editor/testHelpers.ts",
+    "../../packages/react/src/components/FormattingToolbar/testHelpers.ts"
   ]
 }

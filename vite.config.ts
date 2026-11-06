@@ -108,6 +108,10 @@ export default defineConfig({
       {
         files: [
           "**/a11y/**",
+          "packages/core/src/blocks/Heading/block.test.ts",
+          "packages/react/src/editor/BlockNoteView.test.ts",
+          "packages/react/src/components/FormattingToolbar/FormattingToolbar.test.ts",
+          "packages/{core,react}/src/**/testHelpers.ts",
           "**/*.a11y.test.ts",
           "**/*.axe.test.ts",
           "**/*.screen-reader.test.ts",

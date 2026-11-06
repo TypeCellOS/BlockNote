@@ -41,7 +41,14 @@ if (native) {
       "CI=1",
       "--",
       "--run",
-      ...(args[0] && !args[0].startsWith("-") ? args : ["/a11y/", ...args]),
+      ...(args[0] && !args[0].startsWith("-")
+        ? args
+        : [
+            "/Heading/block.test.ts",
+            "/editor/BlockNoteView.test.ts",
+            "/FormattingToolbar/FormattingToolbar.test.ts",
+            ...args,
+          ]),
     ],
     { cwd: root, stdio: "inherit" },
   );

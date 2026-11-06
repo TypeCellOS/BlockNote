@@ -23,9 +23,11 @@
   },
   "include": ["src"],
   "exclude": [
-    "src/**/*.a11y.test.ts",
     "src/**/*.screen-reader.test.ts",
-    "src/**/a11y/**"
+    "src/editor/BlockNoteView.test.ts",
+    "src/editor/testHelpers.ts",
+    "src/components/FormattingToolbar/FormattingToolbar.test.ts",
+    "src/components/FormattingToolbar/testHelpers.ts"
   ],
   "references": [
     {

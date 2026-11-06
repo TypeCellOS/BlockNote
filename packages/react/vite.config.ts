@@ -37,7 +37,8 @@ export default defineConfig(
         exclude: [
           ...configDefaults.exclude,
           "**/*.browser.test.*",
-          "**/a11y/*.test.ts",
+          "./src/editor/BlockNoteView.test.ts",
+          "./src/components/FormattingToolbar/FormattingToolbar.test.ts",
           "**/*.axe.test.ts",
           "**/*.screen-reader.test.ts",
         ],

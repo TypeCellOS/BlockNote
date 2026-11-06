@@ -116,7 +116,9 @@ export default defineConfig(
         include: [
           "./src/end-to-end/**/*.test.tsx",
           "../packages/*/src/**/*.browser.test.{ts,tsx}",
-          "../packages/*/src/**/a11y/*.test.ts",
+          "../packages/core/src/blocks/Heading/block.test.ts",
+          "../packages/react/src/editor/BlockNoteView.test.ts",
+          "../packages/react/src/components/FormattingToolbar/FormattingToolbar.test.ts",
         ],
         exclude: [
           ...configDefaults.exclude,
