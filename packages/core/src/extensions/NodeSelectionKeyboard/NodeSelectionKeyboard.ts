@@ -9,6 +9,7 @@ import {
   createExtension,
   type ExtensionOptions,
 } from "../../editor/BlockNoteExtension.js";
+import { keyboardEventKey } from "../../util/keyboardEventKey.js";
 
 const PLUGIN_KEY = new PluginKey("node-selection-keyboard");
 // By default, typing with a node selection active will cause ProseMirror to
@@ -34,6 +35,12 @@ export const NodeSelectionKeyboardExtension = createExtension(
           key: PLUGIN_KEY,
           props: {
             handleKeyDown: (view, event) => {
+              // Safari autofill/dictation can send a keydown with no key.
+              const key = keyboardEventKey(event);
+              if (key === undefined) {
+                return false;
+              }
+
               // Checks for node selection
               const { selection } = view.state;
               if (selection instanceof NodeSelection) {
@@ -44,7 +51,7 @@ export const NodeSelectionKeyboardExtension = createExtension(
                 // Make room to type below a contentless block at the document
                 // end, while preserving gap cursors everywhere else.
                 if (
-                  event.key === "ArrowDown" &&
+                  key === "ArrowDown" &&
                   !event.shiftKey &&
                   !event.altKey &&
                   !event.isComposing &&
@@ -69,14 +76,14 @@ export const NodeSelectionKeyboardExtension = createExtension(
                   }
                 }
                 // Checks if key press is alphanumeric
-                if (event.key.length === 1) {
+                if (key.length === 1) {
                   event.preventDefault();
 
                   return true;
                 }
                 // Checks if key press is Enter
                 if (
-                  event.key === "Enter" &&
+                  key === "Enter" &&
                   !event.isComposing &&
                   !event.shiftKey &&
                   !event.altKey &&
