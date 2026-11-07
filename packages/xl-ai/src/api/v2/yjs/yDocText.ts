@@ -81,11 +81,6 @@ export function updateYDocFromText(
     format: TextFormat;
     /** A text from `getDocumentText`, possibly with changes. */
     text: string;
-    /**
-     * Experimental (see `TextUpdateOptions.experimentalTextMoves`). With
-     * `merge: "yjs"`, only the plan uses it: Yjs merges the moved text.
-     */
-    experimentalTextMoves?: boolean;
   } & YDocWriteFromVersion,
 ): YDocTextUpdate {
   const fork = editor.getExtension(ForkYDocExtension);

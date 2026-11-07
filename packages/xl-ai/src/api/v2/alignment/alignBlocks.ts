@@ -20,7 +20,7 @@ import {
  * The minimum part of a text that two blocks must have in common to match by
  * their overlap.
  */
-export const MIN_SHARE = 0.5;
+const MIN_SHARE = 0.5;
 
 /**
  * Two blocks that are the same block: `a[aIndex]` and `b[bIndex]`. Unlike a
@@ -28,14 +28,6 @@ export const MIN_SHARE = 0.5;
  * can cross the other pairs. These pairs have `moved: true`.
  */
 export type BlockPair = { aIndex: number; bIndex: number; moved?: true };
-
-/**
- * Experimental (see `TextUpdateOptions.experimentalTextMoves`): a part of
- * the text of block `a[aIndex]` that is in block `b[bIndex]`, of the `size`
- * of {@link Overlap}, where the two blocks are not a pair. A split or a join
- * moved the text. One of the two blocks is in a pair with a third block.
- */
-export type TextMove = Overlap;
 
 /**
  * Aligns two flat block lists, one to one. The identity of a block follows
@@ -68,34 +60,9 @@ export function alignBlocks(
   a: readonly FlatBlock[],
   b: readonly FlatBlock[],
 ): BlockPair[] {
-  return alignBlocksAndMoves(a, b, false).pairs;
-}
-
-/**
- * {@link alignBlocks}, and with `withMoves` (experimental, see
- * `TextUpdateOptions.experimentalTextMoves`) the text that a split or a join
- * moved: the other overlaps of rule 1 of a block in a pair, of at least half
- * of the shorter text. Examples are the second part of a split block, and
- * the second block of a join. Such a block is a part of the other block,
- * thus rules 2 and 3 do not give it a pair. With `withMoves`, a split block
- * stays the first part (see {@link mutualBestPairs}).
- */
-export function alignBlocksAndMoves(
-  a: readonly FlatBlock[],
-  b: readonly FlatBlock[],
-  withMoves: boolean,
-): { pairs: BlockPair[]; moves: TextMove[] } {
-  const { pairs: ordered, moves } = mutualBestPairs(a, b, withMoves);
-  // The blocks of a move are not blocks without a match.
-  const moved = movedPairs(a, b, [...ordered, ...moves]);
-  return {
-    pairs: [
-      ...ordered,
-      ...moved,
-      ...samePositionPairs(a, b, ordered, [...moved, ...moves]),
-    ],
-    moves,
-  };
+  const ordered = mutualBestPairs(a, b);
+  const moved = movedPairs(a, b, ordered);
+  return [...ordered, ...moved, ...samePositionPairs(a, b, ordered, moved)];
 }
 
 /** Rule 3 of {@link alignBlocks}: pairs of blocks at the same position. */
@@ -237,22 +204,18 @@ function overlapText(block: LensBlock): OverlapText {
  * least {@link MIN_SHARE} of the shorter text:
  *
  * - A block of `a` (the view) prefers the block of `b` with the largest
- *   overlap. Thus, a split block stays the part with most of its text. With
- *   `withMoves`, it prefers the first block of `b`: a split block stays the
- *   first part.
+ *   overlap. Thus, a split block stays the part with most of its text.
  * - A block of `b` (the text) prefers the block of `a` that it covers best:
  *   the largest part of the text of that block. Thus, two joined blocks stay
  *   the first block, because the joined text covers the two blocks fully.
  *
  * On a tie, the earlier block wins. The overlaps come from one diff, thus the
- * pairs do not cross. With `withMoves`, the other overlaps of this size of a
- * block in a pair are the moves (see {@link alignBlocksAndMoves}).
+ * pairs do not cross.
  */
 function mutualBestPairs(
   a: readonly FlatBlock[],
   b: readonly FlatBlock[],
-  withMoves: boolean,
-): { pairs: MatchedPair[]; moves: TextMove[] } {
+): MatchedPair[] {
   const textsA = a.map(({ block }) => overlapText(block));
   const textsB = b.map(({ block }) => overlapText(block));
   const overlaps =
@@ -276,7 +239,7 @@ function mutualBestPairs(
   const bestOfB = new Map<number, Overlap>();
   for (const overlap of large) {
     const ofA = bestOfA.get(overlap.aIndex);
-    if (ofA === undefined || (!withMoves && ofA.size < overlap.size)) {
+    if (ofA === undefined || ofA.size < overlap.size) {
       bestOfA.set(overlap.aIndex, overlap);
     }
     const ofB = bestOfB.get(overlap.bIndex);
@@ -285,34 +248,12 @@ function mutualBestPairs(
     }
   }
 
-  const mutual = large.filter(
-    (overlap) =>
-      bestOfA.get(overlap.aIndex) === overlap &&
-      bestOfB.get(overlap.bIndex) === overlap,
-  );
-  return {
-    pairs: mutual
-      .map(({ aIndex, bIndex }) => ({ aIndex, bIndex }))
-      .sort((x, y) => x.aIndex - y.aIndex),
-    moves: withMoves ? textMoves(a, b, large, mutual) : [],
-  };
-}
-
-/** The moves (see {@link alignBlocksAndMoves}): the other large overlaps of text blocks, of a block in a pair. */
-function textMoves(
-  a: readonly FlatBlock[],
-  b: readonly FlatBlock[],
-  large: readonly Overlap[],
-  pairs: readonly Overlap[],
-): TextMove[] {
-  const isPair = new Set(pairs);
-  const pairedA = new Set(pairs.map((pair) => pair.aIndex));
-  const pairedB = new Set(pairs.map((pair) => pair.bIndex));
-  return large.filter(
-    (overlap) =>
-      !isPair.has(overlap) &&
-      (pairedA.has(overlap.aIndex) || pairedB.has(overlap.bIndex)) &&
-      contentShape(a[overlap.aIndex].block.content) === "text" &&
-      contentShape(b[overlap.bIndex].block.content) === "text",
-  );
+  return large
+    .filter(
+      (overlap) =>
+        bestOfA.get(overlap.aIndex) === overlap &&
+        bestOfB.get(overlap.bIndex) === overlap,
+    )
+    .map(({ aIndex, bIndex }) => ({ aIndex, bIndex }))
+    .sort((x, y) => x.aIndex - y.aIndex);
 }

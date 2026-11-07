@@ -17,15 +17,12 @@ export type RunContext<T> = {
 };
 
 export type Diff3Handlers<T> = {
-  /** Merges a unit that is in the three sequences. `at` is its index in the result. */
-  stable: (triple: StableTriple<T>, at: number) => T;
+  /** Merges a unit that is in the three sequences. */
+  stable: (triple: StableTriple<T>) => T;
   /** Changes a run of units that ours added or changed. */
   ours: (units: T[], context: RunContext<T>) => T[];
-  /**
-   * Called when the two sides changed a run in different ways (a conflict).
-   * `at` is the index in the result where the merge of that run starts.
-   */
-  conflict?: (at: number) => void;
+  /** Called when the two sides changed a run in different ways (a conflict). */
+  conflict?: () => void;
   /**
    * The side that wins a conflict. By default, ours. The rebase gives a
    * conflict to theirs, the current document (see `MergeOptions`).
@@ -109,10 +106,7 @@ export function diff3<T>(
     if (i < base.length && toA[i] === ja && toB[i] === jb) {
       before = contexts[i] ?? before;
       merged.push(
-        handlers.stable(
-          { base: base[i], ours: ours[ja], theirs: theirs[jb] },
-          merged.length,
-        ),
+        handlers.stable({ base: base[i], ours: ours[ja], theirs: theirs[jb] }),
       );
       i++;
       ja++;
@@ -142,7 +136,7 @@ export function diff3<T>(
         both === undefined &&
         !isUnchanged(toB, i, i2, jb, jb2, base, theirs, handlers.same);
       if (conflict) {
-        handlers.conflict?.(merged.length);
+        handlers.conflict?.();
       }
       if (conflict && handlers.conflictWinner === "theirs") {
         for (let j = jb; j < jb2; j++) {

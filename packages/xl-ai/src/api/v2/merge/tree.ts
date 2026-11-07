@@ -6,7 +6,6 @@ import { diffBlock } from "../blocks/update.js";
 import { myersMatch } from "../sequence/myers.js";
 import { mergeBlock } from "./block.js";
 import { diff3 } from "./diff3.js";
-import { mergeTextGroups, type TextGroup } from "./group.js";
 import { mergeValue } from "./threeWay.js";
 
 export type RebaseWarning =
@@ -46,9 +45,6 @@ export type RebaseWarning =
  *   place of that side. If both sides add blocks at one position, both
  *   stay.
  * - The fields of a block: a three-way merge (see `mergeBlock`).
- * - Experimental, with `groups`: the content of the blocks of a split or a
- *   join of the client merges as one text (see `mergeTextGroups`). A block
- *   of a group stays only if that merge gives it content.
  *
  * If both sides changed the same part in different ways (a conflict), the
  * part of `theirs` wins, and the block gets the warning `conflicting-change`
@@ -62,39 +58,21 @@ export function mergeTree(input: {
   ours: readonly LensBlock[];
   theirs: readonly LensBlock[];
   contentKindOf: (type: string) => ContentKind;
-  /**
-   * Experimental: the splits and joins of the client (see `TextGroup`). With
-   * groups (also none), the merge also finds the splits and joins of other
-   * writers (see `mergeTextGroups`).
-   */
-  groups?: readonly TextGroup[];
 }): { blocks: LensBlock[]; warnings: RebaseWarning[] } {
   const base = new BlockTree(input.base);
   const ours = new BlockTree(input.ours);
   const theirs = new BlockTree(input.theirs);
   const warnings: RebaseWarning[] = [];
-  const { pieceOf, conflicts: groupConflicts } = mergeTextGroups({
-    ...input,
-    base,
-    ours,
-    theirs,
-  });
-  /** Returns false for a block of a group to which the merge of its group gives no content. */
-  function hasContent(id: string): boolean {
-    return !pieceOf.has(id) || pieceOf.get(id) !== undefined;
-  }
 
   /** The merged fields of a block, and whether the two sides changed the same part. */
   function fieldsOf(id: string): { block: LensBlock; conflict: boolean } {
-    const content = pieceOf.has(id) ? (pieceOf.get(id) ?? []) : undefined;
     if (!(base.has(id) && ours.has(id) && theirs.has(id))) {
-      const block = withoutChildren((ours.has(id) ? ours : theirs).block(id));
       return {
-        block: content === undefined ? block : { ...block, content },
-        conflict: groupConflicts.has(id),
+        block: withoutChildren((ours.has(id) ? ours : theirs).block(id)),
+        conflict: false,
       };
     }
-    let conflict = groupConflicts.has(id);
+    let conflict = false;
     const merged = mergeBlock(
       base.block(id),
       ours.block(id),
@@ -102,7 +80,6 @@ export function mergeTree(input: {
       input.contentKindOf,
       {
         concurrent: true,
-        content,
         onConflict: () => {
           conflict = true;
         },
@@ -117,10 +94,8 @@ export function mergeTree(input: {
     let result = staysMemo.get(id);
     if (result === undefined) {
       if (ours.has(id)) {
-        // Another writer removed a block of `base` that the client keeps. A
-        // block of a group without content goes: a conflict removed its
-        // start (see `mergeGroupContent`).
-        result = (!base.has(id) || theirs.has(id)) && hasContent(id);
+        // Another writer removed a block of `base` that the client keeps.
+        result = !base.has(id) || theirs.has(id);
       } else if (!theirs.has(id)) {
         result = false;
       } else if (base.has(id)) {
@@ -349,17 +324,11 @@ export function mergeTree(input: {
     }
   }
 
-  /**
-   * Returns true if the client changed the fields, the parent or the place
-   * of the block. For a block of a group, a change of its text moved with
-   * the text (see `mergeTextGroups`): only its type and props count.
-   */
+  /** Returns true if the client changed the fields, the parent or the place of the block. */
   function changedByClient(id: string): boolean {
-    const changed = diffBlock(base.block(id), ours.block(id));
     return (
-      (pieceOf.has(id)
-        ? changed?.type !== undefined || changed?.props !== undefined
-        : changed !== undefined) || movedByClient(id)
+      diffBlock(base.block(id), ours.block(id)) !== undefined ||
+      movedByClient(id)
     );
   }
 
@@ -392,21 +361,17 @@ export function mergeTree(input: {
    * Returns true if another writer changed the block, or a block in it that
    * the client also removed (also a new block). Thus, the removal of the
    * block by the client loses that change. A block in it that the client
-   * keeps (for example moves out) does not count. For a block of a group,
-   * a change of its text moved with the text: only a block that the merge
-   * of the group keeps counts.
+   * keeps (for example moves out) does not count.
    */
   function changedByOthers(id: string): boolean {
     let result = changedMemo.get(id);
     if (result === undefined) {
       result =
         !base.has(id) ||
-        (pieceOf.has(id)
-          ? hasContent(id)
-          : !deepEqual(
-              withoutChildren(theirs.block(id)),
-              withoutChildren(base.block(id)),
-            )) ||
+        !deepEqual(
+          withoutChildren(theirs.block(id)),
+          withoutChildren(base.block(id)),
+        ) ||
         theirs
           .childrenOf(id)
           .some((child) => !ours.has(child) && changedByOthers(child));

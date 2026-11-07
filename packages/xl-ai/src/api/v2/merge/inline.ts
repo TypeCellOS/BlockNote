@@ -31,69 +31,41 @@ export function mergeInlineContent(
   theirs: readonly LensInlineContent[],
   options: MergeOptions = {},
 ): LensInlineContent[] {
-  return fromUnits(
-    mergeUnits(
-      toUnits(base),
-      toUnits(ours),
-      toUnits(theirs, options.shadowOf),
-      options,
-    ),
-  );
-}
+  const o = toUnits(base);
+  const a = toUnits(ours);
+  const b = toUnits(theirs, options.shadowOf);
 
-/**
- * {@link mergeInlineContent} for units (see `toUnits`). A group of blocks
- * (see `merge/group.ts`) uses this for the content of all its blocks, with
- * a break at the start of each block. The breaks align by their place in
- * the text (see `alignUnits`), and the ID of a stable break merges
- * three-way: a side can give the block at that place a different ID (for
- * example the first part of a split block, if the second part keeps the ID).
- * If `conflictAt` is given, it gets each conflict instead of
- * `options.onConflict`, with the index in the result where the conflict
- * starts.
- */
-export function mergeUnits(
-  o: readonly InlineUnit[],
-  a: readonly InlineUnit[],
-  b: readonly InlineUnit[],
-  options: MergeOptions,
-  conflictAt?: (at: number) => void,
-): InlineUnit[] {
-  return diff3(o, a, b, alignUnits(o, a), alignUnits(o, b), {
-    stable: (triple, at) =>
-      mergeStable(
-        triple,
-        conflictAt === undefined
-          ? options
-          : { ...options, onConflict: () => conflictAt(at) },
-      ),
-    ours: (units, context) => {
-      // The styles of the replaced text, one time for the run.
-      const old = commonOf(context.replaced.base, context.replaced.theirs);
-      return units.map((unit) => inheritHiddenStyles(unit, context, old));
-    },
-    // The round trip can move whitespace across a style boundary (for
-    // example "**bold **" becomes "**bold** "). Thus, whitespace does not
-    // show the styles around it. A break is a context without styles: as
-    // at the start of the content, text after it does not get styles.
-    isContext: ({ base }) =>
-      base.kind === "break" || (base.kind === "char" && !/\s/u.test(base.char)),
-    // Two writers add text at one position: the text that applied first
-    // (of the other writer) stays first. Thus, two additions at the end
-    // read in the order of the writes. (The tree merge puts the blocks of
-    // the client first, see `merge/tree.ts`.)
-    keepBothInserts: options.concurrent ? "theirs-first" : undefined,
-    // In the planner, an item of theirs without a base unit is an item that
-    // the format does not show (for example a mention in plain text). The
-    // text cannot remove it, thus it stays. Whitespace is not an item: the
-    // format can change it.
-    keepTheirs: options.concurrent ? undefined : (unit) => unit.kind === "atom",
-    conflict: conflictAt ?? options.onConflict,
-    conflictWinner: options.concurrent ? "theirs" : "ours",
-    // The alignment pairs characters without their styles. Thus, a
-    // character with a changed style is a change.
-    same: sameUnitWithStyles,
-  });
+  return fromUnits(
+    diff3(o, a, b, alignUnits(o, a), alignUnits(o, b), {
+      stable: (triple) => mergeStable(triple, options),
+      ours: (units, context) => {
+        // The styles of the replaced text, one time for the run.
+        const old = commonOf(context.replaced.base, context.replaced.theirs);
+        return units.map((unit) => inheritHiddenStyles(unit, context, old));
+      },
+      // The round trip can move whitespace across a style boundary (for
+      // example "**bold **" becomes "**bold** "). Thus, whitespace does not
+      // show the styles around it.
+      isContext: ({ base }) => base.kind === "char" && !/\s/u.test(base.char),
+      // Two writers add text at one position: the text that applied first
+      // (of the other writer) stays first. Thus, two additions at the end
+      // read in the order of the writes. (The tree merge puts the blocks of
+      // the client first, see `merge/tree.ts`.)
+      keepBothInserts: options.concurrent ? "theirs-first" : undefined,
+      // In the planner, an item of theirs without a base unit is an item that
+      // the format does not show (for example a mention in plain text). The
+      // text cannot remove it, thus it stays. Whitespace is not an item: the
+      // format can change it.
+      keepTheirs: options.concurrent
+        ? undefined
+        : (unit) => unit.kind === "atom",
+      conflict: options.onConflict,
+      conflictWinner: options.concurrent ? "theirs" : "ours",
+      // The alignment pairs characters without their styles. Thus, a
+      // character with a changed style is a change.
+      same: sameUnitWithStyles,
+    }),
+  );
 }
 
 function mergeStable(
@@ -108,13 +80,6 @@ function mergeStable(
       href: mergeValue(base.href, ours.href, theirs.href, options),
       shadow: theirs.shadow,
     };
-  }
-  if (
-    base.kind === "break" &&
-    ours.kind === "break" &&
-    theirs.kind === "break"
-  ) {
-    return { ...theirs, id: mergeValue(base.id, ours.id, theirs.id, options) };
   }
   // An atom only matches an equal atom. Thus, the three are the same item.
   return theirs;

@@ -21,10 +21,6 @@ import type { MatchedPair } from "../sequence/types.js";
  *   of that text, its shadow (see `MergeOptions.shadowOf`). Each character
  *   knows its item. If all characters of a shadow stay, {@link fromUnits}
  *   gives back the item.
- * - In the content of a group of blocks (see `merge/group.ts`), one unit
- *   at the start of each block: a break, with the ID of the block. A break
- *   of `theirs` is `changed` if another writer changed the fields of a block
- *   that the client removed. Thus, the merge sees a conflict there.
  */
 export type InlineUnit =
   | {
@@ -34,8 +30,7 @@ export type InlineUnit =
       href: string | undefined;
       shadow?: Shadow;
     }
-  | { kind: "atom"; item: LensInlineContent; key: string }
-  | { kind: "break"; id: string; changed: boolean };
+  | { kind: "atom"; item: LensInlineContent; key: string };
 
 /** A character of the shadow of an item: the item, the shadow (`id`), and the index of the character in the shadow. */
 type Shadow = {
@@ -116,9 +111,6 @@ export function fromUnits(units: readonly InlineUnit[]): LensInlineContent[] {
   const content: LensInlineContent[] = [];
   for (let i = 0; i < units.length; i++) {
     const unit = units[i];
-    if (unit.kind === "break") {
-      throw new Error("The content of one block cannot contain a break");
-    }
     if (unit.kind === "atom") {
       content.push(unit.item);
       continue;
@@ -166,11 +158,6 @@ function sameStyles(a: LensStyles, b: LensStyles) {
 /**
  * Aligns two unit sequences (see `alignText`). The alignment does not compare
  * styles. The merge does that in a different step.
- *
- * Breaks (see {@link InlineUnit}) align by their place in the text, not by
- * their IDs. Thus, a block that starts at the same text is the same block,
- * also with a different ID: for example the first part of a split block, if
- * the second part keeps the ID.
  */
 export function alignUnits(
   a: readonly InlineUnit[],
@@ -180,25 +167,17 @@ export function alignUnits(
 }
 
 function textUnitOf(unit: InlineUnit): TextUnit {
-  // An atom key starts with "\u0000{", and a character key is one character.
-  // Thus, the key of a break is different from the key of each other unit.
   return unit.kind === "char"
     ? { key: unit.char, kind: charKind(unit.char) }
-    : {
-        key: unit.kind === "atom" ? `\u0000${unit.key}` : "\u0000\u0001",
-        kind: "other",
-      };
+    : { key: `\u0000${unit.key}`, kind: "other" };
 }
 
-/** Returns true if two units are the same: the same character with the same styles and link, the same atom, or a break of the same block, with the same `changed`. */
+/** Returns true if two units are the same: the same character with the same styles and link, or the same atom. */
 export function sameUnitWithStyles(a: InlineUnit, b: InlineUnit): boolean {
   if (a.kind === "char" && b.kind === "char") {
     return (
       a.char === b.char && a.href === b.href && sameStyles(a.styles, b.styles)
     );
-  }
-  if (a.kind === "break" && b.kind === "break") {
-    return a.id === b.id && a.changed === b.changed;
   }
   return a.kind === "atom" && b.kind === "atom" && a.key === b.key;
 }

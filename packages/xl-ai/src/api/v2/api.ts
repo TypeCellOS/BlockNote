@@ -5,7 +5,7 @@ import {
 } from "@blocknote/core";
 import { UniqueID } from "@blocknote/core/extensions";
 
-import { alignBlocksAndMoves } from "./alignment/alignBlocks.js";
+import { alignBlocks } from "./alignment/alignBlocks.js";
 import { type SchemaRules, schemaRulesOf } from "./blocks/schema.js";
 import type { LensBlock } from "./blocks/types.js";
 import type { TextFormat } from "./formats/types.js";
@@ -18,7 +18,6 @@ import { parseJSON } from "./parse/parseJSON.js";
 import { parseText, withoutByteOrderMark } from "./parse/parseText.js";
 import { documentText } from "./projection/cache.js";
 import { shadowsOf } from "./projection/shadows.js";
-import type { TextGroup } from "./merge/group.js";
 import { mergeTree, type RebaseWarning } from "./merge/tree.js";
 import { fitResult } from "./fit/fitResult.js";
 import { type FitWarning, mergedCellsRemoved } from "./fit/fitTable.js";
@@ -99,15 +98,6 @@ export type TextUpdateOptions = {
   format: TextFormat;
   /** A text from {@link getDocumentText}, possibly with changes. */
   text: string;
-  /**
-   * Experimental, off by default. A split or a join in the text moves text
-   * from one block to another (see "Splits and joins" in the README). The
-   * moved text keeps its hidden styles, and the first part of a split keeps
-   * the ID. With `base`, the changes of other writers to the moved text go to
-   * the block that holds it. Without this option, the merges pair the
-   * blocks by ID only.
-   */
-  experimentalTextMoves?: boolean;
 } & WriteFromVersion<readonly LensBlock[]>;
 
 /**
@@ -148,13 +138,11 @@ function computeBlocksUpdate(
 ): TextUpdate {
   const { current } = options;
   const base = versionOf(options);
-  const textMoves = options.experimentalTextMoves === true;
   const plan = planTextUpdate(
     editor,
     options.format,
     base ?? current,
     options.text,
-    textMoves,
   );
   if (plan.error !== undefined) {
     return plan;
@@ -164,7 +152,6 @@ function computeBlocksUpdate(
     current,
     onConflict: options.onConflict,
     keepLayout: options.keepLayout,
-    groups: textMoves ? (plan.groups ?? []) : undefined,
   });
 }
 
@@ -181,13 +168,6 @@ export type JSONUpdateOptions = {
    * another writer.
    */
   document: readonly PartialBlock<any, any, any>[];
-  /**
-   * Experimental, off by default (see
-   * `TextUpdateOptions.experimentalTextMoves`). With `base`, the merge
-   * finds the splits and joins of other writers. The JSON gives no splits
-   * and joins of the client: its blocks pair by ID.
-   */
-  experimentalTextMoves?: boolean;
 } & WriteFromVersion<readonly LensBlock[]>;
 
 /**
@@ -225,12 +205,7 @@ function jsonUpdate(
   return updateToTarget(
     schemaRulesOf(editor),
     { target: parsed.blocks, warnings: [] },
-    {
-      base,
-      current,
-      onConflict: options.onConflict,
-      groups: options.experimentalTextMoves === true ? [] : undefined,
-    },
+    { base, current, onConflict: options.onConflict },
   );
 }
 
@@ -286,8 +261,6 @@ function updateToTarget(
     current: readonly LensBlock[];
     onConflict: "keep-current" | "reject" | undefined;
     keepLayout?: boolean;
-    /** Experimental: the splits and joins of the client (see `mergeTree`). */
-    groups?: readonly TextGroup[];
   },
 ): ValidTextUpdate | ConflictError {
   const { base, current } = documents;
@@ -302,7 +275,6 @@ function updateToTarget(
           ours: plan.target,
           theirs: current,
           contentKindOf: rules.contentKindOf,
-          groups: documents.groups,
         });
   if (documents.onConflict === "reject" && merged.warnings.length > 0) {
     return { error: "conflict", conflicts: merged.warnings };
@@ -353,15 +325,8 @@ function planTextUpdate(
   format: TextFormat,
   document: readonly LensBlock[],
   text: string,
-  /** Experimental (see `TextUpdateOptions.experimentalTextMoves`). */
-  textMoves: boolean,
 ):
-  | {
-      error?: undefined;
-      target: readonly LensBlock[];
-      warnings: PlanWarning[];
-      groups?: TextGroup[];
-    }
+  | { error?: undefined; target: readonly LensBlock[]; warnings: PlanWarning[] }
   | { error: "invalid-document" } {
   const read = documentText(editor, format, document);
   const content = withoutByteOrderMark(text, read.text);
@@ -374,17 +339,11 @@ function planTextUpdate(
   if (parsed.error !== undefined) {
     return parsed;
   }
-  const { pairs, moves } = alignBlocksAndMoves(
-    projection.view,
-    parsed.blocks,
-    textMoves,
-  );
   return planTarget({
     document,
     projection,
     incoming: parsed.blocks,
-    alignment: pairs,
-    moves,
+    alignment: alignBlocks(projection.view, parsed.blocks),
     contentKindOf: schemaRulesOf(editor).contentKindOf,
     shadowOf: shadowsOf(editor, format),
     newId: () => UniqueID.options.generateID(),
