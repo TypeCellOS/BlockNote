@@ -23,6 +23,31 @@ In lens terms, the document is the source and the text is the view. The `seriali
 
 There is no storage interface. The consumer keeps the versions, as full Block JSON or as full Yjs states. A version history must keep full documents in any case, because only a full document shows props, nesting and colors.
 
+## Terms
+
+Each term has one meaning in the code, the comments and this README. The stage is the first stage that uses the term (see "Pipeline").
+
+| Term                          | Meaning                                                                                                                                                                   | In the code                    | Stage |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------ | ----- |
+| text                          | The string that a client reads (`getDocumentText`) and writes back.                                                                                                       | `text`                         | API   |
+| format                        | Two functions: `serialize` (blocks to text) and `parse` (text to blocks).                                                                                                 | `TextFormat`                   | API   |
+| current document              | The document of the editor (or of the Y.Doc) now.                                                                                                                         | `current`                      | API   |
+| `base`                        | The version that the client read: `"current"`, or a version of the document.                                                                                              | `base`                         | API   |
+| source document, source block | The document that the plan starts from: the version of `base`, or the current document for `base: "current"`.                                                             | `document`, `source`           | 1     |
+| stored form                   | The blocks as the document stores them: through the ProseMirror schema and back. Blocks in this form compare equal to the blocks of the document.                         | `toStoredBlocks`               | 1, 2  |
+| view, view block              | The text of the source document, parsed back in the stored form: the document as the format shows it.                                                                     | `Projection.view`, `ViewBlock` | 1     |
+| link                          | The source block that gave a view block.                                                                                                                                  | `ViewBlock.sourceId`           | 1     |
+| part                          | A view block that a source block gives alone, without its children. A block has no part (the format renders it as no text), one part, or more parts (a multi-part block). | `partsOf`                      | 1     |
+| invisible block               | A source block that no view block links to. The text cannot change it, thus it stays.                                                                                     | `Projection.invisibleIds`      | 1     |
+| text block                    | A block of the parse of the client's text, in the stored form.                                                                                                            | `incoming`                     | 2     |
+| pair                          | A view block and a text block that are the same block (see "Identity").                                                                                                   | `BlockPair`                    | 2     |
+| target                        | The document as the text asks for it, with the data that the format does not show.                                                                                        | `Plan.target`                  | 3     |
+| hidden data                   | Data that the format does not show: IDs, some props and styles, a nesting, blocks that the format does not render.                                                        |                                | 3     |
+| layout block                  | A block that only groups its children, for example a column list or a column.                                                                                             | `layoutRuleOf`                 | 1, 5  |
+| `base`, `ours`, `theirs`      | The three sides of a three-way merge (see "The three-way merge"). The planner and the rebase give them different documents.                                               | `merge/`                       | 3, 4  |
+| result                        | The target after the merge (stage 4) and the fit (stage 5). The operations change the current document into the result.                                                   |                                | 5     |
+| operation                     | One change of the result, by block ID: an update, an insert, a move or a removal.                                                                                         | `BlockOperation`               | 6     |
+
 ## Laws
 
 The tests examine these laws (`api.laws.test.ts`, and `api.properties.test.ts` on random documents):
