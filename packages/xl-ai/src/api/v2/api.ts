@@ -120,39 +120,29 @@ export function computeTextUpdate(
   editor: BlockNoteEditor<any, any, any>,
   options: TextUpdateOptions,
 ): TextUpdate {
-  return computeBlocksUpdate(editor, { ...options, current: editor.document });
+  return textUpdate(editor, options, editor.document);
 }
 
 /**
- * {@link computeTextUpdate} for the document `current`, which does not have
- * to be the document of the editor. The editor supplies the schema and the
- * conversions.
+ * Computes the operations with {@link computeTextUpdate}, and applies them to
+ * the editor (see {@link write}). First, the blocks without an ID get an ID.
  */
-function computeBlocksUpdate(
+export function updateDocumentFromText(
   editor: BlockNoteEditor<any, any, any>,
-  options: TextUpdateOptions & {
-    current: readonly LensBlock[];
-    /** Keep the layout blocks, also if they become empty (see `fitResult`). */
-    keepLayout?: boolean;
-  },
+  options: TextUpdateOptions,
 ): TextUpdate {
-  const { current } = options;
-  const base = versionOf(options);
-  const plan = planTextUpdate(
-    editor,
-    options.format,
-    base ?? current,
-    options.text,
-  );
-  if (plan.error !== undefined) {
-    return plan;
-  }
-  return updateToTarget(schemaRulesOf(editor), plan, {
-    base,
-    current,
-    onConflict: options.onConflict,
-    keepLayout: options.keepLayout,
-  });
+  return writeText(editor, options);
+}
+
+/**
+ * {@link updateDocumentFromText}, with the option `keepLayout` (see
+ * `fitResult`). The Y.Doc write with `merge: "yjs"` uses this.
+ */
+export function writeText(
+  editor: BlockNoteEditor<any, any, any>,
+  options: TextUpdateOptions & { keepLayout?: boolean },
+): TextUpdate {
+  return write(editor, (current) => textUpdate(editor, options, current));
 }
 
 export type JSONUpdateOptions = {
@@ -192,6 +182,36 @@ export function updateDocumentFromJSON(
   return write(editor, (current) => jsonUpdate(editor, options, current));
 }
 
+// The pipeline (see "Pipeline" in the README). A write runs these functions:
+//
+//   text:  textUpdate = planText (1 Project, 2 Parse and align, 3 Plan)
+//                       then updateFromPlan (4 Merge, 5 Fit, 6 Diff)
+//   JSON:  jsonUpdate = parseJSON (2 Parse)
+//                       then updateFromPlan (4 Merge, 5 Fit, 6 Diff)
+//   write: write (7 Apply, 8 Dispatch) around textUpdate or jsonUpdate
+//
+// `current` is the document that the operations change. It does not have to
+// be the document of the editor: the editor supplies the schema and the
+// conversions.
+
+function textUpdate(
+  editor: BlockNoteEditor<any, any, any>,
+  options: TextUpdateOptions & { keepLayout?: boolean },
+  current: readonly LensBlock[],
+): TextUpdate {
+  const base = versionOf(options);
+  const plan = planText(editor, options.format, base ?? current, options.text);
+  if (plan.error !== undefined) {
+    return plan;
+  }
+  return updateFromPlan(schemaRulesOf(editor), plan, {
+    base,
+    current,
+    onConflict: options.onConflict,
+    keepLayout: options.keepLayout,
+  });
+}
+
 function jsonUpdate(
   editor: BlockNoteEditor<any, any, any>,
   options: JSONUpdateOptions,
@@ -202,7 +222,7 @@ function jsonUpdate(
   if (parsed.error !== undefined) {
     return parsed;
   }
-  return updateToTarget(
+  return updateFromPlan(
     schemaRulesOf(editor),
     { target: parsed.blocks, warnings: [] },
     { base, current, onConflict: options.onConflict },
@@ -210,22 +230,105 @@ function jsonUpdate(
 }
 
 /**
- * The version that the write merges from, or `undefined` for a write on the
- * current document (`base: "current"`).
+ * Stages 1 to 3: the target document, `document` as `text` asks for it.
+ * `document` is the version of `base`, or the current document.
  */
-function versionOf(
-  options: WriteFromVersion<readonly LensBlock[]>,
-): readonly LensBlock[] | undefined {
-  return options.base === "current" ? undefined : withDistinctIds(options.base);
+function planText(
+  editor: BlockNoteEditor<any, any, any>,
+  format: TextFormat,
+  document: readonly LensBlock[],
+  text: string,
+):
+  | { error?: undefined; target: readonly LensBlock[]; warnings: PlanWarning[] }
+  | { error: "invalid-document" } {
+  // 1. Project. The text of the document and its projection come from the
+  // cache, if the document is the last document of the editor and format.
+  const read = documentText(editor, format, document);
+  const content = withoutByteOrderMark(text, read.text);
+  // An unchanged text needs no projection, and gives no operations (GetPut).
+  if (content === read.text) {
+    return { target: document, warnings: [] };
+  }
+  const projection = read.projection();
+  // 2. Parse and align.
+  const parsed = parseText(editor, format, content, projection.view);
+  if (parsed.error !== undefined) {
+    return parsed;
+  }
+  const pairs = alignBlocks(projection.view, parsed.blocks);
+  // 3. Plan.
+  return planTarget({
+    document,
+    projection,
+    incoming: parsed.blocks,
+    alignment: pairs,
+    contentKindOf: schemaRulesOf(editor).contentKindOf,
+    shadowOf: shadowsOf(editor, format),
+    newId: () => UniqueID.options.generateID(),
+  });
 }
 
 /**
- * Computes an update for the document of the editor, and applies it. First,
- * the blocks without an ID get an ID: the update is for the document with
- * these IDs, thus the operations refer only to IDs that the document has.
- * The steps of the IDs and of the operations go to the editor in one
- * transaction, or, for an editor that is bound to a Y.Doc, in groups (see
- * `dispatchUpdate`). On an error, the document does not change.
+ * Stages 4 to 6: the operations that change `current` to the result of the
+ * plan. A plan without changes gives no operations.
+ *
+ * With `onConflict: "reject"`, a conflict of the merge gives the error
+ * `"conflict"`, and no operations.
+ */
+function updateFromPlan(
+  rules: SchemaRules,
+  plan: { target: readonly LensBlock[]; warnings: PlanWarning[] },
+  documents: {
+    /** The version that the client read, or `undefined` for `base: "current"`. */
+    base: readonly LensBlock[] | undefined;
+    current: readonly LensBlock[];
+    onConflict: "keep-current" | "reject" | undefined;
+    keepLayout?: boolean;
+  },
+): ValidTextUpdate | ConflictError {
+  const { base, current } = documents;
+  if (plan.target === (base ?? current)) {
+    return { operations: [], warnings: plan.warnings };
+  }
+  // 4. Merge: only for a version as `base`. The target is for that version,
+  // and merges three-way with the current document (see `mergeTree`).
+  const merged: { blocks: readonly LensBlock[]; warnings: RebaseWarning[] } =
+    base === undefined
+      ? { blocks: plan.target, warnings: [] }
+      : mergeTree({
+          base,
+          ours: plan.target,
+          theirs: current,
+          contentKindOf: rules.contentKindOf,
+        });
+  if (documents.onConflict === "reject" && merged.warnings.length > 0) {
+    return { error: "conflict", conflicts: merged.warnings };
+  }
+  // 5. Fit.
+  const result = fitResult(
+    rules,
+    merged.blocks,
+    current,
+    documents.keepLayout === true,
+  );
+  // 6. Diff.
+  return {
+    operations: diffDocuments(current, result),
+    warnings: [
+      ...plan.warnings,
+      ...merged.warnings,
+      ...mergedCellsRemoved(current, result),
+    ],
+  };
+}
+
+/**
+ * Stages 7 and 8: computes an update for the document of the editor, and
+ * applies it. First, the blocks without an ID get an ID: the update is for
+ * the document with these IDs, thus the operations refer only to IDs that
+ * the document has. The steps of the IDs and of the operations go to the
+ * editor in one transaction, or, for an editor that is bound to a Y.Doc, in
+ * groups (see `dispatchUpdate`). On an error, the document does not change.
  */
 function write(
   editor: BlockNoteEditor<any, any, any>,
@@ -242,110 +345,11 @@ function write(
 }
 
 /**
- * Returns the update that changes `current` to the target document of the
- * plan. The plan is for `base`, or for `current` if there is no `base`. A
- * plan without changes gives no operations. With `base` (an older version),
- * the target merges three-way with `current` (see `mergeTree`), and the
- * operations change `current` to the result.
- *
- * With `onConflict: "reject"`, a conflict of the merge gives the error
- * `"conflict"`, and no operations. The result then fits the schema (see
- * `fitResult`).
+ * The version that the write merges from, or `undefined` for a write on the
+ * current document (`base: "current"`).
  */
-function updateToTarget(
-  rules: SchemaRules,
-  plan: { target: readonly LensBlock[]; warnings: PlanWarning[] },
-  documents: {
-    /** The document at the version that the client read, if it is older than `current`. */
-    base: readonly LensBlock[] | undefined;
-    current: readonly LensBlock[];
-    onConflict: "keep-current" | "reject" | undefined;
-    keepLayout?: boolean;
-  },
-): ValidTextUpdate | ConflictError {
-  const { base, current } = documents;
-  if (plan.target === (base ?? current)) {
-    return { operations: [], warnings: plan.warnings };
-  }
-  const merged: { blocks: readonly LensBlock[]; warnings: RebaseWarning[] } =
-    base === undefined
-      ? { blocks: plan.target, warnings: [] }
-      : mergeTree({
-          base,
-          ours: plan.target,
-          theirs: current,
-          contentKindOf: rules.contentKindOf,
-        });
-  if (documents.onConflict === "reject" && merged.warnings.length > 0) {
-    return { error: "conflict", conflicts: merged.warnings };
-  }
-  const result = fitResult(
-    rules,
-    merged.blocks,
-    current,
-    documents.keepLayout === true,
-  );
-  return {
-    operations: diffDocuments(current, result),
-    warnings: [
-      ...plan.warnings,
-      ...merged.warnings,
-      ...mergedCellsRemoved(current, result),
-    ],
-  };
-}
-
-/**
- * Computes the operations with {@link computeTextUpdate}, and applies them to
- * the editor (see {@link write}). First, the blocks without an ID get an ID.
- */
-export function updateDocumentFromText(
-  editor: BlockNoteEditor<any, any, any>,
-  options: TextUpdateOptions,
-): TextUpdate {
-  return writeText(editor, options);
-}
-
-/**
- * {@link updateDocumentFromText}, with the option `keepLayout` (see
- * {@link updateToTarget}). The Y.Doc write with `merge: "yjs"` uses this.
- */
-export function writeText(
-  editor: BlockNoteEditor<any, any, any>,
-  options: TextUpdateOptions & { keepLayout?: boolean },
-): TextUpdate {
-  return write(editor, (current) =>
-    computeBlocksUpdate(editor, { ...options, current }),
-  );
-}
-
-/** Plans the target document: `document` as `text` asks for it. */
-function planTextUpdate(
-  editor: BlockNoteEditor<any, any, any>,
-  format: TextFormat,
-  document: readonly LensBlock[],
-  text: string,
-):
-  | { error?: undefined; target: readonly LensBlock[]; warnings: PlanWarning[] }
-  | { error: "invalid-document" } {
-  const read = documentText(editor, format, document);
-  const content = withoutByteOrderMark(text, read.text);
-  // An unchanged text needs no projection.
-  if (content === read.text) {
-    return { target: document, warnings: [] };
-  }
-  const projection = read.projection();
-  const parsed = parseText(editor, format, content, projection.view);
-  if (parsed.error !== undefined) {
-    return parsed;
-  }
-  return planTarget({
-    document,
-    projection,
-    incoming: parsed.blocks,
-    alignment: alignBlocks(projection.view, parsed.blocks),
-    contentKindOf: schemaRulesOf(editor).contentKindOf,
-    shadowOf: shadowsOf(editor, format),
-    newId: () => UniqueID.options.generateID(),
-  });
+function versionOf(
+  options: WriteFromVersion<readonly LensBlock[]>,
+): readonly LensBlock[] | undefined {
+  return options.base === "current" ? undefined : withDistinctIds(options.base);
 }
