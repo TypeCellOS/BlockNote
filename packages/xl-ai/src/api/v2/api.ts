@@ -6,12 +6,9 @@ import {
 import { UniqueID } from "@blocknote/core/extensions";
 
 import { alignBlocksAndMoves } from "./alignment/alignBlocks.js";
-import { flattenBlocks } from "./blocks/flatten.js";
 import { type SchemaRules, schemaRulesOf } from "./blocks/schema.js";
 import { BlockTree } from "./blocks/tree.js";
-import { stableStringify } from "./blocks/json.js";
-import { inlineContentToText } from "./blocks/text.js";
-import type { LensBlock, LensInlineContent } from "./blocks/types.js";
+import type { LensBlock } from "./blocks/types.js";
 import { toStoredBlocks } from "./formats/stored.js";
 import type { TextFormat } from "./formats/types.js";
 import { fixBlockIds, withDistinctIds } from "./operations/blockIds.js";
@@ -19,8 +16,9 @@ import { applyOperations } from "./operations/applyOperations.js";
 import { dispatchUpdate } from "./operations/dispatch.js";
 import { diffDocuments } from "./operations/diffDocuments.js";
 import type { BlockOperation } from "./operations/types.js";
-import { documentText, formatCache } from "./projection/cache.js";
-import { withoutHiddenBlocks } from "./projection/projectDocument.js";
+import { parseText, withoutByteOrderMark } from "./parse/parseText.js";
+import { documentText } from "./projection/cache.js";
+import { shadowsOf } from "./projection/shadows.js";
 import type { TextGroup } from "./merge/group.js";
 import { mergeTree, type RebaseWarning } from "./merge/tree.js";
 import { fitLayout } from "./fit/fitLayout.js";
@@ -423,82 +421,30 @@ function planTextUpdate(
       groups?: TextGroup[];
     }
   | { error: "invalid-document" } {
-  const { text: serialized, projection: projectionOf } = documentText(
-    editor,
-    format,
-    document,
-  );
-  // A byte order mark at the start of a text (for example of a file) is not
-  // content, unless the document starts with that character.
-  const content =
-    text.startsWith("\uFEFF") && !serialized.startsWith("\uFEFF")
-      ? text.slice(1)
-      : text;
+  const read = documentText(editor, format, document);
+  const content = withoutByteOrderMark(text, read.text);
   // An unchanged text needs no projection.
-  if (content === serialized) {
+  if (content === read.text) {
     return { target: document, warnings: [] };
   }
-  const projection = projectionOf();
-
-  const parsed = toStoredBlocks(editor, format.parse(editor, content));
-  if (parsed === undefined) {
-    return { error: "invalid-document" };
+  const projection = read.projection();
+  const parsed = parseText(editor, format, content, projection.view);
+  if (parsed.error !== undefined) {
+    return parsed;
   }
-  const incoming = flattenBlocks(
-    withoutHiddenBlocks(editor, format, parsed, projection.view, content),
-  );
   const { pairs, moves } = alignBlocksAndMoves(
     projection.view,
-    incoming,
+    parsed.blocks,
     textMoves,
   );
   return planTarget({
     document,
     projection,
-    incoming,
+    incoming: parsed.blocks,
     alignment: pairs,
     moves,
     contentKindOf: schemaRulesOf(editor).contentKindOf,
     shadowOf: shadowsOf(editor, format),
     newId: () => UniqueID.options.generateID(),
   });
-}
-
-/**
- * Returns the text that the format shows for an inline item that its parse
- * does not give back, for example "@Bob" for a mention in markdown (see
- * `MergeOptions.shadowOf`). `undefined` if the parse gives back an item of
- * that type. One serialize and one parse for each different item.
- */
-function shadowsOf(
-  editor: BlockNoteEditor<any, any, any>,
-  format: TextFormat,
-): (item: LensInlineContent) => string | undefined {
-  const { shadows } = formatCache(editor, format);
-  return (item) => {
-    const key = stableStringify(item);
-    if (!shadows.has(key)) {
-      const [block] = format.parse(
-        editor,
-        format.serialize(editor, [
-          {
-            id: "",
-            type: "paragraph",
-            props: {},
-            content: [item],
-            children: [],
-          },
-        ]),
-      );
-      const content = block?.content;
-      shadows.set(
-        key,
-        Array.isArray(content) &&
-          !content.some((part) => part.type === item.type)
-          ? inlineContentToText(content)
-          : undefined,
-      );
-    }
-    return shadows.get(key);
-  };
 }

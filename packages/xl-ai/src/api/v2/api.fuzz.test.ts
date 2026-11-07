@@ -1,12 +1,9 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import { describe, expect, it } from "vite-plus/test";
 
-import { alignmentKey } from "./alignment/alignBlocks.js";
 import { flattenBlocks } from "./blocks/flatten.js";
-import { schemaRulesOf } from "./blocks/schema.js";
 import { blockToText } from "./blocks/text.js";
 import type { LensBlock } from "./blocks/types.js";
-import { toStoredBlocks } from "./formats/stored.js";
 import {
   computeTextUpdate,
   getDocumentText,
@@ -16,7 +13,11 @@ import {
   type TextFormat,
   updateDocumentFromText,
 } from "./index.js";
-import { projectDocument, shownBlocks } from "./projection/projectDocument.js";
+import {
+  partsOfEachBlock,
+  projectDocument,
+  projectWithParts,
+} from "./projection/projectDocument.js";
 import { canonicalText } from "./testUtil/canonical.js";
 import { createRandom, randomEdits } from "./testUtil/random.js";
 import {
@@ -59,24 +60,16 @@ describe.each([
           .map((v) => blockToText(v.block))
           .filter((value) => value !== "");
         expect(unlinked).toEqual([]);
-        // A block that the view shows as it is makes no round trip alone.
-        // Thus, alone, it must give the same block (see `shownBlocks`). A
-        // layout block never makes the round trip.
+        // The optimizations of the parts (`partsOf`) give the same
+        // projection as one round trip for each block (`partsOfEachBlock`).
         const sources = flattenBlocks(document);
-        const { layoutRuleOf } = schemaRulesOf(editor);
-        for (const source of shownBlocks(sources, projection.view)) {
-          const { block } = sources[source];
-          if (layoutRuleOf(block.type) !== undefined) {
-            continue;
-          }
-          const alone = toStoredBlocks(
-            editor,
-            format.parse(editor, format.serialize(editor, [block])),
-          );
-          expect(
-            flattenBlocks(alone ?? []).map((part) => alignmentKey(part.block)),
-          ).toEqual([alignmentKey(block)]);
-        }
+        expect(projection).toEqual(
+          projectWithParts(
+            sources,
+            projection.view,
+            partsOfEachBlock(editor, format, sources, text),
+          ),
+        );
 
         // GetPut.
         const getPut = computeTextUpdate(editor, {
