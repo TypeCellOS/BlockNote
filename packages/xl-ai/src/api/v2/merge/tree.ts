@@ -30,28 +30,22 @@ export type RebaseWarning =
  * Three-way merge of block trees, by block ID. `base` is the document that
  * the client read, `ours` is the document that the client wants (the
  * target), and `theirs` is the current document, with the changes of other
- * writers. The result keeps the changes of the two sides:
+ * writers. The result keeps the changes of the two sides. The merge decides
+ * in this order:
  *
- * - Which blocks stay: a block of `ours` stays, unless another writer
- *   removed it. A new block of another writer stays if its parent stays. A
- *   block that the client removed goes, unless another writer changed it or
- *   a removed block in it: then it stays.
- * - The parent of a block: a three-way merge (see `mergeValue`). If that
- *   parent goes, the block goes to the place of that parent. If the parents
- *   of the two sides make a cycle (each side moved a block into the other),
- *   the parents of `theirs` win.
- * - The order of the children of each parent: a three-way merge of the
- *   lists of child IDs (`diff3`). A block that one side moved goes to the
- *   place of that side. If both sides add blocks at one position, both
- *   stay.
- * - The fields of a block: a three-way merge (see `mergeBlock`).
+ * 1. Which blocks stay (see {@link stayingBlocks}).
+ * 2. The parent of each block (see {@link mergeParents}).
+ * 3. The order of the children of each parent (see {@link mergeChildOrder}).
+ * 4. The fields of each block: a three-way merge (see `mergeBlock`).
  *
  * If both sides changed the same part in different ways (a conflict), the
  * part of `theirs` wins, and the block gets the warning `conflicting-change`
  * (see `MergeOptions`).
  *
  * The merge does not know the schema. The fit of the result moves a block
- * that its parent cannot hold (see `fitLayout`).
+ * that its parent cannot hold (see `fitLayout`). For example, a new
+ * paragraph of the client in a column that another writer removed is in the
+ * column list.
  */
 export function mergeTree(input: {
   base: readonly LensBlock[];
@@ -59,65 +53,160 @@ export function mergeTree(input: {
   theirs: readonly LensBlock[];
   contentKindOf: (type: string) => ContentKind;
 }): { blocks: LensBlock[]; warnings: RebaseWarning[] } {
-  const base = new BlockTree(input.base);
-  const ours = new BlockTree(input.ours);
-  const theirs = new BlockTree(input.theirs);
+  const sides = new Sides(
+    new BlockTree(input.base),
+    new BlockTree(input.ours),
+    new BlockTree(input.theirs),
+  );
+  const staying = stayingBlocks(sides);
+  const parents = mergeParents(sides, staying);
+  const children = mergeChildOrders(sides, staying, parents.parentOf);
+  const conflicts = new Set([...parents.conflicts, ...children.conflicts]);
+
   const warnings: RebaseWarning[] = [];
-
-  /** The merged fields of a block, and whether the two sides changed the same part. */
-  function fieldsOf(id: string): { block: LensBlock; conflict: boolean } {
-    if (!(base.has(id) && ours.has(id) && theirs.has(id))) {
-      return {
-        block: withoutChildren((ours.has(id) ? ours : theirs).block(id)),
-        conflict: false,
-      };
-    }
-    let conflict = false;
-    const merged = mergeBlock(
-      base.block(id),
-      ours.block(id),
-      theirs.block(id),
-      input.contentKindOf,
-      {
-        concurrent: true,
-        onConflict: () => {
-          conflict = true;
-        },
-      },
-    );
-    return { block: { id, ...merged, children: [] }, conflict };
-  }
-
-  const staysMemo = new Map<string, boolean>();
-  const changedMemo = new Map<string, boolean>();
-  function stays(id: string): boolean {
-    let result = staysMemo.get(id);
-    if (result === undefined) {
-      if (ours.has(id)) {
-        // Another writer removed a block of `base` that the client keeps.
-        result = !base.has(id) || theirs.has(id);
-      } else if (!theirs.has(id)) {
-        result = false;
-      } else if (base.has(id)) {
-        // The client removed a block of `base`. If another writer changed it,
-        // or a block in it that the client also removed, it stays: a write
-        // from an older version does not remove a change that it did not
-        // see. The other blocks in it that the client removed go.
-        result = changedByOthers(id);
-      } else {
-        // A new block of another writer stays in its parent.
-        const parent = theirs.parent(id);
-        result = parent === undefined || stays(parent);
+  function build(parent: string | undefined): LensBlock[] {
+    return (children.childrenOf.get(parent) ?? []).map((id) => {
+      const fields = mergeFields(sides, id, input.contentKindOf);
+      if (fields.conflict || conflicts.has(id)) {
+        warnings.push({ type: "conflicting-change", id });
       }
-      staysMemo.set(id, result);
+      return { ...fields.block, children: build(id) };
+    });
+  }
+  const blocks = build(undefined);
+  return { blocks, warnings: [...warnings, ...removalWarnings(sides)] };
+}
+
+/** The three sides of the merge, and the questions that the decisions ask about them. */
+class Sides {
+  private readonly changedMemo = new Map<string, boolean>();
+
+  constructor(
+    readonly base: BlockTree,
+    readonly ours: BlockTree,
+    readonly theirs: BlockTree,
+  ) {}
+
+  /**
+   * Returns true if another writer changed the block, or a block in it that
+   * the client also removed (also a new block). Thus, the removal of the
+   * block by the client loses that change. A block in it that the client
+   * keeps (for example moves out) does not count.
+   */
+  changedByOthers(id: string): boolean {
+    let result = this.changedMemo.get(id);
+    if (result === undefined) {
+      result =
+        !this.base.has(id) ||
+        !deepEqual(
+          withoutChildren(this.theirs.block(id)),
+          withoutChildren(this.base.block(id)),
+        ) ||
+        this.theirs
+          .childrenOf(id)
+          .some(
+            (child) => !this.ours.has(child) && this.changedByOthers(child),
+          );
+      this.changedMemo.set(id, result);
     }
     return result;
   }
 
-  /** The blocks with a conflict of the parent or of the place: a change of the client there does not apply. */
+  /** Returns true if the client changed the fields, the parent or the place of the block. */
+  changedByClient(id: string): boolean {
+    return (
+      diffBlock(this.base.block(id), this.ours.block(id)) !== undefined ||
+      this.movedByClient(id)
+    );
+  }
+
+  /** Returns true if the client changed the parent or the place of a block of base. */
+  movedByClient(id: string): boolean {
+    return (
+      this.base.has(id) &&
+      this.ours.has(id) &&
+      (this.ours.parent(id) !== this.base.parent(id) ||
+        this.previousKept(this.ours, id) !== this.previousKept(this.base, id))
+    );
+  }
+
+  /**
+   * The previous sibling of the block in the side, of the blocks that base
+   * and `ours` both have. Thus, a new block or a removed block next to the
+   * block is not a move of it.
+   */
+  private previousKept(side: BlockTree, id: string): string | undefined {
+    const siblings = side.childrenOf(side.parent(id));
+    for (let i = side.index(id) - 1; i >= 0; i--) {
+      if (this.base.has(siblings[i]) && this.ours.has(siblings[i])) {
+        return siblings[i];
+      }
+    }
+    return undefined;
+  }
+}
+
+/** The blocks that stay, in the order of `theirs`, then of `ours` (see {@link stayingBlocks}). */
+type Staying = { list: string[]; has: (id: string) => boolean };
+
+/**
+ * Decision 1: which blocks stay.
+ *
+ * - A block of `ours` stays, unless another writer removed it.
+ * - A new block of another writer stays if its parent stays.
+ * - A block that the client removed goes, unless another writer changed it
+ *   or a removed block in it: then it stays. A write from an older version
+ *   does not remove a change that it did not see. The other blocks in it
+ *   that the client removed go.
+ */
+function stayingBlocks(sides: Sides): Staying {
+  const { base, ours, theirs } = sides;
+  const memo = new Map<string, boolean>();
+  function stays(id: string): boolean {
+    let result = memo.get(id);
+    if (result === undefined) {
+      if (ours.has(id)) {
+        result = !base.has(id) || theirs.has(id);
+      } else if (!theirs.has(id)) {
+        result = false;
+      } else if (base.has(id)) {
+        result = sides.changedByOthers(id);
+      } else {
+        const parent = theirs.parent(id);
+        result = parent === undefined || stays(parent);
+      }
+      memo.set(id, result);
+    }
+    return result;
+  }
+  return {
+    list: [...new Set([...theirs.ids, ...ours.ids])].filter(stays),
+    has: stays,
+  };
+}
+
+/**
+ * Decision 2: the parent of each block that stays.
+ *
+ * - The parent is a three-way merge (see `mergeValue`). A conflict there is
+ *   a conflict of the block.
+ * - If that parent goes, the block goes to the place of that parent.
+ * - If the parents of the two sides make a cycle (each side moved a block
+ *   into the other), the parents of `theirs` win (see `breakCycles`).
+ */
+function mergeParents(
+  sides: Sides,
+  staying: Staying,
+): {
+  parentOf: Map<string, string | undefined>;
+  /** The blocks with a conflict of the parent: a change of the client there does not apply. */
+  conflicts: Set<string>;
+} {
+  const { base, ours, theirs } = sides;
   const conflicts = new Set<string>();
   /** The blocks that get the parent of `theirs`, to break a cycle. */
   const theirsWins = new Set<string>();
+
   /** The parent that the merge gives the block, before a parent that goes is replaced. */
   function chosenParent(id: string): string | undefined {
     if (!theirs.has(id)) {
@@ -131,17 +220,15 @@ export function mergeTree(input: {
       onConflict: () => conflicts.add(id),
     });
   }
+
   /** The parent in the result: the chosen parent, or the place of a chosen parent that goes. */
   function parentOf(id: string): string | undefined {
     let parent = chosenParent(id);
-    while (parent !== undefined && !stays(parent)) {
+    while (parent !== undefined && !staying.has(parent)) {
       parent = chosenParent(parent);
     }
     return parent;
   }
-
-  const staying = [...new Set([...theirs.ids, ...ours.ids])].filter(stays);
-  breakCycles();
 
   /**
    * Gives the parent of `theirs` to each block of `theirs` on a cycle of
@@ -155,7 +242,7 @@ export function mergeTree(input: {
       changed = false;
       /** The walk that passed each block. */
       const walkOf = new Map<string, number>();
-      staying.forEach((id, walk) => {
+      staying.list.forEach((id, walk) => {
         const path: string[] = [];
         let current: string | undefined = id;
         while (current !== undefined && !walkOf.has(current)) {
@@ -172,7 +259,7 @@ export function mergeTree(input: {
             theirsWins.add(block);
             changed = true;
             if (
-              movedByClient(block) &&
+              sides.movedByClient(block) &&
               ours.parent(block) !== theirs.parent(block)
             ) {
               conflicts.add(block);
@@ -183,18 +270,74 @@ export function mergeTree(input: {
     }
   }
 
+  breakCycles();
+  return {
+    parentOf: new Map(staying.list.map((id) => [id, parentOf(id)])),
+    conflicts,
+  };
+}
+
+/**
+ * Decision 3: the order of the children of each parent (see
+ * {@link mergeChildOrder}).
+ */
+function mergeChildOrders(
+  sides: Sides,
+  staying: Staying,
+  parentOf: ReadonlyMap<string, string | undefined>,
+): {
+  childrenOf: Map<string | undefined, string[]>;
+  /** The blocks that the two sides moved to different places in one list. */
+  conflicts: Set<string>;
+} {
+  /** The children of each parent in the result, in no order yet. */
+  const expected = new Map<string | undefined, string[]>();
+  for (const id of staying.list) {
+    const parent = parentOf.get(id);
+    expected.set(parent, [...(expected.get(parent) ?? []), id]);
+  }
+  const conflicts = new Set<string>();
+  const childrenOf = new Map<string | undefined, string[]>();
+  for (const [parent, ids] of expected) {
+    const merged = mergeChildOrder(sides, staying, parentOf, parent, ids);
+    childrenOf.set(parent, merged.order);
+    for (const id of merged.conflicts) {
+      conflicts.add(id);
+    }
+  }
+  return { childrenOf, conflicts };
+}
+
+/**
+ * The order of the children of one parent: a three-way merge of the lists of
+ * child IDs (`diff3`).
+ *
+ * - A block that one side moved goes to the place of that side.
+ * - If the two sides moved a block to different places in this list, the
+ *   place of `theirs` wins, and that is a conflict.
+ * - If both sides add blocks at one position, both stay: the blocks of the
+ *   client come first, as the client wrote them after the block before.
+ */
+function mergeChildOrder(
+  sides: Sides,
+  staying: Staying,
+  parentOf: ReadonlyMap<string, string | undefined>,
+  parent: string | undefined,
+  /** The children of the parent in the result. */
+  expected: readonly string[],
+): { order: string[]; conflicts: string[] } {
   /**
    * The child IDs of `parent` in one side, as the result has them: a child
    * that goes is replaced by its children in that side, and only the blocks
    * whose parent in the result is `parent` count.
    */
-  function sideChildren(side: BlockTree, parent: string | undefined): string[] {
+  function sideChildren(side: BlockTree): string[] {
     const result = new Set<string>();
     const visit = (ids: readonly string[]) => {
       for (const id of ids) {
-        if (!stays(id)) {
+        if (!staying.has(id)) {
           visit(side.childrenOf(id));
-        } else if (parentOf(id) === parent) {
+        } else if (parentOf.get(id) === parent) {
           result.add(id);
         }
       }
@@ -203,114 +346,115 @@ export function mergeTree(input: {
     return [...result];
   }
 
-  const childrenByParent = new Map<string | undefined, string[]>();
-  for (const id of staying) {
-    const parent = parentOf(id);
-    const list = childrenByParent.get(parent) ?? [];
-    list.push(id);
-    childrenByParent.set(parent, list);
+  const o = sideChildren(sides.base);
+  // A side that moved a block of this list to a parent that lost (see
+  // `mergeParents`, for example in a cycle) does not remove the block here.
+  // Thus, the block stays at its base place in that side.
+  const [a, b] = [sides.ours, sides.theirs].map((side) =>
+    withBasePlaces(sideChildren(side), o, expected),
+  );
+  // One object for each ID in each side: the merge result then tells the
+  // side of each unit.
+  const [baseUnits, ourUnits, theirUnits] = [o, a, b].map((ids) =>
+    ids.map((id) => ({ id })),
+  );
+  const same = (x: { id: string }, y: { id: string }) => x.id === y.id;
+  const oursToBase = myersMatch(baseUnits, ourUnits, same);
+  const theirsToBase = myersMatch(baseUnits, theirUnits, same);
+  const merged = diff3(
+    baseUnits,
+    ourUnits,
+    theirUnits,
+    oursToBase,
+    theirsToBase,
+    {
+      stable: ({ theirs: unit }) => unit,
+      ours: (units) => units,
+      keepBothInserts: "ours-first",
+      // A block of theirs in this list stays (each unit of the lists stays,
+      // see `sideChildren`), also next to a change of the client.
+      keepTheirs: () => true,
+    },
+  );
+  // A unit without a base unit is a block that its side moved (or added).
+  // If both sides moved a block to different places in this list, it is
+  // there two times. The place of the side that moved it wins. If the two
+  // sides moved it, that is a conflict: the place of theirs wins.
+  const fromOurs = new Set(ourUnits);
+  const movedUnits = new Set([...ourUnits, ...theirUnits]);
+  for (const pair of oursToBase) {
+    movedUnits.delete(ourUnits[pair.bIndex]);
   }
-
-  function childOrder(parent: string | undefined): string[] {
-    const expected = childrenByParent.get(parent) ?? [];
-    if (expected.length === 0) {
-      return [];
+  for (const pair of theirsToBase) {
+    movedUnits.delete(theirUnits[pair.bIndex]);
+  }
+  const places = new Map<string, { id: string }[]>();
+  for (const unit of merged) {
+    places.set(unit.id, [...(places.get(unit.id) ?? []), unit]);
+  }
+  const conflicts: string[] = [];
+  const order = merged.flatMap((unit) => {
+    const all = places.get(unit.id) ?? [];
+    if (all.length === 1) {
+      return [unit.id];
     }
-    const o = sideChildren(base, parent);
-    // A side that moved a block of this list to a parent that lost (see
-    // `parentOf`, for example in a cycle) does not remove the block here.
-    // Thus, the block stays at its base place in that side.
-    const [a, b] = [ours, theirs].map((side) =>
-      withBasePlaces(sideChildren(side, parent), o, expected),
-    );
-    // One object for each ID in each side: the merge result then tells the
-    // side of each unit.
-    const [baseUnits, ourUnits, theirUnits] = [o, a, b].map((ids) =>
-      ids.map((id) => ({ id })),
-    );
-    const same = (x: { id: string }, y: { id: string }) => x.id === y.id;
-    const oursToBase = myersMatch(baseUnits, ourUnits, same);
-    const theirsToBase = myersMatch(baseUnits, theirUnits, same);
-    const merged = diff3(
-      baseUnits,
-      ourUnits,
-      theirUnits,
-      oursToBase,
-      theirsToBase,
-      {
-        stable: ({ theirs: unit }) => unit,
-        ours: (units) => units,
-        // Two writers add blocks at one position: the blocks of the client
-        // come first, as the client wrote them after the block before.
-        keepBothInserts: "ours-first",
-        // A block of theirs in this list stays (each unit of the lists stays,
-        // see `sideChildren`), also next to a change of the client.
-        keepTheirs: () => true,
+    const oursPlace = all.find((place) => fromOurs.has(place));
+    const theirsPlace = all.find((place) => !fromOurs.has(place));
+    const oursMoved = oursPlace !== undefined && movedUnits.has(oursPlace);
+    const theirsMoved =
+      theirsPlace !== undefined && movedUnits.has(theirsPlace);
+    if (oursMoved && theirsMoved) {
+      conflicts.push(unit.id);
+    }
+    const winner = oursMoved && !theirsMoved ? oursPlace : theirsPlace;
+    return unit === winner ? [unit.id] : [];
+  });
+  // Each block of the parent is in the list of ours or of theirs, and the
+  // merge keeps each unit of theirs and each unit that no side removed.
+  // Thus, a missing block is a bug.
+  const has = new Set(order);
+  const lost = expected.find((id) => !has.has(id));
+  if (lost !== undefined) {
+    throw new Error(`The tree merge lost block ${lost}`);
+  }
+  return { order, conflicts };
+}
+
+/** Decision 4: the merged fields of a block, and whether the two sides changed the same part. */
+function mergeFields(
+  sides: Sides,
+  id: string,
+  contentKindOf: (type: string) => ContentKind,
+): { block: LensBlock; conflict: boolean } {
+  const { base, ours, theirs } = sides;
+  if (!(base.has(id) && ours.has(id) && theirs.has(id))) {
+    return {
+      block: withoutChildren((ours.has(id) ? ours : theirs).block(id)),
+      conflict: false,
+    };
+  }
+  let conflict = false;
+  const merged = mergeBlock(
+    base.block(id),
+    ours.block(id),
+    theirs.block(id),
+    contentKindOf,
+    {
+      concurrent: true,
+      onConflict: () => {
+        conflict = true;
       },
-    );
-    // A unit without a base unit is a block that its side moved (or added).
-    // If both sides moved a block to different places in this list, it is
-    // there two times. The place of the side that moved it wins. If the two
-    // sides moved it, that is a conflict: the place of theirs wins.
-    const fromOurs = new Set(ourUnits);
-    const movedUnits = new Set([...ourUnits, ...theirUnits]);
-    for (const pair of oursToBase) {
-      movedUnits.delete(ourUnits[pair.bIndex]);
-    }
-    for (const pair of theirsToBase) {
-      movedUnits.delete(theirUnits[pair.bIndex]);
-    }
-    const places = new Map<string, { id: string }[]>();
-    for (const unit of merged) {
-      places.set(unit.id, [...(places.get(unit.id) ?? []), unit]);
-    }
-    const order = merged.flatMap((unit) => {
-      const all = places.get(unit.id) ?? [];
-      if (all.length === 1) {
-        return [unit.id];
-      }
-      const oursPlace = all.find((place) => fromOurs.has(place));
-      const theirsPlace = all.find((place) => !fromOurs.has(place));
-      const oursMoved = oursPlace !== undefined && movedUnits.has(oursPlace);
-      const theirsMoved =
-        theirsPlace !== undefined && movedUnits.has(theirsPlace);
-      if (oursMoved && theirsMoved) {
-        conflicts.add(unit.id);
-      }
-      const winner = oursMoved && !theirsMoved ? oursPlace : theirsPlace;
-      return unit === winner ? [unit.id] : [];
-    });
-    // Each block of the parent is in the list of ours or of theirs, and the
-    // merge keeps each unit of theirs and each unit that no side removed.
-    // Thus, a missing block is a bug.
-    const has = new Set(order);
-    const lost = expected.find((id) => !has.has(id));
-    if (lost !== undefined) {
-      throw new Error(`The tree merge lost block ${lost}`);
-    }
-    return order;
-  }
+    },
+  );
+  return { block: { id, ...merged, children: [] }, conflict };
+}
 
-  /**
-   * The blocks of the parent in the result. The result does not know the
-   * schema: for example, a new paragraph of the client in a column that
-   * another writer removed is in the column list. The fit of the result (see
-   * `fitLayout`) moves it.
-   */
-  function build(parent: string | undefined): LensBlock[] {
-    return childOrder(parent).map((id) => {
-      const fields = fieldsOf(id);
-      if (fields.conflict || conflicts.has(id)) {
-        warnings.push({ type: "conflicting-change", id });
-      }
-      return { ...fields.block, children: build(id) };
-    });
-  }
-  const blocks = build(undefined);
-
-  // The warnings for removed blocks.
+/** The warnings for removed blocks, in the order of `base`. */
+function removalWarnings(sides: Sides): RebaseWarning[] {
+  const { base, ours, theirs } = sides;
+  const warnings: RebaseWarning[] = [];
   for (const id of base.ids) {
-    if (ours.has(id) && !theirs.has(id) && changedByClient(id)) {
+    if (ours.has(id) && !theirs.has(id) && sides.changedByClient(id)) {
       warnings.push({ type: "change-to-removed-block", id });
     }
     const parent = theirs.parent(id);
@@ -318,69 +462,12 @@ export function mergeTree(input: {
       !ours.has(id) &&
       theirs.has(id) &&
       (parent === undefined || ours.has(parent)) &&
-      changedByOthers(id)
+      sides.changedByOthers(id)
     ) {
       warnings.push({ type: "removed-changed-block", id });
     }
   }
-
-  /** Returns true if the client changed the fields, the parent or the place of the block. */
-  function changedByClient(id: string): boolean {
-    return (
-      diffBlock(base.block(id), ours.block(id)) !== undefined ||
-      movedByClient(id)
-    );
-  }
-
-  /** Returns true if the client changed the parent or the place of a block of base. */
-  function movedByClient(id: string): boolean {
-    return (
-      base.has(id) &&
-      ours.has(id) &&
-      (ours.parent(id) !== base.parent(id) ||
-        previousKept(ours, id) !== previousKept(base, id))
-    );
-  }
-
-  /**
-   * The previous sibling of the block in the side, of the blocks that base
-   * and `ours` both have. Thus, a new block or a removed block next to the
-   * block is not a move of it.
-   */
-  function previousKept(side: BlockTree, id: string): string | undefined {
-    const siblings = side.childrenOf(side.parent(id));
-    for (let i = side.index(id) - 1; i >= 0; i--) {
-      if (base.has(siblings[i]) && ours.has(siblings[i])) {
-        return siblings[i];
-      }
-    }
-    return undefined;
-  }
-
-  /**
-   * Returns true if another writer changed the block, or a block in it that
-   * the client also removed (also a new block). Thus, the removal of the
-   * block by the client loses that change. A block in it that the client
-   * keeps (for example moves out) does not count.
-   */
-  function changedByOthers(id: string): boolean {
-    let result = changedMemo.get(id);
-    if (result === undefined) {
-      result =
-        !base.has(id) ||
-        !deepEqual(
-          withoutChildren(theirs.block(id)),
-          withoutChildren(base.block(id)),
-        ) ||
-        theirs
-          .childrenOf(id)
-          .some((child) => !ours.has(child) && changedByOthers(child));
-      changedMemo.set(id, result);
-    }
-    return result;
-  }
-
-  return { blocks, warnings };
+  return warnings;
 }
 
 /**
