@@ -131,17 +131,6 @@ export function updateDocumentFromText(
   editor: BlockNoteEditor<any, any, any>,
   options: TextUpdateOptions,
 ): TextUpdate {
-  return writeText(editor, options);
-}
-
-/**
- * {@link updateDocumentFromText}, with the option `keepLayout` (see
- * `fitResult`). The Y.Doc write with `merge: "yjs"` uses this.
- */
-export function writeText(
-  editor: BlockNoteEditor<any, any, any>,
-  options: TextUpdateOptions & { keepLayout?: boolean },
-): TextUpdate {
   return write(editor, (current) => textUpdate(editor, options, current));
 }
 
@@ -194,7 +183,11 @@ export function updateDocumentFromJSON(
 // be the document of the editor: the editor supplies the schema and the
 // conversions.
 
-function textUpdate(
+/**
+ * The text write, stages 1 to 6. The Y.Doc write (`yjs/yDocText.ts`) also
+ * uses it, with the option `keepLayout` (see `fitResult`).
+ */
+export function textUpdate(
   editor: BlockNoteEditor<any, any, any>,
   options: TextUpdateOptions & { keepLayout?: boolean },
   current: readonly LensBlock[],
@@ -330,7 +323,7 @@ function updateFromPlan(
  * editor in one transaction, or, for an editor that is bound to a Y.Doc, in
  * groups (see `dispatchUpdate`). On an error, the document does not change.
  */
-function write(
+export function write(
   editor: BlockNoteEditor<any, any, any>,
   compute: (current: readonly LensBlock[]) => TextUpdate,
 ): TextUpdate {
@@ -351,5 +344,20 @@ function write(
 function versionOf(
   options: WriteFromVersion<readonly LensBlock[]>,
 ): readonly LensBlock[] | undefined {
+  requireBase(options.base);
   return options.base === "current" ? undefined : withDistinctIds(options.base);
+}
+
+/**
+ * Throws if a write has no `base`. The type requires it, but a caller without
+ * types (for example JavaScript) can forget it. Without this check, such a
+ * write would fail with an unclear error, or remove the changes of other
+ * writers without a warning.
+ */
+export function requireBase(base: unknown): void {
+  if (base === undefined) {
+    throw new Error(
+      'A write needs the option `base`: "current", or the version that the client read.',
+    );
+  }
 }

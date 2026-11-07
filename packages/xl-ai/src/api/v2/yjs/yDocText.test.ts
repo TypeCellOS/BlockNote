@@ -121,6 +121,21 @@ describe("updateYDocFromText", () => {
     expect(block("p")?.content).toEqual([{ type: "text", text, styles: {} }]);
   });
 
+  it("throws an error for a write without `base`, and does not change the Y.Doc", () => {
+    const { editor, ydoc, blocks } = setup();
+    const before = blocks();
+    const fragment = ydoc.getXmlFragment("prosemirror");
+
+    // A caller without types can forget `base`.
+    expect(() =>
+      updateYDocFromText(editor, fragment, {
+        format: markdownFormat,
+        text: "Hello",
+      } as never),
+    ).toThrow(/needs the option `base`/);
+    expect(blocks()).toEqual(before);
+  });
+
   it("throws an error if the editor is not bound to the Y.Doc, or not mounted", () => {
     const ydoc = new Y.Doc();
     const fragment = ydoc.getXmlFragment("prosemirror");

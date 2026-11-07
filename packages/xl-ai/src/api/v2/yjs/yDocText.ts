@@ -8,10 +8,12 @@ import * as Y from "yjs";
 
 import {
   type ConflictError,
+  requireBase,
   type TextUpdate,
+  textUpdate,
   type ValidTextUpdate,
+  write,
   type WriteFromVersion,
-  writeText,
 } from "../api.js";
 import type { TextFormat } from "../formats/types.js";
 
@@ -99,6 +101,7 @@ export function updateYDocFromText(
     );
   }
   const { onConflict, merge, ...textOptions } = options;
+  requireBase(options.base);
   const base = options.base === "current" ? undefined : options.base;
   const before = Y.encodeStateVector(ydoc);
   if (base !== undefined) {
@@ -128,17 +131,17 @@ export function updateYDocFromText(
   fork.fork({ initialUpdate: yjs ? base : undefined });
   try {
     // Without changes of other writers, there is no conflict.
-    update = writeText(
-      editor,
-      yjs
-        ? { ...textOptions, base: "current", keepLayout: true }
-        : unchanged
-          ? { ...textOptions, base: "current" }
-          : {
-              ...textOptions,
-              base: yXmlFragmentToBlocks(editor, baseFragment),
-              onConflict,
-            },
+    const writeOptions = yjs
+      ? { ...textOptions, base: "current" as const, keepLayout: true }
+      : unchanged
+        ? { ...textOptions, base: "current" as const }
+        : {
+            ...textOptions,
+            base: yXmlFragmentToBlocks(editor, baseFragment),
+            onConflict,
+          };
+    update = write(editor, (current) =>
+      textUpdate(editor, writeOptions, current),
     );
   } finally {
     fork.merge({

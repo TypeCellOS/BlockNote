@@ -81,7 +81,12 @@ export function projectWithParts(
     const sourceId =
       link === undefined ? undefined : sources[parts[link].source].block.id;
     if (sourceId !== undefined) {
-      viewsOf.set(sourceId, [...(viewsOf.get(sourceId) ?? []), v]);
+      const views = viewsOf.get(sourceId);
+      if (views === undefined) {
+        viewsOf.set(sourceId, [v]);
+      } else {
+        views.push(v);
+      }
     }
     return { ...flat, sourceId };
   });

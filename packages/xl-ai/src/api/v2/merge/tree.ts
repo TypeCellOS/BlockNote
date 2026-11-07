@@ -294,7 +294,12 @@ function mergeChildOrders(
   const expected = new Map<string | undefined, string[]>();
   for (const id of staying.list) {
     const parent = parentOf.get(id);
-    expected.set(parent, [...(expected.get(parent) ?? []), id]);
+    const list = expected.get(parent);
+    if (list === undefined) {
+      expected.set(parent, [id]);
+    } else {
+      list.push(id);
+    }
   }
   const conflicts = new Set<string>();
   const childrenOf = new Map<string | undefined, string[]>();

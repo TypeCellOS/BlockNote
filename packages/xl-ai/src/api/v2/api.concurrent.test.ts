@@ -7,6 +7,7 @@ import {
   htmlFormat,
   markdownFormat,
   type TextUpdateOptions,
+  updateDocumentFromJSON,
   updateDocumentFromText,
 } from "./index.js";
 import { flattenBlocks } from "./blocks/flatten.js";
@@ -55,6 +56,39 @@ function write(
     }),
   );
 }
+
+describe("a write without `base`", () => {
+  // The type requires `base`, but a caller without types can forget it.
+  it.each([
+    [
+      "computeTextUpdate",
+      (editor: BlockNoteEditor<any, any, any>) =>
+        computeTextUpdate(editor, {
+          format: markdownFormat,
+          text: "Hello",
+        } as never),
+    ],
+    [
+      "updateDocumentFromText",
+      (editor: BlockNoteEditor<any, any, any>) =>
+        updateDocumentFromText(editor, {
+          format: markdownFormat,
+          text: "Hello",
+        } as never),
+    ],
+    [
+      "updateDocumentFromJSON",
+      (editor: BlockNoteEditor<any, any, any>) =>
+        updateDocumentFromJSON(editor, { document: [] } as never),
+    ],
+  ])("%s throws an error, and does not change the document", (_, write) => {
+    const editor = createEditor();
+    const before = editor.document;
+
+    expect(() => write(editor)).toThrow(/needs the option `base`/);
+    expect(editor.document).toEqual(before);
+  });
+});
 
 describe("a write from an older version", () => {
   it("changes nothing if the client did not change the text", () => {
