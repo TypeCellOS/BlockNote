@@ -6,6 +6,7 @@ import {
 import { UniqueID } from "@blocknote/core/extensions";
 
 import { alignBlocks } from "./alignment/alignBlocks.js";
+import { flattenBlocks } from "./blocks/flatten.js";
 import { type SchemaRules, schemaRulesOf } from "./blocks/schema.js";
 import type { LensBlock } from "./blocks/types.js";
 import type { TextFormat } from "./formats/types.js";
@@ -17,6 +18,7 @@ import type { BlockOperation } from "./operations/types.js";
 import { parseJSON } from "./parse/parseJSON.js";
 import { parseText, withoutByteOrderMark } from "./parse/parseText.js";
 import { documentText } from "./projection/cache.js";
+import { withoutHiddenBlocks } from "./projection/hiddenBlocks.js";
 import { shadowsOf } from "./projection/shadows.js";
 import { mergeTree, type RebaseWarning } from "./merge/tree.js";
 import { fitResult } from "./fit/fitResult.js";
@@ -243,17 +245,27 @@ function planText(
     return { target: document, warnings: [] };
   }
   const projection = read.projection();
-  // 2. Parse and align.
-  const parsed = parseText(editor, format, content, projection.view);
+  // 2. Parse and align. The blocks that the format does not show go: the
+  // text cannot keep them (see `withoutHiddenBlocks`).
+  const parsed = parseText(editor, format, content);
   if (parsed.error !== undefined) {
     return parsed;
   }
-  const pairs = alignBlocks(projection.view, parsed.blocks);
+  const textBlocks = flattenBlocks(
+    withoutHiddenBlocks(
+      editor,
+      format,
+      parsed.blocks,
+      projection.view,
+      content,
+    ),
+  );
+  const pairs = alignBlocks(projection.view, textBlocks);
   // 3. Plan.
   return planTarget({
     document,
     projection,
-    incoming: parsed.blocks,
+    incoming: textBlocks,
     alignment: pairs,
     contentKindOf: schemaRulesOf(editor).contentKindOf,
     shadowOf: shadowsOf(editor, format),

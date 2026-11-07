@@ -6,8 +6,8 @@ import { schemaRulesOf } from "../blocks/schema.js";
 import { blockToText } from "../blocks/text.js";
 import type { FlatBlock, LensBlock } from "../blocks/types.js";
 import { anchoredMatch } from "../sequence/anchored.js";
-import { toStoredBlocks } from "../formats/stored.js";
 import type { TextFormat } from "../formats/types.js";
+import { parseText } from "../parse/parseText.js";
 
 export type ViewBlock = FlatBlock & {
   /**
@@ -188,9 +188,9 @@ function notLayoutBlocks(
 }
 
 /**
- * The view: the text of the document, parsed back in the form that the
- * document stores blocks (as the blocks of the text of a client). The text
- * comes from the document, thus its blocks fit the schema.
+ * The view: the text of the document, parsed back with the parse of the text
+ * of a client (see `parseText`). The text comes from the document, thus its
+ * blocks fit the schema.
  *
  * The parse of the text of an empty document can give a block (for example
  * one empty paragraph: the schema needs a block). That block comes from no
@@ -205,11 +205,11 @@ function viewOf(
   if (document.length === 0) {
     return [];
   }
-  const blocks = toStoredBlocks(editor, format.parse(editor, text));
-  if (blocks === undefined) {
+  const parsed = parseText(editor, format, text);
+  if (parsed.error !== undefined) {
     throw new Error("The text of the document does not fit its schema");
   }
-  return flattenBlocks(blocks);
+  return flattenBlocks(parsed.blocks);
 }
 
 /**
@@ -246,13 +246,13 @@ export function roundTripAlone(
     ...blocks.flatMap((block) => [withoutChildren(block), separator]),
   ].slice(edges.before ? 0 : 1, edges.after ? undefined : -1);
   const own = format.serialize(editor, batch);
-  const stored =
-    own.trim() === "" ? [] : toStoredBlocks(editor, format.parse(editor, own));
-  if (stored === undefined) {
+  const parsed =
+    own.trim() === "" ? { blocks: [] } : parseText(editor, format, own);
+  if (parsed.error !== undefined) {
     throw new Error("The round trip of a block does not fit the schema");
   }
   const groups: FlatBlock[][] = [[]];
-  for (const flat of flattenBlocks(stored)) {
+  for (const flat of flattenBlocks(parsed.blocks)) {
     if (flat.parentIndex === undefined && blockToText(flat.block) === marker) {
       groups.push([]);
     } else {

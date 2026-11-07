@@ -8,8 +8,8 @@ import type { LensBlock } from "../blocks/types.js";
 import { markdownFormat } from "../formats/markdown.js";
 import { plainTextFormat } from "../formats/plainText.js";
 import type { TextFormat } from "../formats/types.js";
-import { parseText } from "../parse/parseText.js";
 import { projectDocument } from "../projection/projectDocument.js";
+import { textBlocksOf } from "../testUtil/stages.js";
 import { correspond } from "./correspond.js";
 
 /** The correspondence of a text with a document, with each row as [kind, ID, text of the text block]. */
@@ -21,15 +21,12 @@ function tableOf(
   const editor = BlockNoteEditor.create({ initialContent });
   const document = editor.document as LensBlock[];
   const projection = projectDocument(editor, format, document);
-  const parsed = parseText(editor, format, text, projection.view);
-  if (parsed.error !== undefined) {
-    throw new Error(parsed.error);
-  }
+  const textBlocks = textBlocksOf(editor, format, text, projection.view);
   const { rows, kept, warnings } = correspond(
     {
       projection,
-      incoming: parsed.blocks,
-      alignment: alignBlocks(projection.view, parsed.blocks),
+      incoming: textBlocks,
+      alignment: alignBlocks(projection.view, textBlocks),
     },
     new BlockTree(document),
   );
@@ -37,7 +34,7 @@ function tableOf(
     rows: rows.map((row, j) => [
       row.kind,
       row.kind === "skipped" ? undefined : row.id,
-      blockToText(parsed.blocks[j].block),
+      blockToText(textBlocks[j].block),
     ]),
     kept: [...kept],
     warnings,

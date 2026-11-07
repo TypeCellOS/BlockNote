@@ -5,11 +5,13 @@ import { alignBlocks } from "../alignment/alignBlocks.js";
 import { schemaRulesOf } from "../blocks/schema.js";
 import { BlockTree } from "../blocks/tree.js";
 import { blockToText } from "../blocks/text.js";
-import type { LensBlock } from "../blocks/types.js";
+import type { FlatBlock, LensBlock } from "../blocks/types.js";
+import { flattenBlocks } from "../blocks/flatten.js";
 import { fitResult } from "../fit/fitResult.js";
 import type { TextFormat } from "../formats/types.js";
 import { diffDocuments } from "../operations/diffDocuments.js";
 import { parseText } from "../parse/parseText.js";
+import { withoutHiddenBlocks } from "../projection/hiddenBlocks.js";
 import { correspond } from "../plan/correspond.js";
 import { planTarget } from "../plan/planTarget.js";
 import { projectDocument } from "../projection/projectDocument.js";
@@ -30,16 +32,13 @@ export function textStages(
   // 1. Project.
   const projection = projectDocument(editor, format, document);
   // 2. Parse and align.
-  const parsed = parseText(editor, format, text, projection.view);
-  if (parsed.error !== undefined) {
-    throw new Error(parsed.error);
-  }
-  const pairs = alignBlocks(projection.view, parsed.blocks);
+  const textBlocks = textBlocksOf(editor, format, text, projection.view);
+  const pairs = alignBlocks(projection.view, textBlocks);
   // 3. Plan.
   const input = {
     document,
     projection,
-    incoming: parsed.blocks,
+    incoming: textBlocks,
     alignment: pairs,
     contentKindOf: schemaRulesOf(editor).contentKindOf,
     shadowOf: shadowsOf(editor, format),
@@ -68,12 +67,12 @@ export function textStages(
     invisible: [...projection.invisibleIds],
     pairs: pairs.map(({ aIndex, bIndex }) => [
       blockToText(projection.view[aIndex].block),
-      blockToText(parsed.blocks[bIndex].block),
+      blockToText(textBlocks[bIndex].block),
     ]),
     rows: rows.map((row, j) => [
       row.kind,
       row.kind === "skipped" ? undefined : row.id,
-      blockToText(parsed.blocks[j].block),
+      blockToText(textBlocks[j].block),
     ]),
     operations: withNewIdPlaceholders(operations),
     warnings: plan.warnings,
@@ -92,5 +91,24 @@ export function withNewIdPlaceholders(
       /"id":"(?![a-z]+")[^"]+"/g,
       '"id":"(new)"',
     ),
+  );
+}
+
+/**
+ * The text blocks of a text, as `planText` in `api.ts` gives them: the parse,
+ * without the blocks that the format does not show, in a flat list.
+ */
+export function textBlocksOf(
+  editor: BlockNoteEditor<any, any, any>,
+  format: TextFormat,
+  text: string,
+  view: readonly FlatBlock[],
+): FlatBlock[] {
+  const parsed = parseText(editor, format, text);
+  if (parsed.error !== undefined) {
+    throw new Error(parsed.error);
+  }
+  return flattenBlocks(
+    withoutHiddenBlocks(editor, format, parsed.blocks, view, text),
   );
 }
