@@ -210,6 +210,7 @@ describe("markdown", () => {
 
     const update = valid(
       computeTextUpdate(editor, {
+        base: "current",
         format: markdownFormat,
         text: replaceOnce(text, "Before", "Before, edited"),
       }),
@@ -440,6 +441,7 @@ describe("markdown", () => {
 
     const update = valid(
       updateDocumentFromText(editor, {
+        base: "current",
         format: markdownFormat,
         text,
       }),
@@ -473,6 +475,7 @@ describe("markdown", () => {
 
     valid(
       updateDocumentFromText(editor, {
+        base: "current",
         format: markdownFormat,
         text: markdown.replace("b.png", "x.png"),
       }),
@@ -490,6 +493,7 @@ describe("markdown", () => {
 
     const update = valid(
       updateDocumentFromText(editor, {
+        base: "current",
         format: markdownFormat,
         text: "Beta\n\nAlpha\n",
       }),
@@ -516,6 +520,7 @@ describe("markdown", () => {
 
     valid(
       updateDocumentFromText(editor, {
+        base: "current",
         format: markdownFormat,
         text: "Alpha\n\nTop\n\nBeta\n\nEnd\n",
       }),
@@ -551,6 +556,7 @@ describe("markdown", () => {
 
     valid(
       updateDocumentFromText(editor, {
+        base: "current",
         format: markdownFormat,
         text: "Alpha\n\nP\n\nBeta\n",
       }),
@@ -591,6 +597,7 @@ describe("markdown", () => {
 
     valid(
       updateDocumentFromText(editor, {
+        base: "current",
         format: markdownFormat,
         text: "Alpha\n\n<br>\n",
       }),
@@ -615,6 +622,7 @@ describe("markdown", () => {
 
     valid(
       updateDocumentFromText(editor, {
+        base: "current",
         format: markdownFormat,
         text: "X\n\nY\n",
       }),
@@ -637,6 +645,7 @@ describe("markdown", () => {
 
     valid(
       updateDocumentFromText(editor, {
+        base: "current",
         format: markdownFormat,
         text: "Alpha\n\nXray\n\nBeta\n",
       }),
@@ -689,6 +698,7 @@ describe("markdown", () => {
 
       valid(
         updateDocumentFromText(editor, {
+          base: "current",
           format: markdownFormat,
           text: "Bravo two\n\nTop\n\nAlpha one\n\nAlpha two\n\nBravo one\n\nEnd\n",
         }),
@@ -708,6 +718,7 @@ describe("markdown", () => {
 
       valid(
         updateDocumentFromText(editor, {
+          base: "current",
           format: markdownFormat,
           text: "Top\n\nAlpha one\n\nBravo one\n\nAlpha two\n\nBravo two\n\nEnd\n",
         }),
@@ -765,6 +776,7 @@ describe("markdown, blocks that markdown shows as other blocks", () => {
 
     valid(
       updateDocumentFromText(editor, {
+        base: "current",
         format,
         text: replaceOnce(text, fileText, ""),
       }),
@@ -779,6 +791,7 @@ describe("markdown, blocks that markdown shows as other blocks", () => {
 
     const update = valid(
       updateDocumentFromText(editor, {
+        base: "current",
         format,
         text: `${replaceOnce(text, fileText, "")}\n${fileText}`,
       }),
@@ -803,6 +816,7 @@ describe("markdown, blocks that markdown shows as other blocks", () => {
 
     valid(
       updateDocumentFromText(editor, {
+        base: "current",
         format,
         text: replaceOnce(text, videoText, ""),
       }),
@@ -817,6 +831,7 @@ describe("markdown, blocks that markdown shows as other blocks", () => {
 
     const update = valid(
       updateDocumentFromText(editor, {
+        base: "current",
         format,
         text: replaceOnce(text, "\n\nQ3\n\n", "\n\nQ3, final\n\n"),
       }),
@@ -839,15 +854,26 @@ describe("markdown, a change of the content kind", () => {
     ]);
     const text = "```\nline one\nline two\n```\n";
 
-    valid(updateDocumentFromText(editor, { format: markdownFormat, text }));
+    valid(
+      updateDocumentFromText(editor, {
+        base: "current",
+        format: markdownFormat,
+        text,
+      }),
+    );
 
     expect(editor.getBlock("p")).toMatchObject({
       type: "codeBlock",
       content: [{ type: "text", text: "line one\nline two", styles: {} }],
     });
     expect(
-      valid(computeTextUpdate(editor, { format: markdownFormat, text }))
-        .operations,
+      valid(
+        computeTextUpdate(editor, {
+          base: "current",
+          format: markdownFormat,
+          text,
+        }),
+      ).operations,
     ).toEqual([]);
   });
 });
@@ -889,6 +915,7 @@ describe("markdown, custom inline content", () => {
 
       valid(
         updateDocumentFromText(editor, {
+          base: "current",
           format,
           text: replaceOnce(text, word, replacement),
         }),
@@ -911,6 +938,7 @@ describe("markdown, custom inline content", () => {
 
     valid(
       updateDocumentFromText(editor, {
+        base: "current",
         format,
         text: replaceOnce(text, "@Bob", "@Alice"),
       }),
@@ -947,6 +975,7 @@ describe("a table with merged cells", () => {
     const text = getDocumentText(editor, markdownFormat);
     const update = valid(
       updateDocumentFromText(editor, {
+        base: "current",
         format: markdownFormat,
         text: replaceOnce(text, "| C", "| Changed"),
       }),
@@ -981,7 +1010,13 @@ describe("a nesting that the format does not show", () => {
       "Parent",
       "* Parent",
     );
-    valid(updateDocumentFromText(editor, { format: markdownFormat, text }));
+    valid(
+      updateDocumentFromText(editor, {
+        base: "current",
+        format: markdownFormat,
+        text,
+      }),
+    );
     expect(getDocumentText(editor, markdownFormat)).toBe(
       canonicalText(editor, markdownFormat, text),
     );

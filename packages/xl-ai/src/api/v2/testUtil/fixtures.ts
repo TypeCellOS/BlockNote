@@ -193,7 +193,9 @@ export function writeText(
   edit: (text: string) => string,
 ): ValidTextUpdate {
   const text = edit(getDocumentText(editor, format));
-  return valid(updateDocumentFromText(editor, { format, text }));
+  return valid(
+    updateDocumentFromText(editor, { base: "current", format, text }),
+  );
 }
 
 /** Makes an editor with the shared test document (`shared/testDocumentBlocks.ts`). */

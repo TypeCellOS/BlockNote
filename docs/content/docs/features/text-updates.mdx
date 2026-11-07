@@ -37,11 +37,14 @@ const markdown = getDocumentText(editor, markdownFormat);
 const result = updateDocumentFromText(editor, {
   format: markdownFormat,
   text: changedMarkdown,
+  base: "current", // the client read the current document
 });
 if (result.error === undefined) {
   const { operations, warnings } = result;
 }
 ```
+
+`base` is the version that the client read. `"current"` is correct if no other writer can change the document between the read and the write, for example if the read and the write occur in the same tick. Else, give the version that the client read (see [Writes From an Older Version](#writes-from-an-older-version)).
 
 `updateDocumentFromText` applies the changes in one transaction. `operations` lists the changes by block ID, and `warnings` lists changes that did not apply as written (see [Warnings](#warnings)). To compute the operations, but not apply them, use `computeTextUpdate` with the same options.
 
@@ -88,7 +91,7 @@ updateDocumentFromText(editor, {
   height={270}
 />
 
-The client's changes apply to the current document, by block ID. If both sides changed the same part of a block (for example the same words, or the same prop), the change of the other user stays, and the client gets the warning `conflicting-change`. Thus, a write from an older version never reverts a change that it did not see. If the client removes a block that another user changed, the block stays, with the warning `removed-changed-block`. Without `base`, the text applies to the current document, thus a text from an older version changes the newer changes back.
+The client's changes apply to the current document, by block ID. If both sides changed the same part of a block (for example the same words, or the same prop), the change of the other user stays, and the client gets the warning `conflicting-change`. Thus, a write from an older version never reverts a change that it did not see. If the client removes a block that another user changed, the block stays, with the warning `removed-changed-block`. With `base: "current"`, the text applies to the current document without a merge, thus a text from an older version changes the newer changes back.
 
 `base` must be the full document (BlockNote JSON) of that version. A version history keeps full documents anyway, because only a full document shows props and nesting.
 
@@ -109,7 +112,7 @@ if (result.error === "conflict") {
 }
 ```
 
-The default is `onConflict: "keep-current"`: the other changes of the client apply, and the result has the warnings. `onConflict` needs `base`, because a write without `base` has no conflicts. The JSON and Y.Doc writes have the same option.
+The default is `onConflict: "keep-current"`: the other changes of the client apply, and the result has the warnings. `onConflict` needs a version as `base`, because a write with `base: "current"` has no conflicts. The JSON and Y.Doc writes have the same option.
 
 ## BlockNote JSON
 
@@ -130,7 +133,7 @@ If the JSON does not fit the schema of the editor, the result is `{ error: "inva
 
 ## Y.Doc
 
-For a collaborative document in a Y.Doc, use the `@blocknote/xl-ai/text-lens/yjs` entry point. The lens writes through an editor that is bound to the Y.Doc, as a client. Create it with `withCollaboration`, with the schema and the extensions of your other clients, and mount it: the Yjs binding works in the editor view. On a server, mount it on an element that is not in a page. `base` is the Yjs state of the version that the client read:
+For a collaborative document in a Y.Doc, use the `@blocknote/xl-ai/text-lens/yjs` entry point. The lens writes through an editor that is bound to the Y.Doc, as a client. Create it with `withCollaboration`, with the schema and the extensions of your other clients, and mount it: the Yjs binding works in the editor view. On a server, mount it on an element that is not in a page. `base` is `"current"`, or the Yjs state of the version that the client read:
 
 ```typescript
 import { BlockNoteEditor } from "@blocknote/core";
@@ -165,7 +168,7 @@ When an editor binds to a Y.Doc, the Yjs binding removes the content that the sc
 
 The write merges with the changes of other users by block ID, as for a document without Yjs. The Yjs binding (y-prosemirror v13) has limits for moves: if two users move the same block at the same time, the block can be there two times.
 
-With `merge: "yjs"`, Yjs merges the write instead. The changes of the client apply to a copy of the Y.Doc at `base`, and Yjs merges that copy into the Y.Doc. This option needs `base`. It does not allow `onConflict`, because Yjs merges without conflicts. With y-prosemirror v13, this option has more limits. A change of another user can be lost if the client moves, splits or joins the block, or changes its type. Also, a block that the client removes goes, with the changes of other users in it.
+With `merge: "yjs"`, Yjs merges the write instead. The changes of the client apply to a copy of the Y.Doc at `base`, and Yjs merges that copy into the Y.Doc. This option needs a Yjs state as `base`. It does not allow `onConflict`, because Yjs merges without conflicts. With y-prosemirror v13, this option has more limits. A change of another user can be lost if the client moves, splits or joins the block, or changes its type. Also, a block that the client removes goes, with the changes of other users in it.
 
 ## Warnings
 

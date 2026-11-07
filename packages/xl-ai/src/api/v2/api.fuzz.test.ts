@@ -79,13 +79,21 @@ describe.each([
         }
 
         // GetPut.
-        const getPut = computeTextUpdate(editor, { format, text });
+        const getPut = computeTextUpdate(editor, {
+          base: "current",
+          format,
+          text,
+        });
         expect(getPut.error === undefined ? getPut.operations : getPut).toEqual(
           [],
         );
 
         const edited = randomEdits(random, text, randomTextEdit);
-        const update = updateDocumentFromText(editor, { format, text: edited });
+        const update = updateDocumentFromText(editor, {
+          base: "current",
+          format,
+          text: edited,
+        });
         if (update.error !== undefined) {
           // A random edit of HTML markup can give HTML that does not fit the
           // schema. That is an expected error.
@@ -103,7 +111,11 @@ describe.each([
           canonicalText(editor, format, getDocumentText(editor, format)),
         ).toBe(canonicalText(editor, format, edited));
         // PutTwice.
-        const twice = computeTextUpdate(editor, { format, text: edited });
+        const twice = computeTextUpdate(editor, {
+          base: "current",
+          format,
+          text: edited,
+        });
         expect(twice.error === undefined ? twice.operations : twice).toEqual(
           [],
         );

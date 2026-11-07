@@ -44,7 +44,7 @@ const WRITE_DELAY_MS = 200;
  * the write keeps the changes that the live editor made after this version.
  */
 type Base = {
-  document: NonNullable<TextUpdateOptions["base"]>;
+  document: Exclude<TextUpdateOptions["base"], "current">;
   text: string;
   time: Date;
 };

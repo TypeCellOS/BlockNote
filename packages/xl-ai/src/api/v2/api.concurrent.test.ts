@@ -324,14 +324,17 @@ describe.each(formatCases)(
 
         const text = getDocumentText(editor, format);
         expect(
-          valid(computeTextUpdate(editor, { format, text })).operations,
+          valid(computeTextUpdate(editor, { base: "current", format, text }))
+            .operations,
         ).toEqual([]);
 
         /** Returns the changes of one writer alone, by block ID. */
         function alone(base: LensBlock[], text: string): Writer["change"] {
           const single = BlockNoteEditor.create({ initialContent: base });
           const before = blockFieldsById(single);
-          valid(updateDocumentFromText(single, { format, text }));
+          valid(
+            updateDocumentFromText(single, { base: "current", format, text }),
+          );
           const after = blockFieldsById(single);
           return { after, ...diffBlocks(before, after) };
         }

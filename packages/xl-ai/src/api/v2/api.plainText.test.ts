@@ -200,6 +200,7 @@ describe("plain text, a new editor", () => {
 
     valid(
       updateDocumentFromText(editor, {
+        base: "current",
         format: plainTextFormat,
         text: "Hello\n\nWorld",
       }),
@@ -229,6 +230,7 @@ describe("plain text, a part of a block without words", () => {
 
     const update = valid(
       updateDocumentFromText(editor, {
+        base: "current",
         format: plainTextFormat,
         text: text.replace("\n\n}", "\n\n} // end"),
       }),
@@ -252,7 +254,11 @@ describe("special characters at the edges of the text", () => {
     });
     const text = getDocumentText(editor, plainTextFormat);
     const update = valid(
-      computeTextUpdate(editor, { format: plainTextFormat, text }),
+      computeTextUpdate(editor, {
+        base: "current",
+        format: plainTextFormat,
+        text,
+      }),
     );
     expect(update.operations).toEqual([]);
   });
@@ -275,7 +281,13 @@ describe("special characters at the edges of the text", () => {
       "Hello",
       "Hello there",
     );
-    valid(updateDocumentFromText(editor, { format: plainTextFormat, text }));
+    valid(
+      updateDocumentFromText(editor, {
+        base: "current",
+        format: plainTextFormat,
+        text,
+      }),
+    );
     expect(getDocumentText(editor, plainTextFormat)).toBe(text);
   });
 });
@@ -299,6 +311,7 @@ describe("an item that plain text does not show", () => {
     const text = getDocumentText(editor, plainTextFormat);
     valid(
       updateDocumentFromText(editor, {
+        base: "current",
         format: plainTextFormat,
         text: replaceOnce(text, "today", "tomorrow"),
       }),

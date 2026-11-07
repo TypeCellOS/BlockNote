@@ -101,7 +101,7 @@ export function createApp(store: DocumentStore) {
     if (base !== undefined && "error" in base) {
       return c.json({ error: base.error }, base.status);
     }
-    const result = write(editor, format, body, base?.blocks);
+    const result = write(editor, format, body, base?.blocks ?? "current");
     if (result.error !== undefined) {
       return c.json({ error: result.error }, result.status);
     }
@@ -131,7 +131,7 @@ function write(
   editor: BlockNoteEditor<any, any, any>,
   format: Format,
   body: string,
-  base: Block<any, any, any>[] | undefined,
+  base: Block<any, any, any>[] | "current",
 ): ValidTextUpdate | ClientError {
   if (format.type === "text") {
     return orClientError(
@@ -158,7 +158,7 @@ function orClientError(update: TextUpdate): ValidTextUpdate | ClientError {
     : { status: 400, error: update.error };
 }
 
-/** Reads the `Base-Version` header. Without the header, there is no base. */
+/** Reads the `Base-Version` header. Without the header, the write applies to the current document. */
 function readBase(
   header: string | undefined,
   store: DocumentStore,

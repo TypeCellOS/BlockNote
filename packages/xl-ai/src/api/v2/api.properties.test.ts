@@ -54,14 +54,16 @@ function expectLaws(
 
   // GetPut, also without the shortcut for equal text.
   expect(
-    valid(computeTextUpdate(editor, { format, text: `${text}\n` })).operations,
+    valid(
+      computeTextUpdate(editor, { base: "current", format, text: `${text}\n` }),
+    ).operations,
   ).toEqual([]);
 
   const edited = randomEdits(random, text, (random, text) =>
     randomEdit(random, text, codec),
   );
   const update = valid(
-    updateDocumentFromText(editor, { format, text: edited }),
+    updateDocumentFromText(editor, { base: "current", format, text: edited }),
   );
   expect(update.warnings).toEqual([]);
 
@@ -72,7 +74,8 @@ function expectLaws(
 
   // PutTwice.
   expect(
-    valid(computeTextUpdate(editor, { format, text: edited })).operations,
+    valid(computeTextUpdate(editor, { base: "current", format, text: edited }))
+      .operations,
   ).toEqual([]);
 }
 
@@ -123,7 +126,7 @@ describe("markdown, edits of lines", () => {
       randomLineEdit,
     );
     const update = valid(
-      updateDocumentFromText(editor, { format, text: edited }),
+      updateDocumentFromText(editor, { base: "current", format, text: edited }),
     );
     expect(update.warnings).toEqual([]);
 
@@ -133,7 +136,9 @@ describe("markdown, edits of lines", () => {
     );
     // PutTwice.
     expect(
-      valid(computeTextUpdate(editor, { format, text: edited })).operations,
+      valid(
+        computeTextUpdate(editor, { base: "current", format, text: edited }),
+      ).operations,
     ).toEqual([]);
   });
 });

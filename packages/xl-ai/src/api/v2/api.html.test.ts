@@ -110,6 +110,7 @@ describe("HTML", () => {
 
       expect(
         updateDocumentFromText(editor, {
+          base: "current",
           format: htmlFormat,
           text: html.replace(from, to),
         }),
@@ -129,6 +130,7 @@ describe("HTML", () => {
 
     valid(
       updateDocumentFromText(editor, {
+        base: "current",
         format: htmlFormat,
         text: '<div class="bn-block-column-list"><div class="bn-block-column"><p>Alpha</p></div><div class="bn-block-column"><p>Beta</p></div></div>',
       }),
@@ -163,10 +165,22 @@ describe("HTML, a change of the type of a parent", () => {
       .replace("</summary>", "")
       .replace("</details>", "");
 
-    valid(updateDocumentFromText(editor, { format: htmlFormat, text }));
+    valid(
+      updateDocumentFromText(editor, {
+        base: "current",
+        format: htmlFormat,
+        text,
+      }),
+    );
 
     expect(
-      valid(computeTextUpdate(editor, { format: htmlFormat, text })).operations,
+      valid(
+        computeTextUpdate(editor, {
+          base: "current",
+          format: htmlFormat,
+          text,
+        }),
+      ).operations,
     ).toEqual([]);
   });
 });
@@ -180,10 +194,22 @@ describe("HTML, a parse in a form that the document does not store", () => {
     const text =
       "<blockquote><p><em>note</em></p><p>￼</p><p>ipsum</p></blockquote>";
 
-    valid(updateDocumentFromText(editor, { format: htmlFormat, text }));
+    valid(
+      updateDocumentFromText(editor, {
+        base: "current",
+        format: htmlFormat,
+        text,
+      }),
+    );
 
     expect(
-      valid(computeTextUpdate(editor, { format: htmlFormat, text })).operations,
+      valid(
+        computeTextUpdate(editor, {
+          base: "current",
+          format: htmlFormat,
+          text,
+        }),
+      ).operations,
     ).toEqual([]);
   });
 });

@@ -43,7 +43,7 @@ function write(
     updateDocumentFromText(editor, {
       format,
       text,
-      base,
+      base: base ?? "current",
       experimentalTextMoves: true,
     }),
   );

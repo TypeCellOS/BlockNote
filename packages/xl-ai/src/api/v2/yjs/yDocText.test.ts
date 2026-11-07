@@ -111,7 +111,11 @@ describe("updateYDocFromText", () => {
     const text = "Alpha https://example.com end";
 
     valid(
-      updateYDocFromText(editor, fragment, { format: plainTextFormat, text }),
+      updateYDocFromText(editor, fragment, {
+        base: "current",
+        format: plainTextFormat,
+        text,
+      }),
     );
 
     expect(block("p")?.content).toEqual([{ type: "text", text, styles: {} }]);
@@ -120,7 +124,11 @@ describe("updateYDocFromText", () => {
   it("throws an error if the editor is not bound to the Y.Doc, or not mounted", () => {
     const ydoc = new Y.Doc();
     const fragment = ydoc.getXmlFragment("prosemirror");
-    const options = { format: markdownFormat, text: "Hello" };
+    const options = {
+      format: markdownFormat,
+      text: "Hello",
+      base: "current" as const,
+    };
 
     expect(() =>
       updateYDocFromText(BlockNoteEditor.create(), fragment, options),
@@ -192,6 +200,7 @@ describe.each([
     const fragment = ydoc.getXmlFragment("prosemirror");
     valid(
       updateYDocFromText(bindEditor(fragment), fragment, {
+        base: "current",
         format,
         text: "Hello",
       }),
@@ -223,6 +232,7 @@ describe.each([
       const base = Y.encodeStateAsUpdate(ydoc);
       valid(
         updateYDocFromText(bindEditor(fragment), fragment, {
+          base: "current",
           format,
           text: "Other",
         }),
@@ -250,8 +260,20 @@ describe.each([
     );
     const fragment = ydoc.getXmlFragment("prosemirror");
     const editor = bindEditor(fragment);
-    valid(updateYDocFromText(editor, fragment, { format, text: "" }));
-    valid(updateYDocFromText(editor, fragment, { format, text: "New text" }));
+    valid(
+      updateYDocFromText(editor, fragment, {
+        base: "current",
+        format,
+        text: "",
+      }),
+    );
+    valid(
+      updateYDocFromText(editor, fragment, {
+        base: "current",
+        format,
+        text: "New text",
+      }),
+    );
 
     expect(readText(fragment, format).trim()).toBe("New text");
     expect(idsOf(ydoc).every((id) => typeof id === "string")).toBe(true);
@@ -613,9 +635,13 @@ describe.each(formatCases)(
       );
       const text = randomEdits(random, getDocumentText(editor, format), edit);
 
-      valid(updateDocumentFromText(editor, { format, text }));
+      valid(updateDocumentFromText(editor, { base: "current", format, text }));
       valid(
-        updateYDocFromText(bindEditor(fragment), fragment, { format, text }),
+        updateYDocFromText(bindEditor(fragment), fragment, {
+          base: "current",
+          format,
+          text,
+        }),
       );
 
       expect(readText(fragment, format)).toBe(getDocumentText(editor, format));
@@ -661,12 +687,19 @@ describe("Y.Doc writes after a move of a nested block", () => {
     const fragment = ydoc.getXmlFragment("prosemirror");
     valid(
       updateYDocFromText(bindEditor(fragment), fragment, {
+        base: "current",
         format: markdownFormat,
         text,
       }),
     );
     const reference = BlockNoteEditor.create({ initialContent: nested });
-    valid(updateDocumentFromText(reference, { format: markdownFormat, text }));
+    valid(
+      updateDocumentFromText(reference, {
+        base: "current",
+        format: markdownFormat,
+        text,
+      }),
+    );
     function ids(blocks: { id: string; children: any[] }[]): string[] {
       return blocks.flatMap((block) => [block.id, ...ids(block.children)]);
     }
@@ -729,6 +762,7 @@ describe.each(merges)("concurrent writes with columns (merge %s)", (merge) => {
     // new block goes into the nesting of the next block).
     valid(
       updateYDocFromText(bindEditor(fragment, { schema }), fragment, {
+        base: "current",
         format,
         text: text.replace("Alpha", "Alpha\n\nAdded by other"),
       }),
@@ -779,6 +813,7 @@ describe("changes of other writers in a list with more than one structural chang
     const editor = bindEditor(fragment);
     valid(
       updateYDocFromText(editor, fragment, {
+        base: "current",
         format: markdownFormat,
         text: "First\n\nAlpha\n\nBeta\n\nGamma\n\nLast\n",
       }),
@@ -804,6 +839,7 @@ describe("changes of other writers in a list with more than one structural chang
     const editor = bindEditor(fragment);
     valid(
       updateDocumentFromText(editor, {
+        base: "current",
         format: markdownFormat,
         text: "First\n\nAlpha\n\nBeta\n\nGamma\n\nLast\n",
       }),
@@ -922,6 +958,7 @@ describe("a write that fails in the middle", () => {
 
     expect(() =>
       updateYDocFromText(editor, fragment, {
+        base: "current",
         format: markdownFormat,
         text: "x First one two Last end\n\nBeta\n",
       }),
@@ -987,6 +1024,7 @@ describe("an editor that shows a fork of the Y.Doc", () => {
 
     expect(() =>
       updateYDocFromText(editor, fragment, {
+        base: "current",
         format: markdownFormat,
         text: "Alpha edited\n",
       }),

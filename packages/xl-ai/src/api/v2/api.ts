@@ -66,23 +66,29 @@ export type TextUpdate =
   | ConflictError;
 
 /**
- * The version that the client read, for a write from that version (`base`),
- * and what a conflict with a change of another writer does (`onConflict`).
- * `onConflict` needs `base`: a write without `base` has no conflicts.
+ * The version that the client read (`base`), and what a conflict with a
+ * change of another writer does (`onConflict`). Each write must give
+ * `base`: a write that forgets it would remove the changes of other writers
+ * without a warning.
  */
 export type WriteFromVersion<Base> =
   | {
       /**
-       * The version that the client read, if it is older than the current
-       * document. Get it from your version history. The result then keeps
-       * the changes that other writers made after that version (see
-       * `merge/tree.ts`). Without `base`, the write applies to the current
-       * document.
+       * The client read the current document (for example in the same
+       * tick). The write applies to the current document, without a merge.
+       * The text is the truth: if other writers changed the document after
+       * the read of the client, the write reverts their changes where the
+       * format shows them.
        */
-      base?: Base;
+      base: "current";
       onConflict?: undefined;
     }
   | {
+      /**
+       * The version that the client read. Get it from your version history.
+       * The result keeps the changes that other writers made after that
+       * version (see `merge/tree.ts`).
+       */
       base: Base;
       /**
        * What a conflict (a {@link RebaseWarning}) does:
@@ -148,7 +154,7 @@ function computeBlocksUpdate(
   },
 ): TextUpdate {
   const { current } = options;
-  const base = options.base && withDistinctIds(options.base);
+  const base = versionOf(options);
   const textMoves = options.experimentalTextMoves === true;
   const plan = planTextUpdate(
     editor,
@@ -229,7 +235,7 @@ function jsonUpdate(
   if (blocks === undefined) {
     return { error: "invalid-document" };
   }
-  const base = options.base && withDistinctIds(options.base);
+  const base = versionOf(options);
   return updateToTarget(
     rules,
     {
@@ -248,6 +254,16 @@ function jsonUpdate(
       groups: options.experimentalTextMoves === true ? [] : undefined,
     },
   );
+}
+
+/**
+ * The version that the write merges from, or `undefined` for a write on the
+ * current document (`base: "current"`).
+ */
+function versionOf(
+  options: WriteFromVersion<readonly LensBlock[]>,
+): readonly LensBlock[] | undefined {
+  return options.base === "current" ? undefined : withDistinctIds(options.base);
 }
 
 /**

@@ -30,6 +30,7 @@ describe("hidden blocks next to blocks that the text moves", () => {
     const editor = BlockNoteEditor.create({ schema, initialContent });
     valid(
       updateDocumentFromText(editor, {
+        base: "current",
         format,
         text: text(getDocumentText(editor, format)),
       }),

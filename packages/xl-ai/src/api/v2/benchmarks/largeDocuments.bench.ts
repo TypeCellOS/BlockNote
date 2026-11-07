@@ -141,10 +141,18 @@ describe("large documents", () => {
             format: name,
             read: await median(() => getDocumentText(editor, format)),
             "write same text": await median(() =>
-              computeTextUpdate(editor, { format, text: `${text}\n` }),
+              computeTextUpdate(editor, {
+                base: "current",
+                format,
+                text: `${text}\n`,
+              }),
             ),
             "write one change": await median(() =>
-              computeTextUpdate(editor, { format, text: edited }),
+              computeTextUpdate(editor, {
+                base: "current",
+                format,
+                text: edited,
+              }),
             ),
             "older base": await median(() =>
               computeTextUpdate(other, {

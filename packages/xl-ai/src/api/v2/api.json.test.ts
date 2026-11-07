@@ -39,7 +39,10 @@ describe("JSON", () => {
   it("gives no operations for the same document", () => {
     const editor = createEditor(initial);
     expect(
-      computeJSONUpdate(editor, { document: copy(editor.document) }),
+      computeJSONUpdate(editor, {
+        base: "current",
+        document: copy(editor.document),
+      }),
     ).toEqual({ operations: [], warnings: [] });
   });
 
@@ -48,7 +51,7 @@ describe("JSON", () => {
     const document = copy(editor.document);
     document[1].props.textColor = "red";
 
-    const result = update(editor, { document });
+    const result = update(editor, { base: "current", document });
 
     expect(result.operations).toEqual([
       { type: "update", id: "b", update: { props: { textColor: "red" } } },
@@ -61,6 +64,7 @@ describe("JSON", () => {
     const [a, b, c] = copy(editor.document);
 
     update(editor, {
+      base: "current",
       document: [c, a, { type: "paragraph", content: "New" }],
     });
 
@@ -152,6 +156,7 @@ describe("JSON", () => {
 
       expect(
         updateDocumentFromJSON(editor, {
+          base: "current",
           document: document as JSONUpdateOptions["document"],
         }),
       ).toEqual({ error: "invalid-document" });
@@ -165,7 +170,7 @@ describe("JSON", () => {
     const [a, b] = copy(editor.document);
     const duplicate = { ...a, content: "Alpha, copy" };
 
-    update(editor, { document: [a, duplicate, b] });
+    update(editor, { base: "current", document: [a, duplicate, b] });
 
     const ids = editor.document.map((block) => block.id);
     expect(ids[0]).toBe("a");
@@ -180,7 +185,10 @@ describe("JSON", () => {
     const [a, b, c] = copy(editor.document);
     const nested = { ...b, content: "Nested" };
 
-    update(editor, { document: [a, { ...b, children: [nested] }, c] });
+    update(editor, {
+      base: "current",
+      document: [a, { ...b, children: [nested] }, c],
+    });
 
     const parent = editor.getBlock("b");
     expect(parent?.content).toMatchObject([{ text: "Beta" }]);
@@ -220,7 +228,7 @@ describe("JSON", () => {
       { id: "new", type: "paragraph" as const, content: "New" },
     ];
 
-    update(editor, { document });
+    update(editor, { base: "current", document });
 
     expect(editor.getBlock("new")?.content).toMatchObject([{ text: "New" }]);
   });
@@ -229,6 +237,7 @@ describe("JSON", () => {
     const editor = createEditor(initial);
 
     update(editor, {
+      base: "current",
       document: [
         { id: "a", type: "paragraph", content: "Alpha", children: null },
       ] as unknown as JSONUpdateOptions["document"],
@@ -245,6 +254,7 @@ describe("JSON", () => {
 
     expect(
       updateDocumentFromJSON(editor, {
+        base: "current",
         document: [
           {
             type: "column",
@@ -262,6 +272,7 @@ describe("JSON", () => {
 
     expect(
       updateDocumentFromJSON(editor, {
+        base: "current",
         document: [{ type: "unknown" }] as JSONUpdateOptions["document"],
       }),
     ).toEqual({ error: "invalid-document" });
@@ -276,6 +287,7 @@ describe("JSON", () => {
     const [a, b] = copy(editor.document);
 
     update(editor, {
+      base: "current",
       document: [
         {
           type: "columnList",
@@ -327,6 +339,7 @@ describe("JSON", () => {
       ]);
 
       update(editor, {
+        base: "current",
         document: [
           {
             id: "p",
@@ -346,6 +359,7 @@ describe("JSON", () => {
       const editor = columnsEditor(twoColumns);
 
       update(editor, {
+        base: "current",
         document: [{ id: "cA", type: "paragraph", content: "Was a column" }],
       });
 
@@ -361,6 +375,7 @@ describe("JSON", () => {
       ]);
 
       update(editor, {
+        base: "current",
         document: [
           {
             id: "p",
@@ -389,6 +404,7 @@ describe("JSON", () => {
       const editor = columnsEditor(twoColumns);
 
       update(editor, {
+        base: "current",
         document: [{ id: "list", type: "paragraph", content: "Was columns" }],
       });
 
@@ -405,6 +421,7 @@ describe("JSON, a change of the content kind", () => {
 
     valid(
       updateDocumentFromJSON(editor, {
+        base: "current",
         document: [
           { id: "c", type: "paragraph", content: "line one\nline two" },
         ],
@@ -429,6 +446,7 @@ describe("JSON, the layout rules", () => {
 
     valid(
       updateDocumentFromJSON(editor, {
+        base: "current",
         document: [
           {
             ...list,

@@ -67,10 +67,10 @@ export type YDocTextUpdate =
  * example comments). When an editor binds to a Y.Doc, y-prosemirror removes
  * the content that the schema of the editor cannot read.
  *
- * The text can come from an older version of the document (`base`, the Yjs
- * state `Y.encodeStateAsUpdate` at the version that the client read). The
- * result keeps the changes that other writers made after that version: the
- * target of the text merges with the current document (see
+ * `base` is the version that the client read: `"current"`, or the Yjs state
+ * `Y.encodeStateAsUpdate` at that version. With a Yjs state, the result
+ * keeps the changes that other writers made after that version: the target
+ * of the text merges with the current document (see
  * {@link YDocWriteFromVersion}). With `merge: "yjs"`, the operations of the
  * result are for `base`, else they are for the current document.
  */
@@ -102,7 +102,8 @@ export function updateYDocFromText(
       "The editor shows a fork of the Y.Doc (for example a version preview). End the fork first.",
     );
   }
-  const { base, onConflict, merge, ...textOptions } = options;
+  const { onConflict, merge, ...textOptions } = options;
+  const base = options.base === "current" ? undefined : options.base;
   const before = Y.encodeStateVector(ydoc);
   if (base !== undefined) {
     // The client can read from a replica with an update that this Y.Doc does
@@ -134,9 +135,9 @@ export function updateYDocFromText(
     update = writeText(
       editor,
       yjs
-        ? { ...textOptions, keepLayout: true }
+        ? { ...textOptions, base: "current", keepLayout: true }
         : unchanged
-          ? textOptions
+          ? { ...textOptions, base: "current" }
           : {
               ...textOptions,
               base: yXmlFragmentToBlocks(editor, baseFragment),
