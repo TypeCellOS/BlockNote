@@ -7,26 +7,21 @@ import { UniqueID } from "@blocknote/core/extensions";
 
 import { alignBlocksAndMoves } from "./alignment/alignBlocks.js";
 import { type SchemaRules, schemaRulesOf } from "./blocks/schema.js";
-import { BlockTree } from "./blocks/tree.js";
 import type { LensBlock } from "./blocks/types.js";
-import { toStoredBlocks } from "./formats/stored.js";
 import type { TextFormat } from "./formats/types.js";
 import { fixBlockIds, withDistinctIds } from "./operations/blockIds.js";
 import { applyOperations } from "./operations/applyOperations.js";
 import { dispatchUpdate } from "./operations/dispatch.js";
 import { diffDocuments } from "./operations/diffDocuments.js";
 import type { BlockOperation } from "./operations/types.js";
+import { parseJSON } from "./parse/parseJSON.js";
 import { parseText, withoutByteOrderMark } from "./parse/parseText.js";
 import { documentText } from "./projection/cache.js";
 import { shadowsOf } from "./projection/shadows.js";
 import type { TextGroup } from "./merge/group.js";
 import { mergeTree, type RebaseWarning } from "./merge/tree.js";
-import { fitLayout } from "./fit/fitLayout.js";
-import {
-  fitChangedTables,
-  type FitWarning,
-  mergedCellsRemoved,
-} from "./fit/fitTable.js";
+import { fitResult } from "./fit/fitResult.js";
+import { type FitWarning, mergedCellsRemoved } from "./fit/fitTable.js";
 import { type PlanWarning, planTarget } from "./plan/planTarget.js";
 
 /** Returns the document in the format. A client reads this text, changes it, and writes it back. */
@@ -147,7 +142,7 @@ function computeBlocksUpdate(
   editor: BlockNoteEditor<any, any, any>,
   options: TextUpdateOptions & {
     current: readonly LensBlock[];
-    /** Keep the layout blocks, also if they become empty (see `updateToTarget`). */
+    /** Keep the layout blocks, also if they become empty (see `fitResult`). */
     keepLayout?: boolean;
   },
 ): TextUpdate {
@@ -222,29 +217,14 @@ function jsonUpdate(
   options: JSONUpdateOptions,
   current: readonly LensBlock[],
 ): TextUpdate {
-  // The layout rule applies to the JSON of the client, before the
-  // conversion: the conversion fills a layout block with too few children
-  // with new blocks (for example a column list with one column).
-  const rules = schemaRulesOf(editor);
-  const blocks = toStoredBlocks(
-    editor,
-    fitLayout(options.document, rules.layoutRuleOf),
-  );
-  if (blocks === undefined) {
-    return { error: "invalid-document" };
-  }
   const base = versionOf(options);
+  const parsed = parseJSON(editor, options.document, base ?? current, current);
+  if (parsed.error !== undefined) {
+    return parsed;
+  }
   return updateToTarget(
-    rules,
-    {
-      target: withUniqueIds(
-        blocks,
-        base ?? current,
-        current,
-        rules.layoutRuleOf,
-      ),
-      warnings: [],
-    },
+    schemaRulesOf(editor),
+    { target: parsed.blocks, warnings: [] },
     {
       base,
       current,
@@ -287,38 +267,6 @@ function write(
 }
 
 /**
- * Returns the blocks with a new ID where an ID cannot identify the block: a
- * later block with the ID of an earlier block, a block with an ID that is
- * not in `base` but is in `current` (a block of another writer), or a block
- * that changes between a layout type and another type (for example a column
- * that becomes a paragraph: it cannot change in place). These blocks are new
- * blocks.
- */
-function withUniqueIds(
-  blocks: readonly LensBlock[],
-  base: readonly LensBlock[],
-  current: readonly LensBlock[],
-  layoutRuleOf: SchemaRules["layoutRuleOf"],
-): LensBlock[] {
-  const inBase = new Set(new BlockTree(base).ids);
-  const inCurrent = new BlockTree(current).byId;
-  const used = new Set<string>();
-  function fix(block: LensBlock): LensBlock {
-    const before = inCurrent.get(block.id);
-    const keep =
-      !used.has(block.id) &&
-      (inBase.has(block.id) || before === undefined) &&
-      (before === undefined ||
-        (layoutRuleOf(before.type) === undefined) ===
-          (layoutRuleOf(block.type) === undefined));
-    const id = keep ? block.id : UniqueID.options.generateID();
-    used.add(id);
-    return { ...block, id, children: block.children.map(fix) };
-  }
-  return blocks.map(fix);
-}
-
-/**
  * Returns the update that changes `current` to the target document of the
  * plan. The plan is for `base`, or for `current` if there is no `base`. A
  * plan without changes gives no operations. With `base` (an older version),
@@ -326,14 +274,8 @@ function withUniqueIds(
  * operations change `current` to the result.
  *
  * With `onConflict: "reject"`, a conflict of the merge gives the error
- * `"conflict"`, and no operations.
- *
- * The layout blocks of the result change to fit their child rules (see
- * `fitLayout`), unless `keepLayout` is set: without `base`, in the target;
- * with `base`, in the result on the current document, with more
- * operations. The client did not change the layout blocks, and in the
- * current document they can have blocks of other writers (for example a
- * column that another writer added). Thus, the rule applies to the result.
+ * `"conflict"`, and no operations. The result then fits the schema (see
+ * `fitResult`).
  */
 function updateToTarget(
   rules: SchemaRules,
@@ -365,11 +307,11 @@ function updateToTarget(
   if (documents.onConflict === "reject" && merged.warnings.length > 0) {
     return { error: "conflict", conflicts: merged.warnings };
   }
-  const result = fitChangedTables(
-    documents.keepLayout === true
-      ? merged.blocks
-      : fitLayout(merged.blocks, rules.layoutRuleOf, rules.canContain),
+  const result = fitResult(
+    rules,
+    merged.blocks,
     current,
+    documents.keepLayout === true,
   );
   return {
     operations: diffDocuments(current, result),
