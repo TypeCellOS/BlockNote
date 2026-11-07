@@ -1,3 +1,26 @@
+import type { BlockFields } from "../blocks/types.js";
+
+/** A row of the correspondence (see `TextRow`), with the fields of its block. */
+export type TreeRow =
+  /** A source block that stays, with its merged fields. */
+  | {
+      kind: "kept";
+      id: string;
+      viewIndex: number;
+      moved: boolean;
+      fields: BlockFields;
+    }
+  /** A new block, with the fields of the text block. */
+  | {
+      kind: "new";
+      viewIndex: number | undefined;
+      id: string | undefined;
+      fields: BlockFields;
+    }
+  | { kind: "skipped"; viewIndex: number | undefined };
+
+export type KeptRow = Extract<TreeRow, { kind: "kept" }>;
+
 export type PlanWarning =
   /**
    * The text moved, removed or split a part of a block that renders as more
