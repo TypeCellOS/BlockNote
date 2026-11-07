@@ -74,6 +74,7 @@ export type YDocTextUpdate =
  * {@link YDocWriteFromVersion}). With `merge: "yjs"`, the operations of the
  * result are for `base`, else they are for the current document.
  */
+// eslint-disable-next-line complexity -- Follow-up: move the checks of the binding to a function.
 export function updateYDocFromText(
   editor: BlockNoteEditor<any, any, any>,
   fragment: Y.XmlFragment,

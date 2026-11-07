@@ -33,6 +33,7 @@ type KeptRow = Extract<TreeRow, { kind: "kept" }>;
  * parent is still open. A new block before such a block goes into the same
  * nesting (see {@link keptParent}).
  */
+// eslint-disable-next-line max-lines-per-function -- Follow-up: the nesting rules share one stack; split them.
 export function buildTree(input: {
   rows: readonly TreeRow[];
   /** The blocks of the text, in a flat list (for their parents and types). */

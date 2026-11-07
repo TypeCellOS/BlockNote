@@ -211,7 +211,15 @@ Each module imports only modules that are before it in this list. Thus, there ar
 - `api.ts`: the entry point. It runs the stages.
 - `yjs/`: the API for a Y.Doc. It selects the target document, and writes the steps to it.
 
-Only the edges of the pipeline know the layout blocks: the projection (a layout block is its own part), the parse of the JSON, the fit, and the apply (the ProseMirror nodes of a layout block). The alignment, the plan, the merge and the diff do not.
+## Rules of the code
+
+- **Module order.** Each module imports only modules that are before it in the list above. The lint rule `import/no-cycle` examines this for this folder (`vite.config.ts`).
+- **Special cases at the edges.** A stage has a small core, and the special cases of the formats and the schema are at the edges of the pipeline. For example, only the projection (a layout block is its own part), the parse of the JSON, the fit, and the apply (the ProseMirror nodes of a layout block) know the layout blocks. The alignment, the plan, the merge and the diff do not.
+- **Decide, then build.** The plan and the tree merge first decide (the rows of the correspondence; the blocks that stay, their parents, the order of the children), then build the tree from the decisions.
+- **An optimization has a definition.** A fast version of a function has a simple version that defines the result, and a test that compares the two. An example is `partsOf` and `partsOfEachBlock` (`api.fuzz.test.ts`).
+- **Expected failures are values.** A text or JSON that does not fit the schema gives `{ error: "invalid-document" }`, and a rejected conflict gives `{ error: "conflict" }`. An exception is a bug (a broken invariant).
+- **Limits.** In this folder, a function has size limits: at most 15 paths (the rule `complexity`), a nesting of at most 4 blocks, and at most 80 lines of code (`vite.config.ts`). A function above a limit has a disable comment with the reason. The Myers and the diff3 algorithms are standard algorithms behind small interfaces, thus their files have no limits. The other exceptions are follow-ups.
+- **Terms.** Each term has one meaning (see "Terms").
 
 ## Tests and benchmarks
 

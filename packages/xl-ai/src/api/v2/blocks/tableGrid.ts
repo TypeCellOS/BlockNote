@@ -77,6 +77,7 @@ export function gridOf(
       }
       for (let dr = 0; dr < rowspan; dr++) {
         for (let dc = 0; dc < colspan; dc++) {
+          // eslint-disable-next-line max-depth -- The walk of a grid of rows and cells.
           if (taken[r + dr].has(column + dc)) {
             return undefined;
           }

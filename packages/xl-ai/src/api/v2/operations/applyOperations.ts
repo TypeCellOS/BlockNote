@@ -74,6 +74,7 @@ export function applyOperations(
  * minimum number of children (for example a column list). A collaboration
  * binding can then also send each step alone (see `dispatchSteps`).
  */
+// eslint-disable-next-line max-lines-per-function -- Follow-up: split the structure steps.
 function applyStructure(tr: Transaction, target: BlockShape[]) {
   const schema = tr.doc.type.schema;
   const nodes = new Map<string, Node>();

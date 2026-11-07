@@ -1,3 +1,4 @@
+/* eslint-disable complexity, max-depth, max-lines-per-function -- The Myers algorithm in linear space: a standard algorithm behind a small interface. */
 import type { MatchedPair } from "./types.js";
 
 /**

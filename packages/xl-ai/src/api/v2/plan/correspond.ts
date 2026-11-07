@@ -295,6 +295,7 @@ function joinParts(
  *   (for example a table in plain text) stays, because the text cannot show
  *   it.
  */
+// eslint-disable-next-line complexity -- Follow-up: split the rules for invisible blocks.
 function keepInvisibleBlocks(
   source: BlockTree,
   invisibleIds: ReadonlySet<string>,

@@ -96,6 +96,33 @@ export default defineConfig({
     },
     overrides: [
       {
+        // The text lens: each module imports only modules before it (see its
+        // README), and the size of a function has limits. A function above a
+        // limit has a disable comment with the reason.
+        files: ["packages/xl-ai/src/api/v2/**/*.ts"],
+        rules: {
+          "import/no-cycle": "error",
+          complexity: ["error", 15],
+          "max-depth": ["error", 4],
+          "max-lines-per-function": [
+            "error",
+            { max: 80, skipBlankLines: true, skipComments: true },
+          ],
+        },
+      },
+      {
+        files: [
+          "packages/xl-ai/src/api/v2/**/*.test.ts",
+          "packages/xl-ai/src/api/v2/benchmarks/**",
+          "packages/xl-ai/src/api/v2/testUtil/**",
+        ],
+        rules: {
+          complexity: "off",
+          "max-depth": "off",
+          "max-lines-per-function": "off",
+        },
+      },
+      {
         files: [
           "**/scripts/**",
           "**/*.mjs",

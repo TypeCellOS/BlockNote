@@ -1,3 +1,4 @@
+/* eslint-disable complexity, max-depth, max-lines-per-function -- The diff3 algorithm: a standard algorithm behind a small interface. */
 import { deepEqual } from "../blocks/json.js";
 import type { MatchedPair } from "../sequence/types.js";
 
