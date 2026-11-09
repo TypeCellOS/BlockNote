@@ -1,4 +1,3 @@
-/* eslint-disable react/refs -- Closing transitions render the previously captured HTML snapshot from this ref. */
 import {
   autoUpdate,
   FloatingFocusManager,
@@ -21,6 +20,7 @@ import {
   usePortalElement,
 } from "../../editor/PortalElementOverride.js";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
+import { useIsomorphicLayoutEffect } from "../../util/useIsomorphicLayoutEffect.js";
 import { FloatingUIOptions } from "./FloatingUIOptions.js";
 
 export type GenericPopoverReference =
@@ -164,7 +164,15 @@ export const GenericPopover = (
   // possible both are needed.
   const { getFloatingProps } = useInteractions([dismiss, hover]);
 
-  const innerHTML = useRef<string>("");
+  // Cloned DOM nodes from the last render while the popover was open, shown
+  // again for the close transition. The React children may rerender during
+  // that time (often to nothing), which would cancel the exit animation.
+  //
+  // Nodes, not an HTML string: re-parsing `innerHTML` reapplies the inline
+  // `style` attributes those children carry, and a CSP `style-src` without
+  // 'unsafe-inline' blocks every one of them. `cloneNode` keeps the styles
+  // without a parse.
+  const snapshot = useRef<Node[]>([]);
   const ref = useRef<HTMLDivElement>(null);
   const mergedRefs = useMergeRefs([ref, refs.setFloating]);
 
@@ -207,27 +215,50 @@ export const GenericPopover = (
     }
   }, [props.reference, refs, props.focusManagerProps?.disabled, editor]);
 
-  // Stores the last rendered `innerHTML` of the popover while it was open. The
-  // `innerHTML` is used while the popover is closing, as the React children
-  // may rerender during this time, causing unwanted behaviour.
-  useEffect(
-    () => {
-      if (status === "initial" || status === "open") {
-        // Only store while the children have rendered something. In the
-        // render where a controller flips `open` to `false`, its children are
-        // typically already gone while `status` is still "open", and that
-        // empty state must not replace the snapshot the closing popover is
-        // about to show. The wrapper is never truly empty though: it always
-        // contains the `PortalElementAnchor` holder.
-        if (ref.current && hasChildrenBesidesPortalElementAnchor(ref.current)) {
-          innerHTML.current = ref.current.innerHTML;
+  // Stores clones of the popover's DOM while it is open. `props.children` is
+  // a dependency because that DOM is the rendered children.
+  useEffect(() => {
+    if (status === "initial" || status === "open") {
+      // Only store while the children have rendered something. In the
+      // render where a controller flips `open` to `false`, its children are
+      // typically already gone while `status` is still "open", and that
+      // empty state must not replace the snapshot the closing popover is
+      // about to show. The wrapper is never truly empty though: it always
+      // contains the `PortalElementAnchor` holder.
+      if (ref.current && hasChildrenBesidesPortalElementAnchor(ref.current)) {
+        snapshot.current = Array.from(ref.current.childNodes, (node) =>
+          node.cloneNode(true),
+        );
+      }
+    }
+  }, [status, props.reference, props.children]);
+
+  // While closing, the wrapper renders no React children (see below) and
+  // these clones are attached before paint. Cleanup runs before the next
+  // commit, and again when `status` leaves "close", so a popover that opens
+  // again during the fade doesn't keep the snapshot next to its real
+  // children. Re-attaching on every commit covers transition and position
+  // updates: those render the wrapper with no React children, and a host
+  // update can drop nodes React does not own.
+  useIsomorphicLayoutEffect(() => {
+    if (status !== "close" || !ref.current) {
+      return;
+    }
+
+    const parent = ref.current;
+    const nodes = snapshot.current;
+    for (const node of nodes) {
+      parent.appendChild(node);
+    }
+
+    return () => {
+      for (const node of nodes) {
+        if (node.parentNode === parent) {
+          parent.removeChild(node);
         }
       }
-    },
-    // `props.children` is added to the deps, since it's ultimately the HTML of
-    // the children that we're storing.
-    [status, props.reference, props.children],
-  );
+    };
+  });
 
   if (!isMounted || !portalElement) {
     return false;
@@ -249,9 +280,9 @@ export const GenericPopover = (
   };
 
   if (status === "close") {
-    // While the popover is closing, shows its last rendered `innerHTML` while
-    // it was open, instead of the React children. This is because they may
-    // rerender during this time, causing unwanted behaviour.
+    // While the popover is closing, shows the cloned DOM from when it was
+    // open, instead of the React children. They may rerender during this
+    // time, causing unwanted behaviour.
     //
     // When we use the `GenericPopover` for BlockNote's internal UI elements
     // this isn't a huge deal, as we only pass child components if the popover
@@ -259,11 +290,7 @@ export const GenericPopover = (
     // out and will instead appear to hide instantly.
     return (
       <FloatingPortal root={portalElement}>
-        <div
-          ref={mergedRefs}
-          {...mergedProps}
-          dangerouslySetInnerHTML={{ __html: innerHTML.current }}
-        />
+        <div ref={mergedRefs} {...mergedProps} />
       </FloatingPortal>
     );
   }
