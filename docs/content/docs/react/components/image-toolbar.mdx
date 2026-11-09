@@ -29,7 +29,9 @@ type uploadFile = (file: File) => Promise<string>;
 
 `returns:` A `Promise`, which resolves to the URL that the file can be accessed at.
 
-Providing `uploadFile` also enables users to drag and drop files from their computer into the editor, or paste files from the clipboard. BlockNote calls the same callback and inserts blocks for the files. With the default schema, images, videos, and audio use their respective block types; other files use the generic file block. No separate drop handler is needed.
+Providing `uploadFile` also enables users to drag and drop files from their computer into the editor, or paste files from the clipboard. BlockNote calls the same callback and inserts blocks for the files. No separate drop handler is needed. When the clipboard also contains a supported text format, BlockNote pastes that content instead of uploading the files.
+
+With the default schema, images, videos, and audio use their respective block types based on the MIME type reported by the browser. Other files, including those with no MIME type, use the generic file block. If you customize the schema, keep `defaultBlockSpecs.file` as the fallback for unmatched files; see [Custom File Blocks](/docs/features/custom-schemas/custom-blocks#custom-file-blocks) to configure file matching.
 
 The example below encodes files as base64 data URLs as a starting point. However, this is only meant for development - in production you should use your own backend:
 
