@@ -48,6 +48,7 @@ export type ReactCustomInlineContentRenderProps<
     S
   >;
   contentRef: (node: HTMLElement | null) => void;
+  isEditable: boolean;
   /**
    * The ProseMirror node backing this inline content.
    */
@@ -190,6 +191,7 @@ export function createReactInlineContentSpec<
               // No-op
             }}
             editor={editor}
+            isEditable={editor.isEditable}
             node={node}
             getPos={() => undefined}
           />
@@ -210,7 +212,7 @@ export function createReactInlineContentSpec<
       return (props) =>
         ReactNodeViewRenderer(
           (props: NodeViewProps) => {
-            useNodeViewEditability(editor);
+            const isEditable = useNodeViewEditability(editor);
             const ref = useReactNodeView().nodeViewContentRef;
 
             if (!ref) {
@@ -237,6 +239,7 @@ export function createReactInlineContentSpec<
                     }
                   }}
                   editor={editor}
+                  isEditable={isEditable}
                   node={props.node}
                   getPos={props.getPos}
                   inlineContent={
@@ -304,6 +307,7 @@ export function createReactInlineContentSpec<
                 }}
                 editor={editor}
                 inlineContent={inlineContent}
+                isEditable={editor.isEditable}
                 updateInlineContent={updateInlineContent}
                 node={node}
                 getPos={() => undefined}
@@ -339,6 +343,7 @@ export function createReactInlineContentSpec<
                 }}
                 editor={editor}
                 inlineContent={inlineContent}
+                isEditable={editor.isEditable}
                 updateInlineContent={() => {
                   // no-op
                 }}

@@ -17,11 +17,11 @@ it.each(["setter", "prop"] as const)(
           { type: "test", propSchema: {}, content: "inline" },
           {
             render: function TestBlock(props) {
-              const [initialEditable] = useState(props.editor.isEditable);
+              const [initialEditable] = useState(props.isEditable);
               return (
                 <div>
                   <span data-editability="block" data-initial={initialEditable}>
-                    {props.editor.isEditable ? "editable" : "readonly"}
+                    {props.isEditable ? "editable" : "readonly"}
                   </span>
                   <div ref={props.contentRef} />
                 </div>
@@ -31,7 +31,7 @@ it.each(["setter", "prop"] as const)(
               return (
                 <section>
                   <span data-editability="frame">
-                    {props.editor.isEditable ? "editable" : "readonly"}
+                    {props.isEditable ? "editable" : "readonly"}
                   </span>
                   <div ref={props.slotRef} />
                 </section>
@@ -47,7 +47,7 @@ it.each(["setter", "prop"] as const)(
             render(props) {
               return (
                 <span data-editability="inline">
-                  {props.editor.isEditable ? "editable" : "readonly"}
+                  {props.isEditable ? "editable" : "readonly"}
                 </span>
               );
             },
