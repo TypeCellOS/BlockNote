@@ -77,7 +77,7 @@ test.describe("keyboard", () => {
     await expect.element(toggleButton).toHaveFocus();
     await checkFocusOutline(toggleButton, unfocusedOutline);
 
-    return toggleButton;
+    return { toggleButton, unfocusedOutline };
   }
   // Toggle headings represent interactive blocks in this accessibility vertical slice.
   // Keyboard access to toggle controls from within an editable block is not implemented.
@@ -92,15 +92,24 @@ test.describe("keyboard", () => {
     // this placeholder covers the eventual keyboard focus/navigation behavior.
   });
 
-  // The toggle heading focus indicator is not visually correct yet.
-  // TODO: Fix the focus appearance before enabling.
-  test.skip("read-only toggle heading: Tab reaches the toggle and Enter expands/collapses it", async () => {
+  test("read-only toggle heading: Tab reaches the toggle and Enter expands/collapses it", async () => {
     await openEditor(toggleHeadingDocument, { editable: false });
-    const toggleButton = await focusToggleHeadingWithAssertions();
+    const { toggleButton, unfocusedOutline } =
+      await focusToggleHeadingWithAssertions();
     await pressKey("Enter");
     await expect.element(toggleButton).toHaveFocus();
+    await checkFocusOutline(toggleButton, unfocusedOutline);
     await pressKey("Enter");
     await expect.element(toggleButton).toHaveFocus();
+    await checkFocusOutline(toggleButton, unfocusedOutline);
+
+    await pressKey("Tab");
+    await expect
+      .element(page.getByRole("button", { name: "After editor", exact: true }))
+      .toHaveFocus();
+    await pressKey("Shift+Tab");
+    await expect.element(toggleButton).toHaveFocus();
+    await checkFocusOutline(toggleButton, unfocusedOutline);
   });
 });
 

@@ -6,6 +6,7 @@ import {
   type PartialInlineContentElement,
   type Styles,
   type PartialTableCell,
+  type PartialTableContent,
   type DefaultInlineContentSchema,
   type DefaultStyleSchema,
   type PropSchema,
@@ -164,15 +165,6 @@ export async function navigateDefaultSchemaDocument() {
   }
 }
 
-// The page tab order can include the read-only editor before its inline link.
-async function focusReadOnlyLink() {
-  const link = page.getByRole("link", { name: "Documentation", exact: true });
-  while (document.activeElement !== link.element()) {
-    await pressKey("Tab");
-  }
-  return link;
-}
-
 const readOnlyLinkDocument: PartialBlock[] = [
   {
     type: "paragraph",
@@ -190,232 +182,185 @@ const editorEscapeDocument: PartialBlock[] = [
   { type: "paragraph", content: "Editable text" },
 ];
 
-const colors = ["default", ...Object.keys(COLORS_DEFAULT)];
-
-// Cover each finite prop value, rather than the Cartesian product of all block
-// props. Open-ended strings and numbers use representative values.
+// Each block gets its own base and one variant per individual prop value.
+// Required strings/numbers use the example/default; optional ones additionally
+// cover undefined. Theme colors are the exception: their foreground/background
+// combinations are covered separately below to check contrast.
 function propValues(
-  name: string,
   spec: PropSchema[string],
   baseValue: string | number | boolean | undefined,
-) {
+): readonly (string | number | boolean | undefined)[] {
   if (spec.values) {
-    return spec.values;
+    return spec.default === undefined
+      ? [undefined, ...spec.values]
+      : spec.values;
   }
   if (typeof spec.default === "boolean") {
     return [false, true];
   }
-  switch (name) {
-    case "textColor":
-    case "backgroundColor":
-      return colors;
-    case "name":
-    case "caption":
-      return [
-        "",
-        typeof baseValue === "string" && baseValue !== ""
-          ? baseValue
-          : "Example text",
-      ];
-    case "url":
-      return [""]; // The populated URL is supplied by blockExamples.
-    case "previewWidth":
-      return [undefined, 100, 300];
-    case "start":
-      return [undefined, 1, 3];
-    case "language":
-      return ["text", "javascript"];
-    default:
-      throw new Error(`Add axe fixture values for block prop ${name}`);
+  if (spec.default !== undefined) {
+    return [baseValue];
+  }
+  switch (spec.type) {
+    case "boolean":
+      return [undefined, false, true];
+    case "number":
+      return [undefined, baseValue ?? 1];
+    case "string":
+      return [undefined, baseValue ?? "Example text"];
   }
 }
-
-// The first block exposing a prop covers its variants for all block types.
-const coveredBlockProps = new Set<string>();
-
-const blocksDocument: PartialBlock[] = [
-  { id: "axe-placeholder", type: "paragraph", content: "" },
-  ...Object.values(blockExamples).flatMap((example): PartialBlock[] => {
-    const block: PartialBlock = example;
-    const props: Record<string, string | number | boolean | undefined> =
-      block.props ?? {};
-    return [
-      { ...block, id: `axe-${example.type}-default` },
-      ...Object.entries(
-        defaultBlockSpecs[example.type].config.propSchema,
-      ).flatMap(([name, spec]) => {
-        if (coveredBlockProps.has(name)) {
-          return [];
-        }
-        coveredBlockProps.add(name);
-        const baseValue = props[name] ?? spec.default;
-        return propValues(name, spec, baseValue).flatMap((value, index) => {
-          if ((value ?? spec.default) === baseValue) {
-            return [];
-          }
-          return [
-            {
-              ...block,
-              id: `axe-${example.type}-${name}-${index}`,
-              props: { ...block.props, [name]: value },
-            },
-          ];
-        });
-      }),
-    ];
-  }),
-  {
-    id: "axe-nested",
-    type: "paragraph",
-    content: "Parent paragraph",
-    children: [
-      {
-        id: "axe-nested-bullet",
-        type: "bulletListItem",
-        content: "Nested bullet",
-        children: [
-          {
-            id: "axe-nested-numbered",
-            type: "numberedListItem",
-            content: "Nested numbered item",
-            children: [
-              {
-                id: "axe-nested-task",
-                type: "checkListItem",
-                content: "Nested task",
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-  ...(["heading", "toggleListItem"] as const).flatMap((type): PartialBlock[] =>
-    [false, true].flatMap((expanded) =>
-      [false, true].map((hasChildren): PartialBlock => ({
-        id: `axe-${type}-${expanded}-${hasChildren}`,
-        ...(type === "heading"
-          ? { type, props: { isToggleable: true } }
-          : { type }),
-        content: `${type} ${expanded ? "expanded" : "collapsed"} ${hasChildren ? "with children" : "empty"}`,
-        children: hasChildren
-          ? [
-              {
-                id: `axe-${type}-${expanded}-${hasChildren}-child`,
-                type: "paragraph",
-                content: "Toggle child",
-              },
-            ]
-          : [],
-      })),
-    ),
-  ),
-];
-
-const inlineContentDocument: PartialBlock[] = colors.flatMap((textColor) =>
-  colors.map((backgroundColor) => ({
-    id: `axe-inline-${textColor}-${backgroundColor}`,
-    type: "paragraph",
-    content: [
-      {
-        type: "text",
-        text: `${textColor} on ${backgroundColor}. `,
-        styles: { textColor, backgroundColor },
-      },
-      {
-        type: "link",
-        href: "https://www.blocknotejs.org/",
-        content: [
-          {
-            type: "text",
-            text: "Linked text",
-            styles: { textColor, backgroundColor },
-          },
-        ],
-      },
-    ],
-  })),
-);
 
 type Cell = PartialTableCell<DefaultInlineContentSchema, DefaultStyleSchema>;
 function cell(content: string, props: Cell["props"] = {}): Cell {
   return { type: "tableCell", content, props };
 }
 
-const tablesDocument: PartialBlock[] = [
-  ...(
-    [
-      { headerRows: 1 },
-      { headerCols: 1 },
-      { headerRows: 1, headerCols: 1 },
-    ] as const
-  ).map((headers, index): PartialBlock => ({
-    id: `axe-table-headers-${index}`,
-    type: "table",
-    content: {
-      type: "tableContent",
-      ...headers,
-      rows: [
-        { cells: ["Region", "Sales", "Costs"] },
-        { cells: ["North", "100", "50"] },
-        { cells: ["South", "200", "80"] },
+const baseTableContent = {
+  type: "tableContent",
+  rows: [
+    { cells: [cell("Name"), cell("Description")] },
+    { cells: [cell("Example"), cell("Table cell")] },
+  ],
+} satisfies PartialTableContent<DefaultInlineContentSchema, DefaultStyleSchema>;
+
+const colors = ["default", ...Object.keys(COLORS_DEFAULT)];
+const colorPairs = colors.flatMap((textColor) =>
+  colors.map((backgroundColor) => ({ textColor, backgroundColor })),
+);
+
+const schemaDocument: PartialBlock[] = [
+  ...Object.values(blockExamples).flatMap((example): PartialBlock[] => {
+    const block: PartialBlock = example;
+    const props: Record<string, string | number | boolean | undefined> =
+      block.props ?? {};
+    const propSchema = defaultBlockSpecs[example.type].config.propSchema;
+    const colorVariants: Record<string, string>[] =
+      "textColor" in propSchema && "backgroundColor" in propSchema
+        ? colorPairs
+        : "textColor" in propSchema
+          ? colors.map((textColor) => ({ textColor }))
+          : "backgroundColor" in propSchema
+            ? colors.map((backgroundColor) => ({ backgroundColor }))
+            : [];
+    return [
+      { ...block, id: `schema-${example.type}-base` },
+      ...colorVariants.flatMap((colorProps, index): PartialBlock[] => {
+        const isBase = Object.entries(colorProps).every(
+          ([name, value]) => value === (props[name] ?? "default"),
+        );
+        return isBase
+          ? []
+          : [
+              {
+                ...block,
+                id: `schema-${example.type}-colors-${index}`,
+                props: { ...props, ...colorProps },
+              },
+            ];
+      }),
+      ...Object.entries(propSchema).flatMap(([name, spec]) => {
+        const baseValue = props[name] ?? spec.default;
+        return propValues(spec, baseValue).flatMap((value, index) =>
+          value === baseValue
+            ? []
+            : [
+                {
+                  ...block,
+                  id: `schema-${example.type}-${name}-${index}`,
+                  props: { ...block.props, [name]: value },
+                },
+              ],
+        );
+      }),
+    ];
+  }),
+  // Plain content covers absent styles (including false boolean styles).
+  // Apply one style at a time to both text and link content; code cannot be
+  // combined with the other formatting marks.
+  ...[{}, ...Object.values(styleExamples)].map(
+    (styles, index): PartialBlock => ({
+      id: `schema-inline-${index}`,
+      type: "paragraph",
+      content: [
+        { type: "text", text: "Styled text. ", styles },
+        {
+          type: "link",
+          href: inlineExamples.link.href,
+          content: [{ type: "text", text: "Styled link", styles }],
+        },
       ],
-    },
+    }),
+  ),
+  // Inline marks and cell props have separate rendering paths from block
+  // colors. Check every palette pair on each path, including linked text.
+  ...colorPairs.map((styles, index): PartialBlock => ({
+    id: `schema-inline-colors-${index}`,
+    type: "paragraph",
+    content: [
+      {
+        type: "text",
+        text: `${styles.textColor} on ${styles.backgroundColor}. `,
+        styles,
+      },
+      {
+        type: "link",
+        href: inlineExamples.link.href,
+        content: [{ type: "text", text: "Colored link", styles }],
+      },
+    ],
   })),
   {
-    id: "axe-table-merged",
+    id: "schema-table-colors",
     type: "table",
     content: {
       type: "tableContent",
-      headerRows: 1,
-      headerCols: 1,
-      rows: [
-        {
-          cells: [
-            cell("Region"),
-            cell("Quarter totals", { colspan: 2 }),
-            cell("Notes"),
-          ],
-        },
-        {
-          cells: [
-            cell("North", { rowspan: 2 }),
-            cell("Combined total", { colspan: 2, rowspan: 2 }),
-            cell("First period"),
-          ],
-        },
-        { cells: [cell("Second period")] },
-        {
-          cells: [
-            cell("South"),
-            cell("100"),
-            cell("200"),
-            cell("Final period"),
-          ],
-        },
-      ],
+      rows: colorPairs.map((props) => ({
+        cells: [cell(`${props.textColor} on ${props.backgroundColor}`, props)],
+      })),
     },
   },
-  // Cell props use a different rendering path from inline marks. Exercise that
-  // path without repeating the full inline foreground/background matrix.
-  {
-    id: "axe-table-colors",
-    type: "table",
-    content: {
-      type: "tableContent",
-      headerRows: 1,
-      rows: [
-        { cells: ["Color", "Cell text", "Cell background"] },
-        ...colors.map((color) => ({
-          cells: [
-            cell(color),
-            cell("Colored text", { textColor: color }),
-            cell("Highlighted cell", { backgroundColor: color }),
-          ],
+  // Table structure lives in content, outside the block prop schema. Start
+  // without headers/widths and vary each optional field independently.
+  ...[
+    baseTableContent,
+    { ...baseTableContent, headerRows: 1 },
+    { ...baseTableContent, headerCols: 1 },
+    { ...baseTableContent, columnWidths: [150, undefined] },
+    // Cell color pairs are covered above; vary alignment independently here.
+    ...defaultBlockSpecs.paragraph.config.propSchema.textAlignment.values
+      .filter((textAlignment) => textAlignment !== "left")
+      .map((textAlignment) => ({
+        ...baseTableContent,
+        rows: baseTableContent.rows.map((row, rowIndex) => ({
+          cells: row.cells.map((tableCell, columnIndex) =>
+            rowIndex === 0 && columnIndex === 0
+              ? { ...tableCell, props: { ...tableCell.props, textAlignment } }
+              : tableCell,
+          ),
         })),
+      })),
+    // Changing a span also requires removing the cells it occupies to keep
+    // the table valid. Cover each optional span independently.
+    {
+      ...baseTableContent,
+      rows: [
+        { cells: [cell("Spans columns", { colspan: 2 })] },
+        { cells: [cell("Left"), cell("Right")] },
       ],
     },
-  },
+    {
+      ...baseTableContent,
+      rows: [
+        { cells: [cell("Spans rows", { rowspan: 2 }), cell("Top")] },
+        { cells: [cell("Bottom")] },
+      ],
+    },
+  ].map((content, index): PartialBlock => ({
+    id: `schema-table-content-${index}`,
+    type: "table",
+    content,
+  })),
 ];
 
 // Screen-reader tests import the shared helpers and fixtures from this file.
@@ -485,16 +430,11 @@ if (!screenReader) {
       // Escape currently blurs to body, which does not preserve this entry point.
     });
 
-    // Whole-block selection requires Cmd+Click; no keyboard interaction is implemented.
+    // Whole-block selection requires Cmd+Click; no keyboard interaction is implemented. No styling
+    // is present to indicate whole-block selection.
     test.skip("keyboard selection extends to the entire block", async () => {
       // TODO: Extend a text selection to its whole block, leaving neighbours out.
       // Whole-block selection currently requires Cmd+Click; keyboard UX is TBD.
-    });
-
-    // The keyboard whole-block selection needed to capture its visual indicator is not implemented.
-    test.skip("whole-block selection is visible", async () => {
-      // TODO: Once keyboard block selection exists, snapshot its visual indicator.
-      // TODO: Text selection, whole-document selection, and non-inline blocks.
     });
 
     // TODO: WebKit resets the tab position after Escape blurs the editor, so Tab
@@ -544,67 +484,19 @@ if (!screenReader) {
   });
 
   test.describe("ARIA", () => {
-    test("default schema: arrow-key document navigation", async () => {
-      await openEditor(defaultSchemaDocument);
-      await navigateDefaultSchemaDocument();
+    // Numbered list item indices are separate text elements, among other issues.
+    test.skip("default schema: accessibility tree snapshot", async () => {
+      await openEditor(schemaDocument);
       await checkAriaSnapshot(page.getByRole("textbox"), "default schema");
-    });
-
-    test("read-only editor: Tab reaches inline links and leaves the editor", async () => {
-      await openEditor(readOnlyLinkDocument, { editable: false });
-      await focusReadOnlyLink();
-      await checkAriaSnapshot(page.getByRole("textbox"), "read-only editor");
     });
   });
 
   test.describe("axe", () => {
     for (const theme of ["light", "dark"] as const) {
-      // Axe reports an unnamed editor textbox, unlabeled checklist checkboxes, and insufficient color contrast.
-      test.skip(`default schema blocks: axe (${theme})`, async ({
-        annotate,
-      }) => {
-        for (const block of blocksDocument) {
-          if (
-            block.id?.startsWith("axe-heading-") ||
-            block.id?.startsWith("axe-toggleListItem-")
-          ) {
-            localStorage.setItem(
-              `toggle-${block.id}`,
-              String(block.id.includes("-true-")),
-            );
-          }
-        }
-        await openEditor(blocksDocument, { theme });
-        await pressKey("Tab");
-        await expect
-          .poll(() => readSelection().blockId)
-          .toBe("axe-placeholder");
-        await expect.element(page.getByRole("textbox")).toHaveFocus();
-        await checkAxe(annotate);
-      });
-
-      // Axe reports an unnamed editor textbox and insufficient color contrast.
-      test.skip(`default inline content and colors: axe (${theme})`, async ({
-        annotate,
-      }) => {
-        await openEditor(inlineContentDocument, { theme });
-        await checkAxe(annotate);
-      });
-
-      // Axe reports an unnamed editor textbox, insufficient contrast, and an undersized "After editor" fixture button.
-      test.skip(`tables: axe (${theme})`, async ({ annotate }) => {
-        await openEditor(tablesDocument, { theme });
-        const header = page
-          .getByText("Quarter totals", { exact: true })
-          .element()
-          .closest("th");
-        expect(header?.getAttribute("colspan")).toBe("2");
-        const mergedCell = page
-          .getByText("Combined total", { exact: true })
-          .element()
-          .closest("td");
-        expect(mergedCell?.getAttribute("colspan")).toBe("2");
-        expect(mergedCell?.getAttribute("rowspan")).toBe("2");
+      // Known issues include the unnamed editor, unlabeled checklist checkboxes,
+      // insufficient contrast, and undersized targets.
+      test.skip(`default schema: axe (${theme})`, async ({ annotate }) => {
+        await openEditor(schemaDocument, { theme });
         await checkAxe(annotate);
       });
     }

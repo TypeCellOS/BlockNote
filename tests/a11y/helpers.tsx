@@ -108,14 +108,18 @@ export function readOutline(element: Element) {
 
 export async function checkFocusOutline(
   target: ReturnType<typeof page.getByRole>,
-  unfocusedOutline: ReturnType<typeof readOutline>,
+  unfocusedOutline?: ReturnType<typeof readOutline>,
 ) {
   await expect
     .poll(() => target.element().matches(":focus-visible"))
     .toBe(true);
-  await expect
-    .poll(() => readOutline(target.element()))
-    .not.toEqual(unfocusedOutline);
+  // Autofocused inputs are already focused by the time they can be observed.
+  // Compare against the unfocused state whenever it was available to capture.
+  if (unfocusedOutline) {
+    await expect
+      .poll(() => readOutline(target.element()))
+      .not.toEqual(unfocusedOutline);
+  }
   await expect
     .poll(() => readOutline(target.element()).width)
     .toBeGreaterThan(0);
