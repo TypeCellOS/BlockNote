@@ -64,7 +64,7 @@ for (const skin of SKINS) {
     });
 
     for (const url of ["https://example.com", "https://changed.example"]) {
-      test(`изменение ссылки для части выделенного текста сохраняет весь текст (${url})`, async () => {
+      test(`preserves all text when linking a partial selection (${url})`, async () => {
         await createLink("https://example.com");
         await userEvent.keyboard(
           "{Home}{ArrowRight}{ArrowRight}{Shift>}{ArrowRight}{ArrowRight}{ArrowRight}{/Shift}",
@@ -75,7 +75,7 @@ for (const skin of SKINS) {
         const input = await waitForSelector(".bn-form-popover input[name=url]");
         expect(input).toBeInstanceOf(HTMLInputElement);
         if (!(input instanceof HTMLInputElement)) {
-          throw new Error("Поле URL не является текстовым полем");
+          throw new Error("The URL field is not an input element");
         }
         expect(input.value).toBe("https://example.com");
         await userEvent.keyboard("{Control>}a{/Control}");
@@ -108,7 +108,7 @@ for (const skin of SKINS) {
       });
     }
 
-    test("применение ссылки сохраняет форматирование выделенного фрагмента", async () => {
+    test("preserves formatting when linking a selection", async () => {
       await createLink("https://example.com");
       await userEvent.keyboard(
         "{Home}{ArrowRight}{ArrowRight}{Shift>}{ArrowRight}{ArrowRight}{ArrowRight}{/Shift}",

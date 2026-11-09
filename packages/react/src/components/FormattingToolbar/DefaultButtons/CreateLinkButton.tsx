@@ -168,7 +168,7 @@ export const CreateLinkButton = () => {
           showTextField={false}
           onSubmit={(url) => {
             editor.createLink(url);
-            // Прежний URL может не менять документ, поэтому закрываем форму явно.
+            // An unchanged URL may not modify the document, so close the form explicitly.
             setPopoverOpen(false);
           }}
           setToolbarOpen={(open) => formattingToolbar.store.setState(open)}
