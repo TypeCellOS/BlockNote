@@ -30,6 +30,9 @@ export const EmojiPicker = (props: {
     >
       <Components.Generic.Popover.Trigger>
         <div
+          aria-label={dict.comments.actions.add_reaction}
+          // The child control handles keyboard activation.
+          tabIndex={-1}
           onClick={(event) => {
             event.preventDefault();
             event.stopPropagation();

@@ -1,7 +1,6 @@
 import { assertEmpty } from "@blocknote/core";
-import { ComponentProps, mergeRefs, useDictionary } from "@blocknote/react";
+import { ComponentProps, useDictionary } from "@blocknote/react";
 import { Avatar, Group, Skeleton, Text } from "@mantine/core";
-import { useHover } from "@mantine/hooks";
 import { forwardRef } from "react";
 
 const AuthorInfo = forwardRef<
@@ -64,21 +63,14 @@ export const Comment = forwardRef<
     ...rest
   } = props;
 
-  const { hovered, ref: hoverRef } = useHover();
-  const mergedRef = mergeRefs([ref, hoverRef]);
   assertEmpty(rest, false);
 
-  const doShowActions =
-    actions &&
-    (showActions === true ||
-      showActions === undefined ||
-      (showActions === "hover" && hovered) ||
-      emojiPickerOpen);
-
   return (
-    <Group pos="relative" ref={mergedRef} className={className}>
-      {doShowActions ? (
+    <Group pos="relative" ref={ref} className={className}>
+      {actions && (showActions !== false || emojiPickerOpen) ? (
         <Group
+          className={"bn-comment-toolbar"}
+          data-show={emojiPickerOpen ? true : (showActions ?? true)}
           style={{
             position: "absolute",
             right: 0,

@@ -1,9 +1,13 @@
-import type { BlockNoteEditor, PartialBlock } from "@blocknote/core";
+import type {
+  BlockNoteEditor,
+  ExtensionFactoryInstance,
+  PartialBlock,
+} from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { useCreateBlockNote } from "@blocknote/react";
-import { useEffect } from "react";
+import { type ReactNode, useEffect } from "react";
 import { render } from "vitest-browser-react";
 import axe from "axe-core";
 import { expect, type TestContext } from "vite-plus/test";
@@ -31,21 +35,28 @@ function EditorFixture({
   editable,
   theme,
   onReady,
+  extensions,
+  children,
 }: {
   initialContent: PartialBlock[];
   editable: boolean;
   theme: "light" | "dark";
   onReady?: (editor: BlockNoteEditor) => void;
+  extensions?: ExtensionFactoryInstance[];
+  children?: ReactNode;
 }) {
-  const editor = useCreateBlockNote({ initialContent });
+  const editor = useCreateBlockNote({ initialContent, extensions });
   useEffect(() => {
     onReady?.(editor);
   }, [editor, onReady]);
+
   return (
     <main style={{ maxWidth: 900, margin: "80px auto", padding: 24 }}>
       <h1>BlockNote accessibility fixture</h1>
       <button type="button">Before editor</button>
-      <BlockNoteView editor={editor} theme={theme} editable={editable} />
+      <BlockNoteView editor={editor} theme={theme} editable={editable}>
+        {children}
+      </BlockNoteView>
       <button type="button">After editor</button>
     </main>
   );
@@ -57,10 +68,14 @@ export async function openEditor(
     editable = true,
     theme = "light",
     onReady,
+    extensions,
+    children,
   }: {
     editable?: boolean;
     theme?: "light" | "dark";
     onReady?: (editor: BlockNoteEditor) => void;
+    extensions?: ExtensionFactoryInstance[];
+    children?: ReactNode;
   } = {},
 ) {
   let editor!: BlockNoteEditor;
@@ -74,11 +89,14 @@ export async function openEditor(
         editor = value;
         onReady?.(value);
       }}
-    />,
+      extensions={extensions}
+    >
+      {children}
+    </EditorFixture>,
   );
-  await expect.element(page.getByRole("textbox")).toBeVisible();
+  await expect.element(page.getByRole("textbox").first()).toBeVisible();
   await expect
-    .element(page.getByRole("textbox"))
+    .element(page.getByRole("textbox").first())
     .toHaveAttribute("contenteditable", String(editable));
   await document.fonts.ready;
   if (screenReader) {
