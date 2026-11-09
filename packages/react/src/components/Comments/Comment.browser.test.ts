@@ -1,4 +1,4 @@
-import { createUserStore } from "@blocknote/core";
+import { createUserStore, type PartialBlock } from "@blocknote/core";
 import {
   CommentsExtension,
   DefaultThreadStoreAuth,
@@ -12,6 +12,14 @@ import { expect, test } from "vite-plus/test";
 import { page } from "vite-plus/test/browser";
 import { openEditor, pressKey } from "@root/tests/a11y/helpers.js";
 
+const commentDocument: PartialBlock[] = [
+  { type: "paragraph", content: "A comment" },
+];
+
+const editorDocument: PartialBlock[] = [
+  { type: "paragraph", content: "Commented document" },
+];
+
 async function openComments({ resolved = false } = {}) {
   const doc = new Y.Doc();
   const threadStore = new YjsThreadStore(
@@ -20,7 +28,7 @@ async function openComments({ resolved = false } = {}) {
     new DefaultThreadStoreAuth("user", "editor"),
   );
   const thread = await threadStore.createThread({
-    initialComment: { body: [{ type: "paragraph", content: "A comment" }] },
+    initialComment: { body: commentDocument },
   });
   if (resolved) {
     await threadStore.resolveThread({ threadId: thread.id });
@@ -33,26 +41,26 @@ async function openComments({ resolved = false } = {}) {
     },
   ]);
   await users.loadUsers(["user"]);
-  await openEditor([{ type: "paragraph", content: "Commented document" }], {
+  await openEditor(editorDocument, {
     extensions: [CommentsExtension({ threadStore, resolveUsers: users })],
     children: createElement(ThreadsSidebar, { filter: "all" }),
   });
   return { threadStore, threadId: thread.id };
 }
 
-async function focusCommentAction(control: string) {
+async function focusCommentActionWithAssertions(toolbarButton: string) {
   const toolbar = page.getByRole("toolbar");
-  const button = toolbar.getByRole("button", { name: control, exact: true });
+  const button = toolbar.getByRole("button", {
+    name: toolbarButton,
+    exact: true,
+  });
   await expect.element(button).toBeEnabled();
   // Start at "Before editor" and reach the action without hovering the comment.
-  for (let step = 0; step < 10; step++) {
-    if (button.element() === document.activeElement) {
-      break;
-    }
+  while (document.activeElement !== button.element()) {
     await pressKey("Tab");
   }
   await expect
-    .element(button, { message: `${control} is reachable with Tab` })
+    .element(button, { message: `${toolbarButton} is reachable with Tab` })
     .toHaveFocus();
   await expect
     .poll(
@@ -64,32 +72,38 @@ async function focusCommentAction(control: string) {
   return { toolbar, button };
 }
 
-test("comment actions toolbar: Add reaction", async () => {
-  await openComments();
-  await focusCommentAction("Add reaction");
-  await pressKey("Enter");
-  await expect
-    .element(page.getByRole("dialog", { name: "Add reaction" }))
-    .toBeVisible();
-});
+test.describe("keyboard", () => {
+  test("comment actions toolbar: Add reaction", async () => {
+    await openComments();
+    await focusCommentActionWithAssertions("Add reaction");
+    await pressKey("Enter");
+    await expect
+      .element(page.getByRole("dialog", { name: "Add reaction" }))
+      .toBeVisible();
+  });
 
-test("comment actions toolbar: Resolve", async () => {
-  const { threadStore, threadId } = await openComments();
-  await focusCommentAction("Resolve");
-  await pressKey("Enter");
-  await expect.poll(() => threadStore.getThread(threadId).resolved).toBe(true);
-});
+  test("comment actions toolbar: Resolve", async () => {
+    const { threadStore, threadId } = await openComments();
+    await focusCommentActionWithAssertions("Resolve");
+    await pressKey("Enter");
+    await expect
+      .poll(() => threadStore.getThread(threadId).resolved)
+      .toBe(true);
+  });
 
-test("comment actions toolbar: Re-open", async () => {
-  const { threadStore, threadId } = await openComments({ resolved: true });
-  await focusCommentAction("Re-open");
-  await pressKey("Enter");
-  await expect.poll(() => threadStore.getThread(threadId).resolved).toBe(false);
-});
+  test("comment actions toolbar: Re-open", async () => {
+    const { threadStore, threadId } = await openComments({ resolved: true });
+    await focusCommentActionWithAssertions("Re-open");
+    await pressKey("Enter");
+    await expect
+      .poll(() => threadStore.getThread(threadId).resolved)
+      .toBe(false);
+  });
 
-test("comment actions toolbar: More actions", async () => {
-  await openComments();
-  await focusCommentAction("More actions");
-  await pressKey("Enter");
-  await expect.element(page.getByRole("menu")).toBeVisible();
+  test("comment actions toolbar: More actions", async () => {
+    await openComments();
+    await focusCommentActionWithAssertions("More actions");
+    await pressKey("Enter");
+    await expect.element(page.getByRole("menu")).toBeVisible();
+  });
 });
