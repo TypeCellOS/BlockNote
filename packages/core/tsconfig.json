@@ -23,9 +23,5 @@
     "noErrorTruncation": true
   },
   "include": ["src"],
-  "exclude": [
-    "src/**/*.screen-reader.test.ts",
-    "src/blocks/Heading/block.test.ts",
-    "src/blocks/Heading/testHelpers.ts"
-  ]
+  "exclude": ["src/**/*.browser.test.*", "src/**/*.screen-reader.test.ts"]
 }

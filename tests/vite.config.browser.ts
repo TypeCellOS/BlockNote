@@ -110,15 +110,11 @@ export default defineConfig(
         // Besides the end-to-end tests, this suite also runs the packages'
         // `.browser.test` files: unit tests for browser-only implementations
         // (canvas rasterization, diagram rendering), colocated with the code
-        // they test but needing a real browser, plus colocated accessibility
-        // tests. Native screen-reader tests use their own runner. The packages' own (node)
-        // vitest configs exclude them.
+        // they test but needing a real browser. Native screen-reader tests use
+        // their own runner. The packages' node configs exclude browser tests.
         include: [
           "./src/end-to-end/**/*.test.tsx",
           "../packages/*/src/**/*.browser.test.{ts,tsx}",
-          "../packages/core/src/blocks/Heading/block.test.ts",
-          "../packages/react/src/editor/BlockNoteView.test.ts",
-          "../packages/react/src/components/FormattingToolbar/FormattingToolbar.test.ts",
         ],
         exclude: [
           ...configDefaults.exclude,

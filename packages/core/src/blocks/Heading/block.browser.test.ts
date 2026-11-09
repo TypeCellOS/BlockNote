@@ -6,9 +6,22 @@ import {
   readOutline,
   checkFocusOutline,
 } from "@root/tests/a11y/helpers.js";
-import { expect, test, vi, afterEach } from "vite-plus/test";
-import { focusToggleHeading } from "./testHelpers.js";
+import { expect, test, vi, beforeEach, afterEach } from "vite-plus/test";
 import { page } from "vite-plus/test/browser";
+
+// Start from "Before editor" after openEditor(). Keep these navigation steps
+// identical to focusToggleHeadingWithAssertions in the keyboard suite.
+async function focusToggleHeading() {
+  const toggleButton = page.getByRole("button", {
+    name: "Expand or collapse",
+    exact: true,
+  });
+  while (document.activeElement !== toggleButton.element()) {
+    await pressKey("Tab");
+  }
+
+  return toggleButton;
+}
 
 const toggleHeadingDocument: PartialBlock[] = [
   {
@@ -20,11 +33,17 @@ const toggleHeadingDocument: PartialBlock[] = [
   },
 ];
 
-test.describe("behavior", () => {
-  afterEach(() => vi.restoreAllMocks());
+beforeEach(() => {
+  localStorage.removeItem("toggle-read-only-toggle-heading");
+});
 
+afterEach(() => {
+  vi.restoreAllMocks();
+  localStorage.removeItem("toggle-read-only-toggle-heading");
+});
+
+test.describe("behavior", () => {
   test("read-only toggle heading: Tab reaches the toggle and Enter expands/collapses it", async () => {
-    localStorage.removeItem("toggle-read-only-toggle-heading");
     await openEditor(toggleHeadingDocument, { editable: false });
     const setItem = vi.spyOn(Storage.prototype, "setItem");
     await focusToggleHeading();
@@ -76,7 +95,6 @@ test.describe("keyboard", () => {
   // The toggle heading focus indicator is not visually correct yet.
   // TODO: Fix the focus appearance before enabling.
   test.skip("read-only toggle heading: Tab reaches the toggle and Enter expands/collapses it", async () => {
-    localStorage.removeItem("toggle-read-only-toggle-heading");
     await openEditor(toggleHeadingDocument, { editable: false });
     const toggleButton = await focusToggleHeadingWithAssertions();
     await pressKey("Enter");
@@ -88,7 +106,6 @@ test.describe("keyboard", () => {
 
 test.describe("ARIA", () => {
   test("read-only toggle heading: Tab reaches the toggle and Enter expands/collapses it", async () => {
-    localStorage.removeItem("toggle-read-only-toggle-heading");
     await openEditor(toggleHeadingDocument, { editable: false });
     await focusToggleHeading();
     const editor = page.getByRole("textbox");

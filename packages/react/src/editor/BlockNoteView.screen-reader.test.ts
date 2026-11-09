@@ -1,7 +1,9 @@
 import { afterEach, test } from "vite-plus/test";
-import { defaultSchemaDocument } from "@root/tests/a11y/documents.js";
 import { openEditor, saveTranscript } from "@root/tests/a11y/helpers.js";
-import { navigateDefaultSchemaDocument } from "./testHelpers.js";
+import {
+  navigateDefaultSchemaDocument,
+  defaultSchemaDocument,
+} from "./BlockNoteView.browser.test.js";
 
 afterEach(saveTranscript);
 

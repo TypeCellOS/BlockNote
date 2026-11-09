@@ -1,4 +1,3 @@
-import type { PartialBlock } from "@blocknote/core";
 import { afterEach, expect, test } from "vite-plus/test";
 import { page } from "vite-plus/test/browser";
 import {
@@ -6,14 +5,10 @@ import {
   pressKey,
   saveTranscript,
 } from "@root/tests/a11y/helpers.js";
-import { focusToolbarItem } from "./testHelpers.js";
-
-// The middle paragraph is selected; its neighbours provide navigation context.
-const toolbarDocument: PartialBlock[] = [
-  { id: "preceding", type: "paragraph", content: "Preceding paragraph" },
-  { id: "format", type: "paragraph", content: "Format this text" },
-  { id: "following", type: "paragraph", content: "Following paragraph" },
-];
+import {
+  focusToolbarItem,
+  toolbarDocument,
+} from "./FormattingToolbar.browser.test.js";
 
 afterEach(saveTranscript);
 

@@ -33,8 +33,6 @@ export default defineConfig({
     exclude: [
       ...configDefaults.exclude,
       "**/*.browser.test.*",
-      "./src/blocks/Heading/block.test.ts",
-      "**/*.axe.test.ts",
       "**/*.screen-reader.test.ts",
     ],
   },
