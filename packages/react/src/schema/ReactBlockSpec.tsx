@@ -37,6 +37,7 @@ import {
 } from "react";
 import { renderToDOMSpec } from "./@util/ReactRenderUtil.js";
 import { useNodeViewBlock } from "./useNodeViewBlock.js";
+import { useNodeViewEditability } from "./useNodeViewEditability.js";
 
 // this file is mostly analogoues to `customBlocks.ts`, but for React blocks
 
@@ -415,6 +416,7 @@ export function createReactBlockSpec<
     }
 
     function FrameNodeView(props: NodeViewProps) {
+      useNodeViewEditability(props.extension.options.editor);
       // This view belongs to the block's own node (the blockContainer, or the
       // layout block node), so its node is the block.
       const block = nodeToBlock(props.node, props.view.state.doc);
@@ -543,6 +545,7 @@ export function createReactBlockSpec<
                   this.blockContentDOMAttributes;
 
                 function BlockNodeView(props: NodeViewProps) {
+                  useNodeViewEditability(editor);
                   const block = useNodeViewBlock(props, initialBlock);
                   const ref = useReactNodeView().nodeViewContentRef;
                   if (!ref) {
