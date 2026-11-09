@@ -33,8 +33,6 @@ export default defineConfig({
     exclude: [
       ...configDefaults.exclude,
       "**/*.browser.test.*",
-      "**/a11y/*.test.ts",
-      "**/*.axe.test.ts",
       "**/*.screen-reader.test.ts",
     ],
   },
@@ -50,6 +48,7 @@ export default defineConfig({
         extensions: path.resolve(__dirname, "src/extensions/index.ts"),
         yjs: path.resolve(__dirname, "src/yjs/index.ts"),
         y: path.resolve(__dirname, "src/y/index.ts"),
+        "emoji-data": path.resolve(__dirname, "src/emoji-data/index.ts"),
       },
       name: "blocknote",
       cssFileName: "style",

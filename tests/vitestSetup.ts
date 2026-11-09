@@ -19,7 +19,7 @@ class ClipboardEventMock extends Event {
     },
   };
 }
-(global as any).ClipboardEvent = ClipboardEventMock;
+(globalThis as any).ClipboardEvent = ClipboardEventMock;
 
 // Mock DragEvent
 class DragEventMock extends Event {
@@ -32,7 +32,7 @@ class DragEventMock extends Event {
     },
   };
 }
-(global as any).DragEvent = DragEventMock;
+(globalThis as any).DragEvent = DragEventMock;
 
 // Mock matchMedia for Mantine
 Object.defineProperty(window, "matchMedia", {

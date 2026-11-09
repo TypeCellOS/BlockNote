@@ -6,6 +6,7 @@ import type {
   StyleSchema,
 } from "../../schema/index.js";
 import { ReadOnlyExtension } from "../ReadOnly/ReadOnly.js";
+import { LoadingExtension } from "../Loading/Loading.js";
 import { createVersioning } from "./createVersioning.js";
 import type { VersionStorage, VersionViewAdapter } from "./types.js";
 import { scheduleScrollToFirstChange } from "./scrollToFirstChange.js";
@@ -54,7 +55,9 @@ export function createVersioningExtension<
       return configuration;
     }
 
-    const mode = createVersioning({
+    let previewOpen = false;
+
+    const mode = createVersioning<Content, Attributions>({
       get storage() {
         return getConfiguration().storage;
       },
@@ -63,52 +66,67 @@ export function createVersioningExtension<
           return getConfiguration().adapter.supportsComparison;
         },
         open() {
-          const configured = getConfiguration();
-          // Preview adapters replace the document. Keep undo detached through
-          // opening, switching and live restoration, then start fresh history.
-          const undoExtensions = editor.unregisterExtension([
-            "history",
-            "yUndo",
-          ]);
-          let view: ReturnType<typeof configured.adapter.open>;
+          previewOpen = true;
           try {
-            view = configured.adapter.open();
+            const configured = getConfiguration();
+            // Preview adapters replace the document. Keep undo detached through
+            // opening, switching and live restoration, then start fresh history.
+            const undoExtensions = editor.unregisterExtension([
+              "history",
+              "yUndo",
+            ]);
+            let view: ReturnType<typeof configured.adapter.open>;
+            try {
+              view = configured.adapter.open();
+            } catch (error) {
+              editor.registerExtension(undoExtensions);
+              throw error;
+            }
+            let cancelScroll: (() => void) | undefined;
+            let closed = false;
+            return {
+              current: view.current,
+              show(display) {
+                cancelScroll?.();
+                cancelScroll = undefined;
+                view.show(display);
+                if (display.comparison && !closed) {
+                  cancelScroll = scheduleScrollToFirstChange(
+                    () => editor.domElement,
+                    {
+                      enabled: configured.scrollToFirstChange,
+                      isCurrent: () =>
+                        mode.store.state.mode === "versions" &&
+                        mode.store.state.pending === undefined &&
+                        !mode.store.state.restoring,
+                    },
+                  );
+                }
+              },
+              close(reason = "discard") {
+                if (closed) {
+                  return;
+                }
+                closed = true;
+                cancelScroll?.();
+                cancelScroll = undefined;
+                // Only a successful restore may publish the live document
+                // while reconnecting; ordinary cleanup remains a preview.
+                if (reason === "restore") {
+                  previewOpen = false;
+                }
+                try {
+                  view.close(reason);
+                  editor.registerExtension(undoExtensions);
+                } finally {
+                  previewOpen = false;
+                }
+              },
+            };
           } catch (error) {
-            editor.registerExtension(undoExtensions);
+            previewOpen = false;
             throw error;
           }
-          let cancelScroll: (() => void) | undefined;
-          let closed = false;
-          return {
-            current: view.current,
-            show(display) {
-              cancelScroll?.();
-              cancelScroll = undefined;
-              view.show(display);
-              if (display.comparison && !closed) {
-                cancelScroll = scheduleScrollToFirstChange(
-                  () => editor.domElement,
-                  {
-                    enabled: configured.scrollToFirstChange,
-                    isCurrent: () =>
-                      mode.store.state.mode === "versions" &&
-                      mode.store.state.pending === undefined &&
-                      !mode.store.state.restoring,
-                  },
-                );
-              }
-            },
-            close() {
-              if (closed) {
-                return;
-              }
-              closed = true;
-              cancelScroll?.();
-              cancelScroll = undefined;
-              view.close();
-              editor.registerExtension(undoExtensions);
-            },
-          };
         },
       },
       setReadOnly(enabled) {
@@ -122,21 +140,33 @@ export function createVersioningExtension<
     const key = "versioning";
     return assignWithDescriptors(mode, {
       key,
+      // Includes binding swaps before the controller publishes its mode, and
+      // every transaction in the isolated view until live bindings are restored.
+      get isPreviewOpen() {
+        return previewOpen;
+      },
       get userStore() {
         return getConfiguration().userStore;
       },
       mount() {
+        const loading = editor.getExtension(LoadingExtension);
+        let releaseLoading: (() => void) | undefined;
         const unsubscribe = mode.store.subscribe(({ currentVal }) => {
-          editor.domElement?.classList.toggle(
-            "bn-loading",
-            currentVal.mode === "versions" && currentVal.pending !== undefined,
-          );
+          if (
+            currentVal.mode === "versions" &&
+            currentVal.pending !== undefined
+          ) {
+            releaseLoading ??= loading?.acquire();
+          } else {
+            releaseLoading?.();
+            releaseLoading = undefined;
+          }
         });
 
         return () => {
           mode.close();
           unsubscribe();
-          editor.domElement?.classList.remove("bn-loading");
+          releaseLoading?.();
         };
       },
     });
@@ -158,4 +188,8 @@ function assignWithDescriptors(target: object, source: object) {
 /** Content-independent controls shared by every versioning integration. */
 export type VersioningController = ReturnType<
   typeof createVersioning<unknown, unknown>
-> & { key: "versioning"; userStore: ReturnType<typeof normalizeToUserStore> };
+> & {
+  key: "versioning";
+  readonly isPreviewOpen: boolean;
+  userStore: ReturnType<typeof normalizeToUserStore>;
+};

@@ -3,3 +3,4 @@ node_modules
 .tarballs
 package-lock.json
 next-env.d.ts
+AGENTS.md

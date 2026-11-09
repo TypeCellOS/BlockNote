@@ -6,7 +6,7 @@ import { useCreateBlockNote } from "@blocknote/react";
 import { useEffect } from "react";
 import { render } from "vitest-browser-react";
 import axe from "axe-core";
-import { expect, vi, type TestContext } from "vite-plus/test";
+import { expect, type TestContext } from "vite-plus/test";
 import { commands, page, server } from "vite-plus/test/browser";
 import { waitForEditorFocus } from "./setup.js";
 import "./style.css";
@@ -92,26 +92,39 @@ export async function openEditor(
   return editor;
 }
 
-type EditorMethod = keyof {
-  [
-    Key in keyof BlockNoteEditor as BlockNoteEditor[Key] extends (
-      ...args: never[]
-    ) => unknown
-      ? Key
-      : never
-  ]: BlockNoteEditor[Key];
-};
-
-export function spyOnEditorFunction<Method extends EditorMethod>(
-  editor: BlockNoteEditor,
-  method: Method,
-) {
-  return vi.spyOn(editor, method);
-}
-
 export async function pressKey(key: string) {
   await waitForEditorFocus();
   return browserCommands.pressKey(key);
+}
+
+export function readOutline(element: Element) {
+  const style = getComputedStyle(element);
+  return {
+    width: Number.parseFloat(style.outlineWidth),
+    style: style.outlineStyle,
+    color: style.outlineColor,
+  };
+}
+
+export async function checkFocusOutline(
+  target: ReturnType<typeof page.getByRole>,
+  unfocusedOutline: ReturnType<typeof readOutline>,
+) {
+  await expect
+    .poll(() => target.element().matches(":focus-visible"))
+    .toBe(true);
+  await expect
+    .poll(() => readOutline(target.element()))
+    .not.toEqual(unfocusedOutline);
+  await expect
+    .poll(() => readOutline(target.element()).width)
+    .toBeGreaterThan(0);
+  await expect
+    .poll(() => readOutline(target.element()).style)
+    .not.toMatch(/^(none|hidden)$/);
+  await expect
+    .poll(() => readOutline(target.element()).color)
+    .not.toMatch(/^(transparent|rgba\(0, 0, 0, 0\))$/);
 }
 
 export function readSelection() {

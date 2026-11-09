@@ -22,7 +22,7 @@ export const DRAG_HANDLE_ADD_SELECTOR = `[data-test="dragHandleAdd"]`;
 // of the side menu that opens it; match it by its own class.
 export const DRAG_HANDLE_MENU_SELECTOR = `.bn-drag-handle-menu`;
 export const SLASH_MENU_SELECTOR = `.bn-suggestion-menu`;
-export const EMOJI_PICKER_SELECTOR = `.bn-grid-suggestion-menu`;
+export const EMOJI_PICKER_SELECTOR = `.bn-frimousse-picker`;
 
 export const ITALIC_BUTTON_SELECTOR = `[data-test="italic"]`;
 export const COLORS_BUTTON_SELECTOR = `[data-test="colors"]`;

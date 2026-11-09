@@ -186,6 +186,7 @@ export const DiffVersioningExtension = createExtension(
         // document first would only churn node views for no gain.
         editor.exec((state, dispatch) => {
           const tr = yNodeToTransaction(state.tr, nextType, { renderer });
+          tr.setMeta("blocknoteVersionPreview", true);
           if (dispatch) {
             dispatch(tr);
           }

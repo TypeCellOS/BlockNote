@@ -14,14 +14,8 @@ export default defineConfig({
     // its tsc step reads `core`'s `.d.ts` files.
     cache: { scripts: true },
     tasks: {
-      // Accessibility checks interact with Docker or a native screen reader;
-      // replaying cached output must never stand in for running those checks.
-      a11y: {
+      "test:screen-reader": {
         command: "node tests/a11y/run.mjs",
-        cache: false,
-      },
-      "a11y:screen-reader": {
-        command: "node tests/a11y/run.mjs --screen-reader",
         cache: false,
       },
       "copy-package-readmes": {
@@ -106,19 +100,31 @@ export default defineConfig({
     },
     overrides: [
       {
-        files: [
-          "**/a11y/**",
-          "**/*.a11y.test.ts",
-          "**/*.axe.test.ts",
-          "**/*.screen-reader.test.ts",
-        ],
+        files: ["packages/*/src/**/*.{ts,tsx}"],
+        excludeFiles: ["**/*.test.{ts,tsx}"],
+        rules: {
+          "no-restricted-imports": [
+            "error",
+            {
+              patterns: [
+                {
+                  group: ["**/*.test", "**/*.test.*"],
+                  message: "Production code must not import test files.",
+                },
+              ],
+            },
+          ],
+        },
+      },
+      {
+        files: ["**/*.browser.test.{ts,tsx}", "**/*.screen-reader.test.ts"],
         rules: {
           "no-restricted-properties": [
             "error",
             {
               property: "getByTestId",
               message:
-                "Use accessible locators such as getByRole with a name or getByLabel in accessibility tests.",
+                "Use accessible locators such as getByRole with a name or getByLabel in browser tests.",
             },
           ],
         },

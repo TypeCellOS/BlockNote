@@ -1,6 +1,12 @@
 import { Dictionary } from "../dictionary.js";
 
 export const he: Dictionary = {
+  locale: "he",
+  emoji_picker: {
+    search: "חיפוש",
+    search_no_results: "לא נמצא אימוג'י",
+    loading: "טוען…",
+  },
   slash_menu: {
     heading: {
       title: "כותרת 1",
@@ -425,8 +431,8 @@ export const he: Dictionary = {
     close: "סגירה",
     show_named_only: "הצג גרסאות בעלות שם בלבד",
     show_all: "הצג את כל הגרסאות",
-    comparison_on: "הפעלת השוואה",
-    comparison_off: "כיבוי השוואה",
+    comparison_on: "הצגת שינויים",
+    comparison_off: "הסתרת שינויים",
     versions_list: "גרסאות",
     empty: "אין עדיין גרסאות",
     empty_named_only: "אין גרסאות עם שם",

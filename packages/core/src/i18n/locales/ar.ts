@@ -1,6 +1,12 @@
 import type { Dictionary } from "../dictionary.js";
 
 export const ar: Dictionary = {
+  locale: "ar",
+  emoji_picker: {
+    search: "البحث",
+    search_no_results: "لم يتم العثور على رموز تعبيرية",
+    loading: "جار التحميل…",
+  },
   slash_menu: {
     heading: {
       title: "عنوان 1",
@@ -410,8 +416,8 @@ export const ar: Dictionary = {
     close: "إغلاق",
     show_named_only: "إظهار الإصدارات المسماة فقط",
     show_all: "إظهار جميع الإصدارات",
-    comparison_on: "تفعيل المقارنة",
-    comparison_off: "إيقاف المقارنة",
+    comparison_on: "إظهار التغييرات",
+    comparison_off: "إخفاء التغييرات",
     versions_list: "الإصدارات",
     empty: "لا توجد إصدارات بعد",
     empty_named_only: "لا توجد إصدارات مسماة",

@@ -1,6 +1,6 @@
 ---
 name: testing-skill
-description: Instructions for writing, running, and updating unit/end-to-end tests. Should be used when prompted specifically to add tests for a given feature, bug, or regression.
+description: Instructions for writing, running, and updating unit, end-to-end, and colocated accessibility tests. Use when adding or changing tests for a feature, bug, or regression.
 ---
 
 # Testing
@@ -52,6 +52,12 @@ The device-only behaviors above, checked on real hardware before a release:
 
 `tests/src/end-to-end`: Tests that need a real browser and span multiple packages go here — chiefly tests which interact with the editor UI or simulate user interaction, but also browser integration tests that exercise complete flows without interaction (e.g. exporting a full document, static rendering). New subdirectories can be added if the functionality being tested is not covered by any of the existing ones. Important note about existing E2E tests - many are written poorly and should only loosely be used as reference. We want to avoid abstraction layers and `waitForTimeout` as much as possible.
 
+### Colocated Component and Accessibility Tests
+
+Component accessibility coverage is colocated with the component/block, but runs in the existing Docker e2e suite. Use one `*.test.ts` file with separate `test.describe("behavior")`, `"keyboard"`, `"ARIA"`, `"axe"`, and, where needed, `"visual"` groups. Native screen-reader edge cases belong in an optional `*.screen-reader.test.ts` file and run locally only, outside regular e2e/CI.
+
+When adding or changing this coverage, read [Accessibility test structure and helpers](references/accessibility-tests.md). It defines each group's assertions, fixture/helper conventions, discovery configuration, and run commands. Use the colocated FormattingToolbar, BlockNoteView, and Heading tests as the concrete examples; do not create per-component `a11y/` directories or separate files for each assertion type.
+
 ## When & How to Add Tests
 
 Placement and proof obligations are governed by the ladder above: pick the rung red-first, and verify every new test fails without the code change it covers (for edge cases and new features too — existing tests continuing to pass is exactly the situation that demands new red-first ones).
@@ -75,6 +81,8 @@ bash tests/docker-run.sh -e CI=1 -- --run [filters]
 ```
 
 **Never run the browser suite natively** (`vp test -c vite.config.browser.ts` outside the container) — not even "just one file". Two failure modes, both silent: the screenshot matcher _seeds_ a new `-darwin`/`-win32` baseline for every screenshot test that has none (passing without comparing anything, and littering the tree with hundreds of unvetted PNGs — these are gitignored as a backstop, and only `-linux` baselines are tracked), and several suites genuinely behave differently outside Linux (e.g. caret placement is font-metric-dependent, so platform-shared JSON snapshots mismatch). If Docker isn't running, notify the user to launch it instead of falling back to a native run.
+
+Native screen-reader tests use the separate local runner described in the accessibility reference; the Docker-only rule above applies to the regular browser suite.
 
 A specific test file may be targeted by appending (part of) its name as a filter. A single browser may be targeted with `--project "e2e (chromium)"`. Individual tests in a file may be disabled using `skip`, i.e. `test.skip("Test name", ...)` (remember to revert this once all tests pass).
 

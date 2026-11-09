@@ -37,8 +37,6 @@ export default defineConfig(
         exclude: [
           ...configDefaults.exclude,
           "**/*.browser.test.*",
-          "**/a11y/*.test.ts",
-          "**/*.axe.test.ts",
           "**/*.screen-reader.test.ts",
         ],
       },

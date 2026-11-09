@@ -572,80 +572,6 @@ export const examples = {
           'In this example, we replace the default Slash Menu component with a basic custom one.\n\n**Try it out:** Press the "/" key to see the new Slash Menu!\n\n**Relevant Docs:**\n\n- [Replacing the Slash Menu Component](/docs/react/components/suggestion-menus)\n- [Editor Setup](/docs/getting-started/editor-setup)',
       },
       {
-        projectSlug: "suggestion-menus-emoji-picker-columns",
-        fullSlug: "ui-components/suggestion-menus-emoji-picker-columns",
-        pathFromRoot:
-          "examples/03-ui-components/08-suggestion-menus-emoji-picker-columns",
-        config: {
-          playground: true,
-          docs: true,
-          author: "yousefed",
-          tags: [
-            "Intermediate",
-            "Blocks",
-            "UI Components",
-            "Suggestion Menus",
-            "Emoji Picker",
-          ],
-        },
-        title: "Changing Emoji Picker Columns",
-        group: {
-          pathFromRoot: "examples/03-ui-components",
-          slug: "ui-components",
-        },
-        readme:
-          'In this example, we change the Emoji Picker to display 5 columns instead of 10.\n\n**Try it out:** Press the ":" key to open the Emoji Picker!\n\n**Relevant Docs:**\n\n- [Changing Emoji Picker Columns](/docs/react/components/suggestion-menus)\n- [Editor Setup](/docs/getting-started/editor-setup)',
-      },
-      {
-        projectSlug: "suggestion-menus-emoji-picker-component",
-        fullSlug: "ui-components/suggestion-menus-emoji-picker-component",
-        pathFromRoot:
-          "examples/03-ui-components/09-suggestion-menus-emoji-picker-component",
-        config: {
-          playground: true,
-          docs: true,
-          author: "yousefed",
-          tags: [
-            "Intermediate",
-            "UI Components",
-            "Suggestion Menus",
-            "Emoji Picker",
-            "Appearance & Styling",
-          ],
-        },
-        title: "Replacing Emoji Picker Component",
-        group: {
-          pathFromRoot: "examples/03-ui-components",
-          slug: "ui-components",
-        },
-        readme:
-          'In this example, we replace the default Emoji Picker component with a basic custom one.\n\n**Try it out:** Press the ":" key to see the new Emoji Picker!\n\n**Relevant Docs:**\n\n- [Replacing the Emoji Picker Component](/docs/react/components/suggestion-menus)\n- [Editor Setup](/docs/getting-started/editor-setup)',
-      },
-      {
-        projectSlug: "suggestion-menus-grid-mentions",
-        fullSlug: "ui-components/suggestion-menus-grid-mentions",
-        pathFromRoot:
-          "examples/03-ui-components/10-suggestion-menus-grid-mentions",
-        config: {
-          playground: true,
-          docs: true,
-          author: "yousefed",
-          tags: [
-            "Intermediate",
-            "Inline Content",
-            "Custom Schemas",
-            "Suggestion Menus",
-          ],
-        },
-        title: "Grid Mentions Menu",
-        group: {
-          pathFromRoot: "examples/03-ui-components",
-          slug: "ui-components",
-        },
-        readme:
-          'In this example, we create a custom `Mention` inline content type which is used to tag people. In addition, we create a new Suggestion Menu for mentions which opens with the "@" character. This Suggestion Menu is displayed as a grid of 2 columns, where each item is the first letter of the person\'s name.\n\n**Try it out:** Press the "@" key to open the mentions menu and insert a mention!\n\n**Relevant Docs:**\n\n- [Custom Inline Content Types](/docs/features/custom-schemas/custom-inline-content)\n- [Creating Suggestion Menus](/docs/react/components/suggestion-menus)\n- [Editor Setup](/docs/getting-started/editor-setup)',
-      },
-      {
         projectSlug: "uppy-file-panel",
         fullSlug: "ui-components/uppy-file-panel",
         pathFromRoot: "examples/03-ui-components/11-uppy-file-panel",
@@ -1033,6 +959,26 @@ export const examples = {
         },
         readme:
           "To configure a code block highlighting theme and language, you can extend the editor's default schema with a new `codeBlock`, which you can pass options into when creating. You can then use a shiki highlighter to add custom syntax highlighting.\n\nFirst use the [shiki-codegen](https://shiki.style/packages/codegen) CLI to create a `shiki.bundle.ts` file. You can then pass this file into the `codeBlock` options when creating it.\n\n**Relevant Docs:**\n\n- [Code Blocks](/docs/features/blocks/code-blocks)\n- [shiki-codegen](https://shiki.style/packages/codegen)\n- [Custom Schema](/docs/features/custom-schemas)",
+      },
+      {
+        projectSlug: "color-combinations",
+        fullSlug: "theming/color-combinations",
+        pathFromRoot: "examples/04-theming/08-color-combinations",
+        config: {
+          playground: true,
+          docs: false,
+          author: "",
+          tags: ["Appearance & Styling"],
+          dependencies: {} as any,
+          pro: false,
+        },
+        title: "Color combinations",
+        group: {
+          pathFromRoot: "examples/04-theming",
+          slug: "theming",
+        },
+        readme:
+          "Inspect every combination of the default text and background colors, including the default color, applied to whole blocks and inline content. Switch between light and dark themes to compare their appearance.\n\n**Try me out!** Use the theme toggle above the editors.\n\n## Relevant docs\n\n- [Themes](https://www.blocknotejs.org/docs/react/styling-theming/themes)",
       },
     ],
   },
@@ -2032,6 +1978,30 @@ export const examples = {
         readme:
           "Browse the suggestion (track-changes) rendering scenarios interactively. Each\nentry sets up a base document and applies a change in suggestion mode, so you can\nsee how insertions, deletions and type changes are visualized as a diff.\n\nThe **Base** pane (left) is read-only and shows the document before the change.\nThe **Suggestion** pane (right) is editable — keep typing to create more\nsuggestions on top.\n\nThese are the same scenarios covered by the y-prosemirror visual tests; the\nper-scenario definitions live in `src/scenarios.ts` so the tests and this gallery\nstay in sync.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/editor-basics/setup)\n- [Collaboration](/docs/collaboration/real-time-collaboration)",
       },
+      {
+        projectSlug: "yhub",
+        fullSlug: "collaboration/yhub",
+        pathFromRoot: "examples/07-collaboration/15-yhub",
+        config: {
+          playground: true,
+          docs: true,
+          author: "",
+          tags: ["Advanced", "Saving/Loading", "Collaboration"],
+          dependencies: {
+            "@y/prosemirror": "^2.0.0-15",
+            "@y/protocols": "^1.0.6-rc.1",
+            "@y/websocket": "^4.0.0-3",
+            "@y/y": "^14.0.0-rc.26",
+          } as any,
+        },
+        title: "Collaborative Editing with YHub",
+        group: {
+          pathFromRoot: "examples/07-collaboration",
+          slug: "collaboration",
+        },
+        readme:
+          "This example uses [YHub](https://github.com/yjs/yhub) and Yjs v14 to sync a BlockNote document and share user cursors over WebSocket. It connects to a public demo server, so don't enter private information.\n\n**Try it out:** Open this page in another browser tab or window to edit the same document together.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Collaboration](/docs/features/collaboration)\n- [YHub](https://github.com/yjs/yhub)",
+      },
     ],
   },
   extensions: {
@@ -2101,7 +2071,7 @@ export const examples = {
           dependencies: {
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^9.0.2",
-            ai: "^6.0.5",
+            ai: "^7.0.153",
           } as any,
         },
         title: "Rich Text editor AI integration",
@@ -2124,7 +2094,7 @@ export const examples = {
           dependencies: {
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^9.0.2",
-            ai: "^6.0.5",
+            ai: "^7.0.153",
           } as any,
         },
         title: "AI Playground",
@@ -2147,7 +2117,7 @@ export const examples = {
           dependencies: {
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^9.0.2",
-            ai: "^6.0.5",
+            ai: "^7.0.153",
             "react-icons": "^5.5.0",
           } as any,
         },
@@ -2171,7 +2141,7 @@ export const examples = {
           dependencies: {
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^9.0.2",
-            ai: "^6.0.5",
+            ai: "^7.0.153",
             "y-partykit": "^0.0.25",
             yjs: "^13.6.33",
           } as any,
@@ -2196,7 +2166,7 @@ export const examples = {
           dependencies: {
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^9.0.2",
-            ai: "^6.0.5",
+            ai: "^7.0.153",
             "y-partykit": "^0.0.25",
             yjs: "^13.6.33",
           } as any,
@@ -2219,10 +2189,10 @@ export const examples = {
           author: "yousefed",
           tags: ["AI", "llm"],
           dependencies: {
-            "@ai-sdk/groq": "^3.0.2",
+            "@ai-sdk/groq": "^4.0.70",
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^9.0.2",
-            ai: "^6.0.5",
+            ai: "^7.0.153",
           } as any,
         },
         title: "AI Integration with ClientSideTransport",
@@ -2245,7 +2215,7 @@ export const examples = {
           dependencies: {
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^9.0.2",
-            ai: "^6.0.5",
+            ai: "^7.0.153",
           } as any,
         },
         title: "AI Integration with server LLM message persistence",
