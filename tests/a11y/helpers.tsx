@@ -1,9 +1,13 @@
-import type { ExtensionFactoryInstance, PartialBlock } from "@blocknote/core";
+import type {
+  BlockNoteEditor,
+  ExtensionFactoryInstance,
+  PartialBlock,
+} from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { useCreateBlockNote } from "@blocknote/react";
-import type { ReactNode } from "react";
+import { type ReactNode, useEffect } from "react";
 import { render } from "vitest-browser-react";
 import axe from "axe-core";
 import { expect, type TestContext } from "vite-plus/test";
@@ -30,16 +34,22 @@ function EditorFixture({
   initialContent,
   editable,
   theme,
+  onReady,
   extensions,
   children,
 }: {
   initialContent: PartialBlock[];
   editable: boolean;
   theme: "light" | "dark";
+  onReady?: (editor: BlockNoteEditor) => void;
   extensions?: ExtensionFactoryInstance[];
   children?: ReactNode;
 }) {
   const editor = useCreateBlockNote({ initialContent, extensions });
+  useEffect(() => {
+    onReady?.(editor);
+  }, [editor, onReady]);
+
   return (
     <main style={{ maxWidth: 900, margin: "80px auto", padding: 24 }}>
       <h1>BlockNote accessibility fixture</h1>
@@ -57,21 +67,28 @@ export async function openEditor(
   {
     editable = true,
     theme = "light",
+    onReady,
     extensions,
     children,
   }: {
     editable?: boolean;
     theme?: "light" | "dark";
+    onReady?: (editor: BlockNoteEditor) => void;
     extensions?: ExtensionFactoryInstance[];
     children?: ReactNode;
   } = {},
 ) {
+  let editor!: BlockNoteEditor;
   await page.viewport(1280, 900);
   await render(
     <EditorFixture
       initialContent={initialContent}
       editable={editable}
       theme={theme}
+      onReady={(value) => {
+        editor = value;
+        onReady?.(value);
+      }}
       extensions={extensions}
     >
       {children}
@@ -90,6 +107,59 @@ export async function openEditor(
       .element()
       .focus();
   }
+  return editor;
+}
+
+export async function pressKey(key: string) {
+  await waitForEditorFocus();
+  return browserCommands.pressKey(key);
+}
+
+export function readOutline(element: Element) {
+  const style = getComputedStyle(element);
+  return {
+    width: Number.parseFloat(style.outlineWidth),
+    style: style.outlineStyle,
+    color: style.outlineColor,
+  };
+}
+
+export async function checkFocusOutline(
+  target: ReturnType<typeof page.getByRole>,
+  unfocusedOutline: ReturnType<typeof readOutline>,
+) {
+  await expect
+    .poll(() => target.element().matches(":focus-visible"))
+    .toBe(true);
+  await expect
+    .poll(() => readOutline(target.element()))
+    .not.toEqual(unfocusedOutline);
+  await expect
+    .poll(() => readOutline(target.element()).width)
+    .toBeGreaterThan(0);
+  await expect
+    .poll(() => readOutline(target.element()).style)
+    .not.toMatch(/^(none|hidden)$/);
+  await expect
+    .poll(() => readOutline(target.element()).color)
+    .not.toMatch(/^(transparent|rgba\(0, 0, 0, 0\))$/);
+}
+
+export function readSelection() {
+  const selection = document.getSelection();
+  const node = selection?.focusNode;
+  const element = node instanceof Element ? node : node?.parentElement;
+  const cell = element?.closest("td, th");
+  const row = cell?.parentElement;
+  return {
+    tableCell:
+      cell instanceof HTMLTableCellElement && row instanceof HTMLTableRowElement
+        ? { row: row.rowIndex, column: cell.cellIndex }
+        : null,
+    blockId: element?.closest("[data-id]")?.getAttribute("data-id") ?? null,
+    offset: selection?.focusOffset ?? 0,
+    text: selection?.toString() ?? "",
+  };
 }
 
 export async function checkAxe(
@@ -110,26 +180,15 @@ export async function checkAxe(
   expect(results.violations, "axe violations").toEqual([]);
 }
 
-export function readSelection() {
-  const selection = document.getSelection();
-  const node = selection?.focusNode;
-  const element = node instanceof Element ? node : node?.parentElement;
-  const cell = element?.closest("td, th");
-  const row = cell?.parentElement;
-  return {
-    tableCell:
-      cell instanceof HTMLTableCellElement && row instanceof HTMLTableRowElement
-        ? { row: row.rowIndex, column: cell.cellIndex }
-        : null,
-    blockId: element?.closest("[data-id]")?.getAttribute("data-id") ?? null,
-    offset: selection?.focusOffset ?? 0,
-    text: selection?.toString() ?? "",
-  };
-}
-
-export async function pressKey(key: string) {
-  await waitForEditorFocus();
-  return browserCommands.pressKey(key);
+// Use Playwright's semantic snapshot through the provider, and Vitest's
+// snapshot storage so these baselines follow the same update policy as tests.
+export async function checkAriaSnapshot(
+  locator: ReturnType<typeof page.getByRole>,
+  name: string,
+) {
+  expect(
+    await browserCommands.readAriaSnapshot(locator.selector),
+  ).toMatchSnapshot(name);
 }
 
 // Register with afterEach in screen-reader tests. Stop the reader even when
@@ -145,15 +204,4 @@ export async function saveTranscript() {
   } finally {
     await browserCommands.stopReader();
   }
-}
-
-// Use Playwright's semantic snapshot through the provider, and Vitest's
-// snapshot storage so these baselines follow the same update policy as tests.
-export async function checkAriaSnapshot(
-  locator: ReturnType<typeof page.getByRole>,
-  name: string,
-) {
-  expect(
-    await browserCommands.readAriaSnapshot(locator.selector),
-  ).toMatchSnapshot(name);
 }

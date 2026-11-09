@@ -1,4 +1,4 @@
-export * from "./components/Versioning/useVersionUsers.js";
+export * from "./components/Versioning/useSnapshotUsers.js";
 export * from "./components/Versioning/usePreviewRow.js";
 export * from "./components/Versioning/VersioningSidebar.js";
 export * from "./components/Versioning/VersioningSidebarContext.js";

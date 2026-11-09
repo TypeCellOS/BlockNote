@@ -7,9 +7,163 @@ import {
 } from "./Versioning.js";
 import { ReadOnlyExtension } from "../ReadOnly/ReadOnly.js";
 import { success } from "./__test__/result.js";
+import type { VersionDisplay } from "./types.js";
 
 afterEach(() => {
   vi.useRealTimers();
+});
+
+it("does not publish binding changes while opening, switching or closing a preview", async () => {
+  const Versions = createVersioningExtension((editor: BlockNoteEditor) => {
+    let live = "live";
+    function show(content: string) {
+      editor.updateBlock("paragraph", { content });
+    }
+    return {
+      adapter: {
+        supportsComparison: true,
+        open() {
+          show("opening");
+          return {
+            current: { content: "live", capturedAt: 1 },
+            show(display: VersionDisplay<string, never>) {
+              show(display.content);
+            },
+            close() {
+              show(live);
+            },
+          };
+        },
+      },
+      storage: {
+        async list() {
+          return success({ snapshots: [] });
+        },
+        async getContent(id: string) {
+          return success(id);
+        },
+        async restore() {
+          // Like local storage, restore the live view before editing it.
+          editor.getExtension<VersioningController>("versioning")!.close();
+          live = "restored";
+          show(live);
+          return success(undefined);
+        },
+      },
+    };
+  });
+  const editor = BlockNoteEditor.create({
+    initialContent: [{ id: "paragraph", content: "live" }],
+    extensions: [Versions()],
+  });
+  const mode = editor.getExtension(Versions)!;
+  const changes: string[] = [];
+  editor.onChange(() => changes.push(editor.prosemirrorState.doc.textContent));
+  try {
+    mode.open();
+    // Binding reconciliation or another extension can dispatch after opening,
+    // outside any adapter operation. It still belongs to the isolated preview.
+    editor.updateBlock("paragraph", { content: "deferred preview update" });
+    await mode.select({ type: "snapshot", id: "old" });
+    await mode.select({ type: "current" }, { compareTo: "old" });
+    await mode.select({ type: "current" });
+    mode.close();
+    expect(changes).toEqual([]);
+    editor.updateBlock("paragraph", { content: "edited" });
+    expect(changes).toEqual(["edited"]);
+    mode.open();
+    await mode.restore("old");
+    expect(changes).toEqual(["edited", "restored"]);
+  } finally {
+    mode.dispose();
+    editor._tiptapEditor.destroy();
+  }
+});
+
+it("resumes change notifications if acquiring a preview throws", () => {
+  const Versions = createVersioningExtension((editor: BlockNoteEditor) => ({
+    adapter: {
+      supportsComparison: false,
+      open(): never {
+        editor.updateBlock("paragraph", { content: "opening" });
+        throw new Error("Cannot open preview");
+      },
+    },
+    storage: {
+      async list() {
+        return success({ snapshots: [] });
+      },
+      async getContent() {
+        return success("old");
+      },
+    },
+  }));
+  const editor = BlockNoteEditor.create({
+    initialContent: [{ id: "paragraph", content: "live" }],
+    extensions: [Versions()],
+  });
+  const changes: string[] = [];
+  editor.onChange(() => changes.push(editor.prosemirrorState.doc.textContent));
+  try {
+    expect(() => editor.getExtension(Versions)!.open()).toThrow(
+      "Cannot open preview",
+    );
+    expect(changes).toEqual([]);
+    editor.updateBlock("paragraph", { content: "edited" });
+    expect(changes).toEqual(["edited"]);
+  } finally {
+    editor._tiptapEditor.destroy();
+  }
+});
+
+it("publishes restored live content when reconnecting a detached binding", async () => {
+  const Versions = createVersioningExtension((editor: BlockNoteEditor) => {
+    let live = "live";
+    return {
+      adapter: {
+        supportsComparison: false,
+        open() {
+          return {
+            current: { content: live, capturedAt: 1 },
+            show() {
+              editor.updateBlock("paragraph", { content: "old" });
+            },
+            close() {
+              editor.updateBlock("paragraph", { content: live });
+            },
+          };
+        },
+      },
+      storage: {
+        async list() {
+          return success({ snapshots: [] });
+        },
+        async getContent() {
+          return success("old");
+        },
+        async restore() {
+          live = "restored";
+          return success(undefined);
+        },
+      },
+    };
+  });
+  const editor = BlockNoteEditor.create({
+    initialContent: [{ id: "paragraph", content: "live" }],
+    extensions: [Versions()],
+  });
+  const mode = editor.getExtension(Versions)!;
+  const changes: string[] = [];
+  editor.onChange(() => changes.push(editor.prosemirrorState.doc.textContent));
+  try {
+    mode.open();
+    await mode.select({ type: "snapshot", id: "old" });
+    expect(await mode.restore("old")).toEqual({ status: "done" });
+    expect(changes).toEqual(["restored"]);
+  } finally {
+    mode.dispose();
+    editor._tiptapEditor.destroy();
+  }
 });
 
 it("configures once per editor during construction", async () => {

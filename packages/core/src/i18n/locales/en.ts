@@ -1,4 +1,10 @@
 export const en = {
+  locale: "en",
+  emoji_picker: {
+    search: "Search",
+    search_no_results: "No emoji found",
+    loading: "Loading…",
+  },
   slash_menu: {
     heading: {
       title: "Heading 1",
@@ -425,8 +431,8 @@ export const en = {
     close: "Close",
     show_named_only: "Show named versions only",
     show_all: "Show all versions",
-    comparison_on: "Turn on comparison",
-    comparison_off: "Turn off comparison",
+    comparison_on: "Show changes",
+    comparison_off: "Hide changes",
     versions_list: "Versions",
     empty: "No versions yet",
     empty_named_only: "No named versions",

@@ -78,7 +78,7 @@ export const BlockContainer = Node.create<{
   parseHTML() {
     return [
       {
-        tag: "div[data-node-type=" + this.name + "]",
+        tag: `div[data-node-type="${this.name}"]`,
         getAttrs: (element) => {
           if (typeof element === "string") {
             return false;

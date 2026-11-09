@@ -490,6 +490,44 @@ export const exportParseEqualityTestInstancesMarkdown: TestInstance<
   },
   {
     testCase: {
+      name: "markdown/numberedListItemWithDetailsText",
+      content: [
+        {
+          type: "numberedListItem",
+          content: "<details>",
+        },
+      ],
+    },
+    executeTest: testExportParseEqualityMarkdown,
+  },
+  {
+    testCase: {
+      name: "markdown/paragraphWithHtmlLikeText",
+      content: [
+        {
+          type: "paragraph",
+          content:
+            "Tags like <b>, </b> and <!-- note --> stay text, and 1 < 2.",
+        },
+      ],
+    },
+    executeTest: testExportParseEqualityMarkdown,
+  },
+  {
+    testCase: {
+      name: "markdown/paragraphWithBackslashBeforeHtmlLikeText",
+      content: [
+        {
+          type: "paragraph",
+          content:
+            "Escaped \\<details> and \\\\<b> stay text, as does C:\\Users.",
+        },
+      ],
+    },
+    executeTest: testExportParseEqualityMarkdown,
+  },
+  {
+    testCase: {
       name: "markdown/nestedLists",
       content: [
         {

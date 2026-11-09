@@ -1,6 +1,12 @@
 import type { Dictionary } from "../dictionary.js";
 
 export const nl: Dictionary = {
+  locale: "nl",
+  emoji_picker: {
+    search: "Zoeken",
+    search_no_results: "Geen emoji gevonden",
+    loading: "Laden…",
+  },
   slash_menu: {
     heading: {
       title: "Kop 1",
@@ -426,8 +432,8 @@ export const nl: Dictionary = {
     close: "Sluiten",
     show_named_only: "Alleen benoemde versies tonen",
     show_all: "Alle versies tonen",
-    comparison_on: "Vergelijking inschakelen",
-    comparison_off: "Vergelijking uitschakelen",
+    comparison_on: "Wijzigingen tonen",
+    comparison_off: "Wijzigingen verbergen",
     versions_list: "Versies",
     empty: "Nog geen versies",
     empty_named_only: "Geen benoemde versies",

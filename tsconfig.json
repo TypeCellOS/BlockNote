@@ -1,7 +1,7 @@
 {
   "files": [],
   "references": [
-    { "path": "./tests/a11y" },
+    { "path": "./tests/tsconfig.browser.json" },
     { "path": "./packages/core" },
     { "path": "./packages/code-block" },
     { "path": "./packages/react" },

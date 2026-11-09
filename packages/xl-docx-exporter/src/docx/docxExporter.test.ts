@@ -30,6 +30,7 @@ import { createDOCXParagraph } from "./mapping.js";
 import { ColumnBlock, ColumnListBlock } from "@blocknote/xl-multi-column";
 import { partialBlocksToBlocksForTesting } from "@shared/formatConversionTestUtil.js";
 import { testResolveFileUrl } from "@shared/util/testFileResolver.js";
+import { readDocumentImages } from "./imageRelationships.testUtil.js";
 
 const getZIPEntryContent = (entries: Entry[], fileName: string) => {
   const entry = entries.find((entry) => {
@@ -72,6 +73,39 @@ describe("exporter", () => {
     await expect(
       prettify(await getZIPEntryContent(entries, "word/styles.xml")),
     ).toMatchFileSnapshot(await stylesSnapshotPath("basic"));
+  });
+
+  it("should resolve distinct and repeated images to their original bytes in drawing order", async () => {
+    const first = Uint8Array.from(
+      Buffer.from(
+        "R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
+        "base64",
+      ),
+    );
+    const second = first.slice();
+    second[13] = 255; // Different palette, still a complete 1x1 GIF.
+    const schema = BlockNoteSchema.create();
+    const exporter = new DOCXExporter(schema, docxDefaultSchemaMappings, {
+      resolveFileUrl: async (url) =>
+        new Blob([url === "first.gif" ? first : second], { type: "image/gif" }),
+    });
+    const doc = await exporter.toDocxJsDocument(
+      partialBlocksToBlocksForTesting(schema, [
+        { type: "image", props: { url: "first.gif" } },
+        { type: "image", props: { url: "second.gif" } },
+        { type: "image", props: { url: "first.gif" } },
+      ]),
+    );
+    const entries = await new ZipReader(
+      new BlobReader(await Packer.toBlob(doc)),
+    ).getEntries();
+    const { images } = await readDocumentImages(entries);
+    expect(images).toEqual([first, second, first]);
+    expect(
+      entries.filter(
+        (entry) => !entry.directory && entry.filename.startsWith("word/media/"),
+      ),
+    ).toHaveLength(2);
   });
 
   it(
@@ -125,9 +159,7 @@ describe("exporter", () => {
 
       // files related to header / footer
       await expect(
-        prettify(
-          await getZIPEntryContent(entries, "word/_rels/document.xml.rels"),
-        ),
+        prettify((await readDocumentImages(entries)).relationships),
       ).toMatchFileSnapshot(
         "__snapshots__/withCustomOptions/document.xml.rels",
       );

@@ -18,7 +18,11 @@ export const MathInlinePreviewWithPopup = (
   >,
 ) => {
   const source = props.inlineContent.content.trim();
-  const { mathMLString, error } = useLatexToMathMLString(source, true);
+  const { mathMLString, error } = useLatexToMathMLString({
+    latex: source,
+    editor: props.editor,
+    inline: true,
+  });
   const dict = getMathDictionary(props.editor).inline;
 
   return (
