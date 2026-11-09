@@ -37,6 +37,15 @@ async function createLink(url: string) {
   await userEvent.keyboard(url);
   await userEvent.keyboard("{Enter}");
   await waitForSelector(LINK_SELECTOR);
+  await expect
+    .poll(() => document.querySelector(".bn-form-popover"))
+    .toBeNull();
+  await expect
+    .poll(() =>
+      document.querySelector(EDITOR_SELECTOR)?.contains(document.activeElement),
+    )
+    .toBe(true);
+  await sleep(300);
 }
 
 for (const skin of SKINS) {
@@ -52,6 +61,84 @@ for (const skin of SKINS) {
       expect(
         document.querySelector<HTMLAnchorElement>(LINK_SELECTOR)?.href,
       ).toBe("https://example.com/");
+    });
+
+    for (const url of ["https://example.com", "https://changed.example"]) {
+      test(`изменение ссылки для части выделенного текста сохраняет весь текст (${url})`, async () => {
+        await createLink("https://example.com");
+        await userEvent.keyboard(
+          "{Home}{ArrowRight}{ArrowRight}{Shift>}{ArrowRight}{ArrowRight}{ArrowRight}{/Shift}",
+        );
+        await expect.poll(() => window.getSelection()?.toString()).toBe("rag");
+        await sleep(300);
+        await userEvent.keyboard("{Control>}k{/Control}");
+        const input = await waitForSelector(".bn-form-popover input[name=url]");
+        expect(input).toBeInstanceOf(HTMLInputElement);
+        if (!(input instanceof HTMLInputElement)) {
+          throw new Error("Поле URL не является текстовым полем");
+        }
+        expect(input.value).toBe("https://example.com");
+        await userEvent.keyboard("{Control>}a{/Control}");
+        await userEvent.keyboard(url);
+        await userEvent.keyboard("{Enter}");
+        await expect
+          .poll(() => document.querySelector(".bn-form-popover"))
+          .toBeNull();
+        await expect
+          .poll(() => document.querySelector(EDITOR_SELECTOR)?.textContent)
+          .toBe("Paragraph");
+        await expect
+          .poll(() =>
+            Array.from(
+              document.querySelectorAll<HTMLAnchorElement>(LINK_SELECTOR),
+            ).map((link) => ({
+              text: link.textContent,
+              href: link.href,
+            })),
+          )
+          .toEqual(
+            url === "https://example.com"
+              ? [{ text: "Paragraph", href: "https://example.com/" }]
+              : [
+                  { text: "Pa", href: "https://example.com/" },
+                  { text: "rag", href: "https://changed.example/" },
+                  { text: "raph", href: "https://example.com/" },
+                ],
+          );
+      });
+    }
+
+    test("применение ссылки сохраняет форматирование выделенного фрагмента", async () => {
+      await createLink("https://example.com");
+      await userEvent.keyboard(
+        "{Home}{ArrowRight}{ArrowRight}{Shift>}{ArrowRight}{ArrowRight}{ArrowRight}{/Shift}",
+      );
+      await expect.poll(() => window.getSelection()?.toString()).toBe("rag");
+      await userEvent.keyboard("{Control>}b{/Control}");
+      await sleep(300);
+      await userEvent.click(await waitForSelector(LINK_BUTTON_SELECTOR));
+      await waitForSelector(".bn-form-popover input[name=url]");
+      await userEvent.keyboard("{Control>}a{/Control}");
+      await userEvent.keyboard("https://changed.example");
+      await userEvent.keyboard("{Enter}");
+      await expect
+        .poll(() => document.querySelector(EDITOR_SELECTOR)?.textContent)
+        .toBe("Paragraph");
+      await expect
+        .poll(
+          () =>
+            document.querySelector(`${EDITOR_SELECTOR} strong`)?.textContent,
+        )
+        .toBe("rag");
+      await expect
+        .poll(() =>
+          Array.from(
+            document.querySelectorAll<HTMLAnchorElement>(LINK_SELECTOR),
+          )
+            .filter((link) => link.href === "https://changed.example/")
+            .map((link) => link.textContent),
+        )
+        .toEqual(["rag"]);
     });
 
     test("Link toolbar: Edit focuses the URL field and Enter applies the change", async () => {
