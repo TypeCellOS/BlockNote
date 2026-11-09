@@ -54,7 +54,7 @@ The device-only behaviors above, checked on real hardware before a release:
 
 ### Colocated Component and Accessibility Tests
 
-Component accessibility coverage is colocated with the component/block, but runs in the existing Docker e2e suite. Use one `*.test.ts` file with separate `test.describe("behavior")`, `"keyboard"`, `"ARIA"`, `"axe"`, and, where needed, `"visual"` groups. Native screen-reader edge cases belong in an optional `*.screen-reader.test.ts` file and run locally only, outside regular e2e/CI.
+Component accessibility coverage is colocated with the component/block, but runs in the existing Docker e2e suite. Use the same `*.browser.test.ts` file as for browser unit tests. Use separate `test.describe("keyboard")`, `"ARIA"`, `"axe"`, and, where needed, `"visual"` groups, as well as an additional `"behaviour"` group for existing unit tests. Native screen-reader edge cases belong in an optional `*.screen-reader.test.ts` file and run locally only, outside regular e2e/CI.
 
 When adding or changing this coverage, read [Accessibility test structure and helpers](references/accessibility-tests.md). It defines each group's assertions, fixture/helper conventions, discovery configuration, and run commands. Use the colocated FormattingToolbar, BlockNoteView, and Heading tests as the concrete examples; do not create per-component `a11y/` directories or separate files for each assertion type.
 
