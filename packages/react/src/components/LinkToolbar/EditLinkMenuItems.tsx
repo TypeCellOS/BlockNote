@@ -63,7 +63,10 @@ export const EditLinkMenuItems = (
 
   const handleSubmit = useCallback(() => {
     if (props.onSubmit) {
-      props.onSubmit(validateUrl(currentUrl), currentText);
+      props.onSubmit(
+        currentUrl === "" ? currentUrl : validateUrl(currentUrl),
+        currentText,
+      );
     } else {
       editLink(validateUrl(currentUrl), currentText, props.range.from);
     }

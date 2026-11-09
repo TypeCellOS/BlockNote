@@ -108,6 +108,45 @@ for (const skin of SKINS) {
       });
     }
 
+    for (const existingLink of [false, true]) {
+      test(`an empty URL leaves the selection unchanged (existing link: ${existingLink})`, async () => {
+        if (existingLink) {
+          await createLink("https://example.com");
+          await userEvent.keyboard(
+            "{Home}{ArrowRight}{ArrowRight}{Shift>}{ArrowRight}{ArrowRight}{ArrowRight}{/Shift}",
+          );
+        } else {
+          await focusOnEditor();
+          await userEvent.keyboard("Paragraph");
+          await userEvent.keyboard("{Shift>}{Home}{/Shift}");
+        }
+        await expect
+          .poll(() => window.getSelection()?.toString())
+          .toBe(existingLink ? "rag" : "Paragraph");
+        await sleep(300);
+        await userEvent.keyboard("{Control>}k{/Control}");
+        await waitForSelector(".bn-form-popover input[name=url]");
+        await userEvent.keyboard("{Control>}a{/Control}{Backspace}{Enter}");
+        await expect
+          .poll(() => document.querySelector(".bn-form-popover"))
+          .toBeNull();
+        await expect
+          .poll(() => document.querySelector(EDITOR_SELECTOR)?.textContent)
+          .toBe("Paragraph");
+        await expect
+          .poll(() =>
+            Array.from(
+              document.querySelectorAll<HTMLAnchorElement>(LINK_SELECTOR),
+            ).map((link) => ({ text: link.textContent, href: link.href })),
+          )
+          .toEqual(
+            existingLink
+              ? [{ text: "Paragraph", href: "https://example.com/" }]
+              : [],
+          );
+      });
+    }
+
     test("preserves formatting when linking a selection", async () => {
       await createLink("https://example.com");
       await userEvent.keyboard(
