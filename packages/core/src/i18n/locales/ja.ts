@@ -1,6 +1,12 @@
 import { Dictionary } from "../dictionary.js";
 
 export const ja: Dictionary = {
+  locale: "ja",
+  emoji_picker: {
+    search: "検索",
+    search_no_results: "絵文字が見つかりません",
+    loading: "読み込み中…",
+  },
   slash_menu: {
     heading: {
       title: "見出し１",
@@ -465,8 +471,8 @@ export const ja: Dictionary = {
     close: "閉じる",
     show_named_only: "名前付きバージョンのみ表示",
     show_all: "すべてのバージョンを表示",
-    comparison_on: "比較を有効にする",
-    comparison_off: "比較を無効にする",
+    comparison_on: "変更を表示",
+    comparison_off: "変更を非表示",
     versions_list: "バージョン",
     empty: "バージョンはまだありません",
     empty_named_only: "名前付きのバージョンはありません",

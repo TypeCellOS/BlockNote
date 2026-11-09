@@ -400,6 +400,74 @@ describe("VersioningSidebar", () => {
     expect(rows().at(-1)!.classList.contains("comparing")).toBe(true);
   });
 
+  it.each([false, true])(
+    "does not compare across unloaded history to pinned start, namedOnly=%s",
+    async (namedOnly) => {
+      const olderPage = deferred<VersionResult<VersionSnapshotPage>>();
+      const start = { id: "first", createdAt: 0, name: "Beginning" };
+      const older = { id: "older", createdAt: 500, name: "Earlier" };
+      const fake = createFakeEndpoints(undefined, true);
+      fake.setSnapshots([NAMED, AUTOMATIC, older, start]);
+      const list = vi
+        .fn<VersionStorage<unknown[], unknown>["list"]>()
+        .mockResolvedValueOnce(
+          success({
+            snapshots: [NAMED, AUTOMATIC, start],
+            nextCursor: "older",
+          }),
+        )
+        .mockReturnValueOnce(olderPage.promise);
+      const editor = createEditor({ ...fake.endpoints, list });
+      render(
+        <VersioningTestView editor={editor}>
+          <VersioningSidebar
+            defaultComparisonMode
+            defaultNamedOnly={namedOnly}
+          />
+        </VersioningTestView>,
+      );
+      await act(async () => {});
+      const targetIndex = namedOnly ? 1 : 2;
+      const target = namedOnly ? NAMED : AUTOMATIC;
+      await act(async () => {
+        await userEvent.click(rows()[targetIndex]!);
+      });
+      expect(viewState(mode(editor))).toMatchObject({
+        snapshotId: target.id,
+        compareToId: undefined,
+      });
+
+      // Explicit comparisons against the beginning remain available.
+      await click(
+        await openMenuItem(rows()[targetIndex]!, /Compare since beginning/),
+      );
+      expect(viewState(mode(editor))).toMatchObject({ compareToId: start.id });
+      await click(rows()[targetIndex]!);
+
+      await act(async () => {
+        const loading = mode(editor).loadMore();
+        olderPage.resolve(success({ snapshots: [older] }));
+        await loading;
+      });
+      expect(viewState(mode(editor))).toMatchObject({ compareToId: undefined });
+      await act(async () => {
+        await userEvent.click(rows()[targetIndex]!);
+      });
+      expect(viewState(mode(editor))).toMatchObject({
+        snapshotId: target.id,
+        compareToId: older.id,
+      });
+      const oldestIndex = namedOnly ? 2 : 3;
+      await act(async () => {
+        await userEvent.click(rows()[oldestIndex]!);
+      });
+      expect(viewState(mode(editor))).toMatchObject({
+        snapshotId: older.id,
+        compareToId: start.id,
+      });
+    },
+  );
+
   it("automatically loads filtered history, pauses on failure, and compares only loaded predecessors", async () => {
     const older = deferred<VersionResult<VersionSnapshotPage>>();
     const listSnapshots = vi
@@ -692,7 +760,7 @@ describe("VersioningSidebar", () => {
     });
 
     await click(
-      page.getByRole("button", { name: "Turn on comparison", exact: true }),
+      page.getByRole("button", { name: "Show changes", exact: true }),
     );
     await act(async () => {});
 
@@ -763,7 +831,7 @@ describe("VersioningSidebar", () => {
         );
         await click(
           page.getByRole("button", {
-            name: "Turn on comparison",
+            name: "Show changes",
             exact: true,
           }),
         );
@@ -827,7 +895,7 @@ describe("VersioningSidebar", () => {
       ).toBeDefined();
       expect(
         page
-          .getByRole("button", { name: "Turn off comparison", exact: true })
+          .getByRole("button", { name: "Hide changes", exact: true })
           .element(),
       ).toBeDefined();
       expect(editor.isEditable).toBe(false);
@@ -943,7 +1011,7 @@ describe("VersioningSidebar", () => {
       expect(fake.endpoints.list).toHaveBeenCalledTimes(1);
       await commit(nameInput(rows()[rowIndex]!), "Unsaved milestone", "Enter");
       expect(fake.endpoints[operation]).toHaveBeenCalledTimes(2);
-      expect(fake.endpoints.list).toHaveBeenCalledTimes(2);
+      expect(fake.endpoints.list).toHaveBeenCalledOnce();
       expect(page.getByRole("alert").query()).toBeNull();
       expect(
         operation === "create"
@@ -1010,9 +1078,7 @@ describe("VersioningSidebar", () => {
       page.getByText("Comparing to", { exact: true }).element(),
     ).toBeDefined();
     expect(
-      page
-        .getByRole("button", { name: "Turn off comparison", exact: true })
-        .element(),
+      page.getByRole("button", { name: "Hide changes", exact: true }).element(),
     ).toBeDefined();
 
     await click(
@@ -1067,9 +1133,7 @@ describe("VersioningSidebar", () => {
     });
     expect(fake.endpoints.getContent).toHaveBeenCalled();
     expect(
-      page
-        .getByRole("button", { name: "Turn off comparison", exact: true })
-        .element(),
+      page.getByRole("button", { name: "Hide changes", exact: true }).element(),
     ).toBeDefined();
 
     // Selecting the source again keeps the chronological comparison.
@@ -1362,16 +1426,21 @@ describe("VersioningSidebar", () => {
       expect(rows()).toHaveLength(4);
     });
 
-    it("refreshes history after creating a checkpoint", async () => {
+    it("keeps a created checkpoint locally until history is refreshed", async () => {
       const fake = createFakeEndpoints();
       fake.endpoints.create.mockImplementation(async (_doc, name) => {
         return success({ id: "new", createdAt: 2500, name });
       });
 
-      await setup({}, fake);
+      const { editor } = await setup({}, fake);
       await commit(nameInput(rows()[0]!), "Milestone", "Enter");
 
       expect(nameInput(rows()[0]!).value).toBe("");
+      expect(rows()).toHaveLength(4);
+      expect(fake.endpoints.list).toHaveBeenCalledOnce();
+      await act(async () => {
+        await mode(editor).loadMore();
+      });
       expect(rows()).toHaveLength(3);
       expect(fake.endpoints.list).toHaveBeenCalledTimes(2);
     });
@@ -1427,7 +1496,7 @@ describe("VersioningSidebar", () => {
     );
 
     it("preserves a newer naming draft when a pending rename succeeds and refreshes", async () => {
-      const { fake } = await setup();
+      const { fake, editor } = await setup();
       await click(rows()[1]!);
       const { promise: pendingRename, resolve: finishRename } =
         deferred<void>();
@@ -1448,12 +1517,20 @@ describe("VersioningSidebar", () => {
       expect(document.activeElement).toBe(input);
 
       await act(async () => finishRename());
+      expect(fake.endpoints.list).toHaveBeenCalledOnce();
+      let loading!: ReturnType<ReturnType<typeof mode>["loadMore"]>;
+      await act(async () => {
+        loading = mode(editor).loadMore();
+      });
       expect(fake.endpoints.list).toHaveBeenCalledTimes(2);
       expect(nameInput(rows()[1]!)).toBe(input);
       expect(input.value).toBe("Draft B");
       expect(document.activeElement).toBe(input);
 
-      await act(async () => releaseHistory());
+      await act(async () => {
+        releaseHistory();
+        await loading;
+      });
       expect(nameInput(rows()[1]!)).toBe(input);
       expect(input.value).toBe("Draft B");
       expect(document.activeElement).toBe(input);
@@ -1697,28 +1774,211 @@ describe("VersioningSidebar", () => {
   // Keyboard
   // -------------------------------------------------------------------------
 
-  it("moves through the list with the arrow keys and selects with Enter", async () => {
+  it("scrubs previews with arrow keys, Home and End without wrapping", async () => {
     const { editor } = await setup();
 
-    rows()[0]!.focus();
+    expect(document.activeElement).toBe(rows()[0]);
     await act(async () => userEvent.keyboard("{ArrowDown}"));
     expect(document.activeElement).toBe(rows()[1]);
+    expect(viewState(mode(editor))).toMatchObject({ snapshotId: NAMED.id });
+    expect(rows()[1]!.getAttribute("aria-current")).toBe("true");
 
     await act(async () => userEvent.keyboard("{End}"));
     expect(document.activeElement).toBe(rows()[2]);
+    expect(viewState(mode(editor))).toMatchObject({ snapshotId: AUTOMATIC.id });
+    await act(async () => userEvent.keyboard("{ArrowDown}"));
+    expect(document.activeElement).toBe(rows()[2]);
+    expect(rows()[2]!.getAttribute("aria-current")).toBe("true");
 
     await act(async () => userEvent.keyboard("{Home}"));
     expect(document.activeElement).toBe(rows()[0]);
+    expect(viewState(mode(editor)).mode).toBe("current");
+    await act(async () => userEvent.keyboard("{ArrowUp}"));
+    expect(document.activeElement).toBe(rows()[0]);
+    expect(rows()[0]!.getAttribute("aria-current")).toBe("true");
 
     await act(async () => userEvent.keyboard("{ArrowDown}"));
+    await act(async () => userEvent.keyboard("{ArrowDown}{ArrowUp}"));
+    expect(document.activeElement).toBe(rows()[1]);
+    expect(viewState(mode(editor))).toMatchObject({ snapshotId: NAMED.id });
     await act(async () => userEvent.keyboard("{Enter}"));
-    await act(async () => {});
+    await act(async () => userEvent.keyboard(" "));
 
     expect(viewState(mode(editor))).toEqual({
       mode: "snapshot",
       snapshotId: NAMED.id,
       compareToId: undefined,
     });
+  });
+
+  it.each([false, true])(
+    "waits for older pages before scrubbing past loaded history, namedOnly=%s",
+    async (namedOnly) => {
+      const olderPage = deferred<VersionResult<VersionSnapshotPage>>();
+      const start = { id: "first", createdAt: 0, name: "Beginning" };
+      const older = { id: "older", createdAt: 500, name: "Earlier" };
+      const fake = createFakeEndpoints(undefined, true);
+      fake.setSnapshots([NAMED, AUTOMATIC, older, start]);
+      const list = vi
+        .fn<VersionStorage<unknown[], unknown>["list"]>()
+        .mockResolvedValueOnce(
+          success({
+            snapshots: [NAMED, AUTOMATIC, start],
+            nextCursor: "hidden",
+          }),
+        )
+        .mockReturnValueOnce(olderPage.promise)
+        .mockResolvedValueOnce(success({ snapshots: [older] }));
+      const editor = createEditor({ ...fake.endpoints, list });
+      render(
+        <VersioningTestView editor={editor}>
+          <VersioningSidebar defaultNamedOnly={namedOnly} />
+        </VersioningTestView>,
+      );
+      await act(async () => {});
+      const index = namedOnly ? 1 : 2;
+      const selected = namedOnly ? NAMED : AUTOMATIC;
+      await click(rows()[index]!);
+      act(() => rows()[index]!.focus());
+      await act(async () => userEvent.keyboard("{ArrowDown}{ArrowDown}"));
+      expect(document.activeElement).toBe(rows()[index]);
+      expect(viewState(mode(editor))).toMatchObject({
+        snapshotId: selected.id,
+      });
+
+      // A page containing no new visible rows must not consume the arrow press.
+      await act(async () =>
+        olderPage.resolve(
+          success({ snapshots: [AUTOMATIC], nextCursor: "older" }),
+        ),
+      );
+      await vi.waitFor(() =>
+        expect(viewState(mode(editor))).toMatchObject({ snapshotId: older.id }),
+      );
+      expect(document.activeElement).toBe(rows()[index + 1]);
+      await act(async () => userEvent.keyboard("{ArrowDown}"));
+      expect(viewState(mode(editor))).toMatchObject({ snapshotId: start.id });
+    },
+  );
+
+  it("cancels navigation across a pending page when moving elsewhere", async () => {
+    const olderPage = deferred<VersionResult<VersionSnapshotPage>>();
+    const start = { id: "first", createdAt: 0, name: "Beginning" };
+    const older = { id: "older", createdAt: 500, name: "Earlier" };
+    const fake = createFakeEndpoints(undefined, true);
+    fake.setSnapshots([NAMED, AUTOMATIC, older, start]);
+    const list = vi
+      .fn<VersionStorage<unknown[], unknown>["list"]>()
+      .mockResolvedValueOnce(
+        success({ snapshots: [NAMED, AUTOMATIC, start], nextCursor: "older" }),
+      )
+      .mockReturnValueOnce(olderPage.promise);
+    const editor = createEditor({ ...fake.endpoints, list });
+    render(
+      <VersioningTestView editor={editor}>
+        <VersioningSidebar />
+      </VersioningTestView>,
+    );
+    await act(async () => {});
+    await click(rows()[2]!);
+    act(() => rows()[2]!.focus());
+    await act(async () => userEvent.keyboard("{ArrowDown}{ArrowUp}"));
+    await act(async () => olderPage.resolve(success({ snapshots: [older] })));
+    expect(document.activeElement).toBe(rows()[1]);
+    expect(viewState(mode(editor))).toMatchObject({ snapshotId: NAMED.id });
+  });
+
+  it("scrubs only visible named rows and retains comparison at either end", async () => {
+    const fake = createFakeEndpoints();
+    const older = { id: "older", createdAt: 500, name: "First draft" };
+    fake.setSnapshots([NAMED, AUTOMATIC, older]);
+    const { editor } = await setup(
+      { defaultNamedOnly: true, defaultComparisonMode: true },
+      fake,
+    );
+    act(() => rows()[0]!.focus());
+    await act(async () => userEvent.keyboard("{ArrowDown}"));
+    expect(document.activeElement).toBe(rows()[1]);
+    expect(viewState(mode(editor))).toEqual({
+      mode: "snapshot",
+      snapshotId: NAMED.id,
+      compareToId: older.id,
+    });
+    await act(async () => userEvent.keyboard("{ArrowDown}"));
+    expect(document.activeElement).toBe(rows()[2]);
+    expect(viewState(mode(editor))).toEqual({
+      mode: "snapshot",
+      snapshotId: older.id,
+      compareToId: undefined,
+    });
+    await act(async () => userEvent.keyboard("{ArrowUp}"));
+    expect(document.activeElement).toBe(rows()[1]);
+    expect(viewState(mode(editor))).toMatchObject({
+      snapshotId: NAMED.id,
+      compareToId: older.id,
+    });
+  });
+
+  it("moves the comparison baseline with the pending keyboard selection", async () => {
+    const { editor, fake } = await setup({ defaultComparisonMode: true });
+    const slow = deferred<VersionResult<unknown[]>>();
+    fake.endpoints.getContent.mockReturnValueOnce(slow.promise);
+    act(() => rows()[0]!.focus());
+    await act(async () => userEvent.keyboard("{ArrowDown}"));
+
+    expect(rows()[1]!.getAttribute("aria-current")).toBe("true");
+    expect(rows()[2]!.textContent).toContain("Comparing to");
+    expect(viewState(mode(editor)).mode).toBe("current");
+
+    await act(async () => userEvent.keyboard("{ArrowDown}"));
+    expect(rows()[2]!.getAttribute("aria-current")).toBe("true");
+    expect(page.getByText("Comparing to", { exact: true }).query()).toBeNull();
+
+    await act(async () => slow.resolve(success([])));
+    expect(rows()[2]!.getAttribute("aria-current")).toBe("true");
+    expect(page.getByText("Comparing to", { exact: true }).query()).toBeNull();
+  });
+
+  it("keeps the latest scrub selected when older preview loads finish last", async () => {
+    const { editor, fake } = await setup();
+    const slow = deferred<VersionResult<unknown[]>>();
+    fake.endpoints.getContent.mockReturnValueOnce(slow.promise);
+    act(() => rows()[0]!.focus());
+    await act(async () => userEvent.keyboard("{ArrowDown}"));
+    expect(document.activeElement).toBe(rows()[1]);
+    expect(fake.endpoints.getContent).toHaveBeenCalledWith(
+      NAMED.id,
+      expect.any(AbortSignal),
+    );
+    await act(async () => userEvent.keyboard("{ArrowDown}"));
+    expect(document.activeElement).toBe(rows()[2]);
+    expect(viewState(mode(editor))).toMatchObject({ snapshotId: AUTOMATIC.id });
+    await act(async () => slow.resolve(success([])));
+    expect(document.activeElement).toBe(rows()[2]);
+    expect(rows()[2]!.getAttribute("aria-current")).toBe("true");
+    expect(viewState(mode(editor))).toMatchObject({ snapshotId: AUTOMATIC.id });
+  });
+
+  it("leaves rename and menu keys to their controls", async () => {
+    const { editor, fake } = await setup();
+    await click(rows()[1]!);
+    const input = nameInput(rows()[1]!);
+    await click(input);
+    await act(async () =>
+      userEvent.keyboard("{ArrowDown}{ArrowUp}{Home}{End} "),
+    );
+    expect(document.activeElement).toBe(input);
+    expect(viewState(mode(editor))).toMatchObject({ snapshotId: NAMED.id });
+    await act(async () => userEvent.keyboard("{Escape}"));
+    fake.endpoints.getContent.mockClear();
+    const item = await openMenuItem(rows()[1]!, /^Restore$/);
+    await act(async () => {
+      item.focus();
+      await userEvent.keyboard("{ArrowDown}{ArrowUp}");
+    });
+    expect(document.activeElement?.closest('[role="menu"]')).not.toBeNull();
+    expect(fake.endpoints.getContent).not.toHaveBeenCalled();
+    expect(viewState(mode(editor))).toMatchObject({ snapshotId: NAMED.id });
   });
 
   it("keeps a single tab stop for the whole list", async () => {
@@ -1911,6 +2171,7 @@ describe("VersioningSidebar", () => {
         expect(page.getByRole("list").element().contains(item)).toBe(false);
         expect(editor.isWithinEditor(item)).toBe(true);
         await click(item);
+        await act(async () => {});
 
         expect(rows()).toHaveLength(2);
         expect(document.activeElement).toBe(nextRow);
@@ -1922,13 +2183,14 @@ describe("VersioningSidebar", () => {
       const { editor } = await setup();
       const item = await openMenuItem(rows()[1]!, /^Delete$/);
       const close = page
-        .getByRole("button", { name: "Turn on comparison", exact: true })
+        .getByRole("button", { name: "Show changes", exact: true })
         .element();
       await act(async () => {
         item.focus();
         close.focus();
         close.blur();
         await mode(editor).remove(NAMED.id);
+        await mode(editor).loadMore();
       });
 
       expect(rows()).toHaveLength(2);
@@ -1941,6 +2203,7 @@ describe("VersioningSidebar", () => {
       await act(async () => {
         current.focus();
         await mode(editor).remove(NAMED.id);
+        await mode(editor).loadMore();
       });
 
       expect(document.activeElement).toBe(current);
@@ -1951,8 +2214,9 @@ describe("VersioningSidebar", () => {
       { namedOnly: true, selection: "baseline" },
       { namedOnly: true, selection: "unrelated" },
       { namedOnly: false, selection: "deleted" },
+      { namedOnly: false, selection: "baseline" },
     ] as const)(
-      "keeps selection and comparison when deletion only clears a name ($namedOnly, $selection)",
+      "keeps selection and reconciles the visible baseline when deletion only clears a name ($namedOnly, $selection)",
       async ({ namedOnly, selection }) => {
         const fake = createFakeEndpoints();
         const older = { id: "older", createdAt: 500, name: "First draft" };
@@ -1973,6 +2237,9 @@ describe("VersioningSidebar", () => {
         }
 
         await click(await openMenuItem(rows()[1]!, /^Delete$/));
+        await act(async () => {
+          await ext.loadMore();
+        });
 
         expect(
           ext.store.state.mode === "versions"
@@ -1987,7 +2254,12 @@ describe("VersioningSidebar", () => {
             ? { mode: "snapshot", snapshotId: NAMED.id, compareToId: undefined }
             : {
                 mode: "current",
-                compareToId: selection === "baseline" ? older.id : undefined,
+                compareToId:
+                  selection === "baseline"
+                    ? namedOnly
+                      ? older.id
+                      : NAMED.id
+                    : undefined,
               },
         );
         expect(
@@ -2075,7 +2347,7 @@ describe("VersioningSidebar", () => {
         } else {
           await click(
             page.getByRole("button", {
-              name: comparison ? "Turn off comparison" : "Turn on comparison",
+              name: comparison ? "Hide changes" : "Show changes",
               exact: true,
             }),
           );
@@ -2203,14 +2475,10 @@ describe("VersioningSidebar", () => {
         compareToId: undefined,
       });
       expect(
-        page
-          .getByRole("button", { name: "Turn on comparison", exact: true })
-          .query(),
+        page.getByRole("button", { name: "Show changes", exact: true }).query(),
       ).not.toBeNull();
       expect(
-        page
-          .getByRole("button", { name: "Turn off comparison", exact: true })
-          .query(),
+        page.getByRole("button", { name: "Hide changes", exact: true }).query(),
       ).toBeNull();
       expect(rows()).toHaveLength(3);
       expect(page.getByRole("status").query()).toBeNull();
@@ -2318,6 +2586,7 @@ describe("VersioningSidebar", () => {
     act(() => rows()[1]!.focus());
     await act(async () => {
       await mode(editor).remove(NAMED.id);
+      await mode(editor).loadMore();
     });
     expect(document.activeElement).toBe(rows()[1]);
   });
@@ -2325,7 +2594,7 @@ describe("VersioningSidebar", () => {
   it("does not steal focus after a removed version has been left", async () => {
     const { editor } = await setup({ onClose: () => {} });
     const control = page
-      .getByRole("button", { name: "Turn on comparison", exact: true })
+      .getByRole("button", { name: "Show changes", exact: true })
       .element();
     act(() => {
       rows()[1]!.focus();
@@ -2333,18 +2602,32 @@ describe("VersioningSidebar", () => {
     });
     await act(async () => {
       await mode(editor).remove(NAMED.id);
+      await mode(editor).loadMore();
     });
     expect(document.activeElement).toBe(control);
+  });
+
+  it("hides the named-version filter when storage cannot rename versions", async () => {
+    const { endpoints } = createFakeEndpoints();
+    const editor = createEditor({ ...endpoints, rename: undefined });
+    render(
+      <VersioningTestView editor={editor}>
+        <VersioningSidebar />
+      </VersioningTestView>,
+    );
+    await act(async () => {});
+
+    expect(mode(editor).canRename).toBe(false);
+    expect(
+      page.getByRole("button", { name: "Show named versions only" }).elements(),
+    ).toHaveLength(0);
+    expect(rows()).toHaveLength(3);
   });
 
   it("gives every header control an accessible name", async () => {
     await setup({ onClose: () => {} });
 
-    for (const name of [
-      "Show named versions only",
-      "Turn on comparison",
-      "Close",
-    ]) {
+    for (const name of ["Show named versions only", "Show changes", "Close"]) {
       expect(
         page.getByRole("button", { name, exact: true }).element(),
       ).toBeDefined();

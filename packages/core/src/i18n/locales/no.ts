@@ -1,6 +1,12 @@
 import { Dictionary } from "../dictionary.js";
 
 export const no: Dictionary = {
+  locale: "no",
+  emoji_picker: {
+    search: "Søk",
+    search_no_results: "Ingen emoji funnet",
+    loading: "Laster inn…",
+  },
   slash_menu: {
     heading: {
       title: "Overskrift 1",
@@ -443,8 +449,8 @@ export const no: Dictionary = {
     close: "Lukk",
     show_named_only: "Vis bare navngitte versjoner",
     show_all: "Vis alle versjoner",
-    comparison_on: "Slå på sammenligning",
-    comparison_off: "Slå av sammenligning",
+    comparison_on: "Vis endringer",
+    comparison_off: "Skjul endringer",
     versions_list: "Versjoner",
     empty: "Ingen versjoner ennå",
     empty_named_only: "Ingen navngitte versjoner",

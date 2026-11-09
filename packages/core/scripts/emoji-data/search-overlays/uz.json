@@ -1,0 +1,7430 @@
+{
+  "😀": {
+    "name": "tishlarini ko'rsatib kulayotgan yuz",
+    "keywords": ["xursand", "kulgi", "tabassum"]
+  },
+  "😃": {
+    "name": "katta ko'zli kulayotgan yuz",
+    "keywords": ["ajoyib", "tabassum", "xursand"]
+  },
+  "😄": {
+    "name": "kulgan ko'zli kulayotgan yuz",
+    "keywords": ["ko'z", "kulgi", "tabassum"]
+  },
+  "😁": {
+    "name": "charaqlagan ko'zli tabassum",
+    "keywords": ["ko'z", "tabassum", "xursand"]
+  },
+  "😆": {
+    "name": "qisilgan ko'zli kulgan yuz",
+    "keywords": ["yopiq", "ko'z", "kulgi", "tabassum"]
+  },
+  "😅": {
+    "name": "ter bilan kulayotgan yuz",
+    "keywords": ["sovuq", "asabiy", "tabassum"]
+  },
+  "🤣": {
+    "name": "yerda dumalab kulish",
+    "keywords": ["kulgi", "yig'lash", "baxtli"]
+  },
+  "😂": {
+    "name": "xursandchilik ko'z yoshli yuz",
+    "keywords": ["yig'lash", "kulgi", "baxtli", "kulish"]
+  },
+  "🙂": {
+    "name": "biroz kulgan yuz",
+    "keywords": ["xursand", "tabassum"]
+  },
+  "🙃": {
+    "name": "teskari yuz",
+    "keywords": ["tabassum"]
+  },
+  "🫠": {
+    "name": "eriyotgan yuz",
+    "keywords": ["eriyotgan", "issiq", "kulgi"]
+  },
+  "😉": {
+    "name": "ko'z qisish",
+    "keywords": ["flirt", "hazil", "ko'z qisish"]
+  },
+  "😊": {
+    "name": "uyalinqirab kulayotgan yuz",
+    "keywords": ["uyalish", "ko'z", "mamnun", "tabassum"]
+  },
+  "😇": {
+    "name": "halolik bilan tabassum",
+    "keywords": ["farishta", "baxtli", "tabassum"]
+  },
+  "🥰": {
+    "name": "yuraklar bilan tabassum",
+    "keywords": ["sevgi", "hayrat", "xursand", "tabassum"]
+  },
+  "😍": {
+    "name": "ko'zlari yurak shaklidagi tabassum",
+    "keywords": ["sevgi", "bo'sa", "tabassum"]
+  },
+  "🤩": {
+    "name": "hayratlangan yuz",
+    "keywords": ["hayajon", "ko'z", "yuz", "yulduz"]
+  },
+  "😘": {
+    "name": "bo'sa yuborayotgan yuz",
+    "keywords": ["sevgi", "bo'sa", "flirt"]
+  },
+  "😗": {
+    "name": "o'payotgan yuz",
+    "keywords": ["sevgi", "bo'sa", "flirt"]
+  },
+  "☺️": {
+    "name": "tabassum belgisi",
+    "keywords": ["xursand", "tabassum"]
+  },
+  "😚": {
+    "name": "yumilgan ko'zli o'payotgan yuz",
+    "keywords": ["bo'sa", "sevgi", "flirt"]
+  },
+  "😙": {
+    "name": "kulgan ko'zli o'payotgan yuz",
+    "keywords": ["bo'sa", "sevgi", "tabassum"]
+  },
+  "🥲": {
+    "name": "ko'z yoshli tabassum",
+    "keywords": ["minnatdorchilik", "xursand", "shodlik"]
+  },
+  "😋": {
+    "name": "taomdan totib ko'rayotgan yuz",
+    "keywords": ["mazali", "to'q", "och", "totish"]
+  },
+  "😛": {
+    "name": "tilini ko'rsatgan yuz",
+    "keywords": ["ajoyib", "salqin"]
+  },
+  "😜": {
+    "name": "ko'z qisib til ko'rsatgan yuz",
+    "keywords": ["hazil", "aqldan ozgan"]
+  },
+  "🤪": {
+    "name": "aqldan ozgan yuz",
+    "keywords": ["ko'z"]
+  },
+  "😝": {
+    "name": "qisilgan ko'zli til ko'rsatgan yuz",
+    "keywords": ["jirkanch", "dahshatli"]
+  },
+  "🤑": {
+    "name": "pul og'iz yuz",
+    "keywords": ["pul", "to'lov"]
+  },
+  "🤗": {
+    "name": "ochiq qo'lli tabassum",
+    "keywords": ["quchoq"]
+  },
+  "🤭": {
+    "name": "og'zini yopgan yuz",
+    "keywords": ["kulgi", "uyalish", "sir"]
+  },
+  "🫢": {
+    "name": "hayrat va qo'l og'zida yuz",
+    "keywords": ["hayrat", "hayron", "shok"]
+  },
+  "🫣": {
+    "name": "ko'z mo'ralayotgan yuz",
+    "keywords": ["mo'ralash", "uyalish", "yashirinish"]
+  },
+  "🤫": {
+    "name": "jimlik ishorasi qilayotgan yuz",
+    "keywords": ["jim", "shh"]
+  },
+  "🤔": {
+    "name": "fikrlayotgan yuz",
+    "keywords": ["iyak", "o'ylash"]
+  },
+  "🫡": {
+    "name": "salyut beruvchi yuz",
+    "keywords": ["omad", "hurmat", "salyut"]
+  },
+  "🤐": {
+    "name": "pilik og'iz yuz",
+    "keywords": ["jim", "maxfiy"]
+  },
+  "🤨": {
+    "name": "qoshini ko'targan yuz",
+    "keywords": ["ishonmaslik", "shubha"]
+  },
+  "😐️": {
+    "name": "neytral yuz",
+    "keywords": ["qoqilgan", "bo'sh", "hissiz"]
+  },
+  "😑": {
+    "name": "hissiz yuz",
+    "keywords": ["qoqilgan", "o'lik", "hissiz"]
+  },
+  "😶": {
+    "name": "og'zi yo'q yuz",
+    "keywords": ["qoqilgan", "jim", "maxfiy"]
+  },
+  "🫥": {
+    "name": "nuqtali chiziqli yuz",
+    "keywords": ["depressiya", "yashirin", "ko'rinmas"]
+  },
+  "😶‍🌫️": {
+    "name": "bulutlar ichidagi yuz",
+    "keywords": ["esdan chiqargan", "tuman"]
+  },
+  "😏": {
+    "name": "kesatiqli tabassum",
+    "keywords": ["maqtanchoq", "hazil", "kesatiq"]
+  },
+  "😒": {
+    "name": "zerikkan yuz",
+    "keywords": ["zerikkan", "baxtsiz"]
+  },
+  "🙄": {
+    "name": "ko'zlarini aylantirgan yuz",
+    "keywords": ["kesatiq", "hafsalasi pir bo'lgan"]
+  },
+  "😬": {
+    "name": "tirjaygan yuz",
+    "keywords": ["qiyin ahvol", "tabassum"]
+  },
+  "😮‍💨": {
+    "name": "nafas chiqarayotgan yuz",
+    "keywords": ["nafas", "charchagan", "xo'rsinish"]
+  },
+  "🤥": {
+    "name": "yolg'on gapirayotgan yuz",
+    "keywords": ["yolg'onchi", "yolg'on"]
+  },
+  "🫨": {
+    "name": "titrayotgan yuz",
+    "keywords": ["hayajon", "zilzila", "shok"]
+  },
+  "🙂‍↔️": {
+    "name": "boshini gorizontal chayqash",
+    "keywords": ["yo'q", "chayqash"]
+  },
+  "🙂‍↕️": {
+    "name": "boshini vertikal chayqash",
+    "keywords": ["ha", "bosh irg'ash"]
+  },
+  "😌": {
+    "name": "yengil tortgan yuz",
+    "keywords": ["tinchlanish", "osoyishtalik"]
+  },
+  "😔": {
+    "name": "xomush yuz",
+    "keywords": ["zerikkan", "xafa", "umidsiz"]
+  },
+  "😪": {
+    "name": "uyquchan yuz",
+    "keywords": ["yig'lash", "uyqu", "charchagan"]
+  },
+  "😴": {
+    "name": "uxlayotgan yuz",
+    "keywords": ["karovat", "uyqu", "charchagan"]
+  },
+  "🫩": {
+    "name": "ko'z ostida qop-qop bo'lgan yuz",
+    "keywords": ["charchagan", "uyquchan"]
+  },
+  "😷": {
+    "name": "tibbiy niqobli yuz",
+    "keywords": ["sovuq", "shifokor", "kasal"]
+  },
+  "🤒": {
+    "name": "termometrli yuz",
+    "keywords": ["kasal"]
+  },
+  "🤕": {
+    "name": "boshi bog'langan yuz",
+    "keywords": ["bandaj", "jarohat"]
+  },
+  "🤢": {
+    "name": "ko'ngli aynagan yuz",
+    "keywords": ["bezgak", "kasal"]
+  },
+  "🤮": {
+    "name": "qusayotgan yuz",
+    "keywords": ["kasal", "qusish"]
+  },
+  "🤧": {
+    "name": "aksirayotgan yuz",
+    "keywords": ["bezgak", "kasal", "aksirish"]
+  },
+  "🥵": {
+    "name": "issiq yuz",
+    "keywords": ["issiqlik", "terlash"]
+  },
+  "🥶": {
+    "name": "sovuq yuz",
+    "keywords": ["ko'k", "muzlash"]
+  },
+  "🥴": {
+    "name": "boshi aylangan yuz",
+    "keywords": ["mast", "boshi aylanish"]
+  },
+  "😵": {
+    "name": "ko'zlari xoch bo'lgan yuz",
+    "keywords": ["to'lik", "charchagan", "kasal"]
+  },
+  "😵‍💫": {
+    "name": "spiral ko'zli yuz",
+    "keywords": ["chalkash", "boshi aylanish"]
+  },
+  "🤯": {
+    "name": "portlagan bosh",
+    "keywords": ["portlash", "hayajon", "hayrat"]
+  },
+  "🤠": {
+    "name": "kovboy shlyapali yuz",
+    "keywords": ["kovgerl"]
+  },
+  "🥳": {
+    "name": "bayram qilayotgan yuz",
+    "keywords": ["bayram", "hayajon", "shodlik"]
+  },
+  "🥸": {
+    "name": "niqoblangan yuz",
+    "keywords": ["niqob", "ko'zoynak", "mo'ylov"]
+  },
+  "😎": {
+    "name": "quyosh ko'zoynakli tabassum",
+    "keywords": ["ajoyib", "salqin", "tabassum"]
+  },
+  "🤓": {
+    "name": "xufyaxon yuz",
+    "keywords": ["aqlli", "ko'zoynak", "iste'dodli"]
+  },
+  "🧐": {
+    "name": "monokl bilan yuz",
+    "keywords": ["nafis", "boy"]
+  },
+  "😕": {
+    "name": "hayron yuz",
+    "keywords": ["adashgan", "tushunmagan"]
+  },
+  "🫤": {
+    "name": "diagonal og'izli yuz",
+    "keywords": ["chalkash", "shubha", "umidsizlik"]
+  },
+  "😟": {
+    "name": "xavotirli yuz",
+    "keywords": ["asabiy", "xavotir"]
+  },
+  "🙁": {
+    "name": "biroz xafa yuz",
+    "keywords": ["xafa", "qayg'uli"]
+  },
+  "☹️": {
+    "name": "xafa yuz",
+    "keywords": ["xafa"]
+  },
+  "😮": {
+    "name": "og'zi ochiq yuz",
+    "keywords": ["ishonmagan", "hayron", "hayrat"]
+  },
+  "😯": {
+    "name": "hayajondan qotib qolgan yuz",
+    "keywords": ["hayrat", "hayron"]
+  },
+  "😲": {
+    "name": "lol qolgan yuz",
+    "keywords": ["hayron", "hayrat"]
+  },
+  "😳": {
+    "name": "qizargan yuz",
+    "keywords": ["hayratlangan", "noqulay", "issiq"]
+  },
+  "🥺": {
+    "name": "iltijo qilayotgan yuz",
+    "keywords": ["iltijo", "katta ko'z", "rahm"]
+  },
+  "🥹": {
+    "name": "ko'z yoshini ushlab turgan yuz",
+    "keywords": ["hayrat", "minnatdorchilik", "ta'sirlangan"]
+  },
+  "😦": {
+    "name": "og'zi ochiq ajablangan yuz",
+    "keywords": ["hayron", "qo'rquv", "hayrat"]
+  },
+  "😧": {
+    "name": "azob chekayotgan yuz",
+    "keywords": ["qo'rqqan", "stress", "hayrat"]
+  },
+  "😨": {
+    "name": "qo'rqqan yuz",
+    "keywords": ["qo'rquv", "xavotir"]
+  },
+  "😰": {
+    "name": "asabiy ter to'kayotgan yuz",
+    "keywords": ["ko'k", "sovuq", "qo'rqqan"]
+  },
+  "😥": {
+    "name": "xotirjam bo'lgan xafa yuz",
+    "keywords": ["xavotir", "murakkab", "ter"]
+  },
+  "😢": {
+    "name": "yig'lagan yuz",
+    "keywords": ["yig'lash", "qayg'uli", "his"]
+  },
+  "😭": {
+    "name": "baland ovozda yig'layotgan yuz",
+    "keywords": ["ing'illash", "yig'lash", "qayg'uli"]
+  },
+  "😱": {
+    "name": "qo'rquvdan qichqirayotgan yuz",
+    "keywords": ["qo'rquv", "qichqiriq", "hayrat"]
+  },
+  "😖": {
+    "name": "sarosimaga tushgan yuz",
+    "keywords": ["jahldor", "xafa", "chalkash"]
+  },
+  "😣": {
+    "name": "sabr-toqatli yuz",
+    "keywords": ["konsentratsiya", "diqqat"]
+  },
+  "😞": {
+    "name": "xafa yuz",
+    "keywords": ["umidsiz", "xafa"]
+  },
+  "😓": {
+    "name": "sovuq ter to'kayotgan yuz",
+    "keywords": ["asabiy", "qo'rqqan", "xafa"]
+  },
+  "😩": {
+    "name": "charchagan yuz",
+    "keywords": ["yig'lash", "jahl", "uyquchan"]
+  },
+  "😫": {
+    "name": "horigan yuz",
+    "keywords": ["uyqu", "aksirish"]
+  },
+  "🥱": {
+    "name": "esnayotgan yuz",
+    "keywords": ["zerikkan", "uyqu", "esnash"]
+  },
+  "😤": {
+    "name": "burnidan bug' chiqayotgan yuz",
+    "keywords": ["jahl", "g'azab", "g'olib"]
+  },
+  "😡": {
+    "name": "g'azablangan yuz",
+    "keywords": ["jahl", "g'azab", "qizil"]
+  },
+  "😠": {
+    "name": "jahldor yuz",
+    "keywords": ["jahl", "g'azab"]
+  },
+  "🤬": {
+    "name": "belgili og'izli yuz",
+    "keywords": ["so'kish", "jahl"]
+  },
+  "😈": {
+    "name": "shoxli tabassum",
+    "keywords": ["dev", "shayton", "yovuzlik", "tabassum"]
+  },
+  "👿": {
+    "name": "shoxli jahldor yuz",
+    "keywords": ["dev", "shayton", "yovuzlik", "ertak", "fantastika"]
+  },
+  "💀": {
+    "name": "bosh suyagi",
+    "keywords": [
+      "tana",
+      "o'lik",
+      "o'lim",
+      "yuz",
+      "ertak",
+      "fantastika",
+      "mahluq"
+    ]
+  },
+  "☠️": {
+    "name": "bosh suyagi va suyaklar",
+    "keywords": ["suyak", "o'lik", "o'lim"]
+  },
+  "💩": {
+    "name": "axlat uyumi",
+    "keywords": ["axlat", "komiks", "qo'ng'ir", "hid"]
+  },
+  "👹": {
+    "name": "ogr",
+    "keywords": [
+      "jonzot",
+      "shayton",
+      "yuz",
+      "ertak",
+      "fantastika",
+      "niqob",
+      "mahluq",
+      "qo'rqinchli"
+    ]
+  },
+  "👺": {
+    "name": "goblin",
+    "keywords": [
+      "jahldor",
+      "jonzot",
+      "yuz",
+      "ertak",
+      "fantastika",
+      "niqob",
+      "mahluq"
+    ]
+  },
+  "👻": {
+    "name": "arvoh",
+    "keywords": [
+      "jonzot",
+      "hayajonlangan",
+      "yuz",
+      "ertak",
+      "fantastika",
+      "xellouin",
+      "mahluq",
+      "qo'rqinchli"
+    ]
+  },
+  "👽️": {
+    "name": "begona sayyoralik",
+    "keywords": ["jonzot", "yuz", "ertak", "fantastika", "kosmos"]
+  },
+  "👾": {
+    "name": "begona sayyoralik mahluq",
+    "keywords": ["jonzot", "yuz", "ertak", "fantastika", "o'yin", "kosmos"]
+  },
+  "🤖": {
+    "name": "robot",
+    "keywords": ["yuz", "mahluq"]
+  },
+  "😺": {
+    "name": "kulgan mushuk",
+    "keywords": ["hayvon", "yuz", "og'iz", "tabassum"]
+  },
+  "😸": {
+    "name": "kulgan ko'zli mushuk",
+    "keywords": ["hayvon", "ko'z", "yuz", "tabassum"]
+  },
+  "😹": {
+    "name": "xursandchilik ko'z yoshli mushuk",
+    "keywords": ["hayvon", "yuz", "kulgi"]
+  },
+  "😻": {
+    "name": "ko'zlari yurak shaklidagi mushuk",
+    "keywords": ["hayvon", "ko'z", "yuz", "sevgi"]
+  },
+  "😼": {
+    "name": "istehzoli mushuk",
+    "keywords": ["hayvon", "yuz", "kesatiq"]
+  },
+  "😽": {
+    "name": "o'payotgan mushuk",
+    "keywords": ["hayvon", "yopiq", "ko'z", "yuz", "bo'sa"]
+  },
+  "🙀": {
+    "name": "charchagan mushuk",
+    "keywords": ["hayvon", "yuz", "hayron"]
+  },
+  "😿": {
+    "name": "yig'layotgan mushuk",
+    "keywords": ["hayvon", "yig'lash", "yuz", "qayg'uli"]
+  },
+  "😾": {
+    "name": "dimog'dor mushuk",
+    "keywords": ["hayvon", "yuz"]
+  },
+  "🙈": {
+    "name": "yomonlikni ko'rmaydigan maymun",
+    "keywords": ["uyalgan", "yovuz", "yuz", "yashirinish"]
+  },
+  "🙉": {
+    "name": "yomonlikni eshitmaydigan maymun",
+    "keywords": ["hayvon", "quloq", "yovuz", "yuz", "eshitish"]
+  },
+  "🙊": {
+    "name": "yomonlikni gapirmaydigan maymun",
+    "keywords": ["hayvon", "yovuz", "yuz", "jim"]
+  },
+  "💌": {
+    "name": "sevgi maktubi",
+    "keywords": ["yurak", "pochta", "romantika"]
+  },
+  "💘": {
+    "name": "o'q otilgan yurak",
+    "keywords": ["kupidon", "uchrashuv", "his", "sevgi", "romantika"]
+  },
+  "💝": {
+    "name": "lentali yurak",
+    "keywords": ["yubiley", "his", "sevgi"]
+  },
+  "💖": {
+    "name": "charaqlagan yurak",
+    "keywords": ["his", "hayajonlangan", "yaxshi", "charaqlash"]
+  },
+  "💗": {
+    "name": "o'suvchi yurak",
+    "keywords": ["his", "hayajonlangan", "puls", "asabiy"]
+  },
+  "💓": {
+    "name": "urib turgan yurak",
+    "keywords": ["yurak urishi", "sevgi", "puls"]
+  },
+  "💞": {
+    "name": "aylanuvchi yuraklar",
+    "keywords": ["yubiley", "his", "yurak"]
+  },
+  "💕": {
+    "name": "ikki yurak",
+    "keywords": ["yubiley", "uchrashuv", "his", "sevgi", "bo'sa"]
+  },
+  "💟": {
+    "name": "yurak bezagi",
+    "keywords": ["his", "binafsha", "oq"]
+  },
+  "❣️": {
+    "name": "yurakli undov belgisi",
+    "keywords": ["tinish belgisi"]
+  },
+  "💔": {
+    "name": "sinig'an yurak",
+    "keywords": ["sinish", "his", "qayg'uli", "yolg'iz"]
+  },
+  "❤️‍🔥": {
+    "name": "olovdagi yurak",
+    "keywords": ["sevgi", "kuyish"]
+  },
+  "❤️‍🩹": {
+    "name": "tuzalayotgan yurak",
+    "keywords": ["tuzalish", "yaxshilanish"]
+  },
+  "❤️": {
+    "name": "qizil yurak",
+    "keywords": ["his", "sevgi"]
+  },
+  "💛": {
+    "name": "sariq yurak",
+    "keywords": ["yurak", "his", "sevgi"]
+  },
+  "💚": {
+    "name": "yashil yurak",
+    "keywords": ["his", "sevgi", "romantik"]
+  },
+  "💙": {
+    "name": "ko'k yurak",
+    "keywords": ["his", "sevgi", "romantika"]
+  },
+  "💜": {
+    "name": "binafsha yurak",
+    "keywords": ["his", "sevgi"]
+  },
+  "🖤": {
+    "name": "qora yurak",
+    "keywords": ["yovuz"]
+  },
+  "💋": {
+    "name": "bo'sa izi",
+    "keywords": ["uchrashuv", "his", "yurak", "bo'sa", "lab"]
+  },
+  "💯": {
+    "name": "yuz ball",
+    "keywords": ["100", "to'liq", "to'g'ri", "ball", "haqiqat"]
+  },
+  "💢": {
+    "name": "g'azab belgisi",
+    "keywords": ["jahldor", "komiks", "asabiy"]
+  },
+  "💥": {
+    "name": "to'qnashuv",
+    "keywords": ["bomba", "portlash", "to'qnashish", "komiks"]
+  },
+  "💫": {
+    "name": "boshi aylanish",
+    "keywords": ["komiks", "yulduz", "charaqlash"]
+  },
+  "💦": {
+    "name": "ter tomchilari",
+    "keywords": ["komiks", "tomchi", "suv", "namlangan", "ish", "mashq"]
+  },
+  "💨": {
+    "name": "shoshib ketayotgan",
+    "keywords": ["bulut", "komiks", "tez", "ketish"]
+  },
+  "💬": {
+    "name": "nutq pufakchasi",
+    "keywords": ["pufakcha", "komiks", "dialog", "xabar", "matn"]
+  },
+  "👁️‍🗨️": {
+    "name": "nutq pufakchasidagi ko'z",
+    "keywords": ["pufakcha", "guvoh"]
+  },
+  "🗨️": {
+    "name": "chap nutq pufakchasi",
+    "keywords": ["pufakcha", "dialog"]
+  },
+  "🗯️": {
+    "name": "o'ng g'azab pufakchasi",
+    "keywords": ["jahldor", "pufakcha"]
+  },
+  "💭": {
+    "name": "fikr pufakchasi",
+    "keywords": ["pufakcha", "bulut", "komiks", "orzu", "g'oya", "fikr"]
+  },
+  "💤": {
+    "name": "ZZZ",
+    "keywords": [
+      "komiks",
+      "yaxshi",
+      "tungi tinchlik",
+      "tun",
+      "uyqu",
+      "uyquchan",
+      "charchagan"
+    ]
+  },
+  "👋": {
+    "name": "qo'l silkitish",
+    "keywords": ["salom", "xayr", "qo'l", "to'lqin"]
+  },
+  "🤚": {
+    "name": "orqaga qaytarilgan qo'l",
+    "keywords": ["teskari qo'l"]
+  },
+  "🖐️": {
+    "name": "yozilgan barmoqli qo'l",
+    "keywords": ["barmoq", "to'xta"]
+  },
+  "✋️": {
+    "name": "ko'tarilgan qo'l",
+    "keywords": ["besh", "yuqori", "to'xta"]
+  },
+  "🖖": {
+    "name": "vulkan salomi",
+    "keywords": ["barmoq", "qo'l"]
+  },
+  "🫱": {
+    "name": "o'ngga cho'zilgan qo'l",
+    "keywords": ["qo'l siqish", "qo'l"]
+  },
+  "🫲": {
+    "name": "chapga cho'zilgan qo'l",
+    "keywords": ["qo'l siqish", "qo'l"]
+  },
+  "🫳": {
+    "name": "kaft pastga qaragan qo'l",
+    "keywords": ["rad etish", "tashlash"]
+  },
+  "🫴": {
+    "name": "kaft yuqoriga qaragan qo'l",
+    "keywords": ["chaqirish", "olish", "ko'tarish"]
+  },
+  "🫷": {
+    "name": "chapga surayotgan qo'l",
+    "keywords": ["to'sish", "to'xta", "itarish"]
+  },
+  "🫸": {
+    "name": "o'ngga surayotgan qo'l",
+    "keywords": ["to'sish", "to'xta", "itarish"]
+  },
+  "👌": {
+    "name": "OK ishorasi",
+    "keywords": ["zo'r", "barmoq", "ishora", "qo'l"]
+  },
+  "🤌": {
+    "name": "qisilgan barmoqlar",
+    "keywords": ["ishorat", "qo'l", "sabr"]
+  },
+  "🤏": {
+    "name": "qisayotgan qo'l",
+    "keywords": ["barmoqlar", "kichik", "miqdor"]
+  },
+  "✌️": {
+    "name": "g'alaba qo'li",
+    "keywords": ["tinchlik"]
+  },
+  "🤞": {
+    "name": "chalishtirilgan barmoqlar",
+    "keywords": ["omad", "barmoq", "qo'l"]
+  },
+  "🫰": {
+    "name": "ko'rsatkich va bosh barmoq chalishtirilgan qo'l",
+    "keywords": ["pul", "sevgi"]
+  },
+  "🤟": {
+    "name": "sevgi ishorasi",
+    "keywords": ["barmoq", "qo'l", "sevgi"]
+  },
+  "🤘": {
+    "name": "shoxlar ishorasi",
+    "keywords": ["barmoq", "qo'l", "rok"]
+  },
+  "🤙": {
+    "name": "chaqiring meni ishorasi",
+    "keywords": ["qo'l"]
+  },
+  "👈️": {
+    "name": "orqa tomon chapga ko'rsatuvchi barmoq",
+    "keywords": ["barmoq", "qo'l", "ko'rsatish"]
+  },
+  "👉️": {
+    "name": "orqa tomon o'ngga ko'rsatuvchi barmoq",
+    "keywords": ["barmoq", "qo'l", "ko'rsatish"]
+  },
+  "👆️": {
+    "name": "orqa tomon yuqoriga ko'rsatuvchi barmoq",
+    "keywords": ["barmoq", "qo'l", "ko'rsatish"]
+  },
+  "🖕": {
+    "name": "o'rta barmoq",
+    "keywords": ["qo'l"]
+  },
+  "👇️": {
+    "name": "orqa tomon pastga ko'rsatuvchi barmoq",
+    "keywords": ["barmoq", "qo'l", "ko'rsatish"]
+  },
+  "☝️": {
+    "name": "yuqoriga ko'rsatuvchi barmoq",
+    "keywords": ["barmoq", "qo'l", "ishorat"]
+  },
+  "🫵": {
+    "name": "tomoshabinni ko'rsatuvchi barmoq",
+    "keywords": ["barmoq", "qo'l", "siz"]
+  },
+  "👍️": {
+    "name": "boshbarmoq yuqoriga",
+    "keywords": ["yoqdi", "qo'l", "barmoq", "ha"]
+  },
+  "👎️": {
+    "name": "boshbarmoq pastga",
+    "keywords": ["yoqmadi", "qo'l", "barmoq", "yo'q"]
+  },
+  "✊️": {
+    "name": "ko'tarilgan musht",
+    "keywords": ["qo'l", "birdamlik"]
+  },
+  "👊": {
+    "name": "kelayotgan musht",
+    "keywords": ["qo'l", "musht", "urish", "rozilik"]
+  },
+  "👏": {
+    "name": "qarsak chalayotgan qo'llar",
+    "keywords": ["qarsak", "tabriklash", "qo'l"]
+  },
+  "🙌": {
+    "name": "qo'llarini ko'tarish",
+    "keywords": ["bayram", "ishorat", "qo'l", "olqish"]
+  },
+  "🫶": {
+    "name": "yurak qo'llar",
+    "keywords": ["sevgi", "siz"]
+  },
+  "👐": {
+    "name": "ochiq qo'llar",
+    "keywords": ["qo'l", "quchoq"]
+  },
+  "🤲": {
+    "name": "birlashgan kaftlar",
+    "keywords": ["qo'l", "duo", "tilak"]
+  },
+  "🤝": {
+    "name": "qo'l siqish",
+    "keywords": ["kelishuv", "qo'l", "uchrashuv"]
+  },
+  "🙏": {
+    "name": "qo'llarini birlashtirgan odam",
+    "keywords": ["iltimos", "duo", "qo'l", "minnatdorchilik"]
+  },
+  "✍️": {
+    "name": "yozayotgan qo'l",
+    "keywords": ["yozish"]
+  },
+  "💅": {
+    "name": "tirnoq laki",
+    "keywords": ["kosmetika", "makiyaj", "manikur"]
+  },
+  "🤳": {
+    "name": "selfi",
+    "keywords": ["kamera", "telefon"]
+  },
+  "💪": {
+    "name": "mushaklangan bilak",
+    "keywords": ["qo'l", "mushak", "kuchli", "sport"]
+  },
+  "🦾": {
+    "name": "mexanik qo'l",
+    "keywords": ["imkoniyat", "protez"]
+  },
+  "🦿": {
+    "name": "mexanik oyoq",
+    "keywords": ["imkoniyat", "protez"]
+  },
+  "🦵": {
+    "name": "oyoq (son)",
+    "keywords": ["bukilgan", "tizza"]
+  },
+  "🦶": {
+    "name": "oyoq (panja)",
+    "keywords": ["tovon", "tepish"]
+  },
+  "👂️": {
+    "name": "quloq",
+    "keywords": ["tana", "eshitish", "tinglash", "tovush"]
+  },
+  "🦻": {
+    "name": "eshitish apparatili quloq",
+    "keywords": ["imkoniyat"]
+  },
+  "👃": {
+    "name": "burun",
+    "keywords": ["tana", "hid", "hidlash"]
+  },
+  "🧠": {
+    "name": "miya",
+    "keywords": ["aqlli", "zehnli"]
+  },
+  "🫀": {
+    "name": "anatomik yurak",
+    "keywords": ["urish", "yurak urishi", "a'zo", "puls"]
+  },
+  "🫁": {
+    "name": "o'pkalar",
+    "keywords": ["nafas", "a'zo", "nafas olish"]
+  },
+  "🦷": {
+    "name": "tish",
+    "keywords": ["tish shifokori", "oq"]
+  },
+  "🦴": {
+    "name": "suyak",
+    "keywords": ["suyaklar", "it", "skelet"]
+  },
+  "👀": {
+    "name": "ko'zlar",
+    "keywords": ["tana", "ko'z", "yuz", "qarash"]
+  },
+  "👁️": {
+    "name": "ko'z",
+    "keywords": ["tana", "bitta"]
+  },
+  "👅": {
+    "name": "til",
+    "keywords": ["tana", "yalash"]
+  },
+  "👄": {
+    "name": "og'iz",
+    "keywords": ["go'zallik", "tana", "bo'sa", "lab", "lab bo'yog'i"]
+  },
+  "🫦": {
+    "name": "lab tishlayotgan yuz",
+    "keywords": ["xavotir", "flirt", "asabiy"]
+  },
+  "👶": {
+    "name": "chaqaloq",
+    "keywords": ["bolalar", "homilador", "yangi tug'ilgan", "yosh"]
+  },
+  "🧒": {
+    "name": "bola",
+    "keywords": ["nevara", "yosh"]
+  },
+  "👦": {
+    "name": "o'g'il bola",
+    "keywords": ["bola", "nevara", "yosh"]
+  },
+  "👧": {
+    "name": "qiz bola",
+    "keywords": ["bola", "qiz", "yosh", "sunbula burji"]
+  },
+  "🧑": {
+    "name": "odam",
+    "keywords": ["katta yoshli"]
+  },
+  "👱": {
+    "name": "odam: sarg'ish sochli",
+    "keywords": ["sarg'in", "odam"]
+  },
+  "👨": {
+    "name": "erkak",
+    "keywords": ["katta yoshli"]
+  },
+  "🧔": {
+    "name": "odam: soqolli",
+    "keywords": ["soqolli", "odam"]
+  },
+  "🧔‍♂️": {
+    "name": "erkak: soqolli",
+    "keywords": ["soqolli", "erkak"]
+  },
+  "🧔‍♀️": {
+    "name": "ayol: soqolli",
+    "keywords": ["soqolli", "ayol"]
+  },
+  "👨‍🦰": {
+    "name": "erkak: qizil sochli",
+    "keywords": ["katta yoshli", "qizil soch"]
+  },
+  "👨‍🦱": {
+    "name": "erkak: jingalak sochli",
+    "keywords": ["katta yoshli", "jingalak soch"]
+  },
+  "👨‍🦳": {
+    "name": "erkak: oq sochli",
+    "keywords": ["katta yoshli", "oq soch"]
+  },
+  "👨‍🦲": {
+    "name": "erkak: taqir bosh",
+    "keywords": ["katta yoshli"]
+  },
+  "👩": {
+    "name": "ayol",
+    "keywords": ["katta yoshli", "xonim"]
+  },
+  "👩‍🦰": {
+    "name": "ayol: qizil sochli",
+    "keywords": ["katta yoshli", "xonim", "qizil soch"]
+  },
+  "🧑‍🦰": {
+    "name": "odam: qizil sochli",
+    "keywords": ["katta yoshli", "qizil soch"]
+  },
+  "👩‍🦱": {
+    "name": "ayol: jingalak sochli",
+    "keywords": ["katta yoshli", "xonim", "jingalak soch"]
+  },
+  "🧑‍🦱": {
+    "name": "odam: jingalak sochli",
+    "keywords": ["katta yoshli", "jingalak soch"]
+  },
+  "👩‍🦳": {
+    "name": "ayol: oq sochli",
+    "keywords": ["katta yoshli", "xonim", "oq soch"]
+  },
+  "🧑‍🦳": {
+    "name": "odam: oq sochli",
+    "keywords": ["katta yoshli", "oq soch"]
+  },
+  "👩‍🦲": {
+    "name": "ayol: taqir bosh",
+    "keywords": ["katta yoshli", "xonim"]
+  },
+  "🧑‍🦲": {
+    "name": "odam: taqir bosh",
+    "keywords": ["katta yoshli"]
+  },
+  "👱‍♀️": {
+    "name": "ayol: sarg'ish sochli",
+    "keywords": ["sarg'in", "ayol"]
+  },
+  "👱‍♂️": {
+    "name": "erkak: sarg'ish sochli",
+    "keywords": ["sarg'in", "erkak"]
+  },
+  "🧓": {
+    "name": "keksa odam",
+    "keywords": ["katta yoshli", "keksa", "dono"]
+  },
+  "👴": {
+    "name": "keksa erkak",
+    "keywords": ["katta yoshli", "taqir", "keksa", "buva", "dono"]
+  },
+  "👵": {
+    "name": "keksa ayol",
+    "keywords": ["katta yoshli", "keksa", "buvi", "dono"]
+  },
+  "🙍": {
+    "name": "xafa bo'lgan odam",
+    "keywords": ["jahldor", "xafa", "xijolat", "ishorat"]
+  },
+  "🙍‍♂️": {
+    "name": "xafa bo'lgan erkak",
+    "keywords": ["jahldor", "xafa", "xijolat", "ishorat"]
+  },
+  "🙍‍♀️": {
+    "name": "xafa bo'lgan ayol",
+    "keywords": ["jahldor", "xafa", "xijolat", "ishorat"]
+  },
+  "🙎": {
+    "name": "dimog'dor odam",
+    "keywords": ["xafa", "tumshaygan"]
+  },
+  "🙎‍♂️": {
+    "name": "dimog'dor erkak",
+    "keywords": ["xafa", "tumshaygan"]
+  },
+  "🙎‍♀️": {
+    "name": "dimog'dor ayol",
+    "keywords": ["xafa", "tumshaygan"]
+  },
+  "🙅": {
+    "name": "YO'Q ishorasi qilayotgan odam",
+    "keywords": ["taqiqlangan", "ishorat", "qo'l"]
+  },
+  "🙅‍♂️": {
+    "name": "YO'Q ishorasi qilayotgan erkak",
+    "keywords": ["taqiqlangan", "ishorat", "qo'l"]
+  },
+  "🙅‍♀️": {
+    "name": "YO'Q ishorasi qilayotgan ayol",
+    "keywords": ["taqiqlangan", "ishorat", "qo'l"]
+  },
+  "🙆": {
+    "name": "OK ishorasi qilayotgan odam",
+    "keywords": ["mashq", "ishorat", "qo'l"]
+  },
+  "🙆‍♂️": {
+    "name": "OK ishorasi qilayotgan erkak",
+    "keywords": ["mashq", "ishorat", "qo'l"]
+  },
+  "🙆‍♀️": {
+    "name": "OK ishorasi qilayotgan ayol",
+    "keywords": ["mashq", "ishorat", "qo'l"]
+  },
+  "💁": {
+    "name": "qo'lini og'zi yoniga qo'ygan odam",
+    "keywords": ["ishorat", "g'iybat", "sarkazm", "nafis"]
+  },
+  "💁‍♂️": {
+    "name": "qo'lini og'zi yoniga qo'ygan erkak",
+    "keywords": ["ishorat", "g'iybat", "sarkazm", "nafis"]
+  },
+  "💁‍♀️": {
+    "name": "qo'lini og'zi yoniga qo'ygan ayol",
+    "keywords": ["ishorat", "g'iybat", "sarkazm", "nafis"]
+  },
+  "🙋": {
+    "name": "qo'lini ko'tarayotgan odam",
+    "keywords": ["ishorat", "bilaman", "savol", "ko'tarish"]
+  },
+  "🙋‍♂️": {
+    "name": "qo'lini ko'tarayotgan erkak",
+    "keywords": ["ishorat", "bilaman", "savol", "ko'tarish"]
+  },
+  "🙋‍♀️": {
+    "name": "qo'lini ko'tarayotgan ayol",
+    "keywords": ["ishorat", "bilaman", "savol", "ko'tarish"]
+  },
+  "🧏": {
+    "name": "kar odam",
+    "keywords": ["imkoniyat", "quloq", "ishorat"]
+  },
+  "🧏‍♂️": {
+    "name": "kar erkak",
+    "keywords": ["imkoniyat", "quloq", "ishorat"]
+  },
+  "🧏‍♀️": {
+    "name": "kar ayol",
+    "keywords": ["imkoniyat", "quloq", "ishorat"]
+  },
+  "🙇": {
+    "name": "ta'zim qilayotgan odam",
+    "keywords": ["uzr", "iltimos", "ta'zim"]
+  },
+  "🙇‍♂️": {
+    "name": "ta'zim qilayotgan erkak",
+    "keywords": ["uzr", "iltimos", "ta'zim"]
+  },
+  "🙇‍♀️": {
+    "name": "ta'zim qilayotgan ayol",
+    "keywords": ["uzr", "iltimos", "ta'zim"]
+  },
+  "🤦": {
+    "name": "peshonasiga urayotgan odam",
+    "keywords": ["ishonmaslik", "hayrat", "xijolat"]
+  },
+  "🤦‍♂️": {
+    "name": "peshonasiga urayotgan erkak",
+    "keywords": ["ishonmaslik", "hayrat", "xijolat"]
+  },
+  "🤦‍♀️": {
+    "name": "peshonasiga urayotgan ayol",
+    "keywords": ["ishonmaslik", "hayrat", "xijolat"]
+  },
+  "🤷": {
+    "name": "yelka qisayotgan odam",
+    "keywords": ["shubha", "bilmayman", "loqaydlik"]
+  },
+  "🤷‍♂️": {
+    "name": "yelka qisayotgan erkak",
+    "keywords": ["shubha", "bilmayman", "loqaydlik"]
+  },
+  "🤷‍♀️": {
+    "name": "yelka qisayotgan ayol",
+    "keywords": ["shubha", "bilmayman", "loqaydlik"]
+  },
+  "🧑‍⚕️": {
+    "name": "tibbiy xodim",
+    "keywords": ["shifokor", "hamshira"]
+  },
+  "👨‍⚕️": {
+    "name": "tibbiy xodim erkak",
+    "keywords": ["shifokor", "hamshira"]
+  },
+  "👩‍⚕️": {
+    "name": "tibbiy xodim ayol",
+    "keywords": ["shifokor", "hamshira"]
+  },
+  "🧑‍🎓": {
+    "name": "talaba",
+    "keywords": ["bitiruvchi"]
+  },
+  "👨‍🎓": {
+    "name": "talaba erkak",
+    "keywords": ["bitiruvchi"]
+  },
+  "👩‍🎓": {
+    "name": "talaba ayol",
+    "keywords": ["bitiruvchi"]
+  },
+  "🧑‍🏫": {
+    "name": "o'qituvchi",
+    "keywords": ["instruktor", "professor"]
+  },
+  "👨‍🏫": {
+    "name": "o'qituvchi erkak",
+    "keywords": ["instruktor", "professor"]
+  },
+  "👩‍🏫": {
+    "name": "o'qituvchi ayol",
+    "keywords": ["instruktor", "professor"]
+  },
+  "🧑‍⚖️": {
+    "name": "sudya",
+    "keywords": ["adolat", "qonun"]
+  },
+  "👨‍⚖️": {
+    "name": "sudya erkak",
+    "keywords": ["adolat", "qonun"]
+  },
+  "👩‍⚖️": {
+    "name": "sudya ayol",
+    "keywords": ["adolat", "qonun"]
+  },
+  "🧑‍🌾": {
+    "name": "fermer",
+    "keywords": ["bog'bon"]
+  },
+  "👨‍🌾": {
+    "name": "fermer erkak",
+    "keywords": ["bog'bon"]
+  },
+  "👩‍🌾": {
+    "name": "fermer ayol",
+    "keywords": ["bog'bon"]
+  },
+  "🧑‍🍳": {
+    "name": "oshpaz",
+    "keywords": ["oshpaz"]
+  },
+  "👨‍🍳": {
+    "name": "oshpaz erkak",
+    "keywords": ["oshpaz"]
+  },
+  "👩‍🍳": {
+    "name": "oshpaz ayol",
+    "keywords": ["oshpaz"]
+  },
+  "🧑‍🔧": {
+    "name": "mexanik",
+    "keywords": ["elevator", "santexnik"]
+  },
+  "👨‍🔧": {
+    "name": "mexanik erkak",
+    "keywords": ["elevator", "santexnik"]
+  },
+  "👩‍🔧": {
+    "name": "mexanik ayol",
+    "keywords": ["elevator", "santexnik"]
+  },
+  "🧑‍🏭": {
+    "name": "zavod ishchisi",
+    "keywords": ["sanoat"]
+  },
+  "👨‍🏭": {
+    "name": "zavod ishchisi erkak",
+    "keywords": ["sanoat"]
+  },
+  "👩‍🏭": {
+    "name": "zavod ishchisi ayol",
+    "keywords": ["sanoat"]
+  },
+  "🧑‍💼": {
+    "name": "ofis xodimi",
+    "keywords": ["arxitektor", "biznes", "menejer"]
+  },
+  "👨‍💼": {
+    "name": "ofis xodimi erkak",
+    "keywords": ["arxitektor", "biznes", "menejer"]
+  },
+  "👩‍💼": {
+    "name": "ofis xodimi ayol",
+    "keywords": ["arxitektor", "biznes", "menejer"]
+  },
+  "🧑‍🔬": {
+    "name": "olim",
+    "keywords": ["biolog", "kimyogar", "muhandis"]
+  },
+  "👨‍🔬": {
+    "name": "olim erkak",
+    "keywords": ["biolog", "kimyogar", "muhandis"]
+  },
+  "👩‍🔬": {
+    "name": "olim ayol",
+    "keywords": ["biolog", "kimyogar", "muhandis"]
+  },
+  "🧑‍💻": {
+    "name": "texnolog",
+    "keywords": ["koder", "kompyuter", "dasturchi"]
+  },
+  "👨‍💻": {
+    "name": "texnolog erkak",
+    "keywords": ["koder", "kompyuter", "dasturchi"]
+  },
+  "👩‍💻": {
+    "name": "texnolog ayol",
+    "keywords": ["koder", "kompyuter", "dasturchi"]
+  },
+  "🧑‍🎤": {
+    "name": "qo'shiqchi",
+    "keywords": ["aktyor", "yulduz"]
+  },
+  "👨‍🎤": {
+    "name": "qo'shiqchi erkak",
+    "keywords": ["aktyor", "yulduz"]
+  },
+  "👩‍🎤": {
+    "name": "qo'shiqchi ayol",
+    "keywords": ["aktrisa", "yulduz"]
+  },
+  "🧑‍🎨": {
+    "name": "rassom",
+    "keywords": ["palitra"]
+  },
+  "👨‍🎨": {
+    "name": "rassom erkak",
+    "keywords": ["palitra"]
+  },
+  "👩‍🎨": {
+    "name": "rassom ayol",
+    "keywords": ["palitra"]
+  },
+  "🧑‍✈️": {
+    "name": "uchuvchi",
+    "keywords": ["samolyot"]
+  },
+  "👨‍✈️": {
+    "name": "uchuvchi erkak",
+    "keywords": ["samolyot"]
+  },
+  "👩‍✈️": {
+    "name": "uchuvchi ayol",
+    "keywords": ["samolyot"]
+  },
+  "🧑‍🚀": {
+    "name": "kosmonavt",
+    "keywords": ["raketa", "kosmos"]
+  },
+  "👨‍🚀": {
+    "name": "kosmonavt erkak",
+    "keywords": ["raketa", "kosmos"]
+  },
+  "👩‍🚀": {
+    "name": "kosmonavt ayol",
+    "keywords": ["raketa", "kosmos"]
+  },
+  "🧑‍🚒": {
+    "name": "o'tchi",
+    "keywords": ["olov", "o't o'chirish mashinasi"]
+  },
+  "👨‍🚒": {
+    "name": "o'tchi erkak",
+    "keywords": ["olov", "o't o'chirish mashinasi"]
+  },
+  "👩‍🚒": {
+    "name": "o'tchi ayol",
+    "keywords": ["olov", "o't o'chirish mashinasi"]
+  },
+  "👮": {
+    "name": "politsiyachi",
+    "keywords": ["qamash", "hibsga olish", "qonun", "politsiya"]
+  },
+  "👮‍♂️": {
+    "name": "erkak politsiyachi",
+    "keywords": ["qamash", "hibsga olish", "qonun", "politsiya"]
+  },
+  "👮‍♀️": {
+    "name": "ayol politsiyachi",
+    "keywords": ["qamash", "hibsga olish", "qonun", "politsiya"]
+  },
+  "🕵️": {
+    "name": "detektiv",
+    "keywords": ["ayg'oqchi"]
+  },
+  "🕵️‍♂️": {
+    "name": "erkak detektiv",
+    "keywords": ["ayg'oqchi"]
+  },
+  "🕵️‍♀️": {
+    "name": "ayol detektiv",
+    "keywords": ["ayg'oqchi"]
+  },
+  "💂": {
+    "name": "qorovul",
+    "keywords": ["bukingem", "dubulg'a", "london", "saroy"]
+  },
+  "💂‍♂️": {
+    "name": "erkak qorovul",
+    "keywords": ["bukingem", "dubulg'a", "london", "saroy"]
+  },
+  "💂‍♀️": {
+    "name": "ayol qorovul",
+    "keywords": ["bukingem", "dubulg'a", "london", "saroy"]
+  },
+  "🥷": {
+    "name": "nindzya",
+    "keywords": ["jangchi", "maxfiy", "askar"]
+  },
+  "👷": {
+    "name": "qurilishchi",
+    "keywords": ["qurmoq", "ta'mirlash", "shlyapa", "erkak", "odam"]
+  },
+  "👷‍♂️": {
+    "name": "erkak qurilishchi",
+    "keywords": ["qurmoq", "ta'mirlash", "shlyapa"]
+  },
+  "👷‍♀️": {
+    "name": "ayol qurilishchi",
+    "keywords": ["qurmoq", "ta'mirlash", "shlyapa"]
+  },
+  "🫅": {
+    "name": "tojli odam",
+    "keywords": ["shoh", "shohlik"]
+  },
+  "🤴": {
+    "name": "shahzoda",
+    "keywords": ["toj", "ertak", "fantastika", "shohlik"]
+  },
+  "👸": {
+    "name": "malika",
+    "keywords": ["toj", "ertak", "fantastika", "shohlik"]
+  },
+  "👲": {
+    "name": "do'ppili odam",
+    "keywords": ["do'ppi", "xitoy", "shlyapa"]
+  },
+  "🧕": {
+    "name": "ro'molli ayol",
+    "keywords": ["ro'mol", "hijob"]
+  },
+  "🤵": {
+    "name": "smokingli odam",
+    "keywords": ["rasmiy", "to'y"]
+  },
+  "🤵‍♂️": {
+    "name": "smokingli erkak",
+    "keywords": ["rasmiy", "kuyov", "to'y"]
+  },
+  "🤵‍♀️": {
+    "name": "smokingli ayol",
+    "keywords": ["rasmiy", "to'y"]
+  },
+  "👰": {
+    "name": "pardali odam",
+    "keywords": ["to'y"]
+  },
+  "👰‍♂️": {
+    "name": "pardali erkak",
+    "keywords": ["to'y"]
+  },
+  "👰‍♀️": {
+    "name": "pardali ayol",
+    "keywords": ["kelin", "to'y"]
+  },
+  "🫃": {
+    "name": "homilador erkak",
+    "keywords": ["qorin", "to'la"]
+  },
+  "🫄": {
+    "name": "homilador odam",
+    "keywords": ["qorin", "to'la"]
+  },
+  "🤱": {
+    "name": "emizayotgan ayol",
+    "keywords": ["chaqaloq", "emizish", "ona"]
+  },
+  "👩‍🍼": {
+    "name": "chaqaloqni ovqatlantirayotgan ayol",
+    "keywords": ["ona", "ovqatlantirish"]
+  },
+  "👨‍🍼": {
+    "name": "chaqaloqni ovqatlantirayotgan erkak",
+    "keywords": ["ota", "ovqatlantirish"]
+  },
+  "🧑‍🍼": {
+    "name": "chaqaloqni ovqatlantirayotgan odam",
+    "keywords": ["ovqatlantirish", "ota-ona"]
+  },
+  "👼": {
+    "name": "chaqaloq farishta",
+    "keywords": ["cherkov", "yuz", "ertak", "fantastika"]
+  },
+  "🎅": {
+    "name": "Santa Klaus",
+    "keywords": [
+      "bayram",
+      "rojdestvo",
+      "ertak",
+      "fantastika",
+      "ota",
+      "quvnoq",
+      "xmas"
+    ]
+  },
+  "🤶": {
+    "name": "Rojdestvo bibisi",
+    "keywords": ["bayram", "rojdestvo", "ertak", "fantastika", "ona"]
+  },
+  "🧑‍🎄": {
+    "name": "Rojdestvo bibisi/babasi",
+    "keywords": ["bayram", "rojdestvo", "ertak", "fantastika"]
+  },
+  "🦸": {
+    "name": "super qahramon",
+    "keywords": ["yaxshi", "qahramon"]
+  },
+  "🦸‍♂️": {
+    "name": "super qahramon erkak",
+    "keywords": ["yaxshi", "qahramon"]
+  },
+  "🦸‍♀️": {
+    "name": "super qahramon ayol",
+    "keywords": ["yaxshi", "qahramon"]
+  },
+  "🦹": {
+    "name": "yovuz qahramon",
+    "keywords": ["yomon", "jinoyatchi", "yovuz"]
+  },
+  "🦹‍♂️": {
+    "name": "yovuz qahramon erkak",
+    "keywords": ["yomon", "jinoyatchi", "yovuz"]
+  },
+  "🦹‍♀️": {
+    "name": "yovuz qahramon ayol",
+    "keywords": ["yomon", "jinoyatchi", "yovuz"]
+  },
+  "🧙": {
+    "name": "sehrgar",
+    "keywords": ["fantastika", "sehr", "jodugar"]
+  },
+  "🧙‍♂️": {
+    "name": "sehrgar erkak",
+    "keywords": ["fantastika", "sehr", "jodugar"]
+  },
+  "🧙‍♀️": {
+    "name": "sehrgar ayol",
+    "keywords": ["fantastika", "sehr", "jodugar"]
+  },
+  "🧚": {
+    "name": "peri",
+    "keywords": ["ertak", "fantastika", "qanotlar"]
+  },
+  "🧚‍♂️": {
+    "name": "peri erkak",
+    "keywords": ["ertak", "fantastika", "qanotlar"]
+  },
+  "🧚‍♀️": {
+    "name": "peri ayol",
+    "keywords": ["ertak", "fantastika", "qanotlar"]
+  },
+  "🧛": {
+    "name": "vampir",
+    "keywords": ["qon", "tish", "xellouin", "qo'rqinchli"]
+  },
+  "🧛‍♂️": {
+    "name": "vampir erkak",
+    "keywords": ["qon", "tish", "xellouin", "qo'rqinchli"]
+  },
+  "🧛‍♀️": {
+    "name": "vampir ayol",
+    "keywords": ["qon", "tish", "xellouin", "qo'rqinchli"]
+  },
+  "🧜": {
+    "name": "dengiz odami",
+    "keywords": ["jonzot", "ertak", "okean", "dengiz"]
+  },
+  "🧜‍♂️": {
+    "name": "suv parisi erkagi",
+    "keywords": ["jonzot", "ertak", "okean", "dengiz"]
+  },
+  "🧜‍♀️": {
+    "name": "suv parisi",
+    "keywords": ["jonzot", "ertak", "okean", "dengiz"]
+  },
+  "🧝": {
+    "name": "elf",
+    "keywords": ["ertak", "sehr", "fantastika"]
+  },
+  "🧝‍♂️": {
+    "name": "elf erkak",
+    "keywords": ["ertak", "sehr", "fantastika"]
+  },
+  "🧝‍♀️": {
+    "name": "elf ayol",
+    "keywords": ["ertak", "sehr", "fantastika"]
+  },
+  "🧞": {
+    "name": "jin",
+    "keywords": ["ertak", "chiroq", "sehr", "tilaklar"]
+  },
+  "🧞‍♂️": {
+    "name": "jin erkak",
+    "keywords": ["ertak", "chiroq", "sehr", "tilaklar"]
+  },
+  "🧞‍♀️": {
+    "name": "jin ayol",
+    "keywords": ["ertak", "chiroq", "sehr", "tilaklar"]
+  },
+  "🧟": {
+    "name": "zombi",
+    "keywords": ["apokalipsis", "o'lik", "xellouin", "dahshat"]
+  },
+  "🧟‍♂️": {
+    "name": "zombi erkak",
+    "keywords": ["apokalipsis", "o'lik", "xellouin", "dahshat"]
+  },
+  "🧟‍♀️": {
+    "name": "zombi ayol",
+    "keywords": ["apokalipsis", "o'lik", "xellouin", "dahshat"]
+  },
+  "🧌": {
+    "name": "troll",
+    "keywords": ["ertak", "fantastika", "mahluq"]
+  },
+  "💆": {
+    "name": "massaj olayotgan odam",
+    "keywords": [
+      "yuz",
+      "bosh og'rig'i",
+      "dam olish",
+      "salon",
+      "spa",
+      "davolash"
+    ]
+  },
+  "💆‍♂️": {
+    "name": "massaj olayotgan erkak",
+    "keywords": [
+      "yuz",
+      "bosh og'rig'i",
+      "dam olish",
+      "salon",
+      "spa",
+      "davolash"
+    ]
+  },
+  "💆‍♀️": {
+    "name": "massaj olayotgan ayol",
+    "keywords": [
+      "yuz",
+      "bosh og'rig'i",
+      "dam olish",
+      "salon",
+      "spa",
+      "davolash"
+    ]
+  },
+  "💇": {
+    "name": "soch olayotgan odam",
+    "keywords": ["sartarosh", "go'zallik", "soch", "sartaroshxona"]
+  },
+  "💇‍♂️": {
+    "name": "soch olayotgan erkak",
+    "keywords": ["sartarosh", "go'zallik", "soch", "sartaroshxona"]
+  },
+  "💇‍♀️": {
+    "name": "soch olayotgan ayol",
+    "keywords": ["sartarosh", "go'zallik", "soch", "sartaroshxona"]
+  },
+  "🚶": {
+    "name": "piyoda yurayotgan odam",
+    "keywords": ["yurish", "sayr", "piyoda"]
+  },
+  "🚶‍♂️": {
+    "name": "piyoda yurayotgan erkak",
+    "keywords": ["yurish", "sayr", "piyoda"]
+  },
+  "🚶‍♀️": {
+    "name": "piyoda yurayotgan ayol",
+    "keywords": ["yurish", "sayr", "piyoda"]
+  },
+  "🚶‍➡️": {
+    "name": "o'ngga qarab piyoda yurayotgan odam",
+    "keywords": ["yurish", "sayr", "piyoda"]
+  },
+  "🚶‍♀️‍➡️": {
+    "name": "o'ngga qarab piyoda yurayotgan ayol",
+    "keywords": ["yurish", "sayr", "piyoda"]
+  },
+  "🚶‍♂️‍➡️": {
+    "name": "o'ngga qarab piyoda yurayotgan erkak",
+    "keywords": ["yurish", "sayr", "piyoda"]
+  },
+  "🧍": {
+    "name": "tik turgan odam",
+    "keywords": ["tik turish"]
+  },
+  "🧍‍♂️": {
+    "name": "tik turgan erkak",
+    "keywords": ["tik turish"]
+  },
+  "🧍‍♀️": {
+    "name": "tik turgan ayol",
+    "keywords": ["tik turish"]
+  },
+  "🧎": {
+    "name": "tiz cho'kkan odam",
+    "keywords": ["tiz cho'kish"]
+  },
+  "🧎‍♂️": {
+    "name": "tiz cho'kkan erkak",
+    "keywords": ["tiz cho'kish"]
+  },
+  "🧎‍♀️": {
+    "name": "tiz cho'kkan ayol",
+    "keywords": ["tiz cho'kish"]
+  },
+  "🧎‍➡️": {
+    "name": "o'ngga qarab tiz cho'kkan odam",
+    "keywords": ["tiz cho'kish"]
+  },
+  "🧎‍♀️‍➡️": {
+    "name": "o'ngga qarab tiz cho'kkan ayol",
+    "keywords": ["tiz cho'kish"]
+  },
+  "🧎‍♂️‍➡️": {
+    "name": "o'ngga qarab tiz cho'kkan erkak",
+    "keywords": ["tiz cho'kish"]
+  },
+  "🧑‍🦯": {
+    "name": "oq hassali odam",
+    "keywords": ["imkoniyat", "ko'r"]
+  },
+  "🧑‍🦯‍➡️": {
+    "name": "o'ngga qarab oq hassali odam",
+    "keywords": ["imkoniyat", "ko'r"]
+  },
+  "👨‍🦯": {
+    "name": "oq hassali erkak",
+    "keywords": ["imkoniyat", "ko'r"]
+  },
+  "👨‍🦯‍➡️": {
+    "name": "o'ngga qarab oq hassali erkak",
+    "keywords": ["imkoniyat", "ko'r"]
+  },
+  "👩‍🦯": {
+    "name": "oq hassali ayol",
+    "keywords": ["imkoniyat", "ko'r"]
+  },
+  "👩‍🦯‍➡️": {
+    "name": "o'ngga qarab oq hassali ayol",
+    "keywords": ["imkoniyat", "ko'r"]
+  },
+  "🧑‍🦼": {
+    "name": "motorli aravachadagi odam",
+    "keywords": ["imkoniyat"]
+  },
+  "🧑‍🦼‍➡️": {
+    "name": "o'ngga qarab motorli aravachadagi odam",
+    "keywords": ["imkoniyat"]
+  },
+  "👨‍🦼": {
+    "name": "motorli aravachadagi erkak",
+    "keywords": ["imkoniyat"]
+  },
+  "👨‍🦼‍➡️": {
+    "name": "o'ngga qarab motorli aravachadagi erkak",
+    "keywords": ["imkoniyat"]
+  },
+  "👩‍🦼": {
+    "name": "motorli aravachadagi ayol",
+    "keywords": ["imkoniyat"]
+  },
+  "👩‍🦼‍➡️": {
+    "name": "o'ngga qarab motorli aravachadagi ayol",
+    "keywords": ["imkoniyat"]
+  },
+  "🧑‍🦽": {
+    "name": "qo'lda boshqariladigan aravachadagi odam",
+    "keywords": ["imkoniyat"]
+  },
+  "🧑‍🦽‍➡️": {
+    "name": "o'ngga qarab qo'lda boshqariladigan aravachadagi odam",
+    "keywords": ["imkoniyat"]
+  },
+  "👨‍🦽": {
+    "name": "qo'lda boshqariladigan aravachadagi erkak",
+    "keywords": ["imkoniyat"]
+  },
+  "👨‍🦽‍➡️": {
+    "name": "o'ngga qarab qo'lda boshqariladigan aravachadagi erkak",
+    "keywords": ["imkoniyat"]
+  },
+  "👩‍🦽": {
+    "name": "qo'lda boshqariladigan aravachadagi ayol",
+    "keywords": ["imkoniyat"]
+  },
+  "👩‍🦽‍➡️": {
+    "name": "o'ngga qarab qo'lda boshqariladigan aravachadagi ayol",
+    "keywords": ["imkoniyat"]
+  },
+  "🏃": {
+    "name": "yuguruvchi odam",
+    "keywords": [
+      "tez",
+      "shoshilish",
+      "marafon",
+      "harakat",
+      "poyga",
+      "yugurish",
+      "shiddat"
+    ]
+  },
+  "🏃‍♂️": {
+    "name": "yuguruvchi erkak",
+    "keywords": [
+      "tez",
+      "shoshilish",
+      "marafon",
+      "harakat",
+      "poyga",
+      "yugurish",
+      "shiddat"
+    ]
+  },
+  "🏃‍♀️": {
+    "name": "yuguruvchi ayol",
+    "keywords": [
+      "tez",
+      "shoshilish",
+      "marafon",
+      "harakat",
+      "poyga",
+      "yugurish",
+      "shiddat"
+    ]
+  },
+  "🏃‍➡️": {
+    "name": "o'ngga qarab yuguruvchi odam",
+    "keywords": [
+      "tez",
+      "shoshilish",
+      "marafon",
+      "harakat",
+      "poyga",
+      "yugurish",
+      "shiddat"
+    ]
+  },
+  "🏃‍♀️‍➡️": {
+    "name": "o'ngga qarab yuguruvchi ayol",
+    "keywords": [
+      "tez",
+      "shoshilish",
+      "marafon",
+      "harakat",
+      "poyga",
+      "yugurish",
+      "shiddat"
+    ]
+  },
+  "🏃‍♂️‍➡️": {
+    "name": "o'ngga qarab yuguruvchi erkak",
+    "keywords": [
+      "tez",
+      "shoshilish",
+      "marafon",
+      "harakat",
+      "poyga",
+      "yugurish",
+      "shiddat"
+    ]
+  },
+  "💃": {
+    "name": "raqsga tushayotgan ayol",
+    "keywords": ["raqs", "raqqosa", "nafis", "bayramona", "flamenko", "tango"]
+  },
+  "🕺": {
+    "name": "raqsga tushayotgan erkak",
+    "keywords": ["raqs", "raqqos", "nafis", "bayramona", "flamenko", "tango"]
+  },
+  "🕴️": {
+    "name": "muallaq turgan kostyumli odam",
+    "keywords": ["biznes"]
+  },
+  "👯": {
+    "name": "quyon qulog'idagi odamlar",
+    "keywords": ["do'st", "raqqosa", "juft", "ziyofat"]
+  },
+  "👯‍♂️": {
+    "name": "quyon qulog'idagi erkaklar",
+    "keywords": ["do'st", "raqqosa", "juft", "ziyofat"]
+  },
+  "👯‍♀️": {
+    "name": "quyon qulog'idagi ayollar",
+    "keywords": ["do'st", "raqqosa", "juft", "ziyofat"]
+  },
+  "🧖": {
+    "name": "bug'li xonadagi odam",
+    "keywords": ["dam olish", "sauna", "spa"]
+  },
+  "🧖‍♂️": {
+    "name": "bug'li xonadagi erkak",
+    "keywords": ["dam olish", "sauna", "spa"]
+  },
+  "🧖‍♀️": {
+    "name": "bug'li xonadagi ayol",
+    "keywords": ["dam olish", "sauna", "spa"]
+  },
+  "🧗": {
+    "name": "tirmashib chiqayotgan odam",
+    "keywords": ["tirmashish", "tog'"]
+  },
+  "🧗‍♂️": {
+    "name": "tirmashib chiqayotgan erkak",
+    "keywords": ["tirmashish", "tog'"]
+  },
+  "🧗‍♀️": {
+    "name": "tirmashib chiqayotgan ayol",
+    "keywords": ["tirmashish", "tog'"]
+  },
+  "🤺": {
+    "name": "qilichbozlik qilayotgan odam",
+    "keywords": ["qilich"]
+  },
+  "🏇": {
+    "name": "ot poygasi",
+    "keywords": ["jokey", "poyga oti", "sport"]
+  },
+  "⛷️": {
+    "name": "chang'ichi",
+    "keywords": ["chang'i", "qor"]
+  },
+  "🏂️": {
+    "name": "snoubordchi",
+    "keywords": ["chang'i", "qor", "snoubord", "sport"]
+  },
+  "🏌️": {
+    "name": "golf o'ynayotgan odam",
+    "keywords": ["shar", "golf"]
+  },
+  "🏌️‍♂️": {
+    "name": "golf o'ynayotgan erkak",
+    "keywords": ["shar", "golf"]
+  },
+  "🏌️‍♀️": {
+    "name": "golf o'ynayotgan ayol",
+    "keywords": ["shar", "golf"]
+  },
+  "🏄️": {
+    "name": "serfing bilan shug'ullanuvchi odam",
+    "keywords": ["plyaj", "okean", "sport", "serfing", "to'lqin"]
+  },
+  "🏄‍♂️": {
+    "name": "serfing bilan shug'ullanuvchi erkak",
+    "keywords": ["plyaj", "okean", "sport", "serfing", "to'lqin"]
+  },
+  "🏄‍♀️": {
+    "name": "serfing bilan shug'ullanuvchi ayol",
+    "keywords": ["plyaj", "okean", "odam", "sport", "serfing", "to'lqin"]
+  },
+  "🚣": {
+    "name": "eshkak eshuvchi odam",
+    "keywords": ["kanoe", "baliq ovlash", "ko'l", "eshkak"]
+  },
+  "🚣‍♂️": {
+    "name": "eshkak eshuvchi erkak",
+    "keywords": ["kanoe", "baliq ovlash", "ko'l", "eshkak"]
+  },
+  "🚣‍♀️": {
+    "name": "eshkak eshuvchi ayol",
+    "keywords": ["kanoe", "baliq ovlash", "ko'l", "eshkak"]
+  },
+  "🏊️": {
+    "name": "suzuvchi odam",
+    "keywords": ["sport", "suzish", "suzuvchi", "triatlon"]
+  },
+  "🏊‍♂️": {
+    "name": "suzuvchi erkak",
+    "keywords": ["sport", "suzish", "suzuvchi", "triatlon"]
+  },
+  "🏊‍♀️": {
+    "name": "suzuvchi ayol",
+    "keywords": ["sport", "suzish", "suzuvchi", "triatlon"]
+  },
+  "⛹️": {
+    "name": "to'pni sakratayotgan odam",
+    "keywords": ["basketbol", "sport"]
+  },
+  "⛹️‍♂️": {
+    "name": "to'pni sakratayotgan erkak",
+    "keywords": ["basketbol", "sport"]
+  },
+  "⛹️‍♀️": {
+    "name": "to'pni sakratayotgan ayol",
+    "keywords": ["basketbol", "sport"]
+  },
+  "🏋️": {
+    "name": "og'irlik ko'taruvchi odam",
+    "keywords": ["shtanga", "sport", "mashq"]
+  },
+  "🏋️‍♂️": {
+    "name": "og'irlik ko'taruvchi erkak",
+    "keywords": ["shtanga", "sport", "mashq"]
+  },
+  "🏋️‍♀️": {
+    "name": "og'irlik ko'taruvchi ayol",
+    "keywords": ["shtanga", "sport", "mashq"]
+  },
+  "🚴": {
+    "name": "velosiped haydayotgan odam",
+    "keywords": ["velosiped", "sport"]
+  },
+  "🚴‍♂️": {
+    "name": "velosiped haydayotgan erkak",
+    "keywords": ["velosiped", "sport"]
+  },
+  "🚴‍♀️": {
+    "name": "velosiped haydayotgan ayol",
+    "keywords": ["velosiped", "sport"]
+  },
+  "🚵": {
+    "name": "tog' velosipedida yurayotgan odam",
+    "keywords": ["velosiped", "sport"]
+  },
+  "🚵‍♂️": {
+    "name": "tog' velosipedida yurayotgan erkak",
+    "keywords": ["velosiped", "sport"]
+  },
+  "🚵‍♀️": {
+    "name": "tog' velosipedida yurayotgan ayol",
+    "keywords": ["velosiped", "sport"]
+  },
+  "🤸": {
+    "name": "g'ildirak otayotgan odam",
+    "keywords": ["aktiv", "gimnastika", "hayajon"]
+  },
+  "🤸‍♂️": {
+    "name": "g'ildirak otayotgan erkak",
+    "keywords": ["aktiv", "gimnastika", "hayajon"]
+  },
+  "🤸‍♀️": {
+    "name": "g'ildirak otayotgan ayol",
+    "keywords": ["aktiv", "gimnastika", "hayajon"]
+  },
+  "🤼": {
+    "name": "kurashayotgan odamlar",
+    "keywords": ["kurash", "jang"]
+  },
+  "🤼‍♂️": {
+    "name": "kurashayotgan erkaklar",
+    "keywords": ["kurash", "jang"]
+  },
+  "🤼‍♀️": {
+    "name": "kurashayotgan ayollar",
+    "keywords": ["kurash", "jang"]
+  },
+  "🤽": {
+    "name": "suv poloshi o'ynayotgan odam",
+    "keywords": ["sport", "suzish"]
+  },
+  "🤽‍♂️": {
+    "name": "suv poloshi o'ynayotgan erkak",
+    "keywords": ["sport", "suzish"]
+  },
+  "🤽‍♀️": {
+    "name": "suv poloshi o'ynayotgan ayol",
+    "keywords": ["sport", "suzish"]
+  },
+  "🤾": {
+    "name": "gandbol o'ynayotgan odam",
+    "keywords": ["shar", "otish", "sport"]
+  },
+  "🤾‍♂️": {
+    "name": "gandbol o'ynayotgan erkak",
+    "keywords": ["shar", "otish", "sport"]
+  },
+  "🤾‍♀️": {
+    "name": "gandbol o'ynayotgan ayol",
+    "keywords": ["shar", "otish", "sport"]
+  },
+  "🤹": {
+    "name": "jonglyorlik qilayotgan odam",
+    "keywords": ["balans", "jonglyorlik", "malaka"]
+  },
+  "🤹‍♂️": {
+    "name": "jonglyorlik qilayotgan erkak",
+    "keywords": ["balans", "jonglyorlik", "malaka"]
+  },
+  "🤹‍♀️": {
+    "name": "jonglyorlik qilayotgan ayol",
+    "keywords": ["balans", "jonglyorlik", "malaka"]
+  },
+  "🧘": {
+    "name": "lotus holatidagi odam",
+    "keywords": ["meditatsiya", "tinchlik", "yoga"]
+  },
+  "🧘‍♂️": {
+    "name": "lotus holatidagi erkak",
+    "keywords": ["meditatsiya", "tinchlik", "yoga"]
+  },
+  "🧘‍♀️": {
+    "name": "lotus holatidagi ayol",
+    "keywords": ["meditatsiya", "tinchlik", "yoga"]
+  },
+  "🛀": {
+    "name": "vanna qabul qilayotgan odam",
+    "keywords": ["vanna"]
+  },
+  "🛌": {
+    "name": "karovatda yotgan odam",
+    "keywords": ["uyqu", "charchagan", "mehmonxona"]
+  },
+  "🧑‍🤝‍🧑": {
+    "name": "qo'l ushlashgan odamlar",
+    "keywords": ["juftlik", "do'st", "qo'l"]
+  },
+  "👭": {
+    "name": "qo'l ushlashgan ayollar",
+    "keywords": ["juftlik", "opa-singil", "qo'l"]
+  },
+  "👫": {
+    "name": "qo'l ushlashgan ayol va erkak",
+    "keywords": ["juftlik", "do'st", "qo'l"]
+  },
+  "👬": {
+    "name": "qo'l ushlashgan erkaklar",
+    "keywords": ["juftlik", "birodar", "qo'l"]
+  },
+  "💏": {
+    "name": "bo'sa",
+    "keywords": [
+      "uchrashuv",
+      "do'stlik",
+      "yurak",
+      "sevgi",
+      "bo'sa",
+      "munosabat"
+    ]
+  },
+  "👩‍❤️‍💋‍👨": {
+    "name": "bo'sa: ayol, erkak",
+    "keywords": ["sevgi", "bo'sa", "juftlik", "ayol"]
+  },
+  "👨‍❤️‍💋‍👨": {
+    "name": "bo'sa: erkak, erkak",
+    "keywords": ["sevgi", "bo'sa", "juftlik"]
+  },
+  "👩‍❤️‍💋‍👩": {
+    "name": "bo'sa: ayol, ayol",
+    "keywords": ["sevgi", "bo'sa", "juftlik"]
+  },
+  "💑": {
+    "name": "yurak bilan juftlik",
+    "keywords": ["yubiley", "munosabat", "sevgi", "bo'sa"]
+  },
+  "👩‍❤️‍👨": {
+    "name": "yurak bilan juftlik: ayol, erkak",
+    "keywords": ["sevgi", "bo'sa", "munosabat", "ayol"]
+  },
+  "👨‍❤️‍👨": {
+    "name": "yurak bilan juftlik: erkak, erkak",
+    "keywords": ["sevgi", "bo'sa", "munosabat"]
+  },
+  "👩‍❤️‍👩": {
+    "name": "yurak bilan juftlik: ayol, ayol",
+    "keywords": ["sevgi", "bo'sa", "munosabat"]
+  },
+  "👨‍👩‍👦": {
+    "name": "oila: erkak, ayol, o'g'il bola",
+    "keywords": ["bola", "oila", "erkak", "ayol"]
+  },
+  "👨‍👩‍👧": {
+    "name": "oila: erkak, ayol, qiz bola",
+    "keywords": ["bola", "oila", "erkak", "ayol"]
+  },
+  "👨‍👩‍👧‍👦": {
+    "name": "oila: erkak, ayol, qiz bola, o'g'il bola",
+    "keywords": ["bola", "oila", "qiz", "erkak", "ayol"]
+  },
+  "👨‍👩‍👦‍👦": {
+    "name": "oila: erkak, ayol, o'g'il bola, o'g'il bola",
+    "keywords": ["bola", "oila", "erkak", "ayol"]
+  },
+  "👨‍👩‍👧‍👧": {
+    "name": "oila: erkak, ayol, qiz bola, qiz bola",
+    "keywords": ["bola", "oila", "erkak", "ayol"]
+  },
+  "👨‍👨‍👦": {
+    "name": "oila: erkak, erkak, o'g'il bola",
+    "keywords": ["bola", "oila", "erkak"]
+  },
+  "👨‍👨‍👧": {
+    "name": "oila: erkak, erkak, qiz bola",
+    "keywords": ["bola", "oila", "erkak"]
+  },
+  "👨‍👨‍👧‍👦": {
+    "name": "oila: erkak, erkak, qiz bola, o'g'il bola",
+    "keywords": ["bola", "oila", "qiz", "erkak"]
+  },
+  "👨‍👨‍👦‍👦": {
+    "name": "oila: erkak, erkak, o'g'il bola, o'g'il bola",
+    "keywords": ["bola", "oila", "erkak"]
+  },
+  "👨‍👨‍👧‍👧": {
+    "name": "oila: erkak, erkak, qiz bola, qiz bola",
+    "keywords": ["bola", "oila", "erkak"]
+  },
+  "👩‍👩‍👦": {
+    "name": "oila: ayol, ayol, o'g'il bola",
+    "keywords": ["bola", "oila", "ayol"]
+  },
+  "👩‍👩‍👧": {
+    "name": "oila: ayol, ayol, qiz bola",
+    "keywords": ["bola", "oila", "ayol"]
+  },
+  "👩‍👩‍👧‍👦": {
+    "name": "oila: ayol, ayol, qiz bola, o'g'il bola",
+    "keywords": ["bola", "oila", "qiz", "ayol"]
+  },
+  "👩‍👩‍👦‍👦": {
+    "name": "oila: ayol, ayol, o'g'il bola, o'g'il bola",
+    "keywords": ["bola", "oila", "ayol"]
+  },
+  "👩‍👩‍👧‍👧": {
+    "name": "oila: ayol, ayol, qiz bola, qiz bola",
+    "keywords": ["bola", "oila", "ayol"]
+  },
+  "👨‍👦": {
+    "name": "oila: erkak, o'g'il bola",
+    "keywords": ["bola", "oila", "erkak"]
+  },
+  "👨‍👦‍👦": {
+    "name": "oila: erkak, o'g'il bola, o'g'il bola",
+    "keywords": ["bola", "oila", "erkak"]
+  },
+  "👨‍👧": {
+    "name": "oila: erkak, qiz bola",
+    "keywords": ["bola", "oila", "erkak"]
+  },
+  "👨‍👧‍👦": {
+    "name": "oila: erkak, qiz bola, o'g'il bola",
+    "keywords": ["bola", "oila", "qiz", "erkak"]
+  },
+  "👨‍👧‍👧": {
+    "name": "oila: erkak, qiz bola, qiz bola",
+    "keywords": ["bola", "oila", "erkak"]
+  },
+  "👩‍👦": {
+    "name": "oila: ayol, o'g'il bola",
+    "keywords": ["bola", "oila", "ayol"]
+  },
+  "👩‍👦‍👦": {
+    "name": "oila: ayol, o'g'il bola, o'g'il bola",
+    "keywords": ["bola", "oila", "ayol"]
+  },
+  "👩‍👧": {
+    "name": "oila: ayol, qiz bola",
+    "keywords": ["bola", "oila", "ayol"]
+  },
+  "👩‍👧‍👦": {
+    "name": "oila: ayol, qiz bola, o'g'il bola",
+    "keywords": ["bola", "oila", "qiz", "ayol"]
+  },
+  "👩‍👧‍👧": {
+    "name": "oila: ayol, qiz bola, qiz bola",
+    "keywords": ["bola", "oila", "ayol"]
+  },
+  "🗣️": {
+    "name": "gapiruvchi bosh",
+    "keywords": ["yuz", "siluet", "gapirish"]
+  },
+  "👤": {
+    "name": "soyada odam siluetiga",
+    "keywords": ["sirli", "soya"]
+  },
+  "👥": {
+    "name": "soyadagi odamlar siluetlari",
+    "keywords": ["do'st", "do'stlar", "odamlar"]
+  },
+  "🫂": {
+    "name": "quchoqlashayotgan odamlar",
+    "keywords": ["quvvatlash", "quchoq", "do'stlik"]
+  },
+  "👪️": {
+    "name": "oila",
+    "keywords": ["bola"]
+  },
+  "🧑‍🧑‍🧒": {
+    "name": "oila: katta, katta, bola",
+    "keywords": ["katta yoshli", "oila"]
+  },
+  "🧑‍🧑‍🧒‍🧒": {
+    "name": "oila: katta, katta, bola, bola",
+    "keywords": ["katta yoshli", "oila"]
+  },
+  "🧑‍🧒": {
+    "name": "oila: katta, bola",
+    "keywords": ["katta yoshli", "oila"]
+  },
+  "🧑‍🧒‍🧒": {
+    "name": "oila: katta, bola, bola",
+    "keywords": ["katta yoshli", "oila"]
+  },
+  "👣": {
+    "name": "oyoq izlari",
+    "keywords": ["yalangoyoq", "iz", "yurish"]
+  },
+  "🫆": {
+    "name": "barmoq izi",
+    "keywords": ["dalil", "jinoyat", "detektiv"]
+  },
+  "🐵": {
+    "name": "maymun yuzi",
+    "keywords": ["hayvon", "banan"]
+  },
+  "🐒": {
+    "name": "maymun",
+    "keywords": ["hayvon", "banan"]
+  },
+  "🦍": {
+    "name": "gorilla",
+    "keywords": ["hayvon"]
+  },
+  "🦧": {
+    "name": "orangutan",
+    "keywords": ["hayvon", "maymun"]
+  },
+  "🐶": {
+    "name": "it yuzi",
+    "keywords": ["hayvon", "kuchukcha", "uy hayvoni"]
+  },
+  "🐕️": {
+    "name": "it",
+    "keywords": ["hayvon", "kuchuk", "uy hayvoni"]
+  },
+  "🦮": {
+    "name": "yordamchi it",
+    "keywords": ["imkoniyat", "hayvon", "ko'r"]
+  },
+  "🐕‍🦺": {
+    "name": "xizmatchi it",
+    "keywords": ["imkoniyat", "hayvon", "yordam"]
+  },
+  "🐩": {
+    "name": "pudel",
+    "keywords": ["hayvon", "it"]
+  },
+  "🐺": {
+    "name": "bo'ri",
+    "keywords": ["hayvon", "yuz"]
+  },
+  "🦊": {
+    "name": "tulki",
+    "keywords": ["hayvon", "yuz"]
+  },
+  "🦝": {
+    "name": "yenot",
+    "keywords": ["hayvon", "ayyor"]
+  },
+  "🐱": {
+    "name": "mushuk yuzi",
+    "keywords": ["hayvon", "mushukcha", "uy hayvoni"]
+  },
+  "🐈️": {
+    "name": "mushuk",
+    "keywords": ["hayvon", "mushukcha", "uy hayvoni"]
+  },
+  "🐈‍⬛": {
+    "name": "qora mushuk",
+    "keywords": ["hayvon", "mushuksimon", "xellouin", "omadsiz"]
+  },
+  "🦁": {
+    "name": "sher",
+    "keywords": ["hayvon", "yuz", "arslon burji", "kuchli"]
+  },
+  "🐯": {
+    "name": "yo'lbars yuzi",
+    "keywords": ["hayvon", "katta mushuk", "yirtqich"]
+  },
+  "🐅": {
+    "name": "yo'lbars",
+    "keywords": ["hayvon", "katta", "mushuk", "yirtqich", "hayvonot bog'i"]
+  },
+  "🐆": {
+    "name": "qoplon",
+    "keywords": ["hayvon", "katta", "mushuk", "yirtqich", "hayvonot bog'i"]
+  },
+  "🐴": {
+    "name": "ot yuzi",
+    "keywords": ["hayvon", "ferma"]
+  },
+  "🫎": {
+    "name": "los",
+    "keywords": ["hayvon", "shox"]
+  },
+  "🫏": {
+    "name": "eshak",
+    "keywords": ["hayvon", "qaysar"]
+  },
+  "🐎": {
+    "name": "ot",
+    "keywords": ["hayvon", "ferma", "poyga"]
+  },
+  "🦄": {
+    "name": "yakkashox",
+    "keywords": ["yuz"]
+  },
+  "🦓": {
+    "name": "zebra",
+    "keywords": ["hayvon", "chiziq"]
+  },
+  "🦌": {
+    "name": "kiyik",
+    "keywords": ["hayvon"]
+  },
+  "🦬": {
+    "name": "bizon",
+    "keywords": ["hayvon", "buyvol", "to'da"]
+  },
+  "🐮": {
+    "name": "sigir yuzi",
+    "keywords": ["hayvon", "ferma", "sut"]
+  },
+  "🐂": {
+    "name": "ho'kiz",
+    "keywords": ["hayvon", "buqa", "ferma", "savr burji", "burj"]
+  },
+  "🐃": {
+    "name": "suv buffalosi",
+    "keywords": ["hayvon", "hayvonot bog'i"]
+  },
+  "🐄": {
+    "name": "sigir",
+    "keywords": ["hayvon", "ferma", "sut", "mo'"]
+  },
+  "🐷": {
+    "name": "cho'chqa yuzi",
+    "keywords": ["hayvon", "bekon", "ferma"]
+  },
+  "🐖": {
+    "name": "cho'chqa",
+    "keywords": ["hayvon", "bekon", "ferma", "cho'chqa go'shti"]
+  },
+  "🐗": {
+    "name": "yovvoyi cho'chqa",
+    "keywords": ["hayvon", "cho'chqa"]
+  },
+  "🐽": {
+    "name": "cho'chqa burni",
+    "keywords": ["hayvon", "yuz", "ferma", "hid"]
+  },
+  "🐏": {
+    "name": "qo'chqor",
+    "keywords": ["hayvon", "shoxlar", "erkak", "qo'y", "burj", "hayvonot bog'i"]
+  },
+  "🐑": {
+    "name": "urg'ochi qo'y",
+    "keywords": ["hayvon", "ferma", "jun", "qo'zi", "qo'y"]
+  },
+  "🐐": {
+    "name": "echki",
+    "keywords": ["hayvon", "ferma", "sut", "burj"]
+  },
+  "🐪": {
+    "name": "tuya",
+    "keywords": ["hayvon", "cho'l", "do'mbog'i bitta"]
+  },
+  "🐫": {
+    "name": "ikki do'mbli tuya",
+    "keywords": ["hayvon", "cho'l", "do'mbog'i ikkita"]
+  },
+  "🦙": {
+    "name": "lama",
+    "keywords": ["alpaka", "hayvon", "jun"]
+  },
+  "🦒": {
+    "name": "jirafa",
+    "keywords": ["hayvon", "dog'lar"]
+  },
+  "🐘": {
+    "name": "fil",
+    "keywords": ["hayvon"]
+  },
+  "🦣": {
+    "name": "mamont",
+    "keywords": ["hayvon", "katta", "tish"]
+  },
+  "🦏": {
+    "name": "karkidon",
+    "keywords": ["hayvon"]
+  },
+  "🦛": {
+    "name": "begemot",
+    "keywords": ["hayvon"]
+  },
+  "🐭": {
+    "name": "sichqon yuzi",
+    "keywords": ["hayvon"]
+  },
+  "🐁": {
+    "name": "sichqon",
+    "keywords": ["hayvon"]
+  },
+  "🐀": {
+    "name": "kalamush",
+    "keywords": ["hayvon"]
+  },
+  "🐹": {
+    "name": "xomyak",
+    "keywords": ["hayvon", "yuz", "uy hayvoni"]
+  },
+  "🐰": {
+    "name": "quyon yuzi",
+    "keywords": ["hayvon", "quyoncha", "uy hayvoni"]
+  },
+  "🐇": {
+    "name": "quyon",
+    "keywords": ["hayvon", "quyoncha", "uy hayvoni"]
+  },
+  "🐿️": {
+    "name": "bo'rsildoq",
+    "keywords": ["hayvon", "olqor"]
+  },
+  "🦫": {
+    "name": "qunduz",
+    "keywords": ["hayvon", "to'g'on", "tish"]
+  },
+  "🦔": {
+    "name": "tipratikan",
+    "keywords": ["hayvon", "tikanli"]
+  },
+  "🦇": {
+    "name": "ko'rshapalak",
+    "keywords": ["hayvon", "vampir"]
+  },
+  "🐻": {
+    "name": "ayiq",
+    "keywords": ["hayvon", "yuz", "grizli", "homurtish"]
+  },
+  "🐻‍❄️": {
+    "name": "qutb ayig'i",
+    "keywords": ["hayvon", "arktika", "oq"]
+  },
+  "🐨": {
+    "name": "koala",
+    "keywords": ["hayvon", "avstraliya", "ayiq", "xaltali"]
+  },
+  "🐼": {
+    "name": "panda",
+    "keywords": ["hayvon", "bambuk", "yuz"]
+  },
+  "🦥": {
+    "name": "lenivets",
+    "keywords": ["dangasa", "sekin"]
+  },
+  "🦦": {
+    "name": "suv qunduzi",
+    "keywords": ["hayvon", "baliq ovlash", "o'ynoqi"]
+  },
+  "🦨": {
+    "name": "skunk",
+    "keywords": ["hayvon", "hid"]
+  },
+  "🦘": {
+    "name": "kenguru",
+    "keywords": ["hayvon", "sakrash", "xaltali"]
+  },
+  "🦡": {
+    "name": "bo'rsiq",
+    "keywords": ["hayvon", "asal"]
+  },
+  "🐾": {
+    "name": "panjalar izi",
+    "keywords": ["oyoq", "panja", "iz"]
+  },
+  "🦃": {
+    "name": "kurka",
+    "keywords": ["qush", "shukronalik kuni"]
+  },
+  "🐔": {
+    "name": "tovuq",
+    "keywords": ["hayvon", "qush"]
+  },
+  "🐓": {
+    "name": "xo'roz",
+    "keywords": ["hayvon", "qush"]
+  },
+  "🐣": {
+    "name": "tuxumdan chiqayotgan jo'ja",
+    "keywords": ["hayvon", "bola", "qush", "tuxum"]
+  },
+  "🐤": {
+    "name": "jo'ja",
+    "keywords": ["hayvon", "qush"]
+  },
+  "🐥": {
+    "name": "old tomonga qaragan jo'ja",
+    "keywords": ["hayvon", "qush", "yangi tug'ilgan"]
+  },
+  "🐦️": {
+    "name": "qush",
+    "keywords": ["hayvon"]
+  },
+  "🐧": {
+    "name": "pingvin",
+    "keywords": ["hayvon", "antarktida", "qush"]
+  },
+  "🕊️": {
+    "name": "kaptar",
+    "keywords": ["qush", "tinchlik"]
+  },
+  "🦅": {
+    "name": "burgut",
+    "keywords": ["hayvon", "qush"]
+  },
+  "🦆": {
+    "name": "o'rdak",
+    "keywords": ["hayvon", "qush"]
+  },
+  "🦢": {
+    "name": "oqqush",
+    "keywords": ["hayvon", "qush"]
+  },
+  "🦉": {
+    "name": "boyqush",
+    "keywords": ["hayvon", "qush", "dono"]
+  },
+  "🦤": {
+    "name": "dodo",
+    "keywords": ["hayvon", "qush", "yo'qolgan"]
+  },
+  "🪶": {
+    "name": "pat (patlar)",
+    "keywords": ["qush", "yengil"]
+  },
+  "🦩": {
+    "name": "flamingo",
+    "keywords": ["hayvon", "qush", "tropik"]
+  },
+  "🦚": {
+    "name": "tovus",
+    "keywords": ["hayvon", "qush", "rangdor"]
+  },
+  "🦜": {
+    "name": "to'tiqush",
+    "keywords": ["hayvon", "qush", "qaroqchi", "gapirish"]
+  },
+  "🪽": {
+    "name": "qanot",
+    "keywords": ["osmoniy", "qush", "uchish"]
+  },
+  "🐦‍⬛": {
+    "name": "qora qush",
+    "keywords": ["hayvon", "qarg'a"]
+  },
+  "🪿": {
+    "name": "g'oz",
+    "keywords": ["hayvon", "qush", "to'da"]
+  },
+  "🐦‍🔥": {
+    "name": "feniks",
+    "keywords": ["qayta tug'ilish", "abadiylik", "fantastika", "olov qushi"]
+  },
+  "🐸": {
+    "name": "qurbaqa",
+    "keywords": ["hayvon", "yuz"]
+  },
+  "🐊": {
+    "name": "timsoh",
+    "keywords": ["hayvon", "hayvonot bog'i"]
+  },
+  "🐢": {
+    "name": "toshbaqa",
+    "keywords": ["hayvon"]
+  },
+  "🦎": {
+    "name": "kaltakesak",
+    "keywords": ["hayvon", "sudralib yuruvchi"]
+  },
+  "🐍": {
+    "name": "ilon",
+    "keywords": ["hayvon", "burj"]
+  },
+  "🐲": {
+    "name": "ajdaho yuzi",
+    "keywords": ["hayvon", "ertak", "fantastika"]
+  },
+  "🐉": {
+    "name": "ajdaho",
+    "keywords": ["hayvon", "ertak", "fantastika"]
+  },
+  "🦕": {
+    "name": "sauropod",
+    "keywords": ["dinozavr"]
+  },
+  "🦖": {
+    "name": "T-Reks",
+    "keywords": ["dinozavr"]
+  },
+  "🐳": {
+    "name": "suv otuvchi kit",
+    "keywords": ["hayvon", "plyaj", "yuz", "okean"]
+  },
+  "🐋": {
+    "name": "kit",
+    "keywords": ["hayvon", "plyaj", "okean"]
+  },
+  "🐬": {
+    "name": "delfin",
+    "keywords": ["hayvon", "plyaj", "okean"]
+  },
+  "🦭": {
+    "name": "muhr (dengiz hayvoni)",
+    "keywords": ["hayvon", "okean"]
+  },
+  "🐟️": {
+    "name": "baliq",
+    "keywords": ["hayvon", "baliqchilik", "dalv burji", "burj"]
+  },
+  "🐠": {
+    "name": "tropik baliq",
+    "keywords": ["hayvon", "baliqlar"]
+  },
+  "🐡": {
+    "name": "puflama baliq",
+    "keywords": ["hayvon", "baliq"]
+  },
+  "🦈": {
+    "name": "akula",
+    "keywords": ["hayvon", "baliq"]
+  },
+  "🐙": {
+    "name": "sakkizoyoq",
+    "keywords": ["hayvon", "jonzot", "okean"]
+  },
+  "🐚": {
+    "name": "chig'anoq",
+    "keywords": ["hayvon", "plyaj", "dengiz"]
+  },
+  "🪸": {
+    "name": "marjon",
+    "keywords": ["o'zgarish", "okean", "dengiz"]
+  },
+  "🪼": {
+    "name": "meduza",
+    "keywords": ["hayvon", "akvarium", "hasharot", "dengiz"]
+  },
+  "🦀": {
+    "name": "qisqichbaqasimon",
+    "keywords": ["saraton", "burj"]
+  },
+  "🦞": {
+    "name": "omar",
+    "keywords": ["hayvon", "dengiz mahsuloti"]
+  },
+  "🦐": {
+    "name": "krevetka",
+    "keywords": ["ovqat", "dengiz mahsuloti", "kichik"]
+  },
+  "🦑": {
+    "name": "kalmar",
+    "keywords": ["hayvon", "ovqat"]
+  },
+  "🦪": {
+    "name": "ustritsa",
+    "keywords": ["marvarid"]
+  },
+  "🐌": {
+    "name": "shilliqqurt",
+    "keywords": ["hayvon", "bog'", "tabiat"]
+  },
+  "🦋": {
+    "name": "kapalak",
+    "keywords": ["hasharot", "chiroyli"]
+  },
+  "🐛": {
+    "name": "hasharot",
+    "keywords": ["hayvon", "bog'"]
+  },
+  "🐜": {
+    "name": "chumoli",
+    "keywords": ["hayvon", "bog'"]
+  },
+  "🐝": {
+    "name": "asalari",
+    "keywords": ["hayvon", "asal", "hasharot", "bahor"]
+  },
+  "🪲": {
+    "name": "qo'ng'iz",
+    "keywords": ["hayvon", "hasharot"]
+  },
+  "🐞": {
+    "name": "xonqizi",
+    "keywords": ["hayvon", "bog'", "hasharot", "tabiat"]
+  },
+  "🦗": {
+    "name": "chigirtka",
+    "keywords": ["hayvon", "hasharot"]
+  },
+  "🪳": {
+    "name": "tarakan",
+    "keywords": ["hayvon", "hasharot", "zararkunanda"]
+  },
+  "🕷️": {
+    "name": "o'rgimchak",
+    "keywords": ["hayvon", "hasharot"]
+  },
+  "🦂": {
+    "name": "chayon",
+    "keywords": ["chayon burji", "burj"]
+  },
+  "🦟": {
+    "name": "chivin",
+    "keywords": ["chaqish", "kasallik", "bezgak", "hasharot"]
+  },
+  "🪰": {
+    "name": "pashsha",
+    "keywords": ["hayvon", "kasallik", "hasharot"]
+  },
+  "🪱": {
+    "name": "chuvalchang",
+    "keywords": ["hayvon", "parazit"]
+  },
+  "🦠": {
+    "name": "mikrob",
+    "keywords": ["amyoba", "bakteriya", "fan", "virus"]
+  },
+  "💐": {
+    "name": "gulchambar",
+    "keywords": [
+      "yubiley",
+      "tug'ilgan kun",
+      "gul",
+      "sevgi",
+      "o'simlik",
+      "romantika"
+    ]
+  },
+  "🌸": {
+    "name": "sakura guli",
+    "keywords": ["gul", "o'simlik", "bahor"]
+  },
+  "🪷": {
+    "name": "lotos",
+    "keywords": ["go'zallik", "budda", "gul", "tinchlik", "poklik"]
+  },
+  "🏵️": {
+    "name": "rozetka gul",
+    "keywords": ["o'simlik"]
+  },
+  "🌹": {
+    "name": "atirgul",
+    "keywords": [
+      "go'zallik",
+      "nafis",
+      "gul",
+      "sevgi",
+      "o'simlik",
+      "qizil",
+      "sevgililar kuni"
+    ]
+  },
+  "🥀": {
+    "name": "so'lgan gul",
+    "keywords": ["qurigan"]
+  },
+  "🌺": {
+    "name": "gibiskus",
+    "keywords": ["gul", "o'simlik"]
+  },
+  "🌻": {
+    "name": "kungaboqar",
+    "keywords": ["gul", "tashqarida", "o'simlik", "quyosh"]
+  },
+  "🌼": {
+    "name": "gullagan gul",
+    "keywords": ["zarg'aldoq", "qoqio't", "gul", "o'simlik"]
+  },
+  "🌷": {
+    "name": "lola",
+    "keywords": ["gul", "gullash", "o'sish", "o'simlik"]
+  },
+  "🪻": {
+    "name": "sunbul",
+    "keywords": ["gul", "binafsha rang", "bahor"]
+  },
+  "🌱": {
+    "name": "ko'chat",
+    "keywords": ["o'simlik", "nihol", "unib chiqish", "yosh"]
+  },
+  "🪴": {
+    "name": "tuvakdagi o'simlik",
+    "keywords": ["uy", "o'simlik", "tuvak"]
+  },
+  "🌲": {
+    "name": "doim yashil daraxt",
+    "keywords": ["rojdestvo", "o'rmon", "qarag'ay"]
+  },
+  "🌳": {
+    "name": "bargli daraxt",
+    "keywords": ["o'rmon", "yashil", "makon", "barg to'kish"]
+  },
+  "🌴": {
+    "name": "palma daraxti",
+    "keywords": ["plyaj", "o'simlik", "tropik"]
+  },
+  "🌵": {
+    "name": "kaktus",
+    "keywords": ["cho'l", "qurg'oqchilik", "tabiat", "o'simlik"]
+  },
+  "🌾": {
+    "name": "sholi boshog'i",
+    "keywords": ["boshoq", "don", "donli", "o'simlik"]
+  },
+  "🌿": {
+    "name": "o'simlik",
+    "keywords": ["barg", "o'simlik"]
+  },
+  "☘️": {
+    "name": "sebarga",
+    "keywords": ["irland", "o'simlik"]
+  },
+  "🍀": {
+    "name": "to'rt bargli beda",
+    "keywords": ["4", "to'rt barg", "irland", "omadli", "o'simlik"]
+  },
+  "🍁": {
+    "name": "klyon bargi",
+    "keywords": ["tushayotgan"]
+  },
+  "🍂": {
+    "name": "to'kilgan barg",
+    "keywords": ["kuz", "barg to'kilishi"]
+  },
+  "🍃": {
+    "name": "shamolda uchayotgan barg",
+    "keywords": ["puflash", "uchish"]
+  },
+  "🪹": {
+    "name": "bo'sh uya",
+    "keywords": ["shox", "uy"]
+  },
+  "🪺": {
+    "name": "tuxumli uya",
+    "keywords": ["qush", "shox", "tuxum"]
+  },
+  "🍄": {
+    "name": "qo'ziqorin",
+    "keywords": ["zamburug'"]
+  },
+  "🪾": {
+    "name": "barglari to'kilgan daraxt",
+    "keywords": ["qurigan", "shoxlar", "qish"]
+  },
+  "🍇": {
+    "name": "uzum",
+    "keywords": ["meva"]
+  },
+  "🍈": {
+    "name": "qovun",
+    "keywords": ["meva"]
+  },
+  "🍉": {
+    "name": "tarvuz",
+    "keywords": ["meva"]
+  },
+  "🍊": {
+    "name": "mandarin",
+    "keywords": ["sitrus", "meva", "apelsin", "vitamin"]
+  },
+  "🍋": {
+    "name": "limon",
+    "keywords": ["sitrus", "meva", "nordon"]
+  },
+  "🍋‍🟩": {
+    "name": "laym",
+    "keywords": ["sitrus", "kokteyl", "meva", "nordon", "tropik"]
+  },
+  "🍌": {
+    "name": "banan",
+    "keywords": ["meva", "kaliy"]
+  },
+  "🍍": {
+    "name": "ananas",
+    "keywords": ["kokteyl", "meva", "tropik"]
+  },
+  "🥭": {
+    "name": "mango",
+    "keywords": ["ovqat", "meva"]
+  },
+  "🍎": {
+    "name": "qizil olma",
+    "keywords": ["parhez", "ovqat", "meva", "salomat", "pishgan"]
+  },
+  "🍏": {
+    "name": "yashil olma",
+    "keywords": ["meva"]
+  },
+  "🍐": {
+    "name": "nok",
+    "keywords": ["meva"]
+  },
+  "🍑": {
+    "name": "shaftoli",
+    "keywords": ["meva"]
+  },
+  "🍒": {
+    "name": "gilos",
+    "keywords": ["meva", "qizil"]
+  },
+  "🍓": {
+    "name": "qulupnay",
+    "keywords": ["meva"]
+  },
+  "🫐": {
+    "name": "ko'k mevalar",
+    "keywords": ["meva", "reza"]
+  },
+  "🥝": {
+    "name": "kivi",
+    "keywords": ["ovqat"]
+  },
+  "🍅": {
+    "name": "pomidor",
+    "keywords": ["ovqat", "meva", "sabzavot"]
+  },
+  "🫒": {
+    "name": "zaytun",
+    "keywords": ["ovqat"]
+  },
+  "🥥": {
+    "name": "kokos yong'og'i",
+    "keywords": ["palma"]
+  },
+  "🥑": {
+    "name": "avokado",
+    "keywords": ["ovqat", "meva"]
+  },
+  "🍆": {
+    "name": "baqlajon",
+    "keywords": ["sabzavot"]
+  },
+  "🥔": {
+    "name": "kartoshka",
+    "keywords": ["ovqat", "sabzavot"]
+  },
+  "🥕": {
+    "name": "sabzi",
+    "keywords": ["ovqat", "sabzavot"]
+  },
+  "🌽": {
+    "name": "makkajo'xori boshog'i",
+    "keywords": ["ekin", "fermer", "makkajo'xori"]
+  },
+  "🫑": {
+    "name": "bulg'or qalampiri",
+    "keywords": ["ovqat", "sabzavot"]
+  },
+  "🥒": {
+    "name": "bodring",
+    "keywords": ["ovqat", "sabzavot"]
+  },
+  "🥬": {
+    "name": "bargli sabzavot",
+    "keywords": ["karam", "salat"]
+  },
+  "🥦": {
+    "name": "brokkoli",
+    "keywords": ["karam"]
+  },
+  "🧄": {
+    "name": "sarimsoq",
+    "keywords": ["ziravor"]
+  },
+  "🧅": {
+    "name": "piyoz",
+    "keywords": ["ziravor"]
+  },
+  "🥜": {
+    "name": "yeryong'oq",
+    "keywords": ["ovqat", "yong'oq"]
+  },
+  "🫘": {
+    "name": "loviya",
+    "keywords": ["ovqat", "dukkak"]
+  },
+  "🌰": {
+    "name": "kashtan",
+    "keywords": ["bodom", "o'simlik"]
+  },
+  "🫚": {
+    "name": "zanjabil ildizi",
+    "keywords": ["ziravor", "foydali"]
+  },
+  "🫛": {
+    "name": "no'xat po'stlog'i",
+    "keywords": ["dukkakli", "sabzavot"]
+  },
+  "🍄‍🟫": {
+    "name": "jigarrang qo'ziqorin",
+    "keywords": ["ovqat", "zamburug'", "tabiat", "pitsa", "sabzavot"]
+  },
+  "🫜": {
+    "name": "ildiz sabzavoti",
+    "keywords": ["lavlagi", "turp", "bog'", "sabzavot"]
+  },
+  "🍞": {
+    "name": "non",
+    "keywords": ["ovqat", "don", "bug'doy", "tost"]
+  },
+  "🥐": {
+    "name": "kruassan",
+    "keywords": ["non", "nonushta", "fransuz"]
+  },
+  "🥖": {
+    "name": "baget non",
+    "keywords": ["ovqat", "fransuz"]
+  },
+  "🫓": {
+    "name": "yupqa non",
+    "keywords": ["non", "ovqat"]
+  },
+  "🥨": {
+    "name": "kruglik",
+    "keywords": ["burama"]
+  },
+  "🥯": {
+    "name": "bagel",
+    "keywords": ["non", "nonushta"]
+  },
+  "🥞": {
+    "name": "blinchik",
+    "keywords": ["nonushta", "ovqat"]
+  },
+  "🧇": {
+    "name": "vafli",
+    "keywords": ["nonushta"]
+  },
+  "🍗": {
+    "name": "parranda oyog'i",
+    "keywords": ["suyak", "tovuq", "och"]
+  },
+  "🥩": {
+    "name": "go'sht bo'lagi",
+    "keywords": ["qiyma", "steyk"]
+  },
+  "🥓": {
+    "name": "bekon",
+    "keywords": ["nonushta", "ovqat", "go'sht"]
+  },
+  "🍔": {
+    "name": "gamburger",
+    "keywords": ["burger", "ovqat", "och"]
+  },
+  "🍟": {
+    "name": "fri kartoshka",
+    "keywords": ["ovqat"]
+  },
+  "🍕": {
+    "name": "pitsa",
+    "keywords": ["pishloq", "ovqat", "pepperoni", "bo'lak"]
+  },
+  "🌭": {
+    "name": "xot-dog",
+    "keywords": ["sosiska", "xotdog"]
+  },
+  "🥪": {
+    "name": "sendvich",
+    "keywords": ["non"]
+  },
+  "🌮": {
+    "name": "tako",
+    "keywords": ["meksika"]
+  },
+  "🌯": {
+    "name": "burrito",
+    "keywords": ["meksika", "o'rov"]
+  },
+  "🫔": {
+    "name": "tamale",
+    "keywords": ["ovqat", "meksika"]
+  },
+  "🥙": {
+    "name": "to'ldirilgan lavash",
+    "keywords": ["falafel", "ovqat", "kabob"]
+  },
+  "🧆": {
+    "name": "falafel",
+    "keywords": ["no'xat"]
+  },
+  "🥚": {
+    "name": "tuxum",
+    "keywords": ["nonushta", "ovqat"]
+  },
+  "🍳": {
+    "name": "pishirish",
+    "keywords": ["nonushta", "tuxum", "qovurish", "tovada"]
+  },
+  "🥘": {
+    "name": "yassi tovadagi ovqat",
+    "keywords": ["qozon", "paella"]
+  },
+  "🍲": {
+    "name": "idishdagi ovqat",
+    "keywords": ["sho'rva", "dimlama"]
+  },
+  "🫕": {
+    "name": "fondyu",
+    "keywords": ["pishloq", "shokolad", "ovqat", "erigan"]
+  },
+  "🥣": {
+    "name": "kosa va qoshiq",
+    "keywords": ["nonushta", "bo'tqa"]
+  },
+  "🥗": {
+    "name": "yashil salat",
+    "keywords": ["ovqat"]
+  },
+  "🍿": {
+    "name": "popkorn",
+    "keywords": ["makkajo'xori", "kino"]
+  },
+  "🧈": {
+    "name": "sariyog'",
+    "keywords": ["sut mahsuloti"]
+  },
+  "🧂": {
+    "name": "tuz",
+    "keywords": ["ziravor", "ta'm"]
+  },
+  "🥫": {
+    "name": "konservalangan ovqat",
+    "keywords": ["banka"]
+  },
+  "🍱": {
+    "name": "bento qutisi",
+    "keywords": ["ovqat"]
+  },
+  "🍘": {
+    "name": "guruch pechenyesi",
+    "keywords": ["ovqat"]
+  },
+  "🍙": {
+    "name": "guruch to'pi",
+    "keywords": ["ovqat", "yapon"]
+  },
+  "🍚": {
+    "name": "pishirilgan guruch",
+    "keywords": ["ovqat"]
+  },
+  "🍛": {
+    "name": "karrili guruch",
+    "keywords": ["ovqat"]
+  },
+  "🍜": {
+    "name": "bug'langan kosa",
+    "keywords": ["choʻp", "ovqat", "lag'mon", "sho'rva"]
+  },
+  "🍝": {
+    "name": "spagetti",
+    "keywords": ["ovqat", "pasta", "restoran"]
+  },
+  "🍠": {
+    "name": "qovurilgan shirin kartoshka",
+    "keywords": ["ovqat"]
+  },
+  "🍢": {
+    "name": "oden",
+    "keywords": ["ovqat", "kabob", "restoran", "dengiz mahsuloti"]
+  },
+  "🍣": {
+    "name": "sushi",
+    "keywords": ["ovqat"]
+  },
+  "🍤": {
+    "name": "qovurilgan qisqichbaqa",
+    "keywords": ["krevetka", "tempura"]
+  },
+  "🍥": {
+    "name": "girdob baliq keki",
+    "keywords": ["ovqat", "non mahsuloti", "restoran"]
+  },
+  "🥮": {
+    "name": "oy pechenyesi",
+    "keywords": ["kuz", "festival"]
+  },
+  "🍡": {
+    "name": "dango",
+    "keywords": ["desert", "yapon", "tayoqcha", "shirin"]
+  },
+  "🥟": {
+    "name": "chuchvara",
+    "keywords": ["pelmeni", "manti"]
+  },
+  "🥠": {
+    "name": "baxt pechenyesi",
+    "keywords": ["bashorat"]
+  },
+  "🥡": {
+    "name": "olib ketish qutisi",
+    "keywords": ["ovqat", "yetkazib berish"]
+  },
+  "🍦": {
+    "name": "yumshoq muzqaymoq",
+    "keywords": ["desert", "ovqat", "muzqaymoq", "restoran", "shirin"]
+  },
+  "🍧": {
+    "name": "qirilgan muz",
+    "keywords": ["desert", "restoran", "shirin"]
+  },
+  "🍨": {
+    "name": "muzqaymoq",
+    "keywords": ["desert", "ovqat", "restoran", "shirin"]
+  },
+  "🍩": {
+    "name": "donut",
+    "keywords": ["nonushta", "desert", "shirinlik", "ovqat"]
+  },
+  "🍪": {
+    "name": "pechenye",
+    "keywords": ["chips", "shokolad", "desert", "shirin"]
+  },
+  "🎂": {
+    "name": "tug'ilgan kun torti",
+    "keywords": ["bayram", "desert", "bayramona", "shirin"]
+  },
+  "🍰": {
+    "name": "tort bo'lagi",
+    "keywords": ["tort", "desert", "non mahsuloti", "bo'lak", "shirin"]
+  },
+  "🧁": {
+    "name": "keks",
+    "keywords": ["desert", "shirinlik"]
+  },
+  "🥧": {
+    "name": "pirog",
+    "keywords": ["olma", "meva", "go'sht", "qovoq"]
+  },
+  "🍫": {
+    "name": "shokolad plitkasi",
+    "keywords": ["konfet", "desert", "xellouin", "shirin"]
+  },
+  "🍬": {
+    "name": "konfet",
+    "keywords": ["desert", "xellouin", "restoran", "shirin", "o'rovchi"]
+  },
+  "🍭": {
+    "name": "lolipop",
+    "keywords": ["konfet", "desert", "ovqat", "restoran", "shirin"]
+  },
+  "🍮": {
+    "name": "zakuska krem",
+    "keywords": ["desert", "puding", "shirin"]
+  },
+  "🍯": {
+    "name": "asal ko'zasi",
+    "keywords": ["bochka", "ayiq", "ovqat", "ko'za", "shirin"]
+  },
+  "🍼": {
+    "name": "chaqaloq shishasi",
+    "keywords": [
+      "bolalar",
+      "tug'ilish",
+      "ichimlik",
+      "chaqaloq",
+      "sut",
+      "yangi tug'ilgan"
+    ]
+  },
+  "🥛": {
+    "name": "sut stakani",
+    "keywords": ["ichimlik"]
+  },
+  "☕️": {
+    "name": "issiq ichimlik",
+    "keywords": ["qahva", "choy", "ertalab"]
+  },
+  "🫖": {
+    "name": "choynak",
+    "keywords": ["ichimlik", "choy"]
+  },
+  "🍵": {
+    "name": "dastagi yo'q choy piyolasi",
+    "keywords": ["ichimlik", "piyola", "choy"]
+  },
+  "🍶": {
+    "name": "sake",
+    "keywords": ["bar", "ichimlik", "shisha", "piyola"]
+  },
+  "🍾": {
+    "name": "korki otilayotgan shisha",
+    "keywords": ["bar", "ichimlik"]
+  },
+  "🍷": {
+    "name": "vino qadahi",
+    "keywords": ["alkogol", "bar", "ichimlik", "bo'za"]
+  },
+  "🍸️": {
+    "name": "kokteyl qadahi",
+    "keywords": ["alkogol", "bar", "bo'za", "ichimlik"]
+  },
+  "🍹": {
+    "name": "tropik ichimlik",
+    "keywords": ["alkogol", "bar", "bo'za", "kokteyl", "ziyofat", "tropik"]
+  },
+  "🍺": {
+    "name": "pivo krujkasi",
+    "keywords": ["alkogol", "bar", "bo'za", "ichimlik"]
+  },
+  "🍻": {
+    "name": "to'qnashayotgan pivo krujkalari",
+    "keywords": ["alkogol", "bar", "bo'za", "ichimlik"]
+  },
+  "🥂": {
+    "name": "to'qnashuvchi qadahlar",
+    "keywords": ["nishonlash", "ichimlik", "qadah"]
+  },
+  "🥃": {
+    "name": "stakan (viski)",
+    "keywords": ["ichimlik", "viski"]
+  },
+  "🫗": {
+    "name": "to'kilayotgan suyuqlik",
+    "keywords": ["to'kilish", "suv", "stakan"]
+  },
+  "🥤": {
+    "name": "nay bilan stakan",
+    "keywords": ["ichimlik", "sharbat", "soda", "suv"]
+  },
+  "🧋": {
+    "name": "bubl choy",
+    "keywords": ["sut", "marvarid"]
+  },
+  "🧃": {
+    "name": "ichimlik qutisi",
+    "keywords": ["sharbat", "nay"]
+  },
+  "🧉": {
+    "name": "mate (ichimlik)",
+    "keywords": ["ichimlik"]
+  },
+  "🧊": {
+    "name": "muz",
+    "keywords": ["sovuq", "kub"]
+  },
+  "🥢": {
+    "name": "tayoqchalar",
+    "keywords": ["hashi"]
+  },
+  "🍽️": {
+    "name": "tarelkadagi vilka va pichoq",
+    "keywords": ["oshpazlik", "dinner", "och"]
+  },
+  "🍴": {
+    "name": "vilka va pichoq",
+    "keywords": ["nonushta", "oshpazlik", "dinner", "ovqat", "och"]
+  },
+  "🥄": {
+    "name": "qoshiq",
+    "keywords": ["ovqatlanish"]
+  },
+  "🔪": {
+    "name": "oshxona pichog'i",
+    "keywords": ["oshpaz", "pishirish", "asbob", "qurol"]
+  },
+  "🫙": {
+    "name": "idish (bank)",
+    "keywords": ["konteyner", "sous"]
+  },
+  "🏺": {
+    "name": "amfora",
+    "keywords": ["oshxona", "ichimlik", "ko'za", "asbob", "qurol", "burj"]
+  },
+  "🌍️": {
+    "name": "Yevropa-Afrika globusi",
+    "keywords": ["afrika", "yer", "yevropa", "dunyo"]
+  },
+  "🌎️": {
+    "name": "Amerika globusi",
+    "keywords": ["yer", "dunyo"]
+  },
+  "🌏️": {
+    "name": "Osiyo-Avstraliya globusi",
+    "keywords": ["osiyo", "avstraliya", "yer", "dunyo"]
+  },
+  "🌐": {
+    "name": "meridianli globus",
+    "keywords": ["yer", "internet", "veb", "dunyo"]
+  },
+  "🧭": {
+    "name": "kompas",
+    "keywords": ["yo'nalish", "magnit", "navigatsiya"]
+  },
+  "🏔️": {
+    "name": "qorli tog'",
+    "keywords": ["sovuq", "qor"]
+  },
+  "🌋": {
+    "name": "vulkan",
+    "keywords": ["portlash", "tog'", "tabiat"]
+  },
+  "🗻": {
+    "name": "Fudzi tog'i",
+    "keywords": ["tog'", "tabiat"]
+  },
+  "🏗️": {
+    "name": "qurilish",
+    "keywords": ["kran"]
+  },
+  "🧱": {
+    "name": "g'isht",
+    "keywords": ["loy", "devor"]
+  },
+  "🪨": {
+    "name": "tosh",
+    "keywords": ["qoya", "og'ir", "qattiq"]
+  },
+  "🪵": {
+    "name": "yog'och",
+    "keywords": ["brevno", "tomiri"]
+  },
+  "🛖": {
+    "name": "kulba",
+    "keywords": ["uy", "panoh"]
+  },
+  "🏘️": {
+    "name": "uylar",
+    "keywords": ["uy"]
+  },
+  "🏚️": {
+    "name": "xarob uy",
+    "keywords": ["uy"]
+  },
+  "🏠️": {
+    "name": "uy",
+    "keywords": ["bino", "mamlakat", "yurak", "ranch", "uy", "oddiy", "chekka"]
+  },
+  "🏡": {
+    "name": "bog'li uy",
+    "keywords": ["bino", "mamlakat", "yurak", "ranch", "uy", "oddiy", "chekka"]
+  },
+  "🏢": {
+    "name": "ofis binosi",
+    "keywords": ["shahar", "ish"]
+  },
+  "🏣": {
+    "name": "yapon pochta bo'limi",
+    "keywords": ["bino"]
+  },
+  "🏤": {
+    "name": "pochta bo'limi",
+    "keywords": ["bino", "yevropa"]
+  },
+  "🏥": {
+    "name": "kasalxona",
+    "keywords": ["bino", "shifokor", "tibbiyot"]
+  },
+  "🏦": {
+    "name": "bank",
+    "keywords": ["bino"]
+  },
+  "🏨": {
+    "name": "mehmonxona",
+    "keywords": ["bino"]
+  },
+  "🏩": {
+    "name": "sevgi mehmonxonasi",
+    "keywords": ["bino"]
+  },
+  "🏪": {
+    "name": "supermarket",
+    "keywords": ["24 soat", "bino"]
+  },
+  "🏫": {
+    "name": "maktab",
+    "keywords": ["bino"]
+  },
+  "🏬": {
+    "name": "do'kon (universal)",
+    "keywords": ["bino"]
+  },
+  "🏭️": {
+    "name": "zavod",
+    "keywords": ["bino"]
+  },
+  "🏯": {
+    "name": "yapon qal'asi",
+    "keywords": ["bino"]
+  },
+  "🏰": {
+    "name": "qal'a",
+    "keywords": ["bino", "yevropa"]
+  },
+  "💒": {
+    "name": "to'y",
+    "keywords": ["kapella", "nikoh", "romantika"]
+  },
+  "🗽": {
+    "name": "Ozodlik haykali",
+    "keywords": ["nyu-york"]
+  },
+  "⛪️": {
+    "name": "cherkov",
+    "keywords": ["xoch", "din"]
+  },
+  "🕌": {
+    "name": "masjid",
+    "keywords": ["islom", "musulmon", "din"]
+  },
+  "🕍": {
+    "name": "sinagoga",
+    "keywords": ["yahudiy", "din"]
+  },
+  "⛩️": {
+    "name": "shinto ibodatxonasi",
+    "keywords": ["din"]
+  },
+  "🕋": {
+    "name": "Ka'ba",
+    "keywords": ["haj", "islom", "musulmon", "din"]
+  },
+  "⛺️": {
+    "name": "chodir",
+    "keywords": ["kemping"]
+  },
+  "🌁": {
+    "name": "tumanli",
+    "keywords": ["tuman"]
+  },
+  "🌃": {
+    "name": "yulduzli tun",
+    "keywords": ["yulduz"]
+  },
+  "🏙️": {
+    "name": "shahar manzarasi",
+    "keywords": ["shahar"]
+  },
+  "🌄": {
+    "name": "tog' ortidan quyosh chiqishi",
+    "keywords": ["ertalab", "quyosh"]
+  },
+  "🌅": {
+    "name": "quyosh chiqishi",
+    "keywords": ["ertalab", "tabiat", "quyosh"]
+  },
+  "🌆": {
+    "name": "shom paytidagi shahar manzarasi",
+    "keywords": ["bino", "shahar", "kech", "manzara", "quyosh", "shom"]
+  },
+  "🌇": {
+    "name": "quyosh botishi",
+    "keywords": ["bino", "shom", "quyosh"]
+  },
+  "♨️": {
+    "name": "issiq buloqlar",
+    "keywords": ["bug'"]
+  },
+  "🎠": {
+    "name": "karusel oti",
+    "keywords": ["ko'ngilochar"]
+  },
+  "🛝": {
+    "name": "o'yin maydonchasi sirg'anish qismi",
+    "keywords": ["dam olish", "o'ynash", "park"]
+  },
+  "🎡": {
+    "name": "aylanma katta g'ildirak",
+    "keywords": ["dam olish", "park", "tema"]
+  },
+  "🎢": {
+    "name": "amerika tog'lari",
+    "keywords": ["dam olish", "park", "tema"]
+  },
+  "💈": {
+    "name": "sartarosh ustuni",
+    "keywords": ["kesish", "soch olish", "silliq"]
+  },
+  "🚂": {
+    "name": "lokomotiv",
+    "keywords": ["temir yo'l", "poyezd", "bug'"]
+  },
+  "🚃": {
+    "name": "temir yo'l vagoni",
+    "keywords": ["elektr", "poyezd", "tramvay", "sayohat"]
+  },
+  "🚄": {
+    "name": "tezyurar poyezd",
+    "keywords": ["temir yo'l", "tezlik"]
+  },
+  "🚅": {
+    "name": "super tezyurar poyezd",
+    "keywords": ["temir yo'l", "tezlik", "sayohat"]
+  },
+  "🚆": {
+    "name": "poyezd",
+    "keywords": ["temir yo'l"]
+  },
+  "🚇️": {
+    "name": "metro",
+    "keywords": ["sayohat"]
+  },
+  "🚈": {
+    "name": "yengil temir yo'l",
+    "keywords": ["temir yo'l"]
+  },
+  "🚉": {
+    "name": "stansiya",
+    "keywords": ["temir yo'l", "poyezd"]
+  },
+  "🚝": {
+    "name": "monorels",
+    "keywords": ["transport"]
+  },
+  "🚞": {
+    "name": "tog' temir yo'li",
+    "keywords": ["mashina", "sayohat"]
+  },
+  "🚋": {
+    "name": "tramvay vagoni",
+    "keywords": ["avtobus", "tramvay"]
+  },
+  "🚌": {
+    "name": "avtobus",
+    "keywords": ["maktab", "transport"]
+  },
+  "🚍️": {
+    "name": "qarshi kelayotgan avtobus",
+    "keywords": ["mashinalar"]
+  },
+  "🚎": {
+    "name": "trolleybus",
+    "keywords": ["avtobus", "tramvay"]
+  },
+  "🚐": {
+    "name": "mikroavtobus",
+    "keywords": ["avtobus", "transport"]
+  },
+  "🚑️": {
+    "name": "tez yordam",
+    "keywords": ["favqulodda", "transport"]
+  },
+  "🚒": {
+    "name": "o't o'chirish mashinasi",
+    "keywords": ["yuk mashinasi"]
+  },
+  "🚓": {
+    "name": "politsiya mashinasi",
+    "keywords": ["patrul"]
+  },
+  "🚕": {
+    "name": "taksi",
+    "keywords": ["mashina", "transport"]
+  },
+  "🚖": {
+    "name": "qarshi kelayotgan taksi",
+    "keywords": ["mashinalar", "sariq"]
+  },
+  "🚗": {
+    "name": "avtomobil",
+    "keywords": ["mashina", "transport"]
+  },
+  "🚘️": {
+    "name": "qarshi kelayotgan avtomobil",
+    "keywords": ["mashina", "mashinalar"]
+  },
+  "🚙": {
+    "name": "yo'ldan tashqari transport vositasi",
+    "keywords": ["mashina", "dam olish"]
+  },
+  "🛻": {
+    "name": "yuk mashinasi (pikap)",
+    "keywords": ["mashina", "transport"]
+  },
+  "🚚": {
+    "name": "yetkazib berish yuk mashinasi",
+    "keywords": ["mashina", "transport"]
+  },
+  "🚛": {
+    "name": "tirkamali yuk mashinasi",
+    "keywords": ["mashina", "yuk mashinasi", "transport"]
+  },
+  "🚜": {
+    "name": "traktor",
+    "keywords": ["transport"]
+  },
+  "🏎️": {
+    "name": "poyga mashinasi",
+    "keywords": ["tezlik"]
+  },
+  "🏍️": {
+    "name": "mototsikl",
+    "keywords": ["poyga"]
+  },
+  "🦽": {
+    "name": "qo'lda boshqariladigan aravacha",
+    "keywords": ["imkoniyat"]
+  },
+  "🦼": {
+    "name": "motorli aravacha",
+    "keywords": ["imkoniyat"]
+  },
+  "🚲️": {
+    "name": "velosiped",
+    "keywords": ["velosiped", "sinf", "aylanish", "poyga"]
+  },
+  "🛹": {
+    "name": "skeytbord",
+    "keywords": ["taxta", "g'ildiraklar"]
+  },
+  "🛼": {
+    "name": "g'ildirakli konki",
+    "keywords": ["sport"]
+  },
+  "🛣️": {
+    "name": "avtomagistral",
+    "keywords": ["yo'l"]
+  },
+  "🛤️": {
+    "name": "temir yo'l izi",
+    "keywords": ["poyezd"]
+  },
+  "⛽️": {
+    "name": "yoqilg'i quyish moslamasi",
+    "keywords": ["benzin", "stansiya"]
+  },
+  "🛞": {
+    "name": "g'ildirak",
+    "keywords": ["mashina", "aylana", "shina"]
+  },
+  "🚨": {
+    "name": "politsiya mashinasi chirog'i",
+    "keywords": ["signal", "ogohlantirish", "favqulodda"]
+  },
+  "🚥": {
+    "name": "gorizontal svetofor",
+    "keywords": ["chorraha", "signal", "to'xta"]
+  },
+  "🚦": {
+    "name": "vertikal svetofor",
+    "keywords": ["chorraha", "signal", "to'xta"]
+  },
+  "🛑": {
+    "name": "to'xtash belgisi",
+    "keywords": ["sakkiz burchakli"]
+  },
+  "🚧": {
+    "name": "qurilish (yo'l)",
+    "keywords": ["to'siq"]
+  },
+  "⚓️": {
+    "name": "langar",
+    "keywords": ["kema", "asbob"]
+  },
+  "🛟": {
+    "name": "halqasimon suzuvchi",
+    "keywords": ["qutqaruv", "xavfsizlik"]
+  },
+  "⛵️": {
+    "name": "yelkanli qayiq",
+    "keywords": ["qayiq", "dengiz", "yaxta"]
+  },
+  "🛶": {
+    "name": "kanoe",
+    "keywords": ["qayiq"]
+  },
+  "🚤": {
+    "name": "tezyurar qayiq",
+    "keywords": ["qayiq", "ko'l", "hashamat", "sayohat"]
+  },
+  "⛴️": {
+    "name": "parom",
+    "keywords": ["qayiq", "yo'lovchi"]
+  },
+  "🚢": {
+    "name": "kema",
+    "keywords": ["kema", "yo'lovchi", "sayohat"]
+  },
+  "✈️": {
+    "name": "samolyot",
+    "keywords": ["uchish", "sayohat"]
+  },
+  "🛩️": {
+    "name": "kichik samolyot",
+    "keywords": ["samolyot"]
+  },
+  "🛫": {
+    "name": "samolyot uchishi",
+    "keywords": ["samolyot", "jo'nash"]
+  },
+  "🛬": {
+    "name": "samolyot qo'nishi",
+    "keywords": ["samolyot", "qo'nish"]
+  },
+  "🪂": {
+    "name": "parashyut",
+    "keywords": ["sakrash"]
+  },
+  "💺": {
+    "name": "kreslo",
+    "keywords": ["stul"]
+  },
+  "🚁": {
+    "name": "vertolyot",
+    "keywords": ["sayohat", "transport"]
+  },
+  "🚠": {
+    "name": "kanat yo'li (tog')",
+    "keywords": ["kanat", "lift", "chang'i"]
+  },
+  "🚡": {
+    "name": "havo kanat yo'li",
+    "keywords": ["kanat", "mashina"]
+  },
+  "🛰️": {
+    "name": "sun'iy yo'ldosh",
+    "keywords": ["kosmos"]
+  },
+  "🚀": {
+    "name": "raketa",
+    "keywords": ["uchish", "kosmos", "sayohat"]
+  },
+  "🛸": {
+    "name": "uchar likopcha",
+    "keywords": ["begonalar", "ufo"]
+  },
+  "🛎️": {
+    "name": "mehmonxona qo'ng'irog'i",
+    "keywords": ["mehmonxona"]
+  },
+  "🧳": {
+    "name": "yuk (chamodon)",
+    "keywords": ["sumka", "sayohat"]
+  },
+  "⌛️": {
+    "name": "tugagan qum soat",
+    "keywords": ["vaqt", "taymer"]
+  },
+  "⏳️": {
+    "name": "tugamagan qum soat",
+    "keywords": ["vaqt", "kutish"]
+  },
+  "⌚️": {
+    "name": "soat (qo'l soati)",
+    "keywords": ["vaqt"]
+  },
+  "⏰️": {
+    "name": "uyg'otgich soat",
+    "keywords": ["vaqt", "kutish"]
+  },
+  "⏱️": {
+    "name": "sekundomer",
+    "keywords": ["soat", "vaqt"]
+  },
+  "🕰️": {
+    "name": "devor soati",
+    "keywords": ["vaqt"]
+  },
+  "🕛️": {
+    "name": "soat o'n ikki",
+    "keywords": ["soat", "vaqt"]
+  },
+  "🕧️": {
+    "name": "o'n ikki yarim",
+    "keywords": ["soat", "vaqt"]
+  },
+  "🕐️": {
+    "name": "soat bir",
+    "keywords": ["soat", "vaqt"]
+  },
+  "🕜️": {
+    "name": "bir yarim",
+    "keywords": ["soat", "vaqt"]
+  },
+  "🕑️": {
+    "name": "soat ikki",
+    "keywords": ["soat", "vaqt"]
+  },
+  "🕝️": {
+    "name": "ikki yarim",
+    "keywords": ["soat", "vaqt"]
+  },
+  "🕒️": {
+    "name": "soat uch",
+    "keywords": ["soat", "vaqt"]
+  },
+  "🕞️": {
+    "name": "uch yarim",
+    "keywords": ["soat", "vaqt"]
+  },
+  "🕓️": {
+    "name": "soat to'rt",
+    "keywords": ["soat", "vaqt"]
+  },
+  "🕟️": {
+    "name": "to'rt yarim",
+    "keywords": ["soat", "vaqt"]
+  },
+  "🕔️": {
+    "name": "soat besh",
+    "keywords": ["soat", "vaqt"]
+  },
+  "🕠️": {
+    "name": "besh yarim",
+    "keywords": ["soat", "vaqt"]
+  },
+  "🕕️": {
+    "name": "soat olti",
+    "keywords": ["soat", "vaqt"]
+  },
+  "🕡️": {
+    "name": "olti yarim",
+    "keywords": ["soat"]
+  },
+  "🕖️": {
+    "name": "soat yetti",
+    "keywords": ["soat"]
+  },
+  "🕢️": {
+    "name": "yetti yarim",
+    "keywords": ["soat"]
+  },
+  "🕗️": {
+    "name": "soat sakkiz",
+    "keywords": ["soat", "vaqt"]
+  },
+  "🕣️": {
+    "name": "sakkiz yarim",
+    "keywords": ["soat", "vaqt"]
+  },
+  "🕘️": {
+    "name": "soat to'qqiz",
+    "keywords": ["soat", "vaqt"]
+  },
+  "🕤️": {
+    "name": "to'qqiz yarim",
+    "keywords": ["soat", "vaqt"]
+  },
+  "🕙️": {
+    "name": "soat o'n",
+    "keywords": ["soat"]
+  },
+  "🕥️": {
+    "name": "o'n yarim",
+    "keywords": ["soat", "vaqt"]
+  },
+  "🕚️": {
+    "name": "soat o'n bir",
+    "keywords": ["soat", "vaqt"]
+  },
+  "🕦️": {
+    "name": "o'n bir yarim",
+    "keywords": ["soat", "vaqt"]
+  },
+  "🌑": {
+    "name": "yangi oy",
+    "keywords": ["qorong'i", "kosmos"]
+  },
+  "🌒": {
+    "name": "o'sib boruvchi yarim oy",
+    "keywords": ["tush", "kosmos"]
+  },
+  "🌓": {
+    "name": "birinchi chorak oy",
+    "keywords": ["kosmos"]
+  },
+  "🌔": {
+    "name": "o'sib boruvchi to'liqroq oy",
+    "keywords": ["kosmos"]
+  },
+  "🌕️": {
+    "name": "to'lin oy",
+    "keywords": ["kosmos"]
+  },
+  "🌖": {
+    "name": "kamayib boruvchi to'liqroq oy",
+    "keywords": ["kosmos"]
+  },
+  "🌗": {
+    "name": "oxirgi chorak oy",
+    "keywords": ["kosmos"]
+  },
+  "🌘": {
+    "name": "kamayib boruvchi yarim oy",
+    "keywords": ["kosmos"]
+  },
+  "🌙": {
+    "name": "hilol oy",
+    "keywords": ["ramazon", "kosmos"]
+  },
+  "🌚": {
+    "name": "yangi oy yuzi",
+    "keywords": ["kosmos"]
+  },
+  "🌛": {
+    "name": "birinchi chorak oy yuzi",
+    "keywords": ["kosmos"]
+  },
+  "🌜️": {
+    "name": "oxirgi chorak oy yuzi",
+    "keywords": ["tush"]
+  },
+  "🌡️": {
+    "name": "termometr",
+    "keywords": ["ob-havo"]
+  },
+  "☀️": {
+    "name": "quyosh",
+    "keywords": ["yorqin", "kosmos", "ob-havo"]
+  },
+  "🌝": {
+    "name": "to'lin oy yuzi",
+    "keywords": ["yorqin"]
+  },
+  "🌞": {
+    "name": "quyosh yuzi",
+    "keywords": [
+      "plyaj",
+      "yorqin",
+      "kun",
+      "issiqlik",
+      "charaqlash",
+      "quyoshli",
+      "ob-havo"
+    ]
+  },
+  "🪐": {
+    "name": "halqali sayyora",
+    "keywords": ["saturn"]
+  },
+  "⭐️": {
+    "name": "yulduz",
+    "keywords": ["astronomiya", "yulduzlar", "oq"]
+  },
+  "🌟": {
+    "name": "yorqin yulduz",
+    "keywords": ["yaltiroq", "charaqlash", "tun", "porlash", "g'alaba"]
+  },
+  "🌠": {
+    "name": "otilgan yulduz",
+    "keywords": ["qulash", "tun", "kosmos"]
+  },
+  "🌌": {
+    "name": "somon yo'li",
+    "keywords": ["kosmos"]
+  },
+  "☁️": {
+    "name": "bulut",
+    "keywords": ["ob-havo"]
+  },
+  "⛅️": {
+    "name": "bulut ortidagi quyosh",
+    "keywords": ["bulutli", "ob-havo"]
+  },
+  "⛈️": {
+    "name": "chaqmoq va yomg'irli bulut",
+    "keywords": ["momaqaldiroq"]
+  },
+  "🌤️": {
+    "name": "kichik bulut ortidagi quyosh",
+    "keywords": ["ob-havo"]
+  },
+  "🌥️": {
+    "name": "katta bulut ortidagi quyosh",
+    "keywords": ["ob-havo"]
+  },
+  "🌦️": {
+    "name": "yomg'ir buluti ortidagi quyosh",
+    "keywords": ["ob-havo"]
+  },
+  "🌧️": {
+    "name": "yomg'irli bulut",
+    "keywords": ["ob-havo"]
+  },
+  "🌨️": {
+    "name": "qorli bulut",
+    "keywords": ["sovuq", "ob-havo"]
+  },
+  "🌩️": {
+    "name": "chaqmoqli bulut",
+    "keywords": ["ob-havo"]
+  },
+  "🌪️": {
+    "name": "quyun",
+    "keywords": ["bulut", "ob-havo", "girdob"]
+  },
+  "🌫️": {
+    "name": "tuman",
+    "keywords": ["bulut", "ob-havo"]
+  },
+  "🌬️": {
+    "name": "shamol yuzi",
+    "keywords": ["puflash", "bulut"]
+  },
+  "🌀": {
+    "name": "tayfun",
+    "keywords": ["bosh aylanish", "bo'ron", "quyun", "tayfun", "ob-havo"]
+  },
+  "🌈": {
+    "name": "kamalak",
+    "keywords": [
+      "gey",
+      "genderkvir",
+      "lgbt",
+      "lezbiyan",
+      "tabiat",
+      "mag'rurlik",
+      "yomg'ir",
+      "trans",
+      "ob-havo"
+    ]
+  },
+  "🌂": {
+    "name": "yopiq soyabon",
+    "keywords": ["kiyim", "yomg'ir"]
+  },
+  "☂️": {
+    "name": "soyabon",
+    "keywords": ["kiyim", "yomg'ir"]
+  },
+  "☔️": {
+    "name": "yomg'ir tomchili soyabon",
+    "keywords": ["kiyim", "tomchi", "ob-havo"]
+  },
+  "⛱️": {
+    "name": "yerdagi soyabon",
+    "keywords": ["yomg'ir", "quyosh"]
+  },
+  "⚡️": {
+    "name": "yuqori kuchlanish",
+    "keywords": ["xavf", "elektr", "momaqaldiroq"]
+  },
+  "❄️": {
+    "name": "qorbo'ron",
+    "keywords": ["sovuq", "qor", "ob-havo"]
+  },
+  "☃️": {
+    "name": "qorbobo",
+    "keywords": ["sovuq", "qor"]
+  },
+  "⛄️": {
+    "name": "qorsiz qorbobo",
+    "keywords": ["sovuq"]
+  },
+  "☄️": {
+    "name": "kometa",
+    "keywords": ["kosmos"]
+  },
+  "🔥": {
+    "name": "olov",
+    "keywords": ["yondirish", "alanga", "issiq", "asbob"]
+  },
+  "💧": {
+    "name": "tomchi",
+    "keywords": [
+      "sovuq",
+      "komiks",
+      "tomchi",
+      "tabiat",
+      "qayg'uli",
+      "ko'z yoshi",
+      "suv",
+      "ob-havo"
+    ]
+  },
+  "🌊": {
+    "name": "suv to'lqini",
+    "keywords": ["tabiat", "okean", "serfing", "serfingchi"]
+  },
+  "🎃": {
+    "name": "qovoq chiroq",
+    "keywords": ["bayram", "xellouin", "qovoq"]
+  },
+  "🎄": {
+    "name": "rojdestvo daraxti",
+    "keywords": ["bayram"]
+  },
+  "🎆": {
+    "name": "feyerverk",
+    "keywords": ["portlash", "bayram", "ko'ngilochar"]
+  },
+  "🎇": {
+    "name": "chirsillovchi mash'al",
+    "keywords": ["portlash", "bayram", "feyerverk", "uchqun"]
+  },
+  "🧨": {
+    "name": "pistoncha",
+    "keywords": ["portlovchi", "olov", "yorug'lik"]
+  },
+  "✨️": {
+    "name": "charaqlashlar",
+    "keywords": ["sehr", "yulduz"]
+  },
+  "🎈": {
+    "name": "sharcha",
+    "keywords": ["tug'ilgan kun", "nishonlash", "bayram"]
+  },
+  "🎉": {
+    "name": "xlopushka",
+    "keywords": [
+      "ajoyib",
+      "tug'ilgan kun",
+      "nishonlash",
+      "bayram",
+      "hayajonlangan",
+      "hoorey",
+      "voy-bo'y"
+    ]
+  },
+  "🎊": {
+    "name": "konfetti to'pi",
+    "keywords": ["nishonlash", "bayram", "ziyofat", "voy-bo'y"]
+  },
+  "🎋": {
+    "name": "tanabata daraxti",
+    "keywords": ["banner", "bayram", "yapon"]
+  },
+  "🎍": {
+    "name": "qarag'ay bezagi",
+    "keywords": ["bambuk", "bayram", "yapon", "o'simlik"]
+  },
+  "🎎": {
+    "name": "yapon qo'g'irchoqlari",
+    "keywords": ["bayram", "qo'g'irchoq", "festival"]
+  },
+  "🎏": {
+    "name": "sazan bayrog'i",
+    "keywords": ["bayram"]
+  },
+  "🎐": {
+    "name": "shamol qo'ng'irog'i",
+    "keywords": ["qo'ng'iroq", "bayram"]
+  },
+  "🎑": {
+    "name": "oyga qarash marosimi",
+    "keywords": ["bayram"]
+  },
+  "🧧": {
+    "name": "qizil konvert",
+    "keywords": ["sovg'a", "omad", "pul"]
+  },
+  "🎀": {
+    "name": "lenta",
+    "keywords": ["bayram"]
+  },
+  "🎁": {
+    "name": "o'ralgan sovg'a",
+    "keywords": [
+      "tug'ilgan kun",
+      "bant",
+      "quti",
+      "bayram",
+      "rojdestvo",
+      "sovg'a",
+      "syurpriz"
+    ]
+  },
+  "🎗️": {
+    "name": "eslatma lentasi",
+    "keywords": ["bayram"]
+  },
+  "🎟️": {
+    "name": "kirish chiptalari",
+    "keywords": ["chipta"]
+  },
+  "🎫": {
+    "name": "chipta",
+    "keywords": ["kirish", "kupon"]
+  },
+  "🎖️": {
+    "name": "harbiy medal",
+    "keywords": ["mukofot", "bayram"]
+  },
+  "🏆️": {
+    "name": "kubok",
+    "keywords": ["chempion", "mukofot", "sport", "g'alaba", "g'olib"]
+  },
+  "🏅": {
+    "name": "sport medali",
+    "keywords": ["mukofot", "oltin", "g'olib"]
+  },
+  "🥇": {
+    "name": "1-o'rin medali",
+    "keywords": ["birinchi", "oltin"]
+  },
+  "🥈": {
+    "name": "2-o'rin medali",
+    "keywords": ["ikkinchi", "kumush"]
+  },
+  "🥉": {
+    "name": "3-o'rin medali",
+    "keywords": ["bronza", "uchinchi"]
+  },
+  "⚽️": {
+    "name": "futbol to'pi",
+    "keywords": ["sport"]
+  },
+  "⚾️": {
+    "name": "beysbol",
+    "keywords": ["to'p", "sport"]
+  },
+  "🥎": {
+    "name": "softbol",
+    "keywords": ["shar", "qo'lqop", "sport"]
+  },
+  "🏀": {
+    "name": "basketbol",
+    "keywords": ["shar", "halqa", "sport"]
+  },
+  "🏐": {
+    "name": "voleybol",
+    "keywords": ["shar", "o'yin"]
+  },
+  "🏈": {
+    "name": "amerika futboli",
+    "keywords": ["shar", "kubok", "sport"]
+  },
+  "🏉": {
+    "name": "regbi",
+    "keywords": ["shar", "sport"]
+  },
+  "🎾": {
+    "name": "tennis",
+    "keywords": ["shar", "raketka", "sport"]
+  },
+  "🎳": {
+    "name": "bouling",
+    "keywords": ["shar", "o'yin", "sport", "strayk"]
+  },
+  "🏏": {
+    "name": "kriket o'yini",
+    "keywords": ["shar", "bita"]
+  },
+  "🏑": {
+    "name": "xokkey (maydon)",
+    "keywords": ["shar", "o'yin", "tayoqcha"]
+  },
+  "🏒": {
+    "name": "muz xokkeyi",
+    "keywords": ["o'yin", "shayba", "tayoqcha"]
+  },
+  "🥍": {
+    "name": "lakrosse",
+    "keywords": ["shar", "darvoza", "sport", "tayoq"]
+  },
+  "🏓": {
+    "name": "ping-pong",
+    "keywords": ["shar", "bita", "o'yin", "stol tennisi"]
+  },
+  "🏸": {
+    "name": "badminton",
+    "keywords": ["shuttlkok", "o'yin", "raketka"]
+  },
+  "🥋": {
+    "name": "kurash formasi",
+    "keywords": ["judo", "karate"]
+  },
+  "⛳️": {
+    "name": "chuqurdagi bayroq",
+    "keywords": ["golf", "sport"]
+  },
+  "⛸️": {
+    "name": "muzda konki uchish",
+    "keywords": ["konki"]
+  },
+  "🎣": {
+    "name": "baliq ovlash qarmog'i",
+    "keywords": ["ko'ngilochar", "baliq", "sport"]
+  },
+  "🤿": {
+    "name": "sho'ng'in niqobi",
+    "keywords": ["suv osti", "sho'ng'in"]
+  },
+  "🎽": {
+    "name": "yugurish ko'ylagi",
+    "keywords": ["atletika"]
+  },
+  "🎿": {
+    "name": "changilar",
+    "keywords": ["chang'i", "qor", "sport"]
+  },
+  "🛷": {
+    "name": "chana",
+    "keywords": ["qor"]
+  },
+  "🥌": {
+    "name": "kyorling toshi",
+    "keywords": ["o'yin", "tosh"]
+  },
+  "🎯": {
+    "name": "nishon",
+    "keywords": [
+      "bull",
+      "nayza",
+      "to'g'ridan-to'g'ri",
+      "ko'ngilochar",
+      "o'yin",
+      "urish",
+      "maqsad"
+    ]
+  },
+  "🪀": {
+    "name": "yo-yo",
+    "keywords": ["o'yinchoq"]
+  },
+  "🪁": {
+    "name": "uchurtma",
+    "keywords": ["uchish"]
+  },
+  "🔫": {
+    "name": "suv pistoleti",
+    "keywords": ["qurol", "asbob"]
+  },
+  "🎱": {
+    "name": "8 raqamli bilyard shari",
+    "keywords": ["8shar", "bilyard", "o'yin"]
+  },
+  "🔮": {
+    "name": "sehrli shar",
+    "keywords": ["ertak", "fantastika", "bashorat", "kelajak", "sehr", "asbob"]
+  },
+  "🪄": {
+    "name": "sehrli tayoqcha",
+    "keywords": ["sehrgar", "jodugar"]
+  },
+  "🎮️": {
+    "name": "videoo'yin",
+    "keywords": ["kontroller", "ko'ngilochar"]
+  },
+  "🕹️": {
+    "name": "joystik",
+    "keywords": ["o'yin", "video"]
+  },
+  "🎰": {
+    "name": "o'yin avtomati",
+    "keywords": ["kazino", "qimor", "o'yin"]
+  },
+  "🎲": {
+    "name": "o'yin kubigi",
+    "keywords": ["zar", "ko'ngilochar"]
+  },
+  "🧩": {
+    "name": "boshqotirma bo'lagi",
+    "keywords": ["pazl"]
+  },
+  "🧸": {
+    "name": "ayiqcha",
+    "keywords": ["o'yinchoq"]
+  },
+  "🪅": {
+    "name": "pinyata",
+    "keywords": ["bayram", "nishonlash", "ziyofat"]
+  },
+  "🪩": {
+    "name": "disko shar",
+    "keywords": ["raqs", "disko", "yaltiroq", "ziyofat"]
+  },
+  "🪆": {
+    "name": "lo'g'atchoq",
+    "keywords": ["qo'g'irchoq", "rossiya"]
+  },
+  "♠️": {
+    "name": "pika masti",
+    "keywords": ["karta", "o'yin"]
+  },
+  "♥️": {
+    "name": "cherva masti",
+    "keywords": ["karta", "his", "o'yin"]
+  },
+  "♦️": {
+    "name": "bubna masti",
+    "keywords": ["karta", "o'yin"]
+  },
+  "♣️": {
+    "name": "krest masti",
+    "keywords": ["karta", "o'yin"]
+  },
+  "🃏": {
+    "name": "joker",
+    "keywords": ["karta", "o'yin"]
+  },
+  "🀄️": {
+    "name": "mahjong qizil ajdahosi",
+    "keywords": ["o'yin"]
+  },
+  "🎴": {
+    "name": "gul o'yin kartalari",
+    "keywords": ["karta", "o'yin", "yapon"]
+  },
+  "🎭️": {
+    "name": "sahna san'ati",
+    "keywords": [
+      "aktyor",
+      "aktrisa",
+      "san'at",
+      "ko'ngilochar",
+      "niqob",
+      "teatr"
+    ]
+  },
+  "🖼️": {
+    "name": "ramkali surat",
+    "keywords": ["san'at", "ramka", "muzey", "rasm"]
+  },
+  "🎨": {
+    "name": "rassom palitrasi",
+    "keywords": ["san'at", "ijodiy", "muzey", "rassom", "bo'yash"]
+  },
+  "🧵": {
+    "name": "ip (yigiruv)",
+    "keywords": ["igna", "tikuv"]
+  },
+  "🪡": {
+    "name": "tikuv ninasi",
+    "keywords": ["tikish", "ip"]
+  },
+  "🧶": {
+    "name": "ip yigiriladigan",
+    "keywords": ["to'p", "to'quv"]
+  },
+  "🪢": {
+    "name": "tugun",
+    "keywords": ["arqon", "chigal", "bog'lash"]
+  },
+  "👓️": {
+    "name": "ko'zoynak",
+    "keywords": ["kiyim", "ko'z", "ko'zoynak"]
+  },
+  "🕶️": {
+    "name": "quyosh ko'zoynagi",
+    "keywords": ["qorong'i", "ko'z", "ko'zoynak"]
+  },
+  "🥽": {
+    "name": "himoya ko'zoynagi",
+    "keywords": ["ko'z", "himoya", "suzish"]
+  },
+  "🥼": {
+    "name": "laboratoriya xalati",
+    "keywords": ["kiyim", "shifokor", "tajriba"]
+  },
+  "🦺": {
+    "name": "xavfsizlik jiletkasi",
+    "keywords": ["favqulodda"]
+  },
+  "👔": {
+    "name": "galstuk",
+    "keywords": ["kiyim", "ish", "jiddiy", "ko'ylak"]
+  },
+  "👕": {
+    "name": "futbolka",
+    "keywords": ["kasual", "kiyim", "yoqa", "xarid"]
+  },
+  "👖": {
+    "name": "jinsi shim",
+    "keywords": ["kasual", "kiyim", "jins", "xarid"]
+  },
+  "🧣": {
+    "name": "sharf",
+    "keywords": ["sovuq", "bo'yin"]
+  },
+  "🧤": {
+    "name": "qo'lqoplar",
+    "keywords": ["qo'l"]
+  },
+  "🧥": {
+    "name": "palto",
+    "keywords": ["sovuq", "kurtka"]
+  },
+  "👗": {
+    "name": "ko'ylak",
+    "keywords": ["kiyim", "xarid"]
+  },
+  "👘": {
+    "name": "kimano",
+    "keywords": ["kiyim"]
+  },
+  "🥻": {
+    "name": "sari",
+    "keywords": ["kiyim", "ko'ylak"]
+  },
+  "🩱": {
+    "name": "bir butun suzish kostyumi",
+    "keywords": ["cho'milish"]
+  },
+  "🩲": {
+    "name": "truska",
+    "keywords": ["ich kiyim"]
+  },
+  "🩳": {
+    "name": "shortiklar",
+    "keywords": ["shim", "ich kiyim"]
+  },
+  "👙": {
+    "name": "bikini",
+    "keywords": ["cho'milish", "plyaj", "kiyim", "basseyn"]
+  },
+  "👚": {
+    "name": "ayol kiyimlari",
+    "keywords": ["bluzka", "kiyim", "yoqa", "ko'ylak", "ayol", "xarid"]
+  },
+  "🪭": {
+    "name": "qo'l bilan yopiladigan yelpig'ich",
+    "keywords": ["dam olish", "salqin", "flirt"]
+  },
+  "👛": {
+    "name": "hamyon",
+    "keywords": ["kiyim", "tanga", "xarid"]
+  },
+  "👜": {
+    "name": "sumka",
+    "keywords": ["sumka", "kiyim", "xarid"]
+  },
+  "👝": {
+    "name": "klatch sumka",
+    "keywords": ["kiyim", "sumka", "xarid"]
+  },
+  "🛍️": {
+    "name": "xarid sumkalari",
+    "keywords": ["sumka", "mehmonxona"]
+  },
+  "🎒": {
+    "name": "ryukzak",
+    "keywords": ["backpacking", "sumka", "kitob sumkasi", "ta'lim", "maktab"]
+  },
+  "🩴": {
+    "name": "saxlab",
+    "keywords": ["plyaj", "sandal", "poyabzal"]
+  },
+  "👞": {
+    "name": "erkak poyabzali",
+    "keywords": ["jigarrang", "kiyim", "oyoq", "xarid"]
+  },
+  "👟": {
+    "name": "yugurish krossovkasi",
+    "keywords": ["atletik", "kiyim", "xarid", "krossovka"]
+  },
+  "🥾": {
+    "name": "turizm etigi",
+    "keywords": ["backpacking", "lager"]
+  },
+  "🥿": {
+    "name": "yassi poyabzal",
+    "keywords": ["balet", "qulay"]
+  },
+  "👠": {
+    "name": "baland poshnali tufli",
+    "keywords": ["kiyim", "moda", "poshna", "xarid"]
+  },
+  "👡": {
+    "name": "ayol sandali",
+    "keywords": ["kiyim", "poyabzal", "ayol"]
+  },
+  "🩰": {
+    "name": "balet poyabzali",
+    "keywords": ["raqs"]
+  },
+  "👢": {
+    "name": "ayol etigi",
+    "keywords": ["kiyim", "poyabzal", "xarid", "ayol"]
+  },
+  "🪮": {
+    "name": "soch taroq (afro)",
+    "keywords": ["afro", "tarash"]
+  },
+  "👑": {
+    "name": "toj",
+    "keywords": ["kiyim", "oila", "shoh", "malika", "shohlik"]
+  },
+  "👒": {
+    "name": "ayol shlyapasi",
+    "keywords": ["kiyim", "bog'", "shlyapa", "ziyofat", "ayol"]
+  },
+  "🎩": {
+    "name": "silindr shlyapa",
+    "keywords": ["kiyim", "nafis", "rasmiy", "sehr"]
+  },
+  "🎓️": {
+    "name": "bitiruv qalpog'i",
+    "keywords": ["bayram", "kiyim", "ta'lim", "shlyapa", "olim"]
+  },
+  "🧢": {
+    "name": "kepkali shlyapa",
+    "keywords": ["beysbol", "shlyapa"]
+  },
+  "🪖": {
+    "name": "harbiy dubulg'a",
+    "keywords": ["armiya", "askar", "urush"]
+  },
+  "⛑️": {
+    "name": "qutqaruvchi dubulg'asi",
+    "keywords": ["yordam", "xoch", "yuz"]
+  },
+  "📿": {
+    "name": "tasbeh",
+    "keywords": ["kiyim", "marjon", "din"]
+  },
+  "💄": {
+    "name": "lab bo'yog'i",
+    "keywords": ["kosmetika", "uchrashuv", "makiyaj"]
+  },
+  "💍": {
+    "name": "uzuk",
+    "keywords": ["olmos", "unashtirilgan", "nikoh", "romantika", "to'y"]
+  },
+  "💎": {
+    "name": "qimmatbaho tosh",
+    "keywords": [
+      "olmos",
+      "unashtirilgan",
+      "zargarlik",
+      "pul",
+      "romantika",
+      "to'y"
+    ]
+  },
+  "🔇": {
+    "name": "ovozsiz karnay",
+    "keywords": ["jimjit", "ovoz"]
+  },
+  "🔈️": {
+    "name": "past ovoz karnayi",
+    "keywords": ["ovoz"]
+  },
+  "🔉": {
+    "name": "o'rta ovoz karnayi",
+    "keywords": ["ovoz"]
+  },
+  "🔊": {
+    "name": "baland ovoz karnayi",
+    "keywords": ["musiqa", "ovoz"]
+  },
+  "📢": {
+    "name": "karnay",
+    "keywords": ["manzil", "aloqa", "baland", "ovoz"]
+  },
+  "📣": {
+    "name": "megafon",
+    "keywords": ["qichqiriq", "ovoz"]
+  },
+  "📯": {
+    "name": "pochta karnayi",
+    "keywords": ["pochta"]
+  },
+  "🔔": {
+    "name": "qo'ng'iroq",
+    "keywords": ["cherkov", "ovoz"]
+  },
+  "🔕": {
+    "name": "ovozsiz qo'ng'iroq",
+    "keywords": ["taqiqlangan", "jim", "ovoz"]
+  },
+  "🎼": {
+    "name": "nota yozuvi",
+    "keywords": ["musiqa", "nota"]
+  },
+  "🎵": {
+    "name": "nota belgisi",
+    "keywords": ["musiqa", "tovush"]
+  },
+  "🎶": {
+    "name": "nota belgilari",
+    "keywords": ["musiqa", "nota", "tovush"]
+  },
+  "🎙️": {
+    "name": "studiya mikrofoni",
+    "keywords": ["mikrofon", "musiqa"]
+  },
+  "🎚️": {
+    "name": "daraja slayderi",
+    "keywords": ["musiqa"]
+  },
+  "🎛️": {
+    "name": "boshqaruv tugmalari",
+    "keywords": ["musiqa"]
+  },
+  "🎤": {
+    "name": "mikrofon",
+    "keywords": ["karaoke", "mikrofon", "musiqa", "qo'shiq", "tovush"]
+  },
+  "🎧️": {
+    "name": "quloqchin",
+    "keywords": ["quloq qopqog'i", "tovush"]
+  },
+  "📻️": {
+    "name": "radio",
+    "keywords": ["ko'ngilochar", "video"]
+  },
+  "🎷": {
+    "name": "saksofon",
+    "keywords": ["asbob", "musiqa"]
+  },
+  "🪗": {
+    "name": "akkordeon",
+    "keywords": ["asbob", "musiqa"]
+  },
+  "🎸": {
+    "name": "gitara",
+    "keywords": ["asbob", "musiqa"]
+  },
+  "🎹": {
+    "name": "musiqiy klaviatura",
+    "keywords": ["asbob", "musiqa", "pianino"]
+  },
+  "🎺": {
+    "name": "truba",
+    "keywords": ["asbob", "musiqa"]
+  },
+  "🎻": {
+    "name": "skripka",
+    "keywords": ["asbob", "musiqa"]
+  },
+  "🪕": {
+    "name": "banjo",
+    "keywords": ["musiqa", "torli"]
+  },
+  "🥁": {
+    "name": "baraban",
+    "keywords": ["musiqa"]
+  },
+  "🪘": {
+    "name": "uzun baraban",
+    "keywords": ["ritm", "asbob"]
+  },
+  "🪇": {
+    "name": "marakas",
+    "keywords": ["raqs", "asbob", "musiqa", "ziyofat"]
+  },
+  "🪈": {
+    "name": "nay (flute)",
+    "keywords": ["asbob", "musiqa", "orkestr"]
+  },
+  "🪉": {
+    "name": "arfa",
+    "keywords": ["asbob", "sevgi", "musiqa", "orkestr"]
+  },
+  "📱": {
+    "name": "mobil telefon",
+    "keywords": ["aloqa", "telefon"]
+  },
+  "📲": {
+    "name": "o'q bilan mobil telefon",
+    "keywords": ["aloqa", "telefon"]
+  },
+  "📞": {
+    "name": "telefon go'shagi",
+    "keywords": ["aloqa", "telefon"]
+  },
+  "📟️": {
+    "name": "peyjer",
+    "keywords": ["aloqa"]
+  },
+  "📠": {
+    "name": "faks apparati",
+    "keywords": ["aloqa"]
+  },
+  "🪫": {
+    "name": "quvvati kam batareya",
+    "keywords": ["quvvat", "elektron"]
+  },
+  "🔌": {
+    "name": "elektr vilkasi",
+    "keywords": ["elektr"]
+  },
+  "💻️": {
+    "name": "noutbuk",
+    "keywords": ["kompyuter", "ofis"]
+  },
+  "🖥️": {
+    "name": "stol kompyuteri",
+    "keywords": ["monitor"]
+  },
+  "🖨️": {
+    "name": "printer",
+    "keywords": ["kompyuter"]
+  },
+  "⌨️": {
+    "name": "klaviatura",
+    "keywords": ["kompyuter"]
+  },
+  "🖲️": {
+    "name": "trekbol",
+    "keywords": ["kompyuter"]
+  },
+  "💽": {
+    "name": "kompyuter diski",
+    "keywords": ["disk"]
+  },
+  "💾": {
+    "name": "disket",
+    "keywords": ["kompyuter"]
+  },
+  "💿️": {
+    "name": "optik disk",
+    "keywords": ["kompyuter"]
+  },
+  "📀": {
+    "name": "dvd",
+    "keywords": ["kompyuter", "disk"]
+  },
+  "🧮": {
+    "name": "abak",
+    "keywords": ["hisoblash", "kalkulyator"]
+  },
+  "🎥": {
+    "name": "kino kamerasi",
+    "keywords": ["bollivud", "kino", "film", "gollivud", "yozib olish"]
+  },
+  "🎞️": {
+    "name": "kino kadrlari",
+    "keywords": ["kino", "film"]
+  },
+  "📽️": {
+    "name": "kino proyektori",
+    "keywords": ["kino", "video"]
+  },
+  "🎬️": {
+    "name": "klaket taxtasi",
+    "keywords": ["aksiya", "kino"]
+  },
+  "📺️": {
+    "name": "televizor",
+    "keywords": ["tv", "video"]
+  },
+  "📷️": {
+    "name": "kamera",
+    "keywords": ["foto", "selfi", "video"]
+  },
+  "📸": {
+    "name": "chaqnash bilan kamera",
+    "keywords": ["video"]
+  },
+  "📹️": {
+    "name": "videokamera",
+    "keywords": ["video"]
+  },
+  "📼": {
+    "name": "videokasseta",
+    "keywords": ["eski", "lenta", "video"]
+  },
+  "🔍️": {
+    "name": "chapga qiyshaygan lupa",
+    "keywords": ["laboratoriya", "fan", "qidiruv"]
+  },
+  "🔎": {
+    "name": "o'ngga qiyshaygan lupa",
+    "keywords": ["laboratoriya", "fan", "qidiruv"]
+  },
+  "🕯️": {
+    "name": "sham",
+    "keywords": ["yorug'lik"]
+  },
+  "💡": {
+    "name": "chiroq lampochkasi",
+    "keywords": ["komiks", "elektr", "g'oya"]
+  },
+  "🔦": {
+    "name": "fonarik",
+    "keywords": ["elektr", "yorug'lik", "asbob"]
+  },
+  "🏮": {
+    "name": "qizil qog'oz fonar",
+    "keywords": ["bar", "yorug'lik", "restoran"]
+  },
+  "🪔": {
+    "name": "diya chirog'i",
+    "keywords": ["yorug'lik", "yog'"]
+  },
+  "📔": {
+    "name": "bezakli muqovali daftar",
+    "keywords": ["kitob", "ta'lim", "maktab", "yozuv"]
+  },
+  "📕": {
+    "name": "yopiq kitob",
+    "keywords": ["ta'lim"]
+  },
+  "📖": {
+    "name": "ochiq kitob",
+    "keywords": ["ta'lim", "bilim", "kutubxona", "o'qish"]
+  },
+  "📗": {
+    "name": "yashil kitob",
+    "keywords": ["ta'lim", "kutubxona", "o'qish"]
+  },
+  "📘": {
+    "name": "ko'k kitob",
+    "keywords": ["ta'lim", "kutubxona", "o'qish"]
+  },
+  "📙": {
+    "name": "apelsin kitob",
+    "keywords": ["ta'lim", "kutubxona", "o'qish"]
+  },
+  "📚️": {
+    "name": "kitoblar",
+    "keywords": ["kitob", "ta'lim", "bilim", "kutubxona", "o'qish", "maktab"]
+  },
+  "📃": {
+    "name": "burmali qog'oz",
+    "keywords": ["hujjat", "qog'oz"]
+  },
+  "📜": {
+    "name": "varaq (o'ram)",
+    "keywords": ["qog'oz"]
+  },
+  "📄": {
+    "name": "tepaga qaragan qog'oz",
+    "keywords": ["hujjat", "qog'oz"]
+  },
+  "📰": {
+    "name": "gazeta",
+    "keywords": ["aloqa", "yangilik", "qog'oz"]
+  },
+  "🗞️": {
+    "name": "o'ralgan gazeta",
+    "keywords": ["gazeta", "qog'oz"]
+  },
+  "📑": {
+    "name": "xatcho'p yorliqlari",
+    "keywords": ["belgi"]
+  },
+  "🔖": {
+    "name": "xatcho'p",
+    "keywords": ["belgi"]
+  },
+  "🏷️": {
+    "name": "yorliq",
+    "keywords": ["teg"]
+  },
+  "💰️": {
+    "name": "pul qopi",
+    "keywords": ["bank", "pul", "boy", "g'alaba"]
+  },
+  "🪙": {
+    "name": "tanga",
+    "keywords": ["dollar", "evro", "oltin", "metall", "pul"]
+  },
+  "💴": {
+    "name": "yen banknotasi",
+    "keywords": ["bank", "valyuta", "pul", "nota"]
+  },
+  "💵": {
+    "name": "dollar banknotasi",
+    "keywords": ["bank", "valyuta", "pul", "nota"]
+  },
+  "💶": {
+    "name": "evro banknotasi",
+    "keywords": ["bank", "valyuta", "pul", "nota", "boy"]
+  },
+  "💷": {
+    "name": "funt banknotasi",
+    "keywords": ["bank", "valyuta", "pul", "nota"]
+  },
+  "💸": {
+    "name": "qanotli pul",
+    "keywords": ["bank", "naqd pul", "pul", "to'lov"]
+  },
+  "💳️": {
+    "name": "kredit kartasi",
+    "keywords": ["bank", "naqd pul", "pul", "to'lov"]
+  },
+  "🧾": {
+    "name": "kvitansiya",
+    "keywords": ["hisob", "dalil"]
+  },
+  "💹": {
+    "name": "yen o'sish grafigi",
+    "keywords": ["bank", "valyuta", "grafik", "bozor", "pul", "o'sish"]
+  },
+  "✉️": {
+    "name": "konvert",
+    "keywords": ["elektron pochta", "xat"]
+  },
+  "📧": {
+    "name": "elektron pochta",
+    "keywords": ["elektron pochta", "xat"]
+  },
+  "📨": {
+    "name": "kiruvchi konvert",
+    "keywords": ["elektron pochta", "xat"]
+  },
+  "📩": {
+    "name": "o'q bilan konvert",
+    "keywords": ["aloqa", "elektron pochta", "xat", "yuborish"]
+  },
+  "📤️": {
+    "name": "chiquvchi pochta qutisi",
+    "keywords": ["quti", "pochta", "xat"]
+  },
+  "📥️": {
+    "name": "kiruvchi pochta qutisi",
+    "keywords": ["quti", "pochta", "xat"]
+  },
+  "📦️": {
+    "name": "pochta",
+    "keywords": ["quti", "aloqa", "yetkazib berish"]
+  },
+  "📫️": {
+    "name": "ko'tarilgan bayroqli yopiq pochta qutisi",
+    "keywords": ["aloqa", "pochta"]
+  },
+  "📪️": {
+    "name": "tushirilgan bayroqli yopiq pochta qutisi",
+    "keywords": ["pochta"]
+  },
+  "📬️": {
+    "name": "ko'tarilgan bayroqli ochiq pochta qutisi",
+    "keywords": ["pochta"]
+  },
+  "📭️": {
+    "name": "tushirilgan bayroqli ochiq pochta qutisi",
+    "keywords": ["pochta"]
+  },
+  "📮": {
+    "name": "pochta qutisi",
+    "keywords": ["pochta"]
+  },
+  "✒️": {
+    "name": "qora uchli qalam",
+    "keywords": ["ruchka"]
+  },
+  "🖊️": {
+    "name": "ruchka",
+    "keywords": ["sharikli"]
+  },
+  "🖌️": {
+    "name": "mo'yqalam",
+    "keywords": ["bo'yash"]
+  },
+  "📝": {
+    "name": "memo",
+    "keywords": ["aloqa", "qalam"]
+  },
+  "💼": {
+    "name": "portfel",
+    "keywords": ["ofis"]
+  },
+  "📅": {
+    "name": "taqvim",
+    "keywords": ["sana"]
+  },
+  "🗒️": {
+    "name": "spiral bloknot",
+    "keywords": ["eslatma"]
+  },
+  "📇": {
+    "name": "karta indeksi",
+    "keywords": ["eski", "maktab"]
+  },
+  "📈": {
+    "name": "o'suvchi grafik",
+    "keywords": ["ma'lumot", "grafik", "o'sish", "yuqoriga"]
+  },
+  "📉": {
+    "name": "kamayuvchi grafik",
+    "keywords": ["ma'lumot", "pastga", "grafik", "salbiy"]
+  },
+  "📊": {
+    "name": "ustunli diagramma",
+    "keywords": ["ma'lumot", "grafik"]
+  },
+  "📋️": {
+    "name": "buferli planshet",
+    "keywords": ["ro'yxat", "eslatma"]
+  },
+  "📌": {
+    "name": "pin",
+    "keywords": ["kollaj", "pin"]
+  },
+  "📍": {
+    "name": "aylana pin",
+    "keywords": ["joylashuv", "xarita", "pin"]
+  },
+  "🖇️": {
+    "name": "bog'langan skrepkalar",
+    "keywords": ["havola", "skrepka"]
+  },
+  "📏": {
+    "name": "to'g'ri chizg'ich",
+    "keywords": ["burchak", "matematika"]
+  },
+  "📐": {
+    "name": "uchburchak chizg'ich",
+    "keywords": ["burchak", "matematika", "uchburchak"]
+  },
+  "✂️": {
+    "name": "qaychi",
+    "keywords": ["kesish", "asbob"]
+  },
+  "🗄️": {
+    "name": "fayl shkafi",
+    "keywords": ["hujjat", "qog'oz"]
+  },
+  "🗑️": {
+    "name": "axlat savati",
+    "keywords": ["chiqindi", "axlat"]
+  },
+  "🔒️": {
+    "name": "qulflangan",
+    "keywords": ["yopiq", "qulf", "shaxsiy"]
+  },
+  "🔓️": {
+    "name": "qulfsizlangan",
+    "keywords": ["qulf", "ochiq"]
+  },
+  "🔏": {
+    "name": "qalam bilan qulflangan",
+    "keywords": ["muhr", "qulf", "maxfiylik"]
+  },
+  "🔐": {
+    "name": "kalit bilan qulflangan",
+    "keywords": ["qulf", "xavfsiz"]
+  },
+  "🔑": {
+    "name": "kalit",
+    "keywords": ["qulf", "parol"]
+  },
+  "🗝️": {
+    "name": "eski kalit",
+    "keywords": ["qulf"]
+  },
+  "🔨": {
+    "name": "bolg'a",
+    "keywords": ["uy", "ta'mirlash", "asbob"]
+  },
+  "🪓": {
+    "name": "bolta",
+    "keywords": ["kesish", "yog'och"]
+  },
+  "⛏️": {
+    "name": "kirka",
+    "keywords": ["bolg'a", "konchilik", "asbob"]
+  },
+  "⚒️": {
+    "name": "bolg'a va kirka",
+    "keywords": ["asbob"]
+  },
+  "🛠️": {
+    "name": "bolg'a va kalit",
+    "keywords": ["asbob"]
+  },
+  "🗡️": {
+    "name": "xanjar",
+    "keywords": ["pichoq", "qurol"]
+  },
+  "⚔️": {
+    "name": "chalishtirilgan qilichlar",
+    "keywords": ["qurol"]
+  },
+  "💣️": {
+    "name": "bomba",
+    "keywords": ["portlash", "komiks", "xavfli"]
+  },
+  "🪃": {
+    "name": "bumerang",
+    "keywords": ["qurol"]
+  },
+  "🏹": {
+    "name": "kamon va o'q",
+    "keywords": [
+      "kamonchi",
+      "kamonchilik",
+      "otuvchi burj",
+      "asbob",
+      "qurol",
+      "burj"
+    ]
+  },
+  "🛡️": {
+    "name": "qalqon",
+    "keywords": ["qurol"]
+  },
+  "🪚": {
+    "name": "duradgorlik arasi",
+    "keywords": ["kesish", "asbob"]
+  },
+  "🔧": {
+    "name": "kalit (gayka)",
+    "keywords": ["uy", "ta'mirlash", "asbob"]
+  },
+  "🪛": {
+    "name": "otvyortka",
+    "keywords": ["handal", "vint", "asbob"]
+  },
+  "🔩": {
+    "name": "yong'oq va bolt",
+    "keywords": ["uy", "ta'mirlash", "asbob"]
+  },
+  "⚙️": {
+    "name": "dvigatel",
+    "keywords": ["g'ildirakcha", "asbob"]
+  },
+  "🗜️": {
+    "name": "qisqich",
+    "keywords": ["asbob"]
+  },
+  "⚖️": {
+    "name": "tarozi",
+    "keywords": ["adolat", "tarozi", "vazn"]
+  },
+  "🦯": {
+    "name": "oq hassa",
+    "keywords": ["imkoniyat", "ko'r"]
+  },
+  "🔗": {
+    "name": "havola",
+    "keywords": ["havolalar"]
+  },
+  "⛓️‍💥": {
+    "name": "sinig'an zanjir",
+    "keywords": ["sinish", "ozodlik"]
+  },
+  "⛓️": {
+    "name": "zanjirlar",
+    "keywords": ["zanjir"]
+  },
+  "🪝": {
+    "name": "ilmoq",
+    "keywords": ["ilib olish"]
+  },
+  "🧰": {
+    "name": "asboblar qutisi",
+    "keywords": ["quti", "mexanik", "qizil", "asbob"]
+  },
+  "🧲": {
+    "name": "magnit",
+    "keywords": ["jozibali", "magnit"]
+  },
+  "🪜": {
+    "name": "narvon",
+    "keywords": ["tirmashish", "zina"]
+  },
+  "🪏": {
+    "name": "belkurak",
+    "keywords": ["qazish", "bog'", "kurak", "qor"]
+  },
+  "⚗️": {
+    "name": "alembik",
+    "keywords": ["kimyo", "asbob"]
+  },
+  "🧪": {
+    "name": "sinov naychasi",
+    "keywords": ["kimyogar", "kimyo", "tajriba", "laboratoriya"]
+  },
+  "🧫": {
+    "name": "petri idishi",
+    "keywords": ["bakteriya", "biologiya", "laboratoriya"]
+  },
+  "🧬": {
+    "name": "dnk",
+    "keywords": ["biolog", "evolyutsiya", "genetika", "hayot"]
+  },
+  "🔬": {
+    "name": "mikroskop",
+    "keywords": ["tajriba", "laboratoriya", "fan", "asbob"]
+  },
+  "🔭": {
+    "name": "teleskop",
+    "keywords": ["fan", "asbob"]
+  },
+  "📡": {
+    "name": "sun'iy yo'ldosh antennasi",
+    "keywords": ["begonalar", "aloqa", "fan"]
+  },
+  "💉": {
+    "name": "shpris",
+    "keywords": ["shifokor", "dori", "igna", "kasal", "vaksinatsiya"]
+  },
+  "🩸": {
+    "name": "qon tomchisi",
+    "keywords": ["qon ketish", "donorlik", "jarohat"]
+  },
+  "💊": {
+    "name": "tabletka",
+    "keywords": ["shifokor", "dori", "kasal", "vitamin"]
+  },
+  "🩼": {
+    "name": "tayoqcha (asa)",
+    "keywords": ["yordam", "jarohat"]
+  },
+  "🩺": {
+    "name": "stetoskop",
+    "keywords": ["shifokor", "yurak", "tibbiyot"]
+  },
+  "🩻": {
+    "name": "rentgen",
+    "keywords": ["suyaklar", "shifokor", "skelet"]
+  },
+  "🚪": {
+    "name": "eshik",
+    "keywords": ["orqa", "shkaf", "old"]
+  },
+  "🛗": {
+    "name": "lift",
+    "keywords": ["imkoniyat", "ko'tarish"]
+  },
+  "🪞": {
+    "name": "oyna",
+    "keywords": ["makiyaj", "aks"]
+  },
+  "🪟": {
+    "name": "deraza",
+    "keywords": ["havo", "ochiq", "shaffof", "ko'rinish"]
+  },
+  "🛏️": {
+    "name": "karovat",
+    "keywords": ["mehmonxona", "uyqu"]
+  },
+  "🛋️": {
+    "name": "divan va chiroq",
+    "keywords": ["mehmonxona"]
+  },
+  "🪑": {
+    "name": "stul",
+    "keywords": ["o'rindiq", "o'tirish"]
+  },
+  "🚽": {
+    "name": "hojatxona",
+    "keywords": ["hojatxona"]
+  },
+  "🪠": {
+    "name": "vantuz",
+    "keywords": ["santexnik", "hojatxona"]
+  },
+  "🚿": {
+    "name": "dush",
+    "keywords": ["suv"]
+  },
+  "🛁": {
+    "name": "vanna",
+    "keywords": ["vanna"]
+  },
+  "🪤": {
+    "name": "sichqon tuzog'i",
+    "keywords": ["pishloq", "tuzoq"]
+  },
+  "🪒": {
+    "name": "ustara",
+    "keywords": ["o'tkir", "soqol olish"]
+  },
+  "🧴": {
+    "name": "losyon shishasi",
+    "keywords": ["namlantirgich", "shampun"]
+  },
+  "🧷": {
+    "name": "xavfsizlik ninasi",
+    "keywords": ["pank", "rok"]
+  },
+  "🧹": {
+    "name": "supurgi",
+    "keywords": ["tozalash", "supurish", "jodugar"]
+  },
+  "🧺": {
+    "name": "savat",
+    "keywords": ["ferma", "kir yuvish", "piknik"]
+  },
+  "🧻": {
+    "name": "qog'oz rulon",
+    "keywords": ["tualet", "sochiq"]
+  },
+  "🪣": {
+    "name": "chelak",
+    "keywords": ["idish"]
+  },
+  "🧼": {
+    "name": "sovun",
+    "keywords": ["tozalash", "hammom"]
+  },
+  "🫧": {
+    "name": "pufakchalar",
+    "keywords": ["sovun", "suv osti", "pufak"]
+  },
+  "🪥": {
+    "name": "tish cho'tkasi",
+    "keywords": ["hammom", "tozalash", "tish", "gigiyena"]
+  },
+  "🧽": {
+    "name": "gubka",
+    "keywords": ["so'rish", "tozalash"]
+  },
+  "🧯": {
+    "name": "yong'in o'chirgich",
+    "keywords": ["o'chirish"]
+  },
+  "🛒": {
+    "name": "xarid aravachasi",
+    "keywords": ["trolley"]
+  },
+  "🚬": {
+    "name": "sigareta",
+    "keywords": ["tamaki chekish"]
+  },
+  "⚰️": {
+    "name": "tobut",
+    "keywords": ["o'lik", "o'lim"]
+  },
+  "🪦": {
+    "name": "qabr toshi",
+    "keywords": ["qabriston", "o'lik", "qabr", "yodgorlik"]
+  },
+  "⚱️": {
+    "name": "dafn urnasi",
+    "keywords": ["kul", "o'lim"]
+  },
+  "🧿": {
+    "name": "nazar (ko'z-mo'ncha)",
+    "keywords": ["ko'k", "tumor", "talisman"]
+  },
+  "🪬": {
+    "name": "xamsa",
+    "keywords": ["tumor", "omad", "qo'l", "himoya"]
+  },
+  "🗿": {
+    "name": "moai",
+    "keywords": ["yuz", "haykal", "sayohat"]
+  },
+  "🪧": {
+    "name": "e'lon taxtasi",
+    "keywords": ["karta", "namoyish", "e'lon", "belgi"]
+  },
+  "🪪": {
+    "name": "identifikatsiya kartasi",
+    "keywords": ["hujjat", "litsenziya"]
+  },
+  "🏧": {
+    "name": "bankomat belgisi",
+    "keywords": ["avtomatlashtirilgan", "bank", "naqd pul", "pul"]
+  },
+  "🚰": {
+    "name": "ichimlik suvi",
+    "keywords": ["ichish"]
+  },
+  "♿️": {
+    "name": "nogironlar aravachasi belgisi",
+    "keywords": ["kirish"]
+  },
+  "🚹️": {
+    "name": "erkaklar xonasi",
+    "keywords": ["hojatxona", "erkak"]
+  },
+  "🚺️": {
+    "name": "ayollar xonasi",
+    "keywords": ["hojatxona", "ayol"]
+  },
+  "🚻": {
+    "name": "hojatxona (umumiy)",
+    "keywords": ["hojatxona"]
+  },
+  "🚼️": {
+    "name": "chaqaloq belgisi",
+    "keywords": ["almashtirish"]
+  },
+  "🚾": {
+    "name": "suv shkafi (hojatxona)",
+    "keywords": ["hojatxona"]
+  },
+  "🛃": {
+    "name": "bojxona",
+    "keywords": ["qadoqlash"]
+  },
+  "🛄": {
+    "name": "bagaj olish",
+    "keywords": ["kelgan", "sumka", "sayohat"]
+  },
+  "🛅": {
+    "name": "saqlash kamerasi",
+    "keywords": ["bagaj", "shkafcha"]
+  },
+  "⚠️": {
+    "name": "ogohlantirish",
+    "keywords": ["ehtiyot"]
+  },
+  "🚸": {
+    "name": "bolalar o'tish joyi",
+    "keywords": ["bola", "piyoda", "transport"]
+  },
+  "⛔️": {
+    "name": "kirish taqiqlangan",
+    "keywords": ["man etilgan", "yo'q", "o'tish", "taqiqlangan"]
+  },
+  "🚫": {
+    "name": "taqiqlangan",
+    "keywords": ["kirish", "man etilgan", "yo'q", "tamaki"]
+  },
+  "🚳": {
+    "name": "velosiped taqiqlangan",
+    "keywords": ["velosiped", "man etilgan", "yo'q", "taqiqlangan"]
+  },
+  "🚭️": {
+    "name": "chekish taqiqlangan",
+    "keywords": ["man etilgan", "yo'q", "taqiqlangan", "chekish"]
+  },
+  "🚯": {
+    "name": "axlat tashlash taqiqlangan",
+    "keywords": ["man etilgan", "axlat", "yo'q", "taqiqlangan"]
+  },
+  "🚱": {
+    "name": "ichib bo'lmaydigan suv",
+    "keywords": ["quruq", "taqiqlangan"]
+  },
+  "🚷": {
+    "name": "piyodalar taqiqlangan",
+    "keywords": ["man etilgan", "piyoda", "taqiqlangan"]
+  },
+  "📵": {
+    "name": "mobil telefonlar taqiqlangan",
+    "keywords": ["taqiqlangan", "telefon"]
+  },
+  "🔞": {
+    "name": "o'n sakkiz yoshdan kichiklarga taqiqlangan",
+    "keywords": ["yosh", "taqiqlangan", "cheklov"]
+  },
+  "☢️": {
+    "name": "radioaktiv",
+    "keywords": ["belgi"]
+  },
+  "☣️": {
+    "name": "biologik xavf",
+    "keywords": ["belgi"]
+  },
+  "⬆️": {
+    "name": "yuqori strelka",
+    "keywords": ["yo'nalish", "shimol"]
+  },
+  "↗️": {
+    "name": "yuqori-o'ng strelka",
+    "keywords": ["yo'nalish", "shimoli-sharqiy"]
+  },
+  "➡️": {
+    "name": "o'ng strelka",
+    "keywords": ["yo'nalish", "sharq"]
+  },
+  "↘️": {
+    "name": "past-o'ng strelka",
+    "keywords": ["yo'nalish", "janubi-sharqiy"]
+  },
+  "⬇️": {
+    "name": "past strelka",
+    "keywords": ["yo'nalish", "janub"]
+  },
+  "↙️": {
+    "name": "past-chap strelka",
+    "keywords": ["yo'nalish", "janubi-g'arbiy"]
+  },
+  "⬅️": {
+    "name": "chap strelka",
+    "keywords": ["yo'nalish", "g'arb"]
+  },
+  "↖️": {
+    "name": "yuqori-chap strelka",
+    "keywords": ["yo'nalish", "shimoli-g'arbiy"]
+  },
+  "🔃": {
+    "name": "soat yo'nalishida aylanma strelkalar",
+    "keywords": ["strelka", "yangilash"]
+  },
+  "🔄": {
+    "name": "soat yo'nalishiga qarshi aylanma strelkalar",
+    "keywords": ["strelka", "yangilash"]
+  },
+  "🔛": {
+    "name": "YONIQ! strelkasi",
+    "keywords": ["belgi"]
+  },
+  "🔝": {
+    "name": "YUQORIGA strelkasi",
+    "keywords": ["yuqoriga"]
+  },
+  "🛐": {
+    "name": "ibodat joyi",
+    "keywords": ["din", "ibodat"]
+  },
+  "🕉️": {
+    "name": "om",
+    "keywords": ["hind", "din"]
+  },
+  "✡️": {
+    "name": "Dovud yulduzi",
+    "keywords": ["yahudiy", "din"]
+  },
+  "☸️": {
+    "name": "dharma g'ildiragi",
+    "keywords": ["buddist", "din"]
+  },
+  "☯️": {
+    "name": "in-yan",
+    "keywords": ["qiyin", "din", "tao"]
+  },
+  "✝️": {
+    "name": "lotin xochi",
+    "keywords": ["xristian", "din"]
+  },
+  "☦️": {
+    "name": "pravoslav xochi",
+    "keywords": ["xristian", "din"]
+  },
+  "☪️": {
+    "name": "yulduz va hilol",
+    "keywords": ["islom", "musulmon", "ramazon", "din"]
+  },
+  "☮️": {
+    "name": "tinchlik belgisi",
+    "keywords": ["tiklanish", "tinchlik"]
+  },
+  "🕎": {
+    "name": "menora",
+    "keywords": ["shamdon", "hanuka", "yahudiy", "din"]
+  },
+  "🔯": {
+    "name": "nuqtali olti burchakli yulduz",
+    "keywords": ["bashorat", "yahudiy"]
+  },
+  "🪯": {
+    "name": "xanda",
+    "keywords": ["din", "sikx"]
+  },
+  "♈️": {
+    "name": "Qo'chqor burji",
+    "keywords": ["burj"]
+  },
+  "♉️": {
+    "name": "Ho'kiz burji",
+    "keywords": ["burj"]
+  },
+  "♊️": {
+    "name": "Egizaklar burji",
+    "keywords": ["burj"]
+  },
+  "♋️": {
+    "name": "Saraton burji",
+    "keywords": ["burj"]
+  },
+  "♌️": {
+    "name": "Arslon burji",
+    "keywords": ["burj"]
+  },
+  "♍️": {
+    "name": "Sunbula burji",
+    "keywords": ["burj"]
+  },
+  "♎️": {
+    "name": "Tarozi burji",
+    "keywords": ["burj"]
+  },
+  "♏️": {
+    "name": "Chayon burji",
+    "keywords": ["burj"]
+  },
+  "♐️": {
+    "name": "Otar burji",
+    "keywords": ["burj"]
+  },
+  "♑️": {
+    "name": "Uloq burji",
+    "keywords": ["burj"]
+  },
+  "♒️": {
+    "name": "Dalv burji",
+    "keywords": ["burj"]
+  },
+  "♓️": {
+    "name": "Baliqlar burji",
+    "keywords": ["burj"]
+  },
+  "⛎️": {
+    "name": "Ilonbar burji",
+    "keywords": ["burj"]
+  },
+  "🔀": {
+    "name": "aralashtirish tugmasi",
+    "keywords": ["strelka"]
+  },
+  "🔁": {
+    "name": "takrorlash tugmasi",
+    "keywords": ["strelka"]
+  },
+  "🔂": {
+    "name": "bitta takrorlash tugmasi",
+    "keywords": ["strelka"]
+  },
+  "▶️": {
+    "name": "ijro tugmasi",
+    "keywords": ["strelka", "o'ng"]
+  },
+  "⏩️": {
+    "name": "tez oldinga tugmasi",
+    "keywords": ["strelka", "tez"]
+  },
+  "⏭️": {
+    "name": "keyingi trek tugmasi",
+    "keywords": ["strelka"]
+  },
+  "⏯️": {
+    "name": "ijro yoki pauza tugmasi",
+    "keywords": ["strelka", "o'ng"]
+  },
+  "◀️": {
+    "name": "orqaga qaytarish tugmasi",
+    "keywords": ["strelka", "chap"]
+  },
+  "⏪️": {
+    "name": "tez orqaga tugmasi",
+    "keywords": ["strelka", "tez"]
+  },
+  "⏮️": {
+    "name": "oldingi trek tugmasi",
+    "keywords": ["strelka"]
+  },
+  "🔼": {
+    "name": "yuqoriga tugma",
+    "keywords": ["strelka", "qizil", "yuqoriga"]
+  },
+  "⏫️": {
+    "name": "tez yuqoriga tugmasi",
+    "keywords": ["strelka"]
+  },
+  "🔽": {
+    "name": "pastga tugma",
+    "keywords": ["strelka", "pastga", "qizil"]
+  },
+  "⏬️": {
+    "name": "tez pastga tugmasi",
+    "keywords": ["strelka"]
+  },
+  "⏸️": {
+    "name": "pauza tugmasi",
+    "keywords": ["ikki chiziq"]
+  },
+  "⏹️": {
+    "name": "to'xtatish tugmasi",
+    "keywords": ["kvadrat"]
+  },
+  "⏺️": {
+    "name": "yozib olish tugmasi",
+    "keywords": ["aylana"]
+  },
+  "🎦": {
+    "name": "kinoteatr",
+    "keywords": ["kamera", "film", "kino"]
+  },
+  "🔅": {
+    "name": "xira tugma",
+    "keywords": ["yorug'lik"]
+  },
+  "🔆": {
+    "name": "yorqin tugma",
+    "keywords": ["yorug'lik"]
+  },
+  "📶": {
+    "name": "antenna chiziqlari",
+    "keywords": ["aloqa", "mobil", "signal", "telefon"]
+  },
+  "🛜": {
+    "name": "simsiz aloqa",
+    "keywords": ["broadband", "kompyuter", "internet", "wi-fi"]
+  },
+  "📳": {
+    "name": "tebranish rejimi",
+    "keywords": ["aloqa", "mobil", "telefon"]
+  },
+  "📴": {
+    "name": "o'chirilgan mobil telefon",
+    "keywords": ["telefon"]
+  },
+  "♀️": {
+    "name": "ayol belgisi",
+    "keywords": ["ayol"]
+  },
+  "♂️": {
+    "name": "erkak belgisi",
+    "keywords": ["erkak"]
+  },
+  "✖️": {
+    "name": "ko'paytirish belgisi",
+    "keywords": ["bekor qilish", "ko'paytirish"]
+  },
+  "➕️": {
+    "name": "plyus",
+    "keywords": ["+"]
+  },
+  "➖️": {
+    "name": "minus",
+    "keywords": ["-"]
+  },
+  "➗️": {
+    "name": "bo'lish belgisi",
+    "keywords": ["matematika"]
+  },
+  "🟰": {
+    "name": "qalin teng belgisi",
+    "keywords": ["matematika", "javob"]
+  },
+  "♾️": {
+    "name": "cheksizlik",
+    "keywords": ["abadiy", "chegarasiz"]
+  },
+  "‼️": {
+    "name": "qo'sh undov belgisi",
+    "keywords": ["tinish belgilari"]
+  },
+  "⁉️": {
+    "name": "undov-savol belgisi",
+    "keywords": ["tinish belgilari"]
+  },
+  "❓️": {
+    "name": "qizil savol belgisi",
+    "keywords": ["tinish belgisi"]
+  },
+  "❔️": {
+    "name": "oq savol belgisi",
+    "keywords": ["tinish belgisi"]
+  },
+  "❕️": {
+    "name": "oq undov belgisi",
+    "keywords": ["tinish belgisi"]
+  },
+  "❗️": {
+    "name": "qizil undov belgisi",
+    "keywords": ["tinish belgisi"]
+  },
+  "〰️": {
+    "name": "to'lqinsimon chiziq",
+    "keywords": ["tinish belgisi"]
+  },
+  "💱": {
+    "name": "valyuta almashuvi",
+    "keywords": ["bank", "pul"]
+  },
+  "💲": {
+    "name": "og'ir dollar belgisi",
+    "keywords": ["bank", "valyuta", "pul"]
+  },
+  "⚕️": {
+    "name": "tibbiy belgi",
+    "keywords": ["tibbiyot"]
+  },
+  "♻️": {
+    "name": "qayta ishlash belgisi",
+    "keywords": ["qayta ishlash"]
+  },
+  "🔱": {
+    "name": "uch shoxli sim",
+    "keywords": ["langar", "asbob"]
+  },
+  "🔰": {
+    "name": "yaponcha \"boshlovchi\" belgisi",
+    "keywords": ["yashil", "barg", "asbob", "sariq"]
+  },
+  "⭕️": {
+    "name": "kovak qizil aylana",
+    "keywords": ["to'r", "katta"]
+  },
+  "✅️": {
+    "name": "belgilangan katakcha tugmasi",
+    "keywords": ["tugallangan", "belgi"]
+  },
+  "☑️": {
+    "name": "belgilangan katakcha",
+    "keywords": ["bajarilgan", "belgi"]
+  },
+  "✔️": {
+    "name": "belgilangan",
+    "keywords": ["belgi", "tugallangan"]
+  },
+  "❌️": {
+    "name": "bekor qilish belgisi",
+    "keywords": ["ko'paytirish"]
+  },
+  "❎️": {
+    "name": "bekor qilish tugmasi",
+    "keywords": ["ko'paytirish", "kvadrat"]
+  },
+  "➰️": {
+    "name": "jingalak halqa",
+    "keywords": ["o'ram"]
+  },
+  "➿️": {
+    "name": "qo'sh jingalak halqa",
+    "keywords": ["o'ram"]
+  },
+  "©️": {
+    "name": "mualliflik huquqi",
+    "keywords": ["c"]
+  },
+  "®️": {
+    "name": "ro'yxatdan o'tgan belgi",
+    "keywords": ["r"]
+  },
+  "™️": {
+    "name": "savdo belgisi",
+    "keywords": ["tovar belgisi"]
+  },
+  "🫟": {
+    "name": "sachratma",
+    "keywords": ["tomchi", "siyoh", "bo'yoq", "dog'"]
+  },
+  "#️⃣": {
+    "name": "tugmacha: #",
+    "keywords": ["tugmacha"]
+  },
+  "*️⃣": {
+    "name": "tugmacha: *",
+    "keywords": ["tugmacha"]
+  },
+  "0️⃣": {
+    "name": "tugmacha: 0",
+    "keywords": ["tugmacha"]
+  },
+  "1️⃣": {
+    "name": "tugmacha: 1",
+    "keywords": ["tugmacha"]
+  },
+  "2️⃣": {
+    "name": "tugmacha: 2",
+    "keywords": ["tugmacha"]
+  },
+  "3️⃣": {
+    "name": "tugmacha: 3",
+    "keywords": ["tugmacha"]
+  },
+  "4️⃣": {
+    "name": "tugmacha: 4",
+    "keywords": ["tugmacha"]
+  },
+  "5️⃣": {
+    "name": "tugmacha: 5",
+    "keywords": ["tugmacha"]
+  },
+  "6️⃣": {
+    "name": "tugmacha: 6",
+    "keywords": ["tugmacha"]
+  },
+  "7️⃣": {
+    "name": "tugmacha: 7",
+    "keywords": ["tugmacha"]
+  },
+  "8️⃣": {
+    "name": "tugmacha: 8",
+    "keywords": ["tugmacha"]
+  },
+  "9️⃣": {
+    "name": "tugmacha: 9",
+    "keywords": ["tugmacha"]
+  },
+  "🔟": {
+    "name": "tugmacha: 10",
+    "keywords": ["tugmacha"]
+  },
+  "🔠": {
+    "name": "lotin bosh harflari kiritish",
+    "keywords": ["harflar"]
+  },
+  "🔡": {
+    "name": "lotin kichik harflari kiritish",
+    "keywords": ["harflar"]
+  },
+  "🔢": {
+    "name": "raqamlar kiritish",
+    "keywords": ["1234"]
+  },
+  "🔤": {
+    "name": "lotin harflari kiritish",
+    "keywords": ["alifbo"]
+  },
+  "🅰️": {
+    "name": "A tugmasi (qon guruhi)",
+    "keywords": ["qon", "guruh"]
+  },
+  "🆎": {
+    "name": "AB tugmasi (qon guruhi)",
+    "keywords": ["qon", "guruh"]
+  },
+  "🅱️": {
+    "name": "B tugmasi (qon guruhi)",
+    "keywords": ["qon", "guruh"]
+  },
+  "ℹ️": {
+    "name": "ma'lumot",
+    "keywords": ["i"]
+  },
+  "🆔": {
+    "name": "ID tugmasi",
+    "keywords": ["shaxsiyat"]
+  },
+  "Ⓜ️": {
+    "name": "doiradagi M",
+    "keywords": ["aylana"]
+  },
+  "🅾️": {
+    "name": "O tugmasi (qon guruhi)",
+    "keywords": ["qon", "guruh"]
+  },
+  "🆗": {
+    "name": "OK tugmasi",
+    "keywords": ["xo'p"]
+  },
+  "🅿️": {
+    "name": "P tugmasi",
+    "keywords": ["avtoturargoh"]
+  },
+  "🆘": {
+    "name": "SOS tugmasi",
+    "keywords": ["yordam"]
+  },
+  "🆙": {
+    "name": "YUQORIGA! tugmasi",
+    "keywords": ["belgi", "yuqoriga"]
+  },
+  "🆚": {
+    "name": "VS tugmasi",
+    "keywords": ["qarshi"]
+  },
+  "🈁": {
+    "name": "yapon \"bu yerda\" tugmasi",
+    "keywords": ["bu yerda", "katakana"]
+  },
+  "🈂️": {
+    "name": "yapon \"xizmat haqi\" tugmasi",
+    "keywords": ["xizmat", "haq", "katakana"]
+  },
+  "🈷️": {
+    "name": "yapon \"oylik to'lov\" tugmasi",
+    "keywords": ["to'lov", "ieroglif", "oylik"]
+  },
+  "🈶": {
+    "name": "yapon \"pullik xizmat\" tugmasi",
+    "keywords": ["xizmat haqi", "ieroglif", "pullik"]
+  },
+  "🈯️": {
+    "name": "yapon \"band\" tugmasi",
+    "keywords": ["band", "ieroglif"]
+  },
+  "🉐": {
+    "name": "yapon \"arzon\" tugmasi",
+    "keywords": ["arzon", "ieroglif"]
+  },
+  "🈹": {
+    "name": "yapon \"chegirma\" tugmasi",
+    "keywords": ["chegirma", "ieroglif"]
+  },
+  "🈚️": {
+    "name": "yapon \"bepul xizmat\" tugmasi",
+    "keywords": ["bepul", "xizmat", "ieroglif"]
+  },
+  "🈲": {
+    "name": "yapon \"taqiqlangan\" tugmasi",
+    "keywords": ["ieroglif", "taqiqlangan"]
+  },
+  "🉑": {
+    "name": "yapon \"maqbul\" tugmasi",
+    "keywords": ["maqbul", "ieroglif"]
+  },
+  "🈸": {
+    "name": "yapon \"ariza\" tugmasi",
+    "keywords": ["ariza", "ieroglif"]
+  },
+  "🈴": {
+    "name": "yapon \"o'tish balli\" tugmasi",
+    "keywords": ["ball", "ieroglif", "o'tish"]
+  },
+  "🈳": {
+    "name": "yapon \"bo'sh joy\" tugmasi",
+    "keywords": ["bo'sh", "ieroglif"]
+  },
+  "㊗️": {
+    "name": "yapon \"tabriklaymiz\" tugmasi",
+    "keywords": ["tabrik", "ieroglif"]
+  },
+  "㊙️": {
+    "name": "yapon \"sir\" tugmasi",
+    "keywords": ["ieroglif", "sir"]
+  },
+  "🈺": {
+    "name": "yapon \"ish faoliyatda\" tugmasi",
+    "keywords": ["biznes", "ieroglif", "ochiq"]
+  },
+  "🈵": {
+    "name": "yapon \"bo'sh joy yo'q\" tugmasi",
+    "keywords": ["ieroglif", "bo'sh joy yo'q"]
+  },
+  "🔴": {
+    "name": "qizil doira",
+    "keywords": ["geometrik"]
+  },
+  "🔵": {
+    "name": "ko'k doira",
+    "keywords": ["geometrik"]
+  },
+  "⚫️": {
+    "name": "qora aylana",
+    "keywords": ["geometrik"]
+  },
+  "⚪️": {
+    "name": "oq aylana",
+    "keywords": ["geometrik"]
+  },
+  "🟥": {
+    "name": "qizil kvadrat",
+    "keywords": ["karta", "jarima"]
+  },
+  "🟨": {
+    "name": "sariq kvadrat",
+    "keywords": ["karta", "jarima"]
+  },
+  "⬛️": {
+    "name": "katta qora kvadrat",
+    "keywords": ["geometrik"]
+  },
+  "⬜️": {
+    "name": "katta oq kvadrat",
+    "keywords": ["geometrik"]
+  },
+  "◼️": {
+    "name": "o'rta qora kvadrat",
+    "keywords": ["geometrik"]
+  },
+  "◻️": {
+    "name": "o'rta oq kvadrat",
+    "keywords": ["geometrik"]
+  },
+  "◾️": {
+    "name": "o'rta-kichik qora kvadrat",
+    "keywords": ["geometrik"]
+  },
+  "◽️": {
+    "name": "o'rta-kichik oq kvadrat",
+    "keywords": ["geometrik"]
+  },
+  "▪️": {
+    "name": "kichik qora kvadrat",
+    "keywords": ["geometrik"]
+  },
+  "▫️": {
+    "name": "kichik oq kvadrat",
+    "keywords": ["geometrik"]
+  },
+  "🔶": {
+    "name": "katta apelsin rangli romb",
+    "keywords": ["geometrik"]
+  },
+  "🔷": {
+    "name": "katta ko'k romb",
+    "keywords": ["geometrik"]
+  },
+  "🔸": {
+    "name": "kichik apelsin rangli romb",
+    "keywords": ["geometrik"]
+  },
+  "🔹": {
+    "name": "kichik ko'k romb",
+    "keywords": ["geometrik"]
+  },
+  "🔺": {
+    "name": "yuqoriga qaragan qizil uchburchak",
+    "keywords": ["geometrik"]
+  },
+  "🔻": {
+    "name": "pastga qaragan qizil uchburchak",
+    "keywords": ["geometrik"]
+  },
+  "💠": {
+    "name": "nuqtali olmos",
+    "keywords": ["komiks", "geometrik"]
+  },
+  "🔘": {
+    "name": "radio tugmasi",
+    "keywords": ["geometrik"]
+  },
+  "🔳": {
+    "name": "oq kvadrat tugma",
+    "keywords": ["geometrik"]
+  },
+  "🔲": {
+    "name": "qora kvadrat tugma",
+    "keywords": ["geometrik"]
+  },
+  "🏁": {
+    "name": "shaxmat bayrog'i",
+    "keywords": ["finish", "bayroq", "o'yin", "poyga", "sport", "g'alaba"]
+  },
+  "🚩": {
+    "name": "uchburchak bayroqcha",
+    "keywords": ["qurilish", "golf"]
+  },
+  "🎌": {
+    "name": "kesishgan bayroqlar",
+    "keywords": ["bayram", "xoch", "yapon"]
+  },
+  "🏴": {
+    "name": "qora bayroq",
+    "keywords": ["to'lqinlanuvchi"]
+  },
+  "🏳️": {
+    "name": "oq bayroq",
+    "keywords": ["to'lqinlanuvchi"]
+  },
+  "🏳️‍🌈": {
+    "name": "kamalak bayrog'i",
+    "keywords": ["gey", "lgbt", "mag'rurlik", "lezbiyan", "trans"]
+  },
+  "🏳️‍⚧️": {
+    "name": "transgender bayrog'i",
+    "keywords": ["ko'k", "yorug'", "pushti", "oq"]
+  },
+  "🏴‍☠️": {
+    "name": "qaroqchilar bayrog'i",
+    "keywords": ["xazina"]
+  },
+  "🇦🇨": {
+    "name": "bayroq: Vozneseniye oroli",
+    "keywords": ["AC", "bayroq"]
+  },
+  "🇦🇩": {
+    "name": "bayroq: Andorra",
+    "keywords": ["AD", "bayroq"]
+  },
+  "🇦🇪": {
+    "name": "bayroq: Birlashgan Arab Amirliklari",
+    "keywords": ["AE", "bayroq"]
+  },
+  "🇦🇫": {
+    "name": "bayroq: Afg'oniston",
+    "keywords": ["AF", "bayroq"]
+  },
+  "🇦🇬": {
+    "name": "bayroq: Antigua va Barbuda",
+    "keywords": ["AG", "bayroq"]
+  },
+  "🇦🇮": {
+    "name": "bayroq: Angilya",
+    "keywords": ["AI", "bayroq"]
+  },
+  "🇦🇱": {
+    "name": "bayroq: Albaniya",
+    "keywords": ["AL", "bayroq"]
+  },
+  "🇦🇲": {
+    "name": "bayroq: Armaniston",
+    "keywords": ["AM", "bayroq"]
+  },
+  "🇦🇴": {
+    "name": "bayroq: Angola",
+    "keywords": ["AO", "bayroq"]
+  },
+  "🇦🇶": {
+    "name": "bayroq: Antarktida",
+    "keywords": ["AQ", "bayroq"]
+  },
+  "🇦🇷": {
+    "name": "bayroq: Argentina",
+    "keywords": ["AR", "bayroq"]
+  },
+  "🇦🇸": {
+    "name": "bayroq: Amerika Samoasi",
+    "keywords": ["AS", "bayroq"]
+  },
+  "🇦🇹": {
+    "name": "bayroq: Avstriya",
+    "keywords": ["AT", "bayroq"]
+  },
+  "🇦🇺": {
+    "name": "bayroq: Avstraliya",
+    "keywords": ["AU", "bayroq"]
+  },
+  "🇦🇼": {
+    "name": "bayroq: Aruba",
+    "keywords": ["AW", "bayroq"]
+  },
+  "🇦🇽": {
+    "name": "bayroq: Aland orollari",
+    "keywords": ["AX", "bayroq"]
+  },
+  "🇦🇿": {
+    "name": "bayroq: Ozarbayjon",
+    "keywords": ["AZ", "bayroq"]
+  },
+  "🇧🇦": {
+    "name": "bayroq: Bosniya va Gersegovina",
+    "keywords": ["BA", "bayroq"]
+  },
+  "🇧🇧": {
+    "name": "bayroq: Barbados",
+    "keywords": ["BB", "bayroq"]
+  },
+  "🇧🇩": {
+    "name": "bayroq: Bangladesh",
+    "keywords": ["BD", "bayroq"]
+  },
+  "🇧🇪": {
+    "name": "bayroq: Belgiya",
+    "keywords": ["BE", "bayroq"]
+  },
+  "🇧🇫": {
+    "name": "bayroq: Burkina-Faso",
+    "keywords": ["BF", "bayroq"]
+  },
+  "🇧🇬": {
+    "name": "bayroq: Bolgariya",
+    "keywords": ["BG", "bayroq"]
+  },
+  "🇧🇭": {
+    "name": "bayroq: Bahrayn",
+    "keywords": ["BH", "bayroq"]
+  },
+  "🇧🇮": {
+    "name": "bayroq: Burundi",
+    "keywords": ["BI", "bayroq"]
+  },
+  "🇧🇯": {
+    "name": "bayroq: Benin",
+    "keywords": ["BJ", "bayroq"]
+  },
+  "🇧🇱": {
+    "name": "bayroq: Sen-Bartelemi",
+    "keywords": ["BL", "bayroq"]
+  },
+  "🇧🇲": {
+    "name": "bayroq: Bermuda orollari",
+    "keywords": ["BM", "bayroq"]
+  },
+  "🇧🇳": {
+    "name": "bayroq: Bruney",
+    "keywords": ["BN", "bayroq"]
+  },
+  "🇧🇴": {
+    "name": "bayroq: Boliviya",
+    "keywords": ["BO", "bayroq"]
+  },
+  "🇧🇶": {
+    "name": "bayroq: Karib Niderlandiyasi",
+    "keywords": ["BQ", "bayroq"]
+  },
+  "🇧🇷": {
+    "name": "bayroq: Braziliya",
+    "keywords": ["BR", "bayroq"]
+  },
+  "🇧🇸": {
+    "name": "bayroq: Bagama orollari",
+    "keywords": ["BS", "bayroq"]
+  },
+  "🇧🇹": {
+    "name": "bayroq: Butan",
+    "keywords": ["BT", "bayroq"]
+  },
+  "🇧🇻": {
+    "name": "bayroq: Buve oroli",
+    "keywords": ["BV", "bayroq"]
+  },
+  "🇧🇼": {
+    "name": "bayroq: Botsvana",
+    "keywords": ["BW", "bayroq"]
+  },
+  "🇧🇾": {
+    "name": "bayroq: Belarus",
+    "keywords": ["BY", "bayroq"]
+  },
+  "🇧🇿": {
+    "name": "bayroq: Beliz",
+    "keywords": ["BZ", "bayroq"]
+  },
+  "🇨🇦": {
+    "name": "bayroq: Kanada",
+    "keywords": ["CA", "bayroq"]
+  },
+  "🇨🇨": {
+    "name": "bayroq: Kokos (Kiling) orollari",
+    "keywords": ["CC", "bayroq"]
+  },
+  "🇨🇩": {
+    "name": "bayroq: Kongo - Kinshasa",
+    "keywords": ["CD", "bayroq"]
+  },
+  "🇨🇫": {
+    "name": "bayroq: Markaziy Afrika Respublikasi",
+    "keywords": ["CF", "bayroq"]
+  },
+  "🇨🇬": {
+    "name": "bayroq: Kongo - Brazzavil",
+    "keywords": ["CG", "bayroq"]
+  },
+  "🇨🇭": {
+    "name": "bayroq: Shveytsariya",
+    "keywords": ["CH", "bayroq"]
+  },
+  "🇨🇮": {
+    "name": "bayroq: Kot-d'Ivuar",
+    "keywords": ["CI", "bayroq"]
+  },
+  "🇨🇰": {
+    "name": "bayroq: Kuk orollari",
+    "keywords": ["CK", "bayroq"]
+  },
+  "🇨🇱": {
+    "name": "bayroq: Chili",
+    "keywords": ["CL", "bayroq"]
+  },
+  "🇨🇲": {
+    "name": "bayroq: Kamerun",
+    "keywords": ["CM", "bayroq"]
+  },
+  "🇨🇳": {
+    "name": "bayroq: Xitoy",
+    "keywords": ["CN", "bayroq"]
+  },
+  "🇨🇴": {
+    "name": "bayroq: Kolumbiya",
+    "keywords": ["CO", "bayroq"]
+  },
+  "🇨🇵": {
+    "name": "bayroq: Klipperton oroli",
+    "keywords": ["CP", "bayroq"]
+  },
+  "🇨🇶": {
+    "name": "bayroq: Sark",
+    "keywords": ["CQ", "bayroq"]
+  },
+  "🇨🇷": {
+    "name": "bayroq: Kosta-Rika",
+    "keywords": ["CR", "bayroq"]
+  },
+  "🇨🇺": {
+    "name": "bayroq: Kuba",
+    "keywords": ["CU", "bayroq"]
+  },
+  "🇨🇻": {
+    "name": "bayroq: Kabo-Verde",
+    "keywords": ["CV", "bayroq"]
+  },
+  "🇨🇼": {
+    "name": "bayroq: Kyurasao",
+    "keywords": ["CW", "bayroq"]
+  },
+  "🇨🇽": {
+    "name": "bayroq: Rojdestvo oroli",
+    "keywords": ["CX", "bayroq"]
+  },
+  "🇨🇾": {
+    "name": "bayroq: Kipr",
+    "keywords": ["CY", "bayroq"]
+  },
+  "🇨🇿": {
+    "name": "bayroq: Chexiya",
+    "keywords": ["CZ", "bayroq"]
+  },
+  "🇩🇪": {
+    "name": "bayroq: Germaniya",
+    "keywords": ["DE", "bayroq"]
+  },
+  "🇩🇬": {
+    "name": "bayroq: Diego-Garsiya",
+    "keywords": ["DG", "bayroq"]
+  },
+  "🇩🇯": {
+    "name": "bayroq: Djibuti",
+    "keywords": ["DJ", "bayroq"]
+  },
+  "🇩🇰": {
+    "name": "bayroq: Daniya",
+    "keywords": ["DK", "bayroq"]
+  },
+  "🇩🇲": {
+    "name": "bayroq: Dominika",
+    "keywords": ["DM", "bayroq"]
+  },
+  "🇩🇴": {
+    "name": "bayroq: Dominikan Respublikasi",
+    "keywords": ["DO", "bayroq"]
+  },
+  "🇩🇿": {
+    "name": "bayroq: Jazoir",
+    "keywords": ["DZ", "bayroq"]
+  },
+  "🇪🇦": {
+    "name": "bayroq: Seuta va Melilya",
+    "keywords": ["EA", "bayroq"]
+  },
+  "🇪🇨": {
+    "name": "bayroq: Ekvador",
+    "keywords": ["EC", "bayroq"]
+  },
+  "🇪🇪": {
+    "name": "bayroq: Estoniya",
+    "keywords": ["EE", "bayroq"]
+  },
+  "🇪🇬": {
+    "name": "bayroq: Misr",
+    "keywords": ["EG", "bayroq"]
+  },
+  "🇪🇭": {
+    "name": "bayroq: G'arbiy Sahroi Kabir",
+    "keywords": ["EH", "bayroq"]
+  },
+  "🇪🇷": {
+    "name": "bayroq: Eritreya",
+    "keywords": ["ER", "bayroq"]
+  },
+  "🇪🇸": {
+    "name": "bayroq: Ispaniya",
+    "keywords": ["ES", "bayroq"]
+  },
+  "🇪🇹": {
+    "name": "bayroq: Efiopiya",
+    "keywords": ["ET", "bayroq"]
+  },
+  "🇪🇺": {
+    "name": "bayroq: Yevropa Ittifoqi",
+    "keywords": ["EU", "bayroq"]
+  },
+  "🇫🇮": {
+    "name": "bayroq: Finlyandiya",
+    "keywords": ["FI", "bayroq"]
+  },
+  "🇫🇯": {
+    "name": "bayroq: Fiji",
+    "keywords": ["FJ", "bayroq"]
+  },
+  "🇫🇰": {
+    "name": "bayroq: Folklend orollari",
+    "keywords": ["FK", "bayroq"]
+  },
+  "🇫🇲": {
+    "name": "bayroq: Mikroneziya",
+    "keywords": ["FM", "bayroq"]
+  },
+  "🇫🇴": {
+    "name": "bayroq: Farer orollari",
+    "keywords": ["FO", "bayroq"]
+  },
+  "🇫🇷": {
+    "name": "bayroq: Fransiya",
+    "keywords": ["FR", "bayroq"]
+  },
+  "🇬🇦": {
+    "name": "bayroq: Gabon",
+    "keywords": ["GA", "bayroq"]
+  },
+  "🇬🇧": {
+    "name": "bayroq: Buyuk Britaniya",
+    "keywords": ["GB", "bayroq"]
+  },
+  "🇬🇩": {
+    "name": "bayroq: Grenada",
+    "keywords": ["GD", "bayroq"]
+  },
+  "🇬🇪": {
+    "name": "bayroq: Gruziya",
+    "keywords": ["GE", "bayroq"]
+  },
+  "🇬🇫": {
+    "name": "bayroq: Fransuz Gvianasi",
+    "keywords": ["GF", "bayroq"]
+  },
+  "🇬🇬": {
+    "name": "bayroq: Gernsi",
+    "keywords": ["GG", "bayroq"]
+  },
+  "🇬🇭": {
+    "name": "bayroq: Gana",
+    "keywords": ["GH", "bayroq"]
+  },
+  "🇬🇮": {
+    "name": "bayroq: Gibraltar",
+    "keywords": ["GI", "bayroq"]
+  },
+  "🇬🇱": {
+    "name": "bayroq: Grenlandiya",
+    "keywords": ["GL", "bayroq"]
+  },
+  "🇬🇲": {
+    "name": "bayroq: Gambiya",
+    "keywords": ["GM", "bayroq"]
+  },
+  "🇬🇳": {
+    "name": "bayroq: Gvineya",
+    "keywords": ["GN", "bayroq"]
+  },
+  "🇬🇵": {
+    "name": "bayroq: Gvadelupa",
+    "keywords": ["GP", "bayroq"]
+  },
+  "🇬🇶": {
+    "name": "bayroq: Ekvatorial Gvineya",
+    "keywords": ["GQ", "bayroq"]
+  },
+  "🇬🇷": {
+    "name": "bayroq: Gretsiya",
+    "keywords": ["GR", "bayroq"]
+  },
+  "🇬🇸": {
+    "name": "bayroq: Janubiy Georgiya va Janubiy Sendvich orollari",
+    "keywords": ["GS", "bayroq"]
+  },
+  "🇬🇹": {
+    "name": "bayroq: Gvatemala",
+    "keywords": ["GT", "bayroq"]
+  },
+  "🇬🇺": {
+    "name": "bayroq: Guam",
+    "keywords": ["GU", "bayroq"]
+  },
+  "🇬🇼": {
+    "name": "bayroq: Gvineya-Bisau",
+    "keywords": ["GW", "bayroq"]
+  },
+  "🇬🇾": {
+    "name": "bayroq: Gayana",
+    "keywords": ["GY", "bayroq"]
+  },
+  "🇭🇰": {
+    "name": "bayroq: Gonkong (Xitoy MMH)",
+    "keywords": ["HK", "bayroq"]
+  },
+  "🇭🇲": {
+    "name": "bayroq: Xerd va Makdonald orollari",
+    "keywords": ["HM", "bayroq"]
+  },
+  "🇭🇳": {
+    "name": "bayroq: Gonduras",
+    "keywords": ["HN", "bayroq"]
+  },
+  "🇭🇷": {
+    "name": "bayroq: Xorvatiya",
+    "keywords": ["HR", "bayroq"]
+  },
+  "🇭🇹": {
+    "name": "bayroq: Gaiti",
+    "keywords": ["HT", "bayroq"]
+  },
+  "🇭🇺": {
+    "name": "bayroq: Vengriya",
+    "keywords": ["HU", "bayroq"]
+  },
+  "🇮🇨": {
+    "name": "bayroq: Kanar orollari",
+    "keywords": ["IC", "bayroq"]
+  },
+  "🇮🇩": {
+    "name": "bayroq: Indoneziya",
+    "keywords": ["ID", "bayroq"]
+  },
+  "🇮🇪": {
+    "name": "bayroq: Irlandiya",
+    "keywords": ["IE", "bayroq"]
+  },
+  "🇮🇱": {
+    "name": "bayroq: Isroil",
+    "keywords": ["IL", "bayroq"]
+  },
+  "🇮🇲": {
+    "name": "bayroq: Men oroli",
+    "keywords": ["IM", "bayroq"]
+  },
+  "🇮🇳": {
+    "name": "bayroq: Hindiston",
+    "keywords": ["IN", "bayroq"]
+  },
+  "🇮🇴": {
+    "name": "bayroq: Britaniya Hind okeani hududi",
+    "keywords": ["IO", "bayroq"]
+  },
+  "🇮🇶": {
+    "name": "bayroq: Iroq",
+    "keywords": ["IQ", "bayroq"]
+  },
+  "🇮🇷": {
+    "name": "bayroq: Eron",
+    "keywords": ["IR", "bayroq"]
+  },
+  "🇮🇸": {
+    "name": "bayroq: Islandiya",
+    "keywords": ["IS", "bayroq"]
+  },
+  "🇮🇹": {
+    "name": "bayroq: Italiya",
+    "keywords": ["IT", "bayroq"]
+  },
+  "🇯🇪": {
+    "name": "bayroq: Jersi",
+    "keywords": ["JE", "bayroq"]
+  },
+  "🇯🇲": {
+    "name": "bayroq: Yamayka",
+    "keywords": ["JM", "bayroq"]
+  },
+  "🇯🇴": {
+    "name": "bayroq: Iordaniya",
+    "keywords": ["JO", "bayroq"]
+  },
+  "🇯🇵": {
+    "name": "bayroq: Yaponiya",
+    "keywords": ["JP", "bayroq"]
+  },
+  "🇰🇪": {
+    "name": "bayroq: Keniya",
+    "keywords": ["KE", "bayroq"]
+  },
+  "🇰🇬": {
+    "name": "bayroq: Qirg'iziston",
+    "keywords": ["KG", "bayroq"]
+  },
+  "🇰🇭": {
+    "name": "bayroq: Kambodja",
+    "keywords": ["KH", "bayroq"]
+  },
+  "🇰🇮": {
+    "name": "bayroq: Kiribati",
+    "keywords": ["KI", "bayroq"]
+  },
+  "🇰🇲": {
+    "name": "bayroq: Komor orollari",
+    "keywords": ["KM", "bayroq"]
+  },
+  "🇰🇳": {
+    "name": "bayroq: Sent-Kits va Nevis",
+    "keywords": ["KN", "bayroq"]
+  },
+  "🇰🇵": {
+    "name": "bayroq: Shimoliy Koreya",
+    "keywords": ["KP", "bayroq"]
+  },
+  "🇰🇷": {
+    "name": "bayroq: Janubiy Koreya",
+    "keywords": ["KR", "bayroq"]
+  },
+  "🇰🇼": {
+    "name": "bayroq: Quvayt",
+    "keywords": ["KW", "bayroq"]
+  },
+  "🇰🇾": {
+    "name": "bayroq: Kayman orollari",
+    "keywords": ["KY", "bayroq"]
+  },
+  "🇰🇿": {
+    "name": "bayroq: Qozog'iston",
+    "keywords": ["KZ", "bayroq"]
+  },
+  "🇱🇦": {
+    "name": "bayroq: Laos",
+    "keywords": ["LA", "bayroq"]
+  },
+  "🇱🇧": {
+    "name": "bayroq: Livan",
+    "keywords": ["LB", "bayroq"]
+  },
+  "🇱🇨": {
+    "name": "bayroq: Sent-Lyusiya",
+    "keywords": ["LC", "bayroq"]
+  },
+  "🇱🇮": {
+    "name": "bayroq: Lixtenshteyn",
+    "keywords": ["LI", "bayroq"]
+  },
+  "🇱🇰": {
+    "name": "bayroq: Shri-Lanka",
+    "keywords": ["LK", "bayroq"]
+  },
+  "🇱🇷": {
+    "name": "bayroq: Liberiya",
+    "keywords": ["LR", "bayroq"]
+  },
+  "🇱🇸": {
+    "name": "bayroq: Lesoto",
+    "keywords": ["LS", "bayroq"]
+  },
+  "🇱🇹": {
+    "name": "bayroq: Litva",
+    "keywords": ["LT", "bayroq"]
+  },
+  "🇱🇺": {
+    "name": "bayroq: Lyuksemburg",
+    "keywords": ["LU", "bayroq"]
+  },
+  "🇱🇻": {
+    "name": "bayroq: Latviya",
+    "keywords": ["LV", "bayroq"]
+  },
+  "🇱🇾": {
+    "name": "bayroq: Liviya",
+    "keywords": ["LY", "bayroq"]
+  },
+  "🇲🇦": {
+    "name": "bayroq: Marokash",
+    "keywords": ["MA", "bayroq"]
+  },
+  "🇲🇨": {
+    "name": "bayroq: Monako",
+    "keywords": ["MC", "bayroq"]
+  },
+  "🇲🇩": {
+    "name": "bayroq: Moldova",
+    "keywords": ["MD", "bayroq"]
+  },
+  "🇲🇪": {
+    "name": "bayroq: Chernogoriya",
+    "keywords": ["ME", "bayroq"]
+  },
+  "🇲🇫": {
+    "name": "bayroq: Sen-Marten",
+    "keywords": ["MF", "bayroq"]
+  },
+  "🇲🇬": {
+    "name": "bayroq: Madagaskar",
+    "keywords": ["MG", "bayroq"]
+  },
+  "🇲🇭": {
+    "name": "bayroq: Marshall orollari",
+    "keywords": ["MH", "bayroq"]
+  },
+  "🇲🇰": {
+    "name": "bayroq: Shimoliy Makedoniya",
+    "keywords": ["MK", "bayroq"]
+  },
+  "🇲🇱": {
+    "name": "bayroq: Mali",
+    "keywords": ["ML", "bayroq"]
+  },
+  "🇲🇲": {
+    "name": "bayroq: Myanma (Birma)",
+    "keywords": ["MM", "bayroq"]
+  },
+  "🇲🇳": {
+    "name": "bayroq: Mongoliya",
+    "keywords": ["MN", "bayroq"]
+  },
+  "🇲🇴": {
+    "name": "bayroq: Makao (Xitoy MMH)",
+    "keywords": ["MO", "bayroq"]
+  },
+  "🇲🇵": {
+    "name": "bayroq: Shimoliy Marian orollari",
+    "keywords": ["MP", "bayroq"]
+  },
+  "🇲🇶": {
+    "name": "bayroq: Martinika",
+    "keywords": ["MQ", "bayroq"]
+  },
+  "🇲🇷": {
+    "name": "bayroq: Mavritaniya",
+    "keywords": ["MR", "bayroq"]
+  },
+  "🇲🇸": {
+    "name": "bayroq: Montserrat",
+    "keywords": ["MS", "bayroq"]
+  },
+  "🇲🇹": {
+    "name": "bayroq: Malta",
+    "keywords": ["MT", "bayroq"]
+  },
+  "🇲🇺": {
+    "name": "bayroq: Mavrikiy",
+    "keywords": ["MU", "bayroq"]
+  },
+  "🇲🇻": {
+    "name": "bayroq: Maldiv orollari",
+    "keywords": ["MV", "bayroq"]
+  },
+  "🇲🇼": {
+    "name": "bayroq: Malavi",
+    "keywords": ["MW", "bayroq"]
+  },
+  "🇲🇽": {
+    "name": "bayroq: Meksika",
+    "keywords": ["MX", "bayroq"]
+  },
+  "🇲🇾": {
+    "name": "bayroq: Malayziya",
+    "keywords": ["MY", "bayroq"]
+  },
+  "🇲🇿": {
+    "name": "bayroq: Mozambik",
+    "keywords": ["MZ", "bayroq"]
+  },
+  "🇳🇦": {
+    "name": "bayroq: Namibiya",
+    "keywords": ["NA", "bayroq"]
+  },
+  "🇳🇨": {
+    "name": "bayroq: Yangi Kaledoniya",
+    "keywords": ["NC", "bayroq"]
+  },
+  "🇳🇪": {
+    "name": "bayroq: Niger",
+    "keywords": ["NE", "bayroq"]
+  },
+  "🇳🇫": {
+    "name": "bayroq: Norfolk oroli",
+    "keywords": ["NF", "bayroq"]
+  },
+  "🇳🇬": {
+    "name": "bayroq: Nigeriya",
+    "keywords": ["NG", "bayroq"]
+  },
+  "🇳🇮": {
+    "name": "bayroq: Nikaragua",
+    "keywords": ["NI", "bayroq"]
+  },
+  "🇳🇱": {
+    "name": "bayroq: Niderlandiya",
+    "keywords": ["NL", "bayroq"]
+  },
+  "🇳🇴": {
+    "name": "bayroq: Norvegiya",
+    "keywords": ["NO", "bayroq"]
+  },
+  "🇳🇵": {
+    "name": "bayroq: Nepal",
+    "keywords": ["NP", "bayroq"]
+  },
+  "🇳🇷": {
+    "name": "bayroq: Nauru",
+    "keywords": ["NR", "bayroq"]
+  },
+  "🇳🇺": {
+    "name": "bayroq: Niue",
+    "keywords": ["NU", "bayroq"]
+  },
+  "🇳🇿": {
+    "name": "bayroq: Yangi Zelandiya",
+    "keywords": ["NZ", "bayroq"]
+  },
+  "🇴🇲": {
+    "name": "bayroq: Ummon",
+    "keywords": ["OM", "bayroq"]
+  },
+  "🇵🇦": {
+    "name": "bayroq: Panama",
+    "keywords": ["PA", "bayroq"]
+  },
+  "🇵🇪": {
+    "name": "bayroq: Peru",
+    "keywords": ["PE", "bayroq"]
+  },
+  "🇵🇫": {
+    "name": "bayroq: Fransuz Polineziyasi",
+    "keywords": ["PF", "bayroq"]
+  },
+  "🇵🇬": {
+    "name": "bayroq: Papua-Yangi Gvineya",
+    "keywords": ["PG", "bayroq"]
+  },
+  "🇵🇭": {
+    "name": "bayroq: Filippin",
+    "keywords": ["PH", "bayroq"]
+  },
+  "🇵🇰": {
+    "name": "bayroq: Pokiston",
+    "keywords": ["PK", "bayroq"]
+  },
+  "🇵🇱": {
+    "name": "bayroq: Polsha",
+    "keywords": ["PL", "bayroq"]
+  },
+  "🇵🇲": {
+    "name": "bayroq: Sen-Pyer va Mikelon",
+    "keywords": ["PM", "bayroq"]
+  },
+  "🇵🇳": {
+    "name": "bayroq: Pitkern orollari",
+    "keywords": ["PN", "bayroq"]
+  },
+  "🇵🇷": {
+    "name": "bayroq: Puerto-Riko",
+    "keywords": ["PR", "bayroq"]
+  },
+  "🇵🇸": {
+    "name": "bayroq: Falastin hududlari",
+    "keywords": ["PS", "bayroq"]
+  },
+  "🇵🇹": {
+    "name": "bayroq: Portugaliya",
+    "keywords": ["PT", "bayroq"]
+  },
+  "🇵🇼": {
+    "name": "bayroq: Palau",
+    "keywords": ["PW", "bayroq"]
+  },
+  "🇵🇾": {
+    "name": "bayroq: Paragvay",
+    "keywords": ["PY", "bayroq"]
+  },
+  "🇶🇦": {
+    "name": "bayroq: Qatar",
+    "keywords": ["QA", "bayroq"]
+  },
+  "🇷🇪": {
+    "name": "bayroq: Reyunon",
+    "keywords": ["RE", "bayroq"]
+  },
+  "🇷🇴": {
+    "name": "bayroq: Ruminiya",
+    "keywords": ["RO", "bayroq"]
+  },
+  "🇷🇸": {
+    "name": "bayroq: Serbiya",
+    "keywords": ["RS", "bayroq"]
+  },
+  "🇷🇺": {
+    "name": "bayroq: Rossiya",
+    "keywords": ["RU", "bayroq"]
+  },
+  "🇷🇼": {
+    "name": "bayroq: Ruanda",
+    "keywords": ["RW", "bayroq"]
+  },
+  "🇸🇦": {
+    "name": "bayroq: Saudiya Arabistoni",
+    "keywords": ["SA", "bayroq"]
+  },
+  "🇸🇧": {
+    "name": "bayroq: Solomon orollari",
+    "keywords": ["SB", "bayroq"]
+  },
+  "🇸🇨": {
+    "name": "bayroq: Seyshel orollari",
+    "keywords": ["SC", "bayroq"]
+  },
+  "🇸🇩": {
+    "name": "bayroq: Sudan",
+    "keywords": ["SD", "bayroq"]
+  },
+  "🇸🇪": {
+    "name": "bayroq: Shvetsiya",
+    "keywords": ["SE", "bayroq"]
+  },
+  "🇸🇬": {
+    "name": "bayroq: Singapur",
+    "keywords": ["SG", "bayroq"]
+  },
+  "🇸🇭": {
+    "name": "bayroq: Muqaddas Yelena oroli",
+    "keywords": ["SH", "bayroq"]
+  },
+  "🇸🇮": {
+    "name": "bayroq: Sloveniya",
+    "keywords": ["SI", "bayroq"]
+  },
+  "🇸🇯": {
+    "name": "bayroq: Savalbard va Yan-Mayen",
+    "keywords": ["SJ", "bayroq"]
+  },
+  "🇸🇰": {
+    "name": "bayroq: Slovakiya",
+    "keywords": ["SK", "bayroq"]
+  },
+  "🇸🇱": {
+    "name": "bayroq: Serra-Leone",
+    "keywords": ["SL", "bayroq"]
+  },
+  "🇸🇲": {
+    "name": "bayroq: San-Marino",
+    "keywords": ["SM", "bayroq"]
+  },
+  "🇸🇳": {
+    "name": "bayroq: Senegal",
+    "keywords": ["SN", "bayroq"]
+  },
+  "🇸🇴": {
+    "name": "bayroq: Somali",
+    "keywords": ["SO", "bayroq"]
+  },
+  "🇸🇷": {
+    "name": "bayroq: Surinam",
+    "keywords": ["SR", "bayroq"]
+  },
+  "🇸🇸": {
+    "name": "bayroq: Janubiy Sudan",
+    "keywords": ["SS", "bayroq"]
+  },
+  "🇸🇹": {
+    "name": "bayroq: San-Tome va Prinsipi",
+    "keywords": ["ST", "bayroq"]
+  },
+  "🇸🇻": {
+    "name": "bayroq: Salvador",
+    "keywords": ["SV", "bayroq"]
+  },
+  "🇸🇽": {
+    "name": "bayroq: Sint-Marten",
+    "keywords": ["SX", "bayroq"]
+  },
+  "🇸🇾": {
+    "name": "bayroq: Suriya",
+    "keywords": ["SY", "bayroq"]
+  },
+  "🇸🇿": {
+    "name": "bayroq: Esvatini",
+    "keywords": ["SZ", "bayroq"]
+  },
+  "🇹🇦": {
+    "name": "bayroq: Tristan-da-Kunya",
+    "keywords": ["TA", "bayroq"]
+  },
+  "🇹🇨": {
+    "name": "bayroq: Turks va Kaykos orollari",
+    "keywords": ["TC", "bayroq"]
+  },
+  "🇹🇩": {
+    "name": "bayroq: Chad",
+    "keywords": ["TD", "bayroq"]
+  },
+  "🇹🇫": {
+    "name": "bayroq: Fransuz Janubiy hududlari",
+    "keywords": ["TF", "bayroq"]
+  },
+  "🇹🇬": {
+    "name": "bayroq: Togo",
+    "keywords": ["TG", "bayroq"]
+  },
+  "🇹🇭": {
+    "name": "bayroq: Tailand",
+    "keywords": ["TH", "bayroq"]
+  },
+  "🇹🇯": {
+    "name": "bayroq: Tojikiston",
+    "keywords": ["TJ", "bayroq"]
+  },
+  "🇹🇰": {
+    "name": "bayroq: Tokelau",
+    "keywords": ["TK", "bayroq"]
+  },
+  "🇹🇱": {
+    "name": "bayroq: Sharqiy Timor",
+    "keywords": ["TL", "bayroq"]
+  },
+  "🇹🇲": {
+    "name": "bayroq: Turkmaniston",
+    "keywords": ["TM", "bayroq"]
+  },
+  "🇹🇳": {
+    "name": "bayroq: Tunis",
+    "keywords": ["TN", "bayroq"]
+  },
+  "🇹🇴": {
+    "name": "bayroq: Tonga",
+    "keywords": ["TO", "bayroq"]
+  },
+  "🇹🇷": {
+    "name": "bayroq: Turkiya",
+    "keywords": ["TR", "bayroq"]
+  },
+  "🇹🇹": {
+    "name": "bayroq: Trinidad va Tobago",
+    "keywords": ["TT", "bayroq"]
+  },
+  "🇹🇻": {
+    "name": "bayroq: Tuvalu",
+    "keywords": ["TV", "bayroq"]
+  },
+  "🇹🇼": {
+    "name": "bayroq: Tayvan",
+    "keywords": ["TW", "bayroq"]
+  },
+  "🇹🇿": {
+    "name": "bayroq: Tanzaniya",
+    "keywords": ["TZ", "bayroq"]
+  },
+  "🇺🇦": {
+    "name": "bayroq: Ukraina",
+    "keywords": ["UA", "bayroq"]
+  },
+  "🇺🇬": {
+    "name": "bayroq: Uganda",
+    "keywords": ["UG", "bayroq"]
+  },
+  "🇺🇲": {
+    "name": "bayroq: AQSHning tashqi orollari",
+    "keywords": ["UM", "bayroq"]
+  },
+  "🇺🇳": {
+    "name": "bayroq: Birlashgan Millatlar Tashkiloti",
+    "keywords": ["UN", "bayroq"]
+  },
+  "🇺🇸": {
+    "name": "bayroq: Amerika Qo'shma Shtatlari",
+    "keywords": ["US", "bayroq"]
+  },
+  "🇺🇾": {
+    "name": "bayroq: Urugvay",
+    "keywords": ["UY", "bayroq"]
+  },
+  "🇺🇿": {
+    "name": "bayroq: O'zbekiston",
+    "keywords": ["UZ", "bayroq"]
+  },
+  "🇻🇦": {
+    "name": "bayroq: Vatikan",
+    "keywords": ["VA", "bayroq"]
+  },
+  "🇻🇨": {
+    "name": "bayroq: Sent-Vinsent va Grenadinlar",
+    "keywords": ["VC", "bayroq"]
+  },
+  "🇻🇪": {
+    "name": "bayroq: Venesuela",
+    "keywords": ["VE", "bayroq"]
+  },
+  "🇻🇬": {
+    "name": "bayroq: Britaniya Virjin orollari",
+    "keywords": ["VG", "bayroq"]
+  },
+  "🇻🇮": {
+    "name": "bayroq: AQSH Virjin orollari",
+    "keywords": ["VI", "bayroq"]
+  },
+  "🇻🇳": {
+    "name": "bayroq: Vyetnam",
+    "keywords": ["VN", "bayroq"]
+  },
+  "🇻🇺": {
+    "name": "bayroq: Vanuatu",
+    "keywords": ["VU", "bayroq"]
+  },
+  "🇼🇫": {
+    "name": "bayroq: Uollis va Futuna",
+    "keywords": ["WF", "bayroq"]
+  },
+  "🇼🇸": {
+    "name": "bayroq: Samoa",
+    "keywords": ["WS", "bayroq"]
+  },
+  "🇽🇰": {
+    "name": "bayroq: Kosovo",
+    "keywords": ["XK", "bayroq"]
+  },
+  "🇾🇪": {
+    "name": "bayroq: Yaman",
+    "keywords": ["YE", "bayroq"]
+  },
+  "🇾🇹": {
+    "name": "bayroq: Mayotta",
+    "keywords": ["YT", "bayroq"]
+  },
+  "🇿🇦": {
+    "name": "bayroq: Janubiy Afrika Respublikasi",
+    "keywords": ["ZA", "bayroq"]
+  },
+  "🇿🇲": {
+    "name": "bayroq: Zambiya",
+    "keywords": ["ZM", "bayroq"]
+  },
+  "🇿🇼": {
+    "name": "bayroq: Zimbabve",
+    "keywords": ["ZW", "bayroq"]
+  },
+  "🏴󠁧󠁢󠁥󠁮󠁧󠁿": {
+    "name": "bayroq: Angliya",
+    "keywords": ["bayroq", "gbeng"]
+  },
+  "🏴󠁧󠁢󠁳󠁣󠁴󠁿": {
+    "name": "bayroq: Shotlandiya",
+    "keywords": ["bayroq", "gbsct"]
+  },
+  "🏴󠁧󠁢󠁷󠁬󠁳󠁿": {
+    "name": "bayroq: Uels",
+    "keywords": ["bayroq", "gbwls"]
+  }
+}

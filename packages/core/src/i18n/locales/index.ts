@@ -16,6 +16,7 @@ export * from "./pl.js";
 export * from "./pt.js";
 export * from "./ru.js";
 export * from "./sk.js";
+export * from "./tr.js";
 export * from "./uk.js";
 export * from "./vi.js";
 export * from "./zh.js";

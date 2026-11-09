@@ -59,7 +59,7 @@ function tryBackslashEscape(
     return { html: "<br>\n", end: i + 2 };
   }
   // Escapable characters
-  if ("\\`*_{}[]()#+-.!~|>".includes(next)) {
+  if ("\\`*_{}[]()#+-.!~|<>".includes(next)) {
     return { html: escapeHtml(next), end: i + 2 };
   }
   return null;

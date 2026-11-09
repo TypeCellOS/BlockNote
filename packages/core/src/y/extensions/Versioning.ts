@@ -43,7 +43,7 @@ export function createYVersionView<
         fork.fork();
         editor.exec((state, dispatch) => pauseSync(state, dispatch ?? null));
       } catch (error) {
-        fork.merge({ keepChanges: false });
+        fork.merge({ keepChanges: false, renderer: binding.renderer });
         throw error;
       }
       let closed = false;
@@ -65,7 +65,7 @@ export function createYVersionView<
           if (closed) {
             return;
           }
-          fork.merge({ keepChanges: false });
+          fork.merge({ keepChanges: false, renderer: binding.renderer });
           closed = true;
         },
       };

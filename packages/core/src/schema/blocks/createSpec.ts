@@ -157,7 +157,7 @@ export function getParseRules<
   const rules: TagParseRule[] = [
     isLayoutBlock
       ? {
-          tag: `[data-node-type=${config.type}]`,
+          tag: `[data-node-type="${config.type}"]`,
           // Scope the round-trip parse to the frame's slot, so chrome the
           // frame draws around it (button labels, captions, ...) doesn't
           // parse back as document content. HTML without the marker
@@ -166,7 +166,7 @@ export function getParseRules<
             findFrameSlot(el as HTMLElement) ?? (el as HTMLElement),
         }
       : {
-          tag: "[data-content-type=" + config.type + "]",
+          tag: `[data-content-type="${config.type}"]`,
           contentElement: ".bn-inline-content",
           preserveWhitespace: config.content === "plain" ? "full" : undefined,
         },

@@ -40,7 +40,7 @@
         </w:p>
         <w:p>
             <w:pPr>
-                <w:shd w:fill="fbe4e4" w:val="clear"/>
+                <w:shd w:fill="ffdfd6" w:val="clear"/>
             </w:pPr>
             <w:r>
                 <w:rPr>
@@ -231,10 +231,10 @@
                     <w:ilvl w:val="2"/>
                     <w:numId w:val="5"/>
                 </w:numPr>
-                <w:shd w:fill="fbe4e4" w:val="clear"/>
+                <w:shd w:fill="ffdfd6" w:val="clear"/>
                 <w:jc w:val="right"/>
                 <w:rPr>
-                    <w:color w:val="0b6e99"/>
+                    <w:color w:val="006d9a"/>
                 </w:rPr>
             </w:pPr>
             <w:r>
@@ -248,10 +248,10 @@
                     <w:ilvl w:val="2"/>
                     <w:numId w:val="5"/>
                 </w:numPr>
-                <w:shd w:fill="fbe4e4" w:val="clear"/>
+                <w:shd w:fill="ffdfd6" w:val="clear"/>
                 <w:jc w:val="center"/>
                 <w:rPr>
-                    <w:color w:val="0b6e99"/>
+                    <w:color w:val="006d9a"/>
                 </w:rPr>
             </w:pPr>
             <w:r>
@@ -672,8 +672,8 @@
                     <w:bCs/>
                     <w:i/>
                     <w:iCs/>
-                    <w:color w:val="e03e3e"/>
-                    <w:shd w:fill="ddebf1" w:val="clear"/>
+                    <w:color w:val="994a37"/>
+                    <w:shd w:fill="cfedff" w:val="clear"/>
                 </w:rPr>
                 <w:t xml:space="preserve">Styled Text</w:t>
             </w:r>
@@ -803,8 +803,8 @@
                             <w:rPr>
                                 <w:b/>
                                 <w:bCs/>
-                                <w:color w:val="e03e3e"/>
-                                <w:shd w:fill="ddebf1" w:val="clear"/>
+                                <w:color w:val="994a37"/>
+                                <w:shd w:fill="cfedff" w:val="clear"/>
                             </w:rPr>
                             <w:t xml:space="preserve">Table Cell Bold Colored 5</w:t>
                         </w:r>

@@ -15,7 +15,10 @@ export const MathBlockPreviewWithPopup = (
   props: ReactCustomBlockRenderProps<MathBlockConfig>,
 ) => {
   const source = plainContentToString(props.block.content).trim();
-  const { mathMLString, error } = useLatexToMathMLString(source);
+  const { mathMLString, error } = useLatexToMathMLString({
+    latex: source,
+    editor: props.editor,
+  });
   const dict = getMathDictionary(props.editor).block;
 
   return (

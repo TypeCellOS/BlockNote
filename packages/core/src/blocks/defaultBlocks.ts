@@ -148,11 +148,14 @@ export const defaultStyleSpecs = {
       addInputRules() {
         return [
           // Matches any string that starts with a backtick, ends with a
-          // backtick, and has any non-backtick characters in between. Copied
-          // from original input rule:
+          // backtick, and has any non-backtick characters in between. Adapted
+          // from the original input rule:
           // https://github.com/ueberdosis/tiptap/blob/c27661c148cdbea9e1c80107e10d0a9d1775c4ec/packages/extension-code/src/code.ts#L116
+          // The original matches the character before the opening backtick,
+          // which `markInputRule` then deletes, so a lookbehind checks it
+          // instead.
           markInputRule({
-            find: /(^|[^`])`([^`]+)`(?!`)$/,
+            find: /(?<!`)`([^`]+)`(?!`)$/,
             type: this.type,
           }),
           // Extends the Code mark with an extra input rule that fires when a space is

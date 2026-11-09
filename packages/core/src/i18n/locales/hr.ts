@@ -1,6 +1,12 @@
 import { Dictionary } from "../dictionary.js";
 
 export const hr: Dictionary = {
+  locale: "hr",
+  emoji_picker: {
+    search: "Pretraži",
+    search_no_results: "Emoji nije pronađen",
+    loading: "Učitavanje…",
+  },
   slash_menu: {
     heading: {
       title: "Naslov 1",
@@ -439,8 +445,8 @@ export const hr: Dictionary = {
     close: "Zatvori",
     show_named_only: "Prikaži samo imenovane verzije",
     show_all: "Prikaži sve verzije",
-    comparison_on: "Uključi usporedbu",
-    comparison_off: "Isključi usporedbu",
+    comparison_on: "Prikaži promjene",
+    comparison_off: "Sakrij promjene",
     versions_list: "Verzije",
     empty: "Još nema verzija",
     empty_named_only: "Nema imenovanih verzija",

@@ -10,10 +10,21 @@ import type { VersioningController } from "../../extensions/Versioning/Versionin
 import { YVersioningExtension } from "../versioning/yhub.js";
 import type { VersionStorage } from "../../extensions/Versioning/types.js";
 
-it.each([undefined, false])(
-  "resolves the collaboration fragment and isolates live changes, Current capture=%s",
-  async (showCurrentVersion) => {
+it.each(
+  [undefined, false].flatMap((showCurrentVersion) =>
+    [false, true].map((withSuggestions) => ({
+      showCurrentVersion,
+      withSuggestions,
+    })),
+  ),
+)(
+  "isolates previews and restores the live binding, Current capture=$showCurrentVersion, suggestions=$withSuggestions",
+  async ({ showCurrentVersion, withSuggestions }) => {
     const doc = new Y.Doc();
+    const suggestionDoc = new Y.Doc({ isSuggestionDoc: true });
+    const renderer = withSuggestions
+      ? Y.createDiffRenderer(doc, suggestionDoc)
+      : undefined;
     const fragment = doc.get("doc");
     let saved: Uint8Array = new Uint8Array();
     const storage: VersionStorage<Uint8Array, Y.ContentMap> = {
@@ -31,7 +42,11 @@ it.each([undefined, false])(
             storage,
           }),
         ],
-        collaboration: { fragment, user: { name: "Test", color: "red" } },
+        collaboration: {
+          fragment,
+          user: { name: "Test", color: "red" },
+          ...(withSuggestions ? { suggestionDoc, renderer } : {}),
+        },
       }),
     );
     editor.replaceBlocks(editor.document, [
@@ -106,12 +121,16 @@ it.each([undefined, false])(
       expect(
         ySyncPluginKey.getState(editor.prosemirrorState)?.customCompare,
       ).toBe(liveBinding.customCompare);
+      expect(ySyncPluginKey.getState(editor.prosemirrorState)?.renderer).toBe(
+        liveBinding.renderer,
+      );
       // Headless editors do not run the plugin view that hydrates the restored binding.
       expect(Y.encodeStateAsUpdateV2(doc)).toEqual(remoteContent);
     } finally {
       mode.dispose();
       editor._tiptapEditor.destroy();
       doc.destroy();
+      suggestionDoc.destroy();
     }
   },
 );

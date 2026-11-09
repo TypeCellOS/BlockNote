@@ -15,7 +15,6 @@ import {
 } from "react";
 
 import { BlockNoteEditor, User } from "@blocknote/core";
-import { DefaultReactGridSuggestionItem } from "../components/SuggestionMenu/GridSuggestionMenu/types.js";
 import { DefaultReactSuggestionItem } from "../components/SuggestionMenu/types.js";
 
 export type VersioningSnapshotState =
@@ -182,35 +181,6 @@ export type ComponentProps = {
       className?: string;
     };
   };
-  GridSuggestionMenu: {
-    Root: {
-      id: string;
-      columns: number;
-      className?: string;
-      children?: ReactNode;
-    };
-    EmptyItem: {
-      columns: number;
-      className?: string;
-      children?: ReactNode;
-    };
-    Item: {
-      className?: string;
-      id: string;
-      isSelected: boolean;
-      onClick: () => void;
-      item: DefaultReactGridSuggestionItem;
-    };
-    // Label: {
-    //   className?: string;
-    //   children?: ReactNode;
-    // };
-    Loader: {
-      columns: number;
-      className?: string;
-      children?: ReactNode;
-    };
-  };
   TableHandle: {
     Root: {
       className?: string;
@@ -323,7 +293,8 @@ export type ComponentProps = {
       name: ReactNode;
       date?: string;
       restoredFrom?: string;
-      secondaryLabel?: string;
+      /** Complete core users, or raw IDs for authors that have not resolved. */
+      users?: (User | string)[];
       comparingLabel?: string;
       comparingIcon?: ReactNode;
     };

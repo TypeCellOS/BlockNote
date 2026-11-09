@@ -1,5 +1,4 @@
 import { fileURLToPath } from "node:url";
-import { resolve } from "node:path";
 import { defineConfig } from "vite-plus";
 import { playwright } from "vite-plus/test/browser/providers/playwright";
 import {
@@ -11,7 +10,7 @@ import {
 } from "./commands.js";
 
 const reader = process.env.BLOCKNOTE_SCREEN_READER;
-if (reader && reader !== "voiceover" && reader !== "nvda") {
+if (reader !== "voiceover" && reader !== "nvda") {
   throw new Error("Unknown screen reader");
 }
 if (
@@ -20,12 +19,10 @@ if (
 ) {
   throw new Error("VoiceOver requires macOS; NVDA requires Windows.");
 }
-if (!reader && process.platform !== "linux") {
-  throw new Error("Run browser-only a11y tests in Docker with vp run a11y.");
-}
 
 export default defineConfig({
-  publicDir: fileURLToPath(new URL("./public", import.meta.url)),
+  root: fileURLToPath(new URL("../", import.meta.url)),
+  publicDir: fileURLToPath(new URL("../public", import.meta.url)),
   resolve: {
     alias: {
       "@root": fileURLToPath(new URL("../../", import.meta.url)),
@@ -44,12 +41,8 @@ export default defineConfig({
   test: {
     name: "a11y",
     setupFiles: [fileURLToPath(new URL("./setup.ts", import.meta.url))],
-    include: [
-      reader
-        ? "../packages/*/src/**/*.screen-reader.test.ts"
-        : "../packages/*/src/**/*.{a11y,axe}.test.ts",
-    ],
-    testTimeout: reader ? 300_000 : 120_000,
+    include: ["../packages/*/src/**/*.screen-reader.test.ts"],
+    testTimeout: 300_000,
     hookTimeout: 30_000,
     fileParallelism: false,
     retry: 0,
@@ -57,16 +50,14 @@ export default defineConfig({
     update: false,
     reporters: [
       "verbose",
-      ["html", { outputDir: `playwright-report/a11y/${reader ?? "browser"}` }],
+      ["html", { outputDir: `playwright-report/a11y/${reader}` }],
     ],
-    attachmentsDir: `test-results/a11y/${reader ?? "browser"}`,
+    attachmentsDir: `.vitest/attachments/a11y/${reader}`,
     resolveSnapshotPath: (path, extension) =>
-      reader
-        ? `${path}-snapshots/screen-reader/${reader}${extension}`
-        : `${path}-snapshots/aria/browser${extension}`,
+      `${path}-snapshots/screen-reader/${reader}${extension}`,
     browser: {
       enabled: true,
-      headless: !reader,
+      headless: false,
       screenshotFailures: false,
       locators: { testIdAttribute: "data-id" },
       provider: playwright({
@@ -79,7 +70,7 @@ export default defineConfig({
       instances: [
         {
           browser: reader === "voiceover" ? "webkit" : "chromium",
-          name: reader ?? "a11y-browser",
+          name: reader,
         },
       ],
       commands: {
@@ -88,26 +79,6 @@ export default defineConfig({
         pressKey,
         readTranscript,
         stopReader,
-      },
-      expect: {
-        toMatchScreenshot: {
-          comparatorName: "pixelmatch",
-          comparatorOptions: { allowedMismatchedPixels: 10 },
-          resolveScreenshotPath: ({
-            root,
-            testFileDirectory,
-            testFileName,
-            arg,
-            ext,
-            browserName,
-            platform,
-          }) =>
-            resolve(
-              root,
-              testFileDirectory,
-              `${testFileName}-snapshots/visual/${arg}-${browserName}-${platform}${ext}`,
-            ),
-        },
       },
     },
   },
