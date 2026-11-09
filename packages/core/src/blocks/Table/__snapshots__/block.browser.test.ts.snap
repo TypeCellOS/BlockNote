@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`merged table cells preserve row and column header roles > merged table 1`] = `
+exports[`ARIA > merged table cells preserve row and column header roles > merged table 1`] = `
 "- textbox:
   - table:
     - rowgroup:

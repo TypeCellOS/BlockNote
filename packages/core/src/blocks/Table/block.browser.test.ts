@@ -1,6 +1,9 @@
 import type { PartialBlock } from "@blocknote/core";
+import { test } from "vite-plus/test";
+import { page } from "vite-plus/test/browser";
+import { checkAriaSnapshot, openEditor } from "@root/tests/a11y/helpers.js";
 
-export const mergedTableDocument: PartialBlock[] = [
+const mergedTableDocument: PartialBlock[] = [
   {
     id: "merged-table",
     type: "table",
@@ -27,3 +30,10 @@ export const mergedTableDocument: PartialBlock[] = [
     },
   },
 ];
+
+test.describe("ARIA", () => {
+  test("merged table cells preserve row and column header roles", async () => {
+    await openEditor(mergedTableDocument);
+    await checkAriaSnapshot(page.getByRole("textbox"), "merged table");
+  });
+});
