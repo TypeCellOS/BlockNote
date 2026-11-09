@@ -23,6 +23,8 @@ import {
   checkAriaSnapshot,
   checkAxe,
   pressKey,
+  readOutline,
+  checkFocusOutline,
 } from "@root/tests/a11y/helpers.js";
 import { screenshotFull } from "@root/tests/src/utils/screenshotFull.js";
 
@@ -310,13 +312,12 @@ test.describe("keyboard", () => {
   async function focusReadOnlyLinkWithAssertions() {
     const link = page.getByRole("link", { name: "Documentation", exact: true });
     await expect.element(link).toBeVisible();
+    const unfocusedOutline = readOutline(link.element());
     while (document.activeElement !== link.element()) {
       await pressKey("Tab");
     }
     await expect.element(link).toHaveFocus();
-    await expect
-      .element(link)
-      .toMatchScreenshot("read-only-link-focused.png", {});
+    await checkFocusOutline(link, unfocusedOutline);
     return link;
   }
 
@@ -365,7 +366,7 @@ test.describe("keyboard", () => {
   );
 
   // Focused inline links do not yet have a suitable visual focus indicator.
-  // TODO: Fix the focus appearance and regenerate the visual baseline before enabling.
+  // TODO: Fix the focus appearance before enabling.
   test.skip("read-only editor: Tab reaches inline links and leaves the editor", async () => {
     await openEditor(readOnlyLinkDocument, { editable: false });
     const link = await focusReadOnlyLinkWithAssertions();

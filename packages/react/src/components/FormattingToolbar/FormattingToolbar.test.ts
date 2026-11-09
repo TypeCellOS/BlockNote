@@ -5,9 +5,11 @@ import {
   pressKey,
   checkAriaSnapshot,
   checkAxe,
+  readOutline,
+  checkFocusOutline,
   selectToLineEndKey,
 } from "@root/tests/a11y/helpers.js";
-import { focusToolbarItem, checkScreenshotWithPadding } from "./testHelpers.js";
+import { focusToolbarItem } from "./testHelpers.js";
 import { page } from "vite-plus/test/browser";
 
 // The middle paragraph is selected; its neighbours provide navigation context.
@@ -169,31 +171,25 @@ test.describe("keyboard", () => {
     await pressKey(selectToLineEndKey);
     const toolbar = page.getByRole("toolbar");
     await expect.element(toolbar).toBeVisible();
-    await pressKey("Tab");
-    await expect
-      .poll(() => toolbar.element().contains(document.activeElement))
-      .toBe(true);
     const target = toolbar.getByRole("button", {
       name: toolbarItem,
       exact: true,
     });
+    const unfocusedOutline = readOutline(target.element());
+    await pressKey("Tab");
+    await expect
+      .poll(() => toolbar.element().contains(document.activeElement))
+      .toBe(true);
     while (document.activeElement !== target.element()) {
       await pressKey("Tab");
     }
     await expect.element(target).toHaveFocus();
+    await checkFocusOutline(target, unfocusedOutline);
     return { toolbar, button: target };
   }
 
-  async function checkToolbarItemFocus(toolbarItem: string) {
-    const { button } = await focusToolbarItemWithAssertions(toolbarItem);
-    await checkScreenshotWithPadding(
-      button,
-      `focus-${toolbarItem.toLowerCase().replaceAll(" ", "-")}.png`,
-    );
-  }
-
   async function checkToolbarButtonKeyboard(toolbarButton: string) {
-    await checkToolbarItemFocus(toolbarButton);
+    await focusToolbarItemWithAssertions(toolbarButton);
     await pressKey("Enter");
     await expect.element(page.getByRole("textbox")).toHaveFocus();
   }
@@ -201,9 +197,8 @@ test.describe("keyboard", () => {
   async function checkToolbarMenuKeyboard(
     toolbarMenu: string,
     item: () => ReturnType<typeof page.getByRole>,
-    screenshot?: string,
   ) {
-    await checkToolbarItemFocus(toolbarMenu);
+    await focusToolbarItemWithAssertions(toolbarMenu);
     await pressKey("Enter");
     const menu = page.getByRole("menu");
     await expect.element(menu).toBeVisible();
@@ -211,11 +206,11 @@ test.describe("keyboard", () => {
     await expect
       .element(menu.element().querySelector<HTMLElement>("[data-autofocus]"))
       .toHaveFocus();
+    const firstItem = menu.getByRole("menuitem").first();
+    const unfocusedOutline = readOutline(firstItem.element());
     await pressKey("ArrowDown");
-    await expect.element(menu.getByRole("menuitem").first()).toHaveFocus();
-    if (screenshot) {
-      await checkScreenshotWithPadding(menu, screenshot);
-    }
+    await expect.element(firstItem).toHaveFocus();
+    await checkFocusOutline(firstItem, unfocusedOutline);
     await pressKey("ArrowDown");
     await expect.element(item()).toHaveFocus();
     await pressKey("Enter");
@@ -226,7 +221,7 @@ test.describe("keyboard", () => {
     toolbarPopover: string,
     input: ReturnType<typeof page.getByRole>,
   ) {
-    await checkToolbarItemFocus(toolbarPopover);
+    await focusToolbarItemWithAssertions(toolbarPopover);
     await pressKey("Enter");
     await expect.element(input).toHaveFocus();
     await pressKey("Escape");
@@ -236,10 +231,8 @@ test.describe("keyboard", () => {
 
   test("formatting toolbar: Paragraph", async () => {
     await openEditor(toolbarDocument);
-    await checkToolbarMenuKeyboard(
-      "Paragraph",
-      () => page.getByRole("menuitem", { name: "Heading 1", exact: true }),
-      "focus-block-type-menu-item.png",
+    await checkToolbarMenuKeyboard("Paragraph", () =>
+      page.getByRole("menuitem", { name: "Heading 1", exact: true }),
     );
   });
 
