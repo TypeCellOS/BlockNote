@@ -1,6 +1,6 @@
 ---
 title: File Panel
-description: The File Panel appears whenever you select an image that doesn't have a URL, or when you click the "Replace File" button in the Formatting Panel when an image is selected.
+description: Upload or embed files, images, videos, and audio using the File Panel.
 ---
 
 # File Panel
@@ -12,22 +12,24 @@ The File Panel appears whenever you select a file (e.g. an image or video) that 
     light: "/img/screenshots/image_toolbar.png",
     dark: "/img/screenshots/image_toolbar_dark.png",
   }}
-  alt="image"
+  alt="File Panel for an image block"
   width={600}
   height={600}
 />
 
 ## File Upload
 
-You may notice that upon creating a new BlockNote editor, the "Upload" tab in the File Panel is missing. This is because you must provide BlockNote with a function to handle file uploads using the `uploadFile` [Editor Option](/docs/reference/editor/overview#options):
+You may notice that upon creating a new BlockNote editor, the "Upload" tab in the File Panel is missing. This is because you must provide BlockNote with a function to handle file uploads using the `uploadFile` [Editor Option](/docs/reference/editor/overview#options). For the common case of returning a file URL, the callback has this shape:
 
 ```ts
 type uploadFile = (file: File) => Promise<string>;
 ```
 
-`file:` The file to upload, in this case an image.
+`file:` The file to upload, such as an image, video, audio file, or document.
 
-`returns:` A `Promise`, which resolves to the URL that the image can be accessed at.
+`returns:` A `Promise`, which resolves to the URL that the file can be accessed at.
+
+Providing `uploadFile` also enables users to drag and drop files from their computer into the editor, or paste files from the clipboard. BlockNote calls the same callback and inserts blocks for the files. With the default schema, images, videos, and audio use their respective block types; other files use the generic file block. No separate drop handler is needed.
 
 The example below encodes files as base64 data URLs as a starting point. However, this is only meant for development - in production you should use your own backend:
 

@@ -233,7 +233,7 @@ When settings meet, Enter at the start of non-empty content always inserts an em
 
 - `selectable?:` Can be set to false in order to make the block non-selectable, both using the mouse and keyboard. This also helps with being able to select non-editable content within the block. Should only be set to false when `content` is `none` and defaults to true.
 
-- `fileBlockAccept?:` For custom file blocks, this specifies which MIME types are accepted when uploading a file. All file blocks should specify this property, and should use a [`FileBlockWrapper`](https://github.com/TypeCellOS/BlockNote/blob/main/packages/react/src/blocks/File/helpers/render/FileBlockWrapper.tsx)/[`ResizableFileBlockWrapper`](https://github.com/TypeCellOS/BlockNote/blob/main/packages/react/src/blocks/File/helpers/render/ResizableFileBlockWrapper.tsx) component in their `render` functions (see next subsection).
+- `fileBlockAccept?:` For custom file blocks, this specifies accepted MIME types (such as `"application/pdf"` or `"image/*"`) or file extensions (such as `".pdf"`). It controls the upload file picker and which block type is used for dropped or pasted files. See [Custom File Blocks](#custom-file-blocks).
 
 - `code?:` Whether this block contains [code](https://prosemirror.net/docs/ref/#model.NodeSpec.code).
 
@@ -315,6 +315,19 @@ You can then instantiate your editor with this custom schema, as explained on th
 Now you know how to create a custom block and add it to your editor. However, users don't have a way of creating instances of it to their documents.
 
 To fix this, it's recommended to implement a [command to insert your custom in the Slash Menu](/docs/react/components/suggestion-menus#changing-slash-menu-items), and [an item for it in the Block Type Select](/docs/react/components/formatting-toolbar)
+
+## Custom File Blocks
+
+To extend the built-in file block behavior with a new file type or preview, use `createReactBlockSpec` and the same file props and rendering wrappers as the built-in blocks:
+
+1. Set `content: "none"` and include the `name`, `url`, and `caption` props, each with `default: ""`. You can reuse these from `createFileBlockConfig().propSchema`, exported by `@blocknote/core`.
+2. Set `meta.fileBlockAccept` in the block implementation, for example to `["application/pdf", ".pdf"]` for PDF files.
+3. Render `FileBlockWrapper` from `@blocknote/react`, passing it your render props and your preview as children. It provides the add-file button, upload loading state, file name, and caption. Use `ResizableFileBlockWrapper` instead for a resizable preview, and add a numeric `previewWidth` prop. Add a boolean `showPreview` prop with `default: true` to let users switch between the preview and a file link.
+4. Add the block spec to your [schema](/docs/features/custom-schemas#creating-your-own-schema). Configure [`uploadFile`](/docs/react/components/image-toolbar#file-upload) to enable uploads, including dropped and pasted files matching `fileBlockAccept`. To let users insert an empty block, add a [Slash Menu item](/docs/react/components/suggestion-menus#changing-slash-menu-items).
+
+The example below adds a PDF block with a resizable preview and a Slash Menu item, and customizes the [dictionary](/docs/features/localization) for PDF-specific labels. It embeds PDFs by URL; provide `uploadFile` to also support uploads:
+
+<Example name="custom-schema/pdf-file-block" />
 
 ## Block Frames
 
