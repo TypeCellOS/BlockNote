@@ -1,9 +1,9 @@
 import { blockKey } from "../blocks/json.js";
 import { blockToText } from "../blocks/text.js";
 import {
+  type BlockWithoutChildren,
   contentShape,
   type FlatBlock,
-  type LensBlock,
 } from "../blocks/types.js";
 import { myersMatch } from "../sequence/myers.js";
 import { uniquePairs } from "../sequence/anchored.js";
@@ -176,7 +176,7 @@ export function linkBlocks(
  * all its fields, for example the URL of an image. Blocks with equal keys
  * are the same block.
  */
-export function alignmentKey(block: LensBlock): string {
+export function alignmentKey(block: BlockWithoutChildren): string {
   const shape = contentShape(block.content);
   return shape === "none"
     ? `block:${blockKey(block)}`
@@ -188,14 +188,17 @@ export function alignmentKey(block: LensBlock): string {
  * content has the same shape. This is text (inline content or plain
  * content), a table, or no content with the same block type.
  */
-export function canBeSameBlock(a: LensBlock, b: LensBlock): boolean {
+export function canBeSameBlock(
+  a: BlockWithoutChildren,
+  b: BlockWithoutChildren,
+): boolean {
   const shape = contentShape(a.content);
   return (
     shape === contentShape(b.content) && (shape !== "none" || a.type === b.type)
   );
 }
 
-function overlapText(block: LensBlock): OverlapText {
+function overlapText(block: BlockWithoutChildren): OverlapText {
   return { text: blockToText(block), key: alignmentKey(block) };
 }
 

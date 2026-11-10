@@ -1,10 +1,14 @@
 import type { BlockNoteEditor } from "@blocknote/core";
 
 import { alignmentKey, linkBlocks } from "../alignment/alignBlocks.js";
-import { flattenBlocks, withoutChildren } from "../blocks/flatten.js";
+import { flattenBlocks } from "../blocks/flatten.js";
 import { schemaRulesOf } from "../blocks/schema.js";
 import { blockToText } from "../blocks/text.js";
-import type { FlatBlock, LensBlock } from "../blocks/types.js";
+import type {
+  BlockWithoutChildren,
+  FlatBlock,
+  LensBlock,
+} from "../blocks/types.js";
 import { anchoredMatch } from "../sequence/anchored.js";
 import type { TextFormat } from "../formats/types.js";
 import { parseText } from "../parse/parseText.js";
@@ -211,7 +215,7 @@ function viewOf(
 export function roundTripAlone(
   editor: BlockNoteEditor<any, any, any>,
   format: TextFormat,
-  blocks: readonly LensBlock[],
+  blocks: readonly BlockWithoutChildren[],
   text: string,
 ): FlatBlock[][] {
   if (blocks.length === 0) {
@@ -227,7 +231,7 @@ export function roundTripAlone(
   };
   const batch = [
     separator,
-    ...blocks.flatMap((block) => [withoutChildren(block), separator]),
+    ...blocks.flatMap((block) => [{ ...block, children: [] }, separator]),
   ];
   const parsed = parseText(editor, format, format.serialize(editor, batch));
   if (parsed.error !== undefined) {

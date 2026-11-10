@@ -28,6 +28,6 @@ describe("flattenBlocks", () => {
 
   it("removes the children from the listed blocks", () => {
     const [first] = flattenBlocks([block("a", [block("b")])]);
-    expect(first.block.children).toEqual([]);
+    expect("children" in first.block).toBe(false);
   });
 });

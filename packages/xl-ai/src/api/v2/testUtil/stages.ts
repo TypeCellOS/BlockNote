@@ -5,7 +5,11 @@ import { alignBlocks } from "../alignment/alignBlocks.js";
 import { schemaRulesOf } from "../blocks/schema.js";
 import { BlockTree } from "../blocks/tree.js";
 import { blockToText } from "../blocks/text.js";
-import type { FlatBlock, LensBlock } from "../blocks/types.js";
+import type {
+  BlockWithoutChildren,
+  FlatBlock,
+  LensBlock,
+} from "../blocks/types.js";
 import { flattenBlocks } from "../blocks/flatten.js";
 import { fitResult } from "../fit/fitResult.js";
 import type { TextFormat } from "../formats/types.js";
@@ -58,7 +62,7 @@ export function textStages(
   );
   const operations = diffDocuments(document, result);
 
-  const short = (block: LensBlock, id = block.id) => [
+  const short = (block: BlockWithoutChildren, id = block.id) => [
     id,
     block.type,
     blockToText(block),

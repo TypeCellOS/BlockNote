@@ -15,7 +15,8 @@ export function flattenBlocks(blocks: readonly LensBlock[]): FlatBlock[] {
   ) {
     for (const block of children) {
       const index = result.length;
-      result.push({ block: withoutChildren(block), parentIndex });
+      const { children: _, ...own } = block;
+      result.push({ block: own, parentIndex });
       visit(block.children, index);
     }
   }

@@ -68,9 +68,12 @@ export type LensPartialBlock = Partial<BlockFields>;
 export type ContentKind = "inline" | "plain" | "table" | "none";
 
 /** One block of a block tree, in a flat list in pre-order (document order). */
+/** A block without its children: its ID and its own fields. */
+export type BlockWithoutChildren = Omit<LensBlock, "children">;
+
 export type FlatBlock = {
-  /** The block, with only its own fields. `children` is always empty. */
-  block: LensBlock;
+  /** The block, without its children: the flat list has them (see `parentIndex`). */
+  block: BlockWithoutChildren;
   /** The index of the parent in the flat list. `undefined` for top-level blocks. */
   parentIndex: number | undefined;
 };

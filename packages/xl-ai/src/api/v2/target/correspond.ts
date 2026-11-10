@@ -2,6 +2,7 @@ import { blockKey } from "../blocks/json.js";
 import { blockToText } from "../blocks/text.js";
 import type { BlockTree } from "../blocks/tree.js";
 import type {
+  BlockWithoutChildren,
   FlatBlock,
   LensBlock,
   LensInlineContent,
@@ -22,8 +23,8 @@ export type TextRow =
       kind: "kept";
       id: string;
       viewIndex: number;
-      base: LensBlock;
-      text: LensBlock;
+      base: BlockWithoutChildren;
+      text: BlockWithoutChildren;
       /** The text moved the block (rule 2 of `alignBlocks`). */
       moved: boolean;
     }
@@ -178,13 +179,19 @@ function decideMultiParts(
   replaced: Set<string>;
   /** The text block that replaces a multi-part block and keeps its ID. */
   replacementIdOf: Map<number, string>;
-  joined: Map<string, { view: LensBlock; incoming: LensBlock }>;
+  joined: Map<
+    string,
+    { view: BlockWithoutChildren; incoming: BlockWithoutChildren }
+  >;
   warnings: TargetWarning[];
 } {
   const { view, multiParts } = projection;
   const replaced = new Set<string>();
   const replacementIdOf = new Map<number, string>();
-  const joined = new Map<string, { view: LensBlock; incoming: LensBlock }>();
+  const joined = new Map<
+    string,
+    { view: BlockWithoutChildren; incoming: BlockWithoutChildren }
+  >();
   const warnings: TargetWarning[] = [];
   for (const [id, parts] of multiParts) {
     const together = parts.every((v, k) => {
@@ -238,10 +245,10 @@ function decideMultiParts(
  * contain the parts of the view, in order.
  */
 function joinParts(
-  sourceBlock: LensBlock,
-  viewParts: readonly LensBlock[],
-  textParts: readonly LensBlock[],
-): { view: LensBlock; incoming: LensBlock } | undefined {
+  sourceBlock: BlockWithoutChildren,
+  viewParts: readonly BlockWithoutChildren[],
+  textParts: readonly BlockWithoutChildren[],
+): { view: BlockWithoutChildren; incoming: BlockWithoutChildren } | undefined {
   const parts = [...viewParts, ...textParts];
   if (
     !Array.isArray(sourceBlock.content) ||
@@ -265,7 +272,7 @@ function joinParts(
   between.push(sourceText.slice(cursor));
   const textItem = (text: string): LensInlineContent[] =>
     text === "" ? [] : [{ type: "text", text, styles: {} }];
-  function join(blocks: readonly LensBlock[]): LensBlock {
+  function join(blocks: readonly BlockWithoutChildren[]): BlockWithoutChildren {
     return {
       ...blocks[0],
       content: [
@@ -367,6 +374,6 @@ function isEmptyBlock(block: LensBlock): boolean {
 }
 
 /** Returns true for a block with inline content and no text. */
-function isEmptyTextBlock(block: LensBlock): boolean {
+function isEmptyTextBlock(block: BlockWithoutChildren): boolean {
   return Array.isArray(block.content) && blockToText(block) === "";
 }

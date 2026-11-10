@@ -1,8 +1,8 @@
 import { cellRows } from "./tableGrid.js";
 import {
+  type BlockWithoutChildren,
   isStyledText,
   isTableContent,
-  type LensBlock,
   type LensInlineContent,
 } from "./types.js";
 
@@ -25,7 +25,7 @@ export function inlineContentToText(
 }
 
 /** Returns the text of the block itself, not of its children: inline content, plain content or table cells. */
-export function blockToText(block: LensBlock): string {
+export function blockToText(block: BlockWithoutChildren): string {
   const content = block.content;
   if (Array.isArray(content)) {
     return inlineContentToText(content);
