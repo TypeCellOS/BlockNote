@@ -61,6 +61,10 @@ export type BlockPair = { aIndex: number; bIndex: number; moved?: true };
  * before rule 3: a moved block does not match a different block at its new
  * position.
  *
+ * Known limit: rule 1 comes before rule 2. Thus, two blocks that swap places
+ * match by position if unchanged blocks are between them and they share at
+ * least half of the shorter text (see the README, "Identity").
+ *
  * This is not one published algorithm, but each rule uses a known method.
  * Rule 1 uses a word diff (the patience method, then Myers, see
  * `anchoredMatch`) and the overlap coefficient: the size of the shared words

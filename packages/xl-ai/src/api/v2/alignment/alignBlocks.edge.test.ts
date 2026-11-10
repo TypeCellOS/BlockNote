@@ -59,18 +59,20 @@ describe("alignBlocks: the limit of rule 1 (MIN_SHARE = 0.5)", () => {
 });
 
 describe("alignBlocks: moved blocks", () => {
-  // BUG: two blocks that only swap places match by position (rule 1 on a
-  // partial overlap), not by their equal text, if the text of one block is
-  // in the other block. The README says: "a block that the text moves keeps
-  // its ID, props and comments", and "An equal text is a stronger sign than
-  // a position". Through `updateDocument` (plain text), the swap of "Hello
-  // world" and "world" gives two content updates, and the props (for
-  // example a background color) stay at the old positions.
+  // KNOWN LIMIT (not fixed, see the README, "Identity"): two blocks that
+  // swap places match by position (rule 1 on a partial overlap), not by
+  // their equal text, if unchanged blocks are between them and they share at
+  // least half of the shorter text. The text of the result is correct, but
+  // the IDs, props and comments stay at the positions. Through
+  // `updateDocument` (plain text), the swap of "Hello world" and "world"
+  // gives two content updates, and a background color stays at its old
+  // position. The test shows the wanted result.
   //
   // The cause: the key tokens of the two moved blocks cross, thus the
   // longest increasing subsequence of the anchors drops them (see
-  // `anchoredMatch`). In the gaps, "world" then aligns with the other block.
-  // Rule 1 matches these blocks before rule 2 can match the equal texts.
+  // `anchoredMatch`). The unchanged blocks between them are anchors, thus
+  // each moved block is in its own gap with the other block. Rule 1 matches
+  // these blocks before rule 2 can match the equal texts.
   it.fails("matches two blocks that swap places by their equal text, also if the text of one block is in the other block", () => {
     expect(
       align(
@@ -113,6 +115,96 @@ describe("alignBlocks: moved blocks", () => {
   });
 });
 
+describe("alignBlocks: blocks that swap places", () => {
+  // The identity of swapped blocks follows their text, with one known limit
+  // (the last test, and the it.fails test above).
+
+  it("matches two adjacent blocks with words in common by their text", () => {
+    // One block is an anchor of the diff, and rule 2 matches the other.
+    expect(align(flat("Item 1", "Item 2"), flat("Item 2", "Item 1"))).toEqual([
+      [0, 1],
+      [1, 0],
+    ]);
+    expect(
+      align(
+        flat("Buy milk at the store", "Buy bread at the store"),
+        flat("Buy bread at the store", "Buy milk at the store"),
+      ),
+    ).toEqual([
+      [0, 1],
+      [1, 0],
+    ]);
+  });
+
+  it("matches two adjacent blocks by their text, also if the text of one block is in the other block", () => {
+    expect(
+      align(flat("Hello world", "world"), flat("world", "Hello world")),
+    ).toEqual([
+      [0, 1],
+      [1, 0],
+    ]);
+  });
+
+  it("matches two long blocks with a shared sentence by their text", () => {
+    const shared =
+      "The quick brown fox jumps over the lazy dog near the river bank today";
+    expect(
+      align(
+        flat(`${shared} one`, `${shared} two`),
+        flat(`${shared} two`, `${shared} one`),
+      ),
+    ).toEqual([
+      [0, 1],
+      [1, 0],
+    ]);
+  });
+
+  it("matches the blocks of a rotation by their text", () => {
+    expect(
+      align(
+        flat("Step one", "Step two", "Step three"),
+        flat("Step two", "Step three", "Step one"),
+      ),
+    ).toEqual([
+      [0, 2],
+      [1, 0],
+      [2, 1],
+    ]);
+  });
+
+  it("matches two swapped blocks between other blocks by their text", () => {
+    expect(
+      align(
+        flat("Intro text here", "Item 1", "Item 2", "Outro text here"),
+        flat("Intro text here", "Item 2", "Item 1", "Outro text here"),
+      ),
+    ).toEqual([
+      [0, 0],
+      [1, 2],
+      [2, 1],
+      [3, 3],
+    ]);
+  });
+
+  it("KNOWN LIMIT: matches two similar blocks by position if unchanged blocks are between them", () => {
+    // "see above" and "see below" share at least half of the shorter text,
+    // and the unchanged blocks between them are anchors. Thus, each block
+    // matches the block at its position (rule 1): the result is a change of
+    // one word in each block. See the README, "Identity".
+    expect(
+      align(
+        flat("Note: see above", "a1 b1", "a2 b2", "a3 b3", "Note: see below"),
+        flat("Note: see below", "a1 b1", "a2 b2", "a3 b3", "Note: see above"),
+      ),
+    ).toEqual([
+      [0, 0],
+      [1, 1],
+      [2, 2],
+      [3, 3],
+      [4, 4],
+    ]);
+  });
+});
 describe("alignBlocks: other edge cases", () => {
   it("matches a table and a paragraph with the same words by rule 1: rule 1 does not compare the shape", () => {
     // The target stage then replaces the shape (warning `block-shape-replaced`).

@@ -137,6 +137,8 @@ The identity of a block follows the location of its text, not the similarity of 
 
 An equal text is a stronger sign than a position. Thus, a moved block does not match a different block at its new position.
 
+Known limit: rule 1 runs before rule 2. Two blocks that swap places match by position if unchanged blocks are between them and the two blocks share at least half of the shorter text. Example: "Note: see above" and "Note: see below", with other blocks between them. The unchanged blocks are anchors of the diff, thus each moved block is in a gap with the other block, and rule 1 matches them. The text of the result is correct, but the IDs, props and comments stay at the positions: the result is a change of some words in each block. A swap of adjacent blocks, or of blocks with less in common, keeps the IDs (see `alignment/alignBlocks.edge.test.ts` and `api.swaps.test.ts`).
+
 A split paragraph keeps its ID on the part with the most of its text. Two joined paragraphs keep the ID of the first paragraph. A block that moved and also changed gets a new ID.
 
 ## The three-way merge
@@ -290,6 +292,7 @@ The branch `fix/markdown-roundtrip` fixes these problems:
 - An HTML tag of a media block without a source (for example `<img>` in markdown) gave a block without a URL, which the markdown export does not show. Thus, each later write of the same text added the block again. Now such a tag gives no block (with a caption, it still gives the block).
 - In HTML, the export of a paragraph with only white space was `<p> </p>`, and the parse dropped it. Now the export writes the placeholder character, as for an empty block.
 - In an editor without a view, a new block (for example the block that fills an empty document) got no ID: Tiptap adds the plugins only when the editor mounts. Now the ID plugin also runs without a view.
+- A table cell span had no limit. A column span of 1,000,000 (in HTML or in JSON) overflowed the stack in the conversion to blocks (`nodeToBlock` spread an array of the span length), also for `editor.document`. Now the HTML parse limits the spans as the HTML table model does (1,000 columns, 65,534 rows), and the conversion uses a loop. The lens also rejects such a span in JSON (`parseJSON`). This fix is newer than the base of the lens branch.
 
 These problems stay:
 
@@ -316,5 +319,6 @@ These problems stay:
 - A block that another writer rewrote. If another writer changes almost all words of a block (for example the case of each word), the alignment of the old and the new text finds nothing in common. If the client also changes that block, the text of the other writer stays. The change of the client is lost, with the warning `conflicting-change`.
 - In jsdom, the markdown export of many paragraphs in list items is quadratic, because each move of an element recomputes the index of its siblings.
 - A block that the text moves and also changes. The lens does not find it. The block is removed and inserted again, with a new ID.
+- Two similar blocks that swap places, with other blocks between them, keep the positions of their IDs and props (see "Identity", known limit). A fix: rule 2 (equal unique texts) before rule 1, without a change of the word diff.
 - Table rows with a different number of cells. Examples are added or removed columns. The result for these rows is the row from the text, and the cell colors of these rows are lost.
 - Merged cells in markdown and plain text. These formats show a merged cell as the cell and empty cells at the positions that it covers. A change of such a table removes all its merged cells (warning `merged-cells-removed`).
