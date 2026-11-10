@@ -1,12 +1,6 @@
 import { gaps } from "./gaps.js";
-import { DEFAULT_MAX_WORK, myersMatch, type WorkBudget } from "./myers.js";
+import { myersMatch, type WorkBudget, workBudgetFor } from "./myers.js";
 import type { MatchedPair } from "./types.js";
-
-/**
- * The work limit of one {@link anchoredMatch}, for each item of the input.
- * Thus, the time is linear in the size of the input.
- */
-const WORK_PER_ITEM = 50;
 
 /**
  * The work of a search for anchors, for each item that it examines. A search
@@ -50,8 +44,8 @@ type Step =
  *    repeats in the full input can be unique in a gap. Thus, the gaps become
  *    small. A range without anchors gets the Myers diff.
  *
- * All steps share one work limit: {@link WORK_PER_ITEM} for each item of the
- * input, and at least `DEFAULT_MAX_WORK`. Thus, the time is linear, also for
+ * All steps share one work limit (see `workBudgetFor`). Thus, the time is
+ * linear, also for
  * inputs that give only one new anchor at each level. After the limit, a gap
  * gets no new search for anchors, and its Myers diff matches only its common
  * prefix and suffix.
@@ -66,9 +60,7 @@ export function anchoredMatch<T>(
 ): MatchedPair[] {
   const keysA = a.map(keyOf);
   const keysB = b.map(keyOf);
-  const budget: WorkBudget = {
-    left: Math.max(DEFAULT_MAX_WORK, WORK_PER_ITEM * (a.length + b.length)),
-  };
+  const budget = workBudgetFor(a.length + b.length);
   const pairs: MatchedPair[] = [];
   // A stack, not a recursion: an input can give one new anchor at each
   // level, thus the depth can be the size of the input.

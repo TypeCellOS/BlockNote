@@ -1,5 +1,5 @@
 import { anchoredMatch } from "./anchored.js";
-import { myersMatch } from "./myers.js";
+import { myersMatch, type WorkBudget, workBudgetFor } from "./myers.js";
 import type { MatchedPair } from "./types.js";
 
 /**
@@ -40,6 +40,10 @@ const MIN_GAP_MATCH_RATIO = 0.5;
  *
  * The merge and the apply use this alignment. Thus, the apply keeps the
  * same characters that the merge keeps.
+ *
+ * The character diffs of all gaps share one work limit (see
+ * `workBudgetFor`). Thus, the time is linear in the size of the texts, also
+ * for many large changed gaps.
  */
 export function alignText(
   a: readonly TextUnit[],
@@ -50,6 +54,7 @@ export function alignText(
   // Anchors (tokens that each side has one time) keep the diff fast and
   // exact also for a long block with many changes (see `anchoredMatch`).
   const tokenPairs = anchoredMatch(tokensA, tokensB, (token) => token.key);
+  const budget = workBudgetFor(a.length + b.length);
 
   const pairs: MatchedPair[] = [];
   let aPos = 0;
@@ -57,7 +62,12 @@ export function alignText(
   for (const tokenPair of tokenPairs) {
     const tokenA = tokensA[tokenPair.aIndex];
     const tokenB = tokensB[tokenPair.bIndex];
-    for (const pair of alignGap(a, b, aPos, tokenA.start, bPos, tokenB.start)) {
+    for (const pair of alignGap(
+      a,
+      b,
+      { aStart: aPos, aEnd: tokenA.start, bStart: bPos, bEnd: tokenB.start },
+      budget,
+    )) {
       pairs.push(pair);
     }
     for (let k = 0; k < tokenA.end - tokenA.start; k++) {
@@ -66,20 +76,27 @@ export function alignText(
     aPos = tokenA.end;
     bPos = tokenB.end;
   }
-  for (const pair of alignGap(a, b, aPos, a.length, bPos, b.length)) {
+  for (const pair of alignGap(
+    a,
+    b,
+    { aStart: aPos, aEnd: a.length, bStart: bPos, bEnd: b.length },
+    budget,
+  )) {
     pairs.push(pair);
   }
   return pairs;
 }
 
+/** The units between two matched tokens: `a[aStart, aEnd)` and `b[bStart, bEnd)`. */
+type Range = { aStart: number; aEnd: number; bStart: number; bEnd: number };
+
 function alignGap(
   a: readonly TextUnit[],
   b: readonly TextUnit[],
-  aStart: number,
-  aEnd: number,
-  bStart: number,
-  bEnd: number,
+  range: Range,
+  budget: WorkBudget,
 ): MatchedPair[] {
+  let { aStart, aEnd, bStart, bEnd } = range;
   // Equal whitespace at the edges of the gap stays with the token next to
   // it. Thus, the space between two changed words is stable, and two writers
   // can change the two words.
@@ -99,6 +116,7 @@ function alignGap(
     a.slice(aStart, aEnd),
     b.slice(bStart, bEnd),
     (x, y) => x.key === y.key,
+    budget,
   );
   const rest =
     2 * matches.length < MIN_GAP_MATCH_RATIO * (aEnd - aStart + bEnd - bStart)
