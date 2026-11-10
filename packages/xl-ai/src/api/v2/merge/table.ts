@@ -95,8 +95,13 @@ export function mergeTableContent(
   };
 }
 
+/**
+ * The key of a row: the texts of its cells. Equal keys are equal rows. A
+ * JSON array keeps the cells apart for each text, also for a text with a
+ * separator character in it.
+ */
 function rowKey(row: Row): string {
-  return row.map((cell) => inlineContentToText(cell.content)).join("\u0000");
+  return JSON.stringify(row.map((cell) => inlineContentToText(cell.content)));
 }
 
 /** Returns true if two rows have the same number of cells, and at least half of the cells have equal text. */

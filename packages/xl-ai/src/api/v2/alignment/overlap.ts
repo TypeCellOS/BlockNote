@@ -70,7 +70,9 @@ export function wordSize(text: OverlapText): number {
  * - The words and the single other characters. A token that is not a word
  *   has the size 0. Thus, two texts with only the same punctuation are not
  *   the same text.
- * - A separator, with the size 0.
+ * - A separator, with the size 0. Its key is empty, thus no other token has
+ *   it: a token of the text has at least one character, and the key token
+ *   starts with "\u0001" and has more characters.
  */
 function tokensOf(texts: readonly OverlapText[]): Token[] {
   const tokens: Token[] = [];
@@ -87,7 +89,7 @@ function tokensOf(texts: readonly OverlapText[]): Token[] {
         tokens.push(token);
       }
     }
-    tokens.push({ owner, key: "\u0000", size: 0 });
+    tokens.push({ owner, key: "", size: 0 });
   });
   return tokens;
 }

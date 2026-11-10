@@ -167,14 +167,12 @@ describe("mergeTableContent: laws on random tables", () => {
 });
 
 describe("mergeTableContent: rows with equal text and a different number of cells", () => {
-  // BUG: `alignRows` matches rows by `rowKey`, the texts of the cells
-  // joined with "\u0000". A cell text with "\u0000" then gives one cell the
-  // key of two cells: the rows match as a stable row, but the stable
-  // handler assumes the same number of cells on the three sides. Here
-  // `mergeCell` reads the props of a missing cell and throws a TypeError.
-  // The JSON API accepts such a text. Severity: low (a cell text with a
-  // NUL character).
-  it.fails("does not throw if ours splits a cell whose text has a NUL character into two cells", () => {
+  // `alignRows` matches rows by `rowKey`, the texts of the cells. Before the
+  // fix, the key joined the texts with "\u0000". A cell text with "\u0000"
+  // then gave one cell the key of two cells: the rows matched as a stable
+  // row, and `mergeCell` read the props of a missing cell (a TypeError). The
+  // JSON API accepts such a text.
+  it("does not throw if ours splits a cell whose text has a NUL character into two cells", () => {
     const base = table([[cell("a\u0000b")]]);
     const ours = table([[cell("a"), cell("b")]]);
     expect(
@@ -182,9 +180,9 @@ describe("mergeTableContent: rows with equal text and a different number of cell
     ).toEqual([["a", "b"]]);
   });
 
-  // BUG: the same key collision, without an exception: the cell "b" of
-  // theirs is lost, although ours did not change the row.
-  it.fails("keeps the cells of theirs if only theirs split a cell whose text has a NUL character", () => {
+  // The same key collision, without an exception: before the fix, the cell
+  // "b" of theirs was lost, although ours did not change the row.
+  it("keeps the cells of theirs if only theirs split a cell whose text has a NUL character", () => {
     const base = table([[cell("a\u0000b")], [cell("k")]]);
     const ours = table([[cell("a\u0000b")], [cell("k2")]]);
     const theirs = table([[cell("a"), cell("b")], [cell("k")]]);
