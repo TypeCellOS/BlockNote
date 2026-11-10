@@ -13,10 +13,10 @@ import { columnSchema } from "../testUtil/fixtures.js";
 import { valid } from "../testUtil/valid.js";
 
 /**
- * Hard cases of the nesting rules of the planner (see `keptParent` and
+ * Hard cases of the nesting rules of the target stage (see `keptParent` and
  * `placeHiddenBlocks`): blocks that the format does not show (columns and
  * images in markdown, nesting in plain text), next to blocks that the text
- * moves. A differential test of two planners found them.
+ * moves. A differential test of two versions of the target stage found them.
  */
 describe("hidden blocks next to blocks that the text moves", () => {
   const schema = columnSchema;

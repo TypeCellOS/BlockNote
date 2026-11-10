@@ -106,7 +106,7 @@ describe("mergeTableContent", () => {
 
   it("takes the fields of the table from the side whose rows win a conflict", () => {
     // Theirs adds a column and a header row. Ours adds a row. The rows
-    // conflict, and in the rebase the rows of theirs win: thus also the
+    // conflict, and in the tree merge the rows of theirs win: thus also the
     // header rows of theirs.
     let conflicts = 0;
     const merged = mergeTableContent(

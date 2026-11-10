@@ -8,7 +8,7 @@ import type {
 } from "../blocks/types.js";
 import type { BlockPair } from "../alignment/alignBlocks.js";
 import type { Projection } from "../projection/projectDocument.js";
-import type { PlanWarning } from "./types.js";
+import type { TargetWarning } from "./types.js";
 
 /** What the plan does with one block of the text. */
 export type TextRow =
@@ -35,7 +35,7 @@ export type TextRow =
   /**
    * The text block gives no block: it is a later part of a kept multi-part
    * block (the first part is the block), or the pair of a view block without
-   * a link (the planner cannot apply a change of it).
+   * a link (the target stage cannot apply a change of it).
    */
   | { kind: "skipped"; viewIndex: number | undefined };
 
@@ -48,7 +48,7 @@ export type Correspondence = {
    * the invisible blocks that stay (see {@link keepInvisibleBlocks}).
    */
   kept: Set<string>;
-  warnings: PlanWarning[];
+  warnings: TargetWarning[];
 };
 
 /**
@@ -97,7 +97,7 @@ export function correspond(
     textIndexOf,
     source,
   );
-  const warnings: PlanWarning[] = [...multiParts.warnings];
+  const warnings: TargetWarning[] = [...multiParts.warnings];
   const kept = new Set<string>();
   /** The kept source block of each text block that is one. */
   const keptAt = new Map<number, { id: string; viewIndex: number }>();
@@ -179,13 +179,13 @@ function decideMultiParts(
   /** The text block that replaces a multi-part block and keeps its ID. */
   replacementIdOf: Map<number, string>;
   joined: Map<string, { view: LensBlock; incoming: LensBlock }>;
-  warnings: PlanWarning[];
+  warnings: TargetWarning[];
 } {
   const { view, multiParts } = projection;
   const replaced = new Set<string>();
   const replacementIdOf = new Map<number, string>();
   const joined = new Map<string, { view: LensBlock; incoming: LensBlock }>();
-  const warnings: PlanWarning[] = [];
+  const warnings: TargetWarning[] = [];
   for (const [id, parts] of multiParts) {
     const together = parts.every((v, k) => {
       const j = textIndexOf[v];
@@ -285,8 +285,8 @@ function joinParts(
  * `kept`. The text cannot remove these blocks, thus they stay. There are two
  * exceptions:
  *
- * - The planner removes their parent.
- * - An empty block (for example an empty paragraph) goes if the planner
+ * - The target stage removes their parent.
+ * - An empty block (for example an empty paragraph) goes if the target stage
  *   removes all the visible blocks around it. An example is an empty
  *   paragraph between two removed paragraphs. In a document with only empty
  *   blocks at the top level (for example a new editor), these blocks go:

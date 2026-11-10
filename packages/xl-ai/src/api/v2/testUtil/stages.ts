@@ -12,8 +12,8 @@ import type { TextFormat } from "../formats/types.js";
 import { diffDocuments } from "../operations/diffDocuments.js";
 import { parseText } from "../parse/parseText.js";
 import { checkFormatShows } from "../projection/formatCheck.js";
-import { correspond } from "../plan/correspond.js";
-import { planTarget } from "../plan/planTarget.js";
+import { correspond } from "../target/correspond.js";
+import { targetFromPairs } from "../target/targetFromPairs.js";
 import {
   projectDocument,
   type ViewBlock,
@@ -22,7 +22,7 @@ import { shadowsOf } from "../projection/shadows.js";
 
 /**
  * Runs the stages of a text write on the current document (`base:
- * "current"`), as `planText` and `updateFromPlan` in `api.ts` do, and returns
+ * "current"`), as `textTarget` and `updateFromTarget` in `api.ts` do, and returns
  * the data of each stage in a short form. Each row is one block: its ID (or
  * the source ID of a view block), its type and its text.
  */
@@ -37,9 +37,9 @@ export function textStages(
   // 2. Parse and align.
   const textBlocks = textBlocksOf(editor, format, text, projection.view);
   const pairs = alignBlocks(projection.view, textBlocks);
-  // 3. Plan.
+  // 3. Target.
   const input = {
-    document,
+    source: document,
     projection,
     incoming: textBlocks,
     alignment: pairs,
@@ -48,9 +48,14 @@ export function textStages(
     newId: () => UniqueID.options.generateID(),
   };
   const { rows } = correspond(input, new BlockTree(document));
-  const plan = planTarget(input);
+  const target = targetFromPairs(input);
   // 5. Fit, and 6. Diff (no merge for `base: "current"`).
-  const result = fitResult(schemaRulesOf(editor), plan.target, document, false);
+  const result = fitResult(
+    schemaRulesOf(editor),
+    target.target,
+    document,
+    false,
+  );
   const operations = diffDocuments(document, result);
 
   const short = (block: LensBlock, id = block.id) => [
@@ -78,7 +83,7 @@ export function textStages(
       blockToText(textBlocks[j].block),
     ]),
     operations: withNewIdPlaceholders(operations),
-    warnings: plan.warnings,
+    warnings: target.warnings,
   };
 }
 
@@ -98,7 +103,7 @@ export function withNewIdPlaceholders(
 }
 
 /**
- * The text blocks of a text, as `planText` in `api.ts` gives them: the parse,
+ * The text blocks of a text, as `textTarget` in `api.ts` gives them: the parse,
  * checked (see `checkFormatShows`), in a flat list.
  */
 export function textBlocksOf(

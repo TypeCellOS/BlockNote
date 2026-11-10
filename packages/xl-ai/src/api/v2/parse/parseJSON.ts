@@ -1,18 +1,15 @@
 import type { BlockNoteEditor, PartialBlock } from "@blocknote/core";
 import { UniqueID } from "@blocknote/core/extensions";
 
-import { schemaRulesOf } from "../blocks/schema.js";
 import { withDistinctIds } from "../blocks/ids.js";
-import { BlockTree } from "../blocks/tree.js";
+import { schemaRulesOf } from "../blocks/schema.js";
 import type { LensBlock } from "../blocks/types.js";
 import { fitLayout } from "../fit/fitLayout.js";
 import { toStoredBlocks } from "../formats/stored.js";
 
 /**
- * Stage 2 for the JSON write: the blocks of the JSON of a client, in the
- * form that the document stores them, with IDs that identify one block each.
- * The JSON contains the block IDs, thus there is no alignment: the target is
- * these blocks.
+ * Stage 2 for JSON: the blocks of the JSON of a client, in the form that the
+ * document stores them (as `parseText` for a text).
  *
  * - The layout blocks fit their child rules before the conversion: the
  *   conversion fills a layout block with too few children with new blocks
@@ -21,43 +18,29 @@ import { toStoredBlocks } from "../formats/stored.js";
  *   `"invalid-document"`.
  * - A block with the ID of an earlier block gets the ID with a number (`x-2`,
  *   see `withDistinctIds`), as in the current document and in `base`.
- * - A block gets a new ID where its ID cannot identify it (see
- *   {@link withUniqueIds}).
  */
 export function parseJSON(
   editor: BlockNoteEditor<any, any, any>,
-  document: readonly PartialBlock<any, any, any>[],
-  /** The version that the client read, or the current document for `base: "current"`. */
-  base: readonly LensBlock[],
-  current: readonly LensBlock[],
+  json: readonly PartialBlock<any, any, any>[],
 ): { error?: undefined; blocks: LensBlock[] } | { error: "invalid-document" } {
   const { layoutRuleOf } = schemaRulesOf(editor);
-  const blocks = toStoredBlocks(editor, fitLayout(document, layoutRuleOf));
-  if (blocks === undefined) {
-    return { error: "invalid-document" };
-  }
-  return {
-    blocks: withUniqueIds(withDistinctIds(blocks), base, current),
-  };
+  const blocks = toStoredBlocks(editor, fitLayout(json, layoutRuleOf));
+  return blocks === undefined
+    ? { error: "invalid-document" }
+    : { blocks: withDistinctIds(blocks) };
 }
 
 /**
- * Returns the blocks with a new ID where an ID cannot identify the block: a
- * block with an ID that is not in `base` but is in `current` (a block of
- * another writer). These blocks are new blocks. The IDs of `blocks` are
- * distinct (see `withDistinctIds`).
+ * Returns the blocks, where a block with an ID of `ids` gets a new ID: it is
+ * a new block. The JSON write gives the IDs that the client cannot mean: the
+ * IDs of the blocks that other writers added after the read of the client.
  */
-function withUniqueIds(
+export function withNewIds(
   blocks: readonly LensBlock[],
-  base: readonly LensBlock[],
-  current: readonly LensBlock[],
+  ids: ReadonlySet<string>,
 ): LensBlock[] {
-  const inBase = new Set(new BlockTree(base).ids);
-  const inCurrent = new BlockTree(current).byId;
   function fix(block: LensBlock): LensBlock {
-    const before = inCurrent.get(block.id);
-    const keep = inBase.has(block.id) || before === undefined;
-    const id = keep ? block.id : UniqueID.options.generateID();
+    const id = ids.has(block.id) ? UniqueID.options.generateID() : block.id;
     return { ...block, id, children: block.children.map(fix) };
   }
   return blocks.map(fix);

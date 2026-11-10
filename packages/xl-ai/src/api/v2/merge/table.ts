@@ -46,7 +46,7 @@ export function mergeTableContent(
   }
   // The fields of the table belong to its rows: if the rows of the two sides
   // conflict, the fields come from the side whose rows win (ours, and in the
-  // rebase theirs, see `MergeOptions`).
+  // tree merge: theirs, see `MergeOptions`).
   let rowConflict = false;
   const baseRows = cellRows(base);
   const ourRows = cellRows(ours);

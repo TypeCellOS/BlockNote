@@ -10,14 +10,14 @@ import { mergeBlock } from "../merge/block.js";
 import type { Projection } from "../projection/projectDocument.js";
 import { buildTree, type TreeRow } from "./buildTree.js";
 import { correspond } from "./correspond.js";
-import type { PlanWarning } from "./types.js";
+import type { TargetWarning } from "./types.js";
 
-export type { PlanWarning } from "./types.js";
+export type { TargetWarning } from "./types.js";
 
-export type PlanInput = {
-  /** The document that gets the text. */
-  document: readonly LensBlock[];
-  /** `document` as the format shows it. */
+export type TargetInput = {
+  /** The document that the change starts from (`base`, or the current document). */
+  source: readonly LensBlock[];
+  /** `source` as the format shows it. */
   projection: Projection;
   /** The blocks of the text, in a flat list. */
   incoming: FlatBlock[];
@@ -30,10 +30,10 @@ export type PlanInput = {
   newId: () => string;
 };
 
-export type Plan = { target: LensBlock[]; warnings: PlanWarning[] };
+export type TargetResult = { target: LensBlock[]; warnings: TargetWarning[] };
 
 /**
- * Makes the target document: `document` as the text asks for it.
+ * Makes the target document: `source` as the text asks for it.
  *
  * 1. The correspondence: which source block each block of the text is, if
  *    it is one, and which source blocks stay (see `correspond`).
@@ -45,8 +45,8 @@ export type Plan = { target: LensBlock[]; warnings: PlanWarning[] };
  *    text shows, with the nesting that the format does not show, and the
  *    hidden blocks at their source positions (see `buildTree`).
  */
-export function planTarget(input: PlanInput): Plan {
-  const source = new BlockTree(input.document);
+export function targetFromPairs(input: TargetInput): TargetResult {
+  const source = new BlockTree(input.source);
   const { rows, kept, warnings } = correspond(input, source);
   const treeRows = rows.map((row, j): TreeRow => {
     switch (row.kind) {

@@ -16,7 +16,7 @@ import {
 } from "../index.js";
 import { diffDocuments } from "../operations/diffDocuments.js";
 import { projectDocument } from "../projection/projectDocument.js";
-import { planTarget } from "../plan/planTarget.js";
+import { targetFromPairs } from "../target/targetFromPairs.js";
 import { richDocument } from "../testUtil/fixtures.js";
 import { bindEditor, unbindEditor } from "../testUtil/yjs.js";
 import { updateYDoc } from "../yjs/index.js";
@@ -113,8 +113,8 @@ describe("large documents", () => {
           let projection = projectDocument(editor, format, document);
           let incoming = flattenBlocks(format.parse(editor, edited));
           let alignment = alignBlocks(projection.view, incoming);
-          let plan = planTarget({
-            document,
+          let target = targetFromPairs({
+            source: document,
             projection,
             incoming,
             alignment,
@@ -188,9 +188,9 @@ describe("large documents", () => {
             "· align": await median(() => {
               alignment = alignBlocks(projection.view, incoming);
             }),
-            "· plan": await median(() => {
-              plan = planTarget({
-                document,
+            "· target": await median(() => {
+              target = targetFromPairs({
+                source: document,
                 projection,
                 incoming,
                 alignment,
@@ -199,7 +199,9 @@ describe("large documents", () => {
                 newId: () => crypto.randomUUID(),
               });
             }),
-            "· diff": await median(() => diffDocuments(document, plan.target)),
+            "· diff": await median(() =>
+              diffDocuments(document, target.target),
+            ),
           });
         }
       }

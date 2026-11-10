@@ -26,6 +26,6 @@ export type { TextFormat } from "./formats/types.js";
 export { applyOperations } from "./operations/applyOperations.js";
 export type { LensBlock } from "./blocks/types.js";
 export type { BlockOperation, BlockPosition } from "./operations/types.js";
-export type { RebaseWarning } from "./merge/tree.js";
-export type { PlanWarning } from "./plan/planTarget.js";
+export type { MergeWarning } from "./merge/tree.js";
+export type { TargetWarning } from "./target/targetFromPairs.js";
 export type { FitWarning } from "./fit/fitTable.js";

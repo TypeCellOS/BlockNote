@@ -4,7 +4,7 @@ import { describe, expect, it } from "vite-plus/test";
 import type { FlatBlock, LensBlock } from "../blocks/types.js";
 import type { MatchedPair } from "../sequence/types.js";
 import type { ViewBlock } from "../projection/projectDocument.js";
-import { planTarget } from "./planTarget.js";
+import { targetFromPairs } from "./targetFromPairs.js";
 
 function content(text: string) {
   return [{ type: "text" as const, text, styles: {} }];
@@ -56,8 +56,8 @@ function plan(input: {
   multiPartIds?: string[];
 }) {
   let count = 0;
-  const { target, warnings } = planTarget({
-    document: input.document,
+  const { target, warnings } = targetFromPairs({
+    source: input.document,
     projection: {
       view: input.view,
       invisibleIds: new Set(input.invisibleIds),
@@ -86,7 +86,7 @@ const same: [number, number][] = [
   [1, 1],
 ];
 
-describe("planTarget", () => {
+describe("targetFromPairs", () => {
   it("gives the document if the text did not change", () => {
     expect(
       plan({ document, view, incoming: [flat("a"), flat("b")], pairs: same }),

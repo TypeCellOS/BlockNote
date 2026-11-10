@@ -15,8 +15,8 @@ import { type MergeOptions, mergeRecords, mergeValue } from "./threeWay.js";
 
 /**
  * Three-way merge of the fields of one block (see `threeWay.ts` for the
- * rule). In the planner, `base` is the view block, `ours` is the block from
- * the text, and `theirs` is the block in the document. In the rebase, `base`
+ * rule). In the target stage, `base` is the view block, `ours` is the block from
+ * the text, and `theirs` is the block in the document. In the tree merge, `base`
  * is the block at the version that the client read, `ours` is that block
  * with the update, and `theirs` is the current block.
  *
@@ -25,7 +25,7 @@ import { type MergeOptions, mergeRecords, mergeValue } from "./threeWay.js";
  * if `ours` changed the content, and that type cannot hold the content of
  * `ours`, the type of `ours` wins. An example is a table that a format shows
  * as lines of text: a change of these lines makes the block a paragraph. In
- * the rebase, that is a conflict: the type and the content of `theirs` win
+ * the tree merge, that is a conflict: the type and the content of `theirs` win
  * (see `MergeOptions`).
  *
  * The merge merges each prop (see {@link mergeProps}). It merges inline

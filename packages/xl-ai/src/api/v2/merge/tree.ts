@@ -8,7 +8,7 @@ import { mergeBlock } from "./block.js";
 import { diff3 } from "./diff3.js";
 import { mergeValue } from "./threeWay.js";
 
-export type RebaseWarning =
+export type MergeWarning =
   /** The client changed or moved a block that another writer removed. The change does not apply. */
   | { type: "change-to-removed-block"; id: string }
   /**
@@ -52,7 +52,7 @@ export function mergeTree(input: {
   ours: readonly LensBlock[];
   theirs: readonly LensBlock[];
   contentKindOf: (type: string) => ContentKind;
-}): { blocks: LensBlock[]; warnings: RebaseWarning[] } {
+}): { blocks: LensBlock[]; warnings: MergeWarning[] } {
   const sides = new Sides(
     new BlockTree(input.base),
     new BlockTree(input.ours),
@@ -63,7 +63,7 @@ export function mergeTree(input: {
   const children = mergeChildOrders(sides, staying, parents.parentOf);
   const conflicts = new Set([...parents.conflicts, ...children.conflicts]);
 
-  const warnings: RebaseWarning[] = [];
+  const warnings: MergeWarning[] = [];
   function build(parent: string | undefined): LensBlock[] {
     return (children.childrenOf.get(parent) ?? []).map((id) => {
       const fields = mergeFields(sides, id, input.contentKindOf);
@@ -455,9 +455,9 @@ function mergeFields(
 }
 
 /** The warnings for removed blocks, in the order of `base`. */
-function removalWarnings(sides: Sides): RebaseWarning[] {
+function removalWarnings(sides: Sides): MergeWarning[] {
   const { base, ours, theirs } = sides;
-  const warnings: RebaseWarning[] = [];
+  const warnings: MergeWarning[] = [];
   for (const id of base.ids) {
     if (ours.has(id) && !theirs.has(id) && sides.changedByClient(id)) {
       warnings.push({ type: "change-to-removed-block", id });

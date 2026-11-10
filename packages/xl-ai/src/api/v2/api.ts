@@ -8,6 +8,7 @@ import { UniqueID } from "@blocknote/core/extensions";
 import { alignBlocks } from "./alignment/alignBlocks.js";
 import { flattenBlocks } from "./blocks/flatten.js";
 import { type SchemaRules, schemaRulesOf } from "./blocks/schema.js";
+import { BlockTree } from "./blocks/tree.js";
 import type { LensBlock } from "./blocks/types.js";
 import type { TextFormat } from "./formats/types.js";
 import { withDistinctIds } from "./blocks/ids.js";
@@ -16,15 +17,18 @@ import { applyOperations } from "./operations/applyOperations.js";
 import { dispatchUpdate } from "./operations/dispatch.js";
 import { diffDocuments } from "./operations/diffDocuments.js";
 import type { BlockOperation } from "./operations/types.js";
-import { parseJSON } from "./parse/parseJSON.js";
+import { parseJSON, withNewIds } from "./parse/parseJSON.js";
 import { parseText, withoutByteOrderMark } from "./parse/parseText.js";
 import { documentText } from "./projection/cache.js";
 import { checkFormatShows } from "./projection/formatCheck.js";
 import { shadowsOf } from "./projection/shadows.js";
-import { mergeTree, type RebaseWarning } from "./merge/tree.js";
+import { mergeTree, type MergeWarning } from "./merge/tree.js";
 import { fitResult } from "./fit/fitResult.js";
 import { type FitWarning, mergedCellsRemoved } from "./fit/fitTable.js";
-import { type PlanWarning, planTarget } from "./plan/planTarget.js";
+import {
+  type TargetWarning,
+  targetFromPairs,
+} from "./target/targetFromPairs.js";
 
 /** Returns the document in the format. A client reads this text, changes it, and writes it back. */
 export function getDocumentText(
@@ -34,7 +38,7 @@ export function getDocumentText(
   return documentText(editor, format, editor.document).text;
 }
 
-export type ChangeWarning = PlanWarning | RebaseWarning | FitWarning;
+export type ChangeWarning = TargetWarning | MergeWarning | FitWarning;
 
 /** A change that applies: its operations and its warnings. */
 export type ChangeOperations = {
@@ -44,7 +48,7 @@ export type ChangeOperations = {
 };
 
 /** A change with `onConflict: "reject"` that has conflicts: nothing applies. */
-export type ConflictError = { error: "conflict"; conflicts: RebaseWarning[] };
+export type ConflictError = { error: "conflict"; conflicts: MergeWarning[] };
 
 /**
  * The result of a change: the operations and the warnings, or an error. On
@@ -86,7 +90,7 @@ export type WriteFromVersion<Base> =
        */
       base: Base;
       /**
-       * What a conflict (a {@link RebaseWarning}) does:
+       * What a conflict (a {@link MergeWarning}) does:
        *
        * - `"keep-current"` (the default): the change of the other writer
        *   stays there, and the result has the warning. The other changes of
@@ -178,14 +182,20 @@ export function updateDocument(
 
 // The pipeline (see "Pipeline" in the README). A change runs these functions:
 //
-//   operationsOf = planText (text: 1 Project, 2 Parse and align, 3 Plan)
-//                  or planJSON (JSON: 2 Parse; the JSON is the target)
-//                  then updateFromPlan (4 Merge, 5 Fit, 6 Diff)
+//   operationsOf = textTarget (text: 1 Project, 2 Parse and align, 3 Target)
+//                  or jsonTarget (JSON: 2 Parse, and the IDs)
+//                  then updateFromTarget (4 Merge, 5 Fit, 6 Diff)
 //   write        = 7 Apply and 8 Dispatch, around operationsOf
 //
-// `current` is the document that the operations change. It does not have to
-// be the document of the editor: the editor supplies the schema and the
-// conversions.
+// The documents of a change:
+//
+// - `base`: the version that the client read, or `undefined` for
+//   `base: "current"`.
+// - `current`: the document now. The operations change it. It does not have
+//   to be the document of the editor: the editor supplies the schema and the
+//   conversions.
+// - `source`: the document that the change starts from (`base ?? current`).
+// - `target`: the document as the change asks for it (stage 3).
 
 /**
  * The operations of a change for the document `current` (stages 1 to 6).
@@ -199,14 +209,15 @@ export function operationsOf(
   keepLayout = false,
 ): ChangeResult {
   const base = versionOf(change);
-  const plan =
+  const source = base ?? current;
+  const target =
     change.document === undefined
-      ? planText(editor, change.format, base ?? current, change.text)
-      : planJSON(editor, change.document, base ?? current, current);
-  if (plan.error !== undefined) {
-    return plan;
+      ? textTarget(editor, change.format, source, change.text)
+      : jsonTarget(editor, change.document, source, current);
+  if (target.error !== undefined) {
+    return target;
   }
-  return updateFromPlan(schemaRulesOf(editor), plan, {
+  return updateFromTarget(schemaRulesOf(editor), target, {
     base,
     current,
     onConflict: change.onConflict,
@@ -214,45 +225,54 @@ export function operationsOf(
   });
 }
 
-/**
- * Stage 2 for JSON: the JSON in the stored form, with IDs that identify one
- * block each (see `parseJSON`). The JSON contains the block IDs, thus there
- * is no alignment: the JSON is the target.
- */
-function planJSON(
-  editor: BlockNoteEditor<any, any, any>,
-  document: readonly PartialBlock<any, any, any>[],
-  /** The version that the client read, or the current document. */
-  base: readonly LensBlock[],
-  current: readonly LensBlock[],
-):
-  | { error?: undefined; target: readonly LensBlock[]; warnings: PlanWarning[] }
-  | { error: "invalid-document" } {
-  const parsed = parseJSON(editor, document, base, current);
-  return parsed.error !== undefined
-    ? parsed
-    : { target: parsed.blocks, warnings: [] };
-}
+/** The target of a change, with the warnings of stage 3, or an error. */
+type TargetOrError =
+  | {
+      error?: undefined;
+      target: readonly LensBlock[];
+      warnings: TargetWarning[];
+    }
+  | { error: "invalid-document" };
 
 /**
- * Stages 1 to 3: the target document, `document` as `text` asks for it.
- * `document` is the version of `base`, or the current document.
+ * The target of a JSON change: the JSON in the stored form (see
+ * `parseJSON`). The JSON contains the block IDs, thus there is no
+ * alignment: the JSON is the target. A block with the ID of a block that
+ * another writer added after the read of the client (the ID is in `current`
+ * but not in `source`) is a new block: the client cannot mean that block
+ * (see `withNewIds`).
  */
-function planText(
+function jsonTarget(
+  editor: BlockNoteEditor<any, any, any>,
+  json: readonly PartialBlock<any, any, any>[],
+  source: readonly LensBlock[],
+  current: readonly LensBlock[],
+): TargetOrError {
+  const parsed = parseJSON(editor, json);
+  if (parsed.error !== undefined) {
+    return parsed;
+  }
+  const read = new Set(new BlockTree(source).ids);
+  const foreignIds = new Set(
+    new BlockTree(current).ids.filter((id) => !read.has(id)),
+  );
+  return { target: withNewIds(parsed.blocks, foreignIds), warnings: [] };
+}
+
+/** The target of a text change (stages 1 to 3): `source` as `text` asks for it. */
+function textTarget(
   editor: BlockNoteEditor<any, any, any>,
   format: TextFormat,
-  document: readonly LensBlock[],
+  source: readonly LensBlock[],
   text: string,
-):
-  | { error?: undefined; target: readonly LensBlock[]; warnings: PlanWarning[] }
-  | { error: "invalid-document" } {
-  // 1. Project. The text of the document and its projection come from the
-  // cache, if the document is the last document of the editor and format.
-  const read = documentText(editor, format, document);
+): TargetOrError {
+  // 1. Project. The text of the source and its projection come from the
+  // cache, if the source is the last document of the editor and format.
+  const read = documentText(editor, format, source);
   const content = withoutByteOrderMark(text, read.text);
   // An unchanged text needs no projection, and gives no operations (GetPut).
   if (content === read.text) {
-    return { target: document, warnings: [] };
+    return { target: source, warnings: [] };
   }
   const projection = read.projection();
   // 2. Parse and align. The format must show each block of the parse (see
@@ -264,9 +284,9 @@ function planText(
   checkFormatShows(editor, format, parsed.blocks, projection.view, content);
   const textBlocks = flattenBlocks(parsed.blocks);
   const pairs = alignBlocks(projection.view, textBlocks);
-  // 3. Plan.
-  return planTarget({
-    document,
+  // 3. Target.
+  return targetFromPairs({
+    source,
     projection,
     incoming: textBlocks,
     alignment: pairs,
@@ -278,16 +298,18 @@ function planText(
 
 /**
  * Stages 4 to 6: the operations that change `current` to the result of the
- * plan. A plan without changes gives no operations.
+ * target. A target without changes gives no operations.
  *
  * With `onConflict: "reject"`, a conflict of the merge gives the error
  * `"conflict"`, and no operations.
  */
-function updateFromPlan(
+function updateFromTarget(
   rules: SchemaRules,
-  plan: { target: readonly LensBlock[]; warnings: PlanWarning[] },
+  {
+    target,
+    warnings,
+  }: { target: readonly LensBlock[]; warnings: TargetWarning[] },
   documents: {
-    /** The version that the client read, or `undefined` for `base: "current"`. */
     base: readonly LensBlock[] | undefined;
     current: readonly LensBlock[];
     onConflict: "keep-current" | "reject" | undefined;
@@ -295,17 +317,17 @@ function updateFromPlan(
   },
 ): ChangeOperations | ConflictError {
   const { base, current } = documents;
-  if (plan.target === (base ?? current)) {
-    return { operations: [], warnings: plan.warnings };
+  if (target === (base ?? current)) {
+    return { operations: [], warnings };
   }
   // 4. Merge: only for a version as `base`. The target is for that version,
   // and merges three-way with the current document (see `mergeTree`).
-  const merged: { blocks: readonly LensBlock[]; warnings: RebaseWarning[] } =
+  const merged: { blocks: readonly LensBlock[]; warnings: MergeWarning[] } =
     base === undefined
-      ? { blocks: plan.target, warnings: [] }
+      ? { blocks: target, warnings: [] }
       : mergeTree({
           base,
-          ours: plan.target,
+          ours: target,
           theirs: current,
           contentKindOf: rules.contentKindOf,
         });
@@ -323,7 +345,7 @@ function updateFromPlan(
   return {
     operations: diffDocuments(current, result),
     warnings: [
-      ...plan.warnings,
+      ...warnings,
       ...merged.warnings,
       ...mergedCellsRemoved(current, result),
     ],

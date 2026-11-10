@@ -21,7 +21,7 @@ export type TreeRow =
 
 export type KeptRow = Extract<TreeRow, { kind: "kept" }>;
 
-export type PlanWarning =
+export type TargetWarning =
   /**
    * The text moved, removed or split a part of a block that renders as more
    * than one view block, or that block has no text. An example is a code
@@ -34,7 +34,7 @@ export type PlanWarning =
   /**
    * The text changed or removed a part of the text that does not come from
    * one document block (`text` is that part, as the format shows it). The
-   * planner cannot apply this change, thus it does not use it. An empty view
+   * target stage cannot apply this change, thus it does not use it. An empty view
    * block without a document block gives no warning.
    */
   | { type: "unlinked-block-changed"; text: string }
