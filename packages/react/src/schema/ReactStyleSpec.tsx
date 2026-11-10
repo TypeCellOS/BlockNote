@@ -13,7 +13,7 @@ import {
   ReactMarkViewContext,
   ReactMarkViewRenderer,
 } from "@tiptap/react";
-import { FC, useContext } from "react";
+import { FC, useCallback, useContext } from "react";
 import { renderToDOMSpec } from "./@util/ReactRenderUtil.js";
 
 // this file is mostly analogoues to `customBlocks.ts`, but for React blocks
@@ -88,44 +88,46 @@ export function createReactStyleSpec<T extends StyleConfig>(
     addMarkView() {
       const editor: BlockNoteEditor<any, any, any> = this.options.editor;
 
-      return (markViewProps) => {
-        const renderResult = ReactMarkViewRenderer((props) => {
-          const ref = useContext(ReactMarkViewContext).markViewContentRef;
+      return ReactMarkViewRenderer((props) => {
+        const ref = useContext(ReactMarkViewContext).markViewContentRef;
 
-          if (!ref) {
-            throw new Error("markViewContentRef is not set");
-          }
+        if (!ref) {
+          throw new Error("markViewContentRef is not set");
+        }
 
-          const Content = styleImplementation.render;
-          return (
-            <Content
-              editor={editor}
-              contentRef={(element) => {
-                ref(element);
-                if (element) {
-                  element.dataset.markViewContent = "";
+        const view = props.view;
+        const contentRef = useCallback(
+          (element: HTMLElement | null) => {
+            ref(element);
+            if (element) {
+              element.dataset.markViewContent = "";
+              // React can attach this content after ProseMirror maps selection.
+              // EditorView.focus() resyncs it from the current editor state.
+              // Wait until the commit/transaction finishes, and only reconcile
+              // an already-focused editor.
+              queueMicrotask(() => {
+                if (!view.isDestroyed && view.hasFocus()) {
+                  view.focus();
                 }
-              }}
-              value={
-                styleConfig.propSchema === "boolean"
-                  ? undefined
-                  : props.mark.attrs.stringValue
-              }
-            />
-          );
-        })(markViewProps);
+              });
+            }
+          },
+          [ref, view],
+        );
 
-        /**
-         * See https://github.com/ueberdosis/tiptap/blob/5ba480bcd97a0e92f889019f1a65fc67fd3506f9/packages/react/src/ReactMarkViewRenderer.tsx#L98-L103
-         * If the `contentRef` is not set synchronously, the contentDOM will be null
-         * This is a hack to make sure that it is always defined so that Prosemirror can insert the content into the correct position
-         *
-         * (This is only an issue with Firefox)
-         */
-        (renderResult as any).didMountContentDomElement = true;
-
-        return renderResult;
-      };
+        const Content = styleImplementation.render;
+        return (
+          <Content
+            editor={editor}
+            contentRef={contentRef}
+            value={
+              styleConfig.propSchema === "boolean"
+                ? undefined
+                : props.mark.attrs.stringValue
+            }
+          />
+        );
+      });
     },
   });
 
