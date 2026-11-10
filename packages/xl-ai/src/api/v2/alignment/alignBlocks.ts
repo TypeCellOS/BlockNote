@@ -36,7 +36,7 @@ export type BlockPair = { aIndex: number; bIndex: number; moved?: true };
  * 1. One word diff of the texts of all blocks finds the overlap of each pair
  *    of blocks (see `textOverlaps`). It aligns the most words, thus a run of
  *    changed blocks stays aligned, also if a block moves past them. Two
- *    blocks match if they prefer each other (see {@link mutualBestPairs}),
+ *    blocks match if they prefer each other (see {@link overlapPairs}),
  *    and the overlap is at least half of the shorter text. Thus, a block with
  *    equal text matches, and a block with added sentences stays the same
  *    block. A block without words (for example an image or an empty
@@ -55,51 +55,65 @@ export type BlockPair = { aIndex: number; bIndex: number; moved?: true };
  * An equal text is a stronger sign than a position. Thus, rule 2 comes
  * before rule 3: a moved block does not match a different block at its new
  * position.
+ *
+ * This is not one published algorithm, but each rule uses a known method.
+ * Rule 1 uses a word diff (the patience method, then Myers, see
+ * `anchoredMatch`) and the overlap coefficient: the size of the shared words
+ * divided by the size of the shorter text. Rule 2 is the rule of Heckel
+ * (1978) for moved lines: a line that is in each file one time is the same
+ * line. Rule 3 is the rule of a line diff that shows one removed line and one
+ * added line at the same place as one changed line.
  */
 export function alignBlocks(
   a: readonly FlatBlock[],
   b: readonly FlatBlock[],
 ): BlockPair[] {
-  const ordered = mutualBestPairs(a, b);
-  const moved = movedPairs(a, b, ordered);
-  return [...ordered, ...moved, ...samePositionPairs(a, b, ordered, moved)];
+  const overlapping = overlapPairs(a, b);
+  const moved = movedPairs(a, b, overlapping);
+  const samePosition = samePositionPairs(a, b, overlapping, moved);
+  return [...overlapping, ...moved, ...samePosition];
 }
 
-/** Rule 3 of {@link alignBlocks}: pairs of blocks at the same position. */
+/**
+ * Rule 3 of {@link alignBlocks}: pairs of blocks at the same position.
+ *
+ * The pairs of rule 1 do not cross. Thus, they cut the two lists into gaps
+ * (see `gaps`): the blocks between two pairs of rule 1. The pairs of rule 2
+ * can cross, thus they do not cut the lists. A block of a pair of rule 2 is
+ * in a gap, but it has a match already. If a gap has one block without a
+ * match on each side, the two blocks are at the same position. In this
+ * example, P and Q match by rule 1, and m moved (rule 2). Thus, x and y are
+ * at the same position:
+ *
+ *     a:  P  x m  Q
+ *     b:  P  y    Q  m
+ */
 function samePositionPairs(
   a: readonly FlatBlock[],
   b: readonly FlatBlock[],
-  ordered: readonly MatchedPair[],
+  overlapping: readonly MatchedPair[],
   moved: readonly BlockPair[],
 ): BlockPair[] {
   const movedA = new Set(moved.map((pair) => pair.aIndex));
   const movedB = new Set(moved.map((pair) => pair.bIndex));
-  /** The only index in `[start, end)` that is not in `except`, or `undefined`. */
-  function onlyIndex(start: number, end: number, except: Set<number>) {
-    let only: number | undefined;
-    for (let index = start; index < end; index++) {
-      if (!except.has(index)) {
-        if (only !== undefined) {
-          return undefined;
-        }
-        only = index;
-      }
-    }
-    return only;
-  }
   const pairs: BlockPair[] = [];
-  for (const gap of gaps(ordered, a.length, b.length)) {
-    const aIndex = onlyIndex(gap.aStart, gap.aEnd, movedA);
-    const bIndex = onlyIndex(gap.bStart, gap.bEnd, movedB);
+  for (const gap of gaps(overlapping, a.length, b.length)) {
+    const restA = indexes(gap.aStart, gap.aEnd).filter((i) => !movedA.has(i));
+    const restB = indexes(gap.bStart, gap.bEnd).filter((i) => !movedB.has(i));
     if (
-      aIndex !== undefined &&
-      bIndex !== undefined &&
-      canBeSameBlock(a[aIndex].block, b[bIndex].block)
+      restA.length === 1 &&
+      restB.length === 1 &&
+      canBeSameBlock(a[restA[0]].block, b[restB[0]].block)
     ) {
-      pairs.push({ aIndex, bIndex });
+      pairs.push({ aIndex: restA[0], bIndex: restB[0] });
     }
   }
   return pairs;
+}
+
+/** The numbers from `start` to `end - 1`. */
+function indexes(start: number, end: number): number[] {
+  return Array.from({ length: end - start }, (_, i) => start + i);
 }
 
 /** Rule 2 of {@link alignBlocks}: pairs of moved blocks. */
@@ -203,8 +217,8 @@ function overlapText(block: BlockWithoutChildren): OverlapText {
 }
 
 /**
- * Returns the pairs of blocks that prefer each other, if the overlap is at
- * least {@link MIN_SHARE} of the shorter text:
+ * Rule 1 of {@link alignBlocks}: returns the pairs of blocks that prefer each
+ * other, if the overlap is at least {@link MIN_SHARE} of the shorter text:
  *
  * - A block of `a` (the view) prefers the block of `b` with the largest
  *   overlap. Thus, a split block stays the part with most of its text.
@@ -214,8 +228,12 @@ function overlapText(block: BlockWithoutChildren): OverlapText {
  *
  * On a tie, the earlier block wins. The overlaps come from one diff, thus the
  * pairs do not cross.
+ *
+ * The time is the time of the word diff (`textOverlaps`). The other steps
+ * use only the pairs of blocks with shared words. Because the diff does not
+ * cross, there are at most `a.length + b.length` of these pairs.
  */
-function mutualBestPairs(
+function overlapPairs(
   a: readonly FlatBlock[],
   b: readonly FlatBlock[],
 ): MatchedPair[] {

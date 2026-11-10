@@ -176,6 +176,22 @@ describe("alignBlocks", () => {
     ]);
   });
 
+  it("does not count a block that moved out of the gap of a block at the same position", () => {
+    // "moved item" moves from the gap between "a b" and "c d" to the end.
+    // "old text" and "new words" are then the only blocks in that gap.
+    expect(
+      align(
+        flat("a b", "old text", "moved item", "c d"),
+        flat("a b", "new words", "c d", "moved item"),
+      ),
+    ).toEqual([
+      [0, 0],
+      [1, 1],
+      [2, 3],
+      [3, 2],
+    ]);
+  });
+
   it("does not match a moved block if its text is not unique", () => {
     // The text "same" is on two blocks without a match in the second list.
     expect(
