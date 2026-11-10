@@ -5,7 +5,7 @@ import { updateDocument } from "../api.js";
 import { markdownFormat } from "../formats/markdown.js";
 import type { TextFormat } from "../formats/types.js";
 import { parseText } from "../parse/parseText.js";
-import { checkFormatShows } from "./formatCheck.js";
+import { assertBlocksRoundTrip } from "./assertBlocksRoundTrip.js";
 import { projectDocument } from "./projectDocument.js";
 
 /** A markdown format with a bug: its parse adds an image without a URL, which markdown does not show. */
@@ -17,7 +17,7 @@ const brokenFormat: TextFormat = {
   ],
 };
 
-describe("checkFormatShows", () => {
+describe("assertBlocksRoundTrip", () => {
   function setup() {
     const editor = BlockNoteEditor.create({
       initialContent: [{ id: "p", type: "paragraph", content: "Hello" }],
@@ -35,7 +35,7 @@ describe("checkFormatShows", () => {
 
     expect(blocks.map(({ type }) => type)).toEqual(["paragraph", "image"]);
     expect(() =>
-      checkFormatShows(editor, markdownFormat, blocks, view, text),
+      assertBlocksRoundTrip(editor, markdownFormat, blocks, view, text),
     ).not.toThrow();
   });
 
@@ -44,7 +44,7 @@ describe("checkFormatShows", () => {
     const text = "Hello";
 
     expect(() =>
-      checkFormatShows(
+      assertBlocksRoundTrip(
         editor,
         brokenFormat,
         brokenFormat.parse(editor, text),

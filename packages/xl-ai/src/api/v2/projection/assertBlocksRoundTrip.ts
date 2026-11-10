@@ -19,7 +19,7 @@ import { roundTripAlone, type ViewBlock } from "./projectDocument.js";
  * a document block, thus the format shows such a block. An unlinked view
  * block is no proof: the parse of a format with this bug also gives it.
  */
-export function checkFormatShows(
+export function assertBlocksRoundTrip(
   editor: BlockNoteEditor<any, any, any>,
   format: TextFormat,
   blocks: readonly LensBlock[],

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vite-plus/test";
 
 import type { LensBlock } from "../blocks/types.js";
 import { createColumnsEditor, createEditor } from "../testUtil/fixtures.js";
-import { parseJSON, withNewIds } from "./parseJSON.js";
+import { parseJSON, replaceDisallowedIds } from "./parseJSON.js";
 
 describe("parseJSON", () => {
   it("gives the blocks in the form that the document stores them", () => {
@@ -67,7 +67,7 @@ describe("parseJSON", () => {
   });
 });
 
-describe("withNewIds", () => {
+describe("replaceDisallowedIds", () => {
   it("gives a new ID to each block with an ID of the set, also in the children", () => {
     const block = (id: string, children: LensBlock[] = []): LensBlock => ({
       id,
@@ -77,7 +77,7 @@ describe("withNewIds", () => {
       children,
     });
 
-    const result = withNewIds(
+    const result = replaceDisallowedIds(
       [block("a", [block("d")]), block("b")],
       new Set(["d"]),
     );

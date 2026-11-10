@@ -17,10 +17,10 @@ import { applyOperations } from "./operations/applyOperations.js";
 import { dispatchUpdate } from "./operations/dispatch.js";
 import { diffDocuments } from "./operations/diffDocuments.js";
 import type { BlockOperation } from "./operations/types.js";
-import { parseJSON, withNewIds } from "./parse/parseJSON.js";
+import { parseJSON, replaceDisallowedIds } from "./parse/parseJSON.js";
 import { parseText, withoutByteOrderMark } from "./parse/parseText.js";
 import { documentText } from "./projection/cache.js";
-import { checkFormatShows } from "./projection/formatCheck.js";
+import { assertBlocksRoundTrip } from "./projection/assertBlocksRoundTrip.js";
 import { shadowsOf } from "./projection/shadows.js";
 import { mergeTree, type MergeWarning } from "./merge/tree.js";
 import { fitResult } from "./fit/fitResult.js";
@@ -240,7 +240,7 @@ type TargetOrError =
  * alignment: the JSON is the target. A block with the ID of a block that
  * another writer added after the read of the client (the ID is in `current`
  * but not in `source`) is a new block: the client cannot mean that block
- * (see `withNewIds`).
+ * (see `replaceDisallowedIds`).
  */
 function jsonTarget(
   editor: BlockNoteEditor<any, any, any>,
@@ -253,10 +253,13 @@ function jsonTarget(
     return parsed;
   }
   const read = new Set(new BlockTree(source).ids);
-  const foreignIds = new Set(
+  const disallowedIds = new Set(
     new BlockTree(current).ids.filter((id) => !read.has(id)),
   );
-  return { target: withNewIds(parsed.blocks, foreignIds), warnings: [] };
+  return {
+    target: replaceDisallowedIds(parsed.blocks, disallowedIds),
+    warnings: [],
+  };
 }
 
 /** The target of a text change (stages 1 to 3): `source` as `text` asks for it. */
@@ -276,12 +279,18 @@ function textTarget(
   }
   const projection = read.projection();
   // 2. Parse and align. The format must show each block of the parse (see
-  // `checkFormatShows`).
+  // `assertBlocksRoundTrip`).
   const parsed = parseText(editor, format, content);
   if (parsed.error !== undefined) {
     return parsed;
   }
-  checkFormatShows(editor, format, parsed.blocks, projection.view, content);
+  assertBlocksRoundTrip(
+    editor,
+    format,
+    parsed.blocks,
+    projection.view,
+    content,
+  );
   const textBlocks = flattenBlocks(parsed.blocks);
   const pairs = alignBlocks(projection.view, textBlocks);
   // 3. Target.

@@ -416,7 +416,7 @@ describe("a document after `removeBlocks` removed all blocks", () => {
 
 /**
  * A text with markup that the serializer does not write. The parse gives only
- * blocks that the format shows (rules of core, and `checkFormatShows`), thus
+ * blocks that the format shows (rules of core, and `assertBlocksRoundTrip`), thus
  * the laws hold.
  */
 describe("a text with markup that the serializer does not write", () => {

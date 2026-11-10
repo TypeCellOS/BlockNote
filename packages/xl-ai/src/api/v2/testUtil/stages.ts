@@ -11,7 +11,7 @@ import { fitResult } from "../fit/fitResult.js";
 import type { TextFormat } from "../formats/types.js";
 import { diffDocuments } from "../operations/diffDocuments.js";
 import { parseText } from "../parse/parseText.js";
-import { checkFormatShows } from "../projection/formatCheck.js";
+import { assertBlocksRoundTrip } from "../projection/assertBlocksRoundTrip.js";
 import { correspond } from "../target/correspond.js";
 import { targetFromPairs } from "../target/targetFromPairs.js";
 import {
@@ -104,7 +104,7 @@ export function withNewIdPlaceholders(
 
 /**
  * The text blocks of a text, as `textTarget` in `api.ts` gives them: the parse,
- * checked (see `checkFormatShows`), in a flat list.
+ * checked (see `assertBlocksRoundTrip`), in a flat list.
  */
 export function textBlocksOf(
   editor: BlockNoteEditor<any, any, any>,
@@ -116,6 +116,6 @@ export function textBlocksOf(
   if (parsed.error !== undefined) {
     throw new Error(parsed.error);
   }
-  checkFormatShows(editor, format, parsed.blocks, view, text);
+  assertBlocksRoundTrip(editor, format, parsed.blocks, view, text);
   return flattenBlocks(parsed.blocks);
 }

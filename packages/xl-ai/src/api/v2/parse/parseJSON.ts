@@ -31,16 +31,19 @@ export function parseJSON(
 }
 
 /**
- * Returns the blocks, where a block with an ID of `ids` gets a new ID: it is
- * a new block. The JSON write gives the IDs that the client cannot mean: the
- * IDs of the blocks that other writers added after the read of the client.
+ * Returns the blocks, where a block with an ID of `disallowedIds` gets a new
+ * ID: it is a new block. The JSON write gives the IDs that the client cannot
+ * mean: the IDs of the blocks that other writers added after the read of the
+ * client.
  */
-export function withNewIds(
+export function replaceDisallowedIds(
   blocks: readonly LensBlock[],
-  ids: ReadonlySet<string>,
+  disallowedIds: ReadonlySet<string>,
 ): LensBlock[] {
   function fix(block: LensBlock): LensBlock {
-    const id = ids.has(block.id) ? UniqueID.options.generateID() : block.id;
+    const id = disallowedIds.has(block.id)
+      ? UniqueID.options.generateID()
+      : block.id;
     return { ...block, id, children: block.children.map(fix) };
   }
   return blocks.map(fix);
