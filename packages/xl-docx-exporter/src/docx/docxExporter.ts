@@ -25,7 +25,11 @@ import {
 import { Exporter, ExporterOptions } from "@blocknote/core";
 import { corsProxyResolveFileUrl } from "@shared/api/corsProxy.js";
 import { loadFileBuffer } from "@shared/util/fileUtil.js";
-import { DOCX_LIST_LEVEL_COUNT } from "./listLevels.js";
+import {
+  clampListLevel,
+  DOCX_LIST_LEVEL_COUNT,
+  listReference,
+} from "./listLevels.js";
 import {
   DOCXBlock,
   DOCXBlockResult,
@@ -35,6 +39,8 @@ import {
 
 // get constructor arg type from Document
 type DocumentOptions = Partial<ConstructorParameters<typeof Document>[0]>;
+type ListType = "bulletListItem" | "numberedListItem";
+type ListDefinition = { type: ListType; levels: Map<number, ListType> };
 
 const DEFAULT_TAB_STOP =
   /* default font size */ 16 *
@@ -125,6 +131,7 @@ export class DOCXExporter<
    * document number/bullet as if they were a single list. See issue #2225.
    */
   private numberingInstanceCounter = 0;
+  private listDefinitions = new Map<number, ListDefinition>();
 
   /**
    * Mostly for internal use, you probably want to use `toBlob` or `toDocxJsDocument` instead.
@@ -142,36 +149,64 @@ export class DOCXExporter<
   private async transformBlockResults(
     blocks: Block<B, I, S>[],
     nestingLevel: number,
+    parentInstance?: number,
   ): Promise<DOCXBlock[]> {
     const ret: DOCXBlock[] = [];
 
     // The top-level call starts a fresh document, so restart instance numbering.
     if (nestingLevel === 0) {
       this.numberingInstanceCounter = 0;
+      this.listDefinitions.clear();
     }
 
-    // A list in Word is a maximal run of consecutive sibling list items of the
-    // same type; a break (any other block) or a switch between bullet/numbered
-    // starts a new list. Each such run gets its own numbering instance so it
-    // renders as a separate list rather than continuing the previous one.
-    let runListType: string | undefined;
+    // A run of sibling items continues its parent numbering at the next level.
+    // OOXML fixes the marker type per level, so incompatible runs must instead
+    // get their own definition. Breaks/type switches also need a fresh instance
+    // to restart their counters without restarting the parent (#2225/#2227).
+    let runListType: ListType | undefined;
     let runInstance = 0;
 
     for (const b of blocks) {
       let numberingInstance = 0;
       if (b.type === "bulletListItem" || b.type === "numberedListItem") {
-        if (b.type !== runListType) {
-          runInstance = ++this.numberingInstanceCounter;
-          runListType = b.type;
+        // Generic block schemas do not narrow b.type to the literal union.
+        const type: ListType =
+          b.type === "bulletListItem" ? "bulletListItem" : "numberedListItem";
+        if (type !== runListType) {
+          const level = clampListLevel(nestingLevel);
+          const parent =
+            parentInstance === undefined
+              ? undefined
+              : this.listDefinitions.get(parentInstance);
+          const parentType = parent?.levels.get(level);
+          if (
+            parentInstance !== undefined &&
+            parent &&
+            nestingLevel < DOCX_LIST_LEVEL_COUNT &&
+            (parentType === undefined || parentType === type)
+          ) {
+            runInstance = parentInstance;
+            parent.levels.set(level, type);
+          } else {
+            runInstance = ++this.numberingInstanceCounter;
+            this.listDefinitions.set(runInstance, {
+              type,
+              levels: new Map([[level, type]]),
+            });
+          }
+          parentInstance = undefined;
+          runListType = type;
         }
         numberingInstance = runInstance;
       } else {
         runListType = undefined;
+        parentInstance = undefined;
       }
 
       const children = await this.transformBlockResults(
         b.children,
         nestingLevel + 1,
+        numberingInstance || undefined,
       );
 
       const placesChildren = this.placesChildren(b);
@@ -274,45 +309,41 @@ export class DOCXExporter<
     // (#2226). These Unicode glyphs render in the document font, so they don't
     // depend on Symbol/Wingdings being installed.
     const bullets = ["•", "○", "▪"];
+    function listLevels(type: ListType, levels = new Map<number, ListType>()) {
+      return Array.from({ length: DOCX_LIST_LEVEL_COUNT }, (_, i) => {
+        const bullet = (levels.get(i) ?? type) === "bulletListItem";
+        return {
+          start: 1,
+          level: i,
+          format: bullet ? LevelFormat.BULLET : LevelFormat.DECIMAL,
+          text: bullet ? bullets[i % bullets.length] : `%${i + 1}.`,
+          alignment: AlignmentType.LEFT,
+          style: {
+            paragraph: {
+              indent: {
+                left: DEFAULT_TAB_STOP * (i + 1),
+                hanging: DEFAULT_TAB_STOP,
+              },
+            },
+          },
+        };
+      });
+    }
     return {
       numbering: {
         config: [
           {
             reference: "blocknote-numbered-list",
-            levels: Array.from({ length: DOCX_LIST_LEVEL_COUNT }, (_, i) => ({
-              start: 1,
-              level: i,
-              format: LevelFormat.DECIMAL,
-              text: `%${i + 1}.`,
-              alignment: AlignmentType.LEFT,
-              style: {
-                paragraph: {
-                  indent: {
-                    left: DEFAULT_TAB_STOP * (i + 1),
-                    hanging: DEFAULT_TAB_STOP,
-                  },
-                },
-              },
-            })),
+            levels: listLevels("numberedListItem"),
           },
           {
             reference: "blocknote-bullet-list",
-            levels: Array.from({ length: DOCX_LIST_LEVEL_COUNT }, (_, i) => ({
-              start: 1,
-              level: i,
-              format: LevelFormat.BULLET,
-              text: bullets[i % bullets.length],
-              alignment: AlignmentType.LEFT,
-              style: {
-                paragraph: {
-                  indent: {
-                    left: DEFAULT_TAB_STOP * (i + 1),
-                    hanging: DEFAULT_TAB_STOP,
-                  },
-                },
-              },
-            })),
+            levels: listLevels("bulletListItem"),
           },
+          ...Array.from(this.listDefinitions, ([instance, definition]) => ({
+            reference: listReference(instance),
+            levels: listLevels(definition.type, definition.levels),
+          })),
         ],
       },
       fonts: await this.getFonts(),
@@ -373,12 +404,14 @@ export class DOCXExporter<
       documentOptions: {},
     },
   ) {
+    // Discover each list's level formats before building the numbering config.
+    const children = await this.transformBlocks(blocks);
     const doc = new Document({
       ...(await this.createDefaultDocumentOptions(options.locale)),
       ...options.documentOptions,
       sections: [
         {
-          children: await this.transformBlocks(blocks),
+          children,
           ...options.sectionOptions,
         },
       ],
