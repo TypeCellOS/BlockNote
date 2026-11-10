@@ -79,32 +79,13 @@ export type YDocChangeResult =
  * {@link YDocWriteFromVersion}). With `merge: "yjs"`, the operations of the
  * result are for `base`, else they are for the current document.
  */
-// eslint-disable-next-line complexity -- Follow-up: move the checks of the binding to a function.
 export function updateYDoc(
   editor: BlockNoteEditor<any, any, any>,
   fragment: Y.XmlFragment,
   change: (TextChange | JSONChange) & YDocWriteFromVersion,
 ): YDocChangeResult {
-  const fork = editor.getExtension(ForkYDocExtension);
-  const ydoc = fragment.doc;
-  if (fork === undefined || editor.headless || ydoc === null) {
-    throw new Error(
-      "The editor must be bound to the fragment of a Y.Doc (withCollaboration), and mounted.",
-    );
-  }
-  if (fork.store.state.isForked) {
-    // The write would go into that fork, and its merge would end the fork of
-    // the app (for example a version preview).
-    throw new Error(
-      "The editor shows a fork of the Y.Doc (for example a version preview). End the fork first.",
-    );
-  }
+  const { fork, ydoc } = boundYDoc(editor, fragment);
   requireBase(change.base);
-  const { onConflict, merge } = change;
-  const input: TextChange | JSONChange =
-    change.document === undefined
-      ? { format: change.format, text: change.text }
-      : { document: change.document };
   const base = change.base === "current" ? undefined : change.base;
   const before = Y.encodeStateVector(ydoc);
   if (base !== undefined) {
@@ -115,49 +96,113 @@ export function updateYDoc(
     // of the result then contains that update too.
     Y.applyUpdate(ydoc, base);
   }
+  const { write, yjs } = writeOfChange(editor, fragment, change, base);
+  // With `merge: "yjs"`, the write goes to a fork of the Y.Doc at `base`,
+  // and Yjs merges it. Else, it goes to a fork of the current Y.Doc.
+  const update = writeInFork(fork, yjs ? base : undefined, () => {
+    // With `merge: "yjs"`, the layout blocks stay (see `YDocWriteFromVersion`).
+    const result = operationsOf(editor, write, editor.document, yjs);
+    if (result.error === undefined) {
+      dispatchOperations(editor, result.operations);
+    }
+    return result;
+  });
+  return update.error === undefined
+    ? { ...update, update: Y.encodeStateAsUpdate(ydoc, before) }
+    : update;
+}
+
+/** The part of the fork extension of core (`ForkYDocExtension`) that a write uses. */
+type Fork = {
+  fork(options?: { initialUpdate?: Uint8Array }): void;
+  merge(options: { keepChanges: boolean }): void;
+};
+
+/**
+ * The fork extension and the Y.Doc of an editor that is bound to
+ * `fragment`. Throws if the editor is not bound and mounted, or if it shows
+ * a fork: the write would go into that fork, and its merge would end the
+ * fork of the app (for example a version preview).
+ */
+function boundYDoc(
+  editor: BlockNoteEditor<any, any, any>,
+  fragment: Y.XmlFragment,
+): { fork: Fork; ydoc: Y.Doc } {
+  const fork = editor.getExtension(ForkYDocExtension);
+  const ydoc = fragment.doc;
+  if (fork === undefined || editor.headless || ydoc === null) {
+    throw new Error(
+      "The editor must be bound to the fragment of a Y.Doc (withCollaboration), and mounted.",
+    );
+  }
+  if (fork.store.state.isForked) {
+    throw new Error(
+      "The editor shows a fork of the Y.Doc (for example a version preview). End the fork first.",
+    );
+  }
+  return { fork, ydoc };
+}
+
+/**
+ * The change that the editor writes, and if Yjs merges it (see
+ * {@link YDocWriteFromVersion}). Without changes of other writers after
+ * `base`, there is no merge: the change is for the current document. A base
+ * without content and a Y.Doc without content are the same empty document.
+ */
+function writeOfChange(
+  editor: BlockNoteEditor<any, any, any>,
+  fragment: Y.XmlFragment,
+  change: (TextChange | JSONChange) & YDocWriteFromVersion,
+  base: Uint8Array | undefined,
+): { write: DocumentChange; yjs: boolean } {
+  const input: TextChange | JSONChange =
+    change.document === undefined
+      ? { format: change.format, text: change.text }
+      : { document: change.document };
   const baseFragment =
     base === undefined
       ? undefined
       : findTypeInOtherYdoc(fragment, docFromState(base));
-
-  // With `merge: "yjs"`, the write goes to a fork of the Y.Doc at `base`,
-  // and Yjs merges it. Else, it goes to a fork of the current Y.Doc. Thus,
-  // a write that fails in the middle does not change the Y.Doc.
   const yjs =
-    merge === "yjs" && baseFragment !== undefined && baseFragment.length > 0;
-  // A base without content and a Y.Doc without content are the same empty
-  // document: no other writer changed it.
+    change.merge === "yjs" &&
+    baseFragment !== undefined &&
+    baseFragment.length > 0;
   const unchanged =
     baseFragment === undefined ||
     (baseFragment.length === 0 && fragment.length === 0);
-  let update: ChangeResult | undefined;
-  fork.fork({ initialUpdate: yjs ? base : undefined });
-  try {
-    // Without changes of other writers, there is no conflict.
-    const writeChange: DocumentChange =
+  return {
+    write:
       yjs || unchanged
         ? { ...input, base: "current" }
         : {
             ...input,
             base: yXmlFragmentToBlocks(editor, baseFragment),
-            onConflict,
-          };
-    // With `merge: "yjs"`, the layout blocks stay (see `YDocWriteFromVersion`).
-    const result = operationsOf(editor, writeChange, editor.document, yjs);
-    if (result.error === undefined) {
-      dispatchOperations(editor, result.operations);
-    }
-    // Only after the dispatch: if it throws, the fork does not keep a part
-    // of the write.
-    update = result;
+            onConflict: change.onConflict,
+          },
+    yjs,
+  };
+}
+
+/**
+ * Runs the write in a fork of the Y.Doc, and keeps its changes only if it
+ * gives no error. Thus, a write that fails (an error, or an exception in
+ * the middle) does not change the Y.Doc.
+ */
+function writeInFork(
+  fork: Fork,
+  initialUpdate: Uint8Array | undefined,
+  write: () => ChangeResult,
+): ChangeResult {
+  let result: ChangeResult | undefined;
+  fork.fork({ initialUpdate });
+  try {
+    result = write();
   } finally {
     fork.merge({
-      keepChanges: update !== undefined && update.error === undefined,
+      keepChanges: result !== undefined && result.error === undefined,
     });
   }
-  return update.error === undefined
-    ? { ...update, update: Y.encodeStateAsUpdate(ydoc, before) }
-    : update;
+  return result;
 }
 
 function docFromState(state: Uint8Array): Y.Doc {
