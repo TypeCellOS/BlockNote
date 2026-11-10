@@ -4,10 +4,10 @@ import { EditorState } from "prosemirror-state";
 import { describe, expect, it } from "vite-plus/test";
 
 import type { LensBlock } from "../blocks/types.js";
-import { fixBlockIds, withDistinctIds } from "./blockIds.js";
+import { makeIdsDistinct, withDistinctIds } from "./blockIds.js";
 
-describe("fixBlockIds", () => {
-  it("gives an ID to each block without an ID, and keeps the other IDs", () => {
+describe("makeIdsDistinct", () => {
+  it("throws for a block without an ID, and keeps the IDs of a valid document", () => {
     const editor = BlockNoteEditor.create({
       initialContent: [{ id: "a", type: "paragraph", content: "A" }],
     });
@@ -18,19 +18,10 @@ describe("fixBlockIds", () => {
       throw new Error("The schema cannot fill a document");
     }
     const tr = EditorState.create({ doc: filled }).tr;
-    fixBlockIds(tr);
-
-    const ids: unknown[] = [];
-    tr.doc.descendants((node) => {
-      if (node.type.isInGroup("bnBlock")) {
-        ids.push(node.attrs.id);
-      }
-    });
-    expect(ids).toHaveLength(1);
-    expect(typeof ids[0]).toBe("string");
+    expect(() => makeIdsDistinct(tr)).toThrow(/has no ID/);
 
     const kept = EditorState.create({ doc: editor.prosemirrorState.doc }).tr;
-    fixBlockIds(kept);
+    makeIdsDistinct(kept);
     expect(kept.steps).toHaveLength(0);
   });
 
@@ -42,7 +33,7 @@ describe("fixBlockIds", () => {
       ],
     });
     const tr = EditorState.create({ doc: editor.prosemirrorState.doc }).tr;
-    fixBlockIds(tr);
+    makeIdsDistinct(tr);
 
     const ids: unknown[] = [];
     tr.doc.descendants((node) => {
@@ -55,7 +46,7 @@ describe("fixBlockIds", () => {
 });
 
 describe("withDistinctIds", () => {
-  it("gives the blocks the IDs that fixBlockIds gives the document", () => {
+  it("gives the blocks the IDs that makeIdsDistinct gives the document", () => {
     const block = (id: string, children: LensBlock[] = []): LensBlock => ({
       id,
       type: "paragraph",

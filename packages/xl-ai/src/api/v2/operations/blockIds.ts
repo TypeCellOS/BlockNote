@@ -1,4 +1,3 @@
-import { UniqueID } from "@blocknote/core/extensions";
 import type { Transform } from "prosemirror-transform";
 
 import type { LensBlock } from "../blocks/types.js";
@@ -22,19 +21,20 @@ function distinctId(id: string, used: ReadonlySet<string>): string {
 }
 
 /**
- * Gives a new ID to each block without an ID, and the ID of
- * {@link distinctId} to each block with the ID of an earlier block. Then each
- * ID identifies one block. ProseMirror can make a block without an ID, for
- * example when it fills a group that became empty. A document can have two
- * blocks with one ID, for example from a Y.Doc after two writers moved the
- * same block. In an editor, the UniqueID extension does this, but not for a
- * transaction without an editor (for example on a Y.Doc), and not for a
- * remote change of a Y.Doc.
+ * Gives the ID of {@link distinctId} to each block with the ID of an earlier
+ * block. Then each ID identifies one block. A document can have two blocks
+ * with one ID, for example from a Y.Doc after two writers moved the same
+ * block: the ID extension of the editor does not fix a remote change of a
+ * Y.Doc.
  *
- * As in the UniqueID extension, a block with the mark `y-attributed-delete`
- * does not count: it is a deleted copy of a block, with the same ID.
+ * Throws for a block without an ID. The ID extension gives each new block an
+ * ID (also in an editor without a view). Thus, such a block is a bug, for
+ * example of another client of a Y.Doc.
+ *
+ * As in the ID extension, a block with the mark `y-attributed-delete` does
+ * not count: it is a deleted copy of a block, with the same ID.
  */
-export function fixBlockIds(tr: Transform): void {
+export function makeIdsDistinct(tr: Transform): void {
   const ids = new Set<string>();
   tr.doc.descendants((node, pos) => {
     if (
@@ -44,7 +44,12 @@ export function fixBlockIds(tr: Transform): void {
       return;
     }
     const own: string | null = node.attrs.id;
-    const id = own ? distinctId(own, ids) : UniqueID.options.generateID();
+    if (!own) {
+      throw new Error(
+        "A block of the document has no ID. The editor gives each block an ID.",
+      );
+    }
+    const id = distinctId(own, ids);
     ids.add(id);
     if (id !== own) {
       // A change of attributes does not move positions.
@@ -54,7 +59,7 @@ export function fixBlockIds(tr: Transform): void {
 }
 
 /**
- * The blocks with the ID rule of {@link fixBlockIds}, in document order: a
+ * The blocks with the ID rule of {@link makeIdsDistinct}, in document order: a
  * block with the ID of an earlier block gets the ID of {@link distinctId}.
  * The lens applies it to a base. Thus, a base with two blocks with one ID
  * agrees with the current document.

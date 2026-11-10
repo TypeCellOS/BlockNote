@@ -362,9 +362,9 @@ describe("a document with two blocks with one ID", () => {
 });
 
 describe("a document after `removeBlocks` removed all blocks", () => {
-  it("gives the block without an ID an ID, and writes the text", () => {
-    // In an editor without a view, the block that fills the empty document
-    // has no ID.
+  it("writes the text", () => {
+    // The editor gives the block that fills the empty document an ID, also
+    // without a view (a core fix). Before, that block had no ID.
     const editor = createEditor([
       { id: "a", type: "paragraph", content: "Alpha" },
     ]);

@@ -8,7 +8,7 @@ In lens terms, the document is the source and the text is the view. The `seriali
 
 - `getDocumentText(editor, format)`: returns the document as text.
 - `computeOperations(editor, change)`: returns the operations that change the document to agree with the change, and the warnings (`ChangeResult`, a discriminated union). Nothing changes. The operations use block IDs.
-- `updateDocument(editor, change)`: computes the operations and applies them in one step: in one transaction, or for an editor that is bound to a Y.Doc, in groups (see "Dispatch"). First, the blocks without an ID get an ID (in an editor without a view, `removeBlocks` can leave such a block, and `editor.document` then shows a new ID on each read).
+- `updateDocument(editor, change)`: computes the operations and applies them in one step: in one transaction, or for an editor that is bound to a Y.Doc, in groups (see "Dispatch"). First, the blocks with the ID of an earlier block get a distinct ID (`makeIdsDistinct`). A block without an ID is a bug of the document, and the write throws (the editor gives each block an ID, also without a view).
 - `applyOperations(tr, operations)`: applies operations to a transaction of the caller, for example to show them as suggestions.
 - The change (`DocumentChange`) is one of two kinds, with the version that the client read:
   - A text: `{ format, text, base }` (`TextChange`). The blocks of the text pair with the blocks of the document by the location of their text (see "Identity").
@@ -71,7 +71,7 @@ The pipeline computes the target of the text for `base`. With `merge: "lens"` (t
 
 Limits of y-prosemirror v13, also between two editors without the lens:
 
-- A move is a removal and an insert. Thus, if two writers move the same block, the Y.Doc can have the block two times, with the same ID. An editor that reads such a Y.Doc gives the two blocks new IDs (UniqueID), but it does not write these IDs to the Y.Doc. In a base, the lens gives a later block with the ID of an earlier block the ID with a number (for example `a-2`, as in `fixBlockIds`). Thus, a write never duplicates content.
+- A move is a removal and an insert. Thus, if two writers move the same block, the Y.Doc can have the block two times, with the same ID. An editor that reads such a Y.Doc gives the two blocks new IDs (UniqueID), but it does not write these IDs to the Y.Doc. In a base, the lens gives a later block with the ID of an earlier block the ID with a number (for example `a-2`, as in `makeIdsDistinct`). Thus, a write never duplicates content.
 - Yjs does not know the schema: as in each client, y-prosemirror removes the content of a merged document that does not fit the schema. For example, the children of a block are in one block group, which must have a child. If two clients add the first child of one block at the same time, or a client removes the last child of a block while another client adds a child to it, the merged block group can be lost, with these children.
 
 With `merge: "yjs"`, Yjs merges the write itself. The operations for `base` apply to a fork of the Y.Doc at `base` (`ForkYDocExtension` of core). Then Yjs merges the fork into the Y.Doc. The operations of the result are for `base`. There are no conflicts and no rebase warnings:

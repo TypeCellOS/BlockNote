@@ -10,7 +10,7 @@ import { flattenBlocks } from "./blocks/flatten.js";
 import { type SchemaRules, schemaRulesOf } from "./blocks/schema.js";
 import type { LensBlock } from "./blocks/types.js";
 import type { TextFormat } from "./formats/types.js";
-import { fixBlockIds, withDistinctIds } from "./operations/blockIds.js";
+import { makeIdsDistinct, withDistinctIds } from "./operations/blockIds.js";
 import { applyOperations } from "./operations/applyOperations.js";
 import { dispatchUpdate } from "./operations/dispatch.js";
 import { diffDocuments } from "./operations/diffDocuments.js";
@@ -152,10 +152,9 @@ export type DocumentChange = (TextChange | JSONChange) &
  * The operations refer to the blocks of `editor.document` by ID. If two
  * blocks have one ID (for example in a Y.Doc, after two writers moved the
  * same block), the later block counts as the ID with a number (`x-2`, see
- * `withDistinctIds`), as `applyOperations` and `updateDocument` give it. In
- * an editor without a view, a block can have no ID (for example after
- * `removeBlocks` removed all blocks). {@link updateDocument} gives these
- * blocks an ID first.
+ * `withDistinctIds`), as `applyOperations` and `updateDocument` give it. A
+ * block without an ID is a bug: the operations of `updateDocument` throw
+ * for it (see `makeIdsDistinct`).
  */
 export function computeOperations(
   editor: BlockNoteEditor<any, any, any>,
@@ -167,7 +166,7 @@ export function computeOperations(
 /**
  * Computes the operations of the change (see {@link computeOperations}), and
  * applies them to the editor, in one step (see {@link write}). First, the
- * blocks without an ID get an ID.
+ * blocks with the ID of an earlier block get a distinct ID.
  */
 export function updateDocument(
   editor: BlockNoteEditor<any, any, any>,
@@ -332,9 +331,9 @@ function updateFromPlan(
 
 /**
  * Stages 7 and 8: computes an update for the document of the editor, and
- * applies it. First, the blocks without an ID get an ID: the update is for
- * the document with these IDs, thus the operations refer only to IDs that
- * the document has. The steps of the IDs and of the operations go to the
+ * applies it. First, the blocks with the ID of an earlier block get a
+ * distinct ID (see `makeIdsDistinct`): the update is for the document with
+ * these IDs, thus the operations refer only to IDs that the document has. The steps of the IDs and of the operations go to the
  * editor in one transaction, or, for an editor that is bound to a Y.Doc, in
  * groups (see `dispatchUpdate`). On an error, the document does not change.
  */
@@ -343,7 +342,7 @@ export function write(
   compute: (current: readonly LensBlock[]) => ChangeResult,
 ): ChangeResult {
   const tr = editor.prosemirrorState.tr;
-  fixBlockIds(tr);
+  makeIdsDistinct(tr);
   const update = compute(docToBlocks(tr.doc));
   if (update.error === undefined) {
     applyOperations(tr, update.operations);

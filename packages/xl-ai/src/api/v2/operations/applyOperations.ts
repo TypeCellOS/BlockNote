@@ -15,7 +15,7 @@ import {
   type LensPartialBlock,
   type LensTableContent,
 } from "../blocks/types.js";
-import { fixBlockIds } from "./blockIds.js";
+import { makeIdsDistinct } from "./blockIds.js";
 import { gaps, isChanged } from "../sequence/gaps.js";
 import { myersMatch } from "../sequence/myers.js";
 import { applyToBlocks, type BlockShape } from "./applyToBlocks.js";
@@ -37,8 +37,10 @@ import type { BlockOperation } from "./types.js";
  *   block keeps its node, with its comments) and new nodes. Only a list
  *   that must have children and has none gets the fill of the schema.
  *
- * At the end, each block has one ID that no other block has. The caller
- * dispatches the transaction. Thus, a caller can show the steps as
+ * First, the blocks with the ID of an earlier block get a distinct ID (see
+ * `makeIdsDistinct`), as `computeOperations` counts them. A block that the
+ * fill of the schema adds gets its ID from the ID extension of the editor,
+ * when the transaction applies. The caller dispatches the transaction. Thus, a caller can show the steps as
  * suggestions, for example. Note: for an editor that is bound to a Y.Doc,
  * use `updateDocument` or `updateYDoc`. y-prosemirror v13
  * can write a change into a different block if one transaction has inserts
@@ -48,7 +50,7 @@ export function applyOperations(
   tr: Transaction,
   operations: readonly BlockOperation[],
 ): void {
-  fixBlockIds(tr);
+  makeIdsDistinct(tr);
   const updates = operations.flatMap((operation) =>
     operation.type === "update" ? [operation] : [],
   );
@@ -58,7 +60,6 @@ export function applyOperations(
   if (updates.length < operations.length) {
     applyStructure(tr, applyToBlocks(docToBlocks(tr.doc), operations));
   }
-  fixBlockIds(tr);
 }
 
 /**
