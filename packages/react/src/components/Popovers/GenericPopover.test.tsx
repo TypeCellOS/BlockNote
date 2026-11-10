@@ -3,12 +3,7 @@
 // a CSP `style-src` without 'unsafe-inline' blocks. jsdom does not enforce
 // CSP, but it does perform the assignment, so this test fails on that write
 // and on a close transition that drops or replaces the open content.
-import {
-  act,
-  type CSSProperties,
-  type ReactElement,
-  type ReactNode,
-} from "react";
+import { act, type CSSProperties, type ReactElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 
@@ -25,7 +20,6 @@ declare global {
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
 const POPOVER_CLASS = "bn-test-popover";
-const LABEL_ATTR = "data-testid";
 const LABEL_ID = "popover-label";
 
 let reactHost: HTMLDivElement;
@@ -53,9 +47,7 @@ function popover() {
 }
 
 function labels() {
-  return document.querySelectorAll<HTMLElement>(
-    `[${LABEL_ATTR}="${LABEL_ID}"]`,
-  );
+  return document.querySelectorAll<HTMLElement>(`[data-testid="${LABEL_ID}"]`);
 }
 
 function Harness(props: {
@@ -69,7 +61,7 @@ function Harness(props: {
     color: "rgb(255, 0, 0)",
     "--bn-test": "1",
   };
-  const content: ReactNode = (
+  const content = (
     <span data-testid={LABEL_ID} style={labelStyle}>
       {props.marker}
     </span>
@@ -129,15 +121,13 @@ describe("GenericPopover close transition", () => {
     if (!descriptor?.set || !descriptor.get) {
       throw new Error("Expected Element.innerHTML to be configurable");
     }
+    // oxlint-disable-next-line typescript/unbound-method -- Called with the target element as `this` below.
+    const setInnerHTML = descriptor.set;
     Object.defineProperty(Element.prototype, "innerHTML", {
-      configurable: true,
-      enumerable: descriptor.enumerable,
-      get() {
-        return descriptor.get!.call(this);
-      },
+      ...descriptor,
       set(this: Element, value: string) {
         writes.push({ element: this, value: String(value) });
-        descriptor.set!.call(this, value);
+        setInnerHTML.call(this, value);
       },
     });
 

@@ -164,15 +164,7 @@ export const GenericPopover = (
   // possible both are needed.
   const { getFloatingProps } = useInteractions([dismiss, hover]);
 
-  // Cloned DOM nodes from the last render while the popover was open, shown
-  // again for the close transition. The React children may rerender during
-  // that time (often to nothing), which would cancel the exit animation.
-  //
-  // Nodes, not an HTML string: re-parsing `innerHTML` reapplies the inline
-  // `style` attributes those children carry, and a CSP `style-src` without
-  // 'unsafe-inline' blocks every one of them. `cloneNode` keeps the styles
-  // without a parse.
-  const snapshot = useRef<Node[]>([]);
+  const snapshot = useRef<NodeListOf<ChildNode> | undefined>(undefined);
   const ref = useRef<HTMLDivElement>(null);
   const mergedRefs = useMergeRefs([ref, refs.setFloating]);
 
@@ -215,50 +207,43 @@ export const GenericPopover = (
     }
   }, [props.reference, refs, props.focusManagerProps?.disabled, editor]);
 
-  // Stores clones of the popover's DOM while it is open. `props.children` is
-  // a dependency because that DOM is the rendered children.
-  useEffect(() => {
-    if (status === "initial" || status === "open") {
-      // Only store while the children have rendered something. In the
-      // render where a controller flips `open` to `false`, its children are
-      // typically already gone while `status` is still "open", and that
-      // empty state must not replace the snapshot the closing popover is
-      // about to show. The wrapper is never truly empty though: it always
-      // contains the `PortalElementAnchor` holder.
-      if (ref.current && hasChildrenBesidesPortalElementAnchor(ref.current)) {
-        snapshot.current = Array.from(ref.current.childNodes, (node) =>
-          node.cloneNode(true),
-        );
+  // Stores the last rendered DOM of the popover while it was open. The
+  // snapshot is used while the popover is closing, as the React children
+  // may rerender during this time, causing unwanted behaviour.
+  useEffect(
+    () => {
+      if (status === "initial" || status === "open") {
+        // Only store while the children have rendered something. In the
+        // render where a controller flips `open` to `false`, its children are
+        // typically already gone while `status` is still "open", and that
+        // empty state must not replace the snapshot the closing popover is
+        // about to show. The wrapper is never truly empty though: it always
+        // contains the `PortalElementAnchor` holder.
+        if (ref.current && hasChildrenBesidesPortalElementAnchor(ref.current)) {
+          snapshot.current = ref.current.cloneNode(true).childNodes;
+        }
       }
-    }
-  }, [status, props.reference, props.children]);
+    },
+    // `props.children` is added to the deps, since it's ultimately the DOM of
+    // the children that we're storing.
+    [status, props.reference, props.children],
+  );
 
-  // While closing, the wrapper renders no React children (see below) and
-  // these clones are attached before paint. Cleanup runs before the next
-  // commit, and again when `status` leaves "close", so a popover that opens
-  // again during the fade doesn't keep the snapshot next to its real
-  // children. Re-attaching on every commit covers transition and position
-  // updates: those render the wrapper with no React children, and a host
-  // update can drop nodes React does not own.
+  // Attach clones before paint, avoiding HTML parsing and its inline-style CSP checks.
   useIsomorphicLayoutEffect(() => {
-    if (status !== "close" || !ref.current) {
+    if (status !== "close" || !ref.current || !snapshot.current) {
       return;
     }
 
-    const parent = ref.current;
-    const nodes = snapshot.current;
-    for (const node of nodes) {
-      parent.appendChild(node);
-    }
+    const nodes = [...snapshot.current];
+    ref.current.append(...nodes);
 
     return () => {
       for (const node of nodes) {
-        if (node.parentNode === parent) {
-          parent.removeChild(node);
-        }
+        node.parentNode?.removeChild(node);
       }
     };
-  });
+  }, [status]);
 
   if (!isMounted || !portalElement) {
     return false;
@@ -280,9 +265,9 @@ export const GenericPopover = (
   };
 
   if (status === "close") {
-    // While the popover is closing, shows the cloned DOM from when it was
-    // open, instead of the React children. They may rerender during this
-    // time, causing unwanted behaviour.
+    // While the popover is closing, shows its last rendered DOM snapshot while
+    // it was open, instead of the React children. This is because they may
+    // rerender during this time, causing unwanted behaviour.
     //
     // When we use the `GenericPopover` for BlockNote's internal UI elements
     // this isn't a huge deal, as we only pass child components if the popover
