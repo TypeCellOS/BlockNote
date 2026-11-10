@@ -1,7 +1,7 @@
-import type { TextUpdate, ValidTextUpdate } from "../api.js";
+import type { ChangeResult, ChangeOperations } from "../api.js";
 
 /** Returns the update, and fails the test if the update is an error. */
-export function valid<T extends TextUpdate>(
+export function valid<T extends ChangeResult>(
   update: T,
 ): Exclude<T, { error: string }> {
   if (update.error !== undefined) {
@@ -10,4 +10,4 @@ export function valid<T extends TextUpdate>(
   return update as Exclude<T, { error: string }>;
 }
 
-export type { ValidTextUpdate };
+export type { ChangeOperations };

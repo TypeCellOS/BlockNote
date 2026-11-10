@@ -3,10 +3,10 @@ import { BlockNoteEditor, type PartialBlock } from "@blocknote/core";
 import { describe, expect, it } from "vite-plus/test";
 
 import {
-  computeTextUpdate,
+  computeOperations,
   getDocumentText,
   plainTextFormat,
-  updateDocumentFromText,
+  updateDocument,
 } from "./index.js";
 import {
   createEditor,
@@ -199,7 +199,7 @@ describe("plain text, a new editor", () => {
     const editor = BlockNoteEditor.create();
 
     valid(
-      updateDocumentFromText(editor, {
+      updateDocument(editor, {
         base: "current",
         format: plainTextFormat,
         text: "Hello\n\nWorld",
@@ -229,7 +229,7 @@ describe("plain text, a part of a block without words", () => {
     const text = getDocumentText(editor, plainTextFormat);
 
     const update = valid(
-      updateDocumentFromText(editor, {
+      updateDocument(editor, {
         base: "current",
         format: plainTextFormat,
         text: text.replace("\n\n}", "\n\n} // end"),
@@ -254,7 +254,7 @@ describe("special characters at the edges of the text", () => {
     });
     const text = getDocumentText(editor, plainTextFormat);
     const update = valid(
-      computeTextUpdate(editor, {
+      computeOperations(editor, {
         base: "current",
         format: plainTextFormat,
         text,
@@ -282,7 +282,7 @@ describe("special characters at the edges of the text", () => {
       "Hello there",
     );
     valid(
-      updateDocumentFromText(editor, {
+      updateDocument(editor, {
         base: "current",
         format: plainTextFormat,
         text,
@@ -310,7 +310,7 @@ describe("an item that plain text does not show", () => {
     });
     const text = getDocumentText(editor, plainTextFormat);
     valid(
-      updateDocumentFromText(editor, {
+      updateDocument(editor, {
         base: "current",
         format: plainTextFormat,
         text: replaceOnce(text, "today", "tomorrow"),

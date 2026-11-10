@@ -33,29 +33,29 @@ export function getDocumentText(
   return documentText(editor, format, editor.document).text;
 }
 
-export type TextUpdateWarning = PlanWarning | RebaseWarning | FitWarning;
+export type ChangeWarning = PlanWarning | RebaseWarning | FitWarning;
 
-/** A write that applies: its operations and its warnings. */
-export type ValidTextUpdate = {
+/** A change that applies: its operations and its warnings. */
+export type ChangeOperations = {
   error?: undefined;
   operations: BlockOperation[];
-  warnings: TextUpdateWarning[];
+  warnings: ChangeWarning[];
 };
 
-/** A write with `onConflict: "reject"` that has conflicts: nothing applies. */
+/** A change with `onConflict: "reject"` that has conflicts: nothing applies. */
 export type ConflictError = { error: "conflict"; conflicts: RebaseWarning[] };
 
 /**
- * The result of a write: the operations and the warnings, or an error. Then
- * the document does not change.
+ * The result of a change: the operations and the warnings, or an error. On
+ * an error, the document does not change.
  *
  * - `"invalid-document"`: the text or the JSON gives blocks that do not fit
  *   the schema of the editor (for example an unknown block type, or a table
  *   cell that spans more rows than the table has).
  * - `"conflict"`: see {@link WriteFromVersion}.
  */
-export type TextUpdate =
-  | ValidTextUpdate
+export type ChangeResult =
+  | ChangeOperations
   | { error: "invalid-document" }
   | ConflictError;
 
@@ -96,18 +96,54 @@ export type WriteFromVersion<Base> =
       onConflict?: "keep-current" | "reject";
     };
 
-export type TextUpdateOptions = {
+/**
+ * A text in a format (for example markdown), as the client wants the
+ * document. The blocks of the text pair with the blocks of the document by
+ * the location of their text (see "Identity" in the README).
+ */
+export type TextChange = {
   format: TextFormat;
   /** A text from {@link getDocumentText}, possibly with changes. */
   text: string;
-} & WriteFromVersion<readonly LensBlock[]>;
+  document?: undefined;
+};
 
 /**
- * Computes the operations that change the document of the editor to agree with
- * the text.
+ * The full document as BlockNote JSON, as the client wants it. The blocks
+ * pair with the blocks of the document by ID.
+ */
+export type JSONChange = {
+  /**
+   * The full document as the client wants it (for example `editor.document`
+   * from a read, with changes). A block with the ID of a block in the
+   * document is that block. A block without an ID is a new block. A missing
+   * field gets its default value.
+   *
+   * A block ID can identify only one block. Thus, a block gets a new ID if an
+   * earlier block of the JSON has its ID, or (with `base`) if its ID is not
+   * in `base` but is in the current document, as the ID of a block of
+   * another writer.
+   */
+  document: readonly PartialBlock<any, any, any>[];
+  format?: undefined;
+  text?: undefined;
+};
+
+/** A change of a client: a text or BlockNote JSON, and the version that the client read. */
+export type DocumentChange = (TextChange | JSONChange) &
+  WriteFromVersion<readonly LensBlock[]>;
+
+/**
+ * Computes the operations that change the document of the editor to agree
+ * with the change. Nothing changes: {@link applyOperations} applies the
+ * operations to a transaction of the caller (for example as suggestions).
+ * {@link updateDocument} computes and applies them in one step.
  *
- * The operations keep the data that the format does not show. Examples are
- * block IDs, some props and styles, and blocks that the format does not render.
+ * The operations change only the blocks and fields that the client changed.
+ * They keep the data that the change does not show: for a text, examples are
+ * block IDs, some props and styles, and blocks that the format does not
+ * render. With a version as `base`, they keep the changes of other writers
+ * (see `merge/tree.ts`).
  *
  * If the text did not change, there are no operations. This is also true if
  * only the markup changed and the format gives the same blocks, for example
@@ -116,115 +152,86 @@ export type TextUpdateOptions = {
  * The operations refer to the blocks of `editor.document` by ID. If two
  * blocks have one ID (for example in a Y.Doc, after two writers moved the
  * same block), the later block counts as the ID with a number (`x-2`, see
- * `withDistinctIds`), as `applyOperations` and the writes give it. In an
- * editor without a view, a block can have no ID (for example after
- * `removeBlocks` removed all blocks). {@link updateDocumentFromText} gives
- * these blocks an ID first.
+ * `withDistinctIds`), as `applyOperations` and `updateDocument` give it. In
+ * an editor without a view, a block can have no ID (for example after
+ * `removeBlocks` removed all blocks). {@link updateDocument} gives these
+ * blocks an ID first.
  */
-export function computeTextUpdate(
+export function computeOperations(
   editor: BlockNoteEditor<any, any, any>,
-  options: TextUpdateOptions,
-): TextUpdate {
-  return textUpdate(editor, options, withDistinctIds(editor.document));
+  change: DocumentChange,
+): ChangeResult {
+  return operationsOf(editor, change, withDistinctIds(editor.document));
 }
 
 /**
- * Computes the operations with {@link computeTextUpdate}, and applies them to
- * the editor (see {@link write}). First, the blocks without an ID get an ID.
+ * Computes the operations of the change (see {@link computeOperations}), and
+ * applies them to the editor, in one step (see {@link write}). First, the
+ * blocks without an ID get an ID.
  */
-export function updateDocumentFromText(
+export function updateDocument(
   editor: BlockNoteEditor<any, any, any>,
-  options: TextUpdateOptions,
-): TextUpdate {
-  return write(editor, (current) => textUpdate(editor, options, current));
+  change: DocumentChange,
+): ChangeResult {
+  return write(editor, (current) => operationsOf(editor, change, current));
 }
 
-export type JSONUpdateOptions = {
-  /**
-   * The full document as the client wants it, as BlockNote JSON (for example
-   * `editor.document` from a read, with changes). A block with the ID of a
-   * block in the document is that block. A block without an ID is a new
-   * block. A missing field gets its default value.
-   *
-   * A block ID can identify only one block. Thus, a block gets a new ID if an
-   * earlier block of the JSON has its ID, or (with `base`) if its ID is not
-   * in `base` but is in the current document, as the ID of a block of
-   * another writer.
-   */
-  document: readonly PartialBlock<any, any, any>[];
-} & WriteFromVersion<readonly LensBlock[]>;
-
-/**
- * Computes the operations that change the document of the editor to the
- * document of the client, as BlockNote JSON. The JSON contains the block IDs,
- * thus the blocks pair by ID, not by their text. The operations change only
- * the blocks and fields that the client changed. With `base`, they keep the
- * changes of other writers (see `merge/tree.ts`).
- */
-export function computeJSONUpdate(
-  editor: BlockNoteEditor<any, any, any>,
-  options: JSONUpdateOptions,
-): TextUpdate {
-  return jsonUpdate(editor, options, withDistinctIds(editor.document));
-}
-
-/** Computes the operations with {@link computeJSONUpdate}, and applies them to the editor (see {@link write}). */
-export function updateDocumentFromJSON(
-  editor: BlockNoteEditor<any, any, any>,
-  options: JSONUpdateOptions,
-): TextUpdate {
-  return write(editor, (current) => jsonUpdate(editor, options, current));
-}
-
-// The pipeline (see "Pipeline" in the README). A write runs these functions:
+// The pipeline (see "Pipeline" in the README). A change runs these functions:
 //
-//   text:  textUpdate = planText (1 Project, 2 Parse and align, 3 Plan)
-//                       then updateFromPlan (4 Merge, 5 Fit, 6 Diff)
-//   JSON:  jsonUpdate = parseJSON (2 Parse)
-//                       then updateFromPlan (4 Merge, 5 Fit, 6 Diff)
-//   write: write (7 Apply, 8 Dispatch) around textUpdate or jsonUpdate
+//   operationsOf = planText (text: 1 Project, 2 Parse and align, 3 Plan)
+//                  or planJSON (JSON: 2 Parse; the JSON is the target)
+//                  then updateFromPlan (4 Merge, 5 Fit, 6 Diff)
+//   write        = 7 Apply and 8 Dispatch, around operationsOf
 //
 // `current` is the document that the operations change. It does not have to
 // be the document of the editor: the editor supplies the schema and the
 // conversions.
 
 /**
- * The text write, stages 1 to 6. The Y.Doc write (`yjs/yDocText.ts`) also
- * uses it, with the option `keepLayout` (see `fitResult`).
+ * The operations of a change for the document `current` (stages 1 to 6).
+ * The Y.Doc write (`yjs/yDocText.ts`) also uses it, with `keepLayout` (see
+ * `fitResult`).
  */
-export function textUpdate(
+export function operationsOf(
   editor: BlockNoteEditor<any, any, any>,
-  options: TextUpdateOptions & { keepLayout?: boolean },
+  change: DocumentChange,
   current: readonly LensBlock[],
-): TextUpdate {
-  const base = versionOf(options);
-  const plan = planText(editor, options.format, base ?? current, options.text);
+  keepLayout = false,
+): ChangeResult {
+  const base = versionOf(change);
+  const plan =
+    change.document === undefined
+      ? planText(editor, change.format, base ?? current, change.text)
+      : planJSON(editor, change.document, base ?? current, current);
   if (plan.error !== undefined) {
     return plan;
   }
   return updateFromPlan(schemaRulesOf(editor), plan, {
     base,
     current,
-    onConflict: options.onConflict,
-    keepLayout: options.keepLayout,
+    onConflict: change.onConflict,
+    keepLayout,
   });
 }
 
-function jsonUpdate(
+/**
+ * Stage 2 for JSON: the JSON in the stored form, with IDs that identify one
+ * block each (see `parseJSON`). The JSON contains the block IDs, thus there
+ * is no alignment: the JSON is the target.
+ */
+function planJSON(
   editor: BlockNoteEditor<any, any, any>,
-  options: JSONUpdateOptions,
+  document: readonly PartialBlock<any, any, any>[],
+  /** The version that the client read, or the current document. */
+  base: readonly LensBlock[],
   current: readonly LensBlock[],
-): TextUpdate {
-  const base = versionOf(options);
-  const parsed = parseJSON(editor, options.document, base ?? current, current);
-  if (parsed.error !== undefined) {
-    return parsed;
-  }
-  return updateFromPlan(
-    schemaRulesOf(editor),
-    { target: parsed.blocks, warnings: [] },
-    { base, current, onConflict: options.onConflict },
-  );
+):
+  | { error?: undefined; target: readonly LensBlock[]; warnings: PlanWarning[] }
+  | { error: "invalid-document" } {
+  const parsed = parseJSON(editor, document, base, current);
+  return parsed.error !== undefined
+    ? parsed
+    : { target: parsed.blocks, warnings: [] };
 }
 
 /**
@@ -293,7 +300,7 @@ function updateFromPlan(
     onConflict: "keep-current" | "reject" | undefined;
     keepLayout?: boolean;
   },
-): ValidTextUpdate | ConflictError {
+): ChangeOperations | ConflictError {
   const { base, current } = documents;
   if (plan.target === (base ?? current)) {
     return { operations: [], warnings: plan.warnings };
@@ -340,8 +347,8 @@ function updateFromPlan(
  */
 export function write(
   editor: BlockNoteEditor<any, any, any>,
-  compute: (current: readonly LensBlock[]) => TextUpdate,
-): TextUpdate {
+  compute: (current: readonly LensBlock[]) => ChangeResult,
+): ChangeResult {
   const tr = editor.prosemirrorState.tr;
   fixBlockIds(tr);
   const update = compute(docToBlocks(tr.doc));

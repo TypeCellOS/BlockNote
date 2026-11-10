@@ -7,7 +7,7 @@ import { alignBlocks } from "../alignment/alignBlocks.js";
 import { flattenBlocks } from "../blocks/flatten.js";
 import type { LensBlock } from "../blocks/types.js";
 import {
-  computeTextUpdate,
+  computeOperations,
   getDocumentText,
   htmlFormat,
   markdownFormat,
@@ -19,7 +19,7 @@ import { projectDocument } from "../projection/projectDocument.js";
 import { planTarget } from "../plan/planTarget.js";
 import { richDocument } from "../testUtil/fixtures.js";
 import { bindEditor, unbindEditor } from "../testUtil/yjs.js";
-import { updateYDocFromText } from "../yjs/index.js";
+import { updateYDoc } from "../yjs/index.js";
 
 /**
  * Benchmarks for large documents. The normal test run does not run them. Run
@@ -141,21 +141,21 @@ describe("large documents", () => {
             format: name,
             read: await median(() => getDocumentText(editor, format)),
             "write same text": await median(() =>
-              computeTextUpdate(editor, {
+              computeOperations(editor, {
                 base: "current",
                 format,
                 text: `${text}\n`,
               }),
             ),
             "write one change": await median(() =>
-              computeTextUpdate(editor, {
+              computeOperations(editor, {
                 base: "current",
                 format,
                 text: edited,
               }),
             ),
             "older base": await median(() =>
-              computeTextUpdate(other, {
+              computeOperations(other, {
                 format,
                 text: edited,
                 base: document,
@@ -165,7 +165,7 @@ describe("large documents", () => {
             // not in the time.
             "Y.Doc write": await median(
               ({ client, fragment }) =>
-                updateYDocFromText(client, fragment, {
+                updateYDoc(client, fragment, {
                   format,
                   text: yEdited,
                   base: Y.encodeStateAsUpdate(ydoc),

@@ -14,8 +14,8 @@ import {
   markdownFormat,
   plainTextFormat,
   type TextFormat,
-  type TextUpdate,
-  type TextUpdateOptions,
+  type ChangeResult,
+  type DocumentChange,
 } from "@blocknote/xl-ai/text-lens";
 import { useEffect, useRef, useState } from "react";
 
@@ -44,7 +44,7 @@ const WRITE_DELAY_MS = 200;
  * the write keeps the changes that the live editor made after this version.
  */
 type Base = {
-  document: Exclude<TextUpdateOptions["base"], "current">;
+  document: Exclude<DocumentChange["base"], "current">;
   text: string;
   time: Date;
 };
@@ -72,7 +72,7 @@ export default function App() {
   const [formatName, setFormatName] = useState<FormatName>("markdown");
   const [base, setBase] = useState(() => readBase(editor, markdownFormat));
   const [text, setText] = useState(base.text);
-  const [lastWrite, setLastWrite] = useState<TextUpdate | undefined>();
+  const [lastWrite, setLastWrite] = useState<ChangeResult | undefined>();
   const writeTimer = useRef<ReturnType<typeof setTimeout> | undefined>(
     undefined,
   );
@@ -179,7 +179,7 @@ export default function App() {
   );
 }
 
-function LastWrite(props: { result: TextUpdate | undefined }) {
+function LastWrite(props: { result: ChangeResult | undefined }) {
   const { result } = props;
   if (result === undefined) {
     return <p>No write yet. Change the text.</p>;

@@ -2,11 +2,11 @@ import { BlockNoteEditor } from "@blocknote/core";
 import { describe, expect, it } from "vite-plus/test";
 
 import {
-  computeTextUpdate,
+  computeOperations,
   getDocumentText,
   markdownFormat,
   type TextFormat,
-  updateDocumentFromText,
+  updateDocument,
 } from "./index.js";
 import { canonicalText } from "./testUtil/canonical.js";
 import {
@@ -55,7 +55,7 @@ function expectLaws(
   // GetPut, also without the shortcut for equal text.
   expect(
     valid(
-      computeTextUpdate(editor, { base: "current", format, text: `${text}\n` }),
+      computeOperations(editor, { base: "current", format, text: `${text}\n` }),
     ).operations,
   ).toEqual([]);
 
@@ -63,7 +63,7 @@ function expectLaws(
     randomEdit(random, text, codec),
   );
   const update = valid(
-    updateDocumentFromText(editor, { base: "current", format, text: edited }),
+    updateDocument(editor, { base: "current", format, text: edited }),
   );
   expect(update.warnings).toEqual([]);
 
@@ -74,7 +74,7 @@ function expectLaws(
 
   // PutTwice.
   expect(
-    valid(computeTextUpdate(editor, { base: "current", format, text: edited }))
+    valid(computeOperations(editor, { base: "current", format, text: edited }))
       .operations,
   ).toEqual([]);
 }
@@ -126,7 +126,7 @@ describe("markdown, edits of lines", () => {
       randomLineEdit,
     );
     const update = valid(
-      updateDocumentFromText(editor, { base: "current", format, text: edited }),
+      updateDocument(editor, { base: "current", format, text: edited }),
     );
     expect(update.warnings).toEqual([]);
 
@@ -137,7 +137,7 @@ describe("markdown, edits of lines", () => {
     // PutTwice.
     expect(
       valid(
-        computeTextUpdate(editor, { base: "current", format, text: edited }),
+        computeOperations(editor, { base: "current", format, text: edited }),
       ).operations,
     ).toEqual([]);
   });

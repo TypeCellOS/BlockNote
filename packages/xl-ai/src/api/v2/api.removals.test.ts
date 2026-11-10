@@ -8,7 +8,7 @@ import {
   markdownFormat,
   plainTextFormat,
   type TextFormat,
-  updateDocumentFromText,
+  updateDocument,
 } from "./index.js";
 import {
   createEditor,
@@ -32,7 +32,7 @@ describe("removals (review closely)", () => {
       "* Child bullet",
     );
     valid(
-      updateDocumentFromText(editor, {
+      updateDocument(editor, {
         base: "current",
         format: markdownFormat,
         text,
@@ -57,7 +57,7 @@ describe("removals (review closely)", () => {
     const end = markdown.indexOf("line two") + "line two".length;
     const text = markdown.slice(0, start) + markdown.slice(end + 2);
     valid(
-      updateDocumentFromText(editor, {
+      updateDocument(editor, {
         base: "current",
         format: markdownFormat,
         text,
@@ -81,7 +81,7 @@ describe("removals (review closely)", () => {
       "",
     );
     valid(
-      updateDocumentFromText(editor, {
+      updateDocument(editor, {
         base: "current",
         format: markdownFormat,
         text,
@@ -101,7 +101,7 @@ describe("removals (review closely)", () => {
       "",
     );
     const update = valid(
-      updateDocumentFromText(editor, {
+      updateDocument(editor, {
         base: "current",
         format: plainTextFormat,
         text,
@@ -114,7 +114,7 @@ describe("removals (review closely)", () => {
   it("empty text removes all blocks that the format shows", () => {
     const editor = createEditor();
     valid(
-      updateDocumentFromText(editor, {
+      updateDocument(editor, {
         base: "current",
         format: markdownFormat,
         text: "",
@@ -147,7 +147,7 @@ describe("removals (review closely)", () => {
       "const b = 3;",
     );
     const update = valid(
-      updateDocumentFromText(editor, {
+      updateDocument(editor, {
         base: "current",
         format: plainTextFormat,
         text,
@@ -176,7 +176,7 @@ describe("removals (review closely)", () => {
     ]);
     const text = "const b = 2;\n\nconst a = 1;\n\nAfter";
     const update = valid(
-      updateDocumentFromText(editor, {
+      updateDocument(editor, {
         base: "current",
         format: plainTextFormat,
         text,
@@ -216,7 +216,7 @@ describe("removals (review closely)", () => {
     const text = getDocumentText(editor, textOnly);
 
     const update = valid(
-      updateDocumentFromText(editor, {
+      updateDocument(editor, {
         base: "current",
         format: textOnly,
         text: text.replace("Beta", "Gamma"),
@@ -268,7 +268,7 @@ describe("removals (review closely)", () => {
       expect(getDocumentText(editor, plainTextFormat)).not.toContain("---");
 
       valid(
-        updateDocumentFromText(editor, {
+        updateDocument(editor, {
           base: "current",
           format: plainTextFormat,
           text,

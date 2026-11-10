@@ -2,10 +2,10 @@ import { BlockNoteEditor } from "@blocknote/core";
 import { describe, expect, it } from "vite-plus/test";
 
 import {
-  computeTextUpdate,
+  computeOperations,
   getDocumentText,
   htmlFormat,
-  updateDocumentFromText,
+  updateDocument,
 } from "./index.js";
 import {
   columnSchema,
@@ -109,7 +109,7 @@ describe("HTML", () => {
       const before = editor.document;
 
       expect(
-        updateDocumentFromText(editor, {
+        updateDocument(editor, {
           base: "current",
           format: htmlFormat,
           text: html.replace(from, to),
@@ -129,7 +129,7 @@ describe("HTML", () => {
     });
 
     valid(
-      updateDocumentFromText(editor, {
+      updateDocument(editor, {
         base: "current",
         format: htmlFormat,
         text: '<div class="bn-block-column-list"><div class="bn-block-column"><p>Alpha</p></div><div class="bn-block-column"><p>Beta</p></div></div>',
@@ -166,7 +166,7 @@ describe("HTML, a change of the type of a parent", () => {
       .replace("</details>", "");
 
     valid(
-      updateDocumentFromText(editor, {
+      updateDocument(editor, {
         base: "current",
         format: htmlFormat,
         text,
@@ -175,7 +175,7 @@ describe("HTML, a change of the type of a parent", () => {
 
     expect(
       valid(
-        computeTextUpdate(editor, {
+        computeOperations(editor, {
           base: "current",
           format: htmlFormat,
           text,
@@ -195,7 +195,7 @@ describe("HTML, a parse in a form that the document does not store", () => {
       "<blockquote><p><em>note</em></p><p>￼</p><p>ipsum</p></blockquote>";
 
     valid(
-      updateDocumentFromText(editor, {
+      updateDocument(editor, {
         base: "current",
         format: htmlFormat,
         text,
@@ -204,7 +204,7 @@ describe("HTML, a parse in a form that the document does not store", () => {
 
     expect(
       valid(
-        computeTextUpdate(editor, {
+        computeOperations(editor, {
           base: "current",
           format: htmlFormat,
           text,

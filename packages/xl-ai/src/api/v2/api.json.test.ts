@@ -2,12 +2,13 @@ import { type Block, BlockNoteEditor } from "@blocknote/core";
 import { describe, expect, it } from "vite-plus/test";
 
 import {
-  computeJSONUpdate,
+  computeOperations,
   getDocumentText,
   htmlFormat,
-  type JSONUpdateOptions,
-  updateDocumentFromJSON,
-  type ValidTextUpdate,
+  type DocumentChange,
+  type JSONChange,
+  updateDocument,
+  type ChangeOperations,
 } from "./index.js";
 import {
   columnSchema,
@@ -29,17 +30,17 @@ function copy(blocks: Block<any, any, any>[]): Block<any, any, any>[] {
 
 /** Applies the JSON, and fails the test if the result is an error. */
 function update(
-  editor: Parameters<typeof updateDocumentFromJSON>[0],
-  options: JSONUpdateOptions,
-): ValidTextUpdate {
-  return valid(updateDocumentFromJSON(editor, options));
+  editor: Parameters<typeof updateDocument>[0],
+  options: DocumentChange,
+): ChangeOperations {
+  return valid(updateDocument(editor, options));
 }
 
 describe("JSON", () => {
   it("gives no operations for the same document", () => {
     const editor = createEditor(initial);
     expect(
-      computeJSONUpdate(editor, {
+      computeOperations(editor, {
         base: "current",
         document: copy(editor.document),
       }),
@@ -103,7 +104,7 @@ describe("JSON", () => {
     const before = editor.document;
 
     expect(
-      updateDocumentFromJSON(editor, { document, base, onConflict: "reject" }),
+      updateDocument(editor, { document, base, onConflict: "reject" }),
     ).toEqual({
       error: "conflict",
       conflicts: [{ type: "conflicting-change", id: "c" }],
@@ -155,9 +156,9 @@ describe("JSON", () => {
       const before = copy(editor.document);
 
       expect(
-        updateDocumentFromJSON(editor, {
+        updateDocument(editor, {
           base: "current",
-          document: document as JSONUpdateOptions["document"],
+          document: document as JSONChange["document"],
         }),
       ).toEqual({ error: "invalid-document" });
       expect(editor.document).toEqual(before);
@@ -240,7 +241,7 @@ describe("JSON", () => {
       base: "current",
       document: [
         { id: "a", type: "paragraph", content: "Alpha", children: null },
-      ] as unknown as JSONUpdateOptions["document"],
+      ] as unknown as JSONChange["document"],
     });
 
     expect(editor.document.map((block) => block.id)).toEqual(["a"]);
@@ -253,7 +254,7 @@ describe("JSON", () => {
     });
 
     expect(
-      updateDocumentFromJSON(editor, {
+      updateDocument(editor, {
         base: "current",
         document: [
           {
@@ -271,9 +272,9 @@ describe("JSON", () => {
     const before = editor.prosemirrorState.doc;
 
     expect(
-      updateDocumentFromJSON(editor, {
+      updateDocument(editor, {
         base: "current",
-        document: [{ type: "unknown" }] as JSONUpdateOptions["document"],
+        document: [{ type: "unknown" }] as JSONChange["document"],
       }),
     ).toEqual({ error: "invalid-document" });
     expect(editor.prosemirrorState.doc).toBe(before);
@@ -308,7 +309,7 @@ describe("JSON", () => {
   });
 
   describe("type changes with the same ID", () => {
-    function columnsEditor(content: JSONUpdateOptions["document"]) {
+    function columnsEditor(content: JSONChange["document"]) {
       return BlockNoteEditor.create({
         schema: columnSchema,
         initialContent: content as any,
@@ -331,7 +332,7 @@ describe("JSON", () => {
           },
         ],
       },
-    ] as JSONUpdateOptions["document"];
+    ] as JSONChange["document"];
 
     it("changes a paragraph into a table", () => {
       const editor = createEditor([
@@ -391,7 +392,7 @@ describe("JSON", () => {
               },
             ],
           },
-        ] as JSONUpdateOptions["document"],
+        ] as JSONChange["document"],
       });
 
       expect(editor.document.map((block) => block.type)).toEqual([
@@ -420,7 +421,7 @@ describe("JSON, a change of the content kind", () => {
     ]);
 
     valid(
-      updateDocumentFromJSON(editor, {
+      updateDocument(editor, {
         base: "current",
         document: [
           { id: "c", type: "paragraph", content: "line one\nline two" },
@@ -445,7 +446,7 @@ describe("JSON, the layout rules", () => {
     const [first, second] = list.children;
 
     valid(
-      updateDocumentFromJSON(editor, {
+      updateDocument(editor, {
         base: "current",
         document: [
           {

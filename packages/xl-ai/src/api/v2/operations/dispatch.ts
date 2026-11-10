@@ -150,7 +150,7 @@ function sendGroup(
  * the mapping goes back through the inverted steps, forward through `over`,
  * and each mapped step mirrors its inverted step. A step that cannot follow
  * the change of the plugin is an error: the write then does not apply (see
- * `updateYDocFromText`).
+ * `updateYDoc`).
  */
 function rebaseSteps(
   pending: Transform,

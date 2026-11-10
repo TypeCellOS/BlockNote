@@ -11,9 +11,9 @@ import {
   applyOperations,
   type BlockOperation,
   type BlockPosition,
-  computeTextUpdate,
-  type TextUpdate,
-  type TextUpdateOptions,
+  computeOperations,
+  type ChangeResult,
+  type DocumentChange,
 } from "@blocknote/xl-ai/text-lens";
 import {
   revertSuggestions,
@@ -49,8 +49,8 @@ export function hasSuggestions(doc: Node): boolean {
  */
 export function suggestTextUpdate(
   editor: BlockNoteEditor<any, any, any>,
-  options: TextUpdateOptions,
-): TextUpdate {
+  options: DocumentChange,
+): ChangeResult {
   if (hasSuggestions(editor.prosemirrorState.doc)) {
     editor.exec((state, dispatch) =>
       revertSuggestions(state, (tr) =>
@@ -59,7 +59,7 @@ export function suggestTextUpdate(
     );
   }
 
-  const update = computeTextUpdate(editor, options);
+  const update = computeOperations(editor, options);
   if (update.error !== undefined || update.operations.length === 0) {
     return update;
   }

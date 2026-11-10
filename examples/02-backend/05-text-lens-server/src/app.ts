@@ -1,14 +1,13 @@
 import type { Block, BlockNoteEditor, PartialBlock } from "@blocknote/core";
 import {
+  type ChangeOperations,
+  type ChangeResult,
   getDocumentText,
   htmlFormat,
   markdownFormat,
   plainTextFormat,
   type TextFormat,
-  type TextUpdate,
-  updateDocumentFromJSON,
-  updateDocumentFromText,
-  type ValidTextUpdate,
+  updateDocument,
 } from "@blocknote/xl-ai/text-lens";
 import { Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
@@ -132,10 +131,10 @@ function write(
   format: Format,
   body: string,
   base: Block<any, any, any>[] | "current",
-): ValidTextUpdate | ClientError {
+): ChangeOperations | ClientError {
   if (format.type === "text") {
     return orClientError(
-      updateDocumentFromText(editor, {
+      updateDocument(editor, {
         format: format.format,
         text: body,
         base,
@@ -147,12 +146,12 @@ function write(
     return document;
   }
   return orClientError(
-    updateDocumentFromJSON(editor, { document: document.blocks, base }),
+    updateDocument(editor, { document: document.blocks, base }),
   );
 }
 
 /** The update, or the status 400 if the text or the JSON does not fit the schema. */
-function orClientError(update: TextUpdate): ValidTextUpdate | ClientError {
+function orClientError(update: ChangeResult): ChangeOperations | ClientError {
   return update.error === undefined
     ? update
     : { status: 400, error: update.error };
@@ -177,7 +176,7 @@ function readBase(
 
 /**
  * Parses a JSON body: an array of blocks. This checks only the shape of the
- * tree, for the types. `updateDocumentFromJSON` checks the blocks against
+ * tree, for the types. `updateDocument` checks the blocks against
  * the schema.
  */
 function parseDocument(

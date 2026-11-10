@@ -2,13 +2,12 @@ import { BlockNoteEditor, type PartialBlock } from "@blocknote/core";
 import { describe, expect, it } from "vite-plus/test";
 
 import {
-  computeTextUpdate,
+  computeOperations,
   getDocumentText,
   htmlFormat,
   markdownFormat,
-  type TextUpdateOptions,
-  updateDocumentFromJSON,
-  updateDocumentFromText,
+  type DocumentChange,
+  updateDocument,
 } from "./index.js";
 import { flattenBlocks } from "./blocks/flatten.js";
 import type { LensBlock } from "./blocks/types.js";
@@ -49,7 +48,7 @@ function write(
   edit: (text: string) => string,
 ) {
   return valid(
-    updateDocumentFromText(editor, {
+    updateDocument(editor, {
       format,
       text: edit(client.text),
       base: client.base,
@@ -61,25 +60,25 @@ describe("a write without `base`", () => {
   // The type requires `base`, but a caller without types can forget it.
   it.each([
     [
-      "computeTextUpdate",
+      "computeOperations",
       (editor: BlockNoteEditor<any, any, any>) =>
-        computeTextUpdate(editor, {
+        computeOperations(editor, {
           format: markdownFormat,
           text: "Hello",
         } as never),
     ],
     [
-      "updateDocumentFromText",
+      "updateDocument",
       (editor: BlockNoteEditor<any, any, any>) =>
-        updateDocumentFromText(editor, {
+        updateDocument(editor, {
           format: markdownFormat,
           text: "Hello",
         } as never),
     ],
     [
-      "updateDocumentFromJSON",
+      "updateDocument",
       (editor: BlockNoteEditor<any, any, any>) =>
-        updateDocumentFromJSON(editor, { document: [] } as never),
+        updateDocument(editor, { document: [] } as never),
     ],
   ])("%s throws an error, and does not change the document", (_, write) => {
     const editor = createEditor();
@@ -99,7 +98,7 @@ describe("a write from an older version", () => {
     );
 
     expect(
-      valid(computeTextUpdate(editor, { format, ...client })).operations,
+      valid(computeOperations(editor, { format, ...client })).operations,
     ).toEqual([]);
   });
 
@@ -331,7 +330,7 @@ describe.each(formatCases)(
             writers[writer] = { base, text, change: alone(base, text) };
           } else {
             const { base, text } = writers[writer];
-            valid(updateDocumentFromText(editor, { format, text, base }));
+            valid(updateDocument(editor, { format, text, base }));
           }
         }
         const result = blockFieldsById(editor);
@@ -358,7 +357,7 @@ describe.each(formatCases)(
 
         const text = getDocumentText(editor, format);
         expect(
-          valid(computeTextUpdate(editor, { base: "current", format, text }))
+          valid(computeOperations(editor, { base: "current", format, text }))
             .operations,
         ).toEqual([]);
 
@@ -366,9 +365,7 @@ describe.each(formatCases)(
         function alone(base: LensBlock[], text: string): Writer["change"] {
           const single = BlockNoteEditor.create({ initialContent: base });
           const before = blockFieldsById(single);
-          valid(
-            updateDocumentFromText(single, { base: "current", format, text }),
-          );
+          valid(updateDocument(single, { base: "current", format, text }));
           const after = blockFieldsById(single);
           return { after, ...diffBlocks(before, after) };
         }
@@ -615,7 +612,7 @@ describe("a write from an older version with onConflict", () => {
     text: string,
     onConflict: "keep-current" | "reject",
   ) {
-    return updateDocumentFromText(editor, {
+    return updateDocument(editor, {
       format,
       text,
       base: client.base,
@@ -696,7 +693,7 @@ describe("a write from an older version with onConflict", () => {
       );
       const update = valid(
         onConflict === undefined
-          ? updateDocumentFromText(editor, { format, text, base: client.base })
+          ? updateDocument(editor, { format, text, base: client.base })
           : writeWith(editor, client, text, onConflict),
       );
       return { warnings: update.warnings, document: blockFieldsById(editor) };
@@ -711,7 +708,7 @@ describe("a write from an older version with onConflict", () => {
 
   it("needs base for onConflict (a type error without base)", () => {
     // @ts-expect-error: a write without base has no conflicts.
-    const options: TextUpdateOptions = {
+    const options: DocumentChange = {
       format,
       text: "",
       onConflict: "reject",
@@ -912,7 +909,7 @@ describe("a write from an older version, with columns", () => {
     // Another writer removes the column list.
     editor.removeBlocks(["list"]);
 
-    valid(updateDocumentFromText(editor, { format: htmlFormat, text, base }));
+    valid(updateDocument(editor, { format: htmlFormat, text, base }));
 
     expect(
       editor.document.map((block) => [block.type, block.content]),

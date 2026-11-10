@@ -19,7 +19,7 @@ afterEach(() => {
 });
 
 /**
- * An editor that is bound to the fragment and mounted, as `updateYDocFromText`
+ * An editor that is bound to the fragment and mounted, as `updateYDoc`
  * needs it. Each call gives a new client of the Y.Doc. The editor unmounts at
  * the end of the test, or with {@link unbindEditor}.
  */

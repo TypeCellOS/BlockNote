@@ -40,7 +40,7 @@ import type { BlockOperation } from "./types.js";
  * At the end, each block has one ID that no other block has. The caller
  * dispatches the transaction. Thus, a caller can show the steps as
  * suggestions, for example. Note: for an editor that is bound to a Y.Doc,
- * use `updateDocumentFromText` or `updateYDocFromText`. y-prosemirror v13
+ * use `updateDocument` or `updateYDoc`. y-prosemirror v13
  * can write a change into a different block if one transaction has inserts
  * and other changes (see `dispatchUpdate`).
  */

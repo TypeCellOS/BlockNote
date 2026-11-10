@@ -5,13 +5,13 @@ import { flattenBlocks } from "./blocks/flatten.js";
 import { blockToText } from "./blocks/text.js";
 import type { LensBlock } from "./blocks/types.js";
 import {
-  computeTextUpdate,
+  computeOperations,
   getDocumentText,
   htmlFormat,
   markdownFormat,
   plainTextFormat,
   type TextFormat,
-  updateDocumentFromText,
+  updateDocument,
 } from "./index.js";
 import {
   partsOfEachBlock,
@@ -72,7 +72,7 @@ describe.each([
         );
 
         // GetPut.
-        const getPut = computeTextUpdate(editor, {
+        const getPut = computeOperations(editor, {
           base: "current",
           format,
           text,
@@ -82,7 +82,7 @@ describe.each([
         );
 
         const edited = randomEdits(random, text, randomTextEdit);
-        const update = updateDocumentFromText(editor, {
+        const update = updateDocument(editor, {
           base: "current",
           format,
           text: edited,
@@ -104,7 +104,7 @@ describe.each([
           canonicalText(editor, format, getDocumentText(editor, format)),
         ).toBe(canonicalText(editor, format, edited));
         // PutTwice.
-        const twice = computeTextUpdate(editor, {
+        const twice = computeOperations(editor, {
           base: "current",
           format,
           text: edited,

@@ -3,12 +3,12 @@ import { afterEach, describe, expect, it } from "vite-plus/test";
 
 import {
   applyOperations,
-  computeTextUpdate,
+  computeOperations,
   getDocumentText,
   htmlFormat,
   markdownFormat,
   plainTextFormat,
-  updateDocumentFromText,
+  updateDocument,
 } from "./index.js";
 import {
   blockFieldsById,
@@ -109,7 +109,7 @@ describe.each(documents)("$name", ({ create }) => {
       const text = getDocumentText(editor, format);
 
       expect(
-        valid(computeTextUpdate(editor, { base: "current", format, text })),
+        valid(computeOperations(editor, { base: "current", format, text })),
       ).toEqual({
         operations: [],
         warnings: [],
@@ -118,7 +118,7 @@ describe.each(documents)("$name", ({ create }) => {
       // through the full pipeline.
       expect(
         valid(
-          computeTextUpdate(editor, {
+          computeOperations(editor, {
             base: "current",
             format,
             text: `\n${text}\n\n`,
@@ -137,7 +137,7 @@ describe.each(documents)("$name", ({ create }) => {
           apply(codec.split(getDocumentText(editor, format)), codec),
         );
         const update = valid(
-          updateDocumentFromText(editor, { base: "current", format, text }),
+          updateDocument(editor, { base: "current", format, text }),
         );
 
         // PutGet: a read gives the written text.
@@ -148,7 +148,7 @@ describe.each(documents)("$name", ({ create }) => {
 
         // PutTwice: a second write of the same text changes nothing.
         expect(
-          valid(computeTextUpdate(editor, { base: "current", format, text }))
+          valid(computeOperations(editor, { base: "current", format, text }))
             .operations,
         ).toEqual([]);
 
@@ -206,7 +206,7 @@ describe("markdown normalization", () => {
     );
     expect(
       valid(
-        computeTextUpdate(editor, {
+        computeOperations(editor, {
           base: "current",
           format: markdownFormat,
           text,
@@ -243,7 +243,7 @@ describe("a mounted editor", () => {
     const text = "Alpha https://example.com end";
 
     valid(
-      updateDocumentFromText(editor, {
+      updateDocument(editor, {
         base: "current",
         format: plainTextFormat,
         text,
@@ -260,7 +260,7 @@ describe("a mounted editor", () => {
     const text = "Alpha https\\://example.com end\n";
 
     valid(
-      updateDocumentFromText(editor, {
+      updateDocument(editor, {
         base: "current",
         format: markdownFormat,
         text,
@@ -284,7 +284,7 @@ describe("a byte order mark", () => {
     const text = `\uFEFF${getDocumentText(editor, format)}`;
 
     expect(
-      valid(computeTextUpdate(editor, { base: "current", format, text }))
+      valid(computeOperations(editor, { base: "current", format, text }))
         .operations,
     ).toEqual([]);
   });
@@ -297,7 +297,7 @@ describe("line ends", () => {
 
     expect(
       valid(
-        computeTextUpdate(editor, {
+        computeOperations(editor, {
           base: "current",
           format: markdownFormat,
           text,
@@ -321,7 +321,7 @@ describe("a document with two blocks with one ID", () => {
     const text = getDocumentText(editor, markdownFormat);
 
     const update = valid(
-      updateDocumentFromText(editor, {
+      updateDocument(editor, {
         base: "current",
         format: markdownFormat,
         text: text.replace("Beta", "Beta two"),
@@ -351,9 +351,9 @@ describe("a document with two blocks with one ID", () => {
     );
     const options = { base: "current" as const, format: markdownFormat, text };
 
-    const update = valid(computeTextUpdate(computing, options));
+    const update = valid(computeOperations(computing, options));
     computing.transact((tr) => applyOperations(tr, update.operations));
-    valid(updateDocumentFromText(writing, options));
+    valid(updateDocument(writing, options));
 
     // The later block counts as `x-2` in the operations, and gets that ID.
     expect(update.operations).toMatchObject([{ type: "update", id: "x-2" }]);
@@ -371,7 +371,7 @@ describe("a document after `removeBlocks` removed all blocks", () => {
     editor.removeBlocks(editor.document);
 
     valid(
-      updateDocumentFromText(editor, {
+      updateDocument(editor, {
         base: "current",
         format: markdownFormat,
         text: "Hello\n",
@@ -384,7 +384,7 @@ describe("a document after `removeBlocks` removed all blocks", () => {
     // A second write of the same text changes nothing (PutTwice).
     expect(
       valid(
-        computeTextUpdate(editor, {
+        computeOperations(editor, {
           base: "current",
           format: markdownFormat,
           text: "Hello\n",
@@ -415,12 +415,12 @@ describe("a block of the text that the format does not show", () => {
     const editor = createEditor([
       { id: "a", type: "paragraph", content: "Alpha" },
     ]);
-    valid(updateDocumentFromText(editor, { base: "current", format, text }));
+    valid(updateDocument(editor, { base: "current", format, text }));
 
     expect(editor.document.map((block) => block.id)).toEqual(["a"]);
     // PutTwice.
     expect(
-      valid(computeTextUpdate(editor, { base: "current", format, text }))
+      valid(computeOperations(editor, { base: "current", format, text }))
         .operations,
     ).toEqual([]);
     // PutGet.
@@ -438,7 +438,7 @@ describe("plain text: white space at the end of a block", () => {
     ]);
     const text = "Alpha";
     valid(
-      updateDocumentFromText(editor, {
+      updateDocument(editor, {
         base: "current",
         format: plainTextFormat,
         text,
@@ -454,7 +454,7 @@ describe("plain text: white space at the end of a block", () => {
     ).toBe(canonicalText(editor, plainTextFormat, text));
     expect(
       valid(
-        computeTextUpdate(editor, {
+        computeOperations(editor, {
           base: "current",
           format: plainTextFormat,
           text,

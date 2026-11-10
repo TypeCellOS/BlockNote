@@ -7,15 +7,17 @@ import {
 import * as Y from "yjs";
 
 import {
+  type ChangeOperations,
+  type ChangeResult,
   type ConflictError,
+  type DocumentChange,
+  type JSONChange,
+  operationsOf,
   requireBase,
-  type TextUpdate,
-  textUpdate,
-  type ValidTextUpdate,
+  type TextChange,
   write,
   type WriteFromVersion,
 } from "../api.js";
-import type { TextFormat } from "../formats/types.js";
 
 /**
  * The version that the client read (`base`), and what merges the text with
@@ -47,10 +49,10 @@ export type YDocWriteFromVersion =
 /**
  * The result of a write to a Y.Doc. On an error (also an exception), the
  * write does not change the Y.Doc. Only the updates of `base` that the Y.Doc
- * did not have yet apply (see `updateYDocFromText`).
+ * did not have yet apply (see `updateYDoc`).
  */
-export type YDocTextUpdate =
-  | (ValidTextUpdate & {
+export type YDocChangeResult =
+  | (ChangeOperations & {
       /** The Yjs update of the write. Send it to the other clients, if no provider does that. */
       update: Uint8Array;
     })
@@ -58,7 +60,8 @@ export type YDocTextUpdate =
   | ConflictError;
 
 /**
- * Writes text back to a Y.Doc, through an editor that is bound to the
+ * Writes a change (a text, or BlockNote JSON) back to a Y.Doc, through an
+ * editor that is bound to the
  * fragment of the document (`withCollaboration` of `@blocknote/core/yjs`)
  * and mounted, as a client does it. y-prosemirror syncs the editor and the
  * Y.Doc in the editor view: thus, the editor must be mounted, for example on
@@ -72,20 +75,16 @@ export type YDocTextUpdate =
  * `base` is the version that the client read: `"current"`, or the Yjs state
  * `Y.encodeStateAsUpdate` at that version. With a Yjs state, the result
  * keeps the changes that other writers made after that version: the target
- * of the text merges with the current document (see
+ * of the change merges with the current document (see
  * {@link YDocWriteFromVersion}). With `merge: "yjs"`, the operations of the
  * result are for `base`, else they are for the current document.
  */
 // eslint-disable-next-line complexity -- Follow-up: move the checks of the binding to a function.
-export function updateYDocFromText(
+export function updateYDoc(
   editor: BlockNoteEditor<any, any, any>,
   fragment: Y.XmlFragment,
-  options: {
-    format: TextFormat;
-    /** A text from `getDocumentText`, possibly with changes. */
-    text: string;
-  } & YDocWriteFromVersion,
-): YDocTextUpdate {
+  change: (TextChange | JSONChange) & YDocWriteFromVersion,
+): YDocChangeResult {
   const fork = editor.getExtension(ForkYDocExtension);
   const ydoc = fragment.doc;
   if (fork === undefined || editor.headless || ydoc === null) {
@@ -100,9 +99,13 @@ export function updateYDocFromText(
       "The editor shows a fork of the Y.Doc (for example a version preview). End the fork first.",
     );
   }
-  const { onConflict, merge, ...textOptions } = options;
-  requireBase(options.base);
-  const base = options.base === "current" ? undefined : options.base;
+  requireBase(change.base);
+  const { onConflict, merge } = change;
+  const input: TextChange | JSONChange =
+    change.document === undefined
+      ? { format: change.format, text: change.text }
+      : { document: change.document };
+  const base = change.base === "current" ? undefined : change.base;
   const before = Y.encodeStateVector(ydoc);
   if (base !== undefined) {
     // The client can read from a replica with an update that this Y.Doc does
@@ -127,21 +130,21 @@ export function updateYDocFromText(
   const unchanged =
     baseFragment === undefined ||
     (baseFragment.length === 0 && fragment.length === 0);
-  let update: TextUpdate | undefined;
+  let update: ChangeResult | undefined;
   fork.fork({ initialUpdate: yjs ? base : undefined });
   try {
     // Without changes of other writers, there is no conflict.
-    const writeOptions = yjs
-      ? { ...textOptions, base: "current" as const, keepLayout: true }
-      : unchanged
-        ? { ...textOptions, base: "current" as const }
+    const writeChange: DocumentChange =
+      yjs || unchanged
+        ? { ...input, base: "current" }
         : {
-            ...textOptions,
+            ...input,
             base: yXmlFragmentToBlocks(editor, baseFragment),
             onConflict,
           };
+    // With `merge: "yjs"`, the layout blocks stay (see `YDocWriteFromVersion`).
     update = write(editor, (current) =>
-      textUpdate(editor, writeOptions, current),
+      operationsOf(editor, writeChange, current, yjs),
     );
   } finally {
     fork.merge({

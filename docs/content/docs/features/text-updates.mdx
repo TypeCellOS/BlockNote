@@ -25,7 +25,7 @@ import { BlockNoteEditor } from "@blocknote/core";
 import {
   getDocumentText,
   markdownFormat,
-  updateDocumentFromText,
+  updateDocument,
 } from "@blocknote/xl-ai/text-lens";
 
 const editor = BlockNoteEditor.create({ initialContent });
@@ -34,7 +34,7 @@ const editor = BlockNoteEditor.create({ initialContent });
 const markdown = getDocumentText(editor, markdownFormat);
 
 // A client changes the markdown. Then write it back.
-const result = updateDocumentFromText(editor, {
+const result = updateDocument(editor, {
   format: markdownFormat,
   text: changedMarkdown,
   base: "current", // the client read the current document
@@ -46,7 +46,7 @@ if (result.error === undefined) {
 
 `base` is the version that the client read. `"current"` is correct if no other writer can change the document between the read and the write, for example if the read and the write occur in the same tick. Else, give the version that the client read (see [Writes From an Older Version](#writes-from-an-older-version)).
 
-`updateDocumentFromText` applies the changes in one transaction. `operations` lists the changes by block ID, and `warnings` lists changes that did not apply as written (see [Warnings](#warnings)). To compute the operations, but not apply them, use `computeTextUpdate` with the same options.
+`updateDocument` applies the changes in one transaction. `operations` lists the changes by block ID, and `warnings` lists changes that did not apply as written (see [Warnings](#warnings)). To compute the operations, but not apply them, use `computeOperations` with the same change. Then `applyOperations(tr, operations)` applies them to a transaction of your own, for example to show them as suggestions.
 
 If the text gives blocks that do not fit the schema of the editor, the result is `{ error: "invalid-document" }`, and the document does not change. An example is an HTML table cell that spans more rows than the table has.
 
@@ -73,7 +73,7 @@ const { text, base } = {
 };
 
 // ... later, after other users changed the document:
-updateDocumentFromText(editor, {
+updateDocument(editor, {
   format: markdownFormat,
   text: changedText,
   base,
@@ -100,7 +100,7 @@ The client's changes apply to the current document, by block ID. If both sides c
 Some clients must not lose a change, for example a tool that syncs a file that a person edits. For them, set `onConflict: "reject"`. Then a write with a conflict changes nothing, and the result is an error with the conflicts. The client can show them, or read the document again:
 
 ```typescript
-const result = updateDocumentFromText(editor, {
+const result = updateDocument(editor, {
   format: markdownFormat,
   text: changedText,
   base,
@@ -112,16 +112,16 @@ if (result.error === "conflict") {
 }
 ```
 
-The default is `onConflict: "keep-current"`: the other changes of the client apply, and the result has the warnings. `onConflict` needs a version as `base`, because a write with `base: "current"` has no conflicts. The JSON and Y.Doc writes have the same option.
+The default is `onConflict: "keep-current"`: the other changes of the client apply, and the result has the warnings. `onConflict` needs a version as `base`, because a write with `base: "current"` has no conflicts. A change as BlockNote JSON and the Y.Doc write have the same option.
 
 ## BlockNote JSON
 
-`updateDocumentFromJSON` applies a full document as BlockNote JSON in the same way. The JSON contains the block IDs, thus the blocks pair by ID. Only the changed blocks and fields change, and with `base`, the changes of other users stay. A field that the JSON of a block does not have gets its default value, thus send each block with all its fields:
+`updateDocument` and `computeOperations` also take a full document as BlockNote JSON: `{ document, base }` in place of `{ format, text, base }`. The JSON contains the block IDs, thus the blocks pair by ID. Only the changed blocks and fields change, and with `base`, the changes of other users stay. A field that the JSON of a block does not have gets its default value, thus send each block with all its fields:
 
 ```typescript
-import { updateDocumentFromJSON } from "@blocknote/xl-ai/text-lens";
+import { updateDocument } from "@blocknote/xl-ai/text-lens";
 
-const result = updateDocumentFromJSON(editor, {
+const result = updateDocument(editor, {
   document: changedBlocks,
   base,
 });
@@ -133,14 +133,14 @@ If the JSON does not fit the schema of the editor, the result is `{ error: "inva
 
 ## Y.Doc
 
-For a collaborative document in a Y.Doc, use the `@blocknote/xl-ai/text-lens/yjs` entry point. The lens writes through an editor that is bound to the Y.Doc, as a client. Create it with `withCollaboration`, with the schema and the extensions of your other clients, and mount it: the Yjs binding works in the editor view. On a server, mount it on an element that is not in a page. `base` is `"current"`, or the Yjs state of the version that the client read:
+For a collaborative document in a Y.Doc, use `updateYDoc` of the `@blocknote/xl-ai/text-lens/yjs` entry point. It takes the same change as `updateDocument` (a text or BlockNote JSON). The lens writes through an editor that is bound to the Y.Doc, as a client. Create it with `withCollaboration`, with the schema and the extensions of your other clients, and mount it: the Yjs binding works in the editor view. On a server, mount it on an element that is not in a page. `base` is `"current"`, or the Yjs state of the version that the client read:
 
 ```typescript
 import { BlockNoteEditor } from "@blocknote/core";
 import { withCollaboration } from "@blocknote/core/yjs";
 import * as Y from "yjs";
 import { getDocumentText, markdownFormat } from "@blocknote/xl-ai/text-lens";
-import { updateYDocFromText } from "@blocknote/xl-ai/text-lens/yjs";
+import { updateYDoc } from "@blocknote/xl-ai/text-lens/yjs";
 
 const fragment = ydoc.getXmlFragment("document-store");
 const editor = BlockNoteEditor.create(
@@ -154,7 +154,7 @@ const text = getDocumentText(editor, markdownFormat);
 const base = Y.encodeStateAsUpdate(ydoc);
 
 // ... later:
-const result = updateYDocFromText(editor, fragment, {
+const result = updateYDoc(editor, fragment, {
   format: markdownFormat,
   text: changedText,
   base,

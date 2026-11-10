@@ -2,7 +2,7 @@ import { UnreachableCaseError } from "@blocknote/core";
 import type {
   BlockOperation,
   BlockPosition,
-  TextUpdateWarning,
+  ChangeWarning,
 } from "@blocknote/xl-ai/text-lens";
 
 /** The first characters of a block ID. They are sufficient to tell blocks apart in the panel. */
@@ -34,7 +34,7 @@ export function describeOperation(operation: BlockOperation): string {
 }
 
 /** Returns one line of text for a warning of the lens. */
-export function describeWarning(warning: TextUpdateWarning): string {
+export function describeWarning(warning: ChangeWarning): string {
   switch (warning.type) {
     case "multi-part-block-replaced":
       return `${warning.type} ${shortId(warning.id)}: the blocks of the text replaced a block that the format shows as more than one block.`;

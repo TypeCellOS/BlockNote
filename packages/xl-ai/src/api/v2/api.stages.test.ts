@@ -1,7 +1,7 @@
 import { BlockNoteEditor, type PartialBlock } from "@blocknote/core";
 import { describe, expect, it } from "vite-plus/test";
 
-import { computeTextUpdate, getDocumentText } from "./api.js";
+import { computeOperations, getDocumentText } from "./api.js";
 import { markdownFormat } from "./formats/markdown.js";
 import { plainTextFormat } from "./formats/plainText.js";
 import type { TextFormat } from "./formats/types.js";
@@ -12,7 +12,7 @@ import { valid } from "./testUtil/valid.js";
  * The data of each stage of a write, for core examples (see "Pipeline" in
  * the README). The snapshots are documentation that the tests keep correct.
  * Each test also examines that the stages give the operations of
- * `computeTextUpdate`.
+ * `computeOperations`.
  */
 function stagesOf(
   initialContent: PartialBlock[],
@@ -25,7 +25,7 @@ function stagesOf(
   const stages = textStages(editor, format, text);
   expect(stages.operations).toEqual(
     withNewIdPlaceholders(
-      valid(computeTextUpdate(editor, { base: "current", format, text }))
+      valid(computeOperations(editor, { base: "current", format, text }))
         .operations,
     ),
   );

@@ -7,7 +7,7 @@ import {
   markdownFormat,
   plainTextFormat,
   type TextFormat,
-  updateDocumentFromText,
+  updateDocument,
 } from "../index.js";
 import { columnSchema } from "../testUtil/fixtures.js";
 import { valid } from "../testUtil/valid.js";
@@ -29,7 +29,7 @@ describe("hidden blocks next to blocks that the text moves", () => {
   ): string {
     const editor = BlockNoteEditor.create({ schema, initialContent });
     valid(
-      updateDocumentFromText(editor, {
+      updateDocument(editor, {
         base: "current",
         format,
         text: text(getDocumentText(editor, format)),

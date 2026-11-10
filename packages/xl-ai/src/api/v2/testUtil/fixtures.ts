@@ -11,8 +11,8 @@ import { testDocumentBlocks } from "@shared/testDocument.js";
 import {
   getDocumentText,
   type TextFormat,
-  updateDocumentFromText,
-  type ValidTextUpdate,
+  updateDocument,
+  type ChangeOperations,
 } from "../index.js";
 import { flattenBlocks } from "../blocks/flatten.js";
 import type { LensBlock, LensStyledText, LensStyles } from "../blocks/types.js";
@@ -191,11 +191,9 @@ export function writeText(
   editor: BlockNoteEditor<any, any, any>,
   format: TextFormat,
   edit: (text: string) => string,
-): ValidTextUpdate {
+): ChangeOperations {
   const text = edit(getDocumentText(editor, format));
-  return valid(
-    updateDocumentFromText(editor, { base: "current", format, text }),
-  );
+  return valid(updateDocument(editor, { base: "current", format, text }));
 }
 
 /** Makes an editor with the shared test document (`shared/testDocumentBlocks.ts`). */

@@ -13,7 +13,7 @@ import {
   getDocumentText,
   markdownFormat,
   plainTextFormat,
-  updateDocumentFromText,
+  updateDocument,
 } from "../index.js";
 import {
   addComment,
@@ -28,7 +28,7 @@ import {
   richDocument,
 } from "../testUtil/fixtures.js";
 import { bindEditor, readText, unbindEditor } from "../testUtil/yjs.js";
-import { updateYDocFromText } from "./yDocText.js";
+import { updateYDoc } from "./yDocText.js";
 import { valid } from "../testUtil/valid.js";
 import { formatCases } from "../testUtil/codecs.js";
 import {
@@ -74,7 +74,7 @@ function setup(initialContent: PartialBlock[] = richDocument) {
       merge?: Merge,
     ) =>
       valid(
-        updateYDocFromText(editor, fragment, {
+        updateYDoc(editor, fragment, {
           format,
           text: edit(client.text),
           base: client.base,
@@ -90,7 +90,7 @@ function setup(initialContent: PartialBlock[] = richDocument) {
   };
 }
 
-describe("updateYDocFromText", () => {
+describe("updateYDoc", () => {
   it("writes the changes of the text to the Y.Doc, and keeps hidden data", () => {
     const { read, write, block } = setup();
     write(read(), (text) =>
@@ -111,7 +111,7 @@ describe("updateYDocFromText", () => {
     const text = "Alpha https://example.com end";
 
     valid(
-      updateYDocFromText(editor, fragment, {
+      updateYDoc(editor, fragment, {
         base: "current",
         format: plainTextFormat,
         text,
@@ -128,7 +128,7 @@ describe("updateYDocFromText", () => {
 
     // A caller without types can forget `base`.
     expect(() =>
-      updateYDocFromText(editor, fragment, {
+      updateYDoc(editor, fragment, {
         format: markdownFormat,
         text: "Hello",
       } as never),
@@ -146,20 +146,18 @@ describe("updateYDocFromText", () => {
     };
 
     expect(() =>
-      updateYDocFromText(BlockNoteEditor.create(), fragment, options),
+      updateYDoc(BlockNoteEditor.create(), fragment, options),
     ).toThrow(/bound to the fragment/);
     const notMounted = BlockNoteEditor.create(
       withCollaboration({
         collaboration: { fragment, user: { name: "Lens", color: "#000000" } },
       }),
     );
-    expect(() => updateYDocFromText(notMounted, fragment, options)).toThrow(
-      /mounted/,
-    );
+    expect(() => updateYDoc(notMounted, fragment, options)).toThrow(/mounted/);
   });
 
   it("allows merge yjs only with base, and without onConflict", () => {
-    type Options = Parameters<typeof updateYDocFromText>[2];
+    type Options = Parameters<typeof updateYDoc>[2];
     const yjs = { format: markdownFormat, text: "", merge: "yjs" } as const;
     const base = new Uint8Array();
     // @ts-expect-error `merge: "yjs"` needs `base`.
@@ -214,7 +212,7 @@ describe.each([
     const ydoc = new Y.Doc();
     const fragment = ydoc.getXmlFragment("prosemirror");
     valid(
-      updateYDocFromText(bindEditor(fragment), fragment, {
+      updateYDoc(bindEditor(fragment), fragment, {
         base: "current",
         format,
         text: "Hello",
@@ -229,7 +227,7 @@ describe.each([
     const ydoc = new Y.Doc();
     const fragment = ydoc.getXmlFragment("prosemirror");
     valid(
-      updateYDocFromText(bindEditor(fragment), fragment, {
+      updateYDoc(bindEditor(fragment), fragment, {
         format,
         text: "Hello",
         base: Y.encodeStateAsUpdate(ydoc),
@@ -246,14 +244,14 @@ describe.each([
       const fragment = ydoc.getXmlFragment("prosemirror");
       const base = Y.encodeStateAsUpdate(ydoc);
       valid(
-        updateYDocFromText(bindEditor(fragment), fragment, {
+        updateYDoc(bindEditor(fragment), fragment, {
           base: "current",
           format,
           text: "Other",
         }),
       );
       valid(
-        updateYDocFromText(bindEditor(fragment), fragment, {
+        updateYDoc(bindEditor(fragment), fragment, {
           format,
           text: "Hello",
           base,
@@ -276,14 +274,14 @@ describe.each([
     const fragment = ydoc.getXmlFragment("prosemirror");
     const editor = bindEditor(fragment);
     valid(
-      updateYDocFromText(editor, fragment, {
+      updateYDoc(editor, fragment, {
         base: "current",
         format,
         text: "",
       }),
     );
     valid(
-      updateYDocFromText(editor, fragment, {
+      updateYDoc(editor, fragment, {
         base: "current",
         format,
         text: "New text",
@@ -537,20 +535,16 @@ describe("concurrent writes (merge lens): conflicts", () => {
     change((user) => user.updateBlock("last", { content: "Last section" }));
     const before = Y.encodeStateAsUpdate(ydoc);
 
-    const result = updateYDocFromText(
-      editor,
-      ydoc.getXmlFragment("prosemirror"),
-      {
-        format: markdownFormat,
-        text: replaceOnce(
-          replaceOnce(client.text, "Last paragraph", "Last part"),
-          "Colored centered paragraph",
-          "Colored text",
-        ),
-        base: client.base,
-        onConflict: "reject",
-      },
-    );
+    const result = updateYDoc(editor, ydoc.getXmlFragment("prosemirror"), {
+      format: markdownFormat,
+      text: replaceOnce(
+        replaceOnce(client.text, "Last paragraph", "Last part"),
+        "Colored centered paragraph",
+        "Colored text",
+      ),
+      base: client.base,
+      onConflict: "reject",
+    });
 
     expect(result).toEqual({
       error: "conflict",
@@ -571,7 +565,7 @@ describe.each(merges)("comments (merge %s)", (merge) => {
     const moved = addComment(editor, "Pears");
     const write = (edit: (text: string) => string) =>
       valid(
-        updateYDocFromText(editor, fragment, {
+        updateYDoc(editor, fragment, {
           format: markdownFormat,
           text: edit(getDocumentText(editor, markdownFormat)),
           base: Y.encodeStateAsUpdate(ydoc),
@@ -650,9 +644,9 @@ describe.each(formatCases)(
       );
       const text = randomEdits(random, getDocumentText(editor, format), edit);
 
-      valid(updateDocumentFromText(editor, { base: "current", format, text }));
+      valid(updateDocument(editor, { base: "current", format, text }));
       valid(
-        updateYDocFromText(bindEditor(fragment), fragment, {
+        updateYDoc(bindEditor(fragment), fragment, {
           base: "current",
           format,
           text,
@@ -701,7 +695,7 @@ describe("Y.Doc writes after a move of a nested block", () => {
     );
     const fragment = ydoc.getXmlFragment("prosemirror");
     valid(
-      updateYDocFromText(bindEditor(fragment), fragment, {
+      updateYDoc(bindEditor(fragment), fragment, {
         base: "current",
         format: markdownFormat,
         text,
@@ -709,7 +703,7 @@ describe("Y.Doc writes after a move of a nested block", () => {
     );
     const reference = BlockNoteEditor.create({ initialContent: nested });
     valid(
-      updateDocumentFromText(reference, {
+      updateDocument(reference, {
         base: "current",
         format: markdownFormat,
         text,
@@ -776,7 +770,7 @@ describe.each(merges)("concurrent writes with columns (merge %s)", (merge) => {
     // show the columns, thus the block goes into column B, before Bravo (a
     // new block goes into the nesting of the next block).
     valid(
-      updateYDocFromText(bindEditor(fragment, { schema }), fragment, {
+      updateYDoc(bindEditor(fragment, { schema }), fragment, {
         base: "current",
         format,
         text: text.replace("Alpha", "Alpha\n\nAdded by other"),
@@ -784,7 +778,7 @@ describe.each(merges)("concurrent writes with columns (merge %s)", (merge) => {
     );
 
     valid(
-      updateYDocFromText(editor, fragment, {
+      updateYDoc(editor, fragment, {
         format,
         text: text.replace("Bravo\n\n", ""),
         base,
@@ -827,7 +821,7 @@ describe("changes of other writers in a list with more than one structural chang
     const fragment = ydoc.getXmlFragment("prosemirror");
     const editor = bindEditor(fragment);
     valid(
-      updateYDocFromText(editor, fragment, {
+      updateYDoc(editor, fragment, {
         base: "current",
         format: markdownFormat,
         text: "First\n\nAlpha\n\nBeta\n\nGamma\n\nLast\n",
@@ -841,7 +835,7 @@ describe("changes of other writers in a list with more than one structural chang
   });
 
   it("keeps a change of another client in its block, also with the API for an editor", () => {
-    // updateDocumentFromText on an editor that is bound to a Y.Doc (for
+    // updateDocument on an editor that is bound to a Y.Doc (for
     // example AI in a collaborative editor) uses the same transactions.
     const ydoc = blocksToYDoc(BlockNoteEditor.create(), blocks);
     const other = new Y.Doc();
@@ -853,7 +847,7 @@ describe("changes of other writers in a list with more than one structural chang
     const fragment = ydoc.getXmlFragment("prosemirror");
     const editor = bindEditor(fragment);
     valid(
-      updateDocumentFromText(editor, {
+      updateDocument(editor, {
         base: "current",
         format: markdownFormat,
         text: "First\n\nAlpha\n\nBeta\n\nGamma\n\nLast\n",
@@ -876,7 +870,7 @@ describe("changes of other writers in a list with more than one structural chang
       editor.updateBlock("a", { content: "Alpha edited" });
 
       valid(
-        updateYDocFromText(editor, fragment, {
+        updateYDoc(editor, fragment, {
           format: markdownFormat,
           text: "First\n\nAlpha\n\nBeta\n\nGamma\n\nLast\n",
           base,
@@ -899,7 +893,7 @@ describe("changes of other writers in a list with more than one structural chang
       editor.updateBlock("b", { content: "Beta edited" });
 
       valid(
-        updateYDocFromText(editor, fragment, {
+        updateYDoc(editor, fragment, {
           format: markdownFormat,
           text: "Gamma\n\nAlpha\n\nBeta\n",
           base,
@@ -929,7 +923,7 @@ describe("a base with two blocks with one ID", () => {
     editor.updateBlock("b", { content: "Beta 2" });
 
     const result = valid(
-      updateYDocFromText(editor, fragment, {
+      updateYDoc(editor, fragment, {
         format: markdownFormat,
         text: replaceOnce(text, "Alpha copy", "Alpha copy edited"),
         base,
@@ -972,7 +966,7 @@ describe("a write that fails in the middle", () => {
     const before = readText(fragment, markdownFormat);
 
     expect(() =>
-      updateYDocFromText(editor, fragment, {
+      updateYDoc(editor, fragment, {
         base: "current",
         format: markdownFormat,
         text: "x First one two Last end\n\nBeta\n",
@@ -1010,7 +1004,7 @@ describe("a base with an update that the Y.Doc does not have yet", () => {
 
       const fragment = server.getXmlFragment("prosemirror");
       const result = valid(
-        updateYDocFromText(bindEditor(fragment), fragment, {
+        updateYDoc(bindEditor(fragment), fragment, {
           format: markdownFormat,
           text: replaceOnce(text, "Gamma", "Gamma edited"),
           base,
@@ -1038,7 +1032,7 @@ describe("an editor that shows a fork of the Y.Doc", () => {
     const before = Y.encodeStateAsUpdate(ydoc);
 
     expect(() =>
-      updateYDocFromText(editor, fragment, {
+      updateYDoc(editor, fragment, {
         base: "current",
         format: markdownFormat,
         text: "Alpha edited\n",
