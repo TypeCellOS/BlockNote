@@ -104,6 +104,8 @@ export class DOCXExporter<
 
   /**
    * Mostly for internal use, you probably want to use `toBlob` or `toDocxJsDocument` instead.
+   * Collects numbering definitions for this transformation only. Overrides must
+   * forward the collector so document options include the discovered levels.
    */
   public transformStyledText(styledText: StyledText<S>, hyperlink?: boolean) {
     const stylesArray = this.mapStyles(styledText.styles);
@@ -145,6 +147,11 @@ export class DOCXExporter<
     );
   }
 
+  /**
+   * Transforms sibling runs, sharing a built-in parent's numbering instance only
+   * when the child level has a compatible marker. Gaps, type switches, custom
+   * mappings, and clamped depths keep independent instances to preserve restarts.
+   */
   private async transformBlockResults(
     blocks: Block<B, I, S>[],
     nestingLevel: number,
@@ -288,6 +295,11 @@ export class DOCXExporter<
     ];
   }
 
+  /**
+   * Builds styles and numbering from the completed transformation's collector.
+   * Overrides must forward that collector; legacy list references remain
+   * available for custom mappings alongside the generated mixed-list references.
+   */
   protected async createDefaultDocumentOptions(
     locale?: string,
     listDefinitions = new Map<number, ListDefinition>(),
@@ -315,6 +327,7 @@ export class DOCXExporter<
     // (#2226). These Unicode glyphs render in the document font, so they don't
     // depend on Symbol/Wingdings being installed.
     const bullets = ["•", "○", "▪"];
+    /** Builds all supported levels, using the run's type for unused levels. */
     function listLevels(type: ListType, levels = new Map<number, ListType>()) {
       return Array.from({ length: DOCX_LIST_LEVEL_COUNT }, (_, i) => {
         const bullet = (levels.get(i) ?? type) === "bulletListItem";
