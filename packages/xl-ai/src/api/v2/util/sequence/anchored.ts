@@ -1,22 +1,60 @@
 import { gaps } from "./gaps.js";
-import { myersMatch } from "./myers.js";
+import { DEFAULT_MAX_WORK, myersMatch, type WorkBudget } from "./myers.js";
 import type { MatchedPair } from "./types.js";
 
 /**
+ * The work limit of one {@link anchoredMatch}, for each item of the input.
+ * Thus, the time is linear in the size of the input.
+ */
+const WORK_PER_ITEM = 50;
+
+/**
+ * The work of a search for anchors, for each item that it examines. A search
+ * puts each key into a map, which takes more time than one step of the Myers
+ * diff.
+ */
+const SEARCH_WORK_PER_ITEM = 10;
+
+/**
+ * The maximum size of a gap between two anchors (its items of `a` and of
+ * `b`) that gets the Myers diff without a new search for anchors. Its work
+ * is at most about the square of this size, and its result is a longest
+ * common subsequence. An anchor in a small gap can be unique only by chance.
+ */
+const SMALL_GAP = 2000;
+
+/**
+ * A range of `a` and of `b` to match, or a pair to add to the result. A gap
+ * is a range between two anchors. The full input is not a gap.
+ */
+type Step =
+  | {
+      kind: "match";
+      aStart: number;
+      aEnd: number;
+      bStart: number;
+      bEnd: number;
+      isGap: boolean;
+    }
+  | { kind: "add"; pair: MatchedPair };
+
+/**
  * Matches `a` and `b` like {@link myersMatch}, also for large inputs with
- * many changes (the patience method):
+ * many changes (the patience method of git):
  *
  * 1. The keys that are in `a` one time and in `b` one time are anchors. The
  *    longest increasing subsequence of these pairs gives the anchors that do
  *    not cross.
- * 2. Between two anchors, {@link myersMatch} matches the items.
+ * 2. A small gap between two anchors (see {@link SMALL_GAP}) gets the Myers
+ *    diff. A larger gap gets step 1 again, with only its keys: a key that
+ *    repeats in the full input can be unique in a gap. Thus, the gaps become
+ *    small. A range without anchors gets the Myers diff.
  *
- * Thus, the limit of the edit distance of the Myers diff applies only between
- * two anchors. The patience method of git also finds anchors again between
- * two anchors. That is not necessary here: the Myers diff gives the best
- * match between two anchors, unless the range needs more edits than its
- * limit. Without that recursion, the time has a limit, also for inputs that
- * give one new anchor at each level.
+ * All steps share one work limit: {@link WORK_PER_ITEM} for each item of the
+ * input, and at least `DEFAULT_MAX_WORK`. Thus, the time is linear, also for
+ * inputs that give only one new anchor at each level. After the limit, a gap
+ * gets no new search for anchors, and its Myers diff matches only its common
+ * prefix and suffix.
  *
  * The result is a common subsequence, in order. It is not always the longest
  * one.
@@ -28,29 +66,88 @@ export function anchoredMatch<T>(
 ): MatchedPair[] {
   const keysA = a.map(keyOf);
   const keysB = b.map(keyOf);
+  const budget: WorkBudget = {
+    left: Math.max(DEFAULT_MAX_WORK, WORK_PER_ITEM * (a.length + b.length)),
+  };
   const pairs: MatchedPair[] = [];
-  // The anchors: the unique pairs without crossings.
-  const anchors = longestIncreasing(uniquePairs(keysA, keysB));
-  for (const { aStart, aEnd, bStart, bEnd, anchor } of gaps(
-    anchors,
-    a.length,
-    b.length,
-  )) {
-    for (const pair of myersMatch(
-      keysA.slice(aStart, aEnd),
-      keysB.slice(bStart, bEnd),
-      (x, y) => x === y,
-    )) {
+  // A stack, not a recursion: an input can give one new anchor at each
+  // level, thus the depth can be the size of the input.
+  const steps: Step[] = [
+    {
+      kind: "match",
+      aStart: 0,
+      aEnd: a.length,
+      bStart: 0,
+      bEnd: b.length,
+      isGap: false,
+    },
+  ];
+  for (let step = steps.pop(); step !== undefined; step = steps.pop()) {
+    if (step.kind === "add") {
+      pairs.push(step.pair);
+    } else {
+      const next = matchRange(keysA, keysB, step, budget, pairs);
+      for (let i = next.length - 1; i >= 0; i--) {
+        steps.push(next[i]);
+      }
+    }
+  }
+  return pairs;
+}
+
+/**
+ * Matches one range. If the range has anchors, returns the steps for its
+ * gaps and anchors, in order. Else adds the pairs of the Myers diff to
+ * `pairs`, and returns no steps.
+ */
+function matchRange(
+  keysA: readonly string[],
+  keysB: readonly string[],
+  { aStart, aEnd, bStart, bEnd, isGap }: Extract<Step, { kind: "match" }>,
+  budget: WorkBudget,
+  pairs: MatchedPair[],
+): Step[] {
+  const rangeA = keysA.slice(aStart, aEnd);
+  const rangeB = keysB.slice(bStart, bEnd);
+  if (rangeA.length === 0 || rangeB.length === 0) {
+    return [];
+  }
+  const size = rangeA.length + rangeB.length;
+  const search = (!isGap || size > SMALL_GAP) && budget.left > 0;
+  if (search) {
+    budget.left -= SEARCH_WORK_PER_ITEM * size;
+  }
+  const anchors = search ? longestIncreasing(uniquePairs(rangeA, rangeB)) : [];
+  if (anchors.length === 0) {
+    for (const pair of myersMatch(rangeA, rangeB, (x, y) => x === y, budget)) {
       pairs.push({
         aIndex: aStart + pair.aIndex,
         bIndex: bStart + pair.bIndex,
       });
     }
-    if (anchor) {
-      pairs.push(anchor);
-    }
+    return [];
   }
-  return pairs;
+  return gaps(anchors, rangeA.length, rangeB.length).flatMap((gap): Step[] => [
+    {
+      kind: "match",
+      aStart: aStart + gap.aStart,
+      aEnd: aStart + gap.aEnd,
+      bStart: bStart + gap.bStart,
+      bEnd: bStart + gap.bEnd,
+      isGap: true,
+    },
+    ...(gap.anchor
+      ? [
+          {
+            kind: "add" as const,
+            pair: {
+              aIndex: aStart + gap.anchor.aIndex,
+              bIndex: bStart + gap.anchor.bIndex,
+            },
+          },
+        ]
+      : []),
+  ]);
 }
 
 /**

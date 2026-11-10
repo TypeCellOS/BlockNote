@@ -38,7 +38,7 @@ describe("myersMatch", () => {
   it("matches only the common prefix and suffix after the work limit", () => {
     const a = ["x", ...Array.from({ length: 1100 }, () => "a"), "x"];
     const b = ["x", ...Array.from({ length: 1100 }, () => "b"), "x"];
-    expect(myersMatch(a, b, equals, 0)).toEqual([
+    expect(myersMatch(a, b, equals, { left: 0 })).toEqual([
       { aIndex: 0, bIndex: 0 },
       { aIndex: 1101, bIndex: 1101 },
     ]);

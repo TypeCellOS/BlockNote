@@ -32,7 +32,11 @@ export type BlockPair = { aIndex: number; bIndex: number; moved?: true };
 
 /**
  * Aligns two flat block lists, one to one. The identity of a block follows
- * the location of its text:
+ * the location of its text.
+ *
+ * Equal blocks at the start and at the end match first, as in a line diff.
+ * Thus, the time of a small edit does not depend on the size of the
+ * document. The rules apply to the blocks between them:
  *
  * 1. One word diff of the texts of all blocks finds the overlap of each pair
  *    of blocks (see `textOverlaps`). It aligns the most words, thus a run of
@@ -69,10 +73,60 @@ export function alignBlocks(
   a: readonly FlatBlock[],
   b: readonly FlatBlock[],
 ): BlockPair[] {
+  const { start, end } = equalEnds(a, b);
+  const middle = alignByRules(
+    a.slice(start, a.length - end),
+    b.slice(start, b.length - end),
+  );
+  return [
+    ...indexes(0, start).map((i) => ({ aIndex: i, bIndex: i })),
+    ...middle.map((pair) => ({
+      ...pair,
+      aIndex: start + pair.aIndex,
+      bIndex: start + pair.bIndex,
+    })),
+    ...indexes(0, end).map((i) => ({
+      aIndex: a.length - end + i,
+      bIndex: b.length - end + i,
+    })),
+  ];
+}
+
+/** The rules 1 to 3 of {@link alignBlocks}. */
+function alignByRules(
+  a: readonly FlatBlock[],
+  b: readonly FlatBlock[],
+): BlockPair[] {
   const overlapping = overlapPairs(a, b);
   const moved = movedPairs(a, b, overlapping);
   const samePosition = samePositionPairs(a, b, overlapping, moved);
   return [...overlapping, ...moved, ...samePosition];
+}
+
+/**
+ * The number of blocks with equal keys (see {@link alignmentKey}) at the
+ * start of the two lists, and at their end (without the blocks of the start).
+ */
+function equalEnds(
+  a: readonly FlatBlock[],
+  b: readonly FlatBlock[],
+): { start: number; end: number } {
+  function equal(i: number, j: number) {
+    return alignmentKey(a[i].block) === alignmentKey(b[j].block);
+  }
+  let start = 0;
+  while (start < a.length && start < b.length && equal(start, start)) {
+    start++;
+  }
+  let end = 0;
+  while (
+    end < a.length - start &&
+    end < b.length - start &&
+    equal(a.length - 1 - end, b.length - 1 - end)
+  ) {
+    end++;
+  }
+  return { start, end };
 }
 
 /**

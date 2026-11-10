@@ -10,24 +10,29 @@ import type { MatchedPair } from "./types.js";
 export const DEFAULT_MAX_WORK = 10_000_000;
 
 /**
+ * A work limit that more than one call of {@link myersMatch} can share: the
+ * number of steps that are left. Each call uses steps of it.
+ */
+export type WorkBudget = { left: number };
+
+/**
  * Matches `a` and `b` with the Myers O(ND) diff algorithm, in linear space
  * (the "middle snake" bisection, as in diff-match-patch). The result is a
  * longest common subsequence, as matched pairs.
  *
  * The function always matches the common prefix and the common suffix. The
- * work for the rest is O((N + M) * D), for the edit distance D. If the work
- * becomes more than `maxWork`, the ranges that are not matched yet get only
- * their common prefix and suffix. The result is then a common subsequence,
+ * work for the rest is O((N + M) * D), for the edit distance D. If `budget`
+ * has no steps left, the ranges that are not matched yet get only their
+ * common prefix and suffix. The result is then a common subsequence,
  * but not always the longest one. The memory is O(N + M).
  */
 export function myersMatch<A, B>(
   a: readonly A[],
   b: readonly B[],
   equals: (a: A, b: B) => boolean,
-  maxWork = DEFAULT_MAX_WORK,
+  budget: WorkBudget = { left: DEFAULT_MAX_WORK },
 ): MatchedPair[] {
   const pairs: MatchedPair[] = [];
-  let work = 0;
   match(0, a.length, 0, b.length);
   return pairs;
 
@@ -107,11 +112,11 @@ export function myersMatch<A, B>(
             ? forward[index + 1]
             : forward[index - 1] + 1;
         let y = x - k;
-        work++;
+        budget.left--;
         while (x < n && y < m && equals(a[aStart + x], b[bStart + y])) {
           x++;
           y++;
-          work++;
+          budget.left--;
         }
         forward[index] = x;
         if (x > n) {
@@ -138,11 +143,11 @@ export function myersMatch<A, B>(
             ? backward[index + 1]
             : backward[index - 1] + 1;
         let y = x - k;
-        work++;
+        budget.left--;
         while (x < n && y < m && equals(a[aEnd - 1 - x], b[bEnd - 1 - y])) {
           x++;
           y++;
-          work++;
+          budget.left--;
         }
         backward[index] = x;
         if (x > n) {
@@ -161,7 +166,7 @@ export function myersMatch<A, B>(
         }
       }
 
-      if (work > maxWork) {
+      if (budget.left < 0) {
         return undefined;
       }
     }

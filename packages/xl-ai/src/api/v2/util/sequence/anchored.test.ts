@@ -53,6 +53,26 @@ describe("anchoredMatch", () => {
     expect(pairs.every((pair) => a[pair.aIndex] === b[pair.bIndex])).toBe(true);
   });
 
+  it("finds anchors again between two anchors", () => {
+    // Each word is two times in `a` and in `b`, thus it is not an anchor of
+    // the full input. Between "start" and "middle", each word is one time: an
+    // anchor of that gap. In `b`, a new item follows each word of that gap.
+    // Thus, a Myers diff of the gap needs 5,000 edits, more than its limit.
+    const words = Array.from({ length: 5000 }, (_, i) => `w${i}`);
+    const a = ["start", ...words, "middle", ...words, "end"];
+    const b = [
+      "start",
+      ...words.flatMap((word) => [word, "new"]),
+      "middle",
+      ...words,
+      "end",
+    ];
+
+    const pairs = anchoredMatch(a, b, same);
+    expect(pairs).toHaveLength(2 * words.length + 3);
+    expect(pairs.every((pair) => a[pair.aIndex] === b[pair.bIndex])).toBe(true);
+  });
+
   it("gives pairs that do not cross", () => {
     const a = ["a", "b", "c", "d"];
     const b = ["c", "a", "b", "d"];
