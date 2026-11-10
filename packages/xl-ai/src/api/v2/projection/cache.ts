@@ -12,8 +12,8 @@ import { projectDocument, type Projection } from "./projectDocument.js";
  *   and a client can write more than one time from one version. The key is
  *   the JSON of the document: it costs milliseconds, and the serialize and
  *   the parse cost seconds for a large document.
- * - The shadow of each inline item (see `shadowsOf` in `api.ts`). It depends
- *   only on the item.
+ * - The shadow of each inline item (see `shadowsOf` in `shadows.ts`). It
+ *   depends only on the item.
  *
  * The cache keeps one document for each editor and format, and it goes with
  * the editor.
@@ -46,25 +46,25 @@ export function formatCache(
 }
 
 /**
- * Returns the text of the document in the format, and a function that gives
- * its projection. Both come from the cache if the document is the last
+ * Returns the text of the source document in the format, and a function that
+ * gives its projection. Both come from the cache if the source is the last
  * document of the editor and the format.
  */
 export function documentText(
   editor: BlockNoteEditor<any, any, any>,
   format: TextFormat,
-  document: readonly LensBlock[],
+  source: readonly LensBlock[],
 ): { text: string; projection: () => Projection } {
   const cache = formatCache(editor, format);
-  const key = JSON.stringify(document);
+  const key = JSON.stringify(source);
   if (cache.last?.key !== key) {
-    cache.last = { key, text: format.serialize(editor, document) };
+    cache.last = { key, text: format.serialize(editor, source) };
   }
   const last = cache.last;
   return {
     text: last.text,
     projection: () => {
-      last.projection ??= projectDocument(editor, format, document, last.text);
+      last.projection ??= projectDocument(editor, format, source, last.text);
       return last.projection;
     },
   };

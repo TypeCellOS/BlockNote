@@ -34,14 +34,14 @@ export type Projection = {
   multiParts: Map<string, number[]>;
 };
 
-/** A view block that a source block gives alone (a part), and the index of that source block. */
-export type Part = { part: FlatBlock; source: number };
+/** A view block that a source block gives alone (a part), and the index of that source block in `sources`. */
+export type Part = { part: FlatBlock; sourceIndex: number };
 
 /**
- * Renders the document in the format and parses it back. Then links each view
- * block to the source block that gave it:
+ * Renders the source document in the format and parses it back. Then links
+ * each view block to the source block that gave it:
  *
- *     view  = parse(serialize(document))
+ *     view  = parse(serialize(source))
  *     parts = for each source block: parse(serialize(the block alone))
  *     links = linkBlocks(parts, view)
  *
@@ -56,12 +56,12 @@ export type Part = { part: FlatBlock; source: number };
 export function projectDocument(
   editor: BlockNoteEditor<any, any, any>,
   format: TextFormat,
-  document: readonly LensBlock[],
-  /** The text of the document in the format, if the caller has it. */
-  text = format.serialize(editor, document),
+  source: readonly LensBlock[],
+  /** The text of the source document in the format, if the caller has it. */
+  text = format.serialize(editor, source),
 ): Projection {
-  const view = viewOf(editor, format, document, text);
-  const sources = flattenBlocks(document);
+  const view = viewOf(editor, format, source, text);
+  const sources = flattenBlocks(source);
   return projectWithParts(
     sources,
     view,
@@ -84,7 +84,9 @@ export function projectWithParts(
   const viewBlocks = view.map((flat, v): ViewBlock => {
     const link = links[v];
     const sourceId =
-      link === undefined ? undefined : sources[parts[link].source].block.id;
+      link === undefined
+        ? undefined
+        : sources[parts[link].sourceIndex].block.id;
     if (sourceId !== undefined) {
       const views = viewsOf.get(sourceId);
       if (views === undefined) {
@@ -125,12 +127,12 @@ export function partsOfEachBlock(
   text: string,
 ): Part[] {
   const { layoutRuleOf } = schemaRulesOf(editor);
-  return sources.flatMap((flat, source) => {
+  return sources.flatMap((flat, sourceIndex) => {
     if (layoutRuleOf(flat.block.type) !== undefined) {
-      return [{ part: { ...flat, parentIndex: undefined }, source }];
+      return [{ part: { ...flat, parentIndex: undefined }, sourceIndex }];
     }
     const [own] = roundTripAlone(editor, format, [flat.block], text);
-    return own.map((part) => ({ part, source }));
+    return own.map((part) => ({ part, sourceIndex }));
   });
 }
 
@@ -154,19 +156,21 @@ function partsOf(
 ): Part[] {
   const shown = shownBlocks(sources, view);
   const alone = notLayoutBlocks(editor, sources).filter(
-    (source) => !shown.has(source),
+    (sourceIndex) => !shown.has(sourceIndex),
   );
   const groups = roundTripAlone(
     editor,
     format,
-    alone.map((source) => sources[source].block),
+    alone.map((sourceIndex) => sources[sourceIndex].block),
     text,
   );
-  const partsOfAlone = new Map(alone.map((source, k) => [source, groups[k]]));
-  return sources.flatMap((flat, source) =>
-    (partsOfAlone.get(source) ?? [{ ...flat, parentIndex: undefined }]).map(
-      (part) => ({ part, source }),
-    ),
+  const partsOfAlone = new Map(
+    alone.map((sourceIndex, k) => [sourceIndex, groups[k]]),
+  );
+  return sources.flatMap((flat, sourceIndex) =>
+    (
+      partsOfAlone.get(sourceIndex) ?? [{ ...flat, parentIndex: undefined }]
+    ).map((part) => ({ part, sourceIndex })),
   );
 }
 
@@ -176,8 +180,8 @@ function notLayoutBlocks(
   sources: readonly FlatBlock[],
 ): number[] {
   const { layoutRuleOf } = schemaRulesOf(editor);
-  return sources.flatMap(({ block }, source) =>
-    layoutRuleOf(block.type) === undefined ? [source] : [],
+  return sources.flatMap(({ block }, sourceIndex) =>
+    layoutRuleOf(block.type) === undefined ? [sourceIndex] : [],
   );
 }
 
@@ -193,10 +197,10 @@ function notLayoutBlocks(
 function viewOf(
   editor: BlockNoteEditor<any, any, any>,
   format: TextFormat,
-  document: readonly LensBlock[],
+  source: readonly LensBlock[],
   text: string,
 ): FlatBlock[] {
-  if (document.length === 0) {
+  if (source.length === 0) {
     return [];
   }
   const parsed = parseText(editor, format, text);

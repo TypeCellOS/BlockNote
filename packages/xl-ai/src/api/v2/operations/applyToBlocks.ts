@@ -9,7 +9,7 @@ import type { BlockOperation, BlockPosition } from "./types.js";
 export type BlockShape = { block: LensBlock; children: BlockShape[] };
 
 /**
- * Returns the structure that the operations give for the document: the
+ * Returns the structure that the operations give for the current document: the
  * inserts, the moves and the removals, in sequence. Updates do not change
  * the structure. This is a pure function: the apply then makes the
  * ProseMirror document agree with the result (see `applyOperations`).
@@ -20,10 +20,10 @@ export type BlockShape = { block: LensBlock; children: BlockShape[] };
  * document, or a move of a block into itself (also before or after itself).
  */
 export function applyToBlocks(
-  document: readonly LensBlock[],
+  current: readonly LensBlock[],
   operations: readonly BlockOperation[],
 ): BlockShape[] {
-  const shapes = new Shapes(document);
+  const shapes = new Shapes(current);
   for (const operation of operations) {
     switch (operation.type) {
       case "update":
@@ -51,8 +51,8 @@ class Shapes {
   private readonly byId = new Map<string, BlockShape>();
   private readonly lists = new Map<string, BlockShape[]>();
 
-  constructor(document: readonly LensBlock[]) {
-    this.add(document, this.root);
+  constructor(current: readonly LensBlock[]) {
+    this.add(current, this.root);
   }
 
   /** Inserts a new block. It can come with its new children. */
