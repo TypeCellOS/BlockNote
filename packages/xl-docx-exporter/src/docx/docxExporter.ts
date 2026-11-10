@@ -25,6 +25,7 @@ import {
 import { Exporter, ExporterOptions } from "@blocknote/core";
 import { corsProxyResolveFileUrl } from "@shared/api/corsProxy.js";
 import { loadFileBuffer } from "@shared/util/fileUtil.js";
+import { docxBlockMappingForDefaultSchema } from "./defaultSchema/blocks.js";
 import {
   clampListLevel,
   DOCX_LIST_LEVEL_COUNT,
@@ -41,6 +42,11 @@ import {
 type DocumentOptions = Partial<ConstructorParameters<typeof Document>[0]>;
 type ListType = "bulletListItem" | "numberedListItem";
 type ListDefinition = { type: ListType; levels: Map<number, ListType> };
+
+const sharedNumberingMappings = new Set<object>([
+  docxBlockMappingForDefaultSchema.bulletListItem,
+  docxBlockMappingForDefaultSchema.numberedListItem,
+]);
 
 const DEFAULT_TAB_STOP =
   /* default font size */ 16 *
@@ -125,23 +131,16 @@ export class DOCXExporter<
   }
 
   /**
-   * A document-global counter used to hand every distinct list its own numbering
-   * instance (and therefore its own `w:numId`). Two lists that share a `numId`
-   * are treated by Word as one continued list, so without this all lists in a
-   * document number/bullet as if they were a single list. See issue #2225.
-   */
-  private numberingInstanceCounter = 0;
-  private listDefinitions = new Map<number, ListDefinition>();
-
-  /**
    * Mostly for internal use, you probably want to use `toBlob` or `toDocxJsDocument` instead.
    */
   public async transformBlocks(
     blocks: Block<B, I, S>[],
     nestingLevel = 0,
+    // Internal collector supplied by toDocxJsDocument for this export only.
+    listDefinitions = new Map<number, ListDefinition>(),
   ): Promise<Array<Paragraph | Table>> {
     return docxContent(
-      await this.transformBlockResults(blocks, nestingLevel),
+      await this.transformBlockResults(blocks, nestingLevel, listDefinitions),
       "document",
     );
   }
@@ -149,15 +148,10 @@ export class DOCXExporter<
   private async transformBlockResults(
     blocks: Block<B, I, S>[],
     nestingLevel: number,
+    listDefinitions: Map<number, ListDefinition>,
     parentInstance?: number,
   ): Promise<DOCXBlock[]> {
     const ret: DOCXBlock[] = [];
-
-    // The top-level call starts a fresh document, so restart instance numbering.
-    if (nestingLevel === 0) {
-      this.numberingInstanceCounter = 0;
-      this.listDefinitions.clear();
-    }
 
     // A run of sibling items continues its parent numbering at the next level.
     // OOXML fixes the marker type per level, so incompatible runs must instead
@@ -168,19 +162,27 @@ export class DOCXExporter<
 
     for (const b of blocks) {
       let numberingInstance = 0;
+      let sharesNumbering = false;
       if (b.type === "bulletListItem" || b.type === "numberedListItem") {
         // Generic block schemas do not narrow b.type to the literal union.
         const type: ListType =
           b.type === "bulletListItem" ? "bulletListItem" : "numberedListItem";
+        // Only the built-in mappings guarantee use of listReference(instance).
+        // Custom mappings can emit plain paragraphs or legacy references; an
+        // equal instance argument alone does not make their counters restart.
+        sharesNumbering = sharedNumberingMappings.has(
+          this.mappings.blockMapping[type],
+        );
         if (type !== runListType) {
           const level = clampListLevel(nestingLevel);
           const parent =
             parentInstance === undefined
               ? undefined
-              : this.listDefinitions.get(parentInstance);
+              : listDefinitions.get(parentInstance);
           const parentType = parent?.levels.get(level);
           if (
             parentInstance !== undefined &&
+            sharesNumbering &&
             parent &&
             nestingLevel < DOCX_LIST_LEVEL_COUNT &&
             (parentType === undefined || parentType === type)
@@ -188,8 +190,10 @@ export class DOCXExporter<
             runInstance = parentInstance;
             parent.levels.set(level, type);
           } else {
-            runInstance = ++this.numberingInstanceCounter;
-            this.listDefinitions.set(runInstance, {
+            // Entries are never removed during an export, so the size gives
+            // each independent list a fresh instance without shared state.
+            runInstance = listDefinitions.size + 1;
+            listDefinitions.set(runInstance, {
               type,
               levels: new Map([[level, type]]),
             });
@@ -206,7 +210,8 @@ export class DOCXExporter<
       const children = await this.transformBlockResults(
         b.children,
         nestingLevel + 1,
-        numberingInstance || undefined,
+        listDefinitions,
+        sharesNumbering ? numberingInstance : undefined,
       );
 
       const placesChildren = this.placesChildren(b);
@@ -285,6 +290,7 @@ export class DOCXExporter<
 
   protected async createDefaultDocumentOptions(
     locale?: string,
+    listDefinitions = new Map<number, ListDefinition>(),
   ): Promise<DocumentOptions> {
     let externalStyles = (await import("./template/word/styles.xml?raw"))
       .default;
@@ -340,7 +346,7 @@ export class DOCXExporter<
             reference: "blocknote-bullet-list",
             levels: listLevels("bulletListItem"),
           },
-          ...Array.from(this.listDefinitions, ([instance, definition]) => ({
+          ...Array.from(listDefinitions, ([instance, definition]) => ({
             reference: listReference(instance),
             levels: listLevels(definition.type, definition.levels),
           })),
@@ -405,9 +411,14 @@ export class DOCXExporter<
     },
   ) {
     // Discover each list's level formats before building the numbering config.
-    const children = await this.transformBlocks(blocks);
+    // Keep this state local: the same exporter can build documents concurrently.
+    const listDefinitions = new Map<number, ListDefinition>();
+    const children = await this.transformBlocks(blocks, 0, listDefinitions);
     const doc = new Document({
-      ...(await this.createDefaultDocumentOptions(options.locale)),
+      ...(await this.createDefaultDocumentOptions(
+        options.locale,
+        listDefinitions,
+      )),
       ...options.documentOptions,
       sections: [
         {

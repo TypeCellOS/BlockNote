@@ -492,6 +492,104 @@ describe("exporter", () => {
     },
   );
 
+  it.each(["plain parent", "legacy parent", "legacy child"] as const)(
+    "should restart nested lists with a custom %s mapping",
+    async (variant) => {
+      const schema = BlockNoteSchema.create();
+      const exporter = new DOCXExporter(schema, {
+        ...docxDefaultSchemaMappings,
+        blockMapping: {
+          ...docxDefaultSchemaMappings.blockMapping,
+          ...(variant === "legacy child"
+            ? {
+                numberedListItem: (block, exporter, level, instance) =>
+                  createDOCXParagraph({
+                    children: exporter.transformInlineContent(block.content),
+                    numbering: {
+                      reference: "blocknote-numbered-list",
+                      level,
+                      instance,
+                    },
+                  }),
+              }
+            : {
+                bulletListItem: (block, exporter, level, instance) =>
+                  variant === "plain parent"
+                    ? new Paragraph("plain parent")
+                    : createDOCXParagraph({
+                        children: exporter.transformInlineContent(
+                          block.content,
+                        ),
+                        numbering: {
+                          reference: "blocknote-bullet-list",
+                          level,
+                          instance,
+                        },
+                      }),
+              }),
+        },
+      });
+      const blocks = partialBlocksToBlocksForTesting(schema, [
+        {
+          type: "bulletListItem",
+          content: "parent one",
+          children: [
+            { type: "numberedListItem", content: "child one" },
+            { type: "numberedListItem", content: "child two" },
+          ],
+        },
+        {
+          type: "bulletListItem",
+          content: "parent two",
+          children: [
+            { type: "numberedListItem", content: "child three" },
+            { type: "numberedListItem", content: "child four" },
+          ],
+        },
+      ]);
+      const entries = await new ZipReader(
+        new BlobReader(await exporter.toBlob(blocks)),
+      ).getEntries();
+      const xml = await getZIPEntryContent(entries, "word/document.xml");
+      const childIds = [...xml.matchAll(/<w:p[ >][\s\S]*?<\/w:p>/g)]
+        .filter((match) => match[0].includes("child "))
+        .map((match) => match[0].match(/<w:numId w:val="(\d+)"\/>/)?.[1]);
+      expect(childIds).toHaveLength(4);
+      expect(childIds[0]).toBeDefined();
+      expect(childIds[2]).toBeDefined();
+      expect(childIds[0]).toBe(childIds[1]);
+      expect(childIds[2]).toBe(childIds[3]);
+      // Neither custom boundary guarantees that a parent paragraph uses the
+      // children's numbering reference, so each child run needs its own reset.
+      expect(childIds[0]).not.toBe(childIds[2]);
+    },
+  );
+
+  it("should keep concurrent exports' numbering definitions independent", async () => {
+    const schema = BlockNoteSchema.create();
+    const exporter = new DOCXExporter(schema, docxDefaultSchemaMappings);
+    const documents = (["bulletListItem", "numberedListItem"] as const).map(
+      (type) =>
+        partialBlocksToBlocksForTesting(schema, [{ type, content: "item" }]),
+    );
+    async function numberingXml(doc: Document) {
+      const entries = await new ZipReader(
+        new BlobReader(await Packer.toBlob(doc)),
+      ).getEntries();
+      return getZIPEntryContent(entries, "word/numbering.xml");
+    }
+    const expected = [];
+    for (const blocks of documents) {
+      expected.push(
+        await numberingXml(await exporter.toDocxJsDocument(blocks)),
+      );
+    }
+    const concurrent = await Promise.all(
+      documents.map((blocks) => exporter.toDocxJsDocument(blocks)),
+    );
+    expect(await Promise.all(concurrent.map(numberingXml))).toEqual(expected);
+  });
+
   it.each(["bulletListItem", "numberedListItem"] as const)(
     "should keep mixed descendants in the %s parent's numbering instance",
     async (type) => {
