@@ -1,6 +1,6 @@
 import type { BlockNoteEditor } from "@blocknote/core";
 
-import type { ContentKind } from "./types.js";
+import type { ContentKind } from "../../model.js";
 
 /**
  * The child rule of a layout block (a block with `layoutOnly: true` in its

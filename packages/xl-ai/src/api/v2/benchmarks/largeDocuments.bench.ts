@@ -4,8 +4,8 @@ import { describe, it } from "vite-plus/test";
 import * as Y from "yjs";
 
 import { alignBlocks } from "../alignment/alignBlocks.js";
-import { flattenBlocks } from "../blocks/flatten.js";
-import type { LensBlock } from "../blocks/types.js";
+import { flattenBlocks } from "../util/blocks/flatten.js";
+import type { LensBlock } from "../model.js";
 import {
   computeOperations,
   getDocumentText,

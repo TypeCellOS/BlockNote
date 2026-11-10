@@ -2,7 +2,7 @@
 import { describe, expect, it } from "vite-plus/test";
 
 import { withDistinctIds } from "./ids.js";
-import type { LensBlock } from "./types.js";
+import type { LensBlock } from "../../model.js";
 
 describe("withDistinctIds", () => {
   it("gives a later block with the ID of an earlier block the ID with a number", () => {

@@ -6,7 +6,8 @@ import {
 } from "@blocknote/core";
 import type { Node } from "prosemirror-model";
 
-import { type LensBlock, propsFit } from "../blocks/index.js";
+import type { LensBlock } from "../model.js";
+import { propsFit } from "../util/blocks/index.js";
 import { fitTables } from "../fit/index.js";
 
 /**

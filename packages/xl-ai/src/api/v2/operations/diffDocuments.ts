@@ -1,9 +1,5 @@
-import {
-  BlockTree,
-  diffBlock,
-  type LensBlock,
-  withoutChildren,
-} from "../blocks/index.js";
+import type { LensBlock } from "../model.js";
+import { BlockTree, diffBlock, withoutChildren } from "../util/blocks/index.js";
 import { myersMatch } from "../util/sequence/index.js";
 import type { BlockOperation, BlockPosition } from "./types.js";
 

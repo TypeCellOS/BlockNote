@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, expect, it } from "vite-plus/test";
 
-import type { LensInlineContent } from "../blocks/types.js";
+import type { LensInlineContent } from "../model.js";
 import { alignUnits, fromUnits, toUnits } from "./inlineUnits.js";
 
 const content: LensInlineContent[] = [

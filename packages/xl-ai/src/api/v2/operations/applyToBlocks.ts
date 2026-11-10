@@ -1,4 +1,4 @@
-import type { LensBlock } from "../blocks/index.js";
+import type { LensBlock } from "../model.js";
 import type { BlockOperation, BlockPosition } from "./types.js";
 
 /**

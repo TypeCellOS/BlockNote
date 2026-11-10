@@ -1,10 +1,10 @@
-import {
-  BlockTree,
-  type ContentKind,
-  type FlatBlock,
-  type LensBlock,
-  type LensInlineContent,
-} from "../blocks/index.js";
+import type {
+  ContentKind,
+  FlatBlock,
+  LensBlock,
+  LensInlineContent,
+} from "../model.js";
+import { BlockTree } from "../util/blocks/index.js";
 import type { BlockPair } from "../alignment/index.js";
 import { mergeBlock } from "../merge/index.js";
 import type { Projection } from "../projection/index.js";

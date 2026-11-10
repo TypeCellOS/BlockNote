@@ -1,9 +1,9 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import { describe, expect, it } from "vite-plus/test";
 
-import { flattenBlocks } from "./blocks/flatten.js";
-import { blockToText } from "./blocks/text.js";
-import type { LensBlock } from "./blocks/types.js";
+import { flattenBlocks } from "./util/blocks/flatten.js";
+import { blockToText } from "./util/blocks/text.js";
+import type { LensBlock } from "./model.js";
 import {
   computeOperations,
   getDocumentText,

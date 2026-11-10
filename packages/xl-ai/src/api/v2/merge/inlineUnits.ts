@@ -5,8 +5,8 @@ import {
   type LensLink,
   type LensStyledText,
   type LensStyles,
-  stableStringify,
-} from "../blocks/index.js";
+} from "../model.js";
+import { stableStringify } from "../util/blocks/index.js";
 import {
   alignText,
   charKind,

@@ -4,7 +4,7 @@ import {
   isStyledText,
   isTableContent,
   type LensInlineContent,
-} from "./types.js";
+} from "../../model.js";
 
 /** Returns the text of inline content or plain content. Custom inline content without text gives no text. */
 export function inlineContentToText(

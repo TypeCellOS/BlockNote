@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, expect, it } from "vite-plus/test";
 
-import type { ContentKind, LensBlock } from "../blocks/types.js";
+import type { ContentKind, LensBlock } from "../model.js";
 import { mergeBlock } from "./block.js";
 
 const contentKinds: Record<string, ContentKind> = {

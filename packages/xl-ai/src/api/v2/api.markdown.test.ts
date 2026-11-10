@@ -12,8 +12,8 @@ import {
   markdownFormat,
   updateDocument,
 } from "./index.js";
-import { inlineContentToText } from "./blocks/text.js";
-import { isTableContent, type LensBlock } from "./blocks/types.js";
+import { inlineContentToText } from "./util/blocks/text.js";
+import { isTableContent, type LensBlock } from "./model.js";
 import {
   addComment,
   commentedText,

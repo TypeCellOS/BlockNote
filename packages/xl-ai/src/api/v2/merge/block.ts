@@ -3,12 +3,11 @@ import {
   type ContentKind,
   contentShape,
   type ContentShape,
-  deepEqual,
-  inlineContentToText,
   isTableContent,
   type LensBlockContent,
   type LensInlineContent,
-} from "../blocks/index.js";
+} from "../model.js";
+import { deepEqual, inlineContentToText } from "../util/blocks/index.js";
 import { mergeInlineContent } from "./inline.js";
 import { mergeTableContent } from "./table.js";
 import { type MergeOptions, mergeRecords, mergeValue } from "./threeWay.js";

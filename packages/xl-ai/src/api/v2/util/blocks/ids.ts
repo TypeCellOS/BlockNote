@@ -1,4 +1,4 @@
-import type { LensBlock } from "./types.js";
+import type { LensBlock } from "../../model.js";
 
 /**
  * The ID for a block whose ID an earlier block has: the ID with a number (for

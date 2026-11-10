@@ -6,14 +6,14 @@ import {
 import { UniqueID } from "@blocknote/core/extensions";
 
 import { alignBlocks } from "./alignment/index.js";
+import type { LensBlock } from "./model.js";
 import {
   BlockTree,
   flattenBlocks,
-  type LensBlock,
   type SchemaRules,
   schemaRulesOf,
   withDistinctIds,
-} from "./blocks/index.js";
+} from "./util/blocks/index.js";
 import type { TextFormat } from "./formats/index.js";
 import {
   applyOperations,

@@ -14,7 +14,7 @@ import {
   isTableContent,
   type LensPartialBlock,
   type LensTableContent,
-} from "../blocks/index.js";
+} from "../model.js";
 import { makeIdsDistinct } from "./blockIds.js";
 import { gaps, isChanged, myersMatch } from "../util/sequence/index.js";
 import { applyToBlocks, type BlockShape } from "./applyToBlocks.js";

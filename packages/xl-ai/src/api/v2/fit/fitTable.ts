@@ -1,15 +1,17 @@
 import {
+  isTableContent,
+  type LensBlock,
+  type LensTableContent,
+} from "../model.js";
+import {
   cellRows,
   deepEqual,
   emptyCell,
   flattenBlocks,
   gridOf,
   hasMergedCells,
-  isTableContent,
-  type LensBlock,
-  type LensTableContent,
   withoutMergedCells,
-} from "../blocks/index.js";
+} from "../util/blocks/index.js";
 
 /**
  * A table lost its merged cells. A format without merged cells (markdown,

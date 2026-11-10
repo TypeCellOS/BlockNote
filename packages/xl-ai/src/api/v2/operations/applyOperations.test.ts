@@ -7,7 +7,7 @@ import {
 import type { Step } from "prosemirror-transform";
 import { describe, expect, it } from "vite-plus/test";
 
-import type { LensBlock } from "../blocks/types.js";
+import type { LensBlock } from "../model.js";
 
 import { applyOperations } from "./applyOperations.js";
 import type { BlockOperation } from "./types.js";

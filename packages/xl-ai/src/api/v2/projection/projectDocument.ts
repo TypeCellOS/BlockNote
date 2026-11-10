@@ -1,14 +1,12 @@
 import type { BlockNoteEditor } from "@blocknote/core";
 
 import { alignmentKey, linkBlocks } from "../alignment/index.js";
+import type { BlockWithoutChildren, FlatBlock, LensBlock } from "../model.js";
 import {
   blockToText,
-  type BlockWithoutChildren,
-  type FlatBlock,
   flattenBlocks,
-  type LensBlock,
   schemaRulesOf,
-} from "../blocks/index.js";
+} from "../util/blocks/index.js";
 import { anchoredMatch } from "../util/sequence/index.js";
 import type { TextFormat } from "../formats/index.js";
 import { parseText } from "../parse/index.js";

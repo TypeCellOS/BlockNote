@@ -10,4 +10,4 @@ export { anchoredMatch, uniquePairs } from "./anchored.js";
 export { gaps, isChanged } from "./gaps.js";
 export { myersMatch } from "./myers.js";
 export { alignText, charKind, type TextUnit } from "./text.js";
-export { type MatchedPair } from "./types.js";
+export type { MatchedPair } from "./types.js";

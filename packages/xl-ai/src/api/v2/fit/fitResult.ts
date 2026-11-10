@@ -1,4 +1,5 @@
-import type { LensBlock, SchemaRules } from "../blocks/index.js";
+import type { LensBlock } from "../model.js";
+import type { SchemaRules } from "../util/blocks/index.js";
 import { fitLayout } from "./fitLayout.js";
 import { fitChangedTables } from "./fitTable.js";
 

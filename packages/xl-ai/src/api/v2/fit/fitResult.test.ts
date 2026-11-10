@@ -1,8 +1,8 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import { describe, expect, it } from "vite-plus/test";
 
-import { schemaRulesOf } from "../blocks/schema.js";
-import type { LensBlock } from "../blocks/types.js";
+import { schemaRulesOf } from "../util/blocks/schema.js";
+import type { LensBlock } from "../model.js";
 import { columnSchema } from "../testUtil/fixtures.js";
 import { fitResult } from "./fitResult.js";
 

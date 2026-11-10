@@ -1,6 +1,6 @@
 import type { BlockNoteEditor } from "@blocknote/core";
 
-import type { LensBlock } from "../blocks/index.js";
+import type { LensBlock } from "../model.js";
 import { type TextFormat, toStoredBlocks } from "../formats/index.js";
 
 /**

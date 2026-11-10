@@ -2,7 +2,7 @@
 import { describe, it } from "vite-plus/test";
 
 import { alignBlocks } from "../alignment/alignBlocks.js";
-import type { FlatBlock } from "../blocks/types.js";
+import type { FlatBlock } from "../model.js";
 
 /**
  * Benchmarks for `alignBlocks` on large lists of paragraphs, with changes

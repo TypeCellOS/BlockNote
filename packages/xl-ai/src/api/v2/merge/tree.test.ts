@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, expect, it } from "vite-plus/test";
 
-import type { LensBlock } from "../blocks/types.js";
+import type { LensBlock } from "../model.js";
 import { mergeTree } from "./tree.js";
 import { documentShape } from "../testUtil/fixtures.js";
 

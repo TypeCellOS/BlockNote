@@ -3,14 +3,14 @@ import { describe, expect, it } from "vite-plus/test";
 
 import {
   computeOperations,
+  type DocumentChange,
   getDocumentText,
   htmlFormat,
   markdownFormat,
-  type DocumentChange,
   updateDocument,
 } from "./index.js";
-import { flattenBlocks } from "./blocks/flatten.js";
-import type { LensBlock } from "./blocks/types.js";
+import { flattenBlocks } from "./util/blocks/flatten.js";
+import type { LensBlock } from "./model.js";
 import {
   blockFieldsById,
   columnSchema,

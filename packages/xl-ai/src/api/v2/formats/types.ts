@@ -1,6 +1,6 @@
 import type { BlockNoteEditor } from "@blocknote/core";
 
-import type { LensBlock } from "../blocks/index.js";
+import type { LensBlock } from "../model.js";
 
 /**
  * A text form of a document that clients can read and write back, for example

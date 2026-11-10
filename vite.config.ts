@@ -103,14 +103,16 @@ export default defineConfig({
         rules: {
           "import/no-cycle": "error",
           // A file imports a file of a different folder only through the
-          // index.ts of that folder. The patterns are gitignore patterns:
-          // oxlint ignores a `regex` with a lookahead, without an error.
+          // index.ts of that folder. A file in a folder above is not in a
+          // different folder ("!../../*": `model.ts` from `util/blocks/`).
+          // The patterns are gitignore patterns: oxlint ignores a `regex`
+          // with a lookahead, without an error.
           "no-restricted-imports": [
             "error",
             {
               patterns: [
                 {
-                  group: ["./*/**", "../**/*/*", "!**/index.js"],
+                  group: ["./*/**", "../**/*/*", "!**/index.js", "!../../*"],
                   message:
                     "Import the index.js of the folder. It has the API of the folder for the other folders.",
                 },

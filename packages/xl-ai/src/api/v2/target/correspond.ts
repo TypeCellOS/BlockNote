@@ -1,12 +1,10 @@
-import {
-  blockKey,
-  blockToText,
-  type BlockTree,
-  type BlockWithoutChildren,
-  type FlatBlock,
-  type LensBlock,
-  type LensInlineContent,
-} from "../blocks/index.js";
+import type {
+  BlockWithoutChildren,
+  FlatBlock,
+  LensBlock,
+  LensInlineContent,
+} from "../model.js";
+import { blockKey, blockToText, type BlockTree } from "../util/blocks/index.js";
 import type { BlockPair } from "../alignment/index.js";
 import type { Projection } from "../projection/index.js";
 import type { TargetWarning } from "./types.js";

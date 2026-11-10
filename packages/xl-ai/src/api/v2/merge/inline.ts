@@ -1,8 +1,5 @@
-import {
-  deepEqual,
-  type LensInlineContent,
-  type LensStyles,
-} from "../blocks/index.js";
+import type { LensInlineContent, LensStyles } from "../model.js";
+import { deepEqual } from "../util/blocks/index.js";
 import { diff3, type RunContext, type StableTriple } from "./diff3.js";
 import {
   alignUnits,

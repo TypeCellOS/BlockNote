@@ -1,7 +1,7 @@
 import { BlockNoteEditor, type PartialBlock } from "@blocknote/core";
 import { describe, expect, it } from "vite-plus/test";
 
-import type { LensBlock } from "../blocks/types.js";
+import type { LensBlock } from "../model.js";
 import {
   getDocumentText,
   markdownFormat,

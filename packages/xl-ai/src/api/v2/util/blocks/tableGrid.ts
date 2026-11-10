@@ -2,7 +2,7 @@ import type {
   LensInlineContent,
   LensTableCell,
   LensTableContent,
-} from "./types.js";
+} from "../../model.js";
 
 /**
  * The grid of a table: the cells of each row, with their spans, cover

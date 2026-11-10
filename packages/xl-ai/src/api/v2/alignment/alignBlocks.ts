@@ -1,10 +1,9 @@
 import {
-  blockKey,
-  blockToText,
   type BlockWithoutChildren,
   contentShape,
   type FlatBlock,
-} from "../blocks/index.js";
+} from "../model.js";
+import { blockKey, blockToText } from "../util/blocks/index.js";
 import {
   gaps,
   type MatchedPair,

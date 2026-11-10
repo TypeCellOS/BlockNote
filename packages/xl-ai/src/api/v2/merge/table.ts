@@ -1,12 +1,11 @@
+import type { LensTableCell, LensTableContent } from "../model.js";
 import {
   cellRows,
   deepEqual,
   hasMergedCells,
   inlineContentToText,
-  type LensTableCell,
-  type LensTableContent,
   withoutMergedCells,
-} from "../blocks/index.js";
+} from "../util/blocks/index.js";
 import { gaps, type MatchedPair, myersMatch } from "../util/sequence/index.js";
 import { diff3 } from "./diff3.js";
 import { mergeInlineContent } from "./inline.js";

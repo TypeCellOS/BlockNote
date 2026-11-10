@@ -1,9 +1,5 @@
-import type {
-  BlockFields,
-  BlockTree,
-  FlatBlock,
-  LensBlock,
-} from "../blocks/index.js";
+import type { BlockFields, FlatBlock, LensBlock } from "../model.js";
+import type { BlockTree } from "../util/blocks/index.js";
 import { decideParents, keyOf, type Place } from "./hiddenNesting.js";
 import type { TreeRow } from "./types.js";
 

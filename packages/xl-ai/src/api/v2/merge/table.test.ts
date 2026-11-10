@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, expect, it } from "vite-plus/test";
 
-import type { LensTableCell, LensTableContent } from "../blocks/types.js";
+import type { LensTableCell, LensTableContent } from "../model.js";
 import { mergeTableContent } from "./table.js";
 
 function cell(

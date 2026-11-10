@@ -2,15 +2,11 @@ import type { BlockNoteEditor } from "@blocknote/core";
 import { UniqueID } from "@blocknote/core/extensions";
 
 import { alignBlocks } from "../alignment/alignBlocks.js";
-import { schemaRulesOf } from "../blocks/schema.js";
-import { BlockTree } from "../blocks/tree.js";
-import { blockToText } from "../blocks/text.js";
-import type {
-  BlockWithoutChildren,
-  FlatBlock,
-  LensBlock,
-} from "../blocks/types.js";
-import { flattenBlocks } from "../blocks/flatten.js";
+import { schemaRulesOf } from "../util/blocks/schema.js";
+import { BlockTree } from "../util/blocks/tree.js";
+import { blockToText } from "../util/blocks/text.js";
+import type { BlockWithoutChildren, FlatBlock, LensBlock } from "../model.js";
+import { flattenBlocks } from "../util/blocks/flatten.js";
 import { fitResult } from "../fit/fitResult.js";
 import type { TextFormat } from "../formats/types.js";
 import { diffDocuments } from "../operations/diffDocuments.js";

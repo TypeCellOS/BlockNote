@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vite-plus/test";
 
-import type { LensBlock } from "../blocks/types.js";
+import type { LensBlock } from "../model.js";
 import { createColumnsEditor, createEditor } from "../testUtil/fixtures.js";
 import { parseJSON, replaceDisallowedIds } from "./parseJSON.js";
 

@@ -2,7 +2,7 @@
 import { describe, expect, it } from "vite-plus/test";
 
 import { blockKey, deepEqual, stableStringify } from "./json.js";
-import type { LensBlock } from "./types.js";
+import type { LensBlock } from "../../model.js";
 
 describe("deepEqual", () => {
   it("compares objects and arrays by value", () => {

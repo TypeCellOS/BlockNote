@@ -2,7 +2,7 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import { describe, expect, it } from "vite-plus/test";
 
-import type { LensBlock } from "../blocks/types.js";
+import type { LensBlock } from "../model.js";
 import { plainTextFormat } from "./plainText.js";
 
 const editor = BlockNoteEditor.create();

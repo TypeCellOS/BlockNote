@@ -9,13 +9,13 @@ import { withMultiColumn } from "@blocknote/xl-multi-column";
 import { testDocumentBlocks } from "@shared/testDocument.js";
 
 import {
+  type ChangeOperations,
   getDocumentText,
   type TextFormat,
   updateDocument,
-  type ChangeOperations,
 } from "../index.js";
-import { flattenBlocks } from "../blocks/flatten.js";
-import type { LensBlock, LensStyledText, LensStyles } from "../blocks/types.js";
+import { flattenBlocks } from "../util/blocks/flatten.js";
+import type { LensBlock, LensStyledText, LensStyles } from "../model.js";
 import { valid } from "./valid.js";
 
 /**

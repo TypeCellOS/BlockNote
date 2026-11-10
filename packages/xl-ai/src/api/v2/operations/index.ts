@@ -8,4 +8,4 @@ export { applyOperations } from "./applyOperations.js";
 export { makeIdsDistinct } from "./blockIds.js";
 export { diffDocuments } from "./diffDocuments.js";
 export { dispatchUpdate } from "./dispatch.js";
-export { type BlockOperation, type BlockPosition } from "./types.js";
+export type { BlockOperation, BlockPosition } from "./types.js";

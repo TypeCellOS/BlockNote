@@ -6,7 +6,7 @@
  * "not set".
  */
 
-import type { BlockFields } from "./types.js";
+import type { BlockFields } from "../../model.js";
 
 export function deepEqual(a: unknown, b: unknown): boolean {
   if (a === b) {

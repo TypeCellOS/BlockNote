@@ -1,7 +1,8 @@
 import type { BlockNoteEditor, PartialBlock } from "@blocknote/core";
 import { UniqueID } from "@blocknote/core/extensions";
 
-import { type LensBlock, withDistinctIds } from "../blocks/index.js";
+import type { LensBlock } from "../model.js";
+import { withDistinctIds } from "../util/blocks/index.js";
 import { toStoredBlocks } from "../formats/index.js";
 
 /**

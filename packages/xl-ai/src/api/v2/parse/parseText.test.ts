@@ -1,7 +1,7 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import { describe, expect, it } from "vite-plus/test";
 
-import { blockToText } from "../blocks/text.js";
+import { blockToText } from "../util/blocks/text.js";
 import { htmlFormat } from "../formats/html.js";
 import { markdownFormat } from "../formats/markdown.js";
 import { parseText, withoutByteOrderMark } from "./parseText.js";

@@ -6,7 +6,7 @@ import type {
   LensBlock,
   LensInlineContent,
   LensTableContent,
-} from "./types.js";
+} from "../../model.js";
 
 const styled = (text: string) => ({ type: "text" as const, text, styles: {} });
 

@@ -30,7 +30,7 @@ export {
   type BlockOperation,
   type BlockPosition,
 } from "./operations/index.js";
-export type { LensBlock } from "./blocks/index.js";
+export type { LensBlock } from "./model.js";
 export type { MergeWarning } from "./merge/index.js";
 export type { TargetWarning } from "./target/index.js";
 export type { FitWarning } from "./fit/index.js";

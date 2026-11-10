@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, expect, it } from "vite-plus/test";
 
-import type { FlatBlock, LensBlock } from "../blocks/types.js";
+import type { FlatBlock, LensBlock } from "../model.js";
 import type { MatchedPair } from "../util/sequence/types.js";
 import type { ViewBlock } from "../projection/projectDocument.js";
 import { targetFromPairs } from "./targetFromPairs.js";

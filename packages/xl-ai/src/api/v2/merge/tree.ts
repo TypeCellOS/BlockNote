@@ -1,11 +1,10 @@
+import type { ContentKind, LensBlock } from "../model.js";
 import {
   BlockTree,
-  type ContentKind,
   deepEqual,
   diffBlock,
-  type LensBlock,
   withoutChildren,
-} from "../blocks/index.js";
+} from "../util/blocks/index.js";
 import { myersMatch } from "../util/sequence/index.js";
 import { mergeBlock } from "./block.js";
 import { diff3 } from "./diff3.js";

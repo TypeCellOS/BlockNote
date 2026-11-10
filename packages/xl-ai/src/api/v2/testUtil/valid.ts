@@ -1,4 +1,4 @@
-import type { ChangeResult, ChangeOperations } from "../api.js";
+import type { ChangeOperations, ChangeResult } from "../api.js";
 
 /** Returns the update, and fails the test if the update is an error. */
 export function valid<T extends ChangeResult>(

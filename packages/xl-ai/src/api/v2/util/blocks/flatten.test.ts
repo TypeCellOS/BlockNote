@@ -2,7 +2,7 @@
 import { describe, expect, it } from "vite-plus/test";
 
 import { flattenBlocks } from "./flatten.js";
-import type { LensBlock } from "./types.js";
+import type { LensBlock } from "../../model.js";
 
 function block(id: string, children: LensBlock[] = []): LensBlock {
   return { id, type: "paragraph", props: {}, content: [], children };

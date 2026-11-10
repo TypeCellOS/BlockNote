@@ -1,6 +1,6 @@
 import type { BlockPlacement } from "@blocknote/core";
 
-import type { LensBlock, LensPartialBlock } from "../blocks/index.js";
+import type { LensBlock, LensPartialBlock } from "../model.js";
 
 /**
  * The position of a block: relative to the block `reference` (see

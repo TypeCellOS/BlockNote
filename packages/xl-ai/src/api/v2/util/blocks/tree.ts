@@ -1,4 +1,4 @@
-import type { LensBlock } from "./types.js";
+import type { LensBlock } from "../../model.js";
 
 /**
  * The shape of a document, for a lookup by ID: the parent and the children

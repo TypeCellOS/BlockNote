@@ -1,4 +1,4 @@
-import type { FlatBlock, LensBlock } from "./types.js";
+import type { FlatBlock, LensBlock } from "../../model.js";
 
 /** Returns the fields of the block, without its children. */
 export function withoutChildren(block: LensBlock): LensBlock {

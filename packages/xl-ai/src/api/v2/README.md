@@ -201,10 +201,11 @@ The merge of a block (`merge/block.ts`) merges the type, each prop of the three 
 
 Each module imports only modules that are before it in this list. Thus, there are no import cycles.
 
-Each folder has an `index.ts` with its API for the other folders. A file imports a file of a different folder only through that `index.ts`. The other files of a folder export more only for their unit tests. The folders of the stages are at the top level. Code that is not a stage, and that more than one stage uses, is in `util/`.
+Each folder has an `index.ts` with its API for the other folders. A file imports a file of a different folder only through that `index.ts`. The other files of a folder export more only for their unit tests. The folders of the stages are at the top level. The block model is `model.ts`. Code that is not a stage, and that more than one stage uses, is in `util/`.
 
 - `util/sequence/`: the matches of two sequences: the Myers match (in linear space, with a work limit), the anchored match (the patience method) for large inputs, the gaps between matched pairs, and the match of two texts by words and characters. Many stages use them, for example Parse and align (2), the merges (3 and 4) and Diff (6). This module does not import BlockNote.
-- `blocks/`: the block JSON types of the lens, flat lists of blocks, JSON equality, the update between two blocks, `BlockTree` (the parent and the children of each block, by ID), the rule for distinct IDs (`ids.ts`), and the grid of a table (`tableGrid.ts`). All stages use them.
+- `model.ts`: the block model of the lens: the block JSON types (`LensBlock`, `FlatBlock`, ...) and their type guards. All stages use it. It imports nothing.
+- `util/blocks/`: functions on the blocks of the model: flat lists of blocks, JSON equality, the update between two blocks, `BlockTree` (the parent and the children of each block, by ID), the rule for distinct IDs (`ids.ts`), the schema rules, and the grid of a table (`tableGrid.ts`). All stages use them.
 - `fit/`: stage 5 (Fit): the fit of the result (`fitResult.ts`): the layout blocks (`fitLayout.ts`) and the tables (`fitTable.ts`). The parse of stage 2 also fits the tables of the text, as the table plugin of the editor does (`formats/stored.ts`).
 - `formats/`: `TextFormat` (`serialize` and `parse`), with markdown, HTML and plain text. Stage 1 renders the view with it, and stage 2 parses the text.
 - `parse/`: stage 2 (Parse): the parse of a text into blocks in the stored form (`parseText.ts`; the view of stage 1 uses it too), and the blocks of the JSON of a client, with IDs that identify one block each (`parseJSON.ts`).

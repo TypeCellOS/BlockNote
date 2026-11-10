@@ -2,13 +2,13 @@ import { type Block, BlockNoteEditor } from "@blocknote/core";
 import { describe, expect, it } from "vite-plus/test";
 
 import {
+  type ChangeOperations,
   computeOperations,
+  type DocumentChange,
   getDocumentText,
   htmlFormat,
-  type DocumentChange,
   type JSONChange,
   updateDocument,
-  type ChangeOperations,
 } from "./index.js";
 import {
   columnSchema,

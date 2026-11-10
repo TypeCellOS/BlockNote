@@ -9,4 +9,4 @@ export { htmlFormat } from "./html.js";
 export { markdownFormat } from "./markdown.js";
 export { plainTextFormat } from "./plainText.js";
 export { toStoredBlocks } from "./stored.js";
-export { type TextFormat } from "./types.js";
+export type { TextFormat } from "./types.js";

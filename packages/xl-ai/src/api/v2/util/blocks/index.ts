@@ -1,5 +1,7 @@
 /**
- * The block JSON of the lens and the functions on it. All stages use them.
+ * Functions on blocks of the model (`model.ts`): flat lists, IDs, JSON
+ * equality, text, the tree, the update between two blocks, the schema
+ * rules, and the grid of a table. All stages use them.
  *
  * The API of this folder for the other folders: they import only this
  * file. The other files export more only for their unit tests.
@@ -18,24 +20,4 @@ export {
 } from "./tableGrid.js";
 export { blockToText, inlineContentToText } from "./text.js";
 export { BlockTree } from "./tree.js";
-export {
-  type BlockFields,
-  type BlockWithoutChildren,
-  type ContentKind,
-  type ContentShape,
-  contentShape,
-  type FlatBlock,
-  isLink,
-  isStyledText,
-  isTableContent,
-  type LensBlock,
-  type LensBlockContent,
-  type LensInlineContent,
-  type LensLink,
-  type LensPartialBlock,
-  type LensStyledText,
-  type LensStyles,
-  type LensTableCell,
-  type LensTableContent,
-} from "./types.js";
 export { diffBlock } from "./update.js";

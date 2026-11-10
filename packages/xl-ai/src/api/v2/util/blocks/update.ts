@@ -1,5 +1,5 @@
 import { deepEqual } from "./json.js";
-import type { BlockFields, LensPartialBlock } from "./types.js";
+import type { BlockFields, LensPartialBlock } from "../../model.js";
 
 /**
  * Returns the update that changes the fields of `block` to `target`, or

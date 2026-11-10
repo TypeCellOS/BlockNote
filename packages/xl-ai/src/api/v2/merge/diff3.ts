@@ -1,5 +1,5 @@
 /* eslint-disable complexity, max-depth, max-lines-per-function -- The diff3 algorithm: a standard algorithm behind a small interface. */
-import { deepEqual } from "../blocks/index.js";
+import { deepEqual } from "../util/blocks/index.js";
 import type { MatchedPair } from "../util/sequence/index.js";
 
 /** Matched units of base, ours and theirs: a stable point of the merge. */

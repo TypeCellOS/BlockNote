@@ -17,8 +17,8 @@ import {
 } from "../index.js";
 import {
   addComment,
-  commentedText,
   commentEditorOptions,
+  commentedText,
 } from "../testUtil/comments.js";
 import {
   columnSchema,

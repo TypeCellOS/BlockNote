@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, expect, it } from "vite-plus/test";
 
-import type { LensBlock } from "./types.js";
+import type { LensBlock } from "../../model.js";
 import { diffBlock } from "./update.js";
 
 const block: LensBlock = {
