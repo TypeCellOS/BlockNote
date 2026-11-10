@@ -395,29 +395,33 @@ describe("a document after `removeBlocks` removed all blocks", () => {
 });
 
 /**
- * A text can give a block that the format does not show: the round trip of
- * that block alone gives nothing. A broken HTML tag can give such a block.
- * The write does not keep it. Else, the view does not show it after the
- * write, and each later write of the same text adds it again (PutTwice).
+ * A text with markup that the serializer does not write. The parse gives only
+ * blocks that the format shows (rules of core, and `checkFormatShows`), thus
+ * the laws hold.
  */
-describe("a block of the text that the format does not show", () => {
+describe("a text with markup that the serializer does not write", () => {
   it.each([
-    // Markdown: an image without a URL exports as nothing.
-    { name: "markdown", format: markdownFormat, text: "Alpha\n\n<img>\n" },
-    // HTML: a paragraph with only white space exports as `<p> </p>`, and
-    // the parse drops that paragraph.
+    // Markdown: an HTML tag without a source gives no block.
+    {
+      name: "markdown",
+      format: markdownFormat,
+      text: "Alpha\n\n<img>\n",
+      blocks: 1,
+    },
+    // HTML: a paragraph with only white space is a block that HTML shows.
     {
       name: "HTML",
       format: htmlFormat,
       text: '<p>Alpha</p><p data-background-color="blue">\uFFFC\n\n</p>',
+      blocks: 2,
     },
-  ])("is not in the document after the write ($name)", ({ format, text }) => {
+  ])("keeps PutTwice and PutGet ($name)", ({ format, text, blocks }) => {
     const editor = createEditor([
       { id: "a", type: "paragraph", content: "Alpha" },
     ]);
     valid(updateDocument(editor, { base: "current", format, text }));
 
-    expect(editor.document.map((block) => block.id)).toEqual(["a"]);
+    expect(editor.document).toHaveLength(blocks);
     // PutTwice.
     expect(
       valid(computeOperations(editor, { base: "current", format, text }))

@@ -7,7 +7,11 @@ import type { LensBlock } from "../blocks/types.js";
  * markdown. The text form can lose data, for example block IDs and colors.
  * When a client writes back text, the lens gets that data from the document.
  *
- * A format can hide blocks (for example, plain text hides images). If a
+ * A format can hide blocks of a document (for example, plain text hides
+ * images). But its parse must give only blocks that its serialize shows: the
+ * round trip of each block of a parse gives a block again. Else, a write of a
+ * text with such a block would add it again each time. The lens examines this
+ * and throws for a format that breaks it (see `checkFormatShows`). If a
  * format hides a block with text, a view block next to it must not have the
  * same text and content shape (see `shownBlocks` in `projectDocument.ts`).
  */

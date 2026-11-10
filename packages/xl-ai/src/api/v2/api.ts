@@ -18,7 +18,7 @@ import type { BlockOperation } from "./operations/types.js";
 import { parseJSON } from "./parse/parseJSON.js";
 import { parseText, withoutByteOrderMark } from "./parse/parseText.js";
 import { documentText } from "./projection/cache.js";
-import { withoutHiddenBlocks } from "./projection/hiddenBlocks.js";
+import { checkFormatShows } from "./projection/formatCheck.js";
 import { shadowsOf } from "./projection/shadows.js";
 import { mergeTree, type RebaseWarning } from "./merge/tree.js";
 import { fitResult } from "./fit/fitResult.js";
@@ -255,21 +255,14 @@ function planText(
     return { target: document, warnings: [] };
   }
   const projection = read.projection();
-  // 2. Parse and align. The blocks that the format does not show go: the
-  // text cannot keep them (see `withoutHiddenBlocks`).
+  // 2. Parse and align. The format must show each block of the parse (see
+  // `checkFormatShows`).
   const parsed = parseText(editor, format, content);
   if (parsed.error !== undefined) {
     return parsed;
   }
-  const textBlocks = flattenBlocks(
-    withoutHiddenBlocks(
-      editor,
-      format,
-      parsed.blocks,
-      projection.view,
-      content,
-    ),
-  );
+  checkFormatShows(editor, format, parsed.blocks, projection.view, content);
+  const textBlocks = flattenBlocks(parsed.blocks);
   const pairs = alignBlocks(projection.view, textBlocks);
   // 3. Plan.
   return planTarget({

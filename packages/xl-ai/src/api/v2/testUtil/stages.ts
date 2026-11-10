@@ -11,10 +11,13 @@ import { fitResult } from "../fit/fitResult.js";
 import type { TextFormat } from "../formats/types.js";
 import { diffDocuments } from "../operations/diffDocuments.js";
 import { parseText } from "../parse/parseText.js";
-import { withoutHiddenBlocks } from "../projection/hiddenBlocks.js";
+import { checkFormatShows } from "../projection/formatCheck.js";
 import { correspond } from "../plan/correspond.js";
 import { planTarget } from "../plan/planTarget.js";
-import { projectDocument } from "../projection/projectDocument.js";
+import {
+  projectDocument,
+  type ViewBlock,
+} from "../projection/projectDocument.js";
 import { shadowsOf } from "../projection/shadows.js";
 
 /**
@@ -96,19 +99,18 @@ export function withNewIdPlaceholders(
 
 /**
  * The text blocks of a text, as `planText` in `api.ts` gives them: the parse,
- * without the blocks that the format does not show, in a flat list.
+ * checked (see `checkFormatShows`), in a flat list.
  */
 export function textBlocksOf(
   editor: BlockNoteEditor<any, any, any>,
   format: TextFormat,
   text: string,
-  view: readonly FlatBlock[],
+  view: readonly ViewBlock[],
 ): FlatBlock[] {
   const parsed = parseText(editor, format, text);
   if (parsed.error !== undefined) {
     throw new Error(parsed.error);
   }
-  return flattenBlocks(
-    withoutHiddenBlocks(editor, format, parsed.blocks, view, text),
-  );
+  checkFormatShows(editor, format, parsed.blocks, view, text);
+  return flattenBlocks(parsed.blocks);
 }
