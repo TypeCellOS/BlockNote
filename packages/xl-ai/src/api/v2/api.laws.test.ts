@@ -2,6 +2,7 @@ import type { Block } from "@blocknote/core";
 import { afterEach, describe, expect, it } from "vite-plus/test";
 
 import {
+  applyOperations,
   computeTextUpdate,
   getDocumentText,
   htmlFormat,
@@ -333,6 +334,63 @@ describe("a document with two blocks with one ID", () => {
       { textColor: "default" },
     ]);
     expect(editor.document[1].content).toMatchObject([{ text: "Beta two" }]);
+  });
+
+  it("computes the operations of the write, and applyOperations applies them", () => {
+    // Two editors with the same document: one computes and applies, one
+    // writes.
+    const documentWithOneId = [
+      { id: "x", type: "paragraph" as const, content: "Alpha" },
+      { id: "x", type: "paragraph" as const, content: "Beta" },
+    ];
+    const computing = createEditor(documentWithOneId);
+    const writing = createEditor(documentWithOneId);
+    const text = getDocumentText(computing, markdownFormat).replace(
+      "Beta",
+      "Beta two",
+    );
+    const options = { base: "current" as const, format: markdownFormat, text };
+
+    const update = valid(computeTextUpdate(computing, options));
+    computing.transact((tr) => applyOperations(tr, update.operations));
+    valid(updateDocumentFromText(writing, options));
+
+    // The later block counts as `x-2` in the operations, and gets that ID.
+    expect(update.operations).toMatchObject([{ type: "update", id: "x-2" }]);
+    expect(computing.document).toEqual(writing.document);
+  });
+});
+
+describe("a document after `removeBlocks` removed all blocks", () => {
+  it("gives the block without an ID an ID, and writes the text", () => {
+    // In an editor without a view, the block that fills the empty document
+    // has no ID.
+    const editor = createEditor([
+      { id: "a", type: "paragraph", content: "Alpha" },
+    ]);
+    editor.removeBlocks(editor.document);
+
+    valid(
+      updateDocumentFromText(editor, {
+        base: "current",
+        format: markdownFormat,
+        text: "Hello\n",
+      }),
+    );
+
+    expect(editor.document).toMatchObject([
+      { type: "paragraph", content: [{ text: "Hello" }] },
+    ]);
+    // A second write of the same text changes nothing (PutTwice).
+    expect(
+      valid(
+        computeTextUpdate(editor, {
+          base: "current",
+          format: markdownFormat,
+          text: "Hello\n",
+        }),
+      ).operations,
+    ).toEqual([]);
   });
 });
 

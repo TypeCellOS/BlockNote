@@ -113,7 +113,10 @@ export type TextUpdateOptions = {
  * only the markup changed and the format gives the same blocks, for example
  * `*` and `-` bullets in markdown.
  *
- * The operations refer to the blocks of `editor.document` by ID. In an
+ * The operations refer to the blocks of `editor.document` by ID. If two
+ * blocks have one ID (for example in a Y.Doc, after two writers moved the
+ * same block), the later block counts as the ID with a number (`x-2`, see
+ * `withDistinctIds`), as `applyOperations` and the writes give it. In an
  * editor without a view, a block can have no ID (for example after
  * `removeBlocks` removed all blocks). {@link updateDocumentFromText} gives
  * these blocks an ID first.
@@ -122,7 +125,7 @@ export function computeTextUpdate(
   editor: BlockNoteEditor<any, any, any>,
   options: TextUpdateOptions,
 ): TextUpdate {
-  return textUpdate(editor, options, editor.document);
+  return textUpdate(editor, options, withDistinctIds(editor.document));
 }
 
 /**
@@ -162,7 +165,7 @@ export function computeJSONUpdate(
   editor: BlockNoteEditor<any, any, any>,
   options: JSONUpdateOptions,
 ): TextUpdate {
-  return jsonUpdate(editor, options, editor.document);
+  return jsonUpdate(editor, options, withDistinctIds(editor.document));
 }
 
 /** Computes the operations with {@link computeJSONUpdate}, and applies them to the editor (see {@link write}). */
