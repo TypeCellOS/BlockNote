@@ -31,13 +31,15 @@ function EditorFixture({
   editable,
   theme,
   onReady,
+  uploadFile,
 }: {
   initialContent: PartialBlock[];
   editable: boolean;
   theme: "light" | "dark";
   onReady?: (editor: BlockNoteEditor) => void;
+  uploadFile?: BlockNoteEditor["uploadFile"];
 }) {
-  const editor = useCreateBlockNote({ initialContent });
+  const editor = useCreateBlockNote({ initialContent, uploadFile });
   useEffect(() => {
     onReady?.(editor);
   }, [editor, onReady]);
@@ -57,10 +59,12 @@ export async function openEditor(
     editable = true,
     theme = "light",
     onReady,
+    uploadFile,
   }: {
     editable?: boolean;
     theme?: "light" | "dark";
     onReady?: (editor: BlockNoteEditor) => void;
+    uploadFile?: BlockNoteEditor["uploadFile"];
   } = {},
 ) {
   let editor!: BlockNoteEditor;
@@ -74,6 +78,7 @@ export async function openEditor(
         editor = value;
         onReady?.(value);
       }}
+      uploadFile={uploadFile}
     />,
   );
   await expect.element(page.getByRole("textbox")).toBeVisible();

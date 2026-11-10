@@ -114,6 +114,7 @@ export type ComponentProps = {
       | { children?: undefined; label: string }
     );
     FileInput: {
+      autoFocus?: boolean;
       className?: string;
       accept: string;
       value: File | null;
@@ -125,6 +126,7 @@ export type ComponentProps = {
       children?: ReactNode;
     };
     TextInput: {
+      autoFocus?: boolean;
       className?: string;
       value: string;
       placeholder: string;
