@@ -413,9 +413,9 @@ describe("markdown", () => {
   });
 
   it("moves a heading next to an image after a nested list, and keeps the heading", () => {
-    // The markdown parse puts the image after the nested list in a new,
-    // empty list item, which has no document block. The heading moves to the
-    // position of that list item.
+    // The image stays in its list item after the nested list (an earlier
+    // markdown parse put it into a new, empty list item without a document
+    // block). The heading that the text moves next to it keeps its ID.
     const editor = createEditor([
       { id: "title", type: "heading", content: "Title" },
       {

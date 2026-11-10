@@ -120,10 +120,9 @@ export function correspond(
           skipped.add(j);
         }
       }
-      // Else, the view block is empty, and has no source. An example is the
-      // list item that the markdown parse adds around an image after a
-      // nested list. The text cannot change data of it, thus there is no
-      // warning, and its pair (if there is one) is a block of the text.
+      // Else, the view block is empty, and has no source. The text cannot
+      // change data of it, thus there is no warning, and its pair (if there
+      // is one) is a block of the text.
     } else if (j !== undefined && !multiParts.replaced.has(sourceId)) {
       if (kept.has(sourceId)) {
         // Another part of a multi-part block. The first part is the block.

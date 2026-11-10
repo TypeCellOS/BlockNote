@@ -280,6 +280,9 @@ The branch `fix/markdown-roundtrip` fixes these problems:
 - In markdown, an image, a video or an audio block without a URL exported as nothing, but the parse of a figure without `src` gave such a block. Now, with a caption, it exports as that figure.
 - In HTML, two adjacent file links (a file block without a caption, or media without a preview) became one paragraph.
 - Each markdown parse made a new HTML document. In jsdom, each parse then became slower than the one before.
+- An HTML tag of a media block without a source (for example `<img>` in markdown) gave a block without a URL, which the markdown export does not show. Thus, each later write of the same text added the block again. Now such a tag gives no block (with a caption, it still gives the block).
+- In HTML, the export of a paragraph with only white space was `<p> </p>`, and the parse dropped it. Now the export writes the placeholder character, as for an empty block.
+- In an editor without a view, a new block (for example the block that fills an empty document) got no ID: Tiptap adds the plugins only when the editor mounts. Now the ID plugin also runs without a view.
 
 These problems stay:
 
