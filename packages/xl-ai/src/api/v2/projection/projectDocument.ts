@@ -1,17 +1,17 @@
 import type { BlockNoteEditor } from "@blocknote/core";
 
-import { alignmentKey, linkBlocks } from "../alignment/alignBlocks.js";
-import { flattenBlocks } from "../blocks/flatten.js";
-import { schemaRulesOf } from "../blocks/schema.js";
-import { blockToText } from "../blocks/text.js";
-import type {
-  BlockWithoutChildren,
-  FlatBlock,
-  LensBlock,
-} from "../blocks/types.js";
-import { anchoredMatch } from "../sequence/anchored.js";
-import type { TextFormat } from "../formats/types.js";
-import { parseText } from "../parse/parseText.js";
+import { alignmentKey, linkBlocks } from "../alignment/index.js";
+import {
+  blockToText,
+  type BlockWithoutChildren,
+  type FlatBlock,
+  flattenBlocks,
+  type LensBlock,
+  schemaRulesOf,
+} from "../blocks/index.js";
+import { anchoredMatch } from "../util/sequence/index.js";
+import type { TextFormat } from "../formats/index.js";
+import { parseText } from "../parse/index.js";
 
 export type ViewBlock = FlatBlock & {
   /**

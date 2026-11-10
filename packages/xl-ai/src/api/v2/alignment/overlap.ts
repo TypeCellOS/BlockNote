@@ -1,4 +1,4 @@
-import { anchoredMatch } from "../sequence/anchored.js";
+import { anchoredMatch } from "../util/sequence/index.js";
 
 /** The size of the text that `a[aIndex]` and `b[bIndex]` have in common. */
 export type Overlap = { aIndex: number; bIndex: number; size: number };

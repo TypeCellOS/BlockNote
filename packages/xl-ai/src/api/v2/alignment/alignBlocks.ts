@@ -1,14 +1,16 @@
-import { blockKey } from "../blocks/json.js";
-import { blockToText } from "../blocks/text.js";
 import {
+  blockKey,
+  blockToText,
   type BlockWithoutChildren,
   contentShape,
   type FlatBlock,
-} from "../blocks/types.js";
-import { myersMatch } from "../sequence/myers.js";
-import { uniquePairs } from "../sequence/anchored.js";
-import { gaps } from "../sequence/gaps.js";
-import type { MatchedPair } from "../sequence/types.js";
+} from "../blocks/index.js";
+import {
+  gaps,
+  type MatchedPair,
+  myersMatch,
+  uniquePairs,
+} from "../util/sequence/index.js";
 import {
   type Overlap,
   type OverlapText,

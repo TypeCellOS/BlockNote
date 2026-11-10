@@ -1,14 +1,14 @@
-import { deepEqual } from "../blocks/json.js";
-import { inlineContentToText } from "../blocks/text.js";
 import {
   type BlockFields,
   type ContentKind,
   contentShape,
   type ContentShape,
+  deepEqual,
+  inlineContentToText,
   isTableContent,
   type LensBlockContent,
   type LensInlineContent,
-} from "../blocks/types.js";
+} from "../blocks/index.js";
 import { mergeInlineContent } from "./inline.js";
 import { mergeTableContent } from "./table.js";
 import { type MergeOptions, mergeRecords, mergeValue } from "./threeWay.js";

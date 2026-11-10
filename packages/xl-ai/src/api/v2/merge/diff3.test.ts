@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, expect, it } from "vite-plus/test";
 
-import { myersMatch } from "../sequence/myers.js";
+import { myersMatch } from "../util/sequence/myers.js";
 import { diff3, type RunContext } from "./diff3.js";
 
 /** Merges three strings character by character, with the default handlers. */

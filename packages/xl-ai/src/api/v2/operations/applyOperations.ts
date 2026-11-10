@@ -14,10 +14,9 @@ import {
   isTableContent,
   type LensPartialBlock,
   type LensTableContent,
-} from "../blocks/types.js";
+} from "../blocks/index.js";
 import { makeIdsDistinct } from "./blockIds.js";
-import { gaps, isChanged } from "../sequence/gaps.js";
-import { myersMatch } from "../sequence/myers.js";
+import { gaps, isChanged, myersMatch } from "../util/sequence/index.js";
 import { applyToBlocks, type BlockShape } from "./applyToBlocks.js";
 import { addInlineContentSteps } from "./inlineSteps.js";
 import type { BlockOperation } from "./types.js";

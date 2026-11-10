@@ -1,17 +1,15 @@
-import { flattenBlocks } from "../blocks/flatten.js";
-import { deepEqual } from "../blocks/json.js";
 import {
   cellRows,
+  deepEqual,
   emptyCell,
+  flattenBlocks,
   gridOf,
   hasMergedCells,
-  withoutMergedCells,
-} from "../blocks/tableGrid.js";
-import {
   isTableContent,
   type LensBlock,
   type LensTableContent,
-} from "../blocks/types.js";
+  withoutMergedCells,
+} from "../blocks/index.js";
 
 /**
  * A table lost its merged cells. A format without merged cells (markdown,

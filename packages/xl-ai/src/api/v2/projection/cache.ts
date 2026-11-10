@@ -1,7 +1,7 @@
 import type { BlockNoteEditor } from "@blocknote/core";
 
-import type { LensBlock } from "../blocks/types.js";
-import type { TextFormat } from "../formats/types.js";
+import type { LensBlock } from "../blocks/index.js";
+import type { TextFormat } from "../formats/index.js";
 import { type Projection, projectDocument } from "./projectDocument.js";
 
 /**

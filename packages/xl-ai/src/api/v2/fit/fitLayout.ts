@@ -1,4 +1,4 @@
-import type { LayoutRule } from "../blocks/schema.js";
+import type { LayoutRule } from "../blocks/index.js";
 
 /**
  * Returns the blocks with each layout block changed to fit its child rule,

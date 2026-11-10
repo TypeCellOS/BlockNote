@@ -1,9 +1,11 @@
 import type { BlockNoteEditor } from "@blocknote/core";
 
-import { stableStringify } from "../blocks/json.js";
-import { inlineContentToText } from "../blocks/text.js";
-import type { LensInlineContent } from "../blocks/types.js";
-import type { TextFormat } from "../formats/types.js";
+import {
+  inlineContentToText,
+  type LensInlineContent,
+  stableStringify,
+} from "../blocks/index.js";
+import type { TextFormat } from "../formats/index.js";
 import { formatCache } from "./cache.js";
 
 /**

@@ -2,8 +2,13 @@ import type { Mark, Node } from "prosemirror-model";
 import { Fragment, Slice } from "prosemirror-model";
 import type { Transform } from "prosemirror-transform";
 
-import { gaps, isChanged } from "../sequence/gaps.js";
-import { alignText, charKind, type TextUnit } from "../sequence/text.js";
+import {
+  alignText,
+  charKind,
+  gaps,
+  isChanged,
+  type TextUnit,
+} from "../util/sequence/index.js";
 
 /**
  * One unit of inline content in ProseMirror: a character (a code point, thus

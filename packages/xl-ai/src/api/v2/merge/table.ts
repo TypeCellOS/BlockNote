@@ -1,14 +1,13 @@
-import { deepEqual } from "../blocks/json.js";
 import {
   cellRows,
+  deepEqual,
   hasMergedCells,
+  inlineContentToText,
+  type LensTableCell,
+  type LensTableContent,
   withoutMergedCells,
-} from "../blocks/tableGrid.js";
-import { inlineContentToText } from "../blocks/text.js";
-import type { LensTableCell, LensTableContent } from "../blocks/types.js";
-import { gaps } from "../sequence/gaps.js";
-import { myersMatch } from "../sequence/myers.js";
-import type { MatchedPair } from "../sequence/types.js";
+} from "../blocks/index.js";
+import { gaps, type MatchedPair, myersMatch } from "../util/sequence/index.js";
 import { diff3 } from "./diff3.js";
 import { mergeInlineContent } from "./inline.js";
 import { type MergeOptions, mergeRecords, mergeValue } from "./threeWay.js";

@@ -1,9 +1,8 @@
 import type { BlockNoteEditor, PartialBlock } from "@blocknote/core";
 import { UniqueID } from "@blocknote/core/extensions";
 
-import { withDistinctIds } from "../blocks/ids.js";
-import type { LensBlock } from "../blocks/types.js";
-import { toStoredBlocks } from "../formats/stored.js";
+import { type LensBlock, withDistinctIds } from "../blocks/index.js";
+import { toStoredBlocks } from "../formats/index.js";
 
 /**
  * Stage 2 for JSON: the blocks of the JSON of a client, in the form that the

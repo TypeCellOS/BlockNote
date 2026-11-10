@@ -1,6 +1,6 @@
 /* eslint-disable complexity, max-depth, max-lines-per-function -- The diff3 algorithm: a standard algorithm behind a small interface. */
-import { deepEqual } from "../blocks/json.js";
-import type { MatchedPair } from "../sequence/types.js";
+import { deepEqual } from "../blocks/index.js";
+import type { MatchedPair } from "../util/sequence/index.js";
 
 /** Matched units of base, ours and theirs: a stable point of the merge. */
 export type StableTriple<T> = { base: T; ours: T; theirs: T };

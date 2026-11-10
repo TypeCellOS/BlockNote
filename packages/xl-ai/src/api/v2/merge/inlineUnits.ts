@@ -1,4 +1,3 @@
-import { stableStringify } from "../blocks/json.js";
 import {
   isLink,
   isStyledText,
@@ -6,9 +5,14 @@ import {
   type LensLink,
   type LensStyledText,
   type LensStyles,
-} from "../blocks/types.js";
-import { alignText, charKind, type TextUnit } from "../sequence/text.js";
-import type { MatchedPair } from "../sequence/types.js";
+  stableStringify,
+} from "../blocks/index.js";
+import {
+  alignText,
+  charKind,
+  type MatchedPair,
+  type TextUnit,
+} from "../util/sequence/index.js";
 
 /**
  * Inline content as a flat sequence of units:

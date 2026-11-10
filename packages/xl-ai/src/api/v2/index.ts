@@ -19,13 +19,18 @@ export {
   updateDocument,
   type WriteFromVersion,
 } from "./api.js";
-export { htmlFormat } from "./formats/html.js";
-export { markdownFormat } from "./formats/markdown.js";
-export { plainTextFormat } from "./formats/plainText.js";
-export type { TextFormat } from "./formats/types.js";
-export { applyOperations } from "./operations/applyOperations.js";
-export type { LensBlock } from "./blocks/types.js";
-export type { BlockOperation, BlockPosition } from "./operations/types.js";
-export type { MergeWarning } from "./merge/tree.js";
-export type { TargetWarning } from "./target/targetFromPairs.js";
-export type { FitWarning } from "./fit/fitTable.js";
+export {
+  htmlFormat,
+  markdownFormat,
+  plainTextFormat,
+  type TextFormat,
+} from "./formats/index.js";
+export {
+  applyOperations,
+  type BlockOperation,
+  type BlockPosition,
+} from "./operations/index.js";
+export type { LensBlock } from "./blocks/index.js";
+export type { MergeWarning } from "./merge/index.js";
+export type { TargetWarning } from "./target/index.js";
+export type { FitWarning } from "./fit/index.js";

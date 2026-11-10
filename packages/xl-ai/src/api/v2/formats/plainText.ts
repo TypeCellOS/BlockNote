@@ -1,6 +1,9 @@
-import { flattenBlocks } from "../blocks/flatten.js";
-import { inlineContentToText } from "../blocks/text.js";
-import type { LensBlock, LensInlineContent } from "../blocks/types.js";
+import {
+  flattenBlocks,
+  inlineContentToText,
+  type LensBlock,
+  type LensInlineContent,
+} from "../blocks/index.js";
 import type { TextFormat } from "./types.js";
 
 /**

@@ -1,9 +1,12 @@
-import { withoutChildren } from "../blocks/flatten.js";
-import { deepEqual } from "../blocks/json.js";
-import { BlockTree } from "../blocks/tree.js";
-import type { ContentKind, LensBlock } from "../blocks/types.js";
-import { diffBlock } from "../blocks/update.js";
-import { myersMatch } from "../sequence/myers.js";
+import {
+  BlockTree,
+  type ContentKind,
+  deepEqual,
+  diffBlock,
+  type LensBlock,
+  withoutChildren,
+} from "../blocks/index.js";
+import { myersMatch } from "../util/sequence/index.js";
 import { mergeBlock } from "./block.js";
 import { diff3 } from "./diff3.js";
 import { mergeValue } from "./threeWay.js";

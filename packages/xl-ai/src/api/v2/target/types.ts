@@ -1,4 +1,4 @@
-import type { BlockFields } from "../blocks/types.js";
+import type { BlockFields } from "../blocks/index.js";
 
 /** A row of the correspondence (see `TextRow`), with the fields of its block. */
 export type TreeRow =

@@ -201,7 +201,9 @@ The merge of a block (`merge/block.ts`) merges the type, each prop of the three 
 
 Each module imports only modules that are before it in this list. Thus, there are no import cycles.
 
-- `sequence/`: the matches of two sequences: the Myers match (in linear space, with a work limit), the anchored match (the patience method) for large inputs, the gaps between matched pairs, and the match of two texts by words and characters. Many stages use them, for example Parse and align (2), the merges (3 and 4) and Diff (6). This module does not import BlockNote.
+Each folder has an `index.ts` with its API for the other folders. A file imports a file of a different folder only through that `index.ts`. The other files of a folder export more only for their unit tests. The folders of the stages are at the top level. Code that is not a stage, and that more than one stage uses, is in `util/`.
+
+- `util/sequence/`: the matches of two sequences: the Myers match (in linear space, with a work limit), the anchored match (the patience method) for large inputs, the gaps between matched pairs, and the match of two texts by words and characters. Many stages use them, for example Parse and align (2), the merges (3 and 4) and Diff (6). This module does not import BlockNote.
 - `blocks/`: the block JSON types of the lens, flat lists of blocks, JSON equality, the update between two blocks, `BlockTree` (the parent and the children of each block, by ID), the rule for distinct IDs (`ids.ts`), and the grid of a table (`tableGrid.ts`). All stages use them.
 - `fit/`: stage 5 (Fit): the fit of the result (`fitResult.ts`): the layout blocks (`fitLayout.ts`) and the tables (`fitTable.ts`). The parse of stage 2 also fits the tables of the text, as the table plugin of the editor does (`formats/stored.ts`).
 - `formats/`: `TextFormat` (`serialize` and `parse`), with markdown, HTML and plain text. Stage 1 renders the view with it, and stage 2 parses the text.
@@ -216,6 +218,7 @@ Each module imports only modules that are before it in this list. Thus, there ar
 ## Rules of the code
 
 - **Module order.** Each module imports only modules that are before it in the list above. The lint rule `import/no-cycle` finds import cycles in this folder (`vite.config.ts`). It does not examine the order of the list: that is a rule for the review.
+- **The API of a folder.** A file imports a file of a different folder only through the `index.ts` of that folder (the lint rule `no-restricted-imports`, `vite.config.ts`). Tests, `testUtil/` and `benchmarks/` can import each file.
 - **Special cases at the edges.** A stage has a small core, and the special cases of the formats and the schema are at the edges of the pipeline. For example, only the projection (a layout block is its own part), the fit, and the apply (the ProseMirror nodes of a layout block) know the layout blocks. The alignment, the target stage, the merge and the diff do not.
 - **Decide, then build.** The target stage first decides the rows of the correspondence, and the tree merge first decides the blocks that stay, their parents and the order of the children. The tree build of the plan first decides the parent of each block (`decideParents` in `target/hiddenNesting.ts`: the steps of the build). Then they build the tree from the decisions.
 - **An optimization has a definition.** A fast version of a function has a simple version that defines the result, and a test that compares the two. An example is `partsOf` and `partsOfEachBlock` (`api.fuzz.test.ts`).
@@ -251,6 +254,8 @@ Each module imports only modules that are before it in this list. Thus, there ar
   Before each run, the benchmark lets the event loop turn. The reason is jsdom, not a memory leak: for each `<details open>` element (the export of a toggle block), jsdom starts a timer for the `toggle` event. Until the timer runs, it keeps the element and the full exported tree. After one turn of the event loop, the memory is free. In Chromium, the memory is also free after the task.
 
   The stages of the lens (align, target, diff) are linear in the number of blocks. A Y.Doc write sends each insert or removal of blocks in its own transaction (see "Dispatch"), and y-prosemirror compares the document for each transaction. Thus, a Y.Doc write with many inserts or removals at different places takes time for each of them: for example, 0.7 s for 200 inserts in 2,000 blocks, and 8.7 s for 800 inserts in 8,000 blocks. For a Y.Doc, most of the time is the render of the editor view in jsdom. For text, most of the time goes to the markdown and HTML conversions of BlockNote: the projection makes one round trip of the document (the view) and one round trip of the blocks that the view does not show as they are (see "Project"), and the write parses the text of the client.
+
+- `benchmarks/alignment.bench.ts` measures `alignBlocks` on 1,000 and 10,000 paragraphs, from one edit to a full rewrite, also with text without unique words (the worst case of the work limit of the word diff). Run it with `vp test bench --run --silent=false src/api/v2/benchmarks/alignment.bench.ts`. On 10,000 paragraphs, one edit took about 200 ms, and the slowest case (all blocks in a random order) about 600 ms.
 
 ## Changes outside this folder
 

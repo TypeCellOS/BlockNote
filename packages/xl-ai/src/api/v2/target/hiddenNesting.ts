@@ -1,5 +1,4 @@
-import type { BlockTree } from "../blocks/tree.js";
-import type { FlatBlock } from "../blocks/types.js";
+import type { BlockTree, FlatBlock } from "../blocks/index.js";
 import type { KeptRow, TreeRow } from "./types.js";
 
 /**

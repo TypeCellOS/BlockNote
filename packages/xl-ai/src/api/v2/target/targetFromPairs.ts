@@ -1,13 +1,13 @@
-import { BlockTree } from "../blocks/tree.js";
-import type {
-  ContentKind,
-  FlatBlock,
-  LensBlock,
-  LensInlineContent,
-} from "../blocks/types.js";
-import type { BlockPair } from "../alignment/alignBlocks.js";
-import { mergeBlock } from "../merge/block.js";
-import type { Projection } from "../projection/projectDocument.js";
+import {
+  BlockTree,
+  type ContentKind,
+  type FlatBlock,
+  type LensBlock,
+  type LensInlineContent,
+} from "../blocks/index.js";
+import type { BlockPair } from "../alignment/index.js";
+import { mergeBlock } from "../merge/index.js";
+import type { Projection } from "../projection/index.js";
 import { buildTree, type TreeRow } from "./buildTree.js";
 import { correspond } from "./correspond.js";
 import type { TargetWarning } from "./types.js";

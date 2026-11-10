@@ -1,9 +1,8 @@
 import type { BlockNoteEditor } from "@blocknote/core";
 
-import { alignmentKey } from "../alignment/alignBlocks.js";
-import { blockToText } from "../blocks/text.js";
-import type { LensBlock } from "../blocks/types.js";
-import type { TextFormat } from "../formats/types.js";
+import { alignmentKey } from "../alignment/index.js";
+import { blockToText, type LensBlock } from "../blocks/index.js";
+import type { TextFormat } from "../formats/index.js";
 import { roundTripAlone, type ViewBlock } from "./projectDocument.js";
 
 /**

@@ -5,30 +5,37 @@ import {
 } from "@blocknote/core";
 import { UniqueID } from "@blocknote/core/extensions";
 
-import { alignBlocks } from "./alignment/alignBlocks.js";
-import { flattenBlocks } from "./blocks/flatten.js";
-import { type SchemaRules, schemaRulesOf } from "./blocks/schema.js";
-import { BlockTree } from "./blocks/tree.js";
-import type { LensBlock } from "./blocks/types.js";
-import type { TextFormat } from "./formats/types.js";
-import { withDistinctIds } from "./blocks/ids.js";
-import { makeIdsDistinct } from "./operations/blockIds.js";
-import { applyOperations } from "./operations/applyOperations.js";
-import { dispatchUpdate } from "./operations/dispatch.js";
-import { diffDocuments } from "./operations/diffDocuments.js";
-import type { BlockOperation } from "./operations/types.js";
-import { parseJSON, replaceDisallowedIds } from "./parse/parseJSON.js";
-import { parseText, withoutByteOrderMark } from "./parse/parseText.js";
-import { documentText } from "./projection/cache.js";
-import { assertBlocksRoundTrip } from "./projection/assertBlocksRoundTrip.js";
-import { shadowsOf } from "./projection/shadows.js";
-import { mergeTree, type MergeWarning } from "./merge/tree.js";
-import { fitResult } from "./fit/fitResult.js";
-import { type FitWarning, mergedCellsRemoved } from "./fit/fitTable.js";
+import { alignBlocks } from "./alignment/index.js";
 import {
-  type TargetWarning,
-  targetFromPairs,
-} from "./target/targetFromPairs.js";
+  BlockTree,
+  flattenBlocks,
+  type LensBlock,
+  type SchemaRules,
+  schemaRulesOf,
+  withDistinctIds,
+} from "./blocks/index.js";
+import type { TextFormat } from "./formats/index.js";
+import {
+  applyOperations,
+  type BlockOperation,
+  diffDocuments,
+  dispatchUpdate,
+  makeIdsDistinct,
+} from "./operations/index.js";
+import {
+  parseJSON,
+  parseText,
+  replaceDisallowedIds,
+  withoutByteOrderMark,
+} from "./parse/index.js";
+import {
+  assertBlocksRoundTrip,
+  documentText,
+  shadowsOf,
+} from "./projection/index.js";
+import { mergeTree, type MergeWarning } from "./merge/index.js";
+import { fitResult, type FitWarning, mergedCellsRemoved } from "./fit/index.js";
+import { targetFromPairs, type TargetWarning } from "./target/index.js";
 
 /** Returns the document in the format. A client reads this text, changes it, and writes it back. */
 export function getDocumentText(

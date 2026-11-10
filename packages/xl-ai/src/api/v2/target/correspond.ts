@@ -1,14 +1,14 @@
-import { blockKey } from "../blocks/json.js";
-import { blockToText } from "../blocks/text.js";
-import type { BlockTree } from "../blocks/tree.js";
-import type {
-  BlockWithoutChildren,
-  FlatBlock,
-  LensBlock,
-  LensInlineContent,
-} from "../blocks/types.js";
-import type { BlockPair } from "../alignment/alignBlocks.js";
-import type { Projection } from "../projection/projectDocument.js";
+import {
+  blockKey,
+  blockToText,
+  type BlockTree,
+  type BlockWithoutChildren,
+  type FlatBlock,
+  type LensBlock,
+  type LensInlineContent,
+} from "../blocks/index.js";
+import type { BlockPair } from "../alignment/index.js";
+import type { Projection } from "../projection/index.js";
 import type { TargetWarning } from "./types.js";
 
 /** What the plan does with one block of the text. */

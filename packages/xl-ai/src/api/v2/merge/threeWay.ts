@@ -1,5 +1,4 @@
-import { deepEqual } from "../blocks/json.js";
-import type { LensInlineContent } from "../blocks/types.js";
+import { deepEqual, type LensInlineContent } from "../blocks/index.js";
 
 /**
  * The options of the merges in this folder. `concurrent` is true if `theirs`

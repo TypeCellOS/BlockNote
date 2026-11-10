@@ -1,8 +1,10 @@
-import { withoutChildren } from "../blocks/flatten.js";
-import { BlockTree } from "../blocks/tree.js";
-import type { LensBlock } from "../blocks/types.js";
-import { diffBlock } from "../blocks/update.js";
-import { myersMatch } from "../sequence/myers.js";
+import {
+  BlockTree,
+  diffBlock,
+  type LensBlock,
+  withoutChildren,
+} from "../blocks/index.js";
+import { myersMatch } from "../util/sequence/index.js";
 import type { BlockOperation, BlockPosition } from "./types.js";
 
 /**

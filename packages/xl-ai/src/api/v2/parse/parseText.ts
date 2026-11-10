@@ -1,8 +1,7 @@
 import type { BlockNoteEditor } from "@blocknote/core";
 
-import type { LensBlock } from "../blocks/types.js";
-import { toStoredBlocks } from "../formats/stored.js";
-import type { TextFormat } from "../formats/types.js";
+import type { LensBlock } from "../blocks/index.js";
+import { type TextFormat, toStoredBlocks } from "../formats/index.js";
 
 /**
  * Parses a text in the format, into the blocks in the form that the document

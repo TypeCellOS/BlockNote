@@ -102,6 +102,21 @@ export default defineConfig({
         files: ["packages/xl-ai/src/api/v2/**/*.ts"],
         rules: {
           "import/no-cycle": "error",
+          // A file imports a file of a different folder only through the
+          // index.ts of that folder. The patterns are gitignore patterns:
+          // oxlint ignores a `regex` with a lookahead, without an error.
+          "no-restricted-imports": [
+            "error",
+            {
+              patterns: [
+                {
+                  group: ["./*/**", "../**/*/*", "!**/index.js"],
+                  message:
+                    "Import the index.js of the folder. It has the API of the folder for the other folders.",
+                },
+              ],
+            },
+          ],
           complexity: ["error", 15],
           "max-depth": ["error", 4],
           "max-lines-per-function": [
@@ -116,7 +131,9 @@ export default defineConfig({
           "packages/xl-ai/src/api/v2/benchmarks/**",
           "packages/xl-ai/src/api/v2/testUtil/**",
         ],
+        // Tests can use the exports of each file.
         rules: {
+          "no-restricted-imports": "off",
           complexity: "off",
           "max-depth": "off",
           "max-lines-per-function": "off",

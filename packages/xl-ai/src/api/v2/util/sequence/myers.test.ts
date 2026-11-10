@@ -1,9 +1,9 @@
 // @vitest-environment node
 import { describe, expect, it } from "vite-plus/test";
 
-import { expectValidMatching } from "../testUtil/matching.js";
+import { expectValidMatching } from "../../testUtil/matching.js";
 import { myersMatch } from "./myers.js";
-import { createRandom } from "../testUtil/random.js";
+import { createRandom } from "../../testUtil/random.js";
 
 const equals = (x: string, y: string) => x === y;
 

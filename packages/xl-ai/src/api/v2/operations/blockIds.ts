@@ -1,6 +1,6 @@
 import type { Transform } from "prosemirror-transform";
 
-import { distinctId } from "../blocks/ids.js";
+import { distinctId } from "../blocks/index.js";
 
 /**
  * Gives the ID of `distinctId` to each block with the ID of an earlier
