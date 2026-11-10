@@ -30,18 +30,17 @@ describe("diffBlock: edge cases", () => {
     ).toBeUndefined();
   });
 
-  // BUG: a prop that the block has and the target does not have is not in
-  // the update. The doc comment says "or `undefined` if they are equal", but
-  // the fields are not equal (`deepEqual` gives false), and the result is
-  // `undefined`. Thus, the prop stays. Severity: none through the public
-  // API now: the blocks of each side are in the stored form, which has each
-  // prop of the type. The tree merge (`mergeRecords`) can drop a key with
-  // the value `undefined`, thus a later change can expose this.
-  it.fails("gives an update if the target does not have a prop of the block", () => {
+  // Before the fix, a prop that the block has and the target does not have
+  // was not in the update, and the prop stayed. No public path gives such
+  // blocks now (the stored form has each prop of the type), but the tree
+  // merge (`mergeRecords`) can drop a key with the value `undefined`.
+  it("gives the value `undefined` for a prop that the target does not have", () => {
     const block = fields({ textColor: "red", textAlignment: "left" });
     const target = fields({ textAlignment: "left" });
     expect(deepEqual(block, target)).toBe(false);
-    expect(diffBlock(block, target)).not.toBeUndefined();
+    expect(diffBlock(block, target)).toEqual({
+      props: { textColor: undefined },
+    });
   });
 
   it("gives the content for a block without content that gets content", () => {

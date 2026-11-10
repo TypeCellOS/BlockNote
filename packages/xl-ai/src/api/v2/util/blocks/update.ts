@@ -8,6 +8,10 @@ import type { BlockFields, LensPartialBlock } from "../../model.js";
  * content of the new type. Equal content in Block JSON can be different
  * content in ProseMirror for a different type: for example, `"\n"` is a hard
  * break in a paragraph, but a line end in a code block.
+ *
+ * A prop that `target` does not have is the same as a prop with the value
+ * `undefined`. If `block` has a value for it, the update gives it the value
+ * `undefined`: ProseMirror then sets the default value of the prop.
  */
 export function diffBlock(
   block: BlockFields,
@@ -19,10 +23,14 @@ export function diffBlock(
     update.type = target.type;
     update.props = target.props;
   } else {
+    const keys = new Set([
+      ...Object.keys(block.props),
+      ...Object.keys(target.props),
+    ]);
     const props = Object.fromEntries(
-      Object.entries(target.props).filter(
-        ([key, value]) => !deepEqual(value, block.props[key]),
-      ),
+      [...keys]
+        .filter((key) => !deepEqual(target.props[key], block.props[key]))
+        .map((key) => [key, target.props[key]]),
     );
     if (Object.keys(props).length > 0) {
       update.props = props;
