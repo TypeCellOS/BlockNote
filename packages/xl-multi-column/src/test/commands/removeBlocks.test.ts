@@ -79,4 +79,57 @@ describe("Test removeBlocks", () => {
 
     expect(getEditor().document).toMatchSnapshot();
   });
+
+  // Removing the other column leaves the column list with one column, so it
+  // dissolves and the surviving column's blocks are lifted out. That is an
+  // unwrap of content that never moves, so a caret in it survives untouched.
+  it("Keeps the cursor in place when removing a column dissolves the columnList", () => {
+    const editor = getEditor();
+    editor.setTextCursorPosition("column-paragraph-2", "end");
+    const offsetBefore = editor.prosemirrorState.selection.$from.parentOffset;
+
+    editor.removeBlocks(["column-0"]);
+
+    expect(editor.getTextCursorPosition().block.id).toBe("column-paragraph-2");
+    expect(editor.prosemirrorState.selection.$from.parentOffset).toBe(
+      offsetBefore,
+    );
+  });
+
+  // A block that is nested under a regular block cannot empty a column, so
+  // removing it must not repair the column list. Here column 0 holds only an
+  // empty paragraph, which the repair would otherwise remove.
+  it("Keeps the column list when removing a nested block in a column", () => {
+    getEditor().replaceBlocks(getEditor().document, [
+      {
+        id: "cl",
+        type: "columnList",
+        children: [
+          {
+            id: "c0",
+            type: "column",
+            children: [{ id: "e", type: "paragraph" }],
+          },
+          {
+            id: "c1",
+            type: "column",
+            children: [
+              {
+                id: "a",
+                type: "paragraph",
+                content: "A",
+                children: [{ id: "n", type: "paragraph", content: "N" }],
+              },
+            ],
+          },
+        ],
+      },
+    ]);
+
+    getEditor().removeBlocks(["n"]);
+
+    const list = getEditor().getBlock("cl");
+    expect(list?.type).toBe("columnList");
+    expect(list?.children.map((column) => column.id)).toEqual(["c0", "c1"]);
+  });
 });

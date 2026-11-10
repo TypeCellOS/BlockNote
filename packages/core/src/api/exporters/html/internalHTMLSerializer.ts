@@ -60,11 +60,11 @@ const makeCheckListItemsReadOnly = (element: HTMLElement) => {
 // serializing HTML elements to a string, so the button no longer works if the
 // HTML string is rendered out.
 const forceToggleBlocksShow = (element: HTMLElement) => {
-  const hiddenToggleWrappers = element.querySelectorAll(
-    '.bn-toggle-wrapper[data-show-children="false"]',
+  const closedToggleButtons = element.querySelectorAll(
+    '.bn-toggle-button[aria-expanded="false"]',
   );
-  hiddenToggleWrappers.forEach((toggleWrapper) => {
-    toggleWrapper.setAttribute("data-show-children", "true");
+  closedToggleButtons.forEach((toggleButton) => {
+    toggleButton.setAttribute("aria-expanded", "true");
   });
 
   return element;

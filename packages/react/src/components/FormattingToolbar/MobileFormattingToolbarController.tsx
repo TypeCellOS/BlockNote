@@ -1,10 +1,8 @@
 import { FC } from "react";
-import { createPortal } from "react-dom";
 
 import {
   PortalElementAnchor,
-  PortalElementOverride,
-  usePortalElement,
+  RenderInPortalElement,
 } from "../../editor/PortalElementOverride.js";
 import { UIModeContext } from "../../editor/UIModeContext.js";
 import { useEditorFocus } from "../../hooks/useEditorFocus.js";
@@ -54,36 +52,20 @@ export const MobileFormattingToolbarController = (props: {
     return null;
   }
 
-  return (
-    <PortalElementOverride target={document.body}>
-      <UIModeContext.Provider value="mobile">
-        <MobileFormattingToolbar
-          formattingToolbar={props.formattingToolbar || FormattingToolbar}
-        />
-      </UIModeContext.Provider>
-    </PortalElementOverride>
-  );
-};
-
-function MobileFormattingToolbar(props: {
-  formattingToolbar: FC<FormattingToolbarProps>;
-}) {
-  const portalElement = usePortalElement();
-  const Component = props.formattingToolbar;
-
-  if (!portalElement) {
-    return null;
-  }
+  const Component = props.formattingToolbar || FormattingToolbar;
 
   // The anchor is rendered next to the toolbar, not inside it: the toolbar
   // scrolls horizontally, and iOS WebKit clips positioned descendants of a
   // scroll container, so its dropdowns must not be descendants of it.
-  return createPortal(
-    <PortalElementAnchor>
-      <div className="bn-mobile-formatting-toolbar">
-        <Component />
-      </div>
-    </PortalElementAnchor>,
-    portalElement,
+  return (
+    <RenderInPortalElement target={document.body}>
+      <UIModeContext.Provider value="mobile">
+        <PortalElementAnchor>
+          <div className="bn-mobile-formatting-toolbar">
+            <Component />
+          </div>
+        </PortalElementAnchor>
+      </UIModeContext.Provider>
+    </RenderInPortalElement>
   );
-}
+};

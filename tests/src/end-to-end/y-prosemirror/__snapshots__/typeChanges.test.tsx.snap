@@ -8,6 +8,7 @@ exports[`suggestion mode: change list item to paragraph 1`] = `
       textAlignment="left"
       textColor="default"
     >hello world</bulletListItem>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -16,6 +17,7 @@ exports[`suggestion mode: change list item to paragraph 2`] = `
 "<blockGroup>
   <blockContainer id="block-hello">
     <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello world</paragraph>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -24,26 +26,42 @@ exports[`suggestion mode: change list item to paragraph 3`] = `
 "<doc>
   <blockGroup>
     <y-attributed-delete userIds="">
-      <blockContainer id="block-hello">
-        <y-attributed-delete userIds="">
-          <bulletListItem
-            backgroundColor="default"
-            textAlignment="left"
-            textColor="default"
-          >
-            <y-attributed-delete userIds="">hello world</y-attributed-delete>
-          </bulletListItem>
-        </y-attributed-delete>
-      </blockContainer>
+      <y-attributed-attrs
+        changes="{&quot;id&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
+      >
+        <blockContainer id="block-hello">
+          <y-attributed-delete userIds="">
+            <y-attributed-attrs
+              changes="{&quot;backgroundColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;textColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
+            >
+              <bulletListItem
+                backgroundColor="default"
+                textAlignment="left"
+                textColor="default"
+              >
+                <y-attributed-delete userIds="">hello world</y-attributed-delete>
+              </bulletListItem>
+            </y-attributed-attrs>
+          </y-attributed-delete>
+        </blockContainer>
+      </y-attributed-attrs>
     </y-attributed-delete>
     <y-attributed-insert userIds="">
-      <blockContainer id="block-hello">
-        <y-attributed-insert userIds="">
-          <paragraph backgroundColor="default" textAlignment="left" textColor="default">
-            <y-attributed-insert userIds="">hello world</y-attributed-insert>
-          </paragraph>
-        </y-attributed-insert>
-      </blockContainer>
+      <y-attributed-attrs
+        changes="{&quot;id&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
+      >
+        <blockContainer id="block-hello">
+          <y-attributed-insert userIds="">
+            <y-attributed-attrs
+              changes="{&quot;backgroundColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;textColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
+            >
+              <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+                <y-attributed-insert userIds="">hello world</y-attributed-insert>
+              </paragraph>
+            </y-attributed-attrs>
+          </y-attributed-insert>
+        </blockContainer>
+      </y-attributed-attrs>
     </y-attributed-insert>
   </blockGroup>
 </doc>"
@@ -53,6 +71,7 @@ exports[`suggestion mode: change paragraph to heading 1`] = `
 "<blockGroup>
   <blockContainer id="block-hello">
     <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello world</paragraph>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -67,6 +86,7 @@ exports[`suggestion mode: change paragraph to heading 2`] = `
       textAlignment="left"
       textColor="default"
     >hello world</heading>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -75,28 +95,44 @@ exports[`suggestion mode: change paragraph to heading 3`] = `
 "<doc>
   <blockGroup>
     <y-attributed-delete userIds="">
-      <blockContainer id="block-hello">
-        <y-attributed-delete userIds="">
-          <paragraph backgroundColor="default" textAlignment="left" textColor="default">
-            <y-attributed-delete userIds="">hello world</y-attributed-delete>
-          </paragraph>
-        </y-attributed-delete>
-      </blockContainer>
+      <y-attributed-attrs
+        changes="{&quot;id&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
+      >
+        <blockContainer id="block-hello">
+          <y-attributed-delete userIds="">
+            <y-attributed-attrs
+              changes="{&quot;backgroundColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;textColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
+            >
+              <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+                <y-attributed-delete userIds="">hello world</y-attributed-delete>
+              </paragraph>
+            </y-attributed-attrs>
+          </y-attributed-delete>
+        </blockContainer>
+      </y-attributed-attrs>
     </y-attributed-delete>
     <y-attributed-insert userIds="">
-      <blockContainer id="block-hello">
-        <y-attributed-insert userIds="">
-          <heading
-            backgroundColor="default"
-            isToggleable="false"
-            level="1"
-            textAlignment="left"
-            textColor="default"
-          >
-            <y-attributed-insert userIds="">hello world</y-attributed-insert>
-          </heading>
-        </y-attributed-insert>
-      </blockContainer>
+      <y-attributed-attrs
+        changes="{&quot;id&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
+      >
+        <blockContainer id="block-hello">
+          <y-attributed-insert userIds="">
+            <y-attributed-attrs
+              changes="{&quot;backgroundColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;textColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;level&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;isToggleable&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
+            >
+              <heading
+                backgroundColor="default"
+                isToggleable="false"
+                level="1"
+                textAlignment="left"
+                textColor="default"
+              >
+                <y-attributed-insert userIds="">hello world</y-attributed-insert>
+              </heading>
+            </y-attributed-attrs>
+          </y-attributed-insert>
+        </blockContainer>
+      </y-attributed-attrs>
     </y-attributed-insert>
   </blockGroup>
 </doc>"

@@ -4,19 +4,29 @@ import {
   ComponentType,
   createContext,
   CSSProperties,
+  FocusEvent,
   ForwardedRef,
   HTMLInputAutoCompleteAttribute,
   KeyboardEvent,
   MouseEvent,
   ReactNode,
+  RefObject,
   useContext,
 } from "react";
 
 import { BlockNoteEditor, User } from "@blocknote/core";
-import { DefaultReactGridSuggestionItem } from "../components/SuggestionMenu/GridSuggestionMenu/types.js";
 import { DefaultReactSuggestionItem } from "../components/SuggestionMenu/types.js";
 
+export type VersioningSnapshotState =
+  | "default"
+  | "selected"
+  | "comparison-source"
+  | "comparison-baseline";
+
 type ToolbarRootType = {
+  "aria-label"?: string;
+  /** Keep Tab within floating toolbars. Disable for toolbars embedded in a panel. */
+  trapFocus?: boolean;
   className?: string;
   children?: ReactNode;
   onMouseEnter?: () => void;
@@ -169,35 +179,6 @@ export type ComponentProps = {
       className?: string;
     };
   };
-  GridSuggestionMenu: {
-    Root: {
-      id: string;
-      columns: number;
-      className?: string;
-      children?: ReactNode;
-    };
-    EmptyItem: {
-      columns: number;
-      className?: string;
-      children?: ReactNode;
-    };
-    Item: {
-      className?: string;
-      id: string;
-      isSelected: boolean;
-      onClick: () => void;
-      item: DefaultReactGridSuggestionItem;
-    };
-    // Label: {
-    //   className?: string;
-    //   children?: ReactNode;
-    // };
-    Loader: {
-      columns: number;
-      className?: string;
-      children?: ReactNode;
-    };
-  };
   TableHandle: {
     Root: {
       className?: string;
@@ -259,23 +240,65 @@ export type ComponentProps = {
      * snapshot rows).
      */
     Sidebar: {
+      "aria-label"?: string;
       className?: string;
       children?: ReactNode;
     };
+    /** The sidebar heading and its filter, comparison, and close actions. */
+    Header: {
+      className?: string;
+      title: string;
+      actions: ReactNode;
+      closeAction?: ReactNode;
+    };
+    /** A version name, rendered as text or as an inline controlled field. */
+    Name:
+      | {
+          mode: "display";
+          value: string;
+        }
+      | {
+          mode: "editing";
+          value: string;
+          placeholder: string;
+          "aria-label": string;
+          inputRef: RefObject<HTMLInputElement | null>;
+          onChange: (event: ChangeEvent<HTMLInputElement>) => void;
+          onClick: (event: MouseEvent<HTMLInputElement>) => void;
+          onKeyDown: (event: KeyboardEvent<HTMLInputElement>) => void;
+          onBlur: (event: FocusEvent<HTMLInputElement>) => void;
+        };
     /**
-     * A single row in the version-history sidebar — the live "current version"
-     * entry or a stored snapshot.
+     * A single row in the version-history sidebar — the current version or a
+     * stored one. Rendered as a `role="listitem"` inside the sidebar's list,
+     * which is why it takes the roving-tabindex and focus props below.
      */
     Snapshot: {
+      "aria-label"?: string;
       className?: string;
-      /** Whether this row is the version currently shown in the editor. */
-      selected?: boolean;
-      /** Whether this row is the baseline the current diff is compared against. */
-      comparing?: boolean;
+      id?: string;
+      /** The row's mutually exclusive selection and comparison state. */
+      state: VersioningSnapshotState;
+      /** `0` for the active row of the roving tabindex, `-1` for the rest. */
+      tabIndex?: number;
+      /** Whether this row's content is still loading. */
+      "aria-busy"?: boolean;
       onClick?: () => void;
+      onKeyDown?: (event: KeyboardEvent) => void;
+      onFocus?: () => void;
       /** Row actions (e.g. the "..." menu), revealed on hover. */
       actions?: ReactNode;
-      children?: ReactNode;
+      name: ReactNode;
+      date?: string;
+      restoredFrom?: string;
+      /** Complete core users, or raw IDs for authors that have not resolved. */
+      users?: (User | string)[];
+      comparingLabel?: string;
+      comparingIcon?: ReactNode;
+    };
+    /** The spinner shown while versions (or a preview) are loading. */
+    Loader: {
+      className?: string;
     };
   };
   AttributionTooltip: {
@@ -380,6 +403,7 @@ export type ComponentProps = {
         className?: string;
         children?: ReactNode;
 
+        disabled?: boolean;
         subTrigger?: boolean;
         icon?: ReactNode;
         checked?: boolean;
@@ -435,9 +459,9 @@ export type Components = {
   // only needed as Generic Root/etc elements are 1 level of nesting deeper
   Generic: {
     [GenericComponents in keyof ComponentProps["Generic"]]: {
-      [Component in keyof ComponentProps["Generic"][GenericComponents]]: ComponentType<
-        ComponentProps["Generic"][GenericComponents][Component]
-      >;
+      [
+        Component in keyof ComponentProps["Generic"][GenericComponents]
+      ]: ComponentType<ComponentProps["Generic"][GenericComponents][Component]>;
     };
   };
 };

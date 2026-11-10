@@ -9,6 +9,18 @@ import { generateRandomId } from "./utils.js";
 import { LoginScreen } from "./LoginScreen.js";
 import { DocumentList } from "./DocumentList.js";
 import { DocumentEditor } from "./DocumentEditor.js";
+import {
+  SAMPLE_DOCUMENT_TITLE,
+  seedSampleDocument,
+  hasPendingSampleDocument,
+} from "./sampleDocument.js";
+import { YHUB_API_URL } from "./yhub.js";
+
+// Set once the sample document has been created, so deleting every document
+// leaves the workspace empty rather than bringing the sample back.
+function seededKey(workspaceId: string) {
+  return `bn-multi-doc-seeded:${workspaceId}`;
+}
 
 export default function App() {
   const user = useCurrentUser();
@@ -38,7 +50,14 @@ export default function App() {
   const workspaceId = seg1;
   const docId = seg2 || null;
 
-  return <Workspace user={user} workspaceId={workspaceId} docId={docId} />;
+  return (
+    <Workspace
+      key={workspaceId}
+      user={user}
+      workspaceId={workspaceId}
+      docId={docId}
+    />
+  );
 }
 
 function Workspace({
@@ -50,9 +69,47 @@ function Workspace({
   workspaceId: string;
   docId: string | null;
 }) {
-  const index = useDocIndex();
+  const index = useDocIndex(workspaceId, docId);
   const activeDoc = docId ? index.docs.find((d) => d.id === docId) : null;
   const [copied, setCopied] = useState(false);
+
+  // A first visit gets a sample document with a few versions in its history,
+  // so the history sidebar has something to show before anyone has edited.
+  const [seedStatus, setSeedStatus] = useState<"idle" | "seeding" | "failed">(
+    "idle",
+  );
+  const [seedAttempt, setSeedAttempt] = useState(0);
+  const seedStartedRef = useRef(false);
+  useEffect(() => {
+    if (
+      docId ||
+      (index.docs.length > 0 &&
+        !hasPendingSampleDocument({
+          baseUrl: YHUB_API_URL,
+          org: workspaceId,
+        })) ||
+      localStorage.getItem(seededKey(workspaceId)) ||
+      seedStartedRef.current
+    ) {
+      return;
+    }
+    seedStartedRef.current = true;
+    setSeedStatus("seeding");
+    void seedSampleDocument({
+      baseUrl: YHUB_API_URL,
+      org: workspaceId,
+    })
+      .then((id) => {
+        index.ensure(id, SAMPLE_DOCUMENT_TITLE);
+        localStorage.setItem(seededKey(workspaceId), "1");
+        setSeedStatus("idle");
+        navigate(`/w/${workspaceId}/${id}`);
+      })
+      .catch((error: unknown) => {
+        console.error("Could not seed the sample document", error);
+        setSeedStatus("failed");
+      });
+  }, [docId, index, workspaceId, seedAttempt]);
 
   // A shared doc URL can reference a doc this browser has never seen (the
   // index is localStorage-only). Register it so the editor mounts and syncs
@@ -90,7 +147,8 @@ function Workspace({
 
   const signOut = () => {
     setCurrentUser(null);
-    navigate("/");
+    // Keep the workspace/document route as the login redirect, including
+    // across reloads. Signing out changes identity, not document ownership.
   };
 
   const switchUser = (id: string) => {
@@ -134,7 +192,22 @@ function Workspace({
           workspaceId={workspaceId}
           activeDocId={docId}
         />
-        {activeDoc ? (
+        {seedStatus === "seeding" ? (
+          <div className="page-loading">Preparing a sample document…</div>
+        ) : seedStatus === "failed" ? (
+          <div className="page-loading">
+            <p>Could not prepare the sample document.</p>
+            <button
+              className="btn btn-primary"
+              onClick={() => {
+                seedStartedRef.current = false;
+                setSeedAttempt((attempt) => attempt + 1);
+              }}
+            >
+              Retry
+            </button>
+          </div>
+        ) : activeDoc ? (
           <DocumentEditor
             key={activeDoc.id + user.id}
             workspaceId={workspaceId}

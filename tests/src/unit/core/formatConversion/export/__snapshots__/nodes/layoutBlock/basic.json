@@ -1,0 +1,33 @@
+[
+  {
+    "attrs": {
+      "flavor": "tip",
+      "id": "1",
+    },
+    "content": [
+      {
+        "attrs": {
+          "id": "2",
+        },
+        "content": [
+          {
+            "attrs": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "content": [
+              {
+                "text": "Callout child",
+                "type": "text",
+              },
+            ],
+            "type": "paragraph",
+          },
+        ],
+        "type": "blockContainer",
+      },
+    ],
+    "type": "callout",
+  },
+]

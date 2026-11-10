@@ -41,9 +41,13 @@ function typeString(editor: BlockNoteEditor, str: string) {
  * Simulate a keyboard shortcut by invoking the view's handleKeyDown prop,
  * which is how ProseMirror routes keymap-based handlers like Enter.
  */
-function pressKey(editor: BlockNoteEditor, key: string) {
+function pressKey(
+  editor: BlockNoteEditor,
+  key: string,
+  modifiers: Omit<KeyboardEventInit, "key"> = {},
+) {
   const view = editor.prosemirrorView;
-  const event = new KeyboardEvent("keydown", { key });
+  const event = new KeyboardEvent("keydown", { key, ...modifiers });
   view.someProp("handleKeyDown", (f) => f(view, event));
 }
 
@@ -223,6 +227,59 @@ describe("Code block input rule", () => {
     const after = editor.document[0];
     expect(after.type).toBe("codeBlock");
     expect((after.props as any).language).toBe("ts");
+  });
+});
+
+describe("Code block keyboard shortcut", () => {
+  let editor: BlockNoteEditor;
+  const div = document.createElement("div");
+
+  beforeAll(() => {
+    editor = BlockNoteEditor.create();
+    editor.mount(div);
+  });
+
+  afterAll(() => {
+    editor._tiptapEditor.destroy();
+    editor = undefined as any;
+  });
+
+  beforeEach(() => {
+    const testDoc: PartialBlock[] = [
+      {
+        id: "test-paragraph",
+        type: "paragraph",
+        content: [
+          { type: "text", text: "const ", styles: {} },
+          { type: "text", text: "x", styles: { bold: true } },
+        ],
+      },
+      {
+        id: "test-image",
+        type: "image",
+      },
+    ];
+    editor.replaceBlocks(editor.document, testDoc);
+  });
+
+  it("converts the current block into a codeBlock on Mod-Alt-c", () => {
+    editor.setTextCursorPosition("test-paragraph", "end");
+    pressKey(editor, "c", { ctrlKey: true, altKey: true });
+
+    const block = editor.document[0];
+    expect(block.type).toBe("codeBlock");
+    expect(block.id).toBe("test-paragraph");
+    expect((block.props as any).language).toBe("text");
+    expect(block.content).toEqual([
+      { type: "text", text: "const x", styles: {} },
+    ]);
+  });
+
+  it("ignores Mod-Alt-c in a block without inline content", () => {
+    editor.setTextCursorPosition("test-image");
+    pressKey(editor, "c", { ctrlKey: true, altKey: true });
+
+    expect(editor.document[1].type).toBe("image");
   });
 });
 

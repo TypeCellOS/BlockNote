@@ -56,6 +56,11 @@ type BlockConfig = {
   type: string;
   content: "inline" | "plain" | "none";
   readonly propSchema: PropSchema;
+  layoutOnly?: boolean;
+  children?:
+    | { allow?: "blocks"; exclude?: string[] }
+    | { allow: string[]; min?: number; dissolve?: boolean };
+  placeable?: "anywhere" | "namedOnly";
 };
 ```
 
@@ -110,6 +115,15 @@ If you do not want the prop to have a default value, you can define it as an obj
   Properties](/docs/features/blocks#default-block-properties)._
 </Callout>
 
+<Callout type="info">
+  _Every block can have child blocks, indented below it. You do not declare
+  them in the config. To draw a frame around a block and its child blocks, see
+  [Block Frames](#block-frames). `layoutOnly`, `children` and `placeable` are
+  only for layout blocks. A layout block only holds and arranges other blocks,
+  but has no content of its own, for example a panel or a tab set. See [Layout
+  Blocks](/docs/features/custom-schemas/layout-blocks)._
+</Callout>
+
 ### Block Implementation (`ReactCustomBlockImplementation`)
 
 The Block Implementation defines how the block should be rendered in the editor, and how it should be parsed from and converted to HTML.
@@ -121,11 +135,17 @@ type ReactCustomBlockImplementation = {
     editor: BlockNoteEditor;
     contentRef?: (node: HTMLElement | null) => void;
   }>;
+  renderFrame?: React.FC<{
+    block: Block;
+    editor: BlockNoteEditor;
+    slotRef: (node: HTMLElement | null) => void;
+  }>;
   toExternalHTML?: React.FC<{
     block: Block;
     editor: BlockNoteEditor;
     contentRef?: (node: HTMLElement | null) => void;
-    contest: { nestingLevel: number };
+    childrenRef: (node: HTMLElement | null) => void;
+    context: { nestingLevel: number };
   }>;
   parse?: (element: HTMLElement) => PartialBlock["props"] | undefined;
   parseContent?: (options: {
@@ -133,13 +153,26 @@ type ReactCustomBlockImplementation = {
     schema: Schema;
   }) => Fragment | undefined;
   runsBefore?: string[];
+  experimental_keyboard?:
+    | KeyboardSettings
+    | ((block: Block) => KeyboardSettings);
+  // KeyboardSettings: {
+  //   enter?: "split" | "into-children" | "line-break";
+  //   shiftEnter?: "line-break" | "same-as-enter";
+  //   splitKeepsType?: boolean;
+  //   splitKeepsChildren?: boolean;
+  //   resetsTo?: { type: string; props?: Record<string, unknown> };
+  //   emptyEnterResets?: boolean;
+  //   emptyChildEnter?: "outdent" | "exit-at-end" | "stay";
+  //   childrenCanOutdent?: boolean;
+  // }
   meta?: {
-    hardBreakShortcut?: "shift+enter" | "enter" | "none";
     selectable?: boolean;
     fileBlockAccept?: string[];
     code?: boolean;
     defining?: boolean;
     isolating?: boolean;
+    draggable?: boolean;
     highlight?: (block: Block) => string | undefined;
   };
 };
@@ -153,9 +186,14 @@ type ReactCustomBlockImplementation = {
 
 - `contentRef:` A React `ref` you can use to mark which element in your block is editable. This is only available if your block config contains `content: "inline"` or `content: "plain"`.
 
-`toExternalHTML?:` This component is used whenever the block is being exported to HTML for use outside BlockNote, for example when copying it to the clipboard. If it's not defined, BlockNote will just use `render` for the HTML conversion. Takes the same props as `render` and an additional `context` prop, which is. an object with the following attributes:
+`renderFrame?:` A component that draws a frame around the block's content and its child blocks. See [Block Frames](#block-frames).
 
-- `nestingLevel`: How deep the block being exported in nested inside other blocks. 0 means it's at the top level of the document.
+`toExternalHTML?:` This component is used whenever the block is being exported to HTML for use outside BlockNote, for example when copying it to the clipboard. If it's not defined, BlockNote will just use `render` (and `renderFrame`, if the block has one) for the HTML conversion. Takes the same props as `render`, and two more:
+
+- `childrenRef:` A React `ref` that marks where the block's child blocks go, for example inside a `<details>` element. Without it, the child blocks follow the block.
+
+- `context:` An object with the following attributes:
+  - `nestingLevel`: How deep the block being exported is nested inside other blocks. 0 means it's at the top level of the document.
 
 <Callout type="info">
   _Note that your component passed to `toExternalHTML` is rendered and
@@ -171,9 +209,27 @@ type ReactCustomBlockImplementation = {
 
 `runsBefore?:` If this block has parsing or extensions that need to be given priority over any other blocks, you can pass their `type`s in an array here.
 
-`meta?:` An object for setting various generic properties of the block.
+`experimental_keyboard?:` How the keyboard treats the block and its children. This API is experimental and may change. Give only the settings that differ from the defaults. To make settings depend on the block's props, give a function that gets the block and returns them instead.
 
-- `hardBreakShortcut?:` Defines which keyboard shortcut should be used to insert a hard break into the block's inline content. Defaults to `"shift+enter"`. For `content: "plain"` blocks (which can't hold hard break nodes), the shortcut inserts a literal newline (`"\n"`) instead.
+- `enter?:` What Enter does in the block's content. `"split"` (default) splits the block, moving the text after the caret into a new block below. `"into-children"` moves it into a new first child instead. `"line-break"` inserts a line break, and makes Shift-Enter do the same. For `content: "plain"` blocks (which can't hold hard break nodes), a line break is a literal newline (`"\n"`).
+
+- `shiftEnter?:` What Shift-Enter does in the block's content: `"line-break"` (default) or `"same-as-enter"`.
+
+- `splitKeepsType?:` Whether the block created by splitting this one with Enter has the same type, as in lists. Defaults to `false`.
+
+- `splitKeepsChildren?:` Whether the block's children stay with it when Enter splits it. Otherwise they follow the text after the caret into the new block, as for nested blocks, so the new block takes the block's place above them. Defaults to `true` when `enter` is `"into-children"` (the children are the block's body), otherwise `false`; a closed toggle sets it to keep its hidden children.
+
+- `resetsTo?:` What the block turns into when it's reset, keeping its content and children. Backspace at the start of the block always resets it. A `type`, and `props` to merge into the block's props. Defaults to `{ type: "paragraph" }`.
+
+- `emptyEnterResets?:` Whether Enter in the empty block resets it too, as when an empty list item turns into a paragraph. Defaults to `false`.
+
+- `emptyChildEnter?:` What Enter does in an empty child of this block. `"outdent"` (default) outdents any empty child. `"exit-at-end"` (default for layout blocks) moves an empty last child out to after the block, and adds a new child after any other empty child. `"stay"` always adds a new child after it.
+
+- `childrenCanOutdent?:` Whether the block's children can be outdented out of it with Shift-Tab, or by Enter or Backspace in an empty or nested child. Defaults to `true`, or `false` for layout blocks, whose children can never be outdented.
+
+When settings meet, Enter at the start of non-empty content always inserts an empty block above it, and resetting an empty block comes before `enter: "into-children"`.
+
+`meta?:` An object for setting various generic properties of the block.
 
 - `selectable?:` Can be set to false in order to make the block non-selectable, both using the mouse and keyboard. This also helps with being able to select non-editable content within the block. Should only be set to false when `content` is `none` and defaults to true.
 
@@ -184,6 +240,8 @@ type ReactCustomBlockImplementation = {
 - `defining?:` Whether this block is [defining](https://prosemirror.net/docs/ref/#model.NodeSpec.defining).
 
 - `isolating?:` Whether this block is [isolating](https://prosemirror.net/docs/ref/#model.NodeSpec.isolating).
+
+- `draggable?:` Whether the block gets a side menu drag handle. Defaults to `true`, or `false` for a layout block that can only be placed inside a specific parent (`placeable: "namedOnly"`).
 
 - `highlight?:` A callback that returns the language the block's text should be syntax-highlighted as (or `undefined` for no highlighting). Highlighting only takes effect when the [syntax highlighting extension](/docs/features/blocks/code-blocks#syntax-highlighting) is added to the editor.
 
@@ -257,3 +315,86 @@ You can then instantiate your editor with this custom schema, as explained on th
 Now you know how to create a custom block and add it to your editor. However, users don't have a way of creating instances of it to their documents.
 
 To fix this, it's recommended to implement a [command to insert your custom in the Slash Menu](/docs/react/components/suggestion-menus#changing-slash-menu-items), and [an item for it in the Block Type Select](/docs/react/components/formatting-toolbar)
+
+## Block Frames
+
+A block can have child blocks. By default, BlockNote shows the child blocks indented below the block. Use `renderFrame` to draw one frame around the block's content and its child blocks, for example one background for both.
+
+In the demo below, we give the Alert block from the demo above a title and a body. The alert's text is its title, and its child blocks are its body. The frame gives the title and the body the background color of the alert type:
+
+<Example name="custom-schema/alert-block-with-title-and-body" />
+
+The block config does not change. A block with content (`content: "inline"` or `"plain"`) can always have child blocks, so you do not declare them. We add `renderFrame` and `experimental_keyboard` to the block implementation:
+
+```tsx
+export const createAlert = createReactBlockSpec(
+  {
+    type: "alert",
+    propSchema: {
+      type: {
+        default: "warning",
+        values: ["warning", "error", "info", "success"],
+      },
+    },
+    content: "inline",
+  },
+  {
+    experimental_keyboard: {
+      enter: "into-children",
+      childrenCanOutdent: false,
+      emptyChildEnter: "exit-at-end",
+    },
+    // Draws the title row, the same as in the Alert demo.
+    render: (props) => {
+      ...
+    },
+    renderFrame: (props) => (
+      <div className="alert-frame" data-alert-type={props.block.props.type}>
+        <div ref={props.slotRef} />
+      </div>
+    ),
+  },
+);
+```
+
+`render:` Draws only the block's content, here the alert's title row. It does not change when you add a frame.
+
+`renderFrame:` A React component that draws the frame. It takes three React props:
+
+- `block:` The block. Use its props to change the frame, for example to show the color of the alert type.
+
+- `editor:` The BlockNote editor instance that the block is in.
+
+- `slotRef:` A React `ref`. Attach it to the element that holds the block's content and its child blocks. You can add other elements around this element, for example icons or buttons. Set `contentEditable={false}` on them.
+
+To show the block without a frame, return `null`. For example, you can use a prop to turn the frame on and off.
+
+`experimental_keyboard:` Without these settings, the child blocks behave like all other nested blocks. Here, they keep the body in the alert:
+
+- `enter: "into-children"`: Enter in the title adds a block at the start of the body.
+- `childrenCanOutdent: false`: Shift-Tab does not move blocks out of the alert.
+- `emptyChildEnter: "exit-at-end"`: Enter in an empty last block of the body moves that block out of the alert.
+
+See [`experimental_keyboard`](#block-implementation-reactcustomblockimplementation) above for all settings.
+
+Use `content` for the title and `children` for the body:
+
+```typescript
+{
+  type: "alert",
+  content: "Before you start",
+  children: [
+    { type: "paragraph", content: "Make sure you have an account." },
+  ],
+}
+```
+
+When the user moves the alert, its title and its body move together.
+
+<Callout type="info">
+  _A block with a frame is different from a [layout
+  block](/docs/features/custom-schemas/layout-blocks). A layout block has no
+  content of its own. It only holds child blocks, for example a panel or a tab
+  set. See [Layout Blocks and Block
+  Frames](/docs/features/custom-schemas/layout-blocks#layout-blocks-and-block-frames)._
+</Callout>

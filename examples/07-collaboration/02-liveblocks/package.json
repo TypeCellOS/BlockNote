@@ -25,7 +25,7 @@
     "@liveblocks/react-blocknote": "^3.19.5",
     "@liveblocks/react-tiptap": "^3.19.5",
     "@liveblocks/react-ui": "^3.19.5",
-    "yjs": "^13.6.27"
+    "yjs": "^13.6.33"
   },
   "devDependencies": {
     "@types/react": "^19.2.3",

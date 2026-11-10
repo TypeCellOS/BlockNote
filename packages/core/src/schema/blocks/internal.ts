@@ -5,7 +5,10 @@ import { defaultBlockToHTML } from "../../blocks/defaultBlockHelpers.js";
 import type { ExtensionFactoryInstance } from "../../editor/BlockNoteExtension.js";
 import { mergeCSSClasses } from "../../util/browser.js";
 import { camelToDataKebab } from "../../util/string.js";
+import { propsToDataAttributes, setDataAttributes } from "../dataAttributes.js";
 import { PropSchema, Props } from "../propTypes.js";
+import { createBlockKeyboard } from "./keyboard.js";
+import { resolveBlockMeta } from "./meta.js";
 import { LooseBlockSpec } from "./types.js";
 
 // Function that uses the 'propSchema' of a blockConfig to create a TipTap
@@ -60,14 +63,8 @@ export function propsToAttributes(propSchema: PropSchema): Attributes {
 
         return value;
       },
-      renderHTML: (attributes) => {
-        // don't render to html if the value is the same as the default
-        return attributes[name] !== spec.default
-          ? {
-              [camelToDataKebab(name)]: attributes[name],
-            }
-          : {};
-      },
+      renderHTML: (attributes) =>
+        propsToDataAttributes({ [name]: attributes[name] }, { [name]: spec }),
     };
   });
 
@@ -157,6 +154,39 @@ export function getBlockFromNodeView(
   }
 }
 
+/**
+ * `Node.DOCUMENT_FRAGMENT_NODE`, inlined. Server-side rendering shims only
+ * `document` and `window` onto the global scope, so `Node` and
+ * `DocumentFragment` are undefined there and `instanceof` throws.
+ */
+const DOCUMENT_FRAGMENT_NODE = 11;
+
+export function isDocumentFragment(
+  node: HTMLElement | DocumentFragment,
+): node is DocumentFragment {
+  return node.nodeType === DOCUMENT_FRAGMENT_NODE;
+}
+
+/**
+ * Applies custom `blockContent` DOM attributes to an element, merging (rather
+ * than overwriting) its class list.
+ */
+export function applyDOMAttributes(
+  dom: HTMLElement | DocumentFragment,
+  domAttributes: Record<string, string> | undefined,
+) {
+  if (!domAttributes || isDocumentFragment(dom)) {
+    return;
+  }
+  for (const [attr, value] of Object.entries(domAttributes)) {
+    if (attr === "class") {
+      dom.className = mergeCSSClasses(dom.className, value);
+    } else {
+      dom.setAttribute(attr, value);
+    }
+  }
+}
+
 // Function that wraps the `dom` element returned from 'blockConfig.render' in a
 // `blockContent` div, which contains the block type and props as HTML
 // attributes. If `blockConfig.render` also returns a `contentDOM`, it also adds
@@ -198,15 +228,13 @@ export function wrapInBlockStructure<
   );
   // Sets content type attribute
   blockContent.setAttribute("data-content-type", blockType);
-  // Adds props as HTML attributes in kebab-case with "data-" prefix. Skips props
-  // which are already added as HTML attributes to the parent `blockContent`
-  // element (inheritedProps) and props set to their default values.
-  for (const [prop, value] of Object.entries(blockProps)) {
-    const spec = propSchema[prop];
-    if (value !== spec?.default) {
-      blockContent.setAttribute(camelToDataKebab(prop), value);
-    }
-  }
+  // Adds the props as `data-*` attributes, leaving out those at their default.
+  // Set only: the tiptap `renderHTML` path passes the props through
+  // `domAttributes` above and empty `blockProps`.
+  setDataAttributes(
+    blockContent,
+    propsToDataAttributes(blockProps, propSchema),
+  );
   // Adds file block attribute
   if (isFileBlock) {
     blockContent.setAttribute("data-file-block", "");
@@ -247,6 +275,11 @@ export function createBlockSpecFromTiptapNode<
     },
     implementation: {
       node: config.node,
+      meta: resolveBlockMeta(undefined, {}),
+      keyboard: createBlockKeyboard(undefined, {
+        isLayoutBlock: false,
+        hardBreakShortcut: undefined,
+      }),
       render: defaultBlockToHTML,
       toExternalHTML: defaultBlockToHTML,
     },

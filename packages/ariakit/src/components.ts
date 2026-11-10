@@ -20,10 +20,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "./popover/Popover.js";
 import { SideMenu } from "./sideMenu/SideMenu.js";
 import { SideMenuButton } from "./sideMenu/SideMenuButton.js";
 import { AttributionTooltip } from "./attributionMarks/AttributionTooltip.js";
-import { GridSuggestionMenu } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenu.js";
-import { GridSuggestionMenuEmptyItem } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenuEmptyItem.js";
-import { GridSuggestionMenuItem } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenuItem.js";
-import { GridSuggestionMenuLoader } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenuLoader.js";
 import { SuggestionMenu } from "./suggestionMenu/SuggestionMenu.js";
 import { SuggestionMenuEmptyItem } from "./suggestionMenu/SuggestionMenuEmptyItem.js";
 import { SuggestionMenuItem } from "./suggestionMenu/SuggestionMenuItem.js";
@@ -39,6 +35,8 @@ import { Comment } from "./comments/Comment.js";
 import { Editor } from "./comments/Editor.js";
 import { Badge, BadgeGroup } from "./badge/Badge.js";
 import {
+  Header as VersioningHeader,
+  Name as VersioningName,
   Sidebar as VersioningSidebar,
   Snapshot as VersioningSnapshot,
 } from "./versioning/Versioning.js";
@@ -55,12 +53,6 @@ export const components: Components = {
     FileInput: PanelFileInput,
     TabPanel: PanelTab,
     TextInput: PanelTextInput,
-  },
-  GridSuggestionMenu: {
-    Root: GridSuggestionMenu,
-    Item: GridSuggestionMenuItem,
-    EmptyItem: GridSuggestionMenuEmptyItem,
-    Loader: GridSuggestionMenuLoader,
   },
   LinkToolbar: {
     Root: Toolbar,
@@ -94,7 +86,12 @@ export const components: Components = {
   },
   Versioning: {
     Sidebar: VersioningSidebar,
+    Header: VersioningHeader,
+    Name: VersioningName,
     Snapshot: VersioningSnapshot,
+    // The sidebar's loader is the same dots/spinner as the suggestion menu's —
+    // one spinner per UI package, not one per feature.
+    Loader: SuggestionMenuLoader,
   },
   Generic: {
     Badge: {

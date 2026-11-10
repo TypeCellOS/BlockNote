@@ -9,22 +9,15 @@ export default defineConfig({
   build: {
     outDir: "../../release-tmp",
     minify: false,
-    sourcemap: true,
+    sourcemap: false,
     lib: {
+      formats: ["es"],
       entry: path.resolve(__dirname, "src/index.ts"),
       name: "blocknote",
       fileName: "blocknote.bundled",
     },
     rollupOptions: {
       // external: Object.keys(pkg.dependencies),
-      output: {
-        // Provide global variables to use in the UMD build
-        // for externalized deps
-        globals: {
-          // react: "React",
-          // "react-dom": "ReactDOM",
-        },
-      },
     },
   },
 });

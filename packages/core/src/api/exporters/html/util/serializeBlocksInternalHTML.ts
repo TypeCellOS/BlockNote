@@ -7,6 +7,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../../../schema/index.js";
+import { isLayoutNode } from "../../../../schema/blocks/children.js";
 import { UnreachableCaseError } from "../../../../util/typescript.js";
 import {
   inlineContentToNodes,
@@ -14,6 +15,11 @@ import {
 } from "../../../nodeConversions/blockToNode.js";
 
 import { nodeToCustomInlineContent } from "../../../nodeConversions/nodeToBlock.js";
+import { setBlockColorAttributes } from "../../../../pm-nodes/BlockContainer.js";
+import {
+  markFrameSlot,
+  renderFrameDOM,
+} from "../../../../schema/blocks/frame.js";
 export function serializeInlineContentInternalHTML<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
@@ -150,12 +156,37 @@ function serializeBlock<
   const children = block.children || [];
 
   const impl = editor.blockImplementations[block.type as any].implementation;
+  const fullBlock = { ...block, props, children } as any;
+
+  if (isLayoutNode(editor.pmSchema.nodes[block.type as any])) {
+    // A layout block is its frame. `renderFrameDOM` stamps the frame's root with
+    // the block's attributes and marks the slot, which holds the children, so
+    // the round-trip parse rule reads only the slot and not the chrome around
+    // it.
+    const frame = renderFrameDOM(editor, fullBlock);
+    if (!frame) {
+      throw new Error(
+        `Layout block "${block.type}" drew no frame. This is a bug in BlockNote.`,
+      );
+    }
+    if (children.length > 0) {
+      frame.slot.append(serializeBlocks(editor, children, serializer, options));
+    }
+    return frame.dom;
+  }
+
+  // Every block but a layout block declares `render` (`validateRenderHooks`).
+  if (!impl.render) {
+    throw new Error(
+      `Block "${block.type}" has no \`render\`. This is a bug in BlockNote.`,
+    );
+  }
   const ret = impl.render.call(
     {
       renderType: "dom",
       props: undefined,
     },
-    { ...block, props, children } as any,
+    fullBlock,
     editor as any,
   );
 
@@ -170,22 +201,6 @@ function serializeBlock<
     ret.contentDOM.appendChild(ic);
   }
 
-  const pmType = editor.pmSchema.nodes[block.type as any];
-
-  if (pmType.isInGroup("bnBlock")) {
-    if (block.children && block.children.length > 0) {
-      const fragment = serializeBlocks(
-        editor,
-        block.children,
-        serializer,
-        options,
-      );
-
-      ret.contentDOM?.append(fragment);
-    }
-    return ret.dom;
-  }
-
   // wrap the block in a blockContainer
   const bc = BC_NODE.spec?.toDOM?.(
     BC_NODE.create({
@@ -196,12 +211,27 @@ function serializeBlock<
     dom: HTMLElement;
     contentDOM?: HTMLElement;
   };
+  if (bc.contentDOM) {
+    setBlockColorAttributes(bc.contentDOM, props);
+  }
 
-  bc.contentDOM?.appendChild(ret.dom);
+  // The block's content and children go into the blockContainer, or into the
+  // slot of the frame around them. The DOM render context lets interactive
+  // frames export without browser view state.
+  let contentDOM = bc.contentDOM;
+  const frame = renderFrameDOM(editor, fullBlock);
+  if (frame) {
+    // Marks where the block's content and children are, for the parser: the
+    // rest of the frame is chrome, not document content.
+    markFrameSlot(frame.slot);
+    bc.contentDOM?.appendChild(frame.dom);
+    contentDOM = frame.slot;
+  }
+  contentDOM?.appendChild(ret.dom);
 
-  if (block.children && block.children.length > 0) {
-    bc.contentDOM?.appendChild(
-      serializeBlocksInternalHTML(editor, block.children, serializer, options),
+  if (children.length > 0) {
+    contentDOM?.appendChild(
+      serializeBlocksInternalHTML(editor, children, serializer, options),
     );
   }
   return bc.dom;

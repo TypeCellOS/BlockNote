@@ -12,6 +12,7 @@ import {
 } from "@blocknote/math-block";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
+import "@blocknote/math-block/style.css";
 import {
   blockTypeSelectItems,
   FormattingToolbar,
@@ -84,7 +85,7 @@ export default function App() {
         formattingToolbar={() => (
           <FormattingToolbar
             blockTypeSelectItems={[
-              ...blockTypeSelectItems(editor.dictionary),
+              ...blockTypeSelectItems(editor),
               ...getMathBlockTypeSelectItems(editor),
             ]}
           />

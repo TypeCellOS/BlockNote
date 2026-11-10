@@ -1,5 +1,6 @@
 import { CustomInlineContentConfig } from "@blocknote/core";
 import { createReactInlineContentSpec } from "@blocknote/react";
+import { MathRenderExtension } from "../helpers/MathRenderExtension.js";
 
 import { MathInlineInputRulesExtension } from "./helpers/extensions/MathInlineInputRulesExtension.js";
 import {
@@ -31,5 +32,5 @@ export const createReactInlineMathSpec = () =>
       render: MathInlinePreviewWithPopup,
       toExternalHTML: InlineMathMLElement,
     },
-    [MathInlineInputRulesExtension],
+    [MathInlineInputRulesExtension, MathRenderExtension],
   );

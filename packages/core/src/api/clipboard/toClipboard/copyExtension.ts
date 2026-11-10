@@ -1,5 +1,5 @@
 import { Extension } from "@tiptap/core";
-import { Fragment, Node } from "prosemirror-model";
+import { Fragment, Node, Slice } from "prosemirror-model";
 import { NodeSelection, Plugin } from "prosemirror-state";
 import { CellSelection } from "prosemirror-tables";
 import type { EditorView } from "prosemirror-view";
@@ -127,16 +127,36 @@ export function selectedFragmentToHTML<
     );
   }
 
+  // Strip internal annotations from the copied content, not the source document.
+  function removeIgnoredMarks(fragment: Fragment): Fragment {
+    const children: Node[] = [];
+    fragment.forEach((child) => {
+      const unmarked = child.mark(
+        child.marks.filter((mark) => !mark.type.spec.blocknoteIgnore),
+      );
+      children.push(
+        unmarked.content.size > 0
+          ? unmarked.copy(removeIgnoredMarks(unmarked.content))
+          : unmarked,
+      );
+    });
+    return Fragment.fromArray(children);
+  }
+
+  const selectedSlice = view.state.selection.content();
+
   // Uses default ProseMirror clipboard serialization.
   const clipboardHTML: string = view.serializeForClipboard(
-    view.state.selection.content(),
+    new Slice(
+      removeIgnoredMarks(selectedSlice.content),
+      selectedSlice.openStart,
+      selectedSlice.openEnd,
+    ),
   ).dom.innerHTML;
-
-  const selectedFragment = view.state.selection.content().content;
 
   const externalHTML = fragmentToExternalHTML<BSchema, I, S>(
     view,
-    selectedFragment,
+    selectedSlice.content,
     editor,
   );
 
@@ -144,10 +164,10 @@ export function selectedFragmentToHTML<
   // selected text instead of markdown.
   const { $from, $to } = view.state.selection;
   const parentBlockType = $from.parent.type.name;
-  const parentBlockSpec = editor.blockImplementations[parentBlockType as any];
+  const parentBlockSpec =
+    editor.schema.blockSpecs[parentBlockType as keyof BSchema];
   const isPurelyInsideCodeBlock =
-    $from.sameParent($to) &&
-    parentBlockSpec?.implementation.meta?.code === true;
+    $from.sameParent($to) && parentBlockSpec?.implementation.meta.code === true;
 
   const markdown = isPurelyInsideCodeBlock
     ? view.state.doc.textBetween($from.pos, $to.pos)

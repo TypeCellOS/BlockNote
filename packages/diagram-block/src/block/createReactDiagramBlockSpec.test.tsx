@@ -17,22 +17,13 @@ import { createReactDiagramBlockSpec } from "./createReactDiagramBlockSpec.js";
  * @vitest-environment jsdom
  */
 
-// Mermaid needs a real browser to render, so the tests mock it - the specs
-// under test cover the block's editing behavior, not Mermaid itself. Sources
-// containing "INVALID" fail to parse, for testing the error states.
-vi.mock("mermaid", () => ({
-  default: {
-    initialize: vi.fn(),
-    parse: vi.fn(async (source: string) => {
-      if (source.includes("INVALID")) {
-        throw new Error("mock parse error");
-      }
-      return true;
-    }),
-    render: vi.fn(async () => ({
-      svg: '<svg data-mermaid-mock="true"></svg>',
-    })),
-  },
+// Cover popup behavior separately from the real Pele renderer's unit tests.
+vi.mock("../helpers/renderDiagram.js", () => ({
+  renderDiagram: vi.fn(async (source: string) =>
+    source.includes("INVALID")
+      ? { error: "mock parse error" }
+      : { svg: '<svg data-pele-mock="true"></svg>' },
+  ),
 }));
 
 // The diagram block isn't a default block, so register it in a custom schema.
@@ -64,7 +55,7 @@ describe("Diagram block source popup", () => {
     flushSync(() => {
       root.render(<BlockNoteViewRaw editor={editor} />);
     });
-    // Let the React node view render (and the mocked Mermaid "render") before
+    // Let the React node view render (and the mocked diagram renderer) before
     // assertions read its DOM.
     await flush();
 
@@ -117,7 +108,7 @@ describe("Diagram block source popup", () => {
   it("renders the (mocked) diagram preview", () => {
     expect(
       previewRoot().querySelector(
-        '.bn-preview-container [data-mermaid-mock="true"]',
+        '.bn-preview-container [data-pele-mock="true"]',
       ),
     ).not.toBeNull();
   });
@@ -192,7 +183,7 @@ describe("Diagram block source popup", () => {
   /** The mocked rendered diagram, if currently shown as the preview. */
   function renderedDiagram(): Element | null {
     return previewRoot().querySelector(
-      '.bn-preview-container [data-mermaid-mock="true"]',
+      '.bn-preview-container [data-pele-mock="true"]',
     );
   }
 

@@ -27,7 +27,7 @@ const SimpleImage = createBlockSpec(
   ),
   {
     render(block, editor) {
-      return createImageBlockSpec().implementation.render.call(
+      return createImageBlockSpec().implementation.render!.call(
         this,
         block as any,
         editor as any,
@@ -94,6 +94,96 @@ const SimpleCustomParagraph = createBlockSpec(
       return {
         dom: paragraph,
         contentDOM: paragraph,
+      };
+    },
+  },
+);
+
+// A layout block: it holds no inline content of its own, and its frame's
+// `slot` is where its child blocks go. Covers layout blocks in the format-conversion,
+// clipboard and selection matrices, which otherwise never see one.
+const Callout = createBlockSpec(
+  {
+    type: "callout" as const,
+    propSchema: {
+      flavor: {
+        default: "tip" as const,
+        values: ["tip", "info", "warning"] as const,
+      },
+    },
+    content: "none",
+    layoutOnly: true,
+    children: {
+      allow: "blocks",
+    },
+  },
+  {
+    renderFrame() {
+      const callout = document.createElement("div");
+      callout.className = "callout";
+      // The serializer must overwrite author attributes with the block props.
+      callout.setAttribute("data-flavor", "author-value");
+
+      const body = document.createElement("div");
+      body.className = "callout-body";
+      callout.appendChild(body);
+
+      // Chrome outside the children region. It is in the HTML snapshots, and
+      // the full-HTML equality matrix shows that it does not parse back as
+      // document content.
+      const chrome = document.createElement("button");
+      chrome.contentEditable = "false";
+      chrome.textContent = "UI LABEL";
+      callout.append(chrome);
+
+      return {
+        dom: callout,
+        slot: body,
+      };
+    },
+  },
+);
+
+// A titled block: an ordinary block with inline content (the title) whose
+// `children` are a body that belongs to it. Covers titled blocks in the
+// format-conversion, clipboard and selection matrices, which otherwise never
+// see one (the `callout` above only covers layout blocks).
+const Alert = createBlockSpec(
+  {
+    type: "alert" as const,
+    propSchema: {},
+    content: "inline",
+  },
+  {
+    render: () => {
+      const alert = document.createElement("div");
+      alert.className = "alert";
+
+      return {
+        dom: alert,
+        contentDOM: alert,
+      };
+    },
+    renderFrame: (block) => {
+      if (block.children.length === 0) {
+        return undefined;
+      }
+      const frame = document.createElement("div");
+      frame.className = "alert-frame";
+
+      // Chrome outside the slot, like the callout's: it must not parse back
+      // as document content either.
+      const chrome = document.createElement("button");
+      chrome.contentEditable = "false";
+      chrome.textContent = "UI LABEL";
+
+      const slot = document.createElement("div");
+      slot.className = "alert-slot";
+      frame.append(chrome, slot);
+
+      return {
+        dom: frame,
+        slot,
       };
     },
   },
@@ -222,6 +312,8 @@ export const testSchema = BlockNoteSchema.create().extend({
     customParagraph: CustomParagraph(),
     simpleCustomParagraph: SimpleCustomParagraph(),
     simpleImage: SimpleImage(),
+    callout: Callout(),
+    alert: Alert(),
   },
   inlineContentSpecs: {
     mention: Mention,

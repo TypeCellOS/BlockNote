@@ -22,6 +22,7 @@ import {
   getCellsAtColumnHandle,
   getCellsAtRowHandle,
   getDimensionsOfTable,
+  getTableCellOccupancyGrid,
   moveColumn,
   moveRow,
 } from "../../api/blockManipulation/tables/tables.js";
@@ -42,7 +43,7 @@ import {
   BlockFromConfigNoChildren,
   BlockSchemaWithBlock,
 } from "../../schema/index.js";
-import { getDraggableBlockFromElement } from "../getDraggableBlockFromElement.js";
+import { getBlockFromElement } from "../blockDOM.js";
 
 let dragImageElement: HTMLElement | undefined;
 
@@ -246,8 +247,9 @@ export class TableHandlesView implements PluginView {
 
     const tableRect = target.tbodyNode.getBoundingClientRect();
 
-    const blockEl = getDraggableBlockFromElement(target.domNode, this.pmView);
+    const blockEl = getBlockFromElement(target.domNode, this.pmView);
     if (!blockEl) {
+      this.hideHandles();
       return;
     }
 
@@ -256,10 +258,7 @@ export class TableHandlesView implements PluginView {
       doc: tr.doc,
     }));
 
-    // The hovered cell may belong to a document other than this editor's, as a
-    // custom block can embed a nested editor which itself contains a table. The
-    // nested editor's DOM is inside this view's DOM, so its cells still reach
-    // this handler, but its block IDs are unknown here.
+    // The DOM target must still correspond to a block in this document.
     if (!pmNodeInfo) {
       this.hideHandles();
       return;
@@ -473,6 +472,7 @@ export class TableHandlesView implements PluginView {
     this.state.draggingState = undefined;
 
     const columnWidths = this.state.block.content.columnWidths;
+    const occupancyGrid = getTableCellOccupancyGrid(this.state.block);
 
     if (draggingState.draggedCellOrientation === "row") {
       if (
@@ -480,6 +480,7 @@ export class TableHandlesView implements PluginView {
           this.state.block,
           draggingState.originalIndex,
           rowIndex,
+          getCellsAtRowHandle(this.state.block, rowIndex, occupancyGrid),
         )
       ) {
         // If the target row is invalid, don't move the row
@@ -489,6 +490,7 @@ export class TableHandlesView implements PluginView {
         this.state.block,
         draggingState.originalIndex,
         rowIndex,
+        occupancyGrid,
       );
       this.editor.updateBlock(this.state.block, {
         type: "table",
@@ -503,6 +505,7 @@ export class TableHandlesView implements PluginView {
           this.state.block,
           draggingState.originalIndex,
           colIndex,
+          getCellsAtColumnHandle(this.state.block, colIndex, occupancyGrid),
         )
       ) {
         // If the target column is invalid, don't move the column
@@ -512,6 +515,7 @@ export class TableHandlesView implements PluginView {
         this.state.block,
         draggingState.originalIndex,
         colIndex,
+        occupancyGrid,
       );
       const [columnWidth] = columnWidths.splice(draggingState.originalIndex, 1);
       columnWidths.splice(colIndex, 0, columnWidth);
@@ -699,18 +703,36 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
             const { block, draggingState } = view.state;
             const { originalIndex, draggedCellOrientation } = draggingState;
 
+            // Reuse the drop target's cells for validation and decorations.
+            // Skip the lookup when there is no block or the position is unchanged.
+            const cellsAtDropTarget =
+              block && newIndex !== originalIndex
+                ? draggedCellOrientation === "row"
+                  ? getCellsAtRowHandle(block, newIndex)
+                  : getCellsAtColumnHandle(block, newIndex)
+                : [];
+
             // Return empty decorations if:
-            // - Dragging to same position
+            // - Dragging to the same position
             // - No block exists
-            // - Row drag not allowed
-            // - Column drag not allowed
+            // - The row or column drag would split merged cells
             if (
               newIndex === originalIndex ||
               !block ||
               (draggedCellOrientation === "row" &&
-                !canRowBeDraggedInto(block, originalIndex, newIndex)) ||
+                !canRowBeDraggedInto(
+                  block,
+                  originalIndex,
+                  newIndex,
+                  cellsAtDropTarget,
+                )) ||
               (draggedCellOrientation === "col" &&
-                !canColumnBeDraggedInto(block, originalIndex, newIndex))
+                !canColumnBeDraggedInto(
+                  block,
+                  originalIndex,
+                  newIndex,
+                  cellsAtDropTarget,
+                ))
             ) {
               return DecorationSet.create(state.doc, decorations);
             }
@@ -719,12 +741,7 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
             const tableResolvedPos = state.doc.resolve(tablePos + 1);
 
             if (view.state.draggingState.draggedCellOrientation === "row") {
-              const cellsInRow = getCellsAtRowHandle(
-                view.state.block,
-                newIndex,
-              );
-
-              cellsInRow.forEach(({ row, col }) => {
+              cellsAtDropTarget.forEach(({ row, col }) => {
                 // Gets each row in the table.
                 const rowResolvedPos = state.doc.resolve(
                   tableResolvedPos.posAtIndex(row) + 1,
@@ -765,12 +782,7 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
                 );
               });
             } else {
-              const cellsInColumn = getCellsAtColumnHandle(
-                view.state.block,
-                newIndex,
-              );
-
-              cellsInColumn.forEach(({ row, col }) => {
+              cellsAtDropTarget.forEach(({ row, col }) => {
                 // Gets each row in the table.
                 const rowResolvedPos = state.doc.resolve(
                   tableResolvedPos.posAtIndex(row) + 1,

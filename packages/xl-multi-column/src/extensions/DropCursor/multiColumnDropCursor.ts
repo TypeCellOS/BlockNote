@@ -1,4 +1,5 @@
-import { type DropCursorHooks, getNearestBlockPos } from "@blocknote/core";
+import { getNearestBlockPos } from "@blocknote/core";
+import { type DropCursorHooks } from "@blocknote/core/extensions";
 import type { EditorState } from "prosemirror-state";
 import type { EditorView } from "prosemirror-view";
 

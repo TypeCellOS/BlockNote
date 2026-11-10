@@ -111,3 +111,41 @@ describe("blockToNode: plain-block backwards compatibility (write path)", () => 
     editor._tiptapEditor.destroy();
   });
 });
+
+describe("blockToNode: tables", () => {
+  it("resolves column widths to absolute columns with colspans and rowspans", () => {
+    const editor = BlockNoteEditor.create();
+
+    /**
+     *  | 1-1 (rowspan 2) | 1-2 (colspan 2)  |
+     *  |                 | 2-1   | 2-2      |
+     */
+    const node = blockToNode(
+      {
+        type: "table",
+        content: {
+          type: "tableContent",
+          columnWidths: [100, 200, 300],
+          rows: [
+            {
+              cells: [
+                { type: "tableCell", props: { rowspan: 2 }, content: "1-1" },
+                { type: "tableCell", props: { colspan: 2 }, content: "1-2" },
+              ],
+            },
+            { cells: ["2-1", "2-2"] },
+          ],
+        },
+      } as any,
+      editor.pmSchema,
+    );
+
+    const table = node.firstChild!;
+    expect(table.child(0).child(0).attrs.colwidth).toEqual([100]);
+    expect(table.child(0).child(1).attrs.colwidth).toEqual([200, 300]);
+    expect(table.child(1).child(0).attrs.colwidth).toEqual([200]);
+    expect(table.child(1).child(1).attrs.colwidth).toEqual([300]);
+
+    editor._tiptapEditor.destroy();
+  });
+});

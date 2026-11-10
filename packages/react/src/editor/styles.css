@@ -1,42 +1,53 @@
 @import url("@blocknote/core/style.css");
 
+/* Give TipTap's empty content element the contentRef's minimum dimensions so
+   native input lands inside it, not beside it (#2142). Leave populated content
+   inline so text and formatting can wrap normally. */
+.bn-ic-react-node-view-renderer
+  :where([data-editable] > [data-node-view-content-react]:empty) {
+  display: inline-block;
+  min-height: inherit;
+  min-width: inherit;
+}
+
 /* Default theme params */
 .bn-root {
-  --bn-colors-editor-text: #3f3f3f;
-  --bn-colors-editor-background: #ffffff;
-  --bn-colors-menu-text: #3f3f3f;
-  --bn-colors-menu-background: #ffffff;
-  --bn-colors-tooltip-text: #3f3f3f;
-  --bn-colors-tooltip-background: #efefef;
-  --bn-colors-hovered-text: #3f3f3f;
-  --bn-colors-hovered-background: #efefef;
-  --bn-colors-selected-text: #ffffff;
-  --bn-colors-selected-background: #3f3f3f;
-  --bn-colors-disabled-text: #afafaf;
-  --bn-colors-disabled-background: #efefef;
+  --bn-colors-editor-text: oklch(37% 0 0);
+  --bn-colors-editor-background: oklch(100% 0 0);
+  --bn-colors-menu-text: oklch(37% 0 0);
+  --bn-colors-menu-background: oklch(100% 0 0);
+  --bn-colors-tooltip-text: oklch(37% 0 0);
+  --bn-colors-tooltip-background: oklch(95% 0 0);
+  --bn-colors-hovered-text: oklch(37% 0 0);
+  --bn-colors-hovered-background: oklch(95% 0 0);
+  --bn-colors-selected-text: oklch(100% 0 0);
+  --bn-colors-selected-background: oklch(37% 0 0);
+  --bn-colors-disabled-text: oklch(75% 0 0);
+  --bn-colors-disabled-background: oklch(95% 0 0);
 
-  --bn-colors-shadow: #cfcfcf;
-  --bn-colors-border: #efefef;
-  --bn-colors-side-menu: #cfcfcf;
+  --bn-colors-shadow: oklch(85% 0 0);
+  --bn-colors-border: oklch(95% 0 0);
+  --bn-colors-side-menu: oklch(85% 0 0);
 
-  --bn-colors-highlights-gray-text: #9b9a97;
-  --bn-colors-highlights-gray-background: #ebeced;
-  --bn-colors-highlights-brown-text: #64473a;
-  --bn-colors-highlights-brown-background: #e9e5e3;
-  --bn-colors-highlights-red-text: #e03e3e;
-  --bn-colors-highlights-red-background: #fbe4e4;
-  --bn-colors-highlights-orange-text: #d9730d;
-  --bn-colors-highlights-orange-background: #f6e9d9;
-  --bn-colors-highlights-yellow-text: #dfab01;
-  --bn-colors-highlights-yellow-background: #fbf3db;
-  --bn-colors-highlights-green-text: #4d6461;
-  --bn-colors-highlights-green-background: #ddedea;
-  --bn-colors-highlights-blue-text: #0b6e99;
-  --bn-colors-highlights-blue-background: #ddebf1;
-  --bn-colors-highlights-purple-text: #6940a5;
-  --bn-colors-highlights-purple-background: #eae4f2;
-  --bn-colors-highlights-pink-text: #ad1a72;
-  --bn-colors-highlights-pink-background: #f4dfeb;
+  /* Highlight backgrounds target Display P3; narrower displays gamut-map them. */
+  --bn-colors-highlights-gray-text: oklch(51.4% 0 0);
+  --bn-colors-highlights-gray-background: oklch(93% 0 0);
+  --bn-colors-highlights-brown-text: oklch(48.5% 0.06 50);
+  --bn-colors-highlights-brown-background: oklch(93% 0.015 50);
+  --bn-colors-highlights-red-text: oklch(50.5% 0.11 35);
+  --bn-colors-highlights-red-background: oklch(93% 0.04 35);
+  --bn-colors-highlights-orange-text: oklch(50.5% 0.11 65);
+  --bn-colors-highlights-orange-background: oklch(93% 0.04 65);
+  --bn-colors-highlights-yellow-text: oklch(50.5% 0.11 95);
+  --bn-colors-highlights-yellow-background: oklch(93% 0.04 95);
+  --bn-colors-highlights-green-text: oklch(50.5% 0.11 135);
+  --bn-colors-highlights-green-background: oklch(93% 0.04 135);
+  --bn-colors-highlights-blue-text: oklch(50.5% 0.11 235);
+  --bn-colors-highlights-blue-background: oklch(93% 0.04 235);
+  --bn-colors-highlights-purple-text: oklch(50.5% 0.11 300);
+  --bn-colors-highlights-purple-background: oklch(93% 0.04 300);
+  --bn-colors-highlights-pink-text: oklch(50.5% 0.11 345);
+  --bn-colors-highlights-pink-background: oklch(93% 0.04 345);
 
   --bn-font-family:
     "Inter", "Inter fallback", "SF Pro Display", -apple-system,
@@ -54,45 +65,72 @@
 }
 
 .bn-root[data-color-scheme="dark"] {
-  --bn-colors-editor-text: #cfcfcf;
-  --bn-colors-editor-background: #1f1f1f;
-  --bn-colors-menu-text: #cfcfcf;
-  --bn-colors-menu-background: #1f1f1f;
-  --bn-colors-tooltip-text: #cfcfcf;
-  --bn-colors-tooltip-background: #161616;
-  --bn-colors-hovered-text: #cfcfcf;
-  --bn-colors-hovered-background: #161616;
-  --bn-colors-selected-text: #cfcfcf;
-  --bn-colors-selected-background: #0f0f0f;
-  --bn-colors-disabled-text: #3f3f3f;
-  --bn-colors-disabled-background: #161616;
+  --bn-colors-editor-text: oklch(85% 0 0);
+  --bn-colors-editor-background: oklch(24% 0 0);
+  --bn-colors-menu-text: oklch(85% 0 0);
+  --bn-colors-menu-background: oklch(24% 0 0);
+  --bn-colors-tooltip-text: oklch(85% 0 0);
+  --bn-colors-tooltip-background: oklch(20% 0 0);
+  --bn-colors-hovered-text: oklch(85% 0 0);
+  --bn-colors-hovered-background: oklch(20% 0 0);
+  --bn-colors-selected-text: oklch(85% 0 0);
+  --bn-colors-selected-background: oklch(17% 0 0);
+  --bn-colors-disabled-text: oklch(37% 0 0);
+  --bn-colors-disabled-background: oklch(20% 0 0);
 
-  --bn-colors-shadow: #0f0f0f;
-  --bn-colors-border: #161616;
-  --bn-colors-side-menu: #7f7f7f;
+  --bn-colors-shadow: oklch(17% 0 0);
+  --bn-colors-border: oklch(20% 0 0);
+  --bn-colors-side-menu: oklch(60% 0 0);
 
-  --bn-colors-highlights-gray-text: #bebdb8;
-  --bn-colors-highlights-gray-background: #9b9a97;
-  --bn-colors-highlights-brown-text: #8e6552;
-  --bn-colors-highlights-brown-background: #64473a;
-  --bn-colors-highlights-red-text: #ec4040;
-  --bn-colors-highlights-red-background: #be3434;
-  --bn-colors-highlights-orange-text: #e3790d;
-  --bn-colors-highlights-orange-background: #b7600a;
-  --bn-colors-highlights-yellow-text: #dfab01;
-  --bn-colors-highlights-yellow-background: #b58b00;
-  --bn-colors-highlights-green-text: #6b8b87;
-  --bn-colors-highlights-green-background: #4d6461;
-  --bn-colors-highlights-blue-text: #0e87bc;
-  --bn-colors-highlights-blue-background: #0b6e99;
-  --bn-colors-highlights-purple-text: #8552d7;
-  --bn-colors-highlights-purple-background: #6940a5;
-  --bn-colors-highlights-pink-text: #da208f;
-  --bn-colors-highlights-pink-background: #ad1a72;
+  /* Highlight backgrounds target Display P3; narrower displays gamut-map them. */
+  --bn-colors-highlights-gray-text: oklch(71.5% 0 0);
+  --bn-colors-highlights-gray-background: oklch(34% 0 0);
+  --bn-colors-highlights-brown-text: oklch(73% 0.06 50);
+  --bn-colors-highlights-brown-background: oklch(34% 0.035 50);
+  --bn-colors-highlights-red-text: oklch(75% 0.1 35);
+  --bn-colors-highlights-red-background: oklch(34% 0.08 35);
+  --bn-colors-highlights-orange-text: oklch(75% 0.1 65);
+  --bn-colors-highlights-orange-background: oklch(34% 0.08 65);
+  --bn-colors-highlights-yellow-text: oklch(75% 0.1 95);
+  --bn-colors-highlights-yellow-background: oklch(34% 0.08 95);
+  --bn-colors-highlights-green-text: oklch(75% 0.1 135);
+  --bn-colors-highlights-green-background: oklch(34% 0.08 135);
+  --bn-colors-highlights-blue-text: oklch(75% 0.1 235);
+  --bn-colors-highlights-blue-background: oklch(34% 0.08 235);
+  --bn-colors-highlights-purple-text: oklch(75% 0.1 300);
+  --bn-colors-highlights-purple-background: oklch(34% 0.08 300);
+  --bn-colors-highlights-pink-text: oklch(75% 0.1 345);
+  --bn-colors-highlights-pink-background: oklch(34% 0.08 345);
 }
 
 .bn-root {
   font-family: var(--bn-font-family);
+}
+
+/* Optional diagram blocks inherit the same theme as the editor and its
+   portalled previews. CSS-only colors update without re-rendering the SVG.
+   Low specificity lets applications override any --pele-* variable. Fonts
+   are passed to Pele at render time so label measurement matches the editor. */
+:where(.bn-root) {
+  --pele-bg: var(--bn-colors-editor-background);
+  --pele-fg: var(--bn-colors-editor-text);
+  --pele-muted: var(--bn-colors-side-menu);
+  --pele-line: var(--bn-colors-editor-text);
+  --pele-surface: var(--bn-colors-editor-background);
+  --pele-surface-alt: var(--bn-colors-hovered-background);
+  --pele-border: var(--bn-colors-editor-text);
+  --pele-accent: var(--bn-colors-highlights-blue-text);
+  --pele-critical: var(--bn-colors-highlights-red-text);
+  --pele-error: var(--bn-colors-highlights-red-text);
+  --pele-radius: var(--bn-border-radius);
+  --pele-series-1: var(--bn-colors-highlights-blue-text);
+  --pele-series-2: var(--bn-colors-highlights-orange-text);
+  --pele-series-3: var(--bn-colors-highlights-green-text);
+  --pele-series-4: var(--bn-colors-highlights-red-text);
+  --pele-series-5: var(--bn-colors-highlights-purple-text);
+  --pele-series-6: var(--bn-colors-highlights-pink-text);
+  --pele-series-7: var(--bn-colors-highlights-yellow-text);
+  --pele-series-8: var(--bn-colors-highlights-brown-text);
 }
 
 /* Editor body styling */
@@ -109,6 +147,12 @@
   display: flex;
   flex-direction: column;
   width: 100%;
+}
+
+/* A frame's root is the block's element, so the wrapper React needs around it
+   must not be a box of its own. */
+.bn-react-node-view-renderer.bn-frame-node-view {
+  display: contents;
 }
 
 /* Indent line styling */
@@ -262,6 +306,13 @@ SideMenuController offsets its position to keep it centered on the line. */
   height: 30px;
 }
 
+/* Suggestion menus fill their floating element, which keeps the widest width
+  the menu has had since it opened (`suggestionMenuMiddleware.ts`). Without
+  this, a menu would shrink and grow as the user filters its items. */
+.bn-suggestion-menu {
+  flex-grow: 1;
+}
+
 /* Thread sidebar styling */
 .bn-threads-sidebar {
   border-radius: var(--bn-border-radius-medium);
@@ -290,223 +341,15 @@ SideMenuController offsets its position to keep it centered on the line. */
   border: 2px solid #23405b;
 }
 
-/* ---- Versioning sidebar --------------------------------------------------
- *
- * Lives here rather than in the UI packages: every rule below was identical
- * across the ariakit/mantine/shadcn stylesheets, and none of it is
- * library-specific. Per-package overrides belong in those stylesheets, scoped
- * to `.bn-ariakit` / `.bn-mantine` / `.bn-shadcn` (see the Mantine
- * `.bn-threads-sidebar` override for the pattern).
- *
- * Resembles `.bn-threads-sidebar` above, but shares almost nothing with it
- * concretely: the shells have only `overflow: auto` in common (this one is a
- * flex *item* whose rows self-space via `margin-bottom`, not a flex column),
- * and the two selected states are deliberately different designs — a filled
- * accent with inverted text here, a pale tint with a saturated border there.
- * The row boxes look closer, but only against `.bn-mantine .bn-thread`:
- * ariakit and shadcn get their thread boxes from their own component
- * libraries, which BlockNote's CSS doesn't touch. A shared base class would
- * hold ~3 declarations and still leave every caller overriding gap, border,
- * radius, padding and width — so these are kept separate on purpose.
- */
-
-.bn-versioning-sidebar {
-  flex: 1;
-  overflow: auto;
-  padding-inline: 16px;
-}
-
-.bn-versioning-sidebar-header {
-  align-items: center;
-  display: flex;
-  justify-content: space-between;
-  padding-block: 16px 8px;
-}
-
-.bn-versioning-sidebar-header-title {
-  align-items: center;
-  display: flex;
-  gap: 6px;
-}
-
-.bn-versioning-sidebar-title {
-  color: var(--bn-colors-menu-text);
-  font-size: 18px;
-  font-weight: 700;
-  margin: 0;
-}
-
-.bn-versioning-sidebar-header-actions {
-  align-items: center;
-  display: flex;
-  gap: 4px;
-}
-
-.bn-versioning-sidebar-tabs {
-  border-bottom: 1px solid var(--bn-colors-border);
-  display: flex;
-  gap: 4px;
-  margin-bottom: 8px;
-}
-
-.bn-versioning-sidebar-tab {
-  background: transparent;
-  border: none;
-  border-bottom: 2px solid transparent;
-  color: var(--bn-colors-menu-text);
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 500;
-  margin-bottom: -1px;
-  opacity: 0.6;
-  padding: 8px 4px;
-}
-
-.bn-versioning-sidebar-tab:hover {
-  opacity: 0.85;
-}
-
-.bn-versioning-sidebar-tab[aria-selected="true"] {
-  border-bottom-color: var(--bn-colors-menu-text);
-  opacity: 1;
-}
-
-.bn-snapshot {
-  background-color: var(--bn-colors-menu-background);
-  border: 1px solid transparent;
-  border-radius: 8px;
-  color: var(--bn-colors-menu-text);
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-bottom: 4px;
-  overflow: visible;
-  padding: 12px 14px;
-  position: relative;
-  transition:
-    background-color 0.12s ease,
-    border-color 0.12s ease;
-  width: 100%;
-}
-
-.bn-snapshot:hover {
-  background-color: var(--bn-colors-hovered-background);
-}
-
-.bn-snapshot-name {
-  background: transparent;
-  border: none;
-  color: inherit;
-  font-size: 14px;
-  font-weight: 700;
-  padding: 0;
-  width: 100%;
-}
-
-.bn-snapshot-name:focus {
-  outline: none;
-}
-
-.bn-snapshot-body {
-  display: flex;
-  flex-direction: column;
-  font-size: 13px;
-  gap: 2px;
-}
-
-/* The timestamp reads as normal body text — not a muted gray. */
-.bn-snapshot-date {
-  color: var(--bn-colors-menu-text);
-  font-size: 13px;
-  line-height: 1.3;
-}
-
-/* Authors / "restored from" are secondary, but still readable. */
-.bn-snapshot-original-date,
-.bn-snapshot-secondary-label {
-  color: #6b7280;
-  font-size: 13px;
-  line-height: 1.3;
-}
-
-.dark .bn-snapshot-original-date,
-.dark .bn-snapshot-secondary-label {
-  color: #9ca3af;
-}
-
-/* "..." trigger — hidden until the row is hovered or its menu is open. */
-.bn-snapshot .bn-snapshot-menu {
-  opacity: 0;
+/* Screen-reader-only text (the loading announcement). */
+.bn-visually-hidden {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
   position: absolute;
-  right: 8px;
-  top: 8px;
-  transition: opacity 0.12s ease;
-}
-
-.bn-snapshot:hover .bn-snapshot-menu,
-.bn-snapshot:focus-within .bn-snapshot-menu {
-  opacity: 1;
-}
-
-/* Strip the action-toolbar's box so the trigger is flat — just the icon. */
-.bn-versioning-sidebar .bn-snapshot-menu .bn-action-toolbar {
-  background-color: transparent;
-  border: none;
-  border-radius: 0;
-  padding: 0;
-}
-
-.bn-versioning-sidebar .bn-snapshot .bn-snapshot-menu-trigger,
-.bn-versioning-sidebar .bn-snapshot .bn-snapshot-menu-trigger:hover,
-.bn-versioning-sidebar .bn-snapshot .bn-snapshot-menu-trigger[data-selected] {
-  background-color: transparent;
-  border: none;
-  height: auto;
-  min-width: 0;
-  padding: 2px;
-}
-
-.bn-versioning-sidebar .bn-snapshot .bn-snapshot-menu-trigger:hover {
-  opacity: 0.6;
-}
-
-/* Selected (currently viewed) — a distinct indigo with white text. */
-.bn-versioning-sidebar .bn-snapshot.selected {
-  background-color: #3e5de7;
-  color: #fff;
-}
-
-.bn-versioning-sidebar .bn-snapshot.selected .bn-snapshot-name {
-  color: #fff;
-}
-
-.bn-versioning-sidebar .bn-snapshot.selected .bn-snapshot-date,
-.bn-versioning-sidebar .bn-snapshot.selected .bn-snapshot-original-date,
-.bn-versioning-sidebar .bn-snapshot.selected .bn-snapshot-secondary-label {
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.bn-versioning-sidebar .bn-snapshot.selected .bn-snapshot-menu-trigger {
-  color: #fff;
-}
-
-/* Comparing-to (the diff baseline) — a subtle tint of the selected indigo. */
-.bn-versioning-sidebar .bn-snapshot.comparing {
-  background-color: color-mix(
-    in srgb,
-    #3e5de7 8%,
-    var(--bn-colors-editor-background)
-  );
-}
-
-.bn-snapshot-comparing-to {
-  align-items: center;
-  color: #3e5de7;
-  display: flex;
-  font-size: 13px;
-  font-weight: 600;
-  gap: 4px;
+  white-space: nowrap;
+  width: 1px;
 }
 
 .bn-mobile-formatting-toolbar {
@@ -530,6 +373,149 @@ SideMenuController offsets its position to keep it centered on the line. */
   /* Slightly mitigates jitter. */
   transition: transform 0.2s cubic-bezier(0.5, 1, 0.89, 1);
   padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+/* Frimousse Emoji Picker styling */
+.bn-frimousse-picker {
+  display: flex;
+  flex-direction: column;
+  width: fit-content;
+  height: min(352px, calc(100dvh - 20px));
+  max-height: inherit;
+  background-color: var(--bn-colors-menu-background);
+  border: 1px solid var(--bn-colors-hovered-background);
+  border-radius: 8px;
+  overflow: hidden;
+  isolation: isolate;
+  font-family: var(--bn-font-family);
+}
+
+.bn-frimousse-picker [frimousse-search] {
+  position: relative;
+  z-index: 10;
+  appearance: none;
+  margin: 8px 8px 0;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 6px;
+  background-color: var(--bn-colors-hovered-background);
+  color: var(--bn-colors-hovered-text);
+  font-size: 14px;
+  outline: none;
+}
+
+.bn-frimousse-picker [frimousse-viewport] {
+  flex: 1;
+  outline: none;
+}
+
+.bn-frimousse-loading,
+.bn-frimousse-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--bn-colors-menu-text);
+  font-size: 14px;
+}
+
+.bn-frimousse-picker [frimousse-list] {
+  padding-bottom: 12px;
+  user-select: none;
+}
+
+.bn-frimousse-picker [frimousse-category-header] {
+  /* Frimousse assigns the measured, padded sizer height to the real header. */
+  box-sizing: border-box;
+  padding: 12px 12px 6px;
+  background-color: var(--bn-colors-menu-background);
+  color: var(--bn-colors-menu-text);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.bn-frimousse-picker [frimousse-row] {
+  padding-inline: 6px;
+  scroll-margin-block: 6px;
+}
+
+.bn-frimousse-picker [frimousse-emoji] {
+  all: unset;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: transparent;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.bn-frimousse-picker [frimousse-emoji]:hover,
+.bn-frimousse-picker [frimousse-emoji][data-active],
+.bn-frimousse-picker [frimousse-emoji][data-selected] {
+  background-color: var(--bn-colors-hovered-background);
+}
+
+.bn-frimousse-picker [frimousse-emoji]:focus-visible,
+.bn-frimousse-skin-tone:focus-visible {
+  outline: 2px solid var(--bn-colors-menu-text);
+  outline-offset: -2px;
+}
+
+.bn-frimousse-picker [frimousse-search]:focus-visible {
+  outline: 2px solid var(--bn-colors-side-menu);
+  outline-offset: -2px;
+}
+
+.bn-frimousse-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+  border-top: 1px solid var(--bn-colors-hovered-background);
+  min-height: 32px;
+}
+
+.bn-frimousse-active-emoji {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.bn-frimousse-active-emoji-glyph {
+  font-size: 18px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.bn-frimousse-active-emoji-label {
+  font-size: 12px;
+  color: var(--bn-colors-menu-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bn-frimousse-skin-tone {
+  all: unset;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  font-size: 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.bn-frimousse-skin-tone:hover {
+  background-color: var(--bn-colors-hovered-background);
 }
 
 /* iOS Safari with the keyboard open answers a vertical drag on the toolbar
@@ -576,11 +562,6 @@ SideMenuController offsets its position to keep it centered on the line. */
   overscroll-behavior-y: auto;
 }
 
-/* Emoji Picker styling */
-.bn-root em-emoji-picker {
-  max-height: 100%;
-}
-
 /* Form.Root's <form> is a semantic wrapper, never a layout box: the skins'
  * containers (popover contents, the file panel's tab column) lay out the
  * fields and the embed tab's submit button as their own flex children, and
@@ -607,4 +588,25 @@ SideMenuController offsets its position to keep it centered on the line. */
   position: absolute;
   white-space: nowrap;
   width: 1px;
+}
+.bn-versioning-pagination {
+  color: var(--bn-colors-menu-text);
+  display: flex;
+  flex-shrink: 0;
+  font-size: 12px;
+  justify-content: center;
+  padding: 12px;
+}
+
+.bn-versioning-pagination-loader {
+  align-items: center;
+  display: inline-flex;
+  height: 16px;
+  justify-content: center;
+  width: 16px;
+}
+
+.bn-versioning-pagination-loader .bn-suggestion-menu-loader {
+  height: 16px;
+  width: 16px;
 }

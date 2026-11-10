@@ -1,3 +1,4 @@
+/* eslint-disable react/refs -- The render-phase ref is a keyed snapshot cache; reading live focus state here can render a transient, incorrect frame. */
 import type { BlockNoteEditor, EditorFocusOptions } from "@blocknote/core";
 import { useCallback, useRef, useSyncExternalStore } from "react";
 import { useBlockNoteContext } from "../editor/BlockNoteContext.js";

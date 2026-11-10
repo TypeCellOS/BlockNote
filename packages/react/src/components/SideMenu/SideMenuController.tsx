@@ -3,9 +3,9 @@ import { SideMenuExtension } from "@blocknote/core/extensions";
 import { autoUpdate, offset, ReferenceElement } from "@floating-ui/react";
 import { FC, useCallback, useMemo } from "react";
 
+import { PortalElementOverride } from "../../editor/PortalElementOverride.js";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useExtensionState } from "../../hooks/useExtension.js";
-import { PortalElementOverride } from "../../editor/PortalElementOverride.js";
 import { BlockPopover } from "../Popovers/BlockPopover.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
 import { SideMenu } from "./SideMenu.js";
@@ -89,8 +89,11 @@ export const SideMenuController = (props: {
       floating: HTMLElement,
       _update: () => void,
     ) => {
+      const sideMenu = editor.getExtension(SideMenuExtension);
+      // Lets the extension keep the block while the pointer heads to the menu.
+      sideMenu?.setMenuElement(floating);
       let initialized = false;
-      return autoUpdate(
+      const cleanup = autoUpdate(
         reference,
         floating,
         () => {
@@ -100,7 +103,7 @@ export const SideMenuController = (props: {
             initialized = true;
             return;
           }
-          editor.getExtension(SideMenuExtension)?.hideMenuIfNotFrozen();
+          sideMenu?.hideMenuIfNotFrozen();
         },
         {
           ancestorScroll: true,
@@ -109,6 +112,10 @@ export const SideMenuController = (props: {
           layoutShift: false,
         },
       );
+      return () => {
+        cleanup();
+        sideMenu?.setMenuElement(undefined);
+      };
     },
     [editor],
   );

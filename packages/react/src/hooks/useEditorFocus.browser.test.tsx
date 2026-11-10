@@ -1,3 +1,4 @@
+/* eslint-disable react/refs, react/globals -- This browser test records render history and exposes its mounted editor to test actions. */
 import { useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { createRoot, Root } from "react-dom/client";

@@ -53,9 +53,8 @@ describe("Test getMultiColumnSlashMenuItems", () => {
 
       insertColumnList(getEditor(), 2);
 
-      // The empty paragraph should have been replaced by the column list, so it
-      // should no longer be in the document.
-      expect(getEditor().getBlock("empty-paragraph")).toBeUndefined();
+      // The empty paragraph becomes the column list, and keeps its id.
+      expect(getEditor().getBlock("empty-paragraph")?.type).toBe("columnList");
       expect(getEditor().document).toMatchSnapshot();
     });
   });

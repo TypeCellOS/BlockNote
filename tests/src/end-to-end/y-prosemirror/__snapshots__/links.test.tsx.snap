@@ -4,6 +4,7 @@ exports[`suggestion mode: add a link 1`] = `
 "<blockGroup>
   <blockContainer id="p">
     <paragraph backgroundColor="default" textAlignment="left" textColor="default">Visit the site</paragraph>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -15,6 +16,7 @@ exports[`suggestion mode: add a link 2`] = `
       Visit
       <link value="{&quot;href&quot;:&quot;https://example.com&quot;}" />the site</link>
   </paragraph>
+  <blockGroup></blockGroup>
 </blockContainer>
 </blockGroup>"
 `;
@@ -41,6 +43,7 @@ exports[`suggestion mode: edit a link 1`] = `
       Visit
       <link value="{&quot;href&quot;:&quot;https://old.example.com&quot;}" />the old site</link>
   </paragraph>
+  <blockGroup></blockGroup>
 </blockContainer>
 </blockGroup>"
 `;
@@ -52,6 +55,7 @@ exports[`suggestion mode: edit a link 2`] = `
       Visit
       <link value="{&quot;href&quot;:&quot;https://new.example.com&quot;}" />the new site</link>
   </paragraph>
+  <blockGroup></blockGroup>
 </blockContainer>
 </blockGroup>"
 `;
@@ -69,9 +73,7 @@ exports[`suggestion mode: edit a link 3`] = `
         <link href="https://old.example.com" />old</link>
     </y-attributed-delete>
     <y-attributed-insert userIds="">
-      <y-attributed-format format="[object Object]" userIds="">
-        <link href="https://new.example.com" />new</link>
-    </y-attributed-format>
+      <link href="https://new.example.com" />new</link>
   </y-attributed-insert>
   <y-attributed-format format="[object Object]" userIds="">
     <link href="https://new.example.com" />site</link>
@@ -89,6 +91,7 @@ exports[`suggestion mode: remove a link 1`] = `
       Visit
       <link value="{&quot;href&quot;:&quot;https://example.com&quot;}" />the site</link>
   </paragraph>
+  <blockGroup></blockGroup>
 </blockContainer>
 </blockGroup>"
 `;
@@ -97,6 +100,7 @@ exports[`suggestion mode: remove a link 2`] = `
 "<blockGroup>
   <blockContainer id="p">
     <paragraph backgroundColor="default" textAlignment="left" textColor="default">Visit the site</paragraph>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;

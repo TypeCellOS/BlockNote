@@ -10,14 +10,24 @@ import {
 
 describe("SyntaxHighlightingExtension", () => {
   // The extension only reads `editor.schema.blockSpecs` and
-  // `inlineContentSpecs`, so a minimal stub is enough.
+  // `inlineContentSpecs`, so a minimal stub is enough. A spec in a schema
+  // always carries its resolved `meta`.
   const fakeEditor = () =>
     ({
       schema: {
         blockSpecs: {
-          paragraph: { config: { type: "paragraph", content: "inline" } },
-          codeBlock: { config: { type: "codeBlock", content: "plain" } },
-          image: { config: { type: "image", content: "none" } },
+          paragraph: {
+            config: { type: "paragraph", content: "inline" },
+            implementation: { meta: {} },
+          },
+          codeBlock: {
+            config: { type: "codeBlock", content: "plain" },
+            implementation: { meta: {} },
+          },
+          image: {
+            config: { type: "image", content: "none" },
+            implementation: { meta: {} },
+          },
         },
         inlineContentSpecs: {},
       },

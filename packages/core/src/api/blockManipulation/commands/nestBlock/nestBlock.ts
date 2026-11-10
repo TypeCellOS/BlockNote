@@ -1,9 +1,30 @@
-import { Fragment, NodeRange, NodeType, Slice } from "prosemirror-model";
+import { Fragment, Node, NodeRange, NodeType, Slice } from "prosemirror-model";
 import { Transaction } from "prosemirror-state";
 import { canJoin, liftTarget, ReplaceAroundStep } from "prosemirror-transform";
 
 import { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
-import { getBlockInfoFromSelection } from "../../../getBlockInfoFromPos.js";
+import { CHILD_CONTAINER_GROUP } from "../../../../schema/blocks/children.js";
+import { nodeToBlock } from "../../../nodeConversions/nodeToBlock.js";
+
+/**
+ * Whether `node` is the sibling list that nesting and unnesting operate on: a
+ * node that holds child blocks, and can hold the kind of node being moved.
+ *
+ * `blockRange` stops at the *deepest* ancestor matching this, so the second
+ * condition is load-bearing. A `columnList` holds child blocks, but only
+ * `column`s — matching it would resolve the range at the columns themselves,
+ * where `sinkItem`'s `nodeBefore` is a `column` rather than a `blockContainer`
+ * and `liftItem`'s parent is a `blockGroup` rather than a `blockContainer`, so
+ * both bail. Skipping it lets the walk continue out to the `blockGroup` the
+ * list sits in, and Tab across two columns indents the list as a unit.
+ */
+function holdsItems(node: Node, itemType: NodeType) {
+  return (
+    node.childCount > 0 &&
+    node.type.isInGroup(CHILD_CONTAINER_GROUP) &&
+    node.type.contentMatch.matchType(itemType) !== null
+  );
+}
 
 /**
  * Modified version of prosemirror-schema-list's sinkItem.
@@ -14,15 +35,14 @@ import { getBlockInfoFromSelection } from "../../../getBlockInfoFromPos.js";
  * 2. nestedBefore checks groupType instead of parent.type
  * 3. Slice creates groupType instead of parent.type
  * 4. Operates on Transaction directly instead of state+dispatch
+ * 5. Opens the slice into the previous sibling's child group, not into the
+ *    group's last child. The original cut one level deeper to keep `insert`
+ *    at 1; that failed when the last child was a layout block node (a column
+ *    list), which a `blockContainer` can't be joined onto.
  */
 function sinkItem(tr: Transaction, itemType: NodeType, groupType: NodeType) {
   const { $from, $to } = tr.selection;
-  const range = $from.blockRange(
-    $to,
-    (node) =>
-      node.childCount > 0 &&
-      (node.type.name === "blockGroup" || node.type.name === "column"), // change 1
-  );
+  const range = $from.blockRange($to, (node) => holdsItems(node, itemType)); // change 1
   if (!range) {
     return false;
   }
@@ -37,26 +57,32 @@ function sinkItem(tr: Transaction, itemType: NodeType, groupType: NodeType) {
   }
   const nestedBefore =
     nodeBefore.lastChild && nodeBefore.lastChild.type === groupType; // change 2
-  const inner = Fragment.from(nestedBefore ? itemType.create() : null);
+  // The slice opens into the previous sibling and, when it already has a child
+  // group, into that group, so the block becomes its last child. (change 5)
+  const depth = nestedBefore ? 2 : 1;
   const slice = new Slice(
-    Fragment.from(
-      itemType.create(null, Fragment.from(groupType.create(null, inner))), // change 3
-    ),
-    nestedBefore ? 3 : 1,
+    Fragment.from(itemType.create(null, Fragment.from(groupType.create()))), // change 3
+    depth,
     0,
   );
 
   const before = range.start;
   const after = range.end;
 
+  // Nothing above can make the schema refuse this step: `parent` holds
+  // regular blocks, so it may lose one (a layout block of any blocks has no
+  // `min` above 1), and the slice only joins the previous sibling and its
+  // group. A refusal here would be a bug, so it throws.
   tr.step(
     new ReplaceAroundStep(
-      before - (nestedBefore ? 3 : 1),
+      before - depth,
       after,
       before,
       after,
       slice,
-      1,
+      // `Slice.insertAt` adds the slice's open depth, so this lands at content
+      // position 2: inside the group.
+      2 - depth,
       true,
     ),
   ).scrollIntoView();
@@ -64,14 +90,17 @@ function sinkItem(tr: Transaction, itemType: NodeType, groupType: NodeType) {
   return true;
 }
 
-export function nestBlock(editor: BlockNoteEditor<any, any, any>) {
-  return editor.transact((tr) => {
-    return sinkItem(
+function nestCommand(editor: BlockNoteEditor<any, any, any>) {
+  return (tr: Transaction) =>
+    sinkItem(
       tr,
       editor.pmSchema.nodes["blockContainer"],
       editor.pmSchema.nodes["blockGroup"],
     );
-  });
+}
+
+export function nestBlock(editor: BlockNoteEditor<any, any, any>) {
+  return editor.transact(nestCommand(editor));
 }
 
 /**
@@ -159,19 +188,24 @@ export function liftItem(
   tr: Transaction,
   itemType: NodeType,
   groupType: NodeType, // change 2
+  // Whether a block may be outdented out of `parent` (its
+  // `keyboard.childrenCanOutdent` setting).
+  canOutdentFrom: (parent: Node) => boolean,
 ) {
   const { $from, $to } = tr.selection;
-  const range = $from.blockRange(
-    $to,
-    (node) =>
-      node.childCount > 0 &&
-      (node.type.name === "blockGroup" || node.type.name === "column"), // change 1
-  );
+  const range = $from.blockRange($to, (node) => holdsItems(node, itemType)); // change 1
   if (!range) {
     return false;
   }
 
-  if ($from.node(range.depth - 1).type === itemType) {
+  const parent = $from.node(range.depth - 1);
+  // A block whose children can't be outdented keeps them: unnesting stops at
+  // its edge rather than lifting the block out of it.
+  if (parent.type === itemType && !canOutdentFrom(parent)) {
+    return false;
+  }
+
+  if (parent.type === itemType) {
     // Inside a parent node
     return liftToOuterList(tr, itemType, groupType, range); // change 2
   }
@@ -181,28 +215,34 @@ export function liftItem(
   return false;
 }
 
-export function unnestBlock(editor: BlockNoteEditor<any, any, any>) {
-  return editor.transact((tr) =>
+function unnestCommand(editor: BlockNoteEditor<any, any, any>) {
+  return (tr: Transaction) =>
     liftItem(
       tr,
       editor.pmSchema.nodes["blockContainer"],
       editor.pmSchema.nodes["blockGroup"],
-    ),
-  );
+      (parent) => {
+        const block = nodeToBlock(parent, tr.doc);
+        return editor.schema.blockSpecs[block.type].implementation.keyboard(
+          block,
+        ).childrenCanOutdent;
+      },
+    );
 }
 
-export function canNestBlock(editor: BlockNoteEditor<any, any, any>) {
-  return editor.transact((tr) => {
-    const { bnBlock: blockContainer } = getBlockInfoFromSelection(tr);
+export function unnestBlock(editor: BlockNoteEditor<any, any, any>) {
+  return editor.transact(unnestCommand(editor));
+}
 
-    return tr.doc.resolve(blockContainer.beforePos).nodeBefore !== null;
-  });
+// `canExec` hands the command a transaction it never dispatches, so "can I
+// nest?" is answered by nesting and throwing the result away. A second
+// statement of the preconditions would drift from the command it describes —
+// and did: it read a previous sibling's mere existence, so a layout block
+// before the cursor enabled the button while `nestBlock` did nothing.
+export function canNestBlock(editor: BlockNoteEditor<any, any, any>) {
+  return editor.canExec((state) => nestCommand(editor)(state.tr));
 }
 
 export function canUnnestBlock(editor: BlockNoteEditor<any, any, any>) {
-  return editor.transact((tr) => {
-    const { bnBlock: blockContainer } = getBlockInfoFromSelection(tr);
-
-    return tr.doc.resolve(blockContainer.beforePos).depth > 1;
-  });
+  return editor.canExec((state) => unnestCommand(editor)(state.tr));
 }

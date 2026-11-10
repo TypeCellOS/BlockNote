@@ -1,6 +1,12 @@
 import { Dictionary } from "../dictionary.js";
 
 export const he: Dictionary = {
+  locale: "he",
+  emoji_picker: {
+    search: "חיפוש",
+    search_no_results: "לא נמצא אימוג'י",
+    loading: "טוען…",
+  },
   slash_menu: {
     heading: {
       title: "כותרת 1",
@@ -201,6 +207,7 @@ export const he: Dictionary = {
   },
   toggle_blocks: {
     add_block_button: "מתג ריק. לחץ כדי להוסיף בלוק.",
+    toggle_button: "הרחבה או כיווץ",
   },
   code_block: {
     add_source_button_text: "הוסף קוד מקור",
@@ -409,10 +416,39 @@ export const he: Dictionary = {
   suggestion_changes: {
     formatting_change: "שינוי עיצוב",
     deleted: "נמחק",
+    inserted: "נוסף",
     inserted_by: (users: string) => `נוסף על ידי: ${users}`,
     deleted_by: (users: string) => `נמחק על ידי: ${users}`,
+    changed: "שונה",
+    changed_by: (users: string) => `שונה על ידי: ${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `שינוי עיצוב (${formats}) על ידי: ${users}`,
+  },
+  versioning: {
+    start_of_document: "תחילת המסמך",
+    compare_since_beginning_menuitem: "השוואה מההתחלה",
+    title: "היסטוריה",
+    close: "סגירה",
+    show_named_only: "הצג גרסאות בעלות שם בלבד",
+    show_all: "הצג את כל הגרסאות",
+    comparison_on: "הצגת שינויים",
+    comparison_off: "הסתרת שינויים",
+    versions_list: "גרסאות",
+    empty: "אין עדיין גרסאות",
+    empty_named_only: "אין גרסאות עם שם",
+    current_version: "גרסה נוכחית",
+    before_restore: "לפני השחזור",
+    comparing_to: "משווה מול",
+    restored_from: (date: string) => `שוחזר מ-${date}`,
+    more_actions: "פעולות נוספות",
+    version_name_input: "שם הגרסה",
+    name_version_menuitem: "מתן שם לגרסה זו",
+    rename_menuitem: "שינוי שם",
+    compare_with_menuitem: "השוואה לגרסה זו",
+    restore_menuitem: "שחזור",
+    delete_menuitem: "מחיקה",
+    action_failed: "משהו השתבש. נסו שוב.",
+    history_load_failed: "טעינת היסטוריית הגרסאות נכשלה",
   },
   exporter: {
     open_file: "פתח קובץ",
@@ -420,6 +456,8 @@ export const he: Dictionary = {
     open_audio_file: "פתח שמע",
   },
   generic: {
+    loading: "טוען...",
+    load_more: "טען עוד",
     ctrl_shortcut: "Ctrl",
     form_submit: "אישור",
   },

@@ -17,8 +17,6 @@ import { PanelTextInput } from "./panel/PanelTextInput.js";
 import { Popover, PopoverContent, PopoverTrigger } from "./popover/popover.js";
 import { SideMenu } from "./sideMenu/SideMenu.js";
 import { SideMenuButton } from "./sideMenu/SideMenuButton.js";
-import { GridSuggestionMenu } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenu.js";
-import { GridSuggestionMenuEmptyItem } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenuEmptyItem.js";
 import { SuggestionMenu } from "./suggestionMenu/SuggestionMenu.js";
 import { SuggestionMenuEmptyItem } from "./suggestionMenu/SuggestionMenuEmptyItem.js";
 import { SuggestionMenuItem } from "./suggestionMenu/SuggestionMenuItem.js";
@@ -33,14 +31,14 @@ import { Comment } from "./comments/Comment.js";
 import { Editor } from "./comments/Editor.js";
 import { Badge, BadgeGroup } from "./badge/Badge.js";
 import {
+  Header as VersioningHeader,
+  Name as VersioningName,
   Sidebar as VersioningSidebar,
   Snapshot as VersioningSnapshot,
 } from "./versioning/Versioning.js";
 
 import { PanelButton } from "./panel/PanelButton.js";
 import { PanelFileInput } from "./panel/PanelFileInput.js";
-import { GridSuggestionMenuItem } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenuItem.js";
-import { GridSuggestionMenuLoader } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenuLoader.js";
 
 export const components: Components = {
   FormattingToolbar: {
@@ -71,12 +69,6 @@ export const components: Components = {
     Label: SuggestionMenuLabel,
     Loader: SuggestionMenuLoader,
   },
-  GridSuggestionMenu: {
-    Root: GridSuggestionMenu,
-    Item: GridSuggestionMenuItem,
-    EmptyItem: GridSuggestionMenuEmptyItem,
-    Loader: GridSuggestionMenuLoader,
-  },
   TableHandle: {
     Root: TableHandle,
     ExtendButton: ExtendButton,
@@ -90,7 +82,12 @@ export const components: Components = {
   },
   Versioning: {
     Sidebar: VersioningSidebar,
+    Header: VersioningHeader,
+    Name: VersioningName,
     Snapshot: VersioningSnapshot,
+    // The sidebar's loader is the same dots/spinner as the suggestion menu's —
+    // one spinner per UI package, not one per feature.
+    Loader: SuggestionMenuLoader,
   },
   AttributionTooltip: {
     Root: AttributionTooltip,

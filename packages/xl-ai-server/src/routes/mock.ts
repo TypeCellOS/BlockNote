@@ -35,8 +35,7 @@ const MANUAL_TOOL_CALLS = [
 // Use `streamText` to stream text responses from the LLM
 regularRoute.post("/streamText", async (c) => {
   const { messages } = await c.req.json();
-  const blockId =
-    messages[messages.length - 1].metadata.documentState.blocks[0].id;
+  const blockId = messages.at(-1).metadata.documentState.blocks[0].id;
 
   MANUAL_TOOL_CALLS[0].args.operations[0].referenceId = blockId;
   const stream = createUIMessageStream<any>({

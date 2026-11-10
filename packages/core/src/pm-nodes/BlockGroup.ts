@@ -1,4 +1,5 @@
 import { Node } from "@tiptap/core";
+import { CHILD_CONTAINER_GROUP } from "../schema/blocks/children.js";
 import { BlockNoteDOMAttributes } from "../schema/index.js";
 import { mergeCSSClasses } from "../util/browser.js";
 import { suggestionMarks } from "./suggestionMarks.js";
@@ -7,7 +8,7 @@ export const BlockGroup = Node.create<{
   domAttributes?: BlockNoteDOMAttributes;
 }>({
   name: "blockGroup",
-  group: "childContainer",
+  group: CHILD_CONTAINER_GROUP,
   content: "blockGroupChild+",
   marks() {
     return suggestionMarks(this.editor);

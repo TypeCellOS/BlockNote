@@ -6,6 +6,7 @@ import {
   getCellsAtRowHandle,
   getRelativeTableCells,
   getAbsoluteTableCells,
+  getRelativeToAbsoluteTableCellMapping,
   moveColumn,
   moveRow,
   cropEmptyRowsOrColumns,
@@ -1024,6 +1025,58 @@ describe("Test getAbsoluteTableCellIndices", () => {
   });
 });
 
+describe("getRelativeToAbsoluteTableCellMapping", () => {
+  it.each([
+    {
+      name: "simple table",
+      table: simpleTable,
+      expected: [
+        [{ row: 0, col: 0 }, { row: 0, col: 1 }],
+        [{ row: 1, col: 0 }, { row: 1, col: 1 }],
+      ],
+    },
+    {
+      name: "colspan",
+      table: tableWithColspan,
+      expected: [
+        [{ row: 0, col: 0 }, { row: 0, col: 2 }],
+        [{ row: 1, col: 0 }, { row: 1, col: 1 }, { row: 1, col: 2 }],
+      ],
+    },
+    {
+      name: "complex rowspans and colspans",
+      table: tableWithComplexRowspansAndColspans,
+      expected: [
+        [{ row: 0, col: 0 }, { row: 0, col: 2 }, { row: 0, col: 3 }],
+        [{ row: 1, col: 2 }, { row: 1, col: 3 }],
+        [{ row: 2, col: 0 }, { row: 2, col: 1 }, { row: 2, col: 3 }],
+      ],
+    },
+  ])("maps every cell in $name to its top-left position", ({ table, expected }) => {
+    const getAbsolute = getRelativeToAbsoluteTableCellMapping(table);
+    expect(expected).toHaveLength(table.content.rows.length);
+    table.content.rows.forEach(({ cells }, row) => {
+      expect(expected[row]).toHaveLength(cells.length);
+      cells.forEach((_, col) => {
+        expect(getAbsolute({ row, col })).toEqual(expected[row][col]);
+      });
+    });
+  });
+
+  it("throws for missing relative cell indices", () => {
+    const getAbsolute = getRelativeToAbsoluteTableCellMapping(simpleTable);
+    for (const { row, col } of [
+      { row: 2, col: 0 },
+      { row: 0, col: 2 },
+      { row: -1, col: 0 },
+    ]) {
+      expect(() => getAbsolute({ row, col })).toThrow(
+        `Unable to resolve relative table cell indices for table, cell at ${row},${col} is not occupied`,
+      );
+    }
+  });
+});
+
 describe("Test getRelativeTableCellIndices", () => {
   it("should resolve absolute table cell indices to relative table cell indices", () => {
     expect(getRelativeTableCells({ row: 0, col: 0 }, simpleTable)).toEqual({
@@ -1762,11 +1815,12 @@ describe("Test cropEmptyRowsOrColumns", () => {
           ...simpleTable,
           content: {
             ...simpleTable.content,
-            rows: simpleTable.content.rows.concat([
+            rows: [
+              ...simpleTable.content.rows,
               {
                 cells: [emptyCell, emptyCell],
               },
-            ]),
+            ],
           },
         },
         "rows",
@@ -1794,11 +1848,12 @@ describe("Test cropEmptyRowsOrColumns", () => {
           ...tableWithColspan,
           content: {
             ...tableWithColspan.content,
-            rows: tableWithColspan.content.rows.concat([
+            rows: [
+              ...tableWithColspan.content.rows,
               {
                 cells: [emptyCell, emptyCell, emptyCell],
               },
-            ]),
+            ],
           },
         },
         "rows",
@@ -1835,11 +1890,12 @@ describe("Test cropEmptyRowsOrColumns", () => {
           ...tableWithRowspan,
           content: {
             ...tableWithRowspan.content,
-            rows: tableWithRowspan.content.rows.concat([
+            rows: [
+              ...tableWithRowspan.content.rows,
               {
                 cells: [emptyCell, emptyCell, emptyCell],
               },
-            ]),
+            ],
           },
         },
         "rows",
@@ -1879,11 +1935,12 @@ describe("Test cropEmptyRowsOrColumns", () => {
           ...tableWithColspanAndRowspan,
           content: {
             ...tableWithColspanAndRowspan.content,
-            rows: tableWithColspanAndRowspan.content.rows.concat([
+            rows: [
+              ...tableWithColspanAndRowspan.content.rows,
               {
                 cells: [emptyCell, emptyCell, emptyCell],
               },
-            ]),
+            ],
           },
         },
         "rows",
@@ -1932,11 +1989,12 @@ describe("Test cropEmptyRowsOrColumns", () => {
           ...tableWithComplexRowspansAndColspans,
           content: {
             ...tableWithComplexRowspansAndColspans.content,
-            rows: tableWithComplexRowspansAndColspans.content.rows.concat([
+            rows: [
+              ...tableWithComplexRowspansAndColspans.content.rows,
               {
                 cells: [emptyCell, emptyCell, emptyCell, emptyCell],
               },
-            ]),
+            ],
           },
         },
         "rows",

@@ -1,5 +1,7 @@
 import {
   BlockNoteEditor,
+  type Extension,
+  type ExtensionFactoryInstance,
   StyleConfig,
   addStyleAttributes,
   createInternalStyleSpec,
@@ -35,11 +37,13 @@ export type ReactCustomStyleImplementation<T extends StyleConfig> = {
  * `propSchema` (`"boolean"` or `"string"`).
  * @param styleImplementation - The React implementation, including a `render`
  * component that receives the style value, a `contentRef`, and the editor.
+ * @param extensions - BlockNote extensions registered with this style.
  * @returns A style spec that can be passed to the editor's schema.
  */
 export function createReactStyleSpec<T extends StyleConfig>(
   styleConfig: T,
   styleImplementation: ReactCustomStyleImplementation<T>,
+  extensions?: (Extension | ExtensionFactoryInstance)[],
 ) {
   const mark = Mark.create({
     name: styleConfig.type,
@@ -125,58 +129,62 @@ export function createReactStyleSpec<T extends StyleConfig>(
     },
   });
 
-  return createInternalStyleSpec(styleConfig, {
-    ...styleImplementation,
-    mark,
-    render(value, editor) {
-      const Content = styleImplementation.render;
-      const output = renderToDOMSpec(
-        (ref) => (
-          <Content
-            editor={editor}
-            value={value}
-            contentRef={(element) => {
-              ref(element);
-              if (element) {
-                element.dataset.editable = "";
-              }
-            }}
-          />
-        ),
-        editor,
-      );
+  return createInternalStyleSpec(
+    styleConfig,
+    {
+      ...styleImplementation,
+      mark,
+      render(value, editor) {
+        const Content = styleImplementation.render;
+        const output = renderToDOMSpec(
+          (ref) => (
+            <Content
+              editor={editor}
+              value={value}
+              contentRef={(element) => {
+                ref(element);
+                if (element) {
+                  element.dataset.editable = "";
+                }
+              }}
+            />
+          ),
+          editor,
+        );
 
-      return addStyleAttributes(
-        output,
-        styleConfig.type,
-        value,
-        styleConfig.propSchema,
-      );
-    },
-    toExternalHTML(value, editor) {
-      const Content = styleImplementation.render;
-      const output = renderToDOMSpec(
-        (ref) => (
-          <Content
-            editor={editor}
-            value={value}
-            contentRef={(element) => {
-              ref(element);
-              if (element) {
-                element.dataset.editable = "";
-              }
-            }}
-          />
-        ),
-        editor,
-      );
+        return addStyleAttributes(
+          output,
+          styleConfig.type,
+          value,
+          styleConfig.propSchema,
+        );
+      },
+      toExternalHTML(value, editor) {
+        const Content = styleImplementation.render;
+        const output = renderToDOMSpec(
+          (ref) => (
+            <Content
+              editor={editor}
+              value={value}
+              contentRef={(element) => {
+                ref(element);
+                if (element) {
+                  element.dataset.editable = "";
+                }
+              }}
+            />
+          ),
+          editor,
+        );
 
-      return addStyleAttributes(
-        output,
-        styleConfig.type,
-        value,
-        styleConfig.propSchema,
-      );
+        return addStyleAttributes(
+          output,
+          styleConfig.type,
+          value,
+          styleConfig.propSchema,
+        );
+      },
     },
-  });
+    extensions,
+  );
 }

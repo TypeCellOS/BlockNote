@@ -94,8 +94,8 @@ export type InlineContentSpec<T extends InlineContentConfig> = {
 export type InlineContentSchema = Record<string, InlineContentConfig>;
 
 export type InlineContentSpecs = {
-  text: { config: "text"; implementation: undefined };
-  link: { config: "link"; implementation: undefined };
+  text: InlineContentSpec<"text"> & { implementation: undefined };
+  link: InlineContentSpec<"link"> & { implementation: undefined };
 } & Record<string, InlineContentSpec<InlineContentConfig>>;
 
 export type InlineContentSchemaFromSpecs<T extends InlineContentSpecs> = {

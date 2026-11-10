@@ -21,7 +21,12 @@
       "@shared/*": ["../shared/*"]
     }
   },
-  "include": ["src", "../examples", "./vite.config.ts"],
+  "include": [
+    "src",
+    "../examples",
+    "./vite.config.ts",
+    "../scripts/build-cache-inputs.ts"
+  ],
   "references": [
     { "path": "../packages/xl-ai/" },
     { "path": "../packages/core/" },

@@ -34,7 +34,7 @@ it("renders checkbox as enabled when editor is editable", () => {
     children: [],
   };
   const spec = editor.schema.blockSpecs.checkListItem;
-  const view = spec.implementation.render(block, editor);
+  const view = spec.implementation.render!(block, editor);
   const checkbox = getCheckboxFromView(view);
   expect(checkbox.disabled).toBe(false);
 });
@@ -55,7 +55,7 @@ it("renders checkbox as disabled when editor is not editable", () => {
     children: [],
   };
   const spec = editor.schema.blockSpecs.checkListItem;
-  const view = spec.implementation.render(block, editor);
+  const view = spec.implementation.render!(block, editor);
   const checkbox = getCheckboxFromView(view);
   expect(checkbox.disabled).toBe(true);
 });

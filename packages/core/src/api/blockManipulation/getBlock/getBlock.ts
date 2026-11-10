@@ -6,6 +6,7 @@ import type {
   InlineContentSchema,
   StyleSchema,
 } from "../../../schema/index.js";
+import { getParentBlockInfo } from "../../getBlockInfoFromPos.js";
 import { nodeToBlock } from "../../nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../nodeUtil.js";
 
@@ -94,18 +95,10 @@ export function getParentBlock<
     return undefined;
   }
 
-  const $posBeforeNode = doc.resolve(posInfo.posBeforeNode);
-  const parentNode = $posBeforeNode.node();
-  const grandparentNode = $posBeforeNode.node(-1);
-  const nodeToConvert =
-    grandparentNode.type.name !== "doc"
-      ? parentNode.type.name === "blockGroup"
-        ? grandparentNode
-        : parentNode
-      : undefined;
-  if (!nodeToConvert) {
+  const parentInfo = getParentBlockInfo(doc, posInfo.posBeforeNode);
+  if (!parentInfo) {
     return undefined;
   }
 
-  return nodeToBlock(nodeToConvert, doc);
+  return nodeToBlock(parentInfo.block.node, doc);
 }

@@ -17,11 +17,11 @@ import * as locales from "@blocknote/core/locales";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import {
-  BlockNoteViewEditor,
   FloatingComposerController,
   FloatingThreadController,
   FormattingToolbar,
   FormattingToolbarController,
+  RenderInPortalElement,
   SuggestionMenuController,
   ThreadsSidebar,
   getDefaultReactSlashMenuItems,
@@ -192,12 +192,24 @@ function DemoEditorInner({
   const { resolvedTheme } = useTheme();
   // const [mounted, setMounted] = useState(false);
   const [activeUser, setActiveUser] = useState(HARDCODED_USERS[0]);
+  // The editor's scroll column clips the floating UI inside it. The slash
+  // menu goes to <body> instead, so it can extend past the demo's edge: it is
+  // taller than the room below a block near the bottom. Toolbars and handles
+  // stay clipped to the column. (On the server, there is no <body> to use; the
+  // menu is closed then.)
+  const [slashMenuPortal] = useState(() =>
+    typeof document === "undefined" ? undefined : document.body,
+  );
   const [sidebarOpen, setSidebarOpen] = useState(() => {
     if (typeof window === "undefined") {
       return true;
     }
     return window.innerWidth >= 768;
   });
+  // The element in the layout that the comments sidebar is rendered into.
+  const [threadsElement, setThreadsElement] = useState<HTMLDivElement | null>(
+    null,
+  );
 
   const { doc, provider } = useMemo(() => {
     const doc = new Y.Doc();
@@ -404,47 +416,49 @@ function DemoEditorInner({
       </div>
 
       <div className="relative flex flex-1 overflow-hidden">
-        <BlockNoteView
-          editor={editor}
-          theme={resolvedTheme === "dark" ? "dark" : "light"}
-          className="min-h-full flex-1 overflow-hidden"
-          formattingToolbar={false}
-          slashMenu={false}
-          renderEditor={false}
-          comments={false}
-        >
-          <AIMenuController />
-          <FormattingToolbarWithAI />
-          <SuggestionMenuController
-            triggerCharacter={"/"}
-            getItems={getSlashMenuItems}
-          />
-
-          <div className="flex h-full w-full">
-            <div className="relative flex-1 overflow-y-auto pr-4 pb-12 pl-4 transition-all duration-300 ease-in-out">
-              <div className="mx-auto min-h-full max-w-[800px] py-4">
-                <BlockNoteViewEditor />
-              </div>
+        <div className="relative flex-1 overflow-y-auto pr-4 pb-12 pl-4 transition-all duration-300 ease-in-out">
+          <div className="mx-auto min-h-full max-w-[800px] py-4">
+            <BlockNoteView
+              editor={editor}
+              theme={resolvedTheme === "dark" ? "dark" : "light"}
+              className="min-h-full"
+              formattingToolbar={false}
+              slashMenu={false}
+              comments={false}
+            >
+              <AIMenuController />
+              <FormattingToolbarWithAI />
+              <SuggestionMenuController
+                triggerCharacter={"/"}
+                getItems={getSlashMenuItems}
+                portalElement={slashMenuPortal}
+              />
               <FloatingComposerController />
               {!sidebarOpen && <FloatingThreadController />}
-            </div>
-
-            <div
-              className={`relative z-10 h-full overflow-y-auto bg-[#fbfbfb] transition-all duration-300 ease-in-out ${
-                sidebarOpen
-                  ? "w-[320px] translate-x-0 border-l border-stone-100 opacity-100"
-                  : "w-0 translate-x-full overflow-hidden opacity-0"
-              }`}
-            >
-              <div className="sticky top-0 z-20 border-b border-stone-100 bg-white/50 p-4 text-xs font-bold tracking-wider text-stone-400 uppercase backdrop-blur-sm">
-                Comments
-              </div>
-              <div className="p-2">
-                <ThreadsSidebar filter="all" sort="recent-activity" />
-              </div>
-            </div>
+              {/* `ThreadsSidebar` needs the editor's context, so it's rendered
+                  here, but `RenderInPortalElement` places it in the sidebar
+                  panel next to the editor. */}
+              {threadsElement && (
+                <RenderInPortalElement target={threadsElement}>
+                  <ThreadsSidebar filter="all" sort="recent-activity" />
+                </RenderInPortalElement>
+              )}
+            </BlockNoteView>
           </div>
-        </BlockNoteView>
+        </div>
+
+        <div
+          className={`relative z-10 h-full overflow-y-auto bg-[#fbfbfb] transition-all duration-300 ease-in-out ${
+            sidebarOpen
+              ? "w-[320px] translate-x-0 border-l border-stone-100 opacity-100"
+              : "w-0 translate-x-full overflow-hidden opacity-0"
+          }`}
+        >
+          <div className="sticky top-0 z-20 border-b border-stone-100 bg-white/50 p-4 text-xs font-bold tracking-wider text-stone-400 uppercase backdrop-blur-sm">
+            Comments
+          </div>
+          <div className="p-2" ref={setThreadsElement} />
+        </div>
       </div>
     </div>
   );

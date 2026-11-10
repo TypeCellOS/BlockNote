@@ -19,29 +19,25 @@ export const RelativePositionMappingExtension = createExtension(
         }
 
         const posStore = relativePositionStore(
+          editor.prosemirrorView,
           editor.prosemirrorState.doc.resolve(
             position + (side === "right" ? 1 : -1),
           ),
-          ySyncPluginState.ytype,
-          ySyncPluginState.renderer,
         );
 
+        if (posStore === null) {
+          throw new Error("Position not found, cannot track positions");
+        }
+
         return () => {
-          const curYSyncPluginState = ySyncPluginKey.getState(
-            editor.prosemirrorState,
-          ) as typeof ySyncPluginState;
-          const pos = posStore(
-            editor.prosemirrorState.doc,
-            curYSyncPluginState.ytype,
-            curYSyncPluginState.renderer,
-          );
+          const pos = posStore(editor.prosemirrorView);
 
           // This can happen if the element is garbage collected
           if (pos === null) {
             throw new Error("Position not found, cannot track positions");
           }
 
-          return pos + (side === "right" ? -1 : 1);
+          return pos.pos + (side === "right" ? -1 : 1);
         };
       },
     } as const;

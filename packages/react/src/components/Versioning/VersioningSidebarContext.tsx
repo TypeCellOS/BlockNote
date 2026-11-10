@@ -1,104 +1,190 @@
-import { VersioningExtension } from "@blocknote/core/extensions";
 import {
-  Dispatch,
-  ReactNode,
-  SetStateAction,
   createContext,
+  useCallback,
   useContext,
+  useEffect,
   useMemo,
+  useRef,
   useState,
+  type ReactNode,
 } from "react";
 
-import { useExtension } from "../../hooks/useExtension.js";
+import { useVersioning } from "./useVersioning.js";
+import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
+import type {
+  VersionError,
+  VersionOperationResult,
+} from "@blocknote/core/extensions";
+
+type ActionState =
+  | { status: "idle" }
+  | { status: "pending" }
+  | { status: "success" }
+  | { status: "error"; error: VersionError };
 
 /**
- * UI-only state shared across the versioning sidebar (the header toggle,
- * {@link CurrentSnapshot}, and each {@link Snapshot}).
+ * The versioning sidebar's own state, shared between its header and its rows.
  *
- * This is intentionally kept out of the core `VersioningExtension` store: it
- * describes how the *sidebar* interprets clicks, not the editor's preview
- * state. The baseline that drives the rendered diff (and the "Comparing to"
- * indicator) lives in the core store as `compareToSnapshotId`.
+ * Owns UI state and the lifetime of pending actions. The preview and its diff
+ * baseline live in the editor's versioning extension store.
  */
 export type VersioningSidebarContextValue = {
   /**
-   * Whether the sidebar exposes version comparison at all. Mirrors the
-   * extension's {@link VersioningExtension.canCompare} capability: when
-   * `false`, the comparison toggle and the "Compare with…" actions are hidden
-   * entirely, and clicking a version only ever views it. Backends that can't
-   * diff documents (e.g. the Yjs v13 adapter) report this off.
-   */
-  comparisonEnabled: boolean;
-  /**
-   * Whether clicking a version shows a diff against another version. When
-   * `true` (the default), clicking a version diffs it against its chronological
-   * predecessor, and the baseline can be moved via "Compare with this version".
-   * When `false`, clicking a version only views it. Always `false` when
-   * {@link comparisonEnabled} is `false`.
+   * Whether showing a version diffs it against another one. Always `false` when
+   * the backend can't diff documents at all (`canCompare`).
    */
   comparisonMode: boolean;
-  setComparisonMode: Dispatch<SetStateAction<boolean>>;
+  setComparisonMode: (value: boolean) => void;
+  /** Whether the list is filtered down to named versions. */
+  namedOnly: boolean;
+  setNamedOnly: (value: boolean) => void;
+  /** The menu rendered in each row's "..." trigger. */
+  snapshotMenu: ReactNode;
+  /** The spinner rendered while versions load. */
+  loadingIndicator: ReactNode;
   /**
-   * Which tab of the sidebar is currently active: `"named"` shows only
-   * user-created named versions, `"history"` shows the full edit timeline.
-   *
-   * When a `filter` prop is passed to the sidebar this is *forced* to the
-   * corresponding tab (`"named"` → named-only, `"all"` → full history) and can
-   * no longer be changed via {@link setActiveTab} — see {@link showTabs}.
+   * Run an action and, if it is still the latest action, apply its UI follow-up.
+   * A newer action or closing the sidebar skips stale follow-ups;
+   * the mutation itself still completes. Thrown errors propagate to the caller.
    */
-  activeTab: "named" | "history";
-  setActiveTab: Dispatch<SetStateAction<"named" | "history">>;
+  action: ActionState;
+  run: (
+    action: () => Promise<VersionOperationResult>,
+    onSuccess?: () =>
+      | void
+      | VersionOperationResult
+      | Promise<void | VersionOperationResult>,
+  ) => Promise<VersionOperationResult>;
+  /** Cancel pending UI follow-ups and return the editor to the live document. */
+  close: () => void;
+  dismiss: () => void;
   /**
-   * Whether the tab switcher should be rendered. `false` when the sidebar was
-   * given a `filter` prop, which pins {@link activeTab} to a single view and
-   * hides the switcher entirely.
+   * The version whose name field should take focus as soon as its row renders.
+   * Set by the row's rename action so naming is one keystroke away;
+   * cleared by the row that takes it.
    */
-  showTabs: boolean;
+  focusNameFor: string | undefined;
+  setFocusNameFor: (id: string | undefined) => void;
 };
 
 const VersioningSidebarContext = createContext<
   VersioningSidebarContextValue | undefined
 >(undefined);
 
-export const VersioningSidebarProvider = (props: {
-  /**
-   * When set, pins the sidebar to a single view and hides the tab switcher:
-   * `"named"` shows only user-created named versions, `"all"` shows the full
-   * edit history. When omitted, both tabs are shown (default active `"named"`).
-   */
-  filter?: "named" | "all";
+export function VersioningSidebarProvider(props: {
+  defaultNamedOnly?: boolean;
+  defaultComparisonMode?: boolean;
+  snapshotMenu: ReactNode;
+  loadingIndicator: ReactNode;
   children: ReactNode;
-}) => {
+  onClose?: () => void;
+  onError?: (error: unknown) => void;
+}) {
   // Comparison availability is driven by the extension/adapter, not the host —
   // backends that can't diff documents report `canCompare: false`.
-  const { canCompare } = useExtension(VersioningExtension);
-  const [comparisonMode, setComparisonMode] = useState(true);
-  const [activeTab, setActiveTab] = useState<"named" | "history">("history");
-  const comparisonEnabled = canCompare;
+  const versioning = useVersioning();
+  const editor = useBlockNoteEditor();
+  const { canCompare } = versioning;
 
-  // A `filter` prop forces the corresponding tab and hides the switcher; the
-  // "all" filter maps to the full-history view. Without a filter, the switcher
-  // is shown and the user's own `activeTab` selection drives the view.
-  const forcedTab: "named" | "history" | undefined =
-    props.filter === undefined
-      ? undefined
-      : props.filter === "named"
-        ? "named"
-        : "history";
-  const showTabs = forcedTab === undefined;
-  const effectiveTab = forcedTab ?? activeTab;
+  const [namedOnly, setNamedOnly] = useState(props.defaultNamedOnly ?? false);
+  const [comparisonMode, setComparisonMode] = useState(
+    props.defaultComparisonMode ?? false,
+  );
+  const [focusNameFor, setFocusNameFor] = useState<string>();
+  const [action, setAction] = useState<ActionState>({ status: "idle" });
+
+  const actionGeneration = useRef(0);
+  const onClose = props.onClose;
+  const onError = props.onError;
+  const close = useCallback(() => {
+    actionGeneration.current++;
+    setFocusNameFor(undefined);
+    setAction({ status: "idle" });
+    versioning.close();
+  }, [versioning]);
+  useEffect(() => close, [close]);
+
+  const run = useCallback<VersioningSidebarContextValue["run"]>(
+    async function run(action, onSuccess) {
+      const view = versioning.store.state;
+      // Do not let an unavailable preview supersede restore's completion callback.
+      if (view.mode === "versions" && view.restoring) {
+        return { status: "unavailable" };
+      }
+      const generation = ++actionGeneration.current;
+      setAction({ status: "pending" });
+      try {
+        let outcome = await action();
+        if (
+          generation === actionGeneration.current &&
+          outcome.status === "done"
+        ) {
+          const followUp = await onSuccess?.();
+          if (followUp) {
+            outcome = followUp;
+          }
+        }
+        if (generation === actionGeneration.current) {
+          setAction(
+            outcome.status === "error"
+              ? outcome
+              : { status: outcome.status === "done" ? "success" : "idle" },
+          );
+        }
+        return outcome;
+      } catch (error) {
+        if (generation === actionGeneration.current) {
+          setAction({ status: "idle" });
+        }
+        throw error;
+      }
+    },
+    [versioning],
+  );
 
   const value = useMemo(
     () => ({
-      comparisonEnabled,
       // Comparison can never be active when it's disabled outright.
-      comparisonMode: comparisonEnabled && comparisonMode,
+      comparisonMode: canCompare && comparisonMode,
       setComparisonMode,
-      activeTab: effectiveTab,
-      setActiveTab,
-      showTabs,
+      namedOnly,
+      setNamedOnly,
+      snapshotMenu: props.snapshotMenu,
+      loadingIndicator: props.loadingIndicator,
+      action,
+      run,
+      close,
+      dismiss: () => {
+        close();
+        if (onClose) {
+          editor.focus();
+          onClose();
+        } else {
+          versioning.open();
+          const loading = run(() => versioning.list());
+          if (onError) {
+            void loading.catch(onError);
+          }
+        }
+      },
+      focusNameFor,
+      setFocusNameFor,
     }),
-    [comparisonEnabled, comparisonMode, effectiveTab, showTabs],
+    [
+      canCompare,
+      comparisonMode,
+      namedOnly,
+      props.snapshotMenu,
+      props.loadingIndicator,
+      action,
+      run,
+      close,
+      onClose,
+      onError,
+      versioning,
+      editor,
+      focusNameFor,
+    ],
   );
 
   return (
@@ -106,9 +192,9 @@ export const VersioningSidebarProvider = (props: {
       {props.children}
     </VersioningSidebarContext.Provider>
   );
-};
+}
 
-export const useVersioningSidebar = (): VersioningSidebarContextValue => {
+export function useVersioningSidebar(): VersioningSidebarContextValue {
   const context = useContext(VersioningSidebarContext);
   if (!context) {
     throw new Error(
@@ -116,4 +202,4 @@ export const useVersioningSidebar = (): VersioningSidebarContextValue => {
     );
   }
   return context;
-};
+}

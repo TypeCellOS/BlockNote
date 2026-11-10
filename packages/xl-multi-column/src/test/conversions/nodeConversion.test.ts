@@ -3,10 +3,10 @@ import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 import {
   BlockNoteEditor,
   PartialBlock,
-  UniqueID,
   blockToNode,
   nodeToBlock,
 } from "@blocknote/core";
+import { UniqueID } from "@blocknote/core/extensions";
 import { partialBlockToBlockForTesting } from "@shared/formatConversionTestUtil.js";
 
 import { multiColumnSchemaTestCases } from "./testCases.js";

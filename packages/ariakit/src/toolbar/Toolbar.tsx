@@ -10,9 +10,11 @@ export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
   (props, ref) => {
     const {
       className,
+      "aria-label": ariaLabel,
       children,
       onMouseEnter,
       onMouseLeave,
+      trapFocus: _trapFocus,
       variant: _variant,
       ...rest
     } = props;
@@ -22,6 +24,7 @@ export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
     return (
       <AriakitToolbar
         className={mergeCSSClasses("bn-ak-toolbar", className || "")}
+        aria-label={ariaLabel}
         ref={ref}
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}

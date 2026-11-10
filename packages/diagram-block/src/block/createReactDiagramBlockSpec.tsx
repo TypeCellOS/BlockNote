@@ -11,9 +11,7 @@ export const createDiagramBlockConfig = createBlockConfig(
   () =>
     ({
       type: "diagram" as const,
-      // The block is semantically a diagram; Mermaid is its (only, for now)
-      // rendering engine. An `engine` prop with a "mermaid" default can be
-      // added later without breaking stored documents.
+      // Store Mermaid source, independently of the renderer (Pele).
       propSchema: {},
       content: "plain" as const,
     }) as const,
@@ -39,7 +37,10 @@ export const createReactDiagramBlockSpec = createReactBlockSpec(
       // upstream, highlighting should start working with no change here.
       highlight: () => "mermaid",
       hasPreview: true,
-      hardBreakShortcut: "enter",
+    },
+    // Multi-line source: Enter inserts a line break.
+    experimental_keyboard: {
+      enter: "line-break",
     },
     parse: parseDiagramCodeElement,
     parseContent: parseDiagramCodeContent,

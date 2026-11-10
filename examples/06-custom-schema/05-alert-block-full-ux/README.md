@@ -7,6 +7,7 @@ In this example, we create a custom `Alert` block which is used to emphasize tex
 **Relevant Docs:**
 
 - [Minimal Alert Block Example](/examples/custom-schema/alert-block)
+- [Alert Block with Title and Body](/examples/custom-schema/alert-block-with-title-and-body)
 - [Changing Slash Menu Items](/docs/react/components/suggestion-menus)
 - [Changing Block Type Select Items](/docs/react/components/formatting-toolbar)
 - [Custom Blocks](/docs/features/custom-schemas/custom-blocks)

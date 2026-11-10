@@ -62,8 +62,16 @@ export const MenuItem = forwardRef<
   HTMLButtonElement & HTMLDivElement,
   ComponentProps["Generic"]["Menu"]["Item"]
 >((props, ref) => {
-  const { className, children, icon, checked, subTrigger, onClick, ...rest } =
-    props;
+  const {
+    className,
+    children,
+    icon,
+    checked,
+    disabled,
+    subTrigger,
+    onClick,
+    ...rest
+  } = props;
 
   // false, because rest props can be added by mantine when button is used as a trigger
   // assertEmpty in this case is only used at typescript level, not runtime level
@@ -83,6 +91,7 @@ export const MenuItem = forwardRef<
           ) : null
         }
         onClick={onClick}
+        disabled={disabled}
         {...rest}
       >
         {children}
@@ -103,6 +112,7 @@ export const MenuItem = forwardRef<
         ) : null
       }
       onClick={onClick}
+      disabled={disabled}
       {...rest}
     >
       {children}

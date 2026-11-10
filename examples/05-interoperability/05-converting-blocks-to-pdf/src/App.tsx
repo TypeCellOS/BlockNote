@@ -10,6 +10,7 @@ import "@blocknote/core/fonts/inter.css";
 import * as locales from "@blocknote/core/locales";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
+import "@blocknote/math-block/style.css";
 import { createReactDiagramBlockSpec } from "@blocknote/diagram-block";
 import { diagramBlockMapping } from "@blocknote/diagram-block/typst-exporter";
 import {

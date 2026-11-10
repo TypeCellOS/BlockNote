@@ -94,7 +94,7 @@ export function lazyShikiPlugin(
         schema.blockSpecs[nodeShape.type] ||
         schema.inlineContentSpecs[nodeShape.type];
 
-      return spec?.implementation?.meta?.highlight?.(nodeShape) ?? undefined;
+      return spec?.implementation.meta.highlight?.(nodeShape) ?? undefined;
     },
     nodeTypes,
   });

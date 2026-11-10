@@ -11,11 +11,27 @@
     "directory": "packages/shadcn"
   },
   "license": "MPL-2.0",
-  "version": "0.55.0",
+  "version": "0.57.0",
   "files": [
     "dist",
     "types",
-    "src"
+    "src",
+    "!**/*.cjs",
+    "!**/*.map",
+    "!**/*.test.*",
+    "!**/*.spec.*",
+    "!**/*.snap",
+    "!**/__test__/**",
+    "!**/__tests__/**",
+    "!**/tests/**",
+    "!**/__snapshots__/**",
+    "!**/__msw_snapshots__/**",
+    "!**/fixtures/**",
+    "!**/testUtil/**",
+    "!**/testUtils/**",
+    "!**/test-utils/**",
+    "!**/*.tsbuildinfo",
+    "!dist/webpack-stats.json"
   ],
   "keywords": [
     "react",
@@ -34,18 +50,18 @@
   "type": "module",
   "source": "src/index.tsx",
   "types": "./types/src/index.d.ts",
-  "main": "./dist/blocknote-shadcn.cjs",
+  "main": "./dist/blocknote-shadcn.js",
   "module": "./dist/blocknote-shadcn.js",
   "exports": {
     ".": {
       "types": "./types/src/index.d.ts",
       "import": "./dist/blocknote-shadcn.js",
-      "require": "./dist/blocknote-shadcn.cjs"
+      "default": "./dist/blocknote-shadcn.js"
     },
     "./style.css": {
       "import": "./dist/style.css",
-      "require": "./dist/style.css",
-      "style": "./dist/style.css"
+      "style": "./dist/style.css",
+      "default": "./dist/style.css"
     }
   },
   "scripts": {
@@ -60,11 +76,11 @@
     "@blocknote/react": "workspace:^",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "lucide-react": "^0.525.0",
     "tailwind-merge": "^2.6.0"
   },
   "devDependencies": {
     "@types/node": "^20.19.22",
+    "lucide-react": "^0.525.0",
     "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",

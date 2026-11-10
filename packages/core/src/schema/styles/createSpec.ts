@@ -1,4 +1,8 @@
 import { Mark } from "@tiptap/core";
+import type {
+  Extension,
+  ExtensionFactoryInstance,
+} from "../../editor/BlockNoteExtension.js";
 
 import { ParseRule, TagParseRule } from "@tiptap/pm/model";
 import {
@@ -72,6 +76,7 @@ export function getStyleParseRules<T extends StyleConfig>(
 export function createStyleSpec<const T extends StyleConfig>(
   styleConfig: T,
   styleImplementation: CustomStyleImplementation<T>,
+  extensions?: (Extension | ExtensionFactoryInstance)[],
 ): StyleSpec<T> {
   const mark = Mark.create({
     name: styleConfig.type,
@@ -111,30 +116,34 @@ export function createStyleSpec<const T extends StyleConfig>(
     },
   });
 
-  return createInternalStyleSpec(styleConfig, {
-    ...styleImplementation,
-    mark,
-    render: (value) => {
-      const renderResult = styleImplementation.render(value as any);
+  return createInternalStyleSpec(
+    styleConfig,
+    {
+      ...styleImplementation,
+      mark,
+      render: (value) => {
+        const renderResult = styleImplementation.render(value as any);
 
-      return addStyleAttributes(
-        renderResult,
-        styleConfig.type,
-        value,
-        styleConfig.propSchema,
-      );
-    },
-    toExternalHTML: (value) => {
-      const renderResult = (
-        styleImplementation.toExternalHTML || styleImplementation.render
-      )(value as any);
+        return addStyleAttributes(
+          renderResult,
+          styleConfig.type,
+          value,
+          styleConfig.propSchema,
+        );
+      },
+      toExternalHTML: (value) => {
+        const renderResult = (
+          styleImplementation.toExternalHTML || styleImplementation.render
+        )(value as any);
 
-      return addStyleAttributes(
-        renderResult,
-        styleConfig.type,
-        value,
-        styleConfig.propSchema,
-      );
+        return addStyleAttributes(
+          renderResult,
+          styleConfig.type,
+          value,
+          styleConfig.propSchema,
+        );
+      },
     },
-  });
+    extensions,
+  );
 }

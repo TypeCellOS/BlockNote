@@ -1,4 +1,5 @@
 import { BlockNoteSchema, defaultBlockSpecs } from "@blocknote/core";
+import { ColumnBlock, ColumnListBlock } from "@blocknote/xl-multi-column";
 import { expect } from "vite-plus/test";
 import { screenshotFull } from "../../utils/screenshotFull.js";
 
@@ -18,7 +19,7 @@ import { screenshotFull } from "../../utils/screenshotFull.js";
 // An invalid diagram and an invalid formula, whose typed errors must render
 // as placeholders without failing the export. Unlike the packages' node
 // suites, this exercises the real error classes through vite's
-// bundling/interop of mermaid and mathjax-full - e.g. a mis-resolved
+// bundling/interop of Pele and mathjax-full - e.g. a mis-resolved
 // `TexError` import only breaks here (and in real apps), not in node.
 export const invalidDiagramBlock = {
   id: "invalid-diagram",
@@ -38,8 +39,19 @@ export const invalidMathBlock = {
   children: [],
 } as any;
 
+// Includes the multi-column blocks, which the shared test document contains.
+// They have to be in the *schema*, not just the mappings: the exporters read
+// the schema to tell a layout block from a regular one, and a layout block
+// the exporter doesn't recognize gets its children appended after it instead
+// of placed by its mapping.
 export function schema() {
-  return BlockNoteSchema.create({ blockSpecs: defaultBlockSpecs });
+  return BlockNoteSchema.create({
+    blockSpecs: {
+      ...defaultBlockSpecs,
+      column: ColumnBlock,
+      columnList: ColumnListBlock,
+    },
+  });
 }
 
 /**

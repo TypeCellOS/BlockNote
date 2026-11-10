@@ -24,7 +24,6 @@ export * from "./blocks/SourceWithPreview/block/useSourceBlockPreviewPopup.js";
 export * from "./blocks/SourceWithPreview/inlineContent/SourceInlineContentWithPreview.js";
 export * from "./blocks/SourceWithPreview/inlineContent/useSourceInlineContentPreviewPopup.js";
 export * from "./blocks/Video/block.js";
-export * from "./blocks/ToggleWrapper/ToggleWrapper.js";
 
 export * from "./components/FormattingToolbar/DefaultButtons/AddCommentButton.js";
 export * from "./components/FormattingToolbar/DefaultButtons/AddTiptapCommentButton.js";
@@ -48,6 +47,7 @@ export * from "./components/FormattingToolbar/FormattingToolbarController.js";
 export * from "./components/FormattingToolbar/MobileFormattingToolbarController.js";
 export {
   PortalElementOverride,
+  RenderInPortalElement,
   usePortalElement,
 } from "./editor/PortalElementOverride.js";
 export * from "./editor/UIModeContext.js";
@@ -84,18 +84,13 @@ export * from "./components/SideMenu/DragHandleMenu/DefaultItems/TableHeadersIte
 export * from "./components/SideMenu/DragHandleMenu/DragHandleMenu.js";
 
 export * from "./components/SuggestionMenu/SuggestionMenuController.js";
+export * from "./components/SuggestionMenu/EmojiPicker/EmojiPickerController.js";
 export * from "./components/SuggestionMenu/SuggestionMenuWrapper.js";
 export * from "./components/SuggestionMenu/getDefaultReactSlashMenuItems.js";
 export * from "./components/SuggestionMenu/hooks/useCloseSuggestionMenuNoItems.js";
 export * from "./components/SuggestionMenu/hooks/useLoadSuggestionMenuItems.js";
 export * from "./components/SuggestionMenu/hooks/useSuggestionMenuKeyboardNavigation.js";
 export * from "./components/SuggestionMenu/types.js";
-
-export * from "./components/SuggestionMenu/GridSuggestionMenu/GridSuggestionMenuController.js";
-export * from "./components/SuggestionMenu/GridSuggestionMenu/GridSuggestionMenuWrapper.js";
-export * from "./components/SuggestionMenu/GridSuggestionMenu/getDefaultReactEmojiPickerItems.js";
-export * from "./components/SuggestionMenu/GridSuggestionMenu/hooks/useGridSuggestionMenuKeyboardNavigation.js";
-export * from "./components/SuggestionMenu/GridSuggestionMenu/types.js";
 
 export * from "./components/FilePanel/DefaultTabs/EmbedTab.js";
 export * from "./components/FilePanel/DefaultTabs/UploadTab.js";
@@ -131,9 +126,6 @@ export { default as FloatingThreadController } from "./components/Comments/Float
 export * from "./components/Comments/Thread.js";
 export * from "./components/Comments/ThreadsSidebar.js";
 export * from "./components/Comments/useThreads.js";
-
-export * from "./components/Versioning/useVersionUsers.js";
-export * from "./components/Versioning/VersioningSidebar.js";
 
 export * from "./hooks/useActiveStyles.js";
 export * from "./hooks/useBlockNoteEditor.js";

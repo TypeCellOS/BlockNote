@@ -1,5 +1,5 @@
 import { digestString } from "lib0/hash/fnv1a";
-import type { UserStore } from "./UserStore.js";
+import type { User, UserStore } from "./UserStore.js";
 
 /**
  * Deterministic hash of a string to an unsigned 32-bit integer.
@@ -12,13 +12,22 @@ const hashStr = (s: string): number => {
   return Math.abs(hash);
 };
 
-/** Fallback palette used when a user has no resolved color of their own. */
+/**
+ * Fallback palette used when a user has no resolved color of their own.
+ *
+ * Deliberately free of red and green: these colors tint *insertions* as well as
+ * deletions, and diffs conventionally use red for deleted and green for
+ * inserted content. A red insertion would read as a deletion, and a green
+ * deletion as an insertion. The hues are spread far enough apart to stay
+ * distinguishable for the most common forms of colour-vision deficiency.
+ */
 export const userColorPalette: Array<{ light: string; dark: string }> = [
-  { light: "#fff0c2", dark: "#8a6d1a" },
-  { light: "#fcc9c3", dark: "#8a2e24" },
-  { light: "#d4e8eb", dark: "#4a7178" },
-  { light: "#c2eeff", dark: "#1a6e8a" },
-  { light: "#bef3ff", dark: "#0a7a8a" },
+  { light: "#fff0c2", dark: "#8a6d1a" }, // amber
+  { light: "#cdeffd", dark: "#0b6a8a" }, // sky
+  { light: "#d6defd", dark: "#2948b3" }, // blue
+  { light: "#eadcfb", dark: "#6b2fa3" }, // violet
+  { light: "#f1e2d3", dark: "#7a4a1e" }, // brown
+  { light: "#dfe4ea", dark: "#46525f" }, // slate
 ];
 
 /** The deterministic {@link userColorPalette} entry for a single user id. */
@@ -28,7 +37,28 @@ export const fallbackColorForUserId = (
   userColorPalette[hashStr(id) % userColorPalette.length];
 
 /**
- * The (first) user's resolved color from the {@link UserStore}, or their
+ * A user's own mark colors, or `undefined` when they have none.
+ *
+ * `color` is the saturated color the app already uses for that user (cursors,
+ * avatars); `colorLight` is the pale background a mark is highlighted with. Most
+ * applications only set the former, so derive the latter rather than fall back
+ * to a palette entry that has nothing to do with the user's actual color — a
+ * user whose cursor is green shouldn't have amber marks.
+ */
+export const userMarkColors = (
+  user: Pick<User, "color" | "colorLight"> | undefined,
+): { light: string; dark: string } | undefined => {
+  if (!user?.color) {
+    return undefined;
+  }
+  return {
+    light: user.colorLight ?? `color-mix(in srgb, ${user.color} 30%, white)`,
+    dark: user.color,
+  };
+};
+
+/**
+ * The (first) user's {@link userMarkColors}, or their
  * {@link fallbackColorForUserId} palette entry. Used where a concrete color
  * string is needed (the portaled hover tooltip); marks themselves use the
  * cascaded {@link userColorVarNames} properties instead.
@@ -41,11 +71,10 @@ export const colorsForUserIds = (
     return userColorPalette[0];
   }
   const firstId = userIds[0];
-  const user = userStore.getUser(firstId);
-  if (user?.color && user.colorLight) {
-    return { light: user.colorLight, dark: user.color };
-  }
-  return fallbackColorForUserId(firstId);
+  return (
+    userMarkColors(userStore.getUser(firstId)) ??
+    fallbackColorForUserId(firstId)
+  );
 };
 
 /**

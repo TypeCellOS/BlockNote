@@ -5,12 +5,12 @@ import { NodeView } from "prosemirror-view";
 
 import { createExtension } from "../../editor/BlockNoteExtension.js";
 import {
+  applyDataAttributes,
   BlockConfig,
   createBlockSpecFromTiptapNode,
   TableContent,
 } from "../../schema/index.js";
 import { mergeCSSClasses } from "../../util/browser.js";
-import { camelToDataKebab } from "../../util/string.js";
 import { suggestionMarks } from "../../pm-nodes/suggestionMarks.js";
 import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers.js";
 import { defaultProps } from "../defaultProps.js";
@@ -19,6 +19,24 @@ import { EMPTY_CELL_WIDTH, TableExtension } from "./TableExtension.js";
 export const tablePropSchema = {
   textColor: defaultProps.textColor,
 };
+
+/**
+ * Reads HTML cell spans, keeping rowspans within the containing table.
+ */
+function parseTableSpan(
+  element: HTMLElement,
+  attribute: "colspan" | "rowspan",
+): number {
+  const raw = element.getAttribute(attribute) ?? "";
+  const value = /^[0-9]+$/.test(raw) ? Number(raw) : 1;
+  if (attribute === "colspan") {
+    return value;
+  }
+
+  const row = element.closest("tr");
+  const table = row?.closest("table");
+  return row && table ? Math.min(value, table.rows.length - row.rowIndex) : 1;
+}
 
 const TiptapTableHeader = Node.create<{
   HTMLAttributes: Record<string, any>;
@@ -48,9 +66,11 @@ const TiptapTableHeader = Node.create<{
     return {
       colspan: {
         default: 1,
+        parseHTML: (element) => parseTableSpan(element, "colspan"),
       },
       rowspan: {
         default: 1,
+        parseHTML: (element) => parseTableSpan(element, "rowspan"),
       },
       colwidth: {
         default: null,
@@ -112,9 +132,11 @@ const TiptapTableCell = Node.create<{
     return {
       colspan: {
         default: 1,
+        parseHTML: (element) => parseTableSpan(element, "colspan"),
       },
       rowspan: {
         default: 1,
+        parseHTML: (element) => parseTableSpan(element, "rowspan"),
       },
       colwidth: {
         default: null,
@@ -277,15 +299,7 @@ const TiptapTableNode = Node.create({
             return false;
           }
 
-          for (const [propName, propSpec] of Object.entries(tablePropSchema)) {
-            const attrName = camelToDataKebab(propName);
-            const value = updatedNode.attrs[propName];
-            if (value !== propSpec.default) {
-              this.dom.setAttribute(attrName, String(value));
-            } else {
-              this.dom.removeAttribute(attrName);
-            }
-          }
+          applyDataAttributes(this.dom, updatedNode.attrs, tablePropSchema);
 
           return true;
         }

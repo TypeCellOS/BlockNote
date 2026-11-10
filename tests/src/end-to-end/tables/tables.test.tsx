@@ -158,7 +158,7 @@ describe("Check Table interactions", () => {
   });
   // Regression test for https://github.com/TypeCellOS/BlockNote/issues/2691.
   // Drops the dragged row to the LEFT of `.bn-block-group` (where the side
-  // menu sits). SideMenuView re-dispatches drops outside `.bn-block-group`
+  // menu sits). The side menu's drop handling re-dispatches drops outside `.bn-block-group`
   // (within 250px) as synthetic events; without the guard in
   // TableHandles.dropHandler, the synthetic drop AND the original drop both
   // run the row-move logic, dragging an adjacent row along with the target.
@@ -244,7 +244,7 @@ describe("Check Table interactions", () => {
 
       // Drop into the side-menu area: LEFT of `.bn-block-group`, vertically
       // aligned with the last row. This is outside the block-group rect but
-      // well within the 250px range that triggers SideMenuView's synthetic
+      // well within the 250px drop margin that triggers the side menu's synthetic
       // drop re-dispatch — the same condition that surfaces the bug for
       // real users dragging onto the side gutter.
       const blockGroup = (

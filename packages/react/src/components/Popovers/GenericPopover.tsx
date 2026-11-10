@@ -1,3 +1,4 @@
+/* eslint-disable react/refs -- Closing transitions render the previously captured HTML snapshot from this ref. */
 import {
   autoUpdate,
   FloatingFocusManager,
@@ -192,7 +193,9 @@ export const GenericPopover = (
       const getClientRects =
         "getClientRects" in props.reference
           ? props.reference.getClientRects
-          : undefined;
+          : element
+            ? () => element.getClientRects()
+            : undefined;
 
       refs.setPositionReference({
         getBoundingClientRect: getMountedBoundingClientRectCache(

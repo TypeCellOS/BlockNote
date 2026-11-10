@@ -12,8 +12,11 @@ import { DefaultThreadStoreAuth } from "../../comments/threadstore/DefaultThread
 import { withCollaboration } from "../extensions/index.js";
 import { RESTYjsThreadStore } from "./RESTYjsThreadStore.js";
 
+const cleanups: Array<() => void> = [];
+
 function createCollabEditor() {
   const doc = new Y.Doc();
+  cleanups.push(() => doc.destroy());
   const fragment = doc.getXmlFragment("doc");
   const editor = BlockNoteEditor.create(
     withCollaboration({
@@ -26,6 +29,7 @@ function createCollabEditor() {
     }),
   );
   editor.mount(document.createElement("div"));
+  cleanups.push(() => editor.unmount());
   editor.replaceBlocks(editor.document, [
     { type: "paragraph", content: "Hello World" },
   ]);
@@ -33,6 +37,12 @@ function createCollabEditor() {
 }
 
 afterEach(() => {
+  // ProseMirror can leave a timer that flushes DOM changes 20ms later. If it
+  // fires after the test environment is torn down, it throws "document is not
+  // defined". After unmounting, the flush does nothing.
+  while (cleanups.length) {
+    cleanups.pop()!();
+  }
   vi.restoreAllMocks();
 });
 
@@ -40,46 +50,51 @@ describe("RESTYjsThreadStore", () => {
   it("sends resolvable yjs positions along with the thread", async () => {
     const { editor, doc, fragment } = createCollabEditor();
 
-    const requests: any[] = [];
-    vi.spyOn(globalThis, "fetch").mockImplementation((async (
-      _url: any,
-      init: any,
-    ) => {
-      requests.push(JSON.parse(init.body));
-      return new Response("{}", {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      });
-    }) as any);
+    try {
+      const requests: any[] = [];
+      vi.spyOn(globalThis, "fetch").mockImplementation((async (
+        _url: any,
+        init: any,
+      ) => {
+        requests.push(JSON.parse(init.body));
+        return new Response("{}", {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }) as any);
 
-    const store = new RESTYjsThreadStore(
-      "https://example.com/threads",
-      {},
-      doc.getMap("threads"),
-      new DefaultThreadStoreAuth("user-1", "editor"),
-    );
-
-    await store.addThreadToDocument({
-      threadId: "thread-1",
-      selection: { anchor: 3, head: 8 },
-      editor,
-    });
-
-    expect(requests).toHaveLength(1);
-    const { yjs } = requests[0].selection;
-    expect(yjs).toBeDefined();
-
-    // the relative positions must resolve back to the positions we passed in
-    const state = ySyncPluginKey.getState(editor.prosemirrorState) as any;
-    const resolve = (relPos: any) =>
-      relativePositionToAbsolutePosition(
-        fragment.doc!,
-        state.binding.type,
-        Y.createRelativePositionFromJSON(relPos),
-        state.binding.mapping,
+      const store = new RESTYjsThreadStore(
+        "https://example.com/threads",
+        {},
+        doc.getMap("threads"),
+        new DefaultThreadStoreAuth("user-1", "editor"),
       );
 
-    expect(resolve(yjs.anchor)).toBe(3);
-    expect(resolve(yjs.head)).toBe(8);
+      await store.addThreadToDocument({
+        threadId: "thread-1",
+        selection: { anchor: 3, head: 8 },
+        editor,
+      });
+
+      expect(requests).toHaveLength(1);
+      const { yjs } = requests[0].selection;
+      expect(yjs).toBeDefined();
+
+      // the relative positions must resolve back to the positions we passed in
+      const state = ySyncPluginKey.getState(editor.prosemirrorState) as any;
+      const resolve = (relPos: any) =>
+        relativePositionToAbsolutePosition(
+          fragment.doc!,
+          state.binding.type,
+          Y.createRelativePositionFromJSON(relPos),
+          state.binding.mapping,
+        );
+
+      expect(resolve(yjs.anchor)).toBe(3);
+      expect(resolve(yjs.head)).toBe(8);
+    } finally {
+      editor._tiptapEditor.destroy();
+      doc.destroy();
+    }
   });
 });

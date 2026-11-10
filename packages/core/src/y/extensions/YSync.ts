@@ -1,10 +1,24 @@
-import { configureYProsemirror, syncPlugin } from "@y/prosemirror";
+import {
+  configureYProsemirror,
+  syncPlugin,
+  ySyncPluginKey,
+} from "@y/prosemirror";
+import type { Node } from "prosemirror-model";
 import {
   type ExtensionOptions,
   createExtension,
 } from "../../editor/BlockNoteExtension.js";
 import { blockMatchNodes } from "./blockMatchNodes.js";
+import { persistentBlockGroups } from "./persistentBlockGroups.js";
+import { docToBlocks } from "../../api/nodeConversions/nodeToBlock.js";
+import type {
+  BlockSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "../../schema/index.js";
 import { CollaborationOptions } from "./index.js";
+import { ForkYDocExtension } from "./ForkYDoc.js";
+import { LoadingExtension } from "../../extensions/Loading/Loading.js";
 
 /**
  * Maps a Y attribution to BlockNote's `y-attributed-*` mark attrs.
@@ -22,6 +36,31 @@ import { CollaborationOptions } from "./index.js";
  * `AttributionExtension` applies colors as a decoration layer that can
  * update independently of the mark representation.
  */
+/**
+ * Whether a ProseMirror document is BlockNote's initial (empty) state:
+ * a single empty paragraph block. Ids and props are deliberately ignored —
+ * a freshly mounted editor mints a random block id, but that skeleton still
+ * carries no real content and must not be written into an empty Y fragment.
+ * Anything more (extra blocks, non-empty text, a non-paragraph block, nested
+ * children) counts as real content and syncs immediately.
+ */
+function isInitialBlockNoteDoc<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema,
+>(doc: Node): boolean {
+  const blocks = docToBlocks<BSchema, I, S>(doc);
+  const block = blocks.length === 1 ? blocks[0] : undefined;
+  if (!block || block.type !== "paragraph" || block.children.length !== 0) {
+    return false;
+  }
+  const { content } = block;
+  return (
+    content === undefined ||
+    ((typeof content === "string" || Array.isArray(content)) &&
+      content.length === 0)
+  );
+}
 export const mapAttributionToMark = (
   format: Record<string, unknown> | null,
   attribution: {
@@ -65,45 +104,80 @@ export const YSyncExtension = createExtension(
       | "getAttributionMarkClassName"
     >
   >) => {
+    // Persist across mounts: after syncing an empty document, the fragment can
+    // still be empty and the provider can report unsynced on disconnect.
+    let ready = false;
     return {
       key: "ySync",
       fragment: options.fragment,
-      mount: () => {
-        const configure = () => {
-          editor.exec(
-            configureYProsemirror({
-              ytype: options.fragment,
-              // purposefully not passing `renderer` here, this is only for syncing the main doc, not switching to suggestion mode
-              // In the future, we may want view suggestion mode to be the default, and then we can decide how to indicate that through the options.
-              // For now though, we are leaving suggestion mode as experimental and must be explicitly enabled through the SuggestionsExtension.
-            }),
-          );
-        };
+      mount({ signal }: { signal: AbortSignal }) {
+        // Bind early so remote content can arrive, but prevent edits to an
+        // empty document that may still be loading. Cached content is safe
+        // to edit offline without waiting for the provider.
+        const { fragment, provider } = options;
+        const synced =
+          provider && "synced" in provider ? provider.synced : undefined;
+        ready ||= fragment.length > 0 || synced !== false;
 
-        if (
-          options.provider &&
-          "synced" in options.provider &&
-          typeof options.provider.synced === "boolean"
-        ) {
-          if (options.provider["synced"]) {
-            configure();
-          } else if (
-            "on" in options.provider &&
-            typeof options.provider.on === "function"
-          ) {
-            options.provider.on("synced", (synced: boolean) => {
-              if (synced) {
-                configure();
-              }
-            });
-          } else {
+        if (!ready && provider) {
+          if (!("on" in provider) || typeof provider.on !== "function") {
             throw new Error(
-              "YSyncExtension: provider must have a 'synced' boolean or an 'on' method to listen for 'sync'",
+              "YSync: an unsynced provider must support sync events",
             );
           }
-        } else {
-          configure();
+          const loading = editor.getExtension(LoadingExtension);
+          const releaseLoading = loading?.acquire() ?? (() => {});
+
+          function onSynced(synced: boolean) {
+            if (synced !== true || ready || signal.aborted) {
+              return;
+            }
+            ready = true;
+            releaseLoading();
+          }
+          function onContent() {
+            onSynced(fragment.length > 0);
+          }
+
+          fragment.observe(onContent);
+          provider.on("synced", onSynced);
+          signal.addEventListener(
+            "abort",
+            () => {
+              fragment.unobserve(onContent);
+              if ("off" in provider && typeof provider.off === "function") {
+                provider.off("synced", onSynced);
+              }
+              releaseLoading();
+            },
+            { once: true },
+          );
+          // Content or synchronization may have arrived during setup.
+          onContent();
+          if ("synced" in provider && provider.synced === true) {
+            onSynced(true);
+          }
         }
+
+        // The sync plugin reconnects an existing configuration when its view is
+        // recreated. Do not switch an active suggestion editor back to the
+        // base fragment on remount.
+        if (
+          signal.aborted ||
+          ySyncPluginKey.getState(editor.prosemirrorState)?.ytype ||
+          editor.getExtension(ForkYDocExtension)?.store.state.isForked
+        ) {
+          return;
+        }
+
+        editor.exec(
+          configureYProsemirror({
+            ytype: options.fragment,
+            // purposefully not passing `renderer` here, this is only for syncing the main doc, not switching to suggestion mode
+            // In the future, we may want view suggestion mode to be the default, and then we can decide how to indicate that through the options.
+            // For now though, we are leaving suggestion mode as experimental and must be explicitly enabled through the SuggestionsExtension.
+          }),
+        );
       },
       prosemirrorPlugins: [
         syncPlugin({
@@ -117,6 +191,16 @@ export const YSyncExtension = createExtension(
           // needed; `blockContainer` already whitelists the `y-attributed-*`
           // marks. See blockMatchNodes.ts.
           customCompare: blockMatchNodes,
+          // Nested `blockGroup`s stay in Y once they exist (hidden while
+          // empty) and every new block gets one, so two users nesting a first
+          // child under the same block concurrently write into the same
+          // group instead of each inserting their own. See
+          // persistentBlockGroups.ts.
+          transformers: [persistentBlockGroups],
+          // Initial-empty gate: a single empty paragraph (any id/props) must
+          // not seed an empty Y fragment — see isInitialBlockNoteDoc above
+          // and "Initial-content gate" in ProsemirrorRdt's doc.
+          isInitialContent: isInitialBlockNoteDoc,
         }),
       ],
       runsBefore: ["default"],

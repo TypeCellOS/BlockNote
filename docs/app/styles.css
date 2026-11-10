@@ -68,11 +68,6 @@ body {
   padding-block: 1rem;
 }
 
-.demo .bn-editor a {
-  color: revert;
-  text-decoration: revert;
-}
-
 .demo code.bn-inline-content {
   font-size: 1em;
   line-height: 1.5;

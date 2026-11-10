@@ -233,9 +233,8 @@ export function updateToReplaceSteps(
   //
   // at this point, the changeset would drop "How are you doing?"
   // but we should ignore this, as maybe this will still be in the LLMs yet-to-be-streamed response
-  if (dontReplaceContentAtEnd && changeset.changes.length > 0) {
-    const lastChange = changeset.changes[changeset.changes.length - 1];
-
+  const lastChange = changeset.changes.at(-1);
+  if (dontReplaceContentAtEnd && lastChange) {
     const lengthA = lastChange.toA - lastChange.fromA;
     const lengthB = lastChange.toB - lastChange.fromB;
 

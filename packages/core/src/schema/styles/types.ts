@@ -1,5 +1,9 @@
 import { Mark } from "@tiptap/core";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import type {
+  Extension,
+  ExtensionFactoryInstance,
+} from "../../editor/BlockNoteExtension.js";
 
 export type StylePropSchema = "boolean" | "string"; // TODO: use PropSchema as name? Use objects as type similar to blocks?
 
@@ -36,6 +40,7 @@ export type StyleImplementation<T extends StyleConfig> = {
 export type StyleSpec<T extends StyleConfig> = {
   config: T;
   implementation: StyleImplementation<T>;
+  extensions?: (Extension | ExtensionFactoryInstance)[];
 };
 
 // A Schema contains all the types (Configs) supported in an editor

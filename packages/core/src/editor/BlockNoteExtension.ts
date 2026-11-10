@@ -145,11 +145,11 @@ export interface ExtensionOptions<
 
 // a type that maps the extension key to the return type of the extension factory
 export type ExtensionMap<T extends ReadonlyArray<ExtensionFactoryInstance>> = {
-  [K in T[number] extends ExtensionFactoryInstance<infer Ext>
-    ? Ext["key"]
-    : never]: T[number] extends ExtensionFactoryInstance<infer Ext>
-    ? Ext
-    : never;
+  [
+    K in T[number] extends ExtensionFactoryInstance<infer Ext>
+      ? Ext["key"]
+      : never
+  ]: T[number] extends ExtensionFactoryInstance<infer Ext> ? Ext : never;
 };
 
 /**

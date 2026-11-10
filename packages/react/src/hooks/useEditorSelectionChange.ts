@@ -21,9 +21,7 @@ export function useEditorSelectionChange(
   includeSelectionChangedByRemote?: boolean,
 ) {
   const editorContext = useBlockNoteContext();
-  if (!editor) {
-    editor = editorContext?.editor;
-  }
+  const resolvedEditor = editor ?? editorContext?.editor;
 
   // Latest-ref pattern: the subscription lives as long as the editor does,
   // while the callback stays current without resubscribing on re-renders.
@@ -36,12 +34,12 @@ export function useEditorSelectionChange(
   });
 
   useEffect(() => {
-    if (!editor) {
+    if (!resolvedEditor) {
       throw new Error(
         "'editor' is required, either from BlockNoteContext or as a function argument",
       );
     }
-    return editor.onSelectionChange(
+    return resolvedEditor.onSelectionChange(
       // The declared callback type takes no arguments, but the subscription
       // has always passed the editor — keep forwarding it so untyped callers
       // that used it don't break.
@@ -49,5 +47,5 @@ export function useEditorSelectionChange(
         (callbackRef.current as (e?: typeof editorArg) => void)(editorArg),
       includeSelectionChangedByRemote,
     );
-  }, [editor, includeSelectionChangedByRemote]);
+  }, [resolvedEditor, includeSelectionChangedByRemote]);
 }

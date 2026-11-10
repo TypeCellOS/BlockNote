@@ -22,7 +22,7 @@
 #set figure(numbering: none)
 #show figure: set block(breakable: false)
 #show figure.caption: set text(size: 9.6pt, fill: luma(110))
-#show link: set text(fill: rgb("#0b6e99"))
+#show link: it => underline(text(fill: rgb("#0b6e99"), it))
 #let _cb-box(fill, stroke, tick) = box(baseline: 0.13em, width: 0.9em, height: 0.9em, radius: 2pt, stroke: 0.08em + stroke, fill: fill, tick)
 #let _cb-unchecked = _cb-box(white, luma(148), none)
 #let _cb-checked = _cb-box(rgb("#3183c8"), rgb("#3183c8"), place(top + left, curve(
@@ -40,7 +40,7 @@
 ]
 ]
 
-#block(width: 100%, fill: rgb("#fbe4e4"), inset: (x: 6pt, top: 6.9pt, bottom: 6.9pt))[#strong("This paragraph has a background color")]
+#block(width: 100%, fill: rgb("#ffdfd6"), inset: (x: 6pt, top: 6.9pt, bottom: 6.9pt))[#strong("This paragraph has a background color")]
 
 #block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#"Paragraph"]
 
@@ -83,8 +83,8 @@
 #enum(
   [#block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#"Numbered List Item Nested 1"]],
   [#block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#"Numbered List Item Nested 2"]],
-  [#align(right)[#block(width: 100%, fill: rgb("#fbe4e4"), inset: (x: 6pt, top: 6.9pt, bottom: 6.9pt))[#text(fill: rgb("#0b6e99"))[#"Numbered List Item Nested funky right"]]]],
-  [#align(center)[#block(width: 100%, fill: rgb("#fbe4e4"), inset: (x: 6pt, top: 6.9pt, bottom: 6.9pt))[#text(fill: rgb("#0b6e99"))[#"Numbered List Item Nested funky center"]]]]
+  [#align(right)[#block(width: 100%, fill: rgb("#ffdfd6"), inset: (x: 6pt, top: 6.9pt, bottom: 6.9pt))[#text(fill: rgb("#006d9a"))[#"Numbered List Item Nested funky right"]]]],
+  [#align(center)[#block(width: 100%, fill: rgb("#ffdfd6"), inset: (x: 6pt, top: 6.9pt, bottom: 6.9pt))[#text(fill: rgb("#006d9a"))[#"Numbered List Item Nested funky center"]]]]
 )]
 )]
 )
@@ -143,14 +143,14 @@
 
 #block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#strong("Inline Content:")]
 
-#block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#highlight(fill: rgb("#ddebf1"), text(fill: rgb("#e03e3e"), emph(strong("Styled Text"))))#" "#underline("underlined")#" "#strike("strikethrough")#" "#link("https://www.blocknotejs.org")[#"Link"]]
+#block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#highlight(fill: rgb("#cfedff"), text(fill: rgb("#994a37"), emph(strong("Styled Text"))))#" "#underline("underlined")#" "#strike("strikethrough")#" "#link("https://www.blocknotejs.org")[#"Link"]]
 
 #block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#table(
   columns: (auto, auto, auto),
   stroke: 0.5pt + luma(200),
   inset: 6pt,
   table.header([#strong[#"Table Header 1"]], [#strong[#"Table Header 2"]], [#strong[#"Table Header 3"]]),
-  [#"Table Cell 4"], [#highlight(fill: rgb("#ddebf1"), text(fill: rgb("#e03e3e"), strong("Table Cell Bold Colored 5")))], [#"Table Cell 6"],
+  [#"Table Cell 4"], [#highlight(fill: rgb("#cfedff"), text(fill: rgb("#994a37"), strong("Table Cell Bold Colored 5")))], [#"Table Cell 6"],
   [#"Table Cell 7"], [#"Table Cell 8"], [#"Table Cell 9"],
 )]
 
@@ -169,19 +169,20 @@
 
 #block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#strong("Some inline code: ")#raw("var foo = 'bar';")]
 
-#grid(
-  columns: (0.8fr, 1.4fr, 0.8fr),
-  column-gutter: 1em,
-  [#block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#"This paragraph is in a column!"]],
-  [#block(width: 100%, inset: (top: (8pt + 6.9pt), bottom: 6.9pt))[#heading(level: 1, outlined: true)[#"So is this heading!"]]],
-  [#block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#"You can have multiple blocks in a column too"]
+#{
+  let cols = (
+    (width: 0.8, body: [#block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#"This paragraph is in a column!"]]),
+    (width: 1.4, body: [#block(width: 100%, inset: (top: (8pt + 6.9pt), bottom: 6.9pt))[#heading(level: 1, outlined: true)[#"So is this heading!"]]]),
+    (width: 0.8, body: [#block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#"You can have multiple blocks in a column too"]
 
 #list(
   [#block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#"Block 1"]],
   [#block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#"Block 2"]],
   [#block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#"Block 3"]]
-)]
-)
+)]),
+  )
+  grid(columns: cols.map(c => c.width * 1fr), column-gutter: 1em, ..cols.map(c => c.body))
+}
 
 #block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#line(length: 100%, stroke: 1pt + rgb("#7D797A"))]
 

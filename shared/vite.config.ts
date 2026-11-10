@@ -1,28 +1,34 @@
 import { defineConfig } from "vite-plus";
+import { buildCacheInputs } from "../scripts/build-cache-inputs.js";
 
 export default defineConfig({
   run: {
     tasks: {
       build: {
-        command: "tsc",
-        input: [
-          { auto: true },
-          // Auto-detection tracks the conventional src/ layout, but this
-          // package's sources live at the package root (api/, util/,
-          // testDocument*.ts, ...) - without listing them, edits here never
-          // change the input hash, and cache hits restore stale dist
-          // artifacts over fresh builds.
-          "api/**",
-          "assets/**",
-          "util/**",
-          "*.ts",
-          "tsconfig.json",
-          { pattern: "!**/*.tsbuildinfo", base: "workspace" },
-        ],
-        // Without declared outputs the cache can't restore `dist/` on a
-        // cache hit, leaving consumers type-checking against missing or
-        // stale declarations.
-        output: ["dist/**", "!dist/**/*.tsbuildinfo"],
+        // Emit declarations without build mode, which would traverse references
+        // and rewrite shared declarations concurrently.
+        command:
+          "tsc --project tsconfig.json --declaration --composite false --incremental false --rootDir .",
+        cache: {
+          input: [
+            ...buildCacheInputs("shared"),
+            // Auto-detection tracks the conventional src/ layout, but this
+            // package's sources live at the package root (api/, util/,
+            // testDocument*.ts, ...) - without listing them, edits here never
+            // change the input hash, and cache hits restore stale dist
+            // artifacts over fresh builds.
+            "api/**",
+            "assets/**",
+            "util/**",
+            "*.ts",
+            "tsconfig.json",
+            { pattern: "!**/*.tsbuildinfo", base: "workspace" },
+          ],
+          // Without declared outputs the cache can't restore `dist/` on a
+          // cache hit, leaving consumers type-checking against missing or
+          // stale declarations.
+          output: ["dist/**", "!dist/**/*.tsbuildinfo"],
+        },
       },
     },
   },

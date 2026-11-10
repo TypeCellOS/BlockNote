@@ -4,6 +4,7 @@ exports[`suggestion mode: 'hello world' -> 'hello universe' 1`] = `
 "<blockGroup>
   <blockContainer id="block-hello">
     <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello world</paragraph>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -12,6 +13,7 @@ exports[`suggestion mode: 'hello world' -> 'hello universe' 2`] = `
 "<blockGroup>
   <blockContainer id="block-hello">
     <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello universe</paragraph>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -37,6 +39,7 @@ exports[`suggestion mode: add bold to 'world' 1`] = `
 "<blockGroup>
   <blockContainer id="block-hello">
     <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello world</paragraph>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -48,6 +51,7 @@ exports[`suggestion mode: add bold to 'world' 2`] = `
       hello
       <bold>world</bold>
     </paragraph>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -74,6 +78,7 @@ exports[`suggestion mode: add italic to already-bold 'world' 1`] = `
       hello
       <bold>world</bold>
     </paragraph>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -87,6 +92,7 @@ exports[`suggestion mode: add italic to already-bold 'world' 2`] = `
         <bold>world</bold>
       </italic>
     </paragraph>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -115,6 +121,7 @@ exports[`suggestion mode: remove bold from 'world' 1`] = `
       hello
       <bold>world</bold>
     </paragraph>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -123,6 +130,7 @@ exports[`suggestion mode: remove bold from 'world' 2`] = `
 "<blockGroup>
   <blockContainer id="block-hello">
     <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello world</paragraph>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;

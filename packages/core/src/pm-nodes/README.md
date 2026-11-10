@@ -48,6 +48,8 @@ content: "blockContent blockGroup?",
 
 A `blockContainer` is a container node that always contains a `blockContent` node, and optionally a `blockGroup` node (for nested children). It is used as the wrapper for most blocks. This structure makes it possible to nest blocks within blocks.
 
+In a collaborative (Yjs) document the `blockGroup` of a block is persistent: it is created together with the block, stays in the Y document when its last child is removed, and is hidden from the ProseMirror document while it is empty. The `blockContainer` in Y therefore holds `blockContent blockGroup` (or, in documents written before this, `blockContent` until the first nesting), and a container may even hold several `blockGroup`s after two users nested a first child concurrently; the editor shows them as one. See `y/extensions/persistentBlockGroups.ts`.
+
 ### BlockContent (group)
 
 Example:

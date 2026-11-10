@@ -1,221 +1,23 @@
-import {
-  CURRENT_VERSION_ID,
-  VersioningExtension,
-  type VersionSnapshot,
-} from "@blocknote/core/extensions";
-import { useEffect } from "react";
-import { RiArrowLeftRightLine, RiCloseLine, RiSaveLine } from "react-icons/ri";
+import { useLayoutEffect, useRef, type ReactNode } from "react";
 
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
-import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
-import { CurrentSnapshot } from "./CurrentSnapshot.js";
-import { Snapshot } from "./Snapshot.js";
+import { PortalElementAnchor } from "../../editor/PortalElementOverride.js";
+import { useVersioning, useVersioningState } from "./useVersioning.js";
+import { useDictionary } from "../../i18n/dictionary.js";
+import { usePreviewRow } from "./usePreviewRow.js";
+import { getPreviousVisibleVersion, getVersionList } from "./visibleHistory.js";
+import { VersionMenu } from "./VersionMenu/VersionMenu.js";
 import {
-  VersioningSidebarProvider,
   useVersioningSidebar,
+  VersioningSidebarProvider,
 } from "./VersioningSidebarContext.js";
+import { VersioningSidebarHeader } from "./VersioningSidebarHeader.js";
+import { VersioningSidebarList } from "./VersioningSidebarList.js";
 
-const VersioningSidebarHeader = (props: { onClose?: () => void }) => {
-  const Components = useComponentsContext()!;
-  const {
-    exitPreview,
-    previewSnapshot,
-    previewCurrentVersion,
-    create,
-    canCreate,
-  } = useExtension(VersioningExtension);
-  const previewedSnapshotId = useExtensionState(VersioningExtension, {
-    selector: (state) => state.previewedSnapshotId,
-  });
-  const snapshots = useExtensionState(VersioningExtension, {
-    selector: (state) => state.snapshots,
-  });
-  const { comparisonEnabled, comparisonMode, setComparisonMode } =
-    useVersioningSidebar();
+export { VersioningSidebarHeader } from "./VersioningSidebarHeader.js";
+export { VersioningSidebarList } from "./VersioningSidebarList.js";
 
-  // Toggling comparison on immediately diffs whatever is currently shown
-  // against its previous version; toggling off drops the diff and shows the
-  // viewed version (or the live document) on its own.
-  const toggleComparison = () => {
-    const turningOff = comparisonMode;
-    setComparisonMode((mode) => !mode);
-
-    const viewingSnapshot =
-      previewedSnapshotId !== undefined &&
-      previewedSnapshotId !== CURRENT_VERSION_ID;
-
-    if (turningOff) {
-      if (viewingSnapshot) {
-        void previewSnapshot(previewedSnapshotId);
-      } else if (previewedSnapshotId === CURRENT_VERSION_ID) {
-        exitPreview();
-      }
-      return;
-    }
-
-    // Turning on: compare against the previous known version.
-    if (viewingSnapshot) {
-      const index = snapshots.findIndex((s) => s.id === previewedSnapshotId);
-      const previous = index >= 0 ? snapshots[index + 1] : undefined;
-      void previewSnapshot(previewedSnapshotId, { compareTo: previous?.id });
-    } else {
-      // Live / current document → compare against the most recent snapshot.
-      const latest = snapshots.find((s) => s.id !== CURRENT_VERSION_ID);
-      if (previewCurrentVersion && latest) {
-        void previewCurrentVersion({ compareTo: latest.id });
-      }
-    }
-  };
-
-  return (
-    <div className="bn-versioning-sidebar-header">
-      <div className="bn-versioning-sidebar-header-title">
-        <h2 className="bn-versioning-sidebar-title">History</h2>
-        <Components.Generic.Toolbar.Root
-          variant="action-toolbar"
-          className="bn-action-toolbar bn-versioning-sidebar-header-actions"
-        >
-          {/* Save the live document as a new version, prompting for an
-              optional name. An empty (or whitespace-only) name is saved as
-              `undefined`; cancelling the prompt aborts the save. */}
-          {canCreate && (
-            <Components.Generic.Toolbar.Button
-              mainTooltip="Save current version"
-              onClick={() => {
-                const input = window.prompt("Name this version (optional):");
-                if (input === null) {
-                  return;
-                }
-                void create?.({ name: input.trim() || undefined });
-              }}
-            >
-              <RiSaveLine size={16} />
-            </Components.Generic.Toolbar.Button>
-          )}
-          {comparisonEnabled && (
-            <Components.Generic.Toolbar.Button
-              mainTooltip={
-                comparisonMode ? "Turn off comparison" : "Turn on comparison"
-              }
-              isSelected={comparisonMode}
-              onClick={toggleComparison}
-            >
-              <RiArrowLeftRightLine size={16} />
-            </Components.Generic.Toolbar.Button>
-          )}
-        </Components.Generic.Toolbar.Root>
-      </div>
-      {props.onClose && (
-        <Components.Generic.Toolbar.Root
-          variant="action-toolbar"
-          className="bn-action-toolbar bn-versioning-sidebar-header-actions"
-        >
-          <Components.Generic.Toolbar.Button
-            mainTooltip="Close"
-            onClick={() => {
-              exitPreview();
-              props.onClose?.();
-            }}
-          >
-            <RiCloseLine size={16} />
-          </Components.Generic.Toolbar.Button>
-        </Components.Generic.Toolbar.Root>
-      )}
-    </div>
-  );
-};
-
-const VersioningSidebarContent = (props: { onClose?: () => void }) => {
-  const Components = useComponentsContext()!;
-  const { list } = useExtension(VersioningExtension);
-  const { snapshots } = useExtensionState(VersioningExtension);
-  const { activeTab, setActiveTab, showTabs } = useVersioningSidebar();
-
-  // Load the version list when the sidebar is shown. The list is the source of
-  // truth for what's rendered — including the "current version" entry that
-  // backends surface via `list()` — so the sidebar can't rely on the host
-  // having listed already.
-  useEffect(() => {
-    void list();
-  }, [list]);
-
-  // The current-version entry is always kept. Otherwise the "named" tab shows
-  // only user-created named versions, while the "history" tab shows the full
-  // edit timeline.
-  //
-  // A `history-*` snapshot is history-only regardless of any name: renaming
-  // such a row writes a name into the mutable name store, but it must never
-  // graduate into the "named" tab. So the named tab keeps only non-history
-  // snapshots that carry a name.
-  const keep = (snapshot: VersionSnapshot) => {
-    if (snapshot.id === CURRENT_VERSION_ID) {
-      return true;
-    }
-    return activeTab === "named"
-      ? typeof snapshot.id === "string" &&
-          !snapshot.id.startsWith("history-") &&
-          snapshot.name !== undefined
-      : true;
-  };
-
-  return (
-    <Components.Versioning.Sidebar className="bn-versioning-sidebar">
-      <VersioningSidebarHeader onClose={props.onClose} />
-      {showTabs && (
-        <div className="bn-versioning-sidebar-tabs" role="tablist">
-          <button
-            type="button"
-            role="tab"
-            className="bn-versioning-sidebar-tab"
-            aria-selected={activeTab === "history"}
-            onClick={() => setActiveTab("history")}
-          >
-            Version History
-          </button>
-          <button
-            type="button"
-            role="tab"
-            className="bn-versioning-sidebar-tab"
-            aria-selected={activeTab === "named"}
-            onClick={() => setActiveTab("named")}
-          >
-            Named Versions
-          </button>
-        </div>
-      )}
-      {snapshots.filter(keep).map((snapshot, i, arr) => {
-        // The current version is driven by the backend's `list()` (it sorts
-        // newest-first, so it lands at index 0) and is previewed live rather
-        // than fetched as a stored snapshot. Its id is the CURRENT_VERSION_ID
-        // symbol, so derive a string React key for it.
-        if (snapshot.id === CURRENT_VERSION_ID) {
-          return (
-            <CurrentSnapshot
-              key="current-version"
-              snapshot={snapshot}
-              previousSnapshot={arr[i + 1]}
-            />
-          );
-        }
-        return (
-          <Snapshot
-            key={snapshot.id}
-            snapshot={snapshot}
-            previousSnapshot={arr[i + 1]}
-          />
-        );
-      })}
-    </Components.Versioning.Sidebar>
-  );
-};
-
-export const VersioningSidebar = (props: {
-  /**
-   * When set, pins the sidebar to a single view and hides the tab switcher:
-   * `"named"` shows only user-created named versions, `"all"` shows the full
-   * edit history. When omitted, both tabs are shown (default active `"named"`).
-   */
-  filter?: "named" | "all";
+export type VersioningSidebarProps = {
   /**
    * Called when the user closes the history panel via the header's close
    * button. The host is responsible for hiding the panel; the sidebar exits
@@ -223,10 +25,161 @@ export const VersioningSidebar = (props: {
    * close button is not rendered.
    */
   onClose?: () => void;
-}) => {
-  return (
-    <VersioningSidebarProvider filter={props.filter}>
-      <VersioningSidebarContent onClose={props.onClose} />
-    </VersioningSidebarProvider>
-  );
+  /** Handle failures from automatic history loading. Explicit actions still reject. */
+  onError?: (error: unknown) => void;
+  /**
+   * Initial state of the toggles. Both are the user's from then on — pass a
+   * changing `key` to reset them.
+   * @default false
+   */
+  defaultNamedOnly?: boolean;
+  /**
+   * Off by default: the first thing a reader wants is the document as it was,
+   * not a marked-up diff.
+   * @default false
+   */
+  defaultComparisonMode?: boolean;
+  /**
+   * The menu rendered in each row's "..." trigger. Compose it from
+   * `VersionMenu`, the default items and your own `VersionMenuItem`s; every
+   * item can read the row it's in via `useVersionSnapshot()`.
+   * Pass `null` or `false` to hide the menu and its trigger.
+   * @default <VersionMenu />
+   */
+  snapshotMenu?: ReactNode;
+  /**
+   * The spinner shown while the version list loads.
+   * @default <Components.Versioning.Loader />
+   */
+  loadingIndicator?: ReactNode;
 };
+
+function VersioningSidebarContent(props: {
+  onClose?: () => void;
+  onError?: (error: unknown) => void;
+}) {
+  const Components = useComponentsContext()!;
+  const dict = useDictionary();
+  const versioning = useVersioning();
+  const { run, action, comparisonMode, namedOnly } = useVersioningSidebar();
+  const state = useVersioningState();
+  const listError =
+    state.mode === "versions" && state.history.status === "error";
+  const previewRow = usePreviewRow();
+  const latestRef = useRef({
+    previewRow,
+    comparisonMode,
+    namedOnly,
+    onError: props.onError,
+  });
+  // Intentionally keep pending actions synchronized during render.
+  // oxlint-disable-next-line react/refs
+  latestRef.current = {
+    previewRow,
+    comparisonMode,
+    namedOnly,
+    onError: props.onError,
+  };
+
+  useLayoutEffect(() => {
+    let mounted = true;
+    function initialize() {
+      if (!versioning.open()) {
+        return;
+      }
+      const loading = versioning.list().then(async (result) => {
+        const list = getVersionList(versioning.store.state);
+        const preview = latestRef.current;
+        // Opening already displays frozen current. Only render again for a diff.
+        if (
+          result.status === "done" &&
+          list.loaded &&
+          list.current &&
+          preview.comparisonMode &&
+          getPreviousVisibleVersion(list, list.current, preview.namedOnly)
+        ) {
+          const current = list.current;
+          await run(() => preview.previewRow(current));
+        }
+      });
+      const onError = latestRef.current.onError;
+      if (onError) {
+        void loading.catch(onError);
+      }
+    }
+    // A mounted panel waits for an in-flight restore before acquiring its view.
+    // Commands from store notifications must run after notification completes.
+    const unsubscribe = versioning.store.subscribe(({ currentVal }) => {
+      if (!currentVal.restoring) {
+        unsubscribe();
+        queueMicrotask(() => {
+          if (mounted) {
+            initialize();
+          }
+        });
+      }
+    });
+    if (!versioning.store.state.restoring) {
+      unsubscribe();
+      initialize();
+    }
+    return () => {
+      mounted = false;
+      unsubscribe();
+      versioning.close();
+    };
+  }, [run, versioning]);
+
+  return (
+    <Components.Versioning.Sidebar
+      className="bn-versioning-sidebar"
+      aria-label={dict.versioning.title}
+    >
+      <VersioningSidebarHeader onClose={props.onClose} />
+      {listError && (
+        <div className="bn-versioning-sidebar-error" role="alert">
+          {dict.versioning.history_load_failed}
+        </div>
+      )}
+      {!listError && action.status === "error" && (
+        <div className="bn-versioning-sidebar-error" role="alert">
+          {dict.versioning.action_failed}
+        </div>
+      )}
+      <VersioningSidebarList />
+    </Components.Versioning.Sidebar>
+  );
+}
+
+/**
+ * The version-history panel: a list of the document's versions, newest first,
+ * with the current version at the top.
+ *
+ * While it is open the editor is read-only and shows the selected version —
+ * starting on the current version. Filtering rows does not change the preview.
+ */
+export function VersioningSidebar(props: VersioningSidebarProps) {
+  return (
+    <PortalElementAnchor>
+      <VersioningSidebarProvider
+        onClose={props.onClose}
+        onError={props.onError}
+        defaultNamedOnly={props.defaultNamedOnly}
+        defaultComparisonMode={props.defaultComparisonMode}
+        snapshotMenu={
+          props.snapshotMenu === undefined ? (
+            <VersionMenu />
+          ) : (
+            props.snapshotMenu
+          )
+        }
+        loadingIndicator={props.loadingIndicator}
+      >
+        <VersioningSidebarContent
+          onClose={props.onClose}
+          onError={props.onError}
+        />
+      </VersioningSidebarProvider>
+    </PortalElementAnchor>
+  );
+}

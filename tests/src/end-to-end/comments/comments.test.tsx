@@ -8,6 +8,7 @@ import {
   focusOnEditor,
   sleep,
   waitForSelector,
+  waitForSelectorDetached,
 } from "../../utils/editor.js";
 import { clickAt, getRect, moveMouseOverElement } from "../../utils/mouse.js";
 
@@ -15,6 +16,21 @@ import { clickAt, getRect, moveMouseOverElement } from "../../utils/mouse.js";
 async function doubleClickElement(element: Element) {
   const { x, y, width, height } = getRect(element);
   await clickAt(x + width / 2, y + height / 2, 2);
+}
+
+/**
+ * Clicks the comment mark near its left edge. ProseMirror counts a click within
+ * 500ms and 10px of the previous one in the editor as a double/triple click
+ * (which skips `handleClick`, so no thread opens). The clicks on the comment
+ * UI in between happen outside the editor and don't reset that count, so
+ * clicking the centre right after double-clicking the word to select it is
+ * flaky.
+ */
+async function clickThreadMark() {
+  const { x, y, height } = getRect(
+    await waitForSelector("span.bn-thread-mark"),
+  );
+  await clickAt(x + 2, y + height / 2);
 }
 
 /** Resolves once exactly `count` elements match `selector`. */
@@ -27,19 +43,12 @@ function expectSelectorCount(selector: string, count: number) {
   });
 }
 
-// emoji-mart renders `<em-emoji-picker>` as a custom element whose emoji
-// buttons live inside its shadow root, so a plain `document.querySelector`
-// can't reach them. These helpers pierce the shadow root.
+// Frimousse renders regular DOM elements (no shadow DOM), so standard
+// selectors work directly.
 function emojiButtons(): HTMLButtonElement[] {
-  const picker = document.querySelector("em-emoji-picker");
-  if (!picker?.shadowRoot) {
-    return [];
-  }
   return Array.from(
-    picker.shadowRoot.querySelectorAll<HTMLButtonElement>(
-      "button[aria-posinset]",
-    ),
-  );
+    document.querySelectorAll<HTMLButtonElement>("[frimousse-emoji]"),
+  ).filter((btn) => !btn.closest("[aria-hidden]"));
 }
 
 /** Resolves once the emoji picker has rendered at least `min` emoji buttons. */
@@ -90,7 +99,7 @@ describe("Check Comments functionality", () => {
 
     await userEvent.keyboard("{Enter}");
     await expectSelectorCount(".bn-thread", 0);
-    await userEvent.click(await waitForSelector("span.bn-thread-mark"));
+    await clickThreadMark();
     await expectSelectorCount(".bn-thread-comment", 1);
     expect(document.querySelector(".bn-thread-comment")?.textContent).toContain(
       "second line",
@@ -131,7 +140,12 @@ describe("Check Comments functionality", () => {
     // Wait for comment composer to close.
     await expectSelectorCount(".bn-thread", 0);
 
-    await userEvent.click(await waitForSelector("span.bn-thread-mark"));
+    // Click away from the mark so reopening is not a third click in the
+    // initial text-selection double-click, even on fast CI runners.
+    await userEvent.click(
+      await waitForSelector(`${EDITOR_SELECTOR} .bn-block-content`),
+    );
+    await clickThreadMark();
     await expectElement(
       await waitForSelector(".bn-thread-comment"),
     ).toBeVisible();
@@ -144,10 +158,37 @@ describe("Check Comments functionality", () => {
 
     // Add a reaction via the action toolbar's add-reaction button.
     await userEvent.click(await waitForSelector('[data-test="addreaction"]'));
-    const firstPickerButtons = await waitForEmojiButtons();
-    await userEvent.click(firstPickerButtons[0]);
-    await expectSelectorCount("em-emoji-picker", 0);
+    await waitForEmojiButtons();
+    await userEvent.click(await waitForSelector("[frimousse-search]"));
+    await userEvent.keyboard("{Escape}");
+    await expectSelectorCount("[frimousse-root]", 0);
+
+    // Exercise the UI library's outside-click dismissal too: Escape is handled
+    // directly by the picker, so it does not cover the popover callback.
+    await userEvent.click(await waitForSelector('[data-test="addreaction"]'));
+    await waitForEmojiButtons();
+    // The picker overlaps the comment's centre. Click its exposed top-left
+    // corner instead of asking Playwright to click through the popover.
+    const commentRect = getRect(await waitForSelector(".bn-thread-comment"));
+    await clickAt(commentRect.x + 2, commentRect.y + 2);
+    await expectSelectorCount("[frimousse-root]", 0);
+
+    // Both dismissal paths must leave the owner ready to reopen and select.
+    await moveMouseOverElement(await waitForSelector(".bn-thread-comment"));
+    await userEvent.click(await waitForSelector('[data-test="addreaction"]'));
+    await waitForEmojiButtons();
+    await userEvent.fill(await waitForSelector("[frimousse-search]"), "frog");
+    await vi.waitFor(() => {
+      expect(emojiButtons().map((button) => button.textContent)).toEqual([
+        "🐸",
+      ]);
+    });
+    await userEvent.keyboard("{Enter}");
+    await waitForSelectorDetached("[frimousse-root]");
     await expectSelectorCount(".bn-comment-reaction", 1);
+    expect(
+      document.querySelector(".bn-comment-reaction")?.textContent,
+    ).toContain("🐸");
 
     // Add a second reaction via the add-reaction badge.
     await moveMouseOverElement(await waitForSelector(".bn-thread-comment"));
@@ -157,7 +198,7 @@ describe("Check Comments functionality", () => {
     // toggling the first one off.
     const secondPickerButtons = await waitForEmojiButtons(6);
     await userEvent.click(secondPickerButtons[5]);
-    await expectSelectorCount("em-emoji-picker", 0);
+    await waitForSelectorDetached("[frimousse-root]");
     await expectSelectorCount(".bn-comment-reaction", 2);
   });
 

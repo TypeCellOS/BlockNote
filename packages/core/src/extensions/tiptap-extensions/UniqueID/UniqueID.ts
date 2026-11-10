@@ -1,13 +1,9 @@
-import {
-  combineTransactionSteps,
-  Extension,
-  findChildrenInRange,
-  getChangedRanges,
-} from "@tiptap/core";
+import { Extension, findChildrenInRange } from "@tiptap/core";
 import { uuidv4 } from "lib0/random";
 import { Fragment, Node, Slice } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
-import { isSuggestedDeletionNode } from "../../../api/getBlockInfoFromPos.js";
+import { combineTransactionSteps } from "../../../api/combineTransactionSteps.js";
+import { getChangedRanges } from "../../../api/getChangedRanges.js";
 
 /**
  * Code from Tiptap UniqueID extension (https://tiptap.dev/api/extensions/unique-id)
@@ -25,9 +21,7 @@ function removeDuplicates(array: any, by = JSON.stringify) {
   const seen: any = {};
   return array.filter((item: any) => {
     const key = by(item);
-    return Object.prototype.hasOwnProperty.call(seen, key)
-      ? false
-      : (seen[key] = true);
+    return Object.hasOwn(seen, key) ? false : (seen[key] = true);
   });
 }
 
@@ -67,9 +61,12 @@ const UniqueID = Extension.create({
       setIdAttribute: false,
       isWithinEditor: undefined as ((element: Element) => boolean) | undefined,
       generateID: () => {
-        // Use mock ID if tests are running.
-        if (typeof window !== "undefined" && (window as any).__TEST_OPTIONS) {
-          const testOptions = (window as any).__TEST_OPTIONS;
+        // Use mock ID if tests are running. Resolved off `globalThis` rather
+        // than a bare `window` so that tests running in the plain `node`
+        // environment (no `window`) still get deterministic IDs.
+        const testHost: any = (globalThis as any).window ?? globalThis;
+        if (testHost.__TEST_OPTIONS) {
+          const testOptions = testHost.__TEST_OPTIONS;
           if (testOptions.mockID === undefined) {
             testOptions.mockID = 0;
           } else {
@@ -155,12 +152,12 @@ const UniqueID = Extension.create({
           }
           const { tr } = newState;
           const { types, generateID } = this.options;
-          const transform = combineTransactionSteps(
-            oldState.doc,
-            transactions as any,
-          );
+          const transform = combineTransactionSteps(oldState.doc, transactions);
           const { mapping } = transform;
           // get changed ranges based on the old state
+          // TODO: one range for all changes (`getChangedRangeWithAttrs`) would
+          // be simpler and faster, and might be a better solution, but needs a
+          // careful look at which ids it would rewrite.
           const changes = getChangedRanges(transform);
 
           changes.forEach(({ newRange }) => {
@@ -171,7 +168,10 @@ const UniqueID = Extension.create({
                 return types.includes(node.type.name);
               },
             );
+            // A block marked as deleted shares its id with its surviving
+            // copy (see `isMarkedDeleted`), so it doesn't count as a duplicate.
             const newIds = newNodes
+              .filter(({ node }) => !isMarkedDeleted(node))
               .map(({ node }) => node.attrs.id)
               .filter((id) => id !== null);
             const duplicatedNewIds = findDuplicates(newIds);
@@ -221,11 +221,12 @@ const UniqueID = Extension.create({
                 });
                 return;
               }
-              // check if the node doesn’t exist in the old state
-              const { deleted } = mapping.invert().mapResult(pos);
-              const newNode = deleted && duplicatedNewIds.includes(id);
-              // purposefully skip rewriting ids for suggested deletion nodes, to avoid modifying them
-              if (newNode && !isSuggestedDeletionNode(node)) {
+              // check if the node doesn’t exist in the old state. Mapping
+              // through every step is slow, so only for duplicated ids.
+              const newNode =
+                duplicatedNewIds.includes(id) &&
+                mapping.invert().mapResult(pos).deleted;
+              if (newNode) {
                 tr.setNodeMarkup(pos, undefined, {
                   ...node.attrs,
                   id: generateID(),

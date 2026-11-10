@@ -1,4 +1,5 @@
-import { Block, getBlockFromPos } from "@blocknote/core";
+/* eslint-disable react/refs -- A render-phase last-good block cache recovers from ProseMirror's transient invalid positions. */
+import { Block, getBlockFromPos, nodeToBlock } from "@blocknote/core";
 import type { NodeViewProps } from "@tiptap/react";
 import { useRef } from "react";
 
@@ -41,6 +42,11 @@ export function useNodeViewBlock(
 ): Block<any, any, any> {
   const lastBlockRef = useRef(initialBlock);
   const doc = props.view.state.doc;
+
+  // Layout block node views already receive the complete block node.
+  if (props.node.type.isInGroup("bnBlock")) {
+    return nodeToBlock(props.node, doc);
+  }
 
   try {
     // Deliberate render-phase write: a monotonic "last good value" cache, so a

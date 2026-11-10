@@ -27,7 +27,7 @@ import {
 // inside a list are un-nested and a new list is created after them.
 // 4. The HTML is wrapped in a single `div` element.
 
-// Needs to be sync because it's used in drag handler event (SideMenuPlugin)
+// Needs to be sync because it's used in drag handler event (SideMenuExtension)
 export const createExternalHTMLExporter = <
   BSchema extends BlockSchema,
   I extends InlineContentSchema,

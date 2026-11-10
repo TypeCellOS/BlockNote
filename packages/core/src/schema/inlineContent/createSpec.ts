@@ -10,6 +10,10 @@ import {
 import { inlineContentToNodes } from "../../api/nodeConversions/blockToNode.js";
 import { nodeToCustomInlineContent } from "../../api/nodeConversions/nodeToBlock.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import type {
+  Extension,
+  ExtensionFactoryInstance,
+} from "../../editor/BlockNoteExtension.js";
 import { ignoreDarkReaderMutations } from "../nodeViewMutations.js";
 import { propsToAttributes } from "../blocks/internal.js";
 import { nonFormattingMarks } from "../markGroups.js";
@@ -259,6 +263,7 @@ export function createInlineContentSpec<
 >(
   inlineContentConfig: T,
   inlineContentImplementation: CustomInlineContentImplementation<T, S>,
+  extensions?: (Extension | ExtensionFactoryInstance)[],
 ): InlineContentSpec<T> {
   const node = Node.create({
     name: inlineContentConfig.type,
@@ -405,5 +410,6 @@ export function createInlineContentSpec<
         );
       },
     },
+    extensions,
   ) as InlineContentSpec<T>;
 }

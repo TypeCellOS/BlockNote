@@ -5,6 +5,7 @@
 # these entries just stop the heavy/irrelevant trees from bloating the context.
 **/node_modules
 **/dist
+**/.next
 **/types
 **/.vite
 **/.vite-plus

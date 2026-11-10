@@ -28,7 +28,11 @@ export const AIToolbarButton = () => {
       throw new Error("No selection");
     }
 
-    const position = selection.blocks[selection.blocks.length - 1].id;
+    const lastBlock = selection.blocks.at(-1);
+    if (!lastBlock) {
+      throw new Error("No selected block");
+    }
+    const position = lastBlock.id;
 
     ai.openAIMenuAtBlock(position);
     formattingToolbar.store.setState(false);

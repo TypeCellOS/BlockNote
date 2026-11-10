@@ -170,8 +170,7 @@ test("suggestion mode: add numbered list item to empty doc", async () => {
 
 // Empty doc gets a 3-level nested bullet list inserted as a suggestion.
 //
-// Known issue — tracked in the suggestion gallery ("add-nested-bullets").
-// This baseline intentionally captures all three rows as `•`.
+// Nesting markers must survive attribution wrappers: •, ◦, then ▪.
 test("suggestion mode: add nested bullet list to empty doc", async () => {
   const { editor, screen, baseDoc, suggestionDoc, sync } =
     await setupSuggestionTest({ userAction: "add nested bullets" });
@@ -230,8 +229,7 @@ test("suggestion mode: add colored block with child to empty doc", async () => {
 // nested under the first (`nestBlock`). Unlike the all-new subtree above, the
 // parent bullet already exists – only the newly-nested child is the suggestion.
 //
-// Known issue — tracked in the suggestion gallery ("nest-bullet-existing"):
-// the nested child shows `•` instead of `◦`. Baseline captures `•`.
+// The nested child should retain its hollow bullet and nesting guide.
 test("suggestion mode: nest a bullet under an existing bullet", async () => {
   const { editor, screen, baseDoc, suggestionDoc, sync } =
     await setupSuggestionTest({ userAction: "nest bullet under existing" });

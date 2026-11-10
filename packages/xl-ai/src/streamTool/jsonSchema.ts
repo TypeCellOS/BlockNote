@@ -1,7 +1,38 @@
 import { jsonSchema, ToolSet } from "ai";
 import type { JSONSchema7, JSONSchema7Definition } from "json-schema";
-import isEqual from "lodash.isequal";
 import { StreamTool } from "./streamTool.js";
+
+// Schemas contain JSON values: compare object keys without depending on their
+// order or treating a schema property named "constructor" as a JS prototype.
+function isSchemaObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function equalSchemaValue(left: unknown, right: unknown): boolean {
+  if (left === right) {
+    return true;
+  }
+  if (Array.isArray(left)) {
+    return (
+      Array.isArray(right) &&
+      left.length === right.length &&
+      left.every((value: unknown, index) =>
+        equalSchemaValue(value, right[index]),
+      )
+    );
+  }
+  if (Array.isArray(right) || !isSchemaObject(left) || !isSchemaObject(right)) {
+    return false;
+  }
+  const keys = Object.keys(left);
+  return (
+    keys.length === Object.keys(right).length &&
+    keys.every(
+      (key) =>
+        Object.hasOwn(right, key) && equalSchemaValue(left[key], right[key]),
+    )
+  );
+}
 
 function streamToolToJSONSchema(tool: StreamTool<any>): {
   schema: JSONSchema7;
@@ -55,7 +86,7 @@ export function createStreamToolsArraySchema(
   const $defs: Record<string, JSONSchema7Definition> = {};
   for (const schema of schemas) {
     for (const key in schema.$defs) {
-      if ($defs[key] && !isEqual($defs[key], schema.$defs[key])) {
+      if ($defs[key] && !equalSchemaValue($defs[key], schema.$defs[key])) {
         throw new Error(`Duplicate, but different definition for ${key}`);
       }
       $defs[key] = schema.$defs[key];

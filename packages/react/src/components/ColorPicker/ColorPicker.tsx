@@ -1,3 +1,4 @@
+/* eslint-disable react/static-components -- These stateless sections consume hook-provided UI components and preserve the existing menu composition. */
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { ColorIcon } from "./ColorIcon.js";

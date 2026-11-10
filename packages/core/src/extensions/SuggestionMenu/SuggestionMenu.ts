@@ -49,12 +49,21 @@ class SuggestionMenuView {
     this.rootEl?.addEventListener("scroll", this.handleScroll, true);
   }
 
-  handleScroll = () => {
+  handleScroll = (event: Event) => {
     if (this.state?.show) {
       const decorationNode = this.rootEl?.querySelector(
         `[data-decoration-id="${this.pluginState!.decorationId}"]`,
       );
       if (!decorationNode) {
+        return;
+      }
+      // Only a scroll of an ancestor of the cursor can move the menu's
+      // reference. The menu's own scroll (it is in the editor's subtree, so
+      // this capture listener sees it) must not reposition it.
+      if (
+        event.target instanceof Node &&
+        !event.target.contains(decorationNode)
+      ) {
         return;
       }
       this.state.referencePos = decorationNode

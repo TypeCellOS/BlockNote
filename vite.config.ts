@@ -14,6 +14,15 @@ export default defineConfig({
     // its tsc step reads `core`'s `.d.ts` files.
     cache: { scripts: true },
     tasks: {
+      "copy-package-readmes": {
+        command: "node scripts/copy-package-readmes.mjs",
+        // These copies are outputs, not inputs: automatic tracking of the
+        // destination checks would make a fresh checkout miss every time.
+        cache: {
+          input: ["README.md", "scripts/copy-package-readmes.mjs"],
+          output: ["packages/core/README.md", "packages/react/README.md"],
+        },
+      },
       // The release script is interactive and produces only side-effects
       // (git commit/tag/push, npm publish). It reads a stable file set
       // (package.json files), so vp would fingerprint it as unchanged and
@@ -30,6 +39,8 @@ export default defineConfig({
   // declaring projects here. Each entry points at the package's
   // `vite.config.ts`, which carries that package's own `test` block.
   test: {
+    // Preserve Vitest 4 mock history during the toolchain upgrade.
+    clearMocks: false,
     projects: [
       "./packages/ariakit/vite.config.ts",
       "./packages/code-block/vite.config.ts",

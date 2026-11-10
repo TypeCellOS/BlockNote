@@ -1,0 +1,89 @@
+.alert-frame {
+  border-radius: 4px;
+  padding: 4px;
+}
+
+.alert-title-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-grow: 1;
+  min-height: 48px;
+}
+
+.alert-frame[data-alert-type="warning"] {
+  background-color: #fff6e6;
+}
+
+.alert-frame[data-alert-type="error"] {
+  background-color: #ffe6e6;
+}
+
+.alert-frame[data-alert-type="info"] {
+  background-color: #e6ebff;
+}
+
+.alert-frame[data-alert-type="success"] {
+  background-color: #e6ffe6;
+}
+
+[data-color-scheme="dark"] .alert-frame[data-alert-type="warning"] {
+  background-color: #805d20;
+}
+
+[data-color-scheme="dark"] .alert-frame[data-alert-type="error"] {
+  background-color: #802020;
+}
+
+[data-color-scheme="dark"] .alert-frame[data-alert-type="info"] {
+  background-color: #203380;
+}
+
+[data-color-scheme="dark"] .alert-frame[data-alert-type="success"] {
+  background-color: #208020;
+}
+
+.alert-icon-wrapper {
+  border-radius: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: 12px;
+  margin-right: 12px;
+  height: 18px;
+  width: 18px;
+  user-select: none;
+  cursor: pointer;
+}
+
+.alert-icon[data-alert-icon-type="warning"] {
+  color: #e69819;
+}
+
+.alert-icon[data-alert-icon-type="error"] {
+  color: #d80d0d;
+}
+
+.alert-icon[data-alert-icon-type="info"] {
+  color: #507aff;
+}
+
+.alert-icon[data-alert-icon-type="success"] {
+  color: #0bc10b;
+}
+
+.inline-content {
+  flex-grow: 1;
+}
+
+.alert-title-row .inline-content {
+  font-weight: 600;
+}
+
+/* Hides the indent line next to the blocks of the alert's body. Blocks that
+   are nested deeper in the body keep their line. */
+.alert-frame
+  .bn-block-group:not(.alert-frame .bn-block-group .bn-block-group)
+  > .bn-block-outer:not([data-prev-depth-changed])::before {
+  border-left: none;
+}
