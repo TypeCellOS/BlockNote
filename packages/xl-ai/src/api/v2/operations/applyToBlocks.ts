@@ -13,50 +13,119 @@ export type BlockShape = { block: LensBlock; children: BlockShape[] };
  * inserts, the moves and the removals, in sequence. Updates do not change
  * the structure. This is a pure function: the apply then makes the
  * ProseMirror document agree with the result (see `applyOperations`).
+ *
+ * Throws for an operation that the document cannot have at that point: a
+ * block or a reference that is not in the document (also a block that an
+ * earlier operation removed), an insert of a block ID that is in the
+ * document, or a move of a block into itself (also before or after itself).
  */
 export function applyToBlocks(
   document: readonly LensBlock[],
   operations: readonly BlockOperation[],
 ): BlockShape[] {
-  const root: BlockShape[] = [];
-  const shapes = new Map<string, BlockShape>();
-  const parents = new Map<string, BlockShape[]>();
-  function add(blocks: readonly LensBlock[], list: BlockShape[]) {
-    for (const block of blocks) {
-      const shape: BlockShape = { block, children: [] };
-      shapes.set(block.id, shape);
-      parents.set(block.id, list);
-      list.push(shape);
-      add(block.children, shape.children);
+  const shapes = new Shapes(document);
+  for (const operation of operations) {
+    switch (operation.type) {
+      case "update":
+        break;
+      case "insert":
+        shapes.insert(operation.block, operation);
+        break;
+      case "move":
+        shapes.move(operation.id, operation);
+        break;
+      case "delete":
+        shapes.remove(operation.id);
+        break;
     }
   }
-  add(document, root);
+  return shapes.root;
+}
 
-  function shapeOf(id: string): BlockShape {
-    const shape = shapes.get(id);
+/**
+ * The structure during the operations: the shape of each block that is in
+ * the document, and the list of siblings that holds it.
+ */
+class Shapes {
+  readonly root: BlockShape[] = [];
+  private readonly byId = new Map<string, BlockShape>();
+  private readonly lists = new Map<string, BlockShape[]>();
+
+  constructor(document: readonly LensBlock[]) {
+    this.add(document, this.root);
+  }
+
+  /** Inserts a new block. It can come with its new children. */
+  insert(block: LensBlock, position: BlockPosition) {
+    const list: BlockShape[] = [];
+    this.add([block], list);
+    this.place(list[0], position);
+  }
+
+  move(id: string, position: BlockPosition) {
+    const shape = this.shapeOf(id);
+    if (position.placement !== "start" && contains(shape, position.reference)) {
+      throw new Error(`A move of block ${id} into itself`);
+    }
+    this.detach(shape);
+    this.place(shape, position);
+  }
+
+  /** Removes the block and the blocks in it. */
+  remove(id: string) {
+    const shape = this.shapeOf(id);
+    this.detach(shape);
+    const forget = (removed: BlockShape) => {
+      this.byId.delete(removed.block.id);
+      this.lists.delete(removed.block.id);
+      removed.children.forEach(forget);
+    };
+    forget(shape);
+  }
+
+  private add(blocks: readonly LensBlock[], list: BlockShape[]) {
+    for (const block of blocks) {
+      if (this.byId.has(block.id)) {
+        throw new Error(`Block ${block.id} is already in the document`);
+      }
+      const shape: BlockShape = { block, children: [] };
+      this.byId.set(block.id, shape);
+      this.lists.set(block.id, list);
+      list.push(shape);
+      this.add(block.children, shape.children);
+    }
+  }
+
+  private shapeOf(id: string): BlockShape {
+    const shape = this.byId.get(id);
     if (shape === undefined) {
       throw new Error(`Block ${id} is not in the document`);
     }
     return shape;
   }
-  function detach(id: string) {
-    const list = parents.get(id);
-    if (list !== undefined) {
-      list.splice(list.indexOf(shapeOf(id)), 1);
+
+  private detach(shape: BlockShape) {
+    const list = this.lists.get(shape.block.id);
+    const index = list?.indexOf(shape) ?? -1;
+    if (list === undefined || index === -1) {
+      throw new Error(`Block ${shape.block.id} is not in its list`);
     }
+    list.splice(index, 1);
   }
-  function place(shape: BlockShape, position: BlockPosition) {
-    const [list, index] = slotOf(position);
+
+  private place(shape: BlockShape, position: BlockPosition) {
+    const [list, index] = this.slotOf(position);
     list.splice(index, 0, shape);
-    parents.set(shape.block.id, list);
+    this.lists.set(shape.block.id, list);
   }
+
   /** The list of siblings and the index in it at the position. */
-  function slotOf(position: BlockPosition): [BlockShape[], number] {
+  private slotOf(position: BlockPosition): [BlockShape[], number] {
     if (position.placement === "start") {
-      return [root, 0];
+      return [this.root, 0];
     }
-    const reference = shapeOf(position.reference);
-    const siblings = parents.get(position.reference) ?? root;
+    const reference = this.shapeOf(position.reference);
+    const siblings = this.lists.get(position.reference) ?? this.root;
     switch (position.placement) {
       case "before":
         return [siblings, siblings.indexOf(reference)];
@@ -68,28 +137,11 @@ export function applyToBlocks(
         return [reference.children, reference.children.length];
     }
   }
+}
 
-  for (const operation of operations) {
-    switch (operation.type) {
-      case "update":
-        break;
-      case "insert": {
-        // A new block can come with its new children.
-        const list: BlockShape[] = [];
-        add([operation.block], list);
-        place(list[0], operation);
-        break;
-      }
-      case "move": {
-        const shape = shapeOf(operation.id);
-        detach(operation.id);
-        place(shape, operation);
-        break;
-      }
-      case "delete":
-        detach(operation.id);
-        break;
-    }
-  }
-  return root;
+/** True if the block with the ID `id` is the shape or a block in it. */
+function contains(shape: BlockShape, id: string): boolean {
+  return (
+    shape.block.id === id || shape.children.some((child) => contains(child, id))
+  );
 }

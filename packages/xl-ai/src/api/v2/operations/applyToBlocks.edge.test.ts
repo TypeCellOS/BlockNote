@@ -75,91 +75,90 @@ describe("applyToBlocks: valid operations", () => {
     ).toThrow("Block x is not in the document");
   });
 
-  it("ignores a delete of a block that is not in the document", () => {
-    // Unlike a move, a delete does not examine the block.
-    expect(apply(document, [{ type: "delete", id: "x" }])).toEqual([
-      ["a", ["b"]],
-      "c",
-    ]);
+  it("throws for a delete of a block that is not in the document", () => {
+    expect(() => apply(document, [{ type: "delete", id: "x" }])).toThrow(
+      "Block x is not in the document",
+    );
+  });
+
+  it("throws for an insert of a block ID that is in the document", () => {
+    expect(() =>
+      apply(document, [
+        { type: "insert", block: block("b"), placement: "start" },
+      ]),
+    ).toThrow("Block b is already in the document");
   });
 });
 
 describe("applyToBlocks: operations that refer to a removed block", () => {
+  // An operation must refer to blocks that are in the document when it runs
+  // (see `BlockOperation`). `computeOperations` does not give other
+  // operations. For other operations, the function throws: before the fix,
+  // a removed block stayed in the map, and an operation that referred to it
+  // removed a different block (the last block of its old list).
   const document = [block("a"), block("b"), block("z")];
 
-  /** The structure, or "error" if the function throws. */
-  function attempt(operations: BlockOperation[]) {
-    try {
-      return apply(document, operations);
-    } catch {
-      return "error";
-    }
-  }
-
-  // BUG: a second delete of a block removes a different block. The deleted
-  // block stays in the map of shapes, thus `shapeOf` does not throw, and
-  // `detach` calls `list.splice(list.indexOf(shape), 1)` with the index -1:
-  // that removes the last block of the old list. `applyOperations(tr,
-  // [delete b, delete b])` on the blocks a, b, z also removes z. The
-  // BlockOperation type says that the blocks of an operation exist when it
-  // runs. Thus, this is an error of the caller, but the result must be an
-  // exception ("Block b is not in the document"), not a lost block.
-  // `computeOperations` does not give such operations.
-  it.fails("does not remove a different block if an operation deletes a block two times", () => {
-    expect(["error", ["a", "z"]]).toContainEqual(
-      attempt([
+  it("throws for a second delete of a block", () => {
+    expect(() =>
+      apply(document, [
         { type: "delete", id: "b" },
         { type: "delete", id: "b" },
       ]),
-    );
+    ).toThrow("Block b is not in the document");
   });
 
-  // BUG: the same cause: a move of a deleted block puts it back, and removes
-  // the last block of its old list.
-  it.fails("does not remove a different block if an operation moves a deleted block", () => {
-    expect(["error", ["a", "z"]]).toContainEqual(
-      attempt([
+  it("throws for a move of a removed block", () => {
+    expect(() =>
+      apply(document, [
         { type: "delete", id: "b" },
         { type: "move", id: "b", reference: "a", placement: "after" },
       ]),
-    );
+    ).toThrow("Block b is not in the document");
   });
 
-  it("puts a block at the start of the list of a removed reference block", () => {
-    // The removed block keeps its old list, and its index there is -1.
-    expect(
-      attempt([
+  it("throws for a position next to a removed block", () => {
+    expect(() =>
+      apply(document, [
         { type: "delete", id: "a" },
         { type: "move", id: "z", reference: "a", placement: "after" },
       ]),
-    ).toEqual(["z", "b"]);
+    ).toThrow("Block a is not in the document");
+  });
+
+  it("throws for a position in a block in a removed block", () => {
+    expect(() =>
+      apply(
+        [block("a", [block("b")]), block("c")],
+        [
+          { type: "delete", id: "a" },
+          { type: "move", id: "c", reference: "b", placement: "first-child" },
+        ],
+      ),
+    ).toThrow("Block b is not in the document");
   });
 });
 
 describe("applyToBlocks: a move into the block itself", () => {
-  // BUG: a move of a block into a block in it makes a cycle. The block and
-  // the blocks in it are then not in the result, without an error.
-  // `applyOperations` then removes them from the document. As above, this
-  // is an error of the caller, and the result must be an exception.
-  it.fails("does not lose a block that an operation moves into its own child", () => {
-    let result: unknown;
-    try {
-      result = apply(
+  // Before the fix, a move of a block into a block in it made a cycle: the
+  // block and the blocks in it were not in the result, without an error.
+
+  it("throws for a move of a block into its own child", () => {
+    expect(() =>
+      apply(
         [block("a", [block("b")]), block("c")],
         [{ type: "move", id: "a", reference: "b", placement: "first-child" }],
-      );
-    } catch {
-      return;
-    }
-    expect(JSON.stringify(result)).toContain('"a"');
+      ),
+    ).toThrow("A move of block a into itself");
   });
 
-  it("keeps the document for a move of a block after itself", () => {
-    expect(
-      apply(
-        [block("a"), block("c")],
-        [{ type: "move", id: "a", reference: "a", placement: "after" }],
-      ),
-    ).toEqual(["a", "c"]);
+  it("throws for a move of a block before or after itself", () => {
+    for (const placement of ["before", "after", "last-child"] as const) {
+      expect(() =>
+        apply(
+          [block("c"), block("a")],
+          [{ type: "move", id: "a", reference: "a", placement }],
+        ),
+      ).toThrow("A move of block a into itself");
+    }
   });
 });

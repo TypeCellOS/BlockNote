@@ -36,6 +36,11 @@ import type { BlockOperation } from "./types.js";
  *   block keeps its node, with its comments) and new nodes. Only a list
  *   that must have children and has none gets the fill of the schema.
  *
+ * The operations must be possible in sequence, as `computeOperations` gives
+ * them: each block that an operation refers to is in the document at that
+ * point. Else the function throws (see `applyToBlocks`), and the
+ * transaction must not be dispatched.
+ *
  * First, the blocks with the ID of an earlier block get a distinct ID (see
  * `makeIdsDistinct`), as `computeOperations` counts them. A block that the
  * fill of the schema adds gets its ID from the ID extension of the editor,
