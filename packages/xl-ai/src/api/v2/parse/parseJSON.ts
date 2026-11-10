@@ -29,6 +29,10 @@ export function parseJSON(
     return { error: "invalid-document" };
   }
   const blocks = toStoredBlocks(editor, json);
+  // The conversion fits invalid layout without an error: for example, a
+  // column list with one column gets a second column. Equal numbers of
+  // children show that it added or removed no block, thus that the JSON fit
+  // the schema as it was.
   return blocks === undefined ||
     !sameChildCounts(json, blocks) ||
     duplicateId(blocks) !== undefined
