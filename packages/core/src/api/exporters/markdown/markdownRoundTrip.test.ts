@@ -1203,6 +1203,63 @@ describe("Markdown round trip", () => {
       ]);
     });
 
+    describe("an image after a nested list", () => {
+      const item: PartialBlock = {
+        type: "toggleListItem",
+        content: "Item",
+        children: [
+          { type: "checkListItem", content: "Task" },
+          { type: "image", props: { url: "https://example.com/a.png" } },
+        ],
+      };
+      // Markdown has no toggle list items.
+      const parsedItem = {
+        type: "bulletListItem",
+        content: [{ text: "Item" }],
+        children: [
+          { type: "checkListItem", content: [{ text: "Task" }], children: [] },
+          {
+            type: "image",
+            props: { url: "https://example.com/a.png" },
+            children: [],
+          },
+        ],
+      };
+
+      it.each([
+        { name: "alone", blocks: [item] },
+        {
+          name: "between other blocks",
+          blocks: [
+            { type: "heading", content: "Title" },
+            item,
+            { type: "paragraph", content: "End" },
+          ] satisfies PartialBlock[],
+        },
+      ])(
+        "stays in the list item, with no new list item ($name)",
+        ({ blocks }) => {
+          const parsed = parse(serialize(blocks));
+          expect(parsed).toHaveLength(blocks.length);
+          const parsedIndex = blocks.indexOf(item);
+          expect(parsed[parsedIndex]).toMatchObject(parsedItem);
+          expect(parsed[parsedIndex].children).toHaveLength(2);
+        },
+      );
+
+      it("goes out of the list after a heading at the start of a line", () => {
+        const markdown = serialize([item]).replace("  ![]", "# Title\n\n  ![]");
+        expect(parse(markdown)).toMatchObject([
+          {
+            type: "bulletListItem",
+            children: [{ type: "checkListItem" }],
+          },
+          { type: "heading", content: [{ text: "Title" }] },
+          { type: "image", props: { url: "https://example.com/a.png" } },
+        ]);
+      });
+    });
+
     it("keeps the caption of a file in a list item apart from the next paragraph", () => {
       const blocks: PartialBlock[] = [
         {
