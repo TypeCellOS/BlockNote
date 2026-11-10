@@ -38,10 +38,7 @@ export function withoutHiddenBlocks(
     }
   }
   collect(blocks);
-  const parts = roundTripAlone(editor, format, candidates, text, {
-    before: true,
-    after: true,
-  });
+  const parts = roundTripAlone(editor, format, candidates, text);
   const hidden = new Set(candidates.filter((_, k) => parts[k].length === 0));
   if (hidden.size === 0) {
     return blocks;

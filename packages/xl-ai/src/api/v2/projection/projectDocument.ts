@@ -110,10 +110,8 @@ export function projectWithParts(
  * - A layout block (for example a column) is not a document without its
  *   children: the parse fills it with new blocks. Thus, a layout block is
  *   its own part.
- * - The parse of a block can depend on its neighbors (for example, plain
- *   text removes the white space at the end of a block only before a blank
- *   line). Thus, the round trip has a separator before and after the block
- *   where the document has another block (see {@link roundTripAlone}).
+ * - The round trip puts the block between two separator paragraphs (see
+ *   {@link roundTripAlone}).
  */
 export function partsOfEachBlock(
   editor: BlockNoteEditor<any, any, any>,
@@ -122,17 +120,11 @@ export function partsOfEachBlock(
   text: string,
 ): Part[] {
   const { layoutRuleOf } = schemaRulesOf(editor);
-  const notLayout = notLayoutBlocks(editor, sources);
-  const first = notLayout[0];
-  const last = notLayout[notLayout.length - 1];
   return sources.flatMap((flat, source) => {
     if (layoutRuleOf(flat.block.type) !== undefined) {
       return [{ part: { ...flat, parentIndex: undefined }, source }];
     }
-    const [own] = roundTripAlone(editor, format, [flat.block], text, {
-      before: source !== first,
-      after: source !== last,
-    });
+    const [own] = roundTripAlone(editor, format, [flat.block], text);
     return own.map((part) => ({ part, source }));
   });
 }
@@ -155,18 +147,15 @@ function partsOf(
   view: readonly FlatBlock[],
   text: string,
 ): Part[] {
-  const notLayout = notLayoutBlocks(editor, sources);
   const shown = shownBlocks(sources, view);
-  const alone = notLayout.filter((source) => !shown.has(source));
+  const alone = notLayoutBlocks(editor, sources).filter(
+    (source) => !shown.has(source),
+  );
   const groups = roundTripAlone(
     editor,
     format,
     alone.map((source) => sources[source].block),
     text,
-    {
-      before: alone[0] !== notLayout[0],
-      after: alone[alone.length - 1] !== notLayout[notLayout.length - 1],
-    },
   );
   const partsOfAlone = new Map(alone.map((source, k) => [source, groups[k]]));
   return sources.flatMap((flat, source) =>
@@ -214,21 +203,16 @@ function viewOf(
 
 /**
  * The round trip of each block alone, without its children, in one
- * serialize and one parse: the blocks at the top level, with a separator
- * between them. The separator is a paragraph with only a character that
- * `text` does not contain. A format that does not keep these paragraphs
- * apart from the blocks is a bug. With `edges`, a separator also comes before
- * the first block or after the last block: the parse of a block can depend
- * on the block next to it (for example, plain text removes the white space
- * at the end of a block only before a blank line). Returns the view blocks
- * that each block gives.
+ * serialize and one parse: the blocks at the top level, each between two
+ * separators. The separator is a paragraph with only a character that `text`
+ * does not contain. A format that does not keep these paragraphs apart from
+ * the blocks is a bug. Returns the view blocks that each block gives.
  */
 export function roundTripAlone(
   editor: BlockNoteEditor<any, any, any>,
   format: TextFormat,
   blocks: readonly LensBlock[],
   text: string,
-  edges: { before: boolean; after: boolean },
 ): FlatBlock[][] {
   if (blocks.length === 0) {
     return [];
@@ -244,10 +228,8 @@ export function roundTripAlone(
   const batch = [
     separator,
     ...blocks.flatMap((block) => [withoutChildren(block), separator]),
-  ].slice(edges.before ? 0 : 1, edges.after ? undefined : -1);
-  const own = format.serialize(editor, batch);
-  const parsed =
-    own.trim() === "" ? { blocks: [] } : parseText(editor, format, own);
+  ];
+  const parsed = parseText(editor, format, format.serialize(editor, batch));
   if (parsed.error !== undefined) {
     throw new Error("The round trip of a block does not fit the schema");
   }
@@ -259,10 +241,8 @@ export function roundTripAlone(
       groups[groups.length - 1].push(flat);
     }
   }
-  const result = groups.slice(
-    edges.before ? 1 : 0,
-    edges.after ? -1 : undefined,
-  );
+  // The groups before the first separator and after the last one are empty.
+  const result = groups.slice(1, -1);
   if (result.length !== blocks.length) {
     throw new Error("The format did not keep the blocks apart");
   }
