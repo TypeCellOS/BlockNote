@@ -363,13 +363,18 @@ function serializeBlock<
     // round trip, we fill their content with a placeholder character that the
     // parser strips out again (see `EMPTY_BLOCK_PLACEHOLDER`).
     //
+    // The parse also ignores a paragraph with only white space as text (for
+    // example `<p> </p>`), but keeps the white space of a paragraph with
+    // other text. Thus the placeholder also goes into content with only
+    // white space as text, and the white space stays.
+    //
     // Only applies to blocks that hold inline content: containers (columns,
     // tables) fill their `contentDOM` with child blocks later on, and code
     // blocks would turn the placeholder into literal content.
     const blockNodeType = editor.pmSchema.nodes[block.type as any];
     const needsPlaceholder =
       !!blockNodeType?.inlineContent && !blockNodeType.spec.code;
-    if (needsPlaceholder && ret.contentDOM.childNodes.length === 0) {
+    if (needsPlaceholder && !ret.contentDOM.textContent?.trim()) {
       ret.contentDOM.appendChild(doc.createTextNode(EMPTY_BLOCK_PLACEHOLDER));
     }
   }

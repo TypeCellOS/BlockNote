@@ -2,6 +2,7 @@ import { describe, expect, it } from "vite-plus/test";
 
 import type { Block, PartialBlock } from "../blocks/defaultBlocks.js";
 import { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
+import { EMPTY_BLOCK_PLACEHOLDER } from "./exporters/html/util/serializeBlocksExternalHTML.js";
 
 /**
  * The contract of the markdown and HTML formats, for all default block types
@@ -276,3 +277,36 @@ describe.each(FORMATS)(
     });
   },
 );
+
+const NO_BREAK_SPACE = String.fromCodePoint(0xa0);
+
+describe("the HTML format: a block with only white space", () => {
+  const editor = BlockNoteEditor.create();
+  const html = FORMATS[1];
+
+  // The placeholder of an empty block (U+FFFC) and white space. The parse
+  // changes the newlines to a space, and removes the placeholder.
+  it.each([
+    `<p data-background-color="blue">${EMPTY_BLOCK_PLACEHOLDER}\n\n</p>`,
+    `<p>${EMPTY_BLOCK_PLACEHOLDER} </p>`,
+    `<h1>${EMPTY_BLOCK_PLACEHOLDER}\n</h1>`,
+  ])("the serialize shows each block of %j", (text) => {
+    expectShown(editor, html, text);
+  });
+
+  it.each([" ", "  ", "\t", NO_BREAK_SPACE, " \n "])(
+    "keeps a paragraph with the content %j",
+    (content) => {
+      editor.replaceBlocks(editor.document, [
+        SEPARATOR,
+        { type: "paragraph", props: { backgroundColor: "blue" }, content },
+        SEPARATOR,
+      ]);
+      const parsed = html.parse(
+        editor,
+        html.serialize(editor, editor.document),
+      );
+      expect(parsed.map(ownData)).toEqual(editor.document.map(ownData));
+    },
+  );
+});
