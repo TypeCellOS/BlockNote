@@ -1,18 +1,14 @@
-import {
-  type BlockNoteEditor,
-  docToBlocks,
-  type PartialBlock,
-} from "@blocknote/core";
+import type { BlockNoteEditor, PartialBlock } from "@blocknote/core";
 import { UniqueID } from "@blocknote/core/extensions";
 
 import { alignBlocks } from "./alignment/index.js";
 import type { LensBlock } from "./model.js";
 import {
+  assertBlockIds,
   BlockTree,
   flattenBlocks,
   type SchemaRules,
   schemaRulesOf,
-  withDistinctIds,
 } from "./util/blocks/index.js";
 import type { TextFormat } from "./formats/index.js";
 import {
@@ -20,7 +16,7 @@ import {
   type BlockOperation,
   diffDocuments,
   dispatchUpdate,
-  makeIdsDistinct,
+  newIdsForLayoutChanges,
 } from "./operations/index.js";
 import {
   parseJSON,
@@ -131,10 +127,10 @@ export type JSONChange = {
    * document is that block. A block without an ID is a new block. A missing
    * field gets its default value.
    *
-   * A block ID can identify only one block. Thus, a later block with the ID of
-   * an earlier block gets the ID with a number (`x-2`), as in the current
-   * document. With `base`, a block gets a new ID if its ID is not in `base`
-   * but is in the current document, as the ID of a block of another writer.
+   * A block ID can identify only one block. Thus, a JSON with two blocks with
+   * one ID gives the error `"invalid-document"`. With `base`, a block gets a
+   * new ID if its ID is not in `base` but is in the current document, as the
+   * ID of a block of another writer.
    */
   document: readonly PartialBlock<any, any, any>[];
   format?: undefined;
@@ -161,38 +157,38 @@ export type DocumentChange = (TextChange | JSONChange) &
  * only the markup changed and the format gives the same blocks, for example
  * `*` and `-` bullets in markdown.
  *
- * The operations refer to the blocks of `editor.document` by ID. If two
- * blocks have one ID (for example in a Y.Doc, after two writers moved the
- * same block), the later block counts as the ID with a number (`x-2`, see
- * `withDistinctIds`), as `applyOperations` and `updateDocument` give it. A
- * block without an ID is a bug: the operations of `updateDocument` throw
- * for it (see `makeIdsDistinct`).
+ * The operations refer to the blocks of `editor.document` by ID. Throws if
+ * a block of the document or of `base` has no ID, or if two blocks have one
+ * ID (see `assertBlockIds`, also for a Y.Doc that has such blocks).
  */
 export function computeOperations(
   editor: BlockNoteEditor<any, any, any>,
   change: DocumentChange,
 ): ChangeResult {
-  return operationsOf(editor, change, withDistinctIds(editor.document));
+  return operationsOf(editor, change, editor.document);
 }
 
 /**
  * Computes the operations of the change (see {@link computeOperations}), and
- * applies them to the editor, in one step (see {@link write}). First, the
- * blocks with the ID of an earlier block get a distinct ID.
+ * applies them to the editor (see {@link dispatchOperations}).
  */
 export function updateDocument(
   editor: BlockNoteEditor<any, any, any>,
   change: DocumentChange,
 ): ChangeResult {
-  return write(editor, (current) => operationsOf(editor, change, current));
+  const update = computeOperations(editor, change);
+  if (update.error === undefined) {
+    dispatchOperations(editor, update.operations);
+  }
+  return update;
 }
 
 // The pipeline (see "Pipeline" in the README). A change runs these functions:
 //
-//   operationsOf = textTarget (text: 1 Project, 2 Parse and align, 3 Target)
-//                  or jsonTarget (JSON: 2 Parse, and the IDs)
-//                  then updateFromTarget (4 Merge, 5 Fit, 6 Diff)
-//   write        = 7 Apply and 8 Dispatch, around operationsOf
+//   operationsOf       = textTarget (text: 1 Project, 2 Parse and align,
+//                        3 Target) or jsonTarget (JSON: 2 Parse, and the IDs)
+//                        then updateFromTarget (4 Merge, 5 Fit, 6 Diff)
+//   dispatchOperations = 7 Apply and 8 Dispatch
 //
 // The documents of a change:
 //
@@ -215,6 +211,7 @@ export function operationsOf(
   current: readonly LensBlock[],
   keepLayout = false,
 ): ChangeResult {
+  assertBlockIds(current, "current document");
   const base = versionOf(change);
   const source = base ?? current;
   const target =
@@ -357,9 +354,19 @@ function updateFromTarget(
     current,
     documents.keepLayout === true,
   );
-  // 6. Diff.
+  // 6. Diff. A block that changes between a layout block and a block with
+  // content gets a new ID: the diff removes it and inserts the new block.
+  const operations = diffDocuments(
+    current,
+    newIdsForLayoutChanges(
+      current,
+      result,
+      (type) => rules.layoutRuleOf(type) !== undefined,
+      () => UniqueID.options.generateID(),
+    ),
+  );
   return {
-    operations: diffDocuments(current, result),
+    operations,
     warnings: [
       ...warnings,
       ...merged.warnings,
@@ -369,25 +376,17 @@ function updateFromTarget(
 }
 
 /**
- * Stages 7 and 8: computes an update for the document of the editor, and
- * applies it. First, the blocks with the ID of an earlier block get a
- * distinct ID (see `makeIdsDistinct`): the update is for the document with
- * these IDs, thus the operations refer only to IDs that the document has. The steps of the IDs and of the operations go to the
- * editor in one transaction, or, for an editor that is bound to a Y.Doc, in
- * groups (see `dispatchUpdate`). On an error, the document does not change.
+ * Stages 7 and 8: applies the operations to a transaction of the editor (see
+ * `applyOperations`), and dispatches it: in one transaction, or, for an
+ * editor that is bound to a Y.Doc, in groups (see `dispatchUpdate`).
  */
-export function write(
+export function dispatchOperations(
   editor: BlockNoteEditor<any, any, any>,
-  compute: (current: readonly LensBlock[]) => ChangeResult,
-): ChangeResult {
+  operations: readonly BlockOperation[],
+): void {
   const tr = editor.prosemirrorState.tr;
-  makeIdsDistinct(tr);
-  const update = compute(docToBlocks(tr.doc));
-  if (update.error === undefined) {
-    applyOperations(tr, update.operations);
-    dispatchUpdate(editor, tr);
-  }
-  return update;
+  applyOperations(tr, operations);
+  dispatchUpdate(editor, tr);
 }
 
 /**
@@ -398,7 +397,11 @@ function versionOf(
   options: WriteFromVersion<readonly LensBlock[]>,
 ): readonly LensBlock[] | undefined {
   requireBase(options.base);
-  return options.base === "current" ? undefined : withDistinctIds(options.base);
+  if (options.base === "current") {
+    return undefined;
+  }
+  assertBlockIds(options.base, "base");
+  return options.base;
 }
 
 /**

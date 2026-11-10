@@ -307,77 +307,73 @@ describe("line ends", () => {
   });
 });
 
+// REVISIT: two blocks with one ID (for example in a Y.Doc, after two
+// writers moved the same block with y-prosemirror v13) are a broken
+// invariant for the lens: it pairs blocks by ID. Thus, a write throws, and
+// the document does not change. An earlier version gave the later block the
+// ID with a number (`x-2`) on each side, and kept these laws. We can return
+// to that, or fix the IDs in the Y.Doc, if such documents occur (see
+// `assertBlockIds`).
 describe("a document with two blocks with one ID", () => {
-  it("changes only the block whose text changed", () => {
-    const editor = createEditor([
-      {
-        id: "x",
-        type: "paragraph",
-        props: { textColor: "red" },
-        content: "Alpha",
-      },
-      { id: "x", type: "paragraph", content: "Beta" },
-    ]);
+  const documentWithOneId = [
+    { id: "x", type: "paragraph" as const, content: "Alpha" },
+    { id: "x", type: "paragraph" as const, content: "Beta" },
+  ];
+
+  it("throws for a text write, and the document does not change", () => {
+    const editor = createEditor(documentWithOneId);
+    const before = editor.document;
     const text = getDocumentText(editor, markdownFormat);
 
-    const update = valid(
+    expect(() =>
       updateDocument(editor, {
         base: "current",
         format: markdownFormat,
         text: text.replace("Beta", "Beta two"),
       }),
-    );
-
-    expect(update.warnings).toEqual([]);
-    expect(editor.document.map((block) => block.props)).toMatchObject([
-      { textColor: "red" },
-      { textColor: "default" },
-    ]);
-    expect(editor.document[1].content).toMatchObject([{ text: "Beta two" }]);
+    ).toThrow("Two blocks of the current document have the ID x");
+    expect(editor.document).toEqual(before);
   });
 
-  it("computes the operations of the write, and applyOperations applies them", () => {
-    // Two editors with the same document: one computes and applies, one
-    // writes.
-    const documentWithOneId = [
-      { id: "x", type: "paragraph" as const, content: "Alpha" },
-      { id: "x", type: "paragraph" as const, content: "Beta" },
-    ];
-    const computing = createEditor(documentWithOneId);
-    const writing = createEditor(documentWithOneId);
-    const text = getDocumentText(computing, markdownFormat).replace(
-      "Beta",
-      "Beta two",
-    );
-    const options = { base: "current" as const, format: markdownFormat, text };
-
-    const update = valid(computeOperations(computing, options));
-    computing.transact((tr) => applyOperations(tr, update.operations));
-    valid(updateDocument(writing, options));
-
-    // The later block counts as `x-2` in the operations, and gets that ID.
-    expect(update.operations).toMatchObject([{ type: "update", id: "x-2" }]);
-    expect(computing.document).toEqual(writing.document);
+  it("throws for computeOperations", () => {
+    const editor = createEditor(documentWithOneId);
+    expect(() =>
+      computeOperations(editor, {
+        base: "current",
+        format: markdownFormat,
+        text: getDocumentText(editor, markdownFormat),
+      }),
+    ).toThrow("Two blocks of the current document have the ID x");
   });
-});
 
-describe("a JSON write of a document with two blocks with one ID", () => {
-  it("gives no operations for the unchanged JSON (GetPut)", () => {
-    const editor = createEditor([
-      { id: "x", type: "paragraph", content: "Alpha" },
-      { id: "x", type: "paragraph", content: "Beta" },
-    ]);
+  it("throws for a JSON write, also of the unchanged JSON", () => {
+    const editor = createEditor(documentWithOneId);
+    expect(() =>
+      computeOperations(editor, {
+        base: "current",
+        document: JSON.parse(JSON.stringify(editor.document)),
+      }),
+    ).toThrow("Two blocks of the current document have the ID x");
+  });
 
-    // The JSON has the IDs as the client read them: two times "x". The
-    // later block counts as "x-2" on each side.
-    expect(
-      valid(
-        computeOperations(editor, {
-          base: "current",
-          document: JSON.parse(JSON.stringify(editor.document)),
-        }),
-      ).operations,
-    ).toEqual([]);
+  it("throws for applyOperations with an update", () => {
+    const editor = createEditor(documentWithOneId);
+    expect(() =>
+      editor.transact((tr) =>
+        applyOperations(tr, [
+          { type: "update", id: "x", update: { type: "heading" } },
+        ]),
+      ),
+    ).toThrow("Block x is already in the document");
+  });
+
+  it("throws for applyOperations with operations that change the structure", () => {
+    const editor = createEditor(documentWithOneId);
+    expect(() =>
+      editor.transact((tr) =>
+        applyOperations(tr, [{ type: "move", id: "x", placement: "start" }]),
+      ),
+    ).toThrow("Block x is already in the document");
   });
 });
 

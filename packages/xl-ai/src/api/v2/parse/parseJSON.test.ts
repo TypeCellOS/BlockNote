@@ -27,18 +27,17 @@ describe("parseJSON", () => {
     });
   });
 
-  it("gives a later block with the ID of an earlier block the ID with a number", () => {
+  // REVISIT: an earlier version gave the later block the ID with a number
+  // (`p-2`). Now the client must give each block its own ID.
+  it("gives an error for a later block with the ID of an earlier block", () => {
     const editor = createEditor([{ id: "p", type: "paragraph" }]);
 
-    const result = parseJSON(editor, [
-      { id: "p", type: "paragraph", content: "One" },
-      { id: "p", type: "paragraph", content: "Two" },
-    ]);
-
-    const ids =
-      result.error === undefined ? result.blocks.map(({ id }) => id) : [];
-    // As in the current document and in a base (see `withDistinctIds`).
-    expect(ids).toEqual(["p", "p-2"]);
+    expect(
+      parseJSON(editor, [
+        { id: "p", type: "paragraph", content: "One" },
+        { id: "p", type: "paragraph", content: "Two" },
+      ]),
+    ).toEqual({ error: "invalid-document" });
   });
 
   it("gives an error for blocks that the conversion must fill", () => {

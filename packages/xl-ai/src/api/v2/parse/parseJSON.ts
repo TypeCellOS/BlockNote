@@ -2,7 +2,7 @@ import type { BlockNoteEditor, PartialBlock } from "@blocknote/core";
 import { UniqueID } from "@blocknote/core/extensions";
 
 import type { LensBlock } from "../model.js";
-import { withDistinctIds } from "../util/blocks/index.js";
+import { duplicateId } from "../util/blocks/index.js";
 import { toStoredBlocks } from "../formats/index.js";
 
 /**
@@ -17,8 +17,9 @@ import { toStoredBlocks } from "../formats/index.js";
  * - A table cell with a span above the limits of the HTML table model (see
  *   {@link spansFit}) also gives `"invalid-document"`. The conversion
  *   cannot convert such a table (a stack overflow in core).
- * - A block with the ID of an earlier block gets the ID with a number (`x-2`,
- *   see `withDistinctIds`), as in the current document and in `base`.
+ * - Two blocks with one ID also give `"invalid-document"`: an ID identifies
+ *   one block. REVISIT: an earlier version gave the later block the ID with
+ *   a number (`x-2`), as for the current document (see `assertBlockIds`).
  */
 export function parseJSON(
   editor: BlockNoteEditor<any, any, any>,
@@ -28,9 +29,11 @@ export function parseJSON(
     return { error: "invalid-document" };
   }
   const blocks = toStoredBlocks(editor, json);
-  return blocks === undefined || !sameChildCounts(json, blocks)
+  return blocks === undefined ||
+    !sameChildCounts(json, blocks) ||
+    duplicateId(blocks) !== undefined
     ? { error: "invalid-document" }
-    : { blocks: withDistinctIds(blocks) };
+    : { blocks };
 }
 
 /**

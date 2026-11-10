@@ -166,36 +166,36 @@ describe("JSON", () => {
     },
   );
 
-  it("gives a new ID to a later block with the ID of an earlier block", () => {
+  // REVISIT: a JSON with two blocks with one ID is not valid input: the
+  // client must give each block its own ID. An earlier version gave the later
+  // block the ID with a number (`x-2`) and applied the change. We can return
+  // to that if clients need it (see `assertBlockIds`).
+  it("gives an error for a later block with the ID of an earlier block", () => {
     const editor = createEditor(initial);
+    const before = editor.document;
     const [a, b] = copy(editor.document);
     const duplicate = { ...a, content: "Alpha, copy" };
 
-    update(editor, { base: "current", document: [a, duplicate, b] });
-
-    const ids = editor.document.map((block) => block.id);
-    expect(ids[0]).toBe("a");
-    expect(ids[1]).not.toBe("a");
-    expect(ids[2]).toBe("b");
-    expect(editor.document[0].content).toMatchObject([{ text: "Alpha" }]);
-    expect(editor.document[1].content).toMatchObject([{ text: "Alpha, copy" }]);
+    expect(
+      updateDocument(editor, {
+        base: "current",
+        document: [a, duplicate, b],
+      }),
+    ).toEqual({ error: "invalid-document" });
+    expect(editor.document).toEqual(before);
   });
 
-  it("gives a new ID to a nested block with the ID of a block at a different level", () => {
+  it("gives an error for a nested block with the ID of a block at a different level", () => {
     const editor = createEditor(initial);
     const [a, b, c] = copy(editor.document);
     const nested = { ...b, content: "Nested" };
 
-    update(editor, {
-      base: "current",
-      document: [a, { ...b, children: [nested] }, c],
-    });
-
-    const parent = editor.getBlock("b");
-    expect(parent?.content).toMatchObject([{ text: "Beta" }]);
-    expect(parent?.children).toHaveLength(1);
-    expect(parent?.children[0].id).not.toBe("b");
-    expect(parent?.children[0].content).toMatchObject([{ text: "Nested" }]);
+    expect(
+      updateDocument(editor, {
+        base: "current",
+        document: [a, { ...b, children: [nested] }, c],
+      }),
+    ).toEqual({ error: "invalid-document" });
   });
 
   it("with a base, gives a new ID to a block with the ID of a block that another writer added", () => {
@@ -308,7 +308,12 @@ describe("JSON", () => {
     ).toEqual([["a"], ["b"]]);
   });
 
-  describe("type changes with the same ID", () => {
+  // A block that changes between a layout block (a column or a column list)
+  // and a block with content gets a new ID: the write removes the old block
+  // and inserts a new one (see `newIdsForLayoutChanges`). REVISIT: the
+  // alternative keeps the ID (the apply builds the new node in its structure
+  // step); return to it if a client needs the ID, for example for comments.
+  describe("type changes", () => {
     function columnsEditor(content: JSONChange["document"]) {
       return BlockNoteEditor.create({
         schema: columnSchema,
@@ -356,7 +361,7 @@ describe("JSON", () => {
       expect(editor.getBlock("p")?.type).toBe("table");
     });
 
-    it("changes a column into a top-level paragraph, with its ID", () => {
+    it("changes a column into a top-level paragraph, with a new ID", () => {
       const editor = columnsEditor(twoColumns);
 
       update(editor, {
@@ -364,15 +369,14 @@ describe("JSON", () => {
         document: [{ id: "cA", type: "paragraph", content: "Was a column" }],
       });
 
-      expect(editor.document.map((block) => [block.id, block.type])).toEqual([
-        ["cA", "paragraph"],
-      ]);
+      expect(editor.document.map((block) => block.type)).toEqual(["paragraph"]);
+      expect(editor.document[0].id).not.toBe("cA");
       expect(editor.document[0].content).toMatchObject([
         { text: "Was a column" },
       ]);
     });
 
-    it("changes a paragraph into a column list, with its ID", () => {
+    it("changes a paragraph into a column list, with a new ID", () => {
       const editor = columnsEditor([
         { id: "p", type: "paragraph", content: "P" },
       ]);
@@ -397,13 +401,14 @@ describe("JSON", () => {
         ] as JSONChange["document"],
       });
 
-      expect(editor.document.map((block) => [block.id, block.type])).toEqual([
-        ["p", "columnList"],
+      expect(editor.document.map((block) => block.type)).toEqual([
+        "columnList",
       ]);
+      expect(editor.document[0].id).not.toBe("p");
       expect(editor.document[0].children).toHaveLength(2);
     });
 
-    it("changes a column list into a paragraph, with its ID", () => {
+    it("changes a column list into a paragraph, with a new ID", () => {
       const editor = columnsEditor(twoColumns);
 
       update(editor, {
@@ -411,8 +416,32 @@ describe("JSON", () => {
         document: [{ id: "list", type: "paragraph", content: "Was columns" }],
       });
 
-      expect(editor.document.map((block) => [block.id, block.type])).toEqual([
-        ["list", "paragraph"],
+      expect(editor.document.map((block) => block.type)).toEqual(["paragraph"]);
+      expect(editor.document[0].id).not.toBe("list");
+    });
+
+    it("keeps the IDs of the blocks in a column list that becomes a paragraph with these blocks as children", () => {
+      const editor = columnsEditor(twoColumns);
+
+      update(editor, {
+        base: "current",
+        document: [
+          {
+            id: "list",
+            type: "paragraph",
+            content: "Was columns",
+            children: [
+              { id: "a", type: "paragraph", content: "A" },
+              { id: "b", type: "paragraph", content: "B" },
+            ],
+          },
+        ] as JSONChange["document"],
+      });
+
+      expect(editor.document[0].id).not.toBe("list");
+      expect(editor.document[0].children.map((block) => block.id)).toEqual([
+        "a",
+        "b",
       ]);
     });
   });

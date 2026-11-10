@@ -127,7 +127,7 @@ const result = updateDocument(editor, {
 });
 ```
 
-A block without an ID is a new block. An ID can identify only one block. Thus, a later block with the ID of an earlier block gets the ID with a number (for example `x-2`). With `base`, a block also gets a new ID if another user added a block with that ID after the client read the document.
+A block without an ID is a new block. An ID can identify only one block. Thus, a document with two blocks with one ID gives the error `invalid-document`. With `base`, a block also gets a new ID if another user added a block with that ID after the client read the document.
 
 If the JSON does not fit the schema of the editor, the result is `{ error: "invalid-document" }`, as for a text. Examples are an unknown block type or style, and a prop value that the block type does not have.
 

@@ -7,7 +7,7 @@
  * file. The other files export more only for their unit tests.
  */
 export { flattenBlocks, withoutChildren } from "./flatten.js";
-export { distinctId, withDistinctIds } from "./ids.js";
+export { assertBlockIds, duplicateId } from "./ids.js";
 export { blockKey, deepEqual, stableStringify } from "./json.js";
 export { propsFit } from "./props.js";
 export { type LayoutRule, type SchemaRules, schemaRulesOf } from "./schema.js";

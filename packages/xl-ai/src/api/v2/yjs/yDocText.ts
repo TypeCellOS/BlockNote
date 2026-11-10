@@ -11,11 +11,11 @@ import {
   type ChangeResult,
   type ConflictError,
   type DocumentChange,
+  dispatchOperations,
   type JSONChange,
   operationsOf,
   requireBase,
   type TextChange,
-  write,
   type WriteFromVersion,
 } from "../api.js";
 
@@ -143,9 +143,13 @@ export function updateYDoc(
             onConflict,
           };
     // With `merge: "yjs"`, the layout blocks stay (see `YDocWriteFromVersion`).
-    update = write(editor, (current) =>
-      operationsOf(editor, writeChange, current, yjs),
-    );
+    const result = operationsOf(editor, writeChange, editor.document, yjs);
+    if (result.error === undefined) {
+      dispatchOperations(editor, result.operations);
+    }
+    // Only after the dispatch: if it throws, the fork does not keep a part
+    // of the write.
+    update = result;
   } finally {
     fork.merge({
       keepChanges: update !== undefined && update.error === undefined,

@@ -907,34 +907,36 @@ describe("changes of other writers in a list with more than one structural chang
   );
 });
 
+// REVISIT: a Y.Doc can have two blocks with one ID, after two writers moved
+// the same block (y-prosemirror v13). The lens pairs blocks by ID, thus such
+// a base is a broken invariant: the write throws, and the Y.Doc does not
+// change. Then the lens cannot write that document until a client fixes the
+// IDs in the Y.Doc. An earlier version gave the later block the ID with a
+// number (`a-2`) and wrote the change (see `assertBlockIds`).
 describe("a base with two blocks with one ID", () => {
-  it("does not duplicate content, and gives a warning for the change that it cannot apply", () => {
+  it("throws, and the Y.Doc does not change", () => {
     const ydoc = blocksToYDoc(BlockNoteEditor.create(), [
       { id: "a", type: "paragraph", content: "Alpha" },
       { id: "a", type: "paragraph", content: "Alpha copy" },
       { id: "b", type: "paragraph", content: "Beta" },
     ]);
     const fragment = ydoc.getXmlFragment("prosemirror");
-    // The editor gives the two blocks new IDs (UniqueID), but the Y.Doc and
-    // thus the base keep the duplicate. The lens cannot find the copy.
+    // The editor gives the copy a new ID (UniqueID), but the Y.Doc and thus
+    // the base keep the duplicate.
     const editor = bindEditor(fragment);
     const base = Y.encodeStateAsUpdate(ydoc);
     const text = getDocumentText(editor, markdownFormat);
     editor.updateBlock("b", { content: "Beta 2" });
+    const before = readText(fragment, markdownFormat);
 
-    const result = valid(
+    expect(() =>
       updateYDoc(editor, fragment, {
         format: markdownFormat,
         text: replaceOnce(text, "Alpha copy", "Alpha copy edited"),
         base,
       }),
-    );
-    expect(getDocumentText(editor, markdownFormat)).toBe(
-      "Alpha\n\nAlpha copy\n\nBeta 2\n",
-    );
-    expect(result.warnings).toEqual([
-      { type: "change-to-removed-block", id: "a-2" },
-    ]);
+    ).toThrow("Two blocks of the base have the ID a");
+    expect(readText(fragment, markdownFormat)).toBe(before);
   });
 });
 

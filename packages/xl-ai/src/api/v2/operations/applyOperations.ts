@@ -15,7 +15,6 @@ import {
   type LensPartialBlock,
   type LensTableContent,
 } from "../model.js";
-import { makeIdsDistinct } from "./blockIds.js";
 import { gaps, isChanged, myersMatch } from "../util/sequence/index.js";
 import { applyToBlocks, type BlockShape } from "./applyToBlocks.js";
 import { addInlineContentSteps } from "./inlineSteps.js";
@@ -41,11 +40,16 @@ import type { BlockOperation } from "./types.js";
  * point. Else the function throws (see `applyToBlocks`), and the
  * transaction must not be dispatched.
  *
- * First, the blocks with the ID of an earlier block get a distinct ID (see
- * `makeIdsDistinct`), as `computeOperations` counts them. A block that the
- * fill of the schema adds gets its ID from the ID extension of the editor,
- * when the transaction applies. The caller dispatches the transaction. Thus, a caller can show the steps as
- * suggestions, for example. Note: for an editor that is bound to a Y.Doc,
+ * The document must have one block for each ID (else `applyToBlocks`
+ * throws). An update cannot change a block between a layout block (for
+ * example a column) and a block with content: core throws for it. For
+ * such a change, `computeOperations` gives the block a new ID: a removal
+ * and an insert (see `newIdsForLayoutChanges`, also for the alternative).
+ *
+ * A block that the fill of the schema adds gets its ID from the ID extension
+ * of the editor, when the transaction applies. The caller dispatches the
+ * transaction. Thus, a caller can show the steps as suggestions, for
+ * example. Note: for an editor that is bound to a Y.Doc,
  * use `updateDocument` or `updateYDoc`. y-prosemirror v13
  * can write a change into a different block if one transaction has inserts
  * and other changes (see `dispatchUpdate`).
@@ -54,55 +58,15 @@ export function applyOperations(
   tr: Transaction,
   operations: readonly BlockOperation[],
 ): void {
-  makeIdsDistinct(tr);
   const updates = operations.flatMap((operation) =>
     operation.type === "update" ? [operation] : [],
   );
-  // TBD (review): an update that changes a block between a layout type (for
-  // example a column, a node that holds its children) and a type with content
-  // cannot apply in place: no valid document has the new type at the old
-  // place, or with the old children. Here, such a block keeps its ID, and the
-  // structure step builds its new node in the step that places it (see
-  // `rebuilt` in `applyStructure`). The other way is simpler code: the read
-  // side gives such a block a new ID, thus the diff gives a removal and an
-  // insert. Then the block loses its ID, and a change of another writer to it
-  // is a conflict. Note: with a Y.Doc, the steps go to the editor in groups
-  // (see `dispatchSteps`); between the insert and the removal, two blocks
-  // have the ID, and the ID extension can give the new block a new ID.
-  const typeChanges = updates.filter(({ update }) => update.type !== undefined);
-  const layoutIds = typeChanges.length > 0 ? layoutBlockIds(tr.doc) : new Set();
-  const rebuilt = new Map(
-    typeChanges
-      .filter(
-        ({ id, update }) =>
-          layoutIds.has(id) !== isLayoutType(tr.doc, update.type!),
-      )
-      .map(({ id, update }) => [id, update]),
-  );
-  const inPlace = updates.filter(({ id }) => !rebuilt.has(id));
-  if (inPlace.length > 0) {
-    updateBlocks(tr, inPlace);
+  if (updates.length > 0) {
+    updateBlocks(tr, updates);
   }
-  if (rebuilt.size > 0 || updates.length < operations.length) {
-    applyStructure(tr, applyToBlocks(docToBlocks(tr.doc), operations), rebuilt);
+  if (updates.length < operations.length) {
+    applyStructure(tr, applyToBlocks(docToBlocks(tr.doc), operations));
   }
-}
-
-/** The IDs of the layout blocks: the nodes that hold their children, for example columns. */
-function layoutBlockIds(doc: Node): Set<string> {
-  const ids = new Set<string>();
-  doc.descendants((node) => {
-    if (node.type.isInGroup("bnBlock") && node.type.name !== "blockContainer") {
-      ids.add(node.attrs.id);
-    }
-    return !node.isTextblock;
-  });
-  return ids;
-}
-
-/** Returns true for a layout block type: its block is its own node (for example a column), not a `blockContainer`. */
-function isLayoutType(doc: Node, type: string): boolean {
-  return doc.type.schema.nodes[type]?.isInGroup("bnBlock") === true;
 }
 
 /**
@@ -119,12 +83,7 @@ function isLayoutType(doc: Node, type: string): boolean {
  * binding can then also send each step alone (see `dispatchSteps`).
  */
 // eslint-disable-next-line max-lines-per-function -- Follow-up: split the structure steps.
-function applyStructure(
-  tr: Transaction,
-  target: BlockShape[],
-  /** The fields of the blocks that change their node kind: they get a new node (see `applyOperations`). */
-  rebuilt: ReadonlyMap<string, LensPartialBlock>,
-) {
+function applyStructure(tr: Transaction, target: BlockShape[]) {
   const schema = tr.doc.type.schema;
   const nodes = new Map<string, Node>();
   tr.doc.descendants((node) => {
@@ -221,11 +180,10 @@ function applyStructure(
       replacements.push({ from: pos + 1, to: end, content });
       return;
     }
-    // A block that gets a new node is not a child that stays.
     const pairs = myersMatch(
       old.map(({ node }) => node.attrs.id as string),
       shapes.map((shape) => shape.block.id),
-      (a, b) => a === b && !rebuilt.has(a),
+      (a, b) => a === b,
     );
     for (const gap of gaps(pairs, old.length, shapes.length)) {
       if (isChanged(gap)) {
@@ -257,17 +215,13 @@ function applyStructure(
 
   /** The node of the shape: the node of the document if its structure is the same, else a new node with the nodes of its children. */
   function build(shape: BlockShape): Node {
-    const fields = rebuilt.get(shape.block.id);
-    const found = fields === undefined ? nodes.get(shape.block.id) : undefined;
+    const found = nodes.get(shape.block.id);
     if (found !== undefined && sameStructure(found, shape)) {
       return found;
     }
     const shell =
       found ??
-      blockToNode(
-        { ...shape.block, ...fields, children: [] } as PartialBlock,
-        schema,
-      );
+      blockToNode({ ...shape.block, children: [] } as PartialBlock, schema);
     return withChildren(shell, shape.children.map(build));
   }
 }
@@ -331,6 +285,9 @@ function updateBlocks(
   const positions = new Map<string, number>();
   tr.doc.descendants((node, pos) => {
     if (node.type.isInGroup("bnBlock") && typeof node.attrs.id === "string") {
+      if (positions.has(node.attrs.id)) {
+        throw new Error(`Block ${node.attrs.id} is already in the document`);
+      }
       positions.set(node.attrs.id, pos);
     }
     // The text of a block contains no blocks.
