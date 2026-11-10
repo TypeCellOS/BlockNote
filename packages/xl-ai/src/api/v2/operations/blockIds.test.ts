@@ -3,8 +3,7 @@ import { BlockNoteEditor } from "@blocknote/core";
 import { EditorState } from "prosemirror-state";
 import { describe, expect, it } from "vite-plus/test";
 
-import type { LensBlock } from "../blocks/types.js";
-import { makeIdsDistinct, withDistinctIds } from "./blockIds.js";
+import { makeIdsDistinct } from "./blockIds.js";
 
 describe("makeIdsDistinct", () => {
   it("throws for a block without an ID, and keeps the IDs of a valid document", () => {
@@ -42,24 +41,5 @@ describe("makeIdsDistinct", () => {
       }
     });
     expect(ids).toEqual(["x", "x-2"]);
-  });
-});
-
-describe("withDistinctIds", () => {
-  it("gives the blocks the IDs that makeIdsDistinct gives the document", () => {
-    const block = (id: string, children: LensBlock[] = []): LensBlock => ({
-      id,
-      type: "paragraph",
-      props: {},
-      content: [],
-      children,
-    });
-    const ids = (blocks: LensBlock[]): string[] =>
-      blocks.flatMap((b) => [b.id, ...ids(b.children)]);
-    expect(
-      ids(
-        withDistinctIds([block("x", [block("x")]), block("x-2"), block("y")]),
-      ),
-    ).toEqual(["x", "x-2", "x-2-2", "y"]);
   });
 });

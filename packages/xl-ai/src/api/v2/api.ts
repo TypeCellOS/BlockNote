@@ -10,7 +10,8 @@ import { flattenBlocks } from "./blocks/flatten.js";
 import { type SchemaRules, schemaRulesOf } from "./blocks/schema.js";
 import type { LensBlock } from "./blocks/types.js";
 import type { TextFormat } from "./formats/types.js";
-import { makeIdsDistinct, withDistinctIds } from "./operations/blockIds.js";
+import { withDistinctIds } from "./blocks/ids.js";
+import { makeIdsDistinct } from "./operations/blockIds.js";
 import { applyOperations } from "./operations/applyOperations.js";
 import { dispatchUpdate } from "./operations/dispatch.js";
 import { diffDocuments } from "./operations/diffDocuments.js";
@@ -119,10 +120,10 @@ export type JSONChange = {
    * document is that block. A block without an ID is a new block. A missing
    * field gets its default value.
    *
-   * A block ID can identify only one block. Thus, a block gets a new ID if an
-   * earlier block of the JSON has its ID, or (with `base`) if its ID is not
-   * in `base` but is in the current document, as the ID of a block of
-   * another writer.
+   * A block ID can identify only one block. Thus, a later block with the ID of
+   * an earlier block gets the ID with a number (`x-2`), as in the current
+   * document. With `base`, a block gets a new ID if its ID is not in `base`
+   * but is in the current document, as the ID of a block of another writer.
    */
   document: readonly PartialBlock<any, any, any>[];
   format?: undefined;

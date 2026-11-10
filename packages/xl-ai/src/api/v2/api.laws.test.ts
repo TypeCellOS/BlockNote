@@ -361,6 +361,26 @@ describe("a document with two blocks with one ID", () => {
   });
 });
 
+describe("a JSON write of a document with two blocks with one ID", () => {
+  it("gives no operations for the unchanged JSON (GetPut)", () => {
+    const editor = createEditor([
+      { id: "x", type: "paragraph", content: "Alpha" },
+      { id: "x", type: "paragraph", content: "Beta" },
+    ]);
+
+    // The JSON has the IDs as the client read them: two times "x". The
+    // later block counts as "x-2" on each side.
+    expect(
+      valid(
+        computeOperations(editor, {
+          base: "current",
+          document: JSON.parse(JSON.stringify(editor.document)),
+        }),
+      ).operations,
+    ).toEqual([]);
+  });
+});
+
 describe("a document after `removeBlocks` removed all blocks", () => {
   it("writes the text", () => {
     // The editor gives the block that fills the empty document an ID, also

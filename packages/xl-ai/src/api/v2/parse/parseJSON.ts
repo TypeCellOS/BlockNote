@@ -2,6 +2,7 @@ import type { BlockNoteEditor, PartialBlock } from "@blocknote/core";
 import { UniqueID } from "@blocknote/core/extensions";
 
 import { type SchemaRules, schemaRulesOf } from "../blocks/schema.js";
+import { withDistinctIds } from "../blocks/ids.js";
 import { BlockTree } from "../blocks/tree.js";
 import type { LensBlock } from "../blocks/types.js";
 import { fitLayout } from "../fit/fitLayout.js";
@@ -18,6 +19,8 @@ import { toStoredBlocks } from "../formats/stored.js";
  *   (for example a column list with one column).
  * - If the blocks do not fit the schema, the result is the error
  *   `"invalid-document"`.
+ * - A block with the ID of an earlier block gets the ID with a number (`x-2`,
+ *   see `withDistinctIds`), as in the current document and in `base`.
  * - A block gets a new ID where its ID cannot identify it (see
  *   {@link withUniqueIds}).
  */
@@ -33,16 +36,18 @@ export function parseJSON(
   if (blocks === undefined) {
     return { error: "invalid-document" };
   }
-  return { blocks: withUniqueIds(blocks, base, current, layoutRuleOf) };
+  return {
+    blocks: withUniqueIds(withDistinctIds(blocks), base, current, layoutRuleOf),
+  };
 }
 
 /**
  * Returns the blocks with a new ID where an ID cannot identify the block: a
- * later block with the ID of an earlier block, a block with an ID that is
- * not in `base` but is in `current` (a block of another writer), or a block
- * that changes between a layout type and another type (for example a column
- * that becomes a paragraph: it cannot change in place). These blocks are new
- * blocks.
+ * block with an ID that is not in `base` but is in `current` (a block of
+ * another writer), or a block that changes between a layout type and another
+ * type (for example a column that becomes a paragraph: it cannot change in
+ * place). These blocks are new blocks. The IDs of `blocks` are distinct (see
+ * `withDistinctIds`).
  */
 function withUniqueIds(
   blocks: readonly LensBlock[],
@@ -52,17 +57,14 @@ function withUniqueIds(
 ): LensBlock[] {
   const inBase = new Set(new BlockTree(base).ids);
   const inCurrent = new BlockTree(current).byId;
-  const used = new Set<string>();
   function fix(block: LensBlock): LensBlock {
     const before = inCurrent.get(block.id);
     const keep =
-      !used.has(block.id) &&
       (inBase.has(block.id) || before === undefined) &&
       (before === undefined ||
         (layoutRuleOf(before.type) === undefined) ===
           (layoutRuleOf(block.type) === undefined));
     const id = keep ? block.id : UniqueID.options.generateID();
-    used.add(id);
     return { ...block, id, children: block.children.map(fix) };
   }
   return blocks.map(fix);

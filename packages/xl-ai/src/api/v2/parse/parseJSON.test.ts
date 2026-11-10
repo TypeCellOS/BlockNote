@@ -31,7 +31,7 @@ describe("parseJSON", () => {
     ).toEqual({ error: "invalid-document" });
   });
 
-  it("gives a new ID to a later block with the ID of an earlier block", () => {
+  it("gives a later block with the ID of an earlier block the ID with a number", () => {
     const editor = createEditor([{ id: "p", type: "paragraph" }]);
     const current = editor.document as LensBlock[];
 
@@ -47,8 +47,8 @@ describe("parseJSON", () => {
 
     const ids =
       result.error === undefined ? result.blocks.map(({ id }) => id) : [];
-    expect(ids[0]).toBe("p");
-    expect(ids[1]).not.toBe("p");
+    // As in the current document and in a base (see `withDistinctIds`).
+    expect(ids).toEqual(["p", "p-2"]);
   });
 
   it("gives a new ID to a block that changes between a layout type and another type", () => {

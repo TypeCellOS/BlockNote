@@ -1,27 +1,9 @@
 import type { Transform } from "prosemirror-transform";
 
-import type { LensBlock } from "../blocks/types.js";
+import { distinctId } from "../blocks/ids.js";
 
 /**
- * The ID for a block whose ID an earlier block has: the ID with a number (for
- * example `a-2`). Each writer computes the same IDs for one document. Thus,
- * the current document and a base of the same Y.Doc agree (see
- * {@link withDistinctIds}).
- */
-function distinctId(id: string, used: ReadonlySet<string>): string {
-  if (!used.has(id)) {
-    return id;
-  }
-  for (let n = 2; ; n++) {
-    const candidate = `${id}-${n}`;
-    if (!used.has(candidate)) {
-      return candidate;
-    }
-  }
-}
-
-/**
- * Gives the ID of {@link distinctId} to each block with the ID of an earlier
+ * Gives the ID of `distinctId` to each block with the ID of an earlier
  * block. Then each ID identifies one block. A document can have two blocks
  * with one ID, for example from a Y.Doc after two writers moved the same
  * block: the ID extension of the editor does not fix a remote change of a
@@ -56,20 +38,4 @@ export function makeIdsDistinct(tr: Transform): void {
       tr.setNodeMarkup(pos, undefined, { ...node.attrs, id });
     }
   });
-}
-
-/**
- * The blocks with the ID rule of {@link makeIdsDistinct}, in document order: a
- * block with the ID of an earlier block gets the ID of {@link distinctId}.
- * The lens applies it to a base. Thus, a base with two blocks with one ID
- * agrees with the current document.
- */
-export function withDistinctIds(blocks: readonly LensBlock[]): LensBlock[] {
-  const ids = new Set<string>();
-  function fix(block: LensBlock): LensBlock {
-    const id = distinctId(block.id, ids);
-    ids.add(id);
-    return { ...block, id, children: block.children.map(fix) };
-  }
-  return blocks.map(fix);
 }
