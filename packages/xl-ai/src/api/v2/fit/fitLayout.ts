@@ -32,66 +32,85 @@ export function fitLayout(
   /** Returns true if a block of the type `parent` (`undefined` for the top level) can have a child of the type `child`. */
   canContain?: (parent: string | undefined, child: string) => boolean,
 ): LensBlock[] {
-  const top = place(undefined, blocks.flatMap(fit));
+  const rules: Rules = { ruleOf, canContain };
+  const top = place(
+    rules,
+    undefined,
+    blocks.flatMap((block) => fit(rules, block)),
+  );
   // Nothing is above the top level, thus a block goes nowhere from there.
   return [...top.held, ...top.lifted];
+}
 
-  /** The block, then the blocks that go out of it. */
-  function fit(block: LensBlock): LensBlock[] {
-    const rule = ruleOf(block.type);
-    const { held: children, lifted } = place(
-      block.type,
-      block.children.flatMap(fit),
-    );
-    if (rule === undefined || rule.namedOnly) {
-      // A column stays. Its layout parent decides if it goes.
-      return [{ ...block, children }, ...lifted];
-    }
-    const kept = children.filter((child) => !isEmptyLayoutBlock(child));
-    if (kept.length >= rule.minChildren || !rule.dissolves) {
-      return [{ ...block, children: kept }, ...lifted];
-    }
-    return [
-      ...kept.flatMap((child) =>
-        ruleOf(child.type)?.namedOnly ? child.children : [child],
-      ),
-      ...lifted,
-    ];
+/** The rules of {@link fitLayout}. */
+type Rules = {
+  ruleOf: (type: string) => LayoutRule | undefined;
+  canContain?: (parent: string | undefined, child: string) => boolean;
+};
+
+/** The block, fit to its child rule, then the blocks that go out of it. */
+function fit(rules: Rules, block: LensBlock): LensBlock[] {
+  const rule = rules.ruleOf(block.type);
+  const { held: children, lifted } = place(
+    rules,
+    block.type,
+    block.children.flatMap((child) => fit(rules, child)),
+  );
+  if (rule === undefined || rule.namedOnly) {
+    // A column stays. Its layout parent decides if it goes.
+    return [{ ...block, children }, ...lifted];
   }
+  const kept = children.filter((child) => !isEmptyLayoutBlock(rules, child));
+  if (kept.length >= rule.minChildren || !rule.dissolves) {
+    return [{ ...block, children: kept }, ...lifted];
+  }
+  return [
+    ...kept.flatMap((child) =>
+      rules.ruleOf(child.type)?.namedOnly ? child.children : [child],
+    ),
+    ...lifted,
+  ];
+}
 
-  /**
-   * Splits the children of a parent of the type into the blocks that it can
-   * hold and the blocks that go out of it. A column that it cannot hold
-   * becomes the blocks in it.
-   */
-  function place(
-    parent: string | undefined,
-    children: readonly LensBlock[],
-  ): { held: LensBlock[]; lifted: LensBlock[] } {
-    const held: LensBlock[] = [];
-    const lifted: LensBlock[] = [];
-    for (const child of children) {
-      if (canContain === undefined || canContain(parent, child.type)) {
-        held.push(child);
-      } else if (ruleOf(child.type)?.namedOnly) {
-        const inner = place(parent, child.children);
-        for (const block of inner.held) {
-          held.push(block);
-        }
-        for (const block of inner.lifted) {
-          lifted.push(block);
-        }
-      } else {
-        lifted.push(child);
+/**
+ * Splits the children of a parent of the type into the blocks that it can
+ * hold and the blocks that go out of it. A column that it cannot hold
+ * becomes the blocks in it.
+ */
+function place(
+  rules: Rules,
+  parent: string | undefined,
+  children: readonly LensBlock[],
+): { held: LensBlock[]; lifted: LensBlock[] } {
+  const held: LensBlock[] = [];
+  const lifted: LensBlock[] = [];
+  for (const child of children) {
+    if (
+      rules.canContain === undefined ||
+      rules.canContain(parent, child.type)
+    ) {
+      held.push(child);
+    } else if (rules.ruleOf(child.type)?.namedOnly) {
+      // A loop, not a spread: a column can hold many blocks, and a spread of
+      // a large array overflows the stack.
+      const inner = place(rules, parent, child.children);
+      for (const block of inner.held) {
+        held.push(block);
       }
+      for (const block of inner.lifted) {
+        lifted.push(block);
+      }
+    } else {
+      lifted.push(child);
     }
-    return { held, lifted };
   }
+  return { held, lifted };
+}
 
-  function isEmptyLayoutBlock(block: LensBlock): boolean {
-    const rule = ruleOf(block.type);
-    return (
-      rule !== undefined && rule.minChildren > 0 && block.children.length === 0
-    );
-  }
+/** Returns true for a layout block that must have children and has none. */
+function isEmptyLayoutBlock(rules: Rules, block: LensBlock): boolean {
+  const rule = rules.ruleOf(block.type);
+  return (
+    rule !== undefined && rule.minChildren > 0 && block.children.length === 0
+  );
 }
