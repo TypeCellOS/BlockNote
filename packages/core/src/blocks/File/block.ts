@@ -37,10 +37,17 @@ export const fileParse = () => (element: HTMLElement) => {
       return undefined;
     }
 
+    const embed = parseEmbedElement(element as HTMLEmbedElement);
+    // A file without a source is no block: the markdown export of a file
+    // block without a URL is empty, also with a caption.
+    if (!embed.url) {
+      return undefined;
+    }
+
     const { backgroundColor } = parseDefaultProps(element);
 
     return {
-      ...parseEmbedElement(element as HTMLEmbedElement),
+      ...embed,
       backgroundColor,
     };
   }
@@ -53,10 +60,15 @@ export const fileParse = () => (element: HTMLElement) => {
 
     const { targetElement, caption } = parsedFigure;
 
+    const embed = parseEmbedElement(targetElement as HTMLEmbedElement);
+    if (!embed.url) {
+      return undefined;
+    }
+
     const { backgroundColor } = parseDefaultProps(element);
 
     return {
-      ...parseEmbedElement(targetElement as HTMLEmbedElement),
+      ...embed,
       backgroundColor,
       caption,
     };

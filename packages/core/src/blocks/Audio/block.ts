@@ -56,10 +56,17 @@ export const audioParse =
         return undefined;
       }
 
+      const audio = parseAudioElement(element as HTMLAudioElement);
+      // An audio without a source and without a caption is no block (see
+      // `imageParse`).
+      if (!audio.url && !element.getAttribute("data-caption")) {
+        return undefined;
+      }
+
       const { backgroundColor } = parseDefaultProps(element);
 
       return {
-        ...parseAudioElement(element as HTMLAudioElement),
+        ...audio,
         backgroundColor,
       };
     }
@@ -72,10 +79,15 @@ export const audioParse =
 
       const { targetElement, caption } = parsedFigure;
 
+      const audio = parseAudioElement(targetElement as HTMLAudioElement);
+      if (!audio.url && !caption) {
+        return undefined;
+      }
+
       const { backgroundColor } = parseDefaultProps(element);
 
       return {
-        ...parseAudioElement(targetElement as HTMLAudioElement),
+        ...audio,
         backgroundColor,
         caption,
       };

@@ -38,10 +38,17 @@ export const videoParse = (_config: VideoOptions) => (element: HTMLElement) => {
       return undefined;
     }
 
+    const video = parseVideoElement(element as HTMLVideoElement);
+    // A video without a source and without a caption is no block (see
+    // `imageParse`).
+    if (!video.url && !element.getAttribute("data-caption")) {
+      return undefined;
+    }
+
     const { backgroundColor } = parseDefaultProps(element);
 
     return {
-      ...parseVideoElement(element as HTMLVideoElement),
+      ...video,
       backgroundColor,
     };
   }
@@ -54,10 +61,15 @@ export const videoParse = (_config: VideoOptions) => (element: HTMLElement) => {
 
     const { targetElement, caption } = parsedFigure;
 
+    const video = parseVideoElement(targetElement as HTMLVideoElement);
+    if (!video.url && !caption) {
+      return undefined;
+    }
+
     const { backgroundColor } = parseDefaultProps(element);
 
     return {
-      ...parseVideoElement(targetElement as HTMLVideoElement),
+      ...video,
       backgroundColor,
       caption,
     };

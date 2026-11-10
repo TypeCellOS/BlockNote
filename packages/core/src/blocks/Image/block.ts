@@ -62,10 +62,20 @@ export const imageParse =
         return undefined;
       }
 
+      const image = parseImageElement(element as HTMLImageElement);
+      // An image without a source and without a caption shows nothing. It
+      // is no block: a block without a URL and without a caption is the
+      // upload placeholder, and its markdown export is empty. The external
+      // HTML export writes the caption of an image without a URL in
+      // `data-caption`.
+      if (!image.url && !element.getAttribute("data-caption")) {
+        return undefined;
+      }
+
       const { backgroundColor } = parseDefaultProps(element);
 
       return {
-        ...parseImageElement(element as HTMLImageElement),
+        ...image,
         backgroundColor,
       };
     }
@@ -78,10 +88,16 @@ export const imageParse =
 
       const { targetElement, caption } = parsedFigure;
 
+      const image = parseImageElement(targetElement as HTMLImageElement);
+      // See above.
+      if (!image.url && !caption) {
+        return undefined;
+      }
+
       const { backgroundColor } = parseDefaultProps(element);
 
       return {
-        ...parseImageElement(targetElement as HTMLImageElement),
+        ...image,
         backgroundColor,
         caption,
       };

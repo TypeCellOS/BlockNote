@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vite-plus/test";
 
-import type { PartialBlock } from "../blocks/defaultBlocks.js";
+import type { Block, PartialBlock } from "../blocks/defaultBlocks.js";
 import { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
 
 /**
@@ -162,13 +162,15 @@ function document(seed: number): PartialBlock[] {
 
 const SEEDS = Array.from({ length: 200 }, (_, i) => i + 1);
 
-describe.each([
+const FORMATS = [
   {
     name: "markdown",
     serialize: (editor: BlockNoteEditor, blocks: PartialBlock[]) =>
       editor.blocksToMarkdownLossy(blocks),
     parse: (editor: BlockNoteEditor, text: string) =>
       editor.tryParseMarkdownToBlocks(text),
+    /** A text with a paragraph, and then the HTML block. */
+    afterParagraph: (html: string) => `Hello\n\n${html}\n`,
   },
   {
     name: "HTML",
@@ -176,8 +178,12 @@ describe.each([
       editor.blocksToHTMLLossy(blocks),
     parse: (editor: BlockNoteEditor, text: string) =>
       editor.tryParseHTMLToBlocks(text),
+    /** A text with a paragraph, and then the HTML block. */
+    afterParagraph: (html: string) => `<p>Hello</p>${html}`,
   },
-])("the $name format contract", ({ serialize, parse }) => {
+];
+
+describe.each(FORMATS)("the $name format contract", ({ serialize, parse }) => {
   const editor = BlockNoteEditor.create();
 
   it.each(SEEDS)(
@@ -194,3 +200,79 @@ describe.each([
     },
   );
 });
+
+/** The blocks and all their descendants, in document order. */
+function withDescendants(blocks: Block[]): Block[] {
+  return blocks.flatMap((block) => [block, ...withDescendants(block.children)]);
+}
+
+/** The data of the block itself: its type, props and content. */
+function ownData(block: Block) {
+  return { type: block.type, props: block.props, content: block.content };
+}
+
+type Format = (typeof FORMATS)[number];
+
+const SEPARATOR: PartialBlock = { type: "paragraph", content: "Separator" };
+
+/**
+ * The other part of the contract: each block that the parse gives, the
+ * serialize also shows. The parse of the serialization of such a block
+ * (alone, or between two other blocks) gives one block with the same type,
+ * props and content. Else, a program that writes the text back (for example
+ * the text lens of xl-ai) finds a block in the text that the document does
+ * not show, and adds it again at each write.
+ */
+function expectShown(editor: BlockNoteEditor, format: Format, text: string) {
+  for (const block of withDescendants(format.parse(editor, text))) {
+    const own: Block = { ...block, children: [] };
+    for (const blocks of [[own], [SEPARATOR, own, SEPARATOR]]) {
+      const parsed = format.parse(editor, format.serialize(editor, blocks));
+      expect(parsed).toHaveLength(blocks.length);
+      expect(ownData(parsed[blocks.indexOf(own)])).toEqual(ownData(block));
+    }
+  }
+}
+
+describe.each(FORMATS)(
+  "the $name parse gives only blocks that the serialize shows",
+  (format) => {
+    const editor = BlockNoteEditor.create();
+
+    // The markdown export of a media block without a URL and without a
+    // caption (the upload placeholder of the editor) is empty, and the
+    // markdown export of a file block without a URL is empty.
+    it.each([
+      "<img>",
+      '<img src="">',
+      "<figure><img></figure>",
+      "<video></video>",
+      "<figure><video></video></figure>",
+      "<audio></audio>",
+      "<figure><audio></audio></figure>",
+      "<embed>",
+      "<figure><embed><figcaption>Caption</figcaption></figure>",
+    ])("gives no media block for %s", (html) => {
+      const text = format.afterParagraph(html);
+      expect(
+        format.parse(editor, text).every((block) => block.type === "paragraph"),
+      ).toBe(true);
+      expectShown(editor, format, text);
+    });
+
+    // The markdown export of an image, a video or an audio without a URL
+    // shows the caption.
+    it.each([
+      "<figure><img><figcaption>Caption</figcaption></figure>",
+      "<figure><video></video><figcaption>Caption</figcaption></figure>",
+      "<figure><audio></audio><figcaption>Caption</figcaption></figure>",
+      '<img data-caption="Caption">',
+    ])("gives a media block for %s, and shows it", (html) => {
+      const text = format.afterParagraph(html);
+      expect(format.parse(editor, text)[1]).toMatchObject({
+        props: { url: "", caption: "Caption" },
+      });
+      expectShown(editor, format, text);
+    });
+  },
+);
