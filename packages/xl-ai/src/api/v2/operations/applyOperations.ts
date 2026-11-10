@@ -6,17 +6,16 @@ import {
   type PartialBlock,
   updateBlockTr,
 } from "@blocknote/core";
-import { Fragment, type Node, Slice } from "prosemirror-model";
+import { Fragment, type Node } from "prosemirror-model";
 import type { Transaction } from "prosemirror-state";
-import { ReplaceStep } from "prosemirror-transform";
 
 import {
   isTableContent,
   type LensPartialBlock,
   type LensTableContent,
 } from "../model.js";
-import { gaps, isChanged, myersMatch } from "../util/sequence/index.js";
-import { applyToBlocks, type BlockShape } from "./applyToBlocks.js";
+import { applyStructure } from "./applyStructure.js";
+import { applyToBlocks } from "./applyToBlocks.js";
 import { addInlineContentSteps } from "./inlineSteps.js";
 import type { BlockOperation } from "./types.js";
 
@@ -67,208 +66,6 @@ export function applyOperations(
   if (updates.length < operations.length) {
     applyStructure(tr, applyToBlocks(docToBlocks(tr.doc), operations));
   }
-}
-
-/**
- * Makes the structure of the document agree with `target`. In each list of
- * children, the children that stay (a common subsequence of IDs) keep their
- * nodes and positions, and each run of children between them is replaced
- * in one step. Thus, an insert is one step that only inserts, and a
- * collaboration binding, a suggestion plugin or a selection sees only the
- * changed blocks.
- *
- * Each step only inserts or only removes. The inserts apply first, then the
- * removals. Thus, each step gives a valid document, also for a list with a
- * minimum number of children (for example a column list). A collaboration
- * binding can then also send each step alone (see `dispatchSteps`).
- */
-// eslint-disable-next-line max-lines-per-function -- Follow-up: split the structure steps.
-function applyStructure(tr: Transaction, target: BlockShape[]) {
-  const schema = tr.doc.type.schema;
-  const nodes = new Map<string, Node>();
-  tr.doc.descendants((node) => {
-    if (node.type.isInGroup("bnBlock")) {
-      nodes.set(node.attrs.id, node);
-    }
-    return !node.isTextblock;
-  });
-
-  /** A replacement of the old children from `from` to `to` with `content`. */
-  type Replacement = { from: number; to: number; content: Node[] };
-  const replacements: Replacement[] = [];
-  const rootGroup = tr.doc.firstChild;
-  if (rootGroup === null) {
-    throw new Error("The document has no block group");
-  }
-  diffList(rootGroup, 0, target);
-
-  // Each replacement is an insert and a removal. Inserts never give an
-  // invalid list, thus they apply first. Then the removals.
-  const first = tr.steps.length;
-  const steps = [
-    ...replacements.flatMap(({ from, content }) =>
-      content.length > 0 ? [{ from, to: from, content }] : [],
-    ),
-    ...replacements.flatMap(({ from, to }) =>
-      to > from ? [{ from, to, content: [] }] : [],
-    ),
-  ];
-  for (const { from, to, content } of steps) {
-    const mapping = tr.mapping.slice(first);
-    tr.step(
-      new ReplaceStep(
-        mapping.map(from),
-        mapping.map(to),
-        new Slice(Fragment.from(content), 0, 0),
-      ),
-    );
-  }
-
-  /** Adds the replacements that change the children of the block at `pos` to `shapes`. */
-  function diffChildren(
-    block: Node,
-    pos: number,
-    shapes: readonly BlockShape[],
-  ) {
-    if (block.type.name !== "blockContainer") {
-      // A layout block holds its children directly.
-      diffList(block, pos, shapes);
-      return;
-    }
-    const groupPos = pos + 1 + block.child(0).nodeSize;
-    const group = block.maybeChild(1);
-    if (group === null) {
-      // A block without children gets a block group for its new children.
-      if (shapes.length > 0) {
-        const content = [
-          schema.nodes["blockGroup"].create(null, shapes.map(build)),
-        ];
-        replacements.push({ from: groupPos, to: groupPos, content });
-      }
-    } else if (shapes.length === 0) {
-      // A block group needs a child, thus it goes with its last child.
-      replacements.push({
-        from: groupPos,
-        to: groupPos + group.nodeSize,
-        content: [],
-      });
-    } else {
-      diffList(group, groupPos, shapes);
-    }
-  }
-
-  /**
-   * Adds the replacements that change the children of `list` (a block group
-   * or a layout block at `pos`) to `shapes`: one for each run of children
-   * between the children that stay.
-   */
-  function diffList(list: Node, pos: number, shapes: readonly BlockShape[]) {
-    const old: { node: Node; pos: number }[] = [];
-    list.forEach((child, offset) => {
-      old.push({ node: child, pos: pos + 1 + offset });
-    });
-    const end = pos + list.nodeSize - 1;
-    if (shapes.length === 0) {
-      // A list without children (the document, or a column that the
-      // operations of a caller or of `merge: "yjs"` empty, see
-      // `keepLayout`) gets the fill of the schema.
-      const filled = list.type.createAndFill(list.attrs);
-      if (filled === null) {
-        throw new Error(`A block of type ${list.type.name} cannot be empty`);
-      }
-      const content = childBlocks(filled);
-      replacements.push({ from: pos + 1, to: end, content });
-      return;
-    }
-    const pairs = myersMatch(
-      old.map(({ node }) => node.attrs.id as string),
-      shapes.map((shape) => shape.block.id),
-      (a, b) => a === b,
-    );
-    for (const gap of gaps(pairs, old.length, shapes.length)) {
-      if (isChanged(gap)) {
-        replacements.push({
-          from: gap.aStart < old.length ? old[gap.aStart].pos : end,
-          to: gap.aEnd < old.length ? old[gap.aEnd].pos : end,
-          content: shapes.slice(gap.bStart, gap.bEnd).map(build),
-        });
-      }
-      if (gap.anchor) {
-        const kept = old[gap.anchor.aIndex];
-        diffChildren(kept.node, kept.pos, shapes[gap.anchor.bIndex].children);
-      }
-    }
-  }
-
-  /** Returns true if the node has the structure of the shape, at all depths. */
-  function sameStructure(node: Node, shape: BlockShape): boolean {
-    const children = childBlocks(node);
-    return (
-      children.length === shape.children.length &&
-      children.every(
-        (child, i) =>
-          child.attrs.id === shape.children[i].block.id &&
-          sameStructure(child, shape.children[i]),
-      )
-    );
-  }
-
-  /** The node of the shape: the node of the document if its structure is the same, else a new node with the nodes of its children. */
-  function build(shape: BlockShape): Node {
-    const found = nodes.get(shape.block.id);
-    if (found !== undefined && sameStructure(found, shape)) {
-      return found;
-    }
-    const shell =
-      found ??
-      blockToNode({ ...shape.block, children: [] } as PartialBlock, schema);
-    return withChildren(shell, shape.children.map(build));
-  }
-}
-
-/** The child blocks of a block node (in its block group, or in the node itself for a layout block), or of a block group. */
-function childBlocks(node: Node): Node[] {
-  const children: Node[] = [];
-  node.forEach((child) => {
-    if (child.type.isInGroup("bnBlock")) {
-      children.push(child);
-    } else if (child.type.name === "blockGroup") {
-      child.forEach((grandchild) => children.push(grandchild));
-    }
-  });
-  return children;
-}
-
-/**
- * The block node with other children. A block with content keeps its
- * content node (thus its text and comments), and gets a block group for
- * the children. A layout block (for example a column) holds the children
- * directly. If the children do not fit the layout block (for example a
- * column that the operations of a caller or of `merge: "yjs"` empty), the
- * schema fills it.
- */
-function withChildren(block: Node, children: readonly Node[]): Node {
-  const schema = block.type.schema;
-  if (block.type.name === "blockContainer") {
-    const content = block.firstChild;
-    if (content === null) {
-      throw new Error("A block has no content node");
-    }
-    return block.type.create(
-      block.attrs,
-      children.length > 0
-        ? [content, schema.nodes["blockGroup"].create(null, children)]
-        : [content],
-      block.marks,
-    );
-  }
-  const filled = block.type.createAndFill(block.attrs, children, block.marks);
-  if (filled === null) {
-    throw new Error(
-      `The children do not fit a block of type ${block.type.name}`,
-    );
-  }
-  return filled;
 }
 
 /**
