@@ -23,7 +23,11 @@ import {
   DropCursorOptions,
   SideMenuOptions,
 } from "../extensions/index.js";
-import { UniqueID } from "../extensions/tiptap-extensions/UniqueID/UniqueID.js";
+import {
+  createUniqueIDPlugin,
+  UniqueID,
+  type UniqueIDOptions,
+} from "../extensions/tiptap-extensions/UniqueID/UniqueID.js";
 import type { Dictionary } from "../i18n/dictionary.js";
 import { en } from "../i18n/locales/index.js";
 import type {
@@ -609,6 +613,26 @@ export class BlockNoteEditor<
     }
 
     this.pmSchema.cached.blockNoteEditor = this;
+
+    // Tiptap adds the plugins of the extensions to the state only when it
+    // creates the view (on mount). Thus, a headless editor runs no plugins.
+    // But the UniqueID plugin keeps a rule of the document: each block has
+    // a unique ID. Thus, the headless state also has this plugin, and a
+    // block that a transaction adds without an ID (for example, the block
+    // that fills an empty document) gets an ID, as in a mounted editor. The
+    // other plugins stay off until mount, as before (for example, the
+    // history). On mount, Tiptap replaces the plugins with all the plugins.
+    const uniqueID = this._tiptapEditor.extensionManager.extensions.find(
+      (extension) => extension.name === UniqueID.name,
+    );
+    if (uniqueID) {
+      const uniqueIDOptions: UniqueIDOptions = uniqueID.options;
+      this._tiptapEditor.view.updateState(
+        this._tiptapEditor.state.reconfigure({
+          plugins: [createUniqueIDPlugin(uniqueIDOptions)],
+        }),
+      );
+    }
 
     this._tiptapEditor.on("mount", () => {
       this.headless = false;

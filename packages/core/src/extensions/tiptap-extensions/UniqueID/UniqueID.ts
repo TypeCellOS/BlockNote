@@ -50,16 +50,220 @@ function isMarkedDeleted(node: Node) {
   return node.marks.some((mark) => mark.type.name === "y-attributed-delete");
 }
 
-const UniqueID = Extension.create({
+export type UniqueIDOptions = {
+  types: string[];
+  setIdAttribute: boolean;
+  isWithinEditor: ((element: Element) => boolean) | undefined;
+  generateID: () => string;
+};
+
+/**
+ * The plugin of the UniqueID extension. It gives an ID to each block that a
+ * transaction adds without an ID, and a new ID to a new block with the ID of
+ * another block. The editor also uses it without a view (see
+ * `BlockNoteEditor`).
+ */
+export function createUniqueIDPlugin(options: UniqueIDOptions) {
+  const { isWithinEditor } = options;
+  let dragSourceElement: any = null;
+  let transformPasted = false;
+  return new Plugin({
+    key: new PluginKey("uniqueID"),
+    appendTransaction: (transactions, oldState, newState) => {
+      const docChanges =
+        transactions.some((transaction) => transaction.docChanged) &&
+        !oldState.doc.eq(newState.doc);
+      if (!docChanges) {
+        return;
+      }
+      const { tr } = newState;
+      const { types, generateID } = options;
+      const transform = combineTransactionSteps(oldState.doc, transactions);
+      const { mapping } = transform;
+      // get changed ranges based on the old state
+      // TODO: one range for all changes (`getChangedRangeWithAttrs`) would
+      // be simpler and faster, and might be a better solution, but needs a
+      // careful look at which ids it would rewrite.
+      const changes = getChangedRanges(transform);
+
+      changes.forEach(({ newRange }) => {
+        const newNodes = findChildrenInRange(newState.doc, newRange, (node) => {
+          return types.includes(node.type.name);
+        });
+        // A block marked as deleted shares its id with its surviving
+        // copy (see `isMarkedDeleted`), so it doesn't count as a duplicate.
+        const newIds = newNodes
+          .filter(({ node }) => !isMarkedDeleted(node))
+          .map(({ node }) => node.attrs.id)
+          .filter((id) => id !== null);
+        const duplicatedNewIds = findDuplicates(newIds);
+
+        newNodes.forEach(({ node, pos }) => {
+          // ignore ids on blocks marked as deleted (see above).
+          if (isMarkedDeleted(node)) {
+            return;
+          }
+          // instead of checking `node.attrs[attributeName]` directly
+          // we look at the current state of the node within `tr.doc`.
+          // this helps to prevent adding new ids to the same node
+          // if the node changed multiple times within one transaction
+          const id = tr.doc.nodeAt(pos)?.attrs.id;
+
+          if (id === null) {
+            // edge case, when using collaboration, yjs will set the id to null in `_forceRerender`
+            // when loading the editor
+            // this checks for this case and keeps it at initialBlockId so there will be no change
+            const initialDoc = oldState.doc.type.createAndFill()!.content;
+            const wasInitial =
+              oldState.doc.content.findDiffStart(initialDoc) === null;
+
+            if (wasInitial) {
+              // the old state was the "initial content"
+              const jsonNode = JSON.parse(
+                JSON.stringify(newState.doc.toJSON()),
+              );
+              jsonNode.content[0].content[0].attrs.id = "initialBlockId";
+              // would the new state with the fix also be the "initial content"?
+              if (
+                JSON.stringify(jsonNode.content) ===
+                JSON.stringify(initialDoc.toJSON())
+              ) {
+                // yes, apply the fix
+                tr.setNodeMarkup(pos, undefined, {
+                  ...node.attrs,
+                  id: "initialBlockId",
+                });
+                return;
+              }
+            }
+
+            tr.setNodeMarkup(pos, undefined, {
+              ...node.attrs,
+              id: generateID(),
+            });
+            return;
+          }
+          // check if the node doesn’t exist in the old state. Mapping
+          // through every step is slow, so only for duplicated ids.
+          const newNode =
+            duplicatedNewIds.includes(id) &&
+            mapping.invert().mapResult(pos).deleted;
+          if (newNode) {
+            tr.setNodeMarkup(pos, undefined, {
+              ...node.attrs,
+              id: generateID(),
+            });
+          }
+        });
+      });
+      if (!tr.steps.length) {
+        return;
+      }
+      // mark the transaction as having been processed by the uniqueID plugin
+      tr.setMeta("uniqueID", true);
+      return tr;
+    },
+    // we register a global drag handler to track the current drag source element
+    view(view) {
+      const handleDragstart = (event: any) => {
+        const editorParent = view.dom.parentElement;
+        const isFromEditor =
+          editorParent?.contains(event.target) ||
+          isWithinEditor?.(event.target);
+        dragSourceElement = isFromEditor ? editorParent : null;
+      };
+      window.addEventListener("dragstart", handleDragstart);
+      return {
+        destroy() {
+          window.removeEventListener("dragstart", handleDragstart);
+        },
+      };
+    },
+    props: {
+      // `handleDOMEvents` is called before `transformPasted` so we can do
+      // some checks before. However, `transformPasted` only runs when
+      // editor content is pasted - not external content.
+      handleDOMEvents: {
+        // only create new ids for dropped content while holding `alt`
+        // or content is dragged from another editor
+        drop: (view, event: any) => {
+          let _a;
+          if (
+            dragSourceElement !== view.dom.parentElement ||
+            ((_a = event.dataTransfer) === null || _a === void 0
+              ? void 0
+              : _a.effectAllowed) === "copy"
+          ) {
+            transformPasted = true;
+          } else {
+            transformPasted = false;
+          }
+
+          dragSourceElement = null;
+
+          return false;
+        },
+        // always create new ids on pasted content
+        paste: () => {
+          transformPasted = true;
+          return false;
+        },
+      },
+      // we’ll remove ids for every pasted node
+      // so we can create a new one within `appendTransaction`
+      transformPasted: (slice) => {
+        if (!transformPasted) {
+          return slice;
+        }
+        const { types } = options;
+        const removeId = (fragment: any) => {
+          const list: any[] = [];
+          fragment.forEach((node: any) => {
+            // don’t touch text nodes
+            if (node.isText) {
+              list.push(node);
+              return;
+            }
+            // check for any other child nodes
+            if (!types.includes(node.type.name)) {
+              list.push(node.copy(removeId(node.content)));
+              return;
+            }
+            // remove id
+            const nodeWithoutId = node.type.create(
+              {
+                ...node.attrs,
+                id: null,
+              },
+              removeId(node.content),
+              node.marks,
+            );
+            list.push(nodeWithoutId);
+          });
+          return Fragment.from(list);
+        };
+        // reset check
+        transformPasted = false;
+        return new Slice(
+          removeId(slice.content),
+          slice.openStart,
+          slice.openEnd,
+        );
+      },
+    },
+  });
+}
+
+const UniqueID = Extension.create<UniqueIDOptions>({
   name: "uniqueID",
   // we’ll set a very high priority to make sure this runs first
   // and is compatible with `appendTransaction` hooks of other extensions
   priority: 10000,
   addOptions() {
     return {
-      types: [] as string[],
+      types: [],
       setIdAttribute: false,
-      isWithinEditor: undefined as ((element: Element) => boolean) | undefined,
+      isWithinEditor: undefined,
       generateID: () => {
         // Use mock ID if tests are running. Resolved off `globalThis` rather
         // than a bare `window` so that tests running in the plain `node`
@@ -137,200 +341,7 @@ const UniqueID = Extension.create({
   //   view.dispatch(tr);
   // },
   addProseMirrorPlugins() {
-    const { isWithinEditor } = this.options;
-    let dragSourceElement: any = null;
-    let transformPasted = false;
-    return [
-      new Plugin({
-        key: new PluginKey("uniqueID"),
-        appendTransaction: (transactions, oldState, newState) => {
-          const docChanges =
-            transactions.some((transaction) => transaction.docChanged) &&
-            !oldState.doc.eq(newState.doc);
-          if (!docChanges) {
-            return;
-          }
-          const { tr } = newState;
-          const { types, generateID } = this.options;
-          const transform = combineTransactionSteps(oldState.doc, transactions);
-          const { mapping } = transform;
-          // get changed ranges based on the old state
-          // TODO: one range for all changes (`getChangedRangeWithAttrs`) would
-          // be simpler and faster, and might be a better solution, but needs a
-          // careful look at which ids it would rewrite.
-          const changes = getChangedRanges(transform);
-
-          changes.forEach(({ newRange }) => {
-            const newNodes = findChildrenInRange(
-              newState.doc,
-              newRange,
-              (node) => {
-                return types.includes(node.type.name);
-              },
-            );
-            // A block marked as deleted shares its id with its surviving
-            // copy (see `isMarkedDeleted`), so it doesn't count as a duplicate.
-            const newIds = newNodes
-              .filter(({ node }) => !isMarkedDeleted(node))
-              .map(({ node }) => node.attrs.id)
-              .filter((id) => id !== null);
-            const duplicatedNewIds = findDuplicates(newIds);
-
-            newNodes.forEach(({ node, pos }) => {
-              // ignore ids on blocks marked as deleted (see above).
-              if (isMarkedDeleted(node)) {
-                return;
-              }
-              // instead of checking `node.attrs[attributeName]` directly
-              // we look at the current state of the node within `tr.doc`.
-              // this helps to prevent adding new ids to the same node
-              // if the node changed multiple times within one transaction
-              const id = tr.doc.nodeAt(pos)?.attrs.id;
-
-              if (id === null) {
-                // edge case, when using collaboration, yjs will set the id to null in `_forceRerender`
-                // when loading the editor
-                // this checks for this case and keeps it at initialBlockId so there will be no change
-                const initialDoc = oldState.doc.type.createAndFill()!.content;
-                const wasInitial =
-                  oldState.doc.content.findDiffStart(initialDoc) === null;
-
-                if (wasInitial) {
-                  // the old state was the "initial content"
-                  const jsonNode = JSON.parse(
-                    JSON.stringify(newState.doc.toJSON()),
-                  );
-                  jsonNode.content[0].content[0].attrs.id = "initialBlockId";
-                  // would the new state with the fix also be the "initial content"?
-                  if (
-                    JSON.stringify(jsonNode.content) ===
-                    JSON.stringify(initialDoc.toJSON())
-                  ) {
-                    // yes, apply the fix
-                    tr.setNodeMarkup(pos, undefined, {
-                      ...node.attrs,
-                      id: "initialBlockId",
-                    });
-                    return;
-                  }
-                }
-
-                tr.setNodeMarkup(pos, undefined, {
-                  ...node.attrs,
-                  id: generateID(),
-                });
-                return;
-              }
-              // check if the node doesn’t exist in the old state. Mapping
-              // through every step is slow, so only for duplicated ids.
-              const newNode =
-                duplicatedNewIds.includes(id) &&
-                mapping.invert().mapResult(pos).deleted;
-              if (newNode) {
-                tr.setNodeMarkup(pos, undefined, {
-                  ...node.attrs,
-                  id: generateID(),
-                });
-              }
-            });
-          });
-          if (!tr.steps.length) {
-            return;
-          }
-          // mark the transaction as having been processed by the uniqueID plugin
-          tr.setMeta("uniqueID", true);
-          return tr;
-        },
-        // we register a global drag handler to track the current drag source element
-        view(view) {
-          const handleDragstart = (event: any) => {
-            const editorParent = view.dom.parentElement;
-            const isFromEditor =
-              editorParent?.contains(event.target) ||
-              isWithinEditor?.(event.target);
-            dragSourceElement = isFromEditor ? editorParent : null;
-          };
-          window.addEventListener("dragstart", handleDragstart);
-          return {
-            destroy() {
-              window.removeEventListener("dragstart", handleDragstart);
-            },
-          };
-        },
-        props: {
-          // `handleDOMEvents` is called before `transformPasted` so we can do
-          // some checks before. However, `transformPasted` only runs when
-          // editor content is pasted - not external content.
-          handleDOMEvents: {
-            // only create new ids for dropped content while holding `alt`
-            // or content is dragged from another editor
-            drop: (view, event: any) => {
-              let _a;
-              if (
-                dragSourceElement !== view.dom.parentElement ||
-                ((_a = event.dataTransfer) === null || _a === void 0
-                  ? void 0
-                  : _a.effectAllowed) === "copy"
-              ) {
-                transformPasted = true;
-              } else {
-                transformPasted = false;
-              }
-
-              dragSourceElement = null;
-
-              return false;
-            },
-            // always create new ids on pasted content
-            paste: () => {
-              transformPasted = true;
-              return false;
-            },
-          },
-          // we’ll remove ids for every pasted node
-          // so we can create a new one within `appendTransaction`
-          transformPasted: (slice) => {
-            if (!transformPasted) {
-              return slice;
-            }
-            const { types } = this.options;
-            const removeId = (fragment: any) => {
-              const list: any[] = [];
-              fragment.forEach((node: any) => {
-                // don’t touch text nodes
-                if (node.isText) {
-                  list.push(node);
-                  return;
-                }
-                // check for any other child nodes
-                if (!types.includes(node.type.name)) {
-                  list.push(node.copy(removeId(node.content)));
-                  return;
-                }
-                // remove id
-                const nodeWithoutId = node.type.create(
-                  {
-                    ...node.attrs,
-                    id: null,
-                  },
-                  removeId(node.content),
-                  node.marks,
-                );
-                list.push(nodeWithoutId);
-              });
-              return Fragment.from(list);
-            };
-            // reset check
-            transformPasted = false;
-            return new Slice(
-              removeId(slice.content),
-              slice.openStart,
-              slice.openEnd,
-            );
-          },
-        },
-      }),
-    ];
+    return [createUniqueIDPlugin(this.options)];
   },
 });
 

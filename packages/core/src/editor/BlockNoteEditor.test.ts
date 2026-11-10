@@ -1,4 +1,4 @@
-import { afterEach, expect, it } from "vite-plus/test";
+import { afterEach, describe, expect, it } from "vite-plus/test";
 import * as Y from "yjs";
 
 import {
@@ -275,4 +275,61 @@ it("onBeforeChange", () => {
       },
     ]
   `);
+});
+
+describe("block IDs in an editor without a view", () => {
+  /** The IDs of the block nodes in the ProseMirror document. */
+  function nodeIds(editor: BlockNoteEditor<any, any, any>) {
+    const ids: unknown[] = [];
+    editor.prosemirrorState.doc.descendants((node) => {
+      if (node.type.isInGroup("bnBlock")) {
+        ids.push(node.attrs.id);
+      }
+    });
+    return ids;
+  }
+
+  it.each([
+    { name: "headless", mount: false },
+    { name: "mounted", mount: true },
+  ])(
+    "gives an ID to the block that fills an empty document ($name)",
+    ({ mount }) => {
+      const editor = BlockNoteEditor.create({
+        initialContent: [{ id: "a", type: "paragraph", content: "Alpha" }],
+      });
+      editorsToCleanup.push(editor);
+      if (mount) {
+        editor.mount(document.createElement("div"));
+      }
+
+      editor.removeBlocks(editor.document);
+
+      const ids = nodeIds(editor);
+      expect(ids).toHaveLength(1);
+      expect(ids[0]).toEqual(expect.any(String));
+      // The block of the document has the ID of its node, at each read.
+      expect(editor.document.map((block) => block.id)).toEqual(ids);
+      editor.updateBlock(editor.document[0], { content: "Beta" });
+      expect(nodeIds(editor)).toEqual(ids);
+      expect(editor.document.map((block) => block.id)).toEqual(ids);
+    },
+  );
+
+  it("gives a new ID to a block with the ID of another block", () => {
+    const editor = BlockNoteEditor.create({
+      initialContent: [{ id: "a", type: "paragraph", content: "Alpha" }],
+    });
+    editorsToCleanup.push(editor);
+
+    // A copy of the block node, with the same ID.
+    editor.transact((tr) => {
+      const block = tr.doc.firstChild!.firstChild!;
+      tr.insert(tr.doc.content.size - 2, block);
+    });
+
+    const ids = nodeIds(editor);
+    expect(ids).toHaveLength(2);
+    expect(new Set(ids).size).toBe(2);
+  });
 });
