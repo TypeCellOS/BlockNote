@@ -16,28 +16,52 @@ function units(text: string): TextUnit[] {
 }
 
 describe("alignText: many large changed gaps", () => {
-  it("is fast, because the gaps share one work limit", () => {
+  it("takes a time that does not grow with each gap, because the gaps share one work limit", () => {
     // Unique anchor words, and between them one changed word of 3,000
     // random letters on each side. Before the shared limit, each gap used
-    // the full work limit of a Myers diff: about 7 s for 60 gaps.
+    // the full work limit of a Myers diff: 60 gaps took about ten times as
+    // long as 6 gaps (7 s and 0.7 s). Now the two take about the same time.
+    // A ratio, not a time: a coverage run makes all code slower.
     const random = generator(3);
     const letters = (count: number) =>
       Array.from(
         { length: count },
         () => "abcdefghij"[Math.floor(random() * 10)],
       ).join("");
+    const texts = (gaps: number) =>
+      [0, 1].map(() =>
+        units(
+          Array.from(
+            { length: gaps },
+            (_, i) => `anchor${i}x ${letters(3000)}`,
+          ).join(" "),
+        ),
+      );
+    function time(gaps: number) {
+      const [a, b] = texts(gaps);
+      const start = performance.now();
+      alignText(a, b);
+      return performance.now() - start;
+    }
+
+    time(6);
+    expect(time(60)).toBeLessThan(4 * time(6));
+  });
+
+  it("matches each anchor word between the large changed gaps", () => {
+    const random = generator(5);
+    const letters = (count: number) =>
+      Array.from(
+        { length: count },
+        () => "abcdefghij"[Math.floor(random() * 10)],
+      ).join("");
     const text = () =>
-      Array.from({ length: 60 }, (_, i) => `anchor${i}x ${letters(3000)}`).join(
+      Array.from({ length: 20 }, (_, i) => `anchor${i}x ${letters(3000)}`).join(
         " ",
       );
     const a = text();
-    const b = text();
-
-    const start = performance.now();
-    const pairs = alignText(units(a), units(b));
-    expect(performance.now() - start).toBeLessThan(3000);
-    // Each anchor word matches.
-    for (let i = 0; i < 60; i++) {
+    const pairs = alignText(units(a), units(text()));
+    for (let i = 0; i < 20; i++) {
       const at = a.indexOf(`anchor${i}x`);
       expect(pairs.some((pair) => pair.aIndex === at)).toBe(true);
     }
