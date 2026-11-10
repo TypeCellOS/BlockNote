@@ -53,9 +53,8 @@ export function hasMergedCells(table: LensTableContent): boolean {
 /**
  * The positions of the grid that each cell covers: for each row, the column
  * of each of its cells, and the width of each row. `undefined` if the spans
- * do not fit: two cells cover
- * one position, a cell goes below the last row, or a row has a position
- * without a cell before a position with a cell.
+ * do not fit: two cells cover one position, a cell goes below the last row,
+ * or a row has a position without a cell before a position with a cell.
  *
  * Method: as the algorithm for forming a table of the HTML standard: each cell
  * takes the first free position of its row, and covers the positions of its
@@ -76,17 +75,12 @@ export function gridOf(
       own.push(column);
       const colspan = spanOf(cell.props.colspan);
       const rowspan = spanOf(cell.props.rowspan);
-      if (r + rowspan > rows.length) {
+      const rowsBelow = taken.slice(r, r + rowspan);
+      if (
+        rowsBelow.length < rowspan ||
+        !coverPositions(rowsBelow, column, colspan)
+      ) {
         return undefined;
-      }
-      for (let dr = 0; dr < rowspan; dr++) {
-        for (let dc = 0; dc < colspan; dc++) {
-          // eslint-disable-next-line max-depth -- The walk of a grid of rows and cells.
-          if (taken[r + dr].has(column + dc)) {
-            return undefined;
-          }
-          taken[r + dr].add(column + dc);
-        }
       }
       column += colspan;
     }
@@ -99,6 +93,27 @@ export function gridOf(
     ),
   );
   return hasGap ? undefined : { columns, widths };
+}
+
+/**
+ * Marks the positions from `column` to `column + colspan - 1` as taken in
+ * each of `rows` (the rows that a cell covers). Returns false if a position
+ * is taken already: two cells cover it.
+ */
+function coverPositions(
+  rows: readonly Set<number>[],
+  column: number,
+  colspan: number,
+): boolean {
+  for (const taken of rows) {
+    for (let c = column; c < column + colspan; c++) {
+      if (taken.has(c)) {
+        return false;
+      }
+      taken.add(c);
+    }
+  }
+  return true;
 }
 
 /**
