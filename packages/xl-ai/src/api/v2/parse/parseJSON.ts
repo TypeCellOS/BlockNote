@@ -14,6 +14,9 @@ import { toStoredBlocks } from "../formats/index.js";
  *   must fill: for example a column list with one column (the conversion
  *   adds an empty column), or an empty column. The client gives a valid
  *   document; the lens does not repair it.
+ * - A table cell with a span above the limits of the HTML table model (see
+ *   {@link spansFit}) also gives `"invalid-document"`. The conversion
+ *   cannot convert such a table (a stack overflow in core).
  * - A block with the ID of an earlier block gets the ID with a number (`x-2`,
  *   see `withDistinctIds`), as in the current document and in `base`.
  */
@@ -21,10 +24,53 @@ export function parseJSON(
   editor: BlockNoteEditor<any, any, any>,
   json: readonly PartialBlock<any, any, any>[],
 ): { error?: undefined; blocks: LensBlock[] } | { error: "invalid-document" } {
+  if (!json.every(spansFit)) {
+    return { error: "invalid-document" };
+  }
   const blocks = toStoredBlocks(editor, json);
   return blocks === undefined || !sameChildCounts(json, blocks)
     ? { error: "invalid-document" }
     : { blocks: withDistinctIds(blocks) };
+}
+
+/**
+ * The largest spans of a table cell, as in the HTML table model (a browser
+ * uses at most these values). A larger span gives a table that the editor
+ * cannot hold: for example, a column span of 1,000,000 overflows the stack
+ * in the conversion of core.
+ */
+const MAX_COLSPAN = 1000;
+const MAX_ROWSPAN = 65534;
+
+/** Returns true if each table cell of the block and of its children has spans in the limits. */
+function spansFit(block: PartialBlock<any, any, any>): boolean {
+  const content: unknown = block.content;
+  const rows =
+    typeof content === "object" &&
+    content !== null &&
+    "type" in content &&
+    content.type === "tableContent" &&
+    "rows" in content &&
+    Array.isArray(content.rows)
+      ? (content.rows as { cells?: unknown[] }[])
+      : [];
+  const cellsFit = rows.every((row) =>
+    (row.cells ?? []).every((cell) => {
+      const props =
+        typeof cell === "object" && cell !== null && "props" in cell
+          ? (cell.props as Record<string, unknown> | undefined)
+          : undefined;
+      return (
+        spanFits(props?.colspan, MAX_COLSPAN) &&
+        spanFits(props?.rowspan, MAX_ROWSPAN)
+      );
+    }),
+  );
+  return cellsFit && (block.children ?? []).every(spansFit);
+}
+
+function spanFits(span: unknown, max: number): boolean {
+  return typeof span !== "number" || span <= max;
 }
 
 /**
