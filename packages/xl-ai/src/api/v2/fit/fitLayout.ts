@@ -1,3 +1,4 @@
+import type { LensBlock } from "../model.js";
 import type { LayoutRule } from "../util/blocks/index.js";
 
 /**
@@ -25,26 +26,21 @@ import type { LayoutRule } from "../util/blocks/index.js";
  *
  * Method: the rules of `fixLayoutBlock` in core, for Block JSON.
  */
-export function fitLayout<T extends LayoutTree<T>>(
-  blocks: readonly T[],
+export function fitLayout(
+  blocks: readonly LensBlock[],
   ruleOf: (type: string) => LayoutRule | undefined,
   /** Returns true if a block of the type `parent` (`undefined` for the top level) can have a child of the type `child`. */
   canContain?: (parent: string | undefined, child: string) => boolean,
-): T[] {
+): LensBlock[] {
   const top = place(undefined, blocks.flatMap(fit));
   // Nothing is above the top level, thus a block goes nowhere from there.
   return [...top.held, ...top.lifted];
 
   /** The block, then the blocks that go out of it. */
-  function fit(block: T): T[] {
-    const rule = ruleOf(typeOf(block));
-    // Children that are not a list (JSON of a client) stay. Then the schema
-    // check gives the error for them.
-    if (!Array.isArray(block.children)) {
-      return [block];
-    }
+  function fit(block: LensBlock): LensBlock[] {
+    const rule = ruleOf(block.type);
     const { held: children, lifted } = place(
-      typeOf(block),
+      block.type,
       block.children.flatMap(fit),
     );
     if (rule === undefined || rule.namedOnly) {
@@ -57,7 +53,7 @@ export function fitLayout<T extends LayoutTree<T>>(
     }
     return [
       ...kept.flatMap((child) =>
-        ruleOf(typeOf(child))?.namedOnly ? (child.children ?? []) : [child],
+        ruleOf(child.type)?.namedOnly ? child.children : [child],
       ),
       ...lifted,
     ];
@@ -70,15 +66,15 @@ export function fitLayout<T extends LayoutTree<T>>(
    */
   function place(
     parent: string | undefined,
-    children: readonly T[],
-  ): { held: T[]; lifted: T[] } {
-    const held: T[] = [];
-    const lifted: T[] = [];
+    children: readonly LensBlock[],
+  ): { held: LensBlock[]; lifted: LensBlock[] } {
+    const held: LensBlock[] = [];
+    const lifted: LensBlock[] = [];
     for (const child of children) {
-      if (canContain === undefined || canContain(parent, typeOf(child))) {
+      if (canContain === undefined || canContain(parent, child.type)) {
         held.push(child);
-      } else if (ruleOf(typeOf(child))?.namedOnly) {
-        const inner = place(parent, child.children ?? []);
+      } else if (ruleOf(child.type)?.namedOnly) {
+        const inner = place(parent, child.children);
         for (const block of inner.held) {
           held.push(block);
         }
@@ -92,26 +88,10 @@ export function fitLayout<T extends LayoutTree<T>>(
     return { held, lifted };
   }
 
-  function isEmptyLayoutBlock(block: T): boolean {
-    const rule = ruleOf(typeOf(block));
+  function isEmptyLayoutBlock(block: LensBlock): boolean {
+    const rule = ruleOf(block.type);
     return (
-      rule !== undefined &&
-      rule.minChildren > 0 &&
-      (block.children ?? []).length === 0
+      rule !== undefined && rule.minChildren > 0 && block.children.length === 0
     );
   }
 }
-
-function typeOf(block: { type?: string }): string {
-  return block.type ?? "paragraph";
-}
-
-/**
- * The shape that the layout rule needs: a block type and children. Blocks of
- * the lens and partial blocks of a JSON client both have it. A missing type
- * is a paragraph.
- */
-export type LayoutTree<T> = {
-  type?: string;
-  children?: readonly T[] | null;
-};
