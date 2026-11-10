@@ -8,6 +8,11 @@
  */
 export const DOCX_LIST_LEVEL_COUNT = 9;
 
+/** A list instance uses one definition, including its mixed nested levels. */
+export function listReference(instance: number) {
+  return `blocknote-list-${instance}`;
+}
+
 /**
  * Clamps a block's nesting level to the deepest list level the numbering config
  * actually defines.

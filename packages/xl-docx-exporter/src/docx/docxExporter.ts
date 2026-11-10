@@ -25,7 +25,12 @@ import {
 import { Exporter, ExporterOptions } from "@blocknote/core";
 import { corsProxyResolveFileUrl } from "@shared/api/corsProxy.js";
 import { loadFileBuffer } from "@shared/util/fileUtil.js";
-import { DOCX_LIST_LEVEL_COUNT } from "./listLevels.js";
+import { docxBlockMappingForDefaultSchema } from "./defaultSchema/blocks.js";
+import {
+  clampListLevel,
+  DOCX_LIST_LEVEL_COUNT,
+  listReference,
+} from "./listLevels.js";
 import {
   DOCXBlock,
   DOCXBlockResult,
@@ -35,6 +40,13 @@ import {
 
 // get constructor arg type from Document
 type DocumentOptions = Partial<ConstructorParameters<typeof Document>[0]>;
+type ListType = "bulletListItem" | "numberedListItem";
+type ListDefinition = { type: ListType; levels: Map<number, ListType> };
+
+const sharedNumberingMappings = new Set<object>([
+  docxBlockMappingForDefaultSchema.bulletListItem,
+  docxBlockMappingForDefaultSchema.numberedListItem,
+]);
 
 const DEFAULT_TAB_STOP =
   /* default font size */ 16 *
@@ -92,6 +104,8 @@ export class DOCXExporter<
 
   /**
    * Mostly for internal use, you probably want to use `toBlob` or `toDocxJsDocument` instead.
+   * Collects numbering definitions for this transformation only. Overrides must
+   * forward the collector so document options include the discovered levels.
    */
   public transformStyledText(styledText: StyledText<S>, hyperlink?: boolean) {
     const stylesArray = this.mapStyles(styledText.styles);
@@ -119,59 +133,92 @@ export class DOCXExporter<
   }
 
   /**
-   * A document-global counter used to hand every distinct list its own numbering
-   * instance (and therefore its own `w:numId`). Two lists that share a `numId`
-   * are treated by Word as one continued list, so without this all lists in a
-   * document number/bullet as if they were a single list. See issue #2225.
-   */
-  private numberingInstanceCounter = 0;
-
-  /**
    * Mostly for internal use, you probably want to use `toBlob` or `toDocxJsDocument` instead.
    */
   public async transformBlocks(
     blocks: Block<B, I, S>[],
     nestingLevel = 0,
+    // Internal collector supplied by toDocxJsDocument for this export only.
+    listDefinitions = new Map<number, ListDefinition>(),
   ): Promise<Array<Paragraph | Table>> {
     return docxContent(
-      await this.transformBlockResults(blocks, nestingLevel),
+      await this.transformBlockResults(blocks, nestingLevel, listDefinitions),
       "document",
     );
   }
 
+  /**
+   * Transforms sibling runs, sharing a built-in parent's numbering instance only
+   * when the child level has a compatible marker. Gaps, type switches, custom
+   * mappings, and clamped depths keep independent instances to preserve restarts.
+   */
   private async transformBlockResults(
     blocks: Block<B, I, S>[],
     nestingLevel: number,
+    listDefinitions: Map<number, ListDefinition>,
+    parentInstance?: number,
   ): Promise<DOCXBlock[]> {
     const ret: DOCXBlock[] = [];
 
-    // The top-level call starts a fresh document, so restart instance numbering.
-    if (nestingLevel === 0) {
-      this.numberingInstanceCounter = 0;
-    }
-
-    // A list in Word is a maximal run of consecutive sibling list items of the
-    // same type; a break (any other block) or a switch between bullet/numbered
-    // starts a new list. Each such run gets its own numbering instance so it
-    // renders as a separate list rather than continuing the previous one.
-    let runListType: string | undefined;
+    // A run of sibling items continues its parent numbering at the next level.
+    // OOXML fixes the marker type per level, so incompatible runs must instead
+    // get their own definition. Breaks/type switches also need a fresh instance
+    // to restart their counters without restarting the parent (#2225/#2227).
+    let runListType: ListType | undefined;
     let runInstance = 0;
 
     for (const b of blocks) {
       let numberingInstance = 0;
+      let sharesNumbering = false;
       if (b.type === "bulletListItem" || b.type === "numberedListItem") {
-        if (b.type !== runListType) {
-          runInstance = ++this.numberingInstanceCounter;
-          runListType = b.type;
+        // Generic block schemas do not narrow b.type to the literal union.
+        const type: ListType =
+          b.type === "bulletListItem" ? "bulletListItem" : "numberedListItem";
+        // Only the built-in mappings guarantee use of listReference(instance).
+        // Custom mappings can emit plain paragraphs or legacy references; an
+        // equal instance argument alone does not make their counters restart.
+        sharesNumbering = sharedNumberingMappings.has(
+          this.mappings.blockMapping[type],
+        );
+        if (type !== runListType) {
+          const level = clampListLevel(nestingLevel);
+          const parent =
+            parentInstance === undefined
+              ? undefined
+              : listDefinitions.get(parentInstance);
+          const parentType = parent?.levels.get(level);
+          if (
+            parentInstance !== undefined &&
+            sharesNumbering &&
+            parent &&
+            nestingLevel < DOCX_LIST_LEVEL_COUNT &&
+            (parentType === undefined || parentType === type)
+          ) {
+            runInstance = parentInstance;
+            parent.levels.set(level, type);
+          } else {
+            // Entries are never removed during an export, so the size gives
+            // each independent list a fresh instance without shared state.
+            runInstance = listDefinitions.size + 1;
+            listDefinitions.set(runInstance, {
+              type,
+              levels: new Map([[level, type]]),
+            });
+          }
+          parentInstance = undefined;
+          runListType = type;
         }
         numberingInstance = runInstance;
       } else {
         runListType = undefined;
+        parentInstance = undefined;
       }
 
       const children = await this.transformBlockResults(
         b.children,
         nestingLevel + 1,
+        listDefinitions,
+        sharesNumbering ? numberingInstance : undefined,
       );
 
       const placesChildren = this.placesChildren(b);
@@ -248,8 +295,14 @@ export class DOCXExporter<
     ];
   }
 
+  /**
+   * Builds styles and numbering from the completed transformation's collector.
+   * Overrides must forward that collector; legacy list references remain
+   * available for custom mappings alongside the generated mixed-list references.
+   */
   protected async createDefaultDocumentOptions(
     locale?: string,
+    listDefinitions = new Map<number, ListDefinition>(),
   ): Promise<DocumentOptions> {
     let externalStyles = (await import("./template/word/styles.xml?raw"))
       .default;
@@ -274,45 +327,42 @@ export class DOCXExporter<
     // (#2226). These Unicode glyphs render in the document font, so they don't
     // depend on Symbol/Wingdings being installed.
     const bullets = ["•", "○", "▪"];
+    /** Builds all supported levels, using the run's type for unused levels. */
+    function listLevels(type: ListType, levels = new Map<number, ListType>()) {
+      return Array.from({ length: DOCX_LIST_LEVEL_COUNT }, (_, i) => {
+        const bullet = (levels.get(i) ?? type) === "bulletListItem";
+        return {
+          start: 1,
+          level: i,
+          format: bullet ? LevelFormat.BULLET : LevelFormat.DECIMAL,
+          text: bullet ? bullets[i % bullets.length] : `%${i + 1}.`,
+          alignment: AlignmentType.LEFT,
+          style: {
+            paragraph: {
+              indent: {
+                left: DEFAULT_TAB_STOP * (i + 1),
+                hanging: DEFAULT_TAB_STOP,
+              },
+            },
+          },
+        };
+      });
+    }
     return {
       numbering: {
         config: [
           {
             reference: "blocknote-numbered-list",
-            levels: Array.from({ length: DOCX_LIST_LEVEL_COUNT }, (_, i) => ({
-              start: 1,
-              level: i,
-              format: LevelFormat.DECIMAL,
-              text: `%${i + 1}.`,
-              alignment: AlignmentType.LEFT,
-              style: {
-                paragraph: {
-                  indent: {
-                    left: DEFAULT_TAB_STOP * (i + 1),
-                    hanging: DEFAULT_TAB_STOP,
-                  },
-                },
-              },
-            })),
+            levels: listLevels("numberedListItem"),
           },
           {
             reference: "blocknote-bullet-list",
-            levels: Array.from({ length: DOCX_LIST_LEVEL_COUNT }, (_, i) => ({
-              start: 1,
-              level: i,
-              format: LevelFormat.BULLET,
-              text: bullets[i % bullets.length],
-              alignment: AlignmentType.LEFT,
-              style: {
-                paragraph: {
-                  indent: {
-                    left: DEFAULT_TAB_STOP * (i + 1),
-                    hanging: DEFAULT_TAB_STOP,
-                  },
-                },
-              },
-            })),
+            levels: listLevels("bulletListItem"),
           },
+          ...Array.from(listDefinitions, ([instance, definition]) => ({
+            reference: listReference(instance),
+            levels: listLevels(definition.type, definition.levels),
+          })),
         ],
       },
       fonts: await this.getFonts(),
@@ -373,12 +423,19 @@ export class DOCXExporter<
       documentOptions: {},
     },
   ) {
+    // Discover each list's level formats before building the numbering config.
+    // Keep this state local: the same exporter can build documents concurrently.
+    const listDefinitions = new Map<number, ListDefinition>();
+    const children = await this.transformBlocks(blocks, 0, listDefinitions);
     const doc = new Document({
-      ...(await this.createDefaultDocumentOptions(options.locale)),
+      ...(await this.createDefaultDocumentOptions(
+        options.locale,
+        listDefinitions,
+      )),
       ...options.documentOptions,
       sections: [
         {
-          children: await this.transformBlocks(blocks),
+          children,
           ...options.sectionOptions,
         },
       ],
