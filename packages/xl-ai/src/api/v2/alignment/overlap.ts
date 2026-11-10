@@ -33,22 +33,24 @@ export function textOverlaps(
   const tokensB = tokensOf(b);
   const pairs = anchoredMatch(tokensA, tokensB, (token) => token.key);
 
-  const overlaps = new Map<string, Overlap>();
+  // The pairs are in order, and the tokens of a text are next to each other.
+  // Thus, the pairs of two texts come one after the other: a pair with other
+  // texts than the last overlap starts a new overlap.
+  const overlaps: Overlap[] = [];
   for (const pair of pairs) {
     const x = tokensA[pair.aIndex];
     const y = tokensB[pair.bIndex];
     if (x.size === 0) {
       continue;
     }
-    const key = `${x.owner}:${y.owner}`;
-    const overlap = overlaps.get(key);
-    if (overlap) {
-      overlap.size += x.size;
+    const last = overlaps.at(-1);
+    if (last?.aIndex === x.owner && last.bIndex === y.owner) {
+      last.size += x.size;
     } else {
-      overlaps.set(key, { aIndex: x.owner, bIndex: y.owner, size: x.size });
+      overlaps.push({ aIndex: x.owner, bIndex: y.owner, size: x.size });
     }
   }
-  return [...overlaps.values()];
+  return overlaps;
 }
 
 /** Returns the number of word characters in the text, or 1 for a text without words. */
