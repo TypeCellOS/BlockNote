@@ -369,7 +369,10 @@ const TiptapTableRow = Node.create<{
     };
   },
 
-  content: "(tableCell | tableHeader)+",
+  // A row can be empty when cells in an earlier row span all its columns.
+  // Requiring a cell makes ProseMirror insert a filler while merging, which
+  // table repair then turns into an extra column. Match prosemirror-tables.
+  content: "(tableCell | tableHeader)*",
 
   tableRole: "row",
   marks() {
