@@ -444,12 +444,14 @@ describe("JSON, a change of the content kind", () => {
 });
 
 describe("JSON, the layout rules", () => {
-  it("removes a column that the JSON empties, and dissolves the column list", () => {
+  it("gives an error for a column that the JSON empties: the client gives a valid layout", () => {
     const editor = createColumnsEditor();
+    const before = editor.document;
     const [list] = editor.document;
     const [first, second] = list.children;
 
-    valid(
+    // An empty column does not fit the schema: the conversion would fill it.
+    expect(
       updateDocument(editor, {
         base: "current",
         document: [
@@ -465,8 +467,7 @@ describe("JSON, the layout rules", () => {
           },
         ],
       }),
-    );
-
-    expect(editor.document.map((block) => block.id)).toEqual(["a", "b"]);
+    ).toEqual({ error: "invalid-document" });
+    expect(editor.document).toEqual(before);
   });
 });

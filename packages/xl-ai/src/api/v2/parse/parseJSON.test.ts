@@ -41,11 +41,11 @@ describe("parseJSON", () => {
     expect(ids).toEqual(["p", "p-2"]);
   });
 
-  it("fits the layout blocks before the conversion", () => {
+  it("gives an error for blocks that the conversion must fill", () => {
     const editor = createColumnsEditor();
 
-    // A column list with one column becomes the blocks of that column. Else
-    // the conversion would fill the column list with a new column.
+    // A column list with one column does not fit the schema: the conversion
+    // would add an empty column.
     const result = parseJSON(editor, [
       {
         id: "list",
@@ -60,10 +60,7 @@ describe("parseJSON", () => {
       },
     ]);
 
-    const blocks = result.error === undefined ? result.blocks : [];
-    expect(blocks.map(({ id, type }) => [id, type])).toEqual([
-      ["a", "paragraph"],
-    ]);
+    expect(result).toEqual({ error: "invalid-document" });
   });
 });
 
