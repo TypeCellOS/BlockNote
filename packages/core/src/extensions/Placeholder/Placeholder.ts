@@ -39,11 +39,12 @@ export const PlaceholderExtension = createExtension(
             }
 
             const styleSheet = styleEl.sheet!;
+            const blockSelector = `.${uniqueEditorSelector} .bn-block-content`;
 
-            // A trailing break is the only content in an empty block, but remote
-            // cursors can add widgets and a separator before it.
+            // Collaboration cursors must not make an otherwise empty block lose
+            // its placeholder.
             const getSelector = (additionalSelectors = "") =>
-              `.${uniqueEditorSelector} .bn-block-content${additionalSelectors}:has(.ProseMirror-trailingBreak:nth-child(1 of :not(.ProseMirror-widget, .ProseMirror-separator))):after`;
+              `${blockSelector}${additionalSelectors}:has(.ProseMirror-trailingBreak:nth-child(1 of :not(.ProseMirror-widget, .ProseMirror-separator))):after`;
 
             try {
               // FIXME: the names "default" and "emptyDocument" are hardcoded
@@ -67,16 +68,16 @@ export const PlaceholderExtension = createExtension(
               const onlyBlockSelector = `[data-is-only-empty-block]`;
               const mustBeFocusedSelector = `[data-is-empty-and-focused]`;
 
-              // placeholder for when there's only one empty block
+              // Use decoration attributes directly to avoid WebKit retaining
+              // stale placeholder content when :has depends on the trailing break.
               styleSheet.insertRule(
-                `${getSelector(onlyBlockSelector)} { content: ${JSON.stringify(
+                `${blockSelector}${onlyBlockSelector}:after { content: ${JSON.stringify(
                   emptyPlaceholder,
                 )}; }`,
               );
 
-              // placeholder for default blocks, only when the cursor is in the block (mustBeFocused)
               styleSheet.insertRule(
-                `${getSelector(mustBeFocusedSelector)} { content: ${JSON.stringify(
+                `${blockSelector}${mustBeFocusedSelector}:after { content: ${JSON.stringify(
                   defaultPlaceholder,
                 )}; }`,
               );

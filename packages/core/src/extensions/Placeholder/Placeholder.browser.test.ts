@@ -1,4 +1,5 @@
 import { afterEach, expect, it } from "vite-plus/test";
+import { userEvent } from "vite-plus/test/browser";
 import { Awareness } from "y-protocols/awareness";
 import {
   absolutePositionToRelativePosition,
@@ -14,6 +15,36 @@ const cleanups: Array<() => void> = [];
 afterEach(() => {
   for (const cleanup of cleanups.splice(0).reverse()) {
     cleanup();
+  }
+});
+
+it("clears empty-document and default placeholders after typing (#2881)", async () => {
+  const editor = BlockNoteEditor.create({
+    placeholders: { emptyDocument: "Empty document", default: "Empty block" },
+  });
+  const host = document.createElement("div");
+  document.body.append(host);
+  editor.mount(host);
+  cleanups.push(() => {
+    editor.unmount();
+    host.remove();
+  });
+  editor.focus();
+  function placeholder() {
+    const blocks = host.querySelectorAll(".bn-block-content");
+    return getComputedStyle(blocks[blocks.length - 1], "::after").content;
+  }
+  expect(placeholder()).toBe('"Empty document"');
+  await userEvent.keyboard("hello");
+  await expect.poll(placeholder).toBe("none");
+  for (let i = 0; i < 3; i++) {
+    await userEvent.keyboard("{Enter}");
+    expect(placeholder()).toBe('"Empty block"');
+    await userEvent.keyboard("world");
+    expect(
+      host.querySelectorAll(".bn-block-content").item(i + 1).textContent,
+    ).toBe("world");
+    await expect.poll(placeholder).toBe("none");
   }
 });
 
