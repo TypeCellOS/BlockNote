@@ -40,8 +40,10 @@ export const PlaceholderExtension = createExtension(
 
             const styleSheet = styleEl.sheet!;
 
+            // A trailing break is the only content in an empty block, but remote
+            // cursors can add widgets and a separator before it.
             const getSelector = (additionalSelectors = "") =>
-              `.${uniqueEditorSelector} .bn-block-content${additionalSelectors}:has(.ProseMirror-trailingBreak:only-child):after`;
+              `.${uniqueEditorSelector} .bn-block-content${additionalSelectors}:has(.ProseMirror-trailingBreak:nth-child(1 of :not(.ProseMirror-widget, .ProseMirror-separator))):after`;
 
             try {
               // FIXME: the names "default" and "emptyDocument" are hardcoded
@@ -81,7 +83,7 @@ export const PlaceholderExtension = createExtension(
             } catch (e) {
               // eslint-disable-next-line no-console
               console.warn(
-                `Failed to insert placeholder CSS rule - this is likely due to the browser not supporting certain CSS pseudo-element selectors (:has, :only-child:, or :before)`,
+                `Failed to insert placeholder CSS rule - this is likely due to the browser not supporting certain CSS selectors (:has or :nth-child with a selector list)`,
                 e,
               );
             }
