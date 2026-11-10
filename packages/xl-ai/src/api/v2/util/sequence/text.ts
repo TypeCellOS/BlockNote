@@ -44,6 +44,9 @@ const MIN_GAP_MATCH_RATIO = 0.5;
  * The character diffs of all gaps share one work limit (see
  * `workBudgetFor`). Thus, the time is linear in the size of the texts, also
  * for many large changed gaps.
+ *
+ * Method: our own design. Step 1 uses the anchored match (the patience method,
+ * then Myers, see `anchoredMatch`), and step 2 the Myers diff.
  */
 export function alignText(
   a: readonly TextUnit[],

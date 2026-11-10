@@ -16,6 +16,9 @@ import type { BlockOperation, BlockPosition } from "./types.js";
  *   must have children (for example a column list) is never empty.
  * - A delete for each block that is not in `target`. The deletes come last.
  *   Thus, the blocks that stay moved out of the removed blocks first.
+ *
+ * Method: our own design, built on a longest common subsequence (the Myers
+ * diff) of each list of children.
  */
 export function diffDocuments(
   current: readonly LensBlock[],

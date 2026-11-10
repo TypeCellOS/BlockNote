@@ -78,6 +78,9 @@ function mapTables(
  * - If the spans do not fit on one grid, the table loses its merged cells
  *   (see `withoutMergedCells`).
  * - A short row gets empty cells at its end.
+ *
+ * Method: our own design, for the rules of the table plugin
+ * (prosemirror-tables), on the grid of `gridOf`.
  */
 export function fitTable(table: LensTableContent): LensTableContent {
   const widths = gridOf(cellRows(table))?.widths;

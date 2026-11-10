@@ -66,6 +66,8 @@ function isIgnored(mark: Mark): boolean {
  * Thus, the steps keep the text that did not change, with its marks that the
  * target does not contain (for example comments). A collaboration binding
  * then sees only the small changes.
+ *
+ * Method: our own design, built on the alignment of `alignText`.
  */
 export function addInlineContentSteps(
   tr: Transform,

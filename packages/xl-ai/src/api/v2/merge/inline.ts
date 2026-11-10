@@ -24,6 +24,9 @@ import { type MergeOptions, mergeRecords, mergeValue } from "./threeWay.js";
  * wins, and in the tree merge theirs wins (see `MergeOptions`). New text from
  * ours gets the hidden styles of the text around it (see
  * {@link inheritHiddenStyles}).
+ *
+ * Method: diff3, a standard algorithm, on our own units (the characters and the
+ * inline items, see `inlineUnits.ts`), aligned by `alignText`.
  */
 export function mergeInlineContent(
   base: readonly LensInlineContent[],

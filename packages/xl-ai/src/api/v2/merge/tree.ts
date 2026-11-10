@@ -48,6 +48,9 @@ export type MergeWarning =
  * that its parent cannot hold (see `fitLayout`). For example, a new
  * paragraph of the client in a column that another writer removed is in the
  * column list.
+ *
+ * Method: our own design. Step 3 uses diff3 on the lists of child IDs, and step
+ * 4 the three-way rule.
  */
 export function mergeTree(input: {
   base: readonly LensBlock[];

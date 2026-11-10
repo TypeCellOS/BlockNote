@@ -22,6 +22,8 @@ import type { LayoutRule } from "../util/blocks/index.js";
  * target is the document as the text asks for it, thus that paragraph is a
  * block of the text. The target must fit the schema, because ProseMirror
  * fills a layout block with too few children with new empty blocks.
+ *
+ * Method: the rules of `fixLayoutBlock` in core, for Block JSON.
  */
 export function fitLayout<T extends LayoutTree<T>>(
   blocks: readonly T[],

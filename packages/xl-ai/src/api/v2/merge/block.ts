@@ -29,6 +29,9 @@ import { type MergeOptions, mergeRecords, mergeValue } from "./threeWay.js";
  *
  * The merge merges each prop (see {@link mergeProps}). It merges inline
  * content character by character, and tables cell by cell.
+ *
+ * Method: our own design: the three-way rule for each field and prop, and diff3
+ * for the content (see `mergeInlineContent` and `mergeTableContent`).
  */
 export function mergeBlock(
   base: BlockFields,

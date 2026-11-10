@@ -49,6 +49,9 @@ export type Part = { part: FlatBlock; source: number };
  * for each source block: a block can give no view block or more than one
  * (see `Projection`). The source of each part is known, thus the parts give
  * the links.
+ *
+ * Method: our own design: a round trip through the format, and links by
+ * `linkBlocks`.
  */
 export function projectDocument(
   editor: BlockNoteEditor<any, any, any>,

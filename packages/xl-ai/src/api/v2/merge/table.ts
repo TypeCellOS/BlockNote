@@ -25,6 +25,9 @@ type Row = LensTableCell[];
  *   empty header row that markdown gives to a table without a header row.
  * - A table with merged cells in a format without merged cells loses its
  *   merged cells when the text changes it (see `withoutMergedCells`).
+ *
+ * Method: our own design, built on diff3 for the rows (aligned by their texts,
+ * see `alignRows`) and the three-way rule for each cell.
  */
 export function mergeTableContent(
   base: LensTableContent,

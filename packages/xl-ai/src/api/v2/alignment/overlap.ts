@@ -24,6 +24,9 @@ type Token = { owner: number; key: string; size: number };
  *
  * Because one diff aligns the full sequences, the result does not cross: a
  * text can only share words with texts at the same position or later.
+ *
+ * Method: our own design: one word diff (`anchoredMatch`), then the sum of the
+ * matched word characters for each pair of texts.
  */
 export function textOverlaps(
   a: readonly OverlapText[],

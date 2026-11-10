@@ -47,6 +47,9 @@ export type MergeOptions = {
  * result is `theirs`. Thus, data that `base` does not show stays. If the two
  * sides changed the value in different ways (a conflict), `ours` wins, and
  * in the tree merge `theirs` wins (see `MergeOptions`).
+ *
+ * Method: the standard three-way rule for one value, as diff3 uses it for one
+ * item.
  */
 export function mergeValue<T>(
   base: T,

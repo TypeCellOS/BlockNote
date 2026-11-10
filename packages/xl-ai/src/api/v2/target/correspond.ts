@@ -65,6 +65,8 @@ export type Correspondence = {
  *   `unlinked-block-changed`, unless the view block is empty).
  * - An invisible block stays, with some exceptions (see
  *   {@link keepInvisibleBlocks}).
+ *
+ * Method: our own design.
  */
 export function correspond(
   input: {

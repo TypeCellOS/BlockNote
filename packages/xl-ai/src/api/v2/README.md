@@ -227,6 +227,7 @@ Each folder has an `index.ts` with its API for the other folders. A file imports
 - **An optimization has a definition.** A fast version of a function has a simple version that defines the result, and a test that compares the two. An example is `partsOf` and `partsOfEachBlock` (`api.fuzz.test.ts`).
 - **Expected failures are values.** A text or JSON that does not fit the schema gives `{ error: "invalid-document" }`, and a rejected conflict gives `{ error: "conflict" }`. An exception is a bug (a broken invariant).
 - **Limits.** In this folder, a function has size limits: at most 15 paths (the rule `complexity`), a nesting of at most 4 blocks, and at most 80 lines of code (`vite.config.ts`). A function above a limit has a disable comment with the reason. The Myers and the diff3 algorithms are standard algorithms behind small interfaces, thus their files have no limits. The other exceptions are follow-ups.
+- **The method of an algorithm.** The doc comment of each algorithm tells if it is a standard method (with its name) or our own design, and on which standard methods it builds.
 - **Terms.** Each term has one meaning (see "Terms").
 
 ## Tests and benchmarks

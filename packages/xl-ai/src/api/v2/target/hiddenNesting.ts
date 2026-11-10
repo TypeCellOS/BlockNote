@@ -66,6 +66,8 @@ class OpenAncestors {
  * not change its nesting and the parent is still open. A new block before
  * such a block goes into the same nesting (see `keptParent`). Hidden
  * ancestors that a block keeps get a step too, before the block.
+ *
+ * Method: our own design.
  */
 export function decideParents(input: NestingInput): BuildStep[] {
   return new ParentDecisions(input).decide();

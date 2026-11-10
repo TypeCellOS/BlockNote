@@ -56,6 +56,10 @@ export function hasMergedCells(table: LensTableContent): boolean {
  * do not fit: two cells cover
  * one position, a cell goes below the last row, or a row has a position
  * without a cell before a position with a cell.
+ *
+ * Method: as the algorithm for forming a table of the HTML standard: each cell
+ * takes the first free position of its row, and covers the positions of its
+ * spans.
  */
 export function gridOf(
   rows: readonly LensTableCell[][],
