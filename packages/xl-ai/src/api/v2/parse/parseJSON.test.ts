@@ -51,24 +51,6 @@ describe("parseJSON", () => {
     expect(ids).toEqual(["p", "p-2"]);
   });
 
-  it("gives a new ID to a block that changes between a layout type and another type", () => {
-    const editor = createColumnsEditor();
-    const current = editor.document as LensBlock[];
-
-    // The column c1 becomes a paragraph: it cannot change in place.
-    const result = parseJSON(
-      editor,
-      [{ id: "c1", type: "paragraph", content: "Alpha" }],
-      current,
-      current,
-    );
-
-    const ids =
-      result.error === undefined ? result.blocks.map(({ id }) => id) : [];
-    expect(ids).toHaveLength(1);
-    expect(ids[0]).not.toBe("c1");
-  });
-
   it("fits the layout blocks before the conversion", () => {
     const editor = createColumnsEditor();
     const current = editor.document as LensBlock[];

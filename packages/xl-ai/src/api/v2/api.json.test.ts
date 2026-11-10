@@ -356,7 +356,7 @@ describe("JSON", () => {
       expect(editor.getBlock("p")?.type).toBe("table");
     });
 
-    it("changes a column into a top-level paragraph, as a new block", () => {
+    it("changes a column into a top-level paragraph, with its ID", () => {
       const editor = columnsEditor(twoColumns);
 
       update(editor, {
@@ -364,13 +364,15 @@ describe("JSON", () => {
         document: [{ id: "cA", type: "paragraph", content: "Was a column" }],
       });
 
-      expect(editor.document.map((block) => block.type)).toEqual(["paragraph"]);
+      expect(editor.document.map((block) => [block.id, block.type])).toEqual([
+        ["cA", "paragraph"],
+      ]);
       expect(editor.document[0].content).toMatchObject([
         { text: "Was a column" },
       ]);
     });
 
-    it("changes a paragraph into a column list, as a new block", () => {
+    it("changes a paragraph into a column list, with its ID", () => {
       const editor = columnsEditor([
         { id: "p", type: "paragraph", content: "P" },
       ]);
@@ -395,13 +397,13 @@ describe("JSON", () => {
         ] as JSONChange["document"],
       });
 
-      expect(editor.document.map((block) => block.type)).toEqual([
-        "columnList",
+      expect(editor.document.map((block) => [block.id, block.type])).toEqual([
+        ["p", "columnList"],
       ]);
       expect(editor.document[0].children).toHaveLength(2);
     });
 
-    it("changes a column list into a paragraph, as a new block", () => {
+    it("changes a column list into a paragraph, with its ID", () => {
       const editor = columnsEditor(twoColumns);
 
       update(editor, {
@@ -409,7 +411,9 @@ describe("JSON", () => {
         document: [{ id: "list", type: "paragraph", content: "Was columns" }],
       });
 
-      expect(editor.document.map((block) => block.type)).toEqual(["paragraph"]);
+      expect(editor.document.map((block) => [block.id, block.type])).toEqual([
+        ["list", "paragraph"],
+      ]);
     });
   });
 });

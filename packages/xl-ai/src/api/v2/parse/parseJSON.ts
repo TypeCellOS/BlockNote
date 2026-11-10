@@ -1,7 +1,7 @@
 import type { BlockNoteEditor, PartialBlock } from "@blocknote/core";
 import { UniqueID } from "@blocknote/core/extensions";
 
-import { type SchemaRules, schemaRulesOf } from "../blocks/schema.js";
+import { schemaRulesOf } from "../blocks/schema.js";
 import { withDistinctIds } from "../blocks/ids.js";
 import { BlockTree } from "../blocks/tree.js";
 import type { LensBlock } from "../blocks/types.js";
@@ -37,33 +37,26 @@ export function parseJSON(
     return { error: "invalid-document" };
   }
   return {
-    blocks: withUniqueIds(withDistinctIds(blocks), base, current, layoutRuleOf),
+    blocks: withUniqueIds(withDistinctIds(blocks), base, current),
   };
 }
 
 /**
  * Returns the blocks with a new ID where an ID cannot identify the block: a
  * block with an ID that is not in `base` but is in `current` (a block of
- * another writer), or a block that changes between a layout type and another
- * type (for example a column that becomes a paragraph: it cannot change in
- * place). These blocks are new blocks. The IDs of `blocks` are distinct (see
- * `withDistinctIds`).
+ * another writer). These blocks are new blocks. The IDs of `blocks` are
+ * distinct (see `withDistinctIds`).
  */
 function withUniqueIds(
   blocks: readonly LensBlock[],
   base: readonly LensBlock[],
   current: readonly LensBlock[],
-  layoutRuleOf: SchemaRules["layoutRuleOf"],
 ): LensBlock[] {
   const inBase = new Set(new BlockTree(base).ids);
   const inCurrent = new BlockTree(current).byId;
   function fix(block: LensBlock): LensBlock {
     const before = inCurrent.get(block.id);
-    const keep =
-      (inBase.has(block.id) || before === undefined) &&
-      (before === undefined ||
-        (layoutRuleOf(before.type) === undefined) ===
-          (layoutRuleOf(block.type) === undefined));
+    const keep = inBase.has(block.id) || before === undefined;
     const id = keep ? block.id : UniqueID.options.generateID();
     return { ...block, id, children: block.children.map(fix) };
   }
