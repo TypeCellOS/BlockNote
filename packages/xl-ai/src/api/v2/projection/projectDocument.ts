@@ -186,13 +186,17 @@ function notLayoutBlocks(
 }
 
 /**
- * The view: the text of the document, parsed back with the parse of the text
- * of a client (see `parseText`). The text comes from the document, thus its
- * blocks fit the schema.
+ * The view: the text of the source document, parsed back with the parse of
+ * the text of a client (see `parseText`). The text comes from the document,
+ * thus its blocks fit the schema.
  *
- * The parse of the text of an empty document can give a block (for example
- * one empty paragraph: the schema needs a block). That block comes from no
- * document block, thus an empty document has no view blocks.
+ * A source without blocks has no view blocks. Only a version as `base` can
+ * have no blocks: the current document always has a block, because the
+ * schema needs one. For the same reason, the parse of its text (an empty
+ * text) gives one empty paragraph. That paragraph comes from no source
+ * block. This is not a workaround of a problem in the parse: a parse
+ * without that block gives a document that the schema does not allow (a
+ * test of core without the fill broke 20 PutGet tests).
  */
 function viewOf(
   editor: BlockNoteEditor<any, any, any>,
