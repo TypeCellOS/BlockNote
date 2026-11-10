@@ -51,13 +51,13 @@ function replacementsOf(
   if (rootGroup === null) {
     throw new Error("The document has no block group");
   }
-  const plan: Plan = { build: nodeBuilder(doc), replacements: [] };
-  planList(plan, rootGroup, 0, target);
-  return plan.replacements;
+  const decisions: Decisions = { build: nodeBuilder(doc), replacements: [] };
+  decideList(decisions, rootGroup, 0, target);
+  return decisions.replacements;
 }
 
 /** The node builder of the document, and the replacements decided so far. */
-type Plan = {
+type Decisions = {
   build: (shape: BlockShape) => Node;
   replacements: Replacement[];
 };
@@ -68,8 +68,8 @@ type Plan = {
  * children between the children that stay. Then it continues in the
  * children that stay.
  */
-function planList(
-  plan: Plan,
+function decideList(
+  decisions: Decisions,
   list: Node,
   pos: number,
   shapes: readonly BlockShape[],
@@ -83,7 +83,7 @@ function planList(
     if (filled === null) {
       throw new Error(`A block of type ${list.type.name} cannot be empty`);
     }
-    plan.replacements.push({
+    decisions.replacements.push({
       from: pos + 1,
       to: end,
       content: childBlocks(filled),
@@ -101,16 +101,16 @@ function planList(
   );
   for (const gap of gaps(stay, old.length, shapes.length)) {
     if (isChanged(gap)) {
-      plan.replacements.push({
+      decisions.replacements.push({
         from: gap.aStart < old.length ? old[gap.aStart].pos : end,
         to: gap.aEnd < old.length ? old[gap.aEnd].pos : end,
-        content: shapes.slice(gap.bStart, gap.bEnd).map(plan.build),
+        content: shapes.slice(gap.bStart, gap.bEnd).map(decisions.build),
       });
     }
     if (gap.anchor) {
       const kept = old[gap.anchor.aIndex];
-      planChildren(
-        plan,
+      decideChildren(
+        decisions,
         kept.node,
         kept.pos,
         shapes[gap.anchor.bIndex].children,
@@ -120,15 +120,15 @@ function planList(
 }
 
 /** Decides the replacements for the children of the block at `pos`. */
-function planChildren(
-  plan: Plan,
+function decideChildren(
+  decisions: Decisions,
   block: Node,
   pos: number,
   shapes: readonly BlockShape[],
 ) {
   if (block.type.name !== "blockContainer") {
     // A layout block (for example a column) holds its children directly.
-    planList(plan, block, pos, shapes);
+    decideList(decisions, block, pos, shapes);
     return;
   }
   // A block with content holds its children in a block group, after its
@@ -136,10 +136,10 @@ function planChildren(
   const groupPos = pos + 1 + block.child(0).nodeSize;
   const group = block.maybeChild(1);
   if (group !== null && shapes.length > 0) {
-    planList(plan, group, groupPos, shapes);
+    decideList(decisions, group, groupPos, shapes);
   } else if (group !== null) {
     // A block group needs a child, thus it goes with its last child.
-    plan.replacements.push({
+    decisions.replacements.push({
       from: groupPos,
       to: groupPos + group.nodeSize,
       content: [],
@@ -147,11 +147,11 @@ function planChildren(
   } else if (shapes.length > 0) {
     // A block without children gets a block group for its new children.
     const schema = block.type.schema;
-    plan.replacements.push({
+    decisions.replacements.push({
       from: groupPos,
       to: groupPos,
       content: [
-        schema.nodes["blockGroup"].create(null, shapes.map(plan.build)),
+        schema.nodes["blockGroup"].create(null, shapes.map(decisions.build)),
       ],
     });
   }

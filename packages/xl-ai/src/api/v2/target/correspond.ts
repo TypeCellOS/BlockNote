@@ -9,7 +9,7 @@ import type { BlockPair } from "../alignment/index.js";
 import type { Projection } from "../projection/index.js";
 import type { TargetWarning } from "./types.js";
 
-/** What the plan does with one block of the text. */
+/** What the target stage does with one block of the text (a row). */
 export type TextRow =
   /**
    * The text block is a source block that stays (`id`). Its fields merge
@@ -51,7 +51,7 @@ export type Correspondence = {
 };
 
 /**
- * Finds what the plan does with each block of the text: which source block
+ * Finds what the target stage does with each block of the text: which source block
  * it is, if it is one (see {@link TextRow}). Also finds the source blocks
  * that stay.
  *
