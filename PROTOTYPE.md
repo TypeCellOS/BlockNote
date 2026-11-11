@@ -6,6 +6,46 @@ During the work, `text-lens-readability` got four more commits (to `5faaec2fa`):
 
 The prototype adds a second AI engine next to the old engine. An agent loop reads and writes the document as markdown through the text lens. The agent writes only to a proposal. The editor derives suggestions from the proposal, with the reason of each tool call, and the user accepts or rejects each tool call. The same code runs in the browser and on a server.
 
+## 0. Status (11 November, end of the day)
+
+Read this section first. The sections after it are in the order of the work, and the later sections (13 and 14) change some statements of the earlier ones.
+
+**What exists**
+
+- One pipeline for three modes: client mode, a session on the server (the server keeps the chat and the one open proposal of a document), and a run that a caller outside the editors starts. Sections 3 and 14.1.
+- The example with a chat window: `examples/09-ai/10-document-agent-chat` (section 14.2). The first example (`09-document-agent`) has the AI menu and the older routes.
+- The tools `editText`, `replaceRange`, `writeDocument` and `readDocument`. The document is in the first LLM call, and a tool call starts when the model has written it (section 13).
+- The review of a user reaches the agent: the decision is in the tool output of the chat (section 14.1).
+- Guards that keep suggestions out of the main document (section 14.7).
+- 97 tests with a mock model, and one test that is a known failure (below). Live measurements with Haiku 5.5 (sections 9, 13.3 to 13.5).
+
+**Decisions of 11 November**
+
+- The target for the review of AI changes is the Yjs 14 suggestion layer: the agent writes its changes there, and the accept is idempotent. The proposal model of this prototype is the path until then.
+- The base scenario of an accept is a write of the client at once, with the known risk of section 14.8. The guard for it (`acceptGuard`, the flag `guard=1` of the example) is optional, and is off by default.
+- No default for `reasoning`: an eval suite decides. A run from outside locks each editor that follows it: acceptable now.
+
+**Known failure**
+
+- Two users who accept the same proposal at the same time write its text two times, in the base scenario (section 14.8). `acceptGuard` prevents it.
+
+**Not decided**
+
+- Who keeps the proposal as the long-term design: the three variants of section 14.1 and the table in the review. One open proposal for each document, or one for each run.
+- The decisions to confirm of sections 7 and 14.5.
+
+**Not done** (in the order that I recommend)
+
+1. A test with random concurrent edits for a session: two reviewers, edits of users during a run, and a run from outside. The model has no such test, and the known failure came from a question, not from a test.
+2. A spike of the target: the agent writes its batches into a Yjs 14 suggestion document through the lens.
+3. A block that two tool calls change shows as one suggestion (section 8.1).
+4. Colors and alignment: an HTML format for the tools, or a tool for props (section 9.3).
+5. The selection and the cursor in the first prompt.
+6. The eval suite: reasoning, the instructions of the tools, each model (MUST 1).
+7. An MCP server on the session host.
+8. Cleanup: remove the variant where the client sends the proposal to a server that runs the tools (`POST /chat`), if you agree; merge the new commits of the lens branch; the two lens tests of section 10.
+9. For production: section 12, the limits of 14.6, and what the guards do not cover (14.7).
+
 ## 1. State of each milestone
 
 | #   | Milestone                                                                                                 | State                                                                                                                 |
@@ -535,4 +575,14 @@ What this means for the model:
 - **The half of the accept is not sound for more than one reviewer.** It needs one of these: (a) one order for the accepts: the client asks the host first (a compare and swap on the proposal), and writes to the main document only after the host agrees; (b) an accept that is the same Yjs change for each user: the shared items of the Yjs 14 suggestion layer, where the accept is idempotent; (c) a host that writes the accept to the main document itself (a central merge authority, which you do not want).
 - The other limits of 5 November also apply to each lens write to a Y.Doc: a move or a type change is a delete and an insert in the binding, thus an edit of another user in that block at the same time can be lost, or the block can be there two times.
 - Nothing here has a test with random concurrent edits. The tests of this prototype are one reviewer, or two reviewers one after the other.
+
+### 14.9 The accept guard, behind a flag (11 November)
+
+Your decision: the Yjs 14 suggestion layer is the target, and until then an accept is a write of the client at once (the base scenario, with the known failure of 14.8). A guard is optional.
+
+- The option `acceptGuard` of the extension: the extension asks first, and writes only if the guard resolves to true. Without the option, nothing changes.
+- A host gives the accept to the first claim for a state of the proposal: `SessionHost.review` for one tool call (the batch must follow the stored proposal), and `closeProposal` with the number of batches for the full proposal. The session host runs the review requests of one document one after the other.
+- The example: the link "Accept guard" (the flag `guard=1` of the URL). I examined it in a browser with two tabs on the Yjs session: an accept of one card and an accept of all.
+- The costs of the guard: an accept waits for the server, and an editor that stops between the claim and the write leaves an accept that the server has and the document does not have.
+- The test of 14.8 stays as the known failure of the base scenario. A second test has the same case with a guard: one editor writes, and the text is there one time.
 
