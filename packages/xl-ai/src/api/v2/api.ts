@@ -27,7 +27,7 @@ import {
 import {
   assertBlocksRoundTrip,
   documentText,
-  shadowsOf,
+  shadowOf,
 } from "./projection/index.js";
 import { mergeTree, type MergeWarning } from "./merge/index.js";
 import { fitResult, type FitWarning, mergedCellsRemoved } from "./fit/index.js";
@@ -306,7 +306,7 @@ function textTarget(
     incoming: textBlocks,
     alignment: pairs,
     contentKindOf: schemaRulesOf(editor).contentKindOf,
-    shadowOf: shadowsOf(editor, format),
+    shadowOf: (item) => shadowOf(editor, format, item),
     newId: () => UniqueID.options.generateID(),
   });
 }

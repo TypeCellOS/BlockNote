@@ -5,7 +5,12 @@ import { alignBlocks } from "../alignment/alignBlocks.js";
 import { schemaRulesOf } from "../util/blocks/schema.js";
 import { BlockTree } from "../util/blocks/tree.js";
 import { blockToText } from "../util/blocks/text.js";
-import type { BlockWithoutChildren, FlatBlock, LensBlock } from "../model.js";
+import type {
+  BlockWithoutChildren,
+  FlatBlock,
+  LensBlock,
+  LensInlineContent,
+} from "../model.js";
 import { flattenBlocks } from "../util/blocks/flatten.js";
 import { fitResult } from "../fit/fitResult.js";
 import type { TextFormat } from "../formats/types.js";
@@ -18,7 +23,7 @@ import {
   projectDocument,
   type ViewBlock,
 } from "../projection/projectDocument.js";
-import { shadowsOf } from "../projection/shadows.js";
+import { shadowOf } from "../projection/shadows.js";
 
 /**
  * Runs the stages of a text write on the current document (`base:
@@ -44,7 +49,7 @@ export function textStages(
     incoming: textBlocks,
     alignment: pairs,
     contentKindOf: schemaRulesOf(editor).contentKindOf,
-    shadowOf: shadowsOf(editor, format),
+    shadowOf: (item: LensInlineContent) => shadowOf(editor, format, item),
     newId: () => UniqueID.options.generateID(),
   };
   const { rows } = correspond(input, new BlockTree(document));

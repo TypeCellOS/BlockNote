@@ -12,7 +12,7 @@ import { projectDocument, type Projection } from "./projectDocument.js";
  *   and a client can write more than one time from one version. The key is
  *   the JSON of the document: it costs milliseconds, and the serialize and
  *   the parse cost seconds for a large document.
- * - The shadow of each inline item (see `shadowsOf` in `shadows.ts`). It
+ * - The shadow of each inline item (see `shadowOf` in `shadows.ts`). It
  *   depends only on the item.
  *
  * The cache keeps one document for each editor and format, and it goes with

@@ -8,4 +8,4 @@
 export { assertBlocksRoundTrip } from "./assertBlocksRoundTrip.js";
 export { documentText } from "./cache.js";
 export type { Projection } from "./projectDocument.js";
-export { shadowsOf } from "./shadows.js";
+export { shadowOf } from "./shadows.js";
