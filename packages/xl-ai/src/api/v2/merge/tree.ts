@@ -386,12 +386,7 @@ function mergeChildOrder(
       keepTheirs: () => true,
     },
   );
-  const { order, conflicts } = resolveTwoPlaces(merged, {
-    ours: ourUnits,
-    theirs: theirUnits,
-    oursToBase,
-    theirsToBase,
-  });
+  const { order, conflicts } = resolveTwoPlaces(merged, ourUnits, oursToBase);
   // Each block of the parent is in the list of ours or of theirs, and the
   // merge keeps each unit of theirs and each unit that no side removed.
   // Thus, a missing block is a bug.
@@ -405,49 +400,41 @@ function mergeChildOrder(
 
 /**
  * The order of the merged units of one list, with each block one time. A
- * unit without a base unit is a block that its side moved (or added). If
- * both sides moved a block to different places in this list, it is there
- * two times. The place of the side that moved it wins. If the two sides
- * moved it, that is a conflict: the place of theirs wins.
+ * unit without a base unit is a block that its side moved (or added).
+ *
+ * A block is in the merged list two times (one unit of ours, one unit of
+ * theirs) only if theirs moved it: to a different place than ours, or away
+ * from a run that ours changed. The place of theirs wins. If ours also
+ * moved the block, that is a conflict.
+ *
+ * Why theirs always moved such a block: the merge adds a unit of theirs
+ * that has a base unit only at a stable place, in a run that only theirs
+ * changed, or in a run that the two sides changed in the same way. At each
+ * of these places, ours has the same block, and the merge does not add the
+ * unit of ours. This is true for the handlers of `mergeChildOrder`. A
+ * `conflictWinner` would make it false: then a run that ours changed can
+ * give a unit of theirs with a base unit.
  */
 function resolveTwoPlaces(
   merged: readonly { id: string }[],
-  sides: {
-    ours: readonly { id: string }[];
-    theirs: readonly { id: string }[];
-    oursToBase: readonly MatchedPair[];
-    theirsToBase: readonly MatchedPair[];
-  },
+  ours: readonly { id: string }[],
+  oursToBase: readonly MatchedPair[],
 ): { order: string[]; conflicts: string[] } {
-  const fromOurs = new Set(sides.ours);
-  const movedUnits = new Set([...sides.ours, ...sides.theirs]);
-  for (const pair of sides.oursToBase) {
-    movedUnits.delete(sides.ours[pair.bIndex]);
+  const fromOurs = new Set(ours);
+  const withBaseUnit = new Set(oursToBase.map((pair) => ours[pair.bIndex]));
+  const count = new Map<string, number>();
+  for (const { id } of merged) {
+    count.set(id, (count.get(id) ?? 0) + 1);
   }
-  for (const pair of sides.theirsToBase) {
-    movedUnits.delete(sides.theirs[pair.bIndex]);
-  }
-  const places = new Map<string, { id: string }[]>();
-  for (const unit of merged) {
-    places.set(unit.id, [...(places.get(unit.id) ?? []), unit]);
-  }
+  const order: string[] = [];
   const conflicts: string[] = [];
-  const order = merged.flatMap((unit) => {
-    const all = places.get(unit.id) ?? [];
-    if (all.length === 1) {
-      return [unit.id];
-    }
-    const oursPlace = all.find((place) => fromOurs.has(place));
-    const theirsPlace = all.find((place) => !fromOurs.has(place));
-    const oursMoved = oursPlace !== undefined && movedUnits.has(oursPlace);
-    const theirsMoved =
-      theirsPlace !== undefined && movedUnits.has(theirsPlace);
-    if (oursMoved && theirsMoved) {
+  for (const unit of merged) {
+    if (count.get(unit.id) === 1 || !fromOurs.has(unit)) {
+      order.push(unit.id);
+    } else if (!withBaseUnit.has(unit)) {
       conflicts.push(unit.id);
     }
-    const winner = oursMoved && !theirsMoved ? oursPlace : theirsPlace;
-    return unit === winner ? [unit.id] : [];
-  });
+  }
   return { order, conflicts };
 }
 
