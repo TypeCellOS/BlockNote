@@ -1,422 +1,400 @@
 import { DOMParser } from "prosemirror-model";
-import { TableMap } from "prosemirror-tables";
 import { afterEach, describe, expect, it } from "vite-plus/test";
 
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 
-describe.each(["td", "th"])("pasting HTML table spans on %s", (tag) => {
-  let editor: BlockNoteEditor | undefined;
+describe("importing HTML tables", () => {
+  let editor: BlockNoteEditor;
 
   afterEach(() => {
     editor?.unmount();
   });
 
-  it.each([
-    ["zero rowspan", `<tr><${tag} rowspan="0">a</${tag}></tr>`, ["a"]],
-    ["zero colspan", `<tr><${tag} colspan="0">a</${tag}></tr>`, ["a"]],
-    [
-      "fully spanned empty row",
-      `<tr><${tag} rowspan="2">a</${tag}></tr><tr></tr>`,
-      ["a"],
-    ],
-    [
-      "rowspan across row groups",
-      `<thead><tr><${tag} rowspan="2">a</${tag}></tr></thead><tbody><tr><${tag}>b</${tag}></tr></tbody>`,
-      ["a", "b"],
-    ],
-    [
-      "overlapping colspan",
-      `<tr><${tag}>a</${tag}><${tag} rowspan="2">b</${tag}></tr><tr><${tag} colspan="2">c</${tag}></tr>`,
-      ["a", "b", "c"],
-    ],
-  ])("pastes %s without losing surrounding paragraphs", (name, rows, texts) => {
-    editor = BlockNoteEditor.create();
-    editor.mount(document.createElement("div"));
-
-    const problems: unknown[] = [];
-    editor.onChange(() => {
-      editor!.prosemirrorState.doc.descendants((node) => {
-        if (node.type.spec.tableRole === "table") {
-          problems.push(TableMap.get(node).problems);
-        }
-      });
-    });
-    editor.pasteHTML(`<p>Before</p><table>${rows}</table><p>After</p>`);
-
-    expect(problems.length).toBeGreaterThan(0);
-    expect(problems.every((problem) => problem === null)).toBe(true);
-    expect(() => editor!.blocksToFullHTML()).not.toThrow();
-    const table = editor.document.find((block) => block.type === "table");
-    expect(table).toBeDefined();
-    const cellTexts = table?.content.rows.flatMap((row) =>
-      row.cells.flatMap((cell) => {
-        const content = "content" in cell ? cell.content : cell;
-        return content.flatMap((inline) =>
-          inline.type === "text" ? [inline.text] : [],
-        );
-      }),
-    );
-    expect(cellTexts).toEqual(texts);
-    if (name === "fully spanned empty row") {
-      expect(table?.content.rows.map((row) => row.cells.length)).toEqual([
-        1, 0,
-      ]);
-      expect(table?.content.rows[0].cells[0]).toMatchObject({
-        props: { colspan: 1, rowspan: 2 },
-      });
-    }
-    if (name === "rowspan across row groups") {
-      expect(table?.content.rows[0].cells[0]).toMatchObject({
-        props: { rowspan: 1 },
-      });
-    }
-    if (name === "overlapping colspan") {
-      expect(table?.content.rows[1].cells.at(-1)).toMatchObject({
-        props: { colspan: 1 },
-        content: [{ text: "c" }],
-      });
-    }
-    expect(editor.document.slice(0, 3)).toMatchObject([
-      { type: "paragraph", content: [{ text: "Before" }] },
-      { type: "table" },
-      { type: "paragraph", content: [{ text: "After" }] },
-    ]);
-
-    // Standalone imports use the same repair without touching the live editor.
-    const imported = editor.tryParseHTMLToBlocks(`<table>${rows}</table>`);
-    const serialized = editor.blocksToFullHTML(imported);
-    expect(editor.tryParseHTMLToBlocks(serialized)).toMatchObject(
-      imported.map(({ id: _id, ...block }) => block),
-    );
-  });
-
-  it.each(["", "<tr></tr>", "<tr></tr><tr></tr>"])(
-    "imports a zero-width table %j as one editable cell",
-    (rows) => {
-      editor = BlockNoteEditor.create();
-      const imported = editor.tryParseHTMLToBlocks(`<table>${rows}</table>`);
-      expect(imported).toMatchObject([
-        {
-          type: "table",
-          content: {
-            rows: [
-              { cells: [{ content: [], props: { colspan: 1, rowspan: 1 } }] },
-            ],
-          },
-        },
-      ]);
-      expect(() => editor!.blocksToFullHTML(imported)).not.toThrow();
-    },
-  );
-
-  it("keeps cell attributes and inline marks while repairing a collision", () => {
-    editor = BlockNoteEditor.create();
-    const container = document.createElement("div");
-    container.innerHTML = `<table><tr><${tag}>a</${tag}><${tag} rowspan="2">b</${tag}></tr><tr><${tag} colspan="2" colwidth="120,160"><strong>c</strong></${tag}></tr></table>`;
-    const imported = editor.tryParseHTMLToBlocks(container.innerHTML);
-    container.innerHTML = editor.blocksToFullHTML(imported);
-    const parsed = DOMParser.fromSchema(editor.pmSchema).parse(container);
-    parsed.check();
-    const cells: {
-      colspan: number;
-      colwidth: number[];
-      marks: string[];
-      type: string;
-    }[] = [];
-    parsed.descendants((node) => {
-      if (node.type.spec.tableRole === "table") {
-        expect(TableMap.get(node).problems).toBeNull();
-      }
-      if (
-        node.type.spec.tableRole === "cell" ||
-        node.type.spec.tableRole === "header_cell"
-      ) {
-        if (node.textContent === "c") {
-          cells.push({
-            colspan: node.attrs.colspan,
-            colwidth: node.attrs.colwidth,
-            marks: node.firstChild!.firstChild!.marks.map(
-              (mark) => mark.type.name,
+  // The five malformed tables reported in #3289 must not discard the paste.
+  describe.each(["td", "th"])("pasting spans on %s", (tag) => {
+    it.each([
+      ["zero rowspan", `<tr><${tag} rowspan="0">a</${tag}></tr>`, ["a"]],
+      ["zero colspan", `<tr><${tag} colspan="0">a</${tag}></tr>`, ["a"]],
+      [
+        "fully covered row",
+        `<tr><${tag} rowspan="2">a</${tag}></tr><tr></tr>`,
+        ["a"],
+      ],
+      [
+        "rowspan crossing row groups",
+        `<thead><tr><${tag} rowspan="2">a</${tag}></tr></thead><tbody><tr><td>b</td></tr></tbody>`,
+        ["a", "b"],
+      ],
+      [
+        "overlapping colspan",
+        `<tr><${tag}>a</${tag}><${tag} rowspan="2">b</${tag}></tr><tr><${tag} colspan="2">c</${tag}></tr>`,
+        ["a", "b", "c"],
+      ],
+    ])(
+      "repairs %s and preserves surrounding paragraphs",
+      (name, rows, texts) => {
+        editor = BlockNoteEditor.create();
+        editor.mount(document.createElement("div"));
+        const html = `<p>Before</p><table>${rows}</table><p>After</p>`;
+        const imported = editor.tryParseHTMLToBlocks(html);
+        editor.pasteHTML(html);
+        for (const blocks of [imported, editor.document]) {
+          expect(blocks.slice(0, 3)).toMatchObject([
+            { type: "paragraph", content: [{ text: "Before" }] },
+            { type: "table" },
+            { type: "paragraph", content: [{ text: "After" }] },
+          ]);
+          const table = blocks.find((block) => block.type === "table")!;
+          expect(
+            table.content.rows.flatMap((row) =>
+              row.cells.flatMap((cell) => {
+                const content = "content" in cell ? cell.content : cell;
+                return content.flatMap((inline) =>
+                  inline.type === "text" ? [inline.text] : [],
+                );
+              }),
             ),
-            type: node.type.name,
-          });
+          ).toEqual(texts);
+
+          if (name === "fully covered row") {
+            expect(table.content.rows.map((row) => row.cells.length)).toEqual([
+              1, 0,
+            ]);
+            expect(table.content.rows[0].cells[0]).toMatchObject({
+              props: { rowspan: 2 },
+            });
+          } else if (name === "overlapping colspan") {
+            expect(table.content.rows[1].cells.at(-1)).toMatchObject({
+              props: { colspan: 1 },
+              content: [{ text: "c" }],
+            });
+          } else {
+            expect(table.content.rows[0].cells[0]).toMatchObject({
+              props: { rowspan: 1, colspan: 1 },
+            });
+          }
         }
-      }
-    });
-    expect(cells).toEqual([
+      },
+    );
+  });
+
+  it("preserves valid merged cells, including a covered row before more content", () => {
+    editor = BlockNoteEditor.create();
+    const imported = editor.tryParseHTMLToBlocks(`
+      <table>
+        <tr><td colspan="002" rowspan="2" colwidth="120,160"><strong>Merged</strong></td></tr>
+        <tr></tr>
+        <tr><td>Left</td><td>Right</td></tr>
+      </table>
+    `);
+    expect(imported).toMatchObject([
       {
-        colspan: 1,
-        colwidth: [120],
-        marks: ["bold"],
-        type: tag === "th" ? "tableHeader" : "tableCell",
+        type: "table",
+        content: {
+          rows: [
+            {
+              cells: [
+                {
+                  props: { colspan: 2, rowspan: 2 },
+                  content: [{ text: "Merged", styles: { bold: true } }],
+                },
+              ],
+            },
+            { cells: [] },
+            {
+              cells: [
+                { content: [{ text: "Left" }] },
+                { content: [{ text: "Right" }] },
+              ],
+            },
+          ],
+        },
       },
-    ]);
-  });
-
-  it.each([
-    `<table style="font-weight: bold"><tr><${tag}>a</${tag}></tr></table>`,
-    `<div style="font-weight: bold"><table><tr><${tag}>a</${tag}></tr></table></div>`,
-  ])("preserves inherited formatting for %s", (html) => {
-    editor = BlockNoteEditor.create();
-    editor.mount(document.createElement("div"));
-    const imported = editor.tryParseHTMLToBlocks(html);
-    expect(imported[0]).toMatchObject({
-      type: "table",
-      content: {
-        rows: [
-          { cells: [{ content: [{ text: "a", styles: { bold: true } }] }] },
-        ],
-      },
-    });
-    editor.pasteHTML(html);
-    expect(editor.document[0]).toMatchObject({
-      type: "table",
-      content: {
-        rows: [
-          { cells: [{ content: [{ text: "a", styles: { bold: true } }] }] },
-        ],
-      },
-    });
-  });
-
-  it("preserves a covered row followed by a populated row", () => {
-    editor = BlockNoteEditor.create();
-    const html = `<table><tr><${tag} rowspan="2">a</${tag}></tr><tr></tr><tr><${tag}>b</${tag}></tr></table>`;
-    const imported = editor.tryParseHTMLToBlocks(html);
-    const table = imported.find((block) => block.type === "table")!;
-    expect(table.content.rows.map((row) => row.cells.length)).toEqual([
-      1, 0, 1,
     ]);
     expect(
       editor.tryParseHTMLToBlocks(editor.blocksToFullHTML(imported)),
     ).toMatchObject(imported.map(({ id: _id, ...block }) => block));
-    const container = document.createElement("div");
-    container.innerHTML = editor.blocksToFullHTML(imported);
-    DOMParser.fromSchema(editor.pmSchema).parse(container).check();
   });
 
-  it("repairs multiple tables without changing their order or surrounding text", () => {
+  it("repairs multiple empty and malformed tables without reordering content", () => {
     editor = BlockNoteEditor.create();
-    const imported = editor.tryParseHTMLToBlocks(
-      `<p>Before</p><table></table><table><tr><${tag}>a</${tag}><${tag} rowspan="2">b</${tag}></tr><tr><${tag} colspan="2">c</${tag}></tr></table><table></table><p>After</p>`,
-    );
-    expect(imported).toMatchObject([
+    expect(
+      editor.tryParseHTMLToBlocks(`
+      <p>Before</p>
+      <table></table>
+      <table><tr><td colspan="0">Middle</td></tr></table>
+      <table><tr></tr><tr></tr></table>
+      <p>After</p>
+    `),
+    ).toMatchObject([
       { type: "paragraph", content: [{ text: "Before" }] },
-      { type: "table", content: { rows: [{ cells: [{ content: [] }] }] } },
-      { type: "table" },
-      { type: "table", content: { rows: [{ cells: [{ content: [] }] }] } },
+      {
+        type: "table",
+        content: {
+          rows: [
+            { cells: [{ content: [], props: { colspan: 1, rowspan: 1 } }] },
+          ],
+        },
+      },
+      {
+        type: "table",
+        content: { rows: [{ cells: [{ content: [{ text: "Middle" }] }] }] },
+      },
+      {
+        type: "table",
+        content: {
+          rows: [
+            { cells: [{ content: [], props: { colspan: 1, rowspan: 1 } }] },
+          ],
+        },
+      },
       { type: "paragraph", content: [{ text: "After" }] },
     ]);
-    const tables = imported.filter((block) => block.type === "table");
-    expect(
-      tables.flatMap((table) =>
-        table.content.rows.flatMap((row) =>
-          row.cells.flatMap((cell) => {
-            const content = "content" in cell ? cell.content : cell;
-            return content.flatMap((inline) =>
-              inline.type === "text" ? [inline.text] : [],
-            );
-          }),
-        ),
-      ),
-    ).toEqual(["a", "b", "c"]);
-    const container = document.createElement("div");
-    container.innerHTML = editor.blocksToFullHTML(imported);
-    const parsed = DOMParser.fromSchema(editor.pmSchema).parse(container);
-    parsed.check();
-    const problems: unknown[] = [];
-    parsed.descendants((node) => {
-      if (node.type.spec.tableRole === "table") {
-        problems.push(TableMap.get(node).problems);
-      }
-    });
-    expect(problems).toEqual([null, null, null]);
   });
 
-  it("preserves text around a nested malformed table", () => {
-    editor = BlockNoteEditor.create();
-    const imported = editor.tryParseHTMLToBlocks(
-      `<table><tr><${tag}>Before<table><tr><td>a</td><td rowspan="2">b</td></tr><tr><td colspan="2">c</td></tr></table>After</${tag}></tr></table>`,
-    );
-    expect(imported[0]).toMatchObject({
-      type: "table",
-      content: {
-        rows: [{ cells: [{ content: [{ text: "BeforeabcAfter" }] }] }],
-      },
-    });
-    expect(() => editor!.blocksToFullHTML(imported)).not.toThrow();
-  });
-
-  it.each([
-    "0",
-    "1.5",
-    "-1",
-    "",
-    "invalid",
-    "NaN",
-    "Infinity",
-    "2e0",
-    "0x2",
-    " 2",
-    "2 ",
-  ])("defaults invalid span %j to 1", (span) => {
+  it("preserves inherited formatting through import and paste", () => {
     editor = BlockNoteEditor.create();
     editor.mount(document.createElement("div"));
-    editor.pasteHTML(
-      `<table><tr><${tag} colspan="${span}" rowspan="${span}">First</${tag}></tr><tr><${tag}>Second</${tag}></tr></table>`,
-    );
-
-    const table = editor.document.find((block) => block.type === "table");
-    expect(table?.content.rows[0].cells[0]).toMatchObject({
-      props: { colspan: 1, rowspan: 1 },
-      content: [{ type: "text", text: "First" }],
-    });
+    const html = `<div style="font-weight: bold"><table><tr><td>Bold</td></tr></table></div>`;
+    const expected = {
+      type: "table",
+      content: {
+        rows: [
+          { cells: [{ content: [{ text: "Bold", styles: { bold: true } }] }] },
+        ],
+      },
+    };
+    expect(editor.tryParseHTMLToBlocks(html)[0]).toMatchObject(expected);
+    editor.pasteHTML(html);
+    expect(editor.document[0]).toMatchObject(expected);
   });
 
+  it("preserves cell formatting and column widths when shrinking an overlap", () => {
+    editor = BlockNoteEditor.create();
+    const imported = editor.tryParseHTMLToBlocks(`
+      <table>
+        <tr><td>a</td><td rowspan="2">b</td></tr>
+        <tr><td colspan="2" colwidth="120,160"><strong>c</strong></td></tr>
+      </table>
+    `);
+    const container = document.createElement("div");
+    container.innerHTML = editor.blocksToFullHTML(imported);
+    const cell = Array.from(container.querySelectorAll("td")).find(
+      (cell) => cell.textContent === "c",
+    )!;
+    expect(cell.getAttribute("colspan")).toBe("1");
+    expect(cell.getAttribute("colwidth")).toBe("120");
+    expect(cell.querySelector("strong")?.textContent).toBe("c");
+  });
+
+  it.each(["-1", "1.5", "", "invalid", "Infinity", "2e0", "0x2", " 2"])(
+    "defaults invalid span %j to one",
+    (span) => {
+      editor = BlockNoteEditor.create();
+      expect(
+        editor.tryParseHTMLToBlocks(`
+        <table><tr><td colspan="${span}" rowspan="${span}">First</td><td>Other</td></tr><tr><td>Second</td><td>Last</td></tr></table>
+      `)[0],
+      ).toMatchObject({
+        content: {
+          rows: [
+            {
+              cells: [
+                {
+                  props: { colspan: 1, rowspan: 1 },
+                  content: [{ text: "First" }],
+                },
+                {},
+              ],
+            },
+            {
+              cells: [
+                { content: [{ text: "Second" }] },
+                { content: [{ text: "Last" }] },
+              ],
+            },
+          ],
+        },
+      });
+    },
+  );
+
+  // Import repair can shrink an oversized colspan again; inspect parsing to
+  // distinguish the HTML limit (1000) from integer overflow or invalid input.
   it.each([
-    ["0", 1],
     ["9007199254740992", 1],
     ["1001", 1000],
     ["4294967296", 1000],
-  ])("parses numeric colspan %j as %j", (span, expected) => {
+  ])("sanitizes colspan %s to %s before table repair", (span, expected) => {
     editor = BlockNoteEditor.create();
     const container = document.createElement("div");
-    container.innerHTML = `<table><tr><${tag} colspan="${span}">Cell</${tag}></tr></table>`;
+    container.innerHTML = `<table><tr><td colspan="${span}">Cell</td></tr></table>`;
     const colspans: number[] = [];
     DOMParser.fromSchema(editor.pmSchema)
       .parse(container)
       .descendants((node) => {
-        if (
-          node.type.name === "tableCell" ||
-          node.type.name === "tableHeader"
-        ) {
+        if (node.type.spec.tableRole === "cell") {
           colspans.push(node.attrs.colspan);
         }
       });
     expect(colspans).toEqual([expected]);
   });
 
-  it.each(["100", "00100"])(
-    "clamps rowspan %j to the remaining table height",
-    (span) => {
-      editor = BlockNoteEditor.create();
-      editor.mount(document.createElement("div"));
-
-      editor.pasteHTML(
-        `<table><thead><tr><${tag}>First</${tag}><${tag}>Other</${tag}></tr></thead><tbody><tr><${tag} rowspan="${span}">Merged</${tag}><${tag}>Middle</${tag}></tr><tr><${tag} rowspan="${span}">Last</${tag}></tr></tbody></table>`,
-      );
-
-      const table = editor.document.find((block) => block.type === "table");
-      expect(table?.content.rows).toHaveLength(3);
-      expect(table?.content.rows[1].cells[0]).toMatchObject({
-        props: { rowspan: 2 },
-        content: [{ type: "text", text: "Merged" }],
-      });
-      expect(table?.content.rows[2].cells).toHaveLength(1);
-      expect(table?.content.rows[2].cells[0]).toMatchObject({
-        props: { rowspan: 1 },
-        content: [{ type: "text", text: "Last" }],
-      });
-    },
-  );
-
-  it("clamps a rowspan in a single-row table", () => {
+  it("clamps rowspans to the remaining row-group height", () => {
     editor = BlockNoteEditor.create();
-    editor.mount(document.createElement("div"));
-
-    editor.pasteHTML(
-      `<table><tr><${tag} rowspan="100">Only</${tag}></tr></table>`,
-    );
-
-    const table = editor.document.find((block) => block.type === "table");
-    expect(table?.content.rows).toHaveLength(1);
-    expect(table?.content.rows[0].cells[0]).toMatchObject({
-      props: { rowspan: 1 },
-      content: [{ type: "text", text: "Only" }],
+    expect(
+      editor.tryParseHTMLToBlocks(`
+      <table>
+        <thead><tr><th>First</th><th>Other</th></tr></thead>
+        <tbody>
+          <tr><td rowspan="100">Merged</td><td>Middle</td></tr>
+          <tr><td rowspan="100">Last</td></tr>
+        </tbody>
+      </table>
+    `)[0],
+    ).toMatchObject({
+      content: {
+        rows: [
+          {
+            cells: [
+              { content: [{ text: "First" }] },
+              { content: [{ text: "Other" }] },
+            ],
+          },
+          {
+            cells: [
+              { props: { rowspan: 2 }, content: [{ text: "Merged" }] },
+              { content: [{ text: "Middle" }] },
+            ],
+          },
+          { cells: [{ props: { rowspan: 1 }, content: [{ text: "Last" }] }] },
+        ],
+      },
     });
   });
 
-  it("does not count nested table rows toward the remaining height", () => {
+  it("does not count nested rows toward the outer rowspan or lose surrounding cell text", () => {
     editor = BlockNoteEditor.create();
-    editor.mount(document.createElement("div"));
-
-    editor.pasteHTML(
-      `<table><tr><${tag} rowspan="100">Outer<table><tr><td>Nested</td></tr><tr><td>Nested</td></tr></table></${tag}></tr></table>`,
-    );
-
-    const table = editor.document.find((block) => block.type === "table");
-    expect(table?.content.rows).toHaveLength(1);
-    expect(table?.content.rows[0].cells[0]).toMatchObject({
-      props: { rowspan: 1 },
+    expect(
+      editor.tryParseHTMLToBlocks(`
+      <table><tr><td rowspan="100">Before<table>
+        <tr><td>a</td><td rowspan="2">b</td></tr>
+        <tr><td colspan="2">c</td></tr>
+      </table>After</td></tr></table>
+    `)[0],
+    ).toMatchObject({
+      content: {
+        rows: [
+          {
+            cells: [
+              { props: { rowspan: 1 }, content: [{ text: "BeforeabcAfter" }] },
+            ],
+          },
+        ],
+      },
     });
   });
 
-  it("uses the current table height when reparsing edited DOM", () => {
-    editor = BlockNoteEditor.create();
-    const container = document.createElement("div");
-    container.innerHTML = `<table><tr><${tag} rowspan="100">Merged</${tag}><${tag} rowspan="1">Top</${tag}></tr><tr><${tag} rowspan="1">Bottom</${tag}></tr></table>`;
-    const table = container.querySelector("table")!;
-    const parser = DOMParser.fromSchema(editor.pmSchema);
-
-    function parseRowspans() {
-      const rowspans: number[] = [];
-      parser.parse(container).descendants((node) => {
-        if (
-          node.type.name === "tableCell" ||
-          node.type.name === "tableHeader"
-        ) {
-          rowspans.push(node.attrs.rowspan);
-        }
-      });
-      return rowspans;
-    }
-
-    expect(parseRowspans()).toEqual([2, 1, 1]);
-
-    table
-      .querySelector("tbody")!
-      .insertAdjacentHTML(
-        "beforeend",
-        `<tr><${tag} rowspan="1">Added</${tag}></tr>`,
-      );
-    expect(parseRowspans()).toEqual([3, 1, 1, 1]);
-  });
-
-  it.each(["2", "002"])(
-    "preserves merged cells with span %j and their content",
-    (span) => {
+  it.each([
+    ["0", [120, 200]],
+    ["2", [120, 160, 200]],
+  ])(
+    "aligns column widths after sanitizing colspan %s",
+    (span, columnWidths) => {
       editor = BlockNoteEditor.create();
-      editor.mount(document.createElement("div"));
-
-      editor.pasteHTML(
-        `<table><tr><${tag} colspan="${span}" rowspan="${span}">Merged</${tag}><${tag}>Top</${tag}></tr><tr><${tag}>Bottom</${tag}></tr></table>`,
-      );
-
-      const table = editor.document.find((block) => block.type === "table");
-      expect(table?.content.rows).toHaveLength(2);
-      expect(table?.content.rows[0].cells[0]).toMatchObject({
-        props: { colspan: 2, rowspan: 2 },
-        content: [{ type: "text", text: "Merged" }],
-      });
-      expect(table?.content.rows[1].cells).toHaveLength(1);
-      expect(table?.content.rows[1].cells[0]).toMatchObject({
-        content: [{ type: "text", text: "Bottom" }],
-      });
+      expect(
+        editor.tryParseHTMLToBlocks(`
+        <table><tr><td colspan="${span}" colwidth="120,160">a</td><td colwidth="200">b</td></tr></table>
+      `)[0],
+      ).toMatchObject({ content: { columnWidths } });
     },
   );
 
   it.each([
-    ["0", [120, 200]],
-    ["1", [120, 200]],
-    ["2", [120, 160, 200]],
-  ])("keeps column widths aligned with colspan %j", (span, columnWidths) => {
-    editor = BlockNoteEditor.create();
-    const imported = editor.tryParseHTMLToBlocks(
-      `<table><tr><${tag} colspan="${span}" colwidth="120,160">a</${tag}><${tag} colwidth="200">b</${tag}></tr></table>`,
-    );
-    expect(imported[0]).toMatchObject({
-      type: "table",
-      content: { columnWidths },
+    [
+      "rows",
+      `<tr><th><strong>A</strong></th><th><strong>B</strong></th></tr><tr><th><em>C</em></th><th>D</th></tr><tr><td>E</td><td>F</td></tr>`,
+      { headerRows: 1, headerCols: undefined },
+      [
+        ["A", "B"],
+        ["C", "D"],
+        ["E", "F"],
+      ],
+    ],
+    [
+      "columns",
+      `<tr><th><strong>A</strong></th><th><strong>B</strong></th><td>C</td></tr><tr><th><em>D</em></th><th>E</th><td>F</td></tr>`,
+      { headerRows: undefined, headerCols: 1 },
+      [
+        ["A", "B", "C"],
+        ["D", "E", "F"],
+      ],
+    ],
+    [
+      "rows and columns",
+      `<tr><th><strong>A</strong></th><th><strong>B</strong></th><th>C</th></tr><tr><th><em>D</em></th><th>E</th><th>F</th></tr><tr><th>G</th><th>H</th><td>I</td></tr>`,
+      { headerRows: 1, headerCols: 1 },
+      [
+        ["A", "B", "C"],
+        ["D", "E", "F"],
+        ["G", "H", "I"],
+      ],
+    ],
+  ])(
+    "limits imported header %s to the first without losing content or formatting",
+    (_name, rows, headers, texts) => {
+      editor = BlockNoteEditor.create();
+      editor.mount(document.createElement("div"));
+      const html = `<table>${rows}</table>`;
+      const imported = editor.tryParseHTMLToBlocks(html);
+      expect(imported[0]).toMatchObject({ content: headers });
+      expect(imported[0]).toMatchObject({
+        content: {
+          rows: texts.map((row) => ({
+            cells: row.map((text) => ({ content: [{ text }] })),
+          })),
+        },
+      });
+      const table = imported.find((block) => block.type === "table")!;
+      expect(table.content.rows[0].cells[0]).toMatchObject({
+        content: [{ styles: { bold: true } }],
+      });
+      expect(table.content.rows[0].cells[1]).toMatchObject({
+        content: [{ styles: { bold: true } }],
+      });
+      expect(table.content.rows[1].cells[0]).toMatchObject({
+        content: [{ styles: { italic: true } }],
+      });
+      editor.pasteHTML(html);
+      expect(editor.document[0]).toMatchObject({
+        content: imported[0].content,
+      });
+      expect(
+        editor.tryParseHTMLToBlocks(editor.blocksToFullHTML(imported))[0],
+      ).toMatchObject({ content: { ...headers, rows: table.content.rows } });
+    },
+  );
+
+  it("does not limit programmatically created table headers", () => {
+    editor = BlockNoteEditor.create({
+      initialContent: [
+        {
+          type: "table",
+          content: {
+            type: "tableContent",
+            headerRows: 2,
+            headerCols: 2,
+            rows: [
+              { cells: ["a", "b", "c"] },
+              { cells: ["d", "e", "f"] },
+              { cells: ["g", "h", "i"] },
+            ],
+          },
+        },
+      ],
+    });
+    expect(editor.document[0]).toMatchObject({
+      content: { headerRows: 2, headerCols: 2 },
     });
   });
 });

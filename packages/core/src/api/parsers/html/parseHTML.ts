@@ -41,13 +41,22 @@ function stripEmptyBlockPlaceholder(content: any[]): any[] {
   return stripped;
 }
 
-function stripEmptyBlockPlaceholderFromBlocks(blocks: Block<any, any, any>[]) {
+function normalizeImportedBlockContent(blocks: Block<any, any, any>[]) {
   for (const block of blocks) {
     if (Array.isArray(block.content)) {
       (block as any).content = stripEmptyBlockPlaceholder(block.content);
+    } else if (block.content?.type === "tableContent") {
+      // Match the table UI: only the first row/column can be headers.
+      // Keep every cell, but import additional headers as ordinary cells.
+      if (block.content.headerRows !== undefined) {
+        block.content.headerRows = Math.min(block.content.headerRows, 1);
+      }
+      if (block.content.headerCols !== undefined) {
+        block.content.headerCols = Math.min(block.content.headerCols, 1);
+      }
     }
     if (block.children.length > 0) {
-      stripEmptyBlockPlaceholderFromBlocks(block.children);
+      normalizeImportedBlockContent(block.children);
     }
   }
 }
@@ -76,7 +85,7 @@ export function HTMLToBlocks<
     blocks.push(nodeToBlock(parentNode.child(i), parentNode));
   }
 
-  stripEmptyBlockPlaceholderFromBlocks(blocks);
+  normalizeImportedBlockContent(blocks);
 
   return blocks;
 }
