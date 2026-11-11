@@ -27,6 +27,27 @@ export function fitTables(blocks: readonly LensBlock[]): LensBlock[] {
   return mapTables(blocks, fitTable);
 }
 
+/** The tables that have merged cells in `before` and none in `after` (see {@link FitWarning}). */
+export function mergedCellsRemoved(
+  before: readonly LensBlock[],
+  after: readonly LensBlock[],
+): FitWarning[] {
+  const withMergedCells = new Set(
+    flattenBlocks(before).flatMap(({ block }) =>
+      isTableContent(block.content) && hasMergedCells(block.content)
+        ? [block.id]
+        : [],
+    ),
+  );
+  return flattenBlocks(after).flatMap(({ block }) =>
+    withMergedCells.has(block.id) &&
+    isTableContent(block.content) &&
+    !hasMergedCells(block.content)
+      ? [{ type: "merged-cells-removed" as const, id: block.id }]
+      : [],
+  );
+}
+
 /**
  * Returns the result of a write with each table that the write changed fit
  * to the rules of a table (see {@link fitTable}). A table that is equal to
@@ -92,27 +113,6 @@ export function fitTable(table: LensTableContent): LensTableContent {
       ],
     })),
   };
-}
-
-/** The tables that have merged cells in `before` and none in `after` (see {@link FitWarning}). */
-export function mergedCellsRemoved(
-  before: readonly LensBlock[],
-  after: readonly LensBlock[],
-): FitWarning[] {
-  const withMergedCells = new Set(
-    flattenBlocks(before).flatMap(({ block }) =>
-      isTableContent(block.content) && hasMergedCells(block.content)
-        ? [block.id]
-        : [],
-    ),
-  );
-  return flattenBlocks(after).flatMap(({ block }) =>
-    withMergedCells.has(block.id) &&
-    isTableContent(block.content) &&
-    !hasMergedCells(block.content)
-      ? [{ type: "merged-cells-removed" as const, id: block.id }]
-      : [],
-  );
 }
 
 function mapTables(

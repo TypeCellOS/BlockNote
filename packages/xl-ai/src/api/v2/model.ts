@@ -10,6 +10,14 @@
  * the casts at the calls into core (for example `as PartialBlock`) go.
  */
 
+export type LensBlock = {
+  id: string;
+  type: string;
+  props: Record<string, unknown>;
+  content: LensBlockContent;
+  children: LensBlock[];
+};
+
 /**
  * The styles of a text: `true` for a style that is on or off (bold), or a value (text color).
  *
@@ -58,14 +66,6 @@ export type LensBlockContent =
   | LensInlineContent[]
   | LensTableContent
   | undefined;
-
-export type LensBlock = {
-  id: string;
-  type: string;
-  props: Record<string, unknown>;
-  content: LensBlockContent;
-  children: LensBlock[];
-};
 
 /**
  * The fields of a block that a merge or an update changes: not its ID and children.

@@ -12,31 +12,6 @@ import type { MatchedPair } from "./types.js";
 export const DEFAULT_MAX_WORK = 10_000_000;
 
 /**
- * A work limit that more than one call of {@link myersMatch} can share: the
- * number of steps that are left. Each call uses steps of it.
- *
- * @internal
- */
-export type WorkBudget = { left: number };
-
-/** The steps of {@link workBudgetFor} for each item of the input. */
-const WORK_PER_ITEM = 50;
-
-/**
- * A work limit for the diffs of an input of `size` items (the items of the
- * two sides) and of its parts: {@link WORK_PER_ITEM} steps for each item,
- * and at least {@link DEFAULT_MAX_WORK}. A caller that diffs many parts of
- * one input (for example the gaps between anchors) gives them this one
- * limit. Thus, the time is linear in the size of the input, also if each
- * part needs its full work.
- *
- * @internal
- */
-export function workBudgetFor(size: number): WorkBudget {
-  return { left: Math.max(DEFAULT_MAX_WORK, WORK_PER_ITEM * size) };
-}
-
-/**
  * Matches `a` and `b` with the Myers O(ND) diff algorithm, in linear space
  * (the "middle snake" bisection, as in diff-match-patch). The result is a
  * longest common subsequence, as matched pairs.
@@ -193,4 +168,29 @@ export function myersMatch<A, B>(
     }
     return undefined;
   }
+}
+
+/**
+ * A work limit that more than one call of {@link myersMatch} can share: the
+ * number of steps that are left. Each call uses steps of it.
+ *
+ * @internal
+ */
+export type WorkBudget = { left: number };
+
+/** The steps of {@link workBudgetFor} for each item of the input. */
+const WORK_PER_ITEM = 50;
+
+/**
+ * A work limit for the diffs of an input of `size` items (the items of the
+ * two sides) and of its parts: {@link WORK_PER_ITEM} steps for each item,
+ * and at least {@link DEFAULT_MAX_WORK}. A caller that diffs many parts of
+ * one input (for example the gaps between anchors) gives them this one
+ * limit. Thus, the time is linear in the size of the input, also if each
+ * part needs its full work.
+ *
+ * @internal
+ */
+export function workBudgetFor(size: number): WorkBudget {
+  return { left: Math.max(DEFAULT_MAX_WORK, WORK_PER_ITEM * size) };
 }

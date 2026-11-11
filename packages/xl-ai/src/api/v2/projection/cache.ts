@@ -28,24 +28,6 @@ const caches = new WeakMap<
   Map<TextFormat, FormatCache>
 >();
 
-/** @internal */
-export function formatCache(
-  editor: BlockNoteEditor<any, any, any>,
-  format: TextFormat,
-): FormatCache {
-  let byFormat = caches.get(editor);
-  if (byFormat === undefined) {
-    byFormat = new Map();
-    caches.set(editor, byFormat);
-  }
-  let cache = byFormat.get(format);
-  if (cache === undefined) {
-    cache = { shadows: new Map() };
-    byFormat.set(format, cache);
-  }
-  return cache;
-}
-
 /**
  * Returns the text of the source document in the format, and a function that
  * gives its projection. Both come from the cache if the source is the last
@@ -69,4 +51,22 @@ export function documentText(
       return last.projection;
     },
   };
+}
+
+/** @internal */
+export function formatCache(
+  editor: BlockNoteEditor<any, any, any>,
+  format: TextFormat,
+): FormatCache {
+  let byFormat = caches.get(editor);
+  if (byFormat === undefined) {
+    byFormat = new Map();
+    caches.set(editor, byFormat);
+  }
+  let cache = byFormat.get(format);
+  if (cache === undefined) {
+    cache = { shadows: new Map() };
+    byFormat.set(format, cache);
+  }
+  return cache;
 }
