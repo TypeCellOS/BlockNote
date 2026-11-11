@@ -191,6 +191,39 @@ describe("a block that two tool calls changed", () => {
     ).toEqual(["Title", "Opening paragraph.", "Second paragraph."]);
   });
 
+  it.fails("KNOWN: a reject of the call that added a block keeps the block if a later call changed it", () => {
+    // The revert of a call is a three-way merge that keeps the proposal on
+    // a conflict. The removal of a block that a later call changed is such
+    // a conflict. Thus the block stays. It also stays after a reject of the
+    // later call: the user rejected the two calls, and the proposal still
+    // has the new block, with the text of the first call.
+    let proposal = createProposal(initialDocument());
+    proposal = write(
+      proposal,
+      "# Title\n\nFirst paragraph.\n\nSecond paragraph.\n\nNew paragraph.\n",
+      "call-1",
+    );
+    proposal = write(
+      proposal,
+      "# Title\n\nFirst paragraph.\n\nSecond paragraph.\n\nNew sentence.\n",
+      "call-2",
+    );
+
+    for (const toolCallId of ["call-1", "call-2"]) {
+      const { batch } = valid(
+        revertToolCall(createEditor, proposal, toolCallId),
+      );
+      proposal = withBatch(proposal, batch);
+    }
+
+    // Now: also "New paragraph.".
+    expect(textsOf(documentOfProposal(proposal))).toEqual([
+      "Title",
+      "First paragraph.",
+      "Second paragraph.",
+    ]);
+  });
+
   it("accepts only the words of the accepted call", () => {
     const proposal = sharedBlock();
     const main = createEditor(initialDocument());

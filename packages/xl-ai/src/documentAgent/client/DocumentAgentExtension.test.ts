@@ -1,5 +1,5 @@
 import { BlockNoteEditor, type PartialBlock } from "@blocknote/core";
-import { withCollaboration } from "@blocknote/core/yjs";
+import { withCollaboration, yXmlFragmentToBlocks } from "@blocknote/core/yjs";
 import type { ChatTransport, UIMessage } from "ai";
 import { afterEach, describe, expect, it } from "vite-plus/test";
 import * as Y from "yjs";
@@ -447,6 +447,68 @@ describe("the document agent in an editor that is bound to a Y.Doc", () => {
       "Second paragraph.",
     ]);
     expect(textsOf(b.editor.document)).toEqual(textsOf(a.editor.document));
+  });
+
+  it.fails("KNOWN: two users who accept a new block at the same time give the shared document one block ID two times", () => {
+    // The same base scenario as the known failure above, for a new block.
+    // Each accept inserts a block with the ID that the block has in the
+    // proposal. After the sync, the shared document has that ID two times.
+    // Each editor gives new IDs to the two blocks in its own view (the
+    // UniqueID plugin). These IDs go to the shared document only with the
+    // next change of that user: until then, the editors do not agree.
+    function editorOn(doc: Y.Doc, name: string) {
+      const editor = BlockNoteEditor.create(
+        withCollaboration({
+          collaboration: {
+            fragment: doc.getXmlFragment("doc"),
+            user: { name, color: "#ff0000" },
+            provider: undefined,
+          },
+          trailingBlock: false,
+          extensions: [AIExtension(), DocumentAgentExtension()],
+        }),
+      );
+      editor.mount(document.createElement("div"));
+      mounted.push(editor);
+      return { editor, agent: editor.getExtension(DocumentAgentExtension)! };
+    }
+    const docA = new Y.Doc();
+    const a = editorOn(docA, "A");
+    a.editor.replaceBlocks(
+      a.editor.document,
+      initialDocument() as PartialBlock[],
+    );
+    const docB = new Y.Doc();
+    Y.applyUpdate(docB, Y.encodeStateAsUpdate(docA));
+    const b = editorOn(docB, "B");
+    const proposal = writeMarkdown(
+      headlessEditorFactory(),
+      createProposal(a.editor.document),
+      "# Title\n\nFirst paragraph.\n\nSecond paragraph.\n\nNew paragraph.\n",
+      "call-1",
+    );
+
+    a.agent.openProposal(proposal);
+    b.agent.openProposal(proposal);
+    a.agent.acceptAll();
+    b.agent.acceptAll();
+    const updateA = Y.encodeStateAsUpdate(docA);
+    Y.applyUpdate(docA, Y.encodeStateAsUpdate(docB));
+    Y.applyUpdate(docB, updateA);
+
+    // Now: "New paragraph." two times, with one ID in the shared document,
+    // and with different IDs in the two editors.
+    const shared = yXmlFragmentToBlocks(a.editor, docA.getXmlFragment("doc"));
+    const sharedIds = shared.map((block) => block.id);
+    expect({
+      sharedIdsAreDifferent: new Set(sharedIds).size === sharedIds.length,
+      idsOfA: a.editor.document.map((block) => block.id),
+      idsOfB: b.editor.document.map((block) => block.id),
+    }).toEqual({
+      sharedIdsAreDifferent: true,
+      idsOfA: sharedIds,
+      idsOfB: sharedIds,
+    });
   });
 
   it("gives the accept to one of two users if the app has an accept guard", async () => {
