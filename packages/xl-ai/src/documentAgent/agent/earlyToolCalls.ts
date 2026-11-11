@@ -121,6 +121,9 @@ export type DocumentProposalData = { proposal: Proposal };
  * of a tool call into the stream at once, as a transient data chunk. After
  * the end or a cancel of the stream, `add` does nothing: no client follows
  * the run.
+ *
+ * Batches that come before the first chunk of `source` wait for that
+ * chunk: a client gets the start of the message first.
  */
 export function withBatchChunks(source: ReadableStream<UIMessageChunk>): {
   stream: ReadableStream<UIMessageChunk>;
@@ -129,6 +132,8 @@ export function withBatchChunks(source: ReadableStream<UIMessageChunk>): {
   const reader = source.getReader();
   let open = true;
   let enqueue: (chunk: UIMessageChunk) => void = () => undefined;
+  /** The batch chunks that wait for the first chunk of `source`. */
+  let waiting: UIMessageChunk[] | undefined = [];
   const stream = new ReadableStream<UIMessageChunk>({
     start(controller) {
       enqueue = (chunk) => controller.enqueue(chunk);
@@ -146,6 +151,10 @@ export function withBatchChunks(source: ReadableStream<UIMessageChunk>): {
         controller.close();
       } else {
         controller.enqueue(next.value);
+        for (const chunk of waiting ?? []) {
+          controller.enqueue(chunk);
+        }
+        waiting = undefined;
       }
     },
     cancel(reason) {
@@ -156,9 +165,19 @@ export function withBatchChunks(source: ReadableStream<UIMessageChunk>): {
   return {
     stream,
     add(batches, toolCallId) {
-      if (open) {
-        const data: DocumentBatchesData = { toolCallId, batches };
-        enqueue({ type: DOCUMENT_BATCHES_CHUNK, data, transient: true });
+      if (!open) {
+        return;
+      }
+      const data: DocumentBatchesData = { toolCallId, batches };
+      const chunk: UIMessageChunk = {
+        type: DOCUMENT_BATCHES_CHUNK,
+        data,
+        transient: true,
+      };
+      if (waiting === undefined) {
+        enqueue(chunk);
+      } else {
+        waiting.push(chunk);
       }
     },
   };

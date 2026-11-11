@@ -59,6 +59,15 @@ export {
   type DocumentSource,
   type InMemoryDocumentStore,
 } from "./stores/documentSource.js";
+export { createRunLog, type RunLog } from "./sessions/runLog.js";
+export {
+  createSessionHost,
+  type RunOrigin,
+  type SessionHost,
+  type SessionHostOptions,
+  type SessionMessageMetadata,
+  type SessionSnapshot,
+} from "./sessions/sessionHost.js";
 export {
   createInMemoryProposalStore,
   type InMemoryProposalStore,
