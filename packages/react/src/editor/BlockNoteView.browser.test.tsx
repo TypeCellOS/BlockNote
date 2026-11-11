@@ -449,6 +449,25 @@ if (!screenReader) {
 
   describe("axe", () => {
     for (const theme of ["light", "dark"] as const) {
+      it(`placeholder contrast: axe (${theme})`, async ({ runAxe }) => {
+        const placeholder = document.createElement("div");
+        placeholder.id = "placeholder-contrast";
+        placeholder.className = "bn-root";
+        placeholder.dataset.colorScheme = theme;
+        placeholder.setAttribute("role", "main");
+        placeholder.style.backgroundColor =
+          "var(--bn-colors-editor-background)";
+        placeholder.style.color = "var(--bn-colors-side-menu)";
+        placeholder.textContent = "Enter text or type '/' for commands";
+        document.body.append(placeholder);
+        try {
+          const results = await runAxe(page.elementLocator(placeholder));
+          expect(results.violations).toEqual([]);
+        } finally {
+          placeholder.remove();
+        }
+      });
+
       // Known issues include the unnamed editor, unlabeled checklist checkboxes,
       // insufficient contrast, and undersized targets.
       it.skip(`default schema: axe (${theme})`, async ({ runAxe }) => {
