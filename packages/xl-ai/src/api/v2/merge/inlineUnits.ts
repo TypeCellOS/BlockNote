@@ -38,14 +38,6 @@ export type InlineUnit =
     }
   | { kind: "atom"; item: LensInlineContent; key: string };
 
-/** A character of the shadow of an item: the item, the shadow (`id`), and the index of the character in the shadow. */
-type Shadow = {
-  item: LensInlineContent;
-  id: number;
-  index: number;
-  length: number;
-};
-
 /** @internal */
 export function toUnits(
   content: readonly LensInlineContent[],
@@ -80,33 +72,6 @@ export function toUnits(
     }
   }
   return units;
-}
-
-/**
- * Returns true if the units from `start` are all characters of one shadow,
- * in order, without a style or a link (a shadow starts without them, see
- * {@link toUnits}). If the text gave the characters a style or a link (for
- * example "**@Bob**" in markdown), they stay text with it.
- */
-function isFullShadow(units: readonly InlineUnit[], start: number): boolean {
-  const first = units[start];
-  if (first.kind !== "char" || first.shadow?.index !== 0) {
-    return false;
-  }
-  const { id, length } = first.shadow;
-  for (let k = 0; k < length; k++) {
-    const unit = units[start + k];
-    if (
-      unit?.kind !== "char" ||
-      unit.shadow?.id !== id ||
-      unit.shadow.index !== k ||
-      unit.href !== undefined ||
-      Object.keys(unit.styles).length > 0
-    ) {
-      return false;
-    }
-  }
-  return true;
 }
 
 /**
@@ -146,6 +111,68 @@ export function fromUnits(units: readonly InlineUnit[]): LensInlineContent[] {
   return content;
 }
 
+/**
+ * Aligns two unit sequences (see `alignText`). The alignment does not compare
+ * styles. The merge does that in a different step.
+ *
+ * @internal
+ */
+export function alignUnits(
+  a: readonly InlineUnit[],
+  b: readonly InlineUnit[],
+): MatchedPair[] {
+  return alignText(a.map(textUnitOf), b.map(textUnitOf));
+}
+
+/**
+ * Returns true if two units are the same: the same character with the same styles and link, or the same atom.
+ *
+ * @internal
+ */
+export function sameUnitWithStyles(a: InlineUnit, b: InlineUnit): boolean {
+  if (a.kind === "char" && b.kind === "char") {
+    return (
+      a.char === b.char && a.href === b.href && sameStyles(a.styles, b.styles)
+    );
+  }
+  return a.kind === "atom" && b.kind === "atom" && a.key === b.key;
+}
+
+/** A character of the shadow of an item: the item, the shadow (`id`), and the index of the character in the shadow. */
+type Shadow = {
+  item: LensInlineContent;
+  id: number;
+  index: number;
+  length: number;
+};
+
+/**
+ * Returns true if the units from `start` are all characters of one shadow,
+ * in order, without a style or a link (a shadow starts without them, see
+ * {@link toUnits}). If the text gave the characters a style or a link (for
+ * example "**@Bob**" in markdown), they stay text with it.
+ */
+function isFullShadow(units: readonly InlineUnit[], start: number): boolean {
+  const first = units[start];
+  if (first.kind !== "char" || first.shadow?.index !== 0) {
+    return false;
+  }
+  const { id, length } = first.shadow;
+  for (let k = 0; k < length; k++) {
+    const unit = units[start + k];
+    if (
+      unit?.kind !== "char" ||
+      unit.shadow?.id !== id ||
+      unit.shadow.index !== k ||
+      unit.href !== undefined ||
+      Object.keys(unit.styles).length > 0
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
+
 /** Returns the texts of the last item of `content`, if it is a link with the `href`. If not, adds a link with the `href` first. */
 function linkTexts(
   content: LensInlineContent[],
@@ -164,35 +191,8 @@ function sameStyles(a: LensStyles, b: LensStyles) {
   return stableStringify(a) === stableStringify(b);
 }
 
-/**
- * Aligns two unit sequences (see `alignText`). The alignment does not compare
- * styles. The merge does that in a different step.
- *
- * @internal
- */
-export function alignUnits(
-  a: readonly InlineUnit[],
-  b: readonly InlineUnit[],
-): MatchedPair[] {
-  return alignText(a.map(textUnitOf), b.map(textUnitOf));
-}
-
 function textUnitOf(unit: InlineUnit): TextUnit {
   return unit.kind === "char"
     ? { key: unit.char, kind: charKind(unit.char) }
     : { key: `\u0000${unit.key}`, kind: "other" };
-}
-
-/**
- * Returns true if two units are the same: the same character with the same styles and link, or the same atom.
- *
- * @internal
- */
-export function sameUnitWithStyles(a: InlineUnit, b: InlineUnit): boolean {
-  if (a.kind === "char" && b.kind === "char") {
-    return (
-      a.char === b.char && a.href === b.href && sameStyles(a.styles, b.styles)
-    );
-  }
-  return a.kind === "atom" && b.kind === "atom" && a.key === b.key;
 }

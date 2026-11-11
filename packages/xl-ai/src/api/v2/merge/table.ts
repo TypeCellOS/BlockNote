@@ -11,8 +11,6 @@ import { diff3 } from "./diff3.js";
 import { mergeInlineContent } from "./inline.js";
 import { type MergeOptions, mergeRecords, mergeValue } from "./threeWay.js";
 
-type Row = LensTableCell[];
-
 /**
  * Three-way merge of table content, row by row (diff3, see `alignRows`) and
  * cell by cell.
@@ -99,6 +97,8 @@ export function mergeTableContent(
     rows: rows.map((cells) => ({ cells })),
   };
 }
+
+type Row = LensTableCell[];
 
 /**
  * The key of a row: the texts of its cells. Equal keys are equal rows. A
