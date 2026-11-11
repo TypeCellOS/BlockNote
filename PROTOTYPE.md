@@ -18,7 +18,8 @@ Read this section first. The sections after it are in the order of the work, and
 - The review of a user reaches the agent: the decision is in the tool output of the chat (section 14.1).
 - Guards that keep suggestions out of the main document (section 14.7).
 - Two modes behind small interfaces (sections 15 and 16): the proposal mode (all sections before 15), and a Yjs 14 mode where the agent writes into a suggestion document. The two have a host side, an editor extension, and a mode in the chat example, examined in a browser.
-- 127 tests with a mock model, a test with random concurrent edits that runs on the two modes (sections 14.10 and 15.4), and four tests that are known failures (below). Live measurements with Haiku 5.5 (sections 9, 13.3 to 13.5).
+- The replay animation in the two modes: the changes of a run show one after the other, as the changes of a person who edits the document (section 16.8).
+- 148 tests with a mock model, a test with random concurrent edits that runs on the two modes (sections 14.10 and 15.4), and four tests that are known failures (below). Live measurements with Haiku 5.5 (sections 9, 13.3 to 13.5).
 
 **Decisions of 11 November**
 
@@ -178,7 +179,7 @@ All writes are lens writes (`proposal/review.ts`, `proposal/rebase.ts`):
 - `client/DocumentAgentExtension.ts` keeps the copy of the proposal of the client. For each tool output in the stream, it applies the batches, replays the proposal in a headless editor, and compares the hash.
 - The display is derived (`proposal/derive.ts`, `client/suggestions.ts`): remove the old suggestion marks, compute the "accept all" write on the clean document, and apply its operations as suggestion marks. For an editor that is bound to a Y.Doc, the marks go into a local fork (`ForkYDocExtension`). The shared document never has suggestion marks. A test and a browser run with two clients examine this.
 - Each suggestion mark gets the suggestion ID of the tool call that changed its block (the batch number, see decision 3).
-- The replay animation: the insertions of the newest batch show one after the other, and the text of each one shows from its start to its end (12 ms for each character). The document gets the full batch at once. The animation is only in the view: decorations of the extension and CSS (`replayAnimation: false` turns it off, and `prefers-reduced-motion` too).
+- The replay animation: the changes of the tool calls of a run show one after the other. The document gets the full batch at once. The animation is only in the view (`replayAnimation: false` turns it off, and `prefers-reduced-motion` too). Section 16.8 has the current design.
 - `client/DocumentAgentReview.tsx` shows one card for each tool call: the reason, an accept and a reject. The pointer on a card marks its suggestions, and the pointer on a suggestion marks its card.
 - `client/DocumentAgentMenu.tsx` reuses `AIMenu` of the old engine with new items.
 
@@ -833,7 +834,7 @@ One more observation, not a fault of a mode: in the first run, Haiku gave `repla
 ### 16.5 What the Yjs 14 mode does not have
 
 1. **The AI menu in Yjs 14 mode.** Done after this section: I examined it in a browser. The menu opens from the slash menu, runs the prompt, and has "Accept" and "Revert" after the run. An accept in the menu accepts all open tool calls and ends the review. One change was necessary (`afterReset` of a mode): if a review ends without a decision (the AI menu closes), the suggestions stay in the document, and the review continues. A review also continues after a reload of the page, because it is in the suggestion document. The flag `menu=1` of the example opens the AI menu for a run from the chat.
-2. **The replay animation.** The changes arrive through the Yjs sync, thus the animation needs a different start. The code of the animation is now shared (`client/replayAnimation.ts`): a mode tells which nodes are new. The Yjs 14 mode does not use it yet.
+2. **The replay animation.** Done after this section: see section 16.8.
 3. **A provider and a store for a production host.** Done in part after this section: see section 16.7. The relay of the demo keeps the two documents in memory.
 4. **A tool that throws after its write** leaves a change in the suggestion document without a record. No user can accept or reject it as a tool call.
 5. Still open from 15.6: a user who types in a suggested block, suggestions of users in the same suggestion document, performance, and conflicts between a user and the agent in the test matrix.
@@ -848,6 +849,8 @@ Your question: does the reveal with `clip-path` work for text on more than one l
 The fix (`client/replayAnimation.ts`): new text has one decoration for each word, with its own delay, and the animation applies no state after its end. A word is on one line. In a run in a browser, an insertion over 9 lines had 91 parts, each on one line.
 
 The content still goes into the document in one step. The old engine writes its steps one after the other with timers (`prosemirror/agent.ts`): the document agent does not do this.
+
+Section 16.8 replaces this design: the animation has no `clip-path` and no CSS delay now.
 
 ### 16.7 The provider and the stores of a host (11 November)
 
@@ -867,6 +870,74 @@ Not done:
 
 - A store for the streams of the runs. A run is in the memory of one process: an editor can follow it only through that process.
 - A proposal store on a database, for the proposal mode.
+
+### 16.8 The replay animation: as a person who edits (11 November)
+
+Your request: the animation also for removed blocks, for changed blocks and for the Yjs 14 mode. A new block shows its text word by word. The result must look like the work of a person who edits the document.
+
+**What a user sees.** The changes of a tool call show in the sequence of the document:
+
+- Removed text gets its strike-through word by word (5 ms for each character).
+- New text shows word by word (14 ms for each character), with a caret at the end of the word. Text that the agent did not reach is not there for the layout: the text after it moves when a word shows, and a paragraph grows line by line.
+- A new block appears without text (120 ms), then its text shows word by word. A new block in a new block appears in its turn.
+- A removed block shows as a block without a change until its turn. Then it gets its style as a whole (300 ms).
+- A block with a new type or a new prop, and text with a new format, get a short highlight (400 ms).
+- The agent takes 150 ms to go to a different block. The changes of one tool call take 6 seconds at most: a longer tool call runs faster.
+- The tool calls show one after the other. A tool call that arrives during the animation of an earlier one waits.
+- The animation continues after the end of the run, to its own end.
+
+**The design.** The sequence is in the code (`client/replayAnimation.ts`), not in CSS delays. Each part of a change has a state that depends only on the time: `pending`, `active` or `done`. A decoration gives the kind and the state to the style sheet, and a timer updates the view at the next change of a state. Thus a test examines the animation with a clock, without a browser.
+
+The reason for the change: a CSS delay is not correct in an editor. ProseMirror makes an element again in some updates, and changes its style in place in other updates. I measured the two cases in Chromium, for an animation that starts 2000 ms after the element appears, 500 ms later:
+
+- The element is made again: the animation starts again. The delay must be 1500 ms.
+- The style changes in place to a delay of 1500 ms: the animation starts after 1000 ms, which is 500 ms too early.
+
+No delay is correct for the two cases, and the extension does not know which case applies.
+
+**The two modes.** The plugin is the same (`createReplayPlugin`). A mode tells which nodes show a new change, and of which tool call:
+
+- Proposal mode: the suggestion marks of the tool calls that arrived in the run.
+- Yjs 14 mode: the suggestion marks whose author is a tool call that arrived in the suggestion document during a run that the editor started or follows. A tool call that arrives at a different time shows at once: with the document at the start, or from a run that the editor does not follow.
+
+`replayAnimation: false` turns the animation off in the two modes. With `prefers-reduced-motion`, the changes show at once.
+
+**What I examined in a browser** (Chromium, Haiku 5.5, one prompt with four tool calls: spelling corrections, a new list item with two sentences, a removed paragraph, a heading with a new level):
+
+- Yjs 14 mode in real time: a recorder in the page had 32 samples. The parts showed in sequence, the new list item grew word by word (three lines), and the last decoration went away 3.3 seconds after the first change.
+- The two modes with a stopped clock: I moved the clock in steps and read the style of each part. Before its turn, a removed word, a removed block and a changed block have the style of text without a change, and a new block is not there. After the end, no decoration is left and no text is hidden.
+
+**Limits**
+
+1. A block with a new type shows the new type when the tool call arrives: the document has only the new type. The highlight comes in its turn.
+2. The parts follow the suggestions. For "sofware" to "software", the suggestion is one new letter, thus the animation adds one letter. It does not write the word again.
+3. In Yjs 14 mode, a tool call that arrives after the end of its run shows at once. This can occur if the document sync is slower than the stream of the run.
+4. A table row, and a block without text (an image), appear and go as a whole.
+5. Not examined in a browser: tables, images, nested lists (a unit test has a nested block), the dark theme, Firefox and Safari.
+6. During the animation, the view updates 10 to 20 times in a second, and each update examines the document. Not measured on a large document.
+7. The editor does not scroll to the place of a change.
+
+### 16.9 How much the code depends on the AI SDK (11 November)
+
+Your questions: how much the document agent depends on the AI SDK of Vercel, and if TanStack AI is an alternative.
+
+**Measured** (code lines of the document agent, without comments and tests: 4,407):
+
+- 15 files import the AI SDK. 9 of them import only types (`UIMessage`, `UIMessageChunk`, `ChatTransport`), and 2 use only its function for a new ID.
+- 4 files use the loop, the tools or the chat of the SDK, about 700 lines: the agent loop (`agent/documentAgent.ts`), the early start of a tool call (`agent/earlyToolCalls.ts`), the tool definitions (`tools/aiSdkTools.ts`), and the chat of the editor (`client/agentExtension.ts`).
+- About 2,600 lines have no import of the SDK: the lens, the tools on `AgentDocument`, the proposal, the review, the Yjs 14 mode, the replay animation.
+
+**Three layers, from small to large**
+
+1. The loop, the model and the tool format: small. `tools/documentTools.ts` does not know the SDK. A different loop needs a new `aiSdkTools.ts` and a new `documentAgent.ts`.
+2. The chat model and the stream format (`UIMessage`, `UIMessageChunk`, `Chat`, `ChatTransport`): this is the real dependency. The sessions, the stores, the review in the tool outputs and the example use these types.
+3. The public API of `@blocknote/xl-ai`: it is the AI SDK already (the old engine and its docs). A different library is a breaking change for each user of xl-ai.
+
+**Resumable streams:** almost no dependency. The prototype does not use the SDK for this: `RunLog` keeps the chunks of a run in memory, and `follow` reads them. The SDK guide uses the package `resumable-stream` on Redis, and the ID of the active stream with the chat. A run store would be an interface in the session code with the same pattern.
+
+**TanStack AI** (version 1.0, from its documentation, not from a test): it has its own stream protocol (AG-UI) and does not read or write the protocol of the AI SDK. It has tool definitions for the server and the client, a loop with a strategy, middleware for chunks and tool calls, and resumable streams in the library (in memory, a durable stream, Upstash). Four needs of the document agent are not verified: custom data in the stream, an editor that follows a run that a different client started, a stop of a run across processes, and the start of a tool when the model has written its call.
+
+**My recommendation:** stay on the AI SDK. Its dependency in layer 3 is a fact of xl-ai, and most apps that use xl-ai have the SDK already. Keep layer 1 behind `AgentDocument` and the tool list, as it is now. If you want a second opinion, a spike of TanStack AI must answer the four needs first: it is the real alternative, and its resumable streams are better than what the SDK has in its core.
 
 ## 17. For later: the Yjs 14 mode as the only mode (11 November)
 
