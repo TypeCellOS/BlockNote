@@ -12,6 +12,37 @@ import {
 } from "../util/sequence/index.js";
 
 /**
+ * Adds the steps that change the inline content at `start` (the content of
+ * `current`) to `target`. The steps change only what is different:
+ *
+ * - A `ReplaceStep` for each run of characters or nodes that changed.
+ * - An `AddMarkStep` or `RemoveMarkStep` for each run of equal characters
+ *   with different marks.
+ *
+ * Thus, the steps keep the text that did not change, with its marks that the
+ * target does not contain (for example comments). A collaboration binding
+ * then sees only the small changes.
+ *
+ * Method: our own design, built on the alignment of `alignText`.
+ *
+ * @internal
+ */
+export function addInlineContentSteps(
+  tr: Transform,
+  start: number,
+  current: Node,
+  target: Fragment,
+) {
+  const a = unitsOf(current.content);
+  const b = unitsOf(target);
+  // The alignment of the merge. Thus, a changed word is one change.
+  const pairs = alignText(a, b);
+  // Mark steps do not move positions. Thus, add them first.
+  addMarkSteps(tr, start, a, b, pairs);
+  addReplaceSteps(tr, start, current, target, a, b, pairs);
+}
+
+/**
  * One unit of inline content in ProseMirror: a character (a code point, thus
  * never half of a surrogate pair) or an inline node that is not text.
  */
@@ -54,37 +85,6 @@ function unitsOf(content: Fragment): Unit[] {
 /** Marks that BlockNote JSON does not contain (for example comments). The steps never remove them. */
 function isIgnored(mark: Mark): boolean {
   return mark.type.spec.blocknoteIgnore === true;
-}
-
-/**
- * Adds the steps that change the inline content at `start` (the content of
- * `current`) to `target`. The steps change only what is different:
- *
- * - A `ReplaceStep` for each run of characters or nodes that changed.
- * - An `AddMarkStep` or `RemoveMarkStep` for each run of equal characters
- *   with different marks.
- *
- * Thus, the steps keep the text that did not change, with its marks that the
- * target does not contain (for example comments). A collaboration binding
- * then sees only the small changes.
- *
- * Method: our own design, built on the alignment of `alignText`.
- *
- * @internal
- */
-export function addInlineContentSteps(
-  tr: Transform,
-  start: number,
-  current: Node,
-  target: Fragment,
-) {
-  const a = unitsOf(current.content);
-  const b = unitsOf(target);
-  // The alignment of the merge. Thus, a changed word is one change.
-  const pairs = alignText(a, b);
-  // Mark steps do not move positions. Thus, add them first.
-  addMarkSteps(tr, start, a, b, pairs);
-  addReplaceSteps(tr, start, current, target, a, b, pairs);
 }
 
 /**
