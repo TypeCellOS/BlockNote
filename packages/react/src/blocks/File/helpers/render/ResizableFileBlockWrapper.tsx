@@ -11,7 +11,6 @@ export const ResizableFileBlockWrapper = (
       BlockConfig<
         FileBlockConfig["type"],
         FileBlockConfig["propSchema"] & {
-          showPreview?: { default: true };
           previewWidth?: { default: number };
           textAlignment?: { default: "left" };
         },
@@ -165,7 +164,7 @@ export const ResizableFileBlockWrapper = (
       onMouseEnter={wrapperMouseEnterHandler}
       onMouseLeave={wrapperMouseLeaveHandler}
       style={
-        props.block.props.url && !showLoader && props.block.props.showPreview
+        props.block.props.url && !showLoader
           ? {
               width: width ? `${width}px` : "fit-content",
             }

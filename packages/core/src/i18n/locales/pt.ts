@@ -287,13 +287,13 @@ export const pt: Dictionary = {
     },
     file_rename: {
       tooltip: {
-        image: "Renomear imagem",
+        image: "Texto alternativo",
         video: "Renomear vídeo",
         audio: "Renomear áudio",
         file: "Renomear arquivo",
       },
       input_placeholder: {
-        image: "Renomear imagem",
+        image: "Texto alternativo",
         video: "Renomear vídeo",
         audio: "Renomear áudio",
         file: "Renomear arquivo",
@@ -314,9 +314,6 @@ export const pt: Dictionary = {
         audio: "Excluir áudio",
         file: "Excluir arquivo",
       },
-    },
-    file_preview_toggle: {
-      tooltip: "Alternar visualização",
     },
     nest: {
       tooltip: "Aninhar bloco",

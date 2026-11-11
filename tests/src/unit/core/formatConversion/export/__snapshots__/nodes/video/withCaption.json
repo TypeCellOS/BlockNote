@@ -10,7 +10,6 @@
           "caption": "Video caption",
           "name": "Example Video",
           "previewWidth": undefined,
-          "showPreview": true,
           "textAlignment": "left",
           "url": "https://example.com/video.mp4",
         },

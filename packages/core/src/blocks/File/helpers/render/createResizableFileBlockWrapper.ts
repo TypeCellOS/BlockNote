@@ -14,7 +14,6 @@ export const createResizableFileBlockWrapper = (
         name: { default: "" };
         url: { default: "" };
         caption: { default: "" };
-        showPreview?: { default: true };
         previewWidth?: { default: number };
         textAlignment?: { default: "left" };
       },
@@ -36,7 +35,7 @@ export const createResizableFileBlockWrapper = (
   );
   const wrapper = dom;
   wrapper.style.position = "relative";
-  if (block.props.url && block.props.showPreview) {
+  if (block.props.url) {
     if (block.props.previewWidth) {
       wrapper.style.width = `${block.props.previewWidth}px`;
     } else {

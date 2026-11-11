@@ -336,13 +336,13 @@ export const zhTW: Dictionary = {
     },
     file_rename: {
       tooltip: {
-        image: "重新命名圖片",
+        image: "替代文字",
         video: "重新命名影片",
         audio: "重新命名音訊",
         file: "重新命名檔案",
       },
       input_placeholder: {
-        image: "重新命名圖片",
+        image: "替代文字",
         video: "重新命名影片",
         audio: "重新命名音訊",
         file: "重新命名檔案",
@@ -363,9 +363,6 @@ export const zhTW: Dictionary = {
         audio: "刪除音訊",
         file: "刪除檔案",
       },
-    },
-    file_preview_toggle: {
-      tooltip: "切換預覽",
     },
     nest: {
       tooltip: "巢狀",

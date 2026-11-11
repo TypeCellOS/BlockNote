@@ -293,13 +293,13 @@ export const es: Dictionary = {
     },
     file_rename: {
       tooltip: {
-        image: "Renombrar imagen",
+        image: "Texto alternativo",
         video: "Renombrar vídeo",
         audio: "Renombrar audio",
         file: "Renombrar archivo",
       } as Record<string, string>,
       input_placeholder: {
-        image: "Renombrar imagen",
+        image: "Texto alternativo",
         video: "Renombrar vídeo",
         audio: "Renombrar audio",
         file: "Renombrar archivo",
@@ -320,9 +320,6 @@ export const es: Dictionary = {
         audio: "Eliminar audio",
         file: "Eliminar archivo",
       } as Record<string, string>,
-    },
-    file_preview_toggle: {
-      tooltip: "Alternar vista previa",
     },
     nest: {
       tooltip: "Anidar bloque",

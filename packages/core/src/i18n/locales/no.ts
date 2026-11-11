@@ -312,13 +312,13 @@ export const no: Dictionary = {
     },
     file_rename: {
       tooltip: {
-        image: "Endre navn på bilde",
+        image: "Alternativ tekst",
         video: "Endre navn på video",
         audio: "Endre navn på lyd",
         file: "Endre navn på fil",
       } as Record<string, string>,
       input_placeholder: {
-        image: "Endre navn på bilde",
+        image: "Alternativ tekst",
         video: "Endre navn på video",
         audio: "Endre navn på lyd",
         file: "Endre navn på fil",
@@ -339,9 +339,6 @@ export const no: Dictionary = {
         audio: "Slett lyd",
         file: "Slett fil",
       } as Record<string, string>,
-    },
-    file_preview_toggle: {
-      tooltip: "Veksle forhåndsvisning",
     },
     nest: {
       tooltip: "Plasser blokk inni",

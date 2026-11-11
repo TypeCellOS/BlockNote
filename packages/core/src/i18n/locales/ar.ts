@@ -280,13 +280,13 @@ export const ar: Dictionary = {
     },
     file_rename: {
       tooltip: {
-        image: "إعادة تسمية الصورة",
+        image: "النص البديل",
         video: "إعادة تسمية الفيديو",
         audio: "إعادة تسمية الصوت",
         file: "إعادة تسمية الملف",
       } as Record<string, string>,
       input_placeholder: {
-        image: "إعادة تسمية الصورة",
+        image: "النص البديل",
         video: "إعادة تسمية الفيديو",
         audio: "إعادة تسمية الصوت",
         file: "إعادة تسمية الملف",
@@ -307,9 +307,6 @@ export const ar: Dictionary = {
         audio: "حذف الصوت",
         file: "حذف الملف",
       } as Record<string, string>,
-    },
-    file_preview_toggle: {
-      tooltip: "تبديل المعاينة",
     },
     nest: {
       tooltip: "محتويات متداخلة",

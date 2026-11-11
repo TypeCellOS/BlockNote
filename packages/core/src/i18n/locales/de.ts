@@ -314,13 +314,13 @@ export const de: Dictionary = {
     },
     file_rename: {
       tooltip: {
-        image: "Bild umbenennen",
+        image: "Alternativtext",
         video: "Video umbenennen",
         audio: "Audio umbenennen",
         file: "Datei umbenennen",
       },
       input_placeholder: {
-        image: "Bild umbenennen",
+        image: "Alternativtext",
         video: "Video umbenennen",
         audio: "Audio umbenennen",
         file: "Datei umbenennen",
@@ -341,9 +341,6 @@ export const de: Dictionary = {
         audio: "Audio löschen",
         file: "Datei löschen",
       },
-    },
-    file_preview_toggle: {
-      tooltip: "Vorschau umschalten",
     },
     nest: {
       tooltip: "Block verschachteln",
