@@ -3,6 +3,9 @@ import * as Y from "@y/y";
 import { Hono } from "hono";
 import { streamSSE } from "hono/streaming";
 
+import { keepInFile } from "./documentAgent/fileStores.js";
+import { dataFolder } from "./documentAgent/storage.js";
+
 // A small Yjs 14 collaboration server for the Yjs 14 mode of the document
 // agent. A room has two Y.Docs: the main document, and the suggestion
 // document (the main document plus the changes of the agent that no user
@@ -52,6 +55,20 @@ function roomOf(name: string): Room {
     // No garbage collection: a reject of a suggested deletion needs its
     // text (see `review.ts` of the Yjs 14 mode).
     const suggestion = new Y.Doc({ isSuggestionDoc: true, gc: false });
+    // With a data directory, the two documents stay after a restart.
+    const folder = dataFolder("yjs14");
+    if (folder !== undefined) {
+      for (const [doc, file] of [
+        [main, "main"],
+        [suggestion, "suggestion"],
+      ] as const) {
+        keepInFile(`${folder}/${encodeURIComponent(name)}.${file}.bin`, {
+          apply: (state) => Y.applyUpdate(doc, state),
+          encode: () => Y.encodeStateAsUpdate(doc),
+          onUpdate: (listener) => doc.on("update", listener),
+        });
+      }
+    }
     // The suggestion document has all content of the main document.
     keepSuggestionCurrent(main, suggestion);
     room = { main: withListeners(main), suggestion: withListeners(suggestion) };
@@ -78,7 +95,7 @@ export function openSuggestionOf(room: string) {
     : { suggestion: suggestion.doc, fragment: YJS14_FRAGMENT };
 }
 
-/** The number of the last session notice of each room. */
+/** The value of the last session notice of each room. */
 const notices = new Map<string, number>();
 
 /**
@@ -87,9 +104,11 @@ const notices = new Map<string, number>();
  * through their Yjs connection.
  */
 export function notifySessionOf(room: string): void {
-  const count = (notices.get(room) ?? 0) + 1;
-  notices.set(room, count);
-  roomOf(room).suggestion.doc.get(YJS14_NOTICES).setAttr("session", count);
+  // The value is the time: it is new also after a restart of the server,
+  // when the suggestion document has the value of an earlier notice.
+  const value = Math.max((notices.get(room) ?? 0) + 1, Date.now());
+  notices.set(room, value);
+  roomOf(room).suggestion.doc.get(YJS14_NOTICES).setAttr("session", value);
 }
 
 function toBase64(update: Uint8Array): string {

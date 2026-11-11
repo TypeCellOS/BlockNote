@@ -1,9 +1,11 @@
 import {
   type Batch,
+  type ChatStore,
   type CreateEditor,
   createSessionHost,
   type DocumentSource,
   type ProposalStore,
+  type RunStore,
   type SessionHost,
 } from "@blocknote/xl-ai/server";
 import {
@@ -40,6 +42,11 @@ const MAX_OUTPUT_TOKENS = 16000;
 //   others).
 // - `POST /stop`: stops the run in progress.
 //
+// The hosts keep the state of a session in stores (`stores`, and
+// `proposals`). With stores on files, a second server process on the same
+// files has the same sessions: an editor follows a run through each
+// process, and each process can stop it.
+//
 // A source of the Yjs 14 mode (`suggestionSources`) has the same routes
 // for the chat and the runs: this is the shared code of the two modes. It
 // has no routes for the review (404): a decision of a user is a change of
@@ -58,6 +65,11 @@ export function registerSessionRoutes<Source extends string>(
       SuggestionSessionHostOptions["openSuggestion"]
     >;
     proposals: ProposalStore;
+    /**
+     * The stores of the chats (one for each source) and of the streams of
+     * the runs. Without them, they are in the memory of the process.
+     */
+    stores?: { chats(source: string): ChatStore; runs: RunStore };
     createEditor: CreateEditor;
     /** Tells the editors of the document that its session changed. */
     notify(source: string, documentId: string): void;
@@ -84,6 +96,8 @@ export function registerSessionRoutes<Source extends string>(
         reasoning: documentAgentReasoning(),
         maxOutputTokens: MAX_OUTPUT_TOKENS,
         openSuggestion,
+        chats: options.stores?.chats(source),
+        runs: options.stores?.runs,
         onChange: (documentId) => options.notify(source, documentId),
         onRunError(documentId, error) {
           // eslint-disable-next-line no-console
@@ -126,6 +140,8 @@ export function registerSessionRoutes<Source extends string>(
         maxOutputTokens: MAX_OUTPUT_TOKENS,
         createEditor: options.createEditor,
         proposals: options.proposals,
+        chats: options.stores?.chats(name),
+        runs: options.stores?.runs,
         readMain: (documentId) => options.sources[name].read(documentId),
         onChange: (documentId) => options.notify(name, documentId),
         onRunError(documentId, error) {
@@ -184,7 +200,9 @@ export function registerSessionRoutes<Source extends string>(
     if (started.error !== undefined) {
       return c.json(started, statusOf(started.error));
     }
-    return createUIMessageStreamResponse({ stream: started.run.follow() });
+    return createUIMessageStreamResponse({
+      stream: await started.run.follow(),
+    });
   });
 
   // A prompt from outside the editors. The response does not wait.
@@ -208,15 +226,15 @@ export function registerSessionRoutes<Source extends string>(
   });
 
   // The run in progress, from its start.
-  route.get("/sessions/:source/:id/stream", (c) => {
+  route.get("/sessions/:source/:id/stream", async (c) => {
     const selected = hostOf(c.req.param("source"));
     if (selected.error !== undefined) {
       return c.json(selected, statusOf(selected.error));
     }
-    const run = selected.host.activeRun(c.req.param("id"));
+    const run = await selected.host.activeRun(c.req.param("id"));
     return run === undefined
       ? c.body(null, 204)
-      : createUIMessageStreamResponse({ stream: run.follow() });
+      : createUIMessageStreamResponse({ stream: await run.follow() });
   });
 
   // The accept or the reject of one tool call.
@@ -267,12 +285,12 @@ export function registerSessionRoutes<Source extends string>(
       : c.json(closed, statusOf(closed.error));
   });
 
-  route.post("/sessions/:source/:id/stop", (c) => {
+  route.post("/sessions/:source/:id/stop", async (c) => {
     const selected = hostOf(c.req.param("source"));
     if (selected.error !== undefined) {
       return c.json(selected, statusOf(selected.error));
     }
-    selected.host.stopRun(c.req.param("id"));
+    await selected.host.stopRun(c.req.param("id"));
     return c.json({ ok: true });
   });
 }

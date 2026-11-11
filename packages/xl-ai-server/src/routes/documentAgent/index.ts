@@ -15,9 +15,17 @@ import { createUIMessageStreamResponse } from "ai";
 import { Hono } from "hono";
 import { streamSSE } from "hono/streaming";
 
+import {
+  createFileChatStore,
+  createFileDocumentStore,
+  createFileProposalStore,
+  createFileRunStore,
+  type DocumentStore,
+} from "./fileStores.js";
 import { documentAgentModel, documentAgentReasoning } from "./models.js";
 import { notifySessionOf, openSuggestionOf } from "../yjs14Relay.js";
 import { registerSessionRoutes } from "./sessions.js";
+import { dataDirectory, dataFolder } from "./storage.js";
 import {
   createYjsDocumentSource,
   type ProposalNotice,
@@ -37,6 +45,8 @@ import {
 // - `/sessions/...`: the server keeps the chat and the one open proposal of
 //   each document. A message of a user and a prompt from outside start a
 //   run in the same way, and each editor follows it (see `sessions.ts`).
+// - `GET /storage`: where this server keeps the state of the sessions: in
+//   memory, or in files that stay after a restart (see `storage.ts`).
 
 export const documentAgentRoute = new Hono();
 
@@ -110,10 +120,21 @@ type Run = {
   answer: string;
 };
 
-// The stores of this demo server are in memory. A production server uses a
+// The stores of this demo server are in memory, or on files with
+// `DOCUMENT_AGENT_DATA_DIR` (see `storage.ts`). A production server uses a
 // database: the server keeps no editor and no document between two calls.
-const documents = createInMemoryDocumentStore();
-const proposals = createInMemoryProposalStore();
+const documentsFolder = dataFolder("documents");
+const documents: DocumentStore =
+  documentsFolder === undefined
+    ? createInMemoryDocumentStore()
+    : createFileDocumentStore(documentsFolder);
+const proposalsFolder = dataFolder("proposals");
+const proposals =
+  proposalsFolder === undefined
+    ? createInMemoryProposalStore()
+    : createFileProposalStore(proposalsFolder);
+const runsFolder = dataFolder("runs");
+/** The state of the runs of the older route `POST /runs`: only in memory. */
 const runs = new Map<string, Run>();
 const yjs = createYjsDocumentSource({
   // The Yjs relay of this server (see `routes/yjsRelay.ts`).
@@ -164,7 +185,7 @@ documentAgentRoute.put("/documents/:id", async (c) => {
   if (!Array.isArray(blocks)) {
     return c.json({ error: "invalid-document" }, 400);
   }
-  documents.write(c.req.param("id"), blocks);
+  await documents.write(c.req.param("id"), blocks);
   return c.json({ ok: true });
 });
 
@@ -288,8 +309,23 @@ documentAgentRoute.post("/proposals/:id/batches", async (c) => {
 /** The number of the last session notice of each Yjs document: each notice must change the map. */
 const sessionNotices = new Map<string, number>();
 
+// Where the state of the sessions is: an example shows it.
+documentAgentRoute.get("/storage", (c) =>
+  c.json({ kind: dataDirectory === undefined ? "memory" : "files" }),
+);
+
 registerSessionRoutes(documentAgentRoute, {
   sources,
+  // With a data directory, the chats and the streams of the runs are in
+  // files: a session stays after a restart, and a second server process on
+  // the same directory has the same sessions.
+  stores:
+    runsFolder === undefined
+      ? undefined
+      : {
+          chats: (source) => createFileChatStore(dataFolder("chats", source)!),
+          runs: createFileRunStore(runsFolder),
+        },
   // The Yjs 14 mode: the suggestion document of a room of the Yjs 14 relay.
   suggestionSources: {
     yjs14: async (documentId) => openSuggestionOf(documentId),

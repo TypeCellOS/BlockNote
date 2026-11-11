@@ -2,6 +2,9 @@ import { Hono } from "hono";
 import { streamSSE } from "hono/streaming";
 import * as Y from "yjs";
 
+import { keepInFile } from "./documentAgent/fileStores.js";
+import { dataFolder } from "./documentAgent/storage.js";
+
 // A small Yjs collaboration server for the demo of the document agent. It
 // keeps one Y.Doc for each room, and relays the updates of the clients:
 //
@@ -24,6 +27,15 @@ function roomOf(name: string): Room {
   let room = rooms.get(name);
   if (room === undefined) {
     const doc = new Y.Doc();
+    // With a data directory, the document stays after a restart.
+    const folder = dataFolder("yjs");
+    if (folder !== undefined) {
+      keepInFile(`${folder}/${encodeURIComponent(name)}.bin`, {
+        apply: (state) => Y.applyUpdate(doc, state),
+        encode: () => Y.encodeStateAsUpdate(doc),
+        onUpdate: (listener) => doc.on("update", listener),
+      });
+    }
     const listeners = new Set<(update: Uint8Array) => void>();
     doc.on("update", (update: Uint8Array) => {
       for (const listener of listeners) {
