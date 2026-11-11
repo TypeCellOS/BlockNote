@@ -11,6 +11,13 @@ import type { LayoutRule } from "../util/blocks/index.js";
  *   that can only be in its layout parent (a column) becomes the blocks in
  *   it. Thus, a column list with one column becomes the blocks of that
  *   column.
+ * - A layout block that does not dissolve (`children.dissolve: false`, for
+ *   example a tab set) with too few children keeps empty children up to its
+ *   minimum: the schema wins over the text. The apply fills each empty
+ *   child as ProseMirror does in the editor (a tab gets an empty
+ *   paragraph). Thus, the next read shows an empty paragraph that the text
+ *   did not have. If none of its children has blocks, the block goes: the
+ *   text has nothing of it.
  *
  * With `canContain`, each block also fits the child rules of its parent:
  *
@@ -63,8 +70,14 @@ function fit(rules: Rules, block: LensBlock): LensBlock[] {
     return [{ ...block, children }, ...lifted];
   }
   const kept = children.filter((child) => !isEmptyLayoutBlock(rules, child));
-  if (kept.length >= rule.minChildren || !rule.dissolves) {
+  if (kept.length >= rule.minChildren) {
     return [{ ...block, children: kept }, ...lifted];
+  }
+  if (!rule.dissolves && kept.length > 0) {
+    return [
+      { ...block, children: withEmptyUpTo(rules, children, rule.minChildren) },
+      ...lifted,
+    ];
   }
   return [
     ...kept.flatMap((child) =>
@@ -107,6 +120,31 @@ function place(
     }
   }
   return { held, lifted };
+}
+
+/**
+ * Returns the children without the empty layout children, except the first
+ * ones that the minimum `min` needs. The fill of the apply then gives each
+ * of these children a child (see `applyStructure`). The children that stay
+ * keep their IDs and props (for example the title of a tab).
+ *
+ * The result can have fewer children than `min` only if fewer were in the
+ * result of the merge (two writers removed tabs). Then the apply throws.
+ */
+function withEmptyUpTo(
+  rules: Rules,
+  children: readonly LensBlock[],
+  min: number,
+): LensBlock[] {
+  let missing =
+    min - children.filter((child) => !isEmptyLayoutBlock(rules, child)).length;
+  return children.filter((child) => {
+    if (!isEmptyLayoutBlock(rules, child)) {
+      return true;
+    }
+    missing--;
+    return missing >= 0;
+  });
 }
 
 /** Returns true for a layout block that must have children and has none. */

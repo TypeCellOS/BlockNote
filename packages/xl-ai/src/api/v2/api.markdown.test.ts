@@ -757,33 +757,34 @@ describe("markdown, a layout block that does not dissolve (a tab set)", () => {
     expect(getDocumentText(editor, markdownFormat)).toBe("Two\n");
   });
 
-  it("KNOWN LIMIT: a tab set that loses all its blocks gets a new empty tab (PutGet is not true)", () => {
-    // The fit keeps a tab set without tabs, because it does not dissolve.
-    // ProseMirror then fills it with a new tab with an empty paragraph,
-    // which the text did not have. See "Items that are not done" in the
-    // README.
+  it("removes a tab set that loses all its blocks", () => {
+    // The text has nothing of the tab set, thus it goes (PutGet is true).
     const editor = createTabsEditor();
     writeText(editor, markdownFormat, () => "After\n");
-    expect(editor.document.map((block) => block.type)).toEqual([
-      "tabs",
-      "paragraph",
-    ]);
-    expect(getDocumentText(editor, markdownFormat)).toBe("<br>\n\nAfter\n");
+    expect(editor.document.map((block) => block.type)).toEqual(["paragraph"]);
+    expect(getDocumentText(editor, markdownFormat)).toBe("After\n");
   });
 
-  it("KNOWN LIMIT: throws if a tab set keeps fewer tabs than its minimum", () => {
-    // The fit keeps a tab set with too few tabs, because it does not
-    // dissolve. The apply then fails, and the document does not change.
+  it("keeps an empty tab if the tab set needs it for its minimum", () => {
+    // The schema wins: the tab set needs two tabs. Tab t1 stays, and the
+    // apply gives it an empty paragraph, as the editor does. Thus, the next
+    // read shows that paragraph (PutGet is not true).
     const editor = createTabsEditor(2);
-    const before = editor.document;
-    expect(() =>
+    valid(
       updateDocument(editor, {
         base: "current",
         format: markdownFormat,
         text: "Two\n",
       }),
-    ).toThrow("Invalid content for node tabs");
-    expect(editor.document).toEqual(before);
+    );
+    expect(editor.document[0].children.map((tab) => tab.id)).toEqual([
+      "t1",
+      "t2",
+    ]);
+    expect(
+      editor.document[0].children[0].children.map((block) => block.content),
+    ).toEqual([[]]);
+    expect(getDocumentText(editor, markdownFormat)).toBe("<br>\n\nTwo\n");
   });
 });
 

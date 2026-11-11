@@ -10,6 +10,8 @@ const rules: Record<string, LayoutRule> = {
   column: { minChildren: 1, namedOnly: true, dissolves: true },
   // A tab set does not dissolve (`children.dissolve: false`).
   tabs: { minChildren: 1, namedOnly: false, dissolves: false },
+  // A tab set with at least two tabs.
+  tabPair: { minChildren: 2, namedOnly: false, dissolves: false },
   tab: { minChildren: 1, namedOnly: true, dissolves: true },
 };
 
@@ -82,12 +84,28 @@ describe("fitLayout", () => {
     ).toEqual([["set", [["t1", ["a"]]]]]);
   });
 
-  it("KNOWN LIMIT: keeps a layout block that does not dissolve, with too few children", () => {
-    // The block does not fit the schema. See "Items that are not done" in
-    // the README.
+  it("removes a layout block that does not dissolve if none of its children has blocks", () => {
+    // The text has nothing of the tab set, thus it goes.
     expect(
-      fit([block("set", "tabs", [block("t1", "tab"), block("t2", "tab")])]),
-    ).toEqual(["set"]);
+      fit([
+        block("set", "tabs", [block("t1", "tab"), block("t2", "tab")]),
+        block("after"),
+      ]),
+    ).toEqual(["after"]);
+  });
+
+  it("keeps the first empty children that the minimum of a layout block that does not dissolve needs", () => {
+    // The schema wins: the set needs two tabs. The apply fills the empty
+    // tab t1 (see `applyStructure`). The other empty tab goes.
+    expect(
+      fit([
+        block("set", "tabPair", [
+          block("t1", "tab"),
+          block("t2", "tab"),
+          block("t3", "tab", [block("c")]),
+        ]),
+      ]),
+    ).toEqual([["set", ["t1", ["t3", ["c"]]]]]);
   });
 
   it("keeps a column with only an empty paragraph", () => {
