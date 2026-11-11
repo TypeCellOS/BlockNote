@@ -203,13 +203,13 @@ Patterns to reuse later (from the docs, not tested):
 
 ## 7. Decisions to confirm
 
-1. **The batches go in the tool outputs, not in data parts.** Reasons: the tool call and its batch stay together, the chat history can rebuild the proposal, and the same code works with `createAgentUIStream` and in the browser (a data part needs the stream writer in a closure of the tool). Cost: the history has the operations. The model does not get them, but each request sends them to the server again.
+1. **The batches go in the tool outputs, not in data parts.** (Changed in section 13: a transient data chunk has them first, and the tool output has them for the history.) Reasons: the tool call and its batch stay together, the chat history can rebuild the proposal, and the same code works with `createAgentUIStream` and in the browser (a data part needs the stream writer in a closure of the tool). Cost: the history has the operations. The model does not get them, but each request sends them to the server again.
 2. **The proposal is a log that only grows, with four kinds of batch** (section 3.1). The brief had "F plus batches" with one kind. The log makes a rebase one batch and one merge, makes each version available without snapshots, and a client that follows a run gets a rebase as a normal batch. Cost: a `rebase` and an `accept` batch contain a full document (the new fork point).
 3. **The suggestion ID is the batch number of the tool call, not the tool call ID.** The suggestion marks of `AIExtension` allow only a number as their ID (`validate: "number"`). With `validate: "number|string"` there and in `parseDOM`, the ID can be the tool call ID.
 4. **The display gives each changed block to one tool call: the last open call that changed it.** Accept and reject of one tool call are lens writes of the delta of that call (three-way merges), not `applySuggestion(id)` on the marks. Then the display derives again. See section 8.1.
 5. **The accept of one tool call moves the fork point.** Without it, a block that the call added is in the main document and in P, but not in F, and the lens gives the block of P a new ID: the block shows two times.
 6. **A tool that throws stops the loop and fails the run.** The client shows a fixed text, never the message of the exception.
-7. **`readDocument` is a tool call. The document is not in the first prompt.** This costs one LLM step for each run (about 1 s with Haiku). The alternative puts the markdown and the version in the first message.
+7. **`readDocument` is a tool call. The document is not in the first prompt.** (Changed in section 13: the first LLM call gets the document.) This costs one LLM step for each run (about 1 s with Haiku). The alternative puts the markdown and the version in the first message.
 8. **The selection goes into the prompt as quoted text.** The cursor position does not go to the model.
 9. **The Yjs collaboration server of the demo is a relay in the dev server (HTTP and server-sent events), not y-websocket.** The server of `y-websocket` 2.1.0 does not start with the dependencies of this repository: its CommonJS code loads `lib0` 1.0.0-rc, which is ESM only. The relay needs no new dependency. A source for y-websocket or Hocuspocus has the same two functions (`read`, `notify`).
 10. **The extension needs `AIExtension` in the editor**, for the suggestion marks and the state of the AI menu. During a run and a review the editor is locked, as in the old engine, because the AI menu is open.
@@ -334,3 +334,42 @@ None. The prototype uses the lens only through `packages/xl-ai/src/api/v2/index.
 - The chat sidebar, the comments for the reasons (MUST 14), accessibility of the review (MUST 16 and 17), telemetry (MUST 2), and a replay animation for deletions and for text of more than one line.
 - A test and tuning suite on real prompts for each model (MUST 1). `comparison/liveComparison.test.ts` is a start.
 - The MCP server: the tools are plain functions over a handle, thus it needs only a host that makes the handle (with `readMain`) and returns `describeRead` and `describeWrite` as the tool results.
+
+## 13. Changes after the first report (11 November)
+
+Two changes for the time to the first edit, from the review of this report. Commits `f835a9a87` and `526c18c9c`.
+
+### 13.1 The document is in the first LLM call
+
+The first LLM call of a run gets the document with the last message of the user: `<document>`, the version, the markdown, `</document>`, then the request (`withDocument` in `agent/documentAgent.ts`, with `prepareStep`). The AI SDK keeps the messages of step 0 for the later steps, thus each LLM call of a run has the same text at the same place (for a prompt cache). Only the last message of a chat gets the document. `readDocument` stays as a tool for a conflict, a text that was not found, and a change of the users. This removes one LLM call from each run.
+
+### 13.2 A tool call starts when the model has written it
+
+A fact of the AI SDK (`ai` 7.0.153, `streamText`): the tools of an LLM step run only when the model call ends (`dist/index.js`, the case `model-call-end`). Thus, all changes of one step reached the editor together.
+
+Now `withEarlyToolCalls` (`agent/earlyToolCalls.ts`) wraps the model: when the stream of the model has a complete tool call, the call starts. `createToolCalls` (`tools/toolCalls.ts`) keeps the calls of a run by tool call ID, thus the loop of the AI SDK gets the result of the early start, and each call runs one time. `streamDocumentAgent` sends the batches of the call at once, in a transient data chunk (`data-document-batches`). The tool output has the same batches later. The client ignores a batch that it has.
+
+This is not partial tool-call streaming: a call starts only when its input is complete. `runDocumentAgent` (no stream) does not change.
+
+Limits:
+
+- If an LLM step ends without tool execution (for example the output limit cut the step), the calls that started early are in the proposal, but the chat has no tool output for them.
+- The model must be an object (`LanguageModelObject`), not the ID of a gateway model.
+
+### 13.3 Measurement
+
+`comparison/timeToFirstEdit.test.ts`, `claude-haiku-5-5`, the document of the example (7 blocks), three runs for each prompt, milliseconds from the request:
+
+| Prompt                                       | LLM calls | Tool calls | First edit in the editor | First tool output of the AI SDK | End of the run |
+| -------------------------------------------- | --------- | ---------- | ------------------------ | ------------------------------- | -------------- |
+| "Fix the spelling mistakes."                 | 2         | 2          | 1,128 to 2,525           | 1,505 to 2,906                  | 2,408 to 3,795 |
+| "Improve the writing of the whole document." | 2         | 1          | 3,092 to 3,492           | 3,098 to 3,520                  | 4,120 to 4,275 |
+
+Before these changes (section 9.1, the same prompt "Fix the spelling mistakes"): 3 LLM calls, the edits after 3.2 s, the end after 4.1 s.
+
+What the numbers show:
+
+- The first edit of the spelling prompt now comes after 1.1 s to 2.5 s (before: 3.2 s). The first run is the slowest: it includes the start of the process and the connection.
+- The early start saves 0.3 s to 0.4 s here: the time that the model needs for the second tool call of the step. It saves more in a step with many tool calls.
+- A full `writeDocument` is one tool call. Nothing shows until the model has written the full document: 3.1 s to 3.5 s for 7 blocks, and more for a long document. The early start cannot help. Options: tell the model to make one `editText` call for each block or section of a large change, or add a tool that writes one section.
+
