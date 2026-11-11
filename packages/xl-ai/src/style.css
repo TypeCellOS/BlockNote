@@ -33,8 +33,10 @@
   background: var(--bn-colors-menu-background, #fff);
 }
 
-.bn-agent-card:hover {
+.bn-agent-card:hover,
+.bn-agent-card[data-active="true"] {
   border-color: var(--bn-agent-active, #4f8ff7);
+  box-shadow: 0 0 0 1px var(--bn-agent-active, #4f8ff7);
 }
 
 .bn-agent-card[data-state="accepted"],

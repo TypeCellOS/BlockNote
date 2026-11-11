@@ -4,7 +4,7 @@ import {
   useExtension,
   useExtensionState,
 } from "@blocknote/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { suggestionIdOf } from "../proposal/derive.js";
 import {
@@ -33,8 +33,28 @@ export function DocumentAgentReview(props: {
   }
   const agent = useExtension(DocumentAgentExtension, { editor });
   const state = useExtensionState(DocumentAgentExtension, { editor });
-  // The suggestion ID of the tool call under the pointer.
+  // The suggestion ID of the tool call under the pointer: of its card, or
+  // of one of its suggestions in the editor.
   const [active, setActive] = useState<number | undefined>();
+
+  // The pointer on a suggestion in the editor marks the card of its tool
+  // call. Thus, the user sees the reason of each suggestion.
+  const dom = editor.domElement;
+  useEffect(() => {
+    if (dom === undefined) {
+      return;
+    }
+    function onPointer(event: MouseEvent) {
+      const mark =
+        event.target instanceof Element
+          ? event.target.closest(SUGGESTION_SELECTOR)
+          : null;
+      const id = Number(mark?.getAttribute("data-id"));
+      setActive(mark === null || Number.isNaN(id) ? undefined : id);
+    }
+    dom.addEventListener("mouseover", onPointer);
+    return () => dom.removeEventListener("mouseover", onPointer);
+  }, [dom]);
 
   if (state.status === "idle") {
     return null;
@@ -72,6 +92,7 @@ export function DocumentAgentReview(props: {
           key={call.toolCallId}
           className="bn-agent-card"
           data-state={call.state}
+          data-active={suggestionIdOf(call) === active ? "true" : undefined}
           onMouseEnter={() => setActive(suggestionIdOf(call))}
           onMouseLeave={() => setActive(undefined)}
           onClick={() => scrollTo(call)}
@@ -106,6 +127,9 @@ export function DocumentAgentReview(props: {
     </div>
   );
 }
+
+/** The elements of the suggestion marks in the editor. */
+const SUGGESTION_SELECTOR = 'ins, del, [data-type="modification"]';
 
 /** The CSS that marks the suggestions of one tool call in the editor. */
 function activeStyle(suggestionId: number): string {

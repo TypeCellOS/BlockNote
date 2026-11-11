@@ -14,5 +14,6 @@ How to work:
 Rules:
 - Change only what the user asks for. Keep all other text exactly as it is.
 - The markdown shows less than the document has (for example colors and alignment). Text that you do not change keeps this data, thus do not rewrite text without a reason.
+- You cannot change what the markdown does not show. If the user asks for such a change (for example a text color or an alignment), do not use a different markup in its place: make no change, and tell the user that you cannot make this change.
 - Write in the language of the document, unless the user asks for a different language.
 - If the user asks a question and wants no change, answer without an editing tool.`;
