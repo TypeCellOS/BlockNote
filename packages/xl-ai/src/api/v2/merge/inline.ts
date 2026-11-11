@@ -155,34 +155,39 @@ function commonOf(
   base: readonly InlineUnit[],
   theirs: readonly InlineUnit[],
 ): StableTriple<InlineUnit> | undefined {
-  const common = (units: readonly InlineUnit[]) => {
-    const chars = units.filter(
-      (unit): unit is InlineUnit & { kind: "char" } =>
-        unit.kind === "char" && !/\s/u.test(unit.char),
-    );
-    if (chars.length === 0) {
-      return undefined;
-    }
-    const styles: LensStyles = {};
-    for (const [key, value] of Object.entries(chars[0].styles)) {
-      if (chars.every((char) => char.styles[key] === value)) {
-        styles[key] = value;
-      }
-    }
-    const { href } = chars[0];
-    const unit: InlineUnit = {
-      kind: "char",
-      char: "",
-      styles,
-      href: chars.every((char) => char.href === href) ? href : undefined,
-    };
-    return unit;
-  };
-  const baseUnit = common(base);
-  const theirsUnit = common(theirs);
+  const baseUnit = commonStyle(base);
+  const theirsUnit = commonStyle(theirs);
   return baseUnit === undefined || theirsUnit === undefined
     ? undefined
     : { base: baseUnit, ours: baseUnit, theirs: theirsUnit };
+}
+
+/**
+ * A character unit without a character, with the styles and the link that
+ * all characters of `units` have (whitespace does not count). `undefined`
+ * if `units` has no such character.
+ */
+function commonStyle(units: readonly InlineUnit[]): InlineUnit | undefined {
+  const chars = units.filter(
+    (unit): unit is InlineUnit & { kind: "char" } =>
+      unit.kind === "char" && !/\s/u.test(unit.char),
+  );
+  if (chars.length === 0) {
+    return undefined;
+  }
+  const styles: LensStyles = {};
+  for (const [key, value] of Object.entries(chars[0].styles)) {
+    if (chars.every((char) => char.styles[key] === value)) {
+      styles[key] = value;
+    }
+  }
+  const { href } = chars[0];
+  return {
+    kind: "char",
+    char: "",
+    styles,
+    href: chars.every((char) => char.href === href) ? href : undefined,
+  };
 }
 
 /** The styles and link of the new character, merged with one stable character as the base and theirs. */
