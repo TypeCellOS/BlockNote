@@ -219,11 +219,13 @@ class ParentDecisions {
   private nestingUnchanged(j: number, row: KeptRow): boolean {
     const textParentIndex = this.incoming[j].parentIndex;
     const viewParentIndex = this.view[row.viewIndex].parentIndex;
+    if (textParentIndex === undefined || viewParentIndex === undefined) {
+      return textParentIndex === viewParentIndex;
+    }
     return (
       this.textParentIs(j, viewParentIndex) &&
-      (textParentIndex === undefined ||
-        this.view[viewParentIndex!].block.type ===
-          this.incoming[textParentIndex].block.type)
+      this.view[viewParentIndex].block.type ===
+        this.incoming[textParentIndex].block.type
     );
   }
 
