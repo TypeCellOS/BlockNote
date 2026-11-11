@@ -1,4 +1,4 @@
-import { generateId, type UIMessage } from "ai";
+import type { UIMessage } from "ai";
 
 import type { LensBlock } from "../../api/v2/index.js";
 import { recordReview } from "../agent/chatReview.js";
@@ -21,6 +21,7 @@ import {
 import type { Batch, Proposal } from "../proposal/types.js";
 import type { ChatStore } from "../stores/chatStore.js";
 import type { ProposalStore } from "../stores/proposalStore.js";
+import type { RunStore } from "../stores/runStore.js";
 import type { ToolCallReview } from "../tools/documentTools.js";
 import { type ChatSessions, createChatSessions } from "./chatSessions.js";
 
@@ -45,6 +46,11 @@ export type SessionHostOptions = DocumentAgentOptions & {
    * process (see `ChatStore`).
    */
   chats?: ChatStore;
+  /**
+   * The store of the streams of the runs. The default is a store in the
+   * memory of this process (see `RunStore`).
+   */
+  runs?: RunStore;
   /** Reads the main document, or `undefined` if it does not exist. */
   readMain(documentId: string): Promise<LensBlock[] | undefined>;
   /**
@@ -67,7 +73,7 @@ export type SessionHostOptions = DocumentAgentOptions & {
  * the only difference is the origin in the message of the chat.
  *
  * Each editor of the document shows the same proposal, and follows the
- * same stream of a run (see `RunLog.follow`).
+ * same stream of a run (see `Run.follow`).
  */
 export type SessionHost = {
   snapshot(documentId: string): Promise<SessionSnapshot>;
@@ -120,11 +126,23 @@ export type SessionHost = {
  * Makes the sessions of a host in proposal mode. The chats and the runs
  * are the shared code of `chatSessions.ts`. This function adds the open
  * proposal of each document, and the review of a user.
+ *
+ * The host keeps no state of a document in the memory of the process: the
+ * chat, the streams of the runs and the proposals are in the stores. One
+ * exception is the order of the review requests of a document, which is
+ * for one process (see `inOrder`).
  */
 export function createSessionHost(options: SessionHostOptions): SessionHost {
   const { proposals, createEditor } = options;
-  /** The open proposal of each document. */
-  const proposalIds = new Map<string, string>();
+
+  /**
+   * The ID of the open proposal of a document in the proposal store. A
+   * document has one open proposal: the store has it, or the document has
+   * none.
+   */
+  function proposalIdOf(documentId: string) {
+    return `session:${documentId}`;
+  }
 
   const chats = createChatSessions<ProposalExtra>({
     ...options,
@@ -133,15 +151,11 @@ export function createSessionHost(options: SessionHostOptions): SessionHost {
       if (main === undefined) {
         return undefined;
       }
-      let proposalId = proposalIds.get(documentId);
-      if (proposalId === undefined) {
-        proposalId = generateId();
-        proposalIds.set(documentId, proposalId);
-        await proposals.save(proposalId, createProposal(main));
-      }
-      const proposal = await proposals.load(proposalId);
+      const proposalId = proposalIdOf(documentId);
+      let proposal = await proposals.load(proposalId);
       if (proposal === undefined) {
-        throw new Error(`The store has no proposal ${proposalId}`);
+        proposal = createProposal(main);
+        await proposals.save(proposalId, proposal);
       }
       // A client takes the proposal at the start of the run as its copy,
       // and applies the batches of the run to it.
@@ -192,12 +206,8 @@ export function createSessionHost(options: SessionHostOptions): SessionHost {
   }
 
   async function openProposalOf(documentId: string) {
-    const proposalId = proposalIds.get(documentId);
-    return {
-      proposalId,
-      proposal:
-        proposalId === undefined ? undefined : await proposals.load(proposalId),
-    };
+    const proposalId = proposalIdOf(documentId);
+    return { proposalId, proposal: await proposals.load(proposalId) };
   }
 
   return {
@@ -206,17 +216,19 @@ export function createSessionHost(options: SessionHostOptions): SessionHost {
     stopRun: (documentId) => chats.stopRun(documentId),
 
     async snapshot(documentId) {
+      // The run first: a run whose process stopped ends in the chat here.
+      const run = await chats.activeRun(documentId);
       return {
         messages: await chats.messages(documentId),
         proposal: (await openProposalOf(documentId)).proposal,
-        activeRunId: chats.activeRun(documentId)?.id,
+        activeRunId: run?.id,
       };
     },
 
     review(documentId, batch) {
       return inOrder(documentId, async () => {
         const { proposalId, proposal } = await openProposalOf(documentId);
-        if (proposalId === undefined || proposal === undefined) {
+        if (proposal === undefined) {
           return { error: "no-proposal" as const };
         }
         // The batch must be for this history of the proposal: the number
@@ -254,19 +266,19 @@ export function createSessionHost(options: SessionHostOptions): SessionHost {
         ) {
           return { error: "stale" as const };
         }
-        if (proposalId === undefined) {
+        if (proposal === undefined) {
           // A close without a claim, of a proposal that is closed.
           return {};
         }
         await record(
           documentId,
           new Map(
-            (proposal === undefined ? [] : toolCallsOf(proposal))
+            toolCallsOf(proposal)
               .filter((call) => call.state === "open")
               .map((call) => [call.toolCallId, result]),
           ),
         );
-        proposalIds.delete(documentId);
+        await proposals.delete(proposalId);
         options.onChange?.(documentId);
         return {};
       });

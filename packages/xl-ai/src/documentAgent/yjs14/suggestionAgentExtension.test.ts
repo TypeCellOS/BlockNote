@@ -86,7 +86,7 @@ function createSessionEditor(script: ScriptedStep[]) {
       return started.run.follow();
     },
     async reconnectToStream() {
-      return host.activeRun("doc")?.follow() ?? null;
+      return (await (await host.activeRun("doc"))?.follow()) ?? null;
     },
   };
 

@@ -151,9 +151,11 @@ function toolErrorsOf<Part extends { type: string }>(
 
 /**
  * Runs the agent on the document of a host for the messages of a chat, and
- * returns the UI message stream of the AI SDK. `onEnd` gets the message of
- * the agent at the end of the run, with its tool calls and its answer: a
- * host that keeps the chat uses it (see `sessions/sessionHost.ts`).
+ * returns the UI message stream of the AI SDK.
+ *
+ * With `messageId`, the stream gives the message of the agent an ID. A
+ * host that keeps the chat uses it: the message has the same ID on the
+ * host and in each client (see `sessions/chatSessions.ts`).
  *
  * `extraChunk` makes a stream chunk from the extra data of a step, for a
  * client that follows the run. The chunk goes into the stream when the
@@ -168,7 +170,7 @@ export async function streamAgentOnDocument<Extra extends object>(
   messages: UIMessage[],
   options: DocumentAgentOptions & {
     abortSignal?: AbortSignal;
-    onEnd?: (responseMessage: UIMessage) => void;
+    messageId?: boolean;
     extraChunk?: (
       extra: Extra,
       toolCallId?: string,
@@ -178,7 +180,7 @@ export async function streamAgentOnDocument<Extra extends object>(
   // The agent starts before the stream exists. Thus, the listener gets the
   // function that adds to the stream when the stream is there.
   let add: (chunk: UIMessageChunk) => void = () => undefined;
-  const { onEnd, extraChunk } = options;
+  const { extraChunk } = options;
   const chunks = withAddedChunks(
     await createAgentUIStream({
       agent: createDocumentAgent(document, options, (extra, toolCallId) => {
@@ -189,10 +191,7 @@ export async function streamAgentOnDocument<Extra extends object>(
       }),
       uiMessages: messages,
       abortSignal: options.abortSignal,
-      // A host that keeps the chat gives the message of the agent an ID.
-      // Thus, the message has the same ID on the host and in each client.
-      generateMessageId: onEnd === undefined ? undefined : generateId,
-      onEnd: (event) => onEnd?.(event.responseMessage),
+      generateMessageId: options.messageId === true ? generateId : undefined,
     }),
   );
   add = chunks.add;

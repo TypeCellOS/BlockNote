@@ -10,8 +10,10 @@ import {
 import { headlessEditorFactory, openProposal } from "../proposal/proposal.js";
 import { acceptToolCall, revertToolCall } from "../proposal/review.js";
 import type { Proposal } from "../proposal/types.js";
+import { createInMemoryChatStore } from "../stores/chatStore.js";
 import { createInMemoryDocumentStore } from "../stores/documentSource.js";
 import { createInMemoryProposalStore } from "../stores/proposalStore.js";
+import { createInMemoryRunStore, type RunStore } from "../stores/runStore.js";
 import {
   documentOf,
   initialDocument,
@@ -38,6 +40,11 @@ const secondEdit: ScriptedStep = {
       input: { old: "Second", new: "Closing", reason: "It is the end." },
     },
   ],
+};
+
+/** One LLM step with the two edits. */
+const bothEdits: ScriptedStep = {
+  toolCalls: [...firstEdit.toolCalls, ...secondEdit.toolCalls],
 };
 
 /** A host with one document `doc`, and a model that plays the script. */
@@ -164,7 +171,7 @@ describe("the session of a document", () => {
     const { host } = createHost([firstEdit, { text: "Done." }]);
     const log = await run(host, "Improve the start.", "user");
 
-    const chunks = await chunksOf(log.follow());
+    const chunks = await chunksOf(await log.follow());
 
     const types = chunks.map((chunk) => chunk.type);
     expect(types.slice(0, 2)).toEqual(["start", DOCUMENT_PROPOSAL_CHUNK]);
@@ -205,13 +212,13 @@ describe("the session of a document", () => {
     }
 
     // The client follows while the model waits before its second call.
-    const during = chunksOf(started.run.follow());
-    expect(host.activeRun("doc")).toBe(started.run);
+    const during = started.run.follow().then(chunksOf);
+    expect((await host.activeRun("doc"))?.id).toBe(started.run.id);
     release();
     await started.run.done;
 
-    expect(await during).toEqual(await chunksOf(started.run.follow()));
-    expect(host.activeRun("doc")).toBeUndefined();
+    expect(await during).toEqual(await chunksOf(await started.run.follow()));
+    expect(await host.activeRun("doc")).toBeUndefined();
   });
 
   it("puts the rebase of the start of a run after the proposal in the stream", async () => {
@@ -233,7 +240,7 @@ describe("the session of a document", () => {
 
     const log = await run(host, "What does the document say?", "user");
 
-    const chunks = await chunksOf(log.follow());
+    const chunks = await chunksOf(await log.follow());
     const types = chunks.map((chunk) => chunk.type);
     expect(types.slice(0, 3)).toEqual([
       "start",
@@ -484,5 +491,228 @@ describe("the session of a document", () => {
       batches: 3,
     });
     expect((await host.snapshot("doc")).proposal?.batches).toHaveLength(3);
+  });
+});
+
+describe("hosts that have their state in the same stores", () => {
+  // Each host of a test is one process of an app: the processes have the
+  // same stores, and no other state in common.
+
+  /** The stores of an app, with one document `doc`. */
+  function createStores() {
+    const documents = createInMemoryDocumentStore();
+    documents.write("doc", initialDocument());
+    return {
+      documents,
+      proposals: createInMemoryProposalStore(),
+      chats: createInMemoryChatStore(),
+      runs: createInMemoryRunStore(),
+    };
+  }
+
+  /** A process of the app: a host on the stores, with a model that plays the script. */
+  function createProcess(
+    stores: Omit<ReturnType<typeof createStores>, "runs"> & { runs: RunStore },
+    script: Parameters<typeof scriptedModel>[0] = [],
+    modelOptions?: Parameters<typeof scriptedModel>[1],
+  ) {
+    return createSessionHost({
+      model: scriptedModel(script, modelOptions).model,
+      createEditor,
+      proposals: stores.proposals,
+      chats: stores.chats,
+      runs: stores.runs,
+      readMain: (documentId) => stores.documents.read(documentId),
+    });
+  }
+
+  /** A model that makes two edits, and waits before the second one until `release`. */
+  function twoEditsWithGate() {
+    let release: () => void = () => undefined;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    return {
+      script: [bothEdits, { text: "Done." }],
+      modelOptions: {
+        beforeToolCall: (toolCallId: string) =>
+          toolCallId === "call-2" ? gate : Promise.resolve(),
+      },
+      release: () => release(),
+    };
+  }
+
+  async function start(host: ReturnType<typeof createProcess>) {
+    const started = await host.startRun("doc", {
+      prompt: "Improve the text.",
+      origin: "user",
+    });
+    if (started.error !== undefined) {
+      throw new Error(`The run did not start: ${started.error}`);
+    }
+    return started.run;
+  }
+
+  /** The tool calls of the messages of the agent in a chat, with the state of each one. */
+  function toolCallsOf(messages: UIMessage[]) {
+    return messages.flatMap((message) =>
+      message.parts.flatMap((part) =>
+        part.type.startsWith("tool-") && "state" in part
+          ? [`${part.type} ${part.state}`]
+          : [],
+      ),
+    );
+  }
+
+  it("has the chat and the open proposal after a restart of the process", async () => {
+    const stores = createStores();
+    const first = createProcess(stores, [firstEdit, { text: "Done." }]);
+    await (
+      await start(first)
+    ).done;
+    const before = await first.snapshot("doc");
+
+    // A new host is the process after its restart.
+    const second = createProcess(stores);
+
+    expect(await second.snapshot("doc")).toEqual(before);
+    expect(textsOfProposal(before.proposal)).toContain("Opening paragraph.");
+    // The review of a user continues on the new process.
+    expect(await second.closeProposal("doc", "accepted")).toEqual({});
+    expect((await first.snapshot("doc")).proposal).toBeUndefined();
+  });
+
+  it("lets an editor follow a run through a second process, which cannot start a second run", async () => {
+    const stores = createStores();
+    const { script, modelOptions, release } = twoEditsWithGate();
+    const first = createProcess(stores, script, modelOptions);
+    const second = createProcess(stores);
+    const run = await start(first);
+
+    // The second process has the run of the first one.
+    expect((await second.snapshot("doc")).activeRunId).toBe(run.id);
+    expect(
+      await second.startRun("doc", { prompt: "Also this.", origin: "user" }),
+    ).toEqual({ error: "run-active" });
+    const followed = (await second.activeRun("doc"))!.follow().then(chunksOf);
+    release();
+    await run.done;
+
+    expect(await followed).toEqual(await chunksOf(await run.follow()));
+    const after = await second.snapshot("doc");
+    expect(after.activeRunId).toBeUndefined();
+    expect(toolCallsOf(after.messages)).toEqual([
+      "tool-editText output-available",
+      "tool-editText output-available",
+    ]);
+    expect(after.proposal?.batches).toHaveLength(2);
+  });
+
+  it("stops a run from a second process: the chat keeps what the agent did", async () => {
+    const stores = createStores();
+    const { script, modelOptions, release } = twoEditsWithGate();
+    const first = createProcess(stores, script, modelOptions);
+    const second = createProcess(stores);
+    const run = await start(first);
+    // The first tool call wrote its batch. The model waits before the
+    // second one.
+    while ((await second.snapshot("doc")).proposal?.batches.length !== 1) {
+      await new Promise((resolve) => setTimeout(resolve, 1));
+    }
+
+    await second.stopRun("doc");
+    release();
+    await run.done.catch(() => undefined);
+
+    const after = await second.snapshot("doc");
+    expect(after.activeRunId).toBeUndefined();
+    // The change of the first tool call stays. The run stopped before the
+    // model got the result of the call: the chat has an error as its
+    // result, and a later run can read the chat.
+    expect(textsOfProposal(after.proposal)).toContain("Opening paragraph.");
+    expect(toolCallsOf(after.messages)[0]).toBe("tool-editText output-error");
+    // The document can have a new run.
+    const next = createProcess(stores, [{ text: "Nothing to change." }]);
+    await (
+      await start(next)
+    ).done;
+  });
+
+  it("puts the message of the agent into the chat if the process of a run stops", async () => {
+    // A run store in which the test stops the process of a run: the
+    // record keeps its chunks to that point, and has no end.
+    const stores = createStores();
+    const stopped = new Set<string>();
+    const written = new Map<string, UIMessageChunk[]>();
+    const runs: RunStore = {
+      ...stores.runs,
+      async create(runId) {
+        const writer = await stores.runs.create(runId);
+        const chunks: UIMessageChunk[] = [];
+        written.set(runId, chunks);
+        return {
+          ...writer,
+          async append(chunk) {
+            if (!stopped.has(runId)) {
+              chunks.push(chunk);
+              await writer.append(chunk);
+            }
+          },
+        };
+      },
+      status: async (runId) =>
+        stopped.has(runId) ? "lost" : stores.runs.status(runId),
+      follow: async (runId) =>
+        stopped.has(runId)
+          ? new ReadableStream<UIMessageChunk>({
+              start(controller) {
+                for (const chunk of written.get(runId) ?? []) {
+                  controller.enqueue(chunk);
+                }
+                controller.close();
+              },
+            })
+          : stores.runs.follow(runId),
+    };
+    const { script, modelOptions } = twoEditsWithGate();
+    const first = createProcess({ ...stores, runs }, script, modelOptions);
+    const run = await start(first);
+    // The first tool call wrote its batch. The model waits before the
+    // second one: the process stops there.
+    while (
+      !(written.get(run.id) ?? []).some(
+        (chunk) => chunk.type === DOCUMENT_BATCHES_CHUNK,
+      )
+    ) {
+      await new Promise((resolve) => setTimeout(resolve, 1));
+    }
+    stopped.add(run.id);
+
+    // The process after its restart.
+    const second = createProcess({ ...stores, runs }, [
+      { text: "The first word is changed." },
+    ]);
+    const after = await second.snapshot("doc");
+
+    expect(after.activeRunId).toBeUndefined();
+    expect(summaryOf(after.messages).map(([role]) => role)).toEqual([
+      "user",
+      "assistant",
+    ]);
+    // The change of the first tool call is in the proposal. The process
+    // stopped before the model got the result of the call: the chat has
+    // an error as its result, and a later run can read the chat.
+    expect(toolCallsOf(after.messages)).toEqual(["tool-editText output-error"]);
+    expect(after.proposal?.batches).toHaveLength(1);
+    expect(textsOfProposal(after.proposal)).toContain("Opening paragraph.");
+    // The document can have a new run.
+    await (
+      await start(second)
+    ).done;
+    expect(summaryOf((await second.snapshot("doc")).messages).at(-1)).toEqual([
+      "assistant",
+      undefined,
+      ["The first word is changed."],
+    ]);
   });
 });

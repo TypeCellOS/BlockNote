@@ -12,6 +12,8 @@ import type { Proposal } from "../proposal/types.js";
 export type ProposalStore = {
   load(id: string): Promise<Proposal | undefined>;
   save(id: string, proposal: Proposal): Promise<void>;
+  /** Removes a proposal. No effect if the store does not have it. */
+  delete(id: string): Promise<void>;
 };
 
 /** A proposal store in memory, with a listener for each change. */
@@ -39,6 +41,9 @@ export function createInMemoryProposalStore(): InMemoryProposalStore {
       for (const listener of listeners) {
         listener(id, proposal);
       }
+    },
+    async delete(id) {
+      proposals.delete(id);
     },
     ids() {
       return [...proposals.keys()];

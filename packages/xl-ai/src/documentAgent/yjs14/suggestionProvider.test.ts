@@ -1,8 +1,7 @@
 import * as Y from "@y/y";
-import type { UIMessage } from "ai";
 import { afterEach, describe, expect, it } from "vite-plus/test";
 
-import type { ChatStore } from "../stores/chatStore.js";
+import type { Chat, ChatStore } from "../stores/chatStore.js";
 import { scriptedModel, type ScriptedStep } from "../testUtil.js";
 import { keepSuggestionCurrent } from "./suggestionDocument.js";
 import { createSuggestionSessionHost } from "./suggestionSessions.js";
@@ -114,8 +113,7 @@ describe("a host in Yjs 14 mode with the provider and the store of an app", () =
       openSuggestion: () => server.connect(),
       // The run fails after the provider gave the replica.
       chats: {
-        load: () =>
-          Promise.reject(new Error("The chat store is not available")),
+        load: () => Promise.resolve({ messages: [] }),
         update: () =>
           Promise.reject(new Error("The chat store is not available")),
       },
@@ -129,17 +127,17 @@ describe("a host in Yjs 14 mode with the provider and the store of an app", () =
 
   it("keeps the chat in the store of the app, also after a restart of the host", async () => {
     // A store with a delay, as a database has it.
-    const saved = new Map<string, UIMessage[]>();
+    const saved = new Map<string, Chat>();
     const chats: ChatStore = {
       async load(documentId) {
         await wait(2);
-        return saved.get(documentId) ?? [];
+        return saved.get(documentId) ?? { messages: [] };
       },
       async update(documentId, change) {
         await wait(2);
-        const messages = change(saved.get(documentId) ?? []);
-        saved.set(documentId, messages);
-        return messages;
+        const chat = change(saved.get(documentId) ?? { messages: [] });
+        saved.set(documentId, chat);
+        return chat;
       },
     };
     const server = createServer();

@@ -70,7 +70,7 @@ export {
   type DocumentSource,
   type InMemoryDocumentStore,
 } from "./stores/documentSource.js";
-export { createRunLog, type RunLog } from "./sessions/runLog.js";
+export type { Run, StartedRun } from "./sessions/chatSessions.js";
 export {
   createSessionHost,
   type RunOrigin,
@@ -84,7 +84,17 @@ export {
   SUGGESTION_MARK_NAMES,
   yFragmentHasSuggestions,
 } from "./stores/yjsGuard.js";
-export { type ChatStore, createInMemoryChatStore } from "./stores/chatStore.js";
+export {
+  type Chat,
+  type ChatStore,
+  createInMemoryChatStore,
+} from "./stores/chatStore.js";
+export {
+  createInMemoryRunStore,
+  type RunStatus,
+  type RunStore,
+  type RunWriter,
+} from "./stores/runStore.js";
 export {
   createInMemoryProposalStore,
   type InMemoryProposalStore,

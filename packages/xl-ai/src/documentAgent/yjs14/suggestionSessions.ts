@@ -9,6 +9,7 @@ import {
   createChatSessions,
 } from "../sessions/chatSessions.js";
 import type { ChatStore } from "../stores/chatStore.js";
+import type { RunStore } from "../stores/runStore.js";
 import type { ToolCallReview } from "../tools/documentTools.js";
 import { createSuggestionDocument } from "./suggestionDocument.js";
 import { toolCallRecordsOf } from "./toolCallRecords.js";
@@ -56,6 +57,11 @@ export type SuggestionSessionHostOptions = DocumentAgentOptions & {
    * process (see `ChatStore`).
    */
   chats?: ChatStore;
+  /**
+   * The store of the streams of the runs. The default is a store in the
+   * memory of this process (see `RunStore`).
+   */
+  runs?: RunStore;
   /** Called when the session of a document changed: a run started or ended. */
   onChange?(documentId: string): void;
   /** Called when the stream of a run failed. This is a bug or an outage. */
@@ -144,9 +150,11 @@ export function createSuggestionSessionHost(
           opened.close?.();
         }
       }
+      // The run first: a run whose process stopped ends in the chat here.
+      const run = await chats.activeRun(documentId);
       return {
         messages: await chats.messages(documentId),
-        activeRunId: chats.activeRun(documentId)?.id,
+        activeRunId: run?.id,
       };
     },
   };

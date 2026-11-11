@@ -1001,7 +1001,7 @@ describe("an editor of a host that keeps the proposal (a session)", () => {
         return started.run.follow();
       },
       async reconnectToStream() {
-        return host.activeRun("doc")?.follow() ?? null;
+        return (await (await host.activeRun("doc"))?.follow()) ?? null;
       },
     };
     const editor = BlockNoteEditor.create({
