@@ -1,7 +1,7 @@
 import type { UIMessageChunk } from "ai";
 import type { Node } from "prosemirror-model";
 import { Plugin, PluginKey, type Transaction } from "prosemirror-state";
-import { Decoration, DecorationSet } from "prosemirror-view";
+import type { DecorationSet } from "prosemirror-view";
 
 import {
   DOCUMENT_BATCHES_CHUNK,
@@ -37,6 +37,7 @@ import {
   type ModeContext,
   type ReviewOf,
 } from "./agentExtension.js";
+import { replayDecorations } from "./replayAnimation.js";
 import {
   assertNoSuggestions,
   clearSuggestions,
@@ -148,9 +149,6 @@ export type DocumentAgentExtensionOptions = AgentExtensionOptions & {
 /** The elements of the suggestion marks of `AIExtension` in the editor. */
 const SUGGESTION_ELEMENTS = 'ins, del, [data-type="modification"]';
 
-/** The time of the replay animation for one character of inserted text. */
-const REPLAY_MS_PER_CHARACTER = 12;
-
 /**
  * The document agent in an editor, in proposal mode: it sends the prompts
  * of the user (the shared code of `agentExtension.ts`), keeps the copy of
@@ -227,37 +225,15 @@ function createProposalMode(
   let newest = new Set<number>();
 
   /** The decorations of the replay animation, for the insertions of the newest batches. */
-  function replayDecorations(doc: Node): DecorationSet | null {
+  function newestDecorations(doc: Node): DecorationSet | null {
     if (newest.size === 0 || options?.replayAnimation === false) {
       return null;
     }
-    const decorations: Decoration[] = [];
-    // Each insertion starts when the insertion before it is complete.
-    let delay = 0;
-    doc.descendants((node, pos) => {
-      const isNew = node.marks.some(
+    return replayDecorations(doc, (node) =>
+      node.marks.some(
         (mark) => mark.type.name === "insertion" && newest.has(mark.attrs.id),
-      );
-      if (!isNew) {
-        return true;
-      }
-      const duration = node.isInline
-        ? Math.min(1500, Math.max(150, node.nodeSize * REPLAY_MS_PER_CHARACTER))
-        : 300;
-      const attrs = {
-        class: node.isInline ? "bn-agent-new" : "bn-agent-new-block",
-        style: `--bn-agent-delay: ${delay}ms; --bn-agent-duration: ${duration}ms`,
-      };
-      decorations.push(
-        node.isInline
-          ? Decoration.inline(pos, pos + node.nodeSize, attrs)
-          : Decoration.node(pos, pos + node.nodeSize, attrs),
-      );
-      delay += duration;
-      // The content of a new block shows with the block.
-      return node.isInline;
-    });
-    return DecorationSet.create(doc, decorations);
+      ),
+    );
   }
 
   /** Derives the suggestions of the proposal for the current document, and shows them. */
@@ -538,7 +514,7 @@ function createProposalMode(
             store.state.status === "idle"
               ? {}
               : { "data-agent-proposal": "true" },
-          decorations: (state) => replayDecorations(state.doc),
+          decorations: (state) => newestDecorations(state.doc),
         },
       }),
     ],

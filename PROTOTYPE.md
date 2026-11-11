@@ -833,7 +833,38 @@ One more observation, not a fault of a mode: in the first run, Haiku gave `repla
 ### 16.5 What the Yjs 14 mode does not have
 
 1. **The AI menu in Yjs 14 mode.** Done after this section: I examined it in a browser. The menu opens from the slash menu, runs the prompt, and has "Accept" and "Revert" after the run. An accept in the menu accepts all open tool calls and ends the review. One change was necessary (`afterReset` of a mode): if a review ends without a decision (the AI menu closes), the suggestions stay in the document, and the review continues. A review also continues after a reload of the page, because it is in the suggestion document. The flag `menu=1` of the example opens the AI menu for a run from the chat.
-2. **The replay animation.** The changes arrive through the Yjs sync, thus the animation needs a different start.
+2. **The replay animation.** The changes arrive through the Yjs sync, thus the animation needs a different start. The code of the animation is now shared (`client/replayAnimation.ts`): a mode tells which nodes are new. The Yjs 14 mode does not use it yet.
 3. **A provider and a store for a production host.** The relay of the demo keeps the two documents in memory.
 4. **A tool that throws after its write** leaves a change in the suggestion document without a record. No user can accept or reject it as a tool call.
 5. Still open from 15.6: a user who types in a suggested block, suggestions of users in the same suggestion document, performance, and conflicts between a user and the agent in the test matrix.
+
+### 16.6 The replay animation and text on more than one line (11 November)
+
+Your question: does the reveal with `clip-path` work for text on more than one line, and at the end of a line? It did not. I examined it in Chromium:
+
+- The browser clips an inline element on more than one line to the box of its first line. During the animation, only the text on the first line showed.
+- The end state of the animation stayed while the decoration was there. Thus the text on the next lines was hidden until the end of the run. A sentence that the agent added to a paragraph was partly not visible during the run. A new block was not affected: it shows as a whole.
+
+The fix (`client/replayAnimation.ts`): new text has one decoration for each word, with its own delay, and the animation applies no state after its end. A word is on one line. In a run in a browser, an insertion over 9 lines had 91 parts, each on one line.
+
+The content still goes into the document in one step. The old engine writes its steps one after the other with timers (`prosemirror/agent.ts`): the document agent does not do this.
+
+## 17. For later: the Yjs 14 mode as the only mode (11 November)
+
+You want to explore this later. It would remove the proposal mode.
+
+**The idea:** the review always uses a pair of Yjs 14 documents (the main document and the suggestion document), also for an editor without Yjs and for an editor on Yjs 13. The lens is the bridge between the document of the app and the pair.
+
+- **An editor without Yjs:** during a review, the editor runs on a local pair. The server gets the Yjs state with the request, and streams its updates back, as the proposal goes now. The lens makes the main Yjs document from Block JSON, and merges a change of the JSON from outside.
+- **An editor on Yjs 13, one reviewer:** the editor shows a private pair. The lens brings the changes of the other users from the Yjs 13 document into the pair, and writes the edits and the accepts of the reviewer into the Yjs 13 document. This is what the rebase and the accept of the proposal mode do, with the display of Yjs 14.
+- **An editor on Yjs 13, more than one reviewer:** this does not get the accept of Yjs 14. With a private pair for each reviewer, the changes of the agent need a proposal as their transport, and two accepts at the same time write the text two times (the race of the proposal mode, with its guard). With one shared pair, only one bridge can write between the pair and the Yjs 13 document: a service in the path of the edits of the users, which you dismissed on 5 November.
+
+**What it replaces:** the code of the proposal mode (the batches, the hashes, the derived display, the guards). It does not replace its behavior for Yjs 13: the idempotent accept is only in the pair, not in the write to the Yjs 13 document.
+
+**What a spike must answer first:**
+
+1. The editor must change between the Yjs 13 binding and the Yjs 14 binding during a review. Core does not support this.
+2. The lens runs for each change of a different user. One write is 0.5 to 0.7 s at 1,000 blocks now.
+3. `editor.document` of an editor that shows suggestions has the suggested text. Core needs a guard, or each app must save the main document of the agent.
+4. Each AI bundle has Yjs 14, and a host needs a DOM.
+5. The suggestions of an editor without Yjs do not stay after a reload, unless the app stores the Yjs state, or the lens makes the pair again from a stored document.

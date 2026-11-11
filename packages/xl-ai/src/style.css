@@ -99,8 +99,14 @@
 }
 
 /* The replay animation of the document agent: the text of a new insertion
-   shows from its start to its end. The decoration is inside the `ins`
-   element, thus it has the color, and the `ins` element has none. */
+   shows from its start to its end. Each word has one decoration: an
+   element on more than one line is clipped to the box of its first line.
+   The decorations are inside the `ins` element, thus they have the color,
+   and the `ins` element has none.
+
+   The animation applies its first state before its start (`backwards`),
+   and no state after its end: a clip at the end would hide the text of a
+   long word on its second line. */
 .bn-editor[data-agent-proposal] ins:has(> .bn-agent-new) {
   background-color: transparent;
 }
@@ -111,9 +117,8 @@
     var(--user-color-light) 50%,
     var(--bn-colors-editor-background, white)
   );
-  border-radius: 4px;
   animation: bn-agent-reveal var(--bn-agent-duration, 400ms) linear
-    var(--bn-agent-delay, 0ms) both;
+    var(--bn-agent-delay, 0ms) backwards;
 }
 
 .bn-agent-new-block {
