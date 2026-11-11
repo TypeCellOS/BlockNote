@@ -1,4 +1,4 @@
-import type { ChatTransport, UIMessage, UIMessageChunk } from "ai";
+import type { ChatTransport, UIMessage } from "ai";
 
 import type { DocumentAgentOptions } from "../agent/documentAgent.js";
 import {
@@ -8,7 +8,12 @@ import {
 import { streamDocumentAgent } from "../proposal/streamProposalAgent.js";
 import type { Proposal } from "../proposal/types.js";
 
-/** The body of a request of the document agent, next to the chat messages. */
+// The transport of the proposal mode for client mode. The function that
+// observes a transport is in `observeTransport.ts`: each mode uses it.
+
+export { observeTransport } from "./observeTransport.js";
+
+/** The body of a request of the document agent in proposal mode, next to the chat messages. */
 export type DocumentAgentRequestBody = { proposal: Proposal };
 
 /**
@@ -36,41 +41,6 @@ export function createInProcessTransport(
     async reconnectToStream() {
       // The run is in this tab: there is no stream to connect to again.
       return null;
-    },
-  };
-}
-
-/**
- * Wraps a transport: the listener sees each chunk of the UI message stream
- * before the chat does. The client uses it to apply the batches of each
- * tool output. It is the same for each transport.
- */
-export function observeTransport(
-  transport: ChatTransport<UIMessage>,
-  onChunk: (chunk: UIMessageChunk) => void,
-): ChatTransport<UIMessage> {
-  function observed(stream: ReadableStream<UIMessageChunk>) {
-    return stream.pipeThrough(
-      new TransformStream<UIMessageChunk, UIMessageChunk>({
-        transform(chunk, controller) {
-          onChunk(chunk);
-          controller.enqueue(chunk);
-        },
-      }),
-    );
-  }
-  return {
-    // A transport that gives a run from its start tells the chat.
-    ...(transport.resumeStreamIsReplay === undefined
-      ? {}
-      : { resumeStreamIsReplay: transport.resumeStreamIsReplay }),
-    async sendMessages(options) {
-      return observed(await transport.sendMessages(options));
-    },
-    // The stream of a run that this client did not start (see `follow`).
-    async reconnectToStream(options) {
-      const stream = await transport.reconnectToStream(options);
-      return stream === null ? null : observed(stream);
     },
   };
 }

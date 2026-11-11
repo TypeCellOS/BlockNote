@@ -12,7 +12,7 @@ import type { Plugin } from "prosemirror-state";
 import { AIExtension } from "../../AIExtension.js";
 import { recordReview } from "../agent/chatReview.js";
 import type { ToolCallReview } from "../tools/documentTools.js";
-import { observeTransport } from "./transport.js";
+import { observeTransport } from "./observeTransport.js";
 
 // The document agent in an editor, for each mode. This file has the part
 // that all modes share: the chat, the runs, the states, and the AI menu.
