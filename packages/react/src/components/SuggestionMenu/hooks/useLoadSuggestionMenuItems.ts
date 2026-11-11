@@ -1,4 +1,4 @@
-/* eslint-disable react/refs -- Refs track request freshness and the last completed query without triggering extra renders. */
+/* eslint-disable react/refs -- Track the last completed query without triggering extra renders. */
 import { useEffect, useRef, useState } from "react";
 
 // Hook which loads the items for a suggestion menu and returns them along with
@@ -15,26 +15,28 @@ export function useLoadSuggestionMenuItems<T>(
   const [items, setItems] = useState<T[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const currentQuery = useRef<string | undefined>(undefined);
   const usedQuery = useRef<string | undefined>(undefined);
 
   useEffect(() => {
-    const thisQuery = query;
-    currentQuery.current = query;
+    let active = true;
 
     // eslint-disable-next-line react/set-state-in-effect -- Expose the loading transition as soon as a new request starts.
     setLoading(true);
 
     void getItems(query).then((items) => {
-      if (currentQuery.current !== thisQuery) {
-        // outdated query returned, ignore the result
+      if (!active) {
+        // Ignore obsolete requests, even when their query matches again.
         return;
       }
 
       setItems(items);
       setLoading(false);
-      usedQuery.current = thisQuery;
+      usedQuery.current = query;
     });
+
+    return () => {
+      active = false;
+    };
   }, [query, getItems]);
 
   return {
