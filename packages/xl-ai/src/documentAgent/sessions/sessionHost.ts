@@ -1,11 +1,8 @@
-import { generateId, type UIMessage, type UIMessageChunk } from "ai";
+import { generateId, type UIMessage } from "ai";
 
 import type { LensBlock } from "../../api/v2/index.js";
 import { recordReview } from "../agent/chatReview.js";
-import {
-  type DocumentAgentOptions,
-  streamAgentOnDocument,
-} from "../agent/documentAgent.js";
+import type { DocumentAgentOptions } from "../agent/documentAgent.js";
 import {
   batchesChunk,
   DOCUMENT_PROPOSAL_CHUNK,
@@ -17,20 +14,16 @@ import {
   type CreateEditor,
   createProposal,
 } from "../proposal/proposal.js";
-import { createProposalDocument } from "../proposal/proposalDocument.js";
+import {
+  createProposalDocument,
+  type ProposalExtra,
+} from "../proposal/proposalDocument.js";
 import type { Batch, Proposal } from "../proposal/types.js";
 import type { ProposalStore } from "../stores/proposalStore.js";
 import type { ToolCallReview } from "../tools/documentTools.js";
-import { createRunLog, type RunLog } from "./runLog.js";
+import { type ChatSessions, createChatSessions } from "./chatSessions.js";
 
-/**
- * Who started a run: a user in the chat of an editor, or a caller outside
- * the editors (a script, a schedule, or later an external agent).
- */
-export type RunOrigin = "user" | "external";
-
-/** The metadata of a message of the chat of a session that starts a run. */
-export type SessionMessageMetadata = { origin: RunOrigin };
+export type { RunOrigin, SessionMessageMetadata } from "./chatSessions.js";
 
 /** The state of the session of a document, for a client that opens it. */
 export type SessionSnapshot = {
@@ -77,19 +70,11 @@ export type SessionHost = {
    * The run writes to the open proposal of the document, or to a new
    * proposal of the current main document.
    */
-  startRun(
-    documentId: string,
-    request: { prompt: string; origin: RunOrigin; messageId?: string },
-  ): Promise<
-    | { error?: undefined; run: RunLog }
-    /** A document has one run at a time. */
-    | { error: "run-active" }
-    | { error: "unknown-document" }
-  >;
+  startRun: ChatSessions["startRun"];
   /** The run in progress of the document. */
-  activeRun(documentId: string): RunLog | undefined;
+  activeRun: ChatSessions["activeRun"];
   /** Stops the run in progress. The batches that it wrote stay. */
-  stopRun(documentId: string): void;
+  stopRun: ChatSessions["stopRun"];
   /**
    * Adds the batch of a review of a user to the proposal: the accept or
    * the reject of one tool call. The batch must follow the stored
@@ -125,30 +110,51 @@ export type SessionHost = {
   ): Promise<{ error?: undefined } | { error: "stale" }>;
 };
 
-type Session = {
-  messages: UIMessage[];
-  proposalId: string | undefined;
-  run: { log: RunLog; abort: AbortController } | undefined;
-};
-
 /**
- * Makes the sessions of a host. The chats and the runs are in memory: this
- * is sufficient for one process. A production host keeps the chats in a
- * database, and the streams of the runs in a store that all its processes
- * can read.
+ * Makes the sessions of a host in proposal mode. The chats and the runs
+ * are the shared code of `chatSessions.ts`. This function adds the open
+ * proposal of each document, and the review of a user.
  */
 export function createSessionHost(options: SessionHostOptions): SessionHost {
   const { proposals, createEditor } = options;
-  const sessions = new Map<string, Session>();
+  /** The open proposal of each document. */
+  const proposalIds = new Map<string, string>();
 
-  function sessionOf(documentId: string): Session {
-    let session = sessions.get(documentId);
-    if (session === undefined) {
-      session = { messages: [], proposalId: undefined, run: undefined };
-      sessions.set(documentId, session);
-    }
-    return session;
-  }
+  const chats = createChatSessions<ProposalExtra>({
+    ...options,
+    async openRun(documentId) {
+      const main = await options.readMain(documentId);
+      if (main === undefined) {
+        return undefined;
+      }
+      let proposalId = proposalIds.get(documentId);
+      if (proposalId === undefined) {
+        proposalId = generateId();
+        proposalIds.set(documentId, proposalId);
+        await proposals.save(proposalId, createProposal(main));
+      }
+      const proposal = await proposals.load(proposalId);
+      if (proposal === undefined) {
+        throw new Error(`The store has no proposal ${proposalId}`);
+      }
+      // A client takes the proposal at the start of the run as its copy,
+      // and applies the batches of the run to it.
+      const data: DocumentProposalData = { proposal };
+      return {
+        // The document rebases the proposal onto the main document before
+        // each tool call: the users can change the document while the
+        // agent works.
+        document: createProposalDocument({
+          store: proposals,
+          proposalId,
+          createEditor,
+          readMain: () => options.readMain(documentId),
+        }),
+        extraChunk: batchesChunk,
+        openingChunk: { type: DOCUMENT_PROPOSAL_CHUNK, data, transient: true },
+      };
+    },
+  });
 
   /** The end of the last review request of each document. */
   const reviews = new Map<string, Promise<unknown>>();
@@ -169,111 +175,42 @@ export function createSessionHost(options: SessionHostOptions): SessionHost {
     return run;
   }
 
-  function activeRun(documentId: string): RunLog | undefined {
-    const log = sessions.get(documentId)?.run?.log;
-    return log === undefined || log.isDone() ? undefined : log;
+  /** Puts the decisions of a user into the outputs of the tool calls in the chat. */
+  function record(
+    documentId: string,
+    decisions: ReadonlyMap<string, ToolCallReview>,
+  ) {
+    chats.setMessages(
+      documentId,
+      recordReview(chats.messages(documentId), decisions),
+    );
+  }
+
+  async function openProposalOf(documentId: string) {
+    const proposalId = proposalIds.get(documentId);
+    return {
+      proposalId,
+      proposal:
+        proposalId === undefined ? undefined : await proposals.load(proposalId),
+    };
   }
 
   return {
-    activeRun,
+    startRun: (documentId, request) => chats.startRun(documentId, request),
+    activeRun: (documentId) => chats.activeRun(documentId),
+    stopRun: (documentId) => chats.stopRun(documentId),
 
     async snapshot(documentId) {
-      const session = sessionOf(documentId);
       return {
-        messages: session.messages,
-        proposal:
-          session.proposalId === undefined
-            ? undefined
-            : await proposals.load(session.proposalId),
-        activeRunId: activeRun(documentId)?.id,
+        messages: chats.messages(documentId),
+        proposal: (await openProposalOf(documentId)).proposal,
+        activeRunId: chats.activeRun(documentId)?.id,
       };
-    },
-
-    async startRun(documentId, request) {
-      const session = sessionOf(documentId);
-      if (activeRun(documentId) !== undefined) {
-        return { error: "run-active" };
-      }
-      const main = await options.readMain(documentId);
-      if (main === undefined) {
-        return { error: "unknown-document" };
-      }
-      // The same check again: the read of the main document takes time, and
-      // a second request can come in that time.
-      if (activeRun(documentId) !== undefined) {
-        return { error: "run-active" };
-      }
-      if (session.proposalId === undefined) {
-        session.proposalId = generateId();
-        await proposals.save(session.proposalId, createProposal(main));
-      }
-      const { proposalId } = session;
-      const proposal = await proposals.load(proposalId);
-      if (proposal === undefined) {
-        throw new Error(`The store has no proposal ${proposalId}`);
-      }
-
-      const metadata: SessionMessageMetadata = { origin: request.origin };
-      session.messages = [
-        ...session.messages,
-        {
-          id: request.messageId ?? generateId(),
-          role: "user",
-          metadata,
-          parts: [{ type: "text", text: request.prompt }],
-        },
-      ];
-      // The document rebases the proposal onto the main document before
-      // each tool call: the users can change the document while the agent
-      // works.
-      const document = createProposalDocument({
-        store: proposals,
-        proposalId,
-        createEditor,
-        readMain: () => options.readMain(documentId),
-      });
-      const abort = new AbortController();
-      const log = createRunLog(
-        generateId(),
-        withProposalChunk(
-          await streamAgentOnDocument(document, session.messages, {
-            ...options,
-            extraChunk: batchesChunk,
-            abortSignal: abort.signal,
-            onEnd(responseMessage) {
-              session.messages = [...session.messages, responseMessage];
-            },
-          }),
-          proposal,
-        ),
-      );
-      session.run = { log, abort };
-      options.onChange?.(documentId);
-      log.done.then(
-        () => options.onChange?.(documentId),
-        (error: unknown) => {
-          options.onRunError?.(documentId, error);
-          options.onChange?.(documentId);
-        },
-      );
-      return { run: log };
-    },
-
-    stopRun(documentId) {
-      const run = sessions.get(documentId)?.run;
-      if (run !== undefined && !run.log.isDone()) {
-        run.abort.abort();
-      }
     },
 
     review(documentId, batch) {
       return inOrder(documentId, async () => {
-        const session = sessionOf(documentId);
-        const { proposalId } = session;
-        const proposal =
-          proposalId === undefined
-            ? undefined
-            : await proposals.load(proposalId);
+        const { proposalId, proposal } = await openProposalOf(documentId);
         if (proposalId === undefined || proposal === undefined) {
           return { error: "no-proposal" as const };
         }
@@ -288,8 +225,8 @@ export function createSessionHost(options: SessionHostOptions): SessionHost {
         });
         const { source } = batch;
         if (source.type === "accept" || source.type === "revert") {
-          session.messages = recordReview(
-            session.messages,
+          record(
+            documentId,
             new Map([
               [
                 source.toolCallId,
@@ -305,12 +242,7 @@ export function createSessionHost(options: SessionHostOptions): SessionHost {
 
     closeProposal(documentId, result, expectedBatches) {
       return inOrder(documentId, async () => {
-        const session = sessionOf(documentId);
-        const { proposalId } = session;
-        const proposal =
-          proposalId === undefined
-            ? undefined
-            : await proposals.load(proposalId);
+        const { proposalId, proposal } = await openProposalOf(documentId);
         if (
           expectedBatches !== undefined &&
           proposal?.batches.length !== expectedBatches
@@ -321,46 +253,18 @@ export function createSessionHost(options: SessionHostOptions): SessionHost {
           // A close without a claim, of a proposal that is closed.
           return {};
         }
-        session.messages = recordReview(
-          session.messages,
+        record(
+          documentId,
           new Map(
             (proposal === undefined ? [] : toolCallsOf(proposal))
               .filter((call) => call.state === "open")
               .map((call) => [call.toolCallId, result]),
           ),
         );
-        session.proposalId = undefined;
+        proposalIds.delete(documentId);
         options.onChange?.(documentId);
         return {};
       });
     },
   };
-}
-
-/**
- * Returns the stream of a run with the proposal at the start of the run,
- * as a transient chunk after the first chunk of the stream. A client takes
- * this proposal as its copy, and applies the batches of the run to it.
- */
-function withProposalChunk(
-  source: ReadableStream<UIMessageChunk>,
-  proposal: Proposal,
-): ReadableStream<UIMessageChunk> {
-  let sent = false;
-  return source.pipeThrough(
-    new TransformStream<UIMessageChunk, UIMessageChunk>({
-      transform(chunk, controller) {
-        controller.enqueue(chunk);
-        if (!sent) {
-          sent = true;
-          const data: DocumentProposalData = { proposal };
-          controller.enqueue({
-            type: DOCUMENT_PROPOSAL_CHUNK,
-            data,
-            transient: true,
-          });
-        }
-      },
-    }),
-  );
 }
