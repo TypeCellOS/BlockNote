@@ -15,11 +15,6 @@ export type Place =
   | { kind: "hidden"; id: string };
 
 /**
- * One step of the build: `block` goes into `parent`, after its last child.
- */
-type BuildStep = { block: Place; parent: Place };
-
-/**
  * A key for a place, unique in one build of the target tree.
  *
  * @internal
@@ -35,7 +30,29 @@ export function keyOf(place: Place): string {
   }
 }
 
+/**
+ * One step of the build: `block` goes into `parent`, after its last child.
+ */
+type BuildStep = { block: Place; parent: Place };
+
 const ROOT: Place = { kind: "root" };
+
+/**
+ * Decides the parent of each block of the rows: the steps of the build, in
+ * the order of the text. The blocks go into the parent that the text shows,
+ * with one exception: a kept block keeps a nesting that the format does not
+ * show (for example a paragraph in a bullet, in markdown), if the text did
+ * not change its nesting and the parent is still open. A new block before
+ * such a block goes into the same nesting (see `keptParent`). Hidden
+ * ancestors that a block keeps get a step too, before the block.
+ *
+ * Method: our own design.
+ *
+ * @internal
+ */
+export function decideParents(input: NestingInput): BuildStep[] {
+  return new ParentDecisions(input).decide();
+}
 
 /**
  * The open ancestors of the build, in the order of the text: a stack of the
@@ -64,23 +81,6 @@ class OpenAncestors {
   depthOf(place: Place): number {
     return this.stack.indexOf(keyOf(place));
   }
-}
-
-/**
- * Decides the parent of each block of the rows: the steps of the build, in
- * the order of the text. The blocks go into the parent that the text shows,
- * with one exception: a kept block keeps a nesting that the format does not
- * show (for example a paragraph in a bullet, in markdown), if the text did
- * not change its nesting and the parent is still open. A new block before
- * such a block goes into the same nesting (see `keptParent`). Hidden
- * ancestors that a block keeps get a step too, before the block.
- *
- * Method: our own design.
- *
- * @internal
- */
-export function decideParents(input: NestingInput): BuildStep[] {
-  return new ParentDecisions(input).decide();
 }
 
 type NestingInput = {

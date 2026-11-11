@@ -31,8 +31,6 @@ export type TargetInput = {
   newId: () => string;
 };
 
-type TargetResult = { target: LensBlock[]; warnings: TargetWarning[] };
-
 /**
  * Makes the target document: `source` as the text asks for it.
  *
@@ -90,3 +88,5 @@ export function targetFromPairs(input: TargetInput): TargetResult {
   });
   return { target, warnings };
 }
+
+type TargetResult = { target: LensBlock[]; warnings: TargetWarning[] };
