@@ -85,7 +85,10 @@ const TiptapTableHeader = Node.create<{
         parseHTML: (element) => {
           const colwidth = element.getAttribute("colwidth");
           const value = colwidth
-            ? colwidth.split(",").map((width) => parseInt(width, 10))
+            ? colwidth
+                .split(",")
+                .slice(0, parseTableSpan(element, "colspan"))
+                .map((width) => parseInt(width, 10))
             : null;
 
           return value;
@@ -151,7 +154,10 @@ const TiptapTableCell = Node.create<{
         parseHTML: (element) => {
           const colwidth = element.getAttribute("colwidth");
           const value = colwidth
-            ? colwidth.split(",").map((width) => parseInt(width, 10))
+            ? colwidth
+                .split(",")
+                .slice(0, parseTableSpan(element, "colspan"))
+                .map((width) => parseInt(width, 10))
             : null;
 
           return value;

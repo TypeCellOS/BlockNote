@@ -76,18 +76,11 @@ describe.each(["td", "th"])("pasting HTML table spans on %s", (tag) => {
         content: [{ text: "c" }],
       });
     }
-    expect(editor.document).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          type: "paragraph",
-          content: [expect.objectContaining({ text: "Before" })],
-        }),
-        expect.objectContaining({
-          type: "paragraph",
-          content: [expect.objectContaining({ text: "After" })],
-        }),
-      ]),
-    );
+    expect(editor.document.slice(0, 3)).toMatchObject([
+      { type: "paragraph", content: [{ text: "Before" }] },
+      { type: "table" },
+      { type: "paragraph", content: [{ text: "After" }] },
+    ]);
 
     // Standalone imports use the same repair without touching the live editor.
     const imported = editor.tryParseHTMLToBlocks(`<table>${rows}</table>`);
@@ -411,4 +404,19 @@ describe.each(["td", "th"])("pasting HTML table spans on %s", (tag) => {
       });
     },
   );
+
+  it.each([
+    ["0", [120, 200]],
+    ["1", [120, 200]],
+    ["2", [120, 160, 200]],
+  ])("keeps column widths aligned with colspan %j", (span, columnWidths) => {
+    editor = BlockNoteEditor.create();
+    const imported = editor.tryParseHTMLToBlocks(
+      `<table><tr><${tag} colspan="${span}" colwidth="120,160">a</${tag}><${tag} colwidth="200">b</${tag}></tr></table>`,
+    );
+    expect(imported[0]).toMatchObject({
+      type: "table",
+      content: { columnWidths },
+    });
+  });
 });
