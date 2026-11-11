@@ -186,7 +186,12 @@ describe("markdown, with nesting that markdown does not show", () => {
     });
   });
 
-  describe.each(["indent", "insert", "remove", "text"] as const)(
+  // A change of the type of a list item: before `parentMovedAlong`, a
+  // block kept its hidden parent only if its text parent kept its type.
+  // The text parent of a hidden child of a paragraph in a list item is the
+  // list item. Thus, the hidden child went out of the paragraph, into the
+  // list item.
+  describe.each(["indent", "insert", "remove", "text", "type"] as const)(
     "edit: %s",
     (kind) => {
       it.each(SEEDS)("keeps the model for seed %i", (seed) => {
@@ -197,15 +202,6 @@ describe("markdown, with nesting that markdown does not show", () => {
       });
     },
   );
-
-  // A change of the type of a list item: a block keeps its hidden parent
-  // only if the text parent keeps its type (`nestingUnchanged` in
-  // `target/hiddenNesting.ts`). The text parent of a hidden child of a
-  // paragraph in a list item is the list item. Thus, the hidden child goes
-  // out of the paragraph, into the list item.
-  it.fails("KNOWN: keeps the model for a change of the type", () => {
-    expectModelOnAllSeeds(markdownFormat, HIDDEN, "type");
-  });
 
   // A swap and a move: the alignment marks a block as moved (rule 2). A
   // moved block keeps its hidden nesting only near a hidden ancestor that

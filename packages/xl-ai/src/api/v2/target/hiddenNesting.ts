@@ -256,6 +256,9 @@ class ParentDecisions {
    * The parent of kept block `j` in the target:
    *
    * - If the text changed the nesting of the block, the parent of the text.
+   *   There is one exception: if the text moved the block together with
+   *   its hidden parent, the block stays in that parent (see
+   *   {@link parentMovedAlong}).
    * - Else, the source parent, with the nesting that the format does not
    *   show (for example a column). There are two exceptions. A block that
    *   the text moved to a place outside its hidden blocks (none of them is
@@ -268,7 +271,7 @@ class ParentDecisions {
    */
   private keptParent(j: number, row: KeptRow): Place {
     if (!this.nestingUnchanged(j, row)) {
-      return this.textParent(j);
+      return this.parentMovedAlong(j, row) ?? this.textParent(j);
     }
     const asNew = () => this.nestingOfNext(j) ?? this.textParent(j);
     if (row.moved && !this.isNearHiddenAncestor(j, row.id)) {
@@ -281,6 +284,33 @@ class ParentDecisions {
     return this.nextNeedsOpenHiddenBlock(j, parent)
       ? (this.nestingOfNext(j) ?? parent)
       : parent;
+  }
+
+  /**
+   * Returns the place of the source parent of kept block `j`, if the format
+   * does not show that nesting and the text moved the block together with
+   * that parent. The view shows the block as a later sibling of its parent
+   * (for example a paragraph in a paragraph, in markdown), and the text
+   * shows the two blocks as siblings too, in a different parent (for
+   * example after a change of the type of the list item around them, or
+   * after an indent of the two blocks). The parent stays, keeps its type,
+   * and is open. Else, returns `undefined`.
+   */
+  private parentMovedAlong(j: number, row: KeptRow): Place | undefined {
+    const parentId = this.source.parent(row.id);
+    const place =
+      parentId === undefined ? undefined : this.placeOf.get(parentId);
+    if (place?.kind !== "row" || !this.open.isOpen(place)) {
+      return undefined;
+    }
+    const parentRow = this.rows[place.index];
+    return parentRow.kind === "kept" &&
+      parentRow.fields.type === this.source.block(parentRow.id).type &&
+      this.view[parentRow.viewIndex].parentIndex ===
+        this.view[row.viewIndex].parentIndex &&
+      this.incoming[place.index].parentIndex === this.incoming[j].parentIndex
+      ? place
+      : undefined;
   }
 
   /** The hidden ancestors of a source block: the ancestors up to the first visible one. */

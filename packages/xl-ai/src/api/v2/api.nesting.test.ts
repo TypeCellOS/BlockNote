@@ -495,6 +495,76 @@ describe("markdown, lists in a nesting that markdown does not show", () => {
       ).shape,
     ).toBe("C Z");
   });
+
+  // Before `parentMovedAlong`, the hidden child C kept its parent B only
+  // if the text parent of C kept its type (`nestingUnchanged`). The text
+  // parent of C is the list item A (markdown shows B and C as children of
+  // A). Thus, a change of the type of A moved C out of B, into A. B does not
+  // change. Markdown shows the children of a bullet, a numbered item and a
+  // check item in the same way.
+  it.each<[string, Block[], (text: string) => string]>([
+    [
+      "a bullet becomes a check item",
+      [bullet("A", [p("B", [p("C")])])],
+      (text) => replaceOnce(text, "* A", "* [ ] A"),
+    ],
+    [
+      "a bullet becomes a numbered item",
+      [bullet("A", [p("B", [p("C")])])],
+      (text) => text.replace("* A", "1. A").replace(/\n {2}/g, "\n   "),
+    ],
+    [
+      "a toggle becomes a check item",
+      [toggle("A", [p("B", [p("C")])])],
+      (text) => replaceOnce(text, "* A", "* [ ] A"),
+    ],
+  ])(
+    "keeps a hidden child in its parent if %s around them",
+    (_, document, edit) => {
+      expect(write(document, edit).shape).toBe("A[B[C]]");
+    },
+  );
+
+  // The same rule: before `parentMovedAlong`, if the text changed the
+  // parent of the hidden child C, the text decided, also if the hidden
+  // parent B moved with C (B and C stay siblings in the text, as in the
+  // view).
+  it.each<[string, Block[], (text: string) => string, string]>([
+    [
+      "the text removes the list item around them",
+      [bullet("L", [p("B", [p("C")])]), p("Z")],
+      (text) => replaceOnce(text, "* L\n\n  B\n\n  C\n", "B\n\nC\n"),
+      "B[C] Z",
+    ],
+    [
+      "the text outdents them out of a list item",
+      [bullet("L", [p("B", [p("C")])]), p("Z")],
+      (text) => replaceOnce(text, "  B\n\n  C\n", "B\n\nC\n"),
+      "L B[C] Z",
+    ],
+    [
+      "the text indents them into a list item",
+      [bullet("L"), p("B", [p("C")]), p("Z")],
+      (text) => replaceOnce(text, "B\n\nC\n", "  B\n\n  C\n"),
+      "L[B[C]] Z",
+    ],
+    [
+      "the text moves them into a different list item",
+      [bullet("L", [p("B", [p("C")])]), bullet("M")],
+      (text) =>
+        replaceOnce(
+          replaceOnce(text, "\n  B\n\n  C\n", ""),
+          "* M",
+          "* M\n\n  B\n\n  C",
+        ),
+      "L M[B[C]]",
+    ],
+  ])(
+    "keeps a hidden child in its parent if %s",
+    (_, document, edit, expected) => {
+      expect(write(document, edit).shape).toBe(expected);
+    },
+  );
 });
 
 describe("markdown, writes from an older version that change the nesting", () => {
@@ -587,75 +657,6 @@ describe("markdown, writes from an older version that change the nesting", () =>
 });
 
 describe("KNOWN problems: the hidden nesting in lists (markdown)", () => {
-  // The hidden child C keeps its parent B only if the text parent of C
-  // keeps its type (`nestingUnchanged` in `target/hiddenNesting.ts`). The
-  // text parent of C is the list item A (markdown shows B and C as children
-  // of A). Thus, a change of the type of A moves C out of B, into A. B does
-  // not change. Markdown shows the children of a bullet, a numbered item and
-  // a check item in the same way.
-  it.fails.each<[string, Block[], (text: string) => string]>([
-    [
-      "a bullet becomes a check item",
-      [bullet("A", [p("B", [p("C")])])],
-      (text) => replaceOnce(text, "* A", "* [ ] A"),
-    ],
-    [
-      "a bullet becomes a numbered item",
-      [bullet("A", [p("B", [p("C")])])],
-      (text) => text.replace("* A", "1. A").replace(/\n {2}/g, "\n   "),
-    ],
-    [
-      "a toggle becomes a check item",
-      [toggle("A", [p("B", [p("C")])])],
-      (text) => replaceOnce(text, "* A", "* [ ] A"),
-    ],
-  ])(
-    "KNOWN: keeps a hidden child in its parent if %s around them",
-    (_, document, edit) => {
-      expect(write(document, edit).shape).toBe("A[B[C]]");
-    },
-  );
-
-  // The same rule: if the text changes the parent of the hidden child C,
-  // the text decides, also if its hidden parent B moves with it (B and C
-  // stay siblings in the text, as in the view).
-  it.fails.each<[string, Block[], (text: string) => string, string]>([
-    [
-      "the text removes the list item around them",
-      [bullet("L", [p("B", [p("C")])]), p("Z")],
-      (text) => replaceOnce(text, "* L\n\n  B\n\n  C\n", "B\n\nC\n"),
-      "B[C] Z",
-    ],
-    [
-      "the text outdents them out of a list item",
-      [bullet("L", [p("B", [p("C")])]), p("Z")],
-      (text) => replaceOnce(text, "  B\n\n  C\n", "B\n\nC\n"),
-      "L B[C] Z",
-    ],
-    [
-      "the text indents them into a list item",
-      [bullet("L"), p("B", [p("C")]), p("Z")],
-      (text) => replaceOnce(text, "B\n\nC\n", "  B\n\n  C\n"),
-      "L[B[C]] Z",
-    ],
-    [
-      "the text moves them into a different list item",
-      [bullet("L", [p("B", [p("C")])]), bullet("M")],
-      (text) =>
-        replaceOnce(
-          replaceOnce(text, "\n  B\n\n  C\n", ""),
-          "* M",
-          "* M\n\n  B\n\n  C",
-        ),
-      "L M[B[C]]",
-    ],
-  ])(
-    "KNOWN: keeps a hidden child in its parent if %s",
-    (_, document, edit, expected) => {
-      expect(write(document, edit).shape).toBe(expected);
-    },
-  );
-
   // The alignment marks one of the two items as moved (rule 2). A moved
   // block keeps its hidden nesting only near a hidden ancestor that the
   // format does not render (`isNearHiddenAncestor`), for example a column.
