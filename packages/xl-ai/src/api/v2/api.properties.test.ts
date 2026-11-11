@@ -35,10 +35,10 @@ const COLUMN_SEEDS = Array.from({ length: 100 }, (_, i) => i + 1);
 /**
  * HTML seeds that fail because of a known problem of core (see "Problems in
  * BlockNote" in the README): the HTML parse ignores `data-nesting-level`. In
- * these seeds, the text puts a list item before a hidden child of a list
- * item, and the list item goes into the same parent, where HTML shows it.
+ * these seeds, a list item becomes the first child of a list item, before a
+ * hidden child, and HTML then shows it as nested.
  */
-const HTML_NESTING_SEEDS = { laws: [163], columns: [81] };
+const HTML_NESTING_SEEDS = { laws: [] as number[], columns: [81] };
 
 /**
  * Makes random edits to the text of the editor, writes the text back, and

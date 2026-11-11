@@ -38,13 +38,28 @@ type BuildStep = { block: Place; parent: Place };
 const ROOT: Place = { kind: "root" };
 
 /**
+ * The list of each list item type: numbered list items make an ordered
+ * list, the other list items make a bullet list. The exporters of
+ * BlockNote group the list items in this way (`createExternalHTMLExporter`
+ * in core), thus markdown and HTML show such adjacent items as one list.
+ */
+const LISTS: ReadonlyMap<string, "ordered" | "bullet"> = new Map([
+  ["numberedListItem", "ordered"],
+  ["bulletListItem", "bullet"],
+  ["checkListItem", "bullet"],
+  ["toggleListItem", "bullet"],
+]);
+
+/**
  * Decides the parent of each block of the rows: the steps of the build, in
  * the order of the text. The blocks go into the parent that the text shows,
- * with one exception: a kept block keeps a nesting that the format does not
+ * with two exceptions. A kept block keeps a nesting that the format does not
  * show (for example a paragraph in a bullet, in markdown), if the text did
  * not change its nesting and the parent is still open. A new block before
- * such a block goes into the same nesting (see `keptParent`). Hidden
- * ancestors that a block keeps get a step too, before the block.
+ * such a block goes into the same nesting (see `keptParent`). And list items
+ * that the text shows as one list share the parent of that list (see
+ * `listParent`). Hidden ancestors that a block keeps get a step too, before
+ * the block.
  *
  * Method: our own design.
  *
@@ -61,6 +76,7 @@ export function decideParents(input: NestingInput): BuildStep[] {
  */
 class OpenAncestors {
   private readonly stack: string[] = [keyOf(ROOT)];
+  private readonly parents = new Map<string, Place>();
   readonly steps: BuildStep[] = [];
 
   attach(block: Place, parent: Place) {
@@ -70,7 +86,13 @@ class OpenAncestors {
     }
     this.stack.length = depth + 1;
     this.stack.push(keyOf(block));
+    this.parents.set(keyOf(block), parent);
     this.steps.push({ block, parent });
+  }
+
+  /** The parent of a block that has a step, or `undefined`. */
+  parentOf(block: Place): Place | undefined {
+    return this.parents.get(keyOf(block));
   }
 
   isOpen(place: Place): boolean {
@@ -102,6 +124,8 @@ class ParentDecisions {
   private readonly placeOf = new Map<string, Place>();
   /** The first kept row at or after each index, with its index. */
   private readonly keptFrom: ({ index: number; row: KeptRow } | undefined)[];
+  /** The index of the text block before each text block in its text parent. */
+  private readonly previousSibling: (number | undefined)[];
 
   private readonly rows: NestingInput["rows"];
   private readonly incoming: NestingInput["incoming"];
@@ -124,6 +148,12 @@ class ParentDecisions {
       this.keptFrom[k] =
         row.kind === "kept" ? { index: k, row } : this.keptFrom[k + 1];
     }
+    const lastChild = new Map<number | undefined, number>();
+    this.previousSibling = input.incoming.map(({ parentIndex }, j) => {
+      const previous = lastChild.get(parentIndex);
+      lastChild.set(parentIndex, j);
+      return previous;
+    });
   }
 
   decide(): BuildStep[] {
@@ -133,7 +163,7 @@ class ParentDecisions {
         case "skipped":
           return;
         case "new":
-          this.open.attach(place, this.nestingOfNext(j) ?? this.textParent(j));
+          this.open.attach(place, this.asNew(j));
           return;
         case "kept":
           this.open.attach(place, this.keptParent(j, row));
@@ -227,6 +257,39 @@ class ParentDecisions {
   }
 
   /**
+   * The parent of a new block `j`: the parent of its list (see
+   * {@link listParent}), else the nesting of the next kept block, else the
+   * parent of the text.
+   */
+  private asNew(j: number): Place {
+    return this.listParent(j) ?? this.nestingOfNext(j) ?? this.textParent(j);
+  }
+
+  /**
+   * List items that the text shows as one list share the parent of that
+   * list. Returns that parent for text block `j`: the parent of the block
+   * before it in its text parent, if both are list items of the same list,
+   * and that parent is still open. The parent can be a nesting that the
+   * format does not show (for example a paragraph with a list in it, in
+   * markdown). Else, returns `undefined`.
+   */
+  private listParent(j: number): Place | undefined {
+    const previous = this.previousSibling[j];
+    const list = LISTS.get(this.incoming[j].block.type);
+    if (
+      previous === undefined ||
+      list === undefined ||
+      LISTS.get(this.incoming[previous].block.type) !== list
+    ) {
+      return undefined;
+    }
+    const parent = this.open.parentOf({ kind: "row", index: previous });
+    return parent !== undefined && this.open.isOpen(parent)
+      ? parent
+      : undefined;
+  }
+
+  /**
    * Returns the source parent of the next kept block after new block `j`, if
    * that block has the same text parent and keeps a nesting that the text
    * does not show. The new block then goes into the same nesting, before it.
@@ -256,9 +319,10 @@ class ParentDecisions {
    * The parent of kept block `j` in the target:
    *
    * - If the text changed the nesting of the block, the parent of the text.
-   *   There is one exception: if the text moved the block together with
+   *   There are two exceptions: if the text moved the block together with
    *   its hidden parent, the block stays in that parent (see
-   *   {@link parentMovedAlong}).
+   *   {@link parentMovedAlong}), and a list item goes into the parent of
+   *   its list (see {@link listParent}).
    * - Else, the source parent, with the nesting that the format does not
    *   show (for example a column). There are two exceptions. A block that
    *   the text moved to a place outside its hidden blocks (none of them is
@@ -266,20 +330,22 @@ class ParentDecisions {
    *   that nesting. A block between two blocks of an open hidden block (for
    *   example the blocks of two columns) does not close it.
    * - In these cases, and if the source parent is not open any more, the
-   *   block goes where a new block goes: into the nesting of the next kept
-   *   block, or else into the parent of the text.
+   *   block goes where a new block goes (see {@link asNew}).
    */
   private keptParent(j: number, row: KeptRow): Place {
     if (!this.nestingUnchanged(j, row)) {
-      return this.parentMovedAlong(j, row) ?? this.textParent(j);
+      return (
+        this.parentMovedAlong(j, row) ??
+        this.listParent(j) ??
+        this.textParent(j)
+      );
     }
-    const asNew = () => this.nestingOfNext(j) ?? this.textParent(j);
     if (row.moved && !this.isNearHiddenAncestor(j, row.id)) {
-      return asNew();
+      return this.asNew(j);
     }
     const parent = this.sourceParent(row.id);
     if (parent === undefined) {
-      return asNew();
+      return this.asNew(j);
     }
     return this.nextNeedsOpenHiddenBlock(j, parent)
       ? (this.nestingOfNext(j) ?? parent)
@@ -328,10 +394,18 @@ class ParentDecisions {
 
   /**
    * Returns true if a hidden ancestor of kept block `j` is at its new place:
-   * the ancestor is open, or the next kept block is also in it.
+   * the ancestor is open, or the next kept block is also in it. A block
+   * without hidden ancestors can have a visible parent that the format does
+   * not show as its parent (for example a paragraph with a list in it, in
+   * markdown). That block is near its nesting if that parent is open, or if
+   * the block is at the top level.
    */
   private isNearHiddenAncestor(j: number, id: string): boolean {
     const own = this.hiddenAncestors(id);
+    if (own.length === 0) {
+      const parent = this.source.parent(id);
+      return parent === undefined || this.isOpenSource(parent);
+    }
     if (own.some((ancestor) => this.isOpenSource(ancestor))) {
       return true;
     }

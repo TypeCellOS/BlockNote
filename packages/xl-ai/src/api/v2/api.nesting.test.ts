@@ -656,14 +656,16 @@ describe("markdown, writes from an older version that change the nesting", () =>
   });
 });
 
-describe("KNOWN problems: the hidden nesting in lists (markdown)", () => {
-  // The alignment marks one of the two items as moved (rule 2). A moved
-  // block keeps its hidden nesting only near a hidden ancestor that the
-  // format does not render (`isNearHiddenAncestor`), for example a column.
-  // An open visible parent (a paragraph, a heading, a quote) does not
-  // count. At the end of the list, the next kept block is not in that
-  // parent, thus the moved item goes to the parent of the text.
-  it.fails.each<[string, Block[], (text: string) => string, string]>([
+describe("markdown, list items that the text shows as one list share the parent of that list", () => {
+  // The parent of a list can be a nesting that markdown does not show (for
+  // example a paragraph with a list in it). See `listParent` in
+  // `target/hiddenNesting.ts`.
+
+  // A swap: the alignment marks one of the two items as moved (rule 2).
+  // Before the list rule, a moved block kept its hidden nesting only near a
+  // hidden ancestor that the format does not render (for example a column),
+  // and the moved item went to the parent of the text.
+  it.each<[string, Block[], (text: string) => string, string]>([
     [
       "a list in a paragraph",
       [p("P", [bullet("N1"), bullet("N2")]), p("Z")],
@@ -683,14 +685,16 @@ describe("KNOWN problems: the hidden nesting in lists (markdown)", () => {
       "A[B[d c]]",
     ],
   ])(
-    "KNOWN: keeps the hidden nesting if the text swaps the last two items of %s",
+    "keeps the hidden nesting if the text swaps the last two items of %s",
     (_, document, edit, expected) => {
       expect(write(document, edit).shape).toBe(expected);
     },
   );
 
-  // The same cause, for two blocks that are not list items.
-  it.fails("KNOWN: keeps the hidden nesting if the text swaps the last two paragraphs in a paragraph", () => {
+  // A moved block without hidden ancestors stays in its source parent if
+  // that parent is open (`isNearHiddenAncestor`). This is also true for
+  // blocks that are not list items.
+  it("keeps the hidden nesting if the text swaps the last two paragraphs in a paragraph", () => {
     expect(
       write([p("P", [p("C1"), p("C2")]), p("Z")], (text) =>
         replaceOnce(text, "C1\n\nC2", "C2\n\nC1"),
@@ -698,13 +702,11 @@ describe("KNOWN problems: the hidden nesting in lists (markdown)", () => {
     ).toBe("P[C2 C1] Z");
   });
 
-  // A block that the text puts into a different parent goes into the
-  // parent of the text (`keptParent`). It closes the hidden parent P. Then
-  // the next block B, which the text does not change, cannot go back into P.
-  // The README tells the opposite for a kept block that would close a
-  // hidden block that the next block needs (`nextNeedsOpenHiddenBlock`),
-  // but that rule examines only the blocks that the format does not render.
-  it.fails.each<[string, Block[], (text: string) => string, string]>([
+  // An outdent: the item stays in the list of the item before it, thus it
+  // goes into the parent of that list. Before the list rule, it went into
+  // the parent of the text. It closed the hidden parent, and the next items,
+  // which the text does not change, left that parent too.
+  it.each<[string, Block[], (text: string) => string, string]>([
     [
       "a list in a paragraph",
       [p("P", [bullet("A", [bullet("L")]), bullet("B")])],
@@ -718,18 +720,18 @@ describe("KNOWN problems: the hidden nesting in lists (markdown)", () => {
       "H[a b c]",
     ],
   ])(
-    "KNOWN: keeps the next items of %s if the text outdents an item out of an earlier item",
+    "keeps the next items of %s if the text outdents an item out of an earlier item",
     (_, document, edit, expected) => {
       expect(write(document, edit).shape).toBe(expected);
     },
   );
 
-  // A new block goes into the hidden nesting of the next kept block
-  // (`nestingOfNext`). At the end of a list in a paragraph, the next kept
-  // block is not in the paragraph, thus the new item goes to the parent of
-  // the text. The text shows one list, but the editor shows the new item
-  // apart from the list (and a numbered item starts again at 1).
-  it.fails.each<[string, Block[], (text: string) => string, string]>([
+  // A new item after an item of a list goes into the parent of that list.
+  // Before the list rule, a new block went into the nesting of the next
+  // kept block (`nestingOfNext`). At the end of a list in a paragraph, the
+  // next kept block is not in the paragraph, thus the new item went to the
+  // parent of the text, apart from its list.
+  it.each<[string, Block[], (text: string) => string, string]>([
     [
       "a bullet list in a paragraph",
       [p("P", [bullet("N1"), bullet("N2")]), p("Z")],
@@ -748,12 +750,53 @@ describe("KNOWN problems: the hidden nesting in lists (markdown)", () => {
       (text) => replaceOnce(text, "* b", "* b\n* c"),
       "H[a b +c]",
     ],
+    [
+      "a bullet list in a paragraph, with a check item",
+      [p("P", [bullet("N1"), bullet("N2")]), p("Z")],
+      (text) => replaceOnce(text, "* N2", "* N2\n* [ ] N3"),
+      "P[N1 N2 +N3] Z",
+    ],
   ])(
-    "KNOWN: puts a new item at the end of %s into the same list",
+    "puts a new item at the end of %s into the same list",
     (_, document, edit, expected) => {
       expect(write(document, edit).shape).toBe(expected);
     },
   );
+
+  it.each<[string, Block[], (text: string) => string, string]>([
+    [
+      "a numbered item after a bullet list in a paragraph",
+      [p("P", [bullet("N1"), bullet("N2")]), p("Z")],
+      (text) => replaceOnce(text, "* N2", "* N2\n\n1. N3"),
+      "P[N1 N2] +N3 Z",
+    ],
+    [
+      "a paragraph after a list in a paragraph",
+      [p("P", [bullet("N1"), bullet("N2")]), p("Z")],
+      (text) => replaceOnce(text, "* N2", "* N2\n\nN3"),
+      "P[N1 N2] +N3 Z",
+    ],
+  ])(
+    "keeps the other rules for %s: the text does not show it in the list",
+    (_, document, edit, expected) => {
+      expect(write(document, edit).shape).toBe(expected);
+    },
+  );
+});
+
+describe("KNOWN problems: the hidden nesting in lists (markdown)", () => {
+  // The list rule applies only to list items of one list. A block that the
+  // text does not show in the list of the item before it (here a code
+  // block) keeps the other rules: it goes into the parent of the text. It
+  // closes the hidden parent P, and the next item B, which the text does
+  // not change, cannot go back into P.
+  it.fails("KNOWN: keeps the next items of a list in a paragraph if the text outdents a code block out of an earlier item", () => {
+    expect(
+      write([p("P", [bullet("A", [code("x = 1")]), bullet("B")])], (text) =>
+        replaceOnce(text, "  ```text\n  x = 1\n  ```", "```text\nx = 1\n```"),
+      ).shape,
+    ).toBe("P[A x = 1 B]");
+  });
 });
 
 describe("markdown, the start of a numbered list with a nested list", () => {
@@ -804,9 +847,9 @@ describe("HTML, list items", () => {
     ).toBe("T[a b]");
   });
 
-  // The same problems as in markdown: HTML does not show the children of a
-  // paragraph either.
-  it.fails("KNOWN: keeps the hidden nesting if the text swaps the last two items of a list in a paragraph", () => {
+  // HTML does not show the children of a paragraph either. The list rule
+  // is the same as in markdown.
+  it("keeps the hidden nesting if the text swaps the last two items of a list in a paragraph", () => {
     expect(
       write(
         [p("P", [bullet("N1"), bullet("N2")]), p("Z")],
@@ -817,7 +860,7 @@ describe("HTML, list items", () => {
     ).toBe("P[N2 N1] Z");
   });
 
-  it.fails("KNOWN: puts a new item at the end of a list in a paragraph into the same list", () => {
+  it("puts a new item at the end of a list in a paragraph into the same list", () => {
     expect(
       write(
         [p("P", [bullet("N1"), bullet("N2")]), p("Z")],

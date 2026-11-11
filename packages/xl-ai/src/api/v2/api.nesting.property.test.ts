@@ -191,35 +191,37 @@ describe("markdown, with nesting that markdown does not show", () => {
   // The text parent of a hidden child of a paragraph in a list item is the
   // list item. Thus, the hidden child went out of the paragraph, into the
   // list item.
-  describe.each(["indent", "insert", "remove", "text", "type"] as const)(
-    "edit: %s",
-    (kind) => {
-      it.each(SEEDS)("keeps the model for seed %i", (seed) => {
-        const write = writeRandomEdit(seed, markdownFormat, HIDDEN, kind);
-        if (write !== undefined) {
-          expect(modelErrors(write)).toEqual([]);
-        }
-      });
-    },
-  );
-
-  // A swap and a move: the alignment marks a block as moved (rule 2). A
-  // moved block keeps its hidden nesting only near a hidden ancestor that
-  // the format does not render (`isNearHiddenAncestor`). A visible parent
-  // that the format does not show as the parent (for example a paragraph
-  // with a list in it) does not count. Thus, the moved block goes where a
-  // new block goes, often to the parent of the text.
-  it.fails("KNOWN: keeps the model for a swap", () => {
-    expectModelOnAllSeeds(markdownFormat, HIDDEN, "swap");
+  //
+  // A swap and a move: before the list rule (`listParent`, and a moved
+  // block near its open source parent in `isNearHiddenAncestor`), a moved
+  // block kept its hidden nesting only near a hidden ancestor that the
+  // format does not render. Thus, a moved block left a visible parent that
+  // the format does not show as its parent (for example a paragraph with a
+  // list in it).
+  describe.each([
+    "indent",
+    "insert",
+    "remove",
+    "text",
+    "type",
+    "swap",
+    "moveTo",
+  ] as const)("edit: %s", (kind) => {
+    it.each(SEEDS)("keeps the model for seed %i", (seed) => {
+      const write = writeRandomEdit(seed, markdownFormat, HIDDEN, kind);
+      if (write !== undefined) {
+        expect(modelErrors(write)).toEqual([]);
+      }
+    });
   });
-  it.fails("KNOWN: keeps the model for a move into a different list item", () => {
-    expectModelOnAllSeeds(markdownFormat, HIDDEN, "moveTo");
-  });
 
-  // An outdent and a lift: a block that the text puts into a different
-  // parent goes into the parent of the text, also if a hidden parent is open
-  // and the next block needs it. Thus, the block closes that hidden parent,
-  // and the next blocks of the hidden parent go out of it.
+  // An outdent and a lift: the list rule applies only to list items of one
+  // list. A block that the text does not show in the list of the block
+  // before it (a paragraph, a code block, a table, or a list item of a
+  // different list) keeps the other rules: it goes into the parent of the
+  // text, also if a hidden parent is open and the next block needs it.
+  // Thus, the block closes that hidden parent, and the next blocks of the
+  // hidden parent go out of it.
   it.fails("KNOWN: keeps the model for an outdent", () => {
     expectModelOnAllSeeds(markdownFormat, HIDDEN, "outdent");
   });
@@ -241,17 +243,17 @@ describe("HTML, list items with only list items as children", () => {
 });
 
 describe("HTML, list items with other blocks as children", () => {
-  // A known problem of core (README, "Problems in BlockNote"): the HTML
-  // parse ignores `data-nesting-level`. Thus, HTML hides the children of a
-  // list item from its first child that is not a list item. If the text
-  // puts a list item before such a hidden child, the list item goes into
-  // the same parent, and HTML then shows that nesting.
-  it.fails("KNOWN: keeps the laws for an insert", () => {
-    for (const seed of KNOWN_SEEDS) {
-      const write = writeRandomEdit(seed, htmlFormat, VISIBLE, "insert");
-      if (write !== undefined) {
-        expectLaws(htmlFormat, write);
-      }
+  // The HTML parse ignores `data-nesting-level` (README, "Problems in
+  // BlockNote"). Thus, HTML hides the children of a list item from its
+  // first child that is not a list item. Before the list rule, a new list
+  // item after a list item went into the nesting of the next kept block:
+  // before a hidden child of a list item, thus into that list item, where
+  // HTML shows it. Now it goes into the parent of the list of the item
+  // before it.
+  it.each(SEEDS)("keeps the laws for an insert, for seed %i", (seed) => {
+    const write = writeRandomEdit(seed, htmlFormat, VISIBLE, "insert");
+    if (write !== undefined) {
+      expectLaws(htmlFormat, write);
     }
   });
 });
@@ -263,7 +265,13 @@ function moveOf(
 ): { token: string; parent: string | null } | undefined {
   switch (edit.kind) {
     case "move":
-      return { token: edit.token, parent: edit.parent };
+      return {
+        token: edit.token,
+        parent:
+          edit.after === undefined
+            ? edit.parent
+            : (parents.get(edit.after) ?? null),
+      };
     case "moveAfter":
       return { token: edit.token, parent: parents.get(edit.sibling) ?? null };
     default:

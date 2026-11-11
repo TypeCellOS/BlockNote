@@ -149,8 +149,11 @@ export function tokenOf(block: BlockWithoutChildren): string | undefined {
  * the top level.
  */
 export type TreeEdit =
-  /** The block goes into the parent (the last child). */
-  | { kind: "move"; token: string; parent: string | null }
+  /**
+   * The block goes into the parent (the last child). `after` is the block
+   * before it, if both are list items of one list.
+   */
+  | { kind: "move"; token: string; parent: string | null; after?: string }
   /** The block goes after `sibling`, in the parent of `sibling`. */
   | { kind: "moveAfter"; token: string; sibling: string }
   /** The block changes its type. */
@@ -161,8 +164,15 @@ export type TreeEdit =
   | { kind: "insert"; after: string }
   /** The block and the blocks that the view shows in it go. */
   | { kind: "remove"; tokens: string[] }
-  /** The block goes, and the blocks that the view shows in it take its place. */
-  | { kind: "lift"; token: string; children: string[] }
+  /**
+   * The block goes, and the blocks that the view shows in it take its place.
+   * `after` is the block before a child, if both are list items of one list.
+   */
+  | {
+      kind: "lift";
+      token: string;
+      children: { token: string; after: string | undefined }[];
+    }
   /** The text of the block changes. */
   | { kind: "text"; token: string };
 
@@ -177,6 +187,32 @@ function placesOf(blocks: LensBlock[], parent?: LensBlock): Place[] {
 
 function isListItem(block: LensBlock | undefined): boolean {
   return block !== undefined && block.type.endsWith("ListItem");
+}
+
+/**
+ * The list of each list item type, as the exporters of BlockNote group the
+ * list items (numbered list items make an ordered list, the others a
+ * bullet list). The same as `LISTS` in `target/hiddenNesting.ts`.
+ */
+const LISTS: ReadonlyMap<string, string> = new Map([
+  ["numberedListItem", "ordered"],
+  ["bulletListItem", "bullet"],
+  ["checkListItem", "bullet"],
+  ["toggleListItem", "bullet"],
+]);
+
+/** The token of the block before `block` in `siblings`, if both are list items of one list. */
+function previousInList(
+  siblings: readonly LensBlock[],
+  block: LensBlock,
+): string | undefined {
+  const previous = siblings[siblings.indexOf(block) - 1];
+  const list = LISTS.get(block.type);
+  return previous !== undefined &&
+    list !== undefined &&
+    LISTS.get(previous.type) === list
+    ? tokenOf(previous)
+    : undefined;
 }
 
 function tokensIn(block: LensBlock): string[] {
@@ -254,6 +290,7 @@ export function randomTreeEdit(
           kind: "move",
           token: token(place.block),
           parent: token(previous),
+          after: previousInList(previous.children, place.block),
         },
       };
     }
@@ -364,6 +401,7 @@ export function randomTreeEdit(
           kind: "move",
           token: token(place.block),
           parent: token(target.block),
+          after: previousInList(target.block.children, place.block),
         },
       };
     }
@@ -395,9 +433,17 @@ export function randomTreeEdit(
         edit: {
           kind: "lift",
           token: token(place.block),
-          children: place.block.children
-            .map(tokenOf)
-            .filter((token): token is string => token !== undefined),
+          children: place.block.children.flatMap((child) => {
+            const childToken = tokenOf(child);
+            return childToken === undefined
+              ? []
+              : [
+                  {
+                    token: childToken,
+                    after: previousInList(place.siblings, child),
+                  },
+                ];
+          }),
         },
       };
     }
@@ -408,7 +454,9 @@ export function randomTreeEdit(
  * The parent of each block of the source document after the edit, by token
  * (`null` for the top level), and the blocks that the edit removed. This is
  * the model of the result: a block that the edit does not move keeps its
- * parent, also if the format does not show that nesting.
+ * parent, also if the format does not show that nesting. List items that
+ * the text shows as one list share the parent of that list: a moved list
+ * item after a list item of the same list gets the parent of that item.
  */
 export function expectedParents(
   source: readonly LensBlock[],
@@ -425,7 +473,10 @@ export function expectedParents(
   visit(source, null);
   switch (edit.kind) {
     case "move":
-      parents.set(edit.token, edit.parent);
+      parents.set(
+        edit.token,
+        edit.after === undefined ? edit.parent : parents.get(edit.after)!,
+      );
       break;
     case "moveAfter":
       parents.set(edit.token, parents.get(edit.sibling)!);
@@ -438,8 +489,11 @@ export function expectedParents(
     case "lift": {
       const parent = parents.get(edit.token)!;
       for (const child of edit.children) {
-        if (parents.get(child) === edit.token) {
-          parents.set(child, parent);
+        if (parents.get(child.token) === edit.token) {
+          parents.set(
+            child.token,
+            child.after === undefined ? parent : parents.get(child.after)!,
+          );
         }
       }
       parents.delete(edit.token);
