@@ -6174,6 +6174,12 @@ importers:
       '@ai-sdk/openai-compatible':
         specifier: ^3.0.78
         version: 3.0.78(zod@4.6.7)
+      '@blocknote/core':
+        specifier: workspace:^
+        version: link:../core
+      '@blocknote/server-util':
+        specifier: workspace:^
+        version: link:../server-util
       '@blocknote/xl-ai':
         specifier: workspace:^
         version: link:../xl-ai
@@ -6186,6 +6192,12 @@ importers:
       hono:
         specifier: ^4.10.3
         version: 4.12.14
+      y-websocket:
+        specifier: ^2.1.0
+        version: 2.1.0(yjs@13.6.33)
+      yjs:
+        specifier: ^13.6.33
+        version: 13.6.33
     devDependencies:
       '@types/node':
         specifier: 25.9.5

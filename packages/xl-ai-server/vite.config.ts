@@ -41,6 +41,10 @@ export default defineConfig(
             : ({
                 // load live from sources with live reload working
                 "@blocknote/core": path.resolve(__dirname, "../core/src/"),
+                "@blocknote/server-util/dom": path.resolve(
+                  __dirname,
+                  "../server-util/src/dom.ts",
+                ),
                 "@blocknote/xl-ai": path.resolve(__dirname, "../xl-ai/src/"),
               } as Record<string, string>),
       },

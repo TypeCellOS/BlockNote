@@ -25,6 +25,12 @@
   "include": ["src"],
   "references": [
     {
+      "path": "../core"
+    },
+    {
+      "path": "../server-util"
+    },
+    {
       "path": "../xl-ai"
     }
   ]

@@ -68,10 +68,14 @@
     "@ai-sdk/mistral": "^4.0.72",
     "@ai-sdk/openai": "^4.0.102",
     "@ai-sdk/openai-compatible": "^3.0.78",
+    "@blocknote/core": "workspace:^",
+    "@blocknote/server-util": "workspace:^",
     "@blocknote/xl-ai": "workspace:^",
     "@hono/node-server": "^1.19.5",
     "ai": "^7.0.153",
-    "hono": "^4.10.3"
+    "hono": "^4.10.3",
+    "y-websocket": "^2.1.0",
+    "yjs": "^13.6.33"
   },
   "devDependencies": {
     "@types/node": "22.13.13",
