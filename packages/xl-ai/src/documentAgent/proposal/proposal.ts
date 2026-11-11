@@ -134,6 +134,36 @@ export function replayProposal(
 }
 
 /**
+ * Returns true if the batch follows the proposal: it has the next number,
+ * its operations apply to the proposal document, and the result has the
+ * hash of the batch.
+ *
+ * A host examines a batch of a client with this function before it saves
+ * the batch. A client can make a batch for a different history of the
+ * proposal: for example, it did not get the last batches of the host. The
+ * number of such a batch can be correct by chance. A batch that does not
+ * fit is an expected failure, thus the result is a value.
+ */
+export function batchFollows(
+  createEditor: CreateEditor,
+  proposal: Proposal,
+  batch: Batch,
+): boolean {
+  if (batch.seq !== proposal.batches.length + 1) {
+    return false;
+  }
+  const { editor } = openProposal(createEditor, proposal);
+  try {
+    applyToEditor(editor, batch.operations);
+  } catch {
+    // The operations name a block that this proposal document does not
+    // have, or a position that does not exist.
+    return false;
+  }
+  return hashDocument(editor.document) === batch.hash;
+}
+
+/**
  * Makes the proposal document (see {@link replayProposal}). Throws for a
  * hash that does not agree: use it where the proposal comes from this host.
  */

@@ -11,7 +11,11 @@ import {
   type DocumentProposalData,
 } from "../agent/earlyToolCalls.js";
 import { toolCallsOf } from "../proposal/derive.js";
-import { type CreateEditor, createProposal } from "../proposal/proposal.js";
+import {
+  batchFollows,
+  type CreateEditor,
+  createProposal,
+} from "../proposal/proposal.js";
 import type { Batch, Proposal } from "../proposal/types.js";
 import type { ProposalStore } from "../stores/proposalStore.js";
 import type { ToolCallReview } from "../tools/documentTools.js";
@@ -88,7 +92,8 @@ export type SessionHost = {
   /**
    * Adds the batch of a review of a user to the proposal: the accept or
    * the reject of one tool call. The batch must follow the stored
-   * proposal. Else, the client gets the snapshot again.
+   * proposal (its number, its operations and its hash, see
+   * `batchFollows`). Else, the client gets the snapshot again.
    */
   review(
     documentId: string,
@@ -269,7 +274,9 @@ export function createSessionHost(options: SessionHostOptions): SessionHost {
         if (proposalId === undefined || proposal === undefined) {
           return { error: "no-proposal" as const };
         }
-        if (batch.seq !== proposal.batches.length + 1) {
+        // The batch must be for this history of the proposal: the number
+        // alone can be correct by chance (see `batchFollows`).
+        if (!batchFollows(createEditor, proposal, batch)) {
           return { error: "stale" as const, batches: proposal.batches.length };
         }
         await proposals.save(proposalId, {

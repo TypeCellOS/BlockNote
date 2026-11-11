@@ -34,6 +34,7 @@ export {
 } from "./proposal/derive.js";
 export { hashDocument } from "./proposal/hash.js";
 export {
+  batchFollows,
   type BatchResult,
   type CreateEditor,
   createProposal,

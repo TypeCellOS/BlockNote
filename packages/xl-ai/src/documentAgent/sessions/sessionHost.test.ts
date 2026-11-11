@@ -440,4 +440,49 @@ describe("the session of a document", () => {
     expect(results).toEqual([{}, { error: "stale", batches: 2 }]);
     expect((await host.snapshot("doc")).proposal?.batches).toHaveLength(2);
   });
+
+  it("refuses a review batch for a different history of the proposal, also with the correct number", async () => {
+    const { host } = createHost([
+      firstEdit,
+      secondEdit,
+      { text: "Done." },
+      {
+        toolCalls: [
+          {
+            toolName: "editText",
+            input: { old: "Title", new: "Heading", reason: "A third change." },
+          },
+        ],
+      },
+      { text: "Done again." },
+    ]);
+    await run(host, "Improve the text.", "user");
+    // An editor has the two batches of the first run. Its user rejects the
+    // first tool call, and that batch (number 3) does not arrive.
+    const copy = (await host.snapshot("doc")).proposal!;
+    const first = revertToolCall(createEditor, copy, "call-1");
+    if (first.error !== undefined) {
+      throw new Error(first.error);
+    }
+    // The host gets a third batch from a second run.
+    await run(host, "Change the title.", "external");
+    // The user rejects the second tool call, on the copy of the editor: the
+    // batch has the number 4, as the next batch of the host.
+    const second = revertToolCall(
+      createEditor,
+      { origin: copy.origin, batches: [...copy.batches, first.batch] },
+      "call-2",
+    );
+    if (second.error !== undefined) {
+      throw new Error(second.error);
+    }
+    expect(second.batch.seq).toBe(4);
+
+    // The batch is for a history that the host does not have.
+    expect(await host.review("doc", second.batch)).toEqual({
+      error: "stale",
+      batches: 3,
+    });
+    expect((await host.snapshot("doc")).proposal?.batches).toHaveLength(3);
+  });
 });
