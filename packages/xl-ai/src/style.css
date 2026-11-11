@@ -97,3 +97,51 @@
   border-radius: 4px;
   text-decoration: line-through;
 }
+
+/* The replay animation of the document agent: the text of a new insertion
+   shows from its start to its end. The decoration is inside the `ins`
+   element, thus it has the color, and the `ins` element has none. */
+.bn-editor[data-agent-proposal] ins:has(> .bn-agent-new) {
+  background-color: transparent;
+}
+
+.bn-agent-new {
+  background-color: color-mix(
+    in srgb,
+    var(--user-color-light) 50%,
+    var(--bn-colors-editor-background, white)
+  );
+  border-radius: 4px;
+  animation: bn-agent-reveal var(--bn-agent-duration, 400ms) linear
+    var(--bn-agent-delay, 0ms) both;
+}
+
+.bn-agent-new-block {
+  animation: bn-agent-appear var(--bn-agent-duration, 300ms) ease-out
+    var(--bn-agent-delay, 0ms) both;
+}
+
+@keyframes bn-agent-reveal {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes bn-agent-appear {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bn-agent-new,
+  .bn-agent-new-block {
+    animation: none;
+  }
+}

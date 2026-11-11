@@ -5,13 +5,16 @@ import {
   type ExtensionOptions,
 } from "@blocknote/core";
 import type { ChatTransport, UIMessage, UIMessageChunk } from "ai";
+import type { Node } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
+import { Decoration, DecorationSet } from "prosemirror-view";
 
 import { AIExtension } from "../../AIExtension.js";
 import { updateDocument } from "../../api/v2/index.js";
 import {
   blockOf,
   deriveSuggestions,
+  suggestionIdOf,
   type ToolCallInfo,
   toolCallsOf,
   toolCallsOfBlocks,
@@ -90,7 +93,17 @@ export type DocumentAgentExtensionOptions = {
   onReview?: (batch: Batch, proposal: Proposal) => void;
   /** Called after a user accepts or rejects the full proposal. */
   onClose?: (result: "accepted" | "rejected", proposal: Proposal) => void;
+  /**
+   * The replay animation: the insertions of the newest batch show one after
+   * the other, and the text of each one shows from its start to its end.
+   * The document has the full batch at once: the animation is only in the
+   * view. The default is true.
+   */
+  replayAnimation?: boolean;
 };
+
+/** The time of the replay animation for one character of inserted text. */
+const REPLAY_MS_PER_CHARACTER = 12;
 
 /**
  * The document agent in an editor: it sends the prompts of the user, keeps
@@ -112,6 +125,45 @@ export const DocumentAgentExtension = createExtension(
     const store = createStore<DocumentAgentState>({ status: "idle" });
     const createEditor = headlessEditorFactory({ schema: editor.schema });
     let chat: Chat<UIMessage> | undefined;
+    /** The suggestion IDs of the batches that arrived last: the replay animation shows them. */
+    let newest = new Set<number>();
+
+    /** The decorations of the replay animation, for the insertions of the newest batches. */
+    function replayDecorations(doc: Node): DecorationSet | null {
+      if (newest.size === 0 || options?.replayAnimation === false) {
+        return null;
+      }
+      const decorations: Decoration[] = [];
+      // Each insertion starts when the insertion before it is complete.
+      let delay = 0;
+      doc.descendants((node, pos) => {
+        const isNew = node.marks.some(
+          (mark) => mark.type.name === "insertion" && newest.has(mark.attrs.id),
+        );
+        if (!isNew) {
+          return true;
+        }
+        const duration = node.isInline
+          ? Math.min(
+              1500,
+              Math.max(150, node.nodeSize * REPLAY_MS_PER_CHARACTER),
+            )
+          : 300;
+        const attrs = {
+          class: node.isInline ? "bn-agent-new" : "bn-agent-new-block",
+          style: `--bn-agent-delay: ${delay}ms; --bn-agent-duration: ${duration}ms`,
+        };
+        decorations.push(
+          node.isInline
+            ? Decoration.inline(pos, pos + node.nodeSize, attrs)
+            : Decoration.node(pos, pos + node.nodeSize, attrs),
+        );
+        delay += duration;
+        // The content of a new block shows with the block.
+        return node.isInline;
+      });
+      return DecorationSet.create(doc, decorations);
+    }
 
     function aiMenu() {
       return editor.getExtension(AIExtension);
@@ -216,6 +268,12 @@ export const DocumentAgentExtension = createExtension(
         return;
       }
       aiMenu()?.setAIResponseStatus("ai-writing");
+      // The replay animation shows the tool calls of these batches.
+      newest = new Set(
+        batches.flatMap((batch) =>
+          batch.source.type === "tool-call" ? [suggestionIdOf(batch)] : [],
+        ),
+      );
       setProposal(proposal);
     }
 
@@ -246,6 +304,7 @@ export const DocumentAgentExtension = createExtension(
     function reset() {
       const running = chat;
       chat = undefined;
+      newest = new Set();
       void running?.stop();
       store.setState({ status: "idle" });
       clearSuggestions(editor);
@@ -264,6 +323,7 @@ export const DocumentAgentExtension = createExtension(
               store.state.status === "idle"
                 ? {}
                 : { "data-agent-proposal": "true" },
+            decorations: (state) => replayDecorations(state.doc),
           },
         }),
       ],
@@ -325,6 +385,14 @@ export const DocumentAgentExtension = createExtension(
           fail("request-failed");
           return;
         }
+        // The replay animation is only for a run: a later display of the
+        // same suggestions must not show it again. A transaction without
+        // steps makes the view compute its decorations again.
+        newest = new Set();
+        editor.exec((state, dispatch) => {
+          dispatch?.(state.tr.setMeta("addToHistory", false));
+          return true;
+        });
         store.setState({ status: "reviewing", review: after.review });
         aiMenu()?.setAIResponseStatus("user-reviewing");
       },
