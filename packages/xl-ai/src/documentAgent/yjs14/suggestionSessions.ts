@@ -54,7 +54,11 @@ export type SuggestionSessionHostOptions = DocumentAgentOptions & {
  * outputs of the tool calls in the chat, and the agent gets them.
  */
 export type SuggestionSessionHost = {
-  snapshot(documentId: string): SuggestionSessionSnapshot;
+  /**
+   * The chat and the run in progress of the document. The outputs of the
+   * tool calls in the chat have the decisions of the users.
+   */
+  snapshot(documentId: string): Promise<SuggestionSessionSnapshot>;
   startRun: ChatSessions["startRun"];
   activeRun: ChatSessions["activeRun"];
   stopRun: ChatSessions["stopRun"];
@@ -63,6 +67,24 @@ export type SuggestionSessionHost = {
 export function createSuggestionSessionHost(
   options: SuggestionSessionHostOptions,
 ): SuggestionSessionHost {
+  /**
+   * Puts the decisions of the users for the tool calls into the chat of
+   * the document. The decisions are in the suggestion document: the host
+   * has no part in them.
+   */
+  function recordDecisions(documentId: string, suggestion: Y.Doc) {
+    const decisions = new Map<string, ToolCallReview>();
+    for (const record of toolCallRecordsOf(suggestion)) {
+      if (record.decision !== undefined) {
+        decisions.set(record.toolCallId, record.decision);
+      }
+    }
+    chats.setMessages(
+      documentId,
+      recordReview(chats.messages(documentId), decisions),
+    );
+  }
+
   const chats = createChatSessions({
     ...options,
     async openRun(documentId) {
@@ -72,16 +94,7 @@ export function createSuggestionSessionHost(
       }
       // The decisions of the users after the last run: the agent must not
       // make a rejected change again.
-      const decisions = new Map<string, ToolCallReview>();
-      for (const record of toolCallRecordsOf(opened.suggestion)) {
-        if (record.decision !== undefined) {
-          decisions.set(record.toolCallId, record.decision);
-        }
-      }
-      chats.setMessages(
-        documentId,
-        recordReview(chats.messages(documentId), decisions),
-      );
+      recordDecisions(documentId, opened.suggestion);
       const document = createSuggestionDocument(opened);
       return { document, close: () => document.destroy() };
     },
@@ -91,9 +104,15 @@ export function createSuggestionSessionHost(
     startRun: (documentId, request) => chats.startRun(documentId, request),
     activeRun: (documentId) => chats.activeRun(documentId),
     stopRun: (documentId) => chats.stopRun(documentId),
-    snapshot: (documentId) => ({
-      messages: chats.messages(documentId),
-      activeRunId: chats.activeRun(documentId)?.id,
-    }),
+    async snapshot(documentId) {
+      const opened = await options.openSuggestion(documentId);
+      if (opened !== undefined) {
+        recordDecisions(documentId, opened.suggestion);
+      }
+      return {
+        messages: chats.messages(documentId),
+        activeRunId: chats.activeRun(documentId)?.id,
+      };
+    },
   };
 }

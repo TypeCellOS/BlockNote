@@ -7,6 +7,7 @@ import { afterEach, describe, expect, it } from "vite-plus/test";
 import { AIExtension } from "../../AIExtension.js";
 import { documentAgentOf } from "../client/agentExtension.js";
 import { scriptedModel, type ScriptedStep } from "../testUtil.js";
+import { createSuggestionReview } from "./review.js";
 import {
   createSuggestionCollaboration,
   SuggestionAgentExtension,
@@ -167,8 +168,8 @@ describe("the document agent in an editor, in Yjs 14 mode", () => {
     expect(textsOfDoc(main)[0]).toBe("Title of the user");
   });
 
-  it("accepts one tool call, and ends the review after the last decision", async () => {
-    const { editor, agent, hostMain } = createSessionEditor([
+  it("accepts one tool call, and ends the review after the decision of a different user", async () => {
+    const { editor, agent, hostMain, hostSuggestion } = createSessionEditor([
       editFirst,
       editSecond,
       { text: "Done." },
@@ -189,9 +190,26 @@ describe("the document agent in an editor, in Yjs 14 mode", () => {
         : state.review.toolCalls.map((call) => call.state),
     ).toEqual(["accepted", "open"]);
 
-    agent.rejectToolCall("call-2");
+    // A different user rejects the other tool call: a change of the two
+    // documents, which this editor gets through the Yjs sync.
+    createSuggestionReview({
+      main: hostMain,
+      suggestion: hostSuggestion,
+    }).rejectToolCall("call-2");
 
     expect(agent.store.state.status).toBe("idle");
+    // The chat of this editor has the two decisions: a card of a tool call
+    // shows the decision of each user.
+    expect(
+      agent
+        .getChat()
+        .messages.flatMap((message) => message.parts)
+        .flatMap((part) =>
+          part.type === "tool-editText" && part.state === "output-available"
+            ? [(part.output as { review?: string }).review]
+            : [],
+        ),
+    ).toEqual(["accepted", "rejected"]);
     expect(suggestionMarksOf(editor.prosemirrorState.doc)).toEqual([]);
     expect(textsOfDoc(hostMain)).toEqual([
       "Title",

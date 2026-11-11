@@ -74,7 +74,7 @@ describe("the sessions of a host in Yjs 14 mode", () => {
 
     expect(textsOfDoc(suggestion)).toContain("Opening paragraph.");
     expect(textsOfDoc(main)).toContain("First paragraph.");
-    const { messages, activeRunId } = host.snapshot("doc");
+    const { messages, activeRunId } = await host.snapshot("doc");
     expect(activeRunId).toBeUndefined();
     expect(messages.map((message) => message.role)).toEqual([
       "user",
@@ -109,6 +109,27 @@ describe("the sessions of a host in Yjs 14 mode", () => {
     expect(lastToolResult(prompts[2])).toContain(
       "The user rejected this change",
     );
+  });
+
+  it("gives the chat with the decisions of the users, without a new run", async () => {
+    const { main, suggestion, host } = createHost([
+      editFirst,
+      { text: "Done." },
+    ]);
+    await run(host, "Improve the text.");
+
+    createSuggestionReview({ main, suggestion }).acceptToolCall("call-1");
+
+    const { messages } = await host.snapshot("doc");
+    expect(
+      messages[1].parts.flatMap((part) =>
+        part.type === "tool-editText" && part.state === "output-available"
+          ? [part.output]
+          : [],
+      ),
+    ).toEqual([
+      { version: "v1", changed: true, notes: [], review: "accepted" },
+    ]);
   });
 
   it("has one run at a time for a document, and knows its documents", async () => {

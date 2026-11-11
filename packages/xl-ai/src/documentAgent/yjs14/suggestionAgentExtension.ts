@@ -92,6 +92,13 @@ function createSuggestionMode(
    */
   function sync() {
     const toolCalls = review.toolCalls();
+    // The decisions of each user go into the chat of this editor: a card
+    // of a tool call shows the decision also if a different user made it.
+    for (const call of toolCalls) {
+      if (call.state !== "open") {
+        record([call.toolCallId], call.state);
+      }
+    }
     const open = toolCalls.some((call) => call.state === "open");
     const state = store.state;
     if (state.status === "idle") {
@@ -108,22 +115,10 @@ function createSuggestionMode(
     }
   }
 
-  /** Runs a decision of the user, and puts it into the chat. */
-  function decide(
-    toolCallIds: readonly string[],
-    decision: "accepted" | "rejected",
-    run: () => void,
-  ) {
+  /** Runs a decision of the user. The state and the chat follow the suggestion document. */
+  function decide(run: () => void) {
     run();
-    record(toolCallIds, decision);
     sync();
-  }
-
-  function openToolCallIds(): string[] {
-    return review
-      .toolCalls()
-      .filter((call) => call.state === "open")
-      .map((call) => call.toolCallId);
   }
 
   return {
@@ -134,14 +129,12 @@ function createSuggestionMode(
     // The suggestions are in the suggestion document: nothing to hide.
     hide: () => undefined,
     mainDocument: () => yDocToBlocks(editor, main, fragment),
-    acceptAll: () =>
-      decide(openToolCallIds(), "accepted", () => review.acceptAll()),
-    rejectAll: () =>
-      decide(openToolCallIds(), "rejected", () => review.rejectAll()),
+    acceptAll: () => decide(() => review.acceptAll()),
+    rejectAll: () => decide(() => review.rejectAll()),
     acceptToolCall: (toolCallId) =>
-      decide([toolCallId], "accepted", () => review.acceptToolCall(toolCallId)),
+      decide(() => review.acceptToolCall(toolCallId)),
     rejectToolCall: (toolCallId) =>
-      decide([toolCallId], "rejected", () => review.rejectToolCall(toolCallId)),
+      decide(() => review.rejectToolCall(toolCallId)),
     // The binding of core shows each suggestion in an `ins` or a `del`
     // element, with the IDs of its authors as JSON in `data-user-ids`.
     suggestionSelector(toolCallId) {
