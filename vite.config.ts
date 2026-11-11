@@ -68,6 +68,8 @@ export default defineConfig({
       // The rules of the text lens (packages/xl-ai/src/api/v2). FOLLOW-UP
       // (later): use them outside the lens too.
       { name: "lens", specifier: "./packages/xl-ai/lint/lensPlugin.js" },
+      // The order of the declarations in a file (the text lens).
+      { name: "perfectionist", specifier: "eslint-plugin-perfectionist" },
     ],
     options: {
       typeAware: true,
@@ -132,6 +134,23 @@ export default defineConfig({
           // folders: it finds only the exports that no other file uses (see
           // the README, "Rules of the code").
           "lens/folder-api": "error",
+          // The order of the declarations in a file: first the exports, then
+          // the declarations without an export. In a group, the order stays
+          // (`unsorted`): a caller before the functions that it calls. The
+          // rule does not move variables (`const`, `let`): a variable starts
+          // a new part of the file, and the rule sorts each part.
+          "perfectionist/sort-modules": [
+            "error",
+            {
+              type: "unsorted",
+              customGroups: [{ groupName: "exported", modifiers: ["export"] }],
+              groups: ["exported", "unknown"],
+            },
+          ],
+          // Among the exports: the API of the folder (the names in its
+          // index.ts) before the @internal exports. sort-modules cannot
+          // see the difference: the two are `export` in the syntax tree.
+          "lens/api-before-internal": "error",
           complexity: ["error", 15],
           "max-depth": ["error", 4],
           "max-lines-per-function": [
@@ -150,6 +169,8 @@ export default defineConfig({
         rules: {
           "no-restricted-imports": "off",
           "lens/folder-api": "off",
+          "perfectionist/sort-modules": "off",
+          "lens/api-before-internal": "off",
           complexity: "off",
           "max-depth": "off",
           "max-lines-per-function": "off",

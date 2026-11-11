@@ -106,7 +106,66 @@ const folderApi = {
   },
 };
 
+/**
+ * The declarations that `api-before-internal` checks: the same kinds as
+ * `perfectionist/sort-modules`. Variables (`const`, `let`) are not in the
+ * list.
+ */
+const DECLARATIONS = new Set([
+  "FunctionDeclaration",
+  "TSDeclareFunction",
+  "ClassDeclaration",
+  "TSTypeAliasDeclaration",
+  "TSInterfaceDeclaration",
+  "TSEnumDeclaration",
+]);
+
+const apiBeforeInternal = {
+  meta: {
+    type: "suggestion",
+    docs: {
+      description:
+        "Among the exported declarations of a file, the API of the folder (the names in its index.ts) comes before the @internal exports.",
+    },
+    schema: [],
+  },
+  create(context) {
+    const file = context.filename ?? context.getFilename();
+    if (basename(file) === "index.ts") {
+      return {};
+    }
+    return {
+      Program(program) {
+        const api = apiNames(file);
+        let firstInternal;
+        for (const statement of program.body) {
+          const declaration = statement.declaration;
+          if (
+            statement.type !== "ExportNamedDeclaration" ||
+            declaration === null ||
+            declaration === undefined ||
+            !DECLARATIONS.has(declaration.type) ||
+            declaration.id === null ||
+            declaration.id === undefined
+          ) {
+            continue;
+          }
+          const name = declaration.id.name;
+          if (!api.has(name)) {
+            firstInternal ??= name;
+          } else if (firstInternal !== undefined && firstInternal !== name) {
+            context.report({
+              node: statement,
+              message: `"${name}" is in the index.ts of its folder (the API of the folder), but it comes after the @internal export "${firstInternal}". Put the API of the folder first: a reader of the file then sees it first.`,
+            });
+          }
+        }
+      },
+    };
+  },
+};
+
 export default {
   meta: { name: "lens" },
-  rules: { "folder-api": folderApi },
+  rules: { "folder-api": folderApi, "api-before-internal": apiBeforeInternal },
 };
