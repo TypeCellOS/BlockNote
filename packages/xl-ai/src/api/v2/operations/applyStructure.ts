@@ -25,6 +25,8 @@ import type { BlockShape } from "./applyToBlocks.js";
  *
  * Method: our own design. The common subsequence of each list is the Myers
  * diff of the child IDs.
+ *
+ * @internal
  */
 export function applyStructure(
   tr: Transaction,

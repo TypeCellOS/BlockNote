@@ -16,6 +16,8 @@ import { deepEqual } from "../util/blocks/index.js";
  *   target stage, an insert of `theirs` at the position of an insert of `ours` is
  *   a difference that the format makes (for example whitespace). Thus, it
  *   does not stay.
+ *
+ * @internal
  */
 export type MergeOptions = {
   concurrent?: boolean;
@@ -50,6 +52,8 @@ export type MergeOptions = {
  *
  * Method: the standard three-way rule for one value, as diff3 uses it for one
  * item.
+ *
+ * @internal
  */
 export function mergeValue<T>(
   base: T,
@@ -70,6 +74,8 @@ export function mergeValue<T>(
 /**
  * Applies {@link mergeValue} to each key of the three objects. The result
  * does not contain keys with the value `undefined`.
+ *
+ * @internal
  */
 export function mergeRecords<R extends object>(
   base: R,

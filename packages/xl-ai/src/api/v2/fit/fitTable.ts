@@ -35,6 +35,8 @@ export function fitTables(blocks: readonly LensBlock[]): LensBlock[] {
  * import), and the table plugin of the editor fits only the tables that a
  * transaction changes. Thus, a write does not change a table that the text
  * did not change.
+ *
+ * @internal
  */
 export function fitChangedTables(
   blocks: readonly LensBlock[],
@@ -81,6 +83,8 @@ function mapTables(
  *
  * Method: our own design, for the rules of the table plugin
  * (prosemirror-tables), on the grid of `gridOf`.
+ *
+ * @internal
  */
 export function fitTable(table: LensTableContent): LensTableContent {
   const widths = gridOf(cellRows(table))?.widths;

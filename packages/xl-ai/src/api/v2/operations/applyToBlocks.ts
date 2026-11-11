@@ -5,6 +5,8 @@ import type { BlockOperation, BlockPosition } from "./types.js";
  * The structure of a document after operations: each block by its ID, with
  * its children, in order. `block` is the block of the insert (for a new
  * block), or the block of the document.
+ *
+ * @internal
  */
 export type BlockShape = { block: LensBlock; children: BlockShape[] };
 
@@ -18,6 +20,8 @@ export type BlockShape = { block: LensBlock; children: BlockShape[] };
  * block or a reference that is not in the document (also a block that an
  * earlier operation removed), an insert of a block ID that is in the
  * document, or a move of a block into itself (also before or after itself).
+ *
+ * @internal
  */
 export function applyToBlocks(
   current: readonly LensBlock[],

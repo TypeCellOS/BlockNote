@@ -204,6 +204,8 @@ export function updateDocument(
  * The operations of a change for the document `current` (stages 1 to 6).
  * The Y.Doc write (`yjs/yDocText.ts`) also uses it, with `keepLayout` (see
  * `fitResult`).
+ *
+ * @internal
  */
 export function operationsOf(
   editor: BlockNoteEditor<any, any, any>,
@@ -379,6 +381,8 @@ function updateFromTarget(
  * Stages 7 and 8: applies the operations to a transaction of the editor (see
  * `applyOperations`), and dispatches it: in one transaction, or, for an
  * editor that is bound to a Y.Doc, in groups (see `dispatchUpdate`).
+ *
+ * @internal
  */
 export function dispatchOperations(
   editor: BlockNoteEditor<any, any, any>,
@@ -409,6 +413,8 @@ function versionOf(
  * types (for example JavaScript) can forget it. Without this check, such a
  * write would fail with an unclear error, or remove the changes of other
  * writers without a warning.
+ *
+ * @internal
  */
 export function requireBase(base: unknown): void {
   if (base === undefined) {

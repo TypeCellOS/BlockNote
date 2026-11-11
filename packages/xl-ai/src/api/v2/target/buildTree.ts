@@ -13,6 +13,8 @@ export type { TreeRow } from "./types.js";
  *    nesting that the format does not show.
  * 2. The hidden blocks that stay go to their source positions (see
  *    {@link placeHiddenBlocks}).
+ *
+ * @internal
  */
 export function buildTree(input: {
   rows: readonly TreeRow[];

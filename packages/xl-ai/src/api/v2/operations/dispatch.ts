@@ -76,6 +76,8 @@ function dispatchToEditor(
  * change move to the changed document (see `rebaseSteps`).
  *
  * `tr` must be a transaction of the current state of the editor.
+ *
+ * @internal
  */
 export function dispatchSteps(
   editor: BlockNoteEditor<any, any, any>,

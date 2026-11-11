@@ -6,18 +6,28 @@
  * narrow. For example, its `content` type is `never`.
  */
 
-/** The styles of a text: `true` for a style that is on or off (bold), or a value (text color). */
+/**
+ * The styles of a text: `true` for a style that is on or off (bold), or a value (text color).
+ *
+ * @internal
+ */
 export type LensStyles = Record<string, string | boolean | undefined>;
 
+/** @internal */
 export type LensStyledText = { type: "text"; text: string; styles: LensStyles };
 
+/** @internal */
 export type LensLink = {
   type: "link";
   href: string;
   content: LensStyledText[];
 };
 
-/** Custom inline content, for example a mention. The lens uses it as one unit and does not look inside it. */
+/**
+ * Custom inline content, for example a mention. The lens uses it as one unit and does not look inside it.
+ *
+ * @internal
+ */
 export type LensCustomInlineContent = {
   type: string;
   props: Record<string, unknown>;
@@ -25,17 +35,20 @@ export type LensCustomInlineContent = {
   content?: LensStyledText[] | string;
 };
 
+/** @internal */
 export type LensInlineContent =
   | LensStyledText
   | LensLink
   | LensCustomInlineContent;
 
+/** @internal */
 export type LensTableCell = {
   type: "tableCell";
   props: Record<string, unknown>;
   content: LensInlineContent[];
 };
 
+/** @internal */
 export type LensTableContent = {
   type: "tableContent";
   columnWidths: (number | undefined)[];
@@ -44,7 +57,11 @@ export type LensTableContent = {
   rows: { cells: LensInlineContent[][] | LensTableCell[] }[];
 };
 
-/** Inline content (also for "plain" content), a table, or no content. */
+/**
+ * Inline content (also for "plain" content), a table, or no content.
+ *
+ * @internal
+ */
 export type LensBlockContent =
   | LensInlineContent[]
   | LensTableContent
@@ -58,19 +75,36 @@ export type LensBlock = {
   children: LensBlock[];
 };
 
-/** The fields of a block that a merge or an update changes: not its ID and children. */
+/**
+ * The fields of a block that a merge or an update changes: not its ID and children.
+ *
+ * @internal
+ */
 export type BlockFields = Pick<LensBlock, "type" | "props" | "content">;
 
-/** The fields of a block to set (see `BlockNoteEditor.updateBlock`). */
+/**
+ * The fields of a block to set (see `BlockNoteEditor.updateBlock`).
+ *
+ * @internal
+ */
 export type LensPartialBlock = Partial<BlockFields>;
 
-/** The type of content that a block type has (see `BlockConfig.content`). */
+/**
+ * The type of content that a block type has (see `BlockConfig.content`).
+ *
+ * @internal
+ */
 export type ContentKind = "inline" | "plain" | "table" | "none";
 
 /** One block of a block tree, in a flat list in pre-order (document order). */
-/** A block without its children: its ID and its own fields. */
+/**
+ * A block without its children: its ID and its own fields.
+ *
+ * @internal
+ */
 export type BlockWithoutChildren = Omit<LensBlock, "children">;
 
+/** @internal */
 export type FlatBlock = {
   /** The block, without its children: the flat list has them (see `parentIndex`). */
   block: BlockWithoutChildren;
@@ -78,14 +112,17 @@ export type FlatBlock = {
   parentIndex: number | undefined;
 };
 
+/** @internal */
 export function isStyledText(item: LensInlineContent): item is LensStyledText {
   return item.type === "text";
 }
 
+/** @internal */
 export function isLink(item: LensInlineContent): item is LensLink {
   return item.type === "link";
 }
 
+/** @internal */
 export function isTableContent(
   content: LensBlockContent,
 ): content is LensTableContent {
@@ -96,9 +133,14 @@ export function isTableContent(
   );
 }
 
-/** The shape of the content of a block: text (inline content or plain content), a table, or no content. */
+/**
+ * The shape of the content of a block: text (inline content or plain content), a table, or no content.
+ *
+ * @internal
+ */
 export type ContentShape = "text" | "table" | "none";
 
+/** @internal */
 export function contentShape(content: LensBlockContent): ContentShape {
   if (Array.isArray(content)) {
     return "text";

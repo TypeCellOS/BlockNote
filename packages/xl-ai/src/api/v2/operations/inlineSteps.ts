@@ -68,6 +68,8 @@ function isIgnored(mark: Mark): boolean {
  * then sees only the small changes.
  *
  * Method: our own design, built on the alignment of `alignText`.
+ *
+ * @internal
  */
 export function addInlineContentSteps(
   tr: Transform,

@@ -25,6 +25,8 @@ import {
  *   of that text, its shadow (see `MergeOptions.shadowOf`). Each character
  *   knows its item. If all characters of a shadow stay, {@link fromUnits}
  *   gives back the item.
+ *
+ * @internal
  */
 export type InlineUnit =
   | {
@@ -44,6 +46,7 @@ type Shadow = {
   length: number;
 };
 
+/** @internal */
 export function toUnits(
   content: readonly LensInlineContent[],
   shadowOf?: (item: LensInlineContent) => string | undefined,
@@ -110,6 +113,8 @@ function isFullShadow(units: readonly InlineUnit[], start: number): boolean {
  * The inverse of {@link toUnits}. Puts adjacent characters with equal styles
  * and link in one item. A full shadow gives back its item. The characters of
  * a shadow that is not full (the text changed it) stay text.
+ *
+ * @internal
  */
 export function fromUnits(units: readonly InlineUnit[]): LensInlineContent[] {
   const content: LensInlineContent[] = [];
@@ -162,6 +167,8 @@ function sameStyles(a: LensStyles, b: LensStyles) {
 /**
  * Aligns two unit sequences (see `alignText`). The alignment does not compare
  * styles. The merge does that in a different step.
+ *
+ * @internal
  */
 export function alignUnits(
   a: readonly InlineUnit[],
@@ -176,7 +183,11 @@ function textUnitOf(unit: InlineUnit): TextUnit {
     : { key: `\u0000${unit.key}`, kind: "other" };
 }
 
-/** Returns true if two units are the same: the same character with the same styles and link, or the same atom. */
+/**
+ * Returns true if two units are the same: the same character with the same styles and link, or the same atom.
+ *
+ * @internal
+ */
 export function sameUnitWithStyles(a: InlineUnit, b: InlineUnit): boolean {
   if (a.kind === "char" && b.kind === "char") {
     return (

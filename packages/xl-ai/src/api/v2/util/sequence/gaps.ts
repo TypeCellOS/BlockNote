@@ -4,6 +4,8 @@ import type { MatchedPair } from "./types.js";
  * The items between two matched pairs, `a[aStart, aEnd)` and
  * `b[bStart, bEnd)`, and the pair after them (`undefined` after the last
  * pair).
+ *
+ * @internal
  */
 export type Gap = {
   aStart: number;

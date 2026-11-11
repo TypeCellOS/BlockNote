@@ -6,16 +6,26 @@ import type { KeptRow, TreeRow } from "./types.js";
  * A place in the target tree: the root, the block of a row of the text (a
  * new or a kept block), or a hidden ancestor (a source block without a view
  * block, for example a column, that a kept block keeps as its ancestor).
+ *
+ * @internal
  */
 export type Place =
   | { kind: "root" }
   | { kind: "row"; index: number }
   | { kind: "hidden"; id: string };
 
-/** One step of the build: `block` goes into `parent`, after its last child. */
+/**
+ * One step of the build: `block` goes into `parent`, after its last child.
+ *
+ * @internal
+ */
 export type BuildStep = { block: Place; parent: Place };
 
-/** A key for a place, unique in one build of the target tree. */
+/**
+ * A key for a place, unique in one build of the target tree.
+ *
+ * @internal
+ */
 export function keyOf(place: Place): string {
   switch (place.kind) {
     case "root":
@@ -68,6 +78,8 @@ class OpenAncestors {
  * ancestors that a block keeps get a step too, before the block.
  *
  * Method: our own design.
+ *
+ * @internal
  */
 export function decideParents(input: NestingInput): BuildStep[] {
   return new ParentDecisions(input).decide();

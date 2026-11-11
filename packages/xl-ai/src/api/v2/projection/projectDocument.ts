@@ -11,6 +11,7 @@ import { anchoredMatch } from "../util/sequence/index.js";
 import type { TextFormat } from "../formats/index.js";
 import { parseText } from "../parse/index.js";
 
+/** @internal */
 export type ViewBlock = FlatBlock & {
   /**
    * The ID of the source block that gave this view block. `undefined` if the
@@ -34,7 +35,11 @@ export type Projection = {
   multiParts: Map<string, number[]>;
 };
 
-/** A view block that a source block gives alone (a part), and the index of that source block in `sources`. */
+/**
+ * A view block that a source block gives alone (a part), and the index of that source block in `sources`.
+ *
+ * @internal
+ */
 export type Part = { part: FlatBlock; sourceIndex: number };
 
 /**
@@ -52,6 +57,8 @@ export type Part = { part: FlatBlock; sourceIndex: number };
  *
  * Method: our own design: a round trip through the format, and links by
  * `linkBlocks`.
+ *
+ * @internal
  */
 export function projectDocument(
   editor: BlockNoteEditor<any, any, any>,
@@ -69,7 +76,11 @@ export function projectDocument(
   );
 }
 
-/** The projection that the parts of the source blocks give (see `projectDocument`). */
+/**
+ * The projection that the parts of the source blocks give (see `projectDocument`).
+ *
+ * @internal
+ */
 export function projectWithParts(
   sources: readonly FlatBlock[],
   view: readonly FlatBlock[],
@@ -119,6 +130,8 @@ export function projectWithParts(
  *   its own part.
  * - The round trip puts the block between two separator paragraphs (see
  *   {@link roundTripAlone}).
+ *
+ * @internal
  */
 export function partsOfEachBlock(
   editor: BlockNoteEditor<any, any, any>,
@@ -220,6 +233,8 @@ function viewOf(
  * separators. The separator is a paragraph with only a character that `text`
  * does not contain. A format that does not keep these paragraphs apart from
  * the blocks is a bug. Returns the view blocks that each block gives.
+ *
+ * @internal
  */
 export function roundTripAlone(
   editor: BlockNoteEditor<any, any, any>,

@@ -2,7 +2,11 @@
 import { deepEqual } from "../util/blocks/index.js";
 import type { MatchedPair } from "../util/sequence/index.js";
 
-/** Matched units of base, ours and theirs: a stable point of the merge. */
+/**
+ * Matched units of base, ours and theirs: a stable point of the merge.
+ *
+ * @internal
+ */
 export type StableTriple<T> = { base: T; ours: T; theirs: T };
 
 /**
@@ -10,6 +14,8 @@ export type StableTriple<T> = { base: T; ours: T; theirs: T };
  * it, that `isContext` accepts (a side is `undefined` if there is no such
  * triple on that side), and the units of base and theirs that the run
  * replaces (empty for an insert).
+ *
+ * @internal
  */
 export type RunContext<T> = {
   before: StableTriple<T> | undefined;
@@ -17,6 +23,7 @@ export type RunContext<T> = {
   replaced: { base: T[]; theirs: T[] };
 };
 
+/** @internal */
 export type Diff3Handlers<T> = {
   /** Merges a unit that is in the three sequences. */
   stable: (triple: StableTriple<T>) => T;
@@ -66,6 +73,8 @@ export type Diff3Handlers<T> = {
  *   `handlers.conflictWinner` wins (by default, ours).
  * - Two inserts at the same position can both stay (see
  *   `handlers.keepBothInserts`).
+ *
+ * @internal
  */
 export function diff3<T>(
   base: readonly T[],

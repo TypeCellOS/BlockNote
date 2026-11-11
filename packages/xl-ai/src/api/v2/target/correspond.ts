@@ -9,7 +9,11 @@ import type { BlockPair } from "../alignment/index.js";
 import type { Projection } from "../projection/index.js";
 import type { TargetWarning } from "./types.js";
 
-/** What the target stage does with one block of the text (a row). */
+/**
+ * What the target stage does with one block of the text (a row).
+ *
+ * @internal
+ */
 export type TextRow =
   /**
    * The text block is a source block that stays (`id`). Its fields merge
@@ -38,7 +42,11 @@ export type TextRow =
    */
   | { kind: "skipped"; viewIndex: number | undefined };
 
-/** The correspondence of the text blocks and the source blocks. */
+/**
+ * The correspondence of the text blocks and the source blocks.
+ *
+ * @internal
+ */
 export type Correspondence = {
   /** One row for each block of the text, in the order of the text. */
   rows: TextRow[];
@@ -67,6 +75,8 @@ export type Correspondence = {
  *   {@link keepInvisibleBlocks}).
  *
  * Method: our own design.
+ *
+ * @internal
  */
 export function correspond(
   input: {

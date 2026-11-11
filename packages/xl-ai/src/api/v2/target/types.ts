@@ -1,6 +1,10 @@
 import type { BlockFields } from "../model.js";
 
-/** A row of the correspondence (see `TextRow`), with the fields of its block. */
+/**
+ * A row of the correspondence (see `TextRow`), with the fields of its block.
+ *
+ * @internal
+ */
 export type TreeRow =
   /** A source block that stays, with its merged fields. */
   | {
@@ -19,8 +23,10 @@ export type TreeRow =
     }
   | { kind: "skipped"; viewIndex: number | undefined };
 
+/** @internal */
 export type KeptRow = Extract<TreeRow, { kind: "kept" }>;
 
+/** @internal */
 export type TargetWarning =
   /**
    * The text moved, removed or split a part of a block that renders as more

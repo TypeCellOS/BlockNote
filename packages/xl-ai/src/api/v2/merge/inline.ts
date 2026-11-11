@@ -27,6 +27,8 @@ import { type MergeOptions, mergeRecords, mergeValue } from "./threeWay.js";
  *
  * Method: diff3, a standard algorithm, on our own units (the characters and the
  * inline items, see `inlineUnits.ts`), aligned by `alignText`.
+ *
+ * @internal
  */
 export function mergeInlineContent(
   base: readonly LensInlineContent[],

@@ -6,12 +6,16 @@ import type { MatchedPair } from "./types.js";
  * the diagonals (each step is at most one comparison). The time for this
  * work is about 0.1 to 0.4 s. An edit distance of 1,000 in sequences of
  * 2,000 items is about 1,000,000 steps.
+ *
+ * @internal
  */
 export const DEFAULT_MAX_WORK = 10_000_000;
 
 /**
  * A work limit that more than one call of {@link myersMatch} can share: the
  * number of steps that are left. Each call uses steps of it.
+ *
+ * @internal
  */
 export type WorkBudget = { left: number };
 
@@ -25,6 +29,8 @@ const WORK_PER_ITEM = 50;
  * one input (for example the gaps between anchors) gives them this one
  * limit. Thus, the time is linear in the size of the input, also if each
  * part needs its full work.
+ *
+ * @internal
  */
 export function workBudgetFor(size: number): WorkBudget {
   return { left: Math.max(DEFAULT_MAX_WORK, WORK_PER_ITEM * size) };

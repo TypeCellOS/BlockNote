@@ -260,6 +260,8 @@ export function alignmentKey(block: BlockWithoutChildren): string {
  * Returns true if two blocks can be the same block, edited in place: their
  * content has the same shape. This is text (inline content or plain
  * content), a table, or no content with the same block type.
+ *
+ * @internal
  */
 export function canBeSameBlock(
   a: BlockWithoutChildren,

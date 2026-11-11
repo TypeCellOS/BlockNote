@@ -28,6 +28,8 @@ type Row = LensTableCell[];
  *
  * Method: our own design, built on diff3 for the rows (aligned by their texts,
  * see `alignRows`) and the three-way rule for each cell.
+ *
+ * @internal
  */
 export function mergeTableContent(
   base: LensTableContent,

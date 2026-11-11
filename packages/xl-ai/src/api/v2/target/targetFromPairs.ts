@@ -14,6 +14,7 @@ import type { TargetWarning } from "./types.js";
 
 export type { TargetWarning } from "./types.js";
 
+/** @internal */
 export type TargetInput = {
   /** The document that the change starts from (`base`, or the current document). */
   source: readonly LensBlock[];
@@ -30,6 +31,7 @@ export type TargetInput = {
   newId: () => string;
 };
 
+/** @internal */
 export type TargetResult = { target: LensBlock[]; warnings: TargetWarning[] };
 
 /**

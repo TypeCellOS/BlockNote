@@ -28,6 +28,7 @@ const caches = new WeakMap<
   Map<TextFormat, FormatCache>
 >();
 
+/** @internal */
 export function formatCache(
   editor: BlockNoteEditor<any, any, any>,
   format: TextFormat,

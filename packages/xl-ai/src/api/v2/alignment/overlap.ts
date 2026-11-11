@@ -1,11 +1,17 @@
 import { anchoredMatch } from "../util/sequence/index.js";
 
-/** The size of the text that `a[aIndex]` and `b[bIndex]` have in common. */
+/**
+ * The size of the text that `a[aIndex]` and `b[bIndex]` have in common.
+ *
+ * @internal
+ */
 export type Overlap = { aIndex: number; bIndex: number; size: number };
 
 /**
  * A text for {@link textOverlaps}, with the key of its block. Equal keys are
  * equal blocks (see `alignmentKey`).
+ *
+ * @internal
  */
 export type OverlapText = { text: string; key: string };
 
@@ -27,6 +33,8 @@ type Token = { owner: number; key: string; size: number };
  *
  * Method: our own design: one word diff (`anchoredMatch`), then the sum of the
  * matched word characters for each pair of texts.
+ *
+ * @internal
  */
 export function textOverlaps(
   a: readonly OverlapText[],
@@ -56,7 +64,11 @@ export function textOverlaps(
   return overlaps;
 }
 
-/** Returns the number of word characters in the text, or 1 for a text without words. */
+/**
+ * Returns the number of word characters in the text, or 1 for a text without words.
+ *
+ * @internal
+ */
 export function wordSize(text: OverlapText): number {
   return tokensOf([text]).reduce((sum, token) => sum + token.size, 0);
 }

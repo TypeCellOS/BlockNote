@@ -25,6 +25,8 @@ import type { LayoutRule } from "../util/blocks/index.js";
  * fills a layout block with too few children with new empty blocks.
  *
  * Method: the rules of `fixLayoutBlock` in core, for Block JSON.
+ *
+ * @internal
  */
 export function fitLayout(
   blocks: readonly LensBlock[],
