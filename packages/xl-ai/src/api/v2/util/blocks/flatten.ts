@@ -5,7 +5,7 @@ export function withoutChildren(block: LensBlock): LensBlock {
   return { ...block, children: [] };
 }
 
-/** Makes a flat list from a block tree, in pre-order (document order). */
+/** Makes a flat list from nested blocks, in pre-order (document order). */
 export function flattenBlocks(blocks: readonly LensBlock[]): FlatBlock[] {
   const result: FlatBlock[] = [];
 

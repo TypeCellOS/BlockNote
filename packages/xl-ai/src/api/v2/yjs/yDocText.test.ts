@@ -296,8 +296,8 @@ describe.each([
 describe.each(merges)("concurrent writes (merge %s)", (merge) => {
   /**
    * A test that fails with `merge: "yjs"`: in y-prosemirror v13, a move is a
-   * removal and an insert. A Yjs binding with a block tree (parent links)
-   * can make these tests pass.
+   * removal and an insert. A Yjs binding that keeps a link from each
+   * block to its parent can make these tests pass.
    */
   const itMoves = merge === "yjs" ? it.fails : it;
 

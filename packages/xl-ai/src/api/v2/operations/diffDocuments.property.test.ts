@@ -45,8 +45,8 @@ function contains(root: LensBlock, id: string): boolean {
   return root.id === id || root.children.some((child) => contains(child, id));
 }
 
-/** A random tree with the IDs `b0`, `b1`, ... and a depth of at most 3. */
-function randomTree(random: Random): LensBlock[] {
+/** A random document with the IDs `b0`, `b1`, ... and a depth of at most 3. */
+function randomDocument(random: Random): LensBlock[] {
   let next = 0;
   function list(depth: number): LensBlock[] {
     const count =
@@ -147,7 +147,7 @@ describe("diffDocuments: properties", () => {
   it("gives operations that change the current document into the target", () => {
     const random = createRandom(101);
     for (let run = 0; run < 500; run++) {
-      const current = randomTree(random);
+      const current = randomDocument(random);
       const target = edit(random, current);
       const operations = diffDocuments(current, target);
       expect({ run, result: apply(current, operations) }).toEqual({
@@ -160,7 +160,7 @@ describe("diffDocuments: properties", () => {
   it("gives no operations for equal documents", () => {
     const random = createRandom(102);
     for (let run = 0; run < 100; run++) {
-      const document = randomTree(random);
+      const document = randomDocument(random);
       expect(diffDocuments(document, clone(document))).toEqual([]);
     }
   });
@@ -168,7 +168,7 @@ describe("diffDocuments: properties", () => {
   it("refers only to blocks that exist when the operation runs, and deletes come last", () => {
     const random = createRandom(103);
     for (let run = 0; run < 300; run++) {
-      const current = randomTree(random);
+      const current = randomDocument(random);
       const target = edit(random, current);
       const operations = diffDocuments(current, target);
       const existing = new Set(allBlocks(current).map((child) => child.id));

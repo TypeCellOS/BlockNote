@@ -205,5 +205,5 @@ The [text lens server example](https://github.com/TypeCellOS/BlockNote/tree/main
 2. **Parse**: the text of the client gives the blocks of the text.
 3. **Align**: the view blocks and the blocks of the text pair by the location of their text (see [Which Block Is the Same Block](#which-block-is-the-same-block)).
 4. **Merge and plan**: each pair merges three ways. The base is the view block, "ours" is the block of the text, and "theirs" is the document block. A field that the text changed takes the value of the text. Other fields keep the value of the document, thus data that the format does not show stays. The result is the target document.
-5. **Diff**: the target document and the document give the operations, by block ID. For an older `base`, the target first merges with the current document (a three-way merge of the block trees), and the diff is against the current document.
+5. **Diff**: the target document and the document give the operations, by block ID. For an older `base`, the target first merges with the current document (a three-way merge of the documents), and the diff is against the current document.
 6. **Apply**: the operations become the smallest ProseMirror steps. Unchanged text keeps its identity and its comments, and a collaboration binding sees only the small changes.

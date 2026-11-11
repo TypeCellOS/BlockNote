@@ -311,10 +311,12 @@ export function diffBlocks(
   return { changed, removed, added };
 }
 
-type Tree = { id: string; children: readonly Tree[] };
+type IdBlock = { id: string; children: readonly IdBlock[] };
 
 /** Returns the top-level block IDs, with nested children. For example, `["a", ["b", ["c"]]]` if c is in b. */
-export function documentShape(blocks: readonly Tree[]): (string | unknown[])[] {
+export function documentShape(
+  blocks: readonly IdBlock[],
+): (string | unknown[])[] {
   return blocks.flatMap((block) =>
     block.children.length > 0
       ? [block.id, documentShape(block.children)]

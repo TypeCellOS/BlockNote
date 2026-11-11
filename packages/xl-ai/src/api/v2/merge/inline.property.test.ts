@@ -83,7 +83,7 @@ describe("toUnits and fromUnits: properties", () => {
 
 describe("mergeInlineContent: laws on random content", () => {
   for (const concurrent of [false, true]) {
-    const mode = concurrent ? "tree merge" : "target stage";
+    const mode = concurrent ? "document merge" : "target stage";
 
     it(`gives theirs if ours did not change (${mode})`, () => {
       const random = createRandom(concurrent ? 83 : 84);
@@ -123,7 +123,7 @@ describe("mergeInlineContent: laws on random content", () => {
     });
   }
 
-  it("keeps the changes of two writers to different words of a paragraph (tree merge)", () => {
+  it("keeps the changes of two writers to different words of a paragraph (document merge)", () => {
     const random = createRandom(89);
     for (let run = 0; run < 200; run++) {
       const words = Array.from(

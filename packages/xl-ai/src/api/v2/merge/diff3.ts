@@ -32,7 +32,7 @@ export type Diff3Handlers<T> = {
   /** Called when the two sides changed a run in different ways (a conflict). */
   conflict?: () => void;
   /**
-   * The side that wins a conflict. By default, ours. The tree merge gives a
+   * The side that wins a conflict. By default, ours. The document merge gives a
    * conflict to theirs, the current document (see `MergeOptions`).
    */
   conflictWinner?: "ours" | "theirs";
@@ -47,9 +47,9 @@ export type Diff3Handlers<T> = {
   /**
    * Returns true for a unit of theirs without a base unit that stays in a run
    * that ours wins: for example a mention that the format does not show (in
-   * the target stage), or a new block of another writer (in the tree merge). It
-   * stays before the units of ours if it is before the units of theirs with
-   * a base unit in the run, else after them.
+   * the target stage), or a new block of another writer (in the document
+   * merge). It stays before the units of ours if it is before the units of
+   * theirs with a base unit in the run, else after them.
    */
   keepTheirs?: (unit: T) => boolean;
   /**

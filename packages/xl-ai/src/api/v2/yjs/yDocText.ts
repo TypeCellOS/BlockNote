@@ -24,7 +24,7 @@ import {
  * the changes of other writers after that version (`merge`):
  *
  * - `"lens"` (the default): the target of the text for `base` merges
- *   three-way with the current document, by block ID (see `merge/tree.ts`),
+ *   three-way with the current document, by block ID (see `merge/document.ts`),
  *   and the operations apply to the current document. A conflict keeps the
  *   current value, or with `onConflict: "reject"`, nothing applies.
  * - `"yjs"`: the operations for `base` apply to a fork of the Y.Doc at

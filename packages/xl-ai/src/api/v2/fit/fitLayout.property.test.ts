@@ -25,11 +25,11 @@ function allBlocks(blocks: readonly LensBlock[]): LensBlock[] {
 }
 
 /**
- * A random tree of paragraphs, column lists and columns. The tree does not
- * always fit the rules: a column list can have one column, a column can be
+ * A random document of paragraphs, column lists and columns. The document does
+ * not always fit the rules: a column list can have one column, a column can be
  * empty or outside a column list, and a column list can hold a paragraph.
  */
-function randomTree(random: Random): LensBlock[] {
+function randomDocument(random: Random): LensBlock[] {
   let next = 0;
   function list(depth: number, parent: string | undefined): LensBlock[] {
     const count =
@@ -63,7 +63,7 @@ function shape(blocks: readonly LensBlock[]): unknown[] {
   );
 }
 
-/** Returns a problem of the tree with the rules, or `undefined`. */
+/** Returns a problem of the document with the rules, or `undefined`. */
 function ruleProblem(
   blocks: readonly LensBlock[],
   parent: string | undefined,
@@ -85,11 +85,11 @@ function ruleProblem(
 }
 
 describe("fitLayout: properties", () => {
-  it("gives a tree that fits the rules, and a second fit does not change it", () => {
+  it("gives a document that fits the rules, and a second fit does not change it", () => {
     const random = createRandom(171);
     for (let run = 0; run < 500; run++) {
-      const tree = randomTree(random);
-      const result = fitLayout(tree, (type) => rules[type], canContain);
+      const blocks = randomDocument(random);
+      const result = fitLayout(blocks, (type) => rules[type], canContain);
       expect({ run, problem: ruleProblem(result, undefined) }).toEqual({
         run,
         problem: undefined,
@@ -103,8 +103,8 @@ describe("fitLayout: properties", () => {
   it("keeps each block that is not a layout block, one time, in document order", () => {
     const random = createRandom(172);
     for (let run = 0; run < 500; run++) {
-      const tree = randomTree(random);
-      const result = fitLayout(tree, (type) => rules[type], canContain);
+      const blocks = randomDocument(random);
+      const result = fitLayout(blocks, (type) => rules[type], canContain);
       const paragraphs = (blocks: readonly LensBlock[]) =>
         allBlocks(blocks)
           .filter((child) => child.type === "paragraph")
@@ -112,19 +112,19 @@ describe("fitLayout: properties", () => {
       // A block that a parent cannot hold goes to after that parent, thus
       // the order can change. Compare the sets.
       expect([...paragraphs(result)].sort()).toEqual(
-        [...paragraphs(tree)].sort(),
+        [...paragraphs(blocks)].sort(),
       );
     }
   });
 
-  it("does not change a tree that fits the rules", () => {
+  it("does not change a document that fits the rules", () => {
     const random = createRandom(173);
     for (let run = 0; run < 300; run++) {
-      const tree = randomTree(random);
-      if (ruleProblem(tree, undefined) === undefined) {
+      const blocks = randomDocument(random);
+      if (ruleProblem(blocks, undefined) === undefined) {
         expect(
-          shape(fitLayout(tree, (type) => rules[type], canContain)),
-        ).toEqual(shape(tree));
+          shape(fitLayout(blocks, (type) => rules[type], canContain)),
+        ).toEqual(shape(blocks));
       }
     }
   });

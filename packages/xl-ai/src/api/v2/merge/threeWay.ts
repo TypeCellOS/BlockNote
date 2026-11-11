@@ -3,16 +3,16 @@ import { deepEqual } from "../util/blocks/index.js";
 
 /**
  * The options of the merges in this folder. `concurrent` is true if `theirs`
- * is a later version with the changes of other writers (the tree merge), not the
- * document of a view (the target stage). This changes two rules:
+ * is a later version with the changes of other writers (the document merge),
+ * not the document of a view (the target stage). This changes two rules:
  *
  * - A conflict: in the target stage, `ours` (the text) wins, because `theirs` has
- *   only data that the format does not show. In the tree merge, `theirs` (the
- *   current document) wins, because the client gets the warning: thus, the
+ *   only data that the format does not show. In the document merge, `theirs`
+ *   (the current document) wins, because the client gets the warning: thus, the
  *   client loses the conflicting part, and it can read the document again.
  *   A write from an older version then never reverts a change that it did
  *   not see.
- * - Two inserts at the same position: in the tree merge, both stay. In the
+ * - Two inserts at the same position: in the document merge, both stay. In the
  *   target stage, an insert of `theirs` at the position of an insert of `ours` is
  *   a difference that the format makes (for example whitespace). Thus, it
  *   does not stay.
@@ -23,8 +23,8 @@ export type MergeOptions = {
   concurrent?: boolean;
   /**
    * Called when `ours` and `theirs` changed the same value (or the same part
-   * of a text) in different ways (a conflict). The tree merge uses this for a
-   * warning.
+   * of a text) in different ways (a conflict). The document merge uses this for
+   * a warning.
    */
   onConflict?: () => void;
   /**
@@ -48,7 +48,7 @@ export type MergeOptions = {
  * If `ours` is different from `base`, the result is `ours`. If not, the
  * result is `theirs`. Thus, data that `base` does not show stays. If the two
  * sides changed the value in different ways (a conflict), `ours` wins, and
- * in the tree merge `theirs` wins (see `MergeOptions`).
+ * in the document merge `theirs` wins (see `MergeOptions`).
  *
  * Method: the standard three-way rule for one value, as diff3 uses it for one
  * item.

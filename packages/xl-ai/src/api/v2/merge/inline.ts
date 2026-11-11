@@ -21,8 +21,8 @@ import { type MergeOptions, mergeRecords, mergeValue } from "./threeWay.js";
  * Between these stable characters, the side that changed wins. If only
  * theirs is different from the base, theirs wins (for example whitespace
  * that the round trip changed). If the two sides changed the same part, ours
- * wins, and in the tree merge theirs wins (see `MergeOptions`). New text from
- * ours gets the hidden styles of the text around it (see
+ * wins, and in the document merge theirs wins (see `MergeOptions`). New text
+ * from ours gets the hidden styles of the text around it (see
  * {@link inheritHiddenStyles}).
  *
  * Method: diff3, a standard algorithm, on our own units (the characters and the
@@ -54,8 +54,8 @@ export function mergeInlineContent(
       isContext: ({ base }) => base.kind === "char" && !/\s/u.test(base.char),
       // Two writers add text at one position: the text that applied first
       // (of the other writer) stays first. Thus, two additions at the end
-      // read in the order of the writes. (The tree merge puts the blocks of
-      // the client first, see `merge/tree.ts`.)
+      // read in the order of the writes. (The document merge puts the blocks of
+      // the client first, see `merge/document.ts`.)
       keepBothInserts: options.concurrent ? "theirs-first" : undefined,
       // In the target stage, an item of theirs without a base unit is an item that
       // the format does not show (for example a mention in plain text). The

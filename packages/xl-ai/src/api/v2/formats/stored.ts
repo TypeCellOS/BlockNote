@@ -25,8 +25,8 @@ import { fitTables } from "../fit/index.js";
  * node exists. `fixTables` can replace this fit after a change of core (the
  * spike `spike/fit-editor-logic`).
  *
- * Returns `undefined` if the blocks do not fit the schema, also deep in the
- * tree: for example a column outside a column list, or a prop value that is
+ * Returns `undefined` if the blocks do not fit the schema, also in nested
+ * blocks: for example a column outside a column list, or a prop value that is
  * not in the prop schema of the type.
  */
 export function toStoredBlocks(

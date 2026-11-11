@@ -32,7 +32,7 @@ describe("diffBlock: edge cases", () => {
 
   // Before the fix, a prop that the block has and the target does not have
   // was not in the update, and the prop stayed. No public path gives such
-  // blocks now (the stored form has each prop of the type), but the tree
+  // blocks now (the stored form has each prop of the type), but the document
   // merge (`mergeRecords`) can drop a key with the value `undefined`.
   it("gives the value `undefined` for a prop that the target does not have", () => {
     const block = fields({ textColor: "red", textAlignment: "left" });

@@ -13,12 +13,12 @@ function ids(blocks: readonly LensBlock[]): string[] {
   return blocks.flatMap((child) => [child.id, ...ids(child.children)]);
 }
 
-/** A random tree with IDs from a small set. */
-function randomTree(random: Random, depth = 0): LensBlock[] {
+/** A random document with IDs from a small set. */
+function randomDocument(random: Random, depth = 0): LensBlock[] {
   return Array.from({ length: random.int(depth === 0 ? 6 : 3) }, () =>
     block(
       random.pick(["a", "b", "c", "d", "e", "f", "g", "h"]),
-      depth < 2 ? randomTree(random, depth + 1) : [],
+      depth < 2 ? randomDocument(random, depth + 1) : [],
     ),
   );
 }
@@ -34,10 +34,10 @@ describe("duplicateId", () => {
     expect(duplicateId([])).toBeUndefined();
   });
 
-  it("agrees with a count of the IDs, for random trees", () => {
+  it("agrees with a count of the IDs, for random documents", () => {
     const random = createRandom(151);
     for (let run = 0; run < 500; run++) {
-      const blocks = randomTree(random);
+      const blocks = randomDocument(random);
       const all = ids(blocks);
       const repeated = all.find((id, i) => all.indexOf(id) !== i);
       expect(duplicateId(blocks), `run ${run}`).toBe(repeated);

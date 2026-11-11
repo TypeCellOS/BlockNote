@@ -22,7 +22,7 @@ function paragraph(
 }
 
 /** A random document with a depth of at most 3, and a hidden prop on some blocks. */
-function randomTree(random: Random): LensBlock[] {
+function randomDocument(random: Random): LensBlock[] {
   let next = 0;
   function list(depth: number): LensBlock[] {
     const count =
@@ -76,7 +76,7 @@ describe("targetFromPairs: laws on random documents", () => {
     it(`gives the source document if the text did not change (${format})`, () => {
       const random = createRandom(flat ? 181 : 182);
       for (let run = 0; run < 300; run++) {
-        const source = randomTree(random);
+        const source = randomDocument(random);
         const view = viewOf(source, flat);
         const incoming = view.map(({ block, parentIndex }) => ({
           block,
@@ -91,7 +91,7 @@ describe("targetFromPairs: laws on random documents", () => {
     it(`keeps the IDs, the hidden props and the nesting if the text changes only texts (${format})`, () => {
       const random = createRandom(flat ? 183 : 184);
       for (let run = 0; run < 300; run++) {
-        const source = randomTree(random);
+        const source = randomDocument(random);
         const view = viewOf(source, flat);
         const changed = new Set<number>();
         const incoming = view.map(({ block, parentIndex }, i) => {
@@ -129,7 +129,7 @@ describe("targetFromPairs: laws on random documents", () => {
   it("removes a block that the text removes, and keeps its children in the format with nesting", () => {
     const random = createRandom(185);
     for (let run = 0; run < 300; run++) {
-      const source = randomTree(random);
+      const source = randomDocument(random);
       const view = viewOf(source, false);
       const removed = random.int(view.length);
       const kept = view.flatMap((_, i) => (i === removed ? [] : [i]));

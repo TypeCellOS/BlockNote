@@ -296,7 +296,7 @@ describe("a write from an older version", () => {
  * other writer changed or removed. A change is the result of the write of
  * that writer alone, on the version that it read. One exception: a block
  * that a writer removed stays if it holds a block that the writer did not
- * read (a new block of another writer; see `mergeTree`). After the last
+ * read (a new block of another writer; see `mergeDocument`). After the last
  * write, a write of the text of the result must change nothing.
  */
 describe.each(formatCases)(

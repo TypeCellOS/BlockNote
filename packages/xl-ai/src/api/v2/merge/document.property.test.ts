@@ -3,7 +3,7 @@ import { describe, expect, it } from "vite-plus/test";
 
 import type { LensBlock } from "../model.js";
 import { createRandom, type Random } from "../testUtil/random.js";
-import { mergeTree } from "./tree.js";
+import { mergeDocument } from "./document.js";
 
 function block(
   id: string,
@@ -20,7 +20,7 @@ function block(
 }
 
 function merge(base: LensBlock[], ours: LensBlock[], theirs: LensBlock[]) {
-  return mergeTree({
+  return mergeDocument({
     base,
     ours,
     theirs,
@@ -28,8 +28,8 @@ function merge(base: LensBlock[], ours: LensBlock[], theirs: LensBlock[]) {
   });
 }
 
-/** A random tree with the IDs `b0`, `b1`, ... and a depth of at most 3. */
-function randomTree(random: Random): LensBlock[] {
+/** A random document with the IDs `b0`, `b1`, ... and a depth of at most 3. */
+function randomDocument(random: Random): LensBlock[] {
   let next = 0;
   function list(depth: number): LensBlock[] {
     const count =
@@ -46,7 +46,7 @@ function clone(blocks: readonly LensBlock[]): LensBlock[] {
   return structuredClone(blocks) as LensBlock[];
 }
 
-/** All lists of children in the tree, with the root list, and the block of each list. */
+/** All lists of children in the document, with the root list, and the block of each list. */
 function lists(
   blocks: LensBlock[],
 ): { list: LensBlock[]; owner: LensBlock | undefined }[] {
@@ -123,7 +123,7 @@ function edit(
   return result;
 }
 
-/** The IDs of the tree, with the nesting, and the text of each block. */
+/** The IDs of the document, with the nesting, and the text of each block. */
 function shape(blocks: readonly LensBlock[]): unknown[] {
   return blocks.map((child) => [
     child.id,
@@ -134,11 +134,11 @@ function shape(blocks: readonly LensBlock[]): unknown[] {
 
 const RUNS = 300;
 
-describe("mergeTree: laws on random trees", () => {
+describe("mergeDocument: laws on random documents", () => {
   it("gives theirs, without warnings, if ours did not change", () => {
     const random = createRandom(91);
     for (let run = 0; run < RUNS; run++) {
-      const base = randomTree(random);
+      const base = randomDocument(random);
       const theirs = edit(random, base, "t");
       const result = merge(base, clone(base), theirs);
       expect({ run, shape: shape(result.blocks) }).toEqual({
@@ -152,7 +152,7 @@ describe("mergeTree: laws on random trees", () => {
   it("gives ours, without warnings, if theirs did not change", () => {
     const random = createRandom(92);
     for (let run = 0; run < RUNS; run++) {
-      const base = randomTree(random);
+      const base = randomDocument(random);
       const ours = edit(random, base, "o");
       const result = merge(base, ours, clone(base));
       expect({ run, shape: shape(result.blocks) }).toEqual({
@@ -166,7 +166,7 @@ describe("mergeTree: laws on random trees", () => {
   it("gives the change one time, without warnings, if the two sides made the same change", () => {
     const random = createRandom(93);
     for (let run = 0; run < RUNS; run++) {
-      const base = randomTree(random);
+      const base = randomDocument(random);
       const changed = edit(random, base, "o");
       const result = merge(base, changed, clone(changed));
       expect({ run, shape: shape(result.blocks) }).toEqual({
@@ -180,7 +180,7 @@ describe("mergeTree: laws on random trees", () => {
   it("does not throw, and gives each block one time, for random changes of the two sides", () => {
     const random = createRandom(94);
     for (let run = 0; run < 400; run++) {
-      const base = randomTree(random);
+      const base = randomDocument(random);
       const ours = edit(random, base, "o");
       const theirs = edit(random, base, "t");
       let result: ReturnType<typeof merge> | undefined;
@@ -209,7 +209,7 @@ describe("mergeTree: laws on random trees", () => {
     const textsOf = (blocks: readonly LensBlock[]) =>
       new Map(allBlocks(blocks).map((child) => [child.id, child.content]));
     for (let run = 0; run < RUNS; run++) {
-      const base = randomTree(random);
+      const base = randomDocument(random);
       const textSide = edit(random, base, "x", [0]);
       const baseTexts = textsOf(base);
       const changed = new Set(

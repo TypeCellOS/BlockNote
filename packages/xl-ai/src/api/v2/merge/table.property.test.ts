@@ -90,7 +90,7 @@ function edit(random: Random, content: LensTableContent): LensTableContent {
 
 describe("mergeTableContent: laws on random tables", () => {
   for (const concurrent of [false, true]) {
-    const mode = concurrent ? "tree merge" : "target stage";
+    const mode = concurrent ? "document merge" : "target stage";
 
     it(`gives theirs if ours did not change (${mode})`, () => {
       const random = createRandom(concurrent ? 121 : 122);
@@ -130,7 +130,7 @@ describe("mergeTableContent: laws on random tables", () => {
     });
   }
 
-  it("keeps the changes of two writers to different rows (tree merge)", () => {
+  it("keeps the changes of two writers to different rows (document merge)", () => {
     const random = createRandom(127);
     for (let run = 0; run < 100; run++) {
       const rows = Array.from({ length: 4 + random.int(4) }, (_, r) => [

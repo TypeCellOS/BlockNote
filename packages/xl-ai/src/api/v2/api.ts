@@ -31,7 +31,7 @@ import {
   shadowOf,
   type ViewBlock,
 } from "./projection/index.js";
-import { mergeTree, type MergeWarning } from "./merge/index.js";
+import { mergeDocument, type MergeWarning } from "./merge/index.js";
 import { fitResult, type FitWarning, mergedCellsRemoved } from "./fit/index.js";
 import {
   targetFromPairs,
@@ -95,7 +95,7 @@ export type WriteFromVersion<Base> =
       /**
        * The version that the client read. Get it from your version history.
        * The result keeps the changes that other writers made after that
-       * version (see `merge/tree.ts`).
+       * version (see `merge/document.ts`).
        */
       base: Base;
       /**
@@ -157,7 +157,7 @@ export type DocumentChange = (TextChange | JSONChange) &
  * They keep the data that the change does not show: for a text, examples are
  * block IDs, some props and styles, and blocks that the format does not
  * render. With a version as `base`, they keep the changes of other writers
- * (see `merge/tree.ts`).
+ * (see `merge/document.ts`).
  *
  * If the text did not change, there are no operations. This is also true if
  * only the markup changed and the format gives the same blocks, for example
@@ -314,11 +314,11 @@ export function updateFromTarget(
     return { operations: [], warnings };
   }
   // 4. Merge: only for a version as `base`. The target is for that version,
-  // and merges three-way with the current document (see `mergeTree`).
+  // and merges three-way with the current document (see `mergeDocument`).
   const merged: { blocks: readonly LensBlock[]; warnings: MergeWarning[] } =
     base === undefined
       ? { blocks: target, warnings: [] }
-      : mergeTree({
+      : mergeDocument({
           base,
           ours: target,
           theirs: current,

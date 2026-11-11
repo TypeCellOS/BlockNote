@@ -93,7 +93,7 @@ function edit(random: Random, block: BlockFields): BlockFields {
 
 describe("mergeBlock: laws on random blocks", () => {
   for (const concurrent of [false, true]) {
-    const mode = concurrent ? "tree merge" : "target stage";
+    const mode = concurrent ? "document merge" : "target stage";
 
     it(`gives theirs if ours did not change (${mode})`, () => {
       const random = createRandom(concurrent ? 131 : 132);

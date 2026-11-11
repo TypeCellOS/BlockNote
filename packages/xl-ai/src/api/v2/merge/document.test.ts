@@ -2,7 +2,7 @@
 import { describe, expect, it } from "vite-plus/test";
 
 import type { LensBlock } from "../model.js";
-import { mergeTree } from "./tree.js";
+import { mergeDocument } from "./document.js";
 import { documentShape } from "../testUtil/fixtures.js";
 
 function block(
@@ -22,7 +22,7 @@ function block(
 }
 
 function merge(base: LensBlock[], ours: LensBlock[], theirs: LensBlock[]) {
-  return mergeTree({
+  return mergeDocument({
     base,
     ours,
     theirs,
@@ -30,7 +30,7 @@ function merge(base: LensBlock[], ours: LensBlock[], theirs: LensBlock[]) {
   });
 }
 
-describe("mergeTree", () => {
+describe("mergeDocument", () => {
   it("gives ours if theirs did not change", () => {
     const base = [block("a"), block("b")];
     const ours = [block("b"), block("a", [], "A")];

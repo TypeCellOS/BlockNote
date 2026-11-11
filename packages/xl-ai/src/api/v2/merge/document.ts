@@ -29,7 +29,7 @@ export type MergeWarning =
   | { type: "conflicting-change"; id: string };
 
 /**
- * Three-way merge of block trees, by block ID. `base` is the document that
+ * Three-way merge of documents, by block ID. `base` is the document that
  * the client read, `ours` is the document that the client wants (the
  * target), and `theirs` is the current document, with the changes of other
  * writers. The result keeps the changes of the two sides. The merge decides
@@ -52,7 +52,7 @@ export type MergeWarning =
  * Method: our own design. Step 3 uses diff3 on the lists of child IDs, and step
  * 4 the three-way rule.
  */
-export function mergeTree(input: {
+export function mergeDocument(input: {
   base: readonly LensBlock[];
   ours: readonly LensBlock[];
   theirs: readonly LensBlock[];
@@ -393,7 +393,7 @@ function mergeChildOrder(
   const has = new Set(order);
   const lost = expected.find((id) => !has.has(id));
   if (lost !== undefined) {
-    throw new Error(`The tree merge lost block ${lost}`);
+    throw new Error(`The document merge lost block ${lost}`);
   }
   return { order, conflicts };
 }
