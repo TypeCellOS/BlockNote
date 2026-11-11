@@ -7,6 +7,7 @@ import {
   charKind,
   gaps,
   isChanged,
+  type MatchedPair,
   type TextUnit,
 } from "../util/sequence/index.js";
 
@@ -81,9 +82,23 @@ export function addInlineContentSteps(
   const b = unitsOf(target);
   // The alignment of the merge. Thus, a changed word is one change.
   const pairs = alignText(a, b);
+  // Mark steps do not move positions. Thus, add them first.
+  addMarkSteps(tr, start, a, b, pairs);
+  addReplaceSteps(tr, start, current, target, a, b, pairs);
+}
 
-  // Mark steps do not move positions. Thus, add them first. Adjacent changes
-  // of the same mark become one step.
+/**
+ * Adds an `AddMarkStep` or a `RemoveMarkStep` for each run of matched units
+ * with different marks. Adjacent changes of the same mark become one step.
+ * A mark that BlockNote JSON does not contain stays (see {@link isIgnored}).
+ */
+function addMarkSteps(
+  tr: Transform,
+  start: number,
+  a: readonly Unit[],
+  b: readonly Unit[],
+  pairs: readonly MatchedPair[],
+) {
   const markChanges: { add: boolean; mark: Mark; from: number; to: number }[] =
     [];
   function changeMark(add: boolean, mark: Mark, from: number, to: number) {
@@ -119,11 +134,23 @@ export function addInlineContentSteps(
       tr.removeMark(from, to, mark);
     }
   }
+}
 
-  // Replace the changed runs, from the end. Thus, the positions of the runs
-  // before each run do not move.
+/**
+ * Adds a `ReplaceStep` for each run of units that changed (or for each group
+ * of near runs, see {@link joinNearRuns}), from the end. Thus, the positions
+ * of the runs before each run do not move.
+ */
+function addReplaceSteps(
+  tr: Transform,
+  start: number,
+  current: Node,
+  target: Fragment,
+  a: readonly Unit[],
+  b: readonly Unit[],
+  pairs: readonly MatchedPair[],
+) {
   const runs: Run[] = gaps(pairs, a.length, b.length).filter(isChanged);
-
   const size = current.content.size;
   for (const parts of joinNearRuns(runs).reverse()) {
     // A joined run: the changed parts from the target, and the unchanged
@@ -175,12 +202,15 @@ function joinNearRuns(runs: readonly Run[]): Run[][] {
     return runs.map((run) => [run]);
   }
   // The length of the unchanged part before each run (after the first run).
-  const gaps = runs.slice(1).map((run, k) => run.aStart - runs[k].aEnd);
-  // Join each gap that is at most this long. Then at most MAX_RUNS groups stay.
-  const limit = [...gaps].sort((x, y) => x - y)[runs.length - MAX_RUNS - 1];
+  const unchanged = runs.slice(1).map((run, k) => run.aStart - runs[k].aEnd);
+  // Join each unchanged part that is at most this long. Then at most
+  // MAX_RUNS groups stay.
+  const limit = [...unchanged].sort((x, y) => x - y)[
+    runs.length - MAX_RUNS - 1
+  ];
   const groups: Run[][] = [[runs[0]]];
   runs.slice(1).forEach((run, k) => {
-    if (gaps[k] <= limit) {
+    if (unchanged[k] <= limit) {
       groups[groups.length - 1].push(run);
     } else {
       groups.push([run]);
@@ -190,6 +220,6 @@ function joinNearRuns(runs: readonly Run[]): Run[][] {
 }
 
 /** The offset of the unit at `index`, or `size` after the last unit. */
-function offsetOf(units: Unit[], index: number, size: number): number {
+function offsetOf(units: readonly Unit[], index: number, size: number): number {
   return index < units.length ? units[index].offset : size;
 }
