@@ -2,6 +2,7 @@
 // React components of the review.
 
 export {
+  type AcceptClaim,
   DocumentAgentExtension,
   type DocumentAgentExtensionOptions,
   type DocumentAgentState,

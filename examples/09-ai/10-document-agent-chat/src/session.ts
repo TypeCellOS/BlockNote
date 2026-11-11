@@ -37,20 +37,45 @@ export function createSessionTransport(sessionUrl: string) {
  * The options of the document agent that send the review of the user to
  * the server: the accept or the reject of one tool call is a batch of the
  * proposal, and the accept or the reject of all closes the proposal.
+ *
+ * Without `guard` (the base scenario), the editor writes an accept to the
+ * document at once, and tells the server after that. Two users who accept
+ * the same change at the same time then write its text two times.
+ *
+ * With `guard`, the editor asks the server first (`acceptGuard`): the
+ * server gives the accept to the first request, and the editor writes only
+ * then.
  */
 export function sessionReviewOptions(
   sessionUrl: string,
-): Pick<DocumentAgentExtensionOptions, "onReview" | "onClose"> {
+  guard: boolean,
+): Pick<DocumentAgentExtensionOptions, "onReview" | "onClose" | "acceptGuard"> {
   function post(path: string, body: unknown) {
-    void fetch(`${sessionUrl}/${path}`, {
+    return fetch(`${sessionUrl}/${path}`, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify(body),
     });
   }
   return {
-    onReview: (batch) => post("batches", { batch }),
-    onClose: (result) => post("close", { result }),
+    onReview: (batch) => void post("batches", { batch }),
+    onClose: (result) => void post("close", { result }),
+    ...(guard && {
+      // The claim: the batch of the accept must follow the proposal of the
+      // server, and a close must be for the state that this editor has.
+      // The server answers 409 if another editor was first. Then this
+      // editor gets a notice, and takes the session of the server.
+      acceptGuard: async (claim) => {
+        const response =
+          claim.type === "tool-call"
+            ? await post("batches", { batch: claim.batch })
+            : await post("close", {
+                result: "accepted",
+                batches: claim.proposal.batches.length,
+              });
+        return response.ok;
+      },
+    }),
   };
 }
 

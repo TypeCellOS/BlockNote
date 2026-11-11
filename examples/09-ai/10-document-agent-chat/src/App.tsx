@@ -67,6 +67,15 @@ function currentMode(): Mode {
   return mode !== null && mode in MODES ? (mode as Mode) : "json";
 }
 
+/**
+ * The flag `guard=1` of the URL: an accept asks the server first (see
+ * `sessionReviewOptions`). Without it, the editor writes an accept at once:
+ * the base scenario.
+ */
+function hasAcceptGuard(): boolean {
+  return new URLSearchParams(window.location.search).get("guard") === "1";
+}
+
 /** The options that all modes share: the dictionary and the two AI extensions. */
 function editorOptions(agentOptions: DocumentAgentExtensionOptions) {
   return {
@@ -85,7 +94,7 @@ function editorOptions(agentOptions: DocumentAgentExtensionOptions) {
 function sessionOptions(sessionUrl: string): DocumentAgentExtensionOptions {
   return {
     transport: createSessionTransport(sessionUrl),
-    ...sessionReviewOptions(sessionUrl),
+    ...sessionReviewOptions(sessionUrl, hasAcceptGuard()),
   };
 }
 
@@ -97,12 +106,21 @@ export default function App() {
         {Object.entries(MODES).map(([key, label]) => (
           <a
             key={key}
-            href={`?mode=${key}`}
+            href={`?mode=${key}${hasAcceptGuard() ? "&guard=1" : ""}`}
             aria-current={key === mode ? "page" : undefined}
           >
             {label}
           </a>
         ))}
+        {mode !== "client" && (
+          <a
+            href={`?mode=${mode}${hasAcceptGuard() ? "" : "&guard=1"}`}
+            aria-current={hasAcceptGuard() ? "page" : undefined}
+            title="With the guard, an accept asks the server first. Without it, two users who accept the same change at the same time write its text two times."
+          >
+            Accept guard: {hasAcceptGuard() ? "on" : "off"}
+          </a>
+        )}
       </div>
       {mode === "json" ? (
         <JsonSession />

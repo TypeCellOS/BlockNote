@@ -99,6 +99,14 @@ export type DocumentAgentState =
       review: Review;
     };
 
+/**
+ * An accept that a user asks for: of one tool call (with the `accept` batch
+ * of that call, and the proposal with that batch), or of the full proposal.
+ */
+export type AcceptClaim =
+  | { type: "tool-call"; batch: Batch; proposal: Proposal }
+  | { type: "proposal"; proposal: Proposal };
+
 export type DocumentAgentExtensionOptions = {
   /**
    * Where the loop runs. A transport to a server (for example
@@ -113,6 +121,31 @@ export type DocumentAgentExtensionOptions = {
   onReview?: (batch: Batch, proposal: Proposal) => void;
   /** Called after a user accepts or rejects the full proposal. */
   onClose?: (result: "accepted" | "rejected", proposal: Proposal) => void;
+  /**
+   * An optional guard for an accept, for a proposal that more than one
+   * user can review.
+   *
+   * Without it (the base scenario), an accept writes to the main document
+   * at once. This is simple, and it has a known risk: an accept is a write
+   * of one user. If two users accept the same change before their editors
+   * sync, the shared document gets the text two times (see the test
+   * "KNOWN: two users who accept one proposal at the same time").
+   *
+   * With it, the extension asks first, and writes only if the function
+   * resolves to true. A host that keeps the proposal gives one order to
+   * the accepts: the first claim for a state of the proposal gets true (a
+   * compare and swap), and each other claim gets false. The costs: an
+   * accept waits for the host, and an editor that stops between the claim
+   * and the write leaves an accept that the host has and the document does
+   * not have.
+   *
+   * The host has the accept from the claim. Thus, with a guard, the
+   * extension does not call `onReview` for an accept, and not `onClose`
+   * for the accept of the full proposal.
+   */
+  acceptGuard?: (claim: AcceptClaim) => Promise<boolean>;
+  /** Called when `acceptGuard` refused an accept: the app gets the proposal of the host again. */
+  onAcceptRefused?: (claim: AcceptClaim) => void;
   /**
    * What a run or a proposal does if it starts while the AI menu is closed
    * (a chat window, a followed run, a proposal of a host). With true (the
@@ -164,6 +197,44 @@ export const DocumentAgentExtension = createExtension(
     let chunkCount = 0;
     /** True if this extension locked the editor (see `aiMenu`). */
     let locked = false;
+    /** True while `acceptGuard` decides on an accept. */
+    let claiming = false;
+
+    /**
+     * Runs the write of an accept to the main document.
+     *
+     * The base scenario: no guard, and the write runs at once. With
+     * `acceptGuard`, the write runs only after the guard agreed (see
+     * `DocumentAgentExtensionOptions.acceptGuard`). The write uses the data
+     * of the claim, not the state of that later time: the review can
+     * change while the guard decides.
+     */
+    function writeAccept(claim: AcceptClaim, write: () => void) {
+      const guard = options?.acceptGuard;
+      if (guard === undefined) {
+        write();
+        return;
+      }
+      if (claiming) {
+        // One claim at a time: the answer of the host decides the next one.
+        return;
+      }
+      claiming = true;
+      void guard(claim).then(
+        (granted) => {
+          claiming = false;
+          if (granted) {
+            write();
+          } else {
+            options?.onAcceptRefused?.(claim);
+          }
+        },
+        (error: unknown) => {
+          claiming = false;
+          throw error;
+        },
+      );
+    }
 
     /**
      * Makes sure that the editor is locked for a run or a review that
@@ -688,20 +759,25 @@ export const DocumentAgentExtension = createExtension(
         if (state.status === "idle" || state.status === "running") {
           return;
         }
-        const { proposal } = state.review;
-        clearSuggestions(editor);
-        assertNoSuggestions(editor, "The accept of a proposal");
-        const result = updateDocument(
-          editor,
-          acceptAllChange(createEditor, proposal),
-        );
-        if (result.error !== undefined) {
-          // The proposal document comes from an editor with this schema.
-          throw new Error(`The accept of a proposal failed: ${result.error}`);
-        }
-        record(openToolCallIds(state.review), "accepted");
-        reset();
-        options?.onClose?.("accepted", proposal);
+        const { review } = state;
+        const { proposal } = review;
+        writeAccept({ type: "proposal", proposal }, () => {
+          clearSuggestions(editor);
+          assertNoSuggestions(editor, "The accept of a proposal");
+          const result = updateDocument(
+            editor,
+            acceptAllChange(createEditor, proposal),
+          );
+          if (result.error !== undefined) {
+            // The proposal document comes from an editor with this schema.
+            throw new Error(`The accept of a proposal failed: ${result.error}`);
+          }
+          record(openToolCallIds(review), "accepted");
+          reset();
+          if (options?.acceptGuard === undefined) {
+            options?.onClose?.("accepted", proposal);
+          }
+        });
       },
 
       /** Rejects the full proposal: it goes, and the document does not change. */
@@ -740,17 +816,32 @@ export const DocumentAgentExtension = createExtension(
         if (accepted.error !== undefined) {
           return;
         }
-        clearSuggestions(editor);
-        assertNoSuggestions(editor, "The accept of a tool call");
-        const result = updateDocument(editor, accepted.change);
-        if (result.error !== undefined) {
-          throw new Error(`The accept of a tool call failed: ${result.error}`);
-        }
-        const proposal = withBatch(state.review.proposal, accepted.batch);
-        setProposal(proposal);
-        record([toolCallId], "accepted");
-        options?.onReview?.(accepted.batch, proposal);
-        closeIfDone();
+        const { batch, change } = accepted;
+        const proposal = withBatch(state.review.proposal, batch);
+        writeAccept({ type: "tool-call", batch, proposal }, () => {
+          clearSuggestions(editor);
+          assertNoSuggestions(editor, "The accept of a tool call");
+          const result = updateDocument(editor, change);
+          if (result.error !== undefined) {
+            throw new Error(
+              `The accept of a tool call failed: ${result.error}`,
+            );
+          }
+          // With a guard, the review can have a newer proposal of the host
+          // at this time, which already has the batch.
+          const current = store.state;
+          if (current.status !== "idle") {
+            const known = current.review.proposal.batches[batch.seq - 1];
+            setProposal(
+              known?.hash === batch.hash ? current.review.proposal : proposal,
+            );
+          }
+          record([toolCallId], "accepted");
+          if (options?.acceptGuard === undefined) {
+            options?.onReview?.(batch, proposal);
+          }
+          closeIfDone();
+        });
       },
 
       /**

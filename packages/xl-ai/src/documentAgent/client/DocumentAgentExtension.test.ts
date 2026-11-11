@@ -392,12 +392,13 @@ describe("the document agent in an editor that is bound to a Y.Doc", () => {
   });
 
   it.fails("KNOWN: two users who accept one proposal at the same time both write its text", () => {
-    // Each accept is a write of one user to the shared document. Two
-    // accepts of the same proposal that cross on the network are two
-    // inserts of the same text, and Yjs keeps the two. The accept needs
-    // one order (for example a claim on the host before the write), or an
-    // accept that is the same Yjs change for each user (the shared items
-    // of the Yjs 14 suggestion layer).
+    // The base scenario, without `acceptGuard`: each accept is a write of
+    // one user to the shared document, at once. Two accepts of the same
+    // proposal that cross on the network are two inserts of the same text,
+    // and Yjs keeps the two. The fixes: one order for the accepts (the
+    // option `acceptGuard`, see the next test), or an accept that is the
+    // same Yjs change for each user (the shared items of the Yjs 14
+    // suggestion layer, the target).
     function editorOn(doc: Y.Doc, name: string) {
       const editor = BlockNoteEditor.create(
         withCollaboration({
@@ -440,6 +441,78 @@ describe("the document agent in an editor that is bound to a Y.Doc", () => {
     Y.applyUpdate(docB, updateA);
 
     // Now: "OpeningOpening paragraph." in the two editors.
+    expect(textsOf(a.editor.document)).toEqual([
+      "Title",
+      "Opening paragraph.",
+      "Second paragraph.",
+    ]);
+    expect(textsOf(b.editor.document)).toEqual(textsOf(a.editor.document));
+  });
+
+  it("gives the accept to one of two users if the app has an accept guard", async () => {
+    // The same case as the known failure above, with `acceptGuard`: the
+    // host gives the accept to the first claim.
+    let closed = false;
+    const refused: string[] = [];
+    function editorOn(doc: Y.Doc, name: string) {
+      const editor = BlockNoteEditor.create(
+        withCollaboration({
+          collaboration: {
+            fragment: doc.getXmlFragment("doc"),
+            user: { name, color: "#ff0000" },
+            provider: undefined,
+          },
+          trailingBlock: false,
+          extensions: [
+            AIExtension(),
+            DocumentAgentExtension({
+              // What a host does: one claim for a proposal gets true.
+              acceptGuard: async () => {
+                const granted = !closed;
+                closed = true;
+                return granted;
+              },
+              onAcceptRefused: () => refused.push(name),
+            }),
+          ],
+        }),
+      );
+      editor.mount(document.createElement("div"));
+      mounted.push(editor);
+      return { editor, agent: editor.getExtension(DocumentAgentExtension)! };
+    }
+    const docA = new Y.Doc();
+    const a = editorOn(docA, "A");
+    a.editor.replaceBlocks(
+      a.editor.document,
+      initialDocument() as PartialBlock[],
+    );
+    const docB = new Y.Doc();
+    Y.applyUpdate(docB, Y.encodeStateAsUpdate(docA));
+    const b = editorOn(docB, "B");
+    const proposal = writeMarkdown(
+      headlessEditorFactory(),
+      createProposal(a.editor.document),
+      "# Title\n\nOpening paragraph.\n\nSecond paragraph.\n",
+      "call-1",
+    );
+    a.agent.openProposal(proposal);
+    b.agent.openProposal(proposal);
+
+    a.agent.acceptAll();
+    b.agent.acceptAll();
+    // The accept waits for the guard: nothing is written yet.
+    expect(a.agent.store.state.status).toBe("reviewing");
+    await expect.poll(() => refused).toEqual(["B"]);
+
+    // A wrote the accept. B did not write: its app gets the session of the
+    // host, and ends its review.
+    expect(a.agent.store.state.status).toBe("idle");
+    expect(b.agent.store.state.status).toBe("reviewing");
+    b.agent.dismiss();
+    const updateA = Y.encodeStateAsUpdate(docA);
+    Y.applyUpdate(docA, Y.encodeStateAsUpdate(docB));
+    Y.applyUpdate(docB, updateA);
     expect(textsOf(a.editor.document)).toEqual([
       "Title",
       "Opening paragraph.",

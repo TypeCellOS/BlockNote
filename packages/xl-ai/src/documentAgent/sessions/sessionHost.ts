@@ -104,8 +104,19 @@ export type SessionHost = {
    * proposal. The chat stays, with the decisions of the user in the outputs
    * of its tool calls (see `recordReview`): the agent gets them in its
    * next run.
+   *
+   * With `expectedBatches`, the close is a claim: it applies only if the
+   * document has an open proposal with that number of batches (a compare
+   * and swap). An editor that accepts the full proposal sends the number
+   * of batches of its copy. Thus, only the first of two editors that
+   * accept the same state of the proposal gets the close, and the other
+   * one does not write (see `acceptGuard` of the extension).
    */
-  closeProposal(documentId: string, result: ToolCallReview): Promise<void>;
+  closeProposal(
+    documentId: string,
+    result: ToolCallReview,
+    expectedBatches?: number,
+  ): Promise<{ error?: undefined } | { error: "stale" }>;
 };
 
 type Session = {
@@ -131,6 +142,25 @@ export function createSessionHost(options: SessionHostOptions): SessionHost {
       sessions.set(documentId, session);
     }
     return session;
+  }
+
+  /** The end of the last review request of each document. */
+  const reviews = new Map<string, Promise<unknown>>();
+
+  /**
+   * Runs the review requests of one document one after the other. A
+   * request reads the proposal, examines it, and writes it: two requests
+   * that run together would both pass the check. This is the one order of
+   * the accepts of a document (in one process).
+   */
+  function inOrder<T>(documentId: string, task: () => Promise<T>): Promise<T> {
+    const run = (reviews.get(documentId) ?? Promise.resolve()).then(task);
+    // A request that throws must not stop the requests after it.
+    reviews.set(
+      documentId,
+      run.catch(() => undefined),
+    );
+    return run;
   }
 
   function activeRun(documentId: string): RunLog | undefined {
@@ -228,54 +258,71 @@ export function createSessionHost(options: SessionHostOptions): SessionHost {
       }
     },
 
-    async review(documentId, batch) {
-      const { proposalId } = sessionOf(documentId);
-      const proposal =
-        proposalId === undefined ? undefined : await proposals.load(proposalId);
-      if (proposalId === undefined || proposal === undefined) {
-        return { error: "no-proposal" };
-      }
-      if (batch.seq !== proposal.batches.length + 1) {
-        return { error: "stale", batches: proposal.batches.length };
-      }
-      await proposals.save(proposalId, {
-        origin: proposal.origin,
-        batches: [...proposal.batches, batch],
+    review(documentId, batch) {
+      return inOrder(documentId, async () => {
+        const session = sessionOf(documentId);
+        const { proposalId } = session;
+        const proposal =
+          proposalId === undefined
+            ? undefined
+            : await proposals.load(proposalId);
+        if (proposalId === undefined || proposal === undefined) {
+          return { error: "no-proposal" as const };
+        }
+        if (batch.seq !== proposal.batches.length + 1) {
+          return { error: "stale" as const, batches: proposal.batches.length };
+        }
+        await proposals.save(proposalId, {
+          origin: proposal.origin,
+          batches: [...proposal.batches, batch],
+        });
+        const { source } = batch;
+        if (source.type === "accept" || source.type === "revert") {
+          session.messages = recordReview(
+            session.messages,
+            new Map([
+              [
+                source.toolCallId,
+                source.type === "accept" ? "accepted" : "rejected",
+              ],
+            ]),
+          );
+        }
+        options.onChange?.(documentId);
+        return {};
       });
-      const session = sessionOf(documentId);
-      const { source } = batch;
-      if (source.type === "accept" || source.type === "revert") {
-        session.messages = recordReview(
-          session.messages,
-          new Map([
-            [
-              source.toolCallId,
-              source.type === "accept" ? "accepted" : "rejected",
-            ],
-          ]),
-        );
-      }
-      options.onChange?.(documentId);
-      return {};
     },
 
-    async closeProposal(documentId, result) {
-      const session = sessionOf(documentId);
-      const { proposalId } = session;
-      if (proposalId === undefined) {
-        return;
-      }
-      const proposal = await proposals.load(proposalId);
-      session.messages = recordReview(
-        session.messages,
-        new Map(
-          (proposal === undefined ? [] : toolCallsOf(proposal))
-            .filter((call) => call.state === "open")
-            .map((call) => [call.toolCallId, result]),
-        ),
-      );
-      session.proposalId = undefined;
-      options.onChange?.(documentId);
+    closeProposal(documentId, result, expectedBatches) {
+      return inOrder(documentId, async () => {
+        const session = sessionOf(documentId);
+        const { proposalId } = session;
+        const proposal =
+          proposalId === undefined
+            ? undefined
+            : await proposals.load(proposalId);
+        if (
+          expectedBatches !== undefined &&
+          proposal?.batches.length !== expectedBatches
+        ) {
+          return { error: "stale" as const };
+        }
+        if (proposalId === undefined) {
+          // A close without a claim, of a proposal that is closed.
+          return {};
+        }
+        session.messages = recordReview(
+          session.messages,
+          new Map(
+            (proposal === undefined ? [] : toolCallsOf(proposal))
+              .filter((call) => call.state === "open")
+              .map((call) => [call.toolCallId, result]),
+          ),
+        );
+        session.proposalId = undefined;
+        options.onChange?.(documentId);
+        return {};
+      });
     },
   };
 }

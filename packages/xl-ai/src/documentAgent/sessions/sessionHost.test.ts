@@ -8,7 +8,7 @@ import {
   type DocumentProposalData,
 } from "../agent/earlyToolCalls.js";
 import { headlessEditorFactory, openProposal } from "../proposal/proposal.js";
-import { revertToolCall } from "../proposal/review.js";
+import { acceptToolCall, revertToolCall } from "../proposal/review.js";
 import type { Proposal } from "../proposal/types.js";
 import { createInMemoryDocumentStore } from "../stores/documentSource.js";
 import { createInMemoryProposalStore } from "../stores/proposalStore.js";
@@ -394,5 +394,50 @@ describe("the session of a document", () => {
     expect(JSON.stringify(prompts[3].at(-1))).toContain(
       "First paragraph.\\n\\nClosing paragraph.",
     );
+  });
+
+  it("gives a close with a claim to one of two editors that accept the same proposal", async () => {
+    const { host } = createHost([
+      firstEdit,
+      { text: "Done." },
+      secondEdit,
+      { text: "Done again." },
+    ]);
+    await run(host, "Improve the start.", "user");
+    const { proposal } = await host.snapshot("doc");
+    const batches = proposal!.batches.length;
+
+    // The two requests arrive together.
+    const results = await Promise.all([
+      host.closeProposal("doc", "accepted", batches),
+      host.closeProposal("doc", "accepted", batches),
+    ]);
+
+    expect(results).toEqual([{}, { error: "stale" }]);
+    expect((await host.snapshot("doc")).proposal).toBeUndefined();
+    // A claim for a different state of the proposal does not close it.
+    await run(host, "Improve the end.", "user");
+    expect(await host.closeProposal("doc", "accepted", 0)).toEqual({
+      error: "stale",
+    });
+    expect((await host.snapshot("doc")).proposal).toBeDefined();
+  });
+
+  it("gives the accept of one tool call to one of two editors that send it together", async () => {
+    const { host } = createHost([firstEdit, { text: "Done." }]);
+    await run(host, "Improve the start.", "user");
+    const { proposal } = await host.snapshot("doc");
+    const accepted = acceptToolCall(createEditor, proposal!, "call-1");
+    if (accepted.error !== undefined) {
+      throw new Error(accepted.error);
+    }
+
+    const results = await Promise.all([
+      host.review("doc", accepted.batch),
+      host.review("doc", accepted.batch),
+    ]);
+
+    expect(results).toEqual([{}, { error: "stale", batches: 2 }]);
+    expect((await host.snapshot("doc")).proposal?.batches).toHaveLength(2);
   });
 });

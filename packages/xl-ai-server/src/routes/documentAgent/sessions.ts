@@ -29,7 +29,10 @@ const MAX_OUTPUT_TOKENS = 16000;
 //   follow the run.
 // - `GET /stream`: the stream of the run in progress, from its start. An
 //   editor that did not start the run follows it here. 204 without a run.
-// - `POST /batches`, `POST /close`: the review of a user.
+// - `POST /batches`, `POST /close`: the review of a user. The two are also
+//   the claim of an editor with an accept guard: the server gives an
+//   accept to the first request for a state of the proposal (409 for the
+//   others).
 // - `POST /stop`: stops the run in progress.
 
 export function registerSessionRoutes<Source extends string>(
@@ -182,12 +185,23 @@ export function registerSessionRoutes<Source extends string>(
     if (selected.error !== undefined) {
       return c.json(selected, statusOf(selected.error));
     }
-    const { result } = (await c.req.json()) as { result?: unknown };
+    const { result, batches } = (await c.req.json()) as {
+      result?: unknown;
+      batches?: unknown;
+    };
     if (result !== "accepted" && result !== "rejected") {
       return c.json({ error: "invalid-request" }, 400);
     }
-    await selected.host.closeProposal(c.req.param("id"), result);
-    return c.json({ ok: true });
+    // With `batches`, the close is a claim of an editor with an accept
+    // guard: it applies only to that state of the proposal (409 if not).
+    const closed = await selected.host.closeProposal(
+      c.req.param("id"),
+      result,
+      typeof batches === "number" ? batches : undefined,
+    );
+    return closed.error === undefined
+      ? c.json({ ok: true })
+      : c.json(closed, statusOf(closed.error));
   });
 
   route.post("/sessions/:source/:id/stop", (c) => {
