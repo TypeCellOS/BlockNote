@@ -1,26 +1,22 @@
 import type { BlockNoteEditor } from "@blocknote/core";
-import {
-  useBlockNoteContext,
-  useExtension,
-  useExtensionState,
-} from "@blocknote/react";
-import { useEffect, useState } from "react";
+import { useBlockNoteContext } from "@blocknote/react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 
-import { suggestionIdOf } from "../proposal/derive.js";
 import {
-  DocumentAgentExtension,
-  type ReviewToolCall,
-} from "./DocumentAgentExtension.js";
+  type DocumentAgent,
+  documentAgentOf,
+  type ReviewedToolCall,
+} from "./agentExtension.js";
 
 /**
- * The review of a proposal: one card for each editing tool call, with the
- * reason of the agent, and an accept and a reject for that call. A card
- * shows where its suggestions are: the pointer on a card marks them in the
- * editor, and a click scrolls to them.
+ * The review of the changes of the agent: one card for each editing tool
+ * call, with the reason of the agent, and an accept and a reject for that
+ * call. A card shows where its changes are: the pointer on a card marks
+ * them in the editor, and a click scrolls to them.
  *
- * Each suggestion mark has an ID that identifies its tool call (`data-id`,
- * see `suggestionIdOf`). Thus, a comment thread on these marks can show the
- * same reason later.
+ * The component is the same for each mode of the document agent. The mode
+ * of the editor tells which elements of the editor show the changes of a
+ * tool call (`suggestionSelector`, `toolCallOfElement`).
  */
 export function DocumentAgentReview(props: {
   /** The editor. The default is the editor of the BlockNote context. */
@@ -31,30 +27,32 @@ export function DocumentAgentReview(props: {
   if (editor === undefined) {
     throw new Error("DocumentAgentReview needs an editor");
   }
-  const agent = useExtension(DocumentAgentExtension, { editor });
-  const state = useExtensionState(DocumentAgentExtension, { editor });
-  // The suggestion ID of the tool call under the pointer: of its card, or
-  // of one of its suggestions in the editor.
-  const [active, setActive] = useState<number | undefined>();
+  const agent = documentAgentOf(editor);
+  if (agent === undefined) {
+    throw new Error("DocumentAgentReview needs a document agent extension");
+  }
+  const state = useSyncExternalStore(agent.subscribe, agent.getState);
+  // The tool call under the pointer: of its card, or of one of its changes
+  // in the editor.
+  const [active, setActive] = useState<string | undefined>();
 
-  // The pointer on a suggestion in the editor marks the card of its tool
-  // call. Thus, the user sees the reason of each suggestion.
+  // The pointer on a change in the editor marks the card of its tool call.
+  // Thus, the user sees the reason of each change.
   const dom = editor.domElement;
   useEffect(() => {
     if (dom === undefined) {
       return;
     }
     function onPointer(event: MouseEvent) {
-      const mark =
+      setActive(
         event.target instanceof Element
-          ? event.target.closest(SUGGESTION_SELECTOR)
-          : null;
-      const id = Number(mark?.getAttribute("data-id"));
-      setActive(mark === null || Number.isNaN(id) ? undefined : id);
+          ? agent?.toolCallOfElement(event.target)
+          : undefined,
+      );
     }
     dom.addEventListener("mouseover", onPointer);
     return () => dom.removeEventListener("mouseover", onPointer);
-  }, [dom]);
+  }, [agent, dom]);
 
   if (state.status === "idle") {
     return null;
@@ -62,21 +60,17 @@ export function DocumentAgentReview(props: {
   const { toolCalls, answer } = state.review;
   const canReview = state.status !== "running";
 
-  function scrollTo(call: ReviewToolCall) {
-    const blockId = call.suggestedBlockIds[0];
-    if (blockId === undefined) {
-      return;
-    }
+  function scrollTo(call: ReviewedToolCall) {
     editor?.domElement
-      ?.querySelector(`[data-id="${CSS.escape(blockId)}"]`)
+      ?.querySelector(agent?.suggestionSelector(call.toolCallId) ?? "")
       ?.scrollIntoView({ block: "center", behavior: "smooth" });
   }
 
   return (
     <div className="bn-agent-review" aria-live="polite">
       {active !== undefined && (
-        // The marks of the tool call under the pointer.
-        <style>{activeStyle(active)}</style>
+        // The changes of the tool call under the pointer.
+        <style>{activeStyle(agent.suggestionSelector(active))}</style>
       )}
       <div className="bn-agent-review-status">
         {state.status === "running" && "The AI works on the document…"}
@@ -92,13 +86,13 @@ export function DocumentAgentReview(props: {
           key={call.toolCallId}
           className="bn-agent-card"
           data-state={call.state}
-          data-active={suggestionIdOf(call) === active ? "true" : undefined}
-          onMouseEnter={() => setActive(suggestionIdOf(call))}
+          data-active={call.toolCallId === active ? "true" : undefined}
+          onMouseEnter={() => setActive(call.toolCallId)}
           onMouseLeave={() => setActive(undefined)}
           onClick={() => scrollTo(call)}
         >
           <div className="bn-agent-card-reason">{call.reason}</div>
-          <div className="bn-agent-card-meta">{describe(call)}</div>
+          <div className="bn-agent-card-meta">{describe(agent, call)}</div>
           {call.state === "open" && (
             <div className="bn-agent-card-actions">
               <button
@@ -128,31 +122,18 @@ export function DocumentAgentReview(props: {
   );
 }
 
-/** The elements of the suggestion marks in the editor. */
-const SUGGESTION_SELECTOR = 'ins, del, [data-type="modification"]';
-
-/** The CSS that marks the suggestions of one tool call in the editor. */
-function activeStyle(suggestionId: number): string {
-  const id = `[data-id="${suggestionId}"]`;
-  return `.bn-editor ins${id}, .bn-editor del${id}, .bn-editor [data-type="modification"]${id} { outline: 2px solid var(--bn-agent-active, #4f8ff7); outline-offset: 1px; }`;
+/** The CSS that marks the elements of a selector in the editor. */
+function activeStyle(selector: string): string {
+  return `.bn-editor :is(${selector}) { outline: 2px solid var(--bn-agent-active, #4f8ff7); outline-offset: 1px; }`;
 }
 
-/** One line on the state of a tool call, and on the blocks that it changed. */
-function describe(call: ReviewToolCall): string {
+/** One line on the state of a tool call, and on what the editor shows of it. */
+function describe(agent: DocumentAgent, call: ReviewedToolCall): string {
   if (call.state === "accepted") {
     return "Accepted";
   }
   if (call.state === "rejected") {
     return "Rejected";
   }
-  const blocks = call.suggestedBlockIds.length;
-  const shared = call.sharedBlockIds.length;
-  if (blocks === 0) {
-    return shared > 0
-      ? "A later change shows the blocks of this change."
-      : "No change is left to show.";
-  }
-  return `${blocks} block${blocks === 1 ? "" : "s"}${
-    shared > 0 ? `, ${shared} with another change` : ""
-  }`;
+  return agent.describeToolCall(call.toolCallId) ?? "";
 }

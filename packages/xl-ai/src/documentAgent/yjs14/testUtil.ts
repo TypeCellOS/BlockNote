@@ -9,7 +9,7 @@ import * as Y from "@y/y";
 import type { Node } from "prosemirror-model";
 
 import { createSuggestionReview, type SuggestionReview } from "./review.js";
-import { watchToolCallAttributions } from "./toolCallRecords.js";
+import { createSuggestionCollaboration } from "./suggestionAgentExtension.js";
 
 /** The name of the type of the document content in the Y.Docs of the tests. */
 export const FRAGMENT = "doc";
@@ -97,18 +97,15 @@ export function createSuggestionClient(
 ): SuggestionClient {
   const mainReplica = mainReplicaOf(main);
   const suggestionReplica = suggestionReplicaOf(suggestion);
-  // The attributions before the renderer (see `watchToolCallAttributions`).
-  const watch = watchToolCallAttributions(suggestionReplica);
-  const renderer = Y.createDiffRenderer(mainReplica, suggestionReplica, {
-    attributions: watch.attributions,
+  const setup = createSuggestionCollaboration({
+    main: mainReplica,
+    suggestion: suggestionReplica,
+    fragment: FRAGMENT,
   });
-  renderer.suggestionMode = false;
   const editor = BlockNoteEditor.create(
     withCollaboration({
       collaboration: {
-        fragment: mainReplica.get(FRAGMENT),
-        suggestionDoc: suggestionReplica,
-        renderer,
+        ...setup.collaboration,
         user: { name: "User", color: "#ff0000" },
       },
       trailingBlock: false,
@@ -129,8 +126,7 @@ export function createSuggestionClient(
     destroy() {
       editor.unmount();
       element.remove();
-      watch.destroy();
-      renderer.destroy();
+      setup.destroy();
     },
   };
 }

@@ -1,5 +1,5 @@
 import type { BlockNoteEditor } from "@blocknote/core";
-import { useBlockNoteEditor, useExtension } from "@blocknote/react";
+import { useBlockNoteEditor } from "@blocknote/react";
 import { useCallback } from "react";
 import {
   RiArrowGoBackFill,
@@ -13,7 +13,7 @@ import {
 import { AIMenu, type AIMenuProps } from "../../components/AIMenu/AIMenu.js";
 import type { AIMenuSuggestionItem } from "../../components/AIMenu/getDefaultAIMenuItems.js";
 import { getAIDictionary } from "../../i18n/dictionary.js";
-import { DocumentAgentExtension } from "./DocumentAgentExtension.js";
+import { documentAgentOf } from "./agentExtension.js";
 
 type MenuStatus = Parameters<NonNullable<AIMenuProps["items"]>>[1];
 
@@ -24,7 +24,11 @@ type MenuStatus = Parameters<NonNullable<AIMenuProps["items"]>>[1];
  */
 export function DocumentAgentMenu() {
   const editor = useBlockNoteEditor();
-  const agent = useExtension(DocumentAgentExtension);
+  // The menu is the same for each mode of the document agent.
+  const agent = documentAgentOf(editor);
+  if (agent === undefined) {
+    throw new Error("DocumentAgentMenu needs a document agent extension");
+  }
 
   const submit = useCallback(
     (prompt: string) => {
@@ -43,7 +47,7 @@ export function documentAgentMenuItems(
   editor: BlockNoteEditor<any, any, any>,
   status: MenuStatus,
 ): AIMenuSuggestionItem[] {
-  const agent = editor.getExtension(DocumentAgentExtension);
+  const agent = documentAgentOf(editor);
   if (agent === undefined) {
     return [];
   }

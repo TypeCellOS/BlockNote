@@ -2,10 +2,24 @@
 // React components of the review.
 
 export {
+  type AgentExtensionOptions,
+  type AgentState,
+  type ClientMode,
+  createAgentExtension,
+  DOCUMENT_AGENT_KEY,
+  type DocumentAgent,
+  documentAgentOf,
+  type ModeContext,
+  type ReviewData,
+  type ReviewedToolCall,
+  type ReviewOf,
+} from "./agentExtension.js";
+export {
   type AcceptClaim,
   DocumentAgentExtension,
   type DocumentAgentExtensionOptions,
   type DocumentAgentState,
+  type ProposalReviewData,
   type Review,
   type ReviewToolCall,
 } from "./DocumentAgentExtension.js";

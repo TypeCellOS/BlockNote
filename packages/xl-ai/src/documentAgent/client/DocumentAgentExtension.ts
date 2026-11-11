@@ -145,6 +145,9 @@ export type DocumentAgentExtensionOptions = AgentExtensionOptions & {
   replayAnimation?: boolean;
 };
 
+/** The elements of the suggestion marks of `AIExtension` in the editor. */
+const SUGGESTION_ELEMENTS = 'ins, del, [data-type="modification"]';
+
 /** The time of the replay animation for one character of inserted text. */
 const REPLAY_MS_PER_CHARACTER = 12;
 
@@ -422,6 +425,54 @@ function createProposalMode(
     };
   }
 
+  /** The tool calls of the review of the state, or no tool calls in the state `idle`. */
+  function reviewedToolCalls(): ReviewToolCall[] {
+    const state = store.state;
+    return state.status === "idle" ? [] : state.review.toolCalls;
+  }
+
+  /**
+   * The selector of the suggestion marks of a tool call. Each mark has the
+   * ID of the tool call as `data-id` (see `suggestionIdOf`). A tool call
+   * that the review does not have gets a selector that finds nothing.
+   */
+  function suggestionSelector(toolCallId: string): string {
+    const call = reviewedToolCalls().find(
+      (item) => item.toolCallId === toolCallId,
+    );
+    const id = `[data-id="${call === undefined ? "" : suggestionIdOf(call)}"]`;
+    return `ins${id}, del${id}, [data-type="modification"]${id}`;
+  }
+
+  function toolCallOfElement(element: Element): string | undefined {
+    const mark = element.closest(SUGGESTION_ELEMENTS);
+    const id = Number(mark?.getAttribute("data-id"));
+    return mark === null || Number.isNaN(id)
+      ? undefined
+      : reviewedToolCalls().find((call) => suggestionIdOf(call) === id)
+          ?.toolCallId;
+  }
+
+  /** One line on the blocks that the editor shows for an open tool call. */
+  function describeToolCall(toolCallId: string): string | undefined {
+    const call = reviewedToolCalls().find(
+      (item) => item.toolCallId === toolCallId,
+    );
+    if (call === undefined || call.state !== "open") {
+      return undefined;
+    }
+    const blocks = call.suggestedBlockIds.length;
+    const shared = call.sharedBlockIds.length;
+    if (blocks === 0) {
+      return shared > 0
+        ? "A later change shows the blocks of this change."
+        : "No change is left to show.";
+    }
+    return `${blocks} block${blocks === 1 ? "" : "s"}${
+      shared > 0 ? `, ${shared} with another change` : ""
+    }`;
+  }
+
   /** Ends the replay animation at the end of a run. */
   function endRun() {
     // The replay animation is only for a run: a later display of the
@@ -446,6 +497,9 @@ function createProposalMode(
       proposal: review.proposal,
     }),
     hide,
+    suggestionSelector,
+    toolCallOfElement,
+    describeToolCall,
     prosemirrorPlugins: [
       new Plugin({
         key: new PluginKey("blocknote-document-agent"),

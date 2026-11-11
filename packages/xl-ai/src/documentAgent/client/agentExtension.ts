@@ -145,11 +145,59 @@ export type ClientMode<Data extends ReviewData, Api extends object> = {
   acceptToolCall(toolCallId: string): void;
   /** Rejects the changes of one tool call. The other changes stay. */
   rejectToolCall(toolCallId: string): void;
+  /**
+   * The CSS selector of the elements in the editor that show the changes
+   * of a tool call, relative to the element of the editor. A review
+   * surface uses it to mark these changes, and to scroll to them.
+   */
+  suggestionSelector(toolCallId: string): string;
+  /** The tool call of the change that an element in the editor shows, if there is one. */
+  toolCallOfElement(element: Element): string | undefined;
+  /** One line for a review surface on what the editor shows of an open tool call. */
+  describeToolCall?(toolCallId: string): string | undefined;
   prosemirrorPlugins?: Plugin[];
   /** Called when the editor mounts. Returns a function for the unmount. */
   mount?(): (() => void) | undefined;
   api: Api;
 };
+
+/**
+ * The document agent of an editor, in each mode: what a review surface (the
+ * AI menu, the cards of the tool calls, a chat window) uses. Get it with
+ * {@link documentAgentOf}.
+ */
+export type DocumentAgent = {
+  /** The state of the agent in the editor. */
+  getState: () => AgentState<ReviewData>;
+  /** Calls the listener after each change of the state. Returns the function that stops it. */
+  subscribe: (listener: () => void) => () => void;
+  invoke(prompt: string): Promise<void>;
+  follow(): Promise<boolean>;
+  abort(): Promise<void>;
+  getChat(): Chat<UIMessage>;
+  mainDocument(): Block<any, any, any>[];
+  acceptAll(): void;
+  rejectAll(): void;
+  acceptToolCall(toolCallId: string): void;
+  rejectToolCall(toolCallId: string): void;
+  dismiss(): void;
+  suggestionSelector(toolCallId: string): string;
+  toolCallOfElement(element: Element): string | undefined;
+  describeToolCall(toolCallId: string): string | undefined;
+};
+
+/** The document agent of each editor that has one. */
+const agents = new WeakMap<BlockNoteEditor<any, any, any>, DocumentAgent>();
+
+/**
+ * The document agent of the editor, in the mode of the editor, or
+ * `undefined` if the editor has no document agent extension.
+ */
+export function documentAgentOf(
+  editor: BlockNoteEditor<any, any, any>,
+): DocumentAgent | undefined {
+  return agents.get(editor);
+}
 
 /**
  * Makes the document agent extension of one mode. The extension sends the
@@ -325,7 +373,7 @@ export function createAgentExtension<
         options,
       );
 
-      return {
+      const extension = {
         key: DOCUMENT_AGENT_KEY,
         store,
         prosemirrorPlugins: mode.prosemirrorPlugins ?? [],
@@ -441,8 +489,21 @@ export function createAgentExtension<
           }
         },
 
+        suggestionSelector: (toolCallId: string) =>
+          mode.suggestionSelector(toolCallId),
+        toolCallOfElement: (element: Element) =>
+          mode.toolCallOfElement(element),
+        describeToolCall: (toolCallId: string) =>
+          mode.describeToolCall?.(toolCallId),
+
         ...mode.api,
       } as const;
+      agents.set(editor, {
+        ...extension,
+        getState: () => store.state,
+        subscribe: (listener) => store.subscribe(listener),
+      });
+      return extension;
     },
   );
 }
