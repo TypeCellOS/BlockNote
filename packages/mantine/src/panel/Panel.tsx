@@ -7,6 +7,7 @@ import {
 import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
+import { EditorDirectionProvider } from "../EditorDirectionProvider.js";
 
 export const Panel = forwardRef<
   HTMLDivElement,
@@ -25,32 +26,34 @@ export const Panel = forwardRef<
   assertEmpty(rest);
 
   return (
-    <MantineGroup className={className} ref={ref}>
-      <MantineTabs
-        value={openTab}
-        defaultValue={defaultOpenTab}
-        onChange={setOpenTab as any}
-      >
-        {loading && <MantineLoadingOverlay visible={loading} />}
+    <EditorDirectionProvider>
+      <MantineGroup className={className} ref={ref}>
+        <MantineTabs
+          value={openTab}
+          defaultValue={defaultOpenTab}
+          onChange={setOpenTab as any}
+        >
+          {loading && <MantineLoadingOverlay visible={loading} />}
 
-        <MantineTabs.List>
+          <MantineTabs.List>
+            {tabs.map((tab) => (
+              <MantineTabs.Tab
+                data-test={`${tab.name.toLowerCase()}-tab`}
+                value={tab.name}
+                key={tab.name}
+              >
+                {tab.name}
+              </MantineTabs.Tab>
+            ))}
+          </MantineTabs.List>
+
           {tabs.map((tab) => (
-            <MantineTabs.Tab
-              data-test={`${tab.name.toLowerCase()}-tab`}
-              value={tab.name}
-              key={tab.name}
-            >
-              {tab.name}
-            </MantineTabs.Tab>
+            <MantineTabs.Panel value={tab.name} key={tab.name}>
+              {tab.tabPanel}
+            </MantineTabs.Panel>
           ))}
-        </MantineTabs.List>
-
-        {tabs.map((tab) => (
-          <MantineTabs.Panel value={tab.name} key={tab.name}>
-            {tab.tabPanel}
-          </MantineTabs.Panel>
-        ))}
-      </MantineTabs>
-    </MantineGroup>
+        </MantineTabs>
+      </MantineGroup>
+    </EditorDirectionProvider>
   );
 });

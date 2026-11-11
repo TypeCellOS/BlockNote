@@ -8,6 +8,7 @@ import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps, preventFocusOnTap } from "@blocknote/react";
 import { forwardRef } from "react";
 import { HiChevronDown } from "react-icons/hi";
+import { EditorDirectionProvider } from "../EditorDirectionProvider.js";
 
 // TODO: Turn into select?
 export const ToolbarSelect = forwardRef<
@@ -32,61 +33,63 @@ export const ToolbarSelect = forwardRef<
   }
 
   return (
-    <MantineMenu
-      withinPortal={!!portalElement}
-      portalProps={portalElement ? { target: portalElement } : undefined}
-      transitionProps={{
-        exitDuration: 0,
-      }}
-      disabled={isDisabled}
-      // Do not move focus to the dropdown when requested (mobile), as it blurs
-      // the editor's contentEditable and dismisses the on-screen keyboard.
-      trapFocus={preventFocusOnOpen ? false : undefined}
-      middlewares={{
-        flip: true,
-        shift: true,
-        inline: false,
-        size: true,
-      }}
-    >
-      <MantineMenu.Target>
-        <MantineButton
-          className="bn-toolbar-button"
-          // How-to-test: without it, tapping the block type select focuses the button and closes the keyboard (covered by skinFocus, android, mantine: "opening the block type select keeps focus in the editor").
-          onMouseDown={preventFocusOnTap}
-          leftSection={selectedItem.icon}
-          rightSection={<HiChevronDown />}
-          size={"xs"}
-          variant={"subtle"}
-          disabled={isDisabled}
-        >
-          {selectedItem.text}
-        </MantineButton>
-      </MantineMenu.Target>
-      <MantineMenu.Dropdown
-        className={mergeCSSClasses("bn-toolbar-select", className)}
-        ref={ref}
+    <EditorDirectionProvider element={portalElement}>
+      <MantineMenu
+        withinPortal={!!portalElement}
+        portalProps={portalElement ? { target: portalElement } : undefined}
+        transitionProps={{
+          exitDuration: 0,
+        }}
+        disabled={isDisabled}
+        // Do not move focus to the dropdown when requested (mobile), as it blurs
+        // the editor's contentEditable and dismisses the on-screen keyboard.
+        trapFocus={preventFocusOnOpen ? false : undefined}
+        middlewares={{
+          flip: true,
+          shift: true,
+          inline: false,
+          size: true,
+        }}
       >
-        {items.map((item) => (
-          <MantineMenu.Item
-            className="bn-menu-item"
-            key={item.text}
-            onClick={item.onClick}
-            leftSection={item.icon}
-            rightSection={
-              item.isSelected ? (
-                <MantineCheckIcon size={10} className={"bn-tick-icon"} />
-              ) : (
-                // Ensures space for tick even if item isn't currently selected.
-                <div className={"bn-tick-space"} />
-              )
-            }
-            disabled={item.isDisabled}
+        <MantineMenu.Target>
+          <MantineButton
+            className="bn-toolbar-button"
+            // How-to-test: without it, tapping the block type select focuses the button and closes the keyboard (covered by skinFocus, android, mantine: "opening the block type select keeps focus in the editor").
+            onMouseDown={preventFocusOnTap}
+            leftSection={selectedItem.icon}
+            rightSection={<HiChevronDown />}
+            size={"xs"}
+            variant={"subtle"}
+            disabled={isDisabled}
           >
-            {item.text}
-          </MantineMenu.Item>
-        ))}
-      </MantineMenu.Dropdown>
-    </MantineMenu>
+            {selectedItem.text}
+          </MantineButton>
+        </MantineMenu.Target>
+        <MantineMenu.Dropdown
+          className={mergeCSSClasses("bn-toolbar-select", className)}
+          ref={ref}
+        >
+          {items.map((item) => (
+            <MantineMenu.Item
+              className="bn-menu-item"
+              key={item.text}
+              onClick={item.onClick}
+              leftSection={item.icon}
+              rightSection={
+                item.isSelected ? (
+                  <MantineCheckIcon size={10} className={"bn-tick-icon"} />
+                ) : (
+                  // Ensures space for tick even if item isn't currently selected.
+                  <div className={"bn-tick-space"} />
+                )
+              }
+              disabled={item.isDisabled}
+            >
+              {item.text}
+            </MantineMenu.Item>
+          ))}
+        </MantineMenu.Dropdown>
+      </MantineMenu>
+    </EditorDirectionProvider>
   );
 });

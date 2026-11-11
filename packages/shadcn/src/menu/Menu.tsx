@@ -1,6 +1,7 @@
 import { assertEmpty } from "@blocknote/core";
 import { ComponentProps, preventFocusOnTap } from "@blocknote/react";
 import { ChevronRight } from "lucide-react";
+import { EditorDirectionProvider } from "../EditorDirectionProvider.js";
 import { createContext, forwardRef, ReactElement, useContext } from "react";
 import { preventFocusOnOpenProps } from "../lib/preventFocusOnOpen.js";
 import { cn } from "../lib/utils.js";
@@ -11,13 +12,14 @@ import { useShadCNComponentsContext } from "../ShadCNComponentsContext.js";
 const MenuRootPropsContext = createContext<{
   portalElement: HTMLElement | null;
   preventFocusOnOpen: boolean;
+  position?: ComponentProps["Generic"]["Menu"]["Root"]["position"];
 }>({ portalElement: null, preventFocusOnOpen: false });
 
 export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
   const {
     children,
     onOpenChange,
-    position: _position, // Unused
+    position,
     portalElement,
     // Base UI has no `initialFocus` on Menu; see lib/preventFocusOnOpen.ts.
     preventFocusOnOpen,
@@ -32,6 +34,7 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
   const rootProps = {
     portalElement,
     preventFocusOnOpen: preventFocusOnOpen ?? false,
+    position,
   };
 
   if (sub) {
@@ -46,14 +49,16 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
     );
   } else {
     return (
-      <ShadCNComponents.DropdownMenu.DropdownMenu
-        modal={false}
-        onOpenChange={onOpenChange}
-      >
-        <MenuRootPropsContext.Provider value={rootProps}>
-          {children}
-        </MenuRootPropsContext.Provider>
-      </ShadCNComponents.DropdownMenu.DropdownMenu>
+      <EditorDirectionProvider element={portalElement}>
+        <ShadCNComponents.DropdownMenu.DropdownMenu
+          modal={false}
+          onOpenChange={onOpenChange}
+        >
+          <MenuRootPropsContext.Provider value={rootProps}>
+            {children}
+          </MenuRootPropsContext.Provider>
+        </ShadCNComponents.DropdownMenu.DropdownMenu>
+      </EditorDirectionProvider>
     );
   }
 };
@@ -105,12 +110,34 @@ export const MenuDropdown = forwardRef<
   // menu inherits light/dark mode instead of the document body's.
   // `null` (editor not mounted yet) makes Base UI wait for a container
   // instead of falling back to the body; nothing is open at that point.
-  const { portalElement: container, preventFocusOnOpen } =
-    useContext(MenuRootPropsContext);
+  const {
+    portalElement: container,
+    preventFocusOnOpen,
+    position,
+  } = useContext(MenuRootPropsContext);
+  const placement = position?.split("-");
+  const side = placement?.[0];
+  const align = placement?.[1];
+  const positioning: {
+    side?: "left" | "right" | "top" | "bottom";
+    align?: "start" | "end" | "center";
+  } = {
+    side:
+      side === "left" || side === "right" || side === "top" || side === "bottom"
+        ? side
+        : undefined,
+    align:
+      align === "start" || align === "end"
+        ? align
+        : position
+          ? "center"
+          : undefined,
+  };
 
   if (sub) {
     return (
       <ShadCNComponents.DropdownMenu.DropdownMenuSubContent
+        {...positioning}
         className={className}
         container={container}
         ref={ref}
@@ -121,6 +148,7 @@ export const MenuDropdown = forwardRef<
   } else {
     return (
       <ShadCNComponents.DropdownMenu.DropdownMenuContent
+        {...positioning}
         className={className}
         container={container}
         ref={ref}
