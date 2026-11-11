@@ -391,6 +391,63 @@ describe("the document agent in an editor that is bound to a Y.Doc", () => {
     expect(fragment.toJSON()).not.toContain("insertion");
   });
 
+  it.fails("KNOWN: two users who accept one proposal at the same time both write its text", () => {
+    // Each accept is a write of one user to the shared document. Two
+    // accepts of the same proposal that cross on the network are two
+    // inserts of the same text, and Yjs keeps the two. The accept needs
+    // one order (for example a claim on the host before the write), or an
+    // accept that is the same Yjs change for each user (the shared items
+    // of the Yjs 14 suggestion layer).
+    function editorOn(doc: Y.Doc, name: string) {
+      const editor = BlockNoteEditor.create(
+        withCollaboration({
+          collaboration: {
+            fragment: doc.getXmlFragment("doc"),
+            user: { name, color: "#ff0000" },
+            provider: undefined,
+          },
+          trailingBlock: false,
+          extensions: [AIExtension(), DocumentAgentExtension()],
+        }),
+      );
+      editor.mount(document.createElement("div"));
+      mounted.push(editor);
+      return { editor, agent: editor.getExtension(DocumentAgentExtension)! };
+    }
+    const docA = new Y.Doc();
+    const a = editorOn(docA, "A");
+    a.editor.replaceBlocks(
+      a.editor.document,
+      initialDocument() as PartialBlock[],
+    );
+    const docB = new Y.Doc();
+    Y.applyUpdate(docB, Y.encodeStateAsUpdate(docA));
+    const b = editorOn(docB, "B");
+    const proposal = writeMarkdown(
+      headlessEditorFactory(),
+      createProposal(a.editor.document),
+      "# Title\n\nOpening paragraph.\n\nSecond paragraph.\n",
+      "call-1",
+    );
+
+    // The two users review the same proposal, and accept before they sync.
+    a.agent.openProposal(proposal);
+    b.agent.openProposal(proposal);
+    a.agent.acceptAll();
+    b.agent.acceptAll();
+    const updateA = Y.encodeStateAsUpdate(docA);
+    Y.applyUpdate(docA, Y.encodeStateAsUpdate(docB));
+    Y.applyUpdate(docB, updateA);
+
+    // Now: "OpeningOpening paragraph." in the two editors.
+    expect(textsOf(a.editor.document)).toEqual([
+      "Title",
+      "Opening paragraph.",
+      "Second paragraph.",
+    ]);
+    expect(textsOf(b.editor.document)).toEqual(textsOf(a.editor.document));
+  });
+
   it("keeps a change that another user made to the shared document during the review", async () => {
     const { editor, fragment, agent } = createCollaborativeEditor(twoEdits);
     await agent.invoke("Improve the text.");
