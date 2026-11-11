@@ -1,7 +1,6 @@
 import {
   createAgentUIStream,
   isStepCount,
-  type LanguageModel,
   type LanguageModelUsage,
   type ModelMessage,
   ToolLoopAgent,
@@ -10,17 +9,24 @@ import {
 } from "ai";
 
 import type { CreateEditor } from "../proposal/proposal.js";
-import type { Proposal } from "../proposal/types.js";
+import type { Batch, Proposal } from "../proposal/types.js";
 import { createInMemoryProposalStore } from "../stores/proposalStore.js";
 import { createDocumentTools } from "../tools/aiSdkTools.js";
 import { describeOpening } from "../tools/describe.js";
 import { readDocument } from "../tools/documentTools.js";
 import { createDocumentHandle, type DocumentHandle } from "../tools/handle.js";
+import { createToolCalls } from "../tools/toolCalls.js";
+import {
+  type LanguageModelObject,
+  withBatchChunks,
+  withEarlyToolCalls,
+} from "./earlyToolCalls.js";
 import { DOCUMENT_AGENT_INSTRUCTIONS } from "./instructions.js";
 
 /** The options of the loop that all hosts share. */
 export type DocumentAgentOptions = {
-  model: LanguageModel;
+  /** The model, as an object: a middleware wraps it (see `withEarlyToolCalls`). */
+  model: LanguageModelObject;
   /** The instructions of the agent. The default explains the tools and the loop. */
   instructions?: string;
   /** The maximum number of LLM steps of one run. The default is 12. */
@@ -42,17 +48,23 @@ export type DocumentAgentOptions = {
  * the user (see {@link withDocument}). Thus, the model does not call
  * `readDocument` before its first change, and a run has one LLM call less.
  *
+ * A tool call starts when the model has written it completely, not at the
+ * end of the LLM step (see `withEarlyToolCalls`). `onBatches` gets the
+ * batches of each tool call at that time.
+ *
  * All hosts use this function. A host only decides where the loop runs and
  * what the handle reads and writes.
  */
 export function createDocumentAgent(
   handle: DocumentHandle,
   options: DocumentAgentOptions,
+  onBatches?: (toolCallId: string, batches: Batch[]) => void,
 ) {
+  const calls = createToolCalls(handle, onBatches);
   return new ToolLoopAgent({
-    model: options.model,
+    model: withEarlyToolCalls(options.model, calls),
     instructions: options.instructions ?? DOCUMENT_AGENT_INSTRUCTIONS,
-    tools: createDocumentTools(handle),
+    tools: createDocumentTools(calls),
     maxOutputTokens: options.maxOutputTokens,
     stopWhen: [isStepCount(options.maxSteps ?? 12), toolThrew],
     // The AI SDK keeps the messages of step 0 for the later steps. Thus,
@@ -131,9 +143,13 @@ export type DocumentAgentRequest = {
 
 /**
  * Runs the agent for a request of a user, and returns the UI message
- * stream of the AI SDK. The output of each tool call in the stream has the
- * batches of that call: the client applies them to its copy of the
- * proposal.
+ * stream of the AI SDK. The client applies the batches of each tool call
+ * to its copy of the proposal. The batches are in the stream two times:
+ *
+ * - In a transient data chunk, when the tool call ends. This is before the
+ *   end of the LLM step: the client shows the change at once.
+ * - In the output of the tool call, when the loop of the AI SDK has it.
+ *   This output stays in the chat history.
  *
  * The same function runs on a server (server mode: the route returns the
  * stream as the response) and in the browser (client mode: a chat
@@ -155,11 +171,20 @@ export async function streamDocumentAgent(
     proposalId: "request",
     createEditor: options.createEditor,
   });
-  return createAgentUIStream({
-    agent: createDocumentAgent(handle, options),
-    uiMessages: request.messages,
-    abortSignal: options.abortSignal,
-  });
+  // The agent starts before the stream exists. Thus, the listener gets the
+  // function that adds to the stream when the stream is there.
+  let add: (toolCallId: string, batches: Batch[]) => void = () => undefined;
+  const chunks = withBatchChunks(
+    await createAgentUIStream({
+      agent: createDocumentAgent(handle, options, (toolCallId, batches) =>
+        add(toolCallId, batches),
+      ),
+      uiMessages: request.messages,
+      abortSignal: options.abortSignal,
+    }),
+  );
+  add = chunks.add;
+  return chunks.stream;
 }
 
 /** The result of a run without a chat: the answer of the agent, and the cost. */

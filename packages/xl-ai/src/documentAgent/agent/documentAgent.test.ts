@@ -20,7 +20,12 @@ import {
   versionIn,
 } from "../testUtil.js";
 import { createDocumentHandle, type DocumentHandle } from "../tools/handle.js";
+import { createToolCalls } from "../tools/toolCalls.js";
 import { runDocumentAgent, streamDocumentAgent } from "./documentAgent.js";
+import {
+  DOCUMENT_BATCHES_CHUNK,
+  type DocumentBatchesData,
+} from "./earlyToolCalls.js";
 
 const createEditor = headlessEditorFactory();
 
@@ -506,6 +511,112 @@ describe("a run that a server starts", () => {
       "Title",
       "Paragraph one, by the user.",
       "Second paragraph.",
+    ]);
+  });
+});
+
+describe("a tool call starts when the model has written it", () => {
+  const firstEdit = {
+    toolName: "editText",
+    input: { old: "First", new: "Opening", reason: "A better word." },
+  };
+  const secondEdit = {
+    toolName: "editText",
+    input: { old: "Second", new: "Closing", reason: "It is the end." },
+  };
+
+  it("gives the client the batch of a call before the model writes the next call of the same step", async () => {
+    // The model writes two tool calls in one LLM step. It waits before the
+    // second call until the client has the batch of the first call. Without
+    // the early start, the loop of the AI SDK runs the two tools only at
+    // the end of the step, and this test does not end.
+    let seen: () => void = () => undefined;
+    const firstBatch = new Promise<void>((resolve) => {
+      seen = resolve;
+    });
+    const { model, prompts } = scriptedModel(
+      [{ toolCalls: [firstEdit, secondEdit] }, { text: "Done." }],
+      {
+        beforeToolCall: (toolCallId) =>
+          toolCallId === "call-2" ? firstBatch : Promise.resolve(),
+      },
+    );
+
+    const stream = await streamDocumentAgent(
+      {
+        messages: [userMessage("Improve the text.")],
+        proposal: createProposal(initialDocument()),
+      },
+      { model, createEditor },
+    );
+    const chunks: UIMessageChunk[] = [];
+    const reader = stream.getReader();
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) {
+        break;
+      }
+      chunks.push(value);
+      if (value.type === DOCUMENT_BATCHES_CHUNK) {
+        seen();
+      }
+    }
+
+    function indexOf(type: string, toolCallId: string): number {
+      return chunks.findIndex(
+        (chunk) =>
+          chunk.type === type &&
+          (chunk.type === DOCUMENT_BATCHES_CHUNK
+            ? (chunk.data as DocumentBatchesData).toolCallId
+            : "toolCallId" in chunk && chunk.toolCallId) === toolCallId,
+      );
+    }
+    const early = indexOf(DOCUMENT_BATCHES_CHUNK, "call-1");
+    expect(early).toBeGreaterThan(-1);
+    expect(early).toBeLessThan(indexOf("tool-input-available", "call-2"));
+    expect(indexOf("tool-input-available", "call-2")).toBeLessThan(
+      indexOf("tool-output-available", "call-1"),
+    );
+
+    // The data chunk and the tool output have the same batch. The chunk is
+    // transient: it is not a part of the chat message.
+    const earlyChunk = chunks[early] as {
+      data: DocumentBatchesData;
+      transient?: boolean;
+    };
+    expect(earlyChunk.transient).toBe(true);
+    expect(earlyChunk.data.batches).toEqual(batchesIn(chunks).slice(0, 1));
+    expect(batchesIn(chunks).map((batch) => batch.seq)).toEqual([1, 2]);
+    // Each tool ran one time: the model got one result for each call.
+    expect(prompts).toHaveLength(2);
+    expect(lastToolResult(prompts[1])).toBe("OK. The new version is v2.");
+  });
+
+  it("runs a tool call one time for one tool call ID", async () => {
+    const store = createInMemoryProposalStore();
+    await store.save("run", createProposal(initialDocument()));
+    const handle = createDocumentHandle({
+      store,
+      proposalId: "run",
+      createEditor,
+    });
+    const batches: [string, number[]][] = [];
+    const calls = createToolCalls(handle, (toolCallId, added) =>
+      batches.push([toolCallId, added.map((batch) => batch.seq)]),
+    );
+
+    // The early start, then the loop of the AI SDK, ask for the same call.
+    const early = calls.run("editText", firstEdit.input, "call-1");
+    const fromLoop = calls.run("editText", firstEdit.input, "call-1");
+    const other = calls.run("editText", secondEdit.input, "call-2");
+
+    expect(fromLoop).toBe(early);
+    expect(await early).toMatchObject({ version: "v1", changed: true });
+    expect(await other).toMatchObject({ version: "v2", changed: true });
+    expect((await store.load("run"))!.batches).toHaveLength(2);
+    expect(batches).toEqual([
+      ["call-1", [1]],
+      ["call-2", [2]],
     ]);
   });
 });

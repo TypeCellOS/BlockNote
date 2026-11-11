@@ -104,9 +104,14 @@ export type ScriptedStep =
  * `n`. A step can be a function of the prompt of that call. Thus, a test
  * can use the result of an earlier tool call (for example the version).
  * `prompts` has the prompt of each call: the messages that the model got.
+ *
+ * With `beforeToolCall`, the stream of the model waits for the promise
+ * before it writes that tool call. Thus, a test can examine what occurs
+ * while the model still writes an LLM step.
  */
 export function scriptedModel(
   script: (ScriptedStep | ((prompt: LanguageModelV4Prompt) => ScriptedStep))[],
+  options: { beforeToolCall?: (toolCallId: string) => Promise<void> } = {},
 ) {
   const prompts: LanguageModelV4Prompt[] = [];
   let toolCalls = 0;
@@ -169,7 +174,23 @@ export function scriptedModel(
         }
       }
       chunks.push({ type: "finish", ...finishOf(step) });
-      return { stream: simulateReadableStream({ chunks }) };
+      const { beforeToolCall } = options;
+      if (beforeToolCall === undefined) {
+        return { stream: simulateReadableStream({ chunks }) };
+      }
+      return {
+        stream: new ReadableStream<StreamPart>({
+          async start(controller) {
+            for (const chunk of chunks) {
+              if (chunk.type === "tool-call") {
+                await beforeToolCall(chunk.toolCallId);
+              }
+              controller.enqueue(chunk);
+            }
+            controller.close();
+          },
+        }),
+      };
     },
   });
   return { model, prompts };

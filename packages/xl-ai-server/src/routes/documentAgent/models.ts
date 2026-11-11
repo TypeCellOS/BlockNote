@@ -3,7 +3,7 @@ import { createGoogle } from "@ai-sdk/google";
 import { createGroq } from "@ai-sdk/groq";
 import { createMistral } from "@ai-sdk/mistral";
 import { createOpenAI } from "@ai-sdk/openai";
-import type { LanguageModel } from "ai";
+import type { LanguageModelObject } from "@blocknote/xl-ai/server";
 
 /** The model of the document agent, if `DOCUMENT_AGENT_MODEL` is not set. */
 const DEFAULT_MODEL = "anthropic:claude-haiku-5-5";
@@ -14,7 +14,7 @@ const DEFAULT_MODEL = "anthropic:claude-haiku-5-5";
  * `<PROVIDER>_API_KEY`. The server selects the model: a client cannot.
  */
 export function documentAgentModel():
-  | { error?: undefined; model: LanguageModel; name: string }
+  | { error?: undefined; model: LanguageModelObject; name: string }
   | { error: "unknown-provider" | "no-api-key"; name: string } {
   const name = process.env.DOCUMENT_AGENT_MODEL ?? DEFAULT_MODEL;
   const separator = name.indexOf(":");

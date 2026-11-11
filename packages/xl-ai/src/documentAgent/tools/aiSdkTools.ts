@@ -1,27 +1,26 @@
 import { jsonSchema, tool } from "ai";
 
 import { describeRead, describeWrite } from "./describe.js";
-import {
-  type EditInput,
-  type EditOutput,
-  editText,
-  type ReadOutput,
-  readDocument,
-  type WriteInput,
-  type WriteOutput,
-  writeDocument,
+import type {
+  EditInput,
+  EditOutput,
+  ReadOutput,
+  WriteInput,
+  WriteOutput,
 } from "./documentTools.js";
-import type { DocumentHandle } from "./handle.js";
+import type { ToolCalls } from "./toolCalls.js";
 
 /**
  * The document tools as tools of the AI SDK, for one run. Each tool calls a
- * plain function over the handle (see `documentTools.ts`).
+ * plain function over the handle (see `documentTools.ts`), through the
+ * tool calls of the run: a call that a host started early does not run a
+ * second time (see `toolCalls.ts`).
  *
  * The output of a tool has two readers. The client gets the full output in
  * the UI message stream, with the batches. The model gets a short text
  * (`toModelOutput`): the version, the notes or the error.
  */
-export function createDocumentTools(handle: DocumentHandle) {
+export function createDocumentTools(calls: ToolCalls) {
   return {
     readDocument: tool({
       description:
@@ -31,7 +30,8 @@ export function createDocumentTools(handle: DocumentHandle) {
         properties: {},
         additionalProperties: false,
       }),
-      execute: (): Promise<ReadOutput> => readDocument(handle),
+      execute: (input, { toolCallId }): Promise<ReadOutput> =>
+        calls.run("readDocument", input, toolCallId),
       toModelOutput: ({ output }) => ({
         type: "text",
         value: describeRead(output),
@@ -61,7 +61,7 @@ export function createDocumentTools(handle: DocumentHandle) {
         additionalProperties: false,
       }),
       execute: (input, { toolCallId }): Promise<EditOutput> =>
-        editText(handle, input, toolCallId),
+        calls.run("editText", input, toolCallId),
       toModelOutput: ({ output }) => ({
         type: "text",
         value: describeWrite(output),
@@ -92,7 +92,7 @@ export function createDocumentTools(handle: DocumentHandle) {
         additionalProperties: false,
       }),
       execute: (input, { toolCallId }): Promise<WriteOutput> =>
-        writeDocument(handle, input, toolCallId),
+        calls.run("writeDocument", input, toolCallId),
       toModelOutput: ({ output }) => ({
         type: "text",
         value: describeWrite(output),

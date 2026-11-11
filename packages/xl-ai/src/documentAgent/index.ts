@@ -11,6 +11,11 @@ export {
   runDocumentAgent,
   streamDocumentAgent,
 } from "./agent/documentAgent.js";
+export {
+  DOCUMENT_BATCHES_CHUNK,
+  type DocumentBatchesData,
+  type LanguageModelObject,
+} from "./agent/earlyToolCalls.js";
 export { DOCUMENT_AGENT_INSTRUCTIONS } from "./agent/instructions.js";
 export {
   blockOf,
@@ -57,7 +62,11 @@ export {
   type ProposalStore,
 } from "./stores/proposalStore.js";
 export { createDocumentTools, type DocumentTools } from "./tools/aiSdkTools.js";
-export { describeRead, describeWrite } from "./tools/describe.js";
+export {
+  describeOpening,
+  describeRead,
+  describeWrite,
+} from "./tools/describe.js";
 export {
   type EditInput,
   type EditOutput,
@@ -75,3 +84,9 @@ export {
   type ProposalStep,
   type StepOutcome,
 } from "./tools/handle.js";
+export {
+  createToolCalls,
+  type DocumentToolName,
+  type DocumentToolTypes,
+  type ToolCalls,
+} from "./tools/toolCalls.js";

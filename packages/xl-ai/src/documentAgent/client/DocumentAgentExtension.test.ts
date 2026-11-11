@@ -56,23 +56,25 @@ const twoEdits: Script = [
   { text: "I changed two words." },
 ];
 
-function extensionsFor(script: Script) {
+type ModelOptions = Parameters<typeof scriptedModel>[1];
+
+function extensionsFor(script: Script, options?: ModelOptions) {
   return [
     AIExtension(),
     DocumentAgentExtension({
       // Client mode: the loop and the tools run here, with the mock model.
       transport: createInProcessTransport({
-        model: scriptedModel(script).model,
+        model: scriptedModel(script, options).model,
       }),
     }),
   ];
 }
 
-function createEditor(script: Script) {
+function createEditor(script: Script, options?: ModelOptions) {
   const editor = BlockNoteEditor.create({
     initialContent: initialDocument(),
     trailingBlock: false,
-    extensions: extensionsFor(script),
+    extensions: extensionsFor(script, options),
   });
   editor.mount(document.createElement("div"));
   mounted.push(editor);
@@ -133,6 +135,70 @@ describe("the document agent in an editor", () => {
       ["deletion", 2, "Second"],
       ["insertion", 2, "Closing"],
     ]);
+  });
+
+  it("shows the change of a tool call while the model still writes the next call of the same step", async () => {
+    // The model writes two tool calls in one LLM step. Before the second
+    // call, it waits until the test has examined the editor.
+    let examined: () => void = () => undefined;
+    const gate = new Promise<void>((resolve) => {
+      examined = resolve;
+    });
+    let atSecondCall: () => void = () => undefined;
+    const secondCall = new Promise<void>((resolve) => {
+      atSecondCall = resolve;
+    });
+    const { editor, agent } = createEditor(
+      [
+        {
+          toolCalls: [
+            {
+              toolName: "editText",
+              input: { old: "First", new: "Opening", reason: "A better word." },
+            },
+            {
+              toolName: "editText",
+              input: {
+                old: "Second",
+                new: "Closing",
+                reason: "It is the end.",
+              },
+            },
+          ],
+        },
+        { text: "I changed two words." },
+      ],
+      {
+        beforeToolCall: (toolCallId) => {
+          if (toolCallId !== "call-2") {
+            return Promise.resolve();
+          }
+          atSecondCall();
+          return gate;
+        },
+      },
+    );
+
+    const run = agent.invoke("Improve the text.");
+    await secondCall;
+    // The first tool call ends in its own time: wait for its suggestions.
+    await expect
+      .poll(() => suggestionsOf(editor))
+      .toEqual([
+        ["deletion", 1, "First"],
+        ["insertion", 1, "Opening"],
+      ]);
+    expect(reviewOf(agent).status).toBe("running");
+    examined();
+    await run;
+
+    expect(suggestionsOf(editor)).toEqual([
+      ["deletion", 1, "First"],
+      ["insertion", 1, "Opening"],
+      ["deletion", 2, "Second"],
+      ["insertion", 2, "Closing"],
+    ]);
+    expect(reviewOf(agent).status).toBe("reviewing");
   });
 
   it("accepts the full proposal as one edit, which one undo reverts", async () => {

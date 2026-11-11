@@ -10,6 +10,7 @@ import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
 
 import { AIExtension } from "../../AIExtension.js";
+import { DOCUMENT_BATCHES_CHUNK } from "../agent/earlyToolCalls.js";
 import { updateDocument } from "../../api/v2/index.js";
 import {
   blockOf,
@@ -255,7 +256,16 @@ export const DocumentAgentExtension = createExtension(
         return;
       }
       let proposal = state.review.proposal;
-      for (const batch of batches) {
+      // The stream has each batch two times: in a data chunk when its tool
+      // call ends, and in the tool output. The second one is not new.
+      const fresh = batches.filter((batch) => {
+        const known = proposal.batches[batch.seq - 1];
+        return known === undefined || known.hash !== batch.hash;
+      });
+      if (fresh.length === 0) {
+        return;
+      }
+      for (const batch of fresh) {
         if (batch.seq !== proposal.batches.length + 1) {
           fail("out-of-sync");
           return;
@@ -270,7 +280,7 @@ export const DocumentAgentExtension = createExtension(
       aiMenu()?.setAIResponseStatus("ai-writing");
       // The replay animation shows the tool calls of these batches.
       newest = new Set(
-        batches.flatMap((batch) =>
+        fresh.flatMap((batch) =>
           batch.source.type === "tool-call" ? [suggestionIdOf(batch)] : [],
         ),
       );
@@ -285,6 +295,8 @@ export const DocumentAgentExtension = createExtension(
       }
       if (chunk.type === "tool-output-available") {
         applyBatches(batchesOf(chunk.output));
+      } else if (chunk.type === DOCUMENT_BATCHES_CHUNK) {
+        applyBatches(batchesOf(chunk.data));
       } else if (chunk.type === "text-delta") {
         store.setState({
           ...state,
@@ -528,7 +540,7 @@ export const DocumentAgentExtension = createExtension(
   },
 );
 
-/** The batches in the output of a tool call, or no batches for another output. */
+/** The batches in the output of a tool call or in a data chunk, or no batches for other data. */
 function batchesOf(output: unknown): Batch[] {
   if (typeof output !== "object" || output === null) {
     return [];
