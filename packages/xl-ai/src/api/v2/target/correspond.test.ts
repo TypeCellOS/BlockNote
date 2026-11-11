@@ -56,7 +56,8 @@ describe("correspond", () => {
     ).toEqual({
       rows: [
         ["kept", "a", "Alpha"],
-        // A new block gets its ID later, in the tree build (`buildTree`).
+        // A new block gets its ID later, in the build of the target
+        // (`buildTargetDocument`).
         ["new", undefined, "Delta"],
         ["kept", "b", "Beta, changed"],
       ],

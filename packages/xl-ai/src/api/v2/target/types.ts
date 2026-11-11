@@ -5,7 +5,7 @@ import type { BlockFields } from "../model.js";
  *
  * @internal
  */
-export type TreeRow =
+export type TargetRow =
   /** A source block that stays, with its merged fields. */
   | {
       kind: "kept";
@@ -24,7 +24,7 @@ export type TreeRow =
   | { kind: "skipped"; viewIndex: number | undefined };
 
 /** @internal */
-export type KeptRow = Extract<TreeRow, { kind: "kept" }>;
+export type KeptRow = Extract<TargetRow, { kind: "kept" }>;
 
 /** @internal */
 export type TargetWarning =

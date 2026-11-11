@@ -21,7 +21,7 @@ function paragraph(
   };
 }
 
-/** A random tree with a depth of at most 3, and a hidden prop on some blocks. */
+/** A random document with a depth of at most 3, and a hidden prop on some blocks. */
 function randomTree(random: Random): LensBlock[] {
   let next = 0;
   function list(depth: number): LensBlock[] {
@@ -69,7 +69,7 @@ function target(source: LensBlock[], view: ViewBlock[], incoming: FlatBlock[]) {
   });
 }
 
-describe("targetFromPairs: laws on random trees", () => {
+describe("targetFromPairs: laws on random documents", () => {
   for (const flat of [false, true]) {
     const format = flat ? "a format without nesting" : "a format with nesting";
 

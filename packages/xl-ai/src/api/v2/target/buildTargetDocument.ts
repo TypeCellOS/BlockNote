@@ -1,12 +1,12 @@
 import type { BlockFields, FlatBlock, LensBlock } from "../model.js";
 import type { BlockIndex } from "../util/blocks/index.js";
 import { decideParents, keyOf, type Place } from "./hiddenNesting.js";
-import type { TreeRow } from "./types.js";
+import type { TargetRow } from "./types.js";
 
-export type { TreeRow } from "./types.js";
+export type { TargetRow } from "./types.js";
 
 /**
- * Builds the target tree in two passes:
+ * Builds the target document in two passes:
  *
  * 1. The parent of each block (see `decideParents`): the blocks of the rows
  *    in the order of the text, in the parent that the text shows, or in a
@@ -16,8 +16,8 @@ export type { TreeRow } from "./types.js";
  *
  * @internal
  */
-export function buildTree(input: {
-  rows: readonly TreeRow[];
+export function buildTargetDocument(input: {
+  rows: readonly TargetRow[];
   /** The blocks of the text, in a flat list (for their parents and types). */
   incoming: readonly FlatBlock[];
   /** The view blocks (for their parents and types). */
@@ -31,11 +31,11 @@ export function buildTree(input: {
 }): LensBlock[] {
   const { rows, source } = input;
   const root = blockFromFields("", { type: "", props: {}, content: undefined });
-  /** The block of each place in the tree. */
+  /** The block of each place in the target. */
   const blocksByPlace = new Map<string, LensBlock>([
     [keyOf({ kind: "root" }), root],
   ]);
-  /** The block of each source block in the tree: a kept block or a hidden ancestor. */
+  /** The block of each source block in the target: a kept block or a hidden ancestor. */
   const blocksBySourceId = new Map<string, LensBlock>();
 
   function create(place: Place): LensBlock {
@@ -70,7 +70,7 @@ export function buildTree(input: {
     // children.
     const parentBlock = blocksByPlace.get(keyOf(parent));
     if (parentBlock === undefined) {
-      throw new Error(`The parent ${keyOf(parent)} is not in the tree yet`);
+      throw new Error(`The parent ${keyOf(parent)} is not in the target yet`);
     }
     parentBlock.children.push(created);
     blocksByPlace.set(keyOf(block), created);
@@ -86,9 +86,9 @@ export function buildTree(input: {
 }
 
 /**
- * The hidden blocks that stay and are not in the tree yet go to their source
+ * The hidden blocks that stay and are not in the target yet go to their source
  * positions: in their parent, after the last earlier sibling that is there.
- * In document order, thus a parent is in the tree before its children.
+ * In document order, thus a parent is in the target before its children.
  */
 function placeHiddenBlocks(
   root: LensBlock,

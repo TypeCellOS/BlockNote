@@ -8,7 +8,7 @@ import { BlockIndex } from "../util/blocks/index.js";
 import type { BlockPair } from "../alignment/index.js";
 import { mergeBlock } from "../merge/index.js";
 import type { Projection } from "../projection/index.js";
-import { buildTree, type TreeRow } from "./buildTree.js";
+import { buildTargetDocument, type TargetRow } from "./buildTargetDocument.js";
 import { correspond } from "./correspond.js";
 import type { TargetWarning } from "./types.js";
 
@@ -40,14 +40,14 @@ export type TargetInput = {
  *    `merge/block.ts`): `base` is the view block, `ours` is the text block,
  *    and `theirs` is the source block. A new block has the fields of the
  *    text block.
- * 3. The tree: the blocks in the order of the text, in the parent that the
+ * 3. The nesting: the blocks in the order of the text, in the parent that the
  *    text shows, with the nesting that the format does not show, and the
- *    hidden blocks at their source positions (see `buildTree`).
+ *    hidden blocks at their source positions (see `buildTargetDocument`).
  */
 export function targetFromPairs(input: TargetInput): TargetResult {
   const sourceIndex = new BlockIndex(input.source);
   const { rows, kept, warnings } = correspond(input, sourceIndex);
-  const treeRows = rows.map((row, j): TreeRow => {
+  const targetRows = rows.map((row, j): TargetRow => {
     switch (row.kind) {
       case "skipped":
         return row;
@@ -77,8 +77,8 @@ export function targetFromPairs(input: TargetInput): TargetResult {
       }
     }
   });
-  const target = buildTree({
-    rows: treeRows,
+  const target = buildTargetDocument({
+    rows: targetRows,
     incoming: input.incoming,
     view: input.projection.view,
     source: sourceIndex,

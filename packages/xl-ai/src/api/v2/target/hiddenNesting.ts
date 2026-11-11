@@ -1,9 +1,9 @@
 import type { FlatBlock } from "../model.js";
 import type { BlockIndex } from "../util/blocks/index.js";
-import type { KeptRow, TreeRow } from "./types.js";
+import type { KeptRow, TargetRow } from "./types.js";
 
 /**
- * A place in the target tree: the root, the block of a row of the text (a
+ * A place in the target document: the root, the block of a row of the text (a
  * new or a kept block), or a hidden ancestor (a source block without a view
  * block, for example a column, that a kept block keeps as its ancestor).
  *
@@ -15,7 +15,7 @@ export type Place =
   | { kind: "hidden"; id: string };
 
 /**
- * A key for a place, unique in one build of the target tree.
+ * A key for a place, unique in one build of the target document.
  *
  * @internal
  */
@@ -84,7 +84,7 @@ class OpenAncestors {
 }
 
 type NestingInput = {
-  rows: readonly TreeRow[];
+  rows: readonly TargetRow[];
   /** The blocks of the text, in a flat list (for their parents and types). */
   incoming: readonly FlatBlock[];
   /** The view blocks (for their parents and types). */
@@ -98,7 +98,7 @@ type NestingInput = {
 /** The nesting rules of {@link decideParents}, with the state of the decisions. */
 class ParentDecisions {
   private readonly open = new OpenAncestors();
-  /** The place of each source block that is in the tree: a kept block or a hidden ancestor. */
+  /** The place of each source block that is in the target: a kept block or a hidden ancestor. */
   private readonly placeOf = new Map<string, Place>();
   /** The first kept row at or after each index, with its index. */
   private readonly keptFrom: ({ index: number; row: KeptRow } | undefined)[];
@@ -158,7 +158,7 @@ class ParentDecisions {
     }
   }
 
-  /** The place of the nearest text ancestor of text block `j` that is in the tree, or the root. */
+  /** The place of the nearest text ancestor of text block `j` that is in the target, or the root. */
   private textParent(j: number): Place {
     for (
       let p = this.incoming[j].parentIndex;
@@ -194,7 +194,7 @@ class ParentDecisions {
    * Returns the place of the source parent of kept block `id`, if the block
    * can stay in it: the parent and the ancestors stay, the parent is an open
    * ancestor, and the parent keeps its type. Hidden ancestors that are not in
-   * the tree yet get a step here. If not, returns `undefined`.
+   * the target yet get a step here. If not, returns `undefined`.
    */
   private sourceParent(id: string): Place | undefined {
     const hidden = this.hiddenAncestors(id);
@@ -312,7 +312,7 @@ class ParentDecisions {
     return own.some((ancestor) => ofNext.has(ancestor));
   }
 
-  /** Returns true if the source block is in the tree, and is an open ancestor. */
+  /** Returns true if the source block is in the target, and is an open ancestor. */
   private isOpenSource(id: string): boolean {
     const place = this.placeOf.get(id);
     return place !== undefined && this.open.isOpen(place);
@@ -323,7 +323,7 @@ class ParentDecisions {
    * that is open below `parent`. If block `j` went into `parent`, it would
    * close that hidden block, and the next block cannot go back into it.
    * An example is a top-level block that the text puts between the blocks
-   * of two columns. This does not change the tree.
+   * of two columns. This does not change the target.
    */
   private nextNeedsOpenHiddenBlock(j: number, parent: Place): boolean {
     const next = this.nextKept(j);
