@@ -11,6 +11,7 @@ import {
 import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps, preventFocusOnTap } from "@blocknote/react";
 import { forwardRef } from "react";
+import { useEditorRTL } from "../useEditorRTL.js";
 
 export const ToolbarSelect = forwardRef<
   HTMLDivElement,
@@ -26,6 +27,7 @@ export const ToolbarSelect = forwardRef<
   } = props;
 
   assertEmpty(rest);
+  const rtl = useEditorRTL(portalElement);
 
   const selectedItem = props.items.filter((p) => p.isSelected)[0];
 
@@ -34,7 +36,11 @@ export const ToolbarSelect = forwardRef<
   };
 
   return (
-    <AriakitSelectProvider value={selectedItem.text} setValue={setValue}>
+    <AriakitSelectProvider
+      rtl={rtl}
+      value={selectedItem.text}
+      setValue={setValue}
+    >
       <AriakitSelect
         className={"bn-ak-button bn-ak-secondary"}
         disabled={isDisabled}

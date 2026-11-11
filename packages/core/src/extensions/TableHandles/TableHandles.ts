@@ -822,9 +822,9 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
                     // positioning slightly more consistent regardless of where
                     // the column is being dropped.
                     if (newIndex > originalIndex) {
-                      widget.style.right = "-2px";
+                      widget.style.insetInlineEnd = "-2px";
                     } else {
-                      widget.style.left = "-3px";
+                      widget.style.insetInlineStart = "-3px";
                     }
                     widget.style.width = "4px";
 
@@ -1067,7 +1067,11 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
             return addRowAfter(state, dispatch);
           }
         } else {
-          if (direction.side === "left") {
+          // The public sides are physical; ProseMirror's before/after commands
+          // operate on document order, which runs right-to-left in an RTL table.
+          const table = view?.tableElement?.querySelector("table");
+          const rtl = table && getComputedStyle(table).direction === "rtl";
+          if ((direction.side === "left") !== Boolean(rtl)) {
             return addColumnBefore(state, dispatch);
           } else {
             return addColumnAfter(state, dispatch);

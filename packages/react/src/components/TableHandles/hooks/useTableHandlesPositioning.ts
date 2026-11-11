@@ -1,5 +1,6 @@
 import { offset, useFloating, useTransitionStyles } from "@floating-ui/react";
 import { useEffect, useMemo } from "react";
+import { tableHandleSide } from "./tableHandlePlacement.js";
 
 function getBoundingClientRectRow(
   referencePosCell: DOMRect | null,
@@ -69,6 +70,7 @@ function useTableHandlePosition(
     draggedCellOrientation: "row" | "col";
     mousePos: number;
   },
+  direction: "ltr" | "rtl" = "ltr",
 ): {
   isMounted: boolean;
   ref: (node: HTMLElement | null) => void;
@@ -78,7 +80,7 @@ function useTableHandlePosition(
     open: show,
     placement:
       orientation === "row"
-        ? "left"
+        ? tableHandleSide(direction, "start")
         : orientation === "col"
           ? "top"
           : "bottom-end",
@@ -137,6 +139,7 @@ function useTableHandlePosition(
   );
 }
 
+/** Pass the table's layout direction to opt into mirrored handles. Defaults to LTR for existing callers. */
 export function useTableHandlesPositioning(
   show: boolean,
   referencePosCell: DOMRect | null,
@@ -145,6 +148,7 @@ export function useTableHandlesPositioning(
     draggedCellOrientation: "row" | "col";
     mousePos: number;
   },
+  direction: "ltr" | "rtl" = "ltr",
 ): {
   rowHandle: ReturnType<typeof useTableHandlePosition>;
   colHandle: ReturnType<typeof useTableHandlePosition>;
@@ -156,6 +160,7 @@ export function useTableHandlesPositioning(
     referencePosCell,
     referencePosTable,
     draggingState,
+    direction,
   );
   const colHandle = useTableHandlePosition(
     "col",
@@ -163,6 +168,7 @@ export function useTableHandlesPositioning(
     referencePosCell,
     referencePosTable,
     draggingState,
+    direction,
   );
   const cellHandle = useTableHandlePosition(
     "cell",
@@ -170,6 +176,7 @@ export function useTableHandlesPositioning(
     referencePosCell,
     referencePosTable,
     draggingState,
+    direction,
   );
 
   return useMemo(
