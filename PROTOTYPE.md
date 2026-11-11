@@ -463,9 +463,9 @@ The automated tests: 84 tests in `src/documentAgent` (26 are new in this section
 18. **In a session, the server keeps the proposal and the chat** (the option that I recommended; you did not answer the question before you left). The route `POST /chat`, where the client sends its copy of the proposal, stays for the example 09.
 19. **One open proposal for each document.** A run of a user and a run from outside write to the same proposal.
 20. **The decision of a user is a field of the tool output in the chat** (`review`), not a separate record.
-21. **A run from outside locks the editor of each user that follows it**, as each run does. The example follows each run at once. An alternative is a notice in the chat, and a follow only after a click.
+21. **A run from outside locks the editor of each user that follows it**, as each run does. The example follows each run at once. An alternative is a notice in the chat, and a follow only after a click. Your answer (11 November): this is acceptable now, and we change it later. It is possible: `follow()` is a separate call of the app, thus an app can wait for a click.
 22. **The batches are in the stream two times** (a data chunk at once, and the tool output for the history). A host that keeps the proposal does not need the second one: it can go, and the requests and the stored chat get smaller.
-23. **`reasoning` has no default of our own.** With `none`, the first edit is about 2 s earlier for a large change, but the quality is not measured.
+23. **`reasoning` has no default of our own.** With `none`, the first edit is about 2 s earlier for a large change, but the quality is not measured. Your answer (11 November): no default; an eval suite examines it later.
 
 ### 14.6 Limits of this part
 
@@ -475,4 +475,48 @@ The automated tests: 84 tests in `src/documentAgent` (26 are new in this section
 - A reload during a run of the JSON session follows the run again. The chat of a session has the tool outputs with the operations: the snapshot of a long chat is large.
 - The example is not type-checked by the lint (the lint does not cover `examples/`). I examined a copy of its files in the package: only the copied `yjsRelay.ts` of the example 09 gives a type error there (the body of a `fetch`).
 - `runDocumentAgent` (no stream) is still the run of the routes `POST /runs` of the example 09. It has no early start of the tool calls.
+
+### 13.5 `replaceRange`, a tool for a part of the document
+
+Your request (11 November): a tool that edits a part of a markdown document. `replaceRange({ from, to, new, reason })` replaces the text from `from` to `to`: the agent gives the first words and the last words, not the old text between them (commit `83777401d`). `from` must be in the markdown one time, and `to` one time after it.
+
+Measurements with `claude-haiku-5-5`, without reasoning, on 16 paragraphs (three runs each, milliseconds):
+
+| Prompt                          | Tools and instructions                            | Tool calls                       | First edit      | End of the run   |
+| ------------------------------- | ------------------------------------------------- | -------------------------------- | --------------- | ---------------- |
+| Improve the full document       | No `replaceRange` (before)                        | 1 `writeDocument`                | 4,301 to 4,495  | 5,264 to 5,353   |
+| Improve the full document       | `replaceRange`, "one call for each paragraph"     | 16 `replaceRange`                | 1,422 to 2,660  | 11,420 to 13,057 |
+| Improve the full document       | `replaceRange`, "one call for about 4 paragraphs" | 1 `writeDocument` in 6 of 9 runs | 4,249 to 5,171  | 5,069 to 6,099   |
+| Improve the full document       | `replaceRange`, no advice on the size (now)       | 1 `writeDocument`                | 4,328 to 5,171  | 5,069 to 6,099   |
+| Replace 4 paragraphs with 1     | No `replaceRange` (before)                        | 1 `editText` (2 runs)            | 2,643 to 2,710  | 3,421 to 3,873   |
+| Replace 4 paragraphs with 1     | No `replaceRange` (before)                        | 1 `writeDocument` (1 run)        | 4,981           | 5,780            |
+| Replace 4 paragraphs with 1     | `replaceRange` (now)                              | 1 `replaceRange` (2 runs)        | 2,146 to 2,235  | 2,885 to 2,996   |
+| Replace 4 paragraphs with 1     | `replaceRange` (now)                              | 2 `replaceRange`, 3 LLM calls    | 3,992           | 4,751            |
+
+What the numbers show:
+
+- The tool does what it must: a change of one part of a long document is one call, without the old text. It is about 0.5 s faster than `editText` for four paragraphs, and the model does not write the full document for it. The gain grows with the size of the part.
+- It costs a new kind of failure: in one of three runs, an anchor was not correct, and the model needed one more LLM call.
+- It does not make a change of the full document faster. One tool call costs about 0.6 s with Haiku, almost without regard to its size: 16 calls take 10 s, with or without the old text. Thus, the number of calls decides the time, and one full write stays the fastest.
+- The model does not follow advice on the size of a call reliably ("about four paragraphs": one full write in 6 of 9 runs). Thus, the instructions now name the three tools without such advice. The best instructions are a question for the eval suite.
+- A full write that shows early needs a different mechanism: the host applies each complete block of a `writeDocument` call while the model writes the call. This needs the partial input of a tool call, which you do not want as it is in the old engine. It is not built.
+
+### 14.7 Guards for the main document (11 November)
+
+Your request: suggestions in the main document must not be possible, with assertions, throws and ejects. The cause of the problem of 14.4: the Block JSON of an editor does not have the suggestion marks, thus it has the inserted text and the deleted text of a proposal as normal text. Commit `cfb5b0429` adds these layers:
+
+1. **The display tells no change.** The transactions that show or remove suggestions have the Tiptap meta `preventUpdate`. `editor.onChange` gets a change only for the main document: an edit of a user, or an accept. A test saves after each change, without a check of the state, and gets only the main document.
+2. **`agent.mainDocument()`** is the document without the suggestions, in each state. The two examples save it, and do not save `editor.document`.
+3. **A document that shows a proposal cannot change**, except through the display: the plugin of the extension throws for each other transaction, and the transaction does not apply.
+4. **`assertNoSuggestions`** throws before each step that reads the editor as the main document or writes to it: the start of a proposal, the display, each accept, the end of a review.
+5. **No proposal shows in an editor that is bound to a Y.Doc without a fork**: `showSuggestions` throws.
+6. **A host examines a shared Yjs document** before it reads it for a run (`assertNoYjsSuggestions`). The Yjs source of the demo server uses it.
+
+What the guards do not cover:
+
+- An app that reads `editor.document` at a time of its own (for example a timer) during a review still gets the suggestion text. The rule for an app is: save `agent.mainDocument()`. A guard in core for this needs a decision: `editor.document` could throw, or give the main document, while the editor has suggestion marks.
+- A host cannot find suggestion text in Block JSON that a client sends: the JSON has no marks.
+- The check of a Y.Doc finds marks on text only. A Y.Doc does not keep the marks on nodes.
+- The old engine (`AIExtension`) has the same exposure: its suggestions are in the document of the editor, and its transactions tell `editor.onChange`. I did not change it.
+- The cleanest design has no suggestion marks in the document at all: the display is decorations of the view, from the proposal. Then `editor.document` is the main document in each state. This is a larger change of the display.
 
