@@ -31,7 +31,7 @@ import {
   openProposal,
 } from "../proposal/proposal.js";
 import { createInMemoryProposalStore } from "../stores/proposalStore.js";
-import { createDocumentHandle } from "../tools/handle.js";
+import { createProposalDocument } from "../proposal/proposalDocument.js";
 
 // A comparison of the document agent with the `html-blocks` format of the
 // old engine, on some LLM test cases of the old engine, with a real model.
@@ -177,7 +177,7 @@ async function runAgent(testCase: DocumentOperationTestCase, usage: Usage) {
   const createEditor = headlessEditorFactory({ schema: editor.schema });
   const store = createInMemoryProposalStore();
   await store.save("run", createProposal(editor.document));
-  const handle = createDocumentHandle({
+  const handle = createProposalDocument({
     store,
     proposalId: "run",
     createEditor,

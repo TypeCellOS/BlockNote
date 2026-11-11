@@ -4,15 +4,13 @@ import type { UIMessage } from "ai";
 import { writeFileSync } from "node:fs";
 import { afterAll, describe, it } from "vite-plus/test";
 
-import {
-  type DocumentAgentOptions,
-  streamDocumentAgent,
-} from "../agent/documentAgent.js";
+import type { DocumentAgentOptions } from "../agent/documentAgent.js";
 import {
   DOCUMENT_BATCHES_CHUNK,
   type DocumentBatchesData,
-} from "../agent/earlyToolCalls.js";
+} from "../proposal/chunks.js";
 import { createProposal, headlessEditorFactory } from "../proposal/proposal.js";
+import { streamDocumentAgent } from "../proposal/streamProposalAgent.js";
 import { documentOf } from "../testUtil.js";
 
 // A measurement of the time to the first edit, with a real model: the time

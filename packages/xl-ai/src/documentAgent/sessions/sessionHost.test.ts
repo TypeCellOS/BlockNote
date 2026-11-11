@@ -6,7 +6,7 @@ import {
   DOCUMENT_PROPOSAL_CHUNK,
   type DocumentBatchesData,
   type DocumentProposalData,
-} from "../agent/earlyToolCalls.js";
+} from "../proposal/chunks.js";
 import { headlessEditorFactory, openProposal } from "../proposal/proposal.js";
 import { acceptToolCall, revertToolCall } from "../proposal/review.js";
 import type { Proposal } from "../proposal/types.js";

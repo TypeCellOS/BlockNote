@@ -5,12 +5,7 @@ import {
   wrapLanguageModel,
 } from "ai";
 
-import type { Batch, Proposal } from "../proposal/types.js";
-import {
-  isDocumentToolName,
-  type OnBatches,
-  type ToolCalls,
-} from "../tools/toolCalls.js";
+import { isDocumentToolName, type ToolCalls } from "../tools/toolCalls.js";
 
 /** A model of the AI SDK as an object, not as the ID of a gateway model. */
 export type LanguageModelObject = Exclude<LanguageModel, string>;
@@ -30,9 +25,9 @@ export type LanguageModelObject = Exclude<LanguageModel, string>;
  * (`generate`) has all tool calls at the same time, thus there is nothing
  * to start early.
  */
-export function withEarlyToolCalls(
+export function withEarlyToolCalls<Extra extends object>(
   model: LanguageModelObject,
-  calls: ToolCalls,
+  calls: ToolCalls<Extra>,
 ) {
   const middleware: LanguageModelMiddleware = {
     specificationVersion: "v4",
@@ -66,8 +61,8 @@ export function withEarlyToolCalls(
  * an object as its input. For other input, the loop of the AI SDK gives
  * the model an error, and no tool runs.
  */
-function startEarly(
-  calls: ToolCalls,
+function startEarly<Extra extends object>(
+  calls: ToolCalls<Extra>,
   toolName: string,
   input: string,
   toolCallId: string,
@@ -97,42 +92,22 @@ function parseObject(json: string): Record<string, unknown> | undefined {
 }
 
 /**
- * The type of the stream chunk with the batches of a tool call that
- * started early. The chunk is transient: it is not a part of the chat
- * message. The tool output has the same batches later.
- */
-export const DOCUMENT_BATCHES_CHUNK = "data-document-batches";
-
-/** The data of a {@link DOCUMENT_BATCHES_CHUNK} chunk (see `OnBatches`). */
-export type DocumentBatchesData = { toolCallId?: string; batches: Batch[] };
-
-/**
- * The type of the stream chunk with the proposal at the start of a run. A
- * host that keeps the proposal sends it (see `sessions/sessionHost.ts`):
- * the client takes this proposal as its copy. The chunk is transient.
- */
-export const DOCUMENT_PROPOSAL_CHUNK = "data-document-proposal";
-
-/** The data of a {@link DOCUMENT_PROPOSAL_CHUNK} chunk. */
-export type DocumentProposalData = { proposal: Proposal };
-
-/**
- * Returns the UI message stream with a second input: `add` puts the batches
- * of a tool call into the stream at once, as a transient data chunk. After
- * the end or a cancel of the stream, `add` does nothing: no client follows
- * the run.
+ * Returns the UI message stream with a second input: `add` puts a chunk of
+ * a host into the stream at once (for example a transient data chunk with
+ * the batches of a tool call). After the end or a cancel of the stream,
+ * `add` does nothing: no client follows the run.
  *
- * Batches that come before the first chunk of `source` wait for that
+ * Chunks that come before the first chunk of `source` wait for that
  * chunk: a client gets the start of the message first.
  */
-export function withBatchChunks(source: ReadableStream<UIMessageChunk>): {
+export function withAddedChunks(source: ReadableStream<UIMessageChunk>): {
   stream: ReadableStream<UIMessageChunk>;
-  add: OnBatches;
+  add: (chunk: UIMessageChunk) => void;
 } {
   const reader = source.getReader();
   let open = true;
   let enqueue: (chunk: UIMessageChunk) => void = () => undefined;
-  /** The batch chunks that wait for the first chunk of `source`. */
+  /** The added chunks that wait for the first chunk of `source`. */
   let waiting: UIMessageChunk[] | undefined = [];
   const stream = new ReadableStream<UIMessageChunk>({
     start(controller) {
@@ -164,16 +139,10 @@ export function withBatchChunks(source: ReadableStream<UIMessageChunk>): {
   });
   return {
     stream,
-    add(batches, toolCallId) {
+    add(chunk) {
       if (!open) {
         return;
       }
-      const data: DocumentBatchesData = { toolCallId, batches };
-      const chunk: UIMessageChunk = {
-        type: DOCUMENT_BATCHES_CHUNK,
-        data,
-        transient: true,
-      };
       if (waiting === undefined) {
         enqueue(chunk);
       } else {

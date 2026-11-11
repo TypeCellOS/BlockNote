@@ -4,22 +4,23 @@ import type { LensBlock } from "../../api/v2/index.js";
 import { recordReview } from "../agent/chatReview.js";
 import {
   type DocumentAgentOptions,
-  streamDocumentAgentOnHandle,
+  streamAgentOnDocument,
 } from "../agent/documentAgent.js";
 import {
+  batchesChunk,
   DOCUMENT_PROPOSAL_CHUNK,
   type DocumentProposalData,
-} from "../agent/earlyToolCalls.js";
+} from "../proposal/chunks.js";
 import { toolCallsOf } from "../proposal/derive.js";
 import {
   batchFollows,
   type CreateEditor,
   createProposal,
 } from "../proposal/proposal.js";
+import { createProposalDocument } from "../proposal/proposalDocument.js";
 import type { Batch, Proposal } from "../proposal/types.js";
 import type { ProposalStore } from "../stores/proposalStore.js";
 import type { ToolCallReview } from "../tools/documentTools.js";
-import { createDocumentHandle } from "../tools/handle.js";
 import { createRunLog, type RunLog } from "./runLog.js";
 
 /**
@@ -222,9 +223,10 @@ export function createSessionHost(options: SessionHostOptions): SessionHost {
           parts: [{ type: "text", text: request.prompt }],
         },
       ];
-      // The handle rebases the proposal onto the main document before each
-      // tool call: the users can change the document while the agent works.
-      const handle = createDocumentHandle({
+      // The document rebases the proposal onto the main document before
+      // each tool call: the users can change the document while the agent
+      // works.
+      const document = createProposalDocument({
         store: proposals,
         proposalId,
         createEditor,
@@ -234,8 +236,9 @@ export function createSessionHost(options: SessionHostOptions): SessionHost {
       const log = createRunLog(
         generateId(),
         withProposalChunk(
-          await streamDocumentAgentOnHandle(handle, session.messages, {
+          await streamAgentOnDocument(document, session.messages, {
             ...options,
+            extraChunk: batchesChunk,
             abortSignal: abort.signal,
             onEnd(responseMessage) {
               session.messages = [...session.messages, responseMessage];

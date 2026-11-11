@@ -1,9 +1,9 @@
 import {
   type Batch,
-  createDocumentHandle,
   createInMemoryDocumentStore,
   createInMemoryProposalStore,
   createProposal,
+  createProposalDocument,
   type DocumentAgentRequest,
   type DocumentSource,
   headlessEditorFactory,
@@ -221,9 +221,9 @@ documentAgentRoute.post("/runs", async (c) => {
   const run: Run = { documentId, source, status: "running", answer: "" };
   runs.set(proposalId, run);
   await proposals.save(proposalId, createProposal(main));
-  // The handle rebases the proposal onto the main document before each
+  // The document rebases the proposal onto the main document before each
   // tool call. This is the only difference from a run that a user starts.
-  const handle = createDocumentHandle({
+  const handle = createProposalDocument({
     store: proposals,
     proposalId,
     createEditor,

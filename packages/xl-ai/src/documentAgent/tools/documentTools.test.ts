@@ -17,7 +17,7 @@ import {
   replaceRange,
   writeDocument,
 } from "./documentTools.js";
-import { createDocumentHandle } from "./handle.js";
+import { createProposalDocument } from "../proposal/proposalDocument.js";
 
 const createEditor = headlessEditorFactory();
 
@@ -25,7 +25,11 @@ const createEditor = headlessEditorFactory();
 async function setup() {
   const store = createInMemoryProposalStore();
   await store.save("p", createProposal(initialDocument()));
-  const handle = createDocumentHandle({ store, proposalId: "p", createEditor });
+  const handle = createProposalDocument({
+    store,
+    proposalId: "p",
+    createEditor,
+  });
   async function proposal(): Promise<Proposal> {
     return (await store.load("p"))!;
   }
@@ -413,7 +417,7 @@ describe("a handle that can read the main document", () => {
     documents.write("doc", initialDocument());
     const store = createInMemoryProposalStore();
     await store.save("p", createProposal(initialDocument()));
-    const handle = createDocumentHandle({
+    const handle = createProposalDocument({
       store,
       proposalId: "p",
       createEditor,

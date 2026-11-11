@@ -6,19 +6,27 @@
 export {
   createDocumentAgent,
   type DocumentAgentOptions,
-  type DocumentAgentRequest,
   type DocumentAgentRun,
   runDocumentAgent,
-  streamDocumentAgent,
-  streamDocumentAgentOnHandle,
+  streamAgentOnDocument,
 } from "./agent/documentAgent.js";
+export { type LanguageModelObject } from "./agent/earlyToolCalls.js";
 export {
+  batchesChunk,
   DOCUMENT_BATCHES_CHUNK,
   DOCUMENT_PROPOSAL_CHUNK,
   type DocumentBatchesData,
   type DocumentProposalData,
-  type LanguageModelObject,
-} from "./agent/earlyToolCalls.js";
+} from "./proposal/chunks.js";
+export {
+  createProposalDocument,
+  type ProposalDocument,
+  type ProposalExtra,
+} from "./proposal/proposalDocument.js";
+export {
+  type DocumentAgentRequest,
+  streamDocumentAgent,
+} from "./proposal/streamProposalAgent.js";
 export { recordReview } from "./agent/chatReview.js";
 export { DOCUMENT_AGENT_INSTRUCTIONS } from "./agent/instructions.js";
 export {
@@ -103,15 +111,15 @@ export {
   type WriteOutput,
 } from "./tools/documentTools.js";
 export {
-  createDocumentHandle,
-  type DocumentHandle,
-  type ProposalStep,
-  type StepOutcome,
-} from "./tools/handle.js";
+  type AgentDocument,
+  type AgentToolCall,
+  type OpenDocument,
+  type WriteResult,
+} from "./tools/agentDocument.js";
 export {
   createToolCalls,
   type DocumentToolName,
   type DocumentToolTypes,
-  type OnBatches,
+  type OnExtra,
   type ToolCalls,
 } from "./tools/toolCalls.js";

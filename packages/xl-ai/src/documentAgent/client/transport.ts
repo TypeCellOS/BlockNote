@@ -1,13 +1,11 @@
 import type { ChatTransport, UIMessage, UIMessageChunk } from "ai";
 
-import {
-  type DocumentAgentOptions,
-  streamDocumentAgent,
-} from "../agent/documentAgent.js";
+import type { DocumentAgentOptions } from "../agent/documentAgent.js";
 import {
   headlessEditorFactory,
   type HeadlessEditorOptions,
 } from "../proposal/proposal.js";
+import { streamDocumentAgent } from "../proposal/streamProposalAgent.js";
 import type { Proposal } from "../proposal/types.js";
 
 /** The body of a request of the document agent, next to the chat messages. */

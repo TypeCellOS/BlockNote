@@ -18,7 +18,9 @@ import type { ToolCalls } from "./toolCalls.js";
  * second time (see `toolCalls.ts`).
  *
  * The output of a tool has two readers. The client gets the full output in
- * the UI message stream, with the batches. The model gets a short text
+ * the UI message stream, with the extra data of the mode (for example the
+ * batches of a proposal). The types of these tools do not have the extra
+ * data: the loop does not read it. The model gets a short text
  * (`toModelOutput`): the version, the notes or the error.
  */
 export function createDocumentTools(calls: ToolCalls) {

@@ -10,21 +10,18 @@ import {
   type UIMessageChunk,
 } from "ai";
 
-import type { CreateEditor } from "../proposal/proposal.js";
-import type { Proposal } from "../proposal/types.js";
-import { createInMemoryProposalStore } from "../stores/proposalStore.js";
+import type { AgentDocument } from "../tools/agentDocument.js";
 import { createDocumentTools } from "../tools/aiSdkTools.js";
 import { describeOpening } from "../tools/describe.js";
 import { readDocument } from "../tools/documentTools.js";
-import { createDocumentHandle, type DocumentHandle } from "../tools/handle.js";
 import {
   createToolCalls,
   type DocumentToolName,
-  type OnBatches,
+  type OnExtra,
 } from "../tools/toolCalls.js";
 import {
   type LanguageModelObject,
-  withBatchChunks,
+  withAddedChunks,
   withEarlyToolCalls,
 } from "./earlyToolCalls.js";
 import { DOCUMENT_AGENT_INSTRUCTIONS } from "./instructions.js";
@@ -57,7 +54,7 @@ export type DocumentAgentOptions = {
 
 /**
  * The agent: a multi-step tool loop of the AI SDK (`ToolLoopAgent`) with
- * the document tools of one handle. Each tool result goes back to the
+ * the document tools of one document. Each tool result goes back to the
  * model. The loop stops when the model answers without a tool call, or at
  * the step limit.
  *
@@ -66,19 +63,20 @@ export type DocumentAgentOptions = {
  * `readDocument` before its first change, and a run has one LLM call less.
  *
  * A tool call starts when the model has written it completely, not at the
- * end of the LLM step (see `withEarlyToolCalls`). `onBatches` gets the
- * batches of each tool call at that time, and the batch of a rebase in the
- * read for the first LLM call.
+ * end of the LLM step (see `withEarlyToolCalls`). `onExtra` gets the extra
+ * data of each tool call at that time, and of the read for the first LLM
+ * call (for example the batches of a proposal).
  *
- * All hosts use this function. A host only decides where the loop runs and
- * what the handle reads and writes.
+ * All hosts and all modes use this function. A host only decides where the
+ * loop runs, and the mode decides what the document is (see
+ * `AgentDocument`).
  */
-export function createDocumentAgent(
-  handle: DocumentHandle,
+export function createDocumentAgent<Extra extends object>(
+  document: AgentDocument<Extra>,
   options: DocumentAgentOptions,
-  onBatches?: OnBatches,
+  onExtra?: OnExtra<Extra>,
 ) {
-  const calls = createToolCalls(handle, onBatches);
+  const calls = createToolCalls(document, onExtra);
   return new ToolLoopAgent({
     model: withEarlyToolCalls(options.model, calls),
     instructions: options.instructions ?? DOCUMENT_AGENT_INSTRUCTIONS,
@@ -94,10 +92,8 @@ export function createDocumentAgent(
       if (stepNumber > 0) {
         return {};
       }
-      const opening = await readDocument(handle);
-      if (opening.batches.length > 0) {
-        onBatches?.(opening.batches);
-      }
+      const opening = await readDocument(document);
+      onExtra?.(opening);
       return { messages: withDocument(messages, describeOpening(opening)) };
     },
   });
@@ -154,71 +150,43 @@ function toolErrorsOf<Part extends { type: string }>(
 }
 
 /**
- * The request of a run that a user starts: the chat messages, and the copy
- * of the proposal that the client has. The host has no state of its own.
- */
-export type DocumentAgentRequest = {
-  messages: UIMessage[];
-  proposal: Proposal;
-};
-
-/**
- * Runs the agent for a request of a user, and returns the UI message
- * stream of the AI SDK. The client applies the batches of each tool call
- * to its copy of the proposal. The batches are in the stream two times:
+ * Runs the agent on the document of a host for the messages of a chat, and
+ * returns the UI message stream of the AI SDK. `onEnd` gets the message of
+ * the agent at the end of the run, with its tool calls and its answer: a
+ * host that keeps the chat uses it (see `sessions/sessionHost.ts`).
  *
- * - In a transient data chunk, when the tool call ends. This is before the
- *   end of the LLM step: the client shows the change at once.
- * - In the output of the tool call, when the loop of the AI SDK has it.
- *   This output stays in the chat history.
+ * `extraChunk` makes a stream chunk from the extra data of a step, for a
+ * client that follows the run. The chunk goes into the stream when the
+ * tool call ends. This is before the end of the LLM step: the client shows
+ * the change at once.
  *
- * The same function runs on a server (server mode: the route returns the
- * stream as the response) and in the browser (client mode: a chat
- * transport returns the stream).
+ * The same function runs on a server (the route returns the stream as the
+ * response) and in the browser (a chat transport returns the stream).
  */
-export async function streamDocumentAgent(
-  request: DocumentAgentRequest,
-  options: DocumentAgentOptions & {
-    createEditor: CreateEditor;
-    abortSignal?: AbortSignal;
-  },
-): Promise<ReadableStream<UIMessageChunk>> {
-  // The proposal of the request is the state of this run. It lives in a
-  // store for this request only.
-  const store = createInMemoryProposalStore();
-  await store.save("request", request.proposal);
-  const handle = createDocumentHandle({
-    store,
-    proposalId: "request",
-    createEditor: options.createEditor,
-  });
-  return streamDocumentAgentOnHandle(handle, request.messages, options);
-}
-
-/**
- * Runs the agent on the handle of a host for the messages of a chat, and
- * returns the UI message stream (see {@link streamDocumentAgent}). A host
- * that keeps the proposal and the chat uses this function directly (see
- * `sessions/sessionHost.ts`): `onEnd` gets the message of the agent at the
- * end of the run, with its tool calls and its answer.
- */
-export async function streamDocumentAgentOnHandle(
-  handle: DocumentHandle,
+export async function streamAgentOnDocument<Extra extends object>(
+  document: AgentDocument<Extra>,
   messages: UIMessage[],
   options: DocumentAgentOptions & {
     abortSignal?: AbortSignal;
     onEnd?: (responseMessage: UIMessage) => void;
+    extraChunk?: (
+      extra: Extra,
+      toolCallId?: string,
+    ) => UIMessageChunk | undefined;
   },
 ): Promise<ReadableStream<UIMessageChunk>> {
   // The agent starts before the stream exists. Thus, the listener gets the
   // function that adds to the stream when the stream is there.
-  let add: OnBatches = () => undefined;
-  const { onEnd } = options;
-  const chunks = withBatchChunks(
+  let add: (chunk: UIMessageChunk) => void = () => undefined;
+  const { onEnd, extraChunk } = options;
+  const chunks = withAddedChunks(
     await createAgentUIStream({
-      agent: createDocumentAgent(handle, options, (batches, toolCallId) =>
-        add(batches, toolCallId),
-      ),
+      agent: createDocumentAgent(document, options, (extra, toolCallId) => {
+        const chunk = extraChunk?.(extra, toolCallId);
+        if (chunk !== undefined) {
+          add(chunk);
+        }
+      }),
       uiMessages: messages,
       abortSignal: options.abortSignal,
       // A host that keeps the chat gives the message of the agent an ID.
@@ -240,15 +208,15 @@ export type DocumentAgentRun = {
 
 /**
  * Runs the agent to the end for one prompt, without a UI stream. This is
- * for a run that a server starts: the batches go to the proposal store of
- * the handle.
+ * for a run that a server starts: the changes go to the document of the
+ * host.
  */
-export async function runDocumentAgent(
-  handle: DocumentHandle,
+export async function runDocumentAgent<Extra extends object>(
+  document: AgentDocument<Extra>,
   prompt: string,
   options: DocumentAgentOptions & { abortSignal?: AbortSignal },
 ): Promise<DocumentAgentRun> {
-  const result = await createDocumentAgent(handle, options).generate({
+  const result = await createDocumentAgent(document, options).generate({
     prompt,
     abortSignal: options.abortSignal,
   });

@@ -15,7 +15,7 @@ import {
   readDocument,
   writeDocument,
 } from "../tools/documentTools.js";
-import { createDocumentHandle } from "../tools/handle.js";
+import { createProposalDocument } from "../proposal/proposalDocument.js";
 
 // The work of a host for one tool call, and the work of a client for one
 // batch, for documents of different sizes. The times are for jsdom, as on
@@ -63,7 +63,7 @@ describe.skipIf(!run)("the work for one tool call", () => {
       for (const blocks of [20, 200, 1000]) {
         const origin = documentWith(blocks);
         const store = createInMemoryProposalStore();
-        const handle = createDocumentHandle({
+        const handle = createProposalDocument({
           store,
           proposalId: "p",
           createEditor,

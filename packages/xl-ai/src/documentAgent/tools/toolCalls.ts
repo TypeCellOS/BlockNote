@@ -1,4 +1,4 @@
-import type { Batch } from "../proposal/types.js";
+import type { AgentDocument } from "./agentDocument.js";
 import {
   type EditInput,
   type EditOutput,
@@ -11,14 +11,16 @@ import {
   type WriteOutput,
   writeDocument,
 } from "./documentTools.js";
-import type { DocumentHandle } from "./handle.js";
 
-/** The input and the output of each document tool. */
-export type DocumentToolTypes = {
-  readDocument: { input: Record<string, never>; output: ReadOutput };
-  editText: { input: EditInput; output: EditOutput };
-  replaceRange: { input: RangeInput; output: EditOutput };
-  writeDocument: { input: WriteInput; output: WriteOutput };
+/**
+ * The input and the output of each document tool. Each output has the
+ * extra data of the mode of the document (see `AgentDocument`).
+ */
+export type DocumentToolTypes<Extra extends object = object> = {
+  readDocument: { input: Record<string, never>; output: ReadOutput & Extra };
+  editText: { input: EditInput; output: EditOutput & Extra };
+  replaceRange: { input: RangeInput; output: EditOutput & Extra };
+  writeDocument: { input: WriteInput; output: WriteOutput & Extra };
 };
 
 /** The name of a document tool. */
@@ -44,49 +46,52 @@ export function isDocumentToolName(name: string): name is DocumentToolName {
  * the model has written that call (see `withEarlyToolCalls`). Then the loop
  * asks for the same call, and gets the result of the early start.
  */
-export type ToolCalls = {
+export type ToolCalls<Extra extends object = object> = {
   run<Name extends DocumentToolName>(
     name: Name,
-    input: DocumentToolTypes[Name]["input"],
+    input: DocumentToolTypes<Extra>[Name]["input"],
     toolCallId: string,
-  ): Promise<DocumentToolTypes[Name]["output"]>;
+  ): Promise<DocumentToolTypes<Extra>[Name]["output"]>;
 };
 
 /**
- * A listener for the batches that a run adds to the proposal, at the time
- * that the proposal has them. `toolCallId` is the tool call that added
- * them. It is `undefined` for the read of the document at the start of a
- * run, which can rebase the proposal.
+ * A listener for the extra data of a step of a run, at the end of the
+ * step (for example the batches that the step added to a proposal).
+ * `toolCallId` is the tool call of the step. It is `undefined` for the
+ * read of the document at the start of a run.
  */
-export type OnBatches = (batches: Batch[], toolCallId?: string) => void;
+export type OnExtra<Extra extends object> = (
+  extra: Extra,
+  toolCallId?: string,
+) => void;
 
 /**
- * Makes the tool calls of one run on the handle. `onBatches` gets the
- * batches of each call when the call ends: a host sends them to a client
+ * Makes the tool calls of one run on the document. `onExtra` gets the
+ * extra data of each call when the call ends: a host sends it to a client
  * that follows the run, before the loop has the tool output.
  */
-export function createToolCalls(
-  handle: DocumentHandle,
-  onBatches?: OnBatches,
-): ToolCalls {
+export function createToolCalls<Extra extends object>(
+  document: AgentDocument<Extra>,
+  onExtra?: OnExtra<Extra>,
+): ToolCalls<Extra> {
   const tools: {
     [Name in DocumentToolName]: (
-      input: DocumentToolTypes[Name]["input"],
+      input: DocumentToolTypes<Extra>[Name]["input"],
       toolCallId: string,
-    ) => Promise<DocumentToolTypes[Name]["output"]>;
+    ) => Promise<DocumentToolTypes<Extra>[Name]["output"]>;
   } = {
-    readDocument: () => readDocument(handle),
-    editText: (input, toolCallId) => editText(handle, input, toolCallId),
+    readDocument: () => readDocument(document),
+    editText: (input, toolCallId) => editText(document, input, toolCallId),
     replaceRange: (input, toolCallId) =>
-      replaceRange(handle, input, toolCallId),
+      replaceRange(document, input, toolCallId),
     writeDocument: (input, toolCallId) =>
-      writeDocument(handle, input, toolCallId),
+      writeDocument(document, input, toolCallId),
   };
   /** The calls that started, by tool name and tool call ID. */
   const started: {
     [Name in DocumentToolName]: Map<
       string,
-      Promise<DocumentToolTypes[Name]["output"]>
+      Promise<DocumentToolTypes<Extra>[Name]["output"]>
     >;
   } = {
     readDocument: new Map(),
@@ -98,25 +103,21 @@ export function createToolCalls(
   return {
     run<Name extends DocumentToolName>(
       name: Name,
-      input: DocumentToolTypes[Name]["input"],
+      input: DocumentToolTypes<Extra>[Name]["input"],
       toolCallId: string,
-    ): Promise<DocumentToolTypes[Name]["output"]> {
+    ): Promise<DocumentToolTypes<Extra>[Name]["output"]> {
       const calls: Map<
         string,
-        Promise<DocumentToolTypes[Name]["output"]>
+        Promise<DocumentToolTypes<Extra>[Name]["output"]>
       > = started[name];
       let call = calls.get(toolCallId);
       if (call === undefined) {
         call = tools[name](input, toolCallId);
         calls.set(toolCallId, call);
-        // A call that throws gives no batches. The loop gets the exception
-        // from `call` itself, and fails the run.
+        // A call that throws gives no extra data. The loop gets the
+        // exception from `call` itself, and fails the run.
         call.then(
-          (output) => {
-            if (output.batches.length > 0) {
-              onBatches?.(output.batches, toolCallId);
-            }
-          },
+          (output) => onExtra?.(output, toolCallId),
           () => undefined,
         );
       }

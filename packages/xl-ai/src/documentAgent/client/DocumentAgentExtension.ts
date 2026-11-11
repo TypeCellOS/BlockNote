@@ -14,7 +14,7 @@ import { recordReview } from "../agent/chatReview.js";
 import {
   DOCUMENT_BATCHES_CHUNK,
   DOCUMENT_PROPOSAL_CHUNK,
-} from "../agent/earlyToolCalls.js";
+} from "../proposal/chunks.js";
 import { updateDocument } from "../../api/v2/index.js";
 import {
   blockOf,

@@ -19,13 +19,17 @@ import {
   textsOf,
   versionIn,
 } from "../testUtil.js";
-import { createDocumentHandle, type DocumentHandle } from "../tools/handle.js";
+import {
+  createProposalDocument,
+  type ProposalDocument,
+} from "../proposal/proposalDocument.js";
 import { createToolCalls } from "../tools/toolCalls.js";
-import { runDocumentAgent, streamDocumentAgent } from "./documentAgent.js";
 import {
   DOCUMENT_BATCHES_CHUNK,
   type DocumentBatchesData,
-} from "./earlyToolCalls.js";
+} from "../proposal/chunks.js";
+import { streamDocumentAgent } from "../proposal/streamProposalAgent.js";
+import { runDocumentAgent } from "./documentAgent.js";
 
 const createEditor = headlessEditorFactory();
 
@@ -248,20 +252,20 @@ describe("a tool that throws", () => {
    * read of the document for the first LLM call) works, and each later
    * step throws.
    */
-  async function handleThatBreaks(): Promise<DocumentHandle> {
+  async function handleThatBreaks(): Promise<ProposalDocument> {
     const store = createInMemoryProposalStore();
     await store.save("run", createProposal(initialDocument()));
-    const handle = createDocumentHandle({
+    const handle = createProposalDocument({
       store,
       proposalId: "run",
       createEditor,
     });
     let steps = 0;
     return {
-      createEditor,
-      update(step) {
+      ...handle,
+      step(run) {
         return steps++ === 0
-          ? handle.update(step)
+          ? handle.step(run)
           : Promise.reject(new Error("The store is not available"));
       },
     };
@@ -378,7 +382,7 @@ describe("the document in the first LLM call", () => {
   it("gives the document to a run without a chat", async () => {
     const store = createInMemoryProposalStore();
     await store.save("run", createProposal(initialDocument()));
-    const handle = createDocumentHandle({
+    const handle = createProposalDocument({
       store,
       proposalId: "run",
       createEditor,
@@ -407,7 +411,7 @@ describe("the document in the first LLM call", () => {
     );
     const store = createInMemoryProposalStore();
     await store.save("run", createProposal(initialDocument()));
-    const handle = createDocumentHandle({
+    const handle = createProposalDocument({
       store,
       proposalId: "run",
       createEditor,
@@ -432,7 +436,7 @@ describe("a run that a server starts", () => {
     documents.write("doc", initialDocument());
     const store = createInMemoryProposalStore();
     await store.save("run", createProposal(initialDocument()));
-    const handle = createDocumentHandle({
+    const handle = createProposalDocument({
       store,
       proposalId: "run",
       createEditor,
@@ -595,14 +599,14 @@ describe("a tool call starts when the model has written it", () => {
   it("runs a tool call one time for one tool call ID", async () => {
     const store = createInMemoryProposalStore();
     await store.save("run", createProposal(initialDocument()));
-    const handle = createDocumentHandle({
+    const handle = createProposalDocument({
       store,
       proposalId: "run",
       createEditor,
     });
     const batches: [string | undefined, number[]][] = [];
-    const calls = createToolCalls(handle, (added, toolCallId) =>
-      batches.push([toolCallId, added.map((batch) => batch.seq)]),
+    const calls = createToolCalls(handle, (extra, toolCallId) =>
+      batches.push([toolCallId, extra.batches.map((batch) => batch.seq)]),
     );
 
     // The early start, then the loop of the AI SDK, ask for the same call.
