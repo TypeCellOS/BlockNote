@@ -2,6 +2,8 @@
 
 Branch `proto/xl-ai-lens`, worktree `/Users/yousef/Programming/BlockNote-xl-ai-proto`. The base is `text-lens-readability` (`3d8b4d1a6`) with `origin/main` (`d4567abbf`) merged. The prototype is the commits after the merge commit `8d42ac3c8`. Nothing is pushed.
 
+During the work, `text-lens-readability` got four more commits (to `5faaec2fa`): renames inside the lens. I did not merge them. The files of the public API of the lens (`api/v2/index.ts`, `operations/types.ts`) did not change in them, and the prototype uses only that API.
+
 The prototype adds a second AI engine next to the old engine. An agent loop reads and writes the document as markdown through the text lens. The agent writes only to a proposal. The editor derives suggestions from the proposal, with the reason of each tool call, and the user accepts or rejects each tool call. The same code runs in the browser and on a server.
 
 ## 1. State of each milestone
