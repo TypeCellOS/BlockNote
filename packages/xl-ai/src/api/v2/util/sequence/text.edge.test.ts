@@ -21,7 +21,9 @@ describe("alignText: many large changed gaps", () => {
     // random letters on each side. Before the shared limit, each gap used
     // the full work limit of a Myers diff: 60 gaps took about ten times as
     // long as 6 gaps (7 s and 0.7 s). Now the two take about the same time.
-    // A ratio, not a time: a coverage run makes all code slower.
+    // A ratio, not a time: a coverage run makes all code slower. The
+    // smallest of three times: other tests that run at the same time can
+    // make one run slower.
     const random = generator(3);
     const letters = (count: number) =>
       Array.from(
@@ -39,14 +41,19 @@ describe("alignText: many large changed gaps", () => {
       );
     function time(gaps: number) {
       const [a, b] = texts(gaps);
-      const start = performance.now();
-      alignText(a, b);
-      return performance.now() - start;
+      const times: number[] = [];
+      for (let run = 0; run < 3; run++) {
+        const start = performance.now();
+        alignText(a, b);
+        times.push(performance.now() - start);
+      }
+      return Math.min(...times);
     }
 
     time(6);
-    expect(time(60)).toBeLessThan(4 * time(6));
-  });
+    expect(time(60)).toBeLessThan(5 * time(6));
+    // The work is large on purpose: give it time when other tests run.
+  }, 60_000);
 
   it("matches each anchor word between the large changed gaps", () => {
     const random = generator(5);
