@@ -91,9 +91,10 @@ class OpenAncestors {
     this.steps.push({ block, parent });
   }
 
-  /** The parent of a block that has a step, or `undefined`. */
-  parentOf(block: Place): Place | undefined {
-    return this.parents.get(keyOf(block));
+  /** The parent of a block that has a step, if that parent is still open. Else `undefined`. */
+  openParentOf(block: Place): Place | undefined {
+    const parent = this.parents.get(keyOf(block));
+    return parent !== undefined && this.isOpen(parent) ? parent : undefined;
   }
 
   isOpen(place: Place): boolean {
@@ -298,10 +299,7 @@ class ParentDecisions {
     ) {
       return undefined;
     }
-    const parent = this.open.parentOf({ kind: "row", index: previous });
-    return parent !== undefined && this.open.isOpen(parent)
-      ? parent
-      : undefined;
+    return this.open.openParentOf({ kind: "row", index: previous });
   }
 
   /**
@@ -333,10 +331,7 @@ class ParentDecisions {
       return this.sourceParent(shownParent);
     }
     const place = this.placeOf.get(shownParent);
-    const parent = place === undefined ? undefined : this.open.parentOf(place);
-    return parent !== undefined && this.open.isOpen(parent)
-      ? parent
-      : undefined;
+    return place === undefined ? undefined : this.open.openParentOf(place);
   }
 
   /**
