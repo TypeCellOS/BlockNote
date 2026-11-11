@@ -1,6 +1,7 @@
 import {
   BlockNoteEditor,
   BlockNoteSchema,
+  createBlockSpec,
   createPageBreakBlockSpec,
   defaultBlockSpecs,
   type PartialBlock,
@@ -169,6 +170,62 @@ export function createColumnsEditor() {
         ],
       },
     ],
+  });
+}
+
+/**
+ * An editor with a tab set, a layout block that does not dissolve (as
+ * `tabs` in the layout tests of core): tab t1 with "One" (block a), and tab
+ * t2 with "Two" (block b). The tab set has at least `min` tabs. It needs a
+ * DOM (the frame of a layout block).
+ */
+export function createTabsEditor(min = 1) {
+  const frame = () => {
+    const dom = document.createElement("div");
+    return { dom, slot: dom };
+  };
+  const tabs = createBlockSpec(
+    {
+      type: "tabs" as const,
+      propSchema: {},
+      content: "none",
+      layoutOnly: true,
+      children: { allow: ["tab"], min, dissolve: false },
+    },
+    { renderFrame: frame },
+  )();
+  const tab = createBlockSpec(
+    {
+      type: "tab" as const,
+      propSchema: {},
+      content: "none",
+      layoutOnly: true,
+      placeable: "namedOnly",
+    },
+    { renderFrame: frame },
+  )();
+  return BlockNoteEditor.create({
+    schema: BlockNoteSchema.create().extend({
+      blockSpecs: { ...defaultBlockSpecs, tabs, tab },
+    }),
+    initialContent: [
+      {
+        id: "set",
+        type: "tabs",
+        children: [
+          {
+            id: "t1",
+            type: "tab",
+            children: [{ id: "a", type: "paragraph", content: "One" }],
+          },
+          {
+            id: "t2",
+            type: "tab",
+            children: [{ id: "b", type: "paragraph", content: "Two" }],
+          },
+        ],
+      },
+    ] as PartialBlock<any, any, any>[],
   });
 }
 

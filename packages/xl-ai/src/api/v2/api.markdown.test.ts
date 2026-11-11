@@ -23,6 +23,7 @@ import {
   columnSchema,
   createColumnsEditor,
   createEditor,
+  createTabsEditor,
   documentShape,
   replaceOnce,
   writeText,
@@ -745,6 +746,47 @@ describe("markdown", () => {
  * paragraphs and images link to the block that gives them (see
  * `projectDocument`).
  */
+describe("markdown, a layout block that does not dissolve (a tab set)", () => {
+  it("removes a tab whose blocks the text removes, and keeps the tab set", () => {
+    // The text shows no tabs. A tab without blocks stays in the editor (core
+    // fills it with an empty paragraph), but then the text would show that
+    // paragraph. Thus, the tab goes, and PutGet is true.
+    const editor = createTabsEditor();
+    writeText(editor, markdownFormat, (text) => text.replace("One\n\n", ""));
+    expect(documentShape(editor.document)).toEqual(["set", ["t2", ["b"]]]);
+    expect(getDocumentText(editor, markdownFormat)).toBe("Two\n");
+  });
+
+  it("KNOWN LIMIT: a tab set that loses all its blocks gets a new empty tab (PutGet is not true)", () => {
+    // The fit keeps a tab set without tabs, because it does not dissolve.
+    // ProseMirror then fills it with a new tab with an empty paragraph,
+    // which the text did not have. See "Items that are not done" in the
+    // README.
+    const editor = createTabsEditor();
+    writeText(editor, markdownFormat, () => "After\n");
+    expect(editor.document.map((block) => block.type)).toEqual([
+      "tabs",
+      "paragraph",
+    ]);
+    expect(getDocumentText(editor, markdownFormat)).toBe("<br>\n\nAfter\n");
+  });
+
+  it("KNOWN LIMIT: throws if a tab set keeps fewer tabs than its minimum", () => {
+    // The fit keeps a tab set with too few tabs, because it does not
+    // dissolve. The apply then fails, and the document does not change.
+    const editor = createTabsEditor(2);
+    const before = editor.document;
+    expect(() =>
+      updateDocument(editor, {
+        base: "current",
+        format: markdownFormat,
+        text: "Two\n",
+      }),
+    ).toThrow("Invalid content for node tabs");
+    expect(editor.document).toEqual(before);
+  });
+});
+
 describe("markdown, blocks that markdown shows as other blocks", () => {
   const format = markdownFormat;
   function createMediaEditor() {

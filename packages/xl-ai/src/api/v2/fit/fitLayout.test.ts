@@ -8,6 +8,9 @@ import { fitLayout } from "./fitLayout.js";
 const rules: Record<string, LayoutRule> = {
   columnList: { minChildren: 2, namedOnly: false, dissolves: true },
   column: { minChildren: 1, namedOnly: true, dissolves: true },
+  // A tab set does not dissolve (`children.dissolve: false`).
+  tabs: { minChildren: 1, namedOnly: false, dissolves: false },
+  tab: { minChildren: 1, namedOnly: true, dissolves: true },
 };
 
 function block(id: string, type = "paragraph", children: LensBlock[] = []) {
@@ -66,6 +69,25 @@ describe("fitLayout", () => {
         block("after"),
       ]),
     ).toEqual(["before", "a", "b", "after"]);
+  });
+
+  it("removes an empty child of a layout block that does not dissolve, and keeps the block", () => {
+    expect(
+      fit([
+        block("set", "tabs", [
+          block("t1", "tab", [block("a")]),
+          block("t2", "tab"),
+        ]),
+      ]),
+    ).toEqual([["set", [["t1", ["a"]]]]]);
+  });
+
+  it("KNOWN LIMIT: keeps a layout block that does not dissolve, with too few children", () => {
+    // The block does not fit the schema. See "Items that are not done" in
+    // the README.
+    expect(
+      fit([block("set", "tabs", [block("t1", "tab"), block("t2", "tab")])]),
+    ).toEqual(["set"]);
   });
 
   it("keeps a column with only an empty paragraph", () => {
