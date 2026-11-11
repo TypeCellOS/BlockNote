@@ -15,12 +15,18 @@ import type { AgentToolCall } from "../tools/agentDocument.js";
 // - For each tool call with a decision of a user: the decision.
 //
 // The records are attributes of a type of S. They are not a part of the
-// document content.
+// document content. A tool call has three attributes: its record (the
+// reason and the position in the sequence), and the two sets of its Yjs
+// items as binary data. The sets are not a part of the record: Yjs 14
+// freezes an attribute value that is an object, and a binary array in it
+// cannot freeze.
 
 /** The name of the type in a suggestion document that has the records. */
 export const TOOL_CALLS_TYPE = "document-agent";
 
 const CALL_PREFIX = "call:";
+const INSERTS_PREFIX = "inserts:";
+const DELETES_PREFIX = "deletes:";
 const DECISION_PREFIX = "decision:";
 
 /** The Yjs items that a tool call inserted and deleted in the suggestion document. */
@@ -35,7 +41,7 @@ export type ToolCallRecord = AgentToolCall & {
   decision: ToolCallReview | undefined;
 };
 
-/** A record as an attribute value of the type. */
+/** A record as attribute values of the type: the record, and the two sets of items. */
 type StoredRecord = {
   seq: number;
   reason: string;
@@ -47,12 +53,19 @@ function recordsType(suggestion: Y.Doc) {
   return suggestion.get(TOOL_CALLS_TYPE);
 }
 
-/** Returns the value as a stored record, or `undefined` for a different value. */
-function asStoredRecord(value: unknown): StoredRecord | undefined {
-  if (typeof value !== "object" || value === null) {
+/**
+ * Returns the stored record of a tool call from its three attribute
+ * values, or `undefined` if a value is missing or is of a different kind.
+ */
+function asStoredRecord(
+  record: unknown,
+  inserts: unknown,
+  deletes: unknown,
+): StoredRecord | undefined {
+  if (typeof record !== "object" || record === null) {
     return undefined;
   }
-  const { seq, reason, inserts, deletes } = value as Partial<StoredRecord>;
+  const { seq, reason } = record as { seq?: unknown; reason?: unknown };
   return typeof seq === "number" &&
     typeof reason === "string" &&
     inserts instanceof Uint8Array &&
@@ -77,29 +90,37 @@ export function writeToolCallRecord(
       seq++;
     }
   });
-  const stored: StoredRecord = {
+  // The sets first: the record is the last attribute, and the items of
+  // the three attributes are not in the sets.
+  const inserts = Y.encodeIdSet(transaction.insertSet);
+  const deletes = Y.encodeIdSet(transaction.deleteSet);
+  type.setAttr(`${INSERTS_PREFIX}${toolCall.toolCallId}`, inserts);
+  type.setAttr(`${DELETES_PREFIX}${toolCall.toolCallId}`, deletes);
+  type.setAttr(`${CALL_PREFIX}${toolCall.toolCallId}`, {
     seq,
     reason: toolCall.reason,
-    inserts: Y.encodeIdSet(transaction.insertSet),
-    deletes: Y.encodeIdSet(transaction.deleteSet),
-  };
-  type.setAttr(`${CALL_PREFIX}${toolCall.toolCallId}`, stored);
+  });
 }
 
 /** The stored records of the suggestion document, by tool call ID. */
 function storedRecordsOf(suggestion: Y.Doc): Map<string, StoredRecord> {
   const records = new Map<string, StoredRecord>();
-  recordsType(suggestion).forEachAttr(
-    (value: unknown, key: string | number) => {
-      const name = String(key);
-      const stored = name.startsWith(CALL_PREFIX)
-        ? asStoredRecord(value)
-        : undefined;
-      if (stored !== undefined) {
-        records.set(name.slice(CALL_PREFIX.length), stored);
-      }
-    },
-  );
+  const type = recordsType(suggestion);
+  type.forEachAttr((value: unknown, key: string | number) => {
+    const name = String(key);
+    if (!name.startsWith(CALL_PREFIX)) {
+      return;
+    }
+    const toolCallId = name.slice(CALL_PREFIX.length);
+    const stored = asStoredRecord(
+      value,
+      type.getAttr(`${INSERTS_PREFIX}${toolCallId}`),
+      type.getAttr(`${DELETES_PREFIX}${toolCallId}`),
+    );
+    if (stored !== undefined) {
+      records.set(toolCallId, stored);
+    }
+  });
   return records;
 }
 

@@ -24,7 +24,7 @@ import {
   syncDocs,
   textsOfDoc,
 } from "./testUtil.js";
-import { toolCallRecordsOf } from "./toolCallRecords.js";
+import { TOOL_CALLS_TYPE, toolCallRecordsOf } from "./toolCallRecords.js";
 
 // jsdom has no layout: it does not have `scrollIntoView`.
 Element.prototype.scrollIntoView = function scrollIntoView() {
@@ -115,6 +115,37 @@ describe("the document of an agent in Yjs 14 mode", () => {
         record.decision,
       ]),
     ).toEqual([["call-1", "A better word", undefined]]);
+  });
+
+  it("stores a record as values that Yjs can freeze", async () => {
+    // Yjs 14 freezes an attribute value that is an object, except in a
+    // test run. A binary array in such an object cannot freeze: the write
+    // of the record then throws on a server and in a browser.
+    const host = createHost();
+    await editText(
+      host.document,
+      { old: "First", new: "Opening", reason: "A better word" },
+      "call-1",
+    );
+
+    const kinds: string[] = [];
+    host.suggestion
+      .get(TOOL_CALLS_TYPE)
+      .forEachAttr((value: unknown, key: string | number) => {
+        kinds.push(
+          `${String(key).split(":")[0]} ${value instanceof Uint8Array ? "binary" : typeof value}`,
+        );
+        if (typeof value === "object" && !(value instanceof Uint8Array)) {
+          for (const field of Object.values(value ?? {})) {
+            expect(typeof field === "object").toBe(false);
+          }
+        }
+      });
+    expect(kinds.sort()).toEqual([
+      "call object",
+      "deletes binary",
+      "inserts binary",
+    ]);
   });
 
   it("gives the same tool errors as the proposal mode", async () => {
