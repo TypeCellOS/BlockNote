@@ -67,13 +67,15 @@ export function createDocumentHandle(options: {
   let queue: Promise<unknown> = Promise.resolve();
 
   async function runStep<T>(step: ProposalStep<T>): Promise<StepOutcome<T>> {
+    // Read the main document first. Then no other work is between the load
+    // and the save of the proposal, except the work of the store.
+    const main = await readMain?.();
     let proposal = await store.load(proposalId);
     if (proposal === undefined) {
       throw new Error(`The store has no proposal ${proposalId}`);
     }
     const batches: Batch[] = [];
     let dropped: MergeWarning[] = [];
-    const main = await readMain?.();
     if (main !== undefined) {
       const rebase = rebaseProposal(createEditor, proposal, main);
       dropped = rebase.dropped;

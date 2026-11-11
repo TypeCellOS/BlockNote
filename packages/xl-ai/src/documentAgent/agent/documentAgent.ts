@@ -22,6 +22,11 @@ export type DocumentAgentOptions = {
   instructions?: string;
   /** The maximum number of LLM steps of one run. The default is 12. */
   maxSteps?: number;
+  /**
+   * The maximum number of output tokens of one LLM step. A write of the
+   * full document needs sufficient tokens for the document.
+   */
+  maxOutputTokens?: number;
 };
 
 /**
@@ -41,6 +46,7 @@ export function createDocumentAgent(
     model: options.model,
     instructions: options.instructions ?? DOCUMENT_AGENT_INSTRUCTIONS,
     tools: createDocumentTools(handle),
+    maxOutputTokens: options.maxOutputTokens,
     stopWhen: [isStepCount(options.maxSteps ?? 12), toolThrew],
   });
 }

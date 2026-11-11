@@ -12,3 +12,60 @@
 .bn-combobox-items:empty {
   display: none;
 }
+
+/* The review of the document agent (documentAgent/client/DocumentAgentReview.tsx) */
+.bn-agent-review {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.bn-agent-review-status {
+  font-weight: 600;
+}
+
+.bn-agent-card {
+  border: 1px solid var(--bn-colors-border, #d0d0d0);
+  border-radius: 6px;
+  padding: 8px 10px;
+  cursor: pointer;
+  background: var(--bn-colors-menu-background, #fff);
+}
+
+.bn-agent-card:hover {
+  border-color: var(--bn-agent-active, #4f8ff7);
+}
+
+.bn-agent-card[data-state="accepted"],
+.bn-agent-card[data-state="rejected"] {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.bn-agent-card-reason {
+  margin-bottom: 4px;
+}
+
+.bn-agent-card-meta {
+  color: var(--bn-colors-side-menu, #888);
+  font-size: 12px;
+}
+
+.bn-agent-card-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.bn-agent-card-actions button {
+  font-size: 12px;
+  padding: 2px 8px;
+  cursor: pointer;
+}
+
+.bn-agent-answer {
+  border-left: 3px solid var(--bn-colors-border, #d0d0d0);
+  padding-left: 8px;
+  white-space: pre-wrap;
+}

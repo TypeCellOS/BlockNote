@@ -1,5 +1,6 @@
+import type { BlockNoteEditor } from "@blocknote/core";
 import {
-  useBlockNoteEditor,
+  useBlockNoteContext,
   useExtension,
   useExtensionState,
 } from "@blocknote/react";
@@ -21,10 +22,17 @@ import {
  * see `suggestionIdOf`). Thus, a comment thread on these marks can show the
  * same reason later.
  */
-export function DocumentAgentReview() {
-  const editor = useBlockNoteEditor();
-  const agent = useExtension(DocumentAgentExtension);
-  const state = useExtensionState(DocumentAgentExtension);
+export function DocumentAgentReview(props: {
+  /** The editor. The default is the editor of the BlockNote context. */
+  editor?: BlockNoteEditor<any, any, any>;
+}) {
+  const context = useBlockNoteContext();
+  const editor = props.editor ?? context?.editor;
+  if (editor === undefined) {
+    throw new Error("DocumentAgentReview needs an editor");
+  }
+  const agent = useExtension(DocumentAgentExtension, { editor });
+  const state = useExtensionState(DocumentAgentExtension, { editor });
   // The suggestion ID of the tool call under the pointer.
   const [active, setActive] = useState<number | undefined>();
 
@@ -39,7 +47,7 @@ export function DocumentAgentReview() {
     if (blockId === undefined) {
       return;
     }
-    editor.domElement
+    editor?.domElement
       ?.querySelector(`[data-id="${CSS.escape(blockId)}"]`)
       ?.scrollIntoView({ block: "center", behavior: "smooth" });
   }
