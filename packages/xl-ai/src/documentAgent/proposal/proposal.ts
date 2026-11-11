@@ -40,7 +40,8 @@ export function headlessEditorFactory(
 ): CreateEditor {
   return function createEditor(blocks) {
     return BlockNoteEditor.create({
-      ...options,
+      // An option with the value `undefined` would replace the default.
+      ...(options.schema !== undefined && { schema: options.schema }),
       initialContent: blocks as PartialBlock<any, any, any>[],
       trailingBlock: false,
     });

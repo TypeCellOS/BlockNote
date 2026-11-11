@@ -9,6 +9,7 @@ import {
   type MergeWarning,
   type WriteFromVersion,
 } from "../../api/v2/index.js";
+import { hashDocument } from "./hash.js";
 import {
   applyToEditor,
   type CreateEditor,
@@ -67,13 +68,14 @@ export type ReviewResult<T> =
  * The reject must be a write to the proposal. Else, the change comes back
  * in the next diff of the proposal and the main document.
  *
- * `batch` is `undefined` if nothing of the call is left to revert.
+ * The batch has no operations if nothing of the call is left to revert.
+ * It still records that the user rejected the call.
  */
 export function revertToolCall(
   createEditor: CreateEditor,
   proposal: Proposal,
   toolCallId: string,
-): ReviewResult<{ batch: Batch | undefined; warnings: ChangeWarning[] }> {
+): ReviewResult<{ batch: Batch; warnings: ChangeWarning[] }> {
   const call = toolCallBatch(proposal, toolCallId);
   if (call === undefined) {
     return { error: "unknown-tool-call" };
@@ -82,6 +84,8 @@ export function revertToolCall(
     call.seq - 1,
     call.seq,
   ]);
+  const seq = proposal.batches.length + 1;
+  const source = { type: "revert" as const, toolCallId };
   const result = writeBatch(
     createEditor,
     editor,
@@ -89,15 +93,24 @@ export function revertToolCall(
       document: versionOf(versions, call.seq - 1),
       base: versionOf(versions, call.seq),
     },
-    proposal.batches.length + 1,
-    { type: "revert", toolCallId },
+    seq,
+    source,
   );
   if (result.error !== undefined) {
     // The two documents are versions of the proposal, and the write keeps
     // the current value on a conflict.
     throw new Error(`The revert of a tool call failed: ${result.error}`);
   }
-  return result;
+  return {
+    batch: result.batch ?? {
+      seq,
+      source,
+      operations: [],
+      changedBlockIds: [],
+      hash: hashDocument(editor.document),
+    },
+    warnings: result.warnings,
+  };
 }
 
 /**

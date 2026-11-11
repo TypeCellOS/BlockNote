@@ -41,8 +41,27 @@ export function createDocumentAgent(
     model: options.model,
     instructions: options.instructions ?? DOCUMENT_AGENT_INSTRUCTIONS,
     tools: createDocumentTools(handle),
-    stopWhen: isStepCount(options.maxSteps ?? 12),
+    stopWhen: [isStepCount(options.maxSteps ?? 12), toolThrew],
   });
+}
+
+/**
+ * Stops the loop after a step in which a tool threw. The tools give their
+ * expected failures as values. Thus, an exception is a bug, and the model
+ * must not continue on a document in an unknown state. The loop of the AI
+ * SDK does not throw for it: the step has a `tool-error` part.
+ */
+function toolThrew({ steps }: { steps: { content: { type: string }[] }[] }) {
+  return toolErrorsOf(steps.slice(-1)).length > 0;
+}
+
+/** The parts of the steps that tell that a tool threw. */
+function toolErrorsOf<Part extends { type: string }>(
+  steps: readonly { content: readonly Part[] }[],
+): Part[] {
+  return steps.flatMap((step) =>
+    step.content.filter((part) => part.type === "tool-error"),
+  );
 }
 
 /**
@@ -108,6 +127,10 @@ export async function runDocumentAgent(
     prompt,
     abortSignal: options.abortSignal,
   });
+  for (const part of toolErrorsOf(result.steps)) {
+    // A tool threw: a bug. The run fails.
+    throw "error" in part ? part.error : new Error("A document tool threw");
+  }
   return {
     text: result.text,
     steps: result.steps.length,

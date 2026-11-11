@@ -8,4 +8,5 @@ export * from "./components/AIMenu/PromptSuggestionMenu.js";
 export * from "./components/FormattingToolbar/AIToolbarButton.js";
 export * from "./components/SuggestionMenu/getAISlashMenuItems.js";
 export * from "./hooks/useAIDictionary.js";
+export * from "./documentAgent/client/index.js";
 export * from "./server.js";

@@ -83,8 +83,27 @@ export type DerivedSuggestions = {
    * call changed that block.
    */
   toolCallIds: (string | undefined)[];
+  /**
+   * The suggestion ID of each operation (the same index), for the marks of
+   * the display: the batch number of its tool call (see
+   * {@link suggestionIdOf}), or `UNATTRIBUTED_SUGGESTION`.
+   */
+  suggestionIds: number[];
   warnings: ChangeWarning[];
 };
+
+/** The suggestion ID of a change that no open tool call explains. */
+export const UNATTRIBUTED_SUGGESTION = 0;
+
+/**
+ * The ID of the suggestion marks of a tool call: the number of its batch.
+ * The suggestion marks of `AIExtension` allow only a number as their ID.
+ * Thus, the ID is not the tool call ID itself. A proposal has one batch for
+ * each tool call, thus the number identifies the call.
+ */
+export function suggestionIdOf(call: Pick<ToolCallInfo, "seq">): number {
+  return call.seq;
+}
 
 /**
  * Derives what the proposal changes in the main document, as it is now.
@@ -108,11 +127,21 @@ export function deriveSuggestions(
     throw new Error(`The proposal does not fit the document: ${result.error}`);
   }
   const byBlock = toolCallsOfBlocks(proposal);
+  const calls = new Map(
+    toolCallsOf(proposal).map((call) => [call.toolCallId, call]),
+  );
+  const toolCallIds = result.operations.map((operation) =>
+    byBlock.get(blockOf(operation))?.at(-1),
+  );
   return {
     operations: result.operations,
-    toolCallIds: result.operations.map((operation) =>
-      byBlock.get(blockOf(operation))?.at(-1),
-    ),
+    toolCallIds,
+    suggestionIds: toolCallIds.map((toolCallId) => {
+      const call = toolCallId === undefined ? undefined : calls.get(toolCallId);
+      return call === undefined
+        ? UNATTRIBUTED_SUGGESTION
+        : suggestionIdOf(call);
+    }),
     warnings: result.warnings,
   };
 }
