@@ -212,7 +212,7 @@
   height: 100%;
   width: 18px;
   padding: 0;
-  margin-left: 4px;
+  margin-inline-start: 4px;
   cursor: col-resize;
 }
 

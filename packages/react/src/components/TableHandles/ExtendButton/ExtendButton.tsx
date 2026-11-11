@@ -17,6 +17,7 @@ import { RiAddFill } from "react-icons/ri";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
+import { useEditorDirection } from "../../../hooks/useEditorDirection.js";
 import {
   useExtension,
   useExtensionState,
@@ -44,6 +45,7 @@ export const ExtendButton = (
   const Components = useComponentsContext()!;
 
   const editor = useBlockNoteEditor<any, any, any>();
+  const direction = useEditorDirection();
 
   const tableHandles = useExtension(TableHandlesExtension);
   const block = useExtensionState(TableHandlesExtension, {
@@ -125,9 +127,10 @@ export const ExtendButton = (
       movedMouse.current = true;
 
       const diff =
-        (props.orientation === "addOrRemoveColumns"
-          ? event.clientX
-          : event.clientY) - editingState.startPos;
+        props.orientation === "addOrRemoveColumns"
+          ? (event.clientX - editingState.startPos) *
+            (direction === "rtl" ? -1 : 1)
+          : event.clientY - editingState.startPos;
 
       const numCroppedCells =
         props.orientation === "addOrRemoveColumns"
@@ -199,7 +202,7 @@ export const ExtendButton = (
     return () => {
       window.removeEventListener("mousemove", callback);
     };
-  }, [block, editingState, editor, props.orientation, tableHandles]);
+  }, [block, direction, editingState, editor, props.orientation, tableHandles]);
 
   // Stops mouse movements from extending columns/rows when the mouse is
   // released. Also extends columns/rows by 1 if the mouse wasn't moved enough

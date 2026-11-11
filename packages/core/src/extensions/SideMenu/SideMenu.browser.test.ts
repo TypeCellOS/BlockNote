@@ -7,6 +7,37 @@ import { unsetDragImage } from "./dragging.js";
 
 const cleanup: (() => void)[] = [];
 
+it.each(["ltr", "rtl"] as const)(
+  "anchors the %s drag preview at its inline start edge",
+  async (direction, { setupEditor }) => {
+    const { editor } = await setupEditor({
+      mountType: "dom",
+      initialContent: [
+        { id: "dragged", type: "paragraph", content: "שלום — Hello" },
+      ],
+    });
+    editor.domElement!.dir = direction;
+    cleanup.push(() => unsetDragImage(document));
+    const dataTransfer = new DataTransfer();
+    const setDragImage = vi.spyOn(dataTransfer, "setDragImage");
+
+    editor
+      .getExtension(SideMenuExtension)!
+      .blockDragStart(
+        { dataTransfer, clientY: 0 },
+        editor.getBlock("dragged")!,
+      );
+
+    const preview = document.querySelector<HTMLElement>(".bn-drag-preview")!;
+    expect(preview.offsetWidth).toBeGreaterThan(0);
+    expect(setDragImage).toHaveBeenCalledWith(
+      preview,
+      direction === "rtl" ? preview.offsetWidth : 0,
+      0,
+    );
+  },
+);
+
 it("drags only the child when its parent has a single-block selection", async ({
   setupEditor,
 }) => {
