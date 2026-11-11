@@ -17,6 +17,7 @@ export {
 } from "./suggestionDocument.js";
 export {
   createSuggestionSessionHost,
+  type OpenedSuggestion,
   type SuggestionSessionHost,
   type SuggestionSessionHostOptions,
   type SuggestionSessionSnapshot,

@@ -4,6 +4,10 @@ import {
   type DocumentAgentOptions,
   streamAgentOnDocument,
 } from "../agent/documentAgent.js";
+import {
+  type ChatStore,
+  createInMemoryChatStore,
+} from "../stores/chatStore.js";
 import type { AgentDocument } from "../tools/agentDocument.js";
 import { createRunLog, type RunLog } from "./runLog.js";
 
@@ -44,6 +48,11 @@ export type ChatSessionsOptions<Extra extends object> = DocumentAgentOptions & {
    * host are different.
    */
   openRun(documentId: string): Promise<RunDocument<Extra> | undefined>;
+  /**
+   * The store of the chats. The default is a store in the memory of this
+   * process (see `ChatStore`).
+   */
+  chats?: ChatStore;
   /** Called when the session of a document changed: a run started or ended. */
   onChange?(documentId: string): void;
   /** Called when the stream of a run failed. This is a bug or an outage. */
@@ -62,12 +71,15 @@ export type ChatSessionsOptions<Extra extends object> = DocumentAgentOptions & {
  */
 export type ChatSessions = {
   /** The chat of the document: each request, and each message of the agent. */
-  messages(documentId: string): UIMessage[];
+  messages(documentId: string): Promise<UIMessage[]>;
   /**
-   * Replaces the chat of the document. A mode uses this to put the
-   * decision of a user into the output of a tool call (see `recordReview`).
+   * Changes the chat of the document. A mode uses this to put the decision
+   * of a user into the output of a tool call (see `recordReview`).
    */
-  setMessages(documentId: string, messages: UIMessage[]): void;
+  updateMessages(
+    documentId: string,
+    change: (messages: UIMessage[]) => UIMessage[],
+  ): Promise<void>;
   /** Starts a run for a request. The request becomes a message of the chat. */
   startRun(
     documentId: string,
@@ -85,27 +97,29 @@ export type ChatSessions = {
 };
 
 type Session = {
-  messages: UIMessage[];
+  /** The save of the last message of the agent to the chat store. */
+  saved: Promise<unknown>;
   /** True from the request for a run to the start of its stream. */
   starting: boolean;
   run: { log: RunLog; abort: AbortController } | undefined;
 };
 
 /**
- * Makes the chats and the runs of a host. They are in memory: this is
- * sufficient for one process. A production host keeps the chats in a
- * database, and the streams of the runs in a store that all its processes
- * can read.
+ * Makes the chats and the runs of a host. The chats are in a store (see
+ * `ChatStore`). The runs are in the memory of this process: a production
+ * host with more than one process needs the streams of the runs in a store
+ * that all its processes can read.
  */
 export function createChatSessions<Extra extends object>(
   options: ChatSessionsOptions<Extra>,
 ): ChatSessions {
+  const chats = options.chats ?? createInMemoryChatStore();
   const sessions = new Map<string, Session>();
 
   function sessionOf(documentId: string): Session {
     let session = sessions.get(documentId);
     if (session === undefined) {
-      session = { messages: [], starting: false, run: undefined };
+      session = { saved: Promise.resolve(), starting: false, run: undefined };
       sessions.set(documentId, session);
     }
     return session;
@@ -126,28 +140,29 @@ export function createChatSessions<Extra extends object>(
       return { error: "unknown-document" as const };
     }
     const metadata: SessionMessageMetadata = { origin: request.origin };
-    session.messages = [
-      ...session.messages,
-      {
-        id: request.messageId ?? generateId(),
-        role: "user",
-        metadata,
-        parts: [{ type: "text", text: request.prompt }],
-      },
-    ];
+    const prompt: UIMessage = {
+      id: request.messageId ?? generateId(),
+      role: "user",
+      metadata,
+      parts: [{ type: "text", text: request.prompt }],
+    };
+    const messages = await chats.update(documentId, (chat) => [
+      ...chat,
+      prompt,
+    ]);
     const abort = new AbortController();
-    const stream = await streamAgentOnDocument(
-      opened.document,
-      session.messages,
-      {
-        ...options,
-        extraChunk: opened.extraChunk,
-        abortSignal: abort.signal,
-        onEnd(responseMessage) {
-          session.messages = [...session.messages, responseMessage];
-        },
+    const stream = await streamAgentOnDocument(opened.document, messages, {
+      ...options,
+      extraChunk: opened.extraChunk,
+      abortSignal: abort.signal,
+      onEnd(answer) {
+        // The save can take time in a store on a database. A read of the
+        // chat in this process waits for it (see `messages`).
+        session.saved = chats
+          .update(documentId, (chat) => [...chat, answer])
+          .catch((error: unknown) => options.onRunError?.(documentId, error));
       },
-    );
+    });
     const log = createRunLog(
       generateId(),
       opened.openingChunk === undefined
@@ -172,9 +187,13 @@ export function createChatSessions<Extra extends object>(
 
   return {
     activeRun,
-    messages: (documentId) => sessionOf(documentId).messages,
-    setMessages(documentId, messages) {
-      sessionOf(documentId).messages = messages;
+    async messages(documentId) {
+      await sessionOf(documentId).saved;
+      return chats.load(documentId);
+    },
+    async updateMessages(documentId, change) {
+      await sessionOf(documentId).saved;
+      await chats.update(documentId, change);
     },
 
     async startRun(documentId, request) {

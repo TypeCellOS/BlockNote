@@ -84,6 +84,7 @@ export {
   SUGGESTION_MARK_NAMES,
   yFragmentHasSuggestions,
 } from "./stores/yjsGuard.js";
+export { type ChatStore, createInMemoryChatStore } from "./stores/chatStore.js";
 export {
   createInMemoryProposalStore,
   type InMemoryProposalStore,

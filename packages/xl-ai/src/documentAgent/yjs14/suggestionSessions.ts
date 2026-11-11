@@ -8,6 +8,7 @@ import {
   type ChatSessions,
   createChatSessions,
 } from "../sessions/chatSessions.js";
+import type { ChatStore } from "../stores/chatStore.js";
 import type { ToolCallReview } from "../tools/documentTools.js";
 import { createSuggestionDocument } from "./suggestionDocument.js";
 import { toolCallRecordsOf } from "./toolCallRecords.js";
@@ -20,22 +21,41 @@ export type SuggestionSessionSnapshot = {
   activeRunId: string | undefined;
 };
 
+/**
+ * The replica of the suggestion document of a document on a host, for one
+ * use: a run, or a read of the decisions of the users.
+ */
+export type OpenedSuggestion = {
+  suggestion: Y.Doc;
+  /** The name of the type of the document content in the Y.Doc. */
+  fragment: string;
+  editorOptions?: Partial<BlockNoteEditorOptions<any, any, any>>;
+  /**
+   * Called at the end of the use. An app that connects a Yjs provider in
+   * `openSuggestion` disconnects it here.
+   */
+  close?(): void;
+};
+
 export type SuggestionSessionHostOptions = DocumentAgentOptions & {
   /**
-   * The replica of the suggestion document of a document on this host, or
-   * `undefined` if the host does not have the document. The host must
-   * apply each update of the main document to it (see
-   * `keepSuggestionCurrent`).
+   * Gives the replica of the suggestion document of a document on this
+   * host, or `undefined` if the host does not have the document. The host
+   * calls it for each run and for each read of the session, and calls
+   * `close` of the result after that.
+   *
+   * This function is where the app uses its Yjs provider: the host does
+   * not know the provider. The replica must be in sync when the promise
+   * resolves. It must get each update of the main document (see
+   * `keepSuggestionCurrent`), and it must not collect garbage (`gc:
+   * false`).
    */
-  openSuggestion(documentId: string): Promise<
-    | {
-        suggestion: Y.Doc;
-        /** The name of the type of the document content in the Y.Doc. */
-        fragment: string;
-        editorOptions?: Partial<BlockNoteEditorOptions<any, any, any>>;
-      }
-    | undefined
-  >;
+  openSuggestion(documentId: string): Promise<OpenedSuggestion | undefined>;
+  /**
+   * The store of the chats. The default is a store in the memory of this
+   * process (see `ChatStore`).
+   */
+  chats?: ChatStore;
   /** Called when the session of a document changed: a run started or ended. */
   onChange?(documentId: string): void;
   /** Called when the stream of a run failed. This is a bug or an outage. */
@@ -79,9 +99,8 @@ export function createSuggestionSessionHost(
         decisions.set(record.toolCallId, record.decision);
       }
     }
-    chats.setMessages(
-      documentId,
-      recordReview(chats.messages(documentId), decisions),
+    return chats.updateMessages(documentId, (messages) =>
+      recordReview(messages, decisions),
     );
   }
 
@@ -92,11 +111,23 @@ export function createSuggestionSessionHost(
       if (opened === undefined) {
         return undefined;
       }
-      // The decisions of the users after the last run: the agent must not
-      // make a rejected change again.
-      recordDecisions(documentId, opened.suggestion);
-      const document = createSuggestionDocument(opened);
-      return { document, close: () => document.destroy() };
+      try {
+        // The decisions of the users after the last run: the agent must
+        // not make a rejected change again.
+        await recordDecisions(documentId, opened.suggestion);
+        const document = createSuggestionDocument(opened);
+        return {
+          document,
+          close() {
+            document.destroy();
+            opened.close?.();
+          },
+        };
+      } catch (error) {
+        // The run does not start: the replica is not in use.
+        opened.close?.();
+        throw error;
+      }
     },
   });
 
@@ -107,10 +138,14 @@ export function createSuggestionSessionHost(
     async snapshot(documentId) {
       const opened = await options.openSuggestion(documentId);
       if (opened !== undefined) {
-        recordDecisions(documentId, opened.suggestion);
+        try {
+          await recordDecisions(documentId, opened.suggestion);
+        } finally {
+          opened.close?.();
+        }
       }
       return {
-        messages: chats.messages(documentId),
+        messages: await chats.messages(documentId),
         activeRunId: chats.activeRun(documentId)?.id,
       };
     },

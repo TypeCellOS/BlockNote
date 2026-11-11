@@ -19,6 +19,7 @@ import {
   type ProposalExtra,
 } from "../proposal/proposalDocument.js";
 import type { Batch, Proposal } from "../proposal/types.js";
+import type { ChatStore } from "../stores/chatStore.js";
 import type { ProposalStore } from "../stores/proposalStore.js";
 import type { ToolCallReview } from "../tools/documentTools.js";
 import { type ChatSessions, createChatSessions } from "./chatSessions.js";
@@ -39,6 +40,11 @@ export type SessionHostOptions = DocumentAgentOptions & {
   /** Makes a headless editor with the schema of the app. */
   createEditor: CreateEditor;
   proposals: ProposalStore;
+  /**
+   * The store of the chats. The default is a store in the memory of this
+   * process (see `ChatStore`).
+   */
+  chats?: ChatStore;
   /** Reads the main document, or `undefined` if it does not exist. */
   readMain(documentId: string): Promise<LensBlock[] | undefined>;
   /**
@@ -180,9 +186,8 @@ export function createSessionHost(options: SessionHostOptions): SessionHost {
     documentId: string,
     decisions: ReadonlyMap<string, ToolCallReview>,
   ) {
-    chats.setMessages(
-      documentId,
-      recordReview(chats.messages(documentId), decisions),
+    return chats.updateMessages(documentId, (messages) =>
+      recordReview(messages, decisions),
     );
   }
 
@@ -202,7 +207,7 @@ export function createSessionHost(options: SessionHostOptions): SessionHost {
 
     async snapshot(documentId) {
       return {
-        messages: chats.messages(documentId),
+        messages: await chats.messages(documentId),
         proposal: (await openProposalOf(documentId)).proposal,
         activeRunId: chats.activeRun(documentId)?.id,
       };
@@ -225,7 +230,7 @@ export function createSessionHost(options: SessionHostOptions): SessionHost {
         });
         const { source } = batch;
         if (source.type === "accept" || source.type === "revert") {
-          record(
+          await record(
             documentId,
             new Map([
               [
@@ -253,7 +258,7 @@ export function createSessionHost(options: SessionHostOptions): SessionHost {
           // A close without a claim, of a proposal that is closed.
           return {};
         }
-        record(
+        await record(
           documentId,
           new Map(
             (proposal === undefined ? [] : toolCallsOf(proposal))
