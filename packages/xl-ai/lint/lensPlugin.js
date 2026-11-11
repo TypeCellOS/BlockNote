@@ -1,4 +1,8 @@
 // An oxlint JS plugin with the rules of the text lens (packages/xl-ai/src/api/v2).
+//
+// FOLLOW-UP (later, not in the lens PR): use these rules outside the lens too,
+// for the other packages of the repository (the folder API in index.ts, and
+// @internal for the other exports).
 import { existsSync, readFileSync } from "node:fs";
 import { basename, dirname, join } from "node:path";
 

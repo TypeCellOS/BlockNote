@@ -4,6 +4,10 @@
  *
  * Note: `Block<BlockSchema, ...>` with the generic schema types does not
  * narrow. For example, its `content` type is `never`.
+ *
+ * FOLLOW-UP (later, not in the lens PR): move these types to core. Block
+ * types of core that narrow for a generic schema can replace this file, and
+ * the casts at the calls into core (for example `as PartialBlock`) go.
  */
 
 /**

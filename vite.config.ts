@@ -65,7 +65,8 @@ export default defineConfig({
     // Adds pre-migration ESLint rules with no oxlint equivalents.
     jsPlugins: [
       { name: "import-eslint", specifier: "eslint-plugin-import" },
-      // The rules of the text lens (packages/xl-ai/src/api/v2).
+      // The rules of the text lens (packages/xl-ai/src/api/v2). FOLLOW-UP
+      // (later): use them outside the lens too.
       { name: "lens", specifier: "./packages/xl-ai/lint/lensPlugin.js" },
     ],
     options: {
