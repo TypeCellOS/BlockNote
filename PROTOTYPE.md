@@ -17,7 +17,7 @@ Read this section first. The sections after it are in the order of the work, and
 - The tools `editText`, `replaceRange`, `writeDocument` and `readDocument`. The document is in the first LLM call, and a tool call starts when the model has written it (section 13).
 - The review of a user reaches the agent: the decision is in the tool output of the chat (section 14.1).
 - Guards that keep suggestions out of the main document (section 14.7).
-- 97 tests with a mock model, and one test that is a known failure (below). Live measurements with Haiku 5.5 (sections 9, 13.3 to 13.5).
+- 105 tests with a mock model, a test with random concurrent edits (section 14.10), and three tests that are known failures (below). Live measurements with Haiku 5.5 (sections 9, 13.3 to 13.5).
 
 **Decisions of 11 November**
 
@@ -25,9 +25,11 @@ Read this section first. The sections after it are in the order of the work, and
 - The base scenario of an accept is a write of the client at once, with the known risk of section 14.8. The guard for it (`acceptGuard`, the flag `guard=1` of the example) is optional, and is off by default.
 - No default for `reasoning`: an eval suite decides. A run from outside locks each editor that follows it: acceptable now.
 
-**Known failure**
+**Known failures**
 
-- Two users who accept the same proposal at the same time write its text two times, in the base scenario (section 14.8). `acceptGuard` prevents it.
+- Two users who accept the same proposal at the same time write its text two times, in the base scenario (section 14.8). For a new block, the shared document also gets one block ID two times (section 14.10). `acceptGuard` prevents the two.
+- In the base scenario, an accept that crosses another change of the proposal on the network can put a paragraph into the document two times, also with one reviewer (section 14.10). `acceptGuard` prevents it.
+- A reject of the tool call that added a block keeps the block if a later tool call changed it (sections 8.1 and 14.10). The guard does not change this.
 
 **Not decided**
 
@@ -36,8 +38,8 @@ Read this section first. The sections after it are in the order of the work, and
 
 **Not done** (in the order that I recommend)
 
-1. A test with random concurrent edits for a session: two reviewers, edits of users during a run, and a run from outside. The model has no such test, and the known failure came from a question, not from a test.
-2. A spike of the target: the agent writes its batches into a Yjs 14 suggestion document through the lens.
+1. Done (section 14.10): a test with random concurrent edits for a session.
+2. A spike of the target: the agent writes its changes into a Yjs 14 suggestion document through the lens. You asked if such a document replaces the proposal: section 14.11. The spike waits for your confirmation.
 3. A block that two tool calls change shows as one suggestion (section 8.1).
 4. Colors and alignment: an HTML format for the tools, or a tool for props (section 9.3).
 5. The selection and the cursor in the first prompt.
@@ -271,6 +273,7 @@ How it behaves:
 
 - The derived write gives one update for the block, with the changes of the two calls. The suggestion marks of the block get the ID of the last open call. The card of the earlier call tells "A later change shows the blocks of this change."
 - Accept and reject of each call are correct at the level of words, because they are three-way merges of the delta of that call. Tests: call one changes the first word of a paragraph and call two its last word. A reject of call one reverts only the first word. An accept of call two applies only the last word. After a reject of the later call, the marks that stay get the ID of the earlier call.
+- A limit that the test of section 14.10 found: a reject of the call that added a block keeps the block if a later call changed it. After a reject of the two calls, the block is still in the proposal. This is a known-failure test in `proposal/review.test.ts`.
 
 How often it occurs (`claude-haiku-5-5`, the document of the example):
 
@@ -586,3 +589,83 @@ Your decision: the Yjs 14 suggestion layer is the target, and until then an acce
 - The costs of the guard: an accept waits for the server, and an editor that stops between the claim and the write leaves an accept that the server has and the document does not have.
 - The test of 14.8 stays as the known failure of the base scenario. A second test has the same case with a guard: one editor writes, and the text is there one time.
 
+### 14.10 A test with random concurrent edits (11 November)
+
+Item 1 of the list in section 0. The test is `sessions/session.fuzz.test.ts` (commit `30b2fd5bc`).
+
+**One scenario** (one seed):
+
+- Three editors, each with its own Y.Doc, and the Y.Doc of a server. An editor and the server exchange their updates at random times.
+- Users change the document in each editor that shows no proposal, also during a run: a new paragraph, text at the end of a block, and (in one variant) a word in the middle of a block.
+- A session host with a mock model. A run makes one to three tool calls (`editText`, or `writeDocument`, sometimes from an older version of the proposal).
+- One or two reviewers take the proposal of the host, and accept or reject one tool call or the full proposal.
+- At the end, all requests arrive, all editors sync, and a reviewer accepts what is open.
+
+**The rules** that the test examines at the end: the review ended in each editor. No suggestion mark is in an editor or in the shared document (this one also after each sync). Each editor shows its Y.Doc, and all Y.Docs are the same. No block ID is there two times. No change of a user is lost, and none is there two times. No change of the agent is there two times. An accepted change is there, and a rejected change is not there. No exception.
+
+**Results**, 100 seeds for each variant. A scenario has 60 actions: about 17 edits of users, 12 tool calls, 2 rebases, and 1 to 4 accepts.
+
+| Accept guard | Reviewers | Delay | Seeds with a problem | The problems |
+| --- | --- | --- | --- | --- |
+| Yes | 1 | Yes | 0 of 100 | |
+| Yes | 2 | Yes | 0 of 100 | |
+| Yes | 2 | Yes, and conflicts between a user and the agent | 0 of 100 | |
+| No | 1 | No | 0 of 100 | |
+| No | 2 | No | 0 of 100 | |
+| No | 1 | Yes | 52 of 100 | A paragraph is there two times (52). An accepted change is not there (1). |
+| No | 2 | Yes | 64 of 100 | A paragraph is there two times (64). An accepted change is not there (1). One block ID is there two times (5). |
+
+"Delay" means: a request of a reviewer to the host arrives at a random later time, and a reviewer can have an old copy of the proposal. The delays of the test are long: a request can wait during many actions. Thus, the numbers show what can occur. They do not show how frequently it occurs in an app.
+
+In all 700 scenarios, no change of a user was lost, no suggestion mark was in the shared document, and there was no exception.
+
+**What the test found**
+
+1. **A bug of the host, fixed** (`a470952f7`). The host examined only the number of a review batch. A batch that an editor made from an old copy of the proposal can have the correct number by chance, after a run added a batch. The host stored it, the editors could not replay the proposal, and the review did not end. The host now replays the batch on the stored proposal and compares the hash (`batchFollows`).
+2. **The base scenario is correct if no review request crosses a different change of the proposal** (0 of 200 without a delay). All its problems are races between the write of an accept and the message about it:
+   - A run starts before the host has the message. The rebase finds the accepted paragraph in the main document and in the proposal. The lens gives the paragraph of the proposal a new ID, the proposal shows it again, and the next accept adds it a second time. This occurs also with one reviewer.
+   - The host refuses the late message, because the proposal changed. The host then shows the accepted tool call as open. The reviewer can reject it, and the accepted change goes.
+   - Two reviewers accept at the same time (section 14.8). New: for a new block, each accept inserts a block with the ID of the proposal. The shared Y.Doc has that ID two times. Each editor gives the two blocks new IDs in its own view (the UniqueID plugin), and these IDs go to the Y.Doc only with the next change of that user. Until then, the editors do not agree on the IDs of these blocks. There is a known-failure test for this in `client/DocumentAgentExtension.test.ts`.
+3. **The guard removes all of these** (0 of 300). Its cost in this test: the host refused more accepts than it gave (1.3 to 2.0 refused and 1.0 given for each scenario), because of the long delays. After a refused accept, the reviewer gets the new proposal and decides again.
+4. **A limit that is not a race**, and that belongs to section 8.1: a reject of the tool call that added a block keeps the block if a later tool call changed it. After a reject of the two calls, the block is still in the proposal, with the text of the first call. The cause: the revert of a call is a three-way merge that keeps the proposal on a conflict, and "remove the block" against "the block changed" is a conflict. There is a known-failure test in `proposal/review.test.ts`. It needs your decision: does a reject of a call also remove the later changes to the blocks that the call added? I recommend yes.
+
+A possible change for the first race, not built: the rebase can treat a block with the same ID and the same content in the two documents as one block. Then the paragraph is not there two times. The host still shows the accepted call as open.
+
+**Limits of the test**
+
+- Users only add paragraphs and text. They do not move blocks, change the type of a block, remove blocks, or nest blocks.
+- A reviewer takes the proposal of the host as a snapshot. No editor follows a run through the stream, and no reviewer decides during a run.
+- The rules for an accept and a reject of one tool call do not apply to a call that shares a block with a different call (section 8.1). The rule for an accept applies only to a change that the editor of the reviewer shows: the display does not show a change of the agent that is in conflict with the main document.
+- The model is a mock: each tool call is valid.
+
+**How to run it**, from `packages/xl-ai`: `DOCUMENT_AGENT_FUZZ_SEEDS=100 vp test --run src/documentAgent/sessions/session.fuzz.test.ts`. `DOCUMENT_AGENT_FUZZ_START` sets the first seed, and `DOCUMENT_AGENT_FUZZ_REPORT=<file>` writes each problem with the log of its scenario. The default is 5 seeds for each variant (about 15 s). 100 seeds for each variant are 6 to 9 minutes.
+
+### 14.11 Does a Yjs 14 suggestion document replace the proposal? (11 November)
+
+Your question: a single Yjs 14 branch document replaces the full `Proposal` data structure, thus a spike now shows if the architecture is correct, and the tests can run for a proposal mode and a Yjs mode.
+
+You are right for the document state. A suggestion document S (S is M plus the suggestion items) replaces most of the proposal:
+
+| Part of the proposal model | In Yjs 14 mode |
+| --- | --- |
+| `origin`, the operations of each batch, the replay | S is the document of the agent |
+| The fork point, the rebase batches, the rebase before each tool call | Not necessary: an edit in M reaches S through the Yjs sync |
+| `seq`, `hash`, `batchFollows`, the out-of-sync state | Not necessary: the Yjs sync does this |
+| The derived suggestions, the local fork, the six guards of 14.7 | The binding shows S against M (`SuggestionsExtension` of `@blocknote/core/y` is in this worktree) |
+| The batches in the chat stream, `follow()` for the display, the proposal store | The provider of S |
+| The accept batches, `acceptGuard`, `closeProposal` | An accept moves the items of S to M, and is idempotent |
+
+Three things stay:
+
+1. **A record for each tool call.** The Yjs 14 attribution marks have only user IDs and a time, and the accept and the reject operate on a position range (`applySuggestion(start, end)`). The review of one tool call and its reason need a small synced map: the tool call ID, its reason, and the Yjs items of that call. This is the main design question of the spike.
+2. **What the agent read.** The check for a stale write (`base: v3`) needs it, but only in memory during a run.
+3. **Documents that are not on Yjs 14.** The JSON store and the Yjs 13 path (`@blocknote/core/yjs`, which the prototype uses now) keep the proposal. Thus the two modes of your test matrix are two real modes, unless AI needs Yjs 14.
+
+The Yjs 14 mode has its own risks. The review of 5 November measured them:
+
+- A reject of a suggested deletion is not idempotent, because Yjs cannot put back deleted content: two rejects at the same time write the text two times (41 of 59 seeds). The concurrency problem moves from the accept to the reject.
+- "Suggestion" means "in S and not in M", without a stored state: an edit of a user adjacent to a suggestion of the agent becomes a part of the suggestion.
+- The binding makes a block again for a change of its type or a move.
+- The host needs a headless editor that is bound to S for each run.
+
+My recommendation: do the spike, with your matrix. The test of 14.10 is the harness: the tools already operate on a document handle, and the rules are the same for each mode. The smallest useful spike is a handle that writes to S, the map of the tool calls, and a third mode in the test of 14.10. It waits for your confirmation, and for your decision if Yjs 14 will be a requirement for AI or one of two modes.
