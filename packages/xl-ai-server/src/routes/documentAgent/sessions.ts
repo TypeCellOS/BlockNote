@@ -174,13 +174,18 @@ export function registerSessionRoutes<Source extends string>(
       : c.json(result, statusOf(result.error));
   });
 
-  // The user accepted or rejected the full proposal.
-  route.post("/sessions/:source/:id/close", (c) => {
+  // The user accepted or rejected the tool calls without a decision: the
+  // proposal closes.
+  route.post("/sessions/:source/:id/close", async (c) => {
     const selected = hostOf(c.req.param("source"));
     if (selected.error !== undefined) {
       return c.json(selected, statusOf(selected.error));
     }
-    selected.host.closeProposal(c.req.param("id"));
+    const { result } = (await c.req.json()) as { result?: unknown };
+    if (result !== "accepted" && result !== "rejected") {
+      return c.json({ error: "invalid-request" }, 400);
+    }
+    await selected.host.closeProposal(c.req.param("id"), result);
     return c.json({ ok: true });
   });
 
