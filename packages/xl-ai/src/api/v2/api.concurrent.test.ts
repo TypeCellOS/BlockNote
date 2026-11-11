@@ -294,8 +294,10 @@ describe("a write from an older version", () => {
  *
  * The result must contain the change of each writer to each block that no
  * other writer changed or removed. A change is the result of the write of
- * that writer alone, on the version that it read. After the last write, a
- * write of the text of the result must change nothing.
+ * that writer alone, on the version that it read. One exception: a block
+ * that a writer removed stays if it holds a block that the writer did not
+ * read (a new block of another writer; see `mergeTree`). After the last
+ * write, a write of the text of the result must change nothing.
  */
 describe.each(formatCases)(
   "random groups of writers ($name)",
@@ -335,12 +337,27 @@ describe.each(formatCases)(
         }
         const result = blockFieldsById(editor);
 
-        const ids = flattenBlocks(editor.document as LensBlock[]).map(
-          ({ block }) => block.id,
-        );
+        const flat = flattenBlocks(editor.document as LensBlock[]);
+        const ids = flat.map(({ block }) => block.id);
         expect(new Set(ids).size).toBe(ids.length);
+        /** The IDs of the blocks in block `id` of the result, at each depth. */
+        const inside = (id: string): string[] => {
+          const index = ids.indexOf(id);
+          return flat.flatMap(({ block }, k) => {
+            for (
+              let p = flat[k].parentIndex;
+              p !== undefined;
+              p = flat[p].parentIndex
+            ) {
+              if (p === index) {
+                return [block.id];
+              }
+            }
+            return [];
+          });
+        };
 
-        writers.forEach(({ change }, writer) => {
+        writers.forEach(({ base, change }, writer) => {
           const others = writers.filter((_, other) => other !== writer);
           const untouched = (id: string) =>
             others.every(
@@ -350,8 +367,15 @@ describe.each(formatCases)(
           for (const id of change.changed.filter(untouched)) {
             expect(result.get(id), `block ${id}`).toEqual(change.after.get(id));
           }
+          const read = new Set(
+            flattenBlocks(base).map(({ block }) => block.id),
+          );
           for (const id of change.removed.filter(untouched)) {
-            expect(result.has(id), `block ${id}`).toBe(false);
+            const holdsUnreadBlock =
+              result.has(id) && inside(id).some((child) => !read.has(child));
+            expect(result.has(id) && !holdsUnreadBlock, `block ${id}`).toBe(
+              false,
+            );
           }
         });
 
