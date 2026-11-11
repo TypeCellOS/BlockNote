@@ -37,12 +37,14 @@ export const FormattingToolbarExtension = createExtension(({ editor }) => {
       }
 
       // Searches the content of the selection to see if it spans a node with
-      // `"plain"` content (mapped to a `"text*"` node spec), i.e. plain,
+      // `"plain"` block content (mapped to a `"text*"` node spec), i.e. plain,
       // unformattable text such as a code block. Blocks without inline content
       // but that aren't plain (e.g. images) should still show the toolbar.
+      // Plain inline content only hides the unsupported inline controls, not
+      // block actions such as alignment and indentation.
       let spansPlainContent = false;
       tr.selection.content().content.descendants((node) => {
-        if (node.type.spec.content === "text*") {
+        if (node.isBlock && node.type.spec.content === "text*") {
           spansPlainContent = true;
         }
         return !spansPlainContent; // keep descending until we find plain content

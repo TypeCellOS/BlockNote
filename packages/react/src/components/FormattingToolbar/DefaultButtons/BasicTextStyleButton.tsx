@@ -19,6 +19,7 @@ import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorState } from "../../../hooks/useEditorState.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
+import { selectionContainsPlainContent } from "../selectionContainsPlainContent.js";
 
 type BasicTextStyle = "bold" | "italic" | "underline" | "strike" | "code";
 
@@ -69,6 +70,8 @@ export const BasicTextStyleButton = <Style extends BasicTextStyle>(props: {
       if (
         // The editor is read-only.
         !editor.isEditable ||
+        // Plain content cannot carry formatting marks.
+        selectionContainsPlainContent(editor.prosemirrorState.selection) ||
         // The style is not in the schema.
         !checkBasicTextStyleInSchema(props.basicTextStyle, editor) ||
         // None of the selected blocks have inline content
