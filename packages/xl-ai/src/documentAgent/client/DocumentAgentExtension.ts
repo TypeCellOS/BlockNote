@@ -1,16 +1,8 @@
-import { Chat } from "@ai-sdk/react";
-import {
-  createExtension,
-  createStore,
-  type ExtensionOptions,
-} from "@blocknote/core";
-import type { ChatTransport, UIMessage, UIMessageChunk } from "ai";
+import type { UIMessageChunk } from "ai";
 import type { Node } from "prosemirror-model";
 import { Plugin, PluginKey, type Transaction } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
 
-import { AIExtension } from "../../AIExtension.js";
-import { recordReview } from "../agent/chatReview.js";
 import {
   DOCUMENT_BATCHES_CHUNK,
   DOCUMENT_PROPOSAL_CHUNK,
@@ -37,7 +29,14 @@ import {
   revertToolCall,
 } from "../proposal/review.js";
 import type { Batch, Proposal } from "../proposal/types.js";
-import type { ToolCallReview } from "../tools/documentTools.js";
+import {
+  type AgentExtensionOptions,
+  type AgentState,
+  type ClientMode,
+  createAgentExtension,
+  type ModeContext,
+  type ReviewOf,
+} from "./agentExtension.js";
 import {
   assertNoSuggestions,
   clearSuggestions,
@@ -46,10 +45,13 @@ import {
   mainDocumentOf,
   showSuggestions,
 } from "./suggestions.js";
-import {
-  type DocumentAgentRequestBody,
-  observeTransport,
-} from "./transport.js";
+import type { DocumentAgentRequestBody } from "./transport.js";
+
+// The proposal mode of the document agent in an editor. The chat, the runs
+// and the states are the shared code of `agentExtension.ts`. This file has
+// the review of this mode: the client keeps a copy of the proposal, shows
+// it as suggestions, and applies the decisions of the user to the main
+// document.
 
 /** One tool call in the review, with what the display shows for it. */
 export type ReviewToolCall = ToolCallInfo & {
@@ -62,18 +64,20 @@ export type ReviewToolCall = ToolCallInfo & {
   sharedBlockIds: string[];
 };
 
-/** A proposal in review: the proposal, its tool calls, and the last answer of the agent. */
-export type Review = {
+/** The data of a review in proposal mode: the proposal, and what the display shows of it. */
+export type ProposalReviewData = {
   proposal: Proposal;
   toolCalls: ReviewToolCall[];
   /** The number of operations that the display shows as suggestions. */
   suggestionCount: number;
-  /** The text that the agent wrote to the user in the last run. */
-  answer: string;
 };
 
+/** A proposal in review: the proposal, its tool calls, and the last answer of the agent. */
+export type Review = ReviewOf<ProposalReviewData>;
+
 /**
- * The state of the document agent in an editor.
+ * The state of the document agent in an editor, in proposal mode (see
+ * `AgentState`).
  *
  * - `idle`: no proposal. The document of the editor has no suggestion
  *   marks: it is the main document. In the other states, it can have
@@ -89,15 +93,7 @@ export type Review = {
  *   proposal of the host (`out-of-sync`). The review stays, thus the user
  *   can accept or reject what arrived.
  */
-export type DocumentAgentState =
-  | { status: "idle" }
-  | { status: "running"; review: Review }
-  | { status: "reviewing"; review: Review }
-  | {
-      status: "error";
-      error: "request-failed" | "out-of-sync";
-      review: Review;
-    };
+export type DocumentAgentState = AgentState<ProposalReviewData>;
 
 /**
  * An accept that a user asks for: of one tool call (with the `accept` batch
@@ -107,13 +103,7 @@ export type AcceptClaim =
   | { type: "tool-call"; batch: Batch; proposal: Proposal }
   | { type: "proposal"; proposal: Proposal };
 
-export type DocumentAgentExtensionOptions = {
-  /**
-   * Where the loop runs. A transport to a server (for example
-   * `DefaultChatTransport`) is server mode. `createInProcessTransport` is
-   * client mode. The extension is the same for the two.
-   */
-  transport?: ChatTransport<UIMessage>;
+export type DocumentAgentExtensionOptions = AgentExtensionOptions & {
   /**
    * Called after a user accepts or rejects one tool call. A host that keeps
    * the proposal in a store saves the batch there.
@@ -147,15 +137,6 @@ export type DocumentAgentExtensionOptions = {
   /** Called when `acceptGuard` refused an accept: the app gets the proposal of the host again. */
   onAcceptRefused?: (claim: AcceptClaim) => void;
   /**
-   * What a run or a proposal does if it starts while the AI menu is closed
-   * (a chat window, a followed run, a proposal of a host). With true (the
-   * default), the AI menu opens: it locks the editor, and has the items
-   * that accept and reject. With false, the extension locks the editor
-   * itself, and the menu stays closed: an app with its own review surface
-   * (for example a chat window) uses this.
-   */
-  aiMenu?: boolean;
-  /**
    * The replay animation: the insertions of the newest batch show one after
    * the other, and the text of each one shows from its start to its end.
    * The document has the full batch at once: the animation is only in the
@@ -168,547 +149,355 @@ export type DocumentAgentExtensionOptions = {
 const REPLAY_MS_PER_CHARACTER = 12;
 
 /**
- * The document agent in an editor: it sends the prompts of the user, keeps
- * the copy of the proposal of this client, shows the proposal as
- * suggestions, and applies the review of the user.
+ * The document agent in an editor, in proposal mode: it sends the prompts
+ * of the user (the shared code of `agentExtension.ts`), keeps the copy of
+ * the proposal of this client, shows the proposal as suggestions, and
+ * applies the review of the user.
  *
- * The code is the same for all modes. A run that a user starts sends a
- * prompt with `invoke`. A run that a server starts gives its proposal to
- * `openProposal`. The display and the accept are the same.
+ * A run that a user starts sends a prompt with `invoke`. A run that a
+ * server starts gives its proposal to `openProposal`. The display and the
+ * accept are the same.
  *
  * The extension needs `AIExtension` in the same editor: that extension has
  * the suggestion marks and the state of the AI menu.
  */
-export const DocumentAgentExtension = createExtension(
-  ({
-    editor,
-    options,
-  }: ExtensionOptions<DocumentAgentExtensionOptions | undefined>) => {
-    const store = createStore<DocumentAgentState>({ status: "idle" });
-    const createEditor = headlessEditorFactory({ schema: editor.schema });
-    /** The chat of this editor. It stays for all runs and all proposals. */
-    let chat: Chat<UIMessage> | undefined;
-    /**
-     * The number of the run in progress. A reset adds one: a run that ends
-     * after a reset must not change the state.
-     */
-    let runNumber = 0;
-    /** The number of chunks of all runs. It tells if a followed run had a stream. */
-    let chunkCount = 0;
-    /** True if this extension locked the editor (see `aiMenu`). */
-    let locked = false;
-    /** True while `acceptGuard` decides on an accept. */
-    let claiming = false;
+export const DocumentAgentExtension = createAgentExtension(createProposalMode);
 
-    /**
-     * Runs the write of an accept to the main document.
-     *
-     * The base scenario: no guard, and the write runs at once. With
-     * `acceptGuard`, the write runs only after the guard agreed (see
-     * `DocumentAgentExtensionOptions.acceptGuard`). The write uses the data
-     * of the claim, not the state of that later time: the review can
-     * change while the guard decides.
-     */
-    function writeAccept(claim: AcceptClaim, write: () => void) {
-      const guard = options?.acceptGuard;
-      if (guard === undefined) {
-        write();
-        return;
-      }
-      if (claiming) {
-        // One claim at a time: the answer of the host decides the next one.
-        return;
-      }
-      claiming = true;
-      void guard(claim).then(
-        (granted) => {
-          claiming = false;
-          if (granted) {
-            write();
-          } else {
-            options?.onAcceptRefused?.(claim);
-          }
-        },
-        (error: unknown) => {
-          claiming = false;
-          throw error;
-        },
+/** The functions of the extension that only the proposal mode has. */
+type ProposalModeApi = {
+  /**
+   * Opens a proposal that a host made, for example in a run that a server
+   * started. The display and the review are the same as for a run of this
+   * client. A later call with a newer version of the proposal replaces the
+   * display.
+   */
+  openProposal(proposal: Proposal): void;
+};
+
+/** The review of the proposal mode in an editor (see `ClientMode`). */
+function createProposalMode(
+  context: ModeContext<ProposalReviewData>,
+  options: DocumentAgentExtensionOptions | undefined,
+): ClientMode<ProposalReviewData, ProposalModeApi> {
+  const { editor, store, aiMenu, fail, reset, record, lockEditor } = context;
+  const createEditor = headlessEditorFactory({ schema: editor.schema });
+  /** True while `acceptGuard` decides on an accept. */
+  let claiming = false;
+
+  /**
+   * Runs the write of an accept to the main document.
+   *
+   * The base scenario: no guard, and the write runs at once. With
+   * `acceptGuard`, the write runs only after the guard agreed (see
+   * `DocumentAgentExtensionOptions.acceptGuard`). The write uses the data
+   * of the claim, not the state of that later time: the review can
+   * change while the guard decides.
+   */
+  function writeAccept(claim: AcceptClaim, write: () => void) {
+    const guard = options?.acceptGuard;
+    if (guard === undefined) {
+      write();
+      return;
+    }
+    if (claiming) {
+      // One claim at a time: the answer of the host decides the next one.
+      return;
+    }
+    claiming = true;
+    void guard(claim).then(
+      (granted) => {
+        claiming = false;
+        if (granted) {
+          write();
+        } else {
+          options?.onAcceptRefused?.(claim);
+        }
+      },
+      (error: unknown) => {
+        claiming = false;
+        throw error;
+      },
+    );
+  }
+
+  /** The suggestion IDs of the batches that arrived last: the replay animation shows them. */
+  let newest = new Set<number>();
+
+  /** The decorations of the replay animation, for the insertions of the newest batches. */
+  function replayDecorations(doc: Node): DecorationSet | null {
+    if (newest.size === 0 || options?.replayAnimation === false) {
+      return null;
+    }
+    const decorations: Decoration[] = [];
+    // Each insertion starts when the insertion before it is complete.
+    let delay = 0;
+    doc.descendants((node, pos) => {
+      const isNew = node.marks.some(
+        (mark) => mark.type.name === "insertion" && newest.has(mark.attrs.id),
       );
-    }
-
-    /**
-     * Makes sure that the editor is locked for a run or a review that
-     * starts while the AI menu is closed: the AI menu opens at the block,
-     * or the extension locks the editor itself (see `aiMenu`).
-     */
-    function lockEditor(blockId: string | undefined) {
-      const ai = aiMenu();
-      if (ai === undefined || ai.store.state.aiMenuState !== "closed") {
-        return;
+      if (!isNew) {
+        return true;
       }
-      if (options?.aiMenu === false) {
-        locked = true;
-        editor.isEditable = false;
-      } else if (blockId !== undefined && editor.getBlock(blockId)) {
-        ai.openAIMenuAtBlock(blockId);
-      }
-    }
-
-    function unlockEditor() {
-      if (locked) {
-        locked = false;
-        editor.isEditable = true;
-      }
-    }
-
-    function getChat(): Chat<UIMessage> {
-      const transport = options?.transport;
-      if (transport === undefined) {
-        throw new Error("The document agent has no transport");
-      }
-      chat ??= new Chat<UIMessage>({
-        transport: observeTransport(transport, onChunk),
-      });
-      return chat;
-    }
-    /** The suggestion IDs of the batches that arrived last: the replay animation shows them. */
-    let newest = new Set<number>();
-
-    /** The decorations of the replay animation, for the insertions of the newest batches. */
-    function replayDecorations(doc: Node): DecorationSet | null {
-      if (newest.size === 0 || options?.replayAnimation === false) {
-        return null;
-      }
-      const decorations: Decoration[] = [];
-      // Each insertion starts when the insertion before it is complete.
-      let delay = 0;
-      doc.descendants((node, pos) => {
-        const isNew = node.marks.some(
-          (mark) => mark.type.name === "insertion" && newest.has(mark.attrs.id),
-        );
-        if (!isNew) {
-          return true;
-        }
-        const duration = node.isInline
-          ? Math.min(
-              1500,
-              Math.max(150, node.nodeSize * REPLAY_MS_PER_CHARACTER),
-            )
-          : 300;
-        const attrs = {
-          class: node.isInline ? "bn-agent-new" : "bn-agent-new-block",
-          style: `--bn-agent-delay: ${delay}ms; --bn-agent-duration: ${duration}ms`,
-        };
-        decorations.push(
-          node.isInline
-            ? Decoration.inline(pos, pos + node.nodeSize, attrs)
-            : Decoration.node(pos, pos + node.nodeSize, attrs),
-        );
-        delay += duration;
-        // The content of a new block shows with the block.
-        return node.isInline;
-      });
-      return DecorationSet.create(doc, decorations);
-    }
-
-    function aiMenu() {
-      return editor.getExtension(AIExtension);
-    }
-
-    /** Derives the suggestions of the proposal for the current document, and shows them. */
-    function display(
-      proposal: Proposal,
-    ): Pick<Review, "toolCalls" | "suggestionCount"> {
-      clearSuggestions(editor);
-      assertNoSuggestions(editor, "The display of a proposal");
-      const derived = deriveSuggestions(editor, createEditor, proposal);
-      showSuggestions(editor, derived);
-
-      const suggested = new Map<string, Set<string>>();
-      derived.operations.forEach((operation, index) => {
-        const toolCallId = derived.toolCallIds[index];
-        if (toolCallId !== undefined) {
-          const blocks = suggested.get(toolCallId) ?? new Set();
-          suggested.set(toolCallId, blocks.add(blockOf(operation)));
-        }
-      });
-      const byBlock = toolCallsOfBlocks(proposal);
-      return {
-        suggestionCount: derived.operations.length,
-        toolCalls: toolCallsOf(proposal).map((call) => ({
-          ...call,
-          suggestedBlockIds: [...(suggested.get(call.toolCallId) ?? [])],
-          sharedBlockIds:
-            call.state === "open"
-              ? call.changedBlockIds.filter(
-                  (id) => (byBlock.get(id)?.length ?? 0) > 1,
-                )
-              : [],
-        })),
+      const duration = node.isInline
+        ? Math.min(1500, Math.max(150, node.nodeSize * REPLAY_MS_PER_CHARACTER))
+        : 300;
+      const attrs = {
+        class: node.isInline ? "bn-agent-new" : "bn-agent-new-block",
+        style: `--bn-agent-delay: ${delay}ms; --bn-agent-duration: ${duration}ms`,
       };
-    }
-
-    /** Sets the proposal of a state with a review, and shows it. */
-    function setProposal(proposal: Proposal) {
-      const state = store.state;
-      if (state.status === "idle") {
-        return;
-      }
-      store.setState({
-        ...state,
-        review: { ...state.review, proposal, ...display(proposal) },
-      });
-    }
-
-    /**
-     * Ends the review if each tool call has a decision of the user and no
-     * suggestion is left.
-     */
-    function closeIfDone() {
-      const state = store.state;
-      if (state.status !== "reviewing" && state.status !== "error") {
-        return;
-      }
-      const { proposal, toolCalls, suggestionCount } = state.review;
-      if (
-        suggestionCount > 0 ||
-        toolCalls.some((call) => call.state === "open")
-      ) {
-        return;
-      }
-      reset();
-      options?.onClose?.(
-        toolCalls.some((call) => call.state === "accepted")
-          ? "accepted"
-          : "rejected",
-        proposal,
+      decorations.push(
+        node.isInline
+          ? Decoration.inline(pos, pos + node.nodeSize, attrs)
+          : Decoration.node(pos, pos + node.nodeSize, attrs),
       );
-    }
+      delay += duration;
+      // The content of a new block shows with the block.
+      return node.isInline;
+    });
+    return DecorationSet.create(doc, decorations);
+  }
 
-    function fail(error: "request-failed" | "out-of-sync") {
-      const state = store.state;
-      if (state.status === "idle") {
-        return;
-      }
-      store.setState({ status: "error", error, review: state.review });
-      // The menu shows a fixed text for an error, not the error itself.
-      aiMenu()?.setAIResponseStatus({ status: "error", error });
-    }
+  /** Derives the suggestions of the proposal for the current document, and shows them. */
+  function display(
+    proposal: Proposal,
+  ): Pick<Review, "toolCalls" | "suggestionCount"> {
+    clearSuggestions(editor);
+    assertNoSuggestions(editor, "The display of a proposal");
+    const derived = deriveSuggestions(editor, createEditor, proposal);
+    showSuggestions(editor, derived);
 
-    /** Applies the batches of a tool output to the copy of the proposal of this client. */
-    function applyBatches(batches: Batch[]) {
-      const state = store.state;
-      if (state.status !== "running" || batches.length === 0) {
-        return;
+    const suggested = new Map<string, Set<string>>();
+    derived.operations.forEach((operation, index) => {
+      const toolCallId = derived.toolCallIds[index];
+      if (toolCallId !== undefined) {
+        const blocks = suggested.get(toolCallId) ?? new Set();
+        suggested.set(toolCallId, blocks.add(blockOf(operation)));
       }
-      let proposal = state.review.proposal;
-      // The stream has each batch two times: in a data chunk when its tool
-      // call ends, and in the tool output. The second one is not new.
-      const fresh = batches.filter((batch) => {
-        const known = proposal.batches[batch.seq - 1];
-        return known === undefined || known.hash !== batch.hash;
-      });
-      if (fresh.length === 0) {
-        return;
-      }
-      for (const batch of fresh) {
-        if (batch.seq !== proposal.batches.length + 1) {
-          fail("out-of-sync");
-          return;
-        }
-        proposal = withBatch(proposal, batch);
-      }
-      // The document of this client must have the hash of the last batch.
-      if (replayProposal(createEditor, proposal).error !== undefined) {
-        fail("out-of-sync");
-        return;
-      }
-      aiMenu()?.setAIResponseStatus("ai-writing");
-      // The replay animation shows the tool calls of these batches.
-      newest = new Set(
-        fresh.flatMap((batch) =>
-          batch.source.type === "tool-call" ? [suggestionIdOf(batch)] : [],
-        ),
-      );
-      setProposal(proposal);
-    }
-
-    /**
-     * Takes the proposal that a host sends at the start of a run as the
-     * copy of this client. A host that keeps the proposal sends it: the
-     * proposal can have batches that this client does not have.
-     */
-    function adoptProposal(data: unknown) {
-      const proposal: unknown = (data as { proposal?: unknown } | null)
-        ?.proposal;
-      if (
-        !isProposalShape(proposal) ||
-        replayProposal(createEditor, proposal).error !== undefined
-      ) {
-        fail("out-of-sync");
-        return;
-      }
-      setProposal(proposal);
-    }
-
-    /** Handles one chunk of the UI message stream of a run. */
-    function onChunk(chunk: UIMessageChunk) {
-      chunkCount++;
-      const state = store.state;
-      if (state.status !== "running") {
-        return;
-      }
-      if (chunk.type === "tool-output-available") {
-        applyBatches(batchesOf(chunk.output));
-      } else if (chunk.type === DOCUMENT_BATCHES_CHUNK) {
-        applyBatches(batchesOf(chunk.data));
-      } else if (chunk.type === DOCUMENT_PROPOSAL_CHUNK) {
-        adoptProposal(chunk.data);
-      } else if (chunk.type === "text-delta") {
-        store.setState({
-          ...state,
-          review: {
-            ...state.review,
-            answer: state.review.answer + chunk.delta,
-          },
-        });
-      } else if (chunk.type === "error" || chunk.type === "tool-output-error") {
-        // A tool gives its expected failures as values. A tool error in the
-        // stream is a tool that threw: the run failed.
-        fail("request-failed");
-      }
-    }
-
-    /**
-     * Puts the decision of the user into the outputs of the tool calls in
-     * the chat. Thus, the agent knows it in a later run, and a chat window
-     * shows it.
-     */
-    function record(toolCallIds: readonly string[], review: ToolCallReview) {
-      if (chat !== undefined && toolCallIds.length > 0) {
-        chat.messages = recordReview(
-          chat.messages,
-          new Map(toolCallIds.map((id) => [id, review])),
-        );
-      }
-    }
-
-    /** The tool calls of a review that have no decision of the user. */
-    function openToolCallIds(review: Review): string[] {
-      return review.toolCalls
-        .filter((call) => call.state === "open")
-        .map((call) => call.toolCallId);
-    }
-
-    /** Ends the review: the editor shows the main document, without a proposal. */
-    function reset() {
-      runNumber++;
-      newest = new Set();
-      // The chat stays, with its messages: only its stream stops.
-      void chat?.stop();
-      // The suggestion marks go before the state is `idle` (see
-      // `openProposal`).
-      clearSuggestions(editor);
-      assertNoSuggestions(editor, "The end of a review");
-      store.setState({ status: "idle" });
-      unlockEditor();
-      aiMenu()?.closeAIMenu();
-    }
-
-    /**
-     * Starts a run: the state is `running`, with the review that the run
-     * continues, or with a new proposal of the current document. Returns
-     * the number of the run, or `undefined` if a run is in progress.
-     */
-    function beginRun(): number | undefined {
-      const state = store.state;
-      if (state.status === "running") {
-        return undefined;
-      }
-      if (state.status === "idle") {
-        // The document of the editor becomes the origin of a proposal.
-        assertNoSuggestions(editor, "The start of a proposal");
-      }
-      const review: Review =
-        state.status === "idle"
-          ? {
-              proposal: createProposal(editor.document),
-              toolCalls: [],
-              suggestionCount: 0,
-              answer: "",
-            }
-          : { ...state.review, answer: "" };
-      store.setState({ status: "running", review });
-      // The AI menu starts a run with the menu open. A chat and a followed
-      // run do not.
-      lockEditor(editor.getTextCursorPosition().block.id);
-      aiMenu()?.setAIResponseStatus("thinking");
-      return ++runNumber;
-    }
-
-    /** Ends the run with the number: the state is `reviewing`, or `error`. */
-    function endRun(run: number) {
-      const after = store.state;
-      if (after.status !== "running" || runNumber !== run) {
-        // The run failed, or the user closed the review.
-        return;
-      }
-      if (getChat().status === "error") {
-        fail("request-failed");
-        return;
-      }
-      // The replay animation is only for a run: a later display of the
-      // same suggestions must not show it again. A transaction without
-      // steps makes the view compute its decorations again.
-      newest = new Set();
-      editor.exec((state, dispatch) => {
-        dispatch?.(state.tr.setMeta("addToHistory", false));
-        return true;
-      });
-      store.setState({ status: "reviewing", review: after.review });
-      aiMenu()?.setAIResponseStatus("user-reviewing");
-    }
-
+    });
+    const byBlock = toolCallsOfBlocks(proposal);
     return {
-      key: "documentAgent",
-      store,
-      prosemirrorPlugins: [
-        new Plugin({
-          key: new PluginKey("blocknote-document-agent"),
-          // A guard for the main document. While the document of the editor
-          // itself has the suggestions of a proposal, only the display can
-          // change it. A different change (of an app, or of an extension)
-          // would change text that is not in the main document, and tell
-          // `editor.onChange` about a document with suggestion marks. It
-          // throws: the transaction does not apply.
-          //
-          // An editor that is bound to a Y.Doc does not need this guard:
-          // there, the suggestions are in a local fork, and the shared
-          // Y.Doc is the main document (see `showSuggestions`).
-          filterTransaction(tr, state) {
-            if (
-              !tr.docChanged ||
-              store.state.status === "idle" ||
-              editor.getExtension("ySync") !== undefined
-            ) {
-              return true;
-            }
-            const root: Transaction = tr.getMeta("appendedTransaction") ?? tr;
-            if (
-              root.getMeta(DISPLAY_META) === true ||
-              !hasSuggestions(state.doc)
-            ) {
-              return true;
-            }
-            throw new Error(
-              "The editor shows a proposal as suggestions: its document cannot change. Accept or reject the proposal first.",
-            );
-          },
-          props: {
-            // The style sheet gives the suggestions of a proposal a color.
-            attributes: (): Record<string, string> =>
-              store.state.status === "idle"
-                ? {}
-                : { "data-agent-proposal": "true" },
-            decorations: (state) => replayDecorations(state.doc),
-          },
-        }),
-      ],
-      mount() {
-        // The AI menu can close without this extension, for example when
-        // the user clicks outside the menu. Then the review ends.
-        return aiMenu()?.store.subscribe(({ currentVal }) => {
+      suggestionCount: derived.operations.length,
+      toolCalls: toolCallsOf(proposal).map((call) => ({
+        ...call,
+        suggestedBlockIds: [...(suggested.get(call.toolCallId) ?? [])],
+        sharedBlockIds:
+          call.state === "open"
+            ? call.changedBlockIds.filter(
+                (id) => (byBlock.get(id)?.length ?? 0) > 1,
+              )
+            : [],
+      })),
+    };
+  }
+
+  /** Sets the proposal of a state with a review, and shows it. */
+  function setProposal(proposal: Proposal) {
+    const state = store.state;
+    if (state.status === "idle") {
+      return;
+    }
+    store.setState({
+      ...state,
+      review: { ...state.review, proposal, ...display(proposal) },
+    });
+  }
+
+  /**
+   * Ends the review if each tool call has a decision of the user and no
+   * suggestion is left.
+   */
+  function closeIfDone() {
+    const state = store.state;
+    if (state.status !== "reviewing" && state.status !== "error") {
+      return;
+    }
+    const { proposal, toolCalls, suggestionCount } = state.review;
+    if (
+      suggestionCount > 0 ||
+      toolCalls.some((call) => call.state === "open")
+    ) {
+      return;
+    }
+    reset();
+    options?.onClose?.(
+      toolCalls.some((call) => call.state === "accepted")
+        ? "accepted"
+        : "rejected",
+      proposal,
+    );
+  }
+
+  /** Applies the batches of a tool output to the copy of the proposal of this client. */
+  function applyBatches(batches: Batch[]) {
+    const state = store.state;
+    if (state.status !== "running" || batches.length === 0) {
+      return;
+    }
+    let proposal = state.review.proposal;
+    // The stream has each batch two times: in a data chunk when its tool
+    // call ends, and in the tool output. The second one is not new.
+    const fresh = batches.filter((batch) => {
+      const known = proposal.batches[batch.seq - 1];
+      return known === undefined || known.hash !== batch.hash;
+    });
+    if (fresh.length === 0) {
+      return;
+    }
+    for (const batch of fresh) {
+      if (batch.seq !== proposal.batches.length + 1) {
+        fail("out-of-sync");
+        return;
+      }
+      proposal = withBatch(proposal, batch);
+    }
+    // The document of this client must have the hash of the last batch.
+    if (replayProposal(createEditor, proposal).error !== undefined) {
+      fail("out-of-sync");
+      return;
+    }
+    aiMenu()?.setAIResponseStatus("ai-writing");
+    // The replay animation shows the tool calls of these batches.
+    newest = new Set(
+      fresh.flatMap((batch) =>
+        batch.source.type === "tool-call" ? [suggestionIdOf(batch)] : [],
+      ),
+    );
+    setProposal(proposal);
+  }
+
+  /**
+   * Takes the proposal that a host sends at the start of a run as the
+   * copy of this client. A host that keeps the proposal sends it: the
+   * proposal can have batches that this client does not have.
+   */
+  function adoptProposal(data: unknown) {
+    const proposal: unknown = (data as { proposal?: unknown } | null)?.proposal;
+    if (
+      !isProposalShape(proposal) ||
+      replayProposal(createEditor, proposal).error !== undefined
+    ) {
+      fail("out-of-sync");
+      return;
+    }
+    setProposal(proposal);
+  }
+
+  /** Handles the chunks of the stream of a run that have the proposal or its batches. */
+  function onChunk(chunk: UIMessageChunk) {
+    if (chunk.type === "tool-output-available") {
+      applyBatches(batchesOf(chunk.output));
+    } else if (chunk.type === DOCUMENT_BATCHES_CHUNK) {
+      applyBatches(batchesOf(chunk.data));
+    } else if (chunk.type === DOCUMENT_PROPOSAL_CHUNK) {
+      adoptProposal(chunk.data);
+    }
+  }
+
+  /** The tool calls of a review that have no decision of the user. */
+  function openToolCallIds(review: Review): string[] {
+    return review.toolCalls
+      .filter((call) => call.state === "open")
+      .map((call) => call.toolCallId);
+  }
+
+  /**
+   * Removes the suggestions of the proposal from the editor: the editor
+   * shows the main document. The suggestion marks go before the state is
+   * `idle` (see `openProposal`).
+   */
+  function hide() {
+    newest = new Set();
+    clearSuggestions(editor);
+    assertNoSuggestions(editor, "The end of a review");
+  }
+
+  /** The data of a new review: a new proposal of the current document. */
+  function startReview(): ProposalReviewData {
+    // The document of the editor becomes the origin of a proposal.
+    assertNoSuggestions(editor, "The start of a proposal");
+    return {
+      proposal: createProposal(editor.document),
+      toolCalls: [],
+      suggestionCount: 0,
+    };
+  }
+
+  /** Ends the replay animation at the end of a run. */
+  function endRun() {
+    // The replay animation is only for a run: a later display of the
+    // same suggestions must not show it again. A transaction without
+    // steps makes the view compute its decorations again.
+    newest = new Set();
+    editor.exec((state, dispatch) => {
+      dispatch?.(state.tr.setMeta("addToHistory", false));
+      return true;
+    });
+  }
+
+  return {
+    // The suggestions of a proposal are marks in the document of the
+    // editor, or in a local fork of its Y.Doc: an edit of a user there
+    // would not be an edit of the main document.
+    locksEditor: true,
+    startReview,
+    endRun,
+    onChunk,
+    requestBody: (review): DocumentAgentRequestBody => ({
+      proposal: review.proposal,
+    }),
+    hide,
+    prosemirrorPlugins: [
+      new Plugin({
+        key: new PluginKey("blocknote-document-agent"),
+        // A guard for the main document. While the document of the editor
+        // itself has the suggestions of a proposal, only the display can
+        // change it. A different change (of an app, or of an extension)
+        // would change text that is not in the main document, and tell
+        // `editor.onChange` about a document with suggestion marks. It
+        // throws: the transaction does not apply.
+        //
+        // An editor that is bound to a Y.Doc does not need this guard:
+        // there, the suggestions are in a local fork, and the shared
+        // Y.Doc is the main document (see `showSuggestions`).
+        filterTransaction(tr, state) {
           if (
-            currentVal.aiMenuState === "closed" &&
-            store.state.status !== "idle"
+            !tr.docChanged ||
+            store.state.status === "idle" ||
+            editor.getExtension("ySync") !== undefined
           ) {
-            reset();
+            return true;
           }
-        });
-      },
-
-      /**
-       * Sends a prompt of the user to the agent. The first prompt starts a
-       * proposal from the current document. A later prompt continues the
-       * proposal in review. The request has the copy of the proposal of
-       * this client: a host that keeps no proposal runs on it.
-       */
-      async invoke(prompt: string) {
-        const current = getChat();
-        const run = beginRun();
-        if (run === undefined) {
-          return;
-        }
-        const state = store.state;
-        const body: DocumentAgentRequestBody | undefined =
-          state.status === "idle"
-            ? undefined
-            : { proposal: state.review.proposal };
-        await current.sendMessage(
-          { role: "user", parts: [{ type: "text", text: prompt }] },
-          { body },
-        );
-        endRun(run);
-      },
-
-      /**
-       * Follows the run in progress of this document that this client did
-       * not start: a run of another editor, or a run that a caller outside
-       * the editors started. The chat connects to the stream of the run
-       * (`reconnectToStream` of the transport). The display and the review
-       * are the same as for a run of this client.
-       *
-       * Returns false if the transport has no run in progress.
-       */
-      async follow(): Promise<boolean> {
-        const current = getChat();
-        const before = store.state;
-        const menuWasClosed = aiMenu()?.store.state.aiMenuState === "closed";
-        const wasLocked = locked;
-        const run = beginRun();
-        if (run === undefined) {
-          return false;
-        }
-        const chunksBefore = chunkCount;
-        await current.resumeStream();
-        if (chunkCount === chunksBefore && runNumber === run) {
-          // No stream: there is no run. The state is as before.
-          store.setState(before);
-          if (!wasLocked) {
-            unlockEditor();
+          const root: Transaction = tr.getMeta("appendedTransaction") ?? tr;
+          if (
+            root.getMeta(DISPLAY_META) === true ||
+            !hasSuggestions(state.doc)
+          ) {
+            return true;
           }
-          if (menuWasClosed) {
-            aiMenu()?.closeAIMenu();
-          } else if (before.status !== "idle") {
-            aiMenu()?.setAIResponseStatus("user-reviewing");
-          }
-          return false;
-        }
-        endRun(run);
-        return true;
-      },
+          throw new Error(
+            "The editor shows a proposal as suggestions: its document cannot change. Accept or reject the proposal first.",
+          );
+        },
+        props: {
+          // The style sheet gives the suggestions of a proposal a color.
+          attributes: (): Record<string, string> =>
+            store.state.status === "idle"
+              ? {}
+              : { "data-agent-proposal": "true" },
+          decorations: (state) => replayDecorations(state.doc),
+        },
+      }),
+    ],
+    /**
+     * The main document of the editor: the document without the
+     * suggestions of a proposal, in each state (see `mainDocumentOf`).
+     * An app saves this document, never `editor.document`.
+     */
+    mainDocument() {
+      return mainDocumentOf(editor);
+    },
 
-      /**
-       * The main document of the editor: the document without the
-       * suggestions of a proposal, in each state (see `mainDocumentOf`).
-       * An app saves this document, never `editor.document`.
-       */
-      mainDocument() {
-        return mainDocumentOf(editor);
-      },
-
-      /**
-       * The chat of this editor (the `Chat` of the AI SDK), with the
-       * messages of all runs. A chat window shows it, for example with
-       * `useChat({ chat })`.
-       */
-      getChat,
-
-      /** Stops the run. The batches that arrived stay for the review. */
-      async abort() {
-        await chat?.stop();
-      },
-
+    api: {
       /**
        * Opens a proposal that a host made, for example in a run that a
        * server started. The display and the review are the same as for a
@@ -748,128 +537,115 @@ export const DocumentAgentExtension = createExtension(
         );
         aiMenu()?.setAIResponseStatus("user-reviewing");
       },
+    },
 
-      /**
-       * Accepts the full proposal: a write of the proposal onto the current
-       * document, as a normal edit of the user. The changes that other
-       * writers made after the fork point stay.
-       */
-      acceptAll() {
-        const state = store.state;
-        if (state.status === "idle" || state.status === "running") {
-          return;
+    /**
+     * Accepts the full proposal: a write of the proposal onto the current
+     * document, as a normal edit of the user. The changes that other
+     * writers made after the fork point stay.
+     */
+    acceptAll() {
+      const state = store.state;
+      if (state.status === "idle" || state.status === "running") {
+        return;
+      }
+      const { review } = state;
+      const { proposal } = review;
+      writeAccept({ type: "proposal", proposal }, () => {
+        clearSuggestions(editor);
+        assertNoSuggestions(editor, "The accept of a proposal");
+        const result = updateDocument(
+          editor,
+          acceptAllChange(createEditor, proposal),
+        );
+        if (result.error !== undefined) {
+          // The proposal document comes from an editor with this schema.
+          throw new Error(`The accept of a proposal failed: ${result.error}`);
         }
-        const { review } = state;
-        const { proposal } = review;
-        writeAccept({ type: "proposal", proposal }, () => {
-          clearSuggestions(editor);
-          assertNoSuggestions(editor, "The accept of a proposal");
-          const result = updateDocument(
-            editor,
-            acceptAllChange(createEditor, proposal),
-          );
-          if (result.error !== undefined) {
-            // The proposal document comes from an editor with this schema.
-            throw new Error(`The accept of a proposal failed: ${result.error}`);
-          }
-          record(openToolCallIds(review), "accepted");
-          reset();
-          if (options?.acceptGuard === undefined) {
-            options?.onClose?.("accepted", proposal);
-          }
-        });
-      },
-
-      /** Rejects the full proposal: it goes, and the document does not change. */
-      rejectAll() {
-        const state = store.state;
-        if (state.status === "idle") {
-          return;
-        }
-        record(openToolCallIds(state.review), "rejected");
+        record(openToolCallIds(review), "accepted");
         reset();
-        options?.onClose?.("rejected", state.review.proposal);
-      },
+        if (options?.acceptGuard === undefined) {
+          options?.onClose?.("accepted", proposal);
+        }
+      });
+    },
 
-      /**
-       * Ends the review without a decision of this user: the editor shows
-       * the main document. An app uses this when the proposal closed in a
-       * different place, for example in another editor of the document.
-       */
-      dismiss() {
-        if (store.state.status !== "idle") {
-          reset();
-        }
-      },
+    /** Rejects the full proposal: it goes, and the document does not change. */
+    rejectAll() {
+      const state = store.state;
+      if (state.status === "idle") {
+        return;
+      }
+      record(openToolCallIds(state.review), "rejected");
+      reset();
+      options?.onClose?.("rejected", state.review.proposal);
+    },
 
-      /** Accepts the changes of one tool call. The other suggestions stay. */
-      acceptToolCall(toolCallId: string) {
-        const state = store.state;
-        if (state.status === "idle" || state.status === "running") {
-          return;
+    /** Accepts the changes of one tool call. The other suggestions stay. */
+    acceptToolCall(toolCallId: string) {
+      const state = store.state;
+      if (state.status === "idle" || state.status === "running") {
+        return;
+      }
+      const accepted = acceptToolCall(
+        createEditor,
+        state.review.proposal,
+        toolCallId,
+      );
+      if (accepted.error !== undefined) {
+        return;
+      }
+      const { batch, change } = accepted;
+      const proposal = withBatch(state.review.proposal, batch);
+      writeAccept({ type: "tool-call", batch, proposal }, () => {
+        clearSuggestions(editor);
+        assertNoSuggestions(editor, "The accept of a tool call");
+        const result = updateDocument(editor, change);
+        if (result.error !== undefined) {
+          throw new Error(`The accept of a tool call failed: ${result.error}`);
         }
-        const accepted = acceptToolCall(
-          createEditor,
-          state.review.proposal,
-          toolCallId,
-        );
-        if (accepted.error !== undefined) {
-          return;
+        // With a guard, the review can have a newer proposal of the host
+        // at this time, which already has the batch.
+        const current = store.state;
+        if (current.status !== "idle") {
+          const known = current.review.proposal.batches[batch.seq - 1];
+          setProposal(
+            known?.hash === batch.hash ? current.review.proposal : proposal,
+          );
         }
-        const { batch, change } = accepted;
-        const proposal = withBatch(state.review.proposal, batch);
-        writeAccept({ type: "tool-call", batch, proposal }, () => {
-          clearSuggestions(editor);
-          assertNoSuggestions(editor, "The accept of a tool call");
-          const result = updateDocument(editor, change);
-          if (result.error !== undefined) {
-            throw new Error(
-              `The accept of a tool call failed: ${result.error}`,
-            );
-          }
-          // With a guard, the review can have a newer proposal of the host
-          // at this time, which already has the batch.
-          const current = store.state;
-          if (current.status !== "idle") {
-            const known = current.review.proposal.batches[batch.seq - 1];
-            setProposal(
-              known?.hash === batch.hash ? current.review.proposal : proposal,
-            );
-          }
-          record([toolCallId], "accepted");
-          if (options?.acceptGuard === undefined) {
-            options?.onReview?.(batch, proposal);
-          }
-          closeIfDone();
-        });
-      },
-
-      /**
-       * Rejects the changes of one tool call: a write to the proposal that
-       * reverts them. The other suggestions stay.
-       */
-      rejectToolCall(toolCallId: string) {
-        const state = store.state;
-        if (state.status === "idle" || state.status === "running") {
-          return;
+        record([toolCallId], "accepted");
+        if (options?.acceptGuard === undefined) {
+          options?.onReview?.(batch, proposal);
         }
-        const reverted = revertToolCall(
-          createEditor,
-          state.review.proposal,
-          toolCallId,
-        );
-        if (reverted.error !== undefined) {
-          return;
-        }
-        const proposal = withBatch(state.review.proposal, reverted.batch);
-        setProposal(proposal);
-        record([toolCallId], "rejected");
-        options?.onReview?.(reverted.batch, proposal);
         closeIfDone();
-      },
-    } as const;
-  },
-);
+      });
+    },
+
+    /**
+     * Rejects the changes of one tool call: a write to the proposal that
+     * reverts them. The other suggestions stay.
+     */
+    rejectToolCall(toolCallId: string) {
+      const state = store.state;
+      if (state.status === "idle" || state.status === "running") {
+        return;
+      }
+      const reverted = revertToolCall(
+        createEditor,
+        state.review.proposal,
+        toolCallId,
+      );
+      if (reverted.error !== undefined) {
+        return;
+      }
+      const proposal = withBatch(state.review.proposal, reverted.batch);
+      setProposal(proposal);
+      record([toolCallId], "rejected");
+      options?.onReview?.(reverted.batch, proposal);
+      closeIfDone();
+    },
+  };
+}
 
 /** The batches in the output of a tool call or in a data chunk, or no batches for other data. */
 function batchesOf(output: unknown): Batch[] {
