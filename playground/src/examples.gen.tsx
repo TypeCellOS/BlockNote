@@ -960,6 +960,26 @@ export const examples = {
         readme:
           "To configure a code block highlighting theme and language, you can extend the editor's default schema with a new `codeBlock`, which you can pass options into when creating. You can then use a shiki highlighter to add custom syntax highlighting.\n\nFirst use the [shiki-codegen](https://shiki.style/packages/codegen) CLI to create a `shiki.bundle.ts` file. You can then pass this file into the `codeBlock` options when creating it.\n\n**Relevant Docs:**\n\n- [Code Blocks](/docs/features/blocks/code-blocks)\n- [shiki-codegen](https://shiki.style/packages/codegen)\n- [Custom Schema](/docs/features/custom-schemas)",
       },
+      {
+        projectSlug: "color-combinations",
+        fullSlug: "theming/color-combinations",
+        pathFromRoot: "examples/04-theming/08-color-combinations",
+        config: {
+          playground: true,
+          docs: false,
+          author: "",
+          tags: ["Appearance & Styling"],
+          dependencies: {} as any,
+          pro: false,
+        },
+        title: "Color combinations",
+        group: {
+          pathFromRoot: "examples/04-theming",
+          slug: "theming",
+        },
+        readme:
+          "Inspect every combination of the default text and background colors, including the default color, applied to whole blocks and inline content. Switch between light and dark themes to compare their appearance.\n\n**Try me out!** Use the theme toggle above the editors.\n\n## Relevant docs\n\n- [Themes](https://www.blocknotejs.org/docs/react/styling-theming/themes)",
+      },
     ],
   },
   interoperability: {
@@ -2051,7 +2071,7 @@ export const examples = {
           dependencies: {
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^9.0.2",
-            ai: "^6.0.5",
+            ai: "^7.0.153",
           } as any,
         },
         title: "Rich Text editor AI integration",
@@ -2074,7 +2094,7 @@ export const examples = {
           dependencies: {
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^9.0.2",
-            ai: "^6.0.5",
+            ai: "^7.0.153",
           } as any,
         },
         title: "AI Playground",
@@ -2097,7 +2117,7 @@ export const examples = {
           dependencies: {
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^9.0.2",
-            ai: "^6.0.5",
+            ai: "^7.0.153",
             "react-icons": "^5.5.0",
           } as any,
         },
@@ -2121,7 +2141,7 @@ export const examples = {
           dependencies: {
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^9.0.2",
-            ai: "^6.0.5",
+            ai: "^7.0.153",
             "y-partykit": "^0.0.25",
             yjs: "^13.6.33",
           } as any,
@@ -2146,7 +2166,7 @@ export const examples = {
           dependencies: {
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^9.0.2",
-            ai: "^6.0.5",
+            ai: "^7.0.153",
             "y-partykit": "^0.0.25",
             yjs: "^13.6.33",
           } as any,
@@ -2169,10 +2189,10 @@ export const examples = {
           author: "yousefed",
           tags: ["AI", "llm"],
           dependencies: {
-            "@ai-sdk/groq": "^3.0.2",
+            "@ai-sdk/groq": "^4.0.70",
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^9.0.2",
-            ai: "^6.0.5",
+            ai: "^7.0.153",
           } as any,
         },
         title: "AI Integration with ClientSideTransport",
@@ -2195,7 +2215,7 @@ export const examples = {
           dependencies: {
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^9.0.2",
-            ai: "^6.0.5",
+            ai: "^7.0.153",
           } as any,
         },
         title: "AI Integration with server LLM message persistence",

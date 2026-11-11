@@ -4,11 +4,15 @@ import type { BlockNoteEditor } from "@blocknote/core";
 
 import type { MathRenderer } from "../MathRenderExtension.js";
 
-export const useLatexToMathMLString = (
-  latex: string,
-  editor: Pick<BlockNoteEditor, "getExtension">,
+export const useLatexToMathMLString = ({
+  latex,
+  editor,
   inline = false,
-) => {
+}: {
+  latex: string;
+  editor: Pick<BlockNoteEditor, "getExtension">;
+  inline?: boolean;
+}) => {
   const lastValidMathMLStringRef = useRef("");
 
   const renderer = editor.getExtension<MathRenderer>("math-render");

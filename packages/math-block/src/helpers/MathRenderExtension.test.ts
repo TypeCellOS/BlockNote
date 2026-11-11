@@ -37,6 +37,15 @@ test.each(["block", "inline", "both"] as const)(
   },
 );
 
+test.each(["\\frac{", "\\sqrt{", "x^{"])(
+  "partial LaTeX remains a recoverable source error: %s",
+  (source) => {
+    const result = latexToHTMLString(source);
+    expect(result.error).toBeDefined();
+    expect(result.htmlString).toBeTruthy();
+  },
+);
+
 test("unexpected typesetter errors propagate instead of becoming source errors", () => {
   const failure = new Error("Unexpected renderer failure");
   const render = vi
@@ -65,7 +74,11 @@ test.each([false, true])(
       extensions: [createExtension({ key: "math-render", render })],
     });
     function Preview() {
-      const { mathMLString } = useLatexToMathMLString("x", editor, inline);
+      const { mathMLString } = useLatexToMathMLString({
+        latex: "x",
+        editor,
+        inline,
+      });
       return createElement("span", null, mathMLString);
     }
     try {
@@ -97,7 +110,7 @@ test.each([false, true])(
 test("math previews require the editor capability instead of a direct typesetter fallback", () => {
   const editor = BlockNoteEditor.create();
   function Preview() {
-    const { mathMLString } = useLatexToMathMLString("x", editor);
+    const { mathMLString } = useLatexToMathMLString({ latex: "x", editor });
     return createElement("span", null, mathMLString);
   }
   try {

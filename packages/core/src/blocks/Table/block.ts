@@ -37,6 +37,24 @@ export const tablePropSchema = {
   textColor: defaultProps.textColor,
 };
 
+/**
+ * Reads HTML cell spans, keeping rowspans within the containing table.
+ */
+function parseTableSpan(
+  element: HTMLElement,
+  attribute: "colspan" | "rowspan",
+): number {
+  const raw = element.getAttribute(attribute) ?? "";
+  const value = /^[0-9]+$/.test(raw) ? Number(raw) : 1;
+  if (attribute === "colspan") {
+    return value;
+  }
+
+  const row = element.closest("tr");
+  const table = row?.closest("table");
+  return row && table ? Math.min(value, table.rows.length - row.rowIndex) : 1;
+}
+
 const TiptapTableHeader = Node.create<{
   HTMLAttributes: Record<string, any>;
 }>({
@@ -65,9 +83,11 @@ const TiptapTableHeader = Node.create<{
     return {
       colspan: {
         default: 1,
+        parseHTML: (element) => parseTableSpan(element, "colspan"),
       },
       rowspan: {
         default: 1,
+        parseHTML: (element) => parseTableSpan(element, "rowspan"),
       },
       colwidth: {
         default: null,
@@ -122,9 +142,11 @@ const TiptapTableCell = Node.create<{
     return {
       colspan: {
         default: 1,
+        parseHTML: (element) => parseTableSpan(element, "colspan"),
       },
       rowspan: {
         default: 1,
+        parseHTML: (element) => parseTableSpan(element, "rowspan"),
       },
       colwidth: {
         default: null,
@@ -350,7 +372,10 @@ const TiptapTableRow = Node.create<{
     };
   },
 
-  content: "(tableCell | tableHeader)+",
+  // A row is empty when all of its positions are covered by rowspans from the
+  // rows above, e.g. after merging cells across every column. With `+`,
+  // ProseMirror fills such rows with new cells, which breaks the table.
+  content: "(tableCell | tableHeader)*",
 
   tableRole: "row",
   marks() {

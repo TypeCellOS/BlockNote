@@ -7,7 +7,7 @@ import {
 import {
   convertToModelMessages,
   createIdGenerator,
-  isToolOrDynamicToolUIPart,
+  isToolUIPart,
   streamText,
   UIMessage,
   UIMessagePart,
@@ -57,7 +57,7 @@ serverPersistenceRoute.post("/streamText", async (c) => {
   const messages = await loadChat(id);
 
   const toolParts = (lastToolParts as any[]).filter((part: any) =>
-    isToolOrDynamicToolUIPart(part),
+    isToolUIPart(part),
   );
 
   // get results from tool parts to update the last message
@@ -66,7 +66,7 @@ serverPersistenceRoute.post("/streamText", async (c) => {
     messages[messages.length - 1] = {
       ...lastMessage,
       parts: lastMessage.parts.map((part) => {
-        if (isToolOrDynamicToolUIPart(part)) {
+        if (isToolUIPart(part)) {
           const matchingToolPart = toolParts.find(
             (toolPart) => toolPart.toolCallId === part.toolCallId,
           );
@@ -94,7 +94,7 @@ serverPersistenceRoute.post("/streamText", async (c) => {
 
   const result = streamText({
     model,
-    system: aiDocumentFormats.html.systemPrompt,
+    instructions: aiDocumentFormats.html.systemPrompt,
     messages: await convertToModelMessages(
       injectDocumentStateMessages(messages),
     ),
@@ -109,7 +109,7 @@ serverPersistenceRoute.post("/streamText", async (c) => {
       size: 16,
     }),
     originalMessages: validatedMessages,
-    onFinish: ({ messages }) => {
+    onEnd: ({ messages }) => {
       void saveChat({ chatId: id, messages });
     },
   });

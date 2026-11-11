@@ -37,12 +37,10 @@ export async function renderToSizedSVG(
   const height = Math.ceil(result.height);
 
   return {
-    // Only rewrite the root's dimension attributes, never node/label markup.
-    svg: resolveSVGStyles(result.svg).replace(/^<svg\b[^>]*>/, (root) =>
-      root
-        .replace(/\bwidth="[^"]*"/, `width="${width * scale}"`)
-        .replace(/\bheight="[^"]*"/, `height="${height * scale}"`),
-    ),
+    svg: resolveSVGStyles(result.svg, {
+      width: width * scale,
+      height: height * scale,
+    }),
     width,
     height,
   };

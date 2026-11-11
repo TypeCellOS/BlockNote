@@ -306,4 +306,23 @@ describe("SuggestionMenu", () => {
 
     editor._tiptapEditor.destroy();
   });
+
+  it("does not throw when the menu opens while not editable (#2701)", () => {
+    const editor = createEditor();
+    editor.setTextCursorPosition(editor.document[0].id, "end");
+
+    // Toggling to non-editable right before the menu opens (as a controlled
+    // `editable` prop does under load) means the menu view never gets shown, so
+    // its `state` stays undefined. The stop/non-editable update path used to
+    // call `emitUpdate` unconditionally and throw.
+    editor.isEditable = false;
+
+    expect(() =>
+      editor
+        .getExtension(SuggestionMenu)!
+        .openSuggestionMenu("/", { deleteTriggerCharacter: true }),
+    ).not.toThrow();
+
+    editor._tiptapEditor.destroy();
+  });
 });

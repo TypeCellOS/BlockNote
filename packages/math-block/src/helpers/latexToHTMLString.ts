@@ -15,6 +15,8 @@ export const latexToHTMLString = (
       error: undefined,
     };
   } catch (error) {
+    // Incomplete input while typing is a ParseError and stays a result value.
+    // Only unexpected renderer failures should reach an error boundary.
     if (!(error instanceof katex.ParseError)) {
       throw error;
     }
