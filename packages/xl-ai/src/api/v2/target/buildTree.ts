@@ -66,7 +66,13 @@ export function buildTree(input: {
 
   for (const { block, parent } of decideParents(input)) {
     const created = create(block);
-    blocksByPlace.get(keyOf(parent))!.children.push(created);
+    // `decideParents` gives a step for a parent before the steps of its
+    // children.
+    const parentBlock = blocksByPlace.get(keyOf(parent));
+    if (parentBlock === undefined) {
+      throw new Error(`The parent ${keyOf(parent)} is not in the tree yet`);
+    }
+    parentBlock.children.push(created);
     blocksByPlace.set(keyOf(block), created);
   }
   placeHiddenBlocks(
