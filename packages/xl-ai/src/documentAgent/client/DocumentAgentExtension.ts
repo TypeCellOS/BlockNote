@@ -363,11 +363,13 @@ export const DocumentAgentExtension = createExtension(
         // The AI menu has the items that accept and reject the proposal.
         const ai = aiMenu();
         if (ai !== undefined && ai.store.state.aiMenuState === "closed") {
-          const firstBlock =
-            toolCalls.flatMap((call) => call.suggestedBlockIds)[0] ??
-            editor.document[0]?.id;
-          if (firstBlock !== undefined && editor.getBlock(firstBlock)) {
-            ai.openAIMenuAtBlock(firstBlock);
+          // The menu opens below a block: use the last block with a
+          // suggestion, as the menu of a run that a user starts.
+          const block =
+            toolCalls.flatMap((call) => call.suggestedBlockIds).at(-1) ??
+            editor.document.at(-1)?.id;
+          if (block !== undefined && editor.getBlock(block)) {
+            ai.openAIMenuAtBlock(block);
             ai.setAIResponseStatus("user-reviewing");
           }
         }
