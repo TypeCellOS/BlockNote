@@ -2249,6 +2249,32 @@ export const examples = {
         readme:
           'This example shows a document as markdown or plain text next to the editor, and writes the changed text back with the text lens (`@blocknote/xl-ai/text-lens`). The changes of the text show as AI suggestions in the editor. A write applies only the changes, and keeps the data that the text does not show: block IDs, colors, underline, alignment, nesting and image widths.\n\n**Try it out:** Change a word in the text, change a different block in the live editor, and then change the text again: the edit of the live editor stays.\n\n**How it works:**\n\n- The base is the document at the time when the text was read. Each write sends the full text with the base. Thus, the write keeps the edits that the live editor made after that time.\n- A write starts 200 ms after the last change in the text.\n- Each write first rejects the suggestions of the last write. A deletion stays in the document until a user accepts it. Thus, without this step, the next write reads the deleted text as content. Then the write applies the full text again, as new suggestions.\n- "Accept all" and "Reject all" end the suggestions. Then the current document becomes the new base, and the text shows it.\n- "Set as new base" makes the current document the base, and shows it in the text. Use it to see the edits of the live editor in the text. This button and the format switch are available only when there are no suggestions.\n- The "Last write" panel shows the operations and the warnings of the last write.\n\n**How the suggestions apply** (see `src/suggestTextUpdate.ts`):\n\n1. `computeOperations` computes the operations on the clean document (after a revert of the suggestions of the last write).\n2. `applyOperations` applies the updates to one transaction of the editor. These steps change only the changed text.\n3. An insert, a move or a delete applies with `insertBlocks` and `removeAndInsertBlocks` of `@blocknote/core`, with one step for each block. `applyOperations` replaces each run of changed blocks in one step, and the suggestions then show all the blocks of that run as deleted and inserted.\n4. `transformToSuggestionTransaction` of `prosemirror-suggest-changes` changes these steps into suggestions.\n\n**Limits:**\n\n- A move shows as a deletion and an insertion. If you accept it, the block gets a new ID.\n- Text that you type in the live editor inside a suggestion gets the mark of that suggestion. The next write removes it.\n\n**Relevant Docs:**\n\n- [Text Updates](/docs/features/text-updates)\n- [Getting Started with BlockNote AI](/docs/features/ai/getting-started)',
       },
+      {
+        projectSlug: "document-agent",
+        fullSlug: "ai/document-agent",
+        pathFromRoot: "examples/09-ai/09-document-agent",
+        config: {
+          playground: true,
+          docs: false,
+          author: "yousefed",
+          tags: ["AI", "llm", "Collaboration"],
+          dependencies: {
+            "@ai-sdk/anthropic": "^4.0.88",
+            "@blocknote/xl-ai": "latest",
+            "@mantine/core": "^9.0.2",
+            ai: "^7.0.153",
+            "y-websocket": "^2.1.0",
+            yjs: "^13.6.33",
+          } as any,
+        },
+        title: "AI document agent (prototype)",
+        group: {
+          pathFromRoot: "examples/09-ai",
+          slug: "ai",
+        },
+        readme:
+          'This example shows the document agent of `@blocknote/xl-ai`: an agent loop that reads and writes the document as markdown through the text lens. The agent writes to a proposal. The editor shows the proposal as suggestions, with the reason of each tool call, and the user accepts or rejects each tool call.\n\nSelect a mode at the top. In "Server" and "Client" mode, type `/ai` or select text and click the AI button. In the two "Server run" modes, start a run with the panel on the right, change the document while the agent works, then review the proposal.\n\nThe example needs the BlockNote AI server (`packages/xl-ai-server`). The mode "Server run (Yjs)" also needs a y-websocket server on port 1234. See `PROTOTYPE.md` in the root of the repository.\n\n**Relevant Docs:**\n\n- [Getting Stared with BlockNote AI](/docs/features/ai/getting-started)\n- [Changing the Formatting Toolbar](/docs/react/components/formatting-toolbar)\n- [Changing Slash Menu Items](/docs/react/components/suggestion-menus)',
+      },
     ],
   },
   "vanilla-js": {

@@ -1,0 +1,62 @@
+.document-agent {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.document-agent-modes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.document-agent-modes a {
+  padding: 4px 10px;
+  border: 1px solid #d0d0d0;
+  border-radius: 14px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.document-agent-modes a[aria-current="page"] {
+  border-color: #4f8ff7;
+  background: #eaf2ff;
+  color: #1c4fa8;
+}
+
+.document-agent-columns {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.document-agent-editor {
+  flex: 1;
+  min-width: 0;
+}
+
+.document-agent-side {
+  width: 280px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: sticky;
+  top: 8px;
+}
+
+.document-agent-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+
+.document-agent-panel textarea {
+  font: inherit;
+  resize: vertical;
+}

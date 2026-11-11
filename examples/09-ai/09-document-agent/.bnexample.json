@@ -1,0 +1,14 @@
+{
+  "playground": true,
+  "docs": false,
+  "author": "yousefed",
+  "tags": ["AI", "llm", "Collaboration"],
+  "dependencies": {
+    "@ai-sdk/anthropic": "^4.0.88",
+    "@blocknote/xl-ai": "latest",
+    "@mantine/core": "^9.0.2",
+    "ai": "^7.0.153",
+    "y-websocket": "^2.1.0",
+    "yjs": "^13.6.33"
+  }
+}
