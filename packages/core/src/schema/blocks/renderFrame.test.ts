@@ -314,7 +314,11 @@ describe("renderFrame updates", () => {
       expect(box.getAttribute("data-flavor")).toBe("warning");
       const slot = box.querySelector<HTMLElement>(".frame-slot")!;
       expect(slot.querySelector('[data-id="box-child"]')).not.toBeNull();
-      expect(slot.textContent).toBe("Child");
+      // The empty frame title can contain a placeholder widget. Assert the
+      // child's content rather than counting that UI text as document text.
+      expect(slot.querySelector('[data-id="box-child"]')?.textContent).toBe(
+        "Child",
+      );
 
       editor.updateBlock("box-0", {
         props: { flavor: "tip" },

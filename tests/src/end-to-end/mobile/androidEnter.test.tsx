@@ -34,7 +34,9 @@ describe("Enter on Android", () => {
     const blocksBefore = document.querySelectorAll(
       BLOCK_CONTAINER_SELECTOR,
     ).length;
-    const textBefore = document.querySelector(EDITOR_SELECTOR)!.textContent;
+    const textBefore = document.querySelector(
+      `${EDITOR_SELECTOR} .bn-block-content`,
+    )!.textContent;
 
     await userEvent.keyboard("{Enter}");
 
@@ -47,9 +49,11 @@ describe("Enter on Android", () => {
       }
     });
     // The classic #3001 misbehavior inserts a space or mangles text instead.
-    expect(document.querySelector(EDITOR_SELECTOR)!.textContent).toBe(
-      textBefore,
-    );
+    // Check the original block; the new empty block contains placeholder UI.
+    expect(
+      document.querySelector(`${EDITOR_SELECTOR} .bn-block-content`)!
+        .textContent,
+    ).toBe(textBefore);
     // The browser's native split lands the new paragraph next to the content
     // DOM; when ProseMirror does not read it back, its fallback splits the
     // document but the stray paragraph stays in the old block, rendered next
@@ -64,13 +68,10 @@ describe("Enter on Android", () => {
 
     await userEvent.keyboard("Second line");
     await vi.waitFor(() => {
-      if (
-        !document
-          .querySelector(EDITOR_SELECTOR)!
-          .textContent!.includes("Second line")
-      ) {
-        throw new Error("typing after Enter did not land in the new block");
-      }
+      const secondBlock = document.querySelectorAll(
+        `${EDITOR_SELECTOR} .bn-block-content`,
+      )[1];
+      expect(secondBlock?.textContent).toBe("Second line");
     });
   });
 
@@ -102,9 +103,11 @@ describe("Enter on Android", () => {
           );
         }
       });
-      expect(document.querySelector(EDITOR_SELECTOR)!.textContent).toBe(
-        "Commit line",
-      );
+      // Check the original block; the new empty block contains placeholder UI.
+      expect(
+        document.querySelector(`${EDITOR_SELECTOR} .bn-block-content`)!
+          .textContent,
+      ).toBe("Commit line");
     },
   );
 });
