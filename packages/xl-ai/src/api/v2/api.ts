@@ -1,8 +1,8 @@
 import type { BlockNoteEditor, PartialBlock } from "@blocknote/core";
 import { UniqueID } from "@blocknote/core/extensions";
 
-import { alignBlocks } from "./alignment/index.js";
-import type { LensBlock } from "./model.js";
+import { alignBlocks, type BlockPair } from "./alignment/index.js";
+import type { FlatBlock, LensBlock } from "./model.js";
 import {
   assertBlockIds,
   BlockTree,
@@ -27,11 +27,17 @@ import {
 import {
   assertBlocksRoundTrip,
   documentText,
+  type Projection,
   shadowOf,
+  type ViewBlock,
 } from "./projection/index.js";
 import { mergeTree, type MergeWarning } from "./merge/index.js";
 import { fitResult, type FitWarning, mergedCellsRemoved } from "./fit/index.js";
-import { targetFromPairs, type TargetWarning } from "./target/index.js";
+import {
+  targetFromPairs,
+  type TargetInput,
+  type TargetWarning,
+} from "./target/index.js";
 
 /** Returns the document in the format. A client reads this text, changes it, and writes it back. */
 export function getDocumentText(
@@ -185,8 +191,9 @@ export function updateDocument(
 
 // The pipeline (see "Pipeline" in the README). A change runs these functions:
 //
-//   operationsOf       = textTarget (text: 1 Project, 2 Parse and align,
-//                        3 Target) or jsonTarget (JSON: 2 Parse, and the IDs)
+//   operationsOf       = textTarget (text: 1 Project, 2 Parse and align
+//                        with parseAndAlign, 3 Target) or jsonTarget (JSON:
+//                        2 Parse, and the IDs)
 //                        then updateFromTarget (4 Merge, 5 Fit, 6 Diff)
 //   dispatchOperations = 7 Apply and 8 Dispatch
 //
@@ -284,23 +291,57 @@ function textTarget(
     return { target: source, warnings: [] };
   }
   const projection = read.projection();
-  // 2. Parse and align. The format must show each block of the parse (see
-  // `assertBlocksRoundTrip`).
+  // 2. Parse and align.
+  const aligned = parseAndAlign(editor, format, projection.view, content);
+  if (aligned.error !== undefined) {
+    return aligned;
+  }
+  // 3. Target.
+  return targetFromPairs(
+    targetInputOf(editor, format, source, projection, aligned),
+  );
+}
+
+/** The blocks of a text, in a flat list, and their pairs with the view blocks (stage 2). */
+type Alignment = { textBlocks: FlatBlock[]; pairs: BlockPair[] };
+
+/**
+ * Stage 2 (Parse and align) of a text change. The format must show each
+ * block of the parse (see `assertBlocksRoundTrip`).
+ *
+ * `testUtil/stages.ts` also uses it, thus the stage tests run the same code.
+ *
+ * @internal
+ */
+export function parseAndAlign(
+  editor: BlockNoteEditor<any, any, any>,
+  format: TextFormat,
+  view: readonly ViewBlock[],
+  content: string,
+): ({ error?: undefined } & Alignment) | { error: "invalid-document" } {
   const parsed = parseText(editor, format, content);
   if (parsed.error !== undefined) {
     return parsed;
   }
-  assertBlocksRoundTrip(
-    editor,
-    format,
-    parsed.blocks,
-    projection.view,
-    content,
-  );
+  assertBlocksRoundTrip(editor, format, parsed.blocks, view, content);
   const textBlocks = flattenBlocks(parsed.blocks);
-  const pairs = alignBlocks(projection.view, textBlocks);
-  // 3. Target.
-  return targetFromPairs({
+  return { textBlocks, pairs: alignBlocks(view, textBlocks) };
+}
+
+/**
+ * The input of stage 3 (Target, see `targetFromPairs`) for a text change.
+ * `testUtil/stages.ts` also uses it.
+ *
+ * @internal
+ */
+export function targetInputOf(
+  editor: BlockNoteEditor<any, any, any>,
+  format: TextFormat,
+  source: readonly LensBlock[],
+  projection: Projection,
+  { textBlocks, pairs }: Alignment,
+): TargetInput {
+  return {
     source,
     projection,
     incoming: textBlocks,
@@ -308,7 +349,7 @@ function textTarget(
     contentKindOf: schemaRulesOf(editor).contentKindOf,
     shadowOf: (item) => shadowOf(editor, format, item),
     newId: () => UniqueID.options.generateID(),
-  });
+  };
 }
 
 /**
@@ -317,8 +358,12 @@ function textTarget(
  *
  * With `onConflict: "reject"`, a conflict of the merge gives the error
  * `"conflict"`, and no operations.
+ *
+ * `testUtil/stages.ts` also uses it, thus the stage tests run the same code.
+ *
+ * @internal
  */
-function updateFromTarget(
+export function updateFromTarget(
   rules: SchemaRules,
   {
     target,

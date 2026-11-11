@@ -14,7 +14,8 @@ import type { TargetWarning } from "./types.js";
 
 export type { TargetWarning } from "./types.js";
 
-type TargetInput = {
+/** The input of {@link targetFromPairs}: the source, its projection, the text blocks and the alignment. */
+export type TargetInput = {
   /** The document that the change starts from (`base`, or the current document). */
   source: readonly LensBlock[];
   /** `source` as the format shows it. */

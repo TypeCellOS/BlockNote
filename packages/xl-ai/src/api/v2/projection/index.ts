@@ -7,5 +7,5 @@
  */
 export { assertBlocksRoundTrip } from "./assertBlocksRoundTrip.js";
 export { documentText } from "./cache.js";
-export type { Projection } from "./projectDocument.js";
+export type { Projection, ViewBlock } from "./projectDocument.js";
 export { shadowOf } from "./shadows.js";

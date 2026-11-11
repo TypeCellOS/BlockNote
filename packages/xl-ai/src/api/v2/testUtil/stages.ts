@@ -1,35 +1,26 @@
 import type { BlockNoteEditor } from "@blocknote/core";
-import { UniqueID } from "@blocknote/core/extensions";
 
-import { alignBlocks } from "../alignment/alignBlocks.js";
+import { parseAndAlign, targetInputOf, updateFromTarget } from "../api.js";
 import { schemaRulesOf } from "../util/blocks/schema.js";
 import { BlockTree } from "../util/blocks/tree.js";
 import { blockToText } from "../util/blocks/text.js";
-import type {
-  BlockWithoutChildren,
-  FlatBlock,
-  LensBlock,
-  LensInlineContent,
-} from "../model.js";
-import { flattenBlocks } from "../util/blocks/flatten.js";
-import { fitResult } from "../fit/fitResult.js";
+import type { BlockWithoutChildren, FlatBlock, LensBlock } from "../model.js";
 import type { TextFormat } from "../formats/types.js";
-import { diffDocuments } from "../operations/diffDocuments.js";
-import { parseText } from "../parse/parseText.js";
-import { assertBlocksRoundTrip } from "../projection/assertBlocksRoundTrip.js";
+import { documentText } from "../projection/cache.js";
 import { correspond } from "../target/correspond.js";
 import { targetFromPairs } from "../target/targetFromPairs.js";
-import {
-  projectDocument,
-  type ViewBlock,
-} from "../projection/projectDocument.js";
-import { shadowOf } from "../projection/shadows.js";
+import type { ViewBlock } from "../projection/projectDocument.js";
 
 /**
  * Runs the stages of a text write on the current document (`base:
- * "current"`), as `textTarget` and `updateFromTarget` in `api.ts` do, and returns
- * the data of each stage in a short form. Each row is one block: its ID (or
- * the source ID of a view block), its type and its text.
+ * "current"`), and returns the data of each stage in a short form. Each row
+ * is one block: its ID (or the source ID of a view block), its type and its
+ * text.
+ *
+ * It calls the stage functions of `textTarget` and `operationsOf` in
+ * `api.ts`, in the same order. Only the rows of the correspondence come
+ * from a second call: `targetFromPairs` does not give them. The text must
+ * differ from the text of the document (an unchanged text has no stages).
  */
 export function textStages(
   editor: BlockNoteEditor<any, any, any>,
@@ -38,30 +29,27 @@ export function textStages(
 ) {
   const document = editor.document as LensBlock[];
   // 1. Project.
-  const projection = projectDocument(editor, format, document);
+  const projection = documentText(editor, format, document).projection();
   // 2. Parse and align.
-  const textBlocks = textBlocksOf(editor, format, text, projection.view);
-  const pairs = alignBlocks(projection.view, textBlocks);
+  const { textBlocks, pairs } = alignedOrThrow(
+    parseAndAlign(editor, format, projection.view, text),
+  );
   // 3. Target.
-  const input = {
-    source: document,
-    projection,
-    incoming: textBlocks,
-    alignment: pairs,
-    contentKindOf: schemaRulesOf(editor).contentKindOf,
-    shadowOf: (item: LensInlineContent) => shadowOf(editor, format, item),
-    newId: () => UniqueID.options.generateID(),
-  };
+  const input = targetInputOf(editor, format, document, projection, {
+    textBlocks,
+    pairs,
+  });
   const { rows } = correspond(input, new BlockTree(document));
   const target = targetFromPairs(input);
-  // 5. Fit, and 6. Diff (no merge for `base: "current"`).
-  const result = fitResult(
-    schemaRulesOf(editor),
-    target.target,
-    document,
-    false,
-  );
-  const operations = diffDocuments(document, result);
+  // 4. Merge (none for `base: "current"`), 5. Fit and 6. Diff.
+  const update = updateFromTarget(schemaRulesOf(editor), target, {
+    base: undefined,
+    current: document,
+    onConflict: undefined,
+  });
+  if (update.error !== undefined) {
+    throw new Error(`The update is an error: ${update.error}`);
+  }
 
   const short = (block: BlockWithoutChildren, id = block.id) => [
     id,
@@ -87,9 +75,19 @@ export function textStages(
       row.kind === "skipped" ? undefined : row.id,
       blockToText(textBlocks[j].block),
     ]),
-    operations: withNewIdPlaceholders(operations),
+    operations: withNewIdPlaceholders(update.operations),
     warnings: target.warnings,
   };
+}
+
+/** Returns the alignment, and fails the test if the text does not fit the schema. */
+function alignedOrThrow<T>(
+  aligned: ({ error?: undefined } & T) | { error: string },
+): T {
+  if (aligned.error !== undefined) {
+    throw new Error(`The text is an error: ${aligned.error}`);
+  }
+  return aligned;
 }
 
 /**
@@ -108,8 +106,9 @@ export function withNewIdPlaceholders(
 }
 
 /**
- * The text blocks of a text, as `textTarget` in `api.ts` gives them: the parse,
- * checked (see `assertBlocksRoundTrip`), in a flat list.
+ * The text blocks of a text, as `textTarget` in `api.ts` gives them (see
+ * `parseAndAlign`): the parse, checked (see `assertBlocksRoundTrip`), in a
+ * flat list.
  */
 export function textBlocksOf(
   editor: BlockNoteEditor<any, any, any>,
@@ -117,10 +116,5 @@ export function textBlocksOf(
   text: string,
   view: readonly ViewBlock[],
 ): FlatBlock[] {
-  const parsed = parseText(editor, format, text);
-  if (parsed.error !== undefined) {
-    throw new Error(parsed.error);
-  }
-  assertBlocksRoundTrip(editor, format, parsed.blocks, view, text);
-  return flattenBlocks(parsed.blocks);
+  return alignedOrThrow(parseAndAlign(editor, format, view, text)).textBlocks;
 }

@@ -237,7 +237,7 @@ Each folder has an `index.ts` with its API for the other folders. A file imports
 - The tests that do not need a DOM run in the node environment (`// @vitest-environment node`). The other tests run in jsdom: the markdown and HTML conversions of BlockNote need a DOM, and the binding to a Y.Doc needs a mounted editor view.
 - The `api.*.test.ts` files examine the full pipeline:
   - `api.laws.test.ts`: the laws, on two documents, in the three formats.
-  - `api.stages.test.ts`: the data of each stage (the view, the pairs, the rows, the operations) for core examples, as snapshots (`testUtil/stages.ts`). Read them with the "Pipeline" section.
+  - `api.stages.test.ts`: the data of each stage (the view, the pairs, the rows, the operations) for core examples, as snapshots (`testUtil/stages.ts`). The helper calls the stage functions of `api.ts` (`parseAndAlign`, `targetInputOf`, `updateFromTarget`), thus the snapshots show the data of the real write. Read them with the "Pipeline" section.
   - `api.properties.test.ts`: the laws on 200 random documents with random edits, in the three formats, on 100 random documents with columns, and on 400 random line edits in markdown. Each case has a seed, thus you can run a failed case again. The random edits change the blocks at the top level of each format (`testUtil/codecs.ts`). Two HTML seeds are not in the test, because of a known problem of core (see the test).
   - `api.markdown.test.ts`, `api.html.test.ts` and `api.plainText.test.ts`: examples in each format.
   - `api.json.test.ts`: the JSON API.

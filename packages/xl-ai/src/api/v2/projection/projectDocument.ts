@@ -11,7 +11,7 @@ import { anchoredMatch } from "../util/sequence/index.js";
 import type { TextFormat } from "../formats/index.js";
 import { parseText } from "../parse/index.js";
 
-/** @internal */
+/** A block of the view: a block of the parse of the text of the document, with its link to a source block. */
 export type ViewBlock = FlatBlock & {
   /**
    * The ID of the source block that gave this view block. `undefined` if the
