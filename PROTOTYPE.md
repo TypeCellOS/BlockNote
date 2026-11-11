@@ -21,17 +21,20 @@ Also done: a simple replay animation (SHOULD 1, section 3.3). Not done: a chat s
 ## 2. How to run it
 
 ```sh
+# In the root of the worktree, in each terminal:
 export PATH="$HOME/.nvm/versions/node/v24.18.0/bin:$PWD/node_modules/.bin:$PATH"
 
 # 1. The AI server on port 3111, with the API keys of the main checkout.
 cd packages/xl-ai-server
 set -a; source /Users/yousef/Programming/BlockNote/packages/xl-ai-server/.env.local; set +a
-PORT=3111 DOCUMENT_AGENT_MODEL=anthropic:claude-haiku-5-5 vite-node src/index.ts
+PORT=3111 DOCUMENT_AGENT_MODEL=anthropic:claude-haiku-5-5 node_modules/.bin/vite-node src/index.ts
 
 # 2. The playground on port 5180 (a second terminal).
 cd playground
 VITE_BLOCKNOTE_AI_SERVER_BASE_URL=http://localhost:3111/ai vp dev --port 5180 --strictPort
 ```
+
+The server has no hot reload: start it again after a change. Without `localhost.pem` in `packages/xl-ai-server`, it uses HTTP, as in these commands.
 
 Open `http://localhost:5180/ai/document-agent`. The links at the top select the mode:
 
