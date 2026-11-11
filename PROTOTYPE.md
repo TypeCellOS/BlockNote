@@ -19,7 +19,8 @@ Read this section first. The sections after it are in the order of the work, and
 - Guards that keep suggestions out of the main document (section 14.7).
 - Two modes behind small interfaces (sections 15 and 16): the proposal mode (all sections before 15), and a Yjs 14 mode where the agent writes into a suggestion document. The two have a host side, an editor extension, and a mode in the chat example, examined in a browser.
 - The replay animation in the two modes: the changes of a run show one after the other, as the changes of a person who edits the document (section 16.8).
-- 148 tests with a mock model, a test with random concurrent edits that runs on the two modes (sections 14.10 and 15.4), and four tests that are known failures (below). Live measurements with Haiku 5.5 (sections 9, 13.3 to 13.5).
+- The state of a session is in stores, not in the memory of a server process: the chat with its run, the stream of each run, and the proposals. The demo server has stores on files (section 16.10).
+- 152 tests with a mock model (and 9 tests of the file stores in the server package), a test with random concurrent edits that runs on the two modes (sections 14.10 and 15.4), and four tests that are known failures (below). Live measurements with Haiku 5.5 (sections 9, 13.3 to 13.5).
 
 **Decisions of 11 November**
 
@@ -82,6 +83,8 @@ VITE_BLOCKNOTE_AI_SERVER_BASE_URL=http://localhost:3111/ai vp dev --port 5180 --
 ```
 
 The server has no hot reload: start it again after a change. Without `localhost.pem` in `packages/xl-ai-server`, it uses HTTP, as in these commands.
+
+With `DOCUMENT_AGENT_DATA_DIR=<a directory>` in the command of the server, the server keeps the state of the sessions in files there, and the state stays after a restart (section 16.10). Without it, the state is in memory.
 
 The example with the chat window is `http://localhost:5180/ai/document-agent-chat` (section 14). `DOCUMENT_AGENT_REASONING=none` on the server gives the first edit earlier (section 13.4).
 
@@ -866,10 +869,10 @@ What a production host must do itself:
 2. Apply each update of the main document to the suggestion document (`keepSuggestionCurrent`), if no editor is open that does this.
 3. Store the two Y.Docs: this is the work of its collaboration server.
 
-Not done:
+Not done at the time of this section:
 
-- A store for the streams of the runs. A run is in the memory of one process: an editor can follow it only through that process.
-- A proposal store on a database, for the proposal mode.
+- A store for the streams of the runs. Done after this section: see section 16.10.
+- A proposal store on a database, for the proposal mode. Section 16.10 has a proposal store on files for the demo server. A store on a database is the work of an app.
 
 ### 16.8 The replay animation: as a person who edits (11 November)
 
@@ -945,13 +948,70 @@ It does not hold in three cases:
 2. A restart of the server process during a run: the run is in the memory of that process.
 3. More than one server process: the reload can reach a process that does not have the run.
 
-Cases 2 and 3 need the store for the streams of the runs (section 16.7, not done).
+Cases 2 and 3 need the store for the streams of the runs. Done after this section: see section 16.10.
 
 **Resumable streams:** almost no dependency. The prototype does not use the SDK for this: `RunLog` keeps the chunks of a run in memory, and `follow` reads them. The SDK guide uses the package `resumable-stream` on Redis, and the ID of the active stream with the chat. A run store would be an interface in the session code with the same pattern.
 
 **TanStack AI** (version 1.0, from its documentation, not from a test): it has its own stream protocol (AG-UI) and does not read or write the protocol of the AI SDK. It has tool definitions for the server and the client, a loop with a strategy, middleware for chunks and tool calls, and resumable streams in the library (in memory, a durable stream, Upstash). Four needs of the document agent are not verified: custom data in the stream, an editor that follows a run that a different client started, a stop of a run across processes, and the start of a tool when the model has written its call.
 
 **My recommendation:** stay on the AI SDK. Its dependency in layer 3 is a fact of xl-ai, and most apps that use xl-ai have the SDK already. Keep layer 1 behind `AgentDocument` and the tool list, as it is now. If you want a second opinion, a spike of TanStack AI must answer the four needs first: it is the real alternative, and its resumable streams are better than what the SDK has in its core.
+
+### 16.10 The state and the streams of a session in stores (11 November)
+
+Your request: an example in which the state and the stream are stored on the server.
+
+**What changed in the shared code** (`@blocknote/xl-ai`). The session code kept the runs in the memory of the process. Now it keeps no state of a document there. A host gives three stores, each with an implementation in memory as the default:
+
+| Store | What it has | New |
+|---|---|---|
+| `ChatStore` | The chat of a document, and the ID of its run in progress. | The run ID is new. |
+| `RunStore` | The chunks of the stream of each run from its start, and a stop request. | The store is new (`stores/runStore.ts`). |
+| `ProposalStore` | The proposals (proposal mode). The open proposal of a document has a fixed ID, and a close removes it. | `delete` is new. |
+
+This is the pattern of the AI SDK guide for resumable streams (the stream in a store, and the ID of the active stream with the chat), behind our own interfaces. It has no dependency on a library or on Redis.
+
+Three properties follow:
+
+1. **One run for a document, also with more than one process.** The start of a run is a compare and swap on the chat (`activeRunId`).
+2. **Each process can serve a run.** An editor follows a run through each process (`RunStore.follow`), and each process can ask for a stop (`RunStore.requestStop`).
+3. **A run whose process stopped is not lost.** The store tells that the run is `lost`. The next read of the session makes the message of the agent from the stored chunks, and puts it into the chat.
+
+The message of the agent in the chat is now always made from the chunks of the run (`readUIMessageStream` of the AI SDK): at the normal end, after a stop, after a failure, and after a crash. Before, the host saved the message only at the normal end. A tool call without a result (the run stopped before the result) gets an error as its result. Thus, a model can read the chat in a later run. A real provider (Haiku) accepted such a chat.
+
+**The demo server** (`packages/xl-ai-server`). With `DOCUMENT_AGENT_DATA_DIR`, the server uses stores on files (`routes/documentAgent/fileStores.ts`):
+
+- `chats/<source>/<document>.json`: the chat and the run in progress. A change has a lock file: two processes cannot both start a run.
+- `runs/<run>/chunks.ndjson`: one JSON line for each chunk. A follower reads the new lines each 40 ms. The files `owner`, `end` and `stop` have the process of the run, its end, and a stop request.
+- `proposals/`, `documents/`: JSON files.
+- `yjs/`, `yjs14/`: the Y.Docs of the two Yjs relays, written after each update.
+
+`GET /ai/document-agent/storage` tells where the state is, and the chat example shows it at the top.
+
+**What I examined** (Chromium, Haiku 5.5, the server with file stores):
+
+| Case | Proposal mode (JSON session) | Yjs 14 mode |
+|---|---|---|
+| A reload of the page during a run | Nothing lost: 6 cards, 10 marks | Nothing lost: 6 cards, 13 marks |
+| A restart of the server after a run, then a reload | The chat, the changes and the review are there. An accept after the restart works. | The same. |
+| A stop of the server process (SIGKILL) during a run, then a start and a reload | The chat has the request and the message of the agent with the 2 tool calls to that point. The 2 changes are in the review. | The same (2 tool calls, 2 changes). |
+| A new request after that | The agent made the 3 changes that were not there. | The agent made 3 more changes. |
+
+With a second server process on the same directory (proposal mode):
+
+- A run that the second process started showed in the page of the first process after a reload: the marks came one after the other (0, 2, 4, 6), then the 3 cards.
+- A request for a second run through the second process got 409 (`run-active`).
+- A stop request through the second process stopped the run of the first process after 71 ms. The chat kept the change of the tool call that ended.
+
+**Limits**
+
+1. A run does not continue after a stop of its process: the agent loop was in that process. The chat and the changes to that point stay, and a user sends a new request.
+2. The file stores are for a demo: processes on one computer with one file system. A production host uses its database and, for example, Redis streams. The interfaces are small: `ChatStore` has 2 functions, `RunStore` has 4, `ProposalStore` has 3.
+3. More than one process is examined only for the proposal mode with the JSON store. The Yjs relays of the demo keep each Y.Doc in one process: a production host has a Yjs server for this.
+4. The notices to the editors are for one process. An editor of a different process gets the session at its next load.
+5. The order of the review requests of a document (`review`, `closeProposal`) is for one process. With more than one process, the proposal store must refuse a save that does not follow the stored proposal.
+6. A lost run is found by the process ID and by a time stamp: a reader waits 5 seconds at most if the process ID is in use again.
+7. The older route `POST /runs` (the first example) keeps the state of its runs in memory.
+8. Client mode has no change: the loop and the chat are in the tab.
 
 ## 17. For later: the Yjs 14 mode as the only mode (11 November)
 
