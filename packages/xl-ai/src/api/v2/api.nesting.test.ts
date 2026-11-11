@@ -784,13 +784,11 @@ describe("markdown, list items that the text shows as one list share the parent 
   );
 });
 
-describe("KNOWN problems: the hidden nesting in lists (markdown)", () => {
-  // The list rule applies only to list items of one list. A block that the
-  // text does not show in the list of the item before it (here a code
-  // block) keeps the other rules: it goes into the parent of the text. It
-  // closes the hidden parent P, and the next item B, which the text does
-  // not change, cannot go back into P.
-  it.fails("KNOWN: keeps the next items of a list in a paragraph if the text outdents a code block out of an earlier item", () => {
+describe("markdown, an outdent out of an item of a hidden list", () => {
+  // The text shows the code block one level higher than the view: at the
+  // level of the item A. Thus, the code block goes where A is: into the
+  // hidden parent P. P stays open, and the next item B stays in P.
+  it("keeps the next items of a list in a paragraph if the text outdents a code block out of an earlier item", () => {
     expect(
       write([p("P", [bullet("A", [code("x = 1")]), bullet("B")])], (text) =>
         replaceOnce(text, "  ```text\n  x = 1\n  ```", "```text\nx = 1\n```"),

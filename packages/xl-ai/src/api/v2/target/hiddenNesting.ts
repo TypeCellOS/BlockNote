@@ -126,6 +126,8 @@ class ParentDecisions {
   private readonly keptFrom: ({ index: number; row: KeptRow } | undefined)[];
   /** The index of the text block before each text block in its text parent. */
   private readonly previousSibling: (number | undefined)[];
+  /** The ID of the kept block of each view block that has one. */
+  private readonly keptAtView: Map<number, string>;
 
   private readonly rows: NestingInput["rows"];
   private readonly incoming: NestingInput["incoming"];
@@ -148,6 +150,11 @@ class ParentDecisions {
       this.keptFrom[k] =
         row.kind === "kept" ? { index: k, row } : this.keptFrom[k + 1];
     }
+    this.keptAtView = new Map(
+      rows.flatMap((row) =>
+        row.kind === "kept" ? [[row.viewIndex, row.id] as const] : [],
+      ),
+    );
     const lastChild = new Map<number | undefined, number>();
     this.previousSibling = input.incoming.map(({ parentIndex }, j) => {
       const previous = lastChild.get(parentIndex);
@@ -212,12 +219,24 @@ class ParentDecisions {
   private nestingUnchanged(j: number, row: KeptRow): boolean {
     const textParentIndex = this.incoming[j].parentIndex;
     const viewParentIndex = this.view[row.viewIndex].parentIndex;
+    return (
+      this.textParentIs(j, viewParentIndex) &&
+      (textParentIndex === undefined ||
+        this.view[viewParentIndex!].block.type ===
+          this.incoming[textParentIndex].block.type)
+    );
+  }
+
+  /**
+   * Returns true if the parent of text block `j` in the text is the pair of
+   * view block `viewIndex` (`undefined`: the top level).
+   */
+  private textParentIs(j: number, viewIndex: number | undefined): boolean {
+    const textParentIndex = this.incoming[j].parentIndex;
     return textParentIndex === undefined
-      ? viewParentIndex === undefined
-      : this.rows[textParentIndex].viewIndex === viewParentIndex &&
-          viewParentIndex !== undefined &&
-          this.view[viewParentIndex].block.type ===
-            this.incoming[textParentIndex].block.type;
+      ? viewIndex === undefined
+      : viewIndex !== undefined &&
+          this.rows[textParentIndex].viewIndex === viewIndex;
   }
 
   /**
@@ -290,6 +309,40 @@ class ParentDecisions {
   }
 
   /**
+   * Returns the parent of kept block `j` if the text shows the block one
+   * level higher than the view: at the level of its parent in the view.
+   *
+   * - An outdent: the parent in the view stays. The block goes where that
+   *   parent is, if that place is open.
+   * - A lift: the text removed the source parent, and its blocks take its
+   *   place. The block goes where that parent was, if that place is open.
+   *
+   * That place can be a nesting that the format does not show (for example
+   * a paragraph with a list in it, in markdown). Else, returns `undefined`.
+   */
+  private outdentParent(j: number, row: KeptRow): Place | undefined {
+    const viewParent = this.view[row.viewIndex].parentIndex;
+    if (
+      viewParent === undefined ||
+      !this.textParentIs(j, this.view[viewParent].parentIndex)
+    ) {
+      return undefined;
+    }
+    const shownParent = this.keptAtView.get(viewParent);
+    if (shownParent === undefined) {
+      const parentId = this.source.parent(row.id);
+      return parentId === undefined || this.kept.has(parentId)
+        ? undefined
+        : this.sourceParent(parentId);
+    }
+    const place = this.placeOf.get(shownParent);
+    const parent = place === undefined ? undefined : this.open.parentOf(place);
+    return parent !== undefined && this.open.isOpen(parent)
+      ? parent
+      : undefined;
+  }
+
+  /**
    * Returns the source parent of the next kept block after new block `j`, if
    * that block has the same text parent and keeps a nesting that the text
    * does not show. The new block then goes into the same nesting, before it.
@@ -318,11 +371,15 @@ class ParentDecisions {
   /**
    * The parent of kept block `j` in the target:
    *
-   * - If the text changed the nesting of the block, the parent of the text.
-   *   There are two exceptions: if the text moved the block together with
-   *   its hidden parent, the block stays in that parent (see
-   *   {@link parentMovedAlong}), and a list item goes into the parent of
-   *   its list (see {@link listParent}).
+   * - If the text changed the nesting of the block, the parent of the text,
+   *   with three exceptions. If the text moved the block together with its
+   *   hidden parent, the block stays in that parent (see
+   *   {@link parentMovedAlong}). A list item goes into the parent of its list
+   *   (see {@link listParent}). A block that the text moved up out of its
+   *   source parent goes where that parent is (see {@link outdentParent}).
+   *   Thus, a block that the text outdents out of an item of a hidden list
+   *   stays in the hidden parent of that list, and the next blocks stay
+   *   there too.
    * - Else, the source parent, with the nesting that the format does not
    *   show (for example a column). There are two exceptions. A block that
    *   the text moved to a place outside its hidden blocks (none of them is
@@ -337,6 +394,7 @@ class ParentDecisions {
       return (
         this.parentMovedAlong(j, row) ??
         this.listParent(j) ??
+        this.outdentParent(j, row) ??
         this.textParent(j)
       );
     }

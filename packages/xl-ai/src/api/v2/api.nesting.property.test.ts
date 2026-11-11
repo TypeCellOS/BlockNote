@@ -215,17 +215,14 @@ describe("markdown, with nesting that markdown does not show", () => {
     });
   });
 
-  // An outdent and a lift: the list rule applies only to list items of one
-  // list. A block that the text does not show in the list of the block
-  // before it (a paragraph, a code block, a table, or a list item of a
-  // different list) keeps the other rules: it goes into the parent of the
-  // text, also if a hidden parent is open and the next block needs it.
-  // Thus, the block closes that hidden parent, and the next blocks of the
-  // hidden parent go out of it.
-  it.fails("KNOWN: keeps the model for an outdent", () => {
+  // An outdent and a lift: a block that the text shows one level higher
+  // than the view goes where its parent in the view is, or was (see
+  // `outdentParent`). That can be a hidden parent. Thus, the next blocks of
+  // that hidden parent stay in it.
+  it("keeps the model for an outdent", () => {
     expectModelOnAllSeeds(markdownFormat, HIDDEN, "outdent");
   });
-  it.fails("KNOWN: keeps the model for a removal of a list item without the blocks in it", () => {
+  it("keeps the model for a removal of a list item without the blocks in it", () => {
     expectModelOnAllSeeds(markdownFormat, HIDDEN, "lift");
   });
 });
