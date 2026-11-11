@@ -21,9 +21,9 @@ import { valid } from "./valid.js";
 
 /**
  * A document with data that markdown and plain text do not show: colors,
- * alignment, a toggle, a paragraph in a bullet (markdown shows it without
- * nesting), empty paragraphs, underline, text color, image width, and table
- * cell colors.
+ * alignment, a toggle, a paragraph in a bullet (plain text and HTML show it
+ * without nesting), empty paragraphs, underline, text color, image width,
+ * and table cell colors.
  */
 export const richDocument: PartialBlock[] = [
   {

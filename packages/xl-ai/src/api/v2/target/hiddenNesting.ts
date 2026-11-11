@@ -54,7 +54,7 @@ const LISTS: ReadonlyMap<string, "ordered" | "bullet"> = new Map([
  * Decides the parent of each block of the rows: the steps of the build, in
  * the order of the text. The blocks go into the parent that the text shows,
  * with two exceptions. A kept block keeps a nesting that the format does not
- * show (for example a paragraph in a bullet, in markdown), if the text did
+ * show (for example a paragraph in a paragraph, in markdown), if the text did
  * not change its nesting and the parent is still open. A new block before
  * such a block goes into the same nesting (see `keptParent`). And list items
  * that the text shows as one list share the parent of that list (see
