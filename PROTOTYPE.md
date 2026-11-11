@@ -933,6 +933,20 @@ Your questions: how much the document agent depends on the AI SDK of Vercel, and
 2. The chat model and the stream format (`UIMessage`, `UIMessageChunk`, `Chat`, `ChatTransport`): this is the real dependency. The sessions, the stores, the review in the tool outputs and the example use these types.
 3. The public API of `@blocknote/xl-ai`: it is the AI SDK already (the old engine and its docs). A different library is a breaking change for each user of xl-ai.
 
+**A reload during a run** (your question: "Refresh mid-answer and nothing is lost", the statement of TanStack AI for its resumable streams). The session modes have this now, with their own code, on one server process. I examined it in Chromium with Haiku, with one prompt with six changes, and a reload of the page when the editor showed the first change:
+
+- Proposal mode (JSON session): the run continued on the server. After the reload, the editor followed the run from its start, and at the end the page had the prompt, the six cards, the answer and the 10 suggestion marks. The chat of the server had the same six tool calls with a write.
+- Yjs 14 mode: the same result (six cards, 13 marks).
+- One difference: in proposal mode, the changes from before the reload show with the animation again. In Yjs 14 mode they show at once, because they are in the document at the load.
+
+It does not hold in three cases:
+
+1. Client mode: the loop and the chat are in the tab. A reload ends the run (from the design, not examined).
+2. A restart of the server process during a run: the run is in the memory of that process.
+3. More than one server process: the reload can reach a process that does not have the run.
+
+Cases 2 and 3 need the store for the streams of the runs (section 16.7, not done).
+
 **Resumable streams:** almost no dependency. The prototype does not use the SDK for this: `RunLog` keeps the chunks of a run in memory, and `follow` reads them. The SDK guide uses the package `resumable-stream` on Redis, and the ID of the active stream with the chat. A run store would be an interface in the session code with the same pattern.
 
 **TanStack AI** (version 1.0, from its documentation, not from a test): it has its own stream protocol (AG-UI) and does not read or write the protocol of the AI SDK. It has tool definitions for the server and the client, a loop with a strategy, middleware for chunks and tool calls, and resumable streams in the library (in memory, a durable stream, Upstash). Four needs of the document agent are not verified: custom data in the stream, an editor that follows a run that a different client started, a stop of a run across processes, and the start of a tool when the model has written its call.
