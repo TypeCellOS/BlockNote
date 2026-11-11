@@ -5,6 +5,7 @@ import {
   usePortalElement,
 } from "@blocknote/react";
 import { forwardRef, type HTMLAttributes, type MouseEvent } from "react";
+import { EditorDirectionProvider } from "../EditorDirectionProvider.js";
 
 import { preventFocusOnOpenProps } from "../lib/preventFocusOnOpen.js";
 import { cn } from "../lib/utils.js";
@@ -30,22 +31,24 @@ export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
     const ShadCNComponents = useShadCNComponentsContext()!;
 
     return (
-      <ShadCNComponents.Tooltip.TooltipProvider delay={0}>
-        <div
-          className={cn(
-            className,
-            "bg-popover text-popover-foreground flex h-fit gap-1 rounded-lg border p-1 shadow-md",
-            variant === "action-toolbar" ? "w-fit" : "",
-          )}
-          role="toolbar"
-          aria-label={ariaLabel}
-          ref={ref}
-          onMouseEnter={onMouseEnter}
-          onMouseLeave={onMouseLeave}
-        >
-          {children}
-        </div>
-      </ShadCNComponents.Tooltip.TooltipProvider>
+      <EditorDirectionProvider>
+        <ShadCNComponents.Tooltip.TooltipProvider delay={0}>
+          <div
+            className={cn(
+              className,
+              "bg-popover text-popover-foreground flex h-fit gap-1 rounded-lg border p-1 shadow-md",
+              variant === "action-toolbar" ? "w-fit" : "",
+            )}
+            role="toolbar"
+            aria-label={ariaLabel}
+            ref={ref}
+            onMouseEnter={onMouseEnter}
+            onMouseLeave={onMouseLeave}
+          >
+            {children}
+          </div>
+        </ShadCNComponents.Tooltip.TooltipProvider>
+      </EditorDirectionProvider>
     );
   },
 );
@@ -187,43 +190,45 @@ export const ToolbarSelect = forwardRef<
   }
 
   return (
-    <ShadCNComponents.Select.Select
-      value={selectedItem.text}
-      onValueChange={(value) =>
-        items.find((item) => item.text === value)!.onClick?.()
-      }
-      disabled={isDisabled}
-    >
-      <ShadCNComponents.Select.SelectTrigger
-        className={"border-none"}
-        // How-to-test: without it, tapping the block type select focuses the button and closes the keyboard (covered by skinFocus, android, shadcn: "opening the block type select keeps focus in the editor").
-        onMouseDown={preventFocusOnTap}
+    <EditorDirectionProvider element={portalElement}>
+      <ShadCNComponents.Select.Select
+        value={selectedItem.text}
+        onValueChange={(value) =>
+          items.find((item) => item.text === value)!.onClick?.()
+        }
+        disabled={isDisabled}
       >
-        <ShadCNComponents.Select.SelectValue />
-      </ShadCNComponents.Select.SelectTrigger>
-      <ShadCNComponents.Select.SelectContent
-        className={className}
-        container={portalElement}
-        // Position the dropdown below the trigger (classic dropdown behavior)
-        // instead of aligning the selected item over the trigger (the Base UI
-        // default).
-        alignItemWithTrigger={false}
-        ref={ref}
-        // How-to-test: without it, opening the block type select focuses the listbox and closes the keyboard (covered by skinFocus, android, shadcn: "opening the block type select keeps focus in the editor").
-        {...preventFocusOnOpenProps(preventFocusOnOpen ?? false)}
-      >
-        {items.map((item) => (
-          <ShadCNComponents.Select.SelectItem
-            disabled={item.isDisabled}
-            key={item.text}
-            value={item.text}
-            // How-to-test: without it, tapping a block type focuses the option and closes the keyboard (covered by skinFocus, android, shadcn: "picking from the block type select leaves focus in the editor").
-            onMouseDown={preventFocusOnTap}
-          >
-            <SelectItemContent {...item} />
-          </ShadCNComponents.Select.SelectItem>
-        ))}
-      </ShadCNComponents.Select.SelectContent>
-    </ShadCNComponents.Select.Select>
+        <ShadCNComponents.Select.SelectTrigger
+          className={"border-none"}
+          // How-to-test: without it, tapping the block type select focuses the button and closes the keyboard (covered by skinFocus, android, shadcn: "opening the block type select keeps focus in the editor").
+          onMouseDown={preventFocusOnTap}
+        >
+          <ShadCNComponents.Select.SelectValue />
+        </ShadCNComponents.Select.SelectTrigger>
+        <ShadCNComponents.Select.SelectContent
+          className={className}
+          container={portalElement}
+          // Position the dropdown below the trigger (classic dropdown behavior)
+          // instead of aligning the selected item over the trigger (the Base UI
+          // default).
+          alignItemWithTrigger={false}
+          ref={ref}
+          // How-to-test: without it, opening the block type select focuses the listbox and closes the keyboard (covered by skinFocus, android, shadcn: "opening the block type select keeps focus in the editor").
+          {...preventFocusOnOpenProps(preventFocusOnOpen ?? false)}
+        >
+          {items.map((item) => (
+            <ShadCNComponents.Select.SelectItem
+              disabled={item.isDisabled}
+              key={item.text}
+              value={item.text}
+              // How-to-test: without it, tapping a block type focuses the option and closes the keyboard (covered by skinFocus, android, shadcn: "picking from the block type select leaves focus in the editor").
+              onMouseDown={preventFocusOnTap}
+            >
+              <SelectItemContent {...item} />
+            </ShadCNComponents.Select.SelectItem>
+          ))}
+        </ShadCNComponents.Select.SelectContent>
+      </ShadCNComponents.Select.Select>
+    </EditorDirectionProvider>
   );
 });

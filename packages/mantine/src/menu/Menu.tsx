@@ -1,11 +1,14 @@
 import {
   CheckIcon as MantineCheckIcon,
   Menu as MantineMenu,
+  useDirection,
 } from "@mantine/core";
 
 import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { createContext, forwardRef, useContext } from "react";
+import { EditorDirectionProvider } from "../EditorDirectionProvider.js";
+import { physicalPosition } from "../physicalPosition.js";
 
 const SubMenuContext = createContext<
   | {
@@ -16,6 +19,7 @@ const SubMenuContext = createContext<
 >(undefined);
 
 export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
+  const { dir } = useDirection();
   const {
     children,
     onOpenChange,
@@ -34,7 +38,7 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
         transitionProps={{ duration: 250, exitDelay: 250 }}
         middlewares={{ flip: true, shift: true, inline: false, size: true }}
         onChange={onOpenChange}
-        position={position}
+        position={physicalPosition(dir, position)}
       >
         {children}
       </MantineMenu.Sub>
@@ -42,19 +46,23 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
   }
 
   return (
-    <MantineMenu
-      withinPortal={!!portalElement}
-      portalProps={portalElement ? { target: portalElement } : undefined}
-      // Do not move focus to the dropdown when requested (mobile), as it blurs
-      // the editor's contentEditable and dismisses the on-screen keyboard.
-      trapFocus={preventFocusOnOpen ? false : undefined}
-      middlewares={{ flip: true, shift: true, inline: false, size: true }}
-      onChange={onOpenChange}
-      position={position}
-      returnFocus={false}
-    >
-      {children}
-    </MantineMenu>
+    <EditorDirectionProvider element={portalElement}>
+      {(direction) => (
+        <MantineMenu
+          withinPortal={!!portalElement}
+          portalProps={portalElement ? { target: portalElement } : undefined}
+          // Do not move focus to the dropdown when requested (mobile), as it blurs
+          // the editor's contentEditable and dismisses the on-screen keyboard.
+          trapFocus={preventFocusOnOpen ? false : undefined}
+          middlewares={{ flip: true, shift: true, inline: false, size: true }}
+          onChange={onOpenChange}
+          position={physicalPosition(direction, position)}
+          returnFocus={false}
+        >
+          {children}
+        </MantineMenu>
+      )}
+    </EditorDirectionProvider>
   );
 };
 
