@@ -7,6 +7,7 @@
     "changelogen": "^0.6.1",
     "concurrently": "9.1.2",
     "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-perfectionist": "5.13.0",
     "glob": "^10.5.0",
     "oxlint-tsgolint": "^7.0.2001",
     "serve": "14.2.6",
