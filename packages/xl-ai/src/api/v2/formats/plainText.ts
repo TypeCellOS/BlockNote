@@ -1,4 +1,4 @@
-import type { LensBlock, LensInlineContent } from "../model.js";
+import type { LensBlock } from "../model.js";
 import { flattenBlocks, inlineContentToText } from "../util/blocks/index.js";
 import type { TextFormat } from "./types.js";
 
@@ -22,7 +22,7 @@ function blocksToPlainText(blocks: readonly LensBlock[]): string {
     if (!Array.isArray(block.content)) {
       continue;
     }
-    const text = inlineContentToText(block.content as LensInlineContent[]);
+    const text = inlineContentToText(block.content);
     if (text.trim().length > 0) {
       paragraphs.push(text);
     }

@@ -100,8 +100,8 @@ class ParentDecisions {
   private readonly open = new OpenAncestors();
   /** The place of each source block that is in the tree: a kept block or a hidden ancestor. */
   private readonly placeOf = new Map<string, Place>();
-  /** The index of the first kept row at or after each index. */
-  private readonly keptFrom: (number | undefined)[];
+  /** The first kept row at or after each index, with its index. */
+  private readonly keptFrom: ({ index: number; row: KeptRow } | undefined)[];
 
   private readonly rows: NestingInput["rows"];
   private readonly incoming: NestingInput["incoming"];
@@ -120,7 +120,9 @@ class ParentDecisions {
     const { rows } = input;
     this.keptFrom = new Array(rows.length + 1);
     for (let k = rows.length - 1; k >= 0; k--) {
-      this.keptFrom[k] = rows[k].kind === "kept" ? k : this.keptFrom[k + 1];
+      const row = rows[k];
+      this.keptFrom[k] =
+        row.kind === "kept" ? { index: k, row } : this.keptFrom[k + 1];
     }
   }
 
@@ -239,14 +241,14 @@ class ParentDecisions {
    * keeps the nesting of its view block. Else `undefined`.
    */
   private nextKept(j: number): { index: number; row: KeptRow } | undefined {
-    const index = this.keptFrom[j + 1];
-    if (index === undefined) {
+    const next = this.keptFrom[j + 1];
+    if (next === undefined) {
       return undefined;
     }
-    const row = this.rows[index] as KeptRow;
+    const { index, row } = next;
     return this.incoming[index].parentIndex === this.incoming[j].parentIndex &&
       this.nestingUnchanged(index, row)
-      ? { index, row }
+      ? next
       : undefined;
   }
 
