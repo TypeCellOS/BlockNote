@@ -64,6 +64,31 @@ export const SourceInlineContentWithPreviewExtension = createExtension(
         return true;
       };
 
+    // Select the visible preview as one item rather than extending through its
+    // hidden source. Leave selection within an open source to the browser.
+    const extendAcrossPreview =
+      (direction: -1 | 1) =>
+      ({ editor }: { editor: BlockNoteEditor<any, any, any> }) =>
+        editor.transact((tr) => {
+          const { selection } = tr;
+          if (selection.toJSON().type !== "text") {
+            return false;
+          }
+          const { $head, anchor } = selection;
+          const node = direction === -1 ? $head.nodeBefore : $head.nodeAfter;
+          if ($head.textOffset || !node || !nodeHasPreview(node.type.name)) {
+            return false;
+          }
+          tr.setSelection(
+            TextSelection.create(
+              tr.doc,
+              anchor,
+              $head.pos + direction * node.nodeSize,
+            ),
+          );
+          return true;
+        });
+
     return {
       key: "sourceInlineContentWithPreview",
       store,
@@ -73,6 +98,8 @@ export const SourceInlineContentWithPreviewExtension = createExtension(
         Escape: moveSelectionOut("after"),
         ArrowUp: moveSelectionOut("before"),
         ArrowDown: moveSelectionOut("after"),
+        "Shift-ArrowLeft": extendAcrossPreview(-1),
+        "Shift-ArrowRight": extendAcrossPreview(1),
         // While editing the source, selects the whole source instead of the
         // whole document.
         "Mod-a": ({ editor }) => {
