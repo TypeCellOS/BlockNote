@@ -912,6 +912,28 @@ describe("Markdown round trip", () => {
       expectStable(blocks);
     });
 
+    it("keeps the start of a numbered list whose first item has a nested list", () => {
+      const blocks: PartialBlock[] = [
+        {
+          type: "numberedListItem",
+          content: "a",
+          props: { start: 3 },
+          children: [{ type: "bulletListItem", content: "b" }],
+        },
+        {
+          type: "numberedListItem",
+          content: "c",
+          children: [{ type: "bulletListItem", content: "d" }],
+        },
+      ];
+      const markdown = serialize(blocks);
+      expect(markdown).toBe("3. a\n   * b\n4. c\n   * d\n");
+      const parsed = parse(markdown);
+      expect(parsed[0].props).toMatchObject({ start: 3 });
+      expect(parsed[1].props).not.toHaveProperty("start", 3);
+      expectStable(blocks);
+    });
+
     it("keeps the nesting level of the list item after a nested paragraph", () => {
       const blocks: PartialBlock[] = [
         {

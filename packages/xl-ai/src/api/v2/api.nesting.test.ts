@@ -245,10 +245,10 @@ describe("core: the markdown parse of nesting that the exporter does not write",
 
   // The numbered list item takes the start from the `start` attribute of
   // its list. If the item has a nested list, `createGroups` of
-  // `nestedLists.ts` wraps the item in a `div`, and the parse rule of the
-  // numbered list item reads the attribute of that `div`, not of the list
-  // (`NumberedListItem/block.ts`). Thus, the start is lost.
-  it.fails("KNOWN: keeps the start of a numbered list whose first item has a nested list", () => {
+  // `nestedLists.ts` wraps the item in a `div`. The parse rule of the
+  // numbered list item reads the attribute of the list, not of that `div`
+  // (`NumberedListItem/block.ts`).
+  it("keeps the start of a numbered list whose first item has a nested list", () => {
     const blocks = editor.tryParseMarkdownToBlocks("3. A\n   * c\n4. B\n");
     expect(blocks[0].props).toMatchObject({ start: 3 });
   });
@@ -755,13 +755,12 @@ describe("KNOWN problems: the hidden nesting in lists (markdown)", () => {
   );
 });
 
-describe("KNOWN problems: the start of a numbered list (markdown)", () => {
-  // A problem of core: the parse loses the start of a numbered list whose
-  // first item has a nested list (see "core: the markdown parse" above).
-  // The view of the document has the start (the item has no nested list
-  // yet), and the text block does not. Thus, the merge takes the change of
-  // the text: the start goes.
-  it.fails("KNOWN: keeps the start of a numbered list if the text adds a nested list to its first item", () => {
+describe("markdown, the start of a numbered list with a nested list", () => {
+  // Before the fix of core, the parse lost the start of a numbered list
+  // whose first item has a nested list (see "core: the markdown parse"
+  // above). The view of the document had the start, and the text block did
+  // not. Thus, the merge took the change of the text: the start went.
+  it("keeps the start of a numbered list if the text adds a nested list to its first item", () => {
     const { editor } = write(
       [{ ...numbered("A"), props: { start: 3 } }, numbered("B")],
       (text) => replaceOnce(text, "3. A", "3. A\n   * c"),
@@ -769,10 +768,9 @@ describe("KNOWN problems: the start of a numbered list (markdown)", () => {
     expect(editor.getBlock("A")?.props).toMatchObject({ start: 3 });
   });
 
-  // The view and the text both lose the start. Thus, the merge sees no
-  // change of the start, and the document keeps 3. PutGet is true only
-  // modulo the normalization: the canonical form also loses the start.
-  it.fails("KNOWN: changes the start of a numbered list whose first item has a nested list", () => {
+  // Before the fix of core, the view and the text both lost the start.
+  // Thus, the merge saw no change of the start, and the document kept 3.
+  it("changes the start of a numbered list whose first item has a nested list", () => {
     const { editor } = write(
       [{ ...numbered("A", [bullet("c")]), props: { start: 3 } }, numbered("B")],
       (text) => replaceOnce(text, "3. A", "5. A"),
