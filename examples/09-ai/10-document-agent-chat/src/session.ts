@@ -1,0 +1,179 @@
+import type { BlockNoteEditor } from "@blocknote/core";
+import { useExtension, useExtensionState } from "@blocknote/react";
+import {
+  DocumentAgentExtension,
+  type DocumentAgentExtensionOptions,
+  type SessionSnapshot,
+} from "@blocknote/xl-ai";
+import { DefaultChatTransport } from "ai";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import type * as Y from "yjs";
+
+// The connection of an editor to the session of its document on the
+// server. The server keeps the chat and the one open proposal of the
+// document (`createSessionHost` of `@blocknote/xl-ai`, and the routes
+// `/sessions/...` of `packages/xl-ai-server`).
+
+/**
+ * The transport of the chat for a session:
+ *
+ * - A message of the user goes to the server, which starts a run. The
+ *   server has the chat, thus the request has only the new message.
+ * - The stream of the run in progress comes from `/stream`, from its
+ *   start. The editor follows a run that it did not start there.
+ */
+export function createSessionTransport(sessionUrl: string) {
+  return new DefaultChatTransport({
+    api: `${sessionUrl}/messages`,
+    prepareSendMessagesRequest: ({ messages }) => ({
+      body: { message: messages.at(-1) },
+    }),
+    prepareReconnectToStreamRequest: () => ({ api: `${sessionUrl}/stream` }),
+    resumeStreamIsReplay: true,
+  });
+}
+
+/**
+ * The options of the document agent that send the review of the user to
+ * the server: the accept or the reject of one tool call is a batch of the
+ * proposal, and the accept or the reject of all closes the proposal.
+ */
+export function sessionReviewOptions(
+  sessionUrl: string,
+): Pick<DocumentAgentExtensionOptions, "onReview" | "onClose"> {
+  function post(path: string, body: unknown) {
+    void fetch(`${sessionUrl}/${path}`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(body),
+    });
+  }
+  return {
+    onReview: (batch) => post("batches", { batch }),
+    onClose: (result) => post("close", { result }),
+  };
+}
+
+/**
+ * Keeps the editor in agreement with the session of the server. At the
+ * start, and after each notice of the server (`notice` changes), the editor
+ * gets the session:
+ *
+ * - The chat of the server becomes the chat of the editor.
+ * - If a run is in progress, the editor follows it: a run of another
+ *   editor, or a run that a caller outside the editors started.
+ * - Else, if the document has an open proposal, the editor shows it.
+ */
+export function useSession(
+  editor: BlockNoteEditor<any, any, any>,
+  sessionUrl: string,
+  notice: number,
+) {
+  const agent = useExtension(DocumentAgentExtension, { editor });
+
+  const sync = useCallback(async () => {
+    const response = await fetch(sessionUrl);
+    if (!response.ok || agent.store.state.status === "running") {
+      // The stream of a run that this editor follows has all the news.
+      return;
+    }
+    const session = (await response.json()) as SessionSnapshot;
+    if (session.proposal === undefined && session.activeRunId === undefined) {
+      // Another editor closed the proposal: this editor has no decision.
+      agent.dismiss();
+    }
+    agent.getChat().messages = session.messages;
+    if (session.activeRunId !== undefined) {
+      await agent.follow();
+    } else if (
+      session.proposal !== undefined &&
+      session.proposal.batches.length > 0
+    ) {
+      agent.openProposal(session.proposal);
+    }
+  }, [agent, sessionUrl]);
+
+  useEffect(() => {
+    void sync();
+  }, [sync, notice]);
+}
+
+/**
+ * Ends a review that has nothing to review: a run that made no change (for
+ * example an answer to a question). Else, the editor stays locked.
+ */
+export function useCloseEmptyReview(editor: BlockNoteEditor<any, any, any>) {
+  const agent = useExtension(DocumentAgentExtension, { editor });
+  const empty = useExtensionState(DocumentAgentExtension, {
+    editor,
+    selector: (state) =>
+      state.status === "reviewing" &&
+      state.review.suggestionCount === 0 &&
+      state.review.toolCalls.every((call) => call.state !== "open"),
+  });
+  useEffect(() => {
+    if (empty) {
+      agent.rejectAll();
+    }
+  }, [agent, empty]);
+}
+
+/**
+ * The JSON store: saves the document of the editor to the server, and
+ * counts the notices of its session (server-sent events).
+ */
+export function useJsonStore(
+  editor: BlockNoteEditor<any, any, any>,
+  agentUrl: string,
+  documentId: string,
+): number {
+  const agent = useExtension(DocumentAgentExtension, { editor });
+  const status = useExtensionState(DocumentAgentExtension, {
+    editor,
+    selector: (state) => state.status,
+  });
+  const [notice, setNotice] = useState(0);
+
+  useEffect(() => {
+    function save() {
+      // During a run and a review, the document of the editor has
+      // suggestion marks.
+      if (agent.store.state.status === "idle") {
+        void fetch(`${agentUrl}/documents/${documentId}`, {
+          method: "PUT",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(editor.document),
+        });
+      }
+    }
+    save();
+    return editor.onChange(save);
+    // `status`: save again after a review ends.
+  }, [agent, agentUrl, documentId, editor, status]);
+
+  useEffect(() => {
+    const events = new EventSource(
+      `${agentUrl}/documents/${documentId}/events`,
+    );
+    events.addEventListener("session", () => setNotice((count) => count + 1));
+    return () => events.close();
+  }, [agentUrl, documentId]);
+
+  return notice;
+}
+
+/** Counts the notices of the session of a Y.Doc: the server writes them into a map of the Y.Doc. */
+export function useYjsNotices(doc: Y.Doc): number {
+  const [notice, setNotice] = useState(0);
+  const notices = useMemo(() => doc.getMap("document-agent-proposals"), [doc]);
+  useEffect(() => {
+    function onChange(event: Y.YMapEvent<unknown>) {
+      if (event.keysChanged.has("session")) {
+        setNotice((count) => count + 1);
+      }
+    }
+    notices.observe(onChange);
+    return () => notices.unobserve(onChange);
+  }, [notices]);
+  return notice;
+}

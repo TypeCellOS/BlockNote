@@ -2274,6 +2274,32 @@ export const examples = {
         readme:
           'This example shows the document agent of `@blocknote/xl-ai`: an agent loop that reads and writes the document as markdown through the text lens. The agent writes to a proposal. The editor shows the proposal as suggestions, with the reason of each tool call, and the user accepts or rejects each tool call.\n\nSelect a mode at the top. In "Server" and "Client" mode, type `/ai` or select text and click the AI button. In the two "Server run" modes, start a run with the panel on the right, change the document while the agent works, then review the proposal.\n\nThe example needs the BlockNote AI server (`packages/xl-ai-server`). That server also has the small Yjs relay of the mode "Server run (Yjs)". See `PROTOTYPE.md` in the root of the repository.\n\n**Relevant Docs:**\n\n- [Getting Stared with BlockNote AI](/docs/features/ai/getting-started)\n- [Changing the Formatting Toolbar](/docs/react/components/formatting-toolbar)\n- [Changing Slash Menu Items](/docs/react/components/suggestion-menus)',
       },
+      {
+        projectSlug: "document-agent-chat",
+        fullSlug: "ai/document-agent-chat",
+        pathFromRoot: "examples/09-ai/10-document-agent-chat",
+        config: {
+          playground: true,
+          docs: false,
+          author: "yousefed",
+          tags: ["AI", "llm", "Collaboration"],
+          dependencies: {
+            "@ai-sdk/anthropic": "^4.0.88",
+            "@ai-sdk/react": "^4.0.157",
+            "@blocknote/xl-ai": "latest",
+            "@mantine/core": "^9.0.2",
+            ai: "^7.0.153",
+            yjs: "^13.6.33",
+          } as any,
+        },
+        title: "AI document agent with a chat (prototype)",
+        group: {
+          pathFromRoot: "examples/09-ai",
+          slug: "ai",
+        },
+        readme:
+          'This example shows the document agent of `@blocknote/xl-ai` with a chat window. The server keeps the chat and the one open proposal of the document. A message in the chat and a prompt from outside the editor (a script, or later an external agent) start a run in the same way, and each editor of the document follows the run.\n\n**Try it out:** Type a request in the chat, or start a run with the box "Run from outside". Then accept or reject each change in the chat.\n\nThe example needs the BlockNote AI server (`packages/xl-ai-server`). See `PROTOTYPE.md` in the root of the repository.\n\n**Relevant Docs:**\n\n- [Getting Stared with BlockNote AI](/docs/features/ai/getting-started)\n- [Real-time Collaboration](/docs/features/collaboration)',
+      },
     ],
   },
   "vanilla-js": {
