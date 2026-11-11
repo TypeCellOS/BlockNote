@@ -53,14 +53,22 @@ const LISTS: ReadonlyMap<string, "ordered" | "bullet"> = new Map([
 
 /**
  * Decides the parent of each block of the rows: the steps of the build, in
- * the order of the text. The blocks go into the parent that the text shows,
- * with two exceptions. A kept block keeps a nesting that the format does not
- * show (for example a paragraph in a paragraph, in markdown), if the text did
- * not change its nesting and the parent is still open. A new block before
- * such a block goes into the same nesting (see `keptParent`). And list items
- * that the text shows as one list share the parent of that list (see
- * `listParent`). Hidden ancestors that a block keeps get a step too, before
- * the block.
+ * the order of the text. A block goes into the parent that the text shows,
+ * except where the format does not show a nesting of the document (for
+ * example a paragraph in a paragraph, in markdown). There, these rules keep
+ * that nesting:
+ *
+ * - A kept block keeps its nesting if the text did not change it and the
+ *   parent is still open (see `keptParent`). A new block before such a
+ *   block goes into the same nesting (see `nestingOfNext`).
+ * - A block that the text moves together with its hidden parent stays in
+ *   that parent (see `parentMovedAlong`).
+ * - List items that the text shows as one list share the parent of that
+ *   list (see `listParent`).
+ * - A block that the text shows one level higher than the view goes where
+ *   its parent in the view is, or was (see `outdentParent`).
+ *
+ * Hidden ancestors that a block keeps get a step too, before the block.
  *
  * Method: our own design.
  *
