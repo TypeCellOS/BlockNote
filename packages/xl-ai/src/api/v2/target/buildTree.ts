@@ -31,10 +31,12 @@ export function buildTree(input: {
 }): LensBlock[] {
   const { rows, source } = input;
   const root = blockFromFields("", { type: "", props: {}, content: undefined });
-  /** The node of each place in the tree. */
-  const nodes = new Map<string, LensBlock>([[keyOf({ kind: "root" }), root]]);
-  /** The node of each source block in the tree: a kept block or a hidden ancestor. */
-  const nodeOf = new Map<string, LensBlock>();
+  /** The block of each place in the tree. */
+  const blocksByPlace = new Map<string, LensBlock>([
+    [keyOf({ kind: "root" }), root],
+  ]);
+  /** The block of each source block in the tree: a kept block or a hidden ancestor. */
+  const blocksBySourceId = new Map<string, LensBlock>();
 
   function create(place: Place): LensBlock {
     switch (place.kind) {
@@ -42,7 +44,7 @@ export function buildTree(input: {
         throw new Error("The root is not a step of the build");
       case "hidden": {
         const block = blockFromFields(place.id, source.block(place.id));
-        nodeOf.set(place.id, block);
+        blocksBySourceId.set(place.id, block);
         return block;
       }
       case "row": {
@@ -54,7 +56,7 @@ export function buildTree(input: {
             return blockFromFields(row.id ?? input.newId(), row.fields);
           case "kept": {
             const block = blockFromFields(row.id, row.fields);
-            nodeOf.set(row.id, block);
+            blocksBySourceId.set(row.id, block);
             return block;
           }
         }
@@ -64,10 +66,16 @@ export function buildTree(input: {
 
   for (const { block, parent } of decideParents(input)) {
     const created = create(block);
-    nodes.get(keyOf(parent))!.children.push(created);
-    nodes.set(keyOf(block), created);
+    blocksByPlace.get(keyOf(parent))!.children.push(created);
+    blocksByPlace.set(keyOf(block), created);
   }
-  placeHiddenBlocks(root, nodeOf, source, input.invisibleIds, input.kept);
+  placeHiddenBlocks(
+    root,
+    blocksBySourceId,
+    source,
+    input.invisibleIds,
+    input.kept,
+  );
   return root.children;
 }
 
@@ -78,13 +86,14 @@ export function buildTree(input: {
  */
 function placeHiddenBlocks(
   root: LensBlock,
-  nodeOf: Map<string, LensBlock>,
+  blocksBySourceId: Map<string, LensBlock>,
   source: BlockTree,
   invisibleIds: ReadonlySet<string>,
   kept: ReadonlySet<string>,
 ) {
   function place(parentId: string | undefined) {
-    const parent = parentId === undefined ? root : nodeOf.get(parentId);
+    const parent =
+      parentId === undefined ? root : blocksBySourceId.get(parentId);
     const siblings = source.childrenOf(parentId);
     if (parent !== undefined) {
       const present = new Set(parent.children.map((child) => child.id));
@@ -93,9 +102,9 @@ function placeHiddenBlocks(
       const after = new Map<string | undefined, LensBlock[]>();
       let last: string | undefined;
       for (const id of siblings) {
-        if (invisibleIds.has(id) && kept.has(id) && !nodeOf.has(id)) {
+        if (invisibleIds.has(id) && kept.has(id) && !blocksBySourceId.has(id)) {
           const block = blockFromFields(id, source.block(id));
-          nodeOf.set(id, block);
+          blocksBySourceId.set(id, block);
           const list = after.get(last) ?? [];
           list.push(block);
           after.set(last, list);
