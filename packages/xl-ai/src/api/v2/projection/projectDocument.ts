@@ -36,11 +36,6 @@ export type Projection = {
 };
 
 /**
- * A view block that a source block gives alone (a part), and the index of that source block in `sources`.
- */
-type Part = { part: FlatBlock; sourceIndex: number };
-
-/**
  * Renders the source document in the format and parses it back. Then links
  * each view block to the source block that gave it:
  *
@@ -148,6 +143,61 @@ export function partsOfEachBlock(
 }
 
 /**
+ * The round trip of each block alone, without its children, in one
+ * serialize and one parse: the blocks at the top level, each between two
+ * separators. The separator is a paragraph with only a character that `text`
+ * does not contain. A format that does not keep these paragraphs apart from
+ * the blocks is a bug. Returns the view blocks that each block gives.
+ *
+ * @internal
+ */
+export function roundTripAlone(
+  editor: BlockNoteEditor<any, any, any>,
+  format: TextFormat,
+  blocks: readonly BlockWithoutChildren[],
+  text: string,
+): FlatBlock[][] {
+  if (blocks.length === 0) {
+    return [];
+  }
+  const marker = unusedMarker(text);
+  const separator: LensBlock = {
+    id: "",
+    type: "paragraph",
+    props: {},
+    content: [{ type: "text", text: marker, styles: {} }],
+    children: [],
+  };
+  const batch = [
+    separator,
+    ...blocks.flatMap((block) => [{ ...block, children: [] }, separator]),
+  ];
+  const parsed = parseText(editor, format, format.serialize(editor, batch));
+  if (parsed.error !== undefined) {
+    throw new Error("The round trip of a block does not fit the schema");
+  }
+  const groups: FlatBlock[][] = [[]];
+  for (const flat of flattenBlocks(parsed.blocks)) {
+    if (flat.parentIndex === undefined && blockToText(flat.block) === marker) {
+      groups.push([]);
+    } else {
+      groups[groups.length - 1].push(flat);
+    }
+  }
+  // The groups before the first separator and after the last one are empty.
+  const result = groups.slice(1, -1);
+  if (result.length !== blocks.length) {
+    throw new Error("The format did not keep the blocks apart");
+  }
+  return result;
+}
+
+/**
+ * A view block that a source block gives alone (a part), and the index of that source block in `sources`.
+ */
+type Part = { part: FlatBlock; sourceIndex: number };
+
+/**
  * The parts of each source block, with two optimizations of
  * {@link partsOfEachBlock}. The two give the same projection
  * (`api.fuzz.test.ts` examines this on random documents).
@@ -223,56 +273,6 @@ function viewOf(
     throw new Error("The text of the document does not fit its schema");
   }
   return flattenBlocks(parsed.blocks);
-}
-
-/**
- * The round trip of each block alone, without its children, in one
- * serialize and one parse: the blocks at the top level, each between two
- * separators. The separator is a paragraph with only a character that `text`
- * does not contain. A format that does not keep these paragraphs apart from
- * the blocks is a bug. Returns the view blocks that each block gives.
- *
- * @internal
- */
-export function roundTripAlone(
-  editor: BlockNoteEditor<any, any, any>,
-  format: TextFormat,
-  blocks: readonly BlockWithoutChildren[],
-  text: string,
-): FlatBlock[][] {
-  if (blocks.length === 0) {
-    return [];
-  }
-  const marker = unusedMarker(text);
-  const separator: LensBlock = {
-    id: "",
-    type: "paragraph",
-    props: {},
-    content: [{ type: "text", text: marker, styles: {} }],
-    children: [],
-  };
-  const batch = [
-    separator,
-    ...blocks.flatMap((block) => [{ ...block, children: [] }, separator]),
-  ];
-  const parsed = parseText(editor, format, format.serialize(editor, batch));
-  if (parsed.error !== undefined) {
-    throw new Error("The round trip of a block does not fit the schema");
-  }
-  const groups: FlatBlock[][] = [[]];
-  for (const flat of flattenBlocks(parsed.blocks)) {
-    if (flat.parentIndex === undefined && blockToText(flat.block) === marker) {
-      groups.push([]);
-    } else {
-      groups[groups.length - 1].push(flat);
-    }
-  }
-  // The groups before the first separator and after the last one are empty.
-  const result = groups.slice(1, -1);
-  if (result.length !== blocks.length) {
-    throw new Error("The format did not keep the blocks apart");
-  }
-  return result;
 }
 
 /**
