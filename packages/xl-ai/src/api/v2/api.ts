@@ -5,7 +5,7 @@ import { alignBlocks, type BlockPair } from "./alignment/index.js";
 import type { FlatBlock, LensBlock } from "./model.js";
 import {
   assertBlockIds,
-  BlockTree,
+  BlockIndex,
   flattenBlocks,
   type SchemaRules,
   schemaRulesOf,
@@ -414,9 +414,9 @@ function jsonTarget(
   if (parsed.error !== undefined) {
     return parsed;
   }
-  const read = new Set(new BlockTree(source).ids);
+  const read = new Set(new BlockIndex(source).ids);
   const disallowedIds = new Set(
-    new BlockTree(current).ids.filter((id) => !read.has(id)),
+    new BlockIndex(current).ids.filter((id) => !read.has(id)),
   );
   return {
     target: replaceDisallowedIds(parsed.blocks, disallowedIds),

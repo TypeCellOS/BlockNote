@@ -4,7 +4,7 @@ import type {
   LensBlock,
   LensInlineContent,
 } from "../model.js";
-import { BlockTree } from "../util/blocks/index.js";
+import { BlockIndex } from "../util/blocks/index.js";
 import type { BlockPair } from "../alignment/index.js";
 import { mergeBlock } from "../merge/index.js";
 import type { Projection } from "../projection/index.js";
@@ -45,8 +45,8 @@ export type TargetInput = {
  *    hidden blocks at their source positions (see `buildTree`).
  */
 export function targetFromPairs(input: TargetInput): TargetResult {
-  const source = new BlockTree(input.source);
-  const { rows, kept, warnings } = correspond(input, source);
+  const sourceIndex = new BlockIndex(input.source);
+  const { rows, kept, warnings } = correspond(input, sourceIndex);
   const treeRows = rows.map((row, j): TreeRow => {
     switch (row.kind) {
       case "skipped":
@@ -57,13 +57,13 @@ export function targetFromPairs(input: TargetInput): TargetResult {
         const fields = mergeBlock(
           row.base,
           row.text,
-          source.block(row.id),
+          sourceIndex.block(row.id),
           input.contentKindOf,
           { shadowOf: input.shadowOf },
         );
         if (
           row.base.type === row.text.type &&
-          fields.type !== source.block(row.id).type
+          fields.type !== sourceIndex.block(row.id).type
         ) {
           warnings.push({ type: "block-shape-replaced", id: row.id });
         }
@@ -81,7 +81,7 @@ export function targetFromPairs(input: TargetInput): TargetResult {
     rows: treeRows,
     incoming: input.incoming,
     view: input.projection.view,
-    source,
+    source: sourceIndex,
     invisibleIds: input.projection.invisibleIds,
     kept,
     newId: input.newId,

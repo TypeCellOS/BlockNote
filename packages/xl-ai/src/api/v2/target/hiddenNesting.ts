@@ -1,5 +1,5 @@
 import type { FlatBlock } from "../model.js";
-import type { BlockTree } from "../util/blocks/index.js";
+import type { BlockIndex } from "../util/blocks/index.js";
 import type { KeptRow, TreeRow } from "./types.js";
 
 /**
@@ -89,7 +89,7 @@ type NestingInput = {
   incoming: readonly FlatBlock[];
   /** The view blocks (for their parents and types). */
   view: readonly FlatBlock[];
-  source: BlockTree;
+  source: BlockIndex;
   invisibleIds: ReadonlySet<string>;
   /** The source blocks that stay (see `Correspondence.kept`). */
   kept: ReadonlySet<string>;

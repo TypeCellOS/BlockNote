@@ -3,10 +3,10 @@ import type { LensBlock } from "../../model.js";
 const NO_CHILDREN: readonly string[] = [];
 
 /**
- * The shape of a document, for a lookup by ID: the parent and the children
- * of each block. It does not change.
+ * An index of the shape of a document, for a lookup by ID: the parent and
+ * the children of each block. It does not change.
  */
-export class BlockTree {
+export class BlockIndex {
   private readonly blocks = new Map<string, LensBlock>();
   private readonly parents = new Map<string, string | undefined>();
   private readonly children = new Map<string | undefined, string[]>();

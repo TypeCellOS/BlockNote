@@ -4,7 +4,11 @@ import type {
   LensBlock,
   LensInlineContent,
 } from "../model.js";
-import { blockKey, blockToText, type BlockTree } from "../util/blocks/index.js";
+import {
+  blockKey,
+  blockToText,
+  type BlockIndex,
+} from "../util/blocks/index.js";
 import type { BlockPair } from "../alignment/index.js";
 import type { Projection, ViewBlock } from "../projection/index.js";
 import type { TargetWarning } from "./types.js";
@@ -86,7 +90,7 @@ export function correspond(
     /** The pairs of `projection.view` (a side) and `incoming` (b side). */
     alignment: readonly BlockPair[];
   },
-  source: BlockTree,
+  source: BlockIndex,
 ): Correspondence {
   const { view, invisibleIds } = input.projection;
   const { incoming } = input;
@@ -220,7 +224,7 @@ function decideMultiParts(
   projection: Projection,
   incoming: readonly FlatBlock[],
   textIndexOf: readonly (number | undefined)[],
-  source: BlockTree,
+  source: BlockIndex,
 ): {
   replaced: Set<string>;
   /** The text block that replaces a multi-part block and keeps its ID. */
@@ -372,7 +376,7 @@ function joinParts(
  *   it.
  */
 function keepInvisibleBlocks(
-  source: BlockTree,
+  source: BlockIndex,
   invisibleIds: ReadonlySet<string>,
   kept: Set<string>,
 ) {
@@ -413,7 +417,7 @@ function keepInvisibleBlocks(
  *   the format does not show).
  */
 function invisibleBlockStays(
-  source: BlockTree,
+  source: BlockIndex,
   kept: ReadonlySet<string>,
   id: string,
   neighbors: readonly string[],
@@ -430,7 +434,7 @@ function invisibleBlockStays(
 
 /** Returns true if a block in the block (at any depth) stays. */
 function hasKeptDescendant(
-  source: BlockTree,
+  source: BlockIndex,
   kept: ReadonlySet<string>,
   id: string,
 ): boolean {
@@ -444,7 +448,7 @@ function hasKeptDescendant(
  * each list of siblings, thus the time is linear.
  */
 function visibleNeighbors(
-  source: BlockTree,
+  source: BlockIndex,
   invisibleIds: ReadonlySet<string>,
 ): Map<string, string[]> {
   const neighborsOf = new Map<string, string[]>();

@@ -2,7 +2,7 @@ import { BlockNoteEditor, type PartialBlock } from "@blocknote/core";
 import { describe, expect, it } from "vite-plus/test";
 
 import { alignBlocks } from "../alignment/alignBlocks.js";
-import { BlockTree } from "../util/blocks/tree.js";
+import { BlockIndex } from "../util/blocks/blockIndex.js";
 import { blockToText } from "../util/blocks/text.js";
 import type { LensBlock } from "../model.js";
 import { markdownFormat } from "../formats/markdown.js";
@@ -28,7 +28,7 @@ function tableOf(
       incoming: textBlocks,
       alignment: alignBlocks(projection.view, textBlocks),
     },
-    new BlockTree(document),
+    new BlockIndex(document),
   );
   return {
     rows: rows.map((row, j) => [

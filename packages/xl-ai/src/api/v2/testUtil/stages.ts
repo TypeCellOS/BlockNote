@@ -2,7 +2,7 @@ import type { BlockNoteEditor } from "@blocknote/core";
 
 import { parseAndAlign, targetInputOf, updateFromTarget } from "../api.js";
 import { schemaRulesOf } from "../util/blocks/schema.js";
-import { BlockTree } from "../util/blocks/tree.js";
+import { BlockIndex } from "../util/blocks/blockIndex.js";
 import { blockToText } from "../util/blocks/text.js";
 import type { BlockWithoutChildren, FlatBlock, LensBlock } from "../model.js";
 import type { TextFormat } from "../formats/types.js";
@@ -39,7 +39,7 @@ export function textStages(
     textBlocks,
     pairs,
   });
-  const { rows } = correspond(input, new BlockTree(document));
+  const { rows } = correspond(input, new BlockIndex(document));
   const target = targetFromPairs(input);
   // 4. Merge (none for `base: "current"`), 5. Fit and 6. Diff.
   const update = updateFromTarget(schemaRulesOf(editor), target, {

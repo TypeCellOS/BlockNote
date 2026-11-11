@@ -1,5 +1,9 @@
 import type { LensBlock } from "../model.js";
-import { BlockTree, diffBlock, withoutChildren } from "../util/blocks/index.js";
+import {
+  BlockIndex,
+  diffBlock,
+  withoutChildren,
+} from "../util/blocks/index.js";
 import { myersMatch } from "../util/sequence/index.js";
 import type { BlockOperation, BlockPosition } from "./types.js";
 
@@ -24,8 +28,8 @@ export function diffDocuments(
   current: readonly LensBlock[],
   target: readonly LensBlock[],
 ): BlockOperation[] {
-  const from = new BlockTree(current);
-  const to = new BlockTree(target);
+  const from = new BlockIndex(current);
+  const to = new BlockIndex(target);
   const operations: BlockOperation[] = [];
 
   for (const id of to.ids) {

@@ -1,6 +1,6 @@
 import type { ContentKind, LensBlock } from "../model.js";
 import {
-  BlockTree,
+  BlockIndex,
   deepEqual,
   diffBlock,
   withoutChildren,
@@ -59,9 +59,9 @@ export function mergeTree(input: {
   contentKindOf: (type: string) => ContentKind;
 }): { blocks: LensBlock[]; warnings: MergeWarning[] } {
   const sides = new Sides(
-    new BlockTree(input.base),
-    new BlockTree(input.ours),
-    new BlockTree(input.theirs),
+    new BlockIndex(input.base),
+    new BlockIndex(input.ours),
+    new BlockIndex(input.theirs),
   );
   const staying = stayingBlocks(sides);
   const parents = mergeParents(sides, staying);
@@ -87,9 +87,9 @@ class Sides {
   private readonly changedMemo = new Map<string, boolean>();
 
   constructor(
-    readonly base: BlockTree,
-    readonly ours: BlockTree,
-    readonly theirs: BlockTree,
+    readonly base: BlockIndex,
+    readonly ours: BlockIndex,
+    readonly theirs: BlockIndex,
   ) {}
 
   /**
@@ -140,7 +140,7 @@ class Sides {
    * and `ours` both have. Thus, a new block or a removed block next to the
    * block is not a move of it.
    */
-  private previousKept(side: BlockTree, id: string): string | undefined {
+  private previousKept(side: BlockIndex, id: string): string | undefined {
     const siblings = side.childrenOf(side.parent(id));
     for (let i = side.index(id) - 1; i >= 0; i--) {
       if (this.base.has(siblings[i]) && this.ours.has(siblings[i])) {
@@ -341,7 +341,7 @@ function mergeChildOrder(
    * that goes is replaced by its children in that side, and only the blocks
    * whose parent in the result is `parent` count.
    */
-  function sideChildren(side: BlockTree): string[] {
+  function sideChildren(side: BlockIndex): string[] {
     const result = new Set<string>();
     const visit = (ids: readonly string[]) => {
       for (const id of ids) {

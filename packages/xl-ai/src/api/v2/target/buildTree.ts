@@ -1,5 +1,5 @@
 import type { BlockFields, FlatBlock, LensBlock } from "../model.js";
-import type { BlockTree } from "../util/blocks/index.js";
+import type { BlockIndex } from "../util/blocks/index.js";
 import { decideParents, keyOf, type Place } from "./hiddenNesting.js";
 import type { TreeRow } from "./types.js";
 
@@ -22,7 +22,7 @@ export function buildTree(input: {
   incoming: readonly FlatBlock[];
   /** The view blocks (for their parents and types). */
   view: readonly FlatBlock[];
-  source: BlockTree;
+  source: BlockIndex;
   invisibleIds: ReadonlySet<string>;
   /** The source blocks that stay (see `Correspondence.kept`). */
   kept: ReadonlySet<string>;
@@ -93,7 +93,7 @@ export function buildTree(input: {
 function placeHiddenBlocks(
   root: LensBlock,
   blocksBySourceId: Map<string, LensBlock>,
-  source: BlockTree,
+  source: BlockIndex,
   invisibleIds: ReadonlySet<string>,
   kept: ReadonlySet<string>,
 ) {

@@ -1,5 +1,5 @@
 import type { LensBlock } from "../model.js";
-import { BlockTree } from "../util/blocks/index.js";
+import { BlockIndex } from "../util/blocks/index.js";
 
 /**
  * Returns `target`, where each block that changes between a layout block (a
@@ -26,7 +26,7 @@ export function newIdsForLayoutChanges(
   isLayoutType: (type: string) => boolean,
   newId: () => string,
 ): LensBlock[] {
-  const before = new BlockTree(current);
+  const before = new BlockIndex(current);
   function fix(block: LensBlock): LensBlock {
     const old = before.byId.get(block.id);
     const changesKind =
