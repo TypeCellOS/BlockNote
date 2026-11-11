@@ -40,6 +40,8 @@ export function describeWrite(output: WriteOutput | EditOutput): string {
       return "Invalid document: nothing was written. The markdown gives blocks that this document does not allow.";
     case "unknown-version":
       return "Unknown version: nothing was written. `base` must be the version from readDocument or from your last write. Call readDocument.";
+    case "invalid-input":
+      return `Invalid input: nothing was written. The field \`${output.field}\` of the tool call must be a string.`;
     case "not-found":
       return "Not found: nothing was written. The markdown of the document does not contain `old`. Call readDocument to see the current text, and copy `old` from it exactly.";
     case "not-unique":

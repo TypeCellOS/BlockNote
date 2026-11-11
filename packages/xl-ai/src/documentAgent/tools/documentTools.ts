@@ -60,6 +60,8 @@ export type WriteOutput = Followable &
     | { error: "invalid-document" }
     /** `base` is not a version of this document. */
     | { error: "unknown-version" }
+    /** A field of the input of the tool call is missing, or is not a string. */
+    | { error: "invalid-input"; field: string }
   );
 
 /** The output of `editText`. */
@@ -117,6 +119,10 @@ export async function writeDocument(
   input: WriteInput,
   toolCallId: string,
 ): Promise<WriteOutput> {
+  const field = missingField(input, ["markdown", "base", "reason"]);
+  if (field !== undefined) {
+    return { error: "invalid-input", field, batches: [] };
+  }
   const { result, batches } = await handle.update<
     DistributiveOmit<WriteOutput, "batches">
   >((proposal, dropped) => {
@@ -157,6 +163,10 @@ export async function editText(
   input: EditInput,
   toolCallId: string,
 ): Promise<EditOutput> {
+  const field = missingField(input, ["old", "new", "reason"]);
+  if (field !== undefined) {
+    return { error: "invalid-input", field, batches: [] };
+  }
   const { result, batches } = await handle.update<
     DistributiveOmit<EditOutput, "batches">
   >((proposal, dropped) => {
@@ -185,6 +195,18 @@ export async function editText(
     );
   });
   return withBatches(result, batches);
+}
+
+/**
+ * The first field of the input that is not a string, or `undefined`. A model
+ * can send an input that does not agree with the schema of the tool. This is
+ * an expected failure: the model gets an error value, and corrects its call.
+ */
+function missingField<Input extends Record<string, unknown>>(
+  input: Input,
+  fields: readonly (keyof Input & string)[],
+): string | undefined {
+  return fields.find((field) => typeof input[field] !== "string");
 }
 
 /** `Omit` for each member of a union. */

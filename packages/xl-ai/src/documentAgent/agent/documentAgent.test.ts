@@ -18,7 +18,7 @@ import {
   textsOf,
   versionIn,
 } from "../testUtil.js";
-import { createDocumentHandle } from "../tools/handle.js";
+import { createDocumentHandle, type DocumentHandle } from "../tools/handle.js";
 import { runDocumentAgent, streamDocumentAgent } from "./documentAgent.js";
 
 const createEditor = headlessEditorFactory();
@@ -216,6 +216,29 @@ describe("a run that a user starts", () => {
     expect(lastToolResult(prompts[1])).toContain("Not unique");
     expect(lastToolResult(prompts[2])).toBe("OK. The new version is v1.");
     expect(batchesIn(chunks)).toHaveLength(1);
+  });
+});
+
+describe("a tool that throws", () => {
+  /** A handle of a broken host: each step throws. */
+  const brokenHandle: DocumentHandle = {
+    createEditor,
+    update() {
+      return Promise.reject(new Error("The store is not available"));
+    },
+  };
+  const script = [
+    { toolCalls: [{ toolName: "readDocument", input: {} }] },
+    { text: "The model must not get this step." },
+  ];
+
+  it("stops the loop and fails the run: an exception is a bug, not a result for the model", async () => {
+    const { model, prompts } = scriptedModel(script);
+
+    await expect(
+      runDocumentAgent(brokenHandle, "Read the document.", { model }),
+    ).rejects.toThrow("The store is not available");
+    expect(prompts).toHaveLength(1);
   });
 });
 

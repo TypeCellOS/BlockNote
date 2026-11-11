@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it } from "vite-plus/test";
 import * as Y from "yjs";
 
 import { AIExtension } from "../../AIExtension.js";
+import { createProposal, headlessEditorFactory } from "../proposal/proposal.js";
 import {
   initialDocument,
   lastToolResult,
@@ -11,10 +12,17 @@ import {
   type ScriptedStep,
   textsOf,
   versionIn,
+  writeMarkdown,
 } from "../testUtil.js";
 import { DocumentAgentExtension } from "./DocumentAgentExtension.js";
 import { hasSuggestions } from "./suggestions.js";
 import { createInProcessTransport } from "./transport.js";
+
+// jsdom has no layout: it does not have `scrollIntoView`, which the AI menu
+// calls when it opens.
+Element.prototype.scrollIntoView = function scrollIntoView() {
+  // No scroll in jsdom.
+};
 
 // A mounted editor must be destroyed before jsdom goes away.
 const mounted: BlockNoteEditor<any, any, any>[] = [];
@@ -342,5 +350,67 @@ describe("the document agent in an editor that is bound to a Y.Doc", () => {
       "Opening paragraph.",
       "Closing paragraph.",
     ]);
+  });
+});
+
+describe("a proposal that a server made", () => {
+  /** A proposal of the test document with one tool call, as a server run makes it. */
+  function serverProposal() {
+    return writeMarkdown(
+      headlessEditorFactory(),
+      createProposal(initialDocument()),
+      "# Title\n\nOpening paragraph.\n\nSecond paragraph.\n",
+      "server-call",
+    );
+  }
+
+  it("opens with the same display and the same accept", () => {
+    const reviews: string[] = [];
+    const editor = BlockNoteEditor.create({
+      initialContent: initialDocument(),
+      trailingBlock: false,
+      extensions: [
+        AIExtension(),
+        // No transport: this client starts no run.
+        DocumentAgentExtension({
+          onClose: (result) => reviews.push(result),
+        }),
+      ],
+    });
+    editor.mount(document.createElement("div"));
+    mounted.push(editor);
+    const agent = editor.getExtension(DocumentAgentExtension)!;
+
+    agent.openProposal(serverProposal());
+
+    expect(reviewOf(agent)).toMatchObject({
+      status: "reviewing",
+      toolCalls: [["server-call", "Reason of server-call", "open"]],
+    });
+    expect(suggestionsOf(editor)).toEqual([
+      ["deletion", 1, "First"],
+      ["insertion", 1, "Opening"],
+    ]);
+
+    agent.acceptAll();
+
+    expect(textsOf(editor.document)[1]).toBe("Opening paragraph.");
+    expect(reviews).toEqual(["accepted"]);
+  });
+
+  it("gives an error for a proposal that does not give the document of its last batch", () => {
+    const { editor, agent } = createEditor([]);
+    const proposal = serverProposal();
+
+    agent.openProposal({
+      ...proposal,
+      batches: [{ ...proposal.batches[0], hash: "another-hash" }],
+    });
+
+    expect(agent.store.state).toMatchObject({
+      status: "error",
+      error: "out-of-sync",
+    });
+    expect(hasSuggestions(editor.prosemirrorState.doc)).toBe(false);
   });
 });

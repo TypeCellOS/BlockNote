@@ -257,6 +257,29 @@ describe("writeDocument", () => {
   });
 });
 
+describe("an input that does not agree with the schema of the tool", () => {
+  it("gives an error value, thus the model can correct its call", async () => {
+    const { handle, proposal } = await setup();
+
+    // A model can leave out a field. The types do not allow it.
+    const output = await editText(
+      handle,
+      { old: "First", reason: "r" } as Parameters<typeof editText>[1],
+      "call-1",
+    );
+
+    expect(output).toEqual({
+      error: "invalid-input",
+      field: "new",
+      batches: [],
+    });
+    expect(describeWrite(output)).toContain(
+      "`new` of the tool call must be a string",
+    );
+    expect((await proposal()).batches).toEqual([]);
+  });
+});
+
 describe("a handle that can read the main document", () => {
   /** A handle of a run that a server starts: each step rebases onto the main document. */
   async function setupWithMain() {
