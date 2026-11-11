@@ -251,7 +251,7 @@ export function parseAndAlign(
   format: TextFormat,
   view: readonly ViewBlock[],
   content: string,
-): ({ error?: undefined } & Alignment) | { error: "invalid-document" } {
+): ({ error?: undefined } & AlignedText) | { error: "invalid-document" } {
   const parsed = parseText(editor, format, content);
   if (parsed.error !== undefined) {
     return parsed;
@@ -272,7 +272,7 @@ export function targetInputOf(
   format: TextFormat,
   source: readonly LensBlock[],
   projection: Projection,
-  { textBlocks, pairs }: Alignment,
+  { textBlocks, pairs }: AlignedText,
 ): TargetInput {
   return {
     source,
@@ -452,7 +452,7 @@ function textTarget(
 }
 
 /** The blocks of a text, in a flat list, and their pairs with the view blocks (stage 2). */
-type Alignment = { textBlocks: FlatBlock[]; pairs: BlockPair[] };
+type AlignedText = { textBlocks: FlatBlock[]; pairs: BlockPair[] };
 
 /**
  * The version that the write merges from, or `undefined` for a write on the
