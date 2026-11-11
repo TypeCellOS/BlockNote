@@ -238,46 +238,70 @@ function decideMultiParts(
   >();
   const warnings: TargetWarning[] = [];
   for (const [id, parts] of multiParts) {
-    const together = parts.every((v, k) => {
-      const j = textIndexOf[v];
-      const previous = k === 0 ? undefined : textIndexOf[parts[k - 1]];
-      return j !== undefined && (k === 0 || j === previous! + 1);
-    });
-    const textParts = together
-      ? parts.map((v) => incoming[textIndexOf[v]!].block)
-      : [];
+    const textParts = textPartsInOrder(parts, textIndexOf)?.map(
+      (j) => incoming[j].block,
+    );
     const viewParts = parts.map((v) => view[v].block);
     if (
-      together &&
+      textParts !== undefined &&
       viewParts.every((part, k) => blockKey(part) === blockKey(textParts[k]))
     ) {
       continue;
     }
-    const join = together
-      ? joinParts(source.block(id), viewParts, textParts)
-      : undefined;
+    const join =
+      textParts === undefined
+        ? undefined
+        : joinParts(source.block(id), viewParts, textParts);
     if (join !== undefined) {
       joined.set(id, join);
       continue;
     }
     replaced.add(id);
     warnings.push({ type: "multi-part-block-replaced", id });
-    let largest: { j: number; length: number } | undefined;
-    for (const v of parts) {
-      const j = textIndexOf[v];
-      const length = blockToText(view[v].block).length;
-      if (
-        j !== undefined &&
-        (largest === undefined || length > largest.length)
-      ) {
-        largest = { j, length };
-      }
-    }
+    const largest = largestPart(parts, view, textIndexOf);
     if (largest !== undefined) {
-      replacementIdOf.set(largest.j, id);
+      replacementIdOf.set(largest, id);
     }
   }
   return { replaced, replacementIdOf, joined, warnings };
+}
+
+/**
+ * The indexes of the text blocks of the parts (the view indexes `parts`),
+ * if each part has a pair in the text, and the pairs are next to each other,
+ * in the order of the parts. Else `undefined`.
+ */
+function textPartsInOrder(
+  parts: readonly number[],
+  textIndexOf: readonly (number | undefined)[],
+): number[] | undefined {
+  const indexes: number[] = [];
+  for (const v of parts) {
+    const j = textIndexOf[v];
+    const previous = indexes.at(-1);
+    if (j === undefined || (previous !== undefined && j !== previous + 1)) {
+      return undefined;
+    }
+    indexes.push(j);
+  }
+  return indexes;
+}
+
+/** The index of the text block of the part with the most text that has a pair in the text, or `undefined`. */
+function largestPart(
+  parts: readonly number[],
+  view: readonly ViewBlock[],
+  textIndexOf: readonly (number | undefined)[],
+): number | undefined {
+  let largest: { j: number; length: number } | undefined;
+  for (const v of parts) {
+    const j = textIndexOf[v];
+    const length = blockToText(view[v].block).length;
+    if (j !== undefined && (largest === undefined || length > largest.length)) {
+      largest = { j, length };
+    }
+  }
+  return largest?.j;
 }
 
 /**
