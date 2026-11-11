@@ -56,7 +56,7 @@ describe("correspond", () => {
     ).toEqual({
       rows: [
         ["kept", "a", "Alpha"],
-        // A new block gets its ID later, from the plan.
+        // A new block gets its ID later, in the tree build (`buildTree`).
         ["new", undefined, "Delta"],
         ["kept", "b", "Beta, changed"],
       ],

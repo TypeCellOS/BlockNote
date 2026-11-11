@@ -47,7 +47,8 @@ function shape(blocks: LensBlock[]): unknown[] {
   });
 }
 
-function plan(input: {
+/** The target of the input, as the ID and the text of each block (see `shape`), and the warnings. */
+function targetOf(input: {
   document: LensBlock[];
   view: ViewBlock[];
   incoming: FlatBlock[];
@@ -89,20 +90,29 @@ const same: [number, number][] = [
 describe("targetFromPairs", () => {
   it("gives the document if the text did not change", () => {
     expect(
-      plan({ document, view, incoming: [flat("a"), flat("b")], pairs: same }),
+      targetOf({
+        document,
+        view,
+        incoming: [flat("a"), flat("b")],
+        pairs: same,
+      }),
     ).toEqual({ target: ["a", "b"], warnings: [] });
   });
 
   it("merges the fields of a changed block", () => {
     expect(
-      plan({ document, view, incoming: [flat("a"), flat("b2")], pairs: same })
-        .target,
+      targetOf({
+        document,
+        view,
+        incoming: [flat("a"), flat("b2")],
+        pairs: same,
+      }).target,
     ).toEqual(["a", "b:b2"]);
   });
 
   it("puts a new block at its position in the text", () => {
     expect(
-      plan({
+      targetOf({
         document,
         view,
         incoming: [flat("n"), flat("a"), flat("m"), flat("b")],
@@ -116,7 +126,7 @@ describe("targetFromPairs", () => {
 
   it("puts the children of a new block in the new block", () => {
     expect(
-      plan({
+      targetOf({
         document,
         view,
         incoming: [flat("a"), flat("n"), flat("c", 1)],
@@ -127,13 +137,14 @@ describe("targetFromPairs", () => {
 
   it("removes a block without a match", () => {
     expect(
-      plan({ document, view, incoming: [flat("a")], pairs: [[0, 0]] }).target,
+      targetOf({ document, view, incoming: [flat("a")], pairs: [[0, 0]] })
+        .target,
     ).toEqual(["a"]);
   });
 
   it("moves a block out of a removed parent", () => {
     expect(
-      plan({
+      targetOf({
         document: [paragraph("p", "p", [paragraph("c", "c")])],
         view: [viewBlock("p", "p"), viewBlock("c", "c", 0)],
         incoming: [flat("c")],
@@ -145,7 +156,7 @@ describe("targetFromPairs", () => {
   it("keeps a nesting that the text does not show", () => {
     // The view shows "c" at the top level, but in the document it is in "p".
     expect(
-      plan({
+      targetOf({
         document: [paragraph("p", "p", [paragraph("c", "c")])],
         view: [viewBlock("p", "p"), viewBlock("c", "c")],
         incoming: [flat("p"), flat("c2")],
@@ -158,7 +169,7 @@ describe("targetFromPairs", () => {
     // The view shows "c" in "p" and "d" at the top level. The text moves "c"
     // out of "p". Then "d", which comes after "c", cannot stay in "p".
     expect(
-      plan({
+      targetOf({
         document: [
           paragraph("p", "p", [paragraph("c", "c"), paragraph("d", "d")]),
         ],
@@ -179,7 +190,7 @@ describe("targetFromPairs", () => {
 
   it("puts a new block before a block with a hidden nesting into the same nesting", () => {
     expect(
-      plan({
+      targetOf({
         document: [
           paragraph("p", "p", [paragraph("c", "c")]),
           paragraph("e", "e"),
@@ -197,7 +208,7 @@ describe("targetFromPairs", () => {
 
   it("keeps a block that the format does not show", () => {
     expect(
-      plan({
+      targetOf({
         document: [
           paragraph("a", "a"),
           paragraph("e", ""),
@@ -213,7 +224,7 @@ describe("targetFromPairs", () => {
 
   it("removes a block that the format does not show if the blocks around it are removed", () => {
     expect(
-      plan({
+      targetOf({
         document: [
           paragraph("a", "a"),
           paragraph("e", ""),
@@ -230,7 +241,7 @@ describe("targetFromPairs", () => {
   it("keeps a hidden block with a kept descendant, and the descendant in it", () => {
     // Example: a column, which markdown does not show.
     expect(
-      plan({
+      targetOf({
         document: [
           paragraph("col", "", [paragraph("x", "x"), paragraph("y", "y")]),
           paragraph("e", "e"),
@@ -250,7 +261,7 @@ describe("targetFromPairs", () => {
   it("merges a change of a part into the multi-part block", () => {
     // The parts join again, with the blank line between them.
     expect(
-      plan({
+      targetOf({
         document: [paragraph("m", "x\n\ny")],
         view: [viewBlock("m", "x"), viewBlock("m", "y")],
         incoming: [flat("x"), flat("y2")],
@@ -262,7 +273,7 @@ describe("targetFromPairs", () => {
 
   it("replaces a multi-part block if its parts are not next to each other, and gives a warning", () => {
     expect(
-      plan({
+      targetOf({
         document: [paragraph("m", "x\n\ny")],
         view: [viewBlock("m", "x"), viewBlock("m", "y")],
         incoming: [flat("x"), flat("new"), flat("y")],
@@ -282,7 +293,7 @@ describe("targetFromPairs", () => {
 
   it("keeps an unchanged multi-part block as one block", () => {
     expect(
-      plan({
+      targetOf({
         document: [paragraph("m", "x\n\ny"), paragraph("b", "b")],
         view: [viewBlock("m", "x"), viewBlock("m", "y"), viewBlock("b", "b")],
         incoming: [flat("x"), flat("y"), flat("b2")],
@@ -298,7 +309,7 @@ describe("targetFromPairs", () => {
 
   it("does not apply a change to a view block without a link, and gives a warning", () => {
     expect(
-      plan({
+      targetOf({
         document: [paragraph("a", "a")],
         view: [viewBlock("a", "a"), viewBlock(undefined, "x")],
         incoming: [flat("a"), flat("x2")],
