@@ -1,19 +1,6 @@
 import type { MatchedPair } from "./types.js";
 
 /**
- * The items between two matched pairs, `a[aStart, aEnd)` and
- * `b[bStart, bEnd)`, and the pair after them (`undefined` after the last
- * pair).
- */
-type Gap = {
-  aStart: number;
-  aEnd: number;
-  bStart: number;
-  bEnd: number;
-  anchor: MatchedPair | undefined;
-};
-
-/**
  * Returns the gaps before, between and after the pairs (in order, without
  * crossings), for lists of the lengths `aLength` and `bLength`. A gap can be
  * empty.
@@ -51,3 +38,16 @@ export function gaps(
 export function isChanged(gap: Gap): boolean {
   return gap.aEnd > gap.aStart || gap.bEnd > gap.bStart;
 }
+
+/**
+ * The items between two matched pairs, `a[aStart, aEnd)` and
+ * `b[bStart, bEnd)`, and the pair after them (`undefined` after the last
+ * pair).
+ */
+type Gap = {
+  aStart: number;
+  aEnd: number;
+  bStart: number;
+  bEnd: number;
+  anchor: MatchedPair | undefined;
+};

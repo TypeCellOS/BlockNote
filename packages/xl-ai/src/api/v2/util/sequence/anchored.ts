@@ -18,21 +18,6 @@ const SEARCH_WORK_PER_ITEM = 10;
 const SMALL_GAP = 2000;
 
 /**
- * A range of `a` and of `b` to match, or a pair to add to the result. A gap
- * is a range between two anchors. The full input is not a gap.
- */
-type Step =
-  | {
-      kind: "match";
-      aStart: number;
-      aEnd: number;
-      bStart: number;
-      bEnd: number;
-      isGap: boolean;
-    }
-  | { kind: "add"; pair: MatchedPair };
-
-/**
  * Matches `a` and `b` like {@link myersMatch}, also for large inputs with
  * many changes (the patience method of git):
  *
@@ -87,6 +72,43 @@ export function anchoredMatch<T>(
 }
 
 /**
+ * Returns the pairs of equal keys that are in `keysA` one time and in
+ * `keysB` one time, in the order of `aIndex`. The pairs can cross. A key
+ * `undefined` does not count.
+ */
+export function uniquePairs(
+  keysA: readonly (string | undefined)[],
+  keysB: readonly (string | undefined)[],
+): MatchedPair[] {
+  const inB = uniqueIndexes(keysB);
+  const pairs: MatchedPair[] = [];
+  // A map keeps the order in which its keys were added. A unique key was
+  // added at its only index. Thus, the pairs are in the order of `aIndex`.
+  for (const [key, aIndex] of uniqueIndexes(keysA)) {
+    const bIndex = inB.get(key);
+    if (aIndex !== undefined && bIndex !== undefined) {
+      pairs.push({ aIndex, bIndex });
+    }
+  }
+  return pairs;
+}
+
+/**
+ * A range of `a` and of `b` to match, or a pair to add to the result. A gap
+ * is a range between two anchors. The full input is not a gap.
+ */
+type Step =
+  | {
+      kind: "match";
+      aStart: number;
+      aEnd: number;
+      bStart: number;
+      bEnd: number;
+      isGap: boolean;
+    }
+  | { kind: "add"; pair: MatchedPair };
+
+/**
  * Matches one range. If the range has anchors, returns the steps for its
  * gaps and anchors, in order. Else adds the pairs of the Myers diff to
  * `pairs`, and returns no steps.
@@ -139,28 +161,6 @@ function matchRange(
         ]
       : []),
   ]);
-}
-
-/**
- * Returns the pairs of equal keys that are in `keysA` one time and in
- * `keysB` one time, in the order of `aIndex`. The pairs can cross. A key
- * `undefined` does not count.
- */
-export function uniquePairs(
-  keysA: readonly (string | undefined)[],
-  keysB: readonly (string | undefined)[],
-): MatchedPair[] {
-  const inB = uniqueIndexes(keysB);
-  const pairs: MatchedPair[] = [];
-  // A map keeps the order in which its keys were added. A unique key was
-  // added at its only index. Thus, the pairs are in the order of `aIndex`.
-  for (const [key, aIndex] of uniqueIndexes(keysA)) {
-    const bIndex = inB.get(key);
-    if (aIndex !== undefined && bIndex !== undefined) {
-      pairs.push({ aIndex, bIndex });
-    }
-  }
-  return pairs;
 }
 
 /** The index of each key that is in `keys` one time. A key that repeats maps to `undefined`. */
