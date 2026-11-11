@@ -733,7 +733,7 @@ The scenario and its rules are one file (`fuzz/scenario.ts`). A mode gives a wor
   - Two rejects of one suggested deletion write its text two times (9 seeds). This is item 3 of 15.3, and a known-failure test.
   - Reviewer A accepts a tool call that added a paragraph, a user types in that paragraph, and reviewer B rejects the tool call before the accept arrives. The paragraph goes, with the text of the user (3 seeds). This is the same as a removal of a block and an edit in it at the same time in each Yjs document. The proposal mode with the guard does not have it: the host refuses the second decision.
   - The exception of core (1 seed, item 8 of 15.3).
-- **No change of a user was lost in a different way**, in 1,100 scenarios of the two modes.
+- **No change of a user was lost in a different way**, in the 900 scenarios of the two modes.
 - The rules changed for the two modes in three points: a text of the document at the start must not be there two times, two reviewers can make different decisions for one tool call (then each result is permitted), and a user adds text at the end of a block as a user types it.
 
 ### 15.5 Is it maintainable to have the two modes?
