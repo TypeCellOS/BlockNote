@@ -54,15 +54,17 @@ export function targetFromPairs(input: TargetInput): TargetResult {
       case "new":
         return { ...row, fields: input.incoming[j].block };
       case "kept": {
+        const base = input.projection.view[row.viewIndex].block;
+        const text = input.incoming[j].block;
         const fields = mergeBlock(
-          row.base,
-          row.text,
+          base,
+          text,
           sourceIndex.block(row.id),
           input.contentKindOf,
           { shadowOf: input.shadowOf },
         );
         if (
-          row.base.type === row.text.type &&
+          base.type === text.type &&
           fields.type !== sourceIndex.block(row.id).type
         ) {
           warnings.push({ type: "block-shape-replaced", id: row.id });

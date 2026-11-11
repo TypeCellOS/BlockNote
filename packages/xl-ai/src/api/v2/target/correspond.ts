@@ -15,16 +15,14 @@ import type { TargetWarning } from "./types.js";
  */
 export type TextRow =
   /**
-   * The text block is a source block that stays (`id`). Its fields merge
-   * three-way: `base` is the view block, `text` is the text block, and
-   * `theirs` is the source block.
+   * The text block is a source block that stays (`id`), and its pair is the
+   * view block `viewIndex`. Its fields merge three-way (see
+   * `targetFromPairs`).
    */
   | {
       kind: "kept";
       id: string;
       viewIndex: number;
-      base: BlockWithoutChildren;
-      text: BlockWithoutChildren;
       /** The text moved the block (rule 2 of `alignBlocks`). */
       moved: boolean;
     }
@@ -101,7 +99,7 @@ export function correspond(
   }
 
   /** The row of text block `j`. */
-  function rowOf(flat: FlatBlock, j: number): TextRow {
+  function rowOf(j: number): TextRow {
     const v = viewIndexOf[j];
     if (v === undefined) {
       return { kind: "new", viewIndex: undefined };
@@ -115,17 +113,10 @@ export function correspond(
         ? { kind: "new", viewIndex: v }
         : { kind: "skipped", viewIndex: v };
     }
-    return {
-      kind: "kept",
-      id: sourceId,
-      viewIndex: v,
-      base: block,
-      text: flat.block,
-      moved: moved.has(j),
-    };
+    return { kind: "kept", id: sourceId, viewIndex: v, moved: moved.has(j) };
   }
 
-  const rows = incoming.map(rowOf);
+  const rows = incoming.map((_, j) => rowOf(j));
   const keptIds = rows.flatMap((row) => (row.kind === "kept" ? [row.id] : []));
   return {
     rows,
