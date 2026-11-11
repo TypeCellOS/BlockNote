@@ -15,7 +15,7 @@ import { createUIMessageStreamResponse } from "ai";
 import { Hono } from "hono";
 import { streamSSE } from "hono/streaming";
 
-import { documentAgentModel } from "./models.js";
+import { documentAgentModel, documentAgentReasoning } from "./models.js";
 import { registerSessionRoutes } from "./sessions.js";
 import {
   createYjsDocumentSource,
@@ -60,6 +60,7 @@ documentAgentRoute.post("/chat", async (c) => {
   }
   const stream = await streamDocumentAgent(request, {
     model: selected.model,
+    reasoning: documentAgentReasoning(),
     createEditor,
     maxOutputTokens: MAX_OUTPUT_TOKENS,
     abortSignal: c.req.raw.signal,
@@ -230,6 +231,7 @@ documentAgentRoute.post("/runs", async (c) => {
   });
   void runDocumentAgent(handle, prompt, {
     model: selected.model,
+    reasoning: documentAgentReasoning(),
     maxOutputTokens: MAX_OUTPUT_TOKENS,
   })
     .then(

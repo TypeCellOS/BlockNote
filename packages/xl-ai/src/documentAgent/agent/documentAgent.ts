@@ -5,6 +5,7 @@ import {
   type LanguageModelUsage,
   type ModelMessage,
   ToolLoopAgent,
+  type ToolLoopAgentSettings,
   type UIMessage,
   type UIMessageChunk,
 } from "ai";
@@ -37,6 +38,12 @@ export type DocumentAgentOptions = {
    * full document needs sufficient tokens for the document.
    */
   maxOutputTokens?: number;
+  /**
+   * How much the model reasons before it answers (the `reasoning` setting
+   * of the AI SDK). Less reasoning gives the first edit of a run earlier.
+   * The default is the default of the provider.
+   */
+  reasoning?: ToolLoopAgentSettings["reasoning"];
 };
 
 /**
@@ -68,6 +75,7 @@ export function createDocumentAgent(
     instructions: options.instructions ?? DOCUMENT_AGENT_INSTRUCTIONS,
     tools: createDocumentTools(calls),
     maxOutputTokens: options.maxOutputTokens,
+    reasoning: options.reasoning,
     stopWhen: [isStepCount(options.maxSteps ?? 12), toolThrew],
     // The AI SDK keeps the messages of step 0 for the later steps. Thus,
     // each LLM call of the run has the same document text at the same

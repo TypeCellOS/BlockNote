@@ -3,7 +3,10 @@ import { createGoogle } from "@ai-sdk/google";
 import { createGroq } from "@ai-sdk/groq";
 import { createMistral } from "@ai-sdk/mistral";
 import { createOpenAI } from "@ai-sdk/openai";
-import type { LanguageModelObject } from "@blocknote/xl-ai/server";
+import type {
+  DocumentAgentOptions,
+  LanguageModelObject,
+} from "@blocknote/xl-ai/server";
 
 /** The model of the document agent, if `DOCUMENT_AGENT_MODEL` is not set. */
 const DEFAULT_MODEL = "anthropic:claude-haiku-5-5";
@@ -38,4 +41,17 @@ export function documentAgentModel():
     default:
       return { error: "unknown-provider", name };
   }
+}
+
+/**
+ * The reasoning setting of the document agent, from the environment
+ * variable `DOCUMENT_AGENT_REASONING` (for example `none` or `low`). Less
+ * reasoning gives the first edit of a run earlier. Without the variable,
+ * the provider decides.
+ */
+export function documentAgentReasoning(): DocumentAgentOptions["reasoning"] {
+  const value = process.env.DOCUMENT_AGENT_REASONING;
+  return value === undefined || value === ""
+    ? undefined
+    : (value as DocumentAgentOptions["reasoning"]);
 }

@@ -9,7 +9,7 @@ import {
 import { createUIMessageStreamResponse } from "ai";
 import type { Hono } from "hono";
 
-import { documentAgentModel } from "./models.js";
+import { documentAgentModel, documentAgentReasoning } from "./models.js";
 
 /** A full write of a document needs sufficient output tokens. */
 const MAX_OUTPUT_TOKENS = 16000;
@@ -62,6 +62,7 @@ export function registerSessionRoutes<Source extends string>(
       }
       host = createSessionHost({
         model: selected.model,
+        reasoning: documentAgentReasoning(),
         maxOutputTokens: MAX_OUTPUT_TOKENS,
         createEditor: options.createEditor,
         proposals: options.proposals,
