@@ -6,7 +6,7 @@ import type {
 } from "../model.js";
 import { blockKey, blockToText, type BlockTree } from "../util/blocks/index.js";
 import type { BlockPair } from "../alignment/index.js";
-import type { Projection } from "../projection/index.js";
+import type { Projection, ViewBlock } from "../projection/index.js";
 import type { TargetWarning } from "./types.js";
 
 /**
@@ -108,9 +108,64 @@ export function correspond(
     textIndexOf,
     source,
   );
-  const warnings: TargetWarning[] = [...multiParts.warnings];
-  const kept = new Set<string>();
+  const decisions = decideViewBlocks(
+    view,
+    incoming,
+    textIndexOf,
+    multiParts.replaced,
+  );
+  const { kept, keptAt, skipped } = decisions;
+  const warnings = [...multiParts.warnings, ...decisions.warnings];
+  keepInvisibleBlocks(source, invisibleIds, kept);
+
+  const rows = incoming.map((flat, j): TextRow => {
+    const viewIndex = viewIndexOf[j];
+    if (skipped.has(j)) {
+      return { kind: "skipped", viewIndex };
+    }
+    const keptBlock = keptAt.get(j);
+    if (keptBlock === undefined) {
+      return { kind: "new", viewIndex, id: multiParts.replacementIdOf.get(j) };
+    }
+    const join = multiParts.joined.get(keptBlock.id);
+    return {
+      kind: "kept",
+      id: keptBlock.id,
+      viewIndex: keptBlock.viewIndex,
+      base: join?.view ?? view[keptBlock.viewIndex].block,
+      text: join?.incoming ?? flat.block,
+      moved: moved.has(j),
+    };
+  });
+  return { rows, kept, warnings };
+}
+
+/**
+ * Decides for each view block what its pair in the text is:
+ *
+ * - A view block with a link and a pair: its source block stays (`kept`),
+ *   and the pair is that block (`keptAt`). For a multi-part block, only
+ *   the first part is the block: the pairs of the other parts are not
+ *   blocks (`skipped`). A block that the text replaces (`replaced`, see
+ *   `decideMultiParts`) does not stay here.
+ * - A view block without a link: the text cannot change it. If its pair
+ *   did not change, the pair is not a block. If the text changed it, the
+ *   warning `unlinked-block-changed`, and the pair is not a block.
+ */
+function decideViewBlocks(
+  view: readonly ViewBlock[],
+  incoming: readonly FlatBlock[],
+  textIndexOf: readonly (number | undefined)[],
+  replaced: ReadonlySet<string>,
+): {
+  kept: Set<string>;
   /** The kept source block of each text block that is one. */
+  keptAt: Map<number, { id: string; viewIndex: number }>;
+  skipped: Set<number>;
+  warnings: TargetWarning[];
+} {
+  const warnings: TargetWarning[] = [];
+  const kept = new Set<string>();
   const keptAt = new Map<number, { id: string; viewIndex: number }>();
   const skipped = new Set<number>();
   view.forEach((viewBlock, v) => {
@@ -134,7 +189,7 @@ export function correspond(
       // Else, the view block is empty, and has no source. The text cannot
       // change data of it, thus there is no warning, and its pair (if there
       // is one) is a block of the text.
-    } else if (j !== undefined && !multiParts.replaced.has(sourceId)) {
+    } else if (j !== undefined && !replaced.has(sourceId)) {
       if (kept.has(sourceId)) {
         // Another part of a multi-part block. The first part is the block.
         skipped.add(j);
@@ -144,28 +199,7 @@ export function correspond(
       }
     }
   });
-  keepInvisibleBlocks(source, invisibleIds, kept);
-
-  const rows = incoming.map((flat, j): TextRow => {
-    const viewIndex = viewIndexOf[j];
-    if (skipped.has(j)) {
-      return { kind: "skipped", viewIndex };
-    }
-    const keptBlock = keptAt.get(j);
-    if (keptBlock === undefined) {
-      return { kind: "new", viewIndex, id: multiParts.replacementIdOf.get(j) };
-    }
-    const join = multiParts.joined.get(keptBlock.id);
-    return {
-      kind: "kept",
-      id: keptBlock.id,
-      viewIndex: keptBlock.viewIndex,
-      base: join?.view ?? view[keptBlock.viewIndex].block,
-      text: join?.incoming ?? flat.block,
-      moved: moved.has(j),
-    };
-  });
-  return { rows, kept, warnings };
+  return { kept, keptAt, skipped, warnings };
 }
 
 /**
