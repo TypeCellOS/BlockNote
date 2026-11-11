@@ -19,8 +19,6 @@ export type OverlapText = { text: string; key: string };
 const TOKEN = /[\p{L}\p{N}_]+|[^\s\p{L}\p{N}_]/gu;
 const WORD = /^[\p{L}\p{N}_]/u;
 
-type Token = { owner: number; key: string; size: number };
-
 /**
  * Returns the size of the text that each pair of texts has in common. The
  * function diffs the words of all texts of `a` against the words of all texts
@@ -72,6 +70,8 @@ export function textOverlaps(
 export function wordSize(text: OverlapText): number {
   return tokensOf([text]).reduce((sum, token) => sum + token.size, 0);
 }
+
+type Token = { owner: number; key: string; size: number };
 
 /**
  * Splits the texts into tokens:
