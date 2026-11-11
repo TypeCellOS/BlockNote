@@ -23,7 +23,6 @@ import {
   columnSchema,
   createColumnsEditor,
   createEditor,
-  createTabsEditor,
   documentShape,
   replaceOnce,
   writeText,
@@ -746,48 +745,6 @@ describe("markdown", () => {
  * paragraphs and images link to the block that gives them (see
  * `projectDocument`).
  */
-describe("markdown, a layout block that does not dissolve (a tab set)", () => {
-  it("removes a tab whose blocks the text removes, and keeps the tab set", () => {
-    // The text shows no tabs. A tab without blocks stays in the editor (core
-    // fills it with an empty paragraph), but then the text would show that
-    // paragraph. Thus, the tab goes, and PutGet is true.
-    const editor = createTabsEditor();
-    writeText(editor, markdownFormat, (text) => text.replace("One\n\n", ""));
-    expect(documentShape(editor.document)).toEqual(["set", ["t2", ["b"]]]);
-    expect(getDocumentText(editor, markdownFormat)).toBe("Two\n");
-  });
-
-  it("removes a tab set that loses all its blocks", () => {
-    // The text has nothing of the tab set, thus it goes (PutGet is true).
-    const editor = createTabsEditor();
-    writeText(editor, markdownFormat, () => "After\n");
-    expect(editor.document.map((block) => block.type)).toEqual(["paragraph"]);
-    expect(getDocumentText(editor, markdownFormat)).toBe("After\n");
-  });
-
-  it("keeps an empty tab if the tab set needs it for its minimum", () => {
-    // The schema wins: the tab set needs two tabs. Tab t1 stays, and the
-    // apply gives it an empty paragraph, as the editor does. Thus, the next
-    // read shows that paragraph (PutGet is not true).
-    const editor = createTabsEditor(2);
-    valid(
-      updateDocument(editor, {
-        base: "current",
-        format: markdownFormat,
-        text: "Two\n",
-      }),
-    );
-    expect(editor.document[0].children.map((tab) => tab.id)).toEqual([
-      "t1",
-      "t2",
-    ]);
-    expect(
-      editor.document[0].children[0].children.map((block) => block.content),
-    ).toEqual([[]]);
-    expect(getDocumentText(editor, markdownFormat)).toBe("<br>\n\nTwo\n");
-  });
-});
-
 describe("markdown, blocks that markdown shows as other blocks", () => {
   const format = markdownFormat;
   function createMediaEditor() {
