@@ -131,6 +131,19 @@
   height: 52px;
 }
 
+/* Icon placement follows the wrapper's layout, not the field's language.
+   Use physical padding here so dir="ltr"/"auto" on the input cannot move
+   the icon's reserved space to the opposite edge. */
+.bn-mantine .mantine-TextInput-wrapper:dir(ltr) .mantine-TextInput-input {
+  padding-left: var(--input-padding-inline-start);
+  padding-right: var(--input-padding-inline-end);
+}
+
+.bn-mantine .mantine-TextInput-wrapper:dir(rtl) .mantine-TextInput-input {
+  padding-left: var(--input-padding-inline-end);
+  padding-right: var(--input-padding-inline-start);
+}
+
 /* Mantine Tooltip component base styles */
 .bn-mantine .mantine-Tooltip-tooltip {
   background-color: transparent;
@@ -413,7 +426,7 @@ on touch devices (e.g. the mobile formatting toolbar). */
   min-width: 0;
   flex-direction: column;
   justify-content: flex-start;
-  padding-right: 16px;
+  padding-inline-end: 16px;
 }
 
 .bn-mt-suggestion-menu-item-title {
@@ -567,7 +580,7 @@ on touch devices (e.g. the mobile formatting toolbar). */
 .bn-mantine .bn-extend-button-add-remove-columns {
   height: 100%;
   width: 18px;
-  margin-left: 4px;
+  margin-inline-start: 4px;
   cursor: col-resize;
 }
 
