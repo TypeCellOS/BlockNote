@@ -10,6 +10,7 @@ import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
 
 import { AIExtension } from "../../AIExtension.js";
+import { recordReview } from "../agent/chatReview.js";
 import {
   DOCUMENT_BATCHES_CHUNK,
   DOCUMENT_PROPOSAL_CHUNK,
@@ -36,6 +37,7 @@ import {
   revertToolCall,
 } from "../proposal/review.js";
 import type { Batch, Proposal } from "../proposal/types.js";
+import type { ToolCallReview } from "../tools/documentTools.js";
 import { clearSuggestions, showSuggestions } from "./suggestions.js";
 import {
   type DocumentAgentRequestBody,
@@ -66,7 +68,12 @@ export type Review = {
 /**
  * The state of the document agent in an editor.
  *
- * - `idle`: no proposal.
+ * - `idle`: no proposal. The document of the editor has no suggestion
+ *   marks: it is the main document. In the other states, it can have
+ *   suggestion marks, and an app must not save it as the main document.
+ *   An app that saves the main document saves it in this state: after a
+ *   change of the editor, and when the state becomes `idle` (the accept of
+ *   a proposal changes the document before that).
  * - `running`: the agent works. The display shows each batch when its tool
  *   call is complete.
  * - `reviewing`: the user accepts or rejects.
@@ -98,6 +105,15 @@ export type DocumentAgentExtensionOptions = {
   onReview?: (batch: Batch, proposal: Proposal) => void;
   /** Called after a user accepts or rejects the full proposal. */
   onClose?: (result: "accepted" | "rejected", proposal: Proposal) => void;
+  /**
+   * What a run or a proposal does if it starts while the AI menu is closed
+   * (a chat window, a followed run, a proposal of a host). With true (the
+   * default), the AI menu opens: it locks the editor, and has the items
+   * that accept and reject. With false, the extension locks the editor
+   * itself, and the menu stays closed: an app with its own review surface
+   * (for example a chat window) uses this.
+   */
+  aiMenu?: boolean;
   /**
    * The replay animation: the insertions of the newest batch show one after
    * the other, and the text of each one shows from its start to its end.
@@ -138,6 +154,33 @@ export const DocumentAgentExtension = createExtension(
     let runNumber = 0;
     /** The number of chunks of all runs. It tells if a followed run had a stream. */
     let chunkCount = 0;
+    /** True if this extension locked the editor (see `aiMenu`). */
+    let locked = false;
+
+    /**
+     * Makes sure that the editor is locked for a run or a review that
+     * starts while the AI menu is closed: the AI menu opens at the block,
+     * or the extension locks the editor itself (see `aiMenu`).
+     */
+    function lockEditor(blockId: string | undefined) {
+      const ai = aiMenu();
+      if (ai === undefined || ai.store.state.aiMenuState !== "closed") {
+        return;
+      }
+      if (options?.aiMenu === false) {
+        locked = true;
+        editor.isEditable = false;
+      } else if (blockId !== undefined && editor.getBlock(blockId)) {
+        ai.openAIMenuAtBlock(blockId);
+      }
+    }
+
+    function unlockEditor() {
+      if (locked) {
+        locked = false;
+        editor.isEditable = true;
+      }
+    }
 
     function getChat(): Chat<UIMessage> {
       const transport = options?.transport;
@@ -356,14 +399,38 @@ export const DocumentAgentExtension = createExtension(
       }
     }
 
+    /**
+     * Puts the decision of the user into the outputs of the tool calls in
+     * the chat. Thus, the agent knows it in a later run, and a chat window
+     * shows it.
+     */
+    function record(toolCallIds: readonly string[], review: ToolCallReview) {
+      if (chat !== undefined && toolCallIds.length > 0) {
+        chat.messages = recordReview(
+          chat.messages,
+          new Map(toolCallIds.map((id) => [id, review])),
+        );
+      }
+    }
+
+    /** The tool calls of a review that have no decision of the user. */
+    function openToolCallIds(review: Review): string[] {
+      return review.toolCalls
+        .filter((call) => call.state === "open")
+        .map((call) => call.toolCallId);
+    }
+
     /** Ends the review: the editor shows the main document, without a proposal. */
     function reset() {
       runNumber++;
       newest = new Set();
       // The chat stays, with its messages: only its stream stops.
       void chat?.stop();
-      store.setState({ status: "idle" });
+      // The suggestion marks go before the state is `idle` (see
+      // `openProposal`).
       clearSuggestions(editor);
+      store.setState({ status: "idle" });
+      unlockEditor();
       aiMenu()?.closeAIMenu();
     }
 
@@ -387,14 +454,10 @@ export const DocumentAgentExtension = createExtension(
             }
           : { ...state.review, answer: "" };
       store.setState({ status: "running", review });
-      // A run needs the AI menu: it locks the editor, and it has the items
-      // that accept and reject. The AI menu starts a run with the menu
-      // open. A chat and a followed run do not.
-      const ai = aiMenu();
-      if (ai !== undefined && ai.store.state.aiMenuState === "closed") {
-        ai.openAIMenuAtBlock(editor.getTextCursorPosition().block.id);
-      }
-      ai?.setAIResponseStatus("thinking");
+      // The AI menu starts a run with the menu open. A chat and a followed
+      // run do not.
+      lockEditor(editor.getTextCursorPosition().block.id);
+      aiMenu()?.setAIResponseStatus("thinking");
       return ++runNumber;
     }
 
@@ -487,6 +550,7 @@ export const DocumentAgentExtension = createExtension(
         const current = getChat();
         const before = store.state;
         const menuWasClosed = aiMenu()?.store.state.aiMenuState === "closed";
+        const wasLocked = locked;
         const run = beginRun();
         if (run === undefined) {
           return false;
@@ -496,6 +560,9 @@ export const DocumentAgentExtension = createExtension(
         if (chunkCount === chunksBefore && runNumber === run) {
           // No stream: there is no run. The state is as before.
           store.setState(before);
+          if (!wasLocked) {
+            unlockEditor();
+          }
           if (menuWasClosed) {
             aiMenu()?.closeAIMenu();
           } else if (before.status !== "idle") {
@@ -537,27 +604,26 @@ export const DocumentAgentExtension = createExtension(
           });
           return;
         }
-        const shown = display(proposal);
-        const { toolCalls } = shown;
         const answer =
           store.state.status === "idle" ? "" : store.state.review.answer;
+        // The state changes before the display. A listener of the editor
+        // (for example a save of the document) must not get a document
+        // with suggestion marks in the state `idle`.
         store.setState({
           status: "reviewing",
-          review: { proposal, ...shown, answer },
+          review: { proposal, toolCalls: [], suggestionCount: 0, answer },
         });
+        setProposal(proposal);
+        const after = store.state;
+        const toolCalls = after.status === "idle" ? [] : after.review.toolCalls;
         // The AI menu has the items that accept and reject the proposal.
-        const ai = aiMenu();
-        if (ai !== undefined && ai.store.state.aiMenuState === "closed") {
-          // The menu opens below a block: use the last block with a
-          // suggestion, as the menu of a run that a user starts.
-          const block =
-            toolCalls.flatMap((call) => call.suggestedBlockIds).at(-1) ??
-            editor.document.at(-1)?.id;
-          if (block !== undefined && editor.getBlock(block)) {
-            ai.openAIMenuAtBlock(block);
-            ai.setAIResponseStatus("user-reviewing");
-          }
-        }
+        // It opens below a block: use the last block with a suggestion, as
+        // the menu of a run that a user starts.
+        lockEditor(
+          toolCalls.flatMap((call) => call.suggestedBlockIds).at(-1) ??
+            editor.document.at(-1)?.id,
+        );
+        aiMenu()?.setAIResponseStatus("user-reviewing");
       },
 
       /**
@@ -580,6 +646,7 @@ export const DocumentAgentExtension = createExtension(
           // The proposal document comes from an editor with this schema.
           throw new Error(`The accept of a proposal failed: ${result.error}`);
         }
+        record(openToolCallIds(state.review), "accepted");
         reset();
         options?.onClose?.("accepted", proposal);
       },
@@ -590,6 +657,7 @@ export const DocumentAgentExtension = createExtension(
         if (state.status === "idle") {
           return;
         }
+        record(openToolCallIds(state.review), "rejected");
         reset();
         options?.onClose?.("rejected", state.review.proposal);
       },
@@ -615,6 +683,7 @@ export const DocumentAgentExtension = createExtension(
         }
         const proposal = withBatch(state.review.proposal, accepted.batch);
         setProposal(proposal);
+        record([toolCallId], "accepted");
         options?.onReview?.(accepted.batch, proposal);
         closeIfDone();
       },
@@ -638,6 +707,7 @@ export const DocumentAgentExtension = createExtension(
         }
         const proposal = withBatch(state.review.proposal, reverted.batch);
         setProposal(proposal);
+        record([toolCallId], "rejected");
         options?.onReview?.(reverted.batch, proposal);
         closeIfDone();
       },

@@ -3,6 +3,7 @@ import { UnreachableCaseError } from "@blocknote/core";
 import type {
   EditOutput,
   ReadOutput,
+  ToolCallReview,
   ToolNote,
   WriteOutput,
 } from "./documentTools.js";
@@ -40,6 +41,7 @@ export function describeWrite(output: WriteOutput | EditOutput): string {
           ? `OK. The new version is ${output.version}.`
           : `No change: the document already has this text. The version is ${output.version}.`,
         ...output.notes.map(describeNote),
+        ...describeReview(output.review),
       ].join("\n");
     case "conflict":
       return [
@@ -58,6 +60,22 @@ export function describeWrite(output: WriteOutput | EditOutput): string {
       return `Not unique: nothing was written. The markdown of the document contains \`old\` ${output.count} times. Add more of the text around it to \`old\`.`;
     default:
       throw new UnreachableCaseError(output);
+  }
+}
+
+/** The decision of a user on the change of a tool call, for a later run of the agent. */
+function describeReview(review: ToolCallReview | undefined): string[] {
+  switch (review) {
+    case undefined:
+      return [];
+    case "accepted":
+      return ["The user accepted this change: it is in the document."];
+    case "rejected":
+      return [
+        "The user rejected this change: it is not in the document. Do not make this change again, unless the user asks for it.",
+      ];
+    default:
+      throw new UnreachableCaseError(review);
   }
 }
 

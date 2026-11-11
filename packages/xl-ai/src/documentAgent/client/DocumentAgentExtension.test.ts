@@ -485,6 +485,85 @@ describe("a proposal that a server made", () => {
   });
 });
 
+describe("the document of the editor in the state idle", () => {
+  it("never has suggestion marks: an app can save it as the main document", async () => {
+    const { editor, agent } = createEditor(twoEdits);
+    // An app saves the document in the state idle: after each change of
+    // the editor, and when the state becomes idle.
+    const saved: [boolean, string][] = [];
+    function save() {
+      if (agent.store.state.status === "idle") {
+        saved.push([
+          hasSuggestions(editor.prosemirrorState.doc),
+          textsOf(editor.document)[1],
+        ]);
+      }
+    }
+    editor.onChange(save);
+    agent.store.subscribe(save);
+    const proposal = writeMarkdown(
+      headlessEditorFactory(),
+      createProposal(initialDocument()),
+      "# Title\n\nOpening paragraph.\n\nSecond paragraph.\n",
+      "call-1",
+    );
+
+    // A proposal of a host, a reject, a run of the user, and an accept.
+    agent.openProposal(proposal);
+    expect(hasSuggestions(editor.prosemirrorState.doc)).toBe(true);
+    agent.rejectAll();
+    await agent.invoke("Improve the text.");
+    agent.acceptAll();
+
+    // No save has a suggestion mark. The save after the reject has the
+    // main document, and the save after the accept has the accepted text.
+    expect(saved.map(([marks]) => marks)).not.toContain(true);
+    expect(saved.at(0)?.[1]).toBe("First paragraph.");
+    expect(saved.at(-1)?.[1]).toBe("Opening paragraph.");
+  });
+});
+
+describe("the review of a user in the chat", () => {
+  /** The tool call ID and the review in the output of each tool part of the chat. */
+  function reviewsOf(agent: { getChat(): { messages: UIMessage[] } }) {
+    return agent
+      .getChat()
+      .messages.flatMap((message) => message.parts)
+      .flatMap((part) => {
+        const tool = part as {
+          type: string;
+          toolCallId?: string;
+          output?: { review?: string; version?: string };
+        };
+        return tool.type === "tool-editText"
+          ? [[tool.toolCallId, tool.output?.review]]
+          : [];
+      });
+  }
+
+  it("is in the output of each tool call: the agent gets it in a later run", async () => {
+    const { agent } = createEditor(twoEdits);
+    await agent.invoke("Improve the text.");
+    expect(reviewsOf(agent)).toEqual([
+      ["call-2", undefined],
+      ["call-3", undefined],
+    ]);
+
+    agent.rejectToolCall("call-2");
+    expect(reviewsOf(agent)).toEqual([
+      ["call-2", "rejected"],
+      ["call-3", undefined],
+    ]);
+
+    // The accept of the proposal accepts the tool calls without a decision.
+    agent.acceptAll();
+    expect(reviewsOf(agent)).toEqual([
+      ["call-2", "rejected"],
+      ["call-3", "accepted"],
+    ]);
+  });
+});
+
 describe("the chat of the editor", () => {
   it("stays after a review: a later run has the messages of the earlier runs", async () => {
     const { model, prompts } = scriptedModel([
@@ -700,6 +779,40 @@ describe("an editor of a host that keeps the proposal (a session)", () => {
       ["insertion", 2, "Closing"],
     ]);
     expect(proposalOf(agent)).toEqual((await host.snapshot("doc")).proposal);
+  });
+
+  it("locks the editor without the AI menu, for an app with its own review surface", async () => {
+    const documents = createInMemoryDocumentStore();
+    documents.write("doc", initialDocument());
+    const editor = BlockNoteEditor.create({
+      initialContent: initialDocument(),
+      trailingBlock: false,
+      extensions: [
+        AIExtension(),
+        DocumentAgentExtension({
+          aiMenu: false,
+          transport: createInProcessTransport({
+            model: scriptedModel([firstEdit, { text: "Done." }]).model,
+          }),
+        }),
+      ],
+    });
+    editor.mount(document.createElement("div"));
+    mounted.push(editor);
+    const agent = editor.getExtension(DocumentAgentExtension)!;
+    const ai = editor.getExtension(AIExtension)!;
+
+    await agent.invoke("Improve the start.");
+
+    // The review locks the editor, and the AI menu stays closed.
+    expect(reviewOf(agent).status).toBe("reviewing");
+    expect(editor.isEditable).toBe(false);
+    expect(ai.store.state.aiMenuState).toBe("closed");
+
+    agent.acceptAll();
+
+    expect(editor.isEditable).toBe(true);
+    expect(textsOf(editor.document)[1]).toBe("Opening paragraph.");
   });
 
   it("does not change the state if there is no run to follow", async () => {

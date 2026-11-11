@@ -35,6 +35,9 @@ export type ToolNote =
  */
 type Followable = { batches: Batch[] };
 
+/** The decision of a user on the change of one tool call. */
+export type ToolCallReview = "accepted" | "rejected";
+
 /** The output of `readDocument`. */
 export type ReadOutput = Followable & {
   markdown: string;
@@ -53,6 +56,12 @@ export type WriteOutput = Followable &
         /** False if the document already agreed with the text. */
         changed: boolean;
         notes: ToolNote[];
+        /**
+         * The decision of a user on the change of this tool call. A tool
+         * does not set it: the review of a user adds it to the output in
+         * the chat (see `recordReview`).
+         */
+        review?: ToolCallReview;
       }
     /** A user changed the same part of the document after `base`. The agent must read again. */
     | { error: "conflict"; conflicts: ToolNote[] }

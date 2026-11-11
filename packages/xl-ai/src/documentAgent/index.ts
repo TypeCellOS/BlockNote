@@ -19,6 +19,7 @@ export {
   type DocumentProposalData,
   type LanguageModelObject,
 } from "./agent/earlyToolCalls.js";
+export { recordReview } from "./agent/chatReview.js";
 export { DOCUMENT_AGENT_INSTRUCTIONS } from "./agent/instructions.js";
 export {
   blockOf,
@@ -86,6 +87,7 @@ export {
   editText,
   readDocument,
   type ReadOutput,
+  type ToolCallReview,
   type ToolNote,
   writeDocument,
   type WriteInput,

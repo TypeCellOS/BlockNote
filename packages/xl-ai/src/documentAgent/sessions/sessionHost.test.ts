@@ -330,7 +330,7 @@ describe("the session of a document", () => {
         { id: "p2", type: "paragraph", content: "Second paragraph." },
       ]),
     );
-    host.closeProposal("doc");
+    await host.closeProposal("doc", "accepted");
     expect((await host.snapshot("doc")).proposal).toBeUndefined();
     expect(await host.review("doc", {} as never)).toEqual({
       error: "no-proposal",
@@ -346,5 +346,53 @@ describe("the session of a document", () => {
     ]);
     expect(snapshot.proposal!.batches).toHaveLength(1);
     expect(snapshot.messages).toHaveLength(4);
+  });
+
+  it("tells the agent in its next run what the user decided on each change", async () => {
+    const { host, prompts, documents } = createHost([
+      firstEdit,
+      secondEdit,
+      { text: "I changed two words." },
+      { text: "You rejected the first change." },
+    ]);
+    await run(host, "Improve the text.", "user");
+    // The user rejects the first tool call, and accepts the rest. The
+    // editor saves the main document with the accepted change.
+    const { proposal } = await host.snapshot("doc");
+    const reverted = revertToolCall(createEditor, proposal!, "call-1");
+    if (reverted.error !== undefined) {
+      throw new Error(reverted.error);
+    }
+    await host.review("doc", reverted.batch);
+    documents.write(
+      "doc",
+      documentOf([
+        { id: "title", type: "heading", content: "Title" },
+        { id: "p1", type: "paragraph", content: "First paragraph." },
+        { id: "p2", type: "paragraph", content: "Closing paragraph." },
+      ]),
+    );
+    await host.closeProposal("doc", "accepted");
+
+    await run(host, "What did I reject?", "external");
+
+    // The model gets the decision with the result of each tool call.
+    const results = prompts[3].flatMap((message) =>
+      message.role === "tool"
+        ? message.content.flatMap((part) =>
+            part.type === "tool-result" && part.output.type === "text"
+              ? [part.output.value]
+              : [],
+          )
+        : [],
+    );
+    expect(results).toEqual([
+      "OK. The new version is v1.\nThe user rejected this change: it is not in the document. Do not make this change again, unless the user asks for it.",
+      "OK. The new version is v2.\nThe user accepted this change: it is in the document.",
+    ]);
+    // The document of the new run does not have the rejected change.
+    expect(JSON.stringify(prompts[3].at(-1))).toContain(
+      "First paragraph.\\n\\nClosing paragraph.",
+    );
   });
 });

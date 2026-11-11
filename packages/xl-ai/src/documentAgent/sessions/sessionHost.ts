@@ -1,6 +1,7 @@
 import { generateId, type UIMessage, type UIMessageChunk } from "ai";
 
 import type { LensBlock } from "../../api/v2/index.js";
+import { recordReview } from "../agent/chatReview.js";
 import {
   type DocumentAgentOptions,
   streamDocumentAgentOnHandle,
@@ -9,9 +10,11 @@ import {
   DOCUMENT_PROPOSAL_CHUNK,
   type DocumentProposalData,
 } from "../agent/earlyToolCalls.js";
+import { toolCallsOf } from "../proposal/derive.js";
 import { type CreateEditor, createProposal } from "../proposal/proposal.js";
 import type { Batch, Proposal } from "../proposal/types.js";
 import type { ProposalStore } from "../stores/proposalStore.js";
+import type { ToolCallReview } from "../tools/documentTools.js";
 import { createDocumentHandle } from "../tools/handle.js";
 import { createRunLog, type RunLog } from "./runLog.js";
 
@@ -96,10 +99,13 @@ export type SessionHost = {
     | { error: "stale"; batches: number }
   >;
   /**
-   * Closes the proposal of the document: a user accepted or rejected all
-   * of it. The next run starts a new proposal. The chat stays.
+   * Closes the proposal of the document: a user accepted or rejected the
+   * tool calls that had no decision (`result`). The next run starts a new
+   * proposal. The chat stays, with the decisions of the user in the outputs
+   * of its tool calls (see `recordReview`): the agent gets them in its
+   * next run.
    */
-  closeProposal(documentId: string): void;
+  closeProposal(documentId: string, result: ToolCallReview): Promise<void>;
 };
 
 type Session = {
@@ -236,16 +242,40 @@ export function createSessionHost(options: SessionHostOptions): SessionHost {
         origin: proposal.origin,
         batches: [...proposal.batches, batch],
       });
+      const session = sessionOf(documentId);
+      const { source } = batch;
+      if (source.type === "accept" || source.type === "revert") {
+        session.messages = recordReview(
+          session.messages,
+          new Map([
+            [
+              source.toolCallId,
+              source.type === "accept" ? "accepted" : "rejected",
+            ],
+          ]),
+        );
+      }
       options.onChange?.(documentId);
       return {};
     },
 
-    closeProposal(documentId) {
+    async closeProposal(documentId, result) {
       const session = sessionOf(documentId);
-      if (session.proposalId !== undefined) {
-        session.proposalId = undefined;
-        options.onChange?.(documentId);
+      const { proposalId } = session;
+      if (proposalId === undefined) {
+        return;
       }
+      const proposal = await proposals.load(proposalId);
+      session.messages = recordReview(
+        session.messages,
+        new Map(
+          (proposal === undefined ? [] : toolCallsOf(proposal))
+            .filter((call) => call.state === "open")
+            .map((call) => [call.toolCallId, result]),
+        ),
+      );
+      session.proposalId = undefined;
+      options.onChange?.(documentId);
     },
   };
 }
