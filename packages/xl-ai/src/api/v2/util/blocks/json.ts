@@ -39,7 +39,7 @@ export function deepEqual(a: unknown, b: unknown): boolean {
  * a hash key.
  */
 export function stableStringify(value: unknown): string {
-  return JSON.stringify(normalize(value));
+  return JSON.stringify(canonicalValue(value));
 }
 
 /** Returns a key of all the data in a block, but not its ID and children. */
@@ -51,16 +51,17 @@ export function blockKey(block: BlockFields): string {
   });
 }
 
-function normalize(value: unknown): unknown {
+/** The value with sorted object keys and without `undefined` values (see {@link stableStringify}). */
+function canonicalValue(value: unknown): unknown {
   if (Array.isArray(value)) {
-    return value.map(normalize);
+    return value.map(canonicalValue);
   }
   if (typeof value === "object" && value !== null) {
     const record = value as Record<string, unknown>;
     const result: Record<string, unknown> = {};
     for (const key of Object.keys(record).sort()) {
       if (record[key] !== undefined) {
-        result[key] = normalize(record[key]);
+        result[key] = canonicalValue(record[key]);
       }
     }
     return result;

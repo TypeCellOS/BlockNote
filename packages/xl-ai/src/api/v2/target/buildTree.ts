@@ -30,7 +30,7 @@ export function buildTree(input: {
   newId: () => string;
 }): LensBlock[] {
   const { rows, source } = input;
-  const root = node("", { type: "", props: {}, content: undefined });
+  const root = blockFromFields("", { type: "", props: {}, content: undefined });
   /** The node of each place in the tree. */
   const nodes = new Map<string, LensBlock>([[keyOf({ kind: "root" }), root]]);
   /** The node of each source block in the tree: a kept block or a hidden ancestor. */
@@ -41,7 +41,7 @@ export function buildTree(input: {
       case "root":
         throw new Error("The root is not a step of the build");
       case "hidden": {
-        const block = node(place.id, source.block(place.id));
+        const block = blockFromFields(place.id, source.block(place.id));
         nodeOf.set(place.id, block);
         return block;
       }
@@ -51,9 +51,9 @@ export function buildTree(input: {
           case "skipped":
             throw new Error("A skipped row is not a step of the build");
           case "new":
-            return node(row.id ?? input.newId(), row.fields);
+            return blockFromFields(row.id ?? input.newId(), row.fields);
           case "kept": {
-            const block = node(row.id, row.fields);
+            const block = blockFromFields(row.id, row.fields);
             nodeOf.set(row.id, block);
             return block;
           }
@@ -94,7 +94,7 @@ function placeHiddenBlocks(
       let last: string | undefined;
       for (const id of siblings) {
         if (invisibleIds.has(id) && kept.has(id) && !nodeOf.has(id)) {
-          const block = node(id, source.block(id));
+          const block = blockFromFields(id, source.block(id));
           nodeOf.set(id, block);
           const list = after.get(last) ?? [];
           list.push(block);
@@ -133,7 +133,8 @@ function withInserts(
   return result;
 }
 
-function node(id: string, fields: BlockFields): LensBlock {
+/** A block with the ID and the fields, without children. */
+function blockFromFields(id: string, fields: BlockFields): LensBlock {
   const { type, props, content } = fields;
   return { id, type, props, content, children: [] };
 }
