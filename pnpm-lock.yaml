@@ -5282,9 +5282,6 @@ importers:
       react-dom:
         specifier: ^19.2.3
         version: 19.2.5(react@19.2.5)
-      y-websocket:
-        specifier: ^2.1.0
-        version: 2.1.0(yjs@13.6.33)
       yjs:
         specifier: ^13.6.33
         version: 13.6.33
@@ -6250,9 +6247,6 @@ importers:
       hono:
         specifier: ^4.10.3
         version: 4.12.14
-      y-websocket:
-        specifier: ^2.1.0
-        version: 2.1.0(yjs@13.6.33)
       yjs:
         specifier: ^13.6.33
         version: 13.6.33

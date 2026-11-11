@@ -30,7 +30,6 @@ import { en as aiEn } from "@blocknote/xl-ai/locales";
 import "@blocknote/xl-ai/style.css";
 import { DefaultChatTransport } from "ai";
 import { type ReactNode, useEffect, useMemo } from "react";
-import { WebsocketProvider } from "y-websocket";
 import * as Y from "yjs";
 
 import { getEnv } from "./getEnv";
@@ -43,12 +42,13 @@ import {
   useYjsNotices,
 } from "./ServerRunPanel";
 import "./styles.css";
+import { connectYDoc } from "./yjsRelay";
 
 const BASE_URL =
   getEnv("BLOCKNOTE_AI_SERVER_BASE_URL") || "https://localhost:3000/ai";
 const AGENT_URL = `${BASE_URL}/document-agent`;
-/** The y-websocket server of the mode "Server run (Yjs)". */
-const YJS_URL = "ws://localhost:1234";
+/** The Yjs relay of the BlockNote AI server, for the mode "Server run (Yjs)". */
+const YJS_URL = `${BASE_URL}/yjs`;
 
 /**
  * The four modes of the example. The code of the agent, of the display and
@@ -170,34 +170,28 @@ function JsonStoreEditor() {
 /** A run that the server starts, on a document of a Yjs collaboration server. */
 function YjsEditor() {
   const documentId = "demo-yjs";
-  const { doc, provider } = useMemo(() => {
-    const doc = new Y.Doc();
-    return { doc, provider: new WebsocketProvider(YJS_URL, documentId, doc) };
-  }, []);
-  useEffect(() => () => provider.destroy(), [provider]);
-
+  const doc = useMemo(() => new Y.Doc(), []);
   const sync = useReviewSync(AGENT_URL);
   const editor = useCreateBlockNote(
     withCollaboration({
       ...editorOptions(sync.agentOptions),
       collaboration: {
-        provider,
         fragment: doc.getXmlFragment("document-store"),
         user: { name: "User", color: "#4f8ff7" },
       },
     }),
   );
-  // The first client of a new room adds the content.
-  useEffect(() => {
-    function addContent(isSynced: boolean) {
-      const [first] = editor.document;
-      if (isSynced && editor.document.length === 1 && isEmpty(first)) {
-        editor.replaceBlocks(editor.document, initialContent);
-      }
-    }
-    provider.on("sync", addContent);
-    return () => provider.off("sync", addContent);
-  }, [editor, provider]);
+  useEffect(
+    () =>
+      connectYDoc(`${YJS_URL}/${documentId}`, doc, () => {
+        // The first client of a new room adds the content.
+        const [first] = editor.document;
+        if (editor.document.length === 1 && isEmpty(first)) {
+          editor.replaceBlocks(editor.document, initialContent);
+        }
+      }),
+    [doc, editor],
+  );
 
   // The notices of the proposals come through the Y.Doc.
   const notice: ProposalNotice | undefined = useYjsNotices(doc);

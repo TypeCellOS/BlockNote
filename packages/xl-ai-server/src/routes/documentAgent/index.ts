@@ -110,7 +110,10 @@ const documents = createInMemoryDocumentStore();
 const proposals = createInMemoryProposalStore();
 const runs = new Map<string, Run>();
 const yjs = createYjsDocumentSource({
-  url: process.env.YJS_URL ?? "ws://localhost:1234",
+  // The Yjs relay of this server (see `routes/yjsRelay.ts`).
+  url:
+    process.env.YJS_URL ??
+    `http://localhost:${process.env.PORT ?? 3000}/ai/yjs`,
   fragment: "document-store",
 });
 const sources: Record<SourceName, DocumentSource> = { json: documents, yjs };

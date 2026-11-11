@@ -23,7 +23,6 @@
     "@ai-sdk/anthropic": "^4.0.88",
     "@blocknote/xl-ai": "latest",
     "ai": "^7.0.153",
-    "y-websocket": "^2.1.0",
     "yjs": "^13.6.33"
   },
   "devDependencies": {

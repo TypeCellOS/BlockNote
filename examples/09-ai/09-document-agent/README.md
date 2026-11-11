@@ -4,7 +4,7 @@ This example shows the document agent of `@blocknote/xl-ai`: an agent loop that 
 
 Select a mode at the top. In "Server" and "Client" mode, type `/ai` or select text and click the AI button. In the two "Server run" modes, start a run with the panel on the right, change the document while the agent works, then review the proposal.
 
-The example needs the BlockNote AI server (`packages/xl-ai-server`). The mode "Server run (Yjs)" also needs a y-websocket server on port 1234. See `PROTOTYPE.md` in the root of the repository.
+The example needs the BlockNote AI server (`packages/xl-ai-server`). That server also has the small Yjs relay of the mode "Server run (Yjs)". See `PROTOTYPE.md` in the root of the repository.
 
 **Relevant Docs:**
 

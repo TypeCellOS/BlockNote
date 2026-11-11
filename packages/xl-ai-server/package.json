@@ -74,7 +74,6 @@
     "@hono/node-server": "^1.19.5",
     "ai": "^7.0.153",
     "hono": "^4.10.3",
-    "y-websocket": "^2.1.0",
     "yjs": "^13.6.33"
   },
   "devDependencies": {
