@@ -150,7 +150,9 @@ export function correspond(
  *   `decideMultiParts`) does not stay here.
  * - A view block without a link: the text cannot change it. If its pair
  *   did not change, the pair is not a block. If the text changed it, the
- *   warning `unlinked-block-changed`, and the pair is not a block.
+ *   warning `unlinked-block-changed`, and the pair is not a block. An
+ *   empty view block without a link gives no warning: its pair is a block
+ *   of the text.
  */
 function decideViewBlocks(
   view: readonly ViewBlock[],
