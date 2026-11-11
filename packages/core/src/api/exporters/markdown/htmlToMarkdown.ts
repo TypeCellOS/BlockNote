@@ -852,9 +852,31 @@ function serializeFigure(el: HTMLElement, ctx: SerializeContext): string {
     );
   }
   if (link) {
-    return serializeBlockLink(link as HTMLElement, ctx);
+    return captionText
+      ? serializeLinkFigure(link, captionText, ctx)
+      : serializeBlockLink(link as HTMLElement, ctx);
   }
   return "";
+}
+
+/**
+ * A link to a file with a caption: a file block, or an image, a video or an
+ * audio block without a preview. Markdown has no syntax for a caption, thus
+ * the figure stays HTML, as for an image with a caption. The parse reads it
+ * back as one file block (see `fileParse`).
+ */
+function serializeLinkFigure(
+  link: Element,
+  captionText: string,
+  ctx: SerializeContext,
+): string {
+  const href = escapeHtmlAttr(link.getAttribute("href") || "");
+  const text = escapeHtmlText(link.textContent?.trim() || "");
+  const caption = escapeHtmlText(captionText);
+  return (
+    ctx.indent +
+    `<figure><a href="${href}">${text}</a><figcaption>${caption}</figcaption></figure>\n\n`
+  );
 }
 
 function serializeMediaFigure(

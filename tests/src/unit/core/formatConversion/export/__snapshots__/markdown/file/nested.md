@@ -1,7 +1,3 @@
-[example](exampleURL)
+<figure><a href="exampleURL">example</a><figcaption>Caption</figcaption></figure>
 
-Caption
-
-[example](exampleURL)
-
-Caption
+<figure><a href="exampleURL">example</a><figcaption>Caption</figcaption></figure>
