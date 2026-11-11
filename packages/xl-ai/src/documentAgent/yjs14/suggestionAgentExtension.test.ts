@@ -218,6 +218,23 @@ describe("the document agent in an editor, in Yjs 14 mode", () => {
     ]);
   });
 
+  it("continues the review if it ends without a decision", async () => {
+    const { editor, agent } = createSessionEditor([
+      editFirst,
+      { text: "Done." },
+    ]);
+    await agent.invoke("Improve the text.");
+
+    // What the close of the AI menu does: the review ends.
+    agent.dismiss();
+
+    // The suggestion is in the document, thus the review is open again.
+    expect(agent.store.state.status).toBe("reviewing");
+    expect(suggestionMarksOf(editor.prosemirrorState.doc)).toHaveLength(4);
+    agent.acceptAll();
+    expect(agent.store.state.status).toBe("idle");
+  });
+
   it("tells the agent the decision of the user in the next run", async () => {
     const { agent, prompts } = createSessionEditor([
       editFirst,

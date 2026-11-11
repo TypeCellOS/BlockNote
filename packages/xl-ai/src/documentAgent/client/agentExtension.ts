@@ -132,6 +132,12 @@ export type ClientMode<Data extends ReviewData, Api extends object> = {
   /** Removes the display of the review from the editor, before the state `idle`. */
   hide(): void;
   /**
+   * Called after the end of a review, in the state `idle`. A mode whose
+   * changes stay in the document (the Yjs 14 mode) starts the review again
+   * here if a change has no decision.
+   */
+  afterReset?(): void;
+  /**
    * The main document of the editor: the document without the changes of
    * the agent that no user accepted. An app saves this document, never
    * `editor.document`.
@@ -328,6 +334,7 @@ export function createAgentExtension<
         store.setState({ status: "idle" });
         unlockEditor();
         aiMenu()?.closeAIMenu();
+        mode.afterReset?.();
       }
 
       /**

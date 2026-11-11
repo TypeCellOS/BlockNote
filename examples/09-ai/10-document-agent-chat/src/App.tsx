@@ -92,6 +92,15 @@ function hasAcceptGuard(): boolean {
   return new URLSearchParams(window.location.search).get("guard") === "1";
 }
 
+/**
+ * The flag `menu=1` of the URL: a run from the chat, and a run that the
+ * editor follows, open the AI menu. Without it, the chat is the only review
+ * surface, and the AI menu opens only when the user opens it.
+ */
+function opensAiMenu(): boolean {
+  return new URLSearchParams(window.location.search).get("menu") === "1";
+}
+
 /** The options that all modes share: the dictionary and the two AI extensions. */
 function editorOptions(agentOptions: DocumentAgentExtensionOptions) {
   return {
@@ -100,8 +109,8 @@ function editorOptions(agentOptions: DocumentAgentExtensionOptions) {
       // The AI extension has the suggestion marks and the state of the AI menu.
       AIExtension(),
       // The chat is the review surface: a run from the chat does not open
-      // the AI menu.
-      DocumentAgentExtension({ ...agentOptions, aiMenu: false }),
+      // the AI menu (see `opensAiMenu`).
+      DocumentAgentExtension({ ...agentOptions, aiMenu: opensAiMenu() }),
     ],
   };
 }
@@ -310,7 +319,7 @@ function Yjs14Session() {
         AIExtension(),
         SuggestionAgentExtension({
           transport: createSessionTransport(sessionUrl),
-          aiMenu: false,
+          aiMenu: opensAiMenu(),
           main: docs.main,
           suggestion: docs.suggestion,
           fragment: YJS14_FRAGMENT,

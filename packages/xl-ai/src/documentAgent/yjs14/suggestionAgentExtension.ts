@@ -128,6 +128,9 @@ function createSuggestionMode(
     endRun: sync,
     // The suggestions are in the suggestion document: nothing to hide.
     hide: () => undefined,
+    // The end of a review without a decision (for example the AI menu
+    // closed) does not remove the suggestions: the review continues.
+    afterReset: sync,
     mainDocument: () => yDocToBlocks(editor, main, fragment),
     acceptAll: () => decide(() => review.acceptAll()),
     rejectAll: () => decide(() => review.rejectAll()),

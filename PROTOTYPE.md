@@ -832,7 +832,7 @@ One more observation, not a fault of a mode: in the first run, Haiku gave `repla
 
 ### 16.5 What the Yjs 14 mode does not have
 
-1. **The AI menu in Yjs 14 mode** is not examined in a browser: the example uses the chat. The menu component is shared.
+1. **The AI menu in Yjs 14 mode.** Done after this section: I examined it in a browser. The menu opens from the slash menu, runs the prompt, and has "Accept" and "Revert" after the run. An accept in the menu accepts all open tool calls and ends the review. One change was necessary (`afterReset` of a mode): if a review ends without a decision (the AI menu closes), the suggestions stay in the document, and the review continues. A review also continues after a reload of the page, because it is in the suggestion document. The flag `menu=1` of the example opens the AI menu for a run from the chat.
 2. **The replay animation.** The changes arrive through the Yjs sync, thus the animation needs a different start.
 3. **A provider and a store for a production host.** The relay of the demo keeps the two documents in memory.
 4. **A tool that throws after its write** leaves a change in the suggestion document without a record. No user can accept or reject it as a tool call.
