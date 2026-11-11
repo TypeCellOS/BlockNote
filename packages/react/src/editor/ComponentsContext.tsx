@@ -361,6 +361,7 @@ export type ComponentProps = {
       TextInput: {
         className?: string;
         name: string;
+        dir?: "ltr" | "rtl" | "auto";
         label?: string;
         variant?: "default" | "large";
         icon: ReactNode;

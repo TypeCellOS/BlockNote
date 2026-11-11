@@ -317,6 +317,24 @@ export const examples = {
           "This example shows how to disable the automatic creation of a trailing block at the end of the editor by setting the `trailingBlock` option to `false`.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)",
       },
       {
+        projectSlug: "rtl",
+        fullSlug: "basic/rtl",
+        pathFromRoot: "examples/01-basic/18-rtl",
+        config: {
+          playground: true,
+          docs: false,
+          author: "",
+          tags: ["Basic"],
+        },
+        title: "Right-to-left (RTL)",
+        group: {
+          pathFromRoot: "examples/01-basic",
+          slug: "basic",
+        },
+        readme:
+          'A Hebrew-localized editor with Hebrew, Arabic, and mixed English text. Use the Hebrew dictionary, Mantine\'s `DirectionProvider`, and `dir="rtl"` on `BlockNoteView` to localize the UI and mirror the layout while keeping code left-to-right. The provider uses `initialDirection="rtl"` and `detectDirection={false}` so this example stays RTL independently of the surrounding playground.\n\n**Try it out!** Edit the nested lists, open a block menu, edit the link, or type `/` and `:sm` in the empty paragraph to try the slash menu and emoji picker.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Localization](/docs/features/localization)\n- [Mantine RTL setup](https://mantine.dev/styles/rtl/)',
+      },
+      {
         projectSlug: "testing",
         fullSlug: "basic/testing",
         pathFromRoot: "examples/01-basic/testing",

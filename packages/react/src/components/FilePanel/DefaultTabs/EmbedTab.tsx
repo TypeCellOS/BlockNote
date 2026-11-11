@@ -75,7 +75,7 @@ export const EmbedTab = <
         }
       >
         <Components.FilePanel.TextInput
-          className={"bn-text-input"}
+          className={"bn-text-input bn-embed-url-input"}
           placeholder={dict.file_panel.embed.url_placeholder}
           value={currentURL}
           onChange={handleURLChange}
