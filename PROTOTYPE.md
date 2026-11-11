@@ -520,3 +520,19 @@ What the guards do not cover:
 - The old engine (`AIExtension`) has the same exposure: its suggestions are in the document of the editor, and its transactions tell `editor.onChange`. I did not change it.
 - The cleanest design has no suggestion marks in the document at all: the display is decorations of the view, from the proposal. Then `editor.document` is the main document in each state. This is a larger change of the display.
 
+### 14.8 A known failure: two users accept at the same time (11 November)
+
+You asked if this model works, and if we dismissed it before (the conversation of 5 November: the spike of a suggestion mode with the lens on two documents, and the review of the Yjs 14 suggestions). That conversation named one risk for an accept that is a write of the lens: two users who accept the same suggestion at the same time both insert the text. The prototype has no guard for it, and I had no test for it. Now there is one (`it.fails` in `client/DocumentAgentExtension.test.ts`, commit after `101212eba`):
+
+- Two editors on one shared Y.Doc open the same proposal, and the two users accept before the editors sync.
+- After the sync, the main document has the text two times: "Opening paragraph." is "OpeningOpening paragraph.".
+
+The cause is the same as on 5 November: two writes into one Y.Doc that cross on the network. Each accept alone is correct. Yjs cannot know that the two inserts are the same change.
+
+What this means for the model:
+
+- **The half of the agent is sound.** The proposal has one writer at a time (the agent, and the review batches in one sequence), the rebase writes only to the proposal, and the display only reads. No user edit goes through a service. This is the difference from the design that you dismissed on 5 November, where a service was in the path of each edit of a user.
+- **The half of the accept is not sound for more than one reviewer.** It needs one of these: (a) one order for the accepts: the client asks the host first (a compare and swap on the proposal), and writes to the main document only after the host agrees; (b) an accept that is the same Yjs change for each user: the shared items of the Yjs 14 suggestion layer, where the accept is idempotent; (c) a host that writes the accept to the main document itself (a central merge authority, which you do not want).
+- The other limits of 5 November also apply to each lens write to a Y.Doc: a move or a type change is a delete and an insert in the binding, thus an edit of another user in that block at the same time can be lost, or the block can be there two times.
+- Nothing here has a test with random concurrent edits. The tests of this prototype are one reviewer, or two reviewers one after the other.
+
