@@ -5,7 +5,7 @@ import {
   diffBlock,
   withoutChildren,
 } from "../util/blocks/index.js";
-import { myersMatch } from "../util/sequence/index.js";
+import { type MatchedPair, myersMatch } from "../util/sequence/index.js";
 import { mergeBlock } from "./block.js";
 import { diff3 } from "./diff3.js";
 import { mergeValue } from "./threeWay.js";
@@ -386,17 +386,46 @@ function mergeChildOrder(
       keepTheirs: () => true,
     },
   );
-  // A unit without a base unit is a block that its side moved (or added).
-  // If both sides moved a block to different places in this list, it is
-  // there two times. The place of the side that moved it wins. If the two
-  // sides moved it, that is a conflict: the place of theirs wins.
-  const fromOurs = new Set(ourUnits);
-  const movedUnits = new Set([...ourUnits, ...theirUnits]);
-  for (const pair of oursToBase) {
-    movedUnits.delete(ourUnits[pair.bIndex]);
+  const { order, conflicts } = resolveTwoPlaces(merged, {
+    ours: ourUnits,
+    theirs: theirUnits,
+    oursToBase,
+    theirsToBase,
+  });
+  // Each block of the parent is in the list of ours or of theirs, and the
+  // merge keeps each unit of theirs and each unit that no side removed.
+  // Thus, a missing block is a bug.
+  const has = new Set(order);
+  const lost = expected.find((id) => !has.has(id));
+  if (lost !== undefined) {
+    throw new Error(`The tree merge lost block ${lost}`);
   }
-  for (const pair of theirsToBase) {
-    movedUnits.delete(theirUnits[pair.bIndex]);
+  return { order, conflicts };
+}
+
+/**
+ * The order of the merged units of one list, with each block one time. A
+ * unit without a base unit is a block that its side moved (or added). If
+ * both sides moved a block to different places in this list, it is there
+ * two times. The place of the side that moved it wins. If the two sides
+ * moved it, that is a conflict: the place of theirs wins.
+ */
+function resolveTwoPlaces(
+  merged: readonly { id: string }[],
+  sides: {
+    ours: readonly { id: string }[];
+    theirs: readonly { id: string }[];
+    oursToBase: readonly MatchedPair[];
+    theirsToBase: readonly MatchedPair[];
+  },
+): { order: string[]; conflicts: string[] } {
+  const fromOurs = new Set(sides.ours);
+  const movedUnits = new Set([...sides.ours, ...sides.theirs]);
+  for (const pair of sides.oursToBase) {
+    movedUnits.delete(sides.ours[pair.bIndex]);
+  }
+  for (const pair of sides.theirsToBase) {
+    movedUnits.delete(sides.theirs[pair.bIndex]);
   }
   const places = new Map<string, { id: string }[]>();
   for (const unit of merged) {
@@ -419,14 +448,6 @@ function mergeChildOrder(
     const winner = oursMoved && !theirsMoved ? oursPlace : theirsPlace;
     return unit === winner ? [unit.id] : [];
   });
-  // Each block of the parent is in the list of ours or of theirs, and the
-  // merge keeps each unit of theirs and each unit that no side removed.
-  // Thus, a missing block is a bug.
-  const has = new Set(order);
-  const lost = expected.find((id) => !has.has(id));
-  if (lost !== undefined) {
-    throw new Error(`The tree merge lost block ${lost}`);
-  }
   return { order, conflicts };
 }
 
