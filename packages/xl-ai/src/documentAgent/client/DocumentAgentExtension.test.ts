@@ -1,7 +1,7 @@
 import { BlockNoteEditor, type PartialBlock } from "@blocknote/core";
 import { withCollaboration, yXmlFragmentToBlocks } from "@blocknote/core/yjs";
 import type { ChatTransport, UIMessage } from "ai";
-import { afterEach, describe, expect, it } from "vite-plus/test";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import * as Y from "yjs";
 
 import { AIExtension } from "../../AIExtension.js";
@@ -343,6 +343,79 @@ describe("the document agent in an editor", () => {
       "Opening paragraph.",
       "Closing paragraph.",
     ]);
+  });
+});
+
+describe("the replay animation of a run in an editor", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("shows the changes of the tool calls one after the other, and continues after the end of the run", async () => {
+    // Only the clock is not real: the time goes on when the test tells so.
+    vi.useFakeTimers({ toFake: ["Date"] });
+    const { editor, agent } = createEditor(twoEdits);
+    /** The parts of the replay animation in the editor: the state and the text. */
+    function animation() {
+      return [
+        ...editor.domElement!.querySelectorAll('[class*="bn-agent-"]'),
+      ].map((part) => `${part.className} "${part.textContent}"`);
+    }
+    /** Lets the time go on, and updates the view as the timer of the animation does. */
+    function wait(milliseconds: number) {
+      vi.advanceTimersByTime(milliseconds);
+      const view = editor.prosemirrorView;
+      view.updateState(view.state);
+    }
+
+    await agent.invoke("Improve the text.");
+
+    // The run ended. No time went on: the agent is at the first part of
+    // the first tool call.
+    expect(animation()).toEqual([
+      'bn-agent-removed bn-agent-active "First"',
+      'bn-agent-new bn-agent-pending "Opening"',
+      'bn-agent-removed bn-agent-pending "Second"',
+      'bn-agent-new bn-agent-pending "Closing"',
+    ]);
+
+    // The first tool call takes 123 ms: 5 ms for each removed character,
+    // and 14 ms for each new one. Then the second tool call starts.
+    wait(123);
+    expect(animation()).toEqual([
+      'bn-agent-removed bn-agent-done "First"',
+      'bn-agent-new bn-agent-done "Opening"',
+      'bn-agent-removed bn-agent-active "Second"',
+      'bn-agent-new bn-agent-pending "Closing"',
+    ]);
+
+    wait(1000);
+    expect(animation()).toEqual([]);
+    // The suggestions stay: only the animation is complete.
+    expect(suggestionsOf(editor)).toHaveLength(4);
+  });
+
+  it("does not run with the option `replayAnimation: false`", async () => {
+    const editor = BlockNoteEditor.create({
+      initialContent: initialDocument(),
+      trailingBlock: false,
+      extensions: [
+        AIExtension(),
+        DocumentAgentExtension({
+          transport: createInProcessTransport({
+            model: scriptedModel(twoEdits).model,
+          }),
+          replayAnimation: false,
+        }),
+      ],
+    });
+    editor.mount(document.createElement("div"));
+    mounted.push(editor);
+
+    await editor.getExtension(DocumentAgentExtension)!.invoke("Improve.");
+
+    expect(suggestionsOf(editor)).toHaveLength(4);
+    expect(editor.domElement!.querySelector('[class*="bn-agent-"]')).toBeNull();
   });
 });
 

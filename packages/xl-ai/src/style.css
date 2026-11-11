@@ -98,55 +98,157 @@
   text-decoration: line-through;
 }
 
-/* The replay animation of the document agent: the text of a new insertion
-   shows from its start to its end. Each word has one decoration: an
-   element on more than one line is clipped to the box of its first line.
-   The decorations are inside the `ins` element, thus they have the color,
-   and the `ins` element has none.
+/* The replay animation of the document agent (see `replayAnimation.ts`):
+   the changes of a run show one after the other, as the changes of a
+   person who edits the document. Each part of a change has a decoration
+   with its kind (`bn-agent-<kind>`) and its state at this time
+   (`bn-agent-pending`, `bn-agent-active` or `bn-agent-done`). The sequence
+   is in the code, not in this style sheet. */
 
-   The animation applies its first state before its start (`backwards`),
-   and no state after its end: a clip at the end would hide the text of a
-   long word on its second line. */
-.bn-editor[data-agent-proposal] ins:has(> .bn-agent-new) {
-  background-color: transparent;
+/* New text and a new block that the agent did not reach: they are not
+   there. The text after them moves when they show, as when a person
+   types. */
+.bn-agent-new.bn-agent-pending,
+.bn-agent-new-block.bn-agent-pending {
+  display: none;
 }
 
-.bn-agent-new {
+/* The word and the block that the agent writes at this time. */
+.bn-agent-new.bn-agent-active,
+.bn-agent-new-block.bn-agent-active {
+  animation: bn-agent-appear 120ms ease-out;
+}
+
+/* A caret at the end of the word that the agent writes or removes. */
+.bn-agent-new.bn-agent-active::after,
+.bn-agent-removed.bn-agent-active::after {
+  content: "";
+  border-right: 2px solid var(--bn-agent-active, #4f8ff7);
+  margin-right: -2px;
+}
+
+/* Removed text. The style of a deletion is on its mark: the `del` element
+   (the marks of `AIExtension`), or the `del` element and the
+   `.bn-suggestion-mark` element in it (the marks of the Yjs 14 binding).
+   During the animation, the mark has no style, and the decoration of each
+   word that the agent reached has it. A word that the agent did not reach
+   has the color of the text around the deletion. */
+.bn-root .bn-editor :is(del, .bn-suggestion-mark):has(.bn-agent-removed) {
+  background-color: transparent;
+  color: inherit;
+  text-decoration: none;
+}
+
+.bn-agent-removed:not(.bn-agent-pending) {
+  color: var(--user-color-dark);
+  text-decoration: line-through;
+}
+
+.dark.bn-root .bn-agent-removed:not(.bn-agent-pending) {
+  color: var(--user-color-light);
+}
+
+/* A deletion of `AIExtension` has a color behind the text also. */
+.bn-editor[data-agent-proposal] .bn-agent-removed:not(.bn-agent-pending) {
   background-color: color-mix(
     in srgb,
     var(--user-color-light) 50%,
     var(--bn-colors-editor-background, white)
   );
-  animation: bn-agent-reveal var(--bn-agent-duration, 400ms) linear
-    var(--bn-agent-delay, 0ms) backwards;
 }
 
-.bn-agent-new-block {
-  animation: bn-agent-appear var(--bn-agent-duration, 300ms) ease-out
-    var(--bn-agent-delay, 0ms) both;
+.dark.bn-root
+  .bn-editor[data-agent-proposal]
+  .bn-agent-removed:not(.bn-agent-pending) {
+  background-color: color-mix(
+    in srgb,
+    var(--user-color-light) 25%,
+    var(--bn-colors-editor-background, #1f1f1f)
+  );
 }
 
-@keyframes bn-agent-reveal {
-  from {
-    clip-path: inset(0 100% 0 0);
-  }
-  to {
-    clip-path: inset(0 0 0 0);
-  }
+/* A removed block that the agent did not reach shows as a block without a
+   change. These rules remove the style that the marks of the block, of its
+   content and of its text give (see `Block.css` for the marks of the
+   Yjs 14 binding): the color of the text is the color around the block. */
+.bn-root
+  .bn-editor
+  del:has(
+    > .bn-agent-removed-block.bn-agent-pending,
+    > .bn-suggestion-node > .bn-agent-removed-block.bn-agent-pending
+  ),
+.bn-root
+  .bn-editor
+  .bn-block-outer.bn-agent-removed-block.bn-agent-pending
+  :is(del, .bn-suggestion-mark, .bn-block-content, .bn-inline-content) {
+  background-color: transparent;
+  box-shadow: none;
+  color: inherit;
+  text-decoration: none;
+}
+
+.bn-root
+  .bn-editor
+  .bn-block-outer.bn-agent-removed-block.bn-agent-pending
+  .bn-block-content::before {
+  content: none;
+}
+
+/* A removed block gets its style as a whole when the agent reaches it. */
+.bn-agent-removed-block.bn-agent-active .bn-block-content {
+  animation: bn-agent-mark 300ms ease-out;
+}
+
+/* A block with a new type or a new prop, and text with a new format, get a
+   short highlight when the agent reaches them. The decoration of a block
+   is on the element of the block or on the element of its content: the
+   mark of the change can be on the one or on the other. Before the agent
+   reaches the block, the block does not show the card of its mark. */
+.bn-root
+  .bn-editor
+  :is(
+    .bn-agent-changed-block.bn-agent-pending .bn-block-content,
+    .bn-block-content[data-content-type].bn-agent-changed-block.bn-agent-pending
+  ) {
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.bn-agent-changed.bn-agent-active,
+.bn-agent-changed-block.bn-agent-active .bn-block-content,
+.bn-block-content.bn-agent-changed-block.bn-agent-active {
+  animation: bn-agent-highlight 400ms ease-out;
 }
 
 @keyframes bn-agent-appear {
   from {
     opacity: 0;
   }
-  to {
-    opacity: 1;
+}
+
+/* From no mark to the mark of the element: the end is the style of the
+   element itself. */
+@keyframes bn-agent-mark {
+  from {
+    background-color: transparent;
+    text-decoration-color: transparent;
+  }
+}
+
+/* The start and the end are the style of the element itself. */
+@keyframes bn-agent-highlight {
+  30% {
+    background-color: color-mix(in srgb, #f5d76e 70%, transparent);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .bn-agent-new,
-  .bn-agent-new-block {
+  .bn-agent-new.bn-agent-active,
+  .bn-agent-new-block.bn-agent-active,
+  .bn-agent-removed-block.bn-agent-active .bn-block-content,
+  .bn-agent-changed.bn-agent-active,
+  .bn-agent-changed-block.bn-agent-active .bn-block-content,
+  .bn-block-content.bn-agent-changed-block.bn-agent-active {
     animation: none;
   }
 }

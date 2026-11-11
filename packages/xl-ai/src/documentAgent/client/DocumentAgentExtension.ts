@@ -1,7 +1,6 @@
 import type { UIMessageChunk } from "ai";
 import type { Node } from "prosemirror-model";
 import { Plugin, PluginKey, type Transaction } from "prosemirror-state";
-import type { DecorationSet } from "prosemirror-view";
 
 import {
   DOCUMENT_BATCHES_CHUNK,
@@ -37,7 +36,7 @@ import {
   type ModeContext,
   type ReviewOf,
 } from "./agentExtension.js";
-import { replayDecorations } from "./replayAnimation.js";
+import { createReplayPlugin, type ReplayChange } from "./replayAnimation.js";
 import {
   assertNoSuggestions,
   clearSuggestions,
@@ -137,17 +136,17 @@ export type DocumentAgentExtensionOptions = AgentExtensionOptions & {
   acceptGuard?: (claim: AcceptClaim) => Promise<boolean>;
   /** Called when `acceptGuard` refused an accept: the app gets the proposal of the host again. */
   onAcceptRefused?: (claim: AcceptClaim) => void;
-  /**
-   * The replay animation: the insertions of the newest batch show one after
-   * the other, and the text of each one shows from its start to its end.
-   * The document has the full batch at once: the animation is only in the
-   * view. The default is true.
-   */
-  replayAnimation?: boolean;
 };
 
 /** The elements of the suggestion marks of `AIExtension` in the editor. */
 const SUGGESTION_ELEMENTS = 'ins, del, [data-type="modification"]';
+
+/** The kind of change that each suggestion mark of `AIExtension` shows. */
+const SUGGESTION_KINDS: Record<string, ReplayChange["kind"] | undefined> = {
+  insertion: "insert",
+  deletion: "delete",
+  modification: "modify",
+};
 
 /**
  * The document agent in an editor, in proposal mode: it sends the prompts
@@ -221,20 +220,32 @@ function createProposalMode(
     );
   }
 
-  /** The suggestion IDs of the batches that arrived last: the replay animation shows them. */
-  let newest = new Set<number>();
+  /**
+   * The suggestion IDs of the tool calls that arrived in the run, and
+   * whose replay animation is not complete.
+   */
+  const animated = new Set<number>();
 
-  /** The decorations of the replay animation, for the insertions of the newest batches. */
-  function newestDecorations(doc: Node): DecorationSet | null {
-    if (newest.size === 0 || options?.replayAnimation === false) {
-      return null;
+  /** The change that a node shows, if it is a change of a tool call of the run. */
+  function changeOf(node: Node): ReplayChange | undefined {
+    for (const mark of node.marks) {
+      const kind = SUGGESTION_KINDS[mark.type.name];
+      const id: unknown = mark.attrs.id;
+      if (kind !== undefined && typeof id === "number" && animated.has(id)) {
+        return { kind, key: String(id) };
+      }
     }
-    return replayDecorations(doc, (node) =>
-      node.marks.some(
-        (mark) => mark.type.name === "insertion" && newest.has(mark.attrs.id),
-      ),
-    );
+    return undefined;
   }
+
+  const replay = createReplayPlugin({
+    changeOf,
+    onComplete(keys) {
+      for (const key of keys) {
+        animated.delete(Number(key));
+      }
+    },
+  });
 
   /** Derives the suggestions of the proposal for the current document, and shows them. */
   function display(
@@ -336,11 +347,11 @@ function createProposalMode(
     }
     aiMenu()?.setAIResponseStatus("ai-writing");
     // The replay animation shows the tool calls of these batches.
-    newest = new Set(
-      fresh.flatMap((batch) =>
-        batch.source.type === "tool-call" ? [suggestionIdOf(batch)] : [],
-      ),
-    );
+    for (const batch of fresh) {
+      if (batch.source.type === "tool-call") {
+        animated.add(suggestionIdOf(batch));
+      }
+    }
     setProposal(proposal);
   }
 
@@ -385,7 +396,8 @@ function createProposalMode(
    * `idle` (see `openProposal`).
    */
   function hide() {
-    newest = new Set();
+    animated.clear();
+    replay.stop();
     clearSuggestions(editor);
     assertNoSuggestions(editor, "The end of a review");
   }
@@ -449,16 +461,15 @@ function createProposalMode(
     }`;
   }
 
-  /** Ends the replay animation at the end of a run. */
-  function endRun() {
-    // The replay animation is only for a run: a later display of the
-    // same suggestions must not show it again. A transaction without
-    // steps makes the view compute its decorations again.
-    newest = new Set();
-    editor.exec((state, dispatch) => {
-      dispatch?.(state.tr.setMeta("addToHistory", false));
-      return true;
-    });
+  /**
+   * The replay animation shows only the tool calls of the run that starts.
+   * The animation of a run continues after the end of the run, to its own
+   * end: the last tool call of a run arrives a short time before the run
+   * ends.
+   */
+  function beginRun() {
+    animated.clear();
+    replay.stop();
   }
 
   return {
@@ -467,7 +478,7 @@ function createProposalMode(
     // would not be an edit of the main document.
     locksEditor: true,
     startReview,
-    endRun,
+    beginRun,
     onChunk,
     requestBody: (review): DocumentAgentRequestBody => ({
       proposal: review.proposal,
@@ -514,9 +525,9 @@ function createProposalMode(
             store.state.status === "idle"
               ? {}
               : { "data-agent-proposal": "true" },
-          decorations: (state) => newestDecorations(state.doc),
         },
       }),
+      ...(options?.replayAnimation === false ? [] : [replay.plugin]),
     ],
     /**
      * The main document of the editor: the document without the

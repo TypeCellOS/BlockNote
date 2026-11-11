@@ -79,6 +79,13 @@ export type AgentExtensionOptions = {
    * with its own review surface (for example a chat window) uses this.
    */
   aiMenu?: boolean;
+  /**
+   * The replay animation: the changes of the tool calls of a run show one
+   * after the other, as the changes of a person who edits the document
+   * (see `replayAnimation.ts`). The document has the full change of a tool
+   * call at once: the animation is only in the view. The default is true.
+   */
+  replayAnimation?: boolean;
 };
 
 /** The AI menu of the editor, if the editor has `AIExtension`. */
@@ -123,6 +130,8 @@ export type ClientMode<Data extends ReviewData, Api extends object> = {
   locksEditor: boolean;
   /** The data of a new review, for a run that starts in the state `idle`. */
   startReview(): Data;
+  /** Called at the start of each run, in the state `running`. */
+  beginRun?(): void;
   /** Called at the end of a run, in the state `reviewing`. */
   endRun?(): void;
   /** Gets each chunk of the stream of a run that the shared part does not handle. */
@@ -352,6 +361,7 @@ export function createAgentExtension<
             ? { ...mode.startReview(), answer: "" }
             : { ...state.review, answer: "" };
         store.setState({ status: "running", review });
+        mode.beginRun?.();
         // The AI menu starts a run with the menu open. A chat and a followed
         // run do not.
         lockEditor(editor.getTextCursorPosition().block.id);
