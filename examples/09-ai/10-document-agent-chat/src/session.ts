@@ -3,8 +3,10 @@ import { useExtension, useExtensionState } from "@blocknote/react";
 import {
   DocumentAgentExtension,
   type DocumentAgentExtensionOptions,
+  documentAgentOf,
   type SessionSnapshot,
 } from "@blocknote/xl-ai";
+import type * as Y14 from "@y/y";
 import { DefaultChatTransport } from "ai";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type * as Y from "yjs";
@@ -121,6 +123,64 @@ export function useSession(
   useEffect(() => {
     void sync();
   }, [sync, notice]);
+}
+
+/**
+ * Keeps the chat of the editor in agreement with the session of the
+ * server, for a document in Yjs 14 mode. The changes of the agent and the
+ * decisions of the users come through the Yjs connection, not through the
+ * session. Thus the editor gets only the chat here, and follows a run in
+ * progress for its messages.
+ */
+export function useSuggestionSession(
+  editor: BlockNoteEditor<any, any, any>,
+  sessionUrl: string,
+  notice: number,
+) {
+  const sync = useCallback(async () => {
+    const agent = documentAgentOf(editor);
+    const response = await fetch(sessionUrl);
+    if (
+      agent === undefined ||
+      !response.ok ||
+      agent.getState().status === "running"
+    ) {
+      // The stream of a run that this editor follows has all the news.
+      return;
+    }
+    const session = (await response.json()) as {
+      messages: SessionSnapshot["messages"];
+      activeRunId?: string;
+    };
+    agent.getChat().messages = session.messages;
+    if (session.activeRunId !== undefined) {
+      await agent.follow();
+    }
+  }, [editor, sessionUrl]);
+
+  useEffect(() => {
+    void sync();
+  }, [sync, notice]);
+}
+
+/**
+ * Counts the notices of the session of a document in Yjs 14 mode: the
+ * server writes them into a type of the suggestion document.
+ */
+export function useYjs14Notices(suggestion: Y14.Doc): number {
+  const [notice, setNotice] = useState(0);
+  const notices = useMemo(
+    () => suggestion.get("document-agent-session"),
+    [suggestion],
+  );
+  useEffect(() => {
+    function onChange() {
+      setNotice((count) => count + 1);
+    }
+    notices.observe(onChange);
+    return () => notices.unobserve(onChange);
+  }, [notices]);
+  return notice;
 }
 
 /**

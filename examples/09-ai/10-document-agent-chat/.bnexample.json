@@ -8,6 +8,7 @@
     "@ai-sdk/react": "^4.0.157",
     "@blocknote/xl-ai": "latest",
     "@mantine/core": "^9.0.2",
+    "@y/y": "^14.0.0-rc.26",
     "ai": "^7.0.153",
     "yjs": "^13.6.33"
   }

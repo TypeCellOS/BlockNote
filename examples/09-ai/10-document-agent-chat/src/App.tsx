@@ -3,6 +3,7 @@ import type { BlockNoteEditor, PartialBlock } from "@blocknote/core";
 import { filterSuggestionItems } from "@blocknote/core/extensions";
 import "@blocknote/core/fonts/inter.css";
 import { en } from "@blocknote/core/locales";
+import { withCollaboration as withYjs14Collaboration } from "@blocknote/core/y";
 import { withCollaboration } from "@blocknote/core/yjs";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
@@ -27,6 +28,11 @@ import {
 } from "@blocknote/xl-ai";
 import { en as aiEn } from "@blocknote/xl-ai/locales";
 import "@blocknote/xl-ai/style.css";
+import {
+  createSuggestionCollaboration,
+  SuggestionAgentExtension,
+} from "@blocknote/xl-ai/yjs14";
+import * as Y14 from "@y/y";
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import * as Y from "yjs";
 
@@ -39,9 +45,12 @@ import {
   useCloseEmptyReview,
   useJsonStore,
   useSession,
+  useSuggestionSession,
+  useYjs14Notices,
   useYjsNotices,
 } from "./session";
 import "./styles.css";
+import { connectY14Doc } from "./yjs14Relay";
 import { connectYDoc } from "./yjsRelay";
 
 const BASE_URL =
@@ -49,16 +58,23 @@ const BASE_URL =
 const AGENT_URL = `${BASE_URL}/document-agent`;
 /** The Yjs relay of the BlockNote AI server. */
 const YJS_URL = `${BASE_URL}/yjs`;
+/** The Yjs 14 relay of the BlockNote AI server: two documents for each room. */
+const YJS14_URL = `${BASE_URL}/yjs14`;
 
 /**
- * The modes of the example. The chat, the display and the review are the
- * same code. A mode selects only where the loop runs and where the
- * proposal lives.
+ * The modes of the example. The chat and the cards of the tool calls are
+ * the same code.
+ *
+ * - The first three are the proposal mode of the document agent: they
+ *   select only where the loop runs and where the proposal lives.
+ * - `yjs14` is the Yjs 14 mode: the agent writes into a suggestion
+ *   document, and a decision of a user is a change of the Y.Docs.
  */
 const MODES = {
   json: "Session on the server (JSON store)",
   yjs: "Session on the server (Yjs)",
   client: "Client (the loop runs in the browser)",
+  yjs14: "Yjs 14 suggestions",
 } as const;
 type Mode = keyof typeof MODES;
 
@@ -112,7 +128,7 @@ export default function App() {
             {label}
           </a>
         ))}
-        {mode !== "client" && (
+        {(mode === "json" || mode === "yjs") && (
           <a
             href={`?mode=${mode}${hasAcceptGuard() ? "" : "&guard=1"}`}
             aria-current={hasAcceptGuard() ? "page" : undefined}
@@ -126,6 +142,8 @@ export default function App() {
         <JsonSession />
       ) : mode === "yjs" ? (
         <YjsSession />
+      ) : mode === "yjs14" ? (
+        <Yjs14Session />
       ) : (
         <ClientMode />
       )}
@@ -172,6 +190,7 @@ function JsonSessionEditor(props: {
   useSession(editor, sessionUrl, notice);
   return (
     <EditorWithChat editor={editor} sessionUrl={sessionUrl}>
+      <CloseEmptyReview editor={editor} />
       <RunFromOutside runsUrl={`${sessionUrl}/runs`} />
     </EditorWithChat>
   );
@@ -209,6 +228,7 @@ function YjsSession() {
   const notice = useYjsNotices(doc);
   return (
     <EditorWithChat editor={editor} sessionUrl={sessionUrl}>
+      <CloseEmptyReview editor={editor} />
       {synced && (
         <YjsSessionSync editor={editor} url={sessionUrl} at={notice} />
       )}
@@ -251,7 +271,112 @@ function ClientMode() {
     ...editorOptions({ transport }),
     initialContent,
   });
-  return <EditorWithChat editor={editor} />;
+  return (
+    <EditorWithChat editor={editor}>
+      <CloseEmptyReview editor={editor} />
+    </EditorWithChat>
+  );
+}
+
+/** The name of the type of the document content in the two Yjs 14 documents. */
+const YJS14_FRAGMENT = "document-store";
+
+/**
+ * A session on a document in Yjs 14 mode. The editor has a replica of the
+ * main document and of the suggestion document. It shows the changes of
+ * the agent as suggestions of Yjs 14, and the user can type at each time.
+ */
+function Yjs14Session() {
+  const documentId = "chat-yjs14";
+  const sessionUrl = `${AGENT_URL}/sessions/yjs14/${documentId}`;
+  const docs = useMemo(() => {
+    const main = new Y14.Doc();
+    // No garbage collection: a reject of a suggested deletion needs its text.
+    const suggestion = new Y14.Doc({ isSuggestionDoc: true, gc: false });
+    return {
+      main,
+      suggestion,
+      ...createSuggestionCollaboration({
+        main,
+        suggestion,
+        fragment: YJS14_FRAGMENT,
+      }),
+    };
+  }, []);
+  const editor = useCreateBlockNote(
+    withYjs14Collaboration({
+      dictionary: { ...en, ai: aiEn },
+      extensions: [
+        AIExtension(),
+        SuggestionAgentExtension({
+          transport: createSessionTransport(sessionUrl),
+          aiMenu: false,
+          main: docs.main,
+          suggestion: docs.suggestion,
+          fragment: YJS14_FRAGMENT,
+        }),
+      ],
+      collaboration: {
+        ...docs.collaboration,
+        user: { name: "User", color: "#4f8ff7" },
+      },
+    }),
+  );
+  const [synced, setSynced] = useState(false);
+  useEffect(() => {
+    let states = 0;
+    function onState() {
+      if (++states < 2) {
+        return;
+      }
+      // The first client of a new room adds the content.
+      const [first] = editor.document;
+      if (editor.document.length === 1 && isEmpty(first)) {
+        editor.replaceBlocks(editor.document, initialContent);
+      }
+      setSynced(true);
+    }
+    const room = `${YJS14_URL}/${documentId}`;
+    const closeMain = connectY14Doc(`${room}/main`, docs.main, onState);
+    const closeSuggestion = connectY14Doc(
+      `${room}/suggestion`,
+      docs.suggestion,
+      onState,
+    );
+    return () => {
+      closeMain();
+      closeSuggestion();
+    };
+  }, [docs, editor]);
+  // The notices of the session come through the suggestion document.
+  const notice = useYjs14Notices(docs.suggestion);
+  return (
+    <EditorWithChat editor={editor} sessionUrl={sessionUrl}>
+      {synced && (
+        <SuggestionSessionSync editor={editor} url={sessionUrl} at={notice} />
+      )}
+      <RunFromOutside runsUrl={`${sessionUrl}/runs`} />
+    </EditorWithChat>
+  );
+}
+
+/** Gets the chat of a document in Yjs 14 mode after the first sync, and after each notice. */
+function SuggestionSessionSync(props: {
+  editor: BlockNoteEditor<any, any, any>;
+  url: string;
+  at: number;
+}) {
+  useSuggestionSession(props.editor, props.url, props.at);
+  return null;
+}
+
+/**
+ * Ends a review of the proposal mode that has nothing to review (see
+ * `useCloseEmptyReview`). The Yjs 14 mode does this itself.
+ */
+function CloseEmptyReview(props: { editor: BlockNoteEditor<any, any, any> }) {
+  useCloseEmptyReview(props.editor);
+  return null;
 }
 
 function isEmpty(block: { content?: unknown } | undefined): boolean {
@@ -266,7 +391,6 @@ function EditorWithChat(props: {
   children?: ReactNode;
 }) {
   const { editor, sessionUrl } = props;
-  useCloseEmptyReview(editor);
   const side = useRef<HTMLDivElement>(null);
   // The AI menu hides the page outside it from assistive technology while it
   // is open. The chat is a part of the AI surface: keep it available.

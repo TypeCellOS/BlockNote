@@ -6,6 +6,11 @@ import {
   type ProposalStore,
   type SessionHost,
 } from "@blocknote/xl-ai/server";
+import {
+  createSuggestionSessionHost,
+  type SuggestionSessionHost,
+  type SuggestionSessionHostOptions,
+} from "@blocknote/xl-ai/yjs14-server";
 import { createUIMessageStreamResponse } from "ai";
 import type { Hono } from "hono";
 
@@ -34,25 +39,77 @@ const MAX_OUTPUT_TOKENS = 16000;
 //   accept to the first request for a state of the proposal (409 for the
 //   others).
 // - `POST /stop`: stops the run in progress.
+//
+// A source of the Yjs 14 mode (`suggestionSources`) has the same routes
+// for the chat and the runs: this is the shared code of the two modes. It
+// has no routes for the review (404): a decision of a user is a change of
+// the Y.Docs, without the server.
 
 export function registerSessionRoutes<Source extends string>(
   route: Hono,
   options: {
     sources: Record<Source, DocumentSource>;
+    /**
+     * The sources of the Yjs 14 mode: for each one, the function that gives
+     * the suggestion document of a document.
+     */
+    suggestionSources?: Record<
+      string,
+      SuggestionSessionHostOptions["openSuggestion"]
+    >;
     proposals: ProposalStore;
     createEditor: CreateEditor;
     /** Tells the editors of the document that its session changed. */
-    notify(source: Source, documentId: string): void;
+    notify(source: string, documentId: string): void;
   },
 ) {
   const hosts = new Map<Source, SessionHost>();
+  const suggestionHosts = new Map<string, SuggestionSessionHost>();
 
-  /** The session host of the document source of a request, or the error response. */
+  /** The host of a source of the Yjs 14 mode, or the error response. */
+  function suggestionHostOf(
+    source: string,
+    openSuggestion: SuggestionSessionHostOptions["openSuggestion"],
+  ):
+    | { error?: undefined; host: SuggestionSessionHost; review?: undefined }
+    | { error: "unknown-provider" | "no-api-key" } {
+    let host = suggestionHosts.get(source);
+    if (host === undefined) {
+      const selected = documentAgentModel();
+      if (selected.error !== undefined) {
+        return { error: selected.error };
+      }
+      host = createSuggestionSessionHost({
+        model: selected.model,
+        reasoning: documentAgentReasoning(),
+        maxOutputTokens: MAX_OUTPUT_TOKENS,
+        openSuggestion,
+        onChange: (documentId) => options.notify(source, documentId),
+        onRunError(documentId, error) {
+          // eslint-disable-next-line no-console
+          console.error(`A run on the document ${documentId} failed`, error);
+        },
+      });
+      suggestionHosts.set(source, host);
+    }
+    return { host };
+  }
+
+  /**
+   * The session host of the document source of a request, or the error
+   * response. `review` is the host of a source in proposal mode: only that
+   * mode has the review on the server.
+   */
   function hostOf(
     source: string,
   ):
-    | { error?: undefined; host: SessionHost }
+    | { error?: undefined; host: SessionHost; review: SessionHost }
+    | { error?: undefined; host: SuggestionSessionHost; review?: undefined }
     | { error: "unknown-source" | "unknown-provider" | "no-api-key" } {
+    const openSuggestion = options.suggestionSources?.[source];
+    if (openSuggestion !== undefined) {
+      return suggestionHostOf(source, openSuggestion);
+    }
     if (!(source in options.sources)) {
       return { error: "unknown-source" };
     }
@@ -78,7 +135,7 @@ export function registerSessionRoutes<Source extends string>(
       });
       hosts.set(name, host);
     }
-    return { host };
+    return { host, review: host };
   }
 
   /** The status of the HTTP response for an error value. */
@@ -168,11 +225,14 @@ export function registerSessionRoutes<Source extends string>(
     if (selected.error !== undefined) {
       return c.json(selected, statusOf(selected.error));
     }
+    if (selected.review === undefined) {
+      return c.json({ error: "unknown-source" }, 404);
+    }
     const { batch } = (await c.req.json()) as { batch?: Batch };
     if (typeof batch?.seq !== "number") {
       return c.json({ error: "invalid-request" }, 400);
     }
-    const result = await selected.host.review(c.req.param("id"), batch);
+    const result = await selected.review.review(c.req.param("id"), batch);
     return result.error === undefined
       ? c.json({ ok: true })
       : c.json(result, statusOf(result.error));
@@ -185,6 +245,9 @@ export function registerSessionRoutes<Source extends string>(
     if (selected.error !== undefined) {
       return c.json(selected, statusOf(selected.error));
     }
+    if (selected.review === undefined) {
+      return c.json({ error: "unknown-source" }, 404);
+    }
     const { result, batches } = (await c.req.json()) as {
       result?: unknown;
       batches?: unknown;
@@ -194,7 +257,7 @@ export function registerSessionRoutes<Source extends string>(
     }
     // With `batches`, the close is a claim of an editor with an accept
     // guard: it applies only to that state of the proposal (409 if not).
-    const closed = await selected.host.closeProposal(
+    const closed = await selected.review.closeProposal(
       c.req.param("id"),
       result,
       typeof batches === "number" ? batches : undefined,

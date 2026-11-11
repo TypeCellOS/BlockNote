@@ -13,6 +13,7 @@ import { modelPlaygroundRoute } from "./routes/model-playground/index.js";
 import { proxyRoute } from "./routes/proxy.js";
 import { regularRoute } from "./routes/regular.js";
 import { serverPersistenceRoute } from "./routes/serverPersistence.js";
+import { yjs14RelayRoute } from "./routes/yjs14Relay.js";
 import { yjsRelayRoute } from "./routes/yjsRelay.js";
 
 // make sure our fetch request uses HTTP/2
@@ -42,6 +43,7 @@ app.route("/ai/server-persistence", serverPersistenceRoute);
 app.route("/ai/model-playground", modelPlaygroundRoute);
 app.route("/ai/document-agent", documentAgentRoute);
 app.route("/ai/yjs", yjsRelayRoute);
+app.route("/ai/yjs14", yjs14RelayRoute);
 
 const http2 = existsSync("localhost.pem");
 serve(

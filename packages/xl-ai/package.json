@@ -83,6 +83,16 @@
       "types": "./types/src/api/v2/yjs/index.d.ts",
       "import": "./dist/text-lens-yjs.js",
       "default": "./dist/text-lens-yjs.js"
+    },
+    "./yjs14": {
+      "types": "./types/src/yjs14.d.ts",
+      "import": "./dist/yjs14.js",
+      "default": "./dist/yjs14.js"
+    },
+    "./yjs14-server": {
+      "types": "./types/src/yjs14-server.d.ts",
+      "import": "./dist/yjs14-server.js",
+      "default": "./dist/yjs14-server.js"
     }
   },
   "scripts": {

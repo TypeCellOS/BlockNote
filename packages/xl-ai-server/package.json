@@ -72,6 +72,7 @@
     "@blocknote/server-util": "workspace:^",
     "@blocknote/xl-ai": "workspace:^",
     "@hono/node-server": "^1.19.5",
+    "@y/y": "^14.0.0-rc.26",
     "ai": "^7.0.153",
     "hono": "^4.10.3",
     "yjs": "^13.6.33"

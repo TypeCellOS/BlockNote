@@ -1,14 +1,19 @@
 import { useChat } from "@ai-sdk/react";
 import type { BlockNoteEditor } from "@blocknote/core";
-import { useExtension, useExtensionState } from "@blocknote/react";
 import {
-  DocumentAgentExtension,
-  type ReviewToolCall,
+  documentAgentOf,
+  type ReviewedToolCall,
   type SessionMessageMetadata,
   type ToolCallReview,
 } from "@blocknote/xl-ai";
 import type { UIMessage } from "ai";
-import { type FormEvent, useEffect, useRef, useState } from "react";
+import {
+  type FormEvent,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 
 /**
  * A tool part of a chat message of the AI SDK, with the fields that this
@@ -35,7 +40,10 @@ function isToolPart(part: { type: string }): part is ToolPart {
  * The messages are the chat of the editor (`agent.getChat()`): the `Chat`
  * of the AI SDK. It has the runs that this editor started, and the runs
  * that it followed. The review state of a tool call comes from the
- * proposal in the editor.
+ * document agent of the editor.
+ *
+ * The panel is the same for each mode of the document agent: it uses the
+ * agent of the editor (`documentAgentOf`).
  */
 export function ChatPanel(props: {
   editor: BlockNoteEditor<any, any, any>;
@@ -43,8 +51,11 @@ export function ChatPanel(props: {
   onStop?: () => void;
 }) {
   const { editor } = props;
-  const agent = useExtension(DocumentAgentExtension, { editor });
-  const state = useExtensionState(DocumentAgentExtension, { editor });
+  const agent = documentAgentOf(editor);
+  if (agent === undefined) {
+    throw new Error("The chat needs a document agent extension");
+  }
+  const state = useSyncExternalStore(agent.subscribe, agent.getState);
   const { messages } = useChat({ chat: agent.getChat() });
   const [text, setText] = useState("");
   const end = useRef<HTMLDivElement>(null);
@@ -65,22 +76,19 @@ export function ChatPanel(props: {
       return;
     }
     setText("");
-    void agent.invoke(prompt);
+    void agent?.invoke(prompt);
   }
 
   function stop() {
-    void agent.abort();
+    void agent?.abort();
     props.onStop?.();
   }
 
-  /** Scrolls the editor to the first block that the tool call changed. */
-  function show(call: ReviewToolCall) {
-    const [blockId] = call.suggestedBlockIds;
-    if (blockId !== undefined) {
-      editor.domElement
-        ?.querySelector(`.bn-block-outer[data-id="${CSS.escape(blockId)}"]`)
-        ?.scrollIntoView({ block: "center", behavior: "smooth" });
-    }
+  /** Scrolls the editor to the first change of the tool call. */
+  function show(call: ReviewedToolCall) {
+    editor.domElement
+      ?.querySelector(agent?.suggestionSelector(call.toolCallId) ?? "")
+      ?.scrollIntoView({ block: "center", behavior: "smooth" });
   }
 
   return (
@@ -151,11 +159,11 @@ export function ChatPanel(props: {
 }
 
 type ToolCallActions = {
-  toolCalls: ReviewToolCall[];
+  toolCalls: readonly ReviewedToolCall[];
   canReview: boolean;
-  onAccept: (call: ReviewToolCall) => void;
-  onReject: (call: ReviewToolCall) => void;
-  onShow: (call: ReviewToolCall) => void;
+  onAccept: (call: ReviewedToolCall) => void;
+  onReject: (call: ReviewedToolCall) => void;
+  onShow: (call: ReviewedToolCall) => void;
 };
 
 function Message(props: { message: UIMessage } & ToolCallActions) {

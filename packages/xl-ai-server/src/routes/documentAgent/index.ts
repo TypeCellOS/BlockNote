@@ -16,6 +16,7 @@ import { Hono } from "hono";
 import { streamSSE } from "hono/streaming";
 
 import { documentAgentModel, documentAgentReasoning } from "./models.js";
+import { notifySessionOf, openSuggestionOf } from "../yjs14Relay.js";
 import { registerSessionRoutes } from "./sessions.js";
 import {
   createYjsDocumentSource,
@@ -289,6 +290,10 @@ const sessionNotices = new Map<string, number>();
 
 registerSessionRoutes(documentAgentRoute, {
   sources,
+  // The Yjs 14 mode: the suggestion document of a room of the Yjs 14 relay.
+  suggestionSources: {
+    yjs14: async (documentId) => openSuggestionOf(documentId),
+  },
   proposals,
   createEditor,
   // The notice has no data: an editor gets the session from the server.
@@ -308,8 +313,11 @@ registerSessionRoutes(documentAgentRoute, {
         });
         return;
       }
+      case "yjs14":
+        notifySessionOf(documentId);
+        return;
       default:
-        source satisfies never;
+        throw new Error(`The source ${source} has no notices`);
     }
   },
 });
