@@ -1,8 +1,8 @@
-import type { PartialBlock } from "@blocknote/core";
+import type { BlockNoteEditor, PartialBlock } from "@blocknote/core";
 import { describe, expect, it } from "vite-plus/test";
 
 import type { LensTableContent } from "../model.js";
-import { createEditor } from "../testUtil/fixtures.js";
+import { createEditor, createTabsEditor } from "../testUtil/fixtures.js";
 import { applyOperations } from "./applyOperations.js";
 import type { BlockOperation } from "./types.js";
 
@@ -26,7 +26,7 @@ function table(colors: string[]): PartialBlock {
 }
 
 function apply(
-  editor: ReturnType<typeof createEditor>,
+  editor: BlockNoteEditor<any, any, any>,
   operations: BlockOperation[],
 ) {
   editor.transact((tr) => {
@@ -76,5 +76,20 @@ describe("applyOperations: invalid operations", () => {
     expect(() =>
       apply(editor, [{ type: "update", id: "x", update: { type: "heading" } }]),
     ).toThrow("Block x is not in the document");
+  });
+});
+
+describe("applyOperations: a layout block with too few children", () => {
+  it("adds the fill of the schema at the end of a tab set with fewer tabs than its minimum", () => {
+    // The tab set needs two tabs. The removal of t2 leaves one, thus the
+    // schema adds a tab with an empty paragraph, as in the editor.
+    const editor = createTabsEditor(2);
+    apply(editor, [{ type: "delete", id: "t2" }]);
+    const [set] = editor.document;
+    expect(set.children.map((tab) => tab.type)).toEqual(["tab", "tab"]);
+    expect(set.children[0].id).toBe("t1");
+    expect(
+      set.children[1].children.map((block) => [block.type, block.content]),
+    ).toEqual([["paragraph", []]]);
   });
 });

@@ -1,5 +1,10 @@
 import { blockToNode, type PartialBlock } from "@blocknote/core";
-import { Fragment, type Node, Slice } from "prosemirror-model";
+import {
+  type ContentMatch,
+  Fragment,
+  type Node,
+  Slice,
+} from "prosemirror-model";
 import type { Transaction } from "prosemirror-state";
 import { ReplaceStep } from "prosemirror-transform";
 
@@ -119,6 +124,37 @@ function decideList(
       );
     }
   }
+  // A layout block with too few children (for example a tab set after two
+  // writers removed tabs, or after the operations of a caller) gets the fill
+  // of the schema at its end, as ProseMirror fills it in the editor. The
+  // insert is after the other inserts at the end.
+  const fill = list.type.isInGroup("bnBlock") ? fillAtEnd(list, shapes) : [];
+  if (fill.length > 0) {
+    decisions.replacements.push({ from: end, to: end, content: fill });
+  }
+}
+
+/**
+ * The nodes that the schema adds at the end of the layout block `list` if
+ * its children are `shapes`: none if they fit its content (the minimum),
+ * else the fill of ProseMirror (for a tab set: a tab with an empty
+ * paragraph). The node type of a block with content is `blockContainer`.
+ */
+function fillAtEnd(list: Node, shapes: readonly BlockShape[]): Node[] {
+  const schema = list.type.schema;
+  let match: ContentMatch | null = list.type.contentMatch;
+  for (const shape of shapes) {
+    const type = schema.nodes[shape.block.type];
+    match =
+      match?.matchType(
+        type?.isInGroup("bnBlock") ? type : schema.nodes["blockContainer"],
+      ) ?? null;
+  }
+  // `null`: the types do not fit in any number. Then the step throws (a bug).
+  const fill = match?.fillBefore(Fragment.empty, true);
+  const nodes: Node[] = [];
+  fill?.forEach((node) => nodes.push(node));
+  return nodes;
 }
 
 /** Decides the replacements for the children of the block at `pos`. */
@@ -163,6 +199,11 @@ function decideChildren(
  * Applies the replacements, first each insert, then each removal. Inserts
  * never give an invalid list. The steps map the positions through the
  * steps before them.
+ *
+ * A removal does not remove the nodes that an insert put at its start or
+ * at its end: its start maps to after them, its end to before them. An
+ * example is the fill at the end of a layout block (see `fillAtEnd`) after
+ * a removal of its last children.
  */
 function applyReplacements(
   tr: Transaction,
@@ -177,10 +218,11 @@ function applyReplacements(
   const first = tr.steps.length;
   for (const { from, to, content } of [...inserts, ...removals]) {
     const mapping = tr.mapping.slice(first);
+    const start = mapping.map(from);
     tr.step(
       new ReplaceStep(
-        mapping.map(from),
-        mapping.map(to),
+        start,
+        to === from ? start : mapping.map(to, -1),
         new Slice(Fragment.from(content), 0, 0),
       ),
     );

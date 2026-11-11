@@ -129,7 +129,8 @@ function place(
  * keep their IDs and props (for example the title of a tab).
  *
  * The result can have fewer children than `min` only if fewer were in the
- * result of the merge (two writers removed tabs). Then the apply throws.
+ * result of the merge (two writers removed tabs). Then the apply adds the
+ * fill of the schema at the end (see `applyStructure`).
  */
 function withEmptyUpTo(
   rules: Rules,
