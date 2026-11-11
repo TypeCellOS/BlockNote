@@ -1,6 +1,9 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import { yXmlFragmentToBlocks } from "@blocknote/core/yjs";
-import type { DocumentSource } from "@blocknote/xl-ai/server";
+import {
+  assertNoYjsSuggestions,
+  type DocumentSource,
+} from "@blocknote/xl-ai/server";
 import * as Y from "yjs";
 
 /** The name of the map in the Y.Doc that has the notices of the proposals. */
@@ -61,9 +64,13 @@ export function createYjsDocumentSource(options: {
       const doc = await load(documentId);
       const fragment = doc?.getXmlFragment(options.fragment);
       // A room without a document has no blocks to work on.
-      return fragment === undefined || fragment.length === 0
-        ? undefined
-        : yXmlFragmentToBlocks(editor, fragment);
+      if (fragment === undefined || fragment.length === 0) {
+        return undefined;
+      }
+      // A guard: no run starts on a main document that has the text of a
+      // proposal. The read throws, and the run fails.
+      assertNoYjsSuggestions(fragment, documentId);
+      return yXmlFragmentToBlocks(editor, fragment);
     },
     async notify(documentId, proposalId, notice) {
       const doc = await load(documentId);

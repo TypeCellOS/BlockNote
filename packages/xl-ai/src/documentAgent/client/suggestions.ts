@@ -1,5 +1,7 @@
 import {
+  type Block,
   type BlockNoteEditor,
+  docToBlocks,
   getNodeById,
   insertBlocks,
   nodeToBlock,
@@ -26,9 +28,78 @@ import {
   UNATTRIBUTED_SUGGESTION,
 } from "../proposal/derive.js";
 import { blockIdsOf } from "../proposal/proposal.js";
+import { SUGGESTION_MARK_NAMES } from "../stores/yjsGuard.js";
 
 /** The marks of `AIExtension` that show a suggestion. */
-const SUGGESTION_MARKS = new Set(["insertion", "deletion", "modification"]);
+const SUGGESTION_MARKS = new Set<string>(SUGGESTION_MARK_NAMES);
+
+/**
+ * The meta of a transaction that shows or removes the display of a
+ * proposal. Only these transactions can change a document that shows a
+ * proposal (see the plugin of `DocumentAgentExtension`).
+ */
+export const DISPLAY_META = "blocknote-document-agent-display";
+
+/**
+ * Marks a transaction as a change of the display, not of the main
+ * document:
+ *
+ * - It is not a step of the undo history.
+ * - The editor does not tell `editor.onChange` about it (`preventUpdate`
+ *   of Tiptap). Thus, an app that saves the document after each change
+ *   does not get a document with suggestion marks.
+ */
+function asDisplay(tr: Transaction): Transaction {
+  return tr
+    .setMeta("addToHistory", false)
+    .setMeta("preventUpdate", true)
+    .setMeta(DISPLAY_META, true);
+}
+
+/**
+ * Throws if the document of the editor has suggestion marks. The code of
+ * the document agent calls it before each step that reads the editor as
+ * the main document, or writes to it. Suggestion marks in the main
+ * document are a bug: the text of a proposal that no user accepted would
+ * become a part of the document.
+ */
+export function assertNoSuggestions(
+  editor: BlockNoteEditor<any, any, any>,
+  step: string,
+): void {
+  if (hasSuggestions(editor.prosemirrorState.doc)) {
+    throw new Error(
+      `${step}: the document of the editor has suggestion marks. It is not the main document.`,
+    );
+  }
+}
+
+/**
+ * The main document of the editor: the document without the suggestions of
+ * a proposal. Use it to save the document. `editor.document` is not safe
+ * for that while the editor shows a proposal: Block JSON does not have the
+ * suggestion marks, thus it has the inserted text and the deleted text as
+ * normal text.
+ *
+ * For an editor that is bound to a Y.Doc, this is the document at the
+ * start of the display: the shared Y.Doc is the main document there.
+ */
+export function mainDocumentOf(
+  editor: BlockNoteEditor<any, any, any>,
+): Block<any, any, any>[] {
+  const state = editor.prosemirrorState;
+  if (!hasSuggestions(state.doc)) {
+    return editor.document;
+  }
+  let reverted: Node | undefined;
+  revertSuggestions(state, (tr) => {
+    reverted = tr.doc;
+  });
+  if (reverted === undefined || hasSuggestions(reverted)) {
+    throw new Error("The suggestions of the document did not revert");
+  }
+  return docToBlocks(reverted);
+}
 
 /** Returns true if a node in the document has a suggestion mark. */
 export function hasSuggestions(doc: Node): boolean {
@@ -57,9 +128,7 @@ export function clearSuggestions(editor: BlockNoteEditor<any, any, any>): void {
   }
   if (hasSuggestions(editor.prosemirrorState.doc)) {
     editor.exec((state, dispatch) =>
-      revertSuggestions(state, (tr) =>
-        dispatch?.(tr.setMeta("addToHistory", false)),
-      ),
+      revertSuggestions(state, (tr) => dispatch?.(asDisplay(tr))),
     );
   }
 }
@@ -81,7 +150,18 @@ export function showSuggestions(
   if (derived.operations.length === 0) {
     return;
   }
-  editor.getExtension<typeof ForkYDocExtension>("yForkDoc")?.fork();
+  const fork = editor.getExtension<typeof ForkYDocExtension>("yForkDoc");
+  fork?.fork();
+  if (
+    editor.getExtension("ySync") !== undefined &&
+    fork?.store.state.isForked !== true
+  ) {
+    // Without a fork, the suggestion marks go into the shared Y.Doc, and
+    // each user gets them as a part of the document.
+    throw new Error(
+      "The editor is bound to a Y.Doc, and has no fork of it: a proposal cannot show",
+    );
+  }
   const suggestionIds = suggestionIdOfEachBlock(derived);
   editor.exec((state, dispatch) => {
     const tr = state.tr;
@@ -95,9 +175,9 @@ export function showSuggestions(
     for (const operation of derived.operations) {
       applyStructureOperation(tr, operation);
     }
-    const suggestionTr = transformToSuggestionTransaction(tr, state)
-      .setMeta("addToHistory", false)
-      .setMeta("preventAutolink", true);
+    const suggestionTr = asDisplay(
+      transformToSuggestionTransaction(tr, state),
+    ).setMeta("preventAutolink", true);
     // The transform moves the selection to the last deletion. Keep the
     // selection of the user.
     suggestionTr.setSelection(

@@ -71,6 +71,11 @@ export {
   type SessionSnapshot,
 } from "./sessions/sessionHost.js";
 export {
+  assertNoYjsSuggestions,
+  SUGGESTION_MARK_NAMES,
+  yFragmentHasSuggestions,
+} from "./stores/yjsGuard.js";
+export {
   createInMemoryProposalStore,
   type InMemoryProposalStore,
   type ProposalStore,

@@ -128,28 +128,23 @@ export function useJsonStore(
   documentId: string,
 ): number {
   const agent = useExtension(DocumentAgentExtension, { editor });
-  const status = useExtensionState(DocumentAgentExtension, {
-    editor,
-    selector: (state) => state.status,
-  });
   const [notice, setNotice] = useState(0);
 
   useEffect(() => {
+    // `mainDocument()` is the document without the suggestions of a
+    // proposal. It is safe to save in each state: `editor.document` is not.
+    // The editor gives a change only for a change of the main document
+    // (an edit of the user, or an accept), not for the display.
     function save() {
-      // During a run and a review, the document of the editor has
-      // suggestion marks.
-      if (agent.store.state.status === "idle") {
-        void fetch(`${agentUrl}/documents/${documentId}`, {
-          method: "PUT",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify(editor.document),
-        });
-      }
+      void fetch(`${agentUrl}/documents/${documentId}`, {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(agent.mainDocument()),
+      });
     }
     save();
     return editor.onChange(save);
-    // `status`: save again after a review ends.
-  }, [agent, agentUrl, documentId, editor, status]);
+  }, [agent, agentUrl, documentId, editor]);
 
   useEffect(() => {
     const events = new EventSource(

@@ -19,7 +19,7 @@ import {
   writeMarkdown,
 } from "../testUtil.js";
 import { DocumentAgentExtension } from "./DocumentAgentExtension.js";
-import { hasSuggestions } from "./suggestions.js";
+import { assertNoSuggestions, hasSuggestions } from "./suggestions.js";
 import { createInProcessTransport } from "./transport.js";
 
 // jsdom has no layout: it does not have `scrollIntoView`, which the AI menu
@@ -520,6 +520,75 @@ describe("the document of the editor in the state idle", () => {
     expect(saved.map(([marks]) => marks)).not.toContain(true);
     expect(saved.at(0)?.[1]).toBe("First paragraph.");
     expect(saved.at(-1)?.[1]).toBe("Opening paragraph.");
+  });
+});
+
+describe("the guards for the main document", () => {
+  it("does not tell an app about the display: an app that saves after each change gets only the main document", async () => {
+    const { editor, agent } = createEditor(twoEdits);
+    // An app that saves the document after each change, without a check
+    // of the state of the agent.
+    const saved: [boolean, string[]][] = [];
+    editor.onChange(() => {
+      saved.push([
+        hasSuggestions(editor.prosemirrorState.doc),
+        textsOf(editor.document),
+      ]);
+    });
+
+    await agent.invoke("Improve the text.");
+    agent.rejectToolCall("call-3");
+    // The display of the proposal, and of the reject, gave no change.
+    expect(hasSuggestions(editor.prosemirrorState.doc)).toBe(true);
+    expect(saved).toEqual([]);
+
+    agent.acceptToolCall("call-2");
+
+    // The accept is the only change, and it is the main document.
+    expect(saved).toEqual([
+      [false, ["Title", "Opening paragraph.", "Second paragraph."]],
+    ]);
+  });
+
+  it("gives the main document while the editor shows a proposal", async () => {
+    const { editor, agent } = createEditor(twoEdits);
+    await agent.invoke("Improve the text.");
+
+    // The Block JSON of the editor has the deleted and the inserted text
+    // as normal text: it is not safe to save.
+    expect(textsOf(editor.document)).toEqual([
+      "Title",
+      "FirstOpening paragraph.",
+      "SecondClosing paragraph.",
+    ]);
+    expect(agent.mainDocument()).toEqual(initialDocument());
+    expect(() => assertNoSuggestions(editor, "A save")).toThrow(
+      "A save: the document of the editor has suggestion marks",
+    );
+
+    agent.acceptAll();
+    expect(agent.mainDocument()).toEqual(editor.document);
+    expect(textsOf(agent.mainDocument())).toEqual([
+      "Title",
+      "Opening paragraph.",
+      "Closing paragraph.",
+    ]);
+  });
+
+  it("throws for a change of the document by an app while the editor shows a proposal", async () => {
+    const { editor, agent } = createEditor(twoEdits);
+    await agent.invoke("Improve the text.");
+    const before = editor.prosemirrorState.doc;
+
+    expect(() =>
+      editor.updateBlock("p2", { content: "A change of an app." }),
+    ).toThrow("The editor shows a proposal as suggestions");
+
+    // The transaction did not apply, and the review continues.
+    expect(editor.prosemirrorState.doc.eq(before)).toBe(true);
+    agent.rejectAll();
+    editor.updateBlock("p2", { content: "A change of an app." });
+    expect(textsOf(editor.document)[2]).toBe("A change of an app.");
   });
 });
 

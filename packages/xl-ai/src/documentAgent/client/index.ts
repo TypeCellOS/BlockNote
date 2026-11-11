@@ -14,8 +14,10 @@ export {
 } from "./DocumentAgentMenu.js";
 export { DocumentAgentReview } from "./DocumentAgentReview.js";
 export {
+  assertNoSuggestions,
   clearSuggestions,
   hasSuggestions,
+  mainDocumentOf,
   showSuggestions,
 } from "./suggestions.js";
 export {

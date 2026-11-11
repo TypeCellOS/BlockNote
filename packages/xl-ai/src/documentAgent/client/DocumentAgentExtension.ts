@@ -6,7 +6,7 @@ import {
 } from "@blocknote/core";
 import type { ChatTransport, UIMessage, UIMessageChunk } from "ai";
 import type { Node } from "prosemirror-model";
-import { Plugin, PluginKey } from "prosemirror-state";
+import { Plugin, PluginKey, type Transaction } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
 
 import { AIExtension } from "../../AIExtension.js";
@@ -38,7 +38,14 @@ import {
 } from "../proposal/review.js";
 import type { Batch, Proposal } from "../proposal/types.js";
 import type { ToolCallReview } from "../tools/documentTools.js";
-import { clearSuggestions, showSuggestions } from "./suggestions.js";
+import {
+  assertNoSuggestions,
+  clearSuggestions,
+  DISPLAY_META,
+  hasSuggestions,
+  mainDocumentOf,
+  showSuggestions,
+} from "./suggestions.js";
 import {
   type DocumentAgentRequestBody,
   observeTransport,
@@ -71,9 +78,10 @@ export type Review = {
  * - `idle`: no proposal. The document of the editor has no suggestion
  *   marks: it is the main document. In the other states, it can have
  *   suggestion marks, and an app must not save it as the main document.
- *   An app that saves the main document saves it in this state: after a
- *   change of the editor, and when the state becomes `idle` (the accept of
- *   a proposal changes the document before that).
+ *   An app that saves the main document uses `mainDocument()`: it is safe
+ *   in each state. The display of a proposal does not tell
+ *   `editor.onChange`: an app gets a change only for a change of the main
+ *   document (an edit of a user, or an accept).
  * - `running`: the agent works. The display shows each batch when its tool
  *   call is complete.
  * - `reviewing`: the user accepts or rejects.
@@ -241,6 +249,7 @@ export const DocumentAgentExtension = createExtension(
       proposal: Proposal,
     ): Pick<Review, "toolCalls" | "suggestionCount"> {
       clearSuggestions(editor);
+      assertNoSuggestions(editor, "The display of a proposal");
       const derived = deriveSuggestions(editor, createEditor, proposal);
       showSuggestions(editor, derived);
 
@@ -429,6 +438,7 @@ export const DocumentAgentExtension = createExtension(
       // The suggestion marks go before the state is `idle` (see
       // `openProposal`).
       clearSuggestions(editor);
+      assertNoSuggestions(editor, "The end of a review");
       store.setState({ status: "idle" });
       unlockEditor();
       aiMenu()?.closeAIMenu();
@@ -443,6 +453,10 @@ export const DocumentAgentExtension = createExtension(
       const state = store.state;
       if (state.status === "running") {
         return undefined;
+      }
+      if (state.status === "idle") {
+        // The document of the editor becomes the origin of a proposal.
+        assertNoSuggestions(editor, "The start of a proposal");
       }
       const review: Review =
         state.status === "idle"
@@ -490,6 +504,35 @@ export const DocumentAgentExtension = createExtension(
       prosemirrorPlugins: [
         new Plugin({
           key: new PluginKey("blocknote-document-agent"),
+          // A guard for the main document. While the document of the editor
+          // itself has the suggestions of a proposal, only the display can
+          // change it. A different change (of an app, or of an extension)
+          // would change text that is not in the main document, and tell
+          // `editor.onChange` about a document with suggestion marks. It
+          // throws: the transaction does not apply.
+          //
+          // An editor that is bound to a Y.Doc does not need this guard:
+          // there, the suggestions are in a local fork, and the shared
+          // Y.Doc is the main document (see `showSuggestions`).
+          filterTransaction(tr, state) {
+            if (
+              !tr.docChanged ||
+              store.state.status === "idle" ||
+              editor.getExtension("ySync") !== undefined
+            ) {
+              return true;
+            }
+            const root: Transaction = tr.getMeta("appendedTransaction") ?? tr;
+            if (
+              root.getMeta(DISPLAY_META) === true ||
+              !hasSuggestions(state.doc)
+            ) {
+              return true;
+            }
+            throw new Error(
+              "The editor shows a proposal as suggestions: its document cannot change. Accept or reject the proposal first.",
+            );
+          },
           props: {
             // The style sheet gives the suggestions of a proposal a color.
             attributes: (): Record<string, string> =>
@@ -575,6 +618,15 @@ export const DocumentAgentExtension = createExtension(
       },
 
       /**
+       * The main document of the editor: the document without the
+       * suggestions of a proposal, in each state (see `mainDocumentOf`).
+       * An app saves this document, never `editor.document`.
+       */
+      mainDocument() {
+        return mainDocumentOf(editor);
+      },
+
+      /**
        * The chat of this editor (the `Chat` of the AI SDK), with the
        * messages of all runs. A chat window shows it, for example with
        * `useChat({ chat })`.
@@ -638,6 +690,7 @@ export const DocumentAgentExtension = createExtension(
         }
         const { proposal } = state.review;
         clearSuggestions(editor);
+        assertNoSuggestions(editor, "The accept of a proposal");
         const result = updateDocument(
           editor,
           acceptAllChange(createEditor, proposal),
@@ -688,6 +741,7 @@ export const DocumentAgentExtension = createExtension(
           return;
         }
         clearSuggestions(editor);
+        assertNoSuggestions(editor, "The accept of a tool call");
         const result = updateDocument(editor, accepted.change);
         if (result.error !== undefined) {
           throw new Error(`The accept of a tool call failed: ${result.error}`);
