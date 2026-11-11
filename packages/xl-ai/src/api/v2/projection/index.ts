@@ -6,6 +6,9 @@
  * file. The other files export more only for their unit tests.
  */
 export { assertBlocksRoundTrip } from "./assertBlocksRoundTrip.js";
-export { documentText } from "./cache.js";
-export type { Projection, ViewBlock } from "./projectDocument.js";
+export {
+  projectDocument,
+  type Projection,
+  type ViewBlock,
+} from "./projectDocument.js";
 export { shadowOf } from "./shadows.js";

@@ -6,7 +6,7 @@ import { BlockTree } from "../util/blocks/tree.js";
 import { blockToText } from "../util/blocks/text.js";
 import type { BlockWithoutChildren, FlatBlock, LensBlock } from "../model.js";
 import type { TextFormat } from "../formats/types.js";
-import { documentText } from "../projection/cache.js";
+import { projectDocument } from "../projection/projectDocument.js";
 import { correspond } from "../target/correspond.js";
 import { targetFromPairs } from "../target/targetFromPairs.js";
 import type { ViewBlock } from "../projection/projectDocument.js";
@@ -29,7 +29,7 @@ export function textStages(
 ) {
   const document = editor.document as LensBlock[];
   // 1. Project.
-  const projection = documentText(editor, format, document).projection();
+  const projection = projectDocument(editor, format, document);
   // 2. Parse and align.
   const { textBlocks, pairs } = alignedOrThrow(
     parseAndAlign(editor, format, projection.view, text),

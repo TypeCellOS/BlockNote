@@ -26,8 +26,8 @@ import {
 } from "./parse/index.js";
 import {
   assertBlocksRoundTrip,
-  documentText,
   type Projection,
+  projectDocument,
   shadowOf,
   type ViewBlock,
 } from "./projection/index.js";
@@ -44,7 +44,7 @@ export function getDocumentText(
   editor: BlockNoteEditor<any, any, any>,
   format: TextFormat,
 ): string {
-  return documentText(editor, format, editor.document).text;
+  return format.serialize(editor, editor.document);
 }
 
 export type ChangeWarning = TargetWarning | MergeWarning | FitWarning;
@@ -431,15 +431,18 @@ function textTarget(
   source: readonly LensBlock[],
   text: string,
 ): TargetOrError {
-  // 1. Project. The text of the source and its projection come from the
-  // cache, if the source is the last document of the editor and format.
-  const read = documentText(editor, format, source);
-  const content = withoutByteOrderMark(text, read.text);
+  // 1. Project. No cache keeps the text or the projection between calls: a
+  // server makes a new editor for each request, and a cache would keep a
+  // document in its memory for each editor and format.
+  // TODO (after all reviews): the performance pass, see "Items that are not
+  // done" in the README.
+  const sourceText = format.serialize(editor, source);
+  const content = withoutByteOrderMark(text, sourceText);
   // An unchanged text needs no projection, and gives no operations (GetPut).
-  if (content === read.text) {
+  if (content === sourceText) {
     return { target: source, warnings: [] };
   }
-  const projection = read.projection();
+  const projection = projectDocument(editor, format, source, sourceText);
   // 2. Parse and align.
   const aligned = parseAndAlign(editor, format, projection.view, content);
   if (aligned.error !== undefined) {

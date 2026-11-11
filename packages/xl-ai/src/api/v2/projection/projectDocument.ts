@@ -50,8 +50,6 @@ export type Projection = {
  *
  * Method: our own design: a round trip through the format, and links by
  * `linkBlocks`.
- *
- * @internal
  */
 export function projectDocument(
   editor: BlockNoteEditor<any, any, any>,
