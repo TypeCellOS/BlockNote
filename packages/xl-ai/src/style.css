@@ -69,3 +69,29 @@
   padding-left: 8px;
   white-space: pre-wrap;
 }
+
+/* The suggestions of a proposal of the document agent. The suggestion marks
+   of the AI have no author color. Thus, an insertion is green and a deletion
+   is red. The rules of core for `ins` and `del` use these colors. */
+.bn-editor[data-agent-proposal] ins {
+  --user-color-light: #86e0a4;
+  --user-color-dark: #14532d;
+}
+
+.bn-editor[data-agent-proposal] del {
+  --user-color-light: #f7a8a8;
+  --user-color-dark: #7f1d1d;
+  text-decoration: line-through;
+}
+
+/* A block that the proposal adds or removes: the mark is on the block. */
+.bn-editor[data-agent-proposal] ins[data-inline="false"] .bn-block-content {
+  background-color: color-mix(in srgb, #86e0a4 50%, transparent);
+  border-radius: 4px;
+}
+
+.bn-editor[data-agent-proposal] del[data-inline="false"] .bn-block-content {
+  background-color: color-mix(in srgb, #f7a8a8 50%, transparent);
+  border-radius: 4px;
+  text-decoration: line-through;
+}

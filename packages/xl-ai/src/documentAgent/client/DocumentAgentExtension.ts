@@ -5,6 +5,7 @@ import {
   type ExtensionOptions,
 } from "@blocknote/core";
 import type { ChatTransport, UIMessage, UIMessageChunk } from "ai";
+import { Plugin, PluginKey } from "prosemirror-state";
 
 import { AIExtension } from "../../AIExtension.js";
 import { updateDocument } from "../../api/v2/index.js";
@@ -254,6 +255,18 @@ export const DocumentAgentExtension = createExtension(
     return {
       key: "documentAgent",
       store,
+      prosemirrorPlugins: [
+        new Plugin({
+          key: new PluginKey("blocknote-document-agent"),
+          props: {
+            // The style sheet gives the suggestions of a proposal a color.
+            attributes: (): Record<string, string> =>
+              store.state.status === "idle"
+                ? {}
+                : { "data-agent-proposal": "true" },
+          },
+        }),
+      ],
       mount() {
         // The AI menu can close without this extension, for example when
         // the user clicks outside the menu. Then the review ends.

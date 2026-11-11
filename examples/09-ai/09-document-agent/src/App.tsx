@@ -29,7 +29,7 @@ import {
 import { en as aiEn } from "@blocknote/xl-ai/locales";
 import "@blocknote/xl-ai/style.css";
 import { DefaultChatTransport } from "ai";
-import { type ReactNode, useEffect, useMemo } from "react";
+import { type ReactNode, useEffect, useMemo, useRef } from "react";
 import * as Y from "yjs";
 
 import { getEnv } from "./getEnv";
@@ -219,6 +219,20 @@ function EditorWithReview(props: {
   children?: ReactNode;
 }) {
   const { editor } = props;
+  const side = useRef<HTMLDivElement>(null);
+  // The AI menu hides the page outside it from assistive technology while it
+  // is open. The review is a part of the AI surface: keep it available.
+  const floatingUIOptions = useMemo(
+    () => ({
+      focusManagerProps: {
+        getInsideElements: () =>
+          [editor.domElement, side.current].filter(
+            (element): element is HTMLDivElement => element != null,
+          ),
+      },
+    }),
+    [editor],
+  );
   return (
     <div className="document-agent-columns">
       <div className="document-agent-editor">
@@ -228,7 +242,10 @@ function EditorWithReview(props: {
           slashMenu={false}
         >
           {/* The AI menu of the old engine, with the items of the document agent. */}
-          <AIMenuController aiMenu={DocumentAgentMenu} />
+          <AIMenuController
+            aiMenu={DocumentAgentMenu}
+            floatingUIOptions={floatingUIOptions}
+          />
           <FormattingToolbarController
             formattingToolbar={() => (
               <FormattingToolbar>
@@ -251,7 +268,7 @@ function EditorWithReview(props: {
           />
         </BlockNoteView>
       </div>
-      <div className="document-agent-side">
+      <div className="document-agent-side" ref={side}>
         {props.children}
         {/* One card for each tool call: its reason, an accept and a reject. */}
         <DocumentAgentReview editor={editor} />
