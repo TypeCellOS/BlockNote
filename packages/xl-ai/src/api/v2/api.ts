@@ -238,73 +238,6 @@ export function operationsOf(
   });
 }
 
-/** The target of a change, with the warnings of stage 3, or an error. */
-type TargetOrError =
-  | {
-      error?: undefined;
-      target: readonly LensBlock[];
-      warnings: TargetWarning[];
-    }
-  | { error: "invalid-document" };
-
-/**
- * The target of a JSON change: the JSON in the stored form (see
- * `parseJSON`). The JSON contains the block IDs, thus there is no
- * alignment: the JSON is the target. A block with the ID of a block that
- * another writer added after the read of the client (the ID is in `current`
- * but not in `source`) is a new block: the client cannot mean that block
- * (see `replaceDisallowedIds`).
- */
-function jsonTarget(
-  editor: BlockNoteEditor<any, any, any>,
-  json: readonly PartialBlock<any, any, any>[],
-  source: readonly LensBlock[],
-  current: readonly LensBlock[],
-): TargetOrError {
-  const parsed = parseJSON(editor, json);
-  if (parsed.error !== undefined) {
-    return parsed;
-  }
-  const read = new Set(new BlockTree(source).ids);
-  const disallowedIds = new Set(
-    new BlockTree(current).ids.filter((id) => !read.has(id)),
-  );
-  return {
-    target: replaceDisallowedIds(parsed.blocks, disallowedIds),
-    warnings: [],
-  };
-}
-
-/** The target of a text change (stages 1 to 3): `source` as `text` asks for it. */
-function textTarget(
-  editor: BlockNoteEditor<any, any, any>,
-  format: TextFormat,
-  source: readonly LensBlock[],
-  text: string,
-): TargetOrError {
-  // 1. Project. The text of the source and its projection come from the
-  // cache, if the source is the last document of the editor and format.
-  const read = documentText(editor, format, source);
-  const content = withoutByteOrderMark(text, read.text);
-  // An unchanged text needs no projection, and gives no operations (GetPut).
-  if (content === read.text) {
-    return { target: source, warnings: [] };
-  }
-  const projection = read.projection();
-  // 2. Parse and align.
-  const aligned = parseAndAlign(editor, format, projection.view, content);
-  if (aligned.error !== undefined) {
-    return aligned;
-  }
-  // 3. Target.
-  return targetFromPairs(
-    targetInputOf(editor, format, source, projection, aligned),
-  );
-}
-
-/** The blocks of a text, in a flat list, and their pairs with the view blocks (stage 2). */
-type Alignment = { textBlocks: FlatBlock[]; pairs: BlockPair[] };
-
 /**
  * Stage 2 (Parse and align) of a text change. The format must show each
  * block of the parse (see `assertBlocksRoundTrip`).
@@ -439,21 +372,6 @@ export function dispatchOperations(
 }
 
 /**
- * The version that the write merges from, or `undefined` for a write on the
- * current document (`base: "current"`).
- */
-function versionOf(
-  options: WriteFromVersion<readonly LensBlock[]>,
-): readonly LensBlock[] | undefined {
-  requireBase(options.base);
-  if (options.base === "current") {
-    return undefined;
-  }
-  assertBlockIds(options.base, "base");
-  return options.base;
-}
-
-/**
  * Throws if a write has no `base`. The type requires it, but a caller without
  * types (for example JavaScript) can forget it. Without this check, such a
  * write would fail with an unclear error, or remove the changes of other
@@ -467,4 +385,86 @@ export function requireBase(base: unknown): void {
       'A write needs the option `base`: "current", or the version that the client read.',
     );
   }
+}
+
+/** The target of a change, with the warnings of stage 3, or an error. */
+type TargetOrError =
+  | {
+      error?: undefined;
+      target: readonly LensBlock[];
+      warnings: TargetWarning[];
+    }
+  | { error: "invalid-document" };
+
+/**
+ * The target of a JSON change: the JSON in the stored form (see
+ * `parseJSON`). The JSON contains the block IDs, thus there is no
+ * alignment: the JSON is the target. A block with the ID of a block that
+ * another writer added after the read of the client (the ID is in `current`
+ * but not in `source`) is a new block: the client cannot mean that block
+ * (see `replaceDisallowedIds`).
+ */
+function jsonTarget(
+  editor: BlockNoteEditor<any, any, any>,
+  json: readonly PartialBlock<any, any, any>[],
+  source: readonly LensBlock[],
+  current: readonly LensBlock[],
+): TargetOrError {
+  const parsed = parseJSON(editor, json);
+  if (parsed.error !== undefined) {
+    return parsed;
+  }
+  const read = new Set(new BlockTree(source).ids);
+  const disallowedIds = new Set(
+    new BlockTree(current).ids.filter((id) => !read.has(id)),
+  );
+  return {
+    target: replaceDisallowedIds(parsed.blocks, disallowedIds),
+    warnings: [],
+  };
+}
+
+/** The target of a text change (stages 1 to 3): `source` as `text` asks for it. */
+function textTarget(
+  editor: BlockNoteEditor<any, any, any>,
+  format: TextFormat,
+  source: readonly LensBlock[],
+  text: string,
+): TargetOrError {
+  // 1. Project. The text of the source and its projection come from the
+  // cache, if the source is the last document of the editor and format.
+  const read = documentText(editor, format, source);
+  const content = withoutByteOrderMark(text, read.text);
+  // An unchanged text needs no projection, and gives no operations (GetPut).
+  if (content === read.text) {
+    return { target: source, warnings: [] };
+  }
+  const projection = read.projection();
+  // 2. Parse and align.
+  const aligned = parseAndAlign(editor, format, projection.view, content);
+  if (aligned.error !== undefined) {
+    return aligned;
+  }
+  // 3. Target.
+  return targetFromPairs(
+    targetInputOf(editor, format, source, projection, aligned),
+  );
+}
+
+/** The blocks of a text, in a flat list, and their pairs with the view blocks (stage 2). */
+type Alignment = { textBlocks: FlatBlock[]; pairs: BlockPair[] };
+
+/**
+ * The version that the write merges from, or `undefined` for a write on the
+ * current document (`base: "current"`).
+ */
+function versionOf(
+  options: WriteFromVersion<readonly LensBlock[]>,
+): readonly LensBlock[] | undefined {
+  requireBase(options.base);
+  if (options.base === "current") {
+    return undefined;
+  }
+  assertBlockIds(options.base, "base");
+  return options.base;
 }

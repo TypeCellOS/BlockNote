@@ -27,16 +27,6 @@ export type LensLink = {
   content: LensStyledText[];
 };
 
-/**
- * Custom inline content, for example a mention. The lens uses it as one unit and does not look inside it.
- */
-type LensCustomInlineContent = {
-  type: string;
-  props: Record<string, unknown>;
-  /** Styled text, plain text (a string), or no content. The config of the content type sets which one. */
-  content?: LensStyledText[] | string;
-};
-
 /** @internal */
 export type LensInlineContent =
   | LensStyledText
@@ -149,3 +139,13 @@ export function contentShape(content: LensBlockContent): ContentShape {
   }
   return isTableContent(content) ? "table" : "none";
 }
+
+/**
+ * Custom inline content, for example a mention. The lens uses it as one unit and does not look inside it.
+ */
+type LensCustomInlineContent = {
+  type: string;
+  props: Record<string, unknown>;
+  /** Styled text, plain text (a string), or no content. The config of the content type sets which one. */
+  content?: LensStyledText[] | string;
+};
