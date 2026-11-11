@@ -56,7 +56,7 @@ export type Correspondence = {
   rows: TextRow[];
   /**
    * The source blocks that stay: the source blocks of the kept rows, and
-   * the invisible blocks that stay (see {@link keepInvisibleBlocks}).
+   * the invisible blocks that stay (see {@link withInvisibleBlocks}).
    */
   kept: Set<string>;
   warnings: TargetWarning[];
@@ -76,7 +76,7 @@ export type Correspondence = {
  * - The text cannot change a view block without a link (warning
  *   `unlinked-block-changed`, unless the view block is empty).
  * - An invisible block stays, with some exceptions (see
- *   {@link keepInvisibleBlocks}).
+ *   {@link withInvisibleBlocks}).
  *
  * Method: our own design.
  *
@@ -112,100 +112,77 @@ export function correspond(
     textIndexOf,
     source,
   );
-  const decisions = decideViewBlocks(
-    view,
-    incoming,
-    textIndexOf,
-    multiParts.replaced,
-  );
-  const { kept, keptAt, skipped } = decisions;
-  const warnings = [...multiParts.warnings, ...decisions.warnings];
-  keepInvisibleBlocks(source, invisibleIds, kept);
+  /** Returns true if the view block has a pair in the text, without changes. */
+  function unchanged(v: number): boolean {
+    const j = textIndexOf[v];
+    return (
+      j !== undefined && blockKey(view[v].block) === blockKey(incoming[j].block)
+    );
+  }
 
-  const rows = incoming.map((flat, j): TextRow => {
-    const viewIndex = viewIndexOf[j];
-    if (skipped.has(j)) {
-      return { kind: "skipped", viewIndex };
+  /** The row of text block `j`. */
+  function rowOf(flat: FlatBlock, j: number): TextRow {
+    const v = viewIndexOf[j];
+    const newRow: TextRow = {
+      kind: "new",
+      viewIndex: v,
+      id: multiParts.replacementIdOf.get(j),
+    };
+    if (v === undefined) {
+      return newRow;
     }
-    const keptBlock = keptAt.get(j);
-    if (keptBlock === undefined) {
-      return { kind: "new", viewIndex, id: multiParts.replacementIdOf.get(j) };
+    const { sourceId, block } = view[v];
+    if (sourceId === undefined) {
+      // A view block without a link: the text cannot change it (see
+      // `unlinkedWarnings`). Only the pair of an empty view block that the
+      // text changed is a block of the text.
+      return isEmptyTextBlock(block) && !unchanged(v)
+        ? newRow
+        : { kind: "skipped", viewIndex: v };
     }
-    const join = multiParts.joined.get(keptBlock.id);
+    if (multiParts.replaced.has(sourceId)) {
+      return newRow;
+    }
+    // A multi-part block that stays has a pair for each part, in order (see
+    // `decideMultiParts`). The first part is the block.
+    const parts = input.projection.multiParts.get(sourceId);
+    if (parts !== undefined && parts[0] !== v) {
+      return { kind: "skipped", viewIndex: v };
+    }
+    const join = multiParts.joined.get(sourceId);
     return {
       kind: "kept",
-      id: keptBlock.id,
-      viewIndex: keptBlock.viewIndex,
-      base: join?.view ?? view[keptBlock.viewIndex].block,
+      id: sourceId,
+      viewIndex: v,
+      base: join?.view ?? block,
       text: join?.incoming ?? flat.block,
       moved: moved.has(j),
     };
-  });
-  return { rows, kept, warnings };
+  }
+
+  const rows = incoming.map(rowOf);
+  const keptIds = rows.flatMap((row) => (row.kind === "kept" ? [row.id] : []));
+  return {
+    rows,
+    kept: withInvisibleBlocks(source, invisibleIds, keptIds),
+    warnings: [...multiParts.warnings, ...unlinkedWarnings(view, unchanged)],
+  };
 }
 
 /**
- * Decides for each view block what its pair in the text is:
- *
- * - A view block with a link and a pair: its source block stays (`kept`),
- *   and the pair is that block (`keptAt`). For a multi-part block, only
- *   the first part is the block: the pairs of the other parts are not
- *   blocks (`skipped`). A block that the text replaces (`replaced`, see
- *   `decideMultiParts`) does not stay here.
- * - A view block without a link: the text cannot change it. If its pair
- *   did not change, the pair is not a block. If the text changed it, the
- *   warning `unlinked-block-changed`, and the pair is not a block. An
- *   empty view block without a link gives no warning: its pair is a block
- *   of the text.
+ * The warnings `unlinked-block-changed`: the text changed or removed a view
+ * block without a link, and the text cannot change such a block. An empty
+ * view block gives no warning: its pair is a block of the text.
  */
-function decideViewBlocks(
+function unlinkedWarnings(
   view: readonly ViewBlock[],
-  incoming: readonly FlatBlock[],
-  textIndexOf: readonly (number | undefined)[],
-  replaced: ReadonlySet<string>,
-): {
-  kept: Set<string>;
-  /** The kept source block of each text block that is one. */
-  keptAt: Map<number, { id: string; viewIndex: number }>;
-  skipped: Set<number>;
-  warnings: TargetWarning[];
-} {
-  const warnings: TargetWarning[] = [];
-  const kept = new Set<string>();
-  const keptAt = new Map<number, { id: string; viewIndex: number }>();
-  const skipped = new Set<number>();
-  view.forEach((viewBlock, v) => {
-    const j = textIndexOf[v];
-    const { sourceId } = viewBlock;
-    if (sourceId === undefined) {
-      const unchanged =
-        j !== undefined &&
-        blockKey(viewBlock.block) === blockKey(incoming[j].block);
-      if (unchanged) {
-        skipped.add(j);
-      } else if (!isEmptyTextBlock(viewBlock.block)) {
-        warnings.push({
-          type: "unlinked-block-changed",
-          text: blockToText(viewBlock.block),
-        });
-        if (j !== undefined) {
-          skipped.add(j);
-        }
-      }
-      // Else, the view block is empty, and has no source. The text cannot
-      // change data of it, thus there is no warning, and its pair (if there
-      // is one) is a block of the text.
-    } else if (j !== undefined && !replaced.has(sourceId)) {
-      if (kept.has(sourceId)) {
-        // Another part of a multi-part block. The first part is the block.
-        skipped.add(j);
-      } else {
-        kept.add(sourceId);
-        keptAt.set(j, { id: sourceId, viewIndex: v });
-      }
-    }
-  });
-  return { kept, keptAt, skipped, warnings };
+  unchanged: (v: number) => boolean,
+): TargetWarning[] {
+  return view.flatMap(({ sourceId, block }, v): TargetWarning[] =>
+    sourceId === undefined && !unchanged(v) && !isEmptyTextBlock(block)
+      ? [{ type: "unlinked-block-changed", text: blockToText(block) }]
+      : [],
+  );
 }
 
 /**
@@ -362,9 +339,9 @@ function joinParts(
 }
 
 /**
- * Finds the source blocks without a view block that stay, and adds them to
- * `kept`. The text cannot remove these blocks, thus they stay. There are two
- * exceptions:
+ * Returns the kept blocks (`keptIds`) and the source blocks without a view
+ * block that stay. The text cannot remove these blocks, thus they stay.
+ * There are two exceptions:
  *
  * - The target stage removes their parent.
  * - An empty block (for example an empty paragraph) goes if the target stage
@@ -375,11 +352,12 @@ function joinParts(
  *   (for example a table in plain text) stays, because the text cannot show
  *   it.
  */
-function keepInvisibleBlocks(
+function withInvisibleBlocks(
   source: BlockIndex,
   invisibleIds: ReadonlySet<string>,
-  kept: Set<string>,
-) {
+  keptIds: readonly string[],
+): Set<string> {
+  const kept = new Set(keptIds);
   const neighborsOf = visibleNeighbors(source, invisibleIds);
   // A document with only empty blocks at the top level (for example a new
   // editor) has no content that the text did not give.
@@ -403,11 +381,12 @@ function keepInvisibleBlocks(
       kept.add(id);
     }
   }
+  return kept;
 }
 
 /**
  * Returns true if an invisible block in a kept parent (or at the top level)
- * stays (see {@link keepInvisibleBlocks}):
+ * stays (see {@link withInvisibleBlocks}):
  *
  * - A block with data stays: the text cannot show it.
  * - An empty block stays next to a visible block that stays, and goes if the
