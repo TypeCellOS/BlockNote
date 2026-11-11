@@ -25,10 +25,8 @@ export type LensLink = {
 
 /**
  * Custom inline content, for example a mention. The lens uses it as one unit and does not look inside it.
- *
- * @internal
  */
-export type LensCustomInlineContent = {
+type LensCustomInlineContent = {
   type: string;
   props: Record<string, unknown>;
   /** Styled text, plain text (a string), or no content. The config of the content type sets which one. */

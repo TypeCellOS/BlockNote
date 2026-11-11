@@ -16,10 +16,8 @@ export type Place =
 
 /**
  * One step of the build: `block` goes into `parent`, after its last child.
- *
- * @internal
  */
-export type BuildStep = { block: Place; parent: Place };
+type BuildStep = { block: Place; parent: Place };
 
 /**
  * A key for a place, unique in one build of the target tree.

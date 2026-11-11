@@ -37,10 +37,8 @@ export type Projection = {
 
 /**
  * A view block that a source block gives alone (a part), and the index of that source block in `sources`.
- *
- * @internal
  */
-export type Part = { part: FlatBlock; sourceIndex: number };
+type Part = { part: FlatBlock; sourceIndex: number };
 
 /**
  * Renders the source document in the format and parses it back. Then links
