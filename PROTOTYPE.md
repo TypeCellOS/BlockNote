@@ -759,6 +759,6 @@ It does not answer the question for the editor side. That is the largest part of
 ### 15.7 Decisions for you
 
 1. The editor side (15.6, item 1) is the next step if the two modes stay. It is also the real test of the maintainability answer.
-2. Two reviewers in Yjs 14 mode: is "the reject is the result" acceptable, or must a host give the decisions an order, as the accept guard does in proposal mode? An order through a host removes the second and the first known problem, but the mode is then not distributed for the review.
+2. Two reviewers in Yjs 14 mode: is "the reject is the result" acceptable, or must a host give the decisions an order, as the accept guard does in proposal mode? An order through a host removes the second and the first known problem, but the mode is then not distributed for the review. **Your decision (11 November): it is acceptable.** No host gives the decisions an order. The text that two rejects write two times is not a part of this decision: it stays a defect that needs the change of item 3.
 3. The reject of a suggested deletion (15.3, items 2 and 3) needs a change in Yjs to be correct for two reviewers: a suggested deletion that a reject can reverse.
-4. Still open from before: does a reject of a tool call in proposal mode also remove the later changes to the blocks that the call added (section 14.10)? In Yjs 14 mode it does: the block goes with all its content.
+4. Still open from before: does a reject of a tool call in proposal mode also remove the later changes to the blocks that the call added (section 14.10)? In Yjs 14 mode it does: the block goes with all its content. **You want to discuss this later (11 November).**
