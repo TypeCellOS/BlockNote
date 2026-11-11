@@ -171,10 +171,7 @@ describe("a block that two tool calls changed", () => {
     const proposal = sharedBlock();
     const main = createEditor(initialDocument());
 
-    expect(toolCallsOfBlocks(proposal).get("p1")).toEqual([
-      "call-1",
-      "call-2",
-    ]);
+    expect(toolCallsOfBlocks(proposal).get("p1")).toEqual(["call-1", "call-2"]);
     expect(deriveSuggestions(main, createEditor, proposal).toolCallIds).toEqual(
       ["call-2"],
     );
@@ -184,9 +181,9 @@ describe("a block that two tool calls changed", () => {
     const proposal = sharedBlock();
 
     const first = valid(revertToolCall(createEditor, proposal, "call-1"));
-    expect(textsOf(documentOfProposal(withBatch(proposal, first.batch!)))).toEqual(
-      ["Title", "First sentence.", "Second paragraph."],
-    );
+    expect(
+      textsOf(documentOfProposal(withBatch(proposal, first.batch!))),
+    ).toEqual(["Title", "First sentence.", "Second paragraph."]);
 
     const second = valid(revertToolCall(createEditor, proposal, "call-2"));
     expect(
@@ -276,9 +273,9 @@ describe("accept one tool call", () => {
 
 describe("rebase", () => {
   it("does nothing if the main document is the fork point", () => {
-    expect(
-      rebaseProposal(createEditor, twoCalls(), initialDocument()),
-    ).toEqual({ batch: undefined, dropped: [] });
+    expect(rebaseProposal(createEditor, twoCalls(), initialDocument())).toEqual(
+      { batch: undefined, dropped: [] },
+    );
   });
 
   it("takes the changes of the main document, and makes it the fork point", () => {
@@ -319,9 +316,7 @@ describe("rebase", () => {
     const { batch, dropped } = rebaseProposal(createEditor, proposal, main);
 
     expect(dropped).toEqual([{ type: "conflicting-change", id: "p1" }]);
-    expect(
-      textsOf(documentOfProposal(withBatch(proposal, batch!))),
-    ).toEqual([
+    expect(textsOf(documentOfProposal(withBatch(proposal, batch!)))).toEqual([
       "Title",
       "Paragraph one, by the user.",
       "Second paragraph, by call two.",
@@ -338,8 +333,9 @@ describe("rebase", () => {
     const { batch, dropped } = rebaseProposal(createEditor, proposal, main);
 
     expect(dropped).toEqual([{ type: "change-to-removed-block", id: "p1" }]);
-    expect(
-      textsOf(documentOfProposal(withBatch(proposal, batch!))),
-    ).toEqual(["Title", "Second paragraph, by call two."]);
+    expect(textsOf(documentOfProposal(withBatch(proposal, batch!)))).toEqual([
+      "Title",
+      "Second paragraph, by call two.",
+    ]);
   });
 });

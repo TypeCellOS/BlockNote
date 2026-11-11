@@ -1,4 +1,6 @@
 import { BlockNoteEditor, type PartialBlock } from "@blocknote/core";
+import { simulateReadableStream } from "ai";
+import { MockLanguageModelV4 } from "ai/test";
 
 import { type LensBlock, markdownFormat } from "../api/v2/index.js";
 import {
@@ -77,4 +79,121 @@ export function writeMarkdown(
     throw new Error("The write gave no batch");
   }
   return withBatch(proposal, result.batch);
+}
+
+/** The prompt of one LLM call: the messages that the model gets. */
+export type LanguageModelV4Prompt = Parameters<
+  MockLanguageModelV4["doGenerate"]
+>[0]["prompt"];
+
+/** One part of the stream of a model. */
+type StreamPart =
+  Awaited<
+    ReturnType<MockLanguageModelV4["doStream"]>
+  >["stream"] extends ReadableStream<infer Part>
+    ? Part
+    : never;
+
+/** One scripted step of the mock model: tool calls, or the final text. */
+export type ScriptedStep =
+  | { toolCalls: { toolName: string; input: unknown }[] }
+  | { text: string };
+
+/**
+ * A mock model that plays a script: step `n` of the script answers LLM call
+ * `n`. A step can be a function of the prompt of that call. Thus, a test
+ * can use the result of an earlier tool call (for example the version).
+ * `prompts` has the prompt of each call: the messages that the model got.
+ */
+export function scriptedModel(
+  script: (ScriptedStep | ((prompt: LanguageModelV4Prompt) => ScriptedStep))[],
+) {
+  const prompts: LanguageModelV4Prompt[] = [];
+  let toolCalls = 0;
+
+  function next(prompt: LanguageModelV4Prompt): ScriptedStep {
+    const step = script[prompts.length];
+    prompts.push(prompt);
+    if (step === undefined) {
+      throw new Error(`The script has no step ${prompts.length}`);
+    }
+    return typeof step === "function" ? step(prompt) : step;
+  }
+
+  function contentOf(step: ScriptedStep) {
+    return "text" in step
+      ? [{ type: "text" as const, text: step.text }]
+      : step.toolCalls.map(({ toolName, input }) => ({
+          type: "tool-call" as const,
+          toolCallId: `call-${++toolCalls}`,
+          toolName,
+          input: JSON.stringify(input),
+        }));
+  }
+
+  function finishOf(step: ScriptedStep) {
+    return {
+      finishReason: {
+        unified: "text" in step ? ("stop" as const) : ("tool-calls" as const),
+        raw: undefined,
+      },
+      usage: {
+        inputTokens: {
+          total: 10,
+          noCache: 10,
+          cacheRead: undefined,
+          cacheWrite: undefined,
+        },
+        outputTokens: { total: 5, text: 5, reasoning: undefined },
+      },
+    };
+  }
+
+  const model = new MockLanguageModelV4({
+    doGenerate: async ({ prompt }) => {
+      const step = next(prompt);
+      return { content: contentOf(step), ...finishOf(step), warnings: [] };
+    },
+    doStream: async ({ prompt }) => {
+      const step = next(prompt);
+      const chunks: StreamPart[] = [];
+      for (const part of contentOf(step)) {
+        if (part.type === "text") {
+          chunks.push(
+            { type: "text-start", id: "text-1" },
+            { type: "text-delta", id: "text-1", delta: part.text },
+            { type: "text-end", id: "text-1" },
+          );
+        } else {
+          chunks.push(part);
+        }
+      }
+      chunks.push({ type: "finish", ...finishOf(step) });
+      return { stream: simulateReadableStream({ chunks }) };
+    },
+  });
+  return { model, prompts };
+}
+
+/** The text of the last tool result in a prompt of the mock model. */
+export function lastToolResult(prompt: LanguageModelV4Prompt): string {
+  for (let i = prompt.length - 1; i >= 0; i--) {
+    const message = prompt[i];
+    if (message.role === "tool") {
+      const part = message.content.at(-1);
+      if (part?.type === "tool-result" && part.output.type === "text") {
+        return part.output.value;
+      }
+    }
+  }
+  throw new Error("The prompt has no tool result with text");
+}
+
+/** The version in the text of a tool result (for example "Version: v2"). */
+export function versionIn(text: string): string {
+  const match = /\bv\d+\b/.exec(text);
+  if (match === null) {
+    throw new Error(`No version in: ${text}`);
+  }
+  return match[0];
 }

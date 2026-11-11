@@ -85,7 +85,10 @@ export function revertToolCall(
   const result = writeBatch(
     createEditor,
     editor,
-    { document: versionOf(versions, call.seq - 1), base: versionOf(versions, call.seq) },
+    {
+      document: versionOf(versions, call.seq - 1),
+      base: versionOf(versions, call.seq),
+    },
     proposal.batches.length + 1,
     { type: "revert", toolCallId },
   );
