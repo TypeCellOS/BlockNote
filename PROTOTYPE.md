@@ -38,6 +38,8 @@ VITE_BLOCKNOTE_AI_SERVER_BASE_URL=http://localhost:3111/ai vp dev --port 5180 --
 
 The server has no hot reload: start it again after a change. Without `localhost.pem` in `packages/xl-ai-server`, it uses HTTP, as in these commands.
 
+The example with the chat window is `http://localhost:5180/ai/document-agent-chat` (section 14). `DOCUMENT_AGENT_REASONING=none` on the server gives the first edit earlier (section 13.4).
+
 Open `http://localhost:5180/ai/document-agent`. The links at the top select the mode:
 
 - `?mode=server`: the loop runs on the server. Type `/ai` in the editor, or select text and click the AI button.
@@ -372,4 +374,105 @@ What the numbers show:
 - The first edit of the spelling prompt now comes after 1.1 s to 2.5 s (before: 3.2 s). The first run is the slowest: it includes the start of the process and the connection.
 - The early start saves 0.3 s to 0.4 s here: the time that the model needs for the second tool call of the step. It saves more in a step with many tool calls.
 - A full `writeDocument` is one tool call. Nothing shows until the model has written the full document: 3.1 s to 3.5 s for 7 blocks, and more for a long document. The early start cannot help. Options: tell the model to make one `editText` call for each block or section of a large change, or add a tool that writes one section.
+
+### 13.4 Reasoning, and one edit for each paragraph
+
+More measurements with `claude-haiku-5-5`, for the prompt "Improve the writing of the whole document." (milliseconds, two or three runs each). `DocumentAgentOptions.reasoning` is the reasoning setting of the AI SDK (commit `54158a6e4`).
+
+| Document                  | Instructions                    | Reasoning | Tool calls        | First edit     | Last edit      | End of the run |
+| ------------------------- | ------------------------------- | --------- | ----------------- | -------------- | -------------- | -------------- |
+| The example (7 blocks)    | Now (one full write)            | default   | 1 `writeDocument` | 3,092 to 3,492 | the same       | 4,120 to 4,275 |
+| The example (7 blocks)    | Now (one full write)            | none      | 1 `writeDocument` | 1,651 to 1,703 | the same       | 2,551 to 2,650 |
+| The example (7 blocks)    | One `editText` for a paragraph  | default   | 5 to 6 `editText` | 3,830 to 3,961 | 5,593 to 5,874 | 6,614 to 6,828 |
+| The example (7 blocks)    | One `editText` for a paragraph  | none      | 5 `editText`      | 1,193 to 1,486 | 3,172 to 3,466 | 3,979 to 4,310 |
+| 16 paragraphs (640 words) | Now (one full write)            | none      | 1 `writeDocument` | 4,377 to 4,512 | the same       | 5,272 to 5,435 |
+| 16 paragraphs (640 words) | One `editText` for a paragraph  | none      | 16 `editText`     | 1,622          | 10,985         | 12,226         |
+
+What the numbers show:
+
+- The reasoning of the model before the first tool call is about 2 s of a large change with Haiku. Without reasoning, the first edit of the rewrite comes after 1.7 s (before: 3.1 s to 3.5 s). The pass rates of section 9.3 are from runs with the default reasoning: the effect of `none` on the quality is not measured.
+- One `editText` call for each paragraph shows the first edit early (1.6 s for 16 paragraphs, against 4.4 s), and then one edit about each 0.6 s. But the run takes 2.3 times as long (12.2 s against 5.3 s), because `editText` has the old text and the new text. In the second run on 16 paragraphs, the model did not follow the instruction: it made one full write.
+- Thus, I removed these instructions again. They are not a clear gain: a small document gets slower, and a long document gets the first edit earlier and the end later.
+- An option that I did not build: a tool that replaces one block without the old text (the first words of the block as the anchor, then the new markdown). It has the early first edit of `editText` and about the output of one full write. A second option is the range write of the lens with the source maps.
+
+## 14. Sessions and the chat example (11 November)
+
+The second request of the review: an example with a chat window, for a run that the user starts and for a run that the server starts. Commits `40e2f5545` to `595c0b87e`.
+
+### 14.1 What changed in the design
+
+A host can keep the proposal and the chat: a **session** for each document (`sessions/sessionHost.ts`).
+
+```
+   a message in the chat of an editor        a prompt from outside the editors
+   POST /sessions/:source/:id/messages       POST /sessions/:source/:id/runs
+                     \                          /
+                      v                        v
+              startRun(documentId, { prompt, origin })      (one function)
+                               |
+     the chat of the document: + the request, with its origin
+     the one open proposal of the document (or a new one from the main document)
+     a handle with readMain: a rebase before each tool call
+                               |
+              streamDocumentAgentOnHandle  ->  the UI message stream
+                               |
+              RunLog: all chunks from the start; the run needs no client
+                 |                                   |
+     the response of POST /messages          GET /sessions/.../stream
+     (the editor that sent the message)      (each other editor: it gets a notice,
+                                              gets the session, and follows)
+```
+
+- A document has one open proposal, as one open pull request. Each run writes to it.
+- The two kinds of run use the same function. The only difference is the origin in the message of the chat (`user` or `external`).
+- The stream of a run starts with the proposal before the run, in a transient chunk (`data-document-proposal`). An editor takes it as its copy. Thus, an editor that did not see the earlier runs can follow.
+- `RunLog` (`sessions/runLog.ts`) records the chunks of a run. A client that comes later gets the run from its start (`resumeStreamIsReplay` of the transport).
+- The extension: the chat stays for all proposals (`getChat`), `follow()` connects it to the run in progress, `dismiss()` ends a review that closed in a different place, and `aiMenu: false` locks the editor without the AI menu.
+- The review of a user is in the chat: the accept or the reject of a tool call goes into the output of that call (`agent/chatReview.ts`). The model gets it in the next run, and the chat window shows it.
+
+This is "the proposal on the server" for server mode. Client mode does not change: the proposal is in the editor, and there is no session.
+
+### 14.2 The example
+
+`examples/09-ai/10-document-agent-chat`, at `http://localhost:5180/ai/document-agent-chat`. Three modes: a session on the JSON store, a session on the Yjs relay, and client mode. The chat window (`src/ChatPanel.tsx`) shows the `Chat` of the AI SDK of the editor: each request, each answer, and one card for each editing tool call, with its reason, an accept and a reject. `src/session.ts` has the transport (`DefaultChatTransport` with two request hooks) and the sync with the server.
+
+A script starts a run in the same way as the box "Run from outside":
+
+```sh
+curl -X POST localhost:3111/ai/document-agent/sessions/yjs/chat-yjs/runs \
+  -H 'content-type: application/json' -d '{"prompt":"Add one short sentence to the last paragraph."}'
+```
+
+### 14.3 What I examined in a browser
+
+With the server, `claude-haiku-5-5` and Chromium:
+
+- JSON session: a request in the chat gives two cards and three suggestions. After a reload, the chat and the review come back from the server. An accept of one card and a reject of the other close the proposal, and the server has the accepted text only. A run from outside shows in the chat with its own label, and the editor follows it.
+- Yjs session with two tabs: the second tab follows the run of the first. An accept in one tab closes the review of the other tab, and its cards show "Accepted". A run that `curl` starts shows in the two tabs.
+- Client mode: the same chat window. A question without a change gives an answer, and the editor is free again.
+
+The automated tests: 84 tests in `src/documentAgent` (26 are new in this section and in section 13).
+
+### 14.4 Two problems that the browser found, now fixed
+
+- **The editor saved suggestions into the main document.** `openProposal` showed the suggestions before it changed the state from `idle`. An app that saves the document in the state `idle` then saved the text of the suggestions. The example `09-document-agent` has the same save. Now the state changes first, and a test examines the rule "no suggestion marks in the state `idle`" (commit `5ebd0cded`).
+- **The agent made a rejected change again.** It did not know the reject: in the next run it saw that its change was missing, and wrote "Re-apply the spelling fix". Now the output of each tool call in the chat has the decision of the user, and the model reads "The user rejected this change" (the same commit). In the next browser run, the agent made only the requested change, and told the user that it did not repeat the rejected one.
+
+### 14.5 Decisions to confirm
+
+18. **In a session, the server keeps the proposal and the chat** (the option that I recommended; you did not answer the question before you left). The route `POST /chat`, where the client sends its copy of the proposal, stays for the example 09.
+19. **One open proposal for each document.** A run of a user and a run from outside write to the same proposal.
+20. **The decision of a user is a field of the tool output in the chat** (`review`), not a separate record.
+21. **A run from outside locks the editor of each user that follows it**, as each run does. The example follows each run at once. An alternative is a notice in the chat, and a follow only after a click.
+22. **The batches are in the stream two times** (a data chunk at once, and the tool output for the history). A host that keeps the proposal does not need the second one: it can go, and the requests and the stored chat get smaller.
+23. **`reasoning` has no default of our own.** With `none`, the first edit is about 2 s earlier for a large change, but the quality is not measured.
+
+### 14.6 Limits of this part
+
+- The chats and the runs of the session host are in memory, for one process. The proposal store has no compare and swap (section 8.2).
+- A stop of the chat stops only the stream of this editor. The example also calls `POST /stop`, which stops the run on the server.
+- The label of a request in the chat is "You" for each user: the session does not know which user sent a message.
+- A reload during a run of the JSON session follows the run again. The chat of a session has the tool outputs with the operations: the snapshot of a long chat is large.
+- The example is not type-checked by the lint (the lint does not cover `examples/`). I examined a copy of its files in the package: only the copied `yjsRelay.ts` of the example 09 gives a type error there (the body of a `fetch`).
+- `runDocumentAgent` (no stream) is still the run of the routes `POST /runs` of the example 09. It has no early start of the tool calls.
 
