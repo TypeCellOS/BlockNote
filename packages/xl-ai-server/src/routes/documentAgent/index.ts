@@ -16,6 +16,7 @@ import { Hono } from "hono";
 import { streamSSE } from "hono/streaming";
 
 import { documentAgentModel } from "./models.js";
+import { registerSessionRoutes } from "./sessions.js";
 import {
   createYjsDocumentSource,
   type ProposalNotice,
@@ -32,6 +33,9 @@ import {
 // - `POST /runs`: a run that the server starts, on a document that it reads
 //   from a document source. The batches go to the proposal store, and the
 //   editors of the document get a notice.
+// - `/sessions/...`: the server keeps the chat and the one open proposal of
+//   each document. A message of a user and a prompt from outside start a
+//   run in the same way, and each editor follows it (see `sessions.ts`).
 
 export const documentAgentRoute = new Hono();
 
@@ -118,8 +122,11 @@ const yjs = createYjsDocumentSource({
 });
 const sources: Record<SourceName, DocumentSource> = { json: documents, yjs };
 
-/** The listeners of the notices of each document of the JSON store (server-sent events). */
-const listeners = new Map<string, Set<(notice: Notice) => void>>();
+/** The listeners of the events of each document of the JSON store (server-sent events). */
+const listeners = new Map<
+  string,
+  Set<(event: "proposal" | "session", data: unknown) => void>
+>();
 
 type Notice = ProposalNotice & { proposalId: string };
 
@@ -135,7 +142,7 @@ async function notify(proposalId: string) {
     case "json":
       // The JSON store has no channel to the editors: server-sent events.
       for (const listener of listeners.get(run.documentId) ?? []) {
-        listener({ proposalId, ...notice });
+        listener("proposal", { proposalId, ...notice } satisfies Notice);
       }
       return;
     case "yjs":
@@ -172,8 +179,8 @@ documentAgentRoute.get("/documents/:id/events", (c) => {
   return streamSSE(c, async (stream) => {
     const forDocument = listeners.get(documentId) ?? new Set();
     listeners.set(documentId, forDocument);
-    function listener(notice: Notice) {
-      void stream.writeSSE({ event: "proposal", data: JSON.stringify(notice) });
+    function listener(event: "proposal" | "session", data: unknown) {
+      void stream.writeSSE({ event, data: JSON.stringify(data) });
     }
     forDocument.add(listener);
     // Keep the stream open until the client closes it.
@@ -269,4 +276,38 @@ documentAgentRoute.post("/proposals/:id/batches", async (c) => {
     batches: [...proposal.batches, batch],
   });
   return c.json({ ok: true });
+});
+
+// ---------------------------------------------------------------------------
+// Sessions: the server keeps the chat and the proposal of each document
+// ---------------------------------------------------------------------------
+
+/** The number of the last session notice of each Yjs document: each notice must change the map. */
+const sessionNotices = new Map<string, number>();
+
+registerSessionRoutes(documentAgentRoute, {
+  sources,
+  proposals,
+  createEditor,
+  // The notice has no data: an editor gets the session from the server.
+  notify(source, documentId) {
+    switch (source) {
+      case "json":
+        for (const listener of listeners.get(documentId) ?? []) {
+          listener("session", {});
+        }
+        return;
+      case "yjs": {
+        const count = (sessionNotices.get(documentId) ?? 0) + 1;
+        sessionNotices.set(documentId, count);
+        void yjs.notify(documentId, "session", {
+          batches: count,
+          status: "running",
+        });
+        return;
+      }
+      default:
+        source satisfies never;
+    }
+  },
 });
