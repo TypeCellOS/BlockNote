@@ -123,4 +123,24 @@ describe("addInlineContentSteps", () => {
       text(words.map((word) => `${word}x`).join(" ")),
     ]);
   });
+
+  it("joins only the runs with short unchanged parts between them, if there are more than 200", () => {
+    // 300 changed words. After each 50th word, a long sentence that does not
+    // change. The 100 shortest unchanged parts must join (300 runs, at most
+    // 200 groups): they are all at most 5 characters long. The 5 long
+    // sentences are longer, thus they split the runs into 6 groups.
+    const sentence = " and a long sentence that does not change";
+    const parts = (changed: boolean) =>
+      Array.from(
+        { length: 300 },
+        (_, i) =>
+          `w${i}${changed ? "x" : ""}${i % 50 === 49 && i < 299 ? sentence : ""}`,
+      ).join(" ");
+    const editor = createEditor(parts(false));
+
+    const steps = applySteps(editor, [text(parts(true))]);
+
+    expect(steps.filter((step) => step instanceof ReplaceStep)).toHaveLength(6);
+    expect(editor.getBlock("p")?.content).toEqual([text(parts(true))]);
+  });
 });
