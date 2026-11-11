@@ -11,7 +11,7 @@ export const FileBlockWrapper = (
     ReactCustomBlockRenderProps<
       BlockConfig<
         FileBlockConfig["type"],
-        FileBlockConfig["propSchema"] & { showPreview?: { default: true } },
+        FileBlockConfig["propSchema"],
         FileBlockConfig["content"]
       >
     >,
@@ -51,7 +51,7 @@ export const FileBlockWrapper = (
       ) : (
         // Show the file preview, or the file name and icon.
         <>
-          {props.block.props.showPreview === false || !props.children ? (
+          {!props.children ? (
             // Show file name and icon.
             <FileNameWithIcon {...props} />
           ) : (

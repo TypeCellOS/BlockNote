@@ -3,7 +3,6 @@ import { defaultProps, parseDefaultProps } from "../defaultProps.js";
 import { parseFigureElement } from "../File/helpers/parse/parseFigureElement.js";
 import { createResizableFileBlockWrapper } from "../File/helpers/render/createResizableFileBlockWrapper.js";
 import { createFigureWithCaption } from "../File/helpers/toExternalHTML/createFigureWithCaption.js";
-import { createLinkWithCaption } from "../File/helpers/toExternalHTML/createLinkWithCaption.js";
 import { parseVideoElement } from "./parseVideoElement.js";
 
 export const FILE_VIDEO_ICON_SVG =
@@ -24,7 +23,6 @@ export const createVideoBlockConfig = createBlockConfig(
       name: { default: "" as const },
       url: { default: "" as const },
       caption: { default: "" as const },
-      showPreview: { default: true },
       previewWidth: { default: undefined, type: "number" as const },
     },
     content: "none" as const,
@@ -112,25 +110,14 @@ export const createVideoBlockSpec = createBlockSpec(
         };
       }
 
-      let video;
-      if (block.props.showPreview) {
-        video = document.createElement("video");
-        video.src = block.props.url;
-        if (block.props.previewWidth) {
-          video.width = block.props.previewWidth;
-        }
-      } else {
-        video = document.createElement("a");
-        video.href = block.props.url;
-        video.textContent = block.props.name || block.props.url;
+      const video = document.createElement("video");
+      video.src = block.props.url;
+      if (block.props.previewWidth) {
+        video.width = block.props.previewWidth;
       }
 
       if (block.props.caption) {
-        if (block.props.showPreview) {
-          return createFigureWithCaption(video, block.props.caption);
-        } else {
-          return createLinkWithCaption(video, block.props.caption);
-        }
+        return createFigureWithCaption(video, block.props.caption);
       }
 
       return {

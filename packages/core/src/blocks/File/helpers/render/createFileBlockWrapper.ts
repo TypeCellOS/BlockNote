@@ -15,7 +15,6 @@ export const createFileBlockWrapper = (
         name: { default: "" };
         url: { default: "" };
         caption: { default: "" };
-        showPreview?: { default: true };
       },
       "none"
     >,
@@ -68,7 +67,7 @@ export const createFileBlockWrapper = (
   const ret: { dom: HTMLElement; destroy?: () => void } = { dom: wrapper };
 
   // Show the file preview, or the file name and icon.
-  if (block.props.showPreview === false || !element) {
+  if (!element) {
     // Show file name and icon.
     const fileNameWithIcon = createFileNameWithIcon(block);
     wrapper.appendChild(fileNameWithIcon.dom);

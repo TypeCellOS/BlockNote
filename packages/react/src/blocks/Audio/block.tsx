@@ -9,7 +9,6 @@ import {
 import { useResolveUrl } from "../File/useResolveUrl.js";
 import { FigureWithCaption } from "../File/helpers/toExternalHTML/FigureWithCaption.js";
 import { FileBlockWrapper } from "../File/helpers/render/FileBlockWrapper.js";
-import { LinkWithCaption } from "../File/helpers/toExternalHTML/LinkWithCaption.js";
 
 export const AudioPreview = (
   props: Omit<
@@ -44,23 +43,13 @@ export const AudioToExternalHTML = (
     return <p>Add audio</p>;
   }
 
-  const audio = props.block.props.showPreview ? (
-    <audio src={props.block.props.url} />
-  ) : (
-    <a href={props.block.props.url}>
-      {props.block.props.name || props.block.props.url}
-    </a>
-  );
+  const audio = <audio src={props.block.props.url} />;
 
   if (props.block.props.caption) {
-    return props.block.props.showPreview ? (
+    return (
       <FigureWithCaption caption={props.block.props.caption}>
         {audio}
       </FigureWithCaption>
-    ) : (
-      <LinkWithCaption caption={props.block.props.caption}>
-        {audio}
-      </LinkWithCaption>
     );
   }
 

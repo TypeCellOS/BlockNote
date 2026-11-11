@@ -8,7 +8,6 @@ import {
 import { useResolveUrl } from "../File/useResolveUrl.js";
 import { FigureWithCaption } from "../File/helpers/toExternalHTML/FigureWithCaption.js";
 import { ResizableFileBlockWrapper } from "../File/helpers/render/ResizableFileBlockWrapper.js";
-import { LinkWithCaption } from "../File/helpers/toExternalHTML/LinkWithCaption.js";
 
 export const VideoPreview = (
   props: Omit<
@@ -44,26 +43,18 @@ export const VideoToExternalHTML = (
     return <p>Add video</p>;
   }
 
-  const video = props.block.props.showPreview ? (
+  const video = (
     <video
       src={props.block.props.url}
       width={props.block.props.previewWidth || undefined}
     />
-  ) : (
-    <a href={props.block.props.url}>
-      {props.block.props.name || props.block.props.url}
-    </a>
   );
 
   if (props.block.props.caption) {
-    return props.block.props.showPreview ? (
+    return (
       <FigureWithCaption caption={props.block.props.caption}>
         {video}
       </FigureWithCaption>
-    ) : (
-      <LinkWithCaption caption={props.block.props.caption}>
-        {video}
-      </LinkWithCaption>
     );
   }
 
