@@ -19,6 +19,12 @@ import { fitTables } from "../fit/index.js";
  * cells, as the table plugin of the editor does (see `fitTable`). Thus,
  * blocks in this form compare equal to the blocks of the document.
  *
+ * The fit of the tables is our own (`fitTables`), not `fixTables` of
+ * prosemirror-tables: `fixTables` changes ProseMirror nodes, but core's
+ * `blockToNode` already throws for a table whose spans do not fit, before a
+ * node exists. `fixTables` can replace this fit after a change of core (the
+ * spike `spike/fit-editor-logic`).
+ *
  * Returns `undefined` if the blocks do not fit the schema, also deep in the
  * tree: for example a column outside a column list, or a prop value that is
  * not in the prop schema of the type.
