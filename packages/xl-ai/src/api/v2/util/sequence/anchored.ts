@@ -45,10 +45,9 @@ type Step =
  *    small. A range without anchors gets the Myers diff.
  *
  * All steps share one work limit (see `workBudgetFor`). Thus, the time is
- * linear, also for
- * inputs that give only one new anchor at each level. After the limit, a gap
- * gets no new search for anchors, and its Myers diff matches only its common
- * prefix and suffix.
+ * linear, also for inputs that give only one new anchor at each level. After
+ * the limit, a gap gets no new search for anchors, and its Myers diff
+ * matches only its common prefix and suffix.
  *
  * The result is a common subsequence, in order. It is not always the longest
  * one.
