@@ -88,9 +88,12 @@ export {
 } from "./tools/describe.js";
 export {
   type EditInput,
+  type AnchorField,
   type EditOutput,
   editText,
+  type RangeInput,
   readDocument,
+  replaceRange,
   type ReadOutput,
   type ToolCallReview,
   type ToolNote,

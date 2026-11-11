@@ -17,7 +17,11 @@ import { createDocumentTools } from "../tools/aiSdkTools.js";
 import { describeOpening } from "../tools/describe.js";
 import { readDocument } from "../tools/documentTools.js";
 import { createDocumentHandle, type DocumentHandle } from "../tools/handle.js";
-import { createToolCalls, type OnBatches } from "../tools/toolCalls.js";
+import {
+  createToolCalls,
+  type DocumentToolName,
+  type OnBatches,
+} from "../tools/toolCalls.js";
 import {
   type LanguageModelObject,
   withBatchChunks,
@@ -44,6 +48,11 @@ export type DocumentAgentOptions = {
    * The default is the default of the provider.
    */
   reasoning?: ToolLoopAgentSettings["reasoning"];
+  /**
+   * The tools that the model can use. The default is all document tools.
+   * An app can leave out a tool, for example for a measurement.
+   */
+  tools?: DocumentToolName[];
 };
 
 /**
@@ -76,6 +85,7 @@ export function createDocumentAgent(
     tools: createDocumentTools(calls),
     maxOutputTokens: options.maxOutputTokens,
     reasoning: options.reasoning,
+    activeTools: options.tools,
     stopWhen: [isStepCount(options.maxSteps ?? 12), toolThrew],
     // The AI SDK keeps the messages of step 0 for the later steps. Thus,
     // each LLM call of the run has the same document text at the same

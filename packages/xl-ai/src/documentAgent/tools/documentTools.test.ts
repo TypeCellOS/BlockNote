@@ -11,7 +11,12 @@ import { createInMemoryDocumentStore } from "../stores/documentSource.js";
 import { createInMemoryProposalStore } from "../stores/proposalStore.js";
 import { documentOf, initialDocument, textsOf, valid } from "../testUtil.js";
 import { describeRead, describeWrite } from "./describe.js";
-import { editText, readDocument, writeDocument } from "./documentTools.js";
+import {
+  editText,
+  readDocument,
+  replaceRange,
+  writeDocument,
+} from "./documentTools.js";
 import { createDocumentHandle } from "./handle.js";
 
 const createEditor = headlessEditorFactory();
@@ -42,6 +47,122 @@ describe("readDocument", () => {
       notes: [],
       batches: [],
     });
+  });
+});
+
+describe("replaceRange", () => {
+  it("replaces the text from the first words to the last words, without the old text between them", async () => {
+    const { handle, proposal, texts } = await setup();
+
+    const output = valid(
+      await replaceRange(
+        handle,
+        {
+          from: "First",
+          to: "paragraph.\n\nSecond paragraph.",
+          new: "One new paragraph.",
+          reason: "Two paragraphs become one.",
+        },
+        "call-1",
+      ),
+    );
+
+    expect(output).toMatchObject({ version: "v1", changed: true, notes: [] });
+    expect(output.batches[0].source).toEqual({
+      type: "tool-call",
+      toolCallId: "call-1",
+      reason: "Two paragraphs become one.",
+    });
+    expect(await texts()).toEqual(["Title", "One new paragraph."]);
+    expect((await proposal()).batches).toEqual(output.batches);
+  });
+
+  it("keeps the block and its ID for a change of one full paragraph", async () => {
+    const { handle, proposal, texts } = await setup();
+
+    const output = valid(
+      await replaceRange(
+        handle,
+        {
+          from: "Second",
+          to: "paragraph.",
+          new: "The last paragraph, with new text.",
+          reason: "r",
+        },
+        "call-1",
+      ),
+    );
+
+    expect(output.batches[0].operations).toMatchObject([
+      { type: "update", id: "p2" },
+    ]);
+    expect(await texts()).toEqual([
+      "Title",
+      "First paragraph.",
+      "The last paragraph, with new text.",
+    ]);
+    expect((await proposal()).batches).toHaveLength(1);
+  });
+
+  it("gives an error value for first words that are not in the document one time", async () => {
+    const { handle, proposal } = await setup();
+
+    expect(
+      await replaceRange(
+        handle,
+        { from: "Third", to: "paragraph.", new: "x", reason: "r" },
+        "call-1",
+      ),
+    ).toEqual({ error: "not-found", field: "from", batches: [] });
+    expect(
+      await replaceRange(
+        handle,
+        { from: "paragraph", to: ".", new: "x", reason: "r" },
+        "call-2",
+      ),
+    ).toEqual({ error: "not-unique", field: "from", count: 2, batches: [] });
+    expect((await proposal()).batches).toEqual([]);
+  });
+
+  it("gives an error value for last words that are not after the first words one time", async () => {
+    const { handle, proposal } = await setup();
+
+    // "Title" is in the document, but not after "First".
+    const before = await replaceRange(
+      handle,
+      { from: "First", to: "Title", new: "x", reason: "r" },
+      "call-1",
+    );
+    // "paragraph." is two times after "First": the range is not clear.
+    const twice = await replaceRange(
+      handle,
+      { from: "First", to: "paragraph.", new: "x", reason: "r" },
+      "call-2",
+    );
+
+    expect(before).toEqual({ error: "not-found", field: "to", batches: [] });
+    expect(twice).toEqual({
+      error: "not-unique",
+      field: "to",
+      count: 2,
+      batches: [],
+    });
+    expect(describeWrite(twice)).toBe(
+      "Not unique: nothing was written. The markdown of the document contains `to` 2 times after `from`. Add more of the text around it to `to`.",
+    );
+    expect((await proposal()).batches).toEqual([]);
+  });
+
+  it("gives an error value for an input without a field", async () => {
+    const { handle } = await setup();
+
+    expect(
+      await replaceRange(
+        handle,
+        { from: "First", new: "x", reason: "r" } as never,
+        "call-1",
+      ),
+    ).toEqual({ error: "invalid-input", field: "to", batches: [] });
   });
 });
 
@@ -86,7 +207,7 @@ describe("editText", () => {
       "call-1",
     );
 
-    expect(output).toEqual({ error: "not-found", batches: [] });
+    expect(output).toEqual({ error: "not-found", field: "old", batches: [] });
     expect((await proposal()).batches).toEqual([]);
   });
 
@@ -99,7 +220,12 @@ describe("editText", () => {
       "call-1",
     );
 
-    expect(output).toEqual({ error: "not-unique", count: 2, batches: [] });
+    expect(output).toEqual({
+      error: "not-unique",
+      field: "old",
+      count: 2,
+      batches: [],
+    });
     expect((await proposal()).batches).toEqual([]);
   });
 

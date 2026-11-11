@@ -73,13 +73,19 @@ export type WriteOutput = Followable &
     | { error: "invalid-input"; field: string }
   );
 
-/** The output of `editText`. */
+/**
+ * The field of a tool input that finds a text in the markdown: `old` of
+ * `editText`, and `from` and `to` of `replaceRange`.
+ */
+export type AnchorField = "old" | "from" | "to";
+
+/** The output of `editText` and of `replaceRange`. */
 export type EditOutput =
   | WriteOutput
-  /** The document does not contain `old`. */
-  | (Followable & { error: "not-found" })
-  /** The document contains `old` more than one time. */
-  | (Followable & { error: "not-unique"; count: number });
+  /** The document does not contain the text of `field`. */
+  | (Followable & { error: "not-found"; field: AnchorField })
+  /** The document contains the text of `field` more than one time. */
+  | (Followable & { error: "not-unique"; field: AnchorField; count: number });
 
 export type WriteInput = {
   /** The full document, as markdown. */
@@ -94,6 +100,23 @@ export type EditInput = {
   /** The text to replace. It must be in the markdown of the document exactly one time. */
   old: string;
   /** The text that replaces it. */
+  new: string;
+  /** Why the agent makes this change. A user sees it next to the change. */
+  reason: string;
+};
+
+export type RangeInput = {
+  /**
+   * The first words of the text to replace. They must be in the markdown
+   * of the document exactly one time.
+   */
+  from: string;
+  /**
+   * The last words of the text to replace. They must be in the markdown
+   * exactly one time after `from`.
+   */
+  to: string;
+  /** The text that replaces the text from `from` to `to`, with these two. */
   new: string;
   /** Why the agent makes this change. A user sees it next to the change. */
   reason: string;
@@ -176,32 +199,102 @@ export async function editText(
   if (field !== undefined) {
     return { error: "invalid-input", field, batches: [] };
   }
+  return editMarkdown(handle, toolCallId, input.reason, (markdown) => {
+    const found = findOnce(markdown, input.old, "old");
+    return found.error !== undefined
+      ? found
+      : {
+          // A function as the replacement: `$` in `new` has no special meaning.
+          markdown: markdown.replace(input.old, () => input.new),
+        };
+  });
+}
+
+/**
+ * Replaces a range of the markdown of the document: the text from `from`
+ * to `to`, with these two texts. The agent gives only the first words and
+ * the last words of the range, not the full old text. Thus, a change of a
+ * full paragraph needs about the output of the new paragraph.
+ *
+ * `from` must be in the markdown exactly one time, and `to` exactly one
+ * time after `from`. The reason for the two rules: a range that is not the
+ * range of the agent would remove text without a warning.
+ */
+export async function replaceRange(
+  handle: DocumentHandle,
+  input: RangeInput,
+  toolCallId: string,
+): Promise<EditOutput> {
+  const field = missingField(input, ["from", "to", "new", "reason"]);
+  if (field !== undefined) {
+    return { error: "invalid-input", field, batches: [] };
+  }
+  return editMarkdown(handle, toolCallId, input.reason, (markdown) => {
+    const from = findOnce(markdown, input.from, "from");
+    if (from.error !== undefined) {
+      return from;
+    }
+    const afterFrom = from.index + input.from.length;
+    const to = findOnce(markdown.slice(afterFrom), input.to, "to");
+    if (to.error !== undefined) {
+      return to;
+    }
+    return {
+      markdown:
+        markdown.slice(0, from.index) +
+        input.new +
+        markdown.slice(afterFrom + to.index + input.to.length),
+    };
+  });
+}
+
+/** An error of an edit of the markdown: a text of the input is not in it one time. */
+type AnchorError =
+  | { error: "not-found"; field: AnchorField }
+  | { error: "not-unique"; field: AnchorField; count: number };
+
+/** The position of `text` in the markdown, if the markdown contains it exactly one time. */
+function findOnce(
+  markdown: string,
+  text: string,
+  field: AnchorField,
+): { error?: undefined; index: number } | AnchorError {
+  const count = text === "" ? 0 : markdown.split(text).length - 1;
+  if (count === 0) {
+    return { error: "not-found", field };
+  }
+  if (count > 1) {
+    return { error: "not-unique", field, count };
+  }
+  return { index: markdown.indexOf(text) };
+}
+
+/**
+ * Runs an edit of the markdown of the proposal document as one tool call:
+ * `edit` gives the new markdown, or an error value. The lens applies only
+ * the changes of the new markdown.
+ */
+async function editMarkdown(
+  handle: DocumentHandle,
+  toolCallId: string,
+  reason: string,
+  edit: (
+    markdown: string,
+  ) => { error?: undefined; markdown: string } | AnchorError,
+): Promise<EditOutput> {
   const { result, batches } = await handle.update<
     DistributiveOmit<EditOutput, "batches">
   >((proposal, dropped) => {
     const { editor } = openProposal(handle.createEditor, proposal);
-    const markdown = getDocumentText(editor, markdownFormat);
-    const count = input.old === "" ? 0 : markdown.split(input.old).length - 1;
-    if (count === 0) {
-      return { batch: undefined, result: { error: "not-found" } };
+    const edited = edit(getDocumentText(editor, markdownFormat));
+    if (edited.error !== undefined) {
+      return { batch: undefined, result: edited };
     }
-    if (count > 1) {
-      return { batch: undefined, result: { error: "not-unique", count } };
-    }
-    return writeStep(
-      handle,
-      proposal,
-      editor,
-      dropped,
-      toolCallId,
-      input.reason,
-      {
-        format: markdownFormat,
-        // A function as the replacement: `$` in `new` has no special meaning.
-        text: markdown.replace(input.old, () => input.new),
-        base: "current",
-      },
-    );
+    return writeStep(handle, proposal, editor, dropped, toolCallId, reason, {
+      format: markdownFormat,
+      text: edited.markdown,
+      base: "current",
+    });
   });
   return withBatches(result, batches);
 }

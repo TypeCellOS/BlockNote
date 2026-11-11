@@ -39,6 +39,10 @@ const RUNS = Number(process.env.DOCUMENT_AGENT_RUNS ?? 3);
 const reasoning = process.env.DOCUMENT_AGENT_REASONING as
   | DocumentAgentOptions["reasoning"]
   | undefined;
+/** The tools of the runs (names with `,` between them). The default is all tools. */
+const tools = process.env.DOCUMENT_AGENT_TOOLS?.split(",") as
+  | DocumentAgentOptions["tools"]
+  | undefined;
 
 /**
  * The number of paragraphs of a long document, for a measurement of a
@@ -48,7 +52,11 @@ const LONG = Number(process.env.DOCUMENT_AGENT_PARAGRAPHS ?? 0);
 
 const PROMPTS =
   LONG > 0
-    ? ["Improve the writing of the whole document."]
+    ? [
+        "Improve the writing of the whole document.",
+        // A change of one part of a long document.
+        "Replace the four paragraphs about releases, security problems, the community and money with one short paragraph that summarizes them.",
+      ]
     : [
         "Fix the spelling mistakes.",
         "Improve the writing of the whole document.",
@@ -159,7 +167,13 @@ async function measure(prompt: string): Promise<Timing> {
         LONG > 0 ? longDocument(LONG) : exampleDocument(),
       ),
     },
-    { model: createModel(), createEditor, reasoning, maxOutputTokens: 16000 },
+    {
+      model: createModel(),
+      createEditor,
+      reasoning,
+      tools,
+      maxOutputTokens: 16000,
+    },
   );
   const timing: Timing = {
     prompt,

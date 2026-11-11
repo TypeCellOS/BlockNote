@@ -55,9 +55,9 @@ export function describeWrite(output: WriteOutput | EditOutput): string {
     case "invalid-input":
       return `Invalid input: nothing was written. The field \`${output.field}\` of the tool call must be a string.`;
     case "not-found":
-      return "Not found: nothing was written. The markdown of the document does not contain `old`. Call readDocument to see the current text, and copy `old` from it exactly.";
+      return `Not found: nothing was written. The markdown of the document does not contain \`${output.field}\`${output.field === "to" ? " after `from`" : ""}. Call readDocument to see the current text, and copy \`${output.field}\` from it exactly.`;
     case "not-unique":
-      return `Not unique: nothing was written. The markdown of the document contains \`old\` ${output.count} times. Add more of the text around it to \`old\`.`;
+      return `Not unique: nothing was written. The markdown of the document contains \`${output.field}\` ${output.count} times${output.field === "to" ? " after `from`" : ""}. Add more of the text around it to \`${output.field}\`.`;
     default:
       throw new UnreachableCaseError(output);
   }

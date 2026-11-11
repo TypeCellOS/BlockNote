@@ -3,6 +3,8 @@ import {
   type EditInput,
   type EditOutput,
   editText,
+  type RangeInput,
+  replaceRange,
   type ReadOutput,
   readDocument,
   type WriteInput,
@@ -15,6 +17,7 @@ import type { DocumentHandle } from "./handle.js";
 export type DocumentToolTypes = {
   readDocument: { input: Record<string, never>; output: ReadOutput };
   editText: { input: EditInput; output: EditOutput };
+  replaceRange: { input: RangeInput; output: EditOutput };
   writeDocument: { input: WriteInput; output: WriteOutput };
 };
 
@@ -24,7 +27,10 @@ export type DocumentToolName = keyof DocumentToolTypes;
 /** Returns true if the name is the name of a document tool. */
 export function isDocumentToolName(name: string): name is DocumentToolName {
   return (
-    name === "readDocument" || name === "editText" || name === "writeDocument"
+    name === "readDocument" ||
+    name === "editText" ||
+    name === "replaceRange" ||
+    name === "writeDocument"
   );
 }
 
@@ -71,6 +77,8 @@ export function createToolCalls(
   } = {
     readDocument: () => readDocument(handle),
     editText: (input, toolCallId) => editText(handle, input, toolCallId),
+    replaceRange: (input, toolCallId) =>
+      replaceRange(handle, input, toolCallId),
     writeDocument: (input, toolCallId) =>
       writeDocument(handle, input, toolCallId),
   };
@@ -83,6 +91,7 @@ export function createToolCalls(
   } = {
     readDocument: new Map(),
     editText: new Map(),
+    replaceRange: new Map(),
     writeDocument: new Map(),
   };
 
