@@ -176,13 +176,16 @@ A result can contain these warnings:
 
 | Warning                     | Meaning                                                                                                                                                                     |
 | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `multi-part-block-replaced` | The format shows the block as more than one block (for example a code block with blank lines, in plain text), and the text moved, removed or split a part. The blocks of the text replace the block. A change of the text of the parts merges into the block, without this warning. |
 | `unlinked-block-changed`    | The text changed a part of the text that does not come from one block. The change does not apply.                                                                           |
 | `block-shape-replaced`      | The format shows the block with content of a different shape (for example a table as text), and the text changed it. The block becomes a block of the text.                 |
 | `change-to-removed-block`   | The client changed or moved a block that another user removed. The change does not apply.                                                                                   |
 | `removed-changed-block`     | The client removed a block that another user changed (or a block in it). The blocks with a change of the other user stay.                                                  |
 | `conflicting-change`        | The client and another user changed the same part of a block (a part of its text, a style, a prop, its parent or its place). The change of the other user stays there.     |
 | `merged-cells-removed` | A table lost its merged cells. Markdown and plain text show merged cells as separate cells, thus a change of the table there removes them. |
+
+## Custom Blocks
+
+A write needs one block of the text for each block of the document. Thus, the markdown and HTML export of a custom block type must read back as one block of that type, or as no block. If the export of a block gives more than one block (for example two paragraphs), `updateDocument` throws an error that names the block type. To fix it, make the `toExternalHTML` of the block type give one element that its `parse` rule reads back.
 
 ## Example Server
 

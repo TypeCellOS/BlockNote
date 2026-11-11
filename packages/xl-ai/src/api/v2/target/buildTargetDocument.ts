@@ -53,7 +53,7 @@ export function buildTargetDocument(input: {
           case "skipped":
             throw new Error("A skipped row is not a step of the build");
           case "new":
-            return blockFromFields(row.id ?? input.newId(), row.fields);
+            return blockFromFields(input.newId(), row.fields);
           case "kept": {
             const block = blockFromFields(row.id, row.fields);
             blocksBySourceId.set(row.id, block);

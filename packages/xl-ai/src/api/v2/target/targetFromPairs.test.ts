@@ -54,7 +54,6 @@ function targetOf(input: {
   incoming: FlatBlock[];
   pairs: [number, number][];
   invisibleIds?: string[];
-  multiPartIds?: string[];
 }) {
   let count = 0;
   const { target, warnings } = targetFromPairs({
@@ -62,12 +61,6 @@ function targetOf(input: {
     projection: {
       view: input.view,
       invisibleIds: new Set(input.invisibleIds),
-      multiParts: new Map(
-        (input.multiPartIds ?? []).map((id) => [
-          id,
-          input.view.flatMap((block, v) => (block.sourceId === id ? [v] : [])),
-        ]),
-      ),
     },
     incoming: input.incoming,
     alignment: input.pairs.map(([aIndex, bIndex]): MatchedPair => ({
@@ -256,55 +249,6 @@ describe("targetFromPairs", () => {
         invisibleIds: ["col"],
       }).target,
     ).toEqual(["col:", ["x:x2", "y"], "e"]);
-  });
-
-  it("merges a change of a part into the multi-part block", () => {
-    // The parts join again, with the blank line between them.
-    expect(
-      targetOf({
-        document: [paragraph("m", "x\n\ny")],
-        view: [viewBlock("m", "x"), viewBlock("m", "y")],
-        incoming: [flat("x"), flat("y2")],
-        pairs: same,
-        multiPartIds: ["m"],
-      }),
-    ).toEqual({ target: ["m:x\n\ny2"], warnings: [] });
-  });
-
-  it("replaces a multi-part block if its parts are not next to each other, and gives a warning", () => {
-    expect(
-      targetOf({
-        document: [paragraph("m", "x\n\ny")],
-        view: [viewBlock("m", "x"), viewBlock("m", "y")],
-        incoming: [flat("x"), flat("new"), flat("y")],
-        pairs: [
-          [0, 0],
-          [1, 2],
-        ],
-        multiPartIds: ["m"],
-      }),
-    ).toEqual({
-      // The block of the largest part keeps the ID (here the first of two
-      // parts with the same length).
-      target: ["m:x", "new1:new", "new2:y"],
-      warnings: [{ type: "multi-part-block-replaced", id: "m" }],
-    });
-  });
-
-  it("keeps an unchanged multi-part block as one block", () => {
-    expect(
-      targetOf({
-        document: [paragraph("m", "x\n\ny"), paragraph("b", "b")],
-        view: [viewBlock("m", "x"), viewBlock("m", "y"), viewBlock("b", "b")],
-        incoming: [flat("x"), flat("y"), flat("b2")],
-        pairs: [
-          [0, 0],
-          [1, 1],
-          [2, 2],
-        ],
-        multiPartIds: ["m"],
-      }).target,
-    ).toEqual(["m:x\n\ny", "b:b2"]);
   });
 
   it("does not apply a change to a view block without a link, and gives a warning", () => {

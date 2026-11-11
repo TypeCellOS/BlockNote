@@ -6,7 +6,6 @@ import { BlockIndex } from "../util/blocks/blockIndex.js";
 import { blockToText } from "../util/blocks/text.js";
 import type { LensBlock } from "../model.js";
 import { markdownFormat } from "../formats/markdown.js";
-import { plainTextFormat } from "../formats/plainText.js";
 import type { TextFormat } from "../formats/types.js";
 import { projectDocument } from "../projection/projectDocument.js";
 import { textBlocksOf } from "../testUtil/stages.js";
@@ -33,7 +32,7 @@ function tableOf(
   return {
     rows: rows.map((row, j) => [
       row.kind,
-      row.kind === "skipped" ? undefined : row.id,
+      row.kind === "kept" ? row.id : undefined,
       blockToText(textBlocks[j].block),
     ]),
     kept: [...kept],
@@ -80,26 +79,5 @@ describe("correspond", () => {
         "Alpha, changed\n\nBeta\n",
       ).kept,
     ).toEqual(["a", "b", "image"]);
-  });
-
-  it("replaces a multi-part block if the text breaks its parts apart", () => {
-    // Plain text shows a code block with a blank line as two paragraphs.
-    const code = {
-      id: "code",
-      type: "codeBlock",
-      content: "const a = 1;\n\nconst longer = 2;",
-    } satisfies PartialBlock;
-
-    expect(
-      tableOf([code], plainTextFormat, "const longer = 2;\n\nconst a = 1;\n"),
-    ).toEqual({
-      // The text block with the largest part keeps the ID.
-      rows: [
-        ["new", "code", "const longer = 2;"],
-        ["new", undefined, "const a = 1;"],
-      ],
-      kept: [],
-      warnings: [{ type: "multi-part-block-replaced", id: "code" }],
-    });
   });
 });

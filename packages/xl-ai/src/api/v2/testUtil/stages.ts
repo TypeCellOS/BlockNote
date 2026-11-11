@@ -72,7 +72,7 @@ export function textStages(
     ]),
     rows: rows.map((row, j) => [
       row.kind,
-      row.kind === "skipped" ? undefined : row.id,
+      row.kind === "kept" ? row.id : undefined,
       blockToText(textBlocks[j].block),
     ]),
     operations: withNewIdPlaceholders(update.operations),

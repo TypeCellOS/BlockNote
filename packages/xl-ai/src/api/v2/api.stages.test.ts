@@ -196,8 +196,9 @@ describe("the stages of a write", () => {
     `);
   });
 
-  it("merges a change of one part of a multi-part block into the block", () => {
-    // Plain text shows a code block with a blank line as two paragraphs.
+  it("merges a change of a code block with a blank line into the block, in plain text", () => {
+    // Plain text shows the blank line as one newline. The merge keeps the
+    // blank line, because the client did not change the text next to it.
     expect(
       stagesOf(
         [{ id: "code", type: "codeBlock", content: "one\n\ntwo" }],
@@ -226,36 +227,26 @@ describe("the stages of a write", () => {
         ],
         "pairs": [
           [
-            "one",
-            "one",
-          ],
-          [
-            "two",
-            "two, changed",
+            "one
+      two",
+            "one
+      two, changed",
           ],
         ],
         "rows": [
           [
             "kept",
             "code",
-            "one",
-          ],
-          [
-            "skipped",
-            undefined,
-            "two, changed",
+            "one
+      two, changed",
           ],
         ],
         "view": [
           [
             "code",
             "paragraph",
-            "one",
-          ],
-          [
-            "code",
-            "paragraph",
-            "two",
+            "one
+      two",
           ],
         ],
         "warnings": [],

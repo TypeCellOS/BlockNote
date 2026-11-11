@@ -5,7 +5,9 @@ import type { TextFormat } from "./types.js";
 /**
  * Plain text: the text of all blocks with inline content or plain content, in
  * document order. A blank line separates the blocks. A line break in a block
- * stays a single newline.
+ * stays a single newline. A blank line in a block becomes a single newline:
+ * else, the parse would read it as two blocks. Thus, the blank line is data
+ * that this format does not show.
  *
  * This format does not show other data: block types, props, styles, nesting,
  * and blocks without text (for example images, tables and empty paragraphs).
@@ -22,7 +24,10 @@ function blocksToPlainText(blocks: readonly LensBlock[]): string {
     if (!Array.isArray(block.content)) {
       continue;
     }
-    const text = inlineContentToText(block.content);
+    const text = inlineContentToText(block.content).replace(
+      /\n(?:[ \t]*\n)+/g,
+      "\n",
+    );
     if (text.trim().length > 0) {
       paragraphs.push(text);
     }

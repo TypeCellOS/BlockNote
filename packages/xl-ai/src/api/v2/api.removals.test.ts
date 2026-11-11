@@ -164,34 +164,6 @@ describe("removals (review closely)", () => {
     expect(getDocumentText(editor, plainTextFormat)).toBe(text);
   });
 
-  it("replaces a block that renders as more than one paragraph if the text moves a paragraph", () => {
-    const editor = createEditor([
-      {
-        id: "code",
-        type: "codeBlock",
-        props: { language: "javascript" },
-        content: "const a = 1;\n\nconst b = 2;",
-      },
-      { id: "after", type: "paragraph", content: "After" },
-    ]);
-    const text = "const b = 2;\n\nconst a = 1;\n\nAfter";
-    const update = valid(
-      updateDocument(editor, {
-        base: "current",
-        format: plainTextFormat,
-        text,
-      }),
-    );
-
-    expect(update.warnings).toEqual([
-      { type: "multi-part-block-replaced", id: "code" },
-    ]);
-    // The paragraph of the largest part keeps the ID. The code block (its
-    // type and language) is lost.
-    expect(editor.getBlock("code")).toMatchObject({ type: "paragraph" });
-    expect(getDocumentText(editor, plainTextFormat)).toBe(text);
-  });
-
   it("a changed block that the format shows with content of a different shape becomes a block of the text", () => {
     // A format that shows each block as one paragraph of text, also a table.
     const textOnly: TextFormat = {

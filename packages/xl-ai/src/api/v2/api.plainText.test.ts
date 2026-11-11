@@ -131,7 +131,7 @@ describe("plain text", () => {
     ]);
   });
 
-  describe("a block that the format shows as more than one part", () => {
+  describe("a block with a blank line", () => {
     const blocks = [
       {
         id: "code",
@@ -141,36 +141,50 @@ describe("plain text", () => {
       { id: "end", type: "paragraph" as const, content: "End" },
     ];
 
-    it("is replaced, with a warning, if the text swaps its parts", () => {
-      const editor = createEditor(blocks);
-      const update = writeText(
-        editor,
-        plainTextFormat,
-        () => "second\n\nfirst\n\nEnd",
-      );
-
-      expect(update.warnings).toEqual([
-        { type: "multi-part-block-replaced", id: "code" },
-      ]);
-      expect(getDocumentText(editor, plainTextFormat)).toBe(
-        "second\n\nfirst\n\nEnd",
+    it("shows the blank line as one newline", () => {
+      // A blank line would start a new paragraph in the parse.
+      expect(getDocumentText(createEditor(blocks), plainTextFormat)).toBe(
+        "first\nsecond\n\nEnd",
       );
     });
 
-    it("is replaced, with a warning, if the text puts a block between its parts", () => {
+    it("keeps the blank line and the block if the text changes a line", () => {
       const editor = createEditor(blocks);
-      const update = writeText(
-        editor,
-        plainTextFormat,
-        () => "first\n\nEnd\n\nsecond",
+      const update = writeText(editor, plainTextFormat, (text) =>
+        replaceOnce(text, "second", "second, changed"),
       );
 
-      expect(update.warnings).toEqual([
-        { type: "multi-part-block-replaced", id: "code" },
-      ]);
-      expect(getDocumentText(editor, plainTextFormat)).toBe(
-        "first\n\nEnd\n\nsecond",
+      expect(update.warnings).toEqual([]);
+      expect(editor.getBlock("code")).toMatchObject({
+        type: "codeBlock",
+        content: [{ text: "first\n\nsecond, changed" }],
+      });
+    });
+
+    it("keeps the blank line if the text appends to the line before it", () => {
+      const editor = createEditor(blocks);
+      writeText(editor, plainTextFormat, (text) =>
+        replaceOnce(text, "first\n", "first!\n"),
       );
+
+      expect(editor.getBlock("code")?.content).toMatchObject([
+        { text: "first!\n\nsecond" },
+      ]);
+    });
+
+    it("KNOWN LIMIT: loses the blank line if the text inserts at the start of the line after it", () => {
+      // The insert of the client and the hidden newline are at the same
+      // position. In the target stage, an insert of the document at the
+      // position of an insert of the text does not stay (a difference of the
+      // format, see `MergeOptions`).
+      const editor = createEditor(blocks);
+      writeText(editor, plainTextFormat, (text) =>
+        replaceOnce(text, "\nsecond", "\n!second"),
+      );
+
+      expect(editor.getBlock("code")?.content).toMatchObject([
+        { text: "first\n!second" },
+      ]);
     });
   });
 
@@ -213,8 +227,8 @@ describe("plain text, a new editor", () => {
   });
 });
 
-describe("plain text, a part of a block without words", () => {
-  it("links a part with only punctuation to its block", () => {
+describe("plain text, a code block with a blank line", () => {
+  it("keeps the block, its language and the blank line if the text changes the last line", () => {
     const editor = BlockNoteEditor.create({
       initialContent: [
         {
@@ -232,12 +246,12 @@ describe("plain text, a part of a block without words", () => {
       updateDocument(editor, {
         base: "current",
         format: plainTextFormat,
-        text: text.replace("\n\n}", "\n\n} // end"),
+        text: text.replace("\n}", "\n} // end"),
       }),
     );
 
-    // Plain text shows the code block as two parts. The change of a part is
-    // a change of the code block: its type and language stay.
+    // Plain text shows the blank line as one newline. The client did not
+    // change the text next to it, thus the merge keeps it.
     expect(update.warnings).toEqual([]);
     expect(editor.getBlock("c")).toMatchObject({
       type: "codeBlock",

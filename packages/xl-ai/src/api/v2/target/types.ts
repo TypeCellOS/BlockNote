@@ -18,25 +18,15 @@ export type TargetRow =
   | {
       kind: "new";
       viewIndex: number | undefined;
-      id: string | undefined;
       fields: BlockFields;
     }
-  | { kind: "skipped"; viewIndex: number | undefined };
+  | { kind: "skipped"; viewIndex: number };
 
 /** @internal */
 export type KeptRow = Extract<TargetRow, { kind: "kept" }>;
 
 /** @internal */
 export type TargetWarning =
-  /**
-   * The text moved, removed or split a part of a block that renders as more
-   * than one view block, or that block has no text. An example is a code
-   * block with blank lines, in plain text. The blocks of the text replace
-   * the block. Thus, the data that the format does not show is lost. A
-   * change of the text of the parts merges into the block (see
-   * `joinParts`).
-   */
-  | { type: "multi-part-block-replaced"; id: string }
   /**
    * The text changed or removed a part of the text that does not come from
    * one document block (`text` is that part, as the format shows it). The

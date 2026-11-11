@@ -60,7 +60,7 @@ function target(source: LensBlock[], view: ViewBlock[], incoming: FlatBlock[]) {
   let count = 0;
   return targetFromPairs({
     source,
-    projection: { view, invisibleIds: new Set(), multiParts: new Map() },
+    projection: { view, invisibleIds: new Set() },
     incoming,
     // The text has the blocks of the view at the same positions.
     alignment: incoming.map((_, i) => ({ aIndex: i, bIndex: i })),
@@ -140,7 +140,7 @@ describe("targetFromPairs: laws on random documents", () => {
       let count = 0;
       const result = targetFromPairs({
         source,
-        projection: { view, invisibleIds: new Set(), multiParts: new Map() },
+        projection: { view, invisibleIds: new Set() },
         incoming,
         alignment: kept.map((aIndex, bIndex) => ({ aIndex, bIndex })),
         contentKindOf: () => "inline",

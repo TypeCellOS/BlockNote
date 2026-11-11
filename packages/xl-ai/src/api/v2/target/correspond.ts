@@ -1,9 +1,4 @@
-import type {
-  BlockWithoutChildren,
-  FlatBlock,
-  LensBlock,
-  LensInlineContent,
-} from "../model.js";
+import type { BlockWithoutChildren, FlatBlock, LensBlock } from "../model.js";
 import {
   blockKey,
   blockToText,
@@ -22,8 +17,7 @@ export type TextRow =
   /**
    * The text block is a source block that stays (`id`). Its fields merge
    * three-way: `base` is the view block, `text` is the text block, and
-   * `theirs` is the source block. For a multi-part block, `base` and `text`
-   * are its parts, joined (see {@link joinParts}).
+   * `theirs` is the source block.
    */
   | {
       kind: "kept";
@@ -34,17 +28,13 @@ export type TextRow =
       /** The text moved the block (rule 2 of `alignBlocks`). */
       moved: boolean;
     }
+  /** A new block. It gets a new ID. */
+  | { kind: "new"; viewIndex: number | undefined }
   /**
-   * A new block. `id` is the ID of the multi-part block that it replaces, if
-   * it is the block with the largest part. Else, the block gets a new ID.
+   * The text block gives no block: it is the pair of a view block without a
+   * link, and the target stage cannot apply a change of such a block.
    */
-  | { kind: "new"; viewIndex: number | undefined; id: string | undefined }
-  /**
-   * The text block gives no block: it is a later part of a kept multi-part
-   * block (the first part is the block), or the pair of a view block without
-   * a link (the target stage cannot apply a change of it).
-   */
-  | { kind: "skipped"; viewIndex: number | undefined };
+  | { kind: "skipped"; viewIndex: number };
 
 /**
  * The correspondence of the text blocks and the source blocks.
@@ -67,12 +57,8 @@ export type Correspondence = {
  * it is, if it is one (see {@link TextRow}). Also finds the source blocks
  * that stay.
  *
- * - A source block with a pair in the text stays.
- * - A multi-part block stays if its parts are in the text, next to each
- *   other, in the same order. If the text changed a part, the parts join
- *   again (see {@link joinParts}), and the joined text merges as the block.
- *   Else, the blocks of the text replace the block (warning
- *   `multi-part-block-replaced`).
+ * - A source block with a pair in the text stays. Each source block has one
+ *   view block at most (see `projectWithParts`).
  * - The text cannot change a view block without a link (warning
  *   `unlinked-block-changed`, unless the view block is empty).
  * - An invisible block stays, with some exceptions (see
@@ -106,12 +92,6 @@ export function correspond(
     }
   }
 
-  const multiParts = decideMultiParts(
-    input.projection,
-    incoming,
-    textIndexOf,
-    source,
-  );
   /** Returns true if the view block has a pair in the text, without changes. */
   function unchanged(v: number): boolean {
     const j = textIndexOf[v];
@@ -123,13 +103,8 @@ export function correspond(
   /** The row of text block `j`. */
   function rowOf(flat: FlatBlock, j: number): TextRow {
     const v = viewIndexOf[j];
-    const newRow: TextRow = {
-      kind: "new",
-      viewIndex: v,
-      id: multiParts.replacementIdOf.get(j),
-    };
     if (v === undefined) {
-      return newRow;
+      return { kind: "new", viewIndex: undefined };
     }
     const { sourceId, block } = view[v];
     if (sourceId === undefined) {
@@ -137,25 +112,15 @@ export function correspond(
       // `unlinkedWarnings`). Only the pair of an empty view block that the
       // text changed is a block of the text.
       return isEmptyTextBlock(block) && !unchanged(v)
-        ? newRow
+        ? { kind: "new", viewIndex: v }
         : { kind: "skipped", viewIndex: v };
     }
-    if (multiParts.replaced.has(sourceId)) {
-      return newRow;
-    }
-    // A multi-part block that stays has a pair for each part, in order (see
-    // `decideMultiParts`). The first part is the block.
-    const parts = input.projection.multiParts.get(sourceId);
-    if (parts !== undefined && parts[0] !== v) {
-      return { kind: "skipped", viewIndex: v };
-    }
-    const join = multiParts.joined.get(sourceId);
     return {
       kind: "kept",
       id: sourceId,
       viewIndex: v,
-      base: join?.view ?? block,
-      text: join?.incoming ?? flat.block,
+      base: block,
+      text: flat.block,
       moved: moved.has(j),
     };
   }
@@ -165,7 +130,7 @@ export function correspond(
   return {
     rows,
     kept: withInvisibleBlocks(source, invisibleIds, keptIds),
-    warnings: [...multiParts.warnings, ...unlinkedWarnings(view, unchanged)],
+    warnings: unlinkedWarnings(view, unchanged),
   };
 }
 
@@ -183,159 +148,6 @@ function unlinkedWarnings(
       ? [{ type: "unlinked-block-changed", text: blockToText(block) }]
       : [],
   );
-}
-
-/**
- * Decides for each multi-part block what the text did with its parts:
- *
- * - The parts are in the text, next to each other, in order, and without
- *   changes: nothing to decide (the first part is the block).
- * - The parts are in the text, next to each other, in order, with changes:
- *   the parts join (`joined`), if {@link joinParts} can join them.
- * - Else, the blocks of the text replace the block (`replaced`). The block
- *   of the text with the largest part keeps the ID, as for a split block
- *   (`replacementIdOf`). Thus, two writers that replace the block do not
- *   both add its text.
- */
-function decideMultiParts(
-  projection: Projection,
-  incoming: readonly FlatBlock[],
-  textIndexOf: readonly (number | undefined)[],
-  source: BlockIndex,
-): {
-  replaced: Set<string>;
-  /** The text block that replaces a multi-part block and keeps its ID. */
-  replacementIdOf: Map<number, string>;
-  joined: Map<
-    string,
-    { view: BlockWithoutChildren; incoming: BlockWithoutChildren }
-  >;
-  warnings: TargetWarning[];
-} {
-  const { view, multiParts } = projection;
-  const replaced = new Set<string>();
-  const replacementIdOf = new Map<number, string>();
-  const joined = new Map<
-    string,
-    { view: BlockWithoutChildren; incoming: BlockWithoutChildren }
-  >();
-  const warnings: TargetWarning[] = [];
-  for (const [id, parts] of multiParts) {
-    const textParts = textPartsInOrder(parts, textIndexOf)?.map(
-      (j) => incoming[j].block,
-    );
-    const viewParts = parts.map((v) => view[v].block);
-    if (
-      textParts !== undefined &&
-      viewParts.every((part, k) => blockKey(part) === blockKey(textParts[k]))
-    ) {
-      continue;
-    }
-    const join =
-      textParts === undefined
-        ? undefined
-        : joinParts(source.block(id), viewParts, textParts);
-    if (join !== undefined) {
-      joined.set(id, join);
-      continue;
-    }
-    replaced.add(id);
-    warnings.push({ type: "multi-part-block-replaced", id });
-    const largest = largestPart(parts, view, textIndexOf);
-    if (largest !== undefined) {
-      replacementIdOf.set(largest, id);
-    }
-  }
-  return { replaced, replacementIdOf, joined, warnings };
-}
-
-/**
- * The indexes of the text blocks of the parts (the view indexes `parts`),
- * if each part has a pair in the text, and the pairs are next to each other,
- * in the order of the parts. Else `undefined`.
- */
-function textPartsInOrder(
-  parts: readonly number[],
-  textIndexOf: readonly (number | undefined)[],
-): number[] | undefined {
-  const indexes: number[] = [];
-  for (const v of parts) {
-    const j = textIndexOf[v];
-    const previous = indexes.at(-1);
-    if (j === undefined || (previous !== undefined && j !== previous + 1)) {
-      return undefined;
-    }
-    indexes.push(j);
-  }
-  return indexes;
-}
-
-/** The index of the text block of the part with the most text that has a pair in the text, or `undefined`. */
-function largestPart(
-  parts: readonly number[],
-  view: readonly ViewBlock[],
-  textIndexOf: readonly (number | undefined)[],
-): number | undefined {
-  let largest: { j: number; length: number } | undefined;
-  for (const v of parts) {
-    const j = textIndexOf[v];
-    const length = blockToText(view[v].block).length;
-    if (j !== undefined && (largest === undefined || length > largest.length)) {
-      largest = { j, length };
-    }
-  }
-  return largest?.j;
-}
-
-/**
- * The parts of a multi-part block in the view and in the text, joined to
- * one block each, with the text that is between the parts in the source
- * block. Thus, a change of the text of a part is a change of the block (for
- * example a code block with a blank line, in plain text). `undefined` if the
- * block or a part has no text, or if the text of the source block does not
- * contain the parts of the view, in order.
- */
-function joinParts(
-  sourceBlock: BlockWithoutChildren,
-  viewParts: readonly BlockWithoutChildren[],
-  textParts: readonly BlockWithoutChildren[],
-): { view: BlockWithoutChildren; incoming: BlockWithoutChildren } | undefined {
-  const parts = [...viewParts, ...textParts];
-  if (
-    !Array.isArray(sourceBlock.content) ||
-    !parts.every((part) => Array.isArray(part.content))
-  ) {
-    return undefined;
-  }
-  const sourceText = blockToText(sourceBlock);
-  /** The text before each part, and after the last part. */
-  const between: string[] = [];
-  let cursor = 0;
-  for (const part of viewParts) {
-    const text = blockToText(part);
-    const at = sourceText.indexOf(text, cursor);
-    if (at === -1) {
-      return undefined;
-    }
-    between.push(sourceText.slice(cursor, at));
-    cursor = at + text.length;
-  }
-  between.push(sourceText.slice(cursor));
-  const textItem = (text: string): LensInlineContent[] =>
-    text === "" ? [] : [{ type: "text", text, styles: {} }];
-  function join(blocks: readonly BlockWithoutChildren[]): BlockWithoutChildren {
-    return {
-      ...blocks[0],
-      content: [
-        ...blocks.flatMap((block, k) => [
-          ...textItem(between[k]),
-          ...(block.content as LensInlineContent[]),
-        ]),
-        ...textItem(between[blocks.length]),
-      ],
-    };
-  }
-  return { view: join(viewParts), incoming: join(textParts) };
 }
 
 /**

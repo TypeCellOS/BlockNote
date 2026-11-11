@@ -31,8 +31,6 @@ export type Projection = {
    * they are.
    */
   invisibleIds: Set<string>;
-  /** The source blocks with links from more than one view block: the indexes of these view blocks, in order. */
-  multiParts: Map<string, number[]>;
 };
 
 /**
@@ -44,9 +42,10 @@ export type Projection = {
  *     links = linkBlocks(parts, view)
  *
  * The format loses the block IDs, and it does not always give one view block
- * for each source block: a block can give no view block or more than one
- * (see `Projection`). The source of each part is known, thus the parts give
- * the links.
+ * for each source block: a block can give no view block (see `Projection`).
+ * A block that gives more than one view block throws (see
+ * {@link assertOnePartEach}). The source of each part is known, thus the
+ * parts give the links.
  *
  * Method: our own design: a round trip through the format, and links by
  * `linkBlocks`.
@@ -77,12 +76,12 @@ export function projectWithParts(
   view: readonly FlatBlock[],
   parts: readonly Part[],
 ): Projection {
+  assertOnePartEach(sources, parts);
   const links = linkBlocks(
     parts.map(({ part }) => part),
     view,
   );
-  /** The view blocks of each source block. */
-  const viewsOf = new Map<string, number[]>();
+  const linked = new Set<string>();
   const viewBlocks = view.map((flat, v): ViewBlock => {
     const link = links[v];
     const sourceId =
@@ -90,21 +89,15 @@ export function projectWithParts(
         ? undefined
         : sources[parts[link].sourceIndex].block.id;
     if (sourceId !== undefined) {
-      const views = viewsOf.get(sourceId);
-      if (views === undefined) {
-        viewsOf.set(sourceId, [v]);
-      } else {
-        views.push(v);
-      }
+      linked.add(sourceId);
     }
     return { ...flat, sourceId };
   });
   return {
     view: viewBlocks,
     invisibleIds: new Set(
-      sources.map(({ block }) => block.id).filter((id) => !viewsOf.has(id)),
+      sources.map(({ block }) => block.id).filter((id) => !linked.has(id)),
     ),
-    multiParts: new Map([...viewsOf].filter(([, views]) => views.length > 1)),
   };
 }
 
@@ -114,8 +107,8 @@ export function projectWithParts(
  * definition of the parts. {@link partsOf} gives the same projection faster.
  *
  * - A block that the format renders as no text (for example an image
- *   without a URL, in markdown) has no parts. A block can have more than one
- *   part (for example a code block with a blank line, in plain text).
+ *   without a URL, in markdown) has no parts. A block with more than one
+ *   part is a bug of its block type (see {@link assertOnePartEach}).
  * - A layout block (for example a column) is not a document without its
  *   children: the parse fills it with new blocks. Thus, a layout block is
  *   its own part.
@@ -325,4 +318,24 @@ function unusedMarker(text: string): string {
     }
   }
   throw new Error("The text contains all pairs of private use characters");
+}
+
+/**
+ * Throws if the format shows a source block alone as more than one block. A
+ * block type whose export reads back as more blocks is a bug of that block
+ * type: the lens needs one view block at most for each block (see
+ * `TextFormat`). The parts of a block are next to each other in `parts`.
+ */
+function assertOnePartEach(
+  sources: readonly FlatBlock[],
+  parts: readonly Part[],
+): void {
+  for (let k = 1; k < parts.length; k++) {
+    if (parts[k].sourceIndex === parts[k - 1].sourceIndex) {
+      const { type } = sources[parts[k].sourceIndex].block;
+      throw new Error(
+        `The format shows a block of type "${type}" as more than one block. The export of a block type must read back as one block, or as no block.`,
+      );
+    }
+  }
 }

@@ -1,4 +1,9 @@
-import { BlockNoteEditor } from "@blocknote/core";
+import {
+  BlockNoteEditor,
+  BlockNoteSchema,
+  createBlockSpec,
+  defaultBlockSpecs,
+} from "@blocknote/core";
 import { describe, expect, it } from "vite-plus/test";
 
 import { blockToText } from "../util/blocks/text.js";
@@ -54,17 +59,49 @@ describe("projectDocument", () => {
     expect([...projection.invisibleIds]).toEqual(["no-url"]);
   });
 
-  it("finds blocks that the format shows as more than one block", () => {
-    // In plain text, the blank line in the code block makes two paragraphs.
+  it("shows a code block with a blank line as one paragraph, in plain text", () => {
+    // A blank line would start a new paragraph. Thus, plain text shows it as
+    // one newline.
     const projection = projectDocument(
       editor,
       plainTextFormat,
       editor.document,
     );
-    expect([...projection.multiParts.keys()]).toEqual(["code"]);
-    expect(
-      projection.view.filter((viewBlock) => viewBlock.sourceId === "code"),
-    ).toHaveLength(2);
+    const code = projection.view.filter(
+      (viewBlock) => viewBlock.sourceId === "code",
+    );
+    expect(code.map(({ block }) => blockToText(block))).toEqual([
+      "const a = 1;\nconst b = 2;",
+    ]);
+  });
+
+  it("throws for a block type whose export reads back as more than one block", () => {
+    const twoParagraphs = createBlockSpec(
+      { type: "twoParagraphs" as const, propSchema: {}, content: "none" },
+      {
+        render: () => ({ dom: document.createElement("div") }),
+        toExternalHTML: () => {
+          const dom = document.createElement("div");
+          dom.innerHTML = "<p>One</p><p>Two</p>";
+          return { dom };
+        },
+      },
+    )();
+    const custom = BlockNoteEditor.create({
+      schema: BlockNoteSchema.create().extend({
+        blockSpecs: { ...defaultBlockSpecs, twoParagraphs },
+      }),
+      initialContent: [{ type: "twoParagraphs" }],
+    });
+    expect(() =>
+      projectDocument(
+        custom,
+        markdownFormat,
+        custom.document as unknown as LensBlock[],
+      ),
+    ).toThrow(
+      'The format shows a block of type "twoParagraphs" as more than one block',
+    );
   });
 
   it("makes the round trip only for the blocks that the view does not show as they are (a guard of the speed)", () => {
