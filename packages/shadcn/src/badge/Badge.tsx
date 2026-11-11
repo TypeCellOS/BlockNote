@@ -1,13 +1,13 @@
 import { assertEmpty } from "@blocknote/core";
 import { ComponentProps, usePortalElement } from "@blocknote/react";
-import { forwardRef } from "react";
+import { forwardRef, HTMLAttributes } from "react";
 
 import { cn } from "../lib/utils.js";
 import { useShadCNComponentsContext } from "../ShadCNComponentsContext.js";
 
 export const Badge = forwardRef<
   HTMLButtonElement,
-  ComponentProps["Generic"]["Badge"]["Root"]
+  ComponentProps["Generic"]["Badge"]["Root"] & HTMLAttributes<HTMLButtonElement>
 >((props, ref) => {
   const {
     className,
@@ -20,8 +20,6 @@ export const Badge = forwardRef<
     onMouseEnter,
     ...rest
   } = props;
-
-  assertEmpty(rest, false);
 
   const ShadCNComponents = useShadCNComponentsContext()!;
 
@@ -43,6 +41,9 @@ export const Badge = forwardRef<
       )}
       onClick={onClick}
       onMouseEnter={onMouseEnter}
+      aria-label={mainTooltip}
+      // Forward ARIA attributes and handlers injected by PopoverTrigger.
+      {...rest}
       ref={ref}
     >
       <span>{icon}</span>
