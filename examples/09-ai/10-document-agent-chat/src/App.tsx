@@ -123,8 +123,40 @@ function sessionOptions(sessionUrl: string): DocumentAgentExtensionOptions {
   };
 }
 
+/**
+ * Where the server keeps the state of the sessions (the chats, the
+ * proposals, the streams of the runs): in files that stay after a restart
+ * of the server, or in its memory. `undefined` until the server answers.
+ */
+function useServerStorage(): "files" | "memory" | undefined {
+  const [kind, setKind] = useState<"files" | "memory">();
+  useEffect(() => {
+    let current = true;
+    void fetch(`${AGENT_URL}/storage`).then(
+      async (response) => {
+        if (!response.ok) {
+          return;
+        }
+        const storage = (await response.json()) as { kind?: unknown };
+        if (
+          current &&
+          (storage.kind === "files" || storage.kind === "memory")
+        ) {
+          setKind(storage.kind);
+        }
+      },
+      () => undefined,
+    );
+    return () => {
+      current = false;
+    };
+  }, []);
+  return kind;
+}
+
 export default function App() {
   const mode = currentMode();
+  const storage = useServerStorage();
   return (
     <div className="agent-chat-example">
       <div className="agent-chat-modes">
@@ -145,6 +177,16 @@ export default function App() {
           >
             Accept guard: {hasAcceptGuard() ? "on" : "off"}
           </a>
+        )}
+        {mode !== "client" && storage !== undefined && (
+          <span
+            className="agent-chat-storage"
+            title="Start the AI server with DOCUMENT_AGENT_DATA_DIR to keep the state of the sessions in files."
+          >
+            {storage === "files"
+              ? "Server state: in files. It stays after a restart of the server."
+              : "Server state: in memory. A restart of the server loses it."}
+          </span>
         )}
       </div>
       {mode === "json" ? (

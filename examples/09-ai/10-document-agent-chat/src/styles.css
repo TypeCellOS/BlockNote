@@ -19,6 +19,11 @@
   text-decoration: none;
 }
 
+.agent-chat-storage {
+  align-self: center;
+  color: #777;
+}
+
 .agent-chat-modes a[aria-current="page"] {
   border-color: #4f8ff7;
   background: #eaf2ff;
