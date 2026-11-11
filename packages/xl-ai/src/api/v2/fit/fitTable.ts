@@ -52,22 +52,6 @@ export function fitChangedTables(
   );
 }
 
-function mapTables(
-  blocks: readonly LensBlock[],
-  fit: (table: LensTableContent, id: string) => LensTableContent,
-): LensBlock[] {
-  function map(block: LensBlock): LensBlock {
-    return {
-      ...block,
-      content: isTableContent(block.content)
-        ? fit(block.content, block.id)
-        : block.content,
-      children: block.children.map(map),
-    };
-  }
-  return blocks.map(map);
-}
-
 /**
  * Returns the table as the editor can hold it: the cells, with their spans,
  * cover each row to the same width, and no two cells cover one position (as
@@ -129,4 +113,20 @@ export function mergedCellsRemoved(
       ? [{ type: "merged-cells-removed" as const, id: block.id }]
       : [],
   );
+}
+
+function mapTables(
+  blocks: readonly LensBlock[],
+  fit: (table: LensTableContent, id: string) => LensTableContent,
+): LensBlock[] {
+  function map(block: LensBlock): LensBlock {
+    return {
+      ...block,
+      content: isTableContent(block.content)
+        ? fit(block.content, block.id)
+        : block.content,
+      children: block.children.map(map),
+    };
+  }
+  return blocks.map(map);
 }
