@@ -17,8 +17,8 @@ Read this section first. The sections after it are in the order of the work, and
 - The tools `editText`, `replaceRange`, `writeDocument` and `readDocument`. The document is in the first LLM call, and a tool call starts when the model has written it (section 13).
 - The review of a user reaches the agent: the decision is in the tool output of the chat (section 14.1).
 - Guards that keep suggestions out of the main document (section 14.7).
-- Two modes behind one interface for the tools (section 15): the proposal mode (all sections before 15), and a Yjs 14 mode where the agent writes into a suggestion document. The Yjs 14 mode has the host side and the review functions. It has no editor extension, no example and no browser check.
-- 121 tests with a mock model, a test with random concurrent edits that runs on the two modes (sections 14.10 and 15.4), and four tests that are known failures (below). Live measurements with Haiku 5.5 (sections 9, 13.3 to 13.5).
+- Two modes behind small interfaces (sections 15 and 16): the proposal mode (all sections before 15), and a Yjs 14 mode where the agent writes into a suggestion document. The two have a host side, an editor extension, and a mode in the chat example, examined in a browser.
+- 127 tests with a mock model, a test with random concurrent edits that runs on the two modes (sections 14.10 and 15.4), and four tests that are known failures (below). Live measurements with Haiku 5.5 (sections 9, 13.3 to 13.5).
 
 **Decisions of 11 November**
 
@@ -41,7 +41,7 @@ Read this section first. The sections after it are in the order of the work, and
 **Not done** (in the order that I recommend)
 
 1. Done (section 14.10): a test with random concurrent edits for a session.
-2. Done for the host side (section 15): the Yjs 14 mode. What it does not have is in section 15.6. The first item there is the editor side: the extension mixes the chat with the display of a proposal, and must be split before the Yjs 14 mode can have a chat in an editor.
+2. Done (sections 15 and 16): the Yjs 14 mode, with its editor side and the example. What it does not have is in section 16.5.
 3. A block that two tool calls change shows as one suggestion (section 8.1).
 4. Colors and alignment: an HTML format for the tools, or a tool for props (section 9.3).
 5. The selection and the cursor in the first prompt.
@@ -748,9 +748,9 @@ It does not answer the question for the editor side. That is the largest part of
 
 ### 15.6 What the Yjs 14 mode does not have
 
-1. **The editor side.** There is no extension for the chat, the AI menu and the cards of the tool calls in Yjs 14 mode. `DocumentAgentExtension` must be split first: the chat and the run state (shared), and the display and the review of a proposal (proposal mode), with a review interface that the Yjs 14 mode also implements (`createSuggestionReview` has its shape: the tool calls with their state, accept and reject of one call or of all).
-2. **No example, no server route, no provider for the two documents, and no check in a browser.** All tests are in jsdom, with Y.Docs that the test syncs.
-3. **A public entry point.** The Yjs 14 code needs its own entry point: an app on Yjs 13 must not load `@y/y`.
+1. **The editor side.** Done after this section: see section 16.
+2. **An example, a server route and a check in a browser.** Done: section 16. A provider for a production host is not done.
+3. **A public entry point.** Done: `@blocknote/xl-ai/yjs14` and `@blocknote/xl-ai/yjs14-server`.
 4. **A user who types in a suggested block.** In the test, a user changes only blocks of the main document. Text in a block that is a suggestion becomes a part of the suggestion (the review of 5 November), and goes with a reject.
 5. **Suggestions of users in the same suggestion document.** The review accepts and rejects only the tool calls of the agent. It was not tested with other suggestions in S.
 6. **Performance.** An accept encodes the full state of S, a step of the agent compares the full document as JSON, and the host keeps one copy of the document for each version of a run.
@@ -762,3 +762,78 @@ It does not answer the question for the editor side. That is the largest part of
 2. Two reviewers in Yjs 14 mode: is "the reject is the result" acceptable, or must a host give the decisions an order, as the accept guard does in proposal mode? An order through a host removes the second and the first known problem, but the mode is then not distributed for the review. **Your decision (11 November): it is acceptable.** No host gives the decisions an order. The text that two rejects write two times is not a part of this decision: it stays a defect that needs the change of item 3.
 3. The reject of a suggested deletion (15.3, items 2 and 3) needs a change in Yjs to be correct for two reviewers: a suggested deletion that a reject can reverse.
 4. Still open from before: does a reject of a tool call in proposal mode also remove the later changes to the blocks that the call added (section 14.10)? In Yjs 14 mode it does: the block goes with all its content. **You want to discuss this later (11 November).**
+
+## 16. The editor side of the two modes (11 November)
+
+Your decision: do the editor side, in three steps. Commits `3a84db1cf` to `0741d62b7`.
+
+### 16.1 The split of the extension
+
+`DocumentAgentExtension` did three jobs in one file. Now:
+
+- **`client/agentExtension.ts`** (shared): the chat, `invoke`, `follow`, `abort`, the states, the AI menu, and the lock of the editor. `createAgentExtension` makes the extension of a mode.
+- **`ClientMode`**: what a mode gives. The data of a new review, how the editor shows the changes, accept and reject of one tool call or of all, the main document, and if the editor must be read-only.
+- **`client/DocumentAgentExtension.ts`** (proposal mode): the copy of the proposal, the display as suggestions, the guards and the accept guard. This code did not change: the state and the functions of the extension are the same, and no test changed.
+- **`yjs14/suggestionAgentExtension.ts`** (Yjs 14 mode): 114 lines. It has no copy of the changes and no display of its own. Its state follows the tool calls of the suggestion document. `createSuggestionCollaboration` gives the options of the editor.
+- **The menu and the cards** (`DocumentAgentMenu`, `DocumentAgentReview`) and the chat panel of the example are the same components for the two modes. They get the agent of the editor with `documentAgentOf(editor)`.
+
+### 16.2 What a review feature costs for each mode
+
+This was the open part of the maintainability question. Three features show it:
+
+| Feature | Shared | Proposal mode | Yjs 14 mode |
+| --- | --- | --- | --- |
+| The link between a card and its changes in the editor (the pointer marks them, a click scrolls) | The component | `suggestionSelector`, `toolCallOfElement`, `describeToolCall`: about 45 lines | The same three functions: about 20 lines |
+| A card shows the decision of each user | The component, and `recordReview` | The review routes of the host (they existed) | 5 lines in the editor mode, 15 lines in the host |
+| A user can type during the review | Nothing | Not possible now: the display is a copy of the document | No code: the mode does not lock the editor |
+
+Four things exist only in proposal mode, and did not need a branch in shared code: the replay animation, the accept guard, the state `out-of-sync`, and the end of an empty review by the app.
+
+Code lines after the split (without comments and tests):
+
+| Part | Lines |
+| --- | --- |
+| Shared, host | 1,105 |
+| Shared, editor | 581 |
+| Proposal mode, host | 1,110 |
+| Proposal mode, editor | 745 |
+| Yjs 14 mode, host | 479 |
+| Yjs 14 mode, editor | 114 |
+
+No shared file imports a mode, and no mode imports the other.
+
+**My answer to the maintainability question, now for the two sides:** yes. A review feature was one shared component plus a small function for each mode. The cost that stays is not the code: it is that the modes behave differently for a user (the lock, the order of decisions, the known failures of 15.4), and each of these needs a decision and a test for each mode.
+
+### 16.3 The example and the server
+
+- **Entry points:** `@blocknote/xl-ai/yjs14` (an editor) and `@blocknote/xl-ai/yjs14-server` (a host). An app on Yjs 13 does not load `@y/y`.
+- **The server** (`packages/xl-ai-server`): `routes/yjs14Relay.ts` is a relay with two Y.Docs for each room. The session routes serve a source of the Yjs 14 mode with the same routes for the chat and the runs. That source has no routes for the review.
+- **The example** `09-ai/10-document-agent-chat`: the mode "Yjs 14 suggestions" (`?mode=yjs14`).
+- In this demo, the agent uses the Y.Docs of the relay in the same process. A production host has its own replica through a provider.
+
+### 16.4 What I examined in a browser (Chromium, Haiku 5.5)
+
+Yjs 14 mode:
+
+- A request in the chat: the editor shows the changes as suggestions for each word ("sof**t**ware", "program~~m~~s", "avail**a**ble"), and the chat has one card for each tool call with its reason.
+- The user types in the editor during the review. The text is in the main document.
+- An accept of one card, and a reject of the other. The review ends after the last decision.
+- A second tab on the same document: it has the document and the chat of the server.
+- A run from outside the editors with two tabs open: the two tabs show the suggestion and the card. An accept in one tab shows in the other tab, with "Accepted" on the card.
+
+Proposal mode (JSON session), after the split: a request, two cards, and "Accept all".
+
+The browser found two faults that the tests did not find. The two are fixed:
+
+1. **The write of a tool call record threw on the server and in a browser** (`9516a3b0d`). The record had its Yjs items as binary data in an attribute object. Yjs 14 freezes such an object, except in a test run, and binary data cannot freeze. The change of the tool call was then in the suggestion document without a record. The record now has the items as binary attributes, and a test examines the kinds of the stored values.
+2. **A card did not show the decision of a different user** (`04966eb97`): it showed "Closed". The decisions are in the suggestion document, and the chat of the other editor did not have them.
+
+One more observation, not a fault of a mode: in the first run, Haiku gave `replaceRange` a range from the heading into the next paragraph. This belongs to the eval suite of the tool instructions.
+
+### 16.5 What the Yjs 14 mode does not have
+
+1. **The AI menu in Yjs 14 mode** is not examined in a browser: the example uses the chat. The menu component is shared.
+2. **The replay animation.** The changes arrive through the Yjs sync, thus the animation needs a different start.
+3. **A provider and a store for a production host.** The relay of the demo keeps the two documents in memory.
+4. **A tool that throws after its write** leaves a change in the suggestion document without a record. No user can accept or reject it as a tool call.
+5. Still open from 15.6: a user who types in a suggested block, suggestions of users in the same suggestion document, performance, and conflicts between a user and the agent in the test matrix.
