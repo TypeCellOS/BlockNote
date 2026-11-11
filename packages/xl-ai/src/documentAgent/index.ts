@@ -38,6 +38,7 @@ export {
   createProposal,
   forkPointOf,
   headlessEditorFactory,
+  isProposalShape,
   type HeadlessEditorOptions,
   openProposal,
   replayProposal,

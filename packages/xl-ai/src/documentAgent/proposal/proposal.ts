@@ -54,6 +54,19 @@ export function createProposal(origin: readonly LensBlock[]): Proposal {
 }
 
 /**
+ * Returns true if the value has the shape of a proposal. This examines
+ * only the shape: the replay of a proposal examines the hash of its last
+ * batch (see {@link replayProposal}).
+ */
+export function isProposalShape(value: unknown): value is Proposal {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+  const { origin, batches } = value as Partial<Proposal>;
+  return Array.isArray(origin) && Array.isArray(batches);
+}
+
+/**
  * The fork point F: the version of the main document that the proposal
  * merges from. It is the origin, until a rebase or an accept moves it.
  */

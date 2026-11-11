@@ -1,10 +1,14 @@
 import { BlockNoteEditor, type PartialBlock } from "@blocknote/core";
 import { withCollaboration } from "@blocknote/core/yjs";
+import type { ChatTransport, UIMessage } from "ai";
 import { afterEach, describe, expect, it } from "vite-plus/test";
 import * as Y from "yjs";
 
 import { AIExtension } from "../../AIExtension.js";
 import { createProposal, headlessEditorFactory } from "../proposal/proposal.js";
+import { createSessionHost } from "../sessions/sessionHost.js";
+import { createInMemoryDocumentStore } from "../stores/documentSource.js";
+import { createInMemoryProposalStore } from "../stores/proposalStore.js";
 import {
   initialDocument,
   lastToolResult,
@@ -478,5 +482,232 @@ describe("a proposal that a server made", () => {
       error: "out-of-sync",
     });
     expect(hasSuggestions(editor.prosemirrorState.doc)).toBe(false);
+  });
+});
+
+describe("the chat of the editor", () => {
+  it("stays after a review: a later run has the messages of the earlier runs", async () => {
+    const { model, prompts } = scriptedModel([
+      {
+        toolCalls: [
+          {
+            toolName: "editText",
+            input: { old: "First", new: "Opening", reason: "A better word." },
+          },
+        ],
+      },
+      { text: "I changed one word." },
+      { text: "I changed the first word." },
+    ]);
+    const editor = BlockNoteEditor.create({
+      initialContent: initialDocument(),
+      trailingBlock: false,
+      extensions: [
+        AIExtension(),
+        DocumentAgentExtension({
+          transport: createInProcessTransport({ model }),
+        }),
+      ],
+    });
+    editor.mount(document.createElement("div"));
+    mounted.push(editor);
+    const agent = editor.getExtension(DocumentAgentExtension)!;
+
+    await agent.invoke("Improve the text.");
+    agent.acceptAll();
+    await agent.invoke("What did you change?");
+
+    expect(agent.getChat().messages.map((message) => message.role)).toEqual([
+      "user",
+      "assistant",
+      "user",
+      "assistant",
+    ]);
+    // The model of the second run got the first request and its answer.
+    expect(prompts[2].map((message) => message.role)).toEqual([
+      "system",
+      "user",
+      "assistant",
+      "tool",
+      "assistant",
+      "user",
+    ]);
+    // The second run changed nothing: its proposal has no suggestion.
+    expect(suggestionsOf(editor)).toEqual([]);
+  });
+});
+
+describe("an editor of a host that keeps the proposal (a session)", () => {
+  const firstEdit: ScriptedStep = {
+    toolCalls: [
+      {
+        toolName: "editText",
+        input: { old: "First", new: "Opening", reason: "A better word." },
+      },
+    ],
+  };
+  const secondEdit: ScriptedStep = {
+    toolCalls: [
+      {
+        toolName: "editText",
+        input: { old: "Second", new: "Closing", reason: "It is the end." },
+      },
+    ],
+  };
+
+  /**
+   * A session host in this process, and an editor with a transport to it.
+   * The transport is what a server route does: a message of the chat
+   * starts a run, and `reconnectToStream` gives the run in progress.
+   */
+  function createSessionEditor(
+    script: Script,
+    modelOptions?: Parameters<typeof scriptedModel>[1],
+  ) {
+    const documents = createInMemoryDocumentStore();
+    documents.write("doc", initialDocument());
+    const host = createSessionHost({
+      model: scriptedModel(script, modelOptions).model,
+      createEditor: headlessEditorFactory(),
+      proposals: createInMemoryProposalStore(),
+      readMain: (documentId) => documents.read(documentId),
+    });
+    const transport: ChatTransport<UIMessage> = {
+      resumeStreamIsReplay: true,
+      async sendMessages({ messages }) {
+        const message = messages.at(-1);
+        const part = message?.parts[0];
+        const started = await host.startRun("doc", {
+          prompt: part?.type === "text" ? part.text : "",
+          origin: "user",
+          messageId: message?.id,
+        });
+        if (started.error !== undefined) {
+          throw new Error(started.error);
+        }
+        return started.run.follow();
+      },
+      async reconnectToStream() {
+        return host.activeRun("doc")?.follow() ?? null;
+      },
+    };
+    const editor = BlockNoteEditor.create({
+      initialContent: initialDocument(),
+      trailingBlock: false,
+      extensions: [AIExtension(), DocumentAgentExtension({ transport })],
+    });
+    editor.mount(document.createElement("div"));
+    mounted.push(editor);
+    const agent = editor.getExtension(DocumentAgentExtension)!;
+    return { editor, agent, host };
+  }
+
+  function proposalOf(agent: { store: { state: unknown } }) {
+    return (agent.store.state as { review?: { proposal: unknown } }).review
+      ?.proposal;
+  }
+
+  it("shows a run that the user starts, with the proposal of the host", async () => {
+    const { editor, agent, host } = createSessionEditor([
+      firstEdit,
+      { text: "I changed one word." },
+    ]);
+
+    await agent.invoke("Improve the start.");
+
+    expect(reviewOf(agent).status).toBe("reviewing");
+    expect(suggestionsOf(editor)).toEqual([
+      ["deletion", 1, "First"],
+      ["insertion", 1, "Opening"],
+    ]);
+    expect(proposalOf(agent)).toEqual((await host.snapshot("doc")).proposal);
+  });
+
+  it("follows a run that started outside the editor, with the same display and the same chat", async () => {
+    let release: () => void = () => undefined;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const { editor, agent, host } = createSessionEditor(
+      [firstEdit, { text: "I changed one word." }],
+      { beforeToolCall: () => gate },
+    );
+    // A caller outside the editor starts a run, for example a script.
+    const started = await host.startRun("doc", {
+      prompt: "Improve the start.",
+      origin: "external",
+    });
+
+    const followed = agent.follow();
+    release();
+
+    expect(await followed).toBe(true);
+    expect(started.error).toBeUndefined();
+    expect(reviewOf(agent)).toEqual({
+      status: "reviewing",
+      answer: "I changed one word.",
+      toolCalls: [["call-1", "A better word.", "open"]],
+    });
+    expect(suggestionsOf(editor)).toEqual([
+      ["deletion", 1, "First"],
+      ["insertion", 1, "Opening"],
+    ]);
+    // The chat of the editor has the message of the agent, from the stream.
+    expect(agent.getChat().messages.map((message) => message.role)).toEqual([
+      "assistant",
+    ]);
+    // The review is the same as for a run of this client.
+    agent.acceptAll();
+    expect(textsOf(editor.document)).toEqual([
+      "Title",
+      "Opening paragraph.",
+      "Second paragraph.",
+    ]);
+  });
+
+  it("takes the proposal of the host when it follows a later run", async () => {
+    let release: () => void = () => undefined;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const { editor, agent, host } = createSessionEditor(
+      [firstEdit, { text: "Done." }, secondEdit, { text: "Done again." }],
+      {
+        beforeToolCall: (toolCallId) =>
+          toolCallId === "call-2" ? gate : Promise.resolve(),
+      },
+    );
+    // The first run ends before this editor follows: the editor has no
+    // copy of the proposal.
+    const first = await host.startRun("doc", {
+      prompt: "Improve the start.",
+      origin: "external",
+    });
+    if (first.error !== undefined) {
+      throw new Error(first.error);
+    }
+    await first.run.done;
+    await host.startRun("doc", { prompt: "Improve the end.", origin: "user" });
+
+    const followed = agent.follow();
+    release();
+
+    expect(await followed).toBe(true);
+    expect(suggestionsOf(editor)).toEqual([
+      ["deletion", 1, "First"],
+      ["insertion", 1, "Opening"],
+      ["deletion", 2, "Second"],
+      ["insertion", 2, "Closing"],
+    ]);
+    expect(proposalOf(agent)).toEqual((await host.snapshot("doc")).proposal);
+  });
+
+  it("does not change the state if there is no run to follow", async () => {
+    const { editor, agent } = createSessionEditor([]);
+
+    expect(await agent.follow()).toBe(false);
+
+    expect(agent.store.state).toEqual({ status: "idle" });
+    expect(editor.isEditable).toBe(true);
   });
 });

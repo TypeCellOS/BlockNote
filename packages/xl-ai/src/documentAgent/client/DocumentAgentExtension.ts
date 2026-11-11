@@ -10,7 +10,10 @@ import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
 
 import { AIExtension } from "../../AIExtension.js";
-import { DOCUMENT_BATCHES_CHUNK } from "../agent/earlyToolCalls.js";
+import {
+  DOCUMENT_BATCHES_CHUNK,
+  DOCUMENT_PROPOSAL_CHUNK,
+} from "../agent/earlyToolCalls.js";
 import { updateDocument } from "../../api/v2/index.js";
 import {
   blockOf,
@@ -22,6 +25,7 @@ import {
 } from "../proposal/derive.js";
 import {
   createProposal,
+  isProposalShape,
   headlessEditorFactory,
   replayProposal,
   withBatch,
@@ -125,7 +129,26 @@ export const DocumentAgentExtension = createExtension(
   }: ExtensionOptions<DocumentAgentExtensionOptions | undefined>) => {
     const store = createStore<DocumentAgentState>({ status: "idle" });
     const createEditor = headlessEditorFactory({ schema: editor.schema });
+    /** The chat of this editor. It stays for all runs and all proposals. */
     let chat: Chat<UIMessage> | undefined;
+    /**
+     * The number of the run in progress. A reset adds one: a run that ends
+     * after a reset must not change the state.
+     */
+    let runNumber = 0;
+    /** The number of chunks of all runs. It tells if a followed run had a stream. */
+    let chunkCount = 0;
+
+    function getChat(): Chat<UIMessage> {
+      const transport = options?.transport;
+      if (transport === undefined) {
+        throw new Error("The document agent has no transport");
+      }
+      chat ??= new Chat<UIMessage>({
+        transport: observeTransport(transport, onChunk),
+      });
+      return chat;
+    }
     /** The suggestion IDs of the batches that arrived last: the replay animation shows them. */
     let newest = new Set<number>();
 
@@ -287,8 +310,27 @@ export const DocumentAgentExtension = createExtension(
       setProposal(proposal);
     }
 
+    /**
+     * Takes the proposal that a host sends at the start of a run as the
+     * copy of this client. A host that keeps the proposal sends it: the
+     * proposal can have batches that this client does not have.
+     */
+    function adoptProposal(data: unknown) {
+      const proposal: unknown = (data as { proposal?: unknown } | null)
+        ?.proposal;
+      if (
+        !isProposalShape(proposal) ||
+        replayProposal(createEditor, proposal).error !== undefined
+      ) {
+        fail("out-of-sync");
+        return;
+      }
+      setProposal(proposal);
+    }
+
     /** Handles one chunk of the UI message stream of a run. */
     function onChunk(chunk: UIMessageChunk) {
+      chunkCount++;
       const state = store.state;
       if (state.status !== "running") {
         return;
@@ -297,6 +339,8 @@ export const DocumentAgentExtension = createExtension(
         applyBatches(batchesOf(chunk.output));
       } else if (chunk.type === DOCUMENT_BATCHES_CHUNK) {
         applyBatches(batchesOf(chunk.data));
+      } else if (chunk.type === DOCUMENT_PROPOSAL_CHUNK) {
+        adoptProposal(chunk.data);
       } else if (chunk.type === "text-delta") {
         store.setState({
           ...state,
@@ -314,13 +358,67 @@ export const DocumentAgentExtension = createExtension(
 
     /** Ends the review: the editor shows the main document, without a proposal. */
     function reset() {
-      const running = chat;
-      chat = undefined;
+      runNumber++;
       newest = new Set();
-      void running?.stop();
+      // The chat stays, with its messages: only its stream stops.
+      void chat?.stop();
       store.setState({ status: "idle" });
       clearSuggestions(editor);
       aiMenu()?.closeAIMenu();
+    }
+
+    /**
+     * Starts a run: the state is `running`, with the review that the run
+     * continues, or with a new proposal of the current document. Returns
+     * the number of the run, or `undefined` if a run is in progress.
+     */
+    function beginRun(): number | undefined {
+      const state = store.state;
+      if (state.status === "running") {
+        return undefined;
+      }
+      const review: Review =
+        state.status === "idle"
+          ? {
+              proposal: createProposal(editor.document),
+              toolCalls: [],
+              suggestionCount: 0,
+              answer: "",
+            }
+          : { ...state.review, answer: "" };
+      store.setState({ status: "running", review });
+      // A run needs the AI menu: it locks the editor, and it has the items
+      // that accept and reject. The AI menu starts a run with the menu
+      // open. A chat and a followed run do not.
+      const ai = aiMenu();
+      if (ai !== undefined && ai.store.state.aiMenuState === "closed") {
+        ai.openAIMenuAtBlock(editor.getTextCursorPosition().block.id);
+      }
+      ai?.setAIResponseStatus("thinking");
+      return ++runNumber;
+    }
+
+    /** Ends the run with the number: the state is `reviewing`, or `error`. */
+    function endRun(run: number) {
+      const after = store.state;
+      if (after.status !== "running" || runNumber !== run) {
+        // The run failed, or the user closed the review.
+        return;
+      }
+      if (getChat().status === "error") {
+        fail("request-failed");
+        return;
+      }
+      // The replay animation is only for a run: a later display of the
+      // same suggestions must not show it again. A transaction without
+      // steps makes the view compute its decorations again.
+      newest = new Set();
+      editor.exec((state, dispatch) => {
+        dispatch?.(state.tr.setMeta("addToHistory", false));
+        return true;
+      });
+      store.setState({ status: "reviewing", review: after.review });
+      aiMenu()?.setAIResponseStatus("user-reviewing");
     }
 
     return {
@@ -355,59 +453,66 @@ export const DocumentAgentExtension = createExtension(
       /**
        * Sends a prompt of the user to the agent. The first prompt starts a
        * proposal from the current document. A later prompt continues the
-       * proposal in review.
+       * proposal in review. The request has the copy of the proposal of
+       * this client: a host that keeps no proposal runs on it.
        */
       async invoke(prompt: string) {
-        const transport = options?.transport;
-        if (transport === undefined) {
-          throw new Error("The document agent has no transport");
-        }
-        const state = store.state;
-        if (state.status === "running") {
+        const current = getChat();
+        const run = beginRun();
+        if (run === undefined) {
           return;
         }
-        const review: Review =
+        const state = store.state;
+        const body: DocumentAgentRequestBody | undefined =
           state.status === "idle"
-            ? {
-                proposal: createProposal(editor.document),
-                toolCalls: [],
-                suggestionCount: 0,
-                answer: "",
-              }
-            : { ...state.review, answer: "" };
-        store.setState({ status: "running", review });
-        aiMenu()?.setAIResponseStatus("thinking");
-
-        chat ??= new Chat<UIMessage>({
-          transport: observeTransport(transport, onChunk),
-        });
-        const current = chat;
-        const body: DocumentAgentRequestBody = { proposal: review.proposal };
+            ? undefined
+            : { proposal: state.review.proposal };
         await current.sendMessage(
           { role: "user", parts: [{ type: "text", text: prompt }] },
           { body },
         );
-
-        const after = store.state;
-        if (after.status !== "running" || chat !== current) {
-          // The run failed, or the user closed the review.
-          return;
-        }
-        if (current.status === "error") {
-          fail("request-failed");
-          return;
-        }
-        // The replay animation is only for a run: a later display of the
-        // same suggestions must not show it again. A transaction without
-        // steps makes the view compute its decorations again.
-        newest = new Set();
-        editor.exec((state, dispatch) => {
-          dispatch?.(state.tr.setMeta("addToHistory", false));
-          return true;
-        });
-        store.setState({ status: "reviewing", review: after.review });
-        aiMenu()?.setAIResponseStatus("user-reviewing");
+        endRun(run);
       },
+
+      /**
+       * Follows the run in progress of this document that this client did
+       * not start: a run of another editor, or a run that a caller outside
+       * the editors started. The chat connects to the stream of the run
+       * (`reconnectToStream` of the transport). The display and the review
+       * are the same as for a run of this client.
+       *
+       * Returns false if the transport has no run in progress.
+       */
+      async follow(): Promise<boolean> {
+        const current = getChat();
+        const before = store.state;
+        const menuWasClosed = aiMenu()?.store.state.aiMenuState === "closed";
+        const run = beginRun();
+        if (run === undefined) {
+          return false;
+        }
+        const chunksBefore = chunkCount;
+        await current.resumeStream();
+        if (chunkCount === chunksBefore && runNumber === run) {
+          // No stream: there is no run. The state is as before.
+          store.setState(before);
+          if (menuWasClosed) {
+            aiMenu()?.closeAIMenu();
+          } else if (before.status !== "idle") {
+            aiMenu()?.setAIResponseStatus("user-reviewing");
+          }
+          return false;
+        }
+        endRun(run);
+        return true;
+      },
+
+      /**
+       * The chat of this editor (the `Chat` of the AI SDK), with the
+       * messages of all runs. A chat window shows it, for example with
+       * `useChat({ chat })`.
+       */
+      getChat,
 
       /** Stops the run. The batches that arrived stay for the review. */
       async abort() {
