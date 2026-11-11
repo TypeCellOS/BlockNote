@@ -662,6 +662,17 @@ export const DocumentAgentExtension = createExtension(
         options?.onClose?.("rejected", state.review.proposal);
       },
 
+      /**
+       * Ends the review without a decision of this user: the editor shows
+       * the main document. An app uses this when the proposal closed in a
+       * different place, for example in another editor of the document.
+       */
+      dismiss() {
+        if (store.state.status !== "idle") {
+          reset();
+        }
+      },
+
       /** Accepts the changes of one tool call. The other suggestions stay. */
       acceptToolCall(toolCallId: string) {
         const state = store.state;
