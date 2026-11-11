@@ -23,21 +23,9 @@ export function cellRows(table: LensTableContent): LensTableCell[][] {
   return table.rows.map((row) => row.cells.map(asCell));
 }
 
-function asCell(cell: LensInlineContent[] | LensTableCell): LensTableCell {
-  return Array.isArray(cell)
-    ? { type: "tableCell", props: { ...CELL_PROPS }, content: cell }
-    : cell;
-}
-
 /** A cell without text and without a style. */
 export function emptyCell(): LensTableCell {
   return asCell([]);
-}
-
-function spanOf(value: unknown): number {
-  return typeof value === "number" && Number.isInteger(value) && value >= 1
-    ? value
-    : 1;
 }
 
 /** Returns true if a cell of the table covers more than one position. */
@@ -96,27 +84,6 @@ export function gridOf(
 }
 
 /**
- * Marks the positions from `column` to `column + colspan - 1` as taken in
- * each of `rows` (the rows that a cell covers). Returns false if a position
- * is taken already: two cells cover it.
- */
-function coverPositions(
-  rows: readonly Set<number>[],
-  column: number,
-  colspan: number,
-): boolean {
-  for (const taken of rows) {
-    for (let c = column; c < column + colspan; c++) {
-      if (taken.has(c)) {
-        return false;
-      }
-      taken.add(c);
-    }
-  }
-  return true;
-}
-
-/**
  * The table without merged cells: each cell covers one position, and each
  * position that a merged cell covered gets an empty cell. A format without
  * merged cells (markdown, plain text) shows a table in this form. If the
@@ -150,4 +117,37 @@ export function withoutMergedCells(table: LensTableContent): LensTableContent {
       cells: cells.map((cell) => cell ?? emptyCell()),
     })),
   };
+}
+
+function asCell(cell: LensInlineContent[] | LensTableCell): LensTableCell {
+  return Array.isArray(cell)
+    ? { type: "tableCell", props: { ...CELL_PROPS }, content: cell }
+    : cell;
+}
+
+function spanOf(value: unknown): number {
+  return typeof value === "number" && Number.isInteger(value) && value >= 1
+    ? value
+    : 1;
+}
+
+/**
+ * Marks the positions from `column` to `column + colspan - 1` as taken in
+ * each of `rows` (the rows that a cell covers). Returns false if a position
+ * is taken already: two cells cover it.
+ */
+function coverPositions(
+  rows: readonly Set<number>[],
+  column: number,
+  colspan: number,
+): boolean {
+  for (const taken of rows) {
+    for (let c = column; c < column + colspan; c++) {
+      if (taken.has(c)) {
+        return false;
+      }
+      taken.add(c);
+    }
+  }
+  return true;
 }
