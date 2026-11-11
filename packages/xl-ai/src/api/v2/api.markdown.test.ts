@@ -767,10 +767,11 @@ describe("markdown, blocks that markdown shows as other blocks", () => {
       { id: "z", type: "paragraph", content: "Zulu" },
     ]);
   }
-  const fileText = "[report.pdf](https://example.com/report.pdf)\n\nQ3\n\n";
+  const fileText =
+    '<figure><a href="https://example.com/report.pdf">report.pdf</a><figcaption>Q3</figcaption></figure>\n\n';
   const videoText = "![clip.mp4](https://example.com/clip.mp4)\n\n";
 
-  it("removes a file block if the text removes its lines", () => {
+  it("removes a file block if the text removes its figure", () => {
     const editor = createMediaEditor();
     const text = getDocumentText(editor, format);
 
@@ -785,7 +786,7 @@ describe("markdown, blocks that markdown shows as other blocks", () => {
     expect(editor.document.map((block) => block.id)).toEqual(["a", "v", "z"]);
   });
 
-  it("moves a file block with its props if the text moves its lines", () => {
+  it("moves a file block with its props if the text moves its figure", () => {
     const editor = createMediaEditor();
     const text = getDocumentText(editor, format);
 
@@ -825,7 +826,9 @@ describe("markdown, blocks that markdown shows as other blocks", () => {
     expect(editor.document.map((block) => block.id)).toEqual(["a", "f", "z"]);
   });
 
-  it("replaces a file block with the paragraphs of the text if the text changes its caption, with a warning", () => {
+  it("changes the caption of a file block if the text changes it", () => {
+    // The markdown of a file block with a caption is one figure (core). Thus,
+    // the change of the caption merges into the block as a prop.
     const editor = createMediaEditor();
     const text = getDocumentText(editor, format);
 
@@ -833,17 +836,21 @@ describe("markdown, blocks that markdown shows as other blocks", () => {
       updateDocument(editor, {
         base: "current",
         format,
-        text: replaceOnce(text, "\n\nQ3\n\n", "\n\nQ3, final\n\n"),
+        text: replaceOnce(
+          text,
+          "<figcaption>Q3</figcaption>",
+          "<figcaption>Q3, final</figcaption>",
+        ),
       }),
     );
 
-    expect(update.warnings).toEqual([
-      { type: "multi-part-block-replaced", id: "f" },
-    ]);
-    // The paragraph of the largest part keeps the ID, without the data of
-    // the file block.
-    expect(editor.getBlock("f")?.type).toBe("paragraph");
-    expect(getDocumentText(editor, format)).toContain("Q3, final");
+    expect(update.warnings).toEqual([]);
+    expect(editor.getBlock("f")?.type).toBe("file");
+    expect(editor.getBlock("f")?.props).toMatchObject({
+      url: "https://example.com/report.pdf",
+      name: "report.pdf",
+      caption: "Q3, final",
+    });
   });
 });
 
