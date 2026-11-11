@@ -834,7 +834,7 @@ One more observation, not a fault of a mode: in the first run, Haiku gave `repla
 
 1. **The AI menu in Yjs 14 mode.** Done after this section: I examined it in a browser. The menu opens from the slash menu, runs the prompt, and has "Accept" and "Revert" after the run. An accept in the menu accepts all open tool calls and ends the review. One change was necessary (`afterReset` of a mode): if a review ends without a decision (the AI menu closes), the suggestions stay in the document, and the review continues. A review also continues after a reload of the page, because it is in the suggestion document. The flag `menu=1` of the example opens the AI menu for a run from the chat.
 2. **The replay animation.** The changes arrive through the Yjs sync, thus the animation needs a different start. The code of the animation is now shared (`client/replayAnimation.ts`): a mode tells which nodes are new. The Yjs 14 mode does not use it yet.
-3. **A provider and a store for a production host.** The relay of the demo keeps the two documents in memory.
+3. **A provider and a store for a production host.** Done in part after this section: see section 16.7. The relay of the demo keeps the two documents in memory.
 4. **A tool that throws after its write** leaves a change in the suggestion document without a record. No user can accept or reject it as a tool call.
 5. Still open from 15.6: a user who types in a suggested block, suggestions of users in the same suggestion document, performance, and conflicts between a user and the agent in the test matrix.
 
@@ -848,6 +848,25 @@ Your question: does the reveal with `clip-path` work for text on more than one l
 The fix (`client/replayAnimation.ts`): new text has one decoration for each word, with its own delay, and the animation applies no state after its end. A word is on one line. In a run in a browser, an insertion over 9 lines had 91 parts, each on one line.
 
 The content still goes into the document in one step. The old engine writes its steps one after the other with timers (`prosemirror/agent.ts`): the document agent does not do this.
+
+### 16.7 The provider and the stores of a host (11 November)
+
+Your decision: a host must not know the Yjs provider. No mode had a provider or a store for a production host before: the proposal mode has interfaces with implementations in memory and for the demo (section 12).
+
+- **The provider** (Yjs 14 mode): `openSuggestion` of the host gives a replica of the suggestion document. An app connects its Yjs provider there. The result can have a `close` function. The host calls it at the end of a run, after a read of the session, and if a run does not start. A test uses a provider that syncs after a delay.
+- **The chat store** (the two modes): `stores/chatStore.ts`, with `load` and `update`. The default is a store in memory. An app gives a store on its database: the chat then stays after a restart of the host. `update` applies a change to the newest chat, thus two processes do not lose a message.
+- **The reject guard** (Yjs 14 mode): a reject needs the text of each suggested deletion in the suggestion document of the reviewer. The guard examined only the flag `gc` of that replica. A replica with a state from a server that collects garbage does not have the text, and the reject removed it from the main document. The guard now examines the content, and throws.
+
+What a production host must do itself:
+
+1. Give each replica of a suggestion document without garbage collection, also on its collaboration server.
+2. Apply each update of the main document to the suggestion document (`keepSuggestionCurrent`), if no editor is open that does this.
+3. Store the two Y.Docs: this is the work of its collaboration server.
+
+Not done:
+
+- A store for the streams of the runs. A run is in the memory of one process: an editor can follow it only through that process.
+- A proposal store on a database, for the proposal mode.
 
 ## 17. For later: the Yjs 14 mode as the only mode (11 November)
 
