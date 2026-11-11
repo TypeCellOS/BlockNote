@@ -401,8 +401,30 @@ describe("the review of the changes of an agent in Yjs 14 mode", () => {
     // Without this guard, the reject removes "F" and "rst" of "First" from
     // the main document.
     expect(() => review.rejectToolCall("call-1")).toThrow(
-      "without garbage collection",
+      "needs the text of each suggested deletion",
     );
+    expect(textsOfDoc(host.main)[1]).toBe("First paragraph.");
+  });
+
+  it("refuses a reject on a replica that comes from a server with garbage collection", async () => {
+    // The replica of the user has no garbage collection, but its state
+    // comes from a collaboration server that has it: the text of the
+    // suggested deletions is not there.
+    const host = createHost();
+    await twoCalls(host);
+    const server = new Y.Doc({ isSuggestionDoc: true });
+    Y.applyUpdate(server, Y.encodeStateAsUpdate(host.suggestion));
+    const suggestion = new Y.Doc({ isSuggestionDoc: true, gc: false });
+    Y.applyUpdate(suggestion, Y.encodeStateAsUpdate(server));
+    const review = createSuggestionReview({ main: host.main, suggestion });
+
+    expect(() => review.rejectToolCall("call-1")).toThrow(
+      "needs the text of each suggested deletion",
+    );
+    expect(textsOfDoc(host.main)[1]).toBe("First paragraph.");
+    // An accept does not need the text of a deletion.
+    expect(review.acceptToolCall("call-1")).toEqual({});
+    expect(textsOfDoc(host.main)[1]).toBe("Opening paragraph.");
   });
 
   it.fails("KNOWN: two users who reject one suggested deletion at the same time write its text two times", async () => {

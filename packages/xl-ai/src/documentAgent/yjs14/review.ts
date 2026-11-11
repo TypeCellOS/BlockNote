@@ -38,7 +38,10 @@ export type DecisionResult =
  * - A reject undoes the items of the tool call in S, and applies the
  *   result to M. Yjs cannot put back a deleted item: the undo of a
  *   suggested deletion inserts a copy of the text. Thus, two users who
- *   reject the same deletion at the same time insert two copies.
+ *   reject the same deletion at the same time insert two copies. The copy
+ *   comes from the text of the deleted item in S: each replica of S must
+ *   keep it (`gc: false`). A reject throws if this replica does not have
+ *   the text.
  */
 export type SuggestionReview = {
   /** The tool calls of the agent, in the sequence of the calls. */
@@ -79,12 +82,11 @@ export function createSuggestionReview(options: {
   }
 
   function reject(record: ToolCallRecord) {
-    if (suggestion.gc) {
-      // With garbage collection, the suggestion document does not have the
-      // text of a suggested deletion, and the undo cannot put it back: the
-      // reject would remove that text from the main document.
+    if (!hasContentOf(suggestion, record.ids.deletes)) {
+      // The undo cannot put back a text that the suggestion document does
+      // not have: the reject would remove that text from the main document.
       throw new Error(
-        "A reject needs a suggestion document without garbage collection (`gc: false`)",
+        "A reject needs the text of each suggested deletion in the suggestion document. This replica does not have it: it collects garbage, or its state comes from a replica that collects garbage. Use `gc: false` for each replica of a suggestion document.",
       );
     }
     const undone: ToolCallIds = {
@@ -155,6 +157,34 @@ export function createSuggestionReview(options: {
       return () => type.unobserve(listener);
     },
   };
+}
+
+/**
+ * Returns true if the suggestion document has the content of each item
+ * that a tool call deleted.
+ *
+ * A Y.Doc with garbage collection removes the content of a deleted item.
+ * The flag `gc` of this replica does not tell enough: its state can come
+ * from a replica that collected the content, for example a collaboration
+ * server.
+ */
+function hasContentOf(suggestion: Y.Doc, deletes: Y.IdSet): boolean {
+  let expected = 0;
+  deletes.forEach((range) => {
+    expected += range.len;
+  });
+  let found = 0;
+  suggestion.transact((transaction) => {
+    Y.iterateStructsByIdSet(transaction, deletes, (struct) => {
+      if (
+        "content" in struct &&
+        !(struct.content instanceof Y.ContentDeleted)
+      ) {
+        found += struct.length;
+      }
+    });
+  });
+  return found === expected;
 }
 
 /** Applies the part of the suggestion document with the items to the main document. */
