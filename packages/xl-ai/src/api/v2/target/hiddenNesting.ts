@@ -1,4 +1,5 @@
 import type { FlatBlock } from "../model.js";
+import type { ViewBlock } from "../projection/index.js";
 import type { BlockIndex } from "../util/blocks/index.js";
 import type { KeptRow, TargetRow } from "./types.js";
 
@@ -109,8 +110,8 @@ type NestingInput = {
   rows: readonly TargetRow[];
   /** The blocks of the text, in a flat list (for their parents and types). */
   incoming: readonly FlatBlock[];
-  /** The view blocks (for their parents and types). */
-  view: readonly FlatBlock[];
+  /** The view blocks (for their parents, types and source blocks). */
+  view: readonly ViewBlock[];
   source: BlockIndex;
   invisibleIds: ReadonlySet<string>;
   /** The source blocks that stay (see `Correspondence.kept`). */
@@ -126,8 +127,6 @@ class ParentDecisions {
   private readonly keptFrom: ({ index: number; row: KeptRow } | undefined)[];
   /** The index of the text block before each text block in its text parent. */
   private readonly previousSibling: (number | undefined)[];
-  /** The ID of the kept block of each view block that has one. */
-  private readonly keptAtView: Map<number, string>;
 
   private readonly rows: NestingInput["rows"];
   private readonly incoming: NestingInput["incoming"];
@@ -150,11 +149,6 @@ class ParentDecisions {
       this.keptFrom[k] =
         row.kind === "kept" ? { index: k, row } : this.keptFrom[k + 1];
     }
-    this.keptAtView = new Map(
-      rows.flatMap((row) =>
-        row.kind === "kept" ? [[row.viewIndex, row.id] as const] : [],
-      ),
-    );
     const lastChild = new Map<number | undefined, number>();
     this.previousSibling = input.incoming.map(({ parentIndex }, j) => {
       const previous = lastChild.get(parentIndex);
@@ -316,8 +310,9 @@ class ParentDecisions {
    *
    * - An outdent: the parent in the view stays. The block goes where that
    *   parent is, if that place is open.
-   * - A lift: the text removed the source parent, and its blocks take its
-   *   place. The block goes where that parent was, if that place is open.
+   * - A lift: the text removed the parent in the view, and its blocks take
+   *   its place. The block goes where that parent was, if that place is
+   *   open.
    *
    * That place can be a nesting that the format does not show (for example
    * a paragraph with a list in it, in markdown). Else, returns `undefined`.
@@ -330,12 +325,12 @@ class ParentDecisions {
     ) {
       return undefined;
     }
-    const shownParent = this.keptAtView.get(viewParent);
+    const shownParent = this.view[viewParent].sourceId;
     if (shownParent === undefined) {
-      const parentId = this.source.parent(row.id);
-      return parentId === undefined || this.kept.has(parentId)
-        ? undefined
-        : this.sourceParent(parentId);
+      return undefined;
+    }
+    if (!this.kept.has(shownParent)) {
+      return this.sourceParent(shownParent);
     }
     const place = this.placeOf.get(shownParent);
     const parent = place === undefined ? undefined : this.open.parentOf(place);

@@ -1,4 +1,5 @@
 import type { BlockFields, FlatBlock, LensBlock } from "../model.js";
+import type { ViewBlock } from "../projection/index.js";
 import type { BlockIndex } from "../util/blocks/index.js";
 import { decideParents, keyOf, type Place } from "./hiddenNesting.js";
 import type { TargetRow } from "./types.js";
@@ -21,7 +22,7 @@ export function buildTargetDocument(input: {
   /** The blocks of the text, in a flat list (for their parents and types). */
   incoming: readonly FlatBlock[];
   /** The view blocks (for their parents and types). */
-  view: readonly FlatBlock[];
+  view: readonly ViewBlock[];
   source: BlockIndex;
   invisibleIds: ReadonlySet<string>;
   /** The source blocks that stay (see `Correspondence.kept`). */
