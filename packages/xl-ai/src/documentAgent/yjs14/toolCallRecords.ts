@@ -131,6 +131,16 @@ function idsOf(stored: StoredRecord): ToolCallIds {
   };
 }
 
+/** The IDs of the tool calls of the suggestion document. */
+export function toolCallIdsOf(suggestion: Y.Doc): string[] {
+  return [...storedRecordsOf(suggestion).keys()];
+}
+
+/** True if the suggestion document has the record of a tool call with the ID. */
+export function hasToolCallRecord(suggestion: Y.Doc, id: string): boolean {
+  return recordsType(suggestion).getAttr(`${CALL_PREFIX}${id}`) !== undefined;
+}
+
 /** The records of the tool calls of the suggestion document, in the sequence of the calls. */
 export function toolCallRecordsOf(suggestion: Y.Doc): ToolCallRecord[] {
   const type = recordsType(suggestion);

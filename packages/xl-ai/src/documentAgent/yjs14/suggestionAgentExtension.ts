@@ -1,5 +1,6 @@
 import { SuggestionsExtension, yDocToBlocks } from "@blocknote/core/y";
 import * as Y from "@y/y";
+import type { Mark, Node } from "prosemirror-model";
 
 import {
   type AgentExtensionOptions,
@@ -8,8 +9,16 @@ import {
   type ModeContext,
   type ReviewedToolCall,
 } from "../client/agentExtension.js";
+import {
+  createReplayPlugin,
+  type ReplayChange,
+} from "../client/replayAnimation.js";
 import { createSuggestionReview } from "./review.js";
-import { watchToolCallAttributions } from "./toolCallRecords.js";
+import {
+  hasToolCallRecord,
+  toolCallIdsOf,
+  watchToolCallAttributions,
+} from "./toolCallRecords.js";
 
 // The Yjs 14 mode of the document agent in an editor. The chat, the runs
 // and the states are the shared code of `client/agentExtension.ts`. This
@@ -73,6 +82,42 @@ export function createSuggestionCollaboration(options: {
 export const SuggestionAgentExtension =
   createAgentExtension(createSuggestionMode);
 
+/** The kind of change that each suggestion mark of the Yjs 14 binding shows. */
+const SUGGESTION_KINDS: Record<string, ReplayChange["kind"] | undefined> = {
+  "y-attributed-insert": "insert",
+  "y-attributed-delete": "delete",
+  "y-attributed-format": "modify",
+  "y-attributed-attrs": "modify",
+};
+
+function stringsOf(value: unknown): string[] {
+  return Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === "string")
+    : [];
+}
+
+/**
+ * The authors of the change that a suggestion mark of the Yjs 14 binding
+ * shows on a node. The author of a suggestion of the agent is the ID of a
+ * tool call (see `watchToolCallAttributions`).
+ */
+function authorsOf(mark: Mark, node: Node): string[] {
+  if (mark.type.name !== "y-attributed-attrs") {
+    return stringsOf(mark.attrs.userIds);
+  }
+  // This mark has the authors of each changed attribute.
+  const changes: unknown = mark.attrs.changes;
+  if (typeof changes !== "object" || changes === null) {
+    return [];
+  }
+  return Object.entries(changes).flatMap(([name, change]: [string, unknown]) =>
+    // The editor does not show a change of the ID of a block.
+    name === "id" && !node.isInline
+      ? []
+      : stringsOf((change as { userIds?: unknown } | null)?.userIds),
+  );
+}
+
 /** The review of the Yjs 14 mode in an editor (see `ClientMode`). */
 function createSuggestionMode(
   context: ModeContext<SuggestionReviewData>,
@@ -84,6 +129,67 @@ function createSuggestionMode(
   const { main, suggestion, fragment } = options;
   const { editor, store, reset, record } = context;
   const review = createSuggestionReview({ main, suggestion });
+
+  /**
+   * The tool calls that the suggestion document had at the start of the
+   * run in progress, and those whose replay animation is complete.
+   * `undefined` if no run is in progress.
+   */
+  let shown: Set<string> | undefined;
+  /** The tool calls that arrived in a run, and whose replay animation is not complete. */
+  const fresh = new Set<string>();
+
+  /**
+   * True if the replay animation shows the changes of the tool call. A tool
+   * call is new if it arrives during a run that this editor started or
+   * follows. A tool call that arrives at a different time (with the
+   * document at the start, or from a run that this editor does not follow)
+   * shows at once.
+   */
+  function isNew(id: string): boolean {
+    if (fresh.has(id)) {
+      return true;
+    }
+    if (
+      shown === undefined ||
+      shown.has(id) ||
+      !hasToolCallRecord(suggestion, id)
+    ) {
+      return false;
+    }
+    fresh.add(id);
+    return true;
+  }
+
+  /** The change that a node shows, if it is a change of a new tool call. */
+  function changeOf(node: Node): ReplayChange | undefined {
+    let modified: ReplayChange | undefined;
+    for (const mark of node.marks) {
+      const kind = SUGGESTION_KINDS[mark.type.name];
+      const key =
+        kind === undefined ? undefined : authorsOf(mark, node).find(isNew);
+      if (kind === undefined || key === undefined) {
+        continue;
+      }
+      if (kind !== "modify") {
+        // A new node and a removed node show as such, also if an
+        // attribute of the node changed.
+        return { kind, key };
+      }
+      modified ??= { kind, key };
+    }
+    return modified;
+  }
+
+  const replay = createReplayPlugin({
+    changeOf,
+    onComplete(keys) {
+      for (const key of keys) {
+        fresh.delete(key);
+        shown?.add(key);
+      }
+    },
+  });
 
   /**
    * Makes the state agree with the tool calls of the suggestion document.
@@ -124,8 +230,16 @@ function createSuggestionMode(
   return {
     locksEditor: false,
     startReview: () => ({ toolCalls: review.toolCalls() }),
-    // A run can end without a change: then there is no review.
-    endRun: sync,
+    // The replay animation shows the tool calls that arrive from here.
+    beginRun() {
+      shown = new Set(toolCallIdsOf(suggestion));
+    },
+    endRun() {
+      // The animation of the tool calls that arrived continues to its end.
+      shown = undefined;
+      // A run can end without a change: then there is no review.
+      sync();
+    },
     // The suggestions are in the suggestion document: nothing to hide.
     hide: () => undefined,
     // The end of a review without a decision (for example the AI menu
@@ -156,6 +270,8 @@ function createSuggestionMode(
           )
         : undefined;
     },
+    prosemirrorPlugins:
+      options.replayAnimation === false ? [] : [replay.plugin],
     mount() {
       const unsubscribe = review.subscribe(sync);
       // The editor shows the suggestions on the main document.

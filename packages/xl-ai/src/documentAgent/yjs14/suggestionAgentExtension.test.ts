@@ -2,7 +2,7 @@ import { BlockNoteEditor } from "@blocknote/core";
 import { withCollaboration } from "@blocknote/core/y";
 import * as Y from "@y/y";
 import type { ChatTransport, UIMessage } from "ai";
-import { afterEach, describe, expect, it } from "vite-plus/test";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 
 import { AIExtension } from "../../AIExtension.js";
 import { documentAgentOf } from "../client/agentExtension.js";
@@ -276,5 +276,59 @@ describe("the document agent in an editor, in Yjs 14 mode", () => {
     expect(shared!.toolCallOfElement(marks[1])).toBe("call-1");
     expect(shared!.toolCallOfElement(editor.domElement!)).toBeUndefined();
     expect(shared!.getState()).toBe(agent.store.state);
+  });
+
+  it("shows the changes of a tool call one after the other, and only those of the run in progress", async () => {
+    // Only the clock is not real: the time goes on when the test tells so.
+    vi.useFakeTimers({ toFake: ["Date"] });
+    cleanups.push(() => vi.useRealTimers());
+    const { editor, agent } = createSessionEditor([
+      editFirst,
+      { text: "Done." },
+      editSecond,
+      { text: "Done." },
+    ]);
+    /** The parts of the replay animation in the editor: the state, the text, and the tool call. */
+    function animation() {
+      return [
+        ...editor.domElement!.querySelectorAll('[class*="bn-agent-"]'),
+      ].map(
+        (part) =>
+          `${part.className} "${part.textContent}" ${part.closest<HTMLElement>("ins, del")?.dataset.userIds}`,
+      );
+    }
+    /** Lets the time go on, and updates the view as the timer of the animation does. */
+    function wait(milliseconds: number) {
+      vi.advanceTimersByTime(milliseconds);
+      const view = editor.prosemirrorView;
+      view.updateState(view.state);
+    }
+
+    await agent.invoke("Improve the text.");
+
+    // The run ended, and its animation continues. No time went on: the
+    // agent is at the first part of its change.
+    expect(animation()).toEqual([
+      'bn-agent-removed bn-agent-active "F" ["call-1"]',
+      'bn-agent-new bn-agent-pending "Open" ["call-1"]',
+      'bn-agent-removed bn-agent-pending "rst" ["call-1"]',
+      'bn-agent-new bn-agent-pending "ng" ["call-1"]',
+    ]);
+
+    // 5 ms for each removed character.
+    wait(5);
+    expect(animation().slice(0, 2)).toEqual([
+      'bn-agent-removed bn-agent-done "F" ["call-1"]',
+      'bn-agent-new bn-agent-active "Open" ["call-1"]',
+    ]);
+
+    wait(1000);
+    expect(animation()).toEqual([]);
+
+    // The suggestions of the first run stay: they are not new in the next run.
+    await agent.invoke("Continue.");
+    const second = animation();
+    expect(second.length).toBeGreaterThan(0);
+    expect(second.filter((part) => !part.endsWith('["call-2"]'))).toEqual([]);
   });
 });
