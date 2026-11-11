@@ -10,10 +10,13 @@ export {
   type DocumentAgentRun,
   runDocumentAgent,
   streamDocumentAgent,
+  streamDocumentAgentOnHandle,
 } from "./agent/documentAgent.js";
 export {
   DOCUMENT_BATCHES_CHUNK,
+  DOCUMENT_PROPOSAL_CHUNK,
   type DocumentBatchesData,
+  type DocumentProposalData,
   type LanguageModelObject,
 } from "./agent/earlyToolCalls.js";
 export { DOCUMENT_AGENT_INSTRUCTIONS } from "./agent/instructions.js";
@@ -88,5 +91,6 @@ export {
   createToolCalls,
   type DocumentToolName,
   type DocumentToolTypes,
+  type OnBatches,
   type ToolCalls,
 } from "./tools/toolCalls.js";

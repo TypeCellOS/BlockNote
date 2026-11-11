@@ -600,8 +600,8 @@ describe("a tool call starts when the model has written it", () => {
       proposalId: "run",
       createEditor,
     });
-    const batches: [string, number[]][] = [];
-    const calls = createToolCalls(handle, (toolCallId, added) =>
+    const batches: [string | undefined, number[]][] = [];
+    const calls = createToolCalls(handle, (added, toolCallId) =>
       batches.push([toolCallId, added.map((batch) => batch.seq)]),
     );
 

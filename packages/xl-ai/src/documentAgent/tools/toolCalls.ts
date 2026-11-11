@@ -47,13 +47,21 @@ export type ToolCalls = {
 };
 
 /**
+ * A listener for the batches that a run adds to the proposal, at the time
+ * that the proposal has them. `toolCallId` is the tool call that added
+ * them. It is `undefined` for the read of the document at the start of a
+ * run, which can rebase the proposal.
+ */
+export type OnBatches = (batches: Batch[], toolCallId?: string) => void;
+
+/**
  * Makes the tool calls of one run on the handle. `onBatches` gets the
  * batches of each call when the call ends: a host sends them to a client
  * that follows the run, before the loop has the tool output.
  */
 export function createToolCalls(
   handle: DocumentHandle,
-  onBatches?: (toolCallId: string, batches: Batch[]) => void,
+  onBatches?: OnBatches,
 ): ToolCalls {
   const tools: {
     [Name in DocumentToolName]: (
@@ -97,7 +105,7 @@ export function createToolCalls(
         call.then(
           (output) => {
             if (output.batches.length > 0) {
-              onBatches?.(toolCallId, output.batches);
+              onBatches?.(output.batches, toolCallId);
             }
           },
           () => undefined,

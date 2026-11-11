@@ -1,5 +1,6 @@
 import {
   createAgentUIStream,
+  generateId,
   isStepCount,
   type LanguageModelUsage,
   type ModelMessage,
@@ -9,13 +10,13 @@ import {
 } from "ai";
 
 import type { CreateEditor } from "../proposal/proposal.js";
-import type { Batch, Proposal } from "../proposal/types.js";
+import type { Proposal } from "../proposal/types.js";
 import { createInMemoryProposalStore } from "../stores/proposalStore.js";
 import { createDocumentTools } from "../tools/aiSdkTools.js";
 import { describeOpening } from "../tools/describe.js";
 import { readDocument } from "../tools/documentTools.js";
 import { createDocumentHandle, type DocumentHandle } from "../tools/handle.js";
-import { createToolCalls } from "../tools/toolCalls.js";
+import { createToolCalls, type OnBatches } from "../tools/toolCalls.js";
 import {
   type LanguageModelObject,
   withBatchChunks,
@@ -50,7 +51,8 @@ export type DocumentAgentOptions = {
  *
  * A tool call starts when the model has written it completely, not at the
  * end of the LLM step (see `withEarlyToolCalls`). `onBatches` gets the
- * batches of each tool call at that time.
+ * batches of each tool call at that time, and the batch of a rebase in the
+ * read for the first LLM call.
  *
  * All hosts use this function. A host only decides where the loop runs and
  * what the handle reads and writes.
@@ -58,7 +60,7 @@ export type DocumentAgentOptions = {
 export function createDocumentAgent(
   handle: DocumentHandle,
   options: DocumentAgentOptions,
-  onBatches?: (toolCallId: string, batches: Batch[]) => void,
+  onBatches?: OnBatches,
 ) {
   const calls = createToolCalls(handle, onBatches);
   return new ToolLoopAgent({
@@ -70,15 +72,16 @@ export function createDocumentAgent(
     // The AI SDK keeps the messages of step 0 for the later steps. Thus,
     // each LLM call of the run has the same document text at the same
     // place, and a prompt cache of the provider can use it.
-    prepareStep: async ({ stepNumber, messages }) =>
-      stepNumber === 0
-        ? {
-            messages: withDocument(
-              messages,
-              describeOpening(await readDocument(handle)),
-            ),
-          }
-        : {},
+    prepareStep: async ({ stepNumber, messages }) => {
+      if (stepNumber > 0) {
+        return {};
+      }
+      const opening = await readDocument(handle);
+      if (opening.batches.length > 0) {
+        onBatches?.(opening.batches);
+      }
+      return { messages: withDocument(messages, describeOpening(opening)) };
+    },
   });
 }
 
@@ -171,16 +174,39 @@ export async function streamDocumentAgent(
     proposalId: "request",
     createEditor: options.createEditor,
   });
+  return streamDocumentAgentOnHandle(handle, request.messages, options);
+}
+
+/**
+ * Runs the agent on the handle of a host for the messages of a chat, and
+ * returns the UI message stream (see {@link streamDocumentAgent}). A host
+ * that keeps the proposal and the chat uses this function directly (see
+ * `sessions/sessionHost.ts`): `onEnd` gets the message of the agent at the
+ * end of the run, with its tool calls and its answer.
+ */
+export async function streamDocumentAgentOnHandle(
+  handle: DocumentHandle,
+  messages: UIMessage[],
+  options: DocumentAgentOptions & {
+    abortSignal?: AbortSignal;
+    onEnd?: (responseMessage: UIMessage) => void;
+  },
+): Promise<ReadableStream<UIMessageChunk>> {
   // The agent starts before the stream exists. Thus, the listener gets the
   // function that adds to the stream when the stream is there.
-  let add: (toolCallId: string, batches: Batch[]) => void = () => undefined;
+  let add: OnBatches = () => undefined;
+  const { onEnd } = options;
   const chunks = withBatchChunks(
     await createAgentUIStream({
-      agent: createDocumentAgent(handle, options, (toolCallId, batches) =>
-        add(toolCallId, batches),
+      agent: createDocumentAgent(handle, options, (batches, toolCallId) =>
+        add(batches, toolCallId),
       ),
-      uiMessages: request.messages,
+      uiMessages: messages,
       abortSignal: options.abortSignal,
+      // A host that keeps the chat gives the message of the agent an ID.
+      // Thus, the message has the same ID on the host and in each client.
+      generateMessageId: onEnd === undefined ? undefined : generateId,
+      onEnd: (event) => onEnd?.(event.responseMessage),
     }),
   );
   add = chunks.add;

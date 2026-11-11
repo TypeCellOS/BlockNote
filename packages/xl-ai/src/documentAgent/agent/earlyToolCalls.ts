@@ -5,8 +5,12 @@ import {
   wrapLanguageModel,
 } from "ai";
 
-import type { Batch } from "../proposal/types.js";
-import { isDocumentToolName, type ToolCalls } from "../tools/toolCalls.js";
+import type { Batch, Proposal } from "../proposal/types.js";
+import {
+  isDocumentToolName,
+  type OnBatches,
+  type ToolCalls,
+} from "../tools/toolCalls.js";
 
 /** A model of the AI SDK as an object, not as the ID of a gateway model. */
 export type LanguageModelObject = Exclude<LanguageModel, string>;
@@ -99,8 +103,18 @@ function parseObject(json: string): Record<string, unknown> | undefined {
  */
 export const DOCUMENT_BATCHES_CHUNK = "data-document-batches";
 
-/** The data of a {@link DOCUMENT_BATCHES_CHUNK} chunk. */
-export type DocumentBatchesData = { toolCallId: string; batches: Batch[] };
+/** The data of a {@link DOCUMENT_BATCHES_CHUNK} chunk (see `OnBatches`). */
+export type DocumentBatchesData = { toolCallId?: string; batches: Batch[] };
+
+/**
+ * The type of the stream chunk with the proposal at the start of a run. A
+ * host that keeps the proposal sends it (see `sessions/sessionHost.ts`):
+ * the client takes this proposal as its copy. The chunk is transient.
+ */
+export const DOCUMENT_PROPOSAL_CHUNK = "data-document-proposal";
+
+/** The data of a {@link DOCUMENT_PROPOSAL_CHUNK} chunk. */
+export type DocumentProposalData = { proposal: Proposal };
 
 /**
  * Returns the UI message stream with a second input: `add` puts the batches
@@ -110,7 +124,7 @@ export type DocumentBatchesData = { toolCallId: string; batches: Batch[] };
  */
 export function withBatchChunks(source: ReadableStream<UIMessageChunk>): {
   stream: ReadableStream<UIMessageChunk>;
-  add: (toolCallId: string, batches: Batch[]) => void;
+  add: OnBatches;
 } {
   const reader = source.getReader();
   let open = true;
@@ -141,7 +155,7 @@ export function withBatchChunks(source: ReadableStream<UIMessageChunk>): {
   });
   return {
     stream,
-    add(toolCallId, batches) {
+    add(batches, toolCallId) {
       if (open) {
         const data: DocumentBatchesData = { toolCallId, batches };
         enqueue({ type: DOCUMENT_BATCHES_CHUNK, data, transient: true });
