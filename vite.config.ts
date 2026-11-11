@@ -63,7 +63,11 @@ export default defineConfig({
   lint: {
     plugins: ["typescript", "react", "import"],
     // Adds pre-migration ESLint rules with no oxlint equivalents.
-    jsPlugins: [{ name: "import-eslint", specifier: "eslint-plugin-import" }],
+    jsPlugins: [
+      { name: "import-eslint", specifier: "eslint-plugin-import" },
+      // The rules of the text lens (packages/xl-ai/src/api/v2).
+      { name: "lens", specifier: "./packages/xl-ai/lint/lensPlugin.js" },
+    ],
     options: {
       typeAware: true,
       typeCheck: true,
@@ -119,6 +123,14 @@ export default defineConfig({
               ],
             },
           ],
+          // An export of a file is in the index.ts of its folder (the API of
+          // the folder), or it has @internal in its doc comment, never both.
+          // Thus, a reader of a file sees the API of the folder. oxlint has
+          // no rule for it (no `no-unused-modules`; the version of
+          // eslint-plugin-import fails in oxlint), and knip does not know
+          // folders: it finds only the exports that no other file uses (see
+          // the README, "Rules of the code").
+          "lens/folder-api": "error",
           complexity: ["error", 15],
           "max-depth": ["error", 4],
           "max-lines-per-function": [
@@ -136,6 +148,7 @@ export default defineConfig({
         // Tests can use the exports of each file.
         rules: {
           "no-restricted-imports": "off",
+          "lens/folder-api": "off",
           complexity: "off",
           "max-depth": "off",
           "max-lines-per-function": "off",
