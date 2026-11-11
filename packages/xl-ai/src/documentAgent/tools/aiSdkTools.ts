@@ -25,7 +25,7 @@ export function createDocumentTools(handle: DocumentHandle) {
   return {
     readDocument: tool({
       description:
-        "Reads the document as markdown. The result starts with the version of the document. Call this tool before your first change, and again after a conflict or a text that was not found.",
+        "Reads the current document as markdown. The result starts with the version of the document. The last message of the user already has the document: call this tool only after a conflict, after a text that was not found, or when a tool result tells you that the users changed the document.",
       inputSchema: jsonSchema<Record<string, never>>({
         type: "object",
         properties: {},

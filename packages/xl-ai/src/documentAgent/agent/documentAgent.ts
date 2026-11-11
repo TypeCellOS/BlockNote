@@ -3,6 +3,7 @@ import {
   isStepCount,
   type LanguageModel,
   type LanguageModelUsage,
+  type ModelMessage,
   ToolLoopAgent,
   type UIMessage,
   type UIMessageChunk,
@@ -12,6 +13,8 @@ import type { CreateEditor } from "../proposal/proposal.js";
 import type { Proposal } from "../proposal/types.js";
 import { createInMemoryProposalStore } from "../stores/proposalStore.js";
 import { createDocumentTools } from "../tools/aiSdkTools.js";
+import { describeOpening } from "../tools/describe.js";
+import { readDocument } from "../tools/documentTools.js";
 import { createDocumentHandle, type DocumentHandle } from "../tools/handle.js";
 import { DOCUMENT_AGENT_INSTRUCTIONS } from "./instructions.js";
 
@@ -35,6 +38,10 @@ export type DocumentAgentOptions = {
  * model. The loop stops when the model answers without a tool call, or at
  * the step limit.
  *
+ * The first LLM call of a run gets the document with the last message of
+ * the user (see {@link withDocument}). Thus, the model does not call
+ * `readDocument` before its first change, and a run has one LLM call less.
+ *
  * All hosts use this function. A host only decides where the loop runs and
  * what the handle reads and writes.
  */
@@ -48,7 +55,50 @@ export function createDocumentAgent(
     tools: createDocumentTools(handle),
     maxOutputTokens: options.maxOutputTokens,
     stopWhen: [isStepCount(options.maxSteps ?? 12), toolThrew],
+    // The AI SDK keeps the messages of step 0 for the later steps. Thus,
+    // each LLM call of the run has the same document text at the same
+    // place, and a prompt cache of the provider can use it.
+    prepareStep: async ({ stepNumber, messages }) =>
+      stepNumber === 0
+        ? {
+            messages: withDocument(
+              messages,
+              describeOpening(await readDocument(handle)),
+            ),
+          }
+        : {},
   });
+}
+
+/**
+ * Returns the messages with the document text at the start of the last
+ * message of a user. The document is before the request of the user: a
+ * model answers a request after a long text better than before it.
+ *
+ * Only the last message gets the document. The earlier messages of a chat
+ * do not have the documents of their runs: these documents are old.
+ */
+export function withDocument(
+  messages: readonly ModelMessage[],
+  document: string,
+): ModelMessage[] {
+  let index = messages.length - 1;
+  while (index >= 0 && messages[index].role !== "user") {
+    index--;
+  }
+  const message = messages[index];
+  if (message?.role !== "user") {
+    throw new Error("The run has no message of a user");
+  }
+  const content =
+    typeof message.content === "string"
+      ? [{ type: "text" as const, text: message.content }]
+      : message.content;
+  return [
+    ...messages.slice(0, index),
+    { ...message, content: [{ type: "text", text: document }, ...content] },
+    ...messages.slice(index + 1),
+  ];
 }
 
 /**

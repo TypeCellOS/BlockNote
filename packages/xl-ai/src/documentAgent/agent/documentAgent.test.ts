@@ -13,6 +13,7 @@ import { createInMemoryProposalStore } from "../stores/proposalStore.js";
 import {
   documentOf,
   initialDocument,
+  type LanguageModelV4Prompt,
   lastToolResult,
   scriptedModel,
   textsOf,
@@ -40,6 +41,23 @@ async function chunksOf(
     chunks.push(value);
   }
 }
+
+/** The texts of each message of a user in a prompt of the mock model. */
+function userTexts(prompt: LanguageModelV4Prompt): string[][] {
+  return prompt.flatMap((message) =>
+    message.role === "user"
+      ? [
+          message.content.flatMap((part) =>
+            part.type === "text" ? [part.text] : [],
+          ),
+        ]
+      : [],
+  );
+}
+
+/** The document of `initialDocument`, as the first LLM call gets it. */
+const INITIAL_DOCUMENT =
+  "<document>\nVersion: v0\n---\n# Title\n\nFirst paragraph.\n\nSecond paragraph.\n\n</document>";
 
 /** The batches in the tool outputs of a UI message stream, in sequence. */
 function batchesIn(chunks: UIMessageChunk[]): Batch[] {
@@ -220,13 +238,29 @@ describe("a run that a user starts", () => {
 });
 
 describe("a tool that throws", () => {
-  /** A handle of a broken host: each step throws. */
-  const brokenHandle: DocumentHandle = {
-    createEditor,
-    update() {
-      return Promise.reject(new Error("The store is not available"));
-    },
-  };
+  /**
+   * A handle of a host that breaks during the run: the first step (the
+   * read of the document for the first LLM call) works, and each later
+   * step throws.
+   */
+  async function handleThatBreaks(): Promise<DocumentHandle> {
+    const store = createInMemoryProposalStore();
+    await store.save("run", createProposal(initialDocument()));
+    const handle = createDocumentHandle({
+      store,
+      proposalId: "run",
+      createEditor,
+    });
+    let steps = 0;
+    return {
+      createEditor,
+      update(step) {
+        return steps++ === 0
+          ? handle.update(step)
+          : Promise.reject(new Error("The store is not available"));
+      },
+    };
+  }
   const script = [
     { toolCalls: [{ toolName: "readDocument", input: {} }] },
     { text: "The model must not get this step." },
@@ -236,9 +270,154 @@ describe("a tool that throws", () => {
     const { model, prompts } = scriptedModel(script);
 
     await expect(
-      runDocumentAgent(brokenHandle, "Read the document.", { model }),
+      runDocumentAgent(await handleThatBreaks(), "Read the document.", {
+        model,
+      }),
     ).rejects.toThrow("The store is not available");
     expect(prompts).toHaveLength(1);
+  });
+});
+
+describe("the document in the first LLM call", () => {
+  const edit = {
+    toolCalls: [
+      {
+        toolName: "editText",
+        input: { old: "First", new: "Opening", reason: "A better word." },
+      },
+    ],
+  };
+
+  it("gives the document before the request of the user, thus the model does not read first", async () => {
+    const { model, prompts } = scriptedModel([edit, { text: "Done." }]);
+
+    const chunks = await chunksOf(
+      await streamDocumentAgent(
+        {
+          messages: [userMessage("Improve the text.")],
+          proposal: createProposal(initialDocument()),
+        },
+        { model, createEditor },
+      ),
+    );
+
+    // Two LLM calls: the edit and the answer. There is no call for a read.
+    expect(prompts).toHaveLength(2);
+    expect(userTexts(prompts[0])).toEqual([
+      [INITIAL_DOCUMENT, "Improve the text."],
+    ]);
+    expect(batchesIn(chunks)).toHaveLength(1);
+  });
+
+  it("keeps the same document text in each LLM call of the run", async () => {
+    // A prompt cache of the provider needs the same text at the same place.
+    const { model, prompts } = scriptedModel([edit, { text: "Done." }]);
+
+    await chunksOf(
+      await streamDocumentAgent(
+        {
+          messages: [userMessage("Improve the text.")],
+          proposal: createProposal(initialDocument()),
+        },
+        { model, createEditor },
+      ),
+    );
+
+    expect(userTexts(prompts[1])).toEqual(userTexts(prompts[0]));
+    expect(lastToolResult(prompts[1])).toBe("OK. The new version is v1.");
+  });
+
+  it("gives the current document only to the last message of a chat", async () => {
+    const first = scriptedModel([edit, { text: "Done." }]);
+    const proposal = batchesIn(
+      await chunksOf(
+        await streamDocumentAgent(
+          {
+            messages: [userMessage("Improve the text.")],
+            proposal: createProposal(initialDocument()),
+          },
+          { model: first.model, createEditor },
+        ),
+      ),
+    ).reduce(withBatch, createProposal(initialDocument()));
+
+    const second = scriptedModel([{ text: "It has two paragraphs." }]);
+    await chunksOf(
+      await streamDocumentAgent(
+        {
+          messages: [
+            userMessage("Improve the text."),
+            {
+              id: "m2",
+              role: "assistant",
+              parts: [{ type: "text", text: "Done." }],
+            },
+            { ...userMessage("What does the document say?"), id: "m3" },
+          ],
+          proposal,
+        },
+        { model: second.model, createEditor },
+      ),
+    );
+
+    // The first request has no document: its document is old.
+    expect(userTexts(second.prompts[0])).toEqual([
+      ["Improve the text."],
+      [
+        "<document>\nVersion: v1\n---\n# Title\n\nOpening paragraph.\n\nSecond paragraph.\n\n</document>",
+        "What does the document say?",
+      ],
+    ]);
+  });
+
+  it("gives the document to a run without a chat", async () => {
+    const store = createInMemoryProposalStore();
+    await store.save("run", createProposal(initialDocument()));
+    const handle = createDocumentHandle({
+      store,
+      proposalId: "run",
+      createEditor,
+    });
+    const { model, prompts } = scriptedModel([edit, { text: "Done." }]);
+
+    const run = await runDocumentAgent(handle, "Improve the text.", { model });
+
+    expect(run.steps).toBe(2);
+    expect(userTexts(prompts[0])).toEqual([
+      [INITIAL_DOCUMENT, "Improve the text."],
+    ]);
+  });
+
+  it("gives the main document of now to a run that a server starts, without the note of a change", async () => {
+    // A user changed the main document after the proposal started. The
+    // read for the first LLM call rebases the proposal.
+    const documents = createInMemoryDocumentStore();
+    documents.write(
+      "doc",
+      documentOf([
+        { id: "title", type: "heading", content: "Title" },
+        { id: "p1", type: "paragraph", content: "Paragraph one, by the user." },
+        { id: "p2", type: "paragraph", content: "Second paragraph." },
+      ]),
+    );
+    const store = createInMemoryProposalStore();
+    await store.save("run", createProposal(initialDocument()));
+    const handle = createDocumentHandle({
+      store,
+      proposalId: "run",
+      createEditor,
+      readMain: () => documents.read("doc"),
+    });
+    const { model, prompts } = scriptedModel([{ text: "Done." }]);
+
+    await runDocumentAgent(handle, "What does the document say?", { model });
+
+    const [[document]] = userTexts(prompts[0]);
+    expect(document).toContain("Paragraph one, by the user.");
+    expect(document).not.toContain("Note:");
+    expect(
+      (await store.load("run"))!.batches.map((batch) => batch.source.type),
+    ).toEqual(["rebase"]);
   });
 });
 

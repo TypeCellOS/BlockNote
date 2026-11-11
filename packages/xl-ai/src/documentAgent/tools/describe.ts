@@ -21,6 +21,16 @@ export function describeRead(output: ReadOutput): string {
   ].join("\n");
 }
 
+/**
+ * The document for the first LLM call of a run, in `<document>` tags: the
+ * same text that `readDocument` gives. The note "the users changed the
+ * document" is not in it: this text is the current document.
+ */
+export function describeOpening(output: ReadOutput): string {
+  const notes = output.notes.filter((note) => note.type !== "main-changed");
+  return `<document>\n${describeRead({ ...output, notes })}\n</document>`;
+}
+
 /** The result of `writeDocument` or `editText` for the model. */
 export function describeWrite(output: WriteOutput | EditOutput): string {
   switch (output.error) {
