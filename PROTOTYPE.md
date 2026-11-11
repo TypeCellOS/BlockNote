@@ -17,7 +17,8 @@ Read this section first. The sections after it are in the order of the work, and
 - The tools `editText`, `replaceRange`, `writeDocument` and `readDocument`. The document is in the first LLM call, and a tool call starts when the model has written it (section 13).
 - The review of a user reaches the agent: the decision is in the tool output of the chat (section 14.1).
 - Guards that keep suggestions out of the main document (section 14.7).
-- 105 tests with a mock model, a test with random concurrent edits (section 14.10), and three tests that are known failures (below). Live measurements with Haiku 5.5 (sections 9, 13.3 to 13.5).
+- Two modes behind one interface for the tools (section 15): the proposal mode (all sections before 15), and a Yjs 14 mode where the agent writes into a suggestion document. The Yjs 14 mode has the host side and the review functions. It has no editor extension, no example and no browser check.
+- 121 tests with a mock model, a test with random concurrent edits that runs on the two modes (sections 14.10 and 15.4), and four tests that are known failures (below). Live measurements with Haiku 5.5 (sections 9, 13.3 to 13.5).
 
 **Decisions of 11 November**
 
@@ -30,6 +31,7 @@ Read this section first. The sections after it are in the order of the work, and
 - Two users who accept the same proposal at the same time write its text two times, in the base scenario (section 14.8). For a new block, the shared document also gets one block ID two times (section 14.10). `acceptGuard` prevents the two.
 - In the base scenario, an accept that crosses another change of the proposal on the network can put a paragraph into the document two times, also with one reviewer (section 14.10). `acceptGuard` prevents it.
 - A reject of the tool call that added a block keeps the block if a later tool call changed it (sections 8.1 and 14.10). The guard does not change this.
+- Yjs 14 mode, only with two reviewers (section 15.4): two rejects of one suggested deletion at the same time write its text two times. A reject of a tool call that the other reviewer accepted removes the text that a user typed in a block of that call. The attribution extension of core can throw during a decision.
 
 **Not decided**
 
@@ -39,7 +41,7 @@ Read this section first. The sections after it are in the order of the work, and
 **Not done** (in the order that I recommend)
 
 1. Done (section 14.10): a test with random concurrent edits for a session.
-2. A spike of the target: the agent writes its changes into a Yjs 14 suggestion document through the lens. You asked if such a document replaces the proposal: section 14.11. The spike waits for your confirmation.
+2. Done for the host side (section 15): the Yjs 14 mode. What it does not have is in section 15.6. The first item there is the editor side: the extension mixes the chat with the display of a proposal, and must be split before the Yjs 14 mode can have a chat in an editor.
 3. A block that two tool calls change shows as one suggestion (section 8.1).
 4. Colors and alignment: an HTML format for the tools, or a tool for props (section 9.3).
 5. The selection and the cursor in the first prompt.
@@ -591,7 +593,7 @@ Your decision: the Yjs 14 suggestion layer is the target, and until then an acce
 
 ### 14.10 A test with random concurrent edits (11 November)
 
-Item 1 of the list in section 0. The test is `sessions/session.fuzz.test.ts` (commit `30b2fd5bc`).
+Item 1 of the list in section 0. The test was `sessions/session.fuzz.test.ts` (commit `30b2fd5bc`). It is now `fuzz/modes.fuzz.test.ts`, and runs on the two modes (section 15.4).
 
 **One scenario** (one seed):
 
@@ -638,7 +640,7 @@ A possible change for the first race, not built: the rebase can treat a block wi
 - The rules for an accept and a reject of one tool call do not apply to a call that shares a block with a different call (section 8.1). The rule for an accept applies only to a change that the editor of the reviewer shows: the display does not show a change of the agent that is in conflict with the main document.
 - The model is a mock: each tool call is valid.
 
-**How to run it**, from `packages/xl-ai`: `DOCUMENT_AGENT_FUZZ_SEEDS=100 vp test --run src/documentAgent/sessions/session.fuzz.test.ts`. `DOCUMENT_AGENT_FUZZ_START` sets the first seed, and `DOCUMENT_AGENT_FUZZ_REPORT=<file>` writes each problem with the log of its scenario. The default is 5 seeds for each variant (about 15 s). 100 seeds for each variant are 6 to 9 minutes.
+**How to run it**, from `packages/xl-ai`: `DOCUMENT_AGENT_FUZZ_SEEDS=100 vp test --run src/documentAgent/fuzz`. `DOCUMENT_AGENT_FUZZ_START` sets the first seed, and `DOCUMENT_AGENT_FUZZ_REPORT=<file>` writes each problem with the log of its scenario. `DOCUMENT_AGENT_FUZZ_TRACE=<marker word>` adds a line to the log after each action that tells where the word is. The default is 5 seeds for each variant (about 20 s for the nine variants). 100 seeds for each variant are about 7 minutes.
 
 ### 14.11 Does a Yjs 14 suggestion document replace the proposal? (11 November)
 
@@ -669,3 +671,94 @@ The Yjs 14 mode has its own risks. The review of 5 November measured them:
 - The host needs a headless editor that is bound to S for each run.
 
 My recommendation: do the spike, with your matrix. The test of 14.10 is the harness: the tools already operate on a document handle, and the rules are the same for each mode. The smallest useful spike is a handle that writes to S, the map of the tool calls, and a third mode in the test of 14.10. It waits for your confirmation, and for your decision if Yjs 14 will be a requirement for AI or one of two modes.
+
+## 15. Two modes: the proposal mode and the Yjs 14 mode (11 November)
+
+Your decisions: build the Yjs 14 mode also, as one of two modes, and run the tests on the two. Commits `be688bd62` to `6fd388c63`.
+
+### 15.1 The organization
+
+| Part | Files | Code lines |
+| --- | --- | --- |
+| Shared: the agent loop, the tools, the chats and the runs of a host | `agent/`, `tools/`, `sessions/chatSessions.ts`, `sessions/runLog.ts` | 1,105 |
+| Proposal mode, host | `proposal/`, `stores/`, `sessions/sessionHost.ts` | 1,110 |
+| Proposal mode, editor | `client/` | 1,175 |
+| Yjs 14 mode, host and review | `yjs14/` | 458 |
+
+The lines are without comments and without tests. The shared code has no import from a mode, and a mode has no import from the other mode.
+
+- **`AgentDocument`** (`tools/agentDocument.ts`) is the interface between the tools and a mode: read the markdown and a version, and write a change as one tool call. Before, the tools got the proposal itself. The data of a mode for a client that follows a run (the batches of a proposal) is a type parameter that the tools do not read.
+- **`createChatSessions`** (`sessions/chatSessions.ts`) has the chat of each document and its run in progress. A mode gives the document of the agent for a run. The proposal host adds the open proposal and the review. The Yjs 14 host adds only the decisions of the users for the chat.
+- **The editor side is not split.** `client/DocumentAgentExtension.ts` has the chat and the run state together with the display and the review of a proposal. See 15.6.
+
+### 15.2 How the Yjs 14 mode works
+
+- A document has two Y.Docs: the main document M, and the suggestion document S (`isSuggestionDoc`). S has all content of M, and the suggestions: content that is in S and not in M.
+- **The agent** reads and writes S through an editor that is bound to S without a diff renderer (`yjs14/suggestionDocument.ts`). Thus it sees the document with all suggestions applied, and the lens writes to it as to each editor. A change of a user to M comes into S through the Yjs sync. There is no rebase, no fork point and no hash.
+- **The feedback for the agent** is the same as in proposal mode: a note that the users changed the document, and a conflict if a user changed the same text after the version that the agent read.
+- **A record for each tool call** (`yjs14/toolCallRecords.ts`): its reason, and the Yjs items that it inserted and deleted. The record is an attribute of a type of S, written in the Yjs transaction of the write.
+- **The display** is the binding of core (`SuggestionsExtension`, `Y.createDiffRenderer`). The author of each suggestion is the ID of its tool call, from the records. Each suggestion mark thus has its tool call. A user can type during the review: the edit goes to M.
+- **The review** (`yjs14/review.ts`) works on the two Y.Docs, without an editor and without a host. An accept applies the part of S with the items of the tool call to M. A reject undoes these items in S, and applies the result to M.
+- **The host** (`yjs14/suggestionSessions.ts`) keeps the chat and the run. Before a run, it reads the decisions from the records and puts them into the chat.
+
+### 15.3 What I learned about Yjs 14 (`@y/y` 14.0.0-rc.26, `@y/prosemirror` 2.0.0-15)
+
+1. **Accept and reject of the binding operate on a position range, and take the full run of adjacent suggestions**, also of a different tool call (`collectSuggestedChanges` walks to the first content without a suggestion on each side). They are not usable for one tool call. An accept and a reject by Yjs items work with the public API (`intersectUpdateWithContentIds`, `undoContentIds`).
+2. **A reject by items needs a suggestion document without garbage collection** (`gc: false`) on the replica of the reviewer. With garbage collection, S does not have the text of a suggested deletion, and the reject removes that text from M ("First" became "i"). The code throws for such a document.
+3. **A reject of a suggested deletion writes to M**: Yjs cannot put back a deleted item, thus the reject deletes the old items in M and inserts a copy. The review of 5 November found this for the binding. It is the same here.
+4. **The record must be in the Yjs transaction of the write.** The diff renderer reads the author of new content when the content arrives. A record that arrives later does not change the marks.
+5. **The lens write works in a Yjs transaction of the host**: the binding joins it. Thus the write and the record are one update.
+6. **The host needs a DOM**: the binding works in the view of an editor.
+7. **`editor.document` of an editor that shows suggestions has the inserted and the deleted text as normal text.** The main document is the Y.Doc M. This is the same trap as in proposal mode (section 14.7).
+8. **A bug in core**: `getAttributionUserIds` (`core/src/y/extensions/YAttributionMarks.ts`) throws for a mark of an attribute change without a value. The exception comes out of the decision of a reviewer (1 of 100 seeds with two reviewers). I did not change core.
+
+### 15.4 The test matrix
+
+The scenario and its rules are one file (`fuzz/scenario.ts`). A mode gives a world: its editors, its network, its agent and its review. 100 seeds for each variant:
+
+| Mode | Accept guard | Reviewers | Delay of review requests | Seeds with a problem |
+| --- | --- | --- | --- | --- |
+| Proposal | Yes | 1 | Yes | 0 of 100 |
+| Proposal | Yes | 2 | Yes | 0 of 100 |
+| Proposal | Yes | 2 | Yes, and conflicts between a user and the agent | 0 of 100 |
+| Proposal | No | 1 | No | 0 of 100 |
+| Proposal | No | 2 | No | 0 of 100 |
+| Proposal | No | 1 | Yes | 51 of 100: a paragraph two times (51), an accepted change is not there (1) |
+| Proposal | No | 2 | Yes | 56 of 100: a paragraph two times (56), one block ID two times (2) |
+| Yjs 14 | No host in the review | 1 | Not applicable | 0 of 100 |
+| Yjs 14 | No host in the review | 2 | Not applicable | 12 of 100: see below |
+
+- **Yjs 14 mode with one reviewer has no problem**, without a guard and without a host in the review. In this mode, each of the three users changes the document at each time, also in the editor of the reviewer during the review. In proposal mode, an editor that shows a proposal is read-only.
+- **Yjs 14 mode with two reviewers has no order for the decisions.** The two can make different decisions for one tool call at the same time. The result is the reject. All editors agree on it. The three known problems:
+  - Two rejects of one suggested deletion write its text two times (9 seeds). This is item 3 of 15.3, and a known-failure test.
+  - Reviewer A accepts a tool call that added a paragraph, a user types in that paragraph, and reviewer B rejects the tool call before the accept arrives. The paragraph goes, with the text of the user (3 seeds). This is the same as a removal of a block and an edit in it at the same time in each Yjs document. The proposal mode with the guard does not have it: the host refuses the second decision.
+  - The exception of core (1 seed, item 8 of 15.3).
+- **No change of a user was lost in a different way**, in 1,100 scenarios of the two modes.
+- The rules changed for the two modes in three points: a text of the document at the start must not be there two times, two reviewers can make different decisions for one tool call (then each result is permitted), and a user adds text at the end of a block as a user types it.
+
+### 15.5 Is it maintainable to have the two modes?
+
+My answer was yes, with a cost for each review feature. The build agrees with it, for the host side:
+
+- The tools, the loop, the instructions, the chats and the runs exist one time (1,105 lines). The Yjs 14 mode added 458 lines, and no line in the shared code asks for the mode.
+- The refactor of the proposal mode did not change a test, except imports and two tests that used the internals of the old handle.
+- The same scenarios run on the two modes, and a difference between the modes is one row in the table of 15.4.
+
+It does not answer the question for the editor side. That is the largest part of the proposal mode (1,175 lines), and it is where each review feature is.
+
+### 15.6 What the Yjs 14 mode does not have
+
+1. **The editor side.** There is no extension for the chat, the AI menu and the cards of the tool calls in Yjs 14 mode. `DocumentAgentExtension` must be split first: the chat and the run state (shared), and the display and the review of a proposal (proposal mode), with a review interface that the Yjs 14 mode also implements (`createSuggestionReview` has its shape: the tool calls with their state, accept and reject of one call or of all).
+2. **No example, no server route, no provider for the two documents, and no check in a browser.** All tests are in jsdom, with Y.Docs that the test syncs.
+3. **A public entry point.** The Yjs 14 code needs its own entry point: an app on Yjs 13 must not load `@y/y`.
+4. **A user who types in a suggested block.** In the test, a user changes only blocks of the main document. Text in a block that is a suggestion becomes a part of the suggestion (the review of 5 November), and goes with a reject.
+5. **Suggestions of users in the same suggestion document.** The review accepts and rejects only the tool calls of the agent. It was not tested with other suggestions in S.
+6. **Performance.** An accept encodes the full state of S, a step of the agent compares the full document as JSON, and the host keeps one copy of the document for each version of a run.
+7. **Conflicts between a user and the agent** (the variant of the proposal mode where a user replaces a word): not in the matrix for Yjs 14.
+
+### 15.7 Decisions for you
+
+1. The editor side (15.6, item 1) is the next step if the two modes stay. It is also the real test of the maintainability answer.
+2. Two reviewers in Yjs 14 mode: is "the reject is the result" acceptable, or must a host give the decisions an order, as the accept guard does in proposal mode? An order through a host removes the second and the first known problem, but the mode is then not distributed for the review.
+3. The reject of a suggested deletion (15.3, items 2 and 3) needs a change in Yjs to be correct for two reviewers: a suggested deletion that a reject can reverse.
+4. Still open from before: does a reject of a tool call in proposal mode also remove the later changes to the blocks that the call added (section 14.10)? In Yjs 14 mode it does: the block goes with all its content.
