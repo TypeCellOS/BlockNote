@@ -12,6 +12,7 @@ import {
 import type { LensBlock } from "./model.js";
 import { flattenBlocks } from "./util/blocks/flatten.js";
 import { canonicalText } from "./testUtil/canonical.js";
+import { textStages } from "./testUtil/stages.js";
 import { createRandom } from "./testUtil/random.js";
 import {
   actualParents,
@@ -86,10 +87,7 @@ function writeRandomEdit(
   const text = getDocumentText(editor, format);
 
   // GetPut.
-  expect(
-    valid(computeOperations(editor, { base: "current", format, text }))
-      .operations,
-  ).toEqual([]);
+  expect(textStages(editor, format, text).operations).toEqual([]);
 
   const changed = randomTreeEdit(random, format.parse(editor, text), kind);
   if (changed === undefined) {
@@ -116,10 +114,7 @@ function expectLaws(format: TextFormat, { editor, edited }: Write) {
     nestingShape(format.parse(editor, edited)),
   );
   // PutTwice.
-  expect(
-    valid(computeOperations(editor, { base: "current", format, text: edited }))
-      .operations,
-  ).toEqual([]);
+  expect(textStages(editor, format, edited).operations).toEqual([]);
 }
 
 /**

@@ -16,8 +16,10 @@ import type { ViewBlock } from "../projection/projectDocument.js";
  * text.
  *
  * It calls the stage functions of `textTarget` and `operationsOf` in
- * `api.ts`, in the same order. The text must differ from the text of the
- * document (an unchanged text has no stages).
+ * `api.ts`, in the same order. For a text that is equal to the text of the
+ * document, the API takes a shortcut and runs no stage; this function runs
+ * all stages also then. Thus, GetPut and PutTwice use it: else they would
+ * examine only the shortcut, and not the projection of the document.
  */
 export function textStages(
   editor: BlockNoteEditor<any, any, any>,

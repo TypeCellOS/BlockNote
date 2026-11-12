@@ -2,13 +2,13 @@ import { BlockNoteEditor } from "@blocknote/core";
 import { describe, expect, it } from "vite-plus/test";
 
 import {
-  computeOperations,
   getDocumentText,
   markdownFormat,
   type TextFormat,
   updateDocument,
 } from "./index.js";
 import { canonicalText } from "./testUtil/canonical.js";
+import { textStages } from "./testUtil/stages.js";
 import {
   createRandom,
   type Random,
@@ -52,12 +52,8 @@ function expectLaws(
 ) {
   const text = getDocumentText(editor, format);
 
-  // GetPut, also without the shortcut for equal text.
-  expect(
-    valid(
-      computeOperations(editor, { base: "current", format, text: `${text}\n` }),
-    ).operations,
-  ).toEqual([]);
+  // GetPut.
+  expect(textStages(editor, format, text).operations).toEqual([]);
 
   const edited = randomEdits(random, text, (random, text) =>
     randomEdit(random, text, codec),
@@ -73,10 +69,7 @@ function expectLaws(
   );
 
   // PutTwice.
-  expect(
-    valid(computeOperations(editor, { base: "current", format, text: edited }))
-      .operations,
-  ).toEqual([]);
+  expect(textStages(editor, format, edited).operations).toEqual([]);
 }
 
 describe.each(formatCases)("$name", ({ name, format, codec }) => {
@@ -135,10 +128,6 @@ describe("markdown, edits of lines", () => {
       canonicalText(editor, format, edited),
     );
     // PutTwice.
-    expect(
-      valid(
-        computeOperations(editor, { base: "current", format, text: edited }),
-      ).operations,
-    ).toEqual([]);
+    expect(textStages(editor, format, edited).operations).toEqual([]);
   });
 });

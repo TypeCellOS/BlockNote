@@ -4,7 +4,6 @@ import { describe, expect, it } from "vite-plus/test";
 import { flattenBlocks } from "./util/blocks/flatten.js";
 import type { LensBlock } from "./model.js";
 import {
-  computeOperations,
   getDocumentText,
   htmlFormat,
   markdownFormat,
@@ -13,6 +12,7 @@ import {
   updateDocument,
 } from "./index.js";
 import { canonicalText } from "./testUtil/canonical.js";
+import { textStages } from "./testUtil/stages.js";
 import { createRandom, randomEdits } from "./testUtil/random.js";
 import {
   randomRichDocument,
@@ -44,14 +44,7 @@ describe.each([
       const text = getDocumentText(editor, format);
 
       // GetPut.
-      const getPut = computeOperations(editor, {
-        base: "current",
-        format,
-        text,
-      });
-      expect(getPut.error === undefined ? getPut.operations : getPut).toEqual(
-        [],
-      );
+      expect(textStages(editor, format, text).operations).toEqual([]);
 
       const edited = randomEdits(random, text, randomTextEdit);
       const update = updateDocument(editor, {
@@ -76,12 +69,7 @@ describe.each([
         canonicalText(editor, format, getDocumentText(editor, format)),
       ).toBe(canonicalText(editor, format, edited));
       // PutTwice.
-      const twice = computeOperations(editor, {
-        base: "current",
-        format,
-        text: edited,
-      });
-      expect(twice.error === undefined ? twice.operations : twice).toEqual([]);
+      expect(textStages(editor, format, edited).operations).toEqual([]);
     });
   },
 );

@@ -13,6 +13,7 @@ import type { LensBlock } from "./model.js";
 import { flattenBlocks } from "./util/blocks/flatten.js";
 import { blockToText } from "./util/blocks/text.js";
 import { canonicalText } from "./testUtil/canonical.js";
+import { textStages } from "./testUtil/stages.js";
 import { replaceOnce } from "./testUtil/fixtures.js";
 import { valid } from "./testUtil/valid.js";
 
@@ -114,10 +115,7 @@ function write(
     canonicalText(editor, format, text),
   );
   // PutTwice.
-  expect(
-    valid(computeOperations(editor, { base: "current", format, text }))
-      .operations,
-  ).toEqual([]);
+  expect(textStages(editor, format, text).operations).toEqual([]);
   return {
     shape: shapeOf(editor.document as LensBlock[], known),
     warnings: update.warnings,
