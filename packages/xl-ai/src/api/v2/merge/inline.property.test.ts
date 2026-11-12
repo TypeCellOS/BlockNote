@@ -148,6 +148,7 @@ describe("mergeInlineContent: laws on random content", () => {
       const result = mergeInlineContent(text(words), text(ours), text(theirs), {
         conflict: { winner: "theirs", onConflict: () => conflicts++ },
         insertsAtOnePosition: "both-theirs-first",
+        changeUnit: "character",
       });
       expect(inlineContentToText(result)).toBe(both.join(" "));
       expect(conflicts).toBe(0);

@@ -129,6 +129,7 @@ describe("mergeTableContent", () => {
       {
         conflict: { winner: "theirs", onConflict: () => conflicts++ },
         insertsAtOnePosition: "both-theirs-first",
+        changeUnit: "character",
       },
     );
     expect(merged.headerRows).toBe(1);

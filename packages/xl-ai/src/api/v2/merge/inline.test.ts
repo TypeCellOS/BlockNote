@@ -144,6 +144,7 @@ describe("mergeInlineContent", () => {
       {
         conflict: { winner: "theirs", onConflict: () => conflicts++ },
         insertsAtOnePosition: "both-theirs-first",
+        changeUnit: "character",
       },
     );
     expect(conflicts).toBe(1);
@@ -191,6 +192,7 @@ describe("mergeInlineContent: links", () => {
   const theirsWins = (onConflict: () => void) => ({
     conflict: { winner: "theirs" as const, onConflict },
     insertsAtOnePosition: "both-theirs-first" as const,
+    changeUnit: "character" as const,
   });
 
   it("keeps a new URL of theirs if ours did not change the link", () => {
@@ -267,6 +269,103 @@ describe("mergeInlineContent: links", () => {
         theirsWins(() => conflicts++),
       ),
     ).toEqual([styledText("see "), link("docs", b)]);
+    expect(conflicts).toBe(1);
+  });
+});
+
+describe("mergeInlineContent: the change unit", () => {
+  const rules = (changeUnit: "character" | "word", onConflict: () => void) => ({
+    conflict: { winner: "theirs" as const, onConflict },
+    insertsAtOnePosition: "both-theirs-first" as const,
+    changeUnit,
+  });
+  function merge(
+    changeUnit: "character" | "word",
+    base: string,
+    ours: string,
+    theirs: string,
+  ) {
+    let conflicts = 0;
+    const merged = mergeInlineContent(
+      [styledText(base)],
+      [styledText(ours)],
+      [styledText(theirs)],
+      rules(changeUnit, () => conflicts++),
+    );
+    return {
+      text: merged.map((item) => ("text" in item ? item.text : "")).join(""),
+      conflicts,
+    };
+  }
+
+  // A merge of characters can give a word that no side wrote.
+  it("applies changes of the two sides to different characters of one word, with the unit character", () => {
+    expect(
+      merge(
+        "character",
+        "Total: 1000 EUR",
+        "Total: 1500 EUR",
+        "Total: 1002 EUR",
+      ),
+    ).toEqual({
+      text: "Total: 1502 EUR",
+      conflicts: 0,
+    });
+  });
+
+  it("gives a conflict for a word that the two sides changed, with the unit word", () => {
+    expect(
+      merge("word", "Total: 1000 EUR", "Total: 1500 EUR", "Total: 1002 EUR"),
+    ).toEqual({
+      text: "Total: 1002 EUR",
+      conflicts: 1,
+    });
+    expect(merge("word", "the cat sat", "the bat sat", "the car sat")).toEqual({
+      text: "the car sat",
+      conflicts: 1,
+    });
+  });
+
+  it("applies changes of the two sides to different words, with the unit word", () => {
+    expect(
+      merge(
+        "word",
+        "go to the shop now",
+        "go to a shop now",
+        "go to the store now",
+      ),
+    ).toEqual({
+      text: "go to a store now",
+      conflicts: 0,
+    });
+  });
+
+  it("gives no conflict for the same change of a word, with the unit word", () => {
+    expect(merge("word", "the cat sat", "the bat sat", "the bat sat")).toEqual({
+      text: "the bat sat",
+      conflicts: 0,
+    });
+  });
+
+  // A change of a style is also a change of the word.
+  it("gives a conflict for a style change and a text change of one word, with the unit word", () => {
+    let conflicts = 0;
+    expect(
+      mergeInlineContent(
+        [styledText("the colour is")],
+        [styledText("the color is")],
+        [
+          styledText("the "),
+          styledText("colour", underline),
+          styledText(" is"),
+        ],
+        rules("word", () => conflicts++),
+      ),
+    ).toEqual([
+      styledText("the "),
+      styledText("colour", underline),
+      styledText(" is"),
+    ]);
     expect(conflicts).toBe(1);
   });
 });

@@ -1,5 +1,6 @@
 import type { LensInlineContent } from "../model.js";
 import { deepEqual } from "../util/blocks/index.js";
+import type { ChangeUnit } from "../util/sequence/index.js";
 
 /**
  * Which side wins a conflict: the two sides changed a value in different
@@ -34,6 +35,12 @@ export type MergeRules = {
    */
   insertsAtOnePosition: "both-theirs-first" | "conflict";
   /**
+   * The unit of a change in text. With `character`, the two sides can
+   * change different characters of one word, and both changes apply. With
+   * `word`, a word that the two sides changed is a conflict.
+   */
+  changeUnit: ChangeUnit;
+  /**
    * If set, `base` and `ours` show `theirs` without some of its inline items
    * (for example a format that does not show mentions). An inline item of
    * `theirs` that they do not have stays, and `shadowOf` gives the text that
@@ -46,14 +53,16 @@ export type MergeRules = {
 
 /**
  * The default rules of the merge functions, for their unit tests: `ours`
- * wins a conflict, two inserts at one position are a conflict, and `base` and
- * `ours` can lack inline items of `theirs` (without shadows).
+ * wins a conflict, two inserts at one position are a conflict, a change can
+ * be a part of a word, and `base` and `ours` can lack inline items of
+ * `theirs` (without shadows).
  *
  * @internal
  */
 export const DEFAULT_RULES: MergeRules = {
   conflict: OURS_WINS,
   insertsAtOnePosition: "conflict",
+  changeUnit: "character",
   hiddenItems: { shadowOf: () => undefined },
 };
 

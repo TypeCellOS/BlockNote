@@ -72,6 +72,10 @@ export function targetFromPairs(input: TargetInput): TargetResult {
       // a difference that the format makes (for example whitespace). Thus,
       // it does not stay.
       insertsAtOnePosition: "conflict",
+      // The source has the data that the format does not show (for example
+      // an underline) on single characters. Thus, the characters of a word
+      // that the text changed keep that data where they stay.
+      changeUnit: "character",
       // The format does not show some inline items (for example a mention in
       // markdown).
       hiddenItems: { shadowOf: input.shadowOf },

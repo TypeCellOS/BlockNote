@@ -1251,3 +1251,36 @@ describe("a write from an older version that removes props", () => {
     expect(warnings).toEqual([]);
   });
 });
+
+describe("a write from an older version that changes the same word as another writer", () => {
+  // A merge of characters would give "1502", a number that no writer wrote.
+  it("keeps the word of the other writer, with a warning", () => {
+    const editor = createEditor([
+      { id: "p", type: "paragraph", content: "Total: 1000 EUR" },
+    ]);
+    const client = read(editor);
+    write(editor, read(editor), (text) => replaceOnce(text, "1000", "1002"));
+    const { warnings } = write(editor, client, (text) =>
+      replaceOnce(text, "1000", "1500"),
+    );
+    expect(editor.getBlock("p")?.content).toMatchObject([
+      { text: "Total: 1002 EUR" },
+    ]);
+    expect(warnings).toEqual([{ type: "conflicting-change", id: "p" }]);
+  });
+
+  it("applies the changes of the two writers to different words of one sentence", () => {
+    const editor = createEditor([
+      { id: "p", type: "paragraph", content: "go to the shop now" },
+    ]);
+    const client = read(editor);
+    write(editor, read(editor), (text) => replaceOnce(text, "shop", "store"));
+    const { warnings } = write(editor, client, (text) =>
+      replaceOnce(text, "the", "a"),
+    );
+    expect(editor.getBlock("p")?.content).toMatchObject([
+      { text: "go to a store now" },
+    ]);
+    expect(warnings).toEqual([]);
+  });
+});

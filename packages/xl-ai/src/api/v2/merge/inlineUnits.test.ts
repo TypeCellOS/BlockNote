@@ -69,6 +69,7 @@ describe("alignUnits", () => {
     return alignUnits(
       toUnits([{ type: "text", text: a, styles: {} }]),
       toUnits([{ type: "text", text: b, styles: { bold: true } }]),
+      "character",
     ).length;
   }
 

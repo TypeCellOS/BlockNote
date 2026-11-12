@@ -9,6 +9,7 @@ import {
 import { stableStringify } from "../util/blocks/index.js";
 import {
   alignText,
+  type ChangeUnit,
   charKind,
   type MatchedPair,
   type TextUnit,
@@ -112,16 +113,18 @@ export function fromUnits(units: readonly InlineUnit[]): LensInlineContent[] {
 }
 
 /**
- * Aligns two unit sequences (see `alignText`). The alignment does not compare
- * styles. The merge does that in a different step.
+ * Aligns two unit sequences (see `alignText`, also for `changeUnit`). The
+ * alignment does not compare styles. The merge does that in a different
+ * step.
  *
  * @internal
  */
 export function alignUnits(
   a: readonly InlineUnit[],
   b: readonly InlineUnit[],
+  changeUnit: ChangeUnit,
 ): MatchedPair[] {
-  return alignText(a.map(textUnitOf), b.map(textUnitOf));
+  return alignText(a.map(textUnitOf), b.map(textUnitOf), changeUnit);
 }
 
 /**

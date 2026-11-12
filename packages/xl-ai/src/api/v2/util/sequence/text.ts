@@ -29,17 +29,24 @@ export function charKind(char: string): TextUnit["kind"] {
 const MIN_GAP_MATCH_RATIO = 0.5;
 
 /**
+ * The unit of a change in text (see {@link alignText}): `character` (a change
+ * can be a part of a word) or `word` (a changed word is one change).
+ */
+export type ChangeUnit = "character" | "word";
+
+/**
  * Aligns two texts in two steps:
  *
  * 1. By tokens: words and single other units, without whitespace. Thus, a
- *    word matches at each position, also at the end of the text, and a
- *    changed word is one change.
+ *    word matches at each position, also at the end of the text.
  * 2. By units, in the gaps between matched tokens. Equal whitespace at the
  *    edges of a gap matches first. Thus, whitespace matches only next to
- *    matched tokens and between matched characters.
+ *    matched tokens and between matched characters. With `changeUnit`
+ *    `character`, the characters of a changed word can also match: a change
+ *    can then be a part of a word. With `word`, they do not: a changed word
+ *    is one change.
  *
- * The merge and the apply use this alignment. Thus, the apply keeps the
- * same characters that the merge keeps.
+ * The merge and the apply use this alignment.
  *
  * The character diffs of all gaps share one work limit (see
  * `workBudgetFor`). Thus, the time is linear in the size of the texts, also
@@ -51,6 +58,7 @@ const MIN_GAP_MATCH_RATIO = 0.5;
 export function alignText(
   a: readonly TextUnit[],
   b: readonly TextUnit[],
+  changeUnit: ChangeUnit = "character",
 ): MatchedPair[] {
   const tokensA = tokenize(a);
   const tokensB = tokenize(b);
@@ -70,6 +78,7 @@ export function alignText(
       b,
       { aStart: aPos, aEnd: tokenA.start, bStart: bPos, bEnd: tokenB.start },
       budget,
+      changeUnit,
     )) {
       pairs.push(pair);
     }
@@ -84,6 +93,7 @@ export function alignText(
     b,
     { aStart: aPos, aEnd: a.length, bStart: bPos, bEnd: b.length },
     budget,
+    changeUnit,
   )) {
     pairs.push(pair);
   }
@@ -98,6 +108,7 @@ function alignGap(
   b: readonly TextUnit[],
   range: Range,
   budget: WorkBudget,
+  changeUnit: ChangeUnit,
 ): MatchedPair[] {
   let { aStart, aEnd, bStart, bEnd } = range;
   // Equal whitespace at the edges of the gap stays with the token next to
@@ -112,6 +123,10 @@ function alignGap(
   const after: MatchedPair[] = [];
   while (aStart < aEnd && bStart < bEnd && isSameSpace(aEnd - 1, bEnd - 1)) {
     after.unshift({ aIndex: --aEnd, bIndex: --bEnd });
+  }
+  if (changeUnit === "word") {
+    // A changed word is one change: its characters do not match.
+    return [...before, ...after];
   }
   // The character matches in the rest, if they cover enough of it (see
   // MIN_GAP_MATCH_RATIO).

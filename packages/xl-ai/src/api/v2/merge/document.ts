@@ -489,6 +489,11 @@ function mergeFields(
       // that applied first (of the other writer) stays first. Thus, two
       // additions at the end read in the order of the writes.
       insertsAtOnePosition: "both-theirs-first",
+      // A write from an older version can come long after the read. A merge
+      // of characters can then give a word that no side wrote (1000 changed
+      // to 1500 and to 1002 gives 1502). Thus, as in a merge of versions, a
+      // word that the two sides changed is a conflict.
+      changeUnit: "word",
     },
   );
   return { block: { id, ...merged, children: [] }, conflict };

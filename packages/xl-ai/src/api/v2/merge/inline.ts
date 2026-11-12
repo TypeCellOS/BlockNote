@@ -53,8 +53,8 @@ export function mergeInlineContent(
       baseUnits,
       ourUnits,
       theirUnits,
-      alignUnits(baseUnits, ourUnits),
-      alignUnits(baseUnits, theirUnits),
+      alignUnits(baseUnits, ourUnits, rules.changeUnit),
+      alignUnits(baseUnits, theirUnits, rules.changeUnit),
       {
         stable: (triple) => mergeStable(triple, conflict),
         ours: (units, context) => {

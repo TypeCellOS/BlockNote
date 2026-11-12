@@ -60,6 +60,7 @@ describe("mergeBlock", () => {
       {
         conflict: { winner: "theirs", onConflict: () => {} },
         insertsAtOnePosition: "both-theirs-first",
+        changeUnit: "character",
       },
     );
     expect(merged).toEqual({
@@ -210,6 +211,7 @@ describe("mergeBlock", () => {
     const theirsWins = (onConflict: () => void) => ({
       conflict: { winner: "theirs" as const, onConflict },
       insertsAtOnePosition: "both-theirs-first" as const,
+      changeUnit: "character" as const,
     });
 
     // Before the fix, the content of ours won without a report, also if

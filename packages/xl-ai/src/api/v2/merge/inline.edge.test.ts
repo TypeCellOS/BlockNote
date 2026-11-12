@@ -30,6 +30,7 @@ function target(
   return mergeInlineContent([text(view)], [text(textOfClient)], document, {
     conflict: { winner: "ours" },
     insertsAtOnePosition: "conflict",
+    changeUnit: "character",
     hiddenItems: { shadowOf },
   });
 }
@@ -84,6 +85,7 @@ describe("mergeInlineContent: shadows of the target stage", () => {
         {
           conflict: { winner: "ours" },
           insertsAtOnePosition: "conflict",
+          changeUnit: "character",
           hiddenItems: { shadowOf },
         },
       ),

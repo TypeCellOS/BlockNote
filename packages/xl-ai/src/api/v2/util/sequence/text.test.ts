@@ -37,3 +37,20 @@ describe("alignText", () => {
     expect(kept("alpha delta", "alpha gamma")).toBe("alpha ");
   });
 });
+
+describe("alignText with the change unit word", () => {
+  function keptByWord(a: string, b: string): string {
+    const unitsB = Array.from(b);
+    return alignText(units(a), units(b), "word")
+      .map((pair) => unitsB[pair.bIndex])
+      .join("");
+  }
+
+  it("does not match the characters of a changed word", () => {
+    expect(keptByWord("the colour is", "the color is")).toBe("the  is");
+  });
+
+  it("matches equal words and the whitespace next to them, as with characters", () => {
+    expect(keptByWord("one two three", "zero one two four")).toBe("one two ");
+  });
+});
