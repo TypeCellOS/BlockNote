@@ -4,21 +4,24 @@ import type { BlockIndex } from "../util/blocks/index.js";
 import type { KeptRow, TargetRow } from "./types.js";
 
 /**
- * The root of the target document, as a place (see {@link Place}).
+ * The top level of the target document, as a place (see {@link Place}). The
+ * rest of the lens uses `undefined` for the top level (`TOP_LEVEL`). Here it
+ * is a symbol, because each rule of this file returns `undefined` when it
+ * gives no place.
  *
  * @internal
  */
-export const ROOT: unique symbol = Symbol("root");
+export const TOP_LEVEL_PLACE: unique symbol = Symbol("top level");
 
 /**
- * A place in the target document: the root, or the ID of a block of the
+ * A place in the target document: the top level, or the ID of a block of the
  * target. That block is the block of a row of the text (a new or a kept
  * block), or an invisible ancestor (a source block without a view block,
  * for example a column, that a kept block keeps as its ancestor).
  *
  * @internal
  */
-export type Place = string | typeof ROOT;
+export type Place = string | typeof TOP_LEVEL_PLACE;
 
 /**
  * One step of the build: block `block` goes into `parent`, after its last
@@ -72,7 +75,7 @@ export function decideParents(input: NestingInput): BuildStep[] {
  * the blocks below it. Each attach is one step of the build.
  */
 class OpenAncestors {
-  private readonly stack: Place[] = [ROOT];
+  private readonly stack: Place[] = [TOP_LEVEL_PLACE];
   private readonly parents = new Map<string, Place>();
   readonly steps: BuildStep[] = [];
 
@@ -176,7 +179,7 @@ class ParentDecisions {
 
   /** The type of the block at a place. */
   private typeOf(place: Place): string {
-    if (place === ROOT) {
+    if (place === TOP_LEVEL_PLACE) {
       return "";
     }
     const j = this.rowIndexOf.get(place);
@@ -185,10 +188,10 @@ class ParentDecisions {
       : this.sourceIndex.block(place).type;
   }
 
-  /** The place of the parent of text block `j` in the text, or the root. */
+  /** The place of the parent of text block `j` in the text, or the top level. */
   private textParent(j: number): Place {
     const p = this.textBlocks[j].parentIndex;
-    return p === undefined ? ROOT : this.rows[p].id;
+    return p === undefined ? TOP_LEVEL_PLACE : this.rows[p].id;
   }
 
   /**
@@ -233,7 +236,7 @@ class ParentDecisions {
   private sourceParent(id: string): Place | undefined {
     const invisible = this.invisibleAncestors(id);
     const visible = this.sourceIndex.parent(invisible.at(-1) ?? id);
-    let parent: Place = visible ?? ROOT;
+    let parent: Place = visible ?? TOP_LEVEL_PLACE;
     if (
       !this.open.isOpen(parent) ||
       invisible.some((ancestor) => !this.staying.has(ancestor)) ||

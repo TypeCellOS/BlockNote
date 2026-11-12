@@ -2,6 +2,7 @@ import type { ContentKind, LensBlock } from "../model.js";
 import {
   BlockIndex,
   diffBlock,
+  TOP_LEVEL,
   withoutChildren,
 } from "../util/blocks/index.js";
 import { type MatchedPair, myersMatch } from "../util/sequence/index.js";
@@ -77,7 +78,7 @@ export function mergeDocument(input: {
       return { ...fields.block, children: build(id) };
     });
   }
-  const blocks = build(undefined);
+  const blocks = build(TOP_LEVEL);
   return { blocks, warnings: [...warnings, ...removalWarnings(sides)] };
 }
 

@@ -1,5 +1,9 @@
 import type { LensBlock } from "../model.js";
-import { blockToText, type BlockIndex } from "../util/blocks/index.js";
+import {
+  blockToText,
+  type BlockIndex,
+  TOP_LEVEL,
+} from "../util/blocks/index.js";
 
 /**
  * Returns the source blocks that stay: the kept blocks (`keptIds`), and the
@@ -28,7 +32,7 @@ export function withInvisibleBlocks(
   // A document with only empty blocks at the top level (for example a new
   // editor) has no content that the text did not give.
   const topHasContent = sourceIndex
-    .childrenOf(undefined)
+    .childrenOf(TOP_LEVEL)
     .some((id) => !isEmptyBlock(sourceIndex.block(id)));
   // In document order. Thus, the decision for the parent of a block comes first.
   for (const id of sourceIndex.ids) {

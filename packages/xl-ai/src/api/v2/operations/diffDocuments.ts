@@ -2,6 +2,7 @@ import type { LensBlock } from "../model.js";
 import {
   BlockIndex,
   diffBlock,
+  TOP_LEVEL,
   withoutChildren,
 } from "../util/blocks/index.js";
 import { myersMatch } from "../util/sequence/index.js";
@@ -98,7 +99,7 @@ export function diffDocuments(
       }
     }
   }
-  placeChildren(undefined);
+  placeChildren(TOP_LEVEL);
 
   for (const id of from.ids) {
     const parent = from.parent(id);

@@ -19,5 +19,5 @@ export {
   withoutMergedCells,
 } from "./tableGrid.js";
 export { blockToText, inlineContentToText } from "./text.js";
-export { BlockIndex } from "./blockIndex.js";
+export { BlockIndex, TOP_LEVEL } from "./blockIndex.js";
 export { diffBlock } from "./update.js";

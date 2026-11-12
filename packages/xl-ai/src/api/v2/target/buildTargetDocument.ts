@@ -1,7 +1,7 @@
 import type { BlockFields, FlatBlock, LensBlock } from "../model.js";
 import type { ViewBlock } from "../projection/index.js";
-import type { BlockIndex } from "../util/blocks/index.js";
-import { decideParents, ROOT } from "./hiddenNesting.js";
+import { type BlockIndex, TOP_LEVEL } from "../util/blocks/index.js";
+import { decideParents, TOP_LEVEL_PLACE } from "./hiddenNesting.js";
 import type { TargetRow } from "./types.js";
 
 export type { TargetRow } from "./types.js";
@@ -42,7 +42,8 @@ export function buildTargetDocument(input: {
     );
     // `decideParents` gives a step for a parent before the steps of its
     // children.
-    const parentBlock = parent === ROOT ? root : blocksById.get(parent);
+    const parentBlock =
+      parent === TOP_LEVEL_PLACE ? root : blocksById.get(parent);
     if (parentBlock === undefined) {
       throw new Error(`The parent ${String(parent)} is not in the target yet`);
     }
@@ -100,7 +101,7 @@ function placeInvisibleBlocks(
       place(id);
     }
   }
-  place(undefined);
+  place(TOP_LEVEL);
 }
 
 /** Returns `children` with the blocks of `after` after the block with each ID (first for `undefined`). */

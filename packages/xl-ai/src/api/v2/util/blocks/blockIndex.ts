@@ -3,6 +3,13 @@ import type { LensBlock } from "../../model.js";
 const NO_CHILDREN: readonly string[] = [];
 
 /**
+ * The parent of the top-level blocks of a document. The lens uses
+ * `undefined` for it: `BlockIndex.parent` of a top-level block is
+ * `TOP_LEVEL`, and `childrenOf(TOP_LEVEL)` gives the top-level blocks.
+ */
+export const TOP_LEVEL = undefined;
+
+/**
  * An index of the shape of a document, for a lookup by ID: the parent and
  * the children of each block. It does not change.
  */
@@ -13,7 +20,7 @@ export class BlockIndex {
   private readonly indexes = new Map<string, number>();
 
   constructor(blocks: readonly LensBlock[]) {
-    this.add(blocks, undefined);
+    this.add(blocks, TOP_LEVEL);
   }
 
   /** The blocks by ID, as given (with their children). */
@@ -67,12 +74,12 @@ export class BlockIndex {
     return index;
   }
 
-  /** The parent of a block, or `undefined` for a top-level block. */
+  /** The parent of a block, or `TOP_LEVEL` for a top-level block. */
   parent(id: string): string | undefined {
     return this.parents.get(id);
   }
 
-  /** The children of a block, or the top-level blocks for `undefined`. */
+  /** The children of a block, or the top-level blocks for `TOP_LEVEL`. */
   childrenOf(parent: string | undefined): readonly string[] {
     return this.children.get(parent) ?? NO_CHILDREN;
   }
