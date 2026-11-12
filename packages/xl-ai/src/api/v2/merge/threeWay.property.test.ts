@@ -3,8 +3,7 @@ import { describe, expect, it } from "vite-plus/test";
 
 import { deepEqual } from "../util/blocks/json.js";
 import { createRandom } from "../testUtil/random.js";
-import { mergeRecords, mergeValue } from "./threeWay.js";
-import { mergeOptions } from "../testUtil/merge.js";
+import { mergeRecords, mergeValue, OURS_WINS } from "./threeWay.js";
 
 const VALUES: unknown[] = [
   undefined,
@@ -22,8 +21,8 @@ const VALUES: unknown[] = [
 ];
 
 describe("mergeValue: laws on all triples of a set of values", () => {
-  it("follows the three-way rule, and calls onConflict only for a real conflict of the document merge", () => {
-    for (const concurrent of [false, true]) {
+  it("follows the three-way rule, and calls onConflict only for a real conflict that theirs wins", () => {
+    for (const theirsWins of [false, true]) {
       for (const base of VALUES) {
         for (const ours of VALUES) {
           for (const theirs of VALUES) {
@@ -32,21 +31,22 @@ describe("mergeValue: laws on all triples of a set of values", () => {
               base,
               ours,
               theirs,
-              mergeOptions(concurrent, () => conflicts++),
+              theirsWins
+                ? { winner: "theirs", onConflict: () => conflicts++ }
+                : OURS_WINS,
             );
             const oursChanged = !deepEqual(base, ours);
             const theirsChanged = !deepEqual(base, theirs);
             const conflict =
               oursChanged && theirsChanged && !deepEqual(ours, theirs);
-            // Only the document merge reports a conflict (the target stage
-            // has no warning for it).
-            expect(conflicts).toBe(conflict && concurrent ? 1 : 0);
+            // Only the rule in which theirs wins reports a conflict.
+            expect(conflicts).toBe(conflict && theirsWins ? 1 : 0);
             if (!oursChanged) {
               expect(result).toBe(theirs);
             } else if (!conflict) {
               expect(result).toBe(ours);
             } else {
-              expect(result).toBe(concurrent ? theirs : ours);
+              expect(result).toBe(theirsWins ? theirs : ours);
             }
           }
         }
@@ -59,7 +59,10 @@ describe("mergeValue: laws on all triples of a set of values", () => {
       for (const ours of VALUES) {
         for (const theirs of VALUES) {
           const forward = mergeValue(base, ours, theirs);
-          const backward = mergeValue(base, theirs, ours, mergeOptions(true));
+          const backward = mergeValue(base, theirs, ours, {
+            winner: "theirs",
+            onConflict: () => {},
+          });
           expect(deepEqual(forward, backward)).toBe(true);
         }
       }

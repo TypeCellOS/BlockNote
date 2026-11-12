@@ -52,6 +52,36 @@ export const TARGET_WITHOUT_SHADOWS: MergeOptions = {
 };
 
 /**
+ * Which side wins a conflict: the two sides changed a value in different
+ * ways. `ours` wins without a report, or `theirs` wins, and `onConflict`
+ * reports it (for a warning).
+ *
+ * @internal
+ */
+export type ConflictRule =
+  | { winner: "ours" }
+  | { winner: "theirs"; onConflict: () => void };
+
+/**
+ * The conflict rule in which `ours` wins: the default of {@link mergeValue}.
+ *
+ * @internal
+ */
+export const OURS_WINS: ConflictRule = { winner: "ours" };
+
+/**
+ * The conflict rule of a kind of merge: `ours` (the text) wins in the target
+ * stage, and `theirs` wins in the document merge (see `MergeOptions`).
+ *
+ * @internal
+ */
+export function conflictRuleOf(options: MergeOptions): ConflictRule {
+  return options.kind === "target"
+    ? OURS_WINS
+    : { winner: "theirs", onConflict: options.onConflict };
+}
+
+/**
  * The three-way rule for all merges in this folder, with one vocabulary:
  *
  * - `base`: the common start of the two sides.
@@ -62,8 +92,8 @@ export const TARGET_WITHOUT_SHADOWS: MergeOptions = {
  *
  * If `ours` is different from `base`, the result is `ours`. If not, the
  * result is `theirs`. Thus, data that `base` does not show stays. If the two
- * sides changed the value in different ways (a conflict), `ours` wins, and
- * in the document merge `theirs` wins (see `MergeOptions`).
+ * sides changed the value in different ways (a conflict), `conflict` tells
+ * which side wins.
  *
  * Method: the standard three-way rule for one value, as diff3 uses it for one
  * item.
@@ -74,7 +104,7 @@ export function mergeValue<T>(
   base: T,
   ours: T,
   theirs: T,
-  options: MergeOptions = TARGET_WITHOUT_SHADOWS,
+  conflict: ConflictRule = OURS_WINS,
 ): T {
   if (deepEqual(base, ours)) {
     return theirs;
@@ -82,10 +112,10 @@ export function mergeValue<T>(
   if (deepEqual(base, theirs) || deepEqual(ours, theirs)) {
     return ours;
   }
-  if (options.kind === "target") {
+  if (conflict.winner === "ours") {
     return ours;
   }
-  options.onConflict();
+  conflict.onConflict();
   return theirs;
 }
 
@@ -99,7 +129,7 @@ export function mergeRecords<R extends object>(
   base: R,
   ours: R,
   theirs: R,
-  options: MergeOptions = TARGET_WITHOUT_SHADOWS,
+  conflict: ConflictRule = OURS_WINS,
 ): R {
   function read(record: R, key: string) {
     return (record as Record<string, unknown>)[key];
@@ -114,7 +144,7 @@ export function mergeRecords<R extends object>(
       read(base, key),
       read(ours, key),
       read(theirs, key),
-      options,
+      conflict,
     );
     if (value !== undefined) {
       result[key] = value;

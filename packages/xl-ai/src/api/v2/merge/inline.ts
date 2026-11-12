@@ -9,9 +9,11 @@ import {
   toUnits,
 } from "./inlineUnits.js";
 import {
+  conflictRuleOf,
   type MergeOptions,
   mergeRecords,
   mergeValue,
+  OURS_WINS,
   TARGET_WITHOUT_SHADOWS,
 } from "./threeWay.js";
 
@@ -81,8 +83,18 @@ function mergeStable(
     return {
       kind: "char",
       char: ours.char,
-      styles: mergeRecords(base.styles, ours.styles, theirs.styles, options),
-      href: mergeValue(base.href, ours.href, theirs.href, options),
+      styles: mergeRecords(
+        base.styles,
+        ours.styles,
+        theirs.styles,
+        conflictRuleOf(options),
+      ),
+      href: mergeValue(
+        base.href,
+        ours.href,
+        theirs.href,
+        conflictRuleOf(options),
+      ),
       shadow: theirs.shadow,
     };
   }
@@ -218,7 +230,13 @@ function inheritFrom(
       context.base.styles,
       unit.styles,
       context.theirs.styles,
+      OURS_WINS,
     ),
-    href: mergeValue(context.base.href, unit.href, context.theirs.href),
+    href: mergeValue(
+      context.base.href,
+      unit.href,
+      context.theirs.href,
+      OURS_WINS,
+    ),
   };
 }

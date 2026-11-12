@@ -10,6 +10,7 @@ import { gaps, type MatchedPair, myersMatch } from "../util/sequence/index.js";
 import { diff3 } from "./diff3.js";
 import { mergeInlineContent } from "./inline.js";
 import {
+  conflictRuleOf,
   type MergeOptions,
   mergeRecords,
   mergeValue,
@@ -92,7 +93,7 @@ export function mergeTableContent(
       ? concurrent
         ? theirValue
         : ourValue
-      : mergeValue(baseValue, ourValue, theirValue, options);
+      : mergeValue(baseValue, ourValue, theirValue, conflictRuleOf(options));
   return {
     type: "tableContent",
     columnWidths: field(
@@ -186,7 +187,12 @@ function mergeCell(
 ): LensTableCell {
   return {
     type: "tableCell",
-    props: mergeRecords(base.props, ours.props, theirs.props, options),
+    props: mergeRecords(
+      base.props,
+      ours.props,
+      theirs.props,
+      conflictRuleOf(options),
+    ),
     content: mergeInlineContent(
       base.content,
       ours.content,

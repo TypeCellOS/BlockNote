@@ -11,6 +11,7 @@ import { deepEqual, inlineContentToText } from "../util/blocks/index.js";
 import { mergeInlineContent } from "./inline.js";
 import { mergeTableContent } from "./table.js";
 import {
+  conflictRuleOf,
   type MergeOptions,
   mergeRecords,
   mergeValue,
@@ -46,7 +47,12 @@ export function mergeBlock(
   options: MergeOptions = TARGET_WITHOUT_SHADOWS,
 ): BlockFields {
   const contentChanged = !deepEqual(base.content, ours.content);
-  const merged = mergeValue(base.type, ours.type, theirs.type, options);
+  const merged = mergeValue(
+    base.type,
+    ours.type,
+    theirs.type,
+    conflictRuleOf(options),
+  );
   // The type of theirs cannot hold the content of ours.
   const clash =
     contentChanged &&
@@ -109,7 +115,12 @@ function mergeProps(
   options: MergeOptions,
 ): Record<string, unknown> {
   if (ours.type === theirs.type) {
-    return mergeRecords(base.props, ours.props, theirs.props, options);
+    return mergeRecords(
+      base.props,
+      ours.props,
+      theirs.props,
+      conflictRuleOf(options),
+    );
   }
   const [side, other] = type === ours.type ? [ours, theirs] : [theirs, ours];
   const props: Record<string, unknown> = {};
@@ -120,7 +131,7 @@ function mergeProps(
             base.props[key],
             ours.props[key],
             theirs.props[key],
-            options,
+            conflictRuleOf(options),
           )
         : value;
     if (merged !== undefined) {

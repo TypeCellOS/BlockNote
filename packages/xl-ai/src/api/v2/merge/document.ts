@@ -239,7 +239,7 @@ function mergeParents(
       return theirs.parent(id);
     }
     return mergeValue(base.parent(id), ours.parent(id), theirs.parent(id), {
-      kind: "document",
+      winner: "theirs",
       onConflict: () => conflicts.add(id),
     });
   }
