@@ -51,8 +51,6 @@ export function buildTargetDocument(input: {
       case "row": {
         const row = rows[place.index];
         switch (row.kind) {
-          case "skipped":
-            throw new Error("A skipped row is not a step of the build");
           case "new":
             return blockFromFields(input.newId(), row.fields);
           case "kept": {

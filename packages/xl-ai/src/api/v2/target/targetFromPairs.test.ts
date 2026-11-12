@@ -29,7 +29,7 @@ function flat(text: string, parentIndex?: number): FlatBlock {
 }
 
 function viewBlock(
-  sourceId: string | undefined,
+  sourceId: string,
   text: string,
   parentIndex?: number,
 ): ViewBlock {
@@ -249,57 +249,5 @@ describe("targetFromPairs", () => {
         invisibleIds: ["col"],
       }).target,
     ).toEqual(["col:", ["x:x2", "y"], "e"]);
-  });
-
-  it("does not apply a change to a view block without a link, and gives a warning", () => {
-    expect(
-      targetOf({
-        document: [paragraph("a", "a")],
-        view: [viewBlock("a", "a"), viewBlock(undefined, "x")],
-        incoming: [flat("a"), flat("x2")],
-        pairs: same,
-      }),
-    ).toEqual({
-      target: ["a"],
-      warnings: [{ type: "unlinked-block-changed", text: "x" }],
-    });
-  });
-
-  it("gives a warning for a view block without a link that the text removes", () => {
-    expect(
-      targetOf({
-        document: [paragraph("a", "a")],
-        view: [viewBlock("a", "a"), viewBlock(undefined, "x")],
-        incoming: [flat("a")],
-        pairs: [[0, 0]],
-      }),
-    ).toEqual({
-      target: ["a"],
-      warnings: [{ type: "unlinked-block-changed", text: "x" }],
-    });
-  });
-
-  it("adds no block for a view block without a link that the text does not change, and gives no warning", () => {
-    expect(
-      targetOf({
-        document: [paragraph("a", "a")],
-        view: [viewBlock("a", "a"), viewBlock(undefined, "x")],
-        incoming: [flat("a"), flat("x")],
-        pairs: same,
-      }),
-    ).toEqual({ target: ["a"], warnings: [] });
-  });
-
-  it("makes the pair of an empty view block without a link a new block, without a warning", () => {
-    // The empty view block has no data that the text can change. Thus, the
-    // text block is a block of the text.
-    expect(
-      targetOf({
-        document: [paragraph("a", "a")],
-        view: [viewBlock("a", "a"), viewBlock(undefined, "")],
-        incoming: [flat("a"), flat("n")],
-        pairs: same,
-      }),
-    ).toEqual({ target: ["a", "new1:n"], warnings: [] });
   });
 });

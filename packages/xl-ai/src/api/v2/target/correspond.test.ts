@@ -21,7 +21,7 @@ function tableOf(
   const document = editor.document as LensBlock[];
   const projection = projectDocument(editor, format, document);
   const textBlocks = textBlocksOf(editor, format, text, projection.view);
-  const { rows, kept, warnings } = correspond(
+  const { rows, kept } = correspond(
     {
       projection,
       incoming: textBlocks,
@@ -36,7 +36,6 @@ function tableOf(
       blockToText(textBlocks[j].block),
     ]),
     kept: [...kept],
-    warnings,
   };
 }
 
@@ -62,7 +61,6 @@ describe("correspond", () => {
       ],
       // Block c is not in the text: it goes.
       kept: ["a", "b"],
-      warnings: [],
     });
   });
 

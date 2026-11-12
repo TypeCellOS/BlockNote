@@ -8,6 +8,7 @@ import { describe, expect, it } from "vite-plus/test";
 
 import { blockToText } from "../util/blocks/text.js";
 import type { LensBlock } from "../model.js";
+import { htmlFormat } from "../formats/html.js";
 import { markdownFormat } from "../formats/markdown.js";
 import { plainTextFormat } from "../formats/plainText.js";
 import type { TextFormat } from "../formats/types.js";
@@ -101,6 +102,44 @@ describe("projectDocument", () => {
       ),
     ).toThrow(
       'The format shows a block of type "twoParagraphs" as more than one block',
+    );
+  });
+
+  it.each([
+    ["markdown", markdownFormat],
+    ["HTML", htmlFormat],
+  ])(
+    "gives no view block for a document that the format shows as no block, in %s",
+    (_, format) => {
+      // The text has no blocks. Its parse gives one empty paragraph (the fill
+      // of the schema), which no block of the document gives.
+      const imageOnly = BlockNoteEditor.create({
+        initialContent: [{ id: "img", type: "image" }],
+      });
+      const projection = projectDocument(
+        imageOnly,
+        format,
+        imageOnly.document as LensBlock[],
+      );
+      expect(projection.view).toEqual([]);
+      expect([...projection.invisibleIds]).toEqual(["img"]);
+    },
+  );
+
+  it("throws for a view block that no block of the document gives", () => {
+    // A format with a bug: its parse adds an image without a URL.
+    const broken: TextFormat = {
+      serialize: (serializeEditor, blocks) =>
+        markdownFormat.serialize(serializeEditor, blocks),
+      parse: (parseEditor, text) => [
+        ...markdownFormat.parse(parseEditor, text),
+        { id: "", type: "image", props: {}, content: undefined, children: [] },
+      ],
+    };
+    expect(() =>
+      projectDocument(editor, broken, editor.document as LensBlock[]),
+    ).toThrow(
+      'The format shows a block of type "image" that no block of the document gives',
     );
   });
 

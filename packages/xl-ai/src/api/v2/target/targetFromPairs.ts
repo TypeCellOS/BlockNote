@@ -46,11 +46,10 @@ export type TargetInput = {
  */
 export function targetFromPairs(input: TargetInput): TargetResult {
   const sourceIndex = new BlockIndex(input.source);
-  const { rows, kept, warnings } = correspond(input, sourceIndex);
+  const { rows, kept } = correspond(input, sourceIndex);
+  const warnings: TargetWarning[] = [];
   const targetRows = rows.map((row, j): TargetRow => {
     switch (row.kind) {
-      case "skipped":
-        return row;
       case "new":
         return { ...row, fields: input.incoming[j].block };
       case "kept": {

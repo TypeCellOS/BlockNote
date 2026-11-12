@@ -36,10 +36,6 @@ export function describeOperation(operation: BlockOperation): string {
 /** Returns one line of text for a warning of the lens. */
 export function describeWarning(warning: ChangeWarning): string {
   switch (warning.type) {
-    case "multi-part-block-replaced":
-      return `${warning.type} ${shortId(warning.id)}: the blocks of the text replaced a block that the format shows as more than one block.`;
-    case "unlinked-block-changed":
-      return `${warning.type}: the change to "${warning.text}" did not apply. This text does not come from one block.`;
     case "block-shape-replaced":
       return `${warning.type} ${shortId(warning.id)}: the format shows this block with a different shape. The block of the text replaced it.`;
     case "change-to-removed-block":

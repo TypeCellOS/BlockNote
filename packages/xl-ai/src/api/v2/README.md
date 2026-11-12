@@ -278,7 +278,6 @@ Each folder has an `index.ts` with its API for the other folders. A file imports
 
 A result can contain warnings (`ChangeWarning`). A warning tells you that a part of the text did not apply as written, or that data was lost:
 
-- `unlinked-block-changed`: the text changed a part of the text that does not come from one document block (`text` is that part). The change does not apply. An empty block of the view without a document block gives no warning, because the text cannot change data of it.
 - `block-shape-replaced`: the format shows the block with content of a different shape (for example a table as lines of text), and the text changed that content. The block takes the type of the text block. Its old content is lost.
 - `change-to-removed-block` (merge): the text changed or moved a block that another writer removed. The change does not apply.
 - `removed-changed-block` (merge): the text removed a block that another writer changed (or a block in it). The removal does not apply to the blocks with a change of the other writer: they stay.

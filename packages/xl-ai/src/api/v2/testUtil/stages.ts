@@ -62,8 +62,8 @@ export function textStages(
       const parent =
         parentIndex === undefined
           ? []
-          : [`in ${projection.view[parentIndex].sourceId ?? "(no link)"}`];
-      return [...short(block, sourceId ?? "(no link)"), ...parent];
+          : [`in ${projection.view[parentIndex].sourceId}`];
+      return [...short(block, sourceId), ...parent];
     }),
     invisible: [...projection.invisibleIds],
     pairs: pairs.map(({ aIndex, bIndex }) => [

@@ -764,6 +764,27 @@ describe("markdown, a paragraph with \\r line breaks", () => {
   });
 });
 
+describe("markdown, a document that markdown shows as no block", () => {
+  it("keeps the hidden blocks and adds the blocks of the text", () => {
+    // The text is empty. Its parse gives one empty paragraph (the fill of the
+    // schema), and that paragraph is not a block of the view.
+    const editor = createEditor([{ id: "img", type: "image" }]);
+    const update = writeText(editor, markdownFormat, () => "Hello");
+
+    expect(update.warnings).toEqual([]);
+    expect(
+      editor.document.map(({ id, type, content }) => [
+        id === "img" ? id : "new",
+        type,
+        Array.isArray(content) ? inlineContentToText(content) : undefined,
+      ]),
+    ).toEqual([
+      ["img", "image", undefined],
+      ["new", "paragraph", "Hello"],
+    ]);
+  });
+});
+
 describe("markdown, blocks that markdown shows as other blocks", () => {
   const format = markdownFormat;
   function createMediaEditor() {

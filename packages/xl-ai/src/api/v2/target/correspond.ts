@@ -1,12 +1,7 @@
 import type { BlockWithoutChildren, FlatBlock, LensBlock } from "../model.js";
-import {
-  blockKey,
-  blockToText,
-  type BlockIndex,
-} from "../util/blocks/index.js";
+import { blockToText, type BlockIndex } from "../util/blocks/index.js";
 import type { BlockPair } from "../alignment/index.js";
-import type { Projection, ViewBlock } from "../projection/index.js";
-import type { TargetWarning } from "./types.js";
+import type { Projection } from "../projection/index.js";
 
 /**
  * What the target stage does with one block of the text (a row).
@@ -27,12 +22,7 @@ export type TextRow =
       moved: boolean;
     }
   /** A new block. It gets a new ID. */
-  | { kind: "new"; viewIndex: number | undefined }
-  /**
-   * The text block gives no block: it is the pair of a view block without a
-   * link, and the target stage cannot apply a change of such a block.
-   */
-  | { kind: "skipped"; viewIndex: number };
+  | { kind: "new" };
 
 /**
  * The correspondence of the text blocks and the source blocks.
@@ -47,7 +37,6 @@ export type Correspondence = {
    * the invisible blocks that stay (see {@link withInvisibleBlocks}).
    */
   kept: Set<string>;
-  warnings: TargetWarning[];
 };
 
 /**
@@ -57,8 +46,6 @@ export type Correspondence = {
  *
  * - A source block with a pair in the text stays. Each source block has one
  *   view block at most (see `projectWithParts`).
- * - The text cannot change a view block without a link (warning
- *   `unlinked-block-changed`, unless the view block is empty).
  * - An invisible block stays, with some exceptions (see
  *   {@link withInvisibleBlocks}).
  *
@@ -90,30 +77,18 @@ export function correspond(
     }
   }
 
-  /** Returns true if the view block has a pair in the text, without changes. */
-  function unchanged(v: number): boolean {
-    const j = textIndexOf[v];
-    return (
-      j !== undefined && blockKey(view[v].block) === blockKey(incoming[j].block)
-    );
-  }
-
   /** The row of text block `j`. */
   function rowOf(j: number): TextRow {
     const v = viewIndexOf[j];
     if (v === undefined) {
-      return { kind: "new", viewIndex: undefined };
+      return { kind: "new" };
     }
-    const { sourceId, block } = view[v];
-    if (sourceId === undefined) {
-      // A view block without a link: the text cannot change it (see
-      // `unlinkedWarnings`). Only the pair of an empty view block that the
-      // text changed is a block of the text.
-      return isEmptyTextBlock(block) && !unchanged(v)
-        ? { kind: "new", viewIndex: v }
-        : { kind: "skipped", viewIndex: v };
-    }
-    return { kind: "kept", id: sourceId, viewIndex: v, moved: moved.has(j) };
+    return {
+      kind: "kept",
+      id: view[v].sourceId,
+      viewIndex: v,
+      moved: moved.has(j),
+    };
   }
 
   const rows = incoming.map((_, j) => rowOf(j));
@@ -121,24 +96,7 @@ export function correspond(
   return {
     rows,
     kept: withInvisibleBlocks(source, invisibleIds, keptIds),
-    warnings: unlinkedWarnings(view, unchanged),
   };
-}
-
-/**
- * The warnings `unlinked-block-changed`: the text changed or removed a view
- * block without a link, and the text cannot change such a block. An empty
- * view block gives no warning: its pair is a block of the text.
- */
-function unlinkedWarnings(
-  view: readonly ViewBlock[],
-  unchanged: (v: number) => boolean,
-): TargetWarning[] {
-  return view.flatMap(({ sourceId, block }, v): TargetWarning[] =>
-    sourceId === undefined && !unchanged(v) && !isEmptyTextBlock(block)
-      ? [{ type: "unlinked-block-changed", text: blockToText(block) }]
-      : [],
-  );
 }
 
 /**

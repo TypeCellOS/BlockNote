@@ -8,12 +8,19 @@ import { parseText } from "../parse/parseText.js";
 import { assertBlocksRoundTrip } from "./assertBlocksRoundTrip.js";
 import { projectDocument } from "./projectDocument.js";
 
-/** A markdown format with a bug: its parse adds an image without a URL, which markdown does not show. */
+/**
+ * A markdown format with a bug: for a text with the word "changed", its parse
+ * adds an image without a URL, which markdown does not show. The text of the
+ * document does not have the word, thus the view does not show the bug (else,
+ * the projection throws first, see `projectWithParts`).
+ */
 const brokenFormat: TextFormat = {
   serialize: (editor, blocks) => markdownFormat.serialize(editor, blocks),
   parse: (editor, text) => [
     ...markdownFormat.parse(editor, text),
-    { id: "", type: "image", props: {}, content: undefined, children: [] },
+    ...(text.includes("changed")
+      ? [{ id: "", type: "image", props: {}, content: undefined, children: [] }]
+      : []),
   ],
 };
 
@@ -41,7 +48,7 @@ describe("assertBlocksRoundTrip", () => {
 
   it("throws for a block that the format does not show", () => {
     const { editor, view } = setup();
-    const text = "Hello";
+    const text = "Hello, changed";
 
     expect(() =>
       assertBlocksRoundTrip(

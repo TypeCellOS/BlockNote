@@ -14,10 +14,9 @@ import { roundTripAlone, type ViewBlock } from "./projectDocument.js";
  * it, and each later write of the same text would add it again (PutTwice).
  *
  * Only a block without text and without children can be such a block: a
- * block with text shows its text. Of these, a block whose key a linked view
- * block has needs no round trip: that view block came from the round trip of
- * a document block, thus the format shows such a block. An unlinked view
- * block is no proof: the parse of a format with this bug also gives it.
+ * block with text shows its text. Of these, a block whose key a view block
+ * has needs no round trip: each view block comes from a document block (see
+ * `projectWithParts`), thus the format shows such a block.
  */
 export function assertBlocksRoundTrip(
   editor: BlockNoteEditor<any, any, any>,
@@ -26,11 +25,7 @@ export function assertBlocksRoundTrip(
   view: readonly ViewBlock[],
   text: string,
 ): void {
-  const viewKeys = new Set(
-    view.flatMap(({ block, sourceId }) =>
-      sourceId === undefined ? [] : [alignmentKey(block)],
-    ),
-  );
+  const viewKeys = new Set(view.map(({ block }) => alignmentKey(block)));
   const candidates: LensBlock[] = [];
   function collect(list: readonly LensBlock[]) {
     for (const block of list) {

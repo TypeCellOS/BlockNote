@@ -170,8 +170,6 @@ class ParentDecisions {
     this.rows.forEach((row, j) => {
       const place: Place = { kind: "row", index: j };
       switch (row.kind) {
-        case "skipped":
-          return;
         case "new":
           this.open.attach(place, this.asNew(j));
           return;
@@ -189,27 +187,17 @@ class ParentDecisions {
     switch (place.kind) {
       case "root":
         return "";
-      case "row": {
-        const row = this.rows[place.index];
-        return row.kind === "skipped" ? "" : row.fields.type;
-      }
+      case "row":
+        return this.rows[place.index].fields.type;
       case "hidden":
         return this.source.block(place.id).type;
     }
   }
 
-  /** The place of the nearest text ancestor of text block `j` that is in the target, or the root. */
+  /** The place of the parent of text block `j` in the text, or the root. */
   private textParent(j: number): Place {
-    for (
-      let p = this.incoming[j].parentIndex;
-      p !== undefined;
-      p = this.incoming[p].parentIndex
-    ) {
-      if (this.rows[p].kind !== "skipped") {
-        return { kind: "row", index: p };
-      }
-    }
-    return ROOT;
+    const p = this.incoming[j].parentIndex;
+    return p === undefined ? ROOT : { kind: "row", index: p };
   }
 
   /**
@@ -238,10 +226,11 @@ class ParentDecisions {
    */
   private textParentIs(j: number, viewIndex: number | undefined): boolean {
     const textParentIndex = this.incoming[j].parentIndex;
-    return textParentIndex === undefined
-      ? viewIndex === undefined
-      : viewIndex !== undefined &&
-          this.rows[textParentIndex].viewIndex === viewIndex;
+    if (textParentIndex === undefined) {
+      return viewIndex === undefined;
+    }
+    const parentRow = this.rows[textParentIndex];
+    return parentRow.kind === "kept" && parentRow.viewIndex === viewIndex;
   }
 
   /**

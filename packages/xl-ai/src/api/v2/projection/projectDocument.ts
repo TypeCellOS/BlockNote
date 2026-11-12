@@ -13,11 +13,8 @@ import { parseText } from "../parse/index.js";
 
 /** A block of the view: a block of the parse of the text of the document, with its link to a source block. */
 export type ViewBlock = FlatBlock & {
-  /**
-   * The ID of the source block that gave this view block. `undefined` if the
-   * projection did not find a link.
-   */
-  sourceId: string | undefined;
+  /** The ID of the source block that gave this view block (see `projectWithParts`). */
+  sourceId: string;
 };
 
 /** A document as a text format shows it, with links to the blocks of the document. */
@@ -44,8 +41,8 @@ export type Projection = {
  * The format loses the block IDs, and it does not always give one view block
  * for each source block: a block can give no view block (see `Projection`).
  * A block that gives more than one view block throws (see
- * {@link assertOnePartEach}). The source of each part is known, thus the
- * parts give the links.
+ * {@link assertOnePartEach}), and so does a view block that no block gives.
+ * The source of each part is known, thus the parts give the links.
  *
  * Example, in plain text:
  *
@@ -71,7 +68,7 @@ export function projectDocument(
   /** The text of the source document in the format, if the caller has it. */
   text = format.serialize(editor, source),
 ): Projection {
-  const view = viewOf(editor, format, source, text);
+  const view = viewOf(editor, format, text);
   const sources = flattenBlocks(source);
   return projectWithParts(
     sources,
@@ -82,6 +79,9 @@ export function projectDocument(
 
 /**
  * The projection that the parts of the source blocks give (see `projectDocument`).
+ * Each view block links to the source block of its part. A view block
+ * without a part is a bug of the format: the function throws. The one
+ * exception is the fill of the schema (see {@link isSchemaFill}).
  *
  * @internal
  */
@@ -91,21 +91,22 @@ export function projectWithParts(
   parts: readonly Part[],
 ): Projection {
   assertOnePartEach(sources, parts);
+  const blocks = isSchemaFill(view, parts) ? [] : view;
   // `links[v]` is the index of the part that gave view block `v`.
   const links = linkBlocks(
     parts.map(({ part }) => part),
-    view,
+    blocks,
   );
   const linked = new Set<string>();
-  const viewBlocks = view.map((flat, v): ViewBlock => {
+  const viewBlocks = blocks.map((flat, v): ViewBlock => {
     const link = links[v];
-    const sourceId =
-      link === undefined
-        ? undefined
-        : sources[parts[link].sourceIndex].block.id;
-    if (sourceId !== undefined) {
-      linked.add(sourceId);
+    if (link === undefined) {
+      throw new Error(
+        `The format shows a block of type "${flat.block.type}" that no block of the document gives. The parse of a format must give only blocks that its serialize shows.`,
+      );
     }
+    const sourceId = sources[parts[link].sourceIndex].block.id;
+    linked.add(sourceId);
     return { ...flat, sourceId };
   });
   return {
@@ -272,23 +273,16 @@ function notLayoutBlocks(
  * the text of a client (see `parseText`). The text comes from the document,
  * thus its blocks fit the schema.
  *
- * A source without blocks has no view blocks. Only a version as `base` can
- * have no blocks: the current document always has a block, because the
- * schema needs one. For the same reason, the parse of its text (an empty
- * text) gives one empty paragraph. That paragraph comes from no source
- * block. This is not a workaround of a problem in the parse: a parse
- * without that block gives a document that the schema does not allow (a
- * test of core without the fill broke 20 PutGet tests).
+ * For a text without blocks, the parse gives one empty paragraph: the fill
+ * of the schema (see {@link isSchemaFill}). This is not a problem of the
+ * parse: a parse without the fill gives a document that the schema does not
+ * allow (a test of core without the fill broke 20 PutGet tests).
  */
 function viewOf(
   editor: BlockNoteEditor<any, any, any>,
   format: TextFormat,
-  source: readonly LensBlock[],
   text: string,
 ): FlatBlock[] {
-  if (source.length === 0) {
-    return [];
-  }
   const parsed = parseText(editor, format, text);
   if (parsed.error !== undefined) {
     throw new Error("The text of the document does not fit its schema");
@@ -326,6 +320,26 @@ function shownBlocks(
         return block.content === undefined || blockToText(block).trim() !== "";
       })
       .map(({ aIndex }) => aIndex),
+  );
+}
+
+/**
+ * Returns true if `view` is only the fill of the schema. The parse of a text
+ * without blocks gives one empty paragraph, because a document needs a
+ * block (markdown and HTML). No source block gave that paragraph. The text
+ * has no blocks if no source block gives a part. Example: a document with
+ * only an image without a URL, in markdown (its text is empty) or in HTML
+ * (its text is `<img>`).
+ */
+function isSchemaFill(
+  view: readonly FlatBlock[],
+  parts: readonly Part[],
+): boolean {
+  return (
+    parts.length === 0 &&
+    view.length === 1 &&
+    Array.isArray(view[0].block.content) &&
+    blockToText(view[0].block) === ""
   );
 }
 

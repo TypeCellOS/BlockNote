@@ -2,7 +2,6 @@ import { BlockNoteEditor } from "@blocknote/core";
 import { describe, expect, it } from "vite-plus/test";
 
 import { flattenBlocks } from "./util/blocks/flatten.js";
-import { blockToText } from "./util/blocks/text.js";
 import type { LensBlock } from "./model.js";
 import {
   computeOperations,
@@ -51,15 +50,11 @@ describe.each([
         const document = editor.document as LensBlock[];
         const text = getDocumentText(editor, format);
 
-        // The format contract: each view block with text comes from one
-        // document block. Thus, the round trip of the full document agrees
-        // with the round trip of each block alone (see `projectDocument`).
+        // The format contract: each view block comes from one document
+        // block. Thus, the round trip of the full document agrees with the
+        // round trip of each block alone. Else, `projectDocument` throws (see
+        // `projectWithParts`).
         const projection = projectDocument(editor, format, document);
-        const unlinked = projection.view
-          .filter((v) => v.sourceId === undefined)
-          .map((v) => blockToText(v.block))
-          .filter((value) => value !== "");
-        expect(unlinked).toEqual([]);
         // The optimizations of the parts (`partsOf`) give the same
         // projection as one round trip for each block (`partsOfEachBlock`).
         const sources = flattenBlocks(document);
