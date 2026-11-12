@@ -4,7 +4,7 @@ import Code from "@tiptap/extension-code";
 import Italic from "@tiptap/extension-italic";
 import Strike from "@tiptap/extension-strike";
 import Underline from "@tiptap/extension-underline";
-import { COLORS_DEFAULT } from "../editor/defaultColors.js";
+import { COLORS_DEFAULT, colorFromStyle } from "../editor/defaultColors.js";
 import {
   BlockNoDefaults,
   BlockSchema,
@@ -91,7 +91,7 @@ const TextColor = createStyleSpec(
     },
     parse: (element) => {
       if (element.tagName === "SPAN" && element.style.color) {
-        return element.style.color;
+        return colorFromStyle(element, "color");
       }
 
       return undefined;
@@ -127,7 +127,7 @@ const BackgroundColor = createStyleSpec(
     },
     parse: (element) => {
       if (element.tagName === "SPAN" && element.style.backgroundColor) {
-        return element.style.backgroundColor;
+        return colorFromStyle(element, "backgroundColor");
       }
 
       return undefined;

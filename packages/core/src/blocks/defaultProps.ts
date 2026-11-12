@@ -1,6 +1,6 @@
 import { Attribute } from "@tiptap/core";
 
-import { COLORS_DEFAULT } from "../editor/defaultColors.js";
+import { COLORS_DEFAULT, colorFromStyle } from "../editor/defaultColors.js";
 import type { Props, PropSchema } from "../schema/index.js";
 
 // TODO: this system should probably be moved / refactored.
@@ -30,7 +30,7 @@ export const parseDefaultProps = (element: HTMLElement) => {
   if (element.hasAttribute("data-background-color")) {
     props.backgroundColor = element.getAttribute("data-background-color")!;
   } else if (element.style.backgroundColor) {
-    props.backgroundColor = element.style.backgroundColor;
+    props.backgroundColor = colorFromStyle(element, "backgroundColor");
   }
 
   // If the `data-` attribute is found, set the prop to the value, as this most
@@ -39,7 +39,7 @@ export const parseDefaultProps = (element: HTMLElement) => {
   if (element.hasAttribute("data-text-color")) {
     props.textColor = element.getAttribute("data-text-color")!;
   } else if (element.style.color) {
-    props.textColor = element.style.color;
+    props.textColor = colorFromStyle(element, "color");
   }
 
   props.textAlignment = defaultProps.textAlignment.values.includes(
@@ -96,7 +96,7 @@ export const getBackgroundColorAttribute = (
     }
 
     if (element.style.backgroundColor) {
-      return element.style.backgroundColor;
+      return colorFromStyle(element, "backgroundColor");
     }
 
     return defaultProps.backgroundColor.default;
@@ -122,7 +122,7 @@ export const getTextColorAttribute = (
     }
 
     if (element.style.color) {
-      return element.style.color;
+      return colorFromStyle(element, "color");
     }
 
     return defaultProps.textColor.default;

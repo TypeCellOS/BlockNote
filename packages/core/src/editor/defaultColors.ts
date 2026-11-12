@@ -37,6 +37,28 @@ export const COLORS_DEFAULT = {
   },
 } as Record<string, { text: string; background: string }>;
 
+/**
+ * Returns the name of the theme color (see `COLORS_DEFAULT`) whose CSS value
+ * the style property of an element has, or else that CSS value. The external
+ * HTML writes a theme color as its CSS value, thus the parse gives back the
+ * name of the color.
+ */
+export function colorFromStyle(
+  element: HTMLElement,
+  property: "color" | "backgroundColor",
+): string {
+  const value = element.style[property];
+  const probe = element.ownerDocument.createElement("span");
+  for (const [name, colors] of Object.entries(COLORS_DEFAULT)) {
+    probe.style[property] =
+      property === "color" ? colors.text : colors.background;
+    if (probe.style[property] === value) {
+      return name;
+    }
+  }
+  return value;
+}
+
 export const COLORS_DARK_MODE_DEFAULT = {
   gray: {
     text: "#bebdb8",
