@@ -177,12 +177,18 @@ function stayingBlocks(sides: Sides): Staying {
     let result = memo.get(id);
     if (result === undefined) {
       if (ours.has(id)) {
-        result = !base.has(id) || theirs.has(id);
+        // The client has the block: a block of base, or a new block of the
+        // client. It goes only if another writer removed it.
+        const removedByOthers = base.has(id) && !theirs.has(id);
+        result = !removedByOthers;
       } else if (!theirs.has(id)) {
+        // The client and another writer both removed it.
         result = false;
       } else if (base.has(id)) {
+        // The client removed it, and another writer did not.
         result = sides.removalLosesChange(id);
       } else {
+        // A new block of another writer.
         const parent = theirs.parent(id);
         result = parent === undefined || stays(parent);
       }
