@@ -456,3 +456,69 @@ describe("JSON, the spans of table cells", () => {
     ).toEqual({ error: "invalid-document" });
   });
 });
+
+/** The props of a block of the editor, as a record (the props of all block types). */
+function propsOf(
+  editor: { getBlock: (id: string) => { props: object } | undefined },
+  id: string,
+): Record<string, unknown> {
+  return (editor.getBlock(id)?.props ?? {}) as Record<string, unknown>;
+}
+
+describe("JSON, props that the client removes", () => {
+  it("gives the default value to a prop that the client leaves out", () => {
+    const editor = createEditor([
+      {
+        id: "p",
+        type: "paragraph",
+        props: { textColor: "red", textAlignment: "center" },
+        content: "Hello",
+      },
+    ]);
+    update(editor, {
+      base: "current",
+      document: [{ id: "p", type: "paragraph", content: "Hello" }],
+    });
+    expect(editor.getBlock("p")?.props).toMatchObject({
+      textColor: "default",
+      textAlignment: "left",
+    });
+  });
+
+  it("removes an optional prop that the client leaves out (the preview width of an image)", () => {
+    const url = "https://example.com/x.png";
+    const editor = createEditor([
+      { id: "i", type: "image", props: { url, previewWidth: 200 } },
+    ]);
+    update(editor, {
+      base: "current",
+      document: [{ id: "i", type: "image", props: { url } }],
+    });
+    expect(propsOf(editor, "i").previewWidth).toBeUndefined();
+  });
+
+  it("gives an error for a prop with the value null", () => {
+    const editor = createEditor([
+      {
+        id: "p",
+        type: "paragraph",
+        props: { textColor: "red" },
+        content: "Hello",
+      },
+    ]);
+    expect(
+      updateDocument(editor, {
+        base: "current",
+        document: [
+          {
+            id: "p",
+            type: "paragraph",
+            props: { textColor: null as unknown as string },
+            content: "Hello",
+          },
+        ],
+      }),
+    ).toEqual({ error: "invalid-document" });
+    expect(propsOf(editor, "p").textColor).toBe("red");
+  });
+});

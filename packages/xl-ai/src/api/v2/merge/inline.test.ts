@@ -183,3 +183,90 @@ describe("mergeInlineContent", () => {
     ).toEqual([styledText("Hi there "), mention]);
   });
 });
+
+describe("mergeInlineContent: links", () => {
+  const a = "https://a.example";
+  const b = "https://b.example";
+  const c = "https://c.example";
+  const theirsWins = (onConflict: () => void) => ({
+    conflict: { winner: "theirs" as const, onConflict },
+    insertsAtOnePosition: "both-theirs-first" as const,
+  });
+
+  it("keeps a new URL of theirs if ours did not change the link", () => {
+    expect(
+      mergeInlineContent(
+        [styledText("see "), link("docs", a)],
+        [styledText("see "), link("docs", a)],
+        [styledText("see "), link("docs", b)],
+      ),
+    ).toEqual([styledText("see "), link("docs", b)]);
+  });
+
+  it("gives the URL of the winner, with a conflict, if the two sides changed the URL", () => {
+    const base = [styledText("see "), link("docs", a)];
+    const ours = [styledText("see "), link("docs", b)];
+    const theirs = [styledText("see "), link("docs", c)];
+    expect(mergeInlineContent(base, ours, theirs)).toEqual(ours);
+    let conflicts = 0;
+    expect(
+      mergeInlineContent(
+        base,
+        ours,
+        theirs,
+        theirsWins(() => conflicts++),
+      ),
+    ).toEqual(theirs);
+    expect(conflicts).toBeGreaterThan(0);
+  });
+
+  it("gives the side of the winner, with a conflict, if one side removed the link and the other changed its URL", () => {
+    const base = [styledText("see "), link("docs", a)];
+    const removed = [styledText("see docs")];
+    const changed = [styledText("see "), link("docs", b)];
+    let conflicts = 0;
+    expect(
+      mergeInlineContent(
+        base,
+        removed,
+        changed,
+        theirsWins(() => conflicts++),
+      ),
+    ).toEqual(changed);
+    expect(
+      mergeInlineContent(
+        base,
+        changed,
+        removed,
+        theirsWins(() => conflicts++),
+      ),
+    ).toEqual(removed);
+    expect(conflicts).toBeGreaterThan(0);
+  });
+
+  it("gives the text of ours and the URL of theirs if ours wins conflicts", () => {
+    expect(
+      mergeInlineContent(
+        [styledText("see "), link("docs", a)],
+        [styledText("see "), link("guide", a)],
+        [styledText("see "), link("docs", b)],
+      ),
+    ).toEqual([styledText("see "), link("guide", b)]);
+  });
+
+  // The merge compares each character together with its link. Thus, a new
+  // URL of theirs is a change of each character of the link, and the new
+  // link text of ours conflicts with it.
+  it("KNOWN LIMIT: loses the new link text of ours, with a conflict, if theirs changed the URL and wins conflicts", () => {
+    let conflicts = 0;
+    expect(
+      mergeInlineContent(
+        [styledText("see "), link("docs", a)],
+        [styledText("see "), link("guide", a)],
+        [styledText("see "), link("docs", b)],
+        theirsWins(() => conflicts++),
+      ),
+    ).toEqual([styledText("see "), link("docs", b)]);
+    expect(conflicts).toBe(1);
+  });
+});

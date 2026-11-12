@@ -327,3 +327,33 @@ describe("plain text: white space at the end of a block", () => {
     ).toEqual([]);
   });
 });
+
+describe("plain text, links", () => {
+  // Plain text does not show the URL of a link. The text of the link can
+  // change, and the link stays.
+  it("keeps a link if the client changes its text", () => {
+    const editor = createEditor([
+      {
+        id: "p",
+        type: "paragraph",
+        content: [
+          "see ",
+          { type: "link", href: "https://a.example", content: "docs" },
+          " now",
+        ],
+      },
+    ]);
+    writeText(editor, plainTextFormat, (text) =>
+      replaceOnce(text, "docs", "guides"),
+    );
+    expect(editor.getBlock("p")?.content).toMatchObject([
+      { text: "see " },
+      {
+        type: "link",
+        href: "https://a.example",
+        content: [{ text: "guides" }],
+      },
+      { text: " now" },
+    ]);
+  });
+});

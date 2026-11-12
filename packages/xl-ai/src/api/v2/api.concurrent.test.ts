@@ -1080,3 +1080,174 @@ describe("a write from an older version, with a table", () => {
     ]);
   });
 });
+
+/** The props of a block of the editor, as a record (the props of all block types). */
+function propsOf(
+  editor: { getBlock: (id: string) => { props: object } | undefined },
+  id: string,
+): Record<string, unknown> {
+  return (editor.getBlock(id)?.props ?? {}) as Record<string, unknown>;
+}
+
+describe("a write from an older version that removes props", () => {
+  /** The document at the version that the client read: a red paragraph. */
+  function setup(textColor = "red") {
+    const editor = createEditor([
+      { id: "p", type: "paragraph", props: { textColor }, content: "Hello" },
+      { id: "e", type: "paragraph", content: "End" },
+    ]);
+    return { editor, base: editor.document };
+  }
+  /** A write of another writer: the paragraph with these props and text. */
+  function otherWriter(
+    editor: BlockNoteEditor<any, any, any>,
+    props: Record<string, string>,
+    text = "Hello",
+  ) {
+    valid(
+      updateDocument(editor, {
+        base: "current",
+        document: [
+          { id: "p", type: "paragraph", props, content: text },
+          { id: "e", type: "paragraph", content: "End" },
+        ],
+      }),
+    );
+  }
+  /** The write of the client from `base`: the paragraph with these props and text. */
+  function client(
+    editor: BlockNoteEditor<any, any, any>,
+    base: typeof editor.document,
+    props: Record<string, string>,
+    text = "Hello",
+  ) {
+    return valid(
+      updateDocument(editor, {
+        base,
+        document: [
+          { id: "p", type: "paragraph", props, content: text },
+          { id: "e", type: "paragraph", content: "End" },
+        ],
+      }),
+    );
+  }
+
+  it("removes a prop that the client removes and another writer did not change", () => {
+    const { editor, base } = setup();
+    const { warnings } = client(editor, base, {});
+    expect(propsOf(editor, "p").textColor).toBe("default");
+    expect(warnings).toEqual([]);
+  });
+
+  it("keeps the change of another writer to a prop that the client removes, with a warning", () => {
+    const { editor, base } = setup();
+    otherWriter(editor, { textColor: "blue" });
+    const { warnings } = client(editor, base, {});
+    expect(propsOf(editor, "p").textColor).toBe("blue");
+    expect(warnings).toEqual([{ type: "conflicting-change", id: "p" }]);
+  });
+
+  it("keeps the removal of another writer if the client changed only the text", () => {
+    const { editor, base } = setup();
+    otherWriter(editor, {});
+    const { warnings } = client(
+      editor,
+      base,
+      { textColor: "red" },
+      "Hello you",
+    );
+    expect(editor.getBlock("p")).toMatchObject({
+      props: { textColor: "default" },
+      content: [{ text: "Hello you" }],
+    });
+    expect(warnings).toEqual([]);
+  });
+
+  it("keeps the removal of another writer, with a warning, if the client changed the prop", () => {
+    const { editor, base } = setup();
+    otherWriter(editor, {});
+    const { warnings } = client(editor, base, { textColor: "green" });
+    expect(propsOf(editor, "p").textColor).toBe("default");
+    expect(warnings).toEqual([{ type: "conflicting-change", id: "p" }]);
+  });
+
+  it("removes a prop one time, without a warning, if the two sides removed it", () => {
+    const { editor, base } = setup();
+    otherWriter(editor, {});
+    const { warnings } = client(editor, base, {});
+    expect(propsOf(editor, "p").textColor).toBe("default");
+    expect(warnings).toEqual([]);
+  });
+
+  it("keeps the removal of an optional prop by another writer if the client changed a different prop", () => {
+    const url = "https://example.com/x.png";
+    const editor = createEditor([
+      { id: "i", type: "image", props: { url, previewWidth: 200 } },
+    ]);
+    const base = editor.document;
+    valid(
+      updateDocument(editor, {
+        base: "current",
+        document: [{ id: "i", type: "image", props: { url } }],
+      }),
+    );
+    valid(
+      updateDocument(editor, {
+        base,
+        document: [
+          {
+            id: "i",
+            type: "image",
+            props: { url, previewWidth: 200, caption: "Cap" },
+          },
+        ],
+      }),
+    );
+    expect(editor.getBlock("i")?.props).toMatchObject({ caption: "Cap" });
+    expect(propsOf(editor, "i").previewWidth).toBeUndefined();
+  });
+
+  it("keeps a new link URL of another writer if the client changed other text of the block", () => {
+    const editor = createEditor([
+      {
+        id: "p",
+        type: "paragraph",
+        content: [
+          "see ",
+          { type: "link", href: "https://a.example", content: "docs" },
+          " now",
+        ],
+      },
+    ]);
+    const base = editor.document;
+    const linked = (href: string, after: string) => [
+      {
+        id: "p",
+        type: "paragraph" as const,
+        content: [
+          "see ",
+          { type: "link" as const, href, content: "docs" },
+          after,
+        ],
+      },
+    ];
+    valid(
+      updateDocument(editor, {
+        base: "current",
+        document: linked("https://b.example", " now"),
+      }),
+    );
+    const { warnings } = valid(
+      updateDocument(editor, {
+        base,
+        document: linked("https://a.example", " later"),
+      }),
+    );
+    expect(editor.getBlock("p")?.content).toMatchObject([
+      { text: "see " },
+      { type: "link", href: "https://b.example", content: [{ text: "docs" }] },
+      { text: " later" },
+    ]);
+    expect(warnings).toEqual([]);
+  });
+});

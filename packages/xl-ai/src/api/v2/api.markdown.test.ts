@@ -904,3 +904,56 @@ describe("line ends", () => {
     ).toEqual([]);
   });
 });
+
+describe("markdown, links", () => {
+  const linkedEditor = () =>
+    createEditor([
+      {
+        id: "p",
+        type: "paragraph",
+        content: [
+          "see ",
+          { type: "link", href: "https://a.example", content: "docs" },
+          " now",
+        ],
+      },
+    ]);
+
+  it("changes the URL of a link", () => {
+    const editor = linkedEditor();
+    writeText(editor, markdownFormat, (text) =>
+      replaceOnce(text, "(https://a.example)", "(https://b.example)"),
+    );
+    expect(editor.getBlock("p")?.content).toMatchObject([
+      { text: "see " },
+      { type: "link", href: "https://b.example", content: [{ text: "docs" }] },
+      { text: " now" },
+    ]);
+  });
+
+  it("changes the text of a link and keeps its URL", () => {
+    const editor = linkedEditor();
+    writeText(editor, markdownFormat, (text) =>
+      replaceOnce(text, "[docs]", "[guides]"),
+    );
+    expect(editor.getBlock("p")?.content).toMatchObject([
+      { text: "see " },
+      {
+        type: "link",
+        href: "https://a.example",
+        content: [{ text: "guides" }],
+      },
+      { text: " now" },
+    ]);
+  });
+
+  it("removes a link and keeps its text", () => {
+    const editor = linkedEditor();
+    writeText(editor, markdownFormat, (text) =>
+      replaceOnce(text, "[docs](https://a.example)", "docs"),
+    );
+    expect(editor.getBlock("p")?.content).toEqual([
+      { type: "text", text: "see docs now", styles: {} },
+    ]);
+  });
+});

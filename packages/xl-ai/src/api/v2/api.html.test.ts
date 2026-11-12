@@ -182,3 +182,115 @@ describe("HTML, a parse in a form that the document does not store", () => {
     ).toEqual([]);
   });
 });
+
+/** The props of a block of the editor, as a record (the props of all block types). */
+function propsOf(
+  editor: { getBlock: (id: string) => { props: object } | undefined },
+  id: string,
+): Record<string, unknown> {
+  return (editor.getBlock(id)?.props ?? {}) as Record<string, unknown>;
+}
+
+describe("HTML, props that the client removes", () => {
+  // HTML shows a color and an alignment two times: as a data attribute and
+  // in the style. The parse reads the attribute, else the style.
+  function edited(
+    props: Record<string, string>,
+    edit: (text: string) => string,
+  ) {
+    const editor = createEditor([
+      { id: "p", type: "paragraph", props, content: "Hello" },
+    ]);
+    writeText(editor, htmlFormat, edit);
+    return propsOf(editor, "p");
+  }
+
+  it("gives the default color if the client removes the attribute and the style", () => {
+    expect(
+      edited({ textColor: "red" }, (text) =>
+        text
+          .replace(' data-text-color="red"', "")
+          .replace(/color: [^;"]+;? ?/, ""),
+      ).textColor,
+    ).toBe("default");
+  });
+
+  // Before the fix in core, the color was the CSS value "rgb(224, 62, 62)",
+  // which the editor does not show.
+  it("keeps the color of the style if the client removes only the data attribute", () => {
+    expect(
+      edited({ textColor: "red" }, (text) =>
+        text.replace(' data-text-color="red"', ""),
+      ).textColor,
+    ).toBe("red");
+  });
+
+  it("keeps the alignment of the style if the client removes only the data attribute (the HTML still shows it)", () => {
+    expect(
+      edited({ textAlignment: "center" }, (text) =>
+        text.replace(' data-text-alignment="center"', ""),
+      ).textAlignment,
+    ).toBe("center");
+  });
+
+  it("gives the default alignment if the client removes the attribute and the style", () => {
+    expect(
+      edited({ textAlignment: "center" }, (text) =>
+        text
+          .replace(' data-text-alignment="center"', "")
+          .replace(/text-align: center;? ?/, ""),
+      ).textAlignment,
+    ).toBe("left");
+  });
+
+  it("removes the preview width of an image if the client removes the width", () => {
+    const editor = createEditor([
+      {
+        id: "i",
+        type: "image",
+        props: { url: "https://example.com/x.png", previewWidth: 200 },
+      },
+    ]);
+    writeText(editor, htmlFormat, (text) =>
+      text.replace(/ (data-preview-width|width)="200"/g, ""),
+    );
+    expect(propsOf(editor, "i").previewWidth).toBeUndefined();
+  });
+});
+
+describe("HTML, links", () => {
+  const linkedEditor = () =>
+    createEditor([
+      {
+        id: "p",
+        type: "paragraph",
+        content: [
+          "see ",
+          { type: "link", href: "https://a.example", content: "docs" },
+          " now",
+        ],
+      },
+    ]);
+
+  it("changes the URL of a link", () => {
+    const editor = linkedEditor();
+    writeText(editor, htmlFormat, (text) =>
+      replaceOnce(text, 'href="https://a.example"', 'href="https://b.example"'),
+    );
+    expect(editor.getBlock("p")?.content).toMatchObject([
+      { text: "see " },
+      { type: "link", href: "https://b.example", content: [{ text: "docs" }] },
+      { text: " now" },
+    ]);
+  });
+
+  it("removes a link and keeps its text", () => {
+    const editor = linkedEditor();
+    writeText(editor, htmlFormat, (text) =>
+      text.replace(/<a [^>]*>docs<\/a>/, "docs"),
+    );
+    expect(editor.getBlock("p")?.content).toEqual([
+      { type: "text", text: "see docs now", styles: {} },
+    ]);
+  });
+});
