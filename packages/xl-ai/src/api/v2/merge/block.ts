@@ -27,10 +27,10 @@ import {
  * The type changes only if a side changed it. Thus, a toggle list item stays
  * a toggle, although markdown shows it as a bullet. There is one exception:
  * if `ours` changed the content, and that type cannot hold the content of
- * `ours`, the type of `ours` wins. An example is a table that a format shows
- * as lines of text: a change of these lines makes the block a paragraph. In
- * the document merge, that is a conflict: the type and the content of `theirs`
- * win (see `MergeOptions`).
+ * `ours`, the type of `ours` wins. An example is a file block without a
+ * caption, which markdown shows as a paragraph with a link: a change of the
+ * link text makes the block a paragraph. In the document merge, that is a
+ * conflict: the type and the content of `theirs` win (see `MergeOptions`).
  *
  * The merge merges each prop (see {@link mergeProps}). It merges inline
  * content character by character, and tables cell by cell.

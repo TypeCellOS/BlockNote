@@ -1,13 +1,9 @@
 import { describe, expect, it } from "vite-plus/test";
 
-import { blockToText } from "./util/blocks/text.js";
-import type { LensBlock } from "./model.js";
-
 import {
   getDocumentText,
   markdownFormat,
   plainTextFormat,
-  type TextFormat,
   updateDocument,
 } from "./index.js";
 import {
@@ -132,42 +128,35 @@ describe("removals (review closely)", () => {
   });
 
   it("a changed block that the format shows with content of a different shape becomes a block of the text", () => {
-    // A format that shows each block as one paragraph of text, also a table.
-    const textOnly: TextFormat = {
-      serialize: (_editor, blocks) => blocks.map(blockToText).join("\n\n"),
-      parse: (_editor, text) =>
-        text.split("\n\n").map((line): LensBlock => ({
-          id: "",
-          type: "paragraph",
-          props: {},
-          content: [{ type: "text", text: line, styles: {} }],
-          children: [],
-        })),
-    };
+    // Markdown shows a file block without a caption as a paragraph with a
+    // link (a file block with a caption is one figure). A change of the link
+    // text changes that paragraph: the block becomes a paragraph, and its
+    // props (the URL and the name) are lost.
     const editor = createEditor([
       {
-        id: "table",
-        type: "table",
-        content: { type: "tableContent", rows: [{ cells: ["Alpha", "Beta"] }] },
+        id: "file",
+        type: "file",
+        props: { url: "https://example.com/doc.pdf", name: "doc.pdf" },
       },
       { id: "end", type: "paragraph", content: "End" },
     ]);
-    const text = getDocumentText(editor, textOnly);
+    const text = getDocumentText(editor, markdownFormat);
+    expect(text).toContain("[doc.pdf](https://example.com/doc.pdf)");
 
     const update = valid(
       updateDocument(editor, {
         base: "current",
-        format: textOnly,
-        text: text.replace("Beta", "Gamma"),
+        format: markdownFormat,
+        text: text.replace("[doc.pdf]", "[report.pdf]"),
       }),
     );
 
     expect(update.warnings).toEqual([
-      { type: "block-shape-replaced", id: "table" },
+      { type: "block-shape-replaced", id: "file" },
     ]);
-    expect(editor.getBlock("table")).toMatchObject({ type: "paragraph" });
-    expect(getDocumentText(editor, textOnly)).toBe(
-      text.replace("Beta", "Gamma"),
+    expect(editor.getBlock("file")).toMatchObject({ type: "paragraph" });
+    expect(getDocumentText(editor, markdownFormat)).toBe(
+      text.replace("[doc.pdf]", "[report.pdf]"),
     );
   });
 

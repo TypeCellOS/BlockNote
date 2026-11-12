@@ -279,7 +279,7 @@ Each folder has an `index.ts` with its API for the other folders. A file imports
 
 A result can contain warnings (`ChangeWarning`). A warning tells you that a part of the text did not apply as written, or that data was lost:
 
-- `block-shape-replaced`: the format shows the block with content of a different shape (for example a table as lines of text), and the text changed that content. The block takes the type of the text block. Its old content is lost.
+- `block-shape-replaced`: the format shows the block with content of a different shape, and the text changed that content. The block takes the type of the text block. Its old content and the props of its old type are lost. Example: markdown and HTML show a file block without a caption as a paragraph with a link. A change of the link text makes the block a paragraph, without its URL and name.
 - `change-to-removed-block` (merge): the text changed or moved a block that another writer removed. The change does not apply.
 - `removed-changed-block` (merge): the text removed a block that another writer changed (or a block in it). The removal does not apply to the blocks with a change of the other writer: they stay.
 - `conflicting-change` (merge): the text and another writer changed the same part of a block (a part of its text, a style, a prop, its parent or its place) in different ways. The change of the other writer stays there, and the change of the text there does not apply. An example is a block that another writer rewrote, or split into two blocks.
