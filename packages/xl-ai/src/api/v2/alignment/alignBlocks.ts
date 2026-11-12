@@ -19,15 +19,18 @@ import {
 const MIN_SHARE = 0.5;
 
 /**
- * Two blocks that are the same block: `a[aIndex]` and `b[bIndex]`. Unlike a
+ * Two blocks that are the same block: `before[aIndex]` and `after[bIndex]`
+ * (see {@link alignBlocks}). Unlike a
  * `MatchedPair`, the pairs of moved blocks (rule 2 of {@link alignBlocks})
  * can cross the other pairs. These pairs have `moved: true`.
  */
 export type BlockPair = { aIndex: number; bIndex: number; moved?: true };
 
 /**
- * Aligns two flat block lists, one to one. The identity of a block follows
- * the location of its text.
+ * Aligns the blocks of a document before an edit (`before`) with its blocks
+ * after the edit (`after`), one to one, in two flat lists. The identity of a
+ * block follows the location of its text. The rules are not symmetric: they
+ * keep the identity of a block of `before` (see {@link overlapPairs}).
  *
  * Equal blocks at the start and at the end match first, as in a line diff.
  * Thus, the time of a small edit does not depend on the size of the
@@ -44,7 +47,7 @@ export type BlockPair = { aIndex: number; bIndex: number; moved?: true };
  *    {@link alignmentKey}).
  * 2. A block that moved: of the blocks without a match, two blocks match if
  *    they have an equal key (not an empty text) that no other block without
- *    a match has on either side. Thus, a block that the text moves keeps its
+ *    a match has on either side. Thus, a block that the edit moves keeps its
  *    ID. These pairs can cross the other pairs. A block that moved and
  *    changed has no match.
  * 3. If one block on each side stays between two matches of rule 1 (the
@@ -69,13 +72,13 @@ export type BlockPair = { aIndex: number; bIndex: number; moved?: true };
  * added line at the same place as one changed line.
  */
 export function alignBlocks(
-  a: readonly FlatBlock[],
-  b: readonly FlatBlock[],
+  before: readonly FlatBlock[],
+  after: readonly FlatBlock[],
 ): BlockPair[] {
-  const { start, end } = equalEnds(a, b);
+  const { start, end } = equalEnds(before, after);
   const middle = alignByRules(
-    a.slice(start, a.length - end),
-    b.slice(start, b.length - end),
+    before.slice(start, before.length - end),
+    after.slice(start, after.length - end),
   );
   return [
     ...indexes(0, start).map((i) => ({ aIndex: i, bIndex: i })),
@@ -85,8 +88,8 @@ export function alignBlocks(
       bIndex: start + pair.bIndex,
     })),
     ...indexes(0, end).map((i) => ({
-      aIndex: a.length - end + i,
-      bIndex: b.length - end + i,
+      aIndex: before.length - end + i,
+      bIndex: after.length - end + i,
     })),
   ];
 }
@@ -124,12 +127,12 @@ export function canBeSameBlock(
 
 /** The rules 1 to 3 of {@link alignBlocks}. */
 function alignByRules(
-  a: readonly FlatBlock[],
-  b: readonly FlatBlock[],
+  before: readonly FlatBlock[],
+  after: readonly FlatBlock[],
 ): BlockPair[] {
-  const overlapping = overlapPairs(a, b);
-  const moved = movedPairs(a, b, overlapping);
-  const samePosition = samePositionPairs(a, b, overlapping, moved);
+  const overlapping = overlapPairs(before, after);
+  const moved = movedPairs(before, after, overlapping);
+  const samePosition = samePositionPairs(before, after, overlapping, moved);
   return [...overlapping, ...moved, ...samePosition];
 }
 
@@ -138,21 +141,21 @@ function alignByRules(
  * start of the two lists, and at their end (without the blocks of the start).
  */
 function equalEnds(
-  a: readonly FlatBlock[],
-  b: readonly FlatBlock[],
+  before: readonly FlatBlock[],
+  after: readonly FlatBlock[],
 ): { start: number; end: number } {
   function equal(i: number, j: number) {
-    return alignmentKey(a[i].block) === alignmentKey(b[j].block);
+    return alignmentKey(before[i].block) === alignmentKey(after[j].block);
   }
   let start = 0;
-  while (start < a.length && start < b.length && equal(start, start)) {
+  while (start < before.length && start < after.length && equal(start, start)) {
     start++;
   }
   let end = 0;
   while (
-    end < a.length - start &&
-    end < b.length - start &&
-    equal(a.length - 1 - end, b.length - 1 - end)
+    end < before.length - start &&
+    end < after.length - start &&
+    equal(before.length - 1 - end, after.length - 1 - end)
   ) {
     end++;
   }
@@ -170,27 +173,31 @@ function equalEnds(
  * example, P and Q match by rule 1, and m moved (rule 2). Thus, x and y are
  * at the same position:
  *
- *     a:  P  x m  Q
- *     b:  P  y    Q  m
+ *     before:  P  x m  Q
+ *     after:   P  y    Q  m
  */
 function samePositionPairs(
-  a: readonly FlatBlock[],
-  b: readonly FlatBlock[],
+  before: readonly FlatBlock[],
+  after: readonly FlatBlock[],
   overlapping: readonly MatchedPair[],
   moved: readonly BlockPair[],
 ): BlockPair[] {
-  const movedA = new Set(moved.map((pair) => pair.aIndex));
-  const movedB = new Set(moved.map((pair) => pair.bIndex));
+  const movedBefore = new Set(moved.map((pair) => pair.aIndex));
+  const movedAfter = new Set(moved.map((pair) => pair.bIndex));
   const pairs: BlockPair[] = [];
-  for (const gap of gaps(overlapping, a.length, b.length)) {
-    const restA = indexes(gap.aStart, gap.aEnd).filter((i) => !movedA.has(i));
-    const restB = indexes(gap.bStart, gap.bEnd).filter((i) => !movedB.has(i));
+  for (const gap of gaps(overlapping, before.length, after.length)) {
+    const restBefore = indexes(gap.aStart, gap.aEnd).filter(
+      (i) => !movedBefore.has(i),
+    );
+    const restAfter = indexes(gap.bStart, gap.bEnd).filter(
+      (i) => !movedAfter.has(i),
+    );
     if (
-      restA.length === 1 &&
-      restB.length === 1 &&
-      canBeSameBlock(a[restA[0]].block, b[restB[0]].block)
+      restBefore.length === 1 &&
+      restAfter.length === 1 &&
+      canBeSameBlock(before[restBefore[0]].block, after[restAfter[0]].block)
     ) {
-      pairs.push({ aIndex: restA[0], bIndex: restB[0] });
+      pairs.push({ aIndex: restBefore[0], bIndex: restAfter[0] });
     }
   }
   return pairs;
@@ -203,12 +210,12 @@ function indexes(start: number, end: number): number[] {
 
 /** Rule 2 of {@link alignBlocks}: pairs of moved blocks. */
 function movedPairs(
-  a: readonly FlatBlock[],
-  b: readonly FlatBlock[],
+  before: readonly FlatBlock[],
+  after: readonly FlatBlock[],
   pairs: readonly BlockPair[],
 ): BlockPair[] {
-  const matchedA = new Set(pairs.map((pair) => pair.aIndex));
-  const matchedB = new Set(pairs.map((pair) => pair.bIndex));
+  const matchedBefore = new Set(pairs.map((pair) => pair.aIndex));
+  const matchedAfter = new Set(pairs.map((pair) => pair.bIndex));
   /** The key of each block without a match. Blocks with empty text do not count. */
   function keysOf(blocks: readonly FlatBlock[], matched: Set<number>) {
     return blocks.map(({ block }, index) =>
@@ -218,7 +225,10 @@ function movedPairs(
         : alignmentKey(block),
     );
   }
-  return uniquePairs(keysOf(a, matchedA), keysOf(b, matchedB)).map((pair) => ({
+  return uniquePairs(
+    keysOf(before, matchedBefore),
+    keysOf(after, matchedAfter),
+  ).map((pair) => ({
     ...pair,
     moved: true,
   }));
@@ -232,9 +242,9 @@ function overlapText(block: BlockWithoutChildren): OverlapText {
  * Rule 1 of {@link alignBlocks}: returns the pairs of blocks that prefer each
  * other, if the overlap is at least {@link MIN_SHARE} of the shorter text:
  *
- * - A block of `a` (the view) prefers the block of `b` with the largest
+ * - A block of `before` prefers the block of `after` with the largest
  *   overlap. Thus, a split block stays the part with most of its text.
- * - A block of `b` (the text) prefers the block of `a` that it covers best:
+ * - A block of `after` prefers the block of `before` that it covers best:
  *   the largest part of the text of that block. Thus, two joined blocks stay
  *   the first block, because the joined text covers the two blocks fully.
  *
@@ -243,49 +253,50 @@ function overlapText(block: BlockWithoutChildren): OverlapText {
  *
  * The time is the time of the word diff (`textOverlaps`). The other steps
  * use only the pairs of blocks with shared words. Because the diff does not
- * cross, there are at most `a.length + b.length` of these pairs.
+ * cross, there are at most `before.length + after.length` of these pairs.
  */
 function overlapPairs(
-  a: readonly FlatBlock[],
-  b: readonly FlatBlock[],
+  before: readonly FlatBlock[],
+  after: readonly FlatBlock[],
 ): MatchedPair[] {
-  const textsA = a.map(({ block }) => overlapText(block));
-  const textsB = b.map(({ block }) => overlapText(block));
+  const textsBefore = before.map(({ block }) => overlapText(block));
+  const textsAfter = after.map(({ block }) => overlapText(block));
   const overlaps =
-    textsA.length === 0 || textsB.length === 0
+    textsBefore.length === 0 || textsAfter.length === 0
       ? []
-      : textOverlaps(textsA, textsB);
-  const sizesA = textsA.map(wordSize);
-  const sizesB = textsB.map(wordSize);
+      : textOverlaps(textsBefore, textsAfter);
+  const sizesBefore = textsBefore.map(wordSize);
+  const sizesAfter = textsAfter.map(wordSize);
   const large = overlaps
     .filter(
       (overlap) =>
         overlap.size >=
-        MIN_SHARE * Math.min(sizesA[overlap.aIndex], sizesB[overlap.bIndex]),
+        MIN_SHARE *
+          Math.min(sizesBefore[overlap.aIndex], sizesAfter[overlap.bIndex]),
     )
     .sort((x, y) => x.aIndex - y.aIndex || x.bIndex - y.bIndex);
   function coverage(overlap: Overlap) {
-    return overlap.size / sizesA[overlap.aIndex];
+    return overlap.size / sizesBefore[overlap.aIndex];
   }
 
-  const bestOfA = new Map<number, Overlap>();
-  const bestOfB = new Map<number, Overlap>();
+  const bestOfBefore = new Map<number, Overlap>();
+  const bestOfAfter = new Map<number, Overlap>();
   for (const overlap of large) {
-    const ofA = bestOfA.get(overlap.aIndex);
-    if (ofA === undefined || ofA.size < overlap.size) {
-      bestOfA.set(overlap.aIndex, overlap);
+    const ofBefore = bestOfBefore.get(overlap.aIndex);
+    if (ofBefore === undefined || ofBefore.size < overlap.size) {
+      bestOfBefore.set(overlap.aIndex, overlap);
     }
-    const ofB = bestOfB.get(overlap.bIndex);
-    if (ofB === undefined || coverage(ofB) < coverage(overlap)) {
-      bestOfB.set(overlap.bIndex, overlap);
+    const ofAfter = bestOfAfter.get(overlap.bIndex);
+    if (ofAfter === undefined || coverage(ofAfter) < coverage(overlap)) {
+      bestOfAfter.set(overlap.bIndex, overlap);
     }
   }
 
   return large
     .filter(
       (overlap) =>
-        bestOfA.get(overlap.aIndex) === overlap &&
-        bestOfB.get(overlap.bIndex) === overlap,
+        bestOfBefore.get(overlap.aIndex) === overlap &&
+        bestOfAfter.get(overlap.bIndex) === overlap,
     )
     .map(({ aIndex, bIndex }) => ({ aIndex, bIndex }))
     .sort((x, y) => x.aIndex - y.aIndex);
