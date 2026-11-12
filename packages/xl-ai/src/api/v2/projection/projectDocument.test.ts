@@ -173,6 +173,34 @@ describe("projectDocument", () => {
     );
   });
 
+  it("throws for a format that does not show the blocks in document order", () => {
+    // A broken format: its serialize writes the top-level blocks in reverse
+    // order. Each block gives one view block, thus the count is correct. No
+    // block of the four is at its place. Without the check, view block
+    // "Delta" would link to block a, and a change of "Alpha" in the text
+    // would change block d.
+    const reversing: TextFormat = {
+      serialize: (serializeEditor, blocks) =>
+        markdownFormat.serialize(serializeEditor, [...blocks].reverse()),
+      parse: (parseEditor, text) => markdownFormat.parse(parseEditor, text),
+    };
+    const fourBlocks = BlockNoteEditor.create({
+      initialContent: [
+        { id: "a", type: "paragraph", content: "Alpha" },
+        { id: "b", type: "paragraph", content: "Beta" },
+        { id: "c", type: "paragraph", content: "Gamma" },
+        { id: "d", type: "paragraph", content: "Delta" },
+      ],
+    });
+    expect(() =>
+      projectDocument(
+        fourBlocks,
+        reversing,
+        fourBlocks.document as LensBlock[],
+      ),
+    ).toThrow("The format does not show the blocks in document order");
+  });
+
   it("makes the round trip only for the blocks that the view does not show as they are (a guard of the speed)", () => {
     // The IDs of the blocks of each call of `serialize` (a separator has no ID).
     const calls: string[][] = [];

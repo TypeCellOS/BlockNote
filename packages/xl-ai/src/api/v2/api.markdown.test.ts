@@ -349,6 +349,36 @@ describe("markdown", () => {
         previewWidth: 500,
       });
     });
+
+    it("when two images have the same URL and only the first has a hidden prop", () => {
+      // Markdown does not show the preview width. Thus, the view shows a and
+      // b as two equal images. The key match pairs b with the view block of
+      // a, but the document order gives the link of each view block. Before
+      // the fix, the check of the projection threw "The format does not show
+      // the blocks in document order" for this valid document.
+      const editor = createEditor([
+        {
+          id: "a",
+          type: "image",
+          props: { url: "https://example.com/x.png", previewWidth: 200 },
+        },
+        { id: "b", type: "image", props: { url: "https://example.com/x.png" } },
+        {
+          id: "c",
+          type: "image",
+          props: { url: "https://example.com/y.png", previewWidth: 200 },
+        },
+        { id: "end", type: "paragraph", content: "End" },
+      ]);
+      writeText(editor, markdownFormat, (md) =>
+        md.replace("End", "End, changed"),
+      );
+
+      expect(documentShape(editor.document)).toEqual(["a", "b", "c", "end"]);
+      expect(editor.getBlock("a")?.props).toMatchObject({ previewWidth: 200 });
+      expect(editor.getBlock("c")?.props).toMatchObject({ previewWidth: 200 });
+      expect(getDocumentText(editor, markdownFormat)).toContain("End, changed");
+    });
   });
 
   it("keeps a comment in a table cell when the text changes another cell", () => {

@@ -7,7 +7,7 @@ import {
   flattenBlocks,
   schemaRulesOf,
 } from "../util/blocks/index.js";
-import { anchoredMatch, type MatchedPair } from "../util/sequence/index.js";
+import { anchoredMatch } from "../util/sequence/index.js";
 import type { TextFormat } from "../formats/index.js";
 import { parseText } from "../parse/index.js";
 
@@ -171,8 +171,8 @@ export function roundTripIsolated(
  * function gives the same result with two shortcuts, and the fuzz test
  * compares the two on random documents:
  *
- * 1. A block that the view shows as it is (see {@link shownMatches}) gives
- *    that view block, without a round trip. Most blocks are such blocks.
+ * 1. A block that the view shows as it is (see {@link shownBlocks}) gives
+ *    a view block, without a round trip. Most blocks are such blocks.
  * 2. The other blocks share one isolated round trip (see
  *    {@link roundTripIsolated}).
  *
@@ -190,8 +190,7 @@ function sourcesOfView(
   view: readonly FlatBlock[],
   text: string,
 ): number[] {
-  const matches = shownMatches(sources, view);
-  const shown = new Set(matches.map(({ aIndex }) => aIndex));
+  const shown = shownBlocks(sources, view);
   const { layoutRuleOf } = schemaRulesOf(editor);
   const needRoundTrip = sources.flatMap(({ block }, i) =>
     shown.has(i) || layoutRuleOf(block.type) !== undefined ? [] : [i],
@@ -208,12 +207,18 @@ function sourcesOfView(
   const sourceOf = sources.flatMap((_, i) =>
     shown.has(i) || roundTripGives.has(i) ? [i] : [],
   );
-  // A block that the view shows as it is must be at its place in that order.
-  for (const { aIndex, bIndex } of matches) {
-    if (sourceOf[bIndex] !== aIndex) {
+  // A block that the view shows as it is gives the view block at its place in
+  // the document order, thus that view block has its key. A format that
+  // changes the order of the blocks breaks this (the count does not change).
+  sourceOf.forEach((i, k) => {
+    if (
+      shown.has(i) &&
+      k < view.length &&
+      alignmentKey(view[k].block) !== alignmentKey(sources[i].block)
+    ) {
       throw new Error("The format does not show the blocks in document order");
     }
-  }
+  });
   return sourceOf;
 }
 
@@ -240,13 +245,18 @@ function viewOf(
 }
 
 /**
- * Returns the pairs of a source block and a view block that shows it as it
- * is: the view block at the place of the block has the same key (see
- * `alignmentKey`). For a block with content, the key is its text and its
- * content shape. For a block without content, it is all its fields. The
- * anchored match of the keys gives the places. Example (plain text): the view
- * shows the paragraph "End" as it is, but not the code block
- * "first\n\nsecond" (its view block has the text "first\nsecond").
+ * Returns the indexes of the source blocks that the view shows as they are:
+ * the view has a block with the same key (see `alignmentKey`) at the place of
+ * the block. For a block with content, the key is its text and its content
+ * shape. For a block without content, it is all its fields. The anchored
+ * match of the keys gives the places. Example (plain text): the view shows
+ * the paragraph "End" as it is, but not the code block "first\n\nsecond"
+ * (its view block has the text "first\nsecond").
+ *
+ * Only the set of blocks counts, not the view block of each pair: the
+ * document order gives the view block of each block (see `sourcesOfView`).
+ * Two view blocks can have the same key, and the match can pair a block
+ * with the wrong one of the two.
  *
  * A block with content that has no text (or only white space) does not
  * count, for example an empty paragraph: all these blocks have almost the
@@ -257,16 +267,17 @@ function viewOf(
  * A format that hides a block with text can break it: if the view block next
  * to the hidden block has the same key, the hidden block can get the link.
  */
-function shownMatches(
+function shownBlocks(
   sources: readonly FlatBlock[],
   view: readonly FlatBlock[],
-): MatchedPair[] {
-  return anchoredMatch(sources, view, ({ block }) =>
+): Set<number> {
+  const matches = anchoredMatch(sources, view, ({ block }) =>
     alignmentKey(block),
   ).filter(({ aIndex }) => {
     const { block } = sources[aIndex];
     return block.content === undefined || blockToText(block).trim() !== "";
   });
+  return new Set(matches.map(({ aIndex }) => aIndex));
 }
 
 /**
