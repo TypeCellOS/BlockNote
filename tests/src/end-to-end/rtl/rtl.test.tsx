@@ -69,11 +69,12 @@ test.each(["rtl", "ltr"] as const)(
     await waitForSelector(".bn-editor");
     const rightBlock = block("right");
     const image = rightBlock.querySelector("img")!;
+    const end = dir === "rtl" ? "left" : "right";
     expect
       .soft(
         Math.abs(
-          rightBlock.getBoundingClientRect().right -
-            image.getBoundingClientRect().right,
+          rightBlock.getBoundingClientRect()[end] -
+            image.getBoundingClientRect()[end],
         ),
       )
       .toBeLessThan(1);

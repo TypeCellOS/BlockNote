@@ -9,6 +9,7 @@ import {
   deleteColumn,
   deleteRow,
   mergeCells,
+  setCellAttr,
   splitCell,
 } from "prosemirror-tables";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
@@ -42,6 +43,7 @@ import {
 import {
   BlockFromConfigNoChildren,
   BlockSchemaWithBlock,
+  TableCellProps,
 } from "../../schema/index.js";
 import { getBlockFromElement } from "../blockDOM.js";
 
@@ -1132,6 +1134,23 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
 
         return splitCell(state, dispatch);
       });
+    },
+
+    /** Updates alignment without replacing the table or moving the selection. */
+    setCellTextAlignment(textAlignment: TableCellProps["textAlignment"]) {
+      if (isTableCellSelection(editor.prosemirrorState.selection)) {
+        // setCellAttr skips the whole selection when its anchor already matches.
+        // A mixed selection still needs its other cells updated.
+        editor.transact((tr) => {
+          if (isTableCellSelection(tr.selection)) {
+            tr.selection.forEachCell((_cell, pos) => {
+              tr.setNodeAttribute(pos, "textAlignment", textAlignment);
+            });
+          }
+        });
+        return true;
+      }
+      return editor.exec(setCellAttr("textAlignment", textAlignment));
     },
 
     /**
