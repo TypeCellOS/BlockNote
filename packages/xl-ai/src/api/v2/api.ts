@@ -310,9 +310,6 @@ export function updateFromTarget(
   },
 ): ChangeOperations | ConflictError {
   const { base, current } = documents;
-  if (target === (base ?? current)) {
-    return { operations: [], warnings };
-  }
   // 4. Merge: only for a version as `base`. The target is for that version,
   // and merges three-way with the current document (see `mergeDocument`).
   const merged: { blocks: readonly LensBlock[]; warnings: MergeWarning[] } =
