@@ -40,21 +40,9 @@
   font-size: 16px;
   font-weight: normal;
   font-family:
-    "Inter",
-    "Inter fallback",
-    "SF Pro Display",
-    -apple-system,
-    BlinkMacSystemFont,
-    "Open Sans",
-    "Segoe UI",
-    "Roboto",
-    "Oxygen",
-    "Ubuntu",
-    "Cantarell",
-    "Fira Sans",
-    "Droid Sans",
-    "Helvetica Neue",
-    sans-serif;
+    "Inter", "Inter fallback", "SF Pro Display", -apple-system,
+    BlinkMacSystemFont, "Open Sans", "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
+    "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
