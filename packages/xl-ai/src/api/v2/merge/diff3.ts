@@ -10,10 +10,9 @@ import type { MatchedPair } from "../util/sequence/index.js";
 export type StableTriple<T> = { base: T; ours: T; theirs: T };
 
 /**
- * The context of a run of ours: the nearest stable triples before and after
- * it, that `isContext` accepts (a side is `undefined` if there is no such
- * triple on that side), and the units of base and theirs that the run
- * replaces (empty for an insert).
+ * The context of a run of ours: the stable triples before and after it (a
+ * side is `undefined` at the start or at the end), and the units of base
+ * and theirs that the run replaces (empty for an insert).
  *
  * @internal
  */
@@ -36,8 +35,6 @@ export type Diff3Handlers<T> = {
    * conflict to theirs, the current document (see `MergeOptions`).
    */
   conflictWinner?: "ours" | "theirs";
-  /** Returns true if a stable triple can be a context. By default, all can. */
-  isContext?: (triple: StableTriple<T>) => boolean;
   /**
    * If set, two inserts at the same position (without base units between
    * the stable units) both stay, in the given order. If not, they are a
@@ -92,20 +89,7 @@ export function diff3<T>(
     theirsMatched[pair.bIndex] = 1;
   }
 
-  const isContext = handlers.isContext ?? (() => true);
-  // The context triple at each base index, or `undefined`.
-  const contexts = base.map((unit, i) => {
-    if (toA[i] === -1 || toB[i] === -1) {
-      return undefined;
-    }
-    const triple = { base: unit, ours: ours[toA[i]], theirs: theirs[toB[i]] };
-    return isContext(triple) ? triple : undefined;
-  });
-  // The first context triple at each base index or after it, from the end.
-  const contextsAfter = new Array<StableTriple<T> | undefined>(base.length + 1);
-  for (let k = base.length - 1; k >= 0; k--) {
-    contextsAfter[k] = contexts[k] ?? contextsAfter[k + 1];
-  }
+  /** The last stable triple: the context before the next run. */
   let before: StableTriple<T> | undefined;
 
   const merged: T[] = [];
@@ -114,10 +98,8 @@ export function diff3<T>(
   let jb = 0;
   while (i < base.length || ja < ours.length || jb < theirs.length) {
     if (i < base.length && toA[i] === ja && toB[i] === jb) {
-      before = contexts[i] ?? before;
-      merged.push(
-        handlers.stable({ base: base[i], ours: ours[ja], theirs: theirs[jb] }),
-      );
+      before = { base: base[i], ours: ours[ja], theirs: theirs[jb] };
+      merged.push(handlers.stable(before));
       i++;
       ja++;
       jb++;
@@ -160,7 +142,11 @@ export function diff3<T>(
       const theirsUnits = both === undefined ? [] : theirs.slice(jb, jb2);
       const oursUnits = handlers.ours(ours.slice(ja, ja2), {
         before,
-        after: contextsAfter[i2],
+        // The chunk ends at the next stable triple, or at the end.
+        after:
+          i2 < base.length
+            ? { base: base[i2], ours: ours[ja2], theirs: theirs[jb2] }
+            : undefined,
         replaced: { base: base.slice(i, i2), theirs: theirs.slice(jb, jb2) },
       });
       // The units of theirs that stay in a run that ours wins.

@@ -89,6 +89,61 @@ describe("markdown", () => {
     ]);
   });
 
+  it("gives a new word next to a space the hidden style of the run around it, and no style that the text does not show", () => {
+    // Markdown writes the space after "alpha" outside the bold: "**alpha** ".
+    const editor = createEditor([
+      {
+        id: "p",
+        type: "paragraph",
+        content: [
+          { type: "text", text: "alpha", styles: { bold: true } },
+          { type: "text", text: " ", styles: { bold: true, underline: true } },
+          { type: "text", text: "gamma", styles: { underline: true } },
+          { type: "text", text: " ", styles: { italic: true } },
+          { type: "text", text: "beta", styles: { italic: true } },
+        ],
+      },
+    ]);
+    const text = getDocumentText(editor, markdownFormat).replace(
+      "gamma",
+      "new gamma",
+    );
+    writeText(editor, markdownFormat, () => text);
+
+    // The new word is in the underlined run: it gets the underline. It gets
+    // no bold and no italic: the text does not show them.
+    expect(editor.getBlock("p")?.content).toContainEqual({
+      type: "text",
+      text: "new gamma",
+      styles: { underline: true },
+    });
+    expect(getDocumentText(editor, markdownFormat)).toBe(text);
+  });
+
+  it("gives no visible style to a new word between bold text and a space", () => {
+    // Markdown writes the bold space outside the bold: "**alpha** *gamma*".
+    const editor = createEditor([
+      {
+        id: "p",
+        type: "paragraph",
+        content: [
+          { type: "text", text: "gamma", styles: { italic: true } },
+          { type: "text", text: "alpha", styles: { bold: true } },
+          { type: "text", text: " ", styles: { bold: true } },
+          { type: "text", text: "gamma ", styles: { italic: true } },
+        ],
+      },
+    ]);
+    const text = getDocumentText(editor, markdownFormat).replace(
+      "**alpha** ",
+      "**alpha**new  ",
+    );
+    writeText(editor, markdownFormat, () => text);
+
+    // PutGet: "new" has no italic, as in the text.
+    expect(getDocumentText(editor, markdownFormat)).toBe(text);
+  });
+
   it("changes the level of a heading and keeps its text color and underline", () => {
     const editor = createEditor();
     const content = editor.getBlock("heading")?.content;

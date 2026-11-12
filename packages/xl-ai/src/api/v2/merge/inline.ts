@@ -54,10 +54,6 @@ export function mergeInlineContent(
         const old = commonOf(context.replaced.base, context.replaced.theirs);
         return units.map((unit) => inheritHiddenStyles(unit, context, old));
       },
-      // The round trip can move whitespace across a style boundary (for
-      // example "**bold **" becomes "**bold** "). Thus, whitespace does not
-      // show the styles around it.
-      isContext: ({ base }) => base.kind === "char" && !/\s/u.test(base.char),
       // Two writers add text at one position: the text that applied first
       // (of the other writer) stays first. Thus, two additions at the end
       // read in the order of the writes. (The document merge puts the blocks of
@@ -169,7 +165,8 @@ function styleContextOf(
 
 /**
  * The styles and the link that all characters of the replaced base and of
- * the replaced theirs have. Whitespace does not count (see `isContext`).
+ * the replaced theirs have. Whitespace does not count: the markdown round
+ * trip can move it across a style boundary ("**bold **" becomes "**bold** ").
  * `undefined` if a side has no such character.
  */
 function commonOf(
