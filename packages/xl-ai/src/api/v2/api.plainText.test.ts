@@ -14,6 +14,7 @@ import {
   replaceOnce,
   writeText,
 } from "./testUtil/fixtures.js";
+import { canonicalText } from "./testUtil/canonical.js";
 import { richSchema } from "./testUtil/richRandom.js";
 import { valid } from "./testUtil/valid.js";
 
@@ -357,5 +358,39 @@ describe("an item that plain text does not show", () => {
       { type: "mention", props: { user: "Bob" } },
       { type: "text", text: "tomorrow please" },
     ]);
+  });
+});
+
+describe("plain text: white space at the end of a block", () => {
+  it("keeps the laws if the client removes the block after a block that ends with a hard break", () => {
+    const editor = createEditor([
+      { id: "a", type: "paragraph", content: "Alpha\n " },
+      { id: "b", type: "paragraph", content: "Beta" },
+    ]);
+    const text = "Alpha";
+    valid(
+      updateDocument(editor, {
+        base: "current",
+        format: plainTextFormat,
+        text,
+      }),
+    );
+
+    expect(
+      canonicalText(
+        editor,
+        plainTextFormat,
+        getDocumentText(editor, plainTextFormat),
+      ),
+    ).toBe(canonicalText(editor, plainTextFormat, text));
+    expect(
+      valid(
+        computeOperations(editor, {
+          base: "current",
+          format: plainTextFormat,
+          text,
+        }),
+      ).operations,
+    ).toEqual([]);
   });
 });

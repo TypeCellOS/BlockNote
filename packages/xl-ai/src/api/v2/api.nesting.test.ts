@@ -874,3 +874,41 @@ describe("HTML, list items", () => {
     ).toBe("P[N1 N2 +N3] Z");
   });
 });
+
+describe("a nesting that the format does not show", () => {
+  it("does not stay under a parent whose type the text changes", () => {
+    // Markdown does not show the child of a paragraph as nested. Under a
+    // bullet, it would show it, thus the child becomes the next block.
+    const editor = BlockNoteEditor.create({
+      initialContent: [
+        {
+          id: "parent",
+          type: "paragraph",
+          content: "Parent",
+          children: [{ id: "child", type: "paragraph", content: "Child" }],
+        },
+        { id: "end", type: "paragraph", content: "End" },
+      ],
+    });
+    const text = replaceOnce(
+      getDocumentText(editor, markdownFormat),
+      "Parent",
+      "* Parent",
+    );
+    valid(
+      updateDocument(editor, {
+        base: "current",
+        format: markdownFormat,
+        text,
+      }),
+    );
+    expect(getDocumentText(editor, markdownFormat)).toBe(
+      canonicalText(editor, markdownFormat, text),
+    );
+    expect(editor.document.map((block) => block.id)).toEqual([
+      "parent",
+      "child",
+      "end",
+    ]);
+  });
+});

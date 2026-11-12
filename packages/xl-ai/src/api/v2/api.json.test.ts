@@ -10,11 +10,7 @@ import {
   type JSONChange,
   updateDocument,
 } from "./index.js";
-import {
-  columnSchema,
-  createColumnsEditor,
-  createEditor,
-} from "./testUtil/fixtures.js";
+import { columnSchema, createEditor } from "./testUtil/fixtures.js";
 import { valid } from "./testUtil/valid.js";
 
 const initial = [
@@ -247,25 +243,6 @@ describe("JSON", () => {
     expect(editor.document.map((block) => block.id)).toEqual(["a"]);
   });
 
-  it("gives an error for a column outside a column list", () => {
-    const editor = BlockNoteEditor.create({
-      schema: columnSchema,
-      initialContent: initial,
-    });
-
-    expect(
-      updateDocument(editor, {
-        base: "current",
-        document: [
-          {
-            type: "column",
-            children: [{ type: "paragraph", content: "In a column" }],
-          },
-        ],
-      }),
-    ).toEqual({ error: "invalid-document" });
-  });
-
   it("does not add IDs to the document on an error", () => {
     const editor = createEditor(initial);
     editor.removeBlocks(["a", "b", "c"]);
@@ -278,34 +255,6 @@ describe("JSON", () => {
       }),
     ).toEqual({ error: "invalid-document" });
     expect(editor.prosemirrorState.doc).toBe(before);
-  });
-
-  it("puts two blocks into a new column list, without extra columns", () => {
-    const editor = BlockNoteEditor.create({
-      schema: columnSchema,
-      initialContent: initial.slice(0, 2),
-    });
-    const [a, b] = copy(editor.document);
-
-    update(editor, {
-      base: "current",
-      document: [
-        {
-          type: "columnList",
-          children: [
-            { type: "column", children: [a] },
-            { type: "column", children: [b] },
-          ],
-        },
-      ],
-    });
-
-    expect(editor.document).toHaveLength(1);
-    expect(
-      editor.document[0].children.map((column) =>
-        column.children.map((block) => block.id),
-      ),
-    ).toEqual([["a"], ["b"]]);
   });
 
   // A block that changes between a layout block (a column or a column list)
@@ -472,31 +421,38 @@ describe("JSON, a change of the content kind", () => {
   });
 });
 
-describe("JSON, the layout rules", () => {
-  it("gives an error for a column that the JSON empties: the client gives a valid layout", () => {
-    const editor = createColumnsEditor();
-    const before = editor.document;
-    const [list] = editor.document;
-    const [first, second] = list.children;
+/**
+ * A table of two rows: the first cell has the props, and the other cells
+ * fit a first cell with a row span of 2.
+ */
+function table(props: Record<string, unknown>) {
+  return {
+    type: "table",
+    content: {
+      type: "tableContent",
+      rows: [
+        {
+          cells: [
+            { type: "tableCell", props, content: "a" },
+            { type: "tableCell", content: "b" },
+          ],
+        },
+        { cells: [{ type: "tableCell", content: "c" }] },
+      ],
+    },
+  } as never;
+}
 
-    // An empty column does not fit the schema: the conversion would fill it.
+describe("JSON, the spans of table cells", () => {
+  const editor = createEditor([{ id: "p", type: "paragraph" }]);
+
+  it("gives an error value, not an exception, for a JSON write with a column span of 1,000,000", () => {
+    // Before the check, the conversion of core overflowed the stack.
     expect(
-      updateDocument(editor, {
+      computeOperations(editor, {
+        document: [table({ colspan: 1_000_000 })],
         base: "current",
-        document: [
-          {
-            ...list,
-            children: [
-              {
-                ...first,
-                children: [...first.children, ...second.children],
-              },
-              { ...second, children: [] },
-            ],
-          },
-        ],
       }),
     ).toEqual({ error: "invalid-document" });
-    expect(editor.document).toEqual(before);
   });
 });

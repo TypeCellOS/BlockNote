@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vite-plus/test";
 
-import { computeOperations } from "../index.js";
 import { createEditor } from "../testUtil/fixtures.js";
 import { parseJSON } from "./parseJSON.js";
 
@@ -55,16 +54,6 @@ describe("parseJSON: the spans of table cells", () => {
           children: [table({ colspan: 1_000_000 })],
         },
       ]),
-    ).toEqual({ error: "invalid-document" });
-  });
-
-  it("gives an error value, not an exception, for a JSON write with a column span of 1,000,000", () => {
-    // Before the check, the conversion of core overflowed the stack.
-    expect(
-      computeOperations(editor, {
-        document: [table({ colspan: 1_000_000 })],
-        base: "current",
-      }),
     ).toEqual({ error: "invalid-document" });
   });
 });

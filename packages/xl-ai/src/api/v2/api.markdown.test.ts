@@ -20,14 +20,12 @@ import {
   createCommentEditor,
 } from "./testUtil/comments.js";
 import {
-  columnSchema,
-  createColumnsEditor,
   createEditor,
+  createSharedDocumentEditor,
   documentShape,
   replaceOnce,
   writeText,
 } from "./testUtil/fixtures.js";
-import { canonicalText } from "./testUtil/canonical.js";
 import { valid } from "./testUtil/valid.js";
 import { mention } from "./testUtil/richRandom.js";
 
@@ -487,256 +485,6 @@ describe("markdown", () => {
       previewWidth: 300,
     });
   });
-
-  it("swaps two columns if the text swaps their blocks, without a new column", () => {
-    const editor = createColumnsEditor();
-
-    const update = valid(
-      updateDocument(editor, {
-        base: "current",
-        format: markdownFormat,
-        text: "Beta\n\nAlpha\n",
-      }),
-    );
-
-    expect(update.operations).toEqual([
-      { type: "move", id: "c1", reference: "c2", placement: "after" },
-    ]);
-    expect(
-      editor.document[0].children.map((column) => [
-        column.id,
-        column.children.map((block) => block.id),
-      ]),
-    ).toEqual([
-      ["c2", ["b"]],
-      ["c1", ["a"]],
-    ]);
-    expect(getDocumentText(editor, markdownFormat)).toBe("Beta\n\nAlpha\n");
-  });
-
-  it("keeps the columns if the text adds a block between the blocks of two columns", () => {
-    const editor = createColumnsEditor();
-    expect(getDocumentText(editor, markdownFormat)).toBe("Alpha\n\nBeta\n");
-
-    valid(
-      updateDocument(editor, {
-        base: "current",
-        format: markdownFormat,
-        text: "Alpha\n\nTop\n\nBeta\n\nEnd\n",
-      }),
-    );
-
-    const [list, end] = editor.document;
-    expect(list.id).toBe("list");
-    expect(
-      list.children.map((column) => [
-        column.id,
-        column.children.map((block) => block.content),
-      ]),
-    ).toEqual([
-      ["c1", [[{ type: "text", text: "Alpha", styles: {} }]]],
-      [
-        "c2",
-        [
-          [{ type: "text", text: "Top", styles: {} }],
-          [{ type: "text", text: "Beta", styles: {} }],
-        ],
-      ],
-    ]);
-    expect(end.content).toMatchObject([{ text: "End" }]);
-  });
-
-  it("puts a block that the text moves between the blocks of two columns into the next column", () => {
-    const editor = createColumnsEditor();
-    editor.insertBlocks(
-      [{ id: "p", type: "paragraph", content: "P" }],
-      "list",
-      "after",
-    );
-
-    valid(
-      updateDocument(editor, {
-        base: "current",
-        format: markdownFormat,
-        text: "Alpha\n\nP\n\nBeta\n",
-      }),
-    );
-
-    // The column list stays: the text did not change Alpha and Beta.
-    expect(editor.document.map((block) => block.id)).toEqual(["list"]);
-    expect(
-      editor.document[0].children.map((column) => [
-        column.id,
-        column.children.map((block) => block.id),
-      ]),
-    ).toEqual([
-      ["c1", ["a"]],
-      ["c2", ["p", "b"]],
-    ]);
-    expect(getDocumentText(editor, markdownFormat)).toBe(
-      "Alpha\n\nP\n\nBeta\n",
-    );
-  });
-
-  it("removes the only block of a column, and keeps a column with an empty paragraph", () => {
-    const editor = createColumnsEditor();
-    editor.insertBlocks(
-      [
-        {
-          id: "c3",
-          type: "column",
-          children: [{ id: "empty", type: "paragraph" }],
-        },
-      ],
-      "c2",
-      "after",
-    );
-    expect(getDocumentText(editor, markdownFormat)).toBe(
-      "Alpha\n\nBeta\n\n<br>\n",
-    );
-
-    valid(
-      updateDocument(editor, {
-        base: "current",
-        format: markdownFormat,
-        text: "Alpha\n\n<br>\n",
-      }),
-    );
-
-    expect(
-      editor.document[0].children.map((column) => [
-        column.id,
-        column.children.map((block) => block.id),
-      ]),
-    ).toEqual([
-      ["c1", ["a"]],
-      ["c3", ["empty"]],
-    ]);
-  });
-
-  it("writes to an editor with a block without an ID", () => {
-    // In an editor without a view, `removeBlocks` can leave a block without
-    // an ID. `editor.document` then shows a new ID on each read.
-    const editor = createEditor([{ id: "a", type: "paragraph", content: "A" }]);
-    editor.removeBlocks(["a"]);
-
-    valid(
-      updateDocument(editor, {
-        base: "current",
-        format: markdownFormat,
-        text: "X\n\nY\n",
-      }),
-    );
-
-    expect(getDocumentText(editor, markdownFormat)).toBe("X\n\nY\n");
-    expect(new Set(editor.document.map((block) => block.id)).size).toBe(2);
-  });
-
-  it("keeps the column list if the text swaps a top-level block with the block of a column", () => {
-    const editor = createColumnsEditor();
-    editor.insertBlocks(
-      [{ id: "x", type: "paragraph", content: "Xray" }],
-      "list",
-      "before",
-    );
-    expect(getDocumentText(editor, markdownFormat)).toBe(
-      "Xray\n\nAlpha\n\nBeta\n",
-    );
-
-    valid(
-      updateDocument(editor, {
-        base: "current",
-        format: markdownFormat,
-        text: "Alpha\n\nXray\n\nBeta\n",
-      }),
-    );
-
-    expect(getDocumentText(editor, markdownFormat)).toBe(
-      "Alpha\n\nXray\n\nBeta\n",
-    );
-    // Xray goes before Beta, into its column.
-    expect(documentShape(editor.document)).toEqual([
-      "list",
-      ["c1", ["a"], "c2", ["x", "b"]],
-    ]);
-  });
-
-  describe("moves of blocks in columns", () => {
-    function createEditorWithTwoBlocksInEachColumn() {
-      return BlockNoteEditor.create({
-        schema: columnSchema,
-        initialContent: [
-          { id: "top", type: "paragraph", content: "Top" },
-          {
-            id: "list",
-            type: "columnList",
-            children: [
-              {
-                id: "cA",
-                type: "column",
-                children: [
-                  { id: "a1", type: "paragraph", content: "Alpha one" },
-                  { id: "a2", type: "paragraph", content: "Alpha two" },
-                ],
-              },
-              {
-                id: "cB",
-                type: "column",
-                children: [
-                  { id: "b1", type: "paragraph", content: "Bravo one" },
-                  { id: "b2", type: "paragraph", content: "Bravo two" },
-                ],
-              },
-            ],
-          },
-          { id: "end", type: "paragraph", content: "End" },
-        ],
-      });
-    }
-    it("moves a block of a column to the start, out of the column list", () => {
-      const editor = createEditorWithTwoBlocksInEachColumn();
-
-      valid(
-        updateDocument(editor, {
-          base: "current",
-          format: markdownFormat,
-          text: "Bravo two\n\nTop\n\nAlpha one\n\nAlpha two\n\nBravo one\n\nEnd\n",
-        }),
-      );
-
-      expect(documentShape(editor.document)).toEqual([
-        "b2",
-        "top",
-        "list",
-        ["cA", ["a1", "a2"], "cB", ["b1"]],
-        "end",
-      ]);
-    });
-
-    it("keeps the other blocks of the columns if the text swaps two blocks of two columns", () => {
-      const editor = createEditorWithTwoBlocksInEachColumn();
-
-      valid(
-        updateDocument(editor, {
-          base: "current",
-          format: markdownFormat,
-          text: "Top\n\nAlpha one\n\nBravo one\n\nAlpha two\n\nBravo two\n\nEnd\n",
-        }),
-      );
-
-      expect(getDocumentText(editor, markdownFormat)).toBe(
-        "Top\n\nAlpha one\n\nBravo one\n\nAlpha two\n\nBravo two\n\nEnd\n",
-      );
-      // The blocks that the text did not move stay in their columns. The
-      // moved block goes into the column of the next block.
-      expect(documentShape(editor.document)).toEqual([
-        "top",
-        "list",
-        ["cA", ["a1"], "cB", ["b1", "a2", "b2"]],
-        "end",
-      ]);
-    });
-  });
 });
 
 /**
@@ -1037,40 +785,38 @@ describe("a table with merged cells", () => {
   });
 });
 
-describe("a nesting that the format does not show", () => {
-  it("does not stay under a parent whose type the text changes", () => {
-    // Markdown does not show the child of a paragraph as nested. Under a
-    // bullet, it would show it, thus the child becomes the next block.
-    const editor = BlockNoteEditor.create({
-      initialContent: [
-        {
-          id: "parent",
-          type: "paragraph",
-          content: "Parent",
-          children: [{ id: "child", type: "paragraph", content: "Child" }],
-        },
-        { id: "end", type: "paragraph", content: "End" },
-      ],
-    });
-    const text = replaceOnce(
-      getDocumentText(editor, markdownFormat),
-      "Parent",
-      "* Parent",
+describe("markdown normalization", () => {
+  it("bullets with `-` instead of `*` change nothing", () => {
+    const editor = createSharedDocumentEditor();
+    const text = getDocumentText(editor, markdownFormat).replace(
+      /^(\s*)\* /gm,
+      "$1- ",
     );
-    valid(
-      updateDocument(editor, {
-        base: "current",
-        format: markdownFormat,
-        text,
-      }),
-    );
-    expect(getDocumentText(editor, markdownFormat)).toBe(
-      canonicalText(editor, markdownFormat, text),
-    );
-    expect(editor.document.map((block) => block.id)).toEqual([
-      "parent",
-      "child",
-      "end",
-    ]);
+    expect(
+      valid(
+        computeOperations(editor, {
+          base: "current",
+          format: markdownFormat,
+          text,
+        }),
+      ).operations,
+    ).toEqual([]);
+  });
+});
+
+describe("line ends", () => {
+  it("reads markdown with \\r\\n line ends as the same text", () => {
+    const editor = createSharedDocumentEditor();
+    const text = getDocumentText(editor, markdownFormat).replace(/\n/g, "\r\n");
+
+    expect(
+      valid(
+        computeOperations(editor, {
+          base: "current",
+          format: markdownFormat,
+          text,
+        }),
+      ).operations,
+    ).toEqual([]);
   });
 });

@@ -138,7 +138,7 @@ The identity of a block follows the location of its text, not the similarity of 
 
 An equal text is a stronger sign than a position. Thus, a moved block does not match a different block at its new position.
 
-Known limit: rule 1 runs before rule 2. Two blocks that swap places match by position if unchanged blocks are between them and the two blocks share at least half of the shorter text. Example: "Note: see above" and "Note: see below", with other blocks between them. The unchanged blocks are anchors of the diff, thus each moved block is in a gap with the other block, and rule 1 matches them. The text of the result is correct, but the IDs, props and comments stay at the positions: the result is a change of some words in each block. A swap of adjacent blocks, or of blocks with less in common, keeps the IDs (see `alignment/alignBlocks.edge.test.ts` and `api.swaps.test.ts`).
+Known limit: rule 1 runs before rule 2. Two blocks that swap places match by position if unchanged blocks are between them and the two blocks share at least half of the shorter text. Example: "Note: see above" and "Note: see below", with other blocks between them. The unchanged blocks are anchors of the diff, thus each moved block is in a gap with the other block, and rule 1 matches them. The text of the result is correct, but the IDs, props and comments stay at the positions: the result is a change of some words in each block. A swap of adjacent blocks, or of blocks with less in common, keeps the IDs (see `alignment/alignBlocks.edge.test.ts` and `api.moves.test.ts`).
 
 A split paragraph keeps its ID on the part with the most of its text. Two joined paragraphs keep the ID of the first paragraph. A block that moved and also changed gets a new ID.
 
@@ -246,6 +246,9 @@ Each folder has an `index.ts` with its API for the other folders. A file imports
   - `api.markdown.test.ts`, `api.html.test.ts` and `api.plainText.test.ts`: examples in each format.
   - `api.nesting.test.ts`: the nesting of lists in markdown and HTML: the round trip of core, indents, outdents, moves, type changes, swaps, inserts, removals, empty items, numbered lists, toggles, lists in a nesting that the format does not show, and writes from an older version.
   - `api.nesting.property.test.ts`: random documents with nested lists (`testUtil/nestedRandom.ts`), with random edits of the nesting: the laws, the nesting that the text shows, and a model of the parent of each block (with the list rule). Also concurrent moves of two writers.
+  - `api.layout.test.ts`: column lists and tab sets in each format and in JSON.
+  - `api.moves.test.ts`: moves of blocks in the text: blocks that swap places, and the hidden blocks next to a block that the text moves.
+  - `api.specialCases.test.ts`: writes to special editors and documents (a mounted editor, two blocks with one ID, a document after `removeBlocks`), and writes of special texts (a byte order mark, markup that the serializer does not write).
   - `api.json.test.ts`: the JSON API.
   - `api.removals.test.ts`: removals, where content is lost. Examine these expected results carefully.
   - `api.concurrent.test.ts`: writes from an older version without Yjs, also on 40 random groups of two to four writers in each format.

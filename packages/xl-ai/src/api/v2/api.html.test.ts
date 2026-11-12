@@ -1,4 +1,3 @@
-import { BlockNoteEditor } from "@blocknote/core";
 import { describe, expect, it } from "vite-plus/test";
 
 import {
@@ -7,12 +6,7 @@ import {
   htmlFormat,
   updateDocument,
 } from "./index.js";
-import {
-  columnSchema,
-  createEditor,
-  replaceOnce,
-  writeText,
-} from "./testUtil/fixtures.js";
+import { createEditor, replaceOnce, writeText } from "./testUtil/fixtures.js";
 import { valid } from "./testUtil/valid.js";
 
 describe("HTML", () => {
@@ -118,31 +112,6 @@ describe("HTML", () => {
       expect(editor.document).toEqual(before);
     },
   );
-
-  it("puts two paragraphs into a new column list, without extra columns", () => {
-    const editor = BlockNoteEditor.create({
-      schema: columnSchema,
-      initialContent: [
-        { id: "a", type: "paragraph", content: "Alpha" },
-        { id: "b", type: "paragraph", content: "Beta" },
-      ],
-    });
-
-    valid(
-      updateDocument(editor, {
-        base: "current",
-        format: htmlFormat,
-        text: '<div class="bn-block-column-list"><div class="bn-block-column"><p>Alpha</p></div><div class="bn-block-column"><p>Beta</p></div></div>',
-      }),
-    );
-
-    expect(editor.document).toHaveLength(1);
-    expect(
-      editor.document[0].children.map((column) =>
-        column.children.map((block) => block.id),
-      ),
-    ).toEqual([["a"], ["b"]]);
-  });
 });
 
 describe("HTML, a change of the type of a parent", () => {
