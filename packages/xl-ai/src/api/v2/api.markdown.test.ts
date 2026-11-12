@@ -745,6 +745,25 @@ describe("markdown", () => {
  * paragraphs and images link to the block that gives them (see
  * `projectDocument`).
  */
+describe("markdown, a paragraph with \\r line breaks", () => {
+  it("keeps the \\r if the text changes a different word", () => {
+    // Markdown shows a `\r` as a hard break. Before, the export wrote it as a
+    // raw line end: the paragraph gave two blocks, and each write threw.
+    const editor = createEditor([
+      { id: "p", type: "paragraph", content: "first\r\n\r\nsecond line" },
+      { id: "end", type: "paragraph", content: "End" },
+    ]);
+    const update = writeText(editor, markdownFormat, (text) =>
+      replaceOnce(text, "line", "row"),
+    );
+
+    expect(update.warnings).toEqual([]);
+    expect(editor.getBlock("p")?.content).toMatchObject([
+      { text: "first\r\n\r\nsecond row" },
+    ]);
+  });
+});
+
 describe("markdown, blocks that markdown shows as other blocks", () => {
   const format = markdownFormat;
   function createMediaEditor() {

@@ -1272,7 +1272,7 @@ function serializeInlineNodes(el: Element, options: InlineOptions): string {
 
   for (const child of Array.from(el.childNodes)) {
     if (child.nodeType === 3 /* Node.TEXT_NODE */) {
-      result += escapeMarkdownText(child.textContent || "", options);
+      result += serializeText(child as Text, options);
     } else if (child.nodeType === 1 /* Node.ELEMENT_NODE */) {
       const childEl = child as HTMLElement;
       const tag = childEl.tagName.toLowerCase();
@@ -1479,6 +1479,27 @@ function escapeMarkdownText(text: string, options: InlineOptions): string {
     );
   }
   return result;
+}
+
+/**
+ * Serialize a text node of inline content. Each newline in it becomes a hard
+ * break, as a `<br>` does. In BlockNote's external HTML, such a newline comes
+ * from a `\r` of the document: a `\n` of the document is a `<br>`, and the
+ * HTML parse in `htmlToMarkdown` reads `\r\n` and `\r` as `\n`. Written as it
+ * is, a newline next to a second line break gives a blank line, and the
+ * markdown parser reads two blocks. A newline directly before a `<br>` (a
+ * `\r\n` of the document) goes, thus the pair gives one hard break.
+ */
+function serializeText(node: Text, options: InlineOptions): string {
+  let text = node.textContent || "";
+  const next = node.nextSibling;
+  if (text.endsWith("\n") && next?.nodeName === "BR") {
+    text = text.slice(0, -1);
+  }
+  return text
+    .split("\n")
+    .map((part) => escapeMarkdownText(part, options))
+    .join(HARD_BREAK);
 }
 
 /**

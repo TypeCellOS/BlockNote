@@ -516,6 +516,31 @@ describe("Markdown round trip", () => {
       });
     });
 
+    // The export writes a `\r` as a hard break, as a `\n`. Before, it wrote
+    // a raw line end: two line breaks in a row gave a blank line, and the
+    // parse read two paragraphs.
+    it.each([
+      ["\\r\\n\\r\\n", "a\r\n\r\nb", "a\n\nb"],
+      ["\\r\\r", "a\r\rb", "a\n\nb"],
+      ["one \\r", "a\rb", "a\nb"],
+    ])(
+      "writes %s in a paragraph as hard breaks, and the parse gives one paragraph",
+      (_, content, text) => {
+        const blocks = parse(serialize([{ type: "paragraph", content }]));
+        expect(blocks).toHaveLength(1);
+        expect(blocks[0]).toMatchObject({
+          type: "paragraph",
+          content: [{ type: "text", text, styles: {} }],
+        });
+      },
+    );
+
+    it("writes a \\r in a heading as a <br> tag", () => {
+      expect(serialize([{ type: "heading", content: "a\r\rb" }])).toBe(
+        "# a<br><br>b\n",
+      );
+    });
+
     it("indents the line after a hard break in a list item", () => {
       const markdown = serialize([
         { type: "bulletListItem", content: "a\nb" },
