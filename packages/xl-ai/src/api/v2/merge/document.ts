@@ -122,9 +122,9 @@ class Sides {
     return result;
   }
 
-  /** Returns true if the client changed the fields, the parent or the place of the block. */
-  changedByClient(id: string): boolean {
-    return this.fieldsChanged(this.ours, id) || this.movedByClient(id);
+  /** Returns true if `ours` changed the fields, the parent or the place of the block. */
+  oursChanged(id: string): boolean {
+    return this.fieldsChanged(this.ours, id) || this.oursMoved(id);
   }
 
   /** Returns true if `side` changed the type, the props or the content of a block of base. */
@@ -132,8 +132,8 @@ class Sides {
     return diffBlock(this.base.block(id), side.block(id)) !== undefined;
   }
 
-  /** Returns true if the client changed the parent or the place of a block of base. */
-  movedByClient(id: string): boolean {
+  /** Returns true if `ours` changed the parent or the place of a block of base. */
+  oursMoved(id: string): boolean {
     return (
       this.base.has(id) &&
       this.ours.has(id) &&
@@ -287,7 +287,7 @@ function mergeParents(
             theirsWins.add(block);
             changed = true;
             if (
-              sides.movedByClient(block) &&
+              sides.oursMoved(block) &&
               ours.parent(block) !== theirs.parent(block)
             ) {
               conflicts.add(block);
@@ -499,7 +499,7 @@ function removalWarnings(sides: Sides): MergeWarning[] {
   const { base, ours, theirs } = sides;
   const warnings: MergeWarning[] = [];
   for (const id of base.ids) {
-    if (ours.has(id) && !theirs.has(id) && sides.changedByClient(id)) {
+    if (ours.has(id) && !theirs.has(id) && sides.oursChanged(id)) {
       warnings.push({ type: "change-to-removed-block", id });
     }
     const parent = theirs.parent(id);
