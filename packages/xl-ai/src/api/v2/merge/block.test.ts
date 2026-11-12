@@ -198,4 +198,61 @@ describe("mergeBlock", () => {
       content: undefined,
     });
   });
+
+  describe("contents without a common base: the two sides changed the shape of the block", () => {
+    const table: LensBlock["content"] = {
+      type: "tableContent",
+      columnWidths: [undefined],
+      headerRows: undefined,
+      headerCols: undefined,
+      rows: [{ cells: [{ type: "tableCell", props: {}, content: text("T") }] }],
+    };
+    const theirsWins = (onConflict: () => void) => ({
+      conflict: { winner: "theirs" as const, onConflict },
+      insertsAtOnePosition: "both-theirs-first" as const,
+    });
+
+    // Before the fix, the content of ours won without a report, also if
+    // theirs wins conflicts: the change of theirs was lost without a warning.
+    it("gives the content of theirs, with a conflict, if theirs wins conflicts", () => {
+      for (const base of [
+        block("table", {}, table),
+        block("image", {}, undefined),
+      ]) {
+        let conflicts = 0;
+        const merged = mergeBlock(
+          base,
+          block("paragraph", {}, text("A")),
+          block("paragraph", {}, text("B")),
+          contentKindOf,
+          theirsWins(() => conflicts++),
+        );
+        expect(merged.content).toEqual(text("B"));
+        expect(conflicts).toBe(1);
+      }
+    });
+
+    it("gives the content of ours, without a report, if ours wins conflicts", () => {
+      const merged = mergeBlock(
+        block("table", {}, table),
+        block("paragraph", {}, text("A")),
+        block("paragraph", {}, text("B")),
+        contentKindOf,
+      );
+      expect(merged.content).toEqual(text("A"));
+    });
+
+    it("gives the content one time, without a conflict, if the two sides made the same change", () => {
+      let conflicts = 0;
+      const merged = mergeBlock(
+        block("table", {}, table),
+        block("paragraph", {}, text("A")),
+        block("paragraph", {}, text("A")),
+        contentKindOf,
+        theirsWins(() => conflicts++),
+      );
+      expect(merged.content).toEqual(text("A"));
+      expect(conflicts).toBe(0);
+    });
+  });
 });

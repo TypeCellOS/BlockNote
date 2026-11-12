@@ -137,40 +137,45 @@ function mergeContent(
   kind: ContentKind,
   rules: MergeRules,
 ): LensBlockContent {
-  switch (kind) {
-    case "none":
-      return undefined;
-    case "table":
-      if (
-        isTableContent(base.content) &&
-        isTableContent(ours.content) &&
-        isTableContent(theirs.content)
-      ) {
-        return mergeTableContent(
-          base.content,
-          ours.content,
-          theirs.content,
-          rules,
-        );
-      }
-      return ours.content;
-    case "inline":
-    case "plain": {
-      if (!Array.isArray(ours.content)) {
-        return ours.content;
-      }
-      const merged =
-        Array.isArray(base.content) && Array.isArray(theirs.content)
-          ? mergeInlineContent(
-              base.content,
-              ours.content,
-              theirs.content,
-              rules,
-            )
-          : ours.content;
-      return kind === "plain" ? toPlainContent(merged) : merged;
-    }
+  if (kind === "none") {
+    return undefined;
   }
+  // `ours` and `theirs` have content of this kind (see `mergeBlock`). If
+  // `base` has content of another shape, the two sides changed the shape of
+  // the block (for example a table into a paragraph). Then the contents have
+  // no common base, thus they merge as one value.
+  if (!canHold(kind, base.content)) {
+    return mergeValue(
+      base.content,
+      ours.content,
+      theirs.content,
+      rules.conflict,
+    );
+  }
+  if (kind === "table") {
+    if (
+      !isTableContent(base.content) ||
+      !isTableContent(ours.content) ||
+      !isTableContent(theirs.content)
+    ) {
+      throw new Error("The content of a table block is not a table");
+    }
+    return mergeTableContent(base.content, ours.content, theirs.content, rules);
+  }
+  if (
+    !Array.isArray(base.content) ||
+    !Array.isArray(ours.content) ||
+    !Array.isArray(theirs.content)
+  ) {
+    throw new Error("The content of a text block is not text");
+  }
+  const merged = mergeInlineContent(
+    base.content,
+    ours.content,
+    theirs.content,
+    rules,
+  );
+  return kind === "plain" ? toPlainContent(merged) : merged;
 }
 
 /**
