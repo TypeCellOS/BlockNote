@@ -106,9 +106,9 @@ export function projectDocument(
  * `[paragraph "first\nsecond", undefined]`.
  *
  * All blocks go through one serialize and one parse, and each block is still
- * isolated. The separator is a paragraph with only a character that `text`
- * does not contain. A format that does not keep these paragraphs apart from
- * the blocks is a bug.
+ * isolated. The separator is a paragraph with only a run of one character
+ * that `text` does not contain. A format that does not keep these paragraphs
+ * apart from the blocks is a bug.
  *
  * @internal
  */
@@ -293,25 +293,13 @@ function isSchemaFill(view: readonly FlatBlock[]): boolean {
 }
 
 /**
- * A string of characters of the Unicode private use area that `text` does
- * not contain: one character, or else two.
+ * The shortest run of one private use character (U+E000) that `text` does
+ * not contain. Thus, no block of the text has it as its text.
  */
 function unusedMarker(text: string): string {
-  const first = 0xe000;
-  const count = 0xf8ff - first + 1;
-  for (let code = first; code < first + count; code++) {
-    const char = String.fromCharCode(code);
-    if (!text.includes(char)) {
-      return char;
-    }
+  let marker = "\uE000";
+  while (text.includes(marker)) {
+    marker += "\uE000";
   }
-  for (let a = first; a < first + count; a++) {
-    for (let b = first; b < first + count; b++) {
-      const pair = String.fromCharCode(a, b);
-      if (!text.includes(pair)) {
-        return pair;
-      }
-    }
-  }
-  throw new Error("The text contains all pairs of private use characters");
+  return marker;
 }

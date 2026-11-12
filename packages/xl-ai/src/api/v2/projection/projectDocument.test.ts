@@ -262,15 +262,12 @@ describe("projectDocument", () => {
 });
 
 describe("roundTripIsolated", () => {
-  it("keeps a block with one private use character apart, if the text has each of these characters", () => {
-    // The separator is a paragraph with a private use character that the
-    // text does not contain (see `unusedMarker`). This text has all of them,
-    // thus the separator has two characters, and the block "\uE000" is not a
-    // separator.
-    let all = "";
-    for (let code = 0xe000; code <= 0xf8ff; code++) {
-      all += String.fromCharCode(code);
-    }
+  it("keeps a block apart whose text is the separator character, if the text contains that character", () => {
+    // The separator is a paragraph with the shortest run of one private use
+    // character that the text does not contain (see `unusedMarker`). This
+    // text contains the character, thus the separator has two of them, and
+    // the block "\uE000" is not a separator.
+    const text = "Alpha \uE000";
     const editor = BlockNoteEditor.create({
       initialContent: [
         { id: "marker", type: "paragraph", content: "\uE000" },
@@ -281,7 +278,7 @@ describe("roundTripIsolated", () => {
       editor,
       plainTextFormat,
       editor.document as LensBlock[],
-      all,
+      text,
     );
     expect(results.map((flat) => flat && blockToText(flat.block))).toEqual([
       "\uE000",
