@@ -8,7 +8,7 @@ description: Use when triaging BlockNote reports or asked to work on, fix, or in
 ## Modes
 
 - **Review:** “Check the latest 3 issues with /triage.” Fetch open issues in the current repository, excluding PRs; “latest” means newest by creation date. Review the requested batch and recommend actions without implementing or launching agents.
-- **Work:** “Work on issue #1234.” Run the checks below, then begin focused defect work. For a feature, stop and ask whether the user wants to implement it. Clarify uncertain or mixed scope before proceeding with that portion.
+- **Work:** “Work on issue #1234.” Run the checks below, then reproduce the reported defect before diagnosing or changing code. If reproduction fails or is blocked, report the evidence and ask for missing details rather than attempting a speculative fix. For a feature, stop and ask whether the user wants to implement it. Clarify uncertain or mixed scope before proceeding with that portion.
 
 ## Classify
 
@@ -38,7 +38,7 @@ Inspect actual inputs; examples illustrate boundaries, not automatic classificat
 
 ## Decide and report
 
-- **Focused defect:** in review mode, recommend investigation/fix, potentially by an agent; in work mode, reproduce and fix with regression coverage under repository instructions. Explain broad scope or blockers rather than silently expanding work.
+- **Focused defect:** in review mode, recommend investigation/fix, potentially by an agent; in work mode, first establish a failing reproduction, then use it to understand the cause, implement a focused fix, and verify the reproduction passes with regression coverage. Follow repository instructions; explain broad scope or blockers rather than silently expanding work. Apply the same reproduction-first requirement to delegated fixes.
 - **Feature:** recommend Discussions; obtain confirmation before implementation.
 - **Existing PR:** prefer validation or continuation over competing work. Verify apparent merged fixes where feasible; report resolved behavior rather than patching again. Closed, unmerged PRs are not resolutions.
 - **Configuration solution:** explain it instead of adding redundant behavior.
