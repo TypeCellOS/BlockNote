@@ -9,7 +9,7 @@ function merge(
   base: string,
   ours: string,
   theirs: string,
-  keepBothInserts?: "theirs-first" | "ours-first",
+  keepBothInserts?: "theirs-first",
   keepTheirs?: (unit: string) => boolean,
 ) {
   const o = Array.from(base);
@@ -37,10 +37,9 @@ describe("diff3", () => {
     expect(merge("abcde", "aYcde", "abcXe")).toBe("aYcXe");
   });
 
-  it("keeps two inserts at the same position if the handlers say so, in the given order", () => {
+  it("keeps two inserts at the same position if the handlers say so, theirs first", () => {
     expect(merge("ab", "aXb", "aYb")).toBe("aXb");
     expect(merge("ab", "aXb", "aYb", "theirs-first")).toBe("aYXb");
-    expect(merge("ab", "aXb", "aYb", "ours-first")).toBe("aXYb");
   });
 
   it("applies a change that the two sides made one time", () => {

@@ -67,7 +67,7 @@ const STRINGS = allStrings("ab", 3);
 const OPTIONS: Partial<Diff3Handlers<Unit>>[] = [
   {},
   { conflictWinner: "theirs" },
-  { keepBothInserts: "ours-first" },
+  { keepBothInserts: "theirs-first" },
   { keepBothInserts: "theirs-first", conflictWinner: "theirs" },
   { keepTheirs: () => true },
 ];
@@ -155,9 +155,6 @@ describe("diff3: edge cases", () => {
   it("keeps two inserts into an empty base", () => {
     expect(merge("", "x", "y").text).toBe("x");
     expect(merge("", "x", "y").conflicts).toBe(1);
-    expect(merge("", "x", "y", { keepBothInserts: "ours-first" }).text).toBe(
-      "xy",
-    );
     expect(merge("", "x", "y", { keepBothInserts: "theirs-first" }).text).toBe(
       "yx",
     );
@@ -192,9 +189,9 @@ describe("diff3: edge cases", () => {
 
   it("does not give a conflict for two inserts at the same position with keepBothInserts", () => {
     expect(
-      merge("ab", "aXb", "aYb", { keepBothInserts: "ours-first" }),
+      merge("ab", "aXb", "aYb", { keepBothInserts: "theirs-first" }),
     ).toMatchObject({
-      text: "aXYb",
+      text: "aYXb",
       conflicts: 0,
     });
   });
@@ -202,7 +199,7 @@ describe("diff3: edge cases", () => {
   it("gives two inserts at the same position a conflict if a base unit is also changed there", () => {
     // keepBothInserts is only for runs without base units.
     expect(
-      merge("abc", "aXc", "aYc", { keepBothInserts: "ours-first" }),
+      merge("abc", "aXc", "aYc", { keepBothInserts: "theirs-first" }),
     ).toMatchObject({ text: "aXc", conflicts: 1 });
   });
 });

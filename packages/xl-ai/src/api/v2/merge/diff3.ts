@@ -37,10 +37,10 @@ export type Diff3Handlers<T> = {
   conflictWinner?: "ours" | "theirs";
   /**
    * If set, two inserts at the same position (without base units between
-   * the stable units) both stay, in the given order. If not, they are a
-   * conflict.
+   * the stable units) both stay, the units of theirs first. If not, they are
+   * a conflict.
    */
-  keepBothInserts?: "theirs-first" | "ours-first";
+  keepBothInserts?: "theirs-first";
   /**
    * Returns true for a unit of theirs without a base unit that stays in a run
    * that ours wins: for example a mention that the format does not show (in
@@ -162,11 +162,12 @@ export function diff3<T>(
           }
         }
       }
-      const run =
-        both === "ours-first"
-          ? [...oursUnits, ...theirsUnits]
-          : [...theirsUnits, ...oursUnits];
-      for (const unit of [...keptBefore, ...run, ...keptAfter]) {
+      for (const unit of [
+        ...keptBefore,
+        ...theirsUnits,
+        ...oursUnits,
+        ...keptAfter,
+      ]) {
         merged.push(unit);
       }
     }
