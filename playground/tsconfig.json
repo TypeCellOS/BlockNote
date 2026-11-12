@@ -29,6 +29,7 @@
   ],
   "references": [
     { "path": "../packages/xl-ai/" },
+    { "path": "../packages/xl-ai-lenses/" },
     { "path": "../packages/core/" },
     { "path": "../packages/react/" },
     { "path": "../packages/ariakit/" },

@@ -4,7 +4,7 @@ import type { ChatTransport, UIMessage } from "ai";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import * as Y from "yjs";
 
-import { AIExtension } from "../../AIExtension.js";
+import { AIExtension } from "@blocknote/xl-ai";
 import { createProposal, headlessEditorFactory } from "../proposal/proposal.js";
 import { createSessionHost } from "../sessions/sessionHost.js";
 import { createInMemoryDocumentStore } from "../stores/documentSource.js";

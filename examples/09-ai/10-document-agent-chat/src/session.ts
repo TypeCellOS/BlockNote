@@ -5,7 +5,7 @@ import {
   type DocumentAgentExtensionOptions,
   documentAgentOf,
   type SessionSnapshot,
-} from "@blocknote/xl-ai";
+} from "@blocknote/xl-ai-lenses";
 import type * as Y14 from "@y/y";
 import { DefaultChatTransport } from "ai";
 import { useCallback, useEffect, useMemo, useState } from "react";

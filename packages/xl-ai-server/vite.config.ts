@@ -44,7 +44,18 @@ export default defineConfig(
                   __dirname,
                   "../server-util/src/dom.ts",
                 ),
+                // The text lens entry point is not a file at the root of
+                // `src/`. The first alias that matches wins: this one
+                // comes before the alias of `@blocknote/xl-ai`.
+                "@blocknote/xl-ai/text-lens": path.resolve(
+                  __dirname,
+                  "../xl-ai/src/api/v2/index.ts",
+                ),
                 "@blocknote/xl-ai": path.resolve(__dirname, "../xl-ai/src/"),
+                "@blocknote/xl-ai-lenses": path.resolve(
+                  __dirname,
+                  "../xl-ai-lenses/src/",
+                ),
               } as Record<string, string>),
       },
       build: {

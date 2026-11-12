@@ -1,4 +1,4 @@
-import type { LensBlock } from "../../api/v2/index.js";
+import type { LensBlock } from "@blocknote/xl-ai/text-lens";
 
 /**
  * A short hash of a document. Two hosts that apply the same batches to the

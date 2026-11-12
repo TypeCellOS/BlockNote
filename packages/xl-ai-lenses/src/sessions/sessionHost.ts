@@ -1,6 +1,6 @@
 import type { UIMessage } from "ai";
 
-import type { LensBlock } from "../../api/v2/index.js";
+import type { LensBlock } from "@blocknote/xl-ai/text-lens";
 import { recordReview } from "../agent/chatReview.js";
 import type { DocumentAgentOptions } from "../agent/documentAgent.js";
 import {

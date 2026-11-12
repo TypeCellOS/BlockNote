@@ -10,7 +10,7 @@ import {
   type Proposal,
   runDocumentAgent,
   streamDocumentAgent,
-} from "@blocknote/xl-ai/server";
+} from "@blocknote/xl-ai-lenses/server";
 import { createUIMessageStreamResponse } from "ai";
 import { Hono } from "hono";
 import { streamSSE } from "hono/streaming";
@@ -32,7 +32,7 @@ import {
 } from "./yjsDocumentSource.js";
 
 // The routes of the document agent. The loop and the tools are the shared
-// code of `@blocknote/xl-ai` (`documentAgent/`). This file is only the
+// code of `@blocknote/xl-ai-lenses`. This file is only the
 // host: it decides where the proposal lives and how a client gets the
 // batches.
 //

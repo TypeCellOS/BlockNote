@@ -1,0 +1,239 @@
+/* The review of the document agent (documentAgent/client/DocumentAgentReview.tsx) */
+.bn-agent-review {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.bn-agent-review-status {
+  font-weight: 600;
+}
+
+.bn-agent-card {
+  border: 1px solid var(--bn-colors-border, #d0d0d0);
+  border-radius: 6px;
+  padding: 8px 10px;
+  cursor: pointer;
+  background: var(--bn-colors-menu-background, #fff);
+}
+
+.bn-agent-card:hover,
+.bn-agent-card[data-active="true"] {
+  border-color: var(--bn-agent-active, #4f8ff7);
+  box-shadow: 0 0 0 1px var(--bn-agent-active, #4f8ff7);
+}
+
+.bn-agent-card[data-state="accepted"],
+.bn-agent-card[data-state="rejected"] {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.bn-agent-card-reason {
+  margin-bottom: 4px;
+}
+
+.bn-agent-card-meta {
+  color: var(--bn-colors-side-menu, #888);
+  font-size: 12px;
+}
+
+.bn-agent-card-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.bn-agent-card-actions button {
+  font-size: 12px;
+  padding: 2px 8px;
+  cursor: pointer;
+}
+
+.bn-agent-answer {
+  border-left: 3px solid var(--bn-colors-border, #d0d0d0);
+  padding-left: 8px;
+  white-space: pre-wrap;
+}
+
+/* The suggestions of a proposal of the document agent. The suggestion marks
+   of the AI have no author color. Thus, an insertion is green and a deletion
+   is red. The rules of core for `ins` and `del` use these colors. */
+.bn-editor[data-agent-proposal] ins {
+  --user-color-light: #86e0a4;
+  --user-color-dark: #14532d;
+}
+
+.bn-editor[data-agent-proposal] del {
+  --user-color-light: #f7a8a8;
+  --user-color-dark: #7f1d1d;
+  text-decoration: line-through;
+}
+
+/* A block that the proposal adds or removes: the mark is on the block. */
+.bn-editor[data-agent-proposal] ins[data-inline="false"] .bn-block-content {
+  background-color: color-mix(in srgb, #86e0a4 50%, transparent);
+  border-radius: 4px;
+}
+
+.bn-editor[data-agent-proposal] del[data-inline="false"] .bn-block-content {
+  background-color: color-mix(in srgb, #f7a8a8 50%, transparent);
+  border-radius: 4px;
+  text-decoration: line-through;
+}
+
+/* The replay animation of the document agent (see `replayAnimation.ts`):
+   the changes of a run show one after the other, as the changes of a
+   person who edits the document. Each part of a change has a decoration
+   with its kind (`bn-agent-<kind>`) and its state at this time
+   (`bn-agent-pending`, `bn-agent-active` or `bn-agent-done`). The sequence
+   is in the code, not in this style sheet. */
+
+/* New text and a new block that the agent did not reach: they are not
+   there. The text after them moves when they show, as when a person
+   types. */
+.bn-agent-new.bn-agent-pending,
+.bn-agent-new-block.bn-agent-pending {
+  display: none;
+}
+
+/* The word and the block that the agent writes at this time. */
+.bn-agent-new.bn-agent-active,
+.bn-agent-new-block.bn-agent-active {
+  animation: bn-agent-appear 120ms ease-out;
+}
+
+/* A caret at the end of the word that the agent writes or removes. */
+.bn-agent-new.bn-agent-active::after,
+.bn-agent-removed.bn-agent-active::after {
+  content: "";
+  border-right: 2px solid var(--bn-agent-active, #4f8ff7);
+  margin-right: -2px;
+}
+
+/* Removed text. The style of a deletion is on its mark: the `del` element
+   (the marks of `AIExtension`), or the `del` element and the
+   `.bn-suggestion-mark` element in it (the marks of the Yjs 14 binding).
+   During the animation, the mark has no style, and the decoration of each
+   word that the agent reached has it. A word that the agent did not reach
+   has the color of the text around the deletion. */
+.bn-root .bn-editor :is(del, .bn-suggestion-mark):has(.bn-agent-removed) {
+  background-color: transparent;
+  color: inherit;
+  text-decoration: none;
+}
+
+.bn-agent-removed:not(.bn-agent-pending) {
+  color: var(--user-color-dark);
+  text-decoration: line-through;
+}
+
+.dark.bn-root .bn-agent-removed:not(.bn-agent-pending) {
+  color: var(--user-color-light);
+}
+
+/* A deletion of `AIExtension` has a color behind the text also. */
+.bn-editor[data-agent-proposal] .bn-agent-removed:not(.bn-agent-pending) {
+  background-color: color-mix(
+    in srgb,
+    var(--user-color-light) 50%,
+    var(--bn-colors-editor-background, white)
+  );
+}
+
+.dark.bn-root
+  .bn-editor[data-agent-proposal]
+  .bn-agent-removed:not(.bn-agent-pending) {
+  background-color: color-mix(
+    in srgb,
+    var(--user-color-light) 25%,
+    var(--bn-colors-editor-background, #1f1f1f)
+  );
+}
+
+/* A removed block that the agent did not reach shows as a block without a
+   change. These rules remove the style that the marks of the block, of its
+   content and of its text give (see `Block.css` for the marks of the
+   Yjs 14 binding): the color of the text is the color around the block. */
+.bn-root
+  .bn-editor
+  del:has(
+    > .bn-agent-removed-block.bn-agent-pending,
+    > .bn-suggestion-node > .bn-agent-removed-block.bn-agent-pending
+  ),
+.bn-root
+  .bn-editor
+  .bn-block-outer.bn-agent-removed-block.bn-agent-pending
+  :is(del, .bn-suggestion-mark, .bn-block-content, .bn-inline-content) {
+  background-color: transparent;
+  box-shadow: none;
+  color: inherit;
+  text-decoration: none;
+}
+
+.bn-root
+  .bn-editor
+  .bn-block-outer.bn-agent-removed-block.bn-agent-pending
+  .bn-block-content::before {
+  content: none;
+}
+
+/* A removed block gets its style as a whole when the agent reaches it. */
+.bn-agent-removed-block.bn-agent-active .bn-block-content {
+  animation: bn-agent-mark 300ms ease-out;
+}
+
+/* A block with a new type or a new prop, and text with a new format, get a
+   short highlight when the agent reaches them. The decoration of a block
+   is on the element of the block or on the element of its content: the
+   mark of the change can be on the one or on the other. Before the agent
+   reaches the block, the block does not show the card of its mark. */
+.bn-root
+  .bn-editor
+  :is(
+    .bn-agent-changed-block.bn-agent-pending .bn-block-content,
+    .bn-block-content[data-content-type].bn-agent-changed-block.bn-agent-pending
+  ) {
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.bn-agent-changed.bn-agent-active,
+.bn-agent-changed-block.bn-agent-active .bn-block-content,
+.bn-block-content.bn-agent-changed-block.bn-agent-active {
+  animation: bn-agent-highlight 400ms ease-out;
+}
+
+@keyframes bn-agent-appear {
+  from {
+    opacity: 0;
+  }
+}
+
+/* From no mark to the mark of the element: the end is the style of the
+   element itself. */
+@keyframes bn-agent-mark {
+  from {
+    background-color: transparent;
+    text-decoration-color: transparent;
+  }
+}
+
+/* The start and the end are the style of the element itself. */
+@keyframes bn-agent-highlight {
+  30% {
+    background-color: color-mix(in srgb, #f5d76e 70%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bn-agent-new.bn-agent-active,
+  .bn-agent-new-block.bn-agent-active,
+  .bn-agent-removed-block.bn-agent-active .bn-block-content,
+  .bn-agent-changed.bn-agent-active,
+  .bn-agent-changed-block.bn-agent-active .bn-block-content,
+  .bn-block-content.bn-agent-changed-block.bn-agent-active {
+    animation: none;
+  }
+}

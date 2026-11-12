@@ -18,7 +18,7 @@ import { documentOf } from "../testUtil.js";
 //
 // The normal test run skips this file: it makes LLM calls. Run it with
 //   DOCUMENT_AGENT_LIVE=1 DOCUMENT_AGENT_MODEL=anthropic:claude-haiku-5-5 \
-//   vp test --run src/documentAgent/comparison/timeToFirstEdit.test.ts
+//   vp test --run src/comparison/timeToFirstEdit.test.ts
 // and the API key of the provider in the environment. The results go to the
 // file in DOCUMENT_AGENT_RESULTS (JSON), if it is set.
 //

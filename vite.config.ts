@@ -50,6 +50,7 @@ export default defineConfig({
       "./packages/server-util/vite.config.ts",
       "./packages/shadcn/vite.config.ts",
       "./packages/xl-ai/vite.config.ts",
+      "./packages/xl-ai-lenses/vite.config.ts",
       "./packages/xl-ai-server/vite.config.ts",
       "./packages/xl-docx-exporter/vite.config.ts",
       "./packages/xl-email-exporter/vite.config.ts",
@@ -211,6 +212,10 @@ export default defineConfig({
       "playground/**",
       "tests/nextjs-test-app/**",
       "fumadocs/**",
+      // This live test uses test cases of `@blocknote/xl-ai` that are not
+      // public: it imports files outside its package, thus it is not in the
+      // TypeScript project of its package. Only the test runner compiles it.
+      "packages/xl-ai-lenses/src/comparison/liveComparison.test.ts",
     ],
   },
   fmt: {

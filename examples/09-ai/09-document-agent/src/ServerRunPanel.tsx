@@ -4,7 +4,7 @@ import {
   DocumentAgentExtension,
   type DocumentAgentExtensionOptions,
   type Proposal,
-} from "@blocknote/xl-ai";
+} from "@blocknote/xl-ai-lenses";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type * as Y from "yjs";
 

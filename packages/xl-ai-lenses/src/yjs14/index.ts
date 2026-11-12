@@ -1,5 +1,5 @@
 // The Yjs 14 mode of the document agent in an editor
-// (`@blocknote/xl-ai/yjs14`). It needs `@y/y` and `@blocknote/core/y`. An
+// (`@blocknote/xl-ai-lenses/yjs14`). It needs `@y/y` and `@blocknote/core/y`. An
 // app on Yjs 13 does not load this entry point.
 
 export {

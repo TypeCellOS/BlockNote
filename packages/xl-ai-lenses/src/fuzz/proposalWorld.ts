@@ -2,8 +2,8 @@ import { BlockNoteEditor } from "@blocknote/core";
 import { withCollaboration, yXmlFragmentToBlocks } from "@blocknote/core/yjs";
 import * as Y from "yjs";
 
-import { AIExtension } from "../../AIExtension.js";
-import { getDocumentText, markdownFormat } from "../../api/v2/index.js";
+import { AIExtension } from "@blocknote/xl-ai";
+import { getDocumentText, markdownFormat } from "@blocknote/xl-ai/text-lens";
 import { DocumentAgentExtension } from "../client/DocumentAgentExtension.js";
 import { hasSuggestions } from "../client/suggestions.js";
 import { headlessEditorFactory, openProposal } from "../proposal/proposal.js";

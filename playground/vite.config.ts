@@ -26,6 +26,7 @@ const devAliases: Record<string, string> = {
     "../packages/xl-ai/src/api/v2/index.ts",
   ),
   "@blocknote/xl-ai": resolve(__dirname, "../packages/xl-ai/src"),
+  "@blocknote/xl-ai-lenses": resolve(__dirname, "../packages/xl-ai-lenses/src"),
   "@blocknote/xl-docx-exporter": resolve(
     __dirname,
     "../packages/xl-docx-exporter/src",

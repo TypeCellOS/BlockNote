@@ -24,6 +24,7 @@
     "@blocknote/server-util": "workspace:^",
     "@blocknote/shadcn": "workspace:^",
     "@blocknote/xl-ai": "workspace:^",
+    "@blocknote/xl-ai-lenses": "workspace:^",
     "@blocknote/xl-docx-exporter": "workspace:^",
     "@blocknote/xl-email-exporter": "workspace:^",
     "@blocknote/xl-multi-column": "workspace:^",

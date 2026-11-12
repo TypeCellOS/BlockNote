@@ -7,7 +7,7 @@ import type {
   RunStatus,
   RunStore,
   RunWriter,
-} from "@blocknote/xl-ai/server";
+} from "@blocknote/xl-ai-lenses/server";
 import type { UIMessageChunk } from "ai";
 import {
   existsSync,

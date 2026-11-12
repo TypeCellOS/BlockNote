@@ -1,4 +1,4 @@
-import type { LensBlock } from "../../api/v2/index.js";
+import type { LensBlock } from "@blocknote/xl-ai/text-lens";
 
 /**
  * Reads the main document of a run that a server starts. The agent never

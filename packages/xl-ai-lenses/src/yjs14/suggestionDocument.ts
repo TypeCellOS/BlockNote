@@ -8,7 +8,7 @@ import {
   type LensBlock,
   markdownFormat,
   updateDocument,
-} from "../../api/v2/index.js";
+} from "@blocknote/xl-ai/text-lens";
 import {
   type AgentDocument,
   type AgentToolCall,

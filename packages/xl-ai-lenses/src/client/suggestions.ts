@@ -21,7 +21,7 @@ import {
   applyOperations,
   type BlockOperation,
   type BlockPosition,
-} from "../../api/v2/index.js";
+} from "@blocknote/xl-ai/text-lens";
 import {
   blockOf,
   type DerivedSuggestions,

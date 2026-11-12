@@ -7,12 +7,12 @@ import {
   type ProposalStore,
   type RunStore,
   type SessionHost,
-} from "@blocknote/xl-ai/server";
+} from "@blocknote/xl-ai-lenses/server";
 import {
   createSuggestionSessionHost,
   type SuggestionSessionHost,
   type SuggestionSessionHostOptions,
-} from "@blocknote/xl-ai/yjs14-server";
+} from "@blocknote/xl-ai-lenses/yjs14-server";
 import { createUIMessageStreamResponse } from "ai";
 import type { Hono } from "hono";
 
@@ -22,7 +22,7 @@ import { documentAgentModel, documentAgentReasoning } from "./models.js";
 const MAX_OUTPUT_TOKENS = 16000;
 
 // The routes of the sessions: the server keeps the chat and the one open
-// proposal of each document (`createSessionHost` of `@blocknote/xl-ai`).
+// proposal of each document (`createSessionHost` of `@blocknote/xl-ai-lenses`).
 // The paths start with `/sessions/:source/:id`: the document source and the
 // document ID.
 //

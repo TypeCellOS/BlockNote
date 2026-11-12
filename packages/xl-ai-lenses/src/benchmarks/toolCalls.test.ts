@@ -20,7 +20,7 @@ import { createProposalDocument } from "../proposal/proposalDocument.js";
 // The work of a host for one tool call, and the work of a client for one
 // batch, for documents of different sizes. The times are for jsdom, as on
 // a server. The normal test run skips this file. Run it with
-//   DOCUMENT_AGENT_BENCH=1 vp test --run --silent=false src/documentAgent/benchmarks
+//   DOCUMENT_AGENT_BENCH=1 vp test --run --silent=false src/benchmarks
 
 const run = process.env.DOCUMENT_AGENT_BENCH === "1";
 const createEditor = headlessEditorFactory();

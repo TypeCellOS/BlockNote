@@ -1,4 +1,4 @@
-import type { LensBlock, MergeWarning } from "../../api/v2/index.js";
+import type { LensBlock, MergeWarning } from "@blocknote/xl-ai/text-lens";
 import { hashDocument } from "./hash.js";
 import {
   type CreateEditor,

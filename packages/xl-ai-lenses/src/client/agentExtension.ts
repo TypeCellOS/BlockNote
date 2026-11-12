@@ -9,7 +9,7 @@ import {
 import type { ChatTransport, UIMessage, UIMessageChunk } from "ai";
 import type { Plugin } from "prosemirror-state";
 
-import { AIExtension } from "../../AIExtension.js";
+import { AIExtension } from "@blocknote/xl-ai";
 import { recordReview } from "../agent/chatReview.js";
 import type { ToolCallReview } from "../tools/documentTools.js";
 import { observeTransport } from "./observeTransport.js";
@@ -88,8 +88,16 @@ export type AgentExtensionOptions = {
   replayAnimation?: boolean;
 };
 
+/**
+ * `AIExtension` in an editor. The document agent uses its AI menu: the
+ * state of the menu, and the functions that open and close it.
+ */
+type AIMenuOfEditor = ReturnType<ReturnType<typeof AIExtension>>;
+
 /** The AI menu of the editor, if the editor has `AIExtension`. */
-function aiMenuOf(editor: BlockNoteEditor<any, any, any>) {
+function aiMenuOf(
+  editor: BlockNoteEditor<any, any, any>,
+): AIMenuOfEditor | undefined {
   return editor.getExtension(AIExtension);
 }
 

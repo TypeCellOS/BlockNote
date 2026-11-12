@@ -5,7 +5,6 @@
 
 export * from "./api/index.js";
 export * from "./blocknoteAIClient/client.js";
-export * from "./documentAgent/index.js";
 export * from "./i18n/dictionary.js";
 export { getApplySuggestionsTr as _getApplySuggestionsTr } from "./prosemirror/rebaseTool.js";
 export * from "./streamTool/index.js";

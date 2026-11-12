@@ -2261,6 +2261,7 @@ export const examples = {
           dependencies: {
             "@ai-sdk/anthropic": "^4.0.88",
             "@blocknote/xl-ai": "latest",
+            "@blocknote/xl-ai-lenses": "latest",
             "@mantine/core": "^9.0.2",
             ai: "^7.0.153",
             yjs: "^13.6.33",
@@ -2287,7 +2288,9 @@ export const examples = {
             "@ai-sdk/anthropic": "^4.0.88",
             "@ai-sdk/react": "^4.0.157",
             "@blocknote/xl-ai": "latest",
+            "@blocknote/xl-ai-lenses": "latest",
             "@mantine/core": "^9.0.2",
+            "@y/y": "^14.0.0-rc.26",
             ai: "^7.0.153",
             yjs: "^13.6.33",
           } as any,
@@ -2298,7 +2301,7 @@ export const examples = {
           slug: "ai",
         },
         readme:
-          'This example shows the document agent of `@blocknote/xl-ai` with a chat window. The server keeps the chat and the one open proposal of the document. A message in the chat and a prompt from outside the editor (a script, or later an external agent) start a run in the same way, and each editor of the document follows the run.\n\n**Try it out:** Type a request in the chat, or start a run with the box "Run from outside". Then accept or reject each change in the chat.\n\nThe example needs the BlockNote AI server (`packages/xl-ai-server`). See `PROTOTYPE.md` in the root of the repository.\n\n**Relevant Docs:**\n\n- [Getting Stared with BlockNote AI](/docs/features/ai/getting-started)\n- [Real-time Collaboration](/docs/features/collaboration)',
+          'This example shows the document agent of `@blocknote/xl-ai` with a chat window. The server keeps the chat and the one open proposal of the document. A message in the chat and a prompt from outside the editor (a script, or later an external agent) start a run in the same way, and each editor of the document follows the run.\n\n**Try it out:** Type a request in the chat, or start a run with the box "Run from outside". Then accept or reject each change in the chat. The mode "Yjs 14 suggestions" shows the changes of the agent as suggestions of Yjs 14: there, you can type in the editor during the review.\n\nThe example needs the BlockNote AI server (`packages/xl-ai-server`). See `PROTOTYPE.md` in the root of the repository.\n\n**State on the server:** Start the AI server with `DOCUMENT_AGENT_DATA_DIR=<a directory>`. The server then keeps the chats, the proposals, the documents and the streams of the runs in files there. Reload the page during a run, or stop and start the server: the chat, the changes and the review are there. Without the variable, the state is in the memory of the server.\n\n**Relevant Docs:**\n\n- [Getting Stared with BlockNote AI](/docs/features/ai/getting-started)\n- [Real-time Collaboration](/docs/features/collaboration)',
       },
     ],
   },

@@ -32,6 +32,9 @@
     },
     {
       "path": "../xl-ai"
+    },
+    {
+      "path": "../xl-ai-lenses"
     }
   ]
 }

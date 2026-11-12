@@ -4,7 +4,7 @@ import * as Y from "@y/y";
 import type { ChatTransport, UIMessage } from "ai";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 
-import { AIExtension } from "../../AIExtension.js";
+import { AIExtension } from "@blocknote/xl-ai";
 import { documentAgentOf } from "../client/agentExtension.js";
 import { scriptedModel, type ScriptedStep } from "../testUtil.js";
 import { createSuggestionReview } from "./review.js";

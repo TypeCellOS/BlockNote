@@ -11,18 +11,18 @@ import { writeFileSync } from "node:fs";
 import { TextSelection } from "prosemirror-state";
 import { afterAll, describe, it } from "vite-plus/test";
 
-import { AIExtension } from "../../AIExtension.js";
-import { buildAIRequest } from "../../api/aiRequest/builder.js";
-import { sendMessageWithAIRequest } from "../../api/aiRequest/sendMessageWithAIRequest.js";
-import { htmlBlockLLMFormat } from "../../api/formats/html-blocks/htmlBlocks.js";
-import { ClientSideTransport } from "../../streamTool/vercelAiSdk/clientside/ClientSideTransport.js";
-import { addOperationTestCases } from "../../testUtil/cases/addOperationTestCases.js";
-import { deleteOperationTestCases } from "../../testUtil/cases/deleteOperationTestCases.js";
+import { AIExtension } from "@blocknote/xl-ai";
+import { buildAIRequest } from "../../../xl-ai/src/api/aiRequest/builder.js";
+import { sendMessageWithAIRequest } from "../../../xl-ai/src/api/aiRequest/sendMessageWithAIRequest.js";
+import { htmlBlockLLMFormat } from "../../../xl-ai/src/api/formats/html-blocks/htmlBlocks.js";
+import { ClientSideTransport } from "../../../xl-ai/src/streamTool/vercelAiSdk/clientside/ClientSideTransport.js";
+import { addOperationTestCases } from "../../../xl-ai/src/testUtil/cases/addOperationTestCases.js";
+import { deleteOperationTestCases } from "../../../xl-ai/src/testUtil/cases/deleteOperationTestCases.js";
 import {
   type DocumentOperationTestCase,
   getExpectedEditor,
-} from "../../testUtil/cases/index.js";
-import { updateOperationTestCases } from "../../testUtil/cases/updateOperationTestCases.js";
+} from "../../../xl-ai/src/testUtil/cases/index.js";
+import { updateOperationTestCases } from "../../../xl-ai/src/testUtil/cases/updateOperationTestCases.js";
 import { runDocumentAgent } from "../agent/documentAgent.js";
 import { toolCallsOf, toolCallsOfBlocks } from "../proposal/derive.js";
 import {
@@ -38,7 +38,7 @@ import { createProposalDocument } from "../proposal/proposalDocument.js";
 //
 // The normal test run skips this file: it makes LLM calls. Run it with
 //   DOCUMENT_AGENT_LIVE=1 DOCUMENT_AGENT_MODEL=anthropic:claude-haiku-5-5 \
-//   vp test --run src/documentAgent/comparison
+//   vp test --run src/comparison
 // and the API key of the provider in the environment. The results go to the
 // file in DOCUMENT_AGENT_RESULTS (JSON), if it is set. DOCUMENT_AGENT_CASES
 // selects other cases (the descriptions, with `|` between them), and prints
@@ -46,6 +46,11 @@ import { createProposalDocument } from "../proposal/proposalDocument.js";
 //
 // A case passes if the document after the run is the expected document of
 // the old test case. Block IDs do not count.
+//
+// This file imports the old engine and its test cases from the sources of
+// `@blocknote/xl-ai` (`../../../xl-ai/src`): the test cases are not public.
+// Thus, the file is not in the TypeScript project of this package
+// (`tsconfig.json`), and the lint does not examine it.
 
 const live = process.env.DOCUMENT_AGENT_LIVE === "1";
 const modelName =

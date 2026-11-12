@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vite-plus/test";
 
-import { updateDocument } from "../../api/v2/index.js";
+import { updateDocument } from "@blocknote/xl-ai/text-lens";
 import {
   documentOf,
   initialDocument,

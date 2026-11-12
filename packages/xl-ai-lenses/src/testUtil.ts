@@ -2,7 +2,7 @@ import { BlockNoteEditor, type PartialBlock } from "@blocknote/core";
 import { simulateReadableStream } from "ai";
 import { MockLanguageModelV4 } from "ai/test";
 
-import { type LensBlock, markdownFormat } from "../api/v2/index.js";
+import { type LensBlock, markdownFormat } from "@blocknote/xl-ai/text-lens";
 import {
   type CreateEditor,
   openProposal,

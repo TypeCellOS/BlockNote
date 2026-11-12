@@ -6,7 +6,7 @@ import { createOpenAI } from "@ai-sdk/openai";
 import type {
   DocumentAgentOptions,
   LanguageModelObject,
-} from "@blocknote/xl-ai/server";
+} from "@blocknote/xl-ai-lenses/server";
 
 /** The model of the document agent, if `DOCUMENT_AGENT_MODEL` is not set. */
 const DEFAULT_MODEL = "anthropic:claude-haiku-5-5";

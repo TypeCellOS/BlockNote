@@ -4,7 +4,7 @@ import { transformToSuggestionTransaction } from "@handlewithcare/prosemirror-su
 import { afterEach, describe, expect, it } from "vite-plus/test";
 import * as Y from "yjs";
 
-import { AIExtension } from "../../AIExtension.js";
+import { AIExtension } from "@blocknote/xl-ai";
 import { assertNoYjsSuggestions, yFragmentHasSuggestions } from "./yjsGuard.js";
 
 const mounted: BlockNoteEditor<any, any, any>[] = [];

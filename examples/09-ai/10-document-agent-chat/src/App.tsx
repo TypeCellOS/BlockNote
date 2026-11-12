@@ -19,19 +19,22 @@ import {
   AIExtension,
   AIMenuController,
   AIToolbarButton,
+  fetchViaProxy,
+  getAISlashMenuItems,
+} from "@blocknote/xl-ai";
+import {
   createInProcessTransport,
   DocumentAgentExtension,
   type DocumentAgentExtensionOptions,
   DocumentAgentMenu,
-  fetchViaProxy,
-  getAISlashMenuItems,
-} from "@blocknote/xl-ai";
+} from "@blocknote/xl-ai-lenses";
 import { en as aiEn } from "@blocknote/xl-ai/locales";
 import "@blocknote/xl-ai/style.css";
+import "@blocknote/xl-ai-lenses/style.css";
 import {
   createSuggestionCollaboration,
   SuggestionAgentExtension,
-} from "@blocknote/xl-ai/yjs14";
+} from "@blocknote/xl-ai-lenses/yjs14";
 import * as Y14 from "@y/y";
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import * as Y from "yjs";

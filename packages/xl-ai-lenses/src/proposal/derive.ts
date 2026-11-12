@@ -4,7 +4,7 @@ import {
   type BlockOperation,
   type ChangeWarning,
   computeOperations,
-} from "../../api/v2/index.js";
+} from "@blocknote/xl-ai/text-lens";
 import type { CreateEditor } from "./proposal.js";
 import { acceptAllChange } from "./review.js";
 import type { Proposal } from "./types.js";

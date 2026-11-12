@@ -12,7 +12,7 @@ import {
   type ConflictError,
   type DocumentChange,
   type LensBlock,
-} from "../../api/v2/index.js";
+} from "@blocknote/xl-ai/text-lens";
 import { hashDocument } from "./hash.js";
 import type { Batch, BatchSource, Proposal } from "./types.js";
 

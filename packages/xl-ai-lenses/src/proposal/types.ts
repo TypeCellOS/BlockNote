@@ -1,4 +1,4 @@
-import type { BlockOperation, LensBlock } from "../../api/v2/index.js";
+import type { BlockOperation, LensBlock } from "@blocknote/xl-ai/text-lens";
 
 /**
  * Where a batch comes from.

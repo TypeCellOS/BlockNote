@@ -22,6 +22,7 @@
     "react-dom": "^19.2.3",
     "@ai-sdk/anthropic": "^4.0.88",
     "@blocknote/xl-ai": "latest",
+    "@blocknote/xl-ai-lenses": "latest",
     "ai": "^7.0.153",
     "yjs": "^13.6.33"
   },

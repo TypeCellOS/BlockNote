@@ -5,7 +5,7 @@ import {
   type ReviewedToolCall,
   type SessionMessageMetadata,
   type ToolCallReview,
-} from "@blocknote/xl-ai";
+} from "@blocknote/xl-ai-lenses";
 import type { UIMessage } from "ai";
 import {
   type FormEvent,

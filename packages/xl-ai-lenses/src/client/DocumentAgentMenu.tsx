@@ -10,9 +10,12 @@ import {
   RiTextWrap,
 } from "react-icons/ri";
 
-import { AIMenu, type AIMenuProps } from "../../components/AIMenu/AIMenu.js";
-import type { AIMenuSuggestionItem } from "../../components/AIMenu/getDefaultAIMenuItems.js";
-import { getAIDictionary } from "../../i18n/dictionary.js";
+import {
+  AIMenu,
+  type AIMenuProps,
+  type AIMenuSuggestionItem,
+  getAIDictionary,
+} from "@blocknote/xl-ai";
 import { documentAgentOf } from "./agentExtension.js";
 
 type MenuStatus = Parameters<NonNullable<AIMenuProps["items"]>>[1];

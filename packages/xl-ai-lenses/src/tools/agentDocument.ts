@@ -2,7 +2,7 @@ import type {
   ChangeWarning,
   LensBlock,
   MergeWarning,
-} from "../../api/v2/index.js";
+} from "@blocknote/xl-ai/text-lens";
 
 /**
  * A note for the agent on a tool call: a part of its changes did not apply

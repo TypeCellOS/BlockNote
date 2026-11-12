@@ -1,7 +1,7 @@
 import { writeFileSync } from "node:fs";
 import { describe, expect, it } from "vite-plus/test";
 
-import { createRandom } from "../../api/v2/testUtil/random.js";
+import { createRandom } from "./random.js";
 import { createProposalWorld } from "./proposalWorld.js";
 import {
   runScenario,

@@ -6,7 +6,7 @@ import {
   DOCUMENT_BATCHES_CHUNK,
   DOCUMENT_PROPOSAL_CHUNK,
 } from "../proposal/chunks.js";
-import { updateDocument } from "../../api/v2/index.js";
+import { updateDocument } from "@blocknote/xl-ai/text-lens";
 import {
   blockOf,
   deriveSuggestions,

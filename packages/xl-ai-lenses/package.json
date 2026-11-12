@@ -1,0 +1,131 @@
+{
+  "name": "@blocknote/xl-ai-lenses",
+  "homepage": "https://github.com/TypeCellOS/BlockNote",
+  "private": true,
+  "sideEffects": [
+    "*.css"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TypeCellOS/BlockNote.git",
+    "directory": "packages/xl-ai-lenses"
+  },
+  "license": "GPL-3.0 OR PROPRIETARY",
+  "version": "0.57.0",
+  "files": [
+    "dist",
+    "types",
+    "src",
+    "!**/*.cjs",
+    "!**/*.map",
+    "!**/*.test.*",
+    "!**/*.spec.*",
+    "!**/*.snap",
+    "!**/__test__/**",
+    "!**/__tests__/**",
+    "!**/tests/**",
+    "!**/__snapshots__/**",
+    "!**/__msw_snapshots__/**",
+    "!**/fixtures/**",
+    "!**/testUtil/**",
+    "!**/testUtils/**",
+    "!**/test-utils/**",
+    "!**/*.tsbuildinfo",
+    "!dist/webpack-stats.json"
+  ],
+  "keywords": [
+    "ai",
+    "llm",
+    "agent",
+    "react",
+    "javascript",
+    "editor",
+    "typescript",
+    "prosemirror",
+    "wysiwyg",
+    "rich-text-editor",
+    "notion",
+    "block-based",
+    "tiptap"
+  ],
+  "description": "A document agent for BlockNote: an AI agent that edits a document through the text lens, with a review of its changes. A prototype.",
+  "type": "module",
+  "source": "src/index.ts",
+  "types": "./types/src/index.d.ts",
+  "main": "./dist/blocknote-xl-ai-lenses.js",
+  "module": "./dist/blocknote-xl-ai-lenses.js",
+  "exports": {
+    ".": {
+      "types": "./types/src/index.d.ts",
+      "import": "./dist/blocknote-xl-ai-lenses.js",
+      "default": "./dist/blocknote-xl-ai-lenses.js"
+    },
+    "./style.css": {
+      "import": "./dist/style.css",
+      "style": "./dist/style.css",
+      "default": "./dist/style.css"
+    },
+    "./server": {
+      "types": "./types/src/server.d.ts",
+      "import": "./dist/server.js",
+      "default": "./dist/server.js"
+    },
+    "./yjs14": {
+      "types": "./types/src/yjs14.d.ts",
+      "import": "./dist/yjs14.js",
+      "default": "./dist/yjs14.js"
+    },
+    "./yjs14-server": {
+      "types": "./types/src/yjs14-server.d.ts",
+      "import": "./dist/yjs14-server.js",
+      "default": "./dist/yjs14-server.js"
+    }
+  },
+  "scripts": {
+    "dev": "vp dev",
+    "lint": "vp lint src",
+    "clean": "rimraf dist && rimraf types"
+  },
+  "dependencies": {
+    "@ai-sdk/provider": "^4.0.34",
+    "@ai-sdk/provider-utils": "^5.0.68",
+    "@ai-sdk/react": "^4.0.157",
+    "@blocknote/core": "workspace:^",
+    "@blocknote/react": "workspace:^",
+    "@blocknote/xl-ai": "workspace:^",
+    "@handlewithcare/prosemirror-suggest-changes": "^0.1.8",
+    "ai": "^7.0.153",
+    "prosemirror-model": "^1.25.11",
+    "prosemirror-state": "^1.4.4",
+    "prosemirror-view": "^1.42.5"
+  },
+  "devDependencies": {
+    "react-icons": "^5.5.0",
+    "@ai-sdk/anthropic": "^4.0.88",
+    "@ai-sdk/openai": "^4.0.102",
+    "@types/node": "22.13.13",
+    "@types/react": "^19.2.3",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "@y/y": "^14.0.0-rc.26",
+    "rimraf": "^5.0.10",
+    "rollup-plugin-webpack-stats": "^0.2.6",
+    "typescript": "^7.0.2",
+    "vite-plus": "catalog:",
+    "yjs": "^13.6.33"
+  },
+  "peerDependencies": {
+    "@y/y": "^14.0.0-rc.26",
+    "react": "^18.0 || ^19.0 || >= 19.0.0-rc",
+    "react-dom": "^18.0 || ^19.0 || >= 19.0.0-rc",
+    "yjs": "^13.6.33"
+  },
+  "peerDependenciesMeta": {
+    "@y/y": {
+      "optional": true
+    },
+    "yjs": {
+      "optional": true
+    }
+  }
+}

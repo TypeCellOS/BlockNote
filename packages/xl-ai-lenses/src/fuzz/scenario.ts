@@ -1,7 +1,7 @@
 import type { BlockNoteEditor, PartialBlock } from "@blocknote/core";
 
-import type { LensBlock } from "../../api/v2/index.js";
-import type { createRandom } from "../../api/v2/testUtil/random.js";
+import type { LensBlock } from "@blocknote/xl-ai/text-lens";
+import type { createRandom } from "./random.js";
 import { type ScriptedStep, textOf } from "../testUtil.js";
 
 // A scenario with random concurrent edits for one document, for each mode

@@ -1,7 +1,10 @@
+// The entry point `@blocknote/xl-ai-lenses/server`.
+//
 // The document agent: an agent loop that edits a document through the text
-// lens (`api/v2`). This file has the code that runs on each host: in the
-// browser and on a server. The code for the editor (React, the extension)
-// is in `client/index.ts`.
+// lens (`@blocknote/xl-ai/text-lens`). This file has the code that runs on
+// each host: in the browser and on a server. It does not import React or
+// the main entry of `@blocknote/xl-ai`. The code for the editor (React, the
+// extension) is in `client/index.ts`.
 
 export {
   createDocumentAgent,

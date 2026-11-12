@@ -1,5 +1,5 @@
 // The Yjs 14 mode of the document agent on a host
-// (`@blocknote/xl-ai/yjs14/server`): the document of the agent, and the
+// (`@blocknote/xl-ai-lenses/yjs14-server`): the document of the agent, and the
 // sessions. It has no React code. The host needs a DOM (a browser, or jsdom
 // on a server), because the binding of Yjs 14 works in the view of an
 // editor.

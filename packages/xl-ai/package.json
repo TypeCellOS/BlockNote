@@ -83,16 +83,6 @@
       "types": "./types/src/api/v2/yjs/index.d.ts",
       "import": "./dist/text-lens-yjs.js",
       "default": "./dist/text-lens-yjs.js"
-    },
-    "./yjs14": {
-      "types": "./types/src/yjs14.d.ts",
-      "import": "./dist/yjs14.js",
-      "default": "./dist/yjs14.js"
-    },
-    "./yjs14-server": {
-      "types": "./types/src/yjs14-server.d.ts",
-      "import": "./dist/yjs14-server.js",
-      "default": "./dist/yjs14-server.js"
     }
   },
   "scripts": {
@@ -136,7 +126,6 @@
     "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
-    "@y/y": "^14.0.0-rc.26",
     "glob": "^10.5.0",
     "headers-polyfill": "^4.0.3",
     "msw": "^2.11.5",
@@ -150,15 +139,11 @@
     "yjs": "^13.6.33"
   },
   "peerDependencies": {
-    "@y/y": "^14.0.0-rc.26",
     "react": "^18.0 || ^19.0 || >= 19.0.0-rc",
     "react-dom": "^18.0 || ^19.0 || >= 19.0.0-rc",
     "yjs": "^13.6.33"
   },
   "peerDependenciesMeta": {
-    "@y/y": {
-      "optional": true
-    },
     "yjs": {
       "optional": true
     }

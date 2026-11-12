@@ -1,4 +1,4 @@
-import { keepSuggestionCurrent } from "@blocknote/xl-ai/yjs14-server";
+import { keepSuggestionCurrent } from "@blocknote/xl-ai-lenses/yjs14-server";
 import * as Y from "@y/y";
 import { Hono } from "hono";
 import { streamSSE } from "hono/streaming";

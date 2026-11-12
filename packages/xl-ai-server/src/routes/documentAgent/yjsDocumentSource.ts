@@ -3,7 +3,7 @@ import { yXmlFragmentToBlocks } from "@blocknote/core/yjs";
 import {
   assertNoYjsSuggestions,
   type DocumentSource,
-} from "@blocknote/xl-ai/server";
+} from "@blocknote/xl-ai-lenses/server";
 import * as Y from "yjs";
 
 /** The name of the map in the Y.Doc that has the notices of the proposals. */

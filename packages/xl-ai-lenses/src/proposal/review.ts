@@ -8,7 +8,7 @@ import {
   type LensBlock,
   type MergeWarning,
   type WriteFromVersion,
-} from "../../api/v2/index.js";
+} from "@blocknote/xl-ai/text-lens";
 import { hashDocument } from "./hash.js";
 import {
   applyToEditor,
