@@ -1,13 +1,19 @@
+import {
+  readAriaSnapshot,
+  readOutline,
+  checkFocusOutline,
+  readSelection,
+  checkAxe,
+} from "../src/utils/accessibility.js";
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite-plus";
 import { playwright } from "vite-plus/test/browser/providers/playwright";
 import {
-  readAriaSnapshot,
   startReader,
-  pressKey,
+  screenReaderPressKey,
   readTranscript,
   stopReader,
-} from "./commands.js";
+} from "./screenReader.js";
 
 const reader = process.env.BLOCKNOTE_SCREEN_READER;
 if (reader !== "voiceover" && reader !== "nvda") {
@@ -36,11 +42,13 @@ export default defineConfig({
         new URL("../../packages/mantine/src", import.meta.url),
       ),
     },
-    dedupe: ["react", "react-dom"],
+    dedupe: ["react", "react-dom", "vitest-browser-react"],
   },
   test: {
-    name: "a11y",
-    setupFiles: [fileURLToPath(new URL("./setup.ts", import.meta.url))],
+    name: "screen-reader",
+    setupFiles: [
+      fileURLToPath(new URL("../vitestSetup.browser.ts", import.meta.url)),
+    ],
     include: ["../packages/*/src/**/*.screen-reader.test.ts"],
     testTimeout: 300_000,
     hookTimeout: 30_000,
@@ -50,9 +58,9 @@ export default defineConfig({
     update: false,
     reporters: [
       "verbose",
-      ["html", { outputDir: `playwright-report/a11y/${reader}` }],
+      ["html", { outputDir: `playwright-report/screen-reader/${reader}` }],
     ],
-    attachmentsDir: `.vitest/attachments/a11y/${reader}`,
+    attachmentsDir: `.vitest/attachments/screen-reader/${reader}`,
     resolveSnapshotPath: (path, extension) =>
       `${path}-snapshots/screen-reader/${reader}${extension}`,
     browser: {
@@ -75,8 +83,12 @@ export default defineConfig({
       ],
       commands: {
         readAriaSnapshot,
+        readOutline,
+        checkFocusOutline,
+        readSelection,
+        checkAxe,
         startReader,
-        pressKey,
+        pressKey: screenReaderPressKey,
         readTranscript,
         stopReader,
       },

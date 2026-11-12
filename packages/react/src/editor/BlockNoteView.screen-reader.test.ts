@@ -1,15 +1,28 @@
-import { afterEach, test } from "vite-plus/test";
-import { openEditor, saveTranscript } from "@root/tests/a11y/helpers.js";
+import { commands } from "@root/tests/src/utils/context.js";
+import { page } from "vite-plus/test/browser";
+import { afterEach, expect, test } from "vite-plus/test";
 import {
+  renderTestEditor,
   navigateDefaultSchemaDocument,
   defaultSchemaDocument,
 } from "./BlockNoteView.browser.test.js";
 
-afterEach(saveTranscript);
+afterEach(async () => {
+  try {
+    const transcript = await commands.readTranscript();
+    expect(transcript.length).toBeGreaterThan(0);
+    expect(transcript).toMatchSnapshot();
+  } finally {
+    await commands.stopReader();
+  }
+});
 
 // Navigation announcements omit block types, document structure, and a lot of other markup.
 test.skip("default schema: arrow-key document navigation", async () => {
-  await openEditor(defaultSchemaDocument);
+  await renderTestEditor(defaultSchemaDocument);
+  await commands.startReader(
+    page.getByRole("button", { name: "Before editor", exact: true }).selector,
+  );
   await navigateDefaultSchemaDocument();
 });
 

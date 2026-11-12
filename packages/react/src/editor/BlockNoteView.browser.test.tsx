@@ -1,3 +1,4 @@
+import { commands } from "@root/tests/src/utils/context.js";
 import {
   COLORS_DEFAULT,
   defaultBlockSpecs,
@@ -13,17 +14,64 @@ import {
 } from "@blocknote/core";
 import { expect, test } from "vite-plus/test";
 import { page, server } from "vite-plus/test/browser";
-import {
-  openEditor,
-  screenReader,
-  readSelection,
-  checkAriaSnapshot,
-  checkAxe,
-  pressKey,
-  readOutline,
-  checkFocusOutline,
-} from "@root/tests/a11y/helpers.js";
+import "@blocknote/core/fonts/inter.css";
+import { BlockNoteView } from "@blocknote/mantine";
+import "@blocknote/mantine/style.css";
+import { useCreateBlockNote } from "@blocknote/react";
+import { render } from "vitest-browser-react";
 import { screenshotFull } from "@root/tests/src/utils/screenshotFull.js";
+
+function TestEditor({
+  initialContent,
+  editable,
+  theme,
+}: {
+  initialContent: PartialBlock[];
+  editable: boolean;
+  theme: "light" | "dark";
+}) {
+  const editor = useCreateBlockNote({ initialContent });
+  return (
+    <main style={{ maxWidth: 900, margin: "80px auto", padding: 24 }}>
+      <h1>BlockNote accessibility fixture</h1>
+      <button type="button">Before editor</button>
+      <BlockNoteView editor={editor} theme={theme} editable={editable} />
+      <button type="button">After editor</button>
+    </main>
+  );
+}
+
+export async function renderTestEditor(
+  initialContent: PartialBlock[],
+  {
+    editable = true,
+    theme = "light",
+  }: {
+    editable?: boolean;
+    theme?: "light" | "dark";
+  } = {},
+) {
+  await page.viewport(1280, 900);
+  await render(
+    <TestEditor
+      initialContent={initialContent}
+      editable={editable}
+      theme={theme}
+    />,
+  );
+  await expect.element(page.getByRole("textbox")).toBeVisible();
+  await expect
+    .element(page.getByRole("textbox"))
+    .toHaveAttribute("contenteditable", String(editable));
+  await document.fonts.ready;
+  page
+    .getByRole("button", { name: "Before editor", exact: true })
+    .element()
+    .focus();
+}
+
+const screenReader =
+  server.config.name === "voiceover" || server.config.name === "nvda";
 
 const styleExamples = {
   bold: { bold: true },
@@ -143,25 +191,25 @@ export const defaultSchemaDocument: PartialBlock[] = [
 
 // Keep navigation identical to navigateDefaultSchemaDocumentWithAssertions.
 export async function navigateDefaultSchemaDocument() {
-  await pressKey("Tab");
+  await commands.pressKey("Tab");
 
   // Follow the document until its endpoint; an unreachable endpoint times out.
   const visitedTableCells = new Set<string>();
-  while (readSelection().blockId !== "end") {
-    const { tableCell } = readSelection();
+  while ((await commands.readSelection()).blockId !== "end") {
+    const { tableCell } = await commands.readSelection();
     if (tableCell) {
       visitedTableCells.add(`${tableCell.row},${tableCell.column}`);
     }
     // ArrowDown alone skips columns. Move through cell text and across each
     // row with ArrowRight, then resume ArrowDown from the final cell.
     if (tableCell && visitedTableCells.size < 4) {
-      await pressKey("ArrowRight");
+      await commands.pressKey("ArrowRight");
     } else {
-      await pressKey("ArrowDown");
+      await commands.pressKey("ArrowDown");
     }
   }
-  while (readSelection().blockId !== "start") {
-    await pressKey("ArrowUp");
+  while ((await commands.readSelection()).blockId !== "start") {
+    await commands.pressKey("ArrowUp");
   }
 }
 
@@ -369,36 +417,37 @@ if (!screenReader) {
   test.describe("keyboard", () => {
     // Same navigation as navigateDefaultSchemaDocument, with selection assertions.
     async function navigateDefaultSchemaDocumentWithAssertions() {
-      await pressKey("Tab");
+      await commands.pressKey("Tab");
       await expect.element(page.getByRole("textbox")).toHaveFocus();
 
       // Follow the document until its endpoint; an unreachable endpoint times out.
       const visitedTableCells = new Set<string>();
-      while (readSelection().blockId !== "end") {
-        const { tableCell } = readSelection();
+      while ((await commands.readSelection()).blockId !== "end") {
+        const { tableCell } = await commands.readSelection();
         if (tableCell) {
           visitedTableCells.add(`${tableCell.row},${tableCell.column}`);
         }
         // ArrowDown alone skips columns. Move through cell text and across each
         // row with ArrowRight, then resume ArrowDown from the final cell.
         if (tableCell && visitedTableCells.size < 4) {
-          await pressKey("ArrowRight");
+          await commands.pressKey("ArrowRight");
         } else {
-          await pressKey("ArrowDown");
+          await commands.pressKey("ArrowDown");
         }
       }
       expect(
         [...visitedTableCells].sort(),
         "Every table cell is visited",
       ).toEqual(["0,0", "0,1", "1,0", "1,1"]);
-      expect(readSelection().blockId, "Arrow keys reach the final block").toBe(
-        "end",
-      );
-      while (readSelection().blockId !== "start") {
-        await pressKey("ArrowUp");
+      expect(
+        (await commands.readSelection()).blockId,
+        "Arrow keys reach the final block",
+      ).toBe("end");
+      while ((await commands.readSelection()).blockId !== "start") {
+        await commands.pressKey("ArrowUp");
       }
       expect(
-        readSelection().blockId,
+        (await commands.readSelection()).blockId,
         "ArrowUp returns to the first block",
       ).toBe("start");
     }
@@ -409,17 +458,17 @@ if (!screenReader) {
         exact: true,
       });
       await expect.element(link).toBeVisible();
-      const unfocusedOutline = readOutline(link.element());
+      const unfocusedOutline = await commands.readOutline(link.selector);
       while (document.activeElement !== link.element()) {
-        await pressKey("Tab");
+        await commands.pressKey("Tab");
       }
       await expect.element(link).toHaveFocus();
-      await checkFocusOutline(link, unfocusedOutline);
+      await commands.checkFocusOutline(link.selector, unfocusedOutline);
       return link;
     }
 
     test("default schema: arrow-key document navigation", async () => {
-      await openEditor(defaultSchemaDocument);
+      await renderTestEditor(defaultSchemaDocument);
       await navigateDefaultSchemaDocumentWithAssertions();
     });
 
@@ -442,12 +491,12 @@ if (!screenReader) {
     test.skipIf(server.browser === "webkit")(
       "Escape allows Tab to leave the editor",
       async () => {
-        await openEditor(editorEscapeDocument);
-        await pressKey("Tab");
+        await renderTestEditor(editorEscapeDocument);
+        await commands.pressKey("Tab");
         await expect.element(page.getByRole("textbox")).toHaveFocus();
-        await pressKey("Escape");
+        await commands.pressKey("Escape");
         await expect.element(document.body).toHaveFocus();
-        await pressKey("Tab");
+        await commands.pressKey("Tab");
         await expect
           .element(
             page.getByRole("button", { name: "After editor", exact: true }),
@@ -460,15 +509,15 @@ if (!screenReader) {
     // Focused inline links do not yet have a suitable visual focus indicator.
     // TODO: Fix the focus appearance before enabling.
     test.skip("read-only editor: Tab reaches inline links and leaves the editor", async () => {
-      await openEditor(readOnlyLinkDocument, { editable: false });
+      await renderTestEditor(readOnlyLinkDocument, { editable: false });
       const link = await focusReadOnlyLinkWithAssertions();
-      await pressKey("Tab");
+      await commands.pressKey("Tab");
       await expect
         .element(
           page.getByRole("button", { name: "After editor", exact: true }),
         )
         .toHaveFocus();
-      await pressKey("Shift+Tab");
+      await commands.pressKey("Shift+Tab");
       await expect.element(link).toHaveFocus();
     });
 
@@ -486,8 +535,10 @@ if (!screenReader) {
   test.describe("ARIA", () => {
     // Numbered list item indices are separate text elements, among other issues.
     test.skip("default schema: accessibility tree snapshot", async () => {
-      await openEditor(schemaDocument);
-      await checkAriaSnapshot(page.getByRole("textbox"), "default schema");
+      await renderTestEditor(schemaDocument);
+      expect(
+        await commands.readAriaSnapshot(page.getByRole("textbox").selector),
+      ).toMatchSnapshot("default schema");
     });
   });
 
@@ -496,8 +547,10 @@ if (!screenReader) {
       // Known issues include the unnamed editor, unlabeled checklist checkboxes,
       // insufficient contrast, and undersized targets.
       test.skip(`default schema: axe (${theme})`, async ({ annotate }) => {
-        await openEditor(schemaDocument, { theme });
-        await checkAxe(annotate);
+        await renderTestEditor(schemaDocument, { theme });
+        for (const warning of await commands.checkAxe()) {
+          await annotate(warning, "warning");
+        }
       });
     }
   });
@@ -543,7 +596,7 @@ if (!screenReader) {
 
     test.describe("text spacing and resizing", () => {
       test("default schema remains readable with text spacing overrides", async () => {
-        await openEditor(defaultSchemaDocument);
+        await renderTestEditor(defaultSchemaDocument);
         await waitForMedia();
         // WCAG 1.4.12: override spacing without changing any other style property.
         // https://www.w3.org/WAI/WCAG22/Understanding/text-spacing.html
@@ -565,7 +618,7 @@ if (!screenReader) {
       });
 
       test("default schema remains readable at 200% text size", async () => {
-        await openEditor(defaultSchemaDocument);
+        await renderTestEditor(defaultSchemaDocument);
         await waitForMedia();
         resizeText(2);
         await screenshotFull(

@@ -3,7 +3,14 @@ import * as fs from "fs";
 import * as path from "path";
 import { configDefaults, defineConfig, type UserConfig } from "vite-plus";
 import { playwright } from "vite-plus/test/browser/providers/playwright";
-import { readAriaSnapshot, pressKey } from "./a11y/commands.js";
+import {
+  readAriaSnapshot,
+  readOutline,
+  checkFocusOutline,
+  readSelection,
+  checkAxe,
+} from "./src/utils/accessibility.js";
+import { pressKey } from "./src/utils/keyboard.js";
 import { positionalMouse } from "./src/utils/positionalMouse.js";
 import { imeComposition } from "./src/utils/imeComposition.js";
 
@@ -85,6 +92,7 @@ export default defineConfig(
       // render unstyled because their utility classes don't exist.
       plugins: [tailwindcss()],
       resolve: {
+        dedupe: ["react", "react-dom", "vitest-browser-react"],
         // Mount example apps via `@examples/<group>/<name>/src/App`. The examples
         // live outside the tests root, but vite-plus already allows serving the
         // workspace root, so only this runtime alias is needed. The matching
@@ -122,7 +130,7 @@ export default defineConfig(
           "../packages/*/src/**/*.screen-reader.test.ts",
         ],
 
-        setupFiles: ["./vitestSetup.browser.ts", "./a11y/setup.ts"],
+        setupFiles: ["./vitestSetup.browser.ts"],
         // Running three browsers concurrently inside one Docker container already
         // saturates CPU; layering per-browser file parallelism on top causes
         // 15s test timeouts and even Firefox WS-connect failures. One worker per
@@ -177,6 +185,10 @@ export default defineConfig(
             imeComposition,
             restoreTouchEmulation,
             readAriaSnapshot,
+            readOutline,
+            checkFocusOutline,
+            readSelection,
+            checkAxe,
             pressKey,
           },
           instances: [

@@ -15,7 +15,7 @@ export default defineConfig({
     cache: { scripts: true },
     tasks: {
       "test:screen-reader": {
-        command: "node tests/a11y/run.mjs",
+        command: "node tests/screen-reader/run-screen-reader.mjs",
         cache: false,
       },
       "copy-package-readmes": {
@@ -125,22 +125,6 @@ export default defineConfig({
               property: "getByTestId",
               message:
                 "Use accessible locators such as getByRole with a name or getByLabel in browser tests.",
-            },
-          ],
-        },
-      },
-      {
-        files: ["tests/a11y/**"],
-        rules: {
-          // The nested package.json selects ESM; dependencies belong to tests.
-          "import-eslint/no-extraneous-dependencies": [
-            "error",
-            {
-              packageDir: "./tests",
-              devDependencies: true,
-              peerDependencies: true,
-              optionalDependencies: false,
-              bundledDependencies: false,
             },
           ],
         },

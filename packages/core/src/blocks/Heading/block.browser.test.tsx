@@ -1,15 +1,15 @@
+import { commands } from "@root/tests/src/utils/context.js";
 import { type PartialBlock } from "@blocknote/core";
-import {
-  openEditor,
-  checkAriaSnapshot,
-  pressKey,
-  readOutline,
-  checkFocusOutline,
-} from "@root/tests/a11y/helpers.js";
+import "@blocknote/core/fonts/inter.css";
+import { BlockNoteView } from "@blocknote/mantine";
+import "@blocknote/mantine/style.css";
+import { useCreateBlockNote } from "@blocknote/react";
+import { render } from "vitest-browser-react";
+
 import { expect, test, vi, beforeEach, afterEach } from "vite-plus/test";
 import { page } from "vite-plus/test/browser";
 
-// Start from "Before editor" after openEditor(). Keep these navigation steps
+// Start from "Before editor" after setup. Keep these navigation steps
 // identical to focusToggleHeadingWithAssertions in the keyboard suite.
 async function focusToggleHeading() {
   const toggleButton = page.getByRole("button", {
@@ -17,7 +17,7 @@ async function focusToggleHeading() {
     exact: true,
   });
   while (document.activeElement !== toggleButton.element()) {
-    await pressKey("Tab");
+    await commands.pressKey("Tab");
   }
 
   return toggleButton;
@@ -33,8 +33,26 @@ const toggleHeadingDocument: PartialBlock[] = [
   },
 ];
 
-beforeEach(() => {
+function TestEditor() {
+  const editor = useCreateBlockNote({ initialContent: toggleHeadingDocument });
+  return (
+    <>
+      <button type="button">Before editor</button>
+      <BlockNoteView editor={editor} editable={false} theme="light" />
+      <button type="button">After editor</button>
+    </>
+  );
+}
+
+beforeEach(async () => {
   localStorage.removeItem("toggle-read-only-toggle-heading");
+  await render(<TestEditor />);
+  await expect.element(page.getByRole("textbox")).toBeVisible();
+  await document.fonts.ready;
+  page
+    .getByRole("button", { name: "Before editor", exact: true })
+    .element()
+    .focus();
 });
 
 afterEach(() => {
@@ -44,16 +62,15 @@ afterEach(() => {
 
 test.describe("behavior", () => {
   test("read-only toggle heading: Tab reaches the toggle and Enter expands/collapses it", async () => {
-    await openEditor(toggleHeadingDocument, { editable: false });
     const setItem = vi.spyOn(Storage.prototype, "setItem");
     await focusToggleHeading();
-    await pressKey("Enter");
+    await commands.pressKey("Enter");
     expect(setItem).toHaveBeenCalledExactlyOnceWith(
       "toggle-read-only-toggle-heading",
       "true",
     );
     setItem.mockClear();
-    await pressKey("Enter");
+    await commands.pressKey("Enter");
     expect(setItem).toHaveBeenCalledExactlyOnceWith(
       "toggle-read-only-toggle-heading",
       "false",
@@ -69,13 +86,13 @@ test.describe("keyboard", () => {
       exact: true,
     });
     await expect.element(toggleButton).toBeVisible();
-    const unfocusedOutline = readOutline(toggleButton.element());
+    const unfocusedOutline = await commands.readOutline(toggleButton.selector);
 
     while (document.activeElement !== toggleButton.element()) {
-      await pressKey("Tab");
+      await commands.pressKey("Tab");
     }
     await expect.element(toggleButton).toHaveFocus();
-    await checkFocusOutline(toggleButton, unfocusedOutline);
+    await commands.checkFocusOutline(toggleButton.selector, unfocusedOutline);
 
     return { toggleButton, unfocusedOutline };
   }
@@ -93,35 +110,39 @@ test.describe("keyboard", () => {
   });
 
   test("read-only toggle heading: Tab reaches the toggle and Enter expands/collapses it", async () => {
-    await openEditor(toggleHeadingDocument, { editable: false });
     const { toggleButton, unfocusedOutline } =
       await focusToggleHeadingWithAssertions();
-    await pressKey("Enter");
+    await commands.pressKey("Enter");
     await expect.element(toggleButton).toHaveFocus();
-    await checkFocusOutline(toggleButton, unfocusedOutline);
-    await pressKey("Enter");
+    await commands.checkFocusOutline(toggleButton.selector, unfocusedOutline);
+    await commands.pressKey("Enter");
     await expect.element(toggleButton).toHaveFocus();
-    await checkFocusOutline(toggleButton, unfocusedOutline);
+    await commands.checkFocusOutline(toggleButton.selector, unfocusedOutline);
 
-    await pressKey("Tab");
+    await commands.pressKey("Tab");
     await expect
       .element(page.getByRole("button", { name: "After editor", exact: true }))
       .toHaveFocus();
-    await pressKey("Shift+Tab");
+    await commands.pressKey("Shift+Tab");
     await expect.element(toggleButton).toHaveFocus();
-    await checkFocusOutline(toggleButton, unfocusedOutline);
+    await commands.checkFocusOutline(toggleButton.selector, unfocusedOutline);
   });
 });
 
 test.describe("ARIA", () => {
   test("read-only toggle heading: Tab reaches the toggle and Enter expands/collapses it", async () => {
-    await openEditor(toggleHeadingDocument, { editable: false });
     await focusToggleHeading();
     const editor = page.getByRole("textbox");
-    await checkAriaSnapshot(editor, "collapsed");
-    await pressKey("Enter");
-    await checkAriaSnapshot(editor, "expanded");
-    await pressKey("Enter");
-    await checkAriaSnapshot(editor, "collapsed again");
+    expect(await commands.readAriaSnapshot(editor.selector)).toMatchSnapshot(
+      "collapsed",
+    );
+    await commands.pressKey("Enter");
+    expect(await commands.readAriaSnapshot(editor.selector)).toMatchSnapshot(
+      "expanded",
+    );
+    await commands.pressKey("Enter");
+    expect(await commands.readAriaSnapshot(editor.selector)).toMatchSnapshot(
+      "collapsed again",
+    );
   });
 });

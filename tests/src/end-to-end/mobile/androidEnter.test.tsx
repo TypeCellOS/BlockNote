@@ -8,11 +8,6 @@ import {
   EDITOR_SELECTOR,
 } from "../../utils/const.js";
 import { focusOnEditor, waitForSelector } from "../../utils/editor.js";
-import type { ImeCompositionCommand } from "../../utils/imeComposition.js";
-
-const browserCommands = commands as typeof commands & {
-  imeComposition: ImeCompositionCommand;
-};
 
 // Runs in the "android" and "ios" browser instances (mobile UA + touch
 // emulation at context level, see vite.config.browser.ts), which make
@@ -90,7 +85,7 @@ describe("Enter on Android", () => {
         BLOCK_CONTAINER_SELECTOR,
       ).length;
 
-      await browserCommands.imeComposition([{ type: "commit", text: "\n" }]);
+      await commands.imeComposition([{ type: "commit", text: "\n" }]);
 
       await vi.waitFor(() => {
         const blocks = document.querySelectorAll(

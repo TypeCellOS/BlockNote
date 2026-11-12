@@ -12,12 +12,19 @@
     "types": ["node", "vite-plus/client"],
     "paths": {
       "@root/*": ["../*"],
-      "@shared/*": ["../shared/*"]
+      "@shared/*": ["../shared/*"],
+      "@blocknote/mantine": ["./node_modules/@blocknote/mantine"],
+      "@blocknote/react": ["./node_modules/@blocknote/react"],
+      "react": ["./node_modules/@types/react/index.d.ts"],
+      "vitest-browser-react": ["./node_modules/vitest-browser-react"],
+      "react/jsx-runtime": ["./node_modules/@types/react/jsx-runtime.d.ts"]
     }
   },
   "include": [
-    "a11y/**/*.ts",
-    "a11y/**/*.tsx",
+    "src/utils/**/*.ts",
+    "src/utils/**/*.tsx",
+    "screen-reader/**/*.ts",
+    "vitestSetup.browser.ts",
     "../packages/*/src/**/*.browser.test.*",
     "../packages/*/src/**/*.screen-reader.test.ts"
   ]

@@ -1,5 +1,6 @@
+import type {} from "./src/utils/keyboard.js";
 import { afterEach, beforeAll, beforeEach } from "vite-plus/test";
-import { commands, page } from "vite-plus/test/browser";
+import { commands, page } from "./src/utils/context.js";
 
 import { ensureTouchEmulation } from "./src/utils/ensureTouchEmulation.js";
 
@@ -46,7 +47,7 @@ beforeAll(async () => {
   // transitionend/animationend, and no keyframes rely on fill-mode, so
   // suppressing motion only removes the timing dependency.)
   const noMotion = document.createElement("style");
-  noMotion.textContent = `*, *::before, *::after { transition: none !important; animation: none !important; }`;
+  noMotion.textContent = `*, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }`;
   document.head.appendChild(noMotion);
 });
 
@@ -61,9 +62,7 @@ beforeAll(async () => {
 // needs to call `ensureTouchEmulation` itself.
 beforeEach(async () => {
   if (/android/i.test(navigator.userAgent)) {
-    await (
-      commands as unknown as { restoreTouchEmulation(): Promise<void> }
-    ).restoreTouchEmulation();
+    await commands.restoreTouchEmulation();
     ensureTouchEmulation();
   }
   // Playwright's WebKit emulation sets `(pointer: coarse)` and `ontouchstart`
@@ -82,4 +81,38 @@ beforeEach(() => {
 
 afterEach(() => {
   delete (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS;
+});
+
+let pendingEditorFocus = Promise.resolve();
+
+async function waitForEditorFocus() {
+  let pending;
+  do {
+    pending = pendingEditorFocus;
+    await pending;
+  } while (pending !== pendingEditorFocus);
+}
+
+// Provider commands run in Node and await this function inside the test iframe.
+window.__blockNoteWaitForEditorFocus = waitForEditorFocus;
+
+function onEditorFocus(event: FocusEvent) {
+  if (
+    event.target instanceof HTMLElement &&
+    event.target.matches('.bn-editor[contenteditable="true"]')
+  ) {
+    // ProseMirror schedules selection reconciliation 20 ms after focus.
+    // This bubbling listener runs after its focus handler has scheduled that work.
+    pendingEditorFocus = new Promise((resolve) => setTimeout(resolve, 20));
+  }
+}
+
+beforeEach(() => {
+  document.addEventListener("focusin", onEditorFocus);
+});
+
+afterEach(async () => {
+  document.removeEventListener("focusin", onEditorFocus);
+  await waitForEditorFocus();
+  pendingEditorFocus = Promise.resolve();
 });

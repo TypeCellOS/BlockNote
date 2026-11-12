@@ -3,14 +3,9 @@ import { beforeEach, describe, expect, test, vi } from "vite-plus/test";
 import { render } from "vitest-browser-react";
 
 import { browserName, commands, userEvent } from "../../utils/context.js";
-import type { ImeCompositionCommand } from "../../utils/imeComposition.js";
 import { EDITOR_SELECTOR, LINK_BUTTON_SELECTOR } from "../../utils/const.js";
 import { focusOnEditor, waitForSelector } from "../../utils/editor.js";
 import { executeSlashCommand } from "../../utils/slashmenu.js";
-
-const browserCommands = commands as typeof commands & {
-  imeComposition: ImeCompositionCommand;
-};
 
 /**
  * The toolbar popovers commit through their form's `submit` event, because a
@@ -170,7 +165,7 @@ describe("Submitting a toolbar popover with Enter", () => {
       )) as HTMLInputElement;
       await userEvent.click(input);
 
-      await browserCommands.imeComposition([
+      await commands.imeComposition([
         { type: "setComposition", text: "example.co" },
         { type: "commit", text: "example.com" },
       ]);

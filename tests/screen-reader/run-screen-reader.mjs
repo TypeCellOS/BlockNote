@@ -13,7 +13,7 @@ const result = spawnSync(
     fileURLToPath(new URL("../node_modules/vite-plus/bin/vp", import.meta.url)),
     "test",
     "--config",
-    "a11y/vite.config.ts",
+    "screen-reader/vite.config.screen-reader.ts",
     "--run",
     ...args,
   ],
