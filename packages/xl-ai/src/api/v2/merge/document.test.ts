@@ -107,6 +107,21 @@ describe("mergeDocument", () => {
     expect(documentShape(result.blocks)).toEqual(["x", "z"]);
   });
 
+  it("removes a block that ours removes, if theirs changed only a block in it that ours moves out", () => {
+    // Ours removes s and b, and moves a out. Theirs changes a. The removal of
+    // s loses no change: a stays with its change. Thus, s goes, without a
+    // warning. (No other test had this case: without the check of ours in
+    // `removalLosesChange`, s stayed empty, with a warning.)
+    const base = [block("s", [block("a"), block("b")]), block("z")];
+    const result = merge(
+      base,
+      [block("a"), block("z")],
+      [block("s", [block("a", [], "a, changed"), block("b")]), block("z")],
+    );
+    expect(documentShape(result.blocks)).toEqual(["a", "z"]);
+    expect(result.warnings).toEqual([]);
+  });
+
   it("keeps a block that ours removes, with a new block of theirs in it, with a warning", () => {
     const base = [block("p"), block("z")];
     const result = merge(

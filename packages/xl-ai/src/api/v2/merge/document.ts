@@ -83,7 +83,7 @@ export function mergeDocument(input: {
 
 /** The three sides of the merge, and the questions that the decisions ask about them. */
 class Sides {
-  private readonly changedMemo = new Map<string, boolean>();
+  private readonly removalLosesChangeMemo = new Map<string, boolean>();
 
   constructor(
     readonly base: BlockIndex,
@@ -92,23 +92,31 @@ class Sides {
   ) {}
 
   /**
-   * Returns true if another writer changed the block, or a block in it that
-   * the client also removed (also a new block). Thus, the removal of the
-   * block by the client loses that change. A block in it that the client
-   * keeps (for example moves out) does not count.
+   * Returns true if the removal of the block by the client loses a change of
+   * another writer: a change of its fields, a new block, or such a change in
+   * a block in it that the client also removes. A block in it that the
+   * client keeps (for example, moves out) does not count: its change stays.
+   *
+   * Example: a block S with the children A and B. The client removes S and
+   * B, and moves A out. Another writer changes A. The removal of S loses no
+   * change, thus S goes. Without the check of `ours`, S stays empty, with
+   * the warning `removed-changed-block`.
    */
-  changedByOthers(id: string): boolean {
-    let result = this.changedMemo.get(id);
+  removalLosesChange(id: string): boolean {
+    let result = this.removalLosesChangeMemo.get(id);
     if (result === undefined) {
       result =
         !this.base.has(id) ||
         this.fieldsChanged(this.theirs, id) ||
+        // Or the removal loses such a change deeper down: in a child (in
+        // `theirs`) that the client also removes. A child that the client
+        // keeps (for example, moves out) stays, with the blocks in it.
         this.theirs
           .childrenOf(id)
           .some(
-            (child) => !this.ours.has(child) && this.changedByOthers(child),
+            (child) => !this.ours.has(child) && this.removalLosesChange(child),
           );
-      this.changedMemo.set(id, result);
+      this.removalLosesChangeMemo.set(id, result);
     }
     return result;
   }
@@ -157,10 +165,10 @@ type Staying = { list: string[]; has: (id: string) => boolean };
  *
  * - A block of `ours` stays, unless another writer removed it.
  * - A new block of another writer stays if its parent stays.
- * - A block that the client removed goes, unless another writer changed it
- *   or a removed block in it: then it stays. A write from an older version
- *   does not remove a change that it did not see. The other blocks in it
- *   that the client removed go.
+ * - A block that the client removed goes, unless its removal loses a change
+ *   of another writer (see `Sides.removalLosesChange`): then it stays. A
+ *   write from an older version does not remove a change that it did not
+ *   see. The other blocks in it that the client removed go.
  */
 function stayingBlocks(sides: Sides): Staying {
   const { base, ours, theirs } = sides;
@@ -173,7 +181,7 @@ function stayingBlocks(sides: Sides): Staying {
       } else if (!theirs.has(id)) {
         result = false;
       } else if (base.has(id)) {
-        result = sides.changedByOthers(id);
+        result = sides.removalLosesChange(id);
       } else {
         const parent = theirs.parent(id);
         result = parent === undefined || stays(parent);
@@ -481,7 +489,7 @@ function removalWarnings(sides: Sides): MergeWarning[] {
       !ours.has(id) &&
       theirs.has(id) &&
       (parent === undefined || ours.has(parent)) &&
-      sides.changedByOthers(id)
+      sides.removalLosesChange(id)
     ) {
       warnings.push({ type: "removed-changed-block", id });
     }
