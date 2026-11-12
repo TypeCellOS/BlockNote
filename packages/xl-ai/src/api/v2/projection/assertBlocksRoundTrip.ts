@@ -4,11 +4,11 @@ import { alignmentKey } from "../alignment/index.js";
 import type { LensBlock } from "../model.js";
 import { blockToText } from "../util/blocks/index.js";
 import type { TextFormat } from "../formats/index.js";
-import { roundTripAlone, type ViewBlock } from "./projectDocument.js";
+import { roundTripIsolated, type ViewBlock } from "./projectDocument.js";
 
 /**
  * Throws if the parse of a text gave a block that the format does not show:
- * the round trip of that block alone gives no block. Such a block is a bug of
+ * the isolated round trip of that block gives no block. Such a block is a bug of
  * the format: its parse must give only blocks that its serialize shows (see
  * `TextFormat`). Else, the write would add the block, the view would not show
  * it, and each later write of the same text would add it again (PutTwice).
@@ -16,7 +16,7 @@ import { roundTripAlone, type ViewBlock } from "./projectDocument.js";
  * Only a block without text and without children can be such a block: a
  * block with text shows its text. Of these, a block whose key a view block
  * has needs no round trip: each view block comes from a document block (see
- * `projectWithParts`), thus the format shows such a block.
+ * `projectDocument`), thus the format shows such a block.
  */
 export function assertBlocksRoundTrip(
   editor: BlockNoteEditor<any, any, any>,
@@ -40,8 +40,8 @@ export function assertBlocksRoundTrip(
     }
   }
   collect(blocks);
-  const parts = roundTripAlone(editor, format, candidates, text);
-  const hidden = candidates.find((_, k) => parts[k].length === 0);
+  const results = roundTripIsolated(editor, format, candidates, text);
+  const hidden = candidates.find((_, k) => results[k].length === 0);
   if (hidden !== undefined) {
     throw new Error(
       `The format gave a block that it does not show (type "${hidden.type}"). The parse of a format must give only blocks that its serialize shows.`,

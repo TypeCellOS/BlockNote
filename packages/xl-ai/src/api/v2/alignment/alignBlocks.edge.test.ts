@@ -2,7 +2,7 @@
 import { describe, expect, it } from "vite-plus/test";
 
 import type { FlatBlock, LensBlock } from "../model.js";
-import { alignBlocks, linkBlocks } from "./alignBlocks.js";
+import { alignBlocks } from "./alignBlocks.js";
 
 function paragraph(text: string): LensBlock {
   return {
@@ -247,17 +247,5 @@ describe("alignBlocks: other edge cases", () => {
       [0, 2],
       [2, 0],
     ]);
-  });
-});
-
-describe("linkBlocks: edge cases", () => {
-  it("links two view blocks with the same key in order", () => {
-    expect(linkBlocks(flat("a", "a"), flat("a", "a"))).toEqual([0, 1]);
-  });
-
-  it("does not link a block of a different shape between two anchors", () => {
-    expect(linkBlocks(flat("a", table("t"), "z"), flat("a", "t", "z"))).toEqual(
-      [0, undefined, 2],
-    );
   });
 });

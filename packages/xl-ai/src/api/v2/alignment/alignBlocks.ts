@@ -4,12 +4,7 @@ import {
   type FlatBlock,
 } from "../model.js";
 import { blockKey, blockToText } from "../util/blocks/index.js";
-import {
-  gaps,
-  type MatchedPair,
-  myersMatch,
-  uniquePairs,
-} from "../util/sequence/index.js";
+import { gaps, type MatchedPair, uniquePairs } from "../util/sequence/index.js";
 import {
   type Overlap,
   type OverlapText,
@@ -94,50 +89,6 @@ export function alignBlocks(
       bIndex: b.length - end + i,
     })),
   ];
-}
-
-/**
- * Links each block of `view` to the part that gave it. `parts` are the view
- * blocks that each source block gives alone, in document order, and `view`
- * is the parse of the text of the full document. Thus, the two lists come
- * from the same blocks. They are different only where the format renders a
- * block differently in the full document (for example as a part of a
- * different block). Returns the part index for each view block, or
- * `undefined`.
- *
- * Blocks with equal keys link first (see {@link alignmentKey}). Between
- * these anchors, if the two sides have the same number of blocks, the blocks
- * link in order, if their content has the same shape.
- *
- * A view block at a different position than its part (a format that renders
- * a block in a different order in the full document than alone) has no
- * link. With a link, the target stage would move the source block to the
- * position of the view block, also if the text did not change.
- */
-export function linkBlocks(
-  parts: readonly FlatBlock[],
-  view: readonly FlatBlock[],
-): (number | undefined)[] {
-  const links: (number | undefined)[] = new Array(view.length);
-  const anchors = myersMatch(
-    parts.map(({ block }) => alignmentKey(block)),
-    view.map(({ block }) => alignmentKey(block)),
-    (x, y) => x === y,
-  );
-  for (const gap of gaps(anchors, parts.length, view.length)) {
-    const size = gap.aEnd - gap.aStart;
-    for (let i = 0; size === gap.bEnd - gap.bStart && i < size; i++) {
-      if (
-        canBeSameBlock(parts[gap.aStart + i].block, view[gap.bStart + i].block)
-      ) {
-        links[gap.bStart + i] = gap.aStart + i;
-      }
-    }
-    if (gap.anchor) {
-      links[gap.anchor.bIndex] = gap.anchor.aIndex;
-    }
-  }
-  return links;
 }
 
 /**

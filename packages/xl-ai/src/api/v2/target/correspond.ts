@@ -45,7 +45,7 @@ export type Correspondence = {
  * that stay.
  *
  * - A source block with a pair in the text stays. Each source block has one
- *   view block at most (see `projectWithParts`).
+ *   view block at most (see `projectDocument`).
  * - An invisible block stays, with some exceptions (see
  *   {@link withInvisibleBlocks}).
  *

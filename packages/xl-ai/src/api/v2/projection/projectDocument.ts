@@ -1,19 +1,19 @@
 import type { BlockNoteEditor } from "@blocknote/core";
 
-import { alignmentKey, linkBlocks } from "../alignment/index.js";
+import { alignmentKey } from "../alignment/index.js";
 import type { BlockWithoutChildren, FlatBlock, LensBlock } from "../model.js";
 import {
   blockToText,
   flattenBlocks,
   schemaRulesOf,
 } from "../util/blocks/index.js";
-import { anchoredMatch } from "../util/sequence/index.js";
+import { anchoredMatch, type MatchedPair } from "../util/sequence/index.js";
 import type { TextFormat } from "../formats/index.js";
 import { parseText } from "../parse/index.js";
 
 /** A block of the view: a block of the parse of the text of the document, with its link to a source block. */
 export type ViewBlock = FlatBlock & {
-  /** The ID of the source block that gave this view block (see `projectWithParts`). */
+  /** The ID of the source block that gave this view block (see `projectDocument`). */
   sourceId: string;
 };
 
@@ -31,35 +31,34 @@ export type Projection = {
 };
 
 /**
- * Renders the source document in the format and parses it back. Then links
- * each view block to the source block that gave it:
+ * Renders the source document in the format and parses it back: the view.
+ * Then finds the source block of each view block.
  *
- *     view  = parse(serialize(source))
- *     parts = for each source block: parse(serialize(the block alone))
- *     links = linkBlocks(parts, view)
- *
- * The format loses the block IDs, and it does not always give one view block
- * for each source block: a block can give no view block (see `Projection`).
- * A block that gives more than one view block throws (see
- * {@link assertOnePartEach}), and so does a view block that no block gives.
- * The source of each part is known, thus the parts give the links.
+ * The format loses the block IDs, but not the order of the blocks. Each
+ * source block gives none or one view block, and the view has these blocks
+ * in document order. Thus, the first view block comes from the first source
+ * block that gives a view block, the second view block from the second, and
+ * so on. The isolated round trip of a block tells if the block gives a view
+ * block (see {@link roundTripIsolated}).
  *
  * Example, in plain text:
  *
- *     source: code block "first\n\nsecond", image, paragraph "End"
- *     text:   "first\nsecond\n\nEnd"
- *     view:   paragraph "first\nsecond", paragraph "End"
- *     parts:  code block: paragraph "first\nsecond"; image: none;
- *             "End": paragraph "End"
- *     links:  view block 0 to the code block, view block 1 to "End"
+ *     source:   code block "first\n\nsecond", image, paragraph "End"
+ *     text:     "first\nsecond\n\nEnd"
+ *     view:     paragraph "first\nsecond", paragraph "End"
+ *     isolated: code block: paragraph "first\nsecond"; image: no block;
+ *               "End": paragraph "End"
+ *     links:    view block 0 to the code block, view block 1 to "End"
  *
  * Plain text writes the blank line of the code block as one newline. Thus,
- * the code block gives one paragraph: one part, not two (a block with more
- * parts throws). Plain text does not show the image. Thus, the image is an
- * invisible block.
+ * the code block gives one paragraph, not two. Plain text does not show the
+ * image. Thus, the image gives no view block: it is an invisible block.
  *
- * Method: our own design: a round trip through the format, and links by
- * `linkBlocks`.
+ * A format that does not keep this order is a bug (see `TextFormat`). The
+ * function throws for a block that gives more than one view block, and for a
+ * view that does not agree with the blocks that the source blocks give.
+ *
+ * Method: our own design.
  */
 export function projectDocument(
   editor: BlockNoteEditor<any, any, any>,
@@ -68,60 +67,34 @@ export function projectDocument(
   /** The text of the source document in the format, if the caller has it. */
   text = format.serialize(editor, source),
 ): Projection {
-  const view = viewOf(editor, format, text);
   const sources = flattenBlocks(source);
-  return projectWithParts(
-    sources,
-    view,
-    partsOf(editor, format, sources, view, text),
-  );
-}
-
-/**
- * The projection that the parts of the source blocks give (see `projectDocument`).
- * Each view block links to the source block of its part. A view block
- * without a part is a bug of the format: the function throws. The one
- * exception is the fill of the schema (see {@link isSchemaFill}).
- *
- * @internal
- */
-export function projectWithParts(
-  sources: readonly FlatBlock[],
-  view: readonly FlatBlock[],
-  parts: readonly Part[],
-): Projection {
-  assertOnePartEach(sources, parts);
-  const blocks = isSchemaFill(view, parts) ? [] : view;
-  // `links[v]` is the index of the part that gave view block `v`.
-  const links = linkBlocks(
-    parts.map(({ part }) => part),
-    blocks,
-  );
-  const linked = new Set<string>();
-  const viewBlocks = blocks.map((flat, v): ViewBlock => {
-    const link = links[v];
-    if (link === undefined) {
-      throw new Error(
-        `The format shows a block of type "${flat.block.type}" that no block of the document gives. The parse of a format must give only blocks that its serialize shows.`,
-      );
-    }
-    const sourceId = sources[parts[link].sourceIndex].block.id;
-    linked.add(sourceId);
-    return { ...flat, sourceId };
-  });
+  const parsed = viewOf(editor, format, text);
+  const sourceOf = sourcesOfView(editor, format, sources, parsed, text);
+  const view = sourceOf.length === 0 && isSchemaFill(parsed) ? [] : parsed;
+  if (view.length !== sourceOf.length) {
+    throw new Error(
+      `The format shows ${view.length} blocks, but the blocks of the document give ${sourceOf.length}. The parse of a format must give only the blocks that its serialize shows.`,
+    );
+  }
+  const linked = new Set(sourceOf);
   return {
-    view: viewBlocks,
+    view: view.map((flat, k) => ({
+      ...flat,
+      sourceId: sources[sourceOf[k]].block.id,
+    })),
     invisibleIds: new Set(
-      sources.map(({ block }) => block.id).filter((id) => !linked.has(id)),
+      sources.flatMap(({ block }, i) => (linked.has(i) ? [] : [block.id])),
     ),
   };
 }
 
 /**
- * The round trip of each block alone. "A block alone" is the block as a
- * document of its own: at the top level, without its children, and apart
- * from the other blocks. Thus, the view blocks that a block gives come only
- * from that block.
+ * The isolated round trip of each block of `blocks`: returns the view blocks
+ * that each block gives. An isolated block is a document of its own: the
+ * block at the top level, without its children, between two separator
+ * paragraphs. Thus, its view blocks come only from that block: the blocks
+ * around it in the document cannot change them, and its children give their
+ * own view blocks.
  *
  * Example: for the code block and the image of the example of
  * {@link projectDocument}, the batch is `[S, code block, S, image, S]` (S is
@@ -129,14 +102,14 @@ export function projectWithParts(
  * `[S, paragraph "first\nsecond", S, S]`. Thus, the code block gives one
  * paragraph, and the image gives no block.
  *
- * All blocks go through one serialize and one parse, each block between two
- * separators. The separator is a paragraph with only a character that `text`
+ * All blocks go through one serialize and one parse, and each block is still
+ * isolated. The separator is a paragraph with only a character that `text`
  * does not contain. A format that does not keep these paragraphs apart from
- * the blocks is a bug. Returns the view blocks that each block gives.
+ * the blocks is a bug.
  *
  * @internal
  */
-export function roundTripAlone(
+export function roundTripIsolated(
   editor: BlockNoteEditor<any, any, any>,
   format: TextFormat,
   blocks: readonly BlockWithoutChildren[],
@@ -178,67 +151,64 @@ export function roundTripAlone(
 }
 
 /**
- * A view block that a source block gives alone (a part), and the index of that source block in `sources`.
+ * Returns the indexes of the source blocks that give a view block, in
+ * document order: view block `k` comes from source block `result[k]` (see
+ * `projectDocument`).
+ *
+ * This is an optimized function. The simple version is in
+ * `projectDocument.fuzz.test.ts`: the isolated round trip of each source
+ * block, one block at a time. That is slow for a large document. This
+ * function gives the same result with two shortcuts, and the fuzz test
+ * compares the two on random documents:
+ *
+ * 1. A block that the view shows as it is (see {@link shownMatches}) gives
+ *    that view block, without a round trip. Most blocks are such blocks.
+ * 2. The other blocks share one isolated round trip (see
+ *    {@link roundTripIsolated}).
+ *
+ * A layout block (for example a column) gets no round trip: isolated, the
+ * parse would fill it with new blocks. HTML shows a layout block as it is
+ * (shortcut 1). Markdown and plain text do not show it.
+ *
+ * In the example of {@link projectDocument}, "End" gives its view block
+ * without a round trip. The code block and the image share one round trip.
  */
-type Part = { part: FlatBlock; sourceIndex: number };
-
-/**
- * The parts of each source block. Their definition is one round trip for
- * each block alone (see `projectDocument`). This function gives the same
- * parts with two shortcuts. Each shortcut needs a property of the format,
- * thus `projectDocument.fuzz.test.ts` compares the result with the
- * definition on random documents.
- *
- * 1. A block that the view shows as it is (see {@link shownBlocks}) is its
- *    own part, without a round trip: alone, it gives one block with the same
- *    key. Most blocks are such blocks.
- * 2. The other blocks make one round trip together: one serialize and one
- *    parse, not one for each block (see {@link roundTripAlone}).
- *
- * A layout block (for example a column) is its own part: alone, the parse
- * would fill it with new blocks.
- *
- * In the example of {@link projectDocument}, "End" is its own part. The code
- * block and the image make one round trip together.
- */
-function partsOf(
+function sourcesOfView(
   editor: BlockNoteEditor<any, any, any>,
   format: TextFormat,
   sources: readonly FlatBlock[],
   view: readonly FlatBlock[],
   text: string,
-): Part[] {
-  const shown = shownBlocks(sources, view);
-  const needRoundTrip = notLayoutBlocks(editor, sources).filter(
-    (sourceIndex) => !shown.has(sourceIndex),
+): number[] {
+  const matches = shownMatches(sources, view);
+  const shown = new Set(matches.map(({ aIndex }) => aIndex));
+  const { layoutRuleOf } = schemaRulesOf(editor);
+  const isolated = sources.flatMap(({ block }, i) =>
+    shown.has(i) || layoutRuleOf(block.type) !== undefined ? [] : [i],
   );
-  const groups = roundTripAlone(
+  const results = roundTripIsolated(
     editor,
     format,
-    needRoundTrip.map((sourceIndex) => sources[sourceIndex].block),
+    isolated.map((i) => sources[i].block),
     text,
   );
-  const roundTripParts = new Map(
-    needRoundTrip.map((sourceIndex, k) => [sourceIndex, groups[k]]),
-  );
-  // Each other block (a layout block, or a block that the view shows as it
-  // is) is its own part.
-  return sources.flatMap((flat, sourceIndex) =>
-    (
-      roundTripParts.get(sourceIndex) ?? [{ ...flat, parentIndex: undefined }]
-    ).map((part) => ({ part, sourceIndex })),
-  );
-}
-
-/** The indexes of the source blocks that are not layout blocks. */
-function notLayoutBlocks(
-  editor: BlockNoteEditor<any, any, any>,
-  sources: readonly FlatBlock[],
-): number[] {
-  const { layoutRuleOf } = schemaRulesOf(editor);
-  return sources.flatMap(({ block }, sourceIndex) =>
-    layoutRuleOf(block.type) === undefined ? [sourceIndex] : [],
-  );
+  const countOf = new Map(isolated.map((i, k) => [i, results[k].length]));
+  const sourceOf = sources.flatMap(({ block }, i) => {
+    const count = shown.has(i) ? 1 : (countOf.get(i) ?? 0);
+    if (count > 1) {
+      throw new Error(
+        `The format shows a block of type "${block.type}" as more than one block. The export of a block type must read back as one block, or as no block.`,
+      );
+    }
+    return count === 1 ? [i] : [];
+  });
+  // A block that the view shows as it is must be at its place in that order.
+  for (const { aIndex, bIndex } of matches) {
+    if (sourceOf[bIndex] !== aIndex) {
+      throw new Error("The format does not show the blocks in document order");
+    }
+  }
+  return sourceOf;
 }
 
 /**
@@ -264,8 +234,8 @@ function viewOf(
 }
 
 /**
- * Returns the indexes of the source blocks that the view shows as they are:
- * the view block at the place of the block has the same key (see
+ * Returns the pairs of a source block and a view block that shows it as it
+ * is: the view block at the place of the block has the same key (see
  * `alignmentKey`). For a block with content, the key is its text and its
  * content shape. For a block without content, it is all its fields. The
  * anchored match of the keys gives the places. Example (plain text): the view
@@ -276,40 +246,33 @@ function viewOf(
  * count, for example an empty paragraph: all these blocks have almost the
  * same key, and the formats often hide them.
  *
- * The round trip of such a block alone gives one block with the same key.
- * Thus, the block is its own part, without a round trip. The three formats
- * have this property. A format that hides a block with text can break it:
- * if the view block next to the hidden block has the same key, the hidden
- * block is in the result, and that view block can link to it.
+ * The isolated round trip of such a block gives one block with the same key.
+ * Thus, the block needs no round trip. The three formats have this property.
+ * A format that hides a block with text can break it: if the view block next
+ * to the hidden block has the same key, the hidden block can get the link.
  */
-function shownBlocks(
+function shownMatches(
   sources: readonly FlatBlock[],
   view: readonly FlatBlock[],
-): Set<number> {
-  return new Set(
-    anchoredMatch(sources, view, ({ block }) => alignmentKey(block))
-      .filter(({ aIndex }) => {
-        const { block } = sources[aIndex];
-        return block.content === undefined || blockToText(block).trim() !== "";
-      })
-      .map(({ aIndex }) => aIndex),
-  );
+): MatchedPair[] {
+  return anchoredMatch(sources, view, ({ block }) =>
+    alignmentKey(block),
+  ).filter(({ aIndex }) => {
+    const { block } = sources[aIndex];
+    return block.content === undefined || blockToText(block).trim() !== "";
+  });
 }
 
 /**
  * Returns true if `view` is only the fill of the schema. The parse of a text
- * without blocks gives one empty paragraph, because a document needs a
- * block (markdown and HTML). No source block gave that paragraph. The text
- * has no blocks if no source block gives a part. Example: a document with
+ * without blocks gives one empty paragraph, because a document needs a block
+ * (markdown and HTML). `projectDocument` asks this only if no source block
+ * gives a view block, thus the text has no blocks. Example: a document with
  * only an image without a URL, in markdown (its text is empty) or in HTML
  * (its text is `<img>`).
  */
-function isSchemaFill(
-  view: readonly FlatBlock[],
-  parts: readonly Part[],
-): boolean {
+function isSchemaFill(view: readonly FlatBlock[]): boolean {
   return (
-    parts.length === 0 &&
     view.length === 1 &&
     Array.isArray(view[0].block.content) &&
     blockToText(view[0].block) === ""
@@ -338,24 +301,4 @@ function unusedMarker(text: string): string {
     }
   }
   throw new Error("The text contains all pairs of private use characters");
-}
-
-/**
- * Throws if the format shows a source block alone as more than one block. A
- * block type whose export reads back as more blocks is a bug of that block
- * type: the lens needs one view block at most for each block (see
- * `TextFormat`). The parts of a block are next to each other in `parts`.
- */
-function assertOnePartEach(
-  sources: readonly FlatBlock[],
-  parts: readonly Part[],
-): void {
-  for (let k = 1; k < parts.length; k++) {
-    if (parts[k].sourceIndex === parts[k - 1].sourceIndex) {
-      const { type } = sources[parts[k].sourceIndex].block;
-      throw new Error(
-        `The format shows a block of type "${type}" as more than one block. The export of a block type must read back as one block, or as no block.`,
-      );
-    }
-  }
 }

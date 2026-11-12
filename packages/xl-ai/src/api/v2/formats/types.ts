@@ -11,12 +11,14 @@ import type { LensBlock } from "../model.js";
  * images). But its parse must give only blocks that its serialize shows: the
  * round trip of each block of a parse gives a block again. Else, a write of a
  * text with such a block would add it again each time. The lens examines this
- * and throws for a format that breaks it (see `assertBlocksRoundTrip`). Also,
- * the round trip of one block alone must give one block at most: the lens
- * throws for a block that the format shows as more blocks (see
- * `projectWithParts`). If a
+ * and throws for a format that breaks it (see `assertBlocksRoundTrip`).
+ *
+ * Also, the text of a document must show the blocks in document order, and
+ * the isolated round trip of a block (see `roundTripIsolated`) must give the
+ * same view block as the full text, or no view block. The lens throws for a
+ * block that the format shows as more blocks (see `projectDocument`). If a
  * format hides a block with text, a view block next to it must not have the
- * same text and content shape (see `shownBlocks` in `projectDocument.ts`).
+ * same text and content shape (see `shownMatches` in `projectDocument.ts`).
  */
 export interface TextFormat {
   /** Renders blocks as text (the "get" of the lens). The same blocks must always give the same text. */

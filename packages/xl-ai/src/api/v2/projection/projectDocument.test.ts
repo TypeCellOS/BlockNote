@@ -12,7 +12,7 @@ import { htmlFormat } from "../formats/html.js";
 import { markdownFormat } from "../formats/markdown.js";
 import { plainTextFormat } from "../formats/plainText.js";
 import type { TextFormat } from "../formats/types.js";
-import { projectDocument, roundTripAlone } from "./projectDocument.js";
+import { projectDocument, roundTripIsolated } from "./projectDocument.js";
 import { columnSchema } from "../testUtil/fixtures.js";
 
 describe("projectDocument", () => {
@@ -169,7 +169,7 @@ describe("projectDocument", () => {
     expect(() =>
       projectDocument(editor, broken, editor.document as LensBlock[]),
     ).toThrow(
-      'The format shows a block of type "image" that no block of the document gives',
+      "The format shows 6 blocks, but the blocks of the document give 5",
     );
   });
 
@@ -193,11 +193,11 @@ describe("projectDocument", () => {
     ]);
   });
 
-  it("gives a block of the round trip the neighbors that it has in the text", () => {
+  it("links a block whose white space the view does not show, in a column", () => {
     // In the text, a blank line comes after the first paragraph. Thus, plain
     // text removes the white space at its end, and the view does not show
-    // it as it is. Its round trip needs a separator after it: else, its
-    // part keeps the white space, and does not link to the view block.
+    // the block as it is. The block gets the isolated round trip, and it
+    // links to its view block by its place in the document order.
     const columns = BlockNoteEditor.create({
       schema: columnSchema,
       initialContent: [
@@ -233,7 +233,7 @@ describe("projectDocument", () => {
   });
 });
 
-describe("roundTripAlone", () => {
+describe("roundTripIsolated", () => {
   it("keeps a block with one private use character apart, if the text has each of these characters", () => {
     // The separator is a paragraph with a private use character that the
     // text does not contain (see `unusedMarker`). This text has all of them,
@@ -249,7 +249,7 @@ describe("roundTripAlone", () => {
         { id: "beta", type: "paragraph", content: "Beta" },
       ],
     });
-    const groups = roundTripAlone(
+    const groups = roundTripIsolated(
       editor,
       plainTextFormat,
       editor.document as LensBlock[],

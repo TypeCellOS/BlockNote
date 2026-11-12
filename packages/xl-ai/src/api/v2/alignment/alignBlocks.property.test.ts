@@ -3,13 +3,7 @@ import { describe, expect, it } from "vite-plus/test";
 
 import type { FlatBlock, LensBlock } from "../model.js";
 import { createRandom, type Random } from "../testUtil/random.js";
-import {
-  alignBlocks,
-  alignmentKey,
-  type BlockPair,
-  canBeSameBlock,
-  linkBlocks,
-} from "./alignBlocks.js";
+import { alignBlocks, alignmentKey, type BlockPair } from "./alignBlocks.js";
 
 function paragraph(text: string): LensBlock {
   return {
@@ -188,47 +182,5 @@ describe("alignBlocks: properties", () => {
     expect(sorted(alignBlocks(flat("old"), flat("new")))).toEqual([[0, 0]]);
     // A different shape does not match.
     expect(alignBlocks(flat("old"), flat(image("a.png")))).toEqual([]);
-  });
-});
-
-describe("linkBlocks: properties", () => {
-  it("links each block to itself for equal lists", () => {
-    const random = createRandom(54);
-    for (let run = 0; run < 100; run++) {
-      const blocks = flat(
-        ...Array.from({ length: random.int(12) }, () => randomBlock(random)),
-      );
-      expect(linkBlocks(blocks, blocks)).toEqual(blocks.map((_, i) => i));
-    }
-  });
-
-  it("gives one-to-one links in order, to blocks of the same shape", () => {
-    const random = createRandom(55);
-    for (let run = 0; run < 300; run++) {
-      const before = Array.from({ length: random.int(10) }, () =>
-        randomBlock(random),
-      );
-      const parts = flat(...before);
-      const view = flat(...edit(random, before));
-      const links = linkBlocks(parts, view);
-      expect(links).toHaveLength(view.length);
-      const linked = links.flatMap((link, viewIndex) =>
-        link === undefined ? [] : [[link, viewIndex]],
-      );
-      for (let i = 0; i < linked.length; i++) {
-        const [part, viewIndex] = linked[i];
-        expect(canBeSameBlock(parts[part].block, view[viewIndex].block)).toBe(
-          true,
-        );
-        if (i > 0) {
-          expect(part).toBeGreaterThan(linked[i - 1][0]);
-        }
-      }
-    }
-  });
-
-  it("gives no links if a list is empty", () => {
-    expect(linkBlocks([], flat("a"))).toEqual([undefined]);
-    expect(linkBlocks(flat("a"), [])).toEqual([]);
   });
 });

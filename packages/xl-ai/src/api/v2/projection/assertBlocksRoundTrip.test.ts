@@ -12,7 +12,7 @@ import { projectDocument } from "./projectDocument.js";
  * A markdown format with a bug: for a text with the word "changed", its parse
  * adds an image without a URL, which markdown does not show. The text of the
  * document does not have the word, thus the view does not show the bug (else,
- * the projection throws first, see `projectWithParts`).
+ * the projection throws first, see `projectDocument`).
  */
 const brokenFormat: TextFormat = {
   serialize: (editor, blocks) => markdownFormat.serialize(editor, blocks),

@@ -2,12 +2,7 @@
 import { describe, expect, it } from "vite-plus/test";
 
 import type { FlatBlock, LensBlock } from "../model.js";
-import {
-  alignBlocks,
-  alignmentKey,
-  canBeSameBlock,
-  linkBlocks,
-} from "./alignBlocks.js";
+import { alignBlocks, alignmentKey, canBeSameBlock } from "./alignBlocks.js";
 
 function paragraph(text: string): LensBlock {
   return {
@@ -232,34 +227,6 @@ describe("alignBlocks", () => {
       [1, 2],
       [2, 0],
       [3, 3],
-    ]);
-  });
-});
-
-describe("linkBlocks", () => {
-  it("links the view blocks to the parts with equal keys, and the other blocks in order", () => {
-    // The view shows the second part as a heading, with a different text.
-    expect(
-      linkBlocks(
-        flat("Title", "const a = 1;", "const b = 2;", "End"),
-        flat("Title", "const a = 1;", "# const b = 2;", "End"),
-      ),
-    ).toEqual([0, 1, 2, 3]);
-  });
-
-  it("does not link a view block without a part", () => {
-    expect(linkBlocks(flat("a"), flat("a", "unrelated"))).toEqual([
-      0,
-      undefined,
-    ]);
-  });
-
-  it("does not link blocks between anchors if the number of blocks is different", () => {
-    expect(linkBlocks(flat("a", "b", "z"), flat("a", "x", "y", "z"))).toEqual([
-      0,
-      undefined,
-      undefined,
-      2,
     ]);
   });
 });

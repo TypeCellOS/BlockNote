@@ -1,6 +1,7 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import { describe, expect, it } from "vite-plus/test";
 
+import { alignmentKey } from "../alignment/index.js";
 import type { FlatBlock, LensBlock } from "../model.js";
 import { htmlFormat } from "../formats/html.js";
 import { markdownFormat } from "../formats/markdown.js";
@@ -9,39 +10,39 @@ import type { TextFormat } from "../formats/types.js";
 import { flattenBlocks, schemaRulesOf } from "../util/blocks/index.js";
 import { createRandom } from "../testUtil/random.js";
 import { randomRichDocument, richSchema } from "../testUtil/richRandom.js";
-import {
-  projectDocument,
-  projectWithParts,
-  roundTripAlone,
-} from "./projectDocument.js";
+import { projectDocument, roundTripIsolated } from "./projectDocument.js";
 
 /**
- * The definition of the parts: one round trip for each block alone, without
- * the two shortcuts of `partsOf`. A layout block (for example a column) is
- * its own part: alone, the parse would fill it with new blocks.
+ * The simple version of `sourcesOfView` (in `projectDocument.ts`): the
+ * isolated round trip of each source block, one block at a time, without the
+ * two shortcuts. Returns the view blocks that the source blocks give, in
+ * document order, each with the index of its source block. A layout block
+ * gets no round trip (isolated, the parse would fill it with new blocks): it
+ * gives itself if the view has a block with its key.
  */
-function partsOfEachBlock(
+function isolatedResults(
   editor: BlockNoteEditor<any, any, any>,
   format: TextFormat,
   sources: readonly FlatBlock[],
+  view: readonly FlatBlock[],
   text: string,
-): { part: FlatBlock; sourceIndex: number }[] {
+): { sourceIndex: number; flat: FlatBlock }[] {
   const { layoutRuleOf } = schemaRulesOf(editor);
-  return sources.flatMap((flat, sourceIndex) => {
-    if (layoutRuleOf(flat.block.type) !== undefined) {
-      return [{ part: { ...flat, parentIndex: undefined }, sourceIndex }];
+  const viewKeys = new Set(view.map(({ block }) => alignmentKey(block)));
+  return sources.flatMap((source, sourceIndex) => {
+    if (layoutRuleOf(source.block.type) !== undefined) {
+      return viewKeys.has(alignmentKey(source.block))
+        ? [{ sourceIndex, flat: source }]
+        : [];
     }
-    const [own] = roundTripAlone(editor, format, [flat.block], text);
-    return own.map((part) => ({ part, sourceIndex }));
+    const [result] = roundTripIsolated(editor, format, [source.block], text);
+    return result.map((flat) => ({ sourceIndex, flat }));
   });
 }
 
 /**
- * The two shortcuts of `partsOf` need properties of the format (see its doc
- * comment). This test compares the projection with the projection of the
- * definition, on random documents with all kinds of blocks (see
- * `randomRichDocument`). A view block without a link throws in
- * `projectDocument` (the format contract).
+ * The format contract and the two shortcuts of `sourcesOfView`, on random
+ * documents with all kinds of blocks (see `randomRichDocument`).
  */
 const SEEDS = Array.from({ length: 150 }, (_, i) => i + 1);
 
@@ -53,7 +54,7 @@ describe.each([
   "the projection of random documents with all kinds of blocks ($name)",
   ({ name, format }) => {
     it.each(SEEDS)(
-      "gives the same parts as one round trip for each block, for seed %i",
+      "links each view block to the source block that gives it, for seed %i",
       (seed) => {
         // The same seed as in `api.fuzz.test.ts` gives the same document.
         const random = createRandom(seed * 7919 + name.length);
@@ -63,15 +64,24 @@ describe.each([
         });
         const document = editor.document as LensBlock[];
         const text = format.serialize(editor, document);
+        const sources = flattenBlocks(document);
 
         const projection = projectDocument(editor, format, document, text);
-        const sources = flattenBlocks(document);
-        expect(projection).toEqual(
-          projectWithParts(
-            sources,
-            projection.view,
-            partsOfEachBlock(editor, format, sources, text),
-          ),
+        const results = isolatedResults(
+          editor,
+          format,
+          sources,
+          projection.view,
+          text,
+        );
+        // The format contract: the view is the isolated results of the
+        // source blocks, in document order.
+        expect(projection.view.map(({ block }) => alignmentKey(block))).toEqual(
+          results.map(({ flat }) => alignmentKey(flat.block)),
+        );
+        // The shortcuts give the same links as the simple version.
+        expect(projection.view.map(({ sourceId }) => sourceId)).toEqual(
+          results.map(({ sourceIndex }) => sources[sourceIndex].block.id),
         );
       },
     );
