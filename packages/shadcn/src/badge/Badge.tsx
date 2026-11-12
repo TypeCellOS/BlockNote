@@ -15,6 +15,7 @@ export const Badge = forwardRef<
     icon,
     isSelected,
     mainTooltip,
+    label,
     secondaryTooltip,
     onClick,
     onMouseEnter,
@@ -41,7 +42,7 @@ export const Badge = forwardRef<
       )}
       onClick={onClick}
       onMouseEnter={onMouseEnter}
-      aria-label={mainTooltip}
+      aria-label={label}
       // Forward ARIA attributes and handlers injected by PopoverTrigger.
       {...rest}
       ref={ref}
