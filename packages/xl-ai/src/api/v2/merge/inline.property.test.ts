@@ -6,6 +6,7 @@ import { createRandom, type Random } from "../testUtil/random.js";
 import { inlineContentToText } from "../util/blocks/text.js";
 import { mergeInlineContent } from "./inline.js";
 import { fromUnits, toUnits } from "./inlineUnits.js";
+import { mergeOptions } from "../testUtil/merge.js";
 
 const WORDS = ["one", "two", "three", "four", "x", "😀", "é", "ab"];
 
@@ -91,7 +92,9 @@ describe("mergeInlineContent: laws on random content", () => {
         const base = randomContent(random);
         const theirs = randomContent(random);
         expect(
-          canonical(mergeInlineContent(base, base, theirs, { concurrent })),
+          canonical(
+            mergeInlineContent(base, base, theirs, mergeOptions(concurrent)),
+          ),
         ).toEqual(canonical(theirs));
       }
     });
@@ -102,7 +105,9 @@ describe("mergeInlineContent: laws on random content", () => {
         const base = randomContent(random);
         const ours = randomContent(random);
         expect(
-          canonical(mergeInlineContent(base, ours, base, { concurrent })),
+          canonical(
+            mergeInlineContent(base, ours, base, mergeOptions(concurrent)),
+          ),
         ).toEqual(canonical(ours));
       }
     });
@@ -113,10 +118,12 @@ describe("mergeInlineContent: laws on random content", () => {
         const base = randomContent(random);
         const changed = randomContent(random);
         let conflicts = 0;
-        const result = mergeInlineContent(base, changed, changed, {
-          concurrent,
-          onConflict: () => conflicts++,
-        });
+        const result = mergeInlineContent(
+          base,
+          changed,
+          changed,
+          mergeOptions(concurrent, () => conflicts++),
+        );
         expect(canonical(result)).toEqual(canonical(changed));
         expect(conflicts).toBe(0);
       }
@@ -145,7 +152,7 @@ describe("mergeInlineContent: laws on random content", () => {
       );
       let conflicts = 0;
       const result = mergeInlineContent(text(words), text(ours), text(theirs), {
-        concurrent: true,
+        kind: "document",
         onConflict: () => conflicts++,
       });
       expect(inlineContentToText(result)).toBe(both.join(" "));

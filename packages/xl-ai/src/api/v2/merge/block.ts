@@ -10,7 +10,12 @@ import {
 import { deepEqual, inlineContentToText } from "../util/blocks/index.js";
 import { mergeInlineContent } from "./inline.js";
 import { mergeTableContent } from "./table.js";
-import { type MergeOptions, mergeRecords, mergeValue } from "./threeWay.js";
+import {
+  type MergeOptions,
+  mergeRecords,
+  mergeValue,
+  TARGET_WITHOUT_SHADOWS,
+} from "./threeWay.js";
 
 /**
  * Three-way merge of the fields of one block (see `threeWay.ts` for the
@@ -38,7 +43,7 @@ export function mergeBlock(
   ours: BlockFields,
   theirs: BlockFields,
   contentKindOf: (type: string) => ContentKind,
-  options: MergeOptions = {},
+  options: MergeOptions = TARGET_WITHOUT_SHADOWS,
 ): BlockFields {
   const contentChanged = !deepEqual(base.content, ours.content);
   const merged = mergeValue(base.type, ours.type, theirs.type, options);
@@ -47,17 +52,17 @@ export function mergeBlock(
     contentChanged &&
     merged !== ours.type &&
     !canHold(contentKindOf(merged), ours.content);
-  if (clash) {
-    options.onConflict?.();
+  if (clash && options.kind === "document") {
+    options.onConflict();
   }
-  const type = clash && !options.concurrent ? ours.type : merged;
+  const type = clash && options.kind === "target" ? ours.type : merged;
   const kind = contentKindOf(type);
   // If the content did not change, the content of theirs stays as one item.
   // This is also correct for content that a piece-by-piece merge cannot
   // merge, for example a table with merged cells (the format shows them as
   // separate cells).
   const content =
-    clash && options.concurrent
+    clash && options.kind === "document"
       ? // The change of the content of ours is lost.
         theirs.content
       : contentKindOf(theirs.type) !== kind

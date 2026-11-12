@@ -4,6 +4,7 @@ import { describe, expect, it } from "vite-plus/test";
 import type { LensTableCell, LensTableContent } from "../model.js";
 import { createRandom, type Random } from "../testUtil/random.js";
 import { mergeTableContent } from "./table.js";
+import { mergeOptions } from "../testUtil/merge.js";
 
 function cell(text: string, backgroundColor = "default"): LensTableCell {
   return {
@@ -98,7 +99,7 @@ describe("mergeTableContent: laws on random tables", () => {
         const base = randomTable(random);
         const theirs = edit(random, base);
         expect(
-          grid(mergeTableContent(base, base, theirs, { concurrent })),
+          grid(mergeTableContent(base, base, theirs, mergeOptions(concurrent))),
         ).toEqual(grid(theirs));
       }
     });
@@ -109,7 +110,7 @@ describe("mergeTableContent: laws on random tables", () => {
         const base = randomTable(random);
         const ours = edit(random, base);
         expect(
-          grid(mergeTableContent(base, ours, base, { concurrent })),
+          grid(mergeTableContent(base, ours, base, mergeOptions(concurrent))),
         ).toEqual(grid(ours));
       }
     });
@@ -120,10 +121,12 @@ describe("mergeTableContent: laws on random tables", () => {
         const base = randomTable(random);
         const changed = edit(random, base);
         let conflicts = 0;
-        const result = mergeTableContent(base, changed, changed, {
-          concurrent,
-          onConflict: () => conflicts++,
-        });
+        const result = mergeTableContent(
+          base,
+          changed,
+          changed,
+          mergeOptions(concurrent, () => conflicts++),
+        );
         expect(grid(result)).toEqual(grid(changed));
         expect(conflicts).toBe(0);
       }
@@ -157,9 +160,12 @@ describe("mergeTableContent: laws on random tables", () => {
       );
       expect(
         grid(
-          mergeTableContent(table(rows), table(ours), table(theirs), {
-            concurrent: true,
-          }),
+          mergeTableContent(
+            table(rows),
+            table(ours),
+            table(theirs),
+            mergeOptions(true),
+          ),
         ),
       ).toEqual(grid(table(both)));
     }
@@ -176,7 +182,7 @@ describe("mergeTableContent: rows with equal text and a different number of cell
     const base = table([[cell("a\u0000b")]]);
     const ours = table([[cell("a"), cell("b")]]);
     expect(
-      grid(mergeTableContent(base, ours, base, { concurrent: true })),
+      grid(mergeTableContent(base, ours, base, mergeOptions(true))),
     ).toEqual([["a", "b"]]);
   });
 
@@ -187,7 +193,7 @@ describe("mergeTableContent: rows with equal text and a different number of cell
     const ours = table([[cell("a\u0000b")], [cell("k2")]]);
     const theirs = table([[cell("a"), cell("b")], [cell("k")]]);
     expect(
-      grid(mergeTableContent(base, ours, theirs, { concurrent: true })),
+      grid(mergeTableContent(base, ours, theirs, mergeOptions(true))),
     ).toEqual([["a", "b"], ["k2"]]);
   });
 });

@@ -221,7 +221,7 @@ function mergeParents(
       return theirs.parent(id);
     }
     return mergeValue(base.parent(id), ours.parent(id), theirs.parent(id), {
-      concurrent: true,
+      kind: "document",
       onConflict: () => conflicts.add(id),
     });
   }
@@ -458,7 +458,7 @@ function mergeFields(
     theirs.block(id),
     contentKindOf,
     {
-      concurrent: true,
+      kind: "document",
       onConflict: () => {
         conflict = true;
       },

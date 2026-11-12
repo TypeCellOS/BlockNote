@@ -126,7 +126,7 @@ describe("mergeTableContent", () => {
         ],
         1,
       ),
-      { concurrent: true, onConflict: () => conflicts++ },
+      { kind: "document", onConflict: () => conflicts++ },
     );
     expect(merged.headerRows).toBe(1);
     expect(merged.rows.map((row) => row.cells.length)).toEqual([3, 3]);

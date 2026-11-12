@@ -8,7 +8,12 @@ import {
   sameUnitWithStyles,
   toUnits,
 } from "./inlineUnits.js";
-import { type MergeOptions, mergeRecords, mergeValue } from "./threeWay.js";
+import {
+  type MergeOptions,
+  mergeRecords,
+  mergeValue,
+  TARGET_WITHOUT_SHADOWS,
+} from "./threeWay.js";
 
 /**
  * Three-way merge (diff3) of inline content, character by character (see
@@ -34,11 +39,12 @@ export function mergeInlineContent(
   base: readonly LensInlineContent[],
   ours: readonly LensInlineContent[],
   theirs: readonly LensInlineContent[],
-  options: MergeOptions = {},
+  options: MergeOptions = TARGET_WITHOUT_SHADOWS,
 ): LensInlineContent[] {
+  const concurrent = options.kind === "document";
   const o = toUnits(base);
   const a = toUnits(ours);
-  const b = toUnits(theirs, options.shadowOf);
+  const b = toUnits(theirs, concurrent ? undefined : options.shadowOf);
 
   return fromUnits(
     diff3(o, a, b, alignUnits(o, a), alignUnits(o, b), {
@@ -56,16 +62,14 @@ export function mergeInlineContent(
       // (of the other writer) stays first. Thus, two additions at the end
       // read in the order of the writes. (The document merge puts the blocks of
       // the client first, see `merge/document.ts`.)
-      keepBothInserts: options.concurrent ? "theirs-first" : undefined,
+      keepBothInserts: concurrent ? "theirs-first" : undefined,
       // In the target stage, an item of theirs without a base unit is an item that
       // the format does not show (for example a mention in plain text). The
       // text cannot remove it, thus it stays. Whitespace is not an item: the
       // format can change it.
-      keepTheirs: options.concurrent
-        ? undefined
-        : (unit) => unit.kind === "atom",
-      conflict: options.onConflict,
-      conflictWinner: options.concurrent ? "theirs" : "ours",
+      keepTheirs: concurrent ? undefined : (unit) => unit.kind === "atom",
+      conflict: concurrent ? options.onConflict : undefined,
+      conflictWinner: concurrent ? "theirs" : "ours",
       // The alignment pairs characters without their styles. Thus, a
       // character with a changed style is a change.
       same: sameUnitWithStyles,

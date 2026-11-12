@@ -9,7 +9,12 @@ import {
 import { gaps, type MatchedPair, myersMatch } from "../util/sequence/index.js";
 import { diff3 } from "./diff3.js";
 import { mergeInlineContent } from "./inline.js";
-import { type MergeOptions, mergeRecords, mergeValue } from "./threeWay.js";
+import {
+  type MergeOptions,
+  mergeRecords,
+  mergeValue,
+  TARGET_WITHOUT_SHADOWS,
+} from "./threeWay.js";
 
 /**
  * Three-way merge of table content, row by row (diff3, see `alignRows`) and
@@ -33,8 +38,9 @@ export function mergeTableContent(
   base: LensTableContent,
   ours: LensTableContent,
   theirs: LensTableContent,
-  options: MergeOptions = {},
+  options: MergeOptions = TARGET_WITHOUT_SHADOWS,
 ): LensTableContent {
+  const concurrent = options.kind === "document";
   if (!hasMergedCells(base) && hasMergedCells(theirs)) {
     // A format without merged cells (markdown, plain text) shows a merged
     // cell as the cell and empty cells at the positions that it covers. The
@@ -68,12 +74,14 @@ export function mergeTableContent(
         ),
       ours: (units) => units,
       // As for text (see `merge/inline.ts`): the rows that applied first stay first.
-      keepBothInserts: options.concurrent ? "theirs-first" : undefined,
+      keepBothInserts: concurrent ? "theirs-first" : undefined,
       conflict: () => {
         rowConflict = true;
-        options.onConflict?.();
+        if (concurrent) {
+          options.onConflict();
+        }
       },
-      conflictWinner: options.concurrent ? "theirs" : "ours",
+      conflictWinner: concurrent ? "theirs" : "ours",
       // `alignRows` also pairs rows with changed text.
       same: (baseRow, otherRow) => deepEqual(baseRow, otherRow),
     },
@@ -81,7 +89,7 @@ export function mergeTableContent(
 
   const field = <T>(baseValue: T, ourValue: T, theirValue: T): T =>
     rowConflict
-      ? options.concurrent
+      ? concurrent
         ? theirValue
         : ourValue
       : mergeValue(baseValue, ourValue, theirValue, options);

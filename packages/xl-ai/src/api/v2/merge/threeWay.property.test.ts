@@ -4,6 +4,7 @@ import { describe, expect, it } from "vite-plus/test";
 import { deepEqual } from "../util/blocks/json.js";
 import { createRandom } from "../testUtil/random.js";
 import { mergeRecords, mergeValue } from "./threeWay.js";
+import { mergeOptions } from "../testUtil/merge.js";
 
 const VALUES: unknown[] = [
   undefined,
@@ -21,21 +22,25 @@ const VALUES: unknown[] = [
 ];
 
 describe("mergeValue: laws on all triples of a set of values", () => {
-  it("follows the three-way rule, and calls onConflict only for a real conflict", () => {
+  it("follows the three-way rule, and calls onConflict only for a real conflict of the document merge", () => {
     for (const concurrent of [false, true]) {
       for (const base of VALUES) {
         for (const ours of VALUES) {
           for (const theirs of VALUES) {
             let conflicts = 0;
-            const result = mergeValue(base, ours, theirs, {
-              concurrent,
-              onConflict: () => conflicts++,
-            });
+            const result = mergeValue(
+              base,
+              ours,
+              theirs,
+              mergeOptions(concurrent, () => conflicts++),
+            );
             const oursChanged = !deepEqual(base, ours);
             const theirsChanged = !deepEqual(base, theirs);
             const conflict =
               oursChanged && theirsChanged && !deepEqual(ours, theirs);
-            expect(conflicts).toBe(conflict ? 1 : 0);
+            // Only the document merge reports a conflict (the target stage
+            // has no warning for it).
+            expect(conflicts).toBe(conflict && concurrent ? 1 : 0);
             if (!oursChanged) {
               expect(result).toBe(theirs);
             } else if (!conflict) {
@@ -54,7 +59,7 @@ describe("mergeValue: laws on all triples of a set of values", () => {
       for (const ours of VALUES) {
         for (const theirs of VALUES) {
           const forward = mergeValue(base, ours, theirs);
-          const backward = mergeValue(base, theirs, ours, { concurrent: true });
+          const backward = mergeValue(base, theirs, ours, mergeOptions(true));
           expect(deepEqual(forward, backward)).toBe(true);
         }
       }

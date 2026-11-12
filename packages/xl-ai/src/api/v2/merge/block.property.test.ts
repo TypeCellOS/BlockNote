@@ -5,6 +5,7 @@ import type { BlockFields, ContentKind, LensBlockContent } from "../model.js";
 import { createRandom, type Random } from "../testUtil/random.js";
 import { deepEqual } from "../util/blocks/json.js";
 import { mergeBlock } from "./block.js";
+import { mergeOptions } from "../testUtil/merge.js";
 
 const KINDS: Record<string, ContentKind> = {
   paragraph: "inline",
@@ -100,9 +101,13 @@ describe("mergeBlock: laws on random blocks", () => {
       for (let run = 0; run < 300; run++) {
         const base = randomBlock(random);
         const theirs = edit(random, base);
-        const result = mergeBlock(base, base, theirs, contentKindOf, {
-          concurrent,
-        });
+        const result = mergeBlock(
+          base,
+          base,
+          theirs,
+          contentKindOf,
+          mergeOptions(concurrent),
+        );
         expect({ run, result }).toEqual({ run, result: theirs });
       }
     });
@@ -112,9 +117,13 @@ describe("mergeBlock: laws on random blocks", () => {
       for (let run = 0; run < 300; run++) {
         const base = randomBlock(random);
         const ours = edit(random, base);
-        const result = mergeBlock(base, ours, base, contentKindOf, {
-          concurrent,
-        });
+        const result = mergeBlock(
+          base,
+          ours,
+          base,
+          contentKindOf,
+          mergeOptions(concurrent),
+        );
         expect({ run, result }).toEqual({ run, result: ours });
       }
     });
@@ -125,10 +134,13 @@ describe("mergeBlock: laws on random blocks", () => {
         const base = randomBlock(random);
         const changed = edit(random, base);
         let conflicts = 0;
-        const result = mergeBlock(base, changed, changed, contentKindOf, {
-          concurrent,
-          onConflict: () => conflicts++,
-        });
+        const result = mergeBlock(
+          base,
+          changed,
+          changed,
+          contentKindOf,
+          mergeOptions(concurrent, () => conflicts++),
+        );
         expect({ run, result }).toEqual({ run, result: changed });
         expect(conflicts).toBe(0);
       }
@@ -154,9 +166,13 @@ describe("mergeBlock: laws on random blocks", () => {
       const ours = edit(random, base);
       const theirs = edit(random, base);
       for (const concurrent of [false, true]) {
-        const result = mergeBlock(base, ours, theirs, contentKindOf, {
-          concurrent,
-        });
+        const result = mergeBlock(
+          base,
+          ours,
+          theirs,
+          contentKindOf,
+          mergeOptions(concurrent),
+        );
         expect({ run, concurrent, shape: shapeOf(result.content) }).toEqual({
           run,
           concurrent,

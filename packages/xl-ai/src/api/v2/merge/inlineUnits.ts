@@ -22,7 +22,7 @@ import {
  * - One unit for each item of custom inline content, for example a mention.
  *   The merge compares this unit as one item.
  * - With `shadowOf`, an item that the format shows as text is the characters
- *   of that text, its shadow (see `MergeOptions.shadowOf`). Each character
+ *   of that text, its shadow (see `shadowOf` in `MergeOptions`). Each character
  *   knows its item. If all characters of a shadow stay, {@link fromUnits}
  *   gives back the item.
  *

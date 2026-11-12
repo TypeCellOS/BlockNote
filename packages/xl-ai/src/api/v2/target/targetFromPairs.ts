@@ -63,6 +63,7 @@ export function targetFromPairs(input: TargetInput): TargetResult {
     const { block: base, sourceId: id } = view[pair.aIndex];
     const source = sourceIndex.block(id);
     const fields = mergeBlock(base, text, source, input.contentKindOf, {
+      kind: "target",
       shadowOf: input.shadowOf,
     });
     if (base.type === text.type && fields.type !== source.type) {
