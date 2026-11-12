@@ -114,14 +114,16 @@ function inheritHiddenStyles(
   unit: InlineUnit,
   { before, after }: RunContext<InlineUnit>,
   /** The styles of the replaced text (see {@link commonOf}). */
-  old: StableTriple<InlineUnit> | undefined,
+  old: StyleContext | undefined,
 ): InlineUnit {
   if (unit.kind !== "char") {
     return unit;
   }
-  const sides = (old !== undefined ? [old, old] : [before, after]).map(
-    (context) => inheritFrom(unit, context),
-  );
+  const sides = (
+    old !== undefined
+      ? [old, old]
+      : [styleContextOf(before), styleContextOf(after)]
+  ).map((context) => inheritFrom(unit, context));
   const [fromBefore, fromAfter] = sides;
   if (fromBefore === undefined || fromAfter === undefined) {
     return unit;
@@ -150,28 +152,42 @@ function inheritHiddenStyles(
   };
 }
 
+/** The styles and the link of a character. */
+type Style = { styles: LensStyles; href: string | undefined };
+
+/** The style of the base and of theirs that new text merges with (see {@link inheritFrom}). */
+type StyleContext = { base: Style; theirs: Style };
+
+/** The style context of a stable character, or `undefined` for a stable item that is not a character. */
+function styleContextOf(
+  triple: StableTriple<InlineUnit> | undefined,
+): StyleContext | undefined {
+  return triple?.base.kind === "char" && triple.theirs.kind === "char"
+    ? { base: triple.base, theirs: triple.theirs }
+    : undefined;
+}
+
 /**
  * The styles and the link that all characters of the replaced base and of
- * the replaced theirs have, as one triple. Whitespace does not count (see
- * `isContext`). `undefined` if a side has no such character.
+ * the replaced theirs have. Whitespace does not count (see `isContext`).
+ * `undefined` if a side has no such character.
  */
 function commonOf(
   base: readonly InlineUnit[],
   theirs: readonly InlineUnit[],
-): StableTriple<InlineUnit> | undefined {
-  const baseUnit = commonStyle(base);
-  const theirsUnit = commonStyle(theirs);
-  return baseUnit === undefined || theirsUnit === undefined
+): StyleContext | undefined {
+  const baseStyle = commonStyle(base);
+  const theirsStyle = commonStyle(theirs);
+  return baseStyle === undefined || theirsStyle === undefined
     ? undefined
-    : { base: baseUnit, ours: baseUnit, theirs: theirsUnit };
+    : { base: baseStyle, theirs: theirsStyle };
 }
 
 /**
- * A character unit without a character, with the styles and the link that
- * all characters of `units` have (whitespace does not count). `undefined`
- * if `units` has no such character.
+ * The styles and the link that all characters of `units` have (whitespace
+ * does not count). `undefined` if `units` has no such character.
  */
-function commonStyle(units: readonly InlineUnit[]): InlineUnit | undefined {
+function commonStyle(units: readonly InlineUnit[]): Style | undefined {
   const chars = units.filter(
     (unit): unit is InlineUnit & { kind: "char" } =>
       unit.kind === "char" && !/\s/u.test(unit.char),
@@ -187,19 +203,17 @@ function commonStyle(units: readonly InlineUnit[]): InlineUnit | undefined {
   }
   const { href } = chars[0];
   return {
-    kind: "char",
-    char: "",
     styles,
     href: chars.every((char) => char.href === href) ? href : undefined,
   };
 }
 
-/** The styles and link of the new character, merged with one stable character as the base and theirs. */
+/** The styles and link of the new character, merged with a context as the base and theirs. */
 function inheritFrom(
   unit: InlineUnit & { kind: "char" },
-  context: StableTriple<InlineUnit> | undefined,
-): { styles: LensStyles; href: string | undefined } | undefined {
-  if (context?.base.kind !== "char" || context.theirs.kind !== "char") {
+  context: StyleContext | undefined,
+): Style | undefined {
+  if (context === undefined) {
     return undefined;
   }
   return {
