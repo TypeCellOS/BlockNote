@@ -6,9 +6,8 @@ import {
   TOP_LEVEL,
   withoutChildren,
 } from "../util/blocks/index.js";
-import { type MatchedPair, myersMatch } from "../util/sequence/index.js";
+import { myersMatch } from "../util/sequence/index.js";
 import { mergeBlock } from "./block.js";
-import { diff3 } from "./diff3.js";
 import { mergeValue } from "./threeWay.js";
 
 export type MergeWarning =
@@ -50,8 +49,8 @@ export type MergeWarning =
  * paragraph of the client in a column that another writer removed is in the
  * column list.
  *
- * Method: our own design. Step 3 uses diff3 on the lists of child IDs, and step
- * 4 the three-way rule.
+ * Method: our own design. Step 3 applies the moves and the new blocks of the
+ * client to the order of `theirs`, and step 4 uses the three-way rule.
  */
 export function mergeDocument(input: {
   base: readonly LensBlock[];
@@ -321,20 +320,20 @@ function mergeChildOrders(
   conflicts: Set<string>;
 } {
   /** The children of each parent in the result, in no order yet. */
-  const expected = new Map<Parent, string[]>();
+  const unordered = new Map<Parent, string[]>();
   for (const id of staying.list) {
     const parent = parentOf.get(id);
-    const list = expected.get(parent);
+    const list = unordered.get(parent);
     if (list === undefined) {
-      expected.set(parent, [id]);
+      unordered.set(parent, [id]);
     } else {
       list.push(id);
     }
   }
   const conflicts = new Set<string>();
   const childrenOf = new Map<Parent, string[]>();
-  for (const [parent, ids] of expected) {
-    const merged = mergeChildOrder(sides, staying, parentOf, parent, ids);
+  for (const [parent, children] of unordered) {
+    const merged = mergeChildOrder(sides, staying, parentOf, parent, children);
     childrenOf.set(parent, merged.order);
     for (const id of merged.conflicts) {
       conflicts.add(id);
@@ -344,14 +343,20 @@ function mergeChildOrders(
 }
 
 /**
- * The order of the children of one parent: a three-way merge of the lists of
- * child IDs (`diff3`).
+ * The order of the children of one parent. The order of `theirs` (the
+ * current document) stays, and the moves and the new blocks of the client
+ * apply to it: each such block goes after the block before it in the list of
+ * the client, or first (as in `diffDocuments`).
  *
  * - A block that one side moved goes to the place of that side.
  * - If the two sides moved a block to different places in this list, the
  *   place of `theirs` wins, and that is a conflict.
  * - If both sides add blocks at one position, both stay: the blocks of the
  *   client come first, as the client wrote them after the block before.
+ *
+ * Example: the base list is `[a, b, c]`. The client moved c first:
+ * `[c, a, b]`. Another writer added x: `[a, x, b, c]`. The result starts
+ * from `[a, x, b, c]`, and c goes first: `[c, a, x, b]`.
  */
 function mergeChildOrder(
   sides: Sides,
@@ -359,7 +364,7 @@ function mergeChildOrder(
   parentOf: ReadonlyMap<string, Parent>,
   parent: Parent,
   /** The children of the parent in the result. */
-  expected: readonly string[],
+  children: readonly string[],
 ): { order: string[]; conflicts: string[] } {
   /**
    * The child IDs of `parent` in one side, as the result has them: a child
@@ -381,45 +386,53 @@ function mergeChildOrder(
     return [...result];
   }
 
-  const o = sideChildren(sides.base);
+  const baseList = sideChildren(sides.base);
   // A side that moved a block of this list to a parent that lost (see
   // `mergeParents`, for example in a cycle) does not remove the block here.
   // Thus, the block stays at its base place in that side.
-  const [a, b] = [sides.ours, sides.theirs].map((side) =>
-    withBasePlaces(sideChildren(side), o, expected),
+  const [ourList, theirList] = [sides.ours, sides.theirs].map((side) =>
+    withBasePlaces(sideChildren(side), baseList, children),
   );
-  // One object for each ID in each side: the merge result then tells the
-  // side of each unit. The units of the sides must also be equal by value:
-  // diff3 compares the changed runs of the two sides with `deepEqual` (the
-  // two sides made the same change). Thus, a unit cannot carry its side as
-  // a field.
-  const [baseUnits, ourUnits, theirUnits] = [o, a, b].map((ids) =>
-    ids.map((id) => ({ id })),
+  const oursKept = keptInOrder(baseList, ourList);
+  const theirsKept = keptInOrder(baseList, theirList);
+  /** The block before each block in the list of `theirs` (`undefined` for the first). */
+  const theirPrevious = new Map(
+    theirList.map((id, index) => [id, theirList[index - 1]]),
   );
-  const same = (x: { id: string }, y: { id: string }) => x.id === y.id;
-  const oursToBase = myersMatch(baseUnits, ourUnits, same);
-  const theirsToBase = myersMatch(baseUnits, theirUnits, same);
-  const merged = diff3(
-    baseUnits,
-    ourUnits,
-    theirUnits,
-    oursToBase,
-    theirsToBase,
-    {
-      stable: ({ theirs: unit }) => unit,
-      ours: (units) => units,
-      keepBothInserts: "ours-first",
-      // A block of theirs in this list stays (each unit of the lists stays,
-      // see `sideChildren`), also next to a change of the client.
-      keepTheirs: () => true,
-    },
-  );
-  const { order, conflicts } = resolveTwoPlaces(merged, ourUnits, oursToBase);
+
+  const order = [...theirList];
+  const conflicts: string[] = [];
+  ourList.forEach((id, index) => {
+    if (oursKept.has(id)) {
+      // The client did not move the block: its place in `theirs` stays.
+      return;
+    }
+    const previous = index > 0 ? ourList[index - 1] : undefined;
+    if (theirPrevious.has(id) && !theirsKept.has(id)) {
+      // Both sides moved (or added) the block: the place of `theirs` wins.
+      if (theirPrevious.get(id) !== previous) {
+        conflicts.push(id);
+      }
+      return;
+    }
+    // The client moved or added the block: it goes after the block before
+    // it in the list of the client (that block has its place already,
+    // because the loop goes in the order of the client), or first.
+    const from = order.indexOf(id);
+    if (from !== -1) {
+      order.splice(from, 1);
+    }
+    const after = previous === undefined ? -1 : order.indexOf(previous);
+    if (previous !== undefined && after === -1) {
+      throw new Error(`The document merge lost block ${previous}`);
+    }
+    order.splice(after + 1, 0, id);
+  });
   // Each block of the parent is in the list of ours or of theirs, and the
-  // merge keeps each unit of theirs and each unit that no side removed.
-  // Thus, a missing block is a bug.
+  // order keeps each block of theirs and adds each block of ours. Thus, a
+  // missing block is a bug.
   const has = new Set(order);
-  const lost = expected.find((id) => !has.has(id));
+  const lost = children.find((id) => !has.has(id));
   if (lost !== undefined) {
     throw new Error(`The document merge lost block ${lost}`);
   }
@@ -427,43 +440,19 @@ function mergeChildOrder(
 }
 
 /**
- * The order of the merged units of one list, with each block one time. A
- * unit without a base unit is a block that its side moved (or added).
- *
- * A block is in the merged list two times (one unit of ours, one unit of
- * theirs) only if theirs moved it: to a different place than ours, or away
- * from a run that ours changed. The place of theirs wins. If ours also
- * moved the block, that is a conflict.
- *
- * Why theirs always moved such a block: the merge adds a unit of theirs
- * that has a base unit only at a stable place, in a run that only theirs
- * changed, or in a run that the two sides changed in the same way. At each
- * of these places, ours has the same block, and the merge does not add the
- * unit of ours. This is true for the handlers of `mergeChildOrder`. A
- * `conflictWinner` would make it false: then a run that ours changed can
- * give a unit of theirs with a base unit.
+ * The blocks of `list` that keep their order of `baseList`: a longest
+ * common subsequence of the two lists (Myers). The other blocks of `list`
+ * moved or are new.
  */
-function resolveTwoPlaces(
-  merged: readonly { id: string }[],
-  ours: readonly { id: string }[],
-  oursToBase: readonly MatchedPair[],
-): { order: string[]; conflicts: string[] } {
-  const fromOurs = new Set(ours);
-  const withBaseUnit = new Set(oursToBase.map((pair) => ours[pair.bIndex]));
-  const count = new Map<string, number>();
-  for (const { id } of merged) {
-    count.set(id, (count.get(id) ?? 0) + 1);
-  }
-  const order: string[] = [];
-  const conflicts: string[] = [];
-  for (const unit of merged) {
-    if (count.get(unit.id) === 1 || !fromOurs.has(unit)) {
-      order.push(unit.id);
-    } else if (!withBaseUnit.has(unit)) {
-      conflicts.push(unit.id);
-    }
-  }
-  return { order, conflicts };
+function keptInOrder(
+  baseList: readonly string[],
+  list: readonly string[],
+): Set<string> {
+  return new Set(
+    myersMatch(baseList, list, (x, y) => x === y).map(
+      ({ bIndex }) => list[bIndex],
+    ),
+  );
 }
 
 /** Decision 4: the merged fields of a block, and whether the two sides changed the same part. */
@@ -517,17 +506,17 @@ function removalWarnings(sides: Sides): MergeWarning[] {
 }
 
 /**
- * Returns `list` with each block of `baseList` that `expected` has and
+ * Returns `list` with each block of `baseList` that `children` has and
  * `list` does not have, at its base place: after the nearest earlier block
  * of `baseList` that the list has.
  */
 function withBasePlaces(
   list: readonly string[],
   baseList: readonly string[],
-  expected: readonly string[],
+  children: readonly string[],
 ): string[] {
   const has = new Set(list);
-  const keep = new Set(expected);
+  const keep = new Set(children);
   const result = [...list];
   baseList.forEach((id, i) => {
     if (has.has(id) || !keep.has(id)) {

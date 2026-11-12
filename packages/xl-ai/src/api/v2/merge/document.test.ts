@@ -145,6 +145,38 @@ describe("mergeDocument", () => {
     ]);
   });
 
+  it("gives no warning if the two sides move a block to the same place, also if theirs changes the order after it", () => {
+    // Both sides move x into p, as its first child. Theirs also swaps a and b.
+    const result = merge(
+      [block("x"), block("p", [block("a"), block("b")])],
+      [block("p", [block("x"), block("a"), block("b")])],
+      [block("p", [block("x"), block("b"), block("a")])],
+    );
+    expect(documentShape(result.blocks)).toEqual(["p", ["x", "b", "a"]]);
+    expect(result.warnings).toEqual([]);
+  });
+
+  it("puts a new block of the client after the block before it, also if another writer moved that block", () => {
+    // The client adds x after a. Another writer moves a to the end.
+    const result = merge(
+      [block("a"), block("b"), block("c")],
+      [block("a"), block("x"), block("b"), block("c")],
+      [block("b"), block("c"), block("a")],
+    );
+    expect(documentShape(result.blocks)).toEqual(["b", "c", "a", "x"]);
+    expect(result.warnings).toEqual([]);
+  });
+
+  it("applies the moves of the client to the order of theirs (the example of mergeChildOrder)", () => {
+    const result = merge(
+      [block("a"), block("b"), block("c")],
+      [block("c"), block("a"), block("b")],
+      [block("a"), block("x"), block("b"), block("c")],
+    );
+    expect(documentShape(result.blocks)).toEqual(["c", "a", "x", "b"]);
+    expect(result.warnings).toEqual([]);
+  });
+
   it("keeps the two blocks if the two sides add a block at one position: ours first", () => {
     const base = [block("a"), block("z")];
     const result = merge(
