@@ -1,7 +1,6 @@
 import type { ContentKind, LensBlock } from "../model.js";
 import {
   BlockIndex,
-  deepEqual,
   diffBlock,
   withoutChildren,
 } from "../util/blocks/index.js";
@@ -103,10 +102,7 @@ class Sides {
     if (result === undefined) {
       result =
         !this.base.has(id) ||
-        !deepEqual(
-          withoutChildren(this.theirs.block(id)),
-          withoutChildren(this.base.block(id)),
-        ) ||
+        this.fieldsChanged(this.theirs, id) ||
         this.theirs
           .childrenOf(id)
           .some(
@@ -119,10 +115,12 @@ class Sides {
 
   /** Returns true if the client changed the fields, the parent or the place of the block. */
   changedByClient(id: string): boolean {
-    return (
-      diffBlock(this.base.block(id), this.ours.block(id)) !== undefined ||
-      this.movedByClient(id)
-    );
+    return this.fieldsChanged(this.ours, id) || this.movedByClient(id);
+  }
+
+  /** Returns true if `side` changed the type, the props or the content of a block of base. */
+  private fieldsChanged(side: BlockIndex, id: string): boolean {
+    return diffBlock(this.base.block(id), side.block(id)) !== undefined;
   }
 
   /** Returns true if the client changed the parent or the place of a block of base. */
