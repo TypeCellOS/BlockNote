@@ -221,7 +221,7 @@ export function operationsOf(
   keepLayout = false,
 ): ChangeResult {
   assertBlockIds(current, "current document");
-  const base = versionOf(change);
+  const base = versionOf(change.base);
   const source = base ?? current;
   const target =
     change.document === undefined
@@ -459,12 +459,12 @@ type AlignedText = { textBlocks: FlatBlock[]; pairs: BlockPair[] };
  * current document (`base: "current"`).
  */
 function versionOf(
-  options: WriteFromVersion<readonly LensBlock[]>,
+  base: WriteFromVersion<readonly LensBlock[]>["base"],
 ): readonly LensBlock[] | undefined {
-  requireBase(options.base);
-  if (options.base === "current") {
+  requireBase(base);
+  if (base === "current") {
     return undefined;
   }
-  assertBlockIds(options.base, "base");
-  return options.base;
+  assertBlockIds(base, "base");
+  return base;
 }
