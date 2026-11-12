@@ -82,21 +82,6 @@ function decideList(
   shapes: readonly BlockShape[],
 ) {
   const end = pos + list.nodeSize - 1;
-  if (shapes.length === 0) {
-    // A list without children (the document, or a column that the
-    // operations of a caller or of `merge: "yjs"` empty, see `keepLayout`)
-    // gets the fill of the schema.
-    const filled = list.type.createAndFill(list.attrs);
-    if (filled === null) {
-      throw new Error(`A block of type ${list.type.name} cannot be empty`);
-    }
-    decisions.replacements.push({
-      from: pos + 1,
-      to: end,
-      content: childBlocks(filled),
-    });
-    return;
-  }
   const old: { node: Node; pos: number }[] = [];
   list.forEach((child, offset) => {
     old.push({ node: child, pos: pos + 1 + offset });
@@ -124,20 +109,22 @@ function decideList(
       );
     }
   }
-  // A layout block with too few children (for example a tab set after two
-  // writers removed tabs, or after the operations of a caller) gets the fill
-  // of the schema at its end, as ProseMirror fills it in the editor. The
-  // insert is after the other inserts at the end.
-  const fill = list.type.isInGroup("bnBlock") ? fillAtEnd(list, shapes) : [];
+  // A list with too few children gets the fill of the schema at its end, as
+  // ProseMirror fills it in the editor. Examples: a document without blocks,
+  // a column that the operations of a caller or of `merge: "yjs"` empty (see
+  // `keepLayout`), a tab set after two writers removed tabs. The insert is
+  // after the other inserts at the end.
+  const fill = fillAtEnd(list, shapes);
   if (fill.length > 0) {
     decisions.replacements.push({ from: end, to: end, content: fill });
   }
 }
 
 /**
- * The nodes that the schema adds at the end of the layout block `list` if
- * its children are `shapes`: none if they fit its content (the minimum),
- * else the fill of ProseMirror (for a tab set: a tab with an empty
+ * The nodes that the schema adds at the end of `list` (a block group, or a
+ * layout block) if its children are `shapes`: none if they fit its content
+ * (the minimum), else the fill of ProseMirror (for an empty document: a
+ * block with an empty paragraph; for a tab set: a tab with an empty
  * paragraph). The node type of a block with content is `blockContainer`.
  */
 function fillAtEnd(list: Node, shapes: readonly BlockShape[]): Node[] {
