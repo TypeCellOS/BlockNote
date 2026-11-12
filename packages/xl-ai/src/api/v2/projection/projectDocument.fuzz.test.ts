@@ -35,8 +35,8 @@ function isolatedResults(
         ? [{ sourceIndex, flat: source }]
         : [];
     }
-    const [result] = roundTripIsolated(editor, format, [source.block], text);
-    return result.map((flat) => ({ sourceIndex, flat }));
+    const [flat] = roundTripIsolated(editor, format, [source.block], text);
+    return flat === undefined ? [] : [{ sourceIndex, flat }];
   });
 }
 

@@ -89,18 +89,21 @@ export function projectDocument(
 }
 
 /**
- * The isolated round trip of each block of `blocks`: returns the view blocks
- * that each block gives. An isolated block is a document of its own: the
- * block at the top level, without its children, between two separator
- * paragraphs. Thus, its view blocks come only from that block: the blocks
- * around it in the document cannot change them, and its children give their
- * own view blocks.
+ * The isolated round trip of each block of `blocks`: returns, for each block,
+ * the block that its round trip gives, or `undefined` if the format does not
+ * show the block. An isolated block is a document of its own: the block at
+ * the top level, without its children, between two separator paragraphs.
+ * Thus, the result comes only from that block: the blocks around it in the
+ * document cannot change it, and its children give their own results.
+ *
+ * A block gives one block at most. A block that gives more is a bug of its
+ * block type, and the function throws.
  *
  * Example: for the code block and the image of the example of
  * {@link projectDocument}, the batch is `[S, code block, S, image, S]` (S is
  * a separator). In plain text, its parse is
- * `[S, paragraph "first\nsecond", S, S]`. Thus, the code block gives one
- * paragraph, and the image gives no block.
+ * `[S, paragraph "first\nsecond", S, S]`. Thus, the result is
+ * `[paragraph "first\nsecond", undefined]`.
  *
  * All blocks go through one serialize and one parse, and each block is still
  * isolated. The separator is a paragraph with only a character that `text`
@@ -114,7 +117,7 @@ export function roundTripIsolated(
   format: TextFormat,
   blocks: readonly BlockWithoutChildren[],
   text: string,
-): FlatBlock[][] {
+): (FlatBlock | undefined)[] {
   if (blocks.length === 0) {
     return [];
   }
@@ -147,7 +150,14 @@ export function roundTripIsolated(
   if (result.length !== blocks.length) {
     throw new Error("The format did not keep the blocks apart");
   }
-  return result;
+  return result.map((group, k) => {
+    if (group.length > 1) {
+      throw new Error(
+        `The format shows a block of type "${blocks[k].type}" as more than one block. The export of a block type must read back as one block, or as no block.`,
+      );
+    }
+    return group[0];
+  });
 }
 
 /**
@@ -192,16 +202,12 @@ function sourcesOfView(
     needRoundTrip.map((i) => sources[i].block),
     text,
   );
-  const countOf = new Map(needRoundTrip.map((i, k) => [i, results[k].length]));
-  const sourceOf = sources.flatMap(({ block }, i) => {
-    const count = shown.has(i) ? 1 : (countOf.get(i) ?? 0);
-    if (count > 1) {
-      throw new Error(
-        `The format shows a block of type "${block.type}" as more than one block. The export of a block type must read back as one block, or as no block.`,
-      );
-    }
-    return count === 1 ? [i] : [];
-  });
+  const roundTripGives = new Set(
+    needRoundTrip.filter((_, k) => results[k] !== undefined),
+  );
+  const sourceOf = sources.flatMap((_, i) =>
+    shown.has(i) || roundTripGives.has(i) ? [i] : [],
+  );
   // A block that the view shows as it is must be at its place in that order.
   for (const { aIndex, bIndex } of matches) {
     if (sourceOf[bIndex] !== aIndex) {

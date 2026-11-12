@@ -41,7 +41,7 @@ export function assertBlocksRoundTrip(
   }
   collect(blocks);
   const results = roundTripIsolated(editor, format, candidates, text);
-  const hidden = candidates.find((_, k) => results[k].length === 0);
+  const hidden = candidates.find((_, k) => results[k] === undefined);
   if (hidden !== undefined) {
     throw new Error(
       `The format gave a block that it does not show (type "${hidden.type}"). The parse of a format must give only blocks that its serialize shows.`,

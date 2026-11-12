@@ -249,14 +249,15 @@ describe("roundTripIsolated", () => {
         { id: "beta", type: "paragraph", content: "Beta" },
       ],
     });
-    const groups = roundTripIsolated(
+    const results = roundTripIsolated(
       editor,
       plainTextFormat,
       editor.document as LensBlock[],
       all,
     );
-    expect(
-      groups.map((group) => group.map(({ block }) => blockToText(block))),
-    ).toEqual([["\uE000"], ["Beta"]]);
+    expect(results.map((flat) => flat && blockToText(flat.block))).toEqual([
+      "\uE000",
+      "Beta",
+    ]);
   });
 });
