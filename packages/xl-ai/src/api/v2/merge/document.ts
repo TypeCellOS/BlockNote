@@ -362,7 +362,10 @@ function mergeChildOrder(
     withBasePlaces(sideChildren(side), o, expected),
   );
   // One object for each ID in each side: the merge result then tells the
-  // side of each unit.
+  // side of each unit. The units of the sides must also be equal by value:
+  // diff3 compares the changed runs of the two sides with `deepEqual` (the
+  // two sides made the same change). Thus, a unit cannot carry its side as
+  // a field.
   const [baseUnits, ourUnits, theirUnits] = [o, a, b].map((ids) =>
     ids.map((id) => ({ id })),
   );
