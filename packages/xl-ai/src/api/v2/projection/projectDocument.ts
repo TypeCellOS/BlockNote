@@ -47,6 +47,18 @@ export type Projection = {
  * {@link assertOnePartEach}). The source of each part is known, thus the
  * parts give the links.
  *
+ * Example, in plain text:
+ *
+ *     source: code block "first\n\nsecond", image, paragraph "End"
+ *     text:   "first\nsecond\n\nEnd"
+ *     view:   paragraph "first\nsecond", paragraph "End"
+ *     parts:  code block: paragraph "first\nsecond"; image: none;
+ *             "End": paragraph "End"
+ *     links:  view block 0 to the code block, view block 1 to "End"
+ *
+ * Plain text writes the blank line of the code block as one newline, and it
+ * does not show the image. Thus, the image is an invisible block.
+ *
  * Method: our own design: a round trip through the format, and links by
  * `linkBlocks`.
  */
@@ -77,6 +89,7 @@ export function projectWithParts(
   parts: readonly Part[],
 ): Projection {
   assertOnePartEach(sources, parts);
+  // `links[v]` is the index of the part that gave view block `v`.
   const links = linkBlocks(
     parts.map(({ part }) => part),
     view,
@@ -134,8 +147,18 @@ export function partsOfEachBlock(
 }
 
 /**
- * The round trip of each block alone, without its children, in one
- * serialize and one parse: the blocks at the top level, each between two
+ * The round trip of each block alone. "A block alone" is the block as a
+ * document of its own: at the top level, without its children, and apart
+ * from the other blocks. Thus, the view blocks that a block gives come only
+ * from that block.
+ *
+ * Example: for the code block and the image of the example of
+ * {@link projectDocument}, the batch is `[S, code block, S, image, S]` (S is
+ * a separator). In plain text, its parse is
+ * `[S, paragraph "first\nsecond", S, S]`. Thus, the code block gives one
+ * paragraph, and the image gives no block.
+ *
+ * All blocks go through one serialize and one parse, each block between two
  * separators. The separator is a paragraph with only a character that `text`
  * does not contain. A format that does not keep these paragraphs apart from
  * the blocks is a bug. Returns the view blocks that each block gives.
@@ -198,6 +221,9 @@ type Part = { part: FlatBlock; sourceIndex: number };
  *    key. Most blocks are such blocks.
  * 2. The other blocks make one round trip together: one serialize and one
  *    parse, not one for each block (see {@link roundTripAlone}).
+ *
+ * In the example of {@link projectDocument}, "End" is its own part. The code
+ * block and the image make one round trip together.
  */
 function partsOf(
   editor: BlockNoteEditor<any, any, any>,
@@ -207,21 +233,23 @@ function partsOf(
   text: string,
 ): Part[] {
   const shown = shownBlocks(sources, view);
-  const alone = notLayoutBlocks(editor, sources).filter(
+  const needRoundTrip = notLayoutBlocks(editor, sources).filter(
     (sourceIndex) => !shown.has(sourceIndex),
   );
   const groups = roundTripAlone(
     editor,
     format,
-    alone.map((sourceIndex) => sources[sourceIndex].block),
+    needRoundTrip.map((sourceIndex) => sources[sourceIndex].block),
     text,
   );
-  const partsOfAlone = new Map(
-    alone.map((sourceIndex, k) => [sourceIndex, groups[k]]),
+  const roundTripParts = new Map(
+    needRoundTrip.map((sourceIndex, k) => [sourceIndex, groups[k]]),
   );
+  // Each other block (a layout block, or a block that the view shows as it
+  // is) is its own part.
   return sources.flatMap((flat, sourceIndex) =>
     (
-      partsOfAlone.get(sourceIndex) ?? [{ ...flat, parentIndex: undefined }]
+      roundTripParts.get(sourceIndex) ?? [{ ...flat, parentIndex: undefined }]
     ).map((part) => ({ part, sourceIndex })),
   );
 }
@@ -271,10 +299,13 @@ function viewOf(
  * the view block at the place of the block has the same key (see
  * `alignmentKey`). For a block with content, the key is its text and its
  * content shape. For a block without content, it is all its fields. The
- * anchored match of the keys gives the places. A block with content that
- * has no text (or only white space) does not count, for example an empty
- * paragraph: all these blocks have almost the same key, and the formats
- * often hide them.
+ * anchored match of the keys gives the places. Example (plain text): the view
+ * shows the paragraph "End" as it is, but not the code block
+ * "first\n\nsecond" (its view block has the text "first\nsecond").
+ *
+ * A block with content that has no text (or only white space) does not
+ * count, for example an empty paragraph: all these blocks have almost the
+ * same key, and the formats often hide them.
  *
  * The round trip of such a block alone gives one block with the same key.
  * Thus, the block is its own part, without a round trip. The three formats
