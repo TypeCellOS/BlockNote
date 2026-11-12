@@ -91,7 +91,7 @@ updateDocument(editor, {
   height={270}
 />
 
-The client's changes apply to the current document, by block ID. If both sides changed the same part of a block (for example the same words, or the same prop), the change of the other user stays, and the client gets the warning `conflicting-change`. Thus, a write from an older version never reverts a change that it did not see. If the client removes a block that another user changed, the block stays, with the warning `removed-changed-block`. With `base: "current"`, the text applies to the current document without a merge, thus a text from an older version changes the newer changes back.
+The client's changes apply to the current document, by block ID. The result lists the blocks that other users changed after `base` in `changesOfOthers` (`{ id, change: "added" | "changed" | "moved" | "removed" }`). The document after the write has these changes too. Give this list to an AI agent, so that it knows which changes it did not make. If both sides changed the same part of a block (for example the same words, or the same prop), the change of the other user stays, and the client gets the warning `conflicting-change`. Thus, a write from an older version never reverts a change that it did not see. If the client removes a block that another user changed, the block stays, with the warning `removed-changed-block`. With `base: "current"`, the text applies to the current document without a merge, thus a text from an older version changes the newer changes back.
 
 `base` must be the full document (BlockNote JSON) of that version. A version history keeps full documents anyway, because only a full document shows props and nesting.
 

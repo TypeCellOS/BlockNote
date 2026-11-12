@@ -120,6 +120,7 @@ describe("text lens server", () => {
     expect(result).toMatchObject({
       etag: '"3"',
       text: "Hello from B\n\nThe end, from A",
+      changesOfOthers: [{ id: "end", change: "changed" }],
     });
 
     // The next write of B is from the version of the text that B has.

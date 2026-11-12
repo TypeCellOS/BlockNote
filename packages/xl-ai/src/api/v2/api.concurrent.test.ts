@@ -1284,3 +1284,47 @@ describe("a write from an older version that changes the same word as another wr
     expect(warnings).toEqual([]);
   });
 });
+
+describe("the changes of other writers in the result of a write", () => {
+  // A client (for example an AI agent) that reads the document after its
+  // write sees the changes of other writers. The result names them, thus the
+  // client does not take them for a wrong write.
+  it("names the blocks that other writers changed after base", () => {
+    const editor = createEditor([
+      { id: "a", type: "paragraph", content: "Alpha" },
+      { id: "b", type: "paragraph", content: "Beta" },
+      { id: "c", type: "paragraph", content: "Gamma" },
+    ]);
+    const client = read(editor);
+    editor.updateBlock("b", { content: "Beta, changed" });
+    editor.insertBlocks(
+      [{ id: "x", type: "paragraph", content: "New" }],
+      "b",
+      "after",
+    );
+    editor.removeBlocks(["c"]);
+
+    const { changesOfOthers } = write(editor, client, (text) =>
+      replaceOnce(text, "Alpha", "Alpha, from the client"),
+    );
+
+    expect(changesOfOthers).toHaveLength(3);
+    expect(changesOfOthers).toEqual(
+      expect.arrayContaining([
+        { id: "b", change: "changed" },
+        { id: "x", change: "added" },
+        { id: "c", change: "removed" },
+      ]),
+    );
+  });
+
+  it("names no blocks if no other writer changed the document", () => {
+    const editor = createEditor([
+      { id: "a", type: "paragraph", content: "Alpha" },
+    ]);
+    const { changesOfOthers } = write(editor, read(editor), (text) =>
+      replaceOnce(text, "Alpha", "Alpha, changed"),
+    );
+    expect(changesOfOthers).toEqual([]);
+  });
+});

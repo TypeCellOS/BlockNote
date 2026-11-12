@@ -40,7 +40,7 @@ describe("JSON", () => {
         base: "current",
         document: copy(editor.document),
       }),
-    ).toEqual({ operations: [], warnings: [] });
+    ).toEqual({ operations: [], warnings: [], changesOfOthers: [] });
   });
 
   it("updates only the changed field of a block, by its ID", () => {

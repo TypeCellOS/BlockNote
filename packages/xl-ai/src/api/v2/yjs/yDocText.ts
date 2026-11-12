@@ -1,4 +1,4 @@
-import type { BlockNoteEditor } from "@blocknote/core";
+import type { Block, BlockNoteEditor } from "@blocknote/core";
 import {
   findTypeInOtherYdoc,
   ForkYDocExtension,
@@ -8,6 +8,7 @@ import * as Y from "yjs";
 
 import {
   type ChangeOperations,
+  changesOfOthersOf,
   type ChangeResult,
   type ConflictError,
   type DocumentChange,
@@ -97,15 +98,25 @@ export function updateYDoc(
     Y.applyUpdate(ydoc, base);
   }
   const { write, yjs } = writeOfChange(editor, fragment, change, base);
+  const current = editor.document;
   // With `merge: "yjs"`, the write goes to a fork of the Y.Doc at `base`,
   // and Yjs merges it. Else, it goes to a fork of the current Y.Doc.
-  const update = writeInFork(fork, yjs ? base : undefined, () => {
+  const update = writeInFork(fork, yjs !== undefined ? base : undefined, () => {
     // With `merge: "yjs"`, the layout blocks stay (see `YDocWriteFromVersion`).
-    const result = operationsOf(editor, write, editor.document, yjs);
+    const result = operationsOf(
+      editor,
+      write,
+      editor.document,
+      yjs !== undefined,
+    );
     if (result.error === undefined) {
       dispatchOperations(editor, result.operations);
     }
-    return result;
+    // With `merge: "yjs"`, the write sees only `base`. The changes of other
+    // writers come from `base` and the current document.
+    return result.error === undefined && yjs !== undefined
+      ? { ...result, changesOfOthers: changesOfOthersOf(yjs.base, current) }
+      : result;
   });
   return update.error === undefined
     ? { ...update, update: Y.encodeStateAsUpdate(ydoc, before) }
@@ -154,7 +165,11 @@ function writeOfChange(
   fragment: Y.XmlFragment,
   change: (TextChange | JSONChange) & YDocWriteFromVersion,
   base: Uint8Array | undefined,
-): { write: DocumentChange; yjs: boolean } {
+): {
+  write: DocumentChange;
+  /** The base of the merge of Yjs, or `undefined` if Yjs does not merge. */
+  yjs: { base: Block<any, any, any>[] } | undefined;
+} {
   const input: TextChange | JSONChange =
     change.document === undefined
       ? { format: change.format, text: change.text }
@@ -166,7 +181,9 @@ function writeOfChange(
   const yjs =
     change.merge === "yjs" &&
     baseFragment !== undefined &&
-    baseFragment.length > 0;
+    baseFragment.length > 0
+      ? { base: yXmlFragmentToBlocks(editor, baseFragment) }
+      : undefined;
   // No merge: the client read the current document, or `base` and the
   // Y.Doc are both empty.
   const withoutMerge =
@@ -174,7 +191,7 @@ function writeOfChange(
     (baseFragment.length === 0 && fragment.length === 0);
   return {
     write:
-      yjs || withoutMerge
+      yjs !== undefined || withoutMerge
         ? { ...input, base: "current" }
         : {
             ...input,

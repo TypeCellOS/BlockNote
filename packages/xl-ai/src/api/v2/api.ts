@@ -54,6 +54,22 @@ export type ChangeOperations = {
   error?: undefined;
   operations: BlockOperation[];
   warnings: ChangeWarning[];
+  /**
+   * The blocks that other writers changed after `base`. The document after
+   * the write has these changes too. Empty for `base: "current"`. A client
+   * (for example an AI agent) that reads the document again sees these
+   * changes, which it did not write.
+   */
+  changesOfOthers: ChangeOfOthers[];
+};
+
+/**
+ * A block that other writers changed after `base`. A new or a removed block
+ * with blocks in it is one item.
+ */
+export type ChangeOfOthers = {
+  id: string;
+  change: "added" | "changed" | "moved" | "removed";
 };
 
 /** A change with `onConflict: "reject"` that has conflicts: nothing applies. */
@@ -349,7 +365,32 @@ export function updateFromTarget(
       ...merged.warnings,
       ...mergedCellsRemoved(current, result),
     ],
+    changesOfOthers: base === undefined ? [] : changesOfOthersOf(base, current),
   };
+}
+
+/**
+ * The changes of other writers between the version that a client read and
+ * the current document, by block ID (see `ChangeOperations`).
+ *
+ * @internal
+ */
+export function changesOfOthersOf(
+  base: readonly LensBlock[],
+  current: readonly LensBlock[],
+): ChangeOfOthers[] {
+  return diffDocuments(base, current).map((operation): ChangeOfOthers => {
+    switch (operation.type) {
+      case "insert":
+        return { id: operation.block.id, change: "added" };
+      case "update":
+        return { id: operation.id, change: "changed" };
+      case "move":
+        return { id: operation.id, change: "moved" };
+      case "delete":
+        return { id: operation.id, change: "removed" };
+    }
+  });
 }
 
 /**

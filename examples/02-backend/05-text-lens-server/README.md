@@ -15,21 +15,21 @@ The server listens on port 3010 (set `PORT` for a different port). It keeps the 
 
 ## API
 
-| Request                      | Result                                                                                                                                          |
-| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `GET /documents/:id/:format` | The document as `json`, `markdown`, `html` or `text`. The `ETag` header gives its version, for example `"1"`.                                   |
-| `PUT /documents/:id/:format` | Writes the changed document back. The response gives the document after the write, the ETag of its version (`etag`), the operations and the warnings. |
+| Request                      | Result                                                                                                                                                                              |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /documents/:id/:format` | The document as `json`, `markdown`, `html` or `text`. The `ETag` header gives its version, for example `"1"`.                                                                       |
+| `PUT /documents/:id/:format` | Writes the changed document back. The response gives the document after the write, the ETag of its version (`etag`), the operations, the warnings and the changes of other writers. |
 
 A write sends the ETag that the client read in one of two headers:
 
-| Header                    | Write                                                                                                                                                                  |
-| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `If-Match: "1"`           | A strict write. If another writer changed the document after that version, nothing applies (412).                                                                      |
-| `Base-Version: "1"`       | A merge. The write keeps the changes that other writers made after that version. If both changed the same part, the change of the other writer stays, with a warning. |
-| `On-Conflict: reject`     | With `Base-Version` only: a merge with a conflict does not apply (409, with the conflicts). The default is `keep-current`.                                              |
-| (none)                    | The write applies to the current document, without a merge.                                                                                                            |
+| Header                | Write                                                                                                                                                                 |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `If-Match: "1"`       | A strict write. If another writer changed the document after that version, nothing applies (412).                                                                     |
+| `Base-Version: "1"`   | A merge. The write keeps the changes that other writers made after that version. If both changed the same part, the change of the other writer stays, with a warning. |
+| `On-Conflict: reject` | With `Base-Version` only: a merge with a conflict does not apply (409, with the conflicts). The default is `keep-current`.                                            |
+| (none)                | The write applies to the current document, without a merge.                                                                                                           |
 
-The response of a write is JSON: `etag`, the document after the write (`text` for a text format, `document` for `json`), `operations` and `warnings`. The document after the write has the changes of other writers too. For the next write, change this document and send this ETag.
+The response of a write is JSON: `etag`, the document after the write (`text` for a text format, `document` for `json`), `operations`, `warnings` and `changesOfOthers` (the blocks that other writers changed after `Base-Version`). The document after the write has the changes of other writers too. For the next write, change this document and send this ETag.
 
 | Status | Error                              | Cause                                                                                                                                                   |
 | ------ | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -38,8 +38,8 @@ The response of a write is JSON: `etag`, the document after the write (`text` fo
 | 400    | `on-conflict-without-base-version` | `On-Conflict` without `Base-Version`.                                                                                                                   |
 | 400    | `unknown-on-conflict`              | `On-Conflict` is not `keep-current` or `reject`.                                                                                                        |
 | 404    | `unknown-format`                   | The format is not `json`, `markdown`, `html` or `text`.                                                                                                 |
-| 409    | `unknown-base-version`             | `Base-Version` does not give an ETag of a version of the document.                                                                                     |
-| 409    | `conflict`                         | `On-Conflict: reject`, and the merge has a conflict. The body has the conflicts. Nothing applies.                                                      |
+| 409    | `unknown-base-version`             | `Base-Version` does not give an ETag of a version of the document.                                                                                      |
+| 409    | `conflict`                         | `On-Conflict: reject`, and the merge has a conflict. The body has the conflicts. Nothing applies.                                                       |
 | 412    | `document-changed`                 | `If-Match` does not match the current version. Nothing applies.                                                                                         |
 
 The ETags follow RFC 9110:

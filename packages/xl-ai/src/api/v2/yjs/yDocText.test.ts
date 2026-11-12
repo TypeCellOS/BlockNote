@@ -1045,3 +1045,35 @@ describe("an editor that shows a fork of the Y.Doc", () => {
     fork.merge({ keepChanges: false });
   });
 });
+
+describe.each(merges)(
+  "the changes of other writers in the result (merge %s)",
+  (merge) => {
+    it("names the blocks that other writers changed after base", () => {
+      const { read, write, change } = setup([
+        { id: "a", type: "paragraph", content: "Alpha" },
+        { id: "b", type: "paragraph", content: "Beta" },
+        { id: "c", type: "paragraph", content: "Gamma" },
+      ]);
+      const client = read();
+      change((user) => {
+        user.updateBlock("b", { content: "Beta, changed" });
+        user.removeBlocks(["c"]);
+      });
+
+      const { changesOfOthers } = write(
+        client,
+        (text) => replaceOnce(text, "Alpha", "Alpha, from the client"),
+        merge,
+      );
+
+      expect(changesOfOthers).toHaveLength(2);
+      expect(changesOfOthers).toEqual(
+        expect.arrayContaining([
+          { id: "b", change: "changed" },
+          { id: "c", change: "removed" },
+        ]),
+      );
+    });
+  },
+);
