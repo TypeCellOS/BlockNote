@@ -16,10 +16,7 @@ function Editor() {
     initialContent: [{ type: "paragraph", content: "Hello" }],
   });
   return (
-    <div
-      data-testid="scroll-container"
-      style={{ maxHeight: 200, overflowY: "auto" }}
-    >
+    <div style={{ maxHeight: 200, overflowY: "auto" }}>
       <BlockNoteView editor={editor} />
     </div>
   );
@@ -29,25 +26,23 @@ afterEach(async () => {
   await cleanup();
 });
 
-/** The slash menu's floating element and its trigger character. */
+/** The slash menu's floating element, measured from its trigger character. */
 function menuAndTrigger() {
   const floating = document.querySelector(
     ".bn-suggestion-menu",
   )!.parentElement!;
+  const menu = floating.getBoundingClientRect();
   const trigger = document
     .querySelector(".bn-suggestion-decorator")!
     .getBoundingClientRect();
   return {
     visibility: getComputedStyle(floating).visibility,
-    gap: floating.getBoundingClientRect().top - trigger.bottom,
+    dx: menu.left - trigger.left,
+    dy: menu.top - trigger.bottom,
   };
 }
 
-// A layout shift outside the editor (e.g. a banner that appears above it)
-// moves the trigger without a transaction or a scroll event. The menu must
-// follow the trigger, rather than stay where the trigger was when the menu
-// opened, where the editor's scroll container clips it and hides the menu.
-test("the slash menu follows its trigger after a layout shift", async () => {
+async function openSlashMenu() {
   await render(<Editor />);
   await waitForSelector(".bn-editor");
   editor.setTextCursorPosition(editor.document[0], "end");
@@ -57,15 +52,42 @@ test("the slash menu follows its trigger after a layout shift", async () => {
   await vi.waitFor(() =>
     expect(menuAndTrigger()).toMatchObject({ visibility: "visible" }),
   );
-  const { gap } = menuAndTrigger();
+  return menuAndTrigger();
+}
 
-  const banner = document.createElement("div");
-  banner.style.height = "60px";
-  document.querySelector('[data-testid="scroll-container"]')!.before(banner);
-
+async function expectMenuOnTrigger(before: { dx: number; dy: number }) {
   await vi.waitFor(() => {
     const after = menuAndTrigger();
     expect(after.visibility).toBe("visible");
-    expect(after.gap).toBeCloseTo(gap, 0);
+    expect(after.dx).toBeCloseTo(before.dx, 0);
+    expect(after.dy).toBeCloseTo(before.dy, 0);
   });
+}
+
+// A layout shift (e.g. a banner that appears) moves the trigger without a
+// transaction or a scroll event. The menu must follow the trigger, rather than
+// stay where the trigger was when the menu opened. The banner goes between
+// the menu's portal and the editor, so only the editor moves: the menu can
+// only reach the trigger again by measuring it.
+test("the slash menu follows its trigger after a layout shift", async () => {
+  const before = await openSlashMenu();
+
+  const banner = document.createElement("div");
+  banner.style.height = "60px";
+  editor.domElement!.before(banner);
+
+  await expectMenuOnTrigger(before);
+});
+
+// A transaction can move the trigger sideways without resizing or moving the
+// editor (here, centring the text), so only the transaction tells the menu to
+// measure again.
+test("the slash menu follows its trigger when a transaction moves it", async () => {
+  const before = await openSlashMenu();
+
+  editor.updateBlock(editor.document[0], {
+    props: { textAlignment: "center" },
+  });
+
+  await expectMenuOnTrigger(before);
 });

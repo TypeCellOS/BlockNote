@@ -49,32 +49,34 @@ export function SuggestionMenuPopover(props: {
   }, [enabled, suggestionMenu, triggerCharacter, shouldOpen]);
 
   const state = useExtensionState(SuggestionMenu);
-  const reference = useExtensionState(SuggestionMenu, {
-    selector: (state) =>
-      ({
-        // A descendant lets Floating UI observe scrolling of the editor itself.
-        element: editorDOMElement?.firstElementChild ?? undefined,
-        // Measures the trigger on each update, so the menu follows layout
-        // shifts that move the editor without a transaction or scroll.
-        getBoundingClientRect: () =>
-          editorDOMElement
-            ?.querySelector(".bn-suggestion-decorator")
-            ?.getBoundingClientRect() ||
-          state?.referencePos ||
-          new DOMRect(),
-      }) satisfies GenericPopoverReference,
-    equalityFn: (a, b) => {
-      // Ignore fresh rectangle/callback identities when the anchor has not moved.
-      const aRect = a.getBoundingClientRect();
-      const bRect = b.getBoundingClientRect();
-      return (
-        a.element === b.element &&
-        aRect.x === bRect.x &&
-        aRect.y === bRect.y &&
-        aRect.width === bRect.width &&
-        aRect.height === bRect.height
-      );
+  const { reference } = useExtensionState(SuggestionMenu, {
+    selector: (state) => {
+      // Measures the trigger on each update, so the menu follows layout
+      // shifts that move the editor without a transaction or scroll.
+      const getBoundingClientRect = () =>
+        editorDOMElement
+          ?.querySelector(".bn-suggestion-decorator")
+          ?.getBoundingClientRect() ||
+        state?.referencePos ||
+        new DOMRect();
+      return {
+        reference: {
+          // A descendant lets Floating UI observe scrolling of the editor itself.
+          element: editorDOMElement?.firstElementChild ?? undefined,
+          getBoundingClientRect,
+        } satisfies GenericPopoverReference,
+        // The trigger's position when the state changed. A transaction that
+        // moves the trigger gives a new reference, so the menu re-measures.
+        rect: getBoundingClientRect(),
+      };
     },
+    equalityFn: (a, b) =>
+      // Ignore fresh rectangle/callback identities when the anchor has not moved.
+      a.reference.element === b.reference.element &&
+      a.rect.x === b.rect.x &&
+      a.rect.y === b.rect.y &&
+      a.rect.width === b.rect.width &&
+      a.rect.height === b.rect.height,
   });
   const floatingUIOptions = useMemo<FloatingUIOptions>(
     () => ({
