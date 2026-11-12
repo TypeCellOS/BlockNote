@@ -222,11 +222,16 @@ function mergeParents(
 } {
   const { base, ours, theirs } = sides;
   const conflicts = new Set<string>();
-  /** The blocks that get the parent of `theirs`, to break a cycle. */
-  const theirsWins = new Set<string>();
 
-  /** The parent that the merge gives the block, before a parent that goes is replaced. */
-  function chosenParent(id: string): string | undefined {
+  /**
+   * The parent that the merge gives the block, before a parent that goes is
+   * replaced. A block in `theirsWins` gets its parent of `theirs` (see
+   * `breakCycles`).
+   */
+  function chosenParent(
+    id: string,
+    theirsWins: ReadonlySet<string>,
+  ): string | undefined {
     if (!theirs.has(id)) {
       return (ours.has(id) ? ours : base).parent(id);
     }
@@ -240,22 +245,33 @@ function mergeParents(
   }
 
   /** The parent in the result: the chosen parent, or the place of a chosen parent that goes. */
-  function parentOf(id: string): string | undefined {
-    let parent = chosenParent(id);
+  function parentOf(
+    id: string,
+    theirsWins: ReadonlySet<string>,
+  ): string | undefined {
+    let parent = chosenParent(id, theirsWins);
     while (parent !== undefined && !staying.has(parent)) {
-      parent = chosenParent(parent);
+      parent = chosenParent(parent, theirsWins);
     }
     return parent;
   }
 
   /**
-   * Gives the parent of `theirs` to each block of `theirs` on a cycle of
-   * parents. A cycle needs a parent of `ours` that is not the parent of
-   * `theirs` (each side alone is a tree). Thus, each round removes the cycles
-   * that it finds. Each round walks up from each block one time: a block
-   * that a walk passed is not walked again.
+   * Returns the blocks that get their parent of `theirs`, so that the
+   * parents have no cycle: each block of `theirs` on a cycle. A cycle needs a
+   * parent of `ours` that is not the parent of `theirs` (each side alone is a
+   * tree). Thus, each round removes the cycles that it finds. Each round
+   * walks up from each block one time: a block that a walk passed is not
+   * walked again. A block that the client moved to another parent there also
+   * gets a conflict (for the warning).
+   *
+   * Example: the client moves A into B, and another writer moves B into A.
+   * The merged parents make the cycle A → B → A. A and B get their parents
+   * of `theirs`, thus the result is A with B in it. Without this, no path
+   * goes from the top level to A and B, and the result loses both.
    */
-  function breakCycles() {
+  function breakCycles(): Set<string> {
+    const theirsWins = new Set<string>();
     for (let changed = true; changed;) {
       changed = false;
       /** The walk that passed each block. */
@@ -266,7 +282,7 @@ function mergeParents(
         while (current !== undefined && !walkOf.has(current)) {
           walkOf.set(current, walk);
           path.push(current);
-          current = parentOf(current);
+          current = parentOf(current, theirsWins);
         }
         if (current === undefined || walkOf.get(current) !== walk) {
           // The top level, or a block of an earlier walk: no new cycle.
@@ -286,11 +302,12 @@ function mergeParents(
         }
       });
     }
+    return theirsWins;
   }
 
-  breakCycles();
+  const theirsWins = breakCycles();
   return {
-    parentOf: new Map(staying.list.map((id) => [id, parentOf(id)])),
+    parentOf: new Map(staying.list.map((id) => [id, parentOf(id, theirsWins)])),
     conflicts,
   };
 }
