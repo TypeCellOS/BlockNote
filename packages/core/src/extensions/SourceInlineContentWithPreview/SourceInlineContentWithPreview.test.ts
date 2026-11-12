@@ -8,8 +8,10 @@ import { createInlineContentSpec } from "../../schema/inlineContent/createSpec.j
 it.each([
   { key: "ArrowRight", keyCode: 39, anchor: 9, head: 10, expectedHead: 15 },
   { key: "ArrowLeft", keyCode: 37, anchor: 16, head: 15, expectedHead: 10 },
+  { key: "ArrowRight", keyCode: 39, anchor: 12, head: 10, expectedHead: 10 },
+  { key: "ArrowLeft", keyCode: 37, anchor: 12, head: 15, expectedHead: 15 },
 ])(
-  "extends $key selections across a preview",
+  "$key with anchor $anchor and head $head leaves the head at $expectedHead",
   ({ key, keyCode, anchor, head, expectedHead }) => {
     const editor = BlockNoteEditor.create({
       schema: BlockNoteSchema.create().extend({
@@ -45,9 +47,12 @@ it.each([
         keyCode,
         shiftKey: true,
       });
-      editor.prosemirrorView.someProp("handleKeyDown", (handleKeyDown) =>
-        handleKeyDown(editor.prosemirrorView, event),
+      const handled = editor.prosemirrorView.someProp(
+        "handleKeyDown",
+        (handleKeyDown) => handleKeyDown(editor.prosemirrorView, event),
       );
+      // An anchor inside the source must leave selection changes to the browser.
+      expect(Boolean(handled)).toBe(expectedHead !== head);
       expect(editor.prosemirrorState.selection.toJSON()).toEqual({
         type: "text",
         anchor,

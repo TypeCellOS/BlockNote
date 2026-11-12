@@ -76,7 +76,12 @@ export const SourceInlineContentWithPreviewExtension = createExtension(
           }
           const { $head, anchor } = selection;
           const node = direction === -1 ? $head.nodeBefore : $head.nodeAfter;
-          if ($head.textOffset || !node || !nodeHasPreview(node.type.name)) {
+          if (
+            $head.textOffset ||
+            !node ||
+            !nodeHasPreview(node.type.name) ||
+            selection.$anchor.parent === node
+          ) {
             return false;
           }
           tr.setSelection(
