@@ -7,7 +7,9 @@ import { columnSchema } from "../testUtil/fixtures.js";
 import { fitResult } from "./fitResult.js";
 
 describe("fitResult", () => {
-  const rules = schemaRulesOf(BlockNoteEditor.create({ schema: columnSchema }));
+  const rules = schemaRulesOf(
+    BlockNoteEditor.create({ schema: columnSchema }).schema.blockSchema,
+  );
   function block(
     id: string,
     type: string,

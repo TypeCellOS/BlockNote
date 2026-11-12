@@ -45,11 +45,15 @@ export function textStages(
   });
   const target = targetFromPairs(input);
   // 4. Merge (none for `base: "current"`), 5. Fit and 6. Diff.
-  const update = updateFromTarget(schemaRulesOf(editor), target, {
-    base: undefined,
-    current: document,
-    onConflict: undefined,
-  });
+  const update = updateFromTarget(
+    schemaRulesOf(editor.schema.blockSchema),
+    target,
+    {
+      base: undefined,
+      current: document,
+      onConflict: undefined,
+    },
+  );
   if (update.error !== undefined) {
     throw new Error(`The update is an error: ${update.error}`);
   }

@@ -1,4 +1,4 @@
-import type { BlockNoteEditor } from "@blocknote/core";
+import type { BlockSchema } from "@blocknote/core";
 
 import type { ContentKind } from "../../model.js";
 import { TOP_LEVEL } from "./blockIndex.js";
@@ -36,15 +36,13 @@ export type SchemaRules = {
   canContain: (parent: string | typeof TOP_LEVEL, child: string) => boolean;
 };
 
-export function schemaRulesOf(
-  editor: BlockNoteEditor<any, any, any>,
-): SchemaRules {
-  const configs = editor.schema.blockSchema;
+export function schemaRulesOf(blockSchema: BlockSchema): SchemaRules {
+  const configs = blockSchema;
   return {
     contentKindOf(type) {
       const config = configs[type];
       if (config === undefined) {
-        throw new Error(`Block type "${type}" is not in the editor's schema`);
+        throw new Error(`Block type "${type}" is not in the schema`);
       }
       return config.content;
     },

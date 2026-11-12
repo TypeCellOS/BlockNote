@@ -52,7 +52,9 @@ const schema = BlockNoteSchema.create().extend({
     panel: layoutBlock("panel", { children: { exclude: ["box"] } }),
   },
 });
-const rules = schemaRulesOf(BlockNoteEditor.create({ schema }));
+const rules = schemaRulesOf(
+  BlockNoteEditor.create({ schema }).schema.blockSchema,
+);
 
 describe("schemaRulesOf", () => {
   it("gives the content kind of a block type, and throws for a type that is not in the schema", () => {
@@ -60,7 +62,7 @@ describe("schemaRulesOf", () => {
     expect(rules.contentKindOf("table")).toBe("table");
     expect(rules.contentKindOf("box")).toBe("none");
     expect(() => rules.contentKindOf("unknown")).toThrow(
-      'Block type "unknown" is not in the editor\'s schema',
+      'Block type "unknown" is not in the schema',
     );
   });
 

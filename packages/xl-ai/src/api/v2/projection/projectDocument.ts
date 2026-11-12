@@ -191,7 +191,7 @@ function sourcesOfView(
   text: string,
 ): number[] {
   const shown = shownBlocks(sources, view);
-  const { layoutRuleOf } = schemaRulesOf(editor);
+  const { layoutRuleOf } = schemaRulesOf(editor.schema.blockSchema);
   const needRoundTrip = sources.flatMap(({ block }, i) =>
     shown.has(i) || layoutRuleOf(block.type) !== undefined ? [] : [i],
   );

@@ -27,7 +27,7 @@ function isolatedResults(
   view: readonly FlatBlock[],
   text: string,
 ): { sourceIndex: number; flat: FlatBlock }[] {
-  const { layoutRuleOf } = schemaRulesOf(editor);
+  const { layoutRuleOf } = schemaRulesOf(editor.schema.blockSchema);
   const viewKeys = new Set(view.map(({ block }) => alignmentKey(block)));
   return sources.flatMap((source, sourceIndex) => {
     if (layoutRuleOf(source.block.type) !== undefined) {

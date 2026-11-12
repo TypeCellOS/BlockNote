@@ -230,7 +230,7 @@ export function operationsOf(
   if (target.error !== undefined) {
     return target;
   }
-  return updateFromTarget(schemaRulesOf(editor), target, {
+  return updateFromTarget(schemaRulesOf(editor.schema.blockSchema), target, {
     base,
     current,
     onConflict: change.onConflict,
@@ -279,7 +279,7 @@ export function targetInputOf(
     projection,
     textBlocks,
     pairs,
-    contentKindOf: schemaRulesOf(editor).contentKindOf,
+    contentKindOf: schemaRulesOf(editor.schema.blockSchema).contentKindOf,
     shadowOf: (item) => shadowOf(editor, format, item),
     newId: () => UniqueID.options.generateID(),
   };
