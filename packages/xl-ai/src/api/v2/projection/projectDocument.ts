@@ -183,16 +183,16 @@ function sourcesOfView(
   const matches = shownMatches(sources, view);
   const shown = new Set(matches.map(({ aIndex }) => aIndex));
   const { layoutRuleOf } = schemaRulesOf(editor);
-  const isolated = sources.flatMap(({ block }, i) =>
+  const needRoundTrip = sources.flatMap(({ block }, i) =>
     shown.has(i) || layoutRuleOf(block.type) !== undefined ? [] : [i],
   );
   const results = roundTripIsolated(
     editor,
     format,
-    isolated.map((i) => sources[i].block),
+    needRoundTrip.map((i) => sources[i].block),
     text,
   );
-  const countOf = new Map(isolated.map((i, k) => [i, results[k].length]));
+  const countOf = new Map(needRoundTrip.map((i, k) => [i, results[k].length]));
   const sourceOf = sources.flatMap(({ block }, i) => {
     const count = shown.has(i) ? 1 : (countOf.get(i) ?? 0);
     if (count > 1) {
