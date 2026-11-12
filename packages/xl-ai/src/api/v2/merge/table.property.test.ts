@@ -4,7 +4,7 @@ import { describe, expect, it } from "vite-plus/test";
 import type { LensTableCell, LensTableContent } from "../model.js";
 import { createRandom, type Random } from "../testUtil/random.js";
 import { mergeTableContent } from "./table.js";
-import { mergeOptions } from "../testUtil/merge.js";
+import { allMergeRules, theirsWinsRules } from "../testUtil/merge.js";
 
 function cell(text: string, backgroundColor = "default"): LensTableCell {
   return {
@@ -90,33 +90,31 @@ function edit(random: Random, content: LensTableContent): LensTableContent {
 }
 
 describe("mergeTableContent: laws on random tables", () => {
-  for (const concurrent of [false, true]) {
-    const mode = concurrent ? "document merge" : "target stage";
-
-    it(`gives theirs if ours did not change (${mode})`, () => {
-      const random = createRandom(concurrent ? 121 : 122);
+  for (const [k, { name, rules }] of allMergeRules().entries()) {
+    it(`gives theirs if ours did not change (${name})`, () => {
+      const random = createRandom(121 + 1000 * k);
       for (let run = 0; run < 200; run++) {
         const base = randomTable(random);
         const theirs = edit(random, base);
-        expect(
-          grid(mergeTableContent(base, base, theirs, mergeOptions(concurrent))),
-        ).toEqual(grid(theirs));
+        expect(grid(mergeTableContent(base, base, theirs, rules()))).toEqual(
+          grid(theirs),
+        );
       }
     });
 
-    it(`gives ours if theirs did not change (${mode})`, () => {
-      const random = createRandom(concurrent ? 123 : 124);
+    it(`gives ours if theirs did not change (${name})`, () => {
+      const random = createRandom(123 + 1000 * k);
       for (let run = 0; run < 200; run++) {
         const base = randomTable(random);
         const ours = edit(random, base);
-        expect(
-          grid(mergeTableContent(base, ours, base, mergeOptions(concurrent))),
-        ).toEqual(grid(ours));
+        expect(grid(mergeTableContent(base, ours, base, rules()))).toEqual(
+          grid(ours),
+        );
       }
     });
 
-    it(`gives the change one time if the two sides made the same change (${mode})`, () => {
-      const random = createRandom(concurrent ? 125 : 126);
+    it(`gives the change one time if the two sides made the same change (${name})`, () => {
+      const random = createRandom(125 + 1000 * k);
       for (let run = 0; run < 200; run++) {
         const base = randomTable(random);
         const changed = edit(random, base);
@@ -125,7 +123,7 @@ describe("mergeTableContent: laws on random tables", () => {
           base,
           changed,
           changed,
-          mergeOptions(concurrent, () => conflicts++),
+          rules(() => conflicts++),
         );
         expect(grid(result)).toEqual(grid(changed));
         expect(conflicts).toBe(0);
@@ -164,7 +162,7 @@ describe("mergeTableContent: laws on random tables", () => {
             table(rows),
             table(ours),
             table(theirs),
-            mergeOptions(true),
+            theirsWinsRules(),
           ),
         ),
       ).toEqual(grid(table(both)));
@@ -182,7 +180,7 @@ describe("mergeTableContent: rows with equal text and a different number of cell
     const base = table([[cell("a\u0000b")]]);
     const ours = table([[cell("a"), cell("b")]]);
     expect(
-      grid(mergeTableContent(base, ours, base, mergeOptions(true))),
+      grid(mergeTableContent(base, ours, base, theirsWinsRules())),
     ).toEqual([["a", "b"]]);
   });
 
@@ -193,7 +191,7 @@ describe("mergeTableContent: rows with equal text and a different number of cell
     const ours = table([[cell("a\u0000b")], [cell("k2")]]);
     const theirs = table([[cell("a"), cell("b")], [cell("k")]]);
     expect(
-      grid(mergeTableContent(base, ours, theirs, mergeOptions(true))),
+      grid(mergeTableContent(base, ours, theirs, theirsWinsRules())),
     ).toEqual([["a", "b"], ["k2"]]);
   });
 });

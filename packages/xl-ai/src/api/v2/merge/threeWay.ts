@@ -2,56 +2,6 @@ import type { LensInlineContent } from "../model.js";
 import { deepEqual } from "../util/blocks/index.js";
 
 /**
- * The two kinds of merge in this folder. In the target stage, `theirs` is
- * the source document, and `base` and `ours` come from the format (the view
- * and the text). In the document merge, `theirs` is a later version with the
- * changes of other writers. The kind changes two rules:
- *
- * - A conflict: in the target stage, `ours` (the text) wins, because `theirs` has
- *   only data that the format does not show. In the document merge, `theirs`
- *   (the current document) wins, because the client gets the warning: thus, the
- *   client loses the conflicting part, and it can read the document again.
- *   A write from an older version then never reverts a change that it did
- *   not see.
- * - Two inserts at the same position: in the document merge, both stay. In the
- *   target stage, an insert of `theirs` at the position of an insert of `ours` is
- *   a difference that the format makes (for example whitespace). Thus, it
- *   does not stay.
- *
- * @internal
- */
-export type MergeOptions =
-  | {
-      kind: "target";
-      /**
-       * The text that the format shows for an inline item that its parse
-       * does not give back (for example "@Bob" for a mention in markdown),
-       * or `undefined`. `base` and `ours` come from the format, thus they
-       * have that text where `theirs` has the item.
-       */
-      shadowOf: (item: LensInlineContent) => string | undefined;
-    }
-  | {
-      kind: "document";
-      /**
-       * Called when `ours` and `theirs` changed the same value (or the same
-       * part of a text) in different ways (a conflict), for a warning.
-       */
-      onConflict: () => void;
-    };
-
-/**
- * The merge options of the target stage without shadows: the default of the
- * merge functions. Only their unit tests use the default.
- *
- * @internal
- */
-export const TARGET_WITHOUT_SHADOWS: MergeOptions = {
-  kind: "target",
-  shadowOf: () => undefined,
-};
-
-/**
  * Which side wins a conflict: the two sides changed a value in different
  * ways. `ours` wins without a report, or `theirs` wins, and `onConflict`
  * reports it (for a warning).
@@ -70,16 +20,42 @@ export type ConflictRule =
 export const OURS_WINS: ConflictRule = { winner: "ours" };
 
 /**
- * The conflict rule of a kind of merge: `ours` (the text) wins in the target
- * stage, and `theirs` wins in the document merge (see `MergeOptions`).
+ * The rules of a merge of content (a block, inline content or a table).
+ * Each combination of the rules is valid.
  *
  * @internal
  */
-export function conflictRuleOf(options: MergeOptions): ConflictRule {
-  return options.kind === "target"
-    ? OURS_WINS
-    : { winner: "theirs", onConflict: options.onConflict };
-}
+export type MergeRules = {
+  /** Which side wins a conflict, and its report. */
+  conflict: ConflictRule;
+  /**
+   * Two inserts at one position: both stay, the insert of `theirs` first; or
+   * they are a conflict (see `conflict`).
+   */
+  insertsAtOnePosition: "both-theirs-first" | "conflict";
+  /**
+   * If set, `base` and `ours` show `theirs` without some of its inline items
+   * (for example a format that does not show mentions). An inline item of
+   * `theirs` that they do not have stays, and `shadowOf` gives the text that
+   * they show for an item, or `undefined`.
+   */
+  hiddenItems?: {
+    shadowOf: (item: LensInlineContent) => string | undefined;
+  };
+};
+
+/**
+ * The default rules of the merge functions, for their unit tests: `ours`
+ * wins a conflict, two inserts at one position are a conflict, and `base` and
+ * `ours` can lack inline items of `theirs` (without shadows).
+ *
+ * @internal
+ */
+export const DEFAULT_RULES: MergeRules = {
+  conflict: OURS_WINS,
+  insertsAtOnePosition: "conflict",
+  hiddenItems: { shadowOf: () => undefined },
+};
 
 /**
  * The three-way rule for all merges in this folder, with one vocabulary:

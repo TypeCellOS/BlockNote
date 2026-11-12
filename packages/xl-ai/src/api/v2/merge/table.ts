@@ -10,11 +10,10 @@ import { gaps, type MatchedPair, myersMatch } from "../util/sequence/index.js";
 import { diff3 } from "./diff3.js";
 import { mergeInlineContent } from "./inline.js";
 import {
-  conflictRuleOf,
-  type MergeOptions,
+  DEFAULT_RULES,
+  type MergeRules,
   mergeRecords,
   mergeValue,
-  TARGET_WITHOUT_SHADOWS,
 } from "./threeWay.js";
 
 /**
@@ -24,7 +23,7 @@ import {
  * - If a row is in the three tables (with the same number of cells), the
  *   merge merges each cell: its content and its props (for example its
  *   background color). If not, the row of the side that changed it wins
- *   (for a conflict, see `MergeOptions`).
+ *   (for a conflict, see `MergeRules`).
  * - The merge removes rows that only the round trip added. An example is the
  *   empty header row that markdown gives to a table without a header row.
  * - A table with merged cells in a format without merged cells loses its
@@ -39,9 +38,9 @@ export function mergeTableContent(
   base: LensTableContent,
   ours: LensTableContent,
   theirs: LensTableContent,
-  options: MergeOptions = TARGET_WITHOUT_SHADOWS,
+  rules: MergeRules = DEFAULT_RULES,
 ): LensTableContent {
-  const concurrent = options.kind === "document";
+  const { conflict } = rules;
   if (!hasMergedCells(base) && hasMergedCells(theirs)) {
     // A format without merged cells (markdown, plain text) shows a merged
     // cell as the cell and empty cells at the positions that it covers. The
@@ -53,8 +52,8 @@ export function mergeTableContent(
     theirs = withoutMergedCells(theirs);
   }
   // The fields of the table belong to its rows: if the rows of the two sides
-  // conflict, the fields come from the side whose rows win (ours, and in the
-  // document merge: theirs, see `MergeOptions`).
+  // conflict, the fields come from the side whose rows win (see
+  // `rules.conflict`).
   let rowConflict = false;
   const baseRows = cellRows(base);
   const ourRows = cellRows(ours);
@@ -71,18 +70,20 @@ export function mergeTableContent(
       // `alignRows`).
       stable: ({ base: baseRow, ours: ourRow, theirs: theirRow }) =>
         ourRow.map((cell, c) =>
-          mergeCell(baseRow[c], cell, theirRow[c], options),
+          mergeCell(baseRow[c], cell, theirRow[c], rules),
         ),
       ours: (units) => units,
-      // As for text (see `merge/inline.ts`): the rows that applied first stay first.
-      keepBothInserts: concurrent ? "theirs-first" : undefined,
+      keepBothInserts:
+        rules.insertsAtOnePosition === "both-theirs-first"
+          ? "theirs-first"
+          : undefined,
       conflict: () => {
         rowConflict = true;
-        if (concurrent) {
-          options.onConflict();
+        if (conflict.winner === "theirs") {
+          conflict.onConflict();
         }
       },
-      conflictWinner: concurrent ? "theirs" : "ours",
+      conflictWinner: conflict.winner,
       // `alignRows` also pairs rows with changed text.
       same: (baseRow, otherRow) => deepEqual(baseRow, otherRow),
     },
@@ -90,10 +91,10 @@ export function mergeTableContent(
 
   const field = <T>(baseValue: T, ourValue: T, theirValue: T): T =>
     rowConflict
-      ? concurrent
+      ? conflict.winner === "theirs"
         ? theirValue
         : ourValue
-      : mergeValue(baseValue, ourValue, theirValue, conflictRuleOf(options));
+      : mergeValue(baseValue, ourValue, theirValue, conflict);
   return {
     type: "tableContent",
     columnWidths: field(
@@ -183,21 +184,16 @@ function mergeCell(
   base: LensTableCell,
   ours: LensTableCell,
   theirs: LensTableCell,
-  options: MergeOptions,
+  rules: MergeRules,
 ): LensTableCell {
   return {
     type: "tableCell",
-    props: mergeRecords(
-      base.props,
-      ours.props,
-      theirs.props,
-      conflictRuleOf(options),
-    ),
+    props: mergeRecords(base.props, ours.props, theirs.props, rules.conflict),
     content: mergeInlineContent(
       base.content,
       ours.content,
       theirs.content,
-      options,
+      rules,
     ),
   };
 }

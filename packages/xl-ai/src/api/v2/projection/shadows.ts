@@ -7,7 +7,7 @@ import type { TextFormat } from "../formats/index.js";
 /**
  * Returns the text that the format shows for an inline item that its parse
  * does not give back, for example "@Bob" for a mention in markdown (see
- * `MergeOptions.shadowOf`). `undefined` if the parse gives back an item of
+ * `MergeRules.hiddenItems`). `undefined` if the parse gives back an item of
  * that type. One serialize and one parse for each call.
  *
  * The result is the text of the parse of the serialized item, not the

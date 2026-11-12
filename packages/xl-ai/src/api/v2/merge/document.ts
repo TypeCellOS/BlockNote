@@ -42,7 +42,7 @@ export type MergeWarning =
  *
  * If both sides changed the same part in different ways (a conflict), the
  * part of `theirs` wins, and the block gets the warning `conflicting-change`
- * (see `MergeOptions`).
+ * (see the rules in `mergeFields`).
  *
  * The merge does not know the schema. The fit of the result moves a block
  * that its parent cannot hold (see `fitLayout`). For example, a new
@@ -475,10 +475,20 @@ function mergeFields(
     theirs.block(id),
     contentKindOf,
     {
-      kind: "document",
-      onConflict: () => {
-        conflict = true;
+      // `theirs` (the current document) wins a conflict, and the client gets
+      // the warning: thus, the client loses the conflicting part, and it can
+      // read the document again. A write from an older version then never
+      // reverts a change that it did not see.
+      conflict: {
+        winner: "theirs",
+        onConflict: () => {
+          conflict = true;
+        },
       },
+      // Two writers add text (or table rows) at one position: the insert
+      // that applied first (of the other writer) stays first. Thus, two
+      // additions at the end read in the order of the writes.
+      insertsAtOnePosition: "both-theirs-first",
     },
   );
   return { block: { id, ...merged, children: [] }, conflict };

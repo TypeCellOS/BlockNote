@@ -25,7 +25,7 @@ export type TargetInput = {
   /** The pairs of `projection.view` (a side) and `textBlocks` (b side). */
   pairs: BlockPair[];
   contentKindOf: (type: string) => ContentKind;
-  /** The text that the format shows for an inline item that it does not give back (see `MergeOptions.shadowOf`). */
+  /** The text that the format shows for an inline item that it does not give back (see `MergeRules.hiddenItems`). */
   shadowOf: (item: LensInlineContent) => string | undefined;
   /** Gives the ID of a new block. */
   newId: () => string;
@@ -62,9 +62,19 @@ export function targetFromPairs(input: TargetInput): TargetResult {
     }
     const { block: base, sourceId: id } = view[pair.aIndex];
     const source = sourceIndex.block(id);
+    // `theirs` is the source block, and `base` and `ours` come from the
+    // format (the view block and the text block).
     const fields = mergeBlock(base, text, source, input.contentKindOf, {
-      kind: "target",
-      shadowOf: input.shadowOf,
+      // The source has only data that the format does not show, thus the
+      // text wins a conflict.
+      conflict: { winner: "ours" },
+      // An insert of the source at the position of an insert of the text is
+      // a difference that the format makes (for example whitespace). Thus,
+      // it does not stay.
+      insertsAtOnePosition: "conflict",
+      // The format does not show some inline items (for example a mention in
+      // markdown).
+      hiddenItems: { shadowOf: input.shadowOf },
     });
     if (base.type === text.type && fields.type !== source.type) {
       warnings.push({ type: "block-shape-replaced", id });

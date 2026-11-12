@@ -141,7 +141,10 @@ describe("mergeInlineContent", () => {
       [styledText("ab cd")],
       [styledText("ab "), styledText("cd", { bold: true })],
       [styledText("ab ce")],
-      { kind: "document", onConflict: () => conflicts++ },
+      {
+        conflict: { winner: "theirs", onConflict: () => conflicts++ },
+        insertsAtOnePosition: "both-theirs-first",
+      },
     );
     expect(conflicts).toBe(1);
   });

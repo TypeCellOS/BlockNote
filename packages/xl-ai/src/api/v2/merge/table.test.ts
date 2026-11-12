@@ -126,7 +126,10 @@ describe("mergeTableContent", () => {
         ],
         1,
       ),
-      { kind: "document", onConflict: () => conflicts++ },
+      {
+        conflict: { winner: "theirs", onConflict: () => conflicts++ },
+        insertsAtOnePosition: "both-theirs-first",
+      },
     );
     expect(merged.headerRows).toBe(1);
     expect(merged.rows.map((row) => row.cells.length)).toEqual([3, 3]);

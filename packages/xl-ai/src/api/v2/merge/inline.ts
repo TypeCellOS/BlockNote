@@ -9,12 +9,12 @@ import {
   toUnits,
 } from "./inlineUnits.js";
 import {
-  conflictRuleOf,
-  type MergeOptions,
+  type ConflictRule,
+  DEFAULT_RULES,
+  type MergeRules,
   mergeRecords,
   mergeValue,
   OURS_WINS,
-  TARGET_WITHOUT_SHADOWS,
 } from "./threeWay.js";
 
 /**
@@ -27,8 +27,8 @@ import {
  *
  * Between these stable characters, the side that changed wins. If only
  * theirs is different from the base, theirs wins (for example whitespace
- * that the round trip changed). If the two sides changed the same part, ours
- * wins, and in the document merge theirs wins (see `MergeOptions`). New text
+ * that the round trip changed). If the two sides changed the same part, the
+ * side of `rules.conflict` wins (see `MergeRules`). New text
  * from ours gets the hidden styles of the text around it (see
  * {@link inheritHiddenStyles}).
  *
@@ -41,60 +41,60 @@ export function mergeInlineContent(
   base: readonly LensInlineContent[],
   ours: readonly LensInlineContent[],
   theirs: readonly LensInlineContent[],
-  options: MergeOptions = TARGET_WITHOUT_SHADOWS,
+  rules: MergeRules = DEFAULT_RULES,
 ): LensInlineContent[] {
-  const concurrent = options.kind === "document";
-  const o = toUnits(base);
-  const a = toUnits(ours);
-  const b = toUnits(theirs, concurrent ? undefined : options.shadowOf);
+  const { conflict, hiddenItems } = rules;
+  const baseUnits = toUnits(base);
+  const ourUnits = toUnits(ours);
+  const theirUnits = toUnits(theirs, hiddenItems?.shadowOf);
 
   return fromUnits(
-    diff3(o, a, b, alignUnits(o, a), alignUnits(o, b), {
-      stable: (triple) => mergeStable(triple, options),
-      ours: (units, context) => {
-        // The styles of the replaced text, one time for the run.
-        const old = commonOf(context.replaced.base, context.replaced.theirs);
-        return units.map((unit) => inheritHiddenStyles(unit, context, old));
+    diff3(
+      baseUnits,
+      ourUnits,
+      theirUnits,
+      alignUnits(baseUnits, ourUnits),
+      alignUnits(baseUnits, theirUnits),
+      {
+        stable: (triple) => mergeStable(triple, conflict),
+        ours: (units, context) => {
+          // The styles of the replaced text, one time for the run.
+          const old = commonOf(context.replaced.base, context.replaced.theirs);
+          return units.map((unit) => inheritHiddenStyles(unit, context, old));
+        },
+        keepBothInserts:
+          rules.insertsAtOnePosition === "both-theirs-first"
+            ? "theirs-first"
+            : undefined,
+        // An item of theirs without a base unit is an item that base and ours
+        // do not show (for example a mention in plain text). Ours cannot remove
+        // it, thus it stays. Whitespace is not an item: base and ours can show
+        // it in a different way.
+        keepTheirs:
+          hiddenItems === undefined
+            ? undefined
+            : (unit) => unit.kind === "atom",
+        conflict:
+          conflict.winner === "theirs" ? conflict.onConflict : undefined,
+        conflictWinner: conflict.winner,
+        // The alignment pairs characters without their styles. Thus, a
+        // character with a changed style is a change.
+        same: sameUnitWithStyles,
       },
-      // Two writers add text at one position: the text that applied first
-      // (of the other writer) stays first. Thus, two additions at the end
-      // read in the order of the writes. (The document merge puts the blocks of
-      // the client first, see `merge/document.ts`.)
-      keepBothInserts: concurrent ? "theirs-first" : undefined,
-      // In the target stage, an item of theirs without a base unit is an item that
-      // the format does not show (for example a mention in plain text). The
-      // text cannot remove it, thus it stays. Whitespace is not an item: the
-      // format can change it.
-      keepTheirs: concurrent ? undefined : (unit) => unit.kind === "atom",
-      conflict: concurrent ? options.onConflict : undefined,
-      conflictWinner: concurrent ? "theirs" : "ours",
-      // The alignment pairs characters without their styles. Thus, a
-      // character with a changed style is a change.
-      same: sameUnitWithStyles,
-    }),
+    ),
   );
 }
 
 function mergeStable(
   { base, ours, theirs }: StableTriple<InlineUnit>,
-  options: MergeOptions,
+  conflict: ConflictRule,
 ): InlineUnit {
   if (base.kind === "char" && ours.kind === "char" && theirs.kind === "char") {
     return {
       kind: "char",
       char: ours.char,
-      styles: mergeRecords(
-        base.styles,
-        ours.styles,
-        theirs.styles,
-        conflictRuleOf(options),
-      ),
-      href: mergeValue(
-        base.href,
-        ours.href,
-        theirs.href,
-        conflictRuleOf(options),
-      ),
+      styles: mergeRecords(base.styles, ours.styles, theirs.styles, conflict),
+      href: mergeValue(base.href, ours.href, theirs.href, conflict),
       shadow: theirs.shadow,
     };
   }

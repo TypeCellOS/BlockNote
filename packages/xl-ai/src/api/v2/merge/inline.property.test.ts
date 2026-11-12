@@ -6,7 +6,7 @@ import { createRandom, type Random } from "../testUtil/random.js";
 import { inlineContentToText } from "../util/blocks/text.js";
 import { mergeInlineContent } from "./inline.js";
 import { fromUnits, toUnits } from "./inlineUnits.js";
-import { mergeOptions } from "../testUtil/merge.js";
+import { allMergeRules } from "../testUtil/merge.js";
 
 const WORDS = ["one", "two", "three", "four", "x", "😀", "é", "ab"];
 
@@ -83,37 +83,31 @@ describe("toUnits and fromUnits: properties", () => {
 });
 
 describe("mergeInlineContent: laws on random content", () => {
-  for (const concurrent of [false, true]) {
-    const mode = concurrent ? "document merge" : "target stage";
-
-    it(`gives theirs if ours did not change (${mode})`, () => {
-      const random = createRandom(concurrent ? 83 : 84);
+  for (const [k, { name, rules }] of allMergeRules().entries()) {
+    it(`gives theirs if ours did not change (${name})`, () => {
+      const random = createRandom(83 + 1000 * k);
       for (let run = 0; run < 200; run++) {
         const base = randomContent(random);
         const theirs = randomContent(random);
         expect(
-          canonical(
-            mergeInlineContent(base, base, theirs, mergeOptions(concurrent)),
-          ),
+          canonical(mergeInlineContent(base, base, theirs, rules())),
         ).toEqual(canonical(theirs));
       }
     });
 
-    it(`gives ours if theirs did not change (${mode})`, () => {
-      const random = createRandom(concurrent ? 85 : 86);
+    it(`gives ours if theirs did not change (${name})`, () => {
+      const random = createRandom(85 + 1000 * k);
       for (let run = 0; run < 200; run++) {
         const base = randomContent(random);
         const ours = randomContent(random);
         expect(
-          canonical(
-            mergeInlineContent(base, ours, base, mergeOptions(concurrent)),
-          ),
+          canonical(mergeInlineContent(base, ours, base, rules())),
         ).toEqual(canonical(ours));
       }
     });
 
-    it(`gives the change one time if the two sides made the same change (${mode})`, () => {
-      const random = createRandom(concurrent ? 87 : 88);
+    it(`gives the change one time if the two sides made the same change (${name})`, () => {
+      const random = createRandom(87 + 1000 * k);
       for (let run = 0; run < 200; run++) {
         const base = randomContent(random);
         const changed = randomContent(random);
@@ -122,7 +116,7 @@ describe("mergeInlineContent: laws on random content", () => {
           base,
           changed,
           changed,
-          mergeOptions(concurrent, () => conflicts++),
+          rules(() => conflicts++),
         );
         expect(canonical(result)).toEqual(canonical(changed));
         expect(conflicts).toBe(0);
@@ -152,8 +146,8 @@ describe("mergeInlineContent: laws on random content", () => {
       );
       let conflicts = 0;
       const result = mergeInlineContent(text(words), text(ours), text(theirs), {
-        kind: "document",
-        onConflict: () => conflicts++,
+        conflict: { winner: "theirs", onConflict: () => conflicts++ },
+        insertsAtOnePosition: "both-theirs-first",
       });
       expect(inlineContentToText(result)).toBe(both.join(" "));
       expect(conflicts).toBe(0);

@@ -28,8 +28,9 @@ function target(
   document: LensInlineContent[],
 ) {
   return mergeInlineContent([text(view)], [text(textOfClient)], document, {
-    kind: "target",
-    shadowOf,
+    conflict: { winner: "ours" },
+    insertsAtOnePosition: "conflict",
+    hiddenItems: { shadowOf },
   });
 }
 
@@ -80,7 +81,11 @@ describe("mergeInlineContent: shadows of the target stage", () => {
         [text("a b")],
         [text("a c")],
         [text("a "), hidden, text("b")],
-        { kind: "target", shadowOf },
+        {
+          conflict: { winner: "ours" },
+          insertsAtOnePosition: "conflict",
+          hiddenItems: { shadowOf },
+        },
       ),
     ).toEqual([text("a "), hidden, text("c")]);
   });

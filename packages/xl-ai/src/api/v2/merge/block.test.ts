@@ -57,7 +57,10 @@ describe("mergeBlock", () => {
       ]),
       block("codeBlock", {}, text("hello world")),
       contentKindOf,
-      { kind: "document", onConflict: () => {} },
+      {
+        conflict: { winner: "theirs", onConflict: () => {} },
+        insertsAtOnePosition: "both-theirs-first",
+      },
     );
     expect(merged).toEqual({
       type: "codeBlock",

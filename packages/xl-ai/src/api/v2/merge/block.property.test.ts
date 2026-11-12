@@ -5,7 +5,7 @@ import type { BlockFields, ContentKind, LensBlockContent } from "../model.js";
 import { createRandom, type Random } from "../testUtil/random.js";
 import { deepEqual } from "../util/blocks/json.js";
 import { mergeBlock } from "./block.js";
-import { mergeOptions } from "../testUtil/merge.js";
+import { allMergeRules } from "../testUtil/merge.js";
 
 const KINDS: Record<string, ContentKind> = {
   paragraph: "inline",
@@ -93,43 +93,29 @@ function edit(random: Random, block: BlockFields): BlockFields {
 }
 
 describe("mergeBlock: laws on random blocks", () => {
-  for (const concurrent of [false, true]) {
-    const mode = concurrent ? "document merge" : "target stage";
-
-    it(`gives theirs if ours did not change (${mode})`, () => {
-      const random = createRandom(concurrent ? 131 : 132);
+  for (const [k, { name, rules }] of allMergeRules().entries()) {
+    it(`gives theirs if ours did not change (${name})`, () => {
+      const random = createRandom(131 + 1000 * k);
       for (let run = 0; run < 300; run++) {
         const base = randomBlock(random);
         const theirs = edit(random, base);
-        const result = mergeBlock(
-          base,
-          base,
-          theirs,
-          contentKindOf,
-          mergeOptions(concurrent),
-        );
+        const result = mergeBlock(base, base, theirs, contentKindOf, rules());
         expect({ run, result }).toEqual({ run, result: theirs });
       }
     });
 
-    it(`gives ours if theirs did not change (${mode})`, () => {
-      const random = createRandom(concurrent ? 133 : 134);
+    it(`gives ours if theirs did not change (${name})`, () => {
+      const random = createRandom(133 + 1000 * k);
       for (let run = 0; run < 300; run++) {
         const base = randomBlock(random);
         const ours = edit(random, base);
-        const result = mergeBlock(
-          base,
-          ours,
-          base,
-          contentKindOf,
-          mergeOptions(concurrent),
-        );
+        const result = mergeBlock(base, ours, base, contentKindOf, rules());
         expect({ run, result }).toEqual({ run, result: ours });
       }
     });
 
-    it(`gives the change one time, without a conflict, if the two sides made the same change (${mode})`, () => {
-      const random = createRandom(concurrent ? 135 : 136);
+    it(`gives the change one time, without a conflict, if the two sides made the same change (${name})`, () => {
+      const random = createRandom(135 + 1000 * k);
       for (let run = 0; run < 300; run++) {
         const base = randomBlock(random);
         const changed = edit(random, base);
@@ -139,7 +125,7 @@ describe("mergeBlock: laws on random blocks", () => {
           changed,
           changed,
           contentKindOf,
-          mergeOptions(concurrent, () => conflicts++),
+          rules(() => conflicts++),
         );
         expect({ run, result }).toEqual({ run, result: changed });
         expect(conflicts).toBe(0);
@@ -165,17 +151,11 @@ describe("mergeBlock: laws on random blocks", () => {
       const base = randomBlock(random);
       const ours = edit(random, base);
       const theirs = edit(random, base);
-      for (const concurrent of [false, true]) {
-        const result = mergeBlock(
-          base,
-          ours,
-          theirs,
-          contentKindOf,
-          mergeOptions(concurrent),
-        );
-        expect({ run, concurrent, shape: shapeOf(result.content) }).toEqual({
+      for (const { name, rules } of allMergeRules()) {
+        const result = mergeBlock(base, ours, theirs, contentKindOf, rules());
+        expect({ run, name, shape: shapeOf(result.content) }).toEqual({
           run,
-          concurrent,
+          name,
           shape: shapeOfKind[contentKindOf(result.type)],
         });
         if (deepEqual(ours, theirs)) {

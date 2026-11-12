@@ -760,7 +760,7 @@ describe("markdown, a change of the content kind", () => {
 /**
  * Markdown shows a mention (custom inline content) as its text, for example
  * "@Bob". The parse gives back that text, not the mention. The merge finds
- * the mention by that text (see `MergeOptions.shadowOf`).
+ * the mention by that text (see `MergeRules.hiddenItems`).
  */
 describe("markdown, custom inline content", () => {
   const format = markdownFormat;

@@ -11,27 +11,25 @@ import { deepEqual, inlineContentToText } from "../util/blocks/index.js";
 import { mergeInlineContent } from "./inline.js";
 import { mergeTableContent } from "./table.js";
 import {
-  conflictRuleOf,
-  type MergeOptions,
+  type ConflictRule,
+  DEFAULT_RULES,
+  type MergeRules,
   mergeRecords,
   mergeValue,
-  TARGET_WITHOUT_SHADOWS,
 } from "./threeWay.js";
 
 /**
  * Three-way merge of the fields of one block (see `threeWay.ts` for the
- * rule). In the target stage, `base` is the view block, `ours` is the block from
- * the text, and `theirs` is the block in the document. In the document merge,
- * `base` is the block at the version that the client read, `ours` is that block
- * with the update, and `theirs` is the current block.
+ * rule and the vocabulary: `base`, `ours` and `theirs`).
  *
  * The type changes only if a side changed it. Thus, a toggle list item stays
  * a toggle, although markdown shows it as a bullet. There is one exception:
  * if `ours` changed the content, and that type cannot hold the content of
  * `ours`, the type of `ours` wins. An example is a file block without a
  * caption, which markdown shows as a paragraph with a link: a change of the
- * link text makes the block a paragraph. In the document merge, that is a
- * conflict: the type and the content of `theirs` win (see `MergeOptions`).
+ * link text makes the block a paragraph. If `theirs` wins conflicts (see
+ * `MergeRules`), that is a conflict: the type and the content of `theirs`
+ * win.
  *
  * The merge merges each prop (see {@link mergeProps}). It merges inline
  * content character by character, and tables cell by cell.
@@ -44,31 +42,27 @@ export function mergeBlock(
   ours: BlockFields,
   theirs: BlockFields,
   contentKindOf: (type: string) => ContentKind,
-  options: MergeOptions = TARGET_WITHOUT_SHADOWS,
+  rules: MergeRules = DEFAULT_RULES,
 ): BlockFields {
+  const { conflict } = rules;
   const contentChanged = !deepEqual(base.content, ours.content);
-  const merged = mergeValue(
-    base.type,
-    ours.type,
-    theirs.type,
-    conflictRuleOf(options),
-  );
+  const merged = mergeValue(base.type, ours.type, theirs.type, conflict);
   // The type of theirs cannot hold the content of ours.
   const clash =
     contentChanged &&
     merged !== ours.type &&
     !canHold(contentKindOf(merged), ours.content);
-  if (clash && options.kind === "document") {
-    options.onConflict();
+  if (clash && conflict.winner === "theirs") {
+    conflict.onConflict();
   }
-  const type = clash && options.kind === "target" ? ours.type : merged;
+  const type = clash && conflict.winner === "ours" ? ours.type : merged;
   const kind = contentKindOf(type);
   // If the content did not change, the content of theirs stays as one item.
   // This is also correct for content that a piece-by-piece merge cannot
   // merge, for example a table with merged cells (the format shows them as
   // separate cells).
   const content =
-    clash && options.kind === "document"
+    clash && conflict.winner === "theirs"
       ? // The change of the content of ours is lost.
         theirs.content
       : contentKindOf(theirs.type) !== kind
@@ -78,12 +72,12 @@ export function mergeBlock(
           // stored form of that type (a code block of ours has only text).
           ours.content
         : contentChanged
-          ? mergeContent(base, ours, theirs, kind, options)
+          ? mergeContent(base, ours, theirs, kind, rules)
           : theirs.content;
 
   return {
     type,
-    props: mergeProps(base, ours, theirs, type, options),
+    props: mergeProps(base, ours, theirs, type, conflict),
     content,
   };
 }
@@ -112,15 +106,10 @@ function mergeProps(
   ours: BlockFields,
   theirs: BlockFields,
   type: string,
-  options: MergeOptions,
+  conflict: ConflictRule,
 ): Record<string, unknown> {
   if (ours.type === theirs.type) {
-    return mergeRecords(
-      base.props,
-      ours.props,
-      theirs.props,
-      conflictRuleOf(options),
-    );
+    return mergeRecords(base.props, ours.props, theirs.props, conflict);
   }
   const [side, other] = type === ours.type ? [ours, theirs] : [theirs, ours];
   const props: Record<string, unknown> = {};
@@ -131,7 +120,7 @@ function mergeProps(
             base.props[key],
             ours.props[key],
             theirs.props[key],
-            conflictRuleOf(options),
+            conflict,
           )
         : value;
     if (merged !== undefined) {
@@ -146,7 +135,7 @@ function mergeContent(
   ours: BlockFields,
   theirs: BlockFields,
   kind: ContentKind,
-  options: MergeOptions,
+  rules: MergeRules,
 ): LensBlockContent {
   switch (kind) {
     case "none":
@@ -161,7 +150,7 @@ function mergeContent(
           base.content,
           ours.content,
           theirs.content,
-          options,
+          rules,
         );
       }
       return ours.content;
@@ -176,7 +165,7 @@ function mergeContent(
               base.content,
               ours.content,
               theirs.content,
-              options,
+              rules,
             )
           : ours.content;
       return kind === "plain" ? toPlainContent(merged) : merged;
@@ -187,8 +176,8 @@ function mergeContent(
 /**
  * Plain content (for example of a code block) cannot have styles, links or
  * custom inline content. The inline merge of a plain block can give them:
- * for example, in the document merge, another writer changed a paragraph
- * into a code block, and the client made a word of it bold.
+ * for example, `theirs` changed a paragraph into a code block, and `ours`
+ * made a word of it bold.
  */
 function toPlainContent(content: LensInlineContent[]): LensInlineContent[] {
   const text = inlineContentToText(content);

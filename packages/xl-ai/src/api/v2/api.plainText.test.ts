@@ -211,7 +211,7 @@ describe("plain text", () => {
       // The insert of the client and the hidden newline are at the same
       // position. In the target stage, an insert of the document at the
       // position of an insert of the text does not stay (a difference of the
-      // format, see `MergeOptions`).
+      // format, see the rules of the target stage in `targetFromPairs`).
       const editor = createEditor(blocks);
       writeText(editor, plainTextFormat, (text) =>
         replaceOnce(text, "\nsecond", "\n!second"),
