@@ -89,6 +89,28 @@ describe("removals (review closely)", () => {
     expect(editor.getBlock("empty-2")).toBeDefined();
   });
 
+  it("removes an empty paragraph that the format does not show if the blocks around it are removed (plain text)", () => {
+    // Plain text does not show an empty paragraph. Thus, the text cannot
+    // remove it: it is an invisible block, and it stays. The exception: it
+    // goes if the write removes the visible blocks on its two sides. Else
+    // it would stay alone in place of the removed section.
+    const editor = createEditor([
+      { id: "a", type: "paragraph", content: "Alpha" },
+      { id: "empty", type: "paragraph" },
+      { id: "b", type: "paragraph", content: "Beta" },
+      { id: "end", type: "paragraph", content: "End" },
+    ]);
+    valid(
+      updateDocument(editor, {
+        base: "current",
+        format: plainTextFormat,
+        text: "End\n",
+      }),
+    );
+
+    expect(documentShape(editor.document)).toEqual(["end"]);
+  });
+
   it("a removed paragraph removes its colors with it", () => {
     const editor = createEditor();
     const text = replaceOnce(
