@@ -19,7 +19,7 @@ export function fitResult(
   rules: SchemaRules,
   blocks: readonly LensBlock[],
   current: readonly LensBlock[],
-  /** Keep the layout blocks, also if they become empty (for `merge: "yjs"`). */
+  /** Keep the layout blocks as they are, also if they become empty. */
   keepLayout: boolean,
 ): LensBlock[] {
   return fitChangedTables(

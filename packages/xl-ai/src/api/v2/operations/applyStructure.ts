@@ -111,9 +111,8 @@ function decideList(
   }
   // A list with too few children gets the fill of the schema at its end, as
   // ProseMirror fills it in the editor. Examples: a document without blocks,
-  // a column that the operations of a caller or of `merge: "yjs"` empty (see
-  // `keepLayout`), a tab set after two writers removed tabs. The insert is
-  // after the other inserts at the end.
+  // a column that the operations empty, a tab set that lost tabs. The insert
+  // is after the other inserts at the end.
   const fill = fillAtEnd(list, shapes);
   if (fill.length > 0) {
     decisions.replacements.push({ from: end, to: end, content: fill });
@@ -276,8 +275,7 @@ function childBlocks(node: Node): Node[] {
  * content node (thus its text and comments), and gets a block group for
  * the children. A layout block (for example a column) holds the children
  * directly. If the children do not fit the layout block (for example a
- * column that the operations of a caller or of `merge: "yjs"` empty), the
- * schema fills it.
+ * column that the operations empty), the schema fills it.
  */
 function withChildren(block: Node, children: readonly Node[]): Node {
   const schema = block.type.schema;
