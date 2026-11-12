@@ -51,7 +51,7 @@ function shape(blocks: LensBlock[]): unknown[] {
 function targetOf(input: {
   document: LensBlock[];
   view: ViewBlock[];
-  incoming: FlatBlock[];
+  textBlocks: FlatBlock[];
   pairs: [number, number][];
   invisibleIds?: string[];
 }) {
@@ -62,8 +62,8 @@ function targetOf(input: {
       view: input.view,
       invisibleIds: new Set(input.invisibleIds),
     },
-    incoming: input.incoming,
-    alignment: input.pairs.map(([aIndex, bIndex]): MatchedPair => ({
+    textBlocks: input.textBlocks,
+    pairs: input.pairs.map(([aIndex, bIndex]): MatchedPair => ({
       aIndex,
       bIndex,
     })),
@@ -86,7 +86,7 @@ describe("targetFromPairs", () => {
       targetOf({
         document,
         view,
-        incoming: [flat("a"), flat("b")],
+        textBlocks: [flat("a"), flat("b")],
         pairs: same,
       }),
     ).toEqual({ target: ["a", "b"], warnings: [] });
@@ -97,7 +97,7 @@ describe("targetFromPairs", () => {
       targetOf({
         document,
         view,
-        incoming: [flat("a"), flat("b2")],
+        textBlocks: [flat("a"), flat("b2")],
         pairs: same,
       }).target,
     ).toEqual(["a", "b:b2"]);
@@ -108,7 +108,7 @@ describe("targetFromPairs", () => {
       targetOf({
         document,
         view,
-        incoming: [flat("n"), flat("a"), flat("m"), flat("b")],
+        textBlocks: [flat("n"), flat("a"), flat("m"), flat("b")],
         pairs: [
           [0, 1],
           [1, 3],
@@ -122,7 +122,7 @@ describe("targetFromPairs", () => {
       targetOf({
         document,
         view,
-        incoming: [flat("a"), flat("n"), flat("c", 1)],
+        textBlocks: [flat("a"), flat("n"), flat("c", 1)],
         pairs: [[0, 0]],
       }).target,
     ).toEqual(["a", "new1:n", ["new2:c"]]);
@@ -130,7 +130,7 @@ describe("targetFromPairs", () => {
 
   it("removes a block without a match", () => {
     expect(
-      targetOf({ document, view, incoming: [flat("a")], pairs: [[0, 0]] })
+      targetOf({ document, view, textBlocks: [flat("a")], pairs: [[0, 0]] })
         .target,
     ).toEqual(["a"]);
   });
@@ -140,7 +140,7 @@ describe("targetFromPairs", () => {
       targetOf({
         document: [paragraph("p", "p", [paragraph("c", "c")])],
         view: [viewBlock("p", "p"), viewBlock("c", "c", 0)],
-        incoming: [flat("c")],
+        textBlocks: [flat("c")],
         pairs: [[1, 0]],
       }).target,
     ).toEqual(["c"]);
@@ -152,7 +152,7 @@ describe("targetFromPairs", () => {
       targetOf({
         document: [paragraph("p", "p", [paragraph("c", "c")])],
         view: [viewBlock("p", "p"), viewBlock("c", "c")],
-        incoming: [flat("p"), flat("c2")],
+        textBlocks: [flat("p"), flat("c2")],
         pairs: same,
       }).target,
     ).toEqual(["p", ["c:c2"]]);
@@ -171,7 +171,7 @@ describe("targetFromPairs", () => {
           viewBlock("c", "c", 0),
           viewBlock("d", "d"),
         ],
-        incoming: [flat("p"), flat("c"), flat("d")],
+        textBlocks: [flat("p"), flat("c"), flat("d")],
         pairs: [
           [0, 0],
           [1, 1],
@@ -189,7 +189,7 @@ describe("targetFromPairs", () => {
           paragraph("e", "e"),
         ],
         view: [viewBlock("p", "p"), viewBlock("c", "c"), viewBlock("e", "e")],
-        incoming: [flat("p"), flat("n"), flat("c"), flat("e")],
+        textBlocks: [flat("p"), flat("n"), flat("c"), flat("e")],
         pairs: [
           [0, 0],
           [1, 2],
@@ -208,7 +208,7 @@ describe("targetFromPairs", () => {
           paragraph("b", "b"),
         ],
         view,
-        incoming: [flat("a"), flat("b2")],
+        textBlocks: [flat("a"), flat("b2")],
         pairs: same,
         invisibleIds: ["e"],
       }).target,
@@ -224,7 +224,7 @@ describe("targetFromPairs", () => {
           paragraph("b", "b"),
         ],
         view,
-        incoming: [flat("x")],
+        textBlocks: [flat("x")],
         pairs: [],
         invisibleIds: ["e"],
       }).target,
@@ -240,7 +240,7 @@ describe("targetFromPairs", () => {
           paragraph("e", "e"),
         ],
         view: [viewBlock("x", "x"), viewBlock("y", "y"), viewBlock("e", "e")],
-        incoming: [flat("x2"), flat("y"), flat("e")],
+        textBlocks: [flat("x2"), flat("y"), flat("e")],
         pairs: [
           [0, 0],
           [1, 1],

@@ -14,16 +14,16 @@ import type { TargetWarning } from "./types.js";
 
 export type { TargetWarning } from "./types.js";
 
-/** The input of {@link targetFromPairs}: the source, its projection, the text blocks and the alignment. */
+/** The input of {@link targetFromPairs}: the source, its projection, the text blocks and their pairs. */
 export type TargetInput = {
   /** The document that the change starts from (`base`, or the current document). */
   source: readonly LensBlock[];
   /** `source` as the format shows it. */
   projection: Projection;
   /** The blocks of the text, in a flat list. */
-  incoming: FlatBlock[];
-  /** The matches of `projection.view` (a side) to `incoming` (b side). */
-  alignment: BlockPair[];
+  textBlocks: FlatBlock[];
+  /** The pairs of `projection.view` (a side) and `textBlocks` (b side). */
+  pairs: BlockPair[];
   contentKindOf: (type: string) => ContentKind;
   /** The text that the format shows for an inline item that it does not give back (see `MergeOptions.shadowOf`). */
   shadowOf?: (item: LensInlineContent) => string | undefined;
@@ -44,18 +44,18 @@ export type TargetInput = {
  *    `withInvisibleBlocks`).
  * 3. The nesting: the blocks in the order of the text, in the parent that the
  *    text shows, with the nesting that the format does not show, and the
- *    hidden blocks at their source positions (see `buildTargetDocument`).
+ *    invisible blocks at their source positions (see `buildTargetDocument`).
  */
 export function targetFromPairs(input: TargetInput): TargetResult {
   const sourceIndex = new BlockIndex(input.source);
   const { view, invisibleIds } = input.projection;
   /** The pair of each text block, if it has one. */
-  const pairOf: (BlockPair | undefined)[] = new Array(input.incoming.length);
-  for (const pair of input.alignment) {
+  const pairOf: (BlockPair | undefined)[] = new Array(input.textBlocks.length);
+  for (const pair of input.pairs) {
     pairOf[pair.bIndex] = pair;
   }
   const warnings: TargetWarning[] = [];
-  const rows = input.incoming.map(({ block: text }, j): TargetRow => {
+  const rows = input.textBlocks.map(({ block: text }, j): TargetRow => {
     const pair = pairOf[j];
     if (pair === undefined) {
       return { kind: "new", fields: text };
@@ -79,11 +79,11 @@ export function targetFromPairs(input: TargetInput): TargetResult {
   const keptIds = rows.flatMap((row) => (row.kind === "kept" ? [row.id] : []));
   const target = buildTargetDocument({
     rows,
-    incoming: input.incoming,
+    textBlocks: input.textBlocks,
     view,
-    source: sourceIndex,
+    sourceIndex,
     invisibleIds,
-    kept: withInvisibleBlocks(sourceIndex, invisibleIds, keptIds),
+    staying: withInvisibleBlocks(sourceIndex, invisibleIds, keptIds),
     newId: input.newId,
   });
   return { target, warnings };

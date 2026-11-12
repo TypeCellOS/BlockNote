@@ -277,8 +277,8 @@ export function targetInputOf(
   return {
     source,
     projection,
-    incoming: textBlocks,
-    alignment: pairs,
+    textBlocks,
+    pairs,
     contentKindOf: schemaRulesOf(editor).contentKindOf,
     shadowOf: (item) => shadowOf(editor, format, item),
     newId: () => UniqueID.options.generateID(),

@@ -12,39 +12,39 @@ export type { TargetRow } from "./types.js";
  * 1. The parent of each block (see `decideParents`): the blocks of the rows
  *    in the order of the text, in the parent that the text shows, or in a
  *    nesting that the format does not show.
- * 2. The hidden blocks that stay go to their source positions (see
- *    {@link placeHiddenBlocks}).
+ * 2. The invisible blocks that stay go to their source positions (see
+ *    {@link placeInvisibleBlocks}).
  *
  * @internal
  */
 export function buildTargetDocument(input: {
   rows: readonly TargetRow[];
   /** The blocks of the text, in a flat list (for their parents and types). */
-  incoming: readonly FlatBlock[];
+  textBlocks: readonly FlatBlock[];
   /** The view blocks (for their parents and types). */
   view: readonly ViewBlock[];
-  source: BlockIndex;
+  sourceIndex: BlockIndex;
   invisibleIds: ReadonlySet<string>;
   /** The source blocks that stay (see `withInvisibleBlocks`). */
-  kept: ReadonlySet<string>;
+  staying: ReadonlySet<string>;
   /** Gives the ID of a new block. */
   newId: () => string;
 }): LensBlock[] {
-  const { rows, source } = input;
+  const { rows, sourceIndex } = input;
   const root = blockFromFields("", { type: "", props: {}, content: undefined });
   /** The block of each place in the target. */
   const blocksByPlace = new Map<string, LensBlock>([
     [keyOf({ kind: "root" }), root],
   ]);
-  /** The block of each source block in the target: a kept block or a hidden ancestor. */
+  /** The block of each source block in the target: a kept block or an invisible ancestor. */
   const blocksBySourceId = new Map<string, LensBlock>();
 
   function create(place: Place): LensBlock {
     switch (place.kind) {
       case "root":
         throw new Error("The root is not a step of the build");
-      case "hidden": {
-        const block = blockFromFields(place.id, source.block(place.id));
+      case "invisible": {
+        const block = blockFromFields(place.id, sourceIndex.block(place.id));
         blocksBySourceId.set(place.id, block);
         return block;
       }
@@ -74,41 +74,46 @@ export function buildTargetDocument(input: {
     parentBlock.children.push(created);
     blocksByPlace.set(keyOf(block), created);
   }
-  placeHiddenBlocks(
+  placeInvisibleBlocks(
     root,
     blocksBySourceId,
-    source,
+    sourceIndex,
     input.invisibleIds,
-    input.kept,
+    input.staying,
   );
   return root.children;
 }
 
 /**
- * The hidden blocks that stay and are not in the target yet go to their source
- * positions: in their parent, after the last earlier sibling that is there.
- * In document order, thus a parent is in the target before its children.
+ * The invisible blocks that stay and are not in the target yet go to their
+ * source positions: in their parent, after the last earlier sibling that is
+ * there. In document order, thus a parent is in the target before its
+ * children.
  */
-function placeHiddenBlocks(
+function placeInvisibleBlocks(
   root: LensBlock,
   blocksBySourceId: Map<string, LensBlock>,
-  source: BlockIndex,
+  sourceIndex: BlockIndex,
   invisibleIds: ReadonlySet<string>,
-  kept: ReadonlySet<string>,
+  staying: ReadonlySet<string>,
 ) {
   function place(parentId: string | undefined) {
     const parent =
       parentId === undefined ? root : blocksBySourceId.get(parentId);
-    const siblings = source.childrenOf(parentId);
+    const siblings = sourceIndex.childrenOf(parentId);
     if (parent !== undefined) {
       const present = new Set(parent.children.map((child) => child.id));
-      // The hidden blocks after each present block (first for
+      // The invisible blocks after each present block (first for
       // `undefined`), in source order.
       const after = new Map<string | undefined, LensBlock[]>();
       let last: string | undefined;
       for (const id of siblings) {
-        if (invisibleIds.has(id) && kept.has(id) && !blocksBySourceId.has(id)) {
-          const block = blockFromFields(id, source.block(id));
+        if (
+          invisibleIds.has(id) &&
+          staying.has(id) &&
+          !blocksBySourceId.has(id)
+        ) {
+          const block = blockFromFields(id, sourceIndex.block(id));
           blocksBySourceId.set(id, block);
           const list = after.get(last) ?? [];
           list.push(block);

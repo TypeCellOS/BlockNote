@@ -5,15 +5,15 @@ import type { KeptRow, TargetRow } from "./types.js";
 
 /**
  * A place in the target document: the root, the block of a row of the text (a
- * new or a kept block), or a hidden ancestor (a source block without a view
- * block, for example a column, that a kept block keeps as its ancestor).
+ * new or a kept block), or an invisible ancestor (a source block without a
+ * view block, for example a column, that a kept block keeps as its ancestor).
  *
  * @internal
  */
 export type Place =
   | { kind: "root" }
   | { kind: "row"; index: number }
-  | { kind: "hidden"; id: string };
+  | { kind: "invisible"; id: string };
 
 /**
  * A key for a place, unique in one build of the target document.
@@ -26,8 +26,8 @@ export function keyOf(place: Place): string {
       return "root";
     case "row":
       return `row:${place.index}`;
-    case "hidden":
-      return `hidden:${place.id}`;
+    case "invisible":
+      return `invisible:${place.id}`;
   }
 }
 
@@ -61,14 +61,14 @@ const LISTS: ReadonlyMap<string, "ordered" | "bullet"> = new Map([
  * - A kept block keeps its nesting if the text did not change it and the
  *   parent is still open (see `keptParent`). A new block before such a
  *   block goes into the same nesting (see `nestingOfNext`).
- * - A block that the text moves together with its hidden parent stays in
- *   that parent (see `parentMovedAlong`).
+ * - A block that the text moves together with its parent, in a nesting that
+ *   the format does not show, stays in that parent (see `parentMovedAlong`).
  * - List items that the text shows as one list share the parent of that
  *   list (see `listParent`).
  * - A block that the text shows one level higher than the view goes where
  *   its parent in the view is, or was (see `outdentParent`).
  *
- * Hidden ancestors that a block keeps get a step too, before the block.
+ * Invisible ancestors that a block keeps get a step too, before the block.
  *
  * Method: our own design.
  *
@@ -118,19 +118,19 @@ class OpenAncestors {
 type NestingInput = {
   rows: readonly TargetRow[];
   /** The blocks of the text, in a flat list (for their parents and types). */
-  incoming: readonly FlatBlock[];
+  textBlocks: readonly FlatBlock[];
   /** The view blocks (for their parents, types and source blocks). */
   view: readonly ViewBlock[];
-  source: BlockIndex;
+  sourceIndex: BlockIndex;
   invisibleIds: ReadonlySet<string>;
   /** The source blocks that stay (see `withInvisibleBlocks`). */
-  kept: ReadonlySet<string>;
+  staying: ReadonlySet<string>;
 };
 
 /** The nesting rules of {@link decideParents}, with the state of the decisions. */
 class ParentDecisions {
   private readonly open = new OpenAncestors();
-  /** The place of each source block that is in the target: a kept block or a hidden ancestor. */
+  /** The place of each source block that is in the target: a kept block or an invisible ancestor. */
   private readonly placeOf = new Map<string, Place>();
   /** The first kept row at or after each index, with its index. */
   private readonly keptFrom: ({ index: number; row: KeptRow } | undefined)[];
@@ -138,19 +138,19 @@ class ParentDecisions {
   private readonly previousSibling: (number | undefined)[];
 
   private readonly rows: NestingInput["rows"];
-  private readonly incoming: NestingInput["incoming"];
+  private readonly textBlocks: NestingInput["textBlocks"];
   private readonly view: NestingInput["view"];
-  private readonly source: NestingInput["source"];
+  private readonly sourceIndex: NestingInput["sourceIndex"];
   private readonly invisibleIds: NestingInput["invisibleIds"];
-  private readonly kept: NestingInput["kept"];
+  private readonly staying: NestingInput["staying"];
 
   constructor(input: NestingInput) {
     this.rows = input.rows;
-    this.incoming = input.incoming;
+    this.textBlocks = input.textBlocks;
     this.view = input.view;
-    this.source = input.source;
+    this.sourceIndex = input.sourceIndex;
     this.invisibleIds = input.invisibleIds;
-    this.kept = input.kept;
+    this.staying = input.staying;
     const { rows } = input;
     this.keptFrom = new Array(rows.length + 1);
     for (let k = rows.length - 1; k >= 0; k--) {
@@ -159,7 +159,7 @@ class ParentDecisions {
         row.kind === "kept" ? { index: k, row } : this.keptFrom[k + 1];
     }
     const lastChild = new Map<number | undefined, number>();
-    this.previousSibling = input.incoming.map(({ parentIndex }, j) => {
+    this.previousSibling = input.textBlocks.map(({ parentIndex }, j) => {
       const previous = lastChild.get(parentIndex);
       lastChild.set(parentIndex, j);
       return previous;
@@ -189,14 +189,14 @@ class ParentDecisions {
         return "";
       case "row":
         return this.rows[place.index].fields.type;
-      case "hidden":
-        return this.source.block(place.id).type;
+      case "invisible":
+        return this.sourceIndex.block(place.id).type;
     }
   }
 
   /** The place of the parent of text block `j` in the text, or the root. */
   private textParent(j: number): Place {
-    const p = this.incoming[j].parentIndex;
+    const p = this.textBlocks[j].parentIndex;
     return p === undefined ? ROOT : { kind: "row", index: p };
   }
 
@@ -208,7 +208,7 @@ class ParentDecisions {
    * the parent type, a nesting that the view did not show can show.
    */
   private nestingUnchanged(j: number, row: KeptRow): boolean {
-    const textParentIndex = this.incoming[j].parentIndex;
+    const textParentIndex = this.textBlocks[j].parentIndex;
     const viewParentIndex = this.view[row.viewIndex].parentIndex;
     if (textParentIndex === undefined || viewParentIndex === undefined) {
       return textParentIndex === viewParentIndex;
@@ -216,7 +216,7 @@ class ParentDecisions {
     return (
       this.textParentIs(j, viewParentIndex) &&
       this.view[viewParentIndex].block.type ===
-        this.incoming[textParentIndex].block.type
+        this.textBlocks[textParentIndex].block.type
     );
   }
 
@@ -225,7 +225,7 @@ class ParentDecisions {
    * view block `viewIndex` (`undefined`: the top level).
    */
   private textParentIs(j: number, viewIndex: number | undefined): boolean {
-    const textParentIndex = this.incoming[j].parentIndex;
+    const textParentIndex = this.textBlocks[j].parentIndex;
     if (textParentIndex === undefined) {
       return viewIndex === undefined;
     }
@@ -236,29 +236,29 @@ class ParentDecisions {
   /**
    * Returns the place of the source parent of kept block `id`, if the block
    * can stay in it: the parent and the ancestors stay, the parent is an open
-   * ancestor, and the parent keeps its type. Hidden ancestors that are not in
-   * the target yet get a step here. If not, returns `undefined`.
+   * ancestor, and the parent keeps its type. Invisible ancestors that are not
+   * in the target yet get a step here. If not, returns `undefined`.
    */
   private sourceParent(id: string): Place | undefined {
-    const hidden = this.hiddenAncestors(id);
-    const visible = this.source.parent(hidden.at(-1) ?? id);
+    const invisible = this.invisibleAncestors(id);
+    const visible = this.sourceIndex.parent(invisible.at(-1) ?? id);
     let parent = visible === undefined ? ROOT : this.placeOf.get(visible);
     if (
       parent === undefined ||
       !this.open.isOpen(parent) ||
-      hidden.some((ancestor) => !this.kept.has(ancestor)) ||
+      invisible.some((ancestor) => !this.staying.has(ancestor)) ||
       // The format did not show the nesting under the type of the source
       // parent. Under a new type (for example a bullet instead of a
       // paragraph), the format can show it, thus the text decides.
       (visible !== undefined &&
-        this.typeOf(parent) !== this.source.block(visible).type)
+        this.typeOf(parent) !== this.sourceIndex.block(visible).type)
     ) {
       return undefined;
     }
-    for (const ancestor of hidden.reverse()) {
+    for (const ancestor of invisible.reverse()) {
       let place = this.placeOf.get(ancestor);
       if (place === undefined) {
-        place = { kind: "hidden", id: ancestor };
+        place = { kind: "invisible", id: ancestor };
         this.open.attach(place, parent);
         this.placeOf.set(ancestor, place);
       } else if (!this.open.isOpen(place)) {
@@ -288,11 +288,11 @@ class ParentDecisions {
    */
   private listParent(j: number): Place | undefined {
     const previous = this.previousSibling[j];
-    const list = LISTS.get(this.incoming[j].block.type);
+    const list = LISTS.get(this.textBlocks[j].block.type);
     if (
       previous === undefined ||
       list === undefined ||
-      LISTS.get(this.incoming[previous].block.type) !== list
+      LISTS.get(this.textBlocks[previous].block.type) !== list
     ) {
       return undefined;
     }
@@ -321,7 +321,7 @@ class ParentDecisions {
       return undefined;
     }
     const shownParent = this.view[viewParent].sourceId;
-    if (!this.kept.has(shownParent)) {
+    if (!this.staying.has(shownParent)) {
       return this.sourceParent(shownParent);
     }
     const place = this.placeOf.get(shownParent);
@@ -348,8 +348,8 @@ class ParentDecisions {
       return undefined;
     }
     const { index, row } = next;
-    return this.incoming[index].parentIndex === this.incoming[j].parentIndex &&
-      this.nestingUnchanged(index, row)
+    return this.textBlocks[index].parentIndex ===
+      this.textBlocks[j].parentIndex && this.nestingUnchanged(index, row)
       ? next
       : undefined;
   }
@@ -359,19 +359,20 @@ class ParentDecisions {
    *
    * - If the text changed the nesting of the block, the parent of the text,
    *   with three exceptions. If the text moved the block together with its
-   *   hidden parent, the block stays in that parent (see
+   *   parent, in a nesting that the format does not show, the block stays
+   *   in that parent (see
    *   {@link parentMovedAlong}). A list item goes into the parent of its list
    *   (see {@link listParent}). A block that the text moved up out of its
    *   source parent goes where that parent is (see {@link outdentParent}).
-   *   Thus, a block that the text outdents out of an item of a hidden list
-   *   stays in the hidden parent of that list, and the next blocks stay
-   *   there too.
+   *   Thus, a block that the text outdents out of an item of a list in a
+   *   hidden nesting stays in the parent of that list, and the next blocks
+   *   stay there too.
    * - Else, the source parent, with the nesting that the format does not
    *   show (for example a column). There are two exceptions. A block that
-   *   the text moved to a place outside its hidden blocks (none of them is
-   *   open, and the next kept block is not in one of them) does not keep
-   *   that nesting. A block between two blocks of an open hidden block (for
-   *   example the blocks of two columns) does not close it.
+   *   the text moved to a place outside its invisible ancestors (none of
+   *   them is open, and the next kept block is not in one of them) does not
+   *   keep that nesting. A block between two blocks of an open invisible
+   *   block (for example the blocks of two columns) does not close it.
    * - In these cases, and if the source parent is not open any more, the
    *   block goes where a new block goes (see {@link asNew}).
    */
@@ -384,14 +385,14 @@ class ParentDecisions {
         this.textParent(j)
       );
     }
-    if (row.moved && !this.isNearHiddenAncestor(j, row.id)) {
+    if (row.moved && !this.isNearInvisibleAncestor(j, row.id)) {
       return this.asNew(j);
     }
     const parent = this.sourceParent(row.id);
     if (parent === undefined) {
       return this.asNew(j);
     }
-    return this.nextNeedsOpenHiddenBlock(j, parent)
+    return this.nextNeedsOpenInvisibleBlock(j, parent)
       ? (this.nestingOfNext(j) ?? parent)
       : parent;
   }
@@ -407,7 +408,7 @@ class ParentDecisions {
    * and is open. Else, returns `undefined`.
    */
   private parentMovedAlong(j: number, row: KeptRow): Place | undefined {
-    const parentId = this.source.parent(row.id);
+    const parentId = this.sourceIndex.parent(row.id);
     const place =
       parentId === undefined ? undefined : this.placeOf.get(parentId);
     if (place?.kind !== "row" || !this.open.isOpen(place)) {
@@ -415,21 +416,22 @@ class ParentDecisions {
     }
     const parentRow = this.rows[place.index];
     return parentRow.kind === "kept" &&
-      parentRow.fields.type === this.source.block(parentRow.id).type &&
+      parentRow.fields.type === this.sourceIndex.block(parentRow.id).type &&
       this.view[parentRow.viewIndex].parentIndex ===
         this.view[row.viewIndex].parentIndex &&
-      this.incoming[place.index].parentIndex === this.incoming[j].parentIndex
+      this.textBlocks[place.index].parentIndex ===
+        this.textBlocks[j].parentIndex
       ? place
       : undefined;
   }
 
-  /** The hidden ancestors of a source block: the ancestors up to the first visible one. */
-  private hiddenAncestors(id: string): string[] {
+  /** The invisible ancestors of a source block: the ancestors up to the first visible one. */
+  private invisibleAncestors(id: string): string[] {
     const ancestors: string[] = [];
     for (
-      let ancestor = this.source.parent(id);
+      let ancestor = this.sourceIndex.parent(id);
       ancestor !== undefined && this.invisibleIds.has(ancestor);
-      ancestor = this.source.parent(ancestor)
+      ancestor = this.sourceIndex.parent(ancestor)
     ) {
       ancestors.push(ancestor);
     }
@@ -437,17 +439,17 @@ class ParentDecisions {
   }
 
   /**
-   * Returns true if a hidden ancestor of kept block `j` is at its new place:
-   * the ancestor is open, or the next kept block is also in it. A block
-   * without hidden ancestors can have a visible parent that the format does
+   * Returns true if an invisible ancestor of kept block `j` is at its new
+   * place: the ancestor is open, or the next kept block is also in it. A block
+   * without invisible ancestors can have a visible parent that the format does
    * not show as its parent (for example a paragraph with a list in it, in
    * markdown). That block is near its nesting if that parent is open, or if
    * the block is at the top level.
    */
-  private isNearHiddenAncestor(j: number, id: string): boolean {
-    const own = this.hiddenAncestors(id);
+  private isNearInvisibleAncestor(j: number, id: string): boolean {
+    const own = this.invisibleAncestors(id);
     if (own.length === 0) {
-      const parent = this.source.parent(id);
+      const parent = this.sourceIndex.parent(id);
       return parent === undefined || this.isOpenSource(parent);
     }
     if (own.some((ancestor) => this.isOpenSource(ancestor))) {
@@ -455,7 +457,7 @@ class ParentDecisions {
     }
     const next = this.nextKept(j);
     const ofNext = new Set(
-      next === undefined ? [] : this.hiddenAncestors(next.row.id),
+      next === undefined ? [] : this.invisibleAncestors(next.row.id),
     );
     return own.some((ancestor) => ofNext.has(ancestor));
   }
@@ -467,18 +469,18 @@ class ParentDecisions {
   }
 
   /**
-   * Returns true if the next kept block after block `j` needs a hidden block
-   * that is open below `parent`. If block `j` went into `parent`, it would
-   * close that hidden block, and the next block cannot go back into it.
+   * Returns true if the next kept block after block `j` needs an invisible
+   * block that is open below `parent`. If block `j` went into `parent`, it
+   * would close that invisible block, and the next block cannot go back into it.
    * An example is a top-level block that the text puts between the blocks
    * of two columns. This does not change the target.
    */
-  private nextNeedsOpenHiddenBlock(j: number, parent: Place): boolean {
+  private nextNeedsOpenInvisibleBlock(j: number, parent: Place): boolean {
     const next = this.nextKept(j);
     const depth = this.open.depthOf(parent);
     return (
       next !== undefined &&
-      this.hiddenAncestors(next.row.id).some((ancestor) => {
+      this.invisibleAncestors(next.row.id).some((ancestor) => {
         const place = this.placeOf.get(ancestor);
         return place !== undefined && this.open.depthOf(place) > depth;
       })

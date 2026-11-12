@@ -111,13 +111,13 @@ describe("large documents", () => {
 
           // The stages of the pipeline (see api.ts).
           let projection = projectDocument(editor, format, document);
-          let incoming = flattenBlocks(format.parse(editor, edited));
-          let alignment = alignBlocks(projection.view, incoming);
+          let textBlocks = flattenBlocks(format.parse(editor, edited));
+          let pairs = alignBlocks(projection.view, textBlocks);
           let target = targetFromPairs({
             source: document,
             projection,
-            incoming,
-            alignment,
+            textBlocks,
+            pairs,
             contentKindOf: (type) => editor.schema.blockSchema[type].content,
             newId: () => crypto.randomUUID(),
           });
@@ -183,17 +183,17 @@ describe("large documents", () => {
               projection = projectDocument(editor, format, document);
             }),
             "· parse text": await median(() => {
-              incoming = flattenBlocks(format.parse(editor, edited));
+              textBlocks = flattenBlocks(format.parse(editor, edited));
             }),
             "· align": await median(() => {
-              alignment = alignBlocks(projection.view, incoming);
+              pairs = alignBlocks(projection.view, textBlocks);
             }),
             "· target": await median(() => {
               target = targetFromPairs({
                 source: document,
                 projection,
-                incoming,
-                alignment,
+                textBlocks,
+                pairs,
                 contentKindOf: (type) =>
                   editor.schema.blockSchema[type].content,
                 newId: () => crypto.randomUUID(),

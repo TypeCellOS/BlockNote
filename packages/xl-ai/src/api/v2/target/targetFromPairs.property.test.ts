@@ -56,14 +56,18 @@ function viewOf(source: LensBlock[], flat: boolean): ViewBlock[] {
   }));
 }
 
-function target(source: LensBlock[], view: ViewBlock[], incoming: FlatBlock[]) {
+function target(
+  source: LensBlock[],
+  view: ViewBlock[],
+  textBlocks: FlatBlock[],
+) {
   let count = 0;
   return targetFromPairs({
     source,
     projection: { view, invisibleIds: new Set() },
-    incoming,
+    textBlocks,
     // The text has the blocks of the view at the same positions.
-    alignment: incoming.map((_, i) => ({ aIndex: i, bIndex: i })),
+    pairs: textBlocks.map((_, i) => ({ aIndex: i, bIndex: i })),
     contentKindOf: () => "inline",
     newId: () => `new${++count}`,
   });
@@ -78,11 +82,11 @@ describe("targetFromPairs: laws on random documents", () => {
       for (let run = 0; run < 300; run++) {
         const source = randomDocument(random);
         const view = viewOf(source, flat);
-        const incoming = view.map(({ block, parentIndex }) => ({
+        const textBlocks = view.map(({ block, parentIndex }) => ({
           block,
           parentIndex,
         }));
-        const result = target(source, view, incoming);
+        const result = target(source, view, textBlocks);
         expect({ run, target: result.target }).toEqual({ run, target: source });
         expect(result.warnings).toEqual([]);
       }
@@ -94,7 +98,7 @@ describe("targetFromPairs: laws on random documents", () => {
         const source = randomDocument(random);
         const view = viewOf(source, flat);
         const changed = new Set<number>();
-        const incoming = view.map(({ block, parentIndex }, i) => {
+        const textBlocks = view.map(({ block, parentIndex }, i) => {
           if (!random.chance(0.3)) {
             return { block, parentIndex };
           }
@@ -118,7 +122,10 @@ describe("targetFromPairs: laws on random documents", () => {
             child.content = [{ type: "text", text: `new ${i}`, styles: {} }];
           }
         });
-        expect({ run, target: target(source, view, incoming).target }).toEqual({
+        expect({
+          run,
+          target: target(source, view, textBlocks).target,
+        }).toEqual({
           run,
           target: expected,
         });
@@ -133,7 +140,7 @@ describe("targetFromPairs: laws on random documents", () => {
       const view = viewOf(source, false);
       const removed = random.int(view.length);
       const kept = view.flatMap((_, i) => (i === removed ? [] : [i]));
-      const incoming = kept.map((i) => ({
+      const textBlocks = kept.map((i) => ({
         block: view[i].block,
         parentIndex: undefined,
       }));
@@ -141,8 +148,8 @@ describe("targetFromPairs: laws on random documents", () => {
       const result = targetFromPairs({
         source,
         projection: { view, invisibleIds: new Set() },
-        incoming,
-        alignment: kept.map((aIndex, bIndex) => ({ aIndex, bIndex })),
+        textBlocks,
+        pairs: kept.map((aIndex, bIndex) => ({ aIndex, bIndex })),
         contentKindOf: () => "inline",
         newId: () => `new${++count}`,
       });
