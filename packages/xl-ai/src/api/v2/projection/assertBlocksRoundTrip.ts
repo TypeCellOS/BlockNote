@@ -17,6 +17,13 @@ import { roundTripIsolated, type ViewBlock } from "./projectDocument.js";
  * block with text shows its text. Of these, a block whose key a view block
  * has needs no round trip: each view block comes from a document block (see
  * `projectDocument`), thus the format shows such a block.
+ *
+ * The keys of the view are an optional optimization, and the function can
+ * lose them (and the parameter `view`): no test needs them. Without them,
+ * each block without text and without children in the text (for example
+ * an image, a divider, or an empty paragraph in HTML) goes into the one
+ * shared round trip, on each write. A simple version for a test of the
+ * optimization: no `view`, and each such block is a candidate.
  */
 export function assertBlocksRoundTrip(
   editor: BlockNoteEditor<any, any, any>,
