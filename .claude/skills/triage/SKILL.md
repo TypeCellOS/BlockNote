@@ -39,6 +39,7 @@ Inspect actual inputs; examples illustrate boundaries, not automatic classificat
 ## Decide and report
 
 - **Focused defect:** in review mode, recommend investigation/fix, potentially by an agent; in work mode, first establish a failing reproduction, then use it to understand the cause, implement a focused fix, and verify the reproduction passes with regression coverage. Follow repository instructions; explain broad scope or blockers rather than silently expanding work. Apply the same reproduction-first requirement to delegated fixes.
+- **Test environment:** prefer Vitest Browser Mode for UI, React, or DOM-related reproductions and regressions; prefer Vitest in Node for JS-only logic that does not depend on the DOM. Follow repository execution constraints and use real browser/device verification when the reported interaction cannot be faithfully reproduced in that test environment.
 - **Feature:** recommend Discussions; obtain confirmation before implementation.
 - **Existing PR:** prefer validation or continuation over competing work. Verify apparent merged fixes where feasible; report resolved behavior rather than patching again. Closed, unmerged PRs are not resolutions.
 - **Configuration solution:** explain it instead of adding redundant behavior.
