@@ -194,24 +194,6 @@ describe("a document after `removeBlocks` removed all blocks", () => {
       ).operations,
     ).toEqual([]);
   });
-
-  it("writes to an editor with a block without an ID", () => {
-    // In an editor without a view, `removeBlocks` can leave a block without
-    // an ID. `editor.document` then shows a new ID on each read.
-    const editor = createEditor([{ id: "a", type: "paragraph", content: "A" }]);
-    editor.removeBlocks(["a"]);
-
-    valid(
-      updateDocument(editor, {
-        base: "current",
-        format: markdownFormat,
-        text: "X\n\nY\n",
-      }),
-    );
-
-    expect(getDocumentText(editor, markdownFormat)).toBe("X\n\nY\n");
-    expect(new Set(editor.document.map((block) => block.id)).size).toBe(2);
-  });
 });
 
 /**

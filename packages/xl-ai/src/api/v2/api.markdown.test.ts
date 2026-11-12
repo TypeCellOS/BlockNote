@@ -487,12 +487,6 @@ describe("markdown", () => {
   });
 });
 
-/**
- * Markdown does not show some block types: a file block is a paragraph with
- * a link and a paragraph with its caption, and a video is an image. These
- * paragraphs and images link to the block that gives them (see
- * `projectDocument`).
- */
 describe("markdown, a paragraph with \\r line breaks", () => {
   it("keeps the \\r if the text changes a different word", () => {
     // Markdown shows a `\r` as a hard break. Before, the export wrote it as a
@@ -533,6 +527,11 @@ describe("markdown, a document that markdown shows as no block", () => {
   });
 });
 
+/**
+ * Markdown shows some blocks in another form: a file block with a caption as
+ * an HTML figure, and a video as an image. Each view block links to the block
+ * that gives it (see `projectDocument`).
+ */
 describe("markdown, blocks that markdown shows as other blocks", () => {
   const format = markdownFormat;
   function createMediaEditor() {
