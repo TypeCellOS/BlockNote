@@ -43,6 +43,29 @@ describe("mergeBlock", () => {
     expect(merged.content).toEqual(text("Toggle, edited"));
   });
 
+  it("gives a code block only text, also if ours added a style (the document merge)", () => {
+    // Another writer changed the paragraph into a code block, and the client
+    // made a word bold. The merged content has the bold word, but a code
+    // block cannot hold styles. Without the conversion to plain content,
+    // the operations would have a style that the editor cannot apply.
+    const merged = mergeBlock(
+      block("paragraph", {}, text("hello world")),
+      block("paragraph", {}, [
+        ...text("hello "),
+        ...text("brave", { bold: true }),
+        ...text(" world"),
+      ]),
+      block("codeBlock", {}, text("hello world")),
+      contentKindOf,
+      { kind: "document", onConflict: () => {} },
+    );
+    expect(merged).toEqual({
+      type: "codeBlock",
+      props: {},
+      content: text("hello brave world"),
+    });
+  });
+
   it("changes the type and keeps the props that the new type also has", () => {
     const merged = mergeBlock(
       block("heading", { level: 2, textColor: "default" }, text("Title")),

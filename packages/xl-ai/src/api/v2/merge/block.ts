@@ -67,8 +67,10 @@ export function mergeBlock(
         theirs.content
       : contentKindOf(theirs.type) !== kind
         ? // The kind of content changed: theirs has no content of this kind
-          // to merge with. Thus, the content of ours applies as it is.
-          contentOfKind(ours.content, kind)
+          // to merge with. Thus, the content of ours applies as it is. The
+          // type is the type of ours here, and the content of ours is in the
+          // stored form of that type (a code block of ours has only text).
+          ours.content
         : contentChanged
           ? mergeContent(base, ours, theirs, kind, options)
           : theirs.content;
@@ -171,18 +173,13 @@ function mergeContent(
   }
 }
 
-/** Plain content (for example of a code block) cannot have styles, links or custom inline content. */
+/**
+ * Plain content (for example of a code block) cannot have styles, links or
+ * custom inline content. The inline merge of a plain block can give them:
+ * for example, in the document merge, another writer changed a paragraph
+ * into a code block, and the client made a word of it bold.
+ */
 function toPlainContent(content: LensInlineContent[]): LensInlineContent[] {
   const text = inlineContentToText(content);
   return text.length > 0 ? [{ type: "text", text, styles: {} }] : [];
-}
-
-/** The content of ours for a block with content of this kind: plain content has only text. */
-function contentOfKind(
-  content: LensBlockContent,
-  kind: ContentKind,
-): LensBlockContent {
-  return kind === "plain" && Array.isArray(content)
-    ? toPlainContent(content)
-    : content;
 }
