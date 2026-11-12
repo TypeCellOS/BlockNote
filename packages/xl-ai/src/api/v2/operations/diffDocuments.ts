@@ -45,38 +45,53 @@ export function diffDocuments(
     return !from.has(id) && to.childrenOf(id).every(isNewSubtree);
   }
 
+  /**
+   * Adds the moves and the inserts that give the children of `parent` the
+   * order of `target`. Then does the same for each child.
+   *
+   * Example: the children are `[a, b, c]` in `current` and `[c, a, x, b]` in
+   * `target`. The match gives the pairs `{ aIndex: 0, bIndex: 1 }` (a) and
+   * `{ aIndex: 1, bIndex: 3 }` (b). Thus, a and b stay. c moves to the first
+   * place, and x goes in after a.
+   */
   function placeChildren(parent: string | undefined) {
     const children = to.childrenOf(parent);
+    // The children of `current` that `target` also has in this parent, in
+    // the order of `current`. Only these can stay where they are.
     const candidates = from
       .childrenOf(parent)
       .filter((id) => to.has(id) && to.parent(id) === parent);
-    const stays = new Set(
-      myersMatch(candidates, children, (x, y) => x === y).map(
-        (pair) => candidates[pair.aIndex],
-      ),
-    );
+    // A longest common subsequence of the two orders. Each pair links
+    // `candidates[aIndex]` and `children[bIndex]`: the same block.
+    const matches = myersMatch(candidates, children, (x, y) => x === y);
+    // The matched blocks keep their order. Each other child moves or is new.
+    const stays = new Set(matches.map(({ aIndex }) => candidates[aIndex]));
     children.forEach((id, index) => {
       if (stays.has(id)) {
         return;
       }
+      // The child goes after the child before it in `target`, or first in
+      // its parent. The child before it has its place already, because the
+      // loop goes in the order of `target`.
       const position: BlockPosition =
         index > 0
           ? { reference: children[index - 1], placement: "after" }
           : parent !== undefined
             ? { reference: parent, placement: "first-child" }
             : { placement: "start" };
-      operations.push(
-        from.has(id)
-          ? { type: "move", id, ...position }
-          : {
-              type: "insert",
-              block: isNewSubtree(id)
-                ? to.block(id)
-                : withoutChildren(to.block(id)),
-              ...position,
-            },
-      );
+      if (from.has(id)) {
+        operations.push({ type: "move", id, ...position });
+        return;
+      }
+      // A new block with only new blocks in it goes in with its children.
+      // Else, it goes in without them, and its children get their own
+      // operations below.
+      const block = isNewSubtree(id)
+        ? to.block(id)
+        : withoutChildren(to.block(id));
+      operations.push({ type: "insert", block, ...position });
     });
+    // A new subtree went in complete. Each other child places its children.
     for (const id of children) {
       if (!isNewSubtree(id)) {
         placeChildren(id);
