@@ -167,12 +167,14 @@ function writeOfChange(
     change.merge === "yjs" &&
     baseFragment !== undefined &&
     baseFragment.length > 0;
-  const unchanged =
+  // No merge: the client read the current document, or `base` and the
+  // Y.Doc are both empty.
+  const withoutMerge =
     baseFragment === undefined ||
     (baseFragment.length === 0 && fragment.length === 0);
   return {
     write:
-      yjs || unchanged
+      yjs || withoutMerge
         ? { ...input, base: "current" }
         : {
             ...input,
