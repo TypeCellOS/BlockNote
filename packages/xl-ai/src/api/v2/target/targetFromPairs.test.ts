@@ -68,6 +68,7 @@ function targetOf(input: {
       bIndex,
     })),
     contentKindOf: () => "inline",
+    shadowOf: () => undefined,
     newId: () => `new${++count}`,
   });
   return { target: shape(target), warnings };

@@ -64,8 +64,8 @@ export function projectDocument(
   editor: BlockNoteEditor<any, any, any>,
   format: TextFormat,
   source: readonly LensBlock[],
-  /** The text of the source document in the format, if the caller has it. */
-  text = format.serialize(editor, source),
+  /** The text of the source document in the format (the caller has it: one serialize). */
+  text: string,
 ): Projection {
   const sources = flattenBlocks(source);
   const parsed = viewOf(editor, format, text);

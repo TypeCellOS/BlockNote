@@ -69,6 +69,7 @@ function target(
     // The text has the blocks of the view at the same positions.
     pairs: textBlocks.map((_, i) => ({ aIndex: i, bIndex: i })),
     contentKindOf: () => "inline",
+    shadowOf: () => undefined,
     newId: () => `new${++count}`,
   });
 }
@@ -151,6 +152,7 @@ describe("targetFromPairs: laws on random documents", () => {
         textBlocks,
         pairs: kept.map((aIndex, bIndex) => ({ aIndex, bIndex })),
         contentKindOf: () => "inline",
+        shadowOf: () => undefined,
         newId: () => `new${++count}`,
       });
       const ids = flattenBlocks(result.target).map(({ block }) => block.id);

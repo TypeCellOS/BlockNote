@@ -39,7 +39,7 @@ export function fitLayout(
   blocks: readonly LensBlock[],
   ruleOf: (type: string) => LayoutRule | undefined,
   /** Returns true if a block of the type `parent` (`undefined` for the top level) can have a child of the type `child`. */
-  canContain?: (parent: string | undefined, child: string) => boolean,
+  canContain: (parent: string | undefined, child: string) => boolean,
 ): LensBlock[] {
   const rules: Rules = { ruleOf, canContain };
   const top = place(
@@ -54,7 +54,7 @@ export function fitLayout(
 /** The rules of {@link fitLayout}. */
 type Rules = {
   ruleOf: (type: string) => LayoutRule | undefined;
-  canContain?: (parent: string | undefined, child: string) => boolean;
+  canContain: (parent: string | undefined, child: string) => boolean;
 };
 
 /** The block, fit to its child rule, then the blocks that go out of it. */
@@ -100,10 +100,7 @@ function place(
   const held: LensBlock[] = [];
   const lifted: LensBlock[] = [];
   for (const child of children) {
-    if (
-      rules.canContain === undefined ||
-      rules.canContain(parent, child.type)
-    ) {
+    if (rules.canContain(parent, child.type)) {
       held.push(child);
     } else if (rules.ruleOf(child.type)?.namedOnly) {
       // A loop, not a spread: a column can hold many blocks, and a spread of

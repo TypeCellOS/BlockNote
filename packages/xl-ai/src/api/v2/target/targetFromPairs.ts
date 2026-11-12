@@ -26,7 +26,7 @@ export type TargetInput = {
   pairs: BlockPair[];
   contentKindOf: (type: string) => ContentKind;
   /** The text that the format shows for an inline item that it does not give back (see `MergeOptions.shadowOf`). */
-  shadowOf?: (item: LensInlineContent) => string | undefined;
+  shadowOf: (item: LensInlineContent) => string | undefined;
   /** Gives the ID of a new block. */
   newId: () => string;
 };

@@ -39,7 +39,12 @@ describe("projectDocument", () => {
   });
 
   it("links each view block to its source block", () => {
-    const projection = projectDocument(editor, markdownFormat, editor.document);
+    const projection = projectDocument(
+      editor,
+      markdownFormat,
+      editor.document,
+      markdownFormat.serialize(editor, editor.document),
+    );
     expect(
       projection.view.map((viewBlock) => [
         viewBlock.sourceId,
@@ -56,7 +61,12 @@ describe("projectDocument", () => {
   });
 
   it("finds blocks that the format does not show", () => {
-    const projection = projectDocument(editor, markdownFormat, editor.document);
+    const projection = projectDocument(
+      editor,
+      markdownFormat,
+      editor.document,
+      markdownFormat.serialize(editor, editor.document),
+    );
     expect([...projection.invisibleIds]).toEqual(["no-url"]);
   });
 
@@ -67,6 +77,7 @@ describe("projectDocument", () => {
       editor,
       plainTextFormat,
       editor.document,
+      plainTextFormat.serialize(editor, editor.document),
     );
     const code = projection.view.filter(
       (viewBlock) => viewBlock.sourceId === "code",
@@ -99,6 +110,10 @@ describe("projectDocument", () => {
         custom,
         markdownFormat,
         custom.document as unknown as LensBlock[],
+        markdownFormat.serialize(
+          custom,
+          custom.document as unknown as LensBlock[],
+        ),
       ),
     ).toThrow(
       'The format shows a block of type "twoParagraphs" as more than one block',
@@ -120,6 +135,7 @@ describe("projectDocument", () => {
         imageOnly,
         format,
         imageOnly.document as LensBlock[],
+        format.serialize(imageOnly, imageOnly.document as LensBlock[]),
       );
       expect(projection.view).toEqual([]);
       expect([...projection.invisibleIds]).toEqual(["img"]);
@@ -146,6 +162,10 @@ describe("projectDocument", () => {
       tableAndParagraph,
       plainTextFormat,
       tableAndParagraph.document as LensBlock[],
+      plainTextFormat.serialize(
+        tableAndParagraph,
+        tableAndParagraph.document as LensBlock[],
+      ),
     );
     expect(
       projection.view.map((viewBlock) => [
@@ -167,7 +187,12 @@ describe("projectDocument", () => {
       ],
     };
     expect(() =>
-      projectDocument(editor, broken, editor.document as LensBlock[]),
+      projectDocument(
+        editor,
+        broken,
+        editor.document as LensBlock[],
+        broken.serialize(editor, editor.document as LensBlock[]),
+      ),
     ).toThrow(
       "The format shows 6 blocks, but the blocks of the document give 5",
     );
@@ -197,6 +222,7 @@ describe("projectDocument", () => {
         fourBlocks,
         reversing,
         fourBlocks.document as LensBlock[],
+        reversing.serialize(fourBlocks, fourBlocks.document as LensBlock[]),
       ),
     ).toThrow("The format does not show the blocks in document order");
   });
@@ -211,7 +237,12 @@ describe("projectDocument", () => {
       },
       parse: (blockEditor, text) => markdownFormat.parse(blockEditor, text),
     };
-    projectDocument(editor, spy, editor.document);
+    projectDocument(
+      editor,
+      spy,
+      editor.document,
+      spy.serialize(editor, editor.document),
+    );
     // The view, then the round trip of the image (markdown does not show an
     // image without a URL). The view shows the other blocks as they are,
     // also the empty paragraph (markdown shows it as a <br> line).
@@ -248,6 +279,7 @@ describe("projectDocument", () => {
       columns,
       plainTextFormat,
       columns.document as LensBlock[],
+      plainTextFormat.serialize(columns, columns.document as LensBlock[]),
     );
     expect(
       projection.view.map((viewBlock) => [

@@ -29,7 +29,12 @@ describe("assertBlocksRoundTrip", () => {
     const editor = BlockNoteEditor.create({
       initialContent: [{ id: "p", type: "paragraph", content: "Hello" }],
     });
-    const { view } = projectDocument(editor, markdownFormat, editor.document);
+    const { view } = projectDocument(
+      editor,
+      markdownFormat,
+      editor.document,
+      markdownFormat.serialize(editor, editor.document),
+    );
     return { editor, view };
   }
 

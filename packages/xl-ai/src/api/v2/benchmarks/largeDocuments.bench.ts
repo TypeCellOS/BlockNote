@@ -110,7 +110,12 @@ describe("large documents", () => {
             text.slice(0, middle) + "Changed. " + text.slice(middle);
 
           // The stages of the pipeline (see api.ts).
-          let projection = projectDocument(editor, format, document);
+          let projection = projectDocument(
+            editor,
+            format,
+            document,
+            format.serialize(editor, document),
+          );
           let textBlocks = flattenBlocks(format.parse(editor, edited));
           let pairs = alignBlocks(projection.view, textBlocks);
           let target = targetFromPairs({
@@ -119,6 +124,7 @@ describe("large documents", () => {
             textBlocks,
             pairs,
             contentKindOf: (type) => editor.schema.blockSchema[type].content,
+            shadowOf: () => undefined,
             newId: () => crypto.randomUUID(),
           });
 
@@ -180,7 +186,12 @@ describe("large documents", () => {
               ({ client }) => unbindEditor(client),
             ),
             "· project": await median(() => {
-              projection = projectDocument(editor, format, document);
+              projection = projectDocument(
+                editor,
+                format,
+                document,
+                format.serialize(editor, document),
+              );
             }),
             "· parse text": await median(() => {
               textBlocks = flattenBlocks(format.parse(editor, edited));
@@ -196,6 +207,7 @@ describe("large documents", () => {
                 pairs,
                 contentKindOf: (type) =>
                   editor.schema.blockSchema[type].content,
+                shadowOf: () => undefined,
                 newId: () => crypto.randomUUID(),
               });
             }),

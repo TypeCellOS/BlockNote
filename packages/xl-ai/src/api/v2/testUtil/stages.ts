@@ -28,7 +28,12 @@ export function textStages(
 ) {
   const document = editor.document as LensBlock[];
   // 1. Project.
-  const projection = projectDocument(editor, format, document);
+  const projection = projectDocument(
+    editor,
+    format,
+    document,
+    format.serialize(editor, document),
+  );
   // 2. Parse and align.
   const { textBlocks, pairs } = alignedOrThrow(
     parseAndAlign(editor, format, projection.view, text),

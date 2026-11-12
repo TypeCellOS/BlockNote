@@ -18,7 +18,12 @@ function keptAfter(
 ): string[] {
   const editor = BlockNoteEditor.create({ initialContent });
   const document = editor.document as LensBlock[];
-  const projection = projectDocument(editor, format, document);
+  const projection = projectDocument(
+    editor,
+    format,
+    document,
+    format.serialize(editor, document),
+  );
   const textBlocks = textBlocksOf(editor, format, text, projection.view);
   const pairs = alignBlocks(projection.view, textBlocks);
   return [

@@ -25,8 +25,15 @@ function shape(blocks: LensBlock[]): unknown[] {
   );
 }
 
+/** The fit with the layout rules only: each parent can hold each block. */
 function fit(blocks: LensBlock[]) {
-  return shape(fitLayout(blocks, (type) => rules[type]));
+  return shape(
+    fitLayout(
+      blocks,
+      (type) => rules[type],
+      () => true,
+    ),
+  );
 }
 
 describe("fitLayout", () => {
