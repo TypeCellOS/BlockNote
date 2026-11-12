@@ -41,6 +41,10 @@ function stripEmptyBlockPlaceholder(content: any[]): any[] {
   return stripped;
 }
 
+/**
+ * Recursively removes export placeholders and limits imported table headers to
+ * the first row and column, mutating the parsed blocks in place.
+ */
 function normalizeImportedBlockContent(blocks: Block<any, any, any>[]) {
   for (const block of blocks) {
     if (Array.isArray(block.content)) {
@@ -61,6 +65,10 @@ function normalizeImportedBlockContent(blocks: Block<any, any, any>[]) {
   }
 }
 
+/**
+ * Parses HTML into BlockNote blocks using the supplied schema, repairing table
+ * structure before block conversion and normalizing imported content afterward.
+ */
 export function HTMLToBlocks<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
