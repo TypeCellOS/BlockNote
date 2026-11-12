@@ -110,28 +110,6 @@ describe("plain text", () => {
     ).toBe(true);
   });
 
-  it("does not link a paragraph to a hidden table with the same text", () => {
-    const editor = createEditor([
-      {
-        id: "table",
-        type: "table",
-        content: {
-          type: "tableContent",
-          rows: [{ cells: ["Total", "sales"] }],
-        },
-      },
-      { id: "p", type: "paragraph", content: "Total sales" },
-    ]);
-    writeText(editor, plainTextFormat, (text) =>
-      replaceOnce(text, "Total sales", "Total sales grew"),
-    );
-
-    expect(editor.getBlock("table")?.type).toBe("table");
-    expect(editor.getBlock("p")?.content).toMatchObject([
-      { text: "Total sales grew" },
-    ]);
-  });
-
   describe("a block with a blank line", () => {
     const blocks = [
       {
@@ -298,34 +276,6 @@ describe("special characters at the edges of the text", () => {
       }),
     );
     expect(update.operations).toEqual([]);
-  });
-
-  it("accepts a document with all private use characters", () => {
-    // The projection separates the blocks with a character that the text
-    // does not contain (see `projectDocument`).
-    let all = "";
-    for (let code = 0xe000; code <= 0xf8ff; code++) {
-      all += String.fromCharCode(code);
-    }
-    const editor = BlockNoteEditor.create({
-      initialContent: [
-        { type: "paragraph", content: "Hello" },
-        { type: "paragraph", content: all },
-      ],
-    });
-    const text = replaceOnce(
-      getDocumentText(editor, plainTextFormat),
-      "Hello",
-      "Hello there",
-    );
-    valid(
-      updateDocument(editor, {
-        base: "current",
-        format: plainTextFormat,
-        text,
-      }),
-    );
-    expect(getDocumentText(editor, plainTextFormat)).toBe(text);
   });
 });
 

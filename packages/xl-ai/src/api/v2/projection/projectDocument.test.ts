@@ -12,7 +12,7 @@ import { htmlFormat } from "../formats/html.js";
 import { markdownFormat } from "../formats/markdown.js";
 import { plainTextFormat } from "../formats/plainText.js";
 import type { TextFormat } from "../formats/types.js";
-import { projectDocument } from "./projectDocument.js";
+import { projectDocument, roundTripAlone } from "./projectDocument.js";
 import { columnSchema } from "../testUtil/fixtures.js";
 
 describe("projectDocument", () => {
@@ -126,6 +126,36 @@ describe("projectDocument", () => {
     },
   );
 
+  it("does not link a paragraph to a hidden table with the same text, in plain text", () => {
+    // Plain text does not show a table. The paragraph has the text of the
+    // cells of the table, but its view block links to the paragraph.
+    const tableAndParagraph = BlockNoteEditor.create({
+      initialContent: [
+        {
+          id: "table",
+          type: "table",
+          content: {
+            type: "tableContent",
+            rows: [{ cells: ["Total", "sales"] }],
+          },
+        },
+        { id: "p", type: "paragraph", content: "Total sales" },
+      ],
+    });
+    const projection = projectDocument(
+      tableAndParagraph,
+      plainTextFormat,
+      tableAndParagraph.document as LensBlock[],
+    );
+    expect(
+      projection.view.map((viewBlock) => [
+        viewBlock.sourceId,
+        blockToText(viewBlock.block),
+      ]),
+    ).toEqual([["p", "Total sales"]]);
+    expect([...projection.invisibleIds]).toEqual(["table"]);
+  });
+
   it("throws for a view block that no block of the document gives", () => {
     // A format with a bug: its parse adds an image without a URL.
     const broken: TextFormat = {
@@ -200,5 +230,33 @@ describe("projectDocument", () => {
       ["a", "A"],
       ["b", "B"],
     ]);
+  });
+});
+
+describe("roundTripAlone", () => {
+  it("keeps a block with one private use character apart, if the text has each of these characters", () => {
+    // The separator is a paragraph with a private use character that the
+    // text does not contain (see `unusedMarker`). This text has all of them,
+    // thus the separator has two characters, and the block "\uE000" is not a
+    // separator.
+    let all = "";
+    for (let code = 0xe000; code <= 0xf8ff; code++) {
+      all += String.fromCharCode(code);
+    }
+    const editor = BlockNoteEditor.create({
+      initialContent: [
+        { id: "marker", type: "paragraph", content: "\uE000" },
+        { id: "beta", type: "paragraph", content: "Beta" },
+      ],
+    });
+    const groups = roundTripAlone(
+      editor,
+      plainTextFormat,
+      editor.document as LensBlock[],
+      all,
+    );
+    expect(
+      groups.map((group) => group.map(({ block }) => blockToText(block))),
+    ).toEqual([["\uE000"], ["Beta"]]);
   });
 });
