@@ -118,38 +118,6 @@ export function projectWithParts(
 }
 
 /**
- * The parts of each source block: the view blocks that the block gives alone,
- * without its children, with one round trip for each block. This is the
- * definition of the parts. {@link partsOf} gives the same projection faster.
- *
- * - A block that the format renders as no text (for example an image
- *   without a URL, in markdown) has no parts. A block with more than one
- *   part is a bug of its block type (see {@link assertOnePartEach}).
- * - A layout block (for example a column) is not a document without its
- *   children: the parse fills it with new blocks. Thus, a layout block is
- *   its own part.
- * - The round trip puts the block between two separator paragraphs (see
- *   {@link roundTripAlone}).
- *
- * @internal
- */
-export function partsOfEachBlock(
-  editor: BlockNoteEditor<any, any, any>,
-  format: TextFormat,
-  sources: readonly FlatBlock[],
-  text: string,
-): Part[] {
-  const { layoutRuleOf } = schemaRulesOf(editor);
-  return sources.flatMap((flat, sourceIndex) => {
-    if (layoutRuleOf(flat.block.type) !== undefined) {
-      return [{ part: { ...flat, parentIndex: undefined }, sourceIndex }];
-    }
-    const [own] = roundTripAlone(editor, format, [flat.block], text);
-    return own.map((part) => ({ part, sourceIndex }));
-  });
-}
-
-/**
  * The round trip of each block alone. "A block alone" is the block as a
  * document of its own: at the top level, without its children, and apart
  * from the other blocks. Thus, the view blocks that a block gives come only
@@ -215,15 +183,20 @@ export function roundTripAlone(
 type Part = { part: FlatBlock; sourceIndex: number };
 
 /**
- * The parts of each source block, with two optimizations of
- * {@link partsOfEachBlock}. The two give the same projection
- * (`api.fuzz.test.ts` examines this on random documents).
+ * The parts of each source block. Their definition is one round trip for
+ * each block alone (see `projectDocument`). This function gives the same
+ * parts with two shortcuts. Each shortcut needs a property of the format,
+ * thus `projectDocument.fuzz.test.ts` compares the result with the
+ * definition on random documents.
  *
  * 1. A block that the view shows as it is (see {@link shownBlocks}) is its
  *    own part, without a round trip: alone, it gives one block with the same
  *    key. Most blocks are such blocks.
  * 2. The other blocks make one round trip together: one serialize and one
  *    parse, not one for each block (see {@link roundTripAlone}).
+ *
+ * A layout block (for example a column) is its own part: alone, the parse
+ * would fill it with new blocks.
  *
  * In the example of {@link projectDocument}, "End" is its own part. The code
  * block and the image make one round trip together.
