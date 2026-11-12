@@ -262,23 +262,6 @@ describe("plain text, a new editor", () => {
   });
 });
 
-describe("special characters at the edges of the text", () => {
-  it("keeps a byte order mark that the document has", () => {
-    const editor = BlockNoteEditor.create({
-      initialContent: [{ type: "paragraph", content: "\uFEFFHello" }],
-    });
-    const text = getDocumentText(editor, plainTextFormat);
-    const update = valid(
-      computeOperations(editor, {
-        base: "current",
-        format: plainTextFormat,
-        text,
-      }),
-    );
-    expect(update.operations).toEqual([]);
-  });
-});
-
 describe("an item that plain text does not show", () => {
   it("keeps a mention next to a word that the text changes", () => {
     const editor = BlockNoteEditor.create({

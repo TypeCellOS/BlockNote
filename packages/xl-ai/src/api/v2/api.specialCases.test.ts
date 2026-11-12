@@ -91,6 +91,21 @@ describe("a byte order mark", () => {
         .operations,
     ).toEqual([]);
   });
+
+  it("keeps a byte order mark that the document has (plain text)", () => {
+    const editor = createEditor([
+      { id: "a", type: "paragraph", content: "\uFEFFHello" },
+    ]);
+    const text = getDocumentText(editor, plainTextFormat);
+    const update = valid(
+      computeOperations(editor, {
+        base: "current",
+        format: plainTextFormat,
+        text,
+      }),
+    );
+    expect(update.operations).toEqual([]);
+  });
 });
 
 // REVISIT: two blocks with one ID (for example in a Y.Doc, after two
