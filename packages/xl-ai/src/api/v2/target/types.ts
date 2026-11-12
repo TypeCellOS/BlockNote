@@ -1,20 +1,26 @@
 import type { BlockFields } from "../model.js";
 
 /**
- * A row of the correspondence (see `TextRow`), with the fields of its block.
+ * What the target stage does with one block of the text (a row), with the
+ * fields of the block (see `targetFromPairs`).
  *
  * @internal
  */
 export type TargetRow =
-  /** A source block that stays, with its merged fields. */
+  /**
+   * The text block is a source block that stays (`id`), and its pair is the
+   * view block `viewIndex`. Its fields are the result of the three-way
+   * merge.
+   */
   | {
       kind: "kept";
       id: string;
       viewIndex: number;
+      /** The text moved the block (rule 2 of `alignBlocks`). */
       moved: boolean;
       fields: BlockFields;
     }
-  /** A new block, with the fields of the text block. */
+  /** A new block, with the fields of the text block. It gets a new ID. */
   | {
       kind: "new";
       fields: BlockFields;

@@ -76,18 +76,6 @@ describe("the stages of a write", () => {
             "Second",
           ],
         ],
-        "rows": [
-          [
-            "kept",
-            "a",
-            "Hello brave world",
-          ],
-          [
-            "kept",
-            "b",
-            "Second",
-          ],
-        ],
         "view": [
           [
             "a",
@@ -157,23 +145,6 @@ describe("the stages of a write", () => {
             "Beta",
           ],
         ],
-        "rows": [
-          [
-            "kept",
-            "a",
-            "Alpha",
-          ],
-          [
-            "new",
-            undefined,
-            "New",
-          ],
-          [
-            "kept",
-            "b",
-            "Beta",
-          ],
-        ],
         "view": [
           [
             "a",
@@ -233,14 +204,6 @@ describe("the stages of a write", () => {
       two, changed",
           ],
         ],
-        "rows": [
-          [
-            "kept",
-            "code",
-            "one
-      two, changed",
-          ],
-        ],
         "view": [
           [
             "code",
@@ -295,18 +258,6 @@ describe("the stages of a write", () => {
           ],
           [
             "A note",
-            "A note, changed",
-          ],
-        ],
-        "rows": [
-          [
-            "kept",
-            "intro",
-            "Intro",
-          ],
-          [
-            "kept",
-            "note",
             "A note, changed",
           ],
         ],

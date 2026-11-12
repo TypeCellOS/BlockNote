@@ -1,101 +1,5 @@
-import type { FlatBlock, LensBlock } from "../model.js";
+import type { LensBlock } from "../model.js";
 import { blockToText, type BlockIndex } from "../util/blocks/index.js";
-import type { BlockPair } from "../alignment/index.js";
-import type { Projection } from "../projection/index.js";
-
-/**
- * What the target stage does with one block of the text (a row).
- *
- * @internal
- */
-export type TextRow =
-  /**
-   * The text block is a source block that stays (`id`), and its pair is the
-   * view block `viewIndex`. Its fields merge three-way (see
-   * `targetFromPairs`).
-   */
-  | {
-      kind: "kept";
-      id: string;
-      viewIndex: number;
-      /** The text moved the block (rule 2 of `alignBlocks`). */
-      moved: boolean;
-    }
-  /** A new block. It gets a new ID. */
-  | { kind: "new" };
-
-/**
- * The correspondence of the text blocks and the source blocks.
- *
- * @internal
- */
-export type Correspondence = {
-  /** One row for each block of the text, in the order of the text. */
-  rows: TextRow[];
-  /**
-   * The source blocks that stay: the source blocks of the kept rows, and
-   * the invisible blocks that stay (see {@link withInvisibleBlocks}).
-   */
-  kept: Set<string>;
-};
-
-/**
- * Finds what the target stage does with each block of the text: which source block
- * it is, if it is one (see {@link TextRow}). Also finds the source blocks
- * that stay.
- *
- * - A source block with a pair in the text stays. Each source block has one
- *   view block at most (see `projectDocument`).
- * - An invisible block stays, with some exceptions (see
- *   {@link withInvisibleBlocks}).
- *
- * Method: our own design.
- *
- * @internal
- */
-export function correspond(
-  input: {
-    projection: Projection;
-    /** The blocks of the text, in a flat list. */
-    incoming: readonly FlatBlock[];
-    /** The pairs of `projection.view` (a side) and `incoming` (b side). */
-    alignment: readonly BlockPair[];
-  },
-  source: BlockIndex,
-): Correspondence {
-  const { view, invisibleIds } = input.projection;
-  const { incoming } = input;
-  /** The view block of each text block. */
-  const viewIndexOf: (number | undefined)[] = new Array(incoming.length);
-  const moved = new Set<number>();
-  for (const pair of input.alignment) {
-    viewIndexOf[pair.bIndex] = pair.aIndex;
-    if (pair.moved) {
-      moved.add(pair.bIndex);
-    }
-  }
-
-  /** The row of text block `j`. */
-  function rowOf(j: number): TextRow {
-    const v = viewIndexOf[j];
-    if (v === undefined) {
-      return { kind: "new" };
-    }
-    return {
-      kind: "kept",
-      id: view[v].sourceId,
-      viewIndex: v,
-      moved: moved.has(j),
-    };
-  }
-
-  const rows = incoming.map((_, j) => rowOf(j));
-  const keptIds = rows.flatMap((row) => (row.kind === "kept" ? [row.id] : []));
-  return {
-    rows,
-    kept: withInvisibleBlocks(source, invisibleIds, keptIds),
-  };
-}
 
 /**
  * Returns the kept blocks (`keptIds`) and the source blocks without a view
@@ -110,8 +14,12 @@ export function correspond(
  *   the text gives all blocks. A hidden block with data
  *   (for example a table in plain text) stays, because the text cannot show
  *   it.
+ *
+ * Method: our own design.
+ *
+ * @internal
  */
-function withInvisibleBlocks(
+export function withInvisibleBlocks(
   source: BlockIndex,
   invisibleIds: ReadonlySet<string>,
   keptIds: readonly string[],

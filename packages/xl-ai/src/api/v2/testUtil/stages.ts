@@ -2,12 +2,10 @@ import type { BlockNoteEditor } from "@blocknote/core";
 
 import { parseAndAlign, targetInputOf, updateFromTarget } from "../api.js";
 import { schemaRulesOf } from "../util/blocks/schema.js";
-import { BlockIndex } from "../util/blocks/blockIndex.js";
 import { blockToText } from "../util/blocks/text.js";
 import type { BlockWithoutChildren, FlatBlock, LensBlock } from "../model.js";
 import type { TextFormat } from "../formats/types.js";
 import { projectDocument } from "../projection/projectDocument.js";
-import { correspond } from "../target/correspond.js";
 import { targetFromPairs } from "../target/targetFromPairs.js";
 import type { ViewBlock } from "../projection/projectDocument.js";
 
@@ -18,9 +16,8 @@ import type { ViewBlock } from "../projection/projectDocument.js";
  * text.
  *
  * It calls the stage functions of `textTarget` and `operationsOf` in
- * `api.ts`, in the same order. Only the rows of the correspondence come
- * from a second call: `targetFromPairs` does not give them. The text must
- * differ from the text of the document (an unchanged text has no stages).
+ * `api.ts`, in the same order. The text must differ from the text of the
+ * document (an unchanged text has no stages).
  */
 export function textStages(
   editor: BlockNoteEditor<any, any, any>,
@@ -39,7 +36,6 @@ export function textStages(
     textBlocks,
     pairs,
   });
-  const { rows } = correspond(input, new BlockIndex(document));
   const target = targetFromPairs(input);
   // 4. Merge (none for `base: "current"`), 5. Fit and 6. Diff.
   const update = updateFromTarget(schemaRulesOf(editor), target, {
@@ -69,11 +65,6 @@ export function textStages(
     pairs: pairs.map(({ aIndex, bIndex }) => [
       blockToText(projection.view[aIndex].block),
       blockToText(textBlocks[bIndex].block),
-    ]),
-    rows: rows.map((row, j) => [
-      row.kind,
-      row.kind === "kept" ? row.id : undefined,
-      blockToText(textBlocks[j].block),
     ]),
     operations: withNewIdPlaceholders(update.operations),
     warnings: target.warnings,

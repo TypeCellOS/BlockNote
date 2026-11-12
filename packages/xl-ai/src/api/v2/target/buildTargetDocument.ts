@@ -25,7 +25,7 @@ export function buildTargetDocument(input: {
   view: readonly ViewBlock[];
   source: BlockIndex;
   invisibleIds: ReadonlySet<string>;
-  /** The source blocks that stay (see `Correspondence.kept`). */
+  /** The source blocks that stay (see `withInvisibleBlocks`). */
   kept: ReadonlySet<string>;
   /** Gives the ID of a new block. */
   newId: () => string;

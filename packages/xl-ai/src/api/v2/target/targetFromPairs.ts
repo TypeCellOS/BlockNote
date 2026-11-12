@@ -9,7 +9,7 @@ import type { BlockPair } from "../alignment/index.js";
 import { mergeBlock } from "../merge/index.js";
 import type { Projection } from "../projection/index.js";
 import { buildTargetDocument, type TargetRow } from "./buildTargetDocument.js";
-import { correspond } from "./correspond.js";
+import { withInvisibleBlocks } from "./invisibleBlocks.js";
 import type { TargetWarning } from "./types.js";
 
 export type { TargetWarning } from "./types.js";
@@ -34,57 +34,56 @@ export type TargetInput = {
 /**
  * Makes the target document: `source` as the text asks for it.
  *
- * 1. The correspondence: which source block each block of the text is, if
- *    it is one, and which source blocks stay (see `correspond`).
- * 2. The fields: a kept block merges its fields three-way (see
- *    `merge/block.ts`): `base` is the view block, `ours` is the text block,
- *    and `theirs` is the source block. A new block has the fields of the
- *    text block.
+ * 1. The rows: a text block with a pair is a source block that stays (a
+ *    kept row, with the source block of its view block). Its fields merge
+ *    three-way (see `merge/block.ts`): `base` is the view block, `ours` is
+ *    the text block, and `theirs` is the source block. A text block without
+ *    a pair is a new block, with the fields of the text block.
+ * 2. The source blocks that stay: the source blocks of the kept rows, and
+ *    the invisible blocks that the text cannot remove (see
+ *    `withInvisibleBlocks`).
  * 3. The nesting: the blocks in the order of the text, in the parent that the
  *    text shows, with the nesting that the format does not show, and the
  *    hidden blocks at their source positions (see `buildTargetDocument`).
  */
 export function targetFromPairs(input: TargetInput): TargetResult {
   const sourceIndex = new BlockIndex(input.source);
-  const { rows, kept } = correspond(input, sourceIndex);
+  const { view, invisibleIds } = input.projection;
+  /** The pair of each text block, if it has one. */
+  const pairOf: (BlockPair | undefined)[] = new Array(input.incoming.length);
+  for (const pair of input.alignment) {
+    pairOf[pair.bIndex] = pair;
+  }
   const warnings: TargetWarning[] = [];
-  const targetRows = rows.map((row, j): TargetRow => {
-    switch (row.kind) {
-      case "new":
-        return { ...row, fields: input.incoming[j].block };
-      case "kept": {
-        const base = input.projection.view[row.viewIndex].block;
-        const text = input.incoming[j].block;
-        const fields = mergeBlock(
-          base,
-          text,
-          sourceIndex.block(row.id),
-          input.contentKindOf,
-          { shadowOf: input.shadowOf },
-        );
-        if (
-          base.type === text.type &&
-          fields.type !== sourceIndex.block(row.id).type
-        ) {
-          warnings.push({ type: "block-shape-replaced", id: row.id });
-        }
-        return {
-          kind: "kept",
-          id: row.id,
-          viewIndex: row.viewIndex,
-          moved: row.moved,
-          fields,
-        };
-      }
+  const rows = input.incoming.map(({ block: text }, j): TargetRow => {
+    const pair = pairOf[j];
+    if (pair === undefined) {
+      return { kind: "new", fields: text };
     }
+    const { block: base, sourceId: id } = view[pair.aIndex];
+    const source = sourceIndex.block(id);
+    const fields = mergeBlock(base, text, source, input.contentKindOf, {
+      shadowOf: input.shadowOf,
+    });
+    if (base.type === text.type && fields.type !== source.type) {
+      warnings.push({ type: "block-shape-replaced", id });
+    }
+    return {
+      kind: "kept",
+      id,
+      viewIndex: pair.aIndex,
+      moved: pair.moved === true,
+      fields,
+    };
   });
+  const keptIds = rows.flatMap((row) => (row.kind === "kept" ? [row.id] : []));
   const target = buildTargetDocument({
-    rows: targetRows,
+    rows,
     incoming: input.incoming,
-    view: input.projection.view,
+    view,
     source: sourceIndex,
-    invisibleIds: input.projection.invisibleIds,
-    kept,
+    invisibleIds,
+    kept: withInvisibleBlocks(sourceIndex, invisibleIds, keptIds),
     newId: input.newId,
   });
   return { target, warnings };
