@@ -6,6 +6,7 @@ import {
 } from "../../editor/PortalElementOverride.js";
 import { UIModeContext } from "../../editor/UIModeContext.js";
 import { useEditorFocus } from "../../hooks/useEditorFocus.js";
+import { useEditorDirection } from "../../hooks/useEditorDirection.js";
 import { FormattingToolbarProps } from "./FormattingToolbarProps.js";
 import { FormattingToolbar } from "./FormattingToolbar.js";
 import { useVirtualKeyboard } from "./useVirtualKeyboard.js";
@@ -41,6 +42,7 @@ export const MobileFormattingToolbarController = (props: {
   formattingToolbar?: FC<FormattingToolbarProps>;
 }) => {
   const keyboardOpen = useVirtualKeyboard();
+  const direction = useEditorDirection();
 
   // Whether the user is still interacting with this editor: content focus or
   // focus within its UI (a toolbar popover's input, portalled into
@@ -60,11 +62,15 @@ export const MobileFormattingToolbarController = (props: {
   return (
     <RenderInPortalElement target={document.body}>
       <UIModeContext.Provider value="mobile">
-        <PortalElementAnchor>
-          <div className="bn-mobile-formatting-toolbar">
-            <Component />
-          </div>
-        </PortalElementAnchor>
+        {/* The body-level portal no longer inherits the editor's direction.
+            Keep the strip and its sibling popover anchor in the same layout. */}
+        <div dir={direction}>
+          <PortalElementAnchor>
+            <div className="bn-mobile-formatting-toolbar">
+              <Component />
+            </div>
+          </PortalElementAnchor>
+        </div>
       </UIModeContext.Provider>
     </RenderInPortalElement>
   );
