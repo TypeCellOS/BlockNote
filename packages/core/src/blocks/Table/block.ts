@@ -21,21 +21,29 @@ export const tablePropSchema = {
 };
 
 /**
- * Reads HTML cell spans, keeping rowspans within the containing table.
+ * Reads HTML cell spans, keeping rowspans within the containing row group.
  */
 function parseTableSpan(
   element: HTMLElement,
   attribute: "colspan" | "rowspan",
 ): number {
   const raw = element.getAttribute(attribute) ?? "";
-  const value = /^[0-9]+$/.test(raw) ? Number(raw) : 1;
+  const parsed = /^[0-9]+$/.test(raw) ? Number(raw) : 1;
+  const value = Number.isSafeInteger(parsed) && parsed > 0 ? parsed : 1;
   if (attribute === "colspan") {
-    return value;
+    // HTML caps colspans at 1000; bound allocation before building a TableMap.
+    return Math.min(value, 1000);
   }
 
   const row = element.closest("tr");
-  const table = row?.closest("table");
-  return row && table ? Math.min(value, table.rows.length - row.rowIndex) : 1;
+  const group = row?.parentElement;
+  if (!row || !group) {
+    return 1;
+  }
+  const rows = Array.from(group.children).filter(
+    (child) => child.tagName === "TR",
+  );
+  return Math.min(value, rows.length - rows.indexOf(row));
 }
 
 const TiptapTableHeader = Node.create<{
@@ -77,7 +85,10 @@ const TiptapTableHeader = Node.create<{
         parseHTML: (element) => {
           const colwidth = element.getAttribute("colwidth");
           const value = colwidth
-            ? colwidth.split(",").map((width) => parseInt(width, 10))
+            ? colwidth
+                .split(",")
+                .slice(0, parseTableSpan(element, "colspan"))
+                .map((width) => parseInt(width, 10))
             : null;
 
           return value;
@@ -143,7 +154,10 @@ const TiptapTableCell = Node.create<{
         parseHTML: (element) => {
           const colwidth = element.getAttribute("colwidth");
           const value = colwidth
-            ? colwidth.split(",").map((width) => parseInt(width, 10))
+            ? colwidth
+                .split(",")
+                .slice(0, parseTableSpan(element, "colspan"))
+                .map((width) => parseInt(width, 10))
             : null;
 
           return value;

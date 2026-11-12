@@ -1,4 +1,5 @@
 import { DOMParser, Schema } from "prosemirror-model";
+import { normalizeImportedTables } from "../../../blocks/Table/normalizeImportedTables.js";
 import {
   BlockSchema,
   InlineContentSchema,
@@ -40,17 +41,34 @@ function stripEmptyBlockPlaceholder(content: any[]): any[] {
   return stripped;
 }
 
-function stripEmptyBlockPlaceholderFromBlocks(blocks: Block<any, any, any>[]) {
+/**
+ * Recursively removes export placeholders and limits imported table headers to
+ * the first row and column, mutating the parsed blocks in place.
+ */
+function normalizeImportedBlockContent(blocks: Block<any, any, any>[]) {
   for (const block of blocks) {
     if (Array.isArray(block.content)) {
       (block as any).content = stripEmptyBlockPlaceholder(block.content);
+    } else if (block.content?.type === "tableContent") {
+      // Match the table UI: only the first row/column can be headers.
+      // Keep every cell, but import additional headers as ordinary cells.
+      if (block.content.headerRows !== undefined) {
+        block.content.headerRows = Math.min(block.content.headerRows, 1);
+      }
+      if (block.content.headerCols !== undefined) {
+        block.content.headerCols = Math.min(block.content.headerCols, 1);
+      }
     }
     if (block.children.length > 0) {
-      stripEmptyBlockPlaceholderFromBlocks(block.children);
+      normalizeImportedBlockContent(block.children);
     }
   }
 }
 
+/**
+ * Parses HTML into BlockNote blocks using the supplied schema, repairing table
+ * structure before block conversion and normalizing imported content afterward.
+ */
 export function HTMLToBlocks<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
@@ -64,9 +82,10 @@ export function HTMLToBlocks<
   // const doc = pmSchema.nodes["doc"].createAndFill()!;
   // and context: doc.resolve(3),
 
-  const parentNode = parser.parse(htmlNode, {
+  const parsedNode = parser.parse(htmlNode, {
     topNode: pmSchema.nodes["blockGroup"].create(),
   });
+  const parentNode = normalizeImportedTables(parsedNode);
 
   const blocks: Block<BSchema, I, S>[] = [];
 
@@ -74,7 +93,7 @@ export function HTMLToBlocks<
     blocks.push(nodeToBlock(parentNode.child(i), parentNode));
   }
 
-  stripEmptyBlockPlaceholderFromBlocks(blocks);
+  normalizeImportedBlockContent(blocks);
 
   return blocks;
 }
