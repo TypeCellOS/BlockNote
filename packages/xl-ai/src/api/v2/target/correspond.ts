@@ -1,4 +1,4 @@
-import type { BlockWithoutChildren, FlatBlock, LensBlock } from "../model.js";
+import type { FlatBlock, LensBlock } from "../model.js";
 import { blockToText, type BlockIndex } from "../util/blocks/index.js";
 import type { BlockPair } from "../alignment/index.js";
 import type { Projection } from "../projection/index.js";
@@ -65,12 +65,10 @@ export function correspond(
 ): Correspondence {
   const { view, invisibleIds } = input.projection;
   const { incoming } = input;
-  /** The text block of each view block, and the view block of each text block. */
-  const textIndexOf: (number | undefined)[] = new Array(view.length);
+  /** The view block of each text block. */
   const viewIndexOf: (number | undefined)[] = new Array(incoming.length);
   const moved = new Set<number>();
   for (const pair of input.alignment) {
-    textIndexOf[pair.aIndex] = pair.bIndex;
     viewIndexOf[pair.bIndex] = pair.aIndex;
     if (pair.moved) {
       moved.add(pair.bIndex);
@@ -163,24 +161,13 @@ function invisibleBlockStays(
   neighbors: readonly string[],
   topHasContent: boolean,
 ): boolean {
-  if (!isEmptyBlock(source.block(id)) || hasKeptDescendant(source, kept, id)) {
+  if (!isEmptyBlock(source.block(id))) {
     return true;
   }
   if (neighbors.length > 0) {
     return neighbors.some((neighbor) => kept.has(neighbor));
   }
   return source.parent(id) !== undefined || topHasContent;
-}
-
-/** Returns true if a block in the block (at any depth) stays. */
-function hasKeptDescendant(
-  source: BlockIndex,
-  kept: ReadonlySet<string>,
-  id: string,
-): boolean {
-  return source
-    .childrenOf(id)
-    .some((child) => kept.has(child) || hasKeptDescendant(source, kept, child));
 }
 
 /**
@@ -218,10 +205,9 @@ function visibleNeighbors(
 
 /** Returns true for a block with inline content, without text and without children. */
 function isEmptyBlock(block: LensBlock): boolean {
-  return isEmptyTextBlock(block) && block.children.length === 0;
-}
-
-/** Returns true for a block with inline content and no text. */
-function isEmptyTextBlock(block: BlockWithoutChildren): boolean {
-  return Array.isArray(block.content) && blockToText(block) === "";
+  return (
+    Array.isArray(block.content) &&
+    blockToText(block) === "" &&
+    block.children.length === 0
+  );
 }

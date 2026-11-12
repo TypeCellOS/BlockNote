@@ -321,9 +321,6 @@ class ParentDecisions {
       return undefined;
     }
     const shownParent = this.view[viewParent].sourceId;
-    if (shownParent === undefined) {
-      return undefined;
-    }
     if (!this.kept.has(shownParent)) {
       return this.sourceParent(shownParent);
     }
