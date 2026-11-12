@@ -1,5 +1,5 @@
 import type { LensBlock } from "../model.js";
-import type { LayoutRule } from "../util/blocks/index.js";
+import { type LayoutRule, TOP_LEVEL } from "../util/blocks/index.js";
 
 /**
  * Returns the blocks with each layout block changed to fit its child rule,
@@ -38,13 +38,13 @@ import type { LayoutRule } from "../util/blocks/index.js";
 export function fitLayout(
   blocks: readonly LensBlock[],
   ruleOf: (type: string) => LayoutRule | undefined,
-  /** Returns true if a block of the type `parent` (`undefined` for the top level) can have a child of the type `child`. */
-  canContain: (parent: string | undefined, child: string) => boolean,
+  /** Returns true if a block of the type `parent` (`TOP_LEVEL` for the top level) can have a child of the type `child`. */
+  canContain: (parent: string | typeof TOP_LEVEL, child: string) => boolean,
 ): LensBlock[] {
   const rules: Rules = { ruleOf, canContain };
   const top = place(
     rules,
-    undefined,
+    TOP_LEVEL,
     blocks.flatMap((block) => fit(rules, block)),
   );
   // Nothing is above the top level, thus a block goes nowhere from there.
@@ -54,7 +54,7 @@ export function fitLayout(
 /** The rules of {@link fitLayout}. */
 type Rules = {
   ruleOf: (type: string) => LayoutRule | undefined;
-  canContain: (parent: string | undefined, child: string) => boolean;
+  canContain: (parent: string | typeof TOP_LEVEL, child: string) => boolean;
 };
 
 /** The block, fit to its child rule, then the blocks that go out of it. */
@@ -94,7 +94,7 @@ function fit(rules: Rules, block: LensBlock): LensBlock[] {
  */
 function place(
   rules: Rules,
-  parent: string | undefined,
+  parent: string | typeof TOP_LEVEL,
   children: readonly LensBlock[],
 ): { held: LensBlock[]; lifted: LensBlock[] } {
   const held: LensBlock[] = [];

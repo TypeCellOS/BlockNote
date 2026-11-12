@@ -2,6 +2,7 @@ import type { LensBlock } from "../model.js";
 import {
   BlockIndex,
   diffBlock,
+  type Parent,
   TOP_LEVEL,
   withoutChildren,
 } from "../util/blocks/index.js";
@@ -55,7 +56,7 @@ export function diffDocuments(
    * `{ aIndex: 1, bIndex: 3 }` (b). Thus, a and b stay. c moves to the first
    * place, and x goes in after a.
    */
-  function placeChildren(parent: string | undefined) {
+  function placeChildren(parent: Parent) {
     const children = to.childrenOf(parent);
     // The children of `current` that `target` also has in this parent, in
     // the order of `current`. Only these can stay where they are.
@@ -77,7 +78,7 @@ export function diffDocuments(
       const position: BlockPosition =
         index > 0
           ? { reference: children[index - 1], placement: "after" }
-          : parent !== undefined
+          : parent !== TOP_LEVEL
             ? { reference: parent, placement: "first-child" }
             : { placement: "start" };
       if (from.has(id)) {
@@ -103,7 +104,7 @@ export function diffDocuments(
 
   for (const id of from.ids) {
     const parent = from.parent(id);
-    if (!to.has(id) && (parent === undefined || to.has(parent))) {
+    if (!to.has(id) && (parent === TOP_LEVEL || to.has(parent))) {
       operations.push({ type: "delete", id });
     }
   }

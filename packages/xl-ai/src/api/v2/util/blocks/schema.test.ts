@@ -6,6 +6,7 @@ import {
 } from "@blocknote/core";
 import { describe, expect, it } from "vite-plus/test";
 
+import { TOP_LEVEL } from "./blockIndex.js";
 import { schemaRulesOf } from "./schema.js";
 
 const frame = () => {
@@ -90,8 +91,8 @@ describe("schemaRulesOf", () => {
   });
 
   it("puts a block that is not namedOnly in each parent without an allow list", () => {
-    expect(rules.canContain(undefined, "paragraph")).toBe(true);
-    expect(rules.canContain(undefined, "grid")).toBe(true);
+    expect(rules.canContain(TOP_LEVEL, "paragraph")).toBe(true);
+    expect(rules.canContain(TOP_LEVEL, "grid")).toBe(true);
     expect(rules.canContain("paragraph", "tabs")).toBe(true);
     expect(rules.canContain("box", "paragraph")).toBe(true);
   });
@@ -104,7 +105,7 @@ describe("schemaRulesOf", () => {
   });
 
   it("puts a namedOnly block only into a parent that names its type", () => {
-    expect(rules.canContain(undefined, "tab")).toBe(false);
+    expect(rules.canContain(TOP_LEVEL, "tab")).toBe(false);
     expect(rules.canContain("paragraph", "tab")).toBe(false);
     expect(rules.canContain("box", "tab")).toBe(false);
     expect(rules.canContain("grid", "tab")).toBe(false);

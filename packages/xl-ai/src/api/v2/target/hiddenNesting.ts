@@ -1,6 +1,6 @@
 import type { FlatBlock } from "../model.js";
 import type { ViewBlock } from "../projection/index.js";
-import type { BlockIndex } from "../util/blocks/index.js";
+import { type BlockIndex, TOP_LEVEL } from "../util/blocks/index.js";
 import type { KeptRow, TargetRow } from "./types.js";
 
 /**
@@ -236,7 +236,7 @@ class ParentDecisions {
   private sourceParent(id: string): Place | undefined {
     const invisible = this.invisibleAncestors(id);
     const visible = this.sourceIndex.parent(invisible.at(-1) ?? id);
-    let parent: Place = visible ?? TOP_LEVEL_PLACE;
+    let parent: Place = visible === TOP_LEVEL ? TOP_LEVEL_PLACE : visible;
     if (
       !this.open.isOpen(parent) ||
       invisible.some((ancestor) => !this.staying.has(ancestor)) ||
@@ -399,7 +399,7 @@ class ParentDecisions {
   private parentMovedAlong(j: number, row: KeptRow): Place | undefined {
     const parentId = this.sourceIndex.parent(row.id);
     const index =
-      parentId === undefined ? undefined : this.rowIndexOf.get(parentId);
+      parentId === TOP_LEVEL ? undefined : this.rowIndexOf.get(parentId);
     if (index === undefined || !this.open.isOpen(this.rows[index].id)) {
       return undefined;
     }
@@ -438,7 +438,7 @@ class ParentDecisions {
     const own = this.invisibleAncestors(id);
     if (own.length === 0) {
       const parent = this.sourceIndex.parent(id);
-      return parent === undefined || this.isOpenSource(parent);
+      return parent === TOP_LEVEL || this.isOpenSource(parent);
     }
     if (own.some((ancestor) => this.isOpenSource(ancestor))) {
       return true;

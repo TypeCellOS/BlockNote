@@ -1,6 +1,10 @@
 import type { BlockFields, FlatBlock, LensBlock } from "../model.js";
 import type { ViewBlock } from "../projection/index.js";
-import { type BlockIndex, TOP_LEVEL } from "../util/blocks/index.js";
+import {
+  type BlockIndex,
+  type Parent,
+  TOP_LEVEL,
+} from "../util/blocks/index.js";
 import { decideParents, TOP_LEVEL_PLACE } from "./hiddenNesting.js";
 import type { TargetRow } from "./types.js";
 
@@ -73,8 +77,8 @@ function placeInvisibleBlocks(
   invisibleIds: ReadonlySet<string>,
   staying: ReadonlySet<string>,
 ) {
-  function place(parentId: string | undefined) {
-    const parent = parentId === undefined ? root : blocksById.get(parentId);
+  function place(parentId: Parent) {
+    const parent = parentId === TOP_LEVEL ? root : blocksById.get(parentId);
     const siblings = sourceIndex.childrenOf(parentId);
     if (parent !== undefined) {
       const present = new Set(parent.children.map((child) => child.id));

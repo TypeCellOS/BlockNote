@@ -9,14 +9,17 @@ const NO_CHILDREN: readonly string[] = [];
  */
 export const TOP_LEVEL = undefined;
 
+/** The parent of a block: the ID of a block, or `TOP_LEVEL` for a top-level block. */
+export type Parent = string | typeof TOP_LEVEL;
+
 /**
  * An index of the shape of a document, for a lookup by ID: the parent and
  * the children of each block. It does not change.
  */
 export class BlockIndex {
   private readonly blocks = new Map<string, LensBlock>();
-  private readonly parents = new Map<string, string | undefined>();
-  private readonly children = new Map<string | undefined, string[]>();
+  private readonly parents = new Map<string, Parent>();
+  private readonly children = new Map<Parent, string[]>();
   private readonly indexes = new Map<string, number>();
 
   constructor(blocks: readonly LensBlock[]) {
@@ -35,7 +38,7 @@ export class BlockIndex {
   }
 
   /** Adds the blocks (with their descendants) as children of `parent`. */
-  private add(list: readonly LensBlock[], parent: string | undefined) {
+  private add(list: readonly LensBlock[], parent: Parent) {
     if (list.length === 0) {
       return;
     }
@@ -75,12 +78,12 @@ export class BlockIndex {
   }
 
   /** The parent of a block, or `TOP_LEVEL` for a top-level block. */
-  parent(id: string): string | undefined {
+  parent(id: string): Parent {
     return this.parents.get(id);
   }
 
   /** The children of a block, or the top-level blocks for `TOP_LEVEL`. */
-  childrenOf(parent: string | undefined): readonly string[] {
+  childrenOf(parent: Parent): readonly string[] {
     return this.children.get(parent) ?? NO_CHILDREN;
   }
 }

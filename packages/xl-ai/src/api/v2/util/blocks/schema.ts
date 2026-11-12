@@ -1,6 +1,7 @@
 import type { BlockNoteEditor } from "@blocknote/core";
 
 import type { ContentKind } from "../../model.js";
+import { TOP_LEVEL } from "./blockIndex.js";
 
 /**
  * The child rule of a layout block (a block with `layoutOnly: true` in its
@@ -28,11 +29,11 @@ export type SchemaRules = {
   /** The child rule of a layout block type, or `undefined` for other types. */
   layoutRuleOf: (type: string) => LayoutRule | undefined;
   /**
-   * Returns true if a block of the type `parent` (`undefined` for the top
+   * Returns true if a block of the type `parent` (`TOP_LEVEL` for the top
    * level) can have a child of the type `child`. A block placeable
    * "namedOnly" (a column) is only in a parent that allows its type by name.
    */
-  canContain: (parent: string | undefined, child: string) => boolean;
+  canContain: (parent: string | typeof TOP_LEVEL, child: string) => boolean;
 };
 
 export function schemaRulesOf(
@@ -65,7 +66,7 @@ export function schemaRulesOf(
       };
     },
     canContain(parent, child) {
-      const rule = parent === undefined ? undefined : configs[parent]?.children;
+      const rule = parent === TOP_LEVEL ? undefined : configs[parent]?.children;
       if (configs[child]?.placeable === "namedOnly") {
         return (
           rule !== undefined &&

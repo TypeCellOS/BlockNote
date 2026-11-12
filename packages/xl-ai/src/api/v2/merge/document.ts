@@ -2,6 +2,7 @@ import type { ContentKind, LensBlock } from "../model.js";
 import {
   BlockIndex,
   diffBlock,
+  type Parent,
   TOP_LEVEL,
   withoutChildren,
 } from "../util/blocks/index.js";
@@ -69,7 +70,7 @@ export function mergeDocument(input: {
   const conflicts = new Set([...parents.conflicts, ...children.conflicts]);
 
   const warnings: MergeWarning[] = [];
-  function build(parent: string | undefined): LensBlock[] {
+  function build(parent: Parent): LensBlock[] {
     return (children.childrenOf.get(parent) ?? []).map((id) => {
       const fields = mergeFields(sides, id, input.contentKindOf);
       if (fields.conflict || conflicts.has(id)) {
@@ -191,7 +192,7 @@ function stayingBlocks(sides: Sides): Staying {
       } else {
         // A new block of another writer.
         const parent = theirs.parent(id);
-        result = parent === undefined || stays(parent);
+        result = parent === TOP_LEVEL || stays(parent);
       }
       memo.set(id, result);
     }
@@ -216,7 +217,7 @@ function mergeParents(
   sides: Sides,
   staying: Staying,
 ): {
-  parentOf: Map<string, string | undefined>;
+  parentOf: Map<string, Parent>;
   /** The blocks with a conflict of the parent: a change of the client there does not apply. */
   conflicts: Set<string>;
 } {
@@ -228,10 +229,7 @@ function mergeParents(
    * replaced. A block in `theirsWins` gets its parent of `theirs` (see
    * `breakCycles`).
    */
-  function chosenParent(
-    id: string,
-    theirsWins: ReadonlySet<string>,
-  ): string | undefined {
+  function chosenParent(id: string, theirsWins: ReadonlySet<string>): Parent {
     if (!theirs.has(id)) {
       return (ours.has(id) ? ours : base).parent(id);
     }
@@ -245,12 +243,9 @@ function mergeParents(
   }
 
   /** The parent in the result: the chosen parent, or the place of a chosen parent that goes. */
-  function parentOf(
-    id: string,
-    theirsWins: ReadonlySet<string>,
-  ): string | undefined {
+  function parentOf(id: string, theirsWins: ReadonlySet<string>): Parent {
     let parent = chosenParent(id, theirsWins);
-    while (parent !== undefined && !staying.has(parent)) {
+    while (parent !== TOP_LEVEL && !staying.has(parent)) {
       parent = chosenParent(parent, theirsWins);
     }
     return parent;
@@ -278,13 +273,13 @@ function mergeParents(
       const walkOf = new Map<string, number>();
       staying.list.forEach((id, walk) => {
         const path: string[] = [];
-        let current: string | undefined = id;
-        while (current !== undefined && !walkOf.has(current)) {
+        let current: Parent = id;
+        while (current !== TOP_LEVEL && !walkOf.has(current)) {
           walkOf.set(current, walk);
           path.push(current);
           current = parentOf(current, theirsWins);
         }
-        if (current === undefined || walkOf.get(current) !== walk) {
+        if (current === TOP_LEVEL || walkOf.get(current) !== walk) {
           // The top level, or a block of an earlier walk: no new cycle.
           return;
         }
@@ -319,14 +314,14 @@ function mergeParents(
 function mergeChildOrders(
   sides: Sides,
   staying: Staying,
-  parentOf: ReadonlyMap<string, string | undefined>,
+  parentOf: ReadonlyMap<string, Parent>,
 ): {
-  childrenOf: Map<string | undefined, string[]>;
+  childrenOf: Map<Parent, string[]>;
   /** The blocks that the two sides moved to different places in one list. */
   conflicts: Set<string>;
 } {
   /** The children of each parent in the result, in no order yet. */
-  const expected = new Map<string | undefined, string[]>();
+  const expected = new Map<Parent, string[]>();
   for (const id of staying.list) {
     const parent = parentOf.get(id);
     const list = expected.get(parent);
@@ -337,7 +332,7 @@ function mergeChildOrders(
     }
   }
   const conflicts = new Set<string>();
-  const childrenOf = new Map<string | undefined, string[]>();
+  const childrenOf = new Map<Parent, string[]>();
   for (const [parent, ids] of expected) {
     const merged = mergeChildOrder(sides, staying, parentOf, parent, ids);
     childrenOf.set(parent, merged.order);
@@ -361,8 +356,8 @@ function mergeChildOrders(
 function mergeChildOrder(
   sides: Sides,
   staying: Staying,
-  parentOf: ReadonlyMap<string, string | undefined>,
-  parent: string | undefined,
+  parentOf: ReadonlyMap<string, Parent>,
+  parent: Parent,
   /** The children of the parent in the result. */
   expected: readonly string[],
 ): { order: string[]; conflicts: string[] } {
@@ -512,7 +507,7 @@ function removalWarnings(sides: Sides): MergeWarning[] {
     if (
       !ours.has(id) &&
       theirs.has(id) &&
-      (parent === undefined || ours.has(parent)) &&
+      (parent === TOP_LEVEL || ours.has(parent)) &&
       sides.removalLosesChange(id)
     ) {
       warnings.push({ type: "removed-changed-block", id });

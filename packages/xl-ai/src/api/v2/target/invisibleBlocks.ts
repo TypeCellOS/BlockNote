@@ -39,7 +39,7 @@ export function withInvisibleBlocks(
     const parentId = sourceIndex.parent(id);
     if (
       invisibleIds.has(id) &&
-      (parentId === undefined || staying.has(parentId)) &&
+      (parentId === TOP_LEVEL || staying.has(parentId)) &&
       invisibleBlockStays(
         sourceIndex,
         staying,
@@ -78,7 +78,7 @@ function invisibleBlockStays(
   if (neighbors.length > 0) {
     return neighbors.some((neighbor) => staying.has(neighbor));
   }
-  return sourceIndex.parent(id) !== undefined || topHasContent;
+  return sourceIndex.parent(id) !== TOP_LEVEL || topHasContent;
 }
 
 /**
