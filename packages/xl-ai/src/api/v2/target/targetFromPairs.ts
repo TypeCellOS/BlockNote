@@ -58,7 +58,7 @@ export function targetFromPairs(input: TargetInput): TargetResult {
   const rows = input.textBlocks.map(({ block: text }, j): TargetRow => {
     const pair = pairOf[j];
     if (pair === undefined) {
-      return { kind: "new", fields: text };
+      return { kind: "new", id: input.newId(), fields: text };
     }
     const { block: base, sourceId: id } = view[pair.aIndex];
     const source = sourceIndex.block(id);
@@ -85,7 +85,6 @@ export function targetFromPairs(input: TargetInput): TargetResult {
     sourceIndex,
     invisibleIds,
     staying: withInvisibleBlocks(sourceIndex, invisibleIds, keptIds),
-    newId: input.newId,
   });
   return { target, warnings };
 }

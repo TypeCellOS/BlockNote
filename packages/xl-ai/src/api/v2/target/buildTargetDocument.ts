@@ -1,7 +1,7 @@
 import type { BlockFields, FlatBlock, LensBlock } from "../model.js";
 import type { ViewBlock } from "../projection/index.js";
 import type { BlockIndex } from "../util/blocks/index.js";
-import { decideParents, keyOf, type Place } from "./hiddenNesting.js";
+import { decideParents, ROOT } from "./hiddenNesting.js";
 import type { TargetRow } from "./types.js";
 
 export type { TargetRow } from "./types.js";
@@ -27,56 +27,31 @@ export function buildTargetDocument(input: {
   invisibleIds: ReadonlySet<string>;
   /** The source blocks that stay (see `withInvisibleBlocks`). */
   staying: ReadonlySet<string>;
-  /** Gives the ID of a new block. */
-  newId: () => string;
 }): LensBlock[] {
   const { rows, sourceIndex } = input;
   const root = blockFromFields("", { type: "", props: {}, content: undefined });
-  /** The block of each place in the target. */
-  const blocksByPlace = new Map<string, LensBlock>([
-    [keyOf({ kind: "root" }), root],
-  ]);
-  /** The block of each source block in the target: a kept block or an invisible ancestor. */
-  const blocksBySourceId = new Map<string, LensBlock>();
-
-  function create(place: Place): LensBlock {
-    switch (place.kind) {
-      case "root":
-        throw new Error("The root is not a step of the build");
-      case "invisible": {
-        const block = blockFromFields(place.id, sourceIndex.block(place.id));
-        blocksBySourceId.set(place.id, block);
-        return block;
-      }
-      case "row": {
-        const row = rows[place.index];
-        switch (row.kind) {
-          case "new":
-            return blockFromFields(input.newId(), row.fields);
-          case "kept": {
-            const block = blockFromFields(row.id, row.fields);
-            blocksBySourceId.set(row.id, block);
-            return block;
-          }
-        }
-      }
-    }
-  }
+  const rowOf = new Map(rows.map((row) => [row.id, row]));
+  /** The block of each block ID in the target: a row or an invisible ancestor. */
+  const blocksById = new Map<string, LensBlock>();
 
   for (const { block, parent } of decideParents(input)) {
-    const created = create(block);
+    const row = rowOf.get(block);
+    const created = blockFromFields(
+      block,
+      row !== undefined ? row.fields : sourceIndex.block(block),
+    );
     // `decideParents` gives a step for a parent before the steps of its
     // children.
-    const parentBlock = blocksByPlace.get(keyOf(parent));
+    const parentBlock = parent === ROOT ? root : blocksById.get(parent);
     if (parentBlock === undefined) {
-      throw new Error(`The parent ${keyOf(parent)} is not in the target yet`);
+      throw new Error(`The parent ${String(parent)} is not in the target yet`);
     }
     parentBlock.children.push(created);
-    blocksByPlace.set(keyOf(block), created);
+    blocksById.set(block, created);
   }
   placeInvisibleBlocks(
     root,
-    blocksBySourceId,
+    blocksById,
     sourceIndex,
     input.invisibleIds,
     input.staying,
@@ -92,14 +67,13 @@ export function buildTargetDocument(input: {
  */
 function placeInvisibleBlocks(
   root: LensBlock,
-  blocksBySourceId: Map<string, LensBlock>,
+  blocksById: Map<string, LensBlock>,
   sourceIndex: BlockIndex,
   invisibleIds: ReadonlySet<string>,
   staying: ReadonlySet<string>,
 ) {
   function place(parentId: string | undefined) {
-    const parent =
-      parentId === undefined ? root : blocksBySourceId.get(parentId);
+    const parent = parentId === undefined ? root : blocksById.get(parentId);
     const siblings = sourceIndex.childrenOf(parentId);
     if (parent !== undefined) {
       const present = new Set(parent.children.map((child) => child.id));
@@ -108,13 +82,9 @@ function placeInvisibleBlocks(
       const after = new Map<string | undefined, LensBlock[]>();
       let last: string | undefined;
       for (const id of siblings) {
-        if (
-          invisibleIds.has(id) &&
-          staying.has(id) &&
-          !blocksBySourceId.has(id)
-        ) {
+        if (invisibleIds.has(id) && staying.has(id) && !blocksById.has(id)) {
           const block = blockFromFields(id, sourceIndex.block(id));
-          blocksBySourceId.set(id, block);
+          blocksById.set(id, block);
           const list = after.get(last) ?? [];
           list.push(block);
           after.set(last, list);

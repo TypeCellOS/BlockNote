@@ -20,9 +20,10 @@ export type TargetRow =
       moved: boolean;
       fields: BlockFields;
     }
-  /** A new block, with the fields of the text block. It gets a new ID. */
+  /** A new block, with a new ID and the fields of the text block. */
   | {
       kind: "new";
+      id: string;
       fields: BlockFields;
     };
 

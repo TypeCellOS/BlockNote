@@ -4,39 +4,27 @@ import type { BlockIndex } from "../util/blocks/index.js";
 import type { KeptRow, TargetRow } from "./types.js";
 
 /**
- * A place in the target document: the root, the block of a row of the text (a
- * new or a kept block), or an invisible ancestor (a source block without a
- * view block, for example a column, that a kept block keeps as its ancestor).
+ * The root of the target document, as a place (see {@link Place}).
  *
  * @internal
  */
-export type Place =
-  | { kind: "root" }
-  | { kind: "row"; index: number }
-  | { kind: "invisible"; id: string };
+export const ROOT: unique symbol = Symbol("root");
 
 /**
- * A key for a place, unique in one build of the target document.
+ * A place in the target document: the root, or the ID of a block of the
+ * target. That block is the block of a row of the text (a new or a kept
+ * block), or an invisible ancestor (a source block without a view block,
+ * for example a column, that a kept block keeps as its ancestor).
  *
  * @internal
  */
-export function keyOf(place: Place): string {
-  switch (place.kind) {
-    case "root":
-      return "root";
-    case "row":
-      return `row:${place.index}`;
-    case "invisible":
-      return `invisible:${place.id}`;
-  }
-}
+export type Place = string | typeof ROOT;
 
 /**
- * One step of the build: `block` goes into `parent`, after its last child.
+ * One step of the build: block `block` goes into `parent`, after its last
+ * child.
  */
-type BuildStep = { block: Place; parent: Place };
-
-const ROOT: Place = { kind: "root" };
+type BuildStep = { block: string; parent: Place };
 
 /**
  * The list of each list item type: numbered list items make an ordered
@@ -84,24 +72,29 @@ export function decideParents(input: NestingInput): BuildStep[] {
  * the blocks below it. Each attach is one step of the build.
  */
 class OpenAncestors {
-  private readonly stack: string[] = [keyOf(ROOT)];
+  private readonly stack: Place[] = [ROOT];
   private readonly parents = new Map<string, Place>();
   readonly steps: BuildStep[] = [];
 
-  attach(block: Place, parent: Place) {
+  attach(block: string, parent: Place) {
     const depth = this.depthOf(parent);
     if (depth === -1) {
-      throw new Error(`The place ${keyOf(parent)} is not an open ancestor`);
+      throw new Error(`The place ${String(parent)} is not an open ancestor`);
     }
     this.stack.length = depth + 1;
-    this.stack.push(keyOf(block));
-    this.parents.set(keyOf(block), parent);
+    this.stack.push(block);
+    this.parents.set(block, parent);
     this.steps.push({ block, parent });
   }
 
+  /** Returns true if the block has a step (it is in the target). */
+  has(block: string): boolean {
+    return this.parents.has(block);
+  }
+
   /** The parent of a block that has a step, if that parent is still open. Else `undefined`. */
-  openParentOf(block: Place): Place | undefined {
-    const parent = this.parents.get(keyOf(block));
+  openParentOf(block: string): Place | undefined {
+    const parent = this.parents.get(block);
     return parent !== undefined && this.isOpen(parent) ? parent : undefined;
   }
 
@@ -111,7 +104,7 @@ class OpenAncestors {
 
   /** The depth of an open ancestor, or -1. */
   depthOf(place: Place): number {
-    return this.stack.indexOf(keyOf(place));
+    return this.stack.indexOf(place);
   }
 }
 
@@ -130,8 +123,8 @@ type NestingInput = {
 /** The nesting rules of {@link decideParents}, with the state of the decisions. */
 class ParentDecisions {
   private readonly open = new OpenAncestors();
-  /** The place of each source block that is in the target: a kept block or an invisible ancestor. */
-  private readonly placeOf = new Map<string, Place>();
+  /** The row of each block ID of a row. */
+  private readonly rowIndexOf: ReadonlyMap<string, number>;
   /** The first kept row at or after each index, with its index. */
   private readonly keptFrom: ({ index: number; row: KeptRow } | undefined)[];
   /** The index of the text block before each text block in its text parent. */
@@ -152,6 +145,7 @@ class ParentDecisions {
     this.invisibleIds = input.invisibleIds;
     this.staying = input.staying;
     const { rows } = input;
+    this.rowIndexOf = new Map(rows.map((row, j) => [row.id, j]));
     this.keptFrom = new Array(rows.length + 1);
     for (let k = rows.length - 1; k >= 0; k--) {
       const row = rows[k];
@@ -168,14 +162,12 @@ class ParentDecisions {
 
   decide(): BuildStep[] {
     this.rows.forEach((row, j) => {
-      const place: Place = { kind: "row", index: j };
       switch (row.kind) {
         case "new":
-          this.open.attach(place, this.asNew(j));
+          this.open.attach(row.id, this.asNew(j));
           return;
         case "kept":
-          this.open.attach(place, this.keptParent(j, row));
-          this.placeOf.set(row.id, place);
+          this.open.attach(row.id, this.keptParent(j, row));
           return;
       }
     });
@@ -184,20 +176,19 @@ class ParentDecisions {
 
   /** The type of the block at a place. */
   private typeOf(place: Place): string {
-    switch (place.kind) {
-      case "root":
-        return "";
-      case "row":
-        return this.rows[place.index].fields.type;
-      case "invisible":
-        return this.sourceIndex.block(place.id).type;
+    if (place === ROOT) {
+      return "";
     }
+    const j = this.rowIndexOf.get(place);
+    return j !== undefined
+      ? this.rows[j].fields.type
+      : this.sourceIndex.block(place).type;
   }
 
   /** The place of the parent of text block `j` in the text, or the root. */
   private textParent(j: number): Place {
     const p = this.textBlocks[j].parentIndex;
-    return p === undefined ? ROOT : { kind: "row", index: p };
+    return p === undefined ? ROOT : this.rows[p].id;
   }
 
   /**
@@ -242,9 +233,8 @@ class ParentDecisions {
   private sourceParent(id: string): Place | undefined {
     const invisible = this.invisibleAncestors(id);
     const visible = this.sourceIndex.parent(invisible.at(-1) ?? id);
-    let parent = visible === undefined ? ROOT : this.placeOf.get(visible);
+    let parent: Place = visible ?? ROOT;
     if (
-      parent === undefined ||
       !this.open.isOpen(parent) ||
       invisible.some((ancestor) => !this.staying.has(ancestor)) ||
       // The format did not show the nesting under the type of the source
@@ -256,15 +246,12 @@ class ParentDecisions {
       return undefined;
     }
     for (const ancestor of invisible.reverse()) {
-      let place = this.placeOf.get(ancestor);
-      if (place === undefined) {
-        place = { kind: "invisible", id: ancestor };
-        this.open.attach(place, parent);
-        this.placeOf.set(ancestor, place);
-      } else if (!this.open.isOpen(place)) {
+      if (!this.open.has(ancestor)) {
+        this.open.attach(ancestor, parent);
+      } else if (!this.open.isOpen(ancestor)) {
         return undefined;
       }
-      parent = place;
+      parent = ancestor;
     }
     return parent;
   }
@@ -296,7 +283,7 @@ class ParentDecisions {
     ) {
       return undefined;
     }
-    return this.open.openParentOf({ kind: "row", index: previous });
+    return this.open.openParentOf(this.rows[previous].id);
   }
 
   /**
@@ -324,8 +311,7 @@ class ParentDecisions {
     if (!this.staying.has(shownParent)) {
       return this.sourceParent(shownParent);
     }
-    const place = this.placeOf.get(shownParent);
-    return place === undefined ? undefined : this.open.openParentOf(place);
+    return this.open.openParentOf(shownParent);
   }
 
   /**
@@ -409,19 +395,18 @@ class ParentDecisions {
    */
   private parentMovedAlong(j: number, row: KeptRow): Place | undefined {
     const parentId = this.sourceIndex.parent(row.id);
-    const place =
-      parentId === undefined ? undefined : this.placeOf.get(parentId);
-    if (place?.kind !== "row" || !this.open.isOpen(place)) {
+    const index =
+      parentId === undefined ? undefined : this.rowIndexOf.get(parentId);
+    if (index === undefined || !this.open.isOpen(this.rows[index].id)) {
       return undefined;
     }
-    const parentRow = this.rows[place.index];
+    const parentRow = this.rows[index];
     return parentRow.kind === "kept" &&
       parentRow.fields.type === this.sourceIndex.block(parentRow.id).type &&
       this.view[parentRow.viewIndex].parentIndex ===
         this.view[row.viewIndex].parentIndex &&
-      this.textBlocks[place.index].parentIndex ===
-        this.textBlocks[j].parentIndex
-      ? place
+      this.textBlocks[index].parentIndex === this.textBlocks[j].parentIndex
+      ? parentRow.id
       : undefined;
   }
 
@@ -464,8 +449,7 @@ class ParentDecisions {
 
   /** Returns true if the source block is in the target, and is an open ancestor. */
   private isOpenSource(id: string): boolean {
-    const place = this.placeOf.get(id);
-    return place !== undefined && this.open.isOpen(place);
+    return this.open.isOpen(id);
   }
 
   /**
@@ -480,10 +464,9 @@ class ParentDecisions {
     const depth = this.open.depthOf(parent);
     return (
       next !== undefined &&
-      this.invisibleAncestors(next.row.id).some((ancestor) => {
-        const place = this.placeOf.get(ancestor);
-        return place !== undefined && this.open.depthOf(place) > depth;
-      })
+      this.invisibleAncestors(next.row.id).some(
+        (ancestor) => this.open.depthOf(ancestor) > depth,
+      )
     );
   }
 }
