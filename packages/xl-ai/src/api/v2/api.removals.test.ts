@@ -131,39 +131,6 @@ describe("removals (review closely)", () => {
     expect(editor.document.map((block) => block.id)).toEqual(["empty-1"]);
   });
 
-  it("keeps a block that renders as more than one paragraph if the text of a paragraph changes", () => {
-    const editor = createEditor([
-      {
-        id: "code",
-        type: "codeBlock",
-        props: { language: "javascript" },
-        content: "const a = 1;\n\nconst b = 2;",
-      },
-      { id: "after", type: "paragraph", content: "After" },
-    ]);
-    const text = replaceOnce(
-      getDocumentText(editor, plainTextFormat),
-      "const b = 2;",
-      "const b = 3;",
-    );
-    const update = valid(
-      updateDocument(editor, {
-        base: "current",
-        format: plainTextFormat,
-        text,
-      }),
-    );
-
-    // The parts join again, with the blank line between them.
-    expect(update.warnings).toEqual([]);
-    expect(editor.getBlock("code")).toMatchObject({
-      type: "codeBlock",
-      props: { language: "javascript" },
-      content: [{ text: "const a = 1;\n\nconst b = 3;" }],
-    });
-    expect(getDocumentText(editor, plainTextFormat)).toBe(text);
-  });
-
   it("a changed block that the format shows with content of a different shape becomes a block of the text", () => {
     // A format that shows each block as one paragraph of text, also a table.
     const textOnly: TextFormat = {

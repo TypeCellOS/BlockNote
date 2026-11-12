@@ -125,6 +125,9 @@ function write(
   };
 }
 
+// TODO: these tests examine core (`blocksToMarkdownLossy` and
+// `tryParseMarkdownToBlocks`), not the lens. Move them to the markdown tests of
+// core, with the core PR.
 describe("core: the markdown round trip of the nesting", () => {
   const editor = BlockNoteEditor.create();
   function roundTrip(document: Block[]): string {
@@ -211,6 +214,9 @@ describe("core: the markdown round trip of the nesting", () => {
   });
 });
 
+// TODO: these tests examine core (`blocksToMarkdownLossy` and
+// `tryParseMarkdownToBlocks`), not the lens. Move them to the markdown tests of
+// core, with the core PR.
 describe("core: the markdown parse of nesting that the exporter does not write", () => {
   const editor = BlockNoteEditor.create();
   function parse(markdown: string): string {

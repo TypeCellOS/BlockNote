@@ -161,6 +161,38 @@ describe("plain text", () => {
       });
     });
 
+    it("keeps the block, its language and the blank line if the text changes the last line", () => {
+      const editor = BlockNoteEditor.create({
+        initialContent: [
+          {
+            id: "c",
+            type: "codeBlock",
+            props: { language: "javascript" },
+            content: "if (a) {\n  b();\n\n}",
+          },
+          { id: "p", type: "paragraph", content: "After" },
+        ],
+      });
+      const text = getDocumentText(editor, plainTextFormat);
+
+      const update = valid(
+        updateDocument(editor, {
+          base: "current",
+          format: plainTextFormat,
+          text: text.replace("\n}", "\n} // end"),
+        }),
+      );
+
+      // Plain text shows the blank line as one newline. The client did not
+      // change the text next to it, thus the merge keeps it.
+      expect(update.warnings).toEqual([]);
+      expect(editor.getBlock("c")).toMatchObject({
+        type: "codeBlock",
+        props: { language: "javascript" },
+        content: [{ text: "if (a) {\n  b();\n\n} // end" }],
+      });
+    });
+
     it("keeps the blank line if the text appends to the line before it", () => {
       const editor = createEditor(blocks);
       writeText(editor, plainTextFormat, (text) =>
@@ -248,40 +280,6 @@ describe("plain text, a new editor", () => {
       [{ text: "Hello" }],
       [{ text: "World" }],
     ]);
-  });
-});
-
-describe("plain text, a code block with a blank line", () => {
-  it("keeps the block, its language and the blank line if the text changes the last line", () => {
-    const editor = BlockNoteEditor.create({
-      initialContent: [
-        {
-          id: "c",
-          type: "codeBlock",
-          props: { language: "javascript" },
-          content: "if (a) {\n  b();\n\n}",
-        },
-        { id: "p", type: "paragraph", content: "After" },
-      ],
-    });
-    const text = getDocumentText(editor, plainTextFormat);
-
-    const update = valid(
-      updateDocument(editor, {
-        base: "current",
-        format: plainTextFormat,
-        text: text.replace("\n}", "\n} // end"),
-      }),
-    );
-
-    // Plain text shows the blank line as one newline. The client did not
-    // change the text next to it, thus the merge keeps it.
-    expect(update.warnings).toEqual([]);
-    expect(editor.getBlock("c")).toMatchObject({
-      type: "codeBlock",
-      props: { language: "javascript" },
-      content: [{ text: "if (a) {\n  b();\n\n} // end" }],
-    });
   });
 });
 
