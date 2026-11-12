@@ -401,7 +401,7 @@ NESTED BLOCKS
 }
 
 .bn-block-content[data-text-alignment="right"] {
-  justify-content: right;
+  justify-content: flex-end;
 }
 
 /* Toggle */
@@ -1113,9 +1113,9 @@ NESTED BLOCKS
 
 /* TEXT ALIGNMENT */
 [data-text-alignment="left"] {
-  /* Alignment choices are physical, unlike the surrounding layout. */
-  justify-content: left !important;
-  text-align: left !important;
+  /* Keep the existing values, but align to the reading direction. */
+  justify-content: flex-start !important;
+  text-align: start !important;
 }
 
 [data-text-alignment="center"] {
@@ -1124,8 +1124,8 @@ NESTED BLOCKS
 }
 
 [data-text-alignment="right"] {
-  justify-content: right !important;
-  text-align: right !important;
+  justify-content: flex-end !important;
+  text-align: end !important;
 }
 
 [data-text-alignment="justify"] {

@@ -138,7 +138,7 @@
 
 .bn-editor [data-content-type="table"] th {
   font-weight: bold;
-  text-align: left;
+  text-align: start;
 }
 
 .bn-editor [data-content-type="table"] th > p,

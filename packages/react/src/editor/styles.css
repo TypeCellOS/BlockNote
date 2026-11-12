@@ -533,6 +533,16 @@ SideMenuController offsets its position to keep it centered on the line. */
   touch-action: pan-x;
 }
 
+/* Indentation and start/end alignment follow the reading direction. */
+.bn-indent-button:dir(rtl) svg,
+.bn-text-align-button:dir(rtl):is(
+    [data-test="alignTextLeft"],
+    [data-test="alignTextRight"]
+  )
+  svg {
+  transform: scaleX(-1);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .bn-mobile-formatting-toolbar {
     transition: none;
