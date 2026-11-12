@@ -54,7 +54,14 @@ export function SuggestionMenuPopover(props: {
       ({
         // A descendant lets Floating UI observe scrolling of the editor itself.
         element: editorDOMElement?.firstElementChild ?? undefined,
-        getBoundingClientRect: () => state?.referencePos || new DOMRect(),
+        // Measures the trigger on each update, so the menu follows layout
+        // shifts that move the editor without a transaction or scroll.
+        getBoundingClientRect: () =>
+          editorDOMElement
+            ?.querySelector(".bn-suggestion-decorator")
+            ?.getBoundingClientRect() ||
+          state?.referencePos ||
+          new DOMRect(),
       }) satisfies GenericPopoverReference,
     equalityFn: (a, b) => {
       // Ignore fresh rectangle/callback identities when the anchor has not moved.
