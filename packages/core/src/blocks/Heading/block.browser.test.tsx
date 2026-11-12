@@ -109,7 +109,7 @@ test.describe("keyboard", () => {
     // this placeholder covers the eventual keyboard focus/navigation behavior.
   });
 
-  test("read-only toggle heading: Tab reaches the toggle and Enter expands/collapses it", async () => {
+  test("read-only toggle heading: Tab navigation and visible focus after Enter", async () => {
     const { toggleButton, unfocusedOutline } =
       await focusToggleHeadingWithAssertions();
     await commands.pressKey("Enter");
