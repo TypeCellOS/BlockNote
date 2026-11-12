@@ -17,8 +17,8 @@ import type { LensBlock } from "../model.js";
  * the isolated round trip of a block (see `roundTripIsolated`) must give the
  * same view block as the full text, or no view block. The lens throws for a
  * block that the format shows as more blocks (see `projectDocument`). If a
- * format hides a block with text, a view block next to it must not have the
- * same text and content shape (see `shownBlocks` in `projectDocument.ts`).
+ * format hides a block, a view block next to it must not have the same key
+ * (see `alignmentKey`, and `shownBlocks` in `projectDocument.ts`).
  */
 export interface TextFormat {
   /** Renders blocks as text (the "get" of the lens). The same blocks must always give the same text. */

@@ -258,14 +258,13 @@ function viewOf(
  * Two view blocks can have the same key, and the match can pair a block
  * with the wrong one of the two.
  *
- * A block with content that has no text (or only white space) does not
- * count, for example an empty paragraph: all these blocks have almost the
- * same key, and the formats often hide them.
- *
  * The isolated round trip of such a block gives one block with the same key.
- * Thus, the block needs no round trip. The three formats have this property.
- * A format that hides a block with text can break it: if the view block next
- * to the hidden block has the same key, the hidden block can get the link.
+ * Thus, the block needs no round trip. The three formats have this property,
+ * also for empty blocks: markdown and HTML show each empty block, and plain
+ * text shows none. A format that hides a block can break it: if a view block
+ * next to the hidden block has the same key, the hidden block counts as
+ * shown. Then the count of the view blocks is wrong, and `projectDocument`
+ * throws.
  */
 function shownBlocks(
   sources: readonly FlatBlock[],
@@ -273,10 +272,7 @@ function shownBlocks(
 ): Set<number> {
   const matches = anchoredMatch(sources, view, ({ block }) =>
     alignmentKey(block),
-  ).filter(({ aIndex }) => {
-    const { block } = sources[aIndex];
-    return block.content === undefined || blockToText(block).trim() !== "";
-  });
+  );
   return new Set(matches.map(({ aIndex }) => aIndex));
 }
 

@@ -212,12 +212,12 @@ describe("projectDocument", () => {
       parse: (blockEditor, text) => markdownFormat.parse(blockEditor, text),
     };
     projectDocument(editor, spy, editor.document);
-    // The view, then the round trip of the empty paragraph and the image
-    // (markdown does not show an image without a URL). The view shows the
-    // other blocks as they are.
+    // The view, then the round trip of the image (markdown does not show an
+    // image without a URL). The view shows the other blocks as they are,
+    // also the empty paragraph (markdown shows it as a <br> line).
     expect(calls).toEqual([
       ["heading", "bullet", "empty", "no-url", "code"],
-      ["empty", "no-url"],
+      ["no-url"],
     ]);
   });
 
