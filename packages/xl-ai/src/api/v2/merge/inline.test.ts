@@ -120,6 +120,32 @@ describe("mergeInlineContent", () => {
     ).toEqual([styledText("line one\nline two!")]);
   });
 
+  // The alignment pairs characters without their styles. Thus, a style
+  // change of ours is a change only with the rule `same` of the merge. Else,
+  // a change of theirs at the same characters wins without a conflict, and
+  // the style change of ours is lost.
+  it("keeps a style change of ours over a change of theirs at the same characters (the target stage)", () => {
+    const bold = { bold: true };
+    expect(
+      mergeInlineContent(
+        [styledText("ab cd")],
+        [styledText("ab "), styledText("cd", bold)],
+        [styledText("ab ce")],
+      ),
+    ).toEqual([styledText("ab "), styledText("cd", bold)]);
+  });
+
+  it("reports a conflict for a style change of ours and a change of theirs at the same characters (the document merge)", () => {
+    let conflicts = 0;
+    mergeInlineContent(
+      [styledText("ab cd")],
+      [styledText("ab "), styledText("cd", { bold: true })],
+      [styledText("ab ce")],
+      { kind: "document", onConflict: () => conflicts++ },
+    );
+    expect(conflicts).toBe(1);
+  });
+
   it("does not split emoji", () => {
     expect(
       mergeInlineContent(
