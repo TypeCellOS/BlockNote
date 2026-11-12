@@ -172,6 +172,30 @@ describe("plain text", () => {
       ]);
     });
 
+    it("reads `\\r\\n` as a line break, and keeps it", () => {
+      // The parse reads `\r\n` and `\r` as `\n`, thus the serialize does
+      // too. Before, `\r\n\r\n` gave two blocks, and each write threw.
+      const editor = createEditor([
+        { id: "code", type: "codeBlock", content: "first\r\n\r\nsecond" },
+        { id: "p", type: "paragraph", content: "one\r\rtwo" },
+        { id: "end", type: "paragraph", content: "End" },
+      ]);
+      expect(getDocumentText(editor, plainTextFormat)).toBe(
+        "first\nsecond\n\none\ntwo\n\nEnd",
+      );
+      const update = writeText(editor, plainTextFormat, (text) =>
+        replaceOnce(text, "second", "second, changed"),
+      );
+
+      expect(update.warnings).toEqual([]);
+      expect(editor.getBlock("code")?.content).toMatchObject([
+        { text: "first\r\n\r\nsecond, changed" },
+      ]);
+      expect(editor.getBlock("p")?.content).toMatchObject([
+        { text: "one\r\rtwo" },
+      ]);
+    });
+
     it("KNOWN LIMIT: loses the blank line if the text inserts at the start of the line after it", () => {
       // The insert of the client and the hidden newline are at the same
       // position. In the target stage, an insert of the document at the

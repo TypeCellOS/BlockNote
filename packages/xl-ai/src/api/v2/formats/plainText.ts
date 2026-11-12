@@ -7,7 +7,8 @@ import type { TextFormat } from "./types.js";
  * document order. A blank line separates the blocks. A line break in a block
  * stays a single newline. A blank line in a block becomes a single newline:
  * else, the parse would read it as two blocks. Thus, the blank line is data
- * that this format does not show.
+ * that this format does not show. The same applies to `\r\n` and `\r`: the
+ * serialize and the parse read them as `\n` (see {@link newlines}).
  *
  * This format does not show other data: block types, props, styles, nesting,
  * and blocks without text (for example images, tables and empty paragraphs).
@@ -24,7 +25,7 @@ function blocksToPlainText(blocks: readonly LensBlock[]): string {
     if (!Array.isArray(block.content)) {
       continue;
     }
-    const text = inlineContentToText(block.content).replace(
+    const text = newlines(inlineContentToText(block.content)).replace(
       /\n(?:[ \t]*\n)+/g,
       "\n",
     );
@@ -37,8 +38,7 @@ function blocksToPlainText(blocks: readonly LensBlock[]): string {
 
 function plainTextToBlocks(text: string): LensBlock[] {
   return (
-    text
-      .replace(/\r\n?/g, "\n")
+    newlines(text)
       // Lines with only white space at the start and at the end of the text
       // go, as between two blocks (see the split below). Thus, the text of a
       // block does not depend on the block after it.
@@ -53,4 +53,13 @@ function plainTextToBlocks(text: string): LensBlock[] {
         children: [],
       }))
   );
+}
+
+/**
+ * The text with each `\r\n` and `\r` as `\n`. The serialize and the parse
+ * must agree on what a line is: else, a blank line `\r\n\r\n` in a block is
+ * not a blank line for the serialize, but two blocks for the parse.
+ */
+function newlines(text: string): string {
+  return text.replace(/\r\n?/g, "\n");
 }
