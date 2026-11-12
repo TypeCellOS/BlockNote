@@ -188,7 +188,7 @@ A write needs one block of the text for each block of the document. Thus, the ma
 
 ## Example Server
 
-The [text lens server example](https://github.com/TypeCellOS/BlockNote/tree/main/examples/02-backend/05-text-lens-server) is an HTTP server with Hono. It gives a document as BlockNote JSON, markdown, HTML and plain text, and accepts a changed document back in each format. It keeps the versions in memory, and uses the `Base-Version` header for writes from an older version. The response of a write gives the document after the write, with the changes of other users, and its version for the next write.
+The [text lens server example](https://github.com/TypeCellOS/BlockNote/tree/main/examples/02-backend/05-text-lens-server) is an HTTP server with Hono. It gives a document as BlockNote JSON, markdown, HTML and plain text, and accepts a changed document back in each format. It keeps the versions in memory, and gives the version of a document as its `ETag`. A write sends that ETag in `If-Match` for a strict write (412 if another user changed the document), or in `Base-Version` for a merge (with `On-Conflict: reject`, a merge with a conflict does not apply). The response of a write gives the document after the write, with the changes of other users, and the ETag of its version for the next write.
 
 ## How It Works
 

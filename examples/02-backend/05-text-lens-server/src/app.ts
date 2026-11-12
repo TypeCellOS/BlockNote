@@ -5,6 +5,7 @@ import {
   getDocumentText,
   htmlFormat,
   markdownFormat,
+  type MergeWarning,
   plainTextFormat,
   type TextFormat,
   updateDocument,
@@ -45,27 +46,43 @@ function formatOf(name: string): Format | undefined {
 }
 
 /**
- * The version of the document that a response shows. With its next write, a
- * client sends the version of the text that it has in `Base-Version`.
+ * The ETag of a version of the document, for example `"3"`. A GET gives it in
+ * the `ETag` header, and a PUT in its body. The client sends it back in
+ * `If-Match` or in `Base-Version`. The ETag is the version of the document,
+ * thus all formats of a document give the same ETag for the same version.
  */
-const VERSION_HEADER = "Document-Version";
-/** The version of the document that the client read before it changed the text. */
+function etagOf(version: number): string {
+  return `"${version}"`;
+}
+
+/** The ETag of the version that the client read before it changed the text. With it, the server merges. */
 const BASE_HEADER = "Base-Version";
+/** What a conflict of the merge does: `keep-current` (the default) or `reject`. Only with `Base-Version`. */
+const ON_CONFLICT_HEADER = "On-Conflict";
 
 /** An error of the client, as a value: the HTTP status and a code. */
-type ClientError = { status: 400 | 404 | 409; error: string };
+type ClientError = {
+  status: 400 | 404 | 409 | 412;
+  error: string;
+  conflicts?: MergeWarning[];
+};
 
 /**
  * An HTTP API for documents, with the text lens:
  *
  * - `GET /documents/:id/:format` gives the document as `json`, `markdown`,
- *   `html` or `text`, with its version in the `Document-Version` header.
+ *   `html` or `text`, with the ETag of its version.
  * - `PUT /documents/:id/:format` writes a changed document back. The write
  *   applies only the changes, and keeps the data that the format does not
- *   show. Send the version that the client read in the `Base-Version`
- *   header. Then the write keeps the changes that other writers made after
- *   that version. The response gives the document after the write (with
- *   the changes of other writers) and its version, for the next write.
+ *   show. The client sends the ETag that it read in one of two headers:
+ *   - `If-Match`: a strict write. If another writer changed the document
+ *     after that version, the write does not apply (412).
+ *   - `Base-Version`: a merge. The write keeps the changes that other
+ *     writers made after that version. With `On-Conflict: reject`, a write
+ *     with a conflict does not apply (409, with the conflicts).
+ *   The response gives the document after the write (with the changes of
+ *   other writers), and in its body the ETag of that version, for the next
+ *   write.
  */
 export function createApp(store: DocumentStore) {
   const app = new Hono();
@@ -77,7 +94,7 @@ export function createApp(store: DocumentStore) {
       return c.json({ error: "unknown-format" }, 404);
     }
     const { editor, version } = store.current(c.req.param("id"));
-    c.header(VERSION_HEADER, String(version));
+    c.header("ETag", etagOf(version));
     if (format.type === "json") {
       return c.json(editor.document);
     }
@@ -93,23 +110,32 @@ export function createApp(store: DocumentStore) {
     }
     const body = await c.req.text();
     // From here, the handler is synchronous. Thus, no other write can change
-    // the document between this write and its commit.
+    // the document between the checks, this write and its commit.
     const id = c.req.param("id");
-    const { editor } = store.current(id);
-    const base = readBase(c.req.header(BASE_HEADER), store, id);
-    if (base !== undefined && "error" in base) {
-      return c.json({ error: base.error }, base.status);
+    const { editor, version } = store.current(id);
+    const options = readWriteOptions(
+      c.req.header(BASE_HEADER),
+      c.req.header(ON_CONFLICT_HEADER),
+      store,
+      id,
+    );
+    if ("error" in options) {
+      return c.json({ error: options.error }, options.status);
     }
-    const result = write(editor, format, body, base?.blocks ?? "current");
+    // The precondition comes after the other client errors (RFC 9110, 13.2.1).
+    if (!ifMatches(c.req.header("If-Match"), etagOf(version))) {
+      return c.json({ error: "document-changed" }, 412);
+    }
+    const result = write(editor, format, body, options);
     if (result.error !== undefined) {
-      return c.json({ error: result.error }, result.status);
+      const { status, error, conflicts } = result;
+      return c.json(conflicts ? { error, conflicts } : { error }, status);
     }
-    const version =
-      result.operations.length > 0
-        ? store.commit(id)
-        : store.current(id).version;
-    c.header(VERSION_HEADER, String(version));
-    return c.json({ version, ...read(editor, format), ...result });
+    const next = result.operations.length > 0 ? store.commit(id) : version;
+    // The new ETag is in the body, not in an ETag header: the stored document
+    // is not the content of the request (it merged, and the format changes
+    // the text), thus RFC 9110 (9.3.4) does not allow the header here.
+    return c.json({ etag: etagOf(next), ...read(editor, format), ...result });
   });
 
   return app;
@@ -125,19 +151,24 @@ function read(
     : { text: getDocumentText(editor, format.format) };
 }
 
+/** The `base` and `onConflict` of a write (see `WriteFromVersion` of the text lens). */
+type WriteOptions =
+  | { base: "current" }
+  | { base: Block<any, any, any>[]; onConflict: "keep-current" | "reject" };
+
 /** Applies the body of a PUT request to the document. */
 function write(
   editor: BlockNoteEditor<any, any, any>,
   format: Format,
   body: string,
-  base: Block<any, any, any>[] | "current",
+  options: WriteOptions,
 ): ChangeOperations | ClientError {
   if (format.type === "text") {
     return orClientError(
       updateDocument(editor, {
         format: format.format,
         text: body,
-        base,
+        ...options,
       }),
     );
   }
@@ -146,32 +177,64 @@ function write(
     return document;
   }
   return orClientError(
-    updateDocument(editor, { document: document.blocks, base }),
+    updateDocument(editor, { document: document.blocks, ...options }),
   );
 }
 
-/** The update, or the status 400 if the text or the JSON does not fit the schema. */
+/**
+ * The update, or a client error: 400 if the text or the JSON does not fit
+ * the schema, 409 for a rejected conflict.
+ */
 function orClientError(update: ChangeResult): ChangeOperations | ClientError {
-  return update.error === undefined
-    ? update
-    : { status: 400, error: update.error };
+  switch (update.error) {
+    case undefined:
+      return update;
+    case "invalid-document":
+      return { status: 400, error: update.error };
+    case "conflict":
+      return { status: 409, error: update.error, conflicts: update.conflicts };
+  }
 }
 
-/** Reads the `Base-Version` header. Without the header, the write applies to the current document. */
-function readBase(
-  header: string | undefined,
+/**
+ * Reads the `Base-Version` and `On-Conflict` headers. Without `Base-Version`,
+ * the write applies to the current document, and `On-Conflict` is an error.
+ */
+function readWriteOptions(
+  baseHeader: string | undefined,
+  onConflictHeader: string | undefined,
   store: DocumentStore,
   id: string,
-): { blocks: Block<any, any, any>[] } | ClientError | undefined {
-  if (header === undefined) {
-    return undefined;
+): WriteOptions | ClientError {
+  if (baseHeader === undefined) {
+    return onConflictHeader === undefined
+      ? { base: "current" }
+      : { status: 400, error: "on-conflict-without-base-version" };
   }
-  const blocks = /^\d+$/.test(header)
-    ? store.version(id, Number(header))
-    : undefined;
-  return blocks === undefined
+  const onConflict = onConflictHeader ?? "keep-current";
+  if (onConflict !== "keep-current" && onConflict !== "reject") {
+    return { status: 400, error: "unknown-on-conflict" };
+  }
+  const match = /^"(\d+)"$/.exec(baseHeader);
+  const base = match === null ? undefined : store.version(id, Number(match[1]));
+  return base === undefined
     ? { status: 409, error: "unknown-base-version" }
-    : { blocks };
+    : { base, onConflict };
+}
+
+/**
+ * Returns true if the `If-Match` header matches the ETag of the current
+ * version, or if the request has no `If-Match`. The header is `*` or a list
+ * of ETags. The comparison is strong (RFC 9110): a weak ETag never matches.
+ */
+function ifMatches(header: string | undefined, etag: string): boolean {
+  return (
+    header === undefined ||
+    header
+      .split(",")
+      .map((tag) => tag.trim())
+      .some((tag) => tag === "*" || tag === etag)
+  );
 }
 
 /**
