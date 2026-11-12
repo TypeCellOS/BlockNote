@@ -56,8 +56,10 @@ export type Projection = {
  *             "End": paragraph "End"
  *     links:  view block 0 to the code block, view block 1 to "End"
  *
- * Plain text writes the blank line of the code block as one newline, and it
- * does not show the image. Thus, the image is an invisible block.
+ * Plain text writes the blank line of the code block as one newline. Thus,
+ * the code block gives one paragraph: one part, not two (a block with more
+ * parts throws). Plain text does not show the image. Thus, the image is an
+ * invisible block.
  *
  * Method: our own design: a round trip through the format, and links by
  * `linkBlocks`.
