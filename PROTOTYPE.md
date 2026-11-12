@@ -10,6 +10,8 @@ The prototype adds a second AI engine next to the old engine. An agent loop read
 
 Read this section first. The sections after it are in the order of the work, and the later sections (13 and 14) change some statements of the earlier ones.
 
+**The code moved (12 November, section 18).** The document agent is now the package `packages/xl-ai-lenses` (`@blocknote/xl-ai-lenses`). The sections before section 18 name the old paths: `packages/xl-ai/src/documentAgent/<folder>` is now `packages/xl-ai-lenses/src/<folder>`, and `@blocknote/xl-ai/yjs14` is now `@blocknote/xl-ai-lenses/yjs14`.
+
 **What exists**
 
 - One pipeline for three modes: client mode, a session on the server (the server keeps the chat and the one open proposal of a document), and a run that a caller outside the editors starts. Sections 3 and 14.1.
@@ -105,13 +107,13 @@ curl localhost:3111/ai/document-agent/proposals/<proposalId>
 
 `DOCUMENT_AGENT_MODEL` is `provider:model` (`anthropic`, `openai`, `groq`, `google`, `mistral`). The default is `anthropic:claude-haiku-5-5`.
 
-Tests, from `packages/xl-ai`:
+Tests, from `packages/xl-ai-lenses`:
 
 ```sh
-vp test --run src/documentAgent          # 58 tests, with a mock model
-DOCUMENT_AGENT_BENCH=1 vp test --run --silent=false src/documentAgent/benchmarks
+vp test --run                            # 152 tests, with a mock model
+DOCUMENT_AGENT_BENCH=1 vp test --run --silent=false src/benchmarks
 DOCUMENT_AGENT_LIVE=1 DOCUMENT_AGENT_MODEL=anthropic:claude-haiku-5-5 \
-  vp test --run --silent=false src/documentAgent/comparison   # real LLM calls
+  vp test --run --silent=false src/comparison   # real LLM calls
 ```
 
 ## 3. Architecture
@@ -644,7 +646,7 @@ A possible change for the first race, not built: the rebase can treat a block wi
 - The rules for an accept and a reject of one tool call do not apply to a call that shares a block with a different call (section 8.1). The rule for an accept applies only to a change that the editor of the reviewer shows: the display does not show a change of the agent that is in conflict with the main document.
 - The model is a mock: each tool call is valid.
 
-**How to run it**, from `packages/xl-ai`: `DOCUMENT_AGENT_FUZZ_SEEDS=100 vp test --run src/documentAgent/fuzz`. `DOCUMENT_AGENT_FUZZ_START` sets the first seed, and `DOCUMENT_AGENT_FUZZ_REPORT=<file>` writes each problem with the log of its scenario. `DOCUMENT_AGENT_FUZZ_TRACE=<marker word>` adds a line to the log after each action that tells where the word is. The default is 5 seeds for each variant (about 20 s for the nine variants). 100 seeds for each variant are about 7 minutes.
+**How to run it**, from `packages/xl-ai-lenses`: `DOCUMENT_AGENT_FUZZ_SEEDS=100 vp test --run src/fuzz`. `DOCUMENT_AGENT_FUZZ_START` sets the first seed, and `DOCUMENT_AGENT_FUZZ_REPORT=<file>` writes each problem with the log of its scenario. `DOCUMENT_AGENT_FUZZ_TRACE=<marker word>` adds a line to the log after each action that tells where the word is. The default is 5 seeds for each variant (about 20 s for the nine variants). 100 seeds for each variant are about 7 minutes.
 
 ### 14.11 Does a Yjs 14 suggestion document replace the proposal? (11 November)
 
@@ -1032,3 +1034,46 @@ You want to explore this later. It would remove the proposal mode.
 3. `editor.document` of an editor that shows suggestions has the suggested text. Core needs a guard, or each app must save the main document of the agent.
 4. Each AI bundle has Yjs 14, and a host needs a DOM.
 5. The suggestions of an editor without Yjs do not stay after a reload, unless the app stores the Yjs state, or the lens makes the pair again from a stored document.
+
+## 18. The document agent as its own package (12 November)
+
+Your proposal: move the document agent completely to `packages/xl-ai-lenses`, so that a change of the agent cannot break a build of `@blocknote/xl-ai`.
+
+**What moved.** All files of `packages/xl-ai/src/documentAgent` (65 files, in a commit with only the moves), the two Yjs 14 entry files, and the styles of the review and of the replay animation (239 lines of `style.css`).
+
+**The new package** `@blocknote/xl-ai-lenses` is private. Its entry points:
+
+| Entry point                                      | Content                                                                       |
+| ------------------------------------------------ | ----------------------------------------------------------------------------- |
+| `@blocknote/xl-ai-lenses`                        | The editor side: the extension, the menu, the review (proposal mode).         |
+| `@blocknote/xl-ai-lenses/server`                 | The host side: the agent loop, the tools, the sessions, the stores. No React. |
+| `@blocknote/xl-ai-lenses/yjs14`, `/yjs14-server` | The Yjs 14 mode.                                                              |
+| `@blocknote/xl-ai-lenses/style.css`              | The styles.                                                                   |
+
+**What it uses of `@blocknote/xl-ai`**, only through public entry points:
+
+- The text lens: `@blocknote/xl-ai/text-lens` (the host side uses only this).
+- `AIExtension`, `AIMenu` and `getAIDictionary` from the main entry (the editor side).
+
+**What `@blocknote/xl-ai` is now.** It has no code, no export, no style and no dependency of the agent (`@y/y` is gone). It differs from `main` only in the text lens: the folder `api/v2`, the two `text-lens` entry points, the optional peer `yjs`, the lint plugin, and a guard in the test setup.
+
+**What the move found**
+
+1. The build of the package types failed for the agent code. Its public types name two AI SDK packages that were not dependencies (`@ai-sdk/provider`, `@ai-sdk/provider-utils`): they are dependencies of the new package now. I had not run this build before: the lint and the tests do not make declaration files. `@blocknote/xl-ai` does not list `@ai-sdk/provider`, thus I expect that the same build failed there with the agent in it. I did not examine this.
+2. The type of `AIExtension` in an editor names types of xl-ai that are not public (`AIRequestHelpers`, `InvokeAIOptions`). The agent has an explicit type for the one function that returns it. This is one more sign that `AIExtension` is not a clean base (see my answer on `AIExtension`).
+
+**What I examined**
+
+- Build: the new package, `@blocknote/xl-ai` and the server package build, with their dependencies. The host entry (`server.js`) imports only `@blocknote/core`, `@blocknote/xl-ai/text-lens` and `ai`.
+- Lint: no error in the three packages.
+- Tests: the 152 tests of the agent pass in the new package (the same number as before). The 9 tests of the file stores pass.
+- The full tests of `@blocknote/xl-ai`: 2,980 pass and 3 fail. None of the 3 is from the move: 2 are the lens tests that fail after the merge of `main` (follow-up list, item 1.6), and 1 needs local certificates.
+- Browser (Chromium, Haiku 5.5): one run in proposal mode and one in Yjs 14 mode of the chat example, with the animation, the cards and the styles. The first example loads.
+- The lockfile has only the new package and its links (94 lines added, 3 removed).
+
+**Not moved, for your decision**
+
+1. The text lens (`api/v2`) stays in `@blocknote/xl-ai`: it has its own pull request. With the name `xl-ai-lenses`, you can want it in the new package. Then xl-ai is the same as on `main`.
+2. The routes of the document agent stay in `packages/xl-ai-server` (the demo server), with its new dependencies (core, jsdom, `yjs`, `@y/y`). They can go to a server package of their own.
+3. One live test (`src/comparison/liveComparison.test.ts`) imports the sources of xl-ai, because it uses test cases of the old engine that are not public. It is not in the TypeScript project of the package and not in the lint.
+4. The package is private. A release needs your decision on the name and on the license text.
