@@ -14,6 +14,7 @@ The editor emits events for:
 - **Editor lifecycle** - When the editor is created, mounted, unmounted, etc.
 - **Content changes** - When blocks are inserted, updated, or deleted
 - **Selection changes** - When the cursor position or selection changes
+- **Editability changes** - When the editor becomes editable or read-only
 - **Focus changes** - When focus enters or leaves the editor
 
 ## `onMount`
@@ -52,6 +53,25 @@ editor.onSelectionChange((editor) => {
   console.log("Text cursor position:", textCursorPosition);
 });
 ```
+
+## `onEditableChange`
+
+The `onEditableChange` callback receives a boolean indicating whether the editor is currently editable, matching `editor.isEditable`. It runs only when that value changes, including when a feature temporarily prevents editing.
+
+The callback is not called when you subscribe. Read `editor.isEditable` for the initial state.
+
+```typescript
+console.log("Initially editable:", editor.isEditable);
+
+const unsubscribe = editor.onEditableChange((editable) => {
+  console.log("Editor is editable:", editable);
+});
+
+// When you no longer need the listener:
+unsubscribe();
+```
+
+Changing editability does not change the document or trigger `onChange`.
 
 ## `onFocusChange`
 

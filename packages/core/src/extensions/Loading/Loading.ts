@@ -2,30 +2,23 @@ import {
   createExtension,
   createStore,
 } from "../../editor/BlockNoteExtension.js";
-import { ReadOnlyExtension } from "../ReadOnly/ReadOnly.js";
 
 /** Keeps the editor read-only and the loader visible until every token is released. */
 export const LoadingExtension = createExtension(({ editor }) => {
-  const store = createStore(new Set<symbol>(), {
-    onUpdate(state, prevState) {
-      if (state.size > 0 === prevState.size > 0) {
-        return;
-      }
-      const readOnly = editor.getExtension(ReadOnlyExtension);
-      readOnly?.setReadOnly(state.size > 0, "loading");
-    },
-  });
+  const store = createStore(new Set<symbol>());
 
   return {
     key: "loading",
     store,
     acquire() {
       const token = Symbol();
+      const releaseEditingLock = editor.acquireEditingLock();
       store.setState(new Set([...store.state, token]));
       return function release() {
         if (store.state.has(token)) {
           const tokens = new Set(store.state);
           tokens.delete(token);
+          releaseEditingLock();
           store.setState(tokens);
         }
       };
