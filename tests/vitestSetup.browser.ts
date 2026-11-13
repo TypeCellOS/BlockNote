@@ -2,7 +2,11 @@ import type {} from "./src/utils/keyboard.js";
 import { afterEach, beforeAll, beforeEach } from "vite-plus/test";
 import { commands, page } from "./src/utils/context.js";
 
+import { test } from "./src/fixtures/editor.js";
 import { ensureTouchEmulation } from "./src/utils/ensureTouchEmulation.js";
+
+// Only the global `it` uses these fixtures; imported Vitest APIs stay unchanged.
+globalThis.it = test;
 
 // Browser-mode setup. Unlike the jsdom `vitestSetup.ts`, we don't mock
 // ClipboardEvent/DragEvent/matchMedia here — the real browser provides them.

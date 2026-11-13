@@ -95,42 +95,6 @@ const centeredToolbarDocument: PartialBlock[] = [
 // Register these suites only in the regular browser run.
 if (!screenReader) {
   test.describe("behavior", () => {
-    test("formatting toolbar: Bold", async ({ onTestFinished }) => {
-      const editor = await renderTestEditor(toolbarDocument);
-      await focusToolbarItem("Bold");
-      const onChange = vi.fn();
-      onTestFinished(editor.onChange(onChange));
-      await commands.pressKey("Enter");
-      expect(onChange).toHaveBeenCalled();
-    });
-
-    test("formatting toolbar: Italic", async ({ onTestFinished }) => {
-      const editor = await renderTestEditor(toolbarDocument);
-      await focusToolbarItem("Italic");
-      const onChange = vi.fn();
-      onTestFinished(editor.onChange(onChange));
-      await commands.pressKey("Enter");
-      expect(onChange).toHaveBeenCalled();
-    });
-
-    test("formatting toolbar: Underline", async ({ onTestFinished }) => {
-      const editor = await renderTestEditor(toolbarDocument);
-      await focusToolbarItem("Underline");
-      const onChange = vi.fn();
-      onTestFinished(editor.onChange(onChange));
-      await commands.pressKey("Enter");
-      expect(onChange).toHaveBeenCalled();
-    });
-
-    test("formatting toolbar: Strike", async ({ onTestFinished }) => {
-      const editor = await renderTestEditor(toolbarDocument);
-      await focusToolbarItem("Strike");
-      const onChange = vi.fn();
-      onTestFinished(editor.onChange(onChange));
-      await commands.pressKey("Enter");
-      expect(onChange).toHaveBeenCalled();
-    });
-
     test("formatting toolbar: Align text left", async ({ onTestFinished }) => {
       const editor = await renderTestEditor(centeredToolbarDocument);
       await focusToolbarItem("Align text left");

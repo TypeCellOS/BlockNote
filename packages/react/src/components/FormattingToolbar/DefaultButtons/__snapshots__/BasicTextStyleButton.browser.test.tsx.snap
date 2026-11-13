@@ -1,0 +1,211 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`BasicTextStyleButton > toggles bold on and off > off 1`] = `
+{
+  "children": [],
+  "content": [
+    {
+      "styles": {},
+      "text": "Format this text",
+      "type": "text",
+    },
+  ],
+  "id": "format",
+  "props": {
+    "backgroundColor": "default",
+    "textAlignment": "left",
+    "textColor": "default",
+  },
+  "type": "paragraph",
+}
+`;
+
+exports[`BasicTextStyleButton > toggles bold on and off > on 1`] = `
+{
+  "children": [],
+  "content": [
+    {
+      "styles": {
+        "bold": true,
+      },
+      "text": "Format this text",
+      "type": "text",
+    },
+  ],
+  "id": "format",
+  "props": {
+    "backgroundColor": "default",
+    "textAlignment": "left",
+    "textColor": "default",
+  },
+  "type": "paragraph",
+}
+`;
+
+exports[`BasicTextStyleButton > toggles code on and off > off 1`] = `
+{
+  "children": [],
+  "content": [
+    {
+      "styles": {},
+      "text": "Format this text",
+      "type": "text",
+    },
+  ],
+  "id": "format",
+  "props": {
+    "backgroundColor": "default",
+    "textAlignment": "left",
+    "textColor": "default",
+  },
+  "type": "paragraph",
+}
+`;
+
+exports[`BasicTextStyleButton > toggles code on and off > on 1`] = `
+{
+  "children": [],
+  "content": [
+    {
+      "styles": {
+        "code": true,
+      },
+      "text": "Format this text",
+      "type": "text",
+    },
+  ],
+  "id": "format",
+  "props": {
+    "backgroundColor": "default",
+    "textAlignment": "left",
+    "textColor": "default",
+  },
+  "type": "paragraph",
+}
+`;
+
+exports[`BasicTextStyleButton > toggles italic on and off > off 1`] = `
+{
+  "children": [],
+  "content": [
+    {
+      "styles": {},
+      "text": "Format this text",
+      "type": "text",
+    },
+  ],
+  "id": "format",
+  "props": {
+    "backgroundColor": "default",
+    "textAlignment": "left",
+    "textColor": "default",
+  },
+  "type": "paragraph",
+}
+`;
+
+exports[`BasicTextStyleButton > toggles italic on and off > on 1`] = `
+{
+  "children": [],
+  "content": [
+    {
+      "styles": {
+        "italic": true,
+      },
+      "text": "Format this text",
+      "type": "text",
+    },
+  ],
+  "id": "format",
+  "props": {
+    "backgroundColor": "default",
+    "textAlignment": "left",
+    "textColor": "default",
+  },
+  "type": "paragraph",
+}
+`;
+
+exports[`BasicTextStyleButton > toggles strike on and off > off 1`] = `
+{
+  "children": [],
+  "content": [
+    {
+      "styles": {},
+      "text": "Format this text",
+      "type": "text",
+    },
+  ],
+  "id": "format",
+  "props": {
+    "backgroundColor": "default",
+    "textAlignment": "left",
+    "textColor": "default",
+  },
+  "type": "paragraph",
+}
+`;
+
+exports[`BasicTextStyleButton > toggles strike on and off > on 1`] = `
+{
+  "children": [],
+  "content": [
+    {
+      "styles": {
+        "strike": true,
+      },
+      "text": "Format this text",
+      "type": "text",
+    },
+  ],
+  "id": "format",
+  "props": {
+    "backgroundColor": "default",
+    "textAlignment": "left",
+    "textColor": "default",
+  },
+  "type": "paragraph",
+}
+`;
+
+exports[`BasicTextStyleButton > toggles underline on and off > off 1`] = `
+{
+  "children": [],
+  "content": [
+    {
+      "styles": {},
+      "text": "Format this text",
+      "type": "text",
+    },
+  ],
+  "id": "format",
+  "props": {
+    "backgroundColor": "default",
+    "textAlignment": "left",
+    "textColor": "default",
+  },
+  "type": "paragraph",
+}
+`;
+
+exports[`BasicTextStyleButton > toggles underline on and off > on 1`] = `
+{
+  "children": [],
+  "content": [
+    {
+      "styles": {
+        "underline": true,
+      },
+      "text": "Format this text",
+      "type": "text",
+    },
+  ],
+  "id": "format",
+  "props": {
+    "backgroundColor": "default",
+    "textAlignment": "left",
+    "textColor": "default",
+  },
+  "type": "paragraph",
+}
+`;
