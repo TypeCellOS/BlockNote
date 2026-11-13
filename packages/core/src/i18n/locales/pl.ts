@@ -441,6 +441,9 @@ export const pl: Dictionary = {
     action_failed: "Coś poszło nie tak. Spróbuj ponownie.",
     history_load_failed: "Nie udało się załadować historii wersji",
   },
+  table_of_contents: {
+    title: "Spis treści",
+  },
   exporter: {
     open_file: "Otwórz plik",
     open_video_file: "Otwórz wideo",

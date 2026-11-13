@@ -21,6 +21,7 @@ export * from "./SuggestionMenu/DefaultSuggestionItem.js";
 export * from "./SuggestionMenu/getDefaultSlashMenuItems.js";
 export * from "./SuggestionMenu/SuggestionMenu.js";
 export * from "./TableHandles/TableHandles.js";
+export * from "./TableOfContents/TableOfContents.js";
 export * from "./TrailingNode/TrailingNode.js";
 export * from "./tiptap-extensions/UniqueID/UniqueID.js";
 export * from "./Versioning/index.js";
