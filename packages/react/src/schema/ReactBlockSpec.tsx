@@ -37,6 +37,7 @@ import {
 } from "react";
 import { renderToDOMSpec } from "./@util/ReactRenderUtil.js";
 import { useNodeViewBlock } from "./useNodeViewBlock.js";
+import { useNodeViewEditability } from "./useNodeViewEditability.js";
 
 // this file is mostly analogoues to `customBlocks.ts`, but for React blocks
 
@@ -104,6 +105,7 @@ export type ReactCustomBlockRenderProps<
 > = {
   block: BlockNoDefaults<Record<Config["type"], Config>, any, any>;
   editor: BlockNoteEditor<Record<Config["type"], Config>, any, any>;
+  isEditable: boolean;
   // A block with content gets a `contentRef` to mount its editable region.
   // A block without content (and the table block, whose content is managed
   // separately) has nothing to place.
@@ -119,6 +121,7 @@ export type ReactCustomBlockFrameProps<
 > = {
   block: BlockFromConfig<Config, any, any>;
   editor: BlockNoteEditor<Record<Config["type"], Config>, any, any>;
+  isEditable: boolean;
   // A frame gets a `slotRef` for its slot: the mount for a layout block's
   // children, or for a block's content and children together. Attach it
   // with `ref={slotRef}` on the slot element.
@@ -358,6 +361,7 @@ export function createReactBlockSpec<
           <BlockContent
             block={block as any}
             editor={editor as any}
+            isEditable={editor.isEditable}
             childrenRef={args.childrenRef}
             contentRef={(element: HTMLElement | null) => {
               refCB(element);
@@ -415,6 +419,7 @@ export function createReactBlockSpec<
     }
 
     function FrameNodeView(props: NodeViewProps) {
+      const isEditable = useNodeViewEditability(props.extension.options.editor);
       // This view belongs to the block's own node (the blockContainer, or the
       // layout block node), so its node is the block.
       const block = nodeToBlock(props.node, props.view.state.doc);
@@ -484,6 +489,7 @@ export function createReactBlockSpec<
               >["block"]
             }
             editor={props.extension.options.editor}
+            isEditable={isEditable}
             slotRef={contentRef}
           />
         </NodeViewWrapper>
@@ -543,6 +549,7 @@ export function createReactBlockSpec<
                   this.blockContentDOMAttributes;
 
                 function BlockNodeView(props: NodeViewProps) {
+                  const isEditable = useNodeViewEditability(editor);
                   const block = useNodeViewBlock(props, initialBlock);
                   const ref = useReactNodeView().nodeViewContentRef;
                   if (!ref) {
@@ -573,6 +580,7 @@ export function createReactBlockSpec<
                       <BlockContent
                         block={block as any}
                         editor={editor as any}
+                        isEditable={isEditable}
                         contentRef={contentRef}
                       />
                     </BlockContentWrapper>
@@ -641,7 +649,12 @@ export function createReactBlockSpec<
               renderFrame(block, editor) {
                 const { dom, contentDOM } = renderToDOMSpec(
                   (slotRef) => (
-                    <Frame block={block} editor={editor} slotRef={slotRef} />
+                    <Frame
+                      block={block}
+                      editor={editor}
+                      isEditable={editor.isEditable}
+                      slotRef={slotRef}
+                    />
                   ),
                   editor,
                 );
