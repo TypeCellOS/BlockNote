@@ -177,7 +177,8 @@ export interface BlockNoteEditorOptions<
     /**
      * Callback that decides whether a given `href` is a valid link. Applied at
      * every gate where a link enters the document: HTML import, HTML export,
-     * paste, and autolink. Useful for supporting additional URI schemes (e.g.
+     * paste, autolink, and the link toolbar, which keeps an entered URL whose
+     * scheme this callback accepts instead of prepending `https://`. Useful for supporting additional URI schemes (e.g.
      * `vscode:`, `myapp:`) or tightening the default allowlist.
      *
      * Defaults to `isAllowedUri`, which allows
