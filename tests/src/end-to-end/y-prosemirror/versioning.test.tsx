@@ -17,6 +17,7 @@ import {
   blocksToYDoc,
   getAttributeChanges,
   createYVersionView,
+  type ExperimentalVersionDiffs,
   withCollaboration,
 } from "@blocknote/core/y";
 import * as Y from "@y/y";
@@ -52,7 +53,10 @@ function cloneWithId(source: Y.Doc, clientID: number): Y.Doc {
 }
 
 /** Mount a collaborative editor on `doc`, returning it + a teardown. */
-function mountEditor(doc: Y.Doc): {
+function mountEditor(
+  doc: Y.Doc,
+  experimental: ExperimentalVersionDiffs = {},
+): {
   editor: GalleryEditor;
   teardown: () => void;
 } {
@@ -65,6 +69,7 @@ function mountEditor(doc: Y.Doc): {
         fragment: doc.get("doc"),
         provider: undefined,
         user: { name: "User", color: "#8a6d1a" },
+        experimental,
       },
     }),
   );
@@ -93,14 +98,24 @@ const propertyChanges = new Map([
   ["prop-image-source", "url"],
 ]);
 
-for (const scenario of scenarios) {
+// Each scenario's diff with the experimental flags off (as in the editor) and
+// all on.
+const ALL_FIXES: ExperimentalVersionDiffs = {
+  versionDiffFixes: "implicitDeleteAttributionAndRecreatedBlocks",
+};
+const cases = scenarios.flatMap((scenario) => [
+  { scenario, name: "versioning diff", experimental: {} },
+  { scenario, name: "versioning diff (experimental)", experimental: ALL_FIXES },
+]);
+
+for (const { scenario, name, experimental } of cases) {
   const applies =
     scenario.kind === "single"
       ? [scenario.apply]
       : [scenario.applyA, scenario.applyB];
   const runner = VERSIONING_CRASHES.has(scenario.id) ? test.skip : test;
 
-  runner(`versioning diff: ${scenario.title}`, async () => {
+  runner(`${name}: ${scenario.title}`, async () => {
     const teardown: Array<() => void> = [];
     try {
       // "Before": the scenario's initial blocks, seeded synchronously.
@@ -136,7 +151,10 @@ for (const scenario of scenarios) {
 
       // The versioning diff render — this is the path that throws for the
       // nested-move / table-merge crashers.
-      const { editor: diffEditor, teardown: unmount } = mountEditor(afterDoc);
+      const { editor: diffEditor, teardown: unmount } = mountEditor(
+        afterDoc,
+        experimental,
+      );
       teardown.push(unmount);
       const view = createYVersionView(diffEditor, afterDoc.get("doc")).open();
       teardown.push(() => view.close());
@@ -168,7 +186,11 @@ for (const scenario of scenarios) {
             ? `block ${JSON.stringify(node.firstChild?.textContent ?? "")}`
             : `<${node.type.name}>`;
         for (const mark of marks) {
-          const kind = mark.type.name.replace("y-attributed-", "");
+          const kind = !mark.attrs["moved"]
+            ? mark.type.name.replace("y-attributed-", "")
+            : mark.type.name === "y-attributed-delete"
+              ? "moved from"
+              : "moved";
           if (kind === "attrs" && replaced) {
             continue;
           }
