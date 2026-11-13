@@ -23,6 +23,7 @@
   "include": [
     "src/utils/**/*.ts",
     "src/utils/**/*.tsx",
+    "src/fixtures/**/*.tsx",
     "screen-reader/**/*.ts",
     "vitestSetup.browser.ts",
     "../packages/*/src/**/*.browser.test.*",
