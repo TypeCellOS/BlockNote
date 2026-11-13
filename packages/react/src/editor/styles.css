@@ -1,5 +1,11 @@
 @import url("@blocknote/core/style.css");
 
+/* Adapters apply className to either the input or its wrapper. */
+input.bn-embed-url-input,
+.bn-embed-url-input input {
+  direction: ltr;
+}
+
 /* Give TipTap's empty content element the contentRef's minimum dimensions so
    native input lands inside it, not beside it (#2142). Leave populated content
    inline so text and formatting can wrap normally. */
@@ -160,7 +166,7 @@
   .bn-block:not(:has(.bn-toggle-wrapper))
   .bn-block-group
   .bn-block-outer:not([data-prev-depth-changed])::before {
-  border-left: 1px solid var(--bn-colors-side-menu);
+  border-inline-start: 1px solid var(--bn-colors-side-menu);
 }
 
 /* Placeholder styling */
@@ -525,6 +531,16 @@ SideMenuController offsets its position to keep it centered on the line. */
    element, and the strip is one. */
 .bn-mobile-formatting-toolbar .bn-toolbar {
   touch-action: pan-x;
+}
+
+/* Indentation and start/end alignment follow the reading direction. */
+.bn-indent-button:dir(rtl) svg,
+.bn-text-align-button:dir(rtl):is(
+    [data-test="alignTextLeft"],
+    [data-test="alignTextRight"]
+  )
+  svg {
+  transform: scaleX(-1);
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -105,6 +105,8 @@ function setDragImage(view: EditorView, from: number, to = from) {
   // the snapshot in Firefox and Safari. Taller than the cap, it would reach
   // into the page from above.
   Object.assign(preview.style, {
+    // The preview is mounted outside the editor's direction-inheriting tree.
+    direction: getComputedStyle(view.dom).direction,
     background: "transparent",
     position: "absolute",
     top: "-10000px",
@@ -226,6 +228,12 @@ export function dragStart<
     e.dataTransfer.setData("text/html", externalHTML);
     e.dataTransfer.setData("text/plain", plainText);
     e.dataTransfer.effectAllowed = "move";
-    e.dataTransfer.setDragImage(dragImageElement!, 0, 0);
+    const dragImage = dragImageElement!;
+    // Anchor at the gutter-facing edge: RTL blocks extend left of the pointer.
+    const offsetX =
+      getComputedStyle(view.dom).direction === "rtl"
+        ? dragImage.getBoundingClientRect().width
+        : 0;
+    e.dataTransfer.setDragImage(dragImage, offsetX, 0);
   }
 }

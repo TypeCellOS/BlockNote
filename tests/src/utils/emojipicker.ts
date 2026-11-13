@@ -6,7 +6,8 @@ export async function waitForSelectedEmoji() {
   return vi.waitFor(
     () => {
       const btn = document.querySelector<HTMLButtonElement>(
-        `${EMOJI_PICKER_SELECTOR} .bn-frimousse-emoji[data-selected]`,
+        // Ignore Frimousse's hidden measurement row, which repeats one emoji.
+        `${EMOJI_PICKER_SELECTOR} [aria-rowindex] .bn-frimousse-emoji[data-selected]`,
       );
       const activeDescendant = document
         .querySelector(EDITOR_SELECTOR)

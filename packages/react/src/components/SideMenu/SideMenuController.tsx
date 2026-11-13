@@ -5,6 +5,7 @@ import { FC, useCallback, useMemo } from "react";
 
 import { PortalElementOverride } from "../../editor/PortalElementOverride.js";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
+import { useEditorDirection } from "../../hooks/useEditorDirection.js";
 import { useExtensionState } from "../../hooks/useExtension.js";
 import { BlockPopover } from "../Popovers/BlockPopover.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
@@ -68,6 +69,9 @@ export const SideMenuController = (props: {
   portalElement?: HTMLElement;
 }) => {
   const editor = useBlockNoteEditor();
+  // Follow the editor's layout direction, not the language of the hovered
+  // block. Mixed-language documents keep one gutter.
+  const direction = useEditorDirection();
   const state = useExtensionState(SideMenuExtension, {
     selector: (state) => {
       return state !== undefined
@@ -125,9 +129,9 @@ export const SideMenuController = (props: {
       ...props.floatingUIOptions,
       useFloatingOptions: {
         open: show,
-        placement: "left-start",
+        placement: direction === "rtl" ? "right-start" : "left-start",
         // Vertically centers the menu on the block's first line. On the
-        // "left-start" placement, the cross axis is the vertical one.
+        // left/right placements, the cross axis is the vertical one.
         middleware: [
           offset({
             crossAxis: block ? getBlockOffset(editor, block) : 0,
@@ -151,7 +155,14 @@ export const SideMenuController = (props: {
         ...props.floatingUIOptions?.elementProps,
       },
     }),
-    [props.floatingUIOptions, show, block, editor, whileElementsMounted],
+    [
+      props.floatingUIOptions,
+      show,
+      block,
+      editor,
+      direction,
+      whileElementsMounted,
+    ],
   );
 
   const Component = props.sideMenu || SideMenu;

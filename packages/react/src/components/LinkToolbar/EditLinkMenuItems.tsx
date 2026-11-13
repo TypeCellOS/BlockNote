@@ -83,6 +83,7 @@ export const EditLinkMenuItems = (
       <Components.Generic.Form.TextInput
         className={"bn-text-input"}
         name="url"
+        dir="ltr"
         icon={<RiLink />}
         autoFocus={true}
         placeholder={dict.link_toolbar.form.url_placeholder}
@@ -93,6 +94,7 @@ export const EditLinkMenuItems = (
         <Components.Generic.Form.TextInput
           className={"bn-text-input"}
           name="title"
+          dir="auto"
           icon={<RiText />}
           placeholder={dict.link_toolbar.form.title_placeholder}
           value={currentText}

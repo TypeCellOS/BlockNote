@@ -82,10 +82,21 @@ export function moveEmojiPosition(
   position: EmojiPosition,
   key: "ArrowDown" | "ArrowLeft" | "ArrowRight" | "ArrowUp",
   rows: EmojiPickerRow[],
+  direction: "ltr" | "rtl" = "ltr",
 ): EmojiPosition {
   const row = rows[position.row];
   if (!row) {
     return position;
+  }
+
+  // Columns follow DOM order, which runs right-to-left in an RTL grid. Keep
+  // vertical movement and row wrapping unchanged, but mirror horizontal keys.
+  if (direction === "rtl") {
+    if (key === "ArrowLeft") {
+      key = "ArrowRight";
+    } else if (key === "ArrowRight") {
+      key = "ArrowLeft";
+    }
   }
 
   switch (key) {

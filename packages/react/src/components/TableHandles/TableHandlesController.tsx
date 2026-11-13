@@ -11,6 +11,8 @@ import { FC, useCallback, useMemo, useState } from "react";
 
 import { autoUpdate, offset, ReferenceElement, size } from "@floating-ui/react";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
+import { useEditorDirection } from "../../hooks/useEditorDirection.js";
+import { tableHandleSide } from "./hooks/tableHandlePlacement.js";
 import { useExtensionState } from "../../hooks/useExtension.js";
 import { PortalElementOverride } from "../../editor/PortalElementOverride.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
@@ -40,6 +42,7 @@ export const TableHandlesController = <
   portalElement?: HTMLElement;
 }) => {
   const editor = useBlockNoteEditor<BlockSchema, I, S>();
+  const direction = useEditorDirection();
 
   const [onlyShownElement, setOnlyShownElement] = useState<
     | "rowTableHandle"
@@ -193,7 +196,7 @@ export const TableHandlesController = <
                   state.show &&
                   state.rowIndex !== undefined &&
                   (!onlyShownElement || onlyShownElement === "rowTableHandle"),
-                placement: "left",
+                placement: tableHandleSide(direction, "start"),
                 middleware: [offset(-10)],
                 whileElementsMounted,
               },
@@ -281,7 +284,7 @@ export const TableHandlesController = <
                   state.showAddOrRemoveColumnsButton &&
                   (!onlyShownElement ||
                     onlyShownElement === "extendColumnsButton"),
-                placement: "right",
+                placement: tableHandleSide(direction, "end"),
                 whileElementsMounted,
                 middleware: [
                   size({
@@ -304,7 +307,7 @@ export const TableHandlesController = <
             },
           }
         : undefined,
-    [onlyShownElement, state, whileElementsMounted],
+    [direction, onlyShownElement, state, whileElementsMounted],
   );
 
   if (!state) {

@@ -197,6 +197,31 @@ describe("TableHandlesView mouse handling", () => {
     });
   });
 
+  it.each(["ltr", "rtl"] as const)(
+    "%s offers column extension beyond the table's inline end",
+    (direction) => {
+      mountPoint.dir = direction;
+      moveMouseOver(tableCell(0, 2));
+      const wrapper = queryElement('[data-id="table-0"] .tableWrapper');
+      const rect = queryElement(
+        '[data-id="table-0"] tbody',
+      ).getBoundingClientRect();
+      wrapper.dispatchEvent(
+        new MouseEvent("mousemove", {
+          bubbles: true,
+          clientX: direction === "rtl" ? rect.left - 5 : rect.right + 5,
+          clientY: rect.top + rect.height / 2,
+        }),
+      );
+      expect(tableHandlesState()).toMatchObject({
+        show: true,
+        showAddOrRemoveColumnsButton: true,
+        rowIndex: undefined,
+        colIndex: undefined,
+      });
+    },
+  );
+
   it("hides the handles when the mouse leaves the table", () => {
     moveMouseOver(tableCell(0, 0));
     expect(tableHandlesState()?.show).toBe(true);
