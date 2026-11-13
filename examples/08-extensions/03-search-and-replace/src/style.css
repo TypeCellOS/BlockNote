@@ -41,6 +41,8 @@
   border: 1px solid var(--mantine-color-default-border);
   border-radius: var(--mantine-radius-md);
   height: min(65vh, 480px);
+  /* Keep this scrollable when an embedding page overrides height: 100%. */
+  max-height: min(65vh, 480px);
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-gutter: stable;
