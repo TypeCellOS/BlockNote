@@ -21,6 +21,7 @@ import { useEditorState } from "../../../hooks/useEditorState.js";
 import { useExtension } from "../../../hooks/useExtension.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
 import { EditLinkMenuItems } from "../../LinkToolbar/EditLinkMenuItems.js";
+import { selectionContainsPlainContent } from "../selectionContainsPlainContent.js";
 
 function checkLinkInSchema(
   editor: BlockNoteEditor<BlockSchema, any, StyleSchema>,
@@ -76,6 +77,8 @@ export const CreateLinkButton = () => {
       if (
         // The editor is read-only.
         !editor.isEditable ||
+        // Plain content cannot carry links.
+        selectionContainsPlainContent(editor.prosemirrorState.selection) ||
         // The selection is empty, i.e. no content is selected.
         editor.prosemirrorState.selection.empty ||
         // Links are not in the schema.
