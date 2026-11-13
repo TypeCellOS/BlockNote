@@ -10,7 +10,6 @@
           "caption": "",
           "name": "example",
           "previewWidth": 256,
-          "showPreview": true,
           "textAlignment": "left",
           "url": "exampleURL",
         },

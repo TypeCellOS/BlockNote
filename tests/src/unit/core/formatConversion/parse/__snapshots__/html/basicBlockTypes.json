@@ -138,7 +138,6 @@
       "backgroundColor": "default",
       "caption": "Image Caption",
       "name": "",
-      "showPreview": true,
       "textAlignment": "left",
       "url": "exampleURL",
     },

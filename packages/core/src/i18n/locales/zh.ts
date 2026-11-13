@@ -336,13 +336,13 @@ export const zh: Dictionary = {
     },
     file_rename: {
       tooltip: {
-        image: "重命名图片",
+        image: "替代文本",
         video: "重命名视频",
         audio: "重命名音频",
         file: "重命名文件",
       },
       input_placeholder: {
-        image: "重命名图片",
+        image: "替代文本",
         video: "重命名视频",
         audio: "重命名音频",
         file: "重命名文件",
@@ -363,9 +363,6 @@ export const zh: Dictionary = {
         audio: "删除音频",
         file: "删除文件",
       },
-    },
-    file_preview_toggle: {
-      tooltip: "切换预览",
     },
     nest: {
       tooltip: "嵌套",

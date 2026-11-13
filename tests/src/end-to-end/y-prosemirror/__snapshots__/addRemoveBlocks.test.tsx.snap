@@ -540,7 +540,6 @@ exports[`suggestion mode: delete image block 1`] = `
       caption=""
       name=""
       previewWidth="150"
-      showPreview="true"
       textAlignment="left"
       url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%23ff6b6b'/&gt;&lt;/svg&gt;"
     ></image>
@@ -568,14 +567,13 @@ exports[`suggestion mode: delete image block 3`] = `
         <blockContainer id="img">
           <y-attributed-delete userIds="">
             <y-attributed-attrs
-              changes="{&quot;textAlignment&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;backgroundColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;name&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;url&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;caption&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;showPreview&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;previewWidth&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
+              changes="{&quot;textAlignment&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;backgroundColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;name&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;url&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;caption&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;previewWidth&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
             >
               <image
                 backgroundColor="default"
                 caption=""
                 name=""
                 previewWidth="150"
-                showPreview="true"
                 textAlignment="left"
                 url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%23ff6b6b'/&gt;&lt;/svg&gt;"
               ></image>
@@ -775,7 +773,6 @@ exports[`suggestion mode: delete parent with nested paragraph and image 1`] = `
           caption=""
           name=""
           previewWidth="150"
-          showPreview="true"
           textAlignment="left"
           url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%23ff6b6b'/&gt;&lt;/svg&gt;"
         ></image>
@@ -830,14 +827,13 @@ exports[`suggestion mode: delete parent with nested paragraph and image 3`] = `
               <blockContainer id="img">
                 <y-attributed-delete userIds="">
                   <y-attributed-attrs
-                    changes="{&quot;textAlignment&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;backgroundColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;name&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;url&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;caption&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;showPreview&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;previewWidth&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
+                    changes="{&quot;textAlignment&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;backgroundColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;name&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;url&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;caption&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;previewWidth&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
                   >
                     <image
                       backgroundColor="default"
                       caption=""
                       name=""
                       previewWidth="150"
-                      showPreview="true"
                       textAlignment="left"
                       url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%23ff6b6b'/&gt;&lt;/svg&gt;"
                     ></image>
@@ -917,7 +913,6 @@ exports[`suggestion mode: insert image block 2`] = `
       caption=""
       name=""
       previewWidth="150"
-      showPreview="true"
       textAlignment="left"
       url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%23ff6b6b'/&gt;&lt;/svg&gt;"
     ></image>
@@ -937,14 +932,13 @@ exports[`suggestion mode: insert image block 3`] = `
           <blockContainer id="img">
             <y-attributed-insert userIds="">
               <y-attributed-attrs
-                changes="{&quot;textAlignment&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;backgroundColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;name&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;url&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;caption&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;showPreview&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;previewWidth&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
+                changes="{&quot;textAlignment&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;backgroundColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;name&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;url&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;caption&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;previewWidth&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
               >
                 <image
                   backgroundColor="default"
                   caption=""
                   name=""
                   previewWidth="150"
-                  showPreview="true"
                   textAlignment="left"
                   url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%23ff6b6b'/&gt;&lt;/svg&gt;"
                 ></image>

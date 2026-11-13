@@ -60,7 +60,6 @@ type ImageBlock = {
     name: string;
     url: string;
     caption: string;
-    showPreview: boolean;
     previewWidth: number | undefined;
   };
   content: undefined;
@@ -72,13 +71,11 @@ type ImageBlock = {
 
 `textAlignment:` The alignment of the image. Defaults to `"left"`.
 
-`name:` The image file name. Defaults to `""`.
+`name:` The image alternative text. Defaults to `""`.
 
 `url:` The image URL. Defaults to `""`.
 
 `caption:` The image caption. Defaults to `""`.
-
-`showPreview:` Whether to show the image preview or a link. Defaults to `true`.
 
 `previewWidth:` The image preview width in pixels. Defaults to `undefined` (no fixed width).
 
@@ -106,7 +103,6 @@ type VideoBlock = {
     name: string;
     url: string;
     caption: string;
-    showPreview: boolean;
     previewWidth: number | undefined;
   };
   content: undefined;
@@ -123,8 +119,6 @@ type VideoBlock = {
 `url:` The video URL. Defaults to `""`.
 
 `caption:` The video caption. Defaults to `""`.
-
-`showPreview:` Whether to show the video player or a link. Defaults to `true`.
 
 `previewWidth:` The video preview width in pixels. Defaults to `undefined` (no fixed width).
 
@@ -151,7 +145,6 @@ type AudioBlock = {
     name: string;
     url: string;
     caption: string;
-    showPreview: boolean;
   };
   content: undefined;
   children: Block[];
@@ -165,5 +158,3 @@ type AudioBlock = {
 `url:` The audio URL. Defaults to `""`.
 
 `caption:` The audio caption. Defaults to `""`.
-
-`showPreview:` Whether to show the audio player or a link. Defaults to `true`.

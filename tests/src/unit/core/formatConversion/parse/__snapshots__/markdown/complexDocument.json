@@ -400,7 +400,6 @@
       "backgroundColor": "default",
       "caption": "",
       "name": "Image",
-      "showPreview": true,
       "textAlignment": "left",
       "url": "https://example.com/image.png",
     },

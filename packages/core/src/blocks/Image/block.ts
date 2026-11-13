@@ -8,7 +8,6 @@ import { defaultProps, parseDefaultProps } from "../defaultProps.js";
 import { parseFigureElement } from "../File/helpers/parse/parseFigureElement.js";
 import { createResizableFileBlockWrapper } from "../File/helpers/render/createResizableFileBlockWrapper.js";
 import { createFigureWithCaption } from "../File/helpers/toExternalHTML/createFigureWithCaption.js";
-import { createLinkWithCaption } from "../File/helpers/toExternalHTML/createLinkWithCaption.js";
 import { parseImageElement } from "./parseImageElement.js";
 
 export const FILE_IMAGE_ICON_SVG =
@@ -27,7 +26,7 @@ export const createImageBlockConfig = createBlockConfig(
       propSchema: {
         textAlignment: defaultProps.textAlignment,
         backgroundColor: defaultProps.backgroundColor,
-        // File name.
+        // Alternative text.
         name: {
           default: "" as const,
         },
@@ -38,10 +37,6 @@ export const createImageBlockConfig = createBlockConfig(
         // File caption.
         caption: {
           default: "" as const,
-        },
-
-        showPreview: {
-          default: true,
         },
         // File preview width in px.
         previewWidth: {
@@ -152,26 +147,15 @@ export const imageToExternalHTML =
       };
     }
 
-    let image;
-    if (block.props.showPreview) {
-      image = document.createElement("img");
-      image.src = block.props.url;
-      image.alt = block.props.name || "";
-      if (block.props.previewWidth) {
-        image.width = block.props.previewWidth;
-      }
-    } else {
-      image = document.createElement("a");
-      image.href = block.props.url;
-      image.textContent = block.props.name || block.props.url;
+    const image = document.createElement("img");
+    image.src = block.props.url;
+    image.alt = block.props.name || "";
+    if (block.props.previewWidth) {
+      image.width = block.props.previewWidth;
     }
 
     if (block.props.caption) {
-      if (block.props.showPreview) {
-        return createFigureWithCaption(image, block.props.caption);
-      } else {
-        return createLinkWithCaption(image, block.props.caption);
-      }
+      return createFigureWithCaption(image, block.props.caption);
     }
 
     return {

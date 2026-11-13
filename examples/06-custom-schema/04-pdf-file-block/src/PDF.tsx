@@ -36,9 +36,6 @@ export const PDF = createReactBlockSpec(
       caption: {
         default: "" as const,
       },
-      showPreview: {
-        default: true,
-      },
       previewWidth: {
         default: undefined,
         type: "number",

@@ -33,9 +33,6 @@
         "name": {
           "default": "",
         },
-        "showPreview": {
-          "default": true,
-        },
         "url": {
           "default": "",
         },
@@ -393,9 +390,6 @@
           "default": undefined,
           "type": "number",
         },
-        "showPreview": {
-          "default": true,
-        },
         "textAlignment": {
           "default": "left",
           "values": [
@@ -628,9 +622,6 @@
           "default": undefined,
           "type": "number",
         },
-        "showPreview": {
-          "default": true,
-        },
         "textAlignment": {
           "default": "left",
           "values": [
@@ -750,9 +741,6 @@
         "previewWidth": {
           "default": undefined,
           "type": "number",
-        },
-        "showPreview": {
-          "default": true,
         },
         "textAlignment": {
           "default": "left",

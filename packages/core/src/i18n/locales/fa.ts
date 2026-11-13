@@ -263,13 +263,13 @@ export const fa = {
     },
     file_rename: {
       tooltip: {
-        image: "تغییر نام تصویر",
+        image: "متن جایگزین",
         video: "تغییر نام ویدیو",
         audio: "تغییر نام صوت",
         file: "تغییر نام فایل",
       } as Record<string, string>,
       input_placeholder: {
-        image: "تغییر نام تصویر",
+        image: "متن جایگزین",
         video: "تغییر نام ویدیو",
         audio: "تغییر نام صوت",
         file: "تغییر نام فایل",
@@ -290,9 +290,6 @@ export const fa = {
         audio: "حذف صوت",
         file: "حذف فایل",
       } as Record<string, string>,
-    },
-    file_preview_toggle: {
-      tooltip: "تغییر وضعیت پیش‌نمایش",
     },
     nest: {
       tooltip: "تودرتو کردن بلوک",

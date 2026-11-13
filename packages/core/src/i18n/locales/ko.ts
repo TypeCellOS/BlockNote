@@ -308,13 +308,13 @@ export const ko: Dictionary = {
     },
     file_rename: {
       tooltip: {
-        image: "이미지 이름 변경",
+        image: "대체 텍스트",
         video: "비디오 이름 변경",
         audio: "오디오 이름 변경",
         file: "파일 이름 변경",
       },
       input_placeholder: {
-        image: "이미지 이름 변경",
+        image: "대체 텍스트",
         video: "비디오 이름 변경",
         audio: "오디오 이름 변경",
         file: "파일 이름 변경",
@@ -335,9 +335,6 @@ export const ko: Dictionary = {
         audio: "오디오 삭제",
         file: "파일 삭제",
       },
-    },
-    file_preview_toggle: {
-      tooltip: "미리보기 전환",
     },
     nest: {
       tooltip: "중첩 블록",

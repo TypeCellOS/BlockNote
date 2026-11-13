@@ -299,13 +299,13 @@ export const tr = {
     },
     file_rename: {
       tooltip: {
-        image: "Görseli yeniden adlandır",
+        image: "Alternatif metin",
         video: "Videoyu yeniden adlandır",
         audio: "Sesi yeniden adlandır",
         file: "Dosyayı yeniden adlandır",
       } as Record<string, string>,
       input_placeholder: {
-        image: "Görseli yeniden adlandır",
+        image: "Alternatif metin",
         video: "Videoyu yeniden adlandır",
         audio: "Sesi yeniden adlandır",
         file: "Dosyayı yeniden adlandır",
@@ -326,9 +326,6 @@ export const tr = {
         audio: "Sesi sil",
         file: "Dosyayı sil",
       } as Record<string, string>,
-    },
-    file_preview_toggle: {
-      tooltip: "Önizlemeyi aç/kapat",
     },
     nest: {
       tooltip: "Bloğu iç içe yerleştir",

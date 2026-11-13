@@ -308,13 +308,13 @@ export const is: Dictionary = {
     },
     file_rename: {
       tooltip: {
-        image: "Endurnefna mynd",
+        image: "Staðgengilstexti",
         video: "Endurnefna myndband",
         audio: "Endurnefna hljóð",
         file: "Endurnefna skrá",
       },
       input_placeholder: {
-        image: "Endurnefna mynd",
+        image: "Staðgengilstexti",
         video: "Endurnefna myndband",
         audio: "Endurnefna hljóð",
         file: "Endurnefna skrá",
@@ -335,9 +335,6 @@ export const is: Dictionary = {
         audio: "Eyða hljóði",
         file: "Eyða skrá",
       },
-    },
-    file_preview_toggle: {
-      tooltip: "Skipta um forskoðun",
     },
     nest: {
       tooltip: "Fella blokk saman",
