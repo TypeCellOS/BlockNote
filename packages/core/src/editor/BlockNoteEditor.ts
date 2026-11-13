@@ -465,10 +465,19 @@ export class BlockNoteEditor<
   ) {
     super();
 
-    this.dictionary = options.dictionary || en;
-    if (this.dictionary.emoji_picker === undefined) {
-      this.dictionary.emoji_picker = en.emoji_picker;
-    }
+    const dictionary = options.dictionary || en;
+    // Dictionaries written for older versions may lack newer sections. Fill
+    // those in from `en` on a copy, since the caller's object may be frozen or
+    // shared between editors.
+    this.dictionary =
+      dictionary.emoji_picker !== undefined &&
+      dictionary.block_nesting !== undefined
+        ? dictionary
+        : {
+            ...dictionary,
+            emoji_picker: dictionary.emoji_picker ?? en.emoji_picker,
+            block_nesting: dictionary.block_nesting ?? en.block_nesting,
+          };
     this.settings = {
       tables: {
         splitCells: options?.tables?.splitCells ?? false,

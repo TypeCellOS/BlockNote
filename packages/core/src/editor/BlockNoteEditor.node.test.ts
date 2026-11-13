@@ -30,7 +30,22 @@ it("supplies picker strings for dictionaries that omit the picker section", () =
   try {
     expect(editor.dictionary.emoji_picker).toEqual(en.emoji_picker);
     expect(editor.dictionary.slash_menu).toBe(dictionary.slash_menu);
-    expect(editor.dictionary).toBe(dictionary);
+    expect(dictionary).not.toHaveProperty("emoji_picker");
+  } finally {
+    editor._tiptapEditor.destroy();
+  }
+});
+
+it("fills in missing sections without mutating frozen dictionaries", () => {
+  const { block_nesting: _nesting, ...rest } = en;
+  const dictionary = Object.freeze(rest);
+  const editor = BlockNoteEditor.create({
+    // @ts-expect-error Simulate a dictionary authored before block_nesting existed.
+    dictionary,
+  });
+  try {
+    expect(editor.dictionary.block_nesting).toBe(en.block_nesting);
+    expect(editor.dictionary.slash_menu).toBe(dictionary.slash_menu);
   } finally {
     editor._tiptapEditor.destroy();
   }

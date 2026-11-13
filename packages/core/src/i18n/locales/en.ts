@@ -207,6 +207,12 @@ export const en = {
     add_block_button: "Empty toggle. Click to add a block.",
     toggle_button: "Expand or collapse",
   },
+  // Screen reader announcements when a block is indented with Tab or
+  // outdented with Shift-Tab.
+  block_nesting: {
+    indented: (level: number) => `Indented, level ${level}`,
+    outdented: (level: number) => `Outdented, level ${level}`,
+  },
   code_block: {
     add_source_button_text: "Add source code",
     ok_button_text: "OK",

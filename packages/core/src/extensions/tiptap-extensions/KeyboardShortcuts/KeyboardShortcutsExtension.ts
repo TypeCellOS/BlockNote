@@ -1,5 +1,5 @@
 import { type ChainedCommands, Extension } from "@tiptap/core";
-import { Fragment, type Node } from "prosemirror-model";
+import { Fragment, type Node, type ResolvedPos } from "prosemirror-model";
 import {
   NodeSelection,
   Selection,
@@ -40,6 +40,20 @@ import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 import { hasInputRule } from "../../../editor/inputRules.js";
 import { FilePanelExtension } from "../../FilePanel/FilePanel.js";
 import { FormattingToolbarExtension } from "../../FormattingToolbar/FormattingToolbar.js";
+import { LiveAnnouncerExtension } from "../../LiveAnnouncer/LiveAnnouncer.js";
+
+// How deeply the block at `$pos` is nested, counting top-level blocks as level
+// 1. Layout blocks (e.g. columns) aren't block containers, so a block inside
+// them stays at the level it visually sits at.
+function nestingLevel($pos: ResolvedPos) {
+  let level = 0;
+  for (let depth = $pos.depth; depth > 0; depth--) {
+    if ($pos.node(depth).type.name === "blockContainer") {
+      level++;
+    }
+  }
+  return level;
+}
 
 // Move a block across a layout block boundary, repair its former ancestors, and
 // map the caret through any repairs that change the insertion position.
@@ -1030,7 +1044,21 @@ export const KeyboardShortcutsExtension = Extension.create<{
         // Let the browser navigate into and out of an open toolbar.
         return false;
       }
-      return shift ? unnestBlock(editor) : nestBlock(editor);
+      const moved = shift ? unnestBlock(editor) : nestBlock(editor);
+      if (moved) {
+        // The indent is only visible, so tell screen readers about it too
+        // (#2812).
+        const { block_nesting } = editor.dictionary;
+        const level = nestingLevel(editor.prosemirrorState.selection.$from);
+        editor
+          .getExtension(LiveAnnouncerExtension)
+          ?.announce(
+            shift
+              ? block_nesting.outdented(level)
+              : block_nesting.indented(level),
+          );
+      }
+      return moved;
     }
 
     return {

@@ -226,6 +226,10 @@ export const no: Dictionary = {
     add_block_button: "Tomt toggle. Klikk for å legge til en blokk.",
     toggle_button: "Utvid eller skjul",
   },
+  block_nesting: {
+    indented: (level: number) => `Rykket inn, nivå ${level}`,
+    outdented: (level: number) => `Rykket ut, nivå ${level}`,
+  },
   code_block: {
     add_source_button_text: "Legg til kildekode",
     ok_button_text: "OK",
