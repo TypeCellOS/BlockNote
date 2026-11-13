@@ -5662,9 +5662,6 @@ importers:
       '@blocknote/react':
         specifier: workspace:^
         version: link:../react
-      '@handlewithcare/prosemirror-inputrules':
-        specifier: ^0.1.4
-        version: 0.1.4(prosemirror-model@1.25.12)(prosemirror-state@1.4.4)(prosemirror-view@1.42.5)
       katex:
         specifier: ^0.18.9
         version: 0.18.9

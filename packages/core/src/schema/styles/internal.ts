@@ -84,7 +84,11 @@ export function createInternalStyleSpec<T extends StyleConfig>(
 export function createStyleSpecFromTipTapMark<
   T extends Mark,
   P extends StylePropSchema,
->(mark: T, propSchema: P) {
+>(
+  mark: T,
+  propSchema: P,
+  extensions?: (Extension | ExtensionFactoryInstance)[],
+) {
   return createInternalStyleSpec(
     {
       type: mark.name as T["name"],
@@ -151,6 +155,7 @@ export function createStyleSpecFromTipTapMark<
         };
       },
     },
+    extensions,
   );
 }
 
