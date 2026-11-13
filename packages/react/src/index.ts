@@ -4,6 +4,7 @@ export * from "./editor/BlockNoteDefaultUI.js";
 export * from "./editor/BlockNoteView.js";
 export * from "./editor/ComponentsContext.js";
 export * from "./i18n/dictionary.js";
+export * from "./util/useIsomorphicLayoutEffect.js";
 
 export * from "./blocks/Audio/block.js";
 export * from "./blocks/File/block.js";

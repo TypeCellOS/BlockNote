@@ -5,12 +5,14 @@ import { ReactNode } from "react";
 import { useComponentsContext } from "../../../../editor/ComponentsContext.js";
 import { usePortalElement } from "../../../../editor/PortalElementOverride.js";
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor.js";
+import { useEditorDirection } from "../../../../hooks/useEditorDirection.js";
 import { ColorPicker } from "../../../ColorPicker/ColorPicker.js";
 import { useExtensionState } from "../../../../hooks/useExtension.js";
 
 export const BlockColorsItem = (props: { children: ReactNode }) => {
   const Components = useComponentsContext()!;
   const portalElement = usePortalElement();
+  const direction = useEditorDirection();
 
   const editor = useBlockNoteEditor<any, any, any>();
 
@@ -33,7 +35,7 @@ export const BlockColorsItem = (props: { children: ReactNode }) => {
 
   return (
     <Components.Generic.Menu.Root
-      position={"right"}
+      position={direction === "rtl" ? "left" : "right"}
       sub={true}
       portalElement={portalElement}
     >

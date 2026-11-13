@@ -3,6 +3,7 @@ import { Flex } from "@mantine/core";
 import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
+import { EditorDirectionProvider } from "../EditorDirectionProvider.js";
 
 type ToolbarProps = ComponentProps["Generic"]["Toolbar"]["Root"];
 
@@ -26,17 +27,19 @@ export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
     // out of a just-opened form into the toolbar. Tab moves through the
     // buttons and then on, as in the other skins.
     return (
-      <Flex
-        className={className}
-        aria-label={ariaLabel}
-        ref={ref}
-        role="toolbar"
-        onMouseEnter={onMouseEnter}
-        onMouseLeave={onMouseLeave}
-        gap={variant === "action-toolbar" ? 2 : undefined}
-      >
-        {children}
-      </Flex>
+      <EditorDirectionProvider>
+        <Flex
+          className={className}
+          aria-label={ariaLabel}
+          ref={ref}
+          role="toolbar"
+          onMouseEnter={onMouseEnter}
+          onMouseLeave={onMouseLeave}
+          gap={variant === "action-toolbar" ? 2 : undefined}
+        >
+          {children}
+        </Flex>
+      </EditorDirectionProvider>
     );
   },
 );

@@ -1,10 +1,12 @@
 import { size, useFloating, useTransitionStyles } from "@floating-ui/react";
 import { useEffect, useMemo } from "react";
+import { tableHandleSide } from "./tableHandlePlacement.js";
 
 function useExtendButtonPosition(
   orientation: "addOrRemoveRows" | "addOrRemoveColumns",
   show: boolean,
   referencePosTable: DOMRect | null,
+  direction: "ltr" | "rtl",
 ): {
   isMounted: boolean;
   ref: (node: HTMLElement | null) => void;
@@ -12,7 +14,10 @@ function useExtendButtonPosition(
 } {
   const { refs, update, context, floatingStyles } = useFloating({
     open: show,
-    placement: orientation === "addOrRemoveColumns" ? "right" : "bottom",
+    placement:
+      orientation === "addOrRemoveColumns"
+        ? tableHandleSide(direction, "end")
+        : "bottom",
     middleware: [
       size({
         apply({ rects, elements }) {
@@ -62,10 +67,12 @@ function useExtendButtonPosition(
   );
 }
 
+/** Pass the table's layout direction to opt into mirrored extension controls. Defaults to LTR for existing callers. */
 export function useExtendButtonsPositioning(
   showAddOrRemoveColumnsButton: boolean,
   showAddOrRemoveRowsButton: boolean,
   referencePosTable: DOMRect | null,
+  direction: "ltr" | "rtl" = "ltr",
 ): {
   addOrRemoveRowsButton: ReturnType<typeof useExtendButtonPosition>;
   addOrRemoveColumnsButton: ReturnType<typeof useExtendButtonPosition>;
@@ -74,11 +81,13 @@ export function useExtendButtonsPositioning(
     "addOrRemoveRows",
     showAddOrRemoveRowsButton,
     referencePosTable,
+    direction,
   );
   const addOrRemoveColumnsButton = useExtendButtonPosition(
     "addOrRemoveColumns",
     showAddOrRemoveColumnsButton,
     referencePosTable,
+    direction,
   );
 
   return useMemo(

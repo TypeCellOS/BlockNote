@@ -1,6 +1,7 @@
 import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { createContext, forwardRef, ReactElement, useContext } from "react";
+import { EditorDirectionProvider } from "../EditorDirectionProvider.js";
 
 import { cn } from "../lib/utils.js";
 import { useShadCNComponentsContext } from "../ShadCNComponentsContext.js";
@@ -26,11 +27,13 @@ export const Popover = (
   const ShadCNComponents = useShadCNComponentsContext()!;
 
   return (
-    <ShadCNComponents.Popover.Popover open={open} onOpenChange={onOpenChange}>
-      <PopoverPortalElementContext.Provider value={portalElement}>
-        {children}
-      </PopoverPortalElementContext.Provider>
-    </ShadCNComponents.Popover.Popover>
+    <EditorDirectionProvider element={portalElement}>
+      <ShadCNComponents.Popover.Popover open={open} onOpenChange={onOpenChange}>
+        <PopoverPortalElementContext.Provider value={portalElement}>
+          {children}
+        </PopoverPortalElementContext.Provider>
+      </ShadCNComponents.Popover.Popover>
+    </EditorDirectionProvider>
   );
 };
 
