@@ -1,0 +1,53 @@
+.search-and-replace-example {
+  --search-editor-inset: 54px;
+  --search-editor-top-space: 16px;
+  color: var(--mantine-color-text);
+  font-family: var(--mantine-font-family);
+  margin-inline: auto;
+  max-width: 731px;
+  position: relative;
+}
+
+.search-and-replace-example[data-search-state="search"] {
+  --search-editor-top-space: 72px;
+}
+
+.search-and-replace-example[data-search-state="replace"] {
+  --search-editor-top-space: 108px;
+}
+
+/* Mantine's global reset is intentionally not installed by this example. */
+.search-and-replace-example,
+.search-and-replace-example *,
+.search-and-replace-example *::before,
+.search-and-replace-example *::after {
+  box-sizing: border-box;
+}
+
+/* The controls are a sibling of the scrollable editor, never part of its flow. */
+.search-and-replace-example .search-overlay,
+.search-and-replace-example .search-launcher {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  z-index: 20;
+}
+
+.search-and-replace-example .search-overlay {
+  width: min(520px, calc(100% - 24px));
+}
+
+.search-and-replace-example .search-example-editor {
+  border: 1px solid var(--mantine-color-default-border);
+  border-radius: var(--mantine-radius-md);
+  height: min(65vh, 480px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.search-and-replace-example .search-example-editor .bn-editor {
+  padding-inline: var(--search-editor-inset);
+  padding-top: var(--search-editor-top-space);
+  padding-bottom: 24px;
+}

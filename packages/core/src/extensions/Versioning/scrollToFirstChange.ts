@@ -1,8 +1,7 @@
 // Attribution wrappers carry `data-user-ids` but may be `display: contents`.
 // Resolve their layout boxes locally without importing the `@y/*` stack.
 
-/** Duration of the transient block highlight. */
-const HIGHLIGHT_MS = 1500;
+import { scrollAndHighlight } from "../../util/scrollAndHighlight.js";
 
 /** Allow the preview layout to settle; animation frames pause in background tabs. */
 export const SCROLL_TO_FIRST_CHANGE_DELAY_MS = 200;
@@ -44,39 +43,6 @@ function findVisibleAncestor(
     }
   }
   return undefined;
-}
-
-/** Cancel the previous highlight when another change is revealed. */
-let activeHighlight: Animation | undefined;
-
-function highlight(block: Element) {
-  activeHighlight?.cancel();
-  // Fire-and-forget pulse: no DOM mutations for ProseMirror to observe. A
-  // finished animation stays referenced until the next scroll cancels it,
-  // which is a harmless no-op. Scrolling still works without WAAPI.
-  activeHighlight = block.animate?.(
-    [
-      {
-        backgroundColor: "color-mix(in srgb, #3e5de7 14%, transparent)",
-        boxShadow: "0 0 0 1px color-mix(in srgb, #3e5de7 45%, transparent)",
-        borderRadius: "4px",
-        easing: "ease-out",
-      },
-      {
-        backgroundColor: "transparent",
-        boxShadow: "0 0 0 1px transparent",
-        borderRadius: "4px",
-      },
-    ],
-    { duration: HIGHLIGHT_MS, fill: "none" },
-  );
-}
-
-function prefersReducedMotion(): boolean {
-  return (
-    typeof window !== "undefined" &&
-    (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false)
-  );
 }
 
 /**
@@ -129,11 +95,7 @@ export function scrollToFirstChange(root: Element | undefined): boolean {
   // highlight doesn't span nested children.
   target = target.querySelector(".bn-block-content") ?? target;
 
-  target.scrollIntoView({
-    block: "center",
-    behavior: prefersReducedMotion() ? "auto" : "smooth",
-  });
-  highlight(target.closest(".bn-block-content") ?? target);
+  scrollAndHighlight(target);
 
   return true;
 }

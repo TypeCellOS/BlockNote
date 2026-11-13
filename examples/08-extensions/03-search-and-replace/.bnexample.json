@@ -1,0 +1,10 @@
+{
+  "playground": true,
+  "docs": true,
+  "author": "",
+  "tags": ["Extension", "UI Components"],
+  "dependencies": {
+    "@mantine/core": "^9.0.2"
+  },
+  "pro": false
+}
