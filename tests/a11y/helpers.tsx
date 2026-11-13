@@ -1,0 +1,193 @@
+import type { BlockNoteEditor, PartialBlock } from "@blocknote/core";
+import "@blocknote/core/fonts/inter.css";
+import { BlockNoteView } from "@blocknote/mantine";
+import "@blocknote/mantine/style.css";
+import { useCreateBlockNote } from "@blocknote/react";
+import { useEffect } from "react";
+import { render } from "vitest-browser-react";
+import axe from "axe-core";
+import { expect, type TestContext } from "vite-plus/test";
+import { commands, page, server } from "vite-plus/test/browser";
+import { waitForEditorFocus } from "./setup.js";
+import "./style.css";
+
+export const screenReader =
+  server.config.name === "voiceover" || server.config.name === "nvda";
+export const selectToLineEndKey =
+  server.platform === "darwin" ? "Meta+Shift+ArrowRight" : "Shift+End";
+
+// Vite+ does not re-export the augmentable BrowserCommands interface. Keep the
+// typed RPC boundary here, as the existing browser test utilities do.
+const browserCommands = commands as typeof commands & {
+  readAriaSnapshot(selector: string): Promise<string>;
+  startReader(): Promise<void>;
+  pressKey(key: string): Promise<string | undefined>;
+  readTranscript(): Promise<string[]>;
+  stopReader(): Promise<void>;
+};
+
+function EditorFixture({
+  initialContent,
+  editable,
+  theme,
+  onReady,
+}: {
+  initialContent: PartialBlock[];
+  editable: boolean;
+  theme: "light" | "dark";
+  onReady?: (editor: BlockNoteEditor) => void;
+}) {
+  const editor = useCreateBlockNote({ initialContent });
+  useEffect(() => {
+    onReady?.(editor);
+  }, [editor, onReady]);
+  return (
+    <main style={{ maxWidth: 900, margin: "80px auto", padding: 24 }}>
+      <h1>BlockNote accessibility fixture</h1>
+      <button type="button">Before editor</button>
+      <BlockNoteView editor={editor} theme={theme} editable={editable} />
+      <button type="button">After editor</button>
+    </main>
+  );
+}
+
+export async function openEditor(
+  initialContent: PartialBlock[],
+  {
+    editable = true,
+    theme = "light",
+    onReady,
+  }: {
+    editable?: boolean;
+    theme?: "light" | "dark";
+    onReady?: (editor: BlockNoteEditor) => void;
+  } = {},
+) {
+  let editor!: BlockNoteEditor;
+  await page.viewport(1280, 900);
+  await render(
+    <EditorFixture
+      initialContent={initialContent}
+      editable={editable}
+      theme={theme}
+      onReady={(value) => {
+        editor = value;
+        onReady?.(value);
+      }}
+    />,
+  );
+  await expect.element(page.getByRole("textbox")).toBeVisible();
+  await expect
+    .element(page.getByRole("textbox"))
+    .toHaveAttribute("contenteditable", String(editable));
+  await document.fonts.ready;
+  if (screenReader) {
+    await browserCommands.startReader();
+  } else {
+    page
+      .getByRole("button", { name: "Before editor", exact: true })
+      .element()
+      .focus();
+  }
+  return editor;
+}
+
+export async function pressKey(key: string) {
+  await waitForEditorFocus();
+  return browserCommands.pressKey(key);
+}
+
+export function readOutline(element: Element) {
+  const style = getComputedStyle(element);
+  return {
+    width: Number.parseFloat(style.outlineWidth),
+    style: style.outlineStyle,
+    color: style.outlineColor,
+  };
+}
+
+export async function checkFocusOutline(
+  target: ReturnType<typeof page.getByRole>,
+  unfocusedOutline?: ReturnType<typeof readOutline>,
+) {
+  await expect
+    .poll(() => target.element().matches(":focus-visible"))
+    .toBe(true);
+  // Autofocused inputs are already focused by the time they can be observed.
+  // Compare against the unfocused state whenever it was available to capture.
+  if (unfocusedOutline) {
+    await expect
+      .poll(() => readOutline(target.element()))
+      .not.toEqual(unfocusedOutline);
+  }
+  await expect
+    .poll(() => readOutline(target.element()).width)
+    .toBeGreaterThan(0);
+  await expect
+    .poll(() => readOutline(target.element()).style)
+    .not.toMatch(/^(none|hidden)$/);
+  await expect
+    .poll(() => readOutline(target.element()).color)
+    .not.toMatch(/^(transparent|rgba\(0, 0, 0, 0\))$/);
+}
+
+export function readSelection() {
+  const selection = document.getSelection();
+  const node = selection?.focusNode;
+  const element = node instanceof Element ? node : node?.parentElement;
+  const cell = element?.closest("td, th");
+  const row = cell?.parentElement;
+  return {
+    tableCell:
+      cell instanceof HTMLTableCellElement && row instanceof HTMLTableRowElement
+        ? { row: row.rowIndex, column: cell.cellIndex }
+        : null,
+    blockId: element?.closest("[data-id]")?.getAttribute("data-id") ?? null,
+    offset: selection?.focusOffset ?? 0,
+    text: selection?.toString() ?? "",
+  };
+}
+
+export async function checkAxe(
+  annotate: TestContext["annotate"],
+  scope?: string,
+) {
+  const results = await axe.run(scope ? { include: [scope] } : document.body, {
+    rules: { "target-size": { enabled: true } },
+  });
+  for (const result of results.incomplete) {
+    for (const node of result.nodes) {
+      await annotate(
+        `axe manual review: ${result.id} — ${result.help}\nTarget: ${JSON.stringify(node.target)}\n${node.failureSummary ?? ""}\n${result.helpUrl}`,
+        "warning",
+      );
+    }
+  }
+  expect(results.violations, "axe violations").toEqual([]);
+}
+
+// Use Playwright's semantic snapshot through the provider, and Vitest's
+// snapshot storage so these baselines follow the same update policy as tests.
+export async function checkAriaSnapshot(
+  locator: ReturnType<typeof page.getByRole>,
+  name: string,
+) {
+  expect(
+    await browserCommands.readAriaSnapshot(locator.selector),
+  ).toMatchSnapshot(name);
+}
+
+// Register with afterEach in screen-reader tests. Stop the reader even when
+// reading or comparing the transcript fails.
+export async function saveTranscript() {
+  if (!screenReader) {
+    throw new Error("saveTranscript requires a screen-reader test run.");
+  }
+  try {
+    const transcript = await browserCommands.readTranscript();
+    expect(transcript.length).toBeGreaterThan(0);
+    expect(transcript).toMatchSnapshot();
+  } finally {
+    await browserCommands.stopReader();
+  }
+}

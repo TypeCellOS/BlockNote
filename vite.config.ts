@@ -14,6 +14,10 @@ export default defineConfig({
     // its tsc step reads `core`'s `.d.ts` files.
     cache: { scripts: true },
     tasks: {
+      "test:screen-reader": {
+        command: "node tests/a11y/run.mjs",
+        cache: false,
+      },
       "copy-package-readmes": {
         command: "node scripts/copy-package-readmes.mjs",
         // These copies are outputs, not inputs: automatic tracking of the
@@ -95,6 +99,52 @@ export default defineConfig({
       "import/no-cycle": "off",
     },
     overrides: [
+      {
+        files: ["packages/*/src/**/*.{ts,tsx}"],
+        excludeFiles: ["**/*.test.{ts,tsx}"],
+        rules: {
+          "no-restricted-imports": [
+            "error",
+            {
+              patterns: [
+                {
+                  group: ["**/*.test", "**/*.test.*"],
+                  message: "Production code must not import test files.",
+                },
+              ],
+            },
+          ],
+        },
+      },
+      {
+        files: ["**/*.browser.test.{ts,tsx}", "**/*.screen-reader.test.ts"],
+        rules: {
+          "no-restricted-properties": [
+            "error",
+            {
+              property: "getByTestId",
+              message:
+                "Use accessible locators such as getByRole with a name or getByLabel in browser tests.",
+            },
+          ],
+        },
+      },
+      {
+        files: ["tests/a11y/**"],
+        rules: {
+          // The nested package.json selects ESM; dependencies belong to tests.
+          "import-eslint/no-extraneous-dependencies": [
+            "error",
+            {
+              packageDir: "./tests",
+              devDependencies: true,
+              peerDependencies: true,
+              optionalDependencies: false,
+              bundledDependencies: false,
+            },
+          ],
+        },
+      },
       {
         files: [
           "**/scripts/**",
