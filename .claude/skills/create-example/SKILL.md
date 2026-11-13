@@ -54,7 +54,7 @@ Contains all of the example's configuration. Here's an annotated example (from `
 "pro": true
 ```
 
-Set `author` to the user's GitHub username. Prefer a username the user supplies; otherwise check the authenticated account with `gh api user --jq .login`. If the author cannot be determined, ask rather than leaving it blank or guessing. This metadata credits the author on the playground and website.
+Set `author` to the user's GitHub username. Prefer a username the user supplies; otherwise check the authenticated account with `gh api user --jq .login` and ask the user to confirm it before using it, since it may belong to a bot or another person. If the author cannot be determined or confirmed, ask rather than leaving it blank or guessing. This metadata credits the author on the playground and website.
 
 `README.md`
 
