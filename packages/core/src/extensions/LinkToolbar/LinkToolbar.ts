@@ -1,7 +1,12 @@
 import { posToDOMRect } from "@tiptap/core";
 import { createExtension } from "../../editor/BlockNoteExtension.js";
+import { isAllowedUri } from "../tiptap-extensions/Link/link.js";
+import { normalizeLinkUrl } from "./protocols.js";
 
-export const LinkToolbarExtension = createExtension(({ editor }) => {
+export const LinkToolbarExtension = createExtension(({ editor, options }) => {
+  const isValidLink: (href: string) => boolean =
+    options?.links?.isValidLink ?? isAllowedUri;
+
   function getLinkElementAtPos(pos: number) {
     let currentNode = editor.prosemirrorView.nodeDOM(pos);
     while (currentNode && currentNode.parentElement) {
@@ -59,6 +64,14 @@ export const LinkToolbarExtension = createExtension(({ editor }) => {
         const posAtElement = editor.prosemirrorView.posAtDOM(element, 0) + 1;
         return getLinkAtPos(posAtElement);
       });
+    },
+
+    /**
+     * Prepares a URL entered in the link toolbar, prepending the default
+     * protocol unless the URL already has one the editor accepts.
+     */
+    normalizeUrl(url: string) {
+      return normalizeLinkUrl(url, isValidLink);
     },
 
     editLink(
