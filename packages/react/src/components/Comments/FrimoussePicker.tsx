@@ -47,6 +47,12 @@ export default function FrimoussePicker({
       onKeyDownCapture={(event) => {
         if (event.key === "Escape" && onEscape) {
           event.stopPropagation();
+          if (
+            event.nativeEvent.isComposing ||
+            event.nativeEvent.keyCode === 229
+          ) {
+            return;
+          }
           onEscape();
         }
       }}

@@ -65,6 +65,12 @@ function VersionNameInput(props: {
       onKeyDown={(event) => {
         // An un-stopped key would reach the row's list-navigation handler.
         event.stopPropagation();
+        if (
+          event.nativeEvent.isComposing ||
+          event.nativeEvent.keyCode === 229
+        ) {
+          return;
+        }
         if (event.key === "Enter" || event.key === "Escape") {
           if (event.key === "Escape") {
             cancelled.current = true;

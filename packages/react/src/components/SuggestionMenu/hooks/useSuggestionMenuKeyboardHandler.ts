@@ -12,6 +12,14 @@ export function useSuggestionMenuKeyboardHandler<Item>(
     selectedIndex,
     setSelectedIndex,
     handler: (event: KeyboardEvent | React.KeyboardEvent) => {
+      const nativeEvent = "nativeEvent" in event ? event.nativeEvent : event;
+      // This handler also runs in DOM capture listeners, before ProseMirror's
+      // composition guard. Leave candidate navigation and confirmation to the IME.
+      // Some IMEs report the confirming key as 229 with isComposing already false.
+      if (nativeEvent.isComposing || nativeEvent.keyCode === 229) {
+        return false;
+      }
+
       if (event.key === "ArrowUp") {
         event.preventDefault();
 
@@ -52,10 +60,7 @@ export function useSuggestionMenuKeyboardHandler<Item>(
         return true;
       }
 
-      const isComposing = isReactEvent(event)
-        ? event.nativeEvent.isComposing
-        : event.isComposing;
-      if (event.key === "Enter" && !isComposing) {
+      if (event.key === "Enter") {
         event.preventDefault();
         event.stopPropagation();
 
@@ -69,10 +74,4 @@ export function useSuggestionMenuKeyboardHandler<Item>(
       return false;
     },
   };
-}
-
-function isReactEvent(
-  event: KeyboardEvent | React.KeyboardEvent,
-): event is React.KeyboardEvent {
-  return (event as React.KeyboardEvent).nativeEvent !== undefined;
 }
