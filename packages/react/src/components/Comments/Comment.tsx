@@ -89,6 +89,7 @@ const CommentEditorActionsComponent = memo(
                   )}
                   text={"+"}
                   icon={<RiEmotionLine size={16} />}
+                  label={dict.comments.actions.add_reaction}
                   mainTooltip={dict.comments.actions.add_reaction}
                 />
               </EmojiPicker>
@@ -266,6 +267,7 @@ export const Comment = ({
           >
             <Components.Generic.Toolbar.Button
               key={"add-reaction"}
+              label={dict.comments.actions.add_reaction}
               mainTooltip={dict.comments.actions.add_reaction}
               variant="compact"
             >
