@@ -179,6 +179,7 @@ it("sets an initial block id when using Y.js", async () => {
                 {
                   "attrs": {
                     "backgroundColor": "default",
+                    "lang": undefined,
                     "textAlignment": "left",
                     "textColor": "default",
                   },
@@ -207,7 +208,7 @@ it("sets an initial block id when using Y.js", async () => {
   expect(transactionCount).toBe(2);
   // Only after a real modification is made, will the fragment be updated
   expect(fragment.toJSON()).toMatch(
-    /^<blockgroup><blockcontainer id="[^"]+"><paragraph backgroundColor="default" textAlignment="left" textColor="default">Hello<\/paragraph><\/blockcontainer><\/blockgroup>$/,
+    /^<blockgroup><blockcontainer id="[^"]+"><paragraph backgroundColor="default" lang="undefined" textAlignment="left" textColor="default">Hello<\/paragraph><\/blockcontainer><\/blockgroup>$/,
   );
 });
 

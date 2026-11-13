@@ -79,6 +79,7 @@ export * from "./components/AttributionTooltip/AttributionTooltipProps.js";
 export * from "./components/AttributionTooltip/formatChangeLabel.js";
 
 export * from "./components/SideMenu/DragHandleMenu/DefaultItems/BlockColorsItem.js";
+export * from "./components/SideMenu/DragHandleMenu/DefaultItems/BlockLanguageItem.js";
 export * from "./components/SideMenu/DragHandleMenu/DefaultItems/RemoveBlockItem.js";
 export * from "./components/SideMenu/DragHandleMenu/DefaultItems/TableHeadersItem.js";
 export * from "./components/SideMenu/DragHandleMenu/DragHandleMenu.js";
