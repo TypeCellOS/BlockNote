@@ -826,7 +826,10 @@ export class BlockNoteEditor<
   // Portal elements registered by the view layer, with reference counts so
   // several UI elements can share one (e.g. multiple popovers portalling into
   // the same custom element).
-  private _portalElements = new Map<HTMLElement, number>();
+  private _portalElements = new Map<
+    HTMLElement,
+    { count: number; untrackFocus: () => void }
+  >();
 
   /**
    * Registers an element as a portal element for this editor's floating UI, so
@@ -838,10 +841,15 @@ export class BlockNoteEditor<
    * {@link unregisterPortalElement}.
    */
   public registerPortalElement = (element: HTMLElement) => {
-    this._portalElements.set(
-      element,
-      (this._portalElements.get(element) ?? 0) + 1,
-    );
+    const registration = this._portalElements.get(element);
+    if (registration) {
+      registration.count++;
+    } else {
+      this._portalElements.set(element, {
+        count: 1,
+        untrackFocus: this._eventManager.trackUIFocus(element),
+      });
+    }
   };
 
   /**
@@ -850,15 +858,14 @@ export class BlockNoteEditor<
    * been released.
    */
   public unregisterPortalElement = (element: HTMLElement) => {
-    const count = this._portalElements.get(element);
-    if (count === undefined) {
+    const registration = this._portalElements.get(element);
+    if (!registration) {
       return;
     }
 
-    if (count <= 1) {
+    if (--registration.count === 0) {
+      registration.untrackFocus();
       this._portalElements.delete(element);
-    } else {
-      this._portalElements.set(element, count - 1);
     }
   };
 
@@ -898,9 +905,17 @@ export class BlockNoteEditor<
     if (!options?.includeEditorUI) {
       return contentFocused;
     }
-    const active =
-      typeof document !== "undefined" ? document.activeElement : null;
-    return contentFocused || (!!active && this.isWithinEditor(active));
+    // UI rendered beside the content (e.g. a static toolbar) belongs to the
+    // editor too, just as in isWithinEditor. Check its parent, not only content.
+    // :focus-within also sees focused inputs inside shadow roots, where
+    // document.activeElement would only expose the shadow host.
+    return (
+      contentFocused ||
+      !!this.domElement?.parentElement?.matches(":focus-within") ||
+      Array.from(this._portalElements.keys()).some((element) =>
+        element.matches(":focus-within"),
+      )
+    );
   }
 
   public headless = true;

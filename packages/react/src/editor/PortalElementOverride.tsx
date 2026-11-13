@@ -5,6 +5,7 @@ import {
   useContext,
   useEffect,
   useInsertionEffect,
+  useMemo,
   useState,
 } from "react";
 import { createPortal } from "react-dom";
@@ -17,10 +18,25 @@ import { useBlockNoteViewContext } from "./BlockNoteViewContext.js";
 const useIsomorphicInsertionEffect =
   typeof window !== "undefined" ? useInsertionEffect : useEffect;
 
-// Set by `PortalElementOverride` (a root to escape to) and by
-// `PortalElementAnchor` (a UI element's own wrapper); the default comes from
-// the editor itself, see `usePortalElement`.
-const PortalElementContext = createContext<HTMLElement | null>(null);
+// Anchors change the local element for dropdowns, while preserving the explicit
+// override for UI that must render outside the editor container (mobile toolbar).
+const PortalElementContext = createContext<{
+  element: HTMLElement | null;
+  override: HTMLElement | null;
+} | null>(null);
+
+/** Explicit override, otherwise the editor's shadow root or document body. */
+export function useRootPortalElement(): HTMLElement | ShadowRoot | null {
+  const override = useContext(PortalElementContext)?.override;
+  const editorDOMElement = useEditorDOMElement();
+  if (override || !editorDOMElement) {
+    return override ?? null;
+  }
+  const root = editorDOMElement.getRootNode();
+  return root.nodeType === Node.DOCUMENT_FRAGMENT_NODE && "host" in root
+    ? (root as ShadowRoot)
+    : editorDOMElement.ownerDocument.body;
+}
 
 /**
  * The element the floating UI below should portal into: the nearest
@@ -37,14 +53,10 @@ const PortalElementContext = createContext<HTMLElement | null>(null);
  * nothing until it exists.
  */
 export function usePortalElement(): HTMLElement | null {
-  const override = useContext(PortalElementContext);
+  const element = useContext(PortalElementContext)?.element;
   const editorDOMElement = useEditorDOMElement();
 
-  if (override) {
-    return override;
-  }
-
-  return editorDOMElement?.parentElement ?? null;
+  return element ?? editorDOMElement?.parentElement ?? null;
 }
 
 /**
@@ -83,7 +95,7 @@ export function PortalElementReset(props: { children?: ReactNode }) {
  * `undefined` means no redirect: the ambient portal element stays in effect.
  */
 export function PortalElementOverride(props: {
-  target?: HTMLElement;
+  target?: HTMLElement | ShadowRoot;
   children?: ReactNode;
 }) {
   const { target, children } = props;
@@ -92,7 +104,13 @@ export function PortalElementOverride(props: {
   const applyThemedRoot = useBlockNoteViewContext()?.applyThemedRoot;
 
   const [portalElement] = useState(() =>
-    typeof document === "undefined" ? null : document.createElement("div"),
+    typeof document === "undefined"
+      ? null
+      : (target?.ownerDocument ?? document).createElement("div"),
+  );
+  const contextValue = useMemo(
+    () => ({ element: portalElement, override: portalElement }),
+    [portalElement],
   );
 
   // An insertion effect, not a layout effect: a parent's layout effect runs
@@ -106,13 +124,19 @@ export function PortalElementOverride(props: {
     }
 
     target.appendChild(portalElement);
-    return () => portalElement.remove();
-  }, [portalElement, target]);
+    // Register before child effects can focus anything in the escaped UI.
+    editor.registerPortalElement(portalElement);
+    return () => {
+      portalElement.remove();
+      editor.unregisterPortalElement(portalElement);
+    };
+  }, [editor, portalElement, target]);
 
   // React does not render this element, so the same theming the editor
   // container gets from its props is applied here by hand. Same phase as the
   // attach above, so children measure themed styles from their first layout
-  // effect on.
+  // effect on. Keep this separate so theme changes do not detach/unregister
+  // a live portal.
   useIsomorphicInsertionEffect(() => {
     if (!portalElement || !target) {
       return;
@@ -121,26 +145,12 @@ export function PortalElementOverride(props: {
     applyThemedRoot?.(portalElement);
   }, [portalElement, target, applyThemedRoot]);
 
-  // Floating UI portalled out of the editor's DOM tree is still the editor's
-  // UI: registering the element keeps `editor.isWithinEditor` (and the focus
-  // tracking built on it) true for what renders inside. Registered in the
-  // same phase too, so nothing a child focuses from its own effects is ever
-  // judged before the root counts as editor UI.
-  useIsomorphicInsertionEffect(() => {
-    if (!portalElement || !target) {
-      return;
-    }
-
-    editor.registerPortalElement(portalElement);
-    return () => editor.unregisterPortalElement(portalElement);
-  }, [editor, portalElement, target]);
-
   if (target === undefined) {
     return children;
   }
 
   return (
-    <PortalElementContext.Provider value={portalElement}>
+    <PortalElementContext.Provider value={contextValue}>
       {children}
     </PortalElementContext.Provider>
   );
@@ -155,7 +165,7 @@ export function PortalElementOverride(props: {
  * the children keep the editor's context.
  */
 export function RenderInPortalElement(props: {
-  target: HTMLElement;
+  target: HTMLElement | ShadowRoot;
   children?: ReactNode;
 }) {
   return (
@@ -256,8 +266,14 @@ export function PortalElementAnchor(props: {
   children?: ReactNode | ((portalElement: HTMLElement | null) => ReactNode);
 }) {
   const { anchor, holder } = usePortalElementAnchor();
+  const context = useContext(PortalElementContext);
   const ambient = usePortalElement();
   const portalElement = anchor ?? ambient;
+  const override = context?.override ?? null;
+  const contextValue = useMemo(
+    () => ({ element: portalElement, override }),
+    [portalElement, override],
+  );
 
   const children =
     typeof props.children === "function"
@@ -267,7 +283,7 @@ export function PortalElementAnchor(props: {
   return (
     <>
       {holder}
-      <PortalElementContext.Provider value={portalElement}>
+      <PortalElementContext.Provider value={contextValue}>
         {children}
       </PortalElementContext.Provider>
     </>
