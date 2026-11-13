@@ -1,5 +1,5 @@
 import { describe, expect } from "vite-plus/test";
-import { page, userEvent } from "vite-plus/test/browser";
+import { userEvent } from "vite-plus/test/browser";
 
 import {
   BlockNoteSchema,
@@ -13,7 +13,7 @@ const STYLES = ["bold", "italic", "underline", "strike", "code"] as const;
 describe("BasicTextStyleButton", () => {
   it.for(STYLES)(
     "toggles %s on and off",
-    async (basicTextStyle, { renderEditor, selectText }) => {
+    async (basicTextStyle, { renderEditor, selectText, page }) => {
       const { editor } = await renderEditor({
         initialContent: [
           { id: "format", type: "paragraph", content: "Format this text" },
@@ -44,7 +44,7 @@ describe("BasicTextStyleButton", () => {
 
   it.for(STYLES)(
     "applies %s only to selected text without changing surrounding content",
-    async (basicTextStyle, { renderEditor, selectText }) => {
+    async (basicTextStyle, { renderEditor, selectText, page }) => {
       const { editor } = await renderEditor({
         initialContent: [
           {
@@ -88,7 +88,7 @@ describe("BasicTextStyleButton", () => {
 
   it.for(STYLES)(
     "applies %s to subsequently typed text at a collapsed cursor",
-    async (basicTextStyle, { renderEditor }) => {
+    async (basicTextStyle, { renderEditor, page }) => {
       const { editor } = await renderEditor({
         initialContent: [
           { id: "format", type: "paragraph", content: "Existing" },
@@ -114,6 +114,7 @@ describe("BasicTextStyleButton", () => {
 
   it("hides in read-only mode and responds to editability changes", async ({
     renderEditor,
+    page,
   }) => {
     const { rerender } = await renderEditor({
       props: { editable: false, formattingToolbar: false },
@@ -131,6 +132,7 @@ describe("BasicTextStyleButton", () => {
 
   it("hides when the style is missing from the schema", async ({
     renderEditor,
+    page,
   }) => {
     await renderEditor({
       schema: BlockNoteSchema.create({
@@ -145,6 +147,7 @@ describe("BasicTextStyleButton", () => {
 
   it("hides when the style has a non-boolean prop schema", async ({
     renderEditor,
+    page,
   }) => {
     await renderEditor({
       schema: BlockNoteSchema.create({
@@ -164,6 +167,7 @@ describe("BasicTextStyleButton", () => {
 
   it("hides on blocks without inline content and reappears on text blocks", async ({
     renderEditor,
+    page,
   }) => {
     const { editor } = await renderEditor({
       initialContent: [
@@ -184,6 +188,7 @@ describe("BasicTextStyleButton", () => {
   it("reflects the active style when selection moves between blocks", async ({
     renderEditor,
     selectText,
+    page,
   }) => {
     const { editor } = await renderEditor({
       initialContent: [
@@ -206,5 +211,35 @@ describe("BasicTextStyleButton", () => {
 
     selectText(editor, "Bold");
     await expect.element(button).toHaveAttribute("aria-pressed", "true");
+  });
+
+  describe("keyboard", () => {
+    it("can be activated with Enter and returns focus to the editor", async ({
+      renderEditor,
+      selectText,
+      commands,
+      page,
+    }) => {
+      const { editor } = await renderEditor({
+        initialContent: [{ type: "paragraph", content: "Selected text" }],
+        props: { formattingToolbar: false },
+        children: <BasicTextStyleButton basicTextStyle="bold" />,
+      });
+      await page.getByRole("textbox").click();
+      selectText(editor, "Selected text");
+      const button = page.getByRole("button", {
+        name: editor.dictionary.formatting_toolbar.bold.tooltip,
+        exact: true,
+      });
+
+      await commands.pressKey("Tab");
+
+      await expect.element(button).toHaveFocus();
+
+      await commands.pressKey("Enter");
+
+      await expect.element(button).toHaveAttribute("aria-pressed", "true");
+      await expect.element(page.getByRole("textbox")).toHaveFocus();
+    });
   });
 });

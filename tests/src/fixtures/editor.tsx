@@ -18,6 +18,7 @@ import type { ComponentProps, ReactNode } from "react";
 import { flushSync } from "react-dom";
 import { createRoot } from "react-dom/client";
 import { test as base, type TestContext } from "vite-plus/test";
+import { commands, page } from "../utils/context.js";
 
 type ViewProps<
   B extends BlockSchema,
@@ -196,9 +197,13 @@ export function selectText(
 }
 
 export const test = base.extend<{
+  commands: typeof commands;
+  page: typeof page;
   renderEditor: RenderEditor;
   selectText: typeof selectText;
 }>({
+  commands,
+  page,
   renderEditor: async ({ onTestFinished }, use) => {
     await use(createRenderEditor(onTestFinished));
   },
