@@ -4,7 +4,7 @@ import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { useCreateBlockNote } from "@blocknote/react";
 
-import { SearchAndReplace } from "./SearchAndReplace.js";
+import { SearchAndReplace } from "./SearchAndReplace";
 import "./style.css";
 
 export default function App() {
