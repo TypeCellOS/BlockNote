@@ -113,7 +113,11 @@ export function SearchAndReplace({
             event.preventDefault();
             event.stopPropagation();
             openSearch();
-          } else if (event.key === "Escape" && open) {
+          } else if (
+            event.key === "Escape" &&
+            open &&
+            !event.nativeEvent.isComposing
+          ) {
             event.preventDefault();
             event.stopPropagation();
             closeSearch();

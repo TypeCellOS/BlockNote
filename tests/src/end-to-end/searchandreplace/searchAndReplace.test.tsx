@@ -64,6 +64,18 @@ test("scopes Find to the editor, keeps navigation focus, and clears on Escape", 
     .toBe(initialCount);
   expect(document.activeElement).toBe(input);
 
+  // IME cancellation must not close search or steal focus from composition.
+  input.dispatchEvent(
+    new KeyboardEvent("keydown", {
+      key: "Escape",
+      bubbles: true,
+      isComposing: true,
+    }),
+  );
+  expect(document.querySelector('[role="search"]')).not.toBeNull();
+  expect(document.activeElement).toBe(input);
+  expect(input).toHaveProperty("value", "fox");
+
   // Closing clears the rendered search state and returns typing to the editor.
   await userEvent.keyboard("{Escape}");
   await expect.poll(() => document.querySelector('[role="search"]')).toBeNull();

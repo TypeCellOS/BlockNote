@@ -1415,7 +1415,7 @@ export const examples = {
         config: {
           playground: true,
           docs: true,
-          author: "nickthesick",
+          author: "nperez0111",
           tags: [
             "Intermediate",
             "Blocks",
@@ -1522,7 +1522,7 @@ export const examples = {
         config: {
           playground: true,
           docs: true,
-          author: "nickthesick",
+          author: "nperez0111",
           tags: ["Intermediate", "Blocks", "Custom Schemas"],
           dependencies: {
             "@mantine/core": "^9.0.2",
@@ -1985,7 +1985,7 @@ export const examples = {
         config: {
           playground: true,
           docs: true,
-          author: "",
+          author: "nperez0111",
           tags: ["Advanced", "Saving/Loading", "Collaboration"],
           dependencies: {
             "@y/prosemirror": "^2.0.0-15",
@@ -2060,7 +2060,7 @@ export const examples = {
         config: {
           playground: true,
           docs: true,
-          author: "",
+          author: "nperez0111",
           tags: ["Extension", "UI Components"],
           dependencies: {
             "@mantine/core": "^9.0.2",

@@ -1,7 +1,7 @@
 {
   "playground": true,
   "docs": true,
-  "author": "",
+  "author": "nperez0111",
   "tags": ["Extension", "UI Components"],
   "dependencies": {
     "@mantine/core": "^9.0.2"
