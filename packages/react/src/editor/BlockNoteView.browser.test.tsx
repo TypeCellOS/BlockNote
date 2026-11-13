@@ -434,7 +434,16 @@ if (!screenReader) {
       });
       await expect.element(link).toBeVisible();
       const unfocusedOutline = await commands.readOutline(link.selector);
-      while (document.activeElement !== link.element()) {
+      for (
+        let presses = 0;
+        document.activeElement !== link.element();
+        presses++
+      ) {
+        if (presses >= 10) {
+          throw new Error(
+            "Could not focus the Documentation link after 10 Tab presses",
+          );
+        }
         await commands.pressKey("Tab");
       }
       await expect.element(link).toHaveFocus();
@@ -486,7 +495,12 @@ if (!screenReader) {
       for (const key of ["ArrowDown", "ArrowUp"] as const) {
         const expected = key === "ArrowDown" ? route : route.toReversed();
         let index = 0;
-        while (index < expected.length - 1) {
+        for (let presses = 0; index < expected.length - 1; presses++) {
+          if (presses >= 100) {
+            throw new Error(
+              `${key} did not finish the document route after 100 presses; still at block "${expected[index]}"`,
+            );
+          }
           await commands.pressKey(key);
           const actual = editor.getTextCursorPosition().block.id;
 
@@ -521,7 +535,12 @@ if (!screenReader) {
       for (const key of ["ArrowRight", "ArrowLeft"] as const) {
         const expected = key === "ArrowRight" ? route : route.toReversed();
         let index = 0;
-        while (index < expected.length - 1) {
+        for (let presses = 0; index < expected.length - 1; presses++) {
+          if (presses >= 100) {
+            throw new Error(
+              `${key} did not finish the table route after 100 presses; still at cell ${JSON.stringify(expected[index])}`,
+            );
+          }
           await commands.pressKey(key);
           const { blockId, tableCell } = await commands.readSelection();
           expect(blockId, `${key} stays in the table`).toBe("table");
@@ -555,7 +574,16 @@ if (!screenReader) {
           for (const key of ["ArrowDown", "ArrowUp"] as const) {
             const targetRow = key === "ArrowDown" ? 1 : 0;
             let selection = await commands.readSelection();
-            while (selection.tableCell?.row !== targetRow) {
+            for (
+              let presses = 0;
+              selection.tableCell?.row !== targetRow;
+              presses++
+            ) {
+              if (presses >= 10) {
+                throw new Error(
+                  `${key} did not reach row ${targetRow}, column ${column} after 10 presses`,
+                );
+              }
               await commands.pressKey(key);
               selection = await commands.readSelection();
               expect(selection.blockId, `${key} stays in the table`).toBe(

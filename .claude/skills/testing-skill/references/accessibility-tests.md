@@ -48,7 +48,7 @@ Keep scenario-specific sequences, such as navigating to a toolbar item, in the c
 
 The default browser setup already disables motion and tracks ProseMirror focus reconciliation. Do not duplicate those mechanisms in fixtures. Wait for observable readiness with retrying assertions instead of arbitrary sleeps. For example, an opened menu can be visible before its initial item receives focus: assert that focus before sending navigation keys.
 
-Use accessible locators (`getByRole` with a name or `getByLabel`) and pass their selectors to commands. Prefer live locators for asynchronously mounted elements. When tabbing to an item, advance until the target has focus, bounded by the test timeout, rather than maintaining a duplicate list of controls or a fixed Tab count.
+Use accessible locators (`getByRole` with a name or `getByLabel`) and pass their selectors to commands. Prefer live locators for asynchronously mounted elements. When tabbing or arrowing to an item, stop as soon as the target is reached and enforce an explicit maximum number of keypresses. Choose a generous bound for the fixture and fail immediately with the target and limit in the message if it is exhausted; do not rely on the test timeout. The bound is a safety limit, not a fixed navigation sequence or a duplicate list of controls.
 
 ## Native screen-reader edge cases
 

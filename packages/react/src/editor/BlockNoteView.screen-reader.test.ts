@@ -24,9 +24,18 @@ test.skip("default schema: arrow-key document navigation", async () => {
   );
   await commands.pressKey("Tab");
 
-  // Follow the document until its endpoint; an unreachable endpoint times out.
+  // Allow repeated presses within text, but fail early if navigation gets stuck.
   const visitedTableCells = new Set<string>();
-  while ((await commands.readSelection()).blockId !== "end") {
+  for (
+    let presses = 0;
+    (await commands.readSelection()).blockId !== "end";
+    presses++
+  ) {
+    if (presses >= 100) {
+      throw new Error(
+        "Could not reach the final block after 100 arrow-key presses",
+      );
+    }
     const { tableCell } = await commands.readSelection();
     if (tableCell) {
       visitedTableCells.add(`${tableCell.row},${tableCell.column}`);
@@ -39,7 +48,16 @@ test.skip("default schema: arrow-key document navigation", async () => {
       await commands.pressKey("ArrowDown");
     }
   }
-  while ((await commands.readSelection()).blockId !== "start") {
+  for (
+    let presses = 0;
+    (await commands.readSelection()).blockId !== "start";
+    presses++
+  ) {
+    if (presses >= 100) {
+      throw new Error(
+        "Could not return to the first block after 100 ArrowUp presses",
+      );
+    }
     await commands.pressKey("ArrowUp");
   }
 });

@@ -55,7 +55,16 @@ export async function focusToolbarItem(toolbarItem: string) {
     name: toolbarItem,
     exact: true,
   });
-  while (document.activeElement !== target.element()) {
+  for (
+    let presses = 0;
+    document.activeElement !== target.element();
+    presses++
+  ) {
+    if (presses >= 20) {
+      throw new Error(
+        `Could not focus toolbar item "${toolbarItem}" after 20 Tab presses`,
+      );
+    }
     await commands.pressKey("Tab");
   }
   return { toolbar, button: target };
@@ -233,7 +242,16 @@ if (!screenReader) {
       await expect
         .poll(() => toolbar.element().contains(document.activeElement))
         .toBe(true);
-      while (document.activeElement !== target.element()) {
+      for (
+        let presses = 0;
+        document.activeElement !== target.element();
+        presses++
+      ) {
+        if (presses >= 20) {
+          throw new Error(
+            `Could not focus toolbar item "${toolbarItem}" after 20 Tab presses`,
+          );
+        }
         await commands.pressKey("Tab");
       }
       await expect.element(target).toHaveFocus();

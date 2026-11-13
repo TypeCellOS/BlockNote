@@ -16,7 +16,16 @@ async function focusToggleHeading() {
     name: "Expand or collapse",
     exact: true,
   });
-  while (document.activeElement !== toggleButton.element()) {
+  for (
+    let presses = 0;
+    document.activeElement !== toggleButton.element();
+    presses++
+  ) {
+    if (presses >= 10) {
+      throw new Error(
+        "Could not focus the toggle heading button after 10 Tab presses",
+      );
+    }
     await commands.pressKey("Tab");
   }
 
@@ -88,7 +97,16 @@ test.describe("keyboard", () => {
     await expect.element(toggleButton).toBeVisible();
     const unfocusedOutline = await commands.readOutline(toggleButton.selector);
 
-    while (document.activeElement !== toggleButton.element()) {
+    for (
+      let presses = 0;
+      document.activeElement !== toggleButton.element();
+      presses++
+    ) {
+      if (presses >= 10) {
+        throw new Error(
+          "Could not focus the toggle heading button after 10 Tab presses",
+        );
+      }
       await commands.pressKey("Tab");
     }
     await expect.element(toggleButton).toHaveFocus();
