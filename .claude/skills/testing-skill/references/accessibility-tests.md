@@ -60,6 +60,8 @@ These tests run locally with VoiceOver on macOS or NVDA on Windows and require t
 
 Browser files use `*.browser.test.ts` (or `.tsx`); native screen-reader tests use `*.screen-reader.test.ts`; node tests use `*.test.ts`. Existing glob patterns discover browser tests and exclude them from node runs without per-file configuration. Accessibility checks are part of the regular suite. Production files must not import test files; lint enforces this boundary.
 
+Browser and screen-reader files also have lint rules for focused tests, malformed assertions, unhandled promises, direct command-implementation imports, test-ID locators, and explicit sleep APIs (`waitForTimeout`, `.sleep`, and Node timer imports). Readiness waits should use retrying assertions.
+
 Run from the repository root:
 
 ```bash

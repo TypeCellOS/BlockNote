@@ -117,14 +117,70 @@ export default defineConfig({
         },
       },
       {
-        files: ["**/*.browser.test.{ts,tsx}", "**/*.screen-reader.test.ts"],
+        files: [
+          "**/*.browser.test.{ts,tsx}",
+          "**/*.screen-reader.test.{ts,tsx}",
+        ],
+        plugins: ["vitest"],
         rules: {
+          // The plugin enables these defaults, which do not fit our test conventions.
+          // Assertions can live in shared helpers outside a test callback.
+          "vitest/expect-expect": "off",
+          "vitest/no-standalone-expect": "off",
+          // Browser-specific coverage and documented known failures are intentional.
+          "vitest/no-conditional-expect": "off",
+          "vitest/no-conditional-tests": "off",
+          "vitest/no-disabled-tests": "off",
+          // Existing mocks do not all provide explicit type parameters.
+          "vitest/require-mock-type-parameters": "off",
+          "vitest/no-focused-tests": "error",
+          "vitest/valid-expect": ["error", { maxArgs: 2 }],
+          "vitest/require-awaited-expect-poll": "error",
+          "typescript/no-floating-promises": [
+            "error",
+            { ignoreVoid: false, checkThenables: true },
+          ],
+          "no-restricted-imports": [
+            "error",
+            {
+              patterns: [
+                {
+                  group: [
+                    "**/utils/accessibility",
+                    "**/utils/accessibility.*",
+                    "**/utils/keyboard",
+                    "**/utils/keyboard.*",
+                    "**/screen-reader/screenReader",
+                    "**/screen-reader/screenReader.*",
+                  ],
+                  allowTypeImports: true,
+                  message:
+                    "Use the registered commands from tests/src/utils/context.ts instead of importing command implementations.",
+                },
+                {
+                  group: ["timers", "timers/*", "node:timers", "node:timers/*"],
+                  message:
+                    "Wait for observable readiness with expect.element or expect.poll instead of sleeping.",
+                },
+              ],
+            },
+          ],
           "no-restricted-properties": [
             "error",
             {
               property: "getByTestId",
               message:
                 "Use accessible locators such as getByRole with a name or getByLabel in browser tests.",
+            },
+            {
+              property: "waitForTimeout",
+              message:
+                "Wait for observable readiness with expect.element or expect.poll instead of sleeping.",
+            },
+            {
+              property: "sleep",
+              message:
+                "Wait for observable readiness with expect.element or expect.poll instead of sleeping.",
             },
           ],
         },
