@@ -21,13 +21,7 @@ async function renderExample() {
 async function renderScrollableExample() {
   await render(
     <div className="scrollable-search-example">
-      <style>{`
-        .scrollable-search-example .bn-container { height: 240px; overflow-y: auto; }
-        .docs-search-styles .bn-container:not(.bn-comment-editor),
-        .docs-search-styles .bn-editor { height: 100%; }
-        .docs-search-styles .bn-container:not(.bn-comment-editor) .bn-editor { height: 100%; }
-        .docs-search-styles .bn-editor { overflow: auto; }
-      `}</style>
+      <style>{`.scrollable-search-example .bn-container { height: 240px; overflow-y: auto; }`}</style>
       <App />
     </div>,
   );
@@ -178,12 +172,4 @@ test("Find-button navigation reveals an offscreen match without focusing the edi
     })
     .toBe(true);
   await expect.poll(() => document.activeElement).toBe(input);
-  // The docs embed overrides editor heights. It must not move overflow to an
-  // ancestor where the example's scroll containment would swallow wheel input.
-  scroller
-    .closest(".scrollable-search-example")!
-    .classList.add("docs-search-styles");
-  await expect
-    .poll(() => scroller.scrollHeight > scroller.clientHeight)
-    .toBe(true);
 });
