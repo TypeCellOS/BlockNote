@@ -40,23 +40,95 @@
   font-size: 16px;
   font-weight: normal;
   font-family:
-    "Inter",
-    "Inter fallback",
-    "SF Pro Display",
-    -apple-system,
-    BlinkMacSystemFont,
-    "Open Sans",
-    "Segoe UI",
-    "Roboto",
-    "Oxygen",
-    "Ubuntu",
-    "Cantarell",
-    "Fira Sans",
-    "Droid Sans",
-    "Helvetica Neue",
-    sans-serif;
+    "Inter", "Inter fallback", "SF Pro Display", -apple-system,
+    BlinkMacSystemFont, "Open Sans", "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
+    "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Outside text editing, a hold lifts the block instead of selecting its text.
+   Scrolling and pinch zoom remain native; touch handlers cancel only after lift. */
+.bn-editor.bn-touch-browse,
+.bn-editor.bn-touch-browse * {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Native setDragImage needs an attached, painted, offscreen snapshot. */
+.bn-drag-preview {
+  position: absolute;
+  top: -10000px;
+  left: 0;
+  margin: 0;
+  padding: 10px;
+  height: auto;
+  min-height: 0;
+  max-height: 75vh;
+  overflow: hidden;
+  background: transparent;
+}
+
+.bn-drag-preview > .bn-editor {
+  background: transparent;
+}
+
+.bn-touch-drag-source {
+  opacity: 0.35;
+}
+
+.bn-drag-preview.bn-touch-drag-preview {
+  /* Unitless fit limits can be overridden by applications. object-fit cannot
+     scale an arbitrary DOM subtree; a uniform transform preserves its layout. */
+  --bn-touch-drag-scale: min(
+    var(--bn-touch-drag-max-scale, 1.1),
+    calc(var(--bn-touch-drag-max-width, 242) / var(--bn-touch-drag-width)),
+    calc(var(--bn-touch-drag-max-height, 110) / var(--bn-touch-drag-height))
+  );
+  position: fixed;
+  top: 0;
+  left: 0;
+  max-height: none;
+  pointer-events: none;
+  transform-origin: top left;
+  z-index: 2147483647;
+  background: var(--bn-colors-editor-background);
+  box-shadow:
+    0 0 0 2px var(--bn-colors-border),
+    0 8px 24px #0004;
+  border-radius: 6px;
+  opacity: 0.9;
+  transform: translate(
+      calc(
+        var(--bn-touch-drag-x) - var(--bn-touch-drag-grab-x) *
+          var(--bn-touch-drag-scale)
+      ),
+      calc(
+        var(--bn-touch-drag-y) - var(--bn-touch-drag-grab-y) *
+          var(--bn-touch-drag-scale)
+      )
+    )
+    scale(var(--bn-touch-drag-scale));
+}
+
+/* Animate the contents, not the positioned preview, around the grabbed point. */
+@media (prefers-reduced-motion: no-preference) {
+  .bn-touch-drag-preview > .bn-editor {
+    animation: bn-touch-block-pickup 180ms ease-out;
+    transform-origin: var(--bn-touch-drag-grab-x) var(--bn-touch-drag-grab-y);
+  }
+}
+
+@keyframes bn-touch-block-pickup {
+  from {
+    opacity: 0.4;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .bn-table-drop-cursor {

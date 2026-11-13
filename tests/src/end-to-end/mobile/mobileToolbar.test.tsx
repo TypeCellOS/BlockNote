@@ -1,4 +1,5 @@
 import App from "@examples/01-basic/testing/src/App";
+import type { EditorView } from "@tiptap/pm/view";
 import {
   afterEach,
   beforeEach,
@@ -12,6 +13,7 @@ import { cleanup, render } from "vitest-browser-react";
 import { page, userEvent } from "../../utils/context.js";
 import { EDITOR_SELECTOR, LINK_BUTTON_SELECTOR } from "../../utils/const.js";
 import { focusOnEditor, waitForSelector } from "../../utils/editor.js";
+import { MultipleNodeSelection } from "../../../../packages/core/src/extensions/SideMenu/MultipleNodeSelection.js";
 import {
   getRect,
   mouseSequence,
@@ -72,6 +74,27 @@ afterEach(async () => {
 });
 
 describe("Mobile formatting toolbar", () => {
+  test("blurring preserves a block selection without showing a toolbar", async () => {
+    await focusOnEditor();
+    await userEvent.keyboard("Selected block");
+    const view = document.querySelector<
+      HTMLElement & { editor: { view: EditorView } }
+    >(EDITOR_SELECTOR)!.editor.view;
+    const block = view.state.doc.firstChild!.firstChild!;
+    view.dispatch(
+      view.state.tr.setSelection(
+        MultipleNodeSelection.create(view.state.doc, 1, 1 + block.nodeSize),
+      ),
+    );
+
+    view.dom.blur();
+    await settleFrames();
+
+    expect(view.state.selection).toBeInstanceOf(MultipleNodeSelection);
+    expect(view.hasFocus()).toBe(false);
+    expect(document.querySelector(".bn-formatting-toolbar")).toBeNull();
+  });
+
   // Without the publisher count in `useVirtualKeyboard`, the `--bn-vv-*`
   // properties stay on `<html>` after the last editor unmounts, pinning a
   // `bn-scroll-container` to the keyboard-open height on the next page

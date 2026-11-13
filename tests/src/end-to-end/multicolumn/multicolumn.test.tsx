@@ -1,4 +1,6 @@
 import App from "@examples/01-basic/03-multi-column/src/App";
+import { TextSelection } from "@tiptap/pm/state";
+import type { EditorView } from "@tiptap/pm/view";
 import { beforeEach, describe, expect, test } from "vite-plus/test";
 import { render } from "vitest-browser-react";
 import { MOD, page, userEvent } from "../../utils/context.js";
@@ -33,8 +35,21 @@ describe("Check Multi-Column Behaviour", () => {
     const target = page
       .getByText("You can have multiple blocks in a column too")
       .element();
-    const targetRect = getRect(target);
-    await clickAt(targetRect.x + 1, targetRect.y + 1);
+    // This tests deletion across a column boundary, not coordinate-to-caret
+    // hit testing. A click at the wrapped paragraph's top edge can land in the
+    // neighboring heading in Firefox, deleting text instead of merging columns.
+    const view = document.querySelector<
+      HTMLElement & { editor: { view: EditorView } }
+    >(EDITOR_SELECTOR)!.editor.view;
+    view.dispatch(
+      view.state.tr.setSelection(
+        TextSelection.create(view.state.doc, view.posAtDOM(target, 0)),
+      ),
+    );
+    expect(view.state.selection.$from.parentOffset).toBe(0);
+    expect(view.state.selection.$from.parent.textContent).toBe(
+      "You can have multiple blocks in a column too",
+    );
     await userEvent.keyboard("{ArrowLeft}");
 
     await userEvent.keyboard("{Delete}");
