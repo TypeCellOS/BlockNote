@@ -30,7 +30,8 @@ You can change the items in the Slash Menu. The demo below adds an item that ins
 Slash Menu items are objects with the following fields:
 
 ```typescript
-type DefaultSuggestionItem = {
+type DefaultReactSuggestionItem = {
+  key?: string | number;
   title: string;
   onItemClick: () => void;
   subtext?: string;
@@ -39,6 +40,8 @@ type DefaultSuggestionItem = {
   group?: string;
 };
 ```
+
+`key:` Tells apart items that share a `title`, so the menu can track each one as the list changes. Use a value that's unique among items with the same title. The default items already have one.
 
 `title:` The title of the item.
 

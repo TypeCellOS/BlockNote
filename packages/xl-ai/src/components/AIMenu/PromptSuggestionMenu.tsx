@@ -3,6 +3,7 @@ import { filterSuggestionItems } from "@blocknote/core/extensions";
 import {
   ScreenReaderOnlySubmit,
   DefaultReactSuggestionItem,
+  getSuggestionMenuItemKeys,
   useComponentsContext,
   useSuggestionMenuKeyboardHandler,
 } from "@blocknote/react";
@@ -54,9 +55,25 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
     [onPromptTextChange, setInternalPromptText, promptText],
   );
 
-  const items: DefaultReactSuggestionItem[] = useMemo(() => {
-    return filterSuggestionItems(props.items, promptTextToUse);
-  }, [promptTextToUse, props.items]);
+  // Keys come from the unfiltered list, so each row keeps its key while the
+  // prompt filters items out, even when items repeat.
+  const keyedItems = useMemo(() => {
+    const keys = getSuggestionMenuItemKeys(props.items);
+    return props.items.map((item, i) => ({ item, key: keys[i] }));
+  }, [props.items]);
+
+  const visibleKeyedItems = useMemo(
+    () =>
+      keyedItems.filter(
+        ({ item }) => filterSuggestionItems([item], promptTextToUse).length > 0,
+      ),
+    [keyedItems, promptTextToUse],
+  );
+
+  const items = useMemo(
+    () => visibleKeyedItems.map(({ item }) => item),
+    [visibleKeyedItems],
+  );
 
   const { selectedIndex, setSelectedIndex, handler } =
     useSuggestionMenuKeyboardHandler(items, (item) => item.onItemClick());
@@ -149,7 +166,7 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
         >
           {items.map((item, i) => (
             <Components.SuggestionMenu.Item
-              key={item.title}
+              key={visibleKeyedItems[i].key}
               className={mergeCSSClasses(
                 "bn-suggestion-menu-item",
                 item.size === "small" ? "bn-suggestion-menu-item-small" : "",

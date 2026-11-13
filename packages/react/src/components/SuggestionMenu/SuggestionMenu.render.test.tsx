@@ -1,0 +1,122 @@
+import { act, type ReactNode } from "react";
+import { createRoot, type Root } from "react-dom/client";
+import { afterEach, beforeEach, expect, it, vi } from "vite-plus/test";
+
+import { SuggestionMenu } from "./SuggestionMenu.js";
+import type { DefaultReactSuggestionItem } from "./types.js";
+
+// Defined once, so every render gets the same component types and React can
+// reuse rows across renders.
+const components = vi.hoisted(() => ({
+  SuggestionMenu: {
+    Root: (props: { children: ReactNode }) => <div>{props.children}</div>,
+    Item: (props: { item: DefaultReactSuggestionItem }) => (
+      <div role="option">{`${props.item.title} ${props.item.subtext}`}</div>
+    ),
+    Label: (props: { children: ReactNode }) => <div>{props.children}</div>,
+    EmptyItem: () => null,
+    Loader: () => null,
+  },
+}));
+
+vi.mock("../../editor/ComponentsContext.js", () => ({
+  useComponentsContext: () => components,
+}));
+
+vi.mock("../../i18n/dictionary.js", () => ({
+  useDictionary: () => ({ suggestion_menu: { no_items_title: "" } }),
+}));
+
+let container: HTMLDivElement;
+let root: Root;
+
+beforeEach(() => {
+  container = document.createElement("div");
+  root = createRoot(container);
+});
+
+afterEach(async () => {
+  await act(async () => root.unmount());
+  vi.restoreAllMocks();
+});
+
+function item(
+  title: string,
+  subtext: string,
+  group?: string,
+): DefaultReactSuggestionItem {
+  return { title, subtext, group, onItemClick: () => undefined };
+}
+
+async function render(items: DefaultReactSuggestionItem[]) {
+  await act(async () =>
+    root.render(
+      <SuggestionMenu
+        items={items}
+        loadingState="loaded"
+        selectedIndex={0}
+        onItemClick={() => undefined}
+      />,
+    ),
+  );
+  return [...container.querySelectorAll("[role=option]")].map(
+    (el) => el.textContent,
+  );
+}
+
+it("gives items that share a title or group name distinct keys", async () => {
+  const consoleError = vi.spyOn(console, "error");
+
+  expect(
+    await render([
+      item("image.png", "Page A", "Images"),
+      item("image.png", "Page B", "Images"),
+      item("logo.png", "Page A", "Logos"),
+      item("image.png", "Page C", "Images"),
+      item("notes.txt", "Page D", "undefined"),
+      item("readme.txt", "Page E"),
+    ]),
+  ).toEqual([
+    "image.png Page A",
+    "image.png Page B",
+    "logo.png Page A",
+    "image.png Page C",
+    "notes.txt Page D",
+    "readme.txt Page E",
+  ]);
+
+  const duplicateKeyWarnings = consoleError.mock.calls.filter((args) =>
+    String(args[0]).includes("two children with the same key"),
+  );
+  expect(duplicateKeyWarnings).toEqual([]);
+});
+
+it("keeps each item's row when the list is filtered", async () => {
+  await render([item("logo.png", "Page A"), item("image.png", "Page B")]);
+  const imageRow = container.querySelectorAll("[role=option]")[1];
+
+  expect(await render([item("image.png", "Page B")])).toEqual([
+    "image.png Page B",
+  ]);
+  expect(container.querySelector("[role=option]")).toBe(imageRow);
+});
+
+it("keeps a keyed item's row when an item with the same title is filtered out", async () => {
+  const first = { ...item("image.png", "Page A"), key: "attachment-a" };
+  const second = { ...item("image.png", "Page B"), key: "attachment-b" };
+  await render([first, second]);
+  const secondRow = container.querySelectorAll("[role=option]")[1];
+
+  expect(await render([second])).toEqual(["image.png Page B"]);
+  expect(container.querySelector("[role=option]")).toBe(secondRow);
+});
+
+it("keeps a renamed copy's row when the item that shares its key is filtered out", async () => {
+  const original = { ...item("Heading", "Top-level heading"), key: "heading" };
+  const copy = { ...original, title: "Big title" };
+  await render([original, copy]);
+  const copyRow = container.querySelectorAll("[role=option]")[1];
+
+  expect(await render([copy])).toEqual(["Big title Top-level heading"]);
+  expect(container.querySelector("[role=option]")).toBe(copyRow);
+});

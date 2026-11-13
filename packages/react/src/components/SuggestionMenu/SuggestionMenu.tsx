@@ -2,6 +2,7 @@ import { mergeCSSClasses } from "@blocknote/core";
 import { JSX, useMemo } from "react";
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { useDictionary } from "../../i18n/dictionary.js";
+import { getSuggestionMenuItemKeys } from "./getSuggestionMenuItemKeys.js";
 import { DefaultReactSuggestionItem, SuggestionMenuProps } from "./types.js";
 
 export function SuggestionMenu<T extends DefaultReactSuggestionItem>(
@@ -22,15 +23,21 @@ export function SuggestionMenu<T extends DefaultReactSuggestionItem>(
   const renderedItems = useMemo<JSX.Element[]>(() => {
     let currentGroup: string | undefined = undefined;
     const renderedItems = [];
+    const itemKeys = getSuggestionMenuItemKeys(items);
+    // Group names don't have to be unique, so each label key also counts how
+    // many earlier labels share the name.
+    const seenGroups = new Map<string | undefined, number>();
 
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
       if (item.group !== currentGroup) {
         currentGroup = item.group;
+        const groupCount = seenGroups.get(currentGroup) ?? 0;
+        seenGroups.set(currentGroup, groupCount + 1);
         renderedItems.push(
           <Components.SuggestionMenu.Label
             className={"bn-suggestion-menu-label"}
-            key={currentGroup}
+            key={JSON.stringify(["label", groupCount, currentGroup ?? null])}
           >
             {currentGroup}
           </Components.SuggestionMenu.Label>,
@@ -46,7 +53,7 @@ export function SuggestionMenu<T extends DefaultReactSuggestionItem>(
           item={item}
           id={`bn-suggestion-menu-item-${i}`}
           isSelected={i === selectedIndex}
-          key={item.title}
+          key={itemKeys[i]}
           onClick={() => onItemClick?.(item)}
         />,
       );
