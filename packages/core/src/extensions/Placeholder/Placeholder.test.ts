@@ -6,18 +6,24 @@ import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
  * @vitest-environment jsdom
  */
 
-it("does not throw on unmount when its style element was already removed", () => {
-  const editor = BlockNoteEditor.create();
-  editor.mount(document.createElement("div"));
+it("renders a placeholder without injecting placeholder CSS and unmounts cleanly", () => {
+  const host = document.createElement("div");
+  const editor = BlockNoteEditor.create({
+    initialContent: [{ id: "empty", type: "paragraph" }],
+  });
 
-  const styleEl = [...document.head.querySelectorAll("style")].find((el) =>
-    (
-      el.sheet?.cssRules[0] as CSSStyleRule | undefined
-    )?.selectorText?.startsWith(".placeholder-selector-"),
-  );
-  expect(styleEl).toBeDefined();
-  // e.g. a router merging the next page's `<head>` into the current one
-  styleEl!.remove();
-
-  expect(() => editor.unmount()).not.toThrow();
+  try {
+    editor.mount(host);
+    expect(host.querySelector(".bn-placeholder")?.textContent).toBe(
+      "Enter text or type '/' for commands",
+    );
+    const placeholderRules = [...document.head.querySelectorAll("style")]
+      .flatMap((style) => [...(style.sheet?.cssRules ?? [])])
+      .filter((rule) => rule.cssText.includes(".placeholder-selector-"));
+    expect(placeholderRules).toEqual([]);
+    expect(() => editor.unmount()).not.toThrow();
+    expect(host.querySelector(".bn-placeholder")).toBeNull();
+  } finally {
+    editor._tiptapEditor.destroy();
+  }
 });
