@@ -3,7 +3,7 @@
  */
 
 import { closeHistory } from "@tiptap/pm/history";
-import { NodeSelection, Selection, TextSelection } from "prosemirror-state";
+import { NodeSelection, TextSelection } from "prosemirror-state";
 import { afterEach, describe, expect, it } from "vite-plus/test";
 
 import { mergeBlocksCommand } from "../../../api/blockManipulation/commands/mergeBlocks/mergeBlocks.js";
@@ -22,6 +22,7 @@ import {
   type BlockNoteEditorOptions,
 } from "../../../editor/BlockNoteEditor.js";
 import { createBlockSpec } from "../../../schema/index.js";
+import { MultipleNodeSelection } from "../../SideMenu/MultipleNodeSelection.js";
 
 // Blocks configured with the deprecated `meta.hardBreakShortcut`, which still
 // sets the default of `keyboard.enter` and `keyboard.shiftEnter`.
@@ -255,11 +256,10 @@ describe("KeyboardShortcutsExtension Mod-a (select all)", () => {
 
   function expectWholeDocSelected(editor: BlockNoteEditor<any, any, any>) {
     const { selection, doc } = editor._tiptapEditor.state;
-    // Select-all spans all content as a `TextSelection` (from the first
-    // selectable position to the last), not an `AllSelection`.
-    expect(selection).toBeInstanceOf(TextSelection);
-    expect(selection.from).toBe(Selection.atStart(doc).from);
-    expect(selection.to).toBe(Selection.atEnd(doc).to);
+    // Whole-document selection covers the root group's complete blocks.
+    expect(selection).toBeInstanceOf(MultipleNodeSelection);
+    expect(selection.from).toBe(1);
+    expect(selection.to).toBe(doc.content.size - 1);
   }
 
   function expectBlockContentSelected(
@@ -437,7 +437,27 @@ describe("KeyboardShortcutsExtension Mod-a (select all)", () => {
     editor._tiptapEditor.destroy();
   });
 
-  it("keeps the block type when clearing a single-block document", () => {
+  it.each(["", "After"])(
+    "includes a leading image when selecting all with trailing text %j (#2016)",
+    (content) => {
+      const editor = createSelectAllEditor([
+        { type: "image", props: { url: "https://example.com/image.png" } },
+        { type: "paragraph", content },
+      ]);
+      editor.setTextCursorPosition("block-1", "end");
+
+      pressSelectAll(editor);
+      pressSelectAll(editor);
+
+      const { selection, doc } = editor.prosemirrorState;
+      expect(selection.content().content.eq(doc.firstChild!.content)).toBe(
+        true,
+      );
+      editor.unmount();
+    },
+  );
+
+  it("clears the whole block after select-all expands in a single-block document", () => {
     const editor = createSelectAllEditor([
       { type: "checkListItem", content: "Only" },
     ]);
@@ -445,15 +465,12 @@ describe("KeyboardShortcutsExtension Mod-a (select all)", () => {
 
     pressSelectAll(editor);
     expectBlockContentSelected(editor, "block-0");
-
     pressSelectAll(editor);
     expectWholeDocSelected(editor);
 
-    // A single block can only ever have its content selected, so Backspace
-    // clears the content but (correctly) leaves the block type unchanged.
     pressBackspace(editor);
     expect(editor.document).toEqual([
-      expect.objectContaining({ type: "checkListItem", content: [] }),
+      expect.objectContaining({ type: "paragraph", content: [] }),
     ]);
 
     editor._tiptapEditor.destroy();

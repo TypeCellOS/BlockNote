@@ -39,6 +39,7 @@ import {
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 import { FilePanelExtension } from "../../FilePanel/FilePanel.js";
 import { FormattingToolbarExtension } from "../../FormattingToolbar/FormattingToolbar.js";
+import { MultipleNodeSelection } from "../../SideMenu/MultipleNodeSelection.js";
 
 // Move a block across a layout block boundary, repair its former ancestors, and
 // map the caret through any repairs that change the insertion position.
@@ -1056,12 +1057,12 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
         // By default, the first `Mod-a` selects the current block's content,
         // and any subsequent `Mod-a` expands the selection to the whole
-        // document. We use `TextSelection`s rather than an `AllSelection` for the
-        // whole-document case as the latter creates from/to positions outside a
-        // block, causing errors when calling e.g. `getBlock`.
-        const wholeDocSelection = TextSelection.between(
-          Selection.atStart(doc).$from,
-          Selection.atEnd(doc).$to,
+        // document. Keep the selection inside the root block group rather than
+        // using an `AllSelection`, whose endpoints sit outside the blocks.
+        const wholeDocSelection = MultipleNodeSelection.create(
+          doc,
+          1,
+          doc.content.size - 1,
         );
 
         if (this.options.selectAllBehavior === "document") {
