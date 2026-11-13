@@ -85,6 +85,7 @@ done
 # The test files and browser config (callers iterate on these too).
 mounts+=(
   -v "$PWD/tests/src:/work/tests/src"
+  -v "$PWD/tests/public:/work/tests/public"
   -v "$PWD/tests/vite.config.browser.ts:/work/tests/vite.config.browser.ts"
   -v "$PWD/tests/vitestSetup.browser.ts:/work/tests/vitestSetup.browser.ts"
 )

@@ -3,6 +3,14 @@ import * as fs from "fs";
 import * as path from "path";
 import { configDefaults, defineConfig, type UserConfig } from "vite-plus";
 import { playwright } from "vite-plus/test/browser/providers/playwright";
+import {
+  readAriaSnapshot,
+  readOutline,
+  checkFocusOutline,
+  readSelection,
+  checkAxe,
+} from "./src/utils/accessibility.js";
+import { pressKey } from "./src/utils/keyboard.js";
 import { positionalMouse } from "./src/utils/positionalMouse.js";
 import { imeComposition } from "./src/utils/imeComposition.js";
 
@@ -20,6 +28,7 @@ const DESKTOP_EXCLUDE = [
   ...configDefaults.exclude,
   ...CI_EXCLUDE,
   "**/end-to-end/mobile/**",
+  "../packages/*/src/**/*.screen-reader.test.ts",
 ];
 import { restoreTouchEmulation } from "./src/utils/restoreTouchEmulation.js";
 
@@ -83,6 +92,7 @@ export default defineConfig(
       // render unstyled because their utility classes don't exist.
       plugins: [tailwindcss()],
       resolve: {
+        dedupe: ["react", "react-dom", "vitest-browser-react"],
         // Mount example apps via `@examples/<group>/<name>/src/App`. The examples
         // live outside the tests root, but vite-plus already allows serving the
         // workspace root, so only this runtime alias is needed. The matching
@@ -90,6 +100,7 @@ export default defineConfig(
         // src/examples.d.ts.
         alias: {
           ...blockNoteSrcAliases,
+          "@root": path.resolve(__dirname, ".."),
           // The shared test-utils package lives at the repo root (not under
           // packages/), so it isn't picked up by the packages scan above.
           // All consumers - test code and example apps alike - import it via
@@ -107,13 +118,17 @@ export default defineConfig(
         // Besides the end-to-end tests, this suite also runs the packages'
         // `.browser.test` files: unit tests for browser-only implementations
         // (canvas rasterization, diagram rendering), colocated with the code
-        // they test but needing a real browser. The packages' own (node)
-        // vitest configs exclude them.
+        // they test but needing a real browser. Native screen-reader tests use
+        // their own runner. The packages' node configs exclude browser tests.
         include: [
           "./src/end-to-end/**/*.test.tsx",
           "../packages/*/src/**/*.browser.test.{ts,tsx}",
         ],
-        exclude: [...configDefaults.exclude, ...CI_EXCLUDE],
+        exclude: [
+          ...configDefaults.exclude,
+          ...CI_EXCLUDE,
+          "../packages/*/src/**/*.screen-reader.test.ts",
+        ],
 
         setupFiles: ["./vitestSetup.browser.ts"],
         // Running three browsers concurrently inside one Docker container already
@@ -165,7 +180,17 @@ export default defineConfig(
           // still show in the HTML report (errors + stack traces don't depend
           // on these shots), so disable them. See `e2e:report` to view.
           screenshotFailures: false,
-          commands: { positionalMouse, imeComposition, restoreTouchEmulation },
+          commands: {
+            positionalMouse,
+            imeComposition,
+            restoreTouchEmulation,
+            readAriaSnapshot,
+            readOutline,
+            checkFocusOutline,
+            readSelection,
+            checkAxe,
+            pressKey,
+          },
           instances: [
             {
               browser: "chromium",

@@ -1,6 +1,5 @@
 import { afterEach, describe, expect, test } from "vite-plus/test";
 import { browserName, commands, userEvent } from "../../utils/context.js";
-import type { ImeCompositionCommand } from "../../utils/imeComposition.js";
 
 /**
  * Why the popover forms need no composition guard.
@@ -21,10 +20,6 @@ import type { ImeCompositionCommand } from "../../utils/imeComposition.js";
  * betting that every IME fires `compositionend` before the submit it
  * triggers, or a Gboard-style single-press commit-and-submit gets swallowed.
  */
-
-const browserCommands = commands as typeof commands & {
-  imeComposition: ImeCompositionCommand;
-};
 
 // `Input.imeSetComposition` is CDP-only. Firefox and WebKit have no equivalent
 // in their automation protocols, so real composition state can't be entered
@@ -76,7 +71,7 @@ describeIme("IME composition and form submission", () => {
     const { input, submits, compositions } = buildForm();
     input.focus();
 
-    await browserCommands.imeComposition([
+    await commands.imeComposition([
       { type: "setComposition", text: "にほん" },
       { type: "commit", text: "日本" },
     ]);
@@ -95,7 +90,7 @@ describeIme("IME composition and form submission", () => {
     const { input, submits } = buildForm();
     input.focus();
 
-    await browserCommands.imeComposition([
+    await commands.imeComposition([
       { type: "setComposition", text: "にほん" },
       { type: "commit", text: "日本" },
     ]);

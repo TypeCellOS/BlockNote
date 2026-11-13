@@ -22,5 +22,6 @@
     "skipLibCheck": true,
     "noErrorTruncation": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["src/**/*.browser.test.*", "src/**/*.screen-reader.test.ts"]
 }

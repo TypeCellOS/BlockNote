@@ -28,8 +28,8 @@ export type MouseAction =
 /**
  * Browser-side signature of the {@link positionalMouse} command below, i.e. what
  * `BrowserCommand<MouseAction[]>` turns into once Vitest strips the (Node-only)
- * `BrowserCommandContext` first parameter. Used by `mouse.ts` to type the
- * command on the browser `commands` object — see the note there on why this
+ * `BrowserCommandContext` first parameter. Used by `context.ts` to type the
+ * shared browser `commands` object — see the note there on why this
  * can't be a `declare module` augmentation.
  */
 export type PositionalMouseCommand = (

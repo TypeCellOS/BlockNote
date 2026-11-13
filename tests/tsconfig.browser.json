@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ESNext", "DOM"],
+    "jsx": "react-jsx",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "types": ["node", "vite-plus/client"],
+    "paths": {
+      "@root/*": ["../*"],
+      "@shared/*": ["../shared/*"],
+      "@blocknote/mantine": ["./node_modules/@blocknote/mantine"],
+      "@blocknote/react": ["./node_modules/@blocknote/react"],
+      "react": ["./node_modules/@types/react/index.d.ts"],
+      "vitest-browser-react": ["./node_modules/vitest-browser-react"],
+      "react/jsx-runtime": ["./node_modules/@types/react/jsx-runtime.d.ts"]
+    }
+  },
+  "include": [
+    "src/utils/**/*.ts",
+    "src/utils/**/*.tsx",
+    "screen-reader/**/*.ts",
+    "vitestSetup.browser.ts",
+    "../packages/*/src/**/*.browser.test.*",
+    "../packages/*/src/**/*.screen-reader.test.ts"
+  ]
+}
