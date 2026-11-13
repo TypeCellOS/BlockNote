@@ -60,7 +60,7 @@ export default Component;`,
 
 const templatePageForExample = (project: Project) => `---
 title: ${project.title}
-author: ${project.config.author}
+author: ${JSON.stringify(project.config.author)}
 ---
 
 ${project.readme}

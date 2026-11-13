@@ -1415,7 +1415,7 @@ export const examples = {
         config: {
           playground: true,
           docs: true,
-          author: "nickthesick",
+          author: "nperez0111",
           tags: [
             "Intermediate",
             "Blocks",
@@ -1522,7 +1522,7 @@ export const examples = {
         config: {
           playground: true,
           docs: true,
-          author: "nickthesick",
+          author: "nperez0111",
           tags: ["Intermediate", "Blocks", "Custom Schemas"],
           dependencies: {
             "@mantine/core": "^9.0.2",
@@ -1985,7 +1985,7 @@ export const examples = {
         config: {
           playground: true,
           docs: true,
-          author: "",
+          author: "nperez0111",
           tags: ["Advanced", "Saving/Loading", "Collaboration"],
           dependencies: {
             "@y/prosemirror": "^2.0.0-15",
@@ -2052,6 +2052,28 @@ export const examples = {
         },
         readme:
           'This example shows how to use `InMemoryVersioningExtension` without a collaboration layer. It seeds history with ProseMirror document JSON, which the extension converts to immutable documents using the editor\'s schema. `initialVersions` also accepts BlockNote JSON as arrays of partial blocks.\n\nThe sidebar opens on a document with a few versions already in its history, including an automatic unnamed version, so you can preview them, compare them, rename them, restore them, and try the named-only filter right away. The editor is read-only while the sidebar is open: close it to edit the document, then reopen it with the "History" button.',
+      },
+      {
+        projectSlug: "search-and-replace",
+        fullSlug: "extensions/search-and-replace",
+        pathFromRoot: "examples/08-extensions/03-search-and-replace",
+        config: {
+          playground: true,
+          docs: true,
+          author: "nperez0111",
+          tags: ["Extension", "UI Components"],
+          dependencies: {
+            "@mantine/core": "^9.0.2",
+          } as any,
+          pro: false,
+        },
+        title: "Search and Replace",
+        group: {
+          pathFromRoot: "examples/08-extensions",
+          slug: "extensions",
+        },
+        readme:
+          '`SearchAndReplaceExtension` adds search, match navigation, and replacement to your editor. It is opt-in and is not registered in the default editor. UI is deliberately left to consumers: the only implemented UI is the Mantine component in this example, which you can copy or adapt to your preferences.\n\n**Try it out:** Click Find or press Cmd/Ctrl+F inside the editor, search for `fox`, and expand Replace to change one match or all matches.\n\n## Usage\n\nInstall the extension when creating your editor, then use its methods to drive your own controls:\n\n```ts\nimport { BlockNoteEditor } from "@blocknote/core";\nimport { SearchAndReplaceExtension } from "@blocknote/core/extensions";\n\nconst editor = BlockNoteEditor.create({\n  extensions: [SearchAndReplaceExtension()],\n});\nconst search = editor.getExtension(SearchAndReplaceExtension)!;\n\nsearch.setQuery({ searchTerm: "fox" });\nsearch.nextMatch();\nsearch.replace("wolf");\nsearch.replaceAll("wolf");\nsearch.clearSearch();\n```\n\nFor the example UI, copy `SearchAndReplace.tsx` and `style.css`, then wrap your `BlockNoteView` with `<SearchAndReplace editor={editor}>` as shown in `App.tsx`.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Extensions](/docs/features/extensions)',
       },
     ],
   },
