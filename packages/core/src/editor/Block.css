@@ -1142,11 +1142,17 @@ NESTED BLOCKS
 .bn-block-column-list {
   display: flex;
   flex-direction: row;
+  --bn-column-border-offset: 4px;
+}
+
+.bn-block-column-list:dir(rtl) {
+  --bn-column-border-offset: -4px;
 }
 
 .bn-block-column {
   flex: 1;
-  padding: 12px 15px 12px 25px;
+  padding-block: 12px;
+  padding-inline: 25px 15px;
   /* scroll if we overflow, for example when tables or images are in the column */
   overflow-x: auto;
   /* Lets the trailing block widget grow to fill the column's leftover height
@@ -1163,14 +1169,15 @@ passes through the column list. */
 .bn-editor[contenteditable="true"]
   .bn-column-list-hovered
   > .bn-block-column:not(:last-child) {
-  box-shadow: 4px 0 0 var(--bn-column-border-color, #eee);
+  box-shadow: var(--bn-column-border-offset) 0 0 var(--bn-column-border-color, #eee);
   transition: box-shadow 0.2s ease 0.2s;
 }
 
 .bn-editor[contenteditable="true"]
   .bn-column-list-hovered
   > .bn-block-column:not(:last-child):where(.dark, .dark *) {
-  box-shadow: 4px 0 0 var(--bn-column-border-color, rgb(70, 70, 70));
+  box-shadow: var(--bn-column-border-offset) 0 0
+    var(--bn-column-border-color, rgb(70, 70, 70));
 }
 
 /* The border between two columns when the cursor is near their boundary or
@@ -1179,7 +1186,8 @@ managed by the multi-column package's column resize plugin. */
 .bn-editor[contenteditable="true"]
   .bn-column-list-hovered
   > .bn-block-column.bn-column-resize-border {
-  box-shadow: 4px 0 0 var(--bn-column-resize-color, #ccc);
+  box-shadow: var(--bn-column-border-offset) 0 0
+    var(--bn-column-resize-color, #ccc);
   cursor: col-resize;
   transition: box-shadow 0.2s ease;
 }
@@ -1187,7 +1195,8 @@ managed by the multi-column package's column resize plugin. */
 .bn-editor[contenteditable="true"]
   .bn-column-list-hovered
   > .bn-block-column.bn-column-resize-border:where(.dark, .dark *) {
-  box-shadow: 4px 0 0 var(--bn-column-resize-color, rgb(110, 110, 110));
+  box-shadow: var(--bn-column-border-offset) 0 0
+    var(--bn-column-resize-color, rgb(110, 110, 110));
 }
 
 .bn-editor[contenteditable="true"]
@@ -1202,11 +1211,11 @@ managed by the multi-column package's column resize plugin. */
 }
 
 .bn-block-column:first-child {
-  padding-left: 0;
+  padding-inline-start: 0;
 }
 
 .bn-block-column:last-child {
-  padding-right: 0;
+  padding-inline-end: 0;
 }
 
 .bn-thread-mark:not([data-orphan="true"]) {

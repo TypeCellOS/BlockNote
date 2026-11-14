@@ -68,6 +68,14 @@ export function createMultiColumnHandleDropPlugin(
           return false; // Let ProseMirror handle regular drops
         }
 
+        // The guide uses physical edges; column order follows the layout's
+        // direction, so the same edge inserts on the opposite side in RTL.
+        const targetDOM = view.nodeDOM(edgePos.posBeforeNode);
+        const rtl =
+          getComputedStyle(targetDOM instanceof Element ? targetDOM : view.dom)
+            .direction === "rtl";
+        const insertBefore = (edgePos.position === "left") !== rtl;
+
         // `fragmentToBlocks` instead of converting the fragment's children
         // directly, as multi-block selections can produce fragments where the
         // blocks are nested in e.g. a `blockGroup` node.
@@ -182,8 +190,7 @@ export function createMultiColumnHandleDropPlugin(
               "The drop target column is not a column of its column list.",
             );
           }
-          const boundary =
-            originalTargetIndex + (edgePos.position === "right" ? 1 : 0);
+          const boundary = originalTargetIndex + (insertBefore ? 0 : 1);
           const insertionIndex = remainingColumns
             .slice(0, boundary)
             .filter((column) => column.children.length > 0).length;
@@ -233,10 +240,9 @@ export function createMultiColumnHandleDropPlugin(
             return true;
           }
 
-          const columns =
-            edgePos.position === "left"
-              ? [draggedBlocks, [block]]
-              : [[block], draggedBlocks];
+          const columns = insertBefore
+            ? [draggedBlocks, [block]]
+            : [[block], draggedBlocks];
 
           editor.transact(() => {
             const blocksToRemove = draggedBlocks.filter((draggedBlock) =>
