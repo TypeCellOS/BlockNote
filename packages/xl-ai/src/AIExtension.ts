@@ -382,9 +382,25 @@ export const AIExtension = createExtension(
        * Execute a call to an LLM and apply the result to the editor
        */
       async invokeAI(opts: InvokeAIOptions) {
+        // Calls that start with the menu open keep today's behavior: the error
+        // is stored for the menu and the promise resolves. Programmatic calls
+        // leave the menu closed, and `setAIResponseStatus` drops that update,
+        // so reject instead — otherwise failure looks like success.
+        const invokedWhileMenuClosed = store.state.aiMenuState === "closed";
         this.setAIResponseStatus("thinking");
         // If in collaboration mode, fork the yDoc to allow modifications without affecting the remote
         editor.getExtension<typeof ForkYDocExtension>("yForkDoc")?.fork();
+
+        let closedMenuFailure: { error: unknown } | undefined;
+        const reportError = (error: unknown) => {
+          this.setAIResponseStatus({
+            status: "error",
+            error,
+          });
+          if (invokedWhileMenuClosed) {
+            closedMenuFailure = { error };
+          }
+        };
 
         try {
           // Create a new AbortController for this request
@@ -505,22 +521,20 @@ export const AIExtension = createExtension(
               chatStatus: chat.status,
               chatError: chat.error,
             });
-            this.setAIResponseStatus({
-              status: "error",
-              error: result.ok ? chat.error : result.error,
-            });
+            reportError(result.ok ? chat.error : result.error);
           }
         } catch (e) {
-          this.setAIResponseStatus({
-            status: "error",
-            error: e,
-          });
+          reportError(e);
           // eslint-disable-next-line no-console
           console.error(
             "Unexpected error calling LLM",
             e,
             chatSession?.chat.messages,
           );
+        }
+
+        if (closedMenuFailure) {
+          throw closedMenuFailure.error;
         }
       },
     };
