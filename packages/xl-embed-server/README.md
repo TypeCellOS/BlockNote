@@ -85,8 +85,10 @@ GET /oembed?url=https%3A%2F%2Fexample.com%2Farticle&format=json&maxwidth=600
   Unexpected exceptions still propagate to the application's reporting boundary.
 
 Optional `description`, `image_url` and `icon_url` extensions carry metadata.
-Image/icon URLs retain their HTTP(S) scheme and resolve relative to the final
-document base; no asset fetching, HTTPS guessing or external favicon lookup occurs.
+Image/icon URLs extracted from page metadata retain their HTTP(S) scheme and
+resolve relative to the final document base. Provider-supplied image/icon URLs
+are returned as received, without document-base resolution. No asset fetching,
+HTTPS guessing or external favicon lookup occurs.
 Returned data and HTML are untrusted and never executed. Consumers validate
 display URLs and own safe rendering, iframe policies and image proxy/signing.
 The frontend applies its own rendering limits; this server does not duplicate
