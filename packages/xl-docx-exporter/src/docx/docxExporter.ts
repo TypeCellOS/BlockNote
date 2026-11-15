@@ -41,7 +41,12 @@ import {
 // get constructor arg type from Document
 type DocumentOptions = Partial<ConstructorParameters<typeof Document>[0]>;
 type ListType = "bulletListItem" | "numberedListItem";
-type ListDefinition = { type: ListType; levels: Map<number, ListType> };
+type ListDefinition = {
+  type: ListType;
+  levels: Map<number, ListType>;
+  // The number each numbered level starts at, for levels that don't start at 1.
+  starts: Map<number, number>;
+};
 
 const sharedNumberingMappings = new Set<object>([
   docxBlockMappingForDefaultSchema.bulletListItem,
@@ -182,6 +187,12 @@ export class DOCXExporter<
         );
         if (type !== runListType) {
           const level = clampListLevel(nestingLevel);
+          // Like in the editor, the first item of a numbered list sets the
+          // number it starts at, and a start of 0 counts as 1.
+          const start =
+            type === "numberedListItem"
+              ? (b.props as { start?: number }).start || 1
+              : 1;
           const parent =
             parentInstance === undefined
               ? undefined
@@ -192,10 +203,17 @@ export class DOCXExporter<
             sharesNumbering &&
             parent &&
             nestingLevel < DOCX_LIST_LEVEL_COUNT &&
-            (parentType === undefined || parentType === type)
+            (parentType === undefined ||
+              // A level has one start number, so a run that starts at another
+              // number needs its own definition.
+              (parentType === type &&
+                (parent.starts.get(level) ?? 1) === start))
           ) {
             runInstance = parentInstance;
             parent.levels.set(level, type);
+            if (start !== 1) {
+              parent.starts.set(level, start);
+            }
           } else {
             // Entries are never removed during an export, so the size gives
             // each independent list a fresh instance without shared state.
@@ -203,6 +221,7 @@ export class DOCXExporter<
             listDefinitions.set(runInstance, {
               type,
               levels: new Map([[level, type]]),
+              starts: new Map(start === 1 ? [] : [[level, start]]),
             });
           }
           parentInstance = undefined;
@@ -328,11 +347,15 @@ export class DOCXExporter<
     // depend on Symbol/Wingdings being installed.
     const bullets = ["•", "○", "▪"];
     /** Builds all supported levels, using the run's type for unused levels. */
-    function listLevels(type: ListType, levels = new Map<number, ListType>()) {
+    function listLevels(
+      type: ListType,
+      levels = new Map<number, ListType>(),
+      starts = new Map<number, number>(),
+    ) {
       return Array.from({ length: DOCX_LIST_LEVEL_COUNT }, (_, i) => {
         const bullet = (levels.get(i) ?? type) === "bulletListItem";
         return {
-          start: 1,
+          start: starts.get(i) ?? 1,
           level: i,
           format: bullet ? LevelFormat.BULLET : LevelFormat.DECIMAL,
           text: bullet ? bullets[i % bullets.length] : `%${i + 1}.`,
@@ -361,7 +384,11 @@ export class DOCXExporter<
           },
           ...Array.from(listDefinitions, ([instance, definition]) => ({
             reference: listReference(instance),
-            levels: listLevels(definition.type, definition.levels),
+            levels: listLevels(
+              definition.type,
+              definition.levels,
+              definition.starts,
+            ),
           })),
         ],
       },

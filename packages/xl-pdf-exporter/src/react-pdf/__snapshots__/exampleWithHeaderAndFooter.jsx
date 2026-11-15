@@ -608,7 +608,7 @@
           textAlign: 'left'
         }}
       >
-        <ListItem listMarker="1.">
+        <ListItem listMarker="5.">
           <TEXT>
             <TEXT style={{}}>
               Numbered List Item starting at 5
@@ -627,7 +627,7 @@
           textAlign: 'left'
         }}
       >
-        <ListItem listMarker="2.">
+        <ListItem listMarker="6.">
           <TEXT>
             <TEXT style={{}}>
               Numbered List Item 6
