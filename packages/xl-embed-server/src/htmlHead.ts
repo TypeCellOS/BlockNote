@@ -2,6 +2,7 @@ import { Parser } from "htmlparser2";
 
 export type HtmlHead = {
   title?: string;
+  baseHref?: string;
   meta: Record<string, string>[];
   links: Record<string, string>[];
 };
@@ -31,6 +32,9 @@ export function createHeadCollector() {
         head.meta.push(attributes);
       } else if (name === "link") {
         head.links.push(attributes);
+      } else if (name === "base" && head.baseHref === undefined) {
+        // Preserve even an empty/invalid first href; later bases cannot replace it.
+        head.baseHref = attributes.href;
       } else if (name === "title" && head.title === undefined) {
         title = "";
       }

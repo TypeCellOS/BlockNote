@@ -12,6 +12,12 @@ describe("source URLs", () => {
     "https://user:pass@example.org",
     "https://a.org https://b.org",
     "not a URL",
+    "https:example.org",
+    "https:/example.org",
+    "https:///example.org",
+    "https:////example.org",
+    "https://\\example.org",
+    "https://example.org/\u0000",
   ])("rejects %s", (input) => {
     expect(parseSourceUrl(input)).toBeUndefined();
   });

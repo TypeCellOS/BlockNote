@@ -27,7 +27,9 @@ not Node APIs. Bundled dependency notices are in `THIRD-PARTY-LICENSES`.
 1. Fetch the submitted HTTP(S) source unchanged, including its existing query.
 2. For JSON, recognize usable oEmbed media and copy its known fields.
 3. For HTML, inspect the head for JSON oEmbed `<link rel="alternate">` discovery.
-   Resolve relative endpoints against the final fetched page. Add `format=json`
+   Resolve relative endpoints against the first `<base href>` (falling back to
+   the final fetched page URL if absent or unusable). Ignore unusable discovery
+   links and continue to the first usable endpoint. Add `format=json`
    and requested dimension hints; add `url` with the submitted source only when
    the discovery link does not already declare it.
 4. Return the provider response when usable, filling missing title, description,
@@ -84,7 +86,7 @@ GET /oembed?url=https%3A%2F%2Fexample.com%2Farticle&format=json&maxwidth=600
 
 Optional `description`, `image_url` and `icon_url` extensions carry metadata.
 Image/icon URLs retain their HTTP(S) scheme and resolve relative to the final
-page; no asset fetching, HTTPS guessing or external favicon lookup occurs.
+document base; no asset fetching, HTTPS guessing or external favicon lookup occurs.
 Returned data and HTML are untrusted and never executed. Consumers validate
 display URLs and own safe rendering, iframe policies and image proxy/signing.
 The frontend applies its own rendering limits; this server does not duplicate

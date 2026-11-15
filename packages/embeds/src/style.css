@@ -108,10 +108,6 @@
   max-height: calc(100dvh - 16px);
   overflow-y: auto;
 }
-.bn-embed-paste-panel [aria-disabled="true"] {
-  opacity: 0.4;
-  pointer-events: none;
-}
 @media (hover: none) {
   .bn-embed-controls {
     opacity: 1;

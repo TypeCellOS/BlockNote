@@ -87,7 +87,7 @@ describe("resolver operation boundary", () => {
       })
       .mockResolvedValueOnce(
         new Response(
-          '<link rel=alternate type="application/json+oembed" href="http://127.0.0.1/oembed">',
+          '<base href="http://127.0.0.1/"><link rel=alternate type="application/json+oembed" href="oembed">',
           { headers: { "Content-Type": "text/html" } },
         ),
       );

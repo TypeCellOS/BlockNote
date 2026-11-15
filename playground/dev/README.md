@@ -2,8 +2,8 @@
 
 The playground Vite dev server mounts `/__embeds/oembed` and injects
 `import.meta.env.BLOCKNOTE_EMBED_DEMO_ENDPOINT`. Production builds, preview,
-and standalone examples do not enable it. Restart the playground after installing
-the dev dependencies or rebuilding `@blocknote/xl-embed-server`.
+and standalone examples do not enable it. The resolver loads from local source,
+so config loading does not require a prebuilt `@blocknote/xl-embed-server` entry.
 
 This is a local development tool, not a deployable public proxy. It accepts only
 loopback clients using a localhost/loopback Host matching the server port, a

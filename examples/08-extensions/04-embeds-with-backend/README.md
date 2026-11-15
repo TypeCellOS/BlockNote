@@ -1,6 +1,6 @@
 # Embeds with a backend
 
-The same minimal paste-and-choose flow as [the browser-only example](../03-embeds-without-backend), with a standard oEmbed endpoint for saved bookmark metadata and optional live generic previews. No request starts until Bookmark or Embed is chosen.
+The same minimal paste-and-choose flow as [the browser-only example](https://playground.blocknotejs.org/extensions/embeds-without-backend), with a standard oEmbed endpoint for saved bookmark metadata and optional live generic previews. No request starts until Bookmark or Embed is chosen.
 
 Run the playground and open `/extensions/embeds-with-backend`; its existing local-development resolver is connected automatically. For a standalone app, set `VITE_OEMBED_URL=https://your-app.example/oembed` in the serving Vite application's `.env.local` and restart it. Without an endpoint, direct providers and useful URL-only fallbacks still work.
 

@@ -32,6 +32,7 @@
     { "path": "../packages/xl-ai/" },
     { "path": "../packages/core/" },
     { "path": "../packages/react/" },
+    { "path": "../packages/xl-embed-server/" },
     { "path": "../packages/ariakit/" },
     { "path": "../packages/mantine/" },
     { "path": "../packages/shadcn/" },

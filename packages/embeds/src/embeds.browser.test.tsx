@@ -7,6 +7,7 @@ import {
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { createRoot, type Root } from "react-dom/client";
+import { Component, type ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import { page, userEvent } from "vite-plus/test/browser";
 import {
@@ -55,15 +56,37 @@ let root: Root | undefined;
 let host: HTMLElement | undefined;
 let editorToDestroy: TestEditor | undefined;
 
+class TestErrorBoundary extends Component<
+  { children: ReactNode; onError: (error: unknown) => void },
+  { failed: boolean }
+> {
+  state = { failed: false };
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  componentDidCatch(error: Error) {
+    this.props.onError(error);
+  }
+  render() {
+    return this.state.failed ? (
+      <div role="alert">Embed rendering failed.</div>
+    ) : (
+      this.props.children
+    );
+  }
+}
+
 function deferred<T>() {
   let finish!: (value: ResolveResult<T>) => void;
-  const promise = new Promise<ResolveResult<T>>((resolve) => {
+  let fail!: (error: unknown) => void;
+  const promise = new Promise<ResolveResult<T>>((resolve, reject) => {
     finish = resolve;
+    fail = reject;
   });
   const resolve = vi.fn(
     (_url: string, _options: { signal: AbortSignal }) => promise,
   );
-  return { finish, resolve };
+  return { finish, fail, resolve };
 }
 async function mount(
   embeds: EmbedsOptions,
@@ -71,6 +94,12 @@ async function mount(
     pasteHandler?: PasteHandler;
     chooser?: boolean;
     theme?: "light" | "dark";
+    links?: BlockNoteEditorOptions<
+      typeof schema.blockSchema,
+      typeof schema.inlineContentSchema,
+      typeof schema.styleSchema
+    >["links"];
+    onError?: (error: unknown) => void;
   } = {},
 ) {
   const editor = BlockNoteEditor.create(
@@ -78,6 +107,7 @@ async function mount(
       schema,
       embeds,
       pasteHandler: config.pasteHandler,
+      links: config.links,
       initialContent: [{ id: "target", type: "paragraph" }],
     }),
   );
@@ -86,10 +116,17 @@ async function mount(
   document.body.append(host);
   root = createRoot(host);
   function render(theme = config.theme) {
-    root?.render(
+    const view = (
       <BlockNoteView editor={editor} theme={theme}>
         {config.chooser !== false && <PasteChoice />}
-      </BlockNoteView>,
+      </BlockNoteView>
+    );
+    root?.render(
+      config.onError ? (
+        <TestErrorBoundary onError={config.onError}>{view}</TestErrorBoundary>
+      ) : (
+        view
+      ),
     );
   }
   render();
@@ -705,7 +742,9 @@ describe("live rendering boundaries", () => {
     expect(decodeHeight).not.toHaveBeenCalled();
   });
   it("keeps Bluesky aligned with runtime editor theme and transparent light canvas without reloading data", async () => {
-    const fetch = vi.fn(async () => Response.json({ did: "did:plc:abc123" }));
+    const fetch = vi.fn(async () =>
+      Response.json({ did: "did:plc:ewvi7nxzyoun6zhxrhs64oiz" }),
+    );
     vi.stubGlobal("fetch", fetch);
     const { editor, extension, render } = await mount(
       { providers: [blueskyProvider] },
@@ -738,4 +777,204 @@ describe("live rendering boundaries", () => {
       providerId: "bluesky",
     });
   });
+});
+
+describe("PR3349 client review regressions", () => {
+  it("delegates HTML URLs separated by a br instead of merging their text", async () => {
+    const caller = vi.fn<NonNullable<PasteHandler>>(({ editor }) => {
+      editor.insertInlineContent("Caller kept both URLs");
+      return true;
+    });
+    const { editor } = await mount({ providers: [] }, { pasteHandler: caller });
+    paste(editor, {
+      "text/html": "https://one.example/<br>https://two.example/",
+    });
+    expect(caller).toHaveBeenCalledTimes(1);
+    expect(editor.getBlock("target")?.content).toEqual([
+      { type: "text", text: "Caller kept both URLs", styles: {} },
+    ]);
+    await expect
+      .element(page.getByRole("combobox", { name: "Paste as" }))
+      .not.toBeInTheDocument();
+  });
+  it("omits unavailable Embed options and keeps rendered and keyboard choices aligned", async () => {
+    const { editor } = await mount({ providers: [] });
+    paste(editor, URL);
+    await expect.element(choice("Bookmark")).toBeVisible();
+    await expect.element(choice("Embed")).not.toBeInTheDocument();
+    await userEvent.keyboard("{End}{Enter}");
+    await vi.waitFor(() =>
+      expect(editor.getBlock("target")?.type).toBe("bookmark"),
+    );
+  });
+  it("honors configured link validation before inserting or offering paste choices", async () => {
+    const isValidLink = vi.fn(() => false);
+    const { editor } = await mount(
+      { providers: [] },
+      { links: { isValidLink } },
+    );
+    paste(editor, URL);
+    expect(isValidLink).toHaveBeenCalledWith(URL);
+    expect(editor.getBlock("target")?.content).toEqual([
+      { type: "text", text: URL, styles: {} },
+    ]);
+    await expect
+      .element(page.getByRole("combobox", { name: "Paste as" }))
+      .not.toBeInTheDocument();
+  });
+  it.each(["direct", "resolved"] as const)(
+    "accepts supported did:web identities via the %s path",
+    async (mode) => {
+      const did = "did:web:user.example.com";
+      const fetch = vi.fn(async () => Response.json({ did }));
+      vi.stubGlobal("fetch", fetch);
+      const { extension } = await mount({ providers: [blueskyProvider] });
+      extension.insertEmbed(
+        `https://bsky.app/profile/${mode === "direct" ? did : "user.example.com"}/post/3kktuiwidw22d`,
+      );
+      await vi.waitFor(() =>
+        expect(
+          document.querySelector('iframe[title="Bluesky post"]'),
+        ).not.toBeNull(),
+      );
+      expect(document.querySelector("iframe")?.getAttribute("src")).toBe(
+        `https://embed.bsky.app/embed/${did}/app.bsky.feed.post/3kktuiwidw22d?colorMode=light`,
+      );
+      expect(fetch).toHaveBeenCalledTimes(mode === "direct" ? 0 : 1);
+    },
+  );
+  it.each([
+    "did:web:-bad.example.com",
+    "did:web:user.example.com:path",
+    "did:other:user.example.com",
+    "did:plc:abc123",
+  ])("rejects malformed or unsupported resolved identity %s", async (did) => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => Response.json({ did })),
+    );
+    const { extension } = await mount({ providers: [blueskyProvider] });
+    extension.insertEmbed(
+      "https://bsky.app/profile/user.example.com/post/3kktuiwidw22d",
+    );
+    await vi.waitFor(() =>
+      expect(host?.textContent).toContain("Preview unavailable"),
+    );
+    expect(document.querySelector("iframe")).toBeNull();
+  });
+  it("rejects ambiguous sources at both iframe sinks despite base-less approval looking cross-origin", async () => {
+    const ambiguous = "https:player.example/video";
+    expect(new globalThis.URL(ambiguous).origin).toBe("https://player.example");
+    const doc = document.implementation.createHTMLDocument();
+    const base = doc.createElement("base");
+    base.href = "https://app.example/editor/";
+    doc.head.append(base);
+    const nativeFrame = doc.createElement("iframe");
+    nativeFrame.setAttribute("src", ambiguous);
+    expect(nativeFrame.src).toBe(
+      "https://app.example/editor/player.example/video",
+    );
+    const { extension } = await mount({
+      providers: [
+        createOEmbedProvider({
+          approvedIframeOrigins: ["https://player.example"],
+          resolve: async () => ({
+            status: "success",
+            value: {
+              type: "rich",
+              version: "1.0",
+              width: 640,
+              height: 480,
+              title: "Ambiguous frame",
+              html: `<iframe src="${ambiguous}"></iframe>`,
+            },
+          }),
+        }),
+      ],
+    });
+    extension.insertEmbed(URL);
+    await vi.waitFor(() =>
+      expect(host?.querySelector("a")?.textContent).toBe("Ambiguous frame"),
+    );
+    expect(host?.querySelector("iframe")).toBeNull();
+    root?.render(<SafeIframe src={ambiguous} title="Direct ambiguous frame" />);
+    await vi.waitFor(() =>
+      expect(host?.querySelector(".bn-editor")).toBeNull(),
+    );
+    expect(host?.querySelector("iframe")).toBeNull();
+  });
+  it.each(["reject", "throw"] as const)(
+    "surfaces unexpected resolver %s through the app error boundary, without displaying its message",
+    async (mode) => {
+      const error = new Error("Private resolver internals");
+      const onError = vi.fn();
+      const request = deferred<OEmbedResponse>();
+      const resolve =
+        mode === "throw"
+          ? () => {
+              throw error;
+            }
+          : request.resolve;
+      const { extension } = await mount(
+        { providers: [createOEmbedProvider({ resolve })] },
+        { onError },
+      );
+      extension.insertEmbed(URL);
+      if (mode === "reject") {
+        await vi.waitFor(() =>
+          expect(request.resolve).toHaveBeenCalledTimes(1),
+        );
+        request.fail(error);
+      }
+      await vi.waitFor(() =>
+        expect(host?.querySelector('[role="alert"]')?.textContent).toBe(
+          "Embed rendering failed.",
+        ),
+      );
+      expect(onError).toHaveBeenCalledWith(error);
+      expect(host?.textContent).not.toContain(error.message);
+      expect(host?.textContent).not.toContain("Preview unavailable");
+    },
+  );
+  it.each(["supersession", "unmount"] as const)(
+    "ignores resolver rejection after %s without an unhandled rejection",
+    async (reason) => {
+      const first = deferred<OEmbedResponse>();
+      const second = deferred<OEmbedResponse>();
+      const onError = vi.fn();
+      const resolve = (url: string, options: { signal: AbortSignal }) =>
+        url === URL
+          ? first.resolve(url, options)
+          : second.resolve(url, options);
+      const { extension } = await mount(
+        { providers: [createOEmbedProvider({ resolve })] },
+        { onError },
+      );
+      extension.insertEmbed(URL);
+      await vi.waitFor(() => expect(first.resolve).toHaveBeenCalledTimes(1));
+      if (reason === "unmount") {
+        root?.unmount();
+        root = undefined;
+        expect(first.resolve.mock.calls[0][1].signal.aborted).toBe(true);
+        first.fail(new DOMException("Aborted", "AbortError"));
+        await vi.waitFor(() =>
+          expect(host?.querySelector(".bn-editor")).toBeNull(),
+        );
+        expect(onError).not.toHaveBeenCalled();
+        return;
+      }
+      extension.insertEmbed("https://other.example");
+      await vi.waitFor(() => expect(second.resolve).toHaveBeenCalledTimes(1));
+      expect(first.resolve.mock.calls[0][1].signal.aborted).toBe(true);
+      first.fail(new DOMException("Aborted", "AbortError"));
+      second.finish({
+        status: "success",
+        value: { version: "1.0", type: "link", title: "Current preview" },
+      });
+      await expect
+        .element(page.getByRole("link", { name: "Current preview" }))
+        .toBeVisible();
+      expect(onError).not.toHaveBeenCalled();
+    },
+  );
 });

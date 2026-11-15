@@ -7,15 +7,25 @@ function normalizeText(value: string): string {
   return value.replace(/\s+/g, " ").trim();
 }
 
+function documentBase(head: HtmlHead, page: URL): URL {
+  return head.baseHref === undefined
+    ? page
+    : (parseHttpUrl(head.baseHref, page) ?? page);
+}
+
 /** Read discovery from the parsed head. */
 export function discoverOEmbed(head: HtmlHead, base: URL): URL | undefined {
+  const linkBase = documentBase(head, base);
   for (const attrs of head.links) {
     if (
       attrs.type?.toLowerCase() === "application/json+oembed" &&
       attrs.rel?.toLowerCase().split(/\s+/).includes("alternate")
     ) {
       const href = attrs.href;
-      return href ? parseHttpUrl(href, base) : undefined;
+      const endpoint = href ? parseHttpUrl(href, linkBase) : undefined;
+      if (endpoint) {
+        return endpoint;
+      }
     }
   }
   return undefined;
@@ -23,6 +33,7 @@ export function discoverOEmbed(head: HtmlHead, base: URL): URL | undefined {
 
 /** Read link metadata and declared image/icon hints from the parsed head. */
 export function fallbackOEmbed(head: HtmlHead, base: URL): OEmbedLink {
+  const linkBase = documentBase(head, base);
   const values = new Map<string, string>();
   for (const attributes of head.meta) {
     const key = (attributes.property ?? attributes.name)?.toLowerCase();
@@ -33,7 +44,7 @@ export function fallbackOEmbed(head: HtmlHead, base: URL): OEmbedLink {
   }
   const image = values.get("og:image") ?? values.get("twitter:image");
   // URL data is not prose: resolve nonempty values, never collapse or truncate them.
-  const imageUrl = image ? parseHttpUrl(image, base)?.href : undefined;
+  const imageUrl = image ? parseHttpUrl(image, linkBase)?.href : undefined;
   const description = normalizeText(
     values.get("og:description") ??
       values.get("twitter:description") ??
@@ -60,7 +71,7 @@ export function fallbackOEmbed(head: HtmlHead, base: URL): OEmbedLink {
   for (const attrs of head.links) {
     const rel = attrs.rel?.toLowerCase().split(/\s+/) ?? [];
     const href = attrs.href;
-    const icon = href ? parseHttpUrl(href, base)?.href : undefined;
+    const icon = href ? parseHttpUrl(href, linkBase)?.href : undefined;
     if (icon && rel.includes("icon")) {
       result.icon_url = icon;
       break;
@@ -71,7 +82,7 @@ export function fallbackOEmbed(head: HtmlHead, base: URL): OEmbedLink {
   }
   const logo = values.get("og:logo");
   const fallbackIcon =
-    touchIcon ?? (logo ? parseHttpUrl(logo, base)?.href : undefined);
+    touchIcon ?? (logo ? parseHttpUrl(logo, linkBase)?.href : undefined);
   if (!result.icon_url && fallbackIcon) {
     result.icon_url = fallbackIcon;
   }

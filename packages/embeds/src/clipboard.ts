@@ -33,6 +33,9 @@ export function clipboardUrl(data: DataTransfer): string | undefined {
     ) {
       return undefined;
     }
+    for (const br of template.content.querySelectorAll("br")) {
+      br.replaceWith("\n");
+    }
     const anchor = template.content.querySelector("a");
     const text = template.content.textContent?.trim() ?? "";
     if (anchor && text !== anchor.textContent?.trim()) {

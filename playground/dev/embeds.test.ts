@@ -1,12 +1,14 @@
 import { IncomingMessage, ServerResponse } from "node:http";
 import { Socket } from "node:net";
-import { createEmbedResolver } from "@blocknote/xl-embed-server";
+import { createEmbedResolver } from "../../packages/xl-embed-server/src/index.js";
 import type { Connect, ViteDevServer } from "vite-plus";
 import { describe, expect, it, vi } from "vite-plus/test";
 import { embedDemo, localRequestUrl } from "./embeds.js";
 import { protectedFetch } from "./protectedFetch.js";
 
-vi.mock("@blocknote/xl-embed-server", () => ({ createEmbedResolver: vi.fn() }));
+vi.mock("../../packages/xl-embed-server/src/index.js", () => ({
+  createEmbedResolver: vi.fn(),
+}));
 
 async function middlewareFixture() {
   let resolve!: (response: Response) => void;

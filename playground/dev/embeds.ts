@@ -56,7 +56,9 @@ export function embedDemo(): Plugin {
       // Loaded only for development; no Node transport enters the shipped server
       // package, client bundle, production build, or Vite preview server.
       const [{ createEmbedResolver }, { protectedFetch }] = await Promise.all([
-        import("@blocknote/xl-embed-server"),
+        // Config bundling resolves dynamic imports before the build graph runs.
+        // Use local source so a clean checkout needs no prebuilt package entry.
+        import("../../packages/xl-embed-server/src/index.js"),
         import("./protectedFetch.js"),
       ]);
       const resolver = createEmbedResolver({ protectedFetch });

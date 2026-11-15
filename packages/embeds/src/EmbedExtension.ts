@@ -15,7 +15,7 @@ export const EmbedExtension = createExtension(
     options,
   }: {
     editor: BlockNoteEditor<EmbedsBlockSchema>;
-    options: EmbedsOptions;
+    options: EmbedsOptions & { isValidLink?: (href: string) => boolean };
   }) => {
     const ids = new Set<string>();
     for (const provider of options.providers) {
@@ -50,7 +50,7 @@ export const EmbedExtension = createExtension(
         return false;
       }
       const url = clipboardUrl(data);
-      if (url) {
+      if (url && (options.isValidLink?.(url) ?? true)) {
         const before = editor.getBlock(block.id);
         if (!before) {
           return false;

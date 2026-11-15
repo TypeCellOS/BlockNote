@@ -221,6 +221,9 @@ function PastePanel({
   const source = parseSourceUrl(url);
   const hasEmbed =
     !!source && options.providers.some((provider) => provider.matches(source));
+  const choices: Representation[] = hasEmbed
+    ? ["url", "bookmark", "embed"]
+    : ["url", "bookmark"];
   function onKeyDown(event: KeyboardEvent | React.KeyboardEvent) {
     if (
       event.altKey ||
@@ -231,9 +234,6 @@ function PastePanel({
     ) {
       return;
     }
-    const choices: Representation[] = hasEmbed
-      ? ["url", "bookmark", "embed"]
-      : ["url", "bookmark"];
     const index = choices.indexOf(selected);
     switch (event.key) {
       case "ArrowDown":
@@ -276,26 +276,18 @@ function PastePanel({
       >
         <Menu.Root id={id} className="bn-suggestion-menu bn-embed-paste-panel">
           <Menu.Label className="bn-suggestion-menu-label">Paste as</Menu.Label>
-          {(["url", "bookmark", "embed"] as const).map((next) => (
-            <div
+          {choices.map((next) => (
+            <Menu.Item
               key={next}
-              aria-disabled={(next === "embed" && !hasEmbed) || undefined}
-            >
-              <Menu.Item
-                id={`${id}-${next}`}
-                className="bn-suggestion-menu-item bn-suggestion-menu-item-small"
-                isSelected={selected === next}
-                item={{
-                  title: labels[next],
-                  badge: next === "url" ? "✓" : undefined,
-                }}
-                onClick={() => {
-                  if (next !== "embed" || hasEmbed) {
-                    onChoose(next);
-                  }
-                }}
-              />
-            </div>
+              id={`${id}-${next}`}
+              className="bn-suggestion-menu-item bn-suggestion-menu-item-small"
+              isSelected={selected === next}
+              item={{
+                title: labels[next],
+                badge: next === "url" ? "✓" : undefined,
+              }}
+              onClick={() => onChoose(next)}
+            />
           ))}
         </Menu.Root>
       </div>

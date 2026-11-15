@@ -83,6 +83,8 @@ Optional entrypoints:
 
 Without a resolver the catch-all deliberately shows a useful source card. The optional endpoint client accepts raw standard oEmbed JSON, including `xl-embed-server` metadata extensions. An application can adapt its result to bookmark metadata in a few lines; see the endpoint-backed example.
 
+Live-provider resolvers return `{status: "unavailable"}` for expected failures. Unexpected throws/rejections are rethrown during React rendering so an application error boundary can handle them; they are not turned into unavailable previews or displayed as exception messages. Rejections after cancellation are ignored.
+
 **oEmbed data does not authorize execution.** Generic iframe rendering is denied by default. Approve exact HTTPS origins explicitly; application-origin iframes and `srcdoc` are denied even then. No upstream HTML/scripts or attributes are inserted. Photos and metadata use validated HTTP(S) resource URLs. Stored remote images can still load when a saved bookmark is displayed.
 
 `SafeIframe` is available to app-owned providers. It accepts a trusted provider URL (not upstream HTML); resize messages require both exact origin and matching iframe window before a provider-specific decoder runs. All static HTML exports are resource-free original source links.

@@ -15,11 +15,39 @@ function postParts(url: URL) {
   );
   return match ? { actor: match[1], post: match[2] } : undefined;
 }
+/** AT Protocol permits production hostname-only did:web and 24-character base32 PLC IDs.
+ * https://atproto.com/specs/did / https://web.plc.directory/spec/v0.1/did-plc */
+function isSupportedDid(value: string) {
+  if (/^did:plc:[a-z2-7]{24}$/.test(value)) {
+    return true;
+  }
+  if (!value.startsWith("did:web:")) {
+    return false;
+  }
+  const host = value.slice("did:web:".length);
+  return (
+    host.length <= 253 &&
+    /^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$/.test(
+      host,
+    ) &&
+    ![
+      "alt",
+      "arpa",
+      "example",
+      "internal",
+      "invalid",
+      "local",
+      "localhost",
+      "onion",
+      "test",
+    ].includes(host.slice(host.lastIndexOf(".") + 1).toLowerCase())
+  );
+}
 async function resolveDid(
   actor: string,
   signal: AbortSignal,
 ): Promise<ResolveResult<string>> {
-  if (/^did:plc:[a-z0-9]+$/.test(actor)) {
+  if (isSupportedDid(actor)) {
     return { status: "success", value: actor };
   }
   if (!/^[a-zA-Z0-9.-]+$/.test(actor)) {
@@ -39,7 +67,7 @@ async function resolveDid(
     value !== null &&
     "did" in value &&
     typeof value.did === "string" &&
-    /^did:plc:[a-z0-9]+$/.test(value.did)
+    isSupportedDid(value.did)
     ? { status: "success", value: value.did }
     : { status: "unavailable" };
 }

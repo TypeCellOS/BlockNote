@@ -22,7 +22,10 @@ export function withEmbeds<
 } {
   return {
     ...options,
-    extensions: [...(options.extensions ?? []), EmbedExtension(embeds)],
+    extensions: [
+      ...(options.extensions ?? []),
+      EmbedExtension({ ...embeds, isValidLink: options.links?.isValidLink }),
+    ],
     pasteHandler(context) {
       if (context.editor.getExtension(EmbedExtension)?.handlePaste(context)) {
         return true;

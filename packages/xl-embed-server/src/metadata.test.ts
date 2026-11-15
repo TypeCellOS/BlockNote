@@ -14,6 +14,51 @@ function parseHead(html: string) {
 }
 
 describe("metadata selection and URL integrity", () => {
+  it.each(["https://assets.test/root/", "/"])(
+    "uses the first base href %s for links without changing page identity",
+    (href) => {
+      const expected = new URL(href, base).href;
+      const head = parseHead(`<base target="_blank"><base href="${href}">
+      <base href="https://ignored.test/"><link rel=alternate type="application/json+oembed" href="oembed">
+      <link rel=icon href="icon.png"><meta property=og:image content="image.png">`);
+      expect(discoverOEmbed(head, base)?.href).toBe(`${expected}oembed`);
+      expect(fallbackOEmbed(head, base)).toMatchObject({
+        title: "source.test",
+        provider_url: "https://source.test",
+        icon_url: `${expected}icon.png`,
+        image_url: `${expected}image.png`,
+      });
+    },
+  );
+
+  it.each(["http://[", "javascript:bad", ""])(
+    "does not use a later base after first href %j",
+    (href) => {
+      const head =
+        parseHead(`<base href="${href}"><base href="https://ignored.test/">
+      <link rel=alternate type="application/json+oembed" href="oembed"><link rel=icon href="icon">`);
+      expect(discoverOEmbed(head, base)?.href).toBe(
+        "https://source.test/articles/oembed",
+      );
+      expect(fallbackOEmbed(head, base).icon_url).toBe(
+        "https://source.test/articles/icon",
+      );
+    },
+  );
+
+  it.each([
+    undefined,
+    "",
+    "javascript:bad",
+    "https://user:secret@other.test/api",
+    "http://[",
+  ])("continues discovery after an unusable href %j", (href) => {
+    const head =
+      parseHead(`<link rel=alternate type="application/json+oembed" ${href === undefined ? "" : `href="${href}"`}>
+        <link rel=alternate type="application/json+oembed" href="/valid">`);
+    expect(discoverOEmbed(head, base)?.href).toBe("https://source.test/valid");
+  });
+
   it("prefers the first nonempty OG value over Twitter/title and normalizes only prose", () => {
     const head = parseHead(`<title>Fallback</title>
       <meta name=twitter:title content=Twitter><meta property=og:title content=" ">
