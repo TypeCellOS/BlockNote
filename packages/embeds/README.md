@@ -89,4 +89,74 @@ Live-provider resolvers return `{status: "unavailable"}` for expected failures. 
 
 `SafeIframe` is available to app-owned providers. It accepts a trusted provider URL (not upstream HTML); resize messages require both exact origin and matching iframe window before a provider-specific decoder runs. All static HTML exports are resource-free original source links.
 
+## DOCX, PDF, Typst, ODT and email mappings
+
+Like `@blocknote/math-block`, embeds provides **opt-in mappings**, not automatic exporter registration. Keep the same extended editor schema and add the two mappings to the exporter's `blockMapping`:
+
+```ts
+import {
+  DOCXExporter,
+  docxDefaultSchemaMappings,
+} from "@blocknote/xl-docx-exporter";
+import {
+  bookmarkBlockMapping,
+  embedBlockMapping,
+} from "@blocknote/embeds/docx-exporter";
+
+const exporter = new DOCXExporter(schema, {
+  ...docxDefaultSchemaMappings,
+  blockMapping: {
+    ...docxDefaultSchemaMappings.blockMapping,
+    bookmark: bookmarkBlockMapping,
+    embed: embedBlockMapping,
+  },
+});
+const document = await exporter.toDocxJsDocument(editor.document);
+```
+
+Each format entrypoint exports those same two mapping names. Compose with the corresponding defaults, including any other custom block mappings, exactly as for math blocks:
+
+| Embeds import                      | Exporter                                                             | Defaults                          |
+| ---------------------------------- | -------------------------------------------------------------------- | --------------------------------- |
+| `@blocknote/embeds/docx-exporter`  | `DOCXExporter` from `@blocknote/xl-docx-exporter`                    | `docxDefaultSchemaMappings`       |
+| `@blocknote/embeds/odt-exporter`   | `ODTExporter` from `@blocknote/xl-odt-exporter`                      | `odtDefaultSchemaMappings`        |
+| `@blocknote/embeds/email-exporter` | `ReactEmailExporter` from `@blocknote/xl-email-exporter`             | `reactEmailDefaultSchemaMappings` |
+| `@blocknote/embeds/typst-exporter` | `TypstExporter` from `@blocknote/xl-typst-exporter`                  | `typstDefaultSchemaMappings`      |
+| `@blocknote/embeds/typst-exporter` | **Current** `PDFExporter` from `@blocknote/xl-pdf-exporter`          | `typstDefaultSchemaMappings`      |
+| `@blocknote/embeds/pdf-exporter`   | **Legacy** `PDFExporter` from `@blocknote/xl-pdf-exporter/react-pdf` | `pdfDefaultSchemaMappings`        |
+
+For example, current PDF uses the **same Typst mappings**, not the legacy React-PDF mappings:
+
+```ts
+import {
+  PDFExporter,
+  typstDefaultSchemaMappings,
+} from "@blocknote/xl-pdf-exporter";
+import {
+  bookmarkBlockMapping,
+  embedBlockMapping,
+} from "@blocknote/embeds/typst-exporter";
+
+const exporter = new PDFExporter(schema, {
+  ...typstDefaultSchemaMappings,
+  blockMapping: {
+    ...typstDefaultSchemaMappings.blockMapping,
+    bookmark: bookmarkBlockMapping,
+    embed: embedBlockMapping,
+  },
+});
+const result = await exporter.toPDF(editor.document, {
+  title: "My document",
+  lang: "en",
+});
+```
+
+Use `@blocknote/embeds/pdf-exporter` **only** for the deprecated `@blocknote/xl-pdf-exporter/react-pdf` consumer. It returns native React-PDF elements and is not compatible with the current Typst-backed PDF mappings.
+
+Bookmarks export their persisted title and description plus a readable original URL; a title equal to the URL is not repeated. Live embeds export their original URL regardless of whether their provider is still registered. HTTP(S) sources are native clickable links; invalid imported sources remain escaped, inactive text. Empty sources have an inert fallback label. Block children remain the exporter's responsibility and are not duplicated by these mappings.
+
+These mappings are deliberately **text-only and network-independent**: no provider rendering, iframe screenshots, metadata resolution or stored `imageUrl` thumbnail downloads. They do not bypass the exporter's image policy by reusing remote editor images. The exporter engine's own fonts/WASM/assets remain governed by that engine's options.
+
+Install only the exporter/runtime dependencies for the format you use (for example `docx` with DOCX, `@react-email/components` with email, `@react-pdf/renderer` with legacy PDF). They are optional peers, isolated behind their format entrypoints; importing the editor, a provider, or another format does not import these mappings or runtimes. Nothing is added to any exporter's default schema.
+
 Checks: `vp run test`, `vp run lint`, `vp run build`. Browser tests run only through the repository's focused Docker suite with retries disabled.

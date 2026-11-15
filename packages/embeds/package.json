@@ -38,7 +38,27 @@
       "types": "./types/src/providers/oembed.d.ts",
       "import": "./dist/providers/oembed.js"
     },
-    "./style.css": "./src/style.css"
+    "./style.css": "./src/style.css",
+    "./docx-exporter": {
+      "types": "./types/src/docx-exporter/index.d.ts",
+      "import": "./dist/docx-exporter.js"
+    },
+    "./typst-exporter": {
+      "types": "./types/src/typst-exporter/index.d.ts",
+      "import": "./dist/typst-exporter.js"
+    },
+    "./odt-exporter": {
+      "types": "./types/src/odt-exporter/index.d.ts",
+      "import": "./dist/odt-exporter.js"
+    },
+    "./email-exporter": {
+      "types": "./types/src/email-exporter/index.d.ts",
+      "import": "./dist/email-exporter.js"
+    },
+    "./pdf-exporter": {
+      "types": "./types/src/pdf-exporter/index.d.ts",
+      "import": "./dist/pdf-exporter.js"
+    }
   },
   "scripts": {
     "test": "vp test --run",
@@ -52,7 +72,41 @@
   },
   "peerDependencies": {
     "react": "^18.0 || ^19.0 || >=19.0.0-rc",
-    "react-dom": "^18.0 || ^19.0 || >=19.0.0-rc"
+    "react-dom": "^18.0 || ^19.0 || >=19.0.0-rc",
+    "docx": "^9.8.0",
+    "@blocknote/xl-typst-exporter": "workspace:^",
+    "@react-pdf/renderer": "^4.5.1",
+    "@react-email/components": "^1.0.12",
+    "@blocknote/xl-docx-exporter": "workspace:^",
+    "@blocknote/xl-odt-exporter": "workspace:^",
+    "@blocknote/xl-email-exporter": "workspace:^",
+    "@blocknote/xl-pdf-exporter": "workspace:^"
+  },
+  "peerDependenciesMeta": {
+    "docx": {
+      "optional": true
+    },
+    "@blocknote/xl-typst-exporter": {
+      "optional": true
+    },
+    "@react-pdf/renderer": {
+      "optional": true
+    },
+    "@react-email/components": {
+      "optional": true
+    },
+    "@blocknote/xl-docx-exporter": {
+      "optional": true
+    },
+    "@blocknote/xl-odt-exporter": {
+      "optional": true
+    },
+    "@blocknote/xl-email-exporter": {
+      "optional": true
+    },
+    "@blocknote/xl-pdf-exporter": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@blocknote/mantine": "workspace:^",
@@ -60,6 +114,15 @@
     "@types/react-dom": "^19.2.3",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
-    "vite-plus": "catalog:"
+    "vite-plus": "catalog:",
+    "docx": "^9.9.0",
+    "@react-email/components": "^1.0.12",
+    "@react-pdf/renderer": "^4.5.1",
+    "@blocknote/xl-docx-exporter": "workspace:^",
+    "@blocknote/xl-typst-exporter": "workspace:^",
+    "@blocknote/xl-pdf-exporter": "workspace:^",
+    "@blocknote/xl-odt-exporter": "workspace:^",
+    "@blocknote/xl-email-exporter": "workspace:^",
+    "@zip.js/zip.js": "^2.8.8"
   }
 }

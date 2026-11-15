@@ -24,6 +24,26 @@ export default defineConfig({
       entry: {
         "blocknote-embeds": resolve(import.meta.dirname, "src/index.ts"),
         oembed: resolve(import.meta.dirname, "src/oembed.ts"),
+        "docx-exporter": resolve(
+          import.meta.dirname,
+          "src/docx-exporter/index.ts",
+        ),
+        "typst-exporter": resolve(
+          import.meta.dirname,
+          "src/typst-exporter/index.ts",
+        ),
+        "odt-exporter": resolve(
+          import.meta.dirname,
+          "src/odt-exporter/index.ts",
+        ),
+        "email-exporter": resolve(
+          import.meta.dirname,
+          "src/email-exporter/index.tsx",
+        ),
+        "pdf-exporter": resolve(
+          import.meta.dirname,
+          "src/pdf-exporter/index.tsx",
+        ),
         "providers/youtube": resolve(
           import.meta.dirname,
           "src/providers/youtube.tsx",
