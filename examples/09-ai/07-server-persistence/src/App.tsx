@@ -20,7 +20,7 @@ import {
 } from "@blocknote/xl-ai";
 import { en as aiEn } from "@blocknote/xl-ai/locales";
 import "@blocknote/xl-ai/style.css";
-import { DefaultChatTransport, isToolOrDynamicToolUIPart } from "ai";
+import { DefaultChatTransport, isToolUIPart } from "ai";
 import { getEnv } from "./getEnv";
 
 const BASE_URL =
@@ -74,7 +74,7 @@ export default function App() {
             const lastToolParts =
               messages.length > 1
                 ? messages[messages.length - 2].parts.filter((part) =>
-                    isToolOrDynamicToolUIPart(part),
+                    isToolUIPart(part),
                   )
                 : [];
 

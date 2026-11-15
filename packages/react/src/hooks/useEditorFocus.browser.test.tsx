@@ -168,6 +168,51 @@ describe("useEditorFocus", () => {
     popoverInput.remove();
   });
 
+  test.each(["before", "after"] as const)(
+    "observes focus in a portal registered %s attachment to a closed shadow root",
+    async (registrationTime) => {
+      await mount(<Probe includeEditorUI={true} />);
+      const shadowHost = document.createElement("div");
+      shadowHost.className = "zz-outside";
+      document.body.append(shadowHost);
+      const shadow = shadowHost.attachShadow({ mode: "closed" });
+      const portal = document.createElement("div");
+      const input = document.createElement("input");
+      const outside = document.createElement("input");
+      portal.append(input);
+      if (registrationTime === "after") {
+        shadow.append(portal);
+      }
+      const removeListener = vi.spyOn(portal, "removeEventListener");
+      // Duplicate registrations must not duplicate listeners or release them early.
+      editor!.registerPortalElement(portal);
+      editor!.registerPortalElement(portal);
+      editor!.unregisterPortalElement(portal);
+      expect(removeListener).not.toHaveBeenCalled();
+      shadow.append(portal, outside);
+
+      outside.focus();
+      expect(focusedValue()).toBe("false");
+      input.focus();
+      await vi.waitFor(() => expect(focusedValue()).toBe("true"));
+      outside.focus();
+      await vi.waitFor(() => expect(focusedValue()).toBe("false"));
+      editor!.unregisterPortalElement(portal);
+      expect(editor!.isWithinEditor(input)).toBe(false);
+      expect(removeListener).toHaveBeenCalledTimes(2);
+      expect(removeListener).toHaveBeenCalledWith(
+        "focusin",
+        expect.any(Function),
+        true,
+      );
+      expect(removeListener).toHaveBeenCalledWith(
+        "focusout",
+        expect.any(Function),
+        true,
+      );
+    },
+  );
+
   test("does not re-render for focus changes elsewhere on the page", async () => {
     await mount(<Probe includeEditorUI={true} />);
     editor!.focus();
@@ -219,6 +264,8 @@ describe("useEditorFocus regressions", () => {
     document.querySelector(".bn-container")!.append(uiInput);
     uiInput.focus();
     expect(editor!.isFocused()).toBe(false);
+    // A sibling input is editor UI even though the content itself lost focus.
+    expect(editor!.isFocused({ includeEditorUI: true })).toBe(true);
     await vi.waitFor(() => expect(focusedValue()).toBe("false"));
   });
 

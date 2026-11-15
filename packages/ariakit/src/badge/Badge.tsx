@@ -8,11 +8,11 @@ import {
 
 import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
-import { type MouseEvent, forwardRef } from "react";
+import { type HTMLAttributes, type MouseEvent, forwardRef } from "react";
 
 export const Badge = forwardRef<
   HTMLButtonElement,
-  ComponentProps["Generic"]["Badge"]["Root"]
+  ComponentProps["Generic"]["Badge"]["Root"] & HTMLAttributes<HTMLButtonElement>
 >((props, ref) => {
   const {
     className,
@@ -20,13 +20,12 @@ export const Badge = forwardRef<
     icon,
     isSelected,
     mainTooltip,
+    label,
     secondaryTooltip,
     onClick,
     onMouseEnter,
     ...rest
   } = props;
-
-  assertEmpty(rest, false);
 
   const badge = (
     <AriakitButton
@@ -39,6 +38,8 @@ export const Badge = forwardRef<
       onClick={(event: MouseEvent<HTMLButtonElement>) => onClick?.(event)}
       onMouseEnter={onMouseEnter}
       ref={ref}
+      aria-label={label}
+      {...rest}
     >
       <span>{icon}</span>
       <span>{text}</span>

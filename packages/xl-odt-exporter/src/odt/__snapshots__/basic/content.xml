@@ -23,8 +23,8 @@
             <style:text-properties fo:font-style="italic" fo:font-weight="bold"></style:text-properties>
         </style:style>
         <style:style style:family="paragraph" style:name="BN_S3" style:parent-style-name="Standard">
-            <loext:graphic-properties draw:fill="solid" draw:fill-color="#fbe4e4"></loext:graphic-properties>
-            <style:paragraph-properties fo:background-color="#fbe4e4"></style:paragraph-properties>
+            <loext:graphic-properties draw:fill="solid" draw:fill-color="#ffdfd6"></loext:graphic-properties>
+            <style:paragraph-properties fo:background-color="#ffdfd6"></style:paragraph-properties>
         </style:style>
         <style:style style:name="BN_T4" style:family="text">
             <style:text-properties fo:font-weight="bold"></style:text-properties>
@@ -43,14 +43,14 @@
             <style:paragraph-properties fo:text-align="end"></style:paragraph-properties>
         </style:style>
         <style:style style:family="paragraph" style:name="BN_S10" style:parent-style-name="Standard">
-            <loext:graphic-properties draw:fill="solid" draw:fill-color="#fbe4e4"></loext:graphic-properties>
-            <style:paragraph-properties fo:text-align="end" fo:background-color="#fbe4e4"></style:paragraph-properties>
-            <style:text-properties fo:color="#0b6e99"></style:text-properties>
+            <loext:graphic-properties draw:fill="solid" draw:fill-color="#ffdfd6"></loext:graphic-properties>
+            <style:paragraph-properties fo:text-align="end" fo:background-color="#ffdfd6"></style:paragraph-properties>
+            <style:text-properties fo:color="#006d9a"></style:text-properties>
         </style:style>
         <style:style style:family="paragraph" style:name="BN_S11" style:parent-style-name="Standard">
-            <loext:graphic-properties draw:fill="solid" draw:fill-color="#fbe4e4"></loext:graphic-properties>
-            <style:paragraph-properties fo:text-align="center" fo:background-color="#fbe4e4"></style:paragraph-properties>
-            <style:text-properties fo:color="#0b6e99"></style:text-properties>
+            <loext:graphic-properties draw:fill="solid" draw:fill-color="#ffdfd6"></loext:graphic-properties>
+            <style:paragraph-properties fo:text-align="center" fo:background-color="#ffdfd6"></style:paragraph-properties>
+            <style:text-properties fo:color="#006d9a"></style:text-properties>
         </style:style>
         <style:style style:family="table" style:name="BN_S12">
             <style:table-properties table:align="left" style:writing-mode="lr-tb" style:width="330pt"></style:table-properties>
@@ -68,7 +68,7 @@
             <style:paragraph-properties fo:text-align="end"></style:paragraph-properties>
         </style:style>
         <style:style style:name="BN_T17" style:family="text">
-            <style:text-properties fo:font-weight="bold" fo:font-style="italic" fo:color="#e03e3e" fo:background-color="#ddebf1"></style:text-properties>
+            <style:text-properties fo:font-weight="bold" fo:font-style="italic" fo:color="#994a37" fo:background-color="#cfedff"></style:text-properties>
         </style:style>
         <style:style style:name="BN_T18" style:family="text">
             <style:text-properties style:text-underline-style="solid"></style:text-properties>
@@ -80,7 +80,7 @@
             <style:table-properties table:align="left" style:writing-mode="lr-tb" style:width="270pt"></style:table-properties>
         </style:style>
         <style:style style:name="BN_T21" style:family="text">
-            <style:text-properties fo:font-weight="bold" fo:color="#e03e3e" fo:background-color="#ddebf1"></style:text-properties>
+            <style:text-properties fo:font-weight="bold" fo:color="#994a37" fo:background-color="#cfedff"></style:text-properties>
         </style:style>
         <style:style style:name="BN_T22" style:family="text">
             <style:text-properties style:font-name="Courier New"></style:text-properties>

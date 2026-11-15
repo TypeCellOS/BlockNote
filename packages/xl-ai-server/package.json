@@ -62,15 +62,15 @@
     "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^3.0.2",
-    "@ai-sdk/google": "^3.0.2",
-    "@ai-sdk/groq": "^3.0.2",
-    "@ai-sdk/mistral": "^3.0.2",
-    "@ai-sdk/openai": "^3.0.2",
-    "@ai-sdk/openai-compatible": "^2.0.2",
+    "@ai-sdk/anthropic": "^4.0.88",
+    "@ai-sdk/google": "^4.0.105",
+    "@ai-sdk/groq": "^4.0.70",
+    "@ai-sdk/mistral": "^4.0.72",
+    "@ai-sdk/openai": "^4.0.102",
+    "@ai-sdk/openai-compatible": "^3.0.78",
     "@blocknote/xl-ai": "workspace:^",
     "@hono/node-server": "^1.19.5",
-    "ai": "^6.0.5",
+    "ai": "^7.0.153",
     "hono": "^4.10.3"
   },
   "devDependencies": {

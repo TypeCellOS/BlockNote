@@ -98,7 +98,7 @@
       <VIEW
         style={{
           alignItems: undefined,
-          backgroundColor: '#fbe4e4',
+          backgroundColor: '#ffdfd6',
           color: undefined,
           paddingVertical: 2.25,
           textAlign: 'left'
@@ -503,8 +503,8 @@
               <VIEW
                 style={{
                   alignItems: 'flex-end',
-                  backgroundColor: '#fbe4e4',
-                  color: '#0b6e99',
+                  backgroundColor: '#ffdfd6',
+                  color: '#006d9a',
                   paddingVertical: 2.25,
                   textAlign: 'right'
                 }}
@@ -522,8 +522,8 @@
               <VIEW
                 style={{
                   alignItems: 'center',
-                  backgroundColor: '#fbe4e4',
-                  color: '#0b6e99',
+                  backgroundColor: '#ffdfd6',
+                  color: '#006d9a',
                   paddingVertical: 2.25,
                   textAlign: 'center'
                 }}
@@ -1194,8 +1194,8 @@
         <TEXT>
           <TEXT
             style={{
-              backgroundColor: '#ddebf1',
-              color: '#e03e3e',
+              backgroundColor: '#cfedff',
+              color: '#994a37',
               fontStyle: 'italic',
               fontWeight: 'bold'
             }}

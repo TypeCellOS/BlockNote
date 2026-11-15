@@ -13,7 +13,8 @@ export const FormattingToolbarController = (props: {
   /**
    * Override the DOM node this floating element portals into. Falls back to
    * the ambient portal element (the element wrapping the editor by default)
-   * when omitted.
+   * when omitted. On mobile, the default escapes to the editor's shadow root
+   * or document body instead.
    */
   portalElement?: HTMLElement;
 }) => {
@@ -25,6 +26,7 @@ export const FormattingToolbarController = (props: {
     return (
       <MobileFormattingToolbarController
         formattingToolbar={props.formattingToolbar}
+        portalElement={props.portalElement}
       />
     );
   }

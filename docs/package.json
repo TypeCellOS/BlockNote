@@ -16,7 +16,7 @@
     "init-db": "pnpm exec auth migrate"
   },
   "dependencies": {
-    "@ai-sdk/groq": "^3.0.2",
+    "@ai-sdk/groq": "^4.0.70",
     "@aws-sdk/client-s3": "^3.609.0",
     "@aws-sdk/s3-request-presigner": "^3.609.0",
     "@base-ui/react": "^1.1.0",
@@ -77,7 +77,7 @@
     "@y/protocols": "^1.0.6-rc.1",
     "@y/websocket": "^4.0.0-3",
     "@y/y": "^14.0.0-rc.26",
-    "ai": "^6.0.5",
+    "ai": "^7.0.153",
     "better-auth": "~1.7.7",
     "better-sqlite3": "^12.6.2",
     "class-variance-authority": "^0.7.1",

@@ -194,6 +194,23 @@ describe("Check Comments functionality", () => {
     await moveMouseOverElement(await waitForSelector(".bn-thread-comment"));
     await userEvent.click(await waitForSelector(".bn-comment-add-reaction"));
 
+    // Clicking the visible Chip label again must close the picker, not first
+    // dismiss it as an outside press and then reopen it from the click handler.
+    await waitForEmojiButtons();
+    const addReactionLabel = await waitForSelector(
+      ".bn-comment-add-reaction label",
+    );
+    await userEvent.click(addReactionLabel);
+    await expectSelectorCount("[frimousse-root]", 0);
+    await userEvent.click(addReactionLabel);
+    await waitForEmojiButtons();
+    const addReactionInput = await waitForSelector(
+      ".bn-comment-add-reaction input",
+    );
+    expect(addReactionInput.getAttribute("aria-haspopup")).toBe("dialog");
+    expect(addReactionInput.getAttribute("aria-expanded")).toBe("true");
+    expect(addReactionInput.getAttribute("aria-label")).toBe("Add reaction");
+
     // Pick a different emoji so it's added as a new reaction rather than
     // toggling the first one off.
     const secondPickerButtons = await waitForEmojiButtons(6);

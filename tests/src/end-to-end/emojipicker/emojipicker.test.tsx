@@ -437,24 +437,34 @@ describe("Check Emoji Picker Functionality", () => {
       "ArrowUp",
       "Enter",
     ]) {
-      const event = new KeyboardEvent("keydown", {
-        key,
-        isComposing: true,
-        bubbles: true,
-        cancelable: true,
-      });
-      editor.dispatchEvent(event);
-      expect(event.defaultPrevented, key).toBe(false);
-      await new Promise(requestAnimationFrame);
-      expect(
-        document.querySelector(".bn-frimousse-emoji[data-selected]")
-          ?.textContent,
-      ).toBe(emoji);
+      for (const signal of [
+        { isComposing: true, keyCode: 0 },
+        { isComposing: false, keyCode: 229 },
+      ]) {
+        const event = new KeyboardEvent("keydown", {
+          key,
+          ...signal,
+          bubbles: true,
+          cancelable: true,
+        });
+        editor.dispatchEvent(event);
+        expect(event.defaultPrevented, key).toBe(false);
+        await new Promise(requestAnimationFrame);
+        expect(
+          document.querySelector(".bn-frimousse-emoji[data-selected]")
+            ?.textContent,
+        ).toBe(emoji);
+      }
     }
     expect(editor.textContent).toContain(":frog");
     expect(document.activeElement).toBe(editor);
     editor.dispatchEvent(
       new CompositionEvent("compositionend", { bubbles: true }),
+    );
+    await userEvent.keyboard("{Enter}");
+    await waitForTextInEditor(`${emoji} `);
+    await vi.waitFor(() =>
+      expect(document.querySelector(EMOJI_PICKER_SELECTOR)).toBeNull(),
     );
   });
   test.each(["an", "in"])(
@@ -486,6 +496,13 @@ describe("Check Emoji Picker Functionality", () => {
       ] as const) {
         if (top === 0) {
           await userEvent.keyboard("{ArrowDown}".repeat(12));
+          // Wait for the final row to mount and its keyboard scroll to finish
+          // before testing manual scrolling; key delivery alone doesn't wait
+          // for Frimousse's virtualization and the selection effect.
+          await waitForSelector(
+            '[aria-rowindex="13"] .bn-frimousse-emoji[data-selected]',
+          );
+          await waitForSelectedEmoji();
           await scrollTo(0);
         }
         await vi.waitFor(() => {
@@ -538,7 +555,7 @@ describe("Check Emoji Picker Functionality", () => {
   test("should scroll to a mounted emoji without estimating its position", async () => {
     await focusOnEditor();
     await userEvent.keyboard(":an");
-    await waitForSelector(".bn-frimousse-emoji[data-selected]");
+    await waitForSelectedEmoji();
     const viewport = await waitForSelector("[frimousse-viewport]");
     viewport.scrollTop = 96;
     for (let frame = 0; frame < 3; frame++) {

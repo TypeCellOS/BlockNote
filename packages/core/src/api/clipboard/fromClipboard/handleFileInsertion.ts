@@ -111,6 +111,8 @@ export async function handleFileInsertion<
     type: item.type,
   }));
 
+  let previousBlockId: string | undefined;
+
   for (const { file, type } of files) {
     // Gets file block corresponding to MIME type.
     let fileBlockType = "file";
@@ -146,7 +148,18 @@ export async function handleFileInsertion<
 
       let insertedBlockId: string | undefined = undefined;
 
-      if (event.type === "paste") {
+      const previousBlock = previousBlockId
+        ? editor.getBlock(previousBlockId)
+        : undefined;
+      if (previousBlock) {
+        // Resolve the event's insertion point only for the first file. Reusing
+        // it for every file reverses insertions after a nonempty block.
+        insertedBlockId = editor.insertBlocks(
+          [fileBlock],
+          previousBlock,
+          "after",
+        )[0].id;
+      } else if (event.type === "paste") {
         const currentBlock = editor.getTextCursorPosition().block;
         insertedBlockId = insertOrUpdateBlock(editor, currentBlock, fileBlock);
       } else if (event.type === "drop") {
@@ -194,6 +207,8 @@ export async function handleFileInsertion<
       if (!insertedBlockId) {
         return;
       }
+
+      previousBlockId = insertedBlockId;
 
       const updateData = await editor
         .uploadFile(file, insertedBlockId)
