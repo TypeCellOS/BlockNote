@@ -7,6 +7,7 @@
     "dev": "vp dev --host",
     "preview": "vp preview",
     "lint": "vp lint src",
+    "test:embed-demo": "vp test --run dev/",
     "clean": "rimraf dist",
     "build:vercel": "cd .. && vp_build() { pnpm exec vp run --verbose --concurrency-limit 1 --filter '@blocknote/example-editor...' build; }; diag() { echo \"[diag] $1 pids.current=$(cat /sys/fs/cgroup/pids.current 2>/dev/null) pids.max=$(cat /sys/fs/cgroup/pids.max 2>/dev/null) mem=$(cat /sys/fs/cgroup/memory.current 2>/dev/null)/$(cat /sys/fs/cgroup/memory.max 2>/dev/null) procs=$(ps -e 2>/dev/null | wc -l)\"; }; vp_build || { diag fail-1; echo '[diag] Vercel builders intermittently fail spawns (host-side EAGAIN); retrying on warm cache...'; sleep 15; vp_build; } || { diag fail-2; sleep 60; vp_build; } || { diag fail-3; sleep 180; vp_build; }"
   },
@@ -17,6 +18,7 @@
     "@blocknote/ariakit": "workspace:^",
     "@blocknote/code-block": "workspace:^",
     "@blocknote/core": "workspace:^",
+    "@blocknote/embeds": "workspace:^",
     "@blocknote/mantine": "workspace:^",
     "@blocknote/math-block": "workspace:^",
     "@blocknote/diagram-block": "workspace:^",
@@ -66,11 +68,14 @@
     "@blocknote/xl-typst-compiler": "workspace:^"
   },
   "devDependencies": {
+    "@blocknote/xl-embed-server": "workspace:^",
     "@tailwindcss/vite": "^4.1.14",
     "@types/node": "22.13.13",
     "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
+    "node-fetch": "^3.3.2",
+    "request-filtering-agent": "^3.2.1",
     "rimraf": "^5.0.10",
     "rollup-plugin-webpack-stats": "^0.2.6",
     "tailwindcss": "^4.1.14",

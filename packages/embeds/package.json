@@ -1,0 +1,65 @@
+{
+  "name": "@blocknote/embeds",
+  "version": "0.57.0",
+  "type": "module",
+  "license": "MPL-2.0",
+  "description": "Opt-in React bookmarks and live embeds for BlockNote.",
+  "sideEffects": [
+    "*.css"
+  ],
+  "files": [
+    "dist",
+    "types",
+    "src",
+    "!**/*.test.*"
+  ],
+  "source": "src/index.ts",
+  "main": "./dist/blocknote-embeds.js",
+  "module": "./dist/blocknote-embeds.js",
+  "types": "./types/src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./types/src/index.d.ts",
+      "import": "./dist/blocknote-embeds.js"
+    },
+    "./oembed": {
+      "types": "./types/src/oembed.d.ts",
+      "import": "./dist/oembed.js"
+    },
+    "./providers/youtube": {
+      "types": "./types/src/providers/youtube.d.ts",
+      "import": "./dist/providers/youtube.js"
+    },
+    "./providers/bluesky": {
+      "types": "./types/src/providers/bluesky.d.ts",
+      "import": "./dist/providers/bluesky.js"
+    },
+    "./providers/oembed": {
+      "types": "./types/src/providers/oembed.d.ts",
+      "import": "./dist/providers/oembed.js"
+    },
+    "./style.css": "./src/style.css"
+  },
+  "scripts": {
+    "test": "vp test --run",
+    "lint": "vp lint --type-aware src",
+    "format": "vp fmt src vite.config.ts package.json tsconfig.json"
+  },
+  "dependencies": {
+    "@floating-ui/react": "^0.27.18",
+    "@blocknote/core": "workspace:^",
+    "@blocknote/react": "workspace:^"
+  },
+  "peerDependencies": {
+    "react": "^18.0 || ^19.0 || >=19.0.0-rc",
+    "react-dom": "^18.0 || ^19.0 || >=19.0.0-rc"
+  },
+  "devDependencies": {
+    "@blocknote/mantine": "workspace:^",
+    "@types/react": "^19.2.3",
+    "@types/react-dom": "^19.2.3",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "vite-plus": "catalog:"
+  }
+}

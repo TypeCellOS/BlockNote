@@ -1,0 +1,42 @@
+{
+  "name": "@blocknote/xl-embed-server",
+  "homepage": "https://github.com/TypeCellOS/BlockNote",
+  "private": true,
+  "sideEffects": false,
+  "license": "GPL-3.0 OR PROPRIETARY",
+  "version": "0.57.0",
+  "description": "Experimental web-native oEmbed reference resolver for BlockNote.",
+  "type": "module",
+  "files": [
+    "THIRD-PARTY-LICENSES",
+    "dist",
+    "types",
+    "src",
+    "!**/*.test.*",
+    "!**/*.tsbuildinfo"
+  ],
+  "source": "src/index.ts",
+  "types": "./types/src/index.d.ts",
+  "main": "./dist/blocknote-xl-embed-server.js",
+  "module": "./dist/blocknote-xl-embed-server.js",
+  "exports": {
+    ".": {
+      "types": "./types/src/index.d.ts",
+      "import": "./dist/blocknote-xl-embed-server.js",
+      "default": "./dist/blocknote-xl-embed-server.js"
+    }
+  },
+  "scripts": {
+    "lint": "vp lint src",
+    "test": "vp test --run",
+    "clean": "rimraf dist types"
+  },
+  "devDependencies": {
+    "rimraf": "^5.0.10",
+    "typescript": "^7.0.2",
+    "vite-plus": "catalog:"
+  },
+  "dependencies": {
+    "htmlparser2": "^12.0.0"
+  }
+}

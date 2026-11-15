@@ -23,6 +23,7 @@
   },
   "include": [
     "src",
+    "dev",
     "../examples",
     "./vite.config.ts",
     "../scripts/build-cache-inputs.ts"

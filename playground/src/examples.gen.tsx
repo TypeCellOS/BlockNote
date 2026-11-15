@@ -188,7 +188,7 @@ export const examples = {
           slug: "basic",
         },
         readme:
-          "In this example, we pass in a custom dictionary to change the interface of the editor to use Dutch (NL) strings.\n\nYou can also provide your own dictionary to customize the strings used in the editor, or submit a Pull Request to add support for your language of your choice.\n\n**Relevant Docs:**\n\n- [Localization](/docs/features/localization)",
+          "In this example, we use a dropdown to switch the editor between all of the languages that BlockNote ships with, by passing the matching dictionary from `@blocknote/core/locales` to the editor. Selecting a language re-mounts the editor so the interface strings update immediately. The document is saved outside the editor and restored on re-mount, preserving your content (but not the undo history or selection).\n\nYou can also provide your own dictionary to customize the strings used in the editor, or submit a Pull Request to add support for your language of your choice.\n\n**Relevant Docs:**\n\n- [Localization](/docs/features/localization)",
       },
       {
         projectSlug: "custom-placeholder",
@@ -1985,7 +1985,7 @@ export const examples = {
         config: {
           playground: true,
           docs: true,
-          author: "",
+          author: "nickthesick",
           tags: ["Advanced", "Saving/Loading", "Collaboration"],
           dependencies: {
             "@y/prosemirror": "^2.0.0-15",
@@ -2052,6 +2052,48 @@ export const examples = {
         },
         readme:
           'This example shows how to use `InMemoryVersioningExtension` without a collaboration layer. It seeds history with ProseMirror document JSON, which the extension converts to immutable documents using the editor\'s schema. `initialVersions` also accepts BlockNote JSON as arrays of partial blocks.\n\nThe sidebar opens on a document with a few versions already in its history, including an automatic unnamed version, so you can preview them, compare them, rename them, restore them, and try the named-only filter right away. The editor is read-only while the sidebar is open: close it to edit the document, then reopen it with the "History" button.',
+      },
+      {
+        projectSlug: "embeds-without-backend",
+        fullSlug: "extensions/embeds-without-backend",
+        pathFromRoot: "examples/08-extensions/03-embeds-without-backend",
+        config: {
+          playground: true,
+          docs: false,
+          author: "",
+          tags: ["Extension", "Custom Blocks"],
+          dependencies: {
+            "@blocknote/embeds": "latest",
+          } as any,
+        },
+        title: "Embeds without a backend",
+        group: {
+          pathFromRoot: "examples/08-extensions",
+          slug: "extensions",
+        },
+        readme:
+          "Paste a sample URL into an empty paragraph, then choose URL, Bookmark or Embed. Pasting itself only inserts an ordinary link and never fetches a preview.\n\nYouTube, Bluesky and the small typed custom CodePen React provider work directly after you choose Embed. The optional catch-all accepts other websites and honestly shows a source card without a resolver. No backend endpoint, provider catalog or automatic favicon service is used. Bookmarks save only the source URL unless you supply a metadata callback; saved bookmarks never resolve metadata on mount.\n\nRun the playground and open `/extensions/embeds-without-backend`. Compare with [the endpoint-backed example](../04-embeds-with-backend). Copy buttons write plain text and focus an empty paragraph; they do not fetch or insert previews. This example does not persist documents across reloads.",
+      },
+      {
+        projectSlug: "embeds-with-backend",
+        fullSlug: "extensions/embeds-with-backend",
+        pathFromRoot: "examples/08-extensions/04-embeds-with-backend",
+        config: {
+          playground: true,
+          docs: false,
+          author: "",
+          tags: ["Extension", "Custom Blocks"],
+          dependencies: {
+            "@blocknote/embeds": "latest",
+          } as any,
+        },
+        title: "Embeds with a backend",
+        group: {
+          pathFromRoot: "examples/08-extensions",
+          slug: "extensions",
+        },
+        readme:
+          "The same minimal paste-and-choose flow as [the browser-only example](../03-embeds-without-backend), with a standard oEmbed endpoint for saved bookmark metadata and optional live generic previews. No request starts until Bookmark or Embed is chosen.\n\nRun the playground and open `/extensions/embeds-with-backend`; its existing local-development resolver is connected automatically. For a standalone app, set `VITE_OEMBED_URL=https://your-app.example/oembed` in the serving Vite application's `.env.local` and restart it. Without an endpoint, direct providers and useful URL-only fallbacks still work.\n\nThe default client accepts raw oEmbed 1.0 JSON, including the existing `@blocknote/xl-embed-server` metadata extensions. Save bookmark metadata once through the small typed callback; mount and reload do not resolve it again. Live providers own their loading and rendering.\n\nAn oEmbed response is untrusted data, not authorization to run HTML. Generic iframe rendering is denied unless its exact HTTPS origin is explicitly approved; same-origin application frames are always denied. Unsupported rich HTML becomes a source/metadata card. No upstream scripts or HTML are inserted.\n\nThe existing reference server requires application-supplied protected outbound fetching: plain global fetch is not an SSRF-safe server transport. Authentication, CORS, rate limits and deployment remain application-owned. Keep secrets on the server. This example does not persist documents across reloads.",
       },
     ],
   },

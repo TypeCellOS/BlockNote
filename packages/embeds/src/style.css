@@ -1,0 +1,120 @@
+.bn-embed-shell {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+.bn-embed-card {
+  display: flex;
+  overflow: hidden;
+  border: 1px solid var(--bn-colors-border);
+  border-radius: var(--bn-border-radius);
+  color: var(--bn-colors-editor-text);
+  background: var(--bn-colors-editor-background);
+  min-width: 0;
+}
+.bn-embed-card-text {
+  flex: 1;
+  min-width: 0;
+  padding: 12px;
+  overflow-wrap: anywhere;
+}
+.bn-embed-card-text > a {
+  font-weight: 600;
+  color: inherit;
+  text-decoration: none;
+}
+.bn-embed-card-text > a,
+.bn-embed-card p {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.bn-embed-card-text > a:hover {
+  text-decoration: underline;
+}
+.bn-embed-card small {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+.bn-embed-card p {
+  margin: 8px 0;
+  opacity: 0.75;
+}
+.bn-embed-card small,
+.bn-embed-status {
+  display: block;
+  font-size: 0.85em;
+  margin-top: 6px;
+  opacity: 0.65;
+}
+.bn-embed-card img {
+  order: -1;
+  width: 25%;
+  align-self: stretch;
+  min-height: 120px;
+  max-height: 160px;
+  object-fit: cover;
+}
+.bn-embed-controls {
+  position: absolute;
+  top: 0;
+  right: 6px;
+  transform: translateY(-50%);
+  z-index: 2;
+  opacity: 0;
+  pointer-events: none;
+}
+.bn-embed-shell:hover .bn-embed-controls,
+.bn-embed-shell:focus-within .bn-embed-controls,
+.bn-embed-controls[data-menu-open],
+.ProseMirror-selectednode .bn-embed-controls {
+  opacity: 1;
+  pointer-events: auto;
+}
+.bn-embed-shell a:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+.bn-embed-iframe {
+  display: block;
+  width: 100%;
+  border: 0;
+  min-height: 100px;
+}
+.bn-embed-photo {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+.bn-embed-loading {
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  justify-content: center;
+}
+.bn-embed-pending {
+  color: var(--bn-colors-editor-text);
+  background: var(--bn-colors-editor-background);
+  border-radius: var(--bn-border-radius);
+  box-shadow: var(--bn-shadow-light);
+  padding: 8px;
+}
+.bn-container .bn-embed-choice .bn-embed-paste-panel {
+  width: 200px;
+  max-width: calc(100vw - 16px);
+  max-height: calc(100dvh - 16px);
+  overflow-y: auto;
+}
+.bn-embed-paste-panel [aria-disabled="true"] {
+  opacity: 0.4;
+  pointer-events: none;
+}
+@media (hover: none) {
+  .bn-embed-controls {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
