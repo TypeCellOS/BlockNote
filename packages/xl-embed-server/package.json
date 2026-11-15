@@ -1,7 +1,6 @@
 {
   "name": "@blocknote/xl-embed-server",
   "homepage": "https://github.com/TypeCellOS/BlockNote",
-  "private": true,
   "sideEffects": false,
   "license": "GPL-3.0 OR PROPRIETARY",
   "version": "0.57.0",

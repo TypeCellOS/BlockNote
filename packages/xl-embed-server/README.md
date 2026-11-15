@@ -1,6 +1,6 @@
 # Experimental discovery-only oEmbed resolver
 
-`@blocknote/xl-embed-server` is an optional, private/not-published reference
+`@blocknote/xl-embed-server` is an optional reference
 implementation, not a production unfurling platform or broad Iframely replacement.
 BlockNote clients can use another standard oEmbed service instead.
 
