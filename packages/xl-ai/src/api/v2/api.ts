@@ -61,6 +61,19 @@ export type ChangeOperations = {
    * changes, which it did not write.
    */
   changesOfOthers: ChangeOfOthers[];
+  /**
+   * The document as the client wrote it: the version of `base` with the
+   * change of the client, and without the changes of other writers. Its text
+   * is the text that the client has now. Thus, it is the `base` of the next
+   * write of this client, if the client does not read the document again:
+   * keep it as a version. For `base: "current"`, it is the document after
+   * the write.
+   *
+   * The document after a write from an older version is not that base: it
+   * has changes that the client did not see, and a write of the text of the
+   * client from it removes them without a warning.
+   */
+  written: LensBlock[];
 };
 
 /**
@@ -341,31 +354,28 @@ export function updateFromTarget(
     return { error: "conflict", conflicts: merged.warnings };
   }
   // 5. Fit.
-  const result = fitResult(
-    rules,
-    merged.blocks,
-    current,
-    documents.keepLayout === true,
-  );
+  const keepLayout = documents.keepLayout === true;
+  const fit = fitResult(rules, merged.blocks, current, keepLayout);
   // 6. Diff. A block that changes between a layout block and a block with
   // content gets a new ID: the diff removes it and inserts the new block.
-  const operations = diffDocuments(
+  const result = newIdsForLayoutChanges(
     current,
-    newIdsForLayoutChanges(
-      current,
-      result,
-      (type) => rules.layoutRuleOf(type) !== undefined,
-      () => UniqueID.options.generateID(),
-    ),
+    fit,
+    (type) => rules.layoutRuleOf(type) !== undefined,
+    () => UniqueID.options.generateID(),
   );
   return {
-    operations,
+    operations: diffDocuments(current, result),
     warnings: [
       ...warnings,
       ...merged.warnings,
-      ...mergedCellsRemoved(current, result),
+      ...mergedCellsRemoved(current, fit),
     ],
     changesOfOthers: base === undefined ? [] : changesOfOthersOf(base, current),
+    // Without a merge, the client wrote the result. With a merge, the client
+    // wrote the target: it gets the fit for the version that the client read.
+    written:
+      base === undefined ? result : fitResult(rules, target, base, keepLayout),
   };
 }
 

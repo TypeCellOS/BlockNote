@@ -51,9 +51,16 @@ export type YDocWriteFromVersion =
  * The result of a write to a Y.Doc. On an error (also an exception), the
  * write does not change the Y.Doc. Only the updates of `base` that the Y.Doc
  * did not have yet apply (see `updateYDoc`).
+ *
+ * The result does not have the document that the client wrote (`written` of
+ * `ChangeOperations`): `base` is a Yjs state here, and a Yjs state of that
+ * document does not exist. Thus, after a write with `changesOfOthers`, the
+ * Y.Doc has changes that the client did not see: the client must read the
+ * text again before its next write (see the README, "Items that are not
+ * done").
  */
 export type YDocChangeResult =
-  | (ChangeOperations & {
+  | (Omit<ChangeOperations, "written"> & {
       /** The Yjs update of the write. Send it to the other clients, if no provider does that. */
       update: Uint8Array;
     })
@@ -118,9 +125,13 @@ export function updateYDoc(
       ? { ...result, changesOfOthers: changesOfOthersOf(yjs.base, current) }
       : result;
   });
-  return update.error === undefined
-    ? { ...update, update: Y.encodeStateAsUpdate(ydoc, before) }
-    : update;
+  if (update.error !== undefined) {
+    return update;
+  }
+  // The result has no `written`: `base` is a Yjs state here, and the written
+  // document is Block JSON (see `YDocChangeResult`).
+  const { written: _written, ...result } = update;
+  return { ...result, update: Y.encodeStateAsUpdate(ydoc, before) };
 }
 
 /** The part of the fork extension of core (`ForkYDocExtension`) that a write uses. */

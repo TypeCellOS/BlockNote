@@ -1285,6 +1285,141 @@ describe("a write from an older version that changes the same word as another wr
   });
 });
 
+describe("the document that the client wrote, in the result of a write", () => {
+  // After a write that merged, the client has its own text, and the document
+  // has the changes of other writers too. The base of the next write of the
+  // client is the document that the client wrote (`written`), not the
+  // document after the write.
+  function twoParagraphs() {
+    return createEditor([
+      { id: "a", type: "paragraph", content: "Alpha" },
+      { id: "b", type: "paragraph", content: "Beta" },
+    ]);
+  }
+
+  /** The text of each block of the document. */
+  function texts(editor: BlockNoteEditor<any, any, any>) {
+    return flattenBlocks(editor.document).map(({ block }) =>
+      Array.isArray(block.content)
+        ? block.content
+            .map((item) => ("text" in item ? item.text : ""))
+            .join("")
+        : "",
+    );
+  }
+
+  it("is the base of the next write of the client: the change of another writer stays", () => {
+    const editor = twoParagraphs();
+    const client = read(editor);
+    editor.updateBlock("b", { content: "Beta, from the other writer" });
+
+    const ownText = replaceOnce(client.text, "Alpha", "Alpha one");
+    const first = write(editor, client, () => ownText);
+    // The client did not read the document again. It changes its own text.
+    const second = valid(
+      updateDocument(editor, {
+        format,
+        text: replaceOnce(ownText, "Alpha one", "Alpha two"),
+        base: first.written,
+      }),
+    );
+
+    expect(texts(editor)).toEqual(["Alpha two", "Beta, from the other writer"]);
+    expect(second.warnings).toEqual([]);
+    expect(second.changesOfOthers).toEqual([{ id: "b", change: "changed" }]);
+  });
+
+  it("is not the document after the write: that base, with the text of the client, removes the change of the other writer", () => {
+    // The fault that `written` prevents. The document after the write is the
+    // base only for a text that the client read from it.
+    const editor = twoParagraphs();
+    const client = read(editor);
+    editor.updateBlock("b", { content: "Beta, from the other writer" });
+
+    const ownText = replaceOnce(client.text, "Alpha", "Alpha one");
+    write(editor, client, () => ownText);
+    const second = valid(
+      updateDocument(editor, {
+        format,
+        text: replaceOnce(ownText, "Alpha one", "Alpha two"),
+        base: editor.document,
+      }),
+    );
+
+    expect(texts(editor)).toEqual(["Alpha two", "Beta"]);
+    expect(second.warnings).toEqual([]);
+  });
+
+  it("has the text of the client, without the changes of other writers", () => {
+    const editor = twoParagraphs();
+    const client = read(editor);
+    editor.updateBlock("b", { content: "Beta, from the other writer" });
+
+    const { written } = write(editor, client, (text) =>
+      replaceOnce(text, "Alpha", "Alpha one"),
+    );
+
+    expect(format.serialize(editor, written)).toBe("Alpha one\n\nBeta\n");
+    expect(written.map((block) => block.id)).toEqual(["a", "b"]);
+  });
+
+  it("has a new block of the client with the ID that the document has: the next write does not add the block again", () => {
+    const editor = twoParagraphs();
+    const client = read(editor);
+    editor.updateBlock("b", { content: "Beta, from the other writer" });
+
+    const ownText = replaceOnce(client.text, "Alpha", "Alpha\n\nNew");
+    const first = write(editor, client, () => ownText);
+    updateDocument(editor, {
+      format,
+      text: replaceOnce(ownText, "New", "New, changed"),
+      base: first.written,
+    });
+
+    expect(texts(editor)).toEqual([
+      "Alpha",
+      "New, changed",
+      "Beta, from the other writer",
+    ]);
+    expect(first.written[1].id).toBe(editor.document[1].id);
+  });
+
+  it("keeps the part of the client that lost a conflict: the next write does not change that part again", () => {
+    const editor = twoParagraphs();
+    const client = read(editor);
+    editor.updateBlock("a", { content: "Alpha, from the other writer" });
+
+    const ownText = replaceOnce(client.text, "Alpha", "Omega");
+    const first = write(editor, client, () => ownText);
+    expect(first.warnings).toEqual([{ type: "conflicting-change", id: "a" }]);
+    const second = valid(
+      updateDocument(editor, {
+        format,
+        text: replaceOnce(ownText, "Beta", "Beta, changed"),
+        base: first.written,
+      }),
+    );
+
+    expect(texts(editor)).toEqual([
+      "Alpha, from the other writer",
+      "Beta, changed",
+    ]);
+    expect(second.warnings).toEqual([]);
+  });
+
+  it("is the document after the write, for a write to the current document", () => {
+    const editor = twoParagraphs();
+    const { written } = valid(
+      updateDocument(editor, {
+        format,
+        text: "Alpha one\n\nBeta\n\nNew\n",
+        base: "current",
+      }),
+    );
+    expect(written).toEqual(editor.document);
+  });
+});
+
 describe("the changes of other writers in the result of a write", () => {
   // A client (for example an AI agent) that reads the document after its
   // write sees the changes of other writers. The result names them, thus the

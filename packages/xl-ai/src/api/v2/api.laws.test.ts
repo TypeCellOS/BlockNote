@@ -106,6 +106,7 @@ describe.each(documents)("$name", ({ create }) => {
         operations: [],
         warnings: [],
         changesOfOthers: [],
+        written: editor.document,
       });
       // This text is not equal to the text that the client read. Thus, it goes
       // through the full pipeline.
@@ -117,7 +118,12 @@ describe.each(documents)("$name", ({ create }) => {
             text: `\n${text}\n\n`,
           }),
         ),
-      ).toEqual({ operations: [], warnings: [], changesOfOthers: [] });
+      ).toEqual({
+        operations: [],
+        warnings: [],
+        changesOfOthers: [],
+        written: editor.document,
+      });
     });
 
     it.each(edits)(

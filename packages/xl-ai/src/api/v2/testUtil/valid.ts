@@ -1,7 +1,10 @@
-import type { ChangeOperations, ChangeResult } from "../api.js";
+import type { ChangeOperations } from "../api.js";
 
-/** Returns the update, and fails the test if the update is an error. */
-export function valid<T extends ChangeResult>(
+/**
+ * Returns the update, and fails the test if the update is an error. The
+ * update is the result of a write to an editor or to a Y.Doc.
+ */
+export function valid<T extends { error?: string }>(
   update: T,
 ): Exclude<T, { error: string }> {
   if (update.error !== undefined) {
