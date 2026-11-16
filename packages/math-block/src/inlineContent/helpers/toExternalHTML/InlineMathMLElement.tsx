@@ -2,7 +2,7 @@ import { StyleSchema } from "@blocknote/core";
 import { ReactCustomInlineContentRenderProps } from "@blocknote/react";
 import type { ComponentType } from "react";
 
-import { latexToMathMLElement } from "../../../helpers/toExternalHTML/latexToMathMLElement.js";
+import { mathMLExportContent } from "../../../helpers/toExternalHTML/latexToMathMLElement.js";
 import { MathInlineContentConfig } from "../../createReactMathInlineContentSpec.js";
 
 export const InlineMathMLElement = ({
@@ -11,11 +11,6 @@ export const InlineMathMLElement = ({
   MathInlineContentConfig,
   StyleSchema
 >) => {
-  const { mathMLElement } = latexToMathMLElement(inlineContent.content, true);
-  if (!mathMLElement) {
-    return null;
-  }
-
   // `math` isn't part of React's built-in JSX types, so we alias it to a
   // component type to render it as a JSX element.
   const Math = "math" as unknown as ComponentType<{
@@ -30,7 +25,9 @@ export const InlineMathMLElement = ({
       xmlns="http://www.w3.org/1998/Math/MathML"
       display="inline"
       alttext={inlineContent.content}
-      dangerouslySetInnerHTML={{ __html: mathMLElement.innerHTML }}
+      dangerouslySetInnerHTML={{
+        __html: mathMLExportContent(inlineContent.content, true),
+      }}
     />
   );
 };

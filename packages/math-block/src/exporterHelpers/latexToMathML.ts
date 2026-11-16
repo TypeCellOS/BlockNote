@@ -2,9 +2,9 @@ import katex from "katex";
 
 // Converts LaTeX to MathML (via KaTeX). The DOCX exporter mapping converts
 // it further to OMML, the ODT mapping embeds it directly as a formula
-// object. Invalid LaTeX is expected (the source is user input), so it's
-// returned as a typed error - with a message safe to show to readers -
-// rather than thrown.
+// object, and the external HTML export writes it as it is. Invalid LaTeX is
+// expected (the source is user input), so it's returned as a typed error -
+// with a message safe to show to readers - rather than thrown.
 export function latexToMathML(
   latex: string,
   inline: boolean,
