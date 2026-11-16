@@ -20,6 +20,7 @@ import {
   tableContentToNodes,
 } from "../../../nodeConversions/blockToNode.js";
 import { nodeToCustomInlineContent } from "../../../nodeConversions/nodeToBlock.js";
+import { HTMLExportSession } from "./HTMLExportSession.js";
 
 /**
  * Placeholder character inserted into empty inline-content blocks when
@@ -35,7 +36,7 @@ import { nodeToCustomInlineContent } from "../../../nodeConversions/nodeToBlock.
  */
 export const EMPTY_BLOCK_PLACEHOLDER = "￼";
 
-function addAttributesAndRemoveClasses(element: HTMLElement) {
+function addAttributesAndRemoveClasses(element: Element) {
   // Removes all BlockNote specific class names.
   const className =
     Array.from(element.classList).filter(
@@ -245,13 +246,14 @@ function serializeBlock<
   orderedListItemBlockTypes: Set<string>,
   unorderedListItemBlockTypes: Set<string>,
   nestingLevel: number,
+  session: HTMLExportSession,
   options?: { document?: Document },
 ) {
   const doc = options?.document ?? document;
   const BC_NODE = editor.pmSchema.nodes["blockContainer"];
 
   // set default props in case we were passed a partial block
-  const props = block.props || {};
+  const props = { ...block.props };
   for (const [name, spec] of Object.entries(
     editor.schema.blockSchema[block.type as any].propSchema,
   )) {
@@ -308,19 +310,19 @@ function serializeBlock<
         attr.name !== "data-editable",
     );
 
-    for (const attr of blockContentDataAttributes) {
-      (rootElement.firstChild! as HTMLElement).setAttribute(
-        attr.name,
-        attr.value,
-      );
-    }
+    const firstElement = rootElement.firstElementChild;
+    if (firstElement) {
+      for (const attr of blockContentDataAttributes) {
+        firstElement.setAttribute(attr.name, attr.value);
+      }
 
-    addAttributesAndRemoveClasses(rootElement.firstChild! as HTMLElement);
-    if (nestingLevel > 0) {
-      (rootElement.firstChild! as HTMLElement).setAttribute(
-        "data-nesting-level",
-        nestingLevel.toString(),
-      );
+      addAttributesAndRemoveClasses(firstElement);
+      if (nestingLevel > 0) {
+        firstElement.setAttribute(
+          "data-nesting-level",
+          nestingLevel.toString(),
+        );
+      }
     }
     elementFragment.append(...Array.from(rootElement.childNodes));
   } else {
@@ -383,6 +385,10 @@ function serializeBlock<
     childrenDOM = frame.slot;
   }
 
+  // Capture roots before appending consumes the fragment. Record after all
+  // children have been assembled; hooks run only at the top-level boundary.
+  const outputNodes = Array.from(elementFragment.childNodes);
+
   let listType = undefined;
   if (orderedListItemBlockTypes.has(block.type!)) {
     listType = "OL";
@@ -420,6 +426,7 @@ function serializeBlock<
       orderedListItemBlockTypes,
       unorderedListItemBlockTypes,
       nestingLevel + 1,
+      session,
       options,
     );
     if (
@@ -451,6 +458,7 @@ function serializeBlock<
       ret.contentDOM.append(childFragment);
     }
   }
+  session.record(block.type!, blockWithDefaults, outputNodes);
 }
 
 const serializeBlocksToFragment = <
@@ -464,7 +472,8 @@ const serializeBlocksToFragment = <
   serializer: DOMSerializer,
   orderedListItemBlockTypes: Set<string>,
   unorderedListItemBlockTypes: Set<string>,
-  nestingLevel = 0,
+  nestingLevel: number,
+  session: HTMLExportSession,
   options?: { document?: Document },
 ) => {
   for (const block of blocks) {
@@ -476,6 +485,7 @@ const serializeBlocksToFragment = <
       orderedListItemBlockTypes,
       unorderedListItemBlockTypes,
       nestingLevel,
+      session,
       options,
     );
   }
@@ -496,6 +506,8 @@ export const serializeBlocksExternalHTML = <
   const doc = options?.document ?? document;
   const fragment = doc.createDocumentFragment();
 
+  const session = new HTMLExportSession();
+
   serializeBlocksToFragment(
     fragment,
     editor,
@@ -504,7 +516,9 @@ export const serializeBlocksExternalHTML = <
     orderedListItemBlockTypes,
     unorderedListItemBlockTypes,
     0,
+    session,
     options,
   );
+  session.run(editor.blockImplementations, fragment);
   return fragment;
 };

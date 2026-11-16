@@ -20,6 +20,7 @@ import {
   markFrameSlot,
   renderFrameDOM,
 } from "../../../../schema/blocks/frame.js";
+import { HTMLExportSession } from "./HTMLExportSession.js";
 export function serializeInlineContentInternalHTML<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
@@ -140,12 +141,13 @@ function serializeBlock<
   editor: BlockNoteEditor<BSchema, I, S>,
   block: PartialBlock<BSchema, I, S>,
   serializer: DOMSerializer,
+  session: HTMLExportSession,
   options?: { document?: Document },
 ) {
   const BC_NODE = editor.pmSchema.nodes["blockContainer"];
 
-  // set default props in case we were passed a partial block
-  const props = block.props || {};
+  // Fill defaults on a copy, without mutating caller-owned (possibly frozen) props.
+  const props = { ...block.props };
   for (const [name, spec] of Object.entries(
     editor.schema.blockSchema[block.type as any].propSchema,
   )) {
@@ -170,8 +172,11 @@ function serializeBlock<
       );
     }
     if (children.length > 0) {
-      frame.slot.append(serializeBlocks(editor, children, serializer, options));
+      frame.slot.append(
+        serializeBlocks(editor, children, serializer, session, options),
+      );
     }
+    session.record(block.type!, fullBlock, [frame.dom]);
     return frame.dom;
   }
 
@@ -231,9 +236,10 @@ function serializeBlock<
 
   if (children.length > 0) {
     contentDOM?.appendChild(
-      serializeBlocksInternalHTML(editor, children, serializer, options),
+      serializeBlockGroup(editor, children, serializer, session, options),
     );
   }
+  session.record(block.type!, fullBlock, [bc.dom]);
   return bc.dom;
 }
 
@@ -245,20 +251,58 @@ function serializeBlocks<
   editor: BlockNoteEditor<BSchema, I, S>,
   blocks: PartialBlock<BSchema, I, S>[],
   serializer: DOMSerializer,
+  session: HTMLExportSession,
   options?: { document?: Document },
 ) {
   const doc = options?.document ?? document;
   const fragment = doc.createDocumentFragment();
 
   for (const block of blocks) {
-    const blockDOM = serializeBlock(editor, block, serializer, options);
+    const blockDOM = serializeBlock(
+      editor,
+      block,
+      serializer,
+      session,
+      options,
+    );
     fragment.appendChild(blockDOM);
   }
 
   return fragment;
 }
 
-export const serializeBlocksInternalHTML = <
+function serializeBlockGroup<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema,
+>(
+  editor: BlockNoteEditor<BSchema, I, S>,
+  blocks: PartialBlock<BSchema, I, S>[],
+  serializer: DOMSerializer,
+  session: HTMLExportSession,
+  options?: { document?: Document },
+) {
+  const BG_NODE = editor.pmSchema.nodes["blockGroup"];
+
+  const bg = BG_NODE.spec!.toDOM!(BG_NODE.create({})) as {
+    dom: HTMLElement;
+    contentDOM?: HTMLElement;
+  };
+
+  const fragment = serializeBlocks(
+    editor,
+    blocks,
+    serializer,
+    session,
+    options,
+  );
+
+  bg.contentDOM?.appendChild(fragment);
+
+  return bg.dom;
+}
+
+export function serializeBlocksInternalHTML<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema,
@@ -267,17 +311,9 @@ export const serializeBlocksInternalHTML = <
   blocks: PartialBlock<BSchema, I, S>[],
   serializer: DOMSerializer,
   options?: { document?: Document },
-) => {
-  const BG_NODE = editor.pmSchema.nodes["blockGroup"];
-
-  const bg = BG_NODE.spec!.toDOM!(BG_NODE.create({})) as {
-    dom: HTMLElement;
-    contentDOM?: HTMLElement;
-  };
-
-  const fragment = serializeBlocks(editor, blocks, serializer, options);
-
-  bg.contentDOM?.appendChild(fragment);
-
-  return bg.dom;
-};
+) {
+  const session = new HTMLExportSession();
+  const dom = serializeBlockGroup(editor, blocks, serializer, session, options);
+  session.run(editor.blockImplementations, dom);
+  return dom;
+}

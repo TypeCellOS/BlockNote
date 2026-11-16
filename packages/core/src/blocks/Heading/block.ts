@@ -9,6 +9,7 @@ import {
 import { getDetailsContent } from "../getDetailsContent.js";
 import {
   createToggleFrame,
+  expandToggleHTML,
   isToggleOpen,
 } from "../ToggleWrapper/createToggleFrame.js";
 
@@ -177,6 +178,7 @@ export const createHeadingBlockSpec = createBlockSpec(
           !!updated.props.isToggleable && frame.update(updated),
       };
     },
+    postProcessHTML: expandToggleHTML,
     toExternalHTML(block) {
       const dom = document.createElement(`h${block.props.level}`);
       addDefaultPropsExternalHTML(block.props, dom);

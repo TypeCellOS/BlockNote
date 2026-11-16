@@ -132,6 +132,20 @@ export const createCheckListItemBlockSpec = createBlockSpec(
         contentDOM: paragraph,
       };
     },
+    postProcessHTML({ blockOutputs }) {
+      // Static editor controls have no change handlers. Portable checkboxes
+      // don't have the editor's content wrapper and are left unchanged.
+      for (const { elements } of blockOutputs.values()) {
+        for (const root of elements) {
+          const checkbox = root.querySelector<HTMLInputElement>(
+            '[data-content-type="checkListItem"] input',
+          );
+          if (checkbox) {
+            checkbox.disabled = true;
+          }
+        }
+      }
+    },
     runsBefore: ["bulletListItem"],
   },
   [

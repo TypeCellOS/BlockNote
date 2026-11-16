@@ -434,9 +434,42 @@ export type TableBlockConfig = BlockConfig<
   "table"
 >;
 
-export const createTableBlockSpec = () =>
-  createBlockSpecFromTiptapNode(
-    { node: TiptapTableNode, type: "table", content: "table" },
+export function createTableBlockSpec() {
+  return createBlockSpecFromTiptapNode(
+    {
+      node: TiptapTableNode,
+      type: "table",
+      content: "table",
+      postProcessHTML({ blockOutputs }) {
+        for (const { elements } of blockOutputs.values()) {
+          for (const root of elements) {
+            // Only editor-shaped tables need resizing styles and wrappers.
+            const table = root.querySelector<HTMLTableElement>(
+              '.bn-block-content[data-content-type="table"] > table',
+            );
+            if (!table) {
+              continue;
+            }
+
+            // The live column-resizing extension supplies these, but doesn't run
+            // during export. Keep the table's own styles intact.
+            table.style.setProperty(
+              "--default-cell-min-width",
+              `${EMPTY_CELL_WIDTH}px`,
+            );
+            table.setAttribute("data-show-children", "true");
+
+            const wrapper = table.ownerDocument.createElement("div");
+            wrapper.className = "tableWrapper";
+            const inner = table.ownerDocument.createElement("div");
+            inner.className = "tableWrapper-inner";
+            wrapper.appendChild(inner);
+            table.replaceWith(wrapper);
+            wrapper.appendChild(table);
+          }
+        }
+      },
+    },
     tablePropSchema,
     [
       createExtension({
@@ -505,6 +538,7 @@ export const createTableBlockSpec = () =>
       }),
     ],
   );
+}
 
 // We need to declare this here because we aren't using the table extensions from tiptap, so the types are not automatically inferred.
 declare module "@tiptap/core" {

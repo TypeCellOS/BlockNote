@@ -147,6 +147,7 @@ type ReactCustomBlockImplementation = {
     childrenRef: (node: HTMLElement | null) => void;
     context: { nestingLevel: number };
   }>;
+  postProcessHTML?(context: HTMLExportContext): undefined;
   parse?: (element: HTMLElement) => PartialBlock["props"] | undefined;
   parseContent?: (options: {
     el: HTMLElement;
@@ -200,6 +201,8 @@ type ReactCustomBlockImplementation = {
   serialized in a separate React root, which means you can't use hooks that rely
   on React Contexts._
 </Callout>
+
+`postProcessHTML?:` A synchronous DOM callback for changes that need the assembled document, rather than one block's render output. It is available on both `createBlockSpec` and `createReactBlockSpec`. See [Post-processing Exported HTML](#post-processing-exported-html).
 
 `parse?:` The `parse` function defines how to parse HTML content into your block, for example when pasting contents from the clipboard. If the element should be parsed into your custom block, you return the props that the block should be given. Otherwise, return `undefined`. Takes a single argument:
 
@@ -398,3 +401,24 @@ When the user moves the alert, its title and its body move together.
   set. See [Layout Blocks and Block
   Frames](/docs/features/custom-schemas/layout-blocks#layout-blocks-and-block-frames)._
 </Callout>
+
+## Post-processing Exported HTML
+
+Add `postProcessHTML` alongside `render` or `toExternalHTML` to adjust a block's HTML after the whole document has been rendered. This is useful when the result depends on other blocks, such as numbering list items.
+
+The callback runs once for each block type present in the export, for both `blocksToFullHTML` and `blocksToHTMLLossy`. It receives:
+
+- `root`: the whole exported document's DOM, which you can search with `querySelectorAll`.
+- `blockOutputs`: a map from blocks of this type to their rendered output. Use `elements` to access their HTML elements, or `nodes` to include text and comments too.
+
+```ts
+postProcessHTML({ blockOutputs }) {
+  for (const { elements } of blockOutputs.values()) {
+    for (const element of elements) {
+      element.setAttribute("data-exported", "true");
+    }
+  }
+}
+```
+
+Keep the callback synchronous and only change the exported DOM, not block data or editor state. For relationships between blocks, use DOM siblings and parents rather than map order. Since the two export methods can produce different HTML, only change elements that match the structure you need.
