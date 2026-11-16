@@ -183,113 +183,114 @@
   font-size: 12px;
 }
 
-/* Highlight color styling */
+/* Highlight color styling. Keep fallbacks in sync with core's Block.css so
+   standalone editors and exported HTML also work outside a themed .bn-root. */
 [data-style-type="textColor"][data-value="gray"],
 [data-text-color="gray"],
 .bn-block:has(> .bn-block-content[data-text-color="gray"]) {
-  color: var(--bn-colors-highlights-gray-text);
+  color: var(--bn-colors-highlights-gray-text, #9b9a97);
 }
 
 [data-style-type="textColor"][data-value="brown"],
 [data-text-color="brown"],
 .bn-block:has(> .bn-block-content[data-text-color="brown"]) {
-  color: var(--bn-colors-highlights-brown-text);
+  color: var(--bn-colors-highlights-brown-text, #64473a);
 }
 
 [data-style-type="textColor"][data-value="red"],
 [data-text-color="red"],
 .bn-block:has(> .bn-block-content[data-text-color="red"]) {
-  color: var(--bn-colors-highlights-red-text);
+  color: var(--bn-colors-highlights-red-text, #e03e3e);
 }
 
 [data-style-type="textColor"][data-value="orange"],
 [data-text-color="orange"],
 .bn-block:has(> .bn-block-content[data-text-color="orange"]) {
-  color: var(--bn-colors-highlights-orange-text);
+  color: var(--bn-colors-highlights-orange-text, #d9730d);
 }
 
 [data-style-type="textColor"][data-value="yellow"],
 [data-text-color="yellow"],
 .bn-block:has(> .bn-block-content[data-text-color="yellow"]) {
-  color: var(--bn-colors-highlights-yellow-text);
+  color: var(--bn-colors-highlights-yellow-text, #dfab01);
 }
 
 [data-style-type="textColor"][data-value="green"],
 [data-text-color="green"],
 .bn-block:has(> .bn-block-content[data-text-color="green"]) {
-  color: var(--bn-colors-highlights-green-text);
+  color: var(--bn-colors-highlights-green-text, #4d6461);
 }
 
 [data-style-type="textColor"][data-value="blue"],
 [data-text-color="blue"],
 .bn-block:has(> .bn-block-content[data-text-color="blue"]) {
-  color: var(--bn-colors-highlights-blue-text);
+  color: var(--bn-colors-highlights-blue-text, #0b6e99);
 }
 
 [data-style-type="textColor"][data-value="purple"],
 [data-text-color="purple"],
 .bn-block:has(> .bn-block-content[data-text-color="purple"]) {
-  color: var(--bn-colors-highlights-purple-text);
+  color: var(--bn-colors-highlights-purple-text, #6940a5);
 }
 
 [data-style-type="textColor"][data-value="pink"],
 [data-text-color="pink"],
 .bn-block:has(> .bn-block-content[data-text-color="pink"]) {
-  color: var(--bn-colors-highlights-pink-text);
+  color: var(--bn-colors-highlights-pink-text, #ad1a72);
 }
 
 [data-style-type="backgroundColor"][data-value="gray"],
 [data-background-color="gray"],
 .bn-block:has(> .bn-block-content[data-background-color="gray"]) {
-  background-color: var(--bn-colors-highlights-gray-background);
+  background-color: var(--bn-colors-highlights-gray-background, #ebeced);
 }
 
 [data-style-type="backgroundColor"][data-value="brown"],
 [data-background-color="brown"],
 .bn-block:has(> .bn-block-content[data-background-color="brown"]) {
-  background-color: var(--bn-colors-highlights-brown-background);
+  background-color: var(--bn-colors-highlights-brown-background, #e9e5e3);
 }
 
 [data-style-type="backgroundColor"][data-value="red"],
 [data-background-color="red"],
 .bn-block:has(> .bn-block-content[data-background-color="red"]) {
-  background-color: var(--bn-colors-highlights-red-background);
+  background-color: var(--bn-colors-highlights-red-background, #fbe4e4);
 }
 
 [data-style-type="backgroundColor"][data-value="orange"],
 [data-background-color="orange"],
 .bn-block:has(> .bn-block-content[data-background-color="orange"]) {
-  background-color: var(--bn-colors-highlights-orange-background);
+  background-color: var(--bn-colors-highlights-orange-background, #f6e9d9);
 }
 
 [data-style-type="backgroundColor"][data-value="yellow"],
 [data-background-color="yellow"],
 .bn-block:has(> .bn-block-content[data-background-color="yellow"]) {
-  background-color: var(--bn-colors-highlights-yellow-background);
+  background-color: var(--bn-colors-highlights-yellow-background, #fbf3db);
 }
 
 [data-style-type="backgroundColor"][data-value="green"],
 [data-background-color="green"],
 .bn-block:has(> .bn-block-content[data-background-color="green"]) {
-  background-color: var(--bn-colors-highlights-green-background);
+  background-color: var(--bn-colors-highlights-green-background, #ddedea);
 }
 
 [data-style-type="backgroundColor"][data-value="blue"],
 [data-background-color="blue"],
 .bn-block:has(> .bn-block-content[data-background-color="blue"]) {
-  background-color: var(--bn-colors-highlights-blue-background);
+  background-color: var(--bn-colors-highlights-blue-background, #ddebf1);
 }
 
 [data-style-type="backgroundColor"][data-value="purple"],
 [data-background-color="purple"],
 .bn-block:has(> .bn-block-content[data-background-color="purple"]) {
-  background-color: var(--bn-colors-highlights-purple-background);
+  background-color: var(--bn-colors-highlights-purple-background, #eae4f2);
 }
 
 [data-style-type="backgroundColor"][data-value="pink"],
 [data-background-color="pink"],
 .bn-block:has(> .bn-block-content[data-background-color="pink"]) {
-  background-color: var(--bn-colors-highlights-pink-background);
+  background-color: var(--bn-colors-highlights-pink-background, #f4dfeb);
 }
 
 /* Sets base Z-index on UI elements, i.e. elements which use the 
