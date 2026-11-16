@@ -191,11 +191,22 @@ export async function handleFileInsertion<
             return;
           }
 
+          // Drops within the block that resolve to its text end belong after
+          // it. Outside the block, keep the midpoint rule for gaps.
+          const atContentEnd =
+            blockInfo.contentKind === "inline" &&
+            pos.pos === blockInfo.contentEnd &&
+            blockRect &&
+            coords.top >= blockRect.top &&
+            coords.top <= blockRect.bottom;
+
           return insertOrUpdateBlock(
             editor,
             existingBlock,
             fileBlock,
-            blockRect && (blockRect.top + blockRect.bottom) / 2 > coords.top
+            !atContentEnd &&
+              blockRect &&
+              (blockRect.top + blockRect.bottom) / 2 > coords.top
               ? "before"
               : "after",
           );
