@@ -1,4 +1,5 @@
 import { type ChainedCommands, Extension } from "@tiptap/core";
+import { GapCursor } from "@tiptap/pm/gapcursor";
 import { Fragment, type Node } from "prosemirror-model";
 import {
   NodeSelection,
@@ -17,6 +18,7 @@ import {
   unnestBlock,
 } from "../../../api/blockManipulation/commands/nestBlock/nestBlock.js";
 import { fixLayoutBlocksById } from "../../../api/blockManipulation/layoutBlocks/fixLayoutBlock.js";
+import { blockToNode } from "../../../api/nodeConversions/blockToNode.js";
 import { nodeToBlock } from "../../../api/nodeConversions/nodeToBlock.js";
 import { isLayoutNode } from "../../../schema/blocks/children.js";
 import { splitBlockCommand } from "../../../api/blockManipulation/commands/splitBlock/splitBlock.js";
@@ -640,6 +642,35 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
     const handleEnter = (withShift = false) => {
       return this.editor.commands.first(({ commands, tr }) => [
+        // A gap is between blocks, not inside the nearest empty block. Arrow
+        // navigation can place it just inside a blockContainer, before its
+        // content node; insert outside that wrapper without moving its children.
+        () =>
+          commands.command(({ state, tr, dispatch }) => {
+            if (!(state.selection instanceof GapCursor)) {
+              return false;
+            }
+            let $pos = state.selection.$from;
+            if ($pos.parent.type.name === "blockContainer") {
+              if ($pos.parentOffset === 0) {
+                $pos = state.doc.resolve($pos.before());
+              } else if ($pos.parentOffset === $pos.parent.content.size) {
+                $pos = state.doc.resolve($pos.after());
+              }
+            }
+            const blockType = state.schema.nodes["blockContainer"];
+            const index = $pos.index();
+            if (!$pos.parent.canReplaceWith(index, index, blockType)) {
+              return false;
+            }
+            if (dispatch) {
+              const block = blockToNode({ type: "paragraph" }, state.schema);
+              tr.insert($pos.pos, block)
+                .setSelection(TextSelection.create(tr.doc, $pos.pos + 2))
+                .scrollIntoView();
+            }
+            return true;
+          }),
         // Resets an empty block (`keyboard.resetsTo`) if it resets on Enter
         // (`keyboard.emptyEnterResets`), e.g. an empty list item turns into a
         // paragraph. Its children stay.
