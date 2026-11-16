@@ -22,6 +22,7 @@ In lens terms, the document is the source and the text is the view. The `seriali
   - `updateYDoc(editor, fragment, change)`: writes the change (a text or JSON) back, through an editor that is bound to the fragment (`withCollaboration` of `@blocknote/core/yjs`) and mounted, as a client. `base` is `"current"`, or the Yjs state (`Y.encodeStateAsUpdate`) at the version that the client read. The write first applies `base` to the Y.Doc: the client can read from a replica with an update that this Y.Doc does not have yet, and Yjs applies each update only one time. The result contains the Yjs update to send to the other clients, the operations and the warnings. It does not contain `written`: `base` is a Yjs state here, and the written document has no Yjs state. Thus, after a write with `changesOfOthers`, the client must read the text again before its next write (see "Items that are not done").
   - `merge` is optional, and selects what merges the change with the changes of other writers after `base` (`YDocWriteFromVersion`): `"lens"` (the default, the three-way merge of "Concurrent writes") or `"yjs"` (Yjs merges a fork of the Y.Doc at `base`, see below). The type allows `"yjs"` only with a Yjs state as `base`, and without `onConflict`: Yjs has no conflicts.
   - To read the text, use `getDocumentText` on the bound editor.
+- `assertBlockContract(editor, { blocks, formats, hiddenIn })`: a check for the tests of custom block types (see "Contract for block authors").
 - Formats: `markdownFormat`, `htmlFormat` and `plainTextFormat`. A format is two functions, `serialize` and `parse` (see `formats/types.ts`). HTML shows more than markdown (for example colors, alignment and underline), thus a client can also change these.
 
 There is no storage interface. The consumer keeps the versions, as full Block JSON or as full Yjs states. A version history must keep full documents in any case, because only a full document shows props, nesting and colors.
@@ -221,6 +222,7 @@ Each folder has an `index.ts` with its API for the other folders. A file imports
 - `target/`: stage 3 (Target): the target document of a text change (`targetFromPairs.ts`).
 - `operations/`: the operation types, and the stages 6 to 8: the diff of two documents (Diff, `diffDocuments.ts`), the ProseMirror steps (Apply, `applyOperations`, public: it applies the operations to a transaction of the caller), and the dispatch of the steps to an editor (Dispatch, `dispatch.ts`).
 - `api.ts`: the entry point. It runs the stages.
+- `blockContract.ts`: the check of the contract for block authors (`assertBlockContract`). It uses only the API and the formats.
 - `yjs/`: the API for a Y.Doc. It selects the target document, and writes the steps to it.
 
 ## Rules of the code
@@ -263,6 +265,7 @@ Each folder has an `index.ts` with its API for the other folders. A file imports
   - `api.removals.test.ts`: removals, where content is lost. Examine these expected results carefully.
   - `api.concurrent.test.ts`: writes from an older version without Yjs, also on 40 random groups of two to four writers in each format.
   - `api.fuzz.test.ts`: 150 random documents with all kinds of blocks (tables, files and images with captions, code blocks with blank lines, deep nesting, mentions, columns) in each format, with random edits. It examines the laws.
+- `blockContract.test.ts`: the check of the contract for block authors, on default blocks and on a custom block that obeys or breaks a rule.
 - `yjs/yDocText.test.ts`: the Y.Doc API: the write through a bound editor, the base as a Yjs state, the fork, the changes of other clients, and the same result as a write to an editor without Yjs, on random documents. The concurrent cases run for the two merges (`"lens"` and `"yjs"`). Some cases are only for `"yjs"`, because for `"lens"` they are the same as cases of `api.concurrent.test.ts`. The conflicts and `onConflict: "reject"` are only for `"lens"`. One HTML seed of the random documents is not in the test, because of a known problem of core (see the test).
 - `projection/projectDocument.fuzz.test.ts`: the projection of the same random documents. The view is the isolated results of the source blocks, in document order (the format contract), and the shortcuts of `sourcesOfView` give the same links as the simple version.
 - `testUtil/` contains the shared test documents and helpers.
@@ -297,6 +300,40 @@ A result can contain warnings (`ChangeWarning`). A warning tells you that a part
 - `removed-changed-block` (merge): the text removed a block that another writer changed (or a block in it). The removal does not apply to the blocks with a change of the other writer: they stay.
 - `conflicting-change` (merge): the text and another writer changed the same part of a block (a part of its text, a style, a prop, its parent or its place) in different ways. The change of the other writer stays there, and the change of the text there does not apply. An example is a block that another writer rewrote, or split into two blocks.
 - `merged-cells-removed`: a table lost its merged cells. A format without merged cells (markdown, plain text) shows them as separate cells, thus a change of the table there removes them. A table whose merged cells do not fit the rows of the result loses them too.
+
+## Contract for block authors
+
+The lens works for the default schema without conditions. For a custom block type, it works only if the export and the parse of the type obey this contract. The reason: the lens reads a block through its export (`toExternalHTML`, or `render` if the type has none) and its `parse`, and it has no other knowledge of the type. A probe of 28 custom schemas (25 schemas, 3 of them also with a React context) found each rule from a block type that breaks it. Custom inline content and custom styles need no rule: a format that does not show them keeps them as hidden data.
+
+1. **One export for each environment.** The export gives the same DOM in an editor without a view (a server) and in a mounted editor (a browser). Do not use a React context, a DOM element of the editor, or a hook of `BlockNoteView` in the export. If `render` needs one, give the type a `toExternalHTML` without it. Else a server and a browser show different texts for one document, and a write of an unchanged text changes the document.
+2. **One block in, one block out.** The HTML and the markdown of one block read back as one block, or as no block, apart from the blocks around it. Use a root element that markdown keeps apart from its neighbors (`<p>`, `<pre>`, `<figure>`, `<table>`, `<h1>`). Do not export a `<div>` with text, or more than one block element. Else each read and each write of a document with the block throws.
+3. **No UI text in the export.** Each text in the export is data of the block. Do not export button labels, select options, a preview next to its source, placeholders or popups. Else the client reads the UI text as content, and a write puts it into the document.
+4. **The same type back.** Give the type a `parse` that reads the export back as the same type, in HTML and in markdown. For markdown, export an element that the markdown parse keeps (for example a code block with a language of your own). If a default block type also reads that element, set `runsBefore`. If the block reads back as a different type, the custom type is data that the format does not show: a client that replaces the block with other text keeps the custom type, the markup of the export goes into the content, and a change of a visible prop can go without a warning.
+5. **Never export nothing for a block with data.** If the block cannot render its data (for example a formula that does not compile), export the data as text. An export without an element stops the export of the full document.
+6. **Text that identifies the block.** Do not export the same text for each block of the type. Export the data that makes a block different. Blocks with equal text have a weak identity: the lens finds a block by its text (see "Identity").
+7. **Layout blocks.** A block that only groups its children does not draw text in its frame, or keeps that text out of the export. The export does not mark the place of the children, thus the parse reads the text of the frame as content.
+8. **A block that a format does not show stays, with limits.** The lens keeps a block that the format does not show. But the client cannot see or change its data, and the block goes with its parent if the client removes the parent. If a client must see or change the data, make the block visible in each format that the client edits.
+
+`assertBlockContract(editor, { blocks, formats, hiddenIn })` examines the rules that a program can examine, on example blocks, in each format. Call it in a test of your block types, with an editor that has your schema:
+
+```typescript
+const texts = assertBlockContract(editor, {
+  blocks: [
+    { type: "alert", props: { type: "warning" }, content: "Watch out" },
+    { type: "alert", props: { type: "info" }, content: "Read this" },
+  ],
+  formats: [
+    { name: "markdown", format: markdownFormat },
+    { name: "HTML", format: htmlFormat },
+  ],
+});
+expect(texts).toMatchSnapshot();
+```
+
+- It throws an `Error` that names the rule, the block type and the format, for rule 2 (also: a write of the unchanged text gives no operations, and a change of the paragraph before the block changes only that paragraph), rule 4 (the type), rule 6 (two different examples with the same text) and rule 8 (a format does not show the block, and `hiddenIn` does not name the format). For rule 5, and for some cases of rule 2, the test fails with the error of the export or of the lens.
+- It returns the text of each example in each format, and the data of the block that does not read back (`hidden`: the names of props, and `"content"`). The lens keeps hidden data, but a client cannot see or change it.
+- A program cannot examine rule 1 and rule 3 in one environment. For rule 1, compare the result of an editor without a view with the result of a mounted editor. For rule 3, read the texts of the result (a snapshot shows them in a review).
+- The check is for one block alone, without its children. It does not examine layout blocks (rule 7).
 
 ## Problems in BlockNote
 

@@ -21,6 +21,11 @@ export {
   type WriteFromVersion,
 } from "./api.js";
 export {
+  assertBlockContract,
+  type BlockContractText,
+  type NamedFormat,
+} from "./blockContract.js";
+export {
   htmlFormat,
   markdownFormat,
   plainTextFormat,
