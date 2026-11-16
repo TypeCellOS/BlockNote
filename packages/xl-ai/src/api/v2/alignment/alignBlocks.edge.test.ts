@@ -61,19 +61,38 @@ describe("alignBlocks: the limit of rule 1 (MIN_SHARE = 0.5)", () => {
 describe("alignBlocks: moved blocks", () => {
   // KNOWN LIMIT (not fixed, see the README, "Identity"): two blocks that
   // swap places match by position (rule 1 on a partial overlap), not by
-  // their equal text, if unchanged blocks are between them and they share at
-  // least half of the shorter text. The text of the result is correct, but
-  // the IDs, props and comments stay at the positions. Through
-  // `updateDocument` (plain text), the swap of "Hello world" and "world"
+  // their equal text, if the unchanged blocks between them have more tokens
+  // than each of them, and they share at least half of the shorter text. The text of the result is
+  // correct, but the IDs, props and comments stay at the positions. Through
+  // `updateDocument` (plain text), such a swap of "Hello world" and "world"
   // gives two content updates, and a background color stays at its old
   // position. The test shows the wanted result.
   //
-  // The cause: the key tokens of the two moved blocks cross, thus the
-  // longest increasing subsequence of the anchors drops them (see
-  // `anchoredMatch`). The unchanged blocks between them are anchors, thus
-  // each moved block is in its own gap with the other block. Rule 1 matches
-  // these blocks before rule 2 can match the equal texts.
-  it.fails("matches two blocks that swap places by their equal text, also if the text of one block is in the other block", () => {
+  // The cause: the two moved blocks cross the unchanged blocks between them.
+  // The diff of the keys keeps the blocks with the most tokens in order: the
+  // two unchanged blocks (see `textOverlaps`). Thus each moved block is in
+  // its own gap with the other block, and its words align with the words of
+  // that block. Rule 1 matches these blocks before rule 2 can match the
+  // equal texts.
+  it.fails("matches two blocks that swap places by their equal text, also if the text of one block is in the other block and two blocks are between them", () => {
+    expect(
+      align(
+        flat("Hello world", "Middle one", "Middle two", "world"),
+        flat("world", "Middle one", "Middle two", "Hello world"),
+      ),
+    ).toEqual([
+      [0, 3],
+      [1, 1],
+      [2, 2],
+      [3, 0],
+    ]);
+  });
+
+  it("matches two blocks that swap places by their equal text, also if the text of one block is in the other block", () => {
+    // One block is between them. The three blocks cross each other, thus
+    // the diff of the keys keeps one of them in order: "Hello world", which
+    // has the most tokens. Its words cannot align with the words of the
+    // other moved block, and rule 2 matches the two other blocks.
     expect(
       align(
         flat("Hello world", "Middle", "world"),

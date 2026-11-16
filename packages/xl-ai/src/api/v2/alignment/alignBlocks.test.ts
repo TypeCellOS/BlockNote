@@ -231,6 +231,137 @@ describe("alignBlocks", () => {
   });
 });
 
+describe("alignBlocks: blocks with equal text that is not unique", () => {
+  it("keeps equal blocks, also if a new block and a removed block share a word", () => {
+    // "shared" is in each list one time. The two equal blocks are between
+    // its two blocks. The block at the end changes at its position (rule 3).
+    expect(
+      align(
+        flat("Same text", "Same text", "Old shared"),
+        flat("New shared", "Same text", "Same text", "Other"),
+      ),
+    ).toEqual([
+      [0, 1],
+      [1, 2],
+      [2, 3],
+    ]);
+  });
+
+  it("keeps equal blocks, also if a new block and a removed block share as many words as the equal blocks have", () => {
+    expect(
+      align(
+        flat("Same text", "Same text", "Old shared thing"),
+        flat("New shared thing", "Same text", "Same text", "Other"),
+      ),
+    ).toEqual([
+      [0, 1],
+      [1, 2],
+      [2, 3],
+    ]);
+  });
+
+  it("keeps equal blocks between changed blocks with other words", () => {
+    // The changed blocks at the two ends are anchors of the word diff.
+    expect(
+      align(
+        flat(
+          "Intro one two",
+          "Same text",
+          "Same text",
+          "Old shared",
+          "End a b",
+        ),
+        flat(
+          "Intro one two three",
+          "New shared",
+          "Same text",
+          "Same text",
+          "Other",
+          "End a b c",
+        ),
+      ),
+    ).toEqual([
+      [0, 0],
+      [1, 2],
+      [2, 3],
+      [3, 4],
+      [4, 5],
+    ]);
+  });
+
+  it("keeps the first equal blocks if the text adds one more", () => {
+    expect(
+      align(
+        flat("Same text", "Same text", "Old shared"),
+        flat("New shared", "Same text", "Same text", "Same text", "Other"),
+      ),
+    ).toEqual([
+      [0, 1],
+      [1, 2],
+    ]);
+  });
+
+  it("keeps equal blocks with a long text between other equal blocks (probe EXP3, case A4)", () => {
+    // "text" is in each list one time: in the removed block and in the new
+    // first block.
+    const same = "This is a non-editable block.";
+    expect(
+      align(
+        flat(same, same, "emoji ipsum text lorem lorem", same),
+        flat(
+          "Note café gamma café café text lens note.",
+          same,
+          same,
+          "Lens merge lorem delta delta.",
+          "Lens merge lorem delta delta.",
+          same,
+        ),
+      ),
+    ).toEqual([
+      [0, 1],
+      [1, 2],
+      [3, 5],
+    ]);
+  });
+
+  it("KNOWN LIMIT: does not keep equal blocks if a changed block moves past them and shares more tokens than they have", () => {
+    // The changed block shares 9 words. The two equal blocks have 8 tokens
+    // (the key, two words and the separator, for each block). The diff
+    // aligns the most tokens, and rule 2 does not match a key that is not
+    // unique.
+    expect(
+      align(
+        flat(
+          "Same text",
+          "Same text",
+          "one two three four five six seven eight nine old",
+        ),
+        flat(
+          "one two three four five six seven eight nine new",
+          "Same text",
+          "Same text",
+          "Other",
+        ),
+      ),
+    ).toEqual([[2, 0]]);
+  });
+
+  it("keeps the last equal blocks if a block is between the first and the others", () => {
+    // The text removes the first "Same text". The others stay after "P q r".
+    expect(
+      align(
+        flat("Same text", "P q r", "Same text", "Same text", "end"),
+        flat("P q r", "Same text", "Same text", "end!"),
+      ),
+    ).toEqual([
+      [1, 0],
+      [2, 1],
+      [3, 2],
+      [4, 3],
+    ]);
+  });
+});
+
 describe("alignmentKey", () => {
   it("is equal for blocks with the same text, and for equal blocks without content", () => {
     expect(alignmentKey(paragraph("a"))).toBe(alignmentKey(paragraph("a")));

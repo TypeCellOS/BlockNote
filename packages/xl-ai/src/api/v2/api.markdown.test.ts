@@ -572,6 +572,53 @@ describe("markdown", () => {
   });
 });
 
+describe("markdown, blocks with equal text", () => {
+  it("keep their IDs and colors if the text adds a block before them and replaces the block after them", () => {
+    // The new first block and the replaced last block share the word
+    // "shared". The two equal paragraphs between them did not change.
+    const editor = createEditor([
+      {
+        id: "s1",
+        type: "paragraph",
+        props: { textColor: "red" },
+        content: "Same text",
+      },
+      {
+        id: "s2",
+        type: "paragraph",
+        props: { textColor: "blue" },
+        content: "Same text",
+      },
+      { id: "q", type: "paragraph", content: "Old shared" },
+    ]);
+
+    const update = writeText(
+      editor,
+      markdownFormat,
+      () => "New shared\n\nSame text\n\nSame text\n\nOther\n",
+    );
+
+    expect(update.operations.map((operation) => operation.type)).toEqual([
+      "update",
+      "insert",
+    ]);
+    expect(
+      editor.document.map((block) => [
+        block.id === "s1" || block.id === "s2" || block.id === "q"
+          ? block.id
+          : "new",
+        (block.content as { text: string }[])[0].text,
+        "textColor" in block.props ? block.props.textColor : undefined,
+      ]),
+    ).toEqual([
+      ["new", "New shared", "default"],
+      ["s1", "Same text", "red"],
+      ["s2", "Same text", "blue"],
+      ["q", "Other", "default"],
+    ]);
+  });
+});
+
 describe("markdown, a paragraph with \\r line breaks", () => {
   it("keeps the \\r if the text changes a different word", () => {
     // Markdown shows a `\r` as a hard break. Before, the export wrote it as a

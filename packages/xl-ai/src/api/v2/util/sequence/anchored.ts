@@ -21,9 +21,14 @@ const SMALL_GAP = 2000;
  * Matches `a` and `b` like {@link myersMatch}, also for large inputs with
  * many changes (the patience method of git):
  *
- * 1. The keys that are in `a` one time and in `b` one time are anchors. The
- *    longest increasing subsequence of these pairs gives the anchors that do
- *    not cross.
+ * 1. The keys that are in `a` one time and in `b` one time are anchors. Of
+ *    these pairs, the subsequence that does not cross and has the largest
+ *    weight stays (see {@link heaviestIncreasing}). `weightOf` gives the
+ *    weight of an item, a positive number. An anchor has the weight of its
+ *    item of `a`. By default each weight is 1: the anchors are then a
+ *    longest increasing subsequence. A caller gives an item a larger weight
+ *    if it stands for more than one item (for example one token for a full
+ *    text).
  * 2. A small gap between two anchors (see {@link SMALL_GAP}) gets the Myers
  *    diff. A larger gap gets step 1 again, with only its keys: a key that
  *    repeats in the full input can be unique in a gap. Thus, the gaps become
@@ -41,9 +46,11 @@ export function anchoredMatch<T>(
   a: readonly T[],
   b: readonly T[],
   keyOf: (item: T) => string,
+  weightOf: (item: T) => number = () => 1,
 ): MatchedPair[] {
   const keysA = a.map(keyOf);
   const keysB = b.map(keyOf);
+  const weightsA = a.map(weightOf);
   const budget = workBudgetFor(a.length + b.length);
   const pairs: MatchedPair[] = [];
   // A stack, not a recursion: an input can give one new anchor at each
@@ -62,7 +69,7 @@ export function anchoredMatch<T>(
     if (step.kind === "add") {
       pairs.push(step.pair);
     } else {
-      const next = matchRange(keysA, keysB, step, budget, pairs);
+      const next = matchRange(keysA, keysB, weightsA, step, budget, pairs);
       for (let i = next.length - 1; i >= 0; i--) {
         steps.push(next[i]);
       }
@@ -94,6 +101,68 @@ export function uniquePairs(
 }
 
 /**
+ * The subsequence of the pairs (sorted by `aIndex`) in which `bIndex`
+ * increases, with the largest sum of weights. Each `bIndex` is less than
+ * `bLength`, and no two pairs have the same one. If two subsequences have
+ * the same sum, the one that ends at the smaller `bIndex` wins, at each
+ * pair of the result. With the weight 1 for each pair, the result is a
+ * longest increasing subsequence.
+ *
+ * Method: the standard dynamic program for the heaviest increasing
+ * subsequence, with a Fenwick tree (a binary indexed tree) for the best
+ * subsequence that ends before a `bIndex`. The time is O(n log bLength).
+ * `anchored.property.test.ts` has the simple version (it compares each pair
+ * with each pair before it).
+ *
+ * @internal
+ */
+export function heaviestIncreasing(
+  pairs: readonly MatchedPair[],
+  weightOf: (pair: MatchedPair) => number,
+  bLength: number,
+): MatchedPair[] {
+  /** The sum of weights of the best subsequence that ends at each pair. */
+  const sums = new Array<number>(pairs.length).fill(0);
+  /** The pair before each pair in that subsequence, or -1. */
+  const previous = new Array<number>(pairs.length).fill(-1);
+  /**
+   * The Fenwick tree: `tree[i]` is the best pair (see `better`) of the pairs
+   * so far whose `bIndex + 1` is in the range of node `i`, or -1.
+   */
+  const tree = new Array<number>(bLength + 1).fill(-1);
+  /** The pair with the larger sum. For equal sums, the pair with the smaller `bIndex`. -1 is no pair. */
+  function better(x: number, y: number): number {
+    if (x === -1 || y === -1) {
+      return Math.max(x, y);
+    }
+    if (sums[x] !== sums[y]) {
+      return sums[x] > sums[y] ? x : y;
+    }
+    return pairs[x].bIndex < pairs[y].bIndex ? x : y;
+  }
+
+  let last = -1;
+  pairs.forEach((pair, index) => {
+    let before = -1;
+    for (let i = pair.bIndex; i > 0; i -= i & -i) {
+      before = better(before, tree[i]);
+    }
+    previous[index] = before;
+    sums[index] = (before === -1 ? 0 : sums[before]) + weightOf(pair);
+    for (let i = pair.bIndex + 1; i <= bLength; i += i & -i) {
+      tree[i] = better(tree[i], index);
+    }
+    last = better(last, index);
+  });
+
+  const result: MatchedPair[] = [];
+  for (let index = last; index !== -1; index = previous[index]) {
+    result.push(pairs[index]);
+  }
+  return result.reverse();
+}
+
+/**
  * A range of `a` and of `b` to match, or a pair to add to the result. A gap
  * is a range between two anchors. The full input is not a gap.
  */
@@ -116,6 +185,7 @@ type Step =
 function matchRange(
   keysA: readonly string[],
   keysB: readonly string[],
+  weightsA: readonly number[],
   { aStart, aEnd, bStart, bEnd, isGap }: Extract<Step, { kind: "match" }>,
   budget: WorkBudget,
   pairs: MatchedPair[],
@@ -130,7 +200,13 @@ function matchRange(
   if (search) {
     budget.left -= SEARCH_WORK_PER_ITEM * size;
   }
-  const anchors = search ? longestIncreasing(uniquePairs(rangeA, rangeB)) : [];
+  const anchors = search
+    ? heaviestIncreasing(
+        uniquePairs(rangeA, rangeB),
+        (pair) => weightsA[aStart + pair.aIndex],
+        rangeB.length,
+      )
+    : [];
   if (anchors.length === 0) {
     for (const pair of myersMatch(rangeA, rangeB, (x, y) => x === y, budget)) {
       pairs.push({
@@ -172,34 +248,4 @@ function uniqueIndexes(keys: readonly (string | undefined)[]) {
     }
   });
   return indexes;
-}
-
-/** The longest subsequence of the pairs (sorted by `aIndex`) in which `bIndex` increases. */
-function longestIncreasing(pairs: readonly MatchedPair[]): MatchedPair[] {
-  // `ends[k]` is the index of the pair that ends the best subsequence of length k + 1.
-  const ends: number[] = [];
-  const previous: number[] = new Array(pairs.length);
-  pairs.forEach((pair, index) => {
-    let low = 0;
-    let high = ends.length;
-    while (low < high) {
-      const middle = (low + high) >> 1;
-      if (pairs[ends[middle]].bIndex < pair.bIndex) {
-        low = middle + 1;
-      } else {
-        high = middle;
-      }
-    }
-    previous[index] = low > 0 ? ends[low - 1] : -1;
-    ends[low] = index;
-  });
-  const result: MatchedPair[] = [];
-  for (
-    let index = ends.length > 0 ? ends[ends.length - 1] : -1;
-    index !== -1;
-    index = previous[index]
-  ) {
-    result.push(pairs[index]);
-  }
-  return result.reverse();
 }

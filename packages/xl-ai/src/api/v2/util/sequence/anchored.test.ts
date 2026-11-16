@@ -73,6 +73,20 @@ describe("anchoredMatch", () => {
     expect(pairs.every((pair) => a[pair.aIndex] === b[pair.bIndex])).toBe(true);
   });
 
+  it("keeps the anchors with the largest weight, if anchors cross", () => {
+    // "H" crosses "x" and "y". With the weight 1 for each item, the two
+    // items "x" and "y" stay. With the weight 3 for "H", "H" stays.
+    const a = ["H", "x", "y"];
+    const b = ["x", "y", "H"];
+    expect(anchoredMatch(a, b, same)).toEqual([
+      { aIndex: 1, bIndex: 0 },
+      { aIndex: 2, bIndex: 1 },
+    ]);
+    expect(anchoredMatch(a, b, same, (item) => (item === "H" ? 3 : 1))).toEqual(
+      [{ aIndex: 0, bIndex: 2 }],
+    );
+  });
+
   it("gives pairs that do not cross", () => {
     const a = ["a", "b", "c", "d"];
     const b = ["c", "a", "b", "d"];

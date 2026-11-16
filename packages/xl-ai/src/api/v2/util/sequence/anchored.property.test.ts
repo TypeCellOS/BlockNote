@@ -2,7 +2,7 @@
 import { describe, expect, it } from "vite-plus/test";
 
 import { createRandom } from "../../testUtil/random.js";
-import { anchoredMatch, uniquePairs } from "./anchored.js";
+import { anchoredMatch, heaviestIncreasing, uniquePairs } from "./anchored.js";
 import { myersMatch } from "./myers.js";
 import type { MatchedPair } from "./types.js";
 
@@ -80,6 +80,46 @@ function naiveUniquePairs(
     }
   });
   return pairs;
+}
+
+/**
+ * The simple version of `heaviestIncreasing`: for each pair, the best
+ * subsequence that ends at it comes from a comparison with each pair before
+ * it. "Best" is the largest sum of weights, then the smaller `bIndex`.
+ */
+function simpleHeaviestIncreasing(
+  pairs: readonly MatchedPair[],
+  weights: readonly number[],
+): MatchedPair[] {
+  const sums: number[] = [];
+  const previous: number[] = [];
+  const better = (x: number, y: number) =>
+    x === -1 || y === -1
+      ? Math.max(x, y)
+      : sums[x] !== sums[y]
+        ? sums[x] > sums[y]
+          ? x
+          : y
+        : pairs[x].bIndex < pairs[y].bIndex
+          ? x
+          : y;
+  let last = -1;
+  pairs.forEach((pair, index) => {
+    let before = -1;
+    for (let other = 0; other < index; other++) {
+      if (pairs[other].bIndex < pair.bIndex) {
+        before = better(before, other);
+      }
+    }
+    previous.push(before);
+    sums.push((before === -1 ? 0 : sums[before]) + weights[index]);
+    last = better(last, index);
+  });
+  const result: MatchedPair[] = [];
+  for (let index = last; index !== -1; index = previous[index]) {
+    result.push(pairs[index]);
+  }
+  return result.reverse();
 }
 
 /** All sequences over the alphabet with a length from 0 to `maxLength`. */
@@ -238,6 +278,42 @@ describe("anchoredMatch: the size of a small gap (SMALL_GAP = 2000)", () => {
     // is a common subsequence, but not always the longest one.
     expect(pairs).toHaveLength(4);
     expect(lcsLength(a, b)).toBe(1 + 999 + 1 + 1);
+  });
+});
+
+describe("heaviestIncreasing", () => {
+  it("gives the same pairs as the simple version, for random pairs and weights", () => {
+    const random = createRandom(25);
+    for (let run = 0; run < 300; run++) {
+      const length = random.int(30);
+      // Pairs in the order of `aIndex`, with a random permutation as `bIndex`.
+      const pairs = shuffle(
+        Array.from({ length }, (_, i) => i),
+        random,
+      ).map((bIndex, aIndex) => ({ aIndex, bIndex }));
+      const weights = pairs.map(() =>
+        random.chance(0.5) ? 1 : 1 + random.int(5),
+      );
+      expect(
+        heaviestIncreasing(pairs, (pair) => weights[pair.aIndex], length),
+      ).toEqual(simpleHeaviestIncreasing(pairs, weights));
+    }
+  });
+
+  it("gives a longest increasing subsequence if each weight is 1", () => {
+    const random = createRandom(26);
+    for (let run = 0; run < 100; run++) {
+      const keys = Array.from({ length: random.int(40) }, (_, i) => `k${i}`);
+      const a = shuffle(keys, random);
+      const b = shuffle(keys, random);
+      const pairs = heaviestIncreasing(uniquePairs(a, b), () => 1, b.length);
+      expectCommonSubsequence(pairs, a, b);
+      expect(pairs.length).toBe(lcsLength(a, b));
+    }
+  });
+
+  it("gives no pairs for no pairs", () => {
+    expect(heaviestIncreasing([], () => 1, 0)).toEqual([]);
   });
 });
 

@@ -73,3 +73,28 @@ describe("the key token", () => {
     ).toEqual([{ aIndex: 1, bIndex: 0, size: 1 }]);
   });
 });
+
+describe("equal texts in the same order", () => {
+  it("aligns equal texts in the same order as one block each, also if their key is not unique", () => {
+    // "shared" is in each list one time, and the equal texts are between
+    // its two texts. The equal texts have more tokens, thus they align.
+    expect(
+      overlaps(
+        ["Same text", "Same text", "Old shared"],
+        ["New shared", "Same text", "Same text", "Other"],
+      ),
+    ).toEqual([
+      { aIndex: 0, bIndex: 1, size: 8 },
+      { aIndex: 1, bIndex: 2, size: 8 },
+    ]);
+  });
+
+  it("aligns the equal texts that stay in order, if the text removes an equal text before them", () => {
+    expect(
+      overlaps(["Same text", "P q", "Same text"], ["P q", "Same text"]),
+    ).toEqual([
+      { aIndex: 1, bIndex: 0, size: 2 },
+      { aIndex: 2, bIndex: 1, size: 8 },
+    ]);
+  });
+});

@@ -1,4 +1,4 @@
-import { anchoredMatch } from "../util/sequence/index.js";
+import { anchoredMatch, type MatchedPair } from "../util/sequence/index.js";
 
 /**
  * The size of the text that `a[aIndex]` and `b[bIndex]` have in common.
@@ -29,8 +29,21 @@ const WORD = /^[\p{L}\p{N}_]/u;
  * Because one diff aligns the full sequences, the result does not cross: a
  * text can only share words with texts at the same position or later.
  *
- * Method: our own design: one word diff (`anchoredMatch`), then the sum of the
- * matched word characters for each pair of texts.
+ * An equal text is a stronger sign than a shared word. Thus, a diff of the
+ * keys first finds the equal texts that are in the same order in `a` and in
+ * `b` (see {@link equalTextsInOrder}). Such a text is one token in the word
+ * diff, with the weight of all its tokens (see {@link diffTokens}). Thus, it
+ * is an anchor also if its key is not unique, and one word that two changed
+ * texts share cannot align these texts across it. Example: "shared" does
+ * not align "Old shared" with "New shared" here, because the two "Same
+ * text" have more tokens:
+ *
+ *     a:  Same text | Same text | Old shared
+ *     b:  New shared | Same text | Same text | Other
+ *
+ * Method: our own design: one diff of the keys and one word diff (the two
+ * with `anchoredMatch`), then the sum of the matched word characters for each
+ * pair of texts.
  *
  * @internal
  */
@@ -38,9 +51,27 @@ export function textOverlaps(
   a: readonly OverlapText[],
   b: readonly OverlapText[],
 ): Overlap[] {
-  const tokensA = tokensOf(a);
-  const tokensB = tokensOf(b);
-  const pairs = anchoredMatch(tokensA, tokensB, (token) => token.key);
+  const textTokensA = a.map(tokensOfText);
+  const textTokensB = b.map(tokensOfText);
+  const equal = equalTextsInOrder(
+    a,
+    b,
+    textTokensA.map((tokens) => tokens.length),
+  );
+  const tokensA = diffTokens(
+    textTokensA,
+    new Map(equal.map((pair, number) => [pair.aIndex, number])),
+  );
+  const tokensB = diffTokens(
+    textTokensB,
+    new Map(equal.map((pair, number) => [pair.bIndex, number])),
+  );
+  const pairs = anchoredMatch(
+    tokensA,
+    tokensB,
+    (token) => token.key,
+    (token) => token.weight,
+  );
 
   // The pairs are in order, and the tokens of a text are next to each other.
   // Thus, the pairs of two texts come one after the other: a pair with other
@@ -68,20 +99,27 @@ export function textOverlaps(
  * @internal
  */
 export function wordSize(text: OverlapText): number {
-  return tokensOf([text]).reduce((sum, token) => sum + token.size, 0);
+  return tokensOfText(text).reduce((sum, token) => sum + token.size, 0);
 }
 
-type Token = { owner: number; key: string; size: number };
+/** A token of a text. `size` is its number of word characters. */
+type TextToken = { key: string; size: number };
 
 /**
- * Splits the texts into tokens:
+ * A token of the word diff: a token of the text `owner`, or one token for
+ * all tokens of that text. `weight` is the number of tokens of the text
+ * that it stands for: its weight as an anchor (see `anchoredMatch`).
+ */
+type Token = TextToken & { owner: number; weight: number };
+
+/**
+ * Splits a text into tokens:
  *
  * - First a token for the key. If the key is unique, the anchors of the diff
- *   include it (see `anchoredMatch`). Thus, a block with an equal text aligns
- *   as one block, before its words can align with other blocks. A text
- *   without words is only this token, with the size 1. Thus, it overlaps
- *   fully with a text that has the same key (for example an image with the
- *   same URL, or an empty paragraph).
+ *   include it (see `anchoredMatch`). Thus, a text that moved aligns as one
+ *   text. A text without words is only this token, with the size 1. Thus, it
+ *   overlaps fully with a text that has the same key (for example an image
+ *   with the same URL, or an empty paragraph).
  * - The words and the single other characters. A token that is not a word
  *   has the size 0. Thus, two texts with only the same punctuation are not
  *   the same text.
@@ -89,22 +127,78 @@ type Token = { owner: number; key: string; size: number };
  *   it: a token of the text has at least one character, and the key token
  *   starts with "\u0001" and has more characters.
  */
-function tokensOf(texts: readonly OverlapText[]): Token[] {
-  const tokens: Token[] = [];
-  texts.forEach(({ text, key }, owner) => {
-    const own = Array.from(text.toLowerCase().matchAll(TOKEN), ([token]) => ({
-      owner,
-      key: token,
-      size: WORD.test(token) ? token.length : 0,
-    }));
-    const hasWords = own.some((token) => token.size > 0);
-    tokens.push({ owner, key: `\u0001${key}`, size: hasWords ? 0 : 1 });
-    if (hasWords) {
-      for (const token of own) {
-        tokens.push(token);
-      }
-    }
-    tokens.push({ owner, key: "", size: 0 });
+function tokensOfText({ text, key }: OverlapText): TextToken[] {
+  const words = Array.from(text.toLowerCase().matchAll(TOKEN), ([token]) => ({
+    key: token,
+    size: WORD.test(token) ? token.length : 0,
+  }));
+  const hasWords = words.some((token) => token.size > 0);
+  return [
+    { key: `\u0001${key}`, size: hasWords ? 0 : 1 },
+    ...(hasWords ? words : []),
+    { key: "", size: 0 },
+  ];
+}
+
+/**
+ * The pairs of texts with equal keys that are in the same order in `a` and
+ * in `b`: a diff of the keys (`anchoredMatch`). `weightsA` gives the weight
+ * of each text of `a`. If equal texts cross, the texts with the largest
+ * weight stay in order.
+ *
+ * Only a text whose key is in the two lists can have a pair. Thus, the diff
+ * gets only these texts: a diff of lists with nothing in common would use
+ * its full work limit.
+ */
+function equalTextsInOrder(
+  a: readonly OverlapText[],
+  b: readonly OverlapText[],
+  weightsA: readonly number[],
+): MatchedPair[] {
+  const keysA = new Set(a.map((text) => text.key));
+  const keysB = new Set(b.map((text) => text.key));
+  const inA = a.flatMap(({ key }, index) =>
+    keysB.has(key) ? [{ key, index }] : [],
+  );
+  const inB = b.flatMap(({ key }, index) =>
+    keysA.has(key) ? [{ key, index }] : [],
+  );
+  return anchoredMatch(
+    inA,
+    inB,
+    (text) => text.key,
+    (text) => weightsA[text.index],
+  ).map((pair) => ({
+    aIndex: inA[pair.aIndex].index,
+    bIndex: inB[pair.bIndex].index,
+  }));
+}
+
+/**
+ * The tokens of all texts, for the word diff. `equalNumbers` gives the
+ * number of each text that has an equal text at the same place in the order
+ * of the other list (see {@link textOverlaps}). The two texts have the same
+ * number, and the same tokens. Such a text is only one token: its key is
+ * that number (after "\u0002"), its size is the sum of the sizes of its
+ * tokens, and its weight is the number of its tokens. Thus, only the equal
+ * text in the other list has that key: the two tokens are an anchor of the
+ * diff, which weighs as much as the anchors of all tokens of the text.
+ */
+function diffTokens(
+  textTokens: readonly TextToken[][],
+  equalNumbers: ReadonlyMap<number, number>,
+): Token[] {
+  return textTokens.flatMap((tokens, owner): Token[] => {
+    const equalNumber = equalNumbers.get(owner);
+    return equalNumber === undefined
+      ? tokens.map((token) => ({ ...token, owner, weight: 1 }))
+      : [
+          {
+            owner,
+            key: `\u0002${equalNumber}`,
+            size: tokens.reduce((sum, token) => sum + token.size, 0),
+            weight: tokens.length,
+          },
+        ];
   });
-  return tokens;
 }

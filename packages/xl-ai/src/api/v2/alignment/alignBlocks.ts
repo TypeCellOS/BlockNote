@@ -38,13 +38,16 @@ export type BlockPair = { aIndex: number; bIndex: number; moved?: true };
  *
  * 1. One word diff of the texts of all blocks finds the overlap of each pair
  *    of blocks (see `textOverlaps`). It aligns the most words, thus a run of
- *    changed blocks stays aligned, also if a block moves past them. Two
- *    blocks match if they prefer each other (see {@link overlapPairs}),
- *    and the overlap is at least half of the shorter text. Thus, a block with
- *    equal text matches, and a block with added sentences stays the same
- *    block. A block without words (for example an image or an empty
- *    paragraph) overlaps with a block with an equal key (see
- *    {@link alignmentKey}).
+ *    changed blocks stays aligned, also if a block moves past them. Equal
+ *    blocks in the same order weigh as much as all their text, also if
+ *    their text is not unique. Thus, one word that a new block and a
+ *    removed block share does not align these two blocks across equal
+ *    blocks. Two blocks match if they prefer each other (see
+ *    {@link overlapPairs}), and the overlap is at least half of the shorter
+ *    text. Thus, a block with equal text matches, and a block with added
+ *    sentences stays the same block. A block without words (for example an
+ *    image or an empty paragraph) overlaps with a block with an equal key
+ *    (see {@link alignmentKey}).
  * 2. A block that moved: of the blocks without a match, two blocks match if
  *    they have an equal key (not an empty text) that no other block without
  *    a match has on either side. Thus, a block that the edit moves keeps its
@@ -59,9 +62,12 @@ export type BlockPair = { aIndex: number; bIndex: number; moved?: true };
  * before rule 3: a moved block does not match a different block at its new
  * position.
  *
- * Known limit: rule 1 comes before rule 2. Thus, two blocks that swap places
- * match by position if unchanged blocks are between them and they share at
- * least half of the shorter text (see the README, "Identity").
+ * Known limits (see the README, "Identity"): rule 1 comes before rule 2.
+ * Thus, two blocks that swap places match by position if the unchanged
+ * blocks between them have more tokens than each of them, and they share at
+ * least half of the shorter text. And equal blocks whose text is not unique
+ * have no match if a changed block moves past them and shares more tokens
+ * than they have.
  *
  * This is not one published algorithm, but each rule uses a known method.
  * Rule 1 uses a word diff (the patience method, then Myers, see
