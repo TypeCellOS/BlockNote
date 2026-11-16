@@ -5,6 +5,7 @@ import { configDefaults, defineConfig, type UserConfig } from "vite-plus";
 import { playwright } from "vite-plus/test/browser/providers/playwright";
 import { positionalMouse } from "./src/utils/positionalMouse.js";
 import { imeComposition } from "./src/utils/imeComposition.js";
+import { mockCustomBlockImages } from "./src/utils/mockCustomBlockImages.js";
 
 // For the desktop instances: end-to-end/mobile runs only in the "android"
 // instance. An instance-level `exclude` replaces the resolved base exclude
@@ -165,7 +166,12 @@ export default defineConfig(
           // still show in the HTML report (errors + stack traces don't depend
           // on these shots), so disable them. See `e2e:report` to view.
           screenshotFailures: false,
-          commands: { positionalMouse, imeComposition, restoreTouchEmulation },
+          commands: {
+            positionalMouse,
+            imeComposition,
+            restoreTouchEmulation,
+            mockCustomBlockImages,
+          },
           instances: [
             {
               browser: "chromium",
