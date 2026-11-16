@@ -50,6 +50,19 @@ export type OpenDocument = {
   /** The document as markdown. */
   markdown(): string;
   /**
+   * Reads the document for the agent: the markdown, as `markdown()`. After
+   * this call, the agent saw this text (see `seen`).
+   */
+  read(): string;
+  /**
+   * The markdown of the document as the agent saw it last, or `undefined`
+   * if the agent did not read the document in this run. It is the text of
+   * the last `read()`, with the changes that the agent wrote after it to a
+   * document with that text: the agent knows its own changes. A change of
+   * another writer is not in it until the next `read()`.
+   */
+  seen(): string | undefined;
+  /**
    * The version of the document at the start of the step. The agent gives
    * a version back as the `base` of a write.
    */
@@ -106,6 +119,36 @@ export type AgentDocument<Extra extends object = object> = {
     extra: Extra;
   }>;
 };
+
+/**
+ * The text that the agent of one run saw last (see `OpenDocument.seen`). The
+ * document of each mode keeps one for its run.
+ */
+export function createSeenText() {
+  let seen: string | undefined;
+  return {
+    seen: () => seen,
+    /** The agent reads the text of the document. */
+    read(markdown: string): string {
+      seen = markdown;
+      return markdown;
+    },
+    /**
+     * The agent wrote to the document: the document had the text `before`,
+     * and it has the text `after` now. If the agent saw `before`, it knows
+     * `after`: `after` is `before` with its own change. If not, `after` has
+     * a change of another writer that the agent did not see.
+     */
+    wrote(before: string, after: string): void {
+      if (seen === before) {
+        seen = after;
+      }
+    },
+  };
+}
+
+/** The text that the agent of one run saw last. */
+export type SeenText = ReturnType<typeof createSeenText>;
 
 /** The start of the text of a block, or `undefined` if the document does not have the block. */
 export function previewOf(

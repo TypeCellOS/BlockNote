@@ -10,9 +10,11 @@ import type { ProposalStore } from "../stores/proposalStore.js";
 import {
   type AgentDocument,
   conflictNotes,
+  createSeenText,
   type OpenDocument,
   previewOf,
   type AgentToolCall,
+  type SeenText,
   type ToolNote,
   warningNotes,
   type WriteResult,
@@ -62,6 +64,8 @@ export function createProposalDocument(options: {
   readMain?: () => Promise<LensBlock[] | undefined>;
 }): ProposalDocument {
   const { store, proposalId, createEditor, readMain } = options;
+  // The text that the agent of this run saw last.
+  const seenText = createSeenText();
   let queue: Promise<unknown> = Promise.resolve();
 
   async function runStep<T>(
@@ -85,7 +89,13 @@ export function createProposalDocument(options: {
       }
     }
     const mainChanged = batches.some((batch) => batch.operations.length > 0);
-    const open = openStep(createEditor, proposal, dropped, mainChanged);
+    const open = openStep(
+      createEditor,
+      proposal,
+      dropped,
+      mainChanged,
+      seenText,
+    );
     const result = run(open.document);
     const batch = open.batch();
     if (batch !== undefined) {
@@ -119,6 +129,7 @@ function openStep(
   proposal: Proposal,
   dropped: readonly MergeWarning[],
   mainChanged: boolean,
+  seenText: SeenText,
 ): { document: OpenDocument; batch: () => Batch | undefined } {
   let batch: Batch | undefined;
   let wrote = false;
@@ -149,6 +160,7 @@ function openStep(
     }
     const target = editor();
     const before: LensBlock[] = target.document;
+    const textBefore = getDocumentText(target, markdownFormat);
     const written = writeBatch(
       createEditor,
       target,
@@ -174,6 +186,7 @@ function openStep(
     }
     wrote = true;
     batch = written.batch;
+    seenText.wrote(textBefore, getDocumentText(target, markdownFormat));
     return {
       version: `v${proposal.batches.length + (batch === undefined ? 0 : 1)}`,
       changed: batch !== undefined,
@@ -184,6 +197,8 @@ function openStep(
   return {
     document: {
       markdown: () => getDocumentText(editor(), markdownFormat),
+      read: () => seenText.read(getDocumentText(editor(), markdownFormat)),
+      seen: seenText.seen,
       version: `v${proposal.batches.length}`,
       notes: () => [
         ...(mainChanged ? [{ type: "main-changed" as const }] : []),

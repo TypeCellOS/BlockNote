@@ -5,6 +5,7 @@ import type {
   EditInput,
   EditOutput,
   RangeInput,
+  RangeOutput,
   ReadOutput,
   WriteInput,
   WriteOutput,
@@ -98,7 +99,7 @@ export function createDocumentTools(calls: ToolCalls) {
         required: ["from", "to", "new", "reason"],
         additionalProperties: false,
       }),
-      execute: (input, { toolCallId }): Promise<EditOutput> =>
+      execute: (input, { toolCallId }): Promise<RangeOutput> =>
         calls.run("replaceRange", input, toolCallId),
       toModelOutput: ({ output }) => ({
         type: "text",

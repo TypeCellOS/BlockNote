@@ -6,6 +6,7 @@ import { scriptedModel } from "../testUtil.js";
 import {
   editText,
   readDocument,
+  replaceRange,
   writeDocument,
 } from "../tools/documentTools.js";
 import { createSuggestionReview } from "./review.js";
@@ -226,6 +227,43 @@ describe("the document of an agent in Yjs 14 mode", () => {
     expect(output).toMatchObject({ error: "conflict" });
     expect(toolCallRecordsOf(host.suggestion)).toEqual([]);
     expect(textsOfDoc(host.suggestion)[1]).toBe("Initial paragraph.");
+  });
+
+  it("does not replace a range with words of a user that the agent did not see", async () => {
+    const host = createHost();
+    const client = createClient(host);
+    await readDocument(host.document);
+    // A user adds a sentence between the first and the last words of the range.
+    client.editor.updateBlock("p1", {
+      content: "First paragraph. A sentence of a user.",
+    });
+    sync(host, client);
+
+    const range = {
+      from: "First",
+      to: "Second paragraph.",
+      new: "One new paragraph.",
+      reason: "Two paragraphs become one.",
+    };
+    const output = await replaceRange(host.document, range, "call-1");
+
+    expect(output).toEqual({ error: "range-changed" });
+    expect(toolCallRecordsOf(host.suggestion)).toEqual([]);
+    expect(textsOfDoc(host.suggestion)).toEqual([
+      "Title",
+      "First paragraph. A sentence of a user.",
+      "Second paragraph.",
+    ]);
+
+    // The agent reads again, and the same call applies.
+    await readDocument(host.document);
+    expect(await replaceRange(host.document, range, "call-2")).toMatchObject({
+      changed: true,
+    });
+    expect(textsOfDoc(host.suggestion)).toEqual([
+      "Title",
+      "One new paragraph.",
+    ]);
   });
 
   it("runs the loop of the agent on a suggestion document", async () => {

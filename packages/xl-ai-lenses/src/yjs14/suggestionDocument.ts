@@ -13,6 +13,7 @@ import {
   type AgentDocument,
   type AgentToolCall,
   conflictNotes,
+  createSeenText,
   type OpenDocument,
   warningNotes,
   type WriteResult,
@@ -74,6 +75,8 @@ export function createSuggestionDocument(options: {
     return latest.version;
   }
 
+  // The text that the agent of this run saw last.
+  const seenText = createSeenText();
   let queue: Promise<unknown> = Promise.resolve();
 
   function runStep<T>(run: (document: OpenDocument) => T): T {
@@ -100,6 +103,7 @@ export function createSuggestionDocument(options: {
         return { error: "unknown-version" };
       }
       const before: LensBlock[] = editor.document;
+      const textBefore = getDocumentText(editor, markdownFormat);
       const lensChange: DocumentChange = {
         format: markdownFormat,
         text: change.markdown,
@@ -129,6 +133,7 @@ export function createSuggestionDocument(options: {
       wrote = true;
       const changed = written.operations.length > 0;
       const after: LensBlock[] = editor.document;
+      seenText.wrote(textBefore, getDocumentText(editor, markdownFormat));
       return {
         version: changed
           ? addVersion(after, JSON.stringify(after))
@@ -140,6 +145,8 @@ export function createSuggestionDocument(options: {
 
     return run({
       markdown: () => getDocumentText(editor, markdownFormat),
+      read: () => seenText.read(getDocumentText(editor, markdownFormat)),
+      seen: seenText.seen,
       version,
       notes: () => (changedByOthers ? [{ type: "main-changed" }] : []),
       write,

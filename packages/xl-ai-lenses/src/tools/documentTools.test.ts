@@ -21,7 +21,11 @@ import { createProposalDocument } from "../proposal/proposalDocument.js";
 
 const createEditor = headlessEditorFactory();
 
-/** A handle on a new proposal of the test document, as for a run that a user starts. */
+/**
+ * A handle on a new proposal of the test document, as for a run that a user
+ * starts. The agent read the document, as the loop does before its first
+ * LLM call (`replaceRange` replaces only text that the agent saw).
+ */
 async function setup() {
   const store = createInMemoryProposalStore();
   await store.save("p", createProposal(initialDocument()));
@@ -30,6 +34,7 @@ async function setup() {
     proposalId: "p",
     createEditor,
   });
+  await readDocument(handle);
   async function proposal(): Promise<Proposal> {
     return (await store.load("p"))!;
   }
@@ -167,6 +172,52 @@ describe("replaceRange", () => {
         "call-1",
       ),
     ).toEqual({ error: "invalid-input", field: "to", batches: [] });
+  });
+
+  it("knows the changes of the agent: a second call replaces a range of the text of the first call", async () => {
+    const { handle, texts } = await setup();
+    valid(
+      await replaceRange(
+        handle,
+        {
+          from: "First",
+          to: "paragraph.\n\nSecond paragraph.",
+          new: "One new paragraph.",
+          reason: "r",
+        },
+        "call-1",
+      ),
+    );
+
+    const output = valid(
+      await replaceRange(
+        handle,
+        { from: "One new", to: "paragraph.", new: "The end.", reason: "r" },
+        "call-2",
+      ),
+    );
+
+    expect(output.changed).toBe(true);
+    expect(await texts()).toEqual(["Title", "The end."]);
+  });
+
+  it("gives the error `range-changed` before the first read of the agent, and changes nothing", async () => {
+    const store = createInMemoryProposalStore();
+    await store.save("p", createProposal(initialDocument()));
+    const handle = createProposalDocument({
+      store,
+      proposalId: "p",
+      createEditor,
+    });
+
+    const output = await replaceRange(
+      handle,
+      { from: "Second", to: "paragraph.", new: "x", reason: "r" },
+      "call-1",
+    );
+
+    expect(output).toEqual({ error: "range-changed", batches: [] });
+    expect((await store.load("p"))!.batches).toEqual([]);
   });
 });
 
@@ -449,6 +500,153 @@ describe("a handle that can read the main document", () => {
     expect(output.notes).toEqual([{ type: "main-changed" }]);
     expect(output.batches.map((batch) => batch.source.type)).toEqual([
       "rebase",
+    ]);
+  });
+
+  /** The test document, with the text of the first paragraph as a user changed it. */
+  function withFirstParagraph(text: string) {
+    return documentOf([
+      { id: "title", type: "heading", content: "Title" },
+      { id: "p1", type: "paragraph", content: text },
+      { id: "p2", type: "paragraph", content: "Second paragraph." },
+    ]);
+  }
+
+  /** The agent replaces the two paragraphs: it gives only their first and last words. */
+  function replaceParagraphs(
+    handle: Awaited<ReturnType<typeof setupWithMain>>["handle"],
+    toolCallId: string,
+  ) {
+    return replaceRange(
+      handle,
+      {
+        from: "First",
+        to: "Second paragraph.",
+        new: "One new paragraph.",
+        reason: "Two paragraphs become one.",
+      },
+      toolCallId,
+    );
+  }
+
+  it("replaceRange does not replace a range with words of a user that the agent did not see", async () => {
+    const { documents, handle, texts } = await setupWithMain();
+    await readDocument(handle);
+    // A user adds a sentence between the first and the last words of the range.
+    documents.write(
+      "doc",
+      withFirstParagraph("First paragraph. A sentence of a user."),
+    );
+
+    const output = await replaceParagraphs(handle, "call-1");
+
+    expect(output.error).toBe("range-changed");
+    expect(describeWrite(output)).toBe(
+      "Changed: nothing was written. The text from `from` to `to` is not the text that you read: another writer changed it after your last readDocument. Call readDocument, then make your change again on the new text.",
+    );
+    // The rebase applied, and the tool call wrote nothing.
+    expect(output.batches.map((batch) => batch.source.type)).toEqual([
+      "rebase",
+    ]);
+    expect(await texts()).toEqual([
+      "Title",
+      "First paragraph. A sentence of a user.",
+      "Second paragraph.",
+    ]);
+  });
+
+  it("replaceRange does not replace a range with a new block of a user that the agent did not see", async () => {
+    const { documents, handle, texts } = await setupWithMain();
+    await readDocument(handle);
+    documents.write(
+      "doc",
+      documentOf([
+        { id: "title", type: "heading", content: "Title" },
+        { id: "p1", type: "paragraph", content: "First paragraph." },
+        { id: "u", type: "paragraph", content: "A paragraph of a user." },
+        { id: "p2", type: "paragraph", content: "Second paragraph." },
+      ]),
+    );
+
+    const output = await replaceParagraphs(handle, "call-1");
+
+    expect(output.error).toBe("range-changed");
+    expect(await texts()).toEqual([
+      "Title",
+      "First paragraph.",
+      "A paragraph of a user.",
+      "Second paragraph.",
+    ]);
+  });
+
+  it("replaceRange replaces the range after the agent read the change of the user", async () => {
+    const { documents, handle, texts } = await setupWithMain();
+    await readDocument(handle);
+    documents.write(
+      "doc",
+      withFirstParagraph("First paragraph. A sentence of a user."),
+    );
+    expect((await replaceParagraphs(handle, "call-1")).error).toBe(
+      "range-changed",
+    );
+
+    await readDocument(handle);
+    const output = valid(await replaceParagraphs(handle, "call-2"));
+
+    expect(output.changed).toBe(true);
+    expect(await texts()).toEqual(["Title", "One new paragraph."]);
+  });
+
+  it("replaceRange replaces a range that no user changed, and keeps a change of a user outside the range", async () => {
+    const { documents, handle, texts } = await setupWithMain();
+    await readDocument(handle);
+    documents.write(
+      "doc",
+      documentOf([
+        { id: "title", type: "heading", content: "Title of the user" },
+        { id: "p1", type: "paragraph", content: "First paragraph." },
+        { id: "p2", type: "paragraph", content: "Second paragraph." },
+      ]),
+    );
+
+    const output = valid(await replaceParagraphs(handle, "call-1"));
+
+    expect(output.notes).toEqual([{ type: "main-changed" }]);
+    expect(await texts()).toEqual(["Title of the user", "One new paragraph."]);
+  });
+
+  it("replaceRange gives the error for a range with a change of the agent, if a user changed the document before that change and the agent did not read again", async () => {
+    // The limit of the rule: the agent wrote to a document that it did not
+    // see in full, thus the text that it saw does not have its own change.
+    const { documents, handle, texts } = await setupWithMain();
+    await readDocument(handle);
+    documents.write(
+      "doc",
+      documentOf([
+        { id: "title", type: "heading", content: "Title of the user" },
+        { id: "p1", type: "paragraph", content: "First paragraph." },
+        { id: "p2", type: "paragraph", content: "Second paragraph." },
+      ]),
+    );
+    valid(
+      await editText(
+        handle,
+        { old: "First", new: "Opening", reason: "r" },
+        "call-1",
+      ),
+    );
+
+    const output = await replaceRange(
+      handle,
+      { from: "Opening", to: "Second paragraph.", new: "x", reason: "r" },
+      "call-2",
+    );
+
+    expect(output.error).toBe("range-changed");
+    expect(await texts()).toEqual([
+      "Title of the user",
+      "Opening paragraph.",
+      "Second paragraph.",
     ]);
   });
 

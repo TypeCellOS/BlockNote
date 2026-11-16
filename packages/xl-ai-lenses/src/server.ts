@@ -115,6 +115,7 @@ export {
   type EditOutput,
   editText,
   type RangeInput,
+  type RangeOutput,
   readDocument,
   replaceRange,
   type ReadOutput,

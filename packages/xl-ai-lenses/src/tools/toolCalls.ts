@@ -2,6 +2,7 @@ import type { AgentDocument } from "./agentDocument.js";
 import {
   type EditInput,
   type EditOutput,
+  type RangeOutput,
   editText,
   type RangeInput,
   replaceRange,
@@ -19,7 +20,7 @@ import {
 export type DocumentToolTypes<Extra extends object = object> = {
   readDocument: { input: Record<string, never>; output: ReadOutput & Extra };
   editText: { input: EditInput; output: EditOutput & Extra };
-  replaceRange: { input: RangeInput; output: EditOutput & Extra };
+  replaceRange: { input: RangeInput; output: RangeOutput & Extra };
   writeDocument: { input: WriteInput; output: WriteOutput & Extra };
 };
 

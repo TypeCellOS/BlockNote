@@ -2,6 +2,7 @@ import { UnreachableCaseError } from "@blocknote/core";
 
 import type {
   EditOutput,
+  RangeOutput,
   ReadOutput,
   ToolCallReview,
   ToolNote,
@@ -32,8 +33,10 @@ export function describeOpening(output: ReadOutput): string {
   return `<document>\n${describeRead({ ...output, notes })}\n</document>`;
 }
 
-/** The result of `writeDocument` or `editText` for the model. */
-export function describeWrite(output: WriteOutput | EditOutput): string {
+/** The result of `writeDocument`, `editText` or `replaceRange` for the model. */
+export function describeWrite(
+  output: WriteOutput | EditOutput | RangeOutput,
+): string {
   switch (output.error) {
     case undefined:
       return [
@@ -56,6 +59,8 @@ export function describeWrite(output: WriteOutput | EditOutput): string {
       return `Invalid input: nothing was written. The field \`${output.field}\` of the tool call must be a string.`;
     case "not-found":
       return `Not found: nothing was written. The markdown of the document does not contain \`${output.field}\`${output.field === "to" ? " after `from`" : ""}. Call readDocument to see the current text, and copy \`${output.field}\` from it exactly.`;
+    case "range-changed":
+      return "Changed: nothing was written. The text from `from` to `to` is not the text that you read: another writer changed it after your last readDocument. Call readDocument, then make your change again on the new text.";
     case "not-unique":
       return `Not unique: nothing was written. The markdown of the document contains \`${output.field}\` ${output.count} times${output.field === "to" ? " after `from`" : ""}. Add more of the text around it to \`${output.field}\`.`;
     default:

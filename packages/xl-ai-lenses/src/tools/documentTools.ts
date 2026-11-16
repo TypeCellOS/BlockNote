@@ -57,8 +57,16 @@ type AnchorError =
   /** The document contains the text of `field` more than one time. */
   | { error: "not-unique"; field: AnchorField; count: number };
 
-/** The output of `editText` and of `replaceRange`. */
+/** The output of `editText`. */
 export type EditOutput = WriteOutput | AnchorError;
+
+/**
+ * The output of `replaceRange`. `"range-changed"`: the text from `from` to
+ * `to` is not the text that the agent saw last (another writer changed it
+ * after the last read of the agent). The tool replaces only text that the
+ * agent saw, thus nothing changes, and the agent must read again.
+ */
+export type RangeOutput = EditOutput | { error: "range-changed" };
 
 export type WriteInput = {
   /** The full document, as markdown. */
@@ -104,7 +112,7 @@ export async function readDocument<Extra extends object>(
   document: AgentDocument<Extra>,
 ): Promise<ReadOutput & Extra> {
   const { result, extra } = await document.step((open): ReadOutput => ({
-    markdown: open.markdown(),
+    markdown: open.read(),
     version: open.version,
     notes: open.notes(),
   }));
@@ -169,33 +177,74 @@ export async function editText<Extra extends object>(
  * `from` must be in the markdown exactly one time, and `to` exactly one
  * time after `from`. The reason for the two rules: a range that is not the
  * range of the agent would remove text without a warning.
+ *
+ * The agent does not give the text between `from` and `to`. Thus, the tool
+ * replaces the range only if its text is the text that the agent saw last
+ * (see `OpenDocument.seen`). If another writer changed the range after the
+ * last read of the agent, the result is the error `"range-changed"`, and
+ * nothing changes: the tool must not remove text that the agent did not see.
  */
 export async function replaceRange<Extra extends object>(
   document: AgentDocument<Extra>,
   input: RangeInput,
   toolCallId: string,
-): Promise<EditOutput & Extra> {
+): Promise<RangeOutput & Extra> {
   const field = missingField(input, ["from", "to", "new", "reason"]);
   if (field !== undefined) {
     return { error: "invalid-input", field, ...document.noStep };
   }
-  return editMarkdown(document, toolCallId, input.reason, (markdown) => {
-    const from = findOnce(markdown, input.from, "from");
-    if (from.error !== undefined) {
-      return from;
+  const { result, extra } = await document.step((open): RangeOutput => {
+    const markdown = open.markdown();
+    const range = findRange(markdown, input);
+    if (range.error !== undefined) {
+      return range;
     }
-    const afterFrom = from.index + input.from.length;
-    const to = findOnce(markdown.slice(afterFrom), input.to, "to");
-    if (to.error !== undefined) {
-      return to;
+    const seen = open.seen();
+    const seenRange = seen === undefined ? undefined : findRange(seen, input);
+    if (
+      seen === undefined ||
+      seenRange === undefined ||
+      seenRange.error !== undefined ||
+      seen.slice(seenRange.start, seenRange.end) !==
+        markdown.slice(range.start, range.end)
+    ) {
+      return { error: "range-changed" };
     }
-    return {
-      markdown:
-        markdown.slice(0, from.index) +
-        input.new +
-        markdown.slice(afterFrom + to.index + input.to.length),
-    };
+    return writeStep(
+      open,
+      {
+        markdown:
+          markdown.slice(0, range.start) +
+          input.new +
+          markdown.slice(range.end),
+        // The range is the text that the agent saw: the text is the truth.
+        base: open.version,
+      },
+      { toolCallId, reason: input.reason },
+    );
   });
+  return { ...result, ...extra };
+}
+
+/**
+ * The range of the markdown from `from` to `to`, with these two texts:
+ * `from` is in the markdown exactly one time, and `to` exactly one time
+ * after `from`.
+ */
+function findRange(
+  markdown: string,
+  input: Pick<RangeInput, "from" | "to">,
+): { error?: undefined; start: number; end: number } | AnchorError {
+  const from = findOnce(markdown, input.from, "from");
+  if (from.error !== undefined) {
+    return from;
+  }
+  const afterFrom = from.index + input.from.length;
+  const to = findOnce(markdown.slice(afterFrom), input.to, "to");
+  if (to.error !== undefined) {
+    return to;
+  }
+  return { start: from.index, end: afterFrom + to.index + input.to.length };
 }
 
 /** The position of `text` in the markdown, if the markdown contains it exactly one time. */

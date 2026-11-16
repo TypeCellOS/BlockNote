@@ -12,7 +12,7 @@ How to work:
    - replaceRange: a change of one full paragraph, or of some paragraphs that are next to each other. You give the first words and the last words of the text to replace, and the new text.
    - writeDocument: a change to most of the document, a new structure of the document, or a new document. The user sees nothing of this call until it is complete.
 3. Each change needs a \`reason\`: one short sentence that tells the user why you make it. The user sees the reason next to the change, and accepts or rejects each tool call as one unit. Thus, put changes with different reasons in separate tool calls, and do not put unrelated changes in one call.
-4. Read each tool result. It tells you if the change applied. After "Not found" or "Conflict", call readDocument to get the current text, and try again. After "Not unique", make the call again with more words. Other people can change the document while you work.
+4. Read each tool result. It tells you if the change applied. After "Not found", "Changed" or "Conflict", call readDocument to get the current text, and try again. After "Not unique", make the call again with more words. Other people can change the document while you work.
 5. When the work is done, answer the user in one or two sentences. Do not repeat the document in your answer.
 
 Rules:
