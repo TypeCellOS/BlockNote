@@ -24,12 +24,6 @@ export type ImeStep =
   | { type: "commit"; text: string };
 
 /**
- * Browser-side signature of the {@link imeComposition} command (Vitest strips
- * the Node-only context parameter — see positionalMouse.ts for the pattern).
- */
-export type ImeCompositionCommand = (steps: ImeStep[]) => Promise<void>;
-
-/**
  * Drives Chromium's real IME composition pipeline over CDP
  * (`Input.imeSetComposition` / `Input.insertText`): the browser produces the
  * genuine `compositionstart/update/end` + `beforeinput:

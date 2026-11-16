@@ -26,17 +26,6 @@ export type MouseAction =
   | { type: "click"; x: number; y: number; clickCount?: number };
 
 /**
- * Browser-side signature of the {@link positionalMouse} command below, i.e. what
- * `BrowserCommand<MouseAction[]>` turns into once Vitest strips the (Node-only)
- * `BrowserCommandContext` first parameter. Used by `context.ts` to type the
- * shared browser `commands` object — see the note there on why this
- * can't be a `declare module` augmentation.
- */
-export type PositionalMouseCommand = (
-  ...actions: MouseAction[]
-) => Promise<void>;
-
-/**
  * Vitest's `userEvent` doesn't have several mouse commands that we relied on in Playwright, namely
  * clicking at the current mouse position, and moving the mouse to a given position across N steps.
  *

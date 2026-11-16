@@ -1,90 +1,360 @@
 import { describe, expect } from "vite-plus/test";
 import { CreateLinkButton } from "./CreateLinkButton.js";
+import { FormattingToolbar } from "../FormattingToolbar.js";
 
 describe("CreateLinkButton", () => {
-  it("submits a link for the original substring and returns focus to the editor", async ({
-    renderEditor,
-    selectText,
-    commands,
-    page,
-  }) => {
-    const { editor } = await renderEditor({
-      initialContent: [
-        {
-          id: "text",
-          type: "paragraph",
-          content: "Before selected text after",
-        },
-      ],
-      props: { formattingToolbar: false },
-      children: <CreateLinkButton />,
-    });
-    selectText(editor, "selected text");
-    await page
-      .getByRole("button", {
+  describe("unit", () => {
+    it("requires selected text and responds to editability changes", async ({
+      renderEditor,
+      selectText,
+      page,
+    }) => {
+      const { editor, rerender } = await renderEditor({
+        initialContent: [
+          { id: "text", type: "paragraph", content: "Selected text" },
+        ],
+        props: { formattingToolbar: false },
+        children: <CreateLinkButton />,
+      });
+      const button = page.getByRole("button", {
         name: editor.dictionary.formatting_toolbar.link.tooltip,
         exact: true,
-      })
-      .click();
-    const input = page.getByPlaceholder(
-      editor.dictionary.link_toolbar.form.url_placeholder,
-    );
+      });
+      await expect.element(button).not.toBeInTheDocument();
 
-    await input.fill("https://example.com");
-    await commands.pressKey("Enter");
+      selectText(editor, "Selected text");
+      await expect.element(button).toBeVisible();
 
-    expect(editor.getBlock("text")?.content).toEqual([
-      { type: "text", text: "Before ", styles: {} },
-      {
-        type: "link",
-        href: "https://example.com",
-        content: [{ type: "text", text: "selected text", styles: {} }],
-      },
-      { type: "text", text: " after", styles: {} },
-    ]);
-    await expect.element(input).not.toBeInTheDocument();
-    await expect.element(page.getByRole("textbox")).toHaveFocus();
+      rerender({ editable: false });
+      await expect.element(button).not.toBeInTheDocument();
+
+      rerender({ editable: true });
+      await expect.element(button).toBeVisible();
+
+      editor.setTextCursorPosition("text", "end");
+      await expect.element(button).not.toBeInTheDocument();
+    });
+
+    it("prefills the selected link and closes the form when selection changes", async ({
+      renderEditor,
+      selectText,
+      page,
+    }) => {
+      const { editor } = await renderEditor({
+        initialContent: [
+          {
+            id: "text",
+            type: "paragraph",
+            content: [
+              {
+                type: "link",
+                href: "https://example.com",
+                content: "Linked text",
+              },
+              { type: "text", text: " Plain text", styles: {} },
+            ],
+          },
+        ],
+        props: { formattingToolbar: false },
+        children: <CreateLinkButton />,
+      });
+      selectText(editor, "Linked text");
+      await page
+        .getByRole("button", {
+          name: editor.dictionary.formatting_toolbar.link.tooltip,
+          exact: true,
+        })
+        .click();
+      const input = page.getByPlaceholder(
+        editor.dictionary.link_toolbar.form.url_placeholder,
+      );
+      await expect.element(input).toHaveValue("https://example.com");
+
+      selectText(editor, "Plain text");
+
+      await expect.element(input).not.toBeInTheDocument();
+    });
   });
 
-  it("opens the link form without changing the selected text range or document", async ({
-    renderEditor,
-    selectText,
-    page,
-  }) => {
-    const { editor } = await renderEditor({
-      initialContent: [
-        {
-          id: "text",
-          type: "paragraph",
-          content: "Before selected text after",
-        },
-      ],
-      props: { formattingToolbar: false },
-      children: <CreateLinkButton />,
-    });
-    selectText(editor, "selected text");
-    const documentBefore = editor.document;
-    const selectionBefore = editor.prosemirrorState.selection.toJSON();
+  describe("integration", () => {
+    it("submits a link for the original substring and returns focus to the editor", async ({
+      renderEditor,
+      selectText,
+      commands,
+      page,
+    }) => {
+      const { editor } = await renderEditor({
+        initialContent: [
+          {
+            id: "text",
+            type: "paragraph",
+            content: "Before selected text after",
+          },
+        ],
+        props: { formattingToolbar: false },
+        children: <CreateLinkButton />,
+      });
+      selectText(editor, "selected text");
+      await page
+        .getByRole("button", {
+          name: editor.dictionary.formatting_toolbar.link.tooltip,
+          exact: true,
+        })
+        .click();
+      const input = page.getByPlaceholder(
+        editor.dictionary.link_toolbar.form.url_placeholder,
+      );
 
-    await page
-      .getByRole("button", {
+      await input.fill("https://example.com");
+      await commands.pressKey("Enter");
+
+      expect(editor.getBlock("text")?.content).toEqual([
+        { type: "text", text: "Before ", styles: {} },
+        {
+          type: "link",
+          href: "https://example.com",
+          content: [{ type: "text", text: "selected text", styles: {} }],
+        },
+        { type: "text", text: " after", styles: {} },
+      ]);
+      await expect.element(input).not.toBeInTheDocument();
+      await expect.element(page.getByRole("textbox")).toHaveFocus();
+    });
+
+    it("opens the link form without changing the selected text range or document", async ({
+      renderEditor,
+      selectText,
+      page,
+    }) => {
+      const { editor } = await renderEditor({
+        initialContent: [
+          {
+            id: "text",
+            type: "paragraph",
+            content: "Before selected text after",
+          },
+        ],
+        props: { formattingToolbar: false },
+        children: <CreateLinkButton />,
+      });
+      selectText(editor, "selected text");
+      const documentBefore = editor.document;
+      const selectionBefore = editor.prosemirrorState.selection.toJSON();
+
+      await page
+        .getByRole("button", {
+          name: editor.dictionary.formatting_toolbar.link.tooltip,
+          exact: true,
+        })
+        .click();
+
+      await expect
+        .element(
+          page.getByPlaceholder(
+            editor.dictionary.link_toolbar.form.url_placeholder,
+          ),
+        )
+        .toHaveFocus();
+      expect(editor.prosemirrorState.selection.toJSON()).toEqual(
+        selectionBefore,
+      );
+      expect(editor.document).toEqual(documentBefore);
+    });
+  });
+
+  describe("keyboard", () => {
+    it("shows a keyboard focus ring on its trigger", async ({
+      renderEditor,
+      selectText,
+      commands,
+      page,
+    }) => {
+      const { editor } = await renderEditor({
+        initialContent: [{ type: "paragraph", content: "Selected text" }],
+        props: { formattingToolbar: false },
+        children: <CreateLinkButton />,
+      });
+      await page.getByRole("textbox").click();
+      selectText(editor, "Selected text");
+      const button = page.getByRole("button", {
         name: editor.dictionary.formatting_toolbar.link.tooltip,
         exact: true,
-      })
-      .click();
+      });
+      const outline = await commands.readOutline(button.selector);
 
-    await expect
-      .element(
-        page.getByPlaceholder(
-          editor.dictionary.link_toolbar.form.url_placeholder,
-        ),
-      )
-      .toHaveFocus();
-    expect(editor.prosemirrorState.selection.toJSON()).toEqual(selectionBefore);
-    expect(editor.document).toEqual(documentBefore);
+      await commands.pressKey("Tab");
+
+      await expect.element(button).toHaveFocus();
+      await commands.checkFocusOutline(button.selector, outline);
+    });
+
+    // Our Mantine form-popover CSS removes the input border, and there is no
+    // replacement keyboard focus outline (blocknoteStyles.css).
+    it.fails("shows a visible keyboard focus indicator on the URL field", async ({
+      renderEditor,
+      selectText,
+      commands,
+      page,
+    }) => {
+      const { editor } = await renderEditor({
+        initialContent: [{ type: "paragraph", content: "Selected text" }],
+        props: { formattingToolbar: false },
+        children: <CreateLinkButton />,
+      });
+      selectText(editor, "Selected text");
+      const button = page.getByRole("button", {
+        name: editor.dictionary.formatting_toolbar.link.tooltip,
+        exact: true,
+      });
+      await expect.element(button).toBeVisible();
+      button.element().focus();
+
+      await commands.pressKey("Enter");
+
+      const input = page.getByPlaceholder(
+        editor.dictionary.link_toolbar.form.url_placeholder,
+      );
+      await expect.element(input).toHaveFocus();
+      await commands.checkFocusOutline(input.selector);
+    });
+
+    it("opens with Enter and returns focus to its trigger on Escape without editing", async ({
+      renderEditor,
+      selectText,
+      commands,
+      page,
+    }) => {
+      const { editor } = await renderEditor({
+        initialContent: [{ type: "paragraph", content: "Selected text" }],
+        props: { formattingToolbar: false },
+        children: <CreateLinkButton />,
+      });
+      selectText(editor, "Selected text");
+      const button = page.getByRole("button", {
+        name: editor.dictionary.formatting_toolbar.link.tooltip,
+        exact: true,
+      });
+      const documentBefore = editor.document;
+      const selectionBefore = editor.prosemirrorState.selection.toJSON();
+      await expect.element(button).toBeVisible();
+      button.element().focus();
+
+      await commands.pressKey("Enter");
+
+      const input = page.getByPlaceholder(
+        editor.dictionary.link_toolbar.form.url_placeholder,
+      );
+      await expect.element(input).toHaveFocus();
+
+      await commands.pressKey("Escape");
+
+      await expect.element(input).not.toBeInTheDocument();
+      await expect.element(button).toHaveFocus();
+      expect(editor.document).toEqual(documentBefore);
+      expect(editor.prosemirrorState.selection.toJSON()).toEqual(
+        selectionBefore,
+      );
+    });
+
+    it("opens with the editor's link shortcut but not in read-only mode", async ({
+      renderEditor,
+      selectText,
+      commands,
+      page,
+    }) => {
+      const { editor, rerender } = await renderEditor({
+        initialContent: [{ type: "paragraph", content: "Selected text" }],
+        props: { formattingToolbar: false },
+        children: <CreateLinkButton />,
+      });
+      await page.getByRole("textbox").click();
+      selectText(editor, "Selected text");
+
+      await commands.pressKey("Control+k");
+
+      const input = page.getByPlaceholder(
+        editor.dictionary.link_toolbar.form.url_placeholder,
+      );
+      await expect.element(input).toHaveFocus();
+      await commands.pressKey("Escape");
+      rerender({ editable: false });
+
+      // Read-only content is not a textbox, but still receives DOM key events.
+      const shortcut = new KeyboardEvent("keydown", {
+        key: "k",
+        ctrlKey: true,
+        bubbles: true,
+        cancelable: true,
+      });
+      editor.prosemirrorView.dom.dispatchEvent(shortcut);
+
+      await expect.element(input).not.toBeInTheDocument();
+      expect(shortcut.defaultPrevented).toBe(false);
+    });
+  });
+
+  describe("ARIA", () => {
+    it("exposes the popup's relationship to its named trigger and its URL field", async ({
+      renderEditor,
+      selectText,
+      page,
+    }) => {
+      const { editor } = await renderEditor({
+        initialContent: [{ type: "paragraph", content: "Selected text" }],
+        props: { formattingToolbar: false },
+        children: <CreateLinkButton />,
+      });
+      selectText(editor, "Selected text");
+      const button = page.getByRole("button", {
+        name: editor.dictionary.formatting_toolbar.link.tooltip,
+        exact: true,
+      });
+      await expect.element(button).toHaveAttribute("aria-haspopup", "dialog");
+      await expect.element(button).toHaveAttribute("aria-expanded", "false");
+
+      await button.click();
+
+      const dialog = page.getByRole("dialog");
+      await expect.element(dialog).toBeVisible();
+      await expect.element(button).toHaveAttribute("aria-expanded", "true");
+      expect(button.element().getAttribute("aria-controls")).toBe(
+        dialog.element().id,
+      );
+      expect(dialog.element().getAttribute("aria-labelledby")).toBe(
+        button.element().id,
+      );
+      await expect
+        .element(
+          dialog.getByPlaceholder(
+            editor.dictionary.link_toolbar.form.url_placeholder,
+          ),
+        )
+        .toHaveFocus();
+    });
   });
 
   describe("axe", () => {
+    it("checks the closed trigger", async ({
+      renderEditor,
+      selectText,
+      commands,
+      annotate,
+    }) => {
+      const { editor } = await renderEditor({
+        initialContent: [{ type: "paragraph", content: "Selected text" }],
+        props: { formattingToolbar: false },
+        children: (
+          <FormattingToolbar>
+            <CreateLinkButton />
+          </FormattingToolbar>
+        ),
+      });
+      selectText(editor, "Selected text");
+
+      for (const warning of await commands.checkAxe('[role="toolbar"]')) {
+        await annotate(warning, "warning");
+      }
+    });
     it("opens a link form with no automated accessibility violations", async ({
       renderEditor,
       selectText,

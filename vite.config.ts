@@ -15,7 +15,7 @@ export default defineConfig({
     cache: { scripts: true },
     tasks: {
       "test:screen-reader": {
-        command: "node tests/screen-reader/run-screen-reader.mjs",
+        command: "node tests/src/screen-reader/run-screen-reader.mjs",
         cache: false,
       },
       "copy-package-readmes": {

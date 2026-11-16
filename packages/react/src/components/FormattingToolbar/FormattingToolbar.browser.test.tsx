@@ -1,5 +1,4 @@
 import { describe, expect } from "vite-plus/test";
-import { BasicTextStyleButton } from "./DefaultButtons/BasicTextStyleButton.js";
 import { FormattingToolbar } from "./FormattingToolbar.js";
 
 describe("FormattingToolbar", () => {
@@ -116,41 +115,384 @@ describe("FormattingToolbar", () => {
   });
 
   describe("keyboard", () => {
-    it("provides visible keyboard focus when entering and traversing its controls", async ({
+    it("tabs forward through the default controls for Parent and allows leaving", async ({
       renderEditor,
+      selectText,
       commands,
       page,
     }) => {
       const { editor } = await renderEditor({
+        initialContent: [
+          {
+            type: "paragraph",
+            content: "Parent",
+            children: [{ type: "paragraph", content: "Child" }],
+          },
+          { type: "paragraph", content: "Sibling" },
+        ],
         props: { formattingToolbar: false },
-        children: (
-          <FormattingToolbar>
-            <BasicTextStyleButton basicTextStyle="bold" />
-            <BasicTextStyleButton basicTextStyle="italic" />
-          </FormattingToolbar>
-        ),
+        children: <FormattingToolbar />,
       });
       await page.getByRole("textbox").click();
-      const first = page.getByRole("button", {
-        name: editor.dictionary.formatting_toolbar.bold.tooltip,
+      selectText(editor, "Parent");
+      const toolbar = page.getByRole("toolbar");
+      await expect.element(toolbar).toBeVisible();
+      const sequence: string[] = [];
+
+      await commands.focusUntil(async (active) => {
+        if (!toolbar.element().contains(active.element())) {
+          return true;
+        }
+        await expect.element(active).toBeEnabled();
+        sequence.push(await commands.readAriaSnapshot(active.selector));
+        return false;
+      });
+
+      expect(sequence).toMatchInlineSnapshot(`
+        [
+          "- button "Paragraph":
+          - img
+          - text: Paragraph",
+          "- button "Bold":
+          - img",
+          "- button "Italic":
+          - img",
+          "- button "Underline":
+          - img",
+          "- button "Strike":
+          - img",
+          "- button "Align text left" [pressed]:
+          - img",
+          "- button "Align text center":
+          - img",
+          "- button "Align text right":
+          - img",
+          "- button "Colors": A",
+          "- button "Create link":
+          - img",
+        ]
+      `);
+      expect(toolbar.element().contains(document.activeElement)).toBe(false);
+    });
+
+    it("tabs forward through the default controls for Child and allows leaving", async ({
+      renderEditor,
+      selectText,
+      commands,
+      page,
+    }) => {
+      const { editor } = await renderEditor({
+        initialContent: [
+          {
+            type: "paragraph",
+            content: "Parent",
+            children: [{ type: "paragraph", content: "Child" }],
+          },
+          { type: "paragraph", content: "Sibling" },
+        ],
+        props: { formattingToolbar: false },
+        children: <FormattingToolbar />,
+      });
+      await page.getByRole("textbox").click();
+      selectText(editor, "Child");
+      const toolbar = page.getByRole("toolbar");
+      await expect.element(toolbar).toBeVisible();
+      const sequence: string[] = [];
+
+      await commands.focusUntil(async (active) => {
+        if (!toolbar.element().contains(active.element())) {
+          return true;
+        }
+        await expect.element(active).toBeEnabled();
+        sequence.push(await commands.readAriaSnapshot(active.selector));
+        return false;
+      });
+
+      expect(sequence).toMatchInlineSnapshot(`
+        [
+          "- button "Paragraph":
+          - img
+          - text: Paragraph",
+          "- button "Bold":
+          - img",
+          "- button "Italic":
+          - img",
+          "- button "Underline":
+          - img",
+          "- button "Strike":
+          - img",
+          "- button "Align text left" [pressed]:
+          - img",
+          "- button "Align text center":
+          - img",
+          "- button "Align text right":
+          - img",
+          "- button "Colors": A",
+          "- button "Unnest block":
+          - img",
+          "- button "Create link":
+          - img",
+        ]
+      `);
+      expect(toolbar.element().contains(document.activeElement)).toBe(false);
+    });
+
+    it("tabs forward through the default controls for Sibling and allows leaving", async ({
+      renderEditor,
+      selectText,
+      commands,
+      page,
+    }) => {
+      const { editor } = await renderEditor({
+        initialContent: [
+          {
+            type: "paragraph",
+            content: "Parent",
+            children: [{ type: "paragraph", content: "Child" }],
+          },
+          { type: "paragraph", content: "Sibling" },
+        ],
+        props: { formattingToolbar: false },
+        children: <FormattingToolbar />,
+      });
+      await page.getByRole("textbox").click();
+      selectText(editor, "Sibling");
+      const toolbar = page.getByRole("toolbar");
+      await expect.element(toolbar).toBeVisible();
+      const sequence: string[] = [];
+
+      await commands.focusUntil(async (active) => {
+        if (!toolbar.element().contains(active.element())) {
+          return true;
+        }
+        await expect.element(active).toBeEnabled();
+        sequence.push(await commands.readAriaSnapshot(active.selector));
+        return false;
+      });
+
+      expect(sequence).toMatchInlineSnapshot(`
+        [
+          "- button "Paragraph":
+          - img
+          - text: Paragraph",
+          "- button "Bold":
+          - img",
+          "- button "Italic":
+          - img",
+          "- button "Underline":
+          - img",
+          "- button "Strike":
+          - img",
+          "- button "Align text left" [pressed]:
+          - img",
+          "- button "Align text center":
+          - img",
+          "- button "Align text right":
+          - img",
+          "- button "Colors": A",
+          "- button "Nest block":
+          - img",
+          "- button "Create link":
+          - img",
+        ]
+      `);
+      expect(toolbar.element().contains(document.activeElement)).toBe(false);
+    });
+
+    it("tabs backward through the default controls for Parent and allows leaving", async ({
+      renderEditor,
+      selectText,
+      commands,
+      page,
+    }) => {
+      const { editor } = await renderEditor({
+        initialContent: [
+          {
+            type: "paragraph",
+            content: "Parent",
+            children: [{ type: "paragraph", content: "Child" }],
+          },
+          { type: "paragraph", content: "Sibling" },
+        ],
+        props: { formattingToolbar: false },
+        children: <FormattingToolbar />,
+      });
+      selectText(editor, "Parent");
+      const toolbar = page.getByRole("toolbar");
+      const lastControl = toolbar.getByRole("button", {
+        name: editor.dictionary.formatting_toolbar.link.tooltip,
         exact: true,
       });
-      const second = page.getByRole("button", {
-        name: editor.dictionary.formatting_toolbar.italic.tooltip,
+      await expect.element(lastControl).toBeVisible();
+      lastControl.element().focus();
+      const sequence = [await commands.readAriaSnapshot(lastControl.selector)];
+
+      await commands.focusUntil(async (active) => {
+        if (!toolbar.element().contains(active.element())) {
+          return true;
+        }
+        await expect.element(active).toBeEnabled();
+        sequence.push(await commands.readAriaSnapshot(active.selector));
+        return false;
+      }, "backward");
+
+      expect(sequence).toMatchInlineSnapshot(`
+        [
+          "- button "Create link":
+          - img",
+          "- button "Colors": A",
+          "- button "Align text right":
+          - img",
+          "- button "Align text center":
+          - img",
+          "- button "Align text left" [pressed]:
+          - img",
+          "- button "Strike":
+          - img",
+          "- button "Underline":
+          - img",
+          "- button "Italic":
+          - img",
+          "- button "Bold":
+          - img",
+          "- button "Paragraph":
+          - img
+          - text: Paragraph",
+        ]
+      `);
+      expect(toolbar.element().contains(document.activeElement)).toBe(false);
+    });
+
+    it("tabs backward through the default controls for Child and allows leaving", async ({
+      renderEditor,
+      selectText,
+      commands,
+      page,
+    }) => {
+      const { editor } = await renderEditor({
+        initialContent: [
+          {
+            type: "paragraph",
+            content: "Parent",
+            children: [{ type: "paragraph", content: "Child" }],
+          },
+          { type: "paragraph", content: "Sibling" },
+        ],
+        props: { formattingToolbar: false },
+        children: <FormattingToolbar />,
+      });
+      selectText(editor, "Child");
+      const toolbar = page.getByRole("toolbar");
+      const lastControl = toolbar.getByRole("button", {
+        name: editor.dictionary.formatting_toolbar.link.tooltip,
         exact: true,
       });
-      const firstOutline = await commands.readOutline(first.selector);
-      const secondOutline = await commands.readOutline(second.selector);
+      await expect.element(lastControl).toBeVisible();
+      lastControl.element().focus();
+      const sequence = [await commands.readAriaSnapshot(lastControl.selector)];
 
-      await commands.pressKey("Tab");
+      await commands.focusUntil(async (active) => {
+        if (!toolbar.element().contains(active.element())) {
+          return true;
+        }
+        await expect.element(active).toBeEnabled();
+        sequence.push(await commands.readAriaSnapshot(active.selector));
+        return false;
+      }, "backward");
 
-      await expect.element(first).toHaveFocus();
-      await commands.checkFocusOutline(first.selector, firstOutline);
+      expect(sequence).toMatchInlineSnapshot(`
+        [
+          "- button "Create link":
+          - img",
+          "- button "Unnest block":
+          - img",
+          "- button "Colors": A",
+          "- button "Align text right":
+          - img",
+          "- button "Align text center":
+          - img",
+          "- button "Align text left" [pressed]:
+          - img",
+          "- button "Strike":
+          - img",
+          "- button "Underline":
+          - img",
+          "- button "Italic":
+          - img",
+          "- button "Bold":
+          - img",
+          "- button "Paragraph":
+          - img
+          - text: Paragraph",
+        ]
+      `);
+      expect(toolbar.element().contains(document.activeElement)).toBe(false);
+    });
 
-      await commands.pressKey("Tab");
+    it("tabs backward through the default controls for Sibling and allows leaving", async ({
+      renderEditor,
+      selectText,
+      commands,
+      page,
+    }) => {
+      const { editor } = await renderEditor({
+        initialContent: [
+          {
+            type: "paragraph",
+            content: "Parent",
+            children: [{ type: "paragraph", content: "Child" }],
+          },
+          { type: "paragraph", content: "Sibling" },
+        ],
+        props: { formattingToolbar: false },
+        children: <FormattingToolbar />,
+      });
+      selectText(editor, "Sibling");
+      const toolbar = page.getByRole("toolbar");
+      const lastControl = toolbar.getByRole("button", {
+        name: editor.dictionary.formatting_toolbar.link.tooltip,
+        exact: true,
+      });
+      await expect.element(lastControl).toBeVisible();
+      lastControl.element().focus();
+      const sequence = [await commands.readAriaSnapshot(lastControl.selector)];
 
-      await expect.element(second).toHaveFocus();
-      await commands.checkFocusOutline(second.selector, secondOutline);
+      await commands.focusUntil(async (active) => {
+        if (!toolbar.element().contains(active.element())) {
+          return true;
+        }
+        await expect.element(active).toBeEnabled();
+        sequence.push(await commands.readAriaSnapshot(active.selector));
+        return false;
+      }, "backward");
+
+      expect(sequence).toMatchInlineSnapshot(`
+        [
+          "- button "Create link":
+          - img",
+          "- button "Nest block":
+          - img",
+          "- button "Colors": A",
+          "- button "Align text right":
+          - img",
+          "- button "Align text center":
+          - img",
+          "- button "Align text left" [pressed]:
+          - img",
+          "- button "Strike":
+          - img",
+          "- button "Underline":
+          - img",
+          "- button "Italic":
+          - img",
+          "- button "Bold":
+          - img",
+          "- button "Paragraph":
+          - img
+          - text: Paragraph",
+        ]
+      `);
+      expect(toolbar.element().contains(document.activeElement)).toBe(false);
     });
   });
 

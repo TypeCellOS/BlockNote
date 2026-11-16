@@ -1,6 +1,6 @@
-import { pressKey } from "../src/utils/keyboard.js";
+import { pressKey } from "../utils/keyboard.js";
 import type { BrowserCommand } from "vite-plus/test/node";
-import type {} from "../src/utils/positionalMouse.js";
+import type {} from "../utils/positionalMouse.js";
 
 // Import only on native runs: GuidePup cannot initialize on Linux.
 async function reader() {
@@ -56,7 +56,7 @@ export const screenReaderPressKey: BrowserCommand<[key: string]> = async (
  * nonempty before comparing it with a Vitest snapshot in the consuming test.
  * Reading the log does not stop the reader; cleanup belongs in `finally`.
  */
-export const readTranscript: BrowserCommand<[]> = async () =>
+export const readTranscript: BrowserCommand<[], string[]> = async () =>
   (await reader()).spokenPhraseLog();
 /**
  * Stops the native reader. Call in an `afterEach` hook's `finally` block so

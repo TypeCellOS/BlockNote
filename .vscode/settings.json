@@ -16,7 +16,8 @@
     "packages/website/docs/.vitepress": false,
     "**/.*": false
   },
-  "typescript.tsdk": "node_modules/typescript/lib",
+  "js/ts.experimental.useTsgo": true,
+  "js/ts.tsdk.path": "./node_modules/typescript",
   "[xml]": {
     "editor.defaultFormatter": "redhat.vscode-xml"
   },

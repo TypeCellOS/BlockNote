@@ -10,15 +10,17 @@ if (!reader) {
 const result = spawnSync(
   process.execPath,
   [
-    fileURLToPath(new URL("../node_modules/vite-plus/bin/vp", import.meta.url)),
+    fileURLToPath(
+      new URL("../../node_modules/vite-plus/bin/vp", import.meta.url),
+    ),
     "test",
     "--config",
-    "screen-reader/vite.config.screen-reader.ts",
+    "src/screen-reader/vite.config.screen-reader.ts",
     "--run",
     ...args,
   ],
   {
-    cwd: fileURLToPath(new URL("..", import.meta.url)),
+    cwd: fileURLToPath(new URL("../..", import.meta.url)),
     env: { ...process.env, BLOCKNOTE_SCREEN_READER: reader },
     stdio: "inherit",
   },

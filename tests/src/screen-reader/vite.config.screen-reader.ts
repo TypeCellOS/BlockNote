@@ -1,19 +1,7 @@
-import {
-  readAriaSnapshot,
-  readOutline,
-  checkFocusOutline,
-  readSelection,
-  checkAxe,
-} from "../src/utils/accessibility.js";
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite-plus";
 import { playwright } from "vite-plus/test/browser/providers/playwright";
-import {
-  startReader,
-  screenReaderPressKey,
-  readTranscript,
-  stopReader,
-} from "./screenReader.js";
+import * as commands from "./commands.js";
 
 const reader = process.env.BLOCKNOTE_SCREEN_READER;
 if (reader !== "voiceover" && reader !== "nvda") {
@@ -27,19 +15,19 @@ if (
 }
 
 export default defineConfig({
-  root: fileURLToPath(new URL("../", import.meta.url)),
-  publicDir: fileURLToPath(new URL("../public", import.meta.url)),
+  root: fileURLToPath(new URL("../../", import.meta.url)),
+  publicDir: fileURLToPath(new URL("../../public", import.meta.url)),
   resolve: {
     alias: {
-      "@root": fileURLToPath(new URL("../../", import.meta.url)),
+      "@root": fileURLToPath(new URL("../../../", import.meta.url)),
       "@blocknote/core": fileURLToPath(
-        new URL("../../packages/core/src", import.meta.url),
+        new URL("../../../packages/core/src", import.meta.url),
       ),
       "@blocknote/react": fileURLToPath(
-        new URL("../../packages/react/src", import.meta.url),
+        new URL("../../../packages/react/src", import.meta.url),
       ),
       "@blocknote/mantine": fileURLToPath(
-        new URL("../../packages/mantine/src", import.meta.url),
+        new URL("../../../packages/mantine/src", import.meta.url),
       ),
     },
     dedupe: ["react", "react-dom", "vitest-browser-react"],
@@ -47,7 +35,7 @@ export default defineConfig({
   test: {
     name: "screen-reader",
     setupFiles: [
-      fileURLToPath(new URL("../vitestSetup.browser.ts", import.meta.url)),
+      fileURLToPath(new URL("../../vitestSetup.browser.ts", import.meta.url)),
     ],
     include: ["../packages/*/src/**/*.screen-reader.test.ts"],
     testTimeout: 300_000,
@@ -81,17 +69,7 @@ export default defineConfig({
           name: reader,
         },
       ],
-      commands: {
-        readAriaSnapshot,
-        readOutline,
-        checkFocusOutline,
-        readSelection,
-        checkAxe,
-        startReader,
-        pressKey: screenReaderPressKey,
-        readTranscript,
-        stopReader,
-      },
+      commands,
     },
   },
 });

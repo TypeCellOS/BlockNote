@@ -54,7 +54,7 @@ Use accessible locators (`getByRole` with a name or `getByLabel`) and pass their
 
 Use a separate `*.screen-reader.test.ts` only for actual reader announcements/navigation that ARIA snapshots cannot establish. Reuse keyboard navigation helpers, render the suite’s editor and call `commands.startReader(locator.selector)`, and assert the transcript and stop the reader in `afterEach`. Avoid duplicating every browser scenario. Transcripts are reader-specific; review changes rather than accepting them blindly.
 
-These tests run locally with VoiceOver on macOS or NVDA on Windows and require the installed reader and GuidePup permissions. They must stay excluded from regular e2e, node tests, and CI. `tests/screen-reader/vite.config.screen-reader.ts` is for this native runner only.
+These tests run locally with VoiceOver on macOS or NVDA on Windows and require the installed reader and GuidePup permissions. They must stay excluded from regular e2e, node tests, and CI. `tests/src/screen-reader/vite.config.screen-reader.ts` is for this native runner only.
 
 ## Discovery and commands
 
