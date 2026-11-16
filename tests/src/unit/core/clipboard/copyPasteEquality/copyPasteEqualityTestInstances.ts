@@ -22,6 +22,16 @@ export const copyPasteEqualityTestInstances: TestInstance<
     name: testCase.name,
     document: testCase.document,
     getCopyAndPasteSelection: testCase.getCopySelection,
+    // These selections start in the first parent's children and end in the
+    // following parent. The selected forest now stays at the starting depth
+    // instead of restoring the unselected ancestor boundary on paste.
+    getExpectedDocument:
+      testCase.name === "childrenToNextParent" ||
+      testCase.name === "childrenToNextParentsChildren"
+        ? ([parent, nextParent]) => [
+            { ...parent, children: [...parent.children, nextParent] },
+          ]
+        : undefined,
   },
   executeTest: testCopyPasteEquality,
 }));
