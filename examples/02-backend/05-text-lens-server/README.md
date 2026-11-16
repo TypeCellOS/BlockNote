@@ -15,12 +15,12 @@ The server listens on port 3010 (set `PORT` for a different port). It keeps the 
 
 ## API
 
-| Request                      | Result                                                                                                                                                                              |
-| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `GET /documents/:id/:format` | The document as `json`, `markdown`, `html` or `text`. The `ETag` header gives its version, for example `"1"`.                                                                       |
-| `PUT /documents/:id/:format` | Writes the changed document back. The response gives the document after the write, the ETag of its version (`etag`), the operations, the warnings and the changes of other writers. |
+| Request                      | Result                                                                                                                                                                       |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /documents/:id/:format` | The document as `json`, `markdown`, `html` or `text`. The `ETag` header gives its version, for example `"1"`.                                                                |
+| `PUT /documents/:id/:format` | Writes the changed document back. The response gives the ETag of the document that the client wrote (`etag`), the operations, the warnings and the changes of other writers. |
 
-A write sends the ETag that the client read in one of two headers:
+A write sends the ETag of the text of the client in one of two headers. This is the ETag of the read that gave the text, or the ETag of the last write of the client:
 
 | Header                | Write                                                                                                                                                                 |
 | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -29,7 +29,11 @@ A write sends the ETag that the client read in one of two headers:
 | `On-Conflict: reject` | With `Base-Version` only: a merge with a conflict does not apply (409, with the conflicts). The default is `keep-current`.                                            |
 | (none)                | The write applies to the current document, without a merge.                                                                                                           |
 
-The response of a write is JSON: `etag`, the document after the write (`text` for a text format, `document` for `json`), `operations`, `warnings` and `changesOfOthers` (the blocks that other writers changed after `Base-Version`). The document after the write has the changes of other writers too. For the next write, change this document and send this ETag.
+The response of a write is JSON: `etag`, `operations`, `warnings` and `changesOfOthers` (the blocks that other writers changed after `Base-Version`).
+
+The `etag` of a write names the document that the client wrote: the text that the client has, without the changes of other writers. If no other writer changed the document, it is the ETag of the current document. For the next write, the client changes its own text and sends this ETag in `Base-Version`. The server merges again, and the changes of other writers stay.
+
+The response does not contain the document after the write. That document has changes that the client did not see. A write of the text of the client with the ETag of that document would remove these changes without a warning. Thus, the rule is: an ETag names the document of the text that came with it. A read gives the current text and its ETag. A write gives the ETag of the text that the client sent. To get the changes of other writers, read the document again.
 
 | Status | Error                              | Cause                                                                                                                                                   |
 | ------ | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -46,7 +50,7 @@ The ETags follow RFC 9110:
 
 - The ETag is the version number of the document (Section 8.8.3 gives an internal revision number as an example). Each format has its own URL, thus the same ETag for each format is correct (Section 8.8.1). The ETag names the version of the document, thus an ETag from a markdown read also works for a JSON write.
 - `If-Match` uses the strong comparison (Section 13.1.1): a weak ETag (`W/"1"`) never matches. `*` matches each version.
-- A write response gives the new ETag in its body, not in an `ETag` header. The server stores the merge of the write, not the content of the request, and Section 9.3.4 then does not allow a validator field in the response.
+- A write response gives its ETag in the body, not in an `ETag` header. After a merge, this ETag names the document that the client wrote, not the current document. Also, the server stores the merge of the write, not the content of the request, and Section 9.3.4 then does not allow a validator field in the response.
 - The server checks the headers (400, 404, 409) before `If-Match` (412), as Section 13.2.1 requires.
 - A strong ETag must change when the text of a format changes. The text of a version changes only with a new version of the server (for example a changed markdown export). A real server that caches responses (`If-None-Match`) also puts the version of its serializer in the ETag.
 
@@ -71,7 +75,7 @@ curl -i -X PUT -H 'If-Match: "1"' --data-binary 'Hello' http://localhost:3010/do
 ## How it works
 
 - `src/dom.ts` installs a DOM for the markdown and HTML conversions of BlockNote.
-- `src/documents.ts` keeps each document in a BlockNote editor, and keeps every version as BlockNote JSON. A real server keeps the versions in a database, or uses a Y.Doc and `@blocknote/xl-ai/text-lens/yjs`.
+- `src/documents.ts` keeps each document in a BlockNote editor, and keeps every version as BlockNote JSON. After a write that merged, it also keeps the document that the client wrote (`written` of the text lens) as a version of its own. A real server keeps the versions in a database, or uses a Y.Doc and `@blocknote/xl-ai/text-lens/yjs`.
 - `src/app.ts` has the routes. A write calls `updateDocument`, with `{ format, text }` for a text format or `{ document }` for JSON, with the document of the base version as `base` and the `onConflict` of the client. After the server reads the body, a write is synchronous from the checks until its commit. Thus, two writes cannot mix, and no write comes between the check of `If-Match` and the commit.
 
 A real server also needs authentication. The body of a request can be at most 5 MB.

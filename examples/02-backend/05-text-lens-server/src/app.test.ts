@@ -101,7 +101,7 @@ describe("text lens server", () => {
     );
   });
 
-  it("gives the document after the write, with the changes of other writers, for the next write", async () => {
+  it("gives the ETag of the text that the client wrote: a second write from it keeps the change of another writer", async () => {
     const { get, put } = setup();
     const text = await (await get("text")).text();
     await put(
@@ -110,28 +110,62 @@ describe("text lens server", () => {
       fromBase('"1"'),
     );
 
-    // B writes from version 1. The response has the change of A too.
+    // B writes from version 1. B does not read the document again.
+    const ownText = text.replace("Hello world", "Hello from B");
+    const first = await (await put("text", ownText, fromBase('"1"'))).json();
+    expect(first).toMatchObject({
+      changesOfOthers: [{ id: "end", change: "changed" }],
+    });
+    // The next write of B is its own text, from the ETag of its first write.
+    const second = await put(
+      "text",
+      ownText.replace("from B", "again from B"),
+      fromBase(first.etag),
+    );
+
+    expect(await second.json()).toMatchObject({ warnings: [] });
+    expect(await (await get("text")).text()).toBe(
+      "Hello again from B\n\nThe end, from A",
+    );
+  });
+
+  it("gives the ETag of the current document only in a read, if the write merged", async () => {
+    const { get, put } = setup();
+    const text = await (await get("text")).text();
+    await put(
+      "text",
+      text.replace("The end", "The end, from A"),
+      fromBase('"1"'),
+    );
+
     const response = await put(
       "text",
       text.replace("Hello world", "Hello from B"),
       fromBase('"1"'),
     );
-    const result = await response.json();
-    expect(result).toMatchObject({
-      etag: '"3"',
-      text: "Hello from B\n\nThe end, from A",
+
+    // Version 3 is the current document. Version 4 is the document that B
+    // wrote, without the change of A. The response does not have the current
+    // text: a text and the ETag of a different document must not come
+    // together.
+    expect(await response.json()).toEqual({
+      etag: '"4"',
+      operations: [expect.objectContaining({ type: "update", id: "intro" })],
+      warnings: [],
       changesOfOthers: [{ id: "end", change: "changed" }],
     });
+    const read = await get("text");
+    expect(read.headers.get("ETag")).toBe('"3"');
+    expect(await read.text()).toBe("Hello from B\n\nThe end, from A");
 
-    // The next write of B is from the version of the text that B has.
-    await put(
-      "text",
-      result.text.replace("from B", "again from B"),
-      fromBase(result.etag),
-    );
+    // A write from the text and the ETag of the read keeps all changes too.
+    await put("text", "Hello from B\n\nThe end, from A and B", fromBase('"3"'));
     expect(await (await get("text")).text()).toBe(
-      "Hello again from B\n\nThe end, from A",
+      "Hello from B\n\nThe end, from A and B",
     );
+    // The next version of the document is 5: a strict write needs its ETag.
+    expect((await get("text")).headers.get("ETag")).toBe('"5"');
+    expect((await put("text", "x", { "If-Match": '"4"' })).status).toBe(412);
   });
 
   it("writes JSON back, by block ID", async () => {
@@ -147,11 +181,14 @@ describe("text lens server", () => {
 
     expect(await response.json()).toMatchObject({
       etag: '"2"',
-      document: [{ id: "intro" }, { id: "end", props: { textColor: "red" } }],
       operations: [
         { type: "update", id: "end", update: { props: { textColor: "red" } } },
       ],
     });
+    expect(await (await get("json")).json()).toMatchObject([
+      { id: "intro" },
+      { id: "end", props: { textColor: "red" } },
+    ]);
   });
 
   it("reads children: null as no children", async () => {

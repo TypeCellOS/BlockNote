@@ -1,9 +1,10 @@
-import type { Block, BlockNoteEditor, PartialBlock } from "@blocknote/core";
+import type { BlockNoteEditor, PartialBlock } from "@blocknote/core";
 import {
   type ChangeOperations,
   type ChangeResult,
   getDocumentText,
   htmlFormat,
+  type LensBlock,
   markdownFormat,
   type MergeWarning,
   plainTextFormat,
@@ -46,16 +47,17 @@ function formatOf(name: string): Format | undefined {
 }
 
 /**
- * The ETag of a version of the document, for example `"3"`. A GET gives it in
- * the `ETag` header, and a PUT in its body. The client sends it back in
- * `If-Match` or in `Base-Version`. The ETag is the version of the document,
+ * The ETag of a version, for example `"3"`. A GET gives the ETag of the
+ * current document in the `ETag` header. A PUT gives the ETag of the document
+ * that the client wrote in its body. The client sends an ETag back in
+ * `If-Match` or in `Base-Version`. The ETag names a version of the document,
  * thus all formats of a document give the same ETag for the same version.
  */
 function etagOf(version: number): string {
   return `"${version}"`;
 }
 
-/** The ETag of the version that the client read before it changed the text. With it, the server merges. */
+/** The ETag of the version that the text of the client starts from: from its last read, or from its last write. With it, the server merges. */
 const BASE_HEADER = "Base-Version";
 /** What a conflict of the merge does: `keep-current` (the default) or `reject`. Only with `Base-Version`. */
 const ON_CONFLICT_HEADER = "On-Conflict";
@@ -74,15 +76,17 @@ type ClientError = {
  *   `html` or `text`, with the ETag of its version.
  * - `PUT /documents/:id/:format` writes a changed document back. The write
  *   applies only the changes, and keeps the data that the format does not
- *   show. The client sends the ETag that it read in one of two headers:
+ *   show. The client sends the ETag of its text in one of two headers:
  *   - `If-Match`: a strict write. If another writer changed the document
  *     after that version, the write does not apply (412).
  *   - `Base-Version`: a merge. The write keeps the changes that other
  *     writers made after that version. With `On-Conflict: reject`, a write
  *     with a conflict does not apply (409, with the conflicts).
- *   The response gives the document after the write (with the changes of
- *   other writers), and in its body the ETag of that version, for the next
- *   write.
+ *   The response gives the ETag of the document that the client wrote: its
+ *   own text, without the changes of other writers. It is the `Base-Version`
+ *   of the next write of the client. Thus, an ETag always names the document
+ *   of the text that the client has: a GET gives the current text with its
+ *   ETag, and a PUT gives the ETag of the text that the client sent.
  */
 export function createApp(store: DocumentStore) {
   const app = new Hono();
@@ -132,29 +136,30 @@ export function createApp(store: DocumentStore) {
       return c.json(conflicts ? { error, conflicts } : { error }, status);
     }
     const next = result.operations.length > 0 ? store.commit(id) : version;
-    // The new ETag is in the body, not in an ETag header: the stored document
-    // is not the content of the request (it merged, and the format changes
-    // the text), thus RFC 9110 (9.3.4) does not allow the header here.
-    return c.json({ etag: etagOf(next), ...read(editor, format), ...result });
+    // The client has the text that it wrote. After a merge, the current
+    // document also has the changes of other writers, which the client did
+    // not see: a write of the text of the client from that version would
+    // remove them. Thus the ETag names the document that the client wrote.
+    const written =
+      result.changesOfOthers.length > 0 ? store.keep(id, result.written) : next;
+    // The ETag is in the body, not in an ETag header: it does not always
+    // name the current document, thus RFC 9110 (9.3.4) does not allow the
+    // header here.
+    return c.json({
+      etag: etagOf(written),
+      operations: result.operations,
+      warnings: result.warnings,
+      changesOfOthers: result.changesOfOthers,
+    });
   });
 
   return app;
 }
 
-/** The document in a format, for the body of a write response. */
-function read(
-  editor: BlockNoteEditor<any, any, any>,
-  format: Format,
-): { document: Block<any, any, any>[] } | { text: string } {
-  return format.type === "json"
-    ? { document: editor.document }
-    : { text: getDocumentText(editor, format.format) };
-}
-
 /** The `base` and `onConflict` of a write (see `WriteFromVersion` of the text lens). */
 type WriteOptions =
   | { base: "current" }
-  | { base: Block<any, any, any>[]; onConflict: "keep-current" | "reject" };
+  | { base: LensBlock[]; onConflict: "keep-current" | "reject" };
 
 /** Applies the body of a PUT request to the document. */
 function write(
