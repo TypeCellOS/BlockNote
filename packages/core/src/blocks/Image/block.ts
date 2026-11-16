@@ -1,3 +1,4 @@
+import { filenameFromURL } from "../../util/string.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import {
   BlockFromConfig,
@@ -111,10 +112,9 @@ export const imageRender =
       image.src = block.props.url;
     }
 
-    // alt describes image content (per WCAG H86); figcaption (when present)
-    // is the contextual caption. Fall back to "" so unlabelled images are
-    // marked decorative rather than getting a noisy generic fallback.
-    image.alt = block.props.name || "";
+    // Identify unnamed images even when they fail to load. This fallback is
+    // only for the editor; keep the stored name and external HTML unchanged.
+    image.alt = block.props.name || filenameFromURL(block.props.url);
     image.contentEditable = "false";
     image.draggable = false;
     if (block.props.previewWidth) {
