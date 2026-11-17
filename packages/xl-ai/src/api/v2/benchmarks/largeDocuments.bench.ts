@@ -8,6 +8,7 @@ import { flattenBlocks } from "../util/blocks/flatten.js";
 import type { LensBlock } from "../model.js";
 import {
   computeOperations,
+  computeOperationsWithMerge,
   getDocumentText,
   htmlFormat,
   markdownFormat,
@@ -161,10 +162,11 @@ describe("large documents", () => {
               }),
             ),
             "older base": await median(() =>
-              computeOperations(other, {
+              computeOperationsWithMerge(other, {
                 format,
                 text: edited,
                 base: document,
+                onConflict: "keep-current",
               }),
             ),
             // A new client of a copy of the Y.Doc for each run. The bind is

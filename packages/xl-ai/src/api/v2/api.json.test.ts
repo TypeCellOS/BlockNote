@@ -9,6 +9,7 @@ import {
   htmlFormat,
   type JSONChange,
   updateDocument,
+  updateDocumentWithMerge,
 } from "./index.js";
 import { columnSchema, createEditor } from "./testUtil/fixtures.js";
 import { valid } from "./testUtil/valid.js";
@@ -86,7 +87,13 @@ describe("JSON", () => {
     // Another writer changes block c after the client read the document.
     editor.updateBlock("c", { content: "Gamma, edited" });
 
-    update(editor, { document, base });
+    valid(
+      updateDocumentWithMerge(editor, {
+        document,
+        base,
+        onConflict: "keep-current",
+      }),
+    );
 
     expect(editor.getBlock("a")?.props).toMatchObject({ textColor: "red" });
     expect(editor.getBlock("c")?.content).toMatchObject([
@@ -105,7 +112,7 @@ describe("JSON", () => {
     const before = editor.document;
 
     expect(
-      updateDocument(editor, { document, base, onConflict: "reject" }),
+      updateDocumentWithMerge(editor, { document, base, onConflict: "reject" }),
     ).toEqual({
       error: "conflict",
       conflicts: [{ type: "conflicting-change", id: "c" }],
@@ -214,7 +221,13 @@ describe("JSON", () => {
       { id: "d", type: "paragraph" as const, content: "Client block" },
     ];
 
-    update(editor, { document, base });
+    valid(
+      updateDocumentWithMerge(editor, {
+        document,
+        base,
+        onConflict: "keep-current",
+      }),
+    );
 
     expect(editor.getBlock("d")?.content).toMatchObject([{ text: "Delta" }]);
     const texts = editor.document.map(

@@ -3,11 +3,14 @@ import { describe, expect, it } from "vite-plus/test";
 
 import {
   computeOperations,
+  computeOperationsWithMerge,
   type DocumentChange,
+  type DocumentMergeChange,
   getDocumentText,
   htmlFormat,
   markdownFormat,
   updateDocument,
+  updateDocumentWithMerge,
 } from "./index.js";
 import { flattenBlocks } from "./util/blocks/flatten.js";
 import type { LensBlock } from "./model.js";
@@ -48,10 +51,11 @@ function write(
   edit: (text: string) => string,
 ) {
   return valid(
-    updateDocument(editor, {
+    updateDocumentWithMerge(editor, {
       format,
       text: edit(client.text),
       base: client.base,
+      onConflict: "keep-current",
     }),
   );
 }
@@ -80,6 +84,23 @@ describe("a write without `base`", () => {
       (editor: BlockNoteEditor<any, any, any>) =>
         updateDocument(editor, { document: [] } as never),
     ],
+    [
+      "computeOperationsWithMerge",
+      (editor: BlockNoteEditor<any, any, any>) =>
+        computeOperationsWithMerge(editor, {
+          format: markdownFormat,
+          text: "Hello",
+          onConflict: "reject",
+        } as never),
+    ],
+    [
+      "updateDocumentWithMerge",
+      (editor: BlockNoteEditor<any, any, any>) =>
+        updateDocumentWithMerge(editor, {
+          document: [],
+          onConflict: "reject",
+        } as never),
+    ],
   ])("%s throws an error, and does not change the document", (_, write) => {
     const editor = createEditor();
     const before = editor.document;
@@ -98,7 +119,13 @@ describe("a write from an older version", () => {
     );
 
     expect(
-      valid(computeOperations(editor, { format, ...client })).operations,
+      valid(
+        computeOperationsWithMerge(editor, {
+          format,
+          ...client,
+          onConflict: "keep-current",
+        }),
+      ).operations,
     ).toEqual([]);
   });
 
@@ -332,7 +359,14 @@ describe.each(formatCases)(
             writers[writer] = { base, text, change: alone(base, text) };
           } else {
             const { base, text } = writers[writer];
-            valid(updateDocument(editor, { format, text, base }));
+            valid(
+              updateDocumentWithMerge(editor, {
+                format,
+                text,
+                base,
+                onConflict: "keep-current",
+              }),
+            );
           }
         }
         const result = blockFieldsById(editor);
@@ -456,9 +490,10 @@ describe("a move by the client and an insert by another writer next to the moved
 
     // The client read the base, and moves X to the end.
     const [a, x, b, c] = base;
-    const result = updateDocument(editor, {
+    const result = updateDocumentWithMerge(editor, {
       document: [a, b, c, x],
       base,
+      onConflict: "keep-current",
     });
 
     expect(result.error).toBeUndefined();
@@ -670,7 +705,7 @@ describe("a write from an older version with onConflict", () => {
     text: string,
     onConflict: "keep-current" | "reject",
   ) {
-    return updateDocument(editor, {
+    return updateDocumentWithMerge(editor, {
       format,
       text,
       base: client.base,
@@ -762,6 +797,25 @@ describe("a write from an older version with onConflict", () => {
       { type: "conflicting-change", id: "end" },
     ]);
     expect(run(undefined)).toEqual(keepCurrent);
+  });
+
+  it("needs onConflict, and a version as base (a type error without them)", () => {
+    const version: DocumentMergeChange["base"] = [];
+    // @ts-expect-error: a merge write states what a conflict does.
+    const withoutOnConflict: DocumentMergeChange = {
+      format,
+      text: "",
+      base: version,
+    };
+    const withCurrent: DocumentMergeChange = {
+      format,
+      text: "",
+      // @ts-expect-error: the current document has nothing to merge.
+      base: "current",
+      onConflict: "reject",
+    };
+    expect(withoutOnConflict.base).toBe(version);
+    expect(withCurrent.onConflict).toBe("reject");
   });
 
   it("needs base for onConflict (a type error without base)", () => {
@@ -967,7 +1021,14 @@ describe("a write from an older version, with columns", () => {
     // Another writer removes the column list.
     editor.removeBlocks(["list"]);
 
-    valid(updateDocument(editor, { format: htmlFormat, text, base }));
+    valid(
+      updateDocumentWithMerge(editor, {
+        format: htmlFormat,
+        text,
+        base,
+        onConflict: "keep-current",
+      }),
+    );
 
     expect(
       editor.document.map((block) => [block.type, block.content]),
@@ -1122,8 +1183,9 @@ describe("a write from an older version that removes props", () => {
     text = "Hello",
   ) {
     return valid(
-      updateDocument(editor, {
+      updateDocumentWithMerge(editor, {
         base,
+        onConflict: "keep-current",
         document: [
           { id: "p", type: "paragraph", props, content: text },
           { id: "e", type: "paragraph", content: "End" },
@@ -1192,8 +1254,9 @@ describe("a write from an older version that removes props", () => {
       }),
     );
     valid(
-      updateDocument(editor, {
+      updateDocumentWithMerge(editor, {
         base,
+        onConflict: "keep-current",
         document: [
           {
             id: "i",
@@ -1238,8 +1301,9 @@ describe("a write from an older version that removes props", () => {
       }),
     );
     const { warnings } = valid(
-      updateDocument(editor, {
+      updateDocumentWithMerge(editor, {
         base,
+        onConflict: "keep-current",
         document: linked("https://a.example", " later"),
       }),
     );
@@ -1317,10 +1381,11 @@ describe("the document that the client wrote, in the result of a write", () => {
     const first = write(editor, client, () => ownText);
     // The client did not read the document again. It changes its own text.
     const second = valid(
-      updateDocument(editor, {
+      updateDocumentWithMerge(editor, {
         format,
         text: replaceOnce(ownText, "Alpha one", "Alpha two"),
         base: first.written,
+        onConflict: "keep-current",
       }),
     );
 
@@ -1339,10 +1404,11 @@ describe("the document that the client wrote, in the result of a write", () => {
     const ownText = replaceOnce(client.text, "Alpha", "Alpha one");
     write(editor, client, () => ownText);
     const second = valid(
-      updateDocument(editor, {
+      updateDocumentWithMerge(editor, {
         format,
         text: replaceOnce(ownText, "Alpha one", "Alpha two"),
         base: editor.document,
+        onConflict: "keep-current",
       }),
     );
 
@@ -1370,10 +1436,11 @@ describe("the document that the client wrote, in the result of a write", () => {
 
     const ownText = replaceOnce(client.text, "Alpha", "Alpha\n\nNew");
     const first = write(editor, client, () => ownText);
-    updateDocument(editor, {
+    updateDocumentWithMerge(editor, {
       format,
       text: replaceOnce(ownText, "New", "New, changed"),
       base: first.written,
+      onConflict: "keep-current",
     });
 
     expect(texts(editor)).toEqual([
@@ -1393,10 +1460,11 @@ describe("the document that the client wrote, in the result of a write", () => {
     const first = write(editor, client, () => ownText);
     expect(first.warnings).toEqual([{ type: "conflicting-change", id: "a" }]);
     const second = valid(
-      updateDocument(editor, {
+      updateDocumentWithMerge(editor, {
         format,
         text: replaceOnce(ownText, "Beta", "Beta, changed"),
         base: first.written,
+        onConflict: "keep-current",
       }),
     );
 

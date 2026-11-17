@@ -3,11 +3,13 @@ import { describe, expect, it } from "vite-plus/test";
 
 import {
   computeOperations,
+  computeOperationsWithMerge,
   getDocumentText,
   htmlFormat,
   markdownFormat,
   type TextFormat,
   updateDocument,
+  updateDocumentWithMerge,
 } from "./index.js";
 import type { LensBlock } from "./model.js";
 import { flattenBlocks } from "./util/blocks/flatten.js";
@@ -590,16 +592,23 @@ describe("markdown, writes from an older version that change the nesting", () =>
       }),
     );
     const update = valid(
-      updateDocument(editor, {
+      updateDocumentWithMerge(editor, {
         base,
+        onConflict: "keep-current",
         format: markdownFormat,
         text: ours(text),
       }),
     );
     // No revert.
     expect(
-      valid(computeOperations(editor, { base, format: markdownFormat, text }))
-        .operations,
+      valid(
+        computeOperationsWithMerge(editor, {
+          base,
+          onConflict: "keep-current",
+          format: markdownFormat,
+          text,
+        }),
+      ).operations,
     ).toEqual([]);
     return {
       shape: shapeOf(editor.document as LensBlock[], known),

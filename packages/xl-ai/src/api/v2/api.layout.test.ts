@@ -6,6 +6,7 @@ import {
   type DocumentChange,
   getDocumentText,
   updateDocument,
+  updateDocumentWithMerge,
 } from "./api.js";
 import {
   htmlFormat,
@@ -258,8 +259,9 @@ describe("a tab set, writes from a version", () => {
     const version = structuredClone(editor.document) as LensBlock[];
     editor.updateBlock("b", { content: "Two!" });
     valid(
-      updateDocument(editor, {
+      updateDocumentWithMerge(editor, {
         base: version,
+        onConflict: "keep-current",
         format: markdownFormat,
         text: "One!\n\nTwo\n",
       }),
@@ -278,8 +280,9 @@ describe("a tab set, writes from a version", () => {
     const version = structuredClone(editor.document) as LensBlock[];
     editor.removeBlocks(["t2"]);
     valid(
-      updateDocument(editor, {
+      updateDocumentWithMerge(editor, {
         base: version,
+        onConflict: "keep-current",
         format: markdownFormat,
         text: "One\n\nTwo\n",
       }),
@@ -298,8 +301,9 @@ describe("a tab set, writes from a version", () => {
     const version = structuredClone(editor.document) as LensBlock[];
     editor.removeBlocks(["t2"]);
     valid(
-      updateDocument(editor, {
+      updateDocumentWithMerge(editor, {
         base: version,
+        onConflict: "keep-current",
         document: [
           { ...version[0], children: version[0].children.slice(0, 2) },
         ],

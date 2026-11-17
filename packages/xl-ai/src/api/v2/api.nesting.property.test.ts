@@ -2,12 +2,13 @@ import { BlockNoteEditor } from "@blocknote/core";
 import { describe, expect, it } from "vite-plus/test";
 
 import {
-  computeOperations,
+  computeOperationsWithMerge,
   getDocumentText,
   htmlFormat,
   markdownFormat,
   type TextFormat,
   updateDocument,
+  updateDocumentWithMerge,
 } from "./index.js";
 import type { LensBlock } from "./model.js";
 import { flattenBlocks } from "./util/blocks/flatten.js";
@@ -320,8 +321,9 @@ describe.each([
       );
       const afterTheirs = editor.document as LensBlock[];
       const update = valid(
-        updateDocument(editor, {
+        updateDocumentWithMerge(editor, {
           base,
+          onConflict: "keep-current",
           format,
           text: format.serialize(editor, ours.blocks),
         }),
@@ -333,8 +335,14 @@ describe.each([
       expect(new Set(ids).size).toBe(ids.length);
       // No revert.
       expect(
-        valid(computeOperations(editor, { base, format, text: baseText }))
-          .operations,
+        valid(
+          computeOperationsWithMerge(editor, {
+            base,
+            onConflict: "keep-current",
+            format,
+            text: baseText,
+          }),
+        ).operations,
       ).toEqual([]);
 
       // Both moves stay, if they move different blocks and do not make a
