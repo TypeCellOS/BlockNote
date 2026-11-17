@@ -10,7 +10,8 @@ import { commands, page } from "../transport.js";
  *
  * The starting element is not visited. Predicates may await assertions and must
  * return `true` to stop; `false` or `undefined` continues. Throws if focus repeats,
- * stops moving, or reaches the document boundary before the target is found.
+ * stops moving, reaches the document boundary, or exceeds 100 keypresses before
+ * the target is found.
  * Establish a starting focus and wait for the relevant UI before calling.
  *
  * @example
@@ -39,7 +40,7 @@ export async function focusUntil(
   }
   visited.add(document.activeElement);
 
-  while (true) {
+  for (let presses = 0; presses < 100; presses++) {
     await commands.pressKey(key);
     const active = document.activeElement;
     if (!active) {
@@ -64,4 +65,7 @@ export async function focusUntil(
       throw new Error(`${key}: reached the end of focusable elements`);
     }
   }
+  throw new Error(
+    `${key}: could not find the focus target after 100 keypresses`,
+  );
 }

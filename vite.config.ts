@@ -24,6 +24,25 @@ const testSleepProperties = [
   { property: "setTimeout", message: testSleepMessage },
   { property: "sleep", message: testSleepMessage },
 ];
+const browserTestImportPatterns = [
+  {
+    group: [
+      "**/utils/accessibility",
+      "**/utils/accessibility.*",
+      "**/utils/keyboard",
+      "**/utils/keyboard.*",
+      "**/screen-reader/screenReader",
+      "**/screen-reader/screenReader.*",
+    ],
+    allowTypeImports: true,
+    message:
+      "Use the registered commands from tests/src/utils/context.ts instead of importing command implementations.",
+  },
+  {
+    group: ["timers", "timers/*", "node:timers", "node:timers/*"],
+    message: testSleepMessage,
+  },
+];
 
 export default defineConfig({
   staged: {
@@ -131,55 +150,6 @@ export default defineConfig({
     },
     overrides: [
       {
-        files: ["**/*.browser.test.{ts,tsx}", "**/*.screen-reader.test.ts"],
-        rules: {
-          "no-restricted-properties": ["error", testIdRestriction],
-        },
-      },
-      {
-        files: componentTestFiles,
-        rules: {
-          "no-restricted-globals": [
-            "error",
-            { name: "setTimeout", message: testSleepMessage },
-          ],
-          "no-restricted-properties": [
-            "error",
-            ...testSleepProperties,
-            testIdRestriction,
-          ],
-          "no-restricted-imports": [
-            "error",
-            {
-              paths: [
-                {
-                  name: "node:timers",
-                  importNames: ["setTimeout"],
-                  message: testSleepMessage,
-                },
-                {
-                  name: "timers",
-                  importNames: ["setTimeout"],
-                  message: testSleepMessage,
-                },
-                {
-                  name: "node:timers/promises",
-                  message: testSleepMessage,
-                },
-                { name: "timers/promises", message: testSleepMessage },
-              ],
-              patterns: [
-                {
-                  group: ["**/utils/editor.js", "**/utils/editor"],
-                  importNames: ["sleep"],
-                  message: testSleepMessage,
-                },
-              ],
-            },
-          ],
-        },
-      },
-      {
         // Pilot on the component examples
         files: componentTestFiles,
         rules: {
@@ -197,6 +167,80 @@ export default defineConfig({
                 {
                   group: ["**/*.test", "**/*.test.*"],
                   message: "Production code must not import test files.",
+                },
+              ],
+            },
+          ],
+        },
+      },
+      {
+        files: [
+          "**/*.browser.test.{ts,tsx}",
+          "**/*.screen-reader.test.{ts,tsx}",
+        ],
+        plugins: ["vitest"],
+        rules: {
+          // The plugin enables these defaults, which do not fit our test conventions.
+          // Assertions can live in shared helpers outside a test callback.
+          "vitest/expect-expect": "off",
+          "vitest/no-standalone-expect": "off",
+          // Browser-specific coverage and documented known failures are intentional.
+          "vitest/no-conditional-expect": "off",
+          "vitest/no-conditional-tests": "off",
+          "vitest/no-disabled-tests": "off",
+          // Existing mocks do not all provide explicit type parameters.
+          "vitest/require-mock-type-parameters": "off",
+          "vitest/no-focused-tests": "error",
+          "vitest/valid-expect": ["error", { maxArgs: 2 }],
+          "vitest/require-awaited-expect-poll": "error",
+          "typescript/no-floating-promises": [
+            "error",
+            { ignoreVoid: false, checkThenables: true },
+          ],
+          "no-restricted-imports": [
+            "error",
+            {
+              patterns: browserTestImportPatterns,
+            },
+          ],
+          "no-restricted-properties": [
+            "error",
+            testIdRestriction,
+            {
+              property: "waitForTimeout",
+              message:
+                "Wait for observable readiness with expect.element or expect.poll instead of sleeping.",
+            },
+            {
+              property: "sleep",
+              message:
+                "Wait for observable readiness with expect.element or expect.poll instead of sleeping.",
+            },
+          ],
+        },
+      },
+      {
+        files: componentTestFiles,
+        rules: {
+          "no-restricted-globals": [
+            "error",
+            { name: "setTimeout", message: testSleepMessage },
+          ],
+          "no-restricted-properties": [
+            "error",
+            ...testSleepProperties,
+            testIdRestriction,
+          ],
+          "no-restricted-imports": [
+            "error",
+            {
+              // Overrides replace rule options, so retain the shared safeguards.
+              patterns: [
+                ...browserTestImportPatterns,
+                {
+                  group: ["**/utils/editor.js", "**/utils/editor"],
+                  importNames: ["sleep"],
+                  message: testSleepMessage,
                 },
               ],
             },

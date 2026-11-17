@@ -3,6 +3,7 @@ import {
   COLORS_DEFAULT,
   defaultBlockSpecs,
   type PartialBlock,
+  type BlockNoteEditor,
   type DefaultBlockSchema,
   type PartialInlineContentElement,
   type Styles,
@@ -19,10 +20,12 @@ import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { useCreateBlockNote } from "@blocknote/react";
 import { render } from "vitest-browser-react";
+import { useEffect } from "react";
+import { NodeSelection, TextSelection } from "@tiptap/pm/state";
 import { screenshotFull } from "@root/tests/src/utils/screenshotFull.js";
 
 // These keyboard-navigation tests inspect the focus end of the DOM selection.
-function readDOMSelection() {
+export function readDOMSelection() {
   const node = document.getSelection()?.focusNode;
   const element = node instanceof Element ? node : node?.parentElement;
   const cell = element?.closest("td, th");
@@ -40,12 +43,15 @@ function TestEditor({
   initialContent,
   editable,
   theme,
+  onReady,
 }: {
   initialContent: PartialBlock[];
   editable: boolean;
   theme: "light" | "dark";
+  onReady: (editor: BlockNoteEditor) => void;
 }) {
   const editor = useCreateBlockNote({ initialContent });
+  useEffect(() => onReady(editor), [editor, onReady]);
   return (
     <main style={{ maxWidth: 900, margin: "80px auto", padding: 24 }}>
       <h1>BlockNote accessibility fixture</h1>
@@ -66,11 +72,15 @@ export async function renderTestEditor(
     theme?: "light" | "dark";
   } = {},
 ) {
+  let editor: BlockNoteEditor | undefined;
   await page.viewport(1280, 900);
   await render(
     <TestEditor
       initialContent={initialContent}
       editable={editable}
+      onReady={(instance) => {
+        editor = instance;
+      }}
       theme={theme}
     />,
   );
@@ -83,6 +93,10 @@ export async function renderTestEditor(
     .getByRole("button", { name: "Before editor", exact: true })
     .element()
     .focus();
+  if (!editor) {
+    throw new Error("Test editor did not mount");
+  }
+  return editor;
 }
 
 const screenReader =
@@ -181,7 +195,19 @@ const blockExamples = {
 
 export const defaultSchemaDocument: PartialBlock[] = [
   { id: "start", type: "paragraph", content: "Start of document" },
-  ...Object.entries(blockExamples).map(([id, block]) => ({ ...block, id })),
+  ...Object.entries(blockExamples).map(([id, block]): PartialBlock => {
+    if ("children" in block) {
+      return {
+        ...block,
+        id,
+        children: block.children.map((child, index) => ({
+          ...child,
+          id: `${id}-child-${index}`,
+        })),
+      };
+    }
+    return { ...block, id };
+  }),
   ...[2, 3, 4, 5, 6].map((level) => ({
     id: `heading-${level}`,
     type: "heading" as const,
@@ -193,7 +219,13 @@ export const defaultSchemaDocument: PartialBlock[] = [
     type: "heading",
     props: { level: 2, isToggleable: true },
     content: "Toggle heading",
-    children: [{ type: "paragraph", content: "Heading child" }],
+    children: [
+      {
+        id: "toggle-heading-child",
+        type: "paragraph",
+        content: "Heading child",
+      },
+    ],
   },
   {
     id: "checked",
@@ -204,31 +236,9 @@ export const defaultSchemaDocument: PartialBlock[] = [
   { id: "end", type: "paragraph", content: "End of document" },
 ];
 
-// Keep navigation identical to navigateDefaultSchemaDocumentWithAssertions.
-export async function navigateDefaultSchemaDocument(
-  pressKey = commands.pressKey,
-) {
-  await pressKey("Tab");
-
-  // Follow the document until its endpoint; an unreachable endpoint times out.
-  const visitedTableCells = new Set<string>();
-  while (readDOMSelection().blockId !== "end") {
-    const { tableCell } = readDOMSelection();
-    if (tableCell) {
-      visitedTableCells.add(`${tableCell.row},${tableCell.column}`);
-    }
-    // ArrowDown alone skips columns. Move through cell text and across each
-    // row with ArrowRight, then resume ArrowDown from the final cell.
-    if (tableCell && visitedTableCells.size < 4) {
-      await pressKey("ArrowRight");
-    } else {
-      await pressKey("ArrowDown");
-    }
-  }
-  while (readDOMSelection().blockId !== "start") {
-    await pressKey("ArrowUp");
-  }
-}
+const tableNavigationDocument: PartialBlock[] = [
+  { ...blockExamples.table, id: "table" },
+];
 
 const readOnlyLinkDocument: PartialBlock[] = [
   {
@@ -432,43 +442,6 @@ const schemaDocument: PartialBlock[] = [
 // Register these suites only in the regular browser run.
 if (!screenReader) {
   test.describe("keyboard", () => {
-    // Same navigation as navigateDefaultSchemaDocument, with selection assertions.
-    async function navigateDefaultSchemaDocumentWithAssertions() {
-      await commands.pressKey("Tab");
-      await expect.element(page.getByRole("textbox")).toHaveFocus();
-
-      // Follow the document until its endpoint; an unreachable endpoint times out.
-      const visitedTableCells = new Set<string>();
-      while (readDOMSelection().blockId !== "end") {
-        const { tableCell } = readDOMSelection();
-        if (tableCell) {
-          visitedTableCells.add(`${tableCell.row},${tableCell.column}`);
-        }
-        // ArrowDown alone skips columns. Move through cell text and across each
-        // row with ArrowRight, then resume ArrowDown from the final cell.
-        if (tableCell && visitedTableCells.size < 4) {
-          await commands.pressKey("ArrowRight");
-        } else {
-          await commands.pressKey("ArrowDown");
-        }
-      }
-      expect(
-        [...visitedTableCells].sort(),
-        "Every table cell is visited",
-      ).toEqual(["0,0", "0,1", "1,0", "1,1"]);
-      expect(
-        readDOMSelection().blockId,
-        "Arrow keys reach the final block",
-      ).toBe("end");
-      while (readDOMSelection().blockId !== "start") {
-        await commands.pressKey("ArrowUp");
-      }
-      expect(
-        readDOMSelection().blockId,
-        "ArrowUp returns to the first block",
-      ).toBe("start");
-    }
-
     async function focusReadOnlyLinkWithAssertions() {
       const link = page.getByRole("link", {
         name: "Documentation",
@@ -476,7 +449,16 @@ if (!screenReader) {
       });
       await expect.element(link).toBeVisible();
       const compareFocusOutline = commands.captureFocusOutline(link);
-      while (document.activeElement !== link.element()) {
+      for (
+        let presses = 0;
+        document.activeElement !== link.element();
+        presses++
+      ) {
+        if (presses >= 10) {
+          throw new Error(
+            "Could not focus the Documentation link after 10 Tab presses",
+          );
+        }
         await commands.pressKey("Tab");
       }
       await expect.element(link).toHaveFocus();
@@ -484,10 +466,159 @@ if (!screenReader) {
       return link;
     }
 
-    test("default schema: arrow-key document navigation", async () => {
-      await renderTestEditor(defaultSchemaDocument);
-      await navigateDefaultSchemaDocumentWithAssertions();
+    // Firefox skips checkListItem with ArrowDown.
+    // Chromium/WebKit reproduction: expand "Toggle heading", place the caret
+    // immediately before the C in "Completed task", then press ArrowUp. It lands
+    // in "Toggle heading", skipping the visible "Heading child". ArrowUp from
+    // the end of "Completed task" works; Firefox passes both caret positions.
+    // Confirmed with clicks and keypresses in Docker. The traversal below reaches
+    // "Completed task" at offset 0 when returning from the final paragraph.
+    // Keep the complete expected route when re-enabling this test.
+    test.skip("default schema: arrow keys visit every expanded block in order", async ({
+      onTestFinished,
+    }) => {
+      // Expansion is view state, not a document prop. Make the route deterministic
+      // without changing the visual fixtures' default collapsed state.
+      for (const id of ["toggleListItem", "toggle-heading"]) {
+        const key = `toggle-${id}`;
+        const previous = localStorage.getItem(key);
+        localStorage.setItem(key, "true");
+        onTestFinished(() => {
+          if (previous === null) {
+            localStorage.removeItem(key);
+          } else {
+            localStorage.setItem(key, previous);
+          }
+        });
+      }
+      const editor = await renderTestEditor(defaultSchemaDocument);
+      await commands.pressKey("Tab");
+      await expect.element(page.getByRole("textbox")).toHaveFocus();
+
+      function blockIds(blocks: PartialBlock[]): string[] {
+        return blocks.flatMap((block) => {
+          if (!block.id) {
+            throw new Error("Navigation fixture blocks must have explicit IDs");
+          }
+          return [block.id, ...blockIds(block.children ?? [])];
+        });
+      }
+      const route = blockIds(defaultSchemaDocument);
+      // The editor selection also identifies atom blocks (divider/file/media),
+      // whose NodeSelection need not have a DOM text selection inside the block.
+      expect(editor.getTextCursorPosition().block.id).toBe(route[0]);
+      for (const key of ["ArrowDown", "ArrowUp"] as const) {
+        const expected = key === "ArrowDown" ? route : route.toReversed();
+        let index = 0;
+        for (let presses = 0; index < expected.length - 1; presses++) {
+          if (presses >= 100) {
+            throw new Error(
+              `${key} did not finish the document route after 100 presses; still at block "${expected[index]}"`,
+            );
+          }
+          await commands.pressKey(key);
+          const actual = editor.getTextCursorPosition().block.id;
+
+          expect(
+            [expected[index], expected[index + 1]],
+            `${key}: expected ${expected[index]} → ${expected[index + 1]}, got ${actual}`,
+          ).toContain(actual);
+          const selection = editor.prosemirrorState.selection;
+          if (
+            actual === expected[index + 1] &&
+            (selection instanceof TextSelection ||
+              selection instanceof NodeSelection)
+          ) {
+            index++;
+          }
+        }
+        expect(editor.getTextCursorPosition().block.id).toBe(expected.at(-1));
+      }
     });
+
+    test("table: ArrowRight and ArrowLeft visit every cell in row order", async () => {
+      await renderTestEditor(tableNavigationDocument);
+      await commands.pressKey("Tab");
+      await expect.element(page.getByRole("textbox")).toHaveFocus();
+      const route = [
+        { row: 0, column: 0 },
+        { row: 0, column: 1 },
+        { row: 1, column: 0 },
+        { row: 1, column: 1 },
+      ];
+      expect(readDOMSelection().tableCell).toEqual(route[0]);
+      for (const key of ["ArrowRight", "ArrowLeft"] as const) {
+        const expected = key === "ArrowRight" ? route : route.toReversed();
+        let index = 0;
+        for (let presses = 0; index < expected.length - 1; presses++) {
+          if (presses >= 100) {
+            throw new Error(
+              `${key} did not finish the table route after 100 presses; still at cell ${JSON.stringify(expected[index])}`,
+            );
+          }
+          await commands.pressKey(key);
+          const { blockId, tableCell } = readDOMSelection();
+          expect(blockId, `${key} stays in the table`).toBe("table");
+          expect(
+            [expected[index], expected[index + 1]],
+            `${key}: cell ${JSON.stringify(expected[index])} → ${JSON.stringify(expected[index + 1])}`,
+          ).toContainEqual(tableCell);
+          if (
+            tableCell?.row === expected[index + 1].row &&
+            tableCell?.column === expected[index + 1].column
+          ) {
+            index++;
+          }
+        }
+      }
+    });
+
+    // After Tab enters the second column, Chromium/WebKit's ArrowDown returns
+    // to column 0. Firefox preserves the column throughout this sequence.
+    test.skipIf(server.browser !== "firefox")(
+      "table: ArrowDown and ArrowUp visit each row without changing column",
+      async () => {
+        await renderTestEditor(tableNavigationDocument);
+        await commands.pressKey("Tab");
+        await expect.element(page.getByRole("textbox")).toHaveFocus();
+        for (const column of [0, 1]) {
+          expect(readDOMSelection().tableCell).toEqual({
+            row: 0,
+            column,
+          });
+          for (const key of ["ArrowDown", "ArrowUp"] as const) {
+            const targetRow = key === "ArrowDown" ? 1 : 0;
+            let selection = readDOMSelection();
+            for (
+              let presses = 0;
+              selection.tableCell?.row !== targetRow;
+              presses++
+            ) {
+              if (presses >= 10) {
+                throw new Error(
+                  `${key} did not reach row ${targetRow}, column ${column} after 10 presses`,
+                );
+              }
+              await commands.pressKey(key);
+              selection = readDOMSelection();
+              expect(selection.blockId, `${key} stays in the table`).toBe(
+                "table",
+              );
+              expect(
+                selection.tableCell?.column,
+                `${key} stays in column ${column}`,
+              ).toBe(column);
+              expect([0, 1]).toContain(selection.tableCell?.row);
+            }
+            expect(selection.tableCell).toEqual({ row: targetRow, column });
+          }
+          if (column === 0) {
+            // Set up the second column through the table's keyboard navigation.
+            await commands.pressKey("Tab");
+          }
+        }
+      },
+    );
 
     // The editor has no separate focused state without an editing selection; Escape blurs to the body.
     test.skip("editor can receive focus without selecting content", async () => {

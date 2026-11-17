@@ -34,6 +34,10 @@ Shared rendering handles StrictMode, initial commit, fonts, and cleanup. Wait fo
 
 Prefer accessible locators using dictionary labels. Direct focus is valid setup; use real Tab input when traversal is the contract. Wait for observable readiness: a menu can be visible before it receives focus.
 
+Stop navigation as soon as its target is reached and bound repeated keypresses explicitly; fail with the target and limit rather than waiting for a test timeout. `focusUntil` also detects cycles, stalled focus, and document boundaries.
+
+Browser and screen-reader files enforce focused-test, assertion, awaited-poll, floating-promise, command-import, accessible-locator, and explicit-sleep safeguards. The component examples additionally enforce the scoped structure and timer conventions; do not weaken the shared safeguards when extending those rules.
+
 ## Accessibility assertions
 
 - Assert focus with `toHaveFocus()` and check each owned control's indicator independently.
