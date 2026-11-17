@@ -285,7 +285,7 @@ describe("text lens server", () => {
     expect((await put("text", "y", { "If-Match": "*" })).status).toBe(200);
   });
 
-  it("rejects a merge with a conflict if the client asks for it (On-Conflict: reject)", async () => {
+  it("rejects a merge with a conflict (On-Conflict: reject, the default)", async () => {
     const { get, put } = setup();
     const text = await (await get("text")).text();
     await put(
@@ -307,11 +307,21 @@ describe("text lens server", () => {
     });
     expect(await (await get("text")).text()).toBe("Hello from A\n\nThe end");
 
-    // The default (keep-current): the change of A stays, with a warning.
-    const kept = await put(
+    // Without `On-Conflict`, the merge also rejects the conflict.
+    const byDefault = await put(
       "text",
       text.replace("Hello world", "Hello from B"),
       fromBase('"1"'),
+    );
+    expect(byDefault.status).toBe(409);
+    expect(await byDefault.json()).toMatchObject({ error: "conflict" });
+    expect(await (await get("text")).text()).toBe("Hello from A\n\nThe end");
+
+    // With `On-Conflict: keep-current`, the change of A stays, with a warning.
+    const kept = await put(
+      "text",
+      text.replace("Hello world", "Hello from B"),
+      fromBase('"1"', "keep-current"),
     );
     expect(kept.status).toBe(200);
     expect(await kept.json()).toMatchObject({

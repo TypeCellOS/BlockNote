@@ -6,7 +6,7 @@ This example shows a document as markdown or plain text next to the editor, and 
 
 **How it works:**
 
-- The base is the document at the time when the text was read. Each write sends the full text with the base. Thus, the write keeps the edits that the live editor made after that time.
+- The base is the document at the time when the text was read. Each write sends the full text with the base, as a merge write (`onConflict: "keep-current"`). Thus, the write keeps the edits that the live editor made after that time. If the text and the live editor changed the same part, the edit of the live editor stays, with a warning.
 - A write starts 200 ms after the last change in the text.
 - Each write first rejects the suggestions of the last write. A deletion stays in the document until a user accepts it. Thus, without this step, the next write reads the deleted text as content. Then the write applies the full text again, as new suggestions.
 - "Accept all" and "Reject all" end the suggestions. Then the current document becomes the new base, and the text shows it.
@@ -15,7 +15,7 @@ This example shows a document as markdown or plain text next to the editor, and 
 
 **How the suggestions apply** (see `src/suggestTextUpdate.ts`):
 
-1. `computeOperations` computes the operations on the clean document (after a revert of the suggestions of the last write).
+1. `computeOperationsWithMerge` computes the operations on the clean document (after a revert of the suggestions of the last write).
 2. `applyOperations` applies the updates to one transaction of the editor. These steps change only the changed text.
 3. An insert, a move or a delete applies with `insertBlocks` and `removeAndInsertBlocks` of `@blocknote/core`, with one step for each block. `applyOperations` replaces each run of changed blocks in one step, and the suggestions then show all the blocks of that run as deleted and inserted.
 4. `transformToSuggestionTransaction` of `prosemirror-suggest-changes` changes these steps into suggestions.

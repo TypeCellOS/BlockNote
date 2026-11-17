@@ -1,15 +1,19 @@
 import type { BlockNoteEditor, PartialBlock } from "@blocknote/core";
 import {
-  type ChangeOperations,
-  type ChangeResult,
+  type BlockOperation,
+  type ChangeOfOthers,
+  type ChangeWarning,
   getDocumentText,
   htmlFormat,
+  type JSONChange,
   type LensBlock,
   markdownFormat,
   type MergeWarning,
   plainTextFormat,
+  type TextChange,
   type TextFormat,
   updateDocument,
+  updateDocumentWithMerge,
 } from "@blocknote/xl-ai/text-lens";
 import { Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
@@ -52,6 +56,9 @@ function formatOf(name: string): Format | undefined {
  * that the client wrote in its body. The client sends an ETag back in
  * `If-Match` or in `Base-Version`. The ETag names a version of the document,
  * thus all formats of a document give the same ETag for the same version.
+ *
+ * For a client, the ETag is opaque: a client must not compute the ETag of
+ * the next version.
  */
 function etagOf(version: number): string {
   return `"${version}"`;
@@ -59,7 +66,7 @@ function etagOf(version: number): string {
 
 /** The ETag of the version that the text of the client starts from: from its last read, or from its last write. With it, the server merges. */
 const BASE_HEADER = "Base-Version";
-/** What a conflict of the merge does: `keep-current` (the default) or `reject`. Only with `Base-Version`. */
+/** What a conflict of the merge does: `reject` (the default) or `keep-current`. Only with `Base-Version`. */
 const ON_CONFLICT_HEADER = "On-Conflict";
 
 /** An error of the client, as a value: the HTTP status and a code. */
@@ -78,15 +85,19 @@ type ClientError = {
  *   applies only the changes, and keeps the data that the format does not
  *   show. The client sends the ETag of its text in one of two headers:
  *   - `If-Match`: a strict write. If another writer changed the document
- *     after that version, the write does not apply (412).
- *   - `Base-Version`: a merge. The write keeps the changes that other
- *     writers made after that version. With `On-Conflict: reject`, a write
- *     with a conflict does not apply (409, with the conflicts).
+ *     after that version, the write does not apply (412). The server
+ *     compares the ETags. Thus, it needs no stored document, and this ETag
+ *     has no time limit.
+ *   - `Base-Version`: a merge (`updateDocumentWithMerge`). The write keeps
+ *     the changes that other writers made after that version. A write with
+ *     a conflict does not apply (409, with the conflicts), unless the client
+ *     sends `On-Conflict: keep-current`. This ETag is valid while the store
+ *     keeps the document of the version.
  *   The response gives the ETag of the document that the client wrote: its
- *   own text, without the changes of other writers. It is the `Base-Version`
- *   of the next write of the client. Thus, an ETag always names the document
- *   of the text that the client has: a GET gives the current text with its
- *   ETag, and a PUT gives the ETag of the text that the client sent.
+ *   own text, without the changes of other writers. Use this version as the
+ *   base of the next write. Thus, an ETag always names the document of the
+ *   text that the client has: a GET gives the current text with its ETag,
+ *   and a PUT gives the ETag of the text that the client sent.
  */
 export function createApp(store: DocumentStore) {
   const app = new Hono();
@@ -141,7 +152,7 @@ export function createApp(store: DocumentStore) {
     // not see: a write of the text of the client from that version would
     // remove them. Thus the ETag names the document that the client wrote.
     const written =
-      result.changesOfOthers.length > 0 ? store.keep(id, result.written) : next;
+      result.written === undefined ? next : store.keep(id, result.written);
     // The ETag is in the body, not in an ETag header: it does not always
     // name the current document, thus RFC 9110 (9.3.4) does not allow the
     // header here.
@@ -156,10 +167,27 @@ export function createApp(store: DocumentStore) {
   return app;
 }
 
-/** The `base` and `onConflict` of a write (see `WriteFromVersion` of the text lens). */
+/**
+ * The write of a request: to the current document, or a merge from the
+ * version `base` (see `MergeFromVersion` of the text lens).
+ */
 type WriteOptions =
   | { base: "current" }
   | { base: LensBlock[]; onConflict: "keep-current" | "reject" };
+
+/** A write that applied: the data of the response. */
+type AppliedWrite = {
+  error?: undefined;
+  operations: BlockOperation[];
+  warnings: ChangeWarning[];
+  /** The blocks that other writers changed after `Base-Version`. Empty without a merge. */
+  changesOfOthers: ChangeOfOthers[];
+  /**
+   * The document that the client wrote, if it is not the document after the
+   * write: a merge kept changes of other writers.
+   */
+  written: LensBlock[] | undefined;
+};
 
 /** Applies the body of a PUT request to the document. */
 function write(
@@ -167,33 +195,29 @@ function write(
   format: Format,
   body: string,
   options: WriteOptions,
-): ChangeOperations | ClientError {
-  if (format.type === "text") {
-    return orClientError(
-      updateDocument(editor, {
-        format: format.format,
-        text: body,
-        ...options,
-      }),
-    );
+): AppliedWrite | ClientError {
+  const change = readChange(format, body);
+  if ("error" in change) {
+    return change;
   }
-  const document = parseDocument(body);
-  if ("error" in document) {
-    return document;
+  if (options.base === "current") {
+    const update = updateDocument(editor, { ...change, base: "current" });
+    switch (update.error) {
+      case undefined:
+        return { ...update, changesOfOthers: [], written: undefined };
+      case "invalid-document":
+        return { status: 400, error: update.error };
+      case "document-changed":
+        return { status: 412, error: update.error };
+    }
   }
-  return orClientError(
-    updateDocument(editor, { document: document.blocks, ...options }),
-  );
-}
-
-/**
- * The update, or a client error: 400 if the text or the JSON does not fit
- * the schema, 409 for a rejected conflict.
- */
-function orClientError(update: ChangeResult): ChangeOperations | ClientError {
+  const update = updateDocumentWithMerge(editor, { ...change, ...options });
   switch (update.error) {
     case undefined:
-      return update;
+      return {
+        ...update,
+        written: update.changesOfOthers.length > 0 ? update.written : undefined,
+      };
     case "invalid-document":
       return { status: 400, error: update.error };
     case "conflict":
@@ -201,9 +225,22 @@ function orClientError(update: ChangeResult): ChangeOperations | ClientError {
   }
 }
 
+/** The change of a PUT request: its body as a text in the format, or as BlockNote JSON. */
+function readChange(
+  format: Format,
+  body: string,
+): TextChange | JSONChange | ClientError {
+  if (format.type === "text") {
+    return { format: format.format, text: body };
+  }
+  const document = parseDocument(body);
+  return "error" in document ? document : { document: document.blocks };
+}
+
 /**
  * Reads the `Base-Version` and `On-Conflict` headers. Without `Base-Version`,
  * the write applies to the current document, and `On-Conflict` is an error.
+ * With `Base-Version`, the default of `On-Conflict` is `reject`.
  */
 function readWriteOptions(
   baseHeader: string | undefined,
@@ -216,7 +253,7 @@ function readWriteOptions(
       ? { base: "current" }
       : { status: 400, error: "on-conflict-without-base-version" };
   }
-  const onConflict = onConflictHeader ?? "keep-current";
+  const onConflict = onConflictHeader ?? "reject";
   if (onConflict !== "keep-current" && onConflict !== "reject") {
     return { status: 400, error: "unknown-on-conflict" };
   }

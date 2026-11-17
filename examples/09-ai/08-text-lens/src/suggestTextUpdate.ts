@@ -11,9 +11,9 @@ import {
   applyOperations,
   type BlockOperation,
   type BlockPosition,
-  computeOperations,
-  type ChangeResult,
-  type DocumentChange,
+  computeOperationsWithMerge,
+  type DocumentMergeChange,
+  type MergedChangeResult,
 } from "@blocknote/xl-ai/text-lens";
 import {
   revertSuggestions,
@@ -43,14 +43,16 @@ export function hasSuggestions(doc: Node): boolean {
  * 1. Revert the suggestions of the last write. A deletion stays in the
  *    document until a user accepts it. Thus, without this step, the lens
  *    reads the deleted text as content.
- * 2. Compute the update for the clean document.
+ * 2. Compute the update for the clean document. The text comes from an
+ *    older version (`base`), thus the update merges with the edits that the
+ *    live editor made after that version (a merge write).
  * 3. Apply the operations to one transaction of the editor, and make that
  *    transaction a suggestion.
  */
 export function suggestTextUpdate(
   editor: BlockNoteEditor<any, any, any>,
-  options: DocumentChange,
-): ChangeResult {
+  options: DocumentMergeChange,
+): MergedChangeResult {
   if (hasSuggestions(editor.prosemirrorState.doc)) {
     editor.exec((state, dispatch) =>
       revertSuggestions(state, (tr) =>
@@ -59,7 +61,7 @@ export function suggestTextUpdate(
     );
   }
 
-  const update = computeOperations(editor, options);
+  const update = computeOperationsWithMerge(editor, options);
   if (update.error !== undefined || update.operations.length === 0) {
     return update;
   }

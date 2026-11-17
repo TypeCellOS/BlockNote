@@ -14,8 +14,8 @@ import {
   markdownFormat,
   plainTextFormat,
   type TextFormat,
-  type ChangeResult,
-  type DocumentChange,
+  type DocumentMergeChange,
+  type MergedChangeResult,
 } from "@blocknote/xl-ai/text-lens";
 import { useEffect, useRef, useState } from "react";
 
@@ -40,11 +40,12 @@ const WRITE_DELAY_MS = 200;
 
 /**
  * The version that the text comes from: the document and its text at that
- * time. Each write sends the full text with this document as `base`. Thus,
- * the write keeps the changes that the live editor made after this version.
+ * time. Each write sends the full text with this document as `base`, as a
+ * merge write. Thus, the write keeps the changes that the live editor made
+ * after this version.
  */
 type Base = {
-  document: Exclude<DocumentChange["base"], "current">;
+  document: DocumentMergeChange["base"];
   text: string;
   time: Date;
 };
@@ -72,7 +73,7 @@ export default function App() {
   const [formatName, setFormatName] = useState<FormatName>("markdown");
   const [base, setBase] = useState(() => readBase(editor, markdownFormat));
   const [text, setText] = useState(base.text);
-  const [lastWrite, setLastWrite] = useState<ChangeResult | undefined>();
+  const [lastWrite, setLastWrite] = useState<MergedChangeResult | undefined>();
   const writeTimer = useRef<ReturnType<typeof setTimeout> | undefined>(
     undefined,
   );
@@ -91,6 +92,9 @@ export default function App() {
         format: formats[formatName],
         text: nextText,
         base: base.document,
+        // In a conflict, the edit of the live editor stays, and the "Last
+        // write" panel shows the warning.
+        onConflict: "keep-current",
       }),
     );
   }
@@ -179,7 +183,7 @@ export default function App() {
   );
 }
 
-function LastWrite(props: { result: ChangeResult | undefined }) {
+function LastWrite(props: { result: MergedChangeResult | undefined }) {
   const { result } = props;
   if (result === undefined) {
     return <p>No write yet. Change the text.</p>;
