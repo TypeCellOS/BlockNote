@@ -1147,6 +1147,34 @@ describe("a write from an older version, with a table", () => {
       ["epsilon:default", "zeta:default"],
     ]);
   });
+
+  it("takes a version that a store kept as JSON as the same document", () => {
+    // A store writes the column widths `[undefined, undefined]` as
+    // `[null, null]`. That is not a change of another writer.
+    const editor = createTableEditor();
+    const client = read(editor);
+    const stored: LensBlock[] = JSON.parse(JSON.stringify(client.base));
+    expect(JSON.stringify(stored)).toContain('"columnWidths":[null,null]');
+
+    const update = valid(
+      updateDocumentWithMerge(editor, {
+        format,
+        text: replaceOnce(client.text, "gamma", "gamma two"),
+        base: stored,
+        onConflict: "reject",
+      }),
+    );
+
+    expect(update.changesOfOthers).toEqual([]);
+    expect(cells(editor)).toEqual([
+      ["Head A:default", "Head B:default"],
+      ["alpha:default", "beta:yellow"],
+      ["gamma two:default", "delta:default"],
+    ]);
+    expect(editor.getBlock("t")?.content).toMatchObject({
+      columnWidths: [undefined, undefined],
+    });
+  });
 });
 
 /** The props of a block of the editor, as a record (the props of all block types). */

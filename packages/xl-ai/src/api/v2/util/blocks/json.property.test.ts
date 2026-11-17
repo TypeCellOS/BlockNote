@@ -46,18 +46,29 @@ function reversedKeys(value: unknown): unknown {
 }
 
 describe("deepEqual and stableStringify: properties", () => {
-  it("gives the same string for two values that are deeply equal", () => {
+  it("gives the same string for two values if and only if they are deeply equal", () => {
     const random = createRandom(141);
     let equalPairs = 0;
     for (let run = 0; run < 3000; run++) {
       const a = randomValue(random);
       const b = random.chance(0.3) ? reversedKeys(a) : randomValue(random);
-      if (deepEqual(a, b)) {
+      const equal = deepEqual(a, b);
+      if (equal) {
         equalPairs++;
-        expect(stableStringify(a)).toBe(stableStringify(b));
       }
+      expect(stableStringify(a) === stableStringify(b)).toBe(equal);
     }
     expect(equalPairs).toBeGreaterThan(500);
+  });
+
+  it("makes a value equal to its copy through JSON", () => {
+    // A store keeps a document as JSON. The copy must be the same document.
+    const random = createRandom(143);
+    for (let run = 0; run < 1000; run++) {
+      // JSON has no top-level `undefined`.
+      const value = randomValue(random) ?? null;
+      expect(deepEqual(value, JSON.parse(JSON.stringify(value)))).toBe(true);
+    }
   });
 
   it("is reflexive and symmetric", () => {
@@ -72,12 +83,21 @@ describe("deepEqual and stableStringify: properties", () => {
 });
 
 describe("deepEqual and stableStringify: edge cases", () => {
-  it("gives the same string for an array item `undefined` and `null`, but deepEqual is false", () => {
-    // JSON writes an array item `undefined` as `null`. Thus, the string is
-    // not a full key of a value with `undefined` in an array. Block JSON has
-    // no such arrays.
-    expect(deepEqual([undefined], [null])).toBe(false);
+  it("makes an array item `undefined` equal to `null`, with the same string", () => {
+    // JSON writes an array item `undefined` as `null`. Block JSON has such
+    // arrays: the column widths of a table (`[undefined, undefined]` from
+    // the editor, `[null, null]` from a store that keeps JSON).
+    expect(deepEqual([undefined], [null])).toBe(true);
+    expect(deepEqual([[undefined, 1]], [[null, 1]])).toBe(true);
     expect(stableStringify([undefined])).toBe(stableStringify([null]));
+  });
+
+  it("does not make an object value `undefined` equal to `null`", () => {
+    // JSON drops a key with the value `undefined`, and keeps `null`.
+    expect(deepEqual({ a: undefined }, { a: null })).toBe(false);
+    expect(stableStringify({ a: undefined })).not.toBe(
+      stableStringify({ a: null }),
+    );
   });
 
   it("does not make NaN equal to itself", () => {

@@ -213,13 +213,10 @@ describe("a strict write of a text from a version", () => {
     expect(strict.operations).toMatchObject([{ type: "update", id: "c" }]);
   });
 
-  // REVISIT: a known false reject. A table without column widths has
-  // `columnWidths: [undefined, undefined]`. `JSON.stringify` writes these
-  // items as `null`, and for the compare of the lens (`deepEqual`), `null`
-  // is not `undefined` in an array. Thus, for the check, a version from a
-  // store that keeps JSON is not the document of the editor. vitest gives
-  // an error when this test passes: remove the mark then.
-  it.fails("applies a write from a version that a store kept as JSON, for a document with a table", () => {
+  // A table without column widths has `columnWidths: [undefined, undefined]`.
+  // `JSON.stringify` writes these items as `null`. The compare of the lens
+  // takes the two as the same value (see `deepEqual`), as core does.
+  it("applies a write from a version that a store kept as JSON, for a document with a table", () => {
     const editor = createEditor([
       {
         id: "t",
@@ -230,14 +227,17 @@ describe("a strict write of a text from a version", () => {
     ]);
     const client = read(editor);
     const stored: LensBlock[] = JSON.parse(JSON.stringify(client.base));
+    expect(JSON.stringify(stored)).toContain('"columnWidths":[null,null]');
 
-    const result = computeOperations(editor, {
-      format,
-      text: replaceOnce(client.text, "Alpha", "Alpha one"),
-      base: stored,
-    });
+    const result = valid(
+      computeOperations(editor, {
+        format,
+        text: replaceOnce(client.text, "Alpha", "Alpha one"),
+        base: stored,
+      }),
+    );
 
-    expect(result.error).toBeUndefined();
+    expect(result.operations).toMatchObject([{ type: "update", id: "p" }]);
   });
 
   it("applies the write, and the next write from the document after it applies too", () => {
@@ -354,8 +354,8 @@ describe("a strict write of JSON from a version", () => {
  * the current document for a reader, but not for the check. With `base` from
  * `editor.document` and no other writer, a write never gives the error
  * `"document-changed"`, and its operations are the operations of a write to
- * the current document. The documents have all kinds of blocks (see
- * `randomRichDocument`).
+ * the current document. This is also true for a `base` that a store kept as
+ * JSON. The documents have all kinds of blocks (see `randomRichDocument`).
  */
 describe.each([
   { name: "markdown", format: markdownFormat },
@@ -387,14 +387,21 @@ describe.each([
             text,
             base: "current",
           });
-          const strict = computeOperations(editor, { format, text, base });
-          // A random edit of HTML markup can give HTML that does not fit
-          // the schema: then the two writes give `invalid-document`.
-          expect(strict.error).toBe(current.error);
-          if (strict.error === undefined && current.error === undefined) {
-            expect(withNewIdPlaceholders(strict.operations, base)).toEqual(
-              withNewIdPlaceholders(current.operations, base),
-            );
+          const stored: LensBlock[] = JSON.parse(JSON.stringify(base));
+          for (const version of [base, stored]) {
+            const strict = computeOperations(editor, {
+              format,
+              text,
+              base: version,
+            });
+            // A random edit of HTML markup can give HTML that does not fit
+            // the schema: then the two writes give `invalid-document`.
+            expect(strict.error).toBe(current.error);
+            if (strict.error === undefined && current.error === undefined) {
+              expect(withNewIdPlaceholders(strict.operations, base)).toEqual(
+                withNewIdPlaceholders(current.operations, base),
+              );
+            }
           }
           updateDocument(editor, { format, text, base });
         }
