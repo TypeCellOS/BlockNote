@@ -222,18 +222,19 @@ export function updateDocument(
 //
 //   operationsOf       = textTarget (text: 1 Project, 2 Parse and align
 //                        with parseAndAlign, 3 Target) or jsonTarget (JSON:
-//                        2 Parse, and the IDs)
-//                        then updateFromTarget (4 Merge, 5 Fit, 6 Diff)
+//                        2 Parse), then updateFromTarget (5 Fit, 6 Diff)
+//   mergedOperationsOf = the same stages for a version, with the document
+//                        merge (4 Merge) between stage 3 and stage 5
 //   dispatchOperations = 7 Apply and 8 Dispatch
 //
 // The documents of a change:
 //
-// - `base`: the version that the client read, or `undefined` for
-//   `base: "current"`.
+// - `base`: the version that the client read, or `"current"`.
 // - `current`: the document now. The operations change it. It does not have
 //   to be the document of the editor: the editor supplies the schema and the
 //   conversions.
-// - `source`: the document that the change starts from (`base ?? current`).
+// - `source`: the document that the change starts from: `current`, or
+//   `base` for a merge.
 // - `target`: the document as the change asks for it (stage 3).
 
 /**
@@ -251,20 +252,34 @@ export function operationsOf(
 ): ChangeResult {
   assertBlockIds(current, "current document");
   const base = versionOf(change.base);
-  const source = base ?? current;
+  if (base !== undefined) {
+    return mergedOperationsOf(editor, change, {
+      base,
+      current,
+      onConflict: change.onConflict,
+      keepLayout,
+    });
+  }
   const target =
     change.document === undefined
-      ? textTarget(editor, change.format, source, change.text)
-      : jsonTarget(editor, change.document, source, current);
+      ? textTarget(editor, change.format, current, change.text)
+      : jsonTarget(editor, change.document);
   if (target.error !== undefined) {
     return target;
   }
-  return updateFromTarget(schemaRulesOf(editor.schema.blockSchema), target, {
-    base,
+  const update = updateFromTarget(
+    schemaRulesOf(editor.schema.blockSchema),
+    target.target,
     current,
-    onConflict: change.onConflict,
     keepLayout,
-  });
+  );
+  return {
+    operations: update.operations,
+    warnings: [...target.warnings, ...update.warnings],
+    changesOfOthers: [],
+    // Without a merge, the client wrote the result.
+    written: update.result,
+  };
 }
 
 /**
@@ -315,11 +330,9 @@ export function targetInputOf(
 }
 
 /**
- * Stages 4 to 6: the operations that change `current` to the result of the
- * target. A target without changes gives no operations.
- *
- * With `onConflict: "reject"`, a conflict of the merge gives the error
- * `"conflict"`, and no operations.
+ * Stages 5 and 6: the operations that change `current` to the fit of
+ * `target`. A target without changes gives no operations. `result` is the
+ * document after the operations.
  *
  * `testUtil/stages.ts` also uses it, thus the stage tests run the same code.
  *
@@ -327,35 +340,16 @@ export function targetInputOf(
  */
 export function updateFromTarget(
   rules: SchemaRules,
-  {
-    target,
-    warnings,
-  }: { target: readonly LensBlock[]; warnings: TargetWarning[] },
-  documents: {
-    base: readonly LensBlock[] | undefined;
-    current: readonly LensBlock[];
-    onConflict: "keep-current" | "reject" | undefined;
-    keepLayout?: boolean;
-  },
-): ChangeOperations | ConflictError {
-  const { base, current } = documents;
-  // 4. Merge: only for a version as `base`. The target is for that version,
-  // and merges three-way with the current document (see `mergeDocument`).
-  const merged: { blocks: readonly LensBlock[]; warnings: MergeWarning[] } =
-    base === undefined
-      ? { blocks: target, warnings: [] }
-      : mergeDocument({
-          base,
-          ours: target,
-          theirs: current,
-          contentKindOf: rules.contentKindOf,
-        });
-  if (documents.onConflict === "reject" && merged.warnings.length > 0) {
-    return { error: "conflict", conflicts: merged.warnings };
-  }
+  target: readonly LensBlock[],
+  current: readonly LensBlock[],
+  keepLayout = false,
+): {
+  operations: BlockOperation[];
+  warnings: FitWarning[];
+  result: LensBlock[];
+} {
   // 5. Fit.
-  const keepLayout = documents.keepLayout === true;
-  const fit = fitResult(rules, merged.blocks, current, keepLayout);
+  const fit = fitResult(rules, target, current, keepLayout);
   // 6. Diff. A block that changes between a layout block and a block with
   // content gets a new ID: the diff removes it and inserts the new block.
   const result = newIdsForLayoutChanges(
@@ -366,16 +360,8 @@ export function updateFromTarget(
   );
   return {
     operations: diffDocuments(current, result),
-    warnings: [
-      ...warnings,
-      ...merged.warnings,
-      ...mergedCellsRemoved(current, fit),
-    ],
-    changesOfOthers: base === undefined ? [] : changesOfOthersOf(base, current),
-    // Without a merge, the client wrote the result. With a merge, the client
-    // wrote the target: it gets the fit for the version that the client read.
-    written:
-      base === undefined ? result : fitResult(rules, target, base, keepLayout),
+    warnings: mergedCellsRemoved(current, fit),
+    result,
   };
 }
 
@@ -445,31 +431,93 @@ type TargetOrError =
   | { error: "invalid-document" };
 
 /**
+ * The operations of a change from the version `base`, for the document
+ * `current`: the stages of {@link operationsOf} for `base`, and the document
+ * merge (stage 4) of the target with `current`.
+ *
+ * With `onConflict: "reject"`, a conflict of the merge gives the error
+ * `"conflict"`, and no operations.
+ */
+function mergedOperationsOf(
+  editor: BlockNoteEditor<any, any, any>,
+  change: TextChange | JSONChange,
+  documents: {
+    base: readonly LensBlock[];
+    current: readonly LensBlock[];
+    onConflict: "keep-current" | "reject" | undefined;
+    keepLayout: boolean;
+  },
+): ChangeResult {
+  const { base, current, keepLayout } = documents;
+  const target = mergeTargetOf(editor, change, base, current);
+  if (target.error !== undefined) {
+    return target;
+  }
+  const rules = schemaRulesOf(editor.schema.blockSchema);
+  // 4. Merge. The target is for `base`, and merges three-way with the
+  // current document (see `mergeDocument`).
+  const merged = mergeDocument({
+    base,
+    ours: target.target,
+    theirs: current,
+    contentKindOf: rules.contentKindOf,
+  });
+  if (documents.onConflict === "reject" && merged.warnings.length > 0) {
+    return { error: "conflict", conflicts: merged.warnings };
+  }
+  const update = updateFromTarget(rules, merged.blocks, current, keepLayout);
+  return {
+    operations: update.operations,
+    warnings: [...target.warnings, ...merged.warnings, ...update.warnings],
+    changesOfOthers: changesOfOthersOf(base, current),
+    // The client wrote the target: it gets the fit for the version that the
+    // client read.
+    written: fitResult(rules, target.target, base, keepLayout),
+  };
+}
+
+/**
+ * The target of a merge: the change for the version `base`. In a JSON
+ * change, a block with the ID of a block that another writer added after
+ * the read of the client (the ID is in `current` but not in `base`) is a new
+ * block: the client cannot mean that block (see `replaceDisallowedIds`).
+ */
+function mergeTargetOf(
+  editor: BlockNoteEditor<any, any, any>,
+  change: TextChange | JSONChange,
+  base: readonly LensBlock[],
+  current: readonly LensBlock[],
+): TargetOrError {
+  if (change.document === undefined) {
+    return textTarget(editor, change.format, base, change.text);
+  }
+  const target = jsonTarget(editor, change.document);
+  if (target.error !== undefined) {
+    return target;
+  }
+  const read = new Set(new BlockIndex(base).ids);
+  const idsOfOthers = new Set(
+    new BlockIndex(current).ids.filter((id) => !read.has(id)),
+  );
+  return {
+    target: replaceDisallowedIds(target.target, idsOfOthers),
+    warnings: target.warnings,
+  };
+}
+
+/**
  * The target of a JSON change: the JSON in the stored form (see
  * `parseJSON`). The JSON contains the block IDs, thus there is no
- * alignment: the JSON is the target. A block with the ID of a block that
- * another writer added after the read of the client (the ID is in `current`
- * but not in `source`) is a new block: the client cannot mean that block
- * (see `replaceDisallowedIds`).
+ * alignment: the JSON is the target.
  */
 function jsonTarget(
   editor: BlockNoteEditor<any, any, any>,
   json: readonly PartialBlock<any, any, any>[],
-  source: readonly LensBlock[],
-  current: readonly LensBlock[],
 ): TargetOrError {
   const parsed = parseJSON(editor, json);
-  if (parsed.error !== undefined) {
-    return parsed;
-  }
-  const read = new Set(new BlockIndex(source).ids);
-  const disallowedIds = new Set(
-    new BlockIndex(current).ids.filter((id) => !read.has(id)),
-  );
-  return {
-    target: replaceDisallowedIds(parsed.blocks, disallowedIds),
-    warnings: [],
-  };
+  return parsed.error !== undefined
+    ? parsed
+    : { target: parsed.blocks, warnings: [] };
 }
 
 /** The target of a text change (stages 1 to 3): `source` as `text` asks for it. */

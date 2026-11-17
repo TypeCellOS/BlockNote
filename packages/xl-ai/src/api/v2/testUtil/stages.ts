@@ -44,19 +44,13 @@ export function textStages(
     pairs,
   });
   const target = targetFromPairs(input);
-  // 4. Merge (none for `base: "current"`), 5. Fit and 6. Diff.
+  // 5. Fit and 6. Diff. A write to the current document has no stage 4
+  // (Merge).
   const update = updateFromTarget(
     schemaRulesOf(editor.schema.blockSchema),
-    target,
-    {
-      base: undefined,
-      current: document,
-      onConflict: undefined,
-    },
+    target.target,
+    document,
   );
-  if (update.error !== undefined) {
-    throw new Error(`The update is an error: ${update.error}`);
-  }
 
   const short = (block: BlockWithoutChildren, id = block.id) => [
     id,
