@@ -196,6 +196,50 @@ describe("a strict write of a text from a version", () => {
     expect(strict.warnings).toEqual(current.warnings);
   });
 
+  it("applies a write from a version that a store kept as JSON", () => {
+    const editor = createEditor(threeParagraphs);
+    const client = read(editor);
+    const stored: LensBlock[] = JSON.parse(JSON.stringify(client.base));
+    const text = replaceOnce(client.text, "Gamma", "Gamma, changed");
+
+    const strict = valid(
+      computeOperations(editor, { format, text, base: stored }),
+    );
+
+    expect(strict.operations).toEqual(
+      valid(computeOperations(editor, { format, text, base: "current" }))
+        .operations,
+    );
+    expect(strict.operations).toMatchObject([{ type: "update", id: "c" }]);
+  });
+
+  // REVISIT: a known false reject. A table without column widths has
+  // `columnWidths: [undefined, undefined]`. `JSON.stringify` writes these
+  // items as `null`, and for the compare of the lens (`deepEqual`), `null`
+  // is not `undefined` in an array. Thus, for the check, a version from a
+  // store that keeps JSON is not the document of the editor. vitest gives
+  // an error when this test passes: remove the mark then.
+  it.fails("applies a write from a version that a store kept as JSON, for a document with a table", () => {
+    const editor = createEditor([
+      {
+        id: "t",
+        type: "table",
+        content: { type: "tableContent", rows: [{ cells: ["A", "B"] }] },
+      },
+      { id: "p", type: "paragraph", content: "Alpha" },
+    ]);
+    const client = read(editor);
+    const stored: LensBlock[] = JSON.parse(JSON.stringify(client.base));
+
+    const result = computeOperations(editor, {
+      format,
+      text: replaceOnce(client.text, "Alpha", "Alpha one"),
+      base: stored,
+    });
+
+    expect(result.error).toBeUndefined();
+  });
+
   it("applies the write, and the next write from the document after it applies too", () => {
     const editor = createEditor(threeParagraphs);
     const first = read(editor);
