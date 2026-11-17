@@ -3,7 +3,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { configDefaults, defineConfig, type UserConfig } from "vite-plus";
 import { playwright } from "vite-plus/test/browser/providers/playwright";
-import * as commands from "./src/utils/commands.js";
+import * as commands from "./src/commands/node/index.js";
 
 // For the desktop instances: end-to-end/mobile runs only in the "android"
 // instance. An instance-level `exclude` replaces the resolved base exclude

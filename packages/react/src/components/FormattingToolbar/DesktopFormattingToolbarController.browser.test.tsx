@@ -5,11 +5,11 @@ import { DesktopFormattingToolbarController } from "./DesktopFormattingToolbarCo
 describe("DesktopFormattingToolbarController", () => {
   describe("unit", () => {
     it("mounts its custom toolbar while the extension requests it and unmounts it on dismissal", async ({
-      renderEditor,
+      setupEditor,
       selectText,
       page,
     }) => {
-      const { editor } = await renderEditor({
+      const { editor } = await setupEditor({
         initialContent: [
           { id: "text", type: "paragraph", content: "Selected text" },
         ],
@@ -43,7 +43,7 @@ describe("DesktopFormattingToolbarController", () => {
       await expect.element(toolbar).not.toBeInTheDocument();
     });
     it("renders its toolbar into the supplied portal", async ({
-      renderEditor,
+      setupEditor,
       selectText,
       page,
       onTestFinished,
@@ -51,7 +51,7 @@ describe("DesktopFormattingToolbarController", () => {
       const portal = document.createElement("div");
       document.body.append(portal);
       onTestFinished(() => portal.remove());
-      const { editor } = await renderEditor({
+      const { editor } = await setupEditor({
         initialContent: [
           { id: "text", type: "paragraph", content: "Selected text" },
         ],
@@ -75,56 +75,13 @@ describe("DesktopFormattingToolbarController", () => {
     });
   });
 
-  describe("keyboard", () => {
-    it("dismisses with Escape and restores editor focus without changing its selection or document", async ({
-      renderEditor,
-      selectText,
-      commands,
-      page,
-    }) => {
-      const { editor } = await renderEditor({
-        initialContent: [
-          { id: "text", type: "paragraph", content: "Selected text" },
-        ],
-        props: { formattingToolbar: false },
-        children: (
-          <DesktopFormattingToolbarController
-            formattingToolbar={() => (
-              <div role="toolbar">
-                <button>Custom action</button>
-              </div>
-            )}
-          />
-        ),
-      });
-      selectText(editor, "Selected text");
-      await page
-        .getByRole("button", { name: "Custom action", exact: true })
-        .click();
-      const documentBefore = editor.document;
-      const selectionBefore = editor.prosemirrorState.selection.toJSON();
-
-      await commands.pressKey("Escape");
-
-      expect(editor.getExtension(FormattingToolbarExtension)!.store.state).toBe(
-        false,
-      );
-      await expect.element(page.getByRole("toolbar")).not.toBeInTheDocument();
-      await expect.element(page.getByRole("textbox")).toHaveFocus();
-      expect(editor.prosemirrorState.selection.toJSON()).toEqual(
-        selectionBefore,
-      );
-      expect(editor.document).toEqual(documentBefore);
-    });
-  });
-
   describe("integration", () => {
     it("does not steal editor focus when the default toolbar appears", async ({
-      renderEditor,
+      setupEditor,
       selectText,
       page,
     }) => {
-      const { editor } = await renderEditor({
+      const { editor } = await setupEditor({
         initialContent: [{ type: "paragraph", content: "Selected text" }],
         props: { formattingToolbar: false },
         children: <DesktopFormattingToolbarController />,
@@ -142,11 +99,11 @@ describe("DesktopFormattingToolbarController", () => {
     });
 
     it("dismisses on an outside click without stealing focus from the outside action", async ({
-      renderEditor,
+      setupEditor,
       selectText,
       page,
     }) => {
-      const { editor } = await renderEditor({
+      const { editor } = await setupEditor({
         initialContent: [{ type: "paragraph", content: "Selected text" }],
         props: { formattingToolbar: false },
         children: <DesktopFormattingToolbarController />,
@@ -173,6 +130,49 @@ describe("DesktopFormattingToolbarController", () => {
         )
         .toHaveFocus();
       expect(editor.document).toEqual(before);
+    });
+  });
+
+  describe("keyboard", () => {
+    it("dismisses with Escape and restores editor focus without changing its selection or document", async ({
+      setupEditor,
+      selectText,
+      pressKey,
+      page,
+    }) => {
+      const { editor } = await setupEditor({
+        initialContent: [
+          { id: "text", type: "paragraph", content: "Selected text" },
+        ],
+        props: { formattingToolbar: false },
+        children: (
+          <DesktopFormattingToolbarController
+            formattingToolbar={() => (
+              <div role="toolbar">
+                <button>Custom action</button>
+              </div>
+            )}
+          />
+        ),
+      });
+      selectText(editor, "Selected text");
+      await page
+        .getByRole("button", { name: "Custom action", exact: true })
+        .click();
+      const documentBefore = editor.document;
+      const selectionBefore = editor.prosemirrorState.selection.toJSON();
+
+      await pressKey("Escape");
+
+      expect(editor.getExtension(FormattingToolbarExtension)!.store.state).toBe(
+        false,
+      );
+      await expect.element(page.getByRole("toolbar")).not.toBeInTheDocument();
+      await expect.element(page.getByRole("textbox")).toHaveFocus();
+      expect(editor.prosemirrorState.selection.toJSON()).toEqual(
+        selectionBefore,
+      );
+      expect(editor.document).toEqual(documentBefore);
     });
   });
 });

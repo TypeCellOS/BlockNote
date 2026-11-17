@@ -5,10 +5,10 @@ import { BlockTypeSelect } from "./BlockTypeSelect.js";
 describe("BlockTypeSelect", () => {
   describe("unit", () => {
     it("hides when the current block has no offered type and reappears on a supported block", async ({
-      renderEditor,
+      setupEditor,
       page,
     }) => {
-      const { editor } = await renderEditor({
+      const { editor } = await setupEditor({
         initialContent: [
           { id: "text", type: "paragraph", content: "Text" },
           { id: "divider", type: "divider" },
@@ -29,8 +29,8 @@ describe("BlockTypeSelect", () => {
       await expect.element(button).toBeVisible();
     });
 
-    it("hides in read-only mode", async ({ renderEditor, page }) => {
-      await renderEditor({
+    it("hides in read-only mode", async ({ setupEditor, page }) => {
+      await setupEditor({
         props: { editable: false, formattingToolbar: false },
         children: <BlockTypeSelect />,
       });
@@ -41,10 +41,10 @@ describe("BlockTypeSelect", () => {
     // BlockTypeSelect subscribes to selected blocks, not editability. A change
     // to editable alone does not update the control until selection changes.
     it.fails("reappears when the editor becomes editable without moving selection", async ({
-      renderEditor,
+      setupEditor,
       page,
     }) => {
-      const { editor, rerender } = await renderEditor({
+      const { editor, rerender } = await setupEditor({
         props: { editable: false, formattingToolbar: false },
         children: <BlockTypeSelect />,
       });
@@ -60,10 +60,10 @@ describe("BlockTypeSelect", () => {
       expect(button.query()).not.toBeNull();
     });
     it("filters custom choices whose block type or property types do not match the schema", async ({
-      renderEditor,
+      setupEditor,
       page,
     }) => {
-      const { editor } = await renderEditor({
+      const { editor } = await setupEditor({
         props: { formattingToolbar: false },
         children: ({ editor }) => (
           <BlockTypeSelect
@@ -102,11 +102,11 @@ describe("BlockTypeSelect", () => {
 
   describe("integration", () => {
     it("converts the selected block and updates its label without changing neighboring blocks or text", async ({
-      renderEditor,
+      setupEditor,
       selectText,
       page,
     }) => {
-      const { editor } = await renderEditor({
+      const { editor } = await setupEditor({
         initialContent: [
           { id: "before", type: "paragraph", content: "Before" },
           { id: "selected", type: "paragraph", content: "Selected text" },
@@ -156,10 +156,10 @@ describe("BlockTypeSelect", () => {
     });
 
     it("converts all selected blocks while leaving an unselected neighbor intact", async ({
-      renderEditor,
+      setupEditor,
       page,
     }) => {
-      const { editor } = await renderEditor({
+      const { editor } = await setupEditor({
         initialContent: [
           { id: "first", type: "paragraph", content: "First" },
           { id: "second", type: "paragraph", content: "Second" },
@@ -197,12 +197,14 @@ describe("BlockTypeSelect", () => {
 
   describe("keyboard", () => {
     it("shows a keyboard focus ring on its trigger", async ({
-      renderEditor,
+      setupEditor,
       selectText,
-      commands,
+      readFocusOutline,
+      pressKey,
+      assertFocusOutline,
       page,
     }) => {
-      const { editor } = await renderEditor({
+      const { editor } = await setupEditor({
         initialContent: [{ type: "paragraph", content: "Selected text" }],
         props: { formattingToolbar: false },
         children: <BlockTypeSelect />,
@@ -213,21 +215,21 @@ describe("BlockTypeSelect", () => {
         name: editor.dictionary.slash_menu.paragraph.title,
         exact: true,
       });
-      const outline = await commands.readOutline(button.selector);
+      const outline = readFocusOutline(button);
 
-      await commands.pressKey("Tab");
+      await pressKey("Tab");
 
       await expect.element(button).toHaveFocus();
-      await commands.checkFocusOutline(button.selector, outline);
+      await assertFocusOutline(button, outline);
     });
 
     it("dismisses with Escape and restores trigger focus without editing", async ({
-      renderEditor,
+      setupEditor,
       selectText,
-      commands,
+      pressKey,
       page,
     }) => {
-      const { editor } = await renderEditor({
+      const { editor } = await setupEditor({
         initialContent: [{ type: "paragraph", content: "Selected text" }],
         props: { formattingToolbar: false },
         children: <BlockTypeSelect />,
@@ -240,14 +242,14 @@ describe("BlockTypeSelect", () => {
       const before = editor.document;
       const selection = editor.prosemirrorState.selection.toJSON();
       button.element().focus();
-      await commands.pressKey("Enter");
+      await pressKey("Enter");
       const menu = page.getByRole("menu");
       await expect.element(menu).toBeVisible();
       await expect
         .poll(() => menu.element().contains(document.activeElement))
         .toBe(true);
 
-      await commands.pressKey("Escape");
+      await pressKey("Escape");
 
       await expect.element(menu).not.toBeInTheDocument();
       await expect.element(button).toHaveFocus();
@@ -255,12 +257,14 @@ describe("BlockTypeSelect", () => {
       expect(editor.prosemirrorState.selection.toJSON()).toEqual(selection);
     });
     it("opens, navigates, and chooses a block type from the keyboard", async ({
-      renderEditor,
+      setupEditor,
       selectText,
-      commands,
+      pressKey,
+      readFocusOutline,
+      assertFocusOutline,
       page,
     }) => {
-      const { editor } = await renderEditor({
+      const { editor } = await setupEditor({
         initialContent: [
           { id: "text", type: "paragraph", content: "Selected text" },
         ],
@@ -275,7 +279,7 @@ describe("BlockTypeSelect", () => {
       button.element().focus();
       await expect.element(button).toHaveFocus();
 
-      await commands.pressKey("Enter");
+      await pressKey("Enter");
 
       const menu = page.getByRole("menu");
       await expect.element(menu).toBeVisible();
@@ -290,18 +294,18 @@ describe("BlockTypeSelect", () => {
         name: editor.dictionary.slash_menu.heading.title,
         exact: true,
       });
-      const outline = await commands.readOutline(heading.selector);
+      const outline = readFocusOutline(heading);
 
-      await commands.pressKey("ArrowDown");
+      await pressKey("ArrowDown");
 
       await expect.element(paragraph).toHaveFocus();
 
-      await commands.pressKey("ArrowDown");
+      await pressKey("ArrowDown");
 
       await expect.element(heading).toHaveFocus();
-      await commands.checkFocusOutline(heading.selector, outline);
+      await assertFocusOutline(heading, outline);
 
-      await commands.pressKey("Enter");
+      await pressKey("Enter");
 
       await expect.element(menu).not.toBeInTheDocument();
       await expect
@@ -316,13 +320,13 @@ describe("BlockTypeSelect", () => {
     });
   });
 
-  describe("ARIA", () => {
+  describe("a11y", () => {
     it("names the current block type and exposes the popup relationship", async ({
-      renderEditor,
+      setupEditor,
       selectText,
       page,
     }) => {
-      const { editor } = await renderEditor({
+      const { editor } = await setupEditor({
         initialContent: [
           { type: "paragraph", content: "Paragraph text" },
           { type: "heading", props: { level: 2 }, content: "Heading text" },
@@ -361,10 +365,10 @@ describe("BlockTypeSelect", () => {
     // Our Mantine ToolbarSelect renders the selected option as a checkmark
     // only; it does not expose its checked state to assistive technology.
     it.fails("exposes the current menu choice as checked", async ({
-      renderEditor,
+      setupEditor,
       page,
     }) => {
-      const { editor } = await renderEditor({
+      const { editor } = await setupEditor({
         props: { formattingToolbar: false },
         children: <BlockTypeSelect />,
       });
@@ -375,17 +379,14 @@ describe("BlockTypeSelect", () => {
       await expect.element(item).toBeVisible();
       expect(item.element().getAttribute("aria-checked")).toBe("true");
     });
-  });
 
-  describe("axe", () => {
     it("checks the trigger", async ({
-      renderEditor,
+      setupEditor,
       selectText,
-      commands,
+      runAxe,
       page,
-      annotate,
     }) => {
-      const { editor } = await renderEditor({
+      const { editor } = await setupEditor({
         initialContent: [{ type: "paragraph", content: "Selected text" }],
         props: { formattingToolbar: false },
         children: (
@@ -401,21 +402,19 @@ describe("BlockTypeSelect", () => {
       });
       await expect.element(button).toBeVisible();
 
-      for (const warning of await commands.checkAxe('[role="toolbar"]')) {
-        await annotate(warning, "warning");
-      }
+      const { violations } = await runAxe(page.getByRole("toolbar"));
+      expect(violations).toEqual([]);
     });
 
-    // Expected failure: Mantine inserts a focusable placeholder div inside the
-    // menu, violating aria-required-children.
-    it.fails("checks the open menu", async ({
-      renderEditor,
+    // Mantine inserts a focusable placeholder div inside the menu. Assert this
+    // known violation precisely so additional accessibility failures still fail.
+    it("checks the open menu", async ({
+      setupEditor,
       selectText,
-      commands,
+      runAxe,
       page,
-      annotate,
     }) => {
-      const { editor } = await renderEditor({
+      const { editor } = await setupEditor({
         initialContent: [{ type: "paragraph", content: "Selected text" }],
         props: { formattingToolbar: false },
         children: (
@@ -434,9 +433,24 @@ describe("BlockTypeSelect", () => {
         .click();
 
       await expect.element(page.getByRole("menu")).toBeVisible();
-      for (const warning of await commands.checkAxe('[role="menu"]')) {
-        await annotate(warning, "warning");
-      }
+      const { violations } = await runAxe(page.getByRole("menu"));
+      expect(violations).toMatchObject([
+        {
+          id: "aria-required-children",
+          nodes: [
+            {
+              any: [
+                {
+                  id: "aria-required-children",
+                  data: { messageKey: "unallowed", values: "div[tabindex]" },
+                },
+              ],
+              all: [],
+              none: [],
+            },
+          ],
+        },
+      ]);
     });
   });
 });

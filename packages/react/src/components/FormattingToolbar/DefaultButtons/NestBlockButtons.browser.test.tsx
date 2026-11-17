@@ -9,8 +9,8 @@ describe("NestBlockButtons", () => {
       { name: "unnest", Button: UnnestBlockButton },
     ])(
       "hides $name in read-only mode and on blocks without inline content",
-      async ({ Button }, { renderEditor, page }) => {
-        const { editor, rerender } = await renderEditor({
+      async ({ Button }, { setupEditor, page }) => {
+        const { editor, rerender } = await setupEditor({
           initialContent: [
             { id: "text", type: "paragraph", content: "Text" },
             { id: "divider", type: "divider" },
@@ -33,69 +33,13 @@ describe("NestBlockButtons", () => {
     );
   });
 
-  describe("ARIA", () => {
-    it("only enables nesting when a previous sibling is available", async ({
-      renderEditor,
-      selectText,
-      page,
-    }) => {
-      const { editor } = await renderEditor({
-        initialContent: [
-          { type: "paragraph", content: "First block" },
-          { type: "paragraph", content: "Second block" },
-        ],
-        props: { formattingToolbar: false },
-        children: <NestBlockButton />,
-      });
-      const button = page.getByRole("button", {
-        name: editor.dictionary.formatting_toolbar.nest.tooltip,
-        exact: true,
-      });
-      selectText(editor, "First block");
-
-      await expect.element(button).toBeDisabled();
-
-      selectText(editor, "Second block");
-
-      await expect.element(button).toBeEnabled();
-    });
-
-    it("only enables unnesting for a nested block", async ({
-      renderEditor,
-      selectText,
-      page,
-    }) => {
-      const { editor } = await renderEditor({
-        initialContent: [
-          {
-            type: "paragraph",
-            content: "Parent",
-            children: [{ type: "paragraph", content: "Child" }],
-          },
-        ],
-        props: { formattingToolbar: false },
-        children: <UnnestBlockButton />,
-      });
-      const button = page.getByRole("button", {
-        name: editor.dictionary.formatting_toolbar.unnest.tooltip,
-        exact: true,
-      });
-      selectText(editor, "Parent");
-      await expect.element(button).toBeDisabled();
-
-      selectText(editor, "Child");
-
-      await expect.element(button).toBeEnabled();
-    });
-  });
-
   describe("integration", () => {
     it("moves the selected block under its previous sibling without changing their contents", async ({
-      renderEditor,
+      setupEditor,
       selectText,
       page,
     }) => {
-      const { editor } = await renderEditor({
+      const { editor } = await setupEditor({
         initialContent: [
           { id: "parent", type: "paragraph", content: "Parent" },
           { id: "selected", type: "paragraph", content: "Selected text" },
@@ -121,11 +65,11 @@ describe("NestBlockButtons", () => {
     });
 
     it("moves the selected block out of its parent without changing their contents", async ({
-      renderEditor,
+      setupEditor,
       selectText,
       page,
     }) => {
-      const { editor } = await renderEditor({
+      const { editor } = await setupEditor({
         initialContent: [
           {
             id: "parent",
@@ -166,9 +110,16 @@ describe("NestBlockButtons", () => {
       "activates $direction and returns focus to the editor",
       async (
         { direction, Button },
-        { renderEditor, selectText, commands, page },
+        {
+          setupEditor,
+          selectText,
+          readFocusOutline,
+          pressKey,
+          assertFocusOutline,
+          page,
+        },
       ) => {
-        const { editor } = await renderEditor({
+        const { editor } = await setupEditor({
           initialContent:
             direction === "nest"
               ? [
@@ -202,14 +153,14 @@ describe("NestBlockButtons", () => {
           name: editor.dictionary.formatting_toolbar[direction].tooltip,
           exact: true,
         });
-        const outline = await commands.readOutline(button.selector);
+        const outline = readFocusOutline(button);
 
-        await commands.pressKey("Tab");
+        await pressKey("Tab");
 
         await expect.element(button).toHaveFocus();
-        await commands.checkFocusOutline(button.selector, outline);
+        await assertFocusOutline(button, outline);
 
-        await commands.pressKey("Enter");
+        await pressKey("Enter");
 
         await expect.element(page.getByRole("textbox")).toHaveFocus();
         expect(
@@ -220,11 +171,11 @@ describe("NestBlockButtons", () => {
     );
 
     it("skips disabled actions when tabbing", async ({
-      renderEditor,
-      commands,
+      setupEditor,
+      pressKey,
       page,
     }) => {
-      await renderEditor({
+      await setupEditor({
         props: { formattingToolbar: false },
         children: (
           <FormattingToolbar>
@@ -236,7 +187,7 @@ describe("NestBlockButtons", () => {
       });
       await page.getByRole("textbox").click();
 
-      await commands.pressKey("Tab");
+      await pressKey("Tab");
 
       await expect
         .element(page.getByRole("button", { name: "Next action", exact: true }))
@@ -244,14 +195,68 @@ describe("NestBlockButtons", () => {
     });
   });
 
-  describe("axe", () => {
-    it("checks enabled and disabled nesting controls", async ({
-      renderEditor,
+  describe("a11y", () => {
+    it("only enables nesting when a previous sibling is available", async ({
+      setupEditor,
       selectText,
-      commands,
-      annotate,
+      page,
     }) => {
-      const { editor } = await renderEditor({
+      const { editor } = await setupEditor({
+        initialContent: [
+          { type: "paragraph", content: "First block" },
+          { type: "paragraph", content: "Second block" },
+        ],
+        props: { formattingToolbar: false },
+        children: <NestBlockButton />,
+      });
+      const button = page.getByRole("button", {
+        name: editor.dictionary.formatting_toolbar.nest.tooltip,
+        exact: true,
+      });
+      selectText(editor, "First block");
+
+      await expect.element(button).toBeDisabled();
+
+      selectText(editor, "Second block");
+
+      await expect.element(button).toBeEnabled();
+    });
+
+    it("only enables unnesting for a nested block", async ({
+      setupEditor,
+      selectText,
+      page,
+    }) => {
+      const { editor } = await setupEditor({
+        initialContent: [
+          {
+            type: "paragraph",
+            content: "Parent",
+            children: [{ type: "paragraph", content: "Child" }],
+          },
+        ],
+        props: { formattingToolbar: false },
+        children: <UnnestBlockButton />,
+      });
+      const button = page.getByRole("button", {
+        name: editor.dictionary.formatting_toolbar.unnest.tooltip,
+        exact: true,
+      });
+      selectText(editor, "Parent");
+      await expect.element(button).toBeDisabled();
+
+      selectText(editor, "Child");
+
+      await expect.element(button).toBeEnabled();
+    });
+
+    it("checks enabled and disabled nesting controls", async ({
+      setupEditor,
+      selectText,
+      runAxe,
+      page,
+    }) => {
+      const { editor } = await setupEditor({
         initialContent: [
           {
             type: "paragraph",
@@ -269,9 +274,8 @@ describe("NestBlockButtons", () => {
       });
       selectText(editor, "Child");
 
-      for (const warning of await commands.checkAxe('[role="toolbar"]')) {
-        await annotate(warning, "warning");
-      }
+      const { violations } = await runAxe(page.getByRole("toolbar"));
+      expect(violations).toEqual([]);
     });
   });
 });

@@ -1,7 +1,7 @@
 import { commands } from "./context.js";
 import { DRAG_HANDLE_SELECTOR } from "./const.js";
 import { sleep, waitForSelector } from "./editor.js";
-import type { MouseAction } from "./positionalMouse.js";
+import type { MouseAction } from "../commands/node/positionalMouse.js";
 
 function runMouse(actions: MouseAction[]): Promise<void> {
   return commands.positionalMouse(...actions);

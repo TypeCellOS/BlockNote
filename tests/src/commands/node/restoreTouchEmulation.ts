@@ -19,6 +19,21 @@ import type { BrowserCommand } from "vite-plus/test/node";
  */
 const sessions = new WeakMap<object, Promise<unknown>>();
 
+/**
+ * Restores Chromium touch capability after a screenshot disables it. Use only in
+ * a Chromium context configured with touch support (the Android-emulated project),
+ * not to turn a desktop test into a mobile test. Shared setup already calls this
+ * before each Android test; call explicitly only if the same test takes a
+ * screenshot and then needs to continue exercising touch-dependent behavior.
+ *
+ * Does not reset the viewport, user agent, or input state. The CDP session stays
+ * attached because detaching it would undo the emulation override.
+ *
+ * @example
+ * // In an Android-emulated test, after a screenshot:
+ * await restoreTouchEmulation();
+ * expect(navigator.maxTouchPoints).toBeGreaterThan(0);
+ */
 export const restoreTouchEmulation: BrowserCommand<[]> = async (ctx) => {
   let session = sessions.get(ctx.page);
   if (session === undefined) {

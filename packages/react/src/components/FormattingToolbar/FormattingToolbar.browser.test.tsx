@@ -4,10 +4,10 @@ import { FormattingToolbar } from "./FormattingToolbar.js";
 describe("FormattingToolbar", () => {
   describe("unit", () => {
     it("allows custom children instead of default controls", async ({
-      renderEditor,
+      setupEditor,
       page,
     }) => {
-      await renderEditor({
+      await setupEditor({
         props: { formattingToolbar: false },
         children: (
           <FormattingToolbar>
@@ -26,10 +26,10 @@ describe("FormattingToolbar", () => {
     });
 
     it("passes custom block-type choices to its select", async ({
-      renderEditor,
+      setupEditor,
       page,
     }) => {
-      const { editor } = await renderEditor({
+      const { editor } = await setupEditor({
         props: { formattingToolbar: false },
         children: ({ editor }) => (
           <FormattingToolbar
@@ -67,12 +67,12 @@ describe("FormattingToolbar", () => {
 
   describe("integration", () => {
     it("preserves the editor selection while keyboard focus moves through the toolbar", async ({
-      renderEditor,
+      setupEditor,
       selectText,
-      commands,
+      pressKey,
       page,
     }) => {
-      const { editor } = await renderEditor({
+      const { editor } = await setupEditor({
         initialContent: [
           { type: "paragraph", content: "Before selected text after" },
         ],
@@ -83,7 +83,7 @@ describe("FormattingToolbar", () => {
       const documentBefore = editor.document;
       const selectionBefore = editor.prosemirrorState.selection.toJSON();
 
-      await commands.pressKey("Tab");
+      await pressKey("Tab");
 
       await expect
         .element(
@@ -97,7 +97,7 @@ describe("FormattingToolbar", () => {
         selectionBefore,
       );
 
-      await commands.pressKey("Tab");
+      await pressKey("Tab");
 
       await expect
         .element(
@@ -116,12 +116,13 @@ describe("FormattingToolbar", () => {
 
   describe("keyboard", () => {
     it("tabs forward through the default controls for Parent and allows leaving", async ({
-      renderEditor,
+      setupEditor,
       selectText,
-      commands,
+      focusUntil,
+      readAriaSnapshot,
       page,
     }) => {
-      const { editor } = await renderEditor({
+      const { editor } = await setupEditor({
         initialContent: [
           {
             type: "paragraph",
@@ -137,14 +138,16 @@ describe("FormattingToolbar", () => {
       selectText(editor, "Parent");
       const toolbar = page.getByRole("toolbar");
       await expect.element(toolbar).toBeVisible();
+      // Record each control's accessible tree in keyboard focus order,
+      // so the snapshot detects skipped controls or changes in tab order.
       const sequence: string[] = [];
 
-      await commands.focusUntil(async (active) => {
+      await focusUntil(async (active) => {
         if (!toolbar.element().contains(active.element())) {
           return true;
         }
         await expect.element(active).toBeEnabled();
-        sequence.push(await commands.readAriaSnapshot(active.selector));
+        sequence.push(readAriaSnapshot(active));
         return false;
       });
 
@@ -176,12 +179,13 @@ describe("FormattingToolbar", () => {
     });
 
     it("tabs forward through the default controls for Child and allows leaving", async ({
-      renderEditor,
+      setupEditor,
       selectText,
-      commands,
+      focusUntil,
+      readAriaSnapshot,
       page,
     }) => {
-      const { editor } = await renderEditor({
+      const { editor } = await setupEditor({
         initialContent: [
           {
             type: "paragraph",
@@ -197,14 +201,16 @@ describe("FormattingToolbar", () => {
       selectText(editor, "Child");
       const toolbar = page.getByRole("toolbar");
       await expect.element(toolbar).toBeVisible();
+      // Record each control's accessible tree in keyboard focus order,
+      // so the snapshot detects skipped controls or changes in tab order.
       const sequence: string[] = [];
 
-      await commands.focusUntil(async (active) => {
+      await focusUntil(async (active) => {
         if (!toolbar.element().contains(active.element())) {
           return true;
         }
         await expect.element(active).toBeEnabled();
-        sequence.push(await commands.readAriaSnapshot(active.selector));
+        sequence.push(readAriaSnapshot(active));
         return false;
       });
 
@@ -238,12 +244,13 @@ describe("FormattingToolbar", () => {
     });
 
     it("tabs forward through the default controls for Sibling and allows leaving", async ({
-      renderEditor,
+      setupEditor,
       selectText,
-      commands,
+      focusUntil,
+      readAriaSnapshot,
       page,
     }) => {
-      const { editor } = await renderEditor({
+      const { editor } = await setupEditor({
         initialContent: [
           {
             type: "paragraph",
@@ -259,14 +266,16 @@ describe("FormattingToolbar", () => {
       selectText(editor, "Sibling");
       const toolbar = page.getByRole("toolbar");
       await expect.element(toolbar).toBeVisible();
+      // Record each control's accessible tree in keyboard focus order,
+      // so the snapshot detects skipped controls or changes in tab order.
       const sequence: string[] = [];
 
-      await commands.focusUntil(async (active) => {
+      await focusUntil(async (active) => {
         if (!toolbar.element().contains(active.element())) {
           return true;
         }
         await expect.element(active).toBeEnabled();
-        sequence.push(await commands.readAriaSnapshot(active.selector));
+        sequence.push(readAriaSnapshot(active));
         return false;
       });
 
@@ -300,12 +309,13 @@ describe("FormattingToolbar", () => {
     });
 
     it("tabs backward through the default controls for Parent and allows leaving", async ({
-      renderEditor,
+      setupEditor,
       selectText,
-      commands,
+      focusUntil,
+      readAriaSnapshot,
       page,
     }) => {
-      const { editor } = await renderEditor({
+      const { editor } = await setupEditor({
         initialContent: [
           {
             type: "paragraph",
@@ -325,14 +335,16 @@ describe("FormattingToolbar", () => {
       });
       await expect.element(lastControl).toBeVisible();
       lastControl.element().focus();
-      const sequence = [await commands.readAriaSnapshot(lastControl.selector)];
+      // Record each control's accessible tree in keyboard focus order,
+      // so the snapshot detects skipped controls or changes in tab order.
+      const sequence = [readAriaSnapshot(lastControl)];
 
-      await commands.focusUntil(async (active) => {
+      await focusUntil(async (active) => {
         if (!toolbar.element().contains(active.element())) {
           return true;
         }
         await expect.element(active).toBeEnabled();
-        sequence.push(await commands.readAriaSnapshot(active.selector));
+        sequence.push(readAriaSnapshot(active));
         return false;
       }, "backward");
 
@@ -364,12 +376,13 @@ describe("FormattingToolbar", () => {
     });
 
     it("tabs backward through the default controls for Child and allows leaving", async ({
-      renderEditor,
+      setupEditor,
       selectText,
-      commands,
+      focusUntil,
+      readAriaSnapshot,
       page,
     }) => {
-      const { editor } = await renderEditor({
+      const { editor } = await setupEditor({
         initialContent: [
           {
             type: "paragraph",
@@ -389,14 +402,16 @@ describe("FormattingToolbar", () => {
       });
       await expect.element(lastControl).toBeVisible();
       lastControl.element().focus();
-      const sequence = [await commands.readAriaSnapshot(lastControl.selector)];
+      // Record each control's accessible tree in keyboard focus order,
+      // so the snapshot detects skipped controls or changes in tab order.
+      const sequence = [readAriaSnapshot(lastControl)];
 
-      await commands.focusUntil(async (active) => {
+      await focusUntil(async (active) => {
         if (!toolbar.element().contains(active.element())) {
           return true;
         }
         await expect.element(active).toBeEnabled();
-        sequence.push(await commands.readAriaSnapshot(active.selector));
+        sequence.push(readAriaSnapshot(active));
         return false;
       }, "backward");
 
@@ -430,12 +445,13 @@ describe("FormattingToolbar", () => {
     });
 
     it("tabs backward through the default controls for Sibling and allows leaving", async ({
-      renderEditor,
+      setupEditor,
       selectText,
-      commands,
+      focusUntil,
+      readAriaSnapshot,
       page,
     }) => {
-      const { editor } = await renderEditor({
+      const { editor } = await setupEditor({
         initialContent: [
           {
             type: "paragraph",
@@ -455,14 +471,16 @@ describe("FormattingToolbar", () => {
       });
       await expect.element(lastControl).toBeVisible();
       lastControl.element().focus();
-      const sequence = [await commands.readAriaSnapshot(lastControl.selector)];
+      // Record each control's accessible tree in keyboard focus order,
+      // so the snapshot detects skipped controls or changes in tab order.
+      const sequence = [readAriaSnapshot(lastControl)];
 
-      await commands.focusUntil(async (active) => {
+      await focusUntil(async (active) => {
         if (!toolbar.element().contains(active.element())) {
           return true;
         }
         await expect.element(active).toBeEnabled();
-        sequence.push(await commands.readAriaSnapshot(active.selector));
+        sequence.push(readAriaSnapshot(active));
         return false;
       }, "backward");
 
@@ -496,13 +514,12 @@ describe("FormattingToolbar", () => {
     });
   });
 
-  describe("ARIA", () => {
+  describe("a11y", () => {
     it("exposes its custom controls as a toolbar", async ({
-      renderEditor,
-      commands,
+      setupEditor,
       page,
     }) => {
-      await renderEditor({
+      await setupEditor({
         props: { formattingToolbar: false },
         children: (
           <FormattingToolbar>
@@ -511,32 +528,27 @@ describe("FormattingToolbar", () => {
         ),
       });
 
-      expect(
-        await commands.readAriaSnapshot(page.getByRole("toolbar").selector),
-      ).toMatchInlineSnapshot(`
-        "- toolbar:
-          - button "Custom action""
+      await expect.element(page.getByRole("toolbar"))
+        .toMatchAriaInlineSnapshot(`
+        - toolbar:
+          - button "Custom action"
       `);
     });
-  });
 
-  describe("axe", () => {
     it("has no automated accessibility violations with the default controls", async ({
-      renderEditor,
+      setupEditor,
       selectText,
-      annotate,
-      commands,
       page,
+      runAxe,
     }) => {
-      const { editor } = await renderEditor({
+      const { editor } = await setupEditor({
         initialContent: [{ type: "paragraph", content: "Selected text" }],
       });
       selectText(editor, "Selected text");
       await expect.element(page.getByRole("toolbar")).toBeVisible();
 
-      for (const warning of await commands.checkAxe('[role="toolbar"]')) {
-        await annotate(warning, "warning");
-      }
+      const { violations } = await runAxe(page.getByRole("toolbar"));
+      expect(violations).toEqual([]);
     });
   });
 });

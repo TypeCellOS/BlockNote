@@ -6,10 +6,10 @@ import { CellSelection } from "@tiptap/pm/tables";
 describe("TextAlignButton", () => {
   describe("unit", () => {
     it("hides for read-only content and blocks without alignment, and reappears for text", async ({
-      renderEditor,
+      setupEditor,
       page,
     }) => {
-      const { editor, rerender } = await renderEditor({
+      const { editor, rerender } = await setupEditor({
         initialContent: [
           { id: "text", type: "paragraph", content: "Text" },
           { id: "divider", type: "divider" },
@@ -37,8 +37,8 @@ describe("TextAlignButton", () => {
   describe("integration", () => {
     it.for(["left", "center", "right", "justify"] as const)(
       "aligns the selected block %s without changing its text or neighboring blocks",
-      async (textAlignment, { renderEditor, selectText, page }) => {
-        const { editor } = await renderEditor({
+      async (textAlignment, { setupEditor, selectText, page }) => {
+        const { editor } = await setupEditor({
           initialContent: [
             { id: "before", type: "paragraph", content: "Before" },
             {
@@ -78,10 +78,10 @@ describe("TextAlignButton", () => {
     );
 
     it("aligns every selected block without changing an unselected neighbor", async ({
-      renderEditor,
+      setupEditor,
       page,
     }) => {
-      const { editor } = await renderEditor({
+      const { editor } = await setupEditor({
         initialContent: [
           { id: "first", type: "paragraph", content: "First" },
           { id: "second", type: "paragraph", content: "Second" },
@@ -114,10 +114,10 @@ describe("TextAlignButton", () => {
     });
 
     it("aligns only the selected table cells", async ({
-      renderEditor,
+      setupEditor,
       page,
     }) => {
-      const { editor } = await renderEditor({
+      const { editor } = await setupEditor({
         initialContent: [
           {
             id: "table",
@@ -183,8 +183,18 @@ describe("TextAlignButton", () => {
   describe("keyboard", () => {
     it.for(["left", "center", "right", "justify"] as const)(
       "shows a keyboard focus ring for %s alignment",
-      async (alignment, { renderEditor, selectText, commands, page }) => {
-        const { editor } = await renderEditor({
+      async (
+        alignment,
+        {
+          setupEditor,
+          selectText,
+          readFocusOutline,
+          pressKey,
+          assertFocusOutline,
+          page,
+        },
+      ) => {
+        const { editor } = await setupEditor({
           initialContent: [{ type: "paragraph", content: "Selected text" }],
           props: { formattingToolbar: false },
           children: <TextAlignButton textAlignment={alignment} />,
@@ -196,19 +206,19 @@ describe("TextAlignButton", () => {
             .tooltip,
           exact: true,
         });
-        const outline = await commands.readOutline(button.selector);
+        const outline = readFocusOutline(button);
 
-        await commands.pressKey("Tab");
+        await pressKey("Tab");
 
         await expect.element(button).toHaveFocus();
-        await commands.checkFocusOutline(button.selector, outline);
+        await assertFocusOutline(button, outline);
       },
     );
 
     it.for(["Enter", "Space"])(
       "aligns with %s and restores editor focus",
-      async (key, { renderEditor, selectText, commands, page }) => {
-        const { editor } = await renderEditor({
+      async (key, { setupEditor, selectText, pressKey, page }) => {
+        const { editor } = await setupEditor({
           initialContent: [
             { id: "text", type: "paragraph", content: "Selected text" },
           ],
@@ -222,11 +232,11 @@ describe("TextAlignButton", () => {
           exact: true,
         });
 
-        await commands.pressKey("Tab");
+        await pressKey("Tab");
 
         await expect.element(button).toHaveFocus();
 
-        await commands.pressKey(key);
+        await pressKey(key);
 
         await expect.element(button).toHaveAttribute("aria-pressed", "true");
         await expect.element(page.getByRole("textbox")).toHaveFocus();
@@ -234,13 +244,13 @@ describe("TextAlignButton", () => {
     );
   });
 
-  describe("ARIA", () => {
+  describe("a11y", () => {
     it("updates its pressed state when selection moves between differently aligned blocks", async ({
-      renderEditor,
+      setupEditor,
       selectText,
       page,
     }) => {
-      const { editor } = await renderEditor({
+      const { editor } = await setupEditor({
         initialContent: [
           { type: "paragraph", content: "Left" },
           {
@@ -263,15 +273,13 @@ describe("TextAlignButton", () => {
 
       await expect.element(button).toHaveAttribute("aria-pressed", "false");
     });
-  });
 
-  describe("axe", () => {
     it("checks all alignment controls, including the selected one", async ({
-      renderEditor,
-      commands,
-      annotate,
+      setupEditor,
+      runAxe,
+      page,
     }) => {
-      await renderEditor({
+      await setupEditor({
         props: { formattingToolbar: false },
         children: (
           <FormattingToolbar>
@@ -284,9 +292,8 @@ describe("TextAlignButton", () => {
         ),
       });
 
-      for (const warning of await commands.checkAxe('[role="toolbar"]')) {
-        await annotate(warning, "warning");
-      }
+      const { violations } = await runAxe(page.getByRole("toolbar"));
+      expect(violations).toEqual([]);
     });
   });
 });

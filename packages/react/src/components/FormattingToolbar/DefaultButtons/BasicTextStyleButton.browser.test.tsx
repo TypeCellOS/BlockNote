@@ -12,11 +12,88 @@ import { FormattingToolbar } from "../FormattingToolbar.js";
 const STYLES = ["bold", "italic", "underline", "strike", "code"] as const;
 
 describe("BasicTextStyleButton", () => {
+  describe("unit", () => {
+    it("hides in read-only mode and responds to editability changes", async ({
+      setupEditor,
+      page,
+    }) => {
+      const { rerender } = await setupEditor({
+        props: { editable: false, formattingToolbar: false },
+        children: <BasicTextStyleButton basicTextStyle="bold" />,
+      });
+      const button = page.getByRole("button", { name: "Bold", exact: true });
+      await expect.element(button).not.toBeInTheDocument();
+
+      rerender({ editable: true });
+      await expect.element(button).toBeVisible();
+      await expect.element(button).toHaveAttribute("aria-pressed", "false");
+
+      rerender({ editable: false });
+      await expect.element(button).not.toBeInTheDocument();
+    });
+
+    it("hides when the style is missing from the schema", async ({
+      setupEditor,
+      page,
+    }) => {
+      await setupEditor({
+        schema: BlockNoteSchema.create({
+          styleSpecs: { italic: defaultStyleSpecs.italic },
+        }),
+        props: { formattingToolbar: false },
+        children: <BasicTextStyleButton basicTextStyle="bold" />,
+      });
+      const button = page.getByRole("button", { name: "Bold", exact: true });
+      await expect.element(button).not.toBeInTheDocument();
+    });
+
+    it("hides when the style has a non-boolean prop schema", async ({
+      setupEditor,
+      page,
+    }) => {
+      await setupEditor({
+        schema: BlockNoteSchema.create({
+          styleSpecs: {
+            bold: createStyleSpec(
+              { type: "bold", propSchema: "string" },
+              { render: () => ({ dom: document.createElement("span") }) },
+            ),
+          },
+        }),
+        props: { formattingToolbar: false },
+        children: <BasicTextStyleButton basicTextStyle="bold" />,
+      });
+      const button = page.getByRole("button", { name: "Bold", exact: true });
+      await expect.element(button).not.toBeInTheDocument();
+    });
+
+    it("hides on blocks without inline content and reappears on text blocks", async ({
+      setupEditor,
+      page,
+    }) => {
+      const { editor } = await setupEditor({
+        initialContent: [
+          { id: "divider", type: "divider" },
+          { id: "text", type: "paragraph", content: "Text" },
+        ],
+        props: { formattingToolbar: false },
+        children: <BasicTextStyleButton basicTextStyle="bold" />,
+      });
+      const button = page.getByRole("button", { name: "Bold", exact: true });
+      editor.setTextCursorPosition("divider");
+      await expect.element(button).not.toBeInTheDocument();
+
+      editor.setTextCursorPosition("text");
+      await expect.element(button).toBeVisible();
+      await expect.element(button).toHaveAttribute("aria-pressed", "false");
+    });
+  });
+
   describe("integration", () => {
     it.for(STYLES)(
       "toggles %s on and off",
-      async (basicTextStyle, { renderEditor, selectText, page }) => {
-        const { editor } = await renderEditor({
+      async (basicTextStyle, { setupEditor, selectText, page }) => {
+        const { editor } = await setupEditor({
           initialContent: [
             { id: "format", type: "paragraph", content: "Format this text" },
           ],
@@ -46,8 +123,8 @@ describe("BasicTextStyleButton", () => {
 
     it.for(STYLES)(
       "applies %s only to selected text without changing surrounding content",
-      async (basicTextStyle, { renderEditor, selectText, page }) => {
-        const { editor } = await renderEditor({
+      async (basicTextStyle, { setupEditor, selectText, page }) => {
+        const { editor } = await setupEditor({
           initialContent: [
             {
               id: "format",
@@ -90,8 +167,8 @@ describe("BasicTextStyleButton", () => {
 
     it.for(STYLES)(
       "applies %s to subsequently typed text at a collapsed cursor",
-      async (basicTextStyle, { renderEditor, page }) => {
-        const { editor } = await renderEditor({
+      async (basicTextStyle, { setupEditor, page }) => {
+        const { editor } = await setupEditor({
           initialContent: [
             { id: "format", type: "paragraph", content: "Existing" },
           ],
@@ -115,90 +192,74 @@ describe("BasicTextStyleButton", () => {
     );
   });
 
-  describe("unit", () => {
-    it("hides in read-only mode and responds to editability changes", async ({
-      renderEditor,
-      page,
-    }) => {
-      const { rerender } = await renderEditor({
-        props: { editable: false, formattingToolbar: false },
-        children: <BasicTextStyleButton basicTextStyle="bold" />,
-      });
-      const button = page.getByRole("button", { name: "Bold", exact: true });
-      await expect.element(button).not.toBeInTheDocument();
+  describe("keyboard", () => {
+    it.for(STYLES)(
+      "shows a keyboard focus ring for %s",
+      async (
+        style,
+        {
+          setupEditor,
+          selectText,
+          readFocusOutline,
+          pressKey,
+          assertFocusOutline,
+          page,
+        },
+      ) => {
+        const { editor } = await setupEditor({
+          initialContent: [{ type: "paragraph", content: "Selected text" }],
+          props: { formattingToolbar: false },
+          children: <BasicTextStyleButton basicTextStyle={style} />,
+        });
+        await page.getByRole("textbox").click();
+        selectText(editor, "Selected text");
+        const button = page.getByRole("button", {
+          name: editor.dictionary.formatting_toolbar[style].tooltip,
+          exact: true,
+        });
+        const outline = readFocusOutline(button);
 
-      rerender({ editable: true });
-      await expect.element(button).toBeVisible();
-      await expect.element(button).toHaveAttribute("aria-pressed", "false");
+        await pressKey("Tab");
 
-      rerender({ editable: false });
-      await expect.element(button).not.toBeInTheDocument();
-    });
+        await expect.element(button).toHaveFocus();
+        await assertFocusOutline(button, outline);
+      },
+    );
 
-    it("hides when the style is missing from the schema", async ({
-      renderEditor,
-      page,
-    }) => {
-      await renderEditor({
-        schema: BlockNoteSchema.create({
-          styleSpecs: { italic: defaultStyleSpecs.italic },
-        }),
-        props: { formattingToolbar: false },
-        children: <BasicTextStyleButton basicTextStyle="bold" />,
-      });
-      const button = page.getByRole("button", { name: "Bold", exact: true });
-      await expect.element(button).not.toBeInTheDocument();
-    });
+    it.for(["Enter", "Space"])(
+      "activates with %s and returns focus to the editor",
+      async (key, { setupEditor, selectText, pressKey, page }) => {
+        const { editor } = await setupEditor({
+          initialContent: [{ type: "paragraph", content: "Selected text" }],
+          props: { formattingToolbar: false },
+          children: <BasicTextStyleButton basicTextStyle="bold" />,
+        });
+        await page.getByRole("textbox").click();
+        selectText(editor, "Selected text");
+        const button = page.getByRole("button", {
+          name: editor.dictionary.formatting_toolbar.bold.tooltip,
+          exact: true,
+        });
 
-    it("hides when the style has a non-boolean prop schema", async ({
-      renderEditor,
-      page,
-    }) => {
-      await renderEditor({
-        schema: BlockNoteSchema.create({
-          styleSpecs: {
-            bold: createStyleSpec(
-              { type: "bold", propSchema: "string" },
-              { render: () => ({ dom: document.createElement("span") }) },
-            ),
-          },
-        }),
-        props: { formattingToolbar: false },
-        children: <BasicTextStyleButton basicTextStyle="bold" />,
-      });
-      const button = page.getByRole("button", { name: "Bold", exact: true });
-      await expect.element(button).not.toBeInTheDocument();
-    });
+        await pressKey("Tab");
 
-    it("hides on blocks without inline content and reappears on text blocks", async ({
-      renderEditor,
-      page,
-    }) => {
-      const { editor } = await renderEditor({
-        initialContent: [
-          { id: "divider", type: "divider" },
-          { id: "text", type: "paragraph", content: "Text" },
-        ],
-        props: { formattingToolbar: false },
-        children: <BasicTextStyleButton basicTextStyle="bold" />,
-      });
-      const button = page.getByRole("button", { name: "Bold", exact: true });
-      editor.setTextCursorPosition("divider");
-      await expect.element(button).not.toBeInTheDocument();
+        await expect.element(button).toHaveFocus();
 
-      editor.setTextCursorPosition("text");
-      await expect.element(button).toBeVisible();
-      await expect.element(button).toHaveAttribute("aria-pressed", "false");
-    });
+        await pressKey(key);
+
+        await expect.element(button).toHaveAttribute("aria-pressed", "true");
+        await expect.element(page.getByRole("textbox")).toHaveFocus();
+      },
+    );
   });
 
-  describe("ARIA", () => {
+  describe("a11y", () => {
     it("reflects the active style when selection moves between blocks", async ({
-      renderEditor,
+      setupEditor,
       selectText,
       page,
     }) => {
-      const { editor } = await renderEditor({
+      const { editor } = await setupEditor({
         initialContent: [
           {
             id: "styled",
@@ -220,66 +281,13 @@ describe("BasicTextStyleButton", () => {
       selectText(editor, "Bold");
       await expect.element(button).toHaveAttribute("aria-pressed", "true");
     });
-  });
 
-  describe("keyboard", () => {
-    it.for(STYLES)(
-      "shows a keyboard focus ring for %s",
-      async (style, { renderEditor, selectText, commands, page }) => {
-        const { editor } = await renderEditor({
-          initialContent: [{ type: "paragraph", content: "Selected text" }],
-          props: { formattingToolbar: false },
-          children: <BasicTextStyleButton basicTextStyle={style} />,
-        });
-        await page.getByRole("textbox").click();
-        selectText(editor, "Selected text");
-        const button = page.getByRole("button", {
-          name: editor.dictionary.formatting_toolbar[style].tooltip,
-          exact: true,
-        });
-        const outline = await commands.readOutline(button.selector);
-
-        await commands.pressKey("Tab");
-
-        await expect.element(button).toHaveFocus();
-        await commands.checkFocusOutline(button.selector, outline);
-      },
-    );
-
-    it.for(["Enter", "Space"])(
-      "activates with %s and returns focus to the editor",
-      async (key, { renderEditor, selectText, commands, page }) => {
-        const { editor } = await renderEditor({
-          initialContent: [{ type: "paragraph", content: "Selected text" }],
-          props: { formattingToolbar: false },
-          children: <BasicTextStyleButton basicTextStyle="bold" />,
-        });
-        await page.getByRole("textbox").click();
-        selectText(editor, "Selected text");
-        const button = page.getByRole("button", {
-          name: editor.dictionary.formatting_toolbar.bold.tooltip,
-          exact: true,
-        });
-
-        await commands.pressKey("Tab");
-
-        await expect.element(button).toHaveFocus();
-
-        await commands.pressKey(key);
-
-        await expect.element(button).toHaveAttribute("aria-pressed", "true");
-        await expect.element(page.getByRole("textbox")).toHaveFocus();
-      },
-    );
-  });
-
-  describe("axe", () => {
     it("checks all supported style buttons", async ({
-      renderEditor,
-      commands,
-      annotate,
+      setupEditor,
+      runAxe,
+      page,
     }) => {
-      await renderEditor({
+      await setupEditor({
         props: { formattingToolbar: false },
         children: (
           <FormattingToolbar>
@@ -290,9 +298,8 @@ describe("BasicTextStyleButton", () => {
         ),
       });
 
-      for (const warning of await commands.checkAxe('[role="toolbar"]')) {
-        await annotate(warning, "warning");
-      }
+      const { violations } = await runAxe(page.getByRole("toolbar"));
+      expect(violations).toEqual([]);
     });
   });
 });

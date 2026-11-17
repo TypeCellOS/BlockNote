@@ -21,6 +21,21 @@ import { useCreateBlockNote } from "@blocknote/react";
 import { render } from "vitest-browser-react";
 import { screenshotFull } from "@root/tests/src/utils/screenshotFull.js";
 
+// These keyboard-navigation tests inspect the focus end of the DOM selection.
+function readDOMSelection() {
+  const node = document.getSelection()?.focusNode;
+  const element = node instanceof Element ? node : node?.parentElement;
+  const cell = element?.closest("td, th");
+  const row = cell?.parentElement;
+  return {
+    tableCell:
+      cell instanceof HTMLTableCellElement && row instanceof HTMLTableRowElement
+        ? { row: row.rowIndex, column: cell.cellIndex }
+        : null,
+    blockId: element?.closest("[data-id]")?.getAttribute("data-id") ?? null,
+  };
+}
+
 function TestEditor({
   initialContent,
   editable,
@@ -195,8 +210,8 @@ export async function navigateDefaultSchemaDocument() {
 
   // Follow the document until its endpoint; an unreachable endpoint times out.
   const visitedTableCells = new Set<string>();
-  while ((await commands.readSelection()).blockId !== "end") {
-    const { tableCell } = await commands.readSelection();
+  while (readDOMSelection().blockId !== "end") {
+    const { tableCell } = readDOMSelection();
     if (tableCell) {
       visitedTableCells.add(`${tableCell.row},${tableCell.column}`);
     }
@@ -208,7 +223,7 @@ export async function navigateDefaultSchemaDocument() {
       await commands.pressKey("ArrowDown");
     }
   }
-  while ((await commands.readSelection()).blockId !== "start") {
+  while (readDOMSelection().blockId !== "start") {
     await commands.pressKey("ArrowUp");
   }
 }
@@ -422,8 +437,8 @@ if (!screenReader) {
 
       // Follow the document until its endpoint; an unreachable endpoint times out.
       const visitedTableCells = new Set<string>();
-      while ((await commands.readSelection()).blockId !== "end") {
-        const { tableCell } = await commands.readSelection();
+      while (readDOMSelection().blockId !== "end") {
+        const { tableCell } = readDOMSelection();
         if (tableCell) {
           visitedTableCells.add(`${tableCell.row},${tableCell.column}`);
         }
@@ -440,14 +455,14 @@ if (!screenReader) {
         "Every table cell is visited",
       ).toEqual(["0,0", "0,1", "1,0", "1,1"]);
       expect(
-        (await commands.readSelection()).blockId,
+        readDOMSelection().blockId,
         "Arrow keys reach the final block",
       ).toBe("end");
-      while ((await commands.readSelection()).blockId !== "start") {
+      while (readDOMSelection().blockId !== "start") {
         await commands.pressKey("ArrowUp");
       }
       expect(
-        (await commands.readSelection()).blockId,
+        readDOMSelection().blockId,
         "ArrowUp returns to the first block",
       ).toBe("start");
     }
@@ -458,12 +473,12 @@ if (!screenReader) {
         exact: true,
       });
       await expect.element(link).toBeVisible();
-      const unfocusedOutline = await commands.readOutline(link.selector);
+      const unfocusedOutline = commands.readFocusOutline(link);
       while (document.activeElement !== link.element()) {
         await commands.pressKey("Tab");
       }
       await expect.element(link).toHaveFocus();
-      await commands.checkFocusOutline(link.selector, unfocusedOutline);
+      await commands.assertFocusOutline(link, unfocusedOutline);
       return link;
     }
 
@@ -536,9 +551,7 @@ if (!screenReader) {
     // Numbered list item indices are separate text elements, among other issues.
     test.skip("default schema: accessibility tree snapshot", async () => {
       await renderTestEditor(schemaDocument);
-      expect(
-        await commands.readAriaSnapshot(page.getByRole("textbox").selector),
-      ).toMatchSnapshot("default schema");
+      await expect.element(page.getByRole("textbox")).toMatchAriaSnapshot();
     });
   });
 
@@ -548,8 +561,13 @@ if (!screenReader) {
       // insufficient contrast, and undersized targets.
       test.skip(`default schema: axe (${theme})`, async ({ annotate }) => {
         await renderTestEditor(schemaDocument, { theme });
-        for (const warning of await commands.checkAxe()) {
-          await annotate(warning, "warning");
+        const results = await commands.runAxe();
+        expect(results.violations).toEqual([]);
+        for (const result of results.incomplete) {
+          await annotate(
+            `axe manual review: ${result.id} — ${result.help}`,
+            "warning",
+          );
         }
       });
     }

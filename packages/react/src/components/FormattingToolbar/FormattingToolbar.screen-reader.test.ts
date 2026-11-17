@@ -5,29 +5,32 @@ import { expect } from "vite-plus/test";
 // Individual toolbar item actions and focus rings are covered by the browser tests.
 // Screen reader announcements do not clearly communicate entering the toolbar.
 it.skip("announces entering and leaving the formatting toolbar", async ({
-  renderEditor,
-  commands,
+  setupEditor,
+  readTranscript,
+  stopReader,
+  startReader,
+  pressKey,
   page,
   onTestFinished,
 }) => {
   onTestFinished(async () => {
     try {
-      const transcript = await commands.readTranscript();
+      const transcript = await readTranscript();
       expect(transcript.length).toBeGreaterThan(0);
       expect(transcript).toMatchSnapshot();
     } finally {
-      await commands.stopReader();
+      await stopReader();
     }
   });
-  const { editor } = await renderEditor({
+  const { editor } = await setupEditor({
     initialContent: [
       { id: "text", type: "paragraph", content: "Selected text" },
     ],
   });
   editor.setTextCursorPosition("text", "start");
-  await commands.startReader(page.getByRole("textbox").selector);
-  await commands.pressKey(selectToLineEndKey);
-  await commands.pressKey("Tab");
+  await startReader(page.getByRole("textbox").selector);
+  await pressKey(selectToLineEndKey);
+  await pressKey("Tab");
   const toolbar = page.getByRole("toolbar");
   await expect
     .element(
@@ -37,7 +40,7 @@ it.skip("announces entering and leaving the formatting toolbar", async ({
       }),
     )
     .toHaveFocus();
-  await commands.pressKey("Escape");
+  await pressKey("Escape");
   await expect.element(toolbar).not.toBeInTheDocument();
   await expect.element(page.getByRole("textbox")).toHaveFocus();
 });

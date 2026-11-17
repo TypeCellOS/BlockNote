@@ -1,93 +1,77 @@
 ---
 name: testing-skill
-description: Instructions for writing, running, and updating unit, end-to-end, and colocated accessibility tests. Use when adding or changing tests for a feature, bug, or regression.
+description: Rules and examples for placing, writing, and running unit, integration, browser component, and accessibility tests.
 ---
 
 # Testing
 
-In most cases, once a feature, bug fix, or other modification has been written, it will need to have tests added, or existing tests updated.
+## Decide where to test
 
-## The test-layer ladder
+Test behavior beside its owner, at the lowest reasonable rung of the test ladder that can reliably prove it works:
 
-Six layers, ordered by cost (speed, determinism, machinery), cheapest first. Prefer the first rung where the test can go red:
+| Rung                         | Environment and location                                                                                |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------- |
+| 1. Unit                      | Node, colocated `packages/*/src/**/*.test.ts`.                                                          |
+| 2. Browser component         | Real DOM/rendering, colocated `*.browser.test.{ts,tsx}`; includes focused component integrations.       |
+| 3. Cross-package integration | Node, `tests/src/unit`; documents through real pipelines, parsing, and exports.                         |
+| 4. Browser e2e               | `tests/src/end-to-end`; broader journeys and complete browser pipelines.                                |
+| 5. Mobile-emulated           | `end-to-end/mobile/**`, Android browser instance; touch, viewport, emulated IME differences.            |
+| 6. Real device               | Only behavior emulation cannot establish; device suite is parked on `mobile/emulator-layer` (PR #3034). |
 
-1. **Unit tests** — node, colocated in `packages/*` (`vp run test`)
-2. **Browser unit tests** — colocated `*.browser.test.{ts,tsx}`: one unit that genuinely needs real DOM/rendering
-3. **Cross-package integration tests** — node, `tests/src/unit`: full documents through real pipelines (parsing, format conversion, export)
-4. **Browser e2e** — `tests/src/end-to-end`: UI flows in real browsers (Docker)
-5. **Mobile-emulated e2e** — `end-to-end/mobile/**` and the suites on the `android` instance: only for behavior that differs under mobile conditions (touch, viewport, UA, emulated IME). One restriction: suites here must not take iframe-element screenshots (`screenshotFull`) — that path permanently drops the context's touch emulation for every later test file (see `utils/ensureTouchEmulation.ts`), so such suites stay out of the android instance's include
-6. **Device suite** — _parked_: a real emulator/simulator suite (one session interface, Android via Playwright `_android` + adb, iOS via Appium/XCUITest) lives on the `mobile/emulator-layer` branch (PR #3034). It left the active stack because every fix it guarded is red-first provable on the emulated instance; revive it only for a bug class that emulation demonstrably cannot observe (the IME's own action-key choice, real-keyboard viewport resize, real iOS Safari focus/zoom) — until then those are the manual checklist below.
+The ladder guides placement, not a requirement to try every environment. Use a real browser, not jsdom, for clicking, keyboard navigation, focus, or rendered component behavior. Editor/document logic stays in faster Node tests, where `setupEditor` mounts the core editor in jsdom. Rungs 2 and 3 distinguish ownership/location, not strictly runtime cost.
 
-**One rule decides placement: red-first.** Every test must fail without the change it guards — a test that passes either way proves nothing, and for regression fixes this means actually running it against the pre-fix code. Red-first also _places_ the test: write it at the first (cheapest) rung where it goes red. If the failure isn't observable there (the rung's environment fakes away the very thing that breaks), move one rung further down the list and try again. Once it goes red, stop — the rungs after it add cost, not proof.
+Integrations verify boundaries, not repeat dependencies' tests. A parent assumes its children work: test toolbar composition/traversal at the toolbar, button activation at the button, and detailed document operations at their editor commands.
 
-Corollaries:
+## Rules
 
-- **No duplicate coverage below.** Behavior proven red at rung N is not re-tested at N+1. One narrow exception: when a rung works by faking something (CDP-emulated IME, touch emulation), a single thin test one rung down may pin that the fake matches reality — it guards the _fake_, not the feature.
-- **Bulk lives high, lower rungs stay thin.** Layers 1–4 hold the breadth; layer 5 holds only mobile-conditional behavior.
-- **When a rung can't observe the OS's half of a bug, say so in the test.** Example: `mobile/linkSubmit.test.tsx` proves submission works with no key event, and its header documents the un-emulatable half (which action the IME chooses) — that half lives on the manual checklist, visible where the coverage stops.
-- Rungs 2 and 3 order by colocation, not machinery cost — a browser unit test needs heavier machinery than a node integration test, but it lives next to the unit it covers, and colocation wins. They are rarely substitutes anyway: if the code needs no browser, use 1 or 3; if one unit needs a browser, use 2.
+- **Cover user-important behavior and applicable categories**, not every branch or state combination. Low-value defensive branches need not be exercised merely for coverage.
+- **Reported bugs generally warrant regression tests.** Prove regressions red-first against the bug, then green with the fix. Follow TDD for new behavior; modifying existing tests does not require manufacturing another red run. Styling fixes may reasonably lack regression tests when automation is cumbersome or implementation-coupled.
+- **Use real internal dependencies.** Mock/fake only when necessary, such as external services. Observation-only spies are fine.
+- **Distinguish unit from integration by scope.** A function changing block color is a unit contract; clicking a button and checking the editor/UI color change crosses subsystems.
+- **Arrange → Act → Assert.** Name the outcome, establish the case, exercise the real entry point, and assert its relevant behavior. Repeated act/assert pairs are fine when clearer. Setup APIs must not perform the action the test claims to verify.
+- **Share understandable conventions.** Prefer `setupEditor` and common mechanics to bespoke setup. Abstract repeated patterns when they improve understanding. Choose inline cases versus `it.for` for readability, not minimum line count.
+- **Keep assertions relevant.** Verify the owner's contract without coupling to unrelated details. For example, an extra unused callback argument should not break a test that only cares whether it was called.
+- **Wait for observable state.** Use retrying assertions and `expect.poll`, not arbitrary sleeps. Investigate local retries; limited retries may be warranted for inherently flaky environments, not as a substitute for readiness.
+- **Expose defects.** Notify the user when tests reveal issues. If a known defect must remain, assert its precise expected violation or use a narrow `it.fails`, with a linked issue. Do not hide it with a skip.
+- **Verify proportionately.** Targeted tests, sometimes one browser, can suffice. Broaden for shared infrastructure, browser differences, or uncertain impact. Run lint/format on touched code.
 
-## Mobile release checklist (manual)
+## Structure and assertions
 
-The device-only behaviors above, checked on real hardware before a release:
+Component browser files have one owner-named outer `describe` and applicable groups in this order: `unit`, `integration`, `keyboard`, `a11y`. Reasonably cover each applicable category; omit irrelevant groups. ARIA assertions and axe scans share `a11y`; there is no separate `axe` group. Accessibility belongs alongside normal behavior.
 
-- **Android phone** (ideally with an OEM keyboard, e.g. Samsung Keyboard): create a link from an editor that is _not_ the last on the page — the keyboard's action key must submit the popover (not jump focus to the next editor), with the keyboard and toolbar staying up. Then type in the editor and press the on-screen Enter: a new block, no stray space or table corruption.
-- **iOS Safari**: open the link popover — focusing the URL input must not zoom the page; submit with the return key.
+Pure-function tests use a function-named `describe`; give integrated scenarios a separate `describe` when needed. Follow established patterns without inventing unnecessary structure.
 
-## Test File Locations
+| Assertion         | Use                                                                                                    |
+| ----------------- | ------------------------------------------------------------------------------------------------------ |
+| `toEqual`         | Deliberate expected values/object shapes. Use partial assertions when only part of the result matters. |
+| Inline snapshot   | Small serialized results; prefer inline when readable. Size is a guideline, not a cutoff.              |
+| External snapshot | Large documents, exports, or trees whose output would obscure the test.                                |
 
-### Unit Tests
+Screenshots are a last resort for behavior. Prefer state, DOM, or accessibility assertions; do not compare before/after screenshots to prove a click worked. A few deliberate subsystem baselines can guard visual regressions, with awareness of false positives.
 
-`/tests/src/unit`: Contains the bulk of unit tests, mainly relating to interoperability between BlockNote's JSON format and HTML/Markdown. Also includes some miscellaneous tests, like React rendering, selection handling, and NextJS integration.
+## Golden examples
 
-`/packages/core/src/api`: Contains mainly tests for getting, inserting, updating, and removing blocks, etc, under `/blockManipulation/commands`. Also includes tests for intermediary functionality between BlockNote and the underlying TipTap editor, like converting between blocks & nodes, or setting editor event handlers.
+- [BasicTextStyleButton](../../../packages/react/src/components/FormattingToolbar/DefaultButtons/BasicTextStyleButton.browser.test.tsx): component behavior, editor integration, keyboard, a11y (ARIA and axe).
+- [FormattingToolbar](../../../packages/react/src/components/FormattingToolbar/FormattingToolbar.browser.test.tsx): composition and traversal of child controls.
 
-`/packages/xl-*`: Contain tests for functionality included in a given `xl-*` package.
+Use these as patterns, not templates to copy mechanically. For testing a React component, read [Component testing](references/component-testing.md).
 
-### Colocated Browser Unit Tests
+## Editor setup
 
-`packages/*/src/**/*.browser.test.{ts,tsx}`: Unit tests for browser-only implementations (e.g. canvas or DOM-dependent code) live next to the code they test, with a `.browser.test` suffix. They run as part of the browser suite in Docker (the `tests` package's browser config includes them); the packages' own node-mode vitest configs exclude them. Use this when the unit under test genuinely needs a real browser — everything else should be a plain node unit test.
+Use `const { editor } = await setupEditor({ ...editorOptions })` in either environment. Browser tests receive it from the shared fixture; it renders a view and additionally accepts `skin`, `props`, `children`, and `outside`, returning `rerender` too. Node tests import `test` from `tests/src/fixtures/editor.node.ts` and use the jsdom environment; their helper mounts the core editor without React or skin styles. Both preserve custom-schema types and clean up after the test. For headless logic, use `BlockNoteEditor.create` directly.
 
-### End-to-End Tests
+## Run
 
-`tests/src/end-to-end`: Tests that need a real browser and span multiple packages go here — chiefly tests which interact with the editor UI or simulate user interaction, but also browser integration tests that exercise complete flows without interaction (e.g. exporting a full document, static rendering). New subdirectories can be added if the functionality being tested is not covered by any of the existing ones. Important note about existing E2E tests - many are written poorly and should only loosely be used as reference. We want to avoid abstraction layers and `waitForTimeout` as much as possible.
-
-### Colocated Component and Accessibility Tests
-
-Component accessibility coverage is colocated with the component/block, but runs in the existing Docker e2e suite. Use the same `*.browser.test.ts` file as for browser unit tests. Use separate `test.describe("keyboard")`, `"ARIA"`, `"axe"`, and, where needed, `"visual"` groups, as well as an additional `"behaviour"` group for existing unit tests. Native screen-reader edge cases belong in an optional `*.screen-reader.test.ts` file and run locally only, outside regular e2e/CI.
-
-When adding or changing this coverage, read [Accessibility test structure and helpers](references/accessibility-tests.md). It defines each group's assertions, fixture/helper conventions, discovery configuration, and run commands. Use the colocated FormattingToolbar, BlockNoteView, and Heading tests as the concrete examples; do not create per-component `a11y/` directories or separate files for each assertion type.
-
-## When & How to Add Tests
-
-Placement and proof obligations are governed by the ladder above: pick the rung red-first, and verify every new test fails without the code change it covers (for edge cases and new features too — existing tests continuing to pass is exactly the situation that demands new red-first ones).
-
-**Don't use jsdom** (`@vitest-environment jsdom`) in new tests. It's a murky middle ground — `document` exists but rendering doesn't — which makes browser-capability checks pass while the capability itself is broken. Use the default node environment with pluggable seams for logic, and the browser suite (`tests/src/end-to-end`, vitest browser mode in Docker) for anything that needs real rendering.
-
-## Running & Updating Tests
-
-### Unit Tests
-
-Unit tests can be run from the root directory using `vp run test`, which will run all of them across all directories. A specific test file may be targeted by appending its name, i.e. `vp run test fileName`. Individual tests in a file may be disabled using `skip`, i.e. `it.skip("Test name", ...)` (remember to revert this once all tests pass).
-
-Updating tests can be done by adding the `-u` argument, i.e. `vp run test -u`. All of the other things you can do to scope which tests to target still apply.
-
-### End-to-End Tests
-
-End-to-end tests run in vitest browser mode (chromium, firefox and webkit) inside a Docker container, so screenshot baselines are identical locally and on CI. Run them from the repository root:
+Use `vite-plus/test` imports and repository commands:
 
 ```bash
-bash tests/docker-run.sh -e CI=1 -- --run [filters]
+vp run test <file>
+bash tests/docker-run.sh -e CI=1 -- --run <file> --retry=0
+# Optional: --project "e2e (chromium)" or -t keyboard
+vp run lint <files>
+vp run format <files>
 ```
 
-**Never run the browser suite natively** (`vp test -c vite.config.browser.ts` outside the container) — not even "just one file". Two failure modes, both silent: the screenshot matcher _seeds_ a new `-darwin`/`-win32` baseline for every screenshot test that has none (passing without comparing anything, and littering the tree with hundreds of unvetted PNGs — these are gitignored as a backstop, and only `-linux` baselines are tracked), and several suites genuinely behave differently outside Linux (e.g. caret placement is font-metric-dependent, so platform-shared JSON snapshots mismatch). If Docker isn't running, notify the user to launch it instead of falling back to a native run.
+**Browser tests always run in Docker.** Native runs produce incompatible platform snapshots and behavior. If Docker is unavailable, ask the user to start it. Native screen-reader tests use their separate intentional local workflow.
 
-Native screen-reader tests use the separate local runner described in the accessibility reference; the Docker-only rule above applies to the regular browser suite.
-
-A specific test file may be targeted by appending (part of) its name as a filter. A single browser may be targeted with `--project "e2e (chromium)"`. Individual tests in a file may be disabled using `skip`, i.e. `test.skip("Test name", ...)` (remember to revert this once all tests pass).
-
-Screenshot baselines can be regenerated with `--update=true` (as `e2e:updateSnaps` does). Always attach the value: vitest declares the flag as `-u, --update [type]` (it also accepts `new`/`all`/`none`), so a bare `-u` before a filter swallows the filter as its value and silently runs the **whole** suite in update mode. `--update=true` cannot, so filters stay filters in any position. Note that `-u` only rewrites baselines whose comparison **fails** — a small intended change (e.g. a short text edit) that fits inside the suite's 2% pixel tolerance leaves the baseline stale while the test passes. To force a fresh capture, delete the baseline file first. Baselines are per-browser (`<name>-<browser>-linux.png`); after regenerating, always inspect the images before committing them.
-
-When testing a visual change, prefer writing screenshots to verify that the change is working as expected.
-
-**Screenshots of tall content**: browser-suite tests run inside a tester iframe sized to the browser window (1280x720), and element screenshots only contain what the iframe actually paints — anything below its fold captures as blank white, silently. Growing the iframe with `page.viewport()` alone doesn't fix this at full resolution: the harness scales the iframe down to fit the window, shrinking the resulting baseline (`static.test.tsx` accepts that trade-off). For full-resolution captures use `screenshotFull` (`tests/src/utils/screenshotFull.ts`), which grows the iframe past the content and neutralizes the harness's scale transform during the capture — the same mechanism upstream Vitest adopted in vitest-dev/vitest#9745 (milestone 5.0.0; the util can be deleted once vite-plus ships it). Always eyeball newly generated baselines for truncation.
+For filtered snapshot updates, attach the value: `--update=true`. A bare `-u` can consume the file filter and update the entire suite.

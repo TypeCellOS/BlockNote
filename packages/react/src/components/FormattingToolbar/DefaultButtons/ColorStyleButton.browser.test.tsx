@@ -6,11 +6,11 @@ import { FormattingToolbar } from "../FormattingToolbar.js";
 describe("ColorStyleButton", () => {
   describe("unit", () => {
     it("only offers text colors when the schema does not support background colors", async ({
-      renderEditor,
+      setupEditor,
       selectText,
       page,
     }) => {
-      const { editor } = await renderEditor({
+      const { editor } = await setupEditor({
         schema: BlockNoteSchema.create({
           styleSpecs: { textColor: defaultStyleSpecs.textColor },
         }),
@@ -45,11 +45,11 @@ describe("ColorStyleButton", () => {
     });
 
     it("only offers background colors when text colors are not in the schema", async ({
-      renderEditor,
+      setupEditor,
       selectText,
       page,
     }) => {
-      const { editor } = await renderEditor({
+      const { editor } = await setupEditor({
         schema: BlockNoteSchema.create({
           styleSpecs: { backgroundColor: defaultStyleSpecs.backgroundColor },
         }),
@@ -84,10 +84,10 @@ describe("ColorStyleButton", () => {
     });
 
     it("hides when neither color style is supported", async ({
-      renderEditor,
+      setupEditor,
       page,
     }) => {
-      const { editor } = await renderEditor({
+      const { editor } = await setupEditor({
         schema: BlockNoteSchema.create({
           styleSpecs: { bold: defaultStyleSpecs.bold },
         }),
@@ -106,10 +106,10 @@ describe("ColorStyleButton", () => {
     });
 
     it("responds to editability and hides on blocks without inline content", async ({
-      renderEditor,
+      setupEditor,
       page,
     }) => {
-      const { editor, rerender } = await renderEditor({
+      const { editor, rerender } = await setupEditor({
         initialContent: [
           { id: "text", type: "paragraph", content: "Text" },
           { id: "divider", type: "divider" },
@@ -137,8 +137,8 @@ describe("ColorStyleButton", () => {
   describe("integration", () => {
     it.for(["textColor", "backgroundColor"] as const)(
       "applies %s only to the selected substring",
-      async (style, { renderEditor, selectText, page }) => {
-        const { editor } = await renderEditor({
+      async (style, { setupEditor, selectText, page }) => {
+        const { editor } = await setupEditor({
           initialContent: [
             { id: "text", type: "paragraph", content: "Before selected after" },
           ],
@@ -172,8 +172,8 @@ describe("ColorStyleButton", () => {
 
     it.for(["textColor", "backgroundColor"] as const)(
       "resets %s without removing the other color",
-      async (style, { renderEditor, selectText, page }) => {
-        const { editor } = await renderEditor({
+      async (style, { setupEditor, selectText, page }) => {
+        const { editor } = await setupEditor({
           initialContent: [
             {
               id: "text",
@@ -221,12 +221,14 @@ describe("ColorStyleButton", () => {
 
   describe("keyboard", () => {
     it("shows a keyboard focus ring on its trigger", async ({
-      renderEditor,
+      setupEditor,
       selectText,
-      commands,
+      readFocusOutline,
+      pressKey,
+      assertFocusOutline,
       page,
     }) => {
-      const { editor } = await renderEditor({
+      const { editor } = await setupEditor({
         initialContent: [{ type: "paragraph", content: "Selected text" }],
         props: { formattingToolbar: false },
         children: <ColorStyleButton />,
@@ -237,21 +239,21 @@ describe("ColorStyleButton", () => {
         name: editor.dictionary.formatting_toolbar.colors.tooltip,
         exact: true,
       });
-      const outline = await commands.readOutline(button.selector);
+      const outline = readFocusOutline(button);
 
-      await commands.pressKey("Tab");
+      await pressKey("Tab");
 
       await expect.element(button).toHaveFocus();
-      await commands.checkFocusOutline(button.selector, outline);
+      await assertFocusOutline(button, outline);
     });
 
     it("chooses a color with the keyboard and returns focus to the editor", async ({
-      renderEditor,
+      setupEditor,
       selectText,
-      commands,
+      pressKey,
       page,
     }) => {
-      const { editor } = await renderEditor({
+      const { editor } = await setupEditor({
         initialContent: [
           { id: "text", type: "paragraph", content: "Selected text" },
         ],
@@ -265,14 +267,14 @@ describe("ColorStyleButton", () => {
       });
       button.element().focus();
 
-      await commands.pressKey("Enter");
+      await pressKey("Enter");
       const menu = page.getByRole("menu");
       await expect.element(menu).toBeVisible();
       await expect
         .poll(() => menu.element().contains(document.activeElement))
         .toBe(true);
-      await commands.pressKey("ArrowDown");
-      await commands.pressKey("ArrowDown");
+      await pressKey("ArrowDown");
+      await pressKey("ArrowDown");
 
       await expect
         .element(
@@ -284,19 +286,21 @@ describe("ColorStyleButton", () => {
         )
         .toHaveFocus();
 
-      await commands.pressKey("Enter");
+      await pressKey("Enter");
 
       await expect.element(menu).not.toBeInTheDocument();
       await expect.element(page.getByRole("textbox")).toHaveFocus();
       expect(editor.getActiveStyles().textColor).toBe("gray");
     });
     it("supports opening, navigating, and dismissing its menu without editing the document", async ({
-      renderEditor,
+      setupEditor,
       selectText,
-      commands,
+      pressKey,
+      readFocusOutline,
+      assertFocusOutline,
       page,
     }) => {
-      const { editor } = await renderEditor({
+      const { editor } = await setupEditor({
         initialContent: [{ type: "paragraph", content: "Selected text" }],
         props: { formattingToolbar: false },
         children: <ColorStyleButton />,
@@ -312,7 +316,7 @@ describe("ColorStyleButton", () => {
 
       await expect.element(button).toHaveFocus();
 
-      await commands.pressKey("Enter");
+      await pressKey("Enter");
 
       const menu = page.getByRole("menu");
       await expect.element(menu).toBeVisible();
@@ -320,14 +324,14 @@ describe("ColorStyleButton", () => {
         .poll(() => menu.element().contains(document.activeElement))
         .toBe(true);
       const firstItem = menu.getByRole("menuitem").first();
-      const outline = await commands.readOutline(firstItem.selector);
+      const outline = readFocusOutline(firstItem);
 
-      await commands.pressKey("ArrowDown");
+      await pressKey("ArrowDown");
 
       await expect.element(firstItem).toHaveFocus();
-      await commands.checkFocusOutline(firstItem.selector, outline);
+      await assertFocusOutline(firstItem, outline);
 
-      await commands.pressKey("Escape");
+      await pressKey("Escape");
 
       await expect.element(menu).not.toBeInTheDocument();
       await expect.element(button).toHaveFocus();
@@ -335,13 +339,13 @@ describe("ColorStyleButton", () => {
     });
   });
 
-  describe("ARIA", () => {
+  describe("a11y", () => {
     it("exposes the menu trigger's expanded state and relationship", async ({
-      renderEditor,
+      setupEditor,
       selectText,
       page,
     }) => {
-      const { editor } = await renderEditor({
+      const { editor } = await setupEditor({
         initialContent: [{ type: "paragraph", content: "Selected text" }],
         props: { formattingToolbar: false },
         children: <ColorStyleButton />,
@@ -367,12 +371,12 @@ describe("ColorStyleButton", () => {
     // it renders `checked` as a visual checkmark without exposing the checked
     // state to assistive technology.
     it.fails("exposes a color change in the trigger or menu's accessibility tree", async ({
-      renderEditor,
+      setupEditor,
       selectText,
-      commands,
+      readAriaSnapshot,
       page,
     }) => {
-      const { editor } = await renderEditor({
+      const { editor } = await setupEditor({
         initialContent: [{ type: "paragraph", content: "Selected text" }],
         props: { formattingToolbar: false },
         children: <ColorStyleButton />,
@@ -385,10 +389,9 @@ describe("ColorStyleButton", () => {
       await button.click();
       const menu = page.getByRole("menu");
       await expect.element(menu).toBeVisible();
-      const before = [
-        await commands.readAriaSnapshot(button.selector),
-        await commands.readAriaSnapshot(menu.selector),
-      ].join("\n");
+      const before = [readAriaSnapshot(button), readAriaSnapshot(menu)].join(
+        "\n",
+      );
 
       await menu
         .getByRole("menuitem", {
@@ -400,21 +403,14 @@ describe("ColorStyleButton", () => {
       await button.click();
 
       await expect.element(menu).toBeVisible();
-      const after = [
-        await commands.readAriaSnapshot(button.selector),
-        await commands.readAriaSnapshot(menu.selector),
-      ].join("\n");
+      const after = [readAriaSnapshot(button), readAriaSnapshot(menu)].join(
+        "\n",
+      );
       expect(after).not.toBe(before);
     });
-  });
 
-  describe("axe", () => {
-    it("checks the color trigger", async ({
-      renderEditor,
-      commands,
-      annotate,
-    }) => {
-      await renderEditor({
+    it("checks the color trigger", async ({ setupEditor, runAxe, page }) => {
+      await setupEditor({
         props: { formattingToolbar: false },
         children: (
           <FormattingToolbar>
@@ -423,20 +419,15 @@ describe("ColorStyleButton", () => {
         ),
       });
 
-      for (const warning of await commands.checkAxe('[role="toolbar"]')) {
-        await annotate(warning, "warning");
-      }
+      const { violations } = await runAxe(page.getByRole("toolbar"));
+      expect(violations).toEqual([]);
     });
 
-    // Mantine's focusable menu placeholder violates aria-required-children,
-    // as it does in BlockTypeSelect. Keep the open state covered explicitly.
-    it.fails("checks the open color menu", async ({
-      renderEditor,
-      commands,
-      page,
-      annotate,
-    }) => {
-      const { editor } = await renderEditor({
+    // Mantine's placeholder violates aria-required-children. Axe can also report
+    // scrollable-region-focusable depending on the menu's scrolling/focus state.
+    // Allow only that exact additional known issue, not arbitrary scan failures.
+    it("checks the open color menu", async ({ setupEditor, runAxe, page }) => {
+      const { editor } = await setupEditor({
         props: { formattingToolbar: false },
         children: (
           <FormattingToolbar>
@@ -452,8 +443,44 @@ describe("ColorStyleButton", () => {
         .click();
       await expect.element(page.getByRole("menu")).toBeVisible();
 
-      for (const warning of await commands.checkAxe('[role="menu"]')) {
-        await annotate(warning, "warning");
+      const { violations } = await runAxe(page.getByRole("menu"));
+      const scrollViolations = violations.filter(
+        ({ id }) => id === "scrollable-region-focusable",
+      );
+      expect(
+        violations.filter(({ id }) => id !== "scrollable-region-focusable"),
+      ).toMatchObject([
+        {
+          id: "aria-required-children",
+          nodes: [
+            {
+              any: [
+                {
+                  id: "aria-required-children",
+                  data: { messageKey: "unallowed", values: "div[tabindex]" },
+                },
+              ],
+              all: [],
+              none: [],
+            },
+          ],
+        },
+      ]);
+      expect(scrollViolations.length).toBeLessThanOrEqual(1);
+      for (const violation of scrollViolations) {
+        expect(violation).toMatchObject({
+          id: "scrollable-region-focusable",
+          nodes: [
+            {
+              any: [
+                { id: "focusable-content", data: null },
+                { id: "focusable-element", data: null },
+              ],
+              all: [],
+              none: [],
+            },
+          ],
+        });
       }
     });
   });

@@ -1,4 +1,4 @@
-import type {} from "./src/utils/keyboard.js";
+import type {} from "./src/commands/node/keyboard.js";
 import { afterEach, beforeAll, beforeEach } from "vite-plus/test";
 import { commands, page } from "./src/utils/context.js";
 
@@ -58,7 +58,7 @@ beforeAll(async () => {
 // Chromium drops the context's touch emulation after any screenshot captured
 // beyond the viewport, which on this mobile context is every element
 // screenshot, and Playwright never re-arms it (microsoft/playwright#42607;
-// mechanism and repro in `src/utils/restoreTouchEmulation.ts`). Before every
+// mechanism and repro in `src/commands/node/restoreTouchEmulation.ts`). Before every
 // test on the android instance: re-arm the emulation, then assert it actually
 // holds — the assert is what catches the deeper failure class where the
 // *mechanism* breaks (provider contextOptions silently ignored, a vitest
