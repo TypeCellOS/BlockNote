@@ -13,6 +13,7 @@ import {
   getDocumentText,
   markdownFormat,
   plainTextFormat,
+  type TextChange,
   updateDocument,
 } from "../index.js";
 import {
@@ -29,6 +30,10 @@ import {
 } from "../testUtil/fixtures.js";
 import { bindEditor, readText, unbindEditor } from "../testUtil/yjs.js";
 import { updateYDoc } from "./yDocText.js";
+import {
+  experimental_updateYDocWithYjsMerge,
+  updateYDocWithMerge,
+} from "./yDocTextWithMerge.js";
 import { valid } from "../testUtil/valid.js";
 import { formatCases } from "../testUtil/codecs.js";
 import {
@@ -43,9 +48,30 @@ import {
 /** An editor that gives the schema to read the Y.Doc directly, without a binding. */
 const reader = BlockNoteEditor.create();
 
-/** What merges a write from an older version (see `YDocWriteFromVersion`). */
+/**
+ * What merges a write from an older version: the lens
+ * (`updateYDocWithMerge`) or Yjs (`experimental_updateYDocWithYjsMerge`).
+ */
 const merges = ["lens", "yjs"] as const;
 type Merge = (typeof merges)[number];
+
+/**
+ * A merge write of a text from the version `base`. The lens merge keeps the
+ * current document in a conflict (`keep-current`).
+ */
+function mergeWrite(
+  editor: BlockNoteEditor<any, any, any>,
+  fragment: Y.XmlFragment,
+  change: TextChange & { base: Uint8Array },
+  merge: Merge = "lens",
+) {
+  return merge === "yjs"
+    ? experimental_updateYDocWithYjsMerge(editor, fragment, change)
+    : updateYDocWithMerge(editor, fragment, {
+        ...change,
+        onConflict: "keep-current",
+      });
+}
 
 function setup(initialContent: PartialBlock[] = richDocument) {
   const ydoc = blocksToYDoc(
@@ -74,12 +100,12 @@ function setup(initialContent: PartialBlock[] = richDocument) {
       merge?: Merge,
     ) =>
       valid(
-        updateYDoc(editor, fragment, {
-          format,
-          text: edit(client.text),
-          base: client.base,
+        mergeWrite(
+          editor,
+          fragment,
+          { format, text: edit(client.text), base: client.base },
           merge,
-        }),
+        ),
       ),
     /** Another user changes the document in an editor. */
     change: (edit: (editor: BlockNoteEditor<any, any, any>) => void) => {
@@ -121,20 +147,30 @@ describe("updateYDoc", () => {
     expect(block("p")?.content).toEqual([{ type: "text", text, styles: {} }]);
   });
 
-  it("throws an error for a write without `base`, and does not change the Y.Doc", () => {
-    const { editor, ydoc, blocks } = setup();
-    const before = blocks();
-    const fragment = ydoc.getXmlFragment("prosemirror");
+  it.each([
+    ["updateYDoc", updateYDoc],
+    ["updateYDocWithMerge", updateYDocWithMerge],
+    [
+      "experimental_updateYDocWithYjsMerge",
+      experimental_updateYDocWithYjsMerge,
+    ],
+  ] as const)(
+    "%s throws an error for a write without `base`, and does not change the Y.Doc",
+    (_, write) => {
+      const { editor, ydoc, blocks } = setup();
+      const before = blocks();
+      const fragment = ydoc.getXmlFragment("prosemirror");
 
-    // A caller without types can forget `base`.
-    expect(() =>
-      updateYDoc(editor, fragment, {
-        format: markdownFormat,
-        text: "Hello",
-      } as never),
-    ).toThrow(/needs the option `base`/);
-    expect(blocks()).toEqual(before);
-  });
+      // A caller without types can forget `base`.
+      expect(() =>
+        write(editor, fragment, {
+          format: markdownFormat,
+          text: "Hello",
+        } as never),
+      ).toThrow(/needs the option `base`/);
+      expect(blocks()).toEqual(before);
+    },
+  );
 
   it("throws an error if the editor is not bound to the Y.Doc, or not mounted", () => {
     const ydoc = new Y.Doc();
@@ -156,17 +192,44 @@ describe("updateYDoc", () => {
     expect(() => updateYDoc(notMounted, fragment, options)).toThrow(/mounted/);
   });
 
-  it("allows merge yjs only with base, and without onConflict", () => {
-    type Options = Parameters<typeof updateYDoc>[2];
-    const yjs = { format: markdownFormat, text: "", merge: "yjs" } as const;
+  it("allows the Yjs merge only with a version as base, and without onConflict", () => {
+    type Options = Parameters<typeof experimental_updateYDocWithYjsMerge>[2];
+    const text = { format: markdownFormat, text: "" };
     const base = new Uint8Array();
-    // @ts-expect-error `merge: "yjs"` needs `base`.
-    const withoutBase: Options = yjs;
+    // @ts-expect-error The Yjs merge needs `base`.
+    const withoutBase: Options = text;
+    // @ts-expect-error The current document has nothing to merge.
+    const withCurrent: Options = { ...text, base: "current" };
     // @ts-expect-error Yjs merges without conflicts, thus no `onConflict`.
-    const withConflict: Options = { ...yjs, base, onConflict: "reject" };
-    const withBase: Options = { ...yjs, base };
+    const withConflict: Options = { ...text, base, onConflict: "reject" };
+    const withBase: Options = { ...text, base };
 
-    expect([withoutBase, withConflict, withBase]).toHaveLength(3);
+    expect([withoutBase, withCurrent, withConflict, withBase]).toHaveLength(4);
+  });
+
+  it("allows onConflict only on the lens merge, where it is required", () => {
+    type Strict = Parameters<typeof updateYDoc>[2];
+    type Merged = Parameters<typeof updateYDocWithMerge>[2];
+    const text = { format: markdownFormat, text: "" };
+    const base = new Uint8Array();
+    // @ts-expect-error A strict write does not merge: it has no conflicts.
+    const strictWithConflict: Strict = { ...text, base, onConflict: "reject" };
+    // @ts-expect-error A merge write states what a conflict does.
+    const mergeWithoutConflict: Merged = { ...text, base };
+    const mergeWithCurrent: Merged = {
+      ...text,
+      // @ts-expect-error The current document has nothing to merge.
+      base: "current",
+      onConflict: "reject",
+    };
+    const merge: Merged = { ...text, base, onConflict: "reject" };
+
+    expect([
+      strictWithConflict,
+      mergeWithoutConflict,
+      mergeWithCurrent,
+      merge,
+    ]).toHaveLength(4);
   });
 
   it("changes nothing if the text did not change", () => {
@@ -189,6 +252,175 @@ describe("updateYDoc", () => {
     Y.applyUpdate(replica, result.update);
 
     expect(yDocToBlocks(reader, replica)).toEqual(blocks());
+  });
+});
+
+/**
+ * `updateYDoc` with a Yjs state as `base`: the write applies only if the
+ * document of the fragment is still at that version.
+ */
+describe("a strict write from a version", () => {
+  const threeParagraphs: PartialBlock[] = [
+    { id: "a", type: "paragraph", content: "Alpha" },
+    { id: "b", type: "paragraph", content: "Beta" },
+    { id: "c", type: "paragraph", content: "Gamma" },
+  ];
+
+  it("gives the error document-changed, and does not change the Y.Doc, if another writer changed the document", () => {
+    const { editor, ydoc, read, change } = setup(threeParagraphs);
+    const client = read();
+    change((user) => {
+      user.updateBlock("b", { content: "Beta, changed" });
+      user.removeBlocks(["c"]);
+    });
+    const before = Y.encodeStateAsUpdate(ydoc);
+
+    const result = updateYDoc(editor, ydoc.getXmlFragment("prosemirror"), {
+      format: markdownFormat,
+      text: replaceOnce(client.text, "Alpha", "Alpha, from the client"),
+      base: client.base,
+    });
+
+    expect(result).toEqual({
+      error: "document-changed",
+      changesOfOthers: expect.arrayContaining([
+        { id: "b", change: "changed" },
+        { id: "c", change: "removed" },
+      ]),
+    });
+    expect(result).toHaveProperty("changesOfOthers.length", 2);
+    expect(Y.encodeStateAsUpdate(ydoc)).toEqual(before);
+  });
+
+  it("gives the error for a change of only a prop that the format does not show", () => {
+    const { editor, ydoc, read, change } = setup(threeParagraphs);
+    const client = read();
+    change((user) => user.updateBlock("b", { props: { textColor: "red" } }));
+
+    expect(
+      updateYDoc(editor, ydoc.getXmlFragment("prosemirror"), {
+        format: markdownFormat,
+        text: replaceOnce(client.text, "Alpha", "Alpha, from the client"),
+        base: client.base,
+      }),
+    ).toEqual({
+      error: "document-changed",
+      changesOfOthers: [{ id: "b", change: "changed" }],
+    });
+  });
+
+  it("applies the write as a write to the current document, if no other writer changed the document", () => {
+    const { editor, ydoc, read, blocks } = setup(threeParagraphs);
+    const client = read();
+    const text = replaceOnce(client.text, "Alpha", "Alpha, from the client");
+    const reference = setup(threeParagraphs);
+
+    const result = valid(
+      updateYDoc(editor, ydoc.getXmlFragment("prosemirror"), {
+        format: markdownFormat,
+        text,
+        base: client.base,
+      }),
+    );
+    const current = valid(
+      updateYDoc(
+        reference.editor,
+        reference.ydoc.getXmlFragment("prosemirror"),
+        { format: markdownFormat, text, base: "current" },
+      ),
+    );
+
+    // The result has no `changesOfOthers` and no `written`.
+    expect(result).toEqual({
+      operations: current.operations,
+      warnings: [],
+      update: expect.any(Uint8Array),
+    });
+    expect(result.operations).toMatchObject([{ type: "update", id: "a" }]);
+    expect(blocks()).toEqual(reference.blocks());
+  });
+
+  it("does not take a change in a different part of the Y.Doc for a change of the document", () => {
+    // A compare of state vectors would reject this write.
+    const { editor, ydoc, read, block } = setup(threeParagraphs);
+    const client = read();
+    ydoc.getMap("settings").set("title", "A new title");
+
+    valid(
+      updateYDoc(editor, ydoc.getXmlFragment("prosemirror"), {
+        format: markdownFormat,
+        text: replaceOnce(client.text, "Alpha", "Alpha, from the client"),
+        base: client.base,
+      }),
+    );
+
+    expect(block("a")?.content).toMatchObject([
+      { text: "Alpha, from the client" },
+    ]);
+  });
+
+  it("applies a write from a replica with an update that this Y.Doc does not have yet", () => {
+    const server = blocksToYDoc(BlockNoteEditor.create(), [
+      { id: "a", type: "paragraph", content: "Alpha" },
+      { id: "b", type: "paragraph", content: "Beta" },
+    ]);
+    const replica = new Y.Doc();
+    Y.applyUpdate(replica, Y.encodeStateAsUpdate(server));
+    // Another client adds a block on the replica. The server does not have
+    // it yet.
+    const before = Y.encodeStateVector(replica);
+    bindEditor(replica.getXmlFragment("prosemirror")).insertBlocks(
+      [{ type: "paragraph", content: "Gamma" }],
+      "b",
+      "after",
+    );
+    const inFlight = Y.encodeStateAsUpdate(replica, before);
+    // The client reads from the replica.
+    const text = readText(
+      replica.getXmlFragment("prosemirror"),
+      markdownFormat,
+    );
+    const base = Y.encodeStateAsUpdate(replica);
+
+    const fragment = server.getXmlFragment("prosemirror");
+    const result = valid(
+      updateYDoc(bindEditor(fragment), fragment, {
+        format: markdownFormat,
+        text: replaceOnce(text, "Gamma", "Gamma edited"),
+        base,
+      }),
+    );
+    Y.applyUpdate(server, inFlight);
+
+    expect(result.warnings).toEqual([]);
+    expect(readText(fragment, markdownFormat)).toBe(
+      "Alpha\n\nBeta\n\nGamma edited\n",
+    );
+  });
+
+  it("gives the error for a version without content, if the document has content now", () => {
+    const ydoc = new Y.Doc();
+    const fragment = ydoc.getXmlFragment("prosemirror");
+    const base = Y.encodeStateAsUpdate(ydoc);
+    valid(
+      updateYDoc(bindEditor(fragment), fragment, {
+        base: "current",
+        format: markdownFormat,
+        text: "Other",
+      }),
+    );
+
+    const result = updateYDoc(bindEditor(fragment), fragment, {
+      format: markdownFormat,
+      text: "Hello",
+      base,
+    });
+
+    expect(result).toMatchObject({
+      error: "document-changed",
+      changesOfOthers: [{ change: "added" }],
+    });
+    expect(readText(fragment, markdownFormat).trim()).toBe("Other");
   });
 });
 
@@ -227,6 +459,22 @@ describe.each([
     const ydoc = new Y.Doc();
     const fragment = ydoc.getXmlFragment("prosemirror");
     valid(
+      mergeWrite(bindEditor(fragment), fragment, {
+        format,
+        text: "Hello",
+        base: Y.encodeStateAsUpdate(ydoc),
+      }),
+    );
+
+    expect(readText(fragment, format).trim()).toBe("Hello");
+  });
+
+  it("writes text with a strict write, with a base from an empty Y.Doc", () => {
+    // A base without content and a Y.Doc without content are the same
+    // empty document: the write applies.
+    const ydoc = new Y.Doc();
+    const fragment = ydoc.getXmlFragment("prosemirror");
+    valid(
       updateYDoc(bindEditor(fragment), fragment, {
         format,
         text: "Hello",
@@ -251,12 +499,12 @@ describe.each([
         }),
       );
       valid(
-        updateYDoc(bindEditor(fragment), fragment, {
-          format,
-          text: "Hello",
-          base,
+        mergeWrite(
+          bindEditor(fragment),
+          fragment,
+          { format, text: "Hello", base },
           merge,
-        }),
+        ),
       );
 
       expect(readText(fragment, format).trim()).toBe("Hello\n\nOther");
@@ -295,14 +543,14 @@ describe.each([
 
 describe.each(merges)("concurrent writes (merge %s)", (merge) => {
   /**
-   * A test that fails with `merge: "yjs"`: in y-prosemirror v13, a move is a
+   * A test that fails with the Yjs merge: in y-prosemirror v13, a move is a
    * removal and an insert. A Yjs binding that keeps a link from each
    * block to its parent can make these tests pass.
    */
   const itMoves = merge === "yjs" ? it.fails : it;
 
-  // Some tests are only for `merge: "yjs"`. With `"lens"`, the merge of the
-  // lens does the work, as without Yjs, and `api.concurrent.test.ts` has the
+  // Some tests are only for the Yjs merge. `updateYDocWithMerge` uses the
+  // merge of the lens, as without Yjs, and `api.concurrent.test.ts` has the
   // same cases.
   if (merge === "yjs") {
     it("keeps the changes of other writers in different blocks", () => {
@@ -434,7 +682,7 @@ describe.each(merges)("concurrent writes (merge %s)", (merge) => {
     });
   });
 
-  // Only for `merge: "yjs"` (see above).
+  // Only for the Yjs merge (see above).
   if (merge === "yjs") {
     itMoves("does one move if two writers make the same move", () => {
       const { read, write, blocks } = setup(fruitDocument);
@@ -535,16 +783,20 @@ describe("concurrent writes (merge lens): conflicts", () => {
     change((user) => user.updateBlock("last", { content: "Last section" }));
     const before = Y.encodeStateAsUpdate(ydoc);
 
-    const result = updateYDoc(editor, ydoc.getXmlFragment("prosemirror"), {
-      format: markdownFormat,
-      text: replaceOnce(
-        replaceOnce(client.text, "Last paragraph", "Last part"),
-        "Colored centered paragraph",
-        "Colored text",
-      ),
-      base: client.base,
-      onConflict: "reject",
-    });
+    const result = updateYDocWithMerge(
+      editor,
+      ydoc.getXmlFragment("prosemirror"),
+      {
+        format: markdownFormat,
+        text: replaceOnce(
+          replaceOnce(client.text, "Last paragraph", "Last part"),
+          "Colored centered paragraph",
+          "Colored text",
+        ),
+        base: client.base,
+        onConflict: "reject",
+      },
+    );
 
     expect(result).toEqual({
       error: "conflict",
@@ -565,12 +817,16 @@ describe.each(merges)("comments (merge %s)", (merge) => {
     const moved = addComment(editor, "Pears");
     const write = (edit: (text: string) => string) =>
       valid(
-        updateYDoc(editor, fragment, {
-          format: markdownFormat,
-          text: edit(getDocumentText(editor, markdownFormat)),
-          base: Y.encodeStateAsUpdate(ydoc),
+        mergeWrite(
+          editor,
+          fragment,
+          {
+            format: markdownFormat,
+            text: edit(getDocumentText(editor, markdownFormat)),
+            base: Y.encodeStateAsUpdate(ydoc),
+          },
           merge,
-        }),
+        ),
       );
     /** The document of the Y.Doc, as a new client with comments reads it. */
     const doc = () =>
@@ -778,15 +1034,15 @@ describe.each(merges)("concurrent writes with columns (merge %s)", (merge) => {
     );
 
     valid(
-      updateYDoc(editor, fragment, {
-        format,
-        text: text.replace("Bravo\n\n", ""),
-        base,
+      mergeWrite(
+        editor,
+        fragment,
+        { format, text: text.replace("Bravo\n\n", ""), base },
         merge,
-      }),
+      ),
     );
 
-    // With `merge: "yjs"`, column B stays (`keepLayout`). The write empties
+    // With the Yjs merge, column B stays (`keepLayout`). The write empties
     // it, thus it gets the fill of the schema: an empty paragraph, which
     // markdown shows as `<br>`. The fill and the block of the other writer
     // are two inserts at one position, and the client IDs select their order.
@@ -870,12 +1126,16 @@ describe("changes of other writers in a list with more than one structural chang
       editor.updateBlock("a", { content: "Alpha edited" });
 
       valid(
-        updateYDoc(editor, fragment, {
-          format: markdownFormat,
-          text: "First\n\nAlpha\n\nBeta\n\nGamma\n\nLast\n",
-          base,
+        mergeWrite(
+          editor,
+          fragment,
+          {
+            format: markdownFormat,
+            text: "First\n\nAlpha\n\nBeta\n\nGamma\n\nLast\n",
+            base,
+          },
           merge,
-        }),
+        ),
       );
       expect(getDocumentText(editor, markdownFormat)).toBe(
         "First\n\nAlpha edited\n\nBeta\n\nGamma\n\nLast\n",
@@ -893,12 +1153,16 @@ describe("changes of other writers in a list with more than one structural chang
       editor.updateBlock("b", { content: "Beta edited" });
 
       valid(
-        updateYDoc(editor, fragment, {
-          format: markdownFormat,
-          text: "Gamma\n\nAlpha\n\nBeta\n",
-          base,
+        mergeWrite(
+          editor,
+          fragment,
+          {
+            format: markdownFormat,
+            text: "Gamma\n\nAlpha\n\nBeta\n",
+            base,
+          },
           merge,
-        }),
+        ),
       );
       expect(getDocumentText(editor, markdownFormat)).toBe(
         "Gamma\n\nAlpha\n\nBeta edited\n",
@@ -930,7 +1194,7 @@ describe("a base with two blocks with one ID", () => {
     const before = readText(fragment, markdownFormat);
 
     expect(() =>
-      updateYDoc(editor, fragment, {
+      mergeWrite(editor, fragment, {
         format: markdownFormat,
         text: replaceOnce(text, "Alpha copy", "Alpha copy edited"),
         base,
@@ -1006,12 +1270,16 @@ describe("a base with an update that the Y.Doc does not have yet", () => {
 
       const fragment = server.getXmlFragment("prosemirror");
       const result = valid(
-        updateYDoc(bindEditor(fragment), fragment, {
-          format: markdownFormat,
-          text: replaceOnce(text, "Gamma", "Gamma edited"),
-          base,
+        mergeWrite(
+          bindEditor(fragment),
+          fragment,
+          {
+            format: markdownFormat,
+            text: replaceOnce(text, "Gamma", "Gamma edited"),
+            base,
+          },
           merge,
-        }),
+        ),
       );
       Y.applyUpdate(server, inFlight);
       expect(result.warnings).toEqual([]);

@@ -15,6 +15,7 @@ export {
   computeOperationsWithMerge,
   type ConflictError,
   type DocumentChange,
+  type DocumentChangedError,
   type DocumentMergeChange,
   getDocumentText,
   type InvalidDocumentError,

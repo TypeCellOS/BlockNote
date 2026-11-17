@@ -102,12 +102,7 @@ describe.each(documents)("$name", ({ create }) => {
 
       expect(
         valid(computeOperations(editor, { base: "current", format, text })),
-      ).toEqual({
-        operations: [],
-        warnings: [],
-        changesOfOthers: [],
-        written: editor.document,
-      });
+      ).toEqual({ operations: [], warnings: [] });
       // This text is not equal to the text that the client read. Thus, it goes
       // through the full pipeline.
       expect(
@@ -118,12 +113,7 @@ describe.each(documents)("$name", ({ create }) => {
             text: `\n${text}\n\n`,
           }),
         ),
-      ).toEqual({
-        operations: [],
-        warnings: [],
-        changesOfOthers: [],
-        written: editor.document,
-      });
+      ).toEqual({ operations: [], warnings: [] });
     });
 
     it.each(edits)(

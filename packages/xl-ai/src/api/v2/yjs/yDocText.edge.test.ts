@@ -5,6 +5,7 @@ import * as Y from "yjs";
 
 import { bindEditor, unbindEditor } from "../testUtil/yjs.js";
 import { updateYDoc } from "./yDocText.js";
+import { updateYDocWithMerge } from "./yDocTextWithMerge.js";
 
 const reader = BlockNoteEditor.create();
 
@@ -59,12 +60,13 @@ describe("updateYDoc: a JSON change", () => {
     user.updateBlock("b", { content: "Beta by the user" });
     unbindEditor(user);
 
-    const result = updateYDoc(editor, fragment, {
+    const result = updateYDocWithMerge(editor, fragment, {
       document: [
         { id: "a", type: "paragraph", content: "Alpha by the client" },
         { id: "b", type: "paragraph", content: "Beta" },
       ],
       base,
+      onConflict: "keep-current",
     });
 
     expect(result.error).toBeUndefined();

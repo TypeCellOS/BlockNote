@@ -41,12 +41,7 @@ describe("JSON", () => {
         base: "current",
         document: copy(editor.document),
       }),
-    ).toEqual({
-      operations: [],
-      warnings: [],
-      changesOfOthers: [],
-      written: editor.document,
-    });
+    ).toEqual({ operations: [], warnings: [] });
   });
 
   it("updates only the changed field of a block, by its ID", () => {

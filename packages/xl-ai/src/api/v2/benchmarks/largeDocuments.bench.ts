@@ -20,7 +20,7 @@ import { projectDocument } from "../projection/projectDocument.js";
 import { targetFromPairs } from "../target/targetFromPairs.js";
 import { richDocument } from "../testUtil/fixtures.js";
 import { bindEditor, unbindEditor } from "../testUtil/yjs.js";
-import { updateYDoc } from "../yjs/index.js";
+import { updateYDocWithMerge } from "../yjs/index.js";
 
 /**
  * Benchmarks for large documents. The normal test run does not run them. Run
@@ -173,10 +173,11 @@ describe("large documents", () => {
             // not in the time.
             "Y.Doc write": await median(
               ({ client, fragment }) =>
-                updateYDoc(client, fragment, {
+                updateYDocWithMerge(client, fragment, {
                   format,
                   text: yEdited,
                   base: Y.encodeStateAsUpdate(ydoc),
+                  onConflict: "keep-current",
                 }),
               () => {
                 const copy = new Y.Doc();

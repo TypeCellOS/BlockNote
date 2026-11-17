@@ -774,29 +774,27 @@ describe("a write from an older version with onConflict", () => {
     ]);
   });
 
-  it("keeps the current document in a conflict with keep-current, the default", () => {
-    const run = (onConflict: "keep-current" | undefined) => {
-      const editor = createEditor(fruitDocument);
-      const client = read(editor);
-      editor.updateBlock("end", { content: "The finish" });
-      const text = replaceOnce(
-        replaceOnce(client.text, "End", "Stop"),
-        "Fruit",
-        "Fruits",
-      );
-      const update = valid(
-        onConflict === undefined
-          ? updateDocument(editor, { format, text, base: client.base })
-          : writeWith(editor, client, text, onConflict),
-      );
-      return { warnings: update.warnings, document: blockFieldsById(editor) };
-    };
+  it("keeps the current document in a conflict with keep-current", () => {
+    const editor = createEditor(fruitDocument);
+    const client = read(editor);
+    editor.updateBlock("end", { content: "The finish" });
+    const text = replaceOnce(
+      replaceOnce(client.text, "End", "Stop"),
+      "Fruit",
+      "Fruits",
+    );
 
-    const keepCurrent = run("keep-current");
-    expect(keepCurrent.warnings).toEqual([
+    const update = valid(writeWith(editor, client, text, "keep-current"));
+
+    expect(update.warnings).toEqual([
       { type: "conflicting-change", id: "end" },
     ]);
-    expect(run(undefined)).toEqual(keepCurrent);
+    expect(editor.getBlock("end")?.content).toMatchObject([
+      { text: "The finish" },
+    ]);
+    expect(editor.getBlock("fruit")?.content).toMatchObject([
+      { text: "Fruits" },
+    ]);
   });
 
   it("needs onConflict, and a version as base (a type error without them)", () => {
@@ -818,14 +816,23 @@ describe("a write from an older version with onConflict", () => {
     expect(withCurrent.onConflict).toBe("reject");
   });
 
-  it("needs base for onConflict (a type error without base)", () => {
-    // @ts-expect-error: a write without base has no conflicts.
-    const options: DocumentChange = {
+  it("is not an option of a strict write (a type error)", () => {
+    const withCurrent: DocumentChange = {
       format,
       text: "",
+      base: "current",
+      // @ts-expect-error: a strict write does not merge: it has no conflicts.
       onConflict: "reject",
     };
-    expect(options.onConflict).toBe("reject");
+    const withVersion: DocumentChange = {
+      format,
+      text: "",
+      base: [],
+      // @ts-expect-error: a strict write does not merge: it has no conflicts.
+      onConflict: "keep-current",
+    };
+    expect(withCurrent.base).toBe("current");
+    expect(withVersion.base).toEqual([]);
   });
 });
 
@@ -1475,13 +1482,14 @@ describe("the document that the client wrote, in the result of a write", () => {
     expect(second.warnings).toEqual([]);
   });
 
-  it("is the document after the write, for a write to the current document", () => {
+  it("is the document after the write, if no other writer changed the document", () => {
     const editor = twoParagraphs();
     const { written } = valid(
-      updateDocument(editor, {
+      updateDocumentWithMerge(editor, {
         format,
         text: "Alpha one\n\nBeta\n\nNew\n",
-        base: "current",
+        base: editor.document,
+        onConflict: "keep-current",
       }),
     );
     expect(written).toEqual(editor.document);
