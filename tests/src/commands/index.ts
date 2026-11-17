@@ -2,15 +2,20 @@
 import type { TestAPI } from "vite-plus/test";
 import * as browserCommands from "./browser/index.js";
 import { createSetupEditor, type SetupEditor } from "./browser/setupEditor.js";
+import {
+  createSetupScreenReader,
+  type SetupScreenReader,
+} from "./browser/setupScreenReader.js";
 import { commands as nodeCommands, page } from "./transport.js";
 
 export type CommandContext = Pick<
   typeof nodeCommands,
-  keyof typeof import("../screen-reader/commands.js")
+  keyof typeof import("./node/index.js")
 > &
   typeof browserCommands & {
     page: typeof page;
     setupEditor: SetupEditor;
+    setupScreenReader: SetupScreenReader;
   };
 
 /** Top-level test fixtures; pass this collection to test.extend unchanged. */
@@ -30,26 +35,17 @@ export const commands: Required<
   restoreTouchEmulation: async ({}, use) => {
     await use(nodeCommands.restoreTouchEmulation);
   },
-  startReader: async ({}, use) => {
-    await use(nodeCommands.startReader);
-  },
-  readTranscript: async ({}, use) => {
-    await use(nodeCommands.readTranscript);
-  },
-  stopReader: async ({}, use) => {
-    await use(nodeCommands.stopReader);
+  setupScreenReader: async ({ onTestFinished }, use) => {
+    await use(createSetupScreenReader(onTestFinished));
   },
   focusUntil: async ({}, use) => {
     await use(browserCommands.focusUntil);
   },
-  readFocusOutline: async ({}, use) => {
-    await use(browserCommands.readFocusOutline);
+  captureFocusOutline: async ({}, use) => {
+    await use(browserCommands.captureFocusOutline);
   },
   readAriaSnapshot: async ({}, use) => {
     await use(browserCommands.readAriaSnapshot);
-  },
-  assertFocusOutline: async ({}, use) => {
-    await use(browserCommands.assertFocusOutline);
   },
   selectText: async ({}, use) => {
     await use(browserCommands.selectText);

@@ -223,9 +223,8 @@ describe("ColorStyleButton", () => {
     it("shows a keyboard focus ring on its trigger", async ({
       setupEditor,
       selectText,
-      readFocusOutline,
+      captureFocusOutline,
       pressKey,
-      assertFocusOutline,
       page,
     }) => {
       const { editor } = await setupEditor({
@@ -239,12 +238,12 @@ describe("ColorStyleButton", () => {
         name: editor.dictionary.formatting_toolbar.colors.tooltip,
         exact: true,
       });
-      const outline = readFocusOutline(button);
+      const compareFocusOutline = captureFocusOutline(button);
 
       await pressKey("Tab");
 
       await expect.element(button).toHaveFocus();
-      await assertFocusOutline(button, outline);
+      await compareFocusOutline(button);
     });
 
     it("chooses a color with the keyboard and returns focus to the editor", async ({
@@ -296,8 +295,7 @@ describe("ColorStyleButton", () => {
       setupEditor,
       selectText,
       pressKey,
-      readFocusOutline,
-      assertFocusOutline,
+      captureFocusOutline,
       page,
     }) => {
       const { editor } = await setupEditor({
@@ -324,12 +322,12 @@ describe("ColorStyleButton", () => {
         .poll(() => menu.element().contains(document.activeElement))
         .toBe(true);
       const firstItem = menu.getByRole("menuitem").first();
-      const outline = readFocusOutline(firstItem);
+      const compareFocusOutline = captureFocusOutline(firstItem);
 
       await pressKey("ArrowDown");
 
       await expect.element(firstItem).toHaveFocus();
-      await assertFocusOutline(firstItem, outline);
+      await compareFocusOutline(firstItem);
 
       await pressKey("Escape");
 

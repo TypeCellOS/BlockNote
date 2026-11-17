@@ -205,8 +205,10 @@ export const defaultSchemaDocument: PartialBlock[] = [
 ];
 
 // Keep navigation identical to navigateDefaultSchemaDocumentWithAssertions.
-export async function navigateDefaultSchemaDocument() {
-  await commands.pressKey("Tab");
+export async function navigateDefaultSchemaDocument(
+  pressKey = commands.pressKey,
+) {
+  await pressKey("Tab");
 
   // Follow the document until its endpoint; an unreachable endpoint times out.
   const visitedTableCells = new Set<string>();
@@ -218,13 +220,13 @@ export async function navigateDefaultSchemaDocument() {
     // ArrowDown alone skips columns. Move through cell text and across each
     // row with ArrowRight, then resume ArrowDown from the final cell.
     if (tableCell && visitedTableCells.size < 4) {
-      await commands.pressKey("ArrowRight");
+      await pressKey("ArrowRight");
     } else {
-      await commands.pressKey("ArrowDown");
+      await pressKey("ArrowDown");
     }
   }
   while (readDOMSelection().blockId !== "start") {
-    await commands.pressKey("ArrowUp");
+    await pressKey("ArrowUp");
   }
 }
 
@@ -473,12 +475,12 @@ if (!screenReader) {
         exact: true,
       });
       await expect.element(link).toBeVisible();
-      const unfocusedOutline = commands.readFocusOutline(link);
+      const compareFocusOutline = commands.captureFocusOutline(link);
       while (document.activeElement !== link.element()) {
         await commands.pressKey("Tab");
       }
       await expect.element(link).toHaveFocus();
-      await commands.assertFocusOutline(link, unfocusedOutline);
+      await compareFocusOutline(link);
       return link;
     }
 

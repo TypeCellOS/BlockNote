@@ -166,9 +166,8 @@ describe("CreateLinkButton", () => {
     it("shows a keyboard focus ring on its trigger", async ({
       setupEditor,
       selectText,
-      readFocusOutline,
+      captureFocusOutline,
       pressKey,
-      assertFocusOutline,
       page,
     }) => {
       const { editor } = await setupEditor({
@@ -183,12 +182,11 @@ describe("CreateLinkButton", () => {
         exact: true,
       });
       await expect.element(button).toBeVisible();
-      const outline = readFocusOutline(button);
-
+      const compareFocusOutline = captureFocusOutline(button);
       await pressKey("Tab");
+      await compareFocusOutline(button);
 
       await expect.element(button).toHaveFocus();
-      await assertFocusOutline(button, outline);
     });
 
     // Our Mantine form-popover CSS removes the input border, and there is no
@@ -197,7 +195,6 @@ describe("CreateLinkButton", () => {
       setupEditor,
       selectText,
       pressKey,
-      assertFocusOutline,
       page,
     }) => {
       const { editor } = await setupEditor({
@@ -219,7 +216,9 @@ describe("CreateLinkButton", () => {
         editor.dictionary.link_toolbar.form.url_placeholder,
       );
       await expect.element(input).toHaveFocus();
-      await assertFocusOutline(input);
+      await expect
+        .poll(() => getComputedStyle(input.element()).outlineStyle)
+        .not.toMatch(/^(none|hidden)$/);
     });
 
     it("opens with Enter and returns focus to its trigger on Escape without editing", async ({

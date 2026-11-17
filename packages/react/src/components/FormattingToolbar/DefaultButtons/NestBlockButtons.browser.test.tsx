@@ -110,14 +110,7 @@ describe("NestBlockButtons", () => {
       "activates $direction and returns focus to the editor",
       async (
         { direction, Button },
-        {
-          setupEditor,
-          selectText,
-          readFocusOutline,
-          pressKey,
-          assertFocusOutline,
-          page,
-        },
+        { setupEditor, selectText, captureFocusOutline, pressKey, page },
       ) => {
         const { editor } = await setupEditor({
           initialContent:
@@ -153,12 +146,12 @@ describe("NestBlockButtons", () => {
           name: editor.dictionary.formatting_toolbar[direction].tooltip,
           exact: true,
         });
-        const outline = readFocusOutline(button);
+        const compareFocusOutline = captureFocusOutline(button);
 
         await pressKey("Tab");
 
         await expect.element(button).toHaveFocus();
-        await assertFocusOutline(button, outline);
+        await compareFocusOutline(button);
 
         await pressKey("Enter");
 

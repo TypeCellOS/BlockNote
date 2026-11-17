@@ -6,29 +6,18 @@ import { expect } from "vite-plus/test";
 // Screen reader announcements do not clearly communicate entering the toolbar.
 it.skip("announces entering and leaving the formatting toolbar", async ({
   setupEditor,
-  readTranscript,
-  stopReader,
-  startReader,
-  pressKey,
+  setupScreenReader,
   page,
-  onTestFinished,
 }) => {
-  onTestFinished(async () => {
-    try {
-      const transcript = await readTranscript();
-      expect(transcript.length).toBeGreaterThan(0);
-      expect(transcript).toMatchSnapshot();
-    } finally {
-      await stopReader();
-    }
-  });
   const { editor } = await setupEditor({
     initialContent: [
       { id: "text", type: "paragraph", content: "Selected text" },
     ],
   });
   editor.setTextCursorPosition("text", "start");
-  await startReader(page.getByRole("textbox").selector);
+  const { getTranscript, pressKey } = await setupScreenReader(
+    page.getByRole("textbox"),
+  );
   await pressKey(selectToLineEndKey);
   await pressKey("Tab");
   const toolbar = page.getByRole("toolbar");
@@ -43,4 +32,7 @@ it.skip("announces entering and leaving the formatting toolbar", async ({
   await pressKey("Escape");
   await expect.element(toolbar).not.toBeInTheDocument();
   await expect.element(page.getByRole("textbox")).toHaveFocus();
+  const transcript = await getTranscript();
+  expect(transcript.length).toBeGreaterThan(0);
+  expect(transcript).toMatchSnapshot();
 });

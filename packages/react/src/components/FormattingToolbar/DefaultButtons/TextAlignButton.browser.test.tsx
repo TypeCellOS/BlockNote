@@ -185,14 +185,7 @@ describe("TextAlignButton", () => {
       "shows a keyboard focus ring for %s alignment",
       async (
         alignment,
-        {
-          setupEditor,
-          selectText,
-          readFocusOutline,
-          pressKey,
-          assertFocusOutline,
-          page,
-        },
+        { setupEditor, selectText, captureFocusOutline, pressKey, page },
       ) => {
         const { editor } = await setupEditor({
           initialContent: [{ type: "paragraph", content: "Selected text" }],
@@ -206,12 +199,12 @@ describe("TextAlignButton", () => {
             .tooltip,
           exact: true,
         });
-        const outline = readFocusOutline(button);
+        const compareFocusOutline = captureFocusOutline(button);
 
         await pressKey("Tab");
 
         await expect.element(button).toHaveFocus();
-        await assertFocusOutline(button, outline);
+        await compareFocusOutline(button);
       },
     );
 

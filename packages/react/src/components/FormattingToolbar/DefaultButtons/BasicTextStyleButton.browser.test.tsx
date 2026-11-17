@@ -197,14 +197,7 @@ describe("BasicTextStyleButton", () => {
       "shows a keyboard focus ring for %s",
       async (
         style,
-        {
-          setupEditor,
-          selectText,
-          readFocusOutline,
-          pressKey,
-          assertFocusOutline,
-          page,
-        },
+        { setupEditor, selectText, captureFocusOutline, pressKey, page },
       ) => {
         const { editor } = await setupEditor({
           initialContent: [{ type: "paragraph", content: "Selected text" }],
@@ -217,12 +210,12 @@ describe("BasicTextStyleButton", () => {
           name: editor.dictionary.formatting_toolbar[style].tooltip,
           exact: true,
         });
-        const outline = readFocusOutline(button);
+        const compareFocusOutline = captureFocusOutline(button);
 
         await pressKey("Tab");
 
         await expect.element(button).toHaveFocus();
-        await assertFocusOutline(button, outline);
+        await compareFocusOutline(button);
       },
     );
 

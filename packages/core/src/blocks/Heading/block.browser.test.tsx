@@ -87,8 +87,7 @@ describe("keyboard", () => {
     page,
     focusUntil,
     pressKey,
-    readFocusOutline,
-    assertFocusOutline,
+    captureFocusOutline,
   }) => {
     await setupEditor({
       initialContent: toggleHeadingDocument,
@@ -104,17 +103,17 @@ describe("keyboard", () => {
       exact: true,
     });
     await expect.element(toggleButton).toBeVisible();
-    const unfocusedOutline = readFocusOutline(toggleButton);
+    const compareFocusOutline = captureFocusOutline(toggleButton);
     await focusUntil(toggleButton);
     await expect.element(toggleButton).toHaveFocus();
-    await assertFocusOutline(toggleButton, unfocusedOutline);
+    await compareFocusOutline(toggleButton);
 
     await pressKey("Enter");
     await expect.element(toggleButton).toHaveFocus();
-    await assertFocusOutline(toggleButton, unfocusedOutline);
+    await compareFocusOutline(toggleButton);
     await pressKey("Enter");
     await expect.element(toggleButton).toHaveFocus();
-    await assertFocusOutline(toggleButton, unfocusedOutline);
+    await compareFocusOutline(toggleButton);
 
     await pressKey("Tab");
     await expect
@@ -122,7 +121,7 @@ describe("keyboard", () => {
       .toHaveFocus();
     await pressKey("Shift+Tab");
     await expect.element(toggleButton).toHaveFocus();
-    await assertFocusOutline(toggleButton, unfocusedOutline);
+    await compareFocusOutline(toggleButton);
   });
 });
 

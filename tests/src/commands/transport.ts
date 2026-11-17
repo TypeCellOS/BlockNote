@@ -23,6 +23,14 @@ type BrowserCommands<Implementations> = {
 
 // Vite+ does not expose the augmentable BrowserCommands interface. Derive the
 // browser signatures from the implementations, omitting their Node context.
-// Reader commands are available only in the native screen-reader configuration.
-export const commands = vitestCommands as typeof vitestCommands &
-  BrowserCommands<typeof import("../screen-reader/commands.js")>;
+const nodeCommands = vitestCommands as typeof vitestCommands &
+  BrowserCommands<typeof import("./node/index.js")>;
+
+// Expose only shared operations here. Native reader transport stays private to
+// setupScreenReader rather than leaking start/stop/transcript methods to tests.
+export const commands = {
+  pressKey: nodeCommands.pressKey,
+  positionalMouse: nodeCommands.positionalMouse,
+  imeComposition: nodeCommands.imeComposition,
+  restoreTouchEmulation: nodeCommands.restoreTouchEmulation,
+};

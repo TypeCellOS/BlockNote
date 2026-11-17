@@ -199,9 +199,8 @@ describe("BlockTypeSelect", () => {
     it("shows a keyboard focus ring on its trigger", async ({
       setupEditor,
       selectText,
-      readFocusOutline,
+      captureFocusOutline,
       pressKey,
-      assertFocusOutline,
       page,
     }) => {
       const { editor } = await setupEditor({
@@ -215,12 +214,12 @@ describe("BlockTypeSelect", () => {
         name: editor.dictionary.slash_menu.paragraph.title,
         exact: true,
       });
-      const outline = readFocusOutline(button);
+      const compareFocusOutline = captureFocusOutline(button);
 
       await pressKey("Tab");
 
       await expect.element(button).toHaveFocus();
-      await assertFocusOutline(button, outline);
+      await compareFocusOutline(button);
     });
 
     it("dismisses with Escape and restores trigger focus without editing", async ({
@@ -260,8 +259,7 @@ describe("BlockTypeSelect", () => {
       setupEditor,
       selectText,
       pressKey,
-      readFocusOutline,
-      assertFocusOutline,
+      captureFocusOutline,
       page,
     }) => {
       const { editor } = await setupEditor({
@@ -294,7 +292,7 @@ describe("BlockTypeSelect", () => {
         name: editor.dictionary.slash_menu.heading.title,
         exact: true,
       });
-      const outline = readFocusOutline(heading);
+      const compareFocusOutline = captureFocusOutline(heading);
 
       await pressKey("ArrowDown");
 
@@ -303,7 +301,7 @@ describe("BlockTypeSelect", () => {
       await pressKey("ArrowDown");
 
       await expect.element(heading).toHaveFocus();
-      await assertFocusOutline(heading, outline);
+      await compareFocusOutline(heading);
 
       await pressKey("Enter");
 

@@ -1,7 +1,8 @@
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite-plus";
 import { playwright } from "vite-plus/test/browser/providers/playwright";
-import * as commands from "./commands.js";
+import * as commands from "../commands/node/index.js";
+import { screenReaderCommand } from "../commands/node/setupScreenReader.js";
 
 const reader = process.env.BLOCKNOTE_SCREEN_READER;
 if (reader !== "voiceover" && reader !== "nvda") {
@@ -69,7 +70,7 @@ export default defineConfig({
           name: reader,
         },
       ],
-      commands,
+      commands: { ...commands, screenReaderCommand },
     },
   },
 });

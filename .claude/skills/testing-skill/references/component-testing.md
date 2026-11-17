@@ -44,7 +44,7 @@ Prefer accessible locators using dictionary labels. Direct focus is valid setup;
 
 ## Native screen readers
 
-Use colocated `*.screen-reader.test.ts` for real speech/navigation that browser assertions cannot establish. Register cleanup so the reader stops on failure; consult the command implementations for usage.
+Use colocated `*.screen-reader.test.ts` for real speech/navigation that browser assertions cannot establish. `const { getTranscript, pressKey } = await setupScreenReader(locator)` starts a session with automatic cleanup, including on failure. The locator is optional when focus is already established. Use the session's `pressKey` to capture speech, not the ordinary keyboard fixture.
 
 This operates the real desktop using VoiceOver/NVDA and GuidePup permissions. Run only as intentional native verification, outside browser CI:
 
