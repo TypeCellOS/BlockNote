@@ -112,13 +112,14 @@ export type DocumentMergeChange = (TextChange | JSONChange) &
  * the version `base`. The change merges three-way with the changes that
  * other writers made after `base` (see `merge/document.ts`): the operations
  * change the document of the editor, and keep the changes of other writers.
- * Nothing changes: {@link applyOperations} applies the operations to a
+ * Nothing changes: `applyOperations` applies the operations to a
  * transaction of the caller. {@link updateDocumentWithMerge} computes and
  * applies them in one step.
  *
  * A write of the text of `base` without changes gives no operations.
  *
- * Throws as {@link computeOperations}.
+ * Throws as `computeOperations`: for a block without an ID, or two blocks
+ * with one ID, in the document or in `base`.
  */
 export function computeOperationsWithMerge(
   editor: BlockNoteEditor<any, any, any>,

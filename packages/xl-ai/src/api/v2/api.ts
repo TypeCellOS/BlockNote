@@ -153,7 +153,7 @@ export type DocumentChange = (TextChange | JSONChange) &
  * documents, also the data that the format does not show: the target of the
  * change comes from the current document, thus a change that the client did
  * not see must stop the write. To merge the change with the changes of
- * other writers, use {@link computeOperationsWithMerge}.
+ * other writers, use `computeOperationsWithMerge`.
  *
  * The operations change only the blocks and fields that the client changed.
  * They keep the data that the change does not show: for a text, examples are
