@@ -5,7 +5,6 @@ import { alignBlocks, type BlockPair } from "./alignment/index.js";
 import type { FlatBlock, LensBlock } from "./model.js";
 import {
   assertBlockIds,
-  BlockIndex,
   flattenBlocks,
   type SchemaRules,
   schemaRulesOf,
@@ -18,12 +17,7 @@ import {
   dispatchUpdate,
   newIdsForLayoutChanges,
 } from "./operations/index.js";
-import {
-  parseJSON,
-  parseText,
-  replaceDisallowedIds,
-  withoutByteOrderMark,
-} from "./parse/index.js";
+import { parseJSON, parseText, withoutByteOrderMark } from "./parse/index.js";
 import {
   assertBlocksRoundTrip,
   type Projection,
@@ -31,7 +25,6 @@ import {
   shadowOf,
   type ViewBlock,
 } from "./projection/index.js";
-import { mergeDocument, type MergeWarning } from "./merge/index.js";
 import { fitResult, type FitWarning, mergedCellsRemoved } from "./fit/index.js";
 import {
   targetFromPairs,
@@ -46,8 +39,6 @@ export function getDocumentText(
 ): string {
   return format.serialize(editor, editor.document);
 }
-
-export type ChangeWarning = TargetWarning | MergeWarning | FitWarning;
 
 /** A change that applies: its operations and its warnings. */
 export type ChangeOperations = {
@@ -79,9 +70,6 @@ export type DocumentChangedError = {
   /** The blocks that other writers changed after `base`. */
   changesOfOthers: ChangeOfOthers[];
 };
-
-/** A change with `onConflict: "reject"` that has conflicts: nothing applies. */
-export type ConflictError = { error: "conflict"; conflicts: MergeWarning[] };
 
 /**
  * The result of a change: the operations and the warnings, or an error. On
@@ -210,121 +198,18 @@ export function updateDocument(
   return update;
 }
 
-/**
- * The version that the client read (`base`), and what a conflict with a
- * change of another writer does (`onConflict`), for a merge write.
- */
-export type MergeFromVersion<Base> = {
-  /**
-   * The version that the client read. Get it from your version history.
-   * `"current"` is not allowed: there is nothing to merge.
-   */
-  base: Base;
-  /**
-   * What a conflict (a {@link MergeWarning}) does. Required: each call
-   * states it.
-   *
-   * - `"reject"`: nothing applies, and the result is the error `"conflict"`,
-   *   with the conflicts. This is the recommended value.
-   * - `"keep-current"`: the change of the other writer stays there, and the
-   *   result has the warning. The other changes of the client apply.
-   */
-  onConflict: "reject" | "keep-current";
-};
-
-/** A change of a merge write that applies: its operations and its warnings. */
-export type MergedChangeOperations = {
-  error?: undefined;
-  operations: BlockOperation[];
-  warnings: ChangeWarning[];
-  /**
-   * The blocks that other writers changed after `base`. The document after
-   * the write has these changes too. A client (for example an AI agent)
-   * that reads the document again sees these changes, which it did not
-   * write.
-   */
-  changesOfOthers: ChangeOfOthers[];
-  /**
-   * The document as the client wrote it: the version of `base` with the
-   * change of the client, and without the changes of other writers. Its text
-   * is the text that the client has now. Thus, it is the `base` of the next
-   * write of this client, if the client does not read the document again:
-   * keep it as a version.
-   *
-   * The document after the write is not that base: it has changes that the
-   * client did not see, and a write of the text of the client from it
-   * removes them without a warning.
-   */
-  written: LensBlock[];
-};
-
-/**
- * The result of a merge write: the operations and the warnings, or an
- * error. On an error, the document does not change.
- *
- * - `"invalid-document"`: see {@link InvalidDocumentError}.
- * - `"conflict"`: see {@link MergeFromVersion}.
- */
-export type MergedChangeResult =
-  | MergedChangeOperations
-  | InvalidDocumentError
-  | ConflictError;
-
-/**
- * A change of a client for a merge write: a text or BlockNote JSON, the
- * version that the client read, and what a conflict does.
- */
-export type DocumentMergeChange = (TextChange | JSONChange) &
-  MergeFromVersion<readonly LensBlock[]>;
-
-/**
- * Computes the operations of a merge write. The client made the change at
- * the version `base`. The change merges three-way with the changes that
- * other writers made after `base` (see `merge/document.ts`): the operations
- * change the document of the editor, and keep the changes of other writers.
- * Nothing changes: {@link applyOperations} applies the operations to a
- * transaction of the caller. {@link updateDocumentWithMerge} computes and
- * applies them in one step.
- *
- * A write of the text of `base` without changes gives no operations.
- *
- * Throws as {@link computeOperations}.
- */
-export function computeOperationsWithMerge(
-  editor: BlockNoteEditor<any, any, any>,
-  change: DocumentMergeChange,
-): MergedChangeResult {
-  return mergedOperationsOf(editor, change, editor.document);
-}
-
-/**
- * Computes the operations of a merge write (see
- * {@link computeOperationsWithMerge}), and applies them to the editor (see
- * {@link dispatchOperations}).
- */
-export function updateDocumentWithMerge(
-  editor: BlockNoteEditor<any, any, any>,
-  change: DocumentMergeChange,
-): MergedChangeResult {
-  const update = computeOperationsWithMerge(editor, change);
-  if (update.error === undefined) {
-    dispatchOperations(editor, update.operations);
-  }
-  return update;
-}
-
 // The pipeline (see "Pipeline" in the README). A change runs these functions:
 //
 //   operationsOf       = textTarget (text: 1 Project, 2 Parse and align
 //                        with parseAndAlign, 3 Target) or jsonTarget (JSON:
 //                        2 Parse), then updateFromTarget (5 Fit, 6 Diff)
-//   mergedOperationsOf = mergeOf (the stages 1 to 3 for a version, then
-//                        4 Merge), the conflict rule, then operationsOfMerge
-//                        (5 Fit, 6 Diff)
 //   dispatchOperations = 7 Apply and 8 Dispatch
 //
-// Only a merge write has stage 4. A strict write examines `base` before
-// stage 1 (see `changesAfterBase`), and then writes to the current document.
+// A strict write examines `base` before stage 1 (see `changesAfterBase`),
+// and then writes to the current document. Only a merge write has stage 4
+// (Merge): its functions are in `apiWithMerge.ts`. This file does not refer
+// to the document merge (`merge/document.ts`). Thus, a bundler can drop the
+// document merge from code that uses only the strict write.
 //
 // The documents of a change:
 //
@@ -525,108 +410,11 @@ export function requireBase(base: unknown): void {
 }
 
 /**
- * The operations of a merge write for the document `current`: the merge of
- * the change with `current` (see {@link mergeOf}), the conflict rule, and
- * the operations (see {@link operationsOfMerge}).
- *
- * With `onConflict: "reject"`, a conflict of the merge gives the error
- * `"conflict"`, and no operations.
+ * The target of a change, with the warnings of stage 3, or an error.
  *
  * @internal
  */
-export function mergedOperationsOf(
-  editor: BlockNoteEditor<any, any, any>,
-  change: DocumentMergeChange,
-  current: readonly LensBlock[],
-): MergedChangeResult {
-  requireBase(change.base);
-  const merge = mergeOf(editor, change, change.base, current);
-  if (merge.error !== undefined) {
-    return merge;
-  }
-  if (change.onConflict === "reject" && merge.conflicts.length > 0) {
-    return { error: "conflict", conflicts: merge.conflicts };
-  }
-  return operationsOfMerge(editor, merge, change.base, current);
-}
-
-/**
- * The merge of a change with the current document (the stages 1 to 4).
- *
- * @internal
- */
-export type DocumentMerge = {
-  error?: undefined;
-  /** The target of the change for `base` (stage 3), and its warnings. */
-  target: readonly LensBlock[];
-  targetWarnings: TargetWarning[];
-  /** The target, merged with the current document (stage 4). */
-  merged: readonly LensBlock[];
-  /** The conflicts of the merge. In each one, the current document won. */
-  conflicts: MergeWarning[];
-};
-
-/**
- * The stages 1 to 4 of a merge write: the target of the change for the
- * version `base`, merged three-way with `current` (see `mergeDocument`). A
- * conflict is not an error here: the caller has the conflict rule.
- *
- * @internal
- */
-export function mergeOf(
-  editor: BlockNoteEditor<any, any, any>,
-  change: TextChange | JSONChange,
-  base: readonly LensBlock[],
-  current: readonly LensBlock[],
-): DocumentMerge | InvalidDocumentError {
-  assertBlockIds(current, "current document");
-  assertBlockIds(base, "base");
-  const target = mergeTargetOf(editor, change, base, current);
-  if (target.error !== undefined) {
-    return target;
-  }
-  // 4. Merge.
-  const merged = mergeDocument({
-    base,
-    ours: target.target,
-    theirs: current,
-    contentKindOf: schemaRulesOf(editor.schema.blockSchema).contentKindOf,
-  });
-  return {
-    target: target.target,
-    targetWarnings: target.warnings,
-    merged: merged.blocks,
-    conflicts: merged.warnings,
-  };
-}
-
-/**
- * The stages 5 and 6 of a merge write: the operations that change `current`
- * to the merged document, with the changes of other writers after `base`,
- * and the document that the client wrote.
- *
- * @internal
- */
-export function operationsOfMerge(
-  editor: BlockNoteEditor<any, any, any>,
-  merge: DocumentMerge,
-  base: readonly LensBlock[],
-  current: readonly LensBlock[],
-): MergedChangeOperations {
-  const rules = schemaRulesOf(editor.schema.blockSchema);
-  const update = updateFromTarget(rules, merge.merged, current);
-  return {
-    operations: update.operations,
-    warnings: [...merge.targetWarnings, ...merge.conflicts, ...update.warnings],
-    changesOfOthers: changesOfOthersOf(base, current),
-    // The client wrote the target: it gets the fit for the version that the
-    // client read.
-    written: fitResult(rules, merge.target, base, false),
-  };
-}
-
-/** The target of a change, with the warnings of stage 3, or an error. */
-type TargetOrError =
+export type TargetOrError =
   | {
       error?: undefined;
       target: readonly LensBlock[];
@@ -635,40 +423,13 @@ type TargetOrError =
   | { error: "invalid-document" };
 
 /**
- * The target of a merge: the change for the version `base`. In a JSON
- * change, a block with the ID of a block that another writer added after
- * the read of the client (the ID is in `current` but not in `base`) is a new
- * block: the client cannot mean that block (see `replaceDisallowedIds`).
- */
-function mergeTargetOf(
-  editor: BlockNoteEditor<any, any, any>,
-  change: TextChange | JSONChange,
-  base: readonly LensBlock[],
-  current: readonly LensBlock[],
-): TargetOrError {
-  if (change.document === undefined) {
-    return textTarget(editor, change.format, base, change.text);
-  }
-  const target = jsonTarget(editor, change.document);
-  if (target.error !== undefined) {
-    return target;
-  }
-  const read = new Set(new BlockIndex(base).ids);
-  const idsOfOthers = new Set(
-    new BlockIndex(current).ids.filter((id) => !read.has(id)),
-  );
-  return {
-    target: replaceDisallowedIds(target.target, idsOfOthers),
-    warnings: target.warnings,
-  };
-}
-
-/**
  * The target of a JSON change: the JSON in the stored form (see
  * `parseJSON`). The JSON contains the block IDs, thus there is no
  * alignment: the JSON is the target.
+ *
+ * @internal
  */
-function jsonTarget(
+export function jsonTarget(
   editor: BlockNoteEditor<any, any, any>,
   json: readonly PartialBlock<any, any, any>[],
 ): TargetOrError {
@@ -678,8 +439,12 @@ function jsonTarget(
     : { target: parsed.blocks, warnings: [] };
 }
 
-/** The target of a text change (stages 1 to 3): `source` as `text` asks for it. */
-function textTarget(
+/**
+ * The target of a text change (stages 1 to 3): `source` as `text` asks for it.
+ *
+ * @internal
+ */
+export function textTarget(
   editor: BlockNoteEditor<any, any, any>,
   format: TextFormat,
   source: readonly LensBlock[],

@@ -3,18 +3,20 @@ import * as Y from "yjs";
 
 import {
   changesOfOthersOf,
-  type ConflictError,
   dispatchOperations,
   type InvalidDocumentError,
   type JSONChange,
+  requireBase,
+  type TextChange,
+} from "../api.js";
+import {
+  type ConflictError,
   type MergedChangeOperations,
   mergedOperationsOf,
   type MergeFromVersion,
   mergeOf,
   operationsOfMerge,
-  requireBase,
-  type TextChange,
-} from "../api.js";
+} from "../apiWithMerge.js";
 import {
   applyBase,
   boundYDoc,

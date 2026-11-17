@@ -6,8 +6,8 @@ import {
   type DocumentChange,
   getDocumentText,
   updateDocument,
-  updateDocumentWithMerge,
 } from "./api.js";
+import { updateDocumentWithMerge } from "./apiWithMerge.js";
 import {
   htmlFormat,
   markdownFormat,
