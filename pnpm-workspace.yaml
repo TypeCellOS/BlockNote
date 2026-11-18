@@ -81,7 +81,7 @@ allowBuilds:
   wasm-pack: false
 catalog:
   vite: ^8.0.0
-  vite-plus: ^1.4.0
+  vite-plus: ^1.7.0
 minimumReleaseAgeExclude:
   - frimousse
   - vite-plus
@@ -93,8 +93,8 @@ minimumReleaseAgeExclude:
   - "@voidzero-dev/*"
   - oxlint
   - "@oxlint/*"
-  - oxlint-tsgolint
-  - "@oxlint-tsgolint/*"
+  - tsrs
+  - "@tsrs/*"
   - oxfmt
   - "@oxfmt/*"
   # The Typst compiler family is pinned to a fresh rc line; excluded from the
