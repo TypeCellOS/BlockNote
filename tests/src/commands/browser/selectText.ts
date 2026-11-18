@@ -12,6 +12,12 @@ import { TextSelection } from "@tiptap/pm/state";
  * omitting `endBlockId` limits the search to `startBlockId`. Throws for an empty
  * substring, invalid block range, or missing match so broken setup fails loudly.
  *
+ * Returns `collapseToStart()` and `collapseToEnd()` for immediate selection setup.
+ * They place the cursor at the matched substring's original start/end, even if
+ * the selection has since moved, and do not focus the editor. They are not
+ * bookmarks: use them only while the document is unchanged. Calling either after
+ * a document change throws; call `selectText` again to find a fresh match.
+ *
  * @example
  * const { editor } = await setupEditor({
  *   initialContent: [{ id: "text", type: "paragraph", content: "Before selected after" }],
@@ -22,6 +28,10 @@ import { TextSelection } from "@tiptap/pm/state";
  * @example
  * // Select the occurrence in a particular block, not an earlier duplicate.
  * selectText(editor, "Repeated text", { startBlockId: "second" });
+ *
+ * @example
+ * // Put the cursor immediately after the matched text, without focusing.
+ * selectText(editor, "selected").collapseToEnd();
  */
 export function selectText(
   editor: Pick<BlockNoteEditor, "transact">,
@@ -31,7 +41,7 @@ export function selectText(
   if (substring.length === 0) {
     throw new Error("selectText requires a non-empty substring");
   }
-  editor.transact((tr) => {
+  const matched = editor.transact((tr) => {
     let from = 0;
     let to = tr.doc.content.size;
     if (range) {
@@ -80,5 +90,27 @@ export function selectText(
       throw new Error(`selectText could not find ${JSON.stringify(substring)}`);
     }
     tr.setSelection(TextSelection.create(tr.doc, match.from, match.to));
+    return { ...match, doc: tr.doc, selection: tr.selection };
   });
+
+  function collapseTo(position: number) {
+    editor.transact((tr) => {
+      if (tr.doc !== matched.doc) {
+        throw new Error(
+          "selectText cannot collapse after the document changed; select the text again",
+        );
+      }
+      tr.setSelection(TextSelection.create(tr.doc, position));
+    });
+  }
+
+  return {
+    collapseToStart() {
+      collapseTo(matched.from);
+    },
+    collapseToEnd() {
+      collapseTo(matched.to);
+    },
+    selection: matched.selection,
+  };
 }
