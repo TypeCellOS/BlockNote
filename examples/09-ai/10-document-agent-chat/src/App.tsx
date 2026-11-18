@@ -39,6 +39,7 @@ import * as Y14 from "@y/y";
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import * as Y from "yjs";
 
+import { AgentChoice } from "./AgentChoice";
 import { ChatPanel, RunFromOutside } from "./ChatPanel";
 import { getEnv } from "./getEnv";
 import { initialContent } from "./initialContent";
@@ -495,6 +496,8 @@ function EditorWithChat(props: {
         </BlockNoteView>
       </div>
       <div className="agent-chat-side" ref={side}>
+        {/* A session on the server can use the agent of the user. */}
+        {sessionUrl !== undefined && <AgentChoice sessionUrl={sessionUrl} />}
         <ChatPanel
           editor={editor}
           onStop={

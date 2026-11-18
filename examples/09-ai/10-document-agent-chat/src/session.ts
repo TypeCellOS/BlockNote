@@ -11,6 +11,8 @@ import { DefaultChatTransport } from "ai";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type * as Y from "yjs";
 
+import { agentOfRequest } from "./myAgent";
+
 // The connection of an editor to the session of its document on the
 // server. The server keeps the chat and the one open proposal of the
 // document (`createSessionHost` of `@blocknote/xl-ai`, and the routes
@@ -20,7 +22,10 @@ import type * as Y from "yjs";
  * The transport of the chat for a session:
  *
  * - A message of the user goes to the server, which starts a run. The
- *   server has the chat, thus the request has only the new message.
+ *   server has the chat, thus the request has only the new message. If the
+ *   user selected their own agent, the request has the token of that agent
+ *   (`agent`): the server then gives the request to that agent, not to its
+ *   model.
  * - The stream of the run in progress comes from `/stream`, from its
  *   start. The editor follows a run that it did not start there.
  */
@@ -28,7 +33,7 @@ export function createSessionTransport(sessionUrl: string) {
   return new DefaultChatTransport({
     api: `${sessionUrl}/messages`,
     prepareSendMessagesRequest: ({ messages }) => ({
-      body: { message: messages.at(-1) },
+      body: { message: messages.at(-1), agent: agentOfRequest() },
     }),
     prepareReconnectToStreamRequest: () => ({ api: `${sessionUrl}/stream` }),
     resumeStreamIsReplay: true,

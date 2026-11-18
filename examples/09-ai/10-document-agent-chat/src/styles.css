@@ -182,3 +182,40 @@
   font-size: 11px;
   word-break: break-all;
 }
+
+.agent-chat-choice {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px;
+  border: 1px solid #d0d0d0;
+  border-radius: 8px;
+}
+
+.agent-chat-choice-kinds {
+  display: flex;
+  gap: 14px;
+}
+
+.agent-chat-choice-kinds label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.agent-chat-choice-state[data-active="true"] {
+  color: #1a7f37;
+}
+
+.agent-chat-choice code {
+  user-select: all;
+  padding: 6px;
+  border-radius: 4px;
+  background: #f4f4f4;
+  font-size: 11px;
+  word-break: break-all;
+}
+
+.agent-chat-choice span {
+  color: #777;
+}
