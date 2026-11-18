@@ -100,7 +100,6 @@ describe("BasicTextStyleButton", () => {
           initialContent: [
             { id: "format", type: "paragraph", content: "Format this text" },
           ],
-          // The button reads editor context directly; no toolbar is needed.
           props: { formattingToolbar: false },
           children: <BasicTextStyleButton basicTextStyle={basicTextStyle} />,
         });
@@ -109,30 +108,18 @@ describe("BasicTextStyleButton", () => {
           name: editor.dictionary.formatting_toolbar[basicTextStyle].tooltip,
           exact: true,
         });
+        const plain =
+          '<block-format path="0" type="paragraph">Format this text</block-format>';
+        const styled = `<block-format path="0" type="paragraph"><text ${basicTextStyle}=true>Format this text</text></block-format>`;
 
         for (const state of ["on", "off"] as const) {
           const before = editor.document;
 
           await button.click();
 
-          expect(compareDocuments(before, editor.document)).toEqual([
-            {
-              type: "update",
-              id: "format",
-              changes: [
-                state === "on"
-                  ? {
-                      op: "add",
-                      path: `/content/0/styles/${basicTextStyle}`,
-                      value: true,
-                    }
-                  : {
-                      op: "remove",
-                      path: `/content/0/styles/${basicTextStyle}`,
-                    },
-              ],
-            },
-          ]);
+          expect(compareDocuments(before, editor.document)).toEqual(
+            `BEFORE:\n${state === "on" ? plain : styled}\n\nAFTER:\n${state === "on" ? styled : plain}`,
+          );
           await expect
             .element(button)
             .toHaveAttribute("aria-pressed", String(state === "on"));
@@ -169,40 +156,18 @@ describe("BasicTextStyleButton", () => {
           name: editor.dictionary.formatting_toolbar[basicTextStyle].tooltip,
           exact: true,
         });
+        const selectedStyles =
+          basicTextStyle === "code"
+            ? "code=true"
+            : `${basicTextStyle}=true textColor="red"`;
 
         await button.click();
 
-        expect(compareDocuments(before, editor.document)).toEqual([
-          {
-            type: "update",
-            id: "format",
-            changes: [
-              { op: "replace", path: "/content/0/text", value: "Before " },
-              {
-                op: "add",
-                path: "/content/1",
-                value: {
-                  type: "text",
-                  text: "selected",
-                  // Inline code excludes other formatting styles.
-                  styles:
-                    basicTextStyle === "code"
-                      ? { code: true }
-                      : { textColor: "red", [basicTextStyle]: true },
-                },
-              },
-              {
-                op: "add",
-                path: "/content/2",
-                value: {
-                  type: "text",
-                  text: " after",
-                  styles: { textColor: "red" },
-                },
-              },
-            ],
-          },
-        ]);
+        expect(compareDocuments(before, editor.document)).toEqual(`BEFORE:
+<block-format path="0" type="paragraph"><text textColor="red">Before selected after</text></block-format>
+
+AFTER:
+<block-format path="0" type="paragraph"><text textColor="red">Before </text><text ${selectedStyles}>selected</text><text textColor="red"> after</text></block-format>`);
       },
     );
 
@@ -226,23 +191,11 @@ describe("BasicTextStyleButton", () => {
         await button.click();
         await userEvent.keyboard(" typed");
 
-        expect(compareDocuments(before, editor.document)).toEqual([
-          {
-            type: "update",
-            id: "format",
-            changes: [
-              {
-                op: "add",
-                path: "/content/1",
-                value: {
-                  type: "text",
-                  text: " typed",
-                  styles: { [basicTextStyle]: true },
-                },
-              },
-            ],
-          },
-        ]);
+        expect(compareDocuments(before, editor.document)).toEqual(`BEFORE:
+<block-format path="0" type="paragraph">Existing</block-format>
+
+AFTER:
+<block-format path="0" type="paragraph">Existing<text ${basicTextStyle}=true> typed</text></block-format>`);
       },
     );
   });

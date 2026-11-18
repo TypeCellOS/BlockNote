@@ -60,20 +60,13 @@ describe("NestBlockButtons", () => {
         .click();
 
       expect(compareDocuments(before, editor.document)).toMatchInlineSnapshot(`
-        [
-          {
-            "from": {
-              "index": 1,
-              "parentId": null,
-            },
-            "id": "selected",
-            "to": {
-              "index": 0,
-              "parentId": "parent",
-            },
-            "type": "move",
-          },
-        ]
+        "BEFORE:
+        <block-selected path="1" type="paragraph">Selected text</block-selected>
+
+        AFTER:
+        <block-parent path="0" type="paragraph">Parent
+          <block-selected path="0.0" type="paragraph">Selected text</block-selected>
+        </block-parent>"
       `);
     });
 
@@ -109,20 +102,13 @@ describe("NestBlockButtons", () => {
         .click();
 
       expect(compareDocuments(before, editor.document)).toMatchInlineSnapshot(`
-        [
-          {
-            "from": {
-              "index": 0,
-              "parentId": "parent",
-            },
-            "id": "selected",
-            "to": {
-              "index": 1,
-              "parentId": null,
-            },
-            "type": "move",
-          },
-        ]
+        "BEFORE:
+        <block-parent path="0" type="paragraph">Parent
+          <block-selected path="0.0" type="paragraph">Selected text</block-selected>
+        </block-parent>
+
+        AFTER:
+        <block-selected path="1" type="paragraph">Selected text</block-selected>"
       `);
     });
   });

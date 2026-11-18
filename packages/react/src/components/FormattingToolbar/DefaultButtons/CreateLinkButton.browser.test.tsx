@@ -111,43 +111,11 @@ describe("CreateLinkButton", () => {
       await pressKey("Enter");
 
       expect(compareDocuments(before, editor.document)).toMatchInlineSnapshot(`
-        [
-          {
-            "changes": [
-              {
-                "op": "replace",
-                "path": "/content/0/text",
-                "value": "Before ",
-              },
-              {
-                "op": "add",
-                "path": "/content/1",
-                "value": {
-                  "content": [
-                    {
-                      "styles": {},
-                      "text": "selected text",
-                      "type": "text",
-                    },
-                  ],
-                  "href": "https://example.com",
-                  "type": "link",
-                },
-              },
-              {
-                "op": "add",
-                "path": "/content/2",
-                "value": {
-                  "styles": {},
-                  "text": " after",
-                  "type": "text",
-                },
-              },
-            ],
-            "id": "text",
-            "type": "update",
-          },
-        ]
+        "BEFORE:
+        <block-text path="0" type="paragraph">Before selected text after</block-text>
+
+        AFTER:
+        <block-text path="0" type="paragraph">Before <link href="https://example.com">selected text</link> after</block-text>"
       `);
       await expect.element(input).not.toBeInTheDocument();
       await expect.element(page.getByRole("textbox")).toHaveFocus();

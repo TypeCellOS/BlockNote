@@ -165,39 +165,11 @@ describe("ColorStyleButton", () => {
         .click();
 
       expect(compareDocuments(before, editor.document)).toMatchInlineSnapshot(`
-        [
-          {
-            "changes": [
-              {
-                "op": "replace",
-                "path": "/content/0/text",
-                "value": "Before ",
-              },
-              {
-                "op": "add",
-                "path": "/content/1",
-                "value": {
-                  "styles": {
-                    "textColor": "gray",
-                  },
-                  "text": "selected",
-                  "type": "text",
-                },
-              },
-              {
-                "op": "add",
-                "path": "/content/2",
-                "value": {
-                  "styles": {},
-                  "text": " after",
-                  "type": "text",
-                },
-              },
-            ],
-            "id": "text",
-            "type": "update",
-          },
-        ]
+        "BEFORE:
+        <block-text path="0" type="paragraph">Before selected after</block-text>
+
+        AFTER:
+        <block-text path="0" type="paragraph">Before <text textColor="gray">selected</text> after</block-text>"
       `);
       await expect.element(page.getByRole("menu")).not.toBeInTheDocument();
       await expect.element(page.getByRole("textbox")).toHaveFocus();
@@ -233,39 +205,11 @@ describe("ColorStyleButton", () => {
         .click();
 
       expect(compareDocuments(before, editor.document)).toMatchInlineSnapshot(`
-        [
-          {
-            "changes": [
-              {
-                "op": "replace",
-                "path": "/content/0/text",
-                "value": "Before ",
-              },
-              {
-                "op": "add",
-                "path": "/content/1",
-                "value": {
-                  "styles": {
-                    "backgroundColor": "gray",
-                  },
-                  "text": "selected",
-                  "type": "text",
-                },
-              },
-              {
-                "op": "add",
-                "path": "/content/2",
-                "value": {
-                  "styles": {},
-                  "text": " after",
-                  "type": "text",
-                },
-              },
-            ],
-            "id": "text",
-            "type": "update",
-          },
-        ]
+        "BEFORE:
+        <block-text path="0" type="paragraph">Before selected after</block-text>
+
+        AFTER:
+        <block-text path="0" type="paragraph">Before <text backgroundColor="gray">selected</text> after</block-text>"
       `);
       await expect.element(page.getByRole("menu")).not.toBeInTheDocument();
       await expect.element(page.getByRole("textbox")).toHaveFocus();
@@ -311,18 +255,11 @@ describe("ColorStyleButton", () => {
         .click();
 
       expect(compareDocuments(before, editor.document)).toMatchInlineSnapshot(`
-        [
-          {
-            "changes": [
-              {
-                "op": "remove",
-                "path": "/content/0/styles/textColor",
-              },
-            ],
-            "id": "text",
-            "type": "update",
-          },
-        ]
+        "BEFORE:
+        <block-text path="0" type="paragraph"><text textColor="gray" backgroundColor="gray">Selected text</text></block-text>
+
+        AFTER:
+        <block-text path="0" type="paragraph"><text backgroundColor="gray">Selected text</text></block-text>"
       `);
     });
 
@@ -366,18 +303,11 @@ describe("ColorStyleButton", () => {
         .click();
 
       expect(compareDocuments(before, editor.document)).toMatchInlineSnapshot(`
-        [
-          {
-            "changes": [
-              {
-                "op": "remove",
-                "path": "/content/0/styles/backgroundColor",
-              },
-            ],
-            "id": "text",
-            "type": "update",
-          },
-        ]
+        "BEFORE:
+        <block-text path="0" type="paragraph"><text textColor="gray" backgroundColor="gray">Selected text</text></block-text>
+
+        AFTER:
+        <block-text path="0" type="paragraph"><text textColor="gray">Selected text</text></block-text>"
       `);
     });
   });

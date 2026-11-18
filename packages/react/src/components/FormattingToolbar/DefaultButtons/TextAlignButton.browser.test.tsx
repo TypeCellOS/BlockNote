@@ -35,51 +35,165 @@ describe("TextAlignButton", () => {
   });
 
   describe("integration", () => {
-    it.for(["left", "center", "right", "justify"] as const)(
-      "aligns the selected block %s without changing its text or neighboring blocks",
-      async (
-        alignment,
-        { setupEditor, selectText, compareDocuments, page },
-      ) => {
-        const { editor } = await setupEditor({
-          initialContent: [
-            { id: "before", type: "paragraph", content: "Before" },
-            {
-              id: "selected",
-              type: "paragraph",
-              props: {
-                textAlignment: alignment === "left" ? "center" : "left",
-              },
-              content: "Selected text",
-            },
-            { id: "after", type: "paragraph", content: "After" },
-          ],
-          props: { formattingToolbar: false },
-          children: <TextAlignButton textAlignment={alignment} />,
-        });
-        selectText(editor, "Selected text");
-        const documentBefore = editor.document;
-        const button = page.getByRole("button", {
-          name: editor.dictionary.formatting_toolbar[`align_${alignment}`]
-            .tooltip,
-          exact: true,
-        });
-        await expect.element(button).toHaveAttribute("aria-pressed", "false");
-
-        await button.click();
-
-        expect(compareDocuments(documentBefore, editor.document)).toEqual([
+    it("aligns the selected block left without changing its text or neighboring blocks", async ({
+      setupEditor,
+      selectText,
+      compareDocuments,
+      page,
+    }) => {
+      const { editor } = await setupEditor({
+        initialContent: [
+          { id: "before", type: "paragraph", content: "Before" },
           {
-            type: "update",
             id: "selected",
-            changes: [
-              { op: "replace", path: "/props/textAlignment", value: alignment },
-            ],
+            type: "paragraph",
+            props: { textAlignment: "center" },
+            content: "Selected text",
           },
-        ]);
-        await expect.element(button).toHaveAttribute("aria-pressed", "true");
-      },
-    );
+          { id: "after", type: "paragraph", content: "After" },
+        ],
+        props: { formattingToolbar: false },
+        children: <TextAlignButton textAlignment="left" />,
+      });
+      selectText(editor, "Selected text");
+      const before = editor.document;
+      const button = page.getByRole("button", {
+        name: editor.dictionary.formatting_toolbar.align_left.tooltip,
+        exact: true,
+      });
+      await expect.element(button).toHaveAttribute("aria-pressed", "false");
+
+      await button.click();
+
+      expect(compareDocuments(before, editor.document)).toMatchInlineSnapshot(`
+        "BEFORE:
+        <block-selected path="1" type="paragraph" props={"textAlignment":"center"}>Selected text</block-selected>
+
+        AFTER:
+        <block-selected path="1" type="paragraph" props={"textAlignment":"left"}>Selected text</block-selected>"
+      `);
+      await expect.element(button).toHaveAttribute("aria-pressed", "true");
+    });
+
+    it("aligns the selected block center without changing its text or neighboring blocks", async ({
+      setupEditor,
+      selectText,
+      compareDocuments,
+      page,
+    }) => {
+      const { editor } = await setupEditor({
+        initialContent: [
+          { id: "before", type: "paragraph", content: "Before" },
+          {
+            id: "selected",
+            type: "paragraph",
+            props: { textAlignment: "left" },
+            content: "Selected text",
+          },
+          { id: "after", type: "paragraph", content: "After" },
+        ],
+        props: { formattingToolbar: false },
+        children: <TextAlignButton textAlignment="center" />,
+      });
+      selectText(editor, "Selected text");
+      const before = editor.document;
+      const button = page.getByRole("button", {
+        name: editor.dictionary.formatting_toolbar.align_center.tooltip,
+        exact: true,
+      });
+      await expect.element(button).toHaveAttribute("aria-pressed", "false");
+
+      await button.click();
+
+      expect(compareDocuments(before, editor.document)).toMatchInlineSnapshot(`
+        "BEFORE:
+        <block-selected path="1" type="paragraph" props={"textAlignment":"left"}>Selected text</block-selected>
+
+        AFTER:
+        <block-selected path="1" type="paragraph" props={"textAlignment":"center"}>Selected text</block-selected>"
+      `);
+      await expect.element(button).toHaveAttribute("aria-pressed", "true");
+    });
+
+    it("aligns the selected block right without changing its text or neighboring blocks", async ({
+      setupEditor,
+      selectText,
+      compareDocuments,
+      page,
+    }) => {
+      const { editor } = await setupEditor({
+        initialContent: [
+          { id: "before", type: "paragraph", content: "Before" },
+          {
+            id: "selected",
+            type: "paragraph",
+            props: { textAlignment: "left" },
+            content: "Selected text",
+          },
+          { id: "after", type: "paragraph", content: "After" },
+        ],
+        props: { formattingToolbar: false },
+        children: <TextAlignButton textAlignment="right" />,
+      });
+      selectText(editor, "Selected text");
+      const before = editor.document;
+      const button = page.getByRole("button", {
+        name: editor.dictionary.formatting_toolbar.align_right.tooltip,
+        exact: true,
+      });
+      await expect.element(button).toHaveAttribute("aria-pressed", "false");
+
+      await button.click();
+
+      expect(compareDocuments(before, editor.document)).toMatchInlineSnapshot(`
+        "BEFORE:
+        <block-selected path="1" type="paragraph" props={"textAlignment":"left"}>Selected text</block-selected>
+
+        AFTER:
+        <block-selected path="1" type="paragraph" props={"textAlignment":"right"}>Selected text</block-selected>"
+      `);
+      await expect.element(button).toHaveAttribute("aria-pressed", "true");
+    });
+
+    it("aligns the selected block justify without changing its text or neighboring blocks", async ({
+      setupEditor,
+      selectText,
+      compareDocuments,
+      page,
+    }) => {
+      const { editor } = await setupEditor({
+        initialContent: [
+          { id: "before", type: "paragraph", content: "Before" },
+          {
+            id: "selected",
+            type: "paragraph",
+            props: { textAlignment: "left" },
+            content: "Selected text",
+          },
+          { id: "after", type: "paragraph", content: "After" },
+        ],
+        props: { formattingToolbar: false },
+        children: <TextAlignButton textAlignment="justify" />,
+      });
+      selectText(editor, "Selected text");
+      const before = editor.document;
+      const button = page.getByRole("button", {
+        name: editor.dictionary.formatting_toolbar.align_justify.tooltip,
+        exact: true,
+      });
+      await expect.element(button).toHaveAttribute("aria-pressed", "false");
+
+      await button.click();
+
+      expect(compareDocuments(before, editor.document)).toMatchInlineSnapshot(`
+        "BEFORE:
+        <block-selected path="1" type="paragraph" props={"textAlignment":"left"}>Selected text</block-selected>
+
+        AFTER:
+        <block-selected path="1" type="paragraph" props={"textAlignment":"justify"}>Selected text</block-selected>"
+      `);
+      await expect.element(button).toHaveAttribute("aria-pressed", "true");
+    });
 
     it("aligns every selected block without changing an unselected neighbor", async ({
       setupEditor,
@@ -106,30 +220,13 @@ describe("TextAlignButton", () => {
         .click();
 
       expect(compareDocuments(before, editor.document)).toMatchInlineSnapshot(`
-        [
-          {
-            "changes": [
-              {
-                "op": "replace",
-                "path": "/props/textAlignment",
-                "value": "center",
-              },
-            ],
-            "id": "first",
-            "type": "update",
-          },
-          {
-            "changes": [
-              {
-                "op": "replace",
-                "path": "/props/textAlignment",
-                "value": "center",
-              },
-            ],
-            "id": "second",
-            "type": "update",
-          },
-        ]
+        "BEFORE:
+        <block-first path="0" type="paragraph" props={"textAlignment":"left"}>First</block-first>
+        <block-second path="1" type="paragraph" props={"textAlignment":"left"}>Second</block-second>
+
+        AFTER:
+        <block-first path="0" type="paragraph" props={"textAlignment":"center"}>First</block-first>
+        <block-second path="1" type="paragraph" props={"textAlignment":"center"}>Second</block-second>"
       `);
     });
 
@@ -175,24 +272,29 @@ describe("TextAlignButton", () => {
         .click();
 
       expect(compareDocuments(before, editor.document)).toMatchInlineSnapshot(`
-        [
-          {
-            "changes": [
-              {
-                "op": "replace",
-                "path": "/content/rows/0/cells/0/props/textAlignment",
-                "value": "center",
-              },
-              {
-                "op": "replace",
-                "path": "/content/rows/0/cells/1/props/textAlignment",
-                "value": "center",
-              },
-            ],
-            "id": "table",
-            "type": "update",
-          },
-        ]
+        "BEFORE:
+        <block-table path="0" type="table"><table columnWidths=[null,null] headerRows=undefined headerCols=undefined>
+          <row index=0>
+            <cell type="tableCell" props={"textAlignment":"left"}>First</cell>
+            <cell type="tableCell" props={"textAlignment":"left"}>Second</cell>
+          </row>
+          <row index=1>
+            <cell type="tableCell">Third</cell>
+            <cell type="tableCell">Fourth</cell>
+          </row>
+        </table></block-table>
+
+        AFTER:
+        <block-table path="0" type="table"><table columnWidths=[null,null] headerRows=undefined headerCols=undefined>
+          <row index=0>
+            <cell type="tableCell" props={"textAlignment":"center"}>First</cell>
+            <cell type="tableCell" props={"textAlignment":"center"}>Second</cell>
+          </row>
+          <row index=1>
+            <cell type="tableCell">Third</cell>
+            <cell type="tableCell">Fourth</cell>
+          </row>
+        </table></block-table>"
       `);
     });
   });

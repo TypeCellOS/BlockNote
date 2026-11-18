@@ -134,30 +134,12 @@ describe("BlockTypeSelect", () => {
 
       expect(compareDocuments(documentBefore, editor.document))
         .toMatchInlineSnapshot(`
-        [
-          {
-            "changes": [
-              {
-                "op": "replace",
-                "path": "/type",
-                "value": "heading",
-              },
-              {
-                "op": "add",
-                "path": "/props/level",
-                "value": 1,
-              },
-              {
-                "op": "add",
-                "path": "/props/isToggleable",
-                "value": false,
-              },
-            ],
-            "id": "selected",
-            "type": "update",
-          },
-        ]
-      `);
+          "BEFORE:
+          <block-selected path="1" type="paragraph">Selected text</block-selected>
+
+          AFTER:
+          <block-selected path="1" type="heading" props={"level":1,"isToggleable":false}>Selected text</block-selected>"
+        `);
       await expect.element(page.getByRole("menu")).not.toBeInTheDocument();
       await expect
         .element(
@@ -200,50 +182,13 @@ describe("BlockTypeSelect", () => {
         .click();
 
       expect(compareDocuments(before, editor.document)).toMatchInlineSnapshot(`
-        [
-          {
-            "changes": [
-              {
-                "op": "replace",
-                "path": "/type",
-                "value": "heading",
-              },
-              {
-                "op": "add",
-                "path": "/props/level",
-                "value": 1,
-              },
-              {
-                "op": "add",
-                "path": "/props/isToggleable",
-                "value": false,
-              },
-            ],
-            "id": "first",
-            "type": "update",
-          },
-          {
-            "changes": [
-              {
-                "op": "replace",
-                "path": "/type",
-                "value": "heading",
-              },
-              {
-                "op": "add",
-                "path": "/props/level",
-                "value": 1,
-              },
-              {
-                "op": "add",
-                "path": "/props/isToggleable",
-                "value": false,
-              },
-            ],
-            "id": "second",
-            "type": "update",
-          },
-        ]
+        "BEFORE:
+        <block-first path="0" type="paragraph">First</block-first>
+        <block-second path="1" type="paragraph">Second</block-second>
+
+        AFTER:
+        <block-first path="0" type="heading" props={"level":1,"isToggleable":false}>First</block-first>
+        <block-second path="1" type="heading" props={"level":1,"isToggleable":false}>Second</block-second>"
       `);
     });
   });
