@@ -7,12 +7,24 @@
 // extension) is in `client/index.ts`.
 
 export {
+  type AgentLoop,
+  type AgentRunOptions,
   createDocumentAgent,
   type DocumentAgentOptions,
   type DocumentAgentRun,
   runDocumentAgent,
   streamAgentOnDocument,
 } from "./agent/documentAgent.js";
+export {
+  type AgentCallResult,
+  type AgentEvent,
+  type AttachedAgentRef,
+  type AttachedAgents,
+  type AttachedAgentsOptions,
+  type AttachedAgentState,
+  createAttachedAgents,
+  type RunOpening,
+} from "./attached/attachedAgents.js";
 export { type LanguageModelObject } from "./agent/earlyToolCalls.js";
 export {
   batchesChunk,
@@ -138,3 +150,7 @@ export {
   type OnExtra,
   type ToolCalls,
 } from "./tools/toolCalls.js";
+export {
+  DOCUMENT_TOOL_DEFINITIONS,
+  type DocumentToolDefinition,
+} from "./tools/toolDefinitions.js";
