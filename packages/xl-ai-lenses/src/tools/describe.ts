@@ -68,6 +68,19 @@ export function describeWrite(
   }
 }
 
+/**
+ * The decision of a user on the change of an earlier tool call, for an
+ * agent that keeps its own conversation: it has the result of the call,
+ * and not the decision. `reason` is the reason of the tool call: the agent
+ * finds its change by it.
+ */
+export function describeDecision(
+  reason: string | undefined,
+  review: ToolCallReview,
+): string {
+  return `The change${reason === undefined ? "" : ` "${reason}"`}: ${describeReview(review).join(" ")}`;
+}
+
 /** The decision of a user on the change of a tool call, for a later run of the agent. */
 function describeReview(review: ToolCallReview | undefined): string[] {
   switch (review) {

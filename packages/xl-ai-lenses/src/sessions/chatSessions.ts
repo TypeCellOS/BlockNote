@@ -6,6 +6,8 @@ import {
 } from "ai";
 
 import {
+  type AgentLoop,
+  type AgentRunOptions,
   type DocumentAgentOptions,
   streamAgentOnDocument,
 } from "../agent/documentAgent.js";
@@ -18,7 +20,7 @@ import type { AgentDocument } from "../tools/agentDocument.js";
 
 /**
  * Who started a run: a user in the chat of an editor, or a caller outside
- * the editors (a script, a schedule, or later an external agent).
+ * the editors (a script, a schedule, or an agent that a user attached).
  */
 export type RunOrigin = "user" | "external";
 
@@ -109,10 +111,22 @@ export type ChatSessions = {
     documentId: string,
     change: (messages: UIMessage[]) => UIMessage[],
   ): Promise<void>;
-  /** Starts a run for a request. The request becomes a message of the chat. */
+  /**
+   * Starts a run for a request. The request becomes a message of the chat.
+   *
+   * `loop` is the loop of the agent for this run, for example the loop of
+   * an agent that the user attached (see `attached/attachedAgents.ts`).
+   * Without it, the run uses the built-in loop, with the model of the
+   * host.
+   */
   startRun(
     documentId: string,
-    request: { prompt: string; origin: RunOrigin; messageId?: string },
+    request: {
+      prompt: string;
+      origin: RunOrigin;
+      messageId?: string;
+      loop?: AgentLoop;
+    },
   ): Promise<
     | { error?: undefined; run: StartedRun }
     /** A document has one run at a time. */
@@ -291,16 +305,21 @@ export function createChatSessions<Extra extends object>(
         writer = await runs.create(runId);
         const abort = new AbortController();
         writer.onStop(() => abort.abort());
-        const stream = await streamAgentOnDocument(
-          opened.document,
-          chat.messages,
-          {
-            ...options,
-            extraChunk: opened.extraChunk,
-            abortSignal: abort.signal,
-            messageId: true,
-          },
-        );
+        const run: AgentRunOptions<Extra> = {
+          extraChunk: opened.extraChunk,
+          abortSignal: abort.signal,
+          messageId: true,
+        };
+        // The one place where a session selects the loop of a run. The
+        // model, the instructions and the step limit of the host are for
+        // the built-in loop only.
+        const stream =
+          request.loop === undefined
+            ? await streamAgentOnDocument(opened.document, chat.messages, {
+                ...options,
+                ...run,
+              })
+            : await request.loop(opened.document, chat.messages, run);
         source =
           opened.openingChunk === undefined
             ? stream

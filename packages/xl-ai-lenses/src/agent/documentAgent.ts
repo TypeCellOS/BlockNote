@@ -150,8 +150,8 @@ function toolErrorsOf<Part extends { type: string }>(
 }
 
 /**
- * Runs the agent on the document of a host for the messages of a chat, and
- * returns the UI message stream of the AI SDK.
+ * The options of one run of a loop on a document. Each loop has them (see
+ * {@link AgentLoop}).
  *
  * With `messageId`, the stream gives the message of the agent an ID. A
  * host that keeps the chat uses it: the message has the same ID on the
@@ -161,6 +161,37 @@ function toolErrorsOf<Part extends { type: string }>(
  * client that follows the run. The chunk goes into the stream when the
  * tool call ends. This is before the end of the LLM step: the client shows
  * the change at once.
+ */
+export type AgentRunOptions<Extra extends object> = {
+  abortSignal?: AbortSignal;
+  messageId?: boolean;
+  extraChunk?: (
+    extra: Extra,
+    toolCallId?: string,
+  ) => UIMessageChunk | undefined;
+};
+
+/**
+ * The loop of an agent: it runs the agent on the document of a host for
+ * the messages of a chat, and returns the UI message stream of the AI SDK.
+ * The sessions, the stores and the editors need only that stream.
+ *
+ * There are two loops. The built-in loop is {@link streamAgentOnDocument}
+ * with the options of a model. The loop of an agent that a user attached
+ * is in `attached/attachedAgents.ts`: the agent is a different program
+ * that calls the document tools itself, and the loop only writes these
+ * calls into the stream.
+ */
+export type AgentLoop = <Extra extends object>(
+  document: AgentDocument<Extra>,
+  messages: UIMessage[],
+  options: AgentRunOptions<Extra>,
+) => Promise<ReadableStream<UIMessageChunk>>;
+
+/**
+ * The built-in loop: runs the agent with the model of the host on the
+ * document, and returns the UI message stream of the AI SDK (see
+ * {@link AgentLoop} and {@link AgentRunOptions}).
  *
  * The same function runs on a server (the route returns the stream as the
  * response) and in the browser (a chat transport returns the stream).
@@ -168,14 +199,7 @@ function toolErrorsOf<Part extends { type: string }>(
 export async function streamAgentOnDocument<Extra extends object>(
   document: AgentDocument<Extra>,
   messages: UIMessage[],
-  options: DocumentAgentOptions & {
-    abortSignal?: AbortSignal;
-    messageId?: boolean;
-    extraChunk?: (
-      extra: Extra,
-      toolCallId?: string,
-    ) => UIMessageChunk | undefined;
-  },
+  options: DocumentAgentOptions & AgentRunOptions<Extra>,
 ): Promise<ReadableStream<UIMessageChunk>> {
   // The agent starts before the stream exists. Thus, the listener gets the
   // function that adds to the stream when the stream is there.
