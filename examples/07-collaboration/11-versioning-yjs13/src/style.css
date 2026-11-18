@@ -36,8 +36,8 @@
 /* The themed root `RenderInPortalElement` creates in the slot. Only inside it
    do the `--bn-*` variables follow the editor's (light or dark) theme. */
 .sidebar-section > .bn-root {
-  background-color: var(--bn-colors-editor-background);
-  border-left: 1px solid var(--bn-colors-border);
+  background-color: var(--bn-background-color-editor);
+  border-left: 1px solid var(--bn-border-color);
   display: flex;
   flex: 1;
   min-height: 0;
@@ -48,11 +48,11 @@
 }
 
 .show-history-button {
-  background-color: var(--bn-colors-menu-background);
-  border: var(--bn-border);
-  border-radius: var(--bn-border-radius-medium);
-  box-shadow: var(--bn-shadow-medium);
-  color: var(--bn-colors-menu-text);
+  background-color: var(--bn-background-color-menu);
+  border: var(--bn-menu-border);
+  border-radius: var(--bn-radius-medium);
+  box-shadow: var(--bn-shadow-default);
+  color: var(--bn-text-color-menu);
   cursor: pointer;
   font-size: 13px;
   font-weight: 600;
@@ -72,7 +72,7 @@
 }
 
 .settings-select h2 {
-  color: var(--bn-colors-menu-text);
+  color: var(--bn-text-color-menu);
   margin: 0;
   font-size: 12px;
   line-height: 12px;

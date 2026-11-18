@@ -1,25 +1,25 @@
 @import "@blocknote/react/style.css";
 
 /* Use Shadcn's semantic colors (including .dark changes) when provided by
-   the host. Missing tokens fall back to the shared BlockNote theme. Keep
+   the host. Missing variables fall back to the shared BlockNote theme. Keep
    specificity low so direct --pele-* customizations still take precedence. */
 :where(.bn-root.bn-shadcn) {
-  --pele-bg: var(--background, var(--bn-colors-editor-background));
-  --pele-fg: var(--foreground, var(--bn-colors-editor-text));
-  --pele-muted: var(--muted-foreground, var(--bn-colors-side-menu));
-  --pele-line: var(--foreground, var(--bn-colors-editor-text));
-  --pele-surface: var(--background, var(--bn-colors-editor-background));
-  --pele-surface-alt: var(--muted, var(--bn-colors-hovered-background));
-  --pele-border: var(--foreground, var(--bn-colors-editor-text));
-  --pele-accent: var(--primary, var(--bn-colors-highlights-blue-text));
-  --pele-critical: var(--destructive, var(--bn-colors-highlights-red-text));
-  --pele-error: var(--destructive, var(--bn-colors-highlights-red-text));
-  --pele-radius: var(--radius, var(--bn-border-radius));
-  --pele-series-1: var(--chart-1, var(--bn-colors-highlights-blue-text));
-  --pele-series-2: var(--chart-2, var(--bn-colors-highlights-orange-text));
-  --pele-series-3: var(--chart-3, var(--bn-colors-highlights-green-text));
-  --pele-series-4: var(--chart-4, var(--bn-colors-highlights-red-text));
-  --pele-series-5: var(--chart-5, var(--bn-colors-highlights-purple-text));
+  --pele-bg: var(--background, var(--bn-diagram-bg));
+  --pele-fg: var(--foreground, var(--bn-diagram-fg));
+  --pele-muted: var(--muted-foreground, var(--bn-diagram-muted-color));
+  --pele-line: var(--foreground, var(--bn-diagram-line));
+  --pele-surface: var(--background, var(--bn-diagram-background));
+  --pele-surface-alt: var(--muted, var(--bn-diagram-background-alt));
+  --pele-border: var(--foreground, var(--bn-diagram-border));
+  --pele-accent: var(--primary, var(--bn-diagram-accent));
+  --pele-critical: var(--destructive, var(--bn-diagram-critical));
+  --pele-error: var(--destructive, var(--bn-diagram-error));
+  --pele-radius: var(--radius, var(--bn-diagram-radius));
+  --pele-series-1: var(--chart-1, var(--bn-diagram-series-1));
+  --pele-series-2: var(--chart-2, var(--bn-diagram-series-2));
+  --pele-series-3: var(--chart-3, var(--bn-diagram-series-3));
+  --pele-series-4: var(--chart-4, var(--bn-diagram-series-4));
+  --pele-series-5: var(--chart-5, var(--bn-diagram-series-5));
 }
 
 .bn-shadcn svg:not([class*="size-"]) {
@@ -92,7 +92,7 @@
 }
 
 .bn-shadcn .bn-combobox-error {
-  color: var(--bn-colors-highlights-red-background);
+  color: var(--bn-combobox-error-color);
   font-weight: bold;
 }
 

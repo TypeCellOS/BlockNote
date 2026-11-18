@@ -9,68 +9,68 @@
 
 /* Mantine Badge component base styles */
 .bn-mantine .mantine-Badge-root {
-  background-color: var(--bn-colors-tooltip-background);
-  color: var(--bn-colors-tooltip-text);
+  background-color: var(--bn-badge-background);
+  color: var(--bn-badge-color);
 }
 
 /* Mantine FileInput component base styles */
 .bn-mantine .mantine-FileInput-input {
   align-items: center;
-  background-color: var(--bn-colors-menu-background);
+  background-color: var(--bn-file-input-background);
   border: none;
   border-radius: 4px;
-  color: var(--bn-colors-menu-text);
+  color: var(--bn-file-input-color);
   display: flex;
   flex-direction: row;
-  font-family: var(--bn-font-family);
+  font-family: var(--bn-file-input-font-family);
   justify-content: center;
 }
 
 .bn-mantine .mantine-FileInput-input:hover {
-  background-color: var(--bn-colors-hovered-background);
+  background-color: var(--bn-file-input-hover-background);
 }
 
 .bn-mantine .mantine-FileInput-wrapper {
-  border: solid var(--bn-colors-border) 1px;
+  border: solid var(--bn-file-input-border-color) 1px;
   border-radius: 4px;
 }
 
 .bn-mantine .mantine-InputPlaceholder-placeholder {
-  color: var(--bn-colors-menu-text);
-  font-family: var(--bn-font-family);
+  color: var(--bn-input-placeholder-color);
+  font-family: var(--bn-input-placeholder-font-family);
   font-weight: 600;
 }
 
 /* Mantine Menu component base styles */
 .bn-mantine .mantine-Menu-dropdown,
 .bn-mantine .bn-menu-dropdown {
-  background-color: var(--bn-colors-menu-background);
-  border: var(--bn-border);
-  border-radius: var(--bn-border-radius-medium);
-  box-shadow: var(--bn-shadow-medium);
+  background-color: var(--bn-menu-background);
+  border: var(--bn-menu-border);
+  border-radius: var(--bn-menu-radius);
+  box-shadow: var(--bn-menu-shadow);
   box-sizing: border-box;
-  color: var(--bn-colors-menu-text);
+  color: var(--bn-menu-color);
   padding: 2px;
   overflow: auto;
 }
 
 .bn-mantine .mantine-Menu-label {
-  background-color: var(--bn-colors-menu-background);
-  color: var(--bn-colors-menu-text);
+  background-color: var(--bn-menu-background);
+  color: var(--bn-menu-color);
 }
 
 .bn-mantine .mantine-Menu-item {
-  background-color: var(--bn-colors-menu-background);
+  background-color: var(--bn-menu-item-background);
   border: none;
-  border-radius: var(--bn-border-radius-small);
-  color: var(--bn-colors-menu-text);
+  border-radius: var(--bn-menu-item-radius);
+  color: var(--bn-menu-item-color);
 }
 
 .bn-mantine .mantine-Menu-item[aria-selected="true"],
 .bn-mantine .mantine-Menu-item:hover {
-  background-color: var(--bn-colors-hovered-background);
+  background-color: var(--bn-menu-item-hover-background);
   border: none;
-  color: var(--bn-colors-hovered-text);
+  color: var(--bn-menu-item-hover-color);
 }
 
 /* Mantine Popover component base styles */
@@ -87,28 +87,28 @@
 /* Mantine Tabs component base styles */
 .bn-mantine .mantine-Tabs-root {
   width: 100%;
-  background-color: var(--bn-colors-menu-background);
+  background-color: var(--bn-tabs-background);
 }
 
 .bn-mantine .mantine-Tabs-list:before {
-  border-color: var(--bn-colors-hovered-background);
+  border-color: var(--bn-tabs-hover-background);
 }
 
 .bn-mantine .mantine-Tabs-tab {
-  color: var(--bn-colors-menu-text);
-  border-color: var(--bn-colors-hovered-background);
+  color: var(--bn-tabs-color);
+  border-color: var(--bn-tabs-hover-background);
 }
 
 .bn-mantine .mantine-Tabs-tab:hover {
-  background-color: var(--bn-colors-hovered-background);
-  border-color: var(--bn-colors-hovered-background);
-  color: var(--bn-colors-hovered-text);
+  background-color: var(--bn-tabs-hover-background);
+  border-color: var(--bn-tabs-hover-background);
+  color: var(--bn-tabs-hover-color);
 }
 
 .bn-mantine .mantine-Tabs-tab[data-active],
 .bn-mantine .mantine-Tabs-tab[data-active]:hover {
-  border-color: var(--bn-colors-menu-text);
-  color: var(--bn-colors-menu-text);
+  border-color: var(--bn-tabs-color);
+  color: var(--bn-tabs-color);
 }
 
 .bn-mantine .mantine-Tabs-panel {
@@ -117,11 +117,11 @@
 
 /* Mantine TextInput component base styles */
 .bn-mantine .mantine-TextInput-input {
-  background-color: var(--bn-colors-menu-background);
-  border: solid var(--bn-colors-border) 1px;
+  background-color: var(--bn-text-input-background);
+  border: solid var(--bn-text-input-border-color) 1px;
   border-radius: 4px;
-  color: var(--bn-colors-menu-text);
-  font-family: var(--bn-font-family);
+  color: var(--bn-text-input-color);
+  font-family: var(--bn-text-input-font-family);
   height: 32px;
 }
 
@@ -157,10 +157,10 @@
 
 /* Toolbar styling */
 .bn-mantine .bn-toolbar {
-  background-color: var(--bn-colors-menu-background);
-  border: var(--bn-border);
-  border-radius: var(--bn-border-radius-medium);
-  box-shadow: var(--bn-shadow-medium);
+  background-color: var(--bn-toolbar-background);
+  border: var(--bn-toolbar-border);
+  border-radius: var(--bn-toolbar-radius);
+  box-shadow: var(--bn-toolbar-shadow);
   flex-wrap: nowrap;
   gap: 2px;
   padding: 2px;
@@ -174,10 +174,10 @@
 
 .bn-toolbar .mantine-Button-root,
 .bn-toolbar .mantine-ActionIcon-root {
-  background-color: var(--bn-colors-menu-background);
+  background-color: var(--bn-toolbar-button-background);
   border: none;
-  border-radius: var(--bn-border-radius-small);
-  color: var(--bn-colors-menu-text);
+  border-radius: var(--bn-toolbar-button-radius);
+  color: var(--bn-toolbar-button-color);
   flex-shrink: 0;
 }
 
@@ -186,24 +186,24 @@ on touch devices (e.g. the mobile formatting toolbar). */
 @media (hover: hover) {
   .bn-toolbar .mantine-Button-root:hover,
   .bn-toolbar .mantine-ActionIcon-root:hover {
-    background-color: var(--bn-colors-hovered-background);
+    background-color: var(--bn-toolbar-button-hover-background);
     border: none;
-    color: var(--bn-colors-hovered-text);
+    color: var(--bn-toolbar-button-hover-color);
   }
 }
 
 .bn-toolbar .mantine-Button-root[data-selected],
 .bn-toolbar .mantine-ActionIcon-root[data-selected] {
-  background-color: var(--bn-colors-selected-background);
+  background-color: var(--bn-toolbar-button-selected-background);
   border: none;
-  color: var(--bn-colors-selected-text);
+  color: var(--bn-toolbar-button-selected-color);
 }
 
 .bn-toolbar .mantine-Button-root[data-disabled],
 .bn-toolbar .mantine-ActionIcon-root[data-disabled] {
-  background-color: var(--bn-colors-disabled-background);
+  background-color: var(--bn-toolbar-button-disabled-background);
   border: none;
-  color: var(--bn-colors-disabled-text);
+  color: var(--bn-toolbar-button-disabled-color);
 }
 
 .bn-mobile-formatting-toolbar .bn-toolbar .mantine-Button-root {
@@ -227,11 +227,11 @@ on touch devices (e.g. the mobile formatting toolbar). */
 }
 
 .bn-mantine .bn-form-popover {
-  background-color: var(--bn-colors-menu-background);
-  border: var(--bn-border);
-  border-radius: var(--bn-border-radius-medium);
-  box-shadow: var(--bn-shadow-medium);
-  color: var(--bn-colors-menu-text);
+  background-color: var(--bn-form-popover-background);
+  border: var(--bn-form-popover-border);
+  border-radius: var(--bn-form-popover-radius);
+  box-shadow: var(--bn-form-popover-shadow);
+  color: var(--bn-form-popover-color);
   gap: 4px;
   min-width: 145px;
   padding: 2px;
@@ -249,7 +249,7 @@ on touch devices (e.g. the mobile formatting toolbar). */
 }
 
 .bn-form-popover .mantine-TextInput-wrapper:hover {
-  background-color: var(--bn-colors-hovered-background);
+  background-color: var(--bn-form-popover-hover-background);
 }
 
 .bn-form-popover .mantine-TextInput-input,
@@ -272,15 +272,15 @@ on touch devices (e.g. the mobile formatting toolbar). */
 }
 
 .bn-form-popover .mantine-FileInput-input:hover {
-  background-color: var(--bn-colors-hovered-background);
+  background-color: var(--bn-form-popover-hover-background);
 }
 
 .bn-form-popover .mantine-FileInput-section[data-position="left"] {
-  color: var(--bn-colors-menu-text);
+  color: var(--bn-form-popover-color);
 }
 
 .bn-form-popover .mantine-FileInput-placeholder {
-  color: var(--bn-colors-menu-text);
+  color: var(--bn-form-popover-color);
 }
 
 /* Suggestion Menu styling*/
@@ -344,12 +344,12 @@ on touch devices (e.g. the mobile formatting toolbar). */
 }
 
 .bn-mantine .bn-suggestion-menu {
-  background-color: var(--bn-colors-menu-background);
-  border: var(--bn-border);
-  border-radius: var(--bn-border-radius-medium);
-  box-shadow: var(--bn-shadow-medium);
+  background-color: var(--bn-suggestion-menu-background);
+  border: var(--bn-suggestion-menu-border);
+  border-radius: var(--bn-suggestion-menu-radius);
+  box-shadow: var(--bn-suggestion-menu-shadow);
   box-sizing: border-box;
-  color: var(--bn-colors-menu-text);
+  color: var(--bn-suggestion-menu-color);
   height: fit-content;
   max-height: inherit;
   max-width: 350px;
@@ -380,16 +380,16 @@ on touch devices (e.g. the mobile formatting toolbar). */
 
 .bn-mantine .bn-suggestion-menu-item[aria-selected="true"],
 .bn-mantine .bn-suggestion-menu-item:hover {
-  background-color: var(--bn-colors-hovered-background);
+  background-color: var(--bn-suggestion-menu-item-hover-background);
 }
 
 .bn-mt-suggestion-menu-item-section {
-  color: var(--bn-colors-tooltip-text);
+  color: var(--bn-suggestion-menu-icon-color);
 }
 
 .bn-mt-suggestion-menu-item-section[data-position="left"] {
-  background-color: var(--bn-colors-tooltip-background);
-  border-radius: var(--bn-border-radius-small);
+  background-color: var(--bn-suggestion-menu-icon-background);
+  border-radius: var(--bn-suggestion-menu-icon-radius);
   padding: 8px;
 }
 
@@ -417,7 +417,7 @@ on touch devices (e.g. the mobile formatting toolbar). */
 }
 
 .bn-mt-suggestion-menu-item-title {
-  color: var(--bn-colors-menu-text);
+  color: var(--bn-suggestion-menu-title-color);
   line-height: 20px;
   font-weight: 500;
   font-size: 14px;
@@ -431,7 +431,7 @@ on touch devices (e.g. the mobile formatting toolbar). */
 }
 
 .bn-mt-suggestion-menu-item-subtitle {
-  color: var(--bn-colors-menu-text);
+  color: var(--bn-suggestion-menu-subtitle-color);
   line-height: 16px;
   font-size: 10px;
   margin: 0;
@@ -444,7 +444,7 @@ on touch devices (e.g. the mobile formatting toolbar). */
 }
 
 .bn-mantine .bn-suggestion-menu-label {
-  color: var(--bn-colors-hovered-text);
+  color: var(--bn-suggestion-menu-label-color);
 }
 
 .bn-mantine .bn-suggestion-menu-loader {
@@ -453,7 +453,7 @@ on touch devices (e.g. the mobile formatting toolbar). */
 }
 
 .bn-mantine .bn-suggestion-menu-loader span {
-  background-color: var(--bn-colors-side-menu);
+  background-color: var(--bn-suggestion-menu-loader-color);
 }
 
 /* Side Menu styling */
@@ -467,12 +467,12 @@ on touch devices (e.g. the mobile formatting toolbar). */
 }
 
 .bn-side-menu .mantine-UnstyledButton-root:hover {
-  background-color: var(--bn-colors-hovered-background);
+  background-color: var(--bn-side-menu-hover-background);
 }
 
 .bn-side-menu .mantine-UnstyledButton-root:not(.mantine-Menu-item) svg {
   background-color: transparent;
-  color: var(--bn-colors-side-menu);
+  color: var(--bn-side-menu-icon-color);
   height: 22px;
   width: 22px;
 }
@@ -487,10 +487,10 @@ on touch devices (e.g. the mobile formatting toolbar). */
 
 /* Image Panel styling*/
 .bn-mantine .bn-panel {
-  background-color: var(--bn-colors-menu-background);
-  border: var(--bn-border);
-  border-radius: var(--bn-border-radius-medium);
-  box-shadow: var(--bn-shadow-medium);
+  background-color: var(--bn-panel-background);
+  border: var(--bn-panel-border);
+  border-radius: var(--bn-panel-radius);
+  box-shadow: var(--bn-panel-shadow);
   padding: 2px;
   width: 500px;
   max-width: 100vw;
@@ -510,16 +510,16 @@ on touch devices (e.g. the mobile formatting toolbar). */
 }
 
 .bn-panel .mantine-Button-root {
-  background-color: var(--bn-colors-menu-background);
-  border: solid var(--bn-colors-border) 1px;
-  border-radius: var(--bn-border-radius-small);
-  color: var(--bn-colors-menu-text);
+  background-color: var(--bn-panel-button-background);
+  border: solid var(--bn-panel-button-border-color) 1px;
+  border-radius: var(--bn-panel-button-radius);
+  color: var(--bn-panel-button-color);
   height: 32px;
   width: 60%;
 }
 
 .bn-panel .mantine-Button-root:hover {
-  background-color: var(--bn-colors-hovered-background);
+  background-color: var(--bn-panel-button-hover-background);
 }
 
 .bn-panel .mantine-Text-root {
@@ -531,11 +531,11 @@ on touch devices (e.g. the mobile formatting toolbar). */
 .bn-mantine .bn-extend-button,
 .bn-mantine .bn-table-cell-handle {
   align-items: center;
-  background-color: var(--bn-colors-menu-background);
-  border: var(--bn-border);
-  border-radius: var(--bn-border-radius-small);
-  box-shadow: var(--bn-shadow-light);
-  color: var(--bn-colors-side-menu);
+  background-color: var(--bn-table-handle-background);
+  border: var(--bn-table-handle-border);
+  border-radius: var(--bn-table-handle-radius);
+  box-shadow: var(--bn-table-handle-shadow);
+  color: var(--bn-table-handle-icon-color);
   cursor: grab;
   display: flex;
   height: fit-content;
@@ -561,7 +561,7 @@ on touch devices (e.g. the mobile formatting toolbar). */
 .bn-mantine .bn-extend-button:hover,
 .bn-mantine .bn-extend-button-editing,
 .bn-mantine .bn-table-cell-handle:hover {
-  background-color: var(--bn-colors-hovered-background);
+  background-color: var(--bn-table-handle-hover-background);
 }
 
 .bn-mantine .bn-extend-button-add-remove-columns {
@@ -586,11 +586,11 @@ on touch devices (e.g. the mobile formatting toolbar). */
 
 /* Tooltip styling */
 .bn-mantine .bn-tooltip {
-  background-color: var(--bn-colors-tooltip-background);
-  border: var(--bn-border);
-  border-radius: var(--bn-border-radius-medium);
-  box-shadow: var(--bn-shadow-medium);
-  color: var(--bn-colors-tooltip-text);
+  background-color: var(--bn-tooltip-background);
+  border: var(--bn-tooltip-border);
+  border-radius: var(--bn-tooltip-radius);
+  box-shadow: var(--bn-tooltip-shadow);
+  color: var(--bn-tooltip-color);
   padding: 4px 10px;
   text-align: center;
 }
@@ -603,11 +603,11 @@ on touch devices (e.g. the mobile formatting toolbar). */
 
 /* Comment styling */
 .bn-mantine .bn-thread {
-  background-color: var(--bn-colors-menu-background);
-  border: var(--bn-border);
-  border-radius: var(--bn-border-radius-medium);
-  box-shadow: var(--bn-shadow-medium);
-  color: var(--bn-colors-menu-text);
+  background-color: var(--bn-thread-background);
+  border: var(--bn-thread-border);
+  border-radius: var(--bn-thread-radius);
+  box-shadow: var(--bn-thread-shadow);
+  color: var(--bn-thread-color);
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -642,7 +642,7 @@ on touch devices (e.g. the mobile formatting toolbar). */
 }
 
 .bn-mantine .bn-thread-comment p {
-  color: var(--bn-colors-menu-text);
+  color: var(--bn-thread-color);
 }
 
 .bn-mantine .bn-thread .bn-header-text,
@@ -660,40 +660,40 @@ on touch devices (e.g. the mobile formatting toolbar). */
 /* Comment action toolbar styling */
 .bn-mantine .bn-action-toolbar {
   align-self: flex-end;
-  background-color: var(--bn-colors-menu-background);
-  border: var(--bn-border);
-  border-radius: var(--bn-border-radius-medium);
+  background-color: var(--bn-action-toolbar-background);
+  border: var(--bn-action-toolbar-border);
+  border-radius: var(--bn-action-toolbar-radius);
   gap: 0;
   padding: 2px;
 }
 
 .bn-action-toolbar .mantine-Button-root,
 .bn-action-toolbar .mantine-ActionIcon-root {
-  background-color: var(--bn-colors-menu-background);
+  background-color: var(--bn-action-toolbar-button-background);
   border: none;
-  border-radius: var(--bn-border-radius-small);
-  color: var(--bn-colors-menu-text);
+  border-radius: var(--bn-action-toolbar-button-radius);
+  color: var(--bn-action-toolbar-button-color);
 }
 
 .bn-action-toolbar .mantine-Button-root:hover,
 .bn-action-toolbar .mantine-ActionIcon-root:hover {
-  background-color: var(--bn-colors-hovered-background);
+  background-color: var(--bn-action-toolbar-button-hover-background);
   border: none;
-  color: var(--bn-colors-hovered-text);
+  color: var(--bn-action-toolbar-button-hover-color);
 }
 
 .bn-action-toolbar .mantine-Button-root[data-selected],
 .bn-action-toolbar .mantine-ActionIcon-root[data-selected] {
-  background-color: var(--bn-colors-selected-background);
+  background-color: var(--bn-action-toolbar-button-selected-background);
   border: none;
-  color: var(--bn-colors-selected-text);
+  color: var(--bn-action-toolbar-button-selected-color);
 }
 
 .bn-action-toolbar .mantine-Button-root[data-disabled],
 .bn-action-toolbar .mantine-ActionIcon-root[data-disabled] {
-  background-color: var(--bn-colors-disabled-background);
+  background-color: var(--bn-action-toolbar-button-disabled-background);
   border: none;
-  color: var(--bn-colors-disabled-text);
+  color: var(--bn-action-toolbar-button-disabled-color);
 }
 
 /* Badge styling */
@@ -713,9 +713,9 @@ on touch devices (e.g. the mobile formatting toolbar). */
 }
 
 .bn-mantine .bn-badge .mantine-Chip-label:not([data-checked="true"]) {
-  background-color: var(--bn-colors-menu-background);
-  border: var(--bn-border);
-  color: var(--bn-colors-menu-text);
+  background-color: var(--bn-badge-toggle-background);
+  border: var(--bn-badge-toggle-border);
+  color: var(--bn-badge-toggle-color);
 }
 
 .bn-mantine .bn-badge .mantine-Chip-label:hover {
@@ -744,11 +744,11 @@ on touch devices (e.g. the mobile formatting toolbar). */
 /* Combobox styling */
 .bn-mantine .bn-combobox-input,
 .bn-mantine .bn-combobox-items:not(:empty) {
-  background-color: var(--bn-colors-menu-background);
-  border: var(--bn-border);
-  border-radius: var(--bn-border-radius-medium);
-  box-shadow: var(--bn-shadow-medium);
-  color: var(--bn-colors-menu-text);
+  background-color: var(--bn-combobox-background);
+  border: var(--bn-combobox-border);
+  border-radius: var(--bn-combobox-radius);
+  box-shadow: var(--bn-combobox-shadow);
+  color: var(--bn-combobox-color);
   gap: 4px;
   min-width: 145px;
   padding: 2px;
@@ -762,7 +762,7 @@ on touch devices (e.g. the mobile formatting toolbar). */
 }
 
 .bn-mantine .bn-combobox-input .bn-combobox-error {
-  color: var(--bn-colors-highlights-red-background);
+  color: var(--bn-combobox-error-color);
 }
 
 /* We need to get rid of the checked icon - you can set the icon prop to an

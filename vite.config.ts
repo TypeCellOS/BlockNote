@@ -48,8 +48,9 @@ const browserTestImportPatterns = [
 export default defineConfig({
   staged: {
     // Format + fast lint (no type-aware) on pre-commit for speed.
-    // Full type-aware check runs in CI via `vp check`.
-    "*": "vp check --fix",
+    // Full type-aware check runs in CI via `vp run lint`.
+    // Include the audit host even for CSS-only staged changes.
+    "*": "vp check --fix vite.config.ts",
   },
   run: {
     // Cache package.json scripts by default (off by default in vp).
@@ -111,19 +112,21 @@ export default defineConfig({
   },
   lint: {
     plugins: ["typescript", "react", "import"],
-    // ESLint compatibility rules and a focused local component-test convention.
+    // ESLint compatibility rules and BlockNote-specific conventions.
     jsPlugins: [
       { name: "import-eslint", specifier: "eslint-plugin-import" },
       {
         name: "blocknote-tests",
         specifier: "./scripts/lint/component-browser-tests.mjs",
       },
+      { name: "blocknote", specifier: "./scripts/css-variable-plugin.mjs" },
     ],
     options: {
       typeAware: true,
       typeCheck: true,
     },
     rules: {
+      "blocknote/css-variable-layering": "error",
       "no-console": "error",
       curly: "warn",
       "@typescript-eslint/no-non-null-assertion": "off",

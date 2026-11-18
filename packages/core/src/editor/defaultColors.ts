@@ -1,5 +1,5 @@
-// sRGB equivalents of the light/dark --bn-colors-highlights-* palettes in
-// packages/react/src/editor/styles.css (also used by Block.css highlight rules).
+// sRGB equivalents of the light/dark --bn-text-color-* / --bn-background-color-* palettes in
+// packages/react/src/editor/theme.css (also used by Block.css highlight rules).
 export const COLORS_DEFAULT = {
   gray: {
     text: "#676767",

@@ -417,10 +417,8 @@ test.each(["mantine", "ariakit", "shadcn"] as const)(
 );
 
 const customTheme: MantineTheme = {
-  colors: {
-    editor: { background: "#faeacd" },
-    tooltip: { background: "#345678", text: "#ffffff" },
-  },
+  backgroundColor: { editor: "#faeacd", tooltip: "#345678" },
+  textColor: { tooltip: "#ffffff" },
 };
 
 test.each([
@@ -500,7 +498,7 @@ test.each([
       if (typeof theme === "object") {
         expect(
           getComputedStyle(root)
-            .getPropertyValue("--bn-colors-editor-background")
+            .getPropertyValue("--bn-background-color-editor")
             .trim(),
         ).toBe("#faeacd");
       }
