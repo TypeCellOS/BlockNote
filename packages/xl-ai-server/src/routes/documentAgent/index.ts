@@ -1,5 +1,6 @@
 import {
   type Batch,
+  createAttachedAgents,
   createInMemoryDocumentStore,
   createInMemoryProposalStore,
   createProposal,
@@ -332,6 +333,10 @@ registerSessionRoutes(documentAgentRoute, {
   },
   proposals,
   createEditor,
+  // The agents that users attach to documents. Their state is in the
+  // memory of this process: the calls of an agent must get to the process
+  // that has its run.
+  agents: createAttachedAgents(),
   // The notice has no data: an editor gets the session from the server.
   notify(source, documentId) {
     switch (source) {

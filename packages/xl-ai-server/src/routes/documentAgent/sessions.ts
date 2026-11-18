@@ -1,4 +1,6 @@
 import {
+  type AgentLoop,
+  type AttachedAgents,
   type Batch,
   type ChatStore,
   type CreateEditor,
@@ -16,6 +18,10 @@ import {
 import { createUIMessageStreamResponse } from "ai";
 import type { Hono } from "hono";
 
+import {
+  agentDocumentKey,
+  registerAttachedAgentRoutes,
+} from "./attachedAgentRoutes.js";
 import { documentAgentModel, documentAgentReasoning } from "./models.js";
 
 /** A full write of a document needs sufficient output tokens. */
@@ -29,7 +35,10 @@ const MAX_OUTPUT_TOKENS = 16000;
 // - `GET /`: the chat, the proposal and the run in progress, for an editor
 //   that opens the document.
 // - `POST /messages`: a message of a user in the chat of an editor. It
-//   starts a run, and the response is the stream of that run.
+//   starts a run, and the response is the stream of that run. With `agent`
+//   in the body, the agent that the user attached does the work, not the
+//   model of this server (see `attachedAgentRoutes.ts`, which also has the
+//   routes of that agent). All other routes are the same for the two.
 // - `POST /runs`: a prompt of a caller outside the editors (a script, a
 //   schedule, later an external agent). It starts a run in the same way.
 //   The response does not wait for the run: the editors get a notice, and
@@ -73,6 +82,8 @@ export function registerSessionRoutes<Source extends string>(
     createEditor: CreateEditor;
     /** Tells the editors of the document that its session changed. */
     notify(source: string, documentId: string): void;
+    /** The agents that users attached to documents. Without it, a host has only the built-in agent. */
+    agents?: AttachedAgents;
   },
 ) {
   const hosts = new Map<Source, SessionHost>();
@@ -163,6 +174,8 @@ export function registerSessionRoutes<Source extends string>(
         return 404;
       case "run-active":
       case "stale":
+      case "agent-not-attached":
+      case "agent-not-listening":
         return 409;
       case "invalid-request":
         return 400;
@@ -185,17 +198,42 @@ export function registerSessionRoutes<Source extends string>(
     if (selected.error !== undefined) {
       return c.json(selected, statusOf(selected.error));
     }
-    const { message } = (await c.req.json()) as {
+    const { message, agent } = (await c.req.json()) as {
       message?: { id?: unknown; parts?: unknown };
+      agent?: { token?: unknown };
     };
     const prompt = textOf(message?.parts);
     if (prompt === undefined) {
       return c.json({ error: "invalid-request" }, 400);
     }
+    // The loop of the run: the agent that the user attached, or the
+    // built-in loop.
+    let loop: AgentLoop | undefined;
+    if (agent !== undefined) {
+      const { agents } = options;
+      if (agents === undefined || typeof agent.token !== "string") {
+        return c.json({ error: "agent-not-attached" }, 409);
+      }
+      const attached = {
+        document: agentDocumentKey(c.req.param("source"), c.req.param("id")),
+        token: agent.token,
+      };
+      const state = agents.stateOf(attached);
+      if (state === undefined) {
+        return c.json({ error: "agent-not-attached" }, 409);
+      }
+      // A request for an agent that does not listen would wait without a
+      // sign: the user gets the reason at once.
+      if (!state.listening) {
+        return c.json({ error: "agent-not-listening" }, 409);
+      }
+      loop = agents.run(attached, "editor").loop;
+    }
     const started = await selected.host.startRun(c.req.param("id"), {
       prompt,
       origin: "user",
       messageId: typeof message?.id === "string" ? message.id : undefined,
+      loop,
     });
     if (started.error !== undefined) {
       return c.json(started, statusOf(started.error));
@@ -293,6 +331,18 @@ export function registerSessionRoutes<Source extends string>(
     await selected.host.stopRun(c.req.param("id"));
     return c.json({ ok: true });
   });
+
+  if (options.agents !== undefined) {
+    registerAttachedAgentRoutes(route, {
+      agents: options.agents,
+      async startRun(source, documentId, request) {
+        const selected = hostOf(source);
+        return selected.error !== undefined
+          ? { error: selected.error }
+          : selected.host.startRun(documentId, request);
+      },
+    });
+  }
 }
 
 /** The text of the parts of a chat message, or `undefined` if it has no text. */
