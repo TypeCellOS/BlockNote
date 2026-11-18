@@ -17,7 +17,7 @@ Cover relevant categories reasonably, not every possible combination. A child ow
 
 ## Setup
 
-Destructure typed helpers from the test context. Find the current listing in [`tests/src/commands/index.ts`](../../../../tests/src/commands/index.ts) and usage documentation beside each implementation. The browser setup supplies the extended global `it`.
+Destructure typed helpers from the test context. The [Node fixtures](../../../../tests/src/fixtures/editor.node.ts) provide the baseline editor/document helpers. The [browser fixtures](../../../../tests/src/fixtures/editor.tsx) inherit them, override editor setup with rendering, and add the [browser helpers](../../../../tests/src/commands/index.ts). The browser setup supplies the extended global `it`. Usage documentation lives beside each implementation; Node-only Playwright/CDP transport handlers are registered separately.
 
 ```tsx
 const { editor } = await setupEditor({
@@ -50,7 +50,7 @@ Browser and screen-reader files enforce focused-test, assertion, awaited-poll, f
 
 ## Native screen readers
 
-Use colocated `*.screen-reader.test.ts` for real speech/navigation that browser assertions cannot establish. `const { getTranscript, pressKey } = await setupScreenReader(locator)` starts a session with automatic cleanup, including on failure. The locator is optional when focus is already established. Use the session's `pressKey` to capture speech, not the ordinary keyboard fixture.
+Use colocated `*.screen-reader.test.ts` for real speech/navigation that browser assertions cannot establish. The native runner installs global `it` from `tests/src/fixtures/editor.screen-reader.ts`; this extends the browser fixtures with `setupScreenReader`, which is not available in ordinary browser tests. The two runners have separate global-type configurations. `const { getTranscript, pressKey } = await setupScreenReader(locator)` starts a session with automatic cleanup, including on failure. The locator is optional when focus is already established. Use the session's `pressKey` to capture speech, not the ordinary keyboard fixture.
 
 This operates the real desktop using VoiceOver/NVDA and GuidePup permissions. Run only as intentional native verification, outside browser CI:
 

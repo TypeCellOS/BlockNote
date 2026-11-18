@@ -3,7 +3,7 @@ import type { BrowserCommand } from "vite-plus/test/node";
 // eslint-disable-next-line no-unused-vars -- Type-only import for the JSDoc link.
 import type { userEvent } from "../transport.js";
 // eslint-disable-next-line no-unused-vars -- Type-only import for the JSDoc link.
-import type { selectText } from "../browser/selectText.js";
+import type { selectText } from "../node/selectText.js";
 
 declare global {
   interface Window {

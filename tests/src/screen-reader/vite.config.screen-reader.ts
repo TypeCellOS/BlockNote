@@ -1,8 +1,8 @@
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite-plus";
 import { playwright } from "vite-plus/test/browser/providers/playwright";
-import * as commands from "../commands/node/index.js";
-import { screenReaderCommand } from "../commands/node/setupScreenReader.js";
+import * as commands from "../commands/transport/index.js";
+import { screenReaderCommand } from "../commands/screen-reader/transport.js";
 
 const reader = process.env.BLOCKNOTE_SCREEN_READER;
 if (reader !== "voiceover" && reader !== "nvda") {
@@ -37,6 +37,9 @@ export default defineConfig({
     name: "screen-reader",
     setupFiles: [
       fileURLToPath(new URL("../../vitestSetup.browser.ts", import.meta.url)),
+      fileURLToPath(
+        new URL("../../vitestSetup.screen-reader.ts", import.meta.url),
+      ),
     ],
     include: ["../packages/*/src/**/*.screen-reader.test.ts"],
     testTimeout: 300_000,

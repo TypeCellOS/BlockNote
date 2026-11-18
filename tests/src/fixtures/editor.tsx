@@ -1,10 +1,8 @@
-import { test as base } from "vite-plus/test";
+import type { TestAPI } from "vite-plus/test";
+import { test as base, type NodeContext } from "./editor.node.js";
 import { commands, type CommandContext } from "../commands/index.js";
 
-export const test = base.extend<CommandContext>(commands);
+export type BrowserContext = Omit<NodeContext, "setupEditor"> & CommandContext;
 
-// The browser setup installs this extended API; imported Vitest APIs are not
-// extended. tests/tsconfig.browser.json includes the setup for colocated tests.
-declare global {
-  var it: typeof test;
-}
+export const test: TestAPI<BrowserContext> =
+  base.extend<CommandContext>(commands);

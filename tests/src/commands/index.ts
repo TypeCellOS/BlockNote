@@ -2,20 +2,16 @@
 import type { TestAPI } from "vite-plus/test";
 import * as browserCommands from "./browser/index.js";
 import { createSetupEditor, type SetupEditor } from "./browser/setupEditor.js";
-import {
-  createSetupScreenReader,
-  type SetupScreenReader,
-} from "./browser/setupScreenReader.js";
 import { commands as nodeCommands, page } from "./transport.js";
 
+// Browser-only fixtures extend the baseline in fixtures/editor.node.ts.
 export type CommandContext = Pick<
   typeof nodeCommands,
-  keyof typeof import("./node/index.js")
+  keyof typeof import("./transport/index.js")
 > &
   typeof browserCommands & {
     page: typeof page;
     setupEditor: SetupEditor;
-    setupScreenReader: SetupScreenReader;
   };
 
 /** Top-level test fixtures; pass this collection to test.extend unchanged. */
@@ -35,9 +31,6 @@ export const commands: Required<
   restoreTouchEmulation: async ({}, use) => {
     await use(nodeCommands.restoreTouchEmulation);
   },
-  setupScreenReader: async ({ onTestFinished }, use) => {
-    await use(createSetupScreenReader(onTestFinished));
-  },
   focusUntil: async ({}, use) => {
     await use(browserCommands.focusUntil);
   },
@@ -46,9 +39,6 @@ export const commands: Required<
   },
   readAriaSnapshot: async ({}, use) => {
     await use(browserCommands.readAriaSnapshot);
-  },
-  selectText: async ({}, use) => {
-    await use(browserCommands.selectText);
   },
   setupEditor: async ({ onTestFinished }, use) => {
     await use(createSetupEditor(onTestFinished));

@@ -4,8 +4,8 @@ import type { BrowserCommand } from "vite-plus/test/node";
 
 type ReaderTransport = {
   [
-    Name in keyof typeof import("../node/setupScreenReader.js")
-  ]: (typeof import("../node/setupScreenReader.js"))[Name] extends BrowserCommand<
+    Name in keyof typeof import("./transport.js")
+  ]: (typeof import("./transport.js"))[Name] extends BrowserCommand<
     infer Args,
     infer Result
   >

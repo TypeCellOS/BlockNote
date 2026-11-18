@@ -24,7 +24,7 @@ type BrowserCommands<Implementations> = {
 // Vite+ does not expose the augmentable BrowserCommands interface. Derive the
 // browser signatures from the implementations, omitting their Node context.
 const nodeCommands = vitestCommands as typeof vitestCommands &
-  BrowserCommands<typeof import("./node/index.js")>;
+  BrowserCommands<typeof import("./transport/index.js")>;
 
 // Expose only shared operations here. Native reader transport stays private to
 // setupScreenReader rather than leaking start/stop/transcript methods to tests.

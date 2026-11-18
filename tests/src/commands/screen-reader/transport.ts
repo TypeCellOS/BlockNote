@@ -1,6 +1,6 @@
-import { pressKey } from "./keyboard.js";
+import { pressKey } from "../transport/keyboard.js";
 import type { BrowserCommand } from "vite-plus/test/node";
-import type {} from "./positionalMouse.js";
+import type {} from "../transport/positionalMouse.js";
 
 type ReaderRequest =
   | { action: "start"; selector?: string }

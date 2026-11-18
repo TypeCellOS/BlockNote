@@ -2,6 +2,7 @@
   "files": [],
   "references": [
     { "path": "./tests/tsconfig.browser.json" },
+    { "path": "./tests/tsconfig.screen-reader.json" },
     { "path": "./packages/core" },
     { "path": "./packages/code-block" },
     { "path": "./packages/react" },

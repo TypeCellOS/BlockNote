@@ -3,7 +3,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { configDefaults, defineConfig, type UserConfig } from "vite-plus";
 import { playwright } from "vite-plus/test/browser/providers/playwright";
-import * as commands from "./src/commands/node/index.js";
+import * as commands from "./src/commands/transport/index.js";
 
 // For the desktop instances: end-to-end/mobile runs only in the "android"
 // instance. An instance-level `exclude` replaces the resolved base exclude
@@ -120,7 +120,10 @@ export default defineConfig(
           "../packages/*/src/**/*.screen-reader.test.ts",
         ],
 
-        setupFiles: ["./vitestSetup.browser.ts"],
+        setupFiles: [
+          "./vitestSetup.browser.ts",
+          "./vitestSetup.browser-fixtures.ts",
+        ],
         // Running three browsers concurrently inside one Docker container already
         // saturates CPU; layering per-browser file parallelism on top causes
         // 15s test timeouts and even Firefox WS-connect failures. One worker per
