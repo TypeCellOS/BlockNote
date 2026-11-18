@@ -1,6 +1,6 @@
 # React component testing
 
-Use a browser when testing clicks, keyboard navigation, focus, or other rendering-dependent behavior. Keep logic that does not need rendering in faster Node tests.
+Use a browser for rendered component interactions, actual keyboard traversal/focus, or other rendering-dependent behavior. Test editor keyboard shortcut handlers in Node/jsdom: set state and selection with editor APIs, then dispatch the event. This avoids brittle layout-dependent navigation; use a browser only when browser behavior is the contract. A shared shortcut-event helper is planned.
 
 ## Component structure
 
@@ -29,6 +29,8 @@ selectText(editor, "Selected text");
 ```
 
 Render the component directly with unrelated default UI disabled, rather than navigating a parent merely to reach it. Use the actual control for the action under test; editor APIs may establish the initial state.
+
+Use BlockNote APIs for that setup instead of equivalent ProseMirror operations. Do not access `editor._tiptapEditor`; use `editor.prosemirrorView` when necessary and prefer `editor.transact` over `editor.prosemirrorState` for reads and transactions. See the [editor setup rules](../SKILL.md#editor-setup) for block-to-node conversion.
 
 Shared rendering handles StrictMode, initial commit, fonts, and cleanup. Wait for later selection-driven UI explicitly. Skin selection defaults to Mantine and loads lazily; loaded CSS remains, so prefer one skin per file.
 

@@ -18,7 +18,7 @@ Test behavior beside its owner, at the lowest reasonable rung of the test ladder
 | 5. Mobile-emulated           | `end-to-end/mobile/**`, Android browser instance; touch, viewport, emulated IME differences.            |
 | 6. Real device               | Only behavior emulation cannot establish; device suite is parked on `mobile/emulator-layer` (PR #3034). |
 
-The ladder guides placement, not a requirement to try every environment. Use a real browser, not jsdom, for clicking, keyboard navigation, focus, or rendered component behavior. Editor/document logic stays in faster Node tests, where `setupEditor` mounts the core editor in jsdom. Rungs 2 and 3 distinguish ownership/location, not strictly runtime cost.
+The ladder guides placement, not a requirement to try every environment. Use a real browser for rendered component interactions, actual focus/traversal, and browser-dependent input behavior. Prefer Node/jsdom for editor keyboard shortcut handlers: establish editor state and selection directly, then dispatch a keyboard event, avoiding layout-dependent browser navigation. Editor/document logic also stays in faster Node tests, where `setupEditor` mounts the core editor in jsdom. Rungs 2 and 3 distinguish ownership/location, not strictly runtime cost.
 
 Integrations verify boundaries, not repeat dependencies' tests. A parent assumes its children work: test toolbar composition/traversal at the toolbar, button activation at the button, and detailed document operations at their editor commands.
 
@@ -27,6 +27,8 @@ Integrations verify boundaries, not repeat dependencies' tests. A parent assumes
 - **Cover user-important behavior and applicable categories**, not every branch or state combination. Low-value defensive branches need not be exercised merely for coverage.
 - **Reported bugs generally warrant regression tests.** Prove regressions red-first against the bug, then green with the fix. Follow TDD for new behavior; modifying existing tests does not require manufacturing another red run. Styling fixes may reasonably lack regression tests when automation is cumbersome or implementation-coupled.
 - **Use real internal dependencies.** Mock/fake only when necessary, such as external services. Observation-only spies are fine.
+- **Use public editor APIs.** Do not reach into `editor._tiptapEditor`. Use `editor.prosemirrorView` when the view is needed; prefer `editor.transact` for current document/selection reads and transactions over `editor.prosemirrorState`.
+- **Prefer BlockNote operations over ProseMirror equivalents.** Establish documents with `initialContent`, `insertBlocks`, `updateBlock`, and other BlockNote APIs rather than hand-building internal nodes or mutating transactions when an equivalent exists. Convert blocks to ProseMirror nodes only when the test needs them.
 - **Distinguish unit from integration by scope.** A function changing block color is a unit contract; clicking a button and checking the editor/UI color change crosses subsystems.
 - **Arrange → Act → Assert.** Name the outcome, establish the case, exercise the real entry point, and assert its relevant behavior. Repeated act/assert pairs are fine when clearer. Setup APIs must not perform the action the test claims to verify.
 - **Share understandable conventions.** Prefer `setupEditor` and common mechanics to bespoke setup. Abstract repeated patterns when they improve understanding. Choose inline cases versus `it.for` for readability, not minimum line count.
@@ -59,6 +61,23 @@ Use these as patterns, not templates to copy mechanically. For testing a React c
 ## Editor setup
 
 Use `const { editor } = await setupEditor({ ...editorOptions })` in either environment. Browser tests receive it from the shared fixture; it renders a view and additionally accepts `skin`, `props`, `children`, and `outside`, returning `rerender` too. Node tests import `test` from `tests/src/fixtures/editor.node.ts` and use the jsdom environment; their helper mounts the core editor without React or skin styles. Both preserve custom-schema types and clean up after the test. For headless logic, use `BlockNoteEditor.create` directly.
+
+`insertBlocks` returns an array of inserted BlockNote blocks. The conversion to a ProseMirror node is `blockToNode`:
+
+```ts
+import { blockToNode } from "@blocknote/core";
+
+const [block] = editor.insertBlocks(
+  [{ type: "paragraph", content: "Inserted text" }],
+  "existing-block-id",
+  "after",
+);
+const node = editor.transact((tr) =>
+  blockToNode(block, tr.doc.type.schema, editor.schema.styleSchema),
+);
+```
+
+For shortcut-handler tests, set up the desired state/selection with editor APIs, then simulate the keyboard event in jsdom. A shared event helper is planned; do not invent a browser navigation journey just to reach the shortcut's starting position. Use a browser when layout, native shortcut handling, or real focus movement is itself the contract.
 
 ## Run
 
