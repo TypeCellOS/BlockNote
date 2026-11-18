@@ -248,7 +248,8 @@ export const AIExtension = createExtension(
         // This causes the undo history to skip `B` and go straight from `C` back to `A`
 
         // Capture the document state `C'` (post-LLM call with all suggestions still in the document)
-        const markedUpDocument = editor.prosemirrorState.doc;
+        const { doc: markedUpDocument, selection: markedUpSelection } =
+          editor.prosemirrorState;
 
         // revert the suggestions to get back to the original document state `A`
         editor.exec((state, dispatch) => {
@@ -267,19 +268,31 @@ export const AIExtension = createExtension(
           );
           const nextState = state.apply(tr);
           // Apply the suggestions to the intermediate state `B` to get the final state `C`
-          return applySuggestions(nextState, (resultTr) => {
-            editorOptions?.onBeforeAcceptChanges?.({
-              transform: resultTr,
-              insertedTextRanges: getInsertedTextRanges(resultTr),
+          let acceptedSlice: Slice | undefined;
+          try {
+            applySuggestions(nextState, (resultTr) => {
+              editorOptions?.onBeforeAcceptChanges?.({
+                transform: resultTr,
+                insertedTextRanges: getInsertedTextRanges(resultTr),
+              });
+              acceptedSlice = new Slice(Fragment.from(resultTr.doc), 0, 0);
             });
+          } catch (error) {
+            // The live state is A. Dispatch the pending A → B replacement
+            // without adding an undo entry so the same review can be retried.
             dispatch?.(
-              tr.replace(
-                0,
-                tr.doc.content.size,
-                new Slice(Fragment.from(resultTr.doc), 0, 0),
-              ),
+              tr
+                .setSelection(markedUpSelection.getBookmark().resolve(tr.doc))
+                .setMeta("addToHistory", false),
             );
-          });
+            throw error;
+          }
+
+          if (!acceptedSlice) {
+            return false;
+          }
+          dispatch?.(tr.replace(0, tr.doc.content.size, acceptedSlice));
+          return true;
         });
 
         // If in collaboration mode, merge the changes back into the original yDoc

@@ -206,6 +206,44 @@ describe("onBeforeAcceptChanges", () => {
     ]);
   });
 
+  it("preserves the marked-up review and its ranges for retry after a hook failure", async () => {
+    const error = new Error("acceptance hook failed");
+    const beforeAccept = vi
+      .fn<(context: AIAcceptanceContext) => undefined>()
+      .mockImplementationOnce(() => {
+        throw error;
+      });
+    const { editor, fork, ydoc } = createCollabEditor(
+      "Keep old and stay",
+      beforeAccept,
+    );
+    const ai = editor.getExtension(AIExtension)!;
+    fork();
+    await runUpdate(editor, editor.document[0].id, "<p>Keep NEW and stay</p>");
+    const { doc: markedUpDocument, selection } = editor.prosemirrorState;
+
+    expect(() => ai.acceptChanges()).toThrow(error);
+    expect(editor.prosemirrorState.doc.eq(markedUpDocument)).toBe(true);
+    expect(editor.prosemirrorState.selection.eq(selection)).toBe(true);
+    expect(
+      yXmlFragmentToBlocks(editor, ydoc.getXmlFragment("doc")),
+    ).toMatchObject([{ content: [{ text: "Keep old and stay" }] }]);
+
+    ai.acceptChanges();
+
+    expect(beforeAccept).toHaveBeenCalledTimes(2);
+    const [first, retry] = beforeAccept.mock.calls;
+    expect(retry[0].insertedTextRanges).toEqual(first[0].insertedTextRanges);
+    expect(
+      retry[0].insertedTextRanges.map(({ from, to }) =>
+        retry[0].transform.doc.textBetween(from, to),
+      ),
+    ).toEqual(["NEW"]);
+    expect(
+      yXmlFragmentToBlocks(editor, ydoc.getXmlFragment("doc")),
+    ).toMatchObject([{ content: [{ text: "Keep NEW and stay" }] }]);
+  });
+
   it("keeps the accepted annotation and text in one undo step", async () => {
     const { editor } = createLocalEditor(
       "Keep old and stay",
