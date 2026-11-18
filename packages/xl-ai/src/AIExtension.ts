@@ -17,6 +17,7 @@ import { UIMessage } from "ai";
 import { Fragment, Slice } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { fixTablesKey } from "prosemirror-tables";
+import type { Transform } from "prosemirror-transform";
 import { buildAIRequest, sendMessageWithAIRequest } from "./api/index.js";
 import { createAgentCursorPlugin } from "./plugins/AgentCursorPlugin.js";
 import { AIRequestHelpers, InvokeAIOptions } from "./types.js";
@@ -43,6 +44,59 @@ type AIPluginState = {
     | "closed";
 };
 
+export type AIAcceptanceContext = {
+  /**
+   * A transform whose document contains the accepted suggestions. Append
+   * document steps here, such as adding marks, to commit them with the changes.
+   */
+  readonly transform: Transform;
+  /**
+   * Text in accepted insertion suggestions, in the transform's document
+   * before any steps are added by the callback.
+   */
+  readonly insertedTextRanges: ReadonlyArray<
+    Readonly<{ from: number; to: number }>
+  >;
+};
+
+function getInsertedTextRanges(transform: Transform) {
+  const insertion = transform.before.type.schema.marks.insertion;
+  const ranges: { from: number; to: number }[] = [];
+
+  transform.before.descendants((node, pos) => {
+    if (!node.isText) {
+      return;
+    }
+
+    if (!insertion.isInSet(node.marks)) {
+      // A tool can mark an entire block as inserted instead of its text.
+      const $pos = transform.before.resolve(pos);
+      let depth = $pos.depth;
+      while (depth > 0 && !insertion.isInSet($pos.node(depth).marks)) {
+        depth--;
+      }
+      if (depth === 0) {
+        return;
+      }
+    }
+
+    const from = transform.mapping.map(pos, 1);
+    const to = transform.mapping.map(pos + node.nodeSize, -1);
+    if (from >= to) {
+      return;
+    }
+
+    const previous = ranges.at(-1);
+    if (previous?.to === from) {
+      previous.to = to;
+    } else {
+      ranges.push({ from, to });
+    }
+  });
+
+  return ranges;
+}
+
 const PLUGIN_KEY = new PluginKey(`blocknote-ai-plugin`);
 
 export const AIExtension = createExtension(
@@ -57,6 +111,11 @@ export const AIExtension = createExtension(
          * @default { name: "AI", color: "#8bc6ff" }
          */
         agentCursor?: { name: string; color: string };
+        /**
+         * Synchronously inspect or extend the accepted changes before they are
+         * committed to the editor and merged into the live collaborative document.
+         */
+        onBeforeAcceptChanges?: (context: AIAcceptanceContext) => undefined;
       })
     | undefined
   >) => {
@@ -209,6 +268,10 @@ export const AIExtension = createExtension(
           const nextState = state.apply(tr);
           // Apply the suggestions to the intermediate state `B` to get the final state `C`
           return applySuggestions(nextState, (resultTr) => {
+            editorOptions?.onBeforeAcceptChanges?.({
+              transform: resultTr,
+              insertedTextRanges: getInsertedTextRanges(resultTr),
+            });
             dispatch?.(
               tr.replace(
                 0,

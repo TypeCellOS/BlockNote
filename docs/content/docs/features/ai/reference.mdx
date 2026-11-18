@@ -23,6 +23,7 @@ type AIExtensionOptions = AIRequestHelpers & {
    * @default { name: "AI", color: "#8bc6ff" }
    */
   agentCursor?: { name: string; color: string };
+  onBeforeAcceptChanges?: (context: AIAcceptanceContext) => undefined;
 };
 
 type AIRequestHelpers = {
@@ -60,6 +61,35 @@ type AIRequestHelpers = {
   documentStateBuilder?: DocumentStateBuilder<any>;
 };
 ```
+
+### Inspect or annotate accepted changes
+
+Use `onBeforeAcceptChanges` when your integration needs to inspect or annotate
+the result of a review. When you call `acceptChanges()`, the callback runs
+synchronously before the final editor transaction and the collaborative merge.
+It runs only on acceptance.
+
+```typescript
+AIExtension({
+  onBeforeAcceptChanges({ transform, insertedTextRanges }) {
+    // This mark must already be registered in the editor schema.
+    const provenance = transform.doc.type.schema.marks.aiProvenance.create({
+      generationId,
+    });
+
+    for (const { from, to } of insertedTextRanges) {
+      transform.addMark(from, to, provenance);
+    }
+  },
+});
+```
+
+`transform.doc` contains the accepted document with suggestion marks removed.
+Append document steps to the transform to commit them with the accepted edits.
+The ranges are ProseMirror positions in that document at callback entry. They
+describe text in insertion suggestions across the review, including
+replacements represented by the AI tools as deletions and insertions. A
+deletion-only review has no inserted text ranges.
 
 ## `AIExtension` extension instance
 
