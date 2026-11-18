@@ -135,88 +135,399 @@ describe("ColorStyleButton", () => {
   });
 
   describe("integration", () => {
-    it.for(["textColor", "backgroundColor"] as const)(
-      "applies %s only to the selected substring",
-      async (style, { setupEditor, selectText, page }) => {
-        const { editor } = await setupEditor({
-          initialContent: [
-            { id: "text", type: "paragraph", content: "Before selected after" },
-          ],
-          props: { formattingToolbar: false },
-          children: <ColorStyleButton />,
-        });
-        selectText(editor, "selected");
+    it("applies textColor only to the selected substring", async ({
+      setupEditor,
+      selectText,
+      compareDocuments,
+      page,
+    }) => {
+      const { editor } = await setupEditor({
+        initialContent: [
+          { id: "text", type: "paragraph", content: "Before selected after" },
+        ],
+        props: { formattingToolbar: false },
+        children: <ColorStyleButton />,
+      });
+      selectText(editor, "selected");
+      const before = editor.document;
 
-        const button = page.getByRole("button", {
+      const button = page.getByRole("button", {
+        name: editor.dictionary.formatting_toolbar.colors.tooltip,
+        exact: true,
+      });
+      await button.click();
+
+      await page
+        .getByRole("menuitem", {
+          name: editor.dictionary.color_picker.colors.gray,
+        })
+        .nth(0)
+        .click();
+
+      expect(compareDocuments(before, editor.document)).toMatchInlineSnapshot(`
+        [
+          {
+            "changes": [
+              {
+                "op": "replace",
+                "path": "/content/0/text",
+                "value": "Before ",
+              },
+              {
+                "op": "add",
+                "path": "/content/1",
+                "value": {
+                  "styles": {
+                    "textColor": "gray",
+                  },
+                  "text": "selected",
+                  "type": "text",
+                },
+              },
+              {
+                "op": "add",
+                "path": "/content/2",
+                "value": {
+                  "styles": {},
+                  "text": " after",
+                  "type": "text",
+                },
+              },
+            ],
+            "id": "text",
+            "type": "update",
+          },
+        ]
+      `);
+      await expect.element(page.getByRole("menu")).not.toBeInTheDocument();
+      await expect.element(page.getByRole("textbox")).toHaveFocus();
+    });
+
+    it("applies backgroundColor only to the selected substring", async ({
+      setupEditor,
+      selectText,
+      compareDocuments,
+      page,
+    }) => {
+      const { editor } = await setupEditor({
+        initialContent: [
+          { id: "text", type: "paragraph", content: "Before selected after" },
+        ],
+        props: { formattingToolbar: false },
+        children: <ColorStyleButton />,
+      });
+      selectText(editor, "selected");
+      const before = editor.document;
+
+      await page
+        .getByRole("button", {
           name: editor.dictionary.formatting_toolbar.colors.tooltip,
           exact: true,
-        });
-        await button.click();
+        })
+        .click();
+      await page
+        .getByRole("menuitem", {
+          name: editor.dictionary.color_picker.colors.gray,
+        })
+        .nth(1)
+        .click();
 
-        await page
-          .getByRole("menuitem", {
-            name: editor.dictionary.color_picker.colors.gray,
-          })
-          .nth(style === "textColor" ? 0 : 1)
-          .click();
+      expect(compareDocuments(before, editor.document)).toMatchInlineSnapshot(`
+        [
+          {
+            "changes": [
+              {
+                "op": "replace",
+                "path": "/content/0/text",
+                "value": "Before ",
+              },
+              {
+                "op": "add",
+                "path": "/content/1",
+                "value": {
+                  "styles": {
+                    "backgroundColor": "gray",
+                  },
+                  "text": "selected",
+                  "type": "text",
+                },
+              },
+              {
+                "op": "add",
+                "path": "/content/2",
+                "value": {
+                  "styles": {},
+                  "text": " after",
+                  "type": "text",
+                },
+              },
+            ],
+            "id": "text",
+            "type": "update",
+          },
+        ]
+      `);
+      await expect.element(page.getByRole("menu")).not.toBeInTheDocument();
+      await expect.element(page.getByRole("textbox")).toHaveFocus();
+    });
 
-        expect(editor.getBlock("text")?.content).toEqual([
-          { type: "text", text: "Before ", styles: {} },
-          { type: "text", text: "selected", styles: { [style]: "gray" } },
-          { type: "text", text: " after", styles: {} },
-        ]);
-        await expect.element(page.getByRole("menu")).not.toBeInTheDocument();
-        await expect.element(page.getByRole("textbox")).toHaveFocus();
-      },
-    );
+    it("resets textColor without removing the other color", async ({
+      setupEditor,
+      selectText,
+      compareDocuments,
+      page,
+    }) => {
+      const { editor } = await setupEditor({
+        initialContent: [
+          {
+            id: "text",
+            type: "paragraph",
+            content: [
+              {
+                type: "text",
+                text: "Selected text",
+                styles: { textColor: "gray", backgroundColor: "gray" },
+              },
+            ],
+          },
+        ],
+        props: { formattingToolbar: false },
+        children: <ColorStyleButton />,
+      });
+      selectText(editor, "Selected text");
+      const before = editor.document;
 
-    it.for(["textColor", "backgroundColor"] as const)(
-      "resets %s without removing the other color",
-      async (style, { setupEditor, selectText, page }) => {
-        const { editor } = await setupEditor({
-          initialContent: [
+      await page
+        .getByRole("button", {
+          name: editor.dictionary.formatting_toolbar.colors.tooltip,
+          exact: true,
+        })
+        .click();
+      await page
+        .getByRole("menuitem", {
+          name: editor.dictionary.color_picker.colors.default,
+        })
+        .nth(0)
+        .click();
+
+      expect(compareDocuments(before, editor.document)).toMatchInlineSnapshot(`
+        [
+          {
+            "changes": [
+              {
+                "op": "remove",
+                "path": "/content/0/styles/textColor",
+              },
+            ],
+            "id": "text",
+            "type": "update",
+          },
+        ]
+      `);
+    });
+
+    it("resets backgroundColor without removing the other color", async ({
+      setupEditor,
+      selectText,
+      compareDocuments,
+      page,
+    }) => {
+      const { editor } = await setupEditor({
+        initialContent: [
+          {
+            id: "text",
+            type: "paragraph",
+            content: [
+              {
+                type: "text",
+                text: "Selected text",
+                styles: { textColor: "gray", backgroundColor: "gray" },
+              },
+            ],
+          },
+        ],
+        props: { formattingToolbar: false },
+        children: <ColorStyleButton />,
+      });
+      selectText(editor, "Selected text");
+      const before = editor.document;
+
+      await page
+        .getByRole("button", {
+          name: editor.dictionary.formatting_toolbar.colors.tooltip,
+          exact: true,
+        })
+        .click();
+      await page
+        .getByRole("menuitem", {
+          name: editor.dictionary.color_picker.colors.default,
+        })
+        .nth(1)
+        .click();
+
+      expect(compareDocuments(before, editor.document)).toMatchInlineSnapshot(`
+        [
+          {
+            "changes": [
+              {
+                "op": "remove",
+                "path": "/content/0/styles/backgroundColor",
+              },
+            ],
+            "id": "text",
+            "type": "update",
+          },
+        ]
+      `);
+    });
+  });
+
+  describe("aria", () => {
+    it("exposes the menu trigger's expanded state and relationship", async ({
+      setupEditor,
+      selectText,
+      page,
+    }) => {
+      const { editor } = await setupEditor({
+        initialContent: [{ type: "paragraph", content: "Selected text" }],
+        props: { formattingToolbar: false },
+        children: <ColorStyleButton />,
+      });
+      selectText(editor, "Selected text");
+      const button = page.getByRole("button", {
+        name: editor.dictionary.formatting_toolbar.colors.tooltip,
+        exact: true,
+      });
+      await expect.element(button).toHaveAttribute("aria-haspopup", "menu");
+      await expect.element(button).toHaveAttribute("aria-expanded", "false");
+
+      await button.click();
+
+      const menu = page.getByRole("menu");
+      await expect.element(menu).toBeVisible();
+      await expect.element(button).toHaveAttribute("aria-expanded", "true");
+      expect(button.element().getAttribute("aria-controls")).toBe(
+        menu.element().id,
+      );
+    });
+    // Expected failure in our Mantine adapter (packages/mantine/src/menu/Menu.tsx):
+    // it renders `checked` as a visual checkmark without exposing the checked
+    // state to assistive technology.
+    it.fails("exposes a color change in the trigger or menu's accessibility tree", async ({
+      setupEditor,
+      selectText,
+      readAriaSnapshot,
+      page,
+    }) => {
+      const { editor } = await setupEditor({
+        initialContent: [{ type: "paragraph", content: "Selected text" }],
+        props: { formattingToolbar: false },
+        children: <ColorStyleButton />,
+      });
+      selectText(editor, "Selected text");
+      const button = page.getByRole("button", {
+        name: editor.dictionary.formatting_toolbar.colors.tooltip,
+        exact: true,
+      });
+      await button.click();
+      const menu = page.getByRole("menu");
+      await expect.element(menu).toBeVisible();
+      const before = [readAriaSnapshot(button), readAriaSnapshot(menu)].join(
+        "\n",
+      );
+
+      await menu
+        .getByRole("menuitem", {
+          name: editor.dictionary.color_picker.colors.gray,
+        })
+        .first()
+        .click();
+      await expect.element(menu).not.toBeInTheDocument();
+      await button.click();
+
+      await expect.element(menu).toBeVisible();
+      const after = [readAriaSnapshot(button), readAriaSnapshot(menu)].join(
+        "\n",
+      );
+      expect(after).not.toBe(before);
+    });
+  });
+
+  describe("axe", () => {
+    it("checks the color trigger", async ({ setupEditor, runAxe, page }) => {
+      await setupEditor({
+        props: { formattingToolbar: false },
+        children: (
+          <FormattingToolbar>
+            <ColorStyleButton />
+          </FormattingToolbar>
+        ),
+      });
+
+      const { violations } = await runAxe(page.getByRole("toolbar"));
+      expect(violations).toEqual([]);
+    });
+
+    // Mantine's placeholder violates aria-required-children. Axe can also report
+    // scrollable-region-focusable depending on the menu's scrolling/focus state.
+    // Allow only that exact additional known issue, not arbitrary scan failures.
+    it("checks the open color menu", async ({ setupEditor, runAxe, page }) => {
+      const { editor } = await setupEditor({
+        props: { formattingToolbar: false },
+        children: (
+          <FormattingToolbar>
+            <ColorStyleButton />
+          </FormattingToolbar>
+        ),
+      });
+      await page
+        .getByRole("button", {
+          name: editor.dictionary.formatting_toolbar.colors.tooltip,
+          exact: true,
+        })
+        .click();
+      await expect.element(page.getByRole("menu")).toBeVisible();
+
+      const { violations } = await runAxe(page.getByRole("menu"));
+      const scrollViolations = violations.filter(
+        ({ id }) => id === "scrollable-region-focusable",
+      );
+      expect(
+        violations.filter(({ id }) => id !== "scrollable-region-focusable"),
+      ).toMatchObject([
+        {
+          id: "aria-required-children",
+          nodes: [
             {
-              id: "text",
-              type: "paragraph",
-              content: [
+              any: [
                 {
-                  type: "text",
-                  text: "Selected text",
-                  styles: { textColor: "gray", backgroundColor: "gray" },
+                  id: "aria-required-children",
+                  data: { messageKey: "unallowed", values: "div[tabindex]" },
                 },
               ],
+              all: [],
+              none: [],
             },
           ],
-          props: { formattingToolbar: false },
-          children: <ColorStyleButton />,
+        },
+      ]);
+      expect(scrollViolations.length).toBeLessThanOrEqual(1);
+      for (const violation of scrollViolations) {
+        expect(violation).toMatchObject({
+          id: "scrollable-region-focusable",
+          nodes: [
+            {
+              any: [
+                { id: "focusable-content", data: null },
+                { id: "focusable-element", data: null },
+              ],
+              all: [],
+              none: [],
+            },
+          ],
         });
-        selectText(editor, "Selected text");
-
-        await page
-          .getByRole("button", {
-            name: editor.dictionary.formatting_toolbar.colors.tooltip,
-            exact: true,
-          })
-          .click();
-        await page
-          .getByRole("menuitem", {
-            name: editor.dictionary.color_picker.colors.default,
-          })
-          .nth(style === "textColor" ? 0 : 1)
-          .click();
-
-        expect(editor.getBlock("text")?.content).toEqual([
-          {
-            type: "text",
-            text: "Selected text",
-            styles:
-              style === "textColor"
-                ? { backgroundColor: "gray" }
-                : { textColor: "gray" },
-          },
-        ]);
-      },
-    );
+      }
+    });
   });
 
   describe("keyboard", () => {
@@ -334,152 +645,6 @@ describe("ColorStyleButton", () => {
       await expect.element(menu).not.toBeInTheDocument();
       await expect.element(button).toHaveFocus();
       expect(editor.document).toEqual(documentBefore);
-    });
-  });
-
-  describe("a11y", () => {
-    it("exposes the menu trigger's expanded state and relationship", async ({
-      setupEditor,
-      selectText,
-      page,
-    }) => {
-      const { editor } = await setupEditor({
-        initialContent: [{ type: "paragraph", content: "Selected text" }],
-        props: { formattingToolbar: false },
-        children: <ColorStyleButton />,
-      });
-      selectText(editor, "Selected text");
-      const button = page.getByRole("button", {
-        name: editor.dictionary.formatting_toolbar.colors.tooltip,
-        exact: true,
-      });
-      await expect.element(button).toHaveAttribute("aria-haspopup", "menu");
-      await expect.element(button).toHaveAttribute("aria-expanded", "false");
-
-      await button.click();
-
-      const menu = page.getByRole("menu");
-      await expect.element(menu).toBeVisible();
-      await expect.element(button).toHaveAttribute("aria-expanded", "true");
-      expect(button.element().getAttribute("aria-controls")).toBe(
-        menu.element().id,
-      );
-    });
-    // Expected failure in our Mantine adapter (packages/mantine/src/menu/Menu.tsx):
-    // it renders `checked` as a visual checkmark without exposing the checked
-    // state to assistive technology.
-    it.fails("exposes a color change in the trigger or menu's accessibility tree", async ({
-      setupEditor,
-      selectText,
-      readAriaSnapshot,
-      page,
-    }) => {
-      const { editor } = await setupEditor({
-        initialContent: [{ type: "paragraph", content: "Selected text" }],
-        props: { formattingToolbar: false },
-        children: <ColorStyleButton />,
-      });
-      selectText(editor, "Selected text");
-      const button = page.getByRole("button", {
-        name: editor.dictionary.formatting_toolbar.colors.tooltip,
-        exact: true,
-      });
-      await button.click();
-      const menu = page.getByRole("menu");
-      await expect.element(menu).toBeVisible();
-      const before = [readAriaSnapshot(button), readAriaSnapshot(menu)].join(
-        "\n",
-      );
-
-      await menu
-        .getByRole("menuitem", {
-          name: editor.dictionary.color_picker.colors.gray,
-        })
-        .first()
-        .click();
-      await expect.element(menu).not.toBeInTheDocument();
-      await button.click();
-
-      await expect.element(menu).toBeVisible();
-      const after = [readAriaSnapshot(button), readAriaSnapshot(menu)].join(
-        "\n",
-      );
-      expect(after).not.toBe(before);
-    });
-
-    it("checks the color trigger", async ({ setupEditor, runAxe, page }) => {
-      await setupEditor({
-        props: { formattingToolbar: false },
-        children: (
-          <FormattingToolbar>
-            <ColorStyleButton />
-          </FormattingToolbar>
-        ),
-      });
-
-      const { violations } = await runAxe(page.getByRole("toolbar"));
-      expect(violations).toEqual([]);
-    });
-
-    // Mantine's placeholder violates aria-required-children. Axe can also report
-    // scrollable-region-focusable depending on the menu's scrolling/focus state.
-    // Allow only that exact additional known issue, not arbitrary scan failures.
-    it("checks the open color menu", async ({ setupEditor, runAxe, page }) => {
-      const { editor } = await setupEditor({
-        props: { formattingToolbar: false },
-        children: (
-          <FormattingToolbar>
-            <ColorStyleButton />
-          </FormattingToolbar>
-        ),
-      });
-      await page
-        .getByRole("button", {
-          name: editor.dictionary.formatting_toolbar.colors.tooltip,
-          exact: true,
-        })
-        .click();
-      await expect.element(page.getByRole("menu")).toBeVisible();
-
-      const { violations } = await runAxe(page.getByRole("menu"));
-      const scrollViolations = violations.filter(
-        ({ id }) => id === "scrollable-region-focusable",
-      );
-      expect(
-        violations.filter(({ id }) => id !== "scrollable-region-focusable"),
-      ).toMatchObject([
-        {
-          id: "aria-required-children",
-          nodes: [
-            {
-              any: [
-                {
-                  id: "aria-required-children",
-                  data: { messageKey: "unallowed", values: "div[tabindex]" },
-                },
-              ],
-              all: [],
-              none: [],
-            },
-          ],
-        },
-      ]);
-      expect(scrollViolations.length).toBeLessThanOrEqual(1);
-      for (const violation of scrollViolations) {
-        expect(violation).toMatchObject({
-          id: "scrollable-region-focusable",
-          nodes: [
-            {
-              any: [
-                { id: "focusable-content", data: null },
-                { id: "focusable-element", data: null },
-              ],
-              all: [],
-              none: [],
-            },
-          ],
-        });
-      }
     });
   });
 });

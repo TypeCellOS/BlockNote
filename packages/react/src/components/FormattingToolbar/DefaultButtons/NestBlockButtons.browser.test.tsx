@@ -37,6 +37,7 @@ describe("NestBlockButtons", () => {
     it("moves the selected block under its previous sibling without changing their contents", async ({
       setupEditor,
       selectText,
+      compareDocuments,
       page,
     }) => {
       const { editor } = await setupEditor({
@@ -49,7 +50,7 @@ describe("NestBlockButtons", () => {
         children: <NestBlockButton />,
       });
       selectText(editor, "Selected text");
-      const [parent, selected, after] = editor.document;
+      const before = editor.document;
 
       await page
         .getByRole("button", {
@@ -58,15 +59,28 @@ describe("NestBlockButtons", () => {
         })
         .click();
 
-      expect(editor.document).toEqual([
-        { ...parent, children: [selected] },
-        after,
-      ]);
+      expect(compareDocuments(before, editor.document)).toMatchInlineSnapshot(`
+        [
+          {
+            "from": {
+              "index": 1,
+              "parentId": null,
+            },
+            "id": "selected",
+            "to": {
+              "index": 0,
+              "parentId": "parent",
+            },
+            "type": "move",
+          },
+        ]
+      `);
     });
 
     it("moves the selected block out of its parent without changing their contents", async ({
       setupEditor,
       selectText,
+      compareDocuments,
       page,
     }) => {
       const { editor } = await setupEditor({
@@ -85,7 +99,7 @@ describe("NestBlockButtons", () => {
         children: <UnnestBlockButton />,
       });
       selectText(editor, "Selected text");
-      const [parent, after] = editor.document;
+      const before = editor.document;
 
       await page
         .getByRole("button", {
@@ -94,11 +108,108 @@ describe("NestBlockButtons", () => {
         })
         .click();
 
-      expect(editor.document).toEqual([
-        { ...parent, children: [] },
-        parent.children[0],
-        after,
-      ]);
+      expect(compareDocuments(before, editor.document)).toMatchInlineSnapshot(`
+        [
+          {
+            "from": {
+              "index": 0,
+              "parentId": "parent",
+            },
+            "id": "selected",
+            "to": {
+              "index": 1,
+              "parentId": null,
+            },
+            "type": "move",
+          },
+        ]
+      `);
+    });
+  });
+
+  describe("aria", () => {
+    it("only enables nesting when a previous sibling is available", async ({
+      setupEditor,
+      selectText,
+      page,
+    }) => {
+      const { editor } = await setupEditor({
+        initialContent: [
+          { type: "paragraph", content: "First block" },
+          { type: "paragraph", content: "Second block" },
+        ],
+        props: { formattingToolbar: false },
+        children: <NestBlockButton />,
+      });
+      const button = page.getByRole("button", {
+        name: editor.dictionary.formatting_toolbar.nest.tooltip,
+        exact: true,
+      });
+      selectText(editor, "First block");
+
+      await expect.element(button).toBeDisabled();
+
+      selectText(editor, "Second block");
+
+      await expect.element(button).toBeEnabled();
+    });
+
+    it("only enables unnesting for a nested block", async ({
+      setupEditor,
+      selectText,
+      page,
+    }) => {
+      const { editor } = await setupEditor({
+        initialContent: [
+          {
+            type: "paragraph",
+            content: "Parent",
+            children: [{ type: "paragraph", content: "Child" }],
+          },
+        ],
+        props: { formattingToolbar: false },
+        children: <UnnestBlockButton />,
+      });
+      const button = page.getByRole("button", {
+        name: editor.dictionary.formatting_toolbar.unnest.tooltip,
+        exact: true,
+      });
+      selectText(editor, "Parent");
+      await expect.element(button).toBeDisabled();
+
+      selectText(editor, "Child");
+
+      await expect.element(button).toBeEnabled();
+    });
+  });
+
+  describe("axe", () => {
+    it("checks enabled and disabled nesting controls", async ({
+      setupEditor,
+      selectText,
+      runAxe,
+      page,
+    }) => {
+      const { editor } = await setupEditor({
+        initialContent: [
+          {
+            type: "paragraph",
+            content: "Parent",
+            children: [{ type: "paragraph", content: "Child" }],
+          },
+        ],
+        props: { formattingToolbar: false },
+        children: (
+          <FormattingToolbar>
+            <NestBlockButton />
+            <UnnestBlockButton />
+          </FormattingToolbar>
+        ),
+      });
+      selectText(editor, "Child");
+
+      const { violations } = await runAxe(page.getByRole("toolbar"));
+      expect(violations).toEqual([]);
     });
   });
 
@@ -185,90 +296,6 @@ describe("NestBlockButtons", () => {
       await expect
         .element(page.getByRole("button", { name: "Next action", exact: true }))
         .toHaveFocus();
-    });
-  });
-
-  describe("a11y", () => {
-    it("only enables nesting when a previous sibling is available", async ({
-      setupEditor,
-      selectText,
-      page,
-    }) => {
-      const { editor } = await setupEditor({
-        initialContent: [
-          { type: "paragraph", content: "First block" },
-          { type: "paragraph", content: "Second block" },
-        ],
-        props: { formattingToolbar: false },
-        children: <NestBlockButton />,
-      });
-      const button = page.getByRole("button", {
-        name: editor.dictionary.formatting_toolbar.nest.tooltip,
-        exact: true,
-      });
-      selectText(editor, "First block");
-
-      await expect.element(button).toBeDisabled();
-
-      selectText(editor, "Second block");
-
-      await expect.element(button).toBeEnabled();
-    });
-
-    it("only enables unnesting for a nested block", async ({
-      setupEditor,
-      selectText,
-      page,
-    }) => {
-      const { editor } = await setupEditor({
-        initialContent: [
-          {
-            type: "paragraph",
-            content: "Parent",
-            children: [{ type: "paragraph", content: "Child" }],
-          },
-        ],
-        props: { formattingToolbar: false },
-        children: <UnnestBlockButton />,
-      });
-      const button = page.getByRole("button", {
-        name: editor.dictionary.formatting_toolbar.unnest.tooltip,
-        exact: true,
-      });
-      selectText(editor, "Parent");
-      await expect.element(button).toBeDisabled();
-
-      selectText(editor, "Child");
-
-      await expect.element(button).toBeEnabled();
-    });
-
-    it("checks enabled and disabled nesting controls", async ({
-      setupEditor,
-      selectText,
-      runAxe,
-      page,
-    }) => {
-      const { editor } = await setupEditor({
-        initialContent: [
-          {
-            type: "paragraph",
-            content: "Parent",
-            children: [{ type: "paragraph", content: "Child" }],
-          },
-        ],
-        props: { formattingToolbar: false },
-        children: (
-          <FormattingToolbar>
-            <NestBlockButton />
-            <UnnestBlockButton />
-          </FormattingToolbar>
-        ),
-      });
-      selectText(editor, "Child");
-
-      const { violations } = await runAxe(page.getByRole("toolbar"));
-      expect(violations).toEqual([]);
     });
   });
 });

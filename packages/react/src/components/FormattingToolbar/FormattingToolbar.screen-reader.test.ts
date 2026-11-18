@@ -1,4 +1,3 @@
-import { selectToLineEndKey } from "@root/tests/src/utils/context.js";
 import { expect } from "vite-plus/test";
 
 // Record selection → toolbar → Escape → editor.
@@ -8,6 +7,7 @@ it.skip("announces entering and leaving the formatting toolbar", async ({
   setupEditor,
   setupScreenReader,
   page,
+  selectToLineEndKey,
 }) => {
   const { editor } = await setupEditor({
     initialContent: [

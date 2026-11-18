@@ -80,6 +80,7 @@ describe("CreateLinkButton", () => {
     it("submits a link for the original substring and returns focus to the editor", async ({
       setupEditor,
       selectText,
+      compareDocuments,
       pressKey,
       page,
     }) => {
@@ -95,6 +96,7 @@ describe("CreateLinkButton", () => {
         children: <CreateLinkButton />,
       });
       selectText(editor, "selected text");
+      const before = editor.document;
       await page
         .getByRole("button", {
           name: editor.dictionary.formatting_toolbar.link.tooltip,
@@ -108,15 +110,45 @@ describe("CreateLinkButton", () => {
       await input.fill("https://example.com");
       await pressKey("Enter");
 
-      expect(editor.getBlock("text")?.content).toEqual([
-        { type: "text", text: "Before ", styles: {} },
-        {
-          type: "link",
-          href: "https://example.com",
-          content: [{ type: "text", text: "selected text", styles: {} }],
-        },
-        { type: "text", text: " after", styles: {} },
-      ]);
+      expect(compareDocuments(before, editor.document)).toMatchInlineSnapshot(`
+        [
+          {
+            "changes": [
+              {
+                "op": "replace",
+                "path": "/content/0/text",
+                "value": "Before ",
+              },
+              {
+                "op": "add",
+                "path": "/content/1",
+                "value": {
+                  "content": [
+                    {
+                      "styles": {},
+                      "text": "selected text",
+                      "type": "text",
+                    },
+                  ],
+                  "href": "https://example.com",
+                  "type": "link",
+                },
+              },
+              {
+                "op": "add",
+                "path": "/content/2",
+                "value": {
+                  "styles": {},
+                  "text": " after",
+                  "type": "text",
+                },
+              },
+            ],
+            "id": "text",
+            "type": "update",
+          },
+        ]
+      `);
       await expect.element(input).not.toBeInTheDocument();
       await expect.element(page.getByRole("textbox")).toHaveFocus();
     });
@@ -159,6 +191,107 @@ describe("CreateLinkButton", () => {
         selectionBefore,
       );
       expect(editor.document).toEqual(documentBefore);
+    });
+  });
+
+  describe("aria", () => {
+    it("exposes the popup's relationship to its named trigger and its URL field", async ({
+      setupEditor,
+      selectText,
+      page,
+    }) => {
+      const { editor } = await setupEditor({
+        initialContent: [{ type: "paragraph", content: "Selected text" }],
+        props: { formattingToolbar: false },
+        children: <CreateLinkButton />,
+      });
+      selectText(editor, "Selected text");
+      const button = page.getByRole("button", {
+        name: editor.dictionary.formatting_toolbar.link.tooltip,
+        exact: true,
+      });
+      await expect.element(button).toHaveAttribute("aria-haspopup", "dialog");
+      await expect.element(button).toHaveAttribute("aria-expanded", "false");
+
+      await button.click();
+
+      const dialog = page.getByRole("dialog");
+      await expect.element(dialog).toBeVisible();
+      await expect.element(button).toHaveAttribute("aria-expanded", "true");
+      expect(button.element().getAttribute("aria-controls")).toBe(
+        dialog.element().id,
+      );
+      expect(dialog.element().getAttribute("aria-labelledby")).toBe(
+        button.element().id,
+      );
+      await expect
+        .element(
+          dialog.getByPlaceholder(
+            editor.dictionary.link_toolbar.form.url_placeholder,
+          ),
+        )
+        .toHaveFocus();
+    });
+  });
+
+  describe("axe", () => {
+    it("checks the closed trigger", async ({
+      setupEditor,
+      selectText,
+      runAxe,
+      page,
+    }) => {
+      const { editor } = await setupEditor({
+        initialContent: [{ type: "paragraph", content: "Selected text" }],
+        props: { formattingToolbar: false },
+        children: (
+          <FormattingToolbar>
+            <CreateLinkButton />
+          </FormattingToolbar>
+        ),
+      });
+      selectText(editor, "Selected text");
+
+      await expect
+        .element(
+          page.getByRole("button", {
+            name: editor.dictionary.formatting_toolbar.link.tooltip,
+            exact: true,
+          }),
+        )
+        .toBeVisible();
+      const { violations } = await runAxe(page.getByRole("toolbar"));
+      expect(violations).toEqual([]);
+    });
+    it("opens a link form with no automated accessibility violations", async ({
+      setupEditor,
+      selectText,
+      runAxe,
+      page,
+    }) => {
+      const { editor } = await setupEditor({
+        initialContent: [{ type: "paragraph", content: "Selected text" }],
+        props: { formattingToolbar: false },
+        children: <CreateLinkButton />,
+      });
+      selectText(editor, "Selected text");
+
+      await page
+        .getByRole("button", {
+          name: editor.dictionary.formatting_toolbar.link.tooltip,
+          exact: true,
+        })
+        .click();
+
+      await expect
+        .element(
+          page.getByPlaceholder(
+            editor.dictionary.link_toolbar.form.url_placeholder,
+          ),
+        )
+        .toBeVisible();
+      const { violations } = await runAxe(page.getByRole("dialog"));
+      expect(violations).toEqual([]);
     });
   });
 
@@ -293,105 +426,6 @@ describe("CreateLinkButton", () => {
 
       await expect.element(input).not.toBeInTheDocument();
       expect(shortcut.defaultPrevented).toBe(false);
-    });
-  });
-
-  describe("a11y", () => {
-    it("exposes the popup's relationship to its named trigger and its URL field", async ({
-      setupEditor,
-      selectText,
-      page,
-    }) => {
-      const { editor } = await setupEditor({
-        initialContent: [{ type: "paragraph", content: "Selected text" }],
-        props: { formattingToolbar: false },
-        children: <CreateLinkButton />,
-      });
-      selectText(editor, "Selected text");
-      const button = page.getByRole("button", {
-        name: editor.dictionary.formatting_toolbar.link.tooltip,
-        exact: true,
-      });
-      await expect.element(button).toHaveAttribute("aria-haspopup", "dialog");
-      await expect.element(button).toHaveAttribute("aria-expanded", "false");
-
-      await button.click();
-
-      const dialog = page.getByRole("dialog");
-      await expect.element(dialog).toBeVisible();
-      await expect.element(button).toHaveAttribute("aria-expanded", "true");
-      expect(button.element().getAttribute("aria-controls")).toBe(
-        dialog.element().id,
-      );
-      expect(dialog.element().getAttribute("aria-labelledby")).toBe(
-        button.element().id,
-      );
-      await expect
-        .element(
-          dialog.getByPlaceholder(
-            editor.dictionary.link_toolbar.form.url_placeholder,
-          ),
-        )
-        .toHaveFocus();
-    });
-
-    it("checks the closed trigger", async ({
-      setupEditor,
-      selectText,
-      runAxe,
-      page,
-    }) => {
-      const { editor } = await setupEditor({
-        initialContent: [{ type: "paragraph", content: "Selected text" }],
-        props: { formattingToolbar: false },
-        children: (
-          <FormattingToolbar>
-            <CreateLinkButton />
-          </FormattingToolbar>
-        ),
-      });
-      selectText(editor, "Selected text");
-
-      await expect
-        .element(
-          page.getByRole("button", {
-            name: editor.dictionary.formatting_toolbar.link.tooltip,
-            exact: true,
-          }),
-        )
-        .toBeVisible();
-      const { violations } = await runAxe(page.getByRole("toolbar"));
-      expect(violations).toEqual([]);
-    });
-    it("opens a link form with no automated accessibility violations", async ({
-      setupEditor,
-      selectText,
-      runAxe,
-      page,
-    }) => {
-      const { editor } = await setupEditor({
-        initialContent: [{ type: "paragraph", content: "Selected text" }],
-        props: { formattingToolbar: false },
-        children: <CreateLinkButton />,
-      });
-      selectText(editor, "Selected text");
-
-      await page
-        .getByRole("button", {
-          name: editor.dictionary.formatting_toolbar.link.tooltip,
-          exact: true,
-        })
-        .click();
-
-      await expect
-        .element(
-          page.getByPlaceholder(
-            editor.dictionary.link_toolbar.form.url_placeholder,
-          ),
-        )
-        .toBeVisible();
-      const { violations } = await runAxe(page.getByRole("dialog"));
-      expect(violations).toEqual([]);
     });
   });
 });

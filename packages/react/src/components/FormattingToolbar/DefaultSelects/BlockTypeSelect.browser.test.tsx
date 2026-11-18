@@ -104,6 +104,7 @@ describe("BlockTypeSelect", () => {
     it("converts the selected block and updates its label without changing neighboring blocks or text", async ({
       setupEditor,
       selectText,
+      compareDocuments,
       page,
     }) => {
       const { editor } = await setupEditor({
@@ -131,19 +132,32 @@ describe("BlockTypeSelect", () => {
         })
         .click();
 
-      expect(editor.document).toEqual([
-        documentBefore[0],
-        {
-          ...documentBefore[1],
-          type: "heading",
-          props: {
-            ...documentBefore[1].props,
-            level: 1,
-            isToggleable: false,
+      expect(compareDocuments(documentBefore, editor.document))
+        .toMatchInlineSnapshot(`
+        [
+          {
+            "changes": [
+              {
+                "op": "replace",
+                "path": "/type",
+                "value": "heading",
+              },
+              {
+                "op": "add",
+                "path": "/props/level",
+                "value": 1,
+              },
+              {
+                "op": "add",
+                "path": "/props/isToggleable",
+                "value": false,
+              },
+            ],
+            "id": "selected",
+            "type": "update",
           },
-        },
-        documentBefore[2],
-      ]);
+        ]
+      `);
       await expect.element(page.getByRole("menu")).not.toBeInTheDocument();
       await expect
         .element(
@@ -157,6 +171,7 @@ describe("BlockTypeSelect", () => {
 
     it("converts all selected blocks while leaving an unselected neighbor intact", async ({
       setupEditor,
+      compareDocuments,
       page,
     }) => {
       const { editor } = await setupEditor({
@@ -184,13 +199,187 @@ describe("BlockTypeSelect", () => {
         })
         .click();
 
-      expect(editor.document).toEqual([
-        ...before.slice(0, 2).map((block) => ({
-          ...block,
-          type: "heading",
-          props: { ...block.props, level: 1, isToggleable: false },
-        })),
-        before[2],
+      expect(compareDocuments(before, editor.document)).toMatchInlineSnapshot(`
+        [
+          {
+            "changes": [
+              {
+                "op": "replace",
+                "path": "/type",
+                "value": "heading",
+              },
+              {
+                "op": "add",
+                "path": "/props/level",
+                "value": 1,
+              },
+              {
+                "op": "add",
+                "path": "/props/isToggleable",
+                "value": false,
+              },
+            ],
+            "id": "first",
+            "type": "update",
+          },
+          {
+            "changes": [
+              {
+                "op": "replace",
+                "path": "/type",
+                "value": "heading",
+              },
+              {
+                "op": "add",
+                "path": "/props/level",
+                "value": 1,
+              },
+              {
+                "op": "add",
+                "path": "/props/isToggleable",
+                "value": false,
+              },
+            ],
+            "id": "second",
+            "type": "update",
+          },
+        ]
+      `);
+    });
+  });
+
+  describe("aria", () => {
+    it("names the current block type and exposes the popup relationship", async ({
+      setupEditor,
+      selectText,
+      page,
+    }) => {
+      const { editor } = await setupEditor({
+        initialContent: [
+          { type: "paragraph", content: "Paragraph text" },
+          { type: "heading", props: { level: 2 }, content: "Heading text" },
+        ],
+        props: { formattingToolbar: false },
+        children: <BlockTypeSelect />,
+      });
+      selectText(editor, "Paragraph text");
+      const paragraph = page.getByRole("button", {
+        name: editor.dictionary.slash_menu.paragraph.title,
+        exact: true,
+      });
+      await expect.element(paragraph).toBeVisible();
+
+      selectText(editor, "Heading text");
+
+      const heading = page.getByRole("button", {
+        name: editor.dictionary.slash_menu.heading_2.title,
+        exact: true,
+      });
+      await expect.element(heading).toBeVisible();
+      await expect.element(paragraph).not.toBeInTheDocument();
+      await expect.element(heading).toHaveAttribute("aria-haspopup", "menu");
+      await expect.element(heading).toHaveAttribute("aria-expanded", "false");
+
+      await heading.click();
+
+      const menu = page.getByRole("menu");
+      await expect.element(menu).toBeVisible();
+      await expect.element(heading).toHaveAttribute("aria-expanded", "true");
+      expect(heading.element().getAttribute("aria-controls")).toBe(
+        menu.element().id,
+      );
+    });
+
+    // Our Mantine ToolbarSelect renders the selected option as a checkmark
+    // only; it does not expose its checked state to assistive technology.
+    it.fails("exposes the current menu choice as checked", async ({
+      setupEditor,
+      page,
+    }) => {
+      const { editor } = await setupEditor({
+        props: { formattingToolbar: false },
+        children: <BlockTypeSelect />,
+      });
+      const name = editor.dictionary.slash_menu.paragraph.title;
+      await page.getByRole("button", { name, exact: true }).click();
+
+      const item = page.getByRole("menuitem", { name, exact: true });
+      await expect.element(item).toBeVisible();
+      expect(item.element().getAttribute("aria-checked")).toBe("true");
+    });
+  });
+
+  describe("axe", () => {
+    it("checks the trigger", async ({
+      setupEditor,
+      selectText,
+      runAxe,
+      page,
+    }) => {
+      const { editor } = await setupEditor({
+        initialContent: [{ type: "paragraph", content: "Selected text" }],
+        props: { formattingToolbar: false },
+        children: (
+          <FormattingToolbar>
+            <BlockTypeSelect />
+          </FormattingToolbar>
+        ),
+      });
+      selectText(editor, "Selected text");
+      const button = page.getByRole("button", {
+        name: editor.dictionary.slash_menu.paragraph.title,
+        exact: true,
+      });
+      await expect.element(button).toBeVisible();
+
+      const { violations } = await runAxe(page.getByRole("toolbar"));
+      expect(violations).toEqual([]);
+    });
+
+    // Mantine inserts a focusable placeholder div inside the menu. Assert this
+    // known violation precisely so additional accessibility failures still fail.
+    it("checks the open menu", async ({
+      setupEditor,
+      selectText,
+      runAxe,
+      page,
+    }) => {
+      const { editor } = await setupEditor({
+        initialContent: [{ type: "paragraph", content: "Selected text" }],
+        props: { formattingToolbar: false },
+        children: (
+          <FormattingToolbar>
+            <BlockTypeSelect />
+          </FormattingToolbar>
+        ),
+      });
+      selectText(editor, "Selected text");
+
+      await page
+        .getByRole("button", {
+          name: editor.dictionary.slash_menu.paragraph.title,
+          exact: true,
+        })
+        .click();
+
+      await expect.element(page.getByRole("menu")).toBeVisible();
+      const { violations } = await runAxe(page.getByRole("menu"));
+      expect(violations).toMatchObject([
+        {
+          id: "aria-required-children",
+          nodes: [
+            {
+              any: [
+                {
+                  id: "aria-required-children",
+                  data: { messageKey: "unallowed", values: "div[tabindex]" },
+                },
+              ],
+              all: [],
+              none: [],
+            },
+          ],
+        },
       ]);
     });
   });
@@ -315,140 +504,6 @@ describe("BlockTypeSelect", () => {
         )
         .toHaveFocus();
       expect(editor.getBlock("text")?.type).toBe("heading");
-    });
-  });
-
-  describe("a11y", () => {
-    it("names the current block type and exposes the popup relationship", async ({
-      setupEditor,
-      selectText,
-      page,
-    }) => {
-      const { editor } = await setupEditor({
-        initialContent: [
-          { type: "paragraph", content: "Paragraph text" },
-          { type: "heading", props: { level: 2 }, content: "Heading text" },
-        ],
-        props: { formattingToolbar: false },
-        children: <BlockTypeSelect />,
-      });
-      selectText(editor, "Paragraph text");
-      const paragraph = page.getByRole("button", {
-        name: editor.dictionary.slash_menu.paragraph.title,
-        exact: true,
-      });
-      await expect.element(paragraph).toBeVisible();
-
-      selectText(editor, "Heading text");
-
-      const heading = page.getByRole("button", {
-        name: editor.dictionary.slash_menu.heading_2.title,
-        exact: true,
-      });
-      await expect.element(heading).toBeVisible();
-      await expect.element(paragraph).not.toBeInTheDocument();
-      await expect.element(heading).toHaveAttribute("aria-haspopup", "menu");
-      await expect.element(heading).toHaveAttribute("aria-expanded", "false");
-
-      await heading.click();
-
-      const menu = page.getByRole("menu");
-      await expect.element(menu).toBeVisible();
-      await expect.element(heading).toHaveAttribute("aria-expanded", "true");
-      expect(heading.element().getAttribute("aria-controls")).toBe(
-        menu.element().id,
-      );
-    });
-
-    // Our Mantine ToolbarSelect renders the selected option as a checkmark
-    // only; it does not expose its checked state to assistive technology.
-    it.fails("exposes the current menu choice as checked", async ({
-      setupEditor,
-      page,
-    }) => {
-      const { editor } = await setupEditor({
-        props: { formattingToolbar: false },
-        children: <BlockTypeSelect />,
-      });
-      const name = editor.dictionary.slash_menu.paragraph.title;
-      await page.getByRole("button", { name, exact: true }).click();
-
-      const item = page.getByRole("menuitem", { name, exact: true });
-      await expect.element(item).toBeVisible();
-      expect(item.element().getAttribute("aria-checked")).toBe("true");
-    });
-
-    it("checks the trigger", async ({
-      setupEditor,
-      selectText,
-      runAxe,
-      page,
-    }) => {
-      const { editor } = await setupEditor({
-        initialContent: [{ type: "paragraph", content: "Selected text" }],
-        props: { formattingToolbar: false },
-        children: (
-          <FormattingToolbar>
-            <BlockTypeSelect />
-          </FormattingToolbar>
-        ),
-      });
-      selectText(editor, "Selected text");
-      const button = page.getByRole("button", {
-        name: editor.dictionary.slash_menu.paragraph.title,
-        exact: true,
-      });
-      await expect.element(button).toBeVisible();
-
-      const { violations } = await runAxe(page.getByRole("toolbar"));
-      expect(violations).toEqual([]);
-    });
-
-    // Mantine inserts a focusable placeholder div inside the menu. Assert this
-    // known violation precisely so additional accessibility failures still fail.
-    it("checks the open menu", async ({
-      setupEditor,
-      selectText,
-      runAxe,
-      page,
-    }) => {
-      const { editor } = await setupEditor({
-        initialContent: [{ type: "paragraph", content: "Selected text" }],
-        props: { formattingToolbar: false },
-        children: (
-          <FormattingToolbar>
-            <BlockTypeSelect />
-          </FormattingToolbar>
-        ),
-      });
-      selectText(editor, "Selected text");
-
-      await page
-        .getByRole("button", {
-          name: editor.dictionary.slash_menu.paragraph.title,
-          exact: true,
-        })
-        .click();
-
-      await expect.element(page.getByRole("menu")).toBeVisible();
-      const { violations } = await runAxe(page.getByRole("menu"));
-      expect(violations).toMatchObject([
-        {
-          id: "aria-required-children",
-          nodes: [
-            {
-              any: [
-                {
-                  id: "aria-required-children",
-                  data: { messageKey: "unallowed", values: "div[tabindex]" },
-                },
-              ],
-              all: [],
-              none: [],
-            },
-          ],
-        },
-      ]);
     });
   });
 });

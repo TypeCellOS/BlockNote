@@ -2,7 +2,7 @@
 import type { TestAPI } from "vite-plus/test";
 import * as browserCommands from "./browser/index.js";
 import { createSetupEditor, type SetupEditor } from "./browser/setupEditor.js";
-import { commands as nodeCommands, page } from "./transport.js";
+import { commands as nodeCommands, page, userEvent } from "./transport.js";
 
 // Browser-only fixtures extend the baseline in fixtures/editor.node.ts.
 export type CommandContext = Pick<
@@ -11,6 +11,7 @@ export type CommandContext = Pick<
 > &
   typeof browserCommands & {
     page: typeof page;
+    userEvent: typeof userEvent;
     setupEditor: SetupEditor;
   };
 
@@ -19,6 +20,13 @@ export const commands: Required<
   Parameters<TestAPI<CommandContext>["scoped"]>[0]
 > = {
   page,
+  userEvent,
+  MOD: browserCommands.MOD,
+  browserName: browserCommands.browserName,
+  selectToLineEndKey: browserCommands.selectToLineEndKey,
+  screenshotFull: async ({}, use) => {
+    await use(browserCommands.screenshotFull);
+  },
   pressKey: async ({}, use) => {
     await use(nodeCommands.pressKey);
   },

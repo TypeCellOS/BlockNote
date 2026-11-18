@@ -114,6 +114,46 @@ describe("FormattingToolbar", () => {
     });
   });
 
+  describe("aria", () => {
+    it("exposes its custom controls as a toolbar", async ({
+      setupEditor,
+      page,
+    }) => {
+      await setupEditor({
+        props: { formattingToolbar: false },
+        children: (
+          <FormattingToolbar>
+            <button>Custom action</button>
+          </FormattingToolbar>
+        ),
+      });
+
+      await expect.element(page.getByRole("toolbar"))
+        .toMatchAriaInlineSnapshot(`
+        - toolbar:
+          - button "Custom action"
+      `);
+    });
+  });
+
+  describe("axe", () => {
+    it("has no automated accessibility violations with the default controls", async ({
+      setupEditor,
+      selectText,
+      page,
+      runAxe,
+    }) => {
+      const { editor } = await setupEditor({
+        initialContent: [{ type: "paragraph", content: "Selected text" }],
+      });
+      selectText(editor, "Selected text");
+      await expect.element(page.getByRole("toolbar")).toBeVisible();
+
+      const { violations } = await runAxe(page.getByRole("toolbar"));
+      expect(violations).toEqual([]);
+    });
+  });
+
   describe("keyboard", () => {
     it("tabs forward through the default controls for Parent and allows leaving", async ({
       setupEditor,
@@ -511,44 +551,6 @@ describe("FormattingToolbar", () => {
         ]
       `);
       expect(toolbar.element().contains(document.activeElement)).toBe(false);
-    });
-  });
-
-  describe("a11y", () => {
-    it("exposes its custom controls as a toolbar", async ({
-      setupEditor,
-      page,
-    }) => {
-      await setupEditor({
-        props: { formattingToolbar: false },
-        children: (
-          <FormattingToolbar>
-            <button>Custom action</button>
-          </FormattingToolbar>
-        ),
-      });
-
-      await expect.element(page.getByRole("toolbar"))
-        .toMatchAriaInlineSnapshot(`
-        - toolbar:
-          - button "Custom action"
-      `);
-    });
-
-    it("has no automated accessibility violations with the default controls", async ({
-      setupEditor,
-      selectText,
-      page,
-      runAxe,
-    }) => {
-      const { editor } = await setupEditor({
-        initialContent: [{ type: "paragraph", content: "Selected text" }],
-      });
-      selectText(editor, "Selected text");
-      await expect.element(page.getByRole("toolbar")).toBeVisible();
-
-      const { violations } = await runAxe(page.getByRole("toolbar"));
-      expect(violations).toEqual([]);
     });
   });
 });

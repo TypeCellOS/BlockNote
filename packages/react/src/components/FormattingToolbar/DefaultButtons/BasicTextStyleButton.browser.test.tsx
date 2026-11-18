@@ -92,28 +92,47 @@ describe("BasicTextStyleButton", () => {
   describe("integration", () => {
     it.for(STYLES)(
       "toggles %s on and off",
-      async (basicTextStyle, { setupEditor, selectText, page }) => {
+      async (
+        basicTextStyle,
+        { setupEditor, selectText, compareDocuments, page },
+      ) => {
         const { editor } = await setupEditor({
           initialContent: [
             { id: "format", type: "paragraph", content: "Format this text" },
           ],
-          // To test just the button, we don't even need the toolbar
-          // the button reads the editor context directly
+          // The button reads editor context directly; no toolbar is needed.
           props: { formattingToolbar: false },
           children: <BasicTextStyleButton basicTextStyle={basicTextStyle} />,
         });
-
         selectText(editor, "Format this text");
-
         const button = page.getByRole("button", {
           name: editor.dictionary.formatting_toolbar[basicTextStyle].tooltip,
           exact: true,
         });
 
         for (const state of ["on", "off"] as const) {
+          const before = editor.document;
+
           await button.click();
 
-          expect(editor.getBlock("format")).toMatchSnapshot(state);
+          expect(compareDocuments(before, editor.document)).toEqual([
+            {
+              type: "update",
+              id: "format",
+              changes: [
+                state === "on"
+                  ? {
+                      op: "add",
+                      path: `/content/0/styles/${basicTextStyle}`,
+                      value: true,
+                    }
+                  : {
+                      op: "remove",
+                      path: `/content/0/styles/${basicTextStyle}`,
+                    },
+              ],
+            },
+          ]);
           await expect
             .element(button)
             .toHaveAttribute("aria-pressed", String(state === "on"));
@@ -123,7 +142,10 @@ describe("BasicTextStyleButton", () => {
 
     it.for(STYLES)(
       "applies %s only to selected text without changing surrounding content",
-      async (basicTextStyle, { setupEditor, selectText, page }) => {
+      async (
+        basicTextStyle,
+        { setupEditor, selectText, compareDocuments, page },
+      ) => {
         const { editor } = await setupEditor({
           initialContent: [
             {
@@ -142,6 +164,7 @@ describe("BasicTextStyleButton", () => {
           children: <BasicTextStyleButton basicTextStyle={basicTextStyle} />,
         });
         selectText(editor, "selected");
+        const before = editor.document;
         const button = page.getByRole("button", {
           name: editor.dictionary.formatting_toolbar[basicTextStyle].tooltip,
           exact: true,
@@ -149,25 +172,43 @@ describe("BasicTextStyleButton", () => {
 
         await button.click();
 
-        expect(editor.getBlock("format")?.content).toEqual([
-          { type: "text", text: "Before ", styles: { textColor: "red" } },
+        expect(compareDocuments(before, editor.document)).toEqual([
           {
-            type: "text",
-            text: "selected",
-            // Inline code excludes other formatting styles.
-            styles:
-              basicTextStyle === "code"
-                ? { code: true }
-                : { textColor: "red", [basicTextStyle]: true },
+            type: "update",
+            id: "format",
+            changes: [
+              { op: "replace", path: "/content/0/text", value: "Before " },
+              {
+                op: "add",
+                path: "/content/1",
+                value: {
+                  type: "text",
+                  text: "selected",
+                  // Inline code excludes other formatting styles.
+                  styles:
+                    basicTextStyle === "code"
+                      ? { code: true }
+                      : { textColor: "red", [basicTextStyle]: true },
+                },
+              },
+              {
+                op: "add",
+                path: "/content/2",
+                value: {
+                  type: "text",
+                  text: " after",
+                  styles: { textColor: "red" },
+                },
+              },
+            ],
           },
-          { type: "text", text: " after", styles: { textColor: "red" } },
         ]);
       },
     );
 
     it.for(STYLES)(
       "applies %s to subsequently typed text at a collapsed cursor",
-      async (basicTextStyle, { setupEditor, page }) => {
+      async (basicTextStyle, { setupEditor, compareDocuments, page }) => {
         const { editor } = await setupEditor({
           initialContent: [
             { id: "format", type: "paragraph", content: "Existing" },
@@ -176,6 +217,7 @@ describe("BasicTextStyleButton", () => {
           children: <BasicTextStyleButton basicTextStyle={basicTextStyle} />,
         });
         editor.setTextCursorPosition("format", "end");
+        const before = editor.document;
         const button = page.getByRole("button", {
           name: editor.dictionary.formatting_toolbar[basicTextStyle].tooltip,
           exact: true,
@@ -184,12 +226,77 @@ describe("BasicTextStyleButton", () => {
         await button.click();
         await userEvent.keyboard(" typed");
 
-        expect(editor.getBlock("format")?.content).toEqual([
-          { type: "text", text: "Existing", styles: {} },
-          { type: "text", text: " typed", styles: { [basicTextStyle]: true } },
+        expect(compareDocuments(before, editor.document)).toEqual([
+          {
+            type: "update",
+            id: "format",
+            changes: [
+              {
+                op: "add",
+                path: "/content/1",
+                value: {
+                  type: "text",
+                  text: " typed",
+                  styles: { [basicTextStyle]: true },
+                },
+              },
+            ],
+          },
         ]);
       },
     );
+  });
+
+  describe("aria", () => {
+    it("reflects the active style when selection moves between blocks", async ({
+      setupEditor,
+      selectText,
+      page,
+    }) => {
+      const { editor } = await setupEditor({
+        initialContent: [
+          {
+            id: "styled",
+            type: "paragraph",
+            content: [{ type: "text", text: "Bold", styles: { bold: true } }],
+          },
+          { id: "plain", type: "paragraph", content: "Plain" },
+        ],
+        props: { formattingToolbar: false },
+        children: <BasicTextStyleButton basicTextStyle="bold" />,
+      });
+      const button = page.getByRole("button", { name: "Bold", exact: true });
+      selectText(editor, "Bold");
+      await expect.element(button).toHaveAttribute("aria-pressed", "true");
+
+      selectText(editor, "Plain");
+      await expect.element(button).toHaveAttribute("aria-pressed", "false");
+
+      selectText(editor, "Bold");
+      await expect.element(button).toHaveAttribute("aria-pressed", "true");
+    });
+  });
+
+  describe("axe", () => {
+    it("checks all supported style buttons", async ({
+      setupEditor,
+      runAxe,
+      page,
+    }) => {
+      await setupEditor({
+        props: { formattingToolbar: false },
+        children: (
+          <FormattingToolbar>
+            {STYLES.map((style) => (
+              <BasicTextStyleButton key={style} basicTextStyle={style} />
+            ))}
+          </FormattingToolbar>
+        ),
+      });
+
+      const { violations } = await runAxe(page.getByRole("toolbar"));
+      expect(violations).toEqual([]);
+    });
   });
 
   describe("keyboard", () => {
@@ -244,55 +351,5 @@ describe("BasicTextStyleButton", () => {
         await expect.element(page.getByRole("textbox")).toHaveFocus();
       },
     );
-  });
-
-  describe("a11y", () => {
-    it("reflects the active style when selection moves between blocks", async ({
-      setupEditor,
-      selectText,
-      page,
-    }) => {
-      const { editor } = await setupEditor({
-        initialContent: [
-          {
-            id: "styled",
-            type: "paragraph",
-            content: [{ type: "text", text: "Bold", styles: { bold: true } }],
-          },
-          { id: "plain", type: "paragraph", content: "Plain" },
-        ],
-        props: { formattingToolbar: false },
-        children: <BasicTextStyleButton basicTextStyle="bold" />,
-      });
-      const button = page.getByRole("button", { name: "Bold", exact: true });
-      selectText(editor, "Bold");
-      await expect.element(button).toHaveAttribute("aria-pressed", "true");
-
-      selectText(editor, "Plain");
-      await expect.element(button).toHaveAttribute("aria-pressed", "false");
-
-      selectText(editor, "Bold");
-      await expect.element(button).toHaveAttribute("aria-pressed", "true");
-    });
-
-    it("checks all supported style buttons", async ({
-      setupEditor,
-      runAxe,
-      page,
-    }) => {
-      await setupEditor({
-        props: { formattingToolbar: false },
-        children: (
-          <FormattingToolbar>
-            {STYLES.map((style) => (
-              <BasicTextStyleButton key={style} basicTextStyle={style} />
-            ))}
-          </FormattingToolbar>
-        ),
-      });
-
-      const { violations } = await runAxe(page.getByRole("toolbar"));
-      expect(violations).toEqual([]);
-    });
   });
 });

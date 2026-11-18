@@ -9,8 +9,11 @@ only. Older component suites must be migrated before widening that glob.
   `BasicTextStyleButton` and controller files keep their full names. No import
   analysis or singularization guesses are used to infer the owner.
 - Direct child groups are an ordered, unique subset of `unit`, `integration`,
-  `keyboard`, `a11y`. Missing groups are fine; unknown groups are not. ARIA
-  assertions and axe scans belong together in `a11y`, not separate groups.
+  `aria`, `axe`, `keyboard`. Missing groups are fine; unknown groups are not.
+  `unit` tests the owner's internal behavior; `integration` tests its interactions
+  across components; `aria` tests ARIA attributes, behaviors, and snapshots;
+  `axe` tests scan results and violations; `keyboard` tests functionality through
+  keyboard input.
 - Tests belong inside those groups. Scenario describes may nest further.
 - Empty describes, including hooks-only or comments-only placeholders, fail.
   Emptiness means no syntactic test registration in the describe's subtree, not

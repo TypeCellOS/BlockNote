@@ -1,6 +1,6 @@
 import { basename } from "node:path";
 
-const groups = ["unit", "integration", "keyboard", "a11y"];
+const groups = ["unit", "integration", "aria", "axe", "keyboard"];
 const testModules = new Set(["vite-plus/test", "vitest"]);
 const apis = new Set(["describe", "suite", "it", "test"]);
 const modifiers = new Set([
@@ -96,7 +96,7 @@ const structure = {
       owner: 'Use exactly one top-level describe("{{owner}}", () => { ... }).',
       callback: "Use an inline describe callback with a block body.",
       group:
-        "Place each applicable group directly inside the owner, once, in this order: unit, integration, keyboard, a11y. Omit inapplicable groups.",
+        "Place each applicable group directly inside the owner, once, in this order: unit, integration, aria, axe, keyboard. Omit inapplicable groups.",
       placement:
         "Place tests inside an applicable group, not directly in the owner or at file scope.",
       empty: "Omit empty describe groups; hooks or comments are not tests.",

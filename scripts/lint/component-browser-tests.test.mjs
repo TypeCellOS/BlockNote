@@ -63,19 +63,26 @@ function owner(content, name = "Button") {
 void test("accepts all groups in order and any nonempty subset", () => {
   assert.deepEqual(
     lint(
-      owner(["unit", "integration", "keyboard", "a11y"].map(group).join("\n")),
+      owner(
+        ["unit", "integration", "aria", "axe", "keyboard"]
+          .map(group)
+          .join("\n"),
+      ),
     ),
     [],
   );
-  assert.deepEqual(lint(owner(group("a11y"))), []);
-  assert.deepEqual(lint(owner(group("unit") + group("a11y"))), []);
+  assert.deepEqual(lint(owner(group("aria"))), []);
+  assert.deepEqual(lint(owner(group("unit") + group("axe"))), []);
+  assert.deepEqual(lint(owner(group("aria") + group("keyboard"))), []);
 });
 
-void test("accepts ARIA assertions and axe scans inside the same a11y group", () => {
+void test("accepts separate aria and axe groups", () => {
   assert.deepEqual(
     lint(
-      owner(`describe("a11y", () => {
+      owner(`describe("aria", () => {
         it("exposes its role", () => { expect(button).toHaveAttribute("role", "button"); });
+      });
+      describe("axe", () => {
         it("has no axe violations", async () => { expect((await runAxe()).violations).toEqual([]); });
       });`),
     ),
@@ -106,7 +113,7 @@ void test("owner is the full filename stem, not an imported symbol", () => {
 void test("rejects missing, multiple, or wrongly named owners", () => {
   for (const code of [
     body,
-    owner(group("unit")) + owner(group("a11y")),
+    owner(group("unit")) + owner(group("aria")),
     owner(group("unit"), "Other"),
   ]) {
     assert.match(lint(code)[0], /exactly one top-level/);
@@ -115,13 +122,14 @@ void test("rejects missing, multiple, or wrongly named owners", () => {
 
 void test("rejects out-of-order, duplicate and unknown categories", () => {
   for (const content of [
-    group("a11y") + group("unit"),
+    group("aria") + group("unit"),
     group("unit") + group("unit"),
-    group("a11y") + group("a11y"),
+    group("aria") + group("aria"),
+    group("keyboard") + group("aria"),
+    group("axe") + group("aria"),
+    group("a11y"),
     group("behaviour"),
     group("ARIA"),
-    group("aria"),
-    group("axe"),
     group("visual"),
   ]) {
     assert.match(lint(owner(content)).join("\n"), /in this order/);
@@ -176,7 +184,7 @@ void test("resolves named import aliases and namespace imports", () => {
   );
   assert.deepEqual(
     lint(`import * as vt from "vitest";
-    vt.describe("Button", () => { vt.describe("a11y", () => { vt.test("works", () => {}); }); });`),
+    vt.describe("Button", () => { vt.describe("aria", () => { vt.test("works", () => {}); }); });`),
     [],
   );
 });

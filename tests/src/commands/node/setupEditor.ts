@@ -58,8 +58,6 @@ export function createSetupEditor(onFinished: TestContext["onTestFinished"]) {
    * attached to document.body and removed during cleanup.
    *
    * @example
-   * // @vitest-environment jsdom
-   * import { test as it } from "@root/tests/src/fixtures/editor.node.js";
    *
    * it("updates a block", async ({ setupEditor }) => {
    *   const { editor } = await setupEditor({

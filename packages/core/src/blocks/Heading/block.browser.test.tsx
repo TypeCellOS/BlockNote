@@ -32,7 +32,7 @@ afterEach(() => {
   localStorage.removeItem("toggle-read-only-toggle-heading");
 });
 
-describe("behavior", () => {
+describe("integration", () => {
   it("read-only toggle heading: Tab reaches the toggle and Enter expands/collapses it", async ({
     setupEditor,
     page,
@@ -65,6 +65,50 @@ describe("behavior", () => {
       "toggle-read-only-toggle-heading",
       "false",
     );
+  });
+});
+
+describe("aria", () => {
+  it("read-only toggle heading: Tab reaches the toggle and Enter expands/collapses it", async ({
+    setupEditor,
+    page,
+    focusUntil,
+    pressKey,
+  }) => {
+    await setupEditor({
+      initialContent: toggleHeadingDocument,
+      props: { editable: false, theme: "light" },
+      outside,
+    });
+    page
+      .getByRole("button", { name: "Before editor", exact: true })
+      .element()
+      .focus();
+    await focusUntil(
+      page.getByRole("button", {
+        name: "Expand or collapse",
+        exact: true,
+      }),
+    );
+    const editor = page.getByRole("textbox");
+    await expect.element(editor).toMatchAriaInlineSnapshot(`
+      - textbox:
+        - button "Expand or collapse"
+        - heading "Details" [level=2]
+    `);
+    await pressKey("Enter");
+    await expect.element(editor).toMatchAriaInlineSnapshot(`
+      - textbox:
+        - button "Expand or collapse" [expanded]
+        - heading "Details" [level=2]
+        - paragraph: Nested read-only content
+    `);
+    await pressKey("Enter");
+    await expect.element(editor).toMatchAriaInlineSnapshot(`
+      - textbox:
+        - button "Expand or collapse"
+        - heading "Details" [level=2]
+    `);
   });
 });
 
@@ -122,49 +166,5 @@ describe("keyboard", () => {
     await pressKey("Shift+Tab");
     await expect.element(toggleButton).toHaveFocus();
     await compareFocusOutline(toggleButton);
-  });
-});
-
-describe("a11y", () => {
-  it("read-only toggle heading: Tab reaches the toggle and Enter expands/collapses it", async ({
-    setupEditor,
-    page,
-    focusUntil,
-    pressKey,
-  }) => {
-    await setupEditor({
-      initialContent: toggleHeadingDocument,
-      props: { editable: false, theme: "light" },
-      outside,
-    });
-    page
-      .getByRole("button", { name: "Before editor", exact: true })
-      .element()
-      .focus();
-    await focusUntil(
-      page.getByRole("button", {
-        name: "Expand or collapse",
-        exact: true,
-      }),
-    );
-    const editor = page.getByRole("textbox");
-    await expect.element(editor).toMatchAriaInlineSnapshot(`
-      - textbox:
-        - button "Expand or collapse"
-        - heading "Details" [level=2]
-    `);
-    await pressKey("Enter");
-    await expect.element(editor).toMatchAriaInlineSnapshot(`
-      - textbox:
-        - button "Expand or collapse" [expanded]
-        - heading "Details" [level=2]
-        - paragraph: Nested read-only content
-    `);
-    await pressKey("Enter");
-    await expect.element(editor).toMatchAriaInlineSnapshot(`
-      - textbox:
-        - button "Expand or collapse"
-        - heading "Details" [level=2]
-    `);
   });
 });
