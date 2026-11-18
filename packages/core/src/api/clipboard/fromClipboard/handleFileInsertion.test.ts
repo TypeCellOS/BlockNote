@@ -5,6 +5,95 @@ import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 import { handleFileInsertion } from "./handleFileInsertion.js";
 
 describe("File insertion", () => {
+  it.each([
+    { position: "end", y: 12, placement: "after" },
+    { position: "end", y: 28, placement: "after" },
+    { position: "start", y: 12, placement: "before" },
+    { position: "middle", y: 12, placement: "before" },
+    { position: "middle", y: 28, placement: "after" },
+    { position: "gap before", y: -1, placement: "before" },
+    { position: "gap after", y: 41, placement: "after" },
+    // Padding within the block follows the resolved text-end position too.
+    { position: "end", y: 5, placement: "after" },
+    { position: "end", y: 35, placement: "after" },
+    // The same text-end position outside the block keeps gap placement.
+    { position: "end", y: -1, placement: "before" },
+    { position: "end", y: 41, placement: "after" },
+  ] as const)(
+    "drops at $position (y=$y) $placement the paragraph",
+    async ({ position, y, placement }) => {
+      const editor = BlockNoteEditor.create({
+        initialContent: [
+          { id: "above", type: "paragraph", content: "Above" },
+          { id: "target", type: "paragraph", content: "Target line" },
+          { id: "below", type: "paragraph", content: "Below" },
+        ],
+        trailingBlock: false,
+        uploadFile: async () => "https://example.com/image.png",
+      });
+      try {
+        editor.setTextCursorPosition("target", "end");
+        const end = editor.prosemirrorState.selection.from;
+        const start = end - "Target line".length;
+        const pos =
+          position === "start"
+            ? start
+            : position === "middle"
+              ? start + 3
+              : position === "gap before"
+                ? start - 2
+                : position === "gap after"
+                  ? end + 2
+                  : end;
+        // Substitute only layout. Keep real text/gap positions, transactions,
+        // block lookup, insertion and uploads. #2570 drops on the upper half of
+        // a line still resolve to its text end, not the gap above the block.
+        Object.defineProperty(editor, "prosemirrorView", {
+          value: {
+            posAtCoords: () => ({ pos, inside: -1 }),
+          } satisfies Pick<BlockNoteEditor["prosemirrorView"], "posAtCoords">,
+        });
+        Object.defineProperty(editor, "domElement", {
+          value: {
+            querySelector: (selector: string) => ({
+              getBoundingClientRect: () =>
+                selector === '[data-id="below"]'
+                  ? { top: 40, bottom: 80 }
+                  : { top: 0, bottom: 40 },
+            }),
+          },
+        });
+        const file = new File(["image"], "image.png", { type: "image/png" });
+        const event = new DragEvent("drop", { cancelable: true });
+        Object.defineProperties(event, {
+          dataTransfer: {
+            value: {
+              types: ["Files"],
+              items: [{ type: file.type, getAsFile: () => file }],
+            },
+          },
+          clientX: { value: 100 },
+          clientY: { value: y },
+        });
+
+        await handleFileInsertion(event, editor);
+
+        expect(event.defaultPrevented).toBe(true);
+        expect(
+          editor.document.map((block) =>
+            block.type === "image" ? "image" : block.id,
+          ),
+        ).toEqual(
+          placement === "before"
+            ? ["above", "image", "target", "below"]
+            : ["above", "target", "image", "below"],
+        );
+      } finally {
+        editor._tiptapEditor.destroy();
+      }
+    },
+  );
+
   describe.each(["success", "rejection", "empty URL"] as const)(
     "%s for the first upload",
     (outcome) => {
