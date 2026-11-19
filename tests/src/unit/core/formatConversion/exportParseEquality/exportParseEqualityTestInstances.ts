@@ -262,6 +262,41 @@ export const exportParseEqualityTestInstancesHTML: TestInstance<
   },
   {
     testCase: {
+      name: "tables/rowSpanningHeaderColumn",
+      // Table has the following shape:
+      // +--------+-----+
+      // |        |  A  |
+      // | Header +-----+
+      // |        |  B  |
+      // +--------+-----+
+      // Only the first column is headers; Header spans both rows.
+      content: [
+        {
+          type: "table",
+          content: {
+            type: "tableContent",
+            headerCols: 1,
+            rows: [
+              {
+                cells: [
+                  {
+                    type: "tableCell",
+                    content: "Header",
+                    props: { rowspan: 2 },
+                  },
+                  { type: "tableCell", content: "A" },
+                ],
+              },
+              { cells: ["B"] },
+            ],
+          },
+        },
+      ],
+    },
+    executeTest: testExportParseEqualityHTML,
+  },
+  {
+    testCase: {
       name: "tables/advanced",
       content: [
         {
