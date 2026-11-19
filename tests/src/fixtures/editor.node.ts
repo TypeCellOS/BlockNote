@@ -6,7 +6,7 @@ import {
   type SetupEditor,
 } from "../commands/node/setupEditor.js";
 
-/** Node fixtures: mounts the core editor in jsdom, without React or skin styles. */
+/** Node fixtures: headless core editors, without a DOM, React, or skin styles. */
 export type NodeContext = { setupEditor: SetupEditor } & typeof nodeCommands;
 
 export const test: TestAPI<NodeContext> = base.extend<NodeContext>({

@@ -7,20 +7,17 @@ description: Rules and examples for placing, writing, and running unit, integrat
 
 ## Decide where to test
 
-Test behavior beside its owner, at the lowest reasonable rung of the test ladder that can reliably prove it works:
+Use the lowest rung that can reliably prove the behavior:
 
-| Rung                         | Environment and location                                                                                |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------- |
-| 1. Unit                      | Node, colocated `packages/*/src/**/*.test.ts`.                                                          |
-| 2. Browser component         | Real DOM/rendering, colocated `*.browser.test.{ts,tsx}`; includes focused component integrations.       |
-| 3. Cross-package integration | Node, `tests/src/unit`; documents through real pipelines, parsing, and exports.                         |
-| 4. Browser e2e               | `tests/src/end-to-end`; broader journeys and complete browser pipelines.                                |
-| 5. Mobile-emulated           | `end-to-end/mobile/**`, Android browser instance; touch, viewport, emulated IME differences.            |
-| 6. Real device               | Only behavior emulation cannot establish; device suite is parked on `mobile/emulator-layer` (PR #3034). |
+1. Colocated: `<unit-under-test>.test.ts`, or `.browser.test.ts` when browser APIs are needed. Test behavior owned by one function/component, including its integration with dependencies.
+2. Subsystem integration: `/tests/src/integration/<subsystem>` for important cross-package behavior without a single owner, such as HTML conversion or clipboard pipelines.
+3. End-to-end: `/tests/src/end-to-end/<feature>` for complete journeys across subsystems, including browser and server-side usage.
 
-The ladder guides placement, not a requirement to try every environment. Use a real browser for rendered component interactions, actual focus/traversal, and browser-dependent input behavior. Prefer Node/jsdom for editor keyboard shortcut handlers: establish editor state and selection directly, then dispatch a keyboard event, avoiding layout-dependent browser navigation. Editor/document logic also stays in faster Node tests, where `setupEditor` mounts the core editor in jsdom. Rungs 2 and 3 distinguish ownership/location, not strictly runtime cost.
+IMPORTANT: ONLY use `.browser.test.ts` when we are missing APIs in Node (e.g. DOM, window APIs, etc). If it can be tested in Node without touching or having to mock browser APIs, it should be done for speed. We should not be spinning up a browser to test that 2 + 2 = 4. We used to leverage JSDom for simulating part of the browser API within Node, this is now FORBIDDEN for new files, if something touches a browser API, it ought to run in the browser.
 
-Integrations verify boundaries, not repeat dependencies' tests. A parent assumes its children work: test toolbar composition/traversal at the toolbar, button activation at the button, and detailed document operations at their editor commands.
+Maxim: we should be testing as low-level in the ladder as we can. Most tests should be colocated (Rung 1); broader integrations (Rung 2) and journeys (Rung 3) should be progressively fewer. E2E tests are a last line of defense, not the first place you add tests to.
+
+Given that files import each other, there can be overlap and ambiguity to where something should be tested. Generally, we should be writing at least an order of magnitude more unit tests than integration tests. Where, in a parent-child relationship, the child should be testing it's own unit (the code and logic that it actively owns, not imported, or shapes it receives from elsewhere), and the parent should assume all its children's work. The parent should test for concerns that it owns (its unit), and for interactions with external behaviors that it's children cannot verify on it's own (its integration of its children). Integration tests are for verifying boundaries, not duplicating work.
 
 ## Rules
 
@@ -39,7 +36,7 @@ Integrations verify boundaries, not repeat dependencies' tests. A parent assumes
 
 ## Structure and assertions
 
-Component browser files have one owner-named outer `describe` and applicable groups in this order: `unit`, `integration`, `keyboard`, `a11y`. Reasonably cover each applicable category; omit irrelevant groups. ARIA assertions and axe scans share `a11y`; there is no separate `axe` group. Accessibility belongs alongside normal behavior.
+For component file structure, test groups, and accessibility assertions, follow [Component testing](references/component-testing.md).
 
 Pure-function tests use a function-named `describe`; give integrated scenarios a separate `describe` when needed. Follow established patterns without inventing unnecessary structure.
 
@@ -49,35 +46,40 @@ Pure-function tests use a function-named `describe`; give integrated scenarios a
 | Inline snapshot   | Small serialized results; prefer inline when readable. Size is a guideline, not a cutoff.              |
 | External snapshot | Large documents, exports, or trees whose output would obscure the test.                                |
 
+For document mutations, prefer `compareDocuments(before, editor.document)` with inline snapshots. Use `toEqual` when parameterized expectations are clearer.
+
 Screenshots are a last resort for behavior. Prefer state, DOM, or accessibility assertions; do not compare before/after screenshots to prove a click worked. A few deliberate subsystem baselines can guard visual regressions, with awareness of false positives.
 
 ## Golden examples
 
-- [BasicTextStyleButton](../../../packages/react/src/components/FormattingToolbar/DefaultButtons/BasicTextStyleButton.browser.test.tsx): component behavior, editor integration, keyboard, a11y (ARIA and axe).
-- [FormattingToolbar](../../../packages/react/src/components/FormattingToolbar/FormattingToolbar.browser.test.tsx): composition and traversal of child controls.
+- Child React component test: [BasicTextStyleButton](../../../packages/react/src/components/FormattingToolbar/DefaultButtons/BasicTextStyleButton.browser.test.tsx): component behavior, editor integration, ARIA, axe, and keyboard.
+- Parent React component test: [FormattingToolbar](../../../packages/react/src/components/FormattingToolbar/FormattingToolbar.browser.test.tsx): composition and traversal of child controls.
 
 Use these as patterns, not templates to copy mechanically. For testing a React component, read [Component testing](references/component-testing.md).
 
 ## Editor setup
 
-Use `const { editor } = await setupEditor({ ...editorOptions })` in either environment. Browser tests receive it from the shared fixture; it renders a view and additionally accepts `skin`, `props`, `children`, and `outside`, returning `rerender` too. Node tests import `test` from `tests/src/fixtures/editor.node.ts` and use the jsdom environment; their helper mounts the core editor without React or skin styles. Both preserve custom-schema types and clean up after the test. For headless logic, use `BlockNoteEditor.create` directly.
+Use `const { editor } = await setupEditor({ ...editorOptions })` in either environment. The global `it` supplies correctly typed helpers for the current test environment; do not import `it` or a fixture-specific test function. Browser setup renders a view and additionally accepts `skin`, `props`, `children`, and `outside`, returning `rerender` too. Node setup creates a headless editor without DOM mounting or jsdom. Both preserve custom-schema types and clean up after the test.
 
-`insertBlocks` returns an array of inserted BlockNote blocks. The conversion to a ProseMirror node is `blockToNode`:
+The same test works in either environment:
 
 ```ts
-import { blockToNode } from "@blocknote/core";
+import { expect } from "vite-plus/test";
 
-const [block] = editor.insertBlocks(
-  [{ type: "paragraph", content: "Inserted text" }],
-  "existing-block-id",
-  "after",
-);
-const node = editor.transact((tr) =>
-  blockToNode(block, tr.doc.type.schema, editor.schema.styleSchema),
-);
+it("updates a block's background color", async ({ setupEditor }) => {
+  const { editor } = await setupEditor({
+    initialContent: [
+      { id: "paragraph", type: "paragraph", content: "Original text" },
+    ],
+  });
+
+  editor.updateBlock("paragraph", { props: { backgroundColor: "yellow" } });
+
+  expect(editor.getBlock("paragraph")?.props.backgroundColor).toBe("yellow");
+});
 ```
 
-For shortcut-handler tests, set up the desired state/selection with editor APIs, then simulate the keyboard event in jsdom. A shared event helper is planned; do not invent a browser navigation journey just to reach the shortcut's starting position. Use a browser when layout, native shortcut handling, or real focus movement is itself the contract.
+For shortcut-handler tests, set up the desired state/selection with editor APIs, then simulate the keyboard event in node. Do not invent a browser navigation journey just to reach the shortcut's starting position. Use a browser when layout, native shortcut handling, or real focus movement is itself the contract.
 
 ## Run
 

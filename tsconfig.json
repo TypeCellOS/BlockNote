@@ -1,6 +1,7 @@
 {
   "files": [],
   "references": [
+    { "path": "./tests/tsconfig.node.json" },
     { "path": "./tests/tsconfig.browser.json" },
     { "path": "./tests/tsconfig.screen-reader.json" },
     { "path": "./packages/core" },

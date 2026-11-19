@@ -23,7 +23,7 @@ type DefaultOptions = Omit<
   "schema"
 > & { schema?: never };
 
-/** Binds mounted editor cleanup to the current Node test (not a browser RPC). */
+/** Binds headless editor cleanup to the current Node test (not a browser RPC). */
 export function createSetupEditor(onFinished: TestContext["onTestFinished"]) {
   async function setupWithSchema<
     B extends BlockSchema,
@@ -33,29 +33,23 @@ export function createSetupEditor(onFinished: TestContext["onTestFinished"]) {
     schema: CustomBlockNoteSchema<B, I, S>,
     options: Partial<BlockNoteEditorOptions<B, I, S>>,
   ) {
-    const rootNode = document.createElement("div");
     const editor = BlockNoteEditor.create({ ...options, schema });
-    document.body.append(rootNode);
     onFinished(() => {
       editor.unmount();
-      rootNode.remove();
     });
-    editor.mount(rootNode);
-    return { editor, rootNode };
+    return { editor };
   }
 
   /**
-   * Creates a real editor, mounts its contenteditable into the test environment's
-   * jsdom document, and unmounts/removes it after the test. Requires Vitest's
-   * `jsdom` environment; it does not install DOM globals itself.
+   * Creates a headless editor without accessing a DOM or requiring jsdom.
+   * Registers the public `unmount` cleanup after the test. This does not
+   * permanently destroy extensions; BlockNote has no public destroy method.
    *
-   * Use for Node tests of editor/document logic. This mounts the core editor, not
-   * a React view or skin. Use browser setupEditor for component rendering and real
-   * input/focus behavior, or BlockNoteEditor.create directly for headless logic.
+   * Use for Node tests of editor/document logic. Use browser setupEditor for
+   * component rendering and real input/focus behavior.
    * Accepts the same top-level editor options as the browser setupEditor,
    * including custom schemas, but no view props, skin, children, or rerender.
-   * Returns `{ editor, rootNode }`, where `rootNode` is the mounting container
-   * attached to document.body and removed during cleanup.
+   * Returns only `{ editor }`; there is no mounting container.
    *
    * @example
    *
@@ -75,14 +69,13 @@ export function createSetupEditor(onFinished: TestContext["onTestFinished"]) {
     options: Partial<BlockNoteEditorOptions<B, I, S>> & {
       schema: CustomBlockNoteSchema<B, I, S>;
     },
-  ): Promise<{ editor: BlockNoteEditor<B, I, S>; rootNode: HTMLDivElement }>;
+  ): Promise<{ editor: BlockNoteEditor<B, I, S> }>;
   function setupEditor(options?: DefaultOptions): Promise<{
     editor: BlockNoteEditor<
       DefaultBlockSchema,
       DefaultInlineContentSchema,
       DefaultStyleSchema
     >;
-    rootNode: HTMLDivElement;
   }>;
   function setupEditor<
     B extends BlockSchema,

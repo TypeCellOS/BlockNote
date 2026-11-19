@@ -1,0 +1,25 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "composite": false,
+    "rootDir": "..",
+    "sourceMap": false,
+    "paths": {
+      "@shared/*": ["../shared/*"],
+      "@blocknote/core": ["../packages/core/src/index.ts"],
+      "@blocknote/core/*": ["../packages/core/src/*"]
+    }
+  },
+  "include": [
+    "vitestSetup.node-fixtures.ts",
+    "src/unit/**/*.test.ts",
+    "src/unit/**/*.test.tsx",
+    "../packages/*/src/**/*.test.ts",
+    "../packages/*/src/**/*.test.tsx",
+    "../examples/07-collaboration/12-multi-doc-versioning/src/*.test.ts"
+  ],
+  "exclude": [
+    "../packages/*/src/**/*.browser.test.*",
+    "../packages/*/src/**/*.screen-reader.test.ts"
+  ]
+}
