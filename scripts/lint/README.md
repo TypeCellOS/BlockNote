@@ -1,8 +1,9 @@
 # Component browser test structure
 
 `component-browser-tests.mjs` is a local Oxlint JavaScript plugin, loaded by
-`vite.config.ts`. The initial override covers FormattingToolbar browser tests
-only. Older component suites must be migrated before widening that glob.
+`vite.config.ts`. The explicit file list in `vite.config.ts` covers the FormattingToolbar and
+Heading browser suites. Older component suites must be migrated before adding
+them to that list.
 
 - Exactly one top-level owner `describe`, named after the full filename before
   `.browser.test.tsx` (or `.ts`). `NestBlockButtons` owns both button exports;
@@ -32,7 +33,7 @@ Run the focused tests against the installed Oxlint engine (no browser needed):
 
 ```sh
 pnpm exec node --test scripts/lint/component-browser-tests.test.mjs
-vp run lint packages/react/src/components/FormattingToolbar
+vp run lint packages/react/src/components/FormattingToolbar packages/core/src/blocks/Heading/Heading.browser.test.tsx
 ```
 
 The tests use an isolated temporary config and TSX source fixtures; they do not

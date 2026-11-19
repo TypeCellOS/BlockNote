@@ -3,6 +3,7 @@ import { defineConfig } from "vite-plus";
 // Opt existing suites into the new conventions as they are migrated, rather
 // than requiring unrelated legacy tests to change in this PR.
 const componentTestFiles = [
+  "packages/core/src/blocks/Heading/Heading.browser.test.tsx",
   "packages/react/src/components/FormattingToolbar/FormattingToolbar.browser.test.tsx",
   "packages/react/src/components/FormattingToolbar/DesktopFormattingToolbarController.browser.test.tsx",
   "packages/react/src/components/FormattingToolbar/DefaultButtons/BasicTextStyleButton.browser.test.tsx",
