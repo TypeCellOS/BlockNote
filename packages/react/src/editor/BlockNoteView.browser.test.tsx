@@ -1,4 +1,3 @@
-import { commands } from "@root/tests/src/utils/context.js";
 import {
   COLORS_DEFAULT,
   defaultBlockSpecs,
@@ -13,7 +12,7 @@ import {
   type DefaultStyleSchema,
   type PropSchema,
 } from "@blocknote/core";
-import { expect, test } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 import { page, server } from "vite-plus/test/browser";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
@@ -22,7 +21,21 @@ import { useCreateBlockNote } from "@blocknote/react";
 import { render } from "vitest-browser-react";
 import { useEffect } from "react";
 import { NodeSelection, TextSelection } from "@tiptap/pm/state";
-import { screenshotFull } from "@root/tests/src/utils/screenshotFull.js";
+
+// These keyboard-navigation tests inspect the focus end of the DOM selection.
+export function readDOMSelection() {
+  const node = document.getSelection()?.focusNode;
+  const element = node instanceof Element ? node : node?.parentElement;
+  const cell = element?.closest("td, th");
+  const row = cell?.parentElement;
+  return {
+    tableCell:
+      cell instanceof HTMLTableCellElement && row instanceof HTMLTableRowElement
+        ? { row: row.rowIndex, column: cell.cellIndex }
+        : null,
+    blockId: element?.closest("[data-id]")?.getAttribute("data-id") ?? null,
+  };
+}
 
 function TestEditor({
   initialContent,
@@ -426,31 +439,27 @@ const schemaDocument: PartialBlock[] = [
 // Screen-reader tests import the shared helpers and fixtures from this file.
 // Register these suites only in the regular browser run.
 if (!screenReader) {
-  test.describe("keyboard", () => {
-    async function focusReadOnlyLinkWithAssertions() {
-      const link = page.getByRole("link", {
-        name: "Documentation",
-        exact: true,
-      });
-      await expect.element(link).toBeVisible();
-      const unfocusedOutline = await commands.readOutline(link.selector);
-      for (
-        let presses = 0;
-        document.activeElement !== link.element();
-        presses++
-      ) {
-        if (presses >= 10) {
-          throw new Error(
-            "Could not focus the Documentation link after 10 Tab presses",
-          );
-        }
-        await commands.pressKey("Tab");
-      }
-      await expect.element(link).toHaveFocus();
-      await commands.checkFocusOutline(link.selector, unfocusedOutline);
-      return link;
-    }
+  describe("aria", () => {
+    // Numbered list item indices are separate text elements, among other issues.
+    it.skip("default schema: accessibility tree snapshot", async () => {
+      await renderTestEditor(schemaDocument);
+      await expect.element(page.getByRole("textbox")).toMatchAriaSnapshot();
+    });
+  });
 
+  describe("axe", () => {
+    for (const theme of ["light", "dark"] as const) {
+      // Known issues include the unnamed editor, unlabeled checklist checkboxes,
+      // insufficient contrast, and undersized targets.
+      it.skip(`default schema: axe (${theme})`, async ({ runAxe }) => {
+        await renderTestEditor(schemaDocument, { theme });
+        const results = await runAxe();
+        expect(results.violations).toEqual([]);
+      });
+    }
+  });
+
+  describe("keyboard", () => {
     // Firefox skips checkListItem with ArrowDown.
     // Chromium/WebKit reproduction: expand "Toggle heading", place the caret
     // immediately before the C in "Completed task", then press ArrowUp. It lands
@@ -459,8 +468,9 @@ if (!screenReader) {
     // Confirmed with clicks and keypresses in Docker. The traversal below reaches
     // "Completed task" at offset 0 when returning from the final paragraph.
     // Keep the complete expected route when re-enabling this test.
-    test.skip("default schema: arrow keys visit every expanded block in order", async ({
+    it.skip("default schema: arrow keys visit every expanded block in order", async ({
       onTestFinished,
+      pressKey,
     }) => {
       // Expansion is view state, not a document prop. Make the route deterministic
       // without changing the visual fixtures' default collapsed state.
@@ -477,7 +487,7 @@ if (!screenReader) {
         });
       }
       const editor = await renderTestEditor(defaultSchemaDocument);
-      await commands.pressKey("Tab");
+      await pressKey("Tab");
       await expect.element(page.getByRole("textbox")).toHaveFocus();
 
       function blockIds(blocks: PartialBlock[]): string[] {
@@ -501,7 +511,7 @@ if (!screenReader) {
               `${key} did not finish the document route after 100 presses; still at block "${expected[index]}"`,
             );
           }
-          await commands.pressKey(key);
+          await pressKey(key);
           const actual = editor.getTextCursorPosition().block.id;
 
           expect(
@@ -521,9 +531,11 @@ if (!screenReader) {
       }
     });
 
-    test("table: ArrowRight and ArrowLeft visit every cell in row order", async () => {
+    it("table: ArrowRight and ArrowLeft visit every cell in row order", async ({
+      pressKey,
+    }) => {
       await renderTestEditor(tableNavigationDocument);
-      await commands.pressKey("Tab");
+      await pressKey("Tab");
       await expect.element(page.getByRole("textbox")).toHaveFocus();
       const route = [
         { row: 0, column: 0 },
@@ -531,7 +543,7 @@ if (!screenReader) {
         { row: 1, column: 0 },
         { row: 1, column: 1 },
       ];
-      expect((await commands.readSelection()).tableCell).toEqual(route[0]);
+      expect(readDOMSelection().tableCell).toEqual(route[0]);
       for (const key of ["ArrowRight", "ArrowLeft"] as const) {
         const expected = key === "ArrowRight" ? route : route.toReversed();
         let index = 0;
@@ -541,8 +553,8 @@ if (!screenReader) {
               `${key} did not finish the table route after 100 presses; still at cell ${JSON.stringify(expected[index])}`,
             );
           }
-          await commands.pressKey(key);
-          const { blockId, tableCell } = await commands.readSelection();
+          await pressKey(key);
+          const { blockId, tableCell } = readDOMSelection();
           expect(blockId, `${key} stays in the table`).toBe("table");
           expect(
             [expected[index], expected[index + 1]],
@@ -560,20 +572,20 @@ if (!screenReader) {
 
     // After Tab enters the second column, Chromium/WebKit's ArrowDown returns
     // to column 0. Firefox preserves the column throughout this sequence.
-    test.skipIf(server.browser !== "firefox")(
+    it.skipIf(server.browser !== "firefox")(
       "table: ArrowDown and ArrowUp visit each row without changing column",
-      async () => {
+      async ({ pressKey }) => {
         await renderTestEditor(tableNavigationDocument);
-        await commands.pressKey("Tab");
+        await pressKey("Tab");
         await expect.element(page.getByRole("textbox")).toHaveFocus();
         for (const column of [0, 1]) {
-          expect((await commands.readSelection()).tableCell).toEqual({
+          expect(readDOMSelection().tableCell).toEqual({
             row: 0,
             column,
           });
           for (const key of ["ArrowDown", "ArrowUp"] as const) {
             const targetRow = key === "ArrowDown" ? 1 : 0;
-            let selection = await commands.readSelection();
+            let selection = readDOMSelection();
             for (
               let presses = 0;
               selection.tableCell?.row !== targetRow;
@@ -584,8 +596,8 @@ if (!screenReader) {
                   `${key} did not reach row ${targetRow}, column ${column} after 10 presses`,
                 );
               }
-              await commands.pressKey(key);
-              selection = await commands.readSelection();
+              await pressKey(key);
+              selection = readDOMSelection();
               expect(selection.blockId, `${key} stays in the table`).toBe(
                 "table",
               );
@@ -599,14 +611,14 @@ if (!screenReader) {
           }
           if (column === 0) {
             // Set up the second column through the table's keyboard navigation.
-            await commands.pressKey("Tab");
+            await pressKey("Tab");
           }
         }
       },
     );
 
     // The editor has no separate focused state without an editing selection; Escape blurs to the body.
-    test.skip("editor can receive focus without selecting content", async () => {
+    it.skip("editor can receive focus without selecting content", async () => {
       // TODO: Focus the editor as a page element without an editing selection.
       // Tab/arrows should navigate the page; Enter should enter editing.
       // Escape currently blurs to body, which does not preserve this entry point.
@@ -614,22 +626,22 @@ if (!screenReader) {
 
     // Whole-block selection requires Cmd+Click; no keyboard interaction is implemented. No styling
     // is present to indicate whole-block selection.
-    test.skip("keyboard selection extends to the entire block", async () => {
+    it.skip("keyboard selection extends to the entire block", async () => {
       // TODO: Extend a text selection to its whole block, leaving neighbours out.
       // Whole-block selection currently requires Cmd+Click; keyboard UX is TBD.
     });
 
     // TODO: WebKit resets the tab position after Escape blurs the editor, so Tab
     // focuses "Before editor" instead of "After editor".
-    test.skipIf(server.browser === "webkit")(
+    it.skipIf(server.browser === "webkit")(
       "Escape allows Tab to leave the editor",
-      async () => {
+      async ({ pressKey }) => {
         await renderTestEditor(editorEscapeDocument);
-        await commands.pressKey("Tab");
+        await pressKey("Tab");
         await expect.element(page.getByRole("textbox")).toHaveFocus();
-        await commands.pressKey("Escape");
+        await pressKey("Escape");
         await expect.element(document.body).toHaveFocus();
-        await commands.pressKey("Tab");
+        await pressKey("Tab");
         await expect
           .element(
             page.getByRole("button", { name: "After editor", exact: true }),
@@ -641,21 +653,33 @@ if (!screenReader) {
 
     // Focused inline links do not yet have a suitable visual focus indicator.
     // TODO: Fix the focus appearance before enabling.
-    test.skip("read-only editor: Tab reaches inline links and leaves the editor", async () => {
+    it.skip("read-only editor: Tab reaches inline links and leaves the editor", async ({
+      pressKey,
+      captureFocusOutline,
+      focusUntil,
+    }) => {
       await renderTestEditor(readOnlyLinkDocument, { editable: false });
-      const link = await focusReadOnlyLinkWithAssertions();
-      await commands.pressKey("Tab");
+      const link = page.getByRole("link", {
+        name: "Documentation",
+        exact: true,
+      });
+      await expect.element(link).toBeVisible();
+      const compareFocusOutline = captureFocusOutline(link);
+      await focusUntil(link);
+      await expect.element(link).toHaveFocus();
+      await compareFocusOutline(link);
+      await pressKey("Tab");
       await expect
         .element(
           page.getByRole("button", { name: "After editor", exact: true }),
         )
         .toHaveFocus();
-      await commands.pressKey("Shift+Tab");
+      await pressKey("Shift+Tab");
       await expect.element(link).toHaveFocus();
     });
 
     // Read-only file/media blocks cannot be selected through the page tab order.
-    test.skip("read-only editor: Tab selects blocks that expose a formatting toolbar", async () => {
+    it.skip("read-only editor: Tab selects blocks that expose a formatting toolbar", async () => {
       // TODO: Open a read-only document containing an image/file block between
       // ordinary paragraphs. Tab from Before editor to select that block, assert
       // the block selection and visible indicator, and continue to After editor.
@@ -665,30 +689,7 @@ if (!screenReader) {
     });
   });
 
-  test.describe("ARIA", () => {
-    // Numbered list item indices are separate text elements, among other issues.
-    test.skip("default schema: accessibility tree snapshot", async () => {
-      await renderTestEditor(schemaDocument);
-      expect(
-        await commands.readAriaSnapshot(page.getByRole("textbox").selector),
-      ).toMatchSnapshot("default schema");
-    });
-  });
-
-  test.describe("axe", () => {
-    for (const theme of ["light", "dark"] as const) {
-      // Known issues include the unnamed editor, unlabeled checklist checkboxes,
-      // insufficient contrast, and undersized targets.
-      test.skip(`default schema: axe (${theme})`, async ({ annotate }) => {
-        await renderTestEditor(schemaDocument, { theme });
-        for (const warning of await commands.checkAxe()) {
-          await annotate(warning, "warning");
-        }
-      });
-    }
-  });
-
-  test.describe("visual", () => {
+  describe("visual", () => {
     function applyStyles(css: string) {
       const style = document.createElement("style");
       style.textContent = css;
@@ -727,8 +728,10 @@ if (!screenReader) {
       }
     }
 
-    test.describe("text spacing and resizing", () => {
-      test("default schema remains readable with text spacing overrides", async () => {
+    describe("text spacing and resizing", () => {
+      it("default schema remains readable with text spacing overrides", async ({
+        screenshotFull,
+      }) => {
         await renderTestEditor(defaultSchemaDocument);
         await waitForMedia();
         // WCAG 1.4.12: override spacing without changing any other style property.
@@ -750,7 +753,9 @@ if (!screenReader) {
         });
       });
 
-      test("default schema remains readable at 200% text size", async () => {
+      it("default schema remains readable at 200% text size", async ({
+        screenshotFull,
+      }) => {
         await renderTestEditor(defaultSchemaDocument);
         await waitForMedia();
         resizeText(2);

@@ -11,7 +11,6 @@
     "esModuleInterop": true,
     "types": ["node", "vite-plus/client"],
     "paths": {
-      "@root/*": ["../*"],
       "@shared/*": ["../shared/*"],
       "@blocknote/mantine": ["./node_modules/@blocknote/mantine"],
       "@blocknote/react": ["./node_modules/@blocknote/react"],
@@ -23,9 +22,9 @@
   "include": [
     "src/utils/**/*.ts",
     "src/utils/**/*.tsx",
-    "screen-reader/**/*.ts",
+    "src/fixtures/**/*.tsx",
     "vitestSetup.browser.ts",
-    "../packages/*/src/**/*.browser.test.*",
-    "../packages/*/src/**/*.screen-reader.test.ts"
+    "vitestSetup.browser-fixtures.ts",
+    "../packages/*/src/**/*.browser.test.*"
   ]
 }

@@ -3,16 +3,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { configDefaults, defineConfig, type UserConfig } from "vite-plus";
 import { playwright } from "vite-plus/test/browser/providers/playwright";
-import {
-  readAriaSnapshot,
-  readOutline,
-  checkFocusOutline,
-  readSelection,
-  checkAxe,
-} from "./src/utils/accessibility.js";
-import { pressKey } from "./src/utils/keyboard.js";
-import { positionalMouse } from "./src/utils/positionalMouse.js";
-import { imeComposition } from "./src/utils/imeComposition.js";
+import * as commands from "./src/commands/transport/index.js";
 
 // For the desktop instances: end-to-end/mobile runs only in the "android"
 // instance. An instance-level `exclude` replaces the resolved base exclude
@@ -30,7 +21,6 @@ const DESKTOP_EXCLUDE = [
   "**/end-to-end/mobile/**",
   "../packages/*/src/**/*.screen-reader.test.ts",
 ];
-import { restoreTouchEmulation } from "./src/utils/restoreTouchEmulation.js";
 
 // 1280x720 matches the old Playwright defaults so visual baselines have room.
 // Used as the playwright context viewport for every browser instance.
@@ -100,7 +90,6 @@ export default defineConfig(
         // src/examples.d.ts.
         alias: {
           ...blockNoteSrcAliases,
-          "@root": path.resolve(__dirname, ".."),
           // The shared test-utils package lives at the repo root (not under
           // packages/), so it isn't picked up by the packages scan above.
           // All consumers - test code and example apps alike - import it via
@@ -130,7 +119,10 @@ export default defineConfig(
           "../packages/*/src/**/*.screen-reader.test.ts",
         ],
 
-        setupFiles: ["./vitestSetup.browser.ts"],
+        setupFiles: [
+          "./vitestSetup.browser.ts",
+          "./vitestSetup.browser-fixtures.ts",
+        ],
         // Running three browsers concurrently inside one Docker container already
         // saturates CPU; layering per-browser file parallelism on top causes
         // 15s test timeouts and even Firefox WS-connect failures. One worker per
@@ -180,17 +172,7 @@ export default defineConfig(
           // still show in the HTML report (errors + stack traces don't depend
           // on these shots), so disable them. See `e2e:report` to view.
           screenshotFailures: false,
-          commands: {
-            positionalMouse,
-            imeComposition,
-            restoreTouchEmulation,
-            readAriaSnapshot,
-            readOutline,
-            checkFocusOutline,
-            readSelection,
-            checkAxe,
-            pressKey,
-          },
+          commands,
           instances: [
             {
               browser: "chromium",

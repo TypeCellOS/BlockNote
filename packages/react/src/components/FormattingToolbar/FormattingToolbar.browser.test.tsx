@@ -1,565 +1,556 @@
-import { commands } from "@root/tests/src/utils/context.js";
-import { selectToLineEndKey } from "@root/tests/src/utils/context.js";
-import { type PartialBlock } from "@blocknote/core";
-import { expect, test, vi } from "vite-plus/test";
-import "@blocknote/core/fonts/inter.css";
-import { BlockNoteView } from "@blocknote/mantine";
-import "@blocknote/mantine/style.css";
-import { useCreateBlockNote } from "@blocknote/react";
-import { useEffect } from "react";
-import { render } from "vitest-browser-react";
-import type { BlockNoteEditor } from "@blocknote/core";
-import { page, server } from "vite-plus/test/browser";
+import { describe, expect } from "vite-plus/test";
+import { FormattingToolbar } from "./FormattingToolbar.js";
 
-function TestEditor({
-  initialContent,
-  onReady,
-}: {
-  initialContent: PartialBlock[];
-  onReady: (editor: BlockNoteEditor) => void;
-}) {
-  const editor = useCreateBlockNote({ initialContent });
-  useEffect(() => {
-    onReady(editor);
-  }, [editor, onReady]);
-  return <BlockNoteView editor={editor} theme="light" />;
-}
-
-export async function renderTestEditor(initialContent: PartialBlock[]) {
-  let editor!: BlockNoteEditor;
-  await render(
-    <TestEditor
-      initialContent={initialContent}
-      onReady={(instance) => {
-        editor = instance;
-      }}
-    />,
-  );
-  await expect.element(page.getByRole("textbox")).toBeVisible();
-  await document.fonts.ready;
-  editor.focus();
-  return editor;
-}
-
-const screenReader =
-  server.config.name === "voiceover" || server.config.name === "nvda";
-
-// Start with the editor focused after renderTestEditor(). Keep the navigation steps
-// identical to focusToolbarItemWithAssertions in the keyboard suite.
-export async function focusToolbarItem(toolbarItem: string) {
-  await commands.pressKey("ArrowDown");
-  await commands.pressKey(selectToLineEndKey);
-  const toolbar = page.getByRole("toolbar");
-  await commands.pressKey("Tab");
-  const target = toolbar.getByRole("button", {
-    name: toolbarItem,
-    exact: true,
-  });
-  for (
-    let presses = 0;
-    document.activeElement !== target.element();
-    presses++
-  ) {
-    if (presses >= 20) {
-      throw new Error(
-        `Could not focus toolbar item "${toolbarItem}" after 20 Tab presses`,
-      );
-    }
-    await commands.pressKey("Tab");
-  }
-  return { toolbar, button: target };
-}
-
-// The middle paragraph is selected; its neighbours provide navigation context.
-export const toolbarDocument: PartialBlock[] = [
-  { id: "preceding", type: "paragraph", content: "Preceding paragraph" },
-  { id: "format", type: "paragraph", content: "Format this text" },
-  { id: "following", type: "paragraph", content: "Following paragraph" },
-];
-
-const nestedToolbarDocument: PartialBlock[] = [
-  {
-    id: "preceding",
-    type: "paragraph",
-    content: "Preceding paragraph",
-    children: [
-      { id: "format", type: "paragraph", content: "Format this text" },
-    ],
-  },
-];
-
-// Left alignment must change the selected paragraph rather than reapply its default.
-const centeredToolbarDocument: PartialBlock[] = [
-  { id: "preceding", type: "paragraph", content: "Preceding paragraph" },
-  {
-    id: "format",
-    type: "paragraph",
-    props: { textAlignment: "center" },
-    content: "Format this text",
-  },
-  { id: "following", type: "paragraph", content: "Following paragraph" },
-];
-
-// Screen-reader tests import the shared helpers and fixtures from this file.
-// Register these suites only in the regular browser run.
-if (!screenReader) {
-  test.describe("behavior", () => {
-    test("formatting toolbar: Bold", async ({ onTestFinished }) => {
-      const editor = await renderTestEditor(toolbarDocument);
-      await focusToolbarItem("Bold");
-      const onChange = vi.fn();
-      onTestFinished(editor.onChange(onChange));
-      await commands.pressKey("Enter");
-      expect(onChange).toHaveBeenCalled();
-    });
-
-    test("formatting toolbar: Italic", async ({ onTestFinished }) => {
-      const editor = await renderTestEditor(toolbarDocument);
-      await focusToolbarItem("Italic");
-      const onChange = vi.fn();
-      onTestFinished(editor.onChange(onChange));
-      await commands.pressKey("Enter");
-      expect(onChange).toHaveBeenCalled();
-    });
-
-    test("formatting toolbar: Underline", async ({ onTestFinished }) => {
-      const editor = await renderTestEditor(toolbarDocument);
-      await focusToolbarItem("Underline");
-      const onChange = vi.fn();
-      onTestFinished(editor.onChange(onChange));
-      await commands.pressKey("Enter");
-      expect(onChange).toHaveBeenCalled();
-    });
-
-    test("formatting toolbar: Strike", async ({ onTestFinished }) => {
-      const editor = await renderTestEditor(toolbarDocument);
-      await focusToolbarItem("Strike");
-      const onChange = vi.fn();
-      onTestFinished(editor.onChange(onChange));
-      await commands.pressKey("Enter");
-      expect(onChange).toHaveBeenCalled();
-    });
-
-    test("formatting toolbar: Align text left", async ({ onTestFinished }) => {
-      const editor = await renderTestEditor(centeredToolbarDocument);
-      await focusToolbarItem("Align text left");
-      const onChange = vi.fn();
-      onTestFinished(editor.onChange(onChange));
-      await commands.pressKey("Enter");
-      expect(onChange).toHaveBeenCalled();
-    });
-
-    test("formatting toolbar: Align text center", async ({
-      onTestFinished,
+describe("FormattingToolbar", () => {
+  describe("unit", () => {
+    it("allows custom children instead of default controls", async ({
+      setupEditor,
+      page,
     }) => {
-      const editor = await renderTestEditor(toolbarDocument);
-      await focusToolbarItem("Align text center");
-      const onChange = vi.fn();
-      onTestFinished(editor.onChange(onChange));
-      await commands.pressKey("Enter");
-      expect(onChange).toHaveBeenCalled();
-    });
+      await setupEditor({
+        props: { formattingToolbar: false },
+        children: (
+          <FormattingToolbar>
+            <button>Custom action</button>
+          </FormattingToolbar>
+        ),
+      });
 
-    test("formatting toolbar: Align text right", async ({ onTestFinished }) => {
-      const editor = await renderTestEditor(toolbarDocument);
-      await focusToolbarItem("Align text right");
-      const onChange = vi.fn();
-      onTestFinished(editor.onChange(onChange));
-      await commands.pressKey("Enter");
-      expect(onChange).toHaveBeenCalled();
-    });
-
-    test("formatting toolbar: Colors", async ({ onTestFinished }) => {
-      const editor = await renderTestEditor(toolbarDocument);
-      await focusToolbarItem("Colors");
-      await commands.pressKey("Enter");
-      const menu = page.getByRole("menu");
-      await expect.element(menu).toBeVisible();
-      // Mantine initially focuses a placeholder before the first menu item.
+      const toolbar = page.getByRole("toolbar");
+      await expect.element(toolbar.getByRole("button")).toHaveLength(1);
       await expect
-        .element(menu.element().querySelector<HTMLElement>("[data-autofocus]"))
-        .toHaveFocus();
-      await commands.pressKey("ArrowDown");
-      await commands.pressKey("ArrowDown");
-      const onChange = vi.fn();
-      onTestFinished(editor.onChange(onChange));
-      await commands.pressKey("Enter");
-      expect(onChange).toHaveBeenCalled();
+        .element(
+          toolbar.getByRole("button", { name: "Custom action", exact: true }),
+        )
+        .toBeVisible();
     });
 
-    test("formatting toolbar: Nest block", async ({ onTestFinished }) => {
-      const editor = await renderTestEditor(toolbarDocument);
-      await focusToolbarItem("Nest block");
-      const onChange = vi.fn();
-      onTestFinished(editor.onChange(onChange));
-      await commands.pressKey("Enter");
-      expect(onChange).toHaveBeenCalled();
-    });
+    it("passes custom block-type choices to its select", async ({
+      setupEditor,
+      page,
+    }) => {
+      const { editor } = await setupEditor({
+        props: { formattingToolbar: false },
+        children: ({ editor }) => (
+          <FormattingToolbar
+            blockTypeSelectItems={[
+              {
+                name: editor.dictionary.slash_menu.paragraph.title,
+                type: "paragraph",
+                icon: () => null,
+              },
+            ]}
+          />
+        ),
+      });
 
-    test("formatting toolbar: Unnest block", async ({ onTestFinished }) => {
-      const editor = await renderTestEditor(nestedToolbarDocument);
-      await focusToolbarItem("Unnest block");
-      const onChange = vi.fn();
-      onTestFinished(editor.onChange(onChange));
-      await commands.pressKey("Enter");
-      expect(onChange).toHaveBeenCalled();
-    });
+      await page
+        .getByRole("toolbar")
+        .getByRole("button", {
+          name: editor.dictionary.slash_menu.paragraph.title,
+          exact: true,
+        })
+        .click();
 
-    test("formatting toolbar: Paragraph", async ({ onTestFinished }) => {
-      const editor = await renderTestEditor(toolbarDocument);
-      await focusToolbarItem("Paragraph");
-      await commands.pressKey("Enter");
       const menu = page.getByRole("menu");
-      await expect.element(menu).toBeVisible();
-      // Mantine initially focuses a placeholder before the first menu item.
+      await expect.element(menu.getByRole("menuitem")).toHaveLength(1);
       await expect
-        .element(menu.element().querySelector<HTMLElement>("[data-autofocus]"))
-        .toHaveFocus();
-      await commands.pressKey("ArrowDown");
-      await commands.pressKey("ArrowDown");
-      const onChange = vi.fn();
-      onTestFinished(editor.onChange(onChange));
-      await commands.pressKey("Enter");
-      expect(onChange).toHaveBeenCalled();
+        .element(
+          menu.getByRole("menuitem", {
+            name: editor.dictionary.slash_menu.paragraph.title,
+            exact: true,
+          }),
+        )
+        .toBeVisible();
     });
   });
 
-  test.describe("keyboard", () => {
-    // Same navigation as the shared focusToolbarItem, with focus assertions.
-    async function focusToolbarItemWithAssertions(toolbarItem: string) {
-      const editor = page.getByRole("textbox");
-      await expect.element(editor).toHaveFocus();
-      await commands.pressKey("ArrowDown");
-      await commands.pressKey(selectToLineEndKey);
+  describe("integration", () => {
+    it("preserves the editor selection while keyboard focus moves through the toolbar", async ({
+      setupEditor,
+      selectText,
+      pressKey,
+      page,
+    }) => {
+      const { editor } = await setupEditor({
+        initialContent: [
+          { type: "paragraph", content: "Before selected text after" },
+        ],
+      });
+      await page.getByRole("textbox").click();
+      selectText(editor, "selected text");
+      const toolbar = page.getByRole("toolbar");
+      const documentBefore = editor.document;
+      const selectionBefore = editor.prosemirrorState.selection.toJSON();
+
+      await pressKey("Tab");
+
+      await expect
+        .element(
+          toolbar.getByRole("button", {
+            name: editor.dictionary.slash_menu.paragraph.title,
+            exact: true,
+          }),
+        )
+        .toHaveFocus();
+      expect(editor.prosemirrorState.selection.toJSON()).toEqual(
+        selectionBefore,
+      );
+
+      await pressKey("Tab");
+
+      await expect
+        .element(
+          toolbar.getByRole("button", {
+            name: editor.dictionary.formatting_toolbar.bold.tooltip,
+            exact: true,
+          }),
+        )
+        .toHaveFocus();
+      expect(editor.prosemirrorState.selection.toJSON()).toEqual(
+        selectionBefore,
+      );
+      expect(editor.document).toEqual(documentBefore);
+    });
+  });
+
+  describe("aria", () => {
+    it("exposes its custom controls as a toolbar", async ({
+      setupEditor,
+      page,
+    }) => {
+      await setupEditor({
+        props: { formattingToolbar: false },
+        children: (
+          <FormattingToolbar>
+            <button>Custom action</button>
+          </FormattingToolbar>
+        ),
+      });
+
+      await expect.element(page.getByRole("toolbar"))
+        .toMatchAriaInlineSnapshot(`
+        - toolbar:
+          - button "Custom action"
+      `);
+    });
+  });
+
+  describe("axe", () => {
+    it("has no automated accessibility violations with the default controls", async ({
+      setupEditor,
+      selectText,
+      page,
+      runAxe,
+    }) => {
+      const { editor } = await setupEditor({
+        initialContent: [{ type: "paragraph", content: "Selected text" }],
+      });
+      selectText(editor, "Selected text");
+      await expect.element(page.getByRole("toolbar")).toBeVisible();
+
+      const { violations } = await runAxe(page.getByRole("toolbar"));
+      expect(violations).toEqual([]);
+    });
+  });
+
+  describe("keyboard", () => {
+    it("tabs forward through the default controls for Parent and allows leaving", async ({
+      setupEditor,
+      selectText,
+      focusUntil,
+      readAriaSnapshot,
+      page,
+    }) => {
+      const { editor } = await setupEditor({
+        initialContent: [
+          {
+            type: "paragraph",
+            content: "Parent",
+            children: [{ type: "paragraph", content: "Child" }],
+          },
+          { type: "paragraph", content: "Sibling" },
+        ],
+        props: { formattingToolbar: false },
+        children: <FormattingToolbar />,
+      });
+      await page.getByRole("textbox").click();
+      selectText(editor, "Parent");
       const toolbar = page.getByRole("toolbar");
       await expect.element(toolbar).toBeVisible();
-      const target = toolbar.getByRole("button", {
-        name: toolbarItem,
-        exact: true,
-      });
-      const unfocusedOutline = await commands.readOutline(target.selector);
-      await commands.pressKey("Tab");
-      await expect
-        .poll(() => toolbar.element().contains(document.activeElement))
-        .toBe(true);
-      for (
-        let presses = 0;
-        document.activeElement !== target.element();
-        presses++
-      ) {
-        if (presses >= 20) {
-          throw new Error(
-            `Could not focus toolbar item "${toolbarItem}" after 20 Tab presses`,
-          );
+      // Record each control's accessible tree in keyboard focus order,
+      // so the snapshot detects skipped controls or changes in tab order.
+      const sequence: string[] = [];
+
+      await focusUntil(async (active) => {
+        if (!toolbar.element().contains(active.element())) {
+          return true;
         }
-        await commands.pressKey("Tab");
-      }
-      await expect.element(target).toHaveFocus();
-      await commands.checkFocusOutline(target.selector, unfocusedOutline);
-      return { toolbar, button: target };
-    }
+        await expect.element(active).toBeEnabled();
+        sequence.push(readAriaSnapshot(active));
+        return false;
+      });
 
-    async function checkToolbarButtonKeyboard(toolbarButton: string) {
-      await focusToolbarItemWithAssertions(toolbarButton);
-      await commands.pressKey("Enter");
-      await expect.element(page.getByRole("textbox")).toHaveFocus();
-    }
+      expect(sequence).toMatchInlineSnapshot(`
+        [
+          "- button "Paragraph":
+          - img
+          - text: Paragraph",
+          "- button "Bold":
+          - img",
+          "- button "Italic":
+          - img",
+          "- button "Underline":
+          - img",
+          "- button "Strike":
+          - img",
+          "- button "Align text left" [pressed]:
+          - img",
+          "- button "Align text center":
+          - img",
+          "- button "Align text right":
+          - img",
+          "- button "Colors": A",
+          "- button "Create link":
+          - img",
+        ]
+      `);
+      expect(toolbar.element().contains(document.activeElement)).toBe(false);
+    });
 
-    async function checkToolbarMenuKeyboard(
-      toolbarMenu: string,
-      item: () => ReturnType<typeof page.getByRole>,
-    ) {
-      await focusToolbarItemWithAssertions(toolbarMenu);
-      await commands.pressKey("Enter");
-      const menu = page.getByRole("menu");
-      await expect.element(menu).toBeVisible();
-      // Mantine initially focuses a placeholder before the first menu item.
-      await expect
-        .element(menu.element().querySelector<HTMLElement>("[data-autofocus]"))
-        .toHaveFocus();
-      const firstItem = menu.getByRole("menuitem").first();
-      const unfocusedOutline = await commands.readOutline(firstItem.selector);
-      await commands.pressKey("ArrowDown");
-      await expect.element(firstItem).toHaveFocus();
-      await commands.checkFocusOutline(firstItem.selector, unfocusedOutline);
-      const targetItem = item();
-      const targetUnfocusedOutline = await commands.readOutline(
-        targetItem.selector,
-      );
-      await commands.pressKey("ArrowDown");
-      await expect.element(targetItem).toHaveFocus();
-      await commands.checkFocusOutline(
-        targetItem.selector,
-        targetUnfocusedOutline,
-      );
-      await commands.pressKey("Enter");
-      await expect.element(page.getByRole("textbox")).toHaveFocus();
-    }
+    it("tabs forward through the default controls for Child and allows leaving", async ({
+      setupEditor,
+      selectText,
+      focusUntil,
+      readAriaSnapshot,
+      page,
+    }) => {
+      const { editor } = await setupEditor({
+        initialContent: [
+          {
+            type: "paragraph",
+            content: "Parent",
+            children: [{ type: "paragraph", content: "Child" }],
+          },
+          { type: "paragraph", content: "Sibling" },
+        ],
+        props: { formattingToolbar: false },
+        children: <FormattingToolbar />,
+      });
+      await page.getByRole("textbox").click();
+      selectText(editor, "Child");
+      const toolbar = page.getByRole("toolbar");
+      await expect.element(toolbar).toBeVisible();
+      // Record each control's accessible tree in keyboard focus order,
+      // so the snapshot detects skipped controls or changes in tab order.
+      const sequence: string[] = [];
 
-    async function checkToolbarSelectKeyboard(
-      toolbarSelect: string,
-      selectedValue: string,
-    ) {
-      await focusToolbarItemWithAssertions(toolbarSelect);
-      await commands.pressKey("Enter");
-      // Mantine implements the select using a menu and initially focuses a
-      // placeholder before the first option.
-      const menu = page.getByRole("menu");
-      await expect.element(menu).toBeVisible();
-      await expect
-        .element(menu.element().querySelector<HTMLElement>("[data-autofocus]"))
-        .toHaveFocus();
-      const firstItem = menu.getByRole("menuitem").first();
-      const unfocusedOutline = await commands.readOutline(firstItem.selector);
-      await commands.pressKey("ArrowDown");
-      await expect.element(firstItem).toHaveFocus();
-      await commands.checkFocusOutline(firstItem.selector, unfocusedOutline);
-      const targetItem = menu.getByRole("menuitem", {
-        name: selectedValue,
+      await focusUntil(async (active) => {
+        if (!toolbar.element().contains(active.element())) {
+          return true;
+        }
+        await expect.element(active).toBeEnabled();
+        sequence.push(readAriaSnapshot(active));
+        return false;
+      });
+
+      expect(sequence).toMatchInlineSnapshot(`
+        [
+          "- button "Paragraph":
+          - img
+          - text: Paragraph",
+          "- button "Bold":
+          - img",
+          "- button "Italic":
+          - img",
+          "- button "Underline":
+          - img",
+          "- button "Strike":
+          - img",
+          "- button "Align text left" [pressed]:
+          - img",
+          "- button "Align text center":
+          - img",
+          "- button "Align text right":
+          - img",
+          "- button "Colors": A",
+          "- button "Unnest block":
+          - img",
+          "- button "Create link":
+          - img",
+        ]
+      `);
+      expect(toolbar.element().contains(document.activeElement)).toBe(false);
+    });
+
+    it("tabs forward through the default controls for Sibling and allows leaving", async ({
+      setupEditor,
+      selectText,
+      focusUntil,
+      readAriaSnapshot,
+      page,
+    }) => {
+      const { editor } = await setupEditor({
+        initialContent: [
+          {
+            type: "paragraph",
+            content: "Parent",
+            children: [{ type: "paragraph", content: "Child" }],
+          },
+          { type: "paragraph", content: "Sibling" },
+        ],
+        props: { formattingToolbar: false },
+        children: <FormattingToolbar />,
+      });
+      await page.getByRole("textbox").click();
+      selectText(editor, "Sibling");
+      const toolbar = page.getByRole("toolbar");
+      await expect.element(toolbar).toBeVisible();
+      // Record each control's accessible tree in keyboard focus order,
+      // so the snapshot detects skipped controls or changes in tab order.
+      const sequence: string[] = [];
+
+      await focusUntil(async (active) => {
+        if (!toolbar.element().contains(active.element())) {
+          return true;
+        }
+        await expect.element(active).toBeEnabled();
+        sequence.push(readAriaSnapshot(active));
+        return false;
+      });
+
+      expect(sequence).toMatchInlineSnapshot(`
+        [
+          "- button "Paragraph":
+          - img
+          - text: Paragraph",
+          "- button "Bold":
+          - img",
+          "- button "Italic":
+          - img",
+          "- button "Underline":
+          - img",
+          "- button "Strike":
+          - img",
+          "- button "Align text left" [pressed]:
+          - img",
+          "- button "Align text center":
+          - img",
+          "- button "Align text right":
+          - img",
+          "- button "Colors": A",
+          "- button "Nest block":
+          - img",
+          "- button "Create link":
+          - img",
+        ]
+      `);
+      expect(toolbar.element().contains(document.activeElement)).toBe(false);
+    });
+
+    it("tabs backward through the default controls for Parent and allows leaving", async ({
+      setupEditor,
+      selectText,
+      focusUntil,
+      readAriaSnapshot,
+      page,
+    }) => {
+      const { editor } = await setupEditor({
+        initialContent: [
+          {
+            type: "paragraph",
+            content: "Parent",
+            children: [{ type: "paragraph", content: "Child" }],
+          },
+          { type: "paragraph", content: "Sibling" },
+        ],
+        props: { formattingToolbar: false },
+        children: <FormattingToolbar />,
+      });
+      selectText(editor, "Parent");
+      const toolbar = page.getByRole("toolbar");
+      const lastControl = toolbar.getByRole("button", {
+        name: editor.dictionary.formatting_toolbar.link.tooltip,
         exact: true,
       });
-      const targetUnfocusedOutline = await commands.readOutline(
-        targetItem.selector,
-      );
-      await commands.pressKey("ArrowDown");
-      await expect.element(targetItem).toHaveFocus();
-      await commands.checkFocusOutline(
-        targetItem.selector,
-        targetUnfocusedOutline,
-      );
-      await commands.pressKey("Enter");
-      // Selects return focus to the trigger, unlike menus, which focus the editor.
-      await expect
-        .element(page.getByRole("button", { name: selectedValue, exact: true }))
-        .toHaveFocus();
-    }
+      await expect.element(lastControl).toBeVisible();
+      lastControl.element().focus();
+      // Record each control's accessible tree in keyboard focus order,
+      // so the snapshot detects skipped controls or changes in tab order.
+      const sequence = [readAriaSnapshot(lastControl)];
 
-    async function checkToolbarPopoverKeyboard(
-      toolbarPopover: string,
-      input: ReturnType<typeof page.getByRole>,
-    ) {
-      await focusToolbarItemWithAssertions(toolbarPopover);
-      await commands.pressKey("Enter");
-      await expect.element(input).toHaveFocus();
-      await commands.checkFocusOutline(input.selector);
-      await commands.pressKey("Escape");
-      await expect.element(input).not.toBeInTheDocument();
-      await expect.element(page.getByRole("textbox")).toHaveFocus();
-    }
+      await focusUntil(async (active) => {
+        if (!toolbar.element().contains(active.element())) {
+          return true;
+        }
+        await expect.element(active).toBeEnabled();
+        sequence.push(readAriaSnapshot(active));
+        return false;
+      }, "backward");
 
-    test("formatting toolbar: Paragraph", async () => {
-      await renderTestEditor(toolbarDocument);
-      await checkToolbarSelectKeyboard("Paragraph", "Heading 1");
+      expect(sequence).toMatchInlineSnapshot(`
+        [
+          "- button "Create link":
+          - img",
+          "- button "Colors": A",
+          "- button "Align text right":
+          - img",
+          "- button "Align text center":
+          - img",
+          "- button "Align text left" [pressed]:
+          - img",
+          "- button "Strike":
+          - img",
+          "- button "Underline":
+          - img",
+          "- button "Italic":
+          - img",
+          "- button "Bold":
+          - img",
+          "- button "Paragraph":
+          - img
+          - text: Paragraph",
+        ]
+      `);
+      expect(toolbar.element().contains(document.activeElement)).toBe(false);
     });
 
-    test("formatting toolbar: Bold", async () => {
-      await renderTestEditor(toolbarDocument);
-      await checkToolbarButtonKeyboard("Bold");
-    });
-
-    test("formatting toolbar: Italic", async () => {
-      await renderTestEditor(toolbarDocument);
-      await checkToolbarButtonKeyboard("Italic");
-    });
-
-    test("formatting toolbar: Underline", async () => {
-      await renderTestEditor(toolbarDocument);
-      await checkToolbarButtonKeyboard("Underline");
-    });
-
-    test("formatting toolbar: Strike", async () => {
-      await renderTestEditor(toolbarDocument);
-      await checkToolbarButtonKeyboard("Strike");
-    });
-
-    test("formatting toolbar: Align text left", async () => {
-      await renderTestEditor(toolbarDocument);
-      await checkToolbarButtonKeyboard("Align text left");
-    });
-
-    test("formatting toolbar: Align text center", async () => {
-      await renderTestEditor(toolbarDocument);
-      await checkToolbarButtonKeyboard("Align text center");
-    });
-
-    test("formatting toolbar: Align text right", async () => {
-      await renderTestEditor(toolbarDocument);
-      await checkToolbarButtonKeyboard("Align text right");
-    });
-
-    test("formatting toolbar: Colors", async () => {
-      await renderTestEditor(toolbarDocument);
-      await checkToolbarMenuKeyboard("Colors", () =>
-        page.elementLocator(
-          document.querySelector<HTMLElement>('[data-test="text-color-gray"]')!,
-        ),
-      );
-    });
-
-    test("formatting toolbar: Nest block", async () => {
-      await renderTestEditor(toolbarDocument);
-      await checkToolbarButtonKeyboard("Nest block");
-    });
-
-    test("formatting toolbar: Unnest block", async () => {
-      await renderTestEditor(nestedToolbarDocument);
-      await checkToolbarButtonKeyboard("Unnest block");
-    });
-
-    // The autofocused URL input has outline-style: none in all three browsers.
-    // Enable once the input has a visible keyboard focus outline.
-    test.skip("formatting toolbar: Create link", async () => {
-      await renderTestEditor(toolbarDocument);
-      await checkToolbarPopoverKeyboard(
-        "Create link",
-        page.getByPlaceholder("Edit URL"),
-      );
-    });
-  });
-
-  test.describe("ARIA", () => {
-    async function checkToolbarButtonAria(toolbarButton: string) {
-      const { button } = await focusToolbarItem(toolbarButton);
-      expect(await commands.readAriaSnapshot(button.selector)).toMatchSnapshot(
-        "before activation",
-      );
-      await commands.pressKey("Enter");
-      expect(await commands.readAriaSnapshot(button.selector)).toMatchSnapshot(
-        "after activation",
-      );
-    }
-
-    async function checkToolbarMenuAria(
-      toolbarMenu: string,
-      activatedName: string,
-    ) {
-      const { toolbar, button } = await focusToolbarItem(toolbarMenu);
-      expect(await commands.readAriaSnapshot(button.selector)).toMatchSnapshot(
-        "before activation",
-      );
-      await commands.pressKey("Enter");
-      const menu = page.getByRole("menu");
-      await expect.element(menu).toBeVisible();
-      // Mantine initially focuses a placeholder before the first menu item.
-      await expect
-        .element(menu.element().querySelector<HTMLElement>("[data-autofocus]"))
-        .toHaveFocus();
-      await commands.pressKey("ArrowDown");
-      await commands.pressKey("ArrowDown");
-      await commands.pressKey("Enter");
-      expect(
-        await commands.readAriaSnapshot(
-          toolbar.getByRole("button", { name: activatedName, exact: true })
-            .selector,
-        ),
-      ).toMatchSnapshot("after activation");
-    }
-
-    test("formatting toolbar: complete accessibility tree", async () => {
-      await renderTestEditor(toolbarDocument);
-      const { toolbar } = await focusToolbarItem("Paragraph");
-      expect(await commands.readAriaSnapshot(toolbar.selector)).toMatchSnapshot(
-        "toolbar",
-      );
-    });
-
-    test("formatting toolbar: Paragraph", async () => {
-      await renderTestEditor(toolbarDocument);
-      await checkToolbarMenuAria("Paragraph", "Heading 1");
-    });
-
-    test("formatting toolbar: Bold", async () => {
-      await renderTestEditor(toolbarDocument);
-      await checkToolbarButtonAria("Bold");
-    });
-
-    test("formatting toolbar: Italic", async () => {
-      await renderTestEditor(toolbarDocument);
-      await checkToolbarButtonAria("Italic");
-    });
-
-    test("formatting toolbar: Underline", async () => {
-      await renderTestEditor(toolbarDocument);
-      await checkToolbarButtonAria("Underline");
-    });
-
-    test("formatting toolbar: Strike", async () => {
-      await renderTestEditor(toolbarDocument);
-      await checkToolbarButtonAria("Strike");
-    });
-
-    test("formatting toolbar: Align text left", async () => {
-      await renderTestEditor(toolbarDocument);
-      await checkToolbarButtonAria("Align text left");
-    });
-
-    test("formatting toolbar: Align text center", async () => {
-      await renderTestEditor(toolbarDocument);
-      await checkToolbarButtonAria("Align text center");
-    });
-
-    test("formatting toolbar: Align text right", async () => {
-      await renderTestEditor(toolbarDocument);
-      await checkToolbarButtonAria("Align text right");
-    });
-
-    test("formatting toolbar: Colors", async () => {
-      await renderTestEditor(toolbarDocument);
-      await checkToolbarMenuAria("Colors", "Colors");
-    });
-
-    test("formatting toolbar: Nest block", async () => {
-      await renderTestEditor(toolbarDocument);
-      await checkToolbarButtonAria("Nest block");
-    });
-
-    test("formatting toolbar: Unnest block", async () => {
-      await renderTestEditor(nestedToolbarDocument);
-      await checkToolbarButtonAria("Unnest block");
-    });
-  });
-
-  test.describe("axe", () => {
-    test("formatting toolbar: axe", async ({ annotate }) => {
-      await renderTestEditor(toolbarDocument);
-      await focusToolbarItem("Paragraph");
-      for (const warning of await commands.checkAxe('[role="toolbar"]')) {
-        await annotate(warning, "warning");
-      }
-    });
-
-    // Mantine inserts a focusable div inside the menu, triggering axe aria-required-children violations.
-    test.skip("formatting toolbar: block type menu axe", async ({
-      annotate,
+    it("tabs backward through the default controls for Child and allows leaving", async ({
+      setupEditor,
+      selectText,
+      focusUntil,
+      readAriaSnapshot,
+      page,
     }) => {
-      await renderTestEditor(toolbarDocument);
-      await focusToolbarItem("Paragraph");
-      await commands.pressKey("Enter");
-      await expect.element(page.getByRole("menu")).toBeVisible();
-      for (const warning of await commands.checkAxe('[role="menu"]')) {
-        await annotate(warning, "warning");
-      }
+      const { editor } = await setupEditor({
+        initialContent: [
+          {
+            type: "paragraph",
+            content: "Parent",
+            children: [{ type: "paragraph", content: "Child" }],
+          },
+          { type: "paragraph", content: "Sibling" },
+        ],
+        props: { formattingToolbar: false },
+        children: <FormattingToolbar />,
+      });
+      selectText(editor, "Child");
+      const toolbar = page.getByRole("toolbar");
+      const lastControl = toolbar.getByRole("button", {
+        name: editor.dictionary.formatting_toolbar.link.tooltip,
+        exact: true,
+      });
+      await expect.element(lastControl).toBeVisible();
+      lastControl.element().focus();
+      // Record each control's accessible tree in keyboard focus order,
+      // so the snapshot detects skipped controls or changes in tab order.
+      const sequence = [readAriaSnapshot(lastControl)];
+
+      await focusUntil(async (active) => {
+        if (!toolbar.element().contains(active.element())) {
+          return true;
+        }
+        await expect.element(active).toBeEnabled();
+        sequence.push(readAriaSnapshot(active));
+        return false;
+      }, "backward");
+
+      expect(sequence).toMatchInlineSnapshot(`
+        [
+          "- button "Create link":
+          - img",
+          "- button "Unnest block":
+          - img",
+          "- button "Colors": A",
+          "- button "Align text right":
+          - img",
+          "- button "Align text center":
+          - img",
+          "- button "Align text left" [pressed]:
+          - img",
+          "- button "Strike":
+          - img",
+          "- button "Underline":
+          - img",
+          "- button "Italic":
+          - img",
+          "- button "Bold":
+          - img",
+          "- button "Paragraph":
+          - img
+          - text: Paragraph",
+        ]
+      `);
+      expect(toolbar.element().contains(document.activeElement)).toBe(false);
     });
 
-    // Mantine inserts a focusable div inside the menu, triggering axe aria-required-children violations.
-    test.skip("formatting toolbar: colors menu axe", async ({ annotate }) => {
-      await renderTestEditor(toolbarDocument);
-      await focusToolbarItem("Colors");
-      await commands.pressKey("Enter");
-      await expect.element(page.getByRole("menu")).toBeVisible();
-      for (const warning of await commands.checkAxe('[role="menu"]')) {
-        await annotate(warning, "warning");
-      }
-    });
+    it("tabs backward through the default controls for Sibling and allows leaving", async ({
+      setupEditor,
+      selectText,
+      focusUntil,
+      readAriaSnapshot,
+      page,
+    }) => {
+      const { editor } = await setupEditor({
+        initialContent: [
+          {
+            type: "paragraph",
+            content: "Parent",
+            children: [{ type: "paragraph", content: "Child" }],
+          },
+          { type: "paragraph", content: "Sibling" },
+        ],
+        props: { formattingToolbar: false },
+        children: <FormattingToolbar />,
+      });
+      selectText(editor, "Sibling");
+      const toolbar = page.getByRole("toolbar");
+      const lastControl = toolbar.getByRole("button", {
+        name: editor.dictionary.formatting_toolbar.link.tooltip,
+        exact: true,
+      });
+      await expect.element(lastControl).toBeVisible();
+      lastControl.element().focus();
+      // Record each control's accessible tree in keyboard focus order,
+      // so the snapshot detects skipped controls or changes in tab order.
+      const sequence = [readAriaSnapshot(lastControl)];
 
-    test("formatting toolbar: link popover axe", async ({ annotate }) => {
-      await renderTestEditor(toolbarDocument);
-      await focusToolbarItem("Create link");
-      await commands.pressKey("Enter");
-      await expect.element(page.getByPlaceholder("Edit URL")).toBeVisible();
-      for (const warning of await commands.checkAxe(".bn-form-popover")) {
-        await annotate(warning, "warning");
-      }
+      await focusUntil(async (active) => {
+        if (!toolbar.element().contains(active.element())) {
+          return true;
+        }
+        await expect.element(active).toBeEnabled();
+        sequence.push(readAriaSnapshot(active));
+        return false;
+      }, "backward");
+
+      expect(sequence).toMatchInlineSnapshot(`
+        [
+          "- button "Create link":
+          - img",
+          "- button "Nest block":
+          - img",
+          "- button "Colors": A",
+          "- button "Align text right":
+          - img",
+          "- button "Align text center":
+          - img",
+          "- button "Align text left" [pressed]:
+          - img",
+          "- button "Strike":
+          - img",
+          "- button "Underline":
+          - img",
+          "- button "Italic":
+          - img",
+          "- button "Bold":
+          - img",
+          "- button "Paragraph":
+          - img
+          - text: Paragraph",
+        ]
+      `);
+      expect(toolbar.element().contains(document.activeElement)).toBe(false);
     });
   });
-}
+});

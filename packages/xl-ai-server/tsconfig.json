@@ -23,6 +23,7 @@
     "types": ["node"]
   },
   "include": ["src"],
+  "exclude": ["src/**/*.test.*"],
   "references": [
     {
       "path": "../xl-ai"

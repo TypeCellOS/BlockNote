@@ -29,7 +29,10 @@ export default defineConfig(
       test: {
         // Preserve Vitest 4 mock history during the toolchain upgrade.
         clearMocks: false,
-        setupFiles: ["./vitestSetup.ts"],
+        setupFiles: [
+          "./vitestSetup.ts",
+          "../../tests/vitestSetup.node-fixtures.ts",
+        ],
       },
       plugins: [webpackStats() as any],
       // used so that vitest resolves the core package from the sources instead of the built version

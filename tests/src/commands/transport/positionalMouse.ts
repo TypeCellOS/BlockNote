@@ -26,26 +26,27 @@ export type MouseAction =
   | { type: "click"; x: number; y: number; clickCount?: number };
 
 /**
- * Browser-side signature of the {@link positionalMouse} command below, i.e. what
- * `BrowserCommand<MouseAction[]>` turns into once Vitest strips the (Node-only)
- * `BrowserCommandContext` first parameter. Used by `context.ts` to type the
- * shared browser `commands` object — see the note there on why this
- * can't be a `declare module` augmentation.
- */
-export type PositionalMouseCommand = (
-  ...actions: MouseAction[]
-) => Promise<void>;
-
-/**
- * Vitest's `userEvent` doesn't have several mouse commands that we relied on in Playwright, namely
- * clicking at the current mouse position, and moving the mouse to a given position across N steps.
+ * Performs real mouse actions at coordinates relative to the test iframe's
+ * viewport, correcting for the iframe's position in the outer browser page.
+ * Use for dragging, hit-testing, or movement across multiple steps where a
+ * locator's `.click()`/`.hover()` cannot express the interaction. Prefer locators
+ * for ordinary control activation so tests do not depend on layout coordinates.
  *
- * Additionally, Vitest runs component tests in an `iframe`, so any given position needs to be
- * offset, as it should refer to a point within the `iframe` rather then the full page.
+ * Actions are positional arguments, not an array. `down` and `up` use the current
+ * mouse position; `move` supports intermediate steps and `click` a click count.
+ * Coordinates from `element().getBoundingClientRect()` are in the expected space.
+ * This is mouse input, not touch emulation. Requires the shared Node registration.
  *
- * This function adds that functionality. It must be registered as a command in
- * `vite.config.browser.ts` as that's the only way to have access to the internal Playwright
- * context.
+ * @example
+ * const box = handle.element().getBoundingClientRect();
+ * const x = box.left + box.width / 2;
+ * const y = box.top + box.height / 2;
+ * await positionalMouse(
+ *   { type: "move", x, y },
+ *   { type: "down" },
+ *   { type: "move", x: x + 100, y, steps: 10 },
+ *   { type: "up" },
+ * );
  */
 export const positionalMouse: BrowserCommand<MouseAction[]> = async (
   // eslint-disable-next-line typescript/unbound-method -- destructuring page/frame from parameter object, not a class
