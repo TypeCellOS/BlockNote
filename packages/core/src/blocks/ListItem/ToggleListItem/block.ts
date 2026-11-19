@@ -8,6 +8,7 @@ import {
 import { getDetailsContent } from "../../getDetailsContent.js";
 import {
   createToggleFrame,
+  expandToggleHTML,
   isToggleOpen,
 } from "../../ToggleWrapper/createToggleFrame.js";
 
@@ -94,6 +95,7 @@ export const createToggleListItemBlockSpec = createBlockSpec(
       return { dom: paragraphEl, contentDOM: paragraphEl };
     },
     renderFrame: createToggleFrame,
+    postProcessHTML: expandToggleHTML,
     toExternalHTML(block) {
       const li = document.createElement("li");
       const details = document.createElement("details");

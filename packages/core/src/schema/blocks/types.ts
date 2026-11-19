@@ -721,6 +721,41 @@ export type PartialBlockFromConfig<
 
 export type BlockIdentifier = { id: string } | string;
 
+/** An export can receive partial blocks, including children of other types. */
+export type HTMLExportBlock<
+  TName extends string = string,
+  TProps extends PropSchema = PropSchema,
+  TContent extends BlockConfig["content"] = BlockConfig["content"],
+> = Omit<
+  PartialBlockNoDefaults<
+    { [C in TContent]: BlockConfig<TName, TProps, C> },
+    InlineContentSchema,
+    StyleSchema
+  >,
+  "children"
+> & { children?: readonly HTMLExportBlock[] };
+
+/** Surviving roots for one block; element roots are filtered lazily and cached. */
+export type HTMLExportOutput = {
+  readonly nodes: readonly globalThis.Node[];
+  readonly elements: readonly Element[];
+};
+
+/** The assembled export and the outputs belonging to one block type. */
+export type HTMLExportContext<
+  TName extends string = string,
+  TProps extends PropSchema = PropSchema,
+  TContent extends BlockConfig["content"] = BlockConfig["content"],
+> = {
+  /** The detached export root, an element or document fragment. */
+  root: globalThis.Node & ParentNode;
+  /** Export-local blocks of this type, mapped to their surviving DOM roots. */
+  blockOutputs: ReadonlyMap<
+    HTMLExportBlock<TName, TProps, TContent>,
+    HTMLExportOutput
+  >;
+};
+
 export type BlockImplementation<
   TName extends string = string,
   TProps extends PropSchema = PropSchema,
@@ -730,6 +765,16 @@ export type BlockImplementation<
     | "table"
     | "plain",
 > = {
+  /**
+   * Runs synchronously once per participating block type after the full HTML
+   * export is assembled, for both `blocksToFullHTML` and `blocksToHTMLLossy`.
+   * Mutate only the detached DOM, keeping recorded roots in place. Use DOM
+   * relationships, not map order, and do not depend on other types' hooks.
+   */
+  postProcessHTML?(
+    context: HTMLExportContext<TName, TProps, TContent>,
+  ): undefined;
+
   /**
    * @internal Framework adapter (React): draws the block's frame in the
    * editor, for the node view of a framed block's `blockContainer` or of a

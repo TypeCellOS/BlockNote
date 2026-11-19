@@ -179,6 +179,7 @@
       "node": null,
       "parse": [Function],
       "parseContent": [Function],
+      "postProcessHTML": [Function],
       "render": [Function],
       "runsBefore": [
         "bulletListItem",
@@ -368,6 +369,7 @@
       "node": null,
       "parse": [Function],
       "parseContent": [Function],
+      "postProcessHTML": [Function],
       "render": [Function],
       "renderFrame": [Function],
       "runsBefore": [
@@ -474,6 +476,7 @@
       "node": null,
       "parse": [Function],
       "parseContent": [Function],
+      "postProcessHTML": [Function],
       "render": [Function],
       "toExternalHTML": [Function],
     },
@@ -684,6 +687,7 @@
         "selectable": true,
       },
       "node": null,
+      "postProcessHTML": [Function],
       "render": [Function],
       "toExternalHTML": [Function],
     },
@@ -726,6 +730,7 @@
       "node": null,
       "parse": [Function],
       "parseContent": [Function],
+      "postProcessHTML": [Function],
       "render": [Function],
       "renderFrame": [Function],
       "runsBefore": [

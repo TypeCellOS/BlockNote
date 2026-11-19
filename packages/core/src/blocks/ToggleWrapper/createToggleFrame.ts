@@ -1,5 +1,20 @@
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import type { Block } from "../defaultBlocks.js";
+import type { HTMLExportContext } from "../../schema/blocks/types.js";
+
+/** Event handlers are lost in HTML strings, so static toggles stay expanded. */
+export function expandToggleHTML({
+  blockOutputs,
+}: Pick<HTMLExportContext, "blockOutputs">): undefined {
+  for (const { elements } of blockOutputs.values()) {
+    for (const root of elements) {
+      const button = root.querySelector(
+        '.bn-toggle-button[aria-expanded="false"]',
+      );
+      button?.setAttribute("aria-expanded", "true");
+    }
+  }
+}
 
 // Only the block's id is used, so anything with an id will do.
 type ToggledState = {

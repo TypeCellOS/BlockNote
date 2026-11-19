@@ -1,8 +1,19 @@
-import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
+import { Node } from "@tiptap/core";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 
 import { getNodeById } from "../../api/nodeUtil.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import { getBlockFromNodeView } from "./internal.js";
+import {
+  createBlockSpecFromTiptapNode,
+  getBlockFromNodeView,
+} from "./internal.js";
 
 describe("getBlockFromNodeView", () => {
   let editor: BlockNoteEditor;
@@ -83,4 +94,19 @@ describe("getBlockFromNodeView", () => {
       getBlockFromNodeView(() => undefined, orphan, doc),
     ).not.toThrow();
   });
+});
+
+it("preserves the HTML post-processing hook for TipTap-backed blocks", () => {
+  const postProcessHTML = vi.fn();
+  const spec = createBlockSpecFromTiptapNode(
+    {
+      node: Node.create({ name: "testBlock" }),
+      type: "testBlock",
+      content: "none",
+      postProcessHTML,
+    },
+    {},
+  );
+
+  expect(spec.implementation.postProcessHTML).toBe(postProcessHTML);
 });

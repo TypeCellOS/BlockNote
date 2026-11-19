@@ -94,6 +94,41 @@ export const createNumberedListItemBlockSpec = createBlockSpec(
         contentDOM: p,
       };
     },
+    postProcessHTML({ blockOutputs }) {
+      // The registry is an index, not an ordering contract. Only an actual
+      // preceding sibling in the same block group can continue a list.
+      const items = new Map<Element, { content: Element; start: number }>();
+      for (const [block, { elements }] of blockOutputs) {
+        for (const root of elements) {
+          const content = root.querySelector(
+            '[data-content-type="numberedListItem"]',
+          );
+          if (content) {
+            items.set(root, { content, start: block.props?.start || 1 });
+          }
+        }
+      }
+
+      const indices = new Map<Element, number>();
+      for (const root of items.keys()) {
+        // Walk back to a cached sibling or the beginning of this run, then
+        // fill forwards. Iterative to support very long lists.
+        const chain: Element[] = [];
+        let current: Element | null = root;
+        while (current && items.has(current) && !indices.has(current)) {
+          chain.push(current);
+          current = current.previousElementSibling;
+        }
+        let index = current ? indices.get(current) : undefined;
+        while (chain.length > 0) {
+          const element = chain.pop()!;
+          const item = items.get(element)!;
+          index = index === undefined ? item.start : index + 1;
+          indices.set(element, index);
+          item.content.setAttribute("data-index", String(index));
+        }
+      }
+    },
   },
   [
     createExtension({

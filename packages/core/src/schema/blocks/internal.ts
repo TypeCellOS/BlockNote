@@ -9,7 +9,7 @@ import { propsToDataAttributes, setDataAttributes } from "../dataAttributes.js";
 import { PropSchema, Props } from "../propTypes.js";
 import { createBlockKeyboard } from "./keyboard.js";
 import { resolveBlockMeta } from "./meta.js";
-import { LooseBlockSpec } from "./types.js";
+import { BlockConfig, BlockImplementation, LooseBlockSpec } from "./types.js";
 
 // Function that uses the 'propSchema' of a blockConfig to create a TipTap
 // node's `addAttributes` property.
@@ -256,20 +256,26 @@ export function wrapInBlockStructure<
 }
 
 export function createBlockSpecFromTiptapNode<
-  const T extends {
-    node: Node;
-    type: string;
-    content: "inline" | "table" | "none" | "plain";
-  },
+  const TName extends string,
+  const TContent extends BlockConfig["content"],
   P extends PropSchema,
 >(
-  config: T,
+  config: {
+    node: Node;
+    type: TName;
+    content: TContent;
+    postProcessHTML?: BlockImplementation<
+      TName,
+      P,
+      TContent
+    >["postProcessHTML"];
+  },
   propSchema: P,
   extensions?: ExtensionFactoryInstance[],
-): LooseBlockSpec<T["type"], P, T["content"]> {
+): LooseBlockSpec<TName, P, TContent> {
   return {
     config: {
-      type: config.type as T["type"],
+      type: config.type,
       content: config.content,
       propSchema,
     },
@@ -282,6 +288,7 @@ export function createBlockSpecFromTiptapNode<
       }),
       render: defaultBlockToHTML,
       toExternalHTML: defaultBlockToHTML,
+      postProcessHTML: config.postProcessHTML,
     },
     extensions,
   };
