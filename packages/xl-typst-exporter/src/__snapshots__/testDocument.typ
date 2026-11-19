@@ -46,19 +46,19 @@
 
 #block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#""]
 
-#block(width: 100%, inset: (top: (8pt + 6.9pt), bottom: 6.9pt))[#heading(level: 1, outlined: true)[#"Heading"]]
+#block(width: 100%, sticky: true, inset: (top: (8pt + 6.9pt), bottom: 6.9pt))[#heading(level: 1, outlined: true)[#"Heading"]]
 
-#align(right)[#block(width: 100%, inset: (top: (8pt + 6.9pt), bottom: 6.9pt))[#heading(level: 1, outlined: true)[#"Heading right"]]]
+#align(right)[#block(width: 100%, sticky: true, inset: (top: (8pt + 6.9pt), bottom: 6.9pt))[#heading(level: 1, outlined: true)[#"Heading right"]]]
 
-#block(width: 100%, inset: (top: (8pt + 6.9pt), bottom: 6.9pt))[#heading(level: 2, outlined: true)[#"Heading 2"]]
+#block(width: 100%, sticky: true, inset: (top: (8pt + 6.9pt), bottom: 6.9pt))[#heading(level: 2, outlined: true)[#"Heading 2"]]
 
-#block(width: 100%, inset: (top: (8pt + 6.9pt), bottom: 6.9pt))[#heading(level: 3, outlined: true)[#"Heading 3"]]
+#block(width: 100%, sticky: true, inset: (top: (8pt + 6.9pt), bottom: 6.9pt))[#heading(level: 3, outlined: true)[#"Heading 3"]]
 
-#block(width: 100%, inset: (top: (8pt + 6.9pt), bottom: 6.9pt))[#heading(level: 4, outlined: true)[#"Heading 4"]]
+#block(width: 100%, sticky: true, inset: (top: (8pt + 6.9pt), bottom: 6.9pt))[#heading(level: 4, outlined: true)[#"Heading 4"]]
 
-#block(width: 100%, inset: (top: (8pt + 6.9pt), bottom: 6.9pt))[#heading(level: 5, outlined: true)[#"Heading 5"]]
+#block(width: 100%, sticky: true, inset: (top: (8pt + 6.9pt), bottom: 6.9pt))[#heading(level: 5, outlined: true)[#"Heading 5"]]
 
-#block(width: 100%, inset: (top: (8pt + 6.9pt), bottom: 6.9pt))[#heading(level: 6, outlined: true)[#"Heading 6"]]
+#block(width: 100%, sticky: true, inset: (top: (8pt + 6.9pt), bottom: 6.9pt))[#heading(level: 6, outlined: true)[#"Heading 6"]]
 
 #block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#"Emojis: 😀 🎉 🚀 👍 👍🏽 🌍 🚶‍♀️"]
 
@@ -113,7 +113,7 @@
 )
 ]
 
-#block(width: 100%, inset: (top: (8pt + 6.9pt), bottom: 6.9pt))[#heading(level: 2, outlined: true)[#"Toggle Heading"]]
+#block(width: 100%, sticky: true, inset: (top: (8pt + 6.9pt), bottom: 6.9pt))[#heading(level: 2, outlined: true)[#"Toggle Heading"]]
 #pad(left: 1.5em)[
 #block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#"Content nested inside the toggle heading."]
 ]
@@ -172,7 +172,7 @@
 #{
   let cols = (
     (width: 0.8, body: [#block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#"This paragraph is in a column!"]]),
-    (width: 1.4, body: [#block(width: 100%, inset: (top: (8pt + 6.9pt), bottom: 6.9pt))[#heading(level: 1, outlined: true)[#"So is this heading!"]]]),
+    (width: 1.4, body: [#block(width: 100%, sticky: true, inset: (top: (8pt + 6.9pt), bottom: 6.9pt))[#heading(level: 1, outlined: true)[#"So is this heading!"]]]),
     (width: 0.8, body: [#block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#"You can have multiple blocks in a column too"]
 
 #list(

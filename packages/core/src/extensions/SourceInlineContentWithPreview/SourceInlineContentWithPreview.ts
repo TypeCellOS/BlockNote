@@ -14,7 +14,8 @@ import {
  * rather than the extension being configured with a type.
  *
  * Unlike the block version, the popup isn't toggled with a separate state flag:
- * it's open exactly when the selection is inside the inline content's source.
+ * it's open when the editor is editable and the selection is inside the inline
+ * content's source.
  * The store therefore only tracks which inline content (by its position) holds
  * the selection - moving the selection in opens its popup, moving it out closes
  * it. Since the source popup is always laid out (just hidden via opacity), the
@@ -38,7 +39,7 @@ export const SourceInlineContentWithPreviewExtension = createExtension(
         ?.hasPreview;
 
     // Moves the selection out of the inline content, to just `"before"` or
-    // `"after"` it, which closes the popup via the selection-change handler
+    // `"after"` it, which closes the popup via the selection listener
     // below. Lets the keyboard commit-and-exit the source the same way arrowing
     // past its edge does, keeps Enter from splitting the block while editing the
     // source, and lets the up/down arrows step out of the source rather than
@@ -64,6 +65,36 @@ export const SourceInlineContentWithPreviewExtension = createExtension(
         return true;
       };
 
+    // Select the visible preview as one item rather than extending through its
+    // hidden source. Leave selection within an open source to the browser.
+    const extendAcrossPreview =
+      (direction: -1 | 1) =>
+      ({ editor }: { editor: BlockNoteEditor<any, any, any> }) =>
+        editor.transact((tr) => {
+          const { selection } = tr;
+          if (selection.toJSON().type !== "text") {
+            return false;
+          }
+          const { $head, anchor } = selection;
+          const node = direction === -1 ? $head.nodeBefore : $head.nodeAfter;
+          if (
+            $head.textOffset ||
+            !node ||
+            !nodeHasPreview(node.type.name) ||
+            selection.$anchor.parent === node
+          ) {
+            return false;
+          }
+          tr.setSelection(
+            TextSelection.create(
+              tr.doc,
+              anchor,
+              $head.pos + direction * node.nodeSize,
+            ),
+          );
+          return true;
+        });
+
     return {
       key: "sourceInlineContentWithPreview",
       store,
@@ -73,6 +104,8 @@ export const SourceInlineContentWithPreviewExtension = createExtension(
         Escape: moveSelectionOut("after"),
         ArrowUp: moveSelectionOut("before"),
         ArrowDown: moveSelectionOut("after"),
+        "Shift-ArrowLeft": extendAcrossPreview(-1),
+        "Shift-ArrowRight": extendAcrossPreview(1),
         // While editing the source, selects the whole source instead of the
         // whole document.
         "Mod-a": ({ editor }) => {
@@ -92,19 +125,31 @@ export const SourceInlineContentWithPreviewExtension = createExtension(
         },
       },
       mount: ({ dom, signal }) => {
-        // The popup is open exactly when the selection is inside the inline
-        // content, so we just track which inline content (if any) holds it.
-        const unsubscribeSelectionChange = editor.onSelectionChange(() => {
-          const { $from } = editor.prosemirrorState.selection;
-          const node = $from.node();
-
-          store.setState({
-            selected: nodeHasPreview(node.type.name)
-              ? $from.before()
-              : undefined,
+        function updateSelected() {
+          if (!editor.isEditable) {
+            store.setState({ selected: undefined });
+            return;
+          }
+          editor.transact((tr) => {
+            const { $from } = tr.selection;
+            store.setState({
+              selected: nodeHasPreview($from.node().type.name)
+                ? $from.before()
+                : undefined,
+            });
           });
-        });
-        signal.addEventListener("abort", unsubscribeSelectionChange);
+        }
+        signal.addEventListener(
+          "abort",
+          editor.onSelectionChange(updateSelected),
+        );
+        signal.addEventListener(
+          "abort",
+          editor.onEditableChange(updateSelected),
+        );
+        // Selection and editability may have changed while this extension was
+        // unmounted, when neither subscription was attached.
+        updateSelected();
 
         // Sets `visibility: hidden` on the popup for a single frame when pressing up/down arrow
         // keys. The popup is normally hidden through `opacity: 0`, which means it's still visible

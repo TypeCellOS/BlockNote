@@ -199,11 +199,10 @@ export const LinkToolbarController = (props: {
     [editor, link, props.floatingUIOptions, toolbarOpen, toolbarPositionFrozen],
   );
 
+  const linkElement = link?.element;
   const reference = useMemo<GenericPopoverReference | undefined>(
-    () => (link?.element ? { element: link.element } : undefined),
-    // The reference tracks the DOM node, not other link metadata.
-    // eslint-disable-next-line react/preserve-manual-memoization
-    [link?.element],
+    () => (linkElement ? { element: linkElement } : undefined),
+    [linkElement],
   );
 
   if (!isEditable) {

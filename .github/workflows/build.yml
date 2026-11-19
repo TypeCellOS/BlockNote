@@ -151,6 +151,9 @@ jobs:
     timeout-minutes: 30
     container:
       image: mcr.microsoft.com/playwright:v1.60.0-noble
+      # Match tests/docker-run.sh: reap browser children and avoid Docker's
+      # default 64 MiB /dev/shm limit, which can crash browser pages mid-suite.
+      options: --init --ipc=host
     strategy:
       fail-fast: false
       matrix:
@@ -211,6 +214,8 @@ jobs:
     needs: build-typst-compiler
     container:
       image: mcr.microsoft.com/playwright:v1.60.0-noble
+      # Keep the same browser process/shared-memory setup as the other shards.
+      options: --init --ipc=host
     strategy:
       fail-fast: false
       matrix:

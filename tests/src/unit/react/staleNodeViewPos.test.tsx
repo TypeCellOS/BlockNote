@@ -9,6 +9,7 @@ import { useLayoutEffect } from "react";
 import { flushSync } from "react-dom";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
+import * as editorContent from "../../../../packages/react/src/editor/EditorContent.js";
 
 /**
  * Regression tests for #2937 (and the same family: #2682, #2621).
@@ -111,6 +112,21 @@ function paragraphs(count: number, prefix: string) {
 }
 
 function mountEditor(initialContent: any[]): ReproEditor {
+  // Reproduce the synchronous node-view mounting used by older TipTap releases,
+  // independently of whether ReactRenderer itself still calls flushSync.
+  // Flush at BlockNote's portal registration boundary, while ProseMirror is
+  // still reconciling, rather than after the command has already completed.
+  const getContentComponent = editorContent.getContentComponent;
+  vi.spyOn(editorContent, "getContentComponent").mockImplementation(() => {
+    const contentComponent = getContentComponent();
+    return {
+      ...contentComponent,
+      setRenderer(...args) {
+        flushSync(() => contentComponent.setRenderer(...args));
+      },
+    };
+  });
+
   div = document.createElement("div");
   document.body.appendChild(div);
 
@@ -131,16 +147,10 @@ function mountEditor(initialContent: any[]): ReproEditor {
     root!.render(<BlockNoteViewRaw editor={editor as any} />);
   });
 
-  // TipTap's `ReactRenderer` only renders a node view synchronously (via
-  // `flushSync`) when `isEditorContentInitialized` is set; otherwise it defers
-  // to a microtask. TipTap's own `PureEditorContent` sets it, but BlockNote
-  // replaces that component with its own mounting (`BlockNoteView.tsx`) and
-  // never does, so BlockNote currently gets the deferred path by accident.
-  // Set it here so node views mount the way they do for every other TipTap
-  // React user — and the way they do for anyone resolving `@tiptap/react`
-  // below 3.22, where this flag was still the always-true `isInitialized`.
-  // That is the configuration #2937 was reported against.
-  (editor as any)._tiptapEditor.isEditorContentInitialized = true;
+  // Avoid ReactRenderer's initial microtask deferral (introduced in TipTap
+  // 3.22). This flag no longer guarantees a synchronous React commit in newer
+  // releases; the portal registration wrapper above supplies that separately.
+  Object.assign(editor._tiptapEditor, { isEditorContentInitialized: true });
 
   return editor;
 }
@@ -184,12 +194,18 @@ describe("stale node view getPos (#2937)", () => {
       { type: "repro", content: "existing repro block" },
       ...paragraphs(10, "tail"),
     ]);
+    let mounted = false;
+    onMount = (_id, text) => {
+      mounted ||= text === MARKER;
+    };
     const errors = runCapturingErrors(() => {
       ed.replaceBlocks(ed.document.slice(0, 28), [
         { type: "repro", content: MARKER } as any,
       ]);
     });
 
+    // Even the non-reentrant control must actually mount during the command.
+    expect(mounted).toBe(true);
     expect(errors).toEqual([]);
     // The straightforward case must not go anywhere near the fallback.
     expect(renderedFromFallbackCount).toBe(0);
@@ -207,8 +223,8 @@ describe("stale node view getPos (#2937)", () => {
         return;
       }
       fired = true;
-      // Runs inside React's commit phase, which is inside the `flushSync` in
-      // TipTap's `ReactRenderer` constructor, which is inside ProseMirror's
+      // Runs inside React's commit phase, which is inside the test's
+      // synchronous portal registration, which is inside ProseMirror's
       // `updateChildren`. Node views built or rendered from here see a
       // `getPos()` computed against a half-updated view-desc tree.
       ed.removeBlocks(ed.document.slice(-8));

@@ -327,6 +327,7 @@ export type ComponentProps = {
     Badge: {
       Root: {
         className?: string;
+        label?: string;
         text: string;
         icon?: ReactNode;
         isSelected?: boolean;

@@ -1,24 +1,10 @@
 import {
-  InputRule,
-  inputRules as inputRulesPlugin,
-} from "@handlewithcare/prosemirror-inputrules";
-import {
   AnyExtension as AnyTiptapExtension,
   Extension as TiptapExtension,
 } from "@tiptap/core";
 import { keydownHandler } from "@tiptap/pm/keymap";
-import {
-  type EditorState,
-  Plugin,
-  PluginKey,
-  TextSelection,
-} from "prosemirror-state";
-import { updateBlockTr } from "../../../api/blockManipulation/commands/updateBlock/updateBlock.js";
-import { setTextCursorPosition } from "../../../api/blockManipulation/selections/textCursorPosition.js";
-import {
-  getBlockInfoFromSelection,
-  getNodeId,
-} from "../../../api/getBlockInfoFromPos.js";
+import { type EditorState, Plugin, PluginKey } from "prosemirror-state";
+import { createInputRulesPlugins } from "../../inputRules.js";
 import { sortByDependencies } from "../../../util/topo-sort.js";
 import type {
   BlockNoteEditor,
@@ -28,7 +14,9 @@ import type {
   Extension,
   ExtensionFactoryInstance,
   ExtensionFactory,
+  InputRule,
 } from "../../BlockNoteExtension.js";
+import type { StateManager } from "../StateManager.js";
 import { originalFactorySymbol } from "./symbol.js";
 import {
   getDefaultExtensions,
@@ -83,6 +71,7 @@ export class ExtensionManager {
   constructor(
     private editor: BlockNoteEditor<any, any, any>,
     private options: BlockNoteEditorOptions<any, any, any>,
+    private stateManager: StateManager,
   ) {
     /**
      * When the editor is first mounted, we need to initialize all the extensions
@@ -326,6 +315,20 @@ export class ExtensionManager {
       | ExtensionFactoryInstance
       | (Extension | ExtensionFactoryInstance)[],
     options?: { resetPluginStateFor: readonly PluginKey[] },
+  ): void {
+    const previous = this.stateManager.updatingView;
+    this.stateManager.updatingView = true;
+    try {
+      this.updateExtensions(toUnregister, toRegister, options);
+    } finally {
+      this.stateManager.updatingView = previous;
+    }
+  }
+
+  private updateExtensions(
+    ...[toUnregister, toRegister, options]: Parameters<
+      ExtensionManager["replaceExtension"]
+    >
   ): void {
     const extensionsToRemove = new Set(this.resolveExtensions(toUnregister));
 
@@ -614,11 +617,12 @@ export class ExtensionManager {
     );
 
     // Collect all input rules into 1 extension to reduce conflicts
+    const editor = this.editor;
     tiptapExtensions.push(
       TiptapExtension.create({
         name: "blocknote-input-rules",
         addProseMirrorPlugins() {
-          const rules = [] as InputRule[];
+          const rules: InputRule[] = [];
           Array.from(inputRulesByPriority.keys())
             // We sort the rules by their priority (the key)
             .sort((a, b) => a - b)
@@ -627,49 +631,7 @@ export class ExtensionManager {
               // Append in reverse priority order
               rules.push(...inputRulesByPriority.get(priority)!);
             });
-          const inputRules = inputRulesPlugin({ rules });
-          // Sidecar plugin: triggers the same input rules on Enter by
-          // delegating to the inputRules plugin's handleTextInput with a
-          // synthetic "\n" insertion. The handlewithcare regex `\s$` already
-          // matches `\n`, so any rule that fires on space fires on Enter too.
-          // We call its handleTextInput directly (rather than via
-          // view.someProp) so other plugins don't observe the synthetic input,
-          // and so the rule's undo metadata is keyed to the same plugin
-          // instance that Tiptap's `commands.undoInputRule` reads from.
-          const inputRulesEnter = new Plugin({
-            props: {
-              handleKeyDown(view, event) {
-                if (event.key !== "Enter") {
-                  return false;
-                }
-                // Only trigger on plain Enter — modifier combos like
-                // Shift/Cmd/Ctrl/Alt+Enter are reserved for other handlers
-                // (e.g. soft-break, submit) and should fall through.
-                if (
-                  event.shiftKey ||
-                  event.ctrlKey ||
-                  event.metaKey ||
-                  event.altKey
-                ) {
-                  return false;
-                }
-                const { $cursor } = view.state.selection as TextSelection;
-                if (!$cursor) {
-                  return false;
-                }
-                return !!inputRules.props.handleTextInput?.call(
-                  inputRules,
-                  view,
-                  $cursor.pos,
-                  $cursor.pos,
-                  "\n",
-                  () =>
-                    view.state.tr.insertText("\n", $cursor.pos, $cursor.pos),
-                );
-              },
-            },
-          });
-          return [inputRules, inputRulesEnter];
+          return createInputRulesPlugins(rules, editor);
         },
       }),
     );
@@ -690,10 +652,10 @@ export class ExtensionManager {
    */
   private getProsemirrorPluginsFromExtension(extension: Extension): {
     plugins: Plugin[];
-    inputRules: InputRule[];
+    inputRules: readonly InputRule[];
   } {
     const plugins: Plugin[] = [...(extension.prosemirrorPlugins ?? [])];
-    const inputRules: InputRule[] = [];
+    const inputRules = extension.inputRules ?? [];
     if (
       !extension.prosemirrorPlugins?.length &&
       !Object.keys(extension.keyboardShortcuts || {}).length &&
@@ -704,50 +666,6 @@ export class ExtensionManager {
     }
 
     this.extensionPlugins.set(extension, plugins);
-
-    if (extension.inputRules?.length) {
-      inputRules.push(
-        ...extension.inputRules.map((inputRule) => {
-          return new InputRule(
-            inputRule.find,
-            (state, match, start, end) => {
-              const replaceWith = inputRule.replace({
-                match,
-                range: { from: start, to: end },
-                editor: this.editor,
-              });
-              if (replaceWith) {
-                const tr = state.tr;
-                const blockInfo = getBlockInfoFromSelection(tr);
-
-                if (
-                  !blockInfo.hasContent ||
-                  this.editor.schema.blockSchema[blockInfo.blockNoteType]
-                    ?.content !== "inline"
-                ) {
-                  return null;
-                }
-
-                tr.deleteRange(start, end);
-                updateBlockTr(tr, blockInfo.block.beforePos, replaceWith);
-                // updateBlockTr's replaceWith path leaves the selection after
-                // the new block when the content is replaced wholesale (e.g.
-                // when the rule returns content: []). Move the cursor back
-                // inside the new block so the user can keep typing.
-                setTextCursorPosition(
-                  tr,
-                  getNodeId(blockInfo.block.node, tr.doc),
-                  "start",
-                );
-                return tr;
-              }
-              return null;
-            },
-            { undoable: true },
-          );
-        }),
-      );
-    }
 
     if (Object.keys(extension.keyboardShortcuts || {}).length) {
       let currentEvent: KeyboardEvent | undefined;

@@ -437,24 +437,34 @@ describe("Check Emoji Picker Functionality", () => {
       "ArrowUp",
       "Enter",
     ]) {
-      const event = new KeyboardEvent("keydown", {
-        key,
-        isComposing: true,
-        bubbles: true,
-        cancelable: true,
-      });
-      editor.dispatchEvent(event);
-      expect(event.defaultPrevented, key).toBe(false);
-      await new Promise(requestAnimationFrame);
-      expect(
-        document.querySelector(".bn-frimousse-emoji[data-selected]")
-          ?.textContent,
-      ).toBe(emoji);
+      for (const signal of [
+        { isComposing: true, keyCode: 0 },
+        { isComposing: false, keyCode: 229 },
+      ]) {
+        const event = new KeyboardEvent("keydown", {
+          key,
+          ...signal,
+          bubbles: true,
+          cancelable: true,
+        });
+        editor.dispatchEvent(event);
+        expect(event.defaultPrevented, key).toBe(false);
+        await new Promise(requestAnimationFrame);
+        expect(
+          document.querySelector(".bn-frimousse-emoji[data-selected]")
+            ?.textContent,
+        ).toBe(emoji);
+      }
     }
     expect(editor.textContent).toContain(":frog");
     expect(document.activeElement).toBe(editor);
     editor.dispatchEvent(
       new CompositionEvent("compositionend", { bubbles: true }),
+    );
+    await userEvent.keyboard("{Enter}");
+    await waitForTextInEditor(`${emoji} `);
+    await vi.waitFor(() =>
+      expect(document.querySelector(EMOJI_PICKER_SELECTOR)).toBeNull(),
     );
   });
   test.each(["an", "in"])(

@@ -5,9 +5,11 @@ const PLUGIN_KEY = new PluginKey("inline-content-boundary-edit");
 
 // Whether a Backspace/Delete at `selection` would remove the entire content
 // range `[content.from, content.to)` of an inline content node.
+// Other keys aren't deletion attempts; treating a typed character as Delete
+// would erase a single-character node instead of inserting the character.
 function emptiesInlineContent(
   selection: Selection,
-  key: string,
+  key: "Backspace" | "Delete",
   content: { from: number; to: number },
 ) {
   if (!selection.empty) {
@@ -87,6 +89,7 @@ export const InlineContentBoundaryEditExtension = createExtension(
               // one transaction, keeping the now-empty node (and the caret
               // inside it) so it stays editable.
               if (
+                (event.key === "Backspace" || event.key === "Delete") &&
                 node.content.size > 0 &&
                 emptiesInlineContent(selection, event.key, {
                   from: contentFrom,

@@ -111,6 +111,8 @@ export async function handleFileInsertion<
     type: item.type,
   }));
 
+  let previousBlockId: string | undefined;
+
   for (const { file, type } of files) {
     // Gets file block corresponding to MIME type.
     let fileBlockType = "file";
@@ -146,7 +148,18 @@ export async function handleFileInsertion<
 
       let insertedBlockId: string | undefined = undefined;
 
-      if (event.type === "paste") {
+      const previousBlock = previousBlockId
+        ? editor.getBlock(previousBlockId)
+        : undefined;
+      if (previousBlock) {
+        // Resolve the event's insertion point only for the first file. Reusing
+        // it for every file reverses insertions after a nonempty block.
+        insertedBlockId = editor.insertBlocks(
+          [fileBlock],
+          previousBlock,
+          "after",
+        )[0].id;
+      } else if (event.type === "paste") {
         const currentBlock = editor.getTextCursorPosition().block;
         insertedBlockId = insertOrUpdateBlock(editor, currentBlock, fileBlock);
       } else if (event.type === "drop") {
@@ -178,11 +191,22 @@ export async function handleFileInsertion<
             return;
           }
 
+          // Drops within the block that resolve to its text end belong after
+          // it. Outside the block, keep the midpoint rule for gaps.
+          const atContentEnd =
+            blockInfo.contentKind === "inline" &&
+            pos.pos === blockInfo.contentEnd &&
+            blockRect &&
+            coords.top >= blockRect.top &&
+            coords.top <= blockRect.bottom;
+
           return insertOrUpdateBlock(
             editor,
             existingBlock,
             fileBlock,
-            blockRect && (blockRect.top + blockRect.bottom) / 2 > coords.top
+            !atContentEnd &&
+              blockRect &&
+              (blockRect.top + blockRect.bottom) / 2 > coords.top
               ? "before"
               : "after",
           );
@@ -194,6 +218,8 @@ export async function handleFileInsertion<
       if (!insertedBlockId) {
         return;
       }
+
+      previousBlockId = insertedBlockId;
 
       const updateData = await editor
         .uploadFile(file, insertedBlockId)

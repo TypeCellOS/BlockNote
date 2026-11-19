@@ -5,7 +5,7 @@ import {
   useExtension,
   useExtensionState,
 } from "@blocknote/react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { RiSparkling2Fill } from "react-icons/ri";
 import { AIExtension } from "../../AIExtension.js";
 import { useAIDictionary } from "../../hooks/useAIDictionary.js";
@@ -76,8 +76,9 @@ export const AIMenu = (props: AIMenuProps) => {
     [ai, editor],
   );
 
-  useEffect(() => {
-    // this is a bit hacky to run a useeffect to reset the prompt when the AI response is done
+  const [previousStatus, setPreviousStatus] = useState(aiResponseStatus);
+  if (previousStatus !== aiResponseStatus) {
+    setPreviousStatus(aiResponseStatus);
     if (
       aiResponseStatus === "ai-writing" ||
       aiResponseStatus === "user-reviewing" ||
@@ -85,7 +86,7 @@ export const AIMenu = (props: AIMenuProps) => {
     ) {
       setPrompt("");
     }
-  }, [aiResponseStatus]);
+  }
 
   const placeholder = useMemo(() => {
     if (aiResponseStatus === "thinking") {
