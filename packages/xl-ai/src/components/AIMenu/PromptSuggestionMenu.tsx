@@ -100,10 +100,12 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
     [handler, items.length],
   );
 
-  // Resets index when items change
-  useEffect(() => {
+  // Reset before committing a menu with a stale highlight.
+  const [previousPrompt, setPreviousPrompt] = useState(promptTextToUse);
+  if (previousPrompt !== promptTextToUse) {
+    setPreviousPrompt(promptTextToUse);
     setSelectedIndex(0);
-  }, [promptTextToUse, setSelectedIndex]);
+  }
 
   const inputRef = useRef<HTMLInputElement>(null);
   const hasBeenDisabled = useRef(disabled);

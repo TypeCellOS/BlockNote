@@ -1,9 +1,26 @@
-/* eslint-disable react/refs -- The ref caches the external store snapshot so useSyncExternalStore receives a stable value. */
 import { CommentsExtension } from "@blocknote/core/comments";
-import { ThreadData } from "@blocknote/core/comments";
-import { useCallback, useRef, useSyncExternalStore } from "react";
+import { ThreadStore } from "@blocknote/core/comments";
+import { useMemo, useSyncExternalStore } from "react";
 
 import { useExtension } from "../../hooks/useExtension.js";
+
+function createThreadSnapshot(store: ThreadStore) {
+  let threads = store.getThreads();
+  function getSnapshot() {
+    return threads;
+  }
+  function subscribe(onStoreChange: () => void) {
+    const unsubscribe = store.subscribe((nextThreads) => {
+      threads = nextThreads;
+      onStoreChange();
+    });
+    // Catch changes between rendering and subscribing.
+    threads = store.getThreads();
+    onStoreChange();
+    return unsubscribe;
+  }
+  return { getSnapshot, subscribe };
+}
 
 /**
  * Bridges the ThreadStore to React using useSyncExternalStore.
@@ -13,25 +30,9 @@ export function useThreads() {
 
   const store = comments.threadStore;
 
-  // this ref works around this error:
-  // https://react.dev/reference/react/useSyncExternalStore#im-getting-an-error-the-result-of-getsnapshot-should-be-cached
-  // however, might not be a good practice to work around it this way
-  const threadsRef = useRef<Map<string, ThreadData> | undefined>(undefined);
+  // getThreads may allocate a fresh Map. Cache snapshots until the store
+  // notifies, with a separate cache for each ThreadStore.
+  const snapshot = useMemo(() => createThreadSnapshot(store), [store]);
 
-  if (!threadsRef.current) {
-    threadsRef.current = store.getThreads();
-  }
-
-  const subscribe = useCallback(
-    (cb: () => void) => {
-      return store.subscribe((threads) => {
-        // update ref when changed
-        threadsRef.current = threads;
-        cb();
-      });
-    },
-    [store],
-  );
-
-  return useSyncExternalStore(subscribe, () => threadsRef.current!);
+  return useSyncExternalStore(snapshot.subscribe, snapshot.getSnapshot);
 }

@@ -102,12 +102,18 @@ export const CreateLinkButton = () => {
       };
     },
   });
-  useEffect(() => {
-    // Closing in response to editor state changes keeps an invalid selection
-    // from leaving the create-link popover open.
-    // eslint-disable-next-line react/set-state-in-effect
+  // Close before committing a popover for an outdated selection.
+  const [previousSelection, setPreviousSelection] = useState(state);
+  // The selector can return a fresh object on render retries; compare values.
+  if (
+    previousSelection?.url !== state?.url ||
+    previousSelection?.text !== state?.text ||
+    previousSelection?.range.from !== state?.range.from ||
+    previousSelection?.range.to !== state?.range.to
+  ) {
+    setPreviousSelection(state);
     setShowPopover(false);
-  }, [state]);
+  }
 
   // Makes Ctrl+K/Meta+K open link creation popover.
   useEffect(() => {

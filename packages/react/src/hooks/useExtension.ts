@@ -4,7 +4,7 @@ import {
   ExtensionFactory,
   Store,
 } from "@blocknote/core";
-import { useBlockNoteEditor } from "./useBlockNoteEditor.js";
+import { useBlockNoteContext } from "../editor/BlockNoteContext.js";
 import { useStore } from "./useStore.js";
 
 /**
@@ -22,8 +22,13 @@ export function useExtension<
     : T extends Extension
       ? T
       : never {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const editor = ctx?.editor ?? useBlockNoteEditor();
+  const context = useBlockNoteContext();
+  const editor = ctx?.editor ?? context?.editor;
+  if (!editor) {
+    throw new Error(
+      "useBlockNoteEditor was called outside of a BlockNoteContext provider or BlockNoteView component",
+    );
+  }
 
   const instance = editor.getExtension(plugin as any);
 
