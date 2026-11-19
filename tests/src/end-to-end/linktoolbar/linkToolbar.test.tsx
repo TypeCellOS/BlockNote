@@ -11,7 +11,7 @@ import MantineApp from "@examples/01-basic/testing/src/App";
 import { TextSelection } from "@tiptap/pm/state";
 import { beforeEach, describe, expect, test } from "vite-plus/test";
 import { render } from "vitest-browser-react";
-import { userEvent } from "../../utils/context.js";
+import { commands, page, userEvent } from "../../utils/context.js";
 import { EDITOR_SELECTOR, LINK_BUTTON_SELECTOR } from "../../utils/const.js";
 import { focusOnEditor, sleep, waitForSelector } from "../../utils/editor.js";
 import { moveMouseOverElement } from "../../utils/mouse.js";
@@ -95,8 +95,13 @@ function inlineCharacters(editor: ReturnType<typeof createLinkedEditor>) {
 async function createLink(url: string) {
   await focusOnEditor();
   await userEvent.keyboard("Paragraph");
-  await userEvent.keyboard("{Shift>}{Home}{/Shift}");
+  await commands.pressKey("Shift+Home");
   await userEvent.click(await waitForSelector(LINK_BUTTON_SELECTOR));
+  const input = page.getByRole("dialog").getByRole("textbox");
+  // Mantine mounts the form on an animation frame. Wait for the form to
+  // appear, then assert focus immediately so a focus trap stealing it fails.
+  await expect.element(input).toBeVisible();
+  expect(document.activeElement).toBe(input.element());
   await userEvent.keyboard(url);
   await userEvent.keyboard("{Enter}");
   await waitForSelector(LINK_SELECTOR);

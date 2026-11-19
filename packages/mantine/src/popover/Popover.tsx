@@ -25,9 +25,6 @@ export const Popover = (
       // which on mobile blurs the contentEditable and dismisses the
       // keyboard. BlockNote owns focus in its popovers (useAutoFocus).
       trapFocus={false}
-      // Mount the input on the opening click. Mantine's enter transition
-      // waits for an animation frame, so fast typing can precede autofocus.
-      transitionProps={{ duration: 0 }}
       // Mantine would hide the dropdown (`display: none`) whenever it judges
       // the target out of view. BlockNote's floating UI already hides itself,
       // dropdowns included, when its reference leaves the viewport, and on
