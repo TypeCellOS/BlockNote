@@ -28,6 +28,76 @@ function attributes(fields: Record<string, unknown>) {
     .join("");
 }
 
+function changedOwnProps(
+  props: Record<string, unknown>,
+  counterpart: Record<string, unknown>,
+) {
+  return Object.fromEntries(
+    Object.entries(props).filter(
+      ([key, value]) =>
+        !Object.hasOwn(counterpart, key) || !deepEqual(value, counterpart[key]),
+    ),
+  );
+}
+
+function renderTable(
+  value: Record<string, unknown> & { rows: unknown[] },
+  preserveRuns: boolean,
+  counterpart?: unknown,
+): string {
+  const { rows, type: _type, ...metadata } = value;
+  const otherRows =
+    record(counterpart) &&
+    counterpart.type === "tableContent" &&
+    Array.isArray(counterpart.rows) &&
+    counterpart.rows.length === rows.length
+      ? counterpart.rows
+      : [];
+  return `<table${attributes(metadata)}>\n${rows
+    .map((row, index) => {
+      if (!record(row) || !Array.isArray(row.cells)) {
+        return `  <row index=${index}>${escapeText(JSON.stringify(row))}</row>`;
+      }
+      const { cells, ...rowProps } = row;
+      const otherRow = otherRows[index];
+      const otherCells =
+        record(otherRow) &&
+        Array.isArray(otherRow.cells) &&
+        otherRow.cells.length === cells.length
+          ? otherRow.cells
+          : [];
+      return `  <row index=${index}${attributes(rowProps)}>\n${cells
+        .map((cell, cellIndex) => {
+          if (Array.isArray(cell)) {
+            return `    <cell>${inline(cell, preserveRuns)}</cell>`;
+          }
+          if (record(cell)) {
+            const { content, ...cellProps } = cell;
+            const otherCell = otherCells[cellIndex];
+            if (
+              record(cellProps.props) &&
+              record(otherCell) &&
+              record(otherCell.props)
+            ) {
+              const changedProps = changedOwnProps(
+                cellProps.props,
+                otherCell.props,
+              );
+              if (Object.keys(changedProps).length) {
+                cellProps.props = changedProps;
+              } else {
+                delete cellProps.props;
+              }
+            }
+            return `    <cell${attributes(cellProps)}>${inline(content, preserveRuns)}</cell>`;
+          }
+          return `    <cell>${escapeText(JSON.stringify(cell))}</cell>`;
+        })
+        .join("\n")}\n  </row>`;
+    })
+    .join("\n")}\n</table>`;
+}
+
 function inline(
   value: unknown,
   preserveRuns = false,
@@ -50,61 +120,11 @@ function inline(
       : escapeText(text);
   }
   if (type === "tableContent" && Array.isArray(value.rows)) {
-    const { rows, type: _type, ...metadata } = value;
-    const otherRows =
-      record(counterpart) &&
-      counterpart.type === "tableContent" &&
-      Array.isArray(counterpart.rows) &&
-      counterpart.rows.length === rows.length
-        ? counterpart.rows
-        : [];
-    return `<table${attributes(metadata)}>\n${rows
-      .map((row, index) => {
-        if (!record(row) || !Array.isArray(row.cells)) {
-          return `  <row index=${index}>${escapeText(JSON.stringify(row))}</row>`;
-        }
-        const { cells, ...rowProps } = row;
-        const otherRow = otherRows[index];
-        const otherCells =
-          record(otherRow) &&
-          Array.isArray(otherRow.cells) &&
-          otherRow.cells.length === cells.length
-            ? otherRow.cells
-            : [];
-        return `  <row index=${index}${attributes(rowProps)}>\n${cells
-          .map((cell, cellIndex) => {
-            if (Array.isArray(cell)) {
-              return `    <cell>${inline(cell, preserveRuns)}</cell>`;
-            }
-            if (record(cell)) {
-              const { content, ...cellProps } = cell;
-              const otherCell = otherCells[cellIndex];
-              if (
-                record(cellProps.props) &&
-                record(otherCell) &&
-                record(otherCell.props)
-              ) {
-                const otherProps = otherCell.props;
-                const changedProps = Object.fromEntries(
-                  Object.entries(cellProps.props).filter(
-                    ([key, value]) =>
-                      !Object.hasOwn(otherProps, key) ||
-                      !deepEqual(value, otherProps[key]),
-                  ),
-                );
-                if (Object.keys(changedProps).length) {
-                  cellProps.props = changedProps;
-                } else {
-                  delete cellProps.props;
-                }
-              }
-              return `    <cell${attributes(cellProps)}>${inline(content, preserveRuns)}</cell>`;
-            }
-            return `    <cell>${escapeText(JSON.stringify(cell))}</cell>`;
-          })
-          .join("\n")}\n  </row>`;
-      })
-      .join("\n")}\n</table>`;
+    return renderTable(
+      { ...value, rows: value.rows },
+      preserveRuns,
+      counterpart,
+    );
   }
   const tag = type === "link" ? "link" : "inline";
   const fields = type === "link" ? props : { type, ...props };
@@ -185,35 +205,9 @@ function renderDocument(
 ): string[] {
   return blocks.flatMap((block, index) => {
     const path = [...parentPath, index];
-    const { children, content, ...fields } = { content: undefined, ...block };
-    const counterpart = counterparts.get(block.id)?.block;
-    const otherFields: Record<string, unknown> = counterpart ?? {};
-    const otherProps = record(otherFields.props) ? otherFields.props : {};
-    const visibleFields: Record<string, unknown> = { ...fields };
-    if (record(visibleFields.props)) {
-      const defaults =
-        typeof visibleFields.type === "string"
-          ? blockSchema[visibleFields.type]?.propSchema
-          : undefined;
-      const props = Object.fromEntries(
-        Object.entries(visibleFields.props).filter(([key, value]) =>
-          counterpart
-            ? !Object.hasOwn(otherProps, key) ||
-              !deepEqual(value, otherProps[key])
-            : !defaults ||
-              !Object.hasOwn(defaults, key) ||
-              !deepEqual(value, defaults[key].default),
-        ),
-      );
-      if (Object.keys(props).length) {
-        visibleFields.props = props;
-      } else {
-        delete visibleFields.props;
-      }
-    }
     const include = includeSubtree || changed.has(block.id);
     const nested = renderDocument(
-      children,
+      block.children,
       changed,
       counterparts,
       blockSchema,
@@ -223,6 +217,39 @@ function renderDocument(
     );
     if (!include && !nested.length) {
       return [];
+    }
+    const {
+      children: _children,
+      content,
+      ...fields
+    } = {
+      content: undefined,
+      ...block,
+    };
+    const counterpart = counterparts.get(block.id)?.block;
+    const otherFields: Record<string, unknown> = counterpart ?? {};
+    const otherProps = record(otherFields.props) ? otherFields.props : {};
+    const visibleFields: Record<string, unknown> = { ...fields };
+    if (record(visibleFields.props)) {
+      const defaults =
+        typeof visibleFields.type === "string"
+          ? blockSchema[visibleFields.type]?.propSchema
+          : undefined;
+      const props = counterpart
+        ? changedOwnProps(visibleFields.props, otherProps)
+        : Object.fromEntries(
+            Object.entries(visibleFields.props).filter(
+              ([key, value]) =>
+                !defaults ||
+                !Object.hasOwn(defaults, key) ||
+                !deepEqual(value, defaults[key].default),
+            ),
+          );
+      if (Object.keys(props).length) {
+        visibleFields.props = props;
+      } else {
+        delete visibleFields.props;
+      }
     }
     const normalizedId = block.id.toLowerCase().replace(/[^a-z0-9-]/g, "-");
     const tag = `block-${normalizedId}`;
@@ -241,11 +268,7 @@ function renderDocument(
     if (nested.length) {
       return [`${opening}>${body}`, ...nested, `${indent}</${tag}>`];
     }
-    return [
-      content === undefined
-        ? `${opening}></${tag}>`
-        : `${opening}>${body}</${tag}>`,
-    ];
+    return [`${opening}>${body}</${tag}>`];
   });
 }
 
