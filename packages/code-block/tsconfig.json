@@ -24,5 +24,6 @@
       "@shikijs/types": ["../../node_modules/@shikijs/types"]
     }
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["src/**/*.test.*"]
 }

@@ -1654,8 +1654,8 @@ describe("VersioningSidebar", () => {
       }
       return (
         <VersionMenuItem
-          onClick={() => {
-            void action.execute();
+          onClick={async () => {
+            await action.execute();
           }}
         >
           Roll back
@@ -2109,6 +2109,7 @@ describe("VersioningSidebar", () => {
     });
     expect(rows()[1]!.getAttribute("aria-busy")).toBe("true");
     await act(async () => {
+      // oxlint-disable-next-line vitest/valid-expect -- Attach the rejection handler before rejecting; awaited below.
       const rejected = expect(pending).rejects.toBe(cause);
       rejectContent(cause);
       await rejected;
@@ -2542,6 +2543,7 @@ describe("VersioningSidebar", () => {
     );
     const ext = mode(editor);
     const cause = new Error("old naming failed");
+    // oxlint-disable-next-line vitest/valid-expect -- Observe rejection before switching rows; awaited after rejectName below.
     const rejected = expect(run(() => ext.create("Draft"))).rejects.toBe(cause);
     await click(rows()[1]!);
     await act(async () => {

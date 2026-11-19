@@ -27,10 +27,19 @@ export default defineConfig({
     // Preserve Vitest 4 mock history during the toolchain upgrade.
     clearMocks: false,
     environment: "jsdom",
-    setupFiles: ["./vitestSetup.ts"],
+    // Shared fixtures and colocated tests must use the same core module instance.
+    alias: { "@blocknote/core": path.resolve(__dirname, "src/") },
+    setupFiles: [
+      "./vitestSetup.ts",
+      "../../tests/vitestSetup.node-fixtures.ts",
+    ],
     // `.browser.test` files need a real browser; the tests package's browser
     // suite runs them.
-    exclude: [...configDefaults.exclude, "**/*.browser.test.*"],
+    exclude: [
+      ...configDefaults.exclude,
+      "**/*.browser.test.*",
+      "**/*.screen-reader.test.ts",
+    ],
   },
   plugins: [webpackStats()],
   build: {

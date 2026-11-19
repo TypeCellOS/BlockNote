@@ -85,8 +85,10 @@ done
 # The test files and browser config (callers iterate on these too).
 mounts+=(
   -v "$PWD/tests/src:/work/tests/src"
+  -v "$PWD/tests/public:/work/tests/public"
   -v "$PWD/tests/vite.config.browser.ts:/work/tests/vite.config.browser.ts"
   -v "$PWD/tests/vitestSetup.browser.ts:/work/tests/vitestSetup.browser.ts"
+  -v "$PWD/tests/vitestSetup.browser-fixtures.ts:/work/tests/vitestSetup.browser-fixtures.ts"
 )
 # The suggestion-gallery scenarios import the shared `testDocument` (aliased to
 # ../shared in vite.config.browser.ts). Only shared/package.json is baked into the

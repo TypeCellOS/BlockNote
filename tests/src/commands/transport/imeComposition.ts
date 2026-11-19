@@ -1,5 +1,10 @@
 import type { BrowserCommand } from "vite-plus/test/node";
 
+// eslint-disable-next-line no-unused-vars -- Type-only import for the JSDoc link.
+import type { userEvent } from "../transport.js";
+// eslint-disable-next-line no-unused-vars -- Type-only import for the JSDoc link.
+import type { selectText } from "../node/selectText.js";
+
 /**
  * One step of an emulated IME session. `setComposition` updates the active
  * composition (starting one if none is active); `commit` finalizes it with
@@ -24,12 +29,6 @@ export type ImeStep =
   | { type: "commit"; text: string };
 
 /**
- * Browser-side signature of the {@link imeComposition} command (Vitest strips
- * the Node-only context parameter — see positionalMouse.ts for the pattern).
- */
-export type ImeCompositionCommand = (steps: ImeStep[]) => Promise<void>;
-
-/**
  * Drives Chromium's real IME composition pipeline over CDP
  * (`Input.imeSetComposition` / `Input.insertText`): the browser produces the
  * genuine `compositionstart/update/end` + `beforeinput:
@@ -37,6 +36,24 @@ export type ImeCompositionCommand = (steps: ImeStep[]) => Promise<void>;
  * focused element — the same events a mobile IME (Gboard, Samsung Keyboard)
  * generates, which no synthetic `CompositionEvent` dispatch can reproduce
  * (those are untrusted and never touch the DOM). Chromium-only.
+ *
+ * Use for bugs involving active composition, replacement, or IME commit semantics,
+ * not ordinary text entry ({@link userEvent.keyboard}) or selection setup
+ * ({@link selectText}).
+ * Focus the editable and establish its caret first. This emulates browser IME
+ * input, not an OS keyboard UI, candidate picker, or device-specific action key.
+ *
+ * @example
+ * const { editor } = await setupEditor();
+ * await page.getByRole("textbox").click();
+ * await imeComposition([
+ *   { type: "setComposition", text: "に" },
+ *   { type: "setComposition", text: "日本" },
+ *   { type: "commit", text: "日本" },
+ * ]);
+ * expect(editor.document[0].content).toEqual([
+ *   { type: "text", text: "日本", styles: {} },
+ * ]);
  */
 export const imeComposition: BrowserCommand<[steps: ImeStep[]]> = async (
   ctx,

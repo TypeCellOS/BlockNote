@@ -3,9 +3,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { configDefaults, defineConfig, type UserConfig } from "vite-plus";
 import { playwright } from "vite-plus/test/browser/providers/playwright";
-import { positionalMouse } from "./src/utils/positionalMouse.js";
-import { imeComposition } from "./src/utils/imeComposition.js";
-import { mockCustomBlockImages } from "./src/utils/mockCustomBlockImages.js";
+import * as commands from "./src/commands/transport/index.js";
 
 // For the desktop instances: end-to-end/mobile runs only in the "android"
 // instance. An instance-level `exclude` replaces the resolved base exclude
@@ -21,8 +19,8 @@ const DESKTOP_EXCLUDE = [
   ...configDefaults.exclude,
   ...CI_EXCLUDE,
   "**/end-to-end/mobile/**",
+  "../packages/*/src/**/*.screen-reader.test.ts",
 ];
-import { restoreTouchEmulation } from "./src/utils/restoreTouchEmulation.js";
 
 // 1280x720 matches the old Playwright defaults so visual baselines have room.
 // Used as the playwright context viewport for every browser instance.
@@ -84,6 +82,7 @@ export default defineConfig(
       // render unstyled because their utility classes don't exist.
       plugins: [tailwindcss()],
       resolve: {
+        dedupe: ["react", "react-dom", "vitest-browser-react"],
         // Mount example apps via `@examples/<group>/<name>/src/App`. The examples
         // live outside the tests root, but vite-plus already allows serving the
         // workspace root, so only this runtime alias is needed. The matching
@@ -108,15 +107,22 @@ export default defineConfig(
         // Besides the end-to-end tests, this suite also runs the packages'
         // `.browser.test` files: unit tests for browser-only implementations
         // (canvas rasterization, diagram rendering), colocated with the code
-        // they test but needing a real browser. The packages' own (node)
-        // vitest configs exclude them.
+        // they test but needing a real browser. Native screen-reader tests use
+        // their own runner. The packages' node configs exclude browser tests.
         include: [
           "./src/end-to-end/**/*.test.tsx",
           "../packages/*/src/**/*.browser.test.{ts,tsx}",
         ],
-        exclude: [...configDefaults.exclude, ...CI_EXCLUDE],
+        exclude: [
+          ...configDefaults.exclude,
+          ...CI_EXCLUDE,
+          "../packages/*/src/**/*.screen-reader.test.ts",
+        ],
 
-        setupFiles: ["./vitestSetup.browser.ts"],
+        setupFiles: [
+          "./vitestSetup.browser.ts",
+          "./vitestSetup.browser-fixtures.ts",
+        ],
         // Running three browsers concurrently inside one Docker container already
         // saturates CPU; layering per-browser file parallelism on top causes
         // 15s test timeouts and even Firefox WS-connect failures. One worker per
@@ -166,12 +172,7 @@ export default defineConfig(
           // still show in the HTML report (errors + stack traces don't depend
           // on these shots), so disable them. See `e2e:report` to view.
           screenshotFailures: false,
-          commands: {
-            positionalMouse,
-            imeComposition,
-            restoreTouchEmulation,
-            mockCustomBlockImages,
-          },
+          commands,
           instances: [
             {
               browser: "chromium",

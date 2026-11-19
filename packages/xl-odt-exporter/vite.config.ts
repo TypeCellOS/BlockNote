@@ -30,7 +30,10 @@ export default defineConfig(
         // Preserve Vitest 4 mock history during the toolchain upgrade.
         clearMocks: false,
         environment: "jsdom",
-        setupFiles: ["./vitestSetup.ts"],
+        setupFiles: [
+          "./vitestSetup.ts",
+          "../../tests/vitestSetup.node-fixtures.ts",
+        ],
       },
       plugins: [webpackStats()],
       // Vite 8 (oxc) rejects JSX namespace tags by default; ODT uses them (e.g. <office:text>)
