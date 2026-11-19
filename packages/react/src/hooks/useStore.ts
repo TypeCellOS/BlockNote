@@ -8,6 +8,10 @@
 import type { Store } from "@blocknote/core";
 import { useSyncExternalStoreWithSelector } from "use-sync-external-store/shim/with-selector";
 
+function identity<T>(value: T): T {
+  return value;
+}
+
 /**
  * Subscribe to a {@link Store}, optionally selecting a slice of its state.
  *
@@ -17,7 +21,9 @@ import { useSyncExternalStoreWithSelector } from "use-sync-external-store/shim/w
  */
 export function useStore<TState, TSelected = NoInfer<TState>>(
   store: Store<TState>,
-  selector: (state: TState) => TSelected = (d) => d as unknown as TSelected,
+  selector: (state: TState) => TSelected = identity as (
+    state: TState,
+  ) => TSelected,
   equalityFn: (a: TSelected, b: TSelected) => boolean = shallow,
 ): TSelected {
   return useSyncExternalStoreWithSelector(
