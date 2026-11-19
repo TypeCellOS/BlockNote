@@ -383,6 +383,17 @@ export const SideMenuExtension = createExtension(
             clearIntent();
             refresh();
           }
+          // `refresh` keeps the menu on its block while the menu is frozen or
+          // the block is still hovered, but the block may have changed since
+          // it was read (e.g. a collaborator typed in it). Menu items write it
+          // back (the table header toggles pass its content), so re-read it.
+          const state = store.state;
+          if (state?.show) {
+            const block = editor.getBlock(state.block.id);
+            if (block && block !== state.block) {
+              store.setState({ ...state, block });
+            }
+          }
         });
 
         signal.addEventListener("abort", () => {
