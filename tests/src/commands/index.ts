@@ -1,7 +1,7 @@
 /* eslint-disable no-empty-pattern -- Vitest requires destructured fixture dependencies. */
 import type { TestAPI } from "vite-plus/test";
 import * as browserCommands from "./browser/index.js";
-import { createSetupEditor, type SetupEditor } from "./browser/setupEditor.js";
+import type { SetupEditor } from "./browser/setupEditor.js";
 import { commands as nodeCommands, page, userEvent } from "./transport.js";
 
 // Browser-only fixtures extend the baseline in fixtures/editor.node.ts.
@@ -52,6 +52,7 @@ export const commands: Required<
     await use(browserCommands.readAriaSnapshot);
   },
   setupEditor: async ({ onTestFinished }, use) => {
+    const { createSetupEditor } = await import("./browser/setupEditor.js");
     await use(createSetupEditor(onTestFinished));
   },
   runAxe: async ({ annotate }, use) => {

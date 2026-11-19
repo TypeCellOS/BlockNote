@@ -4,6 +4,7 @@
     "composite": false,
     "rootDir": "..",
     "sourceMap": false,
+    "types": ["node", "vite-plus/client"],
     "paths": {
       "@shared/*": ["../shared/*"],
       "@blocknote/core": ["../packages/core/src/index.ts"],

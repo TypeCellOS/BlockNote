@@ -1,6 +1,6 @@
 import type {} from "./src/commands/transport/keyboard.js";
 import { afterEach, beforeAll, beforeEach } from "vite-plus/test";
-import { commands, page } from "./src/utils/context.js";
+import { commands, page } from "./src/commands/transport.js";
 
 import { ensureTouchEmulation } from "./src/utils/ensureTouchEmulation.js";
 
