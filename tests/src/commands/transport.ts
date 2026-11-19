@@ -32,5 +32,6 @@ export const commands = {
   pressKey: nodeCommands.pressKey,
   positionalMouse: nodeCommands.positionalMouse,
   imeComposition: nodeCommands.imeComposition,
+  mockCustomBlockImages: nodeCommands.mockCustomBlockImages,
   restoreTouchEmulation: nodeCommands.restoreTouchEmulation,
 };

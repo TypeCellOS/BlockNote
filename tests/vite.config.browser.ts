@@ -4,7 +4,6 @@ import * as path from "path";
 import { configDefaults, defineConfig, type UserConfig } from "vite-plus";
 import { playwright } from "vite-plus/test/browser/providers/playwright";
 import * as commands from "./src/commands/transport/index.js";
-import { mockCustomBlockImages } from "./src/utils/mockCustomBlockImages.js";
 
 // For the desktop instances: end-to-end/mobile runs only in the "android"
 // instance. An instance-level `exclude` replaces the resolved base exclude
@@ -173,7 +172,7 @@ export default defineConfig(
           // still show in the HTML report (errors + stack traces don't depend
           // on these shots), so disable them. See `e2e:report` to view.
           screenshotFailures: false,
-          commands: { ...commands, mockCustomBlockImages },
+          commands,
           instances: [
             {
               browser: "chromium",

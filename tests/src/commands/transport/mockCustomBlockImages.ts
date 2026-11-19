@@ -14,7 +14,7 @@ export async function mockCustomBlockImages(
     } else {
       const path = fileURLToPath(
         new URL(
-          `../end-to-end/customblocks/fixtures/${filename}`,
+          `../../end-to-end/customblocks/fixtures/${filename}`,
           import.meta.url,
         ),
       );

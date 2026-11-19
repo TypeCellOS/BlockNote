@@ -36,6 +36,9 @@ export const commands: Required<
   imeComposition: async ({}, use) => {
     await use(nodeCommands.imeComposition);
   },
+  mockCustomBlockImages: async ({}, use) => {
+    await use(nodeCommands.mockCustomBlockImages);
+  },
   restoreTouchEmulation: async ({}, use) => {
     await use(nodeCommands.restoreTouchEmulation);
   },

@@ -12,11 +12,8 @@ import {
 } from "../../utils/editor.js";
 
 describe("Check custom block functionality", () => {
-  const imageCommands = commands as unknown as {
-    mockCustomBlockImages(action: "install" | "remove"): Promise<void>;
-  };
-  beforeAll(() => imageCommands.mockCustomBlockImages("install"));
-  afterAll(() => imageCommands.mockCustomBlockImages("remove"));
+  beforeAll(() => commands.mockCustomBlockImages("install"));
+  afterAll(() => commands.mockCustomBlockImages("remove"));
 
   async function waitForImage() {
     await expect
