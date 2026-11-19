@@ -1,4 +1,5 @@
 import { defaultBlockSpecs, type BlockSchema } from "@blocknote/core";
+import deepEqual from "react-fast-compare";
 
 const defaultBlockSchema: BlockSchema = Object.fromEntries(
   Object.entries(defaultBlockSpecs).map(([type, spec]) => [type, spec.config]),
@@ -12,27 +13,6 @@ export type DocumentBlock = {
 
 function record(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function equal(before: unknown, after: unknown): boolean {
-  if (Object.is(before, after)) {
-    return true;
-  }
-  if (Array.isArray(before) && Array.isArray(after)) {
-    return (
-      before.length === after.length &&
-      before.every((value, index) => equal(value, after[index]))
-    );
-  }
-  if (record(before) && record(after)) {
-    return (
-      Object.keys(before).length === Object.keys(after).length &&
-      Object.keys(before).every(
-        (key) => Object.hasOwn(after, key) && equal(before[key], after[key]),
-      )
-    );
-  }
-  return false;
 }
 
 function escapeText(value: string) {
@@ -109,7 +89,7 @@ function inline(
                   Object.entries(cellProps.props).filter(
                     ([key, value]) =>
                       !Object.hasOwn(otherProps, key) ||
-                      !equal(value, otherProps[key]),
+                      !deepEqual(value, otherProps[key]),
                   ),
                 );
                 if (Object.keys(changedProps).length) {
@@ -218,10 +198,11 @@ function renderDocument(
       const props = Object.fromEntries(
         Object.entries(visibleFields.props).filter(([key, value]) =>
           counterpart
-            ? !Object.hasOwn(otherProps, key) || !equal(value, otherProps[key])
+            ? !Object.hasOwn(otherProps, key) ||
+              !deepEqual(value, otherProps[key])
             : !defaults ||
               !Object.hasOwn(defaults, key) ||
-              !equal(value, defaults[key].default),
+              !deepEqual(value, defaults[key].default),
         ),
       );
       if (Object.keys(props).length) {
@@ -334,7 +315,10 @@ export function compareDocuments<
       children: _afterChildren,
       ...afterFields
     }: Record<string, unknown> = next.block;
-    if (prev.parentId !== next.parentId || !equal(beforeFields, afterFields)) {
+    if (
+      prev.parentId !== next.parentId ||
+      !deepEqual(beforeFields, afterFields)
+    ) {
       changed.add(id);
     }
     // Ordinary rendering joins adjacent unstyled runs. Expose their boundaries
@@ -342,7 +326,7 @@ export function compareDocuments<
     const beforeContent = beforeFields.content;
     const afterContent = afterFields.content;
     if (
-      !equal(beforeContent, afterContent) &&
+      !deepEqual(beforeContent, afterContent) &&
       inline(beforeContent) === inline(afterContent)
     ) {
       preserveRuns = true;
