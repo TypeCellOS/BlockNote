@@ -20,6 +20,46 @@ export const exportTestInstancesBlockNoteHTML: TestInstance<
 >[] = [
   {
     testCase: {
+      name: "language/explicit",
+      content: [
+        { type: "paragraph", props: { lang: "fr" }, content: "Bonjour" },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
+      name: "language/regional",
+      content: [
+        { type: "paragraph", props: { lang: "en-GB" }, content: "Hello" },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
+      name: "language/undefined",
+      content: [
+        {
+          type: "paragraph",
+          props: { lang: undefined },
+          content: "No language",
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
+      name: "language/empty",
+      content: [
+        { type: "paragraph", props: { lang: "" }, content: "Unknown language" },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
       name: "paragraph/empty",
       content: [
         {

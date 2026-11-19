@@ -7,6 +7,7 @@
       {
         "attrs": {
           "backgroundColor": "default",
+          "lang": undefined,
           "textAlignment": "left",
           "textColor": "default",
         },
@@ -29,6 +30,7 @@
       {
         "attrs": {
           "backgroundColor": "default",
+          "lang": undefined,
           "textAlignment": "left",
           "textColor": "default",
         },
@@ -51,6 +53,7 @@
       {
         "attrs": {
           "backgroundColor": "default",
+          "lang": undefined,
           "start": undefined,
           "textAlignment": "left",
           "textColor": "default",
@@ -74,6 +77,7 @@
       {
         "attrs": {
           "backgroundColor": "default",
+          "lang": undefined,
           "start": undefined,
           "textAlignment": "left",
           "textColor": "default",
@@ -98,6 +102,7 @@
         "attrs": {
           "backgroundColor": "default",
           "checked": false,
+          "lang": undefined,
           "textAlignment": "left",
           "textColor": "default",
         },
@@ -121,6 +126,7 @@
         "attrs": {
           "backgroundColor": "default",
           "checked": true,
+          "lang": undefined,
           "textAlignment": "left",
           "textColor": "default",
         },
@@ -143,6 +149,7 @@
       {
         "attrs": {
           "backgroundColor": "default",
+          "lang": undefined,
           "textAlignment": "left",
           "textColor": "default",
         },

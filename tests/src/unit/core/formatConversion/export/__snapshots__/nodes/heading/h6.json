@@ -8,6 +8,7 @@
         "attrs": {
           "backgroundColor": "default",
           "isToggleable": false,
+          "lang": undefined,
           "level": 6,
           "textAlignment": "left",
           "textColor": "default",

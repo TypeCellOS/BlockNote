@@ -25,6 +25,7 @@ it("renders checkbox as enabled when editor is editable", () => {
     id: "1",
     type: "checkListItem",
     props: {
+      lang: undefined,
       backgroundColor: "default",
       textAlignment: "left",
       textColor: "default",
@@ -46,6 +47,7 @@ it("renders checkbox as disabled when editor is not editable", () => {
     id: "1",
     type: "checkListItem",
     props: {
+      lang: undefined,
       backgroundColor: "default",
       textAlignment: "left",
       textColor: "default",

@@ -13,6 +13,7 @@ export const createQuoteBlockConfig = createBlockConfig(
     ({
       type: "quote" as const,
       propSchema: {
+        lang: defaultProps.lang,
         backgroundColor: defaultProps.backgroundColor,
         textColor: defaultProps.textColor,
       },
@@ -28,9 +29,7 @@ export const createQuoteBlockSpec = createBlockSpec(
     },
     parse(element) {
       if (element.tagName === "BLOCKQUOTE") {
-        const { backgroundColor, textColor } = parseDefaultProps(element);
-
-        return { backgroundColor, textColor };
+        return parseDefaultProps(element);
       }
 
       return undefined;
