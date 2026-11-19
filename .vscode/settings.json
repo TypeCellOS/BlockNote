@@ -5,6 +5,8 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.oxc": "explicit"
   },
+  "oxc.configPath": "./vite.config.ts",
+  "oxc.typeAware": true,
   "oxc.fmt.configPath": "./vite.config.ts",
   "npm.scriptRunner": "vp",
   "[javascript]": { "editor.defaultFormatter": "oxc.oxc-vscode" },
@@ -16,7 +18,8 @@
     "packages/website/docs/.vitepress": false,
     "**/.*": false
   },
-  "typescript.tsdk": "node_modules/typescript/lib",
+  "js/ts.experimental.useTsgo": true,
+  "js/ts.tsdk.path": "./node_modules/typescript",
   "[xml]": {
     "editor.defaultFormatter": "redhat.vscode-xml"
   },
