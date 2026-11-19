@@ -104,7 +104,13 @@ export const CreateLinkButton = () => {
   });
   // Close before committing a popover for an outdated selection.
   const [previousSelection, setPreviousSelection] = useState(state);
-  if (previousSelection !== state) {
+  // The selector can return a fresh object on render retries; compare values.
+  if (
+    previousSelection?.url !== state?.url ||
+    previousSelection?.text !== state?.text ||
+    previousSelection?.range.from !== state?.range.from ||
+    previousSelection?.range.to !== state?.range.to
+  ) {
     setPreviousSelection(state);
     setShowPopover(false);
   }

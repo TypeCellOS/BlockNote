@@ -19,10 +19,14 @@ export function useCommentUsers<U extends User = User>(
 ): Map<string, U> {
   const { userStore } = useExtension(CommentsExtension);
 
+  // `userIds` is often a fresh array each render, so key the effect on its
+  // contents rather than its identity to avoid re-loading on every render.
+  const userIdsKey = userIds.join(",");
+
   useEffect(() => {
-    // The store already caches users and deduplicates in-flight requests.
     void userStore.loadUsers(userIds);
-  }, [userStore, userIds]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userStore, userIdsKey]);
 
   return useStore(userStore.store, (state) => {
     const users = new Map<string, U>();
