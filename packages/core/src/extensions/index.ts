@@ -11,6 +11,7 @@ export * from "./NodeSelectionKeyboard/NodeSelectionKeyboard.js";
 export * from "./Placeholder/Placeholder.js";
 export * from "./PositionMapping/PositionMapping.js";
 export * from "./PreviousBlockType/PreviousBlockType.js";
+export * from "./SearchAndReplace/index.js";
 export * from "./ShowSelection/ShowSelection.js";
 export * from "./SideMenu/SideMenu.js";
 export * from "./SourceBlockWithPreview/SourceBlockWithPreview.js";
