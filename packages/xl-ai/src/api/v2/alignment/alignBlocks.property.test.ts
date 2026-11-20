@@ -139,10 +139,10 @@ describe("alignBlocks: properties", () => {
   });
 
   it("matches two blocks with an equal text, if the key is in each list one time and the texts of the blocks have no words in common", () => {
-    // Rule 1 (the key token is an anchor of the word diff) or rule 2 (a
-    // moved block). The texts have no words in common, thus rule 1 cannot
-    // match a block with a different block. (For texts with words in common,
-    // see `alignBlocks.edge.test.ts`.)
+    // The two blocks are an equal pair: in order (the diff of the keys), or
+    // with a unique key. An equal pair is in the skeleton, or it is a moved
+    // block. (For texts with words in common, see
+    // `alignBlocks.edge.test.ts`.)
     const random = createRandom(53);
     /** A block with one word from a small set, or an image. */
     const make = (random: Random) =>
@@ -178,7 +178,7 @@ describe("alignBlocks: properties", () => {
   });
 
   it("matches a block with one block, also if the texts have nothing in common", () => {
-    // Rule 3: the only blocks, at the same position.
+    // The pair by position: the only blocks.
     expect(sorted(alignBlocks(flat("old"), flat("new")))).toEqual([[0, 0]]);
     // A different shape does not match.
     expect(alignBlocks(flat("old"), flat(image("a.png")))).toEqual([]);

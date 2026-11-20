@@ -2,7 +2,7 @@
 import { describe, expect, it } from "vite-plus/test";
 
 import { createRandom, type Random } from "../testUtil/random.js";
-import { type OverlapText, textOverlaps, wordSize } from "./overlap.js";
+import { textOverlaps, wordSize } from "./overlap.js";
 
 const WORDS = [
   "alpha",
@@ -17,11 +17,10 @@ const WORDS = [
   "!",
 ];
 
-function randomText(random: Random): OverlapText {
-  const text = Array.from({ length: random.int(5) }, () =>
-    random.pick(WORDS),
-  ).join(random.pick([" ", ", ", "\n"]));
-  return { text, key: text };
+function randomText(random: Random): string {
+  return Array.from({ length: random.int(5) }, () => random.pick(WORDS)).join(
+    random.pick([" ", ", ", "\n"]),
+  );
 }
 
 describe("textOverlaps: properties", () => {
@@ -64,14 +63,14 @@ describe("textOverlaps: properties", () => {
     }
   });
 
-  it("gives a text the full overlap with an equal text if its key is in each list one time", () => {
+  it("gives a text the full overlap with an equal text, if the two lists are equal", () => {
     const random = createRandom(62);
     for (let run = 0; run < 200; run++) {
       const a = Array.from({ length: 1 + random.int(5) }, () =>
         randomText(random),
       );
       const index = random.int(a.length);
-      const unique = { text: "unique words here", key: "unique words here" };
+      const unique = "unique words here";
       a[index] = unique;
       const b = [...a];
       expect(textOverlaps(a, b)).toContainEqual({
@@ -83,20 +82,20 @@ describe("textOverlaps: properties", () => {
   });
 
   it("gives no overlaps if a list is empty", () => {
-    expect(textOverlaps([], [{ text: "a", key: "a" }])).toEqual([]);
-    expect(textOverlaps([{ text: "a", key: "a" }], [])).toEqual([]);
+    expect(textOverlaps([], ["a"])).toEqual([]);
+    expect(textOverlaps(["a"], [])).toEqual([]);
   });
 });
 
 describe("wordSize: edge cases", () => {
   it("counts UTF-16 code units of the words, also outside the Basic Multilingual Plane", () => {
     // U+1D400 (a mathematical bold letter) is a letter of two code units.
-    expect(wordSize({ text: "\u{1d400}", key: "k" })).toBe(2);
-    expect(wordSize({ text: "日本 語", key: "k" })).toBe(3);
+    expect(wordSize("\u{1d400}")).toBe(2);
+    expect(wordSize("日本 語")).toBe(3);
   });
 
-  it("gives 1 for a text with only whitespace or punctuation", () => {
-    expect(wordSize({ text: "   ", key: "k" })).toBe(1);
-    expect(wordSize({ text: "-- !", key: "k" })).toBe(1);
+  it("gives 0 for a text with only whitespace or punctuation", () => {
+    expect(wordSize("   ")).toBe(0);
+    expect(wordSize("-- !")).toBe(0);
   });
 });

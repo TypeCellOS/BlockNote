@@ -6,7 +6,7 @@
  * The API of this folder for the other folders: they import only this
  * file. The other files export more only for their unit tests.
  */
-export { anchoredMatch, uniquePairs } from "./anchored.js";
+export { anchoredMatch, heaviestIncreasing, uniquePairs } from "./anchored.js";
 export { gaps, isChanged } from "./gaps.js";
 export { myersMatch } from "./myers.js";
 export { alignText, type ChangeUnit, charKind, type TextUnit } from "./text.js";

@@ -56,10 +56,11 @@ describe("blocks that swap places in the text", () => {
     ]);
   });
 
-  it("KNOWN LIMIT: keep the text, but not the IDs and props, if they are similar and other blocks are between them", () => {
-    // See the README, "Identity". The text of the result is correct (PutGet,
-    // see `write`), but each position keeps its block: the red background
-    // stays at the first position.
+  it("keep their IDs and props, also if they are similar and other blocks are between them", () => {
+    // The two notes share most of their words, but an equal text is a
+    // stronger sign than shared words (see the README, "Identity"). Each
+    // block moves with its ID and its props: the red background is at the
+    // last position.
     const editor = createEditor([
       {
         id: "above",
@@ -74,10 +75,10 @@ describe("blocks that swap places in the text", () => {
     expect(
       write(editor, (text) => swap(text, "Note: see above", "Note: see below")),
     ).toEqual([
-      ["above", "Note: see below", "red"],
+      ["below", "Note: see below", "default"],
       ["x", "a1 b1", "default"],
       ["y", "a2 b2", "default"],
-      ["below", "Note: see above", "default"],
+      ["above", "Note: see above", "red"],
     ]);
   });
 });

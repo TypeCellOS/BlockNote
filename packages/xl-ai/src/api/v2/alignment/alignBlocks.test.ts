@@ -211,7 +211,8 @@ describe("alignBlocks", () => {
 
   it("keeps the changed blocks aligned if a block moves past them", () => {
     // The moved block has an equal text, the other blocks do not. The
-    // changed blocks still match, and the moved block matches by rule 2.
+    // changed pairs weigh more than the equal pair that crosses them. Thus,
+    // they stay in order, and the equal block is a moved block.
     expect(
       align(
         flat("alpha one two three", "beta four five six", "moved item", "end"),
@@ -234,7 +235,9 @@ describe("alignBlocks", () => {
 describe("alignBlocks: blocks with equal text that is not unique", () => {
   it("keeps equal blocks, also if a new block and a removed block share a word", () => {
     // "shared" is in each list one time. The two equal blocks are between
-    // its two blocks. The block at the end changes at its position (rule 3).
+    // its two blocks, and they weigh more: the blocks with "shared" are no
+    // pair. The block at the end changes at its position (the pair by
+    // position).
     expect(
       align(
         flat("Same text", "Same text", "Old shared"),
@@ -324,11 +327,10 @@ describe("alignBlocks: blocks with equal text that is not unique", () => {
     ]);
   });
 
-  it("KNOWN LIMIT: does not keep equal blocks if a changed block moves past them and shares more tokens than they have", () => {
-    // The changed block shares 9 words. The two equal blocks have 8 tokens
-    // (the key, two words and the separator, for each block). The diff
-    // aligns the most tokens, and rule 2 does not match a key that is not
-    // unique.
+  it("keeps equal blocks as moved blocks if a changed block moves past them and weighs more than they do", () => {
+    // The changed pair shares 9 words. It weighs more than the two equal
+    // pairs that it crosses. Thus, it stays in order, and the equal blocks
+    // are moved blocks, also with a text that is not unique.
     expect(
       align(
         flat(
@@ -343,7 +345,66 @@ describe("alignBlocks: blocks with equal text that is not unique", () => {
           "Other",
         ),
       ),
-    ).toEqual([[2, 0]]);
+    ).toEqual([
+      [0, 1],
+      [1, 2],
+      [2, 0],
+    ]);
+  });
+
+  it("keeps a small changed block at the new place of a changed block that moved past heavier equal blocks", () => {
+    // The word diff of all blocks aligns "alpha ..." with its moved version,
+    // and thus not "Note old" with "Note new" (the two pairs cross). The
+    // equal blocks weigh more than the moved pair, which is no pair. The
+    // word diff of the gap after the equal blocks finds the pair of the
+    // notes.
+    expect(
+      align(
+        flat(
+          "alpha one two three four",
+          "Same long text here one",
+          "Same long text here two",
+          "Note old",
+        ),
+        flat(
+          "Same long text here one",
+          "Same long text here two",
+          "Note new",
+          "alpha one two three five",
+        ),
+      ),
+    ).toEqual([
+      [1, 0],
+      [2, 1],
+      [3, 2],
+    ]);
+  });
+
+  it("gives the identity of a changed line to a new line with its old text", () => {
+    // An equal text is a stronger sign than shared words or a position.
+    // Thus, "Same text" at the end is the block (a moved block), and the
+    // changed line "Same w96" is a new block.
+    expect(
+      align(
+        flat("A one two", "Same text", "B three four"),
+        flat("A one two", "Same w96", "B three four", "Same text"),
+      ),
+    ).toEqual([
+      [0, 0],
+      [1, 3],
+      [2, 2],
+    ]);
+  });
+
+  it("matches a block with its equal text, not with an earlier block that shares most of its words", () => {
+    // The equal pair is a candidate before the word diff runs. A word diff
+    // of the two lists gives "hello world" to the first block.
+    expect(
+      align(
+        flat("Hello world nested", "Hello world double nested"),
+        flat("Hello world double nested"),
+      ),
+    ).toEqual([[1, 0]]);
   });
 
   it("keeps the last equal blocks if a block is between the first and the others", () => {

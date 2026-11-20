@@ -42,9 +42,10 @@ function align(a: FlatBlock[], b: FlatBlock[]) {
     .sort((x, y) => x[0] - y[0]);
 }
 
-describe("alignBlocks: the limit of rule 1 (MIN_SHARE = 0.5)", () => {
-  // "zzzz" is before the changed block in `b`. Thus, the changed block is
-  // not at the same position (rule 3), and only rule 1 can match it.
+describe("alignBlocks: the limit of a changed pair (MIN_SHARE = 0.5)", () => {
+  // "zzzz" is before the changed block in `b`. Thus, the gap has two blocks
+  // of `b`: the changed block has no pair by position, and only its shared
+  // words can match it.
   it("matches two blocks at different positions if the overlap is exactly half of the shorter text", () => {
     // 4 of 8 word characters.
     expect(align(flat("abcd efgh"), flat("zzzz", "abcd ijkl"))).toEqual([
@@ -59,22 +60,11 @@ describe("alignBlocks: the limit of rule 1 (MIN_SHARE = 0.5)", () => {
 });
 
 describe("alignBlocks: moved blocks", () => {
-  // KNOWN LIMIT (not fixed, see the README, "Identity"): two blocks that
-  // swap places match by position (rule 1 on a partial overlap), not by
-  // their equal text, if the unchanged blocks between them have more tokens
-  // than each of them, and they share at least half of the shorter text. The text of the result is
-  // correct, but the IDs, props and comments stay at the positions. Through
-  // `updateDocument` (plain text), such a swap of "Hello world" and "world"
-  // gives two content updates, and a background color stays at its old
-  // position. The test shows the wanted result.
-  //
-  // The cause: the two moved blocks cross the unchanged blocks between them.
-  // The diff of the keys keeps the blocks with the most tokens in order: the
-  // two unchanged blocks (see `textOverlaps`). Thus each moved block is in
-  // its own gap with the other block, and its words align with the words of
-  // that block. Rule 1 matches these blocks before rule 2 can match the
-  // equal texts.
-  it.fails("matches two blocks that swap places by their equal text, also if the text of one block is in the other block and two blocks are between them", () => {
+  // Two blocks that swap places match by their equal text, also if they
+  // share at least half of the shorter text and unchanged blocks are between
+  // them. An equal text is a stronger sign than shared words: the equal
+  // pairs are candidates before the word diff runs (see `candidates`).
+  it("matches two blocks that swap places by their equal text, also if the text of one block is in the other block and two blocks are between them", () => {
     expect(
       align(
         flat("Hello world", "Middle one", "Middle two", "world"),
@@ -89,10 +79,9 @@ describe("alignBlocks: moved blocks", () => {
   });
 
   it("matches two blocks that swap places by their equal text, also if the text of one block is in the other block", () => {
-    // One block is between them. The three blocks cross each other, thus
-    // the diff of the keys keeps one of them in order: "Hello world", which
-    // has the most tokens. Its words cannot align with the words of the
-    // other moved block, and rule 2 matches the two other blocks.
+    // One block is between them. The three equal pairs cross each other,
+    // thus the skeleton keeps the heaviest pair in order ("Hello world"). The
+    // two other blocks are moved blocks.
     expect(
       align(
         flat("Hello world", "Middle", "world"),
@@ -119,8 +108,10 @@ describe("alignBlocks: moved blocks", () => {
   });
 
   it("does not keep the identity of an empty paragraph that moved: a different block at its old position gets it", () => {
-    // Rule 2 does not count blocks with empty text. Rule 3 then matches the
-    // empty paragraph with the new block at its old position.
+    // The diff of the keys keeps "three four" in order, and the pair of the
+    // empty paragraphs crosses it. An empty text is not a unique key. Thus,
+    // the empty paragraph of `before` has no equal pair, and it pairs by
+    // position with the new block.
     expect(
       align(
         flat("one two", "", "three four"),
@@ -135,11 +126,11 @@ describe("alignBlocks: moved blocks", () => {
 });
 
 describe("alignBlocks: blocks that swap places", () => {
-  // The identity of swapped blocks follows their text, with one known limit
-  // (the last test, and the it.fails test above).
+  // The identity of swapped blocks follows their text.
 
   it("matches two adjacent blocks with words in common by their text", () => {
-    // One block is an anchor of the diff, and rule 2 matches the other.
+    // The diff of the keys keeps one block in order. The other block has a
+    // unique key: it is a moved block.
     expect(align(flat("Item 1", "Item 2"), flat("Item 2", "Item 1"))).toEqual([
       [0, 1],
       [1, 0],
@@ -205,35 +196,34 @@ describe("alignBlocks: blocks that swap places", () => {
     ]);
   });
 
-  it("KNOWN LIMIT: matches two similar blocks by position if unchanged blocks are between them", () => {
-    // "see above" and "see below" share at least half of the shorter text,
-    // and the unchanged blocks between them are anchors. Thus, each block
-    // matches the block at its position (rule 1): the result is a change of
-    // one word in each block. See the README, "Identity".
+  it("matches two similar blocks that swap places by their equal text, also if unchanged blocks are between them", () => {
+    // "see above" and "see below" share at least half of the shorter text.
+    // The equal pairs are candidates before the word diff runs. Thus, each
+    // block matches its equal text, not the similar block at its position.
     expect(
       align(
         flat("Note: see above", "a1 b1", "a2 b2", "a3 b3", "Note: see below"),
         flat("Note: see below", "a1 b1", "a2 b2", "a3 b3", "Note: see above"),
       ),
     ).toEqual([
-      [0, 0],
+      [0, 4],
       [1, 1],
       [2, 2],
       [3, 3],
-      [4, 4],
+      [4, 0],
     ]);
   });
 });
 describe("alignBlocks: other edge cases", () => {
-  it("matches a table and a paragraph with the same words by rule 1: rule 1 does not compare the shape", () => {
+  it("matches a table and a paragraph with the same words: a changed pair does not compare the shape", () => {
     // The target stage then replaces the shape (warning `block-shape-replaced`).
     expect(align(flat(table("cell")), flat("other", "cell"))).toEqual([[0, 1]]);
-    // Rule 3 compares the shape.
+    // The pair by position compares the shape.
     expect(align(flat(table("cell")), flat("text"))).toEqual([]);
   });
 
   it("matches blocks with only punctuation by their key", () => {
-    // A text without words is only its key token, with the size 1.
+    // A text without words shares no words. Its equal pair has the weight 1.
     expect(align(flat("one", "---", "two"), flat("two", "---", "one"))).toEqual(
       [
         [0, 2],
@@ -250,20 +240,21 @@ describe("alignBlocks: other edge cases", () => {
     ]);
   });
 
-  it("does not compare letter case for rule 1", () => {
+  it("does not compare letter case for a changed pair", () => {
     expect(align(flat("Hello World"), flat("new", "hello world"))).toEqual([
       [0, 1],
     ]);
   });
 
-  it("does not keep the identity of a changed block if the blocks around it swap places", () => {
-    // The anchors "x" and "y" cross. The longest increasing subsequence
-    // keeps one of them ("y"). Relative to "y", the changed block moved.
-    // A block that moved and changed has no match (see the README).
+  it("keeps the identity of a changed block if the blocks around it swap places", () => {
+    // The changed pair crosses the equal pairs of "x" and of "y", and it
+    // weighs more than each of them. Thus, it is the skeleton, and "x" and
+    // "y" are moved blocks.
     expect(
       align(flat("x", "Hello World", "y"), flat("y", "hello world", "x")),
     ).toEqual([
       [0, 2],
+      [1, 1],
       [2, 0],
     ]);
   });

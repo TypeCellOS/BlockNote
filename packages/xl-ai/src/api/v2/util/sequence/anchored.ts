@@ -113,14 +113,12 @@ export function uniquePairs(
  * subsequence that ends before a `bIndex`. The time is O(n log bLength).
  * `anchored.property.test.ts` has the simple version (it compares each pair
  * with each pair before it).
- *
- * @internal
  */
-export function heaviestIncreasing(
-  pairs: readonly MatchedPair[],
-  weightOf: (pair: MatchedPair) => number,
+export function heaviestIncreasing<Pair extends MatchedPair>(
+  pairs: readonly Pair[],
+  weightOf: (pair: Pair) => number,
   bLength: number,
-): MatchedPair[] {
+): Pair[] {
   /** The sum of weights of the best subsequence that ends at each pair. */
   const sums = new Array<number>(pairs.length).fill(0);
   /** The pair before each pair in that subsequence, or -1. */
@@ -155,7 +153,7 @@ export function heaviestIncreasing(
     last = better(last, index);
   });
 
-  const result: MatchedPair[] = [];
+  const result: Pair[] = [];
   for (let index = last; index !== -1; index = previous[index]) {
     result.push(pairs[index]);
   }
