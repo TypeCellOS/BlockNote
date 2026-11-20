@@ -274,7 +274,10 @@ export const GenericPopover = (
     // should be open. So without this fix, the popover just won't transition
     // out and will instead appear to hide instantly.
     return (
-      <FloatingPortal root={portalElement}>
+      <FloatingPortal
+        root={portalElement}
+        preserveTabOrder={!props.focusManagerProps?.disabled}
+      >
         <div ref={mergedRefs} {...mergedProps} />
       </FloatingPortal>
     );
@@ -290,7 +293,10 @@ export const GenericPopover = (
   // `tests/src/end-to-end/portals/floatingComponentMenus.test.tsx`.
   if (!props.focusManagerProps?.disabled) {
     return (
-      <FloatingPortal root={portalElement}>
+      <FloatingPortal
+        root={portalElement}
+        preserveTabOrder={!props.focusManagerProps?.disabled}
+      >
         <FloatingFocusManager {...props.focusManagerProps} context={context}>
           <div ref={mergedRefs} {...mergedProps}>
             <PortalElementAnchor>{props.children}</PortalElementAnchor>
@@ -301,7 +307,12 @@ export const GenericPopover = (
   }
 
   return (
-    <FloatingPortal root={portalElement}>
+    <FloatingPortal
+      root={portalElement}
+      // Without a focus manager there are no focus guards to restore tab stops
+      // when returning to the portal, so leave its native tab order intact.
+      preserveTabOrder={false}
+    >
       <div ref={mergedRefs} {...mergedProps}>
         <PortalElementAnchor>{props.children}</PortalElementAnchor>
       </div>
