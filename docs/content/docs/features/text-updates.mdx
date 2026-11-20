@@ -186,9 +186,8 @@ Read and write with the functions of one row. The two rows read the document in 
 
 The differences:
 
-- **Undo.** A write with `updateDocument` is a change of the user of that editor, and the undo of the editor reverts it. A write that changes more than one place is more than one undo step. A write with `updateYDoc` is a change of another client: the undo of an editor does not revert it.
+- **Undo.** A write with `updateDocument` is a change of the user of that editor, and one undo of the editor reverts it. A write with `updateYDoc` is a change of another client: the undo of an editor does not revert it.
 - **The editor.** `updateDocument` needs the mounted editor of the user. For `updateYDoc`, the editor gives only the schema and the conversions: it is not bound to the Y.Doc, and it needs no view. Thus, `updateYDoc` also runs on a server.
-- **All or nothing.** A write with `updateYDoc` applies fully, or not at all. A write with `updateDocument` to a bound editor is more than one transaction. If an error occurs in the middle, the first part stays.
 - **Suggestions and version comparisons.** Do not use `updateDocument` while the editor shows suggested changes or a comparison of two versions. The editor then also contains the removed text, with a mark, and the write reads that text as content. `updateYDoc` reads the Y.Doc, thus it gets the document without these marks.
 
 ### Write to the Y.Doc
