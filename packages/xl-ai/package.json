@@ -80,7 +80,7 @@
       "default": "./dist/text-lens.js"
     },
     "./text-lens/yjs": {
-      "types": "./types/src/api/v2/yjs/index.d.ts",
+      "types": "./types/src/api/v2/y/index.d.ts",
       "import": "./dist/text-lens-yjs.js",
       "default": "./dist/text-lens-yjs.js"
     }

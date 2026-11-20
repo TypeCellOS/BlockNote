@@ -28,7 +28,7 @@ import {
   replaceOnce,
   richDocument,
 } from "../testUtil/fixtures.js";
-import { bindEditor, readText, unbindEditor } from "../testUtil/yjs.js";
+import { bindEditor, readText, unbindEditor } from "../testUtil/y.js";
 import { updateYDoc } from "./yDocText.js";
 import {
   experimental_updateYDocWithYjsMerge,

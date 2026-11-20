@@ -19,8 +19,8 @@ import { diffDocuments } from "../operations/diffDocuments.js";
 import { projectDocument } from "../projection/projectDocument.js";
 import { targetFromPairs } from "../target/targetFromPairs.js";
 import { richDocument } from "../testUtil/fixtures.js";
-import { bindEditor, unbindEditor } from "../testUtil/yjs.js";
-import { updateYDocWithMerge } from "../yjs/index.js";
+import { bindEditor, unbindEditor } from "../testUtil/y.js";
+import { updateYDocWithMerge } from "../y/index.js";
 
 /**
  * Benchmarks for large documents. The normal test run does not run them. Run

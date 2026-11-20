@@ -1,9 +1,9 @@
 /**
  * The public API of the text lens (`@blocknote/xl-ai/text-lens`). Other
  * modules export more, for their unit tests. Only the exports of this file
- * (and of `yjs/index.ts`) are public.
+ * (and of `y/index.ts`) are public.
  *
- * The API for a Y.Doc is in `yjs/index.ts` (`@blocknote/xl-ai/text-lens/yjs`),
+ * The API for a Y.Doc is in `y/index.ts` (`@blocknote/xl-ai/text-lens/yjs`),
  * a separate entry point. Thus, code without Yjs does not load Yjs.
  */
 export {

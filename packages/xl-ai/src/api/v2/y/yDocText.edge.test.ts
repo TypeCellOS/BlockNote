@@ -3,7 +3,7 @@ import { blocksToYDoc, yDocToBlocks } from "@blocknote/core/yjs";
 import { describe, expect, it } from "vite-plus/test";
 import * as Y from "yjs";
 
-import { bindEditor, unbindEditor } from "../testUtil/yjs.js";
+import { bindEditor, unbindEditor } from "../testUtil/y.js";
 import { updateYDoc } from "./yDocText.js";
 import { updateYDocWithMerge } from "./yDocTextWithMerge.js";
 

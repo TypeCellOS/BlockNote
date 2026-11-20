@@ -19,7 +19,7 @@ const devAliases: Record<string, string> = {
   // Thus, these aliases come before the alias of `@blocknote/xl-ai`.
   "@blocknote/xl-ai/text-lens/yjs": resolve(
     __dirname,
-    "../packages/xl-ai/src/api/v2/yjs/index.ts",
+    "../packages/xl-ai/src/api/v2/y/index.ts",
   ),
   "@blocknote/xl-ai/text-lens": resolve(
     __dirname,
