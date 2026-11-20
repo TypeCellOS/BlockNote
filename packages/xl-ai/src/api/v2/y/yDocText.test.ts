@@ -1363,11 +1363,11 @@ function writeWhileOtherTypes(
   ]);
 }
 
-// The write makes one difference of the document before and after it. The
-// first four cases fail if that difference pairs the changed blocks of a
-// list by their type, as `docDiffToDelta` of core does: then the text that
-// the other replica typed goes into a different block. Thus, the difference
-// of the lens pairs blocks by their ID (`differenceOf`).
+// The write makes one difference of the document before and after it
+// (`docDiffToDelta` of core). The first four cases fail if that difference
+// pairs the changed blocks of a list by their type, and not by their block
+// ID: then the text that the other replica typed goes into a different
+// block.
 describe("a write to a Y.Doc while another replica types", () => {
   const paragraph = (id: string, content: string): PartialBlock => ({
     id,

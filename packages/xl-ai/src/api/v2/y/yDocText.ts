@@ -2,14 +2,13 @@ import type { Block, BlockNoteEditor } from "@blocknote/core";
 import {
   blockNoteTransformer,
   blocksToYType,
+  docDiffToDelta,
   findTypeInOtherYdoc,
   yfragmentToBlocks,
 } from "@blocknote/core/y";
-import { $prosemirrorDelta, deltaToPNode, nodeToDelta } from "@y/prosemirror";
+import { $prosemirrorDelta, deltaToPNode } from "@y/prosemirror";
 import * as Y from "@y/y";
 import * as delta from "lib0/delta";
-import type * as schema from "lib0/schema";
-import type { Node } from "prosemirror-model";
 import { EditorState } from "prosemirror-state";
 
 import {
@@ -240,7 +239,9 @@ function fillFragment(
  * them.
  *
  * The change is the difference of the document before and after the
- * operations (see `differenceOf`).
+ * operations: `docDiffToDelta` of core, which pairs two blocks only if they
+ * have the same block ID. Thus, one difference for a write is correct, also
+ * with an insert or a removal next to a changed block.
  */
 function changeFragment(
   editor: BlockNoteEditor<any, any, any>,
@@ -263,64 +264,10 @@ function changeFragment(
   // block that the fill of the schema adds gets its ID in the apply).
   const tr = EditorState.create({ doc }).tr;
   applyOperations(tr, operations);
-  const change = pipeline.applyB(delta.cloneDeep(differenceOf(doc, tr.doc))).a;
+  const change = pipeline.applyB(
+    delta.cloneDeep(docDiffToDelta(doc, tr.doc)),
+  ).a;
   if (change !== null) {
     fragment.applyDelta(change);
   }
-}
-
-/** A node of a ProseMirror document, as a delta. */
-type DocumentDelta = schema.Unwrap<typeof $prosemirrorDelta>;
-
-/**
- * The difference of two ProseMirror documents, as a delta.
- *
- * The difference changes an old node into a new node in place only if the
- * two are the same node (see `isSameNode`). `docDiffToDelta` of core pairs
- * the changed nodes of a list by their type, not by their block ID. Then,
- * with an insert or a removal next to a changed block, a block of the Y.Doc
- * gets the content of a different block, and a change of another writer goes
- * into the wrong block (see the tests "a write to a Y.Doc while another
- * replica types").
- */
-function differenceOf(previous: Node, next: Node) {
-  return delta.diff(nodeToDelta(previous).done(), nodeToDelta(next).done(), {
-    compare: isSameNode,
-  });
-}
-
-/**
- * Returns true if the old node `a` and the new node `b` are the same node:
- * they have the same node type and the same block ID (a node that is not a
- * block has no ID). A block container must also have the same type of
- * content. This is the rule of `blockMatchNodes` of core: a block with a new
- * type replaces the old block, because a change in place can give a block
- * with two contents if two writers change the type at the same time.
- */
-function isSameNode(a: DocumentDelta, b: DocumentDelta): boolean {
-  return (
-    a.name === b.name &&
-    blockIdOf(a) === blockIdOf(b) &&
-    (a.name !== "blockContainer" || contentTypeOf(a) === contentTypeOf(b))
-  );
-}
-
-/** The block ID of a node, or `undefined` for a node without an ID. */
-function blockIdOf(node: DocumentDelta): unknown {
-  const id: unknown = node.attrs.id;
-  return delta.$setAttrOp.check(id) ? id.value : undefined;
-}
-
-/** The node type of the content of a block container, for example "paragraph". */
-function contentTypeOf(container: DocumentDelta): string | null | undefined {
-  for (const op of container.children) {
-    if (delta.$insertOp.check(op)) {
-      for (const item of op.insert) {
-        if (delta.$deltaAny.check(item)) {
-          return item.name;
-        }
-      }
-    }
-  }
-  return undefined;
 }
