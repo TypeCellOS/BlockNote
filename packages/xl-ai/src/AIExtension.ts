@@ -17,6 +17,7 @@ import { UIMessage } from "ai";
 import { Fragment, Slice } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { fixTablesKey } from "prosemirror-tables";
+import type { Transform } from "prosemirror-transform";
 import { buildAIRequest, sendMessageWithAIRequest } from "./api/index.js";
 import { createAgentCursorPlugin } from "./plugins/AgentCursorPlugin.js";
 import { AIRequestHelpers, InvokeAIOptions } from "./types.js";
@@ -43,6 +44,59 @@ type AIPluginState = {
     | "closed";
 };
 
+export type AIAcceptanceContext = {
+  /**
+   * A transform whose document contains the accepted suggestions. Append
+   * document steps here, such as adding marks, to commit them with the changes.
+   */
+  readonly transform: Transform;
+  /**
+   * Text in accepted insertion suggestions, in the transform's document
+   * before any steps are added by the callback.
+   */
+  readonly insertedTextRanges: ReadonlyArray<
+    Readonly<{ from: number; to: number }>
+  >;
+};
+
+function getInsertedTextRanges(transform: Transform) {
+  const insertion = transform.before.type.schema.marks.insertion;
+  const ranges: { from: number; to: number }[] = [];
+
+  transform.before.descendants((node, pos) => {
+    if (!node.isText) {
+      return;
+    }
+
+    if (!insertion.isInSet(node.marks)) {
+      // A tool can mark an entire block as inserted instead of its text.
+      const $pos = transform.before.resolve(pos);
+      let depth = $pos.depth;
+      while (depth > 0 && !insertion.isInSet($pos.node(depth).marks)) {
+        depth--;
+      }
+      if (depth === 0) {
+        return;
+      }
+    }
+
+    const from = transform.mapping.map(pos, 1);
+    const to = transform.mapping.map(pos + node.nodeSize, -1);
+    if (from >= to) {
+      return;
+    }
+
+    const previous = ranges.at(-1);
+    if (previous?.to === from) {
+      previous.to = to;
+    } else {
+      ranges.push({ from, to });
+    }
+  });
+
+  return ranges;
+}
+
 const PLUGIN_KEY = new PluginKey(`blocknote-ai-plugin`);
 
 export const AIExtension = createExtension(
@@ -57,6 +111,11 @@ export const AIExtension = createExtension(
          * @default { name: "AI", color: "#8bc6ff" }
          */
         agentCursor?: { name: string; color: string };
+        /**
+         * Synchronously inspect or extend the accepted changes before they are
+         * committed to the editor and merged into the live collaborative document.
+         */
+        onBeforeAcceptChanges?: (context: AIAcceptanceContext) => undefined;
       })
     | undefined
   >) => {
@@ -189,7 +248,8 @@ export const AIExtension = createExtension(
         // This causes the undo history to skip `B` and go straight from `C` back to `A`
 
         // Capture the document state `C'` (post-LLM call with all suggestions still in the document)
-        const markedUpDocument = editor.prosemirrorState.doc;
+        const { doc: markedUpDocument, selection: markedUpSelection } =
+          editor.prosemirrorState;
 
         // revert the suggestions to get back to the original document state `A`
         editor.exec((state, dispatch) => {
@@ -208,15 +268,31 @@ export const AIExtension = createExtension(
           );
           const nextState = state.apply(tr);
           // Apply the suggestions to the intermediate state `B` to get the final state `C`
-          return applySuggestions(nextState, (resultTr) => {
+          let acceptedSlice: Slice | undefined;
+          try {
+            applySuggestions(nextState, (resultTr) => {
+              editorOptions?.onBeforeAcceptChanges?.({
+                transform: resultTr,
+                insertedTextRanges: getInsertedTextRanges(resultTr),
+              });
+              acceptedSlice = new Slice(Fragment.from(resultTr.doc), 0, 0);
+            });
+          } catch (error) {
+            // The live state is A. Dispatch the pending A → B replacement
+            // without adding an undo entry so the same review can be retried.
             dispatch?.(
-              tr.replace(
-                0,
-                tr.doc.content.size,
-                new Slice(Fragment.from(resultTr.doc), 0, 0),
-              ),
+              tr
+                .setSelection(markedUpSelection.getBookmark().resolve(tr.doc))
+                .setMeta("addToHistory", false),
             );
-          });
+            throw error;
+          }
+
+          if (!acceptedSlice) {
+            return false;
+          }
+          dispatch?.(tr.replace(0, tr.doc.content.size, acceptedSlice));
+          return true;
         });
 
         // If in collaboration mode, merge the changes back into the original yDoc
