@@ -227,7 +227,7 @@
   --bn-combobox-radius: var(--bn-radius-medium);
   --bn-combobox-shadow: var(--bn-shadow-default);
   --bn-combobox-color: var(--bn-text-color-menu);
-  --bn-combobox-error-color: var(--bn-error-background);
+  --bn-combobox-error-color: var(--bn-error-color);
   --bn-quote-border-color: var(--bn-border-color-strong);
   --bn-quote-color: var(--bn-text-color-secondary);
   --bn-divider-border-color: var(--bn-border-color-strong);

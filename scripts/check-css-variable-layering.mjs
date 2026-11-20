@@ -186,6 +186,7 @@ export function checkCSS(source, file, variables) {
 export function checkScript(source, file, variables) {
   const ast = parseScript(source, file);
   const errors = [];
+  const themeTemplates = new WeakSet();
   // Inspect static string leaves, irrespective of the styling API. This covers
   // style objects, JSX attributes, setProperty, CSS templates and helper calls.
   // No data flow is needed when the string is assigned to an alias first.
@@ -196,6 +197,9 @@ export function checkScript(source, file, variables) {
       }
       const property = parent.key.name ?? parent.key.value;
       if (variables.theme.has(property)) {
+        if (node.type === "TemplateLiteral") {
+          themeTemplates.add(node);
+        }
         return;
       }
     }
@@ -206,6 +210,14 @@ export function checkScript(source, file, variables) {
       parent.arguments[1] === node &&
       variables.theme.has(parent.arguments[0]?.value)
     ) {
+      if (node.type === "TemplateLiteral") {
+        themeTemplates.add(node);
+      }
+      return;
+    }
+    // Authorize the template's text, but still inspect interpolated expressions
+    // for component styles defined inside them.
+    if (node.type === "TemplateElement" && themeTemplates.has(parent)) {
       return;
     }
     let value;

@@ -44,7 +44,7 @@ export function applyBlockNoteCSSVariablesFromTheme(
     applyVariables(elements, editorDOM, properties);
   }
   appliedVariables.set(editorDOM, properties);
-  return properties;
+  return [...properties];
 }
 
 export function removeBlockNoteCSSVariables(editorDOM: HTMLElement) {

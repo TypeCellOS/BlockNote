@@ -1236,7 +1236,7 @@ serialized/static output, where the wrapper is a real, painted box.
   background-color: color-mix(
     in srgb,
     var(--user-color-light) 25%,
-    var(--bn-suggestion-surface, #1f1f1f)
+    var(--bn-suggestion-surface, var(--bn-suggestion-background, #1f1f1f))
   );
   color: white;
 }
