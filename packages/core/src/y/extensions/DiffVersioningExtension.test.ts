@@ -30,10 +30,12 @@ function createDiffEditor() {
  * Build a `Block[]` fixture from a plain paragraph string using a throwaway
  * editor, mirroring the `mkSnap` pattern in `inMemoryVersioning.test.ts`.
  */
-function blocksFromText(text: string): Block<any, any, any>[] {
+function blocksFromText(text: string, id = "block"): Block<any, any, any>[] {
   const e = BlockNoteEditor.create();
   e.mount(document.createElement("div"));
-  e.replaceBlocks(e.document, [{ type: "paragraph", content: text }]);
+  // The two versions of a diff are versions of one document: a block keeps
+  // its ID. Thus, the block has a fixed ID by default.
+  e.replaceBlocks(e.document, [{ id, type: "paragraph", content: text }]);
   const blocks = e.document;
   e.unmount();
   return blocks;
@@ -138,6 +140,26 @@ describe("DiffVersioningExtension", () => {
       .map((t) => t.text)
       .join("");
     expect(unchanged).toContain("brown fox");
+  });
+
+  it("shows a block with a different ID as a deleted block and an inserted block", () => {
+    // The diff pairs blocks by their ID: these are two blocks, also with
+    // text in common.
+    const baseline = blocksFromText("the quick brown fox", "old");
+    const target = blocksFromText("the slow brown fox jumps", "new");
+
+    const diff = editor.getExtension(DiffVersioningExtension)!;
+    diff.renderDiff(target, baseline);
+
+    const attributed = collectAttributedText(editor);
+    const textWith = (mark: string) =>
+      attributed
+        .filter((t) => t.marks.some(([n]) => n === mark))
+        .map((t) => t.text)
+        .join("");
+    expect(textWith("y-attributed-delete")).toBe("the quick brown fox");
+    expect(textWith("y-attributed-insert")).toBe("the slow brown fox jumps");
+    expect(attributed.filter((t) => t.marks.length === 0)).toEqual([]);
   });
 
   it("attributes every change to one synthetic author (userIds on the marks)", () => {

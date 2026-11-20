@@ -1,9 +1,10 @@
 import { Block, docToBlocks } from "../index.js";
 import { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
 import { afterEach, describe, expect, it } from "vite-plus/test";
-import { docToDelta } from "@y/prosemirror";
+import { deltaToPSteps, docToDelta } from "@y/prosemirror";
 import type { Node } from "prosemirror-model";
 import { EditorState } from "prosemirror-state";
+import { ReplaceStep } from "prosemirror-transform";
 import * as Y from "@y/y";
 import { AttributionExtension } from "./extensions/AttributionExtension.js";
 import {
@@ -1305,5 +1306,112 @@ describe("yNodeToTransaction", () => {
     expect(
       tr.doc.eq(yNodeToTransaction(state.tr, second.node, second).doc),
     ).toBe(true);
+  });
+});
+
+describe("docDiffToDelta", () => {
+  const editor = BlockNoteEditor.create();
+
+  function paragraphs(...blocks: [id: string, text: string][]) {
+    return _blocksToProsemirrorNode(
+      editor,
+      blocks.map(([id, text]) => ({ id, type: "paragraph", content: text })),
+    );
+  }
+
+  /**
+   * The IDs of the blocks that the diff inserts and removes, when its steps
+   * apply to `before`.
+   */
+  function insertedAndRemoved(before: Node, after: Node) {
+    const tr = EditorState.create({ doc: before }).tr;
+    deltaToPSteps(tr, docDiffToDelta(before, after));
+    expect(tr.doc.eq(after)).toBe(true);
+    const inserted: string[] = [];
+    const removed: string[] = [];
+    tr.steps.forEach((step, index) => {
+      if (!(step instanceof ReplaceStep)) {
+        return;
+      }
+      step.slice.content.descendants((node) => {
+        if (node.type.name === "blockContainer") {
+          inserted.push(node.attrs.id);
+        }
+      });
+      tr.docs[index].nodesBetween(step.from, step.to, (node, pos) => {
+        if (
+          node.type.name === "blockContainer" &&
+          pos >= step.from &&
+          pos + node.nodeSize <= step.to
+        ) {
+          removed.push(node.attrs.id);
+        }
+      });
+    });
+    return { inserted, removed };
+  }
+
+  it("changes a block in place, and inserts the new block before it", () => {
+    // Without the block ID, the diff pairs "b" with the new paragraph before
+    // it: it rewrites "b" into "new", and inserts "b" again.
+    expect(
+      insertedAndRemoved(
+        paragraphs(["a", "Alpha"], ["b", "Beta"], ["c", "Gamma"]),
+        paragraphs(
+          ["a", "Alpha"],
+          ["new", "New"],
+          ["b", "Changed Beta"],
+          ["c", "Gamma"],
+        ),
+      ),
+    ).toEqual({ inserted: ["new"], removed: [] });
+  });
+
+  it("changes a block in place, and removes the block before it", () => {
+    // Without the block ID, the diff rewrites "a" into "b", and removes "b".
+    expect(
+      insertedAndRemoved(
+        paragraphs(["a", "Alpha"], ["b", "Beta"], ["c", "Gamma"]),
+        paragraphs(["b", "Changed Beta"], ["c", "Gamma"]),
+      ),
+    ).toEqual({ inserted: [], removed: ["a"] });
+  });
+
+  it("replaces a block with a different ID and a different text", () => {
+    expect(
+      insertedAndRemoved(
+        paragraphs(["a", "Alpha"], ["b", "Beta"]),
+        paragraphs(["a", "Alpha"], ["other", "Other"]),
+      ),
+    ).toEqual({ inserted: ["other"], removed: ["b"] });
+  });
+
+  it("changes the ID of a block in place, if the ID is its only change", () => {
+    expect(
+      insertedAndRemoved(
+        paragraphs(["a", "Alpha"], ["b", "Beta"]),
+        paragraphs(["a", "Alpha"], ["other", "Beta"]),
+      ),
+    ).toEqual({ inserted: [], removed: [] });
+  });
+
+  it("changes the ID of a block in place, also if the blocks in it are different", () => {
+    // The compare uses the content of the block, without the blocks in it.
+    // The diff then goes into the block, and pairs its child blocks.
+    const withChild = (id: string, childId: string, childText: string) =>
+      _blocksToProsemirrorNode(editor, [
+        {
+          id,
+          type: "paragraph",
+          content: "Parent",
+          children: [{ id: childId, type: "paragraph", content: childText }],
+        },
+      ]);
+    expect(
+      insertedAndRemoved(
+        withChild("p", "x", "Child"),
+        withChild("other", "y", "Other child"),
+      ),
+    ).toEqual({ inserted: ["y"], removed: ["x"] });
   });
 });
