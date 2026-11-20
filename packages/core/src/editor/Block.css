@@ -43,27 +43,19 @@ BASIC STYLES
   position: absolute;
   inset: 0;
   border-radius: 4px;
-  background-color: rgb(100 160 255 / 0.08);
-  background-color: color-mix(
-    in srgb,
-    var(--bn-block-selection-accent-color, rgb(100, 160, 255)) 8%,
-    transparent
+  background-color: var(
+    --bn-block-selection-background,
+    rgb(100 160 255 / 0.08)
   );
-  box-shadow: inset 0 0 0 4px rgb(100 160 255 / 0.3);
   box-shadow: inset 0 0 0 4px
-    color-mix(
-      in srgb,
-      var(--bn-block-selection-accent-color, rgb(100, 160, 255)) 30%,
-      transparent
-    );
+    var(--bn-block-selection-border-color, rgb(100 160 255 / 0.3));
   pointer-events: none;
 }
 
 .bn-inline-content .ProseMirror-selectednode::after {
-  background-color: color-mix(
-    in srgb,
-    var(--bn-block-selection-accent-color, rgb(100, 160, 255)) 30%,
-    transparent
+  background-color: var(
+    --bn-inline-selection-background,
+    rgb(100 160 255 / 0.3)
   );
   box-shadow: none;
 }
@@ -1184,19 +1176,11 @@ managed by the multi-column package's column resize plugin. */
 }
 
 .bn-thread-mark:not([data-orphan="true"]) {
-  background: color-mix(
-    in srgb,
-    var(--bn-thread-mark-color, rgb(255, 200, 0)) 15%,
-    transparent
-  );
+  background: var(--bn-thread-mark-background, rgb(255 200 0 / 0.15));
 }
 
 .bn-thread-mark .bn-thread-mark-selected {
-  background: color-mix(
-    in srgb,
-    var(--bn-thread-mark-color, rgb(255, 200, 0)) 25%,
-    transparent
-  );
+  background: var(--bn-thread-mark-selected-background, rgb(255 200 0 / 0.25));
 }
 
 div[data-type="modification"] {
@@ -1431,29 +1415,17 @@ counts as one too: its source sits in a hidden popup, so its text marks don't sh
 .bn-block-content:not(.bn-suggestion-node *)
   .bn-preview-with-source-popup:has(.bn-source-block-popup .bn-suggestion-mark)
   .bn-preview-container {
-  background-color: color-mix(
-    in srgb,
-    var(--bn-suggestion-success-background, #c9efe9) 50%,
-    var(--bn-suggestion-background, white)
-  );
+  background-color: var(--bn-suggestion-preview-background, rgb(228 247 244));
   border-radius: 6px;
   box-shadow: 0 0 0 1px
-    color-mix(
-      in srgb,
-      var(--bn-suggestion-success-color, #0f6e62) 25%,
-      transparent
-    );
+    var(--bn-suggestion-preview-border-color, rgb(15 110 98 / 0.25));
 }
 
 .dark.bn-root
   .bn-block-content:not(.bn-suggestion-node *)
   .bn-preview-with-source-popup:has(.bn-source-block-popup .bn-suggestion-mark)
   .bn-preview-container {
-  background-color: color-mix(
-    in srgb,
-    var(--bn-suggestion-success-background, #c9efe9) 25%,
-    var(--bn-suggestion-background, #1f1f1f)
-  );
+  background-color: var(--bn-suggestion-preview-background, rgb(73.5 83 81.5));
 }
 
 /*

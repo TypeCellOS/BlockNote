@@ -108,11 +108,14 @@ export type Theme = Partial<{
     suggestion: Partial<{
       background: string;
       color: string;
-      successBackground: string;
-      successColor: string;
+    }>;
+    suggestionPreview: Partial<{
+      background: string;
+      borderColor: string;
     }>;
     threadMark: Partial<{
-      color: string;
+      background: string;
+      selectedBackground: string;
     }>;
     filePlaceholder: Partial<{
       background: string;
@@ -137,8 +140,12 @@ export type Theme = Partial<{
     toggleAddButton: Partial<{
       color: string;
     }>;
+    inlineSelection: Partial<{
+      background: string;
+    }>;
     blockSelection: Partial<{
-      accentColor: string;
+      background: string;
+      borderColor: string;
     }>;
     sourceError: Partial<{
       color: string;

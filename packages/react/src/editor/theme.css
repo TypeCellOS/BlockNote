@@ -259,7 +259,21 @@
   --bn-editor-color: var(--bn-text-color-primary);
   --bn-editor-indent-guide-color: var(--bn-border-color-strong);
   --bn-editor-placeholder-color: var(--bn-text-color-muted);
-  --bn-block-selection-accent-color: var(--bn-accent-color);
+  --bn-block-selection-background: color-mix(
+    in srgb,
+    var(--bn-accent-color) 8%,
+    transparent
+  );
+  --bn-block-selection-border-color: color-mix(
+    in srgb,
+    var(--bn-accent-color) 30%,
+    transparent
+  );
+  --bn-inline-selection-background: color-mix(
+    in srgb,
+    var(--bn-accent-color) 30%,
+    transparent
+  );
   --bn-toggle-button-color: var(--bn-text-color-primary);
   --bn-toggle-add-button-color: var(--bn-text-color-secondary);
   --bn-toggle-control-radius: var(--bn-radius-small);
@@ -283,11 +297,28 @@
   --bn-file-placeholder-background: var(--bn-background-color-muted);
   --bn-file-placeholder-color: var(--bn-text-color-placeholder);
   --bn-file-placeholder-hover-background: var(--bn-background-color-hovered);
-  --bn-thread-mark-color: var(--bn-warning-color);
+  --bn-thread-mark-background: color-mix(
+    in srgb,
+    var(--bn-warning-color) 15%,
+    transparent
+  );
+  --bn-thread-mark-selected-background: color-mix(
+    in srgb,
+    var(--bn-warning-color) 25%,
+    transparent
+  );
   --bn-suggestion-background: var(--bn-background-color-editor);
   --bn-suggestion-color: var(--bn-text-color-primary);
-  --bn-suggestion-success-background: var(--bn-success-background);
-  --bn-suggestion-success-color: var(--bn-success-color);
+  --bn-suggestion-preview-background: color-mix(
+    in srgb,
+    var(--bn-success-background) 50%,
+    var(--bn-background-color-editor)
+  );
+  --bn-suggestion-preview-border-color: color-mix(
+    in srgb,
+    var(--bn-success-color) 25%,
+    transparent
+  );
   --bn-diagram-series-8: var(--bn-text-color-brown);
   --bn-diagram-series-7: var(--bn-text-color-yellow);
   --bn-diagram-series-6: var(--bn-text-color-pink);
@@ -321,4 +352,12 @@
   --bn-emoji-picker-item-focus-ring-color: var(--bn-text-color-menu);
   --bn-emoji-footer-border-color: var(--bn-background-color-hovered);
   --bn-versioning-pagination-color: var(--bn-text-color-menu);
+}
+
+.bn-root[data-color-scheme="dark"] {
+  --bn-suggestion-preview-background: color-mix(
+    in srgb,
+    var(--bn-success-background) 25%,
+    var(--bn-background-color-editor)
+  );
 }
