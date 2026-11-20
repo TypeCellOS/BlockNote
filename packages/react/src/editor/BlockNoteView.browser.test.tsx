@@ -455,9 +455,8 @@ if (!screenReader) {
         placeholder.className = "bn-root";
         placeholder.dataset.colorScheme = theme;
         placeholder.setAttribute("role", "main");
-        placeholder.style.backgroundColor =
-          "var(--bn-colors-editor-background)";
-        placeholder.style.color = "var(--bn-colors-side-menu)";
+        placeholder.style.backgroundColor = "var(--bn-editor-background)";
+        placeholder.style.color = "var(--bn-editor-placeholder-color)";
         placeholder.textContent = "Enter text or type '/' for commands";
         document.body.append(placeholder);
         try {

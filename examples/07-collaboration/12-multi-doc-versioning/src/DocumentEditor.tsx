@@ -25,16 +25,33 @@ import { YHUB_API_URL, YHUB_WS_URL } from "./yhub.js";
 import { HistorySidebar } from "./HistorySidebar.js";
 
 const documentTheme: Theme = {
-  colors: {
-    editor: { text: "var(--text)", background: "var(--bg)" },
-    menu: { text: "var(--text)", background: "var(--bg-elevated)" },
-    tooltip: { text: "var(--text)", background: "var(--bg-inset)" },
-    hovered: { text: "var(--text)", background: "var(--bg-hover)" },
-    selected: { text: "var(--text)", background: "var(--bg-active)" },
-    disabled: { text: "var(--text-subtle)", background: "var(--bg-inset)" },
-    shadow: "var(--border-strong)",
-    border: "var(--border)",
-    sideMenu: "var(--text-muted)",
+  textColor: {
+    primary: "var(--text)",
+    menu: "var(--text)",
+    tooltip: "var(--text)",
+    hovered: "var(--text)",
+    selected: "var(--text)",
+    disabled: "var(--text-subtle)",
+    muted: "var(--text-muted)",
+  },
+  backgroundColor: {
+    editor: "var(--bg)",
+    menu: "var(--bg-elevated)",
+    tooltip: "var(--bg-inset)",
+    hovered: "var(--bg-hover)",
+    selected: "var(--bg-active)",
+    disabled: "var(--bg-inset)",
+  },
+  shadow: {
+    default: "0 4px 12px var(--border-strong)",
+    subtle: "0 2px 6px var(--border)",
+  },
+  border: {
+    color: "var(--border)",
+    colorStrong: "var(--text-muted)",
+  },
+  focusRing: {
+    color: "var(--text-muted)",
   },
 };
 

@@ -1,28 +1,34 @@
 /* Base theme */
 .bn-root[data-theming-css-variables-demo][data-color-scheme] {
-  --bn-colors-editor-text: #222222;
-  --bn-colors-editor-background: #ffeeee;
-  --bn-colors-menu-text: #ffffff;
-  --bn-colors-menu-background: #9b0000;
-  --bn-colors-tooltip-text: #ffffff;
-  --bn-colors-tooltip-background: #b00000;
-  --bn-colors-hovered-text: #ffffff;
-  --bn-colors-hovered-background: #b00000;
-  --bn-colors-selected-text: #ffffff;
-  --bn-colors-selected-background: #c50000;
-  --bn-colors-disabled-text: #9b0000;
-  --bn-colors-disabled-background: #7d0000;
-  --bn-colors-shadow: #640000;
-  --bn-colors-border: #870000;
-  --bn-colors-side-menu: #bababa;
-  --bn-color-highlight-colors: #ffffff;
-  --bn-border-radius: 4px;
-  --bn-font-family: Helvetica Neue, sans-serif;
+  --bn-text-color-primary: #222222;
+  --bn-background-color-editor: #ffeeee;
+  --bn-text-color-menu: #ffffff;
+  --bn-background-color-menu: #9b0000;
+  --bn-text-color-tooltip: #ffffff;
+  --bn-background-color-tooltip: #b00000;
+  --bn-text-color-hovered: #ffffff;
+  --bn-background-color-hovered: #b00000;
+  --bn-text-color-selected: #ffffff;
+  --bn-background-color-selected: #c50000;
+  --bn-text-color-disabled: #9b0000;
+  --bn-background-color-disabled: #7d0000;
+  --bn-shadow-default: 0 4px 12px #640000;
+  --bn-shadow-subtle: 0 2px 6px #870000;
+  --bn-border-color: #870000;
+  --bn-text-color-muted: #bababa;
+  --bn-border-color-strong: #bababa;
+  --bn-focus-ring-color: #bababa;
+  --bn-radius-small: 2px;
+  --bn-radius-medium: 4px;
+  --bn-radius-large: 6px;
+  --bn-font-family-default: Helvetica Neue, sans-serif;
 }
 
 /* Changes for dark mode */
 .bn-root[data-theming-css-variables-demo][data-color-scheme="dark"] {
-  --bn-colors-editor-text: #ffffff;
-  --bn-colors-editor-background: #9b0000;
-  --bn-colors-side-menu: #ffffff;
+  --bn-text-color-primary: #ffffff;
+  --bn-background-color-editor: #9b0000;
+  --bn-text-color-muted: #ffffff;
+  --bn-border-color-strong: #ffffff;
+  --bn-focus-ring-color: #ffffff;
 }

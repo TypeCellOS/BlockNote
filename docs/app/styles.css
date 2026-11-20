@@ -60,7 +60,7 @@ body {
 
 .demo .bn-container:not(.bn-comment-editor) .bn-editor {
   height: 100%;
-  border-radius: var(--bn-border-radius-medium);
+  border-radius: var(--bn-radius-medium);
 }
 
 .demo .bn-editor {

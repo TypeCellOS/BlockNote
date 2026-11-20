@@ -15,10 +15,8 @@ export function scrollAndHighlight(target: Element): void {
   activeHighlight = block.animate?.(
     [
       {
-        backgroundColor:
-          "color-mix(in srgb, var(--bn-colors-highlights-blue-text) 14%, transparent)",
-        boxShadow:
-          "0 0 0 1px color-mix(in srgb, var(--bn-colors-highlights-blue-text) 45%, transparent)",
+        backgroundColor: "var(--bn-scroll-highlight-background)",
+        boxShadow: "0 0 0 1px var(--bn-scroll-highlight-border-color)",
         borderRadius: "4px",
         easing: "ease-out",
       },

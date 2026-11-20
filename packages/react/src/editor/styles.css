@@ -1,4 +1,5 @@
 @import url("@blocknote/core/style.css");
+@import url("./theme.css");
 
 /* Give TipTap's empty content element the contentRef's minimum dimensions so
    native input lands inside it, not beside it (#2142). Leave populated content
@@ -10,101 +11,8 @@
   min-width: inherit;
 }
 
-/* Default theme params */
 .bn-root {
-  --bn-colors-editor-text: oklch(37% 0 0);
-  --bn-colors-editor-background: oklch(100% 0 0);
-  --bn-colors-menu-text: oklch(37% 0 0);
-  --bn-colors-menu-background: oklch(100% 0 0);
-  --bn-colors-tooltip-text: oklch(37% 0 0);
-  --bn-colors-tooltip-background: oklch(95% 0 0);
-  --bn-colors-hovered-text: oklch(37% 0 0);
-  --bn-colors-hovered-background: oklch(95% 0 0);
-  --bn-colors-selected-text: oklch(100% 0 0);
-  --bn-colors-selected-background: oklch(37% 0 0);
-  --bn-colors-disabled-text: oklch(75% 0 0);
-  --bn-colors-disabled-background: oklch(95% 0 0);
-
-  --bn-colors-shadow: oklch(85% 0 0);
-  --bn-colors-border: oklch(95% 0 0);
-  --bn-colors-side-menu: oklch(51.4% 0 0);
-
-  /* Highlight backgrounds target Display P3; narrower displays gamut-map them. */
-  --bn-colors-highlights-gray-text: oklch(51.4% 0 0);
-  --bn-colors-highlights-gray-background: oklch(93% 0 0);
-  --bn-colors-highlights-brown-text: oklch(48.5% 0.06 50);
-  --bn-colors-highlights-brown-background: oklch(93% 0.015 50);
-  --bn-colors-highlights-red-text: oklch(50.5% 0.11 35);
-  --bn-colors-highlights-red-background: oklch(93% 0.04 35);
-  --bn-colors-highlights-orange-text: oklch(50.5% 0.11 65);
-  --bn-colors-highlights-orange-background: oklch(93% 0.04 65);
-  --bn-colors-highlights-yellow-text: oklch(50.5% 0.11 95);
-  --bn-colors-highlights-yellow-background: oklch(93% 0.04 95);
-  --bn-colors-highlights-green-text: oklch(50.5% 0.11 135);
-  --bn-colors-highlights-green-background: oklch(93% 0.04 135);
-  --bn-colors-highlights-blue-text: oklch(50.5% 0.11 235);
-  --bn-colors-highlights-blue-background: oklch(93% 0.04 235);
-  --bn-colors-highlights-purple-text: oklch(50.5% 0.11 300);
-  --bn-colors-highlights-purple-background: oklch(93% 0.04 300);
-  --bn-colors-highlights-pink-text: oklch(50.5% 0.11 345);
-  --bn-colors-highlights-pink-background: oklch(93% 0.04 345);
-
-  --bn-font-family:
-    "Inter", "Inter fallback", "SF Pro Display", -apple-system,
-    BlinkMacSystemFont, "Open Sans", "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
-    "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
-  --bn-border-radius: 6px;
-
-  /* Derived values */
-  --bn-shadow-medium: 0 4px 12px var(--bn-colors-shadow);
-  --bn-shadow-light: 0 2px 6px var(--bn-colors-border);
-  --bn-border: 1px solid var(--bn-colors-border);
-  --bn-border-radius-small: max(var(--bn-border-radius) - 2px, 1px);
-  --bn-border-radius-medium: var(--bn-border-radius);
-  --bn-border-radius-large: max(var(--bn-border-radius) + 2px, 1px);
-}
-
-.bn-root[data-color-scheme="dark"] {
-  --bn-colors-editor-text: oklch(85% 0 0);
-  --bn-colors-editor-background: oklch(24% 0 0);
-  --bn-colors-menu-text: oklch(85% 0 0);
-  --bn-colors-menu-background: oklch(24% 0 0);
-  --bn-colors-tooltip-text: oklch(85% 0 0);
-  --bn-colors-tooltip-background: oklch(20% 0 0);
-  --bn-colors-hovered-text: oklch(85% 0 0);
-  --bn-colors-hovered-background: oklch(20% 0 0);
-  --bn-colors-selected-text: oklch(85% 0 0);
-  --bn-colors-selected-background: oklch(17% 0 0);
-  --bn-colors-disabled-text: oklch(37% 0 0);
-  --bn-colors-disabled-background: oklch(20% 0 0);
-
-  --bn-colors-shadow: oklch(17% 0 0);
-  --bn-colors-border: oklch(20% 0 0);
-  --bn-colors-side-menu: oklch(71.5% 0 0);
-
-  /* Highlight backgrounds target Display P3; narrower displays gamut-map them. */
-  --bn-colors-highlights-gray-text: oklch(71.5% 0 0);
-  --bn-colors-highlights-gray-background: oklch(34% 0 0);
-  --bn-colors-highlights-brown-text: oklch(73% 0.06 50);
-  --bn-colors-highlights-brown-background: oklch(34% 0.035 50);
-  --bn-colors-highlights-red-text: oklch(75% 0.1 35);
-  --bn-colors-highlights-red-background: oklch(34% 0.08 35);
-  --bn-colors-highlights-orange-text: oklch(75% 0.1 65);
-  --bn-colors-highlights-orange-background: oklch(34% 0.08 65);
-  --bn-colors-highlights-yellow-text: oklch(75% 0.1 95);
-  --bn-colors-highlights-yellow-background: oklch(34% 0.08 95);
-  --bn-colors-highlights-green-text: oklch(75% 0.1 135);
-  --bn-colors-highlights-green-background: oklch(34% 0.08 135);
-  --bn-colors-highlights-blue-text: oklch(75% 0.1 235);
-  --bn-colors-highlights-blue-background: oklch(34% 0.08 235);
-  --bn-colors-highlights-purple-text: oklch(75% 0.1 300);
-  --bn-colors-highlights-purple-background: oklch(34% 0.08 300);
-  --bn-colors-highlights-pink-text: oklch(75% 0.1 345);
-  --bn-colors-highlights-pink-background: oklch(34% 0.08 345);
-}
-
-.bn-root {
-  font-family: var(--bn-font-family);
+  font-family: var(--bn-root-font-family);
 }
 
 /* Optional diagram blocks inherit the same theme as the editor and its
@@ -112,34 +20,35 @@
    Low specificity lets applications override any --pele-* variable. Fonts
    are passed to Pele at render time so label measurement matches the editor. */
 :where(.bn-root) {
-  --pele-bg: var(--bn-colors-editor-background);
-  --pele-fg: var(--bn-colors-editor-text);
-  --pele-muted: var(--bn-colors-side-menu);
-  --pele-line: var(--bn-colors-editor-text);
-  --pele-surface: var(--bn-colors-editor-background);
-  --pele-surface-alt: var(--bn-colors-hovered-background);
-  --pele-border: var(--bn-colors-editor-text);
-  --pele-accent: var(--bn-colors-highlights-blue-text);
-  --pele-critical: var(--bn-colors-highlights-red-text);
-  --pele-error: var(--bn-colors-highlights-red-text);
-  --pele-radius: var(--bn-border-radius);
-  --pele-series-1: var(--bn-colors-highlights-blue-text);
-  --pele-series-2: var(--bn-colors-highlights-orange-text);
-  --pele-series-3: var(--bn-colors-highlights-green-text);
-  --pele-series-4: var(--bn-colors-highlights-red-text);
-  --pele-series-5: var(--bn-colors-highlights-purple-text);
-  --pele-series-6: var(--bn-colors-highlights-pink-text);
-  --pele-series-7: var(--bn-colors-highlights-yellow-text);
-  --pele-series-8: var(--bn-colors-highlights-brown-text);
+  --pele-bg: var(--bn-diagram-bg);
+  --pele-fg: var(--bn-diagram-fg);
+  --pele-muted: var(--bn-diagram-muted-color);
+  --pele-line: var(--bn-diagram-line);
+  --pele-surface: var(--bn-diagram-background);
+  --pele-surface-alt: var(--bn-diagram-background-alt);
+  --pele-border: var(--bn-diagram-border);
+  --pele-accent: var(--bn-diagram-accent);
+  --pele-critical: var(--bn-diagram-critical);
+  --pele-error: var(--bn-diagram-error);
+  --pele-radius: var(--bn-diagram-radius);
+  --pele-series-1: var(--bn-diagram-series-1);
+  --pele-series-2: var(--bn-diagram-series-2);
+  --pele-series-3: var(--bn-diagram-series-3);
+  --pele-series-4: var(--bn-diagram-series-4);
+  --pele-series-5: var(--bn-diagram-series-5);
+  --pele-series-6: var(--bn-diagram-series-6);
+  --pele-series-7: var(--bn-diagram-series-7);
+  --pele-series-8: var(--bn-diagram-series-8);
 }
 
 /* Editor body styling */
 
 /* Editor styling */
 .bn-editor {
-  background-color: var(--bn-colors-editor-background);
-  border-radius: var(--bn-border-radius-large);
-  color: var(--bn-colors-editor-text);
+  font-family: var(--bn-editor-font-family);
+  background-color: var(--bn-editor-background);
+  border-radius: var(--bn-editor-radius);
+  color: var(--bn-editor-color);
 }
 
 /* Custom block node view wrapper styling */
@@ -160,19 +69,19 @@
   .bn-block:not(:has(.bn-toggle-wrapper))
   .bn-block-group
   .bn-block-outer:not([data-prev-depth-changed])::before {
-  border-left: 1px solid var(--bn-colors-side-menu);
+  border-left: 1px solid var(--bn-editor-indent-guide-color);
 }
 
 /* Placeholder styling */
 .bn-block-content:has(.ProseMirror-trailingBreak:only-child):after {
-  color: var(--bn-colors-side-menu);
+  color: var(--bn-editor-placeholder-color);
 }
 
 /* Color Icon styling */
 .bn-root .bn-color-icon {
   align-items: center;
-  border: var(--bn-border);
-  border-radius: var(--bn-border-radius-small);
+  border: var(--bn-color-icon-border);
+  border-radius: var(--bn-color-icon-radius);
   display: flex;
   justify-content: center;
 }
@@ -187,109 +96,109 @@
 [data-style-type="textColor"][data-value="gray"],
 [data-text-color="gray"],
 .bn-block:has(> .bn-block-content[data-text-color="gray"]) {
-  color: var(--bn-colors-highlights-gray-text);
+  color: var(--bn-highlight-gray-text);
 }
 
 [data-style-type="textColor"][data-value="brown"],
 [data-text-color="brown"],
 .bn-block:has(> .bn-block-content[data-text-color="brown"]) {
-  color: var(--bn-colors-highlights-brown-text);
+  color: var(--bn-highlight-brown-text);
 }
 
 [data-style-type="textColor"][data-value="red"],
 [data-text-color="red"],
 .bn-block:has(> .bn-block-content[data-text-color="red"]) {
-  color: var(--bn-colors-highlights-red-text);
+  color: var(--bn-highlight-red-text);
 }
 
 [data-style-type="textColor"][data-value="orange"],
 [data-text-color="orange"],
 .bn-block:has(> .bn-block-content[data-text-color="orange"]) {
-  color: var(--bn-colors-highlights-orange-text);
+  color: var(--bn-highlight-orange-text);
 }
 
 [data-style-type="textColor"][data-value="yellow"],
 [data-text-color="yellow"],
 .bn-block:has(> .bn-block-content[data-text-color="yellow"]) {
-  color: var(--bn-colors-highlights-yellow-text);
+  color: var(--bn-highlight-yellow-text);
 }
 
 [data-style-type="textColor"][data-value="green"],
 [data-text-color="green"],
 .bn-block:has(> .bn-block-content[data-text-color="green"]) {
-  color: var(--bn-colors-highlights-green-text);
+  color: var(--bn-highlight-green-text);
 }
 
 [data-style-type="textColor"][data-value="blue"],
 [data-text-color="blue"],
 .bn-block:has(> .bn-block-content[data-text-color="blue"]) {
-  color: var(--bn-colors-highlights-blue-text);
+  color: var(--bn-highlight-blue-text);
 }
 
 [data-style-type="textColor"][data-value="purple"],
 [data-text-color="purple"],
 .bn-block:has(> .bn-block-content[data-text-color="purple"]) {
-  color: var(--bn-colors-highlights-purple-text);
+  color: var(--bn-highlight-purple-text);
 }
 
 [data-style-type="textColor"][data-value="pink"],
 [data-text-color="pink"],
 .bn-block:has(> .bn-block-content[data-text-color="pink"]) {
-  color: var(--bn-colors-highlights-pink-text);
+  color: var(--bn-highlight-pink-text);
 }
 
 [data-style-type="backgroundColor"][data-value="gray"],
 [data-background-color="gray"],
 .bn-block:has(> .bn-block-content[data-background-color="gray"]) {
-  background-color: var(--bn-colors-highlights-gray-background);
+  background-color: var(--bn-highlight-gray-background);
 }
 
 [data-style-type="backgroundColor"][data-value="brown"],
 [data-background-color="brown"],
 .bn-block:has(> .bn-block-content[data-background-color="brown"]) {
-  background-color: var(--bn-colors-highlights-brown-background);
+  background-color: var(--bn-highlight-brown-background);
 }
 
 [data-style-type="backgroundColor"][data-value="red"],
 [data-background-color="red"],
 .bn-block:has(> .bn-block-content[data-background-color="red"]) {
-  background-color: var(--bn-colors-highlights-red-background);
+  background-color: var(--bn-highlight-red-background);
 }
 
 [data-style-type="backgroundColor"][data-value="orange"],
 [data-background-color="orange"],
 .bn-block:has(> .bn-block-content[data-background-color="orange"]) {
-  background-color: var(--bn-colors-highlights-orange-background);
+  background-color: var(--bn-highlight-orange-background);
 }
 
 [data-style-type="backgroundColor"][data-value="yellow"],
 [data-background-color="yellow"],
 .bn-block:has(> .bn-block-content[data-background-color="yellow"]) {
-  background-color: var(--bn-colors-highlights-yellow-background);
+  background-color: var(--bn-highlight-yellow-background);
 }
 
 [data-style-type="backgroundColor"][data-value="green"],
 [data-background-color="green"],
 .bn-block:has(> .bn-block-content[data-background-color="green"]) {
-  background-color: var(--bn-colors-highlights-green-background);
+  background-color: var(--bn-highlight-green-background);
 }
 
 [data-style-type="backgroundColor"][data-value="blue"],
 [data-background-color="blue"],
 .bn-block:has(> .bn-block-content[data-background-color="blue"]) {
-  background-color: var(--bn-colors-highlights-blue-background);
+  background-color: var(--bn-highlight-blue-background);
 }
 
 [data-style-type="backgroundColor"][data-value="purple"],
 [data-background-color="purple"],
 .bn-block:has(> .bn-block-content[data-background-color="purple"]) {
-  background-color: var(--bn-colors-highlights-purple-background);
+  background-color: var(--bn-highlight-purple-background);
 }
 
 [data-style-type="backgroundColor"][data-value="pink"],
 [data-background-color="pink"],
 .bn-block:has(> .bn-block-content[data-background-color="pink"]) {
-  background-color: var(--bn-colors-highlights-pink-background);
+  background-color: var(--bn-highlight-pink-background);
 }
 
 /* Sets base Z-index on UI elements, i.e. elements which use the 
@@ -327,7 +236,7 @@ SideMenuController offsets its position to keep it centered on the line. */
 
 /* Thread sidebar styling */
 .bn-threads-sidebar {
-  border-radius: var(--bn-border-radius-medium);
+  border-radius: var(--bn-threads-sidebar-radius);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -336,10 +245,11 @@ SideMenuController offsets its position to keep it centered on the line. */
 
 .bn-thread-expand-prompt .mantine-Text-root,
 .bn-thread .bn-header-text {
-  color: var(--bn-colors-menu-text);
+  color: var(--bn-thread-color);
 }
 
 .bn-threads-sidebar .bn-thread .bn-editor {
+  font-family: var(--bn-editor-font-family);
   background-color: transparent;
 }
 
@@ -394,12 +304,12 @@ SideMenuController offsets its position to keep it centered on the line. */
   width: fit-content;
   height: min(352px, calc(100dvh - 20px));
   max-height: inherit;
-  background-color: var(--bn-colors-menu-background);
-  border: 1px solid var(--bn-colors-hovered-background);
+  background-color: var(--bn-emoji-picker-background);
+  border: 1px solid var(--bn-emoji-picker-border-color);
   border-radius: 8px;
   overflow: hidden;
   isolation: isolate;
-  font-family: var(--bn-font-family);
+  font-family: var(--bn-emoji-picker-font-family);
 }
 
 .bn-frimousse-picker [frimousse-search] {
@@ -410,8 +320,8 @@ SideMenuController offsets its position to keep it centered on the line. */
   padding: 8px 10px;
   border: none;
   border-radius: 6px;
-  background-color: var(--bn-colors-hovered-background);
-  color: var(--bn-colors-hovered-text);
+  background-color: var(--bn-emoji-search-background);
+  color: var(--bn-emoji-search-color);
   font-size: 14px;
   outline: none;
 }
@@ -428,7 +338,7 @@ SideMenuController offsets its position to keep it centered on the line. */
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--bn-colors-menu-text);
+  color: var(--bn-emoji-picker-color);
   font-size: 14px;
 }
 
@@ -441,8 +351,8 @@ SideMenuController offsets its position to keep it centered on the line. */
   /* Frimousse assigns the measured, padded sizer height to the real header. */
   box-sizing: border-box;
   padding: 12px 12px 6px;
-  background-color: var(--bn-colors-menu-background);
-  color: var(--bn-colors-menu-text);
+  background-color: var(--bn-emoji-category-background);
+  color: var(--bn-emoji-category-color);
   font-size: 12px;
   font-weight: 500;
 }
@@ -468,17 +378,17 @@ SideMenuController offsets its position to keep it centered on the line. */
 .bn-frimousse-picker [frimousse-emoji]:hover,
 .bn-frimousse-picker [frimousse-emoji][data-active],
 .bn-frimousse-picker [frimousse-emoji][data-selected] {
-  background-color: var(--bn-colors-hovered-background);
+  background-color: var(--bn-emoji-picker-hover-background);
 }
 
 .bn-frimousse-picker [frimousse-emoji]:focus-visible,
 .bn-frimousse-skin-tone:focus-visible {
-  outline: 2px solid var(--bn-colors-menu-text);
+  outline: 2px solid var(--bn-emoji-picker-item-focus-ring-color);
   outline-offset: -2px;
 }
 
 .bn-frimousse-picker [frimousse-search]:focus-visible {
-  outline: 2px solid var(--bn-colors-side-menu);
+  outline: 2px solid var(--bn-emoji-picker-focus-ring-color);
   outline-offset: -2px;
 }
 
@@ -487,7 +397,7 @@ SideMenuController offsets its position to keep it centered on the line. */
   align-items: center;
   justify-content: space-between;
   padding: 6px 12px;
-  border-top: 1px solid var(--bn-colors-hovered-background);
+  border-top: 1px solid var(--bn-emoji-footer-border-color);
   min-height: 32px;
 }
 
@@ -507,7 +417,7 @@ SideMenuController offsets its position to keep it centered on the line. */
 
 .bn-frimousse-active-emoji-label {
   font-size: 12px;
-  color: var(--bn-colors-menu-text);
+  color: var(--bn-emoji-picker-color);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -527,7 +437,7 @@ SideMenuController offsets its position to keep it centered on the line. */
 }
 
 .bn-frimousse-skin-tone:hover {
-  background-color: var(--bn-colors-hovered-background);
+  background-color: var(--bn-emoji-picker-hover-background);
 }
 
 /* iOS Safari with the keyboard open answers a vertical drag on the toolbar
@@ -602,7 +512,7 @@ SideMenuController offsets its position to keep it centered on the line. */
   width: 1px;
 }
 .bn-versioning-pagination {
-  color: var(--bn-colors-menu-text);
+  color: var(--bn-versioning-pagination-color);
   display: flex;
   flex-shrink: 0;
   font-size: 12px;
