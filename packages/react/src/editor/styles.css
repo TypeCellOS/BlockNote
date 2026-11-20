@@ -27,7 +27,7 @@
 
   --bn-colors-shadow: oklch(85% 0 0);
   --bn-colors-border: oklch(95% 0 0);
-  --bn-colors-side-menu: oklch(85% 0 0);
+  --bn-colors-side-menu: oklch(51.4% 0 0);
 
   /* Highlight backgrounds target Display P3; narrower displays gamut-map them. */
   --bn-colors-highlights-gray-text: oklch(51.4% 0 0);
@@ -80,7 +80,7 @@
 
   --bn-colors-shadow: oklch(17% 0 0);
   --bn-colors-border: oklch(20% 0 0);
-  --bn-colors-side-menu: oklch(60% 0 0);
+  --bn-colors-side-menu: oklch(71.5% 0 0);
 
   /* Highlight backgrounds target Display P3; narrower displays gamut-map them. */
   --bn-colors-highlights-gray-text: oklch(71.5% 0 0);
