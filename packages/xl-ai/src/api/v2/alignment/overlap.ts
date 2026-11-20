@@ -26,6 +26,15 @@ const WORD = /^[\p{L}\p{N}_]/u;
  * counts, for each pair, the characters of the words that the diff keeps
  * together. Characters that are not words do not count.
  *
+ * Example (the two "Call the bank" have the same key):
+ *
+ *     a:  Buy milk | Call the bank
+ *     b:  Buy oat milk | Call the bank
+ *
+ *     [{ aIndex: 0, bIndex: 0, size: 7 }, { aIndex: 1, bIndex: 1, size: 11 }]
+ *
+ * "buy" and "milk" have 7 characters. "call", "the" and "bank" have 11.
+ *
  * Because one diff aligns the full sequences, the result does not cross: a
  * text can only share words with texts at the same position or later.
  *
@@ -96,6 +105,8 @@ export function textOverlaps(
 /**
  * Returns the number of word characters in the text, or 1 for a text without words.
  *
+ * Examples: "Hello, world!" gives 10. "---" gives 1.
+ *
  * @internal
  */
 export function wordSize(text: OverlapText): number {
@@ -126,6 +137,11 @@ type Token = TextToken & { owner: number; weight: number };
  * - A separator, with the size 0. Its key is empty, thus no other token has
  *   it: a token of the text has at least one character, and the key token
  *   starts with "\u0001" and has more characters.
+ *
+ * Examples, with each token as (key, size):
+ *
+ *     "Hi, you", key "k":  ("\u0001k", 0) ("hi", 2) (",", 0) ("you", 3) ("", 0)
+ *     "", key "image":     ("\u0001image", 1) ("", 0)
  */
 function tokensOfText({ text, key }: OverlapText): TextToken[] {
   const words = Array.from(text.toLowerCase().matchAll(TOKEN), ([token]) => ({
@@ -149,6 +165,14 @@ function tokensOfText({ text, key }: OverlapText): TextToken[] {
  * Only a text whose key is in the two lists can have a pair. Thus, the diff
  * gets only these texts: a diff of lists with nothing in common would use
  * its full work limit.
+ *
+ * Examples, with the keys of the texts:
+ *
+ *     a:  x | y    b:  n | x | y
+ *     [{ aIndex: 0, bIndex: 1 }, { aIndex: 1, bIndex: 2 }]
+ *
+ *     a:  x | y    b:  y | x    weightsA: 1, 3
+ *     [{ aIndex: 1, bIndex: 0 }]   ("y" has the larger weight)
  */
 function equalTextsInOrder(
   a: readonly OverlapText[],
@@ -183,6 +207,13 @@ function equalTextsInOrder(
  * tokens, and its weight is the number of its tokens. Thus, only the equal
  * text in the other list has that key: the two tokens are an anchor of the
  * diff, which weighs as much as the anchors of all tokens of the text.
+ *
+ * Example: the texts "Hi you" (key "a") and "Same text" (key "b"), and
+ * `equalNumbers` has the number 0 for the second text. The result, with
+ * each token as (owner, key, size, weight):
+ *
+ *     (0, "\u0001a", 0, 1) (0, "hi", 2, 1) (0, "you", 3, 1) (0, "", 0, 1)
+ *     (1, "\u00020", 8, 4)
  */
 function diffTokens(
   textTokens: readonly TextToken[][],
