@@ -37,6 +37,9 @@ export const AttributionTooltip = (props: AttributionTooltipProps) => {
     if (props.modificationType === "delete") {
       return users ? changes.deleted_by(users) : changes.deleted;
     }
+    if (props.modificationType === "move") {
+      return users ? changes.moved_by(users) : changes.moved;
+    }
     if (props.modificationType === "change") {
       return users ? changes.changed_by(users) : changes.changed;
     }
