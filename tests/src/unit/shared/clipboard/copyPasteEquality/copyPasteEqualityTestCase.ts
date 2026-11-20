@@ -1,4 +1,5 @@
 import {
+  Block,
   BlockSchema,
   InlineContentSchema,
   PartialBlock,
@@ -15,4 +16,6 @@ export type CopyPasteEqualityTestCase<
   name: string;
   document: PartialBlock<B, I, S>[];
   getCopyAndPasteSelection: (pmDoc: Node) => Selection;
+  // Cross-level selections keep their selected forest at the destination depth.
+  getExpectedDocument?: (document: Block<B, I, S>[]) => Block<B, I, S>[];
 };
