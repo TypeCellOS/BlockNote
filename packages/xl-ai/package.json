@@ -79,10 +79,10 @@
       "import": "./dist/text-lens.js",
       "default": "./dist/text-lens.js"
     },
-    "./text-lens/yjs": {
+    "./text-lens/y": {
       "types": "./types/src/api/v2/y/index.d.ts",
-      "import": "./dist/text-lens-yjs.js",
-      "default": "./dist/text-lens-yjs.js"
+      "import": "./dist/text-lens-y.js",
+      "default": "./dist/text-lens-y.js"
     }
   },
   "scripts": {
@@ -126,8 +126,11 @@
     "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
+    "@y/prosemirror": "^2.0.0-15",
+    "@y/y": "^14.0.0-rc.26",
     "glob": "^10.5.0",
     "headers-polyfill": "^4.0.3",
+    "lib0": "1.0.0-rc.36",
     "msw": "^2.11.5",
     "msw-snapshot": "^5.3.0",
     "rimraf": "^5.0.10",
@@ -139,12 +142,20 @@
     "yjs": "^13.6.33"
   },
   "peerDependencies": {
+    "@y/prosemirror": "^2.0.0-15",
+    "@y/y": "^14.0.0-rc.26",
+    "lib0": "1.0.0-rc.36",
     "react": "^18.0 || ^19.0 || >= 19.0.0-rc",
-    "react-dom": "^18.0 || ^19.0 || >= 19.0.0-rc",
-    "yjs": "^13.6.33"
+    "react-dom": "^18.0 || ^19.0 || >= 19.0.0-rc"
   },
   "peerDependenciesMeta": {
-    "yjs": {
+    "@y/prosemirror": {
+      "optional": true
+    },
+    "@y/y": {
+      "optional": true
+    },
+    "lib0": {
       "optional": true
     }
   }

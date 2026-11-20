@@ -23,8 +23,6 @@ import type { BlockPosition, StructureOperation } from "./types.js";
  * earlier operation removed), an insert of a block ID that is in the
  * document or that an earlier operation removed (the block, or a block in
  * it), or a move of a block into itself (also before or after itself).
- *
- * @internal
  */
 export function applyToBlocks(
   current: readonly LensBlock[],

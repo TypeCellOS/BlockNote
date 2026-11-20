@@ -1,11 +1,12 @@
 import type { BlockNoteEditor } from "@blocknote/core";
-import * as Y from "yjs";
+import * as Y from "@y/y";
 
 import {
+  type ChangeOperations,
   changesOfOthersOf,
-  dispatchOperations,
   type InvalidDocumentError,
   type JSONChange,
+  operationsOf,
   requireBase,
   type TextChange,
 } from "../api.js";
@@ -17,12 +18,8 @@ import {
   mergeOf,
   operationsOfMerge,
 } from "../apiWithMerge.js";
-import {
-  applyBase,
-  boundYDoc,
-  writeInFork,
-  writeToEditor,
-} from "./yDocText.js";
+import type { LensBlock } from "../model.js";
+import { applyBase, blocksOf, docOf, writeToCopy } from "./yDocText.js";
 
 /**
  * The result of a merge write to a Y.Doc. On an error (also an exception),
@@ -37,7 +34,7 @@ import {
  * done").
  */
 export type YDocMergedChangeResult =
-  | (MergedInEditor & {
+  | (MergedInFragment & {
       /** The Yjs update of the write. Send it to the other clients, if no provider does that. */
       update: Uint8Array;
     })
@@ -45,10 +42,10 @@ export type YDocMergedChangeResult =
   | ConflictError;
 
 /**
- * Writes a change (a text, or BlockNote JSON) back to a Y.Doc, and merges it
- * with the changes of other writers after `base`: the merge write of
- * `updateDocumentWithMerge`, for a Y.Doc. The editor must be bound to the
- * fragment and mounted (see `updateYDoc`).
+ * Writes a change (a text, or BlockNote JSON) back to the fragment of a
+ * Y.Doc, and merges it with the changes of other writers after `base`: the
+ * merge write of `updateDocumentWithMerge`, for a Y.Doc. The editor gives
+ * the schema and the conversions (see `updateYDoc`).
  *
  * `base` is the Yjs state `Y.encodeStateAsUpdate` at the version that the
  * client read. The target of the change for `base` merges three-way with the
@@ -58,121 +55,123 @@ export type YDocMergedChangeResult =
  */
 export function updateYDocWithMerge(
   editor: BlockNoteEditor<any, any, any>,
-  fragment: Y.XmlFragment,
+  fragment: Y.Node,
   change: (TextChange | JSONChange) & MergeFromVersion<Uint8Array>,
 ): YDocMergedChangeResult {
-  const { fork, ydoc } = boundYDoc(editor, fragment);
+  const ydoc = docOf(fragment);
   requireBase(change.base);
   const before = Y.encodeStateVector(ydoc);
-  const base = applyBase(editor, ydoc, fragment, change.base);
-  const result = writeInFork(fork, undefined, () => {
-    if (base.content === "none-as-now") {
-      return writeWithoutOthers(editor, change);
-    }
-    const merged = mergedOperationsOf(
-      editor,
-      { ...change, base: base.blocks },
-      editor.document,
-    );
-    return merged.error !== undefined ? merged : dispatchMerge(editor, merged);
-  });
+  const base = applyBase(editor, fragment, change.base);
+  const withoutContent =
+    base.length === 0 && blocksOf(editor, fragment).length === 0;
+  const result = writeToCopy(
+    editor,
+    fragment,
+    undefined,
+    (current): MergedInFragment | InvalidDocumentError | ConflictError => {
+      if (withoutContent) {
+        return withoutOthers(operationsOf(editor, change, current));
+      }
+      const merged = mergedOperationsOf(editor, { ...change, base }, current);
+      return merged.error !== undefined ? merged : withoutWritten(merged);
+    },
+  );
   return result.error !== undefined
     ? result
     : { ...result, update: Y.encodeStateAsUpdate(ydoc, before) };
 }
 
 /**
- * Writes a change (a text, or BlockNote JSON) back to a Y.Doc, and lets Yjs
- * merge it with the changes of other writers after `base` (the Yjs state at
- * the version that the client read). The editor must be bound to the
- * fragment and mounted (see `updateYDoc`). This function is experimental.
+ * Writes a change (a text, or BlockNote JSON) back to the fragment of a
+ * Y.Doc, and lets Yjs merge it with the changes of other writers after
+ * `base` (the Yjs state at the version that the client read). The editor
+ * gives the schema and the conversions (see `updateYDoc`). This function is
+ * experimental.
  *
- * The operations for `base` apply to a fork of the Y.Doc at `base` (see
- * `ForkYDocExtension`), and Yjs merges the fork into the Y.Doc. The
- * operations of the result are for `base`. Yjs has no conflicts, thus there
- * is no `onConflict` and no error `"conflict"`: Yjs keeps the inserts of the
- * two writers, and a removal removes the changes of other writers in the
- * removed block. With y-prosemirror v13, a move, a split and a join are a
- * removal and an insert, and a change of the type replaces the content node
- * of the block. Thus, if two writers move the same block, the block is there
- * two times, and a change of another writer to a block that the text moves,
- * splits, joins or changes the type of, can be lost. The layout blocks
- * stay, also if they become empty: Yjs cannot merge the removal of a column
- * with a block that another writer adds to it.
+ * The operations for `base` apply to a copy of the Y.Doc at `base`, and Yjs
+ * merges the copy into the Y.Doc. The operations of the result are for
+ * `base`. Yjs has no conflicts, thus there is no `onConflict` and no error
+ * `"conflict"`: Yjs keeps the inserts of the two writers, and a removal
+ * removes the changes of other writers in the removed block. In a Y.Doc, a
+ * move, a split and a join are a removal and an insert, and a change of the
+ * type replaces the block. Thus, if two writers move the same block, the
+ * block is there two times, and a change of another writer to a block that
+ * the text moves, splits, joins or changes the type of, can be lost. The
+ * layout blocks stay, also if they become empty: Yjs cannot merge the
+ * removal of a column with a block that another writer adds to it.
  *
  * For a base without content, the merge of `updateYDocWithMerge` runs: a
- * fork of an empty document gets its own root block group, and Yjs cannot
+ * copy of an empty document gets its own root block group, and Yjs cannot
  * merge two new root structures into one. This merge has no conflicts: each
  * block of the two writers is a new block.
  */
 export function experimental_updateYDocWithYjsMerge(
   editor: BlockNoteEditor<any, any, any>,
-  fragment: Y.XmlFragment,
+  fragment: Y.Node,
   change: (TextChange | JSONChange) & { base: Uint8Array },
 ): Exclude<YDocMergedChangeResult, ConflictError> {
-  const { fork, ydoc } = boundYDoc(editor, fragment);
+  const ydoc = docOf(fragment);
   requireBase(change.base);
   const before = Y.encodeStateVector(ydoc);
-  const base = applyBase(editor, ydoc, fragment, change.base);
-  const current = editor.document;
-  // With content at `base`, the write goes to a fork of the Y.Doc at
-  // `base`, and Yjs merges it. Else, it goes to a fork of the current Y.Doc.
-  const forkAt = base.content === "blocks" ? change.base : undefined;
-  const result = writeInFork(fork, forkAt, () => {
-    switch (base.content) {
-      case "blocks": {
-        // The layout blocks stay (`keepLayout`). The write sees only
-        // `base`: the changes of other writers come from `base` and the
-        // current document.
-        const written = writeToEditor(editor, change, true);
-        return written.error !== undefined
-          ? written
-          : {
-              ...written,
-              changesOfOthers: changesOfOthersOf(base.blocks, current),
-            };
-      }
-      case "none-as-now":
-        return writeWithoutOthers(editor, change);
-      case "none": {
-        const merge = mergeOf(editor, change, base.blocks, editor.document);
-        return merge.error !== undefined
-          ? merge
-          : dispatchMerge(
-              editor,
-              operationsOfMerge(editor, merge, base.blocks, editor.document),
-            );
-      }
-    }
-  });
+  const base = applyBase(editor, fragment, change.base);
+  const current = blocksOf(editor, fragment);
+  const result = yjsMerge(editor, fragment, change, base, current);
   return result.error !== undefined
     ? result
     : { ...result, update: Y.encodeStateAsUpdate(ydoc, before) };
 }
 
-/** A merge write that the bound editor has: the result without `written` (see `YDocMergedChangeResult`). */
-type MergedInEditor = Omit<MergedChangeOperations, "written">;
+/** The write of `experimental_updateYDocWithYjsMerge`, for each case of `base`. */
+function yjsMerge(
+  editor: BlockNoteEditor<any, any, any>,
+  fragment: Y.Node,
+  change: (TextChange | JSONChange) & { base: Uint8Array },
+  base: readonly LensBlock[],
+  current: readonly LensBlock[],
+): MergedInFragment | InvalidDocumentError {
+  if (base.length > 0) {
+    // The write goes to a copy of the Y.Doc at `base`, and Yjs merges it.
+    // The write sees only `base`, and the layout blocks stay (`keepLayout`).
+    const written = writeToCopy(editor, fragment, change.base, (atBase) =>
+      operationsOf(editor, change, atBase, true),
+    );
+    return written.error !== undefined
+      ? written
+      : { ...written, changesOfOthers: changesOfOthersOf(base, current) };
+  }
+  if (current.length === 0) {
+    return writeToCopy(editor, fragment, undefined, (empty) =>
+      withoutOthers(operationsOf(editor, change, empty)),
+    );
+  }
+  return writeToCopy(editor, fragment, undefined, (now) => {
+    const merge = mergeOf(editor, change, base, now);
+    return merge.error !== undefined
+      ? merge
+      : withoutWritten(operationsOfMerge(editor, merge, base, now));
+  });
+}
+
+/** A merge write to a fragment: the result without `written` (see `YDocMergedChangeResult`). */
+type MergedInFragment = Omit<MergedChangeOperations, "written">;
 
 /**
- * Writes the change to a fragment without content, from a base without
+ * The result of a write to a fragment without content, from a base without
  * content. These are the same empty document, thus there is no merge, and
  * no other writer changed a block.
  */
-function writeWithoutOthers(
-  editor: BlockNoteEditor<any, any, any>,
-  change: TextChange | JSONChange,
-): MergedInEditor | InvalidDocumentError {
-  const written = writeToEditor(editor, change, false);
+function withoutOthers(
+  written: ChangeOperations | InvalidDocumentError,
+): MergedInFragment | InvalidDocumentError {
   return written.error !== undefined
     ? written
     : { ...written, changesOfOthers: [] };
 }
 
-/** Applies the operations of a merge to the editor. */
-function dispatchMerge(
-  editor: BlockNoteEditor<any, any, any>,
-  { written: _written, ...merged }: MergedChangeOperations,
-): MergedInEditor {
-  dispatchOperations(editor, merged.operations);
+/** The result of a merge write, without the document that the client wrote. */
+function withoutWritten({
+  written: _written,
+  ...merged
+}: MergedChangeOperations): MergedInFragment {
   return merged;
 }

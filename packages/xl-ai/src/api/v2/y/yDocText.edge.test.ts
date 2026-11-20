@@ -1,7 +1,7 @@
 import { BlockNoteEditor, type PartialBlock } from "@blocknote/core";
-import { blocksToYDoc, yDocToBlocks } from "@blocknote/core/yjs";
+import { blocksToYDoc, yDocToBlocks } from "@blocknote/core/y";
+import * as Y from "@y/y";
 import { describe, expect, it } from "vite-plus/test";
-import * as Y from "yjs";
 
 import { bindEditor, unbindEditor } from "../testUtil/y.js";
 import { updateYDoc } from "./yDocText.js";
@@ -14,8 +14,9 @@ function setup(initialContent: PartialBlock[]) {
     reader,
     BlockNoteEditor.create({ initialContent }).document,
   );
-  const fragment = ydoc.getXmlFragment("prosemirror");
-  const editor = bindEditor(fragment);
+  const fragment = ydoc.get("prosemirror");
+  // The editor of the writes is not bound to the Y.Doc.
+  const editor = reader;
   /** The ID and the text of each block of the Y.Doc. */
   const blocks = () =>
     yDocToBlocks(reader, ydoc).map((block) => [

@@ -17,7 +17,7 @@ const devAliases: Record<string, string> = {
   // The text lens entry points are not files at the root of `src/`. An alias
   // matches each import that starts with its key, and the first match wins.
   // Thus, these aliases come before the alias of `@blocknote/xl-ai`.
-  "@blocknote/xl-ai/text-lens/yjs": resolve(
+  "@blocknote/xl-ai/text-lens/y": resolve(
     __dirname,
     "../packages/xl-ai/src/api/v2/y/index.ts",
   ),

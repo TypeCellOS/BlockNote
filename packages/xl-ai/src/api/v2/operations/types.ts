@@ -41,17 +41,15 @@ export type BlockOperation =
   | { type: "delete"; id: string };
 
 /**
+ * An operation that changes the structure of the document: an insert, a
+ * move or a removal.
+ */
+export type StructureOperation = Exclude<BlockOperation, { type: "update" }>;
+
+/**
  * An operation that changes the fields of one block, and not the structure
  * of the document.
  *
  * @internal
  */
 export type UpdateOperation = Extract<BlockOperation, { type: "update" }>;
-
-/**
- * An operation that changes the structure of the document: an insert, a
- * move or a removal.
- *
- * @internal
- */
-export type StructureOperation = Exclude<BlockOperation, { type: "update" }>;

@@ -1,13 +1,7 @@
 import { BlockNoteEditor, type PartialBlock } from "@blocknote/core";
-import {
-  blocksToYDoc,
-  ForkYDocExtension,
-  withCollaboration,
-  yDocToBlocks,
-} from "@blocknote/core/yjs";
-import { Plugin } from "prosemirror-state";
+import { blocksToYDoc, yDocToBlocks } from "@blocknote/core/y";
+import * as Y from "@y/y";
 import { describe, expect, it } from "vite-plus/test";
-import * as Y from "yjs";
 
 import {
   getDocumentText,
@@ -28,8 +22,13 @@ import {
   replaceOnce,
   richDocument,
 } from "../testUtil/fixtures.js";
-import { bindEditor, readText, unbindEditor } from "../testUtil/y.js";
-import { updateYDoc } from "./yDocText.js";
+import {
+  bindEditor,
+  blockNodeIds,
+  readText,
+  unbindEditor,
+} from "../testUtil/y.js";
+import { getYDocText, updateYDoc } from "./yDocText.js";
 import {
   experimental_updateYDocWithYjsMerge,
   updateYDocWithMerge,
@@ -45,7 +44,10 @@ import {
   randomLineEdit,
 } from "../testUtil/random.js";
 
-/** An editor that gives the schema to read the Y.Doc directly, without a binding. */
+/**
+ * An editor without a view, which is not bound to a Y.Doc. It gives the
+ * schema and the conversions for the writes and the reads of the Y.Doc.
+ */
 const reader = BlockNoteEditor.create();
 
 /**
@@ -61,7 +63,7 @@ type Merge = (typeof merges)[number];
  */
 function mergeWrite(
   editor: BlockNoteEditor<any, any, any>,
-  fragment: Y.XmlFragment,
+  fragment: Y.Node,
   change: TextChange & { base: Uint8Array },
   merge: Merge = "lens",
 ) {
@@ -78,8 +80,8 @@ function setup(initialContent: PartialBlock[] = richDocument) {
     reader,
     BlockNoteEditor.create({ initialContent }).document,
   );
-  const fragment = ydoc.getXmlFragment("prosemirror");
-  const editor = bindEditor(fragment);
+  const fragment = ydoc.get("prosemirror");
+  const editor = reader;
   const format = markdownFormat;
   const blocks = () => yDocToBlocks(reader, ydoc);
 
@@ -90,7 +92,7 @@ function setup(initialContent: PartialBlock[] = richDocument) {
     block: (id: string) => blocks().find((candidate) => candidate.id === id),
     /** A client reads the text. It keeps the Yjs state as the base of a later write. */
     read: () => ({
-      text: getDocumentText(editor, format),
+      text: getYDocText(editor, fragment, format),
       base: Y.encodeStateAsUpdate(ydoc),
     }),
     /** A client writes back a changed copy of the text that it read. */
@@ -107,7 +109,7 @@ function setup(initialContent: PartialBlock[] = richDocument) {
           merge,
         ),
       ),
-    /** Another user changes the document in an editor. */
+    /** Another user changes the document, in an editor that is bound to the Y.Doc. */
     change: (edit: (editor: BlockNoteEditor<any, any, any>) => void) => {
       const user = bindEditor(fragment);
       edit(user);
@@ -133,7 +135,7 @@ describe("updateYDoc", () => {
     const { editor, ydoc, block } = setup([
       { id: "p", type: "paragraph", content: "Alpha end" },
     ]);
-    const fragment = ydoc.getXmlFragment("prosemirror");
+    const fragment = ydoc.get("prosemirror");
     const text = "Alpha https://example.com end";
 
     valid(
@@ -159,7 +161,7 @@ describe("updateYDoc", () => {
     (_, write) => {
       const { editor, ydoc, blocks } = setup();
       const before = blocks();
-      const fragment = ydoc.getXmlFragment("prosemirror");
+      const fragment = ydoc.get("prosemirror");
 
       // A caller without types can forget `base`.
       expect(() =>
@@ -172,24 +174,41 @@ describe("updateYDoc", () => {
     },
   );
 
-  it("throws an error if the editor is not bound to the Y.Doc, or not mounted", () => {
-    const ydoc = new Y.Doc();
-    const fragment = ydoc.getXmlFragment("prosemirror");
-    const options = {
-      format: markdownFormat,
-      text: "Hello",
-      base: "current" as const,
-    };
+  it("writes with an editor that is not bound to the Y.Doc, and that has no view", () => {
+    const { ydoc, block } = setup();
+    const fragment = ydoc.get("prosemirror");
+    const editor = BlockNoteEditor.create();
+    expect(editor.headless).toBe(true);
 
-    expect(() =>
-      updateYDoc(BlockNoteEditor.create(), fragment, options),
-    ).toThrow(/bound to the fragment/);
-    const notMounted = BlockNoteEditor.create(
-      withCollaboration({
-        collaboration: { fragment, user: { name: "Lens", color: "#000000" } },
+    valid(
+      updateYDoc(editor, fragment, {
+        base: "current",
+        format: markdownFormat,
+        text: replaceOnce(
+          getYDocText(editor, fragment, markdownFormat),
+          "Last paragraph",
+          "Last paragraph, edited",
+        ),
       }),
     );
-    expect(() => updateYDoc(notMounted, fragment, options)).toThrow(/mounted/);
+
+    expect(block("last")?.content).toMatchObject([
+      { text: "Last paragraph, edited" },
+    ]);
+  });
+
+  it("shows the write in an editor that is bound to the Y.Doc", () => {
+    const { ydoc, read, write, blocks } = setup();
+    const live = bindEditor(ydoc.get("prosemirror"), { trailingBlock: false });
+
+    write(read(), (text) =>
+      replaceOnce(text, "Last paragraph", "Last paragraph, edited"),
+    );
+
+    expect(live.getBlock("last")?.content).toMatchObject([
+      { text: "Last paragraph, edited" },
+    ]);
+    expect(live.document).toEqual(blocks());
   });
 
   it("allows the Yjs merge only with a version as base, and without onConflict", () => {
@@ -275,7 +294,7 @@ describe("a strict write from a version", () => {
     });
     const before = Y.encodeStateAsUpdate(ydoc);
 
-    const result = updateYDoc(editor, ydoc.getXmlFragment("prosemirror"), {
+    const result = updateYDoc(editor, ydoc.get("prosemirror"), {
       format: markdownFormat,
       text: replaceOnce(client.text, "Alpha", "Alpha, from the client"),
       base: client.base,
@@ -298,7 +317,7 @@ describe("a strict write from a version", () => {
     change((user) => user.updateBlock("b", { props: { textColor: "red" } }));
 
     expect(
-      updateYDoc(editor, ydoc.getXmlFragment("prosemirror"), {
+      updateYDoc(editor, ydoc.get("prosemirror"), {
         format: markdownFormat,
         text: replaceOnce(client.text, "Alpha", "Alpha, from the client"),
         base: client.base,
@@ -316,18 +335,18 @@ describe("a strict write from a version", () => {
     const reference = setup(threeParagraphs);
 
     const result = valid(
-      updateYDoc(editor, ydoc.getXmlFragment("prosemirror"), {
+      updateYDoc(editor, ydoc.get("prosemirror"), {
         format: markdownFormat,
         text,
         base: client.base,
       }),
     );
     const current = valid(
-      updateYDoc(
-        reference.editor,
-        reference.ydoc.getXmlFragment("prosemirror"),
-        { format: markdownFormat, text, base: "current" },
-      ),
+      updateYDoc(reference.editor, reference.ydoc.get("prosemirror"), {
+        format: markdownFormat,
+        text,
+        base: "current",
+      }),
     );
 
     // The result has no `changesOfOthers` and no `written`.
@@ -344,10 +363,10 @@ describe("a strict write from a version", () => {
     // A compare of state vectors would reject this write.
     const { editor, ydoc, read, block } = setup(threeParagraphs);
     const client = read();
-    ydoc.getMap("settings").set("title", "A new title");
+    ydoc.get("settings").setAttr("title", "A new title");
 
     valid(
-      updateYDoc(editor, ydoc.getXmlFragment("prosemirror"), {
+      updateYDoc(editor, ydoc.get("prosemirror"), {
         format: markdownFormat,
         text: replaceOnce(client.text, "Alpha", "Alpha, from the client"),
         base: client.base,
@@ -369,22 +388,19 @@ describe("a strict write from a version", () => {
     // Another client adds a block on the replica. The server does not have
     // it yet.
     const before = Y.encodeStateVector(replica);
-    bindEditor(replica.getXmlFragment("prosemirror")).insertBlocks(
+    bindEditor(replica.get("prosemirror")).insertBlocks(
       [{ type: "paragraph", content: "Gamma" }],
       "b",
       "after",
     );
     const inFlight = Y.encodeStateAsUpdate(replica, before);
     // The client reads from the replica.
-    const text = readText(
-      replica.getXmlFragment("prosemirror"),
-      markdownFormat,
-    );
+    const text = readText(replica.get("prosemirror"), markdownFormat);
     const base = Y.encodeStateAsUpdate(replica);
 
-    const fragment = server.getXmlFragment("prosemirror");
+    const fragment = server.get("prosemirror");
     const result = valid(
-      updateYDoc(bindEditor(fragment), fragment, {
+      updateYDoc(reader, fragment, {
         format: markdownFormat,
         text: replaceOnce(text, "Gamma", "Gamma edited"),
         base,
@@ -400,17 +416,17 @@ describe("a strict write from a version", () => {
 
   it("gives the error for a version without content, if the document has content now", () => {
     const ydoc = new Y.Doc();
-    const fragment = ydoc.getXmlFragment("prosemirror");
+    const fragment = ydoc.get("prosemirror");
     const base = Y.encodeStateAsUpdate(ydoc);
     valid(
-      updateYDoc(bindEditor(fragment), fragment, {
+      updateYDoc(reader, fragment, {
         base: "current",
         format: markdownFormat,
         text: "Other",
       }),
     );
 
-    const result = updateYDoc(bindEditor(fragment), fragment, {
+    const result = updateYDoc(reader, fragment, {
       format: markdownFormat,
       text: "Hello",
       base,
@@ -428,23 +444,16 @@ describe.each([
   { name: "markdown", format: markdownFormat },
   { name: "plain text", format: plainTextFormat },
 ])("empty and cleared documents ($name)", ({ format }) => {
-  /** The IDs of all blocks in the Y.Doc, from its XML. */
-  function idsOf(ydoc: Y.Doc): (string | undefined)[] {
-    return [
-      ...ydoc
-        .getXmlFragment("prosemirror")
-        .createTreeWalker(
-          (node) =>
-            node instanceof Y.XmlElement && node.nodeName === "blockcontainer",
-        ),
-    ].map((node) => (node as Y.XmlElement).getAttribute("id"));
+  /** The IDs of all block nodes in the Y.Doc. */
+  function idsOf(ydoc: Y.Doc): unknown[] {
+    return blockNodeIds(ydoc.get("prosemirror"));
   }
 
   it("writes text to an empty Y.Doc", () => {
     const ydoc = new Y.Doc();
-    const fragment = ydoc.getXmlFragment("prosemirror");
+    const fragment = ydoc.get("prosemirror");
     valid(
-      updateYDoc(bindEditor(fragment), fragment, {
+      updateYDoc(reader, fragment, {
         base: "current",
         format,
         text: "Hello",
@@ -457,9 +466,9 @@ describe.each([
 
   it("writes text with a base from an empty Y.Doc", () => {
     const ydoc = new Y.Doc();
-    const fragment = ydoc.getXmlFragment("prosemirror");
+    const fragment = ydoc.get("prosemirror");
     valid(
-      mergeWrite(bindEditor(fragment), fragment, {
+      mergeWrite(reader, fragment, {
         format,
         text: "Hello",
         base: Y.encodeStateAsUpdate(ydoc),
@@ -473,9 +482,9 @@ describe.each([
     // A base without content and a Y.Doc without content are the same
     // empty document: the write applies.
     const ydoc = new Y.Doc();
-    const fragment = ydoc.getXmlFragment("prosemirror");
+    const fragment = ydoc.get("prosemirror");
     valid(
-      updateYDoc(bindEditor(fragment), fragment, {
+      updateYDoc(reader, fragment, {
         format,
         text: "Hello",
         base: Y.encodeStateAsUpdate(ydoc),
@@ -489,22 +498,17 @@ describe.each([
     "keeps the text of another writer, if the base is an empty Y.Doc (merge %s)",
     (merge) => {
       const ydoc = new Y.Doc();
-      const fragment = ydoc.getXmlFragment("prosemirror");
+      const fragment = ydoc.get("prosemirror");
       const base = Y.encodeStateAsUpdate(ydoc);
       valid(
-        updateYDoc(bindEditor(fragment), fragment, {
+        updateYDoc(reader, fragment, {
           base: "current",
           format,
           text: "Other",
         }),
       );
       valid(
-        mergeWrite(
-          bindEditor(fragment),
-          fragment,
-          { format, text: "Hello", base },
-          merge,
-        ),
+        mergeWrite(reader, fragment, { format, text: "Hello", base }, merge),
       );
 
       expect(readText(fragment, format).trim()).toBe("Hello\n\nOther");
@@ -519,8 +523,8 @@ describe.each([
         initialContent: [{ type: "paragraph", content: "Old text" }],
       }).document,
     );
-    const fragment = ydoc.getXmlFragment("prosemirror");
-    const editor = bindEditor(fragment);
+    const fragment = ydoc.get("prosemirror");
+    const editor = reader;
     valid(
       updateYDoc(editor, fragment, {
         base: "current",
@@ -783,20 +787,16 @@ describe("concurrent writes (merge lens): conflicts", () => {
     change((user) => user.updateBlock("last", { content: "Last section" }));
     const before = Y.encodeStateAsUpdate(ydoc);
 
-    const result = updateYDocWithMerge(
-      editor,
-      ydoc.getXmlFragment("prosemirror"),
-      {
-        format: markdownFormat,
-        text: replaceOnce(
-          replaceOnce(client.text, "Last paragraph", "Last part"),
-          "Colored centered paragraph",
-          "Colored text",
-        ),
-        base: client.base,
-        onConflict: "reject",
-      },
-    );
+    const result = updateYDocWithMerge(editor, ydoc.get("prosemirror"), {
+      format: markdownFormat,
+      text: replaceOnce(
+        replaceOnce(client.text, "Last paragraph", "Last part"),
+        "Colored centered paragraph",
+        "Colored text",
+      ),
+      base: client.base,
+      onConflict: "reject",
+    });
 
     expect(result).toEqual({
       error: "conflict",
@@ -810,19 +810,22 @@ describe.each(merges)("comments (merge %s)", (merge) => {
   /** A Y.Doc with comments, from a client with the comments extension. */
   function setupWithComments() {
     const ydoc = new Y.Doc();
-    const fragment = ydoc.getXmlFragment("prosemirror");
+    const fragment = ydoc.get("prosemirror");
     const editor = bindEditor(fragment, commentEditorOptions());
     editor.replaceBlocks(editor.document, fruitDocument);
     const kept = addComment(editor, "Apples");
     const moved = addComment(editor, "Pears");
+    // The lens writes with an editor that is not bound to the Y.Doc. It has
+    // the schema of the clients, with the comment mark.
+    const lens = BlockNoteEditor.create(commentEditorOptions());
     const write = (edit: (text: string) => string) =>
       valid(
         mergeWrite(
-          editor,
+          lens,
           fragment,
           {
             format: markdownFormat,
-            text: edit(getDocumentText(editor, markdownFormat)),
+            text: edit(getYDocText(lens, fragment, markdownFormat)),
             base: Y.encodeStateAsUpdate(ydoc),
           },
           merge,
@@ -895,14 +898,12 @@ describe.each(formatCases)(
       const editor = BlockNoteEditor.create({
         initialContent: randomDocument(random),
       });
-      const fragment = blocksToYDoc(editor, editor.document).getXmlFragment(
-        "prosemirror",
-      );
+      const fragment = blocksToYDoc(editor, editor.document).get("prosemirror");
       const text = randomEdits(random, getDocumentText(editor, format), edit);
 
       valid(updateDocument(editor, { base: "current", format, text }));
       valid(
-        updateYDoc(bindEditor(fragment), fragment, {
+        updateYDoc(reader, fragment, {
           base: "current",
           format,
           text,
@@ -949,9 +950,9 @@ describe("Y.Doc writes after a move of a nested block", () => {
       reader,
       BlockNoteEditor.create({ initialContent: nested }).document,
     );
-    const fragment = ydoc.getXmlFragment("prosemirror");
+    const fragment = ydoc.get("prosemirror");
     valid(
-      updateYDoc(bindEditor(fragment), fragment, {
+      updateYDoc(reader, fragment, {
         base: "current",
         format: markdownFormat,
         text,
@@ -1017,16 +1018,16 @@ describe.each(merges)("concurrent writes with columns (merge %s)", (merge) => {
         ] as PartialBlock<any, any, any>[],
       }).document,
     );
-    const fragment = ydoc.getXmlFragment("prosemirror");
-    const editor = bindEditor(fragment, { schema });
+    const fragment = ydoc.get("prosemirror");
+    const editor = BlockNoteEditor.create({ schema });
     const format = markdownFormat;
-    const text = getDocumentText(editor, format);
+    const text = getYDocText(editor, fragment, format);
     const base = Y.encodeStateAsUpdate(ydoc);
     // Another writer adds a block between Alpha and Bravo. Markdown does not
     // show the columns, thus the block goes into column B, before Bravo (a
     // new block goes into the nesting of the next block).
     valid(
-      updateYDoc(bindEditor(fragment, { schema }), fragment, {
+      updateYDoc(editor, fragment, {
         base: "current",
         format,
         text: text.replace("Alpha", "Alpha\n\nAdded by other"),
@@ -1069,12 +1070,12 @@ describe("changes of other writers in a list with more than one structural chang
     const other = new Y.Doc();
     Y.applyUpdate(other, Y.encodeStateAsUpdate(ydoc));
     // The other client changes Alpha. The lens does not have this change yet.
-    bindEditor(other.getXmlFragment("prosemirror")).updateBlock("a", {
+    bindEditor(other.get("prosemirror")).updateBlock("a", {
       content: "Alpha of the other client",
     });
 
     // The text adds a block at the start and at the end of the list.
-    const fragment = ydoc.getXmlFragment("prosemirror");
+    const fragment = ydoc.get("prosemirror");
     const editor = bindEditor(fragment);
     valid(
       updateYDoc(editor, fragment, {
@@ -1096,11 +1097,11 @@ describe("changes of other writers in a list with more than one structural chang
     const ydoc = blocksToYDoc(BlockNoteEditor.create(), blocks);
     const other = new Y.Doc();
     Y.applyUpdate(other, Y.encodeStateAsUpdate(ydoc));
-    bindEditor(other.getXmlFragment("prosemirror")).updateBlock("a", {
+    bindEditor(other.get("prosemirror")).updateBlock("a", {
       content: "Alpha of the other client",
     });
 
-    const fragment = ydoc.getXmlFragment("prosemirror");
+    const fragment = ydoc.get("prosemirror");
     const editor = bindEditor(fragment);
     valid(
       updateDocument(editor, {
@@ -1120,7 +1121,7 @@ describe("changes of other writers in a list with more than one structural chang
     "keeps a change of another writer in its block, with inserts at two places (merge %s)",
     (merge) => {
       const ydoc = blocksToYDoc(BlockNoteEditor.create(), blocks);
-      const fragment = ydoc.getXmlFragment("prosemirror");
+      const fragment = ydoc.get("prosemirror");
       const editor = bindEditor(fragment);
       const base = Y.encodeStateAsUpdate(ydoc);
       editor.updateBlock("a", { content: "Alpha edited" });
@@ -1147,7 +1148,7 @@ describe("changes of other writers in a list with more than one structural chang
     "keeps a change of another writer to a block that a move passes (merge %s)",
     (merge) => {
       const ydoc = blocksToYDoc(BlockNoteEditor.create(), blocks);
-      const fragment = ydoc.getXmlFragment("prosemirror");
+      const fragment = ydoc.get("prosemirror");
       const editor = bindEditor(fragment);
       const base = Y.encodeStateAsUpdate(ydoc);
       editor.updateBlock("b", { content: "Beta edited" });
@@ -1172,73 +1173,79 @@ describe("changes of other writers in a list with more than one structural chang
 });
 
 // REVISIT: a Y.Doc can have two blocks with one ID, after two writers moved
-// the same block (y-prosemirror v13). The lens pairs blocks by ID, thus such
-// a base is a broken invariant: the write throws, and the Y.Doc does not
-// change. Then the lens cannot write that document until a client fixes the
-// IDs in the Y.Doc. An earlier version gave the later block the ID with a
-// number (`a-2`) and wrote the change (see `assertBlockIds`).
-describe("a base with two blocks with one ID", () => {
+// the same block (a move is a removal and an insert in a Y.Doc). The lens
+// pairs blocks by ID, thus such a document is a broken invariant: the write
+// throws, and the Y.Doc does not change. Then the lens cannot write that
+// document until a client fixes the IDs in the Y.Doc. An earlier version gave
+// the later block the ID with a number (`a-2`) and wrote the change (see
+// `assertBlockIds`).
+describe("a Y.Doc with two blocks with one ID", () => {
   it("throws, and the Y.Doc does not change", () => {
     const ydoc = blocksToYDoc(BlockNoteEditor.create(), [
       { id: "a", type: "paragraph", content: "Alpha" },
       { id: "a", type: "paragraph", content: "Alpha copy" },
       { id: "b", type: "paragraph", content: "Beta" },
     ]);
-    const fragment = ydoc.getXmlFragment("prosemirror");
-    // The editor gives the copy a new ID (UniqueID), but the Y.Doc and thus
-    // the base keep the duplicate.
-    const editor = bindEditor(fragment);
+    const fragment = ydoc.get("prosemirror");
     const base = Y.encodeStateAsUpdate(ydoc);
-    const text = getDocumentText(editor, markdownFormat);
-    editor.updateBlock("b", { content: "Beta 2" });
-    const before = readText(fragment, markdownFormat);
+    const text = getYDocText(reader, fragment, markdownFormat);
+    const change = {
+      format: markdownFormat,
+      text: replaceOnce(text, "Alpha copy", "Alpha copy edited"),
+    };
 
     expect(() =>
-      mergeWrite(editor, fragment, {
-        format: markdownFormat,
-        text: replaceOnce(text, "Alpha copy", "Alpha copy edited"),
-        base,
-      }),
-    ).toThrow("Two blocks of the base have the ID a");
-    expect(readText(fragment, markdownFormat)).toBe(before);
+      updateYDoc(reader, fragment, { ...change, base: "current" }),
+    ).toThrow("Two blocks of the current document have the ID a");
+    expect(() => mergeWrite(reader, fragment, { ...change, base })).toThrow(
+      "Two blocks of the current document have the ID a",
+    );
+    expect(Y.encodeStateAsUpdate(ydoc)).toEqual(base);
   });
 });
 
-describe("a write that fails in the middle", () => {
-  it("does not change the Y.Doc", () => {
-    const ydoc = blocksToYDoc(BlockNoteEditor.create(), [
-      { id: "a", type: "paragraph", content: "x Alpha one two Omega end" },
-      { id: "b", type: "paragraph", content: "Beta" },
-    ]);
-    const fragment = ydoc.getXmlFragment("prosemirror");
-    const editor = bindEditor(fragment);
-    // The inline steps go from the end of the text to its start. A plugin
-    // removes "x Alpha one" after the text gets "Last". The second step of
-    // the write (which changes "Alpha") then cannot apply.
-    editor._tiptapEditor.registerPlugin(
-      new Plugin({
-        appendTransaction(_transactions, _old, state) {
-          let range: [number, number] | undefined;
-          state.doc.descendants((node, pos) => {
-            const text = node.isText ? (node.text ?? "") : "";
-            if (text.includes("Last") && text.includes("Alpha")) {
-              range = [pos, pos + "x Alpha one".length];
-            }
-          });
-          return range === undefined ? null : state.tr.delete(...range);
-        },
-      }),
+describe("a write that fails", () => {
+  it("throws, and does not change the Y.Doc, if the schema of the editor cannot read the Y.Doc", () => {
+    // The Y.Doc has a column list. The editor of the write has the default
+    // schema, without columns. Thus, its document does not have the column
+    // list, and a change after it would go to a wrong position.
+    const schema = columnSchema;
+    const ydoc = blocksToYDoc(
+      BlockNoteEditor.create({ schema }),
+      BlockNoteEditor.create({
+        schema,
+        initialContent: [
+          {
+            id: "list",
+            type: "columnList",
+            children: [
+              {
+                id: "cA",
+                type: "column",
+                children: [{ id: "a", type: "paragraph", content: "Alpha" }],
+              },
+              {
+                id: "cB",
+                type: "column",
+                children: [{ id: "b", type: "paragraph", content: "Bravo" }],
+              },
+            ],
+          },
+          { id: "end", type: "paragraph", content: "End" },
+        ] as PartialBlock<any, any, any>[],
+      }).document,
     );
-    const before = readText(fragment, markdownFormat);
+    const fragment = ydoc.get("prosemirror");
+    const before = Y.encodeStateAsUpdate(ydoc);
 
     expect(() =>
-      updateYDoc(editor, fragment, {
+      updateYDoc(reader, fragment, {
         base: "current",
         format: markdownFormat,
-        text: "x First one two Last end\n\nBeta\n",
+        text: "End, edited\n",
       }),
     ).toThrow();
-    expect(readText(fragment, markdownFormat)).toBe(before);
+    expect(Y.encodeStateAsUpdate(ydoc)).toEqual(before);
   });
 });
 
@@ -1255,23 +1262,20 @@ describe("a base with an update that the Y.Doc does not have yet", () => {
       // Another client adds a block on the replica. The server does not
       // have it yet.
       const before = Y.encodeStateVector(replica);
-      bindEditor(replica.getXmlFragment("prosemirror")).insertBlocks(
+      bindEditor(replica.get("prosemirror")).insertBlocks(
         [{ type: "paragraph", content: "Gamma" }],
         "b",
         "after",
       );
       const inFlight = Y.encodeStateAsUpdate(replica, before);
       // The client reads from the replica.
-      const text = readText(
-        replica.getXmlFragment("prosemirror"),
-        markdownFormat,
-      );
+      const text = readText(replica.get("prosemirror"), markdownFormat);
       const base = Y.encodeStateAsUpdate(replica);
 
-      const fragment = server.getXmlFragment("prosemirror");
+      const fragment = server.get("prosemirror");
       const result = valid(
         mergeWrite(
-          bindEditor(fragment),
+          reader,
           fragment,
           {
             format: markdownFormat,
@@ -1288,30 +1292,6 @@ describe("a base with an update that the Y.Doc does not have yet", () => {
       );
     },
   );
-});
-
-describe("an editor that shows a fork of the Y.Doc", () => {
-  it("gives an error, and does not change the Y.Doc or the fork", () => {
-    const ydoc = blocksToYDoc(BlockNoteEditor.create(), [
-      { id: "a", type: "paragraph", content: "Alpha" },
-    ]);
-    const fragment = ydoc.getXmlFragment("prosemirror");
-    const editor = bindEditor(fragment);
-    const fork = editor.getExtension(ForkYDocExtension)!;
-    fork.fork();
-    const before = Y.encodeStateAsUpdate(ydoc);
-
-    expect(() =>
-      updateYDoc(editor, fragment, {
-        base: "current",
-        format: markdownFormat,
-        text: "Alpha edited\n",
-      }),
-    ).toThrow("fork");
-    expect(fork.store.state.isForked).toBe(true);
-    expect(Y.encodeStateAsUpdate(ydoc)).toEqual(before);
-    fork.merge({ keepChanges: false });
-  });
 });
 
 describe.each(merges)(

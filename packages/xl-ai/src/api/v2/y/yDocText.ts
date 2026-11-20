@@ -1,15 +1,19 @@
-import type { BlockNoteEditor } from "@blocknote/core";
+import type { Block, BlockNoteEditor } from "@blocknote/core";
 import {
+  blockNoteTransformer,
+  blocksToYType,
+  docDiffToDelta,
   findTypeInOtherYdoc,
-  ForkYDocExtension,
-  yXmlFragmentToBlocks,
-} from "@blocknote/core/yjs";
-import * as Y from "yjs";
+  yfragmentToBlocks,
+} from "@blocknote/core/y";
+import { $prosemirrorDelta, deltaToPNode, ynodeToPmnode } from "@y/prosemirror";
+import * as Y from "@y/y";
+import * as delta from "lib0/delta";
+import { EditorState } from "prosemirror-state";
 
 import {
   type ChangeOperations,
   changesAfterBase,
-  dispatchOperations,
   type DocumentChangedError,
   type InvalidDocumentError,
   type JSONChange,
@@ -18,7 +22,29 @@ import {
   type TextChange,
   type WriteFromVersion,
 } from "../api.js";
+import type { TextFormat } from "../formats/index.js";
 import type { LensBlock } from "../model.js";
+import {
+  applyOperations,
+  applyToBlocks,
+  type BlockOperation,
+  stepGroupEnds,
+  type StructureOperation,
+} from "../operations/index.js";
+
+/**
+ * Returns the document of the fragment of a Y.Doc in the format. A client
+ * reads this text, changes it, and writes it back with `updateYDoc`. The
+ * editor gives the schema and the conversions of the format (see
+ * `updateYDoc`).
+ */
+export function getYDocText(
+  editor: BlockNoteEditor<any, any, any>,
+  fragment: Y.Node,
+  format: TextFormat,
+): string {
+  return format.serialize(editor, blocksOf(editor, fragment));
+}
 
 /**
  * The result of a write to a Y.Doc. On an error (also an exception), the
@@ -34,17 +60,20 @@ export type YDocChangeResult =
   | DocumentChangedError;
 
 /**
- * Writes a change (a text, or BlockNote JSON) back to a Y.Doc, through an
- * editor that is bound to the
- * fragment of the document (`withCollaboration` of `@blocknote/core/yjs`)
- * and mounted, as a client does it. y-prosemirror syncs the editor and the
- * Y.Doc in the editor view: thus, the editor must be mounted, for example on
- * an element that is not in the page. To read the text, use
- * `getDocumentText` on the same editor.
+ * Writes a change (a text, or BlockNote JSON) back to the fragment of a
+ * Y.Doc of Yjs 14 (`@y/y`). To read the text, use `getYDocText`.
+ *
+ * The editor gives only the schema and the conversions of the formats. It
+ * does not have to be bound to the Y.Doc, and it needs no view. The reason:
+ * with Yjs 14, a ProseMirror document maps to a Y.Doc, and a Y.Doc to a
+ * ProseMirror document, with functions of `@y/prosemirror` and
+ * `@blocknote/core/y`, through the same pipeline as the binding of an
+ * editor. Thus, the write does not go through an editor view. An editor that
+ * is bound to the Y.Doc gets the write as a change of another client.
  *
  * Give the editor the schema and the extensions of the other clients (for
- * example comments). When an editor binds to a Y.Doc, y-prosemirror removes
- * the content that the schema of the editor cannot read.
+ * example comments). If the schema cannot read the content of the fragment,
+ * the write throws, and the Y.Doc does not change.
  *
  * `base` is the version that the client read: `"current"`, or the Yjs state
  * `Y.encodeStateAsUpdate` at that version. The write is strict, as
@@ -58,26 +87,23 @@ export type YDocChangeResult =
  */
 export function updateYDoc(
   editor: BlockNoteEditor<any, any, any>,
-  fragment: Y.XmlFragment,
+  fragment: Y.Node,
   change: (TextChange | JSONChange) & WriteFromVersion<Uint8Array>,
 ): YDocChangeResult {
-  const { fork, ydoc } = boundYDoc(editor, fragment);
+  const ydoc = docOf(fragment);
   requireBase(change.base);
   const before = Y.encodeStateVector(ydoc);
   if (change.base !== "current") {
-    const base = applyBase(editor, ydoc, fragment, change.base);
-    // The check comes before the fork: a write that does not apply costs
-    // one diff of the documents.
-    const changesOfOthers =
-      base.content === "none-as-now"
-        ? []
-        : changesAfterBase(base.blocks, editor.document);
+    const base = applyBase(editor, fragment, change.base);
+    // The check comes before the copy of the Y.Doc: a write that does not
+    // apply costs one diff of the documents.
+    const changesOfOthers = changesAfterBase(base, blocksOf(editor, fragment));
     if (changesOfOthers.length > 0) {
       return { error: "document-changed", changesOfOthers };
     }
   }
-  const result = writeInFork(fork, undefined, () =>
-    writeToEditor(editor, change, false),
+  const result = writeToCopy(editor, fragment, undefined, (current) =>
+    operationsOf(editor, change, current),
   );
   return result.error !== undefined
     ? result
@@ -85,63 +111,33 @@ export function updateYDoc(
 }
 
 /**
- * The part of the fork extension of core (`ForkYDocExtension`) that a write
- * uses.
+ * The Y.Doc of the fragment. Throws for a fragment that is not in a Y.Doc.
  *
  * @internal
  */
-export type Fork = {
-  fork(options?: { initialUpdate?: Uint8Array }): void;
-  merge(options: { keepChanges: boolean }): void;
-};
-
-/**
- * The fork extension and the Y.Doc of an editor that is bound to
- * `fragment`. Throws if the editor is not bound and mounted, or if it shows
- * a fork: the write would go into that fork, and its merge would end the
- * fork of the app (for example a version preview).
- *
- * @internal
- */
-export function boundYDoc(
-  editor: BlockNoteEditor<any, any, any>,
-  fragment: Y.XmlFragment,
-): { fork: Fork; ydoc: Y.Doc } {
-  const fork = editor.getExtension(ForkYDocExtension);
-  const ydoc = fragment.doc;
-  if (fork === undefined || editor.headless || ydoc === null) {
-    throw new Error(
-      "The editor must be bound to the fragment of a Y.Doc (withCollaboration), and mounted.",
-    );
+export function docOf(fragment: Y.Node): Y.Doc {
+  if (fragment.doc === null) {
+    throw new Error("The fragment must be in a Y.Doc.");
   }
-  if (fork.store.state.isForked) {
-    throw new Error(
-      "The editor shows a fork of the Y.Doc (for example a version preview). End the fork first.",
-    );
-  }
-  return { fork, ydoc };
+  return fragment.doc;
 }
 
 /**
- * The document of the fragment at the version `base` of a write.
+ * The blocks of the fragment. A fragment without content has no blocks: the
+ * one empty block that an editor shows for it is not in the Y.Doc.
  *
  * @internal
  */
-export type BaseDocument =
-  /**
-   * The fragment has no content at `base`, and no content now. These are
-   * the same empty document: the editor shows one empty block for it, which
-   * is not in the Y.Doc.
-   */
-  | { content: "none-as-now" }
-  /** The fragment has no content at `base`, and it has content now. */
-  | { content: "none"; blocks: LensBlock[] }
-  | { content: "blocks"; blocks: LensBlock[] };
+export function blocksOf(
+  editor: BlockNoteEditor<any, any, any>,
+  fragment: Y.Node,
+): LensBlock[] {
+  return yfragmentToBlocks(editor, fragment);
+}
 
 /**
  * Makes the Y.Doc a newer version of `base` (the Yjs state of the version
- * that the client read), and returns the document of the fragment at
- * `base`.
+ * that the client read), and returns the blocks of the fragment at `base`.
  *
  * The client can read from a replica with an update that this Y.Doc does
  * not have yet. Then `base` is not an older version of this Y.Doc, and a
@@ -153,65 +149,147 @@ export type BaseDocument =
  */
 export function applyBase(
   editor: BlockNoteEditor<any, any, any>,
-  ydoc: Y.Doc,
-  fragment: Y.XmlFragment,
+  fragment: Y.Node,
   base: Uint8Array,
-): BaseDocument {
-  Y.applyUpdate(ydoc, base);
+): LensBlock[] {
+  Y.applyUpdate(docOf(fragment), base);
   const version = new Y.Doc();
-  Y.applyUpdate(version, base);
-  const baseFragment = findTypeInOtherYdoc(fragment, version);
-  if (baseFragment.length > 0) {
-    return {
-      content: "blocks",
-      blocks: yXmlFragmentToBlocks(editor, baseFragment),
-    };
-  }
-  return fragment.length === 0
-    ? { content: "none-as-now" }
-    : { content: "none", blocks: yXmlFragmentToBlocks(editor, baseFragment) };
-}
-
-/**
- * Runs the write in a fork of the Y.Doc, and keeps its changes only if it
- * gives no error. Thus, a write that fails (an error, or an exception in
- * the middle) does not change the Y.Doc. The fork starts at the current
- * Y.Doc, or at the Yjs state `initialUpdate`.
- *
- * @internal
- */
-export function writeInFork<Result extends { error?: string }>(
-  fork: Fork,
-  initialUpdate: Uint8Array | undefined,
-  write: () => Result,
-): Result {
-  let result: Result | undefined;
-  fork.fork({ initialUpdate });
   try {
-    result = write();
+    Y.applyUpdate(version, base);
+    return blocksOf(editor, findTypeInOtherYdoc(fragment, version));
   } finally {
-    fork.merge({
-      keepChanges: result !== undefined && result.error === undefined,
-    });
+    version.destroy();
   }
-  return result;
 }
 
 /**
- * Computes the operations of the change for the document of the editor,
- * without a merge, and applies them to the editor. With `keepLayout`, the
- * layout blocks stay, also if they become empty (see `fitResult`).
+ * Computes the operations of a write for the document of the fragment (with
+ * `compute`), and writes them to the fragment. Returns the result of
+ * `compute`.
+ *
+ * The write goes to a copy of the Y.Doc: at the current state, or at the
+ * Yjs state `at` (then Yjs merges the write with the changes after `at`).
+ * The Y.Doc gets the changes of the copy as one Yjs update, after the write
+ * to the copy is complete. Thus, a write that fails (an error, or an
+ * exception in the middle) does not change the Y.Doc.
  *
  * @internal
  */
-export function writeToEditor(
+export function writeToCopy<
+  Result extends { error?: string; operations?: readonly BlockOperation[] },
+>(
   editor: BlockNoteEditor<any, any, any>,
-  change: TextChange | JSONChange,
-  keepLayout: boolean,
-): ChangeOperations | InvalidDocumentError {
-  const result = operationsOf(editor, change, editor.document, keepLayout);
-  if (result.error === undefined) {
-    dispatchOperations(editor, result.operations);
+  fragment: Y.Node,
+  at: Uint8Array | undefined,
+  compute: (current: readonly LensBlock[]) => Result,
+): Result {
+  const ydoc = docOf(fragment);
+  const copy = new Y.Doc();
+  try {
+    Y.applyUpdate(copy, at ?? Y.encodeStateAsUpdate(ydoc));
+    const target = findTypeInOtherYdoc(fragment, copy);
+    const current = blocksOf(editor, target);
+    const result = compute(current);
+    if (result.error === undefined && result.operations !== undefined) {
+      if (current.length === 0) {
+        fillFragment(editor, target, result.operations);
+      } else {
+        changeFragment(editor, target, result.operations);
+      }
+      Y.applyUpdate(
+        ydoc,
+        Y.encodeStateAsUpdate(copy, Y.encodeStateVector(ydoc)),
+      );
+    }
+    return result;
+  } finally {
+    copy.destroy();
   }
-  return result;
+}
+
+/**
+ * Writes the operations to a fragment without content. Such a fragment has
+ * no blocks, thus each operation is an insert, and the blocks of the inserts
+ * are the document. `blocksToYType` of core puts them into the fragment.
+ */
+function fillFragment(
+  editor: BlockNoteEditor<any, any, any>,
+  fragment: Y.Node,
+  operations: readonly BlockOperation[],
+): void {
+  const blocks = applyToBlocks(
+    [],
+    operations.filter(
+      (operation): operation is StructureOperation =>
+        operation.type !== "update",
+    ),
+  );
+  blocksToYType(editor, blocks as Block<any, any, any>[], fragment);
+}
+
+/**
+ * Applies the operations to the document of a fragment with blocks, and
+ * writes the change to the fragment, in one Yjs transaction.
+ *
+ * The document is the ProseMirror document that the binding of an editor
+ * shows for the fragment. The pipeline of the binding (`blockNoteTransformer`
+ * of core) maps the content of the fragment to that document, and a change
+ * of the document back to a change of the fragment. For example, the
+ * fragment keeps the empty block groups, and the document does not have
+ * them.
+ *
+ * The change goes to the fragment as one difference for each group of steps
+ * (see `stepGroupEnds`), not as one difference of the two documents. The
+ * reason is the same as for an editor that is bound to a Y.Doc: the
+ * difference pairs the changed nodes of a list by their type, not by their
+ * block ID.
+ *
+ * Throws if the fragment then does not have the document of the write. An
+ * example is a fragment with content that the schema of the editor cannot
+ * read: the document does not have that content, thus a change after it
+ * goes to a wrong position.
+ */
+function changeFragment(
+  editor: BlockNoteEditor<any, any, any>,
+  fragment: Y.Node,
+  operations: readonly BlockOperation[],
+): void {
+  const schema = editor.pmSchema;
+  const render = fragment.toDeltaDeep();
+  const pipeline = blockNoteTransformer({ getState: () => render, schema })(
+    $prosemirrorDelta,
+  ).init();
+  // The pipeline changes the delta that it gets. Thus, it gets a copy, as in
+  // the binding (`lib0/delta/rdt`).
+  const doc = deltaToPNode(
+    pipeline.applyA(delta.cloneDeep(render)).b ?? render,
+    schema,
+    null,
+  );
+  // A state without plugins: the operations give a complete document (a
+  // block that the fill of the schema adds gets its ID in the apply).
+  const tr = EditorState.create({ doc }).tr;
+  applyOperations(tr, operations);
+  docOf(fragment).transact(() => {
+    let previous = doc;
+    for (const end of stepGroupEnds(tr)) {
+      const next = end < tr.steps.length ? tr.docs[end] : tr.doc;
+      const change = pipeline.applyB(
+        delta.cloneDeep(docDiffToDelta(previous, next)),
+      ).a;
+      if (change !== null) {
+        fragment.applyDelta(change);
+      }
+      previous = next;
+    }
+  });
+  const written = ynodeToPmnode(fragment, schema, {
+    renderer: null,
+    transformer: blockNoteTransformer,
+  });
+  if (!written.eq(tr.doc)) {
+    throw new Error(
+      "The Y.Doc does not have the document of the write. The editor of the write must have the schema of the Y.Doc.",
+    );
+  }
 }

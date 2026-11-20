@@ -3,15 +3,15 @@ import {
   CommentsExtension,
   DefaultThreadStoreAuth,
 } from "@blocknote/core/comments";
-import { YjsThreadStore } from "@blocknote/core/yjs";
+import { YjsThreadStore } from "@blocknote/core/y";
+import * as Y from "@y/y";
 import type { Mark, Node } from "prosemirror-model";
-import * as Y from "yjs";
 
 /** Editor options with the comments extension, so that the schema has the comment mark. */
 export function commentEditorOptions() {
   const threadStore = new YjsThreadStore(
     "lens",
-    new Y.Doc().getMap("threads"),
+    new Y.Doc().get("threads"),
     new DefaultThreadStoreAuth("lens", "editor"),
   );
   return {

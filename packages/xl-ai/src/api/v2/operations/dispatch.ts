@@ -31,24 +31,48 @@ export function dispatchUpdate(
 }
 
 /**
- * Dispatches the steps of the transaction to the editor, in transactions that
- * y-prosemirror writes to the Y.Doc without changes to other blocks:
+ * The end of each group of the steps of `transform`, in sequence. Each
+ * group is a change that the Yjs 14 binding (`@blocknote/core/y`) writes to
+ * a Y.Doc without changes to other blocks.
+ *
+ * The binding writes the difference of the document before and after a
+ * change. In each run of changed nodes of a list, it pairs an old node with
+ * the first new node of the same type (`blockMatchNodes` of core). It does
+ * not use the block ID. Thus, if one change has an insert or a removal next
+ * to a changed block, or a block with a new type next to a changed block, a
+ * block of the Y.Doc gets the content of a different block, and a change of
+ * another writer goes into the wrong block (measured with `@y/prosemirror`
+ * 2.0.0-15, see `dispatch.y.test.ts`). The groups prevent this:
  *
  * - A step that changes a list of children (for example the insert or the
- *   removal of blocks) goes alone. y-prosemirror compares a list of children
- *   only from its start and from its end. It writes the children between the
- *   first and the last change in place, one by one. Thus, with two changes
- *   in one list, or a change that inserts or removes children next to other
- *   changes, a block can get the content of a different block, and a change
- *   of another writer goes into the wrong block.
- * - The other steps (in a text block, or a change of the attributes or the
- *   type of one node, see `blockOf`) go in groups in which no two steps
- *   change the same block. For each transaction, y-prosemirror writes one diff for each text
- *   block: from the first changed character to the last. Thus, for a
- *   paragraph with two changes in one transaction, it replaces the text
- *   between them, and Yjs then moves or duplicates a change of another writer
- *   there. With one change for each text block in a transaction, each diff
- *   is as small as its step, as for a user who types.
+ *   removal of blocks), or the type of a node, goes alone. The difference
+ *   then has only new nodes, only removed nodes, or one node with a new
+ *   type.
+ * - The other steps (in a text block, or a change of the attributes of one
+ *   node, see `blockOf`) go in groups in which no two steps change the same
+ *   block. Then the changed nodes of a difference pair in their order. With
+ *   one change for each text block, the difference of the text is at the
+ *   position of the step, as for a user who types. With two changes in one
+ *   text block, the binding makes one difference of the text, which can be
+ *   at other positions for a text with repeated words.
+ *
+ * The Y.Doc write of the lens (`y/yDocText.ts`) writes one difference for
+ * each group, for the same reason.
+ */
+export function stepGroupEnds(transform: Transform): number[] {
+  const ends: number[] = [];
+  let start = 0;
+  while (start < transform.steps.length) {
+    start = groupEnd(transform, start);
+    ends.push(start);
+  }
+  return ends;
+}
+
+/**
+ * Dispatches the steps of the transaction to the editor, in transactions that
+ * the Yjs 14 binding (`@blocknote/core/y`) writes to the Y.Doc without
+ * changes to other blocks (see {@link stepGroupEnds} for the groups).
  *
  * Between the transactions, plugins can change the document (for example
  * prosemirror-tables, or the unique ID extension). Then the steps after that
@@ -106,13 +130,14 @@ function dispatchToEditor(
   });
 }
 
-/** The end of the group of steps from `start` (see {@link dispatchSteps}). */
+/** The end of the group of steps from `start` (see {@link stepGroupEnds}). */
 function groupEnd(pending: Transform, start: number): number {
   const changed = new Set<string>();
   for (let index = start; index < pending.steps.length; index++) {
     const block = blockOf(pending.docs[index], pending.steps[index]);
     if (block === undefined) {
-      // A step that changes a list of children goes alone.
+      // A step that changes a list of children, or the type of a node, goes
+      // alone.
       return index === start ? index + 1 : index;
     }
     if (changed.has(block)) {
@@ -184,24 +209,20 @@ function rebaseSteps(
 
 /**
  * The ID of the block that the step changes, if the step changes no list of
- * children, in `doc` (the document before the step): a step in one text
- * block, or a step that changes only the attributes or the type of one node
- * (for example the props of a block, or the color of a table cell).
- * `undefined` for another step, for example the insert of a block.
+ * children and no type of a node, in `doc` (the document before the step): a
+ * step in one text block, or a step that changes only the attributes of one
+ * node (for example the props of a block, or the color of a table cell).
+ * `undefined` for another step, for example the insert of a block, or a
+ * paragraph that becomes a heading.
  */
 function blockOf(doc: Node, step: Step): string | undefined {
   if (step instanceof AttrStep) {
     return blockAt(doc, step.pos);
   }
-  if (
-    step instanceof ReplaceAroundStep &&
-    step.insert === 1 &&
-    step.gapFrom === step.from + 1 &&
-    step.gapTo === step.to - 1 &&
-    doc.nodeAt(step.from)?.nodeSize === step.to - step.from
-  ) {
-    // The node at `from` gets a new type or new attributes (setNodeMarkup).
-    return blockAt(doc, step.from);
+  if (step instanceof ReplaceAroundStep) {
+    return changesOnlyAttributes(doc, step)
+      ? blockAt(doc, step.from)
+      : undefined;
   }
   if (
     !(
@@ -217,6 +238,22 @@ function blockOf(doc: Node, step: Step): string | undefined {
     return undefined;
   }
   return blockAt(doc, step.from);
+}
+
+/**
+ * Returns true if the step gives the node at `step.from` new attributes, and
+ * keeps its type and its content (`setNodeMarkup` with the same type). A
+ * step that gives the node a new type is not such a step.
+ */
+function changesOnlyAttributes(doc: Node, step: ReplaceAroundStep): boolean {
+  const node = doc.nodeAt(step.from);
+  return (
+    step.insert === 1 &&
+    step.gapFrom === step.from + 1 &&
+    step.gapTo === step.to - 1 &&
+    node?.nodeSize === step.to - step.from &&
+    step.slice.content.firstChild?.type === node.type
+  );
 }
 
 /** The ID of the block of the node at `pos`, or of the block that contains it. */

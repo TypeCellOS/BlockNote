@@ -5,7 +5,12 @@
  * file. The other files export more only for their unit tests.
  */
 export { applyOperations } from "./applyOperations.js";
+export { applyToBlocks } from "./applyToBlocks.js";
 export { diffDocuments } from "./diffDocuments.js";
-export { dispatchUpdate } from "./dispatch.js";
+export { dispatchUpdate, stepGroupEnds } from "./dispatch.js";
 export { newIdsForLayoutChanges } from "./layoutChanges.js";
-export type { BlockOperation, BlockPosition } from "./types.js";
+export type {
+  BlockOperation,
+  BlockPosition,
+  StructureOperation,
+} from "./types.js";

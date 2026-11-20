@@ -1,7 +1,7 @@
 import { BlockNoteEditor, type PartialBlock } from "@blocknote/core";
-import { blocksToYDoc } from "@blocknote/core/yjs";
+import { blocksToYDoc } from "@blocknote/core/y";
+import * as Y from "@y/y";
 import { describe, it } from "vite-plus/test";
-import * as Y from "yjs";
 
 import { alignBlocks } from "../alignment/alignBlocks.js";
 import { flattenBlocks } from "../util/blocks/flatten.js";
@@ -19,8 +19,7 @@ import { diffDocuments } from "../operations/diffDocuments.js";
 import { projectDocument } from "../projection/projectDocument.js";
 import { targetFromPairs } from "../target/targetFromPairs.js";
 import { richDocument } from "../testUtil/fixtures.js";
-import { bindEditor, unbindEditor } from "../testUtil/y.js";
-import { updateYDocWithMerge } from "../y/index.js";
+import { getYDocText, updateYDocWithMerge } from "../y/index.js";
 
 /**
  * Benchmarks for large documents. The normal test run does not run them. Run
@@ -135,9 +134,7 @@ describe("large documents", () => {
 
           // The same document in a Y.Doc.
           const ydoc = blocksToYDoc(editor, editor.document);
-          const reader = bindEditor(ydoc.getXmlFragment("prosemirror"));
-          const yText = getDocumentText(reader, format);
-          unbindEditor(reader);
+          const yText = getYDocText(editor, ydoc.get("prosemirror"), format);
           const yEdited =
             yText.slice(0, yText.indexOf("Last paragraph", yText.length / 2)) +
             "Changed. " +
@@ -169,11 +166,10 @@ describe("large documents", () => {
                 onConflict: "keep-current",
               }),
             ),
-            // A new client of a copy of the Y.Doc for each run. The bind is
-            // not in the time.
+            // A copy of the Y.Doc for each run. The copy is not in the time.
             "Y.Doc write": await median(
-              ({ client, fragment }) =>
-                updateYDocWithMerge(client, fragment, {
+              (fragment) =>
+                updateYDocWithMerge(editor, fragment, {
                   format,
                   text: yEdited,
                   base: Y.encodeStateAsUpdate(ydoc),
@@ -182,11 +178,8 @@ describe("large documents", () => {
               () => {
                 const copy = new Y.Doc();
                 Y.applyUpdate(copy, Y.encodeStateAsUpdate(ydoc));
-                const fragment = copy.getXmlFragment("prosemirror");
-                return { client: bindEditor(fragment), fragment };
+                return copy.get("prosemirror");
               },
-              // An editor of 10,000 blocks with a DOM is large in memory.
-              ({ client }) => unbindEditor(client),
             ),
             "· project": await median(() => {
               projection = projectDocument(
