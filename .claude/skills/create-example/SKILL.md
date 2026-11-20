@@ -32,7 +32,7 @@ Contains all of the example's configuration. Here's an annotated example (from `
 "playground": true,
 <!-- Whether the example should be visible on the BlockNote website. This should usually be `true`, unless the example is just for testing. -->
 "docs": true,
-<!-- The author's name. Can be left blank for the user to fill out. -->
+<!-- The author's GitHub username, not a display name. Do not leave this blank. -->
 "author": "matthewlipski",
 <!-- Relevant tags for the example. Should aim to reuse ones from existing examples rather than creating new ones. -->
 "tags": [
@@ -53,6 +53,8 @@ Contains all of the example's configuration. Here's an annotated example (from `
 <!-- Whether to hide the example behind a subscription on the BlockNote website. Default to `false` unless instructed otherwise. -->
 "pro": true
 ```
+
+Set `author` to the user's GitHub username. Prefer a username the user supplies; otherwise check the authenticated account with `gh api user --jq .login` and ask the user to confirm it before using it, since it may belong to a bot or another person. If the author cannot be determined or confirmed, ask rather than leaving it blank or guessing. This metadata credits the author on the playground and website.
 
 `README.md`
 
