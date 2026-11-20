@@ -335,13 +335,13 @@ export const ja: Dictionary = {
     },
     file_rename: {
       tooltip: {
-        image: "画像の名前を変更",
+        image: "代替テキスト",
         video: "ビデオの名前を変更",
         audio: "オーディオの名前を変更",
         file: "ファイルの名前を変更",
       },
       input_placeholder: {
-        image: "画像の名前を変更",
+        image: "代替テキスト",
         video: "ビデオの名前を変更",
         audio: "オーディオの名前を変更",
         file: "ファイルの名前を変更",
@@ -362,9 +362,6 @@ export const ja: Dictionary = {
         audio: "オーディオを削除",
         file: "ファイルを削除",
       },
-    },
-    file_preview_toggle: {
-      tooltip: "プレビューの切り替え",
     },
     nest: {
       tooltip: "インデント増",

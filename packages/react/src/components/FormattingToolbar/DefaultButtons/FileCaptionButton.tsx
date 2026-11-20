@@ -106,7 +106,7 @@ export const FileCaptionButton = () => {
           className={"bn-button"}
           label={dict.formatting_toolbar.file_caption.tooltip}
           mainTooltip={dict.formatting_toolbar.file_caption.tooltip}
-          icon={<RiInputField />}
+          icon={<RiInputField aria-hidden="true" focusable="false" />}
           onClick={() => setPopoverOpen(!popoverOpen)}
         />
       </Components.Generic.Popover.Trigger>
@@ -120,9 +120,11 @@ export const FileCaptionButton = () => {
         >
           <Components.Generic.Form.TextInput
             name={"file-caption"}
-            icon={<RiInputField />}
+            label={dict.formatting_toolbar.file_caption.input_placeholder}
+            icon={<RiInputField aria-hidden="true" focusable="false" />}
             value={block.props.caption}
             autoFocus={true}
+            autoComplete="off"
             placeholder={dict.formatting_toolbar.file_caption.input_placeholder}
             onChange={handleChange}
           />

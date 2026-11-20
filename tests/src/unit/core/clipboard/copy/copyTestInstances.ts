@@ -632,7 +632,6 @@ export const copyTestInstancesHTML: TestInstance<
             name: "1280px-Placeholder_view_vector.svg.png",
             url: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Placeholder_view_vector.svg/1280px-Placeholder_view_vector.svg.png",
             caption: "Placeholder",
-            showPreview: true,
             previewWidth: 256,
           },
         },

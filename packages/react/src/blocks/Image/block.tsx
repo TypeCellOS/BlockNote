@@ -1,4 +1,8 @@
-import { createImageBlockConfig, imageParse } from "@blocknote/core";
+import {
+  createImageBlockConfig,
+  filenameFromURL,
+  imageParse,
+} from "@blocknote/core";
 import { RiImage2Fill } from "react-icons/ri";
 
 import {
@@ -8,7 +12,6 @@ import {
 import { useResolveUrl } from "../File/useResolveUrl.js";
 import { FigureWithCaption } from "../File/helpers/toExternalHTML/FigureWithCaption.js";
 import { ResizableFileBlockWrapper } from "../File/helpers/render/ResizableFileBlockWrapper.js";
-import { LinkWithCaption } from "../File/helpers/toExternalHTML/LinkWithCaption.js";
 
 export const ImagePreview = (
   props: Omit<
@@ -18,10 +21,8 @@ export const ImagePreview = (
 ) => {
   const resolved = useResolveUrl(props.block.props.url!);
 
-  // alt describes image content (per WCAG H86); figcaption (when present)
-  // is the contextual caption. Fall back to "" so unlabelled images are
-  // marked decorative rather than getting a noisy generic fallback.
-  const alt = props.block.props.name || "";
+  // Match the core renderer without persisting a generated alternative text.
+  const alt = props.block.props.name || filenameFromURL(props.block.props.url);
 
   return (
     <img
@@ -50,27 +51,19 @@ export const ImageToExternalHTML = (
   }
 
   const alt = props.block.props.name || "";
-  const image = props.block.props.showPreview ? (
+  const image = (
     <img
       src={props.block.props.url}
       alt={alt}
       width={props.block.props.previewWidth}
     />
-  ) : (
-    <a href={props.block.props.url}>
-      {props.block.props.name || props.block.props.url}
-    </a>
   );
 
   if (props.block.props.caption) {
-    return props.block.props.showPreview ? (
+    return (
       <FigureWithCaption caption={props.block.props.caption}>
         {image}
       </FigureWithCaption>
-    ) : (
-      <LinkWithCaption caption={props.block.props.caption}>
-        {image}
-      </LinkWithCaption>
     );
   }
 

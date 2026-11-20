@@ -308,13 +308,13 @@ export const hr: Dictionary = {
     },
     file_rename: {
       tooltip: {
-        image: "Preimenuj sliku",
+        image: "Alternativni tekst",
         video: "Preimenuj video",
         audio: "Preimenuj audio",
         file: "Preimenuj datoteku",
       } as Record<string, string>,
       input_placeholder: {
-        image: "Preimenuj sliku",
+        image: "Alternativni tekst",
         video: "Preimenuj video",
         audio: "Preimenuj audio",
         file: "Preimenuj datoteku",
@@ -335,9 +335,6 @@ export const hr: Dictionary = {
         audio: "Ukloni audio",
         file: "Ukloni datoteku",
       } as Record<string, string>,
-    },
-    file_preview_toggle: {
-      tooltip: "Prikaži/sakrij pregled",
     },
     nest: {
       tooltip: "Ugnijezdi blok",

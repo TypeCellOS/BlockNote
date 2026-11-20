@@ -20,7 +20,6 @@ import {
 import { AddCommentButton } from "./DefaultButtons/AddCommentButton.js";
 import { AddTiptapCommentButton } from "./DefaultButtons/AddTiptapCommentButton.js";
 import { FileDownloadButton } from "./DefaultButtons/FileDownloadButton.js";
-import { FilePreviewButton } from "./DefaultButtons/FilePreviewButton.js";
 import { TableCellMergeButton } from "./DefaultButtons/TableCellMergeButton.js";
 import { TextAlignButton } from "./DefaultButtons/TextAlignButton.js";
 import { FormattingToolbarProps } from "./FormattingToolbarProps.js";
@@ -35,7 +34,6 @@ export const getFormattingToolbarItems = (
   <FileRenameButton key={"fileRenameButton"} />,
   <FileDeleteButton key={"fileDeleteButton"} />,
   <FileDownloadButton key={"fileDownloadButton"} />,
-  <FilePreviewButton key={"filePreviewButton"} />,
   <BasicTextStyleButton basicTextStyle={"bold"} key={"boldStyleButton"} />,
   <BasicTextStyleButton basicTextStyle={"italic"} key={"italicStyleButton"} />,
   <BasicTextStyleButton

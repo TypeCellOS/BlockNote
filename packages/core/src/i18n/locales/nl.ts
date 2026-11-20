@@ -295,13 +295,13 @@ export const nl: Dictionary = {
     },
     file_rename: {
       tooltip: {
-        image: "Afbeelding hernoemen",
+        image: "Alternatieve tekst",
         video: "Video hernoemen",
         audio: "Audio hernoemen",
         file: "Bestand hernoemen",
       },
       input_placeholder: {
-        image: "Afbeelding hernoemen",
+        image: "Alternatieve tekst",
         video: "Video hernoemen",
         audio: "Audio hernoemen",
         file: "Bestand hernoemen",
@@ -322,9 +322,6 @@ export const nl: Dictionary = {
         audio: "Audio verwijderen",
         file: "Bestand verwijderen",
       },
-    },
-    file_preview_toggle: {
-      tooltip: "Voorbeeldschakelaar",
     },
     nest: {
       tooltip: "Nest blok",

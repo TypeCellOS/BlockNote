@@ -1,3 +1,4 @@
+import { filenameFromURL } from "../../util/string.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import {
   BlockFromConfig,
@@ -8,7 +9,6 @@ import { defaultProps, parseDefaultProps } from "../defaultProps.js";
 import { parseFigureElement } from "../File/helpers/parse/parseFigureElement.js";
 import { createResizableFileBlockWrapper } from "../File/helpers/render/createResizableFileBlockWrapper.js";
 import { createFigureWithCaption } from "../File/helpers/toExternalHTML/createFigureWithCaption.js";
-import { createLinkWithCaption } from "../File/helpers/toExternalHTML/createLinkWithCaption.js";
 import { parseImageElement } from "./parseImageElement.js";
 
 export const FILE_IMAGE_ICON_SVG =
@@ -27,7 +27,7 @@ export const createImageBlockConfig = createBlockConfig(
       propSchema: {
         textAlignment: defaultProps.textAlignment,
         backgroundColor: defaultProps.backgroundColor,
-        // File name.
+        // Alternative text.
         name: {
           default: "" as const,
         },
@@ -38,10 +38,6 @@ export const createImageBlockConfig = createBlockConfig(
         // File caption.
         caption: {
           default: "" as const,
-        },
-
-        showPreview: {
-          default: true,
         },
         // File preview width in px.
         previewWidth: {
@@ -116,10 +112,9 @@ export const imageRender =
       image.src = block.props.url;
     }
 
-    // alt describes image content (per WCAG H86); figcaption (when present)
-    // is the contextual caption. Fall back to "" so unlabelled images are
-    // marked decorative rather than getting a noisy generic fallback.
-    image.alt = block.props.name || "";
+    // Identify unnamed images even when they fail to load. This fallback is
+    // only for the editor; keep the stored name and external HTML unchanged.
+    image.alt = block.props.name || filenameFromURL(block.props.url);
     image.contentEditable = "false";
     image.draggable = false;
     if (block.props.previewWidth) {
@@ -152,26 +147,15 @@ export const imageToExternalHTML =
       };
     }
 
-    let image;
-    if (block.props.showPreview) {
-      image = document.createElement("img");
-      image.src = block.props.url;
-      image.alt = block.props.name || "";
-      if (block.props.previewWidth) {
-        image.width = block.props.previewWidth;
-      }
-    } else {
-      image = document.createElement("a");
-      image.href = block.props.url;
-      image.textContent = block.props.name || block.props.url;
+    const image = document.createElement("img");
+    image.src = block.props.url;
+    image.alt = block.props.name || "";
+    if (block.props.previewWidth) {
+      image.width = block.props.previewWidth;
     }
 
     if (block.props.caption) {
-      if (block.props.showPreview) {
-        return createFigureWithCaption(image, block.props.caption);
-      } else {
-        return createLinkWithCaption(image, block.props.caption);
-      }
+      return createFigureWithCaption(image, block.props.caption);
     }
 
     return {

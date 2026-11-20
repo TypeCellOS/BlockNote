@@ -294,13 +294,13 @@ export const vi: Dictionary = {
     },
     file_rename: {
       tooltip: {
-        image: "Đổi tên hình ảnh",
+        image: "Văn bản thay thế",
         video: "Đổi tên video",
         audio: "Đổi tên âm thanh",
         file: "Đổi tên tệp",
       },
       input_placeholder: {
-        image: "Đổi tên hình ảnh",
+        image: "Văn bản thay thế",
         video: "Đổi tên video",
         audio: "Đổi tên âm thanh",
         file: "Đổi tên tệp",
@@ -321,9 +321,6 @@ export const vi: Dictionary = {
         audio: "Xóa âm thanh",
         file: "Xóa tệp",
       },
-    },
-    file_preview_toggle: {
-      tooltip: "Chuyển đổi xem trước",
     },
     nest: {
       tooltip: "Lồng khối",
