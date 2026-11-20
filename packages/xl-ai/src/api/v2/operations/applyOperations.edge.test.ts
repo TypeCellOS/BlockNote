@@ -1,4 +1,6 @@
 import type { BlockNoteEditor, PartialBlock } from "@blocknote/core";
+import type { Node } from "prosemirror-model";
+import { EditorState } from "prosemirror-state";
 import { describe, expect, it } from "vite-plus/test";
 
 import type { LensTableContent } from "../model.js";
@@ -162,6 +164,48 @@ describe("applyOperations: an insert with the ID of a removed block", () => {
       { id: "a", content: [{ text: "Alpha" }] },
       { id: "b", type: "paragraph", content: [{ text: "Beta" }] },
     ]);
+  });
+});
+
+describe("applyOperations: the ID of a block that the fill of the schema adds", () => {
+  /** The IDs of the block nodes of a document. */
+  function nodeIds(doc: Node): unknown[] {
+    const ids: unknown[] = [];
+    doc.descendants((node) => {
+      if (node.type.isInGroup("bnBlock")) {
+        ids.push(node.attrs.id);
+      }
+    });
+    return ids;
+  }
+
+  it("gives an ID to the block that fills an empty document, in a state without plugins", () => {
+    // A state without plugins has no ID extension. An example is the
+    // document of a Y.Doc, which the lens writes without an editor.
+    const state = EditorState.create({
+      doc: createEditor([{ id: "p", type: "paragraph", content: "Alpha" }])
+        .prosemirrorState.doc,
+    });
+    const tr = state.tr;
+
+    applyOperations(tr, [{ type: "delete", id: "p" }]);
+
+    expect(nodeIds(tr.doc)).toEqual([expect.any(String)]);
+    expect(nodeIds(tr.doc)).not.toEqual(["p"]);
+  });
+
+  it("gives an ID to each block of the fill of a tab set, in a state without plugins", () => {
+    const editor = createTabsEditor(2);
+    const state = EditorState.create({ doc: editor.prosemirrorState.doc });
+    const tr = state.tr;
+
+    applyOperations(tr, [{ type: "delete", id: "t2" }]);
+
+    const ids = nodeIds(tr.doc);
+    expect(ids.every((id) => typeof id === "string")).toBe(true);
+    expect(new Set(ids).size).toBe(ids.length);
+    // The tab set, tab t1 with block a, and the fill: a tab with a paragraph.
+    expect(ids).toHaveLength(5);
   });
 });
 

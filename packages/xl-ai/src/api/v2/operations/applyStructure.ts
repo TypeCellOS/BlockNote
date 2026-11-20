@@ -1,4 +1,5 @@
 import { blockToNode, type PartialBlock } from "@blocknote/core";
+import { UniqueID } from "@blocknote/core/extensions";
 import {
   type ContentMatch,
   Fragment,
@@ -125,6 +126,7 @@ function decideList(
  * (the minimum), else the fill of ProseMirror (for an empty document: a
  * block with an empty paragraph; for a tab set: a tab with an empty
  * paragraph). The node type of a block with content is `blockContainer`.
+ * Each block of the fill gets a new ID (see {@link withBlockIds}).
  */
 function fillAtEnd(list: Node, blocks: readonly LensBlock[]): Node[] {
   const schema = list.type.schema;
@@ -139,7 +141,7 @@ function fillAtEnd(list: Node, blocks: readonly LensBlock[]): Node[] {
   // `null`: the types do not fit in any number. Then the step throws (a bug).
   const fill = match?.fillBefore(Fragment.empty, true);
   const nodes: Node[] = [];
-  fill?.forEach((node) => nodes.push(node));
+  fill?.forEach((node) => nodes.push(withBlockIds(node)));
   return nodes;
 }
 
@@ -297,5 +299,35 @@ function withChildren(block: Node, children: readonly Node[]): Node {
       `The children do not fit a block of type ${block.type.name}`,
     );
   }
-  return filled;
+  return withBlockIds(filled);
+}
+
+/**
+ * The node, with a new ID for each block in it that has none. Only the
+ * fill of the schema makes such blocks: a block of the document and a block
+ * of an insert have an ID. Thus, the transaction needs no plugin that gives
+ * IDs (the ID extension of an editor), and the steps can go to a document
+ * without an editor, for example the document of a Y.Doc. A node without
+ * such a block stays the same node.
+ */
+function withBlockIds(node: Node): Node {
+  if (node.isText) {
+    return node;
+  }
+  const children: Node[] = [];
+  let changed = false;
+  node.forEach((child) => {
+    const withIds = withBlockIds(child);
+    changed ||= withIds !== child;
+    children.push(withIds);
+  });
+  const needsId = node.type.isInGroup("bnBlock") && node.attrs.id == null;
+  if (!changed && !needsId) {
+    return node;
+  }
+  return node.type.create(
+    needsId ? { ...node.attrs, id: UniqueID.options.generateID() } : node.attrs,
+    children,
+    node.marks,
+  );
 }
