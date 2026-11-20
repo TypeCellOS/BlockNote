@@ -2,19 +2,17 @@
 import { describe, expect, it } from "vite-plus/test";
 
 import type { LensBlock } from "../model.js";
-import { applyToBlocks, type BlockShape } from "./applyToBlocks.js";
+import { applyToBlocks } from "./applyToBlocks.js";
 import type { StructureOperation } from "./types.js";
 
 function block(id: string, children: LensBlock[] = []): LensBlock {
   return { id, type: "paragraph", props: {}, content: [], children };
 }
 
-/** The IDs of the structure, with the nesting. */
-function ids(shapes: readonly BlockShape[]): unknown[] {
-  return shapes.map((shape) =>
-    shape.children.length > 0
-      ? [shape.block.id, ids(shape.children)]
-      : shape.block.id,
+/** The IDs of the blocks, with the nesting. */
+function ids(blocks: readonly LensBlock[]): unknown[] {
+  return blocks.map((child) =>
+    child.children.length > 0 ? [child.id, ids(child.children)] : child.id,
   );
 }
 
@@ -57,6 +55,24 @@ describe("applyToBlocks: valid operations", () => {
 
   it("removes a block with its children", () => {
     expect(apply(document, [{ type: "delete", id: "a" }])).toEqual(["c"]);
+  });
+
+  it("does not change the blocks of the document and of the operations", () => {
+    const inserted = block("n", [block("m")]);
+    const before = structuredClone({ document, inserted });
+
+    const result = applyToBlocks(document, [
+      { type: "insert", block: inserted, placement: "start" },
+      { type: "move", id: "c", reference: "m", placement: "after" },
+      { type: "move", id: "b", reference: "n", placement: "before" },
+      { type: "delete", id: "a" },
+    ]);
+
+    expect(ids(result)).toEqual(["b", ["n", ["m", "c"]]]);
+    expect({ document, inserted }).toEqual(before);
+    // The result has copies: a block of the input is not in it.
+    expect(result[1]).not.toBe(inserted);
+    expect(result[0]).not.toBe(document[0].children[0]);
   });
 
   it("throws for a move with a block that is not in the document", () => {

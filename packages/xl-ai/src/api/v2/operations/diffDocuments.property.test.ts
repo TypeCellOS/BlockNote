@@ -3,7 +3,7 @@ import { describe, expect, it } from "vite-plus/test";
 
 import type { LensBlock } from "../model.js";
 import { createRandom, type Random } from "../testUtil/random.js";
-import { applyToBlocks, type BlockShape } from "./applyToBlocks.js";
+import { applyToBlocks } from "./applyToBlocks.js";
 import { diffDocuments } from "./diffDocuments.js";
 import type { BlockOperation, StructureOperation } from "./types.js";
 
@@ -134,20 +134,16 @@ function apply(
       });
     }
   }
-  const build = (shapes: readonly BlockShape[]): LensBlock[] =>
-    shapes.map((shape) => ({
-      id: shape.block.id,
-      ...(fields.get(shape.block.id) ?? {
-        type: shape.block.type,
-        props: shape.block.props,
-        content: shape.block.content,
-      }),
-      children: build(shape.children),
+  const withFields = (blocks: readonly LensBlock[]): LensBlock[] =>
+    blocks.map((child) => ({
+      ...child,
+      ...fields.get(child.id),
+      children: withFields(child.children),
     }));
   const structure = operations.filter(
     (operation): operation is StructureOperation => operation.type !== "update",
   );
-  return build(applyToBlocks(document, structure));
+  return withFields(applyToBlocks(document, structure));
 }
 
 describe("diffDocuments: properties", () => {

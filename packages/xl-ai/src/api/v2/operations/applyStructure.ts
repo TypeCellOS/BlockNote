@@ -8,12 +8,12 @@ import {
 import type { Transaction } from "prosemirror-state";
 import { ReplaceStep } from "prosemirror-transform";
 
+import type { LensBlock } from "../model.js";
 import { gaps, isChanged, myersMatch } from "../util/sequence/index.js";
-import type { BlockShape } from "./applyToBlocks.js";
 
 /**
- * Makes the structure of the document agree with `target` (see
- * `applyToBlocks`), in two steps: decide, then apply.
+ * Makes the structure of the document agree with `target` (the document
+ * that `applyToBlocks` gives), in two steps: decide, then apply.
  *
  * 1. Decide the replacements (see {@link replacementsOf}): in each list of
  *    children, the children that stay (a common subsequence of IDs) keep
@@ -35,7 +35,7 @@ import type { BlockShape } from "./applyToBlocks.js";
  */
 export function applyStructure(
   tr: Transaction,
-  target: readonly BlockShape[],
+  target: readonly LensBlock[],
 ): void {
   applyReplacements(tr, replacementsOf(tr.doc, target));
 }
@@ -48,11 +48,11 @@ type Replacement = { from: number; to: number; content: Node[] };
 
 /**
  * Decides the replacements that change each list of children of `doc` to
- * the shapes of `target`. It reads the document, and changes nothing.
+ * the blocks of `target`. It reads the document, and changes nothing.
  */
 function replacementsOf(
   doc: Node,
-  target: readonly BlockShape[],
+  target: readonly LensBlock[],
 ): Replacement[] {
   const rootGroup = doc.firstChild;
   if (rootGroup === null) {
@@ -65,7 +65,7 @@ function replacementsOf(
 
 /** The node builder of the document, and the replacements decided so far. */
 type Decisions = {
-  build: (shape: BlockShape) => Node;
+  build: (block: LensBlock) => Node;
   replacements: Replacement[];
 };
 
@@ -79,7 +79,7 @@ function decideList(
   decisions: Decisions,
   list: Node,
   pos: number,
-  shapes: readonly BlockShape[],
+  blocks: readonly LensBlock[],
 ) {
   const end = pos + list.nodeSize - 1;
   const old: { node: Node; pos: number }[] = [];
@@ -88,15 +88,15 @@ function decideList(
   });
   const stay = myersMatch(
     old.map(({ node }) => node.attrs.id as string),
-    shapes.map((shape) => shape.block.id),
+    blocks.map((block) => block.id),
     (a, b) => a === b,
   );
-  for (const gap of gaps(stay, old.length, shapes.length)) {
+  for (const gap of gaps(stay, old.length, blocks.length)) {
     if (isChanged(gap)) {
       decisions.replacements.push({
         from: gap.aStart < old.length ? old[gap.aStart].pos : end,
         to: gap.aEnd < old.length ? old[gap.aEnd].pos : end,
-        content: shapes.slice(gap.bStart, gap.bEnd).map(decisions.build),
+        content: blocks.slice(gap.bStart, gap.bEnd).map(decisions.build),
       });
     }
     if (gap.anchor) {
@@ -105,7 +105,7 @@ function decideList(
         decisions,
         kept.node,
         kept.pos,
-        shapes[gap.anchor.bIndex].children,
+        blocks[gap.anchor.bIndex].children,
       );
     }
   }
@@ -113,7 +113,7 @@ function decideList(
   // ProseMirror fills it in the editor. Examples: a document without blocks,
   // a column that the operations empty, a tab set that lost tabs. The insert
   // is after the other inserts at the end.
-  const fill = fillAtEnd(list, shapes);
+  const fill = fillAtEnd(list, blocks);
   if (fill.length > 0) {
     decisions.replacements.push({ from: end, to: end, content: fill });
   }
@@ -121,16 +121,16 @@ function decideList(
 
 /**
  * The nodes that the schema adds at the end of `list` (a block group, or a
- * layout block) if its children are `shapes`: none if they fit its content
+ * layout block) if its children are `blocks`: none if they fit its content
  * (the minimum), else the fill of ProseMirror (for an empty document: a
  * block with an empty paragraph; for a tab set: a tab with an empty
  * paragraph). The node type of a block with content is `blockContainer`.
  */
-function fillAtEnd(list: Node, shapes: readonly BlockShape[]): Node[] {
+function fillAtEnd(list: Node, blocks: readonly LensBlock[]): Node[] {
   const schema = list.type.schema;
   let match: ContentMatch | null = list.type.contentMatch;
-  for (const shape of shapes) {
-    const type = schema.nodes[shape.block.type];
+  for (const block of blocks) {
+    const type = schema.nodes[block.type];
     match =
       match?.matchType(
         type?.isInGroup("bnBlock") ? type : schema.nodes["blockContainer"],
@@ -148,19 +148,19 @@ function decideChildren(
   decisions: Decisions,
   block: Node,
   pos: number,
-  shapes: readonly BlockShape[],
+  children: readonly LensBlock[],
 ) {
   if (block.type.name !== "blockContainer") {
     // A layout block (for example a column) holds its children directly.
-    decideList(decisions, block, pos, shapes);
+    decideList(decisions, block, pos, children);
     return;
   }
   // A block with content holds its children in a block group, after its
   // content node.
   const groupPos = pos + 1 + block.child(0).nodeSize;
   const group = block.maybeChild(1);
-  if (group !== null && shapes.length > 0) {
-    decideList(decisions, group, groupPos, shapes);
+  if (group !== null && children.length > 0) {
+    decideList(decisions, group, groupPos, children);
   } else if (group !== null) {
     // A block group needs a child, thus it goes with its last child.
     decisions.replacements.push({
@@ -168,14 +168,14 @@ function decideChildren(
       to: groupPos + group.nodeSize,
       content: [],
     });
-  } else if (shapes.length > 0) {
+  } else if (children.length > 0) {
     // A block without children gets a block group for its new children.
     const schema = block.type.schema;
     decisions.replacements.push({
       from: groupPos,
       to: groupPos,
       content: [
-        schema.nodes["blockGroup"].create(null, shapes.map(decisions.build)),
+        schema.nodes["blockGroup"].create(null, children.map(decisions.build)),
       ],
     });
   }
@@ -216,13 +216,13 @@ function applyReplacements(
 }
 
 /**
- * Returns the function that gives the node of a shape: the node of the
- * document if it has the same structure, at all depths (thus it keeps its
- * content and comments), else a node with the nodes of the children of the
- * shape. A block of the document keeps its node as the shell of the new
- * node; a new block gets a new node.
+ * Returns the function that gives the node of a block of the target: the
+ * node of the document if it has the same structure, at all depths (thus it
+ * keeps its content and comments), else a node with the nodes of the
+ * children of the block. A block of the document keeps its node as the
+ * shell of the new node; a new block gets a new node.
  */
-function nodeBuilder(doc: Node): (shape: BlockShape) => Node {
+function nodeBuilder(doc: Node): (block: LensBlock) => Node {
   const schema = doc.type.schema;
   const nodes = new Map<string, Node>();
   doc.descendants((node) => {
@@ -231,28 +231,27 @@ function nodeBuilder(doc: Node): (shape: BlockShape) => Node {
     }
     return !node.isTextblock;
   });
-  function build(shape: BlockShape): Node {
-    const found = nodes.get(shape.block.id);
-    if (found !== undefined && sameStructure(found, shape)) {
+  function build(block: LensBlock): Node {
+    const found = nodes.get(block.id);
+    if (found !== undefined && sameStructure(found, block)) {
       return found;
     }
     const shell =
-      found ??
-      blockToNode({ ...shape.block, children: [] } as PartialBlock, schema);
-    return withChildren(shell, shape.children.map(build));
+      found ?? blockToNode({ ...block, children: [] } as PartialBlock, schema);
+    return withChildren(shell, block.children.map(build));
   }
   return build;
 }
 
-/** Returns true if the node has the structure of the shape, at all depths. */
-function sameStructure(node: Node, shape: BlockShape): boolean {
+/** Returns true if the node has the structure of the block, at all depths. */
+function sameStructure(node: Node, block: LensBlock): boolean {
   const children = childBlocks(node);
   return (
-    children.length === shape.children.length &&
+    children.length === block.children.length &&
     children.every(
       (child, i) =>
-        child.attrs.id === shape.children[i].block.id &&
-        sameStructure(child, shape.children[i]),
+        child.attrs.id === block.children[i].id &&
+        sameStructure(child, block.children[i]),
     )
   );
 }
