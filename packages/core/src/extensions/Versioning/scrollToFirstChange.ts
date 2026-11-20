@@ -1,3 +1,5 @@
+import { prefersReducedMotion } from "../../util/prefersReducedMotion.js";
+
 // Attribution wrappers carry `data-user-ids` but may be `display: contents`.
 // Resolve their layout boxes locally without importing the `@y/*` stack.
 
@@ -69,13 +71,6 @@ function highlight(block: Element) {
       },
     ],
     { duration: HIGHLIGHT_MS, fill: "none" },
-  );
-}
-
-function prefersReducedMotion(): boolean {
-  return (
-    typeof window !== "undefined" &&
-    (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false)
   );
 }
 

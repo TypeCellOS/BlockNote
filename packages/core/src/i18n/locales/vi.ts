@@ -449,6 +449,9 @@ export const vi: Dictionary = {
     action_failed: "Đã xảy ra lỗi. Vui lòng thử lại.",
     history_load_failed: "Không thể tải lịch sử phiên bản",
   },
+  table_of_contents: {
+    title: "Mục lục",
+  },
   exporter: {
     open_file: "Mở tệp",
     open_video_file: "Mở video",

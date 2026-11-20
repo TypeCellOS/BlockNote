@@ -469,6 +469,9 @@ export const de: Dictionary = {
     action_failed: "Etwas ist schiefgelaufen. Bitte versuche es erneut.",
     history_load_failed: "Versionsverlauf konnte nicht geladen werden",
   },
+  table_of_contents: {
+    title: "Inhalt",
+  },
   exporter: {
     open_file: "Datei öffnen",
     open_video_file: "Video öffnen",

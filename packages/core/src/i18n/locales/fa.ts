@@ -419,6 +419,9 @@ export const fa = {
     action_failed: "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.",
     history_load_failed: "بارگیری تاریخچه نسخه‌ها ناموفق بود",
   },
+  table_of_contents: {
+    title: "فهرست مطالب",
+  },
   exporter: {
     open_file: "باز کردن فایل",
     open_video_file: "باز کردن ویدیو",

@@ -443,6 +443,9 @@ export const pt: Dictionary = {
     action_failed: "Algo deu errado. Tente novamente.",
     history_load_failed: "Falha ao carregar o histórico de versões",
   },
+  table_of_contents: {
+    title: "Sumário",
+  },
   exporter: {
     open_file: "Abrir arquivo",
     open_video_file: "Abrir vídeo",
