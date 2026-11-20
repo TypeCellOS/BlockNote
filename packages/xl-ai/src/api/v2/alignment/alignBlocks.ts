@@ -14,7 +14,9 @@ import { type Overlap, textOverlaps, wordSize } from "./overlap.js";
 
 /**
  * The minimum part of a text that two blocks must have in common to be a
- * changed pair.
+ * changed pair: of the shorter text for a pair in order (see
+ * {@link changedPairs}), and of the longer text for a moved pair (see
+ * {@link skeleton}).
  */
 const MIN_SHARE = 0.5;
 
@@ -51,10 +53,11 @@ export type BlockPair = { aIndex: number; bIndex: number; moved?: true };
  *    the pair of "Notes" crosses the two other pairs. The candidates that
  *    do not cross and have the largest weight stay in order: they are the
  *    skeleton. The weight of a pair is the number of word characters that
- *    its blocks share. Only this stage uses weights. An equal pair that is
- *    not in the skeleton is a moved block: the block keeps its ID. A changed
- *    pair that is not in the skeleton is no pair: a block that moved and
- *    changed is a new block.
+ *    its blocks share. Only this stage uses weights. A candidate that is
+ *    not in the skeleton is a moved block: the block keeps its ID. For a
+ *    changed pair, the position does not support the pair. Thus, the text
+ *    must show more: the two blocks share at least half of the longer text.
+ *    If not, it is no pair.
  *
  *        skeleton: Intro, and the changed pair
  *        moved:    Notes
@@ -73,8 +76,8 @@ export type BlockPair = { aIndex: number; bIndex: number; moved?: true };
  *
  * The word diff runs in the stages 1 and 3, because it answers two
  * questions. In stage 1, it runs on all blocks: the skeleton needs the
- * changed pairs to decide if an equal block moved. But one diff is one
- * alignment in order: a pair that the skeleton refuses had the place of
+ * changed pairs to decide which blocks moved. But one diff is one
+ * alignment in order: a pair that is not in the skeleton had the place of
  * the pairs that it crossed. In stage 3, the diff of a gap finds those.
  *
  * An equal text is a stronger sign than shared words or a position. Thus,
@@ -86,8 +89,10 @@ export type BlockPair = { aIndex: number; bIndex: number; moved?: true };
  * patience method, then Myers, see `anchoredMatch`). A unique equal key is
  * the rule of Heckel (1978) for moved lines: a line that is in each file one
  * time is the same line. A changed pair uses the overlap coefficient: the
- * size of the shared words divided by the size of the shorter text. The
- * skeleton is a heaviest increasing subsequence. The pair by position is the
+ * size of the shared words divided by the size of the shorter text. A moved
+ * changed pair uses the size of the longer text, with the same minimum: this
+ * is the similarity index of the rename detection of git. The skeleton is a
+ * heaviest increasing subsequence. The pair by position is the
  * rule of a line diff that shows one removed line and one added line at the
  * same place as one changed line.
  */
@@ -149,9 +154,10 @@ export function canBeSameBlock(
  * A pair that the text shows (stage 1 of {@link alignBlocks}). `weight` is
  * the number of word characters that the two blocks share. An equal pair
  * has 1 more: thus, a block without words has a weight, and an equal pair
- * wins from a changed pair with the same shared text.
+ * wins from a changed pair with the same shared text. `share` is the part of
+ * the longer text that the two blocks share (1 for an equal pair).
  */
-type Candidate = MatchedPair & { weight: number; equal: boolean };
+type Candidate = MatchedPair & { weight: number; share: number };
 
 /**
  * A part of the two lists: the indexes of its blocks of `before` (`a`) and
@@ -200,14 +206,26 @@ function candidates(
 
 /**
  * Stage 2 of {@link alignBlocks}: the candidates that do not cross and have
- * the largest weight stay in order. An equal pair that is not in order is a
- * moved block. A changed pair that is not in order is no pair.
+ * the largest weight stay in order. A candidate that is not in order is a
+ * moved block, if its blocks share at least {@link MIN_SHARE} of the longer
+ * text. An equal pair always does. A changed pair that shares less is no
+ * pair: only its position can show that the two blocks are the same block,
+ * and the position is different.
  *
  * Example, with the weight of each candidate:
  *
  *     before:  x | Hello World | y        after:  y | hello world | x
  *     candidates: x (2), "Hello World" (10), y (2)
  *     in order:   "Hello World"       moved: x, y
+ *
+ * Example of a changed pair that is not in order:
+ *
+ *     before:  Buy oat milk | Same long text
+ *     after:   Same long text | Buy milk
+ *     candidates: the changed pair (7), "Same long text" (13)
+ *     in order:   "Same long text"
+ *     moved:      the changed pair. It shares 7 of the 10 characters of
+ *                 "Buy oat milk".
  */
 function skeleton(
   candidates: readonly Candidate[],
@@ -222,7 +240,7 @@ function skeleton(
       .filter((pair) => kept.has(pair))
       .map(({ aIndex, bIndex }) => ({ aIndex, bIndex })),
     moved: sorted
-      .filter((pair) => pair.equal && !kept.has(pair))
+      .filter((pair) => pair.share >= MIN_SHARE && !kept.has(pair))
       .map(({ aIndex, bIndex }) => ({ aIndex, bIndex, moved: true })),
   };
 }
@@ -375,7 +393,7 @@ function equalPairsInOrder(
       aIndex,
       bIndex: b[pair.bIndex].index,
       weight: equalWeight(before[aIndex].block),
-      equal: true,
+      share: 1,
     };
   });
 }
@@ -410,7 +428,7 @@ function uniqueEqualPairs(
   ).map((pair) => ({
     ...pair,
     weight: equalWeight(before[pair.aIndex].block),
-    equal: true,
+    share: 1,
   }));
 }
 
@@ -488,6 +506,8 @@ function changedPairs(
       aIndex: part.a[overlap.aIndex],
       bIndex: part.b[overlap.bIndex],
       weight: overlap.size,
-      equal: false,
+      share:
+        overlap.size /
+        Math.max(sizesBefore[overlap.aIndex], sizesAfter[overlap.bIndex]),
     }));
 }

@@ -573,9 +573,11 @@ describe("markdown", () => {
 });
 
 describe("markdown, blocks with equal text", () => {
-  it("keep their IDs and colors if the text adds a block before them and replaces the block after them", () => {
-    // The new first block and the replaced last block share the word
-    // "shared". The two equal paragraphs between them did not change.
+  it("keep their IDs and colors if a changed block moves past them", () => {
+    // The block after the two equal paragraphs moves before them, and its
+    // first word changes: it keeps its ID, because it shares "shared" (more
+    // than half of the longer text). The two equal paragraphs did not
+    // change. "Other" is a new block.
     const editor = createEditor([
       {
         id: "s1",
@@ -600,6 +602,7 @@ describe("markdown, blocks with equal text", () => {
 
     expect(update.operations.map((operation) => operation.type)).toEqual([
       "update",
+      "move",
       "insert",
     ]);
     expect(
@@ -611,10 +614,10 @@ describe("markdown, blocks with equal text", () => {
         "textColor" in block.props ? block.props.textColor : undefined,
       ]),
     ).toEqual([
-      ["new", "New shared", "default"],
+      ["q", "New shared", "default"],
       ["s1", "Same text", "red"],
       ["s2", "Same text", "blue"],
-      ["q", "Other", "default"],
+      ["new", "Other", "default"],
     ]);
   });
 });

@@ -59,12 +59,12 @@ If your document is in a Y.Doc, read [Y.Doc](#ydoc) first: the function to use d
 The text does not contain block IDs. The identity of a block follows the location of its text:
 
 1. A block with the same text is the same block. A block that the text moves keeps its ID and props, if no other block has the same text.
-2. A changed block is the same block if it did not move, and it shares at least half of the letters and digits of the shorter text. Thus, a paragraph with many new sentences keeps its ID and props.
+2. A changed block is the same block if it shares at least half of the letters and digits of the shorter text. Thus, a paragraph with many new sentences keeps its ID and props. A changed block that also moved must share at least half of the longer text.
 3. If one block on each side stays between two pairs, the two blocks are the same block. Thus, a paragraph with fully new text at the same position keeps its ID.
 
 If blocks change places, the blocks with the most text in common stay in place, and the other blocks are the moved blocks. Thus, if a short block moves past changed paragraphs, the changed paragraphs keep their IDs.
 
-The same text is a stronger sign than similar text or a position. If an edit changes a block and adds a block with its old text at a different place, the block with the old text keeps the ID, and the changed block is a new block. A block that the text moves and also changes is a new block.
+The same text is a stronger sign than similar text or a position. If an edit changes a block and adds a block with its old text at a different place, the block with the old text keeps the ID, and the changed block is a new block. A block that the text moves and changes more than this is a new block.
 
 A split paragraph keeps its ID on the part with most of its text. Two joined paragraphs keep the ID of the first paragraph.
 

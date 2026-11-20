@@ -187,25 +187,68 @@ describe("alignBlocks", () => {
     ]);
   });
 
-  it("does not match a moved block if its text is not unique", () => {
-    // The text "same" is on two blocks without a match in the second list.
+  it("matches a moved block with the first of two blocks with its text", () => {
+    // The text "same" is on two blocks without a match in the second list:
+    // the block has no equal pair. The word diff aligns it with the first of
+    // the two blocks.
     expect(
       align(flat("same", "a b", "c d"), flat("a b", "c d", "same", "same")),
     ).toEqual([
+      [0, 2],
       [1, 0],
       [2, 1],
     ]);
   });
 
-  it("does not match a moved block that changed", () => {
+  it("matches a moved block that changed, if it shares half of the longer text", () => {
+    // "alpha" has 5 of the 10 word characters of "alpha omega".
     expect(
       align(
         flat("alpha beta", "gamma delta", "epsilon zeta"),
         flat("gamma delta", "epsilon zeta", "alpha omega"),
       ),
     ).toEqual([
+      [0, 2],
       [1, 0],
       [2, 1],
+    ]);
+  });
+
+  it("does not match a moved block that changed, if it shares less than half of the longer text", () => {
+    // "alpha" has 5 of the 15 word characters of "alpha omega sigma". This
+    // is sufficient for a changed block at the same position (5 of the 9
+    // word characters of the shorter text), but not for a moved block.
+    expect(
+      align(
+        flat("alpha beta", "gamma delta", "epsilon zeta"),
+        flat("gamma delta", "epsilon zeta", "alpha omega sigma"),
+      ),
+    ).toEqual([
+      [1, 0],
+      [2, 1],
+    ]);
+  });
+
+  it("KNOWN LIMIT: if two changed blocks change places across an equal block, only one of them keeps its pair", () => {
+    // The word diff of all blocks is one alignment in order. Thus, it finds
+    // the pair of only one of the two blocks: the pair with the most words
+    // in common. That pair is a moved pair. The other block is a new block.
+    expect(
+      align(
+        flat(
+          "alpha one two three four",
+          "Same long text here now",
+          "beta five six seven",
+        ),
+        flat(
+          "beta five six eight",
+          "Same long text here now",
+          "alpha one two three nine",
+        ),
+      ),
+    ).toEqual([
+      [0, 2],
+      [1, 1],
     ]);
   });
 
@@ -235,9 +278,26 @@ describe("alignBlocks", () => {
 describe("alignBlocks: blocks with equal text that is not unique", () => {
   it("keeps equal blocks, also if a new block and a removed block share a word", () => {
     // "shared" is in each list one time. The two equal blocks are between
-    // its two blocks, and they weigh more: the blocks with "shared" are no
+    // its two blocks, and they weigh more: they stay in order. "shared" is
+    // less than half of the longer text: the blocks with "shared" are no
     // pair. The block at the end changes at its position (the pair by
     // position).
+    expect(
+      align(
+        flat("Same text", "Same text", "Old shared"),
+        flat("New shared part here", "Same text", "Same text", "Other"),
+      ),
+    ).toEqual([
+      [0, 1],
+      [1, 2],
+      [2, 3],
+    ]);
+  });
+
+  it("keeps equal blocks, also if a changed block moves past them", () => {
+    // As the test before, but "shared" is more than half of the longer
+    // text: the blocks with "shared" are a moved pair. "Other" is a new
+    // block.
     expect(
       align(
         flat("Same text", "Same text", "Old shared"),
@@ -246,11 +306,11 @@ describe("alignBlocks: blocks with equal text that is not unique", () => {
     ).toEqual([
       [0, 1],
       [1, 2],
-      [2, 3],
+      [2, 0],
     ]);
   });
 
-  it("keeps equal blocks, also if a new block and a removed block share as many words as the equal blocks have", () => {
+  it("keeps equal blocks, also if a changed block that moves past them shares as many words as the equal blocks have", () => {
     expect(
       align(
         flat("Same text", "Same text", "Old shared thing"),
@@ -259,12 +319,14 @@ describe("alignBlocks: blocks with equal text that is not unique", () => {
     ).toEqual([
       [0, 1],
       [1, 2],
-      [2, 3],
+      [2, 0],
     ]);
   });
 
   it("keeps equal blocks between changed blocks with other words", () => {
     // The changed blocks at the two ends are anchors of the word diff.
+    // "Old shared" is a moved block: it shares "shared" with "New shared",
+    // more than half of the longer text. "Other" is a new block.
     expect(
       align(
         flat(
@@ -287,7 +349,7 @@ describe("alignBlocks: blocks with equal text that is not unique", () => {
       [0, 0],
       [1, 2],
       [2, 3],
-      [3, 4],
+      [3, 1],
       [4, 5],
     ]);
   });
@@ -301,6 +363,7 @@ describe("alignBlocks: blocks with equal text that is not unique", () => {
     ).toEqual([
       [0, 1],
       [1, 2],
+      [2, 0],
     ]);
   });
 
@@ -355,9 +418,9 @@ describe("alignBlocks: blocks with equal text that is not unique", () => {
   it("keeps a small changed block at the new place of a changed block that moved past heavier equal blocks", () => {
     // The word diff of all blocks aligns "alpha ..." with its moved version,
     // and thus not "Note old" with "Note new" (the two pairs cross). The
-    // equal blocks weigh more than the moved pair, which is no pair. The
-    // word diff of the gap after the equal blocks finds the pair of the
-    // notes.
+    // equal blocks weigh more than the pair of "alpha ...": it is a moved
+    // pair. The word diff of the gap after the equal blocks finds the pair
+    // of the notes.
     expect(
       align(
         flat(
@@ -374,6 +437,7 @@ describe("alignBlocks: blocks with equal text that is not unique", () => {
         ),
       ),
     ).toEqual([
+      [0, 3],
       [1, 0],
       [2, 1],
       [3, 2],

@@ -174,7 +174,7 @@ describe("a strict write of a text from a version", () => {
       replaceOnce(
         client.text,
         "Colored centered paragraph",
-        "Colored paragraph\n\nNew paragraph",
+        "Colored paragraph\n\nA new line",
       ),
       "\n\nLast paragraph",
       "",
