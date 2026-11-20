@@ -11,7 +11,7 @@ import { withCollaboration } from "./index.js";
 /**
  * The node-pairing policy of the sync binding (`blockMatchNodes`), with live
  * editors. The policy pairs two blocks only if they have the same block ID,
- * or if the IDs are their only difference.
+ * or the same content (then only the ID changed).
  *
  * 1. One user changes the document in one transaction, while another user
  *    types in a block. The typed text must stay in its block.
@@ -338,8 +338,8 @@ describe("a document with two blocks with one ID", () => {
 
   // An editor that loads such a document gives the copies new IDs (the
   // unique ID extension finds the two IDs in the one range of the load),
-  // and the binding writes that change to the Y.Doc. A block whose only
-  // change is its ID is the same block for the policy: the binding changes
+  // and the binding writes that change to the Y.Doc. A block with a new ID
+  // and the same content is the same block for the policy: the binding changes
   // the `id` attribute in place. As a removal and an insert of each copy,
   // the tests below fail: two clients that load at the same time each add
   // their own copies (5 blocks in place of 3, 8 in place of 6), and text

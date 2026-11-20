@@ -103,47 +103,6 @@ function blockIdOf(d: schema.Unwrap<typeof $prosemirrorDelta>): unknown {
   return delta.$setAttrOp.check(id) ? id.value : undefined;
 }
 
-const contentCache = new WeakMap<object, string>();
-
-/**
- * A node as a string, without the block IDs in it (the `id` attribute of the
- * node and of each node in it). Two nodes that are different only in block
- * IDs give the same string. The keys are sorted: a delta from a ProseMirror
- * document and a delta from a Y type do not have the same key order.
- */
-function contentWithoutBlockIds(
-  d: schema.Unwrap<typeof $prosemirrorDelta>,
-): string {
-  const cached = contentCache.get(d);
-  if (cached !== undefined) {
-    return cached;
-  }
-  const content = JSON.stringify(sortedWithoutBlockIds(d.toJSON(), false));
-  // A delta that is done does not change, thus its string can stay.
-  if (d.isDone) {
-    contentCache.set(d, content);
-  }
-  return content;
-}
-
-function sortedWithoutBlockIds(value: unknown, isAttrs: boolean): unknown {
-  if (Array.isArray(value)) {
-    return value.map((item) => sortedWithoutBlockIds(item, false));
-  }
-  if (typeof value !== "object" || value === null) {
-    return value;
-  }
-  return Object.fromEntries(
-    Object.entries(value)
-      .filter(([key]) => !(isAttrs && key === "id"))
-      .sort(([keyA], [keyB]) => (keyA < keyB ? -1 : keyA > keyB ? 1 : 0))
-      .map(([key, child]) => [
-        key,
-        sortedWithoutBlockIds(child, key === "attrs"),
-      ]),
-  );
-}
-
 /**
  * BlockNote's node-pairing policy for y-prosemirror's `matchNodes` option
  * (forwarded to `lib0/delta.diff`). This is the schema-specific bit that lives
@@ -157,13 +116,18 @@ function sortedWithoutBlockIds(value: unknown, isAttrs: boolean): unknown {
  * client to the block then lands in the wrong block (see
  * blockMatchNodes.test.ts).
  *
- * A block whose only change is its ID is still the same block. A document
- * can have two blocks with one ID (two users changed the type of a block, or
- * moved a block, at the same time). An editor that loads such a document
- * gives the copies new IDs, and the binding writes that change. As a change
- * of the `id` attribute in place, two clients that load at the same time
- * change the same blocks. As a removal and an insert, each client would add
- * its own copies, and text typed in a copy at that time would be lost.
+ * A block with a new ID and the same content is still the same block: only
+ * its ID changed. The content is the block content node (its type, its props
+ * and its text; lib0 gives its fingerprint), without the blocks in it. A
+ * document can have two blocks with one ID (two users changed the type of a
+ * block, or moved a block, at the same time). An editor that loads such a
+ * document gives the copies new IDs, and the binding writes that change. As
+ * a change of the `id` attribute in place, two clients that load at the same
+ * time change the same blocks. As a removal and an insert, each client would
+ * add its own copies, and text typed in a copy at that time would be lost.
+ *
+ * The ID is compared only for block containers. A layout block (a block that
+ * is its own node, for example a column) pairs by its type, as before.
  *
  * A `blockContainer` holds exactly one block content (`blockContent
  * blockGroup?`). Diffing a *type change* of that content as an in-place child
@@ -200,16 +164,6 @@ export const blockMatchNodes = (
     return false;
   }
 
-  // Two nodes with different block IDs are different blocks, unless the IDs
-  // are their only difference (see above). A node without an `id` attribute
-  // (a block group, a table cell, a text node) has no ID.
-  if (
-    blockIdOf(a) !== blockIdOf(b) &&
-    contentWithoutBlockIds(a) !== contentWithoutBlockIds(b)
-  ) {
-    return false;
-  }
-
   if (a.name !== "blockContainer") {
     return true;
   }
@@ -218,6 +172,15 @@ export const blockMatchNodes = (
   const childB = firstChild(b);
 
   if (childA?.name !== childB?.name) {
+    return false;
+  }
+
+  // Two containers with different block IDs are different blocks, unless the
+  // content of the block is the same: then only the ID changed (see above).
+  if (
+    blockIdOf(a) !== blockIdOf(b) &&
+    childA?.fingerprint !== childB?.fingerprint
+  ) {
     return false;
   }
 
