@@ -82,49 +82,36 @@ function placeInvisibleBlocks(
     const siblings = sourceIndex.childrenOf(parentId);
     if (parent !== undefined) {
       const present = new Set(parent.children.map((child) => child.id));
-      // The invisible blocks after each present block (first for
-      // `undefined`), in source order.
-      const after = new Map<string | undefined, LensBlock[]>();
-      let last: string | undefined;
+      // The invisible blocks that go to the start of the list, and those
+      // that go after each present block, in source order.
+      const atStart: LensBlock[] = [];
+      const after = new Map<string, LensBlock[]>();
+      // The list for the next invisible block: it follows the last present
+      // block before it in the source.
+      let following = atStart;
       for (const id of siblings) {
         if (invisibleIds.has(id) && staying.has(id) && !blocksById.has(id)) {
           const block = blockFromFields(id, sourceIndex.block(id));
           blocksById.set(id, block);
-          const list = after.get(last) ?? [];
-          list.push(block);
-          after.set(last, list);
+          following.push(block);
         } else if (present.has(id)) {
-          last = id;
+          following = [];
+          after.set(id, following);
         }
       }
-      if (after.size > 0) {
-        parent.children = withInserts(parent.children, after);
-      }
+      parent.children = [
+        ...atStart,
+        ...parent.children.flatMap((child) => [
+          child,
+          ...(after.get(child.id) ?? []),
+        ]),
+      ];
     }
     for (const id of siblings) {
       place(id);
     }
   }
   place(TOP_LEVEL);
-}
-
-/** Returns `children` with the blocks of `after` after the block with each ID (first for `undefined`). */
-function withInserts(
-  children: readonly LensBlock[],
-  after: ReadonlyMap<string | undefined, readonly LensBlock[]>,
-): LensBlock[] {
-  const result: LensBlock[] = [];
-  function insertAfter(id: string | undefined) {
-    for (const block of after.get(id) ?? []) {
-      result.push(block);
-    }
-  }
-  insertAfter(undefined);
-  for (const child of children) {
-    result.push(child);
-    insertAfter(child.id);
-  }
-  return result;
 }
 
 /** A block with the ID and the fields, without children. */
