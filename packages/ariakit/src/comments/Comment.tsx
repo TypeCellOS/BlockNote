@@ -1,12 +1,8 @@
 import { Group as AriakitGroup } from "@ariakit/react";
 
 import { assertEmpty } from "@blocknote/core";
-import {
-  ComponentProps,
-  useDictionary,
-  useFocusWithin,
-} from "@blocknote/react";
-import { forwardRef, useState } from "react";
+import { ComponentProps, useDictionary } from "@blocknote/react";
+import { forwardRef } from "react";
 
 const AuthorInfo = forwardRef<
   HTMLDivElement,
@@ -64,27 +60,12 @@ export const Comment = forwardRef<
 
   assertEmpty(rest, false);
 
-  const [hovered, setHovered] = useState(false);
-  const { focused, ref: focusRef } = useFocusWithin();
-
-  const doShowActions =
-    actions &&
-    (showActions === true ||
-      showActions === undefined ||
-      (showActions === "hover" && hovered) ||
-      focused ||
-      emojiPickerOpen);
-
   return (
-    <AriakitGroup
-      ref={ref}
-      className={className}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      {doShowActions ? (
+    <AriakitGroup ref={ref} className={className}>
+      {actions && (showActions !== false || emojiPickerOpen) ? (
         <AriakitGroup
-          ref={focusRef}
+          className={"bn-comment-toolbar"}
+          data-show={emojiPickerOpen ? true : (showActions ?? true)}
           style={{
             position: "absolute",
             right: 0,
