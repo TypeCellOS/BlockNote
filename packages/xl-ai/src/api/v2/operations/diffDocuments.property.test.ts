@@ -5,7 +5,7 @@ import type { LensBlock } from "../model.js";
 import { createRandom, type Random } from "../testUtil/random.js";
 import { applyToBlocks, type BlockShape } from "./applyToBlocks.js";
 import { diffDocuments } from "./diffDocuments.js";
-import type { BlockOperation } from "./types.js";
+import type { BlockOperation, StructureOperation } from "./types.js";
 
 function block(
   id: string,
@@ -104,7 +104,11 @@ function edit(random: Random, blocks: readonly LensBlock[]) {
   return result;
 }
 
-/** Applies the operations: the structure with `applyToBlocks`, and the updates as `updateBlock` does. */
+/**
+ * Applies the operations as `applyOperations` does: the updates to the
+ * blocks of the current document (an update of a block that is not there
+ * fails the test), then the structure operations with `applyToBlocks`.
+ */
 function apply(
   document: readonly LensBlock[],
   operations: readonly BlockOperation[],
@@ -140,7 +144,10 @@ function apply(
       }),
       children: build(shape.children),
     }));
-  return build(applyToBlocks(document, operations));
+  const structure = operations.filter(
+    (operation): operation is StructureOperation => operation.type !== "update",
+  );
+  return build(applyToBlocks(document, structure));
 }
 
 describe("diffDocuments: properties", () => {

@@ -17,7 +17,11 @@ import {
 import { applyStructure } from "./applyStructure.js";
 import { applyToBlocks } from "./applyToBlocks.js";
 import { addInlineContentSteps } from "./inlineSteps.js";
-import type { BlockOperation } from "./types.js";
+import type {
+  BlockOperation,
+  StructureOperation,
+  UpdateOperation,
+} from "./types.js";
 
 /**
  * Applies the operations to the document of a ProseMirror transaction. The
@@ -34,10 +38,13 @@ import type { BlockOperation } from "./types.js";
  *   block keeps its node, with its comments) and new nodes. Only a list
  *   that must have children and has none gets the fill of the schema.
  *
- * The operations must be possible in sequence, as `computeOperations` gives
- * them: each block that an operation refers to is in the document at that
- * point. Else the function throws (see `applyToBlocks`), and the
- * transaction must not be dispatched.
+ * The updates apply first, then the inserts, the moves and the removals in
+ * sequence (see `BlockOperation`). The operations must be possible in that
+ * order, as `computeOperations` gives them: an update refers to a block of
+ * the document, and each block that an insert, a move or a removal refers
+ * to is in the document at that point. Else the function throws (see
+ * `updateBlocks` and `applyToBlocks`), and the transaction must not be
+ * dispatched.
  *
  * The document must have one block for each ID (else `applyToBlocks`
  * throws). An update cannot change a block between a layout block (for
@@ -57,28 +64,32 @@ export function applyOperations(
   tr: Transaction,
   operations: readonly BlockOperation[],
 ): void {
-  const updates = operations.flatMap((operation) =>
-    operation.type === "update" ? [operation] : [],
-  );
+  const updates: UpdateOperation[] = [];
+  const structure: StructureOperation[] = [];
+  for (const operation of operations) {
+    if (operation.type === "update") {
+      updates.push(operation);
+    } else {
+      structure.push(operation);
+    }
+  }
   if (updates.length > 0) {
     updateBlocks(tr, updates);
   }
-  if (updates.length < operations.length) {
-    applyStructure(tr, applyToBlocks(docToBlocks(tr.doc), operations));
+  if (structure.length > 0) {
+    applyStructure(tr, applyToBlocks(docToBlocks(tr.doc), structure));
   }
 }
 
 /**
- * Applies a run of updates. An update does not change the structure of the
+ * Applies the updates. Each update must refer to a block of the document:
+ * else the function throws. An update does not change the structure of the
  * document. It changes only the positions after the start of its block.
  * Thus, one walk of the document gives the position of each block, and the
  * updates apply from the last block to the first: then each position stays
  * correct. This is linear in the size of the document.
  */
-function updateBlocks(
-  tr: Transaction,
-  updates: readonly Extract<BlockOperation, { type: "update" }>[],
-) {
+function updateBlocks(tr: Transaction, updates: readonly UpdateOperation[]) {
   const positions = new Map<string, number>();
   tr.doc.descendants((node, pos) => {
     if (node.type.isInGroup("bnBlock") && typeof node.attrs.id === "string") {

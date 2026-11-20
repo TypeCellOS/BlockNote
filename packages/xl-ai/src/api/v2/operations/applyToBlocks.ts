@@ -1,5 +1,5 @@
 import type { LensBlock } from "../model.js";
-import type { BlockOperation, BlockPosition } from "./types.js";
+import type { BlockPosition, StructureOperation } from "./types.js";
 
 /**
  * The structure of a document after operations: each block by its ID, with
@@ -11,10 +11,12 @@ import type { BlockOperation, BlockPosition } from "./types.js";
 export type BlockShape = { block: LensBlock; children: BlockShape[] };
 
 /**
- * Returns the structure that the operations give for the current document: the
- * inserts, the moves and the removals, in sequence. Updates do not change
- * the structure. This is a pure function: the apply then makes the
- * ProseMirror document agree with the result (see `applyOperations`).
+ * Returns the structure that the structure operations (the inserts, the
+ * moves and the removals) give for the current document, in sequence. It
+ * takes no updates: an update does not change the structure, and
+ * `applyOperations` applies the updates before it calls this function. This
+ * is a pure function: the apply then makes the ProseMirror document agree
+ * with the result (see `applyOperations`).
  *
  * Throws for an operation that the document cannot have at that point: a
  * block or a reference that is not in the document (also a block that an
@@ -25,13 +27,11 @@ export type BlockShape = { block: LensBlock; children: BlockShape[] };
  */
 export function applyToBlocks(
   current: readonly LensBlock[],
-  operations: readonly BlockOperation[],
+  operations: readonly StructureOperation[],
 ): BlockShape[] {
   const shapes = new Shapes(current);
   for (const operation of operations) {
     switch (operation.type) {
-      case "update":
-        break;
       case "insert":
         shapes.insert(operation.block, operation);
         break;

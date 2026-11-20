@@ -59,7 +59,7 @@ const paragraph = (id: string, value: string) => ({
 });
 
 describe("applyOperations", () => {
-  it("applies the operations in sequence", () => {
+  it("applies the updates, and then the structure operations in sequence", () => {
     const editor = createEditor();
     apply(editor, [
       { type: "update", id: "a", update: { content: text("A2") } },

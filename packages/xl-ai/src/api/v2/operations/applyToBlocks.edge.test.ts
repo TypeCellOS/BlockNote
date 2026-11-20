@@ -3,7 +3,7 @@ import { describe, expect, it } from "vite-plus/test";
 
 import type { LensBlock } from "../model.js";
 import { applyToBlocks, type BlockShape } from "./applyToBlocks.js";
-import type { BlockOperation } from "./types.js";
+import type { StructureOperation } from "./types.js";
 
 function block(id: string, children: LensBlock[] = []): LensBlock {
   return { id, type: "paragraph", props: {}, content: [], children };
@@ -18,20 +18,15 @@ function ids(shapes: readonly BlockShape[]): unknown[] {
   );
 }
 
-function apply(document: LensBlock[], operations: BlockOperation[]) {
+function apply(document: LensBlock[], operations: StructureOperation[]) {
   return ids(applyToBlocks(document, operations));
 }
 
 describe("applyToBlocks: valid operations", () => {
   const document = [block("a", [block("b")]), block("c")];
 
-  it("gives the document for no operations and for updates", () => {
+  it("gives the document for no operations", () => {
     expect(apply(document, [])).toEqual([["a", ["b"]], "c"]);
-    expect(
-      apply(document, [
-        { type: "update", id: "a", update: { type: "heading" } },
-      ]),
-    ).toEqual([["a", ["b"]], "c"]);
   });
 
   it("places a block at each placement", () => {
@@ -91,7 +86,8 @@ describe("applyToBlocks: valid operations", () => {
 });
 
 describe("applyToBlocks: operations that refer to a removed block", () => {
-  // An operation must refer to blocks that are in the document when it runs
+  // A structure operation must refer to blocks that are in the document when
+  // it runs
   // (see `BlockOperation`). `computeOperations` does not give other
   // operations. For other operations, the function throws: before the fix,
   // a removed block stayed in the map, and an operation that referred to it

@@ -79,6 +79,60 @@ describe("applyOperations: invalid operations", () => {
   });
 });
 
+describe("applyOperations: the updates apply before the structure operations", () => {
+  const blocks: PartialBlock[] = [
+    { id: "a", type: "paragraph", content: "Alpha" },
+    { id: "b", type: "paragraph", content: "Beta" },
+  ];
+  const beta2 = [{ type: "text" as const, text: "Beta 2", styles: {} }];
+
+  it("applies an update to a block that an earlier operation of the list removes", () => {
+    // In the sequence of the list, block b is not in the document when its
+    // update runs. The update applies first, thus the list does not throw.
+    const editor = createEditor(blocks);
+    apply(editor, [
+      { type: "delete", id: "b" },
+      { type: "update", id: "b", update: { content: beta2 } },
+    ]);
+
+    expect(editor.document.map((block) => block.id)).toEqual(["a"]);
+  });
+
+  it("applies an update that comes after a move of its block in the list", () => {
+    const editor = createEditor(blocks);
+    apply(editor, [
+      { type: "move", id: "b", placement: "start" },
+      { type: "update", id: "b", update: { content: beta2 } },
+    ]);
+
+    expect(editor.document).toMatchObject([
+      { id: "b", content: [{ text: "Beta 2" }] },
+      { id: "a", content: [{ text: "Alpha" }] },
+    ]);
+  });
+
+  it("throws for an update of a block that an insert of the same list adds", () => {
+    const editor = createEditor(blocks);
+    expect(() =>
+      apply(editor, [
+        {
+          type: "insert",
+          block: {
+            id: "new",
+            type: "paragraph",
+            props: {},
+            content: [],
+            children: [],
+          },
+          reference: "a",
+          placement: "after",
+        },
+        { type: "update", id: "new", update: { content: beta2 } },
+      ]),
+    ).toThrow("Block new is not in the document");
+  });
+});
+
 describe("applyOperations: a layout block with too few children", () => {
   it("adds the fill of the schema at the end of a tab set with fewer tabs than its minimum", () => {
     // The tab set needs two tabs. The removal of t2 leaves one, thus the

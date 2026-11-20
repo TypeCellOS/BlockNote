@@ -11,10 +11,18 @@ export type BlockPosition =
   | { placement: "start" };
 
 /**
- * A change to the document, with block IDs. The operations run in sequence.
- * When an operation runs, the blocks that it refers to exist. A new block
- * has its ID before its insert operation runs. Thus, later operations can
- * refer to it.
+ * A change to the document, with block IDs. The operations of a list do not
+ * all run in the sequence of the list (see `applyOperations`):
+ *
+ * - An update refers to a block of the current document (the document
+ *   before the operations of the list). All updates apply first. Thus, an
+ *   update of a block that an insert of the same list adds throws ("is not
+ *   in the document"). `diffDocuments` gives an update only for a block of
+ *   the current document.
+ * - The structure operations (the inserts, the moves and the removals) run
+ *   after the updates, in sequence. When a structure operation runs, the
+ *   blocks that it refers to exist. A new block has its ID before its insert
+ *   operation runs. Thus, later structure operations can refer to it.
  */
 export type BlockOperation =
   /** Changes the given fields of a block: type, props, content, or a mix. */
@@ -29,3 +37,19 @@ export type BlockOperation =
   | ({ type: "move"; id: string } & BlockPosition)
   /** Removes a block, with the children that stay in it. */
   | { type: "delete"; id: string };
+
+/**
+ * An operation that changes the fields of one block, and not the structure
+ * of the document.
+ *
+ * @internal
+ */
+export type UpdateOperation = Extract<BlockOperation, { type: "update" }>;
+
+/**
+ * An operation that changes the structure of the document: an insert, a
+ * move or a removal.
+ *
+ * @internal
+ */
+export type StructureOperation = Exclude<BlockOperation, { type: "update" }>;
