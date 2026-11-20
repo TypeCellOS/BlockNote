@@ -186,6 +186,15 @@ export function computeOperations(
 /**
  * Computes the operations of the change (see {@link computeOperations}), and
  * applies them to the editor (see {@link dispatchOperations}).
+ *
+ * For a document in a Y.Doc, use this function only for a write of the user
+ * of an editor that is bound to the Y.Doc: the write is then a change of
+ * that user, and the undo of the editor reverts it. Do not use it while the
+ * editor shows suggested changes or a comparison of two versions: the
+ * document of the editor then also has the removed text. For each other
+ * writer (a server, an agent), use `updateYDoc` of
+ * `@blocknote/xl-ai/text-lens/y`. The README has the full comparison
+ * ("Which function to use").
  */
 export function updateDocument(
   editor: BlockNoteEditor<any, any, any>,

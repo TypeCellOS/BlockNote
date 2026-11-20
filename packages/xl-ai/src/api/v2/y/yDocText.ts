@@ -62,6 +62,12 @@ export type YDocChangeResult =
  * Writes a change (a text, or BlockNote JSON) back to the fragment of a
  * Y.Doc of Yjs 14 (`@y/y`). To read the text, use `getYDocText`.
  *
+ * Use this function for each writer that is not the user of an editor that
+ * is bound to the Y.Doc: a server, an agent, an import. The write is a
+ * change of another client for each editor: the undo of an editor does not
+ * revert it. For a write of the user of a bound editor, use `updateDocument`
+ * on that editor (see the README, "Which function to use").
+ *
  * The editor gives only the schema and the conversions of the formats. It
  * does not have to be bound to the Y.Doc, and it needs no view. The reason:
  * with Yjs 14, a ProseMirror document maps to a Y.Doc, and a Y.Doc to a

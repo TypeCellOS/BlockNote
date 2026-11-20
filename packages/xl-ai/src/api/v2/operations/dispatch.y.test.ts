@@ -4,8 +4,10 @@ import * as Y from "@y/y";
 import { describe, expect, it } from "vite-plus/test";
 
 import { bindEditor, typeAfter } from "../testUtil/y.js";
+import { updateDocument } from "../index.js";
+import { valid } from "../testUtil/valid.js";
 import { applyOperations } from "./applyOperations.js";
-import { dispatchSteps } from "./dispatch.js";
+import { dispatchUpdate } from "./dispatch.js";
 import type { BlockOperation } from "./types.js";
 
 /**
@@ -75,7 +77,8 @@ function write(
       }
     });
   } else {
-    dispatchSteps(editor, tr);
+    // The dispatch of a write selects the groups for a bound editor.
+    dispatchUpdate(editor, tr);
   }
 
   Y.applyUpdate(ydoc, Y.encodeStateAsUpdate(other, Y.encodeStateVector(ydoc)));
@@ -300,3 +303,52 @@ describe.each(ways)(
     });
   },
 );
+
+describe("the undo history of an editor that is bound with the Yjs 14 binding", () => {
+  it("has a write of updateDocument, with one undo step for each group of steps", () => {
+    const ydoc = blocksToYDoc(
+      reader,
+      BlockNoteEditor.create({
+        initialContent: [
+          ...three,
+          { id: "d", type: "paragraph", content: "Delta" },
+        ],
+      }).document,
+    );
+    const editor = bindEditor(ydoc.get("prosemirror"), {
+      trailingBlock: false,
+    });
+    const texts = () =>
+      editor.document.map(
+        (block) => (block.content as { text: string }[])[0]?.text,
+      );
+    const before = texts();
+
+    // The write removes "c", inserts "new", and changes "a" and "d".
+    valid(
+      updateDocument(editor, {
+        base: "current",
+        document: [
+          { id: "a", type: "paragraph", content: "Alpha changed" },
+          { id: "new", type: "paragraph", content: "New" },
+          { id: "b", type: "paragraph", content: "Beta" },
+          { id: "d", type: "paragraph", content: "Delta changed" },
+        ],
+      }),
+    );
+    expect(texts()).toEqual(["Alpha changed", "New", "Beta", "Delta changed"]);
+
+    // Three groups: the removal, the insert, and the two changes of text.
+    let undos = 0;
+    while (undos < 10 && JSON.stringify(texts()) !== JSON.stringify(before)) {
+      editor.undo();
+      undos++;
+    }
+    expect(undos).toBe(3);
+    expect(
+      yDocToBlocks(reader, ydoc).map(
+        (block) => (block.content as { text: string }[])[0]?.text,
+      ),
+    ).toEqual(before);
+  });
+});

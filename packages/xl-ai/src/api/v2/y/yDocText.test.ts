@@ -1493,6 +1493,33 @@ describe("a write to a Y.Doc while another replica types", () => {
     ]);
   });
 
+  it("is a change of another client for a bound editor: the undo of that editor does not revert it", () => {
+    const ydoc = blocksToYDoc(
+      reader,
+      BlockNoteEditor.create({ initialContent: three }).document,
+    );
+    const fragment = ydoc.get("prosemirror");
+    const editor = bindEditor(fragment, { trailingBlock: false });
+
+    valid(
+      updateYDoc(reader, fragment, {
+        base: "current",
+        document: [
+          paragraph("a", "Alpha changed"),
+          paragraph("b", "Beta"),
+          paragraph("c", "Gamma"),
+        ],
+      }),
+    );
+    expect(getDocumentText(editor, plainTextFormat)).toContain("Alpha changed");
+
+    editor.undo();
+    expect(getDocumentText(editor, plainTextFormat)).toContain("Alpha changed");
+    expect(getYDocText(reader, fragment, plainTextFormat)).toContain(
+      "Alpha changed",
+    );
+  });
+
   it("keeps a change of another replica in a block that a move passes", () => {
     expect(
       writeWhileOtherTypes(

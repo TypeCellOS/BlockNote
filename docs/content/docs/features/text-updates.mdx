@@ -52,6 +52,8 @@ If the text gives blocks that do not fit the schema of the editor, the result is
 
 The formats are `markdownFormat`, `htmlFormat` and `plainTextFormat`. HTML shows more data than markdown (for example colors and underline), thus a client can also change that data. In HTML, some data shows two times: as a `data-*` attribute and in the visible markup (for example `data-text-alignment` and `style="text-align: …"`, or `data-caption` and `<figcaption>`). The parse reads the attribute. Thus, to change such data, change the `data-*` attribute too.
 
+If your document is in a Y.Doc, read [Y.Doc](#ydoc) first: the function to use depends on the writer.
+
 ## Which Block Is the Same Block
 
 The text does not contain block IDs. The identity of a block follows the location of its text:
@@ -173,7 +175,25 @@ If the JSON does not fit the schema of the editor, the result is `{ error: "inva
 
 ## Y.Doc
 
-For a collaborative document in a Y.Doc (Yjs 14, `@y/y`), use the functions of the `@blocknote/xl-ai/text-lens/y` entry point. `getYDocText` reads the text, and `updateYDoc` takes the same change as `updateDocument` (a text or BlockNote JSON). The editor gives only the schema and the conversions of the formats. It does not have to be bound to the Y.Doc, and it needs no view: the lens writes to the Y.Doc without an editor view. An editor that is bound to the Y.Doc gets the write as a change of another client. `base` is `"current"`, or the Yjs state of the version that the client read:
+A collaborative document is in a Y.Doc (Yjs 14, `@y/y`). There are two ways to write to it. The correct one depends on the writer, not on where the code runs.
+
+| The writer | Read | Write | `base` |
+| --- | --- | --- | --- |
+| The user of an editor that is bound to the Y.Doc (for example a command of your app that the user starts) | `getDocumentText(editor, format)` | `updateDocument(editor, change)`, on that editor | `"current"`, or `editor.document` at the read |
+| Each other writer (a server, an agent, an import) | `getYDocText(editor, fragment, format)` | `updateYDoc(editor, fragment, change)` | `"current"`, or `Y.encodeStateAsUpdate(ydoc)` at the read |
+
+Read and write with the functions of one row. The two rows read the document in different ways, and they take a different `base`.
+
+The differences:
+
+- **Undo.** A write with `updateDocument` is a change of the user of that editor, and the undo of the editor reverts it. A write that changes more than one place is more than one undo step. A write with `updateYDoc` is a change of another client: the undo of an editor does not revert it.
+- **The editor.** `updateDocument` needs the mounted editor of the user. For `updateYDoc`, the editor gives only the schema and the conversions: it is not bound to the Y.Doc, and it needs no view. Thus, `updateYDoc` also runs on a server.
+- **All or nothing.** A write with `updateYDoc` applies fully, or not at all. A write with `updateDocument` to a bound editor is more than one transaction. If an error occurs in the middle, the first part stays.
+- **Suggestions and version comparisons.** Do not use `updateDocument` while the editor shows suggested changes or a comparison of two versions. The editor then also contains the removed text, with a mark, and the write reads that text as content. `updateYDoc` reads the Y.Doc, thus it gets the document without these marks.
+
+### Write to the Y.Doc
+
+For a writer that is not the user of a bound editor, use the functions of the `@blocknote/xl-ai/text-lens/y` entry point. `getYDocText` reads the text, and `updateYDoc` takes the same change as `updateDocument` (a text or BlockNote JSON). The editor gives only the schema and the conversions of the formats. It does not have to be bound to the Y.Doc, and it needs no view: the lens writes to the Y.Doc without an editor view. An editor that is bound to the Y.Doc gets the write as a change of another client. `base` is `"current"`, or the Yjs state of the version that the client read:
 
 ```typescript
 import { BlockNoteEditor } from "@blocknote/core";
