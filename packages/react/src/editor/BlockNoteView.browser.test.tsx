@@ -463,6 +463,13 @@ if (!screenReader) {
         try {
           const results = await runAxe(page.elementLocator(placeholder));
           expect(results.violations).toEqual([]);
+          // Axe reports identical foreground/background colors as incomplete.
+          expect(results.incomplete).not.toContainEqual(
+            expect.objectContaining({ id: "color-contrast" }),
+          );
+          expect(results.passes).toContainEqual(
+            expect.objectContaining({ id: "color-contrast" }),
+          );
         } finally {
           placeholder.remove();
         }
