@@ -674,7 +674,7 @@ describe("markdown, list items that the text shows as one list share the parent 
   // example a paragraph with a list in it). See `listParent` in
   // `target/hiddenNesting.ts`.
 
-  // A swap: the alignment marks one of the two items as moved (rule 2).
+  // A swap: the alignment marks one of the two items as a moved block.
   // Before the list rule, a moved block kept its hidden nesting only near a
   // hidden ancestor that the format does not render (for example a column),
   // and the moved item went to the parent of the text.

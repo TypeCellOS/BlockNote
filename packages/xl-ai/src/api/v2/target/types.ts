@@ -16,7 +16,7 @@ export type TargetRow =
       kind: "kept";
       id: string;
       viewIndex: number;
-      /** The text moved the block (rule 2 of `alignBlocks`). */
+      /** The text moved the block (a moved block of `alignBlocks`). */
       moved: boolean;
       fields: BlockFields;
     }
