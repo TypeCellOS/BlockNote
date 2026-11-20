@@ -32,6 +32,7 @@ import {
   getBlockInfoAt,
   getBlockInfoFromNode,
   getBlockInfoFromSelection,
+  getBlockInfoNearPos,
   getLastDescendantBlockInfo,
   getNextBlockInfo,
   getParentBlockInfo,
@@ -1076,12 +1077,17 @@ export const KeyboardShortcutsExtension = Extension.create<{
         // Let the browser navigate into and out of an open toolbar.
         return false;
       }
+      const previousDoc = editor.prosemirrorState.doc;
       const moved = shift ? unnestBlock(editor) : nestBlock(editor);
-      if (moved) {
+      const state = editor.prosemirrorState;
+      // Commands can return true even when onBeforeChange rejects the change.
+      if (moved && state.doc !== previousDoc) {
         // The indent is only visible, so tell screen readers about it too
         // (#2812).
         const { block_nesting } = editor.dictionary;
-        const level = nestingLevel(editor.prosemirrorState.selection.$from);
+        // Whole-block selections start outside the block's own container.
+        const { block } = getBlockInfoNearPos(state, state.selection.from);
+        const level = nestingLevel(state.doc.resolve(block.beforePos + 1));
         editor
           .getExtension(LiveAnnouncerExtension)
           ?.announce(

@@ -1003,6 +1003,66 @@ describe("KeyboardShortcutsExtension Tab announcements", () => {
     wrapper.remove();
   });
 
+  it.each([false, true])(
+    "does not announce a rejected nesting change (shift: %s)",
+    (shift) => {
+      const { editor, wrapper } = createMountedEditor("b");
+      if (shift) {
+        editor.nestBlock();
+      }
+      const previousDoc = editor.prosemirrorState.doc;
+      let rejected = false;
+      editor.onBeforeChange(() => {
+        rejected = true;
+        return false;
+      });
+
+      pressTab(editor, shift);
+
+      expect(rejected).toBe(true);
+      expect(editor.prosemirrorState.doc).toBe(previousDoc);
+      expect(liveRegion(wrapper)!.textContent).toBe("");
+
+      editor._tiptapEditor.destroy();
+      wrapper.remove();
+    },
+  );
+
+  it("announces the moved blocks' level for a whole-block selection", () => {
+    const { editor, wrapper } = createMountedEditor("b", {
+      initialContent: [
+        { id: "a", type: "paragraph", content: "Parent" },
+        { id: "b", type: "paragraph", content: "First child" },
+        { id: "c", type: "paragraph", content: "Second child" },
+      ],
+    });
+    editor.transact((tr) => {
+      const first = getNodeById("b", tr.doc)!;
+      const last = getNodeById("c", tr.doc)!;
+      tr.setSelection(
+        MultipleNodeSelection.create(
+          tr.doc,
+          first.posBeforeNode,
+          last.posBeforeNode + last.node.nodeSize,
+        ),
+      );
+    });
+
+    pressTab(editor);
+    expect(editor.document[0].children.map((block) => block.id)).toEqual([
+      "b",
+      "c",
+    ]);
+    expect(liveRegion(wrapper)!.textContent).toBe("Indented, level 2");
+
+    pressTab(editor, true);
+    expect(editor.document.map((block) => block.id)).toEqual(["a", "b", "c"]);
+    expect(liveRegion(wrapper)!.textContent).toBe("Outdented, level 1");
+
+    editor._tiptapEditor.destroy();
+    wrapper.remove();
+  });
+
   it("announces nothing when the block can't be indented", () => {
     const { editor, wrapper } = createMountedEditor("a");
 
