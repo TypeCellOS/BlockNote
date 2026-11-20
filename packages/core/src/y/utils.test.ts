@@ -1377,12 +1377,21 @@ describe("docDiffToDelta", () => {
     ).toEqual({ inserted: [], removed: ["a"] });
   });
 
-  it("replaces a block with a different ID, also if the text is the same", () => {
+  it("replaces a block with a different ID and a different text", () => {
+    expect(
+      insertedAndRemoved(
+        paragraphs(["a", "Alpha"], ["b", "Beta"]),
+        paragraphs(["a", "Alpha"], ["other", "Other"]),
+      ),
+    ).toEqual({ inserted: ["other"], removed: ["b"] });
+  });
+
+  it("changes the ID of a block in place, if the ID is its only change", () => {
     expect(
       insertedAndRemoved(
         paragraphs(["a", "Alpha"], ["b", "Beta"]),
         paragraphs(["a", "Alpha"], ["other", "Beta"]),
       ),
-    ).toEqual({ inserted: ["other"], removed: ["b"] });
+    ).toEqual({ inserted: [], removed: [] });
   });
 });
