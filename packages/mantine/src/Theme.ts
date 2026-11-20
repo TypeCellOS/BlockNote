@@ -381,6 +381,10 @@ export type Theme = Partial<{
       borderColor: string;
       resizeColor: string;
     }>;
+    scrollHighlight: Partial<{
+      background: string;
+      borderColor: string;
+    }>;
     editor: Partial<{
       fontFamily: string;
       background: string;

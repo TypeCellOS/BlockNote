@@ -16,7 +16,7 @@ export const lightDefaultTheme = {
     hovered: "oklch(37% 0 0)",
     selected: "oklch(100% 0 0)",
     disabled: "oklch(75% 0 0)",
-    muted: "oklch(85% 0 0)",
+    muted: "oklch(51.4% 0 0)",
     gray: "oklch(51.4% 0 0)",
     brown: "oklch(48.5% 0.06 50)",
     red: "oklch(50.5% 0.11 35)",
@@ -48,10 +48,10 @@ export const lightDefaultTheme = {
   },
   border: {
     color: "oklch(95% 0 0)",
-    colorStrong: "oklch(85% 0 0)",
+    colorStrong: "oklch(51.4% 0 0)",
   },
   focusRing: {
-    color: "oklch(85% 0 0)",
+    color: "oklch(51.4% 0 0)",
   },
   fontFamily: {
     default:
@@ -91,7 +91,7 @@ export const darkDefaultTheme = {
     hovered: "oklch(85% 0 0)",
     selected: "oklch(85% 0 0)",
     disabled: "oklch(37% 0 0)",
-    muted: "oklch(60% 0 0)",
+    muted: "oklch(71.5% 0 0)",
     gray: "oklch(71.5% 0 0)",
     brown: "oklch(73% 0.06 50)",
     red: "oklch(75% 0.1 35)",
@@ -123,10 +123,10 @@ export const darkDefaultTheme = {
   },
   border: {
     color: "oklch(20% 0 0)",
-    colorStrong: "oklch(60% 0 0)",
+    colorStrong: "oklch(71.5% 0 0)",
   },
   focusRing: {
-    color: "oklch(60% 0 0)",
+    color: "oklch(71.5% 0 0)",
   },
   fontFamily: {
     default:

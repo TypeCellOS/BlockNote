@@ -279,6 +279,7 @@ export const Comment = ({
           (thread.resolved ? (
             <Components.Generic.Toolbar.Button
               key={"reopen"}
+              label={dict.comments.actions.reopen}
               mainTooltip={dict.comments.actions.reopen}
               variant="compact"
               onClick={onReopen}
@@ -288,6 +289,7 @@ export const Comment = ({
           ) : (
             <Components.Generic.Toolbar.Button
               key={"resolve"}
+              label={dict.comments.actions.resolve}
               mainTooltip={dict.comments.actions.resolve}
               variant="compact"
               onClick={onResolve}
@@ -304,6 +306,7 @@ export const Comment = ({
             <Components.Generic.Menu.Trigger>
               <Components.Generic.Toolbar.Button
                 key={"more-actions"}
+                label={dict.comments.actions.more_actions}
                 mainTooltip={dict.comments.actions.more_actions}
                 variant="compact"
               >

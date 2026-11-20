@@ -213,6 +213,10 @@ export const tr = {
     add_block_button: "Boş açılır blok. Blok eklemek için tıklayın.",
     toggle_button: "Genişlet veya daralt",
   },
+  block_nesting: {
+    indented: (level: number) => `Girinti artırıldı, düzey ${level}`,
+    outdented: (level: number) => `Girinti azaltıldı, düzey ${level}`,
+  },
   code_block: {
     add_source_button_text: "Kaynak kodu ekle",
     ok_button_text: "Tamam",

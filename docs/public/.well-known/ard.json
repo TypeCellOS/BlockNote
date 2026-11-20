@@ -1,0 +1,17 @@
+{
+  "entries": [
+    {
+      "identifier": "urn:air:blocknotejs.org:docs:blocknote",
+      "displayName": "BlockNote Documentation",
+      "type": "text/plain",
+      "url": "https://www.blocknotejs.org/llms.txt",
+      "description": "A machine-readable index of BlockNote's Markdown documentation for building a block-based rich text editor in React.",
+      "representativeQueries": [
+        "How do I add a Notion-style rich text editor to my React app?",
+        "How do I create custom blocks in BlockNote?",
+        "How do I add real-time collaboration to a BlockNote editor?",
+        "How do I import and export Markdown with BlockNote?"
+      ]
+    }
+  ]
+}

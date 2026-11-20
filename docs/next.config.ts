@@ -29,6 +29,14 @@ const config = {
     useTypeScriptCli: true,
   },
   redirects,
+  async headers() {
+    return [
+      {
+        source: "/.well-known/ard.json",
+        headers: [{ key: "Access-Control-Allow-Origin", value: "*" }],
+      },
+    ];
+  },
   // `next build` runs Turbopack; the demo examples are written for Vite, so
   // give their `?url` asset imports (fonts, the Typst compiler wasm) the
   // same URL-string semantics here.

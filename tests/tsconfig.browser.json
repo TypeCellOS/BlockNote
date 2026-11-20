@@ -12,6 +12,8 @@
     "types": ["node", "vite-plus/client"],
     "paths": {
       "@shared/*": ["../shared/*"],
+      "@blocknote/core": ["../packages/core/src/index.ts"],
+      "@blocknote/core/*": ["../packages/core/src/*"],
       "@blocknote/mantine": ["./node_modules/@blocknote/mantine"],
       "@blocknote/react": ["./node_modules/@blocknote/react"],
       "react": ["./node_modules/@types/react/index.d.ts"],

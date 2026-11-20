@@ -16,10 +16,10 @@
   --bn-background-color-selected: oklch(37% 0 0);
   --bn-text-color-disabled: oklch(75% 0 0);
   --bn-background-color-disabled: oklch(95% 0 0);
-  --bn-text-color-muted: oklch(85% 0 0);
+  --bn-text-color-muted: oklch(51.4% 0 0);
   --bn-border-color: oklch(95% 0 0);
-  --bn-border-color-strong: oklch(85% 0 0);
-  --bn-focus-ring-color: oklch(85% 0 0);
+  --bn-border-color-strong: oklch(51.4% 0 0);
+  --bn-focus-ring-color: oklch(51.4% 0 0);
   --bn-font-family-default:
     "Inter", "Inter fallback", "SF Pro Display", -apple-system,
     BlinkMacSystemFont, "Open Sans", "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
@@ -71,10 +71,10 @@
   --bn-background-color-selected: oklch(17% 0 0);
   --bn-text-color-disabled: oklch(37% 0 0);
   --bn-background-color-disabled: oklch(20% 0 0);
-  --bn-text-color-muted: oklch(60% 0 0);
+  --bn-text-color-muted: oklch(71.5% 0 0);
   --bn-border-color: oklch(20% 0 0);
-  --bn-border-color-strong: oklch(60% 0 0);
-  --bn-focus-ring-color: oklch(60% 0 0);
+  --bn-border-color-strong: oklch(71.5% 0 0);
+  --bn-focus-ring-color: oklch(71.5% 0 0);
   --bn-shadow-default: 0 4px 12px oklch(17% 0 0);
   --bn-shadow-subtle: 0 2px 6px oklch(20% 0 0);
   --bn-text-color-gray: oklch(71.5% 0 0);
@@ -258,6 +258,16 @@
   --bn-editor-radius: var(--bn-radius-large);
   --bn-editor-color: var(--bn-text-color-primary);
   --bn-editor-indent-guide-color: var(--bn-border-color-strong);
+  --bn-scroll-highlight-background: color-mix(
+    in srgb,
+    var(--bn-text-color-blue) 14%,
+    transparent
+  );
+  --bn-scroll-highlight-border-color: color-mix(
+    in srgb,
+    var(--bn-text-color-blue) 45%,
+    transparent
+  );
   --bn-editor-placeholder-color: var(--bn-text-color-muted);
   --bn-block-selection-background: color-mix(
     in srgb,
