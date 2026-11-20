@@ -6,7 +6,7 @@ import {
   findTypeInOtherYdoc,
   yfragmentToBlocks,
 } from "@blocknote/core/y";
-import { $prosemirrorDelta, deltaToPNode, ynodeToPmnode } from "@y/prosemirror";
+import { $prosemirrorDelta, deltaToPNode } from "@y/prosemirror";
 import * as Y from "@y/y";
 import * as delta from "lib0/delta";
 import { EditorState } from "prosemirror-state";
@@ -73,7 +73,8 @@ export type YDocChangeResult =
  *
  * Give the editor the schema and the extensions of the other clients (for
  * example comments). If the schema cannot read the content of the fragment,
- * the write throws, and the Y.Doc does not change.
+ * the read of the fragment throws (in `@y/prosemirror`), and the Y.Doc does
+ * not change.
  *
  * `base` is the version that the client read: `"current"`, or the Yjs state
  * `Y.encodeStateAsUpdate` at that version. The write is strict, as
@@ -243,11 +244,6 @@ function fillFragment(
  * reason is the same as for an editor that is bound to a Y.Doc: the
  * difference pairs the changed nodes of a list by their type, not by their
  * block ID.
- *
- * Throws if the fragment then does not have the document of the write. An
- * example is a fragment with content that the schema of the editor cannot
- * read: the document does not have that content, thus a change after it
- * goes to a wrong position.
  */
 function changeFragment(
   editor: BlockNoteEditor<any, any, any>,
@@ -283,13 +279,4 @@ function changeFragment(
       previous = next;
     }
   });
-  const written = ynodeToPmnode(fragment, schema, {
-    renderer: null,
-    transformer: blockNoteTransformer,
-  });
-  if (!written.eq(tr.doc)) {
-    throw new Error(
-      "The Y.Doc does not have the document of the write. The editor of the write must have the schema of the Y.Doc.",
-    );
-  }
 }

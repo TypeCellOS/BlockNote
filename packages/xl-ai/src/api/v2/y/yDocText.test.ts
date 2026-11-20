@@ -1207,8 +1207,8 @@ describe("a Y.Doc with two blocks with one ID", () => {
 describe("a write that fails", () => {
   it("throws, and does not change the Y.Doc, if the schema of the editor cannot read the Y.Doc", () => {
     // The Y.Doc has a column list. The editor of the write has the default
-    // schema, without columns. Thus, its document does not have the column
-    // list, and a change after it would go to a wrong position.
+    // schema, without columns. The read of the fragment throws for the node
+    // type that the schema does not have, before the write changes a Y.Doc.
     const schema = columnSchema;
     const ydoc = blocksToYDoc(
       BlockNoteEditor.create({ schema }),

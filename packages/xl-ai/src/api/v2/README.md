@@ -253,8 +253,9 @@ The merge of a block (`merge/block.ts`) merges the type, each prop of the three 
    1. Make a copy of the Y.Doc: at the current state, or for the merge of Yjs, at `base`.
    2. Read the blocks of the fragment of the copy, and compute the operations for them.
    3. For a fragment with blocks: read the ProseMirror document of the fragment, apply the operations to it (a transaction of a state without plugins), and write the difference of each group of steps to the fragment (see the groups below). For a fragment without content: put the blocks of the inserts into the fragment (`blocksToYType` of core).
-   4. Check that the fragment of the copy has the document of the write. If not, the write throws. An example is a Y.Doc with content that the schema of the editor cannot read: give the editor the schema and the extensions of the other clients (for example comments).
-   5. Apply the changes of the copy to the Y.Doc, as one Yjs update.
+   4. Apply the changes of the copy to the Y.Doc, as one Yjs update.
+
+   If the schema of the editor cannot read the content of the fragment, the read of step 2 throws (in `@y/prosemirror`). Give the editor the schema and the extensions of the other clients (for example comments).
 
    Thus, a write that fails does not change the Y.Doc. An editor that is bound to the Y.Doc gets the write as a change of another client.
 
