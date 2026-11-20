@@ -18,13 +18,12 @@ import {
   mergeOf,
   operationsOfMerge,
 } from "../apiWithMerge.js";
-import type { LensBlock } from "../model.js";
-import { docOf, withFragmentAtBase, writeToCopy } from "./yDocText.js";
+import { docOf, withFragmentAtBase, writeOperations } from "./yDocText.js";
 
 /**
- * The result of a merge write to a Y.Doc. On an error (also an exception),
- * the write does not change the Y.Doc. Only the updates of `base` that the
- * Y.Doc did not have yet apply (see `updateYDoc`).
+ * The result of a merge write to a Y.Doc. With an error in the result, the
+ * write did not change the Y.Doc: only the updates of `base` that the Y.Doc
+ * did not have yet apply. For an exception, see `updateYDoc`.
  *
  * The result does not have the document that the client wrote (`written` of
  * `MergedChangeOperations`): `base` is a Yjs state here, and a Yjs state of
@@ -69,18 +68,16 @@ export function updateYDocWithMerge(
   const base = withFragmentAtBase(fragment, change.base, (atBase) =>
     yfragmentToBlocks(editor, atBase),
   );
-  const result = writeToCopy(
-    editor,
-    fragment,
-    undefined,
-    (current): MergedInFragment | InvalidDocumentError | ConflictError => {
-      const merged = mergedOperationsOf(editor, { ...change, base }, current);
-      return merged.error !== undefined ? merged : withoutWritten(merged);
-    },
-  );
-  return result.error !== undefined
-    ? result
-    : { ...result, update: Y.encodeStateAsUpdateV2(ydoc, before) };
+  const current = yfragmentToBlocks(editor, fragment);
+  const merged = mergedOperationsOf(editor, { ...change, base }, current);
+  if (merged.error !== undefined) {
+    return merged;
+  }
+  writeOperations(editor, fragment, current, merged.operations);
+  return {
+    ...withoutWritten(merged),
+    update: Y.encodeStateAsUpdateV2(ydoc, before),
+  };
 }
 
 /**
@@ -90,9 +87,10 @@ export function updateYDocWithMerge(
  * update). The editor gives the schema and the conversions (see
  * `updateYDoc`). This function is experimental.
  *
- * The operations for `base` apply to a copy of the Y.Doc at `base`, and Yjs
- * merges the copy into the Y.Doc. The operations of the result are for
- * `base`. Yjs has no conflicts, thus there is no `onConflict` and no error
+ * The operations for `base` apply to a copy of the Y.Doc at `base` (a
+ * temporary Y.Doc, thus a new Yjs client for each write), and Yjs merges
+ * the copy into the Y.Doc. The operations of the result are for `base`.
+ * Yjs has no conflicts, thus there is no `onConflict` and no error
  * `"conflict"`: Yjs keeps the inserts of the two writers, and a removal
  * removes the changes of other writers in the removed block. In a Y.Doc, a
  * move, a split and a join are a removal and an insert, and a change of the
@@ -115,42 +113,54 @@ export function experimental_updateYDocWithYjsMerge(
   const ydoc = docOf(fragment);
   requireBase(change.base);
   const before = Y.encodeStateVector(ydoc);
-  const base = withFragmentAtBase(fragment, change.base, (atBase) =>
-    yfragmentToBlocks(editor, atBase),
+  const result = withFragmentAtBase(fragment, change.base, (atBase) =>
+    yjsMerge(editor, fragment, atBase, change),
   );
-  const current = yfragmentToBlocks(editor, fragment);
-  const result = yjsMerge(editor, fragment, change, base, current);
   return result.error !== undefined
     ? result
     : { ...result, update: Y.encodeStateAsUpdateV2(ydoc, before) };
 }
 
-/** The write of `experimental_updateYDocWithYjsMerge`, for each case of `base`. */
+/**
+ * The write of `experimental_updateYDocWithYjsMerge`, for each case of
+ * `base`. `atBase` is the fragment at `base`, in a temporary Y.Doc.
+ */
 function yjsMerge(
   editor: BlockNoteEditor<any, any, any>,
   fragment: Y.Node,
-  change: (TextChange | JSONChange) & { base: Uint8Array },
-  base: readonly LensBlock[],
-  current: readonly LensBlock[],
+  atBase: Y.Node,
+  change: TextChange | JSONChange,
 ): MergedInFragment | InvalidDocumentError {
-  if (base.length > 0) {
-    // The write goes to a copy of the Y.Doc at `base`, and Yjs merges it.
-    // The write sees only `base`, and the layout blocks stay (`keepLayout`).
-    const written = writeToCopy(editor, fragment, change.base, (atBase) =>
-      operationsOf(editor, change, atBase, true),
+  const base = yfragmentToBlocks(editor, atBase);
+  const current = yfragmentToBlocks(editor, fragment);
+  if (base.length === 0) {
+    // A base without content: a copy of an empty Y.Doc gets its own root
+    // block group, and Yjs cannot merge two new root groups into one. Thus,
+    // the lens merges, and the write goes to the fragment.
+    const merge = mergeOf(editor, change, base, current);
+    if (merge.error !== undefined) {
+      return merge;
+    }
+    const merged = withoutWritten(
+      operationsOfMerge(editor, merge, base, current),
     );
-    return written.error !== undefined
-      ? written
-      : { ...written, changesOfOthers: changesOfOthersOf(base, current) };
+    writeOperations(editor, fragment, current, merged.operations);
+    return merged;
   }
-  // A base without content: a copy of an empty Y.Doc gets its own root block
-  // group, and Yjs cannot merge two new root groups into one.
-  return writeToCopy(editor, fragment, undefined, (now) => {
-    const merge = mergeOf(editor, change, base, now);
-    return merge.error !== undefined
-      ? merge
-      : withoutWritten(operationsOfMerge(editor, merge, base, now));
-  });
+  // The write goes to the fragment at `base`, and Yjs merges the temporary
+  // Y.Doc into the Y.Doc. The write sees only `base`, and the layout blocks
+  // stay (`keepLayout`).
+  const written = operationsOf(editor, change, base, true);
+  if (written.error !== undefined) {
+    return written;
+  }
+  writeOperations(editor, atBase, base, written.operations);
+  const ydoc = docOf(fragment);
+  Y.applyUpdateV2(
+    ydoc,
+    Y.encodeStateAsUpdateV2(docOf(atBase), Y.encodeStateVector(ydoc)),
+  );
+  return { ...written, changesOfOthers: changesOfOthersOf(base, current) };
 }
 
 /** A merge write to a fragment: the result without `written` (see `YDocMergedChangeResult`). */

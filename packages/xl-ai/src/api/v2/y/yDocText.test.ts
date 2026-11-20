@@ -213,6 +213,72 @@ describe("updateYDoc", () => {
     expect(live.document).toEqual(blocks());
   });
 
+  it("writes to the content as it is, not as a renderer of the fragment shows it", () => {
+    const ydoc = blocksToYDoc(reader, [
+      { id: "a", type: "paragraph", content: "Alpha" },
+      { id: "b", type: "paragraph", content: "Beta" },
+    ]);
+    const fragment = ydoc.get("prosemirror");
+    const version = Y.snapshot(ydoc);
+    const user = bindEditor(fragment, { trailingBlock: false });
+    user.insertBlocks(
+      [{ id: "c", type: "paragraph", content: "Gamma" }],
+      "b",
+      "after",
+    );
+    unbindEditor(user);
+    // An editor that is bound to the fragment can give it a renderer. This
+    // renderer shows the fragment at an earlier version, without block c.
+    fragment.useRenderer(Y.createSnapshotRenderer(version));
+    expect(JSON.stringify(fragment.toDeltaDeep().toJSON())).not.toContain(
+      "Gamma",
+    );
+
+    valid(
+      updateYDoc(reader, fragment, {
+        base: "current",
+        format: markdownFormat,
+        text: "Alpha\n\nBeta\n\nGamma, edited\n",
+      }),
+    );
+
+    expect(readText(fragment, markdownFormat)).toBe(
+      "Alpha\n\nBeta\n\nGamma, edited\n",
+    );
+  });
+
+  it("writes one Yjs transaction, with the client ID of the Y.Doc", () => {
+    const { editor, ydoc, read } = setup();
+    const fragment = ydoc.get("prosemirror");
+    const clients = () => [
+      ...Y.decodeStateVector(Y.encodeStateVector(ydoc)).keys(),
+    ];
+    let updates = 0;
+    ydoc.on("update", () => updates++);
+    expect(clients()).toEqual([ydoc.clientID]);
+
+    const first = read();
+    valid(
+      updateYDoc(editor, fragment, {
+        format: markdownFormat,
+        text: replaceOnce(first.text, "Last paragraph", "Last paragraph 1"),
+        base: first.base,
+      }),
+    );
+    const second = read();
+    valid(
+      updateYDocWithMerge(editor, fragment, {
+        format: markdownFormat,
+        text: replaceOnce(second.text, "Last paragraph 1", "Last paragraph 2"),
+        base: second.base,
+        onConflict: "reject",
+      }),
+    );
+
+    expect(updates).toBe(2);
+    expect(clients()).toEqual([ydoc.clientID]);
+  });
+
   it("allows the Yjs merge only with a version as base, and without onConflict", () => {
     type Options = Parameters<typeof experimental_updateYDocWithYjsMerge>[2];
     const text = { format: markdownFormat, text: "" };
@@ -1668,7 +1734,7 @@ describe("a write to a Y.Doc while another replica types", () => {
     ]);
   });
 
-  it("is a change of another client for a bound editor: the undo of that editor does not revert it", () => {
+  it("is not a change of the user of a bound editor: the undo of that editor does not revert it", () => {
     const ydoc = blocksToYDoc(
       reader,
       BlockNoteEditor.create({ initialContent: three }).document,

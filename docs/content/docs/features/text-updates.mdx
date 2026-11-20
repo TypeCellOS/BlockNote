@@ -186,13 +186,13 @@ Read and write with the functions of one row. The two rows read the document in 
 
 The differences:
 
-- **Undo.** A write with `updateDocument` is a change of the user of that editor, and one undo of the editor reverts it. A write with `updateYDoc` is a change of another client: the undo of an editor does not revert it.
+- **Undo.** A write with `updateDocument` is a change of the user of that editor, and one undo of the editor reverts it. A write with `updateYDoc` is not a change of the user of an editor: the undo of an editor does not revert it.
 - **The editor.** `updateDocument` needs the mounted editor of the user. For `updateYDoc`, the editor gives only the schema and the conversions: it is not bound to the Y.Doc, and it needs no view. Thus, `updateYDoc` also runs on a server.
 - **Suggestions and version comparisons.** Do not use `updateDocument` while the editor shows suggested changes or a comparison of two versions. The editor then also contains the removed text, with a mark, and the write reads that text as content. `updateYDoc` reads the Y.Doc, thus it gets the document without these marks.
 
 ### Write to the Y.Doc
 
-For a writer that is not the user of a bound editor, use the functions of the `@blocknote/xl-ai/text-lens/y` entry point. `getYDocText` reads the text, and `updateYDoc` takes the same change as `updateDocument` (a text or BlockNote JSON). The editor gives only the schema and the conversions of the formats. It does not have to be bound to the Y.Doc, and it needs no view: the lens writes to the Y.Doc without an editor view. An editor that is bound to the Y.Doc gets the write as a change of another client. `base` is `"current"`, or the Yjs state of the version that the client read:
+For a writer that is not the user of a bound editor, use the functions of the `@blocknote/xl-ai/text-lens/y` entry point. `getYDocText` reads the text, and `updateYDoc` takes the same change as `updateDocument` (a text or BlockNote JSON). The editor gives only the schema and the conversions of the formats. It does not have to be bound to the Y.Doc, and it needs no view: the lens writes to the Y.Doc without an editor view. An editor that is bound to the Y.Doc gets the write as a change of another writer. The write is one Yjs transaction of the Y.Doc, with the client ID of that Y.Doc. `base` is `"current"`, or the Yjs state of the version that the client read:
 
 ```typescript
 import { BlockNoteEditor } from "@blocknote/core";

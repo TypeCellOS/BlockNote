@@ -46,9 +46,9 @@ export function getYDocText(
 }
 
 /**
- * The result of a write to a Y.Doc. On an error (also an exception), the
- * write does not change the Y.Doc. Only the updates of `base` that the Y.Doc
- * did not have yet apply (see `updateYDoc`).
+ * The result of a write to a Y.Doc. With an error in the result, the write
+ * did not change the Y.Doc: only the updates of `base` that the Y.Doc did
+ * not have yet apply. For an exception, see `updateYDoc`.
  */
 export type YDocChangeResult =
   | (ChangeOperations & {
@@ -67,9 +67,9 @@ export type YDocChangeResult =
  * Y.Doc of Yjs 14 (`@y/y`). To read the text, use `getYDocText`.
  *
  * Use this function for each writer that is not the user of an editor that
- * is bound to the Y.Doc: a server, an agent, an import. The write is a
- * change of another client for each editor: the undo of an editor does not
- * revert it. For a write of the user of a bound editor, use `updateDocument`
+ * is bound to the Y.Doc: a server, an agent, an import. The write is not a
+ * change of the user of an editor: the undo of an editor does not revert
+ * it. For a write of the user of a bound editor, use `updateDocument`
  * on that editor (see the README, "Which function to use").
  *
  * The editor gives only the schema and the conversions of the formats. It
@@ -78,7 +78,7 @@ export type YDocChangeResult =
  * ProseMirror document, with functions of `@y/prosemirror` and
  * `@blocknote/core/y`, through the same pipeline as the binding of an
  * editor. Thus, the write does not go through an editor view. An editor that
- * is bound to the Y.Doc gets the write as a change of another client.
+ * is bound to the Y.Doc gets the write as a change of another writer.
  *
  * Give the editor the schema and the extensions of the other clients (for
  * example comments). If the schema cannot read the content of the fragment,
@@ -100,6 +100,17 @@ export type YDocChangeResult =
  * different fragment of the Y.Doc, and for a change that a later change
  * reverts. To merge the change with the changes of other writers, use
  * `updateYDocWithMerge`.
+ *
+ * The write is one call of Yjs: one Yjs transaction, with the client ID of
+ * the Y.Doc. The lens reads, checks and computes before that call. Thus,
+ * with an error in the result, or an exception before that call (for
+ * example for a schema that cannot read the fragment), the write does not
+ * change the Y.Doc. Yjs cannot revert a transaction. Thus, if Yjs throws in
+ * that call, a part of the write can stay in the Y.Doc. A text or a
+ * document of a client does not cause such an exception: it shows a fault
+ * in the lens, in core or in Yjs. An exception of an observer of the Y.Doc
+ * (for example a provider) comes after the transaction: then the Y.Doc has
+ * the complete write.
  */
 export function updateYDoc(
   editor: BlockNoteEditor<any, any, any>,
@@ -117,7 +128,7 @@ export function updateYDoc(
         // Usually, the content is equal, and Yjs compares the content of two
         // fragments without a conversion to blocks. Content that is not
         // equal can be the same blocks: for example, a block group that
-        // became empty stays in the fragment. Thus, the blocks decide.
+        // became empty can stay in the fragment. Thus, the blocks decide.
         //
         // `renderer: null` gives the content as it is. An editor that is
         // bound to the fragment can give it a renderer, which shows
@@ -133,12 +144,13 @@ export function updateYDoc(
       return { error: "document-changed", changesOfOthers };
     }
   }
-  const result = writeToCopy(editor, fragment, undefined, (current) =>
-    operationsOf(editor, change, current),
-  );
-  return result.error !== undefined
-    ? result
-    : { ...result, update: Y.encodeStateAsUpdateV2(ydoc, before) };
+  const current = yfragmentToBlocks(editor, fragment);
+  const result = operationsOf(editor, change, current);
+  if (result.error !== undefined) {
+    return result;
+  }
+  writeOperations(editor, fragment, current, result.operations);
+  return { ...result, update: Y.encodeStateAsUpdateV2(ydoc, before) };
 }
 
 /**
@@ -193,60 +205,24 @@ export function withFragmentAtBase<Result>(
 }
 
 /**
- * Computes the operations of a write for the document of the fragment (with
- * `compute`), and writes them to the fragment. Returns the result of
- * `compute`.
- *
- * The write goes to a copy of the Y.Doc: at the current state, or at the
- * Yjs state `at` (a V2 update) (then Yjs merges the write with the changes after `at`).
- * The Y.Doc gets the changes of the copy as one Yjs update, after the write
- * to the copy is complete. Thus, a write that fails (an error, or an
- * exception in the middle) does not change the Y.Doc.
+ * Writes the operations of a write to the fragment, with one call of Yjs
+ * (one Yjs transaction). `current` is the blocks of the fragment.
  *
  * @internal
  */
-export function writeToCopy<
-  Result extends { error?: string; operations?: readonly BlockOperation[] },
->(
+export function writeOperations(
   editor: BlockNoteEditor<any, any, any>,
   fragment: Y.Node,
-  at: Uint8Array | undefined,
-  compute: (current: readonly LensBlock[]) => Result,
-): Result {
-  const ydoc = docOf(fragment);
-  const copy = new Y.Doc();
-  try {
-    Y.applyUpdateV2(copy, at ?? Y.encodeStateAsUpdateV2(ydoc));
-    const target = findTypeInOtherYdoc(fragment, copy);
-    const current = yfragmentToBlocks(editor, target);
-    const result = compute(current);
-    if (result.error === undefined && result.operations !== undefined) {
-      if (current.length === 0) {
-        fillFragment(editor, target, result.operations);
-      } else {
-        changeFragment(editor, target, result.operations);
-      }
-      Y.applyUpdateV2(
-        ydoc,
-        Y.encodeStateAsUpdateV2(copy, Y.encodeStateVector(ydoc)),
-      );
-    }
-    return result;
-  } finally {
-    copy.destroy();
-  }
-}
-
-/**
- * Writes the operations to a fragment without content. Such a fragment has
- * no blocks, thus each operation is an insert, and the blocks of the inserts
- * are the document. `blocksToYType` of core puts them into the fragment.
- */
-function fillFragment(
-  editor: BlockNoteEditor<any, any, any>,
-  fragment: Y.Node,
+  current: readonly LensBlock[],
   operations: readonly BlockOperation[],
 ): void {
+  if (current.length > 0) {
+    changeFragment(editor, fragment, operations);
+    return;
+  }
+  // A fragment without blocks: each operation is an insert, and the blocks
+  // of the inserts are the document. `blocksToYType` of core puts them into
+  // the fragment.
   const blocks = applyToBlocks(
     [],
     operations.filter(
@@ -272,6 +248,10 @@ function fillFragment(
  * operations: `docDiffToDelta` of core, which pairs two blocks only if they
  * have the same block ID. Thus, one difference for a write is correct, also
  * with an insert or a removal next to a changed block.
+ *
+ * The read and the write of the fragment have `renderer: null`: the content
+ * as it is. An editor that is bound to the fragment can give it a renderer
+ * (for example for suggestions), which shows different content.
  */
 function changeFragment(
   editor: BlockNoteEditor<any, any, any>,
@@ -279,7 +259,7 @@ function changeFragment(
   operations: readonly BlockOperation[],
 ): void {
   const schema = editor.pmSchema;
-  const render = fragment.toDeltaDeep();
+  const render = fragment.toDeltaDeep({ renderer: null });
   const pipeline = blockNoteTransformer({ getState: () => render, schema })(
     $prosemirrorDelta,
   ).init();
@@ -298,6 +278,6 @@ function changeFragment(
     delta.cloneDeep(docDiffToDelta(doc, tr.doc)),
   ).a;
   if (change !== null) {
-    fragment.applyDelta(change);
+    fragment.applyDelta(change, null, { renderer: null });
   }
 }
