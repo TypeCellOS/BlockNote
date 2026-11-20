@@ -192,6 +192,10 @@ export const ar: Dictionary = {
     add_block_button: "تبديل فارغ. انقر لإضافة كتلة.",
     toggle_button: "توسيع أو طي",
   },
+  block_nesting: {
+    indented: (level: number) => `تمت زيادة المسافة البادئة، المستوى ${level}`,
+    outdented: (level: number) => `تم تقليل المسافة البادئة، المستوى ${level}`,
+  },
   code_block: {
     add_source_button_text: "إضافة كود المصدر",
     ok_button_text: "موافق",

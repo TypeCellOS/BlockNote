@@ -232,6 +232,10 @@ export const uk: Dictionary = {
     add_block_button: "Порожній перемикач. Натисніть, щоб додати блок.",
     toggle_button: "Розгорнути або згорнути",
   },
+  block_nesting: {
+    indented: (level: number) => `Відступ збільшено, рівень ${level}`,
+    outdented: (level: number) => `Відступ зменшено, рівень ${level}`,
+  },
   code_block: {
     add_source_button_text: "Додати вихідний код",
     ok_button_text: "ОК",

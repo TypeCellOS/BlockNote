@@ -221,6 +221,10 @@ export const is: Dictionary = {
     add_block_button: "Tóm fellilína. Smelltu til að bæta við blokk.",
     toggle_button: "Fella út eða inn",
   },
+  block_nesting: {
+    indented: (level: number) => `Inndráttur aukinn, stig ${level}`,
+    outdented: (level: number) => `Inndráttur minnkaður, stig ${level}`,
+  },
   code_block: {
     add_source_button_text: "Bæta við frumkóða",
     ok_button_text: "Í lagi",
