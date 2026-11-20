@@ -5,9 +5,14 @@ import { Input as InputPrimitive } from "@base-ui/react/input";
 // CLI's "@/lib/utils" alias (not resolvable when consumed from source).
 import { cn } from "../../lib/utils";
 
-function Input({ className, type, ...props }: React.ComponentProps<"input">) {
+// Forward refs explicitly to support React 18 as well as React 19.
+const Input = React.forwardRef<
+  HTMLInputElement,
+  React.ComponentPropsWithoutRef<"input">
+>(function Input({ className, type, ...props }, ref) {
   return (
     <InputPrimitive
+      ref={ref}
       type={type}
       data-slot="input"
       className={cn(
@@ -17,6 +22,6 @@ function Input({ className, type, ...props }: React.ComponentProps<"input">) {
       {...props}
     />
   );
-}
+});
 
 export { Input };

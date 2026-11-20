@@ -1,10 +1,83 @@
-import { Command, Transaction } from "prosemirror-state";
-import { ReadOnlyExtension } from "../../extensions/ReadOnly/ReadOnly.js";
+import { Command, Plugin, PluginKey, Transaction } from "prosemirror-state";
+import type { EditorView } from "prosemirror-view";
 import type { HistoryExtension } from "../../extensions/History/History.js";
+import { Store } from "../../util/Store.js";
 import { BlockNoteEditor } from "../BlockNoteEditor.js";
 
+/** Editor-owned permissions and the additional restriction observed from the view. */
+type EditabilityState = {
+  /** The application's requested editing preference. */
+  editable: boolean;
+  /** Independent editing locks currently held by features. */
+  restrictions: Set<symbol>;
+  /** Last mounted view's permission, or undefined when no view is mounted. */
+  viewIsEditable: boolean | undefined;
+  /** Suppress callbacks while ProseMirror is constructing plugin views. */
+  updatingView: boolean;
+};
+
 export class StateManager {
-  constructor(private editor: BlockNoteEditor<any, any, any>) {}
+  private readonly editability: Store<EditabilityState>;
+
+  constructor(
+    private editor: BlockNoteEditor<any, any, any>,
+    editable = true,
+  ) {
+    this.editability = new Store<EditabilityState>(
+      {
+        editable,
+        restrictions: new Set(),
+        viewIsEditable: undefined,
+        updatingView: false,
+      },
+      {
+        onUpdate: (state, previous) => {
+          if (
+            (state.editable && state.restrictions.size === 0) !==
+              (previous.editable && previous.restrictions.size === 0) &&
+            !editor.headless
+          ) {
+            // Reuse a pending transaction without reporting a document change.
+            this.transact((tr) => tr.setMeta("editable", true));
+          }
+        },
+      },
+    );
+    editor.onUnmount(() => {
+      // Plugin views can be recreated while mounted. Only discard their
+      // observed restriction when the editor actually unmounts.
+      this.editability.setState({
+        ...this.editability.state,
+        viewIsEditable: undefined,
+      });
+    });
+  }
+
+  /** Bridges editor-owned editability to ProseMirror, independently of extensions. */
+  public readonly prosemirrorPlugins = [
+    new Plugin({
+      key: new PluginKey("bn-editability"),
+      props: {
+        editable: () => {
+          const { editable, restrictions } = this.editability.state;
+          return editable && restrictions.size === 0;
+        },
+      },
+      view: (view) => {
+        const store = this.editability;
+        function syncEditability(view: EditorView) {
+          if (store.state.viewIsEditable !== view.editable) {
+            store.setState({
+              ...store.state,
+              viewIsEditable: view.editable,
+            });
+          }
+        }
+        syncEditability(view);
+        return { update: syncEditability };
+      },
+    }),
+  ];
 
   /**
    * Stores the currently active transaction, which is the accumulated transaction from all {@link dispatch} calls during a {@link transact} calls
@@ -183,26 +256,9 @@ export class StateManager {
    * @returns True if the editor is editable, false otherwise.
    */
   public get isEditable(): boolean {
-    if (!this.editor._tiptapEditor) {
-      if (!this.editor.headless) {
-        throw new Error("no editor, but also not headless?");
-      }
-      return false;
-    }
-    if (this.editor.headless) {
-      // No live view while unmounted, so tiptap can't consult plugin props
-      // (its unmounted view stub reports editable: true). Mirror the
-      // ReadOnly plugin's `editable` prop directly so the application
-      // preference and feature restrictions still read back correctly,
-      // e.g. for static/server-side rendering via block render functions.
-      const state = this.editor.getExtension(ReadOnlyExtension)?.store.state;
-      if (state) {
-        return state.isEditable && state.enabledSet.size === 0;
-      }
-    }
-    return this.editor._tiptapEditor.isEditable === undefined
-      ? true
-      : this.editor._tiptapEditor.isEditable;
+    const { editable, restrictions, viewIsEditable } = this.editability.state;
+    // Internal restrictions always win; other plugins can only restrict further.
+    return editable && restrictions.size === 0 && viewIsEditable !== false;
   }
 
   /**
@@ -210,14 +266,52 @@ export class StateManager {
    * @param editable True to make the editor editable, or false to lock it.
    */
   public set isEditable(editable: boolean) {
-    if (!this.editor._tiptapEditor) {
-      if (!this.editor.headless) {
-        throw new Error("no editor, but also not headless?");
-      }
-      // not relevant on headless
+    if (this.editability.state.editable === editable) {
       return;
     }
-    this.editor.getExtension(ReadOnlyExtension)!.setEditable(editable);
+    this.editability.setState({ ...this.editability.state, editable });
+  }
+
+  public acquireEditingLock(): () => void {
+    const token = Symbol();
+    this.editability.setState({
+      ...this.editability.state,
+      restrictions: new Set([...this.editability.state.restrictions, token]),
+    });
+    return () => {
+      if (!this.editability.state.restrictions.has(token)) {
+        return;
+      }
+      const restrictions = new Set(this.editability.state.restrictions);
+      restrictions.delete(token);
+      this.editability.setState({ ...this.editability.state, restrictions });
+    };
+  }
+
+  public onEditableChange(callback: (editable: boolean) => void) {
+    let previous = this.isEditable;
+    return this.editability.subscribe(() => {
+      if (this.updatingView) {
+        return;
+      }
+      const editable = this.isEditable;
+      if (editable !== previous) {
+        previous = editable;
+        callback(editable);
+      }
+    });
+  }
+
+  /** Mount/reconfiguration restores this flag when plugin views are ready. */
+  public get updatingView(): boolean {
+    return this.editability.state.updatingView;
+  }
+
+  public set updatingView(updatingView: boolean) {
+    if (this.updatingView !== updatingView) {
+      // Releasing the flag also notifies subscribers of the final editability.
+      this.editability.setState({ ...this.editability.state, updatingView });
+    }
   }
 
   /**

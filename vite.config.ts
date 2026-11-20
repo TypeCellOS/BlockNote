@@ -1,5 +1,50 @@
 import { defineConfig } from "vite-plus";
 
+// Opt existing suites into the new conventions as they are migrated, rather
+// than requiring unrelated legacy tests to change in this PR.
+const componentTestFiles = [
+  "packages/core/src/blocks/Heading/Heading.browser.test.tsx",
+  "packages/react/src/components/FormattingToolbar/FormattingToolbar.browser.test.tsx",
+  "packages/react/src/components/FormattingToolbar/DesktopFormattingToolbarController.browser.test.tsx",
+  "packages/react/src/components/FormattingToolbar/DefaultButtons/BasicTextStyleButton.browser.test.tsx",
+  "packages/react/src/components/FormattingToolbar/DefaultButtons/ColorStyleButton.browser.test.tsx",
+  "packages/react/src/components/FormattingToolbar/DefaultButtons/CreateLinkButton.browser.test.tsx",
+  "packages/react/src/components/FormattingToolbar/DefaultButtons/NestBlockButtons.browser.test.tsx",
+  "packages/react/src/components/FormattingToolbar/DefaultButtons/TextAlignButton.browser.test.tsx",
+  "packages/react/src/components/FormattingToolbar/DefaultSelects/BlockTypeSelect.browser.test.tsx",
+];
+const testIdRestriction = {
+  property: "getByTestId",
+  message:
+    "Use accessible locators such as getByRole with a name or getByLabel in browser tests.",
+};
+const testSleepMessage =
+  "Wait for an observable condition (for example expect.element or expect.poll), not elapsed time. If testing timer behavior itself, document a targeted lint exception.";
+const testSleepProperties = [
+  { property: "waitForTimeout", message: testSleepMessage },
+  { property: "setTimeout", message: testSleepMessage },
+  { property: "sleep", message: testSleepMessage },
+];
+const browserTestImportPatterns = [
+  {
+    group: [
+      "**/utils/accessibility",
+      "**/utils/accessibility.*",
+      "**/utils/keyboard",
+      "**/utils/keyboard.*",
+      "**/screen-reader/screenReader",
+      "**/screen-reader/screenReader.*",
+    ],
+    allowTypeImports: true,
+    message:
+      "Use the registered commands from tests/src/utils/context.ts instead of importing command implementations.",
+  },
+  {
+    group: ["timers", "timers/*", "node:timers", "node:timers/*"],
+    message: testSleepMessage,
+  },
+];
+
 export default defineConfig({
   staged: {
     // Format + fast lint (no type-aware) on pre-commit for speed.
@@ -14,6 +59,10 @@ export default defineConfig({
     // its tsc step reads `core`'s `.d.ts` files.
     cache: { scripts: true },
     tasks: {
+      "test:screen-reader": {
+        command: "node tests/src/screen-reader/run-screen-reader.mjs",
+        cache: false,
+      },
       "copy-package-readmes": {
         command: "node scripts/copy-package-readmes.mjs",
         // These copies are outputs, not inputs: automatic tracking of the
@@ -62,8 +111,14 @@ export default defineConfig({
   },
   lint: {
     plugins: ["typescript", "react", "import"],
-    // Adds pre-migration ESLint rules with no oxlint equivalents.
-    jsPlugins: [{ name: "import-eslint", specifier: "eslint-plugin-import" }],
+    // ESLint compatibility rules and a focused local component-test convention.
+    jsPlugins: [
+      { name: "import-eslint", specifier: "eslint-plugin-import" },
+      {
+        name: "blocknote-tests",
+        specifier: "./scripts/lint/component-browser-tests.mjs",
+      },
+    ],
     options: {
       typeAware: true,
       typeCheck: true,
@@ -95,6 +150,104 @@ export default defineConfig({
       "import/no-cycle": "off",
     },
     overrides: [
+      {
+        // Pilot on the component examples
+        files: componentTestFiles,
+        rules: {
+          "blocknote-tests/component-browser-structure": "error",
+        },
+      },
+      {
+        files: ["packages/*/src/**/*.{ts,tsx}"],
+        excludeFiles: ["**/*.test.{ts,tsx}"],
+        rules: {
+          "no-restricted-imports": [
+            "error",
+            {
+              patterns: [
+                {
+                  group: ["**/*.test", "**/*.test.*"],
+                  message: "Production code must not import test files.",
+                },
+              ],
+            },
+          ],
+        },
+      },
+      {
+        files: [
+          "**/*.browser.test.{ts,tsx}",
+          "**/*.screen-reader.test.{ts,tsx}",
+        ],
+        plugins: ["vitest"],
+        rules: {
+          // The plugin enables these defaults, which do not fit our test conventions.
+          // Assertions can live in shared helpers outside a test callback.
+          "vitest/expect-expect": "off",
+          "vitest/no-standalone-expect": "off",
+          // Browser-specific coverage and documented known failures are intentional.
+          "vitest/no-conditional-expect": "off",
+          "vitest/no-conditional-tests": "off",
+          "vitest/no-disabled-tests": "off",
+          // Existing mocks do not all provide explicit type parameters.
+          "vitest/require-mock-type-parameters": "off",
+          "vitest/no-focused-tests": "error",
+          "vitest/valid-expect": ["error", { maxArgs: 2 }],
+          "vitest/require-awaited-expect-poll": "error",
+          "typescript/no-floating-promises": [
+            "error",
+            { ignoreVoid: false, checkThenables: true },
+          ],
+          "no-restricted-imports": [
+            "error",
+            {
+              patterns: browserTestImportPatterns,
+            },
+          ],
+          "no-restricted-properties": [
+            "error",
+            testIdRestriction,
+            {
+              property: "waitForTimeout",
+              message:
+                "Wait for observable readiness with expect.element or expect.poll instead of sleeping.",
+            },
+            {
+              property: "sleep",
+              message:
+                "Wait for observable readiness with expect.element or expect.poll instead of sleeping.",
+            },
+          ],
+        },
+      },
+      {
+        files: componentTestFiles,
+        rules: {
+          "no-restricted-globals": [
+            "error",
+            { name: "setTimeout", message: testSleepMessage },
+          ],
+          "no-restricted-properties": [
+            "error",
+            ...testSleepProperties,
+            testIdRestriction,
+          ],
+          "no-restricted-imports": [
+            "error",
+            {
+              // Overrides replace rule options, so retain the shared safeguards.
+              patterns: [
+                ...browserTestImportPatterns,
+                {
+                  group: ["**/utils/editor.js", "**/utils/editor"],
+                  importNames: ["sleep"],
+                  message: testSleepMessage,
+                },
+              ],
+            },
+          ],
+        },
+      },
       {
         files: [
           "**/scripts/**",

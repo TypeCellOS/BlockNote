@@ -1,4 +1,5 @@
 import { type ChainedCommands, Extension } from "@tiptap/core";
+import { GapCursor } from "@tiptap/pm/gapcursor";
 import { Fragment, type Node, type ResolvedPos } from "prosemirror-model";
 import {
   NodeSelection,
@@ -17,6 +18,7 @@ import {
   unnestBlock,
 } from "../../../api/blockManipulation/commands/nestBlock/nestBlock.js";
 import { fixLayoutBlocksById } from "../../../api/blockManipulation/layoutBlocks/fixLayoutBlock.js";
+import { blockToNode } from "../../../api/nodeConversions/blockToNode.js";
 import { nodeToBlock } from "../../../api/nodeConversions/nodeToBlock.js";
 import { isLayoutNode } from "../../../schema/blocks/children.js";
 import { splitBlockCommand } from "../../../api/blockManipulation/commands/splitBlock/splitBlock.js";
@@ -37,9 +39,11 @@ import {
   blockEdgeSelection,
 } from "../../../api/getBlockInfoFromPos.js";
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
+import { hasInputRule } from "../../../editor/inputRules.js";
 import { FilePanelExtension } from "../../FilePanel/FilePanel.js";
 import { FormattingToolbarExtension } from "../../FormattingToolbar/FormattingToolbar.js";
 import { LiveAnnouncerExtension } from "../../LiveAnnouncer/LiveAnnouncer.js";
+import { MultipleNodeSelection } from "../../SideMenu/MultipleNodeSelection.js";
 
 // How deeply the block at `$pos` is nested, counting top-level blocks as level
 // 1. Layout blocks (e.g. columns) aren't block containers, so a block inside
@@ -117,10 +121,13 @@ export const KeyboardShortcutsExtension = Extension.create<{
     }
     // handleBackspace is partially adapted from https://github.com/ueberdosis/tiptap/blob/ed56337470efb4fd277128ab7ef792b37cfae992/packages/core/src/extensions/keymap.ts
     const handleBackspace = () =>
+      // Undo a fresh conversion before deleting its selection (e.g. a divider).
+      // Run outside the Tiptap chain: history dispatches its own transaction.
+      (hasInputRule(this.editor.state) && bnEditor.undo()) ||
       this.editor.commands.first(({ chain, commands }) => [
         // Deletes the selection if it's not empty.
         () => commands.deleteSelection(),
-        // Undoes an input rule if one was triggered in the last editor state change.
+        // Preserve input-rule undo for custom Tiptap extensions.
         () => commands.undoInputRule(),
         // Resets the block (`keyboard.resetsTo`, a paragraph by default) if the
         // selection is at the start of the block and the block isn't already
@@ -650,6 +657,35 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
     const handleEnter = (withShift = false) => {
       return this.editor.commands.first(({ commands, tr }) => [
+        // A gap is between blocks, not inside the nearest empty block. Arrow
+        // navigation can place it just inside a blockContainer, before its
+        // content node; insert outside that wrapper without moving its children.
+        () =>
+          commands.command(({ state, tr, dispatch }) => {
+            if (!(state.selection instanceof GapCursor)) {
+              return false;
+            }
+            let $pos = state.selection.$from;
+            if ($pos.parent.type.name === "blockContainer") {
+              if ($pos.parentOffset === 0) {
+                $pos = state.doc.resolve($pos.before());
+              } else if ($pos.parentOffset === $pos.parent.content.size) {
+                $pos = state.doc.resolve($pos.after());
+              }
+            }
+            const blockType = state.schema.nodes["blockContainer"];
+            const index = $pos.index();
+            if (!$pos.parent.canReplaceWith(index, index, blockType)) {
+              return false;
+            }
+            if (dispatch) {
+              const block = blockToNode({ type: "paragraph" }, state.schema);
+              tr.insert($pos.pos, block)
+                .setSelection(TextSelection.create(tr.doc, $pos.pos + 2))
+                .scrollIntoView();
+            }
+            return true;
+          }),
         // Resets an empty block (`keyboard.resetsTo`) if it resets on Enter
         // (`keyboard.emptyEnterResets`), e.g. an empty list item turns into a
         // paragraph. Its children stay.
@@ -1059,6 +1095,9 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
     return {
       Backspace: handleBackspace,
+      // iOS autocapitalization can set Shift on the first Delete after Return.
+      // Unlike Shift-Enter, this must run the same command, not a shifted variant.
+      "Shift-Backspace": handleBackspace,
       Delete: handleDelete,
       Enter: () => handleEnter(),
       "Shift-Enter": () => handleEnter(true),
@@ -1081,12 +1120,12 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
         // By default, the first `Mod-a` selects the current block's content,
         // and any subsequent `Mod-a` expands the selection to the whole
-        // document. We use `TextSelection`s rather than an `AllSelection` for the
-        // whole-document case as the latter creates from/to positions outside a
-        // block, causing errors when calling e.g. `getBlock`.
-        const wholeDocSelection = TextSelection.between(
-          Selection.atStart(doc).$from,
-          Selection.atEnd(doc).$to,
+        // document. Keep the selection inside the root block group rather than
+        // using an `AllSelection`, whose endpoints sit outside the blocks.
+        const wholeDocSelection = MultipleNodeSelection.create(
+          doc,
+          1,
+          doc.content.size - 1,
         );
 
         if (this.options.selectAllBehavior === "document") {

@@ -1,17 +1,16 @@
-import { commands, page, server, userEvent } from "vite-plus/test/browser";
+export { page, server, userEvent } from "../commands/transport.js";
+export {
+  MOD,
+  browserName,
+  selectToLineEndKey,
+} from "../commands/browser/index.js";
+import * as browserCommands from "../commands/browser/index.js";
+import * as baselineCommands from "../commands/node/index.js";
+import { commands as nodeCommands } from "../commands/transport.js";
 
-// `vite-plus/test/browser` re-exports `vitest/browser`, which Vitest replaces
-// with a generated virtual module while running in Browser Mode. Import it from
-// this single place so the e2e utils + tests share one `userEvent` instance
-// (it preserves keyboard/pointer state across calls) and one command surface.
-export { commands, page, server, userEvent };
-
-/** The browser instance the current test is running in. */
-export const browserName = server.browser as "chromium" | "firefox" | "webkit";
-
-/**
- * Platform modifier for `userEvent.keyboard` (Cmd on macOS, Ctrl elsewhere) —
- * the equivalent of Playwright's `ControlOrMeta`.
- */
-export const MOD: "Meta" | "Control" =
-  server.platform === "darwin" ? "Meta" : "Control";
+// Compatibility for existing suites; extended tests use top-level fixtures.
+export const commands = {
+  ...baselineCommands,
+  ...nodeCommands,
+  ...browserCommands,
+};

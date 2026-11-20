@@ -25,6 +25,7 @@
     }
   },
   "include": ["src"],
+  "exclude": ["src/unit/**/*.test.*"],
   "references": [
     {
       "path": "../packages/core"

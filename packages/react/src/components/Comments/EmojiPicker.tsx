@@ -28,22 +28,22 @@ export const EmojiPicker = (props: {
       onOpenChange={handleOpenChange}
       portalElement={portalElement}
     >
-      <Components.Generic.Popover.Trigger>
-        <div
-          onClick={(event) => {
-            event.preventDefault();
-            event.stopPropagation();
-            handleOpenChange(!open);
-          }}
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
+      <div
+        onClick={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          handleOpenChange(!open);
+        }}
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Components.Generic.Popover.Trigger>
           {props.children}
-        </div>
-      </Components.Generic.Popover.Trigger>
+        </Components.Generic.Popover.Trigger>
+      </div>
       <Components.Generic.Popover.Content
         className={"bn-emoji-picker-popover"}
         variant={"panel-popover"}

@@ -35,7 +35,10 @@ export default defineConfig(
         // Preserve Vitest 4 mock history during the toolchain upgrade.
         clearMocks: false,
         environment: "node",
-        setupFiles: ["./vitestSetup.ts"],
+        setupFiles: [
+          "./vitestSetup.ts",
+          "../../tests/vitestSetup.node-fixtures.ts",
+        ],
         testTimeout: 15000,
         // `.browser.test` files need a real browser; the tests package's
         // browser suite runs them.

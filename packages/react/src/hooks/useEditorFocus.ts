@@ -1,7 +1,29 @@
-/* eslint-disable react/refs -- The render-phase ref is a keyed snapshot cache; reading live focus state here can render a transient, incorrect frame. */
 import type { BlockNoteEditor, EditorFocusOptions } from "@blocknote/core";
-import { useCallback, useRef, useSyncExternalStore } from "react";
+import { useMemo, useSyncExternalStore } from "react";
 import { useBlockNoteContext } from "../editor/BlockNoteContext.js";
+
+function createFocusStore(
+  editor: BlockNoteEditor<any, any, any>,
+  includeEditorUI: boolean,
+) {
+  let focused = editor.isFocused({ includeEditorUI });
+  function getSnapshot() {
+    return focused;
+  }
+  function subscribe(onStoreChange: () => void) {
+    const unsubscribe = editor.onFocusChange(
+      (_editor, ctx) => {
+        focused = ctx.focused;
+        onStoreChange();
+      },
+      { includeEditorUI },
+    );
+    focused = editor.isFocused({ includeEditorUI });
+    onStoreChange();
+    return unsubscribe;
+  }
+  return { getSnapshot, subscribe };
+}
 
 /**
  * Whether the editor is focused, as state — re-rendering the component when
@@ -35,67 +57,16 @@ export function useEditorFocus(
 
   const includeEditorUI = options?.includeEditorUI ?? false;
 
-  // The snapshot is the last *settled* value, never a live read. With
-  // `includeEditorUI` the editor's own events are already settled, whereas
-  // reading focus state during an arbitrary render can catch a mid-handoff
-  // frame, where `document.activeElement` is transiently `<body>` and the
-  // editor looks unfocused for one frame.
-  //
-  // The cache is keyed by its inputs: when the editor or the option changes,
-  // the settled value belongs to the *old* source, and rendering it would
-  // show one wrong frame before the new subscription attaches and re-syncs.
-  // Re-reading then is the same live read the first render does.
-  const focused = useRef<
-    | {
-        editor: BlockNoteEditor<any, any, any>;
-        includeEditorUI: boolean;
-        value: boolean;
-      }
-    | undefined
-  >(undefined);
-  if (
-    focused.current === undefined ||
-    focused.current.editor !== resolvedEditor ||
-    focused.current.includeEditorUI !== includeEditorUI
-  ) {
-    focused.current = {
-      editor: resolvedEditor,
-      includeEditorUI,
-      value: resolvedEditor.isFocused({ includeEditorUI }),
-    };
-  }
-
-  const subscribe = useCallback(
-    (onStoreChange: () => void) => {
-      // Re-sync: focus can have changed between the render that produced the
-      // current snapshot and this subscription attaching. React does compare
-      // the snapshot again after subscribing (its subscribe effect is
-      // registered before the consistency-check one), so refreshing the
-      // cached value here is enough — but notifying explicitly keeps that
-      // independent of React's internal effect ordering.
-      focused.current = {
-        editor: resolvedEditor,
-        includeEditorUI,
-        value: resolvedEditor.isFocused({ includeEditorUI }),
-      };
-      onStoreChange();
-
-      return resolvedEditor.onFocusChange(
-        (_editor, ctx) => {
-          focused.current = {
-            editor: resolvedEditor,
-            includeEditorUI,
-            value: ctx.focused,
-          };
-          onStoreChange();
-        },
-        { includeEditorUI },
-      );
-    },
+  // Keep the last settled event value, not live DOM focus during a handoff.
+  // Each source owns its snapshot, including when the editor/option changes.
+  const store = useMemo(
+    () => createFocusStore(resolvedEditor, includeEditorUI),
     [resolvedEditor, includeEditorUI],
   );
 
-  const getSnapshot = useCallback(() => focused.current!.value, []);
-
-  return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+  return useSyncExternalStore(
+    store.subscribe,
+    store.getSnapshot,
+    store.getSnapshot,
+  );
 }

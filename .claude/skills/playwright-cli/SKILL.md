@@ -6,6 +6,10 @@ allowed-tools: Bash(playwright-cli:*) Bash(npx:*) Bash(npm:*)
 
 # Browser Automation with playwright-cli
 
+## BlockNote test conventions
+
+When authoring or changing tests in this repository, follow [testing-skill](../testing-skill/SKILL.md). Colocated component tests use Vitest browser mode, one `*.browser.test.{ts,tsx}` file with separate describe groups, and the shared Docker e2e runner. Read its [React component testing reference](../testing-skill/references/component-testing.md) for component testing conventions. These repository conventions take precedence over the generic Playwright test-generation examples below and in the references: do not introduce a standalone Playwright runner, one `.spec.ts` per scenario, or native browser-suite runs.
+
 ## Quick start
 
 ```bash

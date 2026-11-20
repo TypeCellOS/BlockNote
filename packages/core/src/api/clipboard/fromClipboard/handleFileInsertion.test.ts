@@ -5,6 +5,217 @@ import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 import { handleFileInsertion } from "./handleFileInsertion.js";
 
 describe("File insertion", () => {
+  it.each([
+    { position: "end", y: 12, placement: "after" },
+    { position: "end", y: 28, placement: "after" },
+    { position: "start", y: 12, placement: "before" },
+    { position: "middle", y: 12, placement: "before" },
+    { position: "middle", y: 28, placement: "after" },
+    { position: "gap before", y: -1, placement: "before" },
+    { position: "gap after", y: 41, placement: "after" },
+    // Padding within the block follows the resolved text-end position too.
+    { position: "end", y: 5, placement: "after" },
+    { position: "end", y: 35, placement: "after" },
+    // The same text-end position outside the block keeps gap placement.
+    { position: "end", y: -1, placement: "before" },
+    { position: "end", y: 41, placement: "after" },
+  ] as const)(
+    "drops at $position (y=$y) $placement the paragraph",
+    async ({ position, y, placement }) => {
+      const editor = BlockNoteEditor.create({
+        initialContent: [
+          { id: "above", type: "paragraph", content: "Above" },
+          { id: "target", type: "paragraph", content: "Target line" },
+          { id: "below", type: "paragraph", content: "Below" },
+        ],
+        trailingBlock: false,
+        uploadFile: async () => "https://example.com/image.png",
+      });
+      try {
+        editor.setTextCursorPosition("target", "end");
+        const end = editor.prosemirrorState.selection.from;
+        const start = end - "Target line".length;
+        const pos =
+          position === "start"
+            ? start
+            : position === "middle"
+              ? start + 3
+              : position === "gap before"
+                ? start - 2
+                : position === "gap after"
+                  ? end + 2
+                  : end;
+        // Substitute only layout. Keep real text/gap positions, transactions,
+        // block lookup, insertion and uploads. #2570 drops on the upper half of
+        // a line still resolve to its text end, not the gap above the block.
+        Object.defineProperty(editor, "prosemirrorView", {
+          value: {
+            posAtCoords: () => ({ pos, inside: -1 }),
+          } satisfies Pick<BlockNoteEditor["prosemirrorView"], "posAtCoords">,
+        });
+        Object.defineProperty(editor, "domElement", {
+          value: {
+            querySelector: (selector: string) => ({
+              getBoundingClientRect: () =>
+                selector === '[data-id="below"]'
+                  ? { top: 40, bottom: 80 }
+                  : { top: 0, bottom: 40 },
+            }),
+          },
+        });
+        const file = new File(["image"], "image.png", { type: "image/png" });
+        const event = new DragEvent("drop", { cancelable: true });
+        Object.defineProperties(event, {
+          dataTransfer: {
+            value: {
+              types: ["Files"],
+              items: [{ type: file.type, getAsFile: () => file }],
+            },
+          },
+          clientX: { value: 100 },
+          clientY: { value: y },
+        });
+
+        await handleFileInsertion(event, editor);
+
+        expect(event.defaultPrevented).toBe(true);
+        expect(
+          editor.document.map((block) =>
+            block.type === "image" ? "image" : block.id,
+          ),
+        ).toEqual(
+          placement === "before"
+            ? ["above", "image", "target", "below"]
+            : ["above", "target", "image", "below"],
+        );
+      } finally {
+        editor._tiptapEditor.destroy();
+      }
+    },
+  );
+
+  describe.each(["success", "rejection", "empty URL"] as const)(
+    "%s for the first upload",
+    (outcome) => {
+      it.each(["before", "after", "paste"] as const)(
+        "preserves transfer order (%s a nonempty paragraph)",
+        async (placement) => {
+          let finishFirstUpload!: () => void;
+          let finishSecondUpload!: () => void;
+          const firstPending = new Promise<void>((resolve) => {
+            finishFirstUpload = resolve;
+          });
+          const secondPending = new Promise<void>((resolve) => {
+            finishSecondUpload = resolve;
+          });
+          const uploadFile = vi.fn(async (file: File) => {
+            if (file.name === "image.gif") {
+              await firstPending;
+              if (outcome === "rejection") {
+                throw new Error("Upload rejected");
+              }
+              if (outcome === "empty URL") {
+                return "";
+              }
+            } else {
+              await secondPending;
+            }
+            return `https://example.com/${file.name}`;
+          });
+          const editor = BlockNoteEditor.create({
+            initialContent: [
+              { id: "target", type: "paragraph", content: "Wrapped paragraph" },
+            ],
+            trailingBlock: false,
+            uploadFile,
+          });
+
+          try {
+            editor.setTextCursorPosition("target", "end");
+            // Only layout is substituted: resolve the real target node after each
+            // insertion, as posAtCoords would for a drop over the paragraph.
+            Object.defineProperty(editor, "prosemirrorView", {
+              value: {
+                posAtCoords: () => {
+                  let targetPos = 0;
+                  editor.prosemirrorState.doc.descendants((node, pos) => {
+                    if (node.attrs.id === "target") {
+                      targetPos = pos + 1;
+                    }
+                  });
+                  return { pos: targetPos, inside: -1 };
+                },
+              } satisfies Pick<
+                BlockNoteEditor["prosemirrorView"],
+                "posAtCoords"
+              >,
+            });
+            Object.defineProperty(editor, "domElement", {
+              value: {
+                querySelector: () => ({
+                  getBoundingClientRect: () => ({ top: 0, bottom: 100 }),
+                }),
+              },
+            });
+            const files = [
+              new File(["first"], "image.gif", { type: "image/gif" }),
+              new File(["second"], "picture.png", { type: "image/png" }),
+            ];
+            const event =
+              placement === "paste"
+                ? new ClipboardEvent("paste", { cancelable: true })
+                : new DragEvent("drop", { cancelable: true });
+            Object.defineProperties(event, {
+              [placement === "paste" ? "clipboardData" : "dataTransfer"]: {
+                value: {
+                  types: ["Files"],
+                  items: files.map((file) => ({
+                    type: file.type,
+                    getAsFile: () => file,
+                  })),
+                },
+              },
+              clientX: { value: 10 },
+              clientY: { value: placement === "before" ? 10 : 90 },
+            });
+
+            const insertion = handleFileInsertion(event, editor);
+            // Uploads stay sequential. Let the first finish while the second is
+            // still pending, then check that its completion cannot reorder blocks.
+            expect(uploadFile).toHaveBeenCalledTimes(1);
+            finishFirstUpload();
+            await vi.waitFor(() => expect(uploadFile).toHaveBeenCalledTimes(2));
+
+            expect(event.defaultPrevented).toBe(true);
+            expect(uploadFile.mock.calls.map(([file]) => file)).toEqual(files);
+            const order = editor.document.map((block) =>
+              "name" in block.props ? block.props.name : block.id,
+            );
+            expect
+              .soft(order)
+              .toEqual(
+                placement === "before"
+                  ? ["image.gif", "picture.png", "target"]
+                  : ["target", "image.gif", "picture.png"],
+              );
+            finishSecondUpload();
+            await insertion;
+            expect(
+              editor.document
+                .filter((block) => block.type === "image")
+                .map((block) => block.props.url),
+            ).toEqual([
+              outcome === "success" ? "https://example.com/image.gif" : "",
+              "https://example.com/picture.png",
+            ]);
+          } finally {
+            editor._tiptapEditor.destroy();
+          }
+        },
+      );
+    },
+  );
+
   it.each(["drop", "paste"] as const)(
     "uploads and inserts all files in order after %s data becomes unavailable",
     async (eventType) => {

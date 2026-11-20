@@ -1,77 +1,79 @@
+// sRGB equivalents of the light/dark --bn-colors-highlights-* palettes in
+// packages/react/src/editor/styles.css (also used by Block.css highlight rules).
 export const COLORS_DEFAULT = {
   gray: {
-    text: "#9b9a97",
-    background: "#ebeced",
+    text: "#676767",
+    background: "#e8e8e8",
   },
   brown: {
-    text: "#64473a",
-    background: "#e9e5e3",
+    text: "#7b5540",
+    background: "#f1e5df",
   },
   red: {
-    text: "#e03e3e",
-    background: "#fbe4e4",
+    text: "#994a37",
+    background: "#ffdfd6",
   },
   orange: {
-    text: "#d9730d",
-    background: "#f6e9d9",
+    text: "#8f5509",
+    background: "#fbe3cd",
   },
   yellow: {
-    text: "#dfab01",
-    background: "#fbf3db",
+    text: "#796300",
+    background: "#f0e8cb",
   },
   green: {
-    text: "#4d6461",
-    background: "#ddedea",
+    text: "#48722d",
+    background: "#ddeed4",
   },
   blue: {
-    text: "#0b6e99",
-    background: "#ddebf1",
+    text: "#006d9a",
+    background: "#cfedff",
   },
   purple: {
-    text: "#6940a5",
-    background: "#eae4f2",
+    text: "#6f549a",
+    background: "#ece2ff",
   },
   pink: {
-    text: "#ad1a72",
-    background: "#f4dfeb",
+    text: "#904873",
+    background: "#fddeee",
   },
 } as Record<string, { text: string; background: string }>;
 
 export const COLORS_DARK_MODE_DEFAULT = {
   gray: {
-    text: "#bebdb8",
-    background: "#9b9a97",
+    text: "#a3a3a3",
+    background: "#383838",
   },
   brown: {
-    text: "#8e6552",
-    background: "#64473a",
+    text: "#c79d86",
+    background: "#473328",
   },
   red: {
-    text: "#ec4040",
-    background: "#be3434",
+    text: "#e69783",
+    background: "#5a2619",
   },
   orange: {
-    text: "#e3790d",
-    background: "#b7600a",
+    text: "#daa168",
+    background: "#532d00",
   },
   yellow: {
-    text: "#dfab01",
-    background: "#b58b00",
+    text: "#c2ad61",
+    background: "#453700",
   },
   green: {
-    text: "#6b8b87",
-    background: "#4d6461",
+    text: "#92bc7c",
+    background: "#254112",
   },
   blue: {
-    text: "#0e87bc",
-    background: "#0b6e99",
+    text: "#6ab8e4",
+    background: "#003d5b",
   },
   purple: {
-    text: "#8552d7",
-    background: "#6940a5",
+    text: "#b7a0e4",
+    background: "#3f2d5b",
   },
   pink: {
-    text: "#da208f",
-    background: "#ad1a72",
+    text: "#dc94bc",
+    background: "#542541",
   },
 } as Record<string, { text: string; background: string }>;

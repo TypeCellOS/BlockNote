@@ -29,9 +29,13 @@ type Extension = {
       match: RegExpMatchArray;
       range: { from: number; to: number };
       editor: BlockNoteEditor;
-    }) => PartialBlock | undefined;
+    }) =>
+      | PartialBlock
+      | { text: string; styles: Record<string, string | boolean> }
+      | PartialInlineContent
+      | undefined;
   }[];
-  plugins?: Plugin[];
+  prosemirrorPlugins?: Plugin[];
   tiptapExtensions?: AnyExtension[];
 }
 
@@ -39,7 +43,7 @@ const CustomExtension = createExtension({
   key: "customBlockExtension",
   keyboardShortcuts: ...,
   inputRules: ...,
-  plugins: ...,
+  prosemirrorPlugins: ...,
   tiptapExtensions: ...,
 });
 ```
@@ -52,13 +56,57 @@ Let's go over the options that can be passed into `createExtension`:
 
 - `ctx:` An object containing the BlockNote editor instance.
 
-`inputRules?:` Input rules update blocks when given regular expressions are found in them. Takes an array of objects. Each object has a `find` field for the regular expression to find, and a `replace` field, for a function that should run on a match. The function should return a [`PartialBlock`](docs/reference/editor/manipulating-content#partial-blocks) which specifies how the block should be updated, or avoid updating it. It also has a single argument:
+`inputRules?:` An array of declarative input rules for blocks, styles, or inline content. See [Input rules](#input-rules).
 
-- `props:` An object containing the result of the regular expression match, a range for the [Prosemirror position indices](https://prosemirror.net/docs/guide/#doc.indexing) spanned by the match, and the BlockNote editor instance.
-
-`plugins?:` An array of [ProseMirror plugins](https://prosemirror.net/docs/ref/#state.Plugin_System).
+`prosemirrorPlugins?:` An array of [ProseMirror plugins](https://prosemirror.net/docs/ref/#state.Plugin_System).
 
 `tiptapExtensions?:` An array of [TipTap extensions](https://tiptap.dev/docs/editor/extensions/custom-extensions/create-new).
+
+## Input rules
+
+Input rules are plain objects with `find` and `replace`. For example, convert a paragraph starting with `# ` into a heading:
+
+```typescript
+import { createExtension } from "@blocknote/core";
+
+const HeadingShortcut = createExtension({
+  key: "heading-shortcut",
+  inputRules: [
+    {
+      find: /^#\s$/,
+      replace: () => ({ type: "heading", props: { level: 1 } }),
+    },
+  ],
+});
+```
+
+The `replace` callback receives `{ editor, match, range }`. Return a [`PartialBlock`](/docs/reference/editor/manipulating-content#partial-blocks) to convert the current block, or `undefined` to leave it unchanged. Undo restores the complete literal text, including the trigger.
+
+The returned shape determines the action: `{ text, styles }` applies styles, a string or array replaces inline content, and a partial block updates the current block:
+
+```typescript
+import { createExtension } from "@blocknote/core";
+
+const TextShortcuts = createExtension({
+  key: "text-shortcuts",
+  inputRules: [
+    {
+      find: /\*\*([^*]+)\*\*$/,
+      replace: ({ match }) => ({ text: match[1], styles: { bold: true } }),
+    },
+    {
+      find: /->$/,
+      replace: () => "→",
+    },
+  ],
+});
+```
+
+Style rules retain the returned `text` from the match, remove its surrounding delimiters (preserving leading whitespace), and apply `styles` without discarding existing formatting. Inline rules replace the whole match with a string or an array of BlockNote inline content, including custom inline content. Either kind can return `undefined` to decline the match. Style-associated extensions can be colocated with their style spec.
+
+Block rules also match plain Enter as a newline. Style and inline rules run only on text input. Register rules when creating the editor; adding input rules at runtime is not supported.
+
+Custom TipTap extensions can still use `addInputRules`, but those rules keep TipTap's own input-rule and undo behavior rather than the shared BlockNote engine.
 
 ## Adding extensions to the editor
 

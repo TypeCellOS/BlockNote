@@ -1,6 +1,6 @@
 import { User } from "@blocknote/core";
 import type { VersionSnapshot } from "@blocknote/core/extensions";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 
 import { useVersioning } from "./useVersioning.js";
 import { useStore } from "../../hooks/useStore.js";
@@ -9,22 +9,17 @@ import { useStore } from "../../hooks/useStore.js";
 export function useSnapshotUsers(
   snapshot: VersionSnapshot | undefined,
 ): (User | string)[] | undefined {
-  const byIds =
-    snapshot?.by === undefined
-      ? []
-      : Array.isArray(snapshot.by)
-        ? snapshot.by
-        : [snapshot.by];
+  const by = snapshot?.by;
+  const byIds = useMemo(
+    () => (by === undefined ? [] : Array.isArray(by) ? by : [by]),
+    [by],
+  );
   const { userStore } = useVersioning();
 
-  // `byIds` is often a fresh array each render, so key the effect on its
-  // contents rather than its identity to avoid re-loading on every render.
-  const byIdsKey = JSON.stringify(byIds);
-
   useEffect(() => {
+    // The store already caches users and deduplicates in-flight requests.
     void userStore.loadUsers(byIds);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userStore, byIdsKey]);
+  }, [userStore, byIds]);
 
   return useStore(userStore.store, (users) =>
     byIds.length === 0 ? undefined : byIds.map((id) => users.get(id) ?? id),
