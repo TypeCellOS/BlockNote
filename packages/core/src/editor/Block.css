@@ -70,7 +70,7 @@ BASIC STYLES
 
 .bn-block-content::before {
   content: "";
-  margin-right: 0;
+  margin-inline-end: 0;
   transition: all 0.2s;
   /* Workaround for selection issue on Chrome, see #1588 and also here:
   https://discuss.prosemirror.net/t/mouse-down-selection-behaviour-different-on-chrome/8426
@@ -101,7 +101,20 @@ NESTED BLOCKS
 */
 
 .bn-block-group .bn-block-group {
-  margin-left: 24px;
+  margin-inline-start: 24px;
+}
+
+/* Only explicit block direction overrides choose the children's indentation
+   edge; otherwise preserve inherited CSS direction (:dir follows HTML dir).
+   Toggles wrap their content and children in a shared frame/slot. */
+.bn-block:has(> .bn-block-content[dir]:dir(rtl)) > .bn-block-group,
+.bn-toggle-frame:has(> .bn-toggle-slot > .bn-block-content[dir]:dir(rtl)) {
+  direction: rtl;
+}
+
+.bn-block:has(> .bn-block-content[dir]:dir(ltr)) > .bn-block-group,
+.bn-toggle-frame:has(> .bn-toggle-slot > .bn-block-content[dir]:dir(ltr)) {
+  direction: ltr;
 }
 
 /* Attribution wrappers use display: contents; descendant selectors also reach
@@ -116,7 +129,7 @@ NESTED BLOCKS
   content: " ";
   display: inline;
   position: absolute;
-  left: -20px;
+  inset-inline-start: -20px;
   height: 100%;
   transition: all 0.2s 0.1s;
 }
@@ -180,12 +193,12 @@ NESTED BLOCKS
 }
 
 .bn-block-outer[data-prev-depth-change] {
-  margin-left: calc(10px * var(--x));
+  margin-inline-start: calc(10px * var(--x));
 }
 
 .bn-block-outer[data-prev-depth-change]
   .bn-block-outer[data-prev-depth-change] {
-  margin-left: 0;
+  margin-inline-start: 0;
 }
 
 /* HEADINGS*/
@@ -282,10 +295,10 @@ NESTED BLOCKS
 
 /* QUOTES */
 [data-content-type="quote"] blockquote {
-  border-left: 2px solid var(--bn-colors-side-menu, rgb(125, 121, 122));
+  border-inline-start: 2px solid var(--bn-colors-side-menu, rgb(125, 121, 122));
   color: var(--bn-colors-highlights-gray-text, #646362);
   margin: 0;
-  padding-left: 1em;
+  padding-inline-start: 1em;
 }
 
 [data-content-type="quote"] blockquote:where(.dark, .dark *) {
@@ -303,7 +316,7 @@ NESTED BLOCKS
 /* LISTS */
 
 .bn-block-content::before {
-  margin-right: 0;
+  margin-inline-end: 0;
   content: "";
 }
 
@@ -312,7 +325,7 @@ NESTED BLOCKS
   display: flex;
   justify-content: center;
   min-width: 24px;
-  padding-right: 4px;
+  padding-inline-end: 4px;
 }
 
 [data-content-type="numberedListItem"] {
@@ -361,7 +374,7 @@ NESTED BLOCKS
   display: flex;
   justify-content: center;
   min-width: 24px;
-  padding-right: 4px;
+  padding-inline-end: 4px;
 }
 
 /* Checked */
@@ -372,8 +385,8 @@ NESTED BLOCKS
 .bn-block-content[data-content-type="checkListItem"] > div > input {
   cursor: pointer;
   height: 24px;
-  margin-left: 4px;
-  margin-right: 8px;
+  margin-inline-start: 4px;
+  margin-inline-end: 8px;
   margin-block: 0;
   width: 12px;
 }
@@ -404,6 +417,18 @@ NESTED BLOCKS
 
 .bn-toggle-button[aria-expanded="true"] {
   transform: rotate(90deg);
+}
+
+/* A closed toggle points into the text; an open one still points down. */
+.bn-toggle-button:dir(rtl):not([aria-expanded="true"]),
+.bn-toggle-frame:has(> .bn-toggle-slot > .bn-block-content[dir]:dir(rtl))
+  > .bn-toggle-button:not([aria-expanded="true"]) {
+  transform: rotate(180deg);
+}
+
+.bn-toggle-frame:has(> .bn-toggle-slot > .bn-block-content[dir]:dir(ltr))
+  > .bn-toggle-button:not([aria-expanded="true"]) {
+  transform: none;
 }
 
 /* The frame of the built-in toggle blocks (see `createToggleFrame`): the
@@ -455,7 +480,7 @@ NESTED BLOCKS
   font-size: 16px;
   color: var(--bn-colors-highlights-gray-text, #646362);
   font-weight: normal;
-  margin-left: 22px;
+  margin-inline-start: 22px;
   padding-inline: 2px;
   width: fit-content;
 }
@@ -541,6 +566,9 @@ NESTED BLOCKS
   border-radius: 8px;
 }
 .bn-block-content[data-content-type="codeBlock"] > pre {
+  /* Source code keeps its writing direction inside an RTL document. */
+  direction: ltr;
+  text-align: left;
   --bn-suggestion-surface: rgb(22 22 22);
   white-space: pre;
   overflow-x: auto;
@@ -1085,8 +1113,9 @@ NESTED BLOCKS
 
 /* TEXT ALIGNMENT */
 [data-text-alignment="left"] {
+  /* Keep the existing values, but align to the reading direction. */
   justify-content: flex-start !important;
-  text-align: left !important;
+  text-align: start !important;
 }
 
 [data-text-alignment="center"] {
@@ -1096,7 +1125,7 @@ NESTED BLOCKS
 
 [data-text-alignment="right"] {
   justify-content: flex-end !important;
-  text-align: right !important;
+  text-align: end !important;
 }
 
 [data-text-alignment="justify"] {

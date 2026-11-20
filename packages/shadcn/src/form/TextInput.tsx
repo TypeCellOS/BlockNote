@@ -12,6 +12,7 @@ export const TextInput = forwardRef<
   const {
     className,
     name,
+    dir,
     label,
     variant: _variant,
     icon, // TODO: implement
@@ -55,6 +56,7 @@ export const TextInput = forwardRef<
           className={cn(className, "h-auto border-none p-0")}
           id={label}
           name={name}
+          dir={dir}
           placeholder={placeholder}
           disabled={disabled}
           value={value}

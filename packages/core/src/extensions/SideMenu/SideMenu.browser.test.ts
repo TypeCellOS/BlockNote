@@ -1,4 +1,4 @@
-import { afterEach, expect, it } from "vite-plus/test";
+import { afterEach, expect, it, vi } from "vite-plus/test";
 
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { SideMenuExtension } from "./SideMenu.js";
@@ -7,6 +7,41 @@ import { getNodeById } from "../../api/nodeUtil.js";
 import { unsetDragImage } from "./dragging.js";
 
 const cleanup: (() => void)[] = [];
+
+it.each(["ltr", "rtl"] as const)(
+  "anchors the %s drag preview at its inline start edge",
+  (direction) => {
+    const container = document.createElement("div");
+    container.dir = direction;
+    document.body.appendChild(container);
+    cleanup.push(() => container.remove());
+    const editor = BlockNoteEditor.create({
+      initialContent: [
+        { id: "dragged", type: "paragraph", content: "שלום — Hello" },
+      ],
+    });
+    editor.mount(container);
+    cleanup.push(() => editor._tiptapEditor.destroy());
+    cleanup.push(() => unsetDragImage(editor.prosemirrorView.root));
+    const dataTransfer = new DataTransfer();
+    const setDragImage = vi.spyOn(dataTransfer, "setDragImage");
+
+    editor
+      .getExtension(SideMenuExtension)!
+      .blockDragStart(
+        { dataTransfer, clientY: 0 },
+        editor.getBlock("dragged")!,
+      );
+
+    const preview = document.querySelector<HTMLElement>(".bn-drag-preview")!;
+    expect(preview.offsetWidth).toBeGreaterThan(0);
+    expect(setDragImage).toHaveBeenCalledWith(
+      preview,
+      direction === "rtl" ? preview.offsetWidth : 0,
+      0,
+    );
+  },
+);
 
 it("drags only the child when its parent has a single-block selection", () => {
   const container = document.createElement("div");
