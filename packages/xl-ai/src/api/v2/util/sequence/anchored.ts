@@ -22,13 +22,8 @@ const SMALL_GAP = 2000;
  * many changes (the patience method of git):
  *
  * 1. The keys that are in `a` one time and in `b` one time are anchors. Of
- *    these pairs, the subsequence that does not cross and has the largest
- *    weight stays (see {@link heaviestIncreasing}). `weightOf` gives the
- *    weight of an item, a positive number. An anchor has the weight of its
- *    item of `a`. By default each weight is 1: the anchors are then a
- *    longest increasing subsequence. A caller gives an item a larger weight
- *    if it stands for more than one item (for example one token for a full
- *    text).
+ *    these pairs, the longest subsequence that does not cross stays (see
+ *    {@link heaviestIncreasing}, with the weight 1 for each pair).
  * 2. A small gap between two anchors (see {@link SMALL_GAP}) gets the Myers
  *    diff. A larger gap gets step 1 again, with only its keys: a key that
  *    repeats in the full input can be unique in a gap. Thus, the gaps become
@@ -46,11 +41,9 @@ export function anchoredMatch<T>(
   a: readonly T[],
   b: readonly T[],
   keyOf: (item: T) => string,
-  weightOf: (item: T) => number = () => 1,
 ): MatchedPair[] {
   const keysA = a.map(keyOf);
   const keysB = b.map(keyOf);
-  const weightsA = a.map(weightOf);
   const budget = workBudgetFor(a.length + b.length);
   const pairs: MatchedPair[] = [];
   // A stack, not a recursion: an input can give one new anchor at each
@@ -69,7 +62,7 @@ export function anchoredMatch<T>(
     if (step.kind === "add") {
       pairs.push(step.pair);
     } else {
-      const next = matchRange(keysA, keysB, weightsA, step, budget, pairs);
+      const next = matchRange(keysA, keysB, step, budget, pairs);
       for (let i = next.length - 1; i >= 0; i--) {
         steps.push(next[i]);
       }
@@ -183,7 +176,6 @@ type Step =
 function matchRange(
   keysA: readonly string[],
   keysB: readonly string[],
-  weightsA: readonly number[],
   { aStart, aEnd, bStart, bEnd, isGap }: Extract<Step, { kind: "match" }>,
   budget: WorkBudget,
   pairs: MatchedPair[],
@@ -199,11 +191,7 @@ function matchRange(
     budget.left -= SEARCH_WORK_PER_ITEM * size;
   }
   const anchors = search
-    ? heaviestIncreasing(
-        uniquePairs(rangeA, rangeB),
-        (pair) => weightsA[aStart + pair.aIndex],
-        rangeB.length,
-      )
+    ? heaviestIncreasing(uniquePairs(rangeA, rangeB), () => 1, rangeB.length)
     : [];
   if (anchors.length === 0) {
     for (const pair of myersMatch(rangeA, rangeB, (x, y) => x === y, budget)) {
