@@ -109,7 +109,7 @@ describe("a byte order mark", () => {
 });
 
 // REVISIT: two blocks with one ID (for example in a Y.Doc, after two
-// writers moved the same block with y-prosemirror v13) are a broken
+// writers moved the same block: a move is a removal and an insert) are a broken
 // invariant for the lens: it pairs blocks by ID. Thus, a write throws, and
 // the document does not change. An earlier version gave the later block the
 // ID with a number (`x-2`) on each side, and kept these laws. We can return

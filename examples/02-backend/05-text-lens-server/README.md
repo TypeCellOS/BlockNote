@@ -81,7 +81,7 @@ curl -i -X PUT -H 'If-Match: "1"' --data-binary 'Hello' http://localhost:3010/do
 ## How it works
 
 - `src/dom.ts` installs a DOM for the markdown and HTML conversions of BlockNote.
-- `src/documents.ts` keeps each document in a BlockNote editor, and keeps every version as BlockNote JSON. After a write that merged, it also keeps the document that the client wrote (`written` of the text lens) as a version of its own. A real server keeps the versions in a database, or uses a Y.Doc and `@blocknote/xl-ai/text-lens/yjs`.
+- `src/documents.ts` keeps each document in a BlockNote editor, and keeps every version as BlockNote JSON. After a write that merged, it also keeps the document that the client wrote (`written` of the text lens) as a version of its own. A real server keeps the versions in a database, or uses a Y.Doc (Yjs 14) and `@blocknote/xl-ai/text-lens/y`.
 - `src/app.ts` has the routes. A write has `{ format, text }` for a text format, or `{ document }` for JSON. Without `Base-Version`, it calls `updateDocument` with `base: "current"`. With `Base-Version`, it calls `updateDocumentWithMerge`, with the document of the base version as `base` and the `onConflict` of the client. After the server reads the body, a write is synchronous from the checks until its commit. Thus, two writes cannot mix, and no write comes between the check of `If-Match` and the commit.
 - `If-Match` is a compare of ETags: the server needs no stored document for it. A server without version numbers can do the same check in the lens: `updateDocument` with the document of the version as `base` gives the error `document-changed` if the document changed after that version.
 

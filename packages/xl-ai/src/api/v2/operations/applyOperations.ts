@@ -61,9 +61,9 @@ import type {
  * `applyStructure`). Thus, the transaction needs no plugin of an editor.
  * The caller dispatches the transaction. Thus, a caller can show the steps
  * as suggestions, for example. Note: for an editor that is bound to a Y.Doc,
- * use `updateDocument` or `updateYDoc`. y-prosemirror v13
- * can write a change into a different block if one transaction has inserts
- * and other changes (see `dispatchUpdate`).
+ * use `updateDocument` or `updateYDoc`. The Yjs 14 binding can write a change
+ * into a different block if one transaction has an insert or a removal next
+ * to a changed block (see `stepGroupEnds`).
  */
 export function applyOperations(
   tr: Transaction,

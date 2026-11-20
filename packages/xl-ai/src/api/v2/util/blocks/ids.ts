@@ -31,8 +31,8 @@ export function duplicateId(blocks: readonly LensBlock[]): string | undefined {
  * document" or "base").
  *
  * REVISIT: a Y.Doc can have two blocks with one ID, after two writers moved
- * the same block (y-prosemirror v13). The ID extension of an editor gives
- * the copy a new ID, but it does not write that ID to the Y.Doc. Then the
+ * the same block (a move is a removal and an insert). The Y.Doc write of the
+ * lens reads the blocks of the Y.Doc, thus it sees the two blocks. Then the
  * lens cannot write that document until a client fixes the IDs. An earlier
  * version of the lens gave a later block with the ID of an earlier block the
  * ID with a number (`x-2`), on each side of a write. Also, Yjs v14
