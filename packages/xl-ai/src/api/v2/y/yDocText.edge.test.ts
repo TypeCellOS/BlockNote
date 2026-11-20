@@ -39,7 +39,7 @@ describe("updateYDoc: a JSON change", () => {
         { id: "b", type: "paragraph", content: "Beta" },
         { type: "paragraph", content: "New" },
       ],
-      baseV2: "current",
+      base: "current",
     });
 
     expect(result.error).toBeUndefined();
@@ -55,7 +55,7 @@ describe("updateYDoc: a JSON change", () => {
       { id: "a", type: "paragraph", content: "Alpha" },
       { id: "b", type: "paragraph", content: "Beta" },
     ]);
-    const baseV2 = Y.encodeStateAsUpdateV2(ydoc);
+    const base = Y.encodeStateAsUpdateV2(ydoc);
     // Another user changes block b.
     const user = bindEditor(fragment);
     user.updateBlock("b", { content: "Beta by the user" });
@@ -66,7 +66,7 @@ describe("updateYDoc: a JSON change", () => {
         { id: "a", type: "paragraph", content: "Alpha by the client" },
         { id: "b", type: "paragraph", content: "Beta" },
       ],
-      baseV2,
+      base,
       onConflict: "keep-current",
     });
 

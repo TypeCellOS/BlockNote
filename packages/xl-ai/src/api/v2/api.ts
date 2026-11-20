@@ -403,21 +403,17 @@ export function dispatchOperations(
 }
 
 /**
- * Throws if a write has no `base` (`option` is its name in the API: a write
- * to a Y.Doc names it `baseV2`). The type requires it, but a caller without
+ * Throws if a write has no `base`. The type requires it, but a caller without
  * types (for example JavaScript) can forget it. Without this check, such a
  * write would fail with an unclear error, or remove the changes of other
  * writers without a warning.
  *
  * @internal
  */
-export function requireBase(
-  base: unknown,
-  option: "base" | "baseV2" = "base",
-): void {
+export function requireBase(base: unknown): void {
   if (base === undefined) {
     throw new Error(
-      `A write needs the option \`${option}\`: "current", or the version that the client read.`,
+      'A write needs the option `base`: "current", or the version that the client read.',
     );
   }
 }

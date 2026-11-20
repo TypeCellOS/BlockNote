@@ -21,29 +21,12 @@ import {
 import { docOf, fragmentAtBase, writeOperations } from "./yDocText.js";
 
 /**
- * The version that the client read, and what a conflict does, for a merge
- * write to a Y.Doc: `MergeFromVersion`, for a Yjs state (see
- * `YDocWriteFromVersion` for the name `baseV2`).
- */
-export type YDocMergeFromVersion = Pick<
-  MergeFromVersion<Uint8Array>,
-  "onConflict"
-> & {
-  /**
-   * The Yjs state at the version that the client read, as a V2 update:
-   * `Y.encodeStateAsUpdateV2(ydoc)`, not `Y.encodeStateAsUpdate`.
-   * `"current"` is not allowed: there is nothing to merge.
-   */
-  baseV2: Uint8Array;
-};
-
-/**
  * The result of a merge write to a Y.Doc. With an error in the result, the
- * write did not change the Y.Doc: only the updates of `baseV2` that the Y.Doc
+ * write did not change the Y.Doc: only the updates of `base` that the Y.Doc
  * did not have yet apply. For an exception, see `updateYDoc`.
  *
  * The result does not have the document that the client wrote (`written` of
- * `MergedChangeOperations`): `baseV2` is a Yjs state here, and a Yjs state of
+ * `MergedChangeOperations`): `base` is a Yjs state here, and a Yjs state of
  * that document does not exist. Thus, after a write with `changesOfOthers`,
  * the Y.Doc has changes that the client did not see: the client must read
  * the text again before its next write (see the README, "Items that are not
@@ -63,13 +46,13 @@ export type YDocMergedChangeResult =
 
 /**
  * Writes a change (a text, or BlockNote JSON) back to the fragment of a
- * Y.Doc, and merges it with the changes of other writers after `baseV2`: the
+ * Y.Doc, and merges it with the changes of other writers after `base`: the
  * merge write of `updateDocumentWithMerge`, for a Y.Doc. The editor gives
  * the schema and the conversions (see `updateYDoc`).
  *
- * `baseV2` is the Yjs state at the version that the client read, as a V2
+ * `base` is the Yjs state at the version that the client read, as a V2
  * update (`Y.encodeStateAsUpdateV2`, see `updateYDoc`). The target of the
- * change for `baseV2` merges three-way with the current document, by block ID
+ * change for `base` merges three-way with the current document, by block ID
  * (see `merge/document.ts`), and the operations apply to the current
  * document. A conflict keeps the current value, or with
  * `onConflict: "reject"`, nothing applies.
@@ -77,16 +60,13 @@ export type YDocMergedChangeResult =
 export function updateYDocWithMerge(
   editor: BlockNoteEditor<any, any, any>,
   fragment: Y.Node,
-  change: (TextChange | JSONChange) & YDocMergeFromVersion,
+  change: (TextChange | JSONChange) & MergeFromVersion<Uint8Array>,
 ): YDocMergedChangeResult {
   const ydoc = docOf(fragment);
-  requireBase(change.baseV2, "baseV2");
+  requireBase(change.base);
   const before = Y.encodeStateVector(ydoc);
-  const base = yfragmentToBlocks(
-    editor,
-    fragmentAtBase(fragment, change.baseV2),
-  );
-  Y.applyUpdateV2(ydoc, change.baseV2);
+  const base = yfragmentToBlocks(editor, fragmentAtBase(fragment, change.base));
+  Y.applyUpdateV2(ydoc, change.base);
   const current = yfragmentToBlocks(editor, fragment);
   const merged = mergedOperationsOf(editor, { ...change, base }, current);
   if (merged.error !== undefined) {
@@ -102,13 +82,13 @@ export function updateYDocWithMerge(
 /**
  * Writes a change (a text, or BlockNote JSON) back to the fragment of a
  * Y.Doc, and lets Yjs merge it with the changes of other writers after
- * `baseV2` (the Yjs state at the version that the client read, as a V2
+ * `base` (the Yjs state at the version that the client read, as a V2
  * update). The editor gives the schema and the conversions (see
  * `updateYDoc`). This function is experimental.
  *
- * The operations for `baseV2` apply to a copy of the Y.Doc at `baseV2` (a
+ * The operations for `base` apply to a copy of the Y.Doc at `base` (a
  * temporary Y.Doc, thus a new Yjs client for each write), and Yjs merges
- * the copy into the Y.Doc. The operations of the result are for `baseV2`.
+ * the copy into the Y.Doc. The operations of the result are for `base`.
  * Yjs has no conflicts, thus there is no `onConflict` and no error
  * `"conflict"`: Yjs keeps the inserts of the two writers, and a removal
  * removes the changes of other writers in the removed block. In a Y.Doc, a
@@ -127,13 +107,13 @@ export function updateYDocWithMerge(
 export function experimental_updateYDocWithYjsMerge(
   editor: BlockNoteEditor<any, any, any>,
   fragment: Y.Node,
-  change: (TextChange | JSONChange) & { baseV2: Uint8Array },
+  change: (TextChange | JSONChange) & { base: Uint8Array },
 ): Exclude<YDocMergedChangeResult, ConflictError> {
   const ydoc = docOf(fragment);
-  requireBase(change.baseV2, "baseV2");
+  requireBase(change.base);
   const before = Y.encodeStateVector(ydoc);
-  const atBase = fragmentAtBase(fragment, change.baseV2);
-  Y.applyUpdateV2(ydoc, change.baseV2);
+  const atBase = fragmentAtBase(fragment, change.base);
+  Y.applyUpdateV2(ydoc, change.base);
   const result = yjsMerge(editor, fragment, atBase, change);
   return result.error !== undefined
     ? result
@@ -142,7 +122,7 @@ export function experimental_updateYDocWithYjsMerge(
 
 /**
  * The write of `experimental_updateYDocWithYjsMerge`, for each case of
- * `baseV2`. `atBase` is the fragment at `baseV2`, in a temporary Y.Doc.
+ * `base`. `atBase` is the fragment at `base`, in a temporary Y.Doc.
  */
 function yjsMerge(
   editor: BlockNoteEditor<any, any, any>,

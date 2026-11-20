@@ -46,22 +46,8 @@ export function getYDocText(
 }
 
 /**
- * The version that the client read, for a strict write to a Y.Doc: `base`
- * of `WriteFromVersion`, for a Yjs state. The name has the format, because
- * Yjs has two update formats, and the type of the two is `Uint8Array`.
- */
-export type YDocWriteFromVersion = {
-  /**
-   * `"current"`, or the Yjs state at the version that the client read, as a
-   * V2 update: `Y.encodeStateAsUpdateV2(ydoc)`, not `Y.encodeStateAsUpdate`.
-   * See `WriteFromVersion` for what each of the two does.
-   */
-  baseV2: WriteFromVersion<Uint8Array>["base"];
-};
-
-/**
  * The result of a write to a Y.Doc. With an error in the result, the write
- * did not change the Y.Doc: only the updates of `baseV2` that the Y.Doc did
+ * did not change the Y.Doc: only the updates of `base` that the Y.Doc did
  * not have yet apply. For an exception, see `updateYDoc`.
  */
 export type YDocChangeResult =
@@ -69,7 +55,8 @@ export type YDocChangeResult =
       /**
        * The Yjs update of the write, in the V2 format: apply it with
        * `Y.applyUpdateV2`. Send it to the other clients, if no provider does
-       * that.
+       * that. The name has the format, because `Y.applyUpdate` (V1) does not
+       * throw for a V2 update: it gives a Y.Doc without the write.
        */
       updateV2: Uint8Array;
     })
@@ -99,23 +86,26 @@ export type YDocChangeResult =
  * the read of the fragment throws (in `@y/prosemirror`), and the Y.Doc does
  * not change.
  *
- * `baseV2` is the version that the client read: `"current"`, or the Yjs state
+ * `base` is the version that the client read: `"current"`, or the Yjs state
  * at that version as a V2 update (`Y.encodeStateAsUpdateV2(ydoc)`). This is
  * the format of the versions of core, thus a stored version of core is a
- * valid `baseV2`. A V1 update (`Y.encodeStateAsUpdate`) is not a valid `baseV2`.
+ * valid `base`. A V1 update (`Y.encodeStateAsUpdate`) is not a valid `base`:
+ * Yjs throws for it when it decodes the update, and the Y.Doc does not
+ * change. The format has no mark that a check can read, thus the write has
+ * no check of its own.
  *
- * The write first applies `baseV2` to the Y.Doc. The reason: the client can
+ * The write first applies `base` to the Y.Doc. The reason: the client can
  * read from a replica with an update that this Y.Doc does not have yet. Then
- * `baseV2` is not an older version of this Y.Doc, and a compare or a merge
+ * `base` is not an older version of this Y.Doc, and a compare or a merge
  * with the current document sees that update as removed. Yjs applies an
  * update only one time, thus the Y.Doc gets only the updates that it did not
  * have. The update of the result contains them.
  *
  * The write is strict, as `updateDocument`: with a Yjs state, it applies
  * only if the document of the fragment is still at that version. If other
- * writers changed it after `baseV2`, the result is the error
+ * writers changed it after `base`, the result is the error
  * `"document-changed"`, with the blocks that they changed. The check
- * compares the content of the fragment at `baseV2` with the current content,
+ * compares the content of the fragment at `base` with the current content,
  * not the state vectors: a state vector also changes for a change in a
  * different fragment of the Y.Doc, and for a change that a later change
  * reverts. To merge the change with the changes of other writers, use
@@ -135,14 +125,14 @@ export type YDocChangeResult =
 export function updateYDoc(
   editor: BlockNoteEditor<any, any, any>,
   fragment: Y.Node,
-  change: (TextChange | JSONChange) & YDocWriteFromVersion,
+  change: (TextChange | JSONChange) & WriteFromVersion<Uint8Array>,
 ): YDocChangeResult {
   const ydoc = docOf(fragment);
-  requireBase(change.baseV2, "baseV2");
+  requireBase(change.base);
   const before = Y.encodeStateVector(ydoc);
-  if (change.baseV2 !== "current") {
-    const atBase = fragmentAtBase(fragment, change.baseV2);
-    Y.applyUpdateV2(ydoc, change.baseV2);
+  if (change.base !== "current") {
+    const atBase = fragmentAtBase(fragment, change.base);
+    Y.applyUpdateV2(ydoc, change.base);
     // Usually, the content is equal, and Yjs compares the content of two
     // fragments without a conversion to blocks. Content that is not equal
     // can be the same blocks: for example, a block group that became empty
@@ -185,14 +175,14 @@ export function docOf(fragment: Y.Node): Y.Doc {
 }
 
 /**
- * The fragment at `baseV2` (the Yjs state of the version that the client read,
+ * The fragment at `base` (the Yjs state of the version that the client read,
  * as a V2 update), in a temporary Y.Doc.
  *
  * @internal
  */
-export function fragmentAtBase(fragment: Y.Node, baseV2: Uint8Array): Y.Node {
+export function fragmentAtBase(fragment: Y.Node, base: Uint8Array): Y.Node {
   const version = new Y.Doc();
-  Y.applyUpdateV2(version, baseV2);
+  Y.applyUpdateV2(version, base);
   return findTypeInOtherYdoc(fragment, version);
 }
 
