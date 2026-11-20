@@ -7,10 +7,12 @@ import tailwindcss from "@tailwindcss/vite";
 
 import { defineConfig } from "vite-plus";
 import { buildCacheInputs } from "../scripts/build-cache-inputs.js";
+import { embedDemo } from "./dev/embeds.js";
 
 const devAliases: Record<string, string> = {
   "@blocknote/core": resolve(__dirname, "../packages/core/src"),
   "@blocknote/react": resolve(__dirname, "../packages/react/src"),
+  "@blocknote/embeds": resolve(__dirname, "../packages/embeds/src"),
   "@blocknote/ariakit": resolve(__dirname, "../packages/ariakit/src"),
   "@blocknote/mantine": resolve(__dirname, "../packages/mantine/src"),
   "@blocknote/shadcn": resolve(__dirname, "../packages/shadcn/src"),
@@ -84,6 +86,7 @@ export default defineConfig(((conf: { command: string }) => ({
     },
   },
   plugins: [
+    embedDemo(),
     react(),
     // The stats are only consumed by RelativeCI, which uploads them from the
     // GitHub Actions build. Serializing the (huge) module graph at the end of

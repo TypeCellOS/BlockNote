@@ -1,0 +1,9 @@
+{
+  "playground": true,
+  "docs": false,
+  "author": "",
+  "tags": ["Extension", "Custom Blocks"],
+  "dependencies": {
+    "@blocknote/embeds": "latest"
+  }
+}
