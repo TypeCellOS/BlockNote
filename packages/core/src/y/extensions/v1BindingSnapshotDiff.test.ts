@@ -67,9 +67,9 @@ function buildV1Snapshots(editor: BlockNoteEditor<any, any, any>): {
   prosemirrorToYXmlFragment(pmDoc1, legacyFragment);
   const baseline = Y1.encodeStateAsUpdateV2(legacyDoc);
 
-  editor.replaceBlocks(editor.document, [
-    { type: "paragraph", content: "Version 2" },
-  ]);
+  // An edit of the block: it keeps its block ID. A block with a different ID
+  // is a different block for the diff (see blockMatchNodes.ts).
+  editor.updateBlock(editor.document[0].id, { content: "Version 2" });
   const pmDoc2 = editor.prosemirrorState.doc;
   prosemirrorToYXmlFragment(pmDoc2, legacyFragment);
   const snapshot = Y1.encodeStateAsUpdateV2(legacyDoc);
