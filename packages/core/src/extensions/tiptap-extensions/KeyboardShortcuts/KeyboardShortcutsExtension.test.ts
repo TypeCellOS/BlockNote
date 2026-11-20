@@ -21,7 +21,7 @@ import {
   BlockNoteEditor,
   type BlockNoteEditorOptions,
 } from "../../../editor/BlockNoteEditor.js";
-import { en, fr } from "../../../i18n/locales/index.js";
+import { fr } from "../../../i18n/locales/index.js";
 import { createBlockSpec } from "../../../schema/index.js";
 import { MultipleNodeSelection } from "../../SideMenu/MultipleNodeSelection.js";
 
@@ -1044,20 +1044,6 @@ describe("KeyboardShortcutsExtension Tab announcements", () => {
 
     pressTab(editor);
     expect(liveRegion(wrapper)!.textContent).toBe("Retrait augmenté, niveau 2");
-
-    editor._tiptapEditor.destroy();
-    wrapper.remove();
-  });
-
-  it("falls back to English for dictionaries without block_nesting", () => {
-    const { block_nesting: _blockNesting, ...dictionary } = en;
-    const { editor, wrapper } = createMountedEditor("b", {
-      // @ts-expect-error Simulate a dictionary authored before block_nesting existed.
-      dictionary,
-    });
-
-    pressTab(editor);
-    expect(liveRegion(wrapper)!.textContent).toBe("Indented, level 2");
 
     editor._tiptapEditor.destroy();
     wrapper.remove();

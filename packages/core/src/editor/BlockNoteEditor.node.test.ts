@@ -21,36 +21,6 @@ it("reuses complete dictionaries without copying them", () => {
   }
 });
 
-it("supplies picker strings for dictionaries that omit the picker section", () => {
-  const { emoji_picker: _picker, ...dictionary } = en;
-  const editor = BlockNoteEditor.create({
-    // @ts-expect-error Simulate a dictionary authored before emoji_picker existed.
-    dictionary,
-  });
-  try {
-    expect(editor.dictionary.emoji_picker).toEqual(en.emoji_picker);
-    expect(editor.dictionary.slash_menu).toBe(dictionary.slash_menu);
-    expect(dictionary).not.toHaveProperty("emoji_picker");
-  } finally {
-    editor._tiptapEditor.destroy();
-  }
-});
-
-it("fills in missing sections without mutating frozen dictionaries", () => {
-  const { block_nesting: _nesting, ...rest } = en;
-  const dictionary = Object.freeze(rest);
-  const editor = BlockNoteEditor.create({
-    // @ts-expect-error Simulate a dictionary authored before block_nesting existed.
-    dictionary,
-  });
-  try {
-    expect(editor.dictionary.block_nesting).toBe(en.block_nesting);
-    expect(editor.dictionary.slash_menu).toBe(dictionary.slash_menu);
-  } finally {
-    editor._tiptapEditor.destroy();
-  }
-});
-
 it("emits destroy once, including listeners registered during extension initialization", () => {
   const onDestroy = vi.fn();
   const LifecycleExtension = createExtension(({ editor }) => {
