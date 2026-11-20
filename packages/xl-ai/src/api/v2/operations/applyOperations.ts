@@ -63,7 +63,7 @@ import type {
  * as suggestions, for example. Note: for an editor that is bound to a Y.Doc,
  * use `updateDocument` or `updateYDoc`. The Yjs 14 binding can write a change
  * into a different block if one transaction has an insert or a removal next
- * to a changed block (see `stepGroupEnds`).
+ * to a changed block (see `dispatchSteps`).
  */
 export function applyOperations(
   tr: Transaction,

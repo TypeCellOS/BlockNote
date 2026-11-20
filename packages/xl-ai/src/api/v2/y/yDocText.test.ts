@@ -26,6 +26,7 @@ import {
   bindEditor,
   blockNodeIds,
   readText,
+  typeAfter,
   unbindEditor,
 } from "../testUtil/y.js";
 import { getYDocText, updateYDoc } from "./yDocText.js";
@@ -1325,3 +1326,188 @@ describe.each(merges)(
     });
   },
 );
+
+/**
+ * A write to a Y.Doc, while another replica types `typed` after the text
+ * `after`. Then the two replicas sync. Returns the ID, the type and the text
+ * of each block.
+ */
+function writeWhileOtherTypes(
+  blocks: PartialBlock[],
+  document: PartialBlock[],
+  [after, typed]: [string, string],
+) {
+  const ydoc = blocksToYDoc(
+    reader,
+    BlockNoteEditor.create({ initialContent: blocks }).document,
+  );
+  const other = new Y.Doc();
+  Y.applyUpdate(other, Y.encodeStateAsUpdate(ydoc));
+  typeAfter(
+    bindEditor(other.get("prosemirror"), { trailingBlock: false }),
+    after,
+    typed,
+  );
+
+  valid(
+    updateYDoc(reader, ydoc.get("prosemirror"), { base: "current", document }),
+  );
+
+  Y.applyUpdate(ydoc, Y.encodeStateAsUpdate(other, Y.encodeStateVector(ydoc)));
+  Y.applyUpdate(other, Y.encodeStateAsUpdate(ydoc, Y.encodeStateVector(other)));
+  expect(yDocToBlocks(reader, other)).toEqual(yDocToBlocks(reader, ydoc));
+  return yDocToBlocks(reader, ydoc).map((block) => [
+    block.id,
+    block.type,
+    (block.content as { text: string }[])[0]?.text,
+  ]);
+}
+
+// The write makes one difference of the document before and after it. The
+// first four cases fail if that difference pairs the changed blocks of a
+// list by their type, as `docDiffToDelta` of core does: then the text that
+// the other replica typed goes into a different block. Thus, the difference
+// of the lens pairs blocks by their ID (`differenceOf`).
+describe("a write to a Y.Doc while another replica types", () => {
+  const paragraph = (id: string, content: string): PartialBlock => ({
+    id,
+    type: "paragraph",
+    content,
+  });
+  const three = [
+    paragraph("a", "Alpha"),
+    paragraph("b", "Beta"),
+    paragraph("c", "Gamma"),
+  ];
+
+  it("keeps a change of another replica in a block, with an insert before that block", () => {
+    expect(
+      writeWhileOtherTypes(
+        three,
+        [
+          paragraph("a", "Alpha"),
+          paragraph("new", "New"),
+          paragraph("b", "Changed Beta"),
+          paragraph("c", "Gamma"),
+        ],
+        ["Beta", "!"],
+      ),
+    ).toEqual([
+      ["a", "paragraph", "Alpha"],
+      ["new", "paragraph", "New"],
+      ["b", "paragraph", "Changed Beta!"],
+      ["c", "paragraph", "Gamma"],
+    ]);
+  });
+
+  it("keeps a change of another replica in a block, with a removal before that block", () => {
+    expect(
+      writeWhileOtherTypes(
+        three,
+        [paragraph("b", "Changed Beta"), paragraph("c", "Gamma")],
+        ["Beta", "!"],
+      ),
+    ).toEqual([
+      ["b", "paragraph", "Changed Beta!"],
+      ["c", "paragraph", "Gamma"],
+    ]);
+  });
+
+  it("does not put a change of another replica to a removed block into the new block at its place", () => {
+    expect(
+      writeWhileOtherTypes(
+        three,
+        [
+          paragraph("a", "Alpha"),
+          paragraph("new", "New"),
+          paragraph("c", "Gamma"),
+        ],
+        ["Beta", "!"],
+      ),
+    ).toEqual([
+      ["a", "paragraph", "Alpha"],
+      ["new", "paragraph", "New"],
+      ["c", "paragraph", "Gamma"],
+    ]);
+  });
+
+  it("keeps a change of another replica in a block, with a type change of the block before it", () => {
+    expect(
+      writeWhileOtherTypes(
+        three,
+        [
+          { id: "a", type: "heading", content: "Alpha" },
+          paragraph("b", "Changed Beta"),
+          paragraph("c", "Gamma"),
+        ],
+        ["Beta", "!"],
+      ),
+    ).toEqual([
+      ["a", "heading", "Alpha"],
+      ["b", "paragraph", "Changed Beta!"],
+      ["c", "paragraph", "Gamma"],
+    ]);
+  });
+
+  it("keeps a change of another replica in a block, with inserts at the start and at the end of the list", () => {
+    expect(
+      writeWhileOtherTypes(
+        three,
+        [paragraph("first", "First"), ...three, paragraph("last", "Last")],
+        ["Alpha", " of the other client"],
+      ),
+    ).toEqual([
+      ["first", "paragraph", "First"],
+      ["a", "paragraph", "Alpha of the other client"],
+      ["b", "paragraph", "Beta"],
+      ["c", "paragraph", "Gamma"],
+      ["last", "paragraph", "Last"],
+    ]);
+  });
+
+  it("keeps a change of another replica between two changes in one paragraph", () => {
+    expect(
+      writeWhileOtherTypes(
+        [paragraph("p", "one two three")],
+        [paragraph("p", "First one two three Last")],
+        ["tw", "X"],
+      ),
+    ).toEqual([["p", "paragraph", "First one twXo three Last"]]);
+  });
+
+  it("keeps a change of another replica in a block, with text changes of two adjacent blocks", () => {
+    expect(
+      writeWhileOtherTypes(
+        three,
+        [
+          paragraph("a", "Changed Alpha"),
+          paragraph("b", "Changed Beta"),
+          paragraph("c", "Gamma"),
+        ],
+        ["Beta", "!"],
+      ),
+    ).toEqual([
+      ["a", "paragraph", "Changed Alpha"],
+      ["b", "paragraph", "Changed Beta!"],
+      ["c", "paragraph", "Gamma"],
+    ]);
+  });
+
+  it("keeps a change of another replica in a block that a move passes", () => {
+    expect(
+      writeWhileOtherTypes(
+        three,
+        [
+          paragraph("c", "Gamma"),
+          paragraph("a", "Alpha"),
+          paragraph("b", "Beta"),
+        ],
+        ["Beta", "!"],
+      ),
+    ).toEqual([
+      ["c", "paragraph", "Gamma"],
+      ["a", "paragraph", "Alpha"],
+      ["b", "paragraph", "Beta!"],
+    ]);
+  });
+});

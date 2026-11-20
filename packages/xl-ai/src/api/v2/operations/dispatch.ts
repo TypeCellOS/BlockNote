@@ -31,18 +31,19 @@ export function dispatchUpdate(
 }
 
 /**
- * The end of each group of the steps of `transform`, in sequence. Each
- * group is a change that the Yjs 14 binding (`@blocknote/core/y`) writes to
- * a Y.Doc without changes to other blocks.
+ * Dispatches the steps of the transaction to the editor, in groups. Each
+ * group is one transaction, which the Yjs 14 binding (`@blocknote/core/y`)
+ * writes to the Y.Doc without changes to other blocks.
  *
  * The binding writes the difference of the document before and after a
- * change. In each run of changed nodes of a list, it pairs an old node with
- * the first new node of the same type (`blockMatchNodes` of core). It does
- * not use the block ID. Thus, if one change has an insert or a removal next
- * to a changed block, or a block with a new type next to a changed block, a
- * block of the Y.Doc gets the content of a different block, and a change of
- * another writer goes into the wrong block (measured with `@y/prosemirror`
- * 2.0.0-15, see `dispatch.y.test.ts`). The groups prevent this:
+ * transaction. In each run of changed nodes of a list, it pairs an old node
+ * with the first new node of the same type (`blockMatchNodes` of core). It
+ * does not use the block ID. Thus, if one transaction has an insert or a
+ * removal next to a changed block, or a block with a new type next to a
+ * changed block, a block of the Y.Doc gets the content of a different block,
+ * and a change of another writer goes into the wrong block (measured with
+ * `@y/prosemirror` 2.0.0-15, see `dispatch.y.test.ts`). The groups prevent
+ * this:
  *
  * - A step that changes a list of children (for example the insert or the
  *   removal of blocks), or the type of a node, goes alone. The difference
@@ -56,23 +57,8 @@ export function dispatchUpdate(
  *   text block, the binding makes one difference of the text, which can be
  *   at other positions for a text with repeated words.
  *
- * The Y.Doc write of the lens (`y/yDocText.ts`) writes one difference for
- * each group, for the same reason.
- */
-export function stepGroupEnds(transform: Transform): number[] {
-  const ends: number[] = [];
-  let start = 0;
-  while (start < transform.steps.length) {
-    start = groupEnd(transform, start);
-    ends.push(start);
-  }
-  return ends;
-}
-
-/**
- * Dispatches the steps of the transaction to the editor, in transactions that
- * the Yjs 14 binding (`@blocknote/core/y`) writes to the Y.Doc without
- * changes to other blocks (see {@link stepGroupEnds} for the groups).
+ * The Y.Doc write of the lens (`y/yDocText.ts`) does not need the groups:
+ * its difference pairs the blocks by their ID.
  *
  * Between the transactions, plugins can change the document (for example
  * prosemirror-tables, or the unique ID extension). Then the steps after that
@@ -130,7 +116,7 @@ function dispatchToEditor(
   });
 }
 
-/** The end of the group of steps from `start` (see {@link stepGroupEnds}). */
+/** The end of the group of steps from `start` (see {@link dispatchSteps}). */
 function groupEnd(pending: Transform, start: number): number {
   const changed = new Set<string>();
   for (let index = start; index < pending.steps.length; index++) {

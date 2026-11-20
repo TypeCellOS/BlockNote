@@ -83,3 +83,23 @@ export function blockNodeIds(
   });
   return ids;
 }
+
+/** Types `value` after the first occurrence of `after`, as a user of the editor. */
+export function typeAfter(
+  editor: BlockNoteEditor<any, any, any>,
+  after: string,
+  value: string,
+) {
+  let position: number | undefined;
+  editor.prosemirrorState.doc.descendants((node, pos) => {
+    const index = node.isText ? (node.text ?? "").indexOf(after) : -1;
+    if (position === undefined && index !== -1) {
+      position = pos + index + after.length;
+    }
+  });
+  if (position === undefined) {
+    throw new Error(`Text ${JSON.stringify(after)} not found`);
+  }
+  const at = position;
+  editor.transact((tr) => tr.insertText(value, at));
+}

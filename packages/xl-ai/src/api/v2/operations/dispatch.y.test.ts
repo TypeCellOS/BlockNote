@@ -3,7 +3,7 @@ import { blocksToYDoc, yDocToBlocks } from "@blocknote/core/y";
 import * as Y from "@y/y";
 import { describe, expect, it } from "vite-plus/test";
 
-import { bindEditor } from "../testUtil/y.js";
+import { bindEditor, typeAfter } from "../testUtil/y.js";
 import { applyOperations } from "./applyOperations.js";
 import { dispatchSteps } from "./dispatch.js";
 import type { BlockOperation } from "./types.js";
@@ -19,7 +19,7 @@ import type { BlockOperation } from "./types.js";
  * `dispatchSteps`, and in one transaction. With one transaction, the binding
  * writes a change into the wrong block in four cases (`it.fails`): it pairs
  * the changed nodes of a list by their type, not by their block ID (see
- * `stepGroupEnds`). If these tests pass (thus `it.fails` reports them), the
+ * `dispatchSteps`). If these tests pass (thus `it.fails` reports them), the
  * binding pairs the blocks correctly, and the groups can go.
  */
 
@@ -37,26 +37,6 @@ function paragraph(id: string, value: string) {
     content: text(value),
     children: [],
   };
-}
-
-/** Types `value` after the first occurrence of `after`, as a user of the editor. */
-function typeAfter(
-  editor: BlockNoteEditor<any, any, any>,
-  after: string,
-  value: string,
-) {
-  let position: number | undefined;
-  editor.prosemirrorState.doc.descendants((node, pos) => {
-    const index = node.isText ? (node.text ?? "").indexOf(after) : -1;
-    if (position === undefined && index !== -1) {
-      position = pos + index + after.length;
-    }
-  });
-  if (position === undefined) {
-    throw new Error(`Text ${JSON.stringify(after)} not found`);
-  }
-  const at = position;
-  editor.transact((tr) => tr.insertText(value, at));
 }
 
 const ways = ["the groups of dispatchSteps", "one transaction"] as const;
