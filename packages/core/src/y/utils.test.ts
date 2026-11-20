@@ -1394,4 +1394,24 @@ describe("docDiffToDelta", () => {
       ),
     ).toEqual({ inserted: [], removed: [] });
   });
+
+  it("changes the ID of a block in place, also if the blocks in it are different", () => {
+    // The compare uses the content of the block, without the blocks in it.
+    // The diff then goes into the block, and pairs its child blocks.
+    const withChild = (id: string, childId: string, childText: string) =>
+      _blocksToProsemirrorNode(editor, [
+        {
+          id,
+          type: "paragraph",
+          content: "Parent",
+          children: [{ id: childId, type: "paragraph", content: childText }],
+        },
+      ]);
+    expect(
+      insertedAndRemoved(
+        withChild("p", "x", "Child"),
+        withChild("other", "y", "Other child"),
+      ),
+    ).toEqual({ inserted: ["y"], removed: ["x"] });
+  });
 });

@@ -337,8 +337,8 @@ export function blocksToYDoc<
  *
  * The two documents must be versions of one document, so that a block keeps
  * its ID. A block with a different ID and a different content is a removed
- * block and an inserted block. A block whose only change is its ID is the
- * same block.
+ * block and an inserted block. A block with a new ID and the same content
+ * is the same block.
  */
 export function docDiffToDelta(previousDoc: Node, newDoc: Node) {
   const initialDelta = nodeToDelta(previousDoc);
