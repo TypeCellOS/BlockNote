@@ -15,6 +15,10 @@ import {
 import { registerBlockDropHandlers } from "./blockDropHandling.js";
 import { dragStart, unsetDragImage } from "./dragging.js";
 import {
+  createTouchBlockDraggingPlugin,
+  registerTouchBlockDragging,
+} from "./touchBlockDragging.js";
+import {
   HoveredBlock,
   isHeadingToMenu,
   Point,
@@ -41,6 +45,8 @@ export type SideMenuState<
  * padding, where the menu sits) always counts.
  */
 export type SideMenuOptions = {
+  /** Allow holding a block's surface to lift it outside text editing. @default true */
+  touchBlockDragging?: boolean;
   /**
    * How far left or right of the editor element the pointer still shows the
    * side menu, for the block at the pointer's height. Above or below the
@@ -108,6 +114,7 @@ export const SideMenuExtension = createExtension(
     let menuElement: HTMLElement | undefined;
     // The last pointer position over this document.
     let pointer: Point | undefined;
+    let touchInput = false;
     // The last pointer position over the active block (or the menu).
     let lastOnActive: Point | undefined;
     // Set while the pointer is heading from the active block to the menu.
@@ -228,8 +235,8 @@ export const SideMenuExtension = createExtension(
       }
     }
 
-    function endBlockDrag() {
-      unsetDragImage(editor.prosemirrorView.root);
+    function endBlockDrag(root = editor.prosemirrorView.root) {
+      unsetDragImage(root);
       isDragOrigin = false;
     }
 
@@ -278,6 +285,7 @@ export const SideMenuExtension = createExtension(
       key: "sideMenu",
       store,
       prosemirrorPlugins: [
+        createTouchBlockDraggingPlugin(() => editor.isEditable),
         new Plugin({
           key: sideMenuPluginKey,
           appendTransaction: (transactions, _oldState, newState) => {
@@ -304,6 +312,40 @@ export const SideMenuExtension = createExtension(
           () => isDragOrigin,
           options?.sideMenu?.dropMargin ?? 250,
           signal,
+        );
+        if (options?.sideMenu?.touchBlockDragging !== false) {
+          registerTouchBlockDragging({
+            view: editor.prosemirrorView,
+            isEditable: () => editor.isEditable,
+            canDrag: (id) => {
+              const block = editor.getBlock(id);
+              return !!block && isDraggable(block.type);
+            },
+            startDrag: (event, id) => {
+              const block = editor.getBlock(id);
+              if (!block) {
+                return;
+              }
+              isDragOrigin = true;
+              dragStart(event, block, editor);
+            },
+            endDrag: () => {
+              // The mount signal can abort after TipTap has removed its view.
+              // Use the captured root, not editor.prosemirrorView, for cleanup.
+              endBlockDrag(root);
+              hideMenu();
+            },
+            signal,
+          });
+        }
+        // Native drag events do not expose their pointer type. Remember the
+        // initiating input only to avoid opening the keyboard on a touch drop.
+        root.addEventListener(
+          "pointerdown",
+          (event) => {
+            touchInput = (event as PointerEvent).pointerType === "touch";
+          },
+          { signal, capture: true, passive: true },
         );
 
         // Shows or updates the menu whenever the pointer moves, unless frozen.
@@ -410,6 +452,7 @@ export const SideMenuExtension = createExtension(
       ) {
         isDragOrigin = true;
         dragStart(event, block, editor);
+        event.dataTransfer?.setData("blocknote/touch-drag", String(touchInput));
       },
 
       /**

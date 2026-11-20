@@ -306,6 +306,13 @@ SideMenuController offsets its position to keep it centered on the line. */
   height: 30px;
 }
 
+@media (pointer: coarse) {
+  /* Avoid accidental double-tap zoom without changing the menu's layout. */
+  .bn-root .bn-side-menu .bn-button {
+    touch-action: manipulation;
+  }
+}
+
 /* Suggestion menus fill their floating element, which keeps the widest width
   the menu has had since it opened (`suggestionMenuMiddleware.ts`). Without
   this, a menu would shrink and grow as the user filters its items. */
