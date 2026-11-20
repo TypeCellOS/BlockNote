@@ -979,7 +979,11 @@ NESTED BLOCKS
 }
 
 /* PLACEHOLDERS*/
-.bn-block-content:has(.ProseMirror-trailingBreak:only-child):after {
+.bn-block-content:has(
+    .ProseMirror-trailingBreak:nth-child(
+      1 of :not(.ProseMirror-widget, .ProseMirror-separator)
+    )
+  ):after {
   font-style: italic;
   /* Removes text cursor offset. */
   margin-inline: -2px;
