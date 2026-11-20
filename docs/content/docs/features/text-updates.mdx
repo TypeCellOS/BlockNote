@@ -222,7 +222,7 @@ if (result.error === undefined) {
 
 Give the editor the same schema and extensions as your other clients (for example comments). If the schema cannot read the content of the Y.Doc, the write throws, and the Y.Doc does not change.
 
-A Yjs state as `base` is a V2 update: `Y.encodeStateAsUpdateV2(ydoc)`. A V1 update (`Y.encodeStateAsUpdate`) is not a valid `base`: the write throws for it.
+A Yjs state as `base` is a V2 update: `Y.encodeStateAsUpdateV2(ydoc)`. A V1 update (`Y.encodeStateAsUpdate`) is not a valid `base`.
 
 `updateYDoc` is strict, as `updateDocument`: with a Yjs state as `base`, the write applies only if the document is still at that version. Else the result is the error `document-changed`, with `changesOfOthers`. A change in a different part of the Y.Doc (not in the fragment of the document) does not stop the write.
 

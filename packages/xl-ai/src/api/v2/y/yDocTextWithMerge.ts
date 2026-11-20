@@ -18,7 +18,7 @@ import {
   mergeOf,
   operationsOfMerge,
 } from "../apiWithMerge.js";
-import { docOf, withFragmentAtBase, writeOperations } from "./yDocText.js";
+import { docOf, fragmentAtBase, writeOperations } from "./yDocText.js";
 
 /**
  * The result of a merge write to a Y.Doc. With an error in the result, the
@@ -65,9 +65,8 @@ export function updateYDocWithMerge(
   const ydoc = docOf(fragment);
   requireBase(change.base);
   const before = Y.encodeStateVector(ydoc);
-  const base = withFragmentAtBase(fragment, change.base, (atBase) =>
-    yfragmentToBlocks(editor, atBase),
-  );
+  const base = yfragmentToBlocks(editor, fragmentAtBase(fragment, change.base));
+  Y.applyUpdateV2(ydoc, change.base);
   const current = yfragmentToBlocks(editor, fragment);
   const merged = mergedOperationsOf(editor, { ...change, base }, current);
   if (merged.error !== undefined) {
@@ -113,9 +112,9 @@ export function experimental_updateYDocWithYjsMerge(
   const ydoc = docOf(fragment);
   requireBase(change.base);
   const before = Y.encodeStateVector(ydoc);
-  const result = withFragmentAtBase(fragment, change.base, (atBase) =>
-    yjsMerge(editor, fragment, atBase, change),
-  );
+  const atBase = fragmentAtBase(fragment, change.base);
+  Y.applyUpdateV2(ydoc, change.base);
+  const result = yjsMerge(editor, fragment, atBase, change);
   return result.error !== undefined
     ? result
     : { ...result, update: Y.encodeStateAsUpdateV2(ydoc, before) };

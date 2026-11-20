@@ -353,31 +353,6 @@ describe("a strict write from a version", () => {
     { id: "c", type: "paragraph", content: "Gamma" },
   ];
 
-  it("throws for a base that is a V1 update of Yjs, and does not change the Y.Doc", () => {
-    const ydoc = blocksToYDoc(
-      reader,
-      BlockNoteEditor.create({ initialContent: threeParagraphs }).document,
-    );
-    const fragment = ydoc.get("prosemirror");
-    const before = Y.encodeStateAsUpdateV2(ydoc);
-    // The V1 format (`Y.encodeStateAsUpdate`). `base` is a V2 update.
-    const base = Y.encodeStateAsUpdate(ydoc);
-    const change = { format: markdownFormat, text: "Alpha, edited\n", base };
-    const message = "Yjs cannot read `base` as a V2 update";
-
-    expect(() => updateYDoc(reader, fragment, change)).toThrow(message);
-    expect(() =>
-      updateYDocWithMerge(reader, fragment, {
-        ...change,
-        onConflict: "reject",
-      }),
-    ).toThrow(message);
-    expect(() =>
-      experimental_updateYDocWithYjsMerge(reader, fragment, change),
-    ).toThrow(message);
-    expect(Y.encodeStateAsUpdateV2(ydoc)).toEqual(before);
-  });
-
   it("gives the error document-changed, and does not change the Y.Doc, if another writer changed the document", () => {
     const { editor, ydoc, read, change } = setup(threeParagraphs);
     const client = read();

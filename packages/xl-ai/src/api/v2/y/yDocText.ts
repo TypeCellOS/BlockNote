@@ -88,8 +88,14 @@ export type YDocChangeResult =
  * `base` is the version that the client read: `"current"`, or the Yjs state
  * at that version as a V2 update (`Y.encodeStateAsUpdateV2(ydoc)`). This is
  * the format of the versions of core, thus a stored version of core is a
- * valid `base`. A V1 update (`Y.encodeStateAsUpdate`) is not: the write
- * throws for it.
+ * valid `base`. A V1 update (`Y.encodeStateAsUpdate`) is not a valid `base`.
+ *
+ * The write first applies `base` to the Y.Doc. The reason: the client can
+ * read from a replica with an update that this Y.Doc does not have yet. Then
+ * `base` is not an older version of this Y.Doc, and a compare or a merge
+ * with the current document sees that update as removed. Yjs applies an
+ * update only one time, thus the Y.Doc gets only the updates that it did not
+ * have. The update of the result contains them.
  *
  * The write is strict, as `updateDocument`: with a Yjs state, it applies
  * only if the document of the fragment is still at that version. If other
@@ -121,25 +127,24 @@ export function updateYDoc(
   requireBase(change.base);
   const before = Y.encodeStateVector(ydoc);
   if (change.base !== "current") {
-    const changesOfOthers = withFragmentAtBase(
-      fragment,
-      change.base,
-      (atBase) =>
-        // Usually, the content is equal, and Yjs compares the content of two
-        // fragments without a conversion to blocks. Content that is not
-        // equal can be the same blocks: for example, a block group that
-        // became empty can stay in the fragment. Thus, the blocks decide.
-        //
-        // `renderer: null` gives the content as it is. An editor that is
-        // bound to the fragment can give it a renderer, which shows
-        // different content (for example an older version).
-        atBase.toDeltaDeep().equals(fragment.toDeltaDeep({ renderer: null }))
-          ? []
-          : changesAfterBase(
-              yfragmentToBlocks(editor, atBase),
-              yfragmentToBlocks(editor, fragment),
-            ),
-    );
+    const atBase = fragmentAtBase(fragment, change.base);
+    Y.applyUpdateV2(ydoc, change.base);
+    // Usually, the content is equal, and Yjs compares the content of two
+    // fragments without a conversion to blocks. Content that is not equal
+    // can be the same blocks: for example, a block group that became empty
+    // can stay in the fragment. Thus, the blocks decide.
+    //
+    // `renderer: null` gives the content as it is. An editor that is bound
+    // to the fragment can give it a renderer, which shows different content
+    // (for example an older version).
+    const changesOfOthers = atBase
+      .toDeltaDeep()
+      .equals(fragment.toDeltaDeep({ renderer: null }))
+      ? []
+      : changesAfterBase(
+          yfragmentToBlocks(editor, atBase),
+          yfragmentToBlocks(editor, fragment),
+        );
     if (changesOfOthers.length > 0) {
       return { error: "document-changed", changesOfOthers };
     }
@@ -166,42 +171,15 @@ export function docOf(fragment: Y.Node): Y.Doc {
 }
 
 /**
- * Calls `use` with the fragment at `base` (the Yjs state of the version that
- * the client read, as a V2 update). That fragment is in a temporary Y.Doc.
- *
- * Before the call, `base` makes the Y.Doc of the fragment a newer version of
- * `base`. The reason: the client can read from a replica with an update that
- * this Y.Doc does not have yet. Then `base` is not an older version of this
- * Y.Doc, and a compare or a merge with the current document sees that update
- * as removed. Yjs applies an update only one time, thus the Y.Doc gets only
- * the updates that it did not have. The update of the result contains them.
+ * The fragment at `base` (the Yjs state of the version that the client read,
+ * as a V2 update), in a temporary Y.Doc.
  *
  * @internal
  */
-export function withFragmentAtBase<Result>(
-  fragment: Y.Node,
-  base: Uint8Array,
-  use: (atBase: Y.Node) => Result,
-): Result {
+export function fragmentAtBase(fragment: Y.Node, base: Uint8Array): Y.Node {
   const version = new Y.Doc();
-  try {
-    try {
-      // First the temporary Y.Doc: if Yjs cannot read `base`, the Y.Doc of
-      // the fragment does not change.
-      Y.applyUpdateV2(version, base);
-    } catch (cause) {
-      // The usual cause is a V1 update: Yjs then throws while it decodes,
-      // with a message that does not name the format.
-      throw new Error(
-        "Yjs cannot read `base` as a V2 update. Give the state of the Y.Doc from `Y.encodeStateAsUpdateV2`, not from `Y.encodeStateAsUpdate`.",
-        { cause },
-      );
-    }
-    Y.applyUpdateV2(docOf(fragment), base);
-    return use(findTypeInOtherYdoc(fragment, version));
-  } finally {
-    version.destroy();
-  }
+  Y.applyUpdateV2(version, base);
+  return findTypeInOtherYdoc(fragment, version);
 }
 
 /**
