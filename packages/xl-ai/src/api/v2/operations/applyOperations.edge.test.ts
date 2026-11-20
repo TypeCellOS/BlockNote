@@ -133,6 +133,38 @@ describe("applyOperations: the updates apply before the structure operations", (
   });
 });
 
+describe("applyOperations: an insert with the ID of a removed block", () => {
+  it("throws, and does not give the removed block its old content at the new place", () => {
+    // Without the check, the apply found the old node of block b, and the
+    // result was the old paragraph at the new place: the type and the
+    // content of the insert were lost, without an error.
+    const editor = createEditor([
+      { id: "a", type: "paragraph", content: "Alpha" },
+      { id: "b", type: "paragraph", content: "Beta" },
+    ]);
+    expect(() =>
+      apply(editor, [
+        { type: "delete", id: "b" },
+        {
+          type: "insert",
+          block: {
+            id: "b",
+            type: "heading",
+            props: { level: 2 },
+            content: [{ type: "text", text: "New heading", styles: {} }],
+            children: [],
+          },
+          placement: "start",
+        },
+      ]),
+    ).toThrow("Block b is a block that an earlier operation removed");
+    expect(editor.document).toMatchObject([
+      { id: "a", content: [{ text: "Alpha" }] },
+      { id: "b", type: "paragraph", content: [{ text: "Beta" }] },
+    ]);
+  });
+});
+
 describe("applyOperations: a layout block with too few children", () => {
   it("adds the fill of the schema at the end of a tab set with fewer tabs than its minimum", () => {
     // The tab set needs two tabs. The removal of t2 leaves one, thus the

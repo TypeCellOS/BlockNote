@@ -175,6 +175,7 @@ describe("diffDocuments: properties", () => {
       const target = edit(random, current);
       const operations = diffDocuments(current, target);
       const existing = new Set(allBlocks(current).map((child) => child.id));
+      const inCurrent = new Set(existing);
       let deleting = false;
       for (const operation of operations) {
         if (operation.type === "delete") {
@@ -190,6 +191,20 @@ describe("diffDocuments: properties", () => {
         }
         if (operation.type === "insert") {
           expect(existing.has(operation.block.id)).toBe(false);
+          // A new block, and each block in it, has an ID that the current
+          // document does not have (also not a block that a delete of the
+          // list removes).
+          for (const child of allBlocks([operation.block])) {
+            expect({
+              run,
+              id: child.id,
+              inCurrent: inCurrent.has(child.id),
+            }).toEqual({
+              run,
+              id: child.id,
+              inCurrent: false,
+            });
+          }
           for (const child of allBlocks([operation.block])) {
             existing.add(child.id);
           }

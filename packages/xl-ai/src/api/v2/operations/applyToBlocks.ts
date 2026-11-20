@@ -13,10 +13,16 @@ import type { BlockPosition, StructureOperation } from "./types.js";
  * change. The apply then makes the ProseMirror document agree with the
  * result (see `applyStructure`).
  *
+ * A new block has an ID that the current document does not have, also if an
+ * earlier operation of the list removed that block: an insert cannot bring
+ * a removed block back. The apply would give that block its old node, thus
+ * its old content, type and props (see `nodeBuilder` in `applyStructure`).
+ *
  * Throws for an operation that the document cannot have at that point: a
  * block or a reference that is not in the document (also a block that an
  * earlier operation removed), an insert of a block ID that is in the
- * document, or a move of a block into itself (also before or after itself).
+ * document or that an earlier operation removed (the block, or a block in
+ * it), or a move of a block into itself (also before or after itself).
  *
  * @internal
  */
@@ -49,6 +55,8 @@ class BlockLists {
   readonly root: LensBlock[] = [];
   private readonly byId = new Map<string, LensBlock>();
   private readonly lists = new Map<string, LensBlock[]>();
+  /** The IDs of the blocks that the operations removed. */
+  private readonly removed = new Set<string>();
 
   constructor(current: readonly LensBlock[]) {
     this.add(current, this.root);
@@ -76,6 +84,7 @@ class BlockLists {
     this.detach(block);
     const forget = (removed: LensBlock) => {
       this.byId.delete(removed.id);
+      this.removed.add(removed.id);
       this.lists.delete(removed.id);
       removed.children.forEach(forget);
     };
@@ -88,6 +97,11 @@ class BlockLists {
    */
   private add(blocks: readonly LensBlock[], list: LensBlock[]) {
     for (const block of blocks) {
+      if (this.removed.has(block.id)) {
+        throw new Error(
+          `Block ${block.id} is a block that an earlier operation removed. An insert cannot bring a removed block back: a move keeps a block.`,
+        );
+      }
       if (this.byId.has(block.id)) {
         throw new Error(`Block ${block.id} is already in the document`);
       }

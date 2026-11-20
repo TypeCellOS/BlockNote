@@ -30,7 +30,9 @@ export type BlockOperation =
   /**
    * Inserts a block. If all the blocks in it are new, they come with it, as
    * its children. Else, it has no children, and later operations insert or
-   * move its children.
+   * move its children. A new block has an ID that the current document does
+   * not have, also if an earlier operation of the list removed that block:
+   * such an insert throws. A move keeps a block.
    */
   | ({ type: "insert"; block: LensBlock } & BlockPosition)
   /** Moves a block, with its children. */

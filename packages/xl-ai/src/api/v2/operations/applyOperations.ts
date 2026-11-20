@@ -46,6 +46,11 @@ import type {
  * `updateBlocks` and `applyToBlocks`), and the transaction must not be
  * dispatched.
  *
+ * A new block has an ID that the document does not have, also if an
+ * earlier operation of the list removed that block: else `applyToBlocks`
+ * throws. An insert cannot bring a removed block back (a move keeps a
+ * block).
+ *
  * The document must have one block for each ID (else `applyToBlocks`
  * throws). An update cannot change a block between a layout block (for
  * example a column) and a block with content: core throws for it. For

@@ -16,9 +16,10 @@ import { BlockIndex } from "../util/blocks/index.js";
  * Alternative (not chosen; revisit if a client needs the ID): keep the ID,
  * and let the apply build the new node of the block in the structure step,
  * in the step that places it. That needs a special case in
- * `applyStructure`. Note that a removal and an insert with the same ID do
- * not work for an editor with a Y.Doc: the steps go to the editor in groups
- * (see `dispatchSteps`), and between two groups two blocks have the ID.
+ * `applyStructure`. Note that a removal and an insert with the same ID are
+ * not possible: a new block has an ID that the current document does not
+ * have, also if an earlier operation removed that block (see
+ * `BlockOperation`), and `applyToBlocks` throws for such an insert.
  */
 export function newIdsForLayoutChanges(
   current: readonly LensBlock[],

@@ -128,6 +128,42 @@ describe("applyToBlocks: operations that refer to a removed block", () => {
     ).toThrow("Block b is not in the document");
   });
 
+  it("throws for an insert with the ID of a removed block", () => {
+    // A new block has an ID that the current document does not have. A
+    // removed block cannot come back with an insert: a move keeps a block.
+    expect(() =>
+      apply(document, [
+        { type: "delete", id: "b" },
+        { type: "insert", block: block("b"), placement: "start" },
+      ]),
+    ).toThrow("Block b is a block that an earlier operation removed");
+  });
+
+  it("throws for an insert of a new block that holds a block with the ID of a removed block", () => {
+    expect(() =>
+      apply(document, [
+        { type: "delete", id: "b" },
+        {
+          type: "insert",
+          block: block("n", [block("b")]),
+          placement: "start",
+        },
+      ]),
+    ).toThrow("Block b is a block that an earlier operation removed");
+  });
+
+  it("throws for an insert with the ID of a child of a removed block", () => {
+    expect(() =>
+      apply(
+        [block("p", [block("child")]), block("z")],
+        [
+          { type: "delete", id: "p" },
+          { type: "insert", block: block("child"), placement: "start" },
+        ],
+      ),
+    ).toThrow("Block child is a block that an earlier operation removed");
+  });
+
   it("throws for a position next to a removed block", () => {
     expect(() =>
       apply(document, [
