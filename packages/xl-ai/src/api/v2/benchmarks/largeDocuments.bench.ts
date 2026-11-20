@@ -172,7 +172,7 @@ describe("large documents", () => {
                 updateYDocWithMerge(editor, fragment, {
                   format,
                   text: yEdited,
-                  base: Y.encodeStateAsUpdateV2(ydoc),
+                  baseV2: Y.encodeStateAsUpdateV2(ydoc),
                   onConflict: "keep-current",
                 }),
               () => {
