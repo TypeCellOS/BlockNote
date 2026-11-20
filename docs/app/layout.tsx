@@ -26,6 +26,9 @@ export const viewport: Viewport = {
 export default function Layout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="ard" href="/.well-known/ard.json" />
+      </head>
       <body className="flex min-h-screen flex-col">
         {/* `bn-scroll-container` enables smoother mobile formatting toolbar. */}
         <div className="bn-scroll-container flex min-h-screen flex-col">
