@@ -29,12 +29,17 @@ export const NestBlockButton = () => {
       if (
         // The editor is read-only.
         !editor.isEditable ||
-        // None of the selected blocks have inline content
+        // None of the selected blocks have inline content or are file blocks.
         !(
           editor.getSelection()?.blocks || [
             editor.getTextCursorPosition().block,
           ]
-        ).find((block) => block.content !== undefined)
+        ).find(
+          (block) =>
+            block.content !== undefined ||
+            editor.schema.blockSpecs[block.type]?.implementation.meta
+              ?.fileBlockAccept,
+        )
       ) {
         return undefined;
       }
@@ -86,12 +91,17 @@ export const UnnestBlockButton = () => {
       if (
         // The editor is read-only.
         !editor.isEditable ||
-        // None of the selected blocks have inline content
+        // None of the selected blocks have inline content or are file blocks.
         !(
           editor.getSelection()?.blocks || [
             editor.getTextCursorPosition().block,
           ]
-        ).find((block) => block.content !== undefined)
+        ).find(
+          (block) =>
+            block.content !== undefined ||
+            editor.schema.blockSpecs[block.type]?.implementation.meta
+              ?.fileBlockAccept,
+        )
       ) {
         return undefined;
       }
