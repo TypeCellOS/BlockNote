@@ -10,7 +10,8 @@ import { withCollaboration } from "./index.js";
 
 /**
  * The node-pairing policy of the sync binding (`blockMatchNodes`), with live
- * editors. The policy pairs two blocks only if they have the same block ID.
+ * editors. The policy pairs two blocks only if they have the same block ID,
+ * or if the IDs are their only difference.
  *
  * 1. One user changes the document in one transaction, while another user
  *    types in a block. The typed text must stay in its block.
@@ -336,11 +337,13 @@ describe("a document with two blocks with one ID", () => {
   });
 
   // An editor that loads such a document gives the copies new IDs (the
-  // unique ID extension finds the two IDs in the one range of the load).
-  // The binding writes that change to the Y.Doc. With the block ID in the
-  // policy, a block with a new ID is a different block: the binding removes
-  // the copy and inserts a new block. Without the block ID, it changed the
-  // `id` attribute of the block in place.
+  // unique ID extension finds the two IDs in the one range of the load),
+  // and the binding writes that change to the Y.Doc. A block whose only
+  // change is its ID is the same block for the policy: the binding changes
+  // the `id` attribute in place. As a removal and an insert of each copy,
+  // the tests below fail: two clients that load at the same time each add
+  // their own copies (5 blocks in place of 3, 8 in place of 6), and text
+  // that a user types in a copy at that time is lost.
 
   /** The number of blocks at the top level, after `count` new clients load the document at the same time. */
   async function blocksAfterLoad(docs: Y.Doc[], count: number) {
@@ -360,29 +363,17 @@ describe("a document with two blocks with one ID", () => {
     expect(await blocksAfterLoad((await movedTwoTimes()).docs, 1)).toBe(6);
   });
 
-  // Open fault: each of the two clients removes the copies and inserts new
-  // blocks, and the inserts of the two clients stay. The document then has 5
-  // blocks (the two copies two times). Without the block ID in the policy,
-  // the two clients changed the `id` attribute of the same blocks, and the
-  // document kept 3 blocks.
-  it.fails("keeps the number of blocks when two new clients load a document with a type change by two users", async () => {
+  it("keeps the number of blocks when two new clients load a document with a type change by two users", async () => {
     expect(await blocksAfterLoad((await typeChangedTwoTimes()).docs, 2)).toBe(
       3,
     );
   });
 
-  // Open fault, as above: 8 blocks in place of 6. Without the block ID in the
-  // policy, an editor did not change the IDs of this document at the load:
-  // the first copy paired with the empty block of the new editor, thus the
-  // two copies were in two ranges.
-  it.fails("keeps the number of blocks when two new clients load a document with a move by two users", async () => {
+  it("keeps the number of blocks when two new clients load a document with a move by two users", async () => {
     expect(await blocksAfterLoad((await movedTwoTimes()).docs, 2)).toBe(6);
   });
 
-  // Open fault: the new client removes the copy and inserts a new block, thus
-  // text that another user types in the copy at the same time is lost.
-  // Without the block ID in the policy, the text stayed.
-  it.fails("keeps text that a user types in a copy while a new client loads the document", async () => {
+  it("keeps text that a user types in a copy while a new client loads the document", async () => {
     const { docs, a } = await typeChangedTwoTimes();
     const loaded = replicaOf(docs[0], 10);
     collaborativeEditor(loaded);

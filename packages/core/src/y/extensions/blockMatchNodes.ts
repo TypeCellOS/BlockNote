@@ -103,6 +103,47 @@ function blockIdOf(d: schema.Unwrap<typeof $prosemirrorDelta>): unknown {
   return delta.$setAttrOp.check(id) ? id.value : undefined;
 }
 
+const contentCache = new WeakMap<object, string>();
+
+/**
+ * A node as a string, without the block IDs in it (the `id` attribute of the
+ * node and of each node in it). Two nodes that are different only in block
+ * IDs give the same string. The keys are sorted: a delta from a ProseMirror
+ * document and a delta from a Y type do not have the same key order.
+ */
+function contentWithoutBlockIds(
+  d: schema.Unwrap<typeof $prosemirrorDelta>,
+): string {
+  const cached = contentCache.get(d);
+  if (cached !== undefined) {
+    return cached;
+  }
+  const content = JSON.stringify(sortedWithoutBlockIds(d.toJSON(), false));
+  // A delta that is done does not change, thus its string can stay.
+  if (d.isDone) {
+    contentCache.set(d, content);
+  }
+  return content;
+}
+
+function sortedWithoutBlockIds(value: unknown, isAttrs: boolean): unknown {
+  if (Array.isArray(value)) {
+    return value.map((item) => sortedWithoutBlockIds(item, false));
+  }
+  if (typeof value !== "object" || value === null) {
+    return value;
+  }
+  return Object.fromEntries(
+    Object.entries(value)
+      .filter(([key]) => !(isAttrs && key === "id"))
+      .sort(([keyA], [keyB]) => (keyA < keyB ? -1 : keyA > keyB ? 1 : 0))
+      .map(([key, child]) => [
+        key,
+        sortedWithoutBlockIds(child, key === "attrs"),
+      ]),
+  );
+}
+
 /**
  * BlockNote's node-pairing policy for y-prosemirror's `matchNodes` option
  * (forwarded to `lib0/delta.diff`). This is the schema-specific bit that lives
@@ -115,6 +156,14 @@ function blockIdOf(d: schema.Unwrap<typeof $prosemirrorDelta>): unknown {
  * removes the wrong block. In the Y type, a concurrent change of another
  * client to the block then lands in the wrong block (see
  * blockMatchNodes.test.ts).
+ *
+ * A block whose only change is its ID is still the same block. A document
+ * can have two blocks with one ID (two users changed the type of a block, or
+ * moved a block, at the same time). An editor that loads such a document
+ * gives the copies new IDs, and the binding writes that change. As a change
+ * of the `id` attribute in place, two clients that load at the same time
+ * change the same blocks. As a removal and an insert, each client would add
+ * its own copies, and text typed in a copy at that time would be lost.
  *
  * A `blockContainer` holds exactly one block content (`blockContent
  * blockGroup?`). Diffing a *type change* of that content as an in-place child
@@ -151,9 +200,13 @@ export const blockMatchNodes = (
     return false;
   }
 
-  // Two nodes with different block IDs are different blocks. A node without
-  // an `id` attribute (a block group, a table cell, a text node) has no ID.
-  if (blockIdOf(a) !== blockIdOf(b)) {
+  // Two nodes with different block IDs are different blocks, unless the IDs
+  // are their only difference (see above). A node without an `id` attribute
+  // (a block group, a table cell, a text node) has no ID.
+  if (
+    blockIdOf(a) !== blockIdOf(b) &&
+    contentWithoutBlockIds(a) !== contentWithoutBlockIds(b)
+  ) {
     return false;
   }
 
