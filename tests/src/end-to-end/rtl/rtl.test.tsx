@@ -102,6 +102,55 @@ test.each(["rtl", "ltr"] as const)(
   },
 );
 
+test.each(["rtl", "ltr"] as const)(
+  "%s block menu and color submenu placement",
+  async (dir) => {
+    await render(<Editor dir={dir} />);
+    await waitForSelector(".bn-editor");
+    const intro = block("intro").getBoundingClientRect();
+    await mouseSequence([
+      {
+        type: "move",
+        x: intro.x + intro.width / 2,
+        y: intro.y + intro.height / 2,
+      },
+    ]);
+    await userEvent.click(
+      page.getByRole("button", { name: "Open block menu", exact: true }),
+    );
+    await expect.element(page.getByRole("menu")).toBeVisible();
+    await expect
+      .poll(() => {
+        const menu = document
+          .querySelector(".bn-drag-handle-menu")!
+          .getBoundingClientRect();
+        const trigger = page
+          .getByRole("button", { name: "Open block menu", exact: true })
+          .element()
+          .getBoundingClientRect();
+        return dir === "rtl"
+          ? menu.left >= trigger.right
+          : menu.right <= trigger.left;
+      })
+      .toBe(true);
+    const colorsTrigger = page.getByText("Colors", { exact: true }).element();
+    await moveMouseOverElement(colorsTrigger);
+    const colors = await waitForSelector(".bn-color-picker-dropdown");
+    await expect
+      .poll(() => {
+        const submenu = colors.getBoundingClientRect();
+        const trigger = colorsTrigger
+          .closest("[role=menuitem]")!
+          .getBoundingClientRect();
+        return dir === "rtl"
+          ? submenu.right <= trigger.left + 1
+          : submenu.left >= trigger.right - 1;
+      })
+      .toBe(true);
+    await userEvent.keyboard("{Escape}");
+  },
+);
+
 test("RTL emoji navigation follows the visible grid without moving the caret", async () => {
   await render(<Editor dir="rtl" />);
   await userEvent.click(block("empty"));

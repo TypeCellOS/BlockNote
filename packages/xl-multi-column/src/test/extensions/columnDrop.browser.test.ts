@@ -109,6 +109,71 @@ function dropAt(dataTransfer: DataTransfer, clientX: number, clientY: number) {
     .dispatchEvent(new DragEvent("drop", init));
 }
 
+describe.each(["ltr", "rtl"] as const)("%s column edges", (dir) => {
+  describe.each(["col-b", "after"] as const)("dropping beside %s", (id) => {
+    it.each(["left", "right"] as const)(
+      "lands on the %s side shown by the guide",
+      (edge) => {
+        mount();
+        root.dir = dir;
+        const dataTransfer = startBlockDrag("before");
+        const target = root.querySelector<HTMLElement>(`[data-id="${id}"]`)!;
+        const rect = target.getBoundingClientRect();
+        const clientX = edge === "left" ? rect.left : rect.right - 1;
+        const clientY = rect.top + rect.height / 2;
+        target.dispatchEvent(
+          new DragEvent("dragover", {
+            bubbles: true,
+            clientX,
+            clientY,
+            dataTransfer,
+          }),
+        );
+        const guide = document.querySelector(
+          `.prosemirror-dropcursor-block-vertical-${edge}`,
+        )!;
+        const guideRect = guide.getBoundingClientRect();
+        expect(
+          Math.abs((guideRect.left + guideRect.right) / 2 - rect[edge]),
+        ).toBeLessThan(2);
+        dropAt(dataTransfer, clientX, clientY);
+        const dropped = root.querySelector<HTMLElement>('[data-id="before"]')!;
+        const targetAfter = root.querySelector<HTMLElement>(
+          `[data-id="${id}"]`,
+        )!;
+        expect(
+          dropped.getBoundingClientRect().left <
+            targetAfter.getBoundingClientRect().left,
+        ).toBe(edge === "left");
+      },
+    );
+  });
+
+  it("moves the resize boundary with a rightward drag", () => {
+    mount();
+    root.dir = dir;
+    const column = columnElement("col-b");
+    const before = column.getBoundingClientRect();
+    const untouchedColumn = editor.getBlock(dir === "rtl" ? "col-c" : "col-a");
+    const init = {
+      bubbles: true,
+      clientX: before.right - 1,
+      clientY: before.top + before.height / 2,
+    };
+    column.dispatchEvent(new MouseEvent("mousedown", init));
+    document.body.dispatchEvent(
+      new MouseEvent("mousemove", { ...init, clientX: init.clientX + 40 }),
+    );
+    document.body.dispatchEvent(
+      new MouseEvent("mouseup", { ...init, clientX: init.clientX + 40 }),
+    );
+    expect(
+      columnElement("col-b").getBoundingClientRect().right,
+    ).toBeGreaterThan(before.right + 20);
+    expect(editor.getBlock(untouchedColumn!.id)).toEqual(untouchedColumn);
+  });
+});
+
 describe("dragging a block selection that spans the column list", () => {
   // The sequence behind a flaky failure of the multi-column drop tests in CI:
   // the selection was left in the paragraph above the column list and

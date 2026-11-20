@@ -182,12 +182,14 @@ class ColumnResizePluginView implements PluginView {
 
     // The column element before or after the one hovered by the cursor,
     // depending on which side the cursor is on.
+    const rtl = getComputedStyle(columnListElement).direction === "rtl";
+    const atStart = cursorElementSide === (rtl ? "right" : "left");
     const adjacentColumnElement =
-      cursorElementSide === "left"
-        ? columnElement.previousElementSibling
-        : cursorElementSide === "right"
-          ? columnElement.nextElementSibling
-          : undefined;
+      cursorElementSide === "none"
+        ? undefined
+        : atStart
+          ? columnElement.previousElementSibling
+          : columnElement.nextElementSibling;
 
     // If the cursor is not within the resize margin, or if there is no
     // column before or after the one hovered by the cursor (depending on
@@ -196,15 +198,13 @@ class ColumnResizePluginView implements PluginView {
       return { type: "hover-column-list", columnList };
     }
 
-    const leftColumnElement =
-      cursorElementSide === "left"
-        ? (adjacentColumnElement as HTMLElement)
-        : columnElement;
+    const leftColumnElement = atStart
+      ? (adjacentColumnElement as HTMLElement)
+      : columnElement;
 
-    const rightColumnElement =
-      cursorElementSide === "left"
-        ? columnElement
-        : (adjacentColumnElement as HTMLElement);
+    const rightColumnElement = atStart
+      ? columnElement
+      : (adjacentColumnElement as HTMLElement);
 
     const leftColumnId = leftColumnElement.getAttribute("data-id")!;
     const rightColumnId = rightColumnElement.getAttribute("data-id")!;
@@ -367,7 +367,12 @@ class ColumnResizePluginView implements PluginView {
       return;
     }
 
-    const widthChangePx = event.clientX - pluginState.startPos;
+    // leftColumn/rightColumn are in document order, which runs right-to-left
+    // in RTL. Reverse the delta, not the physical pointer coordinates.
+    const rtl =
+      getComputedStyle(pluginState.columnList.element).direction === "rtl";
+    const widthChangePx =
+      (event.clientX - pluginState.startPos) * (rtl ? -1 : 1);
     // We need to scale the width change by the left column's width in
     // percent, otherwise the rate at which the resizing happens will change
     // based on the width of the left column.
