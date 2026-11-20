@@ -55,6 +55,11 @@ describe("Test getMultiColumnSlashMenuItems", () => {
 
       // The empty paragraph becomes the column list, and keeps its id.
       expect(getEditor().getBlock("empty-paragraph")?.type).toBe("columnList");
+      const cursorBlock = getEditor().getTextCursorPosition().block;
+      const column = getEditor().getParentBlock(cursorBlock);
+      expect(cursorBlock.type).toBe("paragraph");
+      expect(column?.type).toBe("column");
+      expect(getEditor().getParentBlock(column!)?.id).toBe("empty-paragraph");
       expect(getEditor().document).toMatchSnapshot();
     });
   });
