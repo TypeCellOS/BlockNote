@@ -1,4 +1,5 @@
 import type { BlockNoteEditor } from "@blocknote/core";
+import { yfragmentToBlocks } from "@blocknote/core/y";
 import * as Y from "@y/y";
 
 import {
@@ -18,7 +19,7 @@ import {
   operationsOfMerge,
 } from "../apiWithMerge.js";
 import type { LensBlock } from "../model.js";
-import { applyBase, blocksOf, docOf, writeToCopy } from "./yDocText.js";
+import { docOf, withFragmentAtBase, writeToCopy } from "./yDocText.js";
 
 /**
  * The result of a merge write to a Y.Doc. On an error (also an exception),
@@ -51,10 +52,11 @@ export type YDocMergedChangeResult =
  * the schema and the conversions (see `updateYDoc`).
  *
  * `base` is the Yjs state at the version that the client read, as a V2
- * update (`Y.encodeStateAsUpdateV2`, see `updateYDoc`). The target of the change for `base` merges three-way with the
- * current document, by block ID (see `merge/document.ts`), and the
- * operations apply to the current document. A conflict keeps the current
- * value, or with `onConflict: "reject"`, nothing applies.
+ * update (`Y.encodeStateAsUpdateV2`, see `updateYDoc`). The target of the
+ * change for `base` merges three-way with the current document, by block ID
+ * (see `merge/document.ts`), and the operations apply to the current
+ * document. A conflict keeps the current value, or with
+ * `onConflict: "reject"`, nothing applies.
  */
 export function updateYDocWithMerge(
   editor: BlockNoteEditor<any, any, any>,
@@ -64,7 +66,9 @@ export function updateYDocWithMerge(
   const ydoc = docOf(fragment);
   requireBase(change.base);
   const before = Y.encodeStateVector(ydoc);
-  const base = applyBase(editor, fragment, change.base);
+  const base = withFragmentAtBase(fragment, change.base, (atBase) =>
+    yfragmentToBlocks(editor, atBase),
+  );
   const result = writeToCopy(
     editor,
     fragment,
@@ -83,9 +87,8 @@ export function updateYDocWithMerge(
  * Writes a change (a text, or BlockNote JSON) back to the fragment of a
  * Y.Doc, and lets Yjs merge it with the changes of other writers after
  * `base` (the Yjs state at the version that the client read, as a V2
- * update). The editor
- * gives the schema and the conversions (see `updateYDoc`). This function is
- * experimental.
+ * update). The editor gives the schema and the conversions (see
+ * `updateYDoc`). This function is experimental.
  *
  * The operations for `base` apply to a copy of the Y.Doc at `base`, and Yjs
  * merges the copy into the Y.Doc. The operations of the result are for
@@ -112,8 +115,10 @@ export function experimental_updateYDocWithYjsMerge(
   const ydoc = docOf(fragment);
   requireBase(change.base);
   const before = Y.encodeStateVector(ydoc);
-  const base = applyBase(editor, fragment, change.base);
-  const current = blocksOf(editor, fragment);
+  const base = withFragmentAtBase(fragment, change.base, (atBase) =>
+    yfragmentToBlocks(editor, atBase),
+  );
+  const current = yfragmentToBlocks(editor, fragment);
   const result = yjsMerge(editor, fragment, change, base, current);
   return result.error !== undefined
     ? result

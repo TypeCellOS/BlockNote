@@ -1,5 +1,6 @@
 import { BlockNoteEditor, type PartialBlock } from "@blocknote/core";
 import { blocksToYDoc, yDocToBlocks } from "@blocknote/core/y";
+import { pmnodeToDelta } from "@y/prosemirror";
 import * as Y from "@y/y";
 import { describe, expect, it } from "vite-plus/test";
 
@@ -402,6 +403,150 @@ describe("a strict write from a version", () => {
     expect(block("a")?.content).toMatchObject([
       { text: "Alpha, from the client" },
     ]);
+  });
+
+  it("gives the error for a removal of a block only, which does not change the state vector", () => {
+    const { editor, ydoc, read, change } = setup(threeParagraphs);
+    const client = read();
+    const vector = Y.encodeStateVector(ydoc);
+    change((user) => user.removeBlocks(["c"]));
+    // A compare of state vectors would apply this write.
+    expect(Y.encodeStateVector(ydoc)).toEqual(vector);
+
+    expect(
+      updateYDoc(editor, ydoc.get("prosemirror"), {
+        format: markdownFormat,
+        text: replaceOnce(client.text, "Alpha", "Alpha, from the client"),
+        base: client.base,
+      }),
+    ).toEqual({
+      error: "document-changed",
+      changesOfOthers: [{ id: "c", change: "removed" }],
+    });
+  });
+
+  // After these changes, the document is the same as at `base`, but the
+  // Y.Doc has new Yjs items. A compare of state vectors would reject the
+  // write.
+  it.each<[string, (user: BlockNoteEditor<any, any, any>) => void]>([
+    [
+      "typed text and removed it again",
+      (user) => {
+        typeAfter(user, "Alpha", "!");
+        user.updateBlock("a", { content: "Alpha" });
+      },
+    ],
+    [
+      "removed a child and inserted it again",
+      (user) => {
+        const child = user.getBlock("b1");
+        user.removeBlocks(["b1"]);
+        expect(user.getBlock("b")?.children).toEqual([]);
+        user.insertBlocks([child!], "b", "last-child");
+      },
+    ],
+    [
+      "nested a block and moved it back",
+      (user) => {
+        user.setTextCursorPosition("c");
+        user.nestBlock();
+        expect(user.getBlock("b")?.children).toHaveLength(2);
+        user.unnestBlock();
+      },
+    ],
+  ])("applies the write, if another writer %s", (_name, edit) => {
+    const { editor, ydoc, read, change, blocks, block } = setup([
+      { id: "a", type: "paragraph", content: "Alpha" },
+      {
+        id: "b",
+        type: "paragraph",
+        content: "Beta",
+        children: [{ id: "b1", type: "paragraph", content: "Child" }],
+      },
+      { id: "c", type: "paragraph", content: "Gamma" },
+    ]);
+    const client = read();
+    const atBase = blocks();
+    const vector = Y.encodeStateVector(ydoc);
+    change(edit);
+    expect(Y.encodeStateVector(ydoc)).not.toEqual(vector);
+    expect(blocks()).toEqual(atBase);
+
+    const result = valid(
+      updateYDoc(editor, ydoc.get("prosemirror"), {
+        format: markdownFormat,
+        text: replaceOnce(client.text, "Alpha", "Alpha, from the client"),
+        base: client.base,
+      }),
+    );
+
+    expect(result.operations).toMatchObject([{ type: "update", id: "a" }]);
+    expect(block("a")?.content).toMatchObject([
+      { text: "Alpha, from the client" },
+    ]);
+  });
+
+  it("applies the write, if the content of the fragment changed but the blocks did not", () => {
+    // A Y.Doc of an earlier version of BlockNote: a block without children
+    // has no block group. A block that gets a child and loses it again keeps
+    // an empty block group in the fragment. The blocks do not show it.
+    const ydoc = new Y.Doc();
+    const fragment = ydoc.get("prosemirror");
+    fragment.applyDelta(
+      pmnodeToDelta(
+        BlockNoteEditor.create({ initialContent: threeParagraphs })
+          .prosemirrorState.doc,
+      ),
+    );
+    const text = getYDocText(reader, fragment, markdownFormat);
+    const base = Y.encodeStateAsUpdateV2(ydoc);
+    const content = JSON.stringify(fragment.toDeltaDeep().toJSON());
+    const user = bindEditor(fragment, { trailingBlock: false });
+    user.setTextCursorPosition("c");
+    user.nestBlock();
+    user.unnestBlock();
+    unbindEditor(user);
+    expect(JSON.stringify(fragment.toDeltaDeep().toJSON())).not.toBe(content);
+
+    const result = valid(
+      updateYDoc(reader, fragment, {
+        format: markdownFormat,
+        text: replaceOnce(text, "Alpha", "Alpha, from the client"),
+        base,
+      }),
+    );
+
+    expect(result.operations).toMatchObject([{ type: "update", id: "a" }]);
+    expect(readText(fragment, markdownFormat)).toBe(
+      "Alpha, from the client\n\nBeta\n\nGamma\n",
+    );
+  });
+
+  it("compares the content as it is, not as a renderer of the fragment shows it", () => {
+    const { editor, ydoc, read, change } = setup(threeParagraphs);
+    const fragment = ydoc.get("prosemirror");
+    const client = read();
+    const version = Y.snapshot(ydoc);
+    change((user) =>
+      user.insertBlocks([{ id: "d", type: "paragraph" }], "c", "after"),
+    );
+    // An editor that is bound to the fragment can give it a renderer. This
+    // renderer shows the fragment at the version of the read.
+    fragment.useRenderer(Y.createSnapshotRenderer(version));
+    expect(JSON.stringify(fragment.toDeltaDeep().toJSON())).not.toContain(
+      '"d"',
+    );
+
+    expect(
+      updateYDoc(editor, fragment, {
+        format: markdownFormat,
+        text: replaceOnce(client.text, "Alpha", "Alpha, from the client"),
+        base: client.base,
+      }),
+    ).toEqual({
+      error: "document-changed",
+      changesOfOthers: [{ id: "d", change: "added" }],
+    });
   });
 
   it("applies a write from a replica with an update that this Y.Doc does not have yet", () => {
