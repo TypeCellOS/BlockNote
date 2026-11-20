@@ -94,7 +94,7 @@ function setup(initialContent: PartialBlock[] = richDocument) {
     /** A client reads the text. It keeps the Yjs state as the base of a later write. */
     read: () => ({
       text: getYDocText(editor, fragment, format),
-      base: Y.encodeStateAsUpdate(ydoc),
+      base: Y.encodeStateAsUpdateV2(ydoc),
     }),
     /** A client writes back a changed copy of the text that it read. */
     write: (
@@ -264,12 +264,12 @@ describe("updateYDoc", () => {
   it("returns the Yjs update for the other clients", () => {
     const { ydoc, read, write, blocks } = setup();
     const replica = new Y.Doc();
-    Y.applyUpdate(replica, Y.encodeStateAsUpdate(ydoc));
+    Y.applyUpdateV2(replica, Y.encodeStateAsUpdateV2(ydoc));
 
     const result = write(read(), (text) =>
       replaceOnce(text, "Last paragraph", "Last paragraph, edited"),
     );
-    Y.applyUpdate(replica, result.update);
+    Y.applyUpdateV2(replica, result.update);
 
     expect(yDocToBlocks(reader, replica)).toEqual(blocks());
   });
@@ -286,6 +286,31 @@ describe("a strict write from a version", () => {
     { id: "c", type: "paragraph", content: "Gamma" },
   ];
 
+  it("throws for a base that is a V1 update of Yjs, and does not change the Y.Doc", () => {
+    const ydoc = blocksToYDoc(
+      reader,
+      BlockNoteEditor.create({ initialContent: threeParagraphs }).document,
+    );
+    const fragment = ydoc.get("prosemirror");
+    const before = Y.encodeStateAsUpdateV2(ydoc);
+    // The V1 format (`Y.encodeStateAsUpdate`). `base` is a V2 update.
+    const base = Y.encodeStateAsUpdate(ydoc);
+    const change = { format: markdownFormat, text: "Alpha, edited\n", base };
+    const message = "Yjs cannot read `base` as a V2 update";
+
+    expect(() => updateYDoc(reader, fragment, change)).toThrow(message);
+    expect(() =>
+      updateYDocWithMerge(reader, fragment, {
+        ...change,
+        onConflict: "reject",
+      }),
+    ).toThrow(message);
+    expect(() =>
+      experimental_updateYDocWithYjsMerge(reader, fragment, change),
+    ).toThrow(message);
+    expect(Y.encodeStateAsUpdateV2(ydoc)).toEqual(before);
+  });
+
   it("gives the error document-changed, and does not change the Y.Doc, if another writer changed the document", () => {
     const { editor, ydoc, read, change } = setup(threeParagraphs);
     const client = read();
@@ -293,7 +318,7 @@ describe("a strict write from a version", () => {
       user.updateBlock("b", { content: "Beta, changed" });
       user.removeBlocks(["c"]);
     });
-    const before = Y.encodeStateAsUpdate(ydoc);
+    const before = Y.encodeStateAsUpdateV2(ydoc);
 
     const result = updateYDoc(editor, ydoc.get("prosemirror"), {
       format: markdownFormat,
@@ -309,7 +334,7 @@ describe("a strict write from a version", () => {
       ]),
     });
     expect(result).toHaveProperty("changesOfOthers.length", 2);
-    expect(Y.encodeStateAsUpdate(ydoc)).toEqual(before);
+    expect(Y.encodeStateAsUpdateV2(ydoc)).toEqual(before);
   });
 
   it("gives the error for a change of only a prop that the format does not show", () => {
@@ -385,7 +410,7 @@ describe("a strict write from a version", () => {
       { id: "b", type: "paragraph", content: "Beta" },
     ]);
     const replica = new Y.Doc();
-    Y.applyUpdate(replica, Y.encodeStateAsUpdate(server));
+    Y.applyUpdateV2(replica, Y.encodeStateAsUpdateV2(server));
     // Another client adds a block on the replica. The server does not have
     // it yet.
     const before = Y.encodeStateVector(replica);
@@ -394,10 +419,10 @@ describe("a strict write from a version", () => {
       "b",
       "after",
     );
-    const inFlight = Y.encodeStateAsUpdate(replica, before);
+    const inFlight = Y.encodeStateAsUpdateV2(replica, before);
     // The client reads from the replica.
     const text = readText(replica.get("prosemirror"), markdownFormat);
-    const base = Y.encodeStateAsUpdate(replica);
+    const base = Y.encodeStateAsUpdateV2(replica);
 
     const fragment = server.get("prosemirror");
     const result = valid(
@@ -407,7 +432,7 @@ describe("a strict write from a version", () => {
         base,
       }),
     );
-    Y.applyUpdate(server, inFlight);
+    Y.applyUpdateV2(server, inFlight);
 
     expect(result.warnings).toEqual([]);
     expect(readText(fragment, markdownFormat)).toBe(
@@ -418,7 +443,7 @@ describe("a strict write from a version", () => {
   it("gives the error for a version without content, if the document has content now", () => {
     const ydoc = new Y.Doc();
     const fragment = ydoc.get("prosemirror");
-    const base = Y.encodeStateAsUpdate(ydoc);
+    const base = Y.encodeStateAsUpdateV2(ydoc);
     valid(
       updateYDoc(reader, fragment, {
         base: "current",
@@ -472,7 +497,7 @@ describe.each([
       mergeWrite(reader, fragment, {
         format,
         text: "Hello",
-        base: Y.encodeStateAsUpdate(ydoc),
+        base: Y.encodeStateAsUpdateV2(ydoc),
       }),
     );
 
@@ -488,7 +513,7 @@ describe.each([
       updateYDoc(reader, fragment, {
         format,
         text: "Hello",
-        base: Y.encodeStateAsUpdate(ydoc),
+        base: Y.encodeStateAsUpdateV2(ydoc),
       }),
     );
 
@@ -500,7 +525,7 @@ describe.each([
     (merge) => {
       const ydoc = new Y.Doc();
       const fragment = ydoc.get("prosemirror");
-      const base = Y.encodeStateAsUpdate(ydoc);
+      const base = Y.encodeStateAsUpdateV2(ydoc);
       valid(
         updateYDoc(reader, fragment, {
           base: "current",
@@ -786,7 +811,7 @@ describe("concurrent writes (merge lens): conflicts", () => {
     const { editor, ydoc, read, change } = setup();
     const client = read();
     change((user) => user.updateBlock("last", { content: "Last section" }));
-    const before = Y.encodeStateAsUpdate(ydoc);
+    const before = Y.encodeStateAsUpdateV2(ydoc);
 
     const result = updateYDocWithMerge(editor, ydoc.get("prosemirror"), {
       format: markdownFormat,
@@ -803,7 +828,7 @@ describe("concurrent writes (merge lens): conflicts", () => {
       error: "conflict",
       conflicts: [{ type: "conflicting-change", id: "last" }],
     });
-    expect(Y.encodeStateAsUpdate(ydoc)).toEqual(before);
+    expect(Y.encodeStateAsUpdateV2(ydoc)).toEqual(before);
   });
 });
 
@@ -827,7 +852,7 @@ describe.each(merges)("comments (merge %s)", (merge) => {
           {
             format: markdownFormat,
             text: edit(getYDocText(lens, fragment, markdownFormat)),
-            base: Y.encodeStateAsUpdate(ydoc),
+            base: Y.encodeStateAsUpdateV2(ydoc),
           },
           merge,
         ),
@@ -1022,7 +1047,7 @@ describe.each(merges)("concurrent writes with columns (merge %s)", (merge) => {
     const editor = BlockNoteEditor.create({ schema });
     const format = markdownFormat;
     const text = getYDocText(editor, fragment, format);
-    const base = Y.encodeStateAsUpdate(ydoc);
+    const base = Y.encodeStateAsUpdateV2(ydoc);
     // Another writer adds a block between Alpha and Bravo. Markdown does not
     // show the columns, thus the block goes into column B, before Bravo (a
     // new block goes into the nesting of the next block).
@@ -1068,7 +1093,7 @@ describe("changes of other writers in a list with more than one structural chang
   it("keeps a change of another client that arrives after the write in its block", () => {
     const ydoc = blocksToYDoc(BlockNoteEditor.create(), blocks);
     const other = new Y.Doc();
-    Y.applyUpdate(other, Y.encodeStateAsUpdate(ydoc));
+    Y.applyUpdateV2(other, Y.encodeStateAsUpdateV2(ydoc));
     // The other client changes Alpha. The lens does not have this change yet.
     bindEditor(other.get("prosemirror")).updateBlock("a", {
       content: "Alpha of the other client",
@@ -1084,7 +1109,7 @@ describe("changes of other writers in a list with more than one structural chang
         text: "First\n\nAlpha\n\nBeta\n\nGamma\n\nLast\n",
       }),
     );
-    Y.applyUpdate(ydoc, Y.encodeStateAsUpdate(other));
+    Y.applyUpdateV2(ydoc, Y.encodeStateAsUpdateV2(other));
 
     expect(getDocumentText(editor, markdownFormat)).toBe(
       "First\n\nAlpha of the other client\n\nBeta\n\nGamma\n\nLast\n",
@@ -1096,7 +1121,7 @@ describe("changes of other writers in a list with more than one structural chang
     // example AI in a collaborative editor) uses the same transactions.
     const ydoc = blocksToYDoc(BlockNoteEditor.create(), blocks);
     const other = new Y.Doc();
-    Y.applyUpdate(other, Y.encodeStateAsUpdate(ydoc));
+    Y.applyUpdateV2(other, Y.encodeStateAsUpdateV2(ydoc));
     bindEditor(other.get("prosemirror")).updateBlock("a", {
       content: "Alpha of the other client",
     });
@@ -1110,7 +1135,7 @@ describe("changes of other writers in a list with more than one structural chang
         text: "First\n\nAlpha\n\nBeta\n\nGamma\n\nLast\n",
       }),
     );
-    Y.applyUpdate(ydoc, Y.encodeStateAsUpdate(other));
+    Y.applyUpdateV2(ydoc, Y.encodeStateAsUpdateV2(other));
 
     expect(getDocumentText(editor, markdownFormat)).toBe(
       "First\n\nAlpha of the other client\n\nBeta\n\nGamma\n\nLast\n",
@@ -1123,7 +1148,7 @@ describe("changes of other writers in a list with more than one structural chang
       const ydoc = blocksToYDoc(BlockNoteEditor.create(), blocks);
       const fragment = ydoc.get("prosemirror");
       const editor = bindEditor(fragment);
-      const base = Y.encodeStateAsUpdate(ydoc);
+      const base = Y.encodeStateAsUpdateV2(ydoc);
       editor.updateBlock("a", { content: "Alpha edited" });
 
       valid(
@@ -1150,7 +1175,7 @@ describe("changes of other writers in a list with more than one structural chang
       const ydoc = blocksToYDoc(BlockNoteEditor.create(), blocks);
       const fragment = ydoc.get("prosemirror");
       const editor = bindEditor(fragment);
-      const base = Y.encodeStateAsUpdate(ydoc);
+      const base = Y.encodeStateAsUpdateV2(ydoc);
       editor.updateBlock("b", { content: "Beta edited" });
 
       valid(
@@ -1187,7 +1212,7 @@ describe("a Y.Doc with two blocks with one ID", () => {
       { id: "b", type: "paragraph", content: "Beta" },
     ]);
     const fragment = ydoc.get("prosemirror");
-    const base = Y.encodeStateAsUpdate(ydoc);
+    const base = Y.encodeStateAsUpdateV2(ydoc);
     const text = getYDocText(reader, fragment, markdownFormat);
     const change = {
       format: markdownFormat,
@@ -1200,7 +1225,7 @@ describe("a Y.Doc with two blocks with one ID", () => {
     expect(() => mergeWrite(reader, fragment, { ...change, base })).toThrow(
       "Two blocks of the current document have the ID a",
     );
-    expect(Y.encodeStateAsUpdate(ydoc)).toEqual(base);
+    expect(Y.encodeStateAsUpdateV2(ydoc)).toEqual(base);
   });
 });
 
@@ -1236,7 +1261,7 @@ describe("a write that fails", () => {
       }).document,
     );
     const fragment = ydoc.get("prosemirror");
-    const before = Y.encodeStateAsUpdate(ydoc);
+    const before = Y.encodeStateAsUpdateV2(ydoc);
 
     expect(() =>
       updateYDoc(reader, fragment, {
@@ -1245,7 +1270,7 @@ describe("a write that fails", () => {
         text: "End, edited\n",
       }),
     ).toThrow();
-    expect(Y.encodeStateAsUpdate(ydoc)).toEqual(before);
+    expect(Y.encodeStateAsUpdateV2(ydoc)).toEqual(before);
   });
 });
 
@@ -1258,7 +1283,7 @@ describe("a base with an update that the Y.Doc does not have yet", () => {
         { id: "b", type: "paragraph", content: "Beta" },
       ]);
       const replica = new Y.Doc();
-      Y.applyUpdate(replica, Y.encodeStateAsUpdate(server));
+      Y.applyUpdateV2(replica, Y.encodeStateAsUpdateV2(server));
       // Another client adds a block on the replica. The server does not
       // have it yet.
       const before = Y.encodeStateVector(replica);
@@ -1267,10 +1292,10 @@ describe("a base with an update that the Y.Doc does not have yet", () => {
         "b",
         "after",
       );
-      const inFlight = Y.encodeStateAsUpdate(replica, before);
+      const inFlight = Y.encodeStateAsUpdateV2(replica, before);
       // The client reads from the replica.
       const text = readText(replica.get("prosemirror"), markdownFormat);
-      const base = Y.encodeStateAsUpdate(replica);
+      const base = Y.encodeStateAsUpdateV2(replica);
 
       const fragment = server.get("prosemirror");
       const result = valid(
@@ -1285,7 +1310,7 @@ describe("a base with an update that the Y.Doc does not have yet", () => {
           merge,
         ),
       );
-      Y.applyUpdate(server, inFlight);
+      Y.applyUpdateV2(server, inFlight);
       expect(result.warnings).toEqual([]);
       expect(readText(fragment, markdownFormat)).toBe(
         "Alpha\n\nBeta\n\nGamma edited\n",
@@ -1341,7 +1366,7 @@ function writeWhileOtherTypes(
     BlockNoteEditor.create({ initialContent: blocks }).document,
   );
   const other = new Y.Doc();
-  Y.applyUpdate(other, Y.encodeStateAsUpdate(ydoc));
+  Y.applyUpdateV2(other, Y.encodeStateAsUpdateV2(ydoc));
   typeAfter(
     bindEditor(other.get("prosemirror"), { trailingBlock: false }),
     after,
@@ -1352,8 +1377,14 @@ function writeWhileOtherTypes(
     updateYDoc(reader, ydoc.get("prosemirror"), { base: "current", document }),
   );
 
-  Y.applyUpdate(ydoc, Y.encodeStateAsUpdate(other, Y.encodeStateVector(ydoc)));
-  Y.applyUpdate(other, Y.encodeStateAsUpdate(ydoc, Y.encodeStateVector(other)));
+  Y.applyUpdateV2(
+    ydoc,
+    Y.encodeStateAsUpdateV2(other, Y.encodeStateVector(ydoc)),
+  );
+  Y.applyUpdateV2(
+    other,
+    Y.encodeStateAsUpdateV2(ydoc, Y.encodeStateVector(other)),
+  );
   expect(yDocToBlocks(reader, other)).toEqual(yDocToBlocks(reader, ydoc));
   return yDocToBlocks(reader, ydoc).map((block) => [
     block.id,

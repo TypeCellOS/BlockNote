@@ -52,7 +52,11 @@ export function getYDocText(
  */
 export type YDocChangeResult =
   | (ChangeOperations & {
-      /** The Yjs update of the write. Send it to the other clients, if no provider does that. */
+      /**
+       * The Yjs update of the write, in the V2 format: apply it with
+       * `Y.applyUpdateV2`. Send it to the other clients, if no provider does
+       * that.
+       */
       update: Uint8Array;
     })
   | InvalidDocumentError
@@ -82,7 +86,10 @@ export type YDocChangeResult =
  * not change.
  *
  * `base` is the version that the client read: `"current"`, or the Yjs state
- * `Y.encodeStateAsUpdate` at that version. The write is strict, as
+ * at that version as a V2 update (`Y.encodeStateAsUpdateV2(ydoc)`). This is
+ * the format of the versions of core, thus a stored version of core is a
+ * valid `base`. A V1 update (`Y.encodeStateAsUpdate`) is not: the write
+ * throws for it. The write is strict, as
  * `updateDocument`: with a Yjs state, it applies only if the document of
  * the fragment is still at that version. If other writers changed it after
  * `base`, the result is the error `"document-changed"`, with the blocks that
@@ -113,7 +120,7 @@ export function updateYDoc(
   );
   return result.error !== undefined
     ? result
-    : { ...result, update: Y.encodeStateAsUpdate(ydoc, before) };
+    : { ...result, update: Y.encodeStateAsUpdateV2(ydoc, before) };
 }
 
 /**
@@ -158,10 +165,11 @@ export function applyBase(
   fragment: Y.Node,
   base: Uint8Array,
 ): LensBlock[] {
-  Y.applyUpdate(docOf(fragment), base);
   const version = new Y.Doc();
   try {
-    Y.applyUpdate(version, base);
+    // First the copy: if Yjs cannot read `base`, the Y.Doc does not change.
+    applyV2Update(version, base);
+    Y.applyUpdateV2(docOf(fragment), base);
     return blocksOf(editor, findTypeInOtherYdoc(fragment, version));
   } finally {
     version.destroy();
@@ -174,7 +182,7 @@ export function applyBase(
  * `compute`.
  *
  * The write goes to a copy of the Y.Doc: at the current state, or at the
- * Yjs state `at` (then Yjs merges the write with the changes after `at`).
+ * Yjs state `at` (a V2 update) (then Yjs merges the write with the changes after `at`).
  * The Y.Doc gets the changes of the copy as one Yjs update, after the write
  * to the copy is complete. Thus, a write that fails (an error, or an
  * exception in the middle) does not change the Y.Doc.
@@ -192,7 +200,7 @@ export function writeToCopy<
   const ydoc = docOf(fragment);
   const copy = new Y.Doc();
   try {
-    Y.applyUpdate(copy, at ?? Y.encodeStateAsUpdate(ydoc));
+    Y.applyUpdateV2(copy, at ?? Y.encodeStateAsUpdateV2(ydoc));
     const target = findTypeInOtherYdoc(fragment, copy);
     const current = blocksOf(editor, target);
     const result = compute(current);
@@ -202,14 +210,31 @@ export function writeToCopy<
       } else {
         changeFragment(editor, target, result.operations);
       }
-      Y.applyUpdate(
+      Y.applyUpdateV2(
         ydoc,
-        Y.encodeStateAsUpdate(copy, Y.encodeStateVector(ydoc)),
+        Y.encodeStateAsUpdateV2(copy, Y.encodeStateVector(ydoc)),
       );
     }
     return result;
   } finally {
     copy.destroy();
+  }
+}
+
+/**
+ * Applies `base` to a Y.Doc. Throws with a clear message if Yjs cannot read
+ * `base` as a V2 update. The usual cause is a V1 update
+ * (`Y.encodeStateAsUpdate`): Yjs then throws while it decodes, with a
+ * message that does not name the format.
+ */
+function applyV2Update(ydoc: Y.Doc, base: Uint8Array): void {
+  try {
+    Y.applyUpdateV2(ydoc, base);
+  } catch (cause) {
+    throw new Error(
+      "Yjs cannot read `base` as a V2 update. Give the state of the Y.Doc from `Y.encodeStateAsUpdateV2`, not from `Y.encodeStateAsUpdate`.",
+      { cause },
+    );
   }
 }
 

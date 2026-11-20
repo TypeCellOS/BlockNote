@@ -172,12 +172,12 @@ describe("large documents", () => {
                 updateYDocWithMerge(editor, fragment, {
                   format,
                   text: yEdited,
-                  base: Y.encodeStateAsUpdate(ydoc),
+                  base: Y.encodeStateAsUpdateV2(ydoc),
                   onConflict: "keep-current",
                 }),
               () => {
                 const copy = new Y.Doc();
-                Y.applyUpdate(copy, Y.encodeStateAsUpdate(ydoc));
+                Y.applyUpdateV2(copy, Y.encodeStateAsUpdateV2(ydoc));
                 return copy.get("prosemirror");
               },
             ),

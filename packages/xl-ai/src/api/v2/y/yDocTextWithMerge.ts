@@ -34,7 +34,11 @@ import { applyBase, blocksOf, docOf, writeToCopy } from "./yDocText.js";
  */
 export type YDocMergedChangeResult =
   | (MergedInFragment & {
-      /** The Yjs update of the write. Send it to the other clients, if no provider does that. */
+      /**
+       * The Yjs update of the write, in the V2 format: apply it with
+       * `Y.applyUpdateV2`. Send it to the other clients, if no provider does
+       * that.
+       */
       update: Uint8Array;
     })
   | InvalidDocumentError
@@ -46,8 +50,8 @@ export type YDocMergedChangeResult =
  * merge write of `updateDocumentWithMerge`, for a Y.Doc. The editor gives
  * the schema and the conversions (see `updateYDoc`).
  *
- * `base` is the Yjs state `Y.encodeStateAsUpdate` at the version that the
- * client read. The target of the change for `base` merges three-way with the
+ * `base` is the Yjs state at the version that the client read, as a V2
+ * update (`Y.encodeStateAsUpdateV2`, see `updateYDoc`). The target of the change for `base` merges three-way with the
  * current document, by block ID (see `merge/document.ts`), and the
  * operations apply to the current document. A conflict keeps the current
  * value, or with `onConflict: "reject"`, nothing applies.
@@ -72,13 +76,14 @@ export function updateYDocWithMerge(
   );
   return result.error !== undefined
     ? result
-    : { ...result, update: Y.encodeStateAsUpdate(ydoc, before) };
+    : { ...result, update: Y.encodeStateAsUpdateV2(ydoc, before) };
 }
 
 /**
  * Writes a change (a text, or BlockNote JSON) back to the fragment of a
  * Y.Doc, and lets Yjs merge it with the changes of other writers after
- * `base` (the Yjs state at the version that the client read). The editor
+ * `base` (the Yjs state at the version that the client read, as a V2
+ * update). The editor
  * gives the schema and the conversions (see `updateYDoc`). This function is
  * experimental.
  *
@@ -112,7 +117,7 @@ export function experimental_updateYDocWithYjsMerge(
   const result = yjsMerge(editor, fragment, change, base, current);
   return result.error !== undefined
     ? result
-    : { ...result, update: Y.encodeStateAsUpdate(ydoc, before) };
+    : { ...result, update: Y.encodeStateAsUpdateV2(ydoc, before) };
 }
 
 /** The write of `experimental_updateYDocWithYjsMerge`, for each case of `base`. */
