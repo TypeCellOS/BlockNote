@@ -23,8 +23,7 @@ import { gaps, isChanged, myersMatch } from "../util/sequence/index.js";
  *    block of the document keeps its node, with its comments).
  * 2. Apply them (see {@link applyReplacements}): first the inserts, then the
  *    removals. Thus, each step gives a valid document, also for a list with
- *    a minimum number of children (for example a column list), and a
- *    collaboration binding can send each step alone (see `dispatchSteps`).
+ *    a minimum number of children (for example a column list).
  *
  * Thus, an insert is one step that only inserts, and a collaboration
  * binding, a suggestion plugin or a selection sees only the changed blocks.

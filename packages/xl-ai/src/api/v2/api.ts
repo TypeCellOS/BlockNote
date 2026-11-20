@@ -388,8 +388,8 @@ export function changesOfOthersOf(
 
 /**
  * Stages 7 and 8: applies the operations to a transaction of the editor (see
- * `applyOperations`), and dispatches it: in one transaction, or, for an
- * editor that is bound to a Y.Doc, in groups (see `dispatchUpdate`).
+ * `applyOperations`), and dispatches it in one transaction (see
+ * `dispatchUpdate`).
  *
  * @internal
  */

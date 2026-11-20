@@ -1,12 +1,12 @@
 // @vitest-environment node
 import { BlockNoteEditor } from "@blocknote/core";
-import { Plugin } from "prosemirror-state";
+import type { Transaction } from "prosemirror-state";
 import { describe, expect, it } from "vite-plus/test";
 
 import { applyOperations } from "./applyOperations.js";
-import { dispatchSteps } from "./dispatch.js";
+import { dispatchUpdate } from "./dispatch.js";
 
-/** The editor, and a counter of its transactions that change the document. */
+/** The editor, and its transactions that change the document. */
 function setup() {
   const editor = BlockNoteEditor.create({
     initialContent: [
@@ -15,128 +15,82 @@ function setup() {
     ],
     trailingBlock: false,
   });
-  let transactions = 0;
+  const transactions: Transaction[] = [];
   editor._tiptapEditor.on("transaction", ({ transaction }) => {
     if (transaction.docChanged) {
-      transactions++;
+      transactions.push(transaction);
     }
   });
-  return { editor, transactions: () => transactions };
+  return { editor, transactions };
 }
 
-/** The position of the first character of `text` in the document. */
-function positionOf(editor: BlockNoteEditor<any, any, any>, text: string) {
-  let found: number | undefined;
-  editor.prosemirrorState.doc.descendants((node, pos) => {
-    const index = node.isText ? (node.text ?? "").indexOf(text) : -1;
-    if (found === undefined && index !== -1) {
-      found = pos + index;
-    }
-  });
-  if (found === undefined) {
-    throw new Error(`Text ${JSON.stringify(text)} not found`);
-  }
-  return found;
-}
+const text = (value: string) => [
+  { type: "text" as const, text: value, styles: {} },
+];
 
-describe("dispatchSteps", () => {
-  it("dispatches two changes in one paragraph in two transactions", () => {
+describe("dispatchUpdate", () => {
+  it("dispatches all steps of a write in one transaction", () => {
     const { editor, transactions } = setup();
     const tr = editor.prosemirrorState.tr;
-    const alpha = positionOf(editor, "Alpha");
-    const omega = positionOf(editor, "Omega");
-    tr.insertText("Last", omega, omega + 5);
-    tr.insertText("First", alpha, alpha + 5);
-
-    dispatchSteps(editor, tr);
-
-    expect(transactions()).toBe(2);
-    expect(editor.getBlock("a")?.content).toMatchObject([
-      { text: "First one two Last" },
-    ]);
-  });
-
-  it("dispatches changes in different paragraphs in one transaction", () => {
-    const { editor, transactions } = setup();
-    const tr = editor.prosemirrorState.tr;
-    const beta = positionOf(editor, "Beta");
-    const alpha = positionOf(editor, "Alpha");
-    tr.insertText("Bravo", beta, beta + 4);
-    tr.insertText("First", alpha, alpha + 5);
-
-    dispatchSteps(editor, tr);
-
-    expect(transactions()).toBe(1);
-    expect(editor.document.map((block) => block.content)).toMatchObject([
-      [{ text: "First one two Omega" }],
-      [{ text: "Bravo" }],
-    ]);
-  });
-
-  it("dispatches changes of the props of different blocks in one transaction", () => {
-    const { editor, transactions } = setup();
-    const tr = editor.prosemirrorState.tr;
+    // Two changes in one paragraph, a change of a different block, and an
+    // insert.
     applyOperations(tr, [
       {
         type: "update",
         id: "a",
-        update: { props: { textAlignment: "center" } },
+        update: { content: text("First one two Last") },
       },
       {
         type: "update",
         id: "b",
         update: { props: { textAlignment: "right" } },
       },
+      {
+        type: "insert",
+        block: {
+          id: "new",
+          type: "paragraph",
+          props: {},
+          content: text("New"),
+          children: [],
+        },
+        reference: "a",
+        placement: "after",
+      },
     ]);
+    expect(tr.steps.length).toBeGreaterThan(2);
 
-    dispatchSteps(editor, tr);
+    dispatchUpdate(editor, tr);
 
-    expect(transactions()).toBe(1);
-    expect(editor.getBlock("a")?.props).toMatchObject({
-      textAlignment: "center",
-    });
+    expect(transactions).toHaveLength(1);
+    expect(editor.document.map((block) => block.id)).toEqual(["a", "new", "b"]);
+    expect(editor.getBlock("a")?.content).toMatchObject([
+      { text: "First one two Last" },
+    ]);
     expect(editor.getBlock("b")?.props).toMatchObject({
       textAlignment: "right",
     });
   });
 
-  it("moves the later steps if a plugin changes the document between two transactions", () => {
-    // A plugin that puts "!" at the start of the first paragraph after each
-    // change. Thus, the second transaction must apply after that character.
-    const editor = BlockNoteEditor.create({
-      initialContent: [
-        { id: "a", type: "paragraph", content: "!Alpha one two Omega" },
-      ],
-      trailingBlock: false,
-    });
-    editor._tiptapEditor.registerPlugin(
-      new Plugin({
-        appendTransaction(transactions, _old, state) {
-          const first = state.doc.firstChild?.firstChild?.firstChild;
-          if (
-            !transactions.some((tr) => tr.docChanged) ||
-            first === null ||
-            first === undefined ||
-            first.textContent.startsWith("!")
-          ) {
-            return null;
-          }
-          // The text of the first block starts 3 positions into the document.
-          return state.tr.insertText("!", 3);
-        },
-      }),
-    );
+  it("marks the transaction for the autolink plugin", () => {
+    const { editor, transactions } = setup();
     const tr = editor.prosemirrorState.tr;
-    const alpha = positionOf(editor, "Alpha");
-    const omega = positionOf(editor, "Omega");
-    // The first step removes the "!": the plugin then adds it again.
-    tr.delete(alpha - 1, alpha);
-    tr.insertText("Last", omega - 1, omega + 4);
-
-    dispatchSteps(editor, tr);
-
-    expect(editor.getBlock("a")?.content).toMatchObject([
-      { text: "!Alpha one two Last" },
+    applyOperations(tr, [
+      { type: "update", id: "b", update: { content: text("https://x.test") } },
     ]);
+
+    dispatchUpdate(editor, tr);
+
+    expect(transactions.map((t) => t.getMeta("preventAutolink"))).toEqual([
+      true,
+    ]);
+  });
+
+  it("dispatches nothing for a transaction without steps", () => {
+    const { editor, transactions } = setup();
+
+    dispatchUpdate(editor, editor.prosemirrorState.tr);
+
+    expect(transactions).toHaveLength(0);
   });
 });

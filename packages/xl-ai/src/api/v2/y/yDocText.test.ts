@@ -864,9 +864,8 @@ describe.each(merges)("comments (merge %s)", (merge) => {
 const HTML_AUTOLINK_SEEDS = [22];
 
 /**
- * The Y.Doc API writes through the binding of an editor, in transactions
- * with one change for each text block (see `dispatchSteps`). The result must
- * be the same document as a write to an editor without Yjs.
+ * A write to a Y.Doc must give the same document as a write to an editor
+ * without Yjs.
  */
 describe.each(formatCases)(
   "Y.Doc and editor give the same document ($name)",
