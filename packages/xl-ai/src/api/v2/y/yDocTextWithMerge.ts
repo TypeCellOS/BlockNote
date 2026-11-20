@@ -2,7 +2,6 @@ import type { BlockNoteEditor } from "@blocknote/core";
 import * as Y from "@y/y";
 
 import {
-  type ChangeOperations,
   changesOfOthersOf,
   type InvalidDocumentError,
   type JSONChange,
@@ -62,16 +61,11 @@ export function updateYDocWithMerge(
   requireBase(change.base);
   const before = Y.encodeStateVector(ydoc);
   const base = applyBase(editor, fragment, change.base);
-  const withoutContent =
-    base.length === 0 && blocksOf(editor, fragment).length === 0;
   const result = writeToCopy(
     editor,
     fragment,
     undefined,
     (current): MergedInFragment | InvalidDocumentError | ConflictError => {
-      if (withoutContent) {
-        return withoutOthers(operationsOf(editor, change, current));
-      }
       const merged = mergedOperationsOf(editor, { ...change, base }, current);
       return merged.error !== undefined ? merged : withoutWritten(merged);
     },
@@ -139,11 +133,8 @@ function yjsMerge(
       ? written
       : { ...written, changesOfOthers: changesOfOthersOf(base, current) };
   }
-  if (current.length === 0) {
-    return writeToCopy(editor, fragment, undefined, (empty) =>
-      withoutOthers(operationsOf(editor, change, empty)),
-    );
-  }
+  // A base without content: a copy of an empty Y.Doc gets its own root block
+  // group, and Yjs cannot merge two new root groups into one.
   return writeToCopy(editor, fragment, undefined, (now) => {
     const merge = mergeOf(editor, change, base, now);
     return merge.error !== undefined
@@ -154,19 +145,6 @@ function yjsMerge(
 
 /** A merge write to a fragment: the result without `written` (see `YDocMergedChangeResult`). */
 type MergedInFragment = Omit<MergedChangeOperations, "written">;
-
-/**
- * The result of a write to a fragment without content, from a base without
- * content. These are the same empty document, thus there is no merge, and
- * no other writer changed a block.
- */
-function withoutOthers(
-  written: ChangeOperations | InvalidDocumentError,
-): MergedInFragment | InvalidDocumentError {
-  return written.error !== undefined
-    ? written
-    : { ...written, changesOfOthers: [] };
-}
 
 /** The result of a merge write, without the document that the client wrote. */
 function withoutWritten({
