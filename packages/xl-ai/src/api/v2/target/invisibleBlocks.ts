@@ -22,7 +22,7 @@ import {
  *
  * @internal
  */
-export function withInvisibleBlocks(
+export function stayingBlockIds(
   sourceIndex: BlockIndex,
   invisibleIds: ReadonlySet<string>,
   keptIds: readonly string[],
@@ -56,7 +56,7 @@ export function withInvisibleBlocks(
 
 /**
  * Returns true if an invisible block in a parent that stays (or at the top
- * level) stays (see {@link withInvisibleBlocks}):
+ * level) stays (see {@link stayingBlockIds}):
  *
  * - A block with data stays: the text cannot show it.
  * - An empty block stays next to a visible block that stays, and goes if the

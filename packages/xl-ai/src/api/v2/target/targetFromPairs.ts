@@ -9,7 +9,7 @@ import type { BlockPair } from "../alignment/index.js";
 import { mergeBlock } from "../merge/index.js";
 import type { Projection } from "../projection/index.js";
 import { buildTargetDocument, type TargetRow } from "./buildTargetDocument.js";
-import { withInvisibleBlocks } from "./invisibleBlocks.js";
+import { stayingBlockIds } from "./invisibleBlocks.js";
 import type { TargetWarning } from "./types.js";
 
 export type { TargetWarning } from "./types.js";
@@ -41,7 +41,7 @@ export type TargetInput = {
  *    a pair is a new block, with the fields of the text block.
  * 2. The source blocks that stay: the source blocks of the kept rows, and
  *    the invisible blocks that the text cannot remove (see
- *    `withInvisibleBlocks`).
+ *    `stayingBlockIds`).
  * 3. The nesting: the blocks in the order of the text, in the parent that the
  *    text shows, with the nesting that the format does not show, and the
  *    invisible blocks at their source positions (see `buildTargetDocument`).
@@ -98,7 +98,7 @@ export function targetFromPairs(input: TargetInput): TargetResult {
     view,
     sourceIndex,
     invisibleIds,
-    staying: withInvisibleBlocks(sourceIndex, invisibleIds, keptIds),
+    staying: stayingBlockIds(sourceIndex, invisibleIds, keptIds),
   });
   return { target, warnings };
 }

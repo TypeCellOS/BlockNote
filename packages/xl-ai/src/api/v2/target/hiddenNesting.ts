@@ -119,7 +119,7 @@ type NestingInput = {
   view: readonly ViewBlock[];
   sourceIndex: BlockIndex;
   invisibleIds: ReadonlySet<string>;
-  /** The source blocks that stay (see `withInvisibleBlocks`). */
+  /** The source blocks that stay (see `stayingBlockIds`). */
   staying: ReadonlySet<string>;
 };
 

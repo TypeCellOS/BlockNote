@@ -8,9 +8,9 @@ import { markdownFormat } from "../formats/markdown.js";
 import type { TextFormat } from "../formats/types.js";
 import { projectDocument } from "../projection/projectDocument.js";
 import { textBlocksOf } from "../testUtil/stages.js";
-import { withInvisibleBlocks } from "./invisibleBlocks.js";
+import { stayingBlockIds } from "./invisibleBlocks.js";
 
-/** The source blocks that stay after a write of `text` (see `withInvisibleBlocks`). */
+/** The source blocks that stay after a write of `text` (see `stayingBlockIds`). */
 function keptAfter(
   initialContent: PartialBlock[],
   format: TextFormat,
@@ -27,7 +27,7 @@ function keptAfter(
   const textBlocks = textBlocksOf(editor, format, text, projection.view);
   const pairs = alignBlocks(projection.view, textBlocks);
   return [
-    ...withInvisibleBlocks(
+    ...stayingBlockIds(
       new BlockIndex(document),
       projection.invisibleIds,
       pairs.map(({ aIndex }) => projection.view[aIndex].sourceId),
@@ -35,7 +35,7 @@ function keptAfter(
   ];
 }
 
-describe("withInvisibleBlocks", () => {
+describe("stayingBlockIds", () => {
   it("keeps the source blocks of the pairs, and no other visible block", () => {
     // Block c is not in the text: it goes.
     expect(
