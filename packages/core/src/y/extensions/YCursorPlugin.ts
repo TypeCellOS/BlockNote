@@ -3,6 +3,12 @@ import {
   createExtension,
   ExtensionOptions,
 } from "../../editor/BlockNoteExtension.js";
+import {
+  floatCursorLabel,
+  hideCursorLabel,
+  remoteEditors,
+  showCursorLabel,
+} from "../../extensions/Collaboration/cursorLabel.js";
 import { CollaborationOptions } from "./index.js";
 
 export type CollaborationUser = {
@@ -83,45 +89,72 @@ export const YCursorExtension = createExtension(
       ) {
         awareness.setLocalStateField("user", options.user);
       }
-      if ("on" in awareness && typeof awareness.on === "function") {
-        if (options.showCursorLabels !== "always") {
-          awareness.on(
-            "change",
-            ({
-              updated,
-            }: {
-              added: Array<number>;
-              updated: Array<number>;
-              removed: Array<number>;
-            }) => {
-              for (const clientID of updated) {
-                const cursor = recentlyUpdatedCursors.get(clientID);
+    }
 
-                if (cursor) {
-                  setTimeout(() => {
-                    cursor.element.setAttribute("data-active", "");
-                  }, 10);
+    const handleAwarenessChange = ({
+      updated,
+    }: {
+      added: Array<number>;
+      updated: Array<number>;
+      removed: Array<number>;
+    }) => {
+      for (const clientID of updated) {
+        const cursor = recentlyUpdatedCursors.get(clientID);
 
-                  if (cursor.hideTimeout) {
-                    clearTimeout(cursor.hideTimeout);
-                  }
+        if (cursor) {
+          setTimeout(() => {
+            showCursorLabel(cursor.element);
+          }, 10);
 
-                  recentlyUpdatedCursors.set(clientID, {
-                    element: cursor.element,
-                    hideTimeout: setTimeout(() => {
-                      cursor.element.removeAttribute("data-active");
-                    }, 2000),
-                  });
-                }
-              }
-            },
-          );
+          if (options.showCursorLabels === "always") {
+            continue;
+          }
+
+          if (cursor.hideTimeout) {
+            clearTimeout(cursor.hideTimeout);
+          }
+
+          recentlyUpdatedCursors.set(clientID, {
+            element: cursor.element,
+            hideTimeout: setTimeout(() => {
+              hideCursorLabel(cursor.element);
+            }, 2000),
+          });
         }
       }
-    }
+    };
+
+    // A collaborator who types is active too.
+    const handleTransaction = (
+      transaction: Parameters<typeof remoteEditors>[0],
+    ) => {
+      const updated = remoteEditors(transaction);
+      if (updated.length > 0) {
+        handleAwarenessChange({ added: [], updated, removed: [] });
+      }
+    };
 
     return {
       key: "yCursor",
+      mount() {
+        if (
+          awareness &&
+          "on" in awareness &&
+          typeof awareness.on === "function"
+        ) {
+          awareness.on("change", handleAwarenessChange);
+          options.fragment.doc?.on("afterTransaction", handleTransaction);
+
+          return () => {
+            if ("off" in awareness && typeof awareness.off === "function") {
+              awareness.off("change", handleAwarenessChange);
+            }
+            options.fragment.doc?.off("afterTransaction", handleTransaction);
+          };
+        }
+
+        return undefined;
+      },
       prosemirrorPlugins: [
         awareness
           ? yCursorPlugin(awareness, {
@@ -133,11 +166,15 @@ export const YCursorExtension = createExtension(
                   const cursorElement = (
                     options.renderCursor ?? defaultCursorRender
                   )(user as CollaborationUser);
+                  floatCursorLabel(cursorElement);
+                  if (options.showCursorLabels === "always") {
+                    showCursorLabel(cursorElement);
+                  }
 
                   if (options.showCursorLabels !== "always") {
                     cursorElement.addEventListener("mouseenter", () => {
                       const cursor = recentlyUpdatedCursors.get(clientID)!;
-                      cursor.element.setAttribute("data-active", "");
+                      showCursorLabel(cursor.element);
 
                       if (cursor.hideTimeout) {
                         clearTimeout(cursor.hideTimeout);
@@ -154,7 +191,7 @@ export const YCursorExtension = createExtension(
                       recentlyUpdatedCursors.set(clientID, {
                         element: cursor.element,
                         hideTimeout: setTimeout(() => {
-                          cursor.element.removeAttribute("data-active");
+                          hideCursorLabel(cursor.element);
                         }, 2000),
                       });
                     });

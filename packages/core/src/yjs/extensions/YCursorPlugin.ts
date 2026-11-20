@@ -3,6 +3,12 @@ import {
   createExtension,
   ExtensionOptions,
 } from "../../editor/BlockNoteExtension.js";
+import {
+  floatCursorLabel,
+  hideCursorLabel,
+  remoteEditors,
+  showCursorLabel,
+} from "../../extensions/Collaboration/cursorLabel.js";
 import type { CollaborationOptions } from "./index.js";
 
 export type CollaborationUser = {
@@ -97,8 +103,12 @@ export const YCursorExtension = createExtension(
 
         if (cursor) {
           setTimeout(() => {
-            cursor.element.setAttribute("data-active", "");
+            showCursorLabel(cursor.element);
           }, 10);
+
+          if (options.showCursorLabels === "always") {
+            continue;
+          }
 
           if (cursor.hideTimeout) {
             clearTimeout(cursor.hideTimeout);
@@ -107,10 +117,20 @@ export const YCursorExtension = createExtension(
           recentlyUpdatedCursors.set(clientID, {
             element: cursor.element,
             hideTimeout: setTimeout(() => {
-              cursor.element.removeAttribute("data-active");
+              hideCursorLabel(cursor.element);
             }, 2000),
           });
         }
+      }
+    };
+
+    // A collaborator who types is active too.
+    const handleTransaction = (
+      transaction: Parameters<typeof remoteEditors>[0],
+    ) => {
+      const updated = remoteEditors(transaction);
+      if (updated.length > 0) {
+        handleAwarenessChange({ added: [], updated, removed: [] });
       }
     };
 
@@ -119,16 +139,17 @@ export const YCursorExtension = createExtension(
       mount() {
         if (
           awareness &&
-          options.showCursorLabels !== "always" &&
           "on" in awareness &&
           typeof awareness.on === "function"
         ) {
           awareness.on("change", handleAwarenessChange);
+          options.fragment.doc?.on("afterTransaction", handleTransaction);
 
           return () => {
             if ("off" in awareness && typeof awareness.off === "function") {
               awareness.off("change", handleAwarenessChange);
             }
+            options.fragment.doc?.off("afterTransaction", handleTransaction);
           };
         }
 
@@ -145,11 +166,15 @@ export const YCursorExtension = createExtension(
                   const cursorElement = (
                     options.renderCursor ?? defaultCursorRender
                   )(user);
+                  floatCursorLabel(cursorElement);
+                  if (options.showCursorLabels === "always") {
+                    showCursorLabel(cursorElement);
+                  }
 
                   if (options.showCursorLabels !== "always") {
                     cursorElement.addEventListener("mouseenter", () => {
                       const cursor = recentlyUpdatedCursors.get(clientID)!;
-                      cursor.element.setAttribute("data-active", "");
+                      showCursorLabel(cursor.element);
 
                       if (cursor.hideTimeout) {
                         clearTimeout(cursor.hideTimeout);
@@ -166,7 +191,7 @@ export const YCursorExtension = createExtension(
                       recentlyUpdatedCursors.set(clientID, {
                         element: cursor.element,
                         hideTimeout: setTimeout(() => {
-                          cursor.element.removeAttribute("data-active");
+                          hideCursorLabel(cursor.element);
                         }, 2000),
                       });
                     });
