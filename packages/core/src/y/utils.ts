@@ -18,7 +18,7 @@ import {
   blockToNode,
   docToBlocks,
 } from "../index.js";
-import { blockMatchNodes } from "./extensions/blockMatchNodes.js";
+import { blockMatchNodesById } from "./extensions/blockMatchNodes.js";
 import { persistentBlockGroups } from "./extensions/persistentBlockGroups.js";
 import { mapAttributionToMark } from "./extensions/YSync.js";
 
@@ -331,14 +331,19 @@ export function blocksToYDoc<
 
 /**
  * Diff two ProseMirror documents into a delta, using BlockNote's node-pairing
- * policy ({@link blockMatchNodes}) so a block's content-type change is reported
+ * policy for documents ({@link blockMatchNodesById}): two blocks pair only if
+ * they have the same block ID, and a block's content-type change is reported
  * as a replace rather than a schema-invalid in-place edit.
+ *
+ * The two documents must be versions of one document, so that a block keeps
+ * its ID. A block with a different ID is a removed block and an inserted
+ * block, also if its content is the same.
  */
 export function docDiffToDelta(previousDoc: Node, newDoc: Node) {
   const initialDelta = nodeToDelta(previousDoc);
   const finalDelta = nodeToDelta(newDoc);
   return d.diff(initialDelta.done(), finalDelta.done(), {
-    compare: blockMatchNodes,
+    compare: blockMatchNodesById,
   });
 }
 

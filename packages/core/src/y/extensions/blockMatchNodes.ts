@@ -171,3 +171,43 @@ export const blockMatchNodes = (
 
   return true;
 };
+
+/** The block ID of a node (its `id` attribute), or `undefined` for a node without one. */
+function blockIdOf(d: schema.Unwrap<typeof $prosemirrorDelta>): unknown {
+  const id: unknown = d.attrs.id;
+  return delta.$setAttrOp.check(id) ? id.value : undefined;
+}
+
+/**
+ * {@link blockMatchNodes}, and the two nodes must also have the same block ID
+ * (a node without an `id` attribute has no ID).
+ *
+ * This is the node-pairing policy for a diff of two documents (see
+ * `docDiffToDelta`). Without the ID, the diff pairs the changed nodes of a
+ * list by their type alone. An insert or a removal next to a changed block of
+ * the same type then pairs a block with its neighbour: the diff rewrites one
+ * block into the other, and inserts or removes the wrong block. When that
+ * diff is applied to a Y type, a concurrent change of another client to the
+ * block lands in the wrong block.
+ *
+ * TODO: this check belongs in `blockMatchNodes` itself, so that the sync
+ * binding (`customCompare` in YSync.ts) pairs blocks by their ID too. The
+ * binding has the same fault today, for a transaction that inserts or removes
+ * a block next to a changed block, or that changes the type of a block next
+ * to a changed block. Moving the check there needs more investigation:
+ *
+ * - With the check in the binding, "shows both copies when two users change
+ *   the type concurrently" (versionDiffAttribution.test.ts) loses the authors
+ *   of the inserted copies. The two copies have the same block ID. The editor
+ *   gives a copy a new ID, and the binding then writes a new block instead of
+ *   a changed attribute. A rule that also pairs a block with a new ID and
+ *   unchanged content did not fix that test, so the cause is not fully known.
+ * - `splitChangedBlocks` (snapshotPreview.ts) uses `blockMatchNodes` to find
+ *   the blocks that the old binding changed in place. With the check, a block
+ *   whose ID changed in place counts as structurally changed (see
+ *   v1BindingSnapshotDiff.test.ts, whose fixture replaces the block).
+ */
+export const blockMatchNodesById = (
+  a: schema.Unwrap<typeof $prosemirrorDelta>,
+  b: schema.Unwrap<typeof $prosemirrorDelta>,
+): boolean => blockIdOf(a) === blockIdOf(b) && blockMatchNodes(a, b);
