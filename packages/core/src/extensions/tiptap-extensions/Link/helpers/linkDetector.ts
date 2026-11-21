@@ -61,7 +61,11 @@ const SPECIAL_HOSTS = new Set(["localhost"]);
 // ---------------------------------------------------------------------------
 
 // Characters that are unlikely to be part of a URL when they appear at the end
-const TRAILING_PUNCT = /[.,;:!?"']+$/;
+//
+// The expression matches one character: `trimTrailing` reads the URL from its
+// end. A search for `[...]+$` in the full URL takes quadratic time for a long
+// run of these characters that is not at the end.
+const TRAILING_PUNCT = /[.,;:!?"']/;
 
 // Protocol URLs: http:// https:// ftp:// ftps://
 const PROTOCOL_RE = /(?:https?|ftp|ftps):\/\/[^\s]+/g;
@@ -96,39 +100,31 @@ const SCHEMELESS_RE =
  * Trim trailing punctuation and unbalanced closing brackets from a URL match.
  */
 function trimTrailing(value: string): string {
-  let v = value;
+  // The number of closing brackets that have no opening bracket in the value.
+  // Each trimmed bracket lowers the number by one. A new count of the full
+  // value for each trimmed bracket takes quadratic time.
+  let unbalancedRound = countChar(value, ")") - countChar(value, "(");
+  let unbalancedSquare = countChar(value, "]") - countChar(value, "[");
 
-  // Iteratively trim trailing punctuation and unbalanced brackets
-  let changed = true;
-  while (changed) {
-    changed = false;
-
-    // Trim trailing punctuation chars
-    const before = v;
-    v = v.replace(TRAILING_PUNCT, "");
-    if (v !== before) {
-      changed = true;
-    }
-
-    // Trim unbalanced closing brackets from the end
-    for (const [open, close] of [
-      ["(", ")"],
-      ["[", "]"],
-    ] as const) {
-      while (v.endsWith(close)) {
-        const openCount = countChar(v, open);
-        const closeCount = countChar(v, close);
-        if (closeCount > openCount) {
-          v = v.slice(0, -1);
-          changed = true;
-        } else {
-          break;
-        }
-      }
+  // Trim trailing punctuation and unbalanced closing brackets, one character
+  // at a time from the end
+  let end = value.length;
+  while (end > 0) {
+    const char = value[end - 1];
+    if (TRAILING_PUNCT.test(char)) {
+      end--;
+    } else if (char === ")" && unbalancedRound > 0) {
+      unbalancedRound--;
+      end--;
+    } else if (char === "]" && unbalancedSquare > 0) {
+      unbalancedSquare--;
+      end--;
+    } else {
+      break;
     }
   }
 
-  return v;
+  return value.slice(0, end);
 }
 
 function countChar(str: string, ch: string): number {
