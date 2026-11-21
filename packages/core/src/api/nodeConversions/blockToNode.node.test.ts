@@ -125,4 +125,43 @@ describe("blockToNode: tables", () => {
     expect(table.child(1).child(0).attrs.colwidth).toEqual([200]);
     expect(table.child(1).child(1).attrs.colwidth).toEqual([300]);
   });
+
+  // The widths of a merged cell must not have an empty entry for a column
+  // without a width. The HTML export writes such an entry as `colwidth=","`
+  // or `colwidth="200,"`, and the HTML parser reads that as `NaN`.
+  describe.each([
+    // No column in the span has a width: no widths, as a cell without a span.
+    { columnWidths: undefined, colwidth: null },
+    // One column has a width: `0` for the other, as prosemirror-tables has it.
+    { columnWidths: [200, undefined], colwidth: [200, 0] },
+  ])(
+    "a merged cell with the column widths $columnWidths",
+    ({ columnWidths, colwidth }) => {
+      const table = {
+        type: "table",
+        content: {
+          type: "tableContent",
+          columnWidths,
+          rows: [
+            {
+              cells: [
+                { type: "tableCell", props: { colspan: 2 }, content: "Merged" },
+              ],
+            },
+            { cells: ["a", "b"] },
+          ],
+        },
+      } as any;
+
+      it("has no empty entry in its colwidth", async ({ setupEditor }) => {
+        const { editor } = await setupEditor();
+
+        const node = blockToNode(table, editor.pmSchema);
+
+        expect(node.firstChild!.child(0).child(0).attrs.colwidth).toEqual(
+          colwidth,
+        );
+      });
+    },
+  );
 });
