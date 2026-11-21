@@ -1,4 +1,8 @@
-import { createImageBlockConfig, imageParse } from "@blocknote/core";
+import {
+  createImageBlockConfig,
+  imageBlockAlt,
+  imageParse,
+} from "@blocknote/core";
 import { RiImage2Fill } from "react-icons/ri";
 
 import {
@@ -19,9 +23,10 @@ export const ImagePreview = (
   const resolved = useResolveUrl(props.block.props.url!);
 
   // alt describes image content (per WCAG H86); figcaption (when present)
-  // is the contextual caption. Fall back to "" so unlabelled images are
-  // marked decorative rather than getting a noisy generic fallback.
-  const alt = props.block.props.name || "";
+  // is the contextual caption. An inserted image is not decorative: when
+  // `name` is empty, show the URL's file name so a failed load stays
+  // identifiable. Display only — not written back to `props.name`.
+  const alt = imageBlockAlt(props.block.props.name, props.block.props.url);
 
   return (
     <img
@@ -49,6 +54,8 @@ export const ImageToExternalHTML = (
     return <p>Add image</p>;
   }
 
+  // Leave alt empty when `name` is unset. Parsing copies `alt` into `name`,
+  // so the editor's display fallback must not be exported.
   const alt = props.block.props.name || "";
   const image = props.block.props.showPreview ? (
     <img

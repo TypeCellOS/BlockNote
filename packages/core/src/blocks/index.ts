@@ -5,6 +5,7 @@ export * from "./Divider/block.js";
 export * from "./File/block.js";
 export * from "./Heading/block.js";
 export * from "./Image/block.js";
+export * from "./Image/imageBlockAlt.js";
 export * from "./ListItem/BulletListItem/block.js";
 export * from "./ListItem/CheckListItem/block.js";
 export * from "./ListItem/NumberedListItem/block.js";
