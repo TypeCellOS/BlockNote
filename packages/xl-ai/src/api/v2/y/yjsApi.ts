@@ -26,6 +26,29 @@ import {
 import type { TextFormat } from "../formats/index.js";
 import { applyOperations, type BlockOperation } from "../operations/index.js";
 
+// The text lens for a Y.Doc of Yjs 14. How a write relates to the merge of
+// Yjs:
+//
+// - Each write is one Yjs transaction on the Y.Doc of the caller, and its
+//   result has the Yjs update (`updateV2`). The other replicas merge that
+//   update at their sync, as they merge each update. No function here
+//   controls that merge.
+// - `base` is about the Y.Doc of the caller. A write examines the changes
+//   that this Y.Doc has after `base`. A change that this Y.Doc does not have
+//   yet (of a replica that did not sync) is not one of them: Yjs merges it
+//   at the sync.
+//
+// The three writes are different only in what they do with the changes
+// after `base`:
+//
+//   updateYDoc                            nothing applies ("document-changed")
+//   updateYDocWithMerge                   the lens merges them, by block ID
+//   experimental_updateYDocWithYjsMerge   Yjs merges them
+//
+// The last two are in `yjsApiWithMerge.ts`. With `base: "current"`, no
+// change is after `base`. Thus, `updateYDoc` with `"current"` on a Y.Doc
+// that is out of date gets the merge of Yjs at its next sync.
+
 /**
  * Returns the document of the fragment of a Y.Doc in the format. A client
  * reads this text, changes it, and writes it back with `updateYDoc`.

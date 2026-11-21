@@ -24,6 +24,9 @@ import {
   type UnknownBaseError,
 } from "./yjsApi.js";
 
+// The merge writes for a Y.Doc. For the three writes and how each one
+// relates to the merge of Yjs, see the comment at the start of `yjsApi.ts`.
+
 /**
  * The result of `computeYDocOperationsWithMerge`: the operations and the
  * warnings of the merge, or an error.
@@ -61,8 +64,10 @@ export type YDocMergedChangeResult =
  * computes and writes them in one step. For the editor and `base` (a Yjs
  * state as a V2 update), see `computeYDocOperations`.
  *
- * The merge is three-way, by block ID (see `merge/document.ts`). A conflict
- * keeps the current value, or with `onConflict: "reject"`, nothing applies.
+ * The lens merges, not Yjs: three-way, by block ID (see
+ * `merge/document.ts`), and the result is a usual write to the current
+ * document. A conflict keeps the current value, or with
+ * `onConflict: "reject"`, nothing applies.
  */
 export function computeYDocOperationsWithMerge(
   editor: BlockNoteEditor<any, any, any>,
@@ -103,16 +108,20 @@ export function updateYDocWithMerge(
 /**
  * Writes a change (a text, or BlockNote JSON) to the fragment of a Y.Doc,
  * and lets Yjs merge it with the changes of other writers after `base`.
- * This function is experimental. For the editor and `base`, see
- * `updateYDoc`.
+ * For the editor and `base`, see `updateYDoc`.
  *
- * Yjs merges the write as the write of a new Yjs client that started at
- * `base`. Yjs has no conflicts, thus there is no `onConflict` and no error
- * `"conflict"`. But a change of another writer can be lost: in a Y.Doc, a
- * move, a split and a join are a removal and an insert. The README has the
- * limits ("The merge of Yjs").
+ * The function is `updateYDoc` with `base: "current"` on a copy of the
+ * Y.Doc at `base`: the Y.Doc then gets the Yjs update of that write, as at
+ * a sync of two replicas. Two things are different: the layout blocks stay
+ * (see the README), and a base without content uses the merge of
+ * `updateYDocWithMerge`.
  *
- * For a base without content, the merge of `updateYDocWithMerge` runs.
+ * It is experimental, and a preview: when the Yjs model of a document can
+ * merge a move, a split and a join of blocks, it can become the body of
+ * `updateYDocWithMerge`. Today, such a change of another writer can be
+ * lost: in a Y.Doc, a move, a split and a join are a removal and an insert
+ * (see the README, "The merge of Yjs"). Yjs has no conflicts, thus there is
+ * no `onConflict` and no error `"conflict"`.
  */
 export function experimental_updateYDocWithYjsMerge(
   editor: BlockNoteEditor<any, any, any>,
