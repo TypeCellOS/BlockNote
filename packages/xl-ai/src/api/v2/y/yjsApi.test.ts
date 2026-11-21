@@ -338,18 +338,36 @@ describe("updateYDoc", () => {
     expect(Y.encodeStateVector(ydoc)).toEqual(before);
   });
 
-  it("returns the Yjs update for the other clients", () => {
-    const { ydoc, read, write, blocks } = setup();
-    const replica = new Y.Doc();
-    Y.applyUpdateV2(replica, Y.encodeStateAsUpdateV2(ydoc));
+  it.each(merges)(
+    "returns the Yjs update for the other clients (merge %s)",
+    (merge) => {
+      const { ydoc, read, write, change, blocks } = setup();
+      const client = read();
+      // Another writer changes the document after the read of the client.
+      change((user) =>
+        user.insertBlocks(
+          [{ type: "paragraph", content: "From another writer" }],
+          user.document[0].id,
+          "before",
+        ),
+      );
+      // A replica has the Y.Doc as it is before the write.
+      const replica = new Y.Doc();
+      Y.applyUpdateV2(replica, Y.encodeStateAsUpdateV2(ydoc));
 
-    const result = write(read(), (text) =>
-      replaceOnce(text, "Last paragraph", "Last paragraph, edited"),
-    );
-    Y.applyUpdateV2(replica, result.updateV2);
+      const result = write(
+        client,
+        (text) => replaceOnce(text, "Last paragraph", "Last paragraph, edited"),
+        merge,
+      );
+      Y.applyUpdateV2(replica, result.updateV2);
 
-    expect(yDocToBlocks(reader, replica)).toEqual(blocks());
-  });
+      expect(yDocToBlocks(reader, replica)).toEqual(blocks());
+      expect(Y.encodeStateAsUpdateV2(replica)).toEqual(
+        Y.encodeStateAsUpdateV2(ydoc),
+      );
+    },
+  );
 });
 
 /**

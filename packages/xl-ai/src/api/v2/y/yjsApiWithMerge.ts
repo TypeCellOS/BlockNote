@@ -14,8 +14,6 @@ import {
   type MergedChangeOperations,
   mergedOperationsOf,
   type MergeFromVersion,
-  mergeOf,
-  operationsOfMerge,
 } from "../apiWithMerge.js";
 import { diffDocuments } from "../operations/index.js";
 import {
@@ -114,8 +112,7 @@ export function updateYDocWithMerge(
  * move, a split and a join are a removal and an insert. The README has the
  * limits ("The merge of Yjs").
  *
- * For a base without content, the merge of `updateYDocWithMerge` runs (see
- * `yjsMerge`).
+ * For a base without content, the merge of `updateYDocWithMerge` runs.
  */
 export function experimental_updateYDocWithYjsMerge(
   editor: BlockNoteEditor<any, any, any>,
@@ -128,53 +125,35 @@ export function experimental_updateYDocWithYjsMerge(
   if (!hasVersion(ydoc, docOf(atBase))) {
     return { error: "unknown-base" };
   }
-  const before = Y.encodeStateVector(ydoc);
-  const result = yjsMerge(editor, fragment, atBase, change);
-  return result.error !== undefined
-    ? result
-    : { ...result, updateV2: Y.encodeStateAsUpdateV2(ydoc, before) };
-}
-
-/**
- * The write of `experimental_updateYDocWithYjsMerge`, for each case of
- * `base`. `atBase` is the fragment at `base`, in a temporary Y.Doc.
- */
-function yjsMerge(
-  editor: BlockNoteEditor<any, any, any>,
-  fragment: Y.Node,
-  atBase: Y.Node,
-  change: TextChange | JSONChange,
-): MergedInFragment | InvalidDocumentError {
   const base = yfragmentToBlocks(editor, atBase);
-  const current = yfragmentToBlocks(editor, fragment);
   if (base.length === 0) {
     // A base without content: a copy of an empty Y.Doc gets its own root
     // block group, and Yjs cannot merge two new root groups into one. Thus,
-    // the lens merges, and the write goes to the fragment.
-    const merge = mergeOf(editor, change, base, current);
-    if (merge.error !== undefined) {
-      return merge;
+    // the lens merges. Each block of the two writers is a new block, thus
+    // this merge has no conflict.
+    const merged = updateYDocWithMerge(editor, fragment, {
+      ...change,
+      onConflict: "keep-current",
+    });
+    if (merged.error === "conflict") {
+      throw new Error("A merge with `keep-current` gives no conflict error.");
     }
-    const merged = withoutWritten(
-      operationsOfMerge(editor, merge, base, current),
-    );
-    applyYDocOperations(editor, fragment, merged.operations);
     return merged;
   }
-  // The write goes to the fragment at `base`, and Yjs merges the temporary
-  // Y.Doc into the Y.Doc. The write sees only `base`, and the layout blocks
-  // stay (`keepLayout`).
+  // The write sees only `base`, and the layout blocks stay (`keepLayout`).
   const written = operationsOf(editor, change, base, true);
   if (written.error !== undefined) {
     return written;
   }
-  applyYDocOperations(editor, atBase, written.operations);
-  const ydoc = docOf(fragment);
-  Y.applyUpdateV2(
-    ydoc,
-    Y.encodeStateAsUpdateV2(docOf(atBase), Y.encodeStateVector(ydoc)),
+  const changesOfOthers = diffDocuments(
+    base,
+    yfragmentToBlocks(editor, fragment),
   );
-  return { ...written, changesOfOthers: diffDocuments(base, current) };
+  // The write goes to the fragment at `base`, in its temporary Y.Doc. The
+  // Y.Doc gets the Yjs update of that write, and Yjs merges it.
+  const updateV2 = applyYDocOperations(editor, atBase, written.operations);
+  Y.applyUpdateV2(ydoc, updateV2);
+  return { ...written, changesOfOthers, updateV2 };
 }
 
 /** A merge write to a fragment: the result without `written` (see `YDocMergedChangeResult`). */

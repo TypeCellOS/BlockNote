@@ -169,10 +169,8 @@ export function mergedOperationsOf(
 
 /**
  * The merge of a change with the current document (the stages 1 to 4).
- *
- * @internal
  */
-export type DocumentMerge = {
+type DocumentMerge = {
   error?: undefined;
   /** The target of the change for `base` (stage 3), and its warnings. */
   target: readonly LensBlock[];
@@ -187,10 +185,8 @@ export type DocumentMerge = {
  * The stages 1 to 4 of a merge write: the target of the change for the
  * version `base`, merged three-way with `current` (see `mergeDocument`). A
  * conflict is not an error here: the caller has the conflict rule.
- *
- * @internal
  */
-export function mergeOf(
+function mergeOf(
   editor: BlockNoteEditor<any, any, any>,
   change: TextChange | JSONChange,
   base: readonly LensBlock[],
@@ -233,10 +229,8 @@ export function mergeOf(
  * The stages 5 and 6 of a merge write: the operations that change `current`
  * to the merged document, with the changes of other writers after `base`,
  * and the document that the client wrote.
- *
- * @internal
  */
-export function operationsOfMerge(
+function operationsOfMerge(
   editor: BlockNoteEditor<any, any, any>,
   merge: DocumentMerge,
   base: readonly LensBlock[],
