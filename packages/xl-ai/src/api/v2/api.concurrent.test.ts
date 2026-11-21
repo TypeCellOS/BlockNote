@@ -35,7 +35,7 @@ import { valid } from "./testUtil/valid.js";
 /**
  * Writes of a text from an older version (`base`) to a document without Yjs.
  * Another writer changed the document after the client read the text. See
- * `y/yDocText.test.ts` for the same cases on a Y.Doc.
+ * `y/yjsApi.test.ts` for the same cases on a Y.Doc.
  */
 
 const format = markdownFormat;

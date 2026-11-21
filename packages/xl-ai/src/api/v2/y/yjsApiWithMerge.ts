@@ -24,7 +24,7 @@ import {
   fragmentAtBase,
   hasVersion,
   type UnknownBaseError,
-} from "./yDocText.js";
+} from "./yjsApi.js";
 
 /**
  * The result of `computeYDocOperationsWithMerge`: the operations and the

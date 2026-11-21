@@ -7,11 +7,11 @@ export {
   updateYDoc,
   type YDocChangeResult,
   type YDocOperationsResult,
-} from "./yDocText.js";
+} from "./yjsApi.js";
 export {
   computeYDocOperationsWithMerge,
   experimental_updateYDocWithYjsMerge,
   updateYDocWithMerge,
   type YDocMergedChangeResult,
   type YDocMergedOperationsResult,
-} from "./yDocTextWithMerge.js";
+} from "./yjsApiWithMerge.js";

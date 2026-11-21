@@ -226,7 +226,7 @@ export function updateDocument(
 
 /**
  * The operations of a change for the document `current`, without a merge
- * (the stages 1 to 3, 5 and 6). The Y.Doc writes (`y/yDocText.ts`) also
+ * (the stages 1 to 3, 5 and 6). The Y.Doc writes (`y/yjsApi.ts`) also
  * use it, with `keepLayout` (see `fitResult`).
  *
  * @internal

@@ -39,12 +39,12 @@ import {
   computeYDocOperations,
   getYDocText,
   updateYDoc,
-} from "./yDocText.js";
+} from "./yjsApi.js";
 import {
   computeYDocOperationsWithMerge,
   experimental_updateYDocWithYjsMerge,
   updateYDocWithMerge,
-} from "./yDocTextWithMerge.js";
+} from "./yjsApiWithMerge.js";
 import { valid } from "../testUtil/valid.js";
 import { formatCases } from "../testUtil/codecs.js";
 import {

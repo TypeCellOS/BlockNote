@@ -4,8 +4,8 @@ import * as Y from "@y/y";
 import { describe, expect, it } from "vite-plus/test";
 
 import { bindEditor, unbindEditor } from "../testUtil/y.js";
-import { updateYDoc } from "./yDocText.js";
-import { updateYDocWithMerge } from "./yDocTextWithMerge.js";
+import { updateYDoc } from "./yjsApi.js";
+import { updateYDocWithMerge } from "./yjsApiWithMerge.js";
 
 const reader = BlockNoteEditor.create();
 
