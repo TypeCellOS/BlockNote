@@ -75,10 +75,15 @@ export const DEFAULT_RULES: MergeRules = {
  * - `theirs`: the side that gets the change. It can have data that `base`
  *   does not show, and changes of other writers.
  *
- * If `ours` is different from `base`, the result is `ours`. If not, the
- * result is `theirs`. Thus, data that `base` does not show stays. If the two
- * sides changed the value in different ways (a conflict), `conflict` tells
- * which side wins.
+ * The result:
+ *
+ * - `ours` did not change the value: `theirs`. Thus, data that `base` does
+ *   not show stays.
+ * - Only `ours` changed the value, or the two sides made the same change:
+ *   `ours`.
+ * - The two sides changed the value in different ways (a conflict): the
+ *   side that `conflict` names. If that side is `theirs`, `onConflict`
+ *   reports the conflict.
  *
  * Method: the standard three-way rule for one value, as diff3 uses it for one
  * item.
