@@ -149,16 +149,17 @@ export function writeOperations(
 
 /**
  * The blocks that other writers changed in the fragment after `base`.
- * `atBase` is the fragment at `base`, in a temporary Y.Doc. The check
- * compares content, not state vectors: a state vector also changes for a
- * change in a different fragment, and for a change that a later change
- * reverts.
+ * `atBase` is the fragment at `base`, in a temporary Y.Doc.
  */
 function fragmentChangesAfterBase(
   editor: BlockNoteEditor<any, any, any>,
   atBase: Y.Node,
   fragment: Y.Node,
 ): ChangeOfOthers[] {
+  // The check compares content, not state vectors: a state vector also
+  // changes for a change in a different fragment, and for a change that a
+  // later change reverts.
+  //
   // Usually, the content is equal, and Yjs compares it without a conversion
   // to blocks. `renderer: null`: see `applyTransactionToYjsFragment`.
   if (atBase.toDeltaDeep().equals(fragment.toDeltaDeep({ renderer: null }))) {
@@ -174,15 +175,17 @@ function fragmentChangesAfterBase(
 
 /**
  * Changes the ProseMirror document of the fragment of a Y.Doc, and writes
- * the difference to the fragment, in one Yjs transaction. `change` adds its
- * steps to a transaction, as the callback of `editor.transact` does. The
- * function needs no editor.
+ * the difference to the fragment, in one Yjs transaction. The function
+ * needs no editor.
  *
- * The document is the one that the binding of an editor shows for the
- * fragment: the same pipeline (`blockNoteTransformer` of core) maps the
- * fragment to the document, and the difference back to the fragment. The
- * difference is `docDiffToDelta` of core, which pairs two blocks only if
- * they have the same block ID.
+ * `change` adds its steps to a transaction, as the callback of
+ * `editor.transact` does. The document of the transaction is the one that
+ * the binding of an editor shows for the fragment, with one exception: for
+ * a fragment without blocks, it is a document without blocks (the binding
+ * shows an empty paragraph).
+ *
+ * In the difference, two blocks are the same block only if they have the
+ * same block ID. Thus, a change of another writer stays in its block.
  */
 function applyTransactionToYjsFragment(
   schema: Schema,
@@ -192,14 +195,16 @@ function applyTransactionToYjsFragment(
   // `renderer: null`: the content as it is, not as a renderer of a bound
   // editor shows it (for example with suggestions).
   const render = fragment.toDeltaDeep({ renderer: null });
+  // The pipeline of the binding maps the content of the fragment to the
+  // document, and a change of the document back to a change of the fragment.
   const pipeline = blockNoteTransformer({ getState: () => render, schema })(
     $prosemirrorDelta,
   ).init();
   // The pipeline changes the delta that it gets. Thus, it gets a copy.
   const shown = pipeline.applyA(delta.cloneDeep(render)).b ?? render;
-  // For a fragment without blocks, the binding shows an empty paragraph that
-  // the fragment does not have (the fill of the schema). Thus, the document
-  // is a root block group without blocks.
+  // The empty paragraph that the binding shows for a fragment without blocks
+  // is the fill of the schema: the fragment does not have it. Thus, the
+  // document is a root block group without blocks.
   const doc = hasBlocks(fragment)
     ? deltaToPNode(shown, schema, null)
     : schema.topNodeType.create(null, schema.nodes["blockGroup"].create());
@@ -211,7 +216,8 @@ function applyTransactionToYjsFragment(
     return;
   }
   // A fragment without content gets the complete document: the first write
-  // makes the root block group.
+  // makes the root block group. Else, the write is the difference
+  // (`docDiffToDelta` of core pairs two blocks by their ID).
   const yChange =
     fragment.length === 0
       ? pmnodeToDelta(tr.doc, { transformer: blockNoteTransformer })

@@ -74,12 +74,11 @@ export function updateYDocWithMerge(
  * This function is experimental. For the editor and `base`, see
  * `updateYDoc`.
  *
- * The operations for `base` apply to a copy of the Y.Doc at `base` (a
- * temporary Y.Doc, thus a new Yjs client for each write), and Yjs merges
- * the copy into the Y.Doc. Yjs has no conflicts, thus there is no
- * `onConflict` and no error `"conflict"`. But a change of another writer
- * can be lost: in a Y.Doc, a move, a split and a join are a removal and an
- * insert. The README has the limits ("The merge of Yjs").
+ * Yjs merges the write as the write of a new Yjs client that started at
+ * `base`. Yjs has no conflicts, thus there is no `onConflict` and no error
+ * `"conflict"`. But a change of another writer can be lost: in a Y.Doc, a
+ * move, a split and a join are a removal and an insert. The README has the
+ * limits ("The merge of Yjs").
  *
  * For a base without content, the merge of `updateYDocWithMerge` runs (see
  * `yjsMerge`).
