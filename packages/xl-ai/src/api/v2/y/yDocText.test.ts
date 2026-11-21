@@ -34,8 +34,14 @@ import {
   typeAfter,
   unbindEditor,
 } from "../testUtil/y.js";
-import { getYDocText, updateYDoc } from "./yDocText.js";
 import {
+  applyYDocOperations,
+  computeYDocOperations,
+  getYDocText,
+  updateYDoc,
+} from "./yDocText.js";
+import {
+  computeYDocOperationsWithMerge,
   experimental_updateYDocWithYjsMerge,
   updateYDocWithMerge,
 } from "./yDocTextWithMerge.js";
@@ -1611,6 +1617,104 @@ describe("a base with an update that the Y.Doc does not have yet", () => {
       );
     },
   );
+});
+
+describe("computeYDocOperations and applyYDocOperations", () => {
+  const threeParagraphs: PartialBlock[] = [
+    { id: "a", type: "paragraph", content: "Alpha" },
+    { id: "b", type: "paragraph", content: "Beta" },
+    { id: "c", type: "paragraph", content: "Gamma" },
+  ];
+
+  it("computes the operations, and does not change the Y.Doc", () => {
+    const { editor, ydoc, read } = setup(threeParagraphs);
+    const client = read();
+    const before = Y.encodeStateAsUpdateV2(ydoc);
+
+    const result = valid(
+      computeYDocOperations(editor, ydoc.get("prosemirror"), {
+        format: markdownFormat,
+        text: replaceOnce(client.text, "Alpha", "Alpha, changed"),
+        base: client.base,
+      }),
+    );
+
+    expect(result.operations).toEqual([
+      expect.objectContaining({ type: "update", id: "a" }),
+    ]);
+    expect(result).not.toHaveProperty("updateV2");
+    expect(Y.encodeStateAsUpdateV2(ydoc)).toEqual(before);
+  });
+
+  it("writes the computed operations, and gives the Yjs update of the write", () => {
+    const { editor, ydoc, read } = setup(threeParagraphs);
+    const fragment = ydoc.get("prosemirror");
+    const replica = new Y.Doc();
+    Y.applyUpdateV2(replica, Y.encodeStateAsUpdateV2(ydoc));
+    const client = read();
+    const { operations } = valid(
+      computeYDocOperations(editor, fragment, {
+        format: markdownFormat,
+        text: replaceOnce(client.text, "Alpha", "Alpha, changed"),
+        base: client.base,
+      }),
+    );
+
+    const updateV2 = applyYDocOperations(editor, fragment, operations);
+
+    expect(readText(fragment, markdownFormat)).toBe(
+      replaceOnce(client.text, "Alpha", "Alpha, changed"),
+    );
+    Y.applyUpdateV2(replica, updateV2);
+    expect(Y.encodeStateAsUpdateV2(replica)).toEqual(
+      Y.encodeStateAsUpdateV2(ydoc),
+    );
+  });
+
+  it("computes the operations of a merge without a change of the Y.Doc, and writes them", () => {
+    const { editor, ydoc, read, change } = setup(threeParagraphs);
+    const fragment = ydoc.get("prosemirror");
+    const client = read();
+    change((user) => user.updateBlock("b", { content: "Beta, changed" }));
+    const before = Y.encodeStateAsUpdateV2(ydoc);
+
+    const result = valid(
+      computeYDocOperationsWithMerge(editor, fragment, {
+        format: markdownFormat,
+        text: replaceOnce(client.text, "Alpha", "Alpha, from the client"),
+        base: client.base,
+        onConflict: "reject",
+      }),
+    );
+
+    expect(Y.encodeStateAsUpdateV2(ydoc)).toEqual(before);
+    expect(result.changesOfOthers).toEqual([
+      expect.objectContaining({ type: "update", id: "b" }),
+    ]);
+    expect(result).not.toHaveProperty("updateV2");
+
+    applyYDocOperations(editor, fragment, result.operations);
+
+    expect(readText(fragment, markdownFormat)).toBe(
+      replaceOnce(
+        replaceOnce(client.text, "Alpha", "Alpha, from the client"),
+        "Beta",
+        "Beta, changed",
+      ),
+    );
+  });
+
+  it("throws, and does not change the Y.Doc, for an operation that is not for the document", () => {
+    const { editor, ydoc } = setup(threeParagraphs);
+    const before = Y.encodeStateAsUpdateV2(ydoc);
+
+    expect(() =>
+      applyYDocOperations(editor, ydoc.get("prosemirror"), [
+        { type: "delete", id: "not-a-block" },
+      ]),
+    ).toThrow();
+    expect(Y.encodeStateAsUpdateV2(ydoc)).toEqual(before);
+  });
 });
 
 describe("a write to a Y.Doc that fails", () => {

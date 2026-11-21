@@ -19,21 +19,32 @@ import {
 } from "../apiWithMerge.js";
 import { diffDocuments } from "../operations/index.js";
 import {
+  applyYDocOperations,
   docOf,
   fragmentAtBase,
   hasVersion,
   type UnknownBaseError,
-  writeOperations,
 } from "./yDocText.js";
 
 /**
- * The result of a merge write to a Y.Doc. With an error, the Y.Doc does not
- * change.
+ * The result of `computeYDocOperationsWithMerge`: the operations and the
+ * warnings of the merge, or an error.
  *
  * The result has no `written` (see `MergedChangeOperations`): the document
  * that the client wrote has no Yjs state. Thus, after a write with
  * `changesOfOthers`, the client must read the text again before its next
  * write.
+ */
+export type YDocMergedOperationsResult =
+  | MergedInFragment
+  | InvalidDocumentError
+  | ConflictError
+  | UnknownBaseError;
+
+/**
+ * The result of a merge write to a Y.Doc: the result of
+ * `computeYDocOperationsWithMerge`, and the Yjs update of a write that
+ * applies. With an error, the Y.Doc does not change.
  */
 export type YDocMergedChangeResult =
   | (MergedInFragment & {
@@ -45,19 +56,21 @@ export type YDocMergedChangeResult =
   | UnknownBaseError;
 
 /**
- * Writes a change (a text, or BlockNote JSON) to the fragment of a Y.Doc,
- * and merges it with the changes of other writers after `base`: the merge
- * write of `updateDocumentWithMerge`, for a Y.Doc. For the editor and
- * `base` (a Yjs state as a V2 update), see `updateYDoc`.
+ * Computes the operations of a merge write to the fragment of a Y.Doc:
+ * `computeOperationsWithMerge`, for a Y.Doc. The change merges with the
+ * changes of other writers after `base`. Nothing changes:
+ * `applyYDocOperations` writes the operations. `updateYDocWithMerge`
+ * computes and writes them in one step. For the editor and `base` (a Yjs
+ * state as a V2 update), see `computeYDocOperations`.
  *
  * The merge is three-way, by block ID (see `merge/document.ts`). A conflict
  * keeps the current value, or with `onConflict: "reject"`, nothing applies.
  */
-export function updateYDocWithMerge(
+export function computeYDocOperationsWithMerge(
   editor: BlockNoteEditor<any, any, any>,
   fragment: Y.Node,
   change: (TextChange | JSONChange) & MergeFromVersion<Uint8Array>,
-): YDocMergedChangeResult {
+): YDocMergedOperationsResult {
   const ydoc = docOf(fragment);
   requireBase(change.base);
   const atBase = fragmentAtBase(fragment, change.base);
@@ -67,15 +80,26 @@ export function updateYDocWithMerge(
   const base = yfragmentToBlocks(editor, atBase);
   const current = yfragmentToBlocks(editor, fragment);
   const merged = mergedOperationsOf(editor, { ...change, base }, current);
-  if (merged.error !== undefined) {
-    return merged;
-  }
-  const before = Y.encodeStateVector(ydoc);
-  writeOperations(editor, fragment, merged.operations);
-  return {
-    ...withoutWritten(merged),
-    updateV2: Y.encodeStateAsUpdateV2(ydoc, before),
-  };
+  return merged.error !== undefined ? merged : withoutWritten(merged);
+}
+
+/**
+ * Computes the operations of a merge write (see
+ * `computeYDocOperationsWithMerge`), and writes them to the fragment (see
+ * `applyYDocOperations`): `updateDocumentWithMerge`, for a Y.Doc.
+ */
+export function updateYDocWithMerge(
+  editor: BlockNoteEditor<any, any, any>,
+  fragment: Y.Node,
+  change: (TextChange | JSONChange) & MergeFromVersion<Uint8Array>,
+): YDocMergedChangeResult {
+  const update = computeYDocOperationsWithMerge(editor, fragment, change);
+  return update.error !== undefined
+    ? update
+    : {
+        ...update,
+        updateV2: applyYDocOperations(editor, fragment, update.operations),
+      };
 }
 
 /**
@@ -134,7 +158,7 @@ function yjsMerge(
     const merged = withoutWritten(
       operationsOfMerge(editor, merge, base, current),
     );
-    writeOperations(editor, fragment, merged.operations);
+    applyYDocOperations(editor, fragment, merged.operations);
     return merged;
   }
   // The write goes to the fragment at `base`, and Yjs merges the temporary
@@ -144,7 +168,7 @@ function yjsMerge(
   if (written.error !== undefined) {
     return written;
   }
-  writeOperations(editor, atBase, written.operations);
+  applyYDocOperations(editor, atBase, written.operations);
   const ydoc = docOf(fragment);
   Y.applyUpdateV2(
     ydoc,

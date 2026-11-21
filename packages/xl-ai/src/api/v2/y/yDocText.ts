@@ -13,6 +13,7 @@ import { EditorState, type Transaction } from "prosemirror-state";
 
 import {
   type ChangeOperations,
+  type ChangeResult,
   changesAfterBase,
   type DocumentChangedError,
   type InvalidDocumentError,
@@ -37,7 +38,17 @@ export function getYDocText(
   return format.serialize(editor, yfragmentToBlocks(editor, fragment));
 }
 
-/** The result of a write to a Y.Doc. With an error, the Y.Doc does not change. */
+/**
+ * The result of `computeYDocOperations`: the operations and the warnings, or
+ * an error (the errors of `ChangeResult`, and `"unknown-base"`).
+ */
+export type YDocOperationsResult = ChangeResult | UnknownBaseError;
+
+/**
+ * The result of a write to a Y.Doc: the result of `computeYDocOperations`,
+ * and the Yjs update of a write that applies. With an error, the Y.Doc does
+ * not change.
+ */
 export type YDocChangeResult =
   | (ChangeOperations & {
       /**
@@ -61,15 +72,15 @@ export type YDocChangeResult =
 export type UnknownBaseError = { error: "unknown-base" };
 
 /**
- * Writes a change (a text, or BlockNote JSON) to the fragment of a Y.Doc of
- * Yjs 14 (`@y/y`). Use it for a writer that is not the user of a bound
- * editor: a server, an agent, an import (see the README, "Which function to
- * use"). The undo of an editor does not revert the write.
+ * Computes the operations that change the document of the fragment of a
+ * Y.Doc to agree with the change: `computeOperations`, for a Y.Doc of Yjs 14
+ * (`@y/y`). Nothing changes: `applyYDocOperations` writes the operations.
+ * `updateYDoc` computes and writes them in one step.
  *
  * The editor gives only the schema and the conversions of the formats: it
  * does not have to be bound to the Y.Doc, and it needs no view. Give it the
  * schema and the extensions of the other clients. If the schema cannot read
- * the fragment, the read throws, and the Y.Doc does not change.
+ * the fragment, the read throws.
  *
  * `base` is the version that the client read: `"current"`, or the Yjs state
  * at that version as a V2 update (`Y.encodeStateAsUpdateV2(ydoc)`, also the
@@ -77,21 +88,16 @@ export type UnknownBaseError = { error: "unknown-base" };
  * must have that version: else the result is the error `"unknown-base"`
  * (see `UnknownBaseError`).
  *
- * The write is strict, as `updateDocument`: if other writers changed the
+ * The write is strict, as `computeOperations`: if other writers changed the
  * document of the fragment after `base`, the result is the error
  * `"document-changed"`. To merge with their changes, use
- * `updateYDocWithMerge`.
- *
- * The write is one Yjs transaction. With an error in the result, or an
- * exception before the transaction, the Y.Doc does not change. Yjs cannot
- * revert a transaction: if Yjs throws in it, a part of the write can stay
- * (see the README, "Pipeline", step 8).
+ * `computeYDocOperationsWithMerge`.
  */
-export function updateYDoc(
+export function computeYDocOperations(
   editor: BlockNoteEditor<any, any, any>,
   fragment: Y.Node,
   change: (TextChange | JSONChange) & WriteFromVersion<Uint8Array>,
-): YDocChangeResult {
+): YDocOperationsResult {
   const ydoc = docOf(fragment);
   requireBase(change.base);
   if (change.base !== "current") {
@@ -104,14 +110,55 @@ export function updateYDoc(
       return { error: "document-changed", changesOfOthers };
     }
   }
-  const current = yfragmentToBlocks(editor, fragment);
-  const result = operationsOf(editor, change, current);
-  if (result.error !== undefined) {
-    return result;
-  }
+  return operationsOf(editor, change, yfragmentToBlocks(editor, fragment));
+}
+
+/**
+ * Computes the operations of a change (see `computeYDocOperations`), and
+ * writes them to the fragment (see `applyYDocOperations`): `updateDocument`,
+ * for a Y.Doc.
+ *
+ * Use it for a writer that is not the user of a bound editor: a server, an
+ * agent, an import (see the README, "Which function to use"). The undo of
+ * an editor does not revert the write.
+ */
+export function updateYDoc(
+  editor: BlockNoteEditor<any, any, any>,
+  fragment: Y.Node,
+  change: (TextChange | JSONChange) & WriteFromVersion<Uint8Array>,
+): YDocChangeResult {
+  const update = computeYDocOperations(editor, fragment, change);
+  return update.error !== undefined
+    ? update
+    : {
+        ...update,
+        updateV2: applyYDocOperations(editor, fragment, update.operations),
+      };
+}
+
+/**
+ * Writes operations to the fragment of a Y.Doc, and returns the Yjs update
+ * of the write, as a V2 update: `applyOperations`, for a Y.Doc.
+ *
+ * The operations must be for the current document of the fragment, as
+ * `computeYDocOperations` gives them. Else the function throws before the
+ * Y.Doc changes (see `applyOperations`).
+ *
+ * The write is one Yjs transaction. Yjs cannot revert a transaction: if Yjs
+ * throws in it, a part of the write can stay (see the README, "Pipeline",
+ * step 8).
+ */
+export function applyYDocOperations(
+  editor: BlockNoteEditor<any, any, any>,
+  fragment: Y.Node,
+  operations: readonly BlockOperation[],
+): Uint8Array {
+  const ydoc = docOf(fragment);
   const before = Y.encodeStateVector(ydoc);
-  writeOperations(editor, fragment, result.operations);
-  return { ...result, updateV2: Y.encodeStateAsUpdateV2(ydoc, before) };
+  applyTransactionToYjsFragment(editor.pmSchema, fragment, (tr) =>
+    applyOperations(tr, operations),
+  );
+  return Y.encodeStateAsUpdateV2(ydoc, before);
 }
 
 /**
@@ -152,22 +199,6 @@ export function hasVersion(ydoc: Y.Doc, version: Y.Doc): boolean {
     [...need.sv].every(
       ([client, clock]) => (have.sv.get(client) ?? 0) >= clock,
     ) && Y.equalIdSets(have.ds, Y.mergeIdSets([have.ds, need.ds]))
-  );
-}
-
-/**
- * Writes the operations of a write to the fragment, with one call of Yjs
- * (one Yjs transaction).
- *
- * @internal
- */
-export function writeOperations(
-  editor: BlockNoteEditor<any, any, any>,
-  fragment: Y.Node,
-  operations: readonly BlockOperation[],
-): void {
-  applyTransactionToYjsFragment(editor.pmSchema, fragment, (tr) =>
-    applyOperations(tr, operations),
   );
 }
 
