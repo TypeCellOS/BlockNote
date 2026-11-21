@@ -5,7 +5,6 @@ import * as Y from "@y/y";
 import {
   type InvalidDocumentError,
   type JSONChange,
-  operationsOf,
   requireBase,
   type TextChange,
 } from "../api.js";
@@ -22,6 +21,7 @@ import {
   fragmentAtBase,
   hasVersion,
   type UnknownBaseError,
+  updateYDoc,
 } from "./yjsApi.js";
 
 // The merge writes for a Y.Doc. For the three writes and how each one
@@ -148,8 +148,17 @@ export function experimental_updateYDocWithYjsMerge(
     }
     return merged;
   }
-  // The write sees only `base`.
-  const written = operationsOf(editor, change, base);
+  // The strict write, to the copy of the Y.Doc at `base`. The copy does not
+  // have the changes of other writers.
+  const written = updateYDoc(editor, atBase, { ...change, base: "current" });
+  if (
+    written.error === "document-changed" ||
+    written.error === "unknown-base"
+  ) {
+    throw new Error(
+      "A write with the base `current` gives only the error `invalid-document`.",
+    );
+  }
   if (written.error !== undefined) {
     return written;
   }
@@ -157,11 +166,9 @@ export function experimental_updateYDocWithYjsMerge(
     base,
     yfragmentToBlocks(editor, fragment),
   );
-  // The write goes to the fragment at `base`, in its temporary Y.Doc. The
-  // Y.Doc gets the Yjs update of that write, and Yjs merges it.
-  const updateV2 = applyYDocOperations(editor, atBase, written.operations);
-  Y.applyUpdateV2(ydoc, updateV2);
-  return { ...written, changesOfOthers, updateV2 };
+  // The Y.Doc gets the Yjs update of that write, and Yjs merges it.
+  Y.applyUpdateV2(ydoc, written.updateV2);
+  return { ...written, changesOfOthers };
 }
 
 /** A merge write to a fragment: the result without `written` (see `YDocMergedChangeResult`). */

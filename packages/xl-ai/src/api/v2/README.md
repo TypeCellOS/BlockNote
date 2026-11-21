@@ -143,7 +143,7 @@ Limits of a Y.Doc with the binding of BlockNote (Yjs 14), also between two edito
 
 ### The merge of Yjs
 
-With `experimental_updateYDocWithYjsMerge`, Yjs merges the write itself. The function is experimental, as its name tells. The operations for `base` apply to a copy of the Y.Doc at `base`. Then Yjs merges the copy into the Y.Doc. The operations of the result are for `base`. There are no conflicts and no rebase warnings, thus the function has no `onConflict`, and its result has no error `conflict`:
+With `experimental_updateYDocWithYjsMerge`, Yjs merges the write itself. The function is the strict write (`updateYDoc` with `base: "current"`) on a copy of the Y.Doc at `base`, and then the merge of Yjs: the Y.Doc gets the Yjs update of that write, as at a sync of two replicas. It is experimental, and a preview of a possible body of `updateYDocWithMerge`, for the time when Yjs can merge a move, a split and a join of blocks. The operations of the result are for `base`. There are no conflicts and no rebase warnings, thus the function has no `onConflict`, and its result has no error `conflict`:
 
 - Yjs keeps the inserts of the two writers. If two writers replace the same word, the result has the characters of each writer. The client IDs select their order.
 - For a prop or a style, one of the two values stays. The client IDs select it. Thus, the result of a conflict is not always the same.
