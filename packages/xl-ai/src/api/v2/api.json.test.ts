@@ -201,7 +201,7 @@ describe("JSON", () => {
     ).toEqual({ error: "invalid-document" });
   });
 
-  it("with a base, gives a new ID to a block with the ID of a block that another writer added", () => {
+  it("with a base, gives the error invalid-document for a block with the ID of a block that another writer added", () => {
     const editor = createEditor(initial);
     const base = copy(editor.document);
     // Another writer adds block d after the client read the document.
@@ -210,25 +210,22 @@ describe("JSON", () => {
       "c",
       "after",
     );
-    // The client adds a block with the same ID, which it did not read.
+    const before = copy(editor.document);
+    // The client adds a block with the same ID, which it did not read. The
+    // merged document would have two blocks with one ID.
     const document = [
       ...copy(base),
       { id: "d", type: "paragraph" as const, content: "Client block" },
     ];
 
-    valid(
+    expect(
       updateDocumentWithMerge(editor, {
         document,
         base,
         onConflict: "keep-current",
       }),
-    );
-
-    expect(editor.getBlock("d")?.content).toMatchObject([{ text: "Delta" }]);
-    const texts = editor.document.map(
-      (block) => (block.content as { text: string }[])[0]?.text,
-    );
-    expect(texts).toEqual(["Alpha", "Beta", "Gamma", "Client block", "Delta"]);
+    ).toEqual({ error: "invalid-document" });
+    expect(editor.document).toEqual(before);
   });
 
   it("keeps a new ID that is not in the document", () => {

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vite-plus/test";
 
 import type { LensBlock } from "../model.js";
 import { createColumnsEditor, createEditor } from "../testUtil/fixtures.js";
-import { parseJSON, replaceDisallowedIds } from "./parseJSON.js";
+import { parseJSON } from "./parseJSON.js";
 
 describe("parseJSON", () => {
   it("gives the blocks in the form that the document stores them", () => {
@@ -60,26 +60,5 @@ describe("parseJSON", () => {
     ]);
 
     expect(result).toEqual({ error: "invalid-document" });
-  });
-});
-
-describe("replaceDisallowedIds", () => {
-  it("gives a new ID to each block with an ID of the set, also in the children", () => {
-    const block = (id: string, children: LensBlock[] = []): LensBlock => ({
-      id,
-      type: "paragraph",
-      props: {},
-      content: [],
-      children,
-    });
-
-    const result = replaceDisallowedIds(
-      [block("a", [block("d")]), block("b")],
-      new Set(["d"]),
-    );
-
-    expect(result[0].id).toBe("a");
-    expect(result[0].children[0].id).not.toBe("d");
-    expect(result[1].id).toBe("b");
   });
 });

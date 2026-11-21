@@ -125,9 +125,9 @@ export type JSONChange = {
    * field gets its default value.
    *
    * A block ID can identify only one block. Thus, a JSON with two blocks with
-   * one ID gives the error `"invalid-document"`. In a merge write, a block
-   * gets a new ID if its ID is not in `base` but is in the current document,
-   * as the ID of a block of another writer.
+   * one ID gives the error `"invalid-document"`. A merge write gives the
+   * same error for a block with an ID that is not in `base` but is in the
+   * current document: it is the ID of a block of another writer.
    */
   document: readonly PartialBlock<any, any, any>[];
   format?: undefined;

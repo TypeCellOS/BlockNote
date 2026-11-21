@@ -1,5 +1,4 @@
 import type { BlockNoteEditor, PartialBlock } from "@blocknote/core";
-import { UniqueID } from "@blocknote/core/extensions";
 
 import type { LensBlock } from "../model.js";
 import { duplicateId } from "../util/blocks/index.js";
@@ -48,25 +47,6 @@ export function parseJSON(
  */
 const MAX_COLSPAN = 1000;
 const MAX_ROWSPAN = 65534;
-
-/**
- * Returns the blocks, where a block with an ID of `disallowedIds` gets a new
- * ID: it is a new block. The JSON write gives the IDs that the client cannot
- * mean: the IDs of the blocks that other writers added after the read of the
- * client.
- */
-export function replaceDisallowedIds(
-  blocks: readonly LensBlock[],
-  disallowedIds: ReadonlySet<string>,
-): LensBlock[] {
-  function fix(block: LensBlock): LensBlock {
-    const id = disallowedIds.has(block.id)
-      ? UniqueID.options.generateID()
-      : block.id;
-    return { ...block, id, children: block.children.map(fix) };
-  }
-  return blocks.map(fix);
-}
 
 /** Returns true if each table cell of the block and of its children has spans in the limits. */
 function spansFit(block: PartialBlock<any, any, any>): boolean {

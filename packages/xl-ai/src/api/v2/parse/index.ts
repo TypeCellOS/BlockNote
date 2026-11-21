@@ -4,5 +4,5 @@
  * The API of this folder for the other folders: they import only this
  * file. The other files export more only for their unit tests.
  */
-export { parseJSON, replaceDisallowedIds } from "./parseJSON.js";
+export { parseJSON } from "./parseJSON.js";
 export { parseText, withoutByteOrderMark } from "./parseText.js";

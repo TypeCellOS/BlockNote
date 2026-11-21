@@ -8,7 +8,6 @@ import {
   type JSONChange,
   jsonTarget,
   requireBase,
-  type TargetOrError,
   type TextChange,
   textTarget,
   updateFromTarget,
@@ -17,7 +16,6 @@ import { fitResult, type FitWarning } from "./fit/index.js";
 import { mergeDocument, type MergeWarning } from "./merge/index.js";
 import type { LensBlock } from "./model.js";
 import type { BlockOperation } from "./operations/index.js";
-import { replaceDisallowedIds } from "./parse/index.js";
 import type { TargetWarning } from "./target/index.js";
 import {
   assertBlockIds,
@@ -201,9 +199,21 @@ export function mergeOf(
 ): DocumentMerge | InvalidDocumentError {
   assertBlockIds(current, "current document");
   assertBlockIds(base, "base");
-  const target = mergeTargetOf(editor, change, base, current);
+  const target =
+    change.document === undefined
+      ? textTarget(editor, change.format, base, change.text)
+      : jsonTarget(editor, change.document);
   if (target.error !== undefined) {
     return target;
+  }
+  // A block of the client with the ID of a block that another writer added
+  // after `base` gives two blocks with one ID. Only a JSON change can have
+  // such a block. As in `parseJSON`, the lens does not repair it.
+  const read = new BlockIndex(base);
+  const now = new BlockIndex(current);
+  const ids = new BlockIndex(target.target).ids;
+  if (ids.some((id) => now.has(id) && !read.has(id))) {
+    return { error: "invalid-document" };
   }
   // 4. Merge.
   const merged = mergeDocument({
@@ -242,34 +252,5 @@ export function operationsOfMerge(
     // The client wrote the target: it gets the fit for the version that the
     // client read.
     written: fitResult(rules, merge.target, base, false),
-  };
-}
-
-/**
- * The target of a merge: the change for the version `base`. In a JSON
- * change, a block with the ID of a block that another writer added after
- * the read of the client (the ID is in `current` but not in `base`) is a new
- * block: the client cannot mean that block (see `replaceDisallowedIds`).
- */
-function mergeTargetOf(
-  editor: BlockNoteEditor<any, any, any>,
-  change: TextChange | JSONChange,
-  base: readonly LensBlock[],
-  current: readonly LensBlock[],
-): TargetOrError {
-  if (change.document === undefined) {
-    return textTarget(editor, change.format, base, change.text);
-  }
-  const target = jsonTarget(editor, change.document);
-  if (target.error !== undefined) {
-    return target;
-  }
-  const read = new Set(new BlockIndex(base).ids);
-  const idsOfOthers = new Set(
-    new BlockIndex(current).ids.filter((id) => !read.has(id)),
-  );
-  return {
-    target: replaceDisallowedIds(target.target, idsOfOthers),
-    warnings: target.warnings,
   };
 }

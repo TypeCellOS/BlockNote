@@ -173,7 +173,7 @@ const result = updateDocument(editor, {
 });
 ```
 
-A block without an ID is a new block. An ID can identify only one block. Thus, a document with two blocks with one ID gives the error `invalid-document`. In a merge (`updateDocumentWithMerge`), a block also gets a new ID if another user added a block with that ID after the client read the document.
+A block without an ID is a new block. An ID can identify only one block. Thus, a document with two blocks with one ID gives the error `invalid-document`. A merge (`updateDocumentWithMerge`) gives the same error if a block of the client has the ID of a block that another user added after the client read the document.
 
 If the JSON does not fit the schema of the editor, the result is `{ error: "invalid-document" }`, as for a text. Examples are an unknown block type or style, and a prop value that the block type does not have.
 
