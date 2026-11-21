@@ -12,20 +12,12 @@ export const ReactFileBlock = createReactBlockSpec(createFileBlockConfig, {
       return <p>Add file</p>;
     }
 
-    const link = (
-      <a href={props.block.props.url}>
-        {props.block.props.name || props.block.props.url}
-      </a>
+    return (
+      <LinkWithCaption caption={props.block.props.caption}>
+        <a href={props.block.props.url}>
+          {props.block.props.name || props.block.props.url}
+        </a>
+      </LinkWithCaption>
     );
-
-    if (props.block.props.caption) {
-      return (
-        <LinkWithCaption caption={props.block.props.caption}>
-          {link}
-        </LinkWithCaption>
-      );
-    }
-
-    return link;
   },
 });
