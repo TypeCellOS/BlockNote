@@ -400,8 +400,8 @@ describe("a strict write from a version", () => {
     expect(result).toEqual({
       error: "document-changed",
       changesOfOthers: expect.arrayContaining([
-        { id: "b", change: "changed" },
-        { id: "c", change: "removed" },
+        { id: "b", change: "update" },
+        { id: "c", change: "delete" },
       ]),
     });
     expect(result).toHaveProperty("changesOfOthers.length", 2);
@@ -421,7 +421,7 @@ describe("a strict write from a version", () => {
       }),
     ).toEqual({
       error: "document-changed",
-      changesOfOthers: [{ id: "b", change: "changed" }],
+      changesOfOthers: [{ id: "b", change: "update" }],
     });
   });
 
@@ -491,7 +491,7 @@ describe("a strict write from a version", () => {
       }),
     ).toEqual({
       error: "document-changed",
-      changesOfOthers: [{ id: "c", change: "removed" }],
+      changesOfOthers: [{ id: "c", change: "delete" }],
     });
   });
 
@@ -615,7 +615,7 @@ describe("a strict write from a version", () => {
       }),
     ).toEqual({
       error: "document-changed",
-      changesOfOthers: [{ id: "d", change: "added" }],
+      changesOfOthers: [{ id: "d", change: "insert" }],
     });
   });
 
@@ -675,7 +675,7 @@ describe("a strict write from a version", () => {
 
     expect(result).toMatchObject({
       error: "document-changed",
-      changesOfOthers: [{ change: "added" }],
+      changesOfOthers: [{ change: "insert" }],
     });
     expect(readText(fragment, markdownFormat).trim()).toBe("Other");
   });
@@ -1751,8 +1751,8 @@ describe.each(merges)(
       expect(changesOfOthers).toHaveLength(2);
       expect(changesOfOthers).toEqual(
         expect.arrayContaining([
-          { id: "b", change: "changed" },
-          { id: "c", change: "removed" },
+          { id: "b", change: "update" },
+          { id: "c", change: "delete" },
         ]),
       );
     });

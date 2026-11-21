@@ -75,7 +75,7 @@ const changesOfOtherWriters: {
   {
     name: "changed the text of a block",
     change: (editor) => editor.updateBlock("b", { content: "Beta, changed" }),
-    changesOfOthers: [{ id: "b", change: "changed" }],
+    changesOfOthers: [{ id: "b", change: "update" }],
   },
   {
     // Markdown does not show the text color: the text of the document is
@@ -83,7 +83,7 @@ const changesOfOtherWriters: {
     name: "changed only a prop that the format does not show",
     change: (editor) =>
       editor.updateBlock("b", { props: { textColor: "red" } }),
-    changesOfOthers: [{ id: "b", change: "changed" }],
+    changesOfOthers: [{ id: "b", change: "update" }],
   },
   {
     name: "moved a block",
@@ -92,7 +92,7 @@ const changesOfOtherWriters: {
       editor.removeBlocks(["c"]);
       editor.insertBlocks([c], "a", "before");
     },
-    changesOfOthers: [{ id: "c", change: "moved" }],
+    changesOfOthers: [{ id: "c", change: "move" }],
   },
   {
     name: "added a block",
@@ -102,12 +102,12 @@ const changesOfOtherWriters: {
         "b",
         "after",
       ),
-    changesOfOthers: [{ id: "x", change: "added" }],
+    changesOfOthers: [{ id: "x", change: "insert" }],
   },
   {
     name: "removed a block",
     change: (editor) => editor.removeBlocks(["c"]),
-    changesOfOthers: [{ id: "c", change: "removed" }],
+    changesOfOthers: [{ id: "c", change: "delete" }],
   },
 ];
 
@@ -138,7 +138,7 @@ describe("a strict write of a text from a version", () => {
 
     expect(computeOperations(editor, { format, ...client })).toEqual({
       error: "document-changed",
-      changesOfOthers: [{ id: "b", change: "changed" }],
+      changesOfOthers: [{ id: "b", change: "update" }],
     });
   });
 
@@ -158,9 +158,9 @@ describe("a strict write of a text from a version", () => {
     expect(result).toEqual({
       error: "document-changed",
       changesOfOthers: expect.arrayContaining([
-        { id: "b", change: "changed" },
-        { id: "x", change: "added" },
-        { id: "c", change: "removed" },
+        { id: "b", change: "update" },
+        { id: "x", change: "insert" },
+        { id: "c", change: "delete" },
       ]),
     });
     expect(result).toHaveProperty("changesOfOthers.length", 3);
@@ -337,7 +337,7 @@ describe("a strict write of JSON from a version", () => {
       computeOperations(editor, { document: [{ type: "unknown" }], base }),
     ).toEqual({
       error: "document-changed",
-      changesOfOthers: [{ id: "b", change: "changed" }],
+      changesOfOthers: [{ id: "b", change: "update" }],
     });
     // Without a change of another writer, the JSON gives its own error.
     expect(

@@ -96,7 +96,7 @@ if (result.error === "document-changed") {
 }
 ```
 
-This write is strict, and it is the recommended way to write from an older version. If other users changed the document after `base`, the result is the error `document-changed`, and the document does not change. The error lists the blocks that the other users changed in `changesOfOthers` (`{ id, change: "added" | "changed" | "moved" | "removed" }`). Then read the document again, make the change in the new text, and write again. For an AI agent, send the current text together with the error, so that the agent can make its change again.
+This write is strict, and it is the recommended way to write from an older version. If other users changed the document after `base`, the result is the error `document-changed`, and the document does not change. The error lists the blocks that the other users changed in `changesOfOthers` (`{ id, change: "insert" | "update" | "move" | "delete" }`, with the type of the operation). Then read the document again, make the change in the new text, and write again. For an AI agent, send the current text together with the error, so that the agent can make its change again.
 
 The write compares the full documents, also the data that the format does not show (for example a color in markdown). Thus, `base` must be the full document (BlockNote JSON) of that version, as `editor.document` gives it. You can keep it as JSON in a database. A version history keeps full documents anyway, because only a full document shows props and nesting.
 

@@ -49,13 +49,11 @@ export type ChangeOperations = {
 };
 
 /**
- * A block that other writers changed after `base`. A new or a removed block
+ * A block that other writers changed after `base`, with the type of the
+ * operation that changed it (see `BlockOperation`). A new or a removed block
  * with blocks in it is one item.
  */
-export type ChangeOfOthers = {
-  id: string;
-  change: "added" | "changed" | "moved" | "removed";
-};
+export type ChangeOfOthers = { id: string; change: BlockOperation["type"] };
 
 /**
  * The text or the JSON gives blocks that do not fit the schema of the editor
@@ -372,18 +370,10 @@ export function changesOfOthersOf(
   base: readonly LensBlock[],
   current: readonly LensBlock[],
 ): ChangeOfOthers[] {
-  return diffDocuments(base, current).map((operation): ChangeOfOthers => {
-    switch (operation.type) {
-      case "insert":
-        return { id: operation.block.id, change: "added" };
-      case "update":
-        return { id: operation.id, change: "changed" };
-      case "move":
-        return { id: operation.id, change: "moved" };
-      case "delete":
-        return { id: operation.id, change: "removed" };
-    }
-  });
+  return diffDocuments(base, current).map((operation) => ({
+    id: operation.type === "insert" ? operation.block.id : operation.id,
+    change: operation.type,
+  }));
 }
 
 /**
