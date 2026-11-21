@@ -1593,6 +1593,138 @@ describe("a base with an update that the Y.Doc does not have yet", () => {
       );
     },
   );
+
+  /**
+   * A Y.Doc of a server, and the text and the base of a client that reads
+   * from a replica. The replica has a block ("Gamma") that the server does
+   * not have yet. `stored` gets only the updates of the write results, as a
+   * store without a provider does.
+   */
+  function serverAndReplica() {
+    const server = blocksToYDoc(BlockNoteEditor.create(), [
+      { id: "a", type: "paragraph", content: "Alpha" },
+      { id: "b", type: "paragraph", content: "Beta" },
+    ]);
+    const stored = new Y.Doc();
+    Y.applyUpdateV2(stored, Y.encodeStateAsUpdateV2(server));
+    const replica = new Y.Doc();
+    Y.applyUpdateV2(replica, Y.encodeStateAsUpdateV2(server));
+    bindEditor(replica.get("prosemirror")).insertBlocks(
+      [{ type: "paragraph", content: "Gamma" }],
+      "b",
+      "after",
+    );
+    return {
+      server,
+      stored,
+      fragment: server.get("prosemirror"),
+      text: readText(replica.get("prosemirror"), markdownFormat),
+      base: Y.encodeStateAsUpdateV2(replica),
+    };
+  }
+
+  it("does not change the Y.Doc if the strict write fails", () => {
+    const { server, fragment, text, base } = serverAndReplica();
+    // Another writer changes the server after the replica got its copy.
+    valid(
+      updateYDoc(reader, fragment, {
+        base: "current",
+        format: markdownFormat,
+        text: "Alpha, changed\n\nBeta\n",
+      }),
+    );
+    const before = Y.encodeStateAsUpdateV2(server);
+
+    const result = updateYDoc(reader, fragment, {
+      format: markdownFormat,
+      text: replaceOnce(text, "Gamma", "Gamma edited"),
+      base,
+    });
+
+    expect(result.error).toBe("document-changed");
+    expect(Y.encodeStateAsUpdateV2(server)).toEqual(before);
+  });
+
+  it("does not change the Y.Doc if the merge write has a conflict, with onConflict reject", () => {
+    const { server, fragment, text, base } = serverAndReplica();
+    valid(
+      updateYDoc(reader, fragment, {
+        base: "current",
+        format: markdownFormat,
+        text: "Alpha\n\nBravo\n",
+      }),
+    );
+    const before = Y.encodeStateAsUpdateV2(server);
+
+    const result = updateYDocWithMerge(reader, fragment, {
+      format: markdownFormat,
+      text: replaceOnce(text, "Beta", "Omega"),
+      base,
+      onConflict: "reject",
+    });
+
+    expect(result.error).toBe("conflict");
+    expect(Y.encodeStateAsUpdateV2(server)).toEqual(before);
+  });
+
+  it.each(["strict", ...merges] as const)(
+    "does not change the Y.Doc if the document of the client is not valid (%s)",
+    (write) => {
+      const { server, fragment, base } = serverAndReplica();
+      const before = Y.encodeStateAsUpdateV2(server);
+      const change = {
+        document: [{ id: "a", type: "not-a-block-type" }] as any,
+        base,
+      };
+
+      const result =
+        write === "strict"
+          ? updateYDoc(reader, fragment, change)
+          : write === "yjs"
+            ? experimental_updateYDocWithYjsMerge(reader, fragment, change)
+            : updateYDocWithMerge(reader, fragment, {
+                ...change,
+                onConflict: "keep-current",
+              });
+
+      expect(result.error).toBe("invalid-document");
+      expect(Y.encodeStateAsUpdateV2(server)).toEqual(before);
+    },
+  );
+
+  it("gives a complete copy of the Y.Doc from the updates of the results, also after a write that fails", () => {
+    const { server, stored, fragment, text, base } = serverAndReplica();
+    const other = valid(
+      updateYDoc(reader, fragment, {
+        base: "current",
+        format: markdownFormat,
+        text: "Alpha, changed\n\nBeta\n",
+      }),
+    );
+    Y.applyUpdateV2(stored, other.updateV2);
+    const change = {
+      format: markdownFormat,
+      text: replaceOnce(text, "Gamma", "Gamma edited"),
+      base,
+    };
+    // The strict write fails: its result has no update.
+    expect(updateYDoc(reader, fragment, change).error).toBe("document-changed");
+
+    // The client writes again, with a merge. The update of this result has
+    // the updates of `base` that the Y.Doc did not have, and the write.
+    const merged = valid(mergeWrite(reader, fragment, change));
+    Y.applyUpdateV2(stored, merged.updateV2);
+
+    expect(readText(fragment, markdownFormat)).toBe(
+      "Alpha, changed\n\nBeta\n\nGamma edited\n",
+    );
+    expect(readText(stored.get("prosemirror"), markdownFormat)).toBe(
+      readText(fragment, markdownFormat),
+    );
+    expect(Y.encodeStateAsUpdateV2(stored)).toEqual(
+      Y.encodeStateAsUpdateV2(server),
+    );
+  });
 });
 
 describe.each(merges)(
