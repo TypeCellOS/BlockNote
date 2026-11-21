@@ -194,6 +194,6 @@ export function mergedOperationsOf(
     changesOfOthers: diffDocuments(base, current),
     // The client wrote the target: it gets the fit for the version that the
     // client read.
-    written: fitResult(rules, target.target, base, false),
+    written: fitResult(rules, target.target, base),
   };
 }

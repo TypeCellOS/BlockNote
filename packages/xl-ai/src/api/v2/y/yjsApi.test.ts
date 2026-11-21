@@ -1285,46 +1285,85 @@ describe("Y.Doc writes after a move of a nested block", () => {
 });
 
 describe.each(merges)("concurrent writes with columns (merge %s)", (merge) => {
-  it("keeps a block that another writer added to a column, when the text empties the other column", () => {
-    const schema = columnSchema;
+  /**
+   * A test that fails with the Yjs merge: the write removes the column that
+   * it empties, and a removal in a Y.Doc removes the changes of other writers
+   * in the removed block.
+   */
+  const itEmptyColumn = merge === "yjs" ? it.fails : it;
+  /**
+   * A test that fails with the Yjs merge: two writers each remove a
+   * different column of one column list, and Yjs keeps the two removals.
+   * Yjs does not know the schema: a column list needs two columns.
+   */
+  const itLastColumn = merge === "yjs" ? it.fails : it;
+
+  const schema = columnSchema;
+  const editor = BlockNoteEditor.create({ schema });
+  const format = markdownFormat;
+
+  /**
+   * A Y.Doc with a column list (one column for each text, with one
+   * paragraph) and the paragraph "End". A client reads its text and its
+   * Yjs state (`base`).
+   */
+  function columnsOf(texts: string[]) {
     const ydoc = blocksToYDoc(
-      BlockNoteEditor.create({ schema }),
+      editor,
       BlockNoteEditor.create({
         schema,
         initialContent: [
           {
             id: "list",
             type: "columnList",
-            children: [
-              {
-                id: "cA",
-                type: "column",
-                children: [{ id: "a", type: "paragraph", content: "Alpha" }],
-              },
-              {
-                id: "cB",
-                type: "column",
-                children: [{ id: "b", type: "paragraph", content: "Bravo" }],
-              },
-            ],
+            children: texts.map((text) => ({
+              id: `column-${text}`,
+              type: "column",
+              children: [{ id: text, type: "paragraph", content: text }],
+            })),
           },
           { id: "end", type: "paragraph", content: "End" },
         ] as PartialBlock<any, any, any>[],
       }).document,
     );
     const fragment = ydoc.get("prosemirror");
-    const editor = BlockNoteEditor.create({ schema });
-    const format = markdownFormat;
-    const text = getYDocText(editor, fragment, format);
-    const base = Y.encodeStateAsUpdateV2(ydoc);
-    // Another writer adds a block between Alpha and Bravo. Markdown does not
-    // show the columns, thus the block goes into column B, before Bravo (a
-    // new block goes into the nesting of the next block).
+    return {
+      ydoc,
+      fragment,
+      text: getYDocText(editor, fragment, format),
+      base: Y.encodeStateAsUpdateV2(ydoc),
+    };
+  }
+
+  /**
+   * Another writer adds a block between Alpha and Bravo. Markdown does not
+   * show the columns, thus the block goes into the column of Bravo, before
+   * Bravo (a new block goes into the nesting of the next block).
+   */
+  function addBlockToColumnOfBravo(text: string) {
+    return text.replace("Alpha", "Alpha\n\nAdded by other");
+  }
+
+  /** A writer removes a paragraph. Its column becomes empty, thus the column goes. */
+  function removeParagraph(text: string, paragraph: string) {
+    return text.replace(`${paragraph}\n\n`, "");
+  }
+
+  /**
+   * Another writer changes the document (`other`). Then a client that did
+   * not read that change removes "Bravo": for the client, the column of
+   * "Bravo" becomes empty.
+   */
+  function emptyColumnOfBravo(
+    texts: string[],
+    other: (text: string) => string,
+  ) {
+    const { ydoc, fragment, text, base } = columnsOf(texts);
     valid(
       updateYDoc(editor, fragment, {
         base: "current",
         format,
-        text: text.replace("Alpha", "Alpha\n\nAdded by other"),
+        text: other(text),
       }),
     );
 
@@ -1332,24 +1371,159 @@ describe.each(merges)("concurrent writes with columns (merge %s)", (merge) => {
       mergeWrite(
         editor,
         fragment,
-        { format, text: text.replace("Bravo\n\n", ""), base },
+        { format, text: removeParagraph(text, "Bravo"), base },
         merge,
       ),
     );
+    return { ydoc, fragment };
+  }
 
-    // With the Yjs merge, column B stays (`keepLayout`). The write empties
-    // it, thus it gets the fill of the schema: an empty paragraph, which
-    // markdown shows as `<br>`. The fill and the block of the other writer
-    // are two inserts at one position, and the client IDs select their order.
-    expect(readText(fragment, format, { schema })).toBeOneOf(
-      merge === "lens"
-        ? ["Alpha\n\nAdded by other\n\nEnd\n"]
-        : [
-            "Alpha\n\n<br>\n\nAdded by other\n\nEnd\n",
-            "Alpha\n\nAdded by other\n\n<br>\n\nEnd\n",
-          ],
-    );
-  });
+  /**
+   * The content of the Y.Doc fits the schema: an editor that binds to the
+   * fragment repairs nothing, thus it does not change the Y.Doc.
+   */
+  function expectNoRepair(ydoc: Y.Doc, fragment: Y.Node) {
+    const before = Y.encodeStateAsUpdateV2(ydoc);
+    const user = bindEditor(fragment, { schema });
+    expect(user.document).toEqual(yDocToBlocks(editor, ydoc));
+    expect(Y.encodeStateAsUpdateV2(ydoc)).toEqual(before);
+  }
+
+  /**
+   * The number of columns of each column list at the top level of the
+   * Y.Doc. The function reads the Y.Doc as it is: a reader with the schema
+   * does not show a column list with one column.
+   */
+  function columnCounts(fragment: Y.Node): number[] {
+    const rootGroup: unknown = fragment.get(0);
+    if (!(rootGroup instanceof Y.Node)) {
+      throw new Error("The fragment has no root block group.");
+    }
+    const counts: number[] = [];
+    for (let index = 0; index < rootGroup.length; index++) {
+      const node: unknown = rootGroup.get(index);
+      if (node instanceof Y.Node && node.name === "columnList") {
+        counts.push(node.length);
+      }
+    }
+    return counts;
+  }
+
+  /**
+   * The Y.Doc has a column list with one column, which does not fit the
+   * schema. A read does not show the column list. An editor that binds to
+   * the fragment removes it from the Y.Doc, with the paragraph "Alpha".
+   */
+  function expectOneColumnThatAnEditorRemoves(fragment: Y.Node) {
+    expect(columnCounts(fragment)).toEqual([1]);
+    expect(readText(fragment, format, { schema })).toBe("End\n");
+    unbindEditor(bindEditor(fragment, { schema }));
+    expect(columnCounts(fragment)).toEqual([]);
+    expect(readText(fragment, format, { schema })).toBe("End\n");
+  }
+
+  itEmptyColumn(
+    "keeps a block that another writer added to a column, when the text empties that column",
+    () => {
+      const { fragment } = emptyColumnOfBravo(
+        ["Alpha", "Bravo"],
+        addBlockToColumnOfBravo,
+      );
+
+      expect(readText(fragment, format, { schema })).toBe(
+        "Alpha\n\nAdded by other\n\nEnd\n",
+      );
+    },
+  );
+
+  itLastColumn(
+    "keeps the blocks of the last column, when the text empties a column and another writer removes a different column",
+    () => {
+      const { ydoc, fragment } = emptyColumnOfBravo(
+        ["Alpha", "Bravo", "Charlie"],
+        (text) => removeParagraph(text, "Charlie"),
+      );
+
+      // A column list with one column becomes the blocks of that column.
+      expect(readText(fragment, format, { schema })).toBe("Alpha\n\nEnd\n");
+      expectNoRepair(ydoc, fragment);
+    },
+  );
+
+  // The limits of the Yjs merge, as they are now.
+  if (merge === "yjs") {
+    // The document fits the schema, and the block of the other writer is
+    // lost.
+    it("removes the column that the text empties, with the block that another writer added to it", () => {
+      const { ydoc, fragment } = emptyColumnOfBravo(
+        ["Alpha", "Bravo", "Charlie"],
+        addBlockToColumnOfBravo,
+      );
+
+      expect(documentShape(yDocToBlocks(editor, ydoc))).toEqual([
+        "list",
+        ["column-Alpha", ["Alpha"], "column-Charlie", ["Charlie"]],
+        "end",
+      ]);
+      expectNoRepair(ydoc, fragment);
+    });
+
+    it("removes a column list that keeps one column, with the block that another writer added to the empty column", () => {
+      const { ydoc, fragment } = emptyColumnOfBravo(
+        ["Alpha", "Bravo"],
+        addBlockToColumnOfBravo,
+      );
+
+      // The fit of the write for `base`: a column list with one column
+      // becomes the blocks of that column.
+      expect(documentShape(yDocToBlocks(editor, ydoc))).toEqual([
+        "Alpha",
+        "end",
+      ]);
+      expectNoRepair(ydoc, fragment);
+    });
+
+    // The document does not fit the schema, and a block that no writer
+    // changed is lost.
+    it("gives a column list with one column, which an editor removes, when the text empties a column and another writer removes a different column", () => {
+      const { fragment } = emptyColumnOfBravo(
+        ["Alpha", "Bravo", "Charlie"],
+        (text) => removeParagraph(text, "Charlie"),
+      );
+
+      expectOneColumnThatAnEditorRemoves(fragment);
+    });
+
+    // The same document without `experimental_updateYDocWithYjsMerge`: the
+    // limit is in the merge of Yjs, which each writer to a Y.Doc gets.
+    it("gives the same column list with one column for a strict write to a Y.Doc that is out of date, after the sync", () => {
+      const { ydoc, fragment, text, base } = columnsOf([
+        "Alpha",
+        "Bravo",
+        "Charlie",
+      ]);
+      const replica = new Y.Doc();
+      Y.applyUpdateV2(replica, base);
+      valid(
+        updateYDoc(editor, replica.get("prosemirror"), {
+          base: "current",
+          format,
+          text: removeParagraph(text, "Charlie"),
+        }),
+      );
+
+      valid(
+        updateYDoc(editor, fragment, {
+          base: "current",
+          format,
+          text: removeParagraph(text, "Bravo"),
+        }),
+      );
+      Y.applyUpdateV2(ydoc, Y.encodeStateAsUpdateV2(replica));
+
+      expectOneColumnThatAnEditorRemoves(fragment);
+    });
+  }
 });
 
 describe("changes of other writers in a list with more than one structural change", () => {

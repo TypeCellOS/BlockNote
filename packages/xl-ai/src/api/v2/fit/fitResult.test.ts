@@ -34,12 +34,6 @@ describe("fitResult", () => {
   it("fits the layout blocks to their child rules", () => {
     // The empty column goes, and a column list with one column becomes the
     // blocks of that column.
-    expect(fitResult(rules, result, [], false).map(({ id }) => id)).toEqual([
-      "a",
-    ]);
-  });
-
-  it("keeps the layout blocks with `keepLayout`", () => {
-    expect(fitResult(rules, result, [], true)).toEqual(result);
+    expect(fitResult(rules, result, []).map(({ id }) => id)).toEqual(["a"]);
   });
 });

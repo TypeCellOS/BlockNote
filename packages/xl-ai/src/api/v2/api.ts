@@ -227,7 +227,7 @@ export function updateDocument(
 /**
  * The operations of a change for the document `current`, without a merge
  * (the stages 1 to 3, 5 and 6). The Y.Doc writes (`y/yjsApi.ts`) also
- * use it, with `keepLayout` (see `fitResult`).
+ * use it.
  *
  * @internal
  */
@@ -235,7 +235,6 @@ export function operationsOf(
   editor: BlockNoteEditor<any, any, any>,
   change: TextChange | JSONChange,
   current: readonly LensBlock[],
-  keepLayout = false,
 ): ChangeOperations | InvalidDocumentError {
   assertBlockIds(current, "current document");
   const target =
@@ -249,7 +248,6 @@ export function operationsOf(
     schemaRulesOf(editor.schema.blockSchema),
     target.target,
     current,
-    keepLayout,
   );
   return {
     operations: update.operations,
@@ -316,10 +314,9 @@ export function updateFromTarget(
   rules: SchemaRules,
   target: readonly LensBlock[],
   current: readonly LensBlock[],
-  keepLayout = false,
 ): { operations: BlockOperation[]; warnings: FitWarning[] } {
   // 5. Fit.
-  const fit = fitResult(rules, target, current, keepLayout);
+  const fit = fitResult(rules, target, current);
   // 6. Diff. A block that changes between a layout block and a block with
   // content gets a new ID: the diff removes it and inserts the new block.
   const result = newIdsForLayoutChanges(

@@ -112,9 +112,8 @@ export function updateYDocWithMerge(
  *
  * The function is `updateYDoc` with `base: "current"` on a copy of the
  * Y.Doc at `base`: the Y.Doc then gets the Yjs update of that write, as at
- * a sync of two replicas. Two things are different: the layout blocks stay
- * (see the README), and a base without content uses the merge of
- * `updateYDocWithMerge`.
+ * a sync of two replicas. One thing is different: a base without content
+ * uses the merge of `updateYDocWithMerge`.
  *
  * It is experimental, and a preview: when the Yjs model of a document can
  * merge a move, a split and a join of blocks, it can become the body of
@@ -149,8 +148,8 @@ export function experimental_updateYDocWithYjsMerge(
     }
     return merged;
   }
-  // The write sees only `base`, and the layout blocks stay (`keepLayout`).
-  const written = operationsOf(editor, change, base, true);
+  // The write sees only `base`.
+  const written = operationsOf(editor, change, base);
   if (written.error !== undefined) {
     return written;
   }
