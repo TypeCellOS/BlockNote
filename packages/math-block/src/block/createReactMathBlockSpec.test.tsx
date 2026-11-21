@@ -402,3 +402,60 @@ describe("Math block source popup keyboard handling", () => {
     });
   });
 });
+
+// A formula that does not compile is a state that a user makes with each
+// keystroke. KaTeX has no MathML for a formula such as `\frac{1}{`.
+describe("Math block external HTML of a formula that does not compile", () => {
+  let editor: BlockNoteEditor<any, any, any>;
+
+  beforeEach(() => {
+    editor = BlockNoteEditor.create({ schema });
+  });
+
+  afterEach(() => {
+    editor._tiptapEditor.destroy();
+  });
+
+  /** A math block with `source` between two paragraphs. */
+  function documentWith(source: string) {
+    return [
+      { type: "paragraph", content: "Before" },
+      { type: "mathBlock", content: source },
+      { type: "paragraph", content: "After" },
+    ];
+  }
+
+  /** The `math` elements in the HTML. */
+  function mathElements(html: string) {
+    const dom = document.createElement("div");
+    dom.innerHTML = html;
+    return Array.from(dom.querySelectorAll("math"));
+  }
+
+  it.each([String.raw`\frac{1}{`, String.raw`\frac{<b>&amp;}{`])(
+    "shows the source as text, and parses back to the same block: %s",
+    (source) => {
+      const html = editor.blocksToHTMLLossy(documentWith(source));
+
+      const [math, ...others] = mathElements(html);
+      expect(others).toEqual([]);
+      expect(math.getAttribute("display")).toBe("block");
+      // The source is text: it makes no elements of its own.
+      expect(math.querySelector("merror")?.textContent).toBe(source);
+      expect(math.querySelector("b")).toBeNull();
+      expect(editor.tryParseHTMLToBlocks(html)).toMatchObject([
+        { type: "paragraph", content: [{ text: "Before" }] },
+        { type: "mathBlock", content: [{ text: source }] },
+        { type: "paragraph", content: [{ text: "After" }] },
+      ]);
+    },
+  );
+
+  it("keeps the formula in the Markdown export", () => {
+    const source = String.raw`\frac{1}{`;
+
+    expect(editor.blocksToMarkdownLossy(documentWith(source))).toBe(
+      `Before\n\n$$\n${source}\n$$\n\nAfter\n`,
+    );
+  });
+});

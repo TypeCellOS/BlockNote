@@ -340,3 +340,48 @@ describe.skip("Inline math source popup", () => {
     });
   });
 });
+
+// A formula that does not compile is a state that a user makes with each
+// keystroke. KaTeX has no MathML for a formula such as `\frac{1}{`.
+describe("Inline math external HTML of a formula that does not compile", () => {
+  let editor: BlockNoteEditor<any, any, any>;
+  const source = String.raw`\frac{1}{`;
+  const blocks = [
+    {
+      type: "paragraph",
+      content: ["See ", { type: "math", content: source }, " here"],
+    },
+  ];
+
+  beforeEach(() => {
+    editor = BlockNoteEditor.create({ schema });
+  });
+
+  afterEach(() => {
+    editor._tiptapEditor.destroy();
+  });
+
+  it("shows the source as text, and parses back to the same inline content", () => {
+    const html = editor.blocksToHTMLLossy(blocks);
+
+    const dom = document.createElement("div");
+    dom.innerHTML = html;
+    const math = dom.querySelector("math");
+    expect(math?.getAttribute("display")).toBe("inline");
+    expect(math?.querySelector("merror")?.textContent).toBe(source);
+    expect(editor.tryParseHTMLToBlocks(html)).toMatchObject([
+      {
+        type: "paragraph",
+        content: [
+          { type: "text", text: "See " },
+          { type: "math", content: source },
+          { type: "text", text: " here" },
+        ],
+      },
+    ]);
+  });
+
+  it("keeps the formula in the Markdown export", () => {
+    expect(editor.blocksToMarkdownLossy(blocks)).toBe(`See $${source}$ here\n`);
+  });
+});
