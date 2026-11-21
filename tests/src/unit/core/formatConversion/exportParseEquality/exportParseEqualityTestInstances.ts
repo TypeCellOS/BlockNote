@@ -238,6 +238,60 @@ export const exportParseEqualityTestInstancesHTML: TestInstance<
     },
     executeTest: testExportParseEqualityHTML,
   },
+  // The children of a toggle keep their order, also if some children are
+  // list items and some are not.
+  {
+    testCase: {
+      name: "lists/toggleListItemWithMixedChildren",
+      content: [
+        {
+          type: "toggleListItem",
+          content: "Toggle List Item",
+          children: [
+            {
+              type: "numberedListItem",
+              content: "Numbered child",
+            },
+            {
+              type: "paragraph",
+              content: "Paragraph child",
+            },
+            {
+              type: "bulletListItem",
+              content: "Bullet child",
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportParseEqualityHTML,
+  },
+  // A check list item as the first child is now inside the toggle in the
+  // HTML. The toggle stays a toggle (the parse rule of the check list item
+  // uses only its own checkbox).
+  {
+    testCase: {
+      name: "lists/toggleListItemWithCheckListFirstChild",
+      content: [
+        {
+          type: "toggleListItem",
+          content: "Toggle List Item",
+          children: [
+            {
+              type: "checkListItem",
+              props: { checked: true },
+              content: "Check child",
+            },
+            {
+              type: "paragraph",
+              content: "Paragraph child",
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportParseEqualityHTML,
+  },
   {
     testCase: {
       name: "lists/toggleHeading",
