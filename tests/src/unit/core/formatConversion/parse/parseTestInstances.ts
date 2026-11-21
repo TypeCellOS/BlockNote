@@ -984,6 +984,23 @@ console.log("Third Line")</code></pre>`,
     },
     executeTest: testParseHTML,
   },
+  // The checkbox belongs to the child. The toggle stays a toggle list item.
+  {
+    testCase: {
+      name: "toggleListItemWithCheckListChild",
+      content: `<ul>
+  <li>
+    <details open="">
+      <summary><p>Toggle Item</p></summary>
+      <ul>
+        <li><input type="checkbox" checked=""><p>Check Child</p></li>
+      </ul>
+    </details>
+  </li>
+</ul>`,
+    },
+    executeTest: testParseHTML,
+  },
   {
     testCase: {
       name: "toggleHeading",
