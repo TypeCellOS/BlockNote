@@ -70,13 +70,23 @@ const PROTOCOL_RE = /(?:https?|ftp|ftps):\/\/[^\s]+/g;
 const MAILTO_RE = /mailto:[^\s]+/g;
 
 // Bare email addresses: user@domain.tld
+//
+// Only group 1 is an address. The second alternative consumes a run of
+// local-part characters in which no address starts. Without it, the search
+// tries the run again from each of its characters: quadratic time for a long
+// token.
 const EMAIL_RE =
-  /[a-zA-Z0-9._%+-]+@(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}/g;
+  /([a-zA-Z0-9._%+-]+@(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z]{2,})|[a-zA-Z0-9._%+-]+/g;
 
 // Schemeless URLs: domain.tld with optional port and path
 // Hostname: one or more labels separated by dots, TLD is alpha-only 2+ chars
+//
+// Only group 1 is a URL. The other alternatives consume text in which no URL
+// starts: labels with no TLD after them, or one run of label characters.
+// Without them, the search tries that text again from each of its
+// characters: quadratic time for a long token.
 const SCHEMELESS_RE =
-  /(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}(?::\d{1,5})?(?:[/?#][^\s]*)?/g;
+  /((?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}(?::\d{1,5})?(?:[/?#][^\s]*)?)|(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+|[a-zA-Z0-9][a-zA-Z0-9-]*/g;
 
 // ---------------------------------------------------------------------------
 // Post-processing helpers
@@ -212,6 +222,10 @@ export function findLinks(text: string, options?: FindOptions): LinkMatch[] {
 
   // 3. Bare email addresses
   for (const m of text.matchAll(EMAIL_RE)) {
+    if (m[1] === undefined) {
+      // Text without an address, see EMAIL_RE.
+      continue;
+    }
     rawMatches.push({
       type: "email",
       value: m[0],
@@ -222,6 +236,10 @@ export function findLinks(text: string, options?: FindOptions): LinkMatch[] {
 
   // 4. Schemeless URLs
   for (const m of text.matchAll(SCHEMELESS_RE)) {
+    if (m[1] === undefined) {
+      // Text without a URL, see SCHEMELESS_RE.
+      continue;
+    }
     rawMatches.push({
       type: "url",
       value: m[0],
