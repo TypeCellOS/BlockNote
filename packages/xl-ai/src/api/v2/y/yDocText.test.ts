@@ -1,5 +1,9 @@
 import { BlockNoteEditor, type PartialBlock } from "@blocknote/core";
-import { blocksToYDoc, yDocToBlocks } from "@blocknote/core/y";
+import {
+  blockNoteTransformer,
+  blocksToYDoc,
+  yDocToBlocks,
+} from "@blocknote/core/y";
 import { pmnodeToDelta } from "@y/prosemirror";
 import * as Y from "@y/y";
 import { describe, expect, it } from "vite-plus/test";
@@ -749,6 +753,67 @@ describe.each([
       );
 
       expect(readText(fragment, format).trim()).toBe("Hello\n\nOther");
+      expect(fragment.length).toBe(1);
+    },
+  );
+
+  /**
+   * A Y.Doc whose fragment has a root block group without blocks.
+   * `blocksToYDoc(editor, [])` of the versions 0.52 to 0.55 wrote this. The
+   * current version writes nothing for a document without blocks.
+   */
+  function yDocWithEmptyRootGroup(): Y.Doc {
+    const ydoc = new Y.Doc();
+    const schema = reader.pmSchema;
+    ydoc
+      .get("prosemirror")
+      .applyDelta(
+        pmnodeToDelta(
+          schema.topNodeType.create(null, schema.nodes["blockGroup"].create()),
+          { transformer: blockNoteTransformer },
+        ),
+      );
+    return ydoc;
+  }
+
+  it("writes text to a Y.Doc with a root block group without blocks", () => {
+    const ydoc = yDocWithEmptyRootGroup();
+    const fragment = ydoc.get("prosemirror");
+    expect(fragment.length).toBe(1);
+    expect(yDocToBlocks(reader, ydoc)).toEqual([]);
+    valid(
+      updateYDoc(reader, fragment, {
+        base: "current",
+        format,
+        text: "Hello",
+      }),
+    );
+
+    expect(readText(fragment, format).trim()).toBe("Hello");
+    // The write uses the root block group that is there: a second root
+    // block group is not a valid document.
+    expect(fragment.length).toBe(1);
+    expect(idsOf(ydoc)).toHaveLength(1);
+    const user = bindEditor(fragment, { trailingBlock: false });
+    expect(getDocumentText(user, format).trim()).toBe("Hello");
+    unbindEditor(user);
+  });
+
+  it.each(merges)(
+    "writes text with a base from a Y.Doc with a root block group without blocks (merge %s)",
+    (merge) => {
+      const ydoc = yDocWithEmptyRootGroup();
+      const fragment = ydoc.get("prosemirror");
+      valid(
+        mergeWrite(
+          reader,
+          fragment,
+          { format, text: "Hello", base: Y.encodeStateAsUpdateV2(ydoc) },
+          merge,
+        ),
+      );
+
+      expect(readText(fragment, format).trim()).toBe("Hello");
       expect(fragment.length).toBe(1);
     },
   );

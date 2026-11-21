@@ -215,12 +215,17 @@ export function writeOperations(
  * have the same block ID. Thus, one difference for a write is correct, also
  * with an insert or a removal next to a changed block.
  *
- * A fragment without content (a new Y.Doc) is the one special case. For
- * such a fragment, the binding shows one empty paragraph, which the
- * fragment does not have (the fill of the schema, with a new ID for each
- * read). Thus, the document of the transaction is a root block group
- * without blocks, and `change` sees a document without blocks. The write is
- * the complete document, and it makes the root block group.
+ * A fragment without blocks is the one special case. For such a fragment,
+ * the binding shows one empty paragraph, which the fragment does not have
+ * (the fill of the schema, with a new ID for each read). Thus, the document
+ * of the transaction is a root block group without blocks, and `change` sees
+ * a document without blocks. Such a fragment has one of two forms:
+ *
+ * - No content (a new Y.Doc): the write is the complete document, and it
+ *   makes the root block group.
+ * - A root block group without blocks (`blocksToYDoc(editor, [])` of the
+ *   versions 0.52 to 0.55 wrote this): the write is the difference, as for
+ *   a fragment with blocks.
  *
  * The read and the write of the fragment have `renderer: null`: the content
  * as it is. An editor that is bound to the fragment can give it a renderer
@@ -238,10 +243,9 @@ function applyTransactionToYjsFragment(
   // The pipeline changes the delta that it gets. Thus, it gets a copy, as in
   // the binding (`lib0/delta/rdt`).
   const shown = pipeline.applyA(delta.cloneDeep(render)).b ?? render;
-  const doc =
-    fragment.length > 0
-      ? deltaToPNode(shown, schema, null)
-      : schema.topNodeType.create(null, schema.nodes["blockGroup"].create());
+  const doc = hasBlocks(fragment)
+    ? deltaToPNode(shown, schema, null)
+    : schema.topNodeType.create(null, schema.nodes["blockGroup"].create());
   // A state without plugins: the steps give a complete document (a block
   // that the fill of the schema adds gets its ID in the step).
   const tr = EditorState.create({ doc }).tr;
@@ -256,4 +260,14 @@ function applyTransactionToYjsFragment(
   if (yChange !== null) {
     fragment.applyDelta(yChange, null, { renderer: null });
   }
+}
+
+/**
+ * True if the fragment has a block: it has a root block group, and that
+ * group has a child.
+ */
+function hasBlocks(fragment: Y.Node): boolean {
+  const rootGroup: unknown =
+    fragment.length === 0 ? undefined : fragment.get(0);
+  return rootGroup instanceof Y.Node && rootGroup.length > 0;
 }
