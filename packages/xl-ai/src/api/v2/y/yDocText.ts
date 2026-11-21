@@ -12,6 +12,7 @@ import type { Schema } from "prosemirror-model";
 import { EditorState, type Transaction } from "prosemirror-state";
 
 import {
+  type ChangeOfOthers,
   type ChangeOperations,
   changesAfterBase,
   type DocumentChangedError,
@@ -127,22 +128,7 @@ export function updateYDoc(
   if (change.base !== "current") {
     const atBase = fragmentAtBase(fragment, change.base);
     Y.applyUpdateV2(ydoc, change.base);
-    // Usually, the content is equal, and Yjs compares the content of two
-    // fragments without a conversion to blocks. Content that is not equal
-    // can be the same blocks: for example, a block group that became empty
-    // can stay in the fragment. Thus, the blocks decide.
-    //
-    // `renderer: null` gives the content as it is. An editor that is bound
-    // to the fragment can give it a renderer, which shows different content
-    // (for example an older version).
-    const changesOfOthers = atBase
-      .toDeltaDeep()
-      .equals(fragment.toDeltaDeep({ renderer: null }))
-      ? []
-      : changesAfterBase(
-          yfragmentToBlocks(editor, atBase),
-          yfragmentToBlocks(editor, fragment),
-        );
+    const changesOfOthers = fragmentChangesAfterBase(editor, atBase, fragment);
     if (changesOfOthers.length > 0) {
       return { error: "document-changed", changesOfOthers };
     }
@@ -193,6 +179,33 @@ export function writeOperations(
 ): void {
   applyTransactionToYjsFragment(editor.pmSchema, fragment, (tr) =>
     applyOperations(tr, operations),
+  );
+}
+
+/**
+ * The blocks that other writers changed in the fragment after `base`.
+ * `atBase` is the fragment at `base`, in a temporary Y.Doc.
+ */
+function fragmentChangesAfterBase(
+  editor: BlockNoteEditor<any, any, any>,
+  atBase: Y.Node,
+  fragment: Y.Node,
+): ChangeOfOthers[] {
+  // Usually, the content is equal, and Yjs compares the content of two
+  // fragments without a conversion to blocks.
+  //
+  // `renderer: null` gives the content as it is. An editor that is bound to
+  // the fragment can give it a renderer, which shows different content (for
+  // example an older version).
+  if (atBase.toDeltaDeep().equals(fragment.toDeltaDeep({ renderer: null }))) {
+    return [];
+  }
+  // Content that is not equal can be the same blocks: for example, a block
+  // group that became empty can stay in the fragment. Thus, the blocks
+  // decide.
+  return changesAfterBase(
+    yfragmentToBlocks(editor, atBase),
+    yfragmentToBlocks(editor, fragment),
   );
 }
 
