@@ -1,15 +1,15 @@
-import type { Block, BlockNoteEditor } from "@blocknote/core";
+import type { BlockNoteEditor } from "@blocknote/core";
 import {
   blockNoteTransformer,
-  blocksToYType,
   docDiffToDelta,
   findTypeInOtherYdoc,
   yfragmentToBlocks,
 } from "@blocknote/core/y";
-import { $prosemirrorDelta, deltaToPNode } from "@y/prosemirror";
+import { $prosemirrorDelta, deltaToPNode, pmnodeToDelta } from "@y/prosemirror";
 import * as Y from "@y/y";
 import * as delta from "lib0/delta";
-import { EditorState } from "prosemirror-state";
+import type { Schema } from "prosemirror-model";
+import { EditorState, type Transaction } from "prosemirror-state";
 
 import {
   type ChangeOperations,
@@ -23,13 +23,7 @@ import {
   type WriteFromVersion,
 } from "../api.js";
 import type { TextFormat } from "../formats/index.js";
-import type { LensBlock } from "../model.js";
-import {
-  applyOperations,
-  applyToBlocks,
-  type BlockOperation,
-  type StructureOperation,
-} from "../operations/index.js";
+import { applyOperations, type BlockOperation } from "../operations/index.js";
 
 /**
  * Returns the document of the fragment of a Y.Doc in the format. A client
@@ -158,7 +152,7 @@ export function updateYDoc(
   if (result.error !== undefined) {
     return result;
   }
-  writeOperations(editor, fragment, current, result.operations);
+  writeOperations(editor, fragment, result.operations);
   return { ...result, updateV2: Y.encodeStateAsUpdateV2(ydoc, before) };
 }
 
@@ -188,36 +182,26 @@ export function fragmentAtBase(fragment: Y.Node, base: Uint8Array): Y.Node {
 
 /**
  * Writes the operations of a write to the fragment, with one call of Yjs
- * (one Yjs transaction). `current` is the blocks of the fragment.
+ * (one Yjs transaction).
  *
  * @internal
  */
 export function writeOperations(
   editor: BlockNoteEditor<any, any, any>,
   fragment: Y.Node,
-  current: readonly LensBlock[],
   operations: readonly BlockOperation[],
 ): void {
-  if (current.length > 0) {
-    changeFragment(editor, fragment, operations);
-    return;
-  }
-  // A fragment without blocks: each operation is an insert, and the blocks
-  // of the inserts are the document. `blocksToYType` of core puts them into
-  // the fragment.
-  const blocks = applyToBlocks(
-    [],
-    operations.filter(
-      (operation): operation is StructureOperation =>
-        operation.type !== "update",
-    ),
+  applyTransactionToYjsFragment(editor.pmSchema, fragment, (tr) =>
+    applyOperations(tr, operations),
   );
-  blocksToYType(editor, blocks as Block<any, any, any>[], fragment);
 }
 
 /**
- * Applies the operations to the document of a fragment with blocks, and
- * writes the change to the fragment, in one Yjs transaction.
+ * Changes the ProseMirror document of the fragment of a Y.Doc with a
+ * transaction, and writes the change to the fragment, in one Yjs
+ * transaction. `change` gets the transaction and adds its steps, as the
+ * callback of `editor.transact` does. The function needs no editor: the
+ * transaction is of a state without plugins.
  *
  * The document is the ProseMirror document that the binding of an editor
  * shows for the fragment. The pipeline of the binding (`blockNoteTransformer`
@@ -227,39 +211,49 @@ export function writeOperations(
  * them.
  *
  * The change is the difference of the document before and after the
- * operations: `docDiffToDelta` of core, which pairs two blocks only if they
+ * transaction: `docDiffToDelta` of core, which pairs two blocks only if they
  * have the same block ID. Thus, one difference for a write is correct, also
  * with an insert or a removal next to a changed block.
+ *
+ * A fragment without content (a new Y.Doc) is the one special case. For
+ * such a fragment, the binding shows one empty paragraph, which the
+ * fragment does not have (the fill of the schema, with a new ID for each
+ * read). Thus, the document of the transaction is a root block group
+ * without blocks, and `change` sees a document without blocks. The write is
+ * the complete document, and it makes the root block group.
  *
  * The read and the write of the fragment have `renderer: null`: the content
  * as it is. An editor that is bound to the fragment can give it a renderer
  * (for example for suggestions), which shows different content.
  */
-function changeFragment(
-  editor: BlockNoteEditor<any, any, any>,
+function applyTransactionToYjsFragment(
+  schema: Schema,
   fragment: Y.Node,
-  operations: readonly BlockOperation[],
+  change: (tr: Transaction) => void,
 ): void {
-  const schema = editor.pmSchema;
   const render = fragment.toDeltaDeep({ renderer: null });
   const pipeline = blockNoteTransformer({ getState: () => render, schema })(
     $prosemirrorDelta,
   ).init();
   // The pipeline changes the delta that it gets. Thus, it gets a copy, as in
   // the binding (`lib0/delta/rdt`).
-  const doc = deltaToPNode(
-    pipeline.applyA(delta.cloneDeep(render)).b ?? render,
-    schema,
-    null,
-  );
-  // A state without plugins: the operations give a complete document (a
-  // block that the fill of the schema adds gets its ID in the apply).
+  const shown = pipeline.applyA(delta.cloneDeep(render)).b ?? render;
+  const doc =
+    fragment.length > 0
+      ? deltaToPNode(shown, schema, null)
+      : schema.topNodeType.create(null, schema.nodes["blockGroup"].create());
+  // A state without plugins: the steps give a complete document (a block
+  // that the fill of the schema adds gets its ID in the step).
   const tr = EditorState.create({ doc }).tr;
-  applyOperations(tr, operations);
-  const change = pipeline.applyB(
-    delta.cloneDeep(docDiffToDelta(doc, tr.doc)),
-  ).a;
-  if (change !== null) {
-    fragment.applyDelta(change, null, { renderer: null });
+  change(tr);
+  if (!tr.docChanged) {
+    return;
+  }
+  const yChange =
+    fragment.length === 0
+      ? pmnodeToDelta(tr.doc, { transformer: blockNoteTransformer })
+      : pipeline.applyB(delta.cloneDeep(docDiffToDelta(doc, tr.doc))).a;
+  if (yChange !== null) {
+    fragment.applyDelta(yChange, null, { renderer: null });
   }
 }

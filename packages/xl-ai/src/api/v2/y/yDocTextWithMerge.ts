@@ -72,7 +72,7 @@ export function updateYDocWithMerge(
   if (merged.error !== undefined) {
     return merged;
   }
-  writeOperations(editor, fragment, current, merged.operations);
+  writeOperations(editor, fragment, merged.operations);
   return {
     ...withoutWritten(merged),
     updateV2: Y.encodeStateAsUpdateV2(ydoc, before),
@@ -143,7 +143,7 @@ function yjsMerge(
     const merged = withoutWritten(
       operationsOfMerge(editor, merge, base, current),
     );
-    writeOperations(editor, fragment, current, merged.operations);
+    writeOperations(editor, fragment, merged.operations);
     return merged;
   }
   // The write goes to the fragment at `base`, and Yjs merges the temporary
@@ -153,7 +153,7 @@ function yjsMerge(
   if (written.error !== undefined) {
     return written;
   }
-  writeOperations(editor, atBase, base, written.operations);
+  writeOperations(editor, atBase, written.operations);
   const ydoc = docOf(fragment);
   Y.applyUpdateV2(
     ydoc,
