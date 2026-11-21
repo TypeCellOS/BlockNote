@@ -49,7 +49,16 @@ export type YDocChangeResult =
       updateV2: Uint8Array;
     })
   | InvalidDocumentError
-  | DocumentChangedError;
+  | DocumentChangedError
+  | UnknownBaseError;
+
+/**
+ * The Y.Doc does not have the version `base`: nothing applies. This occurs
+ * if the client read from a replica with an update that this Y.Doc does not
+ * have yet. Sync the Y.Doc (for example with `Y.applyUpdateV2(ydoc, base)`),
+ * and write again.
+ */
+export type UnknownBaseError = { error: "unknown-base" };
 
 /**
  * Writes a change (a text, or BlockNote JSON) to the fragment of a Y.Doc of
@@ -64,10 +73,9 @@ export type YDocChangeResult =
  *
  * `base` is the version that the client read: `"current"`, or the Yjs state
  * at that version as a V2 update (`Y.encodeStateAsUpdateV2(ydoc)`, also the
- * format of the versions of core). Yjs throws for a V1 update. The client
- * can read from a replica with an update that this Y.Doc does not have yet:
- * a write that applies also gives the Y.Doc the updates of `base` that it
- * does not have.
+ * format of the versions of core). Yjs throws for a V1 update. The Y.Doc
+ * must have that version: else the result is the error `"unknown-base"`
+ * (see `UnknownBaseError`).
  *
  * The write is strict, as `updateDocument`: if other writers changed the
  * document of the fragment after `base`, the result is the error
@@ -86,16 +94,22 @@ export function updateYDoc(
 ): YDocChangeResult {
   const ydoc = docOf(fragment);
   requireBase(change.base);
-  const before = Y.encodeStateVector(ydoc);
-  const result = strictOperationsOf(editor, fragment, change);
+  if (change.base !== "current") {
+    const atBase = fragmentAtBase(fragment, change.base);
+    if (!hasVersion(ydoc, docOf(atBase))) {
+      return { error: "unknown-base" };
+    }
+    const changesOfOthers = fragmentChangesAfterBase(editor, atBase, fragment);
+    if (changesOfOthers.length > 0) {
+      return { error: "document-changed", changesOfOthers };
+    }
+  }
+  const current = yfragmentToBlocks(editor, fragment);
+  const result = operationsOf(editor, change, current);
   if (result.error !== undefined) {
     return result;
   }
-  // The Y.Doc changes only from here: it gets the updates of `base` that it
-  // does not have, and then the write.
-  if (change.base !== "current") {
-    Y.applyUpdateV2(ydoc, change.base);
-  }
+  const before = Y.encodeStateVector(ydoc);
   writeOperations(editor, fragment, result.operations);
   return { ...result, updateV2: Y.encodeStateAsUpdateV2(ydoc, before) };
 }
@@ -125,22 +139,20 @@ export function fragmentAtBase(fragment: Y.Node, base: Uint8Array): Y.Node {
 }
 
 /**
- * The fragment as it is after the Y.Doc gets `base`, in a temporary Y.Doc.
- * The Y.Doc does not change. A write computes with this fragment. Thus, a
- * write that fails leaves the Y.Doc as it is.
+ * True if the Y.Doc has each update of `version` (a Y.Doc at the version
+ * that a client read): each insert (the state vectors) and each removal
+ * (the delete sets).
  *
  * @internal
  */
-export function fragmentWithBase(fragment: Y.Node, base: Uint8Array): Y.Node {
-  const withBase = fragmentAtBase(fragment, base);
-  const temporary = docOf(withBase);
-  // The temporary Y.Doc has `base`. It gets the updates of the Y.Doc that
-  // `base` does not have.
-  Y.applyUpdateV2(
-    temporary,
-    Y.encodeStateAsUpdateV2(docOf(fragment), Y.encodeStateVector(temporary)),
+export function hasVersion(ydoc: Y.Doc, version: Y.Doc): boolean {
+  const have = Y.snapshot(ydoc);
+  const need = Y.snapshot(version);
+  return (
+    [...need.sv].every(
+      ([client, clock]) => (have.sv.get(client) ?? 0) >= clock,
+    ) && Y.equalIdSets(have.ds, Y.mergeIdSets([have.ds, need.ds]))
   );
-  return withBase;
 }
 
 /**
@@ -160,54 +172,28 @@ export function writeOperations(
 }
 
 /**
- * The operations of a strict write to the fragment, or the error of the
- * write. Does not change the Y.Doc.
- */
-function strictOperationsOf(
-  editor: BlockNoteEditor<any, any, any>,
-  fragment: Y.Node,
-  change: (TextChange | JSONChange) & WriteFromVersion<Uint8Array>,
-): ChangeOperations | InvalidDocumentError | DocumentChangedError {
-  if (change.base === "current") {
-    return operationsOf(editor, change, yfragmentToBlocks(editor, fragment));
-  }
-  // The write sees the fragment as it is after the Y.Doc gets `base`.
-  const withBase = fragmentWithBase(fragment, change.base);
-  const changesOfOthers = fragmentChangesAfterBase(
-    editor,
-    fragmentAtBase(fragment, change.base),
-    withBase,
-  );
-  if (changesOfOthers.length > 0) {
-    return { error: "document-changed", changesOfOthers };
-  }
-  return operationsOf(editor, change, yfragmentToBlocks(editor, withBase));
-}
-
-/**
  * The changes of other writers to the fragment after `base`, as operations.
- * `atBase` is the fragment at `base`, and `withBase` is the fragment as it
- * is after the Y.Doc gets `base` (see `fragmentWithBase`).
+ * `atBase` is the fragment at `base`, in a temporary Y.Doc.
  */
 function fragmentChangesAfterBase(
   editor: BlockNoteEditor<any, any, any>,
   atBase: Y.Node,
-  withBase: Y.Node,
+  fragment: Y.Node,
 ): BlockOperation[] {
   // The check compares content, not state vectors: a state vector also
   // changes for a change in a different fragment, and for a change that a
   // later change reverts.
   //
   // Usually, the content is equal, and Yjs compares it without a conversion
-  // to blocks.
-  if (atBase.toDeltaDeep().equals(withBase.toDeltaDeep())) {
+  // to blocks. `renderer: null`: see `applyTransactionToYjsFragment`.
+  if (atBase.toDeltaDeep().equals(fragment.toDeltaDeep({ renderer: null }))) {
     return [];
   }
   // Content that is not equal can be the same blocks: for example, an empty
   // block group can stay in the fragment. Thus, the blocks decide.
   return changesAfterBase(
     yfragmentToBlocks(editor, atBase),
-    yfragmentToBlocks(editor, withBase),
+    yfragmentToBlocks(editor, fragment),
   );
 }
 

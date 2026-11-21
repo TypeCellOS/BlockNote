@@ -228,7 +228,7 @@ Give the editor the same schema and extensions as your other clients (for exampl
 
 A Yjs state as `base` is a V2 update: `Y.encodeStateAsUpdateV2(ydoc)`. A V1 update (`Y.encodeStateAsUpdate`) is not a valid `base`: Yjs throws for it, and the Y.Doc does not change.
 
-`updateYDoc` is strict, as `updateDocument`: with a Yjs state as `base`, the write applies only if the document is still at that version. Else the result is the error `document-changed`, with `changesOfOthers`. A change in a different part of the Y.Doc (not in the fragment of the document) does not stop the write.
+`updateYDoc` is strict, as `updateDocument`: with a Yjs state as `base`, the write applies only if the document is still at that version. Else the result is the error `document-changed`, with `changesOfOthers`. A change in a different part of the Y.Doc (not in the fragment of the document) does not stop the write. The Y.Doc must have the version `base`. If the client read from a replica with an update that this Y.Doc does not have yet, the result is the error `unknown-base`, and nothing applies: sync the Y.Doc first (for example with `Y.applyUpdateV2(ydoc, base)`), and write again. The two merge functions have the same rule.
 
 `updateYDocWithMerge` is the [merge](#merge-with-the-changes-of-other-users) for a Y.Doc, with a Yjs state as `base` and a required `onConflict`. Its result has no `written`. Thus, after a write with `changesOfOthers`, read the text again before the next write. In a Y.Doc, a move is a removal and an insert: if two users move the same block at the same time, the block can be there two times.
 

@@ -21,7 +21,8 @@ import { diffDocuments } from "../operations/index.js";
 import {
   docOf,
   fragmentAtBase,
-  fragmentWithBase,
+  hasVersion,
+  type UnknownBaseError,
   writeOperations,
 } from "./yDocText.js";
 
@@ -40,7 +41,8 @@ export type YDocMergedChangeResult =
       updateV2: Uint8Array;
     })
   | InvalidDocumentError
-  | ConflictError;
+  | ConflictError
+  | UnknownBaseError;
 
 /**
  * Writes a change (a text, or BlockNote JSON) to the fragment of a Y.Doc,
@@ -58,18 +60,17 @@ export function updateYDocWithMerge(
 ): YDocMergedChangeResult {
   const ydoc = docOf(fragment);
   requireBase(change.base);
-  const before = Y.encodeStateVector(ydoc);
-  const base = yfragmentToBlocks(editor, fragmentAtBase(fragment, change.base));
-  const current = yfragmentToBlocks(
-    editor,
-    fragmentWithBase(fragment, change.base),
-  );
+  const atBase = fragmentAtBase(fragment, change.base);
+  if (!hasVersion(ydoc, docOf(atBase))) {
+    return { error: "unknown-base" };
+  }
+  const base = yfragmentToBlocks(editor, atBase);
+  const current = yfragmentToBlocks(editor, fragment);
   const merged = mergedOperationsOf(editor, { ...change, base }, current);
   if (merged.error !== undefined) {
     return merged;
   }
-  // The Y.Doc changes only from here (see `updateYDoc`).
-  Y.applyUpdateV2(ydoc, change.base);
+  const before = Y.encodeStateVector(ydoc);
   writeOperations(editor, fragment, merged.operations);
   return {
     ...withoutWritten(merged),
@@ -99,8 +100,12 @@ export function experimental_updateYDocWithYjsMerge(
 ): Exclude<YDocMergedChangeResult, ConflictError> {
   const ydoc = docOf(fragment);
   requireBase(change.base);
+  const atBase = fragmentAtBase(fragment, change.base);
+  if (!hasVersion(ydoc, docOf(atBase))) {
+    return { error: "unknown-base" };
+  }
   const before = Y.encodeStateVector(ydoc);
-  const result = yjsMerge(editor, fragment, change);
+  const result = yjsMerge(editor, fragment, atBase, change);
   return result.error !== undefined
     ? result
     : { ...result, updateV2: Y.encodeStateAsUpdateV2(ydoc, before) };
@@ -108,20 +113,16 @@ export function experimental_updateYDocWithYjsMerge(
 
 /**
  * The write of `experimental_updateYDocWithYjsMerge`, for each case of
- * `base`. With an error, the Y.Doc does not change.
+ * `base`. `atBase` is the fragment at `base`, in a temporary Y.Doc.
  */
 function yjsMerge(
   editor: BlockNoteEditor<any, any, any>,
   fragment: Y.Node,
-  change: (TextChange | JSONChange) & { base: Uint8Array },
+  atBase: Y.Node,
+  change: TextChange | JSONChange,
 ): MergedInFragment | InvalidDocumentError {
-  const ydoc = docOf(fragment);
-  const atBase = fragmentAtBase(fragment, change.base);
   const base = yfragmentToBlocks(editor, atBase);
-  const current = yfragmentToBlocks(
-    editor,
-    fragmentWithBase(fragment, change.base),
-  );
+  const current = yfragmentToBlocks(editor, fragment);
   if (base.length === 0) {
     // A base without content: a copy of an empty Y.Doc gets its own root
     // block group, and Yjs cannot merge two new root groups into one. Thus,
@@ -133,7 +134,6 @@ function yjsMerge(
     const merged = withoutWritten(
       operationsOfMerge(editor, merge, base, current),
     );
-    Y.applyUpdateV2(ydoc, change.base);
     writeOperations(editor, fragment, merged.operations);
     return merged;
   }
@@ -145,8 +145,7 @@ function yjsMerge(
     return written;
   }
   writeOperations(editor, atBase, written.operations);
-  // The temporary Y.Doc has `base` and the write. The Y.Doc gets the updates
-  // of the two that it does not have.
+  const ydoc = docOf(fragment);
   Y.applyUpdateV2(
     ydoc,
     Y.encodeStateAsUpdateV2(docOf(atBase), Y.encodeStateVector(ydoc)),
