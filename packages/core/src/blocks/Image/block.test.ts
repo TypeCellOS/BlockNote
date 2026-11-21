@@ -67,7 +67,18 @@ describe("imageBlockAlt", () => {
     expect(imageBlockAlt("", "blob:https://example.com/8c1c0b2e-1")).toBe(
       IMAGE_BLOCK_ALT_FALLBACK,
     );
+    expect(imageBlockAlt("", "javascript:void(0)")).toBe(
+      IMAGE_BLOCK_ALT_FALLBACK,
+    );
+    expect(imageBlockAlt("", "mailto:someone@example.com")).toBe(
+      IMAGE_BLOCK_ALT_FALLBACK,
+    );
     expect(IMAGE_BLOCK_ALT_FALLBACK).toBe("Broken image");
+  });
+
+  it("keeps the file name of a custom scheme URL with a path", () => {
+    expect(imageBlockAlt("", "app:/images/cat.png")).toBe("cat.png");
+    expect(imageBlockAlt("", "app://assets/images/cat.png")).toBe("cat.png");
   });
 });
 
