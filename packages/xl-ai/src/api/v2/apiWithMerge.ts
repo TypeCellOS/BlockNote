@@ -24,11 +24,8 @@ import {
 // The merge write: the change of the client, made at the version `base`,
 // merges three-way with the changes of other writers after `base`. It runs
 // the stages of the strict write (see `api.ts`) for `base`, with the
-// document merge (stage 4) between stage 3 and stage 5:
-//
-//   mergedOperationsOf = mergeOf (the stages 1 to 3 for `base`, then
-//                        4 Merge), the conflict rule, then operationsOfMerge
-//                        (5 Fit, 6 Diff)
+// document merge (stage 4) between stage 3 and stage 5: see
+// `mergedOperationsOf`.
 
 /** Each warning of a write. A strict write gives no `MergeWarning`. */
 export type ChangeWarning = TargetWarning | MergeWarning | FitWarning;
@@ -142,9 +139,9 @@ export function updateDocumentWithMerge(
 }
 
 /**
- * The operations of a merge write for the document `current`: the merge of
- * the change with `current` (see {@link mergeOf}), the conflict rule, and
- * the operations (see {@link operationsOfMerge}).
+ * The operations of a merge write for the document `current`: the stages of
+ * the strict write (see `operationsOf`) for the version `base`, with the
+ * three-way merge of the documents between stage 3 and stage 5.
  *
  * With `onConflict: "reject"`, a conflict of the merge gives the error
  * `"conflict"`, and no operations.
@@ -156,44 +153,11 @@ export function mergedOperationsOf(
   change: DocumentMergeChange,
   current: readonly LensBlock[],
 ): MergedChangeResult {
-  requireBase(change.base);
-  const merge = mergeOf(editor, change, change.base, current);
-  if (merge.error !== undefined) {
-    return merge;
-  }
-  if (change.onConflict === "reject" && merge.conflicts.length > 0) {
-    return { error: "conflict", conflicts: merge.conflicts };
-  }
-  return operationsOfMerge(editor, merge, change.base, current);
-}
-
-/**
- * The merge of a change with the current document (the stages 1 to 4).
- */
-type DocumentMerge = {
-  error?: undefined;
-  /** The target of the change for `base` (stage 3), and its warnings. */
-  target: readonly LensBlock[];
-  targetWarnings: TargetWarning[];
-  /** The target, merged with the current document (stage 4). */
-  merged: readonly LensBlock[];
-  /** The conflicts of the merge. In each one, the current document won. */
-  conflicts: MergeWarning[];
-};
-
-/**
- * The stages 1 to 4 of a merge write: the target of the change for the
- * version `base`, merged three-way with `current` (see `mergeDocument`). A
- * conflict is not an error here: the caller has the conflict rule.
- */
-function mergeOf(
-  editor: BlockNoteEditor<any, any, any>,
-  change: TextChange | JSONChange,
-  base: readonly LensBlock[],
-  current: readonly LensBlock[],
-): DocumentMerge | InvalidDocumentError {
+  const { base } = change;
+  requireBase(base);
   assertBlockIds(current, "current document");
   assertBlockIds(base, "base");
+  // 1 to 3. The target of the change, for the version `base`.
   const target =
     change.document === undefined
       ? textTarget(editor, change.format, base, change.text)
@@ -210,40 +174,26 @@ function mergeOf(
   if (ids.some((id) => now.has(id) && !read.has(id))) {
     return { error: "invalid-document" };
   }
-  // 4. Merge.
+  // 4. Merge. In each conflict, the current document wins.
+  const rules = schemaRulesOf(editor.schema.blockSchema);
   const merged = mergeDocument({
     base,
     ours: target.target,
     theirs: current,
-    contentKindOf: schemaRulesOf(editor.schema.blockSchema).contentKindOf,
+    contentKindOf: rules.contentKindOf,
   });
-  return {
-    target: target.target,
-    targetWarnings: target.warnings,
-    merged: merged.blocks,
-    conflicts: merged.warnings,
-  };
-}
-
-/**
- * The stages 5 and 6 of a merge write: the operations that change `current`
- * to the merged document, with the changes of other writers after `base`,
- * and the document that the client wrote.
- */
-function operationsOfMerge(
-  editor: BlockNoteEditor<any, any, any>,
-  merge: DocumentMerge,
-  base: readonly LensBlock[],
-  current: readonly LensBlock[],
-): MergedChangeOperations {
-  const rules = schemaRulesOf(editor.schema.blockSchema);
-  const update = updateFromTarget(rules, merge.merged, current);
+  if (change.onConflict === "reject" && merged.warnings.length > 0) {
+    return { error: "conflict", conflicts: merged.warnings };
+  }
+  // 5 and 6. Fit and diff: the operations that change `current` to the
+  // merged document.
+  const update = updateFromTarget(rules, merged.blocks, current);
   return {
     operations: update.operations,
-    warnings: [...merge.targetWarnings, ...merge.conflicts, ...update.warnings],
+    warnings: [...target.warnings, ...merged.warnings, ...update.warnings],
     changesOfOthers: diffDocuments(base, current),
     // The client wrote the target: it gets the fit for the version that the
     // client read.
-    written: fitResult(rules, merge.target, base, false),
+    written: fitResult(rules, target.target, base, false),
   };
 }
