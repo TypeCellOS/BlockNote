@@ -188,7 +188,7 @@ export const examples = {
           slug: "basic",
         },
         readme:
-          "In this example, we pass in a custom dictionary to change the interface of the editor to use Dutch (NL) strings.\n\nYou can also provide your own dictionary to customize the strings used in the editor, or submit a Pull Request to add support for your language of your choice.\n\n**Relevant Docs:**\n\n- [Localization](/docs/features/localization)",
+          "In this example, we use a dropdown to switch the editor between all of the languages that BlockNote ships with, by passing the matching dictionary from `@blocknote/core/locales` to the editor. Selecting a language re-mounts the editor so the interface strings update immediately. The document is saved outside the editor and restored on re-mount, preserving your content (but not the undo history or selection).\n\nYou can also provide your own dictionary to customize the strings used in the editor, or submit a Pull Request to add support for your language of your choice.\n\n**Relevant Docs:**\n\n- [Localization](/docs/features/localization)",
       },
       {
         projectSlug: "custom-placeholder",
@@ -2052,6 +2052,28 @@ export const examples = {
         },
         readme:
           'This example shows how to use `InMemoryVersioningExtension` without a collaboration layer. It seeds history with ProseMirror document JSON, which the extension converts to immutable documents using the editor\'s schema. `initialVersions` also accepts BlockNote JSON as arrays of partial blocks.\n\nThe sidebar opens on a document with a few versions already in its history, including an automatic unnamed version, so you can preview them, compare them, rename them, restore them, and try the named-only filter right away. The editor is read-only while the sidebar is open: close it to edit the document, then reopen it with the "History" button.',
+      },
+      {
+        projectSlug: "table-of-contents",
+        fullSlug: "extensions/table-of-contents",
+        pathFromRoot: "examples/08-extensions/03-table-of-contents",
+        config: {
+          playground: true,
+          docs: true,
+          author: "RovshanMuradov",
+          tags: ["Extension", "UI Components"],
+          dependencies: {
+            "@mantine/core": "^9.0.2",
+          } as any,
+          pro: false,
+        },
+        title: "Table of Contents",
+        group: {
+          pathFromRoot: "examples/08-extensions",
+          slug: "extensions",
+        },
+        readme:
+          '`TableOfContentsExtension` lists the document\'s headings, keeps the list up to date as the document changes, and scrolls to a heading on request. It is opt-in and ships no UI: this example builds an outline sidebar with Mantine, which you can copy or adapt.\n\n**Try it out:** Click an entry to jump to its heading, or add, rename or remove a heading and see the outline follow.\n\n## Usage\n\nAdd the extension when creating your editor, then read its state and call its methods from your own UI:\n\n```tsx\nimport { TableOfContentsExtension } from "@blocknote/core/extensions";\nimport { BlockNoteView } from "@blocknote/mantine";\nimport {\n  useCreateBlockNote,\n  useExtension,\n  useExtensionState,\n} from "@blocknote/react";\n\nfunction Editor() {\n  const editor = useCreateBlockNote({\n    extensions: [TableOfContentsExtension()],\n  });\n  const { scrollToEntry } = useExtension(TableOfContentsExtension, { editor });\n  const { entries } = useExtensionState(TableOfContentsExtension, { editor });\n\n  return (\n    <>\n      <nav>\n        {entries.map((entry) => (\n          <button\n            key={entry.blockId}\n            onClick={() => scrollToEntry(entry.blockId)}\n          >\n            {entry.title}\n          </button>\n        ))}\n      </nav>\n      <BlockNoteView editor={editor} />\n    </>\n  );\n}\n```\n\nEach entry has the heading\'s `blockId`, `title`, `level` and `depth`: how many levels it is below the shallowest heading level in the document, for indenting the outline. Every heading with text is listed, so filter the entries for a shorter outline, e.g. `entries.filter((entry) => entry.depth <= 1)`. `scrollToEntry(blockId)` scrolls the heading into view; to keep it clear of a sticky header, set `scroll-padding-top` on the element the editor scrolls in.\n\nEntries are filled in once the editor is mounted. For a document without a mounted editor (e.g. server rendering or exports), call `getTableOfContentsEntries(editor.document)`.\n\nFor the example UI, copy `TableOfContents.tsx` and `style.css`, and render `<TableOfContents editor={editor} />` next to your `BlockNoteView` as shown in `App.tsx`.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Extensions](/docs/features/extensions)',
       },
     ],
   },
