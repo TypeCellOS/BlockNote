@@ -10,9 +10,29 @@ import { wrapWithDelimiter } from "./wrapWithDelimiter.js";
  */
 
 /**
- * Convert an HTML string (from BlockNote's external HTML exporter) to markdown.
+ * How the serializer writes the text of the blocks where a markdown parser
+ * can read it as syntax:
+ * - `"markdown"`: with a backslash escape (for example `\<details>`), so
+ *   that a markdown parser reads the text as text.
+ * - `"none"`: as it is. Use this for plain text that a person reads (for
+ *   example the clipboard). A markdown parser can read some of this text as
+ *   syntax.
+ *
+ * The value changes only the text. The markdown that the serializer writes
+ * for the structure is the same for the two values, and it has backslashes
+ * of its own: a hard break (a `\` at the end of the line), a `|` in a table
+ * cell (`\|`), and a `\`, `(` or `)` in the URL of a link (`[a](b\(c\))`).
  */
-export function htmlToMarkdown(html: string): string {
+type TextEscapes = "markdown" | "none";
+
+/**
+ * Convert an HTML string (from BlockNote's external HTML exporter) to markdown.
+ * The default of `escapes` is `"markdown"`.
+ */
+export function htmlToMarkdown(
+  html: string,
+  options: { escapes?: TextEscapes } = {},
+): string {
   // Use a temporary element to parse HTML. This works in both browser and
   // server (JSDOM) environments, unlike `new DOMParser()` which may not be
   // globally available in Node.js.
@@ -21,6 +41,7 @@ export function htmlToMarkdown(html: string): string {
   const result = serializeChildren(container, {
     indent: "",
     inListItem: false,
+    escapes: options.escapes ?? "markdown",
   });
   return result.trim() + "\n";
 }
@@ -31,6 +52,8 @@ interface SerializeContext {
   // of a parent list item. Used to suppress trailing blank lines that would
   // otherwise turn the parent list into a "loose" list.
   inListItem: boolean;
+  // How to write text that a markdown parser can read as syntax.
+  escapes: TextEscapes;
 }
 
 // ─── Main Serializer ─────────────────────────────────────────────────────────
@@ -111,7 +134,7 @@ function serializeNode(node: Node, ctx: SerializeContext): string {
 // ─── Block Serializers ───────────────────────────────────────────────────────
 
 function serializeParagraph(el: HTMLElement, ctx: SerializeContext): string {
-  const content = serializeInlineContent(el);
+  const content = serializeInlineContent(el, ctx.escapes);
   // Trim leading/trailing hard breaks (matching remark behavior)
   const trimmed = trimHardBreaks(content);
   if (ctx.inListItem) {
@@ -123,7 +146,7 @@ function serializeParagraph(el: HTMLElement, ctx: SerializeContext): string {
 function serializeHeading(el: HTMLElement, ctx: SerializeContext): string {
   const level = parseInt(el.tagName[1], 10);
   const prefix = "#".repeat(level) + " ";
-  const content = serializeInlineContent(el);
+  const content = serializeInlineContent(el, ctx.escapes);
   return ctx.indent + prefix + content + "\n\n";
 }
 
@@ -141,16 +164,20 @@ function serializeBlockquote(el: HTMLElement, ctx: SerializeContext): string {
     for (const child of blockChildren) {
       const tag = child.tagName.toLowerCase();
       if (tag === "p") {
-        parts.push(serializeInlineContent(child as HTMLElement));
+        parts.push(serializeInlineContent(child as HTMLElement, ctx.escapes));
       } else {
-        const innerCtx: SerializeContext = { indent: "", inListItem: false };
+        const innerCtx: SerializeContext = {
+          ...ctx,
+          indent: "",
+          inListItem: false,
+        };
         parts.push(serializeNode(child, innerCtx).trim());
       }
     }
     content = parts.join("\n\n");
   } else {
     // No block-level children — treat entire content as inline
-    content = serializeInlineContent(el);
+    content = serializeInlineContent(el, ctx.escapes);
   }
 
   const lines = content.split("\n");
@@ -325,11 +352,13 @@ function serializeListItem(
     const summary = details.querySelector("summary");
     const summaryP = summary?.querySelector("p");
     firstContentEl = details;
-    inlineContent = summaryP ? serializeInlineContent(summaryP) : "";
+    inlineContent = summaryP
+      ? serializeInlineContent(summaryP, ctx.escapes)
+      : "";
   } else {
     firstContentEl = getFirstContentElement(el, checkbox);
     inlineContent = firstContentEl
-      ? serializeInlineContent(firstContentEl)
+      ? serializeInlineContent(firstContentEl, ctx.escapes)
       : "";
   }
 
@@ -341,7 +370,11 @@ function serializeListItem(
 
   // Serialize child content (nested lists, continuation paragraphs, etc.)
   const childIndent = ctx.indent + " ".repeat(markerWidth);
-  const childCtx: SerializeContext = { indent: childIndent, inListItem: true };
+  const childCtx: SerializeContext = {
+    ...ctx,
+    indent: childIndent,
+    inListItem: true,
+  };
 
   // For toggle items, also serialize children inside the details element
   if (details) {
@@ -352,7 +385,10 @@ function serializeListItem(
       }
       const childTag = child.tagName.toLowerCase();
       if (childTag === "p") {
-        const content = serializeInlineContent(child as HTMLElement);
+        const content = serializeInlineContent(
+          child as HTMLElement,
+          ctx.escapes,
+        );
         // Continuation paragraph needs a blank line to separate it from the
         // previous content; CommonMark would otherwise treat it as a soft
         // wrap of that content.
@@ -382,7 +418,7 @@ function serializeListItem(
     } else if (childTag === "p") {
       // Continuation paragraph within list item — requires blank line before
       // so it isn't read as part of the marker line's text.
-      const content = serializeInlineContent(child as HTMLElement);
+      const content = serializeInlineContent(child as HTMLElement, ctx.escapes);
       result += "\n" + childIndent + content + "\n";
     } else {
       // Other block-level children (code blocks, blockquotes, etc.) already
@@ -451,7 +487,7 @@ function serializeTable(el: HTMLElement, ctx: SerializeContext): string {
       }
 
       const content = escapeTableCell(
-        serializeInlineContent(cell as HTMLElement).trim(),
+        serializeInlineContent(cell as HTMLElement, ctx.escapes).trim(),
       );
       const colspan = parseInt(cell.getAttribute("colspan") || "1", 10);
       const rowspan = parseInt(cell.getAttribute("rowspan") || "1", 10);
@@ -750,12 +786,13 @@ function serializeDetails(el: HTMLElement, ctx: SerializeContext): string {
 
 // ─── Inline Content Serializer ───────────────────────────────────────────────
 
-function serializeInlineContent(el: Element): string {
+function serializeInlineContent(el: Element, escapes: TextEscapes): string {
   let result = "";
 
   for (const child of Array.from(el.childNodes)) {
     if (child.nodeType === 3 /* Node.TEXT_NODE */) {
-      result += escapeHtmlLikeText(child.textContent || "");
+      const text = child.textContent || "";
+      result += escapes === "markdown" ? escapeHtmlLikeText(text) : text;
     } else if (child.nodeType === 1 /* Node.ELEMENT_NODE */) {
       const childEl = child as HTMLElement;
       const tag = childEl.tagName.toLowerCase();
@@ -763,15 +800,24 @@ function serializeInlineContent(el: Element): string {
       switch (tag) {
         case "strong":
         case "b":
-          result += wrapWithDelimiter(serializeInlineContent(childEl), "**");
+          result += wrapWithDelimiter(
+            serializeInlineContent(childEl, escapes),
+            "**",
+          );
           break;
         case "em":
         case "i":
-          result += wrapWithDelimiter(serializeInlineContent(childEl), "*");
+          result += wrapWithDelimiter(
+            serializeInlineContent(childEl, escapes),
+            "*",
+          );
           break;
         case "s":
         case "del":
-          result += wrapWithDelimiter(serializeInlineContent(childEl), "~~");
+          result += wrapWithDelimiter(
+            serializeInlineContent(childEl, escapes),
+            "~~",
+          );
           break;
         case "code": {
           const text = childEl.textContent || "";
@@ -786,11 +832,11 @@ function serializeInlineContent(el: Element): string {
         }
         case "u":
           // No markdown equivalent — strip the tag, keep content
-          result += serializeInlineContent(childEl);
+          result += serializeInlineContent(childEl, escapes);
           break;
         case "a": {
           const href = childEl.getAttribute("href") || "";
-          const text = serializeInlineContent(childEl);
+          const text = serializeInlineContent(childEl, escapes);
           result += formatLink(text, href);
           break;
         }
@@ -809,7 +855,7 @@ function serializeInlineContent(el: Element): string {
         }
         case "span":
           // Color spans, etc. — strip the tag, keep content
-          result += serializeInlineContent(childEl);
+          result += serializeInlineContent(childEl, escapes);
           break;
         case "img": {
           const src = childEl.getAttribute("src") || "";
@@ -831,13 +877,13 @@ function serializeInlineContent(el: Element): string {
         }
         case "p":
           // Paragraph inside inline context (e.g., table cell)
-          result += serializeInlineContent(childEl);
+          result += serializeInlineContent(childEl, escapes);
           break;
         case "input":
           // Checkbox in task list — handled at block level
           break;
         default:
-          result += serializeInlineContent(childEl);
+          result += serializeInlineContent(childEl, escapes);
           break;
       }
     }

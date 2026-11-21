@@ -12,7 +12,12 @@ import { EMPTY_BLOCK_PLACEHOLDER } from "../html/util/serializeBlocksExternalHTM
 import { htmlToMarkdown } from "./htmlToMarkdown.js";
 
 // Needs to be sync because it's used in drag handler event (SideMenuExtension)
-export function cleanHTMLToMarkdown(cleanHTMLString: string) {
+export function cleanHTMLToMarkdown(
+  cleanHTMLString: string,
+  // `escapes: "none"` writes the text of the blocks without markdown escapes
+  // (see `TextEscapes` in `htmlToMarkdown.ts`). The default is `"markdown"`.
+  options: { escapes?: "markdown" | "none" } = {},
+) {
   // The external HTML exporter fills empty inline-content blocks with a
   // placeholder character so they survive an HTML round trip (see
   // `EMPTY_BLOCK_PLACEHOLDER`). Markdown has no need for that placeholder, so we
@@ -21,7 +26,7 @@ export function cleanHTMLToMarkdown(cleanHTMLString: string) {
     .split(EMPTY_BLOCK_PLACEHOLDER)
     .join("");
 
-  return htmlToMarkdown(withoutPlaceholder);
+  return htmlToMarkdown(withoutPlaceholder, options);
 }
 
 export function blocksToMarkdown<

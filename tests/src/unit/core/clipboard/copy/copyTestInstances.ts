@@ -796,6 +796,34 @@ export const copyTestInstancesHTML: TestInstance<
     },
     executeTest: testCopyHTML,
   },
+  {
+    // Text with characters that are markdown syntax. The `text/plain` data
+    // must have the text as it is, with no backslash escapes.
+    testCase: {
+      name: "markdownSyntaxText",
+      document: [
+        {
+          type: "paragraph",
+          content: "# Not a heading",
+        },
+        {
+          type: "paragraph",
+          content: "Not *italic*, not a <tag>, and Array<string>",
+        },
+      ],
+      getCopySelection: (doc) => {
+        const startPos = getPosOfTextNode(doc, "# Not a heading");
+        const endPos = getPosOfTextNode(
+          doc,
+          "Not *italic*, not a <tag>, and Array<string>",
+          true,
+        );
+
+        return TextSelection.create(doc, startPos, endPos);
+      },
+    },
+    executeTest: testCopyHTML,
+  },
 ];
 
 // text/plain payloads — exercises the same selections as above but snapshots
