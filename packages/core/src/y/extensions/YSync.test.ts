@@ -87,6 +87,54 @@ it("connects immediately but blocks editing until the first sync", () => {
   expect(isLoading(editor)).toBe(false);
 });
 
+// A change that arrives from Yjs is not typing: the client that wrote the
+// text made its links. The same test for the y-prosemirror binding is in
+// `extensions/tiptap-extensions/Link/link.test.ts`.
+it("does not autolink text that arrives from another client", () => {
+  const { editor, doc } = setup();
+
+  // The other client wrote "example.com" as plain text.
+  const remoteDoc = blocksToYDoc(
+    editor,
+    [
+      { type: "paragraph", content: "Visit example.com" },
+      { type: "paragraph", content: "Second block" },
+    ],
+    "doc",
+  );
+  cleanups.push(() => remoteDoc.destroy());
+  Y.applyUpdate(doc, Y.encodeStateAsUpdate(remoteDoc));
+
+  expect(editor.document.map((block) => block.content)).toEqual([
+    [{ type: "text", text: "Visit example.com", styles: {} }],
+    [{ type: "text", text: "Second block", styles: {} }],
+  ]);
+});
+
+// The guard for the test above: a URL that a user types in an editor with
+// collaboration gets its link.
+it("autolinks a URL that a user types", () => {
+  const { editor } = setup();
+  editor.replaceBlocks(editor.document, [
+    { id: "typed", type: "paragraph", content: "Visit" },
+  ]);
+  editor.setTextCursorPosition("typed", "end");
+
+  const view = editor.prosemirrorView!;
+  view.dispatch(view.state.tr.insertText(" example.com"));
+  view.dispatch(view.state.tr.insertText(" "));
+
+  expect(editor.document[0].content).toEqual([
+    { type: "text", text: "Visit ", styles: {} },
+    {
+      type: "link",
+      href: "https://example.com",
+      content: [{ type: "text", text: "example.com", styles: {} }],
+    },
+    { type: "text", text: " ", styles: {} },
+  ]);
+});
+
 it("allows editing cached content without waiting for the server", () => {
   const server = cachedDocument();
   const local = new Y.Doc();

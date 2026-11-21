@@ -46,8 +46,16 @@ export function autolink(options: AutolinkOptions): Plugin {
         transactions.some((transaction) => transaction.docChanged) &&
         !oldState.doc.eq(newState.doc);
 
-      const preventAutolink = transactions.some((transaction) =>
-        transaction.getMeta("preventAutolink"),
+      // A change that a Yjs binding applies to the editor is not typing (the
+      // change of another client, or the shared document at load): the client
+      // that wrote the text made its links. y-prosemirror marks such a
+      // transaction with the meta of its sync plugin ("y-sync$"), and
+      // `@y/prosemirror` (Yjs 14) with the meta "y-sync-transaction".
+      const preventAutolink = transactions.some(
+        (transaction) =>
+          transaction.getMeta("preventAutolink") ||
+          transaction.getMeta("y-sync$") ||
+          transaction.getMeta("y-sync-transaction"),
       );
 
       if (!docChanges || preventAutolink) {

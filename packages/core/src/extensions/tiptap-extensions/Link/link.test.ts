@@ -1,8 +1,10 @@
 import { afterEach, describe, expect, it } from "vite-plus/test";
 import { TextSelection } from "@tiptap/pm/state";
 import { Slice, Fragment } from "@tiptap/pm/model";
+import * as Y from "yjs";
 
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
+import { blocksToYDoc, withCollaboration } from "../../../yjs/index.js";
 import { findLinks, tokenizeLink } from "./helpers/linkDetector.js";
 import { isAllowedUri } from "./link.js";
 
@@ -41,6 +43,20 @@ function createEditor(links?: { isValidLink?: (href: string) => boolean }) {
   const editor = BlockNoteEditor.create(links ? { links } : undefined);
   const div = document.createElement("div");
   editor.mount(div);
+  return editor;
+}
+
+/** An editor with the y-prosemirror binding on the shared document `doc`. */
+function createEditorWithCollaboration(doc: Y.Doc) {
+  const editor = BlockNoteEditor.create(
+    withCollaboration({
+      collaboration: {
+        fragment: doc.getXmlFragment("doc"),
+        user: { name: "Test", color: "red" },
+      },
+    }),
+  );
+  editor.mount(document.createElement("div"));
   return editor;
 }
 
@@ -644,6 +660,23 @@ describe("Link extension autolink behavior", () => {
       expect(links).toHaveLength(1);
       expect(links[0].href).toBe("https://example.com/path?q=1");
     });
+
+    // The guard for "does not autolink text that arrives from another
+    // client" below: a URL that a user types in an editor with collaboration
+    // gets its link. This test uses the y-prosemirror binding. The same test
+    // for the Yjs 14 binding is in `y/extensions/YSync.test.ts`.
+    it("autolinks a URL that a user types in an editor with collaboration", () => {
+      editor = createEditorWithCollaboration(new Y.Doc());
+      editor.replaceBlocks(editor.document, [
+        { id: "test-block", type: "paragraph" },
+      ]);
+
+      const links = typeTextThenSpace(editor, "test-block", "example.com");
+
+      expect(links).toHaveLength(1);
+      expect(links[0].href).toBe("https://example.com");
+      expect(links[0].text).toBe("example.com");
+    });
   });
 
   describe("should NOT autolink", () => {
@@ -675,6 +708,32 @@ describe("Link extension autolink behavior", () => {
       setupEditorWithBlock();
       const links = typeTextThenSpace(editor, "test-block", "example.com1");
       expect(links).toHaveLength(0);
+    });
+
+    // A change that arrives from Yjs is not typing: the client that wrote the
+    // text made its links. This test uses the y-prosemirror binding. The same
+    // test for the Yjs 14 binding is in `y/extensions/YSync.test.ts`: the two
+    // bindings cannot load in one test file, because each one makes a plugin
+    // key with the name "y-sync".
+    it("does not autolink text that arrives from another client", () => {
+      const doc = new Y.Doc();
+      editor = createEditorWithCollaboration(doc);
+
+      // The other client wrote "example.com" as plain text.
+      const remoteDoc = blocksToYDoc(
+        editor,
+        [
+          { type: "paragraph", content: "Visit example.com" },
+          { type: "paragraph", content: "Second block" },
+        ],
+        "doc",
+      );
+      Y.applyUpdate(doc, Y.encodeStateAsUpdate(remoteDoc));
+
+      expect(editor.document.map((block) => block.content)).toEqual([
+        [{ type: "text", text: "Visit example.com", styles: {} }],
+        [{ type: "text", text: "Second block", styles: {} }],
+      ]);
     });
   });
 
