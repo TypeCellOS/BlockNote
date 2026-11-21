@@ -49,13 +49,6 @@ export type ChangeOperations = {
 };
 
 /**
- * A block that other writers changed after `base`, with the type of the
- * operation that changed it (see `BlockOperation`). A new or a removed block
- * with blocks in it is one item.
- */
-export type ChangeOfOthers = { id: string; change: BlockOperation["type"] };
-
-/**
  * The text or the JSON gives blocks that do not fit the schema of the editor
  * (for example an unknown block type, or a table cell that spans more rows
  * than the table has): nothing applies.
@@ -65,8 +58,11 @@ export type InvalidDocumentError = { error: "invalid-document" };
 /** The document changed after `base`: nothing applies. */
 export type DocumentChangedError = {
   error: "document-changed";
-  /** The blocks that other writers changed after `base`. */
-  changesOfOthers: ChangeOfOthers[];
+  /**
+   * The changes of other writers after `base`: the operations that change
+   * the version that the client read to the current document.
+   */
+  changesOfOthers: BlockOperation[];
 };
 
 /**
@@ -354,26 +350,10 @@ export function updateFromTarget(
 export function changesAfterBase(
   base: readonly LensBlock[],
   current: readonly LensBlock[],
-): ChangeOfOthers[] {
+): BlockOperation[] {
   assertBlockIds(current, "current document");
   assertBlockIds(base, "base");
-  return changesOfOthersOf(base, current);
-}
-
-/**
- * The changes of other writers between the version that a client read and
- * the current document, by block ID (see `ChangeOfOthers`).
- *
- * @internal
- */
-export function changesOfOthersOf(
-  base: readonly LensBlock[],
-  current: readonly LensBlock[],
-): ChangeOfOthers[] {
-  return diffDocuments(base, current).map((operation) => ({
-    id: operation.type === "insert" ? operation.block.id : operation.id,
-    change: operation.type,
-  }));
+  return diffDocuments(base, current);
 }
 
 /**

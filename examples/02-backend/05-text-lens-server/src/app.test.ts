@@ -114,7 +114,7 @@ describe("text lens server", () => {
     const ownText = text.replace("Hello world", "Hello from B");
     const first = await (await put("text", ownText, fromBase('"1"'))).json();
     expect(first).toMatchObject({
-      changesOfOthers: [{ id: "end", change: "update" }],
+      changesOfOthers: [expect.objectContaining({ type: "update", id: "end" })],
     });
     // The next write of B is its own text, from the ETag of its first write.
     const second = await put(
@@ -152,7 +152,7 @@ describe("text lens server", () => {
       etag: '"4"',
       operations: [expect.objectContaining({ type: "update", id: "intro" })],
       warnings: [],
-      changesOfOthers: [{ id: "end", change: "update" }],
+      changesOfOthers: [expect.objectContaining({ type: "update", id: "end" })],
     });
     const read = await get("text");
     expect(read.headers.get("ETag")).toBe('"3"');

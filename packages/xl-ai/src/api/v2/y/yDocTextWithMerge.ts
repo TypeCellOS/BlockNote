@@ -3,7 +3,6 @@ import { yfragmentToBlocks } from "@blocknote/core/y";
 import * as Y from "@y/y";
 
 import {
-  changesOfOthersOf,
   type InvalidDocumentError,
   type JSONChange,
   operationsOf,
@@ -18,6 +17,7 @@ import {
   mergeOf,
   operationsOfMerge,
 } from "../apiWithMerge.js";
+import { diffDocuments } from "../operations/index.js";
 import {
   docOf,
   fragmentAtBase,
@@ -151,7 +151,7 @@ function yjsMerge(
     ydoc,
     Y.encodeStateAsUpdateV2(docOf(atBase), Y.encodeStateVector(ydoc)),
   );
-  return { ...written, changesOfOthers: changesOfOthersOf(base, current) };
+  return { ...written, changesOfOthers: diffDocuments(base, current) };
 }
 
 /** A merge write to a fragment: the result without `written` (see `YDocMergedChangeResult`). */

@@ -12,7 +12,6 @@ import type { Schema } from "prosemirror-model";
 import { EditorState, type Transaction } from "prosemirror-state";
 
 import {
-  type ChangeOfOthers,
   type ChangeOperations,
   changesAfterBase,
   type DocumentChangedError,
@@ -186,7 +185,7 @@ function strictOperationsOf(
 }
 
 /**
- * The blocks that other writers changed in the fragment after `base`.
+ * The changes of other writers to the fragment after `base`, as operations.
  * `atBase` is the fragment at `base`, and `withBase` is the fragment as it
  * is after the Y.Doc gets `base` (see `fragmentWithBase`).
  */
@@ -194,7 +193,7 @@ function fragmentChangesAfterBase(
   editor: BlockNoteEditor<any, any, any>,
   atBase: Y.Node,
   withBase: Y.Node,
-): ChangeOfOthers[] {
+): BlockOperation[] {
   // The check compares content, not state vectors: a state vector also
   // changes for a change in a different fragment, and for a change that a
   // later change reverts.

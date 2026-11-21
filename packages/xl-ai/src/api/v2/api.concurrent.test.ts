@@ -1426,7 +1426,9 @@ describe("the document that the client wrote, in the result of a write", () => {
 
     expect(texts(editor)).toEqual(["Alpha two", "Beta, from the other writer"]);
     expect(second.warnings).toEqual([]);
-    expect(second.changesOfOthers).toEqual([{ id: "b", change: "update" }]);
+    expect(second.changesOfOthers).toEqual([
+      expect.objectContaining({ type: "update", id: "b" }),
+    ]);
   });
 
   it("is not the document after the write: that base, with the text of the client, removes the change of the other writer", () => {
@@ -1550,9 +1552,12 @@ describe("the changes of other writers in the result of a write", () => {
     expect(changesOfOthers).toHaveLength(3);
     expect(changesOfOthers).toEqual(
       expect.arrayContaining([
-        { id: "b", change: "update" },
-        { id: "x", change: "insert" },
-        { id: "c", change: "delete" },
+        expect.objectContaining({ type: "update", id: "b" }),
+        expect.objectContaining({
+          type: "insert",
+          block: expect.objectContaining({ id: "x" }),
+        }),
+        { type: "delete", id: "c" },
       ]),
     );
   });

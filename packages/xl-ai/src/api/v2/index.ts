@@ -7,7 +7,6 @@
  * a separate entry point. Thus, code without Yjs does not load Yjs.
  */
 export {
-  type ChangeOfOthers,
   type ChangeOperations,
   type ChangeResult,
   computeOperations,

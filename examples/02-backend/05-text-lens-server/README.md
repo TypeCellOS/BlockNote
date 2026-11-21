@@ -31,7 +31,7 @@ A write sends the ETag of the text of the client in one of two headers. This is 
 
 The merge is experimental: its rules can change, and it has known wrong results (see the README of the text lens, "The merge write"). After a 412, read the document again, make the change in the new text, and write again.
 
-The response of a write is JSON: `etag`, `operations`, `warnings` and `changesOfOthers` (the blocks that other writers changed after `Base-Version`; empty without a merge).
+The response of a write is JSON: `etag`, `operations`, `warnings` and `changesOfOthers` (the changes of other writers after `Base-Version`, as operations; empty without a merge).
 
 ### The version of a write
 

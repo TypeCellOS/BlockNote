@@ -1,8 +1,6 @@
 import type { BlockNoteEditor } from "@blocknote/core";
 
 import {
-  type ChangeOfOthers,
-  changesOfOthersOf,
   dispatchOperations,
   type InvalidDocumentError,
   type JSONChange,
@@ -15,7 +13,7 @@ import {
 import { fitResult, type FitWarning } from "./fit/index.js";
 import { mergeDocument, type MergeWarning } from "./merge/index.js";
 import type { LensBlock } from "./model.js";
-import type { BlockOperation } from "./operations/index.js";
+import { type BlockOperation, diffDocuments } from "./operations/index.js";
 import type { TargetWarning } from "./target/index.js";
 import {
   assertBlockIds,
@@ -66,12 +64,13 @@ export type MergedChangeOperations = {
   operations: BlockOperation[];
   warnings: ChangeWarning[];
   /**
-   * The blocks that other writers changed after `base`. The document after
-   * the write has these changes too. A client (for example an AI agent)
-   * that reads the document again sees these changes, which it did not
-   * write.
+   * The changes of other writers after `base`: the operations that change
+   * the version that the client read to the document before the write. The
+   * document after the write has these changes too. A client (for example
+   * an AI agent) that reads the document again sees these changes, which it
+   * did not write.
    */
-  changesOfOthers: ChangeOfOthers[];
+  changesOfOthers: BlockOperation[];
   /**
    * The document as the client wrote it: the version of `base` with the
    * change of the client, and without the changes of other writers. Its text
@@ -248,7 +247,7 @@ export function operationsOfMerge(
   return {
     operations: update.operations,
     warnings: [...merge.targetWarnings, ...merge.conflicts, ...update.warnings],
-    changesOfOthers: changesOfOthersOf(base, current),
+    changesOfOthers: diffDocuments(base, current),
     // The client wrote the target: it gets the fit for the version that the
     // client read.
     written: fitResult(rules, merge.target, base, false),

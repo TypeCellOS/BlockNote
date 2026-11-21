@@ -1,7 +1,6 @@
 import type { BlockNoteEditor, PartialBlock } from "@blocknote/core";
 import {
   type BlockOperation,
-  type ChangeOfOthers,
   type ChangeWarning,
   getDocumentText,
   htmlFormat,
@@ -180,8 +179,8 @@ type AppliedWrite = {
   error?: undefined;
   operations: BlockOperation[];
   warnings: ChangeWarning[];
-  /** The blocks that other writers changed after `Base-Version`. Empty without a merge. */
-  changesOfOthers: ChangeOfOthers[];
+  /** The changes of other writers after `Base-Version`, as operations. Empty without a merge. */
+  changesOfOthers: BlockOperation[];
   /**
    * The document that the client wrote, if it is not the document after the
    * write: a merge kept changes of other writers.

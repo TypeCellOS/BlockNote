@@ -400,8 +400,8 @@ describe("a strict write from a version", () => {
     expect(result).toEqual({
       error: "document-changed",
       changesOfOthers: expect.arrayContaining([
-        { id: "b", change: "update" },
-        { id: "c", change: "delete" },
+        expect.objectContaining({ type: "update", id: "b" }),
+        { type: "delete", id: "c" },
       ]),
     });
     expect(result).toHaveProperty("changesOfOthers.length", 2);
@@ -421,7 +421,7 @@ describe("a strict write from a version", () => {
       }),
     ).toEqual({
       error: "document-changed",
-      changesOfOthers: [{ id: "b", change: "update" }],
+      changesOfOthers: [expect.objectContaining({ type: "update", id: "b" })],
     });
   });
 
@@ -491,7 +491,7 @@ describe("a strict write from a version", () => {
       }),
     ).toEqual({
       error: "document-changed",
-      changesOfOthers: [{ id: "c", change: "delete" }],
+      changesOfOthers: [{ type: "delete", id: "c" }],
     });
   });
 
@@ -615,7 +615,12 @@ describe("a strict write from a version", () => {
       }),
     ).toEqual({
       error: "document-changed",
-      changesOfOthers: [{ id: "d", change: "insert" }],
+      changesOfOthers: [
+        expect.objectContaining({
+          type: "insert",
+          block: expect.objectContaining({ id: "d" }),
+        }),
+      ],
     });
   });
 
@@ -675,7 +680,7 @@ describe("a strict write from a version", () => {
 
     expect(result).toMatchObject({
       error: "document-changed",
-      changesOfOthers: [{ change: "insert" }],
+      changesOfOthers: [{ type: "insert" }],
     });
     expect(readText(fragment, markdownFormat).trim()).toBe("Other");
   });
@@ -1751,8 +1756,8 @@ describe.each(merges)(
       expect(changesOfOthers).toHaveLength(2);
       expect(changesOfOthers).toEqual(
         expect.arrayContaining([
-          { id: "b", change: "update" },
-          { id: "c", change: "delete" },
+          expect.objectContaining({ type: "update", id: "b" }),
+          { type: "delete", id: "c" },
         ]),
       );
     });
