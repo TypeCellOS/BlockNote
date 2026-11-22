@@ -58,11 +58,13 @@ class SuggestionMenuView {
         return;
       }
       // Only a scroll of an ancestor of the cursor can move the menu's
-      // reference. The menu's own scroll (it is in the editor's subtree, so
-      // this capture listener sees it) must not reposition it.
+      // reference. Check for contains() so this also works across realms.
+      const target = event.target;
       if (
-        event.target instanceof Node &&
-        !event.target.contains(decorationNode)
+        target &&
+        "contains" in target &&
+        typeof target.contains === "function" &&
+        !target.contains(decorationNode)
       ) {
         return;
       }

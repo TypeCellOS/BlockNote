@@ -2,6 +2,7 @@ import { DOMParser, Slice } from "@tiptap/pm/model";
 import { TextSelection } from "@tiptap/pm/state";
 import { EditorView } from "@tiptap/pm/view";
 
+import { isDOMNode } from "../../util/browser.js";
 import { distanceToRect } from "./sideMenuHover.js";
 
 /** Marks events we dispatch ourselves, so the handlers ignore them. */
@@ -97,7 +98,7 @@ export function registerBlockDropHandlers(
       view.dragging !== null ||
       isDragOrigin() ||
       event.dataTransfer?.types.includes("blocknote/html") ||
-      (event.target instanceof Node && view.dom.contains(event.target))
+      (isDOMNode(event.target) && view.dom.contains(event.target))
     );
   }
 

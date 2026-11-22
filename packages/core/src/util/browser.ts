@@ -1,3 +1,13 @@
+/** Identifies DOM nodes without relying on their JavaScript realm. */
+export function isDOMNode(value: unknown): value is Node {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "nodeType" in value &&
+    typeof value.nodeType === "number"
+  );
+}
+
 export const isAppleOS = () =>
   typeof navigator !== "undefined" &&
   (/Mac/.test(navigator.platform) ||

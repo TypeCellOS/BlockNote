@@ -92,6 +92,36 @@ describe("SuggestionMenu", () => {
     },
   );
 
+  it("updates the reference position only for ancestor scrolls in an iframe", async ({
+    setupEditor,
+    onTestFinished,
+  }) => {
+    const frame = document.createElement("iframe");
+    document.body.appendChild(frame);
+    onTestFinished(() => frame.remove());
+
+    const frameDocument = frame.contentDocument!;
+    const ancestor = frameDocument.createElement("div");
+    const container = frameDocument.createElement("div");
+    const menuElement = frameDocument.createElement("div");
+    ancestor.append(container, menuElement);
+    frameDocument.body.appendChild(ancestor);
+
+    const { editor } = await setupEditor({ mountType: false });
+    editor.mount(container);
+    onTestFinished(() => editor.unmount());
+    const menu = editor.getExtension(SuggestionMenu)!;
+    menu.openSuggestionMenu("/");
+    const initialPosition = menu.store.state?.referencePos;
+    expect(initialPosition).toBeDefined();
+
+    menuElement.dispatchEvent(new Event("scroll"));
+    expect(menu.store.state?.referencePos).toBe(initialPosition);
+
+    ancestor.dispatchEvent(new Event("scroll"));
+    expect(menu.store.state?.referencePos).not.toBe(initialPosition);
+  });
+
   it("does not throw when the menu opens while not editable (#2701)", async ({
     setupEditor,
   }) => {
