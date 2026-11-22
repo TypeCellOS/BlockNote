@@ -64,4 +64,41 @@ describe("blockToNode: tables", () => {
       });
     },
   );
+
+  // A merged cell without widths must have one `<col>` for each column in its
+  // span. With only one `<col>`, the width of the third column goes to the
+  // second column.
+  it("exports a <col> for each column of a merged cell without widths", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({ mountType: false });
+
+    const html = editor.blocksToFullHTML([
+      {
+        type: "table",
+        content: {
+          type: "tableContent",
+          columnWidths: [undefined, undefined, 200],
+          rows: [
+            {
+              cells: [
+                { type: "tableCell", props: { colspan: 2 }, content: "Merged" },
+                "c",
+              ],
+            },
+            { cells: ["a", "b", "c"] },
+          ],
+        },
+      } as any,
+    ]);
+
+    const cols = new DOMParser()
+      .parseFromString(html, "text/html")
+      .querySelectorAll("col");
+    expect(Array.from(cols, (col) => col.style.width)).toEqual([
+      "",
+      "",
+      "200px",
+    ]);
+  });
 });
