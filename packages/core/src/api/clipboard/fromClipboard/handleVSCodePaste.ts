@@ -1,6 +1,6 @@
 import { EditorView } from "prosemirror-view";
 
-import { escapeHtml } from "../../parsers/markdown/markdownToHtml.js";
+import { escapeHtml } from "../../../util/escapeHtml.js";
 
 export function handleVSCodePaste(event: ClipboardEvent, view: EditorView) {
   const { schema } = view.state;
