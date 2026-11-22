@@ -33,10 +33,8 @@ describe("textToCodeBlockHTML", () => {
   });
 
   it("escapes a quote in the language", () => {
-    expect(
-      textToCodeBlockHTML("const a = 1;", `x" data-language="python`),
-    ).toBe(
-      `<pre><code class="language-x&quot; data-language=&quot;python">const a = 1;</code></pre>`,
+    expect(textToCodeBlockHTML("const a = 1;", `a"b`)).toBe(
+      `<pre><code class="language-a&quot;b">const a = 1;</code></pre>`,
     );
   });
 });
