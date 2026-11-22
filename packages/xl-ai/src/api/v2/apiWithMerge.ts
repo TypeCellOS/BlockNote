@@ -166,8 +166,8 @@ export function mergedOperationsOf(
     return target;
   }
   // A block of the client with the ID of a block that another writer added
-  // after `base` gives two blocks with one ID. Only a JSON change can have
-  // such a block. As in `parseJSON`, the lens does not repair it.
+  // after `base` gives two blocks with one ID. This is invalid, because the
+  // caller "should not know" about those blocks.
   const read = new BlockIndex(base);
   const now = new BlockIndex(current);
   const ids = new BlockIndex(target.target).ids;
