@@ -2,7 +2,10 @@ import type {} from "./src/commands/transport/keyboard.js";
 import { afterEach, beforeAll, beforeEach } from "vite-plus/test";
 import { commands, page } from "./src/commands/transport.js";
 
-import { ensureTouchEmulation } from "./src/utils/ensureTouchEmulation.js";
+import {
+  ensureTouchEmulation,
+  hasTouchEmulation,
+} from "./src/utils/ensureTouchEmulation.js";
 
 // Browser-mode setup. Unlike the jsdom `vitestSetup.ts`, we don't mock
 // ClipboardEvent/DragEvent/matchMedia here — the real browser provides them.
@@ -54,14 +57,11 @@ beforeAll(async () => {
 // Chromium drops the context's touch emulation after any screenshot captured
 // beyond the viewport, which on this mobile context is every element
 // screenshot, and Playwright never re-arms it (microsoft/playwright#42607;
-// mechanism and repro in `src/commands/transport/restoreTouchEmulation.ts`). Before every
-// test on the android instance: re-arm the emulation, then assert it actually
-// holds — the assert is what catches the deeper failure class where the
-// *mechanism* breaks (provider contextOptions silently ignored, a vitest
-// upgrade rewiring the provider, this very command regressing). No suite
-// needs to call `ensureTouchEmulation` itself.
+// mechanism and repro in `src/commands/transport/restoreTouchEmulation.ts`).
+// Check in the iframe before crossing into Node to re-arm it. If restoration
+// is needed, assert it actually worked instead of silently testing without touch.
 beforeEach(async () => {
-  if (/android/i.test(navigator.userAgent)) {
+  if (/android/i.test(navigator.userAgent) && !hasTouchEmulation()) {
     await commands.restoreTouchEmulation();
     ensureTouchEmulation();
   }
