@@ -31,16 +31,25 @@ function read(p: string) {
 // explicitly. A minimal font set keeps the compiles fast; tests about the
 // bundled defaults leave `fonts`/`emojiFont` unset instead.
 const fontDir = "../../shared/assets/fonts";
+let wasm: Uint8Array | undefined;
+let minimalFonts: Uint8Array[] | undefined;
+
+function readWasm() {
+  return (wasm ??= read(
+    "../xl-typst-compiler/pkg/blocknote_typst_wasm_bg.wasm",
+  ));
+}
+
 function wasmAndFonts(): Pick<
   Partial<PdfExporterOptions>,
   "wasm" | "fonts" | "emojiFont"
 > {
   return {
-    wasm: read("../xl-typst-compiler/pkg/blocknote_typst_wasm_bg.wasm"),
-    fonts: [
+    wasm: readWasm(),
+    fonts: (minimalFonts ??= [
       read(join(fontDir, "inter/Inter_18pt-Regular.ttf")),
       read(join(fontDir, "inter/Inter_18pt-Bold.ttf")),
-    ],
+    ]),
     emojiFont: [],
   };
 }
@@ -97,10 +106,17 @@ describe("PDFExporter PDF/UA declaration", () => {
       { type: "paragraph", content: "Body" },
     ]);
 
+  // Both tests inspect the same export, not whether exporting twice works.
+  let conformingExport: Promise<PdfExportResult> | undefined;
+  function exportConformingDocument() {
+    return (conformingExport ??= exporter().toPDF(conforming(), {
+      title: "Doc",
+      lang: "en",
+    }));
+  }
+
   it("declares PDF/UA-1 for a conforming document", async () => {
-    const { bytes, pdfUA } = expectExported(
-      await exporter().toPDF(conforming(), { title: "Doc", lang: "en" }),
-    );
+    const { bytes, pdfUA } = expectExported(await exportConformingDocument());
     expect(pdfUA).toEqual({ declared: true });
     expect(latin1(bytes)).toContain("pdfuaid");
     expect(latin1(bytes)).toContain("StructTreeRoot");
@@ -208,7 +224,7 @@ describe("PDFExporter PDF/UA declaration", () => {
     // emojiFont stay unset so the real bundled defaults load.
     const zeroConfig = new PDFExporter(schema, typstDefaultSchemaMappings, {
       resolveFileUrl: testResolveFileUrl,
-      wasm: wasmAndFonts().wasm,
+      wasm: readWasm(),
     });
     const result = expectExported(
       await zeroConfig.toPDF(blocks, { title: "Doc", lang: "en" }),
@@ -238,13 +254,7 @@ describe("PDFExporter PDF/UA declaration", () => {
   });
 
   it("carries the PDF as a Blob alongside the bytes", async () => {
-    const result = await exporter().toPDF(conforming(), {
-      title: "Doc",
-      lang: "en",
-    });
-    if (result.error) {
-      throw new Error(result.compileErrors.map((d) => d.message).join(" | "));
-    }
+    const result = expectExported(await exportConformingDocument());
     expect(result.blob.type).toBe("application/pdf");
     expect(result.blob.size).toBe(result.bytes.byteLength);
     // Lazily created, memoized: repeated access yields the same instance.
