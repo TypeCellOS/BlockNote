@@ -10,12 +10,16 @@ import { useCreateBlockNote } from "@blocknote/react";
 import { withMultiColumn } from "@blocknote/xl-multi-column";
 import StaticApp from "@examples/02-backend/04-rendering-static-documents/src/App";
 import { testDocument } from "@shared/testDocument.js";
-import { describe, test } from "vite-plus/test";
-import { render } from "vitest-browser-react";
-import { browserName, page } from "../../utils/context.js";
+import { describe, expect, onTestFinished, test } from "vite-plus/test";
+import { cleanup, render } from "vitest-browser-react";
+import { withTiptapStyleCleanup } from "../../commands/browser/tiptapFixtureStyles.js";
+import { browserName, commands, page } from "../../utils/context.js";
 import { EDITOR_SELECTOR } from "../../utils/const.js";
-import { expectElement, sleep, waitForSelector } from "../../utils/editor.js";
-import { screenshotFull } from "../../utils/screenshotFull.js";
+import { expectElement, waitForSelector } from "../../utils/editor.js";
+import {
+  screenshotFull,
+  withScreenshotViewport,
+} from "../../utils/screenshotFull.js";
 
 // The equality test below renders the *shared exporter test document*, so its
 // baseline doubles as the editor ground truth the exporter visual baselines
@@ -78,9 +82,20 @@ function StaticRenderApp() {
 
 describe("Check static rendering", () => {
   test("Check static rendering", async () => {
-    await render(<StaticApp />);
-    await waitForSelector(EDITOR_SELECTOR);
-    await sleep(500);
+    // The standalone example never boots TipTap. Under iframe reuse, a live
+    // editor's injected .ProseMirror rule can preserve indentation in the
+    // example's HTML string and turn it into blank line boxes. Normalize
+    // only the static root; BlockNote still controls inline text whitespace.
+    const view = await render(
+      <div data-test="static-example">
+        <style>{`[data-test="static-example"] ${EDITOR_SELECTOR} { white-space: normal; }`}</style>
+        <StaticApp />
+      </div>,
+    );
+    await expect
+      .poll(() => view.container.querySelector(EDITOR_SELECTOR))
+      .not.toBeNull();
+    await document.fonts.ready;
     await expectElement(document.body).toMatchScreenshot("static-rendering");
   });
 
@@ -94,6 +109,13 @@ describe("Check static rendering", () => {
     "Check static rendering visually matches live editor",
     { timeout: 90000 },
     async () => {
+      onTestFinished(() => commands.mockCustomBlockImages("remove"));
+      onTestFinished(() => commands.mockVersioningMedia("remove"));
+      // Finish hooks unwind in reverse order. The renderer owns any root
+      // whose render rejects before returning an unmount handle.
+      onTestFinished(cleanup);
+      await commands.mockCustomBlockImages("install");
+      await commands.mockVersioningMedia("install");
       // Masks the regions that legitimately differ between the live editor
       // and the static export, or that aren't deterministic across runs.
       // <video>/<audio> render differently as they load (and the amount
@@ -118,7 +140,39 @@ describe("Check static rendering", () => {
       // small legitimate text-rendering differences (e.g. the image
       // captions' '×' vs 'x').
       const CAPTURE_HEIGHT = 4400;
-      const matchEquality = async () => {
+      const previousHeight = document.documentElement.style.height;
+      onTestFinished(() => {
+        document.documentElement.style.height = previousHeight;
+      });
+      async function matchEquality(editor: HTMLElement) {
+        // Both toggle variants must be expanded before their content enters
+        // the capture. Media controls are masked, but metadata (or a terminal
+        // media error) can still change the dimensions of the player.
+        await expect
+          .element(
+            page.getByText("Content nested inside the toggle list item."),
+          )
+          .toBeVisible();
+        await expect
+          .element(page.getByText("Content nested inside the toggle heading."))
+          .toBeVisible();
+        await Promise.all([
+          ...Array.from(editor.querySelectorAll("img"), (image) =>
+            image.decode(),
+          ),
+          ...Array.from(
+            editor.querySelectorAll<HTMLMediaElement>("video[src], audio[src]"),
+            (media) =>
+              expect
+                .poll(
+                  () =>
+                    media.readyState >= HTMLMediaElement.HAVE_METADATA ||
+                    media.error !== null,
+                )
+                .toBe(true),
+          ),
+        ]);
+        await document.fonts.ready;
         window.scrollTo(0, 0);
         document.documentElement.style.height = `${CAPTURE_HEIGHT}px`;
         await screenshotFull(
@@ -130,7 +184,7 @@ describe("Check static rendering", () => {
             screenshotOptions: { scale: "css", mask: masks() },
           },
         );
-      };
+      }
 
       // Expand the toggles: the static export renders nested children, while
       // the live widgets start collapsed. Their initial state is read from
@@ -138,31 +192,46 @@ describe("Check static rendering", () => {
       // clicking the chevrons - clicks scroll the page and race the widgets'
       // hydration. Seeded before the live render; the ids are stable, shared
       // by both renders via the module-level `doc`.
+      const previousToggleState = new Map<string, string | null>();
+      onTestFinished(() => {
+        for (const [key, value] of previousToggleState) {
+          if (value === null) {
+            localStorage.removeItem(key);
+          } else {
+            localStorage.setItem(key, value);
+          }
+        }
+      });
       for (const block of doc) {
-        window.localStorage.setItem(`toggle-${block.id}`, "true");
+        const key = `toggle-${block.id}`;
+        previousToggleState.set(key, localStorage.getItem(key));
+        localStorage.setItem(key, "true");
       }
 
-      const liveEditor = await render(<LiveEditorApp />);
-      await waitForSelector(EDITOR_SELECTOR);
-      // Hide the trailing block widget so the live editor's page matches the
-      // static export, which doesn't render it.
-      const style = document.createElement("style");
-      style.textContent = ".bn-trailing-block { display: none !important; }";
-      document.head.appendChild(style);
-      await sleep(500);
-      await matchEquality();
+      await withScreenshotViewport(CAPTURE_HEIGHT, async () => {
+        await withTiptapStyleCleanup(async () => {
+          const liveEditor = await render(<LiveEditorApp />);
+          // The static export doesn't render the trailing block widget.
+          const style = document.createElement("style");
+          style.textContent =
+            ".bn-trailing-block { display: none !important; }";
+          document.head.appendChild(style);
+          try {
+            await matchEquality(await waitForSelector(EDITOR_SELECTOR));
+          } finally {
+            style.remove();
+            // Release this mount even if the live capture fails.
+            await liveEditor.unmount();
+          }
+        });
 
-      // Await the unmount: `render`/`unmount` run inside `act()`, and
-      // starting the next render before the unmount settles triggers React's
-      // "overlapping act() calls" warning and leaves a pending act promise
-      // that hangs the test.
-      await liveEditor.unmount();
-      style.remove();
-
-      await render(<StaticRenderApp />);
-      await waitForSelector(EDITOR_SELECTOR);
-      await sleep(500);
-      await matchEquality();
+        const staticEditor = await render(<StaticRenderApp />);
+        try {
+          await matchEquality(await waitForSelector(EDITOR_SELECTOR));
+        } finally {
+          await staticEditor.unmount();
+        }
+      });
     },
   );
 });

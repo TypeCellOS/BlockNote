@@ -1,17 +1,32 @@
-import AriakitApp from "@examples/01-basic/08-ariakit/src/App";
-import "@examples/01-basic/09-shadcn/tailwind.css";
-import ShadcnApp from "@examples/01-basic/09-shadcn/src/App";
-import MantineApp from "@examples/01-basic/testing/src/App";
-import { beforeEach, describe, expect, test, vi } from "vite-plus/test";
-import { render } from "vitest-browser-react";
+import "@blocknote/ariakit/style.css";
+import "@blocknote/core/fonts/inter.css";
+import "@blocknote/shadcn/style.css";
+import {
+  beforeEach,
+  describe,
+  expect,
+  type TestContext,
+  vi,
+} from "vite-plus/test";
 
+import shadcnStyles from "../../../../examples/01-basic/09-shadcn/tailwind.css?inline";
+import type { SetupEditor } from "../../commands/browser/setupEditor.js";
+import { useBrowserSuiteStyles } from "../../commands/browser/useBrowserSuiteStyles.js";
+import { selectText } from "../../commands/node/selectText.js";
 import { page, userEvent } from "../../utils/context.js";
 import { EDITOR_SELECTOR, LINK_BUTTON_SELECTOR } from "../../utils/const.js";
-import { focusOnEditor, waitForSelector } from "../../utils/editor.js";
+import { waitForSelector } from "../../utils/editor.js";
 import { ensureTouchEmulation } from "../../utils/ensureTouchEmulation.js";
 import { clickAt, getRect } from "../../utils/mouse.js";
 
+useBrowserSuiteStyles(shadcnStyles);
+
 const MOBILE_TOOLBAR_SELECTOR = ".bn-mobile-formatting-toolbar";
+const PHONE_WIDTH = 393;
+const KEYBOARD_CLOSED_HEIGHT = 727;
+const KEYBOARD_OPEN_HEIGHT = 427;
+const SELECTED_TEXT = "Some text";
+const SELECTED_BLOCK = "selected-block";
 
 // What the mobile toolbar promises, per skin: a tap on a toolbar button must
 // not move focus off the editor (that closes the on-screen keyboard); a
@@ -27,11 +42,7 @@ const MOBILE_TOOLBAR_SELECTOR = ".bn-mobile-formatting-toolbar";
 // while closed, so the mount-time autofocus fired once, invisibly), and Base
 // UI focuses its menu and select popups on open with no way to turn that off.
 
-const SKINS = [
-  { name: "mantine", App: MantineApp },
-  { name: "ariakit", App: AriakitApp },
-  { name: "shadcn", App: ShadcnApp },
-] as const;
+const SKINS = ["mantine", "ariakit", "shadcn"] as const;
 
 // The two toolbar surfaces under test, found by what a user sees: the block
 // type select shows the current block type ("Paragraph" here), the colors
@@ -57,7 +68,7 @@ const SURFACES = [
   },
 ] as const;
 
-async function openSurface(surface: (typeof SURFACES)[number]) {
+async function clickSurfaceTrigger(surface: (typeof SURFACES)[number]) {
   const trigger = await vi.waitFor(() => {
     const el = surface.findTrigger();
     if (!el) {
@@ -74,10 +85,6 @@ function describeElement(target: EventTarget | null) {
   }
   const role = target.getAttribute("role");
   return `${target.tagName.toLowerCase()}${role ? `[role=${role}]` : ""}.${Array.from(target.classList).slice(0, 2).join(".")}`;
-}
-
-function activeIsInEditor() {
-  return document.activeElement?.closest(EDITOR_SELECTOR) !== null;
 }
 
 // The popup that just opened, once it is laid out. Either role: the block
@@ -103,8 +110,10 @@ async function waitForOpenPopup() {
 // Records every time focus leaves the editor, with where it went. The
 // assertions want this to stay empty: a final `activeIsInEditor()` alone would
 // let a blur + re-focus (keyboard flicker) pass.
-function trackFocusLeavingEditor() {
-  const editorElement = document.querySelector<HTMLElement>(EDITOR_SELECTOR)!;
+function trackFocusLeavingEditor(
+  editorElement: HTMLElement,
+  onTestFinished: TestContext["onTestFinished"],
+) {
   const left: string[] = [];
   function onFocusOut(event: FocusEvent) {
     const to = event.relatedTarget;
@@ -122,12 +131,10 @@ function trackFocusLeavingEditor() {
     }
   }
   editorElement.addEventListener("focusout", onFocusOut);
-  return {
-    left,
-    stop() {
-      editorElement.removeEventListener("focusout", onFocusOut);
-    },
-  };
+  onTestFinished(() =>
+    editorElement.removeEventListener("focusout", onFocusOut),
+  );
+  return left;
 }
 
 // Taps `element` once it is where the tap will land (popups position a frame
@@ -160,38 +167,58 @@ function findItem(popup: HTMLElement, pattern: RegExp) {
   return item;
 }
 
-async function settle() {
-  await new Promise((resolve) => setTimeout(resolve, 300));
-}
-
-async function openMobileToolbar() {
-  await focusOnEditor();
-  await userEvent.keyboard("Some text");
-  await userEvent.keyboard("{Shift>}{Home}{/Shift}");
+async function openMobileToolbar(
+  setupEditor: SetupEditor,
+  skin: (typeof SKINS)[number],
+  controlSelector?: string,
+) {
+  const { editor, rootNode } = await setupEditor({
+    skin,
+    initialContent: [
+      { id: SELECTED_BLOCK, type: "paragraph", content: SELECTED_TEXT },
+    ],
+  });
+  const editorElement = rootNode.querySelector<HTMLElement>(EDITOR_SELECTOR);
+  if (!editorElement) {
+    throw new Error("Missing editor in the mounted skin");
+  }
+  // Shift+Home can leave only a caret at a visual line boundary on WebKit.
+  // The tap is under test, not the gesture used to select its source text.
+  selectText(editor, SELECTED_TEXT);
+  editor.focus();
   // "Keyboard opens": the mobile toolbar appears.
-  await page.viewport(393, 427);
-  await waitForSelector(MOBILE_TOOLBAR_SELECTOR);
+  await page.viewport(PHONE_WIDTH, KEYBOARD_OPEN_HEIGHT);
+  const target = await waitForSelector(
+    controlSelector
+      ? `${MOBILE_TOOLBAR_SELECTOR} ${controlSelector}`
+      : MOBILE_TOOLBAR_SELECTOR,
+  );
+  const selection = editorElement.ownerDocument.getSelection();
+  expect(editorElement).toBe(editorElement.ownerDocument.activeElement);
+  expect(selection?.toString()).toBe(SELECTED_TEXT);
+  expect(editorElement.contains(selection?.anchorNode ?? null)).toBe(true);
+  expect(editorElement.contains(selection?.focusNode ?? null)).toBe(true);
+  return { editor, editorElement, target };
 }
 
-beforeEach(async () => {
+beforeEach(async ({ onTestFinished }) => {
   ensureTouchEmulation();
-  await page.viewport(393, 727);
+  const { innerWidth, innerHeight } = window;
+  onTestFinished(() => page.viewport(innerWidth, innerHeight));
+  await page.viewport(PHONE_WIDTH, KEYBOARD_CLOSED_HEIGHT);
 });
 
 for (const skin of SKINS) {
-  describe(`Mobile toolbar focus with the ${skin.name} skin`, () => {
-    beforeEach(async () => {
-      await render(<skin.App />);
-      await waitForSelector(EDITOR_SELECTOR);
-    });
-
-    test("the link button hands focus to the URL input", async () => {
-      await openMobileToolbar();
-      await userEvent.click(
-        await waitForSelector(
-          `${MOBILE_TOOLBAR_SELECTOR} ${LINK_BUTTON_SELECTOR}`,
-        ),
+  describe(`Mobile toolbar focus with the ${skin} skin`, () => {
+    it("the link button hands focus to the URL input", async ({
+      setupEditor,
+    }) => {
+      const { target } = await openMobileToolbar(
+        setupEditor,
+        skin,
+        LINK_BUTTON_SELECTOR,
       );
+      await userEvent.click(target);
       await vi.waitFor(() => {
         if (!(document.activeElement instanceof HTMLInputElement)) {
           throw new Error("URL input did not receive focus");
@@ -211,12 +238,18 @@ for (const skin of SKINS) {
     // Mantine's, and spread the library's injected `onMouseDown` before their
     // own so the guard is not replaced. One case for a popover trigger (the
     // library injects handlers into it), one for a plain toggle button.
-    for (const [kind, selector] of [
-      ["a popover trigger", LINK_BUTTON_SELECTOR],
-      ["a toggle button", "[data-test=bold]"],
+    for (const [kind, selector, activated] of [
+      ["a popover trigger", LINK_BUTTON_SELECTOR, 'input[name="url"]:focus'],
+      ["a toggle button", "[data-test=bold]", `${EDITOR_SELECTOR} strong`],
     ] as const) {
-      test(`tapping ${kind} never moves focus onto it`, async () => {
-        await openMobileToolbar();
+      it(`tapping ${kind} never moves focus onto it`, async ({
+        setupEditor,
+      }) => {
+        const { target: trigger } = await openMobileToolbar(
+          setupEditor,
+          skin,
+          selector,
+        );
         const focusedButtons: string[] = [];
         function onFocusIn(event: Event) {
           const target = event.target as HTMLElement;
@@ -228,10 +261,8 @@ for (const skin of SKINS) {
         }
         document.addEventListener("focusin", onFocusIn, true);
         try {
-          await userEvent.click(
-            await waitForSelector(`${MOBILE_TOOLBAR_SELECTOR} ${selector}`),
-          );
-          await settle();
+          await userEvent.click(trigger);
+          await waitForSelector(activated);
         } finally {
           document.removeEventListener("focusin", onFocusIn, true);
         }
@@ -242,37 +273,84 @@ for (const skin of SKINS) {
     for (const surface of SURFACES) {
       // Separate from the focus assertion below so a surface that fails to
       // open at all cannot hide behind a `test.fails`.
-      test(`opening the ${surface.control} shows it`, async () => {
-        await openMobileToolbar();
-        await openSurface(surface);
+      it(`opening the ${surface.control} shows it`, async ({ setupEditor }) => {
+        await openMobileToolbar(setupEditor, skin);
+        await clickSurfaceTrigger(surface);
         findItem(await waitForOpenPopup(), surface.item);
       });
 
-      test(`opening the ${surface.control} keeps focus in the editor`, async () => {
-        await openMobileToolbar();
-        const focus = trackFocusLeavingEditor();
-        await openSurface(surface);
+      it(`opening the ${surface.control} keeps focus in the editor`, async ({
+        onTestFinished,
+        setupEditor,
+      }) => {
+        const { editorElement } = await openMobileToolbar(setupEditor, skin);
+        const focusDepartures = trackFocusLeavingEditor(
+          editorElement,
+          onTestFinished,
+        );
+        await clickSurfaceTrigger(surface);
         await waitForOpenPopup();
-        await settle();
-        focus.stop();
-        expect(focus.left).toEqual([]);
-        expect(activeIsInEditor()).toBe(true);
+        // Include the frame after layout, when popovers can apply autofocus.
+        await new Promise(requestAnimationFrame);
+        await new Promise(requestAnimationFrame);
+        expect(focusDepartures).toEqual([]);
+        expect(editorElement.contains(document.activeElement)).toBe(true);
         expect(document.querySelector(MOBILE_TOOLBAR_SELECTOR)).not.toBeNull();
       });
 
-      // Picking an item closes the surface; neither the tap on the item nor
-      // the close may move focus (Ariakit's `focusOnHover` and
-      // `autoFocusOnHide`, Mantine's `returnFocus`).
-      test(`picking from the ${surface.control} leaves focus in the editor`, async () => {
-        await openMobileToolbar();
-        await openSurface(surface);
-        const item = findItem(await waitForOpenPopup(), surface.item);
-        const focus = trackFocusLeavingEditor();
+      // Neither picking an item nor closing the surface may move focus
+      // (Ariakit's `focusOnHover` and `autoFocusOnHide`, Mantine's `returnFocus`).
+      it(`picking from the ${surface.control} leaves focus in the editor`, async ({
+        onTestFinished,
+        setupEditor,
+      }) => {
+        const { editor, editorElement } = await openMobileToolbar(
+          setupEditor,
+          skin,
+        );
+        await clickSurfaceTrigger(surface);
+        const popup = await waitForOpenPopup();
+        const item = findItem(popup, surface.item);
+        const focusDepartures = trackFocusLeavingEditor(
+          editorElement,
+          onTestFinished,
+        );
         await tapWhenSettled(item);
-        await settle();
-        focus.stop();
-        expect(focus.left).toEqual([]);
-        expect(activeIsInEditor()).toBe(true);
+        if (surface.control === "block type select") {
+          await expect
+            .poll(() => editor.getBlock(SELECTED_BLOCK))
+            .toMatchObject({
+              type: "heading",
+              props: { level: 2 },
+            });
+        } else {
+          await expect
+            .poll(() => editor.getBlock(SELECTED_BLOCK)?.content)
+            .toEqual([
+              {
+                type: "text",
+                text: SELECTED_TEXT,
+                styles: { textColor: "red" },
+              },
+            ]);
+        }
+        if (
+          skin === "shadcn" &&
+          item.getAttribute("role") === "menuitemcheckbox"
+        ) {
+          // Base UI checkbox items leave the menu open. Close with the trigger
+          // while still tracking focus.
+          await clickSurfaceTrigger(surface);
+        }
+        await vi.waitFor(() =>
+          expect(
+            popup.getBoundingClientRect().height === 0 ||
+              getComputedStyle(popup).visibility === "hidden",
+          ).toBe(true),
+        );
+        await new Promise(requestAnimationFrame);
+        expect(focusDepartures).toEqual([]);
+        expect(editorElement.contains(document.activeElement)).toBe(true);
         expect(document.querySelector(MOBILE_TOOLBAR_SELECTOR)).not.toBeNull();
       });
     }

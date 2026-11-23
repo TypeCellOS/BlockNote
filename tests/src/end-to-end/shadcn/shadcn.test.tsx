@@ -1,10 +1,12 @@
 import App from "@examples/01-basic/09-shadcn/src/App";
+import { beforeEach, describe, expect, test, vi } from "vite-plus/test";
+import { render } from "vitest-browser-react";
+
 // The shadcn example's `main.tsx` (which we don't load in tests) imports this
 // to bootstrap Tailwind v4 + the ShadCN theme variables. Without it the
 // ShadCN UI components render unstyled (no popovers, no borders, no theme).
-import "@examples/01-basic/09-shadcn/tailwind.css";
-import { beforeEach, describe, expect, test, vi } from "vite-plus/test";
-import { render } from "vitest-browser-react";
+import shadcnStyles from "../../../../examples/01-basic/09-shadcn/tailwind.css?inline";
+import { useBrowserSuiteStyles } from "../../commands/browser/useBrowserSuiteStyles.js";
 import { userEvent } from "../../utils/context.js";
 import {
   DRAG_HANDLE_SELECTOR,
@@ -15,7 +17,6 @@ import {
 import {
   focusOnEditor,
   expectElement,
-  sleep,
   waitForSelector,
 } from "../../utils/editor.js";
 import {
@@ -24,8 +25,10 @@ import {
   mouseSequence,
   moveMouseOverElement,
 } from "../../utils/mouse.js";
-import { executeSlashCommand } from "../../utils/slashmenu.js";
+import { executeSlashCommand, openSlashMenu } from "../../utils/slashmenu.js";
 import { waitForEmojiPickerLayout } from "../../utils/emojipicker.js";
+
+useBrowserSuiteStyles(shadcnStyles);
 
 // ShadCN portals the dropdown outside .bn-side-menu.
 const DRAG_HANDLE_MENU_SELECTOR = ".bn-drag-handle-menu";
@@ -41,82 +44,88 @@ async function waitForMenuUpdates() {
 beforeEach(async () => {
   await render(<App />);
   await waitForSelector(EDITOR_SELECTOR);
+  await document.fonts.ready;
 });
 
 describe("Check ShadCN UI", () => {
   test("Check formatting toolbar", async () => {
     await focusOnEditor();
-    await userEvent.keyboard("Paragraph");
-    await userEvent.keyboard("{Shift>}{Home}{/Shift}");
+    await userEvent.keyboard("Paragraph{Shift>}{Home}{/Shift}");
 
-    await sleep(500);
+    await expectElement(
+      await waitForSelector(".bn-formatting-toolbar"),
+    ).toBeVisible();
     await expectElement(document.body).toMatchScreenshot(
       "shadcn-formatting-toolbar",
     );
   });
   test("Check link toolbar", async () => {
     await focusOnEditor();
-    await userEvent.keyboard("Paragraph");
-    await userEvent.keyboard("{Shift>}{Home}{/Shift}");
+    await userEvent.keyboard("Paragraph{Shift>}{Home}{/Shift}");
 
     const linkButton = await waitForSelector(LINK_BUTTON_SELECTOR);
     const linkButtonRect = getRect(linkButton);
     await clickAt(linkButtonRect.x + 5, linkButtonRect.y + 5);
 
-    await userEvent.keyboard("link");
+    await userEvent.fill(
+      await waitForSelector(".bn-form-popover input[name=url]"),
+      "link",
+    );
     await userEvent.keyboard("{Enter}");
-    await sleep(500);
-    await userEvent.keyboard("{ArrowLeft}");
-    await userEvent.keyboard("{ArrowRight}");
+    await waitForSelector(
+      `${EDITOR_SELECTOR} a[data-inline-content-type="link"]`,
+    );
+    await expect
+      .poll(() => document.activeElement?.matches(EDITOR_SELECTOR))
+      .toBe(true);
+    await window.__blockNoteWaitForEditorFocus();
+    await userEvent.keyboard("{ArrowLeft}{ArrowRight}");
 
     // A missing link toolbar stays within the 2% screenshot tolerance, so
     // assert it exists before comparing (see the ariakit test).
-    await waitForSelector(".bn-link-toolbar");
-
-    await sleep(700);
+    await expectElement(
+      await waitForSelector(".bn-link-toolbar"),
+    ).toBeVisible();
     await expectElement(document.body).toMatchScreenshot("shadcn-link-toolbar");
   });
   test("Check slash menu", async () => {
     await focusOnEditor();
-    await userEvent.keyboard("/");
+    await openSlashMenu();
 
-    await sleep(500);
     await expectElement(document.body).toMatchScreenshot("shadcn-slash-menu");
   });
   test("Check emoji picker", async () => {
     await focusOnEditor();
-    await userEvent.keyboard(":");
-    await userEvent.keyboard("sm");
+    await userEvent.keyboard(":sm");
 
     await waitForEmojiPickerLayout();
     await expectElement(document.body).toMatchScreenshot("shadcn-emoji-picker");
   });
   test("Check side menu", async () => {
     await focusOnEditor();
-    await waitForSelector(PARAGRAPH_SELECTOR);
     await moveMouseOverElement(PARAGRAPH_SELECTOR);
 
-    await sleep(500);
+    await expectElement(
+      await waitForSelector(DRAG_HANDLE_SELECTOR),
+    ).toBeVisible();
     await expectElement(document.body).toMatchScreenshot("shadcn-side-menu");
   });
   test("Check drag handle menu", async () => {
     await focusOnEditor();
-    await waitForSelector(PARAGRAPH_SELECTOR);
     await moveMouseOverElement(PARAGRAPH_SELECTOR);
 
-    await sleep(500);
-    await waitForSelector(DRAG_HANDLE_SELECTOR);
-    await moveMouseOverElement(DRAG_HANDLE_SELECTOR);
-    await mouseSequence([{ type: "down" }, { type: "up" }]);
+    const handle = await waitForSelector(DRAG_HANDLE_SELECTOR);
+    await userEvent.click(handle.closest("button")!);
 
-    await sleep(500);
+    await expectElement(
+      await waitForSelector(DRAG_HANDLE_MENU_SELECTOR),
+    ).toBeVisible();
     await expectElement(document.body).toMatchScreenshot(
       "shadcn-drag-handle-menu",
     );
   });
   test("Drag handle menu opens on release instead of press", async () => {
     await focusOnEditor();
-    await waitForSelector(PARAGRAPH_SELECTOR);
     await moveMouseOverElement(PARAGRAPH_SELECTOR);
 
     const dragHandle = await waitForSelector(DRAG_HANDLE_SELECTOR);
@@ -133,7 +142,6 @@ describe("Check ShadCN UI", () => {
     "Dragging keeps the menu closed and allows a subsequent %s",
     async (activation) => {
       await focusOnEditor();
-      await waitForSelector(PARAGRAPH_SELECTOR);
       await moveMouseOverElement(PARAGRAPH_SELECTOR);
 
       const dragHandle = await waitForSelector(DRAG_HANDLE_SELECTOR);
@@ -192,7 +200,7 @@ describe("Check ShadCN UI", () => {
     await focusOnEditor();
     await executeSlashCommand("image");
 
-    await sleep(500);
+    await expectElement(await waitForSelector(".bn-panel")).toBeVisible();
     await expectElement(document.body).toMatchScreenshot(
       "shadcn-image-toolbar",
     );

@@ -1,7 +1,8 @@
+import type { PartialBlock } from "@blocknote/core";
 import App from "@examples/01-basic/testing/src/App";
-import { beforeEach, describe, test } from "vite-plus/test";
+import { describe, test } from "vite-plus/test";
 import { render } from "vitest-browser-react";
-import { MOD, page, userEvent } from "../../utils/context.js";
+import { commands, page, userEvent } from "../../utils/context.js";
 import {
   BACKGROUND_COLOR_SELECTOR,
   COLORS_BUTTON_SELECTOR,
@@ -13,23 +14,35 @@ import {
   TABLE_SELECTOR,
   TEXT_COLOR_SELECTOR,
 } from "../../utils/const.js";
-import { insertHeading, insertParagraph } from "../../utils/copypaste.js";
+import { insertHeading } from "../../utils/copypaste.js";
 import {
   focusOnEditor,
   expectElement,
-  sleep,
   waitForSelector,
+  waitForSelectorDetached,
 } from "../../utils/editor.js";
-import { clickAt, getRect, moveMouseOverElement } from "../../utils/mouse.js";
-import { executeSlashCommand } from "../../utils/slashmenu.js";
+import { moveMouseOverElement } from "../../utils/mouse.js";
 
-beforeEach(async () => {
+async function setupExample() {
   await render(<App />);
   await waitForSelector(EDITOR_SELECTOR);
-});
+}
+
+function headings(children?: PartialBlock[]): PartialBlock[] {
+  return ([1, 2, 3] as const).map((level) => ({
+    id: level === 1 ? undefined : `heading-${level}`,
+    type: "heading",
+    props: { level },
+    content: "Heading",
+    children: level === 2 ? children : undefined,
+  }));
+}
+
+const nestedHeadings = headings([{ type: "paragraph", content: "Paragraph" }]);
 
 describe("Check Background & Text Color Functionality", () => {
   test("Should be able to open the color picker from the formatting toolbar", async () => {
+    await setupExample();
     await focusOnEditor();
 
     await insertHeading(1);
@@ -37,15 +50,16 @@ describe("Check Background & Text Color Functionality", () => {
 
     await userEvent.click(await waitForSelector(COLORS_BUTTON_SELECTOR));
 
-    // Waits for the color picker dropdown to open & its animation to finish.
-    await waitForSelector(TEXT_COLOR_SELECTOR("red"));
-    await sleep(500);
+    await expectElement(
+      await waitForSelector(TEXT_COLOR_SELECTOR("red")),
+    ).toBeVisible();
 
     await expectElement(document.body).toMatchScreenshot(
       "colorPickerFormattingToolbar",
     );
   });
   test("Should be able to open the color picker from the side menu", async () => {
+    await setupExample();
     await focusOnEditor();
 
     await insertHeading(1);
@@ -55,121 +69,87 @@ describe("Check Background & Text Color Functionality", () => {
     await waitForSelector(DRAG_HANDLE_MENU_SELECTOR);
     await moveMouseOverElement(page.getByText("Colors").element());
 
-    // Waits for the color picker submenu to open & its animation to finish.
-    await waitForSelector(TEXT_COLOR_SELECTOR("red"));
-    await sleep(500);
+    await expectElement(
+      await waitForSelector(TEXT_COLOR_SELECTOR("red")),
+    ).toBeVisible();
 
     await expectElement(document.body).toMatchScreenshot("colorPickerSideMenu");
   });
-  test("Should be able to apply a text color mark", async () => {
-    await focusOnEditor();
-
-    await insertHeading(1);
-    await userEvent.keyboard("{Enter}");
-    await insertHeading(2);
-    await userEvent.keyboard("{Enter}");
-    await insertHeading(3);
-
-    // Wait for the headings to finish rendering before navigating the caret,
-    // otherwise the subsequent ArrowUp/selection can land in a stale layout.
-    await sleep(500);
-
-    await userEvent.keyboard("{ArrowUp}");
-    await userEvent.keyboard(`{${MOD}>}{ArrowLeft}{/${MOD}}`);
-    await userEvent.keyboard(`{${MOD}>}{Shift>}{ArrowRight}{/Shift}{/${MOD}}`);
+  it("Should be able to apply a text color mark", async ({
+    setupEditor,
+    selectText,
+  }) => {
+    const { editor } = await setupEditor({ initialContent: headings() });
+    editor.focus();
+    selectText(editor, "Heading", { startBlockId: "heading-2" });
 
     await userEvent.click(await waitForSelector(COLORS_BUTTON_SELECTOR));
     await userEvent.click(await waitForSelector(TEXT_COLOR_SELECTOR("red")));
+    await waitForSelector(
+      '.bn-block[data-id="heading-2"] [data-style-type="textColor"][data-value="red"]',
+    );
 
-    await userEvent.keyboard("{ArrowLeft}");
-
-    // Waits for formatting toolbar animation to finish.
-    await sleep(500);
+    await commands.pressKey("ArrowLeft");
+    await waitForSelectorDetached(COLORS_BUTTON_SELECTOR);
 
     await expectElement(document.body).toMatchScreenshot("textColorMark");
   });
-  test("Should be able to apply a background color mark", async () => {
-    await focusOnEditor();
-
-    await insertHeading(1);
-    await userEvent.keyboard("{Enter}");
-    await insertHeading(2);
-    await userEvent.keyboard("{Enter}");
-    await insertHeading(3);
-
-    await userEvent.keyboard("{ArrowUp}");
-    await userEvent.keyboard(`{${MOD}>}{ArrowLeft}{/${MOD}}`);
-    await userEvent.keyboard(`{${MOD}>}{Shift>}{ArrowRight}{/Shift}{/${MOD}}`);
+  it("Should be able to apply a background color mark", async ({
+    setupEditor,
+    selectText,
+  }) => {
+    const { editor } = await setupEditor({ initialContent: headings() });
+    editor.focus();
+    selectText(editor, "Heading", { startBlockId: "heading-2" });
 
     await userEvent.click(await waitForSelector(COLORS_BUTTON_SELECTOR));
     await userEvent.click(
       await waitForSelector(BACKGROUND_COLOR_SELECTOR("red")),
     );
+    await waitForSelector(
+      '.bn-block[data-id="heading-2"] [data-style-type="backgroundColor"][data-value="red"]',
+    );
 
-    await userEvent.keyboard("{ArrowLeft}");
-
-    // Waits for formatting toolbar animation to finish.
-    await sleep(500);
+    await commands.pressKey("ArrowLeft");
+    await waitForSelectorDetached(COLORS_BUTTON_SELECTOR);
 
     await expectElement(document.body).toMatchScreenshot("backgroundColorMark");
   });
-  test("Should be able to set block text color", async () => {
-    await focusOnEditor();
-
-    await insertHeading(1);
-    await userEvent.keyboard("{Enter}");
-    await insertHeading(2);
-    await userEvent.keyboard("{Enter}");
-    await insertParagraph();
-    await userEvent.keyboard("{Tab}");
-    await userEvent.keyboard("{Enter}");
-    await insertHeading(3);
-    await userEvent.keyboard("{Shift>}{Tab}{/Shift}");
+  it("Should be able to set block text color", async ({ setupEditor }) => {
+    const { editor } = await setupEditor({ initialContent: nestedHeadings });
+    editor.setTextCursorPosition("heading-3", "end");
+    editor.focus();
 
     await moveMouseOverElement(H_TWO_BLOCK_SELECTOR);
     await userEvent.click(await waitForSelector(DRAG_HANDLE_SELECTOR));
     await waitForSelector(DRAG_HANDLE_MENU_SELECTOR);
     await moveMouseOverElement(page.getByText("Colors").element());
-    // WebKit needs the submenu's open animation to settle before its
-    // children have non-zero bounding boxes — otherwise getRect() returns
-    // (0,0,0,0) and clickAt(10,10) hits empty viewport space.
-    await waitForSelector(TEXT_COLOR_SELECTOR("red"));
-    await sleep(200);
-
-    const { x, y } = getRect(TEXT_COLOR_SELECTOR("red"));
-    await clickAt(x + 10, y + 10);
-
-    // Waits for block side menu animation to finish.
-    await sleep(500);
+    await userEvent.click(await waitForSelector(TEXT_COLOR_SELECTOR("red")));
+    await waitForSelector(
+      '.bn-block[data-id="heading-2"][data-text-color="red"]',
+    );
+    await waitForSelectorDetached(DRAG_HANDLE_MENU_SELECTOR);
 
     await expectElement(document.body).toMatchScreenshot("blockTextColor");
   });
-  test("Should be able to set block background color", async () => {
-    await focusOnEditor();
-
-    await insertHeading(1);
-    await userEvent.keyboard("{Enter}");
-    await insertHeading(2);
-    await userEvent.keyboard("{Enter}");
-    await insertParagraph();
-    await userEvent.keyboard("{Tab}");
-    await userEvent.keyboard("{Enter}");
-    await insertHeading(3);
-    await userEvent.keyboard("{Shift>}{Tab}{/Shift}");
+  it("Should be able to set block background color", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({ initialContent: nestedHeadings });
+    editor.setTextCursorPosition("heading-3", "end");
+    editor.focus();
 
     await moveMouseOverElement(H_TWO_BLOCK_SELECTOR);
     await userEvent.click(await waitForSelector(DRAG_HANDLE_SELECTOR));
     await waitForSelector(DRAG_HANDLE_MENU_SELECTOR);
     await moveMouseOverElement(page.getByText("Colors").element());
-    // See blockTextColor for why this sleep is needed (WebKit submenu open).
-    await waitForSelector(BACKGROUND_COLOR_SELECTOR("red"));
-    await sleep(200);
-
-    const { x, y } = getRect(BACKGROUND_COLOR_SELECTOR("red"));
-    await clickAt(x + 10, y + 10);
-
-    // Waits for block side menu animation to finish.
-    await sleep(500);
+    await userEvent.click(
+      await waitForSelector(BACKGROUND_COLOR_SELECTOR("red")),
+    );
+    await waitForSelector(
+      '.bn-block[data-id="heading-2"][data-background-color="red"]',
+    );
+    await waitForSelectorDetached(DRAG_HANDLE_MENU_SELECTOR);
 
     await expectElement(document.body).toMatchScreenshot(
       "blockBackgroundColor",
@@ -179,21 +159,32 @@ describe("Check Background & Text Color Functionality", () => {
   // NodeView's DOM without re-applying node attrs, so prop changes (e.g.
   // textColor) wouldn't propagate to the blockContent wrapper. BlockNoteTableView
   // overrides update() to sync prop-derived data-* attributes.
-  test("Should be able to set block text color on a table", async () => {
-    await focusOnEditor();
-    await executeSlashCommand("table");
-    await userEvent.keyboard("Table Cell");
+  it("Should be able to set block text color on a table", async ({
+    setupEditor,
+    selectText,
+  }) => {
+    const { editor } = await setupEditor({
+      initialContent: [
+        {
+          id: "0",
+          type: "table",
+          content: {
+            type: "tableContent",
+            rows: [{ cells: ["Table Cell", "", ""] }, { cells: ["", "", ""] }],
+          },
+        },
+      ],
+    });
+    selectText(editor, "Table Cell").collapseToEnd();
+    editor.focus();
 
     await moveMouseOverElement(TABLE_SELECTOR);
     await userEvent.click(await waitForSelector(DRAG_HANDLE_SELECTOR));
     await waitForSelector(DRAG_HANDLE_MENU_SELECTOR);
     await moveMouseOverElement(page.getByText("Colors").element());
-    // See blockTextColor for why this sleep is needed (WebKit submenu open).
-    await waitForSelector(TEXT_COLOR_SELECTOR("red"));
-    await sleep(200);
-
-    const { x, y } = getRect(TEXT_COLOR_SELECTOR("red"));
-    await clickAt(x + 10, y + 10);
+    await userEvent.click(await waitForSelector(TEXT_COLOR_SELECTOR("red")));
+    await waitForSelector(`${TABLE_SELECTOR}[data-text-color="red"]`);
+    await waitForSelectorDetached(DRAG_HANDLE_MENU_SELECTOR);
 
     await expectElement(document.body).toMatchScreenshot("blockTextColorTable");
   });
