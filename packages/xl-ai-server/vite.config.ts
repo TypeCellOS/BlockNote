@@ -1,6 +1,6 @@
 import * as path from "path";
 import { webpackStats } from "rollup-plugin-webpack-stats";
-import { defineConfig, type UserConfig } from "vite-plus";
+import { configDefaults, defineConfig, type UserConfig } from "vite-plus";
 import pkg from "./package.json";
 import { buildCacheInputs } from "../../scripts/build-cache-inputs.js";
 // import eslintPlugin from "vite-plugin-eslint";
@@ -29,7 +29,7 @@ export default defineConfig(
       test: {
         // Preserve Vitest 4 mock history during the toolchain upgrade.
         clearMocks: false,
-        environment: "jsdom",
+        exclude: [...configDefaults.exclude, "**/*.browser.test.*"],
         setupFiles: ["../../tests/vitestSetup.node-fixtures.ts"],
       },
       plugins: [webpackStats()],

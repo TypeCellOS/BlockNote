@@ -11,14 +11,9 @@ import { testODTDocumentAgainstSnapshot } from "@shared/util/odtTestUtil.js";
 import { testDocumentWithSourceBlocks } from "@shared/testDocument.js";
 import { testResolveFileUrl } from "@shared/util/testFileResolver.js";
 import { BlobReader, FileEntry, TextWriter, ZipReader } from "@zip.js/zip.js";
-import { beforeAll, describe, expect, it, vi } from "vite-plus/test";
+import { describe, expect, vi } from "vite-plus/test";
 
 import { inlineMathMapping, mathBlockMapping } from "./index.js";
-
-beforeAll(async () => {
-  // @ts-expect-error - Blob polyfill for Node test environment
-  globalThis.Blob = (await import("node:buffer")).Blob;
-});
 
 describe("odt exporter mappings", () => {
   it("should render error placeholders for invalid LaTeX", async ({
@@ -78,16 +73,16 @@ describe("odt exporter mappings", () => {
       (entry) => entry.filename === "content.xml",
     ) as FileEntry;
     const content = await contentXML.getData(new TextWriter());
-    expect(error.mock.calls.map(([message]) => message)).not.toContainEqual(
-      expect.stringContaining(
-        'Each child in a list should have a unique "key"',
-      ),
-    );
 
     // Mirrors the editor's error placeholder rather than dumping the LaTeX
     // source on readers - once for the block, once for the inline math.
     expect(content.match(/Invalid formula/g)).toHaveLength(2);
     expect(content).not.toContain("draw:object");
+    expect(error.mock.calls.map(([message]) => message)).not.toContainEqual(
+      expect.stringContaining(
+        'Each child in a list should have a unique "key"',
+      ),
+    );
   });
 
   it("should export math as native formulas", { timeout: 10000 }, async () => {
