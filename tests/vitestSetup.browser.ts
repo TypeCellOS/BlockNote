@@ -2,7 +2,7 @@ import type {} from "./src/commands/transport/keyboard.js";
 import { aroundAll, aroundEach, beforeEach } from "vite-plus/test";
 import { cleanup } from "vitest-browser-react/pure";
 import { installBrowserTestStyles } from "./src/commands/browser/installBrowserTestStyles.js";
-import { commands, page } from "./src/commands/transport.js";
+import { commands } from "./src/commands/transport.js";
 import {
   installBrowserTestViewport,
   withBrowserTestGlobals,
@@ -14,17 +14,6 @@ import {
 } from "./src/utils/ensureTouchEmulation.js";
 
 aroundAll(async (runSuite) => {
-  // On the android and ios instances the outer window is a 393x727 phone
-  // (provider contextOptions) — the iframe must match it exactly. A larger
-  // iframe gets scaled down by the harness's fit-to-window transform, so
-  // captures come out phone-*sized* but contain a shrunken desktop-width
-  // layout.
-  if (/android|iphone/i.test(navigator.userAgent)) {
-    await page.viewport(393, 727);
-  } else {
-    await page.viewport(1280, 720);
-  }
-
   const restoreViewport = installBrowserTestViewport(document);
   try {
     const removeStyles = installBrowserTestStyles();

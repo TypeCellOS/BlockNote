@@ -23,8 +23,9 @@ const DESKTOP_EXCLUDE = [
 ];
 
 // 1280x720 matches the old Playwright defaults so visual baselines have room.
-// Used as the playwright context viewport for every browser instance.
+// Keep the Playwright context and Vitest iframe at the same size.
 const VIEWPORT = { width: 1280, height: 720 };
+const PHONE_VIEWPORT = { width: 393, height: 727 };
 
 // Resolve every `@blocknote/*` workspace package to its `src/` (like the unit
 // `vite.config.ts` does for core/react). The e2e Docker image installs deps but
@@ -165,6 +166,7 @@ export default defineConfig(
           provider: playwright({
             contextOptions: { viewport: VIEWPORT },
           }),
+          viewport: VIEWPORT,
           headless: true,
           // On failure Vitest otherwise captures a page screenshot into
           // __screenshots__/<testfile>/<test name>-<n>.png — same dir as the
@@ -204,6 +206,7 @@ export default defineConfig(
               // platform stubs. See tests/src/end-to-end/mobile/.
               browser: "chromium",
               name: "android",
+              viewport: PHONE_VIEWPORT,
               launchOptions: {
                 args: [
                   "--no-sandbox",
@@ -213,7 +216,7 @@ export default defineConfig(
               },
               provider: playwright({
                 contextOptions: {
-                  viewport: { width: 393, height: 727 },
+                  viewport: PHONE_VIEWPORT,
                   userAgent:
                     "Mozilla/5.0 (Linux; Android 12; SM-S901B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Mobile Safari/537.36",
                   isMobile: true,
@@ -258,9 +261,10 @@ export default defineConfig(
               // stubs it to 5, the one stub of this instance.
               browser: "webkit",
               name: "ios",
+              viewport: PHONE_VIEWPORT,
               provider: playwright({
                 contextOptions: {
-                  viewport: { width: 393, height: 727 },
+                  viewport: PHONE_VIEWPORT,
                   userAgent:
                     "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1",
                   isMobile: true,
