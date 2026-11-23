@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="./ui/favicon.ico" sizes="48x48" />
+    <link rel="icon" href="./ui/favicon.svg" sizes="any" type="image/svg+xml" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vitest</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400&display=swap"
+      rel="stylesheet"
+    />
+    <script>window.HTML_REPORT_METADATA=fetch(new URL("./ui/html.meta.json.gz", window.location.href)).then(async res => new Uint8Array(await res.arrayBuffer()))</script>
+    <script>
+      ;(function () {
+        const prefersDark =
+          window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        const theme = window.VITEST_UI_THEME || 'auto'
+        const setting =
+          theme === 'auto' ? localStorage.getItem('vueuse-color-scheme') || 'auto' : theme
+        if (setting === 'dark' || (prefersDark && setting !== 'light'))
+          document.documentElement.classList.toggle('dark', true)
+      })()
+    </script>
+    <script type="module" src="./ui/assets/index-C4tyqWfb.js"></script>
+    <link rel="stylesheet" href="./ui/assets/index-k0-HAKZI.css">
+  </head>
+  <body>
+    <div id="app"></div>
+  </body>
+</html>
