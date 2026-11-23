@@ -32,28 +32,39 @@ import { partialBlocksToBlocksForTesting } from "@shared/formatConversionTestUti
 import { testResolveFileUrl } from "@shared/util/testFileResolver.js";
 import { readDocumentImages } from "./imageRelationships.testUtil.js";
 
-const getZIPEntryContent = (entries: Entry[], fileName: string) => {
-  const entry = entries.find((entry) => {
-    return entry.filename === fileName && !entry.directory;
-  }) as FileEntry | undefined;
+const schema = BlockNoteSchema.create();
+const fullDocumentSchema = BlockNoteSchema.create({
+  blockSpecs: {
+    ...defaultBlockSpecs,
+    pageBreak: createPageBreakBlockSpec(),
+    column: ColumnBlock,
+    columnList: ColumnListBlock,
+  },
+});
 
-  if (!entry) {
-    return "";
+// The full-document snapshots still use the default embedded fonts. For
+// focused XML assertions, don't repeatedly compress those unrelated binaries.
+const xmlOnlyOptions = {
+  sectionOptions: {},
+  documentOptions: { fonts: [] },
+};
+
+function getZIPEntryContent(entries: Entry[], fileName: string) {
+  const entry = entries.find(
+    (entry): entry is FileEntry =>
+      entry.filename === fileName && !entry.directory,
+  );
+  if (!entry?.getData) {
+    throw new Error(`Missing DOCX entry: ${fileName}`);
   }
 
-  return entry.getData!(new TextWriter());
-};
+  return entry.getData(new TextWriter());
+}
+
 describe("exporter", () => {
   it("should export a document", { timeout: 10000 }, async () => {
     const exporter = new DOCXExporter(
-      BlockNoteSchema.create({
-        blockSpecs: {
-          ...defaultBlockSpecs,
-          pageBreak: createPageBreakBlockSpec(),
-          column: ColumnBlock,
-          columnList: ColumnListBlock,
-        },
-      }),
+      fullDocumentSchema,
       docxDefaultSchemaMappings,
       { resolveFileUrl: testResolveFileUrl },
     );
@@ -84,7 +95,6 @@ describe("exporter", () => {
     );
     const second = first.slice();
     second[13] = 255; // Different palette, still a complete 1x1 GIF.
-    const schema = BlockNoteSchema.create();
     const exporter = new DOCXExporter(schema, docxDefaultSchemaMappings, {
       resolveFileUrl: async (url) =>
         new Blob([url === "first.gif" ? first : second], { type: "image/gif" }),
@@ -113,14 +123,7 @@ describe("exporter", () => {
     { timeout: 10000 },
     async () => {
       const exporter = new DOCXExporter(
-        BlockNoteSchema.create({
-          blockSpecs: {
-            ...defaultBlockSpecs,
-            pageBreak: createPageBreakBlockSpec(),
-            column: ColumnBlock,
-            columnList: ColumnListBlock,
-          },
-        }),
+        fullDocumentSchema,
         docxDefaultSchemaMappings,
         { resolveFileUrl: testResolveFileUrl },
       );
@@ -180,7 +183,6 @@ describe("exporter", () => {
   );
 
   it("should indent nested paragraphs but not list items", async () => {
-    const schema = BlockNoteSchema.create();
     const exporter = new DOCXExporter(schema, docxDefaultSchemaMappings, {
       resolveFileUrl: testResolveFileUrl,
     });
@@ -209,7 +211,7 @@ describe("exporter", () => {
           ],
         },
       ]),
-      { sectionOptions: {}, documentOptions: {}, locale: "en-US" },
+      { ...xmlOnlyOptions, locale: "en-US" },
     );
     const zip = new ZipReader(new BlobReader(await Packer.toBlob(doc)));
     const xml = await getZIPEntryContent(
@@ -237,7 +239,6 @@ describe("exporter", () => {
   });
 
   it("should use mapping-declared indentation instead of block names", async () => {
-    const schema = BlockNoteSchema.create();
     const exporter = new DOCXExporter(schema, {
       ...docxDefaultSchemaMappings,
       blockMapping: {
@@ -272,6 +273,7 @@ describe("exporter", () => {
           ],
         },
       ]),
+      xmlOnlyOptions,
     );
     const zip = new ZipReader(new BlobReader(await Packer.toBlob(doc)));
     const xml = await getZIPEntryContent(
@@ -293,7 +295,6 @@ describe("exporter", () => {
   });
 
   it("should pass real paragraphs to custom child-placement mappings", async () => {
-    const schema = BlockNoteSchema.create();
     const exporter = new DOCXExporter(schema, {
       ...docxDefaultSchemaMappings,
       blockMapping: {
@@ -330,6 +331,7 @@ describe("exporter", () => {
           ],
         },
       ]),
+      xmlOnlyOptions,
     );
     const zip = new ZipReader(new BlobReader(await Packer.toBlob(doc)));
     const xml = await getZIPEntryContent(
@@ -342,18 +344,14 @@ describe("exporter", () => {
   it.each(["document", "columnList", "column"] as const)(
     "should reject invalid layout results in a %s",
     async (context) => {
-      const schema = BlockNoteSchema.create({
-        blockSpecs: {
-          ...defaultBlockSpecs,
-          column: ColumnBlock,
-          columnList: ColumnListBlock,
-        },
-      });
-      const exporter = new DOCXExporter(schema, docxDefaultSchemaMappings);
+      const exporter = new DOCXExporter(
+        fullDocumentSchema,
+        docxDefaultSchemaMappings,
+      );
       const blocks: PartialBlock<
-        typeof schema.blockSchema,
-        typeof schema.inlineContentSchema,
-        typeof schema.styleSchema
+        typeof fullDocumentSchema.blockSchema,
+        typeof fullDocumentSchema.inlineContentSchema,
+        typeof fullDocumentSchema.styleSchema
       >[] =
         context === "document"
           ? [{ type: "column", children: [{ type: "paragraph" }] }]
@@ -373,7 +371,7 @@ describe("exporter", () => {
           : `DOCX ${context} cannot contain a column directly`;
       await expect(
         exporter.transformBlocks(
-          partialBlocksToBlocksForTesting(schema, blocks),
+          partialBlocksToBlocksForTesting(fullDocumentSchema, blocks),
         ),
       ).rejects.toThrow(error);
     },
@@ -383,10 +381,6 @@ describe("exporter", () => {
     "should clamp list nesting deeper than DOCX supports",
     { timeout: 10000 },
     async () => {
-      const schema = BlockNoteSchema.create({
-        blockSpecs: { ...defaultBlockSpecs },
-      });
-
       // A list nested `depth` items deep, i.e. nesting levels 0..depth-1.
       const nestedList = (depth: number) => {
         type SchemaPartialBlock = PartialBlock<
@@ -417,7 +411,7 @@ describe("exporter", () => {
       // export fails.
       const doc = await exporter.toDocxJsDocument(
         partialBlocksToBlocksForTesting(schema, nestedList(12)),
-        { sectionOptions: {}, documentOptions: {}, locale: "en-US" },
+        { ...xmlOnlyOptions, locale: "en-US" },
       );
 
       const blob = await Packer.toBlob(doc);
@@ -443,10 +437,6 @@ describe("exporter", () => {
     "should use distinct bullet symbols per nesting level",
     { timeout: 10000 },
     async () => {
-      const schema = BlockNoteSchema.create({
-        blockSpecs: { ...defaultBlockSpecs },
-      });
-
       const exporter = new DOCXExporter(schema, docxDefaultSchemaMappings, {
         resolveFileUrl: testResolveFileUrl,
       });
@@ -455,7 +445,7 @@ describe("exporter", () => {
         partialBlocksToBlocksForTesting(schema, [
           { type: "bulletListItem", content: "level 0" },
         ]),
-        { sectionOptions: {}, documentOptions: {}, locale: "en-US" },
+        { ...xmlOnlyOptions, locale: "en-US" },
       );
 
       const numberingXml = await getZIPEntryContent(
@@ -495,7 +485,6 @@ describe("exporter", () => {
   it.each(["plain parent", "legacy parent", "legacy child"] as const)(
     "should restart nested lists with a custom %s mapping",
     async (variant) => {
-      const schema = BlockNoteSchema.create();
       const exporter = new DOCXExporter(schema, {
         ...docxDefaultSchemaMappings,
         blockMapping: {
@@ -548,7 +537,7 @@ describe("exporter", () => {
         },
       ]);
       const entries = await new ZipReader(
-        new BlobReader(await exporter.toBlob(blocks)),
+        new BlobReader(await exporter.toBlob(blocks, xmlOnlyOptions)),
       ).getEntries();
       const xml = await getZIPEntryContent(entries, "word/document.xml");
       const childIds = [...xml.matchAll(/<w:p[ >][\s\S]*?<\/w:p>/g)]
@@ -566,7 +555,6 @@ describe("exporter", () => {
   );
 
   it("should keep concurrent exports' numbering definitions independent", async () => {
-    const schema = BlockNoteSchema.create();
     const exporter = new DOCXExporter(schema, docxDefaultSchemaMappings);
     const documents = (["bulletListItem", "numberedListItem"] as const).map(
       (type) =>
@@ -581,11 +569,15 @@ describe("exporter", () => {
     const expected = [];
     for (const blocks of documents) {
       expected.push(
-        await numberingXml(await exporter.toDocxJsDocument(blocks)),
+        await numberingXml(
+          await exporter.toDocxJsDocument(blocks, xmlOnlyOptions),
+        ),
       );
     }
     const concurrent = await Promise.all(
-      documents.map((blocks) => exporter.toDocxJsDocument(blocks)),
+      documents.map((blocks) =>
+        exporter.toDocxJsDocument(blocks, xmlOnlyOptions),
+      ),
     );
     expect(await Promise.all(concurrent.map(numberingXml))).toEqual(expected);
   });
@@ -593,7 +585,6 @@ describe("exporter", () => {
   it.each(["bulletListItem", "numberedListItem"] as const)(
     "should keep mixed descendants in the %s parent's numbering instance",
     async (type) => {
-      const schema = BlockNoteSchema.create();
       const childType =
         type === "bulletListItem" ? "numberedListItem" : "bulletListItem";
       const exporter = new DOCXExporter(schema, docxDefaultSchemaMappings);
@@ -620,7 +611,7 @@ describe("exporter", () => {
       ]);
       // Reusing an exporter must not retain a previous document's definitions.
       for (let attempt = 0; attempt < 2; attempt++) {
-        const doc = await exporter.toDocxJsDocument(blocks);
+        const doc = await exporter.toDocxJsDocument(blocks, xmlOnlyOptions);
         const entries = await new ZipReader(
           new BlobReader(await Packer.toBlob(doc)),
         ).getEntries();
@@ -679,7 +670,6 @@ describe("exporter", () => {
   );
 
   it("should isolate incompatible child runs without restarting their parent", async () => {
-    const schema = BlockNoteSchema.create();
     const exporter = new DOCXExporter(schema, docxDefaultSchemaMappings);
     const doc = await exporter.toDocxJsDocument(
       partialBlocksToBlocksForTesting(schema, [
@@ -709,6 +699,7 @@ describe("exporter", () => {
           children: [{ type: "bulletListItem", content: "compatible child" }],
         },
       ]),
+      xmlOnlyOptions,
     );
     const entries = await new ZipReader(
       new BlobReader(await Packer.toBlob(doc)),
@@ -761,10 +752,6 @@ describe("exporter", () => {
     "should give each list its own numbering instance",
     { timeout: 10000 },
     async () => {
-      const schema = BlockNoteSchema.create({
-        blockSpecs: { ...defaultBlockSpecs },
-      });
-
       // Two separate numbered lists split by a paragraph, then a bullet list.
       // Each is a distinct list and must not continue the previous one, so each
       // needs its own `w:numId`. A nested item stays part of its parent list.
@@ -791,7 +778,7 @@ describe("exporter", () => {
 
       const doc = await exporter.toDocxJsDocument(
         partialBlocksToBlocksForTesting(schema, blocks),
-        { sectionOptions: {}, documentOptions: {}, locale: "en-US" },
+        { ...xmlOnlyOptions, locale: "en-US" },
       );
 
       const documentXml = await getZIPEntryContent(
@@ -837,10 +824,6 @@ describe("exporter", () => {
     "should start each numbered list at its start number",
     { timeout: 10000 },
     async () => {
-      const schema = BlockNoteSchema.create({
-        blockSpecs: { ...defaultBlockSpecs },
-      });
-
       // Like in the editor, the first item of a list sets the number it starts
       // at; a start number on a later item is ignored. Two lists that start at
       // the same number each start there, and so does each nested list, also
@@ -899,7 +882,7 @@ describe("exporter", () => {
 
       const doc = await exporter.toDocxJsDocument(
         partialBlocksToBlocksForTesting(schema, blocks),
-        { sectionOptions: {}, documentOptions: {}, locale: "en-US" },
+        { ...xmlOnlyOptions, locale: "en-US" },
       );
 
       const entries = await new ZipReader(
@@ -931,27 +914,12 @@ describe("exporter", () => {
   );
 
   async function exportAndGetStylesEntries(locale?: string) {
-    const exporter = new DOCXExporter(
-      BlockNoteSchema.create({
-        blockSpecs: {
-          ...defaultBlockSpecs,
-          pageBreak: createPageBreakBlockSpec(),
-          column: ColumnBlock,
-          columnList: ColumnListBlock,
-        },
-      }),
-      docxDefaultSchemaMappings,
-      { resolveFileUrl: testResolveFileUrl },
+    const exporter = new DOCXExporter(schema, docxDefaultSchemaMappings);
+    const doc = await exporter.toDocxJsDocument(
+      partialBlocksToBlocksForTesting(schema, [{ type: "paragraph" }]),
+      { ...xmlOnlyOptions, locale },
     );
-    const doc = await exporter.toDocxJsDocument(testDocument, {
-      sectionOptions: {},
-      documentOptions: {},
-      ...(locale && { locale }),
-    });
-
-    const blob = await Packer.toBlob(doc);
-    const zip = new ZipReader(new BlobReader(blob));
-    return zip.getEntries();
+    return new ZipReader(new BlobReader(await Packer.toBlob(doc))).getEntries();
   }
 
   it(
@@ -961,23 +929,16 @@ describe("exporter", () => {
       // Exporter strings are never hardcoded - the file link text comes
       // from the `exporter` section of the configured dictionary (English
       // when not configured).
-      const exporter = new DOCXExporter(
-        BlockNoteSchema.create({
-          blockSpecs: {
-            ...defaultBlockSpecs,
-            pageBreak: createPageBreakBlockSpec(),
-            column: ColumnBlock,
-            columnList: ColumnListBlock,
-          },
-        }),
-        docxDefaultSchemaMappings,
-        { resolveFileUrl: testResolveFileUrl, dictionary: de },
-      );
-      const doc = await exporter.toDocxJsDocument(testDocument, {
-        sectionOptions: {},
-        documentOptions: {},
-        locale: "de-DE",
+      const exporter = new DOCXExporter(schema, docxDefaultSchemaMappings, {
+        dictionary: de,
       });
+      const doc = await exporter.toDocxJsDocument(
+        partialBlocksToBlocksForTesting(schema, [
+          { type: "video", props: { url: "https://example.com/video.webm" } },
+          { type: "audio", props: { url: "https://example.com/audio.mp3" } },
+        ]),
+        { ...xmlOnlyOptions, locale: "de-DE" },
+      );
 
       const zip = new ZipReader(new BlobReader(await Packer.toBlob(doc)));
       const documentXML = await getZIPEntryContent(
@@ -985,9 +946,6 @@ describe("exporter", () => {
         "word/document.xml",
       );
 
-      // The document's empty file block exports as nothing (placeholder,
-      // not content), so the dictionary wiring shows through the video /
-      // audio links instead.
       expect(documentXML).toContain("Video öffnen");
       expect(documentXML).toContain("Audio öffnen");
       expect(documentXML).not.toContain("Open video file");
@@ -1023,9 +981,9 @@ describe("exporter", () => {
   );
 });
 
-async function stylesSnapshotPath(
-  scenario: "basic" | "noLocale" | "withLocale",
-) {
+let stylesSnapshotFile: Promise<string> | undefined;
+
+async function detectStylesSnapshotFile() {
   // docx 9.14 adds Bibliography, TOC1-9 and LineNumber defaults. Keep full
   // reviewed snapshots for both default sets, rather than stripping styles or
   // making the locked 9.9 output adopt newer defaults. Probe a separate plain
@@ -1036,9 +994,15 @@ async function stylesSnapshotPath(
     new BlobReader(await Packer.toBlob(control)),
   ).getEntries();
   const styles = await getZIPEntryContent(entries, "word/styles.xml");
-  const file = styles.includes('w:styleId="TOC1"')
+  return styles.includes('w:styleId="TOC1"')
     ? "styles-docx-9.14.xml"
     : "styles.xml";
+}
+
+async function stylesSnapshotPath(
+  scenario: "basic" | "noLocale" | "withLocale",
+) {
+  const file = await (stylesSnapshotFile ??= detectStylesSnapshotFile());
   return `__snapshots__/${scenario}/${file}`;
 }
 
