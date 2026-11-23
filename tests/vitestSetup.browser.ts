@@ -1,5 +1,6 @@
 import type {} from "./src/commands/transport/keyboard.js";
-import { afterEach, beforeAll, beforeEach } from "vite-plus/test";
+import { afterEach, aroundAll, beforeEach } from "vite-plus/test";
+import { installBrowserTestStyles } from "./src/commands/browser/installBrowserTestStyles.js";
 import { commands, page } from "./src/commands/transport.js";
 
 import {
@@ -19,7 +20,7 @@ import {
 // — narrow enough to wrap menus weirdly and skew screenshots). `page.viewport`
 // resizes that iframe. Run before all tests in the file so every test sees the
 // right size from the first render.
-beforeAll(async () => {
+aroundAll(async (runSuite) => {
   // On the android and ios instances the outer window is a 393x727 phone
   // (provider contextOptions) — the iframe must match it exactly. A larger
   // iframe gets scaled down by the harness's fit-to-window transform, so
@@ -31,27 +32,12 @@ beforeAll(async () => {
     await page.viewport(1280, 720);
   }
 
-  // Match the playground's editor framing so screenshots line up with what
-  // users see at https://www.blocknotejs.org/examples (max-width 731px,
-  // horizontally centred, slight top padding). Without this the editor
-  // stretches the full 1280px and snapshot baselines drift from production.
-  const style = document.createElement("style");
-  style.textContent = `.bn-container { max-width: 731px; margin: 0 auto; padding-top: 8px; }`;
-  document.head.appendChild(style);
-
-  // Disable CSS transitions & animations for the whole suite. The editor
-  // animates block geometry (e.g. `.bn-block-outer { transition: margin 0.2s }`
-  // driven by the PreviousBlockType depth-change decorations), so for ~200ms
-  // after a Tab/Shift+Tab the blocks' x-positions are mid-flight. Visual caret
-  // movement (ArrowUp/ArrowDown) then lands at a timing-dependent text offset,
-  // which made document snapshots race the animation clock under CPU
-  // contention. With motion disabled, layout is always in its settled state and
-  // caret geometry is deterministic. (No product code listens for
-  // transitionend/animationend, and no keyframes rely on fill-mode, so
-  // suppressing motion only removes the timing dependency.)
-  const noMotion = document.createElement("style");
-  noMotion.textContent = `*, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }`;
-  document.head.appendChild(noMotion);
+  const removeStyles = installBrowserTestStyles();
+  try {
+    await runSuite();
+  } finally {
+    removeStyles();
+  }
 });
 
 // Chromium drops the context's touch emulation after any screenshot captured
