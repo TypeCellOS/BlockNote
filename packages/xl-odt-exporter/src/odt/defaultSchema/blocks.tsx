@@ -12,7 +12,9 @@ import {
   TableCell,
 } from "@blocknote/core";
 import { multiColumnSchema } from "@blocknote/xl-multi-column";
+import { Fragment } from "react";
 import { ODTExporter } from "../odtExporter.js";
+import { keyODTNodes } from "../util/keyODTNodes.js";
 
 type BSchema = DefaultBlockSchema & {
   pageBreak: ReturnType<typeof createPageBreakBlockConfig>;
@@ -32,10 +34,10 @@ const codeMapping = (
     <text:p text:style-name="Codeblock">
       {...textContent.split("\n").map((line, index) => {
         return (
-          <>
+          <Fragment key={index}>
             {index !== 0 && <text:line-break />}
             {line}
-          </>
+          </Fragment>
         );
       })}
     </text:p>
@@ -210,7 +212,7 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
     return (
       <text:p text:style-name={styleName}>
         {getTabs(nestingLevel)}
-        {exporter.transformInlineContent(block.content)}
+        {keyODTNodes(exporter.transformInlineContent(block.content))}
       </text:p>
     );
   },
@@ -229,7 +231,7 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
         text:style-name={styleName}
       >
         {getTabs(nestingLevel)}
-        {exporter.transformInlineContent(block.content)}
+        {keyODTNodes(exporter.transformInlineContent(block.content))}
       </text:h>
     );
   },
@@ -253,7 +255,7 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
     return (
       <text:p text:style-name={styleName}>
         {getTabs(nestingLevel)}
-        {exporter.transformInlineContent(block.content)}
+        {keyODTNodes(exporter.transformInlineContent(block.content))}
       </text:p>
     );
   },
@@ -271,7 +273,7 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
   toggleListItem: (block, exporter) => (
     <text:p text:style-name="Standard">
       {"> "}
-      {exporter.transformInlineContent(block.content)}
+      {keyODTNodes(exporter.transformInlineContent(block.content))}
     </text:p>
   ),
 
@@ -287,7 +289,7 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
         <text:list-item>
           {wrapWithLists(
             <text:p text:style-name={styleName}>
-              {exporter.transformInlineContent(block.content)}
+              {keyODTNodes(exporter.transformInlineContent(block.content))}
             </text:p>,
             nestingLevel,
           )}
@@ -316,7 +318,7 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
         >
           {wrapWithLists(
             <text:p text:style-name={styleName}>
-              {exporter.transformInlineContent(block.content)}
+              {keyODTNodes(exporter.transformInlineContent(block.content))}
             </text:p>,
             nestingLevel,
           )}
@@ -328,7 +330,7 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
   checkListItem: (block, exporter) => (
     <text:p text:style-name="Standard">
       {block.props.checked ? "☒ " : "☐ "}
-      {exporter.transformInlineContent(block.content)}
+      {keyODTNodes(exporter.transformInlineContent(block.content))}
     </text:p>
   ),
 
@@ -377,7 +379,9 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
       ));
 
       return (
-        <table:table-cell table:style-name={style}>{children}</table:table-cell>
+        <table:table-cell table:style-name={style}>
+          {keyODTNodes(children)}
+        </table:table-cell>
       );
     },
   },
@@ -421,7 +425,7 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
 
             return <table:table-column table:style-name={style} key={index} />;
           })}
-          <table:table-row>{children}</table:table-row>
+          <table:table-row>{keyODTNodes(children)}</table:table-row>
         </table:table>
       );
     },
@@ -558,7 +562,7 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
             table:number-rows-spanned={rowspan > 1 ? rowspan : undefined}
           >
             <text:p text:style-name="Standard">
-              {exporter.transformInlineContent(cell.content)}
+              {keyODTNodes(exporter.transformInlineContent(cell.content))}
             </text:p>
           </table:table-cell>,
         );

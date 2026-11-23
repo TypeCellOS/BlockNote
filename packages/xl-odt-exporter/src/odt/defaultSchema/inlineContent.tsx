@@ -2,6 +2,7 @@ import {
   DefaultInlineContentSchema,
   InlineContentMapping,
 } from "@blocknote/core";
+import { Fragment } from "react";
 
 type ICSchema = DefaultInlineContentSchema;
 
@@ -14,7 +15,9 @@ export const odtInlineContentMappingForDefaultSchema: InlineContentMapping<
   React.ReactNode
 > = {
   link: (ic, exporter) => {
-    const content = ic.content.map((c) => exporter.transformStyledText(c));
+    const content = ic.content.map((c, index) => (
+      <Fragment key={index}>{exporter.transformStyledText(c)}</Fragment>
+    ));
 
     return (
       <text:a
