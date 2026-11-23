@@ -1,93 +1,167 @@
-import App from "@examples/01-basic/03-multi-column/src/App";
-import { beforeEach, describe, expect, test } from "vite-plus/test";
-import { render } from "vitest-browser-react";
-import { MOD, page, userEvent } from "../../utils/context.js";
+import { BlockNoteSchema } from "@blocknote/core";
+import "@blocknote/core/fonts/inter.css";
+import {
+  multiColumnDropCursor,
+  withMultiColumn,
+} from "@blocknote/xl-multi-column";
+import { describe, expect } from "vite-plus/test";
+import type { SetupEditor } from "../../commands/browser/setupEditor.js";
+import { commands, page, userEvent } from "../../utils/context.js";
 import {
   COLUMN_TRAILING_BLOCK_SELECTOR,
-  DOC_TRAILING_BLOCK_SELECTOR,
   DRAG_HANDLE_SELECTOR,
-  EDITOR_SELECTOR,
 } from "../../utils/const.js";
+import { focusOnEditor, waitForSelector } from "../../utils/editor.js";
 import {
-  compareDocToSnapshot,
-  focusOnEditor,
-  sleep,
-  waitForSelector,
-} from "../../utils/editor.js";
-import {
-  clickAt,
   getRect,
   mouseSequence,
   moveMouseOverElement,
+  waitForDragHandle,
 } from "../../utils/mouse.js";
 
-beforeEach(async () => {
-  await render(<App />);
-  await waitForSelector(EDITOR_SELECTOR);
-});
+const schema = withMultiColumn(BlockNoteSchema.create());
+
+async function setupColumns(setupEditor: SetupEditor, after?: string) {
+  const { editor } = await setupEditor({
+    schema,
+    dropCursor: multiColumnDropCursor,
+    initialContent: [
+      { id: "intro", type: "paragraph", content: "Welcome to this demo!" },
+      {
+        id: "columns",
+        type: "columnList",
+        children: [
+          {
+            id: "left",
+            type: "column",
+            props: { width: 0.8 },
+            children: [
+              {
+                id: "left-text",
+                type: "paragraph",
+                content: "This paragraph is in a column!",
+              },
+            ],
+          },
+          {
+            id: "middle",
+            type: "column",
+            props: { width: 1.4 },
+            children: [
+              { id: "title", type: "heading", content: "So is this heading!" },
+            ],
+          },
+          {
+            id: "right",
+            type: "column",
+            props: { width: 0.8 },
+            children: [
+              {
+                id: "instruction",
+                type: "paragraph",
+                content: "You can have multiple blocks in a column too",
+              },
+              ...[1, 2, 3].map((i) => ({
+                id: `item-${i}`,
+                type: "bulletListItem" as const,
+                content: `Block ${i}`,
+              })),
+            ],
+          },
+        ],
+      },
+      ...(after
+        ? [{ id: "after", type: "paragraph" as const, content: after }]
+        : []),
+    ],
+  });
+  const [intro, list] = editor.document;
+  const [left, middle, right] = list.children;
+  return { editor, intro, list, left, middle, right };
+}
 
 describe("Check Multi-Column Behaviour", () => {
-  test("Check Delete before column", async () => {
-    await focusOnEditor();
+  it("Check Delete before column", async ({ setupEditor }) => {
+    const { editor, intro, list, left, middle, right } =
+      await setupColumns(setupEditor);
+    editor.focus();
+    editor.setTextCursorPosition(middle.children[0], "end");
 
-    const target = page
-      .getByText("You can have multiple blocks in a column too")
-      .element();
-    const targetRect = getRect(target);
-    await clickAt(targetRect.x + 1, targetRect.y + 1);
-    await userEvent.keyboard("{ArrowLeft}");
+    await commands.pressKey("Delete");
+
+    const [instruction, ...items] = right.children;
+    expect(editor.document).toEqual([
+      intro,
+      {
+        ...list,
+        children: [
+          left,
+          { ...middle, children: [...middle.children, instruction] },
+          { ...right, children: items },
+        ],
+      },
+    ]);
+  });
+  it("Check Delete before column with single block", async ({
+    setupEditor,
+  }) => {
+    const { editor, intro, list, left, middle, right } =
+      await setupColumns(setupEditor);
+    // The behavior under test is Delete at the column boundary, not hit-testing
+    // at the end of the paragraph.
+    editor.focus();
+    editor.setTextCursorPosition(left.children[0], "end");
+
+    await commands.pressKey("Delete");
+
+    expect(editor.document).toEqual([
+      intro,
+      {
+        ...list,
+        children: [
+          { ...left, children: [...left.children, ...middle.children] },
+          right,
+        ],
+      },
+    ]);
+  });
+  it("Check Delete before column list", async ({ setupEditor }) => {
+    const { editor, intro, list, left, middle, right } =
+      await setupColumns(setupEditor);
+    editor.setTextCursorPosition(intro, "end");
+    editor.focus();
 
     await userEvent.keyboard("{Delete}");
 
-    await compareDocToSnapshot("deleteBeforeColumn");
+    expect(editor.document).toEqual([
+      intro,
+      left.children[0],
+      { ...list, children: [middle, right] },
+    ]);
   });
-  test("Check Delete before column with single block", async () => {
-    await focusOnEditor();
-
-    // Clicks the end of the column's single block. Clicking the column itself
-    // would hit its trailing block widget and append a new block instead.
-    const target = page.getByText("This paragraph is in a column!").element();
-    const range = document.createRange();
-    range.selectNodeContents(target);
-    const lineRects = range.getClientRects();
-    const lastLineRect = lineRects[lineRects.length - 1];
-    await clickAt(
-      lastLineRect.right - 1,
-      lastLineRect.y + lastLineRect.height / 2,
-    );
-
-    await userEvent.keyboard("{Delete}");
-
-    await compareDocToSnapshot("deleteBeforeColumnWithSingleBlock");
-  });
-  test("Check Delete before column list", async () => {
-    await focusOnEditor();
-
-    await userEvent.click(await waitForSelector(".bn-block-content"));
-
-    await userEvent.keyboard("{Delete}");
-
-    await compareDocToSnapshot("deleteBeforeColumnList");
-  });
-  test("Check column borders stay visible when hovering the side menu", async () => {
-    await focusOnEditor();
-
+  it("Check column borders stay visible when hovering the side menu", async ({
+    setupEditor,
+  }) => {
+    await setupColumns(setupEditor);
     // Hovering a block in a column shows the borders between the columns.
-    await moveMouseOverElement(page.getByText("So is this heading!").element());
+    const heading = page.getByText("So is this heading!").element();
+    await moveMouseOverElement(heading);
     await waitForSelector(".bn-column-list-hovered");
 
     // The borders must stay visible when the mouse moves onto the side menu,
     // which is rendered over the boundary between the first two columns.
-    await moveMouseOverElement(await waitForSelector(".bn-side-menu"));
+    const handle = await waitForDragHandle(heading);
+    await moveMouseOverElement(handle.closest(".bn-side-menu")!);
     expect(document.querySelector(".bn-column-list-hovered")).not.toBeNull();
   });
-  test("Check resize border hides when hovering a side menu button", async () => {
-    await focusOnEditor();
-
+  it("Check resize border hides when hovering a side menu button", async ({
+    setupEditor,
+  }) => {
+    await setupColumns(setupEditor);
     // Hovering a block in a column shows the side menu for it.
     const heading = page.getByText("So is this heading!").element();
     await moveMouseOverElement(heading);
-    await waitForSelector(".bn-side-menu");
+    await waitForDragHandle(heading);
 
     // Moving the mouse near the boundary between the first two columns shows
     // the resize border on it.
@@ -110,7 +184,11 @@ describe("Check Multi-Column Behaviour", () => {
     expect(document.querySelector(".bn-column-resize-border")).toBeNull();
     expect(document.querySelector(".bn-column-list-hovered")).not.toBeNull();
   });
-  test("Check clicking a column's trailing block appends a block to the column", async () => {
+  it("Check clicking a column's trailing block appends a block to the column", async ({
+    setupEditor,
+  }) => {
+    const { editor, intro, list, left, middle, right } =
+      await setupColumns(setupEditor);
     await focusOnEditor();
 
     // The first column is shorter than its siblings, so its trailing block
@@ -120,19 +198,55 @@ describe("Check Multi-Column Behaviour", () => {
     );
     await userEvent.keyboard("Inside the column");
 
-    await compareDocToSnapshot("trailingBlockInColumn");
+    expect(editor.document).toMatchObject([
+      intro,
+      {
+        ...list,
+        children: [
+          {
+            ...left,
+            children: [
+              ...left.children,
+              {
+                type: "paragraph",
+                content: [
+                  { type: "text", text: "Inside the column", styles: {} },
+                ],
+                children: [],
+              },
+            ],
+          },
+          middle,
+          right,
+        ],
+      },
+    ]);
   });
-  test("Check Delete end of column list", async () => {
-    await focusOnEditor();
-
-    await userEvent.click(await waitForSelector(DOC_TRAILING_BLOCK_SELECTOR));
-    await userEvent.keyboard("Paragraph");
-    await userEvent.keyboard(`{${MOD}>}{ArrowLeft}{/${MOD}}`);
-    await userEvent.keyboard("{ArrowLeft}");
+  it("Check Delete end of column list", async ({ setupEditor }) => {
+    const { editor, intro, list, left, middle, right } = await setupColumns(
+      setupEditor,
+      "Paragraph",
+    );
+    const appended = editor.document[2];
+    editor.setTextCursorPosition(
+      right.children[right.children.length - 1],
+      "end",
+    );
+    editor.focus();
 
     await userEvent.keyboard("{Delete}");
 
-    await compareDocToSnapshot("deleteEndOfColumnList");
+    expect(editor.document).toEqual([
+      intro,
+      {
+        ...list,
+        children: [
+          left,
+          middle,
+          { ...right, children: [...right.children, appended] },
+        ],
+      },
+    ]);
   });
 });
 
@@ -146,9 +260,10 @@ describe("Check side menu placement inside a column list", () => {
   /** Vertical centre of a rect, which the menu lines itself up with. */
   const centerY = (rect: DOMRect) => rect.y + rect.height / 2;
 
-  test("Check drag handle resolves the block on the hovered row of a column", async () => {
-    await focusOnEditor();
-
+  it("Check drag handle resolves the block on the hovered row of a column", async ({
+    setupEditor,
+  }) => {
+    await setupColumns(setupEditor);
     // The last column is the only one holding several blocks, so it's the only
     // place a wrongly resolved block is distinguishable by its row.
     const target = page.getByText("Block 2").element();
@@ -162,9 +277,7 @@ describe("Check side menu placement inside a column list", () => {
         steps: 5,
       },
     ]);
-    await waitForSelector(DRAG_HANDLE_SELECTOR);
-    await sleep(150);
-    const handleRect = getRect(DRAG_HANDLE_SELECTOR);
+    const handleRect = getRect(await waitForDragHandle(target));
 
     expect(handleRect.x).toBeLessThan(getRect(target).x);
 
