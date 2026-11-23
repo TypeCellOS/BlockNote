@@ -1,79 +1,65 @@
-import App from "@examples/01-basic/testing/src/App";
-import { beforeEach, describe, test } from "vite-plus/test";
-import { render } from "vitest-browser-react";
+import type { PartialBlock } from "@blocknote/core";
+import "@blocknote/core/fonts/inter.css";
+import { describe, expect } from "vite-plus/test";
 import { userEvent } from "../../utils/context.js";
+import { ALIGN_TEXT_RIGHT_BUTTON_SELECTOR } from "../../utils/const.js";
 import {
-  ALIGN_TEXT_RIGHT_BUTTON_SELECTOR,
-  EDITOR_SELECTOR,
-} from "../../utils/const.js";
-import { insertHeading } from "../../utils/copypaste.js";
-import {
-  focusOnEditor,
   expectElement,
-  sleep,
   waitForSelector,
+  waitForSelectorDetached,
 } from "../../utils/editor.js";
 
-beforeEach(async () => {
-  await render(<App />);
-  await waitForSelector(EDITOR_SELECTOR);
-});
-
 describe("Check Text Alignment Functionality", () => {
-  test("Should be able to set text alignment on single block", async () => {
-    await focusOnEditor();
+  it.for([
+    {
+      name: "single block",
+      aligned: ["h2"],
+      screenshot: "alignTextSingleBlock",
+    },
+    {
+      name: "multiple blocks",
+      aligned: ["h1", "h2"],
+      screenshot: "alignTextMultipleBlocks",
+    },
+  ])(
+    "Should be able to set text alignment on $name",
+    async ({ aligned, screenshot }, { setupEditor }) => {
+      const { editor } = await setupEditor({
+        initialContent: ([1, 2, 3] as const).map((level): PartialBlock => ({
+          id: `h${level}`,
+          type: "heading",
+          props: { level },
+          content: "Heading",
+        })),
+      });
+      editor.focus();
+      if (aligned.length === 1) {
+        const heading = await waitForSelector(
+          '[data-id="h2"] .bn-inline-content',
+        );
+        document.getSelection()?.selectAllChildren(heading);
+        await expect.poll(() => editor.getSelectedText()).toBe("Heading");
+      } else {
+        editor.setSelection("h1", "h2");
+      }
 
-    await insertHeading(1);
-    await userEvent.keyboard("{Enter}");
-    await insertHeading(2);
-    await userEvent.keyboard("{Enter}");
-    await insertHeading(3);
+      await userEvent.click(
+        await waitForSelector(ALIGN_TEXT_RIGHT_BUTTON_SELECTOR),
+      );
+      expect(
+        editor.document
+          .filter(
+            (block) =>
+              block.type === "heading" && block.props.textAlignment === "right",
+          )
+          .map((block) => block.id),
+      ).toEqual(aligned);
+      editor.focus();
+      editor.setTextCursorPosition("h2");
+      await waitForSelectorDetached(ALIGN_TEXT_RIGHT_BUTTON_SELECTOR);
+      await expect.poll(() => document.getSelection()?.isCollapsed).toBe(true);
 
-    await userEvent.keyboard("{ArrowUp}");
-    await userEvent.keyboard("{Control>}{ArrowLeft}{/Control}");
-    await userEvent.keyboard("{Shift>}{ArrowRight}{/Shift}");
-
-    await userEvent.click(
-      await waitForSelector(ALIGN_TEXT_RIGHT_BUTTON_SELECTOR),
-    );
-    await sleep(350);
-
-    await userEvent.keyboard("{Escape}");
-    // Waits for formatting toolbar animation to finish.
-    await sleep(500);
-    await userEvent.keyboard("{ArrowLeft}");
-
-    await expectElement(document.body).toMatchScreenshot(
-      "alignTextSingleBlock",
-    );
-  });
-  test("Should be able to set text alignment on multiple blocks", async () => {
-    await focusOnEditor();
-
-    await insertHeading(1);
-    await userEvent.keyboard("{Enter}");
-    await insertHeading(2);
-    await userEvent.keyboard("{Enter}");
-    await insertHeading(3);
-
-    await userEvent.keyboard("{ArrowUp}");
-    await userEvent.keyboard("{ArrowUp}");
-    await userEvent.keyboard("{Control>}{ArrowLeft}{/Control}");
-    await userEvent.keyboard("{Shift>}{ArrowDown}{/Shift}");
-    await userEvent.keyboard("{Shift>}{ArrowRight}{/Shift}");
-
-    await userEvent.click(
-      await waitForSelector(ALIGN_TEXT_RIGHT_BUTTON_SELECTOR),
-    );
-    await sleep(350);
-
-    await userEvent.keyboard("{Escape}");
-    // Waits for formatting toolbar animation to finish.
-    await sleep(500);
-    await userEvent.keyboard("{ArrowLeft}");
-
-    await expectElement(document.body).toMatchScreenshot(
-      "alignTextMultipleBlocks",
-    );
-  });
+      await expectElement(document.body).toMatchScreenshot(screenshot);
+    },
+  );
 });

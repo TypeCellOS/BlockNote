@@ -1,14 +1,8 @@
-import App from "@examples/01-basic/testing/src/App";
-import {
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  test,
-  vi,
-} from "vite-plus/test";
-import { cleanup, render } from "vitest-browser-react";
+import "@blocknote/core/fonts/inter.css";
+import { SideMenuExtension } from "@blocknote/core/extensions";
+import { afterEach, beforeEach, describe, expect, vi } from "vite-plus/test";
 
+import { selectText } from "../../commands/node/selectText.js";
 import { page, userEvent } from "../../utils/context.js";
 import { EDITOR_SELECTOR, LINK_BUTTON_SELECTOR } from "../../utils/const.js";
 import { focusOnEditor, waitForSelector } from "../../utils/editor.js";
@@ -50,10 +44,6 @@ async function settleFrames(count = 3) {
   }
 }
 
-function selectionIsEmpty(): boolean {
-  return (window as any).ProseMirror.state.selection.empty;
-}
-
 function activeUrlInput() {
   const active = document.activeElement;
   return active instanceof HTMLInputElement && active.name === "url"
@@ -63,8 +53,6 @@ function activeUrlInput() {
 
 beforeEach(async () => {
   await page.viewport(VIEWPORT_WIDTH, KEYBOARD_CLOSED);
-  await render(<App />);
-  await waitForSelector(EDITOR_SELECTOR);
 });
 
 afterEach(async () => {
@@ -76,14 +64,21 @@ describe("Mobile formatting toolbar", () => {
   // properties stay on `<html>` after the last editor unmounts, pinning a
   // `bn-scroll-container` to the keyboard-open height on the next page
   // (client-side navigation).
-  test("unmounting the last editor removes the viewport properties", async () => {
+  it("unmounting the last editor removes the viewport properties", async ({
+    setupEditor,
+  }) => {
+    let mounted = true;
+    const { rerender } = await setupEditor({
+      outside: ({ children }) => (mounted ? children : null),
+    });
     await focusOnEditor();
     await userEvent.keyboard("Mobile toolbar");
     await page.viewport(VIEWPORT_WIDTH, KEYBOARD_OPEN);
     await waitForSelector(MOBILE_TOOLBAR_SELECTOR);
     const html = document.documentElement;
     expect(html.style.getPropertyValue("--bn-vv-height")).not.toBe("");
-    await cleanup();
+    mounted = false;
+    rerender({});
     await settleFrames();
     expect(html.style.getPropertyValue("--bn-vv-height")).toBe("");
     expect(html.style.getPropertyValue("--bn-vv-scale")).toBe("");
@@ -93,7 +88,10 @@ describe("Mobile formatting toolbar", () => {
   // away from the editor closed the keyboard, the mobile controller unmounted,
   // and the desktop controller mounted with the stale `true` and showed the
   // desktop toolbar over a blurred editor.
-  test("tapping away from the editor with the keyboard open leaves no formatting toolbar", async () => {
+  it("tapping away from the editor with the keyboard open leaves no formatting toolbar", async ({
+    setupEditor,
+  }) => {
+    await setupEditor();
     await focusOnEditor();
     await userEvent.keyboard("Mobile toolbar");
     await userEvent.keyboard("{Shift>}{Home}{/Shift}");
@@ -114,7 +112,10 @@ describe("Mobile formatting toolbar", () => {
   // `focus()`), so the keyboard stays closed. The selection used to survive
   // the blur, so the desktop toolbar showed over it, and without the keyboard
   // no tap could clear it.
-  test("focus returning without the keyboard brings back neither the selection nor a toolbar", async () => {
+  it("focus returning without the keyboard brings back neither the selection nor a toolbar", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor();
     await focusOnEditor();
     await userEvent.keyboard("Mobile toolbar");
     await userEvent.keyboard("{Shift>}{Home}{/Shift}");
@@ -131,14 +132,17 @@ describe("Mobile formatting toolbar", () => {
     editorElement.focus();
     await settleFrames();
 
-    expect(selectionIsEmpty()).toBe(true);
+    expect(editor.getSelection()).toBeUndefined();
     expect(document.querySelector(".bn-formatting-toolbar")).toBeNull();
   });
 
   // The tap on iOS Safari's address bar blurs only the window: the editor
   // keeps DOM focus, so without dropping it no focusout ever reached the
   // editor and the selection survived.
-  test("a window blur that leaves the editor focused ends the selection", async () => {
+  it("a window blur that leaves the editor focused ends the selection", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor();
     await focusOnEditor();
     await userEvent.keyboard("Mobile toolbar");
     await userEvent.keyboard("{Shift>}{Home}{/Shift}");
@@ -155,11 +159,14 @@ describe("Mobile formatting toolbar", () => {
     await settleFrames();
 
     expect(document.activeElement).not.toBe(editorElement);
-    expect(selectionIsEmpty()).toBe(true);
+    expect(editor.getSelection()).toBeUndefined();
     expect(document.querySelector(".bn-formatting-toolbar")).toBeNull();
   });
 
-  test("shows while the virtual keyboard is open and hides when it closes", async () => {
+  it("shows while the virtual keyboard is open and hides when it closes", async ({
+    setupEditor,
+  }) => {
+    await setupEditor();
     await focusOnEditor();
     await userEvent.keyboard("Mobile toolbar");
 
@@ -176,33 +183,6 @@ describe("Mobile formatting toolbar", () => {
     });
   });
 
-  // Red before the side menu's guard for pointer events over the editor's own
-  // UI (SideMenu.ts). iOS Safari delivers a tap as a hover first, one mouse
-  // move straight to the tap point, and drops the click when that hover
-  // changes the page: with the toolbar far below the blocks, the move hid a
-  // shown side menu and every toolbar button needed two taps.
-  test("a pointer jumping onto the toolbar leaves a shown side menu alone", async () => {
-    await focusOnEditor();
-    await userEvent.keyboard("Side menu");
-    await moveMouseOverElement(await waitForSelector(".bn-block-content"));
-    await waitForSelector(".bn-side-menu");
-
-    await page.viewport(VIEWPORT_WIDTH, KEYBOARD_OPEN);
-    const toolbar = await waitForSelector(MOBILE_TOOLBAR_SELECTOR);
-    const button = getRect(toolbar.querySelector("button")!);
-    await mouseSequence([
-      {
-        type: "move",
-        x: button.x + button.width / 2,
-        y: button.y + button.height / 2,
-        steps: 1,
-      },
-    ]);
-    await new Promise((resolve) => setTimeout(resolve, 500));
-
-    expect(document.querySelector(".bn-side-menu")).not.toBeNull();
-  });
-
   // The toolbar is portaled to the body, outside the pinned scroll container,
   // so nothing consumes a vertical drag on it and the gesture reaches the
   // document: with the keyboard open on iOS that pans the visual viewport or
@@ -210,7 +190,10 @@ describe("Mobile formatting toolbar", () => {
   // finger. `touch-action: pan-x` on the strip stops that (on the strip, not
   // the wrapper: see `.bn-mobile-formatting-toolbar .bn-toolbar` in
   // styles.css). The pan is device behaviour; this pins the rule.
-  test("the toolbar strip allows only horizontal touch panning", async () => {
+  it("the toolbar strip allows only horizontal touch panning", async ({
+    setupEditor,
+  }) => {
+    await setupEditor();
     await focusOnEditor();
     await userEvent.keyboard("Mobile toolbar");
     await page.viewport(VIEWPORT_WIDTH, KEYBOARD_OPEN);
@@ -221,7 +204,10 @@ describe("Mobile formatting toolbar", () => {
     ).toBe("pan-x");
   });
 
-  test("link popover holds focus through keyboard resizes and creates the link", async () => {
+  it("link popover holds focus through keyboard resizes and creates the link", async ({
+    setupEditor,
+  }) => {
+    const { editor, rootNode } = await setupEditor();
     await focusOnEditor();
     await userEvent.keyboard(LINK_TEXT);
     await userEvent.keyboard(SELECT_LINK_TEXT);
@@ -295,8 +281,17 @@ describe("Mobile formatting toolbar", () => {
     // Reopening the popover with the whole link selected must pre-fill its
     // URL: `getSelectedLinkUrl` reads the mark just inside the selection
     // start, since a lookup exactly at the link's left boundary misses it.
-    await userEvent.keyboard("{ArrowRight}");
-    await userEvent.keyboard(SELECT_LINK_TEXT);
+    // Reselecting is setup for reopening, not a keyboard navigation contract.
+    // Preserve the close-to-editor focus handoff before arranging the selection.
+    expect(document.activeElement).toBe(
+      rootNode.querySelector(EDITOR_SELECTOR),
+    );
+    await window.__blockNoteWaitForEditorFocus();
+    selectText(editor, LINK_TEXT);
+    expect(editor.getSelectedText()).toBe(LINK_TEXT);
+    await expect
+      .poll(() => document.getSelection()?.toString())
+      .toBe(LINK_TEXT);
     await userEvent.click(
       await waitForSelector(
         `${MOBILE_TOOLBAR_SELECTOR} ${LINK_BUTTON_SELECTOR}`,
@@ -316,20 +311,34 @@ describe("Mobile formatting toolbar", () => {
   // on a real device, focus resting on the toolbar button closes the
   // on-screen keyboard (a button can't take text input) and the whole
   // editing session collapses with it.
-  test("toggling the link popover closed returns focus to the editor", async () => {
-    await focusOnEditor();
-    await userEvent.keyboard(LINK_TEXT);
-    await userEvent.keyboard(SELECT_LINK_TEXT);
+  it("toggling the link popover closed returns focus to the editor", async ({
+    setupEditor,
+  }) => {
+    const { editor, rootNode } = await setupEditor({
+      initialContent: [{ type: "paragraph", content: LINK_TEXT }],
+    });
+    const editorElement = rootNode.querySelector(EDITOR_SELECTOR);
+    if (!editorElement) {
+      throw new Error("Missing mounted editor");
+    }
+    // The toggle needs selected text; keyboard selection isn't under test.
+    selectText(editor, LINK_TEXT);
+    editor.focus();
 
     await page.viewport(VIEWPORT_WIDTH, KEYBOARD_OPEN);
     await waitForSelector(MOBILE_TOOLBAR_SELECTOR);
+    const selection = document.getSelection();
+    expect(document.activeElement).toBe(editorElement);
+    expect(selection?.toString()).toBe(LINK_TEXT);
+    expect(editorElement.contains(selection?.anchorNode ?? null)).toBe(true);
+    expect(editorElement.contains(selection?.focusNode ?? null)).toBe(true);
     const linkButton = await waitForSelector(
       `${MOBILE_TOOLBAR_SELECTOR} ${LINK_BUTTON_SELECTOR}`,
     );
 
     await userEvent.click(linkButton);
     await vi.waitFor(() => {
-      if (!(document.activeElement instanceof HTMLInputElement)) {
+      if (!activeUrlInput()) {
         throw new Error("URL input did not receive focus on popover open");
       }
     });
@@ -339,7 +348,7 @@ describe("Mobile formatting toolbar", () => {
       if (document.querySelector('input[name="url"]')) {
         throw new Error("popover did not close on trigger toggle");
       }
-      if (!document.activeElement?.closest(EDITOR_SELECTOR)) {
+      if (document.activeElement !== editorElement) {
         throw new Error(
           `focus did not return to the editor (active: ${String(
             document.activeElement?.className,
@@ -348,4 +357,60 @@ describe("Mobile formatting toolbar", () => {
       }
     });
   });
+});
+
+// iOS Safari can deliver a tap as a single mouse move straight to the tap
+// point first. Hiding a shown side menu during that move can lose the click.
+it("a pointer jumping onto the toolbar leaves a shown side menu alone", async ({
+  setupEditor,
+}) => {
+  const { editor } = await setupEditor();
+  await focusOnEditor();
+  await userEvent.keyboard("Side menu");
+  await moveMouseOverElement(await waitForSelector(".bn-block-content"));
+  await waitForSelector(".bn-side-menu");
+
+  await page.viewport(VIEWPORT_WIDTH, KEYBOARD_OPEN);
+  const button = await waitForSelector(`${MOBILE_TOOLBAR_SELECTOR} button`);
+  function buttonCenter() {
+    const rect = getRect(button);
+    return { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 };
+  }
+  await expect
+    .poll(() => {
+      const { x, y } = buttonCenter();
+      return button.contains(document.elementFromPoint(x, y));
+    })
+    .toBe(true);
+
+  const store = editor.getExtension(SideMenuExtension)!.store;
+  const shownMenu = store.state;
+  expect(shownMenu?.show).toBe(true);
+
+  // The side menu decides synchronously in its capture listener. Observe
+  // delivery to the actual button, then check the store rather than waiting
+  // for a possible React unmount to show up in the DOM.
+  let moveToButton: { menu: typeof store.state } | undefined;
+  function recordMouseMove(event: MouseEvent) {
+    if (
+      !moveToButton &&
+      event.isTrusted &&
+      event.target instanceof Node &&
+      button.contains(event.target)
+    ) {
+      moveToButton = { menu: store.state };
+    }
+  }
+  document.addEventListener("mousemove", recordMouseMove, true);
+  try {
+    await mouseSequence([{ type: "move", ...buttonCenter(), steps: 1 }]);
+    await expect.poll(() => moveToButton).toBeDefined();
+    expect(moveToButton?.menu).toMatchObject({
+      show: true,
+      block: { id: shownMenu?.block.id },
+    });
+    expect(document.querySelector(".bn-side-menu")).not.toBeNull();
+  } finally {
+    document.removeEventListener("mousemove", recordMouseMove, true);
+  }
 });

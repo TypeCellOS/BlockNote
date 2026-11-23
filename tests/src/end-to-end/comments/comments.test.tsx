@@ -1,37 +1,86 @@
-import App from "@examples/07-collaboration/09-comments-testing/src/App";
-import { beforeEach, describe, expect, test, vi } from "vite-plus/test";
-import { render } from "vitest-browser-react";
-import { browserName, MOD, page, userEvent } from "../../utils/context.js";
+import { BlockNoteEditor } from "@blocknote/core";
+import {
+  CommentsExtension,
+  DefaultThreadStoreAuth,
+} from "@blocknote/core/comments";
+import { blocksToYDoc, YjsThreadStore } from "@blocknote/core/yjs";
+import { describe, expect, test as base, vi } from "vite-plus/test";
+import { createSetupEditor } from "../../commands/browser/setupEditor.js";
+import { selectText } from "../../commands/node/selectText.js";
+import {
+  browserName,
+  commands,
+  MOD,
+  page,
+  userEvent,
+} from "../../utils/context.js";
 import { EDITOR_SELECTOR, LINK_BUTTON_SELECTOR } from "../../utils/const.js";
 import {
   expectElement,
-  focusOnEditor,
-  sleep,
   waitForSelector,
   waitForSelectorDetached,
 } from "../../utils/editor.js";
 import { clickAt, getRect, moveMouseOverElement } from "../../utils/mouse.js";
 
-/** Double-clicks the centre of an element via the real Playwright mouse. */
-async function doubleClickElement(element: Element) {
-  const { x, y, width, height } = getRect(element);
-  await clickAt(x + width / 2, y + height / 2, 2);
-}
+const TEXT = "hello";
+const URL = "https://example.com";
+const THREAD_MARK = ".bn-thread-mark";
+const LINK = `${EDITOR_SELECTOR} a[data-inline-content-type="link"]`;
+const COMMENT_USER = { id: "1", username: "John Doe", avatarUrl: "" };
 
-/**
- * Clicks the comment mark near its left edge. ProseMirror counts a click within
- * 500ms and 10px of the previous one in the editor as a double/triple click
- * (which skips `handleClick`, so no thread opens). The clicks on the comment
- * UI in between happen outside the editor and don't reset that count, so
- * clicking the centre right after double-clicking the word to select it is
- * flaky.
- */
-async function clickThreadMark() {
-  const { x, y, height } = getRect(
-    await waitForSelector("span.bn-thread-mark"),
-  );
-  await clickAt(x + 2, y + height / 2);
-}
+// Use the legacy adapter's document factory so this suite exercises the same
+// store as the comments example without adding a direct dependency on Yjs 13.
+let schemaEditor: BlockNoteEditor | undefined;
+
+const test = base.extend<{
+  commentsEditor: {
+    editor: BlockNoteEditor;
+    seedThread: () => Promise<void>;
+  };
+}>({
+  commentsEditor: async ({ onTestFinished }, use) => {
+    const doc = blocksToYDoc((schemaEditor ??= BlockNoteEditor.create()), []);
+    onTestFinished(() => {
+      doc.destroy();
+    });
+    const threadStore = new YjsThreadStore(
+      COMMENT_USER.id,
+      doc.getMap("threads"),
+      new DefaultThreadStoreAuth(COMMENT_USER.id, "editor"),
+    );
+    const setupEditor = createSetupEditor(onTestFinished);
+    const { editor } = await setupEditor({
+      initialContent: [{ type: "paragraph", content: TEXT }],
+      extensions: [
+        CommentsExtension({
+          threadStore,
+          resolveUsers: async (userIds) =>
+            userIds.includes(COMMENT_USER.id) ? [COMMENT_USER] : [],
+        }),
+      ],
+    });
+    const comments = editor.getExtension(CommentsExtension);
+    if (!comments) {
+      throw new Error("Missing comments extension");
+    }
+
+    // Real thread-store writes and editor marks, without walking through the
+    // composer in cases that start with an existing comment.
+    await use({
+      editor,
+      seedThread: async () => {
+        selectText(editor, TEXT);
+        await comments.createThread({
+          initialComment: {
+            body: [
+              { id: "comment", type: "paragraph", content: "test comment" },
+            ],
+          },
+        });
+      },
+    });
+  },
+});
 
 /** Resolves once exactly `count` elements match `selector`. */
 function expectSelectorCount(selector: string, count: number) {
@@ -62,16 +111,12 @@ function waitForEmojiButtons(min = 1): Promise<HTMLButtonElement[]> {
   });
 }
 
-beforeEach(async () => {
-  await render(<App />);
-  await waitForSelector(EDITOR_SELECTOR);
-});
-
 describe("Check Comments functionality", () => {
-  test("Enter submits comments, replies and edits; Shift+Enter inserts a line break", async () => {
-    await focusOnEditor();
-    await userEvent.keyboard("hello");
-    await doubleClickElement(page.getByText("hello").element());
+  test("Enter submits comments, replies and edits; Shift+Enter inserts a line break", async ({
+    commentsEditor: { editor },
+  }) => {
+    editor.focus();
+    selectText(editor, TEXT);
     await userEvent.click(await waitForSelector('[data-test="addcomment"]'));
     const composer = await waitForSelector(
       '.bn-comment-editor [contenteditable="true"]',
@@ -99,66 +144,53 @@ describe("Check Comments functionality", () => {
 
     await userEvent.keyboard("{Enter}");
     await expectSelectorCount(".bn-thread", 0);
-    await clickThreadMark();
+    await userEvent.click(await waitForSelector(THREAD_MARK));
     await expectSelectorCount(".bn-thread-comment", 1);
     expect(document.querySelector(".bn-thread-comment")?.textContent).toContain(
       "second line",
     );
 
-    await userEvent.click(
+    await userEvent.fill(
       await waitForSelector('.bn-thread-composer [contenteditable="true"]'),
+      "reply",
     );
-    await userEvent.keyboard("reply{Enter}");
+    await commands.pressKey("Enter");
     await expectSelectorCount(".bn-thread-comment", 2);
     await moveMouseOverElement(await waitForSelector(".bn-thread-comment"));
     await userEvent.click(await waitForSelector('[data-test="moreactions"]'));
     await userEvent.click(page.getByRole("menuitem", { name: "Edit comment" }));
-    await userEvent.click(
-      await waitForSelector('.bn-thread-comment [contenteditable="true"]'),
-    );
+    // Choosing Edit already focuses the editor. Wait for that before typing.
+    const editComposer = '.bn-thread-comment [contenteditable="true"]';
+    await expect
+      .poll(() => document.activeElement?.matches(editComposer))
+      .toBe(true);
+    await window.__blockNoteWaitForEditorFocus();
     await userEvent.keyboard("{End} edited{Enter}");
-    await expectSelectorCount('.bn-thread-comment [contenteditable="true"]', 0);
-    await vi.waitFor(() => {
-      expect(
-        document.querySelector(".bn-thread-comment")?.textContent,
-      ).toContain("edited");
-    });
+    await expect
+      .poll(() => {
+        return {
+          editing: document.querySelector(editComposer) !== null,
+          text: document.querySelector(".bn-thread-comment")?.textContent,
+        };
+      })
+      .toEqual({ editing: false, text: expect.stringContaining("edited") });
   });
 
-  test("Should be able to add reactions", async () => {
-    await focusOnEditor();
-
-    await userEvent.keyboard("hello");
-    await doubleClickElement(page.getByText("hello").element());
-
-    await userEvent.click(await waitForSelector('[data-test="addcomment"]'));
-    await waitForSelector(".bn-thread");
-
-    await userEvent.keyboard("test comment");
-    await userEvent.click(await waitForSelector('button[data-test="save"]'));
-
-    // Wait for comment composer to close.
-    await expectSelectorCount(".bn-thread", 0);
-
-    // Click away from the mark so reopening is not a third click in the
-    // initial text-selection double-click, even on fast CI runners.
-    await userEvent.click(
-      await waitForSelector(`${EDITOR_SELECTOR} .bn-block-content`),
-    );
-    await clickThreadMark();
-    await expectElement(
-      await waitForSelector(".bn-thread-comment"),
-    ).toBeVisible();
+  test("Should be able to add reactions", async ({
+    commentsEditor: { editor, seedThread },
+  }) => {
+    await seedThread();
+    // Seeding leaves the comment text selected; collapse it before opening the
+    // thread so the formatting toolbar cannot cover its reaction button.
+    editor.setTextCursorPosition(editor.document[0]);
+    await waitForSelectorDetached('[data-test="addcomment"]');
+    await userEvent.click(await waitForSelector(THREAD_MARK));
 
     // Hover comment to reveal action toolbar.
-    await moveMouseOverElement(await waitForSelector(".bn-thread-comment"));
-    await expectElement(
-      await waitForSelector('[data-test="addreaction"]'),
-    ).toBeVisible();
+    await moveMouseOverElement(".bn-thread-comment");
 
     // Add a reaction via the action toolbar's add-reaction button.
     await userEvent.click(await waitForSelector('[data-test="addreaction"]'));
-    await waitForEmojiButtons();
     await userEvent.click(await waitForSelector("[frimousse-search]"));
     await userEvent.keyboard("{Escape}");
     await expectSelectorCount("[frimousse-root]", 0);
@@ -174,9 +206,8 @@ describe("Check Comments functionality", () => {
     await expectSelectorCount("[frimousse-root]", 0);
 
     // Both dismissal paths must leave the owner ready to reopen and select.
-    await moveMouseOverElement(await waitForSelector(".bn-thread-comment"));
+    await moveMouseOverElement(".bn-thread-comment");
     await userEvent.click(await waitForSelector('[data-test="addreaction"]'));
-    await waitForEmojiButtons();
     await userEvent.fill(await waitForSelector("[frimousse-search]"), "frog");
     await vi.waitFor(() => {
       expect(emojiButtons().map((button) => button.textContent)).toEqual([
@@ -191,7 +222,7 @@ describe("Check Comments functionality", () => {
     ).toContain("🐸");
 
     // Add a second reaction via the add-reaction badge.
-    await moveMouseOverElement(await waitForSelector(".bn-thread-comment"));
+    await moveMouseOverElement(".bn-thread-comment");
     await userEvent.click(await waitForSelector(".bn-comment-add-reaction"));
 
     // Clicking the visible Chip label again must close the picker, not first
@@ -203,7 +234,7 @@ describe("Check Comments functionality", () => {
     await userEvent.click(addReactionLabel);
     await expectSelectorCount("[frimousse-root]", 0);
     await userEvent.click(addReactionLabel);
-    await waitForEmojiButtons();
+    const secondPickerButtons = await waitForEmojiButtons(6);
     const addReactionInput = await waitForSelector(
       ".bn-comment-add-reaction input",
     );
@@ -213,58 +244,38 @@ describe("Check Comments functionality", () => {
 
     // Pick a different emoji so it's added as a new reaction rather than
     // toggling the first one off.
-    const secondPickerButtons = await waitForEmojiButtons(6);
     await userEvent.click(secondPickerButtons[5]);
     await waitForSelectorDetached("[frimousse-root]");
     await expectSelectorCount(".bn-comment-reaction", 2);
   });
 
-  test("Should preserve existing comments when adding a link", async () => {
-    await focusOnEditor();
-
-    await userEvent.keyboard("hello");
-    await doubleClickElement(page.getByText("hello").element());
-
-    await userEvent.click(await waitForSelector('[data-test="addcomment"]'));
-    await waitForSelector(".bn-thread");
-
-    await userEvent.keyboard("test comment");
-    await userEvent.click(await waitForSelector('button[data-test="save"]'));
-
-    await doubleClickElement(
-      document.querySelectorAll("span.bn-thread-mark")[0] as HTMLElement,
-    );
-
-    await expectElement(
-      await waitForSelector(LINK_BUTTON_SELECTOR),
-    ).toBeVisible();
+  test("Should preserve existing comments when adding a link", async ({
+    commentsEditor: { editor, seedThread },
+  }) => {
+    editor.focus();
+    await seedThread();
     await userEvent.click(await waitForSelector(LINK_BUTTON_SELECTOR));
 
-    await userEvent.keyboard("https://example.com");
+    await userEvent.fill(
+      await waitForSelector(".bn-form-popover input[name=url]"),
+      URL,
+    );
     await userEvent.keyboard("{Enter}");
 
+    await waitForSelector(`${LINK}[href="${URL}"]`);
     await expectElement(
-      await waitForSelector("span.bn-thread-mark"),
+      await waitForSelector(
+        `${LINK} ${THREAD_MARK}, ${THREAD_MARK} a[href="${URL}"]`,
+      ),
     ).toBeVisible();
   });
 
-  test("Should preserve existing comments when adding a code mark", async () => {
-    await focusOnEditor();
-
-    await userEvent.keyboard("hello");
-    await doubleClickElement(page.getByText("hello").element());
-
-    await userEvent.click(await waitForSelector('[data-test="addcomment"]'));
-    await waitForSelector(".bn-thread");
-
-    await userEvent.keyboard("test comment");
-    await userEvent.click(await waitForSelector('button[data-test="save"]'));
-
-    // Re-select the commented text and toggle inline code on it (Cmd/Ctrl+E).
-    await doubleClickElement(
-      document.querySelectorAll("span.bn-thread-mark")[0] as HTMLElement,
-    );
-    await userEvent.keyboard(`{${MOD}>}e{/${MOD}}`);
+  test("Should preserve existing comments when adding a code mark", async ({
+    commentsEditor: { editor, seedThread },
+  }) => {
+    editor.focus();
+    await seedThread();
+    await commands.pressKey(`${MOD}+e`);
 
     // The comment must be preserved, and the text must now also be inline code,
     // i.e. the comment and code marks coexist on the same text.
@@ -280,58 +291,32 @@ describe("Check Comments functionality", () => {
 
   test.skipIf(browserName === "webkit")(
     "Should select thread on first click and open link on second click",
-    async () => {
-      await focusOnEditor();
-
-      await userEvent.keyboard("hello");
-      await doubleClickElement(page.getByText("hello").element());
-
-      await userEvent.click(await waitForSelector('[data-test="addcomment"]'));
-      await waitForSelector(".bn-thread");
-
-      await userEvent.keyboard("test comment");
-      await userEvent.click(await waitForSelector('button[data-test="save"]'));
-
-      await doubleClickElement(
-        document.querySelectorAll("span.bn-thread-mark")[0] as HTMLElement,
-      );
-
-      await expectElement(
-        await waitForSelector(LINK_BUTTON_SELECTOR),
-      ).toBeVisible();
-      await userEvent.click(await waitForSelector(LINK_BUTTON_SELECTOR));
-
-      await userEvent.keyboard("https://example.com");
-      await userEvent.keyboard("{Enter}");
-
-      await userEvent.keyboard("{ArrowDown}");
-      await sleep(500);
-      expect(document.querySelectorAll(".bn-thread-mark-selected").length).toBe(
-        0,
-      );
-
-      const link = document.querySelectorAll(
-        'a[data-inline-content-type="link"]',
-      )[0] as HTMLElement;
-
-      // First click selects the thread without navigating.
-      await userEvent.click(link);
-      await sleep(500);
-      await expectElement(
-        await waitForSelector(".bn-thread-mark-selected"),
-      ).toBeVisible();
-
-      // Second click on the now-selected thread navigates to the link target.
+    async ({ commentsEditor: { editor, seedThread }, onTestFinished }) => {
+      await seedThread();
+      editor.createLink(URL);
+      editor.setTextCursorPosition(editor.document[0], "end");
+      const link = await waitForSelector(LINK);
+      expect(document.querySelector(".bn-thread-mark-selected")).toBeNull();
       const windowOpen = vi
         .spyOn(window, "open")
         .mockImplementation(() => null);
-      await userEvent.click(link);
-      await vi.waitFor(() => {
-        if (!windowOpen.mock.calls.length) {
-          throw new Error("window.open was not called");
-        }
+      onTestFinished(() => {
+        windowOpen.mockRestore();
       });
-      windowOpen.mockRestore();
+
+      // First click selects the thread without navigating.
+      const { x, y, width, height } = getRect(link);
+      await clickAt(x + 2, y + height / 2);
+      await expectElement(
+        await waitForSelector(".bn-thread-mark-selected"),
+      ).toBeVisible();
+      expect(windowOpen).not.toHaveBeenCalled();
+
+      // Second click on the now-selected thread navigates to the link target.
+      // Use a different point on the same link, outside ProseMirror's 10px
+      // multi-click radius, so both clicks go through the single-click handler.
+      await clickAt(x + width - 6, y + height / 2);
+      expect(windowOpen).toHaveBeenCalledExactlyOnceWith(`${URL}/`, "_blank");
     },
   );
 });

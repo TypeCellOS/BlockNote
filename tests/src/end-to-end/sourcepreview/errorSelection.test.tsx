@@ -1,18 +1,18 @@
 import { BlockNoteSchema } from "@blocknote/core";
-import "@blocknote/core/fonts/inter.css";
+import interStyles from "@blocknote/core/fonts/inter.css?inline";
 import { createReactDiagramBlockSpec } from "@blocknote/diagram-block";
-import { BlockNoteView } from "@blocknote/mantine";
-import "@blocknote/mantine/style.css";
 import {
   createReactInlineMathSpec,
   createReactMathBlockSpec,
 } from "@blocknote/math-block";
-import { useCreateBlockNote } from "@blocknote/react";
-import { expect, test, vi } from "vite-plus/test";
-import { render } from "vitest-browser-react";
+import { expect, vi } from "vite-plus/test";
 
-import { browserName, MOD, userEvent } from "../../utils/context.js";
+import { useBrowserSuiteStyles } from "../../commands/browser/useBrowserSuiteStyles.js";
+import { dispatchClipboardEvent } from "../../utils/clipboardEvent.js";
+import { userEvent } from "../../utils/context.js";
 import { mouseSequence } from "../../utils/mouse.js";
+
+useBrowserSuiteStyles(interStyles);
 
 const schema = BlockNoteSchema.create().extend({
   blockSpecs: {
@@ -24,40 +24,37 @@ const schema = BlockNoteSchema.create().extend({
 
 type Kind = "mathBlock" | "diagram" | "math";
 
-function ErrorSelectionApp({ kind }: { kind: Kind }) {
-  const editor = useCreateBlockNote({
-    schema,
-    initialContent:
-      kind === "math"
-        ? [
-            {
-              type: "paragraph",
-              content: [{ type: "math", content: "\\badcommand" }],
-            },
-          ]
-        : [
-            {
-              type: kind,
-              content: kind === "diagram" ? "graph TD\nA -->" : "\\badcommand",
-            },
-          ],
-  });
-  return (
-    <>
-      <BlockNoteView editor={editor} />
-      <textarea aria-label="Paste error text" />
-    </>
-  );
-}
-
-test.each<Kind>(["mathBlock", "diagram", "math"])(
+it.for<Kind>(["mathBlock", "diagram", "math"])(
   "selecting and copying %s error text preserves the popup and source editing",
-  async (kind) => {
-    await render(<ErrorSelectionApp kind={kind} />);
+  async (kind, { setupEditor }) => {
+    const { rootNode } = await setupEditor({
+      schema,
+      initialContent:
+        kind === "math"
+          ? [
+              {
+                type: "paragraph",
+                content: [{ type: "math", content: "\\badcommand" }],
+              },
+            ]
+          : [
+              {
+                type: kind,
+                content:
+                  kind === "diagram" ? "graph TD\nA -->" : "\\badcommand",
+              },
+            ],
+      outside: ({ children }) => (
+        <>
+          {children}
+          <textarea aria-label="Paste error text" />
+        </>
+      ),
+    });
     await userEvent.click(
-      document.querySelector<HTMLElement>(".bn-preview-container")!,
+      rootNode.querySelector<HTMLElement>(".bn-preview-container")!,
     );
-    const error = document.querySelector<HTMLElement>(
+    const error = rootNode.querySelector<HTMLElement>(
       ".bn-code-block-source-error",
     )!;
     await vi.waitFor(() => {
@@ -72,27 +69,50 @@ test.each<Kind>(["mathBlock", "diagram", "math"])(
     // Drag across the first word using real mouse events. A DOM-only selection
     // wouldn't reproduce Firefox resetting the selection after mouseup (#3138).
     await userEvent.hover(error);
+    await document.fonts.ready;
     const text = error.firstChild!;
     const word = (text.textContent ?? "").match(/\S+/)![0];
     const range = document.createRange();
     range.setStart(text, 0);
     range.setEnd(text, word.length);
     const rect = range.getBoundingClientRect();
-    await mouseSequence([
-      { type: "move", x: rect.left, y: rect.top + rect.height / 2 },
-      { type: "down" },
-      { type: "move", x: rect.right, y: rect.top + rect.height / 2, steps: 10 },
-      { type: "up" },
-    ]);
+    const y = rect.top + rect.height / 2;
+    const readErrorSelection = () => {
+      const selection = window.getSelection();
+      if (
+        selection?.anchorNode &&
+        selection.focusNode &&
+        error.contains(selection.anchorNode) &&
+        error.contains(selection.focusNode)
+      ) {
+        return selection.toString();
+      }
+      return "";
+    };
+    let selectedText: string;
+    try {
+      await mouseSequence([
+        { type: "move", x: rect.left, y },
+        { type: "down" },
+        { type: "move", x: rect.right, y, steps: 10 },
+      ]);
+      // The regression is losing the native selection on mouseup, not which
+      // glyph the browser hits at the last pointer coordinate.
+      await expect.poll(readErrorSelection).not.toBe("");
+      selectedText = readErrorSelection();
+      expect(word.startsWith(selectedText)).toBe(true);
+    } finally {
+      await mouseSequence([{ type: "up" }]);
+    }
     await vi.waitFor(() => {
-      expect(window.getSelection()?.toString()).toBe(word);
+      expect(readErrorSelection()).toBe(selectedText);
       expect(
         error
           .closest(".bn-preview-with-source-popup")
           ?.getAttribute("data-open"),
       ).toBe("true");
     });
-    const source = document.querySelector<HTMLElement>(
+    const source = rootNode.querySelector<HTMLElement>(
       ".bn-source-block-popup code",
     )!;
     const originalSource = source.textContent;
@@ -103,23 +123,31 @@ test.each<Kind>(["mathBlock", "diagram", "math"])(
     expect(
       error.closest(".bn-preview-with-source-popup")?.getAttribute("data-open"),
     ).toBe("true");
-    // Playwright WebKit does not support the native clipboard round trip.
-    // Still exercise selection, focus recovery, and dismissal in that browser.
-    if (browserName !== "webkit") {
-      await userEvent.keyboard(`{${MOD}>}c{/${MOD}}`);
-      await userEvent.keyboard(`{${MOD}>}v{/${MOD}}`);
-      await userEvent.keyboard(`{${MOD}>}x{/${MOD}}`);
-      expect(source.textContent).toBe(originalSource);
-    }
+    // The editor must leave copying this non-editable selection to the browser.
+    // Synthetic events exercise that boundary without writing to the OS.
+    const clipboard = new DataTransfer();
+    expect(
+      dispatchClipboardEvent(error, "copy", clipboard).defaultPrevented,
+    ).toBe(false);
+    expect(clipboard.types).toEqual([]);
+    expect(readErrorSelection()).toBe(selectedText);
+    clipboard.setData("text/plain", selectedText);
+    dispatchClipboardEvent(error, "paste", clipboard);
+    expect(
+      dispatchClipboardEvent(error, "cut", clipboard).defaultPrevented,
+    ).toBe(false);
+    expect(source.textContent).toBe(originalSource);
 
     // Focus leaving the editor must close the popup.
-    const textarea = document.querySelector<HTMLTextAreaElement>("textarea")!;
+    const textarea = rootNode.querySelector<HTMLTextAreaElement>(
+      'textarea[aria-label="Paste error text"]',
+    )!;
     await userEvent.click(textarea);
     expect(
       error.closest(".bn-preview-with-source-popup")?.getAttribute("data-open"),
     ).toBe("false");
     await userEvent.click(
-      document.querySelector<HTMLElement>(".bn-preview-container")!,
+      rootNode.querySelector<HTMLElement>(".bn-preview-container")!,
     );
     await userEvent.click(error);
 
@@ -136,10 +164,6 @@ test.each<Kind>(["mathBlock", "diagram", "math"])(
     ).toBe("true");
 
     await userEvent.click(textarea);
-    if (browserName !== "webkit") {
-      await userEvent.keyboard(`{${MOD}>}v{/${MOD}}`);
-      expect(textarea.value).toBe(word);
-    }
     expect(
       error.closest(".bn-preview-with-source-popup")?.getAttribute("data-open"),
     ).toBe("false");

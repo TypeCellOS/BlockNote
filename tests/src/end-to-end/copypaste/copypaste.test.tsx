@@ -1,254 +1,134 @@
 /* eslint-disable jest/valid-title */
-import TestingApp from "@examples/01-basic/testing/src/App";
-import NonEditableApp from "@examples/06-custom-schema/08-non-editable-block/src/App";
-import { beforeEach, describe, expect, test } from "vite-plus/test";
-import { render } from "vitest-browser-react";
-import { browserName, MOD, userEvent } from "../../utils/context.js";
-import {
-  DOC_TRAILING_BLOCK_SELECTOR,
-  EDITOR_SELECTOR,
-} from "../../utils/const.js";
+import type { Block, PartialBlock } from "@blocknote/core";
+import interStyles from "@blocknote/core/fonts/inter.css?inline";
+import { describe, expect } from "vite-plus/test";
+import { useBrowserSuiteStyles } from "../../commands/browser/useBrowserSuiteStyles.js";
+import { commands, userEvent } from "../../utils/context.js";
+import { EDITOR_SELECTOR } from "../../utils/const.js";
 import {
   copyPaste,
   copyPasteAll,
-  insertHeading,
-  insertListItems,
-  insertNestedListItems,
-  insertParagraph,
-  startList,
+  waitForWithin,
 } from "../../utils/copypaste.js";
-import {
-  compareDocToSnapshot,
-  focusOnEditor,
-  waitForSelector,
-} from "../../utils/editor.js";
-import { getRect, mouseSequence } from "../../utils/mouse.js";
-import { executeSlashCommand } from "../../utils/slashmenu.js";
 
+useBrowserSuiteStyles(interStyles);
+
+// The browser setup installs this fixture but sits outside tests/tsconfig.json.
 describe("Check Copy/Paste Functionality", () => {
-  beforeEach(async () => {
-    await render(<TestingApp />);
-    await waitForSelector(EDITOR_SELECTOR);
-  });
+  const paragraphs = [1, 2, 3].map(() => textBlock("paragraph", "Paragraph"));
+  const bullets = listItems("bulletListItem");
+  const numbers = listItems("numberedListItem");
+  const cases: [name: string, content: PartialBlock[]][] = [
+    ["Paragraphs should stay separate", paragraphs],
+    [
+      "Headings should keep formatting",
+      ([1, 2, 3] as const).map((level): PartialBlock => ({
+        type: "heading",
+        props: { level },
+        content: [{ type: "text", text: "Heading", styles: {} }],
+        children: [],
+      })),
+    ],
+    ["Unordered lists should keep formatting", bullets],
+    ["Ordered lists should keep formatting", numbers],
+    ["Nested paragraphs should stay nested", nest(paragraphs)],
+    ["Nested unordered lists should stay nested", nest(bullets)],
+    ["Nested ordered lists should stay nested", nest(numbers)],
+  ];
+  for (const [name, initialContent] of cases) {
+    it(name, async ({ setupEditor }) => {
+      const { editor, rootNode } = await setupEditor({ initialContent });
+      const source = editor.document;
+      expect(source).toMatchObject(initialContent);
+      editor.focus();
+      await copyPasteAll(editor, rootNode);
 
-  // Firefox doesn't yet support the async clipboard API. Webkit copy/paste
-  // stopped working after updating to Playwright 1.33.
-  test.skipIf(browserName === "firefox" || browserName === "webkit")(
-    "Paragraphs should stay separate",
-    async () => {
-      await focusOnEditor();
-      await insertParagraph();
-      await userEvent.keyboard("{Enter}");
-      await insertParagraph();
-      await userEvent.keyboard("{Enter}");
-      await insertParagraph();
-      await copyPasteAll();
-
-      await compareDocToSnapshot("paragraphs");
-    },
-  );
-
-  test.skipIf(browserName === "firefox" || browserName === "webkit")(
-    "Headings should keep formatting",
-    async () => {
-      await focusOnEditor();
-      await insertHeading(1);
-      await userEvent.keyboard("{Enter}");
-      await insertHeading(2);
-      await userEvent.keyboard("{Enter}");
-      await insertHeading(3);
-      await copyPasteAll();
-
-      await compareDocToSnapshot("headings");
-    },
-  );
-
-  test.skipIf(browserName === "firefox" || browserName === "webkit")(
-    "Unordered lists should keep formatting",
-    async () => {
-      await focusOnEditor();
-      await startList(false);
-      await insertListItems();
-      await copyPasteAll();
-
-      await compareDocToSnapshot("unorderedLists");
-    },
-  );
-
-  test.skipIf(browserName === "firefox" || browserName === "webkit")(
-    "Ordered lists should keep formatting",
-    async () => {
-      await focusOnEditor();
-      await startList(true);
-      await insertListItems();
-      await copyPasteAll();
-
-      await compareDocToSnapshot("orderedLists");
-    },
-  );
-
-  test.skipIf(browserName === "firefox" || browserName === "webkit")(
-    "Nested paragraphs should stay nested",
-    async () => {
-      await focusOnEditor();
-      await insertParagraph();
-      await userEvent.keyboard("{Enter}");
-      await userEvent.keyboard("{Tab}");
-      await insertParagraph();
-      await userEvent.keyboard("{Enter}");
-      await userEvent.keyboard("{Tab}");
-      await insertParagraph();
-      await copyPasteAll();
-
-      await compareDocToSnapshot("nestedParagraphs");
-    },
-  );
-
-  test.skipIf(browserName === "firefox" || browserName === "webkit")(
-    "Nested unordered lists should stay nested",
-    async () => {
-      await focusOnEditor();
-      await startList(false);
-      await insertNestedListItems();
-      await copyPasteAll();
-
-      await compareDocToSnapshot("nestedUnorderedLists");
-    },
-  );
-
-  test.skipIf(browserName === "firefox" || browserName === "webkit")(
-    "Nested ordered lists should stay nested",
-    async () => {
-      await focusOnEditor();
-      await startList(true);
-      await insertNestedListItems();
-      await copyPasteAll();
-
-      await compareDocToSnapshot("nestedOrderedLists");
-    },
-  );
-
-  test.skipIf(browserName === "firefox" || browserName === "webkit")(
-    "Images should keep props",
-    async () => {
-      await focusOnEditor();
-      await userEvent.keyboard("paragraph");
-
-      const IMAGE_EMBED_URL = "https://placehold.co/800x540.png";
-      await executeSlashCommand("image");
-
-      await userEvent.click(await waitForSelector(`[data-test="embed-tab"]`));
-      await userEvent.click(await waitForSelector(`[data-test="embed-input"]`));
-      await userEvent.keyboard(IMAGE_EMBED_URL);
-      await userEvent.click(
-        await waitForSelector(`[data-test="embed-input-button"]`),
-      );
-      await waitForSelector(`img[src="${IMAGE_EMBED_URL}"]`);
-
-      await userEvent.click(await waitForSelector(`img`));
-
-      await waitForSelector(`[class*="bn-resize-handle"][style*="right"]`);
-      const resizeHandleBoundingBox = getRect(
-        `[class*="bn-resize-handle"][style*="right"]`,
-      );
-      await mouseSequence([
-        {
-          type: "move",
-          x: resizeHandleBoundingBox.x + resizeHandleBoundingBox.width / 2,
-          y: resizeHandleBoundingBox.y + resizeHandleBoundingBox.height / 2,
-          steps: 5,
-        },
-        { type: "down" },
-        {
-          type: "move",
-          x: resizeHandleBoundingBox.x + resizeHandleBoundingBox.width / 2 - 50,
-          y: resizeHandleBoundingBox.y + resizeHandleBoundingBox.height / 2,
-          steps: 5,
-        },
-        { type: "up" },
-      ]);
-
-      await copyPaste();
-
-      await compareDocToSnapshot("images");
-    },
-  );
+      const result = editor.document;
+      const original = result.slice(0, source.length);
+      const copied = result.slice(source.length);
+      expect(original).toEqual(source);
+      expect(copied).toMatchObject(initialContent);
+      expect(copied.map(withoutId)).toEqual(source.map(withoutId));
+      const ids = result.flatMap(blockIds);
+      expect(new Set(ids).size).toBe(ids.length);
+    });
+  }
 });
 
-describe("Check Copy/Paste From Non-Editable Block", () => {
-  beforeEach(async () => {
-    await render(<NonEditableApp />);
-    await waitForSelector(EDITOR_SELECTOR);
-  });
+function textBlock(
+  type: "paragraph" | "bulletListItem" | "numberedListItem",
+  text: string,
+): PartialBlock {
+  return { type, content: [{ type: "text", text, styles: {} }], children: [] };
+}
 
-  // Firefox doesn't yet support the async clipboard API. Webkit copy/paste
-  // stopped working after updating to Playwright 1.33.
-  test.skipIf(browserName === "firefox" || browserName === "webkit")(
-    "Should be able to copy/paste text from a non-editable block",
-    async ({ onTestFinished }) => {
-      const editor = await waitForSelector(EDITOR_SELECTOR);
-      const source = await waitForSelector(
-        '[data-content-type="nonEditable"] p',
-      );
-      // Leave editing focus so the editor doesn't restore its editable caret.
-      editor.blur();
-      // Selection is setup; geometric dragging depends on native click state.
-      const selectedText = "This is ";
-      const text = source.firstChild;
-      if (!(text instanceof Text)) {
-        throw new Error("The non-editable copy source must contain text.");
-      }
-      const range = document.createRange();
-      range.setStart(text, 0);
-      range.setEnd(text, selectedText.length);
-      const selection = document.getSelection()!;
-      selection.removeAllRanges();
-      selection.addRange(range);
-      await expect
-        .poll(() => {
-          const selection = document.getSelection();
-          return {
-            text: selection?.toString(),
-            inSource:
-              source.contains(selection?.anchorNode ?? null) &&
-              source.contains(selection?.focusNode ?? null),
-          };
-        })
-        .toEqual({ text: selectedText, inSource: true });
+function listItems(type: "bulletListItem" | "numberedListItem") {
+  return [1, 2, 3].map((index) => textBlock(type, `List Item ${index}`));
+}
 
-      const events = new AbortController();
-      onTestFinished(() => events.abort());
-      const options = { capture: true, once: true, signal: events.signal };
-      let trustedCopy = false;
-      document.addEventListener(
-        "copy",
-        (event) => {
-          trustedCopy = event.isTrusted;
-        },
-        options,
-      );
-      await userEvent.keyboard(`{${MOD}>}c{/${MOD}}`);
-      expect(trustedCopy).toBe(true);
-
-      // Click the trailing block to create a new empty paragraph and focus
-      // the editor there.
-      await userEvent.click(await waitForSelector(DOC_TRAILING_BLOCK_SELECTOR));
-
-      let pasted: { trusted: boolean; text: string | undefined } | undefined;
-      document.addEventListener(
-        "paste",
-        (event) => {
-          pasted = {
-            trusted: event.isTrusted,
-            text: event.clipboardData?.getData("text/plain"),
-          };
-        },
-        options,
-      );
-      await userEvent.keyboard(`{${MOD}>}v{/${MOD}}`);
-      expect(pasted).toEqual({ trusted: true, text: selectedText });
-
-      await compareDocToSnapshot("nonEditableBlock");
-    },
+function nest(blocks: PartialBlock[]): PartialBlock[] {
+  return blocks.reduceRight<PartialBlock[]>(
+    (children, block) => [{ ...block, children }],
+    [],
   );
+}
+
+type BlockWithoutId = Omit<Block, "id" | "children"> & {
+  children: BlockWithoutId[];
+};
+
+function withoutId(block: Block): BlockWithoutId {
+  const { id: _, children, ...rest } = block;
+  return { ...rest, children: children.map(withoutId) };
+}
+
+function blockIds(block: Block): string[] {
+  return [block.id, ...block.children.flatMap(blockIds)];
+}
+
+// Keep the same test title without mounting the unseeded app in this case.
+describe("Check Copy/Paste Functionality", () => {
+  it("Images should keep props", async ({ setupEditor, onTestFinished }) => {
+    onTestFinished(() => commands.mockCustomBlockImages("remove"));
+    await commands.mockCustomBlockImages("install");
+
+    const url = "https://placehold.co/800x540.png";
+    const { editor, rootNode } = await setupEditor({
+      initialContent: [
+        { type: "paragraph", content: "paragraph" },
+        {
+          type: "image",
+          props: { name: "800x540.png", url, previewWidth: 573 },
+        },
+      ],
+    });
+    const source = editor.document;
+    const imageSelector = `img[src="${url}"]`;
+    const image = await waitForWithin(rootNode, imageSelector);
+    if (!(image instanceof HTMLImageElement)) {
+      throw new Error("Expected an image preview");
+    }
+    await image.decode();
+
+    // Clicking an already embedded image can leave Chrome in the paragraph.
+    editor.setTextCursorPosition(editor.document[1]);
+    editor.focus();
+    await userEvent.click(image);
+    await waitForWithin(
+      rootNode,
+      `${EDITOR_SELECTOR}:focus .ProseMirror-selectednode ${imageSelector}`,
+    );
+
+    await copyPaste(editor, rootNode);
+
+    const result = editor.document;
+    expect(result).toHaveLength(3);
+    expect(result.slice(0, 2)).toEqual(source);
+    expect(withoutId(result[2])).toEqual(withoutId(source[1]));
+    expect(result[2]).toMatchObject({
+      type: "image",
+      props: { name: "800x540.png", url, previewWidth: 573 },
+    });
+    expect(new Set(result.flatMap(blockIds)).size).toBe(3);
+  });
 });

@@ -1,17 +1,19 @@
-import { BlockNoteEditor } from "@blocknote/core";
+import type { BlockNoteEditor } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
-import { BlockNoteView as AriakitBlockNoteView } from "@blocknote/ariakit";
 import "@blocknote/ariakit/style.css";
-import { BlockNoteView as MantineBlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
-import { PortalElementsMap, useCreateBlockNote } from "@blocknote/react";
-import { BlockNoteView as ShadCNBlockNoteView } from "@blocknote/shadcn";
+import {
+  FormattingToolbarController,
+  type PortalElementsMap,
+} from "@blocknote/react";
 import "@blocknote/shadcn/style.css";
-import { afterEach, describe, expect, test, vi } from "vite-plus/test";
-import { ComponentType, useEffect } from "react";
-import { render } from "vitest-browser-react";
+import { flushSync } from "react-dom";
+import { describe, expect, vi } from "vite-plus/test";
+import type { SetupEditor } from "../../commands/browser/setupEditor.js";
+import { selectText } from "../../commands/node/selectText.js";
 import { userEvent } from "../../utils/context.js";
 import { waitForSelector } from "../../utils/editor.js";
+import { createPortalTarget } from "./portalTarget.js";
 
 // The menus and popovers a floating component opens (here: the formatting
 // toolbar's block type menu) render inside that component's wrapper, next to
@@ -22,90 +24,39 @@ import { waitForSelector } from "../../utils/editor.js";
 // menu implementation, and Mantine's would hide its menu on its own
 // (`hideDetached`) while Ariakit's and shadcn's would stay orphaned on screen.
 
-type ViewProps = {
-  editor: BlockNoteEditor;
-  portalElements?: PortalElementsMap;
-};
+const skins = [
+  { name: "mantine" },
+  { name: "ariakit" },
+  { name: "shadcn" },
+] as const;
 
-const skins: { name: string; View: ComponentType<ViewProps> }[] = [
-  {
-    name: "mantine",
-    View: (props) => <MantineBlockNoteView {...props} />,
-  },
-  {
-    name: "ariakit",
-    View: (props) => <AriakitBlockNoteView {...props} />,
-  },
-  {
-    name: "shadcn",
-    View: (props) => <ShadCNBlockNoteView {...props} />,
-  },
-];
-
-function ScrollingEditor(props: {
-  View: ComponentType<ViewProps>;
-  portalElements?: PortalElementsMap;
-  onEditor: (editor: BlockNoteEditor) => void;
-}) {
-  const editor = useCreateBlockNote({
+async function renderEditor(
+  setupEditor: SetupEditor,
+  skin: (typeof skins)[number]["name"],
+  portalElements?: PortalElementsMap,
+) {
+  const { editor } = await setupEditor({
+    skin,
+    props: { portalElements },
     initialContent: Array.from({ length: 12 }, (_, i) => ({
+      id: `paragraph-${i}`,
       type: "paragraph" as const,
       content: `Paragraph ${i}`,
     })),
+    // A short scroll container, so a selection can be scrolled out of view.
+    outside: ({ children }) => (
+      <div data-test="scroller" style={{ height: 160, overflow: "auto" }}>
+        {children}
+      </div>
+    ),
   });
-
-  useEffect(() => {
-    props.onEditor(editor);
-  }, [editor, props]);
-
-  // A short scroll container, so a selection can be scrolled out of view.
-  return (
-    <div data-test="scroller" style={{ height: 160, overflow: "auto" }}>
-      <props.View editor={editor} portalElements={props.portalElements} />
-    </div>
-  );
-}
-
-async function renderEditor(props: {
-  View: ComponentType<ViewProps>;
-  portalElements?: PortalElementsMap;
-}) {
-  let editor: BlockNoteEditor | undefined;
-
-  await render(
-    <ScrollingEditor
-      {...props}
-      onEditor={(value) => {
-        editor = value;
-      }}
-    />,
-  );
-  await waitForSelector(".bn-editor");
-  await vi.waitFor(() => {
-    if (!editor) {
-      throw new Error("Editor was not created");
-    }
-  });
-
-  if (!editor) {
-    throw new Error("Editor was not created");
-  }
-
   return editor;
 }
 
-function createPortalTarget(id: string) {
-  const target = document.createElement("div");
-  target.id = id;
-  target.dataset.testPortalTarget = "";
-  document.body.append(target);
-  return target;
-}
-
 /** Selects text in the first paragraph, which shows the formatting toolbar. */
-async function showFormattingToolbar(editor: BlockNoteEditor) {
+function showFormattingToolbar(editor: BlockNoteEditor) {
   editor.focus();
-  editor._tiptapEditor.commands.setTextSelection({ from: 3, to: 12 });
+  selectText(editor, "Paragraph", { startBlockId: "paragraph-0" });
   return waitForSelector(".bn-formatting-toolbar");
 }
 
@@ -118,7 +69,10 @@ async function openBlockTypeMenu(toolbar: HTMLElement) {
   return waitForSelector("[role=menu], [role=listbox]");
 }
 
-function isVisible(element: Element) {
+function isVisible(element: Element | null) {
+  if (!element?.isConnected) {
+    return false;
+  }
   const rect = element.getBoundingClientRect();
   return (
     rect.width > 0 &&
@@ -127,30 +81,20 @@ function isVisible(element: Element) {
   );
 }
 
-afterEach(() => {
-  document
-    .querySelectorAll<HTMLElement>("[data-test-portal-target]")
-    .forEach((target) => target.remove());
-});
-
 describe.each(skins)(
   "Menus opened from a floating component ($name)",
-  ({ View }) => {
-    test("render next to the component, inside its wrapper", async () => {
-      const editor = await renderEditor({ View });
+  ({ name }) => {
+    it("render inside the component's wrapper and hide with it", async ({
+      setupEditor,
+    }) => {
+      const editor = await renderEditor(setupEditor, name);
       const toolbar = await showFormattingToolbar(editor);
       const menu = await openBlockTypeMenu(toolbar);
+      await expect.poll(() => isVisible(menu)).toBe(true);
 
       const wrapper = toolbar.parentElement!;
       expect(wrapper.contains(menu)).toBe(true);
       expect(toolbar.contains(menu)).toBe(false);
-    });
-
-    test("hide when the component hides", async () => {
-      const editor = await renderEditor({ View });
-      const toolbar = await showFormattingToolbar(editor);
-      const menu = await openBlockTypeMenu(toolbar);
-      expect(isVisible(menu)).toBe(true);
 
       // Scroll the selection out of view: the toolbar's reference is hidden, so
       // its wrapper gets `visibility: hidden`, and the menu must go with it.
@@ -164,20 +108,21 @@ describe.each(skins)(
       // formatting toolbar reads as the user leaving and unmounts on; either
       // way the menu is not visible.
       await vi.waitFor(() => {
-        const wrapper = toolbar.parentElement;
+        const currentWrapper = toolbar.parentElement;
         expect(
-          wrapper === null || getComputedStyle(wrapper).visibility === "hidden",
+          currentWrapper === null ||
+            getComputedStyle(currentWrapper).visibility === "hidden",
         ).toBe(true);
       });
-      expect(isVisible(menu)).toBe(false);
+      await expect.poll(() => isVisible(menu)).toBe(false);
     });
 
-    test("follow the component when portalElements relocates it", async () => {
-      const target = createPortalTarget("portal-target");
-      const editor = await renderEditor({
-        View,
-        portalElements: { default: target },
-      });
+    it("follow the component when portalElements relocates it", async ({
+      onTestFinished,
+      setupEditor,
+    }) => {
+      const target = createPortalTarget(onTestFinished, "portal-target");
+      const editor = await renderEditor(setupEditor, name, { default: target });
       const toolbar = await showFormattingToolbar(editor);
       const menu = await openBlockTypeMenu(toolbar);
 
@@ -191,22 +136,54 @@ describe.each(skins)(
 );
 
 describe("A floating component that closes", () => {
-  test("still shows its content while fading out", async () => {
-    const editor = await renderEditor({ View: skins[0].View });
+  it("still shows its content while fading out", async ({ setupEditor }) => {
+    const closeDuration = 200;
+    const { editor } = await setupEditor({
+      initialContent: [
+        { id: "paragraph-0", type: "paragraph", content: "Paragraph" },
+      ],
+      props: { formattingToolbar: false },
+      children: (
+        <FormattingToolbarController
+          floatingUIOptions={{
+            useTransitionStylesProps: {
+              duration: { open: 0, close: closeDuration },
+            },
+            useTransitionStatusProps: {
+              duration: { open: 0, close: closeDuration },
+            },
+          }}
+        />
+      ),
+    });
     const toolbar = await showFormattingToolbar(editor);
+    function buttonNames(element: HTMLElement) {
+      return Array.from(element.querySelectorAll("button"), (button) => ({
+        label: button.getAttribute("aria-label"),
+        text: button.textContent,
+      }));
+    }
+    const openButtons = buttonNames(toolbar);
+    expect(openButtons.length).toBeGreaterThan(0);
 
-    // Collapse the selection: the live toolbar is replaced by a snapshot that
-    // fades out, and that snapshot must still show the toolbar.
-    editor._tiptapEditor.commands.setTextSelection(3);
-    await vi.waitFor(() => {
-      expect(document.querySelector(".bn-formatting-toolbar")).not.toBe(
-        toolbar,
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+    try {
+      flushSync(() => {
+        editor.setTextCursorPosition("paragraph-0", "start");
+      });
+      const closing = document.querySelector<HTMLElement>(
+        ".bn-formatting-toolbar",
       );
-    });
-    expect(document.querySelector(".bn-formatting-toolbar")).not.toBeNull();
+      expect(closing).not.toBe(toolbar);
+      expect(closing).not.toBeNull();
+      expect(buttonNames(closing!)).toEqual(openButtons);
 
-    await vi.waitFor(() => {
+      flushSync(() => {
+        vi.advanceTimersByTime(closeDuration);
+      });
       expect(document.querySelector(".bn-formatting-toolbar")).toBeNull();
-    });
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

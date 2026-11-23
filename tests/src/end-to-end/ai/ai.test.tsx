@@ -1,15 +1,17 @@
 import App from "@examples/09-ai/01-minimal/src/App";
 import { beforeEach, describe, expect, test } from "vite-plus/test";
 import { render } from "vitest-browser-react";
+import { resizeViewportForTest } from "../../commands/browser/screenshotFull.js";
 import { page, userEvent } from "../../utils/context.js";
 import { EDITOR_SELECTOR } from "../../utils/const.js";
-import { expectElement, sleep, waitForSelector } from "../../utils/editor.js";
+import { expectElement, waitForSelector } from "../../utils/editor.js";
 
 beforeEach(async () => {
   // Use a small viewport so the editor content requires scrolling.
-  await page.viewport(800, 400);
+  await resizeViewportForTest(800, 400);
   await render(<App />);
   await waitForSelector(EDITOR_SELECTOR);
+  await document.fonts.ready;
 });
 
 describe("AI Menu Scroll Regression", () => {
@@ -24,7 +26,7 @@ describe("AI Menu Scroll Regression", () => {
     // Ensure the page is scrolled down (editor puts cursor near bottom of content)
     // We scroll down explicitly to make sure we're not at the top
     window.scrollTo(0, document.body.scrollHeight);
-    await sleep(200);
+    await expect.poll(() => window.scrollY).toBeGreaterThan(0);
 
     // Record the scroll position before opening the AI menu
     const scrollYBefore = window.scrollY;
@@ -35,33 +37,19 @@ describe("AI Menu Scroll Regression", () => {
     // Open the AI menu via the slash command
     // First, focus back on the editor at the last paragraph
     await userEvent.click(lastParagraph);
-    await sleep(100);
+    await window.__blockNoteWaitForEditorFocus();
 
     // Type /ai to open the slash menu and select the AI option
     await userEvent.keyboard("/ai");
-    await sleep(300);
-
-    // Wait for the suggestion menu to appear
-    await waitForSelector(".bn-suggestion-menu");
 
     // Click the AI suggestion menu item to open the AI menu
-    const aiMenuItem = await waitForSelector(
-      ".bn-suggestion-menu .bn-suggestion-menu-item",
-    );
-    await userEvent.click(aiMenuItem);
+    await page.getByRole("option", { name: /^Ask AI\b/ }).click();
 
-    // Wait for the AI menu (combobox input) to appear
-    const aiMenuInput = await waitForSelector(
-      ".bn-combobox-input input, .bn-combobox input",
-    );
-
-    // Brief wait for any scroll side effects to take place
-    await sleep(300);
-
-    // Screenshot after opening AI menu
-    await expectElement(document.body).toMatchScreenshot(
-      "ai_menu_scroll_position",
-    );
+    const aiMenuInput = await waitForSelector('input[name="ai-prompt"]:focus');
+    // The old scroll regression happened on autofocus. Let that paint before
+    // measuring, but capture the screenshot only after checking scroll and focus.
+    await new Promise(requestAnimationFrame);
+    await new Promise(requestAnimationFrame);
 
     // Check that the scroll position has not jumped to the top
     const scrollYAfter = window.scrollY;
@@ -70,5 +58,9 @@ describe("AI Menu Scroll Regression", () => {
 
     // Verify the AI menu input is actually focused
     expect(document.activeElement).toBe(aiMenuInput);
+
+    await expectElement(document.body).toMatchScreenshot(
+      "ai_menu_scroll_position",
+    );
   });
 });

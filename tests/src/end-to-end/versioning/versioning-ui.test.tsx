@@ -18,15 +18,26 @@ import {
 import { VersioningSidebar } from "@blocknote/react/versioning";
 import { BlockNoteView as ShadcnBlockNoteView } from "@blocknote/shadcn";
 import "@blocknote/shadcn/style.css";
-import "@examples/01-basic/09-shadcn/tailwind.css";
 import { expect, test, vi } from "vite-plus/test";
 import { render } from "vitest-browser-react";
 import { useEffect, useState } from "react";
 
+import shadcnStyles from "../../../../examples/01-basic/09-shadcn/tailwind.css?inline";
+import { useBrowserSuiteStyles } from "../../commands/browser/useBrowserSuiteStyles.js";
 import { userEvent } from "../../utils/context.js";
 import { expectElement } from "../../utils/editor.js";
 import { clickAt, getRect } from "../../utils/mouse.js";
 import { screenshotFull } from "../../utils/screenshotFull.js";
+
+// The visual baselines use BlockNote's system fallback. Keep that font choice
+// even when another file has loaded the example's optional Inter font.
+useBrowserSuiteStyles(`${shadcnStyles}
+  .bn-root {
+    --bn-font-family-default: "SF Pro Display", -apple-system, BlinkMacSystemFont,
+      "Open Sans", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell",
+      "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  }
+`);
 
 const CURRENT: VersionSnapshot = {
   id: "current",
@@ -99,25 +110,31 @@ const Versions = createVersioningExtension(() => ({
 function SkinPanel(props: {
   skin: Skin;
   theme: Theme;
-  clippingEditorPanel?: boolean;
+  layout?: "sidebar-only" | "clipped-editor";
 }) {
   const editor = useCreateBlockNote({
     extensions: [Versions()],
   });
   const sidebar = <VersioningSidebar onClose={() => {}} />;
-  const content = props.clippingEditorPanel ? (
-    <div style={{ display: "flex", height: "100%", width: 620 }}>
-      <div
-        data-test="clipping-editor-panel"
-        style={{ flex: 1, minWidth: 0, overflow: "auto", position: "relative" }}
-      >
-        <BlockNoteViewEditor />
+  const content =
+    props.layout === "clipped-editor" ? (
+      <div style={{ display: "flex", height: "100%", width: 620 }}>
+        <div
+          data-test="clipping-editor-panel"
+          style={{
+            flex: 1,
+            minWidth: 0,
+            overflow: "auto",
+            position: "relative",
+          }}
+        >
+          <BlockNoteViewEditor />
+        </div>
+        <div style={{ flex: "0 0 300px", minWidth: 0 }}>{sidebar}</div>
       </div>
-      <div style={{ flex: "0 0 300px", minWidth: 0 }}>{sidebar}</div>
-    </div>
-  ) : (
-    sidebar
-  );
+    ) : (
+      sidebar
+    );
   const panelStyle = {
     background: props.theme === "dark" ? "#18181b" : "#ffffff",
     border: "1px solid #a1a1aa",
@@ -130,7 +147,7 @@ function SkinPanel(props: {
       <MantineBlockNoteView
         className="versioning-test-view"
         editor={editor}
-        renderEditor={!props.clippingEditorPanel}
+        renderEditor={props.layout === undefined}
         theme={props.theme}
       >
         {content}
@@ -139,7 +156,7 @@ function SkinPanel(props: {
       <AriakitBlockNoteView
         className="versioning-test-view"
         editor={editor}
-        renderEditor={!props.clippingEditorPanel}
+        renderEditor={props.layout === undefined}
         theme={props.theme}
       >
         {content}
@@ -148,7 +165,7 @@ function SkinPanel(props: {
       <ShadcnBlockNoteView
         className="versioning-test-view"
         editor={editor}
-        renderEditor={!props.clippingEditorPanel}
+        renderEditor={props.layout === undefined}
         theme={props.theme}
       >
         {content}
@@ -163,13 +180,17 @@ function SkinPanel(props: {
       }
       style={panelStyle}
     >
-      <style>{`.versioning-test-view .bn-editor { display: none; }`}</style>
+      {props.layout !== "sidebar-only" && (
+        <style>{`.versioning-test-view .bn-editor { display: none; }`}</style>
+      )}
       {view}
     </section>
   );
 }
 
 function VersioningSkinMatrix() {
+  // This screenshot only shows the sidebars. Keep the skin and versioning
+  // contexts without mounting six hidden contenteditables and their default UI.
   return (
     <main
       data-test="versioning-skin-matrix"
@@ -184,7 +205,12 @@ function VersioningSkinMatrix() {
     >
       {(["mantine", "ariakit", "shadcn"] as const).flatMap((skin) =>
         (["light", "dark"] as const).map((theme) => (
-          <SkinPanel key={`${skin}-${theme}`} skin={skin} theme={theme} />
+          <SkinPanel
+            key={`${skin}-${theme}`}
+            skin={skin}
+            theme={theme}
+            layout="sidebar-only"
+          />
         )),
       )}
     </main>
@@ -233,7 +259,7 @@ test.each(
   "renders the $skin $theme row menu outside the clipping editor panel",
   async ({ skin, theme }) => {
     await render(
-      <SkinPanel skin={skin} theme={theme} clippingEditorPanel={true} />,
+      <SkinPanel skin={skin} theme={theme} layout="clipped-editor" />,
     );
     const panel = document.querySelector<HTMLElement>(
       `[aria-label="${skin} ${theme}"]`,
