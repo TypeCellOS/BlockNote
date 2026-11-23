@@ -1,7 +1,7 @@
 /* eslint-disable jest/valid-title */
 import TestingApp from "@examples/01-basic/testing/src/App";
 import NonEditableApp from "@examples/06-custom-schema/08-non-editable-block/src/App";
-import { beforeEach, describe, test } from "vite-plus/test";
+import { beforeEach, describe, expect, test } from "vite-plus/test";
 import { render } from "vitest-browser-react";
 import { browserName, MOD, userEvent } from "../../utils/context.js";
 import {
@@ -185,28 +185,68 @@ describe("Check Copy/Paste From Non-Editable Block", () => {
   // stopped working after updating to Playwright 1.33.
   test.skipIf(browserName === "firefox" || browserName === "webkit")(
     "Should be able to copy/paste text from a non-editable block",
-    async () => {
-      // Click and drag across the non-editable block's text to select part of it.
-      const box = getRect('[data-content-type="nonEditable"] p');
-      await mouseSequence([
-        { type: "move", x: box.x + 2, y: box.y + box.height / 2 },
-        { type: "down" },
-        {
-          type: "move",
-          x: box.x + box.width * 0.25,
-          y: box.y + box.height / 2,
-          steps: 5,
-        },
-        { type: "up" },
-      ]);
+    async ({ onTestFinished }) => {
+      const editor = await waitForSelector(EDITOR_SELECTOR);
+      const source = await waitForSelector(
+        '[data-content-type="nonEditable"] p',
+      );
+      // Leave editing focus so the editor doesn't restore its editable caret.
+      editor.blur();
+      // Selection is setup; geometric dragging depends on native click state.
+      const selectedText = "This is ";
+      const text = source.firstChild;
+      if (!(text instanceof Text)) {
+        throw new Error("The non-editable copy source must contain text.");
+      }
+      const range = document.createRange();
+      range.setStart(text, 0);
+      range.setEnd(text, selectedText.length);
+      const selection = document.getSelection()!;
+      selection.removeAllRanges();
+      selection.addRange(range);
+      await expect
+        .poll(() => {
+          const selection = document.getSelection();
+          return {
+            text: selection?.toString(),
+            inSource:
+              source.contains(selection?.anchorNode ?? null) &&
+              source.contains(selection?.focusNode ?? null),
+          };
+        })
+        .toEqual({ text: selectedText, inSource: true });
 
+      const events = new AbortController();
+      onTestFinished(() => events.abort());
+      const options = { capture: true, once: true, signal: events.signal };
+      let trustedCopy = false;
+      document.addEventListener(
+        "copy",
+        (event) => {
+          trustedCopy = event.isTrusted;
+        },
+        options,
+      );
       await userEvent.keyboard(`{${MOD}>}c{/${MOD}}`);
+      expect(trustedCopy).toBe(true);
 
       // Click the trailing block to create a new empty paragraph and focus
       // the editor there.
       await userEvent.click(await waitForSelector(DOC_TRAILING_BLOCK_SELECTOR));
 
+      let pasted: { trusted: boolean; text: string | undefined } | undefined;
+      document.addEventListener(
+        "paste",
+        (event) => {
+          pasted = {
+            trusted: event.isTrusted,
+            text: event.clipboardData?.getData("text/plain"),
+          };
+        },
+        options,
+      );
       await userEvent.keyboard(`{${MOD}>}v{/${MOD}}`);
+      expect(pasted).toEqual({ trusted: true, text: selectedText });
 
       await compareDocToSnapshot("nonEditableBlock");
     },
