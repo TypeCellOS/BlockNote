@@ -461,10 +461,10 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
           })}
         >
           <draw:image
-            xlink:type="simple"
-            xlink:show="embed"
-            xlink:actuate="onLoad"
-            xlink:href={path}
+            xlinkType="simple"
+            xlinkShow="embed"
+            xlinkActuate="onLoad"
+            xlinkHref={path}
             draw:mime-type={mimeType}
           />
         </draw:frame>
@@ -607,11 +607,11 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
         <text:p style:style-name="Standard">
           {block.props.url ? (
             <text:a
-              xlink:type="simple"
+              xlinkType="simple"
               text:style-name="Internet_20_link"
               office:target-frame-name="_top"
-              xlink:show="replace"
-              xlink:href={block.props.url}
+              xlinkShow="replace"
+              xlinkHref={block.props.url}
             >
               <text:span text:style-name="Internet_20_link">
                 {exporter.dictionary.open_file}
@@ -638,11 +638,11 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
       <>
         <text:p style:style-name="Standard">
           <text:a
-            xlink:type="simple"
+            xlinkType="simple"
             text:style-name="Internet_20_link"
             office:target-frame-name="_top"
-            xlink:show="replace"
-            xlink:href={block.props.url}
+            xlinkShow="replace"
+            xlinkHref={block.props.url}
           >
             <text:span text:style-name="Internet_20_link">
               {exporter.dictionary.open_video_file}
@@ -666,11 +666,11 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
       <>
         <text:p style:style-name="Standard">
           <text:a
-            xlink:type="simple"
+            xlinkType="simple"
             text:style-name="Internet_20_link"
             office:target-frame-name="_top"
-            xlink:show="replace"
-            xlink:href={block.props.url}
+            xlinkShow="replace"
+            xlinkHref={block.props.url}
           >
             <text:span text:style-name="Internet_20_link">
               {exporter.dictionary.open_audio_file}
