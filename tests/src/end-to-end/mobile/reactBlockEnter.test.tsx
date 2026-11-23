@@ -41,9 +41,26 @@ it("native Enter in a React block preserves the suffix", async ({
           ?.textContent,
     )
     .toBe("boom");
-  editor.setTextCursorPosition(editor.document[1], "start");
-  await userEvent.keyboard("{ArrowRight}");
-  await userEvent.keyboard("{ArrowRight}");
+  const inline = rootNode.querySelector(
+    '[data-content-type="alert"] .bn-inline-content',
+  )!;
+  const document = inline.ownerDocument;
+  const text = document
+    .createTreeWalker(inline, NodeFilter.SHOW_TEXT)
+    .nextNode();
+  if (text?.textContent !== "boom") {
+    throw new Error("Expected the alert's editable text");
+  }
+  const selection = document.getSelection()!;
+  selection.collapse(text, 2);
+  await expect
+    .poll(
+      () =>
+        selection.isCollapsed &&
+        selection.anchorNode === text &&
+        selection.anchorOffset === 2,
+    )
+    .toBe(true);
   await userEvent.keyboard("{Enter}");
   await expect.poll(() => editor.document.length).toBe(3);
   expect(editor.document[1].content).toEqual([
