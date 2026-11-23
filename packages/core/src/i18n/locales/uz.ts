@@ -347,13 +347,13 @@ export const uz: Dictionary = {
 
     file_rename: {
       tooltip: {
-        image: "Rasm nomini o‘zgartirish",
+        image: "Muqobil matn",
         video: "Video nomini o‘zgartirish",
         audio: "Audio nomini o‘zgartirish",
         file: "Fayl nomini o‘zgartirish",
       },
       input_placeholder: {
-        image: "Rasm nomini o‘zgartirish",
+        image: "Muqobil matn",
         video: "Video nomini o‘zgartirish",
         audio: "Audio nomini o‘zgartirish",
         file: "Fayl nomini o‘zgartirish",
@@ -376,10 +376,6 @@ export const uz: Dictionary = {
         audio: "Audioni o‘chirish",
         file: "Faylni o‘chirish",
       },
-    },
-
-    file_preview_toggle: {
-      tooltip: "Oldindan ko‘rishni almashtirish",
     },
 
     nest: { tooltip: "O‘ngga surish", secondary_tooltip: "Tab" },

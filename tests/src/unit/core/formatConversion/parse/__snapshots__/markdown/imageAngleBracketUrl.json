@@ -7,7 +7,6 @@
       "backgroundColor": "default",
       "caption": "",
       "name": "alt",
-      "showPreview": true,
       "textAlignment": "left",
       "url": "https://example.com/image.png",
     },

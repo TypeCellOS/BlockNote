@@ -342,13 +342,13 @@ export const ru: Dictionary = {
     },
     file_rename: {
       tooltip: {
-        image: "Переименовать изображение",
+        image: "Альтернативный текст",
         video: "Переименовать видео",
         audio: "Переименовать аудио",
         file: "Переименовать файл",
       },
       input_placeholder: {
-        image: "Переименовать изображение",
+        image: "Альтернативный текст",
         video: "Переименовать видео",
         audio: "Переименовать аудио",
         file: "Переименовать файл",
@@ -369,9 +369,6 @@ export const ru: Dictionary = {
         audio: "Удалить аудио",
         file: "Удалить файл",
       },
-    },
-    file_preview_toggle: {
-      tooltip: "Переключить предварительный просмотр",
     },
     nest: {
       tooltip: "Сдвинуть вправо",

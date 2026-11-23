@@ -323,13 +323,13 @@ export const uk: Dictionary = {
     },
     file_rename: {
       tooltip: {
-        image: "Перейменувати зображення",
+        image: "Альтернативний текст",
         video: "Перейменувати відео",
         audio: "Перейменувати аудіо",
         file: "Перейменувати файл",
       },
       input_placeholder: {
-        image: "Перейменувати зображення",
+        image: "Альтернативний текст",
         video: "Перейменувати відео",
         audio: "Перейменувати аудіо",
         file: "Перейменувати файл",
@@ -350,9 +350,6 @@ export const uk: Dictionary = {
         audio: "Видалити аудіо",
         file: "Видалити файл",
       },
-    },
-    file_preview_toggle: {
-      tooltip: "Перемкнути попередній перегляд",
     },
     nest: {
       tooltip: "Вкладений блок",

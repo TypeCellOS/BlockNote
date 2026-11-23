@@ -297,13 +297,13 @@ export const sk = {
     },
     file_rename: {
       tooltip: {
-        image: "Premenovať obrázok",
+        image: "Alternatívny text",
         video: "Premenovať video",
         audio: "Premenovať audio",
         file: "Premenovať súbor",
       },
       input_placeholder: {
-        image: "Premenovať obrázok",
+        image: "Alternatívny text",
         video: "Premenovať video",
         audio: "Premenovať audio",
         file: "Premenovať súbor",
@@ -324,9 +324,6 @@ export const sk = {
         audio: "Vymazať audio",
         file: "Vymazať súbor",
       },
-    },
-    file_preview_toggle: {
-      tooltip: "Prepnúť náhľad",
     },
     nest: {
       tooltip: "Zarovnať blok",

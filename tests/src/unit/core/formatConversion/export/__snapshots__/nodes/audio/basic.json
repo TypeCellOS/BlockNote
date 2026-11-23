@@ -9,7 +9,6 @@
           "backgroundColor": "default",
           "caption": "",
           "name": "example",
-          "showPreview": true,
           "url": "https://example.com/audio.mp3",
         },
         "type": "audio",

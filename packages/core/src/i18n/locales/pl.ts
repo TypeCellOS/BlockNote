@@ -290,13 +290,13 @@ export const pl: Dictionary = {
     },
     file_rename: {
       tooltip: {
-        image: "Zmień nazwę zdjęcia",
+        image: "Tekst alternatywny",
         video: "Zmień nazwę wideo",
         audio: "Zmień nazwę audio",
         file: "Zmień nazwę pliku",
       },
       input_placeholder: {
-        image: "Zmień nazwę zdjęcia",
+        image: "Tekst alternatywny",
         video: "Zmień nazwę wideo",
         audio: "Zmień nazwę audio",
         file: "Zmień nazwę pliku",
@@ -317,9 +317,6 @@ export const pl: Dictionary = {
         audio: "Usuń audio",
         file: "Usuń plik",
       },
-    },
-    file_preview_toggle: {
-      tooltip: "Przełącz podgląd",
     },
     nest: {
       tooltip: "Zagnieźdź blok",

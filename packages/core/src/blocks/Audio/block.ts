@@ -8,7 +8,6 @@ import { defaultProps, parseDefaultProps } from "../defaultProps.js";
 import { parseFigureElement } from "../File/helpers/parse/parseFigureElement.js";
 import { createFileBlockWrapper } from "../File/helpers/render/createFileBlockWrapper.js";
 import { createFigureWithCaption } from "../File/helpers/toExternalHTML/createFigureWithCaption.js";
-import { createLinkWithCaption } from "../File/helpers/toExternalHTML/createLinkWithCaption.js";
 import { parseAudioElement } from "./parseAudioElement.js";
 
 export const FILE_AUDIO_ICON_SVG =
@@ -37,10 +36,6 @@ export const createAudioBlockConfig = createBlockConfig(
         // File caption.
         caption: {
           default: "" as const,
-        },
-
-        showPreview: {
-          default: true,
         },
       },
       content: "none",
@@ -134,22 +129,11 @@ export const audioToExternalHTML =
       };
     }
 
-    let audio;
-    if (block.props.showPreview) {
-      audio = document.createElement("audio");
-      audio.src = block.props.url;
-    } else {
-      audio = document.createElement("a");
-      audio.href = block.props.url;
-      audio.textContent = block.props.name || block.props.url;
-    }
+    const audio = document.createElement("audio");
+    audio.src = block.props.url;
 
     if (block.props.caption) {
-      if (block.props.showPreview) {
-        return createFigureWithCaption(audio, block.props.caption);
-      } else {
-        return createLinkWithCaption(audio, block.props.caption);
-      }
+      return createFigureWithCaption(audio, block.props.caption);
     }
 
     return {

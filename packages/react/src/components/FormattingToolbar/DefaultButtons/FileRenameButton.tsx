@@ -112,7 +112,7 @@ export const FileRenameButton = () => {
             dict.formatting_toolbar.file_rename.tooltip[block.type] ||
             dict.formatting_toolbar.file_rename.tooltip["file"]
           }
-          icon={<RiFontFamily />}
+          icon={<RiFontFamily aria-hidden="true" focusable="false" />}
           onClick={() => setPopoverOpen(!popoverOpen)}
         />
       </Components.Generic.Popover.Trigger>
@@ -126,9 +126,15 @@ export const FileRenameButton = () => {
         >
           <Components.Generic.Form.TextInput
             name={"file-name"}
-            icon={<RiFontFamily />}
+            label={
+              dict.formatting_toolbar.file_rename.input_placeholder[
+                block.type
+              ] || dict.formatting_toolbar.file_rename.input_placeholder["file"]
+            }
+            icon={<RiFontFamily aria-hidden="true" focusable="false" />}
             value={block.props.name}
             autoFocus={true}
+            autoComplete="off"
             placeholder={
               dict.formatting_toolbar.file_rename.input_placeholder[
                 block.type

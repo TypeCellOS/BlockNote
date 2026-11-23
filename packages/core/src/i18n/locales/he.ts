@@ -299,13 +299,13 @@ export const he: Dictionary = {
     },
     file_rename: {
       tooltip: {
-        image: "שנה שם תמונה",
+        image: "טקסט חלופי",
         video: "שנה שם וידאו",
         audio: "שנה שם אודיו",
         file: "שנה שם קובץ",
       } as Record<string, string>,
       input_placeholder: {
-        image: "שנה שם תמונה",
+        image: "טקסט חלופי",
         video: "שנה שם וידאו",
         audio: "שנה שם אודיו",
         file: "שנה שם קובץ",
@@ -326,9 +326,6 @@ export const he: Dictionary = {
         audio: "מחק אודיו",
         file: "מחק קובץ",
       } as Record<string, string>,
-    },
-    file_preview_toggle: {
-      tooltip: "החלף תצוגה מקדימה",
     },
     nest: {
       tooltip: "קינון בלוק",

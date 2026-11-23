@@ -58,7 +58,6 @@ exports[`suggestion mode: change image source 1`] = `
       caption=""
       name=""
       previewWidth="200"
-      showPreview="true"
       textAlignment="left"
       url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%23ff6b6b'/&gt;&lt;/svg&gt;"
     ></image>
@@ -75,7 +74,6 @@ exports[`suggestion mode: change image source 2`] = `
       caption=""
       name=""
       previewWidth="200"
-      showPreview="true"
       textAlignment="left"
       url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%234ecdc4'/&gt;&lt;/svg&gt;"
     ></image>
@@ -96,7 +94,6 @@ exports[`suggestion mode: change image source 3`] = `
           caption=""
           name=""
           previewWidth="200"
-          showPreview="true"
           textAlignment="left"
           url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%234ecdc4'/&gt;&lt;/svg&gt;"
         ></image>
@@ -146,7 +143,6 @@ exports[`suggestion mode: resize image (previewWidth) 1`] = `
       caption=""
       name=""
       previewWidth="200"
-      showPreview="true"
       textAlignment="left"
       url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%23ff6b6b'/&gt;&lt;/svg&gt;"
     ></image>
@@ -163,7 +159,6 @@ exports[`suggestion mode: resize image (previewWidth) 2`] = `
       caption=""
       name=""
       previewWidth="400"
-      showPreview="true"
       textAlignment="left"
       url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%23ff6b6b'/&gt;&lt;/svg&gt;"
     ></image>
@@ -184,7 +179,6 @@ exports[`suggestion mode: resize image (previewWidth) 3`] = `
           caption=""
           name=""
           previewWidth="400"
-          showPreview="true"
           textAlignment="left"
           url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%23ff6b6b'/&gt;&lt;/svg&gt;"
         ></image>

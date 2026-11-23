@@ -1,6 +1,6 @@
 import { assertEmpty } from "@blocknote/core";
 import { ComponentProps, useMergeRefs, useAutoFocus } from "@blocknote/react";
-import { forwardRef } from "react";
+import { forwardRef, useId } from "react";
 
 import { useShadCNComponentsContext } from "../ShadCNComponentsContext.js";
 import { cn } from "../lib/utils.js";
@@ -21,7 +21,7 @@ export const TextInput = forwardRef<
     disabled,
     onKeyDown,
     onChange,
-    autoComplete: _autoComplete,
+    autoComplete,
     "aria-activedescendant": ariaActivedescendant,
     rightSection, // TODO: add rightSection
     ...rest
@@ -31,6 +31,7 @@ export const TextInput = forwardRef<
 
   // Rationale (and the trap contract `data-autofocus` serves) in the hook.
 
+  const id = useId();
   const inputRef = useAutoFocus<HTMLInputElement>(autoFocus);
   const setRefs = useMergeRefs([inputRef, ref]);
 
@@ -40,21 +41,22 @@ export const TextInput = forwardRef<
     <div
       className={cn(
         className,
-        "border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+        "border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex min-h-10 w-full rounded-md border px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
         "text-foreground items-center gap-2",
       )}
     >
       {icon}
       <div className="flex-1">
         {label && (
-          <ShadCNComponents.Label.Label htmlFor={label}>
+          <ShadCNComponents.Label.Label htmlFor={id}>
             {label}
           </ShadCNComponents.Label.Label>
         )}
         <ShadCNComponents.Input.Input
           className={cn(className, "h-auto border-none p-0")}
-          id={label}
+          id={id}
           name={name}
+          autoComplete={autoComplete}
           placeholder={placeholder}
           disabled={disabled}
           value={value}

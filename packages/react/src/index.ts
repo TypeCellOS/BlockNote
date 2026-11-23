@@ -34,7 +34,6 @@ export * from "./components/Form/ScreenReaderOnlySubmit.js";
 export * from "./components/FormattingToolbar/DefaultButtons/FileCaptionButton.js";
 export * from "./components/FormattingToolbar/DefaultButtons/FileDeleteButton.js";
 export * from "./components/FormattingToolbar/DefaultButtons/FileDownloadButton.js";
-export * from "./components/FormattingToolbar/DefaultButtons/FilePreviewButton.js";
 export * from "./components/FormattingToolbar/DefaultButtons/FileRenameButton.js";
 export * from "./components/FormattingToolbar/DefaultButtons/FileReplaceButton.js";
 export * from "./components/FormattingToolbar/DefaultButtons/NestBlockButtons.js";

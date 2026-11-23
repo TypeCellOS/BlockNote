@@ -301,13 +301,13 @@ export const en = {
     },
     file_rename: {
       tooltip: {
-        image: "Rename image",
+        image: "Alternative text",
         video: "Rename video",
         audio: "Rename audio",
         file: "Rename file",
       } as Record<string, string>,
       input_placeholder: {
-        image: "Rename image",
+        image: "Alternative text",
         video: "Rename video",
         audio: "Rename audio",
         file: "Rename file",
@@ -328,9 +328,6 @@ export const en = {
         audio: "Delete audio",
         file: "Delete file",
       } as Record<string, string>,
-    },
-    file_preview_toggle: {
-      tooltip: "Toggle preview",
     },
     nest: {
       tooltip: "Nest block",

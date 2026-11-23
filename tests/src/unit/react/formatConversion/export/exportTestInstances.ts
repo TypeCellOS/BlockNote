@@ -165,24 +165,6 @@ export const exportTestInstancesBlockNoteHTML: TestInstance<
   },
   {
     testCase: {
-      name: "reactImage/noPreview",
-      content: [
-        {
-          type: "image",
-          props: {
-            name: "example",
-            url: "exampleURL",
-            caption: "Caption",
-            showPreview: false,
-            previewWidth: 256,
-          },
-        },
-      ],
-    },
-    executeTest: testExportBlockNoteHTML,
-  },
-  {
-    testCase: {
       name: "reactImage/nested",
       content: [
         {
