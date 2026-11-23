@@ -1,6 +1,8 @@
 /* eslint-disable no-empty-pattern -- Vitest requires destructured fixture dependencies. */
 import type { TestAPI } from "vite-plus/test";
-import * as browserCommands from "./browser/index.js";
+import { browserName } from "./browser/environment.js";
+import type * as browserCommands from "./browser/index.js";
+import { MOD, selectToLineEndKey } from "./browser/keyboard.js";
 import type { SetupEditor } from "./browser/setupEditor.js";
 import { commands as nodeCommands, page, userEvent } from "./transport.js";
 
@@ -21,11 +23,12 @@ export const commands: Required<
 > = {
   page,
   userEvent,
-  MOD: browserCommands.MOD,
-  browserName: browserCommands.browserName,
-  selectToLineEndKey: browserCommands.selectToLineEndKey,
+  MOD,
+  browserName,
+  selectToLineEndKey,
   screenshotFull: async ({}, use) => {
-    await use(browserCommands.screenshotFull);
+    const { screenshotFull } = await import("./browser/screenshotFull.js");
+    await use(screenshotFull);
   },
   pressKey: async ({}, use) => {
     await use(nodeCommands.pressKey);
@@ -39,28 +42,32 @@ export const commands: Required<
   mockCustomBlockImages: async ({}, use) => {
     await use(nodeCommands.mockCustomBlockImages);
   },
-  restoreTouchEmulation: async ({}, use) => {
-    await use(nodeCommands.restoreTouchEmulation);
-  },
   mockVersioningMedia: async ({}, use) => {
     await use(nodeCommands.mockVersioningMedia);
   },
+  restoreTouchEmulation: async ({}, use) => {
+    await use(nodeCommands.restoreTouchEmulation);
+  },
   focusUntil: async ({}, use) => {
-    await use(browserCommands.focusUntil);
+    const { focusUntil } = await import("./browser/focus.js");
+    await use(focusUntil);
   },
   captureFocusOutline: async ({}, use) => {
-    await use(browserCommands.captureFocusOutline);
+    const { captureFocusOutline } = await import("./browser/outline.js");
+    await use(captureFocusOutline);
   },
   readAriaSnapshot: async ({}, use) => {
-    await use(browserCommands.readAriaSnapshot);
+    const { readAriaSnapshot } = await import("./browser/ariaSnapshot.js");
+    await use(readAriaSnapshot);
   },
   setupEditor: async ({ onTestFinished }, use) => {
     const { createSetupEditor } = await import("./browser/setupEditor.js");
     await use(createSetupEditor(onTestFinished));
   },
   runAxe: async ({ annotate }, use) => {
+    const { runAxe } = await import("./browser/axe.js");
     await use(async (scope) => {
-      const results = await browserCommands.runAxe(scope);
+      const results = await runAxe(scope);
       for (const result of results.incomplete) {
         for (const node of result.nodes) {
           await annotate(
