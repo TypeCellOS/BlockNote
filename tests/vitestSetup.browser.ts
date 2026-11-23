@@ -1,5 +1,6 @@
 import type {} from "./src/commands/transport/keyboard.js";
 import { aroundAll, aroundEach, beforeEach } from "vite-plus/test";
+import { cleanup } from "vitest-browser-react/pure";
 import { installBrowserTestStyles } from "./src/commands/browser/installBrowserTestStyles.js";
 import { commands, page } from "./src/commands/transport.js";
 import {
@@ -37,8 +38,19 @@ aroundAll(async (runSuite) => {
   }
 });
 
-// Drain focus and release the globals after per-test teardown.
+// Drain focus and release the globals after inner hooks, including React cleanup.
 aroundEach(withBrowserTestGlobals);
+
+// The upstream renderer registers its own beforeEach when first imported,
+// which is not repeated when a later file reuses this iframe. Dispose its
+// test-owned roots here; setupEditor and manually mounted roots own themselves.
+aroundEach(async (runTest) => {
+  try {
+    await runTest();
+  } finally {
+    await cleanup();
+  }
+});
 
 // Chromium drops the context's touch emulation after any screenshot captured
 // beyond the viewport, which on this mobile context is every element
