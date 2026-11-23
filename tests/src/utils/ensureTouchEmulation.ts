@@ -1,3 +1,10 @@
+export function hasTouchEmulation() {
+  return (
+    navigator.maxTouchPoints > 0 &&
+    window.matchMedia("(pointer: coarse)").matches
+  );
+}
+
 /**
  * Asserts that the android instance's touch emulation is still in effect.
  *
@@ -7,15 +14,12 @@
  * emulation after any screenshot captured beyond the viewport (on this
  * mobile context, every element screenshot) and Playwright never re-arms it
  * (microsoft/playwright#42607; mechanism and repro in
- * `restoreTouchEmulation.ts`). The setup re-arms it before every test and
- * then calls this, so a run fails naming the cause instead of silently
+ * `restoreTouchEmulation.ts`). The setup checks before every test and calls
+ * this after re-arming, so a run fails naming the cause instead of silently
  * testing a desktop context that merely claims to be mobile.
  */
 export function ensureTouchEmulation() {
-  if (
-    navigator.maxTouchPoints === 0 ||
-    !window.matchMedia("(pointer: coarse)").matches
-  ) {
+  if (!hasTouchEmulation()) {
     throw new Error(
       "Touch emulation has been dropped for this browser context: Chromium " +
         "drops it after a screenshot captured beyond the viewport (any element " +
