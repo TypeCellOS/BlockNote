@@ -15,15 +15,15 @@ import { beforeEach, describe, expect, test } from "vite-plus/test";
 import { render } from "vitest-browser-react";
 import {
   DRAG_HANDLE_ADD_SELECTOR,
-  DRAG_HANDLE_SELECTOR,
   EDITOR_SELECTOR,
 } from "../../utils/const.js";
 import { browserName, page, userEvent } from "../../utils/context.js";
-import { sleep, waitForSelector } from "../../utils/editor.js";
+import { waitForSelector } from "../../utils/editor.js";
 import {
   getRect,
   mouseSequence,
   moveMouseOverElement,
+  startBlockDrag,
 } from "../../utils/mouse.js";
 
 // UI behaviour of the built-in toggle blocks (toggle heading and toggle list
@@ -78,9 +78,17 @@ const kinds = [
   },
 ];
 
-beforeEach(() => {
-  // The open state of a toggle is kept in `localStorage`, keyed by block id.
-  localStorage.clear();
+beforeEach(({ onTestFinished }) => {
+  const key = "toggle-t";
+  const previous = localStorage.getItem(key);
+  onTestFinished(() => {
+    if (previous === null) {
+      localStorage.removeItem(key);
+    } else {
+      localStorage.setItem(key, previous);
+    }
+  });
+  localStorage.removeItem(key);
 });
 
 async function openToggle() {
@@ -108,40 +116,6 @@ async function ownElement(selector: string) {
   return element;
 }
 
-/**
- * Drags block `drag` by its handle to the center of `target`, and holds it
- * there. `mouseSequence([{ type: "up" }])` drops it.
- */
-async function dragOnto(target: Element) {
-  // Not `getByText`: a previous drag leaves its drag image, a copy of the
-  // dragged block, in the document.
-  await moveMouseOverElement(
-    await waitForSelector(`.bn-block[data-id="drag"] .bn-inline-content`),
-  );
-  const handle = getRect(await waitForSelector(DRAG_HANDLE_SELECTOR));
-  const rect = getRect(target);
-  // The pauses let the browser start the drag, as in `dragAndDropBlock`.
-  await mouseSequence([
-    {
-      type: "move",
-      x: handle.x + handle.width / 2,
-      y: handle.y + handle.height / 2,
-      steps: 5,
-    },
-  ]);
-  await sleep(100);
-  await mouseSequence([{ type: "down" }]);
-  await sleep(100);
-  await mouseSequence([
-    {
-      type: "move",
-      x: rect.x + rect.width / 2,
-      y: rect.y + rect.height / 2,
-      steps: 5,
-    },
-  ]);
-}
-
 async function dropCursorTop() {
   return getRect(await waitForSelector(DROP_CURSOR_SELECTOR)).top;
 }
@@ -153,7 +127,9 @@ describe.each(kinds)("$name", ({ toggle }) => {
   // targets are tested in every browser in `toggleBlocks.browser.test.ts`,
   // with synthetic drag events.
   describe.skipIf(browserName !== "chromium")("drop onto the toggle", () => {
-    test("onto 'Add block', into the empty toggle (BLO-956)", async () => {
+    test("onto 'Add block', into the empty toggle (BLO-956)", async ({
+      onTestFinished,
+    }) => {
       await render(
         <ToggleApp
           content={[
@@ -165,12 +141,18 @@ describe.each(kinds)("$name", ({ toggle }) => {
       await waitForSelector(EDITOR_SELECTOR);
       await openToggle();
 
-      await dragOnto(await ownElement(".bn-toggle-add-block-button"));
+      // A drag preview can contain a copy of the source block.
+      await startBlockDrag(
+        '.bn-block[data-id="drag"]:not(.bn-drag-preview *) .bn-inline-content',
+        onTestFinished,
+      );
+      await moveMouseOverElement(
+        await ownElement(".bn-toggle-add-block-button"),
+      );
       // The drop cursor shows the place of the children: below the title.
       const title = getRect(await ownElement(".bn-block-content"));
       await expect.poll(dropCursorTop).toBeGreaterThan(title.bottom - 6);
       expect(await dropCursorTop()).toBeLessThan(title.bottom + 6);
-
       await mouseSequence([{ type: "up" }]);
 
       // The drop cursor does not stay after the drop.
