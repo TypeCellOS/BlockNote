@@ -4,74 +4,78 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
+import type { Node } from "@tiptap/pm/model";
 import { TextSelection } from "@tiptap/pm/state";
 import { expect } from "vite-plus/test";
+import { testOptionsHost } from "../../testOptions.js";
 import { IncrementSelectionTestCase } from "./incrementSelectionTestCase.js";
 
-export const testIncrementSelectionStart = async <
+function getTextPositions(doc: Node) {
+  const positions: number[] = [];
+  for (let pos = 0; pos <= doc.content.size; pos++) {
+    // TextSelection endpoints can sit at either edge of inline content,
+    // but not in the surrounding block, table, or document wrappers.
+    if (doc.resolve(pos).parent.inlineContent) {
+      positions.push(pos);
+    }
+  }
+  return positions;
+}
+
+async function testIncrementSelection<
   B extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema,
 >(
   editor: BlockNoteEditor<B, I, S>,
   testCase: IncrementSelectionTestCase<B, I, S>,
-) => {
-  (window as any).__TEST_OPTIONS.mockID = 0;
+  edge: "start" | "end",
+) {
+  (testOptionsHost.__TEST_OPTIONS ??= {}).mockID = 0;
   editor.replaceBlocks(editor.document, testCase.document);
 
-  const size = editor._tiptapEditor.state.doc.content.size;
-  let ret = "";
-
-  for (let i = 0; i < size; i++) {
-    editor.transact((tr) =>
-      tr.setSelection(
-        TextSelection.create(editor._tiptapEditor.state.doc, i, size - 1),
-      ),
-    );
-
-    const blockNoteSelection = editor.getSelectionCutBlocks(
-      testCase.expandToWord,
-    );
-    const JSONString = JSON.stringify(blockNoteSelection);
-
-    ret += JSONString + "\n";
+  const positions = editor.transact((tr) => getTextPositions(tr.doc));
+  const first = positions.at(0);
+  const last = positions.at(-1);
+  if (first === undefined || last === undefined) {
+    throw new Error("Expected a fixture with at least one text position");
   }
 
-  await expect(ret).toMatchFileSnapshot(
-    `./__snapshots__/start/${testCase.name}.txt`,
-  );
-};
+  const snapshots = [];
+  for (const pos of positions) {
+    const [from, to] = edge === "start" ? [pos, last] : [first, pos];
+    editor.transact((tr) =>
+      tr.setSelection(TextSelection.create(tr.doc, from, to)),
+    );
 
-export const testIncrementSelectionEnd = async <
+    snapshots.push(
+      JSON.stringify(editor.getSelectionCutBlocks(testCase.expandToWord)),
+    );
+  }
+
+  await expect(snapshots.join("\n") + "\n").toMatchFileSnapshot(
+    `./__snapshots__/${edge}/${testCase.name}.txt`,
+  );
+}
+
+export function testIncrementSelectionStart<
   B extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema,
 >(
   editor: BlockNoteEditor<B, I, S>,
   testCase: IncrementSelectionTestCase<B, I, S>,
-) => {
-  (window as any).__TEST_OPTIONS.mockID = 0;
-  editor.replaceBlocks(editor.document, testCase.document);
+) {
+  return testIncrementSelection(editor, testCase, "start");
+}
 
-  const size = editor._tiptapEditor.state.doc.content.size;
-  let ret = "";
-
-  for (let i = 0; i < size; i++) {
-    editor.transact((tr) =>
-      tr.setSelection(
-        TextSelection.create(editor._tiptapEditor.state.doc, 0, i),
-      ),
-    );
-
-    const blockNoteSelection = editor.getSelectionCutBlocks(
-      testCase.expandToWord,
-    );
-    const JSONString = JSON.stringify(blockNoteSelection);
-
-    ret += JSONString + "\n";
-  }
-
-  await expect(ret).toMatchFileSnapshot(
-    `./__snapshots__/end/${testCase.name}.txt`,
-  );
-};
+export function testIncrementSelectionEnd<
+  B extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema,
+>(
+  editor: BlockNoteEditor<B, I, S>,
+  testCase: IncrementSelectionTestCase<B, I, S>,
+) {
+  return testIncrementSelection(editor, testCase, "end");
+}

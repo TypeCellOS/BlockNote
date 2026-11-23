@@ -1,25 +1,9 @@
-import { ParseTestCase } from "../../../shared/formatConversion/parse/parseTestCase.js";
-import {
-  testParseHTML,
-  testParseMarkdown,
-} from "../../../shared/formatConversion/parse/parseTestExecutors.js";
-import { TestInstance } from "../../../types.js";
-import {
-  TestBlockSchema,
-  TestInlineContentSchema,
-  TestStyleSchema,
-} from "../../testSchema.js";
+import type { ParseTestCase } from "../../../shared/formatConversion/parse/parseTestCase.js";
 
-export const parseTestInstancesHTML: TestInstance<
-  ParseTestCase,
-  TestBlockSchema,
-  TestInlineContentSchema,
-  TestStyleSchema
->[] = [
+export const htmlParseCases: ParseTestCase[] = [
   {
-    testCase: {
-      name: "basicBlockTypes",
-      content: `<h1>Heading 1</h1>
+    name: "basicBlockTypes",
+    content: `<h1>Heading 1</h1>
 <h2>Heading 2</h2>
 <h3>Heading 3</h3>
 <h4>Heading 4</h4>
@@ -28,13 +12,10 @@ export const parseTestInstancesHTML: TestInstance<
 <p>Paragraph</p>
 <figure><img src="exampleURL" /><figcaption>Image Caption</figcaption></figure>
 <p>None <strong>Bold </strong><em>Italic </em><u>Underline </u><s>Strikethrough </s><strong><em><s><u>All</u></s></em></strong></p>`,
-    },
-    executeTest: testParseHTML,
   },
   {
-    testCase: {
-      name: "lists",
-      content: `<ul>
+    name: "lists",
+    content: `<ul>
 <li>First</li>
 <li>Second</li>
 <li>Third</li>
@@ -61,14 +42,11 @@ export const parseTestInstancesHTML: TestInstance<
   </ul>
 </li>
 </ul>`,
-    },
-    executeTest: testParseHTML,
   },
+  // TODO this test's result not exactly right, but it's close enough for now.
   {
-    // TODO this test's result not exactly right, but it's close enough for now.
-    testCase: {
-      name: "emptyNestedCheckListItem",
-      content: `<ul>
+    name: "emptyNestedCheckListItem",
+    content: `<ul>
   <li>
     <ul>
       <li>
@@ -78,25 +56,19 @@ export const parseTestInstancesHTML: TestInstance<
     <p>Paragraph</p>
   </li>
   </ul>`,
-    },
-    executeTest: testParseHTML,
   },
   {
-    testCase: {
-      name: "checkListItem",
-      content: `<ul>
+    name: "checkListItem",
+    content: `<ul>
   <li>
     <input type="checkbox">
     <p>Paragraph</p>
   <li>
 </ul>`,
-    },
-    executeTest: testParseHTML,
   },
   {
-    testCase: {
-      name: "nestedLists",
-      content: `<ul>
+    name: "nestedLists",
+    content: `<ul>
   <li>Bullet List Item</li>
   <li>Bullet List Item
     <ul>
@@ -140,13 +112,10 @@ export const parseTestInstancesHTML: TestInstance<
     Nested Check List Item
   </li>
 </ul>`,
-    },
-    executeTest: testParseHTML,
   },
   {
-    testCase: {
-      name: "nestedListsWithParagraphs",
-      content: `<ul>
+    name: "nestedListsWithParagraphs",
+    content: `<ul>
   <li>
     <p>Bullet List Item</p>
   </li>
@@ -208,13 +177,10 @@ export const parseTestInstancesHTML: TestInstance<
     <p>Checked List Item</p>
   </li>
 </ul>`,
-    },
-    executeTest: testParseHTML,
   },
   {
-    testCase: {
-      name: "mixedNestedLists",
-      content: `<ul>
+    name: "mixedNestedLists",
+    content: `<ul>
   <li>Bullet List Item</li>
   <li>Bullet List Item
     <ol>
@@ -258,101 +224,77 @@ export const parseTestInstancesHTML: TestInstance<
     Nested Check List Item
   </li>
 </ul>`,
-    },
-    executeTest: testParseHTML,
   },
   {
-    testCase: {
-      name: "multipleParagraphListItem",
-      content: `<ul>
+    name: "multipleParagraphListItem",
+    content: `<ul>
   <li>
     <p>Bullet List Item</p>
     <p>Bullet List Item</p>
   </li>
   <li>Bullet List Item</li>
 </ul>`,
-    },
-    executeTest: testParseHTML,
   },
   {
-    testCase: {
-      name: "textWithImageListItem",
-      content: `<ul>
+    name: "textWithImageListItem",
+    content: `<ul>
   <li>
     Bullet List Item
     <img src="exampleURL">
   </li>
   <li>Bullet List Item</li>
 </ul>`,
-    },
-    executeTest: testParseHTML,
   },
   {
-    testCase: {
-      name: "paragraphWithImageListItem",
-      content: `<ul>
+    name: "paragraphWithImageListItem",
+    content: `<ul>
   <li>
     <p>Bullet List Item</p>
     <img src="exampleURL">
   </li>
   <li>Bullet List Item</li>
 </ul>`,
-    },
-    executeTest: testParseHTML,
   },
   {
-    testCase: {
-      name: "imageWithTextListItem",
-      content: `<ul>
+    name: "imageWithTextListItem",
+    content: `<ul>
   <li>
     <img src="exampleURL">
     Bullet List Item
   </li>
   <li>Bullet List Item</li>
 </ul>`,
-    },
-    executeTest: testParseHTML,
   },
   {
-    testCase: {
-      name: "imageWithParagraphListItem",
-      content: `<ul>
+    name: "imageWithParagraphListItem",
+    content: `<ul>
   <li>
     <img src="exampleURL">
     <p>Bullet List Item</p>
   </li>
   <li>Bullet List Item</li>
 </ul>`,
-    },
-    executeTest: testParseHTML,
   },
   {
-    testCase: {
-      name: "styledTextListItem",
-      content: `<ul>
+    name: "styledTextListItem",
+    content: `<ul>
   <li>Bullet List Item <b>Bold</b></li>
   <li>Bullet List Item</li>
 </ul>`,
-    },
-    executeTest: testParseHTML,
   },
   {
-    testCase: {
-      name: "styledTextWithImageListItem",
-      content: `<ul>
+    name: "styledTextWithImageListItem",
+    content: `<ul>
   <li>
     <b>Bold</b> Bullet List Item
     <img src="exampleURL">
   </li>
   <li>Bullet List Item</li>
 </ul>`,
-    },
-    executeTest: testParseHTML,
   },
   {
-    testCase: {
-      name: "flattenedListItem",
-      content: `<ul>
+    name: "flattenedListItem",
+    content: `<ul>
   <li>
     <ol>
       <li>Nested Numbered List Item</li>
@@ -360,52 +302,40 @@ export const parseTestInstancesHTML: TestInstance<
   </li>
   <li>Bullet List Item</li>
 </ul>`,
-    },
-    executeTest: testParseHTML,
   },
   {
-    testCase: {
-      name: "headingParagraphListItem",
-      content: `<ul>
+    name: "headingParagraphListItem",
+    content: `<ul>
   <li>
     <h1>Bullet List Item</h1>
     <p>Bullet List Item</p>
   </li>
   <li>Bullet List Item</li>
 </ul>`,
-    },
-    executeTest: testParseHTML,
   },
   {
-    testCase: {
-      name: "paragraphHeadingListItem",
-      content: `<ul>
+    name: "paragraphHeadingListItem",
+    content: `<ul>
   <li>
     <p>Bullet List Item</p>
     <h1>Bullet List Item</h1>
   </li>
   <li>Bullet List Item</li>
 </ul>`,
-    },
-    executeTest: testParseHTML,
   },
   {
-    testCase: {
-      name: "textTableCell",
-      content: `<table>
+    name: "textTableCell",
+    content: `<table>
   <tbody>
     <tr>
       <td>Table Cell</td>
     </tr>  
   </tbody>
 </table>`,
-    },
-    executeTest: testParseHTML,
   },
   {
-    testCase: {
-      name: "paragraphTableCell",
-      content: `<table>
+    name: "paragraphTableCell",
+    content: `<table>
   <tbody>
     <tr>
       <td>
@@ -414,13 +344,10 @@ export const parseTestInstancesHTML: TestInstance<
     </tr>  
   </tbody>
 </table>`,
-    },
-    executeTest: testParseHTML,
   },
   {
-    testCase: {
-      name: "headingTableCell",
-      content: `<table>
+    name: "headingTableCell",
+    content: `<table>
   <tbody>
     <tr>
       <td>
@@ -429,13 +356,10 @@ export const parseTestInstancesHTML: TestInstance<
     </tr>  
   </tbody>
 </table>`,
-    },
-    executeTest: testParseHTML,
   },
   {
-    testCase: {
-      name: "multipleParagraphTableCell",
-      content: `<table>
+    name: "multipleParagraphTableCell",
+    content: `<table>
   <tbody>
     <tr>
       <td>
@@ -445,13 +369,10 @@ export const parseTestInstancesHTML: TestInstance<
     </tr>  
   </tbody>
 </table>`,
-    },
-    executeTest: testParseHTML,
   },
   {
-    testCase: {
-      name: "mixedTextTableCell",
-      content: `<table>
+    name: "mixedTextTableCell",
+    content: `<table>
   <tbody>
     <tr>
       <td>
@@ -462,13 +383,10 @@ export const parseTestInstancesHTML: TestInstance<
     </tr>  
   </tbody>
 </table>`,
-    },
-    executeTest: testParseHTML,
   },
   {
-    testCase: {
-      name: "paragraphImageTableCell",
-      content: `<table>
+    name: "paragraphImageTableCell",
+    content: `<table>
   <tbody>
     <tr>
       <td>
@@ -478,13 +396,10 @@ export const parseTestInstancesHTML: TestInstance<
     </tr>  
   </tbody>
 </table>`,
-    },
-    executeTest: testParseHTML,
   },
   {
-    testCase: {
-      name: "imageBetweenParagraphsTableCell",
-      content: `<table>
+    name: "imageBetweenParagraphsTableCell",
+    content: `<table>
   <tbody>
     <tr>
       <td>
@@ -495,13 +410,10 @@ export const parseTestInstancesHTML: TestInstance<
     </tr>  
   </tbody>
 </table>`,
-    },
-    executeTest: testParseHTML,
   },
   {
-    testCase: {
-      name: "mixedContentTableCell",
-      content: `<table>
+    name: "mixedContentTableCell",
+    content: `<table>
   <tbody>
     <tr>
       <td>
@@ -519,13 +431,10 @@ export const parseTestInstancesHTML: TestInstance<
     </tr>  
   </tbody>
 </table>`,
-    },
-    executeTest: testParseHTML,
   },
   {
-    testCase: {
-      name: "divs",
-      content: `<div>Single Div</div>
+    name: "divs",
+    content: `<div>Single Div</div>
 <div>
   Div
   <div>Nested Div</div>
@@ -536,39 +445,27 @@ export const parseTestInstancesHTML: TestInstance<
   <div>Nested Div</div>
   <div>Nested Div</div>
 </div>`,
-    },
-    executeTest: testParseHTML,
   },
   {
-    testCase: {
-      name: "twoDivs",
-      content: `<div>Single Div</div><div>second Div</div>`,
-    },
-    executeTest: testParseHTML,
+    name: "twoDivs",
+    content: `<div>Single Div</div><div>second Div</div>`,
   },
   {
-    testCase: {
-      name: "imageInParagraph",
-      content: `<p>
+    name: "imageInParagraph",
+    content: `<p>
   <img src="exampleURL">
 </p>`,
-    },
-    executeTest: testParseHTML,
   },
   {
-    testCase: {
-      name: "fakeImageCaption",
-      content: `<div>
+    name: "fakeImageCaption",
+    content: `<div>
   <img src="exampleURL">
   <p>Image Caption</p>
 </div>`,
-    },
-    executeTest: testParseHTML,
   },
   {
-    testCase: {
-      name: "deepNestedContent",
-      content: `<div>
+    name: "deepNestedContent",
+    content: `<div>
     Outer 1 Div Before
   <div>
     Outer 2 Div Before
@@ -593,24 +490,18 @@ export const parseTestInstancesHTML: TestInstance<
   </div>
   Outer 1 Div After
 </div>`,
-    },
-    executeTest: testParseHTML,
   },
   {
-    testCase: {
-      name: "inlineContentAndNestedBlocks",
-      content: `<div>
+    name: "inlineContentAndNestedBlocks",
+    content: `<div>
   None <strong>Bold </strong><em>Italic </em><u>Underline </u><s>Strikethrough </s><strong><em><s><u>All</u></s></em></strong>
   <div>Nested Div</div>
   <p>Nested Paragraph</p>
 </div>`,
-    },
-    executeTest: testParseHTML,
   },
   {
-    testCase: {
-      name: "twoTables",
-      content: `<table style="border-collapse:collapse;margin-left:255.478pt" cellspacing="0">
+    name: "twoTables",
+    content: `<table style="border-collapse:collapse;margin-left:255.478pt" cellspacing="0">
   <tr style="height:22pt">
     <td style="width:203pt">
       <p data-text-alignment="left" data-text-indent="0pt"><u>Company</u></p>
@@ -639,13 +530,10 @@ export const parseTestInstancesHTML: TestInstance<
     </td>
   </tr>
 </table>`,
-    },
-    executeTest: testParseHTML,
   },
   {
-    testCase: {
-      name: "notion",
-      content: `<meta charset='utf-8'><h1>Heading 1</h1>
+    name: "notion",
+    content: `<meta charset='utf-8'><h1>Heading 1</h1>
 <h2>Heading 2</h2>
 <h3>Heading 3</h3>
 <h4>Heading 4</h4>
@@ -700,13 +588,10 @@ With Hard Break</p>
 </table>
 <p>Paragraph</p>
 <!-- notionvc: 7cb7968f-b969-4795-af7a-d41b5481c675 -->`,
-    },
-    executeTest: testParseHTML,
   },
   {
-    testCase: {
-      name: "googleDocs",
-      content: `<meta charset='utf-8'>
+    name: "googleDocs",
+    content: `<meta charset='utf-8'>
 <meta charset="utf-8">
 <b style="font-weight:normal;" id="docs-internal-guid-fdf86189-7fff-f50a-2bef-c048469db8a9">
 <h1 dir="ltr" style="line-height:1.38;margin-left: 18pt;text-indent: -18pt;margin-top:24pt;margin-bottom:6pt;padding:0pt 0pt 0pt 18pt;"><span style="font-size:23pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:700;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Heading 1</span></h1>
@@ -801,160 +686,103 @@ With Hard Break</p>
 <p dir="ltr" style="line-height:1.38;margin-top:12pt;margin-bottom:12pt;"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Paragraph</span></p>
 </b>
 <br class="Apple-interchange-newline">`,
-    },
-    executeTest: testParseHTML,
   },
   {
-    testCase: {
-      name: "codeBlocks",
-      content: `<pre><code>console.log("Should default to JS")</code></pre>
+    name: "codeBlocks",
+    content: `<pre><code>console.log("Should default to JS")</code></pre>
 <pre><code data-language="typescript">console.log("Should parse TS from data-language")</code></pre>
 <pre><code class="language-python">print("Should parse Python from language- class")</code></pre>
 <pre><code class="language-ruby" data-language="typescript">console.log("Should prioritize TS from data-language over language- class")</code></pre>`,
-    },
-    executeTest: testParseHTML,
   },
   {
-    testCase: {
-      name: "codeBlocksMultiLine",
-      content: `<pre><code>console.log("First Line")
+    name: "codeBlocksMultiLine",
+    content: `<pre><code>console.log("First Line")
 console.log("Second Line")
 console.log("Third Line")</code></pre>`,
-    },
-    executeTest: testParseHTML,
   },
   {
-    testCase: {
-      // Code copied from the web often nests HTML tags inside <code>:
-      // syntax-highlighting <span>s (e.g. GitHub), formatting tags, and <br>
-      // line breaks (<pre> allows phrasing content — it is not a raw-text
-      // element). The text should be extracted with formatting dropped and
-      // <br> converted to a newline. Literal angle brackets in code must be
-      // escaped in the source HTML and parse to their decoded text.
-      name: "codeBlocksNestedHTML",
-      content: `<pre><code class="language-javascript"><span class="pl-k">const</span> <span class="pl-s1">x</span> = <span class="pl-c1">1</span>;
+    // Code copied from the web often nests HTML tags inside <code>:
+    // syntax-highlighting <span>s (e.g. GitHub), formatting tags, and <br>
+    // line breaks (<pre> allows phrasing content — it is not a raw-text
+    // element). The text should be extracted with formatting dropped and
+    // <br> converted to a newline. Literal angle brackets in code must be
+    // escaped in the source HTML and parse to their decoded text.
+    name: "codeBlocksNestedHTML",
+    content: `<pre><code class="language-javascript"><span class="pl-k">const</span> <span class="pl-s1">x</span> = <span class="pl-c1">1</span>;
 <span class="pl-en">log</span>(x);</code></pre>
 <pre><code>line <b>one</b><br>line two</code></pre>
 <pre><code class="language-html">&lt;div class="a"&gt;escaped&lt;/div&gt;</code></pre>`,
-    },
-    executeTest: testParseHTML,
   },
   {
-    testCase: {
-      name: "basicBlockquote",
-      content: `<blockquote>This is a blockquote</blockquote>
+    name: "basicBlockquote",
+    content: `<blockquote>This is a blockquote</blockquote>
 <p>This is not a blockquote</p>`,
-    },
-    executeTest: testParseHTML,
   },
   {
-    testCase: {
-      name: "twoBlockquotes",
-      content: `<blockquote>First quote</blockquote>
+    name: "twoBlockquotes",
+    content: `<blockquote>First quote</blockquote>
 <blockquote>Second quote</blockquote>
 <p>Regular paragraph</p>`,
-    },
-    executeTest: testParseHTML,
   },
   {
-    testCase: {
-      name: "inlineContentInBlockquote",
-      content: `<blockquote><strong>Bold</strong> <em>Italic</em> <s>Strikethrough</s> <strong><em>Multiple</em></strong></blockquote>
+    name: "inlineContentInBlockquote",
+    content: `<blockquote><strong>Bold</strong> <em>Italic</em> <s>Strikethrough</s> <strong><em>Multiple</em></strong></blockquote>
 <p>Regular paragraph</p>`,
-    },
-    executeTest: testParseHTML,
   },
   {
-    testCase: {
-      name: "boldStyle",
-      content: `<p><strong>Bold</strong> <b>Bold</b> <span style="font-weight: bold">Bold</span></p>`,
-    },
-    executeTest: testParseHTML,
+    name: "boldStyle",
+    content: `<p><strong>Bold</strong> <b>Bold</b> <span style="font-weight: bold">Bold</span></p>`,
   },
   {
-    testCase: {
-      name: "italicStyle",
-      content: `<p><em>Italic</em> <i>Italic</i> <span style="font-style: italic">Italic</span></p>`,
-    },
-    executeTest: testParseHTML,
+    name: "italicStyle",
+    content: `<p><em>Italic</em> <i>Italic</i> <span style="font-style: italic">Italic</span></p>`,
   },
   {
-    testCase: {
-      name: "underlineStyle",
-      content: `<p><u>Underline</u> <span style="text-decoration: underline">Underline</span></p>`,
-    },
-    executeTest: testParseHTML,
+    name: "underlineStyle",
+    content: `<p><u>Underline</u> <span style="text-decoration: underline">Underline</span></p>`,
   },
   {
-    testCase: {
-      name: "strikeStyle",
-      content: `<p><s>Strike</s> <del>Strike</del> <strike>Strike</strike> <span style="text-decoration: line-through">Strike</span></p>`,
-    },
-    executeTest: testParseHTML,
+    name: "strikeStyle",
+    content: `<p><s>Strike</s> <del>Strike</del> <strike>Strike</strike> <span style="text-decoration: line-through">Strike</span></p>`,
   },
   {
-    testCase: {
-      name: "textColorStyle",
-      content: `<p><span style="color: blue">Blue Text</span> <span data-style-type="textColor" data-value="blue">Blue Text</span></p>`,
-    },
-    executeTest: testParseHTML,
+    name: "textColorStyle",
+    content: `<p><span style="color: blue">Blue Text</span> <span data-style-type="textColor" data-value="blue">Blue Text</span></p>`,
   },
   {
-    testCase: {
-      name: "backgroundColorStyle",
-      content: `<p><span style="background-color: blue">Blue Background</span> <span data-style-type="backgroundColor" data-value="blue">Blue Background</span></p>`,
-    },
-    executeTest: testParseHTML,
+    name: "backgroundColorStyle",
+    content: `<p><span style="background-color: blue">Blue Background</span> <span data-style-type="backgroundColor" data-value="blue">Blue Background</span></p>`,
   },
   {
-    testCase: {
-      name: "orderedListStart",
-      content: `<ol start="2">
+    name: "orderedListStart",
+    content: `<ol start="2">
   <li>List Item 2</li>
   <li>List Item 3</li>
   <li>List Item 4</li>
 </ol>`,
-    },
-    executeTest: testParseHTML,
   },
   {
-    testCase: {
-      name: "imageWidth",
-      content: `<img src="exampleURL" width="100">`,
-    },
-    executeTest: testParseHTML,
+    name: "imageWidth",
+    content: `<img src="exampleURL" width="100">`,
   },
   {
-    testCase: {
-      name: "textAlignmentProp",
-      content: `<p style="text-align: center">Text Align Center</p>`,
-    },
-    executeTest: testParseHTML,
+    name: "textAlignmentProp",
+    content: `<p style="text-align: center">Text Align Center</p>`,
   },
   {
-    testCase: {
-      name: "textColorProp",
-      content: `<p style="color: blue">Blue Text</p>
+    name: "textColorProp",
+    content: `<p style="color: blue">Blue Text</p>
   <p data-text-color="blue">Blue Text</p>`,
-    },
-    executeTest: testParseHTML,
   },
   {
-    testCase: {
-      name: "backgroundColorProp",
-      content: `<p style="background-color: blue">Blue Background</p>
+    name: "backgroundColorProp",
+    content: `<p style="background-color: blue">Blue Background</p>
   <p data-background-color="blue">Blue Background</p>`,
-    },
-    executeTest: testParseHTML,
   },
+  { name: "divider", content: `<hr/>` },
   {
-    testCase: { name: "divider", content: `<hr/>` },
-    executeTest: testParseHTML,
-  },
-  {
-    testCase: {
-      name: "toggleListItem",
-      content: `<ul>
+    name: "toggleListItem",
+    content: `<ul>
   <li>
     <details open="">
       <summary><p>Toggle Item</p></summary>
@@ -966,13 +794,10 @@ console.log("Third Line")</code></pre>`,
     </details>
   </li>
 </ul>`,
-    },
-    executeTest: testParseHTML,
   },
   {
-    testCase: {
-      name: "toggleListItemWithChildren",
-      content: `<ul>
+    name: "toggleListItemWithChildren",
+    content: `<ul>
   <li>
     <details open="">
       <summary><p>Toggle Item</p></summary>
@@ -981,43 +806,31 @@ console.log("Third Line")</code></pre>`,
     </details>
   </li>
 </ul>`,
-    },
-    executeTest: testParseHTML,
   },
   {
-    testCase: {
-      name: "toggleHeading",
-      content: `<details>
+    name: "toggleHeading",
+    content: `<details>
   <summary><h2>Toggle Heading</h2></summary>
   <p>Heading Child 1</p>
 </details>`,
-    },
-    executeTest: testParseHTML,
   },
   {
-    testCase: {
-      name: "toggleHeadingWithoutChildren",
-      content: `<details>
+    name: "toggleHeadingWithoutChildren",
+    content: `<details>
   <summary><h3>Toggle Heading No Children</h3></summary>
 </details>`,
-    },
-    executeTest: testParseHTML,
   },
   {
-    testCase: {
-      name: "standaloneDetailsSummary",
-      content: `<details>
+    name: "standaloneDetailsSummary",
+    content: `<details>
   <summary>Toggle text</summary>
   <p>Child paragraph 1</p>
   <p>Child paragraph 2</p>
 </details>`,
-    },
-    executeTest: testParseHTML,
   },
   {
-    testCase: {
-      name: "mixedToggleAndBulletList",
-      content: `<ul>
+    name: "mixedToggleAndBulletList",
+    content: `<ul>
   <li>Bullet Item</li>
   <li>
     <details open="">
@@ -1027,38 +840,26 @@ console.log("Third Line")</code></pre>`,
   </li>
   <li>Another Bullet</li>
 </ul>`,
-    },
-    executeTest: testParseHTML,
   },
   {
-    testCase: {
-      name: "toggleListItemWithImage",
-      content: `<details>
+    name: "toggleListItemWithImage",
+    content: `<details>
   <summary>Toggle with image</summary>
   <img src="exampleURL">
   <p>Text after image</p>
 </details>`,
-    },
-    executeTest: testParseHTML,
   },
   {
-    testCase: {
-      name: "trailing whitespace",
-      content: `<p>hello, </p>`,
-    },
-    executeTest: testParseHTML,
+    name: "trailing whitespace",
+    content: `<p>hello, </p>`,
   },
   {
-    testCase: {
-      name: "whitespace prefix",
-      content: `<p> hello,</p>`,
-    },
-    executeTest: testParseHTML,
+    name: "whitespace prefix",
+    content: `<p> hello,</p>`,
   },
   {
-    testCase: {
-      name: "msWordPaste",
-      content: `<html xmlns:o="urn:schemas-microsoft-com:office:office"
+    name: "msWordPaste",
+    content: `<html xmlns:o="urn:schemas-microsoft-com:office:office"
 xmlns:w="urn:schemas-microsoft-com:office:word"
 xmlns:m="http://schemas.microsoft.com/office/2004/12/omml"
 xmlns="http://www.w3.org/TR/REC-html40">
@@ -1116,15 +917,12 @@ l'utilisateur (bouton bleu en haut à droite de la conversation)<o:p></o:p></spa
 </body>
 
 </html>`,
-    },
-    executeTest: testParseHTML,
   },
+  // The internal (`blocksToFullHTML`) form of a layout block. The frame's
+  // slot, which holds the children, is marked with `data-frame-slot`.
   {
-    // The internal (`blocksToFullHTML`) form of a layout block. The frame's
-    // slot, which holds the children, is marked with `data-frame-slot`.
-    testCase: {
-      name: "layoutBlock",
-      content: `<div class="bn-block-group" data-node-type="blockGroup">
+    name: "layoutBlock",
+    content: `<div class="bn-block-group" data-node-type="blockGroup">
   <div class="callout" data-node-type="callout" data-id="1">
     <div class="callout-body" data-frame-slot="">
       <div class="bn-block-outer" data-node-type="blockOuter" data-id="2">
@@ -1137,14 +935,11 @@ l'utilisateur (bouton bleu en haut à droite de la conversation)<o:p></o:p></spa
     </div>
   </div>
 </div>`,
-    },
-    executeTest: testParseHTML,
   },
+  // A layout block nested inside another, with a non-default prop on each.
   {
-    // A layout block nested inside another, with a non-default prop on each.
-    testCase: {
-      name: "layoutNested",
-      content: `<div class="bn-block-group" data-node-type="blockGroup">
+    name: "layoutNested",
+    content: `<div class="bn-block-group" data-node-type="blockGroup">
   <div class="callout" data-flavor="warning" data-node-type="callout" data-id="1">
     <div class="callout-body" data-frame-slot="">
       <div class="bn-block-outer" data-node-type="blockOuter" data-id="2">
@@ -1168,30 +963,24 @@ l'utilisateur (bouton bleu en haut à droite de la conversation)<o:p></o:p></spa
     </div>
   </div>
 </div>`,
-    },
-    executeTest: testParseHTML,
   },
+  // An empty layout block children holder is filled to its schema minimum
+  // when parsed into a valid document.
   {
-    // An empty layout block children holder is filled to its schema minimum
-    // when parsed into a valid document.
-    testCase: {
-      name: "layoutEmptyChildren",
-      content: `<div class="bn-block-group" data-node-type="blockGroup">
+    name: "layoutEmptyChildren",
+    content: `<div class="bn-block-group" data-node-type="blockGroup">
   <div class="callout" data-node-type="callout" data-id="1">
     <div class="callout-body" data-frame-slot=""></div>
   </div>
 </div>`,
-    },
-    executeTest: testParseHTML,
   },
+  // Layout block HTML without the `data-frame-slot` marker our own
+  // serializers add: what a layout block looks like once it has been through
+  // another app, or has come from an older version. The parse rule has to
+  // fall back to reading the whole element as the children region.
   {
-    // Layout block HTML without the `data-frame-slot` marker our own
-    // serializers add: what a layout block looks like once it has been through
-    // another app, or has come from an older version. The parse rule has to
-    // fall back to reading the whole element as the children region.
-    testCase: {
-      name: "layoutExternalHTML",
-      content: `<div class="callout" data-flavor="warning" data-node-type="callout" data-id="1">
+    name: "layoutExternalHTML",
+    content: `<div class="callout" data-flavor="warning" data-node-type="callout" data-id="1">
   <div class="callout-body">
     <h1 data-nesting-level="1">Nested heading</h1>
     <div class="callout" data-flavor="info" data-node-type="callout" data-id="3" data-nesting-level="1">
@@ -1201,16 +990,13 @@ l'utilisateur (bouton bleu en haut à droite de la conversation)<o:p></o:p></spa
     </div>
   </div>
 </div>`,
-    },
-    executeTest: testParseHTML,
   },
+  // The internal (`blocksToFullHTML`) form of a titled block: the title in
+  // the block's own content, the body in its nested `blockGroup`. Parses
+  // back to the alert with its title and both children, in order.
   {
-    // The internal (`blocksToFullHTML`) form of a titled block: the title in
-    // the block's own content, the body in its nested `blockGroup`. Parses
-    // back to the alert with its title and both children, in order.
-    testCase: {
-      name: "titledBlock",
-      content: `<div class="bn-block-group" data-node-type="blockGroup">
+    name: "titledBlock",
+    content: `<div class="bn-block-group" data-node-type="blockGroup">
   <div class="bn-block-outer" data-node-type="blockOuter" data-id="1">
     <div class="bn-block" data-node-type="blockContainer" data-id="1">
       <div class="bn-block-content" data-content-type="alert">
@@ -1235,21 +1021,13 @@ l'utilisateur (bouton bleu en haut à droite de la conversation)<o:p></o:p></spa
     </div>
   </div>
 </div>`,
-    },
-    executeTest: testParseHTML,
   },
 ];
 
-export const parseTestInstancesMarkdown: TestInstance<
-  ParseTestCase,
-  TestBlockSchema,
-  TestInlineContentSchema,
-  TestStyleSchema
->[] = [
+export const markdownParseCases: ParseTestCase[] = [
   {
-    testCase: {
-      name: "basic",
-      content: `# Heading
+    name: "basic",
+    content: `# Heading
   
 Paragraph
 
@@ -1257,13 +1035,10 @@ Paragraph
 
 1.  Numbered List Item
 `,
-    },
-    executeTest: testParseMarkdown,
   },
   {
-    testCase: {
-      name: "nested",
-      content: `# Heading
+    name: "nested",
+    content: `# Heading
   
 Paragraph
 
@@ -1271,20 +1046,14 @@ Paragraph
 
     1.  Numbered List Item
 `,
-    },
-    executeTest: testParseMarkdown,
   },
   {
-    testCase: {
-      name: "styled",
-      content: `**Bold** *Italic* ~~Strikethrough~~ ***Multiple***`,
-    },
-    executeTest: testParseMarkdown,
+    name: "styled",
+    content: `**Bold** *Italic* ~~Strikethrough~~ ***Multiple***`,
   },
   {
-    testCase: {
-      name: "complex",
-      content: `# Heading 1
+    name: "complex",
+    content: `# Heading 1
 
 ## Heading 2
 
@@ -1331,33 +1100,24 @@ ___
     *   Bullet List Item
 
 *   Bullet List Item`,
-    },
-    executeTest: testParseMarkdown,
   },
   {
-    testCase: {
-      name: "boldWithWhitespace",
-      content: `hello **beautiful ** world`,
-    },
-    executeTest: testParseMarkdown,
+    name: "boldWithWhitespace",
+    content: `hello **beautiful ** world`,
   },
   {
-    testCase: {
-      name: "issue226case1",
-      content: `
+    name: "issue226case1",
+    content: `
 - 📝 item1
 - ⚙️ item2
 - 🔗 item3
 
 # h1
 `,
-    },
-    executeTest: testParseMarkdown,
   },
   {
-    testCase: {
-      name: "issue226case2",
-      content: `* a
+    name: "issue226case2",
+    content: `* a
 * b
 * c
 * d
@@ -1368,267 +1128,174 @@ anything
 
 * another
 * list`,
-    },
-    executeTest: testParseMarkdown,
   },
   {
-    testCase: {
-      name: "basicBlockquote",
-      content: `> This is a blockquote
+    name: "basicBlockquote",
+    content: `> This is a blockquote
 
 This is not a blockquote`,
-    },
-    executeTest: testParseMarkdown,
   },
   {
-    testCase: {
-      name: "twoBlockquotes",
-      content: `> First quote
+    name: "twoBlockquotes",
+    content: `> First quote
 
 > Second quote
 
 Regular paragraph`,
-    },
-    executeTest: testParseMarkdown,
   },
   {
-    testCase: {
-      name: "inlineContentInBlockquote",
-      content: `> **Bold** *Italic* ~~Strikethrough~~ ***Multiple***
+    name: "inlineContentInBlockquote",
+    content: `> **Bold** *Italic* ~~Strikethrough~~ ***Multiple***
 
 Regular paragraph`,
-    },
-    executeTest: testParseMarkdown,
   },
   {
-    testCase: {
-      name: "image",
-      content: `![Image](https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png)`,
-    },
-    executeTest: testParseMarkdown,
+    name: "image",
+    content: `![Image](https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png)`,
   },
   {
-    testCase: {
-      name: "video",
-      content: `![Video](https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm)`,
-    },
-    executeTest: testParseMarkdown,
+    name: "video",
+    content: `![Video](https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm)`,
   },
   // Individual heading levels
   {
-    testCase: {
-      name: "headingH1",
-      content: `# Heading 1`,
-    },
-    executeTest: testParseMarkdown,
+    name: "headingH1",
+    content: `# Heading 1`,
   },
   {
-    testCase: {
-      name: "headingH2",
-      content: `## Heading 2`,
-    },
-    executeTest: testParseMarkdown,
+    name: "headingH2",
+    content: `## Heading 2`,
   },
   {
-    testCase: {
-      name: "headingH3",
-      content: `### Heading 3`,
-    },
-    executeTest: testParseMarkdown,
+    name: "headingH3",
+    content: `### Heading 3`,
   },
   {
-    testCase: {
-      name: "headingH4",
-      content: `#### Heading 4`,
-    },
-    executeTest: testParseMarkdown,
+    name: "headingH4",
+    content: `#### Heading 4`,
   },
   {
-    testCase: {
-      name: "headingH5",
-      content: `##### Heading 5`,
-    },
-    executeTest: testParseMarkdown,
+    name: "headingH5",
+    content: `##### Heading 5`,
   },
   {
-    testCase: {
-      name: "headingH6",
-      content: `###### Heading 6`,
-    },
-    executeTest: testParseMarkdown,
+    name: "headingH6",
+    content: `###### Heading 6`,
   },
   {
-    testCase: {
-      name: "headingWithInlineStyles",
-      content: `# **Bold** *Italic* ~~Strike~~ Heading`,
-    },
-    executeTest: testParseMarkdown,
+    name: "headingWithInlineStyles",
+    content: `# **Bold** *Italic* ~~Strike~~ Heading`,
   },
   // Setext headings
   {
-    testCase: {
-      name: "setextH1",
-      content: `Heading 1
+    name: "setextH1",
+    content: `Heading 1
 ===`,
-    },
-    executeTest: testParseMarkdown,
   },
   {
-    testCase: {
-      name: "setextH2",
-      content: `Heading 2
+    name: "setextH2",
+    content: `Heading 2
 ---`,
-    },
-    executeTest: testParseMarkdown,
   },
   // Code blocks
   {
-    testCase: {
-      name: "codeBlockBasic",
-      content: `\`\`\`
+    name: "codeBlockBasic",
+    content: `\`\`\`
 console.log('Hello');
 \`\`\``,
-    },
-    executeTest: testParseMarkdown,
   },
   {
-    testCase: {
-      name: "codeBlockWithLanguage",
-      content: `\`\`\`javascript
+    name: "codeBlockWithLanguage",
+    content: `\`\`\`javascript
 const x = 42;
 console.log(x);
 \`\`\``,
-    },
-    executeTest: testParseMarkdown,
   },
   {
-    testCase: {
-      name: "codeBlockPython",
-      content: `\`\`\`python
+    name: "codeBlockPython",
+    content: `\`\`\`python
 def hello():
     print("Hello, world!")
 \`\`\``,
-    },
-    executeTest: testParseMarkdown,
   },
   {
-    testCase: {
-      name: "codeBlockWithSpecialChars",
-      content: `\`\`\`html
+    name: "codeBlockWithSpecialChars",
+    content: `\`\`\`html
 <div class="test">
   <p>Hello **not bold**</p>
 </div>
 \`\`\``,
-    },
-    executeTest: testParseMarkdown,
   },
   {
-    testCase: {
-      name: "codeBlockTildes",
-      content: `~~~
+    name: "codeBlockTildes",
+    content: `~~~
 code with tildes
 ~~~`,
-    },
-    executeTest: testParseMarkdown,
   },
   // Horizontal rules
   {
-    testCase: {
-      name: "horizontalRuleDashes",
-      content: `Paragraph above
+    name: "horizontalRuleDashes",
+    content: `Paragraph above
 
 ---
 
 Paragraph below`,
-    },
-    executeTest: testParseMarkdown,
   },
   {
-    testCase: {
-      name: "horizontalRuleAsterisks",
-      content: `Paragraph above
+    name: "horizontalRuleAsterisks",
+    content: `Paragraph above
 
 ***
 
 Paragraph below`,
-    },
-    executeTest: testParseMarkdown,
   },
   {
-    testCase: {
-      name: "horizontalRuleUnderscores",
-      content: `Paragraph above
+    name: "horizontalRuleUnderscores",
+    content: `Paragraph above
 
 ___
 
 Paragraph below`,
-    },
-    executeTest: testParseMarkdown,
   },
   // Inline code
   {
-    testCase: {
-      name: "inlineCode",
-      content: `This has \`inline code\` in it`,
-    },
-    executeTest: testParseMarkdown,
+    name: "inlineCode",
+    content: `This has \`inline code\` in it`,
   },
   {
-    testCase: {
-      name: "inlineCodeWithSpecialChars",
-      content: `Use \`const x = 42;\` to declare`,
-    },
-    executeTest: testParseMarkdown,
+    name: "inlineCodeWithSpecialChars",
+    content: `Use \`const x = 42;\` to declare`,
   },
   // Links
   {
-    testCase: {
-      name: "linkBasic",
-      content: `[Example](https://example.com)`,
-    },
-    executeTest: testParseMarkdown,
+    name: "linkBasic",
+    content: `[Example](https://example.com)`,
   },
   {
-    testCase: {
-      name: "linkInParagraph",
-      content: `Check out [this link](https://example.com) for more info.`,
-    },
-    executeTest: testParseMarkdown,
+    name: "linkInParagraph",
+    content: `Check out [this link](https://example.com) for more info.`,
   },
   {
-    testCase: {
-      name: "linkWithStyledContent",
-      content: `[**Bold link**](https://example.com)`,
-    },
-    executeTest: testParseMarkdown,
+    name: "linkWithStyledContent",
+    content: `[**Bold link**](https://example.com)`,
   },
   {
-    testCase: {
-      name: "adjacentLinks",
-      content: `[Link1](https://example1.com)[Link2](https://example2.com)`,
-    },
-    executeTest: testParseMarkdown,
+    name: "adjacentLinks",
+    content: `[Link1](https://example1.com)[Link2](https://example2.com)`,
   },
   {
-    testCase: {
-      name: "linkAndText",
-      content: `Before [Link](https://example.com) after`,
-    },
-    executeTest: testParseMarkdown,
+    name: "linkAndText",
+    content: `Before [Link](https://example.com) after`,
   },
   {
-    testCase: {
-      name: "linkCommonMarkAutolink",
-      content: `Visit <https://example.com/path?q=1>
+    name: "linkCommonMarkAutolink",
+    content: `Visit <https://example.com/path?q=1>
 
 Invalid email domains stay plain: <a@b..c>`,
-    },
-    executeTest: testParseMarkdown,
   },
   {
-    testCase: {
-      name: "linkGfmAutolinkLiterals",
-      content: `Visit https://example.com/path?q=1 or www.example.com.
+    name: "linkGfmAutolinkLiterals",
+    content: `Visit https://example.com/path?q=1 or www.example.com.
 
 Balanced parentheses stay linked: https://example.com/a(b)))
 
@@ -1637,332 +1304,221 @@ Entity suffix stays plain: https://example.com&copy;
 Editor-compatible detection: https://invalid
 
 Invalid schemeless domains stay plain: www.invalid_domain.com`,
-    },
-    executeTest: testParseMarkdown,
   },
   {
-    testCase: {
-      name: "linkWithFormattedAutolinkText",
-      content: `[**https://example.com**](https://destination.com)`,
-    },
-    executeTest: testParseMarkdown,
+    name: "linkWithFormattedAutolinkText",
+    content: `[**https://example.com**](https://destination.com)`,
   },
   // Tables
   {
-    testCase: {
-      name: "tableBasic",
-      content: `| Header 1 | Header 2 |
+    name: "tableBasic",
+    content: `| Header 1 | Header 2 |
 | -------- | -------- |
 | Cell 1   | Cell 2   |
 | Cell 3   | Cell 4   |`,
-    },
-    executeTest: testParseMarkdown,
   },
   {
-    testCase: {
-      name: "tableThreeColumns",
-      content: `| A | B | C |
+    name: "tableThreeColumns",
+    content: `| A | B | C |
 | - | - | - |
 | 1 | 2 | 3 |`,
-    },
-    executeTest: testParseMarkdown,
   },
   {
-    testCase: {
-      name: "tableWithInlineFormatting",
-      content: `| Header | Styled |
+    name: "tableWithInlineFormatting",
+    content: `| Header | Styled |
 | ------ | ------ |
 | Normal | **Bold** |
 | *Italic* | ~~Strike~~ |`,
-    },
-    executeTest: testParseMarkdown,
   },
   {
-    testCase: {
-      name: "tableWithLinks",
-      content: `| Name | Link |
+    name: "tableWithLinks",
+    content: `| Name | Link |
 | ---- | ---- |
 | Example | [Click](https://example.com) |`,
-    },
-    executeTest: testParseMarkdown,
   },
   {
-    testCase: {
-      name: "tableAlignment",
-      content: `| Left | Center | Right |
+    name: "tableAlignment",
+    content: `| Left | Center | Right |
 | :--- | :----: | ----: |
 | L    | C      | R     |`,
-    },
-    executeTest: testParseMarkdown,
   },
   // Task lists / check lists
   {
-    testCase: {
-      name: "checkListBasic",
-      content: `- [ ] Unchecked item
+    name: "checkListBasic",
+    content: `- [ ] Unchecked item
 - [x] Checked item
 - [ ] Another unchecked`,
-    },
-    executeTest: testParseMarkdown,
   },
   {
-    testCase: {
-      name: "checkListMixed",
-      content: `- Regular bullet
+    name: "checkListMixed",
+    content: `- Regular bullet
 - [ ] Check item
 - [x] Checked item`,
-    },
-    executeTest: testParseMarkdown,
   },
   {
-    testCase: {
-      name: "checkListNested",
-      content: `- [ ] Parent item
+    name: "checkListNested",
+    content: `- [ ] Parent item
   - [x] Child checked
   - [ ] Child unchecked`,
-    },
-    executeTest: testParseMarkdown,
   },
   // A list item whose first block is a `<details>` toggle. The toggle's text
   // becomes the list item's content, and its children stay nested under it.
   {
-    testCase: {
-      name: "numberedListItemStartsWithDetails",
-      content: `1. <details>`,
-    },
-    executeTest: testParseMarkdown,
+    name: "numberedListItemStartsWithDetails",
+    content: `1. <details>`,
   },
   {
-    testCase: {
-      name: "checkListItemStartsWithDetails",
-      content: `- [ ] <details>`,
-    },
-    executeTest: testParseMarkdown,
+    name: "checkListItemStartsWithDetails",
+    content: `- [ ] <details>`,
   },
   {
-    testCase: {
-      name: "numberedListItemStartsWithDetailsAndBody",
-      content: `1. <details>
+    name: "numberedListItemStartsWithDetailsAndBody",
+    content: `1. <details>
    <summary>Summary</summary>
    Body
    </details>`,
-    },
-    executeTest: testParseMarkdown,
   },
   // Ordered list with start number
   {
-    testCase: {
-      name: "orderedListStart",
-      content: `3. Third item
+    name: "orderedListStart",
+    content: `3. Third item
 4. Fourth item
 5. Fifth item`,
-    },
-    executeTest: testParseMarkdown,
   },
   // Hard breaks
   {
-    testCase: {
-      name: "hardBreakBackslash",
-      content: `Line one\\
+    name: "hardBreakBackslash",
+    content: `Line one\\
 Line two`,
-    },
-    executeTest: testParseMarkdown,
   },
   {
-    testCase: {
-      name: "hardBreakMultiple",
-      content: `Line one\\
+    name: "hardBreakMultiple",
+    content: `Line one\\
 Line two\\
 Line three`,
-    },
-    executeTest: testParseMarkdown,
   },
   // Backslash escapes
   {
-    testCase: {
-      name: "backslashEscapes",
-      content: `\\*not bold\\* \\[not a link\\] \\~not strike\\~`,
-    },
-    executeTest: testParseMarkdown,
+    name: "backslashEscapes",
+    content: `\\*not bold\\* \\[not a link\\] \\~not strike\\~`,
   },
   // Escaped delimiter inside emphasis
   {
-    testCase: {
-      name: "escapedDelimiterInEmphasis",
-      content: `*\\**`,
-    },
-    executeTest: testParseMarkdown,
+    name: "escapedDelimiterInEmphasis",
+    content: `*\\**`,
   },
   // Nested emphasis
   {
-    testCase: {
-      name: "nestedEmphasis",
-      content: `***bold and italic***`,
-    },
-    executeTest: testParseMarkdown,
+    name: "nestedEmphasis",
+    content: `***bold and italic***`,
   },
   {
-    testCase: {
-      name: "nestedEmphasisComplex",
-      content: `**bold *bold and italic* bold**`,
-    },
-    executeTest: testParseMarkdown,
+    name: "nestedEmphasisComplex",
+    content: `**bold *bold and italic* bold**`,
   },
   // Individual styles
   {
-    testCase: {
-      name: "boldOnly",
-      content: `**Bold text**`,
-    },
-    executeTest: testParseMarkdown,
+    name: "boldOnly",
+    content: `**Bold text**`,
   },
   {
-    testCase: {
-      name: "italicOnly",
-      content: `*Italic text*`,
-    },
-    executeTest: testParseMarkdown,
+    name: "italicOnly",
+    content: `*Italic text*`,
   },
   {
-    testCase: {
-      name: "strikethroughOnly",
-      content: `~~Strikethrough text~~`,
-    },
-    executeTest: testParseMarkdown,
+    name: "strikethroughOnly",
+    content: `~~Strikethrough text~~`,
   },
   {
-    testCase: {
-      name: "boldUnderscore",
-      content: `__Bold with underscores__`,
-    },
-    executeTest: testParseMarkdown,
+    name: "boldUnderscore",
+    content: `__Bold with underscores__`,
   },
   {
-    testCase: {
-      name: "italicUnderscore",
-      content: `_Italic with underscores_`,
-    },
-    executeTest: testParseMarkdown,
+    name: "italicUnderscore",
+    content: `_Italic with underscores_`,
   },
   // Mixed inline content
   {
-    testCase: {
-      name: "mixedInlineContent",
-      content: `Normal **bold** *italic* ~~strike~~ \`code\` [link](https://example.com)`,
-    },
-    executeTest: testParseMarkdown,
+    name: "mixedInlineContent",
+    content: `Normal **bold** *italic* ~~strike~~ \`code\` [link](https://example.com)`,
   },
   // Multiple paragraphs
   {
-    testCase: {
-      name: "multipleParagraphs",
-      content: `First paragraph
+    name: "multipleParagraphs",
+    content: `First paragraph
 
 Second paragraph
 
 Third paragraph`,
-    },
-    executeTest: testParseMarkdown,
   },
   // Empty content
   {
-    testCase: {
-      name: "emptyString",
-      content: ``,
-    },
-    executeTest: testParseMarkdown,
+    name: "emptyString",
+    content: ``,
   },
   {
-    testCase: {
-      name: "onlyWhitespace",
-      content: `
+    name: "onlyWhitespace",
+    content: `
 
    `,
-    },
-    executeTest: testParseMarkdown,
   },
   // Line breaks
   {
-    testCase: {
-      name: "lineBreaks",
-      content: `Line one
+    name: "lineBreaks",
+    content: `Line one
 Line two
 Line three`,
-    },
-    executeTest: testParseMarkdown,
   },
   // Nested lists - complex
   {
-    testCase: {
-      name: "nestedBulletLists",
-      content: `- Item 1
+    name: "nestedBulletLists",
+    content: `- Item 1
   - Nested 1
     - Deep nested
   - Nested 2
 - Item 2`,
-    },
-    executeTest: testParseMarkdown,
   },
   {
-    testCase: {
-      name: "nestedOrderedLists",
-      content: `1. First
+    name: "nestedOrderedLists",
+    content: `1. First
    1. Sub first
    2. Sub second
 2. Second`,
-    },
-    executeTest: testParseMarkdown,
   },
   {
-    testCase: {
-      name: "mixedListTypes",
-      content: `- Bullet item
+    name: "mixedListTypes",
+    content: `- Bullet item
   1. Numbered child
   2. Another numbered
 - Another bullet
   - [ ] Check child`,
-    },
-    executeTest: testParseMarkdown,
   },
   // Blockquote with multiple blocks
   {
-    testCase: {
-      name: "blockquoteMultiline",
-      content: `> Line one
+    name: "blockquoteMultiline",
+    content: `> Line one
 > Line two
 > Line three`,
-    },
-    executeTest: testParseMarkdown,
   },
   {
-    testCase: {
-      name: "blockquoteWithCode",
-      content: `> Quote with \`inline code\` inside`,
-    },
-    executeTest: testParseMarkdown,
+    name: "blockquoteWithCode",
+    content: `> Quote with \`inline code\` inside`,
   },
   {
-    testCase: {
-      name: "blockquoteWithLink",
-      content: `> Quote with [a link](https://example.com) inside`,
-    },
-    executeTest: testParseMarkdown,
+    name: "blockquoteWithLink",
+    content: `> Quote with [a link](https://example.com) inside`,
   },
   // Blockquote with lazy continuation (no > on continuation lines)
   {
-    testCase: {
-      name: "blockquoteLazyContinuation",
-      content: `> This is a quote
+    name: "blockquoteLazyContinuation",
+    content: `> This is a quote
 that continues here
 and here too`,
-    },
-    executeTest: testParseMarkdown,
   },
   // Complex document
   {
-    testCase: {
-      name: "complexDocument",
-      content: `# Main Title
+    name: "complexDocument",
+    content: `# Main Title
 
 An introduction paragraph with **bold** and *italic* text.
 
@@ -1998,244 +1554,164 @@ function hello() {
 ![Image](https://example.com/image.png)
 
 Final paragraph with [a link](https://example.com).`,
-    },
-    executeTest: testParseMarkdown,
   },
   // Image with alt text
   {
-    testCase: {
-      name: "imageWithAlt",
-      content: `![Alt text for image](https://example.com/photo.jpg)`,
-    },
-    executeTest: testParseMarkdown,
+    name: "imageWithAlt",
+    content: `![Alt text for image](https://example.com/photo.jpg)`,
   },
   // Multiple images
   {
-    testCase: {
-      name: "multipleImages",
-      content: `![First](https://example.com/first.png)
+    name: "multipleImages",
+    content: `![First](https://example.com/first.png)
 
 ![Second](https://example.com/second.png)`,
-    },
-    executeTest: testParseMarkdown,
   },
   // Inline image within text (should be handled)
   {
-    testCase: {
-      name: "inlineImage",
-      content: `Text before ![inline](https://example.com/img.png) text after`,
-    },
-    executeTest: testParseMarkdown,
+    name: "inlineImage",
+    content: `Text before ![inline](https://example.com/img.png) text after`,
   },
   // Code block immediately after heading
   {
-    testCase: {
-      name: "headingThenCode",
-      content: `## Code Section
+    name: "headingThenCode",
+    content: `## Code Section
 
 \`\`\`python
 x = 42
 \`\`\``,
-    },
-    executeTest: testParseMarkdown,
   },
   // List with styled items
   {
-    testCase: {
-      name: "listWithStyledItems",
-      content: `- **Bold item**
+    name: "listWithStyledItems",
+    content: `- **Bold item**
 - *Italic item*
 - ~~Strikethrough item~~
 - Item with \`code\``,
-    },
-    executeTest: testParseMarkdown,
   },
   // Deeply nested lists
   {
-    testCase: {
-      name: "deeplyNestedLists",
-      content: `- Level 1
+    name: "deeplyNestedLists",
+    content: `- Level 1
   - Level 2
     - Level 3
       - Level 4`,
-    },
-    executeTest: testParseMarkdown,
   },
   // Table followed by paragraph
   {
-    testCase: {
-      name: "tableFollowedByParagraph",
-      content: `| Col 1 | Col 2 |
+    name: "tableFollowedByParagraph",
+    content: `| Col 1 | Col 2 |
 | ----- | ----- |
 | A     | B     |
 
 Paragraph after table`,
-    },
-    executeTest: testParseMarkdown,
   },
   // Paragraphs with various inline formatting
   {
-    testCase: {
-      name: "adjacentFormattedRuns",
-      content: `**bold***italic*~~strike~~`,
-    },
-    executeTest: testParseMarkdown,
+    name: "adjacentFormattedRuns",
+    content: `**bold***italic*~~strike~~`,
   },
   // Table without outer pipes (GFM allows optional outer pipes)
   {
-    testCase: {
-      name: "tablePipeless",
-      content: `Col 1 | Col 2
+    name: "tablePipeless",
+    content: `Col 1 | Col 2
 ----- | -----
 A     | B`,
-    },
-    executeTest: testParseMarkdown,
   },
   // Indented fenced code block (up to 3 leading spaces per CommonMark)
   {
-    testCase: {
-      name: "codeBlockIndented",
-      content: `   \`\`\`ts
+    name: "codeBlockIndented",
+    content: `   \`\`\`ts
 const x = 1;
    \`\`\``,
-    },
-    executeTest: testParseMarkdown,
   },
   // Link with title (title should not appear in href)
   {
-    testCase: {
-      name: "linkWithTitle",
-      content: `[example](https://example.com "Example Site")`,
-    },
-    executeTest: testParseMarkdown,
+    name: "linkWithTitle",
+    content: `[example](https://example.com "Example Site")`,
   },
   // Image with nested brackets in alt text
   {
-    testCase: {
-      name: "imageNestedBracketsAlt",
-      content: `![alt [with] brackets](https://example.com/image.png)`,
-    },
-    executeTest: testParseMarkdown,
+    name: "imageNestedBracketsAlt",
+    content: `![alt [with] brackets](https://example.com/image.png)`,
   },
   // Inline raw HTML tag inside a paragraph passes through verbatim
   {
-    testCase: {
-      name: "inlineHtmlTag",
-      content: `Hello <em>world</em>!`,
-    },
-    executeTest: testParseMarkdown,
+    name: "inlineHtmlTag",
+    content: `Hello <em>world</em>!`,
   },
   // Multiple inline HTML tags with attributes
   {
-    testCase: {
-      name: "inlineHtmlWithAttributes",
-      content: `Text with <strong>bold</strong> and <a href="https://example.com">link</a>.`,
-    },
-    executeTest: testParseMarkdown,
+    name: "inlineHtmlWithAttributes",
+    content: `Text with <strong>bold</strong> and <a href="https://example.com">link</a>.`,
   },
   // A self-closing-style void HTML tag inside a paragraph
   {
-    testCase: {
-      name: "inlineHtmlVoidTag",
-      content: `Line one<br>line two.`,
-    },
-    executeTest: testParseMarkdown,
+    name: "inlineHtmlVoidTag",
+    content: `Line one<br>line two.`,
   },
   // Block-level raw HTML is emitted verbatim — not wrapped in <p>
   {
-    testCase: {
-      name: "blockHtmlDiv",
-      content: `<div class="warn">
+    name: "blockHtmlDiv",
+    content: `<div class="warn">
 A warning block.
 </div>`,
-    },
-    executeTest: testParseMarkdown,
   },
   // Block-level HTML comment
   {
-    testCase: {
-      name: "blockHtmlComment",
-      content: `<!-- a comment -->
+    name: "blockHtmlComment",
+    content: `<!-- a comment -->
 
 Next paragraph.`,
-    },
-    executeTest: testParseMarkdown,
   },
   // Bare angle brackets that don't form a valid tag must still be escaped
   {
-    testCase: {
-      name: "bareAngleBrackets",
-      content: `1 < 2 and 3 > 0`,
-    },
-    executeTest: testParseMarkdown,
+    name: "bareAngleBrackets",
+    content: `1 < 2 and 3 > 0`,
   },
   // Block HTML interrupting a paragraph above it
   {
-    testCase: {
-      name: "blockHtmlInterruptsParagraph",
-      content: `Some text before.
+    name: "blockHtmlInterruptsParagraph",
+    content: `Some text before.
 <div>raw block</div>
 Some text after.`,
-    },
-    executeTest: testParseMarkdown,
   },
   // Hard line break via two trailing spaces (CommonMark ex. 633)
   {
-    testCase: {
-      name: "hardBreakTwoSpaces",
-      content: `Line one  \nLine two`,
-    },
-    executeTest: testParseMarkdown,
+    name: "hardBreakTwoSpaces",
+    content: `Line one  \nLine two`,
   },
   // ATX heading: closing #'s and trailing whitespace are stripped (ex. 73)
   {
-    testCase: {
-      name: "headingTrailingWhitespace",
-      content: `### foo ###     `,
-    },
-    executeTest: testParseMarkdown,
+    name: "headingTrailingWhitespace",
+    content: `### foo ###     `,
   },
   // ATX heading: lots of internal padding still produces a clean heading (ex. 67)
   {
-    testCase: {
-      name: "headingInternalPadding",
-      content: `#                  foo                     `,
-    },
-    executeTest: testParseMarkdown,
+    name: "headingInternalPadding",
+    content: `#                  foo                     `,
   },
   // Code span with internal newline collapses to space (CommonMark ex. 337)
   {
-    testCase: {
-      name: "codeSpanWithNewline",
-      content: "`foo   bar \nbaz`",
-    },
-    executeTest: testParseMarkdown,
+    name: "codeSpanWithNewline",
+    content: "`foo   bar \nbaz`",
   },
   // Image with title attribute (CommonMark ex. 572). The title is parsed
   // even if the BlockNote image block doesn't surface it as a prop —
   // the point is to not leak `"title"` into the alt or src.
   {
-    testCase: {
-      name: "imageWithTitle",
-      content: `![alt text](https://example.com/image.png "An image title")`,
-    },
-    executeTest: testParseMarkdown,
+    name: "imageWithTitle",
+    content: `![alt text](https://example.com/image.png "An image title")`,
   },
   // Angle-bracket-wrapped image URL — brackets are stripped (ex. 580)
   {
-    testCase: {
-      name: "imageAngleBracketUrl",
-      content: `![alt](<https://example.com/image.png>)`,
-    },
-    executeTest: testParseMarkdown,
+    name: "imageAngleBracketUrl",
+    content: `![alt](<https://example.com/image.png>)`,
   },
   // Paragraph lines with up to 3 leading spaces of indent are still a
   // paragraph; the indent is stripped (CommonMark ex. 222)
   {
-    testCase: {
-      name: "paragraphLeadingIndent",
-      content: `  aaa\n bbb`,
-    },
-    executeTest: testParseMarkdown,
+    name: "paragraphLeadingIndent",
+    content: `  aaa\n bbb`,
   },
 ];

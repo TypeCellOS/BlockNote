@@ -39,13 +39,10 @@ export default defineConfig(
         exclude: [...configDefaults.exclude, "**/*.browser.test.*"],
         // Preserve Vitest 4 mock history during the toolchain upgrade.
         clearMocks: false,
-        environment: "jsdom",
+        // Reuse the editor module graph within each worker.
+        isolate: false,
         setupFiles: ["./vitestSetup.ts", "./vitestSetup.node-fixtures.ts"],
-        include: [
-          "./src/unit/**/*.test.ts",
-          "./src/unit/**/*.test.tsx",
-          "../examples/07-collaboration/12-multi-doc-versioning/src/*.test.ts",
-        ],
+        include: ["./src/unit/**/*.test.?(c|m)[jt]s?(x)"],
       },
       resolve: {
         alias:

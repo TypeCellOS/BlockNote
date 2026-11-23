@@ -7,7 +7,6 @@ import {
 import { expect } from "vite-plus/test";
 
 import { initTestEditor } from "../../testUtil.js";
-import { doPaste } from "../clipboardTestUtil.js";
 import { PasteTestCase } from "./pasteTestCase.js";
 
 export const testPasteHTML = async <
@@ -20,13 +19,7 @@ export const testPasteHTML = async <
 ) => {
   initTestEditor(editor, testCase.document, testCase.getPasteSelection);
 
-  doPaste(
-    editor.prosemirrorView,
-    "",
-    testCase.content,
-    false,
-    new ClipboardEvent("paste"),
-  );
+  editor.pasteHTML(testCase.content, true);
 
   await expect(editor.document).toMatchFileSnapshot(
     `./__snapshots__/text/html/${testCase.name}.json`,
@@ -43,13 +36,7 @@ export const testPasteMarkdown = async <
 ) => {
   initTestEditor(editor, testCase.document, testCase.getPasteSelection);
 
-  doPaste(
-    editor.prosemirrorView,
-    testCase.content,
-    "",
-    true,
-    new ClipboardEvent("paste"),
-  );
+  editor.pasteText(testCase.content);
 
   await expect(editor.document).toMatchFileSnapshot(
     `./__snapshots__/text/plain/${testCase.name}.json`,

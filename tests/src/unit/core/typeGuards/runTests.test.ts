@@ -1,132 +1,128 @@
-import { BlockNoteEditor, editorHasBlockWithType } from "@blocknote/core";
-import { describe, expect, it } from "vite-plus/test";
+import { editorHasBlockWithType } from "@blocknote/core";
+import { describe, expect } from "vite-plus/test";
+import type {} from "../../../../vitestSetup.node-fixtures.js";
 
-import { createTestEditor } from "../createTestEditor.js";
-import { testSchema } from "../testSchema.js";
+import { useFileTestEditor } from "../testEditorOptions.js";
+
+const it = useFileTestEditor();
 
 // Tests for verifying that type guards which check if an editor's schema
 // contains a block (and its props) are working correctly.
 describe("Editor block schema type guard tests", () => {
-  const getEditor = createTestEditor(testSchema) as () => BlockNoteEditor<
-    any,
-    any,
-    any
-  >;
-
-  it("blockType", () => {
-    expect(editorHasBlockWithType(getEditor(), "heading")).toBeTruthy();
+  it("blockType", ({ editor }) => {
+    expect(editorHasBlockWithType(editor, "heading")).toBeTruthy();
   });
 
-  it("blockTypeInvalid", () => {
-    expect(editorHasBlockWithType(getEditor(), "embed")).toBeFalsy();
+  it("blockTypeInvalid", ({ editor }) => {
+    expect(editorHasBlockWithType(editor, "embed")).toBeFalsy();
   });
 
-  it("blockWithPropTypes", () => {
+  it("blockWithPropTypes", ({ editor }) => {
     expect(
-      editorHasBlockWithType(getEditor(), "heading", {
+      editorHasBlockWithType(editor, "heading", {
         level: "number",
         textColor: "string",
       }),
     ).toBeTruthy();
   });
 
-  it("blockWithPropTypesInvalidType", () => {
+  it("blockWithPropTypesInvalidType", ({ editor }) => {
     expect(
-      editorHasBlockWithType(getEditor(), "heading", {
+      editorHasBlockWithType(editor, "heading", {
         level: "number",
         textColor: "number",
       }),
     ).toBeFalsy();
   });
 
-  it("blockWithPropSchema", () => {
+  it("blockWithPropSchema", ({ editor }) => {
     expect(
-      editorHasBlockWithType(getEditor(), "heading", {
+      editorHasBlockWithType(editor, "heading", {
         level: { default: 1, values: [1, 2, 3] },
         textColor: { default: "default" },
       }),
     ).toBeTruthy();
   });
 
-  it("blockWithPropSchemaInvalidType", () => {
+  it("blockWithPropSchemaInvalidType", ({ editor }) => {
     expect(
-      editorHasBlockWithType(getEditor(), "heading", {
+      editorHasBlockWithType(editor, "heading", {
         level: { default: 1, values: [1, 2, 3] },
         textColor: { default: 1 },
       }),
     ).toBeFalsy();
   });
 
-  it("blockWithPropSchemaInvalidValues", () => {
+  it("blockWithPropSchemaInvalidValues", ({ editor }) => {
     expect(
-      editorHasBlockWithType(getEditor(), "heading", {
+      editorHasBlockWithType(editor, "heading", {
         level: { default: 1, values: [1, 2, 3, 4, 5, 6, 7] },
         textColor: { default: "default" },
       }),
     ).toBeFalsy();
   });
 
-  it("blockWithPropTypesUndefinedDefault", () => {
+  it("blockWithPropTypesUndefinedDefault", ({ editor }) => {
     expect(
-      editorHasBlockWithType(getEditor(), "numberedListItem", {
+      editorHasBlockWithType(editor, "numberedListItem", {
         start: "number",
         textColor: "string",
       }),
     ).toBeTruthy();
   });
 
-  it("blockWithPropSchemaUndefinedDefaultInvalidType", () => {
+  it("blockWithPropSchemaUndefinedDefaultInvalidType", ({ editor }) => {
     expect(
-      editorHasBlockWithType(getEditor(), "numberedListItem", {
+      editorHasBlockWithType(editor, "numberedListItem", {
         start: "string",
         textColor: "string",
       }),
     ).toBeFalsy();
   });
 
-  it("customBlockType", () => {
-    expect(editorHasBlockWithType(getEditor(), "simpleImage")).toBeTruthy();
+  it("customBlockType", ({ editor }) => {
+    expect(editorHasBlockWithType(editor, "simpleImage")).toBeTruthy();
   });
 
-  it("customBlockWithPropTypes", () => {
+  it("customBlockWithPropTypes", ({ editor }) => {
     expect(
-      editorHasBlockWithType(getEditor(), "simpleImage", {
+      editorHasBlockWithType(editor, "simpleImage", {
         name: "string",
         url: "string",
       }),
     ).toBeTruthy();
   });
 
-  it("customBlockWithPropTypesInvalidType", () => {
+  it("customBlockWithPropTypesInvalidType", ({ editor }) => {
     expect(
-      editorHasBlockWithType(getEditor(), "simpleImage", {
+      editorHasBlockWithType(editor, "simpleImage", {
         name: "string",
         url: "number",
       }),
     ).toBeFalsy();
   });
 
-  it("customBlockWithPropSchema", () => {
+  it("customBlockWithPropSchema", ({ editor }) => {
     expect(
-      editorHasBlockWithType(getEditor(), "simpleImage", {
+      editorHasBlockWithType(editor, "simpleImage", {
         name: { default: "" },
         url: { default: "" },
       }),
     ).toBeTruthy();
   });
 
-  it("customBlockWithPropSchemaInvalidType", () => {
+  it("customBlockWithPropSchemaInvalidType", ({ editor }) => {
     expect(
-      editorHasBlockWithType(getEditor(), "simpleImage", {
+      editorHasBlockWithType(editor, "simpleImage", {
         name: { default: false },
         url: { default: "" },
       }),
     ).toBeFalsy();
   });
 
-  it("customBlockWithPropSchemaInvalidValues", () => {
+  it("customBlockWithPropSchemaInvalidValues", ({ editor }) => {
     expect(
-      editorHasBlockWithType(getEditor(), "simpleImage", {
+      editorHasBlockWithType(editor, "simpleImage", {
         name: { default: "", values: ["image", "photo"] },
         url: { default: "" },
       }),
