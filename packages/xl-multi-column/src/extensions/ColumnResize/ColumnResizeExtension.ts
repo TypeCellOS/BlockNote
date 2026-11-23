@@ -113,6 +113,7 @@ function refreshColumnState(state: ColumnState, doc: Node): ColumnState {
 class ColumnResizePluginView implements PluginView {
   editor: BlockNoteEditor<any, any, any>;
   view: EditorView;
+  private resizePointerDown = false;
 
   readonly RESIZE_MARGIN_WIDTH_PX = 20;
   readonly COLUMN_MIN_WIDTH_PERCENT = 0.5;
@@ -283,6 +284,7 @@ class ColumnResizePluginView implements PluginView {
       this.view.state.tr.setMeta(columnResizePluginKey, newState),
     );
 
+    this.resizePointerDown = true;
     this.editor.getExtension(SideMenuExtension)?.freezeMenu();
   };
 
@@ -417,19 +419,21 @@ class ColumnResizePluginView implements PluginView {
   // or hover, depending on where the mouse cursor is, when the user
   // releases the mouse button.
   mouseUpHandler = (event: MouseEvent) => {
-    const pluginState = columnResizePluginKey.getState(this.view.state);
-    if (!pluginState || pluginState.type !== "resize") {
+    if (!this.resizePointerDown) {
       return;
     }
+    this.resizePointerDown = false;
 
-    const newState = this.getColumnHoverOrDefaultState(event);
+    if (columnResizePluginKey.getState(this.view.state)?.type === "resize") {
+      this.view.dispatch(
+        this.view.state.tr.setMeta(
+          columnResizePluginKey,
+          this.getColumnHoverOrDefaultState(event),
+        ),
+      );
+    }
 
-    // Revert plugin state to default or hover, depending on where the mouse
-    // cursor is.
-    this.view.dispatch(
-      this.view.state.tr.setMeta(columnResizePluginKey, newState),
-    );
-
+    // Document edits can cancel the resize state before the pointer is released.
     this.editor.getExtension(SideMenuExtension)?.unfreezeMenu();
   };
 
