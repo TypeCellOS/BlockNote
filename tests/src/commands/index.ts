@@ -42,6 +42,9 @@ export const commands: Required<
   restoreTouchEmulation: async ({}, use) => {
     await use(nodeCommands.restoreTouchEmulation);
   },
+  mockVersioningMedia: async ({}, use) => {
+    await use(nodeCommands.mockVersioningMedia);
+  },
   focusUntil: async ({}, use) => {
     await use(browserCommands.focusUntil);
   },
