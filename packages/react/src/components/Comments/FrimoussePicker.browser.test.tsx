@@ -3,8 +3,11 @@ import { flushSync } from "react-dom";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, expect, it, vi } from "vite-plus/test";
 
-import "../../editor/styles.css";
+import { useBrowserSuiteStyles } from "../../../../../tests/src/commands/browser/useBrowserSuiteStyles.js";
+import pickerStyles from "../../editor/styles.css?inline";
 import FrimoussePicker from "./FrimoussePicker.js";
+
+useBrowserSuiteStyles(pickerStyles);
 
 let host: HTMLFormElement;
 let root: Root;

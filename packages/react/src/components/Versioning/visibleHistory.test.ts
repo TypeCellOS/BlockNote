@@ -1,4 +1,3 @@
-// @vitest-environment node
 import { expect, it } from "vite-plus/test";
 import type { VersioningState } from "@blocknote/core/extensions";
 import {

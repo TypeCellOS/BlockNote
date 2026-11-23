@@ -1,4 +1,3 @@
-// @vitest-environment node
 import { createElement } from "react";
 import { renderToString } from "react-dom/server";
 import { expect, test } from "vite-plus/test";

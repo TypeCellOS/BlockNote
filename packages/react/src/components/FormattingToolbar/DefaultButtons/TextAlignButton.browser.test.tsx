@@ -1,7 +1,8 @@
+import { CellSelection } from "@tiptap/pm/tables";
 import { describe, expect } from "vite-plus/test";
 import { TextAlignButton } from "./TextAlignButton.js";
 import { FormattingToolbar } from "../FormattingToolbar.js";
-import { CellSelection } from "@tiptap/pm/tables";
+import { viewProps } from "./defaultButton.test.fixture.js";
 
 describe("TextAlignButton", () => {
   describe("unit", () => {
@@ -14,7 +15,7 @@ describe("TextAlignButton", () => {
           { id: "text", type: "paragraph", content: "Text" },
           { id: "divider", type: "divider" },
         ],
-        props: { editable: false, formattingToolbar: false },
+        props: { ...viewProps, editable: false },
         children: <TextAlignButton textAlignment="center" />,
       });
       const button = page.getByRole("button", {
@@ -52,7 +53,7 @@ describe("TextAlignButton", () => {
           },
           { id: "after", type: "paragraph", content: "After" },
         ],
-        props: { formattingToolbar: false },
+        props: viewProps,
         children: <TextAlignButton textAlignment="left" />,
       });
       selectText(editor, "Selected text");
@@ -92,7 +93,7 @@ describe("TextAlignButton", () => {
           },
           { id: "after", type: "paragraph", content: "After" },
         ],
-        props: { formattingToolbar: false },
+        props: viewProps,
         children: <TextAlignButton textAlignment="center" />,
       });
       selectText(editor, "Selected text");
@@ -132,7 +133,7 @@ describe("TextAlignButton", () => {
           },
           { id: "after", type: "paragraph", content: "After" },
         ],
-        props: { formattingToolbar: false },
+        props: viewProps,
         children: <TextAlignButton textAlignment="right" />,
       });
       selectText(editor, "Selected text");
@@ -172,7 +173,7 @@ describe("TextAlignButton", () => {
           },
           { id: "after", type: "paragraph", content: "After" },
         ],
-        props: { formattingToolbar: false },
+        props: viewProps,
         children: <TextAlignButton textAlignment="justify" />,
       });
       selectText(editor, "Selected text");
@@ -206,7 +207,7 @@ describe("TextAlignButton", () => {
           { id: "second", type: "paragraph", content: "Second" },
           { id: "after", type: "paragraph", content: "After" },
         ],
-        props: { formattingToolbar: false },
+        props: viewProps,
         children: <TextAlignButton textAlignment="center" />,
       });
       editor.setSelection("first", "second");
@@ -249,18 +250,25 @@ describe("TextAlignButton", () => {
             },
           },
         ],
-        props: { formattingToolbar: false },
+        props: viewProps,
         children: <TextAlignButton textAlignment="center" />,
       });
+      const first = page.getByRole("cell", { name: "First", exact: true });
+      const second = page.getByRole("cell", { name: "Second", exact: true });
+      await expect.element(first).toBeVisible();
+      await expect.element(second).toBeVisible();
+      editor.focus();
       editor.transact((tr) => {
         const cells: number[] = [];
         tr.doc.descendants((node, pos) => {
-          if (node.type.name === "tableCell") {
+          if (node.type.spec.tableRole === "cell") {
             cells.push(pos);
           }
         });
         tr.setSelection(CellSelection.create(tr.doc, cells[0], cells[1]));
       });
+      await expect.element(first).toHaveClass("selectedCell");
+      await expect.element(second).toHaveClass("selectedCell");
       // The alignment action shares and mutates table-cell props; detach the baseline.
       const before = structuredClone(editor.document);
 
@@ -314,7 +322,7 @@ describe("TextAlignButton", () => {
             props: { textAlignment: "center" },
           },
         ],
-        props: { formattingToolbar: false },
+        props: viewProps,
         children: <TextAlignButton textAlignment="center" />,
       });
       const button = page.getByRole("button", {
@@ -337,7 +345,7 @@ describe("TextAlignButton", () => {
       page,
     }) => {
       await setupEditor({
-        props: { formattingToolbar: false },
+        props: viewProps,
         children: (
           <FormattingToolbar>
             {(["left", "center", "right", "justify"] as const).map(
@@ -363,10 +371,10 @@ describe("TextAlignButton", () => {
       ) => {
         const { editor } = await setupEditor({
           initialContent: [{ type: "paragraph", content: "Selected text" }],
-          props: { formattingToolbar: false },
+          props: viewProps,
           children: <TextAlignButton textAlignment={alignment} />,
         });
-        await page.getByRole("textbox").click();
+        editor.focus();
         selectText(editor, "Selected text");
         const button = page.getByRole("button", {
           name: editor.dictionary.formatting_toolbar[`align_${alignment}`]
@@ -389,10 +397,10 @@ describe("TextAlignButton", () => {
           initialContent: [
             { id: "text", type: "paragraph", content: "Selected text" },
           ],
-          props: { formattingToolbar: false },
+          props: viewProps,
           children: <TextAlignButton textAlignment="center" />,
         });
-        await page.getByRole("textbox").click();
+        editor.focus();
         selectText(editor, "Selected text");
         const button = page.getByRole("button", {
           name: editor.dictionary.formatting_toolbar.align_center.tooltip,

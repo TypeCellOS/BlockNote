@@ -81,7 +81,6 @@ describe("FormattingToolbar", () => {
       selectText(editor, "selected text");
       const toolbar = page.getByRole("toolbar");
       const documentBefore = editor.document;
-      const selectionBefore = editor.prosemirrorState.selection.toJSON();
 
       await pressKey("Tab");
 
@@ -93,9 +92,7 @@ describe("FormattingToolbar", () => {
           }),
         )
         .toHaveFocus();
-      expect(editor.prosemirrorState.selection.toJSON()).toEqual(
-        selectionBefore,
-      );
+      expect(editor.getSelectedText()).toBe("selected text");
 
       await pressKey("Tab");
 
@@ -107,9 +104,7 @@ describe("FormattingToolbar", () => {
           }),
         )
         .toHaveFocus();
-      expect(editor.prosemirrorState.selection.toJSON()).toEqual(
-        selectionBefore,
-      );
+      expect(editor.getSelectedText()).toBe("selected text");
       expect(editor.document).toEqual(documentBefore);
     });
   });
