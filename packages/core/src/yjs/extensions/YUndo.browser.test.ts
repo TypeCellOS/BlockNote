@@ -1,38 +1,49 @@
 import { closeHistory } from "@tiptap/pm/history";
-import { Plugin, TextSelection } from "prosemirror-state";
+import { Plugin } from "prosemirror-state";
 import {
   afterEach,
-  beforeEach,
   describe,
   expect,
-  it,
+  type TestContext,
   vi,
 } from "vite-plus/test";
 import { yUndoPluginKey } from "y-prosemirror";
 import * as Y from "yjs";
 
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import type { SetupEditor } from "../../../../../tests/src/commands/browser/setupEditor.js";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { withCollaboration } from "../index.js";
 import { YUndoExtension } from "./YUndo.js";
 
+async function mountCollaborativeEditor(
+  setupEditor: SetupEditor,
+  onTestFinished: TestContext["onTestFinished"],
+) {
+  const doc = new Y.Doc();
+  onTestFinished(() => doc.destroy());
+  const { editor } = await setupEditor({
+    mountType: "dom",
+    ...withCollaboration({
+      extensions: [],
+      collaboration: {
+        fragment: doc.getXmlFragment("document"),
+        user: { name: "Test", color: "#ff0000" },
+        provider: undefined,
+      },
+    }),
+  });
+  return { editor, doc, container: editor.domElement! };
+}
+
 describe("YUndo history boundaries", () => {
-  let doc: Y.Doc;
   let editor: BlockNoteEditor;
   let undoManager: Y.UndoManager;
 
-  beforeEach(() => {
-    doc = new Y.Doc();
-    const fragment = doc.getXmlFragment("document");
-    editor = BlockNoteEditor.create(
-      withCollaboration({
-        collaboration: {
-          fragment,
-          user: { name: "Test", color: "#ff0000" },
-          provider: undefined,
-        },
-      }),
-    );
-    editor.mount(document.createElement("div"));
+  async function setup(
+    setupEditor: SetupEditor,
+    onTestFinished: TestContext["onTestFinished"],
+  ) {
+    ({ editor } = await mountCollaborativeEditor(setupEditor, onTestFinished));
     const undoState = yUndoPluginKey.getState(editor.prosemirrorState);
     if (!undoState) {
       throw new Error("Missing Yjs undo plugin in collaborative test editor");
@@ -42,53 +53,56 @@ describe("YUndo history boundaries", () => {
     undoManager.stopCapturing();
     // Both edits occur within one capture window, regardless of test speed.
     vi.spyOn(Date, "now").mockReturnValue(Date.now());
-  });
+  }
 
   afterEach(() => {
     vi.restoreAllMocks();
-    undoManager.destroy();
-    editor._tiptapEditor.destroy();
-    doc.destroy();
   });
 
   function insert(value: string) {
-    editor.prosemirrorView.dispatch(
-      editor.prosemirrorState.tr.insertText(value),
-    );
+    editor.insertInlineContent(value, { updateSelection: true });
   }
 
-  it("groups consecutive edits without a history boundary", () => {
+  it("groups consecutive edits without a history boundary", async ({
+    setupEditor,
+    onTestFinished,
+  }) => {
+    await setup(setupEditor, onTestFinished);
     insert("first");
     insert("second");
 
     undoManager.undo();
-    expect(editor.prosemirrorState.doc.textContent).toBe("");
+    expect(editor.domElement!.textContent).toBe("");
     expect(undoManager.canUndo()).toBe(false);
     undoManager.redo();
-    expect(editor.prosemirrorState.doc.textContent).toBe("firstsecond");
+    expect(editor.domElement!.textContent).toBe("firstsecond");
   });
 
-  it("separates edits across closeHistory for undo and redo", () => {
+  it("separates edits across closeHistory for undo and redo", async ({
+    setupEditor,
+    onTestFinished,
+  }) => {
+    await setup(setupEditor, onTestFinished);
     insert("first");
-    editor.prosemirrorView.dispatch(closeHistory(editor.prosemirrorState.tr));
+    editor.transact(closeHistory);
     insert("second");
 
     undoManager.undo();
-    expect(editor.prosemirrorState.doc.textContent).toBe("first");
+    expect(editor.domElement!.textContent).toBe("first");
     undoManager.undo();
-    expect(editor.prosemirrorState.doc.textContent).toBe("");
+    expect(editor.domElement!.textContent).toBe("");
     expect(undoManager.canUndo()).toBe(false);
     undoManager.redo();
-    expect(editor.prosemirrorState.doc.textContent).toBe("first");
+    expect(editor.domElement!.textContent).toBe("first");
     undoManager.redo();
-    expect(editor.prosemirrorState.doc.textContent).toBe("firstsecond");
+    expect(editor.domElement!.textContent).toBe("firstsecond");
   });
 });
 
 describe("YUndo view lifecycle", () => {
   let doc: Y.Doc;
   let editor: BlockNoteEditor;
-  let container: HTMLDivElement;
+  let container: HTMLElement;
 
   function manager(): Y.UndoManager {
     const state = yUndoPluginKey.getState(editor.prosemirrorState);
@@ -99,37 +113,30 @@ describe("YUndo view lifecycle", () => {
   }
 
   function insert(text: string) {
-    const end = TextSelection.atEnd(editor.prosemirrorState.doc).from;
-    editor.prosemirrorView.dispatch(
-      editor.prosemirrorState.tr.insertText(text, end),
-    );
+    editor.setTextCursorPosition(editor.document.at(-1)!, "end");
+    editor.insertInlineContent(text);
   }
 
-  beforeEach(() => {
-    doc = new Y.Doc();
-    editor = BlockNoteEditor.create(
-      withCollaboration({
-        collaboration: {
-          fragment: doc.getXmlFragment("document"),
-          user: { name: "Test", color: "#ff0000" },
-          provider: undefined,
-        },
-      }),
-    );
-    container = document.createElement("div");
-    document.body.append(container);
-    editor.mount(container);
+  async function setup(
+    setupEditor: SetupEditor,
+    onTestFinished: TestContext["onTestFinished"],
+  ) {
+    ({ editor, doc, container } = await mountCollaborativeEditor(
+      setupEditor,
+      onTestFinished,
+    ));
     manager().clear();
-  });
+  }
 
   afterEach(() => {
-    editor._tiptapEditor.destroy();
-    doc.destroy();
-    container.remove();
     vi.restoreAllMocks();
   });
 
-  it("retains undo and redo through repeated unmount/mount cycles", () => {
+  it("retains undo and redo through repeated unmount/mount cycles", async ({
+    setupEditor,
+    onTestFinished,
+  }) => {
+    await setup(setupEditor, onTestFinished);
     const original = manager();
     insert("before");
     for (let cycle = 0; cycle < 3; cycle++) {
@@ -137,19 +144,23 @@ describe("YUndo view lifecycle", () => {
       editor.mount(container);
       expect(manager()).toBe(original);
       expect(editor.undo()).toBe(true);
-      expect(editor.prosemirrorState.doc.textContent).toBe("");
+      expect(editor.domElement!.textContent).toBe("");
       expect(editor.redo()).toBe(true);
-      expect(editor.prosemirrorState.doc.textContent).toBe("before");
+      expect(editor.domElement!.textContent).toBe("before");
     }
     original.stopCapturing();
     insert("after");
     expect(editor.undo()).toBe(true);
-    expect(editor.prosemirrorState.doc.textContent).toBe("before");
+    expect(editor.domElement!.textContent).toBe("before");
     expect(editor.redo()).toBe(true);
-    expect(editor.prosemirrorState.doc.textContent).toBe("beforeafter");
+    expect(editor.domElement!.textContent).toBe("beforeafter");
   });
 
-  it("keeps history usable when an unrelated extension recreates plugin views", () => {
+  it("keeps history usable when an unrelated extension recreates plugin views", async ({
+    setupEditor,
+    onTestFinished,
+  }) => {
+    await setup(setupEditor, onTestFinished);
     const original = manager();
     insert("before");
     const extension = {
@@ -171,12 +182,16 @@ describe("YUndo view lifecycle", () => {
     original.stopCapturing();
     insert("after");
     expect(editor.undo()).toBe(true);
-    expect(editor.prosemirrorState.doc.textContent).toBe("before");
+    expect(editor.domElement!.textContent).toBe("before");
     expect(editor.redo()).toBe(true);
-    expect(editor.prosemirrorState.doc.textContent).toBe("beforeafter");
+    expect(editor.domElement!.textContent).toBe("beforeafter");
   });
 
-  it("honors explicit state resets and disposes the replaced manager", () => {
+  it("honors explicit state resets and disposes the replaced manager", async ({
+    setupEditor,
+    onTestFinished,
+  }) => {
+    await setup(setupEditor, onTestFinished);
     const original = manager();
     insert("before");
     editor.replaceExtension("yUndo", YUndoExtension(), {
@@ -188,12 +203,16 @@ describe("YUndo view lifecycle", () => {
     insert("after");
     expect(original.undoStack).toHaveLength(1);
     expect(editor.undo()).toBe(true);
-    expect(editor.prosemirrorState.doc.textContent).toBe("before");
+    expect(editor.domElement!.textContent).toBe("before");
     expect(editor.redo()).toBe(true);
-    expect(editor.prosemirrorState.doc.textContent).toBe("beforeafter");
+    expect(editor.domElement!.textContent).toBe("beforeafter");
   });
 
-  it("restores document-destroy cleanup on remount", () => {
+  it("restores document-destroy cleanup on remount", async ({
+    setupEditor,
+    onTestFinished,
+  }) => {
+    await setup(setupEditor, onTestFinished);
     editor.unmount();
     const current = manager();
     const destroy = vi.spyOn(current, "destroy");
@@ -204,7 +223,11 @@ describe("YUndo view lifecycle", () => {
     expect(current.trackedOrigins.has(current)).toBe(false);
   });
 
-  it("removes document listeners on unmount", () => {
+  it("removes document listeners on unmount", async ({
+    setupEditor,
+    onTestFinished,
+  }) => {
+    await setup(setupEditor, onTestFinished);
     const current = manager();
     const off = vi.spyOn(doc, "off");
     editor.unmount();

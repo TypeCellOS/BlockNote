@@ -1,16 +1,15 @@
-// @vitest-environment node
 import { configureYProsemirror, ySyncPluginKey } from "@y/prosemirror";
 import * as Y from "@y/y";
-import { expect, it } from "vite-plus/test";
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { expect } from "vite-plus/test";
 import { withCollaboration } from "./index.js";
 import { blocksToYType } from "../utils.js";
 import { YCursorExtension } from "./YCursorPlugin.js";
 import type { VersioningController } from "../../extensions/Versioning/Versioning.js";
 import { YVersioningExtension } from "../versioning/yhub.js";
 import type { VersionStorage } from "../../extensions/Versioning/types.js";
+import { YSyncExtension } from "./YSync.js";
 
-it.each(
+it.for(
   [undefined, false].flatMap((showCurrentVersion) =>
     [false, true].map((withSuggestions) => ({
       showCurrentVersion,
@@ -19,12 +18,18 @@ it.each(
   ),
 )(
   "isolates previews and restores the live binding, Current capture=$showCurrentVersion, suggestions=$withSuggestions",
-  async ({ showCurrentVersion, withSuggestions }) => {
+  async (
+    { showCurrentVersion, withSuggestions },
+    { setupEditor, onTestFinished },
+  ) => {
     const doc = new Y.Doc();
+    onTestFinished(() => doc.destroy());
     const suggestionDoc = new Y.Doc({ isSuggestionDoc: true });
+    onTestFinished(() => suggestionDoc.destroy());
     const renderer = withSuggestions
       ? Y.createDiffRenderer(doc, suggestionDoc)
       : undefined;
+    onTestFinished(() => renderer?.destroy());
     const fragment = doc.get("doc");
     let saved: Uint8Array = new Uint8Array();
     const storage: VersionStorage<Uint8Array, Y.ContentMap> = {
@@ -35,7 +40,7 @@ it.each(
       }),
       getContent: async () => ({ ok: true, value: saved }),
     };
-    const editor = BlockNoteEditor.create(
+    const { editor } = await setupEditor(
       withCollaboration({
         extensions: [
           YVersioningExtension({
@@ -54,11 +59,11 @@ it.each(
     ]);
     blocksToYType(editor, editor.document, fragment);
     saved = Y.encodeStateAsUpdateV2(doc);
-    editor.prosemirrorView.updateState(
-      editor.prosemirrorState.reconfigure({
-        plugins: editor._tiptapEditor.extensionManager.plugins,
-      }),
-    );
+    editor.registerExtension({
+      key: "headlessYSyncState",
+      prosemirrorPlugins:
+        editor.getExtension(YSyncExtension)!.prosemirrorPlugins,
+    });
     editor.exec(configureYProsemirror({ ytype: fragment }));
     const liveBinding = ySyncPluginKey.getState(editor.prosemirrorState)!;
     const cursor = editor.getExtension(YCursorExtension);
@@ -87,17 +92,15 @@ it.each(
           ySyncPluginKey.getState(editor.prosemirrorState)?.ytype,
         ).toBeNull();
       }
-      const latest = BlockNoteEditor.create();
-      try {
-        latest.replaceBlocks(latest.document, [
-          { type: "paragraph", content: "Remote latest" },
-        ]);
-        blocksToYType(latest, latest.document, fragment);
-      } finally {
-        latest._tiptapEditor.destroy();
-      }
+      const { editor: latest } = await setupEditor();
+      latest.replaceBlocks(latest.document, [
+        { type: "paragraph", content: "Remote latest" },
+      ]);
+      blocksToYType(latest, latest.document, fragment);
       const remoteContent = Y.encodeStateAsUpdateV2(doc);
-      expect(editor.prosemirrorState.doc.textContent).toBe("Captured");
+      expect(editor.document[0].content).toEqual([
+        { type: "text", text: "Captured", styles: {} },
+      ]);
       await mode.select({ type: "snapshot", id: "saved" });
       const previewBinding = ySyncPluginKey.getState(editor.prosemirrorState)!;
       expect(previewBinding.ytype).not.toBeNull();
@@ -111,7 +114,9 @@ it.each(
         liveBinding.isInitialContent,
       );
       await mode.select({ type: "current" });
-      expect(editor.prosemirrorState.doc.textContent).toBe("Captured");
+      expect(editor.document[0].content).toEqual([
+        { type: "text", text: "Captured", styles: {} },
+      ]);
       mode.close();
       expect(editor.isEditable).toBe(true);
       expect(editor.getExtension(YCursorExtension)).toBe(cursor);
@@ -128,9 +133,6 @@ it.each(
       expect(Y.encodeStateAsUpdateV2(doc)).toEqual(remoteContent);
     } finally {
       mode.dispose();
-      editor._tiptapEditor.destroy();
-      doc.destroy();
-      suggestionDoc.destroy();
     }
   },
 );

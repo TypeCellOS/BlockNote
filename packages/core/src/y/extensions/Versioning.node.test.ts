@@ -1,8 +1,7 @@
-// @vitest-environment node
 import * as Y from "@y/y";
 import { configureYProsemirror } from "@y/prosemirror";
-import { expect, it } from "vite-plus/test";
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { expect } from "vite-plus/test";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import {
   type VersioningController,
   createVersioningExtension,
@@ -10,31 +9,32 @@ import {
 import type { VersionStorage } from "../../extensions/Versioning/types.js";
 import { CollaborationExtension, withCollaboration } from "./index.js";
 import { createYVersionView } from "./Versioning.js";
+import { YSyncExtension } from "./YSync.js";
 import { YHubVersioningExtension } from "../versioning/yhub.js";
 
 const options = { baseUrl: "https://yhub.test/api", org: "org", docId: "doc" };
 
-it("does not install history when only collaboration is configured", () => {
+it("does not install history when only collaboration is configured", async ({
+  setupEditor,
+  onTestFinished,
+}) => {
   const doc = new Y.Doc();
-  const editor = BlockNoteEditor.create(
+  onTestFinished(() => doc.destroy());
+  const { editor } = await setupEditor(
     withCollaboration({
+      extensions: [],
       collaboration: {
         fragment: doc.get("doc"),
         user: { name: "Test", color: "red" },
       },
     }),
   );
-  try {
-    expect(editor.getExtension("versioning")).toBeUndefined();
-  } finally {
-    editor._tiptapEditor.destroy();
-    doc.destroy();
-  }
+  expect(editor.getExtension("versioning")).toBeUndefined();
 });
 
-it.each(["before", "after"] as const)(
+it.for(["before", "after"] as const)(
   "installs standalone YHub history %s collaboration per editor and shares its user store",
-  (order) => {
+  async (order, { setupEditor }) => {
     const docs = [new Y.Doc(), new Y.Doc()];
     const editors: BlockNoteEditor[] = [];
     const history = YHubVersioningExtension(options);
@@ -45,7 +45,7 @@ it.each(["before", "after"] as const)(
           fragment,
           user: { name: "Test", color: "red" },
         });
-        const editor = BlockNoteEditor.create({
+        const { editor } = await setupEditor({
           extensions:
             order === "before"
               ? [history, collaboration]
@@ -60,13 +60,12 @@ it.each(["before", "after"] as const)(
           editor.getExtension(CollaborationExtension)!.userStore,
         );
         expect(versioning.canCreate).toBe(true);
-        // Tiptap installs plugins and YSync configures the live binding on mount.
-        // Initialize both explicitly to exercise the real headless view adapter.
-        editor.prosemirrorView.updateState(
-          editor.prosemirrorState.reconfigure({
-            plugins: editor._tiptapEditor.extensionManager.plugins,
-          }),
-        );
+        // Install just the actual collaboration state plugin for the headless adapter.
+        editor.registerExtension({
+          key: "headlessYSyncState",
+          prosemirrorPlugins:
+            editor.getExtension(YSyncExtension)!.prosemirrorPlugins,
+        });
         editor.exec(configureYProsemirror({ ytype: fragment }));
         expect(editor.headless).toBe(true);
         versioning.open();
@@ -80,8 +79,7 @@ it.each(["before", "after"] as const)(
       );
     } finally {
       for (const editor of editors) {
-        editor.getExtension<VersioningController>("versioning")!.close();
-        editor._tiptapEditor.destroy();
+        editor.getExtension<VersioningController>("versioning")!.dispose();
       }
       for (const doc of docs) {
         doc.destroy();
@@ -90,8 +88,12 @@ it.each(["before", "after"] as const)(
   },
 );
 
-it("keeps the first versioning integration using normal extension deduplication", () => {
+it("keeps the first versioning integration using normal extension deduplication", async ({
+  setupEditor,
+  onTestFinished,
+}) => {
   const doc = new Y.Doc();
+  onTestFinished(() => doc.destroy());
   const fragment = doc.get("doc");
   const storage: VersionStorage<Uint8Array, Y.ContentMap> = {
     async list() {
@@ -105,7 +107,7 @@ it("keeps the first versioning integration using normal extension deduplication"
     adapter: createYVersionView(editor, fragment),
     storage,
   }));
-  const editor = BlockNoteEditor.create(
+  const { editor } = await setupEditor(
     withCollaboration({
       extensions: [Versions(), YHubVersioningExtension(options)],
       collaboration: {
@@ -114,13 +116,6 @@ it("keeps the first versioning integration using normal extension deduplication"
       },
     }),
   );
-  try {
-    expect(editor.getExtension("versioning")).toBe(
-      editor.getExtension(Versions),
-    );
-    expect(editor.getExtension(Versions)).toBeDefined();
-  } finally {
-    editor._tiptapEditor.destroy();
-    doc.destroy();
-  }
+  expect(editor.getExtension("versioning")).toBe(editor.getExtension(Versions));
+  expect(editor.getExtension(Versions)).toBeDefined();
 });

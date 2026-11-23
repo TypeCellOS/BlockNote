@@ -1,9 +1,6 @@
-/**
- * @vitest-environment jsdom
- */
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 import * as Y from "yjs";
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import type { SetupEditor } from "../../../../../tests/src/commands/browser/setupEditor.js";
 import { trackPosition } from "../../api/positionMapping.js";
 import { withCollaboration } from "./index.js";
 
@@ -27,38 +24,39 @@ function setupTwoWaySync(doc1: Y.Doc, doc2: Y.Doc) {
   });
 }
 
+async function mountPeer(setupEditor: SetupEditor, doc: Y.Doc, name: string) {
+  const { editor } = await setupEditor({
+    mountType: "dom",
+    ...withCollaboration({
+      extensions: [],
+      collaboration: {
+        fragment: doc.getXmlFragment("doc"),
+        user: { color: "#ff0000", name },
+        provider: undefined,
+      },
+    }),
+  });
+  return editor;
+}
+
 describe("RelativePositionMapping (yjs)", () => {
-  it("should return the same position when no changes are made", () => {
+  it("should return the same position when no changes are made", async ({
+    setupEditor,
+    onTestFinished,
+  }) => {
     const ydoc = new Y.Doc();
     const remoteYdoc = new Y.Doc();
+    onTestFinished(() => {
+      ydoc.destroy();
+      remoteYdoc.destroy();
+    });
 
-    const localEditor = BlockNoteEditor.create(
-      withCollaboration({
-        collaboration: {
-          fragment: ydoc.getXmlFragment("doc"),
-          user: { color: "#ff0000", name: "Local User" },
-          provider: undefined,
-        },
-      }),
-    );
-    const div = document.createElement("div");
-    localEditor.mount(div);
+    const localEditor = await mountPeer(setupEditor, ydoc, "Local User");
+    await mountPeer(setupEditor, remoteYdoc, "Remote User");
 
-    const remoteEditor = BlockNoteEditor.create(
-      withCollaboration({
-        collaboration: {
-          fragment: remoteYdoc.getXmlFragment("doc"),
-          user: { color: "#ff0000", name: "Remote User" },
-          provider: undefined,
-        },
-      }),
-    );
-
-    const remoteDiv = document.createElement("div");
-    remoteEditor.mount(remoteDiv);
     setupTwoWaySync(ydoc, remoteYdoc);
 
-    const nodeSize = localEditor.prosemirrorState.doc.nodeSize;
+    const nodeSize = localEditor.transact(({ doc }) => doc.nodeSize);
     const positions: number[] = [];
     for (let i = 0; i < nodeSize; i++) {
       positions.push(trackPosition(localEditor, i)());
@@ -76,40 +74,21 @@ describe("RelativePositionMapping (yjs)", () => {
         7,
       ]
     `);
-
-    ydoc.destroy();
-    remoteYdoc.destroy();
-    localEditor.unmount();
-    remoteEditor.unmount();
   });
-  it("should update the local position when collaborating", () => {
+  it("should update the local position when collaborating", async ({
+    setupEditor,
+    onTestFinished,
+  }) => {
     const ydoc = new Y.Doc();
     const remoteYdoc = new Y.Doc();
+    onTestFinished(() => {
+      ydoc.destroy();
+      remoteYdoc.destroy();
+    });
 
-    const localEditor = BlockNoteEditor.create(
-      withCollaboration({
-        collaboration: {
-          fragment: ydoc.getXmlFragment("doc"),
-          user: { color: "#ff0000", name: "Local User" },
-          provider: undefined,
-        },
-      }),
-    );
-    const div = document.createElement("div");
-    localEditor.mount(div);
+    const localEditor = await mountPeer(setupEditor, ydoc, "Local User");
+    await mountPeer(setupEditor, remoteYdoc, "Remote User");
 
-    const remoteEditor = BlockNoteEditor.create(
-      withCollaboration({
-        collaboration: {
-          fragment: remoteYdoc.getXmlFragment("doc"),
-          user: { color: "#ff0000", name: "Remote User" },
-          provider: undefined,
-        },
-      }),
-    );
-
-    const remoteDiv = document.createElement("div");
-    remoteEditor.mount(remoteDiv);
     setupTwoWaySync(ydoc, remoteYdoc);
 
     localEditor.replaceBlocks(localEditor.document, [
@@ -131,7 +110,8 @@ describe("RelativePositionMapping (yjs)", () => {
     const getPosAfterRightPos = trackPosition(localEditor, 4, "right");
 
     // Insert text at the beginning
-    localEditor._tiptapEditor.commands.insertContentAt(3, "Test ");
+    localEditor.setTextCursorPosition(localEditor.document[0], "start");
+    localEditor.insertInlineContent("Test ");
 
     // Position should be updated
     expect(getCursorPos()).toBe(11); // 6 + 5 ("Test " length)
@@ -139,41 +119,22 @@ describe("RelativePositionMapping (yjs)", () => {
     expect(getStartRightPos()).toBe(8); // 3 + 5 ("Test " length)
     expect(getPosAfterPos()).toBe(9); // 4 + 5 ("Test " length)
     expect(getPosAfterRightPos()).toBe(9); // 4 + 5 ("Test " length)
-
-    ydoc.destroy();
-    remoteYdoc.destroy();
-    localEditor.unmount();
-    remoteEditor.unmount();
   });
 
-  it("should match the same positions", () => {
+  it("should match the same positions", async ({
+    setupEditor,
+    onTestFinished,
+  }) => {
     const ydoc = new Y.Doc();
     const remoteYdoc = new Y.Doc();
+    onTestFinished(() => {
+      ydoc.destroy();
+      remoteYdoc.destroy();
+    });
 
-    const localEditor = BlockNoteEditor.create(
-      withCollaboration({
-        collaboration: {
-          fragment: ydoc.getXmlFragment("doc"),
-          user: { color: "#ff0000", name: "Local User" },
-          provider: undefined,
-        },
-      }),
-    );
-    const div = document.createElement("div");
-    localEditor.mount(div);
+    const localEditor = await mountPeer(setupEditor, ydoc, "Local User");
+    await mountPeer(setupEditor, remoteYdoc, "Remote User");
 
-    const remoteEditor = BlockNoteEditor.create(
-      withCollaboration({
-        collaboration: {
-          fragment: remoteYdoc.getXmlFragment("doc"),
-          user: { color: "#ff0000", name: "Remote User" },
-          provider: undefined,
-        },
-      }),
-    );
-
-    const remoteDiv = document.createElement("div");
-    remoteEditor.mount(remoteDiv);
     setupTwoWaySync(ydoc, remoteYdoc);
 
     localEditor.replaceBlocks(localEditor.document, [
@@ -183,13 +144,14 @@ describe("RelativePositionMapping (yjs)", () => {
       },
     ]);
 
-    const nodeSize = localEditor.prosemirrorState.doc.nodeSize;
+    const nodeSize = localEditor.transact(({ doc }) => doc.nodeSize);
     const positions: (() => number)[] = [];
     for (let i = 0; i < nodeSize; i++) {
       positions.push(trackPosition(localEditor, i));
     }
 
-    localEditor._tiptapEditor.commands.insertContentAt(3, "Test ");
+    localEditor.setTextCursorPosition(localEditor.document[0], "start");
+    localEditor.insertInlineContent("Test ");
 
     expect(positions.map((getPos) => getPos())).toMatchInlineSnapshot(`
       [
@@ -214,40 +176,22 @@ describe("RelativePositionMapping (yjs)", () => {
         23,
       ]
     `);
-    ydoc.destroy();
-    remoteYdoc.destroy();
-    localEditor.unmount();
-    remoteEditor.unmount();
   });
 
-  it("should handle multiple transactions when collaborating", () => {
+  it("should handle multiple transactions when collaborating", async ({
+    setupEditor,
+    onTestFinished,
+  }) => {
     const ydoc = new Y.Doc();
     const remoteYdoc = new Y.Doc();
+    onTestFinished(() => {
+      ydoc.destroy();
+      remoteYdoc.destroy();
+    });
 
-    const localEditor = BlockNoteEditor.create(
-      withCollaboration({
-        collaboration: {
-          fragment: ydoc.getXmlFragment("doc"),
-          user: { color: "#ff0000", name: "Local User" },
-          provider: undefined,
-        },
-      }),
-    );
-    const div = document.createElement("div");
-    localEditor.mount(div);
+    const localEditor = await mountPeer(setupEditor, ydoc, "Local User");
+    await mountPeer(setupEditor, remoteYdoc, "Remote User");
 
-    const remoteEditor = BlockNoteEditor.create(
-      withCollaboration({
-        collaboration: {
-          fragment: remoteYdoc.getXmlFragment("doc"),
-          user: { color: "#ff0000", name: "Remote User" },
-          provider: undefined,
-        },
-      }),
-    );
-
-    const remoteDiv = document.createElement("div");
-    remoteEditor.mount(remoteDiv);
     setupTwoWaySync(ydoc, remoteYdoc);
 
     localEditor.replaceBlocks(localEditor.document, [
@@ -269,11 +213,10 @@ describe("RelativePositionMapping (yjs)", () => {
     const getPosAfterRightPos = trackPosition(localEditor, 4, "right");
 
     // Insert text at the beginning
-    localEditor._tiptapEditor.commands.insertContentAt(3, "T");
-    localEditor._tiptapEditor.commands.insertContentAt(4, "e");
-    localEditor._tiptapEditor.commands.insertContentAt(5, "s");
-    localEditor._tiptapEditor.commands.insertContentAt(6, "t");
-    localEditor._tiptapEditor.commands.insertContentAt(7, " ");
+    localEditor.setTextCursorPosition(localEditor.document[0], "start");
+    for (const character of "Test ") {
+      localEditor.insertInlineContent(character, { updateSelection: true });
+    }
 
     // Position should be updated
     expect(getCursorPos()).toBe(11); // 6 + 5 ("Test " length)
@@ -281,41 +224,26 @@ describe("RelativePositionMapping (yjs)", () => {
     expect(getStartRightPos()).toBe(8); // 3 + 5 ("Test " length)
     expect(getPosAfterPos()).toBe(9); // 4 + 5 ("Test " length)
     expect(getPosAfterRightPos()).toBe(9); // 4 + 5 ("Test " length)
-
-    ydoc.destroy();
-    remoteYdoc.destroy();
-    localEditor.unmount();
-    remoteEditor.unmount();
   });
 
-  it("should update the local position from a remote transaction", () => {
+  it("should update the local position from a remote transaction", async ({
+    setupEditor,
+    onTestFinished,
+  }) => {
     const ydoc = new Y.Doc();
     const remoteYdoc = new Y.Doc();
+    onTestFinished(() => {
+      ydoc.destroy();
+      remoteYdoc.destroy();
+    });
 
-    const localEditor = BlockNoteEditor.create(
-      withCollaboration({
-        collaboration: {
-          fragment: ydoc.getXmlFragment("doc"),
-          user: { color: "#ff0000", name: "Local User" },
-          provider: undefined,
-        },
-      }),
-    );
-    const div = document.createElement("div");
-    localEditor.mount(div);
-
-    const remoteEditor = BlockNoteEditor.create(
-      withCollaboration({
-        collaboration: {
-          fragment: remoteYdoc.getXmlFragment("doc"),
-          user: { color: "#ff0000", name: "Remote User" },
-          provider: undefined,
-        },
-      }),
+    const localEditor = await mountPeer(setupEditor, ydoc, "Local User");
+    const remoteEditor = await mountPeer(
+      setupEditor,
+      remoteYdoc,
+      "Remote User",
     );
 
-    const remoteDiv = document.createElement("div");
-    remoteEditor.mount(remoteDiv);
     setupTwoWaySync(ydoc, remoteYdoc);
 
     remoteEditor.replaceBlocks(remoteEditor.document, [
@@ -337,7 +265,8 @@ describe("RelativePositionMapping (yjs)", () => {
     const getPosAfterRightPos = trackPosition(localEditor, 4, "right");
 
     // Insert text at the beginning (via remote editor to exercise remote-origin updates)
-    remoteEditor._tiptapEditor.commands.insertContentAt(3, "Test ");
+    remoteEditor.setTextCursorPosition(remoteEditor.document[0], "start");
+    remoteEditor.insertInlineContent("Test ");
 
     // Position should be updated
     expect(getCursorPos()).toBe(11); // 6 + 5 ("Test " length)
@@ -345,41 +274,26 @@ describe("RelativePositionMapping (yjs)", () => {
     expect(getStartRightPos()).toBe(8); // 3 + 5 ("Test " length)
     expect(getPosAfterPos()).toBe(9); // 4 + 5 ("Test " length)
     expect(getPosAfterRightPos()).toBe(9); // 4 + 5 ("Test " length)
-
-    ydoc.destroy();
-    remoteYdoc.destroy();
-    localEditor.unmount();
-    remoteEditor.unmount();
   });
 
-  it("should update the remote position from a remote transaction", () => {
+  it("should update the remote position from a remote transaction", async ({
+    setupEditor,
+    onTestFinished,
+  }) => {
     const ydoc = new Y.Doc();
     const remoteYdoc = new Y.Doc();
+    onTestFinished(() => {
+      ydoc.destroy();
+      remoteYdoc.destroy();
+    });
 
-    const localEditor = BlockNoteEditor.create(
-      withCollaboration({
-        collaboration: {
-          fragment: ydoc.getXmlFragment("doc"),
-          user: { color: "#ff0000", name: "Local User" },
-          provider: undefined,
-        },
-      }),
-    );
-    const div = document.createElement("div");
-    localEditor.mount(div);
-
-    const remoteEditor = BlockNoteEditor.create(
-      withCollaboration({
-        collaboration: {
-          fragment: remoteYdoc.getXmlFragment("doc"),
-          user: { color: "#ff0000", name: "Remote User" },
-          provider: undefined,
-        },
-      }),
+    const localEditor = await mountPeer(setupEditor, ydoc, "Local User");
+    const remoteEditor = await mountPeer(
+      setupEditor,
+      remoteYdoc,
+      "Remote User",
     );
 
-    const remoteDiv = document.createElement("div");
-    remoteEditor.mount(remoteDiv);
     setupTwoWaySync(ydoc, remoteYdoc);
 
     remoteEditor.replaceBlocks(remoteEditor.document, [
@@ -401,7 +315,8 @@ describe("RelativePositionMapping (yjs)", () => {
     const getPosAfterRightPos = trackPosition(remoteEditor, 4, "right");
 
     // Insert text at the beginning
-    localEditor._tiptapEditor.commands.insertContentAt(3, "Test ");
+    localEditor.setTextCursorPosition(localEditor.document[0], "start");
+    localEditor.insertInlineContent("Test ");
 
     // Position should be updated
     expect(getCursorPos()).toBe(11); // 6 + 5 ("Test " length)
@@ -409,10 +324,5 @@ describe("RelativePositionMapping (yjs)", () => {
     expect(getStartRightPos()).toBe(8); // 3 + 5 ("Test " length)
     expect(getPosAfterPos()).toBe(9); // 4 + 5 ("Test " length)
     expect(getPosAfterRightPos()).toBe(9); // 4 + 5 ("Test " length)
-
-    ydoc.destroy();
-    remoteYdoc.destroy();
-    localEditor.unmount();
-    remoteEditor.unmount();
   });
 });

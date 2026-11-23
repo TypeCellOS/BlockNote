@@ -1,10 +1,8 @@
-/**
- * @vitest-environment jsdom
- */
-import { afterEach, describe, expect, it } from "vite-plus/test";
+import { describe, expect, type TestContext } from "vite-plus/test";
 import * as Y from "@y/y";
 
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import type { SetupEditor } from "../../../../../tests/src/commands/browser/setupEditor.js";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { ForkYDocExtension } from "./ForkYDoc.js";
 import { withCollaboration } from "./index.js";
 import {
@@ -22,11 +20,18 @@ import { yUndoPlugin, undo, redo } from "@y/prosemirror";
 // Helpers
 // ---------------------------------------------------------------------------
 
-function createCollabEditor(
+type EditorFixtures = {
+  setupEditor: SetupEditor;
+  onTestFinished: TestContext["onTestFinished"];
+};
+
+async function createCollabEditor(
+  { setupEditor, onTestFinished }: EditorFixtures,
   extensions: (fragment: Y.Node) => ExtensionFactoryInstance[] = () => [],
   disableExtensions: string[] = [],
 ) {
   const doc = new Y.Doc();
+  onTestFinished(() => doc.destroy());
   const fragment = doc.get("doc");
 
   const collabOptions = {
@@ -35,22 +40,24 @@ function createCollabEditor(
     provider: undefined,
   };
 
-  const editor = BlockNoteEditor.create(
-    withCollaboration({
+  const { editor } = await setupEditor({
+    mountType: "dom",
+    ...withCollaboration({
       collaboration: collabOptions,
       disableExtensions,
       // Register ForkYDocExtension alongside the collaboration extensions
       extensions: [ForkYDocExtension(collabOptions), ...extensions(fragment)],
     }),
-  );
-  const div = document.createElement("div");
-  editor.mount(div);
+  });
+  const fork = editor.getExtension(ForkYDocExtension);
+  // Tests that leave a fork open must discard it before the editor unmounts.
+  onTestFinished(() => fork?.merge({ keepChanges: false }));
 
   return { editor, doc, fragment };
 }
 
 function getEditorText(editor: BlockNoteEditor): string {
-  return editor.prosemirrorState.doc.textContent;
+  return editor.domElement!.textContent ?? "";
 }
 
 function setEditorText(editor: BlockNoteEditor, text: string) {
@@ -66,20 +73,14 @@ function setEditorText(editor: BlockNoteEditor, text: string) {
 // Tests
 // ---------------------------------------------------------------------------
 
-let ctx: ReturnType<typeof createCollabEditor>;
-
-afterEach(() => {
-  ctx?.editor.unmount();
-  ctx?.doc.destroy();
-});
-
 describe("ForkYDocExtension (v14)", () => {
-  it.each(["history", "yUndo"] as const)(
+  it.for(["history", "yUndo"] as const)(
     "detaches %s through version previews and resumes live undo",
-    async (historyType) => {
+    async (historyType, { setupEditor, onTestFinished }) => {
       let snapshot: Uint8Array = new Uint8Array();
       let manager: Y.UndoManager | undefined;
-      ctx = createCollabEditor(
+      const ctx = await createCollabEditor(
+        { setupEditor, onTestFinished },
         (fragment) => {
           const Versions = createVersioningExtension((editor) => ({
             adapter: createYVersionView(editor, fragment),
@@ -97,6 +98,7 @@ describe("ForkYDocExtension (v14)", () => {
           }
           manager = new Y.UndoManager(fragment);
           const undoManager = manager;
+          onTestFinished(() => undoManager.destroy());
           const YUndo = createExtension(() => ({
             key: "yUndo",
             prosemirrorPlugins: [yUndoPlugin(undoManager)],
@@ -146,13 +148,18 @@ describe("ForkYDocExtension (v14)", () => {
         expect(getEditorText(ctx.editor)).toBe("New edit");
       } finally {
         versions.close();
-        manager?.destroy();
       }
     },
   );
 
-  it("forks the document — edits do not affect the original fragment", () => {
-    ctx = createCollabEditor();
+  it("forks the document — edits do not affect the original fragment", async ({
+    setupEditor,
+    onTestFinished,
+  }) => {
+    const ctx = await createCollabEditor({
+      setupEditor,
+      onTestFinished,
+    });
     setEditorText(ctx.editor, "Original");
 
     const forkYDoc = ctx.editor.getExtension(ForkYDocExtension)!;
@@ -169,8 +176,14 @@ describe("ForkYDocExtension (v14)", () => {
     expect(getEditorText(ctx.editor)).toBe("Original");
   });
 
-  it("merge({ keepChanges: false }) discards forked edits", () => {
-    ctx = createCollabEditor();
+  it("merge({ keepChanges: false }) discards forked edits", async ({
+    setupEditor,
+    onTestFinished,
+  }) => {
+    const ctx = await createCollabEditor({
+      setupEditor,
+      onTestFinished,
+    });
     setEditorText(ctx.editor, "Original");
 
     const forkYDoc = ctx.editor.getExtension(ForkYDocExtension)!;
@@ -182,8 +195,14 @@ describe("ForkYDocExtension (v14)", () => {
     expect(getEditorText(ctx.editor)).toBe("Original");
   });
 
-  it("merge({ keepChanges: true }) applies forked edits to the original doc", () => {
-    ctx = createCollabEditor();
+  it("merge({ keepChanges: true }) applies forked edits to the original doc", async ({
+    setupEditor,
+    onTestFinished,
+  }) => {
+    const ctx = await createCollabEditor({
+      setupEditor,
+      onTestFinished,
+    });
     setEditorText(ctx.editor, "Original");
 
     const forkYDoc = ctx.editor.getExtension(ForkYDocExtension)!;
@@ -195,12 +214,19 @@ describe("ForkYDocExtension (v14)", () => {
     expect(getEditorText(ctx.editor)).toContain("Forked edit");
   });
 
-  it("fork({ initialUpdate }) uses the provided update instead of the live doc", () => {
-    ctx = createCollabEditor();
+  it("fork({ initialUpdate }) uses the provided update instead of the live doc", async ({
+    setupEditor,
+    onTestFinished,
+  }) => {
+    const ctx = await createCollabEditor({
+      setupEditor,
+      onTestFinished,
+    });
     setEditorText(ctx.editor, "Current content");
 
     // Create a snapshot of the current state
     const snapshotDoc = new Y.Doc();
+    onTestFinished(() => snapshotDoc.destroy());
     Y.applyUpdateV2(snapshotDoc, Y.encodeStateAsUpdateV2(ctx.doc));
 
     // Modify the live editor
@@ -219,11 +245,18 @@ describe("ForkYDocExtension (v14)", () => {
     expect(getEditorText(ctx.editor)).toBe("Modified after snapshot");
   });
 
-  it("fork({ initialUpdate }) + merge({ keepChanges: false }) restores live doc", () => {
-    ctx = createCollabEditor();
+  it("fork({ initialUpdate }) + merge({ keepChanges: false }) restores live doc", async ({
+    setupEditor,
+    onTestFinished,
+  }) => {
+    const ctx = await createCollabEditor({
+      setupEditor,
+      onTestFinished,
+    });
     setEditorText(ctx.editor, "Live content");
 
     const snapshotDoc = new Y.Doc();
+    onTestFinished(() => snapshotDoc.destroy());
     Y.applyUpdateV2(snapshotDoc, Y.encodeStateAsUpdateV2(ctx.doc));
 
     setEditorText(ctx.editor, "Updated live content");
@@ -240,8 +273,14 @@ describe("ForkYDocExtension (v14)", () => {
     expect(getEditorText(ctx.editor)).toBe("Updated live content");
   });
 
-  it("calling fork() while already forked is a no-op", () => {
-    ctx = createCollabEditor();
+  it("calling fork() while already forked is a no-op", async ({
+    setupEditor,
+    onTestFinished,
+  }) => {
+    const ctx = await createCollabEditor({
+      setupEditor,
+      onTestFinished,
+    });
     setEditorText(ctx.editor, "Original");
 
     const forkYDoc = ctx.editor.getExtension(ForkYDocExtension)!;
@@ -253,8 +292,14 @@ describe("ForkYDocExtension (v14)", () => {
     expect(getEditorText(ctx.editor)).toBe("Forked edit");
   });
 
-  it("isForked store state reflects fork/merge lifecycle", () => {
-    ctx = createCollabEditor();
+  it("isForked store state reflects fork/merge lifecycle", async ({
+    setupEditor,
+    onTestFinished,
+  }) => {
+    const ctx = await createCollabEditor({
+      setupEditor,
+      onTestFinished,
+    });
     const forkYDoc = ctx.editor.getExtension(ForkYDocExtension)!;
 
     expect(forkYDoc.store.state.isForked).toBe(false);
@@ -266,8 +311,14 @@ describe("ForkYDocExtension (v14)", () => {
     expect(forkYDoc.store.state.isForked).toBe(false);
   });
 
-  it("merge() is a no-op when not forked", () => {
-    ctx = createCollabEditor();
+  it("merge() is a no-op when not forked", async ({
+    setupEditor,
+    onTestFinished,
+  }) => {
+    const ctx = await createCollabEditor({
+      setupEditor,
+      onTestFinished,
+    });
     setEditorText(ctx.editor, "Untouched");
 
     const forkYDoc = ctx.editor.getExtension(ForkYDocExtension)!;
@@ -280,8 +331,14 @@ describe("ForkYDocExtension (v14)", () => {
     expect(forkYDoc.store.state.isForked).toBe(false);
   });
 
-  it("forked doc is a separate Y.Doc from the original", () => {
-    ctx = createCollabEditor();
+  it("forked doc is a separate Y.Doc from the original", async ({
+    setupEditor,
+    onTestFinished,
+  }) => {
+    const ctx = await createCollabEditor({
+      setupEditor,
+      onTestFinished,
+    });
     setEditorText(ctx.editor, "Before fork");
 
     const forkYDoc = ctx.editor.getExtension(ForkYDocExtension)!;
@@ -293,32 +350,37 @@ describe("ForkYDocExtension (v14)", () => {
     // The original Y.Doc should not see the forked edit.
     // Verify by creating a second editor pointing at the same original doc.
     const secondDoc = new Y.Doc();
+    onTestFinished(() => secondDoc.destroy());
     Y.applyUpdateV2(secondDoc, Y.encodeStateAsUpdateV2(ctx.doc));
-    const secondEditor = BlockNoteEditor.create(
-      withCollaboration({
+    const { editor: secondEditor } = await setupEditor({
+      mountType: "dom",
+      ...withCollaboration({
+        extensions: [],
         collaboration: {
           fragment: secondDoc.get("doc"),
           user: { name: "Peer", color: "#00FF00" },
           provider: undefined,
         },
       }),
-    );
-    const div2 = document.createElement("div");
-    secondEditor.mount(div2);
+    });
 
     // The second editor (synced from original doc) should still show "Before fork"
     expect(getEditorText(secondEditor)).toBe("Before fork");
-
-    secondEditor.unmount();
-    secondDoc.destroy();
   });
 
-  it("fork({ initialUpdate }) + merge({ keepChanges: true }) applies forked edits to original", () => {
-    ctx = createCollabEditor();
+  it("fork({ initialUpdate }) + merge({ keepChanges: true }) applies forked edits to original", async ({
+    setupEditor,
+    onTestFinished,
+  }) => {
+    const ctx = await createCollabEditor({
+      setupEditor,
+      onTestFinished,
+    });
     setEditorText(ctx.editor, "Current content");
 
     // Take a snapshot
     const snapshotDoc = new Y.Doc();
+    onTestFinished(() => snapshotDoc.destroy());
     Y.applyUpdateV2(snapshotDoc, Y.encodeStateAsUpdateV2(ctx.doc));
 
     // Move the live doc forward
