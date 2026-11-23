@@ -1,79 +1,64 @@
-import { Selection } from "prosemirror-state";
-import { afterEach, describe, expect, it } from "vite-plus/test";
+import { Decoration, DecorationSet } from "@tiptap/pm/view";
+import { describe, expect } from "vite-plus/test";
 
-import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
+import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
+import { installHeadlessPlugins } from "../../../extensions/testHeadlessEditor.js";
+import type { PartialBlock } from "../../defaultBlocks.js";
 
-/**
- * @vitest-environment jsdom
- */
-
-const PLUGIN_KEY = "numbered-list-indexing-decorations$";
-
-// Track editors created in each test so we can unmount them in afterEach —
-// otherwise prosemirror-view's DOMObserver leaves a setTimeout alive that
-// fires after vitest tears down jsdom, throwing
-// `ReferenceError: document is not defined` and failing the run.
-const activeEditors: BlockNoteEditor<any, any, any>[] = [];
-
-afterEach(() => {
-  while (activeEditors.length) {
-    activeEditors.pop()!.unmount();
-  }
+const it = globalThis.it.extend<{ editor: BlockNoteEditor }>({
+  editor: async ({ setupEditor }, use) => {
+    const { editor } = await setupEditor();
+    installHeadlessPlugins(editor);
+    await use(editor);
+  },
 });
 
-function createEditor() {
-  const editor = BlockNoteEditor.create();
-  editor.mount(document.createElement("div"));
-  activeEditors.push(editor);
-  return editor;
-}
-
-function getDecorationSet(editor: BlockNoteEditor<any, any, any>) {
-  const view = editor._tiptapEditor.view;
-  const plugin = view.state.plugins.find((p) => (p as any).key === PLUGIN_KEY);
-  if (!plugin) {
-    throw new Error("IndexingPlugin not found");
+function getDecorationSet(editor: BlockNoteEditor) {
+  const state = editor.prosemirrorView.state;
+  const extension = editor.getExtension("numbered-list-item-shortcuts");
+  for (const plugin of extension?.prosemirrorPlugins ?? []) {
+    if (state.plugins.includes(plugin)) {
+      const decorations = plugin.props.decorations?.call(plugin, state);
+      if (decorations instanceof DecorationSet) {
+        return decorations;
+      }
+    }
   }
-  return plugin.getState(view.state)!.decorations;
+  throw new Error("Numbered-list indexing plugin is not installed");
 }
 
 /** Returns all decoration specs in document order. */
-function getDecoSpecs(editor: BlockNoteEditor<any, any, any>) {
-  const decoSet = getDecorationSet(editor);
-  const doc = editor._tiptapEditor.view.state.doc;
-  const decos = decoSet.find(0, doc.nodeSize - 2);
-  return decos.map((d: any) => d.spec);
+function getDecoSpecs(editor: BlockNoteEditor) {
+  return getDecorationSet(editor)
+    .find()
+    .map((decoration) => decoration.spec);
 }
 
 /** Returns the data-index values from decoration attrs in document order. */
-function getDataIndices(editor: BlockNoteEditor<any, any, any>) {
-  const decoSet = getDecorationSet(editor);
-  const doc = editor._tiptapEditor.view.state.doc;
-  const decos = decoSet.find(0, doc.nodeSize - 2);
-  return decos.map((d: any) => {
-    // Decoration attrs are stored on the decoration object
-    const attrs = (d as any).type?.attrs ?? (d as any).attrs ?? (d as any).type;
-    return parseInt(attrs["data-index"], 10);
-  });
+function getDataIndices(editor: BlockNoteEditor) {
+  return getDecorationSet(editor)
+    .find()
+    .map((decoration) => {
+      const { from, to, spec } = decoration;
+      const index: unknown = spec.index;
+      if (typeof index !== "number") {
+        throw new Error("List decoration is missing its numeric index");
+      }
+      expect(decoration).toStrictEqual(
+        Decoration.node(from, to, { "data-index": String(index) }, spec),
+      );
+      return index;
+    });
 }
 
-function setBlocks(
-  editor: BlockNoteEditor<any, any, any>,
-  blocks: Array<{ type: string; content?: string; props?: any }>,
-) {
-  editor.replaceBlocks(
-    editor.document,
-    blocks.map((b) => ({
-      type: b.type as any,
-      content: b.content ?? "text",
-      ...(b.props ? { props: b.props } : {}),
-    })) as any,
-  );
+function setBlocks(editor: BlockNoteEditor, blocks: PartialBlock[]) {
+  editor.replaceBlocks(editor.document, blocks);
 }
 
 describe("IndexingPlugin: basic numbering", () => {
-  it("assigns sequential indices to a contiguous numbered list", () => {
-    const editor = createEditor();
+  it("assigns sequential indices to a contiguous numbered list", ({
+    editor,
+  }) => {
     setBlocks(editor, [
       { type: "numberedListItem", content: "a" },
       { type: "numberedListItem", content: "b" },
@@ -84,8 +69,7 @@ describe("IndexingPlugin: basic numbering", () => {
     expect(indices).toEqual([1, 2, 3]);
   });
 
-  it("resets index after a non-list block", () => {
-    const editor = createEditor();
+  it("resets index after a non-list block", ({ editor }) => {
     setBlocks(editor, [
       { type: "numberedListItem", content: "a" },
       { type: "numberedListItem", content: "b" },
@@ -98,16 +82,14 @@ describe("IndexingPlugin: basic numbering", () => {
     expect(indices).toEqual([1, 2, 1, 2]);
   });
 
-  it("single numbered list item gets index 1", () => {
-    const editor = createEditor();
+  it("single numbered list item gets index 1", ({ editor }) => {
     setBlocks(editor, [{ type: "numberedListItem", content: "only" }]);
 
     const indices = getDataIndices(editor);
     expect(indices).toEqual([1]);
   });
 
-  it("no decorations for non-list blocks", () => {
-    const editor = createEditor();
+  it("no decorations for non-list blocks", ({ editor }) => {
     setBlocks(editor, [
       { type: "paragraph", content: "a" },
       { type: "heading", content: "b", props: { level: 1 } },
@@ -119,8 +101,9 @@ describe("IndexingPlugin: basic numbering", () => {
 });
 
 describe("IndexingPlugin: updates on structural changes", () => {
-  it("updates indices when a block is deleted from the middle", () => {
-    const editor = createEditor();
+  it("updates indices when a block is deleted from the middle", ({
+    editor,
+  }) => {
     setBlocks(editor, [
       { type: "numberedListItem", content: "a" },
       { type: "numberedListItem", content: "b" },
@@ -135,8 +118,7 @@ describe("IndexingPlugin: updates on structural changes", () => {
     expect(indices).toEqual([1, 2]);
   });
 
-  it("updates indices when a block is inserted in the middle", () => {
-    const editor = createEditor();
+  it("updates indices when a block is inserted in the middle", ({ editor }) => {
     setBlocks(editor, [
       { type: "numberedListItem", content: "a" },
       { type: "numberedListItem", content: "c" },
@@ -145,7 +127,7 @@ describe("IndexingPlugin: updates on structural changes", () => {
     // Insert a block after the first
     const firstBlock = editor.document[0];
     editor.insertBlocks(
-      [{ type: "numberedListItem" as any, content: "b" } as any],
+      [{ type: "numberedListItem", content: "b" }],
       firstBlock,
       "after",
     );
@@ -154,8 +136,7 @@ describe("IndexingPlugin: updates on structural changes", () => {
     expect(indices).toEqual([1, 2, 3]);
   });
 
-  it("updates indices when first block is deleted", () => {
-    const editor = createEditor();
+  it("updates indices when first block is deleted", ({ editor }) => {
     setBlocks(editor, [
       { type: "numberedListItem", content: "a" },
       { type: "numberedListItem", content: "b" },
@@ -168,26 +149,27 @@ describe("IndexingPlugin: updates on structural changes", () => {
     expect(indices).toEqual([1, 2]);
   });
 
-  it("updates indices with nested list when first block is deleted", () => {
-    const editor = createEditor();
+  it("updates indices with nested list when first block is deleted", ({
+    editor,
+  }) => {
     editor.replaceBlocks(editor.document, [
       {
-        type: "numberedListItem" as any,
+        type: "numberedListItem",
         content: "first item",
       },
       {
-        type: "numberedListItem" as any,
+        type: "numberedListItem",
         content: "second item",
         children: [
-          { type: "numberedListItem" as any, content: "nested item" },
-          { type: "numberedListItem" as any, content: "second nested item" },
+          { type: "numberedListItem", content: "nested item" },
+          { type: "numberedListItem", content: "second nested item" },
         ],
       },
       {
-        type: "numberedListItem" as any,
+        type: "numberedListItem",
         content: "third item",
       },
-    ] as any);
+    ]);
 
     // Before deletion: top-level [1, 2, 3], nested [1, 2]
     const indicesBefore = getDataIndices(editor);
@@ -201,8 +183,9 @@ describe("IndexingPlugin: updates on structural changes", () => {
     expect(indicesAfter).toEqual([1, 1, 2, 2]);
   });
 
-  it("updates indices when block type changes from numbered list to paragraph", () => {
-    const editor = createEditor();
+  it("updates indices when block type changes from numbered list to paragraph", ({
+    editor,
+  }) => {
     setBlocks(editor, [
       { type: "numberedListItem", content: "a" },
       { type: "numberedListItem", content: "b" },
@@ -217,8 +200,9 @@ describe("IndexingPlugin: updates on structural changes", () => {
     expect(indices).toEqual([1, 1]);
   });
 
-  it("updates indices when block type changes from paragraph to numbered list", () => {
-    const editor = createEditor();
+  it("updates indices when block type changes from paragraph to numbered list", ({
+    editor,
+  }) => {
     setBlocks(editor, [
       { type: "numberedListItem", content: "a" },
       { type: "paragraph", content: "b" },
@@ -234,8 +218,7 @@ describe("IndexingPlugin: updates on structural changes", () => {
 });
 
 describe("IndexingPlugin: typing preserves indices (early exit)", () => {
-  it("indices unchanged after typing in the first block", () => {
-    const editor = createEditor();
+  it("indices unchanged after typing in the first block", ({ editor }) => {
     setBlocks(editor, [
       { type: "numberedListItem", content: "a" },
       { type: "numberedListItem", content: "b" },
@@ -245,15 +228,14 @@ describe("IndexingPlugin: typing preserves indices (early exit)", () => {
     const indicesBefore = getDataIndices(editor);
 
     // Type a character in the first block
-    const view = editor._tiptapEditor.view;
-    view.dispatch(view.state.tr.insertText("x", 4));
+    editor.setTextCursorPosition(editor.document[0], "end");
+    editor.insertInlineContent("x");
 
     const indicesAfter = getDataIndices(editor);
     expect(indicesAfter).toEqual(indicesBefore);
   });
 
-  it("indices unchanged after typing in the last block", () => {
-    const editor = createEditor();
+  it("indices unchanged after typing in the last block", ({ editor }) => {
     setBlocks(editor, [
       { type: "numberedListItem", content: "a" },
       { type: "numberedListItem", content: "b" },
@@ -262,16 +244,14 @@ describe("IndexingPlugin: typing preserves indices (early exit)", () => {
 
     const indicesBefore = getDataIndices(editor);
 
-    const view = editor._tiptapEditor.view;
-    const pos = view.state.doc.content.size - 4;
-    view.dispatch(view.state.tr.insertText("x", pos));
+    editor.setTextCursorPosition(editor.document.at(-1)!, "start");
+    editor.insertInlineContent("x");
 
     const indicesAfter = getDataIndices(editor);
     expect(indicesAfter).toEqual(indicesBefore);
   });
 
-  it("indices unchanged after typing in a middle block", () => {
-    const editor = createEditor();
+  it("indices unchanged after typing in a middle block", ({ editor }) => {
     setBlocks(editor, [
       { type: "numberedListItem", content: "a" },
       { type: "numberedListItem", content: "b" },
@@ -281,14 +261,8 @@ describe("IndexingPlugin: typing preserves indices (early exit)", () => {
     const indicesBefore = getDataIndices(editor);
 
     // Find position inside second block's content
-    const view = editor._tiptapEditor.view;
-    let targetPos = 0;
-    view.state.doc.descendants((node, pos) => {
-      if (node.type.name === "numberedListItem" && targetPos === 0 && pos > 4) {
-        targetPos = pos + 1; // inside the inline content
-      }
-    });
-    view.dispatch(view.state.tr.insertText("x", targetPos));
+    editor.setTextCursorPosition(editor.document[1], "start");
+    editor.insertInlineContent("x");
 
     const indicesAfter = getDataIndices(editor);
     expect(indicesAfter).toEqual(indicesBefore);
@@ -296,8 +270,9 @@ describe("IndexingPlugin: typing preserves indices (early exit)", () => {
 });
 
 describe("IndexingPlugin: decoration specs", () => {
-  it("decorations have correct spec with index, isFirst, hasStart", () => {
-    const editor = createEditor();
+  it("decorations have correct spec with index, isFirst, hasStart", ({
+    editor,
+  }) => {
     setBlocks(editor, [
       { type: "numberedListItem", content: "a" },
       { type: "numberedListItem", content: "b" },
@@ -310,8 +285,7 @@ describe("IndexingPlugin: decoration specs", () => {
     ]);
   });
 
-  it("first item after a paragraph is marked as isFirst", () => {
-    const editor = createEditor();
+  it("first item after a paragraph is marked as isFirst", ({ editor }) => {
     setBlocks(editor, [
       { type: "numberedListItem", content: "a" },
       { type: "paragraph", content: "break" },
@@ -329,8 +303,7 @@ describe("IndexingPlugin: decoration specs", () => {
 });
 
 describe("IndexingPlugin: selection-only transactions", () => {
-  it("does not recompute decorations on selection change", () => {
-    const editor = createEditor();
+  it("does not recompute decorations on selection change", ({ editor }) => {
     setBlocks(editor, [
       { type: "numberedListItem", content: "a" },
       { type: "numberedListItem", content: "b" },
@@ -339,11 +312,7 @@ describe("IndexingPlugin: selection-only transactions", () => {
     const decosBefore = getDecorationSet(editor);
 
     // Move selection without changing content
-    const view = editor._tiptapEditor.view;
-    const tr = view.state.tr.setSelection(
-      Selection.near(view.state.doc.resolve(4)),
-    );
-    view.dispatch(tr);
+    editor.setTextCursorPosition(editor.document[0], "end");
 
     const decosAfter = getDecorationSet(editor);
     // Same DecorationSet reference — not recomputed

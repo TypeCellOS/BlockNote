@@ -70,9 +70,19 @@ function remount(content: PartialBlock[], options = { editable: true }) {
   mount(content, options);
 }
 
-beforeEach(() => {
-  // The open state of a toggle is kept in `localStorage`, keyed by block id.
-  localStorage.clear();
+beforeEach(({ onTestFinished }) => {
+  // Reset only the fixture toggles, once per case so remounts retain state.
+  for (const key of ["toggle-t", "toggle-empty"]) {
+    const previous = localStorage.getItem(key);
+    onTestFinished(() => {
+      if (previous === null) {
+        localStorage.removeItem(key);
+      } else {
+        localStorage.setItem(key, previous);
+      }
+    });
+    localStorage.removeItem(key);
+  }
 });
 
 afterEach(() => {
@@ -143,6 +153,11 @@ function childrenAreVisible(id: string) {
 
 async function open(id: string) {
   await userEvent.click(toggleButton(id)!);
+}
+
+/** Open through the real handler when the click itself is not under test. */
+function openForSetup(id: string) {
+  toggleButton(id)!.click();
 }
 
 /**
@@ -318,9 +333,9 @@ describe.each(kinds)("$name", ({ toggle, newBlockTypeAfterClosedToggle }) => {
     });
 
     // Notion keeps the toggle open, showing its empty-toggle placeholder.
-    it("stays open, as an empty toggle, when its last child is removed", async () => {
+    it("stays open, as an empty toggle, when its last child is removed", () => {
       mount([toggle("t", "Title", [{ id: "c1", type: "paragraph" }])]);
-      await open("t");
+      openForSetup("t");
 
       editor.removeBlocks(["c1"]);
 
@@ -329,9 +344,9 @@ describe.each(kinds)("$name", ({ toggle, newBlockTypeAfterClosedToggle }) => {
       expect(addBlockButton("t")).not.toBeNull();
     });
 
-    it("stays open when one of several children is removed", async () => {
+    it("stays open when one of several children is removed", () => {
       mount(withChildren());
-      await open("t");
+      openForSetup("t");
 
       editor.removeBlocks(["c1"]);
 
@@ -344,9 +359,9 @@ describe.each(kinds)("$name", ({ toggle, newBlockTypeAfterClosedToggle }) => {
     // The children span the frame below the title. When they fell into the
     // chevron's grid column instead, they widened it and pushed the title far
     // to the right.
-    it("keeps the title next to the chevron and the children below it", async () => {
+    it("keeps the title next to the chevron and the children below it", () => {
       mount(withChildren());
-      await open("t");
+      openForSetup("t");
 
       const frame = own("t", ".bn-toggle-frame")!.getBoundingClientRect();
       const title = own("t", ".bn-inline-content")!.getBoundingClientRect();
@@ -362,7 +377,7 @@ describe.each(kinds)("$name", ({ toggle, newBlockTypeAfterClosedToggle }) => {
       mount([toggle("t", "Title")]);
       expect(addBlockButton("t")).toBeNull();
 
-      await open("t");
+      openForSetup("t");
       await userEvent.click(addBlockButton("t")!);
 
       const child = editor.getBlock("t")!.children;
@@ -373,7 +388,8 @@ describe.each(kinds)("$name", ({ toggle, newBlockTypeAfterClosedToggle }) => {
 
     it('removes the "Add block" button when closed', async () => {
       mount([toggle("t", "Title")]);
-      await open("t");
+      openForSetup("t");
+      expect(addBlockButton("t")).not.toBeNull();
 
       await open("t");
 
@@ -385,7 +401,8 @@ describe.each(kinds)("$name", ({ toggle, newBlockTypeAfterClosedToggle }) => {
         toggle("t", "Title"),
         { id: "after", type: "paragraph", content: "After" },
       ]);
-      await open("t");
+      openForSetup("t");
+      expect(addBlockButton("t")).not.toBeNull();
 
       await press("{Tab}", { block: "after", placement: "start" });
 
@@ -432,7 +449,7 @@ describe.each(kinds)("$name", ({ toggle, newBlockTypeAfterClosedToggle }) => {
         toggle("t", "Title"),
         { id: "after", type: "paragraph", content: "After" },
       ]);
-      await open("t");
+      openForSetup("t");
 
       await press("{ArrowDown}", { block: "t", placement: "end" });
 
@@ -445,7 +462,7 @@ describe.each(kinds)("$name", ({ toggle, newBlockTypeAfterClosedToggle }) => {
     // toggle's body, as in Notion, not a new block after the toggle.
     it("at the end of an open toggle's title adds a first child (BLO-929)", async () => {
       mount(withChildren());
-      await open("t");
+      openForSetup("t");
 
       await press("{Enter}", { block: "t", placement: "end" });
 
@@ -476,7 +493,7 @@ describe.each(kinds)("$name", ({ toggle, newBlockTypeAfterClosedToggle }) => {
     // Notion, the text after the caret becomes the toggle's first child.
     it("in the middle of an open toggle's title moves the rest of the title into a first child (BLO-949)", async () => {
       mount(withChildren());
-      await open("t");
+      openForSetup("t");
 
       setCaretAt("t", 2);
       await userEvent.keyboard("{Enter}");
@@ -514,7 +531,7 @@ describe.each(kinds)("$name", ({ toggle, newBlockTypeAfterClosedToggle }) => {
           { id: "c2", type: "paragraph" },
         ]),
       ]);
-      await open("t");
+      openForSetup("t");
 
       await press("{Enter}", { block: "c2", placement: "start" });
 
@@ -530,7 +547,7 @@ describe.each(kinds)("$name", ({ toggle, newBlockTypeAfterClosedToggle }) => {
     // BLO-949: Enter in a child continues inside the toggle.
     it("at the end of a child adds a sibling child (BLO-949)", async () => {
       mount(withChildren());
-      await open("t");
+      openForSetup("t");
 
       await press("{Enter}", { block: "c1", placement: "end" });
 
@@ -555,7 +572,7 @@ describe.each(kinds)("$name", ({ toggle, newBlockTypeAfterClosedToggle }) => {
     // the title.
     it("at the start of the first child merges it into the title", async () => {
       mount(withChildren());
-      await open("t");
+      openForSetup("t");
 
       await press("{Backspace}", { block: "c1", placement: "start" });
 
@@ -589,7 +606,7 @@ describe.each(kinds)("$name", ({ toggle, newBlockTypeAfterClosedToggle }) => {
       mount([
         toggle("t", "Title", [{ id: "c1", type: "paragraph", content: "One" }]),
       ]);
-      await open("t");
+      openForSetup("t");
 
       await press(moveDown, { block: "c1", placement: "start" });
 
@@ -603,7 +620,7 @@ describe.each(kinds)("$name", ({ toggle, newBlockTypeAfterClosedToggle }) => {
         { id: "before", type: "paragraph", content: "Before" },
         ...withChildren(),
       ]);
-      await open("t");
+      openForSetup("t");
 
       await press(moveUp, { block: "t", placement: "end" });
 
@@ -647,7 +664,7 @@ describe.each(kinds)("$name", ({ toggle, newBlockTypeAfterClosedToggle }) => {
   describe("drop onto the toggle", () => {
     it("onto the title: shows the place above the first child, and drops it there", async () => {
       mount(withChildren());
-      await open("t");
+      openForSetup("t");
 
       const drag = dragBlockOver("after", own("t", ".bn-inline-content")!);
 
@@ -681,12 +698,12 @@ describe.each(kinds)("$name", ({ toggle, newBlockTypeAfterClosedToggle }) => {
       expect(isOpen("t")).toBe(true);
     });
 
-    it("onto 'Add block' of an empty toggle: shows the place below the title, and drops it there (BLO-956)", async () => {
+    it("onto 'Add block' of an empty toggle: shows the place below the title, and drops it there (BLO-956)", () => {
       mount([
         toggle("t", "Title"),
         { id: "after", type: "paragraph", content: "After" },
       ]);
-      await open("t");
+      openForSetup("t");
 
       const drag = dragBlockOver("after", addBlockButton("t")!);
 
@@ -702,9 +719,9 @@ describe.each(kinds)("$name", ({ toggle, newBlockTypeAfterClosedToggle }) => {
       ]);
     });
 
-    it("drops it as usual when the toggle is removed during the drag", async () => {
+    it("drops it as usual when the toggle is removed during the drag", () => {
       mount(withChildren());
-      await open("t");
+      openForSetup("t");
 
       const drag = dragBlockOver("after", own("t", ".bn-inline-content")!);
       expect(highlightedDropTarget()).toBe("t");
@@ -717,9 +734,9 @@ describe.each(kinds)("$name", ({ toggle, newBlockTypeAfterClosedToggle }) => {
       expect(highlightedDropTarget()).toBeNull();
     });
 
-    it("onto a child: drops it between the children, as usual", async () => {
+    it("onto a child: drops it between the children, as usual", () => {
       mount(withChildren());
-      await open("t");
+      openForSetup("t");
 
       const drag = dragBlockOver("after", own("c2", ".bn-inline-content")!);
       expect(highlightedDropTarget()).toBeNull();
@@ -734,7 +751,7 @@ describe.each(kinds)("$name", ({ toggle, newBlockTypeAfterClosedToggle }) => {
   describe("indentation", () => {
     it("Shift-Tab moves a child out of the toggle", async () => {
       mount(withChildren());
-      await open("t");
+      openForSetup("t");
 
       await press("{Shift>}{Tab}{/Shift}", { block: "c2", placement: "start" });
 
@@ -772,7 +789,7 @@ describe("Enter in an empty toggle title", () => {
       { id: "t", type: "paragraph", content: "Before" },
       { id: "empty", type: "toggleListItem" },
     ]);
-    await userEvent.click(toggleButton("empty")!);
+    openForSetup("empty");
 
     await press("{Enter}", { block: "empty", placement: "start" });
 
@@ -786,7 +803,7 @@ describe("Enter in an empty toggle title", () => {
       { id: "t", type: "paragraph", content: "Before" },
       { id: "empty", type: "heading", props: { level: 2, isToggleable: true } },
     ]);
-    await userEvent.click(toggleButton("empty")!);
+    openForSetup("empty");
 
     await press("{Enter}", { block: "empty", placement: "start" });
 
@@ -810,7 +827,7 @@ describe("Enter in an empty toggle title", () => {
         },
       ]);
       if (state === "open") {
-        await userEvent.click(toggleButton("empty")!);
+        openForSetup("empty");
       }
 
       await press("{Enter}", { block: "empty", placement: "start" });
@@ -829,7 +846,7 @@ describe("Enter in an empty toggle title", () => {
         },
       ]);
       if (state === "open") {
-        await userEvent.click(toggleButton("empty")!);
+        openForSetup("empty");
       }
 
       await press("{Enter}", { block: "empty", placement: "start" });
@@ -931,7 +948,7 @@ describe("Enter at the start of a non-empty toggle list item", () => {
         },
       ]);
       if (state === "open") {
-        await userEvent.click(toggleButton("t")!);
+        openForSetup("t");
       }
 
       await press("{Enter}", { block: "t", placement: "start" });

@@ -1,122 +1,32 @@
-import { describe, expect, it } from "vite-plus/test";
-
-import { BlockNoteSchema } from "../../blocks/BlockNoteSchema.js";
-import {
-  defaultBlockSpecs,
-  defaultInlineContentSpecs,
-} from "../../blocks/defaultBlocks.js";
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { describe, expect } from "vite-plus/test";
 import { YAttributionMarksExtension } from "../../y/extensions/YAttributionMarks.js";
-import { createInlineContentSpec } from "./createSpec.js";
-
-// A minimal "plain" inline content, matched from external HTML by a `parse`
-// function (the `tag: "*"` parse rule).
-const customPlainIC = createInlineContentSpec(
-  {
-    type: "customPlainIC",
-    propSchema: {},
-    content: "plain",
-  },
-  {
-    parse: (el) => (el.classList?.contains("custom-plain-ic") ? {} : undefined),
-    render: () => {
-      const dom = document.createElement("span");
-      const contentDOM = document.createElement("span");
-      dom.append(contentDOM);
-      return { dom, contentDOM };
-    },
-  },
-);
-
-const createEditor = () =>
-  BlockNoteEditor.create({
-    schema: BlockNoteSchema.create({
-      blockSpecs: defaultBlockSpecs,
-      inlineContentSpecs: {
-        ...defaultInlineContentSpecs,
-        customPlainIC,
-      },
-    }),
-  });
+import { createPlainInlineSchema } from "./createSpec.test.fixture.js";
 
 describe("plain inline content", () => {
-  it("holds its text as a string in the block model", () => {
-    const editor = createEditor();
+  it.for(["hello world", "first\nsecond"])(
+    "keeps %j as a string in the block model",
+    async (content, { setupEditor }) => {
+      const { editor } = await setupEditor({
+        schema: createPlainInlineSchema(),
+      });
 
-    editor.replaceBlocks(editor.document, [
-      {
-        type: "paragraph",
-        content: [
-          {
-            type: "customPlainIC",
-            props: {},
-            content: "hello world",
-          } as any,
-        ],
-      },
-    ]);
+      // Plain content keeps newlines as characters rather than hardBreak nodes.
+      editor.replaceBlocks(editor.document, [
+        {
+          type: "paragraph",
+          content: [{ type: "customPlainIC", props: {}, content }],
+        },
+      ]);
 
-    const inlineContent = (editor.document[0] as any).content[0];
-    expect(inlineContent.type).toBe("customPlainIC");
-    expect(inlineContent.content).toBe("hello world");
+      expect(editor.document[0].content).toEqual([
+        { type: "customPlainIC", props: {}, content },
+      ]);
+    },
+  );
 
-    editor._tiptapEditor.destroy();
-  });
-
-  it("round-trips a newline in its string content", () => {
-    const editor = createEditor();
-
-    // Plain content holds raw text, so newlines are kept as characters rather
-    // than being split into (disallowed) `hardBreak` nodes.
-    editor.replaceBlocks(editor.document, [
-      {
-        type: "paragraph",
-        content: [
-          {
-            type: "customPlainIC",
-            props: {},
-            content: "first\nsecond",
-          } as any,
-        ],
-      },
-    ]);
-
-    const inlineContent = (editor.document[0] as any).content[0];
-    expect(inlineContent.type).toBe("customPlainIC");
-    expect(inlineContent.content).toBe("first\nsecond");
-
-    editor._tiptapEditor.destroy();
-  });
-
-  it("keeps text and drops formatting marks when parsed", () => {
-    const editor = createEditor();
-
-    const blocks = editor.tryParseHTMLToBlocks(
-      `<p><span class="custom-plain-ic">hello <b>world</b></span></p>`,
-    );
-
-    const inlineContent = (blocks[0] as any).content[0];
-    expect(inlineContent.type).toBe("customPlainIC");
-    expect(inlineContent.content).toBe("hello world");
-
-    editor._tiptapEditor.destroy();
-  });
-
-  it("converts line breaks to newline characters when parsed", () => {
-    const editor = createEditor();
-
-    const blocks = editor.tryParseHTMLToBlocks(
-      `<p><span class="custom-plain-ic">first<br>second</span></p>`,
-    );
-
-    const inlineContent = (blocks[0] as any).content[0];
-    expect(inlineContent.type).toBe("customPlainIC");
-    expect(inlineContent.content).toBe("first\nsecond");
-
-    editor._tiptapEditor.destroy();
-  });
-
-  it("disallows formatting marks but allows annotation marks", () => {
+  it("disallows formatting marks but allows annotation marks", async ({
+    setupEditor,
+  }) => {
     // Checked at the ProseMirror level because the block model intentionally
     // represents plain content as a bare string, without marks.
     //
@@ -124,14 +34,8 @@ describe("plain inline content", () => {
     // attribution marks are the ones reachable from core, so they stand in for
     // the `"annotation"` group here; register them so the group is non-empty
     // (mirroring the "plain" block test).
-    const editor = BlockNoteEditor.create({
-      schema: BlockNoteSchema.create({
-        blockSpecs: defaultBlockSpecs,
-        inlineContentSpecs: {
-          ...defaultInlineContentSpecs,
-          customPlainIC,
-        },
-      }),
+    const { editor } = await setupEditor({
+      schema: createPlainInlineSchema(),
       extensions: [YAttributionMarksExtension()],
     });
 
@@ -155,7 +59,5 @@ describe("plain inline content", () => {
     );
     expect(markNames.has("y-attributed-insert")).toBe(true);
     expect(markNames.has("bold")).toBe(false);
-
-    editor._tiptapEditor.destroy();
   });
 });

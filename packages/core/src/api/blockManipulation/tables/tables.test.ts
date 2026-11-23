@@ -1031,37 +1031,64 @@ describe("getRelativeToAbsoluteTableCellMapping", () => {
       name: "simple table",
       table: simpleTable,
       expected: [
-        [{ row: 0, col: 0 }, { row: 0, col: 1 }],
-        [{ row: 1, col: 0 }, { row: 1, col: 1 }],
+        [
+          { row: 0, col: 0 },
+          { row: 0, col: 1 },
+        ],
+        [
+          { row: 1, col: 0 },
+          { row: 1, col: 1 },
+        ],
       ],
     },
     {
       name: "colspan",
       table: tableWithColspan,
       expected: [
-        [{ row: 0, col: 0 }, { row: 0, col: 2 }],
-        [{ row: 1, col: 0 }, { row: 1, col: 1 }, { row: 1, col: 2 }],
+        [
+          { row: 0, col: 0 },
+          { row: 0, col: 2 },
+        ],
+        [
+          { row: 1, col: 0 },
+          { row: 1, col: 1 },
+          { row: 1, col: 2 },
+        ],
       ],
     },
     {
       name: "complex rowspans and colspans",
       table: tableWithComplexRowspansAndColspans,
       expected: [
-        [{ row: 0, col: 0 }, { row: 0, col: 2 }, { row: 0, col: 3 }],
-        [{ row: 1, col: 2 }, { row: 1, col: 3 }],
-        [{ row: 2, col: 0 }, { row: 2, col: 1 }, { row: 2, col: 3 }],
+        [
+          { row: 0, col: 0 },
+          { row: 0, col: 2 },
+          { row: 0, col: 3 },
+        ],
+        [
+          { row: 1, col: 2 },
+          { row: 1, col: 3 },
+        ],
+        [
+          { row: 2, col: 0 },
+          { row: 2, col: 1 },
+          { row: 2, col: 3 },
+        ],
       ],
     },
-  ])("maps every cell in $name to its top-left position", ({ table, expected }) => {
-    const getAbsolute = getRelativeToAbsoluteTableCellMapping(table);
-    expect(expected).toHaveLength(table.content.rows.length);
-    table.content.rows.forEach(({ cells }, row) => {
-      expect(expected[row]).toHaveLength(cells.length);
-      cells.forEach((_, col) => {
-        expect(getAbsolute({ row, col })).toEqual(expected[row][col]);
+  ])(
+    "maps every cell in $name to its top-left position",
+    ({ table, expected }) => {
+      const getAbsolute = getRelativeToAbsoluteTableCellMapping(table);
+      expect(expected).toHaveLength(table.content.rows.length);
+      table.content.rows.forEach(({ cells }, row) => {
+        expect(expected[row]).toHaveLength(cells.length);
+        cells.forEach((_, col) => {
+          expect(getAbsolute({ row, col })).toEqual(expected[row][col]);
+        });
       });
-    });
-  });
+    },
+  );
 
   it("throws for missing relative cell indices", () => {
     const getAbsolute = getRelativeToAbsoluteTableCellMapping(simpleTable);

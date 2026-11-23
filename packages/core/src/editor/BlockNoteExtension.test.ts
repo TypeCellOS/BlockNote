@@ -1,12 +1,21 @@
-import { expect, it } from "vite-plus/test";
+import { expect } from "vite-plus/test";
 import { createExtension, ExtensionOptions } from "./BlockNoteExtension.js";
-import { BlockNoteEditor } from "./BlockNoteEditor.js";
 
-const editor = BlockNoteEditor.create();
-/**
- * @vitest-environment jsdom
- */
-it("creates an extension factory", () => {
+// The factories receive an editor but never register their extensions on it.
+const it = globalThis.it.extend(
+  "editor",
+  { scope: "file" },
+  // eslint-disable-next-line no-empty-pattern -- Vitest requires destructured fixture dependencies.
+  async ({}, { onCleanup }) => {
+    const { createSetupEditor } =
+      await import("../../../../tests/src/commands/node/setupEditor.js");
+    const setupEditor = createSetupEditor(onCleanup);
+    const { editor } = await setupEditor();
+    return editor;
+  },
+);
+
+it("creates an extension factory", ({ editor }) => {
   const extension = createExtension(() => {
     return {
       key: "test",
@@ -19,7 +28,7 @@ it("creates an extension factory", () => {
   expect(extInstance.prosemirrorPlugins).toEqual([]);
 });
 
-it("creates an extension factory with options", () => {
+it("creates an extension factory with options", ({ editor }) => {
   const extension = createExtension((opts: ExtensionOptions<{ x: number }>) => {
     expect(opts.options.x).toBe(1);
     return {
@@ -33,7 +42,7 @@ it("creates an extension factory with options", () => {
   expect(extInstance.prosemirrorPlugins).toEqual([]);
 });
 
-it("creates an extension factory with undefined options", () => {
+it("creates an extension factory with undefined options", ({ editor }) => {
   const extension = createExtension(
     (opts: ExtensionOptions<{ x: number } | undefined>) => {
       expect(opts.options).toBe(undefined);
@@ -49,7 +58,7 @@ it("creates an extension factory with undefined options", () => {
   expect(extInstance.prosemirrorPlugins).toEqual([]);
 });
 
-it("creates an extension factory from an object", () => {
+it("creates an extension factory from an object", ({ editor }) => {
   const extension = createExtension({
     key: "test",
     prosemirrorPlugins: [],
@@ -60,7 +69,7 @@ it("creates an extension factory from an object", () => {
   expect(extInstance.prosemirrorPlugins).toEqual([]);
 });
 
-it("allows arbitrary properties on a no-options extension", () => {
+it("allows arbitrary properties on a no-options extension", ({ editor }) => {
   const extension = createExtension(() => {
     return {
       key: "test",
@@ -81,7 +90,7 @@ it("allows arbitrary properties on a no-options extension", () => {
   extInstance.nonExistentProperty = "newArbitraryValue";
 });
 
-it("allows arbitrary properties on an extension with options", () => {
+it("allows arbitrary properties on an extension with options", ({ editor }) => {
   const extension = createExtension((opts: ExtensionOptions<{ x: number }>) => {
     expect(opts.options.x).toBe(1);
     return {

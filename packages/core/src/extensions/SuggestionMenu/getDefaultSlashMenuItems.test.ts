@@ -1,19 +1,12 @@
-// @vitest-environment node
-import { TextSelection } from "@tiptap/pm/state";
-import { afterEach, describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { insertOrUpdateBlockForSlashMenu } from "./getDefaultSlashMenuItems.js";
 
-let editor: BlockNoteEditor | undefined;
-
-afterEach(() => {
-  editor?._tiptapEditor.destroy();
-});
-
 describe("slash-menu block conversion (#2236)", () => {
-  it("converts the existing paragraph to a quote at its start", () => {
-    editor = BlockNoteEditor.create({
+  it("converts the existing paragraph to a quote at its start", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
       initialContent: [
         { id: "source", type: "paragraph", content: "Existing text" },
       ],
@@ -30,28 +23,25 @@ describe("slash-menu block conversion (#2236)", () => {
       content: [{ type: "text", text: "Existing text", styles: {} }],
     });
     expect(editor.getTextCursorPosition().block.id).toBe("source");
-    expect(editor.prosemirrorState.selection.empty).toBe(true);
-    expect(editor.prosemirrorState.selection.$from.parentOffset).toBe(0);
+    expect(editor.transact((tr) => tr.selection.empty)).toBe(true);
+    expect(editor.transact((tr) => tr.selection.$from.parentOffset)).toBe(0);
   });
 
-  it.each([
-    ["middle", 8],
-    ["end", 13],
-  ] as const)(
-    "inserts a new quote below when invoked at the paragraph's %s",
-    (_position, offset) => {
-      editor = BlockNoteEditor.create({
+  it.for([
+    { position: "middle", precedingText: "Existing" },
+    { position: "end", precedingText: "Existing text" },
+  ])(
+    "inserts a new quote below when invoked at the paragraph's $position",
+    async ({ precedingText }, { setupEditor, selectText }) => {
+      const { editor } = await setupEditor({
         initialContent: [
           { id: "source", type: "paragraph", content: "Existing text" },
         ],
       });
       // The suggestion menu removes its slash/query before invoking the item.
-      editor.setTextCursorPosition("source", "start");
-      editor.transact((tr) =>
-        tr.setSelection(
-          TextSelection.create(tr.doc, tr.selection.from + offset),
-        ),
-      );
+      selectText(editor, precedingText, {
+        startBlockId: "source",
+      }).collapseToEnd();
 
       insertOrUpdateBlockForSlashMenu(editor, { type: "quote" });
 
@@ -65,13 +55,15 @@ describe("slash-menu block conversion (#2236)", () => {
       expect(editor.getTextCursorPosition().block.id).toBe(
         editor.document[1].id,
       );
-      expect(editor.prosemirrorState.selection.empty).toBe(true);
-      expect(editor.prosemirrorState.selection.$from.parentOffset).toBe(0);
+      expect(editor.transact((tr) => tr.selection.empty)).toBe(true);
+      expect(editor.transact((tr) => tr.selection.$from.parentOffset)).toBe(0);
     },
   );
 
-  it("still inserts below when the item supplies replacement content", () => {
-    editor = BlockNoteEditor.create({
+  it("still inserts below when the item supplies replacement content", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
       initialContent: [
         { id: "source", type: "paragraph", content: "Existing text" },
       ],
@@ -95,8 +87,10 @@ describe("slash-menu block conversion (#2236)", () => {
     ]);
   });
 
-  it("enters a table replacing an empty paragraph before other content", () => {
-    editor = BlockNoteEditor.create({
+  it("enters a table replacing an empty paragraph before other content", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
       initialContent: [
         { id: "source", type: "paragraph" },
         { id: "following", type: "paragraph", content: "Following text" },
@@ -115,8 +109,10 @@ describe("slash-menu block conversion (#2236)", () => {
     });
   });
 
-  it("still inserts non-inline blocks below existing text", () => {
-    editor = BlockNoteEditor.create({
+  it("still inserts non-inline blocks below existing text", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
       initialContent: [
         { id: "source", type: "paragraph", content: "Existing text" },
       ],

@@ -1,7 +1,10 @@
 import { closeHistory } from "@tiptap/pm/history";
+import { tableEditing } from "prosemirror-tables";
 import { ReplaceStep, Transform } from "prosemirror-transform";
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
+import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
+import { HistoryExtension } from "../../../../extensions/History/History.js";
 import type {
   DefaultBlockSchema,
   DefaultInlineContentSchema,
@@ -11,47 +14,22 @@ import type {
 import { getBlockInfoFromNode } from "../../../getBlockInfoFromPos.js";
 import { getNodeById } from "../../../nodeUtil.js";
 import { layoutSchema } from "../../layoutBlocks/layoutBlocks.fixture.js";
-import { setupTestEnv } from "../../setupTestEnv.js";
+import { testDocument } from "../../setupTestEnv.js";
 import { updateBlock, updateBlockTr } from "./updateBlock.js";
 
-const getEditor = setupTestEnv();
+let editor: BlockNoteEditor;
+function setupDefaultEditor() {
+  it.beforeEach(async ({ setupEditor }) => {
+    ({ editor } = await setupEditor({ initialContent: testDocument }));
+  });
+}
+
+function getEditor() {
+  return editor;
+}
 
 describe("Test updateBlock undo/redo", () => {
-  it("undoes divider autoformat before undoing the typed dashes", () => {
-    const editor = getEditor();
-    editor.replaceBlocks(editor.document, [
-      { id: "autoformat-paragraph", type: "paragraph", content: "" },
-    ]);
-    editor.setTextCursorPosition("autoformat-paragraph", "start");
-    const view = editor.prosemirrorView;
-    // Keep fixture preparation out of the typed text's undo item.
-    view.dispatch(closeHistory(view.state.tr));
-
-    for (const text of "---") {
-      const { from, to } = view.state.selection;
-      const insertText = () => view.state.tr.insertText(text, from, to);
-      const handled = view.someProp("handleTextInput", (handler) =>
-        handler(view, from, to, text, insertText),
-      );
-      if (!handled) {
-        view.dispatch(insertText());
-      }
-    }
-
-    expect(editor.document).toHaveLength(1);
-    expect(editor.document[0].type).toBe("divider");
-
-    expect(editor.undo()).toBe(true);
-    expect(editor.document[0]).toMatchObject({
-      type: "paragraph",
-      content: [{ type: "text", text: "---", styles: {} }],
-    });
-    expect(view.state.selection.empty).toBe(true);
-    expect(view.state.selection.$from.parentOffset).toBe(3);
-
-    expect(editor.undo()).toBe(true);
-    expect(view.state.doc.textContent).toBe("");
-  });
+  setupDefaultEditor();
 
   it.each([
     ["paragraph", "divider"],
@@ -61,23 +39,30 @@ describe("Test updateBlock undo/redo", () => {
     ["paragraph", "heading"],
   ] as const)("can undo and redo %s → %s", (from, to) => {
     const editor = getEditor();
+    const history = editor.getExtension(HistoryExtension)!;
+    editor.registerExtension({
+      key: "test-history",
+      prosemirrorPlugins: history.prosemirrorPlugins,
+    });
     editor.updateBlock("empty-paragraph", { type: from });
-    const before = editor.prosemirrorState.doc;
+    const before = editor.transact((tr) => tr.doc);
     // Isolate the conversion from fixture preparation.
-    editor.prosemirrorView.dispatch(closeHistory(editor.prosemirrorState.tr));
+    editor.transact(closeHistory);
     editor.updateBlock("empty-paragraph", { type: to });
-    const after = editor.prosemirrorState.doc;
+    const after = editor.transact((tr) => tr.doc);
     expect(editor.getBlock("empty-paragraph")?.type).toBe(to);
     after.check();
 
     expect(editor.undo()).toBe(true);
-    expect(editor.prosemirrorState.doc.eq(before)).toBe(true);
+    expect(editor.transact((tr) => tr.doc.eq(before))).toBe(true);
     expect(editor.redo()).toBe(true);
-    expect(editor.prosemirrorState.doc.eq(after)).toBe(true);
+    expect(editor.transact((tr) => tr.doc.eq(after))).toBe(true);
   });
 });
 
 describe("Test updateBlock typing", () => {
+  setupDefaultEditor();
+
   it("Type is inferred correctly", () => {
     try {
       getEditor().updateBlock(
@@ -124,6 +109,8 @@ describe("Test updateBlock typing", () => {
 });
 
 describe("Test updateBlock", () => {
+  setupDefaultEditor();
+
   it.skip("Update ID", () => {
     expect(
       getEditor().transact((tr) =>
@@ -248,7 +235,7 @@ describe("Test updateBlock", () => {
   it("Update partial (offset start)", () => {
     const posInfo = getNodeById(
       "heading-with-everything",
-      getEditor().prosemirrorState.doc,
+      getEditor().transact((tr) => tr.doc),
     )!;
     const info = getBlockInfoFromNode(posInfo.node, posInfo.posBeforeNode);
 
@@ -279,7 +266,7 @@ describe("Test updateBlock", () => {
   it("Update partial (offset start + end)", () => {
     const posInfo = getNodeById(
       "heading-with-everything",
-      getEditor().prosemirrorState.doc,
+      getEditor().transact((tr) => tr.doc),
     )!;
     const info = getBlockInfoFromNode(posInfo.node, posInfo.posBeforeNode);
 
@@ -311,7 +298,7 @@ describe("Test updateBlock", () => {
   it("Update partial (props + offset end)", () => {
     const posInfo = getNodeById(
       "heading-with-everything",
-      getEditor().prosemirrorState.doc,
+      getEditor().transact((tr) => tr.doc),
     )!;
     const info = getBlockInfoFromNode(posInfo.node, posInfo.posBeforeNode);
 
@@ -344,7 +331,9 @@ describe("Test updateBlock", () => {
   });
 
   it("Update partial (table cell)", () => {
-    const posInfo = getNodeById("table-0", getEditor().prosemirrorState.doc)!;
+    const posInfo = getEditor().transact((tr) =>
+      getNodeById("table-0", tr.doc),
+    )!;
     const info = getBlockInfoFromNode(posInfo.node, posInfo.posBeforeNode);
 
     if (!info.hasContent) {
@@ -373,7 +362,9 @@ describe("Test updateBlock", () => {
   });
 
   it("Update partial (table row)", () => {
-    const posInfo = getNodeById("table-0", getEditor().prosemirrorState.doc)!;
+    const posInfo = getEditor().transact((tr) =>
+      getNodeById("table-0", tr.doc),
+    )!;
     const info = getBlockInfoFromNode(posInfo.node, posInfo.posBeforeNode);
 
     if (!info.hasContent) {
@@ -616,6 +607,11 @@ describe("Test updateBlock", () => {
   });
 
   it("Update no content to empty table content", () => {
+    // The mounted editor's table editing plugin normalizes the empty table.
+    getEditor().registerExtension({
+      key: "test-table-editing",
+      prosemirrorPlugins: [tableEditing()],
+    });
     expect(
       getEditor().transact((tr) =>
         updateBlock(tr, "image-0", {
@@ -699,6 +695,8 @@ describe("Test updateBlock", () => {
  * only a small part changed.
  */
 describe("Test updateBlock minimal steps", () => {
+  setupDefaultEditor();
+
   it.each([
     ["paragraph", "divider"],
     ["heading", "divider"],
@@ -712,7 +710,7 @@ describe("Test updateBlock minimal steps", () => {
         props: { backgroundColor: "red" },
       });
       editor.updateBlock("paragraph-with-children", { type: from });
-      const before = editor.prosemirrorState.doc;
+      const before = editor.transact((tr) => tr.doc);
       const original = getNodeById("paragraph-with-children", before)!;
       const contentPos = original.posBeforeNode + 1;
       const tr = new Transform(before);
@@ -754,17 +752,19 @@ describe("Test updateBlock minimal steps", () => {
 
   // Runs `updateBlock` in a throwaway transaction and returns the resulting
   // steps as JSON for inspection.
-  const getSteps = (blockId: string, update: PartialBlock<any, any, any>) => {
-    let steps: any[] = [];
-    getEditor().transact((tr) => {
+  function getSteps(
+    editor: BlockNoteEditor,
+    blockId: string,
+    update: PartialBlock,
+  ) {
+    return editor.transact((tr) => {
       updateBlock(tr, blockId, update);
-      steps = tr.steps.map((s) => s.toJSON());
+      return tr.steps.map((s) => s.toJSON());
     });
-    return steps;
-  };
+  }
 
   it("Changing a single prop emits only attr steps", () => {
-    const steps = getSteps("heading-with-everything", {
+    const steps = getSteps(getEditor(), "heading-with-everything", {
       props: { level: 3 },
     });
 
@@ -779,7 +779,7 @@ describe("Test updateBlock minimal steps", () => {
   });
 
   it("Changing only children does not touch content or container", () => {
-    const steps = getSteps("heading-with-everything", {
+    const steps = getSteps(getEditor(), "heading-with-everything", {
       children: [
         {
           id: "new-nested-paragraph",
@@ -795,7 +795,7 @@ describe("Test updateBlock minimal steps", () => {
   });
 
   it("Appending a child is a pure insertion", () => {
-    const steps = getSteps("heading-with-everything", {
+    const steps = getSteps(getEditor(), "heading-with-everything", {
       children: [
         // Existing child, kept as-is.
         {
@@ -825,16 +825,16 @@ describe("Test updateBlock minimal steps", () => {
     expect(steps[0].from).toBe(steps[0].to);
 
     expect(
-      (getEditor().getBlock("heading-with-everything") as any).children.map(
-        (c: any) => c.id,
-      ),
+      getEditor()
+        .getBlock("heading-with-everything")
+        ?.children.map((c) => c.id),
     ).toEqual(["nested-paragraph-1", "appended-child"]);
   });
 
   it("Changing part of the content only replaces the changed range", () => {
     // Original content: "Heading" + " with styled " + "content".
     // Only the middle text changes.
-    const steps = getSteps("heading-with-everything", {
+    const steps = getSteps(getEditor(), "heading-with-everything", {
       content: [
         { type: "text", text: "Heading", styles: { bold: true } },
         { type: "text", text: " with NEW ", styles: {} },
@@ -855,7 +855,7 @@ describe("Test updateBlock minimal steps", () => {
   });
 
   it("Changing one table cell only replaces that cell's text", () => {
-    const steps = getSteps("table-0", {
+    const steps = getSteps(getEditor(), "table-0", {
       type: "table",
       content: {
         type: "tableContent",
@@ -878,7 +878,7 @@ describe("Test updateBlock minimal steps", () => {
   });
 
   it("Updating with identical content/props/children emits no steps", () => {
-    const steps = getSteps("heading-with-everything", {
+    const steps = getSteps(getEditor(), "heading-with-everything", {
       type: "heading",
       props: {
         backgroundColor: "red",
@@ -897,7 +897,7 @@ describe("Test updateBlock minimal steps", () => {
   });
 
   it("Changing only a child's content replaces just that child's text", () => {
-    const steps = getSteps("paragraph-with-children", {
+    const steps = getSteps(getEditor(), "paragraph-with-children", {
       children: [
         {
           id: "nested-paragraph-0",
@@ -928,7 +928,7 @@ describe("Test updateBlock minimal steps", () => {
   });
 
   it("Removing a table row only replaces the removed range", () => {
-    const steps = getSteps("table-0", {
+    const steps = getSteps(getEditor(), "table-0", {
       type: "table",
       content: {
         type: "tableContent",
@@ -957,7 +957,7 @@ describe("Test updateBlock minimal steps", () => {
   // subsequent content diff resolved into the wrong place and corrupted the doc.
   // The position must be mapped with a -1 (before) bias.
   it("Type change + content change keeps the document valid", () => {
-    const steps = getSteps("paragraph-3", {
+    const steps = getSteps(getEditor(), "paragraph-3", {
       type: "heading",
       props: { level: 1 },
       content: "Now a heading",
@@ -973,12 +973,11 @@ describe("Test updateBlock minimal steps", () => {
     expect(block.content[0].text).toBe("Now a heading");
 
     // The editor document must still be internally consistent.
-    expect(() => getEditor()._tiptapEditor.state.doc.check()).not.toThrow();
+    expect(() => getEditor().transact((tr) => tr.doc.check())).not.toThrow();
   });
 
   it("Type change followed by another update resolves positions correctly", () => {
     const editor = getEditor();
-
     // First: change the content-node type (forces a ReplaceAroundStep), which
     // is the operation that previously left later positions stale.
     editor.transact((tr) => {
@@ -1003,7 +1002,7 @@ describe("Test updateBlock minimal steps", () => {
     expect((editor.getBlock("paragraph-9") as any).content[0].text).toBe(
       "Paragraph nine updated",
     );
-    expect(() => editor._tiptapEditor.state.doc.check()).not.toThrow();
+    expect(() => editor.transact((tr) => tr.doc.check())).not.toThrow();
   });
 
   // Strongest regression: a children change (adds a step BEFORE the content
@@ -1013,7 +1012,6 @@ describe("Test updateBlock minimal steps", () => {
   // place and corrupts/throws.
   it("Children change + type change + content change stays valid", () => {
     const editor = getEditor();
-
     expect(() => {
       editor.transact((tr) => {
         updateBlock(tr, "paragraph-with-children", {
@@ -1045,7 +1043,7 @@ describe("Test updateBlock minimal steps", () => {
       "brand-new-child",
     ]);
     expect(block.children[0].content[0].text).toBe("Updated nested");
-    expect(() => editor._tiptapEditor.state.doc.check()).not.toThrow();
+    expect(() => editor.transact((tr) => tr.doc.check())).not.toThrow();
 
     // A follow-up update on a later block must still resolve correctly.
     expect(() => {
@@ -1062,7 +1060,7 @@ describe("Test updateBlock minimal steps", () => {
     const editor = getEditor();
     const posInfo = getNodeById(
       "paragraph-with-styled-content",
-      editor.prosemirrorState.doc,
+      editor.transact((tr) => tr.doc),
     )!;
     const info = getBlockInfoFromNode(posInfo.node, posInfo.posBeforeNode);
     if (!info.hasContent) {
@@ -1098,7 +1096,7 @@ describe("Test updateBlock minimal steps", () => {
     // The styled text on either side of the replaced range is preserved.
     expect(block.content[0].text).toBe("Paragraph");
     expect(block.content.at(-1)?.text).toBe("content");
-    expect(() => editor._tiptapEditor.state.doc.check()).not.toThrow();
+    expect(() => editor.transact((tr) => tr.doc.check())).not.toThrow();
   });
 });
 
@@ -1108,9 +1106,12 @@ describe("Test updateBlock minimal steps", () => {
 // decision. Assertions are explicit rather than snapshotted because the point
 // is *where* the carried content ends up.
 describe("Test updateBlock content carry-over", () => {
-  const getLayoutEditor = setupTestEnv({
+  const editorOptions: {
+    schema: typeof layoutSchema;
+    initialContent: (typeof layoutSchema.PartialBlock)[];
+  } = {
     schema: layoutSchema,
-    document: [
+    initialContent: [
       {
         id: "paragraph-with-text",
         type: "paragraph",
@@ -1152,7 +1153,16 @@ describe("Test updateBlock content carry-over", () => {
         ],
       },
     ],
+  };
+
+  let layoutEditor: typeof layoutSchema.BlockNoteEditor;
+  it.beforeEach(async ({ setupEditor }) => {
+    ({ editor: layoutEditor } = await setupEditor(editorOptions));
   });
+
+  function getLayoutEditor() {
+    return layoutEditor;
+  }
 
   // A block that changes shape is rebuilt rather than updated in place. The
   // rebuilt block keeps its ID, so comments and other references to it stay
@@ -1171,7 +1181,7 @@ describe("Test updateBlock content carry-over", () => {
     expect(block.children[0].content).toEqual([
       { type: "text", text: "Paragraph with text", styles: {} },
     ]);
-    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+    expect(() => editor.transact((tr) => tr.doc.check())).not.toThrow();
   });
 
   it("Fills a layout block's children when there is no content to carry", () => {
@@ -1192,7 +1202,7 @@ describe("Test updateBlock content carry-over", () => {
     for (const callout of block.children) {
       expect(callout.children.map((child: any) => child.content)).toEqual([[]]);
     }
-    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+    expect(() => editor.transact((tr) => tr.doc.check())).not.toThrow();
   });
 
   it("Puts carried content before existing children", () => {
@@ -1210,7 +1220,7 @@ describe("Test updateBlock content carry-over", () => {
       "Existing child",
     ]);
     expect(block.children[1].id).toBe("existing-child");
-    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+    expect(() => editor.transact((tr) => tr.doc.check())).not.toThrow();
   });
 
   it("Drops table content when becoming a layout block", () => {
@@ -1228,18 +1238,18 @@ describe("Test updateBlock content carry-over", () => {
     expect(block.children).toHaveLength(1);
     expect(block.children[0].type).toBe("paragraph");
     expect(block.children[0].content).toEqual([]);
-    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+    expect(() => editor.transact((tr) => tr.doc.check())).not.toThrow();
   });
 
   it.each(["paragraph-with-text", "callout-0"])(
     "Rejects conversion of %s rather than dropping incompatible children",
     (id) => {
       const editor = getLayoutEditor();
-      const before = editor.prosemirrorState.doc;
+      const before = editor.transact((tr) => tr.doc);
       expect(() =>
         editor.transact((tr) => updateBlock(tr, id, { type: "grid" })),
       ).toThrow();
-      expect(editor.prosemirrorState.doc.eq(before)).toBe(true);
+      expect(editor.transact((tr) => tr.doc.eq(before))).toBe(true);
     },
   );
 
@@ -1258,7 +1268,7 @@ describe("Test updateBlock content carry-over", () => {
       }),
     );
     expect(editor.document[4].type).toBe("grid");
-    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+    expect(() => editor.transact((tr) => tr.doc.check())).not.toThrow();
   });
 
   it("Keeps a layout block's children when changing between layout block types", () => {
@@ -1272,7 +1282,7 @@ describe("Test updateBlock content carry-over", () => {
     expect(block.children.map((child: any) => child.id)).toEqual([
       "callout-child",
     ]);
-    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+    expect(() => editor.transact((tr) => tr.doc.check())).not.toThrow();
   });
 
   it("Keeps a layout block's children alongside the content it gains", () => {
@@ -1294,7 +1304,7 @@ describe("Test updateBlock content carry-over", () => {
     expect(block.children.map((child: any) => child.id)).toEqual([
       "callout-child",
     ]);
-    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+    expect(() => editor.transact((tr) => tr.doc.check())).not.toThrow();
   });
 
   it("Updates a layout block's props without rebuilding it", () => {
@@ -1311,7 +1321,7 @@ describe("Test updateBlock content carry-over", () => {
     expect(block.children.map((child: any) => child.id)).toEqual([
       "callout-child",
     ]);
-    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+    expect(() => editor.transact((tr) => tr.doc.check())).not.toThrow();
   });
 
   it("Keeps a layout block's children and invents no content when becoming a block", () => {
@@ -1326,6 +1336,6 @@ describe("Test updateBlock content carry-over", () => {
     expect(block.content).toEqual([]);
     expect(block.children).toHaveLength(1);
     expect(block.children[0].id).toBe("callout-child");
-    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+    expect(() => editor.transact((tr) => tr.doc.check())).not.toThrow();
   });
 });

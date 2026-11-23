@@ -1,7 +1,7 @@
 import { layoutSchema } from "./blockManipulation/layoutBlocks/layoutBlocks.fixture.js";
 import { getNodeById } from "./nodeUtil.js";
 import { Node, Schema } from "prosemirror-model";
-import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
 import { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
 import { blockToNode } from "./nodeConversions/blockToNode.js";
@@ -543,20 +543,10 @@ describe("docToBlocks round trip with suggested deletions", () => {
 });
 
 describe("block info for layout blocks", () => {
-  let editor: BlockNoteEditor<
-    typeof layoutSchema.blockSchema,
-    typeof layoutSchema.inlineContentSchema,
-    typeof layoutSchema.styleSchema
-  >;
-  beforeEach(() => {
-    editor = BlockNoteEditor.create({ schema: layoutSchema });
-  });
-  afterEach(() => {
-    editor._tiptapEditor.destroy();
-  });
-  it.each(["paragraph", "alert", "callout"] as const)(
+  it.for(["paragraph", "alert", "callout"] as const)(
     "distinguishes %s content from the presence of children",
-    (type) => {
+    async (type, { setupEditor }) => {
+      const { editor } = await setupEditor({ schema: layoutSchema });
       for (const children of [
         [],
         [{ type: "paragraph" as const, content: "Body" }],
@@ -571,7 +561,10 @@ describe("block info for layout blocks", () => {
     },
   );
 
-  it("rejects malformed wrapper structure at the block-info boundary", () => {
+  it("rejects malformed wrapper structure at the block-info boundary", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({ schema: layoutSchema });
     const { blockContainer, paragraph, blockGroup } = editor.pmSchema.nodes;
     const content = paragraph.create();
     for (const children of [
@@ -591,7 +584,10 @@ describe("block info for layout blocks", () => {
     // layout block children (returning the grid for a block inside a gridCell).
     // The parent of a block is the block whose `children` contains it: the
     // cell.
-    it("returns the layout block as the parent of its direct children", () => {
+    it("returns the layout block as the parent of its direct children", async ({
+      setupEditor,
+    }) => {
+      const { editor } = await setupEditor({ schema: layoutSchema });
       editor.replaceBlocks(editor.document, [
         {
           type: "grid",
@@ -632,7 +628,10 @@ describe("block info for layout blocks", () => {
     });
   });
 
-  it("lists the layout block ancestors of a position, innermost first", () => {
+  it("lists the layout block ancestors of a position, innermost first", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({ schema: layoutSchema });
     editor.replaceBlocks(editor.document, [
       {
         type: "grid",

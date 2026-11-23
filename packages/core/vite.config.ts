@@ -26,7 +26,8 @@ export default defineConfig({
   test: {
     // Preserve Vitest 4 mock history during the toolchain upgrade.
     clearMocks: false,
-    environment: "jsdom",
+    // Reuse the editor module graph within each worker.
+    isolate: false,
     // Shared fixtures and colocated tests must use the same core module instance.
     alias: { "@blocknote/core": path.resolve(__dirname, "src/") },
     setupFiles: [
