@@ -6,11 +6,13 @@ import {
 } from "@blocknote/core";
 import { Fragment, Slice } from "prosemirror-model";
 import { ReplaceStep, Transform } from "prosemirror-transform";
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
+import type { SetupEditor } from "../../../../tests/src/commands/node/setupEditor.js";
 import { AIExtension } from "../AIExtension.js";
 import {
   DocumentOperationTestCase,
   getExpectedEditor,
+  type SetupTestEditor,
 } from "../testUtil/cases/index.js";
 import { updateOperationTestCases } from "../testUtil/cases/updateOperationTestCases.js";
 import { validateRejectingResultsInOriginalDoc } from "../testUtil/suggestChangesTestUtil.js";
@@ -21,8 +23,8 @@ describe.skip("getStepsAsAgent", () => {
   // some basic tests to check `getStepsAsAgent` is working as expected
 
   // Helper function to create a test editor with a simple paragraph
-  function createTestEditor() {
-    return BlockNoteEditor.create({
+  async function createTestEditor(setupEditor: SetupEditor) {
+    const { editor } = await setupEditor({
       initialContent: [
         {
           id: "1",
@@ -31,11 +33,12 @@ describe.skip("getStepsAsAgent", () => {
         },
       ],
     });
+    return editor;
   }
 
-  it("simple replace step", async () => {
-    const editor = createTestEditor();
-    const doc = editor.prosemirrorState.doc;
+  it("simple replace step", async ({ setupEditor }) => {
+    const editor = await createTestEditor(setupEditor);
+    const doc = editor.transact(({ doc }) => doc);
     // Get the position of the content in the paragraph
     const blockPos = getNodeById("1", doc)!;
     const block = getBlockInfoFromNode(blockPos.node, blockPos.posBeforeNode);
@@ -66,9 +69,9 @@ describe.skip("getStepsAsAgent", () => {
     expect(steps).toMatchSnapshot();
   });
 
-  it("node type change", async () => {
-    const editor = createTestEditor();
-    const doc = editor.prosemirrorState.doc;
+  it("node type change", async ({ setupEditor }) => {
+    const editor = await createTestEditor(setupEditor);
+    const doc = editor.transact(({ doc }) => doc);
     // Get the position of the content in the paragraph
     const blockPos = getNodeById("1", doc)!;
     const block = getBlockInfoFromNode(blockPos.node, blockPos.posBeforeNode);
@@ -76,7 +79,7 @@ describe.skip("getStepsAsAgent", () => {
       throw new Error("Block is not a container");
     }
 
-    const tr = editor.prosemirrorState.tr.setNodeMarkup(
+    const tr = new Transform(doc).setNodeMarkup(
       block.content.beforePos,
       editor.pmSchema.nodes.heading,
     );
@@ -92,9 +95,9 @@ describe.skip("getStepsAsAgent", () => {
     expect(steps).toMatchSnapshot();
   });
 
-  it("node attr change", async () => {
-    const editor = createTestEditor();
-    const doc = editor.prosemirrorState.doc;
+  it("node attr change", async ({ setupEditor }) => {
+    const editor = await createTestEditor(setupEditor);
+    const doc = editor.transact(({ doc }) => doc);
     // Get the position of the content in the paragraph
     const blockPos = getNodeById("1", doc)!;
     const block = getBlockInfoFromNode(blockPos.node, blockPos.posBeforeNode);
@@ -102,7 +105,7 @@ describe.skip("getStepsAsAgent", () => {
       throw new Error("Block is not a container");
     }
 
-    const tr = editor.prosemirrorState.tr.setNodeMarkup(
+    const tr = new Transform(doc).setNodeMarkup(
       block.content.beforePos,
       undefined,
       {
@@ -121,10 +124,10 @@ describe.skip("getStepsAsAgent", () => {
     expect(steps).toMatchSnapshot();
   });
 
-  it("node type and content change", () => {
-    const editor = createTestEditor();
+  it("node type and content change", async ({ setupEditor }) => {
+    const editor = await createTestEditor(setupEditor);
 
-    const doc = editor.prosemirrorState.doc;
+    const doc = editor.transact(({ doc }) => doc);
     // Get the position of the content in the paragraph
     const blockPos = getNodeById("1", doc)!;
     const block = getBlockInfoFromNode(blockPos.node, blockPos.posBeforeNode);
@@ -148,9 +151,9 @@ describe.skip("getStepsAsAgent", () => {
     );
   });
 
-  it("multiple steps", () => {
-    const editor = createTestEditor();
-    const doc = editor.prosemirrorState.doc;
+  it("multiple steps", async ({ setupEditor }) => {
+    const editor = await createTestEditor(setupEditor);
+    const doc = editor.transact(({ doc }) => doc);
 
     const tr = new Transform(doc);
 
@@ -192,9 +195,9 @@ describe.skip("getStepsAsAgent", () => {
     expect(steps).toMatchSnapshot();
   });
 
-  it("throw error for non-ReplaceSteps", () => {
-    const editor = createTestEditor();
-    const doc = editor.prosemirrorState.doc;
+  it("throw error for non-ReplaceSteps", async ({ setupEditor }) => {
+    const editor = await createTestEditor(setupEditor);
+    const doc = editor.transact(({ doc }) => doc);
     // Create a non-ReplaceStep (we'll just mock it)
     const tr = new Transform(doc);
     tr.addMark(0, 5, editor.pmSchema.marks.bold.create());
@@ -204,11 +207,12 @@ describe.skip("getStepsAsAgent", () => {
 });
 
 async function executeTestCase(
+  setupEditor: SetupTestEditor,
   editor: BlockNoteEditor<any, any, any>,
   test: DocumentOperationTestCase,
 ) {
   const results = [];
-  const doc = editor.prosemirrorState.doc;
+  const doc = editor.transact(({ doc }) => doc);
   for (const updateOp of test.baseToolCalls) {
     if (updateOp.type !== "update") {
       throw new Error("Only update operations are supported");
@@ -219,9 +223,10 @@ async function executeTestCase(
     let selection = test.getTestSelection?.(editor);
 
     if (selection) {
-      selection = expandPMRangeToWords(editor.prosemirrorState.doc, {
-        $from: editor.prosemirrorState.doc.resolve(selection.from),
-        $to: editor.prosemirrorState.doc.resolve(selection.to),
+      const current = editor.transact(({ doc }) => doc);
+      selection = expandPMRangeToWords(current, {
+        $from: current.resolve(selection.from),
+        $to: current.resolve(selection.to),
       });
     }
 
@@ -249,7 +254,7 @@ async function executeTestCase(
       results.push(
         step.type.slice(0, 1).toUpperCase() +
           "	" +
-          JSON.stringify(editor.prosemirrorState.doc.toJSON()),
+          JSON.stringify(editor.transact(({ doc }) => doc.toJSON())),
       );
     }
   }
@@ -258,7 +263,9 @@ async function executeTestCase(
   expect(results).toMatchSnapshot();
 
   editor.getExtension(AIExtension)?.acceptChanges();
-  expect(editor.document).toEqual(getExpectedEditor(test).document);
+  expect(editor.document).toEqual(
+    (await getExpectedEditor(setupEditor, test)).document,
+  );
 
   return results;
 }
@@ -271,10 +278,10 @@ describe.skip("agentStepToTr", () => {
   // relies directly on `updateToReplaceSteps` which is designed for the update op.
   describe("Update", () => {
     for (const test of updateOperationTestCases) {
-      it(`${test.description}`, async () => {
-        const editor = test.editor();
+      it(`${test.description}`, async ({ setupEditor }) => {
+        const editor = await test.editor(setupEditor);
 
-        await executeTestCase(editor, test);
+        await executeTestCase(setupEditor, editor, test);
       });
     }
   });

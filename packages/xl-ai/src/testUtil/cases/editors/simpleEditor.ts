@@ -1,9 +1,10 @@
-import { BlockNoteEditor } from "@blocknote/core";
+import type { SetupTestEditor } from "../index.js";
 import { AIExtension } from "../../../AIExtension.js";
 import { schemaWithMention as schema } from "../schemas/mention.js";
 
-export function getSimpleEditor() {
-  const editor = BlockNoteEditor.create({
+export async function getSimpleEditor(setupEditor: SetupTestEditor) {
+  const { editor } = await setupEditor({
+    mountType: false,
     initialContent: [
       {
         id: "ref1",
@@ -21,8 +22,11 @@ export function getSimpleEditor() {
   return editor;
 }
 
-export function getSimpleEditorWithCursorBetweenBlocks() {
-  const editor = BlockNoteEditor.create({
+export async function getSimpleEditorWithCursorBetweenBlocks(
+  setupEditor: SetupTestEditor,
+) {
+  const { editor } = await setupEditor({
+    mountType: false,
     initialContent: [
       {
         id: "ref1",
@@ -45,8 +49,11 @@ export function getSimpleEditorWithCursorBetweenBlocks() {
   return editor;
 }
 
-export function getSimpleEditorSpellingError() {
-  const editor = BlockNoteEditor.create({
+export async function getSimpleEditorSpellingError(
+  setupEditor: SetupTestEditor,
+) {
+  const { editor } = await setupEditor({
+    mountType: false,
     initialContent: [
       {
         id: "ref1",
