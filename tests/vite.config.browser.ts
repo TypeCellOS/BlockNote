@@ -111,6 +111,7 @@ export default defineConfig(
         // their own runner. The packages' node configs exclude browser tests.
         include: [
           "./src/end-to-end/**/*.test.tsx",
+          "./src/unit/**/*.browser.test.{ts,tsx}",
           "../packages/*/src/**/*.browser.test.{ts,tsx}",
         ],
         exclude: [

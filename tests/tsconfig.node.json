@@ -20,6 +20,7 @@
     "../examples/07-collaboration/12-multi-doc-versioning/src/*.test.ts"
   ],
   "exclude": [
+    "src/unit/**/*.browser.test.*",
     "../packages/*/src/**/*.browser.test.*",
     "../packages/*/src/**/*.screen-reader.test.ts"
   ]

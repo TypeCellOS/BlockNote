@@ -1,5 +1,5 @@
 import * as path from "path";
-import { defineConfig, type UserConfig } from "vite-plus";
+import { configDefaults, defineConfig, type UserConfig } from "vite-plus";
 import { buildCacheInputs } from "../scripts/build-cache-inputs.js";
 
 // https://vitejs.dev/config/
@@ -36,6 +36,7 @@ export default defineConfig(
         },
       },
       test: {
+        exclude: [...configDefaults.exclude, "**/*.browser.test.*"],
         // Preserve Vitest 4 mock history during the toolchain upgrade.
         clearMocks: false,
         environment: "jsdom",
