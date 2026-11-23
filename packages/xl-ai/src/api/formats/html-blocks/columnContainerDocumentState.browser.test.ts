@@ -1,61 +1,57 @@
-// @vitest-environment jsdom
-
-import { BlockNoteEditor, BlockNoteSchema } from "@blocknote/core";
+import { BlockNoteSchema } from "@blocknote/core";
 import { withMultiColumn } from "@blocknote/xl-multi-column";
-import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
 import { htmlBlockLLMFormat } from "./htmlBlocks.js";
 
 const schema = withMultiColumn(BlockNoteSchema.create());
 
 // Regression test for https://github.com/TypeCellOS/BlockNote/issues/2716
-describe("htmlBlockLLMFormat.defaultDocumentStateBuilder with multi-column", () => {
-  let editor: BlockNoteEditor<any, any, any>;
-  const div = document.createElement("div");
-
-  beforeEach(() => {
-    editor = BlockNoteEditor.create({
-      schema,
-      initialContent: [
+const editorOptions = {
+  schema,
+  initialContent: [
+    {
+      id: "column-list-0",
+      type: "columnList",
+      children: [
         {
-          id: "column-list-0",
-          type: "columnList",
+          id: "column-0",
+          type: "column",
           children: [
             {
-              id: "column-0",
-              type: "column",
-              children: [
-                {
-                  id: "left-paragraph",
-                  type: "paragraph",
-                  content: "left column",
-                },
-              ],
+              id: "left-paragraph",
+              type: "paragraph",
+              content: "left column",
             },
+          ],
+        },
+        {
+          id: "column-1",
+          type: "column",
+          children: [
             {
-              id: "column-1",
-              type: "column",
-              children: [
-                {
-                  id: "right-paragraph",
-                  type: "paragraph",
-                  content: "right column",
-                },
-              ],
+              id: "right-paragraph",
+              type: "paragraph",
+              content: "right column",
             },
           ],
         },
       ],
+    },
+  ],
+} satisfies {
+  schema: typeof schema;
+  initialContent: (typeof schema.PartialBlock)[];
+};
+
+describe("htmlBlockLLMFormat.defaultDocumentStateBuilder with multi-column", () => {
+  it("builds the document state for a doc containing a columnList without throwing", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      ...editorOptions,
+      mountType: false,
     });
-    editor.mount(div);
-  });
-
-  afterEach(() => {
-    editor._tiptapEditor.destroy();
-    editor = undefined as any;
-  });
-
-  it("builds the document state for a doc containing a columnList without throwing", async () => {
     const result = await htmlBlockLLMFormat.defaultDocumentStateBuilder({
       editor,
       streamTools: [],
@@ -90,7 +86,13 @@ describe("htmlBlockLLMFormat.defaultDocumentStateBuilder with multi-column", () 
     ).toBeDefined();
   });
 
-  it("builds the document state when invoked with selectedBlocks containing a columnList", async () => {
+  it("builds the document state when invoked with selectedBlocks containing a columnList", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      ...editorOptions,
+      mountType: false,
+    });
     const result = await htmlBlockLLMFormat.defaultDocumentStateBuilder({
       editor,
       selectedBlocks: editor.document,

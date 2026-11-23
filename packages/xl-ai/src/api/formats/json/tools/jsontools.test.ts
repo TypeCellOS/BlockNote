@@ -1,10 +1,13 @@
 /* eslint-disable jest/valid-title */
 import { BlockNoteEditor, expandPMRangeToWords } from "@blocknote/core";
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 import { addOperationTestCases } from "../../../../testUtil/cases/addOperationTestCases.js";
 import { combinedOperationsTestCases } from "../../../../testUtil/cases/combinedOperationsTestCases.js";
 import { deleteOperationTestCases } from "../../../../testUtil/cases/deleteOperationTestCases.js";
-import { DocumentOperationTestCase } from "../../../../testUtil/cases/index.js";
+import type {
+  DocumentOperationTestCase,
+  SetupTestEditor,
+} from "../../../../testUtil/cases/index.js";
 import { updateOperationTestCases } from "../../../../testUtil/cases/updateOperationTestCases.js";
 
 import { AddBlocksToolCall } from "../../base-tools/createAddBlocksTool.js";
@@ -40,17 +43,18 @@ async function* createMockStream(
 }
 // Helper function to process operations and return results
 async function executeTestCase(
+  setupEditor: SetupTestEditor,
   editor: BlockNoteEditor<any, any, any>,
   testCase: DocumentOperationTestCase,
 ) {
-  const originalDoc = editor.prosemirrorState.doc;
+  const originalDoc = editor.transact(({ doc }) => doc);
   let selection: { from: number; to: number } | undefined =
     testCase.getTestSelection?.(editor);
 
   if (selection) {
-    selection = expandPMRangeToWords(editor.prosemirrorState.doc, {
-      $from: editor.prosemirrorState.doc.resolve(selection.from),
-      $to: editor.prosemirrorState.doc.resolve(selection.to),
+    selection = expandPMRangeToWords(originalDoc, {
+      $from: originalDoc.resolve(selection.from),
+      $to: originalDoc.resolve(selection.to),
     });
   }
 
@@ -75,35 +79,37 @@ async function executeTestCase(
   validateRejectingResultsInOriginalDoc(editor, originalDoc);
 
   editor.getExtension(AIExtension)?.acceptChanges();
-  expect(editor.document).toEqual(getExpectedEditor(testCase).document);
+  expect(editor.document).toEqual(
+    (await getExpectedEditor(setupEditor, testCase)).document,
+  );
 }
 
 describe("Add", () => {
   for (const testCase of addOperationTestCases) {
-    it(testCase.description, async () => {
-      const editor = testCase.editor();
+    it(testCase.description, async ({ setupEditor }) => {
+      const editor = await testCase.editor(setupEditor);
 
-      await executeTestCase(editor, testCase);
+      await executeTestCase(setupEditor, editor, testCase);
     });
   }
 });
 
 describe("Update", () => {
   for (const testCase of updateOperationTestCases) {
-    it(testCase.description, async () => {
-      const editor = testCase.editor();
+    it(testCase.description, async ({ setupEditor }) => {
+      const editor = await testCase.editor(setupEditor);
 
-      await executeTestCase(editor, testCase);
+      await executeTestCase(setupEditor, editor, testCase);
     });
   }
 });
 
 describe("Delete", () => {
   for (const testCase of deleteOperationTestCases) {
-    it(testCase.description, async () => {
-      const editor = testCase.editor();
+    it(testCase.description, async ({ setupEditor }) => {
+      const editor = await testCase.editor(setupEditor);
       const startDocLength = editor.document.length;
-      await executeTestCase(editor, testCase);
+      await executeTestCase(setupEditor, editor, testCase);
 
       expect(editor.document.length).toBe(
         startDocLength - testCase.baseToolCalls.length,
@@ -114,10 +120,10 @@ describe("Delete", () => {
 
 describe("Combined", () => {
   for (const testCase of combinedOperationsTestCases) {
-    it(testCase.description, async () => {
-      const editor = testCase.editor();
+    it(testCase.description, async ({ setupEditor }) => {
+      const editor = await testCase.editor(setupEditor);
 
-      await executeTestCase(editor, testCase);
+      await executeTestCase(setupEditor, editor, testCase);
     });
   }
 });

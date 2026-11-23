@@ -23,28 +23,22 @@ describe("createAppendableStream", () => {
   it("should not hang if output is canceled while waiting for input", async () => {
     const { output, append, finalize } = createAppendableStream<string>();
 
-    // Create a stream that never ends and provides no data
-    const infiniteStream = new ReadableStream<string>({
-      start() {
-        // noop
+    const readStarted = Promise.withResolvers<void>();
+    // Signal when the reader is waiting for data, without producing any.
+    const infiniteStream = new ReadableStream<string>(
+      {
+        pull() {
+          readStarted.resolve();
+        },
       },
-    });
+      { highWaterMark: 0 },
+    );
 
     void append(infiniteStream);
-
-    // Cancel the output stream after a short delay
-    setTimeout(() => {
-      void output.cancel("cancelled");
-    }, 100);
-
-    // finalize should resolve (or reject) eventually, not hang forever
-    // We use a timeout to fail the test if it hangs
-    const result = await Promise.race([
-      finalize().then(() => "finished"),
-      new Promise((resolve) => setTimeout(() => resolve("timeout"), 1000)),
-    ]);
-
-    expect(result).toBe("finished");
+    const finished = finalize();
+    await readStarted.promise;
+    await output.cancel("cancelled");
+    await finished;
   });
 
   it("should forward data from a single stream", async () => {
@@ -96,25 +90,29 @@ describe("createAppendableStream", () => {
   it("should handle async streams that produce data over time", async () => {
     const { output, append, finalize } = createAppendableStream<number>();
 
+    const values = Array.from({ length: 3 }, () =>
+      Promise.withResolvers<number>(),
+    );
+    let index = 0;
     const stream = new ReadableStream<number>({
-      start(controller) {
-        let count = 0;
-        const interval = setInterval(() => {
-          count++;
-          controller.enqueue(count);
-          if (count >= 3) {
-            clearInterval(interval);
-            controller.close();
-          }
-        }, 10);
+      async pull(controller) {
+        controller.enqueue(await values[index++].promise);
+        if (index === values.length) {
+          controller.close();
+        }
       },
     });
 
     void append(stream);
+    const reader = output.getReader();
+    for (const [index, value] of values.entries()) {
+      const next = reader.read();
+      value.resolve(index + 1);
+      await expect(next).resolves.toEqual({ done: false, value: index + 1 });
+    }
     await finalize();
-
-    const results = await collectStream(output);
-    expect(results).toEqual([1, 2, 3]);
+    await expect(reader.read()).resolves.toMatchObject({ done: true });
+    reader.releaseLock();
   });
 
   it("should handle errors from appended streams", async () => {
@@ -158,14 +156,7 @@ describe("createAppendableStream", () => {
   it("should handle cancellation during stream processing", async () => {
     const { output, append, finalize } = createAppendableStream<number>();
 
-    const slowStream = new ReadableStream<number>({
-      start(controller) {
-        setTimeout(() => {
-          controller.enqueue(1);
-          controller.close();
-        }, 100);
-      },
-    });
+    const slowStream = new ReadableStream<number>();
 
     const appendPromise = append(slowStream);
 
@@ -189,18 +180,20 @@ describe("createAppendableStream", () => {
       },
     });
 
+    const releaseSlowStream = Promise.withResolvers<void>();
     const slowStream = new ReadableStream<string>({
-      start(controller) {
-        setTimeout(() => {
-          controller.enqueue("slow");
-          controller.close();
-        }, 50);
+      async pull(controller) {
+        await releaseSlowStream.promise;
+        controller.enqueue("slow");
+        controller.close();
       },
     });
 
     void append(slowStream);
     void append(fastStream);
-    await finalize();
+    const finished = finalize();
+    releaseSlowStream.resolve();
+    await finished;
 
     const results = await collectStream(output);
     expect(results).toEqual(["slow", "fast"]);
