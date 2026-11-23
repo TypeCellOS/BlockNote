@@ -7,7 +7,7 @@ import {
 import { createReactBlockSpec } from "@blocknote/react";
 import { createContext, useContext, useEffect } from "react";
 import { describe, expect, it } from "vite-plus/test";
-import { useServerDOM } from "../../../testServerDOM.js";
+import { useReactServerDOM } from "../../../testServerDOM.js";
 import { ServerBlockNoteEditor } from "../ServerBlockNoteEditor.js";
 
 const SimpleReactCustomParagraph = createReactBlockSpec(
@@ -54,7 +54,7 @@ const schema = BlockNoteSchema.create({
 });
 
 describe("Test ServerBlockNoteEditor with React blocks", () => {
-  useServerDOM();
+  useReactServerDOM();
   it("works for simple blocks", async () => {
     const editor = ServerBlockNoteEditor.create({
       schema,
