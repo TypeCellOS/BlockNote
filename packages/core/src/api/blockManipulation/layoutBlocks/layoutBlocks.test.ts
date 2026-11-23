@@ -1,15 +1,6 @@
-// @vitest-environment node
-import { TextSelection } from "prosemirror-state";
-import {
-  afterAll,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  it,
-} from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
-import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
+import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 import { createBlockSpec } from "../../../schema/blocks/createSpec.js";
 import { layoutSchema } from "./layoutBlocks.fixture.js";
 
@@ -19,32 +10,26 @@ type PartialBlock = (typeof layoutSchema)["PartialBlock"];
 // repair and selection. Everything is `Block` JSON in and out, so the editor
 // runs headless with no DOM.
 //
-// The keymap (tiptap can only reach it through a mounted view) and
-// HTML/markdown serialization (builds real DOM) are tested in
-// `layoutBlocks.browser.test.ts`.
+// Keymap commands are exercised in `layoutBlocks.keyboard.test.ts`.
+// Markdown serialization builds DOM and is tested in `layoutBlocks.browser.test.ts`.
 
 const schema = layoutSchema;
 
-let editor: BlockNoteEditor<
+type LayoutEditor = BlockNoteEditor<
   typeof schema.blockSchema,
   typeof schema.inlineContentSchema,
   typeof schema.styleSchema
 >;
 
-beforeAll(() => {
-  editor = BlockNoteEditor.create({ schema });
-});
-
-afterAll(() => {
-  editor._tiptapEditor.destroy();
-  editor = undefined as any;
-});
-
-beforeEach(() => {
-  editor.replaceBlocks(editor.document, [
-    { id: "p-0", type: "paragraph", content: "Paragraph 0" },
-    { id: "p-1", type: "paragraph", content: "Paragraph 1" },
-  ]);
+let editor: LayoutEditor;
+it.beforeEach(async ({ setupEditor }) => {
+  ({ editor } = await setupEditor({
+    schema,
+    initialContent: [
+      { id: "p-0", type: "paragraph", content: "Paragraph 0" },
+      { id: "p-1", type: "paragraph", content: "Paragraph 1" },
+    ],
+  }));
 });
 
 describe("children insertion & filling", () => {
@@ -217,11 +202,11 @@ describe("layout block nodes", () => {
   // running from inside a layout block to after it, paste it back over itself,
   // and the document must come back unchanged. Marking the layout block
   // `isolating` instead re-nests the whole fragment a level too deep.
-  it.each(["callout"])("round-trips a paste across a %s's edge", (type) => {
+  it("round-trips a replacement with a slice across a callout edge", () => {
     editor.replaceBlocks(editor.document, [
       {
         id: "c",
-        type,
+        type: "callout",
         children: [
           { id: "c1", type: "paragraph", content: "Inner one" },
           { id: "c2", type: "paragraph", content: "Inner two" },
@@ -232,20 +217,10 @@ describe("layout block nodes", () => {
 
     const before = JSON.stringify(editor.document);
 
+    editor.setSelection("c2", "a");
     editor.transact((tr) => {
-      let from = 0;
-      let to = 0;
-      tr.doc.descendants((node, pos) => {
-        if (node.isText && node.text === "Inner two") {
-          from = pos;
-        }
-        if (node.isText && node.text === "After") {
-          to = pos + node.nodeSize;
-        }
-      });
-
-      const selection = TextSelection.create(tr.doc, from, to);
-      tr.setSelection(selection).replace(from, to, selection.content());
+      const { selection } = tr;
+      tr.replace(selection.from, selection.to, selection.content());
     });
 
     expect(JSON.stringify(editor.document)).toBe(before);
@@ -258,39 +233,45 @@ describe("layout block nodes", () => {
 // error, and a layout block below its `min` stayed there for the life of the
 // document.
 describe("initialContent enforcement", () => {
-  const createWith = (initialContent: PartialBlock[]) => {
-    return BlockNoteEditor.create({ schema, initialContent });
-  };
-
-  it("fills an explicitly empty `children` array up to `min`", () => {
-    const loaded = createWith([{ type: "callout", id: "c-0", children: [] }]);
+  it("fills an explicitly empty `children` array up to `min`", async ({
+    setupEditor,
+  }) => {
+    const { editor: loaded } = await setupEditor({
+      schema,
+      initialContent: [{ type: "callout", id: "c-0", children: [] }],
+    });
 
     const callout = loaded.getBlock("c-0")!;
     expect(callout.children).toHaveLength(1);
     expect(callout.children[0].type).toBe("paragraph");
-
-    loaded._tiptapEditor.destroy();
   });
 
-  it("fills a layout block below `min` and rejects one it can never fill", () => {
+  it("fills a layout block below `min` and rejects one it can never fill", async ({
+    setupEditor,
+  }) => {
     // One cell under `min: 2` is padded up to it.
-    const loaded = createWith([
-      { type: "grid", id: "g-0", children: [{ type: "gridCell" }] },
-    ] as any);
+    const { editor: loaded } = await setupEditor({
+      schema,
+      initialContent: [
+        { type: "grid", id: "g-0", children: [{ type: "gridCell" }] },
+      ],
+    });
     expect(loaded.getBlock("g-0")!.children).toHaveLength(2);
-    loaded._tiptapEditor.destroy();
 
     // A grid given paragraphs can never be filled: no amount of padding
     // turns them into cells.
-    expect(() =>
-      createWith([
-        {
-          type: "grid",
-          id: "g-0",
-          children: [{ type: "paragraph" }, { type: "paragraph" }],
-        },
-      ] as any),
-    ).toThrow();
+    await expect(
+      setupEditor({
+        schema,
+        initialContent: [
+          {
+            type: "grid",
+            id: "g-0",
+            children: [{ type: "paragraph" }, { type: "paragraph" }],
+          },
+        ],
+      }),
+    ).rejects.toThrow();
   });
 });
 
@@ -341,7 +322,7 @@ describe("children repair", () => {
       "cell-b-p",
       "trailing",
     ]);
-    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+    expect(() => editor.transact((tr) => tr.doc.check())).not.toThrow();
   });
 
   // Dissolving is an unwrap, not a rewrite: the survivor's content is the same
@@ -373,14 +354,16 @@ describe("children repair", () => {
     ]);
 
     editor.setTextCursorPosition("pair-b-p", "end");
-    const offsetBefore = editor.prosemirrorState.selection.$from.parentOffset;
+    const offsetBefore = editor.transact(
+      (tr) => tr.selection.$from.parentOffset,
+    );
 
     editor.removeBlocks(["pair-a"]);
 
     expect(editor.getBlock("pair-0")).toBeUndefined();
     expect(editor.getBlock("pair-b")?.type).toBe("callout");
     expect(editor.getTextCursorPosition().block.id).toBe("pair-b-p");
-    expect(editor.prosemirrorState.selection.$from.parentOffset).toBe(
+    expect(editor.transact((tr) => tr.selection.$from.parentOffset)).toBe(
       offsetBefore,
     );
   });
@@ -408,13 +391,15 @@ describe("children repair", () => {
     ]);
 
     editor.setTextCursorPosition("cell-b-p", "end");
-    const offsetBefore = editor.prosemirrorState.selection.$from.parentOffset;
+    const offsetBefore = editor.transact(
+      (tr) => tr.selection.$from.parentOffset,
+    );
 
     editor.removeBlocks(["cell-a-p"]);
 
     expect(editor.getBlock("g-0")).toBeUndefined();
     expect(editor.getTextCursorPosition().block.id).toBe("cell-b-p");
-    expect(editor.prosemirrorState.selection.$from.parentOffset).toBe(
+    expect(editor.transact((tr) => tr.selection.$from.parentOffset)).toBe(
       offsetBefore,
     );
   });
@@ -521,7 +506,7 @@ describe("layout blocks that do not dissolve", () => {
     expect(tabs.children).toHaveLength(1);
     expect(tabs.children[0].type).toBe("tab");
     expect(tabs.children[0].id).not.toBe("a");
-    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+    expect(() => editor.transact((tr) => tr.doc.check())).not.toThrow();
   });
 });
 
@@ -546,38 +531,36 @@ describe("repair edge cases", () => {
     },
   )();
 
-  it("keeps a `min: 0` layout block with zero children", () => {
-    const trayEditor = BlockNoteEditor.create({
+  it("keeps a `min: 0` layout block with zero children", async ({
+    setupEditor,
+  }) => {
+    const { editor: trayEditor } = await setupEditor({
       schema: layoutSchema.extend({
         blockSpecs: { tray: Tray },
       }),
     });
-    try {
-      trayEditor.replaceBlocks(trayEditor.document, [
-        {
-          type: "tray",
-          id: "t-0",
-          children: [
-            {
-              id: "t-c-0",
-              type: "callout",
-              children: [{ type: "paragraph", content: "" }],
-            },
-          ],
-        },
-        { id: "trailing", type: "paragraph", content: "" },
-      ]);
+    trayEditor.replaceBlocks(trayEditor.document, [
+      {
+        type: "tray",
+        id: "t-0",
+        children: [
+          {
+            id: "t-c-0",
+            type: "callout",
+            children: [{ type: "paragraph", content: "" }],
+          },
+        ],
+      },
+      { id: "trailing", type: "paragraph", content: "" },
+    ]);
 
-      // Removing its only child leaves zero children, which `min: 0` allows:
-      // the tray stays instead of dissolving, and nothing is padded back.
-      trayEditor.removeBlocks(["t-c-0"]);
+    // Removing its only child leaves zero children, which `min: 0` allows:
+    // the tray stays instead of dissolving, and nothing is padded back.
+    trayEditor.removeBlocks(["t-c-0"]);
 
-      expect(trayEditor.getBlock("t-0")).toBeDefined();
-      expect(trayEditor.getBlock("t-0")!.children).toHaveLength(0);
-      expect(() => trayEditor.prosemirrorState.doc.check()).not.toThrow();
-    } finally {
-      trayEditor._tiptapEditor.destroy();
-    }
+    expect(trayEditor.getBlock("t-0")).toBeDefined();
+    expect(trayEditor.getBlock("t-0")!.children).toHaveLength(0);
+    expect(() => trayEditor.transact((tr) => tr.doc.check())).not.toThrow();
   });
 
   it("keeps emptied regular blocks when the layout block survives", () => {
@@ -634,7 +617,7 @@ describe("repair edge cases", () => {
       "s-a",
       "trailing",
     ]);
-    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+    expect(() => editor.transact((tr) => tr.doc.check())).not.toThrow();
   });
 
   it("leaves a titled block intact when its last body block is removed", () => {
@@ -656,7 +639,7 @@ describe("repair edge cases", () => {
     expect(alert.type).toBe("alert");
     expect(alert.content[0].text).toBe("Title");
     expect(alert.children).toHaveLength(0);
-    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+    expect(() => editor.transact((tr) => tr.doc.check())).not.toThrow();
   });
 });
 
@@ -778,6 +761,6 @@ describe("ancestor layout block repair", () => {
     expect(editor.getBlock("g-inner")).toBeUndefined();
     expect(editor.getBlock("g-outer")).toBeUndefined();
     expect(editor.document.map((block) => block.id)).toEqual(["trailing"]);
-    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+    expect(() => editor.transact((tr) => tr.doc.check())).not.toThrow();
   });
 });

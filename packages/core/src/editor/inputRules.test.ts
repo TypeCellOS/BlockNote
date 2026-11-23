@@ -1,5 +1,4 @@
-// @vitest-environment node
-import { afterEach, describe, expect, it, vi } from "vite-plus/test";
+import { afterEach, describe, expect, vi } from "vite-plus/test";
 import { ySyncPluginKey, yUndoPluginKey } from "y-prosemirror";
 import * as Y from "yjs";
 import {
@@ -20,52 +19,36 @@ import type {
   DefaultStyleSchema,
 } from "../blocks/defaultBlocks.js";
 import { createInputRulesPlugins, hasInputRule } from "./inputRules.js";
+import { installHeadlessPlugins } from "../extensions/testHeadlessEditor.js";
 import { withCollaboration } from "../yjs/index.js";
 import { blocksToYXmlFragment } from "../yjs/utils.js";
 
-const editors: BlockNoteEditor[] = [];
-const cleanups: (() => void)[] = [];
-
 afterEach(() => {
-  for (const cleanup of cleanups.splice(0).reverse()) {
-    cleanup();
-  }
-  for (const editor of editors.splice(0)) {
-    editor._tiptapEditor.destroy();
-  }
   vi.restoreAllMocks();
 });
 
-// Install the real editor plugins on Tiptap's headless view. Input rules and
-// history need state/dispatch, not layout or a DOM-backed EditorView.
-function createEditor(
-  options: Partial<
-    BlockNoteEditorOptions<
-      DefaultBlockSchema,
-      DefaultInlineContentSchema,
-      DefaultStyleSchema
-    >
-  > = {},
-) {
-  const editor = BlockNoteEditor.create({
-    initialContent: [{ id: "paragraph", type: "paragraph", content: [] }],
-    ...options,
-  });
-  editors.push(editor);
-  const view = editor.prosemirrorView;
-  view.updateState(
-    view.state.reconfigure({
-      plugins: editor._tiptapEditor.extensionManager.plugins,
-    }),
-  );
-  return editor;
-}
+type CreateEditor = (
+  options?: Omit<
+    Partial<
+      BlockNoteEditorOptions<
+        DefaultBlockSchema,
+        DefaultInlineContentSchema,
+        DefaultStyleSchema
+      >
+    >,
+    "schema"
+  >,
+) => Promise<BlockNoteEditor>;
 
-function createCollaborativeEditor() {
+async function setupCollaborativeEditor(
+  createEditor: CreateEditor,
+  onCleanup: (cleanup: () => void) => void,
+) {
   const doc = new Y.Doc();
+  onCleanup(() => doc.destroy());
   const fragment = doc.getXmlFragment("document");
-  const editor = createEditor(
-    withCollaboration({
+  const editor = await createEditor(
+    withCollaboration<NonNullable<Parameters<CreateEditor>[0]>>({
       collaboration: {
         fragment,
         user: { name: "Test", color: "red" },
@@ -89,13 +72,10 @@ function createCollaborativeEditor() {
   if (!syncPluginView) {
     throw new Error("Missing Yjs sync plugin");
   }
+  onCleanup(() => syncPluginView.destroy?.());
   const updateSync = () => syncPluginView.update?.(syncView, view.state);
   editor._tiptapEditor.on("transaction", updateSync);
-  cleanups.push(() => {
-    editor._tiptapEditor.off("transaction", updateSync);
-    syncPluginView.destroy?.();
-    doc.destroy();
-  });
+  onCleanup(() => editor._tiptapEditor.off("transaction", updateSync));
   const undo = yUndoPluginKey.getState(view.state)?.undoManager;
   if (!undo) {
     throw new Error("Missing Yjs undo manager");
@@ -137,38 +117,64 @@ function typeText(editor: BlockNoteEditor, text: string) {
 }
 
 describe("input-rule history", () => {
+  const it = globalThis.it.extend<{
+    createEditor: CreateEditor;
+    createCollaborativeEditor: () => Promise<BlockNoteEditor>;
+  }>({
+    createEditor: async ({ setupEditor }, use) => {
+      await use(async (options) => {
+        const { editor } = await setupEditor({
+          initialContent: [{ id: "paragraph", type: "paragraph", content: [] }],
+          ...options,
+        });
+        installHeadlessPlugins(editor);
+        return editor;
+      });
+    },
+    createCollaborativeEditor: async (
+      { createEditor, onTestFinished },
+      use,
+    ) => {
+      await use(() => setupCollaborativeEditor(createEditor, onTestFinished));
+    },
+  });
+
   describe.each(["standalone", "yjs"] as const)("%s history", (backend) => {
-    it.each([
+    it.for([
       ["*ab*", "italic"],
       ["_ab_", "italic"],
       ["**ab**", "bold"],
       ["__ab__", "bold"],
       ["~~ab~~", "strike"],
       ["`ab`", "code"],
-    ])("records the literal %s before conversion", (text, style) => {
-      const editor =
-        backend === "yjs" ? createCollaborativeEditor() : createEditor();
-      // All typing and conversion happen inside one capture window. Separation
-      // must come from closeHistory, not incidental test execution time.
-      vi.spyOn(Date, "now").mockReturnValue(Date.now());
-      typeText(editor, text);
-      expect(editor.document[0].content).toEqual([
-        { type: "text", text: "ab", styles: { [style]: true } },
-      ]);
+    ] as const)(
+      "records the literal %s before conversion",
+      async ([text, style], { createEditor, createCollaborativeEditor }) => {
+        const editor = await (backend === "yjs"
+          ? createCollaborativeEditor()
+          : createEditor());
+        // All typing and conversion happen inside one capture window. Separation
+        // must come from closeHistory, not incidental test execution time.
+        vi.spyOn(Date, "now").mockReturnValue(Date.now());
+        typeText(editor, text);
+        expect(editor.document[0].content).toEqual([
+          { type: "text", text: "ab", styles: { [style]: true } },
+        ]);
 
-      expect(editor.undo()).toBe(true);
-      expect(editor.document[0].content).toEqual([
-        { type: "text", text, styles: {} },
-      ]);
+        expect(editor.undo()).toBe(true);
+        expect(editor.document[0].content).toEqual([
+          { type: "text", text, styles: {} },
+        ]);
 
-      expect(editor.redo()).toBe(true);
-      expect(editor.document[0].content).toEqual([
-        { type: "text", text: "ab", styles: { [style]: true } },
-      ]);
-    });
+        expect(editor.redo()).toBe(true);
+        expect(editor.document[0].content).toEqual([
+          { type: "text", text: "ab", styles: { [style]: true } },
+        ]);
+      },
+    );
   });
 
-  it.each([
+  it.for([
     "*ab*",
     "**ab**",
     "~~ab~~",
@@ -180,26 +186,30 @@ describe("input-rule history", () => {
     "> ",
     "``` ",
     "---",
-  ])("Backspace reverses %s without duplicating its trigger", (text) => {
-    const editor = createEditor();
-    typeText(editor, text);
-    expect(keyDown(editor, "Backspace")).toBe(true);
-    expect(editor.document[0].type).toBe("paragraph");
-    expect(editor.document[0].content).toEqual([
-      { type: "text", text, styles: {} },
-    ]);
-    // The conversion metadata must be consumed by this document change.
-    typeText(editor, "x");
-    expect(editor.document[0].content).toEqual([
-      { type: "text", text: text + "x", styles: {} },
-    ]);
-  });
+  ])(
+    "Backspace reverses %s without duplicating its trigger",
+    async (text, { createEditor }) => {
+      const editor = await createEditor();
+      typeText(editor, text);
+      expect(keyDown(editor, "Backspace")).toBe(true);
+      expect(editor.document[0].type).toBe("paragraph");
+      expect(editor.document[0].content).toEqual([
+        { type: "text", text, styles: {} },
+      ]);
+      // The conversion metadata must be consumed by this document change.
+      typeText(editor, "x");
+      expect(editor.document[0].content).toEqual([
+        { type: "text", text: text + "x", styles: {} },
+      ]);
+    },
+  );
 
-  it.each(["standalone", "yjs"])(
+  it.for(["standalone", "yjs"])(
     "Backspace uses %s history so the conversion can be redone",
-    (history) => {
-      const editor =
-        history === "yjs" ? createCollaborativeEditor() : createEditor();
+    async (history, { createEditor, createCollaborativeEditor }) => {
+      const editor = await (history === "yjs"
+        ? createCollaborativeEditor()
+        : createEditor());
       typeText(editor, "**ab**");
       const converted = editor.document;
       expect(keyDown(editor, "Backspace")).toBe(true);
@@ -209,8 +219,8 @@ describe("input-rule history", () => {
     },
   );
 
-  it("does not run inline rules on plain Enter", () => {
-    const editor = createEditor();
+  it("does not run inline rules on plain Enter", async ({ createEditor }) => {
+    const editor = await createEditor();
     typeText(editor, "inline");
     const [input, sidecar] = createInputRulesPlugins(
       [{ find: /inline\s$/, replace: () => "converted" }],
@@ -224,8 +234,10 @@ describe("input-rule history", () => {
     ]);
   });
 
-  it("converts a block on Enter and keeps the cursor inside it", () => {
-    const editor = createEditor();
+  it("converts a block on Enter and keeps the cursor inside it", async ({
+    createEditor,
+  }) => {
+    const editor = await createEditor();
     typeText(editor, "```ts");
     expect(keyDown(editor, "Enter")).toBe(true);
     expect(editor.document[0]).toMatchObject({
@@ -237,8 +249,10 @@ describe("input-rule history", () => {
     expect(editor.prosemirrorState.doc.textContent).toBe("code");
   });
 
-  it("does not undo a stale conversion after the selection moves", () => {
-    const editor = createEditor();
+  it("does not undo a stale conversion after the selection moves", async ({
+    createEditor,
+  }) => {
+    const editor = await createEditor();
     typeText(editor, "**ab**");
     const view = editor.prosemirrorView;
     view.dispatch(
@@ -253,10 +267,10 @@ describe("input-rule history", () => {
     ]);
   });
 
-  it.each(["**ab**", "---"])(
+  it.for(["**ab**", "---"])(
     "Backspace reverses %s immediately with Yjs",
-    (text) => {
-      const editor = createCollaborativeEditor();
+    async (text, { createCollaborativeEditor }) => {
+      const editor = await createCollaborativeEditor();
       typeText(editor, text);
       expect(keyDown(editor, "Backspace")).toBe(true);
       expect(editor.document[0].type).toBe("paragraph");
@@ -266,8 +280,10 @@ describe("input-rule history", () => {
     },
   );
 
-  it("preserves custom Tiptap input rules and their Backspace undo", () => {
-    const editor = createEditor({
+  it("preserves custom Tiptap input rules and their Backspace undo", async ({
+    createEditor,
+  }) => {
+    const editor = await createEditor({
       _tiptapOptions: {
         extensions: [
           TiptapExtension.create({
@@ -296,8 +312,10 @@ describe("input-rule history", () => {
     ]);
   });
 
-  it("orders custom rules by priority and falls through declined matches", () => {
-    const editor = createEditor({
+  it("orders custom rules by priority and falls through declined matches", async ({
+    createEditor,
+  }) => {
+    const editor = await createEditor({
       extensions: [
         createExtension({
           key: "low",
@@ -319,8 +337,10 @@ describe("input-rule history", () => {
     expect(editor.prosemirrorState.doc.textContent).toBe("->");
   });
 
-  it("applies declarative styles without discarding existing formatting", () => {
-    const editor = createEditor({
+  it("applies declarative styles without discarding existing formatting", async ({
+    createEditor,
+  }) => {
+    const editor = await createEditor({
       extensions: [
         createExtension({
           key: "custom-style",
@@ -351,10 +371,10 @@ describe("input-rule history", () => {
     ]);
   });
 
-  it.each([" foo", "  "])(
+  it.for([" foo", "  "])(
     "retains whitespace when applying styles to %j",
-    (text) => {
-      const editor = createEditor({
+    async (text, { createEditor }) => {
+      const editor = await createEditor({
         extensions: [
           createExtension({
             key: "whitespace-style",
@@ -381,8 +401,10 @@ describe("input-rule history", () => {
     },
   );
 
-  it("preserves preceding formatting when a space triggers inline code", () => {
-    const editor = createEditor({
+  it("preserves preceding formatting when a space triggers inline code", async ({
+    createEditor,
+  }) => {
+    const editor = await createEditor({
       initialContent: [
         {
           id: "paragraph",
@@ -408,8 +430,10 @@ describe("input-rule history", () => {
     ]);
   });
 
-  it("preserves comment annotations when a space triggers inline code", () => {
-    const editor = createEditor({
+  it("preserves comment annotations when a space triggers inline code", async ({
+    createEditor,
+  }) => {
+    const editor = await createEditor({
       initialContent: [{ id: "paragraph", type: "paragraph", content: "`ab`" }],
       _tiptapOptions: { extensions: [CommentMark] },
     });
@@ -431,8 +455,10 @@ describe("input-rule history", () => {
     expect(view.state.doc.rangeHasMark(4, 6, comment)).toBe(true);
   });
 
-  it("declines inline nodes that do not fit the current textblock", () => {
-    const editor = createEditor({
+  it("declines inline nodes that do not fit the current textblock", async ({
+    createEditor,
+  }) => {
+    const editor = await createEditor({
       _tiptapOptions: {
         extensions: [
           TiptapNode.create({
@@ -458,14 +484,16 @@ describe("input-rule history", () => {
     expect(view.state.doc.nodeAt(2)?.type.name).toBe("plainText");
   });
 
-  it("keeps the original block rule callback contract", () => {
+  it("keeps the original block rule callback contract", async ({
+    createEditor,
+  }) => {
     const replace = vi.fn<InputRule["replace"]>(({ editor, match, range }) => {
       expect(editor).toBeInstanceOf(BlockNoteEditor);
       expect(match[0]).toBe("! ");
       expect(range.to - range.from).toBe(2);
       return { type: "heading", props: { level: 2 } };
     });
-    const editor = createEditor({
+    const editor = await createEditor({
       extensions: [
         createExtension({
           key: "simple-block-rule",
@@ -483,10 +511,10 @@ describe("input-rule history", () => {
     expect(editor.prosemirrorState.doc.textContent).toBe("! ");
   });
 
-  it.each(["*ab*", "**ab**", "~~ab~~"])(
+  it.for(["*ab*", "**ab**", "~~ab~~"])(
     "does not format %s inside code",
-    (text) => {
-      const editor = createEditor();
+    async (text, { createEditor }) => {
+      const editor = await createEditor();
       editor.addStyles({ code: true });
       typeText(editor, text);
       expect(editor.document[0].content).toEqual([

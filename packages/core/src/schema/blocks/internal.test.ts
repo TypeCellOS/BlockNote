@@ -1,33 +1,22 @@
-import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
 import { getNodeById } from "../../api/nodeUtil.js";
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { getBlockFromNodeView } from "./internal.js";
 
+function editorOptions() {
+  return {
+    trailingBlock: false,
+    initialContent: [
+      { type: "paragraph" as const, content: "first" },
+      { type: "paragraph" as const, content: "second" },
+    ],
+  };
+}
+
 describe("getBlockFromNodeView", () => {
-  let editor: BlockNoteEditor;
-
-  beforeEach(() => {
-    editor = BlockNoteEditor.create({
-      trailingBlock: false,
-      initialContent: [
-        { type: "paragraph", content: "first" },
-        { type: "paragraph", content: "second" },
-      ],
-    });
-  });
-
-  afterEach(() => {
-    // Leaving the editor alive leaks a ProseMirror `DOMObserver`, whose
-    // `stop()` schedules a `flush()` 20ms later. That can outlive the test
-    // environment and then fail the run with `ReferenceError: document is not
-    // defined`, attributed to whichever test file happens to be running.
-    editor._tiptapEditor.destroy();
-    editor = undefined as any;
-  });
-
-  it("resolves from the position when it is valid", () => {
-    const doc = editor.prosemirrorState.doc;
+  it("resolves from the position when it is valid", async ({ setupEditor }) => {
+    const { editor } = await setupEditor(editorOptions());
+    const doc = editor.transact(({ doc }) => doc);
     const target = editor.document[1];
     // `getBlockFromPos` resolves the *parent* of the position, so the position
     // sits just inside the block container — which is what ProseMirror hands a
@@ -38,11 +27,14 @@ describe("getBlockFromNodeView", () => {
     expect(block.id).toBe(target.id);
   });
 
-  it("builds a standalone block when the node is no longer in the document", () => {
+  it("builds a standalone block when the node is no longer in the document", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor(editorOptions());
     // The only way `getPos()` fails at node view construction is a re-entrant
     // dispatch superseding `view.state.doc`, which takes the node with it — so
     // the node genuinely isn't in the document any more. See #2937.
-    const doc = editor.prosemirrorState.doc;
+    const doc = editor.transact(({ doc }) => doc);
     const orphan = editor.pmSchema.nodes.paragraph.create(
       { textAlignment: "right" },
       editor.pmSchema.text("orphaned content"),
@@ -62,10 +54,13 @@ describe("getBlockFromNodeView", () => {
     expect(editor.document.map((b) => b.id)).not.toContain(block.id);
   });
 
-  it("recovers from an in-range position that resolves to the wrong node", () => {
+  it("recovers from an in-range position that resolves to the wrong node", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor(editorOptions());
     // Position 0 resolves to the doc rather than a block container — the shape
     // a bounds check alone would not catch.
-    const doc = editor.prosemirrorState.doc;
+    const doc = editor.transact(({ doc }) => doc);
     const orphan = editor.pmSchema.nodes.paragraph.create(
       null,
       editor.pmSchema.text("orphaned content"),
@@ -73,8 +68,9 @@ describe("getBlockFromNodeView", () => {
     expect(() => getBlockFromNodeView(() => 0, orphan, doc)).not.toThrow();
   });
 
-  it("recovers when the position is undefined", () => {
-    const doc = editor.prosemirrorState.doc;
+  it("recovers when the position is undefined", async ({ setupEditor }) => {
+    const { editor } = await setupEditor(editorOptions());
+    const doc = editor.transact(({ doc }) => doc);
     const orphan = editor.pmSchema.nodes.paragraph.create(
       null,
       editor.pmSchema.text("orphaned content"),

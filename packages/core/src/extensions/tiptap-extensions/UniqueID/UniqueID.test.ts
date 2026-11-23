@@ -1,24 +1,9 @@
-/**
- * @vitest-environment jsdom
- */
+import type { Node } from "prosemirror-model";
+import { describe, expect } from "vite-plus/test";
 
-import { Node } from "prosemirror-model";
-import { afterEach, beforeAll, describe, expect, it } from "vite-plus/test";
-
-import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
+import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 import { YAttributionMarksExtension } from "../../../y/extensions/YAttributionMarks.js";
-
-// Track editors created in each test so we can unmount them in afterEach —
-// otherwise prosemirror-view's DOMObserver leaves a setTimeout alive that
-// fires after vitest tears down jsdom, throwing
-// `ReferenceError: document is not defined` and failing the run.
-const activeEditors: BlockNoteEditor<any, any, any>[] = [];
-
-afterEach(() => {
-  while (activeEditors.length) {
-    activeEditors.pop()!.unmount();
-  }
-});
+import { installHeadlessPlugins } from "../../testHeadlessEditor.js";
 
 /**
  * The UniqueID extension's `appendTransaction` hook assigns a fresh id to any
@@ -29,20 +14,20 @@ afterEach(() => {
  * These tests exercise both branches.
  */
 
-function createEditor() {
-  // The suggested-deletion cases mark nodes with `y-attributed-delete`, which
-  // only exists in the schema when the suggestion-marks bundle is loaded.
-  const editor = BlockNoteEditor.create({
-    extensions: [YAttributionMarksExtension()],
-  });
-  editor.mount(document.createElement("div"));
-  activeEditors.push(editor);
-  editor.replaceBlocks(editor.document, [
-    { id: "block-a", type: "paragraph", content: "A" },
-    { id: "block-b", type: "paragraph", content: "B" },
-  ]);
-  return editor;
-}
+const it = globalThis.it.extend<{ editor: BlockNoteEditor }>({
+  editor: async ({ setupEditor }, use) => {
+    // Only the suggestion-marks bundle defines `y-attributed-delete`.
+    const { editor } = await setupEditor({
+      extensions: [YAttributionMarksExtension()],
+      initialContent: [
+        { id: "block-a", type: "paragraph", content: "A" },
+        { id: "block-b", type: "paragraph", content: "B" },
+      ],
+    });
+    installHeadlessPlugins(editor);
+    await use(editor);
+  },
+});
 
 /**
  * Builds a `blockContainer` node holding a single paragraph with the given
@@ -80,17 +65,9 @@ function getBlockIds(doc: Node) {
 }
 
 describe("UniqueID: duplicate id handling", () => {
-  let editor: BlockNoteEditor;
-
-  beforeAll(() => {
-    // Reset the mock id counter so generated ids are deterministic.
-    (window as any).__TEST_OPTIONS = {};
-  });
-
-  it("assigns a fresh id to a newly-inserted plain block that duplicates another new block", () => {
-    editor = createEditor();
-    const view = editor._tiptapEditor.view;
-
+  it("assigns a fresh id to a newly-inserted plain block that duplicates another new block", ({
+    editor,
+  }) => {
     // Insert TWO new blocks sharing the same id "dup" in a single transaction.
     // Both land in the same changed range, so UniqueID detects the duplicate
     // and rewrites one of them with a fresh generated id.
@@ -99,12 +76,11 @@ describe("UniqueID: duplicate id handling", () => {
 
     // Position at the boundary between the first block and the second block
     // inside the blockGroup.
-    const firstBlock = view.state.doc.firstChild!.firstChild!;
-    const insertPos = firstBlock.nodeSize + 1;
-
-    view.dispatch(view.state.tr.insert(insertPos, [dup1, dup2]));
-
-    const ids = getBlockIds(view.state.doc);
+    editor.transact((tr) => {
+      const firstBlock = tr.doc.firstChild!.firstChild!;
+      tr.insert(firstBlock.nodeSize + 1, [dup1, dup2]);
+    });
+    const ids = editor.transact((tr) => getBlockIds(tr.doc));
 
     // Four blocks now exist, and UniqueID has resolved the duplicate so that
     // all ids are distinct and non-null.
@@ -113,10 +89,9 @@ describe("UniqueID: duplicate id handling", () => {
     expect(new Set(ids).size).toBe(4);
   });
 
-  it("keeps the shared id of a suggested-deletion block and its surviving copy", () => {
-    editor = createEditor();
-    const view = editor._tiptapEditor.view;
-
+  it("keeps the shared id of a suggested-deletion block and its surviving copy", ({
+    editor,
+  }) => {
     // Insert two new blocks sharing the id "dup" in a single transaction: a
     // plain (live) one and a suggested-deletion one (y-attributed-delete mark).
     // This is how a version diff shows a re-created block (a type change or a
@@ -125,12 +100,12 @@ describe("UniqueID: duplicate id handling", () => {
     const liveDup = makeBlockContainer(editor, "dup", "Live dup", false);
     const deletedDup = makeBlockContainer(editor, "dup", "Deleted dup", true);
 
-    const firstBlock = view.state.doc.firstChild!.firstChild!;
-    const insertPos = firstBlock.nodeSize + 1;
+    editor.transact((tr) => {
+      const firstBlock = tr.doc.firstChild!.firstChild!;
+      tr.insert(firstBlock.nodeSize + 1, [liveDup, deletedDup]);
+    });
 
-    view.dispatch(view.state.tr.insert(insertPos, [liveDup, deletedDup]));
-
-    expect(getBlockIds(view.state.doc)).toEqual([
+    expect(editor.transact((tr) => getBlockIds(tr.doc))).toEqual([
       "block-a",
       "dup",
       "dup",
@@ -138,10 +113,9 @@ describe("UniqueID: duplicate id handling", () => {
     ]);
   });
 
-  it("exposes distinct ids in editor.document even though two ProseMirror nodes share the same id", () => {
-    editor = createEditor();
-    const view = editor._tiptapEditor.view;
-
+  it("exposes distinct ids in editor.document even though two ProseMirror nodes share the same id", ({
+    editor,
+  }) => {
     // Insert a suggested-deletion copy of the FIRST block, sharing its id
     // "block-a". This mirrors suggestion mode: Yjs keeps the deleted node in
     // the document with the same id as the surviving node, and UniqueID leaves
@@ -153,14 +127,14 @@ describe("UniqueID: duplicate id handling", () => {
       true,
     );
 
-    const firstBlock = view.state.doc.firstChild!.firstChild!;
-    const insertPos = firstBlock.nodeSize + 1;
-
-    view.dispatch(view.state.tr.insert(insertPos, deletedCopy));
+    editor.transact((tr) => {
+      const firstBlock = tr.doc.firstChild!.firstChild!;
+      tr.insert(firstBlock.nodeSize + 1, deletedCopy);
+    });
 
     // At the ProseMirror level, two nodes now share the id "block-a": the live
     // one and the suggested-deletion one.
-    const pmIds = getBlockIds(view.state.doc);
+    const pmIds = editor.transact((tr) => getBlockIds(tr.doc));
     expect(pmIds.filter((id) => id === "block-a")).toHaveLength(2);
 
     // But editor.document disambiguates them via getNodeId: the suggested

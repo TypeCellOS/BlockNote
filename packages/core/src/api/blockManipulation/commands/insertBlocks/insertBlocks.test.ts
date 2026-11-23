@@ -1,12 +1,17 @@
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
-import { setupTestEnv } from "../../setupTestEnv.js";
+import { testDocument } from "../../setupTestEnv.js";
 import { insertBlocks as insertBlocksTr } from "./insertBlocks.js";
 import { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
 import { PartialBlock } from "../../../../blocks/defaultBlocks.js";
 import { BlockIdentifier } from "../../../../schema/index.js";
 
-const getEditor = setupTestEnv();
+const it = globalThis.it.extend<{ editor: BlockNoteEditor }>({
+  editor: async ({ setupEditor }, use) => {
+    const { editor } = await setupEditor({ initialContent: testDocument });
+    await use(editor);
+  },
+});
 
 function insertBlocks(
   editor: BlockNoteEditor,
@@ -20,44 +25,34 @@ function insertBlocks(
 }
 
 describe("Test insertBlocks", () => {
-  it("Insert single basic block before (without type)", () => {
+  it("Insert single basic block before (without type)", ({ editor }) => {
     expect(
-      insertBlocks(getEditor(), [{ content: "test" }], "paragraph-0", "before"),
+      insertBlocks(editor, [{ content: "test" }], "paragraph-0", "before"),
     ).toMatchSnapshot();
 
-    expect(getEditor().document).toMatchSnapshot();
+    expect(editor.document).toMatchSnapshot();
   });
 
-  it("Insert single basic block before", () => {
+  it("Insert single basic block before", ({ editor }) => {
     expect(
-      insertBlocks(
-        getEditor(),
-        [{ type: "paragraph" }],
-        "paragraph-0",
-        "before",
-      ),
+      insertBlocks(editor, [{ type: "paragraph" }], "paragraph-0", "before"),
     ).toMatchSnapshot();
 
-    expect(getEditor().document).toMatchSnapshot();
+    expect(editor.document).toMatchSnapshot();
   });
 
-  it("Insert single basic block after", () => {
+  it("Insert single basic block after", ({ editor }) => {
     expect(
-      insertBlocks(
-        getEditor(),
-        [{ type: "paragraph" }],
-        "paragraph-0",
-        "after",
-      ),
+      insertBlocks(editor, [{ type: "paragraph" }], "paragraph-0", "after"),
     ).toMatchSnapshot();
 
-    expect(getEditor().document).toMatchSnapshot();
+    expect(editor.document).toMatchSnapshot();
   });
 
-  it("Insert multiple blocks before", () => {
+  it("Insert multiple blocks before", ({ editor }) => {
     expect(
       insertBlocks(
-        getEditor(),
+        editor,
         [
           { type: "paragraph", content: "Inserted paragraph 1" },
           { type: "paragraph", content: "Inserted paragraph 2" },
@@ -68,13 +63,13 @@ describe("Test insertBlocks", () => {
       ),
     ).toMatchSnapshot();
 
-    expect(getEditor().document).toMatchSnapshot();
+    expect(editor.document).toMatchSnapshot();
   });
 
-  it("Insert multiple blocks after", () => {
+  it("Insert multiple blocks after", ({ editor }) => {
     expect(
       insertBlocks(
-        getEditor(),
+        editor,
         [
           { type: "paragraph", content: "Inserted paragraph 1" },
           { type: "paragraph", content: "Inserted paragraph 2" },
@@ -85,13 +80,13 @@ describe("Test insertBlocks", () => {
       ),
     ).toMatchSnapshot();
 
-    expect(getEditor().document).toMatchSnapshot();
+    expect(editor.document).toMatchSnapshot();
   });
 
-  it("Insert single complex block before", () => {
+  it("Insert single complex block before", ({ editor }) => {
     expect(
       insertBlocks(
-        getEditor(),
+        editor,
         [
           {
             id: "inserted-heading-with-everything",
@@ -128,13 +123,13 @@ describe("Test insertBlocks", () => {
       ),
     ).toMatchSnapshot();
 
-    expect(getEditor().document).toMatchSnapshot();
+    expect(editor.document).toMatchSnapshot();
   });
 
-  it("Insert single complex block after", () => {
+  it("Insert single complex block after", ({ editor }) => {
     expect(
       insertBlocks(
-        getEditor(),
+        editor,
         [
           {
             id: "inserted-heading-with-everything",
@@ -171,6 +166,6 @@ describe("Test insertBlocks", () => {
       ),
     ).toMatchSnapshot();
 
-    expect(getEditor().document).toMatchSnapshot();
+    expect(editor.document).toMatchSnapshot();
   });
 });

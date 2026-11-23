@@ -1,4 +1,3 @@
-// @vitest-environment node
 import { expect, it, vi } from "vite-plus/test";
 import { createVersioning } from "./createVersioning.js";
 import { success } from "./__test__/result.js";

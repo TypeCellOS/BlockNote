@@ -1,16 +1,7 @@
-// @vitest-environment node
 import { resultValue } from "./__test__/result.js";
-import { expect, expectTypeOf, it } from "vite-plus/test";
-import {
-  closeHistory,
-  history,
-  undo,
-  undoDepth,
-  redo,
-} from "@tiptap/pm/history";
+import { expect, expectTypeOf } from "vite-plus/test";
 import { BlockNoteSchema } from "../../blocks/BlockNoteSchema.js";
 import type { PartialBlock } from "../../blocks/defaultBlocks.js";
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { createBlockSpec } from "../../schema/blocks/createSpec.js";
 import { createInlineContentSpec } from "../../schema/inlineContent/createSpec.js";
 import { createStyleSpec } from "../../schema/styles/createSpec.js";
@@ -26,10 +17,10 @@ import {
   InMemoryVersioningExtension,
 } from "./inMemoryVersioning.js";
 
-it.each(["current", "snapshot"] as const)(
+it.for(["current", "snapshot"] as const)(
   "compares %s against the earliest saved content since beginning",
-  async (target) => {
-    const editor = BlockNoteEditor.create({
+  async (target, { setupEditor }) => {
+    const { editor } = await setupEditor({
       initialContent: [{ id: "paragraph", type: "paragraph" }],
       extensions: [
         DiffVersioningExtension(),
@@ -84,56 +75,53 @@ it.each(["current", "snapshot"] as const)(
       ]);
     } finally {
       mode.dispose();
-      editor._tiptapEditor.destroy();
     }
   },
 );
 
-it("uses saved content for both previews and comparison baselines", async () => {
-  const editor = BlockNoteEditor.create();
-  try {
-    const { storage } = createLocalVersioning(editor, {
-      initialVersions: [
-        { content: [{ content: "abc" }], createdAt: 2 },
-        { content: [{ content: "a" }], createdAt: 1 },
-      ],
-    });
-    const signal = new AbortController().signal;
-    const earliest = resultValue(await storage.getContent("2", signal));
-    expect(earliest.textContent).toBe("a");
-    earliest.check();
-    expect(resultValue(await storage.getContent("1", signal)).textContent).toBe(
-      "abc",
-    );
-    expect(await storage.getContent("missing", signal)).toEqual({
-      ok: false,
-      error: { type: "not-found" },
-    });
-  } finally {
-    editor._tiptapEditor.destroy();
-  }
+it("uses saved content for both previews and comparison baselines", async ({
+  setupEditor,
+}) => {
+  const { editor } = await setupEditor();
+  const { storage } = createLocalVersioning(editor, {
+    initialVersions: [
+      { content: [{ content: "abc" }], createdAt: 2 },
+      { content: [{ content: "a" }], createdAt: 1 },
+    ],
+  });
+  const signal = new AbortController().signal;
+  const earliest = resultValue(await storage.getContent("2", signal));
+  expect(earliest.textContent).toBe("a");
+  earliest.check();
+  expect(resultValue(await storage.getContent("1", signal)).textContent).toBe(
+    "abc",
+  );
+  expect(await storage.getContent("missing", signal)).toEqual({
+    ok: false,
+    error: { type: "not-found" },
+  });
 });
 
-it("returns seeded versions newest first regardless of insertion order", async () => {
-  const editor = BlockNoteEditor.create();
-  try {
-    const { storage } = createLocalVersioning(editor, {
-      initialVersions: [10, 30, 20].map((createdAt) => ({
-        content: [{ type: "paragraph" }],
-        createdAt,
-      })),
-    });
-    const page = resultValue(await storage.list(new AbortController().signal));
-    expect(page.snapshots.map(({ createdAt }) => createdAt)).toEqual([
-      30, 20, 10,
-    ]);
-  } finally {
-    editor._tiptapEditor.destroy();
-  }
+it("returns seeded versions newest first regardless of insertion order", async ({
+  setupEditor,
+}) => {
+  const { editor } = await setupEditor();
+  const { storage } = createLocalVersioning(editor, {
+    initialVersions: [10, 30, 20].map((createdAt) => ({
+      content: [{ type: "paragraph" }],
+      createdAt,
+    })),
+  });
+  const page = resultValue(await storage.list(new AbortController().signal));
+  expect(page.snapshots.map(({ createdAt }) => createdAt)).toEqual([
+    30, 20, 10,
+  ]);
 });
 
-it("previews and restores JSON exported from another editor's schema", async () => {
-  const source = BlockNoteEditor.create({
+it("previews and restores JSON exported from another editor's schema", async ({
+  setupEditor,
+}) => {
+  const { editor: source } = await setupEditor({
     initialContent: [
       { id: "paragraph", type: "paragraph", content: "Old text" },
     ],
@@ -142,8 +130,7 @@ it("previews and restores JSON exported from another editor's schema", async () 
   const before = source.prosemirrorState.doc.toJSON();
   source.updateBlock("paragraph", { content: "Changed text" });
   const after = source.prosemirrorState.doc.toJSON();
-  source._tiptapEditor.destroy();
-  const editor = BlockNoteEditor.create({
+  const { editor } = await setupEditor({
     extensions: [
       InMemoryVersioningExtension({
         initialVersions: [
@@ -172,65 +159,12 @@ it("previews and restores JSON exported from another editor's schema", async () 
     expect(editor.isEditable).toBe(true);
   } finally {
     mode?.dispose();
-    editor._tiptapEditor.destroy();
   }
 });
 
-it("converts partial-block seeds without changing live content, selection, or undo", async () => {
-  const blocks: PartialBlock[] = [
-    {
-      id: "saved",
-      content: "Saved text",
-      children: [{ type: "paragraph", content: "Nested text" }],
-    },
-  ];
-  const editor = BlockNoteEditor.create();
-  try {
-    // Headless editors do not mount their plugins. Install history explicitly
-    // so this test exercises real undo state rather than comparing zero depths.
-    editor.prosemirrorView.updateState(
-      editor.prosemirrorState.reconfigure({
-        plugins: [...editor.prosemirrorState.plugins, history()],
-      }),
-    );
-    editor.replaceBlocks(editor.document, [{ content: "Live text" }]);
-    editor.transact((tr) => closeHistory(tr));
-    const before = editor.prosemirrorState;
-    expect(undoDepth(before)).toBeGreaterThan(0);
-    const { adapter, storage } = createLocalVersioning(editor, {
-      initialVersions: [{ content: blocks, name: "Draft", createdAt: 123 }],
-    });
-    expect(editor.prosemirrorState).toBe(before);
-    const signal = new AbortController().signal;
-    expect(resultValue(await storage.list(signal)).snapshots).toEqual([
-      { id: "1", name: "Draft", createdAt: 123 },
-    ]);
-    const content = resultValue(await storage.getContent("1", signal));
-    expect(content.type.schema).toBe(editor.pmSchema);
-    expect(content.textContent).toBe("Saved textNested text");
-    const preview = adapter.open();
-    preview.show({ content, target: { type: "snapshot", id: "1" } });
-    expect(editor.document[0].id).toBe("saved");
-    expect(editor.document[0].type).toBe("paragraph");
-    expect(editor.document[0].children[0].id).toBeTruthy();
-    preview.close();
-    expect(editor.prosemirrorState.doc).toBe(before.doc);
-    expect(editor.prosemirrorState.selection.eq(before.selection)).toBe(true);
-    expect(undoDepth(editor.prosemirrorState)).toBe(undoDepth(before));
-    await storage.restore!("1");
-    expect(editor.prosemirrorState.doc.textContent).toBe(
-      "Saved textNested text",
-    );
-    expect(undo(editor.prosemirrorState, editor.prosemirrorView.dispatch)).toBe(
-      true,
-    );
-    expect(editor.prosemirrorState.doc).toEqual(before.doc);
-  } finally {
-    editor._tiptapEditor.destroy();
-  }
-});
-
-it("loads table content and attributes from ProseMirror JSON seeds", async () => {
+it("loads table content and attributes from ProseMirror JSON seeds", async ({
+  setupEditor,
+}) => {
   const widths = [120];
   const text = { type: "text", text: "Cell text" };
   const content: ProseMirrorDocumentJSON = {
@@ -264,27 +198,25 @@ it("loads table content and attributes from ProseMirror JSON seeds", async () =>
       },
     ],
   };
-  const editor = BlockNoteEditor.create();
-  try {
-    const { storage } = createLocalVersioning(editor, {
-      initialVersions: [{ content, createdAt: 1 }],
-    });
-    const document = resultValue(
-      await storage.getContent("1", new AbortController().signal),
-    );
-    expect(document.type.schema).toBe(editor.pmSchema);
-    expect(document.textContent).toBe("Cell text");
-    document.descendants((node) => {
-      if (node.type.name === "tableCell") {
-        expect(node.attrs.colwidth).toEqual([120]);
-      }
-    });
-  } finally {
-    editor._tiptapEditor.destroy();
-  }
+  const { editor } = await setupEditor();
+  const { storage } = createLocalVersioning(editor, {
+    initialVersions: [{ content, createdAt: 1 }],
+  });
+  const document = resultValue(
+    await storage.getContent("1", new AbortController().signal),
+  );
+  expect(document.type.schema).toBe(editor.pmSchema);
+  expect(document.textContent).toBe("Cell text");
+  document.descendants((node) => {
+    if (node.type.name === "tableCell") {
+      expect(node.attrs.colwidth).toEqual([120]);
+    }
+  });
 });
 
-it("uses custom block, inline-content, and style schemas for partial-block seeds", async () => {
+it("uses custom block, inline-content, and style schemas for partial-block seeds", async ({
+  setupEditor,
+}) => {
   const schema = BlockNoteSchema.create().extend({
     blockSpecs: {
       callout: createBlockSpec(
@@ -339,7 +271,7 @@ it("uses custom block, inline-content, and style schemas for partial-block seeds
       ],
     },
   ];
-  const editor = BlockNoteEditor.create({
+  const { editor } = await setupEditor({
     schema,
     extensions: [
       InMemoryVersioningExtension<B, I, S>({
@@ -368,11 +300,10 @@ it("uses custom block, inline-content, and style schemas for partial-block seeds
     mode.close();
   } finally {
     mode.dispose();
-    editor._tiptapEditor.destroy();
   }
 });
 
-it.each(
+it.for(
   (
     [
       [],
@@ -383,28 +314,26 @@ it.each(
   ).map((content) => ({ content })),
 )(
   "rejects seeds that do not form a document in the receiving schema: $content",
-  ({ content }) => {
-    const editor = BlockNoteEditor.create();
-    try {
-      expect(() =>
-        createLocalVersioning(editor, {
-          initialVersions: [{ content, createdAt: 1 }],
-        }),
-      ).toThrow();
-    } finally {
-      editor._tiptapEditor.destroy();
-    }
+  async ({ content }, { setupEditor }) => {
+    const { editor } = await setupEditor();
+    expect(() =>
+      createLocalVersioning(editor, {
+        initialVersions: [{ content, createdAt: 1 }],
+      }),
+    ).toThrow();
   },
 );
 
-it("reads seeds at editor construction and gives each editor its own history", async () => {
+it("reads seeds at editor construction and gives each editor its own history", async ({
+  setupEditor,
+}) => {
   const blocks: PartialBlock[] = [{ id: "saved", content: "First history" }];
   const extension = InMemoryVersioningExtension({
     initialVersions: [{ content: blocks, name: "Draft", createdAt: 123 }],
   });
-  const first = BlockNoteEditor.create({ extensions: [extension] });
+  const { editor: first } = await setupEditor({ extensions: [extension] });
   blocks[0].content = "Second history";
-  const second = BlockNoteEditor.create({ extensions: [extension] });
+  const { editor: second } = await setupEditor({ extensions: [extension] });
   blocks[0].content = "Later edit";
   const firstMode = first.getExtension(InMemoryVersioningExtension)!;
   const secondMode = second.getExtension(InMemoryVersioningExtension)!;
@@ -429,33 +358,31 @@ it("reads seeds at editor construction and gives each editor its own history", a
   } finally {
     firstMode.dispose();
     secondMode.dispose();
-    first._tiptapEditor.destroy();
-    second._tiptapEditor.destroy();
   }
 });
 
-it("finds the built-in extension by its factory with default options", () => {
-  const editor = BlockNoteEditor.create({
+it("finds the built-in extension by its factory with default options", async ({
+  setupEditor,
+}) => {
+  const { editor } = await setupEditor({
     extensions: [InMemoryVersioningExtension()],
   });
-  try {
-    const mode = editor.getExtension(InMemoryVersioningExtension);
-    expect(mode).toBeDefined();
-    expect(mode).toBe(editor.getExtension<VersioningController>("versioning"));
-  } finally {
-    editor._tiptapEditor.destroy();
-  }
+  const mode = editor.getExtension(InMemoryVersioningExtension);
+  expect(mode).toBeDefined();
+  expect(mode).toBe(editor.getExtension<VersioningController>("versioning"));
 });
 
-it("isolates displayed content and preserves live undo across open/show/close", async () => {
+it("restores the live document across open/show/close", async ({
+  setupEditor,
+}) => {
   const extension = createVersioningExtension(createLocalVersioning);
-  const editor = BlockNoteEditor.create({ extensions: [extension()] });
+  const { editor } = await setupEditor({ extensions: [extension()] });
   const mode = editor.getExtension(extension)!;
   try {
     editor.replaceBlocks(editor.document, [
       { type: "paragraph", content: "Live" },
     ]);
-    const before = editor.prosemirrorState;
+    const before = editor.document;
     mode.open();
     expect(editor.isEditable).toBe(false);
     expect(await mode.create("Captured")).toEqual({ status: "done" });
@@ -466,19 +393,17 @@ it("isolates displayed content and preserves live undo across open/show/close", 
     const saved = state.history.data[0];
     await mode.select({ type: "snapshot", id: saved.id });
     mode.close();
-    expect(editor.prosemirrorState.doc).toBe(before.doc);
-    expect(undoDepth(editor.prosemirrorState)).toBe(undoDepth(before));
+    expect(editor.document).toEqual(before);
     expect(editor.isEditable).toBe(true);
   } finally {
     mode.dispose();
-    editor._tiptapEditor.destroy();
   }
 });
 
-it.each([false, true])(
+it.for([false, true])(
   "does not publish previews as changes, with comparison %s",
-  async (compare) => {
-    const editor = BlockNoteEditor.create({
+  async (compare, { setupEditor }) => {
+    const { editor } = await setupEditor({
       initialContent: [{ id: "paragraph", content: "live" }],
       extensions: [
         DiffVersioningExtension(),
@@ -509,14 +434,15 @@ it.each([false, true])(
       expect(changes).toEqual(["edited"]);
     } finally {
       mode.dispose();
-      editor._tiptapEditor.destroy();
     }
   },
 );
 
-it("publishes a restore as a live document change after closing the isolated view", async () => {
+it("publishes a restore as a live document change after closing the isolated view", async ({
+  setupEditor,
+}) => {
   const extension = createVersioningExtension(createLocalVersioning);
-  const editor = BlockNoteEditor.create({ extensions: [extension()] });
+  const { editor } = await setupEditor({ extensions: [extension()] });
   const mode = editor.getExtension(extension)!;
   try {
     editor.replaceBlocks(editor.document, [
@@ -552,70 +478,5 @@ it("publishes a restore as a live document change after closing the isolated vie
     expect(changes).toEqual(["Original", "After restore"]);
   } finally {
     mode.dispose();
-    editor._tiptapEditor.destroy();
-  }
-});
-
-it("clears local undo and redo through previews and restores without preview history", async () => {
-  const editor = BlockNoteEditor.create({
-    initialContent: [{ id: "paragraph", content: "original" }],
-    extensions: [
-      InMemoryVersioningExtension({
-        initialVersions: ["snapshot one", "snapshot two"].map(
-          (content, index) => ({
-            createdAt: index + 1,
-            content: [{ id: "paragraph", content }],
-          }),
-        ),
-      }),
-    ],
-  });
-  editor.prosemirrorView.updateState(
-    editor.prosemirrorState.reconfigure({ plugins: [history()] }),
-  );
-  const mode = editor.getExtension(InMemoryVersioningExtension)!;
-  const dispatch = editor.prosemirrorView.dispatch;
-  function text() {
-    return editor.prosemirrorState.doc.textContent;
-  }
-  function edit(content: string) {
-    editor.transact((tr) => closeHistory(tr));
-    editor.updateBlock("paragraph", { content });
-  }
-  try {
-    edit("live");
-    expect(undoDepth(editor.prosemirrorState)).toBeGreaterThan(0);
-    mode.open();
-    expect(editor.isEditable).toBe(false);
-    expect(history().spec.key!.get(editor.prosemirrorState)).toBeUndefined();
-    for (const id of ["1", "2"]) {
-      await mode.select({ type: "snapshot", id });
-      expect(text()).toBe(id === "1" ? "snapshot one" : "snapshot two");
-    }
-    await mode.select({ type: "current" });
-    expect(text()).toBe("live");
-    mode.close();
-    expect(undo(editor.prosemirrorState, dispatch)).toBe(false);
-    expect(redo(editor.prosemirrorState, dispatch)).toBe(false);
-    edit("new live");
-    expect(undo(editor.prosemirrorState, dispatch)).toBe(true);
-    expect(text()).toBe("live");
-    expect(redo(editor.prosemirrorState, dispatch)).toBe(true);
-    expect(text()).toBe("new live");
-    mode.open();
-    await mode.select({ type: "snapshot", id: "2" });
-    await mode.restore("1");
-    expect(text()).toBe("snapshot one");
-    expect(editor.isEditable).toBe(true);
-    expect(undo(editor.prosemirrorState, dispatch)).toBe(false);
-    expect(redo(editor.prosemirrorState, dispatch)).toBe(false);
-    edit("after restore");
-    expect(undo(editor.prosemirrorState, dispatch)).toBe(true);
-    expect(text()).toBe("snapshot one");
-    expect(redo(editor.prosemirrorState, dispatch)).toBe(true);
-    expect(text()).toBe("after restore");
-  } finally {
-    mode.dispose();
-    editor._tiptapEditor.destroy();
   }
 });

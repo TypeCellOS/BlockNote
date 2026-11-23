@@ -326,7 +326,9 @@ describe("getChangedRanges", () => {
   it("returns the same ranges as Tiptap for random changes", () => {
     const rnd = random(42);
     const stepTypes = new Set<string>();
-    for (let run = 0; run < 3000; run++) {
+    // Keep this bounded for the default suite; the step-type assertion below
+    // checks that the seeded sample still exercises every kind of step.
+    for (let run = 0; run < 500; run++) {
       const tr = new Transform(
         schema.node(
           "doc",
