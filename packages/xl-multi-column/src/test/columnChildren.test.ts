@@ -1,8 +1,6 @@
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
-import { setupTestEnv } from "./setupTestEnv.js";
-
-const getEditor = setupTestEnv();
+import { testEditorSchema } from "./setupTestEnv.js";
 
 const column = (id: string, text: string) => ({
   type: "column" as const,
@@ -13,23 +11,28 @@ const column = (id: string, text: string) => ({
 // A column holds any block except a column list (`children.exclude`), as on
 // `main`, where its node's content was `blockContainer+`.
 describe("column children", () => {
-  it("accept any block but a column list", () => {
-    const { column, columnList, blockContainer } = getEditor().pmSchema.nodes;
+  it("accept any block but a column list", async ({ setupEditor }) => {
+    const { editor } = await setupEditor({ schema: testEditorSchema });
+    const { column, columnList, blockContainer } = editor.pmSchema.nodes;
 
     expect(column.spec.content).toBe("blockContainer+");
     expect(column.contentMatch.matchType(blockContainer)).not.toBeNull();
     expect(column.contentMatch.matchType(columnList)).toBeNull();
   });
 
-  it("refuse a column list inserted through the API", () => {
-    const editor = getEditor();
-    editor.replaceBlocks(editor.document, [
-      {
-        type: "columnList",
-        id: "cl-0",
-        children: [column("col-1", "one"), column("col-2", "two")],
-      },
-    ]);
+  it("refuse a column list inserted through the API", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      schema: testEditorSchema,
+      initialContent: [
+        {
+          type: "columnList",
+          id: "cl-0",
+          children: [column("col-1", "one"), column("col-2", "two")],
+        },
+      ],
+    });
 
     expect(() =>
       editor.insertBlocks(
@@ -48,8 +51,10 @@ describe("column children", () => {
     );
   });
 
-  it("refuse a document with a column list in a column", () => {
-    const editor = getEditor();
+  it("refuse a document with a column list in a column", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({ schema: testEditorSchema });
 
     expect(() =>
       editor.replaceBlocks(editor.document, [

@@ -1,30 +1,44 @@
-import { describe, expect, it } from "vite-plus/test";
+import "@blocknote/core/style.css";
 
-import { setupTestEnv } from "../setupTestEnv.js";
-import { BlockNoteEditor } from "@blocknote/core";
+// Exercises the mounted keymap chain, including ProseMirror's DOM boundary checks.
+import { describe, expect } from "vite-plus/test";
 
-const getEditor = setupTestEnv();
+import { commands } from "../../../../../tests/src/commands/transport.js";
+import {
+  multiColumnTestOptions,
+  type MultiColumnTestEditor,
+} from "../setupTestEnv.js";
 
-function pressBackspace(editor: BlockNoteEditor<any, any, any>) {
-  const view = editor._tiptapEditor.view;
+const it = globalThis.it.extend<{ editor: MultiColumnTestEditor }>({
+  editor: async ({ setupEditor }, use) => {
+    const { editor } = await setupEditor({
+      mountType: "dom",
+      ...multiColumnTestOptions,
+    });
+    await use(editor);
+  },
+});
+
+function pressBackspace(editor: MultiColumnTestEditor) {
   const event = new KeyboardEvent("keydown", {
     key: "Backspace",
     code: "Backspace",
     keyCode: 8,
     bubbles: true,
+    cancelable: true,
   });
-  view.someProp("handleKeyDown", (f: any) => f(view, event));
+  editor.domElement!.dispatchEvent(event);
 }
 
-function pressDelete(editor: BlockNoteEditor<any, any, any>) {
-  const view = editor._tiptapEditor.view;
+function pressDelete(editor: MultiColumnTestEditor) {
   const event = new KeyboardEvent("keydown", {
     key: "Delete",
     code: "Delete",
     keyCode: 46,
     bubbles: true,
+    cancelable: true,
   });
-  view.someProp("handleKeyDown", (f: any) => f(view, event));
+  editor.domElement!.dispatchEvent(event);
 }
 
 const threeColumnsWithParagraphBelow = [
@@ -125,19 +139,21 @@ const columnsWithEmptyFirst = [
 ];
 
 /** Every bit of text in the document, so a fix can't quietly drop content. */
-function texts(editor: BlockNoteEditor<any, any, any>): string[] {
+function texts(editor: MultiColumnTestEditor): string[] {
   const out: string[] = [];
-  const walk = (blocks: any[]) => {
+  function walk(blocks: MultiColumnTestEditor["document"]) {
     for (const block of blocks) {
       if (Array.isArray(block.content)) {
-        const text = block.content.map((c: any) => c.text ?? "").join("");
+        const text = block.content
+          .map((content) => (content.type === "text" ? content.text : ""))
+          .join("");
         if (text) {
           out.push(text);
         }
       }
-      walk(block.children ?? []);
+      walk(block.children);
     }
-  };
+  }
   walk(editor.document);
   return out.sort();
 }
@@ -147,8 +163,9 @@ function texts(editor: BlockNoteEditor<any, any, any>): string[] {
 // to pull in, and no non-empty first column to merge with. The document is
 // left alone (or repaired) instead.
 describe("Delete and Backspace at a column layout's edges", () => {
-  it("Delete at the end of the last column, with the layout ending the document", () => {
-    const editor = getEditor();
+  it("Delete at the end of the last column, with the layout ending the document", ({
+    editor,
+  }) => {
     editor.replaceBlocks(editor.document, columnsOnly);
 
     editor.setTextCursorPosition("col2-para", "end");
@@ -158,8 +175,7 @@ describe("Delete and Backspace at a column layout's edges", () => {
     expect(texts(editor)).toEqual(["col1", "col2"]);
   });
 
-  it("Delete at the start of an empty first column", () => {
-    const editor = getEditor();
+  it("Delete at the start of an empty first column", ({ editor }) => {
     editor.replaceBlocks(editor.document, columnsWithEmptyFirst);
 
     editor.setTextCursorPosition("empty-para", "start");
@@ -169,8 +185,9 @@ describe("Delete and Backspace at a column layout's edges", () => {
     expect(texts(editor)).toEqual(["col2"]);
   });
 
-  it("Delete at the end of a trailing empty block in the last column", () => {
-    const editor = getEditor();
+  it("Delete at the end of a trailing empty block in the last column", ({
+    editor,
+  }) => {
     editor.replaceBlocks(editor.document, columnsWithEmptyFirst);
 
     editor.setTextCursorPosition("col2-trailing", "end");
@@ -180,8 +197,9 @@ describe("Delete and Backspace at a column layout's edges", () => {
     expect(texts(editor)).toEqual(["col2"]);
   });
 
-  it("Backspace at the start of a column following an empty column", () => {
-    const editor = getEditor();
+  it("Backspace at the start of a column following an empty column", ({
+    editor,
+  }) => {
     editor.replaceBlocks(editor.document, columnsWithEmptyFirst);
 
     editor.setTextCursorPosition("col2-para", "start");
@@ -193,12 +211,12 @@ describe("Delete and Backspace at a column layout's edges", () => {
 });
 
 describe("Backspace with multi-column", () => {
-  // TODO: When migrating to vitest browser mode, replace this test with
-  // a version that presses Backspace 5 times from offset 5 in "hello world"
-  // and asserts " world" remains. Character deletion relies on contentEditable
-  // which is not available in jsdom.
-  it("mid-text backspace next to columnList should not move block", () => {
-    const editor = getEditor();
+  // Keep the keymap-only snapshot (native character deletion is not invoked
+  // by dispatching a synthetic keyboard event).
+  it("mid-text backspace next to columnList should not move block", async ({
+    editor,
+    selectText,
+  }) => {
     editor.replaceBlocks(editor.document, [
       ...threeColumnsWithParagraphBelow,
       {
@@ -209,24 +227,24 @@ describe("Backspace with multi-column", () => {
     ]);
 
     // Place cursor at offset 5 (after "hello", mid-text).
-    editor.setTextCursorPosition("below-para", "start");
-    const view = editor._tiptapEditor.view;
-    const startPos = editor.transact((tr) => tr.selection.$from.pos);
-    view.dispatch(
-      view.state.tr.setSelection(
-        (view.state.selection.constructor as any).create(
-          view.state.doc,
-          startPos + 5,
-        ),
-      ),
-    );
+    selectText(editor, "hello", { startBlockId: "below-para" }).collapseToEnd();
 
     pressBackspace(editor);
     expect(editor.document).toMatchSnapshot();
+
+    editor.focus();
+    for (let i = 0; i < 5; i++) {
+      await commands.pressKey("Backspace");
+    }
+    await expect
+      .poll(() => editor.getBlock("below-para")?.content)
+      .toEqual([{ type: "text", text: " world", styles: {} }]);
+    expect(editor.document.at(-1)?.id).toBe("below-para");
   });
 
-  it("backspace at block start should move block into last column", () => {
-    const editor = getEditor();
+  it("backspace at block start should move block into last column", ({
+    editor,
+  }) => {
     editor.replaceBlocks(editor.document, [
       ...threeColumnsWithParagraphBelow,
       { id: "below-para", type: "paragraph" as const, content: " world" },
@@ -237,8 +255,9 @@ describe("Backspace with multi-column", () => {
     expect(editor.document).toMatchSnapshot();
   });
 
-  it("second backspace should merge into previous block in column", () => {
-    const editor = getEditor();
+  it("second backspace should merge into previous block in column", ({
+    editor,
+  }) => {
     editor.replaceBlocks(editor.document, [
       ...threeColumnsWithParagraphBelow,
       { id: "below-para", type: "paragraph" as const, content: " world" },
@@ -252,12 +271,12 @@ describe("Backspace with multi-column", () => {
 });
 
 describe("Delete with multi-column", () => {
-  // TODO: When migrating to vitest browser mode, replace this test with
-  // a version that presses Delete 5 times from offset 6 in "hello world"
-  // and asserts "hello " remains. Character deletion relies on contentEditable
-  // which is not available in jsdom.
-  it("mid-text delete next to columnList should not move block", () => {
-    const editor = getEditor();
+  // Keep the keymap-only snapshot (native character deletion is not invoked
+  // by dispatching a synthetic keyboard event).
+  it("mid-text delete next to columnList should not move block", async ({
+    editor,
+    selectText,
+  }) => {
     editor.replaceBlocks(editor.document, [
       {
         id: "above-para",
@@ -268,24 +287,24 @@ describe("Delete with multi-column", () => {
     ]);
 
     // Place cursor at offset 6 (after "hello ", mid-text).
-    editor.setTextCursorPosition("above-para", "start");
-    const view = editor._tiptapEditor.view;
-    const startPos = editor.transact((tr) => tr.selection.$from.pos);
-    view.dispatch(
-      view.state.tr.setSelection(
-        (view.state.selection.constructor as any).create(
-          view.state.doc,
-          startPos + 6,
-        ),
-      ),
-    );
+    selectText(editor, "world", {
+      startBlockId: "above-para",
+    }).collapseToStart();
 
     pressDelete(editor);
     expect(editor.document).toMatchSnapshot();
+
+    editor.focus();
+    for (let i = 0; i < 5; i++) {
+      await commands.pressKey("Delete");
+    }
+    await expect
+      .poll(() => editor.getBlock("above-para")?.content)
+      .toEqual([{ type: "text", text: "hello ", styles: {} }]);
+    expect(editor.document[0]?.id).toBe("above-para");
   });
 
-  it("delete at block end should move first column block out", () => {
-    const editor = getEditor();
+  it("delete at block end should move first column block out", ({ editor }) => {
     editor.replaceBlocks(editor.document, [
       { id: "above-para", type: "paragraph" as const, content: "hello " },
       ...threeColumnsWithParagraphAbove,
@@ -296,8 +315,9 @@ describe("Delete with multi-column", () => {
     expect(editor.document).toMatchSnapshot();
   });
 
-  it("second delete should merge first column block into paragraph", () => {
-    const editor = getEditor();
+  it("second delete should merge first column block into paragraph", ({
+    editor,
+  }) => {
     editor.replaceBlocks(editor.document, [
       { id: "above-para", type: "paragraph" as const, content: "hello " },
       ...threeColumnsWithParagraphAbove,
@@ -314,8 +334,9 @@ describe("Backspace at the start of a column's first block", () => {
   // Left column A1 + A2, right column B1, caret at the start of B1. The block
   // leaves the column list, which dissolves into its blocks, and the caret
   // stays at the start of the block (#3104 unwraps the list in place).
-  it("moves the block out, dissolves the list, and keeps the caret", () => {
-    const editor = getEditor();
+  it("moves the block out, dissolves the list, and keeps the caret", ({
+    editor,
+  }) => {
     editor.replaceBlocks(editor.document, [
       {
         type: "columnList",
@@ -352,8 +373,12 @@ describe("Backspace at the start of a column's first block", () => {
       true,
     );
     expect(editor.getTextCursorPosition().block.id).toBe("B1");
-    const { selection } = editor.prosemirrorState;
-    expect(selection.empty).toBe(true);
-    expect(selection.$from.parentOffset).toBe(0);
+    expect(editor.getSelection()).toBeUndefined();
+    const blockBefore = editor.getBlock("B1");
+    expect(blockBefore?.type).toBe("paragraph");
+    editor.insertInlineContent("!");
+    expect(editor.getBlock("B1")?.content).toMatchObject([
+      { type: "text", text: "!B1" },
+    ]);
   });
 });
