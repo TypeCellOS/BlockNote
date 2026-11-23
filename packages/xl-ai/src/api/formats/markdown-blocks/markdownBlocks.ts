@@ -4,13 +4,12 @@ import { StreamTool } from "../../../streamTool/streamTool.js";
 import { tools } from "./tools/index.js";
 
 // Import the tool call types
-import { StreamToolsProvider } from "../../index.js";
-
-import {
-  makeDocumentStateBuilder,
+import { makeDocumentStateBuilder } from "../DocumentStateBuilder.js";
+import type {
   StreamToolsConfig,
+  StreamToolsProvider,
   StreamToolsResult,
-} from "../index.js";
+} from "../formats.js";
 
 function getStreamTools<
   T extends StreamToolsConfig = { add: true; update: true; delete: true },
