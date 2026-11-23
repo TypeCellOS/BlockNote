@@ -46,7 +46,7 @@ use day to day:
 | `pnpm lint`      | Lint and type-check the codebase. Run this before pushing. |
 | `pnpm run check` | Auto-fix lint and formatting issues across the project.    |
 | `pnpm build`     | Build all packages.                                        |
-| `pnpm e2e`       | Run the Playwright end-to-end tests.                       |
+| `vp run e2e`     | Run the full browser suite in Docker.                      |
 
 To run the unit tests for a single package, run `pnpm test` from inside that
 package's directory; append `-u` to update snapshots.

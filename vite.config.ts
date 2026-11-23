@@ -60,6 +60,24 @@ export default defineConfig({
     // its tsc step reads `core`'s `.d.ts` files.
     cache: { scripts: true },
     tasks: {
+      // Docker owns image reuse. Always ask the daemon and execute browser runs:
+      // image state, installed browsers, and reports aren't task-cache inputs.
+      "e2e:image": {
+        command: "bash tests/docker-build.sh",
+        cache: false,
+      },
+      e2e: {
+        command: "bash tests/docker-run.sh -e CI=1 -- --run",
+        cache: false,
+      },
+      "e2e:updateSnaps": {
+        command: "bash tests/docker-run.sh -e CI=1 -- --run --update=true",
+        cache: false,
+      },
+      "e2e:report": {
+        command: "serve -l 4173 tests/playwright-report",
+        cache: false,
+      },
       "test:screen-reader": {
         command: "node tests/src/screen-reader/run-screen-reader.mjs",
         cache: false,
