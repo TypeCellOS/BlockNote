@@ -1,14 +1,12 @@
-import { BlockNoteEditor, BlockNoteSchema, getNodeById } from "@blocknote/core";
+import { BlockNoteSchema, getNodeById } from "@blocknote/core";
 import { posToDOMRect } from "@tiptap/core";
 import { NodeSelection } from "@tiptap/pm/state";
 import { useState } from "react";
 import { userEvent } from "vite-plus/test/browser";
-import { flushSync } from "react-dom";
-import { createRoot, type Root } from "react-dom/client";
-import { afterEach, describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
+import type { SetupEditor } from "../../../../tests/src/commands/browser/setupEditor.js";
 
 import { BlockPopover } from "../components/Popovers/BlockPopover.js";
-import { BlockNoteViewRaw } from "../editor/BlockNoteView.js";
 import { createReactBlockSpec } from "./ReactBlockSpec.js";
 
 /**
@@ -56,8 +54,10 @@ const schema = BlockNoteSchema.create().extend({
 });
 
 describe("React layout block external HTML", () => {
-  it("serializes the author's own root element, unwrapped", () => {
-    const editor = BlockNoteEditor.create({ schema });
+  it("serializes the author's own root element, unwrapped", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({ schema, mountType: false });
 
     const html = editor.blocksToHTMLLossy([
       {
@@ -65,7 +65,7 @@ describe("React layout block external HTML", () => {
         id: "c-0",
         children: [{ id: "c-p-0", type: "paragraph", content: "Hello" }],
       },
-    ] as any);
+    ]);
 
     // Layout blocks own their outer DOM entirely. Regression test for the
     // React `toExternalHTML` path wrapping them in a spurious
@@ -78,55 +78,32 @@ describe("React layout block external HTML", () => {
     expect(html).toContain('class="callout"');
     expect(html).not.toContain("data-node-type");
     expect(html).toContain("Hello");
-
-    editor._tiptapEditor.destroy();
   });
 });
 
-let root: Root | undefined;
-let div: HTMLDivElement | undefined;
-let editor: BlockNoteEditor<any, any, any> | undefined;
-
-afterEach(() => {
-  root?.unmount();
-  root = undefined;
-  if (div) {
-    document.body.removeChild(div);
-    div = undefined;
-  }
-  editor?._tiptapEditor.destroy();
-  editor = undefined;
-});
-
-/** Lets TipTap's deferred node-view render and React's commit run. */
-const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
-
-async function mountEditor(initialContent: any[]) {
-  div = document.createElement("div");
-  document.body.appendChild(div);
-
-  editor = BlockNoteEditor.create({
+async function mountEditor(
+  setupEditor: SetupEditor,
+  initialContent: (typeof schema.PartialBlock)[],
+) {
+  const {
+    editor,
+    rootNode: div,
+    rerender,
+  } = await setupEditor({
+    skin: "raw",
     schema,
     trailingBlock: false,
     initialContent,
-  }) as BlockNoteEditor<any, any, any>;
-
-  root = createRoot(div);
-  flushSync(() => {
-    root!.render(<BlockNoteViewRaw editor={editor as any} />);
   });
-  // TipTap only renders a node view synchronously when this is set; BlockNote
-  // mounts the editor itself and never does, so the first batch of node views
-  // takes the deferred path (see `tests/src/unit/react/staleNodeViewPos.test.tsx`).
-  (editor as any)._tiptapEditor.isEditorContentInitialized = true;
-  await tick();
-
-  return { editor: editor!, div: div! };
+  await expect.poll(() => div.querySelector(".callout")).not.toBeNull();
+  return { editor, div, rerender };
 }
 
 describe("React layout block node view", () => {
-  it("anchors a layout block popover to the author's box", async () => {
-    const { editor, div } = await mountEditor([
+  it("anchors a layout block popover to the author's box", async ({
+    setupEditor,
+  }) => {
+    const { div, rerender } = await mountEditor(setupEditor, [
       {
         id: "outer",
         type: "callout",
@@ -135,38 +112,38 @@ describe("React layout block node view", () => {
     ]);
     const box = div.querySelector<HTMLElement>(".callout")!;
     let anchor: Element | undefined;
-    flushSync(() => {
-      root!.render(
-        <BlockNoteViewRaw editor={editor}>
-          <BlockPopover
-            blockId="outer"
-            focusManagerProps={{ disabled: true }}
-            useFloatingOptions={{
-              open: true,
-              whileElementsMounted(reference) {
-                anchor =
-                  reference instanceof Element
-                    ? reference
-                    : reference.contextElement;
-                return () => {};
-              },
-            }}
-          >
-            Layout block menu
-          </BlockPopover>
-        </BlockNoteViewRaw>,
-      );
+    rerender({
+      children: (
+        <BlockPopover
+          blockId="outer"
+          focusManagerProps={{ disabled: true }}
+          useFloatingOptions={{
+            open: true,
+            whileElementsMounted(reference) {
+              anchor =
+                reference instanceof Element
+                  ? reference
+                  : reference.contextElement;
+              return () => {};
+            },
+          }}
+        >
+          Layout block menu
+        </BlockPopover>
+      ),
     });
     await expect.poll(() => anchor).toBe(box);
     expect(box.getBoundingClientRect().height).toBeGreaterThan(0);
   });
 
-  it("measures a layout block by its own box, not React's wrapper", async () => {
+  it("measures a layout block by its own box, not React's wrapper", async ({
+    setupEditor,
+  }) => {
     // ProseMirror and BlockNote measure the `dom` of a node view:
     // `coordsAtPos`, `posToDOMRect` (toolbars), `nodeDOM` (drop cursor), the
     // selection box and scrolling. The wrapper of React has no box
     // (`display: contents`). See `measureFrameRoot`, a workaround.
-    const { editor, div } = await mountEditor([
+    const { editor, div } = await mountEditor(setupEditor, [
       { id: "before", type: "paragraph", content: "Before" },
       {
         id: "c-0",
@@ -210,8 +187,10 @@ describe("React layout block node view", () => {
     ).toBeCloseTo(swapped.top);
   });
 
-  it("keeps attributes and native editing after a local state root swap", async () => {
-    const { editor, div } = await mountEditor([
+  it("keeps attributes and native editing after a local state root swap", async ({
+    setupEditor,
+  }) => {
+    const { editor, div } = await mountEditor(setupEditor, [
       {
         id: "c-0",
         type: "callout",
@@ -233,8 +212,10 @@ describe("React layout block node view", () => {
     expect(editor.getTextCursorPosition().block.id).toBe("child");
   });
 
-  it("stamps only non-default props onto the block's own root, and keeps them in sync", async () => {
-    const mounted = await mountEditor([
+  it("stamps only non-default props onto the block's own root, and keeps them in sync", async ({
+    setupEditor,
+  }) => {
+    const mounted = await mountEditor(setupEditor, [
       { id: "c-0", type: "callout", children: [{ type: "paragraph" }] },
     ]);
 
@@ -246,21 +227,22 @@ describe("React layout block node view", () => {
     // `flavor` is at its default, so no attribute is written for it.
     expect(calloutRoot.hasAttribute("data-flavor")).toBe(false);
 
-    mounted.editor.updateBlock("c-0", { props: { flavor: "warning" } } as any);
-    await tick();
+    mounted.editor.updateBlock("c-0", { props: { flavor: "warning" } });
 
     // Re-queried: a prop change must land on whatever element is now the
     // block's root, so `.callout[data-flavor="warning"]` selects in the live
     // editor exactly as it does in the serialized HTML above.
-    expect(
-      mounted.div
-        .querySelector<HTMLElement>(".callout")!
-        .getAttribute("data-flavor"),
-    ).toBe("warning");
+    await expect
+      .poll(() =>
+        mounted.div.querySelector(".callout")?.getAttribute("data-flavor"),
+      )
+      .toBe("warning");
   });
 
-  it("mounts a layout block's children inside its `slotRef` element", async () => {
-    const mounted = await mountEditor([
+  it("mounts a layout block's children inside its `slotRef` element", async ({
+    setupEditor,
+  }) => {
+    const mounted = await mountEditor(setupEditor, [
       {
         id: "c-0",
         type: "callout",

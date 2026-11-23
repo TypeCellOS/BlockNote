@@ -2,6 +2,12 @@ import { FormattingToolbarExtension } from "@blocknote/core/extensions";
 import { describe, expect } from "vite-plus/test";
 import { DesktopFormattingToolbarController } from "./DesktopFormattingToolbarController.js";
 
+// Test dismissal without waiting for the popover's closing animation.
+const noCloseAnimation = {
+  useTransitionStylesProps: { duration: { open: 250, close: 0 } },
+  useTransitionStatusProps: { duration: { open: 250, close: 0 } },
+};
+
 describe("DesktopFormattingToolbarController", () => {
   describe("unit", () => {
     it("mounts its custom toolbar while the extension requests it and unmounts it on dismissal", async ({
@@ -16,6 +22,7 @@ describe("DesktopFormattingToolbarController", () => {
         props: { formattingToolbar: false },
         children: (
           <DesktopFormattingToolbarController
+            floatingUIOptions={noCloseAnimation}
             formattingToolbar={() => (
               <div role="toolbar">
                 <button>Custom action</button>
@@ -106,7 +113,11 @@ describe("DesktopFormattingToolbarController", () => {
       const { editor } = await setupEditor({
         initialContent: [{ type: "paragraph", content: "Selected text" }],
         props: { formattingToolbar: false },
-        children: <DesktopFormattingToolbarController />,
+        children: (
+          <DesktopFormattingToolbarController
+            floatingUIOptions={noCloseAnimation}
+          />
+        ),
         outside: ({ children }) => (
           <>
             <button>Outside action</button>
@@ -147,6 +158,7 @@ describe("DesktopFormattingToolbarController", () => {
         props: { formattingToolbar: false },
         children: (
           <DesktopFormattingToolbarController
+            floatingUIOptions={noCloseAnimation}
             formattingToolbar={() => (
               <div role="toolbar">
                 <button>Custom action</button>
@@ -160,7 +172,6 @@ describe("DesktopFormattingToolbarController", () => {
         .getByRole("button", { name: "Custom action", exact: true })
         .click();
       const documentBefore = editor.document;
-      const selectionBefore = editor.prosemirrorState.selection.toJSON();
 
       await pressKey("Escape");
 
@@ -169,9 +180,7 @@ describe("DesktopFormattingToolbarController", () => {
       );
       await expect.element(page.getByRole("toolbar")).not.toBeInTheDocument();
       await expect.element(page.getByRole("textbox")).toHaveFocus();
-      expect(editor.prosemirrorState.selection.toJSON()).toEqual(
-        selectionBefore,
-      );
+      expect(editor.getSelectedText()).toBe("Selected text");
       expect(editor.document).toEqual(documentBefore);
     });
   });

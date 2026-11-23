@@ -9,8 +9,9 @@ import {
 it.skip("default schema: arrow-key document navigation", async ({
   setupScreenReader,
   page,
+  setupEditor,
 }) => {
-  await renderTestEditor(defaultSchemaDocument);
+  await renderTestEditor(setupEditor, defaultSchemaDocument);
   const { getTranscript, pressKey } = await setupScreenReader(
     page.getByRole("button", { name: "Before editor", exact: true }),
   );

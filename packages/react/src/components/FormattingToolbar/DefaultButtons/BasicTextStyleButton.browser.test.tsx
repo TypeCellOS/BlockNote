@@ -8,6 +8,7 @@ import {
 } from "@blocknote/core";
 import { BasicTextStyleButton } from "./BasicTextStyleButton.js";
 import { FormattingToolbar } from "../FormattingToolbar.js";
+import { viewProps } from "./defaultButton.test.fixture.js";
 
 const STYLES = ["bold", "italic", "underline", "strike", "code"] as const;
 
@@ -18,7 +19,7 @@ describe("BasicTextStyleButton", () => {
       page,
     }) => {
       const { rerender } = await setupEditor({
-        props: { editable: false, formattingToolbar: false },
+        props: { ...viewProps, editable: false },
         children: <BasicTextStyleButton basicTextStyle="bold" />,
       });
       const button = page.getByRole("button", { name: "Bold", exact: true });
@@ -40,7 +41,7 @@ describe("BasicTextStyleButton", () => {
         schema: BlockNoteSchema.create({
           styleSpecs: { italic: defaultStyleSpecs.italic },
         }),
-        props: { formattingToolbar: false },
+        props: viewProps,
         children: <BasicTextStyleButton basicTextStyle="bold" />,
       });
       const button = page.getByRole("button", { name: "Bold", exact: true });
@@ -60,7 +61,7 @@ describe("BasicTextStyleButton", () => {
             ),
           },
         }),
-        props: { formattingToolbar: false },
+        props: viewProps,
         children: <BasicTextStyleButton basicTextStyle="bold" />,
       });
       const button = page.getByRole("button", { name: "Bold", exact: true });
@@ -76,7 +77,7 @@ describe("BasicTextStyleButton", () => {
           { id: "divider", type: "divider" },
           { id: "text", type: "paragraph", content: "Text" },
         ],
-        props: { formattingToolbar: false },
+        props: viewProps,
         children: <BasicTextStyleButton basicTextStyle="bold" />,
       });
       const button = page.getByRole("button", { name: "Bold", exact: true });
@@ -100,7 +101,7 @@ describe("BasicTextStyleButton", () => {
           initialContent: [
             { id: "format", type: "paragraph", content: "Format this text" },
           ],
-          props: { formattingToolbar: false },
+          props: viewProps,
           children: <BasicTextStyleButton basicTextStyle={basicTextStyle} />,
         });
         selectText(editor, "Format this text");
@@ -147,7 +148,7 @@ describe("BasicTextStyleButton", () => {
               ],
             },
           ],
-          props: { formattingToolbar: false },
+          props: viewProps,
           children: <BasicTextStyleButton basicTextStyle={basicTextStyle} />,
         });
         selectText(editor, "selected");
@@ -178,7 +179,7 @@ AFTER:
           initialContent: [
             { id: "format", type: "paragraph", content: "Existing" },
           ],
-          props: { formattingToolbar: false },
+          props: viewProps,
           children: <BasicTextStyleButton basicTextStyle={basicTextStyle} />,
         });
         editor.setTextCursorPosition("format", "end");
@@ -215,7 +216,7 @@ AFTER:
           },
           { id: "plain", type: "paragraph", content: "Plain" },
         ],
-        props: { formattingToolbar: false },
+        props: viewProps,
         children: <BasicTextStyleButton basicTextStyle="bold" />,
       });
       const button = page.getByRole("button", { name: "Bold", exact: true });
@@ -237,7 +238,7 @@ AFTER:
       page,
     }) => {
       await setupEditor({
-        props: { formattingToolbar: false },
+        props: viewProps,
         children: (
           <FormattingToolbar>
             {STYLES.map((style) => (
@@ -261,10 +262,10 @@ AFTER:
       ) => {
         const { editor } = await setupEditor({
           initialContent: [{ type: "paragraph", content: "Selected text" }],
-          props: { formattingToolbar: false },
+          props: viewProps,
           children: <BasicTextStyleButton basicTextStyle={style} />,
         });
-        await page.getByRole("textbox").click();
+        editor.focus();
         selectText(editor, "Selected text");
         const button = page.getByRole("button", {
           name: editor.dictionary.formatting_toolbar[style].tooltip,
@@ -284,10 +285,10 @@ AFTER:
       async (key, { setupEditor, selectText, pressKey, page }) => {
         const { editor } = await setupEditor({
           initialContent: [{ type: "paragraph", content: "Selected text" }],
-          props: { formattingToolbar: false },
+          props: viewProps,
           children: <BasicTextStyleButton basicTextStyle="bold" />,
         });
-        await page.getByRole("textbox").click();
+        editor.focus();
         selectText(editor, "Selected text");
         const button = page.getByRole("button", {
           name: editor.dictionary.formatting_toolbar.bold.tooltip,

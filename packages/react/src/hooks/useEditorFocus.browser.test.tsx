@@ -1,23 +1,30 @@
-/* eslint-disable react/refs, react/globals -- This browser test records render history and exposes its mounted editor to test actions. */
-import { useRef, useState } from "react";
-import { flushSync } from "react-dom";
-import { createRoot, Root } from "react-dom/client";
-import { afterEach, describe, expect, test, vi } from "vite-plus/test";
-
+/* eslint-disable react/refs -- This browser test records render history. */
 import type { BlockNoteEditor } from "@blocknote/core";
-import { BlockNoteViewRaw } from "../editor/BlockNoteView.js";
-import { useCreateBlockNote } from "./useCreateBlockNote.js";
+import { useEffect, useRef, useState } from "react";
+import { flushSync } from "react-dom";
+import { describe, expect, type TestContext, vi } from "vite-plus/test";
+import { installBrowserNoMotion } from "../../../../tests/src/commands/browser/installBrowserTestStyles.js";
 import { useEditorFocus } from "./useEditorFocus.js";
 
 function appendToRegisteredPortalElement(
-  editor: { registerPortalElement(element: HTMLElement): void },
-  ...elements: HTMLElement[]
+  editor: Pick<
+    BlockNoteEditor,
+    "registerPortalElement" | "unregisterPortalElement"
+  >,
+  input: HTMLElement,
+  onTestFinished: TestContext["onTestFinished"],
 ) {
   const root = document.createElement("div");
-  document.body.append(root);
+  onTestFinished(() => {
+    try {
+      editor.unregisterPortalElement(root);
+    } finally {
+      root.remove();
+    }
+  });
+  root.append(input);
+  document.body.appendChild(root);
   editor.registerPortalElement(root);
-  root.append(...elements);
-  return root;
 }
 
 // `useEditorFocus` returns focus as state. What
@@ -25,20 +32,6 @@ function appendToRegisteredPortalElement(
 // every focus event in the page — the reasons it exists rather than each
 // consumer wiring up useState + useEffect itself. Focus semantics are real
 // DOM behaviour, so this is a browser unit test rather than a jsdom one.
-
-let root: Root | undefined;
-let host: HTMLElement | undefined;
-let editor: BlockNoteEditor<any, any, any> | undefined;
-
-function Probe(props: { includeEditorUI: boolean }) {
-  const probeEditor = useCreateBlockNote();
-  editor = probeEditor;
-  return (
-    <BlockNoteViewRaw editor={probeEditor}>
-      <Readout includeEditorUI={props.includeEditorUI} />
-    </BlockNoteViewRaw>
-  );
-}
 
 function Readout(props: { includeEditorUI: boolean }) {
   const focused = useEditorFocus({ includeEditorUI: props.includeEditorUI });
@@ -58,18 +51,6 @@ function Readout(props: { includeEditorUI: boolean }) {
   );
 }
 
-async function mount(element: React.ReactElement) {
-  host = document.createElement("div");
-  document.body.append(host);
-  root = createRoot(host);
-  root.render(element);
-  await vi.waitFor(() => {
-    if (!document.querySelector('[data-test="readout"]')) {
-      throw new Error("probe never rendered");
-    }
-  });
-}
-
 function readout() {
   return document.querySelector<HTMLElement>('[data-test="readout"]')!;
 }
@@ -78,78 +59,90 @@ function focusedValue() {
   return readout().dataset.focused;
 }
 
-afterEach(() => {
-  root?.unmount();
-  host?.remove();
-  root = undefined;
-  host = undefined;
-  editor = undefined;
-  document.querySelectorAll(".zz-outside").forEach((el) => el.remove());
-});
+function nextTask() {
+  // The focus tracker settles blur in a zero-delay timer. To assert that
+  // nothing changes, wait for that turn rather than polling a stale value.
+  return new Promise<void>((resolve) => setTimeout(resolve, 0));
+}
 
-function addOutsideInput() {
+function addOutsideInput(onTestFinished: TestContext["onTestFinished"]) {
   const input = document.createElement("input");
-  input.className = "zz-outside";
+  onTestFinished(() => input.remove());
   document.body.append(input);
   return input;
 }
 
 describe("useEditorFocus", () => {
-  test("reports content focus and blur", async () => {
-    await mount(<Probe includeEditorUI={false} />);
+  it("reports content focus and blur", async ({
+    setupEditor,
+    onTestFinished,
+  }) => {
+    const { editor } = await setupEditor({
+      skin: "raw",
+      children: <Readout includeEditorUI={false} />,
+    });
     expect(focusedValue()).toBe("false");
 
     editor!.focus();
     await vi.waitFor(() => expect(focusedValue()).toBe("true"));
 
-    addOutsideInput().focus();
+    addOutsideInput(onTestFinished).focus();
     await vi.waitFor(() => expect(focusedValue()).toBe("false"));
   });
 
-  test("with includeEditorUI, stays focused across a handoff into the editor's UI", async () => {
-    await mount(<Probe includeEditorUI={true} />);
+  it("with includeEditorUI, stays focused across a handoff into the editor's UI", async ({
+    setupEditor,
+    onTestFinished,
+  }) => {
+    const { editor } = await setupEditor({
+      skin: "raw",
+      children: <Readout includeEditorUI />,
+    });
     editor!.focus();
     await vi.waitFor(() => expect(focusedValue()).toBe("true"));
 
     // A popover input, portalled outside the content area.
     const popoverInput = document.createElement("input");
-    appendToRegisteredPortalElement(editor!, popoverInput);
+    appendToRegisteredPortalElement(editor, popoverInput, onTestFinished);
     popoverInput.focus();
 
     // Give the settle a chance to run, then confirm it never dropped.
-    await new Promise((resolve) => setTimeout(resolve, 60));
+    await nextTask();
     expect(focusedValue()).toBe("true");
 
-    addOutsideInput().focus();
+    addOutsideInput(onTestFinished).focus();
     await vi.waitFor(() => expect(focusedValue()).toBe("false"));
-    popoverInput.remove();
   });
 
-  test("changing includeEditorUI re-reads instead of rendering a stale frame", async () => {
+  it("changing includeEditorUI re-reads instead of rendering a stale frame", async ({
+    setupEditor,
+    onTestFinished,
+  }) => {
     // The cached snapshot is keyed by its inputs. Without that, flipping the
     // option while focus sits in the editor's UI renders one frame computed
     // for the *old* option (false) before the new subscription re-syncs —
     // the history would read "...,false,true" after the flip.
     function FlippableProbe() {
-      const probeEditor = useCreateBlockNote();
-      editor = probeEditor;
       const [includeEditorUI, setIncludeEditorUI] = useState(false);
       return (
-        <BlockNoteViewRaw editor={probeEditor}>
+        <>
           <Readout includeEditorUI={includeEditorUI} />
           <button data-test="flip" onClick={() => setIncludeEditorUI(true)}>
             flip
           </button>
-        </BlockNoteViewRaw>
+        </>
       );
     }
-    await mount(<FlippableProbe />);
+    const { editor } = await setupEditor({
+      skin: "raw",
+      children: <FlippableProbe />,
+    });
 
     // Focus the editor's UI: raw content focus reads false, UI focus true.
     const popoverInput = document.createElement("input");
-    appendToRegisteredPortalElement(editor!, popoverInput);
+    appendToRegisteredPortalElement(editor, popoverInput, onTestFinished);
     popoverInput.focus();
-    await new Promise((resolve) => setTimeout(resolve, 60));
+    await nextTask();
     expect(focusedValue()).toBe("false");
     const historyBefore = readout().dataset.history!;
 
@@ -164,18 +157,20 @@ describe("useEditorFocus", () => {
       flipped,
       "the first frame after the flip must already read the new option",
     ).not.toContain("false");
-
-    popoverInput.remove();
   });
 
-  test.each(["before", "after"] as const)(
+  it.for(["before", "after"] as const)(
     "observes focus in a portal registered %s attachment to a closed shadow root",
-    async (registrationTime) => {
-      await mount(<Probe includeEditorUI={true} />);
+    async (registrationTime, { setupEditor, onTestFinished }) => {
+      const { editor } = await setupEditor({
+        skin: "raw",
+        children: <Readout includeEditorUI />,
+      });
       const shadowHost = document.createElement("div");
-      shadowHost.className = "zz-outside";
+      onTestFinished(() => shadowHost.remove());
       document.body.append(shadowHost);
       const shadow = shadowHost.attachShadow({ mode: "closed" });
+      onTestFinished(installBrowserNoMotion(shadow));
       const portal = document.createElement("div");
       const input = document.createElement("input");
       const outside = document.createElement("input");
@@ -184,43 +179,56 @@ describe("useEditorFocus", () => {
         shadow.append(portal);
       }
       const removeListener = vi.spyOn(portal, "removeEventListener");
-      // Duplicate registrations must not duplicate listeners or release them early.
-      editor!.registerPortalElement(portal);
-      editor!.registerPortalElement(portal);
-      editor!.unregisterPortalElement(portal);
-      expect(removeListener).not.toHaveBeenCalled();
-      shadow.append(portal, outside);
+      try {
+        // Duplicate registrations must not duplicate listeners or release them early.
+        editor!.registerPortalElement(portal);
+        editor!.registerPortalElement(portal);
+        editor!.unregisterPortalElement(portal);
+        expect(removeListener).not.toHaveBeenCalled();
+        shadow.append(portal, outside);
 
-      outside.focus();
-      expect(focusedValue()).toBe("false");
-      input.focus();
-      await vi.waitFor(() => expect(focusedValue()).toBe("true"));
-      outside.focus();
-      await vi.waitFor(() => expect(focusedValue()).toBe("false"));
-      editor!.unregisterPortalElement(portal);
-      expect(editor!.isWithinEditor(input)).toBe(false);
-      expect(removeListener).toHaveBeenCalledTimes(2);
-      expect(removeListener).toHaveBeenCalledWith(
-        "focusin",
-        expect.any(Function),
-        true,
-      );
-      expect(removeListener).toHaveBeenCalledWith(
-        "focusout",
-        expect.any(Function),
-        true,
-      );
+        outside.focus();
+        expect(focusedValue()).toBe("false");
+        input.focus();
+        await vi.waitFor(() => expect(focusedValue()).toBe("true"));
+        outside.focus();
+        await vi.waitFor(() => expect(focusedValue()).toBe("false"));
+        editor!.unregisterPortalElement(portal);
+        expect(editor!.isWithinEditor(input)).toBe(false);
+        expect(removeListener).toHaveBeenCalledTimes(2);
+        expect(removeListener).toHaveBeenCalledWith(
+          "focusin",
+          expect.any(Function),
+          true,
+        );
+        expect(removeListener).toHaveBeenCalledWith(
+          "focusout",
+          expect.any(Function),
+          true,
+        );
+      } finally {
+        removeListener.mockRestore();
+        // Redundant unregisters are no-ops; also release if an assertion failed.
+        editor!.unregisterPortalElement(portal);
+        editor!.unregisterPortalElement(portal);
+      }
     },
   );
 
-  test("does not re-render for focus changes elsewhere on the page", async () => {
-    await mount(<Probe includeEditorUI={true} />);
+  it("does not re-render for focus changes elsewhere on the page", async ({
+    setupEditor,
+    onTestFinished,
+  }) => {
+    const { editor } = await setupEditor({
+      skin: "raw",
+      children: <Readout includeEditorUI />,
+    });
     editor!.focus();
     await vi.waitFor(() => expect(focusedValue()).toBe("true"));
 
     const rendersBefore = Number(readout().dataset.renders);
-    const a = addOutsideInput();
-    const b = addOutsideInput();
+    const a = addOutsideInput(onTestFinished);
+    const b = addOutsideInput(onTestFinished);
     // Focus bouncing between two unrelated inputs: the editor goes unfocused
     // once, and must not re-render for every subsequent hop.
     a.focus();
@@ -228,21 +236,26 @@ describe("useEditorFocus", () => {
     const rendersAfterBlur = Number(readout().dataset.renders);
     for (let i = 0; i < 5; i++) {
       (i % 2 === 0 ? b : a).focus();
-      await new Promise((resolve) => setTimeout(resolve, 20));
+      await nextTask();
     }
 
     expect(rendersAfterBlur).toBeGreaterThan(rendersBefore);
     expect(Number(readout().dataset.renders)).toBe(rendersAfterBlur);
   });
 
-  test("document changes do not re-render the consumer", async () => {
-    await mount(<Probe includeEditorUI={true} />);
+  it("document changes do not re-render the consumer", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      skin: "raw",
+      children: <Readout includeEditorUI />,
+    });
     editor!.focus();
     await vi.waitFor(() => expect(focusedValue()).toBe("true"));
 
     const before = Number(readout().dataset.renders);
     editor!.insertInlineContent("some content that changes the document");
-    await new Promise((resolve) => setTimeout(resolve, 40));
+    await nextTask();
 
     expect(Number(readout().dataset.renders)).toBe(before);
   });
@@ -252,16 +265,21 @@ describe("useEditorFocus", () => {
 // red on the refactor that introduced it and pin its two contracts:
 // per-option event channels, and settled-only reads.
 describe("useEditorFocus regressions", () => {
-  test("raw focus follows focus moving into the editor's own UI", async () => {
+  it("raw focus follows focus moving into the editor's own UI", async ({
+    setupEditor,
+  }) => {
     // The raw ("focus") channel must fire on every content focus/blur — a
     // subscription to the settled combined channel misses this transition
     // entirely (combined state stays true), leaving the raw hook stale.
-    await mount(<Probe includeEditorUI={false} />);
+    const { editor, rootNode } = await setupEditor({
+      skin: "raw",
+      children: <Readout includeEditorUI={false} />,
+    });
     editor!.focus();
     await vi.waitFor(() => expect(focusedValue()).toBe("true"));
 
     const uiInput = document.createElement("input");
-    document.querySelector(".bn-container")!.append(uiInput);
+    rootNode.querySelector(".bn-container")!.append(uiInput);
     uiInput.focus();
     expect(editor!.isFocused()).toBe(false);
     // A sibling input is editor UI even though the content itself lost focus.
@@ -269,28 +287,26 @@ describe("useEditorFocus regressions", () => {
     await vi.waitFor(() => expect(focusedValue()).toBe("false"));
   });
 
-  test("a re-render during a focus handoff never shows a transient false", async () => {
+  it("a re-render during a focus handoff never shows a transient false", async ({
+    setupEditor,
+  }) => {
     let forceRender: () => void;
     function HandoffReadout() {
       const focused = useEditorFocus({ includeEditorUI: true });
       const [, bump] = useState(0);
-      forceRender = () => flushSync(() => bump((n) => n + 1));
+      useEffect(() => {
+        forceRender = () => flushSync(() => bump((n) => n + 1));
+      }, []);
       const history = useRef<boolean[]>([]);
       history.current.push(focused);
       return (
         <div data-test="readout" data-history={history.current.join(",")} />
       );
     }
-    function HandoffProbe() {
-      const probeEditor = useCreateBlockNote();
-      editor = probeEditor;
-      return (
-        <BlockNoteViewRaw editor={probeEditor}>
-          <HandoffReadout />
-        </BlockNoteViewRaw>
-      );
-    }
-    await mount(<HandoffProbe />);
+    const { editor } = await setupEditor({
+      skin: "raw",
+      children: <HandoffReadout />,
+    });
     const history = () => readout().dataset.history!;
 
     editor!.focus();
@@ -308,7 +324,7 @@ describe("useEditorFocus regressions", () => {
     (document.activeElement as HTMLElement).blur();
     forceRender!();
     editor!.focus();
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    await nextTask();
     forceRender!();
 
     const entries = history().split(",");

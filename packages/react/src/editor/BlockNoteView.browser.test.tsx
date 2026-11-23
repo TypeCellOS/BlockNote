@@ -2,7 +2,6 @@ import {
   COLORS_DEFAULT,
   defaultBlockSpecs,
   type PartialBlock,
-  type BlockNoteEditor,
   type DefaultBlockSchema,
   type PartialInlineContentElement,
   type Styles,
@@ -15,12 +14,8 @@ import {
 import { describe, expect } from "vite-plus/test";
 import { page, server } from "vite-plus/test/browser";
 import "@blocknote/core/fonts/inter.css";
-import { BlockNoteView } from "@blocknote/mantine";
-import "@blocknote/mantine/style.css";
-import { useCreateBlockNote } from "@blocknote/react";
-import { render } from "vitest-browser-react";
-import { useEffect } from "react";
-import { NodeSelection, TextSelection } from "@tiptap/pm/state";
+import { resizeViewportForTest } from "../../../../tests/src/commands/browser/screenshotFull.js";
+import type { SetupEditor } from "../../../../tests/src/commands/browser/setupEditor.js";
 
 // These keyboard-navigation tests inspect the focus end of the DOM selection.
 export function readDOMSelection() {
@@ -37,63 +32,42 @@ export function readDOMSelection() {
   };
 }
 
-function TestEditor({
-  initialContent,
-  editable,
-  theme,
-  onReady,
-}: {
-  initialContent: PartialBlock[];
-  editable: boolean;
-  theme: "light" | "dark";
-  onReady: (editor: BlockNoteEditor) => void;
-}) {
-  const editor = useCreateBlockNote({ initialContent });
-  useEffect(() => onReady(editor), [editor, onReady]);
-  return (
-    <main style={{ maxWidth: 900, margin: "80px auto", padding: 24 }}>
-      <h1>BlockNote accessibility fixture</h1>
-      <button type="button">Before editor</button>
-      <BlockNoteView editor={editor} theme={theme} editable={editable} />
-      <button type="button">After editor</button>
-    </main>
-  );
-}
-
 export async function renderTestEditor(
+  setupEditor: SetupEditor,
   initialContent: PartialBlock[],
   {
     editable = true,
+    sideMenu,
     theme = "light",
   }: {
     editable?: boolean;
+    sideMenu?: boolean;
     theme?: "light" | "dark";
   } = {},
 ) {
-  let editor: BlockNoteEditor | undefined;
-  await page.viewport(1280, 900);
-  await render(
-    <TestEditor
-      initialContent={initialContent}
-      editable={editable}
-      onReady={(instance) => {
-        editor = instance;
-      }}
-      theme={theme}
-    />,
-  );
+  await resizeViewportForTest(1280, 900);
+  // Keep one owner for the view and editor: the mounted fixture unmounts the
+  // React tree before destroying its editor, even if an assertion fails.
+  const { editor } = await setupEditor({
+    initialContent,
+    props: { editable, sideMenu, theme },
+    outside: ({ children }) => (
+      <main style={{ maxWidth: 900, margin: "80px auto", padding: 24 }}>
+        <h1>BlockNote accessibility fixture</h1>
+        <button type="button">Before editor</button>
+        {children}
+        <button type="button">After editor</button>
+      </main>
+    ),
+  });
   await expect.element(page.getByRole("textbox")).toBeVisible();
   await expect
     .element(page.getByRole("textbox"))
     .toHaveAttribute("contenteditable", String(editable));
-  await document.fonts.ready;
   page
     .getByRole("button", { name: "Before editor", exact: true })
     .element()
     .focus();
-  if (!editor) {
-    throw new Error("Test editor did not mount");
-  }
   return editor;
 }
 
@@ -441,8 +415,10 @@ const schemaDocument: PartialBlock[] = [
 if (!screenReader) {
   describe("aria", () => {
     // Numbered list item indices are separate text elements, among other issues.
-    it.skip("default schema: accessibility tree snapshot", async () => {
-      await renderTestEditor(schemaDocument);
+    it.skip("default schema: accessibility tree snapshot", async ({
+      setupEditor,
+    }) => {
+      await renderTestEditor(setupEditor, schemaDocument);
       await expect.element(page.getByRole("textbox")).toMatchAriaSnapshot();
     });
   });
@@ -476,8 +452,11 @@ if (!screenReader) {
 
       // Known issues include the unnamed editor, unlabeled checklist checkboxes,
       // insufficient contrast, and undersized targets.
-      it.skip(`default schema: axe (${theme})`, async ({ runAxe }) => {
-        await renderTestEditor(schemaDocument, { theme });
+      it.skip(`default schema: axe (${theme})`, async ({
+        runAxe,
+        setupEditor,
+      }) => {
+        await renderTestEditor(setupEditor, schemaDocument, { theme });
         const results = await runAxe();
         expect(results.violations).toEqual([]);
       });
@@ -496,6 +475,7 @@ if (!screenReader) {
     it.skip("default schema: arrow keys visit every expanded block in order", async ({
       onTestFinished,
       pressKey,
+      setupEditor,
     }) => {
       // Expansion is view state, not a document prop. Make the route deterministic
       // without changing the visual fixtures' default collapsed state.
@@ -511,7 +491,7 @@ if (!screenReader) {
           }
         });
       }
-      const editor = await renderTestEditor(defaultSchemaDocument);
+      const editor = await renderTestEditor(setupEditor, defaultSchemaDocument);
       await pressKey("Tab");
       await expect.element(page.getByRole("textbox")).toHaveFocus();
 
@@ -543,11 +523,13 @@ if (!screenReader) {
             [expected[index], expected[index + 1]],
             `${key}: expected ${expected[index]} → ${expected[index + 1]}, got ${actual}`,
           ).toContain(actual);
-          const selection = editor.prosemirrorState.selection;
           if (
             actual === expected[index + 1] &&
-            (selection instanceof TextSelection ||
-              selection instanceof NodeSelection)
+            (readDOMSelection().blockId === actual ||
+              editor.domElement
+                ?.querySelector(".ProseMirror-selectednode")
+                ?.closest("[data-id]")
+                ?.getAttribute("data-id") === actual)
           ) {
             index++;
           }
@@ -558,8 +540,9 @@ if (!screenReader) {
 
     it("table: ArrowRight and ArrowLeft visit every cell in row order", async ({
       pressKey,
+      setupEditor,
     }) => {
-      await renderTestEditor(tableNavigationDocument);
+      await renderTestEditor(setupEditor, tableNavigationDocument);
       await pressKey("Tab");
       await expect.element(page.getByRole("textbox")).toHaveFocus();
       const route = [
@@ -599,8 +582,8 @@ if (!screenReader) {
     // to column 0. Firefox preserves the column throughout this sequence.
     it.skipIf(server.browser !== "firefox")(
       "table: ArrowDown and ArrowUp visit each row without changing column",
-      async ({ pressKey }) => {
-        await renderTestEditor(tableNavigationDocument);
+      async ({ pressKey, setupEditor }) => {
+        await renderTestEditor(setupEditor, tableNavigationDocument);
         await pressKey("Tab");
         await expect.element(page.getByRole("textbox")).toHaveFocus();
         for (const column of [0, 1]) {
@@ -660,8 +643,8 @@ if (!screenReader) {
     // focuses "Before editor" instead of "After editor".
     it.skipIf(server.browser === "webkit")(
       "Escape allows Tab to leave the editor",
-      async ({ pressKey }) => {
-        await renderTestEditor(editorEscapeDocument);
+      async ({ pressKey, setupEditor }) => {
+        await renderTestEditor(setupEditor, editorEscapeDocument);
         await pressKey("Tab");
         await expect.element(page.getByRole("textbox")).toHaveFocus();
         await pressKey("Escape");
@@ -682,8 +665,11 @@ if (!screenReader) {
       pressKey,
       captureFocusOutline,
       focusUntil,
+      setupEditor,
     }) => {
-      await renderTestEditor(readOnlyLinkDocument, { editable: false });
+      await renderTestEditor(setupEditor, readOnlyLinkDocument, {
+        editable: false,
+      });
       const link = page.getByRole("link", {
         name: "Documentation",
         exact: true,
@@ -756,8 +742,13 @@ if (!screenReader) {
     describe("text spacing and resizing", () => {
       it("default schema remains readable with text spacing overrides", async ({
         screenshotFull,
+        setupEditor,
       }) => {
-        await renderTestEditor(defaultSchemaDocument);
+        // The shared page's pointer may already be over a block. Capture
+        // text layout, not the editor controls that follow the pointer.
+        await renderTestEditor(setupEditor, defaultSchemaDocument, {
+          sideMenu: false,
+        });
         await waitForMedia();
         // WCAG 1.4.12: override spacing without changing any other style property.
         // https://www.w3.org/WAI/WCAG22/Understanding/text-spacing.html
@@ -780,8 +771,11 @@ if (!screenReader) {
 
       it("default schema remains readable at 200% text size", async ({
         screenshotFull,
+        setupEditor,
       }) => {
-        await renderTestEditor(defaultSchemaDocument);
+        await renderTestEditor(setupEditor, defaultSchemaDocument, {
+          sideMenu: false,
+        });
         await waitForMedia();
         resizeText(2);
         await screenshotFull(

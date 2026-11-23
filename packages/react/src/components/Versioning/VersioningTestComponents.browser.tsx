@@ -316,10 +316,11 @@ export function VersioningTestView<
 >(props: {
   editor: BlockNoteEditor<BSchema, ISchema, SSchema>;
   children?: ReactNode;
+  renderEditor?: boolean;
 }) {
   return (
     <ComponentsContext.Provider value={testComponents}>
-      <BlockNoteViewRaw editor={props.editor}>
+      <BlockNoteViewRaw editor={props.editor} renderEditor={props.renderEditor}>
         {props.children}
       </BlockNoteViewRaw>
     </ComponentsContext.Provider>

@@ -2,23 +2,21 @@ import { BlockNoteSchema, defaultStyleSpecs } from "@blocknote/core";
 import { describe, expect } from "vite-plus/test";
 import { ColorStyleButton } from "./ColorStyleButton.js";
 import { FormattingToolbar } from "../FormattingToolbar.js";
+import { viewProps } from "./defaultButton.test.fixture.js";
 
 describe("ColorStyleButton", () => {
   describe("unit", () => {
     it("only offers text colors when the schema does not support background colors", async ({
       setupEditor,
-      selectText,
       page,
     }) => {
       const { editor } = await setupEditor({
         schema: BlockNoteSchema.create({
           styleSpecs: { textColor: defaultStyleSpecs.textColor },
         }),
-        initialContent: [{ type: "paragraph", content: "Selected text" }],
-        props: { formattingToolbar: false },
+        props: viewProps,
         children: <ColorStyleButton />,
       });
-      selectText(editor, "Selected text");
 
       await page
         .getByRole("button", {
@@ -46,18 +44,15 @@ describe("ColorStyleButton", () => {
 
     it("only offers background colors when text colors are not in the schema", async ({
       setupEditor,
-      selectText,
       page,
     }) => {
       const { editor } = await setupEditor({
         schema: BlockNoteSchema.create({
           styleSpecs: { backgroundColor: defaultStyleSpecs.backgroundColor },
         }),
-        initialContent: [{ type: "paragraph", content: "Selected text" }],
-        props: { formattingToolbar: false },
+        props: viewProps,
         children: <ColorStyleButton />,
       });
-      selectText(editor, "Selected text");
 
       await page
         .getByRole("button", {
@@ -91,7 +86,7 @@ describe("ColorStyleButton", () => {
         schema: BlockNoteSchema.create({
           styleSpecs: { bold: defaultStyleSpecs.bold },
         }),
-        props: { formattingToolbar: false },
+        props: viewProps,
         children: <ColorStyleButton />,
       });
 
@@ -114,7 +109,7 @@ describe("ColorStyleButton", () => {
           { id: "text", type: "paragraph", content: "Text" },
           { id: "divider", type: "divider" },
         ],
-        props: { editable: false, formattingToolbar: false },
+        props: { ...viewProps, editable: false },
         children: <ColorStyleButton />,
       });
       const button = page.getByRole("button", {
@@ -145,7 +140,7 @@ describe("ColorStyleButton", () => {
         initialContent: [
           { id: "text", type: "paragraph", content: "Before selected after" },
         ],
-        props: { formattingToolbar: false },
+        props: viewProps,
         children: <ColorStyleButton />,
       });
       selectText(editor, "selected");
@@ -171,7 +166,10 @@ describe("ColorStyleButton", () => {
         AFTER:
         <block-text path="0" type="paragraph">Before <text textColor="gray">selected</text> after</block-text>"
       `);
-      await expect.element(page.getByRole("menu")).not.toBeInTheDocument();
+      await expect.element(button).toHaveAttribute("aria-expanded", "false");
+      await expect
+        .element(page.getByRole("menu", { includeHidden: true }))
+        .not.toBeInTheDocument();
       await expect.element(page.getByRole("textbox")).toHaveFocus();
     });
 
@@ -185,18 +183,17 @@ describe("ColorStyleButton", () => {
         initialContent: [
           { id: "text", type: "paragraph", content: "Before selected after" },
         ],
-        props: { formattingToolbar: false },
+        props: viewProps,
         children: <ColorStyleButton />,
       });
       selectText(editor, "selected");
       const before = editor.document;
 
-      await page
-        .getByRole("button", {
-          name: editor.dictionary.formatting_toolbar.colors.tooltip,
-          exact: true,
-        })
-        .click();
+      const button = page.getByRole("button", {
+        name: editor.dictionary.formatting_toolbar.colors.tooltip,
+        exact: true,
+      });
+      await button.click();
       await page
         .getByRole("menuitem", {
           name: editor.dictionary.color_picker.colors.gray,
@@ -211,7 +208,10 @@ describe("ColorStyleButton", () => {
         AFTER:
         <block-text path="0" type="paragraph">Before <text backgroundColor="gray">selected</text> after</block-text>"
       `);
-      await expect.element(page.getByRole("menu")).not.toBeInTheDocument();
+      await expect.element(button).toHaveAttribute("aria-expanded", "false");
+      await expect
+        .element(page.getByRole("menu", { includeHidden: true }))
+        .not.toBeInTheDocument();
       await expect.element(page.getByRole("textbox")).toHaveFocus();
     });
 
@@ -235,7 +235,7 @@ describe("ColorStyleButton", () => {
             ],
           },
         ],
-        props: { formattingToolbar: false },
+        props: viewProps,
         children: <ColorStyleButton />,
       });
       selectText(editor, "Selected text");
@@ -283,7 +283,7 @@ describe("ColorStyleButton", () => {
             ],
           },
         ],
-        props: { formattingToolbar: false },
+        props: viewProps,
         children: <ColorStyleButton />,
       });
       selectText(editor, "Selected text");
@@ -320,7 +320,7 @@ describe("ColorStyleButton", () => {
     }) => {
       const { editor } = await setupEditor({
         initialContent: [{ type: "paragraph", content: "Selected text" }],
-        props: { formattingToolbar: false },
+        props: viewProps,
         children: <ColorStyleButton />,
       });
       selectText(editor, "Selected text");
@@ -351,7 +351,7 @@ describe("ColorStyleButton", () => {
     }) => {
       const { editor } = await setupEditor({
         initialContent: [{ type: "paragraph", content: "Selected text" }],
-        props: { formattingToolbar: false },
+        props: viewProps,
         children: <ColorStyleButton />,
       });
       selectText(editor, "Selected text");
@@ -386,7 +386,7 @@ describe("ColorStyleButton", () => {
   describe("axe", () => {
     it("checks the color trigger", async ({ setupEditor, runAxe, page }) => {
       await setupEditor({
-        props: { formattingToolbar: false },
+        props: viewProps,
         children: (
           <FormattingToolbar>
             <ColorStyleButton />
@@ -403,7 +403,7 @@ describe("ColorStyleButton", () => {
     // Allow only that exact additional known issue, not arbitrary scan failures.
     it("checks the open color menu", async ({ setupEditor, runAxe, page }) => {
       const { editor } = await setupEditor({
-        props: { formattingToolbar: false },
+        props: viewProps,
         children: (
           <FormattingToolbar>
             <ColorStyleButton />
@@ -470,10 +470,10 @@ describe("ColorStyleButton", () => {
     }) => {
       const { editor } = await setupEditor({
         initialContent: [{ type: "paragraph", content: "Selected text" }],
-        props: { formattingToolbar: false },
+        props: viewProps,
         children: <ColorStyleButton />,
       });
-      await page.getByRole("textbox").click();
+      editor.focus();
       selectText(editor, "Selected text");
       const button = page.getByRole("button", {
         name: editor.dictionary.formatting_toolbar.colors.tooltip,
@@ -497,7 +497,7 @@ describe("ColorStyleButton", () => {
         initialContent: [
           { id: "text", type: "paragraph", content: "Selected text" },
         ],
-        props: { formattingToolbar: false },
+        props: viewProps,
         children: <ColorStyleButton />,
       });
       selectText(editor, "Selected text");
@@ -541,7 +541,7 @@ describe("ColorStyleButton", () => {
     }) => {
       const { editor } = await setupEditor({
         initialContent: [{ type: "paragraph", content: "Selected text" }],
-        props: { formattingToolbar: false },
+        props: viewProps,
         children: <ColorStyleButton />,
       });
       selectText(editor, "Selected text");

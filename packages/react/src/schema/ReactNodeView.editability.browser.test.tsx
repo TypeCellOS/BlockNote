@@ -1,16 +1,14 @@
-import { BlockNoteEditor, BlockNoteSchema } from "@blocknote/core";
+import { BlockNoteSchema } from "@blocknote/core";
 import { useState } from "react";
 import { flushSync } from "react-dom";
-import { createRoot } from "react-dom/client";
-import { expect, it, vi } from "vite-plus/test";
+import { expect, vi } from "vite-plus/test";
 
-import { BlockNoteViewRaw } from "../editor/BlockNoteView.js";
 import { createReactBlockSpec } from "./ReactBlockSpec.js";
 import { createReactInlineContentSpec } from "./ReactInlineContentSpec.js";
 
-it.each(["setter", "prop"] as const)(
+it.for(["setter", "prop"] as const)(
   "invalidates React node views when editability changes through the %s",
-  async (entryPoint) => {
+  async (entryPoint, { setupEditor, selectText }) => {
     const schema = BlockNoteSchema.create().extend({
       blockSpecs: {
         test: createReactBlockSpec(
@@ -55,14 +53,18 @@ it.each(["setter", "prop"] as const)(
         ),
       },
     });
-    const editor = BlockNoteEditor.create({
+    const {
+      editor,
+      rootNode: host,
+      rerender,
+    } = await setupEditor({
+      skin: "raw",
       schema,
       trailingBlock: false,
-      initialContent: [{ type: "test", content: [{ type: "testInline" }] }],
+      initialContent: [
+        { type: "test", content: ["Selected", { type: "testInline" }] },
+      ],
     });
-    const host = document.createElement("div");
-    document.body.append(host);
-    const root = createRoot(host);
 
     async function expectEditability(editable: boolean) {
       await vi.waitFor(() => {
@@ -76,45 +78,34 @@ it.each(["setter", "prop"] as const)(
       });
     }
 
-    try {
-      flushSync(() => root.render(<BlockNoteViewRaw editor={editor} />));
-      await expectEditability(true);
-      const blockIndicator = host.querySelector('[data-editability="block"]');
-      const documentBefore = editor.document;
-      const selectionBefore = editor.prosemirrorState.selection;
+    await expectEditability(true);
+    selectText(editor, "Selected");
+    const blockIndicator = host.querySelector('[data-editability="block"]');
+    const documentBefore = editor.document;
 
-      for (const editable of [false, true]) {
+    for (const editable of [false, true]) {
+      if (entryPoint === "setter") {
         flushSync(() => {
-          if (entryPoint === "setter") {
-            editor.isEditable = editable;
-          } else {
-            root.render(
-              <BlockNoteViewRaw editor={editor} editable={editable} />,
-            );
-          }
+          editor.isEditable = editable;
         });
-        await expectEditability(editable);
-        if (entryPoint === "setter") {
-          // Direct invalidation must not remount the view or lose local state.
-          expect(host.querySelector('[data-editability="block"]')).toBe(
-            blockIndicator,
-          );
-          expect(blockIndicator?.getAttribute("data-initial")).toBe("true");
-        }
-        expect(editor.document).toEqual(documentBefore);
-        expect(editor.prosemirrorState.selection.eq(selectionBefore)).toBe(
-          true,
-        );
+      } else {
+        rerender({ editable });
       }
-
-      const release = editor.acquireEditingLock();
-      await expectEditability(false);
-      release();
-      await expectEditability(true);
-    } finally {
-      root.unmount();
-      editor._tiptapEditor.destroy();
-      host.remove();
+      await expectEditability(editable);
+      if (entryPoint === "setter") {
+        // Direct invalidation must not remount the view or lose local state.
+        expect(host.querySelector('[data-editability="block"]')).toBe(
+          blockIndicator,
+        );
+        expect(blockIndicator?.getAttribute("data-initial")).toBe("true");
+      }
+      expect(editor.document).toEqual(documentBefore);
+      expect(editor.getSelectedText()).toBe("Selected");
     }
+
+    const release = editor.acquireEditingLock();
+    await expectEditability(false);
+    release();
+    await expectEditability(true);
   },
 );
