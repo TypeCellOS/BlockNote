@@ -1,8 +1,10 @@
 import { Block } from "@blocknote/core";
 import { describe, expect, it } from "vite-plus/test";
+import { useServerDOM } from "../../testServerDOM.js";
 import { ServerBlockNoteEditor } from "./ServerBlockNoteEditor.js";
 
 describe("Test ServerBlockNoteEditor", () => {
+  useServerDOM();
   const editor = ServerBlockNoteEditor.create();
 
   const blocks: Block[] = [
