@@ -80,9 +80,9 @@
   "dependencies": {
     "@blocknote/core": "workspace:^",
     "@floating-ui/react": "^0.27.18",
-    "@tiptap/core": "^3.31.3",
-    "@tiptap/pm": "^3.31.3",
-    "@tiptap/react": "^3.31.3",
+    "@tiptap/core": "^3.31.4",
+    "@tiptap/pm": "^3.31.4",
+    "@tiptap/react": "^3.31.4",
     "frimousse": "^0.4.0",
     "react-fast-compare": "^3.2.3",
     "use-sync-external-store": "1.6.0"

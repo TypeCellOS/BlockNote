@@ -22,8 +22,8 @@ overrides:
   "shiki": "^4.4.3"
   "@shikijs/rehype": "^4.4.3"
   "@shikijs/types": "^4.4.3"
-  "@tiptap/core": "^3.31.3"
-  "@tiptap/pm": "^3.31.3"
+  "@tiptap/core": "^3.31.4"
+  "@tiptap/pm": "^3.31.4"
   # ProseMirror nodes must share one model instance across the editor and Y bindings.
   "prosemirror-model": "1.25.12"
   # Mapping has private fields, so separate prosemirror-transform versions are

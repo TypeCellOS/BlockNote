@@ -28,7 +28,7 @@
     "@shikijs/langs-precompiled": "^4.4.3",
     "@shikijs/themes": "^4.4.3",
     "@tailwindcss/vite": "^4.1.14",
-    "@tiptap/pm": "^3.31.3",
+    "@tiptap/pm": "^3.31.4",
     "@types/node": "^20.19.22",
     "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.3",
