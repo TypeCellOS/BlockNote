@@ -20,6 +20,9 @@ export default defineConfig(
           test: {
             command: "vp test --run",
             cache: {
+              // CI requires built-package coverage; NEXTJS_TEST_MODE enables
+              // the Next.js integration suite and selects dev or build mode.
+              env: ["CI", "NEXTJS_TEST_MODE"],
               input: [
                 { auto: true },
                 { pattern: "!**/.next/**", base: "workspace" },
