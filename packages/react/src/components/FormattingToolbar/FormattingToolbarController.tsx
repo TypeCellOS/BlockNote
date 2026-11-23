@@ -1,8 +1,9 @@
 import { isTouchDevice } from "@blocknote/core";
-import { FC } from "react";
+import { FC, useContext } from "react";
 
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
 import { DesktopFormattingToolbarController } from "./DesktopFormattingToolbarController.js";
+import { FormattingToolbarInputContext } from "./FormattingToolbarInputContext.js";
 import { FormattingToolbarProps } from "./FormattingToolbarProps.js";
 import { MobileFormattingToolbarController } from "./MobileFormattingToolbarController.js";
 import { useVirtualKeyboard } from "./useVirtualKeyboard.js";
@@ -18,11 +19,12 @@ export const FormattingToolbarController = (props: {
    */
   portalElement?: HTMLElement;
 }) => {
+  const input = useContext(FormattingToolbarInputContext);
   const keyboardOpen = useVirtualKeyboard();
 
   // Checks both if the device is touch-capable and the virtual keyboard is open, as phones,
   // tablets, etc. can still use external keyboards and mice.
-  if (isTouchDevice() && keyboardOpen) {
+  if ((input?.isTouchDevice ?? isTouchDevice()) && keyboardOpen) {
     return (
       <MobileFormattingToolbarController
         formattingToolbar={props.formattingToolbar}
