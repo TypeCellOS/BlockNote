@@ -1,25 +1,17 @@
 import type {} from "./src/commands/transport/keyboard.js";
-import { afterEach, aroundAll, beforeEach } from "vite-plus/test";
+import { aroundAll, aroundEach, beforeEach } from "vite-plus/test";
 import { installBrowserTestStyles } from "./src/commands/browser/installBrowserTestStyles.js";
 import { commands, page } from "./src/commands/transport.js";
+import {
+  installBrowserTestViewport,
+  withBrowserTestGlobals,
+} from "./src/fixtures/browserTestGlobals.js";
 
 import {
   ensureTouchEmulation,
   hasTouchEmulation,
 } from "./src/utils/ensureTouchEmulation.js";
 
-// Browser-mode setup. Unlike the jsdom `vitestSetup.ts`, we don't mock
-// ClipboardEvent/DragEvent/matchMedia here — the real browser provides them.
-// We only seed the `window.__TEST_OPTIONS` object that examples read from
-// (e.g. the AI example uses `mockID`), replacing the Playwright init script
-// that used to live in `src/setup/setupScript.ts`.
-
-// Size the test iframe to 1280x720. The playwright `contextOptions.viewport`
-// in vite.config.browser.ts sizes the OUTER browser window, but vitest renders
-// each test inside an iframe that defaults to a much smaller size (~333px wide
-// — narrow enough to wrap menus weirdly and skew screenshots). `page.viewport`
-// resizes that iframe. Run before all tests in the file so every test sees the
-// right size from the first render.
 aroundAll(async (runSuite) => {
   // On the android and ios instances the outer window is a 393x727 phone
   // (provider contextOptions) — the iframe must match it exactly. A larger
@@ -32,13 +24,21 @@ aroundAll(async (runSuite) => {
     await page.viewport(1280, 720);
   }
 
-  const removeStyles = installBrowserTestStyles();
+  const restoreViewport = installBrowserTestViewport(document);
   try {
-    await runSuite();
+    const removeStyles = installBrowserTestStyles();
+    try {
+      await runSuite();
+    } finally {
+      removeStyles();
+    }
   } finally {
-    removeStyles();
+    restoreViewport?.();
   }
 });
+
+// Drain focus and release the globals after per-test teardown.
+aroundEach(withBrowserTestGlobals);
 
 // Chromium drops the context's touch emulation after any screenshot captured
 // beyond the viewport, which on this mobile context is every element
@@ -51,54 +51,4 @@ beforeEach(async () => {
     await commands.restoreTouchEmulation();
     ensureTouchEmulation();
   }
-  // Playwright's WebKit emulation sets `(pointer: coarse)` and `ontouchstart`
-  // for `hasTouch` but leaves `navigator.maxTouchPoints` at 0, which
-  // `isTouchDevice()` requires; real iOS Safari reports 5. The one stub of
-  // the ios instance.
-  if (/iphone/i.test(navigator.userAgent) && navigator.maxTouchPoints === 0) {
-    Object.defineProperty(navigator, "maxTouchPoints", { value: 5 });
-    ensureTouchEmulation();
-  }
-});
-
-beforeEach(() => {
-  (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS = {};
-});
-
-afterEach(() => {
-  delete (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS;
-});
-
-let pendingEditorFocus = Promise.resolve();
-
-async function waitForEditorFocus() {
-  let pending;
-  do {
-    pending = pendingEditorFocus;
-    await pending;
-  } while (pending !== pendingEditorFocus);
-}
-
-// Provider commands run in Node and await this function inside the test iframe.
-window.__blockNoteWaitForEditorFocus = waitForEditorFocus;
-
-function onEditorFocus(event: FocusEvent) {
-  if (
-    event.target instanceof HTMLElement &&
-    event.target.matches('.bn-editor[contenteditable="true"]')
-  ) {
-    // ProseMirror schedules selection reconciliation 20 ms after focus.
-    // This bubbling listener runs after its focus handler has scheduled that work.
-    pendingEditorFocus = new Promise((resolve) => setTimeout(resolve, 20));
-  }
-}
-
-beforeEach(() => {
-  document.addEventListener("focusin", onEditorFocus);
-});
-
-afterEach(async () => {
-  document.removeEventListener("focusin", onEditorFocus);
-  await waitForEditorFocus();
-  pendingEditorFocus = Promise.resolve();
 });
