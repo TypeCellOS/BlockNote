@@ -388,10 +388,10 @@ export class ODTExporter<
    * ```tsx
    * <draw:frame draw:style-name="..." text:anchor-type="as-char">
    *   <draw:object
-   *     xlink:href={path}
-   *     xlink:type="simple"
-   *     xlink:show="embed"
-   *     xlink:actuate="onLoad"
+   *     xlinkHref={path}
+   *     xlinkType="simple"
+   *     xlinkShow="embed"
+   *     xlinkActuate="onLoad"
    *   />
    * </draw:frame>
    * ```

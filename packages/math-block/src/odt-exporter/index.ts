@@ -53,10 +53,10 @@ function formulaFrame(exporter: ODTExporter<any, any, any>, mathML: string) {
     "draw:frame",
     { "draw:style-name": styleName, "text:anchor-type": "as-char" },
     createElement("draw:object", {
-      "xlink:href": objectPath,
-      "xlink:type": "simple",
-      "xlink:show": "embed",
-      "xlink:actuate": "onLoad",
+      xlinkHref: objectPath,
+      xlinkType: "simple",
+      xlinkShow: "embed",
+      xlinkActuate: "onLoad",
     }),
   );
 }
