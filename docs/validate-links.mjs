@@ -1,66 +1,60 @@
+import { getTableOfContents } from "fumadocs-core/content/toc";
+import { getSlugs } from "fumadocs-core/source";
+import {
+  printErrors,
+  readFileFromPath,
+  scanURLs,
+  validateFiles,
+} from "next-validate-link";
+import { glob } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { examplePage } from "../packages/dev-scripts/examples/examplePage.ts";
+import { getExampleProjects } from "../packages/dev-scripts/examples/util.ts";
 
-// The content globs below are cwd-relative, and the glob library captures
-// `process.cwd()` when it is first imported - so pin the cwd to this
-// script's directory *before* loading it (via dynamic imports; static
-// imports would hoist above the chdir). Run from any other directory
-// without this, the globs silently match zero files and report success.
-process.chdir(path.dirname(fileURLToPath(import.meta.url)));
+const docsRoot = path.dirname(fileURLToPath(import.meta.url));
+const contentRoot = path.join(docsRoot, "content");
 
-const { getExampleProjects } =
-  await import("../packages/dev-scripts/examples/util.ts");
-const { getTableOfContents } = await import("fumadocs-core/content/toc");
-const { getSlugs } = await import("fumadocs-core/source");
-const { printErrors, readFiles, scanURLs, validateFiles } =
-  await import("next-validate-link");
+async function readContentFiles(pattern) {
+  const files = await Array.fromAsync(glob(pattern, { cwd: contentRoot }));
+  return Promise.all(
+    files.map((file) => readFileFromPath(path.join(contentRoot, file))),
+  );
+}
+
+function routeEntries(section, files) {
+  const sectionRoot = path.join(contentRoot, section);
+  return files.map((file) => ({
+    value: getSlugs(path.relative(sectionRoot, file.path)),
+    hashes: getTableOfContents(file.content).map((item) => item.url.slice(1)),
+  }));
+}
 
 async function checkLinks() {
-  const docsFiles = await readFiles("content/docs/**/*.{md,mdx}");
-  const pagesFiles = await readFiles("content/pages/**/*.{md,mdx}");
+  const docsFiles = await readContentFiles("docs/**/*.{md,mdx}");
+  const pagesFiles = await readContentFiles("pages/**/*.{md,mdx}");
   // The site generator owns the subdirectories; don't read stale generated
   // pages from a previous checkout or build.
-  const examplesFiles = await readFiles("content/examples/*.{md,mdx}");
+  const examplesFiles = await readContentFiles("examples/*.{md,mdx}");
   for (const project of getExampleProjects()) {
     if (project.config?.docs !== true) {
       continue;
     }
     const { filename, frontmatter, body } = examplePage(project);
     examplesFiles.push({
-      path: path.join("content/examples", filename),
-      // Like readFiles, preserve source line numbers without parsing frontmatter
+      path: path.join(contentRoot, "examples", filename),
+      // Like readFileFromPath, preserve line numbers without parsing frontmatter
       // as Markdown. The validator only needs the path and Markdown content.
       content: frontmatter.replace(/[^\n]/g, "") + body,
     });
   }
 
   const scanned = await scanURLs({
+    cwd: docsRoot,
     populate: {
-      "[...slug]": pagesFiles.map((file) => {
-        return {
-          value: getSlugs(path.relative("content/pages", file.path)),
-          hashes: getTableOfContents(file.content).map((item) =>
-            item.url.slice(1),
-          ),
-        };
-      }),
-      "docs/[[...slug]]": docsFiles.map((file) => {
-        return {
-          value: getSlugs(path.relative("content/docs", file.path)),
-          hashes: getTableOfContents(file.content).map((item) =>
-            item.url.slice(1),
-          ),
-        };
-      }),
-      "examples/[[...slug]]": examplesFiles.map((file) => {
-        return {
-          value: getSlugs(path.relative("content/examples", file.path)),
-          hashes: getTableOfContents(file.content).map((item) =>
-            item.url.slice(1),
-          ),
-        };
-      }),
+      "[...slug]": routeEntries("pages", pagesFiles),
+      "docs/[[...slug]]": routeEntries("docs", docsFiles),
+      "examples/[[...slug]]": routeEntries("examples", examplesFiles),
     },
   });
   printErrors(
