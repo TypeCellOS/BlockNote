@@ -1,15 +1,7 @@
-import { BlockNoteEditor } from "@blocknote/core";
+import type { multiColumnTestOptions } from "../setupTestEnv.js";
 
-import { testEditorSchema } from "../setupTestEnv.js";
-
-// TODO
-export const multiColumnSchemaTestCases: any = {
+export const multiColumnSchemaTestCases = {
   name: "multi-column-schema",
-  createEditor: () => {
-    return BlockNoteEditor.create({
-      schema: testEditorSchema,
-    });
-  },
   documents: [
     {
       name: "multi-column",
@@ -48,4 +40,10 @@ export const multiColumnSchemaTestCases: any = {
       ],
     },
   ],
+} satisfies {
+  name: string;
+  documents: {
+    name: string;
+    blocks: typeof multiColumnTestOptions.initialContent;
+  }[];
 };

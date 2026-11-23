@@ -1,15 +1,13 @@
 import { afterEach, beforeEach } from "vite-plus/test";
 
+const testHost: typeof globalThis & {
+  __TEST_OPTIONS?: { mockID?: number };
+} = globalThis;
+
 beforeEach(() => {
-  if (typeof window === "undefined") {
-    return;
-  }
-  (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS = {};
+  testHost.__TEST_OPTIONS = {};
 });
 
 afterEach(() => {
-  if (typeof window === "undefined") {
-    return;
-  }
-  delete (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS;
+  delete testHost.__TEST_OPTIONS;
 });

@@ -1,9 +1,5 @@
-import {
-  BlockNoteEditor,
-  BlockNoteSchema,
-  PartialBlock,
-} from "@blocknote/core";
-import { afterAll, beforeAll, beforeEach } from "vite-plus/test";
+import { BlockNoteSchema } from "@blocknote/core";
+import type { BlockNoteEditor, PartialBlock } from "@blocknote/core";
 
 import { ColumnBlock, ColumnListBlock } from "../blocks/Columns/index.js";
 
@@ -14,32 +10,11 @@ export const testEditorSchema = BlockNoteSchema.create().extend({
   } as const,
 });
 
-export function setupTestEnv() {
-  let editor: BlockNoteEditor<
-    typeof testEditorSchema.blockSchema,
-    typeof testEditorSchema.inlineContentSchema,
-    typeof testEditorSchema.styleSchema
-  >;
-  const div = document.createElement("div");
-
-  beforeAll(() => {
-    editor = BlockNoteEditor.create({
-      schema: testEditorSchema,
-    });
-    editor.mount(div);
-  });
-
-  afterAll(() => {
-    editor._tiptapEditor.destroy();
-    editor = undefined as any;
-  });
-
-  beforeEach(() => {
-    editor.replaceBlocks(editor.document, testDocument);
-  });
-
-  return () => editor;
-}
+export type MultiColumnTestEditor = BlockNoteEditor<
+  typeof testEditorSchema.blockSchema,
+  typeof testEditorSchema.inlineContentSchema,
+  typeof testEditorSchema.styleSchema
+>;
 
 const testDocument: PartialBlock<
   typeof testEditorSchema.blockSchema,
@@ -107,3 +82,25 @@ const testDocument: PartialBlock<
     content: "Paragraph 2",
   },
 ];
+
+export const multiColumnTestOptions = {
+  schema: testEditorSchema,
+  initialContent: testDocument,
+};
+
+/** Keeps the command cases synchronous while the shared fixture owns each editor. */
+export function setupTestEnv(test: {
+  beforeEach(
+    hook: (context: {
+      setupEditor: (
+        options: typeof multiColumnTestOptions,
+      ) => Promise<{ editor: MultiColumnTestEditor }>;
+    }) => Promise<void>,
+  ): void;
+}) {
+  let editor: MultiColumnTestEditor;
+  test.beforeEach(async ({ setupEditor }) => {
+    ({ editor } = await setupEditor(multiColumnTestOptions));
+  });
+  return () => editor;
+}

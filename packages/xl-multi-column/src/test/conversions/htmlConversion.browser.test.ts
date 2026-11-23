@@ -1,21 +1,33 @@
-// @vitest-environment jsdom
-
 import {
   BlockNoteEditor,
   BlockSchema,
   InlineContentSchema,
   PartialBlock,
   StyleSchema,
-  createExternalHTMLExporter,
-  createInternalHTMLSerializer,
 } from "@blocknote/core";
 import {
   addIdsToBlocks,
   partialBlocksToBlocksForTesting,
 } from "@shared/formatConversionTestUtil.js";
-import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
+import { testEditorSchema } from "../setupTestEnv.js";
 import { multiColumnSchemaTestCases } from "./testCases.js";
+
+function normalizeColumnStyles(html: string) {
+  const template = document.createElement("template");
+  template.innerHTML = html;
+  // Firefox serializes styles in CSSOM write order; Chromium and WebKit may
+  // append them after later data attributes. Keep one snapshot across engines.
+  for (const column of template.content.querySelectorAll(
+    ".bn-block-column-list[style], .bn-block-column[style]",
+  )) {
+    const style = column.getAttribute("style")!;
+    column.removeAttribute("style");
+    column.setAttribute("style", style);
+  }
+  return template.innerHTML;
+}
 
 // TODO: code same from @blocknote/core, maybe create separate test util package
 async function convertToHTMLAndCompareSnapshots<
@@ -29,15 +41,16 @@ async function convertToHTMLAndCompareSnapshots<
   snapshotName: string,
 ) {
   addIdsToBlocks(blocks);
-  const serializer = createInternalHTMLSerializer(editor.pmSchema, editor);
-  const internalHTML = serializer.serializeBlocks(blocks, {});
+  const internalHTML = editor.blocksToFullHTML(blocks);
   const internalHTMLSnapshotPath =
     "./__snapshots__/" +
     snapshotDirectory +
     "/" +
     snapshotName +
     "/internal.html";
-  await expect(internalHTML).toMatchFileSnapshot(internalHTMLSnapshotPath);
+  await expect(normalizeColumnStyles(internalHTML)).toMatchFileSnapshot(
+    internalHTMLSnapshotPath,
+  );
 
   // turn the internalHTML back into blocks, and make sure no data was lost
   const fullBlocks = partialBlocksToBlocksForTesting(editor.schema, blocks);
@@ -46,15 +59,16 @@ async function convertToHTMLAndCompareSnapshots<
   expect(parsed).toStrictEqual(fullBlocks);
 
   // Create the "external" HTML, which is a cleaned up HTML representation, but lossy
-  const exporter = createExternalHTMLExporter(editor.pmSchema, editor);
-  const externalHTML = exporter.exportBlocks(blocks, {});
+  const externalHTML = editor.blocksToHTMLLossy(blocks);
   const externalHTMLSnapshotPath =
     "./__snapshots__/" +
     snapshotDirectory +
     "/" +
     snapshotName +
     "/external.html";
-  await expect(externalHTML).toMatchFileSnapshot(externalHTMLSnapshotPath);
+  await expect(normalizeColumnStyles(externalHTML)).toMatchFileSnapshot(
+    externalHTMLSnapshotPath,
+  );
 }
 
 const testCases = [multiColumnSchemaTestCases];
@@ -62,35 +76,17 @@ const testCases = [multiColumnSchemaTestCases];
 describe("Test multi-column HTML conversion", () => {
   for (const testCase of testCases) {
     describe("Case: " + testCase.name, () => {
-      let editor: BlockNoteEditor<any, any, any>;
-      const div = document.createElement("div");
-      beforeEach(() => {
-        editor = testCase.createEditor();
-
-        // Note that we don't necessarily need to mount a root
-        // Currently, we do mount to a root so that it reflects the "production" use-case more closely.
-
-        // However, it would be nice to increased converage and share the same set of tests for these cases:
-        // - does render to a root
-        // - does not render to a root
-        // - runs in server (jsdom) environment using server-util
-        editor.mount(div);
-      });
-
-      afterEach(() => {
-        editor._tiptapEditor.destroy();
-        editor = undefined as any;
-
-        delete (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS;
-      });
-
       for (const document of testCase.documents) {
         // eslint-disable-next-line no-loop-func
-        it("Convert " + document.name + " to HTML", async () => {
+        it("Convert " + document.name + " to HTML", async ({ setupEditor }) => {
+          const { editor } = await setupEditor({
+            mountType: false,
+            schema: testEditorSchema,
+          });
           const nameSplit = document.name.split("/");
           await convertToHTMLAndCompareSnapshots(
             editor,
-            document.blocks,
+            structuredClone(document.blocks),
             nameSplit[0],
             nameSplit[1],
           );

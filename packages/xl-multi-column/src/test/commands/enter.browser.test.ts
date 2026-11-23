@@ -1,29 +1,20 @@
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
+import { userEvent } from "vite-plus/test/browser";
 
-import { BlockNoteEditor } from "@blocknote/core";
-
-import { setupTestEnv } from "../setupTestEnv.js";
-
-const getEditor = setupTestEnv();
-
-function pressEnter(editor: BlockNoteEditor<any, any, any>) {
-  const view = editor._tiptapEditor.view;
-  const event = new KeyboardEvent("keydown", {
-    key: "Enter",
-    code: "Enter",
-    keyCode: 13,
-    bubbles: true,
-  });
-  view.someProp("handleKeyDown", (f: any) => f(view, event));
-}
+import { multiColumnTestOptions } from "../setupTestEnv.js";
 
 // Columns set `emptyChildEnter: "stay"`: Enter in an empty column block adds
 // another block in the column, as on `main` and in Notion, instead of the
 // layout block default where an empty last block leaves the layout block. The
 // generic exit mechanics are covered in core's `layoutBlocks.browser.test.ts`.
 describe("Enter in columns", () => {
-  it("adds blocks in the column and never leaves it", () => {
-    const editor = getEditor();
+  it("adds blocks in the column and never leaves it", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: "dom",
+      ...multiColumnTestOptions,
+    });
     editor.replaceBlocks(editor.document, [
       {
         type: "columnList",
@@ -44,7 +35,8 @@ describe("Enter in columns", () => {
     ]);
 
     editor.setTextCursorPosition("col2-para", "end");
-    pressEnter(editor);
+    editor.focus();
+    await userEvent.keyboard("{Enter}");
 
     // First press: a new empty block inside the column.
     expect(editor.document.map((block) => block.id)).toEqual(["cl-0"]);
@@ -52,7 +44,7 @@ describe("Enter in columns", () => {
     expect(editor.getBlock("col-2")!.children).toHaveLength(2);
     expect(editor.getTextCursorPosition().block.id).toBe(created);
 
-    pressEnter(editor);
+    await userEvent.keyboard("{Enter}");
 
     // Second press, in the empty block: another block in the column, caret
     // in it, instead of leaving the column list.
@@ -66,8 +58,13 @@ describe("Enter in columns", () => {
     expect(editor.getTextCursorPosition().block.id).toBe(children[2].id);
   });
 
-  it("adds a block after a column's only empty block, keeping the column", () => {
-    const editor = getEditor();
+  it("adds a block after a column's only empty block, keeping the column", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: "dom",
+      ...multiColumnTestOptions,
+    });
     editor.replaceBlocks(editor.document, [
       {
         type: "columnList",
@@ -88,7 +85,8 @@ describe("Enter in columns", () => {
     ]);
 
     editor.setTextCursorPosition("col2-empty", "end");
-    pressEnter(editor);
+    editor.focus();
+    await userEvent.keyboard("{Enter}");
 
     expect(editor.document.map((block) => block.id)).toEqual(["cl-0"]);
     const children = editor.getBlock("col-2")!.children;
