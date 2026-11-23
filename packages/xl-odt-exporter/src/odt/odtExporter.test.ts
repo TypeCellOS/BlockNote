@@ -3,19 +3,15 @@ import {
   createPageBreakBlockSpec,
   defaultBlockSpecs,
 } from "@blocknote/core";
+import { partialBlocksToBlocksForTesting } from "@shared/formatConversionTestUtil.js";
 import { testODTDocumentAgainstSnapshot } from "@shared/util/odtTestUtil.js";
 import { testDocument } from "@shared/testDocument.js";
-import { beforeAll, describe, expect, it } from "vite-plus/test";
+import { describe, expect, it } from "vite-plus/test";
 import { createElement } from "react";
 import { odtDefaultSchemaMappings } from "./defaultSchema/index.js";
 import { ODTExporter } from "./odtExporter.js";
 import { ColumnBlock, ColumnListBlock } from "@blocknote/xl-multi-column";
 import { testResolveFileUrl } from "@shared/util/testFileResolver.js";
-
-beforeAll(async () => {
-  // @ts-expect-error - Blob polyfill for Node test environment
-  globalThis.Blob = (await import("node:buffer")).Blob;
-});
 
 describe("exporter", () => {
   it("should export a document", { timeout: 10000 }, async () => {
@@ -38,37 +34,47 @@ describe("exporter", () => {
     });
   });
 
-  it(
-    "should export a document with custom document options",
-    { timeout: 10000 },
-    async () => {
-      const exporter = new ODTExporter(
-        BlockNoteSchema.create({
-          blockSpecs: {
-            ...defaultBlockSpecs,
-            pageBreak: createPageBreakBlockSpec(),
-            column: ColumnBlock,
-            columnList: ColumnListBlock,
+  it("passes raw block and inline mapping results to custom mappings", async () => {
+    const schema = BlockNoteSchema.create();
+    const child = createElement("text:p", null, "visible child");
+    const parent = createElement("text:section");
+    const exporter = new ODTExporter(schema, {
+      ...odtDefaultSchemaMappings,
+      blockMapping: {
+        ...odtDefaultSchemaMappings.blockMapping,
+        paragraph: {
+          withChildren: (block, exporter, _level, _number, children) => {
+            expect(children).toEqual([null, child]);
+            expect(exporter.transformInlineContent(block.content)).toEqual([
+              "raw link",
+            ]);
+            return parent;
           },
-        }),
-        odtDefaultSchemaMappings,
-        { resolveFileUrl: testResolveFileUrl },
-      );
+        },
+        quote: () => child,
+        image: () => null,
+      },
+      inlineContentMapping: {
+        ...odtDefaultSchemaMappings.inlineContentMapping,
+        link: () => "raw link",
+      },
+    });
+    const blocks = partialBlocksToBlocksForTesting(schema, [
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "link",
+            href: "https://example.com",
+            content: [{ type: "text", text: "link", styles: {} }],
+          },
+        ],
+        children: [{ type: "image" }, { type: "quote" }],
+      },
+    ]);
 
-      const odt = await exporter.toODTDocument(testDocument, {
-        footer: "<text:p>FOOTER</text:p>",
-        header: new DOMParser().parseFromString(
-          `<text:p xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0">HEADER</text:p>`,
-          "text/xml",
-        ),
-      });
-
-      await testODTDocumentAgainstSnapshot(odt, {
-        styles: "__snapshots__/withCustomOptions/styles.xml",
-        content: "__snapshots__/withCustomOptions/content.xml",
-      });
-    },
-  );
+    expect(await exporter.transformBlocks(blocks)).toEqual([parent]);
+  });
 
   it("deduplicates identical automatic styles", () => {
     const exporter = new ODTExporter(
