@@ -57,11 +57,12 @@ async function checkLinks() {
       "examples/[[...slug]]": routeEntries("examples", examplesFiles),
     },
   });
-  printErrors(
-    await validateFiles([...docsFiles, ...pagesFiles, ...examplesFiles], {
-      scanned,
-    }),
-    true,
+  const results = await validateFiles(
+    [...docsFiles, ...pagesFiles, ...examplesFiles],
+    { scanned },
   );
+  if (results.length > 0) {
+    printErrors(results, true);
+  }
 }
 void checkLinks();
