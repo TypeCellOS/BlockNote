@@ -1,6 +1,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
+import { examplePage } from "./examplePage.js";
 import {
   addTitleToGroups,
   formatFiles,
@@ -58,25 +59,18 @@ export default Component;`,
   });
 }
 
-const templatePageForExample = (project: Project) => `---
-title: ${project.title}
-author: ${JSON.stringify(project.config.author)}
----
-
-${project.readme}
-`;
-
 /**
  * Generate the page for the example in /examples overview
  *
  * Consists of the contents of the readme
  */
 async function generatePageForExample(project: Project, written: string[]) {
-  const code = templatePageForExample(project);
-
-  const target = path.join(EXAMPLES_PAGES_DIR, project.fullSlug + ".mdx");
-
-  writeGeneratedFile(target, code, written);
+  const { filename, frontmatter, body } = examplePage(project);
+  writeGeneratedFile(
+    path.join(EXAMPLES_PAGES_DIR, filename),
+    frontmatter + body,
+    written,
+  );
 }
 
 /**
