@@ -17,8 +17,8 @@
 # editing package source never invalidates a cached layer; only a dependency
 # change (a package.json / the lockfile) forces a rebuild.
 #
-#   Build:  pnpm e2e:image           (rebuild only after dependency changes)
-#   Run:    pnpm e2e / e2e:ui / e2e:updateSnaps   (bind-mount live source)
+#   Build:  vp run e2e:image           (rebuild only after dependency changes)
+#   Run:    vp run e2e / vp run e2e:updateSnaps   (bind-mount live source)
 FROM mcr.microsoft.com/playwright:v1.60.0-noble
 
 WORKDIR /work
