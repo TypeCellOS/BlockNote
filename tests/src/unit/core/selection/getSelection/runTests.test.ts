@@ -1,30 +1,39 @@
-import { describe, it } from "vite-plus/test";
+import { describe } from "vite-plus/test";
+import type {} from "../../../../../vitestSetup.node-fixtures.js";
 
-import { createTestEditor } from "../../createTestEditor.js";
 import { testSchema } from "../../testSchema.js";
 import {
   getSelectionTestInstancesRegular,
   getSelectionTestInstancesCutblocks,
 } from "./getSelectionTestInstances.js";
 
+const options = {
+  schema: testSchema,
+  trailingBlock: false,
+  tables: {
+    splitCells: true,
+    cellBackgroundColor: true,
+    cellTextColor: true,
+    headers: true,
+  },
+};
+
 // Tests for getting the BlockNote selection from a given Prosemirror
 // selection.
 describe("Get selection tests (regular)", () => {
-  const getEditor = createTestEditor(testSchema);
-
   for (const { testCase, executeTest } of getSelectionTestInstancesRegular) {
-    it(`${testCase.name}`, async () => {
-      await executeTest(getEditor(), testCase);
+    it(`${testCase.name}`, async ({ setupEditor }) => {
+      const { editor } = await setupEditor(options);
+      await executeTest(editor, testCase);
     });
   }
 });
 
 describe("Get selection tests (cut blocks)", () => {
-  const getEditor = createTestEditor(testSchema);
-
   for (const { testCase, executeTest } of getSelectionTestInstancesCutblocks) {
-    it(`${testCase.name}`, async () => {
-      await executeTest(getEditor(), testCase);
+    it(`${testCase.name}`, async ({ setupEditor }) => {
+      const { editor } = await setupEditor(options);
+      await executeTest(editor, testCase);
     });
   }
 });

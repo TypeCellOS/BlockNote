@@ -24,7 +24,9 @@ const { getDocument } = await import(entry("server-util", "./dom"));
 const { createReactInlineMathSpec, createReactMathBlockSpec } = await import(
   entry("math-block")
 );
-const { createReactDiagramBlockSpec } = await import(entry("diagram-block"));
+const { createReactDiagramBlockSpec, renderDiagramToSVG } = await import(
+  entry("diagram-block")
+);
 const { withMultiColumn } = await import(entry("xl-multi-column"));
 // The React that `@blocknote/react` uses, so that its hooks work.
 const { createElement, useEffect } = createRequire(
@@ -50,13 +52,14 @@ const schema = withMultiColumn(BlockNoteSchema.create()).extend({
   inlineContentSpecs: { math: createReactInlineMathSpec() },
 });
 
+const diagramSource = "graph TD\n  A[Start] --> B[Finish]";
 const blocks = [
   {
     type: "paragraph",
     content: ["Inline ", { type: "math", content: "x^2" }, " math"],
   },
   { type: "mathBlock", content: "a^2 + b^2 = c^2" },
-  { type: "diagram", content: "graph TD\n  A --> B" },
+  { type: "diagram", content: diagramSource },
   { type: "reactBlock", content: "React block" },
   {
     type: "columnList",
@@ -93,8 +96,24 @@ for (const html of [lossyHTML, fullHTML]) {
       `MathML annotation is missing ${formula}`,
     );
   }
-  assert.ok(html.includes("A --&gt; B"), "Diagram source is missing");
+  assert.ok(
+    html.includes("A[Start] --&gt; B[Finish]"),
+    "Diagram source is missing",
+  );
 }
+// HTML serialization is synchronous inside the React node view and does not
+// await its SVG preview. Exercise the published vector export directly.
+const vector = await renderDiagramToSVG(diagramSource);
+assert.equal(vector.error, undefined);
+assert.equal(vector.image.mimeType, "image/svg+xml");
+const svg = new TextDecoder().decode(vector.image.data);
+assert.match(
+  svg,
+  /<svg[^>]*class="[^"]*\bpele-flowchart\b/,
+  "Diagram export did not produce a flowchart SVG",
+);
+assert.match(svg, /Start/);
+assert.match(svg, /Finish/);
 // Node runs React's queued work before it exits. A crash there (#3230) gives a
 // non-zero exit code, which fails the test.
 console.log("exported");

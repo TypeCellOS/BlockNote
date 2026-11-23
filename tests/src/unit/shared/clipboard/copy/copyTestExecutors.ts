@@ -4,11 +4,12 @@ import {
   BlockNoteEditor,
   BlockSchema,
   InlineContentSchema,
-  selectedFragmentToHTML,
   StyleSchema,
 } from "@blocknote/core";
 
 import { initTestEditor } from "../../testUtil.js";
+import { normalizeHTMLStyleAttribute } from "../../normalizeHTMLStyleAttribute.js";
+import { copyToClipboard } from "../copyToClipboard.js";
 import { CopyTestCase } from "./copyTestCase.js";
 
 export const testCopyBlockNoteHTML = async <
@@ -21,14 +22,11 @@ export const testCopyBlockNoteHTML = async <
 ) => {
   initTestEditor(editor, testCase.document, testCase.getCopySelection);
 
-  const { clipboardHTML } = selectedFragmentToHTML(
-    editor.prosemirrorView,
-    editor,
-  );
+  const { clipboardHTML } = copyToClipboard(editor);
 
-  await expect(prettify(clipboardHTML, { tag_wrap: true })).toMatchFileSnapshot(
-    `./__snapshots__/blocknote/html/${testCase.name}.html`,
-  );
+  await expect(
+    prettify(normalizeHTMLStyleAttribute(clipboardHTML), { tag_wrap: true }),
+  ).toMatchFileSnapshot(`./__snapshots__/blocknote/html/${testCase.name}.html`);
 };
 
 export const testCopyHTML = async <
@@ -38,32 +36,19 @@ export const testCopyHTML = async <
 >(
   editor: BlockNoteEditor<B, I, S>,
   testCase: CopyTestCase<B, I, S>,
+  { checkMarkdown = false } = {},
 ) => {
   initTestEditor(editor, testCase.document, testCase.getCopySelection);
 
-  const { externalHTML } = selectedFragmentToHTML(
-    editor.prosemirrorView,
-    editor,
-  );
+  const { externalHTML, markdown } = copyToClipboard(editor);
 
-  await expect(prettify(externalHTML, { tag_wrap: true })).toMatchFileSnapshot(
-    `./__snapshots__/text/html/${testCase.name}.html`,
-  );
-};
-
-export const testCopyMarkdown = async <
-  B extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema,
->(
-  editor: BlockNoteEditor<B, I, S>,
-  testCase: CopyTestCase<B, I, S>,
-) => {
-  initTestEditor(editor, testCase.document, testCase.getCopySelection);
-
-  const { markdown } = selectedFragmentToHTML(editor.prosemirrorView, editor);
-
-  await expect(markdown).toMatchFileSnapshot(
-    `./__snapshots__/text/plain/${testCase.name}.md`,
-  );
+  await expect(
+    prettify(normalizeHTMLStyleAttribute(externalHTML), { tag_wrap: true }),
+  ).toMatchFileSnapshot(`./__snapshots__/text/html/${testCase.name}.html`);
+  if (checkMarkdown) {
+    // Both payloads are produced by the same copy operation.
+    await expect(markdown).toMatchFileSnapshot(
+      `./__snapshots__/text/plain/${testCase.name}.md`,
+    );
+  }
 };

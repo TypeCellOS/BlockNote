@@ -1,6 +1,6 @@
-import { describe, it } from "vite-plus/test";
+import { describe } from "vite-plus/test";
+import type {} from "../../../../../vitestSetup.node-fixtures.js";
 
-import { createTestEditor } from "../../createTestEditor.js";
 import { testSchema } from "../../testSchema.js";
 import {
   getTextCursorPositionTestInstancesEnd,
@@ -8,42 +8,41 @@ import {
   getTextCursorPositionTestInstancesStart,
 } from "./textCursorPositionTestInstances.js";
 
+const options = { schema: testSchema, trailingBlock: false };
+
 // Tests for setting and getting the position of the text cursor.
 describe("Text cursor position (set and get)", () => {
-  const getEditor = createTestEditor(testSchema);
-
   for (const {
     testCase,
     executeTest,
   } of getTextCursorPositionTestInstancesGetAndSet) {
-    it(`${testCase.name}`, async () => {
-      await executeTest(getEditor(), testCase);
+    it(`${testCase.name}`, async ({ setupEditor }) => {
+      const { editor } = await setupEditor(options);
+      await executeTest(editor, testCase);
     });
   }
 });
 
 describe("Text cursor position (start)", () => {
-  const getEditor = createTestEditor(testSchema);
-
   for (const {
     testCase,
     executeTest,
   } of getTextCursorPositionTestInstancesStart) {
-    it(`${testCase.name}`, async () => {
-      await executeTest(getEditor(), testCase);
+    it(`${testCase.name}`, async ({ setupEditor }) => {
+      const { editor } = await setupEditor(options);
+      await executeTest(editor, testCase);
     });
   }
 });
 
 describe("Text cursor position (end)", () => {
-  const getEditor = createTestEditor(testSchema);
-
   for (const {
     testCase,
     executeTest,
   } of getTextCursorPositionTestInstancesEnd) {
-    it(`${testCase.name}`, async () => {
-      await executeTest(getEditor(), testCase);
+    it(`${testCase.name}`, async ({ setupEditor }) => {
+      const { editor } = await setupEditor(options);
+      await executeTest(editor, testCase);
     });
   }
 });

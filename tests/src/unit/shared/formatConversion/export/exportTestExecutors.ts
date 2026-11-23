@@ -5,10 +5,11 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { addIdsToBlocks } from "@shared/formatConversionTestUtil.js";
 import { prettify } from "htmlfy";
 import { expect } from "vite-plus/test";
 
+import { normalizeHTMLStyleAttribute } from "../../normalizeHTMLStyleAttribute.js";
+import { prepareConversionBlocks } from "../prepareConversionBlocks.js";
 import { ExportTestCase } from "./exportTestCase.js";
 
 // Preserve `<code>` whitespace so code-block snapshots show actual newlines
@@ -22,13 +23,17 @@ export const testExportBlockNoteHTML = async <
 >(
   editor: BlockNoteEditor<B, I, S>,
   testCase: ExportTestCase<B, I, S>,
+  normalizeHTML: (html: string) => string = (html) => html,
 ) => {
-  (window as any).__TEST_OPTIONS.mockID = 0;
-
-  addIdsToBlocks(testCase.content);
+  const blocks = prepareConversionBlocks<B, I, S>(testCase.content);
 
   await expect(
-    prettify(editor.blocksToFullHTML(testCase.content), PRETTIFY_OPTIONS),
+    prettify(
+      normalizeHTML(
+        normalizeHTMLStyleAttribute(editor.blocksToFullHTML(blocks)),
+      ),
+      PRETTIFY_OPTIONS,
+    ),
   ).toMatchFileSnapshot(`./__snapshots__/blocknoteHTML/${testCase.name}.html`);
 };
 
@@ -40,12 +45,13 @@ export const testExportHTML = async <
   editor: BlockNoteEditor<B, I, S>,
   testCase: ExportTestCase<B, I, S>,
 ) => {
-  (window as any).__TEST_OPTIONS.mockID = 0;
-
-  addIdsToBlocks(testCase.content);
+  const blocks = prepareConversionBlocks<B, I, S>(testCase.content);
 
   await expect(
-    prettify(editor.blocksToHTMLLossy(testCase.content), PRETTIFY_OPTIONS),
+    prettify(
+      normalizeHTMLStyleAttribute(editor.blocksToHTMLLossy(blocks)),
+      PRETTIFY_OPTIONS,
+    ),
   ).toMatchFileSnapshot(`./__snapshots__/html/${testCase.name}.html`);
 };
 
@@ -57,13 +63,11 @@ export const testExportMarkdown = async <
   editor: BlockNoteEditor<B, I, S>,
   testCase: ExportTestCase<B, I, S>,
 ) => {
-  (window as any).__TEST_OPTIONS.mockID = 0;
+  const blocks = prepareConversionBlocks<B, I, S>(testCase.content);
 
-  addIdsToBlocks(testCase.content);
-
-  await expect(
-    editor.blocksToMarkdownLossy(testCase.content),
-  ).toMatchFileSnapshot(`./__snapshots__/markdown/${testCase.name}.md`);
+  await expect(editor.blocksToMarkdownLossy(blocks)).toMatchFileSnapshot(
+    `./__snapshots__/markdown/${testCase.name}.md`,
+  );
 };
 
 export const testExportNodes = async <
@@ -74,12 +78,10 @@ export const testExportNodes = async <
   editor: BlockNoteEditor<B, I, S>,
   testCase: ExportTestCase<B, I, S>,
 ) => {
-  (window as any).__TEST_OPTIONS.mockID = 0;
-
-  addIdsToBlocks(testCase.content);
+  const blocks = prepareConversionBlocks<B, I, S>(testCase.content);
 
   await expect(
-    testCase.content.map((block) =>
+    blocks.map((block) =>
       blockToNode(block, editor.pmSchema, editor.schema.styleSchema),
     ),
   ).toMatchFileSnapshot(`./__snapshots__/nodes/${testCase.name}.json`);

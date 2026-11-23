@@ -1,59 +1,53 @@
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
+import type {} from "../../../../vitestSetup.node-fixtures.js";
 
-import { createTestEditor } from "../createTestEditor.js";
-import { testSchema } from "../testSchema.js";
+import { useFileTestEditor } from "../testEditorOptions.js";
+
+const it = useFileTestEditor();
+
+function snapshotSpecs(
+  specs: Record<string, { implementation?: object }>,
+  field: "node" | "mark",
+) {
+  return Object.fromEntries(
+    Object.entries(specs).map(([key, spec]) => {
+      const { implementation } = spec;
+      if (!implementation) {
+        return [key, spec];
+      }
+      const extension =
+        field === "node"
+          ? "node" in implementation && implementation.node
+          : "mark" in implementation && implementation.mark;
+      return [
+        key,
+        typeof extension === "object"
+          ? { ...spec, implementation: { ...implementation, [field]: null } }
+          : spec,
+      ];
+    }),
+  );
+}
 
 // Tests for verifying that exporting blocks to other formats works as expected.
 // Used for as many cases as possible to ensure each block or set of blocks is
 // correctly converted into different formats.
 describe("Schema test", () => {
-  const getEditor = createTestEditor(testSchema);
-
-  it("Block specs test", async () => {
-    const specs = getEditor().schema.blockSpecs;
-    Object.values(specs).forEach((spec) => {
-      if (
-        typeof spec.implementation === "object" &&
-        spec.implementation !== null &&
-        typeof spec.implementation.node === "object"
-      ) {
-        spec.implementation.node = null as any;
-      }
-    });
+  it("Block specs test", async ({ editor }) => {
+    const specs = snapshotSpecs(editor.schema.blockSpecs, "node");
     await expect(specs).toMatchFileSnapshot(`./__snapshots__/blocks.json`);
   });
 
-  it("Inline content specs test", async () => {
-    const specs = getEditor().schema.inlineContentSpecs;
-    Object.values(specs).forEach((spec) => {
-      if (
-        typeof spec.implementation === "object" &&
-        spec.implementation !== null &&
-        typeof spec.implementation.node === "object"
-      ) {
-        spec.implementation.node = null as any;
-      }
-    });
+  it("Inline content specs test", async ({ editor }) => {
+    const specs = snapshotSpecs(editor.schema.inlineContentSpecs, "node");
     await expect(specs).toMatchFileSnapshot(
       `./__snapshots__/inlinecontent.json`,
     );
   });
 
-  it("Style specs test", async () => {
-    const specs = getEditor().schema.styleSpecs;
-    Object.values(specs).forEach((spec) => {
-      if (
-        typeof spec === "object" &&
-        spec !== null &&
-        typeof spec.implementation === "object" &&
-        spec.implementation !== null &&
-        typeof spec.implementation.mark === "object"
-      ) {
-        spec.implementation.mark = null as any;
-      }
-    });
-    await expect(getEditor().schema.styleSpecs).toMatchFileSnapshot(
-      `./__snapshots__/styles.json`,
-    );
+  it("Style specs test", async ({ editor }) => {
+    await expect(
+      snapshotSpecs(editor.schema.styleSpecs, "mark"),
+    ).toMatchFileSnapshot(`./__snapshots__/styles.json`);
   });
 });

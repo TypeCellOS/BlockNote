@@ -7,6 +7,7 @@ import {
 } from "@blocknote/core";
 import { Node } from "@tiptap/pm/model";
 import { Selection } from "@tiptap/pm/state";
+import { testOptionsHost } from "./testOptions.js";
 
 // Helper function to get the position of a text node with given text content.
 // By default, returns the position just before the node, but can be just after
@@ -66,7 +67,7 @@ export const initTestEditor = <
   document?: PartialBlock<B, I, S>[],
   getSelection?: (pmDoc: Node) => Selection,
 ) => {
-  (window as any).__TEST_OPTIONS.mockID = 0;
+  (testOptionsHost.__TEST_OPTIONS ??= {}).mockID = 0;
 
   if (document) {
     editor.replaceBlocks(editor.document, document);

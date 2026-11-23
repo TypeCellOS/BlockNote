@@ -7,22 +7,23 @@ import {
   TestStyleSchema,
 } from "../../testSchema.js";
 import { CopyTestCase } from "../../../shared/clipboard/copy/copyTestCase.js";
-import {
-  testCopyHTML,
-  testCopyMarkdown,
-} from "../../../shared/clipboard/copy/copyTestExecutors.js";
+import { testCopyHTML } from "../../../shared/clipboard/copy/copyTestExecutors.js";
 import {
   getPosOfTableCellNode,
   getPosOfTextNode,
 } from "../../../shared/testUtil.js";
-import { TestInstance } from "../../../types.js";
-
-export const copyTestInstancesHTML: TestInstance<
-  CopyTestCase<TestBlockSchema, TestInlineContentSchema, TestStyleSchema>,
-  TestBlockSchema,
-  TestInlineContentSchema,
-  TestStyleSchema
->[] = [
+export const copyTestInstancesHTML: {
+  testCase: CopyTestCase<
+    TestBlockSchema,
+    TestInlineContentSchema,
+    TestStyleSchema
+  >;
+  executeTest: typeof testCopyHTML<
+    TestBlockSchema,
+    TestInlineContentSchema,
+    TestStyleSchema
+  >;
+}[] = [
   {
     testCase: {
       name: "multipleChildren",
@@ -797,17 +798,3 @@ export const copyTestInstancesHTML: TestInstance<
     executeTest: testCopyHTML,
   },
 ];
-
-// text/plain payloads — exercises the same selections as above but snapshots
-// the markdown output. Code-block selections should emit raw text (no markdown
-// fences or `\` line-break escaping) so the clipboard round-trips back into a
-// code block without leaving leftover syntax.
-export const copyTestInstancesMarkdown: TestInstance<
-  CopyTestCase<TestBlockSchema, TestInlineContentSchema, TestStyleSchema>,
-  TestBlockSchema,
-  TestInlineContentSchema,
-  TestStyleSchema
->[] = copyTestInstancesHTML.map(({ testCase }) => ({
-  testCase,
-  executeTest: testCopyMarkdown,
-}));
