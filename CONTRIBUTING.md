@@ -51,6 +51,21 @@ use day to day:
 To run the unit tests for a single package, run `pnpm test` from inside that
 package's directory; append `-u` to update snapshots.
 
+The unfiltered local browser run reuses iframes and uses two workers per desktop
+browser. The native clipboard smoke test runs separately because the OS
+clipboard is shared.
+
+Use `BLOCKNOTE_E2E_PARALLEL_REUSE=0 vp run e2e` to compare against the legacy
+runner. Filtered runs, CI, and `vp run e2e:updateSnaps` keep their existing
+behavior.
+
+If a cold browser run reports React hook errors or a reload during a test, use
+`bash tests/docker-run.sh -e CI=1 -e DEBUG=vite:deps -- --run <file> --retry=0`.
+Look for `optimized dependencies changed. reloading` in the output. If a late
+import triggers the reload, add that import to `optimizeDeps.include` in
+`tests/vite.config.browser.ts` and rerun in a fresh container. Startup
+optimization by itself is normal.
+
 ## Adding packages
 
 - Add the dependency to the relevant `package.json` file (packages/xxx/package.json)

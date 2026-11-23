@@ -5,7 +5,6 @@
   "scripts": {
     "lint": "vp lint src",
     "test:e2e": "vp test -c vite.config.browser.ts --run",
-    "test:e2e:updateSnaps": "vp test -c vite.config.browser.ts --run -u",
     "clean": "rimraf dist"
   },
   "devDependencies": {
@@ -22,7 +21,7 @@
     "@blocknote/xl-typst-exporter": "workspace:^",
     "@guidepup/guidepup": "^0.35.0",
     "@opentelemetry/api": "1.10.0",
-    "@playwright/test": "1.60.0",
+    "@playwright/test": "1.65.1",
     "@shikijs/core": "^4.4.3",
     "@shikijs/engine-javascript": "^4.4.3",
     "@shikijs/langs-precompiled": "^4.4.3",

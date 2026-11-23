@@ -67,7 +67,13 @@ export default defineConfig({
         cache: false,
       },
       e2e: {
-        command: "bash tests/docker-run.sh -e CI=1 -- --run",
+        command:
+          "BLOCKNOTE_E2E_FULL=1 bash tests/docker-run.sh -e CI=1 -- --run",
+        cache: false,
+      },
+      "e2e:local": {
+        command: "vp test -c vite.config.browser.ts --mode browser-local --run",
+        cwd: "tests",
         cache: false,
       },
       "e2e:updateSnaps": {
@@ -113,7 +119,9 @@ export default defineConfig({
       "./packages/ariakit/vite.config.ts",
       "./packages/code-block/vite.config.ts",
       "./packages/core/vite.config.ts",
+      "./packages/diagram-block/vite.config.ts",
       "./packages/mantine/vite.config.ts",
+      "./packages/math-block/vite.config.ts",
       "./packages/react/vite.config.ts",
       "./packages/server-util/vite.config.ts",
       "./packages/shadcn/vite.config.ts",
@@ -124,6 +132,8 @@ export default defineConfig({
       "./packages/xl-multi-column/vite.config.ts",
       "./packages/xl-odt-exporter/vite.config.ts",
       "./packages/xl-pdf-exporter/vite.config.ts",
+      "./packages/xl-typst-compiler/vite.config.ts",
+      "./packages/xl-typst-exporter/vite.config.ts",
       "./tests/vite.config.ts",
       "./tests/vite.config.browser.ts",
     ],

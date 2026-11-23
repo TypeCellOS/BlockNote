@@ -10,6 +10,8 @@
 # Example apps are baked into the image and transpiled from source at test time.
 #
 # Usage: tests/docker-run.sh [docker run flags...] -- [vitest/vp args...]
+# The unfiltered local `vp run e2e` uses parallel iframe reuse by default.
+# Set BLOCKNOTE_E2E_PARALLEL_REUSE=0 to use the legacy runner.
 #
 # `set -u` is intentionally omitted: macOS bash 3.2 errors on empty-array
 # expansion under it, and both the flag and entrypoint-arg arrays may be empty.
@@ -26,6 +28,18 @@ done
 # Drop the "--" separator; the rest are entrypoint (vp test) args.
 [ "$#" -gt 0 ] && shift
 entrypoint_args=("$@")
+
+full_run=0
+parallel_reuse=0
+if [ "${BLOCKNOTE_E2E_FULL:-}" = 1 ] &&
+  [ "${#entrypoint_args[@]}" -eq 1 ] && [ "${entrypoint_args[0]}" = "--run" ]; then
+  full_run=1
+  parallel_reuse=${BLOCKNOTE_E2E_PARALLEL_REUSE-1}
+  case "$parallel_reuse" in
+    0|1) ;;
+    *) echo "BLOCKNOTE_E2E_PARALLEL_REUSE must be 0 or 1" >&2; exit 2 ;;
+  esac
+fi
 
 # Rebuild only when the image's baked inputs have changed.
 current_hash=$(blocknote_e2e_image_hash)
@@ -81,6 +95,22 @@ mounts+=(
 # binds the dir (not an anonymous mountpoint).
 mkdir -p "$PWD/tests/playwright-report"
 mounts+=(-v "$PWD/tests/playwright-report:/work/tests/playwright-report")
+
+# Only the unfiltered `vp run e2e` uses the batched entrypoint. Keep raw
+# Vitest arguments (including filters and snapshot updates) on the old path.
+if [ "$full_run" = 1 ]; then
+  mounts+=(
+    --entrypoint /bin/bash
+    -v "$PWD/tests/docker-full-run.sh:/work/tests/docker-full-run.sh:ro"
+  )
+  if [ "$parallel_reuse" = 1 ]; then
+    mounts+=(
+      -e BLOCKNOTE_E2E_PARALLEL_REUSE=1
+      -v "$PWD/tests/docker-browser-partition.mjs:/work/tests/docker-browser-partition.mjs:ro"
+    )
+  fi
+  entrypoint_args=(./docker-full-run.sh)
+fi
 
 # --init  : avoid PID-1 special treatment / zombie processes
 # --ipc=host : Chromium needs this in Docker to avoid OOM crashes
