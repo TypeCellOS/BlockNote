@@ -1,7 +1,4 @@
-/**
- * @vitest-environment jsdom
- */
-import { afterEach, describe, expect, it } from "vite-plus/test";
+import { beforeEach, describe, expect } from "vite-plus/test";
 import * as Y from "@y/y";
 import { TextSelection } from "prosemirror-state";
 import * as Y1 from "yjs";
@@ -9,26 +6,20 @@ import * as Y1 from "yjs";
 import { CommentsExtension } from "../../comments/extension.js";
 import { DefaultThreadStoreAuth } from "../../comments/threadstore/DefaultThreadStoreAuth.js";
 import type { PartialBlock } from "../../blocks/defaultBlocks.js";
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import type { SetupEditor } from "../../../../../tests/src/commands/browser/setupEditor.js";
 import { YjsThreadStore as NewThreadStore } from "../comments/YjsThreadStore.js";
 import { YjsThreadStore as LegacyThreadStore } from "../../yjs/comments/YjsThreadStore.js";
 import { withCollaboration as withLegacyCollaboration } from "../../yjs/extensions/index.js";
 import { withCollaboration } from "./index.js";
 import { createYVersionView } from "./Versioning.js";
 
-const editors: BlockNoteEditor[] = [];
 const docs: Array<Y.Doc | Y1.Doc> = [];
 
-afterEach(() => {
-  for (const editor of editors.splice(0)) {
-    editor.unmount();
-  }
-  for (const doc of docs.splice(0)) {
-    doc.destroy();
-  }
-});
-
-function createLegacyEditor(withComments = false) {
+async function createLegacyEditor(
+  setupEditor: SetupEditor,
+  withComments = false,
+) {
   const doc = new Y1.Doc();
   docs.push(doc);
   const threadStore = new LegacyThreadStore(
@@ -36,8 +27,9 @@ function createLegacyEditor(withComments = false) {
     doc.getMap("threads"),
     new DefaultThreadStoreAuth("author", "editor"),
   );
-  const editor = BlockNoteEditor.create(
-    withLegacyCollaboration({
+  const { editor } = await setupEditor({
+    mountType: "dom",
+    ...withLegacyCollaboration({
       collaboration: {
         fragment: doc.getXmlFragment("doc"),
         user: { name: "Author", color: "#ff0000" },
@@ -51,13 +43,12 @@ function createLegacyEditor(withComments = false) {
           ]
         : [],
     }),
-  );
-  editor.mount(document.createElement("div"));
-  editors.push(editor);
+  });
   return { doc, editor, threadStore };
 }
 
-function openWithNewBinding(
+async function openWithNewBinding(
+  setupEditor: SetupEditor,
   update: Uint8Array,
   withComments = false,
   // Version history keeps deleted content (YHub stores documents without GC).
@@ -72,8 +63,9 @@ function openWithNewBinding(
     doc.get("threads"),
     new DefaultThreadStoreAuth("author", "editor"),
   );
-  const editor = BlockNoteEditor.create(
-    withCollaboration({
+  const { editor } = await setupEditor({
+    mountType: "dom",
+    ...withCollaboration({
       collaboration: {
         fragment: doc.get("doc"),
         user: { name: "Reader", color: "#0000ff" },
@@ -87,9 +79,7 @@ function openWithNewBinding(
           ]
         : [],
     }),
-  );
-  editor.mount(document.createElement("div"));
-  editors.push(editor);
+  });
   return { doc, editor, threadStore, stateBeforeMount };
 }
 
@@ -178,29 +168,31 @@ function diffBlocks(
       text: string;
       users: string[];
     }> = [];
-    editor.prosemirrorState.doc.descendants((node) => {
-      const mark = node.marks.find(
-        (mark) =>
-          mark.type.name === "y-attributed-insert" ||
-          mark.type.name === "y-attributed-delete",
-      );
-      if (node.type.name === "blockContainer" && mark) {
-        changed.push({
-          change: mark.type.name,
-          type: node.firstChild!.type.name,
-          text: node.firstChild!.textContent,
-          users: mark.attrs["userIds"],
-        });
-      } else if (nodes === "all" && mark) {
-        changed.push({
-          change: mark.type.name,
-          type: node.type.name,
-          text: node.isText ? node.text! : node.textContent,
-          users: mark.attrs["userIds"],
-        });
-      }
-      return true;
-    });
+    editor.transact(({ doc }) =>
+      doc.descendants((node) => {
+        const mark = node.marks.find(
+          (mark) =>
+            mark.type.name === "y-attributed-insert" ||
+            mark.type.name === "y-attributed-delete",
+        );
+        if (node.type.name === "blockContainer" && mark) {
+          changed.push({
+            change: mark.type.name,
+            type: node.firstChild!.type.name,
+            text: node.firstChild!.textContent,
+            users: mark.attrs["userIds"],
+          });
+        } else if (nodes === "all" && mark) {
+          changed.push({
+            change: mark.type.name,
+            type: node.type.name,
+            text: node.isText ? node.text! : node.textContent,
+            users: mark.attrs["userIds"],
+          });
+        }
+        return true;
+      }),
+    );
     return changed;
   } finally {
     view.close();
@@ -271,9 +263,23 @@ const structuralChanges: Array<{
   },
 ];
 
-describe("legacy Yjs document binding", () => {
-  it("reads a multi-block document written by the old collaboration binding", () => {
-    const legacy = createLegacyEditor();
+export function registerLegacyYjsDocBindingCases() {
+  describe("legacy Yjs document binding", legacyYjsDocumentBinding);
+}
+
+function legacyYjsDocumentBinding() {
+  beforeEach(({ onTestFinished }) => {
+    onTestFinished(() => {
+      for (const doc of docs.splice(0)) {
+        doc.destroy();
+      }
+    });
+  });
+
+  it("reads a multi-block document written by the old collaboration binding", async ({
+    setupEditor,
+  }) => {
+    const legacy = await createLegacyEditor(setupEditor);
     legacy.editor.replaceBlocks(legacy.editor.document, [
       {
         id: "heading-1",
@@ -293,7 +299,7 @@ describe("legacy Yjs document binding", () => {
 
     const expected = legacy.editor.document;
     const update = Y1.encodeStateAsUpdateV2(legacy.doc);
-    const current = openWithNewBinding(update);
+    const current = await openWithNewBinding(setupEditor, update);
 
     expect(current.editor.document).toEqual(expected);
     expect(current.editor.document.map((block) => block.id)).toEqual([
@@ -304,12 +310,17 @@ describe("legacy Yjs document binding", () => {
     expect(Y.encodeStateVector(current.doc)).toEqual(current.stateBeforeMount);
   });
 
-  it("syncs edits from either binding to the other", () => {
-    const legacy = createLegacyEditor();
+  it("syncs edits from either binding to the other", async ({
+    setupEditor,
+  }) => {
+    const legacy = await createLegacyEditor(setupEditor);
     legacy.editor.replaceBlocks(legacy.editor.document, [
       { id: "shared", type: "paragraph", content: "Original" },
     ]);
-    const current = openWithNewBinding(Y1.encodeStateAsUpdateV2(legacy.doc));
+    const current = await openWithNewBinding(
+      setupEditor,
+      Y1.encodeStateAsUpdateV2(legacy.doc),
+    );
 
     legacy.editor.updateBlock("shared", {
       content: "Edited with y-prosemirror",
@@ -318,7 +329,7 @@ describe("legacy Yjs document binding", () => {
     expect(current.editor.document.map((block) => block.id)).toEqual([
       "shared",
     ]);
-    expect(current.editor.prosemirrorState.doc.textContent).toBe(
+    expect(current.editor.domElement!.textContent).toBe(
       "Edited with y-prosemirror",
     );
     expect(current.editor.document[0].content).toEqual(
@@ -330,7 +341,7 @@ describe("legacy Yjs document binding", () => {
     });
     Y1.applyUpdateV2(legacy.doc, Y.encodeStateAsUpdateV2(current.doc));
     expect(legacy.editor.document.map((block) => block.id)).toEqual(["shared"]);
-    expect(legacy.editor.prosemirrorState.doc.textContent).toBe(
+    expect(legacy.editor.domElement!.textContent).toBe(
       "Edited with @y/prosemirror",
     );
     expect(legacy.editor.document[0].content).toEqual(
@@ -338,12 +349,17 @@ describe("legacy Yjs document binding", () => {
     );
   });
 
-  it("syncs a block inserted by the old binding to the new one", () => {
-    const legacy = createLegacyEditor();
+  it("syncs a block inserted by the old binding to the new one", async ({
+    setupEditor,
+  }) => {
+    const legacy = await createLegacyEditor(setupEditor);
     legacy.editor.replaceBlocks(legacy.editor.document, [
       { id: "shared", type: "paragraph", content: "Original" },
     ]);
-    const current = openWithNewBinding(Y1.encodeStateAsUpdateV2(legacy.doc));
+    const current = await openWithNewBinding(
+      setupEditor,
+      Y1.encodeStateAsUpdateV2(legacy.doc),
+    );
 
     legacy.editor.insertBlocks(
       [
@@ -367,12 +383,17 @@ describe("legacy Yjs document binding", () => {
 
   // y-prosemirror currently throws in createChildren when it encounters the
   // XmlText written by @y/prosemirror (sync-plugin.js reads type._item.right).
-  it.fails("reads a block inserted by the new binding in the old one", () => {
-    const legacy = createLegacyEditor();
+  it.fails("reads a block inserted by the new binding in the old one", async ({
+    setupEditor,
+  }) => {
+    const legacy = await createLegacyEditor(setupEditor);
     legacy.editor.replaceBlocks(legacy.editor.document, [
       { id: "shared", type: "paragraph", content: "Original" },
     ]);
-    const current = openWithNewBinding(Y1.encodeStateAsUpdateV2(legacy.doc));
+    const current = await openWithNewBinding(
+      setupEditor,
+      Y1.encodeStateAsUpdateV2(legacy.doc),
+    );
 
     current.editor.insertBlocks(
       [{ id: "from-new", type: "paragraph", content: "New paragraph" }],
@@ -391,8 +412,11 @@ describe("legacy Yjs document binding", () => {
     ]);
   });
 
-  it("diffs a block type change made with the new binding", () => {
-    const current = openWithNewBinding(
+  it("diffs a block type change made with the new binding", async ({
+    setupEditor,
+  }) => {
+    const current = await openWithNewBinding(
+      setupEditor,
       Y.encodeStateAsUpdateV2(new Y.Doc()),
       false,
       false,
@@ -424,19 +448,21 @@ describe("legacy Yjs document binding", () => {
   });
 
   /** The diff of `change` made with the new binding, and with the old one. */
-  function diffsOfBothBindings(
+  async function diffsOfBothBindings(
+    setupEditor: SetupEditor,
     blocks: PartialBlock[],
     change: (editor: BlockNoteEditor) => void,
     nodes: "blocks" | "all" = "blocks",
   ) {
-    const legacy = createLegacyEditor();
+    const legacy = await createLegacyEditor(setupEditor);
     legacy.editor.replaceBlocks(legacy.editor.document, blocks);
     const legacyBefore = Y1.encodeStateAsUpdateV2(legacy.doc);
     change(legacy.editor);
     const legacyAfter = Y1.encodeStateAsUpdateV2(legacy.doc);
-    const fromLegacy = openWithNewBinding(legacyAfter);
+    const fromLegacy = await openWithNewBinding(setupEditor, legacyAfter);
 
-    const current = openWithNewBinding(
+    const current = await openWithNewBinding(
+      setupEditor,
       Y.encodeStateAsUpdateV2(new Y.Doc()),
       false,
       false,
@@ -458,17 +484,24 @@ describe("legacy Yjs document binding", () => {
     };
   }
 
-  it.each(structuralChanges)(
+  it.for(structuralChanges)(
     "diffs $name made with the old binding like one made with the new binding",
-    ({ blocks, change }) => {
-      const { current, old } = diffsOfBothBindings(blocks, change);
+    async ({ blocks, change }, { setupEditor }) => {
+      const { current, old } = await diffsOfBothBindings(
+        setupEditor,
+        blocks,
+        change,
+      );
       expect(current).not.toEqual([]);
       expect(old).toEqual(current);
     },
   );
 
-  it("diffs a table resize made with the old binding like one made with the new binding", () => {
-    const { current, old } = diffsOfBothBindings(
+  it("diffs a table resize made with the old binding like one made with the new binding", async ({
+    setupEditor,
+  }) => {
+    const { current, old } = await diffsOfBothBindings(
+      setupEditor,
       [table(2, 2)],
       (editor) => editor.updateBlock("table", table(3, 3)),
       "all",
@@ -477,15 +510,17 @@ describe("legacy Yjs document binding", () => {
     expect(old).toEqual(current);
   });
 
-  it("does not change the document when diffing a change made with the old binding", () => {
-    const legacy = createLegacyEditor();
+  it("does not change the document when diffing a change made with the old binding", async ({
+    setupEditor,
+  }) => {
+    const legacy = await createLegacyEditor(setupEditor);
     legacy.editor.replaceBlocks(legacy.editor.document, [
       { id: "changed", type: "paragraph", content: "Text" },
     ]);
     const before = Y1.encodeStateAsUpdateV2(legacy.doc);
     legacy.editor.updateBlock("changed", { type: "heading" });
     const after = Y1.encodeStateAsUpdateV2(legacy.doc);
-    const opened = openWithNewBinding(after);
+    const opened = await openWithNewBinding(setupEditor, after);
     const stored = Y.encodeStateAsUpdateV2(opened.doc);
 
     expect(diffBlocks(opened.editor, opened.doc, before, after)).not.toEqual(
@@ -494,8 +529,10 @@ describe("legacy Yjs document binding", () => {
     expect(Y.encodeStateAsUpdateV2(opened.doc)).toEqual(stored);
   });
 
-  it("credits a type change made with the old binding only to whoever made it", () => {
-    const legacy = createLegacyEditor();
+  it("credits a type change made with the old binding only to whoever made it", async ({
+    setupEditor,
+  }) => {
+    const legacy = await createLegacyEditor(setupEditor);
     legacy.editor.replaceBlocks(legacy.editor.document, [
       { id: "changed", type: "paragraph", content: "Text" },
     ]);
@@ -505,7 +542,7 @@ describe("legacy Yjs document binding", () => {
     const byAlice = Y1.encodeStateAsUpdateV2(legacy.doc);
     legacy.editor.updateBlock("changed", { type: "heading" });
     const after = Y1.encodeStateAsUpdateV2(legacy.doc);
-    const opened = openWithNewBinding(after);
+    const opened = await openWithNewBinding(setupEditor, after);
 
     const changed = diffBlocks(
       opened.editor,
@@ -526,8 +563,10 @@ describe("legacy Yjs document binding", () => {
     ]);
   });
 
-  it("credits text typed after an old-binding type change to whoever typed it", () => {
-    const legacy = createLegacyEditor();
+  it("credits text typed after an old-binding type change to whoever typed it", async ({
+    setupEditor,
+  }) => {
+    const legacy = await createLegacyEditor(setupEditor);
     legacy.editor.replaceBlocks(legacy.editor.document, [
       { id: "changed", type: "paragraph", content: "Text" },
     ]);
@@ -537,7 +576,7 @@ describe("legacy Yjs document binding", () => {
     legacy.editor.setTextCursorPosition("changed", "end");
     legacy.editor.insertInlineContent(" by Alice");
     const after = Y1.encodeStateAsUpdateV2(legacy.doc);
-    const opened = openWithNewBinding(after);
+    const opened = await openWithNewBinding(setupEditor, after);
 
     const changed = diffBlocks(
       opened.editor,
@@ -560,22 +599,26 @@ describe("legacy Yjs document binding", () => {
     ]);
   });
 
-  it("diffs a text edit made with the old binding in place", () => {
-    const legacy = createLegacyEditor();
+  it("diffs a text edit made with the old binding in place", async ({
+    setupEditor,
+  }) => {
+    const legacy = await createLegacyEditor(setupEditor);
     legacy.editor.replaceBlocks(legacy.editor.document, [
       { id: "edited", type: "paragraph", content: "Original" },
     ]);
     const before = Y1.encodeStateAsUpdateV2(legacy.doc);
     legacy.editor.updateBlock("edited", { content: "Original edited" });
     const after = Y1.encodeStateAsUpdateV2(legacy.doc);
-    const current = openWithNewBinding(after);
+    const current = await openWithNewBinding(setupEditor, after);
 
     // No block is replaced: only the inserted text is marked.
     expect(diffBlocks(current.editor, current.doc, before, after)).toEqual([]);
   });
 
-  it("reads a comment overlapping a formatting mark and its thread", async () => {
-    const legacy = createLegacyEditor(true);
+  it("reads a comment overlapping a formatting mark and its thread", async ({
+    setupEditor,
+  }) => {
+    const legacy = await createLegacyEditor(setupEditor, true);
     legacy.editor.replaceBlocks(legacy.editor.document, [
       {
         id: "commented-paragraph",
@@ -589,11 +632,13 @@ describe("legacy Yjs document binding", () => {
     ]);
 
     let from = -1;
-    legacy.editor.prosemirrorState.doc.descendants((node, pos) => {
-      if (node.isText && node.text === "bold words") {
-        from = pos;
-      }
-    });
+    legacy.editor.transact(({ doc }) =>
+      doc.descendants((node, pos) => {
+        if (node.isText && node.text === "bold words") {
+          from = pos;
+        }
+      }),
+    );
     expect(from).toBeGreaterThan(0);
     legacy.editor.transact((tr) =>
       tr.setSelection(
@@ -611,23 +656,25 @@ describe("legacy Yjs document binding", () => {
     const [thread] = legacy.threadStore.getThreads().values();
     expect(thread).toBeDefined();
     const update = Y1.encodeStateAsUpdateV2(legacy.doc);
-    const current = openWithNewBinding(update, true);
+    const current = await openWithNewBinding(setupEditor, update, true);
 
     const markedText: Array<{
       text: string;
       marks: string[];
       threadId?: string;
     }> = [];
-    current.editor.prosemirrorState.doc.descendants((node) => {
-      if (node.isText) {
-        markedText.push({
-          text: node.text!,
-          marks: node.marks.map((mark) => mark.type.name),
-          threadId: node.marks.find((mark) => mark.type.name === "comment")
-            ?.attrs.threadId,
-        });
-      }
-    });
+    current.editor.transact(({ doc }) =>
+      doc.descendants((node) => {
+        if (node.isText) {
+          markedText.push({
+            text: node.text!,
+            marks: node.marks.map((mark) => mark.type.name),
+            threadId: node.marks.find((mark) => mark.type.name === "comment")
+              ?.attrs.threadId,
+          });
+        }
+      }),
+    );
     expect(markedText).toEqual([
       { text: "before ", marks: [], threadId: undefined },
       { text: "bold words", marks: ["bold", "comment"], threadId: thread.id },
@@ -649,4 +696,4 @@ describe("legacy Yjs document binding", () => {
       ],
     });
   });
-});
+}

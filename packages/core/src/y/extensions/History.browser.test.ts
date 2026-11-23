@@ -1,45 +1,37 @@
-// @vitest-environment jsdom
 import * as Y from "@y/y";
-import { afterEach, expect, it } from "vite-plus/test";
+import { expect } from "vite-plus/test";
 
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import type { CommandContext } from "../../../../../tests/src/commands/index.js";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { blocksToYType, yDocToBlocks } from "../utils.js";
 import { withCollaboration } from "./index.js";
 
-const cleanups: Array<() => void> = [];
-afterEach(() => {
-  for (const cleanup of cleanups.splice(0).reverse()) {
-    cleanup();
-  }
-});
-
-function createCollaborativeEditor(doc = new Y.Doc()) {
-  cleanups.push(() => doc.destroy());
+async function createCollaborativeEditor(
+  { setupEditor }: Pick<CommandContext, "setupEditor">,
+  doc: Y.Doc,
+) {
   const fragment = doc.get("doc");
-  const editor = BlockNoteEditor.create(
-    withCollaboration({
+  if (fragment.length === 0) {
+    const { editor: seed } = await setupEditor({
+      mountType: false,
+      initialContent: [
+        { id: "paragraph", type: "paragraph", content: "Initial document" },
+        { id: "other", type: "paragraph", content: "Other paragraph" },
+      ],
+    });
+    blocksToYType(seed, seed.document, fragment);
+  }
+  const { editor } = await setupEditor({
+    mountType: "dom",
+    ...withCollaboration({
+      extensions: [],
       collaboration: { fragment, user: { name: "Test", color: "red" } },
     }),
-  );
-  if (fragment.length === 0) {
-    editor.replaceBlocks(editor.document, [
-      { id: "paragraph", type: "paragraph", content: "Initial document" },
-      { id: "other", type: "paragraph", content: "Other paragraph" },
-    ]);
-    blocksToYType(editor, editor.document, fragment);
-  }
-
-  const element = document.createElement("div");
-  document.body.appendChild(element);
-  cleanups.push(() => {
-    editor.unmount();
-    element.remove();
   });
-  editor.mount(element);
-  return { editor, doc };
+  return editor;
 }
 
-it.each([
+it.for([
   {
     change: "insert",
     apply(editor: BlockNoteEditor) {
@@ -65,8 +57,10 @@ it.each([
   },
 ])(
   "undoes and redoes a local $change in a collaborative document",
-  (testCase) => {
-    const { editor, doc } = createCollaborativeEditor();
+  async (testCase, { setupEditor, onTestFinished }) => {
+    const doc = new Y.Doc();
+    onTestFinished(() => doc.destroy());
+    const editor = await createCollaborativeEditor({ setupEditor }, doc);
     const initial = editor.document;
     expect(initial[0].content).toEqual([
       { type: "text", text: "Initial document", styles: {} },
@@ -90,11 +84,20 @@ it.each([
   },
 );
 
-it("maps local undo and redo across remote insertions without recording remote edits", () => {
-  const { editor, doc } = createCollaborativeEditor();
+it("maps local undo and redo across remote insertions without recording remote edits", async ({
+  setupEditor,
+  onTestFinished,
+}) => {
+  const doc = new Y.Doc();
   const remoteDoc = new Y.Doc();
+  onTestFinished(() => {
+    remoteDoc.destroy();
+    doc.destroy();
+  });
+  const fixtures = { setupEditor };
+  const editor = await createCollaborativeEditor(fixtures, doc);
   Y.applyUpdateV2(remoteDoc, Y.encodeStateAsUpdateV2(doc));
-  const { editor: remote } = createCollaborativeEditor(remoteDoc);
+  const remote = await createCollaborativeEditor(fixtures, remoteDoc);
 
   editor.setTextCursorPosition("paragraph", "start");
   editor.insertInlineContent("Local ");

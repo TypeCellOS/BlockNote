@@ -1,6 +1,7 @@
 import { describe, expect } from "vite-plus/test";
 import * as Y from "yjs";
 
+import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 import { blocksToYDoc, withCollaboration } from "../../../yjs/index.js";
 import { isAllowedUri } from "./link.js";
 import { getLinksInDocument } from "./linkTestHelpers.js";
@@ -12,13 +13,16 @@ const customLinkOptions = {
 };
 
 describe("Link extension with y-prosemirror", () => {
-  const it = globalThis.it.extend({
+  const it = globalThis.it.extend<{
+    collaboration: { doc: Y.Doc; editor: BlockNoteEditor };
+  }>({
     collaboration: async ({ onTestFinished, setupEditor }, use) => {
       const doc = new Y.Doc();
       onTestFinished(() => doc.destroy());
       const { editor } = await setupEditor({
         mountType: "dom",
         ...withCollaboration({
+          extensions: [],
           collaboration: {
             fragment: doc.getXmlFragment("doc"),
             user: { name: "Test", color: "red" },
@@ -30,17 +34,15 @@ describe("Link extension with y-prosemirror", () => {
   });
 
   it("autolinks a URL typed locally", ({ collaboration: { editor } }) => {
-    editor.replaceBlocks(editor.document, [
-      { id: "typed", type: "paragraph" },
-    ]);
+    editor.replaceBlocks(editor.document, [{ id: "typed", type: "paragraph" }]);
     editor.setTextCursorPosition("typed", "end");
 
     editor.transact((tr) => tr.insertText("example.com"));
     editor.transact((tr) => tr.insertText(" "));
 
-    expect(getLinksInDocument(editor)).toEqual([
-      { href: "https://example.com", text: "example.com" },
-    ]);
+    expect(
+      getLinksInDocument(editor).map(({ href, text }) => ({ href, text })),
+    ).toEqual([{ href: "https://example.com", text: "example.com" }]);
   });
 
   it("does not autolink text that arrives from another client", ({

@@ -1,19 +1,16 @@
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
+import { TextSelection } from "prosemirror-state";
 import * as Y from "yjs";
 
 import { BlockNoteSchema } from "../../blocks/BlockNoteSchema.js";
 import { defaultBlockSpecs } from "../../blocks/defaultBlocks.js";
 import { CommentsExtension } from "../../comments/extension.js";
 import { DefaultThreadStoreAuth } from "../../comments/threadstore/DefaultThreadStoreAuth.js";
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import type { SetupEditor } from "../../../../../tests/src/commands/browser/setupEditor.js";
 import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
 import { YAttributionMarksExtension } from "../../y/extensions/YAttributionMarks.js";
 import { YjsThreadStore } from "../comments/YjsThreadStore.js";
 import { withCollaboration } from "../index.js";
-
-/**
- * @vitest-environment jsdom
- */
 
 // These tests cover the mark-dropping part of `FixUpSchemaExtension`, which lets
 // a document survive a block whose content type changed from `"inline"` (marks allowed)
@@ -59,15 +56,17 @@ const createThreadStore = (ydoc: Y.Doc) =>
 
 // Mounts a real collaborative editor on the legacy schema (code block = inline,
 // so it allows marks), seeded with a bold-formatted code block. Returns the
-// editor (typed loosely, since it doesn't use the default schema) so callers can
+// editor so callers can
 // apply extra marks before destroying it. Marks therefore land in Yjs exactly
 // the way y-prosemirror writes them.
-const createLegacyEditor = (
+async function createLegacyEditor(
+  setupEditor: SetupEditor,
   fragment: Y.XmlFragment,
   opts: { threadStore?: YjsThreadStore } = {},
-) => {
-  const editor = BlockNoteEditor.create(
-    withCollaboration({
+) {
+  const { editor } = await setupEditor({
+    mountType: "dom",
+    ...withCollaboration({
       collaboration: {
         fragment,
         user: { color: "#0000ff", name: "Legacy User" },
@@ -89,9 +88,8 @@ const createLegacyEditor = (
             ]
           : []),
       ],
-    }) as Parameters<typeof BlockNoteEditor.create>[0],
-  ) as unknown as BlockNoteEditor<any, any, any>;
-  editor.mount(document.createElement("div"));
+    }),
+  });
   editor.replaceBlocks(editor.document, [
     {
       type: "codeBlock",
@@ -100,15 +98,16 @@ const createLegacyEditor = (
     },
   ]);
   return editor;
-};
+}
 
 // Populates `fragment` with a bold-formatted code block (optionally also a
 // suggestion / `y-attributed-insert` mark).
-const buildLegacyFormattedCodeBlock = (
+async function buildLegacyFormattedCodeBlock(
+  setupEditor: SetupEditor,
   fragment: Y.XmlFragment,
   opts: { withSuggestion?: boolean } = {},
-) => {
-  const editor = createLegacyEditor(fragment);
+) {
+  const editor = await createLegacyEditor(setupEditor, fragment);
   if (opts.withSuggestion) {
     editor.transact((tr) =>
       tr.addMark(
@@ -120,29 +119,47 @@ const buildLegacyFormattedCodeBlock = (
       ),
     );
   }
-  editor._tiptapEditor.destroy();
-};
+  editor.unmount();
+}
 
 // Populates `ydoc` with a code block carrying a bold mark AND a real comment
 // (created through the comment API, so the comment mark is encoded by
 // y-prosemirror as `comment--<hash>`).
-const buildLegacyCommentedCodeBlock = async (ydoc: Y.Doc) => {
-  const editor = createLegacyEditor(ydoc.getXmlFragment("doc"), {
-    threadStore: createThreadStore(ydoc),
-  });
-  (editor as any)._tiptapEditor.commands.selectAll();
-  await (editor.getExtension(CommentsExtension) as any).createThread({
+async function buildLegacyCommentedCodeBlock(
+  setupEditor: SetupEditor,
+  ydoc: Y.Doc,
+) {
+  const editor = await createLegacyEditor(
+    setupEditor,
+    ydoc.getXmlFragment("doc"),
+    {
+      threadStore: createThreadStore(ydoc),
+    },
+  );
+  // The public block-selection API requires two distinct blocks; this
+  // fixture annotates the text of the only block.
+  editor.transact((tr) =>
+    tr.setSelection(
+      TextSelection.between(
+        tr.doc.resolve(1),
+        tr.doc.resolve(tr.doc.content.size - 1),
+      ),
+    ),
+  );
+  await editor.getExtension(CommentsExtension)!.createThread({
     initialComment: { body: "review this" },
   });
-  editor._tiptapEditor.destroy();
-};
+  editor.unmount();
+}
 
-const createCollabEditor = (
+async function createCollabEditor(
+  setupEditor: SetupEditor,
   fragment: Y.XmlFragment,
   opts: { threadStore?: YjsThreadStore } = {},
-) => {
-  const editor = BlockNoteEditor.create(
-    withCollaboration({
+) {
+  const { editor } = await setupEditor({
+    mountType: "dom",
+    ...withCollaboration({
       collaboration: {
         fragment,
         user: { color: "#ff0000", name: "Test User" },
@@ -162,10 +179,9 @@ const createCollabEditor = (
           : []),
       ],
     }),
-  );
-  editor.mount(document.createElement("div"));
+  });
   return editor;
-};
+}
 
 // Collects every mark-attribute key present on a fragment's text.
 const markKeysIn = (fragment: Y.XmlFragment) => {
@@ -200,15 +216,19 @@ const styleKeysOf = (block: any) => {
 };
 
 describe("FixUpSchema: formatted code block backwards compatibility", () => {
-  it("preserves a formatted code block present before mount, dropping only the formatting", () => {
+  it("preserves a formatted code block present before mount, dropping only the formatting", async ({
+    setupEditor,
+    onTestFinished,
+  }) => {
     const doc = new Y.Doc();
+    onTestFinished(() => doc.destroy());
     const fragment = doc.getXmlFragment("doc");
-    buildLegacyFormattedCodeBlock(fragment);
+    await buildLegacyFormattedCodeBlock(setupEditor, fragment);
 
     // The fixture really does carry a bold mark, encoded by y-prosemirror.
     expect(markKeysIn(fragment).has("bold")).toBe(true);
 
-    const editor = createCollabEditor(fragment);
+    const editor = await createCollabEditor(setupEditor, fragment);
 
     // The block survives reconstruction with its text intact...
     expect(editor.document.map((b) => b.type)).toEqual(["codeBlock"]);
@@ -223,19 +243,25 @@ describe("FixUpSchema: formatted code block backwards compatibility", () => {
     expect(styleKeysOf(editor.document[0]).has("bold")).toBe(false);
     // ...but the mark is STILL in the Yjs fragment (we never mutate the Yjs doc).
     expect(markKeysIn(fragment).has("bold")).toBe(true);
-
-    editor._tiptapEditor.destroy();
   });
 
-  it("preserves a formatted code block that syncs in after mount", () => {
+  it("preserves a formatted code block that syncs in after mount", async ({
+    setupEditor,
+    onTestFinished,
+  }) => {
     const remoteDoc = new Y.Doc();
-    buildLegacyFormattedCodeBlock(remoteDoc.getXmlFragment("doc"));
+    onTestFinished(() => remoteDoc.destroy());
+    await buildLegacyFormattedCodeBlock(
+      setupEditor,
+      remoteDoc.getXmlFragment("doc"),
+    );
 
     const localDoc = new Y.Doc();
+    onTestFinished(() => localDoc.destroy());
     const localFragment = localDoc.getXmlFragment("doc");
 
     // Editor mounts on an empty fragment, before any content arrives.
-    const editor = createCollabEditor(localFragment);
+    const editor = await createCollabEditor(setupEditor, localFragment);
     expect(localFragment.toJSON()).toBe("");
 
     // Provider delivers the initial state after mount.
@@ -257,16 +283,18 @@ describe("FixUpSchema: formatted code block backwards compatibility", () => {
     expect(styleKeysOf(editor.document[0]).has("bold")).toBe(false);
     // ...but the bold mark still present in the fragment (left in Yjs).
     expect(markKeysIn(localFragment).has("bold")).toBe(true);
-
-    editor._tiptapEditor.destroy();
   });
 
-  it("keeps the reconstructed block editable (leftover marks don't break positions)", () => {
+  it("keeps the reconstructed block editable (leftover marks don't break positions)", async ({
+    setupEditor,
+    onTestFinished,
+  }) => {
     const doc = new Y.Doc();
+    onTestFinished(() => doc.destroy());
     const fragment = doc.getXmlFragment("doc");
-    buildLegacyFormattedCodeBlock(fragment);
+    await buildLegacyFormattedCodeBlock(setupEditor, fragment);
 
-    const editor = createCollabEditor(fragment);
+    const editor = await createCollabEditor(setupEditor, fragment);
     const block = editor.document[0];
     expect(block.content).toEqual([
       {
@@ -290,14 +318,18 @@ describe("FixUpSchema: formatted code block backwards compatibility", () => {
     ]);
     // Still no materialized formatting after the edit.
     expect(styleKeysOf(editor.document[0]).has("bold")).toBe(false);
-
-    editor._tiptapEditor.destroy();
   });
 
-  it("keeps suggestion (y-attributed-insert) marks while dropping formatting", () => {
+  it("keeps suggestion (y-attributed-insert) marks while dropping formatting", async ({
+    setupEditor,
+    onTestFinished,
+  }) => {
     const doc = new Y.Doc();
+    onTestFinished(() => doc.destroy());
     const fragment = doc.getXmlFragment("doc");
-    buildLegacyFormattedCodeBlock(fragment, { withSuggestion: true });
+    await buildLegacyFormattedCodeBlock(setupEditor, fragment, {
+      withSuggestion: true,
+    });
 
     const before = markKeysIn(fragment);
     expect(before.has("bold")).toBe(true);
@@ -307,7 +339,7 @@ describe("FixUpSchema: formatted code block backwards compatibility", () => {
       true,
     );
 
-    const editor = createCollabEditor(fragment);
+    const editor = await createCollabEditor(setupEditor, fragment);
 
     // Block survives with text intact.
     expect(editor.document.map((b) => b.type)).toEqual(["codeBlock"]);
@@ -326,13 +358,15 @@ describe("FixUpSchema: formatted code block backwards compatibility", () => {
       true,
     );
     expect(styleKeysOf(editor.document[0]).has("bold")).toBe(false);
-
-    editor._tiptapEditor.destroy();
   });
 
-  it("keeps a real comment mark (encoded as comment--<hash>) while dropping formatting", async () => {
+  it("keeps a real comment mark (encoded as comment--<hash>) while dropping formatting", async ({
+    setupEditor,
+    onTestFinished,
+  }) => {
     const ydoc = new Y.Doc();
-    await buildLegacyCommentedCodeBlock(ydoc);
+    onTestFinished(() => ydoc.destroy());
+    await buildLegacyCommentedCodeBlock(setupEditor, ydoc);
     const fragment = ydoc.getXmlFragment("doc");
 
     // The comment mark is stored under a hashed key, not just "comment".
@@ -342,7 +376,7 @@ describe("FixUpSchema: formatted code block backwards compatibility", () => {
 
     // Mount a comments-configured collab editor on the same doc, so the comment
     // mark exists in the schema and is allowed on the (plain) code block.
-    const editor = createCollabEditor(fragment, {
+    const editor = await createCollabEditor(setupEditor, fragment, {
       threadStore: createThreadStore(ydoc),
     });
 
@@ -362,24 +396,26 @@ describe("FixUpSchema: formatted code block backwards compatibility", () => {
     expect([...after].some((k) => k.startsWith("comment--"))).toBe(true);
     expect(after.has("bold")).toBe(true);
     expect(styleKeysOf(editor.document[0]).has("bold")).toBe(false);
-
-    editor._tiptapEditor.destroy();
   });
 
-  it("leaves an already-clean code block untouched (no-op for valid content)", () => {
+  it("leaves an already-clean code block untouched (no-op for valid content)", async ({
+    setupEditor,
+    onTestFinished,
+  }) => {
     const doc = new Y.Doc();
+    onTestFinished(() => doc.destroy());
     const fragment = doc.getXmlFragment("doc");
     // A plain code block produced by the current schema (no disallowed marks).
-    const seedEditor = createCollabEditor(fragment);
+    const seedEditor = await createCollabEditor(setupEditor, fragment);
     seedEditor.replaceBlocks(seedEditor.document, [
       { type: "codeBlock", content: "const x = 1;" },
     ]);
     const before = fragment.toJSON();
-    seedEditor._tiptapEditor.destroy();
+    seedEditor.unmount();
 
     // Reconstruct it in a fresh collab editor: the override is a no-op, so the
     // fragment is byte-for-byte unchanged.
-    const editor = createCollabEditor(fragment);
+    const editor = await createCollabEditor(setupEditor, fragment);
     expect(editor.document.map((b) => b.type)).toEqual(["codeBlock"]);
     expect(editor.document[0].content).toEqual([
       {
@@ -389,17 +425,19 @@ describe("FixUpSchema: formatted code block backwards compatibility", () => {
       },
     ]);
     expect(fragment.toJSON()).toBe(before);
-
-    editor._tiptapEditor.destroy();
   });
 
-  it("does not touch inline blocks: a bold paragraph keeps its formatting", () => {
+  it("does not touch inline blocks: a bold paragraph keeps its formatting", async ({
+    setupEditor,
+    onTestFinished,
+  }) => {
     const doc = new Y.Doc();
+    onTestFinished(() => doc.destroy());
     const fragment = doc.getXmlFragment("doc");
 
     // A paragraph is "inline" content, so bold is allowed and should survive
     // reconstruction untouched — the override is scoped to plain blocks.
-    const seedEditor = createCollabEditor(fragment);
+    const seedEditor = await createCollabEditor(setupEditor, fragment);
     seedEditor.replaceBlocks(seedEditor.document, [
       {
         type: "paragraph",
@@ -407,15 +445,13 @@ describe("FixUpSchema: formatted code block backwards compatibility", () => {
       },
     ]);
     const before = fragment.toJSON();
-    seedEditor._tiptapEditor.destroy();
+    seedEditor.unmount();
 
-    const editor = createCollabEditor(fragment);
+    const editor = await createCollabEditor(setupEditor, fragment);
     expect(editor.document.map((b) => b.type)).toEqual(["paragraph"]);
     // Bold is materialized (kept) on the inline block.
     expect(styleKeysOf(editor.document[0]).has("bold")).toBe(true);
     // And the fragment is unchanged (override was a no-op for this node).
     expect(fragment.toJSON()).toBe(before);
-
-    editor._tiptapEditor.destroy();
   });
 });

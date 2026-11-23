@@ -1,45 +1,56 @@
-/**
- * @vitest-environment jsdom
- */
 import * as Y from "@y/y";
-import { afterEach, describe, expect, it } from "vite-plus/test";
+import type { Node as ProseMirrorNode } from "prosemirror-model";
+import { describe, expect, onTestFinished } from "vite-plus/test";
 
+import type { CommandContext } from "../../../../../tests/src/commands/index.js";
+import type { SetupEditor } from "../../../../../tests/src/commands/browser/setupEditor.js";
 import { CommentMark } from "../../comments/mark.js";
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import type { PartialBlock } from "../../blocks/defaultBlocks.js";
 import { createExtension } from "../../editor/BlockNoteExtension.js";
 import { blocksToYType } from "../utils.js";
 import { AttributionExtension } from "./AttributionExtension.js";
 import { withCollaboration } from "./index.js";
 import { createYVersionView } from "./Versioning.js";
 
-const editors: BlockNoteEditor<any, any, any>[] = [];
-afterEach(() => {
-  for (const editor of editors.splice(0)) {
-    editor.unmount();
-  }
-});
+// Vitest unwinds finish hooks in reverse registration order: close the
+// preview, dispose its mounted editor and host, then destroy its backing doc.
+function ownedDoc(options?: ConstructorParameters<typeof Y.Doc>[0]) {
+  const doc = new Y.Doc(options);
+  onTestFinished(() => doc.destroy());
+  return doc;
+}
 
-function collaborativeEditor(doc: Y.Doc) {
-  const editor = BlockNoteEditor.create(
-    withCollaboration({
+function openPreview(editor: BlockNoteEditor, doc: Y.Doc) {
+  const view = createYVersionView(editor, doc.get("doc")).open();
+  onTestFinished(() => view.close());
+  return view;
+}
+
+async function collaborativeEditor(setupEditor: SetupEditor, doc: Y.Doc) {
+  const { editor } = await setupEditor({
+    mountType: "dom",
+    ...withCollaboration({
+      extensions: [],
       collaboration: {
         fragment: doc.get("doc"),
         user: { name: "Test", color: "#ff0000" },
       },
     }),
-  );
-  const element = document.createElement("div");
-  document.body.appendChild(element);
-  editor.mount(element);
-  editors.push(editor);
+  });
   return editor;
 }
 
-function baseDocument(blocks: any[]) {
-  const doc = new Y.Doc({ gc: false });
+async function baseDocument(
+  setupEditor: CommandContext["setupEditor"],
+  blocks: PartialBlock[],
+) {
+  const doc = ownedDoc({ gc: false });
   doc.clientID = 100;
-  const seed = BlockNoteEditor.create();
-  seed.replaceBlocks(seed.document, blocks);
+  const { editor: seed } = await setupEditor({
+    mountType: false,
+    initialContent: blocks,
+  });
   blocksToYType(seed, seed.document, doc.get("doc"));
   return doc;
 }
@@ -48,18 +59,26 @@ function baseDocument(blocks: any[]) {
  * One user's edit of `base`, as the updates their client sends. Unlike a state
  * update, these delete only what the user deleted.
  */
-function editOf(
+async function editOf(
+  setupEditor: SetupEditor,
   base: Y.Doc,
   client: number,
-  edit: (editor: BlockNoteEditor<any, any, any>) => void,
+  edit: (editor: BlockNoteEditor) => void,
 ) {
-  const doc = new Y.Doc({ gc: false });
+  const doc = ownedDoc({ gc: false });
   doc.clientID = client;
   Y.applyUpdateV2(doc, Y.encodeStateAsUpdateV2(base));
-  const editor = collaborativeEditor(doc);
+  const editor = await collaborativeEditor(setupEditor, doc);
   const updates: Uint8Array<ArrayBuffer>[] = [];
-  doc.on("updateV2", (update: Uint8Array<ArrayBuffer>) => updates.push(update));
-  edit(editor);
+  function collectUpdate(update: Uint8Array<ArrayBuffer>) {
+    updates.push(update);
+  }
+  doc.on("updateV2", collectUpdate);
+  try {
+    edit(editor);
+  } finally {
+    doc.off("updateV2", collectUpdate);
+  }
   return Y.mergeUpdatesV2(updates);
 }
 
@@ -84,7 +103,7 @@ function deletedBy(update: Uint8Array, user: string) {
  * time.
  */
 function history(base: Y.Doc) {
-  const server = new Y.Doc({ gc: false });
+  const server = ownedDoc({ gc: false });
   Y.applyUpdateV2(server, Y.encodeStateAsUpdateV2(base));
   const attributions = Y.createContentMap();
   let time = 0;
@@ -118,42 +137,59 @@ function history(base: Y.Doc) {
   };
 }
 
+async function openDiff(setupEditor: SetupEditor, after: Uint8Array) {
+  const doc = ownedDoc();
+  Y.applyUpdateV2(doc, after);
+  const editor = await collaborativeEditor(setupEditor, doc);
+  const view = openPreview(editor, doc);
+  return {
+    editor,
+    view,
+    show(this: void, before: Uint8Array, attributions?: Y.ContentMap) {
+      view.show({
+        content: after,
+        comparison: { content: before, attributions },
+        target: { type: "snapshot", id: "after" },
+      });
+    },
+  };
+}
+
 /** Show `after` compared to `before` and return each changed block and text. */
-function showDiff(
+async function showDiff(
+  setupEditor: SetupEditor,
   before: Uint8Array,
   after: Uint8Array,
   attributions?: Y.ContentMap,
 ) {
-  const doc = new Y.Doc();
-  Y.applyUpdateV2(doc, after);
-  const editor = collaborativeEditor(doc);
-  const view = createYVersionView(editor, doc.get("doc")).open();
-  view.show({
-    content: after,
-    comparison: { content: before, attributions },
-    target: { type: "snapshot", id: "after" },
-  });
+  const { editor, show } = await openDiff(setupEditor, after);
+  show(before, attributions);
   const changes: Array<{ text: string; mark: string; users: string[] }> = [];
-  editor.prosemirrorState.doc.descendants((node) => {
-    const mark = node.marks.find((mark) =>
-      ["y-attributed-insert", "y-attributed-delete"].includes(mark.type.name),
-    );
-    if (mark && (node.isText || node.type.name === "blockContainer")) {
-      changes.push({
-        text: node.isText ? node.text! : `[block ${node.attrs.id}]`,
-        mark: mark.type.name,
-        users: mark.attrs["userIds"],
-      });
-    }
-    return true;
-  });
-  return { editor, view, changes };
+  editor.transact(({ doc }) =>
+    doc.descendants((node) => {
+      const mark = node.marks.find((mark) =>
+        ["y-attributed-insert", "y-attributed-delete"].includes(mark.type.name),
+      );
+      if (mark && (node.isText || node.type.name === "blockContainer")) {
+        changes.push({
+          text: node.isText ? node.text! : `[block ${node.attrs.id}]`,
+          mark: mark.type.name,
+          users: mark.attrs["userIds"],
+        });
+      }
+      return true;
+    }),
+  );
+  return { editor, changes };
 }
 
 describe("version diff of a deleted block", () => {
-  // Known limitation: content removed with a deleted block is credited to the user who deleted or moved the block. #3166 has a hacky prototype fix.
-  it.fails("does not attribute content added concurrently inside it to the deleter", () => {
-    const base = baseDocument([
+  // Known limitation: the parent's deletion mark also covers concurrent descendants.
+  // https://github.com/TypeCellOS/BlockNote/pull/3166
+  it("currently does not mark text or a child added concurrently as separate deletions", async ({
+    setupEditor,
+  }) => {
+    const base = await baseDocument(setupEditor, [
       {
         id: "parent",
         type: "paragraph",
@@ -164,7 +200,7 @@ describe("version diff of a deleted block", () => {
     ]);
     // Bob adds text and a block inside the parent; Alice, who never receives
     // them, deletes the parent.
-    const bob = editOf(base, 2, (editor) => {
+    const bob = await editOf(setupEditor, base, 2, (editor) => {
       editor.setTextCursorPosition("child", "end");
       editor.insertInlineContent(" by Bob");
       editor.insertBlocks(
@@ -173,63 +209,77 @@ describe("version diff of a deleted block", () => {
         "after",
       );
     });
-    const alice = editOf(base, 1, (editor) => editor.removeBlocks(["parent"]));
+    const alice = await editOf(setupEditor, base, 1, (editor) =>
+      editor.removeBlocks(["parent"]),
+    );
 
-    const server = new Y.Doc({ gc: false });
+    const server = ownedDoc({ gc: false });
     Y.applyUpdateV2(server, Y.encodeStateAsUpdateV2(base));
     Y.applyUpdateV2(server, bob);
     const withBob = Y.encodeStateAsUpdateV2(server);
     Y.applyUpdateV2(server, alice);
 
-    const { view, changes } = showDiff(
+    const { editor, changes } = await showDiff(
+      setupEditor,
       withBob,
       Y.encodeStateAsUpdateV2(server),
       deletedBy(alice, "alice"),
     );
-    view.close();
-    const del = "y-attributed-delete";
+    expect(editor.domElement!.textContent).toContain("Child by Bob");
+    expect(editor.domElement!.textContent).toContain("Bob's block");
     expect(changes).toEqual([
-      { text: "[block parent]", mark: del, users: ["alice"] },
-      { text: " by Bob", mark: del, users: [] },
-      { text: "[block bobs]", mark: del, users: [] },
+      {
+        text: "[block parent]",
+        mark: "y-attributed-delete",
+        users: ["alice"],
+      },
     ]);
   });
 
-  // Known limitation: content removed with a deleted block is credited to the user who deleted or moved the block. #3166 has a hacky prototype fix.
-  it.fails("names no author when hovering content removed with it", () => {
-    const base = baseDocument([
+  // Known limitation: the tooltip credits the block's deleter for unseen text.
+  // https://github.com/TypeCellOS/BlockNote/pull/3166
+  it("currently credits the block's deleter when hovering concurrently added text", async ({
+    setupEditor,
+  }) => {
+    const base = await baseDocument(setupEditor, [
       { id: "parent", type: "paragraph", content: "Parent" },
       { id: "next", type: "paragraph", content: "Next" },
     ]);
-    const bob = editOf(base, 2, (editor) => {
+    const bob = await editOf(setupEditor, base, 2, (editor) => {
       editor.setTextCursorPosition("parent", "end");
       editor.insertInlineContent(" by Bob");
     });
-    const alice = editOf(base, 1, (editor) => editor.removeBlocks(["parent"]));
-    const server = new Y.Doc({ gc: false });
+    const alice = await editOf(setupEditor, base, 1, (editor) =>
+      editor.removeBlocks(["parent"]),
+    );
+    const server = ownedDoc({ gc: false });
     Y.applyUpdateV2(server, Y.encodeStateAsUpdateV2(base));
     Y.applyUpdateV2(server, bob);
     const withBob = Y.encodeStateAsUpdateV2(server);
     Y.applyUpdateV2(server, alice);
 
-    const { editor, view } = showDiff(
+    const { editor } = await showDiff(
+      setupEditor,
       withBob,
       Y.encodeStateAsUpdateV2(server),
       deletedBy(alice, "alice"),
     );
     const hover = (text: string) => {
-      const walker = document.createTreeWalker(
-        editor.domElement!,
-        NodeFilter.SHOW_TEXT,
-      );
+      const dom = editor.domElement!;
+      const attribution = editor.getExtension(AttributionExtension)!;
+      dom.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
+      expect(attribution.store.state).toBeUndefined();
+      const walker = document.createTreeWalker(dom, NodeFilter.SHOW_TEXT);
       for (let node = walker.nextNode(); node; node = walker.nextNode()) {
-        if (node.textContent === text) {
-          node.parentElement!.dispatchEvent(
-            new MouseEvent("mouseover", { bubbles: true }),
-          );
+        if (node.textContent?.includes(text) && node.parentElement) {
+          const target = node.parentElement;
+          target.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
+          const tooltip = attribution.store.state;
+          expect(tooltip?.anchor.contains(target)).toBe(true);
+          return tooltip;
         }
       }
-      return editor.getExtension(AttributionExtension)!.store.state;
+      throw new Error(`No rendered diff text matching ${JSON.stringify(text)}`);
     };
 
     expect(hover("Parent")).toMatchObject({
@@ -238,14 +288,15 @@ describe("version diff of a deleted block", () => {
     });
     expect(hover(" by Bob")).toMatchObject({
       modificationType: "delete",
-      users: [],
+      users: ["alice"],
     });
-    view.close();
   });
 
-  it("does not show content inserted and deleted between the two versions", () => {
-    const doc = new Y.Doc({ gc: false });
-    const editor = collaborativeEditor(doc);
+  it("does not show content inserted and deleted between the two versions", async ({
+    setupEditor,
+  }) => {
+    const doc = ownedDoc({ gc: false });
+    const editor = await collaborativeEditor(setupEditor, doc);
     editor.replaceBlocks(editor.document, [
       { id: "a", type: "paragraph", content: "Hello" },
       { id: "b", type: "paragraph", content: "World" },
@@ -263,8 +314,11 @@ describe("version diff of a deleted block", () => {
     editor.setTextCursorPosition("b", "end");
     editor.insertInlineContent(" kept");
 
-    const { view, changes } = showDiff(before, Y.encodeStateAsUpdateV2(doc));
-    view.close();
+    const { changes } = await showDiff(
+      setupEditor,
+      before,
+      Y.encodeStateAsUpdateV2(doc),
+    );
     expect(changes).toEqual([
       { text: " kept", mark: "y-attributed-insert", users: [] },
     ]);
@@ -272,8 +326,8 @@ describe("version diff of a deleted block", () => {
 });
 
 describe("version diff of a moved block", () => {
-  const blocks = () =>
-    baseDocument([
+  const blocks = (setupEditor: CommandContext["setupEditor"]) =>
+    baseDocument(setupEditor, [
       {
         id: "parent",
         type: "paragraph",
@@ -285,93 +339,125 @@ describe("version diff of a moved block", () => {
       { id: "next", type: "paragraph", content: "Next" },
     ]);
   // Moves the block into the parent: deletes it and inserts a copy there.
-  function nest(editor: BlockNoteEditor<any, any, any>) {
+  function nest(editor: BlockNoteEditor) {
     editor.setTextCursorPosition("moved");
     editor.nestBlock();
   }
-  function removeParent(editor: BlockNoteEditor<any, any, any>) {
+  function removeParent(editor: BlockNoteEditor) {
     editor.removeBlocks(["parent"]);
   }
-  function deletions(
+  async function deletions(
+    setupEditor: SetupEditor,
     before: Uint8Array,
     after: Uint8Array,
     attributions: Y.ContentMap,
   ) {
-    const { view, changes } = showDiff(before, after, attributions);
-    view.close();
+    const { changes } = await showDiff(
+      setupEditor,
+      before,
+      after,
+      attributions,
+    );
     return changes
       .filter((change) => change.mark === "y-attributed-delete")
       .map((change) => `${change.text}: ${change.users.join(", ")}`);
   }
 
-  it("attributes a move to the mover", () => {
-    const base = blocks();
+  it("attributes a move to the mover", async ({ setupEditor }) => {
+    const base = await blocks(setupEditor);
     const server = history(base);
-    const after = server.apply(editOf(base, 2, nest), "bob");
+    const after = server.apply(await editOf(setupEditor, base, 2, nest), "bob");
     expect(
-      deletions(Y.encodeStateAsUpdateV2(base), after, server.attributions),
+      await deletions(
+        setupEditor,
+        Y.encodeStateAsUpdateV2(base),
+        after,
+        server.attributions,
+      ),
     ).toEqual(["[block moved]: bob"]);
   });
 
   // Known limitation: content removed with a deleted block is credited to the user who deleted or moved the block. #3166 has a hacky prototype fix.
-  it.fails("names no author for a block moved into a concurrently deleted one", () => {
-    const base = blocks();
-    const bob = editOf(base, 2, nest);
-    const alice = editOf(base, 1, removeParent);
+  it.fails("names no author for a block moved into a concurrently deleted one", async ({
+    setupEditor,
+  }) => {
+    const base = await blocks(setupEditor);
+    const bob = await editOf(setupEditor, base, 2, nest);
+    const alice = await editOf(setupEditor, base, 1, removeParent);
     const server = history(base);
     const before = server.apply(alice, "alice");
     const after = server.apply(bob, "bob");
-    expect(deletions(before, after, server.attributions)).toEqual([
-      "[block moved]: ",
-    ]);
+    expect(
+      await deletions(setupEditor, before, after, server.attributions),
+    ).toEqual(["[block moved]: "]);
   });
 
-  it("credits a child to its parent's deleter when its concurrent type change is lost", () => {
-    const base = blocks();
+  it("credits a child to its parent's deleter when its concurrent type change is lost", async ({
+    setupEditor,
+  }) => {
+    const base = await blocks(setupEditor);
     // Bob's type change replaces the child with a heading copy, which Alice's
     // deletion of the parent takes with it.
-    const bob = editOf(base, 2, (editor) =>
+    const bob = await editOf(setupEditor, base, 2, (editor) =>
       editor.updateBlock("child", { type: "heading" }),
     );
-    const alice = editOf(base, 1, removeParent);
+    const alice = await editOf(setupEditor, base, 1, removeParent);
     const server = history(base);
     server.apply(alice, "alice");
     const after = server.apply(bob, "bob");
     expect(
-      deletions(Y.encodeStateAsUpdateV2(base), after, server.attributions),
+      await deletions(
+        setupEditor,
+        Y.encodeStateAsUpdateV2(base),
+        after,
+        server.attributions,
+      ),
     ).toEqual(["[block parent]: alice"]);
   });
 
   // Known limitation: content removed with a deleted block is credited to the user who deleted or moved the block. #3166 has a hacky prototype fix.
-  it.fails("names no author for a moved block that someone else deletes", () => {
-    const base = blocks();
+  it.fails("names no author for a moved block that someone else deletes", async ({
+    setupEditor,
+  }) => {
+    const base = await blocks(setupEditor);
     const server = history(base);
-    server.apply(editOf(base, 1, nest), "alice");
-    const after = server.apply(editOf(server.server, 2, removeParent), "bob");
+    server.apply(await editOf(setupEditor, base, 1, nest), "alice");
+    const after = server.apply(
+      await editOf(setupEditor, server.server, 2, removeParent),
+      "bob",
+    );
     expect(
-      deletions(Y.encodeStateAsUpdateV2(base), after, server.attributions),
+      await deletions(
+        setupEditor,
+        Y.encodeStateAsUpdateV2(base),
+        after,
+        server.attributions,
+      ),
     ).toEqual(["[block parent]: bob", "[block moved]: "]);
   });
 
   // To be fixed by #3168.
-  it.fails.each([
-    ["Bob", ["[block n1]: alice", "N1: alice", "[block n2]: ", "N2: "]],
-    ["Alice", ["[block n2]: ", "N2: "]],
-  ])(
-    "blames no one for a block lost to cascading indents (%s's saved first)",
-    (first, expected) => {
-      const base = baseDocument([
+  it.fails.for([
+    {
+      first: "Bob",
+      expected: ["[block n1]: alice", "N1: alice", "[block n2]: ", "N2: "],
+    },
+    { first: "Alice", expected: ["[block n2]: ", "N2: "] },
+  ] as const)(
+    "blames no one for a block lost to cascading indents ($first's saved first)",
+    async ({ first, expected }, { setupEditor }) => {
+      const base = await baseDocument(setupEditor, [
         { id: "n0", type: "paragraph", content: "N0" },
         { id: "n1", type: "paragraph", content: "N1" },
         { id: "n2", type: "paragraph", content: "N2" },
       ]);
       // Alice indents N1 under N0; Bob indents N2 under the N1 that Alice's
       // indent deletes (moving it under N0), so Bob's N2 is lost with it.
-      const alice = editOf(base, 1, (editor) => {
+      const alice = await editOf(setupEditor, base, 1, (editor) => {
         editor.setTextCursorPosition("n1");
         editor.nestBlock();
       });
-      const bob = editOf(base, 2, (editor) => {
+      const bob = await editOf(setupEditor, base, 2, (editor) => {
         editor.setTextCursorPosition("n2");
         editor.nestBlock();
       });
@@ -384,14 +470,16 @@ describe("version diff of a moved block", () => {
         first === "Bob"
           ? server.apply(alice, "alice")
           : server.apply(bob, "bob");
-      expect(deletions(before, after, server.attributions)).toEqual(expected);
+      expect(
+        await deletions(setupEditor, before, after, server.attributions),
+      ).toEqual(expected);
     },
   );
 });
 
 describe("version diff of a type change", () => {
-  const blocks = () =>
-    baseDocument([
+  const blocks = (setupEditor: CommandContext["setupEditor"]) =>
+    baseDocument(setupEditor, [
       {
         id: "parent",
         type: "paragraph",
@@ -400,62 +488,82 @@ describe("version diff of a type change", () => {
       },
       { id: "next", type: "paragraph", content: "Next" },
     ]);
-  function toHeading(editor: BlockNoteEditor<any, any, any>) {
+  function toHeading(editor: BlockNoteEditor) {
     editor.updateBlock("parent", { type: "heading" });
   }
   /** Changes as `kind text: users`, attribute changes as `attrs <node>: users`. */
-  function diff(before: Uint8Array, after: Uint8Array, map: Y.ContentMap) {
-    const { editor, view } = showDiff(before, after, map);
+  async function diff(
+    setupEditor: SetupEditor,
+    before: Uint8Array,
+    after: Uint8Array,
+    map: Y.ContentMap,
+  ) {
+    const { editor } = await showDiff(setupEditor, before, after, map);
     const out: string[] = [];
-    editor.prosemirrorState.doc.descendants((node) => {
-      const replaced = node.marks.some((mark) =>
-        ["y-attributed-insert", "y-attributed-delete"].includes(mark.type.name),
-      );
-      for (const mark of node.marks) {
-        if (mark.type.name === "y-attributed-attrs" && !replaced) {
-          const users = new Set(
-            Object.values(
-              mark.attrs["changes"] as Record<string, { userIds: string[] }>,
-            ).flatMap((change) => change.userIds),
-          );
-          out.push(`attrs <${node.type.name}>: ${[...users].join(", ")}`);
-        } else if (
-          mark.type.name === "y-attributed-insert" ||
-          mark.type.name === "y-attributed-delete"
-        ) {
-          const what = node.isText ? node.text : `<${node.type.name}>`;
-          const kind = !mark.attrs["moved"]
-            ? mark.type.name.slice(13)
-            : mark.type.name === "y-attributed-delete"
-              ? "moved from"
-              : "moved";
-          out.push(`${kind} ${what}: ${mark.attrs["userIds"].join(", ")}`);
+    editor.transact(({ doc }) =>
+      doc.descendants((node) => {
+        const replaced = node.marks.some((mark) =>
+          ["y-attributed-insert", "y-attributed-delete"].includes(
+            mark.type.name,
+          ),
+        );
+        for (const mark of node.marks) {
+          if (mark.type.name === "y-attributed-attrs" && !replaced) {
+            const users = new Set(
+              Object.values(
+                mark.attrs["changes"] as Record<string, { userIds: string[] }>,
+              ).flatMap((change) => change.userIds),
+            );
+            out.push(`attrs <${node.type.name}>: ${[...users].join(", ")}`);
+          } else if (
+            mark.type.name === "y-attributed-insert" ||
+            mark.type.name === "y-attributed-delete"
+          ) {
+            const what = node.isText ? node.text : `<${node.type.name}>`;
+            const kind = !mark.attrs["moved"]
+              ? mark.type.name.slice(13)
+              : mark.type.name === "y-attributed-delete"
+                ? "moved from"
+                : "moved";
+            out.push(`${kind} ${what}: ${mark.attrs["userIds"].join(", ")}`);
+          }
         }
-      }
-      return true;
-    });
-    view.close();
+        return true;
+      }),
+    );
     return out;
   }
 
   // Known limitation: a type change or a move re-creates the block, so the diff shows it deleted and inserted again. #3166 has a hacky prototype fix.
-  it.fails("shows a type change as a formatting change, not as replaced text", () => {
-    const base = blocks();
+  it.fails("shows a type change as a formatting change, not as replaced text", async ({
+    setupEditor,
+  }) => {
+    const base = await blocks(setupEditor);
     const server = history(base);
-    const after = server.apply(editOf(base, 2, toHeading), "bob");
+    const after = server.apply(
+      await editOf(setupEditor, base, 2, toHeading),
+      "bob",
+    );
     expect(
-      diff(Y.encodeStateAsUpdateV2(base), after, server.attributions),
+      await diff(
+        setupEditor,
+        Y.encodeStateAsUpdateV2(base),
+        after,
+        server.attributions,
+      ),
     ).toEqual(["attrs <heading>: bob"]);
   });
 
   // Known limitation: a type change or a move re-creates the block, so the diff shows it deleted and inserted again. #3166 has a hacky prototype fix.
-  it.fails("credits a type-changed block's text to its writer, from before it existed", () => {
-    const base = baseDocument([
+  it.fails("credits a type-changed block's text to its writer, from before it existed", async ({
+    setupEditor,
+  }) => {
+    const base = await baseDocument(setupEditor, [
       { id: "next", type: "paragraph", content: "Next" },
     ]);
     const server = history(base);
     server.apply(
-      editOf(base, 1, (editor) =>
+      await editOf(setupEditor, base, 1, (editor) =>
         editor.insertBlocks(
           [{ id: "parent", type: "paragraph", content: "Parent text" }],
           "next",
@@ -464,9 +572,17 @@ describe("version diff of a type change", () => {
       ),
       "alice",
     );
-    const after = server.apply(editOf(server.server, 2, toHeading), "bob");
+    const after = server.apply(
+      await editOf(setupEditor, server.server, 2, toHeading),
+      "bob",
+    );
     expect(
-      diff(Y.encodeStateAsUpdateV2(base), after, server.attributions),
+      await diff(
+        setupEditor,
+        Y.encodeStateAsUpdateV2(base),
+        after,
+        server.attributions,
+      ),
     ).toEqual([
       "insert <blockContainer>: alice",
       "insert <heading>: alice",
@@ -475,32 +591,42 @@ describe("version diff of a type change", () => {
   });
 
   // Known limitation: a type change or a move re-creates the block, so the diff shows it deleted and inserted again. #3166 has a hacky prototype fix.
-  it.fails("keeps later edits to a type-changed block as their author's", () => {
-    const base = blocks();
+  it.fails("keeps later edits to a type-changed block as their author's", async ({
+    setupEditor,
+  }) => {
+    const base = await blocks(setupEditor);
     const server = history(base);
-    server.apply(editOf(base, 2, toHeading), "bob");
+    server.apply(await editOf(setupEditor, base, 2, toHeading), "bob");
     const after = server.apply(
-      editOf(server.server, 3, (editor) => {
+      await editOf(setupEditor, server.server, 3, (editor) => {
         editor.setTextCursorPosition("parent", "end");
         editor.insertInlineContent(" by Carol");
       }),
       "carol",
     );
     expect(
-      diff(Y.encodeStateAsUpdateV2(base), after, server.attributions),
+      await diff(
+        setupEditor,
+        Y.encodeStateAsUpdateV2(base),
+        after,
+        server.attributions,
+      ),
     ).toEqual(["attrs <heading>: bob", "insert  by Carol: carol"]);
   });
 
-  it("shows both copies when two users change the type concurrently", () => {
-    const base = blocks();
-    const bob = editOf(base, 2, toHeading);
-    const carol = editOf(base, 3, (editor) =>
+  it("shows both copies when two users change the type concurrently", async ({
+    setupEditor,
+  }) => {
+    const base = await blocks(setupEditor);
+    const bob = await editOf(setupEditor, base, 2, toHeading);
+    const carol = await editOf(setupEditor, base, 3, (editor) =>
       editor.updateBlock("parent", { type: "bulletListItem" }),
     );
     const server = history(base);
     server.apply(bob, "bob");
     const after = server.apply(carol, "carol");
-    const changes = diff(
+    const changes = await diff(
+      setupEditor,
       Y.encodeStateAsUpdateV2(base),
       after,
       server.attributions,
@@ -520,11 +646,13 @@ describe("version diff of a type change", () => {
   });
 
   // Known limitation: a type change or a move re-creates the block, so the diff shows it deleted and inserted again. #3166 has a hacky prototype fix.
-  it.fails("credits an indented block's text to its writer, from before it existed", () => {
-    const base = blocks();
+  it.fails("credits an indented block's text to its writer, from before it existed", async ({
+    setupEditor,
+  }) => {
+    const base = await blocks(setupEditor);
     const server = history(base);
     server.apply(
-      editOf(base, 1, (editor) =>
+      await editOf(setupEditor, base, 1, (editor) =>
         editor.insertBlocks(
           [{ id: "new", type: "paragraph", content: "New text" }],
           "next",
@@ -534,14 +662,19 @@ describe("version diff of a type change", () => {
       "alice",
     );
     const after = server.apply(
-      editOf(server.server, 2, (editor) => {
+      await editOf(setupEditor, server.server, 2, (editor) => {
         editor.setTextCursorPosition("new");
         editor.nestBlock();
       }),
       "bob",
     );
     expect(
-      diff(Y.encodeStateAsUpdateV2(base), after, server.attributions),
+      await diff(
+        setupEditor,
+        Y.encodeStateAsUpdateV2(base),
+        after,
+        server.attributions,
+      ),
     ).toEqual([
       // Bob's indent created the parent's child group.
       "insert <blockGroup>: bob",
@@ -552,21 +685,28 @@ describe("version diff of a type change", () => {
   });
 
   // Known limitation: a type change or a move re-creates the block, so the diff shows it deleted and inserted again. #3166 has a hacky prototype fix.
-  it.fails("shows a block moved among its siblings as a move at both places", () => {
-    const base = baseDocument([
+  it.fails("shows a block moved among its siblings as a move at both places", async ({
+    setupEditor,
+  }) => {
+    const base = await baseDocument(setupEditor, [
       { id: "first", type: "paragraph", content: "First" },
       { id: "second", type: "paragraph", content: "Second" },
     ]);
     const server = history(base);
     const after = server.apply(
-      editOf(base, 2, (editor) => {
+      await editOf(setupEditor, base, 2, (editor) => {
         editor.setTextCursorPosition("second");
         editor.moveBlocksUp();
       }),
       "bob",
     );
     expect(
-      diff(Y.encodeStateAsUpdateV2(base), after, server.attributions),
+      await diff(
+        setupEditor,
+        Y.encodeStateAsUpdateV2(base),
+        after,
+        server.attributions,
+      ),
     ).toEqual([
       "moved <blockContainer>: bob",
       // The original, struck through at its old place.
@@ -575,26 +715,33 @@ describe("version diff of a type change", () => {
   });
 
   // Known limitation: a type change or a move re-creates the block, so the diff shows it deleted and inserted again. #3166 has a hacky prototype fix.
-  it.fails("shows a type change as a formatting change after the text was rewritten", () => {
-    const base = blocks();
+  it.fails("shows a type change as a formatting change after the text was rewritten", async ({
+    setupEditor,
+  }) => {
+    const base = await blocks(setupEditor);
     const server = history(base);
     // The rewrite reuses some characters, so the block's stored text mixes
     // kept characters with characters deleted before the type change.
     const rewritten = server.apply(
-      editOf(base, 1, (editor) =>
+      await editOf(setupEditor, base, 1, (editor) =>
         editor.updateBlock("parent", { content: "Parts were rewritten" }),
       ),
       "alice",
     );
-    const after = server.apply(editOf(server.server, 2, toHeading), "bob");
-    expect(diff(rewritten, after, server.attributions)).toEqual([
-      "attrs <heading>: bob",
-    ]);
+    const after = server.apply(
+      await editOf(setupEditor, server.server, 2, toHeading),
+      "bob",
+    );
+    expect(
+      await diff(setupEditor, rewritten, after, server.attributions),
+    ).toEqual(["attrs <heading>: bob"]);
   });
 
   // Known limitation: a type change or a move re-creates the block, so the diff shows it deleted and inserted again. #3166 has a hacky prototype fix.
-  it.fails("strikes a moved block's children through with it at its old place", () => {
-    const base = baseDocument([
+  it.fails("strikes a moved block's children through with it at its old place", async ({
+    setupEditor,
+  }) => {
+    const base = await baseDocument(setupEditor, [
       { id: "first", type: "paragraph", content: "First" },
       {
         id: "parent",
@@ -605,45 +752,52 @@ describe("version diff of a type change", () => {
     ]);
     const server = history(base);
     const after = server.apply(
-      editOf(base, 2, (editor) => {
+      await editOf(setupEditor, base, 2, (editor) => {
         editor.setTextCursorPosition("parent");
         editor.moveBlocksUp();
       }),
       "bob",
     );
-    const { editor, view } = showDiff(
+    const { editor } = await showDiff(
+      setupEditor,
       Y.encodeStateAsUpdateV2(base),
       after,
       server.attributions,
     );
     const struck: string[] = [];
-    editor.prosemirrorState.doc.descendants((node) => {
-      if (
-        node.type.name === "blockContainer" &&
-        node.marks.some(
-          (mark) =>
-            mark.type.name === "y-attributed-delete" && mark.attrs["moved"],
-        )
-      ) {
-        struck.push(node.textContent);
-      }
-      return true;
-    });
-    view.close();
+    editor.transact(({ doc }) =>
+      doc.descendants((node) => {
+        if (
+          node.type.name === "blockContainer" &&
+          node.marks.some(
+            (mark) =>
+              mark.type.name === "y-attributed-delete" && mark.attrs["moved"],
+          )
+        ) {
+          struck.push(node.textContent);
+        }
+        return true;
+      }),
+    );
     expect(struck).toEqual(["ParentChild"]);
   });
 
-  it("shows only the child as deleted when the last child is removed", () => {
+  it("shows only the child as deleted when the last child is removed", async ({
+    setupEditor,
+  }) => {
     // Deleting the only child leaves the parent in place: its (now empty)
     // child group stays in the document, hidden, so nothing re-creates the
     // parent.
-    const base = blocks();
+    const base = await blocks(setupEditor);
     const server = history(base);
     const after = server.apply(
-      editOf(base, 2, (editor) => editor.removeBlocks(["child"])),
+      await editOf(setupEditor, base, 2, (editor) =>
+        editor.removeBlocks(["child"]),
+      ),
       "bob",
     );
-    const changes = diff(
+    const changes = await diff(
+      setupEditor,
       Y.encodeStateAsUpdateV2(base),
       after,
       server.attributions,
@@ -652,79 +806,97 @@ describe("version diff of a type change", () => {
   });
 
   // Known limitation: a type change or a move re-creates the block, so the diff shows it deleted and inserted again. #3166 has a hacky prototype fix.
-  it.fails.each([
-    ["the same user", "bob"],
-    ["a different user", "carol"],
-  ])(
-    "shows a block indented, then outdented by %s, as unchanged",
-    (_, outdenter) => {
-      const base = blocks();
+  it.fails.for([
+    { who: "the same user", outdenter: "bob" },
+    { who: "a different user", outdenter: "carol" },
+  ] as const)(
+    "shows a block indented, then outdented by $who, as unchanged",
+    async ({ outdenter }, { setupEditor }) => {
+      const base = await blocks(setupEditor);
       const server = history(base);
       server.apply(
-        editOf(base, 2, (editor) => {
+        await editOf(setupEditor, base, 2, (editor) => {
           editor.setTextCursorPosition("next");
           editor.nestBlock();
         }),
         "bob",
       );
       const after = server.apply(
-        editOf(server.server, 3, (editor) => {
+        await editOf(setupEditor, server.server, 3, (editor) => {
           editor.setTextCursorPosition("next");
           editor.unnestBlock();
         }),
         outdenter,
       );
       expect(
-        diff(Y.encodeStateAsUpdateV2(base), after, server.attributions),
+        await diff(
+          setupEditor,
+          Y.encodeStateAsUpdateV2(base),
+          after,
+          server.attributions,
+        ),
       ).toEqual([]);
     },
   );
 
   // Known limitation: a type change or a move re-creates the block, so the diff shows it deleted and inserted again. #3166 has a hacky prototype fix.
-  it.fails("credits two type changes to the last one", () => {
-    const base = blocks();
+  it.fails("credits two type changes to the last one", async ({
+    setupEditor,
+  }) => {
+    const base = await blocks(setupEditor);
     const server = history(base);
-    server.apply(editOf(base, 2, toHeading), "bob");
+    server.apply(await editOf(setupEditor, base, 2, toHeading), "bob");
     const after = server.apply(
-      editOf(server.server, 3, (editor) =>
+      await editOf(setupEditor, server.server, 3, (editor) =>
         editor.updateBlock("parent", { type: "bulletListItem" }),
       ),
       "carol",
     );
     expect(
-      diff(Y.encodeStateAsUpdateV2(base), after, server.attributions),
+      await diff(
+        setupEditor,
+        Y.encodeStateAsUpdateV2(base),
+        after,
+        server.attributions,
+      ),
     ).toEqual(["attrs <bulletListItem>: carol"]);
   });
 
-  it.each([
-    [
-      "a paragraph into an image",
-      { type: "paragraph", content: "Some text" },
-      { type: "image", props: { url: "https://example.com/a.png" } },
-    ],
-    [
-      "an image into a paragraph",
-      { type: "image", props: { url: "https://example.com/a.png" } },
-      { type: "paragraph", content: "New text" },
-    ],
-  ])("shows turning %s as a deletion and an insertion", (_, from, to) => {
-    const base = baseDocument([
-      { id: "block", ...from },
-      { id: "next", type: "paragraph", content: "Next" },
-    ]);
-    const server = history(base);
-    const after = server.apply(
-      editOf(base, 2, (editor) => editor.updateBlock("block", to as any)),
-      "bob",
-    );
-    const changes = diff(
-      Y.encodeStateAsUpdateV2(base),
-      after,
-      server.attributions,
-    );
-    expect(changes).toContain("delete <blockContainer>: bob");
-    expect(changes).toContain("insert <blockContainer>: bob");
-  });
+  it.for([
+    {
+      change: "a paragraph into an image",
+      from: { type: "paragraph", content: "Some text" },
+      to: { type: "image", props: { url: "https://example.com/a.png" } },
+    },
+    {
+      change: "an image into a paragraph",
+      from: { type: "image", props: { url: "https://example.com/a.png" } },
+      to: { type: "paragraph", content: "New text" },
+    },
+  ] as const)(
+    "shows turning $change as a deletion and an insertion",
+    async ({ from, to }, { setupEditor }) => {
+      const base = await baseDocument(setupEditor, [
+        { id: "block", ...from },
+        { id: "next", type: "paragraph", content: "Next" },
+      ]);
+      const server = history(base);
+      const after = server.apply(
+        await editOf(setupEditor, base, 2, (editor) =>
+          editor.updateBlock("block", to),
+        ),
+        "bob",
+      );
+      const changes = await diff(
+        setupEditor,
+        Y.encodeStateAsUpdateV2(base),
+        after,
+        server.attributions,
+      );
+      expect(changes).toContain("delete <blockContainer>: bob");
+      expect(changes).toContain("insert <blockContainer>: bob");
+    },
+  );
 });
 
 describe("version diff of a document several users wrote", () => {
@@ -736,7 +908,7 @@ describe("version diff of a document several users wrote", () => {
     d: "dave",
   };
   function wordsIn(state: Uint8Array): Set<string> {
-    const doc = new Y.Doc();
+    const doc = ownedDoc();
     Y.applyUpdateV2(doc, state);
     return new Set(
       doc
@@ -746,19 +918,13 @@ describe("version diff of a document several users wrote", () => {
     );
   }
   /** Words credited to someone else, or shown as new though they weren't. */
-  function wrongCredits(
-    before: Uint8Array,
-    after: Uint8Array,
-    attributions: Y.ContentMap,
-  ): string[] {
-    const existed = wordsIn(before);
-    const { editor, view } = showDiff(before, after, attributions);
+  function wrongCredits(doc: ProseMirrorNode, existed: Set<string>): string[] {
     const wrong: string[] = [];
-    editor.prosemirrorState.doc.descendants((node, pos) => {
+    doc.descendants((node, pos) => {
       if (!node.isText) {
         return true;
       }
-      const $pos = editor.prosemirrorState.doc.resolve(pos);
+      const $pos = doc.resolve(pos);
       const marks = [...node.marks];
       for (let depth = $pos.depth; depth > 0; depth--) {
         marks.push(...$pos.node(depth).marks);
@@ -785,25 +951,32 @@ describe("version diff of a document several users wrote", () => {
       }
       return true;
     });
-    view.close();
     return wrong;
   }
 
   // Known limitation: a type change or a move re-creates the block, so the diff shows it deleted and inserted again. #3166 has a hacky prototype fix.
-  it.fails("credits every word to its writer, between any two versions", () => {
-    const base = baseDocument([
+  it.fails("credits every word to its writer, between any two versions", async ({
+    setupEditor,
+  }) => {
+    const base = await baseDocument(setupEditor, [
       { id: "start", type: "paragraph", content: "" },
     ]);
     const server = history(base);
     const versions = [Y.encodeStateAsUpdateV2(base)];
     let client = 10;
-    function edit(user: string, change: (editor: BlockNoteEditor) => void) {
+    async function edit(
+      user: string,
+      change: (editor: BlockNoteEditor) => void,
+    ) {
       versions.push(
-        server.apply(editOf(server.server, client++, change), user),
+        server.apply(
+          await editOf(setupEditor, server.server, client++, change),
+          user,
+        ),
       );
     }
     // Alice reuses the empty block, so it was in the first version.
-    edit("alice", (editor) =>
+    await edit("alice", (editor) =>
       editor.replaceBlocks(editor.document, [
         { id: "p1", type: "paragraph", content: "aaaa1 aaaa2" },
         { id: "p2", type: "paragraph", content: "aaaa3" },
@@ -816,7 +989,7 @@ describe("version diff of a document several users wrote", () => {
         { id: "p4", type: "paragraph", content: "aaaa6" },
       ]),
     );
-    edit("bob", (editor) => {
+    await edit("bob", (editor) => {
       editor.setTextCursorPosition("p1", "end");
       editor.insertInlineContent(" bbbb1");
       editor.insertBlocks(
@@ -826,20 +999,20 @@ describe("version diff of a document several users wrote", () => {
       );
     });
     // Each of these re-creates blocks: p1 twice in one update.
-    edit("carol", (editor) => {
+    await edit("carol", (editor) => {
       editor.updateBlock("p1", { type: "heading" });
       editor.setTextCursorPosition("p2");
       editor.nestBlock();
       editor.setTextCursorPosition("p4");
       editor.moveBlocksUp();
     });
-    edit("alice", (editor) => {
+    await edit("alice", (editor) => {
       editor.setTextCursorPosition("p1", "end");
       editor.insertInlineContent(" aaaa7");
       editor.setTextCursorPosition("p4", "end");
       editor.insertInlineContent(" aaaa8");
     });
-    edit("dave", (editor) => {
+    await edit("dave", (editor) => {
       editor.removeBlocks(["c3"]);
       editor.setTextCursorPosition("p2");
       editor.unnestBlock();
@@ -847,22 +1020,31 @@ describe("version diff of a document several users wrote", () => {
       editor.setTextCursorPosition("p5", "end");
       editor.insertInlineContent(" dddd1");
     });
-    edit("carol", (editor) => {
+    await edit("carol", (editor) => {
       editor.updateBlock("p1", { type: "bulletListItem" });
       editor.setTextCursorPosition("p1", "end");
       editor.insertInlineContent(" cccc1");
     });
 
     const wrong: string[] = [];
+    const words = versions.map(wordsIn);
     for (let later = 1; later < versions.length; later++) {
-      for (let earlier = 0; earlier < later; earlier++) {
-        for (const problem of wrongCredits(
-          versions[earlier],
-          versions[later],
-          server.attributions,
-        )) {
-          wrong.push(`${earlier} -> ${later}: ${problem}`);
+      const { editor, view, show } = await openDiff(
+        setupEditor,
+        versions[later],
+      );
+      try {
+        for (let earlier = 0; earlier < later; earlier++) {
+          show(versions[earlier], server.attributions);
+          for (const problem of wrongCredits(
+            editor.transact(({ doc }) => doc),
+            words[earlier],
+          )) {
+            wrong.push(`${earlier} -> ${later}: ${problem}`);
+          }
         }
+      } finally {
+        view.close();
       }
     }
     expect(wrong).toEqual([]);
@@ -875,26 +1057,25 @@ describe("version diff of a comment", () => {
     tiptapExtensions: [CommentMark],
   });
 
-  function commentableEditor(doc: Y.Doc) {
-    const editor = BlockNoteEditor.create(
-      withCollaboration({
+  async function commentableEditor(setupEditor: SetupEditor, doc: Y.Doc) {
+    const { editor } = await setupEditor({
+      mountType: "dom",
+      ...withCollaboration({
         extensions: [commentMark],
         collaboration: {
           fragment: doc.get("doc"),
           user: { name: "Test", color: "#ff0000" },
         },
       }),
-    );
-    const element = document.createElement("div");
-    document.body.appendChild(element);
-    editor.mount(element);
-    editors.push(editor);
+    });
     return editor;
   }
 
-  it("does not show an added comment as a formatting change", () => {
-    const doc = new Y.Doc({ gc: false });
-    const editor = commentableEditor(doc);
+  it("does not show an added comment as a formatting change", async ({
+    setupEditor,
+  }) => {
+    const doc = ownedDoc({ gc: false });
+    const editor = await commentableEditor(setupEditor, doc);
     editor.replaceBlocks(editor.document, [
       { id: "a", type: "paragraph", content: "Hello world" },
     ]);
@@ -920,10 +1101,10 @@ describe("version diff of a comment", () => {
     });
     const after = Y.encodeStateAsUpdateV2(doc);
 
-    const viewerDoc = new Y.Doc();
+    const viewerDoc = ownedDoc();
     Y.applyUpdateV2(viewerDoc, after);
-    const viewer = commentableEditor(viewerDoc);
-    const view = createYVersionView(viewer, viewerDoc.get("doc")).open();
+    const viewer = await commentableEditor(setupEditor, viewerDoc);
+    const view = openPreview(viewer, viewerDoc);
     view.show({
       content: after,
       comparison: { content: before },
@@ -931,14 +1112,13 @@ describe("version diff of a comment", () => {
     });
     // What the reader sees: the rendered formatting changes.
     const formatChanges = [
-      ...viewer.prosemirrorView!.dom.querySelectorAll<HTMLElement>(
+      ...viewer.domElement!.querySelectorAll<HTMLElement>(
         '[data-type="modification"]',
       ),
     ].map((element) => ({
       text: element.textContent,
       format: Object.keys(JSON.parse(element.dataset["format"]!)),
     }));
-    view.close();
     expect(formatChanges).toEqual([{ text: "world", format: ["bold"] }]);
   });
 });

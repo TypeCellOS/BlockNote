@@ -1,5 +1,4 @@
-// @vitest-environment node
-import { afterEach, beforeEach, expect, it, vi } from "vite-plus/test";
+import { afterEach, beforeEach, expect, vi } from "vite-plus/test";
 import { decodeAny, encodeAny } from "lib0/buffer";
 import * as Y from "@y/y";
 import {
@@ -15,9 +14,10 @@ import {
 import { YHubClient } from "../yhubClient.js";
 import { createVersioning } from "../../../extensions/Versioning/createVersioning.js";
 import { resultValue } from "../../../extensions/Versioning/__test__/result.js";
-import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
+import type { SetupEditor } from "../../../../../../tests/src/commands/node/setupEditor.js";
 import type { VersioningController } from "../../../extensions/Versioning/Versioning.js";
 import { withCollaboration } from "../../extensions/index.js";
+import { YSyncExtension } from "../../extensions/YSync.js";
 import {
   _blocksToProsemirrorNode,
   docDiffToDelta,
@@ -85,21 +85,24 @@ function request(index: number) {
  * returns each character of the shown comparison with the authors that the
  * diff credits it to (none = not changed).
  */
-async function compareCharacters({
-  authors,
-  activity,
-  target,
-  compareTo,
-  showCurrentVersion = false,
-}: {
-  authors: [string, string, string];
-  activity: { first: unknown; history: unknown[] };
-  target: { type: "current" } | { type: "snapshot"; id: string };
-  compareTo: (history: { id: string }[]) => string;
-  showCurrentVersion?: boolean;
-}) {
+async function compareCharacters(
+  setupEditor: SetupEditor,
+  {
+    authors,
+    activity,
+    target,
+    compareTo,
+    showCurrentVersion = false,
+  }: {
+    authors: [string, string, string];
+    activity: { first: unknown; history: unknown[] };
+    target: { type: "current" } | { type: "snapshot"; id: string };
+    compareTo: (history: { id: string }[]) => string;
+    showCurrentVersion?: boolean;
+  },
+) {
   const { api, doc, fragment } = storage();
-  const editor = BlockNoteEditor.create(
+  const { editor } = await setupEditor(
     withCollaboration({
       extensions: [
         YVersioningExtension({ storage: { ...api, showCurrentVersion } }),
@@ -108,10 +111,7 @@ async function compareCharacters({
     }),
   );
   const mode = editor.getExtension<VersioningController>("versioning")!;
-  cleanup.unshift(() => {
-    mode.dispose();
-    editor._tiptapEditor.destroy();
-  });
+  cleanup.unshift(() => mode.dispose());
 
   const edits: {
     at: number;
@@ -177,11 +177,10 @@ async function compareCharacters({
   editor.replaceBlocks(editor.document, [
     { id: "paragraph", type: "paragraph", content: "abc" },
   ]);
-  editor.prosemirrorView.updateState(
-    editor.prosemirrorState.reconfigure({
-      plugins: editor._tiptapEditor.extensionManager.plugins,
-    }),
-  );
+  editor.registerExtension({
+    key: "headlessYSyncState",
+    prosemirrorPlugins: editor.getExtension(YSyncExtension)!.prosemirrorPlugins,
+  });
   editor.exec(configureYProsemirror({ ytype: fragment }));
   mode.open();
   expect(await mode.list()).toEqual({ status: "done" });
@@ -195,32 +194,34 @@ async function compareCharacters({
 
   // Headless editors have no plugin view to hydrate the configured preview.
   const binding = ySyncPluginKey.getState(editor.prosemirrorState)!;
-  editor.prosemirrorView.dispatch(
-    yNodeToTransaction(editor.prosemirrorState.tr, binding.ytype!, {
+  editor.transact((tr) =>
+    yNodeToTransaction(tr, binding.ytype!, {
       renderer: binding.renderer,
     }),
   );
   const characters: { character: string; authors: string[] }[] = [];
-  editor.prosemirrorState.doc.descendants((node) => {
-    if (node.isText) {
-      const insertion = node.marks.find(
-        (mark) => mark.type.name === "y-attributed-insert",
-      );
-      for (const character of node.text!) {
-        characters.push({
-          character,
-          authors: insertion?.attrs.userIds ?? [],
-        });
+  editor.transact(({ doc }) =>
+    doc.descendants((node) => {
+      if (node.isText) {
+        const insertion = node.marks.find(
+          (mark) => mark.type.name === "y-attributed-insert",
+        );
+        for (const character of node.text!) {
+          characters.push({
+            character,
+            authors: insertion?.attrs.userIds ?? [],
+          });
+        }
       }
-    }
-  });
+    }),
+  );
   return characters;
 }
 
-it.each([false, true])(
+it.for([false, true])(
   "attributes every character of abc when comparing since beginning (Current: %s)",
-  async (showCurrentVersion) => {
-    const characters = await compareCharacters({
+  async (showCurrentVersion, { setupEditor }) => {
+    const characters = await compareCharacters(setupEditor, {
       authors: ["alice", "alice", "alice"],
       activity: { first, history: [{ ...first, to: 1200 }] },
       target: showCurrentVersion
@@ -235,9 +236,11 @@ it.each([false, true])(
   },
 );
 
-it("shows only the selected version's edits when comparing to the previous version", async () => {
+it("shows only the selected version's edits when comparing to the previous version", async ({
+  setupEditor,
+}) => {
   // Beginning (a), then "1000-1100" by alice (a, b), then "1200-1200" by bob (c).
-  const characters = await compareCharacters({
+  const characters = await compareCharacters(setupEditor, {
     authors: ["alice", "alice", "bob"],
     activity: {
       first,
@@ -256,10 +259,12 @@ it("shows only the selected version's edits when comparing to the previous versi
   ]);
 });
 
-it("shows only the selected version's edits when the previous version is the first edit alone", async () => {
+it("shows only the selected version's edits when the previous version is the first edit alone", async ({
+  setupEditor,
+}) => {
   // "1000-1000" is both the first edit and a version of its own; the start of
   // the document is a separate, empty row before it.
-  const characters = await compareCharacters({
+  const characters = await compareCharacters(setupEditor, {
     authors: ["alice", "bob", "bob"],
     activity: {
       first,
@@ -868,18 +873,24 @@ it("waits for the post-rollback document and applies it to the original live doc
   const postRollback = new Promise<Response>((resolve) => {
     finish = resolve;
   });
+  const { promise: postRollbackRequested, resolve: markPostRollbackRequested } =
+    Promise.withResolvers<void>();
   fetchSpy
     .mockResolvedValueOnce(response({ activity: [latest] }))
     .mockResolvedValueOnce(response({ doc: Y.encodeStateAsUpdate(doc) }))
     .mockResolvedValueOnce(response({ versions: [{ ...version, t: 2000 }] }))
     .mockResolvedValueOnce(response({ success: true }))
-    .mockReturnValueOnce(postRollback);
+    .mockImplementationOnce(() => {
+      markPostRollbackRequested();
+      return postRollback;
+    });
   let completed = false;
   const restore = api.restore!("900-1000").then((result) => {
     completed = true;
     return result;
   });
-  await vi.waitFor(() => expect(fetchSpy).toHaveBeenCalledTimes(5));
+  await postRollbackRequested;
+  expect(fetchSpy).toHaveBeenCalledTimes(5);
   expect(completed).toBe(false);
   expect(fragment.toArray()).toEqual(["before"]);
   finish(response({ doc: Y.encodeStateAsUpdate(server) }));
