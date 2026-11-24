@@ -80,6 +80,10 @@ const LOCAL_BROWSER_FILES = [
   "../packages/react/src/components/FormattingToolbar/DefaultButtons/CreateLinkButton.browser.test.tsx",
   "../packages/react/src/components/FormattingToolbar/DefaultButtons/TextAlignButton.browser.test.tsx",
   "../packages/react/src/schema/ReactBlockSpec.browser.test.tsx",
+  // The text lens: conversions and Y.Doc writes, without screenshots, file
+  // snapshots, clipboard or mobile input. Check a new lens file before it
+  // uses such a feature.
+  "../packages/xl-ai/src/api/v2/**/*.browser.test.ts",
 ];
 
 function localBrowserTestOptions() {
