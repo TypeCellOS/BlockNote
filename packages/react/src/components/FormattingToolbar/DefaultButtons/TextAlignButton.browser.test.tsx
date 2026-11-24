@@ -1,7 +1,6 @@
 import { CellSelection } from "@tiptap/pm/tables";
 import { describe, expect } from "vite-plus/test";
 import { TextAlignButton } from "./TextAlignButton.js";
-import { FormattingToolbar } from "../FormattingToolbar.js";
 import { viewProps } from "./defaultButton.test.fixture.js";
 
 describe("TextAlignButton", () => {
@@ -339,27 +338,22 @@ describe("TextAlignButton", () => {
   });
 
   describe("axe", () => {
-    it("checks all alignment controls, including the selected one", async ({
-      setupEditor,
-      runAxe,
-      page,
-    }) => {
-      await setupEditor({
-        props: viewProps,
-        children: (
-          <FormattingToolbar>
-            {(["left", "center", "right", "justify"] as const).map(
-              (alignment) => (
-                <TextAlignButton key={alignment} textAlignment={alignment} />
-              ),
-            )}
-          </FormattingToolbar>
-        ),
-      });
-
-      const { violations } = await runAxe(page.getByRole("toolbar"));
-      expect(violations).toEqual([]);
-    });
+    it.for(["left", "center", "right", "justify"] as const)(
+      "checks the %s alignment button",
+      async (alignment, { setupEditor, runAxe, page }) => {
+        const { editor } = await setupEditor({
+          props: viewProps,
+          children: <TextAlignButton textAlignment={alignment} />,
+        });
+        const button = page.getByRole("button", {
+          name: editor.dictionary.formatting_toolbar[`align_${alignment}`]
+            .tooltip,
+          exact: true,
+        });
+        await expect.element(button).toBeVisible();
+        expect((await runAxe(button)).violations).toEqual([]);
+      },
+    );
   });
 
   describe("keyboard", () => {

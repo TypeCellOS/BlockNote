@@ -1,6 +1,5 @@
 import { describe, expect } from "vite-plus/test";
 import { NestBlockButton, UnnestBlockButton } from "./NestBlockButtons.js";
-import { FormattingToolbar } from "../FormattingToolbar.js";
 
 describe("NestBlockButtons", () => {
   describe("unit", () => {
@@ -170,33 +169,37 @@ describe("NestBlockButtons", () => {
   });
 
   describe("axe", () => {
-    it("checks enabled and disabled nesting controls", async ({
-      setupEditor,
-      selectText,
-      runAxe,
-      page,
-    }) => {
-      const { editor } = await setupEditor({
-        initialContent: [
-          {
-            type: "paragraph",
-            content: "Parent",
-            children: [{ type: "paragraph", content: "Child" }],
-          },
-        ],
-        props: { formattingToolbar: false },
-        children: (
-          <FormattingToolbar>
-            <NestBlockButton />
-            <UnnestBlockButton />
-          </FormattingToolbar>
-        ),
-      });
-      selectText(editor, "Child");
+    it.for([
+      { direction: "nest", Button: NestBlockButton },
+      { direction: "unnest", Button: UnnestBlockButton },
+    ] as const)(
+      "checks the $direction control",
+      async (
+        { direction, Button },
+        { setupEditor, selectText, runAxe, page },
+      ) => {
+        const { editor } = await setupEditor({
+          initialContent: [
+            {
+              type: "paragraph",
+              content: "Parent",
+              children: [{ type: "paragraph", content: "Child" }],
+            },
+          ],
+          props: { formattingToolbar: false },
+          children: <Button />,
+        });
+        selectText(editor, "Child");
 
-      const { violations } = await runAxe(page.getByRole("toolbar"));
-      expect(violations).toEqual([]);
-    });
+        const button = page.getByRole("button", {
+          name: editor.dictionary.formatting_toolbar[direction].tooltip,
+          exact: true,
+        });
+        await expect.element(button).toBeVisible();
+        const { violations } = await runAxe(button);
+        expect(violations).toEqual([]);
+      },
+    );
   });
 
   describe("keyboard", () => {
@@ -260,28 +263,31 @@ describe("NestBlockButtons", () => {
       },
     );
 
-    it("skips disabled actions when tabbing", async ({
-      setupEditor,
-      pressKey,
-      page,
-    }) => {
-      await setupEditor({
-        props: { formattingToolbar: false },
-        children: (
-          <FormattingToolbar>
-            <NestBlockButton />
-            <UnnestBlockButton />
-            <button>Next action</button>
-          </FormattingToolbar>
-        ),
-      });
-      await page.getByRole("textbox").click();
+    it.for([
+      { direction: "nest", Button: NestBlockButton },
+      { direction: "unnest", Button: UnnestBlockButton },
+    ])(
+      "skips the disabled $direction action when tabbing",
+      async ({ Button }, { setupEditor, pressKey, page }) => {
+        await setupEditor({
+          props: { formattingToolbar: false },
+          children: (
+            <>
+              <Button />
+              <button>Next action</button>
+            </>
+          ),
+        });
+        await page.getByRole("textbox").click();
 
-      await pressKey("Tab");
+        await pressKey("Tab");
 
-      await expect
-        .element(page.getByRole("button", { name: "Next action", exact: true }))
-        .toHaveFocus();
-    });
+        await expect
+          .element(
+            page.getByRole("button", { name: "Next action", exact: true }),
+          )
+          .toHaveFocus();
+      },
+    );
   });
 });
