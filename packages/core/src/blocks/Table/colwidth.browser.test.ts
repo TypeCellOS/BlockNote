@@ -1,11 +1,22 @@
 import { describe, expect } from "vite-plus/test";
 
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+// One editor for the read-only cases of this file.
+const it = globalThis.it.extend(
+  "editor",
+  { scope: "file" },
+  // eslint-disable-next-line no-empty-pattern -- Vitest requires destructured fixture dependencies.
+  async ({}, { onCleanup }) => {
+    const { createSetupEditor } =
+      await import("../../../../../tests/src/commands/node/setupEditor.js");
+    const { editor } = await createSetupEditor(onCleanup)();
+    return editor;
+  },
+);
 
 describe("table column widths in HTML", () => {
-  const editor = BlockNoteEditor.create();
-
-  it("does not write an empty colwidth for a cell that spans columns without widths", () => {
+  it("does not write an empty colwidth for a cell that spans columns without widths", ({
+    editor,
+  }) => {
     const html = editor.blocksToHTMLLossy([
       {
         type: "table",
@@ -25,7 +36,9 @@ describe("table column widths in HTML", () => {
     expect(html).not.toContain('colwidth=","');
   });
 
-  it("parses an empty or invalid width as no width, not as NaN", () => {
+  it("parses an empty or invalid width as no width, not as NaN", ({
+    editor,
+  }) => {
     const [table] = editor.tryParseHTMLToBlocks(
       '<table><tr><td colspan="2" colwidth=","><p>x</p></td></tr>' +
         "<tr><td><p>a</p></td><td><p>b</p></td></tr></table>",
@@ -36,7 +49,7 @@ describe("table column widths in HTML", () => {
     );
   });
 
-  it("keeps a valid width next to an invalid width", () => {
+  it("keeps a valid width next to an invalid width", ({ editor }) => {
     const [table] = editor.tryParseHTMLToBlocks(
       '<table><tr><td colspan="2" colwidth="200,"><p>x</p></td></tr>' +
         "<tr><td><p>a</p></td><td><p>b</p></td></tr></table>",

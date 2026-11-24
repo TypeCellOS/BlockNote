@@ -1,11 +1,22 @@
 import { describe, expect } from "vite-plus/test";
 
-import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
+// One editor for the read-only cases of this file.
+const it = globalThis.it.extend(
+  "editor",
+  { scope: "file" },
+  // eslint-disable-next-line no-empty-pattern -- Vitest requires destructured fixture dependencies.
+  async ({}, { onCleanup }) => {
+    const { createSetupEditor } =
+      await import("../../../../../../tests/src/commands/node/setupEditor.js");
+    const { editor } = await createSetupEditor(onCleanup)();
+    return editor;
+  },
+);
 
 describe("the HTML parse of a check list item", () => {
-  const editor = BlockNoteEditor.create();
-
-  it("reads a toggle list item with a check list child as a toggle", () => {
+  it("reads a toggle list item with a check list child as a toggle", ({
+    editor,
+  }) => {
     const html = editor.blocksToHTMLLossy([
       {
         type: "toggleListItem",

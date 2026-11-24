@@ -1,4 +1,4 @@
-import { afterAll, describe, expect } from "vite-plus/test";
+import { afterAll, beforeAll, describe, expect } from "vite-plus/test";
 
 import type {
   Block,
@@ -6,7 +6,7 @@ import type {
   DefaultStyleSchema,
   PartialBlock,
 } from "../../../blocks/defaultBlocks.js";
-import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
+import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 import { markdownToHTML } from "../../parsers/markdown/parseMarkdown.js";
 import { cleanHTMLToMarkdown } from "./markdownExporter.js";
 import type {
@@ -435,11 +435,18 @@ class DocumentGenerator {
 // ─── Tests ───────────────────────────────────────────────────────────────────
 
 describe("Markdown round trip", () => {
-  const editor = BlockNoteEditor.create();
-
-  afterAll(() => {
-    editor._tiptapEditor.destroy();
+  // One editor of the fixture for the cases of this group. The cases replace
+  // its document.
+  let editor: BlockNoteEditor;
+  let disposeEditor = () => {};
+  beforeAll(async () => {
+    const { createSetupEditor } =
+      await import("../../../../../../tests/src/commands/node/setupEditor.js");
+    ({ editor } = await createSetupEditor((dispose) => {
+      disposeEditor = dispose;
+    })());
   });
+  afterAll(() => disposeEditor());
 
   function serialize(blocks: PartialBlock[]): string {
     return editor.blocksToMarkdownLossy(blocks);

@@ -1,12 +1,23 @@
 import { describe, expect } from "vite-plus/test";
 
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import type { PartialBlock } from "../defaultBlocks.js";
 
-describe("file links in external HTML", () => {
-  const editor = BlockNoteEditor.create();
+// One editor for the read-only cases of this file.
+const it = globalThis.it.extend(
+  "editor",
+  { scope: "file" },
+  // eslint-disable-next-line no-empty-pattern -- Vitest requires destructured fixture dependencies.
+  async ({}, { onCleanup }) => {
+    const { createSetupEditor } =
+      await import("../../../../../tests/src/commands/node/setupEditor.js");
+    const { editor } = await createSetupEditor(onCleanup)();
+    return editor;
+  },
+);
 
-  it("keeps two adjacent file blocks without a caption apart", () => {
+describe("file links in external HTML", () => {
+  it("keeps two adjacent file blocks without a caption apart", ({ editor }) => {
     const html = editor.blocksToHTMLLossy([
       { type: "file", props: { url: "https://example.com/a.pdf", name: "a" } },
       { type: "file", props: { url: "https://example.com/b.pdf", name: "b" } },
@@ -16,9 +27,9 @@ describe("file links in external HTML", () => {
     expect(editor.tryParseHTMLToBlocks(html)).toHaveLength(2);
   });
 
-  it.each(["image", "video", "audio"] as const)(
+  it.for(["image", "video", "audio"] as const)(
     "keeps two adjacent %s blocks without a preview and a caption apart",
-    (type) => {
+    (type, { editor }) => {
       const block = (url: string) => ({
         type,
         props: { url, showPreview: false },
@@ -33,7 +44,6 @@ describe("file links in external HTML", () => {
 });
 
 describe("a file link with a caption", () => {
-  const editor = BlockNoteEditor.create();
   const props = {
     url: "https://example.com/a.pdf",
     name: "a.pdf",
@@ -42,21 +52,21 @@ describe("a file link with a caption", () => {
   const formats = [
     {
       name: "HTML",
-      roundTrip: (block: PartialBlock) =>
+      roundTrip: (editor: BlockNoteEditor, block: PartialBlock) =>
         editor.tryParseHTMLToBlocks(editor.blocksToHTMLLossy([block])),
     },
     {
       name: "markdown",
-      roundTrip: (block: PartialBlock) =>
+      roundTrip: (editor: BlockNoteEditor, block: PartialBlock) =>
         editor.tryParseMarkdownToBlocks(editor.blocksToMarkdownLossy([block])),
     },
   ];
 
   // Before, the export gave the link and the caption as two paragraphs.
-  it.each(formats)(
+  it.for(formats)(
     "reads a file block back as one file block, in $name",
-    ({ roundTrip }) => {
-      const blocks = roundTrip({ type: "file", props });
+    ({ roundTrip }, { editor }) => {
+      const blocks = roundTrip(editor, { type: "file", props });
       expect(blocks).toHaveLength(1);
       expect(blocks[0].type).toBe("file");
       expect(blocks[0].props).toMatchObject(props);
@@ -65,7 +75,7 @@ describe("a file link with a caption", () => {
 
   // A figure with only a link does not tell the block type, thus these
   // blocks read back as file blocks, with their URL, name and caption.
-  it.each(
+  it.for(
     formats.flatMap((format) =>
       (["image", "video", "audio"] as const).map((type) => ({
         ...format,
@@ -74,8 +84,8 @@ describe("a file link with a caption", () => {
     ),
   )(
     "reads a $type block without a preview back as one file block, in $name",
-    ({ roundTrip, type }) => {
-      const blocks = roundTrip({
+    ({ roundTrip, type }, { editor }) => {
+      const blocks = roundTrip(editor, {
         type,
         props: { ...props, showPreview: false },
       });
@@ -85,7 +95,9 @@ describe("a file link with a caption", () => {
     },
   );
 
-  it("reads a figure with a link and without a caption as a paragraph", () => {
+  it("reads a figure with a link and without a caption as a paragraph", ({
+    editor,
+  }) => {
     // The export of a file block without a caption is a link in a paragraph,
     // which the parse reads as a paragraph. A figure without a caption gives
     // the same block, thus a second round trip gives the same text.
@@ -95,7 +107,7 @@ describe("a file link with a caption", () => {
     expect(blocks.map((block) => block.type)).toEqual(["paragraph"]);
   });
 
-  it("reads a link without a name back with an empty name", () => {
+  it("reads a link without a name back with an empty name", ({ editor }) => {
     const blocks = editor.tryParseHTMLToBlocks(
       editor.blocksToHTMLLossy([
         { type: "file", props: { ...props, name: "" } },

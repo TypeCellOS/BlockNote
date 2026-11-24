@@ -1,7 +1,7 @@
-import { describe, expect } from "vite-plus/test";
+import { afterAll, beforeAll, describe, expect } from "vite-plus/test";
 
 import type { Block, PartialBlock } from "../blocks/defaultBlocks.js";
-import { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
+import type { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
 import { EMPTY_BLOCK_PLACEHOLDER } from "./exporters/html/util/serializeBlocksExternalHTML.js";
 
 /**
@@ -185,7 +185,18 @@ const FORMATS = [
 ];
 
 describe.each(FORMATS)("the $name format contract", ({ serialize, parse }) => {
-  const editor = BlockNoteEditor.create();
+  // One editor of the fixture for the cases of this group. Each case
+  // replaces its document.
+  let editor: BlockNoteEditor;
+  let disposeEditor = () => {};
+  beforeAll(async () => {
+    const { createSetupEditor } =
+      await import("../../../../tests/src/commands/node/setupEditor.js");
+    ({ editor } = await createSetupEditor((dispose) => {
+      disposeEditor = dispose;
+    })());
+  });
+  afterAll(() => disposeEditor());
 
   it.each(SEEDS)(
     "gives the same text after a second round trip, for seed %i",
@@ -238,7 +249,17 @@ function expectShown(editor: BlockNoteEditor, format: Format, text: string) {
 describe.each(FORMATS)(
   "the $name parse gives only blocks that the serialize shows",
   (format) => {
-    const editor = BlockNoteEditor.create();
+    // One editor of the fixture for the read-only cases of this group.
+    let editor: BlockNoteEditor;
+    let disposeEditor = () => {};
+    beforeAll(async () => {
+      const { createSetupEditor } =
+        await import("../../../../tests/src/commands/node/setupEditor.js");
+      ({ editor } = await createSetupEditor((dispose) => {
+        disposeEditor = dispose;
+      })());
+    });
+    afterAll(() => disposeEditor());
 
     // The markdown export of a media block without a URL and without a
     // caption (the upload placeholder of the editor) is empty, and the
@@ -281,7 +302,18 @@ describe.each(FORMATS)(
 const NO_BREAK_SPACE = String.fromCodePoint(0xa0);
 
 describe("the HTML format: a block with only white space", () => {
-  const editor = BlockNoteEditor.create();
+  // One editor of the fixture for the cases of this group. Some cases
+  // replace its document.
+  let editor: BlockNoteEditor;
+  let disposeEditor = () => {};
+  beforeAll(async () => {
+    const { createSetupEditor } =
+      await import("../../../../tests/src/commands/node/setupEditor.js");
+    ({ editor } = await createSetupEditor((dispose) => {
+      disposeEditor = dispose;
+    })());
+  });
+  afterAll(() => disposeEditor());
   const html = FORMATS[1];
 
   // The placeholder of an empty block (U+FFFC) and white space. The parse
