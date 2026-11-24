@@ -123,7 +123,7 @@ function serializeParagraph(el: HTMLElement, ctx: SerializeContext): string {
 function serializeHeading(el: HTMLElement, ctx: SerializeContext): string {
   const level = parseInt(el.tagName[1], 10);
   const prefix = "#".repeat(level) + " ";
-  const content = serializeInlineContent(el);
+  const content = toSingleLine(serializeInlineContent(el));
   return ctx.indent + prefix + content + "\n\n";
 }
 
@@ -337,7 +337,7 @@ function serializeListItem(
   // produce a "tight" list (no blank line between markers). Continuation
   // content within the item (nested lists, continuation paragraphs, other
   // blocks) injects its own spacing as needed.
-  let result = ctx.indent + marker + inlineContent + "\n";
+  let result = ctx.indent + marker + toSingleLine(inlineContent) + "\n";
 
   // Serialize child content (nested lists, continuation paragraphs, etc.)
   const childIndent = ctx.indent + " ".repeat(markerWidth);
@@ -356,7 +356,7 @@ function serializeListItem(
         // Continuation paragraph needs a blank line to separate it from the
         // previous content; CommonMark would otherwise treat it as a soft
         // wrap of that content.
-        result += "\n" + childIndent + content + "\n";
+        result += "\n" + childIndent + indentLines(content, childIndent) + "\n";
       } else {
         result += serializeNode(child, childCtx);
       }
@@ -383,7 +383,7 @@ function serializeListItem(
       // Continuation paragraph within list item — requires blank line before
       // so it isn't read as part of the marker line's text.
       const content = serializeInlineContent(child as HTMLElement);
-      result += "\n" + childIndent + content + "\n";
+      result += "\n" + childIndent + indentLines(content, childIndent) + "\n";
     } else {
       // Other block-level children (code blocks, blockquotes, etc.) already
       // emit their own separating newlines; prefix with a blank line so they
@@ -393,6 +393,15 @@ function serializeListItem(
   }
 
   return result;
+}
+
+/**
+ * Puts the indent at the start of each line after the first line. Without
+ * this indent, the markdown parser does not read the lines after a hard break
+ * as a part of a paragraph in a list item.
+ */
+function indentLines(content: string, indent: string): string {
+  return content.split("\n").join("\n" + indent);
 }
 
 function getFirstContentElement(
@@ -753,6 +762,23 @@ function serializeDetails(el: HTMLElement, ctx: SerializeContext): string {
 }
 
 // ─── Inline Content Serializer ───────────────────────────────────────────────
+
+/**
+ * Puts the text of a block on one line, for a block whose text must be one
+ * line in markdown: a heading or a list item. A backslash hard break needs a
+ * second line, and the markdown parser does not read that line as text of the
+ * block. Thus each hard break becomes the HTML `<br>` tag, which the parser
+ * reads as a hard break.
+ */
+function toSingleLine(content: string): string {
+  // `serializeInlineContent` writes a hard break as a backslash and a line
+  // end. Backslashes directly before the tag are doubled, so that they do not
+  // escape its `<`.
+  return content.replace(
+    /(\\*)\\\n/g,
+    (_, backslashes: string) => `${backslashes}${backslashes}<br>`,
+  );
+}
 
 function serializeInlineContent(el: Element): string {
   let result = "";
