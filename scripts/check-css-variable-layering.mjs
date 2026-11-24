@@ -4,8 +4,8 @@ import valueParser from "postcss-value-parser";
 import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 
-export const themeFile = "packages/react/src/editor/theme.css";
-export const typesFile = "packages/mantine/src/Theme.ts";
+const themeFile = "packages/react/src/editor/theme.css";
+const typesFile = "packages/mantine/src/Theme.ts";
 
 function parseScript(source, file) {
   const result = parseSync(file, source);
@@ -42,7 +42,7 @@ function walk(node, visit, parent) {
 
 // Read the public Theme contract, using the same key conversion as
 // BlockNoteTheme.applyVariables. Never infer a layer from a variable's spelling.
-export function discoverVariables(source) {
+function discoverVariables(source) {
   const ast = parseScript(source, typesFile);
   const layers = { theme: new Set(), elements: new Set() };
   function collect(node, prefix, target, root = false) {
@@ -148,7 +148,7 @@ function diagnostic(file, source, offset, variable) {
   };
 }
 
-export function checkCSS(source, file, variables) {
+function checkCSS(source, file, variables) {
   const errors = [];
   const root = postcss.parse(source, { from: file });
   root.walkDecls((decl) => {
@@ -183,7 +183,7 @@ export function checkCSS(source, file, variables) {
   return errors;
 }
 
-export function checkScript(source, file, variables) {
+function checkScript(source, file, variables) {
   const ast = parseScript(source, file);
   const errors = [];
   const themeTemplates = new WeakSet();
@@ -270,7 +270,7 @@ const excludedDirectories = new Set([
   "docs",
   ".next",
 ]);
-export function isSourceFile(file) {
+function isSourceFile(file) {
   return (
     /\.(css|[cm]?[jt]sx?)$/.test(file) &&
     !/\.(test|spec|stories|d)\.[^.]+$/.test(file) &&

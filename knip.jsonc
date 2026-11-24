@@ -1,10 +1,9 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
-  // Standalone StackBlitz manifests are generated, not used by docs or playground.
-  "ignoreWorkspaces": ["examples/**"],
+  // Focus on the packages and their tooling, not the demo apps.
+  "ignoreWorkspaces": ["docs", "playground", "examples/**"],
   "ignoreIssues": {
-    // When an app or test imports an example, its standalone manifest isn't
-    // the consumer's dependency contract.
+    // Tests import example sources without using their standalone manifests.
     "examples/**": ["unlisted"],
     // The package entry points expose these modules as a `locales` namespace.
     "packages/{diagram-block,math-block,xl-multi-column}/src/i18n/locales/*.ts": [
@@ -22,18 +21,6 @@
       "ignoreDependencies": ["bumpp", "changelogen"],
       // install-playwright runs from tests/, which provides the binary.
       "ignoreBinaries": ["playwright"],
-    },
-    "docs": {
-      // Loading next.config.ts starts a Fumadocs build. Keep Next's route
-      // discovery, but scan the config and its Turbopack alias target statically.
-      "next": { "config": [] },
-      "entry": ["next.config.ts", "components/typstCompilerWasmUrl.ts!"],
-      // The generated DOCX/ODT demos consume this optional math-block peer.
-      "ignoreDependencies": ["mathjax-full"],
-      // gen:docs writes this module; the audit also runs on clean checkouts.
-      "ignoreUnresolved": [
-        "^@/components/example/generated/exampleGroupsData\\.gen$",
-      ],
     },
     "packages/core": {
       // The legacy bundled build is invoked separately by build-bundled.
@@ -76,16 +63,6 @@
     "packages/xl-typst-compiler": {
       // scripts/wasm-build.mjs invokes the installed run.js by filesystem path.
       "ignoreDependencies": ["wasm-pack"],
-    },
-    "playground": {
-      // Shell function in the Vercel build script, not an external binary.
-      "ignoreBinaries": ["vp_build"],
-      // Vite resolves these from the workspace or local node_modules aliases.
-      "ignoreDependencies": [
-        "@blocknote/xl-typst-exporter",
-        "katex",
-        "tex2typst",
-      ],
     },
     "shared": {
       // Only consumers of the image utility need this peer.

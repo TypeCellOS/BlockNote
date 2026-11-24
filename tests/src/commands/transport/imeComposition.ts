@@ -11,7 +11,7 @@ import type { selectText } from "../node/selectText.js";
  * the given text — pass different text than the last composition update to
  * emulate an autocorrect-style replacement.
  */
-export type ImeStep =
+type ImeStep =
   | {
       type: "setComposition";
       text: string;

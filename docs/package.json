@@ -79,8 +79,6 @@
     "better-auth": "~1.7.7",
     "better-sqlite3": "^12.6.2",
     "class-variance-authority": "^0.7.1",
-    "docx": "^9.9.0",
-    "framer-motion": "^12.26.2",
     "fumadocs-core": "16.5.0",
     "fumadocs-mdx": "^14.2.6",
     "fumadocs-twoslash": "^3.1.12",
@@ -116,9 +114,6 @@
   },
   "devDependencies": {
     "@blocknote/code-block": "workspace:*",
-    "@blocknote/core": "workspace:*",
-    "@blocknote/mantine": "workspace:*",
-    "@blocknote/react": "workspace:*",
     "@blocknote/server-util": "workspace:*",
     "@blocknote/shadcn": "workspace:*",
     "@blocknote/xl-ai": "workspace:*",

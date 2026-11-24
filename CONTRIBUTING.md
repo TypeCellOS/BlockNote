@@ -82,11 +82,8 @@ CI runs Knip as a separate, non-blocking report. On a pull request, open
 **Checks → Knip report** to read it. Review findings before removing code:
 published exports can have consumers outside this repository, and dependencies
 can be loaded by build scripts, CSS, or framework conventions.
-Standalone example workspaces are excluded: their generated manifests are for
-StackBlitz. The docs and playground are still audited against their own
-manifests. Docs copy example sources into an ignored generated directory and
-the playground imports them across workspace boundaries, so check those source
-examples before removing a dependency from either app.
+The audit focuses on the packages and their supporting tooling and tests. The
+docs, playground, and standalone StackBlitz example workspaces are excluded.
 
 ## Packages
 

@@ -29,5 +29,3 @@ export const PRODUCTS = {
     slug: "free",
   } as const,
 } as const;
-
-export type ProductSlug = (typeof PRODUCTS)[keyof typeof PRODUCTS]["slug"];
