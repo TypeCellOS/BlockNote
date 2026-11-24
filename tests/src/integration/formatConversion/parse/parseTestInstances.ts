@@ -761,6 +761,24 @@ console.log("Third Line")</code></pre>`,
   <li>List Item 4</li>
 </ol>`,
   },
+  // Only the first item gets the start of the list, also if items have a
+  // nested list.
+  {
+    name: "orderedListStartWithNestedList",
+    content: `<ol start="2">
+  <li>List Item 2
+    <ul>
+      <li>Nested Item 1</li>
+    </ul>
+  </li>
+  <li>List Item 3
+    <ul>
+      <li>Nested Item 2</li>
+    </ul>
+  </li>
+  <li>List Item 4</li>
+</ol>`,
+  },
   {
     name: "imageWidth",
     content: `<img src="exampleURL" width="100">`,
