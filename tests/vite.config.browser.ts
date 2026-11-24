@@ -99,6 +99,13 @@ function localBrowserTestOptions() {
   return {
     name: "browser-local",
     include: LOCAL_BROWSER_FILES,
+    // The large-documents benchmark of the text lens needs a DOM. Only `vp
+    // test bench` runs it.
+    benchmark: {
+      include: [
+        "../packages/xl-ai/src/api/v2/benchmarks/largeDocuments.bench.ts",
+      ],
+    },
     retry: 0,
     update: "none",
     reporters: ["default"],

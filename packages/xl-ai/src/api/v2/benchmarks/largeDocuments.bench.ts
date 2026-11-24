@@ -22,18 +22,22 @@ import { richDocument } from "../testUtil/fixtures.js";
 import { getYDocText, updateYDocWithMerge } from "../y/index.js";
 
 /**
- * Benchmarks for large documents. The normal test run does not run them. Run
- * them from packages/xl-ai with:
+ * Benchmarks for large documents. The normal test run does not run them. They
+ * need a DOM, thus they run in Chromium (Browser Mode, without Docker). Run
+ * them from `tests` with:
  *
- *   vp test bench --run --silent=false src/api/v2/benchmarks
+ *   vp test bench -c vite.config.browser.ts --mode browser-local --run
  *
- * Set TEXT_LENS_BENCH_SIZES (for example "1000,5000") for other sizes, and
- * TEXT_LENS_BENCH_FORMATS (for example "markdown,plain text") for some
- * formats only. The result is a table of the median times in milliseconds.
+ * Set VITE_TEXT_LENS_BENCH_SIZES (for example "1000,5000") for other sizes,
+ * and VITE_TEXT_LENS_BENCH_FORMATS (for example "markdown,plain text") for
+ * some formats only. Vite gives the browser only the environment variables
+ * with the prefix `VITE_`. The result is a table of the median times in
+ * milliseconds.
  */
 
 const RUNS = 3;
-const SIZES = (process.env.TEXT_LENS_BENCH_SIZES ?? "1000,5000,10000")
+const env = (import.meta as ImportMeta & { env: Record<string, string> }).env;
+const SIZES = (env.VITE_TEXT_LENS_BENCH_SIZES ?? "1000,5000,10000")
   .split(",")
   .map(Number);
 
@@ -57,7 +61,7 @@ function largeDocument(size: number): PartialBlock[] {
   return blocks;
 }
 
-/** Lets the event loop turn. Thus, jsdom frees the memory of earlier renders (see the README). */
+/** Lets the event loop turn before each run, as in the jsdom runs before (see the README). */
 const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 /**
@@ -82,7 +86,22 @@ async function median<T>(
   return Math.round(times[Math.floor(times.length / 2)]);
 }
 
-const selectedFormats = process.env.TEXT_LENS_BENCH_FORMATS?.split(",");
+/** The rows as a text table, one column for each key of the first row. */
+function textTable(rows: Record<string, string | number>[]): string {
+  const columns = Object.keys(rows[0] ?? {});
+  const lines = [
+    columns,
+    ...rows.map((row) => columns.map((column) => String(row[column]))),
+  ];
+  const widths = columns.map((_, i) =>
+    Math.max(...lines.map((line) => line[i].length)),
+  );
+  return lines
+    .map((line) => line.map((cell, i) => cell.padStart(widths[i])).join("  "))
+    .join("\n");
+}
+
+const selectedFormats = env.VITE_TEXT_LENS_BENCH_FORMATS?.split(",");
 const formats = (
   [
     ["markdown", markdownFormat],
@@ -211,8 +230,9 @@ describe("large documents", () => {
           });
         }
       }
+      // The Browser Mode of Vitest does not show `console.table`.
       // oxlint-disable-next-line no-console
-      console.table(rows);
+      console.log(textTable(rows));
     },
     30 * 60 * 1000,
   );
