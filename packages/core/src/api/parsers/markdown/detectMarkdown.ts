@@ -32,13 +32,16 @@ const blockquote =
   /(?:^|(\r?\n\r?\n))( {0,3}>[^\n]{1,333}\n){1,999}($|(\r?\n))/;
 
 // Table Header
-const tableHeader = /^\s*\|(.+\|)+\s*$/m;
+// Do not write `(.+\|)+` here or in the table row: it matches the same lines,
+// but for a line without the last pipe its time grows exponentially with the
+// number of pipes.
+const tableHeader = /^\s*\|.+\|\s*$/m;
 
 // Table Divider
 const tableDivider = /^\s*\|(\s*[-:]+[-:]\s*\|)+\s*$/m;
 
 // Table Row
-const tableRow = /^\s*\|(.+\|)+\s*$/m;
+const tableRow = /^\s*\|.+\|\s*$/m;
 
 /**
  * Returns `true` if the source text might be a markdown document.
