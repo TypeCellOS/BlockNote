@@ -310,7 +310,7 @@ class ColumnResizePluginView implements PluginView {
       ) {
         if (
           pluginState.type === "hover-column" &&
-          event.target.closest(".bn-button")
+          event.target.closest(".bn-side-menu-button")
         ) {
           this.view.dispatch(
             this.view.state.tr.setMeta(columnResizePluginKey, {

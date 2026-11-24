@@ -164,7 +164,12 @@ export const MenuItem = forwardRef<
   if (checked !== undefined) {
     return (
       <ShadCNComponents.DropdownMenu.DropdownMenuCheckboxItem
-        className={cn(className, "gap-1", checked ? "" : "px-2")}
+        className={cn(
+          "bn-menu-item",
+          className,
+          "gap-1",
+          checked ? "" : "px-2",
+        )}
         ref={ref}
         checked={checked}
         onClick={onClick}
@@ -181,7 +186,7 @@ export const MenuItem = forwardRef<
 
   return (
     <ShadCNComponents.DropdownMenu.DropdownMenuItem
-      className={className}
+      className={cn("bn-menu-item", className)}
       ref={ref}
       onClick={onClick}
       disabled={disabled}

@@ -3,7 +3,7 @@ import {
   Menu as MantineMenu,
 } from "@mantine/core";
 
-import { assertEmpty } from "@blocknote/core";
+import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { createContext, forwardRef, useContext } from "react";
 
@@ -80,7 +80,7 @@ export const MenuItem = forwardRef<
   if (subTrigger) {
     return (
       <MantineMenu.Sub.Item
-        className={className}
+        className={mergeCSSClasses("bn-menu-item", className)}
         ref={ref}
         leftSection={icon}
         rightSection={
@@ -101,7 +101,7 @@ export const MenuItem = forwardRef<
 
   return (
     <MantineMenu.Item
-      className={className}
+      className={mergeCSSClasses("bn-menu-item", className)}
       ref={ref}
       leftSection={icon}
       rightSection={

@@ -2,6 +2,8 @@ import { SideMenuExtension } from "@blocknote/core/extensions";
 import { MdDragIndicator } from "react-icons/md";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
+import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
+import { useEditorState } from "../../../hooks/useEditorState.js";
 import { usePortalElement } from "../../../editor/PortalElementOverride.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
 import { DragHandleMenu } from "../DragHandleMenu/DragHandleMenu.js";
@@ -20,12 +22,17 @@ export const DragHandleButton = (
   const portalElement = usePortalElement();
   const dict = useDictionary();
 
+  const editor = useBlockNoteEditor();
   const sideMenu = useExtension(SideMenuExtension);
+  const isEditable = useEditorState({
+    editor,
+    selector: ({ editor }) => editor.isEditable,
+  });
   const block = useExtensionState(SideMenuExtension, {
     selector: (state) => state?.block,
   });
 
-  if (block === undefined) {
+  if (!isEditable || block === undefined) {
     return null;
   }
 
@@ -50,7 +57,7 @@ export const DragHandleButton = (
           onDragStart={(e) => sideMenu.blockDragStart(e, block)}
           // eslint-disable-next-line @typescript-eslint/unbound-method -- blockDragEnd is a plain object method, not a class method
           onDragEnd={sideMenu.blockDragEnd}
-          className={"bn-button"}
+          className={"bn-side-menu-button"}
           icon={
             <MdDragIndicator
               size={24}
