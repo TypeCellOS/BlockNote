@@ -52,7 +52,7 @@ function shouldAutoLink(url: string): boolean {
   return true;
 }
 
-export type LinkOptions = {
+type LinkOptions = {
   HTMLAttributes: Record<string, any>;
   editor?: BlockNoteEditor<any, any, any>;
   onClick?: (
@@ -65,7 +65,7 @@ export type LinkOptions = {
 /**
  * BlockNote Link mark extension.
  */
-export const Link = Mark.create<LinkOptions>({
+const Link = Mark.create<LinkOptions>({
   name: "link",
 
   keepOnSplit: false,

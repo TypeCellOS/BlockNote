@@ -50,7 +50,7 @@ const MobileMenuContext = createContext<{
   setOpen: (open: boolean) => void;
 } | null>(null);
 
-export const navItemVariants = cva("[&_svg]:size-4", {
+const navItemVariants = cva("[&_svg]:size-4", {
   variants: {
     variant: {
       main: "inline-flex items-center gap-1 p-2 text-fd-muted-foreground transition-colors hover:text-fd-accent-foreground data-[active=true]:text-fd-primary data-[popup-open]:text-fd-primary",

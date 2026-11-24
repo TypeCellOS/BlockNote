@@ -68,14 +68,12 @@
   "dependencies": {
     "@blocknote/core": "workspace:^",
     "@blocknote/react": "workspace:^",
-    "@tiptap/core": "^3.31.4",
     "@tiptap/pm": "^3.31.4",
     "prosemirror-model": "^1.25.11",
     "prosemirror-state": "^1.4.4",
     "prosemirror-view": "^1.42.5"
   },
   "devDependencies": {
-    "@blocknote/shared": "workspace:^",
     "react-icons": "^5.5.0",
     "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.3",

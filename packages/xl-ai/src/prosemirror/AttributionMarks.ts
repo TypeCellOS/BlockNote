@@ -11,7 +11,7 @@ import { MarkSpec } from "prosemirror-model";
 
 // The ideal solution would be to not depend on tiptap nodes / marks, but be able to use prosemirror nodes / marks directly
 // this way we could directly use the exported marks from @handlewithcare/prosemirror-suggest-changes
-export const SuggestionAddMark = Mark.create({
+const SuggestionAddMark = Mark.create({
   name: "insertion",
   inclusive: false,
   excludes: "deletion modification insertion",
@@ -62,7 +62,7 @@ export const SuggestionAddMark = Mark.create({
   },
 });
 
-export const SuggestionDeleteMark = Mark.create({
+const SuggestionDeleteMark = Mark.create({
   name: "deletion",
   inclusive: false,
   excludes: "insertion modification deletion",
@@ -111,7 +111,7 @@ export const SuggestionDeleteMark = Mark.create({
   },
 });
 
-export const SuggestionModificationMark = Mark.create({
+const SuggestionModificationMark = Mark.create({
   name: "modification",
   inclusive: false,
   excludes: "deletion insertion",

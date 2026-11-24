@@ -7,7 +7,7 @@ import {
 import { DOC_TRAILING_BLOCK_SELECTOR } from "./const.js";
 import { MOD, userEvent } from "./context.js";
 
-export async function selectAll() {
+async function selectAll() {
   // The first press selects the current block; the second selects the document.
   await userEvent.keyboard(`{${MOD}>}a{/${MOD}}`);
   await userEvent.keyboard(`{${MOD}>}a{/${MOD}}`);

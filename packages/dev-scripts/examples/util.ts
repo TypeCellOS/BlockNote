@@ -163,7 +163,7 @@ export function getCatalogVersion(name: string): string {
   );
 }
 
-export function groupBy<T>(arr: T[], key: (el: T) => string) {
+function groupBy<T>(arr: T[], key: (el: T) => string) {
   const groups: Record<string, T[]> = {};
   arr.forEach((val) => {
     const k = key(val);
@@ -248,7 +248,7 @@ const BINARY_EXTENSIONS = new Set([
   ".woff2",
 ]);
 
-export type ProjectFile =
+type ProjectFile =
   | { filename: string; kind: "text"; code: string }
   | { filename: string; kind: "binary"; sourcePath: string };
 

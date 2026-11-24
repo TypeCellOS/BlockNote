@@ -44,7 +44,7 @@ const codeMapping = (
   );
 };
 
-export const getTabs = (nestingLevel: number) => {
+const getTabs = (nestingLevel: number) => {
   return Array.from({ length: nestingLevel }, (_, i) => <text:tab key={i} />);
 };
 

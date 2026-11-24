@@ -20,7 +20,6 @@
     "@blocknote/xl-pdf-exporter": "workspace:^",
     "@blocknote/xl-typst-exporter": "workspace:^",
     "@guidepup/guidepup": "^0.35.0",
-    "@opentelemetry/api": "1.10.0",
     "@playwright/test": "1.65.1",
     "@shikijs/core": "^4.4.3",
     "@shikijs/engine-javascript": "^4.4.3",
@@ -41,7 +40,6 @@
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-fast-compare": "^3.2.3",
-    "react-icons": "^5.5.0",
     "rimraf": "^5.0.10",
     "vite-plus": "catalog:",
     "vitest-browser-react": "^2.2.0"

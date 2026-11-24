@@ -54,7 +54,7 @@ export function installBrowserTestViewport(doc: Document) {
   };
 }
 
-export function installIOSTouchPoints(
+function installIOSTouchPoints(
   device: Pick<Navigator, "userAgent" | "maxTouchPoints">,
 ) {
   // Playwright's WebKit `hasTouch` leaves maxTouchPoints at 0, but BlockNote's

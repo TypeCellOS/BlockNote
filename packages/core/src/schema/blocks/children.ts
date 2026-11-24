@@ -52,7 +52,7 @@ export function isNamedOnly(type: NodeType): boolean {
 
 // Below `blockContainer`'s priority (50) so PM's `fillBefore` picks
 // `blockContainer` first, avoiding recursion through nested layout blocks.
-export const LAYOUT_NODE_PRIORITY = 40;
+const LAYOUT_NODE_PRIORITY = 40;
 
 const LAYOUT_PRIORITY_BAND = { min: 30, max: 49 };
 const DEFAULT_SPEC_PRIORITY = 101;

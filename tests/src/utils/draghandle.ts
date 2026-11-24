@@ -6,7 +6,7 @@ import { moveMouseOverElement, waitForDragHandle } from "./mouse.js";
 
 const selectedOption = `${SLASH_MENU_SELECTOR} [role="option"][aria-selected="true"]`;
 
-export async function addBlockFromDragHandle(level: 1 | 2) {
+async function addBlockFromDragHandle(level: 1 | 2) {
   await userEvent.click(await waitForSelector(DRAG_HANDLE_ADD_SELECTOR));
   await waitForSelector(selectedOption);
   await userEvent.keyboard(`h${level}`);

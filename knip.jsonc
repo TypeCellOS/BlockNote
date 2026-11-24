@@ -1,0 +1,94 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  // Focus on the packages and their tooling, not the demo apps.
+  "ignoreWorkspaces": ["docs", "playground", "examples/**"],
+  "ignoreIssues": {
+    // Tests import example sources without using their standalone manifests.
+    "examples/**": ["unlisted"],
+    // The package entry points expose these modules as a `locales` namespace.
+    "packages/{diagram-block,math-block,xl-multi-column}/src/i18n/locales/*.ts": [
+      "exports",
+    ],
+    // Vitest registers these Node implementations as a command namespace.
+    "tests/src/commands/transport/*.ts": ["exports"],
+    // Read by the example generator; standalone manifests cannot use catalog:.
+    "pnpm-workspace.yaml": ["catalog"],
+  },
+  "workspaces": {
+    ".": {
+      "entry": [".claude/skills/ios-simulator/scripts/device.mjs"],
+      // scripts/release.mjs invokes these CLIs through child_process.
+      "ignoreDependencies": ["bumpp", "changelogen"],
+      // install-playwright runs from tests/, which provides the binary.
+      "ignoreBinaries": ["playwright"],
+    },
+    "packages/core": {
+      // The legacy bundled build is invoked separately by build-bundled.
+      "vite": { "config": ["vite.config{,.bundled}.ts"] },
+      // The centralized browser tsconfig supplies these for colocated tests.
+      "ignoreDependencies": ["@types/react", "jsdom"],
+      "ignoreIssues": {
+        // These peers are optional for consumers who don't use Yjs v14.
+        "package.json": ["optionalPeerDependencies"],
+      },
+    },
+    "packages/dev-scripts": {
+      // gen:examples discovers these templates with a filesystem glob.
+      "entry": ["examples/template-react/*.template.tsx"],
+    },
+    "packages/{diagram-block,math-block,xl-typst-exporter}": {
+      // Their Typst tests load the compiler and its WASM via @shared.
+      "ignoreDependencies": ["@blocknote/xl-typst-compiler"],
+    },
+    "packages/react": {
+      // Colocated browser tests are run from tests/, which provides this.
+      "ignoreDependencies": ["vitest-browser-react"],
+    },
+    "packages/xl-docx-exporter": {
+      // The @shared image utility is bundled, but image-meta stays external.
+      "ignoreDependencies": ["image-meta"],
+    },
+    "packages/xl-multi-column": {
+      // Keep the Vite Plus peer resolution in sync with core.
+      "ignoreDependencies": ["jsdom"],
+    },
+    "packages/xl-odt-exporter": {
+      // Same external dependency as the DOCX exporter.
+      "ignoreDependencies": ["image-meta"],
+    },
+    "packages/xl-pdf-exporter": {
+      // These .jsx files are assertions read as text by toMatchFileSnapshot.
+      "ignore": ["src/react-pdf/__snapshots__/*.jsx"],
+    },
+    "packages/xl-typst-compiler": {
+      // scripts/wasm-build.mjs invokes the installed run.js by filesystem path.
+      "ignoreDependencies": ["wasm-pack"],
+    },
+    "shared": {
+      // Only consumers of the image utility need this peer.
+      "ignoreIssues": { "package.json": ["optionalPeerDependencies"] },
+    },
+    "tests": {
+      "vite": { "config": ["vite.config{,.browser}.ts"] },
+      "entry": [
+        "docker-browser-partition.mjs",
+        "src/integration/builtPackages/{loadEntries,serverExport}.mjs",
+        "src/screen-reader/vite.config.screen-reader.ts",
+        "vitestSetup.screen-reader.ts",
+      ],
+      // The Next.js integration fixture is installed separately with tarballs.
+      "project": [
+        "**/*.{js,cjs,mjs,jsx,ts,cts,mts,tsx}",
+        "!nextjs-test-app/**",
+      ],
+      // Vite Plus uses this for the browser suite's HTML reporter.
+      "ignoreDependencies": ["@vitest/ui"],
+      // `pnpm exec next build` runs in the isolated fixture, not this workspace.
+      "ignoreBinaries": ["build"],
+      "paths": {
+        "@examples/*": ["../examples/*"],
+        "@shared/*": ["../shared/*"],
+      },
+    },
+  },
+}

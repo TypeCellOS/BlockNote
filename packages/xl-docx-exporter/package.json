@@ -64,8 +64,7 @@
     "lint": "vp lint src",
     "test": "vp test --run",
     "test-watch": "vp test watch",
-    "clean": "rimraf dist && rimraf types",
-    "email": "email dev"
+    "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
     "@blocknote/core": "workspace:^",
@@ -75,7 +74,6 @@
     "image-meta": "^0.2.2"
   },
   "devDependencies": {
-    "@blocknote/shared": "workspace:^",
     "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.3",
     "@zip.js/zip.js": "^2.8.8",
