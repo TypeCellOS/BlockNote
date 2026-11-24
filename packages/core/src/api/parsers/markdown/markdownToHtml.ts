@@ -827,8 +827,11 @@ function tokenize(markdown: string): Token[] {
       continue;
     }
 
-    // Fenced code block (0-3 leading spaces allowed per CommonMark)
-    const fenceMatch = line.match(/^ {0,3}(`{3,}|~{3,})(.*)$/);
+    // Fenced code block (0-3 leading spaces allowed per CommonMark). The info
+    // string after a backtick fence cannot contain a backtick (CommonMark).
+    // Thus a line that starts with a code span, for example ```a``b```, is
+    // not a fence.
+    const fenceMatch = line.match(/^ {0,3}(`{3,}(?=[^`]*$)|~{3,})(.*)$/);
     if (fenceMatch) {
       const fence = fenceMatch[1];
       const fenceChar = fence[0];
@@ -945,7 +948,7 @@ function tokenize(markdown: string): Token[] {
         if (/^(#{1,6})\s/.test(cur)) {
           break;
         } // heading
-        if (/^(`{3,}|~{3,})/.test(cur)) {
+        if (/^(`{3,}(?=[^`]*$)|~{3,})/.test(cur)) {
           break;
         } // code fence
         if (/^(\s{0,3})([-*_])\s*(\2\s*){2,}$/.test(cur)) {
@@ -1107,7 +1110,7 @@ function tokenize(markdown: string): Token[] {
       if (/^(#{1,6})\s/.test(nextLine)) {
         break;
       }
-      if (/^(`{3,}|~{3,})/.test(nextLine)) {
+      if (/^(`{3,}(?=[^`]*$)|~{3,})/.test(nextLine)) {
         break;
       }
       if (/^\s{0,3}>/.test(nextLine)) {
