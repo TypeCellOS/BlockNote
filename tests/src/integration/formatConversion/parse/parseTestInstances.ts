@@ -1618,6 +1618,16 @@ Paragraph after table`,
 ----- | -----
 A     | B`,
   },
+  // A line that starts with a pipe, has many more pipes, and does not end
+  // with a pipe is not a table row: it stays in its paragraph or quote.
+  {
+    name: "pipeLineInParagraph",
+    content: `x\n|${" a |".repeat(60)} x\n`,
+  },
+  {
+    name: "pipeLineInQuote",
+    content: `> q\n|${" a |".repeat(60)} x\n`,
+  },
   // Indented fenced code block (up to 3 leading spaces per CommonMark)
   {
     name: "codeBlockIndented",

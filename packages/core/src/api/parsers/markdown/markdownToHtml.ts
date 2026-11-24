@@ -791,6 +791,11 @@ function isHtmlBlockStart(line: string): boolean {
   return HTML_BLOCK_TAGS.has(m[1].toLowerCase());
 }
 
+// A table row that starts and ends with a pipe. Do not write `(.+\|)+` here:
+// it matches the same lines, but for a line without the last pipe its time
+// grows exponentially with the number of pipes.
+const TABLE_ROW_RE = /^\s*\|.+\|\s*$/;
+
 // ─── Block-Level Tokenizer ──────────────────────────────────────────────────
 
 function tokenize(markdown: string): Token[] {
@@ -936,7 +941,7 @@ function tokenize(markdown: string): Token[] {
         if (/^\s*([-*+]|\d+[.)])\s+/.test(cur)) {
           break;
         } // list item
-        if (/^\s*\|(.+\|)+\s*$/.test(cur)) {
+        if (TABLE_ROW_RE.test(cur)) {
           break;
         } // table
         quoteLines.push(cur);
@@ -1101,7 +1106,7 @@ function tokenize(markdown: string): Token[] {
       if (/^\s*([-*+]|\d+[.)])\s+/.test(nextLine)) {
         break;
       }
-      if (/^\s*\|(.+\|)+\s*$/.test(nextLine)) {
+      if (TABLE_ROW_RE.test(nextLine)) {
         break;
       }
       if (isHtmlBlockStart(nextLine)) {
