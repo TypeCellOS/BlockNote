@@ -1714,4 +1714,10 @@ Some text after.`,
     name: "paragraphLeadingIndent",
     content: `  aaa\n bbb`,
   },
+  // A paragraph line after the first can have any indent; the indent is
+  // stripped (CommonMark ex. 223)
+  {
+    name: "paragraphContinuationIndent",
+    content: `aaa\n      bbb\n\tccc`,
+  },
 ];

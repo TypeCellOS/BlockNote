@@ -1120,14 +1120,17 @@ function tokenize(markdown: string): Token[] {
       paraLines.push(nextLine);
       i++;
     }
-    // CommonMark allows up to 3 leading spaces of indent on paragraph lines.
+    // CommonMark allows up to 3 leading spaces of indent on the first
+    // paragraph line, and any indent on the lines after it. Each of these
+    // lines comes after a line break, so its indent would show as whitespace
+    // at the start of the line.
     // Also strip trailing whitespace from the final line so a trailing
     // hard-break sequence (`  \n` at end of paragraph) doesn't leak as
     // literal trailing spaces in the rendered output.
     tokens.push({
       type: "paragraph",
       content: paraLines
-        .map((l) => l.replace(/^ {1,3}/, ""))
+        .map((l, index) => l.replace(index === 0 ? /^ {1,3}/ : /^[ \t]+/, ""))
         .join("\n")
         .replace(/[ \t]+$/, ""),
     });
