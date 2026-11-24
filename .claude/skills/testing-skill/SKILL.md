@@ -39,7 +39,7 @@ Given that files import each other, there can be overlap and ambiguity to where 
 
 ## Structure and assertions
 
-For component file structure, test groups, and accessibility assertions, follow [Component testing](references/component-testing.md).
+For component file structure, test groups, accessibility ownership, read-only transitions, and primary-interaction coverage, follow [Component testing](references/component-testing.md), including its coverage review before finishing.
 
 Pure-function tests use a function-named `describe`; give integrated scenarios a separate `describe` when needed. Follow established patterns without inventing unnecessary structure.
 
@@ -56,6 +56,7 @@ Screenshots are a last resort for behavior. Prefer state, DOM, or accessibility 
 ## Golden examples
 
 - Child React component test: [BasicTextStyleButton](../../../packages/react/src/components/FormattingToolbar/DefaultButtons/BasicTextStyleButton.browser.test.tsx): component behavior, editor integration, ARIA, axe, and keyboard.
+- Popover UI unit: [ColorStyleButton](../../../packages/react/src/components/FormattingToolbar/DefaultButtons/ColorStyleButton.browser.test.tsx) covers its trigger, dropdown, editor integration, accessibility, and keyboard behavior together.
 - Parent React component test: [FormattingToolbar](../../../packages/react/src/components/FormattingToolbar/FormattingToolbar.browser.test.tsx): composition and traversal of child controls.
 
 Use these as patterns, not templates to copy mechanically. For testing a React component, read [Component testing](references/component-testing.md).
