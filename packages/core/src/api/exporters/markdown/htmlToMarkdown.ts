@@ -559,7 +559,7 @@ function serializeImage(el: HTMLElement, ctx: SerializeContext): string {
   if (!src) {
     return "\n\n";
   }
-  return ctx.indent + `![${alt}](${src})\n\n`;
+  return ctx.indent + `![${alt}](${escapeLinkDestination(src)})\n\n`;
 }
 
 function serializeVideo(el: HTMLElement, ctx: SerializeContext): string {
@@ -568,7 +568,7 @@ function serializeVideo(el: HTMLElement, ctx: SerializeContext): string {
   if (!src) {
     return "\n\n";
   }
-  return ctx.indent + `![${name}](${src})\n\n`;
+  return ctx.indent + `![${name}](${escapeLinkDestination(src)})\n\n`;
 }
 
 function serializeAudio(el: HTMLElement, ctx: SerializeContext): string {
@@ -589,7 +589,7 @@ function serializeEmbed(el: HTMLElement, ctx: SerializeContext): string {
   if (!src) {
     return "\n\n";
   }
-  return ctx.indent + `[](${src})\n\n`;
+  return ctx.indent + `[](${escapeLinkDestination(src)})\n\n`;
 }
 
 function serializeFigure(el: HTMLElement, ctx: SerializeContext): string {
@@ -645,7 +645,7 @@ function serializeMediaFigure(
 
   // No caption + has a markdown shorthand → use it.
   if (!captionText && kind !== "audio") {
-    return ctx.indent + `![${descriptor}](${src})\n\n`;
+    return ctx.indent + `![${descriptor}](${escapeLinkDestination(src)})\n\n`;
   }
 
   // The descriptor (alt / data-name) is dropped when it duplicates the
@@ -720,6 +720,10 @@ function formatLink(text: string, href: string): string {
   return `[${text}](${escapeLinkDestination(href)})`;
 }
 
+/**
+ * Escapes the backslashes and the parentheses in the destination of a link or
+ * an image. The markdown parser removes these escapes.
+ */
 function escapeLinkDestination(url: string): string {
   return url.replace(/[\\()]/g, "\\$&");
 }
@@ -820,7 +824,7 @@ function serializeInlineContent(el: Element): string {
         case "img": {
           const src = childEl.getAttribute("src") || "";
           const alt = childEl.getAttribute("alt") || "";
-          result += `![${alt}](${src})`;
+          result += `![${alt}](${escapeLinkDestination(src)})`;
           break;
         }
         case "video": {
@@ -832,7 +836,7 @@ function serializeInlineContent(el: Element): string {
             childEl.getAttribute("data-name") ||
             childEl.getAttribute("title") ||
             "";
-          result += `![${name}](${src})`;
+          result += `![${name}](${escapeLinkDestination(src)})`;
           break;
         }
         case "p":

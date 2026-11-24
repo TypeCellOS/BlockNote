@@ -675,6 +675,25 @@ export const markdownRoundTripCases: CoreExportCase[] = [
     ],
   },
   {
+    name: "markdown/mediaWithBackslashInUrl",
+    content: [
+      {
+        type: "image",
+        props: {
+          url: "\\\\server\\share\\image.png",
+          name: "Example",
+        },
+      },
+      {
+        type: "video",
+        props: {
+          url: "C:\\videos\\_old\\video.mp4",
+          name: "Example",
+        },
+      },
+    ],
+  },
+  {
     name: "markdown/video",
     content: [
       {
