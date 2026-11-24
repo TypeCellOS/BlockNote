@@ -59,15 +59,15 @@
   color: var(--bn-menu-color);
 }
 
-.bn-mantine .mantine-Menu-item {
+.bn-menu-item.mantine-Menu-item {
   background-color: var(--bn-menu-item-background);
   border: none;
   border-radius: var(--bn-menu-item-radius);
   color: var(--bn-menu-item-color);
 }
 
-.bn-mantine .mantine-Menu-item[aria-selected="true"],
-.bn-mantine .mantine-Menu-item:hover {
+.bn-menu-item.mantine-Menu-item[aria-selected="true"],
+.bn-menu-item.mantine-Menu-item:hover {
   background-color: var(--bn-menu-item-hover-background);
   border: none;
   color: var(--bn-menu-item-hover-color);
@@ -216,12 +216,8 @@ on touch devices (e.g. the mobile formatting toolbar). */
   height: 40px;
 }
 
-/* Menus are portalled into the editor container, so they can't be styled
-   through the toolbar, side menu or table handle that opened them; scope on
-   the dropdowns themselves instead. */
-.bn-mantine .bn-toolbar-select .mantine-Menu-item,
-.bn-mantine .bn-menu-dropdown .mantine-Menu-item,
-.bn-mantine .bn-table-handle-menu .mantine-Menu-item {
+/* Menu items carry their sizing independently of the dropdown that owns them. */
+.bn-menu-item.mantine-Menu-item {
   font-size: 12px;
   height: 30px;
 }
@@ -462,22 +458,22 @@ on touch devices (e.g. the mobile formatting toolbar). */
   overflow: visible;
 }
 
-.bn-side-menu .mantine-UnstyledButton-root:not(.mantine-Menu-item) {
+.bn-side-menu-button.mantine-UnstyledButton-root {
   background-color: transparent;
 }
 
-.bn-side-menu .mantine-UnstyledButton-root:hover {
+.bn-side-menu-button.mantine-UnstyledButton-root:hover {
   background-color: var(--bn-side-menu-hover-background);
 }
 
-.bn-side-menu .mantine-UnstyledButton-root:not(.mantine-Menu-item) svg {
+.bn-side-menu-button.mantine-UnstyledButton-root svg {
   background-color: transparent;
   color: var(--bn-side-menu-icon-color);
   height: 22px;
   width: 22px;
 }
 
-.bn-mantine .bn-side-menu > [draggable="true"] {
+.bn-side-menu-button[draggable="true"] {
   display: flex;
 }
 

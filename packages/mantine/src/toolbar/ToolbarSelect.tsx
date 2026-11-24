@@ -69,6 +69,7 @@ export const ToolbarSelect = forwardRef<
       >
         {items.map((item) => (
           <MantineMenu.Item
+            className="bn-menu-item"
             key={item.text}
             onClick={item.onClick}
             leftSection={item.icon}

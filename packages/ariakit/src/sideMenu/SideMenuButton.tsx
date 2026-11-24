@@ -31,7 +31,7 @@ export const SideMenuButton = forwardRef<
       draggable={draggable}
       aria-label={label}
       className={mergeCSSClasses(
-        "bn-ak-button bn-ak-secondary",
+        "bn-side-menu-button bn-ak-button bn-ak-secondary",
         className || "",
       )}
       ref={ref}
