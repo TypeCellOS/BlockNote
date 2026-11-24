@@ -533,6 +533,21 @@ export const markdownRoundTripCases: CoreExportCase[] = [
     ],
   },
   {
+    name: "markdown/inlineCodeWithSurroundingSpaces",
+    content: [
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "text",
+            text: " Code text ",
+            styles: { code: true },
+          },
+        ],
+      },
+    ],
+  },
+  {
     name: "markdown/boldItalic",
     content: [
       {

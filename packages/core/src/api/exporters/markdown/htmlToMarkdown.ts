@@ -780,7 +780,13 @@ function serializeInlineContent(el: Element): string {
             ...(text.match(/`+/g) ?? []).map((run) => run.length),
           );
           const fence = "`".repeat(longestRun + 1);
-          const needsPadding = text.startsWith("`") || text.endsWith("`");
+          // A markdown parser removes one space from each side of a code span
+          // that starts and ends with a space and has other characters
+          // (CommonMark). Add a space on each side to keep these spaces.
+          const needsPadding =
+            text.startsWith("`") ||
+            text.endsWith("`") ||
+            (text.startsWith(" ") && text.endsWith(" ") && /[^ ]/.test(text));
           result += fence + (needsPadding ? ` ${text} ` : text) + fence;
           break;
         }
