@@ -45,9 +45,11 @@ function tryBackslashEscape(
     return null;
   }
   const next = text[i + 1];
-  // Hard line break: backslash at end of line
+  // Hard line break: backslash at end of line. No newline follows the `<br>`:
+  // the HTML parser reads that newline as a space at the start of the next
+  // line.
   if (next === "\n") {
-    return { html: "<br>\n", end: i + 2 };
+    return { html: "<br>", end: i + 2 };
   }
   // Escapable characters
   if ("\\`*_{}[]()#+-.!~|<>".includes(next)) {
@@ -219,7 +221,7 @@ function trySoftBreak(
   i: number,
 ): { html: string; end: number } | null {
   if (text[i] === "\n") {
-    return { html: "<br>\n", end: i + 1 };
+    return { html: "<br>", end: i + 1 };
   }
   return null;
 }
@@ -322,7 +324,7 @@ function parseInline(text: string, allowLinks = true): string {
       text[i - 2] === " "
     ) {
       result = result.replace(/ +$/, "");
-      result += "<br>\n";
+      result += "<br>";
       i++;
       continue;
     }
