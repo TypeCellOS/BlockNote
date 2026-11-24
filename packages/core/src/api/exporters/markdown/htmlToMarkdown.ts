@@ -1,4 +1,5 @@
 import { parseLinkFigure } from "../../../blocks/File/helpers/parse/parseLinkFigure.js";
+import { detachedDoc } from "../../../util/detachedDoc.js";
 import { parseAutolinkLiteral } from "../../parsers/markdown/autolink.js";
 import { wrapWithDelimiter } from "./wrapWithDelimiter.js";
 
@@ -17,7 +18,7 @@ export function htmlToMarkdown(html: string): string {
   // Use a temporary element to parse HTML. This works in both browser and
   // server (JSDOM) environments, unlike `new DOMParser()` which may not be
   // globally available in Node.js.
-  const container = document.createElement("div");
+  const container = detachedDoc().createElement("div");
   container.innerHTML = html;
   const result = serializeChildren(container, {
     indent: "",
