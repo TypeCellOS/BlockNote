@@ -8,14 +8,16 @@ import { fragmentToBlocks } from "../../api/nodeConversions/fragmentToBlocks.js"
 import { getNodeById } from "../../api/nodeUtil.js";
 import { Block } from "../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { applyBlockNoteRootTheme } from "../../util/applyBlockNoteRootTheme.js";
 import {
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
 } from "../../schema/index.js";
 import { MultipleNodeSelection } from "./MultipleNodeSelection.js";
+import { captureDragSelection } from "./dragSelection.js";
 
-let dragImageElement: Element | undefined;
+let dragImageElement: HTMLElement | undefined;
 
 function blockPositionsFromSelection(selection: Selection, doc: Node) {
   // Absolute positions just before the first block spanned by the selection, and just after the last block. Having the
@@ -92,6 +94,16 @@ function setDragImage(view: EditorView, from: number, to = from) {
   const preview =
     (container?.cloneNode(false) as HTMLElement | undefined) ??
     document.createElement("div");
+  // Keep skin-specific attributes from the clone, but apply only its theme,
+  // not application layout. React's portal roots use the same theme contract.
+  preview.removeAttribute("style");
+  if (container instanceof HTMLElement) {
+    applyBlockNoteRootTheme(preview, {
+      className: container.className,
+      colorScheme: container.getAttribute("data-color-scheme"),
+      style: container.style,
+    });
+  }
   preview.removeAttribute("id");
   preview.classList.add("bn-drag-preview");
   const editor = document.createElement("div");
@@ -99,27 +111,11 @@ function setDragImage(view: EditorView, from: number, to = from) {
   editor.appendChild(blocks);
   preview.appendChild(editor);
 
-  // The layout is inline, so that app CSS on the copied classes (e.g. a height
-  // on `.bn-editor`) does not change it. The preview is off-screen, as the
-  // browser only needs it for its snapshot: `opacity` would also hide it in
-  // the snapshot in Firefox and Safari. Taller than the cap, it would reach
-  // into the page from above.
-  Object.assign(preview.style, {
-    background: "transparent",
-    position: "absolute",
-    top: "-10000px",
-    left: "0",
-    margin: "0",
-    padding: "10px",
-    height: "auto",
-    minHeight: "0",
-    maxHeight: "75vh",
-    overflow: "hidden",
-  });
+  // Isolate the snapshot's content box from application editor layout rules,
+  // regardless of stylesheet order. Appearance and native/touch positioning stay
+  // in CSS so applications can theme the preview without changing its geometry.
   Object.assign(editor.style, {
-    // Keep the editor's background out of the empty space around the blocks.
-    background: "transparent",
-    width: `${(view.nodeDOM(from) as HTMLElement).offsetWidth}px`,
+    width: "var(--bn-drag-source-width)",
     height: "auto",
     minHeight: "0",
     maxHeight: "none",
@@ -127,6 +123,10 @@ function setDragImage(view: EditorView, from: number, to = from) {
     padding: "0",
     overflow: "visible",
   });
+  preview.style.setProperty(
+    "--bn-drag-source-width",
+    `${(view.nodeDOM(from) as HTMLElement).offsetWidth}px`,
+  );
 
   // dataTransfer.setDragImage(element) only works if element is attached to the DOM.
   unsetDragImage(view.root);
@@ -148,6 +148,34 @@ export function unsetDragImage(rootEl: Document | ShadowRoot) {
 
     dragImageElement = undefined;
   }
+}
+
+/** Reuse the themed native preview as a small, non-interactive touch thumbnail. */
+export function moveTouchDragImage(x: number, y: number, source: HTMLElement) {
+  const preview = dragImageElement;
+  if (!preview) {
+    return;
+  }
+  if (!preview.classList.contains("bn-touch-drag-preview")) {
+    preview.classList.add("bn-touch-drag-preview");
+    // Keep the grabbed point under the finger even when a large block is scaled
+    // down. Cache it before scrolling changes the source's position.
+    const rect = source.getBoundingClientRect();
+    const offsetX = ((x - rect.left) / rect.width) * preview.offsetWidth;
+    const offsetY = ((y - rect.top) / rect.height) * preview.offsetHeight;
+    preview.style.setProperty(
+      "--bn-touch-drag-width",
+      String(preview.offsetWidth),
+    );
+    preview.style.setProperty(
+      "--bn-touch-drag-height",
+      String(preview.offsetHeight),
+    );
+    preview.style.setProperty("--bn-touch-drag-grab-x", `${offsetX}px`);
+    preview.style.setProperty("--bn-touch-drag-grab-y", `${offsetY}px`);
+  }
+  preview.style.setProperty("--bn-touch-drag-x", `${x}px`);
+  preview.style.setProperty("--bn-touch-drag-y", `${y}px`);
 }
 
 export function dragStart<
@@ -215,6 +243,7 @@ export function dragStart<
     const plainText = cleanHTMLToMarkdown(externalHTML);
 
     e.dataTransfer.clearData();
+    captureDragSelection(e.dataTransfer, selection, view.state.selection);
     e.dataTransfer.setData("blocknote/html", clipboardHTML);
     // The type of the dragged blocks' parent. The editors parse the blocks
     // into it (see `blockDropHandling.ts`), so that a block that only this

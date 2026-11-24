@@ -9,6 +9,8 @@ import { createReactBlockSpec, useCreateBlockNote } from "@blocknote/react";
 import TestingApp from "@examples/01-basic/testing/src/App";
 import PdfFileApp from "@examples/06-custom-schema/04-pdf-file-block/src/App";
 import { createRef } from "react";
+import { TextSelection } from "@tiptap/pm/state";
+import { getNodeById } from "../../../../packages/core/src/api/nodeUtil.js";
 import { describe, expect, test } from "vite-plus/test";
 import { render } from "vitest-browser-react";
 import {
@@ -34,9 +36,11 @@ import {
   dropDraggedBlock,
   getRect,
   mouseSequence,
+  moveMouseOverElement,
   startBlockDrag,
 } from "../../utils/mouse.js";
 import { executeSlashCommand } from "../../utils/slashmenu.js";
+import { MultipleNodeSelection } from "../../../../packages/core/src/extensions/SideMenu/MultipleNodeSelection.js";
 
 // `expect.element` is augmented against the bare `vitest` module, but vite-plus
 // types `expect` from an internal module, so the augmentation doesn't attach.
@@ -528,8 +532,176 @@ describe.skipIf(browserName === "firefox")("Dropping into a block", () => {
 describe.skipIf(browserName === "firefox")(
   "Focus after dragging a block",
   () => {
-    // The drop leaves a text cursor in the editor, so the keyboard works on it
-    // right away, e.g. to undo the drop (#3165).
+    test("a touch block-selection drop does not refocus the editable element", async () => {
+      await renderEditors([
+        { id: "a", type: "paragraph", content: "A" },
+        { id: "b", type: "paragraph", content: "B" },
+      ]);
+      const view = editors[0].prosemirrorView;
+      view.dispatch(
+        view.state.tr.setSelection(
+          MultipleNodeSelection.create(
+            view.state.doc,
+            1,
+            1 + view.state.doc.firstChild!.firstChild!.nodeSize,
+          ),
+        ),
+      );
+      // The browser test drives a mouse drag, so fake only the initiating
+      // pointer type before the handle's dragstart handler. Native iOS checks
+      // long-press initiation and the software keyboard separately.
+      function markTouch(event: DragEvent) {
+        event.target!.dispatchEvent(
+          new PointerEvent("pointerdown", {
+            bubbles: true,
+            pointerType: "touch",
+          }),
+        );
+      }
+      document.addEventListener("dragstart", markTouch, {
+        once: true,
+        capture: true,
+      });
+      try {
+        await dragAndDropBlock(block("a"), block("b"), false);
+      } finally {
+        document.removeEventListener("dragstart", markTouch, true);
+      }
+      expect(view.state.selection).toBeInstanceOf(MultipleNodeSelection);
+      expect(view.hasFocus()).toBe(false);
+    });
+
+    for (const intoToggle of [false, true]) {
+      test(`preserves block selection after dropping ${intoToggle ? "into a toggle" : "between blocks"}`, async () => {
+        await renderEditors([
+          { id: "a", type: "paragraph", content: "A" },
+          {
+            id: "b",
+            type: intoToggle ? "toggleListItem" : "paragraph",
+            content: "B",
+          },
+        ]);
+        const view = editors[0].prosemirrorView;
+        view.dispatch(
+          view.state.tr.setSelection(
+            MultipleNodeSelection.create(
+              view.state.doc,
+              1,
+              1 + view.state.doc.firstChild!.firstChild!.nodeSize,
+            ),
+          ),
+        );
+        await dragAndDropBlock(
+          block("a"),
+          intoToggle
+            ? block("b").querySelector(".bn-block-content")!
+            : block("b"),
+          false,
+        );
+        const selection = view.state.selection;
+        expect(selection).toBeInstanceOf(MultipleNodeSelection);
+        if (!(selection instanceof MultipleNodeSelection)) {
+          throw new Error("Expected the dropped block to remain selected");
+        }
+        expect(selection.nodes.map((node) => node.attrs.id)).toEqual(["a"]);
+        await expectElement(view.dom).toHaveFocus();
+        await userEvent.keyboard(`{${MOD}>}z{/${MOD}}`);
+        expect(ids(editors[0].document)).toEqual(["a", "b"]);
+      });
+
+      test(`preserves text selection after dropping ${intoToggle ? "into a toggle" : "between blocks"}`, async () => {
+        await renderEditors([
+          { id: "a", type: "paragraph", content: "A" },
+          {
+            id: "b",
+            type: intoToggle ? "toggleListItem" : "paragraph",
+            content: "B",
+          },
+        ]);
+        editors[0].setTextCursorPosition("a", "end");
+        await dragAndDropBlock(
+          block("a"),
+          intoToggle
+            ? block("b").querySelector(".bn-block-content")!
+            : block("b"),
+          false,
+        );
+        expect(editors[0].prosemirrorView.state.selection).toBeInstanceOf(
+          TextSelection,
+        );
+        expect(editors[0].getTextCursorPosition().block.id).toBe("a");
+      });
+    }
+
+    test("preserves a descendant text range when its parent drops into a toggle", async () => {
+      await renderEditors([
+        { id: "toggle", type: "toggleListItem", content: "Toggle" },
+        {
+          id: "parent",
+          type: "paragraph",
+          content: "Parent",
+          children: [{ id: "child", type: "paragraph", content: "abcdef" }],
+        },
+      ]);
+      const view = editors[0].prosemirrorView;
+      const childPosition = getNodeById("child", view.state.doc)!.posBeforeNode;
+      // Reveal and approach the parent's handle before selecting the child:
+      // the child's formatting toolbar can cover the parent's hover target.
+      await moveMouseOverElement(
+        block("parent").querySelector(".bn-block-content")!,
+      );
+      const handle = getRect(await waitForSelector('[data-test="dragHandle"]'));
+      const handleX = handle.x + handle.width / 2;
+      const handleY = handle.y + handle.height / 2;
+      await mouseSequence([{ type: "move", x: handleX, y: handleY, steps: 5 }]);
+      view.dispatch(
+        view.state.tr.setSelection(
+          TextSelection.create(
+            view.state.doc,
+            childPosition + 3,
+            childPosition + 5,
+          ),
+        ),
+      );
+      await mouseSequence([
+        { type: "down" },
+        { type: "move", x: handleX + 10, y: handleY + 10, steps: 5 },
+      ]);
+      const target = getRect(
+        block("toggle").querySelector(".bn-block-content")!,
+      );
+      await mouseSequence([
+        {
+          type: "move",
+          x: target.x + 50,
+          y: target.y + target.height / 2,
+          steps: 5,
+        },
+        // Native dragover may require two moves over the target (Playwright).
+        { type: "move", x: target.x + 50, y: target.y + target.height / 2 },
+      ]);
+      try {
+        await waitForSelector("[data-drop-target]");
+      } finally {
+        await mouseSequence([{ type: "up" }]);
+      }
+      await expect
+        .poll(() => ids(editors[0].getBlock("toggle")!.children))
+        .toEqual(["parent"]);
+      const movedChildPosition = getNodeById(
+        "child",
+        view.state.doc,
+      )!.posBeforeNode;
+      await expect
+        .poll(() => view.state.selection.toJSON())
+        .toEqual({
+          type: "text",
+          anchor: movedChildPosition + 3,
+          head: movedChildPosition + 5,
+        });
+    });
+
+    // Keyboard focus, independently of selection type, allows undo (#3165).
     test("undoes a drop with the keyboard", async () => {
       await renderEditors([
         { id: "a", type: "paragraph", content: "A" },

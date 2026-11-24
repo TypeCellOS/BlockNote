@@ -142,12 +142,13 @@ describe("Check Multi-Column Drop Behaviour", () => {
     },
   );
 
-  // The drop leaves a text cursor at the end of the dropped block, so typing
-  // continues there (#3165).
+  // The drop retains focus (#3165) and the cursor's position within the block,
+  // so typing continues at the original offset rather than jumping to its end.
   test.skipIf(browserName === "firefox")(
     "Check typing after dragging a block to a new column",
     async () => {
       await focusOnOutsideParagraph();
+      await userEvent.keyboard("{Home}{ArrowRight}{ArrowRight}{ArrowRight}");
 
       await dragAndDropBlock(
         page.getByText("Paragraph outside columns").element(),
@@ -157,7 +158,7 @@ describe("Check Multi-Column Drop Behaviour", () => {
       await userEvent.keyboard("X");
 
       expect(
-        page.getByText("Paragraph outside columnsX").element(),
+        page.getByText("ParXagraph outside columns").element(),
       ).toBeDefined();
     },
   );
