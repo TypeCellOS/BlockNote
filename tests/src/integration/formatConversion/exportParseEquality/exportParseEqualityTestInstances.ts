@@ -747,6 +747,54 @@ export const markdownRoundTripCases: CoreExportCase[] = [
       },
     ],
   },
+  // A table row is one line of markdown. A hard break in a cell must not
+  // end that line, or the parse reads the rest of the row as a new row.
+  {
+    name: "markdown/tableWithHardBreakInCell",
+    content: [
+      {
+        type: "table",
+        content: {
+          type: "tableContent",
+          headerRows: 1,
+          rows: [
+            {
+              cells: [
+                [{ type: "text", text: "Header 1\nLine 2", styles: {} }],
+                "Header 2",
+              ],
+            },
+            {
+              cells: [
+                [{ type: "text", text: "Cell 1\nLine 2", styles: {} }],
+                "Cell 2",
+              ],
+            },
+          ],
+        },
+      },
+    ],
+  },
+  // A hard break at the edge of a cell stays in the cell too.
+  {
+    name: "markdown/tableWithLineBreakAtCellEdge",
+    content: [
+      {
+        type: "table",
+        content: {
+          type: "tableContent",
+          rows: [
+            {
+              cells: [
+                [{ type: "text", text: "\nCell 1", styles: {} }],
+                [{ type: "text", text: "Cell 2\n", styles: {} }],
+              ],
+            },
+          ],
+        },
+      },
+    ],
+  },
   {
     name: "markdown/quote",
     content: [

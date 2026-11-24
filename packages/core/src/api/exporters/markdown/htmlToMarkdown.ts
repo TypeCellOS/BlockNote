@@ -25,6 +25,9 @@ export function htmlToMarkdown(html: string): string {
   return result.trim() + "\n";
 }
 
+/** A serialized hard break: a backslash at the end of the line. */
+const HARD_BREAK = "\\\n";
+
 interface SerializeContext {
   indent: string; // current indentation prefix for list nesting
   // True when the current node is being serialized as continuation content
@@ -455,8 +458,13 @@ function serializeTable(el: HTMLElement, ctx: SerializeContext): string {
         hasHeader = true;
       }
 
+      // A table row is one line, so the line end of a hard break would cut
+      // the row. Write each hard break as the HTML `<br>` tag, which the
+      // markdown parser reads as a hard break.
       const content = escapeTableCell(
-        serializeInlineContent(cell as HTMLElement).trim(),
+        serializeInlineContent(cell as HTMLElement)
+          .replaceAll(HARD_BREAK, "<br>")
+          .trim(),
       );
       const colspan = parseInt(cell.getAttribute("colspan") || "1", 10);
       const rowspan = parseInt(cell.getAttribute("rowspan") || "1", 10);
@@ -829,7 +837,7 @@ function serializeInlineContent(el: Element): string {
           break;
         }
         case "br":
-          result += "\\\n";
+          result += HARD_BREAK;
           break;
         case "math": {
           // Inline math — emit its LaTeX source as a math span. Collapsed to
