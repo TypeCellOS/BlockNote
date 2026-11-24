@@ -607,6 +607,26 @@ export const htmlParseCases: ParseTestCase[] = [
     name: "inlineImageInHeading",
     content: `<h1><img src="https://example.com/logo.png" alt="Project logo" width="32"> Project</h1>`,
   },
+  // Images in table cells, as GitHub writes them (each image is in a link). A
+  // table cell cannot hold a block, so the image becomes a link with its alt
+  // text.
+  {
+    name: "inlineImageInTableCell",
+    content: `<table>
+<thead>
+<tr>
+<th>Light</th>
+<th>Dark</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a target="_blank" rel="noopener noreferrer" href="https://github.com/octo/repo/blob/main/docs/light.png"><img src="https://github.com/octo/repo/raw/main/docs/light.png" alt="Light theme" style="max-width: 100%;"></a></td>
+<td><a target="_blank" rel="noopener noreferrer" href="https://github.com/octo/repo/blob/main/docs/dark.png"><img src="https://github.com/octo/repo/raw/main/docs/dark.png" alt="Dark theme" style="max-width: 100%;"></a></td>
+</tr>
+</tbody>
+</table>`,
+  },
   {
     name: "fakeImageCaption",
     content: `<div>
@@ -1784,6 +1804,14 @@ Final paragraph with [a link](https://example.com).`,
   {
     name: "inlineImageInHeading",
     content: `## Heading ![inline](https://example.com/img.png) text after`,
+  },
+  // Images in table cells, with text and alone. A table cell cannot hold a
+  // block, so the image becomes a link with its alt text.
+  {
+    name: "inlineImageInTableCell",
+    content: `| Step | Result |
+| --- | --- |
+| Open the menu ![The menu](https://example.com/menu.png) | ![The result](https://example.com/result.png) |`,
   },
   // Code block immediately after heading
   {

@@ -8,10 +8,18 @@ const TEXT_BLOCKS = "p, blockquote, h1, h2, h3, h4, h5, h6";
  * ProseMirror drops a block that is in the text of a block.
  *
  * A paragraph, a quote and a heading split around the image, and the parts
- * keep the attributes of the element.
+ * keep the attributes of the element. A table cell cannot hold a block, thus
+ * a link replaces the image there.
  */
 export function moveImagesOutOfText(root: HTMLElement) {
   for (const image of root.querySelectorAll("img")) {
+    if (image.closest("td, th")) {
+      const link = detachedDoc().createElement("a");
+      link.href = image.src;
+      link.textContent = image.alt || image.src;
+      image.replaceWith(link);
+      continue;
+    }
     // Splits the parent of the image until no text block holds the image: a
     // copy of the parent takes the content before the image.
     while (image.parentElement?.closest(TEXT_BLOCKS)) {
