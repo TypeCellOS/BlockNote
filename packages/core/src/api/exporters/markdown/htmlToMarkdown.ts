@@ -679,8 +679,10 @@ function serializeMediaFigure(
         ? `<a href="${escapeHtmlAttr(src)}">${escapeHtmlText(descriptor)}</a>`
         : `<${kind} src="${escapeHtmlAttr(src)}"${descAttr} controls></${kind}>`;
 
+  // A line feed is a character reference, so that the figure stays on one
+  // line: an empty line in the caption would end the HTML block in markdown.
   const captionPart = captionText
-    ? `<figcaption>${escapeHtmlText(captionText)}</figcaption>`
+    ? `<figcaption>${escapeHtmlText(captionText).replace(/\n/g, "&#10;")}</figcaption>`
     : "";
   return ctx.indent + `<figure>${tag}${captionPart}</figure>\n\n`;
 }

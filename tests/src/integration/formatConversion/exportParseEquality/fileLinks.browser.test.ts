@@ -231,3 +231,24 @@ describe("external HTML of a React file block with a caption", () => {
     },
   );
 });
+
+describe("markdown of a figure with a caption", () => {
+  // The caption is raw HTML in markdown. An empty line in it ended the HTML
+  // block: the rest of the caption became a paragraph.
+  it.for(["file", "image"] as const)(
+    "keeps a %s block as one block, with an empty line and HTML characters in the caption",
+    async (type, { setupEditor }) => {
+      const { editor } = await setupEditor({ mountType: false });
+      const url = "https://example.com/a.png";
+
+      const markdown = editor.blocksToMarkdownLossy([
+        { type, props: { url, caption: "One\n\n<b>Two</b> & three" } },
+      ]);
+
+      // The HTML parse reads a line feed in text as a space.
+      expect(editor.tryParseMarkdownToBlocks(markdown)).toMatchObject([
+        { type, props: { url, caption: "One <b>Two</b> & three" } },
+      ]);
+    },
+  );
+});
