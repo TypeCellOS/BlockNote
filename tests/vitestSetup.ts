@@ -1,5 +1,5 @@
 import { afterEach, beforeEach } from "vite-plus/test";
-import { testOptionsHost } from "./src/unit/shared/testOptions.js";
+import { testOptionsHost } from "./src/integration/shared/testOptions.js";
 
 beforeEach(() => {
   testOptionsHost.__TEST_OPTIONS = {};

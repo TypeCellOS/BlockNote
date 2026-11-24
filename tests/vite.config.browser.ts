@@ -151,14 +151,13 @@ export default defineConfig(
         // Preserve Vitest 4 mock history during the toolchain upgrade.
         clearMocks: false,
         name: "e2e",
-        // Besides the end-to-end tests, this suite also runs the packages'
-        // `.browser.test` files: unit tests for browser-only implementations
-        // (canvas rasterization, diagram rendering), colocated with the code
-        // they test but needing a real browser. Native screen-reader tests use
-        // their own runner. The packages' node configs exclude browser tests.
+        // Besides end-to-end tests, this suite runs browser integration tests
+        // and browser tests colocated with the code they cover. Native
+        // screen-reader tests use their own runner. Node configs exclude
+        // browser tests.
         include: [
           "./src/end-to-end/**/*.test.tsx",
-          "./src/unit/**/*.browser.test.?(c|m)[jt]s?(x)",
+          "./src/integration/**/*.browser.test.?(c|m)[jt]s?(x)",
           "../examples/*/*/src/**/*.browser.test.?(c|m)[jt]s?(x)",
           "../packages/*/src/**/*.browser.test.?(c|m)[jt]s?(x)",
         ],

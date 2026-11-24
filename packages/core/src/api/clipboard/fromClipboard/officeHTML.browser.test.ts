@@ -513,7 +513,7 @@ describe("Word clipboard list transitions", () => {
 
 describe("Google Docs clipboard normalization", () => {
   // Source shapes are reduced from the repository's googleDocs parse fixture
-  // (tests/src/unit/core/formatConversion/parse/parseTestInstances.ts), plus
+  // (tests/src/integration/core/formatConversion/parse/parseTestInstances.ts), plus
   // CKEditor 5's captured Firefox paragraph wrapper:
   // https://github.com/ckeditor/ckeditor5/blob/e7c72a94f7cc6be9dff5ae0bfb81af3eaa42f62d/packages/ckeditor5-paste-from-office/tests/_data/paste-from-google-docs/bold-wrapper/simple-text/input.firefox.html
   // Copyright (c) 2003-2026, CKSource Holding sp. z o.o.
