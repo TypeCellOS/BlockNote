@@ -71,6 +71,48 @@ beforeEach(async () => {
 });
 
 describe("Check Table interactions", () => {
+  // Cancellation is a native drag lifecycle check; visual coverage lives in
+  // TableHandles/dragPreview.browser.test.ts alongside the preview implementation.
+  test.skipIf(browserName === "firefox")(
+    "Escape cancels a table drag and cleans up its visuals",
+    async () => {
+      await focusOnEditor();
+      await insertParagraph();
+      await executeSlashCommand("table");
+      const rows = document.querySelectorAll(`${TABLE_SELECTOR} tr`);
+      const handle = await getTableHandle(
+        rows[0].querySelector<HTMLElement>("td, th")!,
+        "row",
+      );
+      const box = handle.getBoundingClientRect();
+      const target = rows[1].children[0].getBoundingClientRect();
+      await mouseSequence([
+        { type: "move", x: box.x + box.width / 2, y: box.y + box.height / 2 },
+        { type: "down" },
+        {
+          type: "move",
+          x: target.x + target.width / 2,
+          y: target.y + target.height / 2,
+          steps: 10,
+        },
+      ]);
+      await vi.waitFor(() =>
+        expect(
+          document.querySelector(".bn-table-drag-source-row"),
+        ).not.toBeNull(),
+      );
+      await userEvent.keyboard("{Escape}");
+      await mouseSequence([{ type: "up" }]);
+      await vi.waitFor(() =>
+        expect(
+          document.querySelector(
+            ".bn-table-drag-source-row, .bn-table-drop-cursor, .bn-table-drag-preview",
+          ),
+        ).toBeNull(),
+      );
+    },
+  );
+
   test("Should be able to type in cell", async () => {
     await focusOnEditor();
     await executeSlashCommand("table");
