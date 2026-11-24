@@ -30,7 +30,7 @@ export const SideMenuButton = forwardRef<
   return (
     <ShadCNComponents.Button.Button
       variant={"ghost"}
-      className={cn(className, "text-gray-400")}
+      className={cn("bn-side-menu-button", className, "text-gray-400")}
       ref={ref}
       aria-label={label}
       onClick={onClick}

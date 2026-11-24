@@ -3,6 +3,7 @@ import { AiOutlinePlus } from "react-icons/ai";
 
 import { useCallback } from "react";
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
+import { useEditorState } from "../../../hooks/useEditorState.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
 import {
@@ -17,6 +18,10 @@ export const AddBlockButton = () => {
   const editor = useBlockNoteEditor<any, any, any>();
 
   const suggestionMenu = useExtension(SuggestionMenu);
+  const isEditable = useEditorState({
+    editor,
+    selector: ({ editor }) => editor.isEditable,
+  });
   const block = useExtensionState(SideMenuExtension, {
     editor,
     selector: (state) => state?.block,
@@ -47,17 +52,16 @@ export const AddBlockButton = () => {
     }
   }, [block, editor, suggestionMenu]);
 
-  if (block === undefined) {
+  if (!isEditable || block === undefined) {
     return null;
   }
 
   return (
     <Components.SideMenu.Button
-      className={"bn-button"}
+      className={"bn-side-menu-button"}
       label={dict.side_menu.add_block_label}
-      icon={
-        <AiOutlinePlus size={24} onClick={onClick} data-test="dragHandleAdd" />
-      }
+      onClick={onClick}
+      icon={<AiOutlinePlus size={24} data-test="dragHandleAdd" />}
     />
   );
 };

@@ -156,7 +156,11 @@
   justify-content: center;
 }
 
-.bn-side-menu .bn-ak-button {
+.bn-side-menu-button:where(.bn-ak-button) {
+  color: gray;
+}
+
+.bn-side-menu-button.bn-ak-button {
   height: fit-content;
   padding: 0;
   width: fit-content;

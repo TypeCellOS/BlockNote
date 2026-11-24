@@ -120,7 +120,7 @@ export const MenuItem = forwardRef<
             onMouseDown={preventFocusOnTap}
           />
         }
-        className={mergeCSSClasses("bn-ak-menu-item", className || "")}
+        className={mergeCSSClasses("bn-menu-item bn-ak-menu-item", className)}
         ref={ref}
         onClick={onClick}
         disabled={disabled}
@@ -134,7 +134,7 @@ export const MenuItem = forwardRef<
   }
   return (
     <AriakitMenuItem
-      className={mergeCSSClasses("bn-ak-menu-item", className || "")}
+      className={mergeCSSClasses("bn-menu-item bn-ak-menu-item", className)}
       ref={ref}
       onClick={onClick}
       disabled={disabled}
