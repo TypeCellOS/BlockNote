@@ -376,6 +376,66 @@ export const htmlParseCases: ParseTestCase[] = [
   </li>
 </ul>`,
   },
+  // An empty paragraph before the content of a list item is not the content
+  // of the list item. Tiptap writes this form for an empty first line.
+  {
+    name: "listItemEmptyParagraphBeforeContent",
+    content: `<ul><li><p></p><p>Item 1</p><ul><li><p>Nested</p></li></ul></li></ul>`,
+  },
+  // The HTML export of Notion: the text of the list item is directly in the
+  // `<li>`, and a child block comes after it.
+  {
+    name: "listItemTextAndBlockBeforeNestedList",
+    content: `<ul class="bulleted-list"><li style="list-style-type:disc">Item 1<p class="">Child</p><ul class="bulleted-list"><li style="list-style-type:circle">Nested</li></ul></li></ul>`,
+  },
+  // GitHub puts an image into a link. The image is a block, thus the text
+  // before the link is the content of the list item.
+  {
+    name: "listItemLinkedImageBeforeNestedList",
+    content: `<ul dir="auto">
+<li>Item 1 <a target="_blank" rel="noopener noreferrer" href="https://example.com/image.png"><img src="https://example.com/image.png" alt="alt" style="max-width: 100%;"></a>
+<ul dir="auto">
+<li>Nested</li>
+</ul>
+</li>
+</ul>`,
+  },
+  // A markdown renderer writes these forms for a list item that starts with a
+  // heading, a code block or a quote.
+  {
+    name: "listItemHeadingCodeQuoteBeforeNestedList",
+    content: `<ul>
+  <li><h3>Heading</h3><p>Child 1</p><ul><li>Nested 1</li></ul></li>
+  <li><pre><code>Code</code></pre><p>Child 2</p><ul><li>Nested 2</li></ul></li>
+  <li><blockquote><p>Quote</p></blockquote><p>Child 3</p><ul><li>Nested 3</li></ul></li>
+</ul>`,
+  },
+  // Plate puts the content of a list item into a `div`. The `div` is not the
+  // first child block of the list item.
+  {
+    name: "listItemContentInDivBeforeNestedList",
+    content: `<ul class="slate-ul"><li class="slate-li"><div class="slate-lic">Item 1</div><ul class="slate-ul"><li class="slate-li"><div class="slate-lic">Nested</div></li></ul></li></ul>`,
+  },
+  // Lexical puts a nested list into a list item of its own. The nested list
+  // goes to the list item before it.
+  {
+    name: "nestedListInOwnListItem",
+    content: `<ul><li value="1"><span style="white-space: pre-wrap;">Item 1</span></li><li value="2"><ul><li value="1"><span style="white-space: pre-wrap;">Nested</span></li></ul></li><li value="2"><span style="white-space: pre-wrap;">Item 2</span></li></ul>`,
+  },
+  // The same form with check boxes. Lexical writes the check state as
+  // `aria-checked`, which the parser does not read. Thus this case has `input`
+  // elements.
+  {
+    name: "nestedCheckListInOwnListItem",
+    content: `<ul><li><input type="checkbox" checked>Item 1</li><li><ul><li><input type="checkbox">Nested</li></ul></li><li><input type="checkbox">Item 2</li></ul>`,
+  },
+  // A nested list in the list item, and a list next to the list item (the
+  // form of Google Docs). Both are children of the list item. No known tool
+  // writes the two forms together.
+  {
+    name: "nestedListInAndNextToListItem",
+    content: `<ul><li>Item 1<ul><li>Nested 1</li></ul></li><ul><li>Nested 2</li></ul></ul>`,
+  },
   {
     name: "textTableCell",
     content: `<table>
