@@ -789,6 +789,14 @@ console.log("Third Line")</code></pre>`,
     content: `<video><source src="exampleURL"></video>
 <audio><source src="exampleURL"></audio>`,
   },
+  // The `data-url` attribute of BlockNote's own HTML is a source.
+  {
+    name: "mediaWithDataUrl",
+    content: `<img data-url="exampleURL">
+<video data-url="exampleURL"></video>
+<audio data-url="exampleURL"></audio>
+<embed data-url="exampleURL">`,
+  },
   {
     name: "textAlignmentProp",
     content: `<p style="text-align: center">Text Align Center</p>`,

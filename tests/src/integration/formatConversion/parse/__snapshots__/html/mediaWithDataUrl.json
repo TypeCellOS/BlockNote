@@ -1,0 +1,55 @@
+[
+  {
+    "children": [],
+    "content": undefined,
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "caption": "",
+      "name": "",
+      "showPreview": true,
+      "textAlignment": "left",
+      "url": "exampleURL",
+    },
+    "type": "image",
+  },
+  {
+    "children": [],
+    "content": undefined,
+    "id": "2",
+    "props": {
+      "backgroundColor": "default",
+      "caption": "",
+      "name": "",
+      "showPreview": true,
+      "textAlignment": "left",
+      "url": "exampleURL",
+    },
+    "type": "video",
+  },
+  {
+    "children": [],
+    "content": undefined,
+    "id": "3",
+    "props": {
+      "backgroundColor": "default",
+      "caption": "",
+      "name": "",
+      "showPreview": true,
+      "url": "exampleURL",
+    },
+    "type": "audio",
+  },
+  {
+    "children": [],
+    "content": undefined,
+    "id": "4",
+    "props": {
+      "backgroundColor": "default",
+      "caption": "",
+      "name": "",
+      "url": "exampleURL",
+    },
+    "type": "file",
+  },
+]
