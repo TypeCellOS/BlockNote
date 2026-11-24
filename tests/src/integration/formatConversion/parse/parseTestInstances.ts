@@ -599,6 +599,18 @@ export const htmlParseCases: ParseTestCase[] = [
 </div>
 <p>The end</p>`,
   },
+  // Text with a style before the image: the text before the image keeps its
+  // order.
+  {
+    name: "inlineImageAfterStyledText",
+    content: `<p>Open <strong>the menu</strong> and look: <img src="https://example.com/menu.png" alt="The menu"> Then close it.</p>`,
+  },
+  // A paragraph with an image and a video, and no text. No part has text, so
+  // there is no paragraph, but the video stays.
+  {
+    name: "imageAndVideoInParagraph",
+    content: `<p><img src="https://example.com/photo.jpg" alt="Photo"><video src="https://example.com/clip.mp4"></video></p>`,
+  },
   // An image in the paragraph of a list item, as GitHub writes it (the image
   // is in a link). The image and the text after it become children of the
   // list item.
@@ -625,6 +637,30 @@ export const htmlParseCases: ParseTestCase[] = [
   {
     name: "inlineImageInHeading",
     content: `<h1><img src="https://example.com/logo.png" alt="Project logo" width="32"> Project</h1>`,
+  },
+  // An image without a URL in a table cell: there is no link, and the cell
+  // does not get the alt text.
+  {
+    name: "imageWithoutUrlInTableCell",
+    content: `<table>
+<tr>
+<td>Before <img alt="A picture that is not there"> after</td>
+</tr>
+</table>`,
+  },
+  // A heading with an image and only a space after it, as Word writes it. A
+  // part with only white space is not a block: there is no empty heading.
+  {
+    name: "imageAndSpaceInHeading",
+    content: `<h2><img src="https://example.com/logo.png" alt="Logo"><span style="mso-spacerun: yes"> </span></h2>`,
+  },
+  // Each heading level splits around an image.
+  {
+    name: "inlineImageInHeadingLevels",
+    content: `<h3>Level three <img src="https://example.com/3.png" alt="3"></h3>
+<h4>Level four <img src="https://example.com/4.png" alt="4"></h4>
+<h5>Level five <img src="https://example.com/5.png" alt="5"></h5>
+<h6>Level six <img src="https://example.com/6.png" alt="6"></h6>`,
   },
   // Images in table cells, as GitHub writes them (each image is in a link). A
   // table cell cannot hold a block, so the image becomes a link with its alt
@@ -1874,6 +1910,17 @@ More text`,
   {
     name: "inlineImageInListItem",
     content: `- Item ![inline](https://example.com/img.png) text after`,
+  },
+  // A nested list after an image in a list item. The nested list moves out of
+  // its item, and the numbers start again. This is a fault of the list parse:
+  // it occurs for each list item that has a block as a child. This snapshot
+  // changes when the list parse is corrected.
+  {
+    name: "inlineImageInListItemWithNestedList",
+    content: `1. Step one ![shot](https://example.com/shot.png)
+   - sub a
+   - sub b
+2. Step two`,
   },
   // An image in a quote: the quote splits around the image.
   {
