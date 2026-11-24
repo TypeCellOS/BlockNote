@@ -1,3 +1,5 @@
+import { detachedDoc } from "../../../../util/detachedDoc.js";
+
 function getChildIndex(node: Element) {
   return Array.prototype.indexOf.call(node.parentElement!.childNodes, node);
 }
@@ -97,16 +99,6 @@ function createGroups(element: HTMLElement) {
       blockGroup.append(blockContainer.nextElementSibling);
     }
   });
-}
-
-// prevent XSS, similar to https://github.com/ProseMirror/prosemirror-view/blob/1251b2b412656a2a06263e4187574beb43651273/src/clipboard.ts#L204
-// https://github.com/TypeCellOS/BlockNote/issues/601
-let _detachedDoc: Document | null = null;
-function detachedDoc() {
-  return (
-    _detachedDoc ||
-    (_detachedDoc = document.implementation.createHTMLDocument("title"))
-  );
 }
 
 export function nestedListsToBlockNoteStructure(

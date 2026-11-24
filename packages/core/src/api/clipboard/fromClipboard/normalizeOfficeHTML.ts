@@ -1,3 +1,4 @@
+import { detachedDoc } from "../../../util/detachedDoc.js";
 import { EMPTY_BLOCK_PLACEHOLDER } from "../../exporters/html/util/serializeBlocksExternalHTML.js";
 
 // Check the original string: attributes on <html> are lost when parsing a fragment.
@@ -156,13 +157,13 @@ function normalizeWordLists(root: HTMLElement) {
       stack.pop();
     }
 
-    const item = root.ownerDocument.createElement("li");
+    const item = detachedDoc().createElement("li");
     // Block properties are parsed from the li, while the paragraph below keeps
     // its styles for inline-content parsing.
     item.setAttribute("style", paragraph.getAttribute("style")!);
     let current = stack[stack.length - 1];
     if (!current || current.level !== level) {
-      const element = root.ownerDocument.createElement(tag);
+      const element = detachedDoc().createElement(tag);
       if (current) {
         current.lastItem.append(element);
       } else {
@@ -188,9 +189,7 @@ export function normalizeOfficeHTML(html: string): string {
     return html;
   }
 
-  // Keep imported resources inert, as in nestedListsToBlockNoteStructure.
-  const document = globalThis.document.implementation.createHTMLDocument("");
-  const root = document.createElement("div");
+  const root = detachedDoc().createElement("div");
   root.innerHTML = html;
 
   if (isWord) {
@@ -234,7 +233,7 @@ export function normalizeOfficeHTML(html: string): string {
       continue;
     }
     for (const child of wrapper.querySelectorAll(":scope > br")) {
-      const paragraph = document.createElement("p");
+      const paragraph = detachedDoc().createElement("p");
       paragraph.textContent = EMPTY_BLOCK_PLACEHOLDER;
       child.replaceWith(paragraph);
     }
