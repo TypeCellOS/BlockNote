@@ -1,6 +1,8 @@
 import { DOMParser } from "prosemirror-model";
 import { describe, expect, vi } from "vite-plus/test";
 
+import { HTMLToBlocks } from "../api/parsers/html/parseHTML.js";
+
 // An image without a request: the HTML of this test is in the active document,
 // where an image loads its resource.
 const IMAGE =
@@ -52,6 +54,35 @@ describe("the parse rules with HTML that is in the active document", () => {
       "toggleListItem",
       "image",
       "paragraph",
+    ]);
+  });
+});
+
+describe("the parse of an HTML string", () => {
+  // The string is from outside. In an element of the active document, its
+  // images load and its event handlers run before the parse reads them.
+  it("makes no element in the active document", async ({
+    setupEditor,
+    onTestFinished,
+  }) => {
+    const { editor } = await setupEditor({ mountType: false });
+    const createElement = vi.spyOn(document, "createElement");
+    onTestFinished(() => {
+      createElement.mockRestore();
+    });
+
+    const blocks = HTMLToBlocks(
+      `<p>Text <img src="image.png"> more</p>` +
+        `<ul><li>Item<ul><li>Nested</li></ul></li></ul>`,
+      editor.pmSchema,
+    );
+
+    expect(createElement).not.toHaveBeenCalled();
+    expect(blocks.map((block) => block.type)).toEqual([
+      "paragraph",
+      "image",
+      "paragraph",
+      "bulletListItem",
     ]);
   });
 });
