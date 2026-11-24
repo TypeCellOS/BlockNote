@@ -180,9 +180,10 @@ describe("content after a nested list", () => {
       `<ul><li>Item<ul><li>Nested item</li></ul><img src="image.png"></li></ul>`,
     );
 
-    // The content after the nested list is in a list item of its own.
+    // The content after the nested list is a child of the list item: it is in
+    // the block group, after the nested list.
     expect(htmlNode.innerHTML).toMatchInlineSnapshot(
-      `"<ul><div><li>Item</li><div data-node-type="blockGroup"><ul><li>Nested item</li></ul></div></div><li><img src="image.png"></li></ul>"`,
+      `"<ul><div><li>Item</li><div data-node-type="blockGroup"><ul><li>Nested item</li></ul><img src="image.png"></div></div></ul>"`,
     );
     expect(createElement).not.toHaveBeenCalled();
   });

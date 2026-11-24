@@ -323,6 +323,59 @@ export const htmlParseCases: ParseTestCase[] = [
   <li>Bullet List Item</li>
 </ul>`,
   },
+  // The cases below are for a list item with a nested list and other blocks.
+  // All the blocks stay in the list item, in the order of the HTML.
+  {
+    name: "listItemParagraphAfterNestedList",
+    content: `<ul><li><p>Item 1</p><ul><li><p>Nested</p></li></ul><p>After</p></li><li><p>Item 2</p></li></ul>`,
+  },
+  // The text after the nested list is a paragraph. It keeps one space of the
+  // HTML source at its start, as each text after a block does in the parse.
+  {
+    name: "listItemTextAfterNestedList",
+    content: `<ul>
+  <li>
+    Item 1
+    <ul>
+      <li>Nested</li>
+    </ul>
+    After <b>bold</b>
+  </li>
+  <li>Item 2</li>
+</ul>`,
+  },
+  {
+    name: "listItemImageAfterNestedList",
+    content: `<ul><li><p>Item 1</p><ul><li><p>Nested</p></li></ul><img src="exampleURL"></li><li><p>Item 2</p></li></ul>`,
+  },
+  {
+    name: "listItemBlockBeforeNestedList",
+    content: `<ul><li><p>Item 1</p><pre><code>Code</code></pre><ul><li><p>Nested</p></li></ul></li><li><p>Item 2</p></li></ul>`,
+  },
+  {
+    name: "listItemBlocksAroundNestedLists",
+    content: `<ol><li><p>Item 1</p><p>Before</p><ul><li><p>Nested 1</p></li></ul><p>Between</p><ol><li><p>Nested 2</p></li></ol><p>After</p></li><li><p>Item 2</p></li></ol>`,
+  },
+  {
+    name: "checkListItemBlocksAroundNestedList",
+    content: `<ul><li><input type="checkbox" checked><p>Item 1</p><ul><li><p>Nested</p></li></ul><p>After</p></li></ul>`,
+  },
+  // A comment or an empty element before the content of a list item is not
+  // the content of the list item.
+  {
+    name: "listItemEmptyNodeBeforeContent",
+    content: `<ul>
+  <li><!-- comment --><p>Item 1</p><ul><li><p>Nested 1</p></li></ul></li>
+  <li><a id="anchor"></a><p>Item 2</p><ul><li><p>Nested 2</p></li></ul></li>
+  <li><span></span><p>Item 3</p><ul><li><p>Nested 3</p></li></ul></li>
+  <li><!--[--><p>Item 4</p><!--]--><ul><li><p>Nested 4</p></li></ul></li>
+  <li>
+    <!-- comment -->
+    <p>Item 5</p>
+    <ul><li><p>Nested 5</p></li></ul>
+  </li>
+</ul>`,
+  },
   {
     name: "textTableCell",
     content: `<table>
@@ -1077,6 +1130,18 @@ Paragraph
 *   Bullet List Item
 
     1.  Numbered List Item
+`,
+  },
+  // The paragraph after the nested list stays in its list item.
+  {
+    name: "listItemParagraphAfterNestedList",
+    content: `* Item 1
+
+  * Nested
+
+  After
+
+* Item 2
 `,
   },
   {
