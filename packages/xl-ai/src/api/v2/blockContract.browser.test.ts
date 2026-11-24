@@ -1,10 +1,10 @@
 import {
-  BlockNoteEditor,
   BlockNoteSchema,
   createBlockSpec,
   defaultBlockSpecs,
 } from "@blocknote/core";
 import { describe, expect } from "vite-plus/test";
+import type { SetupEditor } from "../../../../../tests/src/commands/browser/setupEditor.js";
 
 import {
   assertBlockContract,
@@ -19,7 +19,8 @@ const html: NamedFormat = { name: "HTML", format: htmlFormat };
 const plainText: NamedFormat = { name: "plain text", format: plainTextFormat };
 
 /** A note with a kind and a text. `implementation` gives its export and its parse. */
-function editorWithNote(
+async function editorWithNote(
+  setupEditor: SetupEditor,
   implementation: Omit<
     Parameters<typeof createBlockSpec>[1] & object,
     "render"
@@ -40,11 +41,13 @@ function editorWithNote(
       ...implementation,
     },
   )();
-  return BlockNoteEditor.create({
+  const { editor } = await setupEditor({
+    mountType: false,
     schema: BlockNoteSchema.create().extend({
       blockSpecs: { ...defaultBlockSpecs, note },
     }),
   });
+  return editor;
 }
 
 /** The export of a note that obeys the contract: a code block with the kind as its language. */
@@ -72,8 +75,10 @@ const notes = [
 ];
 
 describe("assertBlockContract", () => {
-  it("accepts the default blocks in markdown and in HTML, and gives the text of each block", () => {
-    const editor = BlockNoteEditor.create();
+  it("accepts the default blocks in markdown and in HTML, and gives the text of each block", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({ mountType: false });
     const texts = assertBlockContract(editor, {
       blocks: [
         { type: "heading", props: { level: 2 }, content: "A heading" },
@@ -108,8 +113,10 @@ describe("assertBlockContract", () => {
     expect(texts).toHaveLength(8);
   });
 
-  it("names the data of a block that the format does not show", () => {
-    const editor = BlockNoteEditor.create();
+  it("names the data of a block that the format does not show", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({ mountType: false });
     const paragraph = {
       type: "paragraph",
       props: { textColor: "red" },
@@ -141,8 +148,10 @@ describe("assertBlockContract", () => {
     ]);
   });
 
-  it("accepts a custom block whose export reads back as the same block", () => {
-    const editor = editorWithNote({
+  it("accepts a custom block whose export reads back as the same block", async ({
+    setupEditor,
+  }) => {
+    const editor = await editorWithNote(setupEditor, {
       toExternalHTML: noteAsCode,
       parse: parseNote,
       // The code block also reads a `pre` element.
@@ -162,9 +171,13 @@ describe("assertBlockContract", () => {
     });
   });
 
-  it("rule 4: throws for a block that reads back as a different type", () => {
+  it("rule 4: throws for a block that reads back as a different type", async ({
+    setupEditor,
+  }) => {
     // The export is a code block, and no `parse` reads it back as a note.
-    const editor = editorWithNote({ toExternalHTML: noteAsCode });
+    const editor = await editorWithNote(setupEditor, {
+      toExternalHTML: noteAsCode,
+    });
 
     expect(() =>
       assertBlockContract(editor, { blocks: notes, formats: [markdown] }),
@@ -173,9 +186,11 @@ describe("assertBlockContract", () => {
     );
   });
 
-  it("rule 2: throws for a block whose text joins the text of the next block", () => {
+  it("rule 2: throws for a block whose text joins the text of the next block", async ({
+    setupEditor,
+  }) => {
     // A `div` with text is not a block of its own in markdown.
-    const editor = editorWithNote({
+    const editor = await editorWithNote(setupEditor, {
       toExternalHTML: (block: { props: { text: string } }) => {
         const dom = document.createElement("div");
         dom.textContent = block.props.text;
@@ -190,9 +205,11 @@ describe("assertBlockContract", () => {
     );
   });
 
-  it("rule 6: throws for two different blocks with the same text", () => {
+  it("rule 6: throws for two different blocks with the same text", async ({
+    setupEditor,
+  }) => {
     // The export does not show the kind and the text of the note.
-    const editor = editorWithNote({
+    const editor = await editorWithNote(setupEditor, {
       toExternalHTML: () => {
         const dom = document.createElement("pre");
         dom.innerHTML = '<code data-language="note">A note</code>';
@@ -216,8 +233,10 @@ describe("assertBlockContract", () => {
     ).toMatchObject([{ hidden: ["kind", "text"] }]);
   });
 
-  it("rule 8: throws for a block that a format does not show, unless `hiddenIn` names the format", () => {
-    const editor = BlockNoteEditor.create();
+  it("rule 8: throws for a block that a format does not show, unless `hiddenIn` names the format", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({ mountType: false });
     const image = {
       type: "image",
       props: { url: "https://example.com/a.png" },

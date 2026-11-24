@@ -1,5 +1,6 @@
-import { BlockNoteEditor, type PartialBlock } from "@blocknote/core";
+import { type PartialBlock } from "@blocknote/core";
 import { describe, expect } from "vite-plus/test";
+import type { SetupEditor } from "../../../../../tests/src/commands/browser/setupEditor.js";
 
 import { computeOperations, getDocumentText } from "./api.js";
 import { markdownFormat } from "./formats/markdown.js";
@@ -14,13 +15,14 @@ import { valid } from "./testUtil/valid.js";
  * Each test also examines that the stages give the operations of
  * `computeOperations`.
  */
-function stagesOf(
+async function stagesOf(
+  setupEditor: SetupEditor,
   initialContent: PartialBlock[],
   format: TextFormat,
   /** The change of the client to the text that it read. */
   edit: (text: string) => string,
 ) {
-  const editor = BlockNoteEditor.create({ initialContent });
+  const { editor } = await setupEditor({ mountType: false, initialContent });
   const text = edit(getDocumentText(editor, format));
   const stages = textStages(editor, format, text);
   expect(stages.operations).toEqual(
@@ -32,9 +34,12 @@ function stagesOf(
 }
 
 describe("the stages of a write", () => {
-  it("keeps a color that markdown does not show, when the text changes a word", () => {
+  it("keeps a color that markdown does not show, when the text changes a word", async ({
+    setupEditor,
+  }) => {
     expect(
-      stagesOf(
+      await stagesOf(
+        setupEditor,
         [
           {
             id: "a",
@@ -92,9 +97,12 @@ describe("the stages of a write", () => {
     `);
   });
 
-  it("inserts a new block and removes a block that the text does not have", () => {
+  it("inserts a new block and removes a block that the text does not have", async ({
+    setupEditor,
+  }) => {
     expect(
-      stagesOf(
+      await stagesOf(
+        setupEditor,
         [
           { id: "a", type: "paragraph", content: "Alpha" },
           { id: "b", type: "paragraph", content: "Beta" },
@@ -166,11 +174,14 @@ describe("the stages of a write", () => {
     `);
   });
 
-  it("merges a change of a code block with a blank line into the block, in plain text", () => {
+  it("merges a change of a code block with a blank line into the block, in plain text", async ({
+    setupEditor,
+  }) => {
     // Plain text shows the blank line as one newline. The merge keeps the
     // blank line, because the client did not change the text next to it.
     expect(
-      stagesOf(
+      await stagesOf(
+        setupEditor,
         [{ id: "code", type: "codeBlock", content: "one\n\ntwo" }],
         plainTextFormat,
         (text) => text.replace("two", "two, changed"),
@@ -216,11 +227,12 @@ describe("the stages of a write", () => {
     `);
   });
 
-  it("keeps a nesting that markdown does not show", () => {
+  it("keeps a nesting that markdown does not show", async ({ setupEditor }) => {
     // Markdown cannot nest a paragraph in a paragraph: the view shows the
     // child at the top level.
     expect(
-      stagesOf(
+      await stagesOf(
+        setupEditor,
         [
           {
             id: "intro",

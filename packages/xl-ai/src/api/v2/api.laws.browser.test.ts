@@ -1,13 +1,15 @@
 import type { Block } from "@blocknote/core";
 import { describe, expect } from "vite-plus/test";
 
+import type { SetupEditor } from "../../../../../tests/src/commands/browser/setupEditor.js";
+
 import { computeOperations, getDocumentText, updateDocument } from "./index.js";
 import {
   blockFieldsById,
-  createEditor,
-  createSharedDocumentEditor,
   diffBlocks,
   documentShape,
+  richDocument,
+  sharedDocumentEditorOptions,
 } from "./testUtil/fixtures.js";
 import { canonicalText } from "./testUtil/canonical.js";
 import { type Codec, formatCases } from "./testUtil/codecs.js";
@@ -28,8 +30,22 @@ import { valid } from "./testUtil/valid.js";
  */
 
 const documents = [
-  { name: "shared test document", create: createSharedDocumentEditor },
-  { name: "rich document", create: () => createEditor() },
+  {
+    name: "shared test document",
+    create: async (setupEditor: SetupEditor) =>
+      (
+        await setupEditor({
+          mountType: false,
+          ...sharedDocumentEditorOptions(),
+        })
+      ).editor,
+  },
+  {
+    name: "rich document",
+    create: async (setupEditor: SetupEditor) =>
+      (await setupEditor({ mountType: false, initialContent: richDocument }))
+        .editor,
+  },
 ];
 
 type Edit = {
@@ -96,8 +112,10 @@ const edits: Edit[] = [
 
 describe.each(documents)("$name", ({ create }) => {
   describe.each(formatCases)("$name", ({ format, codec }) => {
-    it("GetPut: a write of the text that the client read changes nothing", () => {
-      const editor = create();
+    it("GetPut: a write of the text that the client read changes nothing", async ({
+      setupEditor,
+    }) => {
+      const editor = await create(setupEditor);
       const text = getDocumentText(editor, format);
 
       expect(valid(computeOperations(editor, { format, text }))).toEqual({
@@ -116,10 +134,10 @@ describe.each(documents)("$name", ({ create }) => {
       ).toEqual({ operations: [], warnings: [] });
     });
 
-    it.each(edits)(
+    it.for(edits)(
       "$name: PutGet, PutTwice and retention",
-      ({ apply, retention }) => {
-        const editor = create();
+      async ({ apply, retention }, { setupEditor }) => {
+        const editor = await create(setupEditor);
         const before = blockFieldsById(editor);
         const shape = documentShape(editor.document);
         const text = codec.join(

@@ -1,5 +1,7 @@
-import { BlockNoteEditor, type PartialBlock } from "@blocknote/core";
+import type { BlockNoteEditor, PartialBlock } from "@blocknote/core";
 import { describe, expect } from "vite-plus/test";
+
+import type { SetupEditor } from "../../../../../tests/src/commands/browser/setupEditor.js";
 
 import type { LensBlock } from "./model.js";
 import {
@@ -9,7 +11,7 @@ import {
   type TextFormat,
   updateDocument,
 } from "./index.js";
-import { columnSchema, createEditor } from "./testUtil/fixtures.js";
+import { columnSchema } from "./testUtil/fixtures.js";
 import { valid } from "./testUtil/valid.js";
 
 /*
@@ -19,7 +21,7 @@ import { valid } from "./testUtil/valid.js";
 
 /** Writes the text and returns the ID, the text and the background of each block. */
 function write(
-  editor: ReturnType<typeof createEditor>,
+  editor: BlockNoteEditor<any, any, any>,
   edit: (text: string) => string,
 ) {
   const text = edit(getDocumentText(editor, plainTextFormat));
@@ -40,38 +42,48 @@ function swap(text: string, first: string, second: string) {
 }
 
 describe("blocks that swap places in the text", () => {
-  it("keep their IDs and props if they are adjacent", () => {
-    const editor = createEditor([
-      {
-        id: "one",
-        type: "paragraph",
-        content: "Item 1",
-        props: { backgroundColor: "red" },
-      },
-      { id: "two", type: "paragraph", content: "Item 2" },
-    ]);
+  it("keep their IDs and props if they are adjacent", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [
+        {
+          id: "one",
+          type: "paragraph",
+          content: "Item 1",
+          props: { backgroundColor: "red" },
+        },
+        { id: "two", type: "paragraph", content: "Item 2" },
+      ],
+    });
     expect(write(editor, (text) => swap(text, "Item 1", "Item 2"))).toEqual([
       ["two", "Item 2", "default"],
       ["one", "Item 1", "red"],
     ]);
   });
 
-  it("keep their IDs and props, also if they are similar and other blocks are between them", () => {
+  it("keep their IDs and props, also if they are similar and other blocks are between them", async ({
+    setupEditor,
+  }) => {
     // The two notes share most of their words, but an equal text is a
     // stronger sign than shared words (see the README, "Identity"). Each
     // block moves with its ID and its props: the red background is at the
     // last position.
-    const editor = createEditor([
-      {
-        id: "above",
-        type: "paragraph",
-        content: "Note: see above",
-        props: { backgroundColor: "red" },
-      },
-      { id: "x", type: "paragraph", content: "a1 b1" },
-      { id: "y", type: "paragraph", content: "a2 b2" },
-      { id: "below", type: "paragraph", content: "Note: see below" },
-    ]);
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [
+        {
+          id: "above",
+          type: "paragraph",
+          content: "Note: see above",
+          props: { backgroundColor: "red" },
+        },
+        { id: "x", type: "paragraph", content: "a1 b1" },
+        { id: "y", type: "paragraph", content: "a2 b2" },
+        { id: "below", type: "paragraph", content: "Note: see below" },
+      ],
+    });
     expect(
       write(editor, (text) => swap(text, "Note: see above", "Note: see below")),
     ).toEqual([
@@ -93,12 +105,17 @@ describe("hidden blocks next to blocks that the text moves", () => {
   const schema = columnSchema;
 
   /** Writes the text, and returns the IDs of the document, with the children in brackets. */
-  function write(
+  async function write(
+    setupEditor: SetupEditor,
     initialContent: PartialBlock<any, any, any>[],
     format: TextFormat,
     text: (read: string) => string,
-  ): string {
-    const editor = BlockNoteEditor.create({ schema, initialContent });
+  ): Promise<string> {
+    const { editor } = await setupEditor({
+      mountType: false,
+      schema,
+      initialContent: initialContent as (typeof schema.PartialBlock)[],
+    });
     valid(
       updateDocument(editor, {
         format,
@@ -143,9 +160,12 @@ describe("hidden blocks next to blocks that the text moves", () => {
     })),
   });
 
-  it("keeps a hidden image after the block before it, if the text moves that block", () => {
+  it("keeps a hidden image after the block before it, if the text moves that block", async ({
+    setupEditor,
+  }) => {
     expect(
-      write(
+      await write(
+        setupEditor,
         [paragraph("b", "bee"), image("i"), paragraph("c", "cee")],
         plainTextFormat,
         () => "cee\n\nbee",
@@ -153,9 +173,12 @@ describe("hidden blocks next to blocks that the text moves", () => {
     ).toBe("c b i");
   });
 
-  it("keeps a hidden image after the block before it, if the text moves a block before that block", () => {
+  it("keeps a hidden image after the block before it, if the text moves a block before that block", async ({
+    setupEditor,
+  }) => {
     expect(
-      write(
+      await write(
+        setupEditor,
         [
           paragraph("a", "aaa"),
           paragraph("b", "bee"),
@@ -168,9 +191,12 @@ describe("hidden blocks next to blocks that the text moves", () => {
     ).toBe("a c b i");
   });
 
-  it("keeps the column list if the text moves the last block of a column to after it", () => {
+  it("keeps the column list if the text moves the last block of a column to after it", async ({
+    setupEditor,
+  }) => {
     expect(
-      write(
+      await write(
+        setupEditor,
         [
           columns(
             "l",
@@ -185,9 +211,12 @@ describe("hidden blocks next to blocks that the text moves", () => {
     ).toBe("l[l-1[a] l-2[b]] x q");
   });
 
-  it("puts a block that the text moves between two column lists into the next column", () => {
+  it("puts a block that the text moves between two column lists into the next column", async ({
+    setupEditor,
+  }) => {
     expect(
-      write(
+      await write(
+        setupEditor,
         [
           columns(
             "l",
@@ -202,9 +231,12 @@ describe("hidden blocks next to blocks that the text moves", () => {
     ).toBe("l[l-1[a] l-2[b]] m[m-1[x d] m-2[e]]");
   });
 
-  it("swaps two columns if the text moves the block of the first column between a block and its hidden child", () => {
+  it("swaps two columns if the text moves the block of the first column between a block and its hidden child", async ({
+    setupEditor,
+  }) => {
     expect(
-      write(
+      await write(
+        setupEditor,
         [
           columns(
             "l",
@@ -218,9 +250,12 @@ describe("hidden blocks next to blocks that the text moves", () => {
     ).toBe("l[l-2[b] l-1[n]] k");
   });
 
-  it("does not move a top-level block into a column if the text moves it before its own hidden child", () => {
+  it("does not move a top-level block into a column if the text moves it before its own hidden child", async ({
+    setupEditor,
+  }) => {
     expect(
-      write(
+      await write(
+        setupEditor,
         [
           paragraph("t", "tee", [paragraph("u", "you")]),
           columns("l", [paragraph("a", "aaa")], [paragraph("b", "bee")]),

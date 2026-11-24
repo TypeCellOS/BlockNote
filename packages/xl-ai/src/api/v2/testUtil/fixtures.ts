@@ -262,16 +262,17 @@ export function writeText(
 
 /** The options of an editor with the shared test document (`shared/testDocumentBlocks.ts`). */
 export function sharedDocumentEditorOptions() {
+  const schema = withMultiColumn(
+    BlockNoteSchema.create({
+      blockSpecs: {
+        ...defaultBlockSpecs,
+        pageBreak: createPageBreakBlockSpec(),
+      },
+    }),
+  );
   return {
-    schema: withMultiColumn(
-      BlockNoteSchema.create({
-        blockSpecs: {
-          ...defaultBlockSpecs,
-          pageBreak: createPageBreakBlockSpec(),
-        },
-      }),
-    ),
-    initialContent: testDocumentBlocks,
+    schema,
+    initialContent: testDocumentBlocks as (typeof schema.PartialBlock)[],
   };
 }
 

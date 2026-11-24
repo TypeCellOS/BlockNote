@@ -1,3 +1,4 @@
+import type { PartialBlock } from "@blocknote/core";
 import { describe, expect } from "vite-plus/test";
 
 import {
@@ -7,9 +8,9 @@ import {
   updateDocument,
 } from "./index.js";
 import {
-  createEditor,
   documentShape,
   replaceOnce,
+  richDocument,
 } from "./testUtil/fixtures.js";
 import { valid } from "./testUtil/valid.js";
 
@@ -20,8 +21,13 @@ import { valid } from "./testUtil/valid.js";
  * content is lost. Thus, examine the expected results carefully.
  */
 describe("removals (review closely)", () => {
-  it("a removed list item moves out its children and keeps them", () => {
-    const editor = createEditor();
+  it("a removed list item moves out its children and keeps them", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: richDocument,
+    });
     const text = replaceOnce(
       getDocumentText(editor, markdownFormat),
       "* Parent bullet\n  * Child bullet",
@@ -45,8 +51,13 @@ describe("removals (review closely)", () => {
     ]);
   });
 
-  it("removes empty paragraphs if the blocks around them are removed", () => {
-    const editor = createEditor();
+  it("removes empty paragraphs if the blocks around them are removed", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: richDocument,
+    });
     const markdown = getDocumentText(editor, markdownFormat);
     const start = markdown.indexOf("<figure>");
     const end = markdown.indexOf("line two") + "line two".length;
@@ -67,8 +78,13 @@ describe("removals (review closely)", () => {
     expect(editor.getBlock("divider")).toBeDefined();
   });
 
-  it("keeps empty paragraphs if only one block next to them is removed", () => {
-    const editor = createEditor();
+  it("keeps empty paragraphs if only one block next to them is removed", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: richDocument,
+    });
     const text = replaceOnce(
       getDocumentText(editor, markdownFormat),
       "line one\\\nline two\n\n",
@@ -86,17 +102,22 @@ describe("removals (review closely)", () => {
     expect(editor.getBlock("empty-2")).toBeDefined();
   });
 
-  it("removes an empty paragraph that the format does not show if the blocks around it are removed (plain text)", () => {
+  it("removes an empty paragraph that the format does not show if the blocks around it are removed (plain text)", async ({
+    setupEditor,
+  }) => {
     // Plain text does not show an empty paragraph. Thus, the text cannot
     // remove it: it is an invisible block, and it stays. The exception: it
     // goes if the write removes the visible blocks on its two sides. Else
     // it would stay alone in place of the removed section.
-    const editor = createEditor([
-      { id: "a", type: "paragraph", content: "Alpha" },
-      { id: "empty", type: "paragraph" },
-      { id: "b", type: "paragraph", content: "Beta" },
-      { id: "end", type: "paragraph", content: "End" },
-    ]);
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [
+        { id: "a", type: "paragraph", content: "Alpha" },
+        { id: "empty", type: "paragraph" },
+        { id: "b", type: "paragraph", content: "Beta" },
+        { id: "end", type: "paragraph", content: "End" },
+      ],
+    });
     valid(
       updateDocument(editor, {
         format: plainTextFormat,
@@ -107,8 +128,13 @@ describe("removals (review closely)", () => {
     expect(documentShape(editor.document)).toEqual(["end"]);
   });
 
-  it("a removed paragraph removes its colors with it", () => {
-    const editor = createEditor();
+  it("a removed paragraph removes its colors with it", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: richDocument,
+    });
     const text = replaceOnce(
       getDocumentText(editor, plainTextFormat),
       "Colored centered paragraph\n\n",
@@ -124,8 +150,13 @@ describe("removals (review closely)", () => {
     expect(update.operations).toEqual([{ type: "delete", id: "colored" }]);
   });
 
-  it("empty text removes all blocks that the format shows", () => {
-    const editor = createEditor();
+  it("empty text removes all blocks that the format shows", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: richDocument,
+    });
     valid(
       updateDocument(editor, {
         format: markdownFormat,
@@ -143,19 +174,24 @@ describe("removals (review closely)", () => {
     expect(editor.document.map((block) => block.id)).toEqual(["empty-1"]);
   });
 
-  it("a changed block that the format shows with content of a different shape becomes a block of the text", () => {
+  it("a changed block that the format shows with content of a different shape becomes a block of the text", async ({
+    setupEditor,
+  }) => {
     // Markdown shows a file block without a caption as a paragraph with a
     // link (a file block with a caption is one figure). A change of the link
     // text changes that paragraph: the block becomes a paragraph, and its
     // props (the URL and the name) are lost.
-    const editor = createEditor([
-      {
-        id: "file",
-        type: "file",
-        props: { url: "https://example.com/doc.pdf", name: "doc.pdf" },
-      },
-      { id: "end", type: "paragraph", content: "End" },
-    ]);
+    const { editor } = await setupEditor({
+      mountType: false,
+      initialContent: [
+        {
+          id: "file",
+          type: "file",
+          props: { url: "https://example.com/doc.pdf", name: "doc.pdf" },
+        },
+        { id: "end", type: "paragraph", content: "End" },
+      ],
+    });
     const text = getDocumentText(editor, markdownFormat);
     expect(text).toContain("[doc.pdf](https://example.com/doc.pdf)");
 
@@ -175,7 +211,7 @@ describe("removals (review closely)", () => {
     );
   });
 
-  it.each([
+  it.for<[string, PartialBlock[], string]>([
     [
       "after the removed block",
       [
@@ -206,8 +242,11 @@ describe("removals (review closely)", () => {
     ],
   ])(
     "keeps a hidden block with data %s (plain text does not show a divider)",
-    (_, document, text) => {
-      const editor = createEditor(document);
+    async ([, document, text], { setupEditor }) => {
+      const { editor } = await setupEditor({
+        mountType: false,
+        initialContent: document,
+      });
       expect(getDocumentText(editor, plainTextFormat)).not.toContain("---");
 
       valid(
