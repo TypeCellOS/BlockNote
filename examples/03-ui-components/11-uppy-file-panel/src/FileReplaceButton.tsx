@@ -72,7 +72,7 @@ export const FileReplaceButton = () => {
     >
       <Components.Generic.Popover.Trigger>
         <Components.FormattingToolbar.Button
-          className={"bn-button"}
+          className={"bn-toolbar-button"}
           onClick={() => setIsOpen(!isOpen)}
           isSelected={isOpen}
           mainTooltip={

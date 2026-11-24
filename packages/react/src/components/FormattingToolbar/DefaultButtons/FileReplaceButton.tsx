@@ -73,7 +73,7 @@ export const FileReplaceButton = () => {
     >
       <Components.Generic.Popover.Trigger>
         <Components.FormattingToolbar.Button
-          className={"bn-button"}
+          className={"bn-toolbar-button"}
           mainTooltip={
             dict.formatting_toolbar.file_replace.tooltip[block.type] ||
             dict.formatting_toolbar.file_replace.tooltip["file"]

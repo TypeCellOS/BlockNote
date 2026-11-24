@@ -4,7 +4,7 @@ import {
   Menu as MantineMenu,
 } from "@mantine/core";
 
-import { assertEmpty } from "@blocknote/core";
+import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps, preventFocusOnTap } from "@blocknote/react";
 import { forwardRef } from "react";
 import { HiChevronDown } from "react-icons/hi";
@@ -51,6 +51,7 @@ export const ToolbarSelect = forwardRef<
     >
       <MantineMenu.Target>
         <MantineButton
+          className="bn-toolbar-button"
           // How-to-test: without it, tapping the block type select focuses the button and closes the keyboard (covered by skinFocus, android, mantine: "opening the block type select keeps focus in the editor").
           onMouseDown={preventFocusOnTap}
           leftSection={selectedItem.icon}
@@ -62,7 +63,10 @@ export const ToolbarSelect = forwardRef<
           {selectedItem.text}
         </MantineButton>
       </MantineMenu.Target>
-      <MantineMenu.Dropdown className={className} ref={ref}>
+      <MantineMenu.Dropdown
+        className={mergeCSSClasses("bn-toolbar-select", className)}
+        ref={ref}
+      >
         {items.map((item) => (
           <MantineMenu.Item
             key={item.text}

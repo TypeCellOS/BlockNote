@@ -51,7 +51,7 @@
   height: 24px;
 }
 
-.bn-shadcn .bn-select {
+.bn-shadcn .bn-toolbar-select {
   max-height: var(--available-height);
 }
 

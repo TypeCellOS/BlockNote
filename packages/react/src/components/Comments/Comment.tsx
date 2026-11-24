@@ -113,7 +113,7 @@ const CommentEditorActionsComponent = memo(
               {dict.comments.save_button_text}
             </Components.Generic.Toolbar.Button>
             <Components.Generic.Toolbar.Button
-              className={"bn-button"}
+              className={"bn-toolbar-button"}
               mainTooltip={dict.comments.cancel_button_text}
               variant="compact"
               onClick={onEditCancel}

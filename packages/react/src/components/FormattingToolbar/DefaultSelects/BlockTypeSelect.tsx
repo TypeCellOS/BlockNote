@@ -181,7 +181,7 @@ export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
 
   return (
     <Components.FormattingToolbar.Select
-      className={"bn-select"}
+      className={"bn-toolbar-select"}
       items={selectItems}
       // Portal the dropdown into the editor's themed portal target so it
       // inherits styling; on mobile `preventFocusOnOpen` keeps focus in the
