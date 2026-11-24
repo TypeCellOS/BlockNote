@@ -409,3 +409,51 @@ describe("Math block source popup keyboard handling", () => {
     });
   });
 });
+
+describe("Math block export with invalid LaTeX", () => {
+  function documentWith(source: string): (typeof schema.PartialBlock)[] {
+    return [
+      { type: "paragraph", content: "Before" },
+      { type: "mathBlock", content: source },
+      { type: "paragraph", content: "After" },
+    ];
+  }
+
+  it.for([String.raw`\frac{1}{`, String.raw`\frac{<b>&amp;}{`])(
+    "shows the source as text, and parses back to the same block: %s",
+    async (source, { setupEditor }) => {
+      const { editor } = await setupEditor({
+        skin: "raw",
+        schema,
+        initialContent: documentWith(source),
+      });
+
+      const html = editor.blocksToHTMLLossy();
+
+      const dom = new DOMParser().parseFromString(html, "text/html");
+      const math = dom.querySelector("math");
+      expect(dom.querySelectorAll("math")).toHaveLength(1);
+      expect(math?.getAttribute("display")).toBe("block");
+      expect(math?.querySelector("merror")?.textContent).toBe(source);
+      expect(math?.querySelector("b")).toBeNull();
+      expect(editor.tryParseHTMLToBlocks(html)).toMatchObject([
+        { type: "paragraph", content: [{ text: "Before" }] },
+        { type: "mathBlock", content: [{ text: source }] },
+        { type: "paragraph", content: [{ text: "After" }] },
+      ]);
+    },
+  );
+
+  it("keeps the formula in the Markdown export", async ({ setupEditor }) => {
+    const source = String.raw`\frac{1}{`;
+    const { editor } = await setupEditor({
+      skin: "raw",
+      schema,
+      initialContent: documentWith(source),
+    });
+
+    expect(editor.blocksToMarkdownLossy()).toBe(
+      `Before\n\n$$\n${source}\n$$\n\nAfter\n`,
+    );
+  });
+});

@@ -276,3 +276,50 @@ describe("Inline math source popup", () => {
     });
   });
 });
+
+describe("Inline math export with invalid LaTeX", () => {
+  const source = String.raw`\frac{1}{`;
+  const initialContent: (typeof schema.PartialBlock)[] = [
+    {
+      type: "paragraph",
+      content: ["See ", { type: "math", content: source }, " here"],
+    },
+  ];
+
+  it("shows the source as text and parses back to the same inline content", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      skin: "raw",
+      schema,
+      initialContent,
+    });
+
+    const html = editor.blocksToHTMLLossy();
+
+    const dom = new DOMParser().parseFromString(html, "text/html");
+    const math = dom.querySelector("math");
+    expect(math?.getAttribute("display")).toBe("inline");
+    expect(math?.querySelector("merror")?.textContent).toBe(source);
+    expect(editor.tryParseHTMLToBlocks(html)).toMatchObject([
+      {
+        type: "paragraph",
+        content: [
+          { type: "text", text: "See " },
+          { type: "math", content: source },
+          { type: "text", text: " here" },
+        ],
+      },
+    ]);
+  });
+
+  it("keeps the formula in the Markdown export", async ({ setupEditor }) => {
+    const { editor } = await setupEditor({
+      skin: "raw",
+      schema,
+      initialContent,
+    });
+
+    expect(editor.blocksToMarkdownLossy()).toBe(`See $${source}$ here\n`);
+  });
+});
