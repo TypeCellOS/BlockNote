@@ -686,6 +686,13 @@ export const htmlParseCases: ParseTestCase[] = [
     name: "inlineImageInToggleSummary",
     content: `<details><summary><h2>Step <img src="https://example.com/shot.png" alt="A screenshot"> one</h2></summary><p>The details</p></details>`,
   },
+  // An image in the caption of a figure. The caption is text, and the step
+  // does not change it: the image is dropped, and the words next to it stay
+  // apart.
+  {
+    name: "inlineImageInFigureCaption",
+    content: `<figure><img src="https://example.com/harbor.jpg" alt="The harbor"><figcaption><p>The harbor <img src="https://example.com/sun.png" alt="sun"> at dusk</p></figcaption></figure>`,
+  },
   // Images in table cells, as GitHub writes them (each image is in a link). A
   // table cell cannot hold a block, so the image becomes a link with its alt
   // text.

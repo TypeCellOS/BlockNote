@@ -48,9 +48,12 @@ export function moveImagesOutOfText(root: HTMLElement) {
   for (const image of root.querySelectorAll("img")) {
     // BlockNote's own HTML stays as it is: custom inline content can hold an
     // image, and a block of the full HTML has only one content element. The
-    // summary of a toggle is its text: an image cannot go out of it.
+    // summary of a toggle and the caption of a figure are text: an image
+    // cannot go out of them.
     if (
-      image.closest("[data-inline-content-type], [data-content-type], summary")
+      image.closest(
+        "[data-inline-content-type], [data-content-type], summary, figcaption",
+      )
     ) {
       continue;
     }
