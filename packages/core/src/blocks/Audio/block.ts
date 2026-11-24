@@ -139,10 +139,9 @@ export const audioToExternalHTML =
       any
     >,
   ) => {
+    // The upload placeholder (no URL) is not in the export.
     if (!block.props.url) {
-      return {
-        dom: document.createElement("audio"),
-      };
+      return null;
     }
 
     let audio;

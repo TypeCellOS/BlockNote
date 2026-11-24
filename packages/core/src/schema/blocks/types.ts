@@ -405,6 +405,7 @@ export type LooseBlockSpec<
           contentDOM?: HTMLElement;
           childrenDOM?: HTMLElement;
         }
+      | null
       | undefined;
 
     node: Node;
@@ -478,6 +479,7 @@ export type BlockSpecs = {
             contentDOM?: HTMLElement;
             childrenDOM?: HTMLElement;
           }
+        | null
         | undefined;
     };
     extensions?: BlockSpec<k>["extensions"];
@@ -872,6 +874,9 @@ export type BlockImplementation<
    * Exports block to external HTML. If not defined, the output will be the same
    * as `render(...).dom`, inside the block's frame (`renderFrame`) if it has
    * one. When defined, it replaces both.
+   *
+   * Return `null` to leave the block out of the external HTML. For example,
+   * a media block without a URL shows only the upload button of the editor.
    */
   toExternalHTML?: (
     this: Partial<{
@@ -891,6 +896,7 @@ export type BlockImplementation<
         contentDOM?: HTMLElement;
         childrenDOM?: HTMLElement;
       }
+    | null
     | undefined;
 
   /**

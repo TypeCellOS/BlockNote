@@ -194,7 +194,8 @@ type BlockOutput = {
  * block's own `toExternalHTML` replaces the default export, frame included.
  * By default, a layout block is its frame, with the children in the slot, and
  * any other block is `render`'s output, which the caller puts into the
- * block's frame (if it draws one).
+ * block's frame (if it draws one). The output is `null` if the block's
+ * `toExternalHTML` leaves the block out of the export.
  */
 function renderBlockOutput(
   blockImplementation: BlockImplementation,
@@ -202,11 +203,14 @@ function renderBlockOutput(
   editor: BlockNoteEditor<any, any, any>,
   isLayoutBlock: boolean,
   nestingLevel: number,
-): { output: BlockOutput; frame?: { dom: HTMLElement; slot: HTMLElement } } {
+): {
+  output: BlockOutput | null;
+  frame?: { dom: HTMLElement; slot: HTMLElement };
+} {
   const external = blockImplementation.toExternalHTML?.call({}, block, editor, {
     nestingLevel,
   });
-  if (external) {
+  if (external !== undefined) {
     return { output: external };
   }
 
@@ -278,13 +282,16 @@ function serializeBlock<
     .implementation as BlockImplementation;
   const blockWithDefaults = { ...block, props, children: block.children ?? [] };
   const isLayoutBlock = isLayoutNode(editor.pmSchema.nodes[block.type as any]);
-  const { output: ret, frame } = renderBlockOutput(
+  const { output, frame } = renderBlockOutput(
     blockImplementation,
     blockWithDefaults,
     editor,
     isLayoutBlock,
     nestingLevel,
   );
+  // A block that leaves itself out of the export adds no element. Its
+  // children follow, as they do for any other block.
+  const ret: BlockOutput = output ?? { dom: doc.createDocumentFragment() };
 
   const elementFragment = doc.createDocumentFragment();
 

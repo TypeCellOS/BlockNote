@@ -45,8 +45,9 @@ export const ImageToExternalHTML = (
     "contentRef"
   >,
 ) => {
+  // The upload placeholder (no URL) is not in the export.
   if (!props.block.props.url) {
-    return <p>Add image</p>;
+    return null;
   }
 
   const alt = props.block.props.name || "";

@@ -150,7 +150,8 @@ export type ReactCustomBlockImplementation<
   // Like core's `toExternalHTML`, which returns `contentDOM` and
   // `childrenDOM`: `contentRef` marks where the block's content goes, and
   // `childrenRef` where its children go. Without `childrenRef`, the children
-  // follow the block.
+  // follow the block. A component that renders nothing (`null`) leaves the
+  // block out of the external HTML, like `null` from core's `toExternalHTML`.
   toExternalHTML?: FC<
     ReactCustomBlockRenderProps<B> & {
       childrenRef: (node: HTMLElement | null) => void;
@@ -520,6 +521,11 @@ export function createReactBlockSpec<
               childrenRef: (element) =>
                 element?.setAttribute(CHILDREN_MARK, ""),
             });
+            // A component that renders nothing leaves the block out of the
+            // export. Only the wrapper of the block content is there then.
+            if (!isLayoutBlock && !output.dom.hasChildNodes()) {
+              return null;
+            }
             return { ...output, childrenDOM: takeMarked(output.dom) };
           },
         }),

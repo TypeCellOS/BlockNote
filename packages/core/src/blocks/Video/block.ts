@@ -117,10 +117,9 @@ export const createVideoBlockSpec = createBlockSpec(
       );
     },
     toExternalHTML(block) {
+      // The upload placeholder (no URL) is not in the export.
       if (!block.props.url) {
-        return {
-          dom: document.createElement("video"),
-        };
+        return null;
       }
 
       let video;

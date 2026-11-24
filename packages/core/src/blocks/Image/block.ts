@@ -157,10 +157,9 @@ export const imageToExternalHTML =
       any
     >,
   ) => {
+    // The upload placeholder (no URL) is not in the export.
     if (!block.props.url) {
-      return {
-        dom: document.createElement("img"),
-      };
+      return null;
     }
 
     let image;

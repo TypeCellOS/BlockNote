@@ -1,5 +1,11 @@
 import { BlockNoteSchema, createBlockSpec } from "@blocknote/core";
-import { createReactBlockSpec } from "@blocknote/react";
+import {
+  createReactBlockSpec,
+  ReactAudioBlock,
+  ReactFileBlock,
+  ReactImageBlock,
+  ReactVideoBlock,
+} from "@blocknote/react";
 import { describe, expect } from "vite-plus/test";
 
 // A React `toExternalHTML` places the block's children with `childrenRef`,
@@ -55,12 +61,35 @@ const VanillaShelf = createBlockSpec(
   },
 );
 
+// Blocks whose export leaves them out of the external HTML.
+const createHidden = createReactBlockSpec(
+  { type: "hidden", propSchema: {}, content: "none" },
+  {
+    render: () => <div>Only in the editor</div>,
+    toExternalHTML: () => null,
+  },
+);
+
+const VanillaHidden = createBlockSpec(
+  { type: "vanillaHidden", propSchema: {}, content: "none" },
+  {
+    render: () => {
+      const dom = document.createElement("div");
+      dom.textContent = "Only in the editor";
+      return { dom };
+    },
+    toExternalHTML: () => null,
+  },
+);
+
 const schema = BlockNoteSchema.create().extend({
   blockSpecs: {
     disclosure: createDisclosure(),
     shelf: createShelf(),
     plainShelf: createPlainShelf(),
     vanillaShelf: VanillaShelf(),
+    hidden: createHidden(),
+    vanillaHidden: VanillaHidden(),
   },
 });
 
@@ -118,5 +147,53 @@ describe("React toExternalHTML childrenRef", () => {
         "Child",
       );
     }
+  });
+});
+
+describe("toExternalHTML that gives nothing", () => {
+  it("leaves the block out of the export, and its children follow", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({ mountType: false, schema });
+    for (const type of ["hidden", "vanillaHidden"] as const) {
+      const dom = exportHTML(editor, [
+        { type: "paragraph", content: "Before" },
+        { type, children: [{ type: "paragraph", content: "Child" }] },
+        { type: "paragraph", content: "After" },
+      ]);
+      expect(dom.innerHTML).toBe(
+        '<p>Before</p><p data-nesting-level="1">Child</p><p>After</p>',
+      );
+    }
+  });
+
+  it("leaves a React media block without a URL out of the export", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      mountType: false,
+      schema: BlockNoteSchema.create().extend({
+        blockSpecs: {
+          image: ReactImageBlock(),
+          video: ReactVideoBlock(),
+          audio: ReactAudioBlock(),
+          file: ReactFileBlock(),
+        },
+      }),
+    });
+    const dom = document.createElement("div");
+    dom.innerHTML = editor.blocksToHTMLLossy([
+      { type: "image" },
+      { type: "video" },
+      { type: "audio" },
+      { type: "file" },
+      { type: "image", props: { url: "exampleURL" } },
+    ]);
+    // Only the image with a URL is in the export.
+    expect(dom.textContent).toBe("");
+    expect(Array.from(dom.children, (element) => element.tagName)).toEqual([
+      "IMG",
+    ]);
+    expect(dom.querySelector("img")?.getAttribute("src")).toBe("exampleURL");
   });
 });

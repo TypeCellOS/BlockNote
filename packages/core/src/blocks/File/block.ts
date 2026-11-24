@@ -85,10 +85,9 @@ export const createFileBlockSpec = createBlockSpec(createFileBlockConfig, {
     return createFileBlockWrapper(block, editor);
   },
   toExternalHTML(block) {
+    // The upload placeholder (no URL) is not in the export.
     if (!block.props.url) {
-      return {
-        dom: document.createElement("embed"),
-      };
+      return null;
     }
 
     const fileSrcLink = document.createElement("a");

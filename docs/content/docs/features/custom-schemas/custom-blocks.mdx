@@ -188,7 +188,7 @@ type ReactCustomBlockImplementation = {
 
 `renderFrame?:` A component that draws a frame around the block's content and its child blocks. See [Block Frames](#block-frames).
 
-`toExternalHTML?:` This component is used whenever the block is being exported to HTML for use outside BlockNote, for example when copying it to the clipboard. If it's not defined, BlockNote will just use `render` (and `renderFrame`, if the block has one) for the HTML conversion. Takes the same props as `render`, and two more:
+`toExternalHTML?:` This component is used whenever the block is being exported to HTML for use outside BlockNote, for example when copying it to the clipboard. If it's not defined, BlockNote will just use `render` (and `renderFrame`, if the block has one) for the HTML conversion. If the component renders nothing (`null`), the block is left out of the exported HTML. Takes the same props as `render`, and two more:
 
 - `childrenRef:` A React `ref` that marks where the block's child blocks go, for example inside a `<details>` element. Without it, the child blocks follow the block.
 
