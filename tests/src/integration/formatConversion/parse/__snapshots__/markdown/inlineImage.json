@@ -4,7 +4,7 @@
     "content": [
       {
         "styles": {},
-        "text": "Text before ",
+        "text": "Text before",
         "type": "text",
       },
     ],
@@ -35,7 +35,7 @@
     "content": [
       {
         "styles": {},
-        "text": " text after",
+        "text": "text after",
         "type": "text",
       },
     ],

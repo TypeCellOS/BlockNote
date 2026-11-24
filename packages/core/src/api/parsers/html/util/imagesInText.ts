@@ -4,6 +4,26 @@ import { detachedDoc } from "../../../../util/detachedDoc.js";
 // The elements with text that split around an image.
 const TEXT_BLOCKS = "p, blockquote, h1, h2, h3, h4, h5, h6";
 
+// Removes the line breaks and the white space that are next to the image on
+// one side: they have no meaning at the edge of a block.
+function trimNextTo(image: Element, side: "previousSibling" | "nextSibling") {
+  for (let node = image[side]; node; node = image[side]) {
+    if (node.nodeName !== "BR") {
+      // Only a text node (type 3) can have white space.
+      if (node.nodeType !== 3) {
+        return;
+      }
+      const text = node.nodeValue ?? "";
+      node.nodeValue =
+        side === "nextSibling" ? text.trimStart() : text.trimEnd();
+      if (node.nodeValue) {
+        return;
+      }
+    }
+    node.remove();
+  }
+}
+
 /**
  * Moves each image out of the text that holds it. An image is a block, and
  * ProseMirror drops a block that is in the text of a block.
@@ -34,6 +54,8 @@ export function moveImagesOutOfText(root: HTMLElement) {
     // copy of the parent takes the content before the image.
     while (image.parentElement?.closest(TEXT_BLOCKS)) {
       const parent = image.parentElement;
+      trimNextTo(image, "previousSibling");
+      trimNextTo(image, "nextSibling");
       const before = detachedDoc().importNode(parent, false);
       while (image.previousSibling) {
         before.prepend(image.previousSibling);

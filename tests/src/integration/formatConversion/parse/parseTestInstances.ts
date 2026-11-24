@@ -580,6 +580,12 @@ export const htmlParseCases: ParseTestCase[] = [
     name: "inlineImageInStyledParagraph",
     content: `<p style="text-align: center; color: red; background-color: yellow;">Before <img src="https://example.com/harbor.jpg" alt="The harbor"> and <strong>after</strong></p>`,
   },
+  // An image on its own line in a paragraph. The line breaks and the spaces
+  // next to the image have no meaning at the edge of a block: they are removed.
+  {
+    name: "lineBreakNextToInlineImage",
+    content: `<p>Some text<br> <img src="https://example.com/harbor.jpg" alt="The harbor"> <br>More text</p>`,
+  },
   // An image in the paragraph of a list item, as GitHub writes it (the image
   // is in a link). The image and the text after it become children of the
   // list item.
@@ -1841,6 +1847,14 @@ Final paragraph with [a link](https://example.com).`,
   {
     name: "inlineImage",
     content: `Text before ![inline](https://example.com/img.png) text after`,
+  },
+  // An image on its own line in a paragraph. The line breaks next to the
+  // image are removed.
+  {
+    name: "lineBreakNextToInlineImage",
+    content: `Some text
+![inline](https://example.com/img.png)
+More text`,
   },
   // An image in the text of a list item: the image and the text after it
   // become children of the list item.

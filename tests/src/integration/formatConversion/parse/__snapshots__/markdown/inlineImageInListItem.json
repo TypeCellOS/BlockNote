@@ -20,7 +20,7 @@
         "content": [
           {
             "styles": {},
-            "text": " text after",
+            "text": "text after",
             "type": "text",
           },
         ],
@@ -36,7 +36,7 @@
     "content": [
       {
         "styles": {},
-        "text": "Item ",
+        "text": "Item",
         "type": "text",
       },
     ],

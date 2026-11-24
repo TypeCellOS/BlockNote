@@ -20,7 +20,7 @@
         "content": [
           {
             "styles": {},
-            "text": " and select a block",
+            "text": "and select a block",
             "type": "text",
           },
         ],
@@ -36,7 +36,7 @@
     "content": [
       {
         "styles": {},
-        "text": "Open the menu ",
+        "text": "Open the menu",
         "type": "text",
       },
     ],
