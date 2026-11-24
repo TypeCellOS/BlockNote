@@ -121,19 +121,67 @@ export function computeYDocOperations(
   fragment: Y.Node,
   change: (TextChange | JSONChange) & WriteFromVersion<Uint8Array>,
 ): YDocOperationsResult {
-  const ydoc = docOf(fragment);
   requireBase(change.base);
   if (change.base !== "current") {
-    const atBase = fragmentAtBase(fragment, change.base);
-    if (!hasVersion(ydoc, docOf(atBase))) {
-      return { error: "unknown-base" };
+    const check = yDocChangesAfterBase(editor, fragment, change.base);
+    if (check.error !== undefined) {
+      return check;
     }
-    const changesOfOthers = fragmentChangesAfterBase(editor, atBase, fragment);
-    if (changesOfOthers.length > 0) {
-      return { error: "document-changed", changesOfOthers };
+    if (check.changesOfOthers.length > 0) {
+      return {
+        error: "document-changed",
+        changesOfOthers: check.changesOfOthers,
+      };
     }
   }
   return operationsOf(editor, change, yfragmentToBlocks(editor, fragment));
+}
+
+/**
+ * The result of `yDocChangesAfterBase`: the changes of other writers, or the
+ * error `"unknown-base"`.
+ */
+export type YDocChangesAfterBaseResult =
+  | {
+      error?: undefined;
+      /**
+       * The operations that change the document at `base` to the current
+       * document. Without operations, the document is the document that the
+       * client read.
+       */
+      changesOfOthers: BlockOperation[];
+    }
+  | UnknownBaseError;
+
+/**
+ * Returns the changes that other writers made to the document of the
+ * fragment of a Y.Doc after `base` (the version that a client read). Use it
+ * to stop a write of a client that did not see these changes. Call it and
+ * the write without an `await` between them: then no other writer can change
+ * the Y.Doc between the check and the write.
+ *
+ * `base` is the Yjs state at the version, as a V2 update
+ * (`Y.encodeStateAsUpdateV2(ydoc)`). Yjs throws for a V1 update. The Y.Doc
+ * must have that version: else the result is the error `"unknown-base"`
+ * (see `UnknownBaseError`).
+ *
+ * The check compares all data of the two documents, also the data that a
+ * text format does not show (for example a text color). It does not compare
+ * the state vectors of Yjs. Thus, these are not changes: a change in a
+ * different part of the Y.Doc, and a change that a later change reverted.
+ */
+export function yDocChangesAfterBase(
+  editor: BlockNoteEditor<any, any, any>,
+  fragment: Y.Node,
+  base: Uint8Array,
+): YDocChangesAfterBaseResult {
+  const atBase = fragmentAtBase(fragment, base);
+  if (!hasVersion(docOf(fragment), docOf(atBase))) {
+    return { error: "unknown-base" };
+  }
+  return {
+    changesOfOthers: fragmentChangesAfterBase(editor, atBase, fragment),
+  };
 }
 
 /**

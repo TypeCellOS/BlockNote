@@ -39,6 +39,7 @@ import {
   computeYDocOperations,
   getYDocText,
   updateYDoc,
+  yDocChangesAfterBase,
 } from "./yjsApi.js";
 import {
   computeYDocOperationsWithMerge,
@@ -374,13 +375,13 @@ describe("updateYDoc", () => {
  * `updateYDoc` with a Yjs state as `base`: the write applies only if the
  * document of the fragment is still at that version.
  */
-describe("a strict write from a version", () => {
-  const threeParagraphs: PartialBlock[] = [
-    { id: "a", type: "paragraph", content: "Alpha" },
-    { id: "b", type: "paragraph", content: "Beta" },
-    { id: "c", type: "paragraph", content: "Gamma" },
-  ];
+const threeParagraphs: PartialBlock[] = [
+  { id: "a", type: "paragraph", content: "Alpha" },
+  { id: "b", type: "paragraph", content: "Beta" },
+  { id: "c", type: "paragraph", content: "Gamma" },
+];
 
+describe("a strict write from a version", () => {
   it("throws for a base that is a V1 update of Yjs, and does not change the Y.Doc", () => {
     const ydoc = blocksToYDoc(
       reader,
@@ -393,6 +394,7 @@ describe("a strict write from a version", () => {
     const base = Y.encodeStateAsUpdate(ydoc);
     const change = { format: markdownFormat, text: "Alpha, edited\n", base };
 
+    expect(() => yDocChangesAfterBase(reader, fragment, base)).toThrow();
     expect(() => updateYDoc(reader, fragment, change)).toThrow();
     expect(() =>
       updateYDocWithMerge(reader, fragment, {
@@ -404,49 +406,6 @@ describe("a strict write from a version", () => {
       experimental_updateYDocWithYjsMerge(reader, fragment, change),
     ).toThrow();
     expect(Y.encodeStateAsUpdateV2(ydoc)).toEqual(before);
-  });
-
-  it("gives the error document-changed, and does not change the Y.Doc, if another writer changed the document", () => {
-    const { editor, ydoc, read, change } = setup(threeParagraphs);
-    const client = read();
-    change((user) => {
-      user.updateBlock("b", { content: "Beta, changed" });
-      user.removeBlocks(["c"]);
-    });
-    const before = Y.encodeStateAsUpdateV2(ydoc);
-
-    const result = updateYDoc(editor, ydoc.get("prosemirror"), {
-      format: markdownFormat,
-      text: replaceOnce(client.text, "Alpha", "Alpha, from the client"),
-      base: client.base,
-    });
-
-    expect(result).toEqual({
-      error: "document-changed",
-      changesOfOthers: expect.arrayContaining([
-        expect.objectContaining({ type: "update", id: "b" }),
-        { type: "delete", id: "c" },
-      ]),
-    });
-    expect(result).toHaveProperty("changesOfOthers.length", 2);
-    expect(Y.encodeStateAsUpdateV2(ydoc)).toEqual(before);
-  });
-
-  it("gives the error for a change of only a prop that the format does not show", () => {
-    const { editor, ydoc, read, change } = setup(threeParagraphs);
-    const client = read();
-    change((user) => user.updateBlock("b", { props: { textColor: "red" } }));
-
-    expect(
-      updateYDoc(editor, ydoc.get("prosemirror"), {
-        format: markdownFormat,
-        text: replaceOnce(client.text, "Alpha", "Alpha, from the client"),
-        base: client.base,
-      }),
-    ).toEqual({
-      error: "document-changed",
-      changesOfOthers: [expect.objectContaining({ type: "update", id: "b" })],
-    });
   });
 
   it("applies the write as a write to the current document, if no other writer changed the document", () => {
@@ -479,49 +438,81 @@ describe("a strict write from a version", () => {
     expect(result.operations).toMatchObject([{ type: "update", id: "a" }]);
     expect(blocks()).toEqual(reference.blocks());
   });
+});
+
+describe("yDocChangesAfterBase", () => {
+  it("gives no changes if no other writer changed the document", () => {
+    const { editor, ydoc, read } = setup(threeParagraphs);
+    const client = read();
+
+    expect(
+      yDocChangesAfterBase(editor, ydoc.get("prosemirror"), client.base),
+    ).toEqual({ changesOfOthers: [] });
+  });
+
+  it("gives the changes of other writers, and does not change the Y.Doc", () => {
+    const { editor, ydoc, read, change } = setup(threeParagraphs);
+    const client = read();
+    change((user) => {
+      user.updateBlock("b", { content: "Beta, changed" });
+      user.removeBlocks(["c"]);
+    });
+    const before = Y.encodeStateAsUpdateV2(ydoc);
+
+    const result = yDocChangesAfterBase(
+      editor,
+      ydoc.get("prosemirror"),
+      client.base,
+    );
+
+    expect(result).toEqual({
+      changesOfOthers: expect.arrayContaining([
+        expect.objectContaining({ type: "update", id: "b" }),
+        { type: "delete", id: "c" },
+      ]),
+    });
+    expect(result).toHaveProperty("changesOfOthers.length", 2);
+    expect(Y.encodeStateAsUpdateV2(ydoc)).toEqual(before);
+  });
+
+  it("gives a change of only a prop that a text format does not show", () => {
+    const { editor, ydoc, read, change } = setup(threeParagraphs);
+    const client = read();
+    change((user) => user.updateBlock("b", { props: { textColor: "red" } }));
+
+    expect(
+      yDocChangesAfterBase(editor, ydoc.get("prosemirror"), client.base),
+    ).toEqual({
+      changesOfOthers: [expect.objectContaining({ type: "update", id: "b" })],
+    });
+  });
 
   it("does not take a change in a different part of the Y.Doc for a change of the document", () => {
-    // A compare of state vectors would reject this write.
-    const { editor, ydoc, read, block } = setup(threeParagraphs);
+    // A compare of state vectors would give a change.
+    const { editor, ydoc, read } = setup(threeParagraphs);
     const client = read();
     ydoc.get("settings").setAttr("title", "A new title");
 
-    valid(
-      updateYDoc(editor, ydoc.get("prosemirror"), {
-        format: markdownFormat,
-        text: replaceOnce(client.text, "Alpha", "Alpha, from the client"),
-        base: client.base,
-      }),
-    );
-
-    expect(block("a")?.content).toMatchObject([
-      { text: "Alpha, from the client" },
-    ]);
+    expect(
+      yDocChangesAfterBase(editor, ydoc.get("prosemirror"), client.base),
+    ).toEqual({ changesOfOthers: [] });
   });
 
-  it("gives the error for a removal of a block only, which does not change the state vector", () => {
+  it("gives a removal of a block only, which does not change the state vector", () => {
     const { editor, ydoc, read, change } = setup(threeParagraphs);
     const client = read();
     const vector = Y.encodeStateVector(ydoc);
     change((user) => user.removeBlocks(["c"]));
-    // A compare of state vectors would apply this write.
+    // A compare of state vectors would give no change.
     expect(Y.encodeStateVector(ydoc)).toEqual(vector);
 
     expect(
-      updateYDoc(editor, ydoc.get("prosemirror"), {
-        format: markdownFormat,
-        text: replaceOnce(client.text, "Alpha", "Alpha, from the client"),
-        base: client.base,
-      }),
-    ).toEqual({
-      error: "document-changed",
-      changesOfOthers: [{ type: "delete", id: "c" }],
-    });
+      yDocChangesAfterBase(editor, ydoc.get("prosemirror"), client.base),
+    ).toEqual({ changesOfOthers: [{ type: "delete", id: "c" }] });
   });
 
   // After these changes, the document is the same as at `base`, but the
-  // Y.Doc has new Yjs items. A compare of state vectors would reject the
-  // write.
+  // Y.Doc has new Yjs items. A compare of state vectors would give a change.
   it.each<[string, (user: BlockNoteEditor<any, any, any>) => void]>([
     [
       "typed text and removed it again",
@@ -548,8 +539,8 @@ describe("a strict write from a version", () => {
         user.unnestBlock();
       },
     ],
-  ])("applies the write, if another writer %s", (_name, edit) => {
-    const { editor, ydoc, read, change, blocks, block } = setup([
+  ])("gives no changes, if another writer %s", (_name, edit) => {
+    const { editor, ydoc, read, change, blocks } = setup([
       { id: "a", type: "paragraph", content: "Alpha" },
       {
         id: "b",
@@ -566,21 +557,12 @@ describe("a strict write from a version", () => {
     expect(Y.encodeStateVector(ydoc)).not.toEqual(vector);
     expect(blocks()).toEqual(atBase);
 
-    const result = valid(
-      updateYDoc(editor, ydoc.get("prosemirror"), {
-        format: markdownFormat,
-        text: replaceOnce(client.text, "Alpha", "Alpha, from the client"),
-        base: client.base,
-      }),
-    );
-
-    expect(result.operations).toMatchObject([{ type: "update", id: "a" }]);
-    expect(block("a")?.content).toMatchObject([
-      { text: "Alpha, from the client" },
-    ]);
+    expect(
+      yDocChangesAfterBase(editor, ydoc.get("prosemirror"), client.base),
+    ).toEqual({ changesOfOthers: [] });
   });
 
-  it("applies the write, if the content of the fragment changed but the blocks did not", () => {
+  it("gives no changes, if the content of the fragment changed but the blocks did not", () => {
     // A Y.Doc of an earlier version of BlockNote: a block without children
     // has no block group. A block that gets a child and loses it again keeps
     // an empty block group in the fragment. The blocks do not show it.
@@ -592,7 +574,6 @@ describe("a strict write from a version", () => {
           .prosemirrorState.doc,
       ),
     );
-    const text = getYDocText(reader, fragment, markdownFormat);
     const base = Y.encodeStateAsUpdateV2(ydoc);
     const content = JSON.stringify(fragment.toDeltaDeep().toJSON());
     const user = bindEditor(fragment, { trailingBlock: false });
@@ -602,18 +583,9 @@ describe("a strict write from a version", () => {
     unbindEditor(user);
     expect(JSON.stringify(fragment.toDeltaDeep().toJSON())).not.toBe(content);
 
-    const result = valid(
-      updateYDoc(reader, fragment, {
-        format: markdownFormat,
-        text: replaceOnce(text, "Alpha", "Alpha, from the client"),
-        base,
-      }),
-    );
-
-    expect(result.operations).toMatchObject([{ type: "update", id: "a" }]);
-    expect(readText(fragment, markdownFormat)).toBe(
-      "Alpha, from the client\n\nBeta\n\nGamma\n",
-    );
+    expect(yDocChangesAfterBase(reader, fragment, base)).toEqual({
+      changesOfOthers: [],
+    });
   });
 
   it("compares the content as it is, not as a renderer of the fragment shows it", () => {
@@ -631,14 +603,7 @@ describe("a strict write from a version", () => {
       '"d"',
     );
 
-    expect(
-      updateYDoc(editor, fragment, {
-        format: markdownFormat,
-        text: replaceOnce(client.text, "Alpha", "Alpha, from the client"),
-        base: client.base,
-      }),
-    ).toEqual({
-      error: "document-changed",
+    expect(yDocChangesAfterBase(editor, fragment, client.base)).toEqual({
       changesOfOthers: [
         expect.objectContaining({
           type: "insert",
@@ -648,7 +613,7 @@ describe("a strict write from a version", () => {
     });
   });
 
-  it("gives the error for a version without content, if the document has content now", () => {
+  it("gives the content of the document as a change, for a version without content", () => {
     const ydoc = new Y.Doc();
     const fragment = ydoc.get("prosemirror");
     const base = Y.encodeStateAsUpdateV2(ydoc);
@@ -660,17 +625,9 @@ describe("a strict write from a version", () => {
       }),
     );
 
-    const result = updateYDoc(reader, fragment, {
-      format: markdownFormat,
-      text: "Hello",
-      base,
-    });
-
-    expect(result).toMatchObject({
-      error: "document-changed",
+    expect(yDocChangesAfterBase(reader, fragment, base)).toMatchObject({
       changesOfOthers: [{ type: "insert" }],
     });
-    expect(readText(fragment, markdownFormat).trim()).toBe("Other");
   });
 });
 
@@ -1789,7 +1746,7 @@ describe("a base with an update that the Y.Doc does not have yet", () => {
       (text) => replaceOnce(text, "Alpha", "Alpha edited"),
     );
 
-    expect(updateYDoc(reader, fragment, change)).toEqual({
+    expect(yDocChangesAfterBase(reader, fragment, change.base)).toEqual({
       error: "unknown-base",
     });
   });
@@ -1812,12 +1769,6 @@ describe("a base with an update that the Y.Doc does not have yet", () => {
 });
 
 describe("computeYDocOperations and applyYDocOperations", () => {
-  const threeParagraphs: PartialBlock[] = [
-    { id: "a", type: "paragraph", content: "Alpha" },
-    { id: "b", type: "paragraph", content: "Beta" },
-    { id: "c", type: "paragraph", content: "Gamma" },
-  ];
-
   it("computes the operations, and does not change the Y.Doc", () => {
     const { editor, ydoc, read } = setup(threeParagraphs);
     const client = read();

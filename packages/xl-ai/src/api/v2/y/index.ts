@@ -6,6 +6,8 @@ export {
   type UnknownBaseError,
   updateYDoc,
   type YDocChangeResult,
+  yDocChangesAfterBase,
+  type YDocChangesAfterBaseResult,
   type YDocOperationsResult,
 } from "./yjsApi.js";
 export {
