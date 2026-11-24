@@ -23,7 +23,7 @@ const FloatingComposerActionsComponent = memo(
       variant="action-toolbar"
     >
       <Components.Generic.Toolbar.Button
-        className={"bn-button"}
+        className={"bn-toolbar-button"}
         mainTooltip={dict.comments.save_button_text}
         variant="compact"
         isDisabled={isEmpty}

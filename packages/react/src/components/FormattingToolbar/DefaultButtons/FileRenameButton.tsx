@@ -103,7 +103,7 @@ export const FileRenameButton = () => {
     >
       <Components.Generic.Popover.Trigger>
         <Components.FormattingToolbar.Button
-          className={"bn-button"}
+          className={"bn-toolbar-button"}
           label={
             dict.formatting_toolbar.file_rename.tooltip[block.type] ||
             dict.formatting_toolbar.file_rename.tooltip["file"]

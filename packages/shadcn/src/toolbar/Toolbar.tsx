@@ -103,6 +103,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
       isSelected === undefined ? (
         <ShadCNComponents.Button.Button
           className={cn(
+            "bn-toolbar-button",
             className,
             variant === "compact" ? "h-6 min-w-6 p-0" : "",
           )}
@@ -121,6 +122,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
       ) : (
         <ShadCNComponents.Toggle.Toggle
           className={cn(
+            "bn-toolbar-button",
             className,
             "aria-expanded:bg-accent aria-expanded:text-accent-foreground",
             variant === "compact" ? "h-6 min-w-6 p-0" : "",
@@ -195,14 +197,14 @@ export const ToolbarSelect = forwardRef<
       disabled={isDisabled}
     >
       <ShadCNComponents.Select.SelectTrigger
-        className={"border-none"}
+        className={"bn-toolbar-button border-none"}
         // How-to-test: without it, tapping the block type select focuses the button and closes the keyboard (covered by skinFocus, android, shadcn: "opening the block type select keeps focus in the editor").
         onMouseDown={preventFocusOnTap}
       >
         <ShadCNComponents.Select.SelectValue />
       </ShadCNComponents.Select.SelectTrigger>
       <ShadCNComponents.Select.SelectContent
-        className={className}
+        className={cn("bn-toolbar-select", className)}
         container={portalElement}
         // Position the dropdown below the trigger (classic dropdown behavior)
         // instead of aligning the selected item over the trigger (the Base UI

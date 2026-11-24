@@ -160,7 +160,7 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
   const Icon: IconType = icons[props.textAlignment];
   return (
     <Components.FormattingToolbar.Button
-      className={"bn-button"}
+      className={"bn-toolbar-button"}
       data-test={`alignText${
         props.textAlignment.slice(0, 1).toUpperCase() +
         props.textAlignment.slice(1)

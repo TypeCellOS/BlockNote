@@ -147,7 +147,7 @@ export const ColorStyleButton = () => {
     >
       <Components.Generic.Menu.Trigger>
         <Components.FormattingToolbar.Button
-          className={"bn-button"}
+          className={"bn-toolbar-button"}
           data-test="colors"
           label={dict.formatting_toolbar.colors.tooltip}
           mainTooltip={dict.formatting_toolbar.colors.tooltip}

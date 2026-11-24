@@ -52,7 +52,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
             <AriakitToolbarItem
               aria-label={label}
               className={mergeCSSClasses(
-                "bn-ak-button bn-ak-secondary",
+                "bn-toolbar-button bn-ak-button bn-ak-secondary",
                 className || "",
               )}
               {...rest}
