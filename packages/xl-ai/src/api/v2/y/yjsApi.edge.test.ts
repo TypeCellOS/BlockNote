@@ -39,7 +39,6 @@ describe("updateYDoc: a JSON change", () => {
         { id: "b", type: "paragraph", content: "Beta" },
         { type: "paragraph", content: "New" },
       ],
-      base: "current",
     });
 
     expect(result.error).toBeUndefined();

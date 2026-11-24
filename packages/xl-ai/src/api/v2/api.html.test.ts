@@ -104,7 +104,6 @@ describe("HTML", () => {
 
       expect(
         updateDocument(editor, {
-          base: "current",
           format: htmlFormat,
           text: html.replace(from, to),
         }),
@@ -136,7 +135,6 @@ describe("HTML, a change of the type of a parent", () => {
 
     valid(
       updateDocument(editor, {
-        base: "current",
         format: htmlFormat,
         text,
       }),
@@ -145,7 +143,6 @@ describe("HTML, a change of the type of a parent", () => {
     expect(
       valid(
         computeOperations(editor, {
-          base: "current",
           format: htmlFormat,
           text,
         }),
@@ -165,7 +162,6 @@ describe("HTML, a parse in a form that the document does not store", () => {
 
     valid(
       updateDocument(editor, {
-        base: "current",
         format: htmlFormat,
         text,
       }),
@@ -174,7 +170,6 @@ describe("HTML, a parse in a form that the document does not store", () => {
     expect(
       valid(
         computeOperations(editor, {
-          base: "current",
           format: htmlFormat,
           text,
         }),

@@ -23,7 +23,7 @@ function write(
   edit: (text: string) => string,
 ) {
   const text = edit(getDocumentText(editor, plainTextFormat));
-  updateDocument(editor, { format: plainTextFormat, text, base: "current" });
+  updateDocument(editor, { format: plainTextFormat, text });
   expect(getDocumentText(editor, plainTextFormat)).toBe(text);
   return editor.document.map((block) => [
     block.id,
@@ -101,7 +101,6 @@ describe("hidden blocks next to blocks that the text moves", () => {
     const editor = BlockNoteEditor.create({ schema, initialContent });
     valid(
       updateDocument(editor, {
-        base: "current",
         format,
         text: text(getDocumentText(editor, format)),
       }),

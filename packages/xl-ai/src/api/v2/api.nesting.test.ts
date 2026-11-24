@@ -109,9 +109,7 @@ function write(
   const editor = BlockNoteEditor.create({ initialContent: document });
   const known = idsOf(editor.document as LensBlock[]);
   const text = edit(getDocumentText(editor, format));
-  const update = valid(
-    updateDocument(editor, { base: "current", format, text }),
-  );
+  const update = valid(updateDocument(editor, { format, text }));
   // PutGet, modulo the normalization of the format.
   expect(canonicalText(editor, format, getDocumentText(editor, format))).toBe(
     canonicalText(editor, format, text),
@@ -338,7 +336,6 @@ describe("markdown, list items", () => {
     expect(
       valid(
         computeOperations(editor, {
-          base: "current",
           format: markdownFormat,
           text,
         }),
@@ -586,7 +583,6 @@ describe("markdown, writes from an older version that change the nesting", () =>
     const text = getDocumentText(editor, markdownFormat);
     valid(
       updateDocument(editor, {
-        base: "current",
         format: markdownFormat,
         text: theirs(text),
       }),
@@ -904,7 +900,6 @@ describe("a nesting that the format does not show", () => {
     );
     valid(
       updateDocument(editor, {
-        base: "current",
         format: markdownFormat,
         text,
       }),

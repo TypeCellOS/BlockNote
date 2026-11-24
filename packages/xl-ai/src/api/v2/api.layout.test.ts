@@ -47,7 +47,6 @@ function write(
 ) {
   return valid(
     updateDocument(editor, {
-      base: "current",
       format,
       text: paragraphs(format, texts),
     }),
@@ -212,7 +211,6 @@ describe("a tab set in JSON", () => {
     const [set] = editor.document;
     valid(
       updateDocument(editor, {
-        base: "current",
         document: [{ ...set, children: [set.children[1]] }],
       }),
     );
@@ -227,7 +225,6 @@ describe("a tab set in JSON", () => {
     const [set] = before;
     expect(
       updateDocument(editor, {
-        base: "current",
         document: [{ ...set, children: [set.children[1]] }],
       }),
     ).toEqual({ error: "invalid-document" });
@@ -240,7 +237,6 @@ describe("a tab set in JSON", () => {
     const [set] = before;
     expect(
       updateDocument(editor, {
-        base: "current",
         document: [
           {
             ...set,
@@ -324,7 +320,6 @@ describe("a column list in markdown", () => {
 
     const update = valid(
       updateDocument(editor, {
-        base: "current",
         format: markdownFormat,
         text: "Beta\n\nAlpha\n",
       }),
@@ -351,7 +346,6 @@ describe("a column list in markdown", () => {
 
     valid(
       updateDocument(editor, {
-        base: "current",
         format: markdownFormat,
         text: "Alpha\n\nTop\n\nBeta\n\nEnd\n",
       }),
@@ -387,7 +381,6 @@ describe("a column list in markdown", () => {
 
     valid(
       updateDocument(editor, {
-        base: "current",
         format: markdownFormat,
         text: "Alpha\n\nP\n\nBeta\n",
       }),
@@ -428,7 +421,6 @@ describe("a column list in markdown", () => {
 
     valid(
       updateDocument(editor, {
-        base: "current",
         format: markdownFormat,
         text: "Alpha\n\n<br>\n",
       }),
@@ -458,7 +450,6 @@ describe("a column list in markdown", () => {
 
     valid(
       updateDocument(editor, {
-        base: "current",
         format: markdownFormat,
         text: "Alpha\n\nXray\n\nBeta\n",
       }),
@@ -511,7 +502,6 @@ describe("a column list in markdown", () => {
 
       valid(
         updateDocument(editor, {
-          base: "current",
           format: markdownFormat,
           text: "Bravo two\n\nTop\n\nAlpha one\n\nAlpha two\n\nBravo one\n\nEnd\n",
         }),
@@ -531,7 +521,6 @@ describe("a column list in markdown", () => {
 
       valid(
         updateDocument(editor, {
-          base: "current",
           format: markdownFormat,
           text: "Top\n\nAlpha one\n\nBravo one\n\nAlpha two\n\nBravo two\n\nEnd\n",
         }),
@@ -564,7 +553,6 @@ describe("a column list in HTML", () => {
 
     valid(
       updateDocument(editor, {
-        base: "current",
         format: htmlFormat,
         text: '<div class="bn-block-column-list"><div class="bn-block-column"><p>Alpha</p></div><div class="bn-block-column"><p>Beta</p></div></div>',
       }),
@@ -607,7 +595,6 @@ describe("a column list in JSON", () => {
 
     expect(
       updateDocument(editor, {
-        base: "current",
         document: [
           {
             type: "column",
@@ -626,7 +613,6 @@ describe("a column list in JSON", () => {
     const [a, b] = copy(editor.document);
 
     update(editor, {
-      base: "current",
       document: [
         {
           type: "columnList",
@@ -657,7 +643,6 @@ describe("JSON, the layout rules", () => {
     // An empty column does not fit the schema: the conversion would fill it.
     expect(
       updateDocument(editor, {
-        base: "current",
         document: [
           {
             ...list,

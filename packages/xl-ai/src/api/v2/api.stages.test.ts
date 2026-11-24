@@ -25,8 +25,7 @@ function stagesOf(
   const stages = textStages(editor, format, text);
   expect(stages.operations).toEqual(
     withNewIdPlaceholders(
-      valid(computeOperations(editor, { base: "current", format, text }))
-        .operations,
+      valid(computeOperations(editor, { format, text })).operations,
     ),
   );
   return stages;

@@ -29,7 +29,6 @@ describe("removals (review closely)", () => {
     );
     valid(
       updateDocument(editor, {
-        base: "current",
         format: markdownFormat,
         text,
       }),
@@ -54,7 +53,6 @@ describe("removals (review closely)", () => {
     const text = markdown.slice(0, start) + markdown.slice(end + 2);
     valid(
       updateDocument(editor, {
-        base: "current",
         format: markdownFormat,
         text,
       }),
@@ -78,7 +76,6 @@ describe("removals (review closely)", () => {
     );
     valid(
       updateDocument(editor, {
-        base: "current",
         format: markdownFormat,
         text,
       }),
@@ -102,7 +99,6 @@ describe("removals (review closely)", () => {
     ]);
     valid(
       updateDocument(editor, {
-        base: "current",
         format: plainTextFormat,
         text: "End\n",
       }),
@@ -120,7 +116,6 @@ describe("removals (review closely)", () => {
     );
     const update = valid(
       updateDocument(editor, {
-        base: "current",
         format: plainTextFormat,
         text,
       }),
@@ -133,7 +128,6 @@ describe("removals (review closely)", () => {
     const editor = createEditor();
     valid(
       updateDocument(editor, {
-        base: "current",
         format: markdownFormat,
         text: "",
       }),
@@ -167,7 +161,6 @@ describe("removals (review closely)", () => {
 
     const update = valid(
       updateDocument(editor, {
-        base: "current",
         format: markdownFormat,
         text: text.replace("[doc.pdf]", "[report.pdf]"),
       }),
@@ -219,7 +212,6 @@ describe("removals (review closely)", () => {
 
       valid(
         updateDocument(editor, {
-          base: "current",
           format: plainTextFormat,
           text,
         }),

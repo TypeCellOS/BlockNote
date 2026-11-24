@@ -5,7 +5,6 @@ import * as Y from "@y/y";
 import {
   type InvalidDocumentError,
   type JSONChange,
-  requireBase,
   type TextChange,
 } from "../api.js";
 import {
@@ -13,6 +12,7 @@ import {
   type MergedChangeOperations,
   mergedOperationsOf,
   type MergeFromVersion,
+  requireBase,
 } from "../apiWithMerge.js";
 import { diffDocuments } from "../operations/index.js";
 import {
@@ -110,7 +110,7 @@ export function updateYDocWithMerge(
  * and lets Yjs merge it with the changes of other writers after `base`.
  * For the editor and `base`, see `updateYDoc`.
  *
- * The function is `updateYDoc` with `base: "current"` on a copy of the
+ * The function is `updateYDoc` on a copy of the
  * Y.Doc at `base`: the Y.Doc then gets the Yjs update of that write, as at
  * a sync of two replicas. One thing is different: a base without content
  * uses the merge of `updateYDocWithMerge`.
@@ -148,17 +148,9 @@ export function experimental_updateYDocWithYjsMerge(
     }
     return merged;
   }
-  // The strict write, to the copy of the Y.Doc at `base`. The copy does not
+  // The write goes to the copy of the Y.Doc at `base`. The copy does not
   // have the changes of other writers.
-  const written = updateYDoc(editor, atBase, { ...change, base: "current" });
-  if (
-    written.error === "document-changed" ||
-    written.error === "unknown-base"
-  ) {
-    throw new Error(
-      "A write with the base `current` gives only the error `invalid-document`.",
-    );
-  }
+  const written = updateYDoc(editor, atBase, change);
   if (written.error !== undefined) {
     return written;
   }

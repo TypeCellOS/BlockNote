@@ -96,9 +96,7 @@ function writeRandomEdit(
     return undefined;
   }
   const edited = format.serialize(editor, changed.blocks);
-  const update = valid(
-    updateDocument(editor, { base: "current", format, text: edited }),
-  );
+  const update = valid(updateDocument(editor, { format, text: edited }));
   expect(update.warnings).toEqual([]);
   return { editor, source, edit: changed.edit, edited };
 }
@@ -314,7 +312,6 @@ describe.each([
       // from `base`.
       valid(
         updateDocument(editor, {
-          base: "current",
           format,
           text: format.serialize(editor, theirs.blocks),
         }),

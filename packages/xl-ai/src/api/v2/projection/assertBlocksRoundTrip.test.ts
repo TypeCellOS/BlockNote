@@ -72,7 +72,6 @@ describe("assertBlocksRoundTrip", () => {
 
     expect(() =>
       updateDocument(editor, {
-        base: "current",
         format: brokenFormat,
         text: "Hello, changed",
       }),

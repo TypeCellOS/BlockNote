@@ -11,13 +11,11 @@ export {
   type ChangeResult,
   computeOperations,
   type DocumentChange,
-  type DocumentChangedError,
   getDocumentText,
   type InvalidDocumentError,
   type JSONChange,
   type TextChange,
   updateDocument,
-  type WriteFromVersion,
 } from "./api.js";
 export {
   type ChangeWarning,

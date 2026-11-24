@@ -14,17 +14,18 @@ import { EditorState, type Transaction } from "prosemirror-state";
 import {
   type ChangeOperations,
   type ChangeResult,
-  changesAfterBase,
-  type DocumentChangedError,
   type InvalidDocumentError,
   type JSONChange,
   operationsOf,
-  requireBase,
   type TextChange,
-  type WriteFromVersion,
 } from "../api.js";
 import type { TextFormat } from "../formats/index.js";
-import { applyOperations, type BlockOperation } from "../operations/index.js";
+import {
+  applyOperations,
+  type BlockOperation,
+  diffDocuments,
+} from "../operations/index.js";
+import { assertBlockIds } from "../util/blocks/index.js";
 
 // The text lens for a Y.Doc of Yjs 14. How a write relates to the merge of
 // Yjs:
@@ -33,21 +34,23 @@ import { applyOperations, type BlockOperation } from "../operations/index.js";
 //   result has the Yjs update (`updateV2`). The other replicas merge that
 //   update at their sync, as they merge each update. No function here
 //   controls that merge.
-// - `base` is about the Y.Doc of the caller. A write examines the changes
+// - `base` (the version that a client read) is about the Y.Doc of the
+//   caller. A merge write and `yDocChangesAfterBase` examine the changes
 //   that this Y.Doc has after `base`. A change that this Y.Doc does not have
 //   yet (of a replica that did not sync) is not one of them: Yjs merges it
 //   at the sync.
 //
-// The three writes are different only in what they do with the changes
-// after `base`:
+// The three writes are different only in what they do with the changes of
+// other writers that the client did not read:
 //
-//   updateYDoc                            nothing applies ("document-changed")
+//   updateYDoc                            reverts them, where the change shows them
 //   updateYDocWithMerge                   the lens merges them, by block ID
 //   experimental_updateYDocWithYjsMerge   Yjs merges them
 //
-// The last two are in `yjsApiWithMerge.ts`. With `base: "current"`, no
-// change is after `base`. Thus, `updateYDoc` with `"current"` on a Y.Doc
-// that is out of date gets the merge of Yjs at its next sync.
+// The last two are in `yjsApiWithMerge.ts`: they get the version that the
+// client read as `base`. `updateYDoc` has no `base`: its change is for the
+// current document of the Y.Doc. On a Y.Doc that is out of date, its write
+// gets the merge of Yjs at the next sync.
 
 /**
  * Returns the document of the fragment of a Y.Doc in the format. A client
@@ -60,12 +63,6 @@ export function getYDocText(
 ): string {
   return format.serialize(editor, yfragmentToBlocks(editor, fragment));
 }
-
-/**
- * The result of `computeYDocOperations`: the operations and the warnings, or
- * an error (the errors of `ChangeResult`, and `"unknown-base"`).
- */
-export type YDocOperationsResult = ChangeResult | UnknownBaseError;
 
 /**
  * The result of a write to a Y.Doc: the result of `computeYDocOperations`,
@@ -82,15 +79,13 @@ export type YDocChangeResult =
        */
       updateV2: Uint8Array;
     })
-  | InvalidDocumentError
-  | DocumentChangedError
-  | UnknownBaseError;
+  | InvalidDocumentError;
 
 /**
  * The Y.Doc does not have the version `base`: nothing applies. This occurs
  * if the client read from a replica with an update that this Y.Doc does not
  * have yet. Sync the Y.Doc (for example with `Y.applyUpdateV2(ydoc, base)`),
- * and write again.
+ * and call the function again.
  */
 export type UnknownBaseError = { error: "unknown-base" };
 
@@ -105,36 +100,66 @@ export type UnknownBaseError = { error: "unknown-base" };
  * schema and the extensions of the other clients. If the schema cannot read
  * the fragment, the read throws.
  *
- * `base` is the version that the client read: `"current"`, or the Yjs state
- * at that version as a V2 update (`Y.encodeStateAsUpdateV2(ydoc)`, also the
- * format of the versions of core). Yjs throws for a V1 update. The Y.Doc
- * must have that version: else the result is the error `"unknown-base"`
- * (see `UnknownBaseError`).
- *
- * The write is strict, as `computeOperations`: if other writers changed the
- * document of the fragment after `base`, the result is the error
- * `"document-changed"`. To merge with their changes, use
- * `computeYDocOperationsWithMerge`.
+ * The change is for the current document of the fragment, as for
+ * `computeOperations`: if other writers changed the document after the read
+ * of the client, the write reverts their changes where the change shows
+ * them. To find such changes before the write, use `yDocChangesAfterBase`.
+ * To merge with them, use `computeYDocOperationsWithMerge`.
  */
 export function computeYDocOperations(
   editor: BlockNoteEditor<any, any, any>,
   fragment: Y.Node,
-  change: (TextChange | JSONChange) & WriteFromVersion<Uint8Array>,
-): YDocOperationsResult {
-  requireBase(change.base);
-  if (change.base !== "current") {
-    const check = yDocChangesAfterBase(editor, fragment, change.base);
-    if (check.error !== undefined) {
-      return check;
-    }
-    if (check.changesOfOthers.length > 0) {
-      return {
-        error: "document-changed",
-        changesOfOthers: check.changesOfOthers,
-      };
-    }
-  }
+  change: TextChange | JSONChange,
+): ChangeResult {
   return operationsOf(editor, change, yfragmentToBlocks(editor, fragment));
+}
+
+/**
+ * Computes the operations of a change (see `computeYDocOperations`), and
+ * writes them to the fragment (see `applyYDocOperations`): `updateDocument`,
+ * for a Y.Doc.
+ *
+ * Use it for a writer that is not the user of a bound editor: a server, an
+ * agent, an import (see the README, "Which function to use"). The undo of
+ * an editor does not revert the write.
+ */
+export function updateYDoc(
+  editor: BlockNoteEditor<any, any, any>,
+  fragment: Y.Node,
+  change: TextChange | JSONChange,
+): YDocChangeResult {
+  const update = computeYDocOperations(editor, fragment, change);
+  return update.error !== undefined
+    ? update
+    : {
+        ...update,
+        updateV2: applyYDocOperations(editor, fragment, update.operations),
+      };
+}
+
+/**
+ * Writes operations to the fragment of a Y.Doc, and returns the Yjs update
+ * of the write, as a V2 update: `applyOperations`, for a Y.Doc.
+ *
+ * The operations must be for the current document of the fragment, as
+ * `computeYDocOperations` gives them. Else the function throws before the
+ * Y.Doc changes (see `applyOperations`).
+ *
+ * The write is one Yjs transaction. Yjs cannot revert a transaction: if Yjs
+ * throws in it, a part of the write can stay (see the README, "Pipeline",
+ * step 8).
+ */
+export function applyYDocOperations(
+  editor: BlockNoteEditor<any, any, any>,
+  fragment: Y.Node,
+  operations: readonly BlockOperation[],
+): Uint8Array {
+  const ydoc = docOf(fragment);
+  const before = Y.encodeStateVector(ydoc);
+  applyTransactionToYjsFragment(editor.pmSchema, fragment, (tr) =>
+    applyOperations(tr, operations),
+  );
+  return Y.encodeStateAsUpdateV2(ydoc, before);
 }
 
 /**
@@ -182,54 +207,6 @@ export function yDocChangesAfterBase(
   return {
     changesOfOthers: fragmentChangesAfterBase(editor, atBase, fragment),
   };
-}
-
-/**
- * Computes the operations of a change (see `computeYDocOperations`), and
- * writes them to the fragment (see `applyYDocOperations`): `updateDocument`,
- * for a Y.Doc.
- *
- * Use it for a writer that is not the user of a bound editor: a server, an
- * agent, an import (see the README, "Which function to use"). The undo of
- * an editor does not revert the write.
- */
-export function updateYDoc(
-  editor: BlockNoteEditor<any, any, any>,
-  fragment: Y.Node,
-  change: (TextChange | JSONChange) & WriteFromVersion<Uint8Array>,
-): YDocChangeResult {
-  const update = computeYDocOperations(editor, fragment, change);
-  return update.error !== undefined
-    ? update
-    : {
-        ...update,
-        updateV2: applyYDocOperations(editor, fragment, update.operations),
-      };
-}
-
-/**
- * Writes operations to the fragment of a Y.Doc, and returns the Yjs update
- * of the write, as a V2 update: `applyOperations`, for a Y.Doc.
- *
- * The operations must be for the current document of the fragment, as
- * `computeYDocOperations` gives them. Else the function throws before the
- * Y.Doc changes (see `applyOperations`).
- *
- * The write is one Yjs transaction. Yjs cannot revert a transaction: if Yjs
- * throws in it, a part of the write can stay (see the README, "Pipeline",
- * step 8).
- */
-export function applyYDocOperations(
-  editor: BlockNoteEditor<any, any, any>,
-  fragment: Y.Node,
-  operations: readonly BlockOperation[],
-): Uint8Array {
-  const ydoc = docOf(fragment);
-  const before = Y.encodeStateVector(ydoc);
-  applyTransactionToYjsFragment(editor.pmSchema, fragment, (tr) =>
-    applyOperations(tr, operations),
-  );
-  return Y.encodeStateAsUpdateV2(ydoc, before);
 }
 
 /**
@@ -293,10 +270,11 @@ function fragmentChangesAfterBase(
   }
   // Content that is not equal can be the same blocks: for example, an empty
   // block group can stay in the fragment. Thus, the blocks decide.
-  return changesAfterBase(
-    yfragmentToBlocks(editor, atBase),
-    yfragmentToBlocks(editor, fragment),
-  );
+  const base = yfragmentToBlocks(editor, atBase);
+  const current = yfragmentToBlocks(editor, fragment);
+  assertBlockIds(current, "current document");
+  assertBlockIds(base, "base");
+  return diffDocuments(base, current);
 }
 
 /**

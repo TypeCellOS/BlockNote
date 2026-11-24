@@ -48,7 +48,6 @@ describe.each([
 
       const edited = randomEdits(random, text, randomTextEdit);
       const update = updateDocument(editor, {
-        base: "current",
         format,
         text: edited,
       });

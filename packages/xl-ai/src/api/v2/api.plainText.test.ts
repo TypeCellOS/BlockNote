@@ -156,7 +156,6 @@ describe("plain text", () => {
 
       const update = valid(
         updateDocument(editor, {
-          base: "current",
           format: plainTextFormat,
           text: text.replace("\n}", "\n} // end"),
         }),
@@ -249,7 +248,6 @@ describe("plain text, a new editor", () => {
 
     valid(
       updateDocument(editor, {
-        base: "current",
         format: plainTextFormat,
         text: "Hello\n\nWorld",
       }),
@@ -281,7 +279,6 @@ describe("an item that plain text does not show", () => {
     const text = getDocumentText(editor, plainTextFormat);
     valid(
       updateDocument(editor, {
-        base: "current",
         format: plainTextFormat,
         text: replaceOnce(text, "today", "tomorrow"),
       }),
@@ -303,7 +300,6 @@ describe("plain text: white space at the end of a block", () => {
     const text = "Alpha";
     valid(
       updateDocument(editor, {
-        base: "current",
         format: plainTextFormat,
         text,
       }),
@@ -319,7 +315,6 @@ describe("plain text: white space at the end of a block", () => {
     expect(
       valid(
         computeOperations(editor, {
-          base: "current",
           format: plainTextFormat,
           text,
         }),

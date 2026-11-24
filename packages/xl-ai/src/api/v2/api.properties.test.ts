@@ -58,9 +58,7 @@ function expectLaws(
   const edited = randomEdits(random, text, (random, text) =>
     randomEdit(random, text, codec),
   );
-  const update = valid(
-    updateDocument(editor, { base: "current", format, text: edited }),
-  );
+  const update = valid(updateDocument(editor, { format, text: edited }));
   expect(update.warnings).toEqual([]);
 
   // PutGet, modulo the normalization of the format.
@@ -118,9 +116,7 @@ describe("markdown, edits of lines", () => {
       getDocumentText(editor, format),
       randomLineEdit,
     );
-    const update = valid(
-      updateDocument(editor, { base: "current", format, text: edited }),
-    );
+    const update = valid(updateDocument(editor, { format, text: edited }));
     expect(update.warnings).toEqual([]);
 
     // PutGet, modulo the normalization of the format.

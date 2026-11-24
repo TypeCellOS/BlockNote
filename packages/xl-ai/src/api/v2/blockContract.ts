@@ -193,7 +193,6 @@ function assertWrites(
   const unchanged = computeOperations(document, {
     format,
     text: `\n${text}\n\n`,
-    base: "current",
   });
   if (unchanged.error !== undefined || unchanged.operations.length > 0) {
     throw contractError(
@@ -206,7 +205,6 @@ function assertWrites(
   const edited = computeOperations(document, {
     format,
     text: text.replace("Paragraph before", "Changed paragraph before"),
-    base: "current",
   });
   const [operation] = edited.error === undefined ? edited.operations : [];
   if (

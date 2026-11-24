@@ -100,15 +100,15 @@ describe.each(documents)("$name", ({ create }) => {
       const editor = create();
       const text = getDocumentText(editor, format);
 
-      expect(
-        valid(computeOperations(editor, { base: "current", format, text })),
-      ).toEqual({ operations: [], warnings: [] });
+      expect(valid(computeOperations(editor, { format, text }))).toEqual({
+        operations: [],
+        warnings: [],
+      });
       // This text is not equal to the text that the client read. Thus, it goes
       // through the full pipeline.
       expect(
         valid(
           computeOperations(editor, {
-            base: "current",
             format,
             text: `\n${text}\n\n`,
           }),
@@ -125,9 +125,7 @@ describe.each(documents)("$name", ({ create }) => {
         const text = codec.join(
           apply(codec.split(getDocumentText(editor, format)), codec),
         );
-        const update = valid(
-          updateDocument(editor, { base: "current", format, text }),
-        );
+        const update = valid(updateDocument(editor, { format, text }));
 
         // PutGet: a read gives the written text.
         expect(update.warnings).toEqual([]);
@@ -137,8 +135,7 @@ describe.each(documents)("$name", ({ create }) => {
 
         // PutTwice: a second write of the same text changes nothing.
         expect(
-          valid(computeOperations(editor, { base: "current", format, text }))
-            .operations,
+          valid(computeOperations(editor, { format, text })).operations,
         ).toEqual([]);
 
         // Retention: the blocks that the edit does not touch stay, with

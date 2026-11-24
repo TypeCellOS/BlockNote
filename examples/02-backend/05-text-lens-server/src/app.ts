@@ -200,14 +200,12 @@ function write(
     return change;
   }
   if (options.base === "current") {
-    const update = updateDocument(editor, { ...change, base: "current" });
+    const update = updateDocument(editor, change);
     switch (update.error) {
       case undefined:
         return { ...update, changesOfOthers: [], written: undefined };
       case "invalid-document":
         return { status: 400, error: update.error };
-      case "document-changed":
-        return { status: 412, error: update.error };
     }
   }
   const update = updateDocumentWithMerge(editor, { ...change, ...options });

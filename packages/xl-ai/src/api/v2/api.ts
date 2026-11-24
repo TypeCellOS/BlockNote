@@ -44,7 +44,7 @@ export function getDocumentText(
 export type ChangeOperations = {
   error?: undefined;
   operations: BlockOperation[];
-  /** No `MergeWarning`: a strict write does not merge. */
+  /** No `MergeWarning`: this write does not merge. */
   warnings: (TargetWarning | FitWarning)[];
 };
 
@@ -55,47 +55,12 @@ export type ChangeOperations = {
  */
 export type InvalidDocumentError = { error: "invalid-document" };
 
-/** The document changed after `base`: nothing applies. */
-export type DocumentChangedError = {
-  error: "document-changed";
-  /**
-   * The changes of other writers after `base`: the operations that change
-   * the version that the client read to the current document.
-   */
-  changesOfOthers: BlockOperation[];
-};
-
 /**
- * The result of a change: the operations and the warnings, or an error. On
- * an error, the document does not change.
- *
- * - `"invalid-document"`: see {@link InvalidDocumentError}.
- * - `"document-changed"`: see {@link WriteFromVersion}.
+ * The result of a change: the operations and the warnings, or the error
+ * `"invalid-document"` (see {@link InvalidDocumentError}). On an error, the
+ * document does not change.
  */
-export type ChangeResult =
-  | ChangeOperations
-  | InvalidDocumentError
-  | DocumentChangedError;
-
-/**
- * The version that the client read (`base`). Each write must give `base`: a
- * write that forgets it would remove the changes of other writers without a
- * warning.
- */
-export type WriteFromVersion<Base> = {
-  /**
-   * The version that the client read.
-   *
-   * - `"current"`: the client read the current document (for example in the
-   *   same tick). There is no check: the text is the truth. If other writers
-   *   changed the document after the read of the client, the write reverts
-   *   their changes where the format shows them.
-   * - A version: if the document changed after it, nothing applies, and the
-   *   result is the error `"document-changed"`. Get the version from your
-   *   version history.
-   */
-  base: "current" | Base;
-};
+export type ChangeResult = ChangeOperations | InvalidDocumentError;
 
 /**
  * A text in a format (for example markdown), as the client wants the
@@ -130,9 +95,8 @@ export type JSONChange = {
   text?: undefined;
 };
 
-/** A change of a client: a text or BlockNote JSON, and the version that the client read. */
-export type DocumentChange = (TextChange | JSONChange) &
-  WriteFromVersion<readonly LensBlock[]>;
+/** A change of a client: a text or BlockNote JSON. */
+export type DocumentChange = TextChange | JSONChange;
 
 /**
  * Computes the operations that change the document of the editor to agree
@@ -140,14 +104,13 @@ export type DocumentChange = (TextChange | JSONChange) &
  * operations to a transaction of the caller (for example as suggestions).
  * {@link updateDocument} computes and applies them in one step.
  *
- * The write is strict. With a version as `base`, it applies only if the
- * document is still at that version. If other writers changed the document
- * after `base`, the result is the error `"document-changed"`, with the
- * blocks that they changed. The check compares all data of the two
- * documents, also the data that the format does not show: the target of the
- * change comes from the current document, thus a change that the client did
- * not see must stop the write. To merge the change with the changes of
- * other writers, use `computeOperationsWithMerge`.
+ * The change is for the current document, and it is the truth. If other
+ * writers changed the document after the read of the client, the write
+ * reverts their changes where the change shows them. To prevent this,
+ * compare a version of your own (for example an ETag, or a hash of the text
+ * that the client read) before the write, without an `await` between the
+ * compare and the write. To merge the change with the changes of other
+ * writers, use `computeOperationsWithMerge`.
  *
  * The operations change only the blocks and fields that the client changed.
  * They keep the data that the change does not show: for a text, examples are
@@ -159,22 +122,14 @@ export type DocumentChange = (TextChange | JSONChange) &
  * `*` and `-` bullets in markdown.
  *
  * The operations refer to the blocks of `editor.document` by ID. Throws if
- * a block of the document or of `base` has no ID, or if two blocks have one
- * ID (see `assertBlockIds`, also for a Y.Doc that has such blocks).
+ * a block of the document has no ID, or if two blocks have one ID (see
+ * `assertBlockIds`, also for a Y.Doc that has such blocks).
  */
 export function computeOperations(
   editor: BlockNoteEditor<any, any, any>,
   change: DocumentChange,
 ): ChangeResult {
-  requireBase(change.base);
-  const current = editor.document;
-  if (change.base !== "current") {
-    const changesOfOthers = changesAfterBase(change.base, current);
-    if (changesOfOthers.length > 0) {
-      return { error: "document-changed", changesOfOthers };
-    }
-  }
-  return operationsOf(editor, change, current);
+  return operationsOf(editor, change, editor.document);
 }
 
 /**
@@ -208,18 +163,17 @@ export function updateDocument(
 //                        2 Parse), then updateFromTarget (5 Fit, 6 Diff)
 //   dispatchOperations = 7 Apply and 8 Dispatch
 //
-// A strict write examines `base` before stage 1 (see `changesAfterBase`),
-// and then writes to the current document. Only a merge write has stage 4
-// (Merge): its functions are in `apiWithMerge.ts`. This file does not refer
-// to the document merge (`merge/document.ts`). Thus, a bundler can drop the
-// document merge from code that uses only the strict write.
+// The writes of this file write to the current document. Only a merge write
+// has stage 4 (Merge): its functions are in `apiWithMerge.ts`. This file does
+// not refer to the document merge (`merge/document.ts`). Thus, a bundler can
+// drop the document merge from code that uses only the writes of this file.
 //
 // The documents of a change:
 //
-// - `base`: the version that the client read, or `"current"`.
 // - `current`: the document now. The operations change it. It does not have
 //   to be the document of the editor: the editor supplies the schema and the
 //   conversions.
+// - `base`: only for a merge write: the version that the client read.
 // - `source`: the document that the change starts from: `current`, or
 //   `base` for a merge write.
 // - `target`: the document as the change asks for it (stage 3).
@@ -332,28 +286,6 @@ export function updateFromTarget(
 }
 
 /**
- * The check of a strict write: the blocks that other writers changed after
- * the version `base`. The write applies only if there are none. The check
- * is one diff of the two documents, thus a write that does not apply costs
- * only this diff.
- *
- * `base` must be a document as the editor gives it (for example
- * `editor.document` at the read, also after `JSON.stringify` and
- * `JSON.parse`). A difference in the form (for example a block without its
- * default props) is a change for this check.
- *
- * @internal
- */
-export function changesAfterBase(
-  base: readonly LensBlock[],
-  current: readonly LensBlock[],
-): BlockOperation[] {
-  assertBlockIds(current, "current document");
-  assertBlockIds(base, "base");
-  return diffDocuments(base, current);
-}
-
-/**
  * Stages 7 and 8: applies the operations to a transaction of the editor (see
  * `applyOperations`), and dispatches it in one transaction (see
  * `dispatchUpdate`).
@@ -367,22 +299,6 @@ export function dispatchOperations(
   const tr = editor.prosemirrorState.tr;
   applyOperations(tr, operations);
   dispatchUpdate(editor, tr);
-}
-
-/**
- * Throws if a write has no `base`. The type requires it, but a caller without
- * types (for example JavaScript) can forget it. Without this check, such a
- * write would fail with an unclear error, or remove the changes of other
- * writers without a warning.
- *
- * @internal
- */
-export function requireBase(base: unknown): void {
-  if (base === undefined) {
-    throw new Error(
-      'A write needs the option `base`: "current", or the version that the client read.',
-    );
-  }
 }
 
 /**

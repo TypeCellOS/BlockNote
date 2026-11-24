@@ -60,30 +60,9 @@ function write(
   );
 }
 
-describe("a write without `base`", () => {
+describe("a merge write without `base`", () => {
   // The type requires `base`, but a caller without types can forget it.
   it.each([
-    [
-      "computeOperations",
-      (editor: BlockNoteEditor<any, any, any>) =>
-        computeOperations(editor, {
-          format: markdownFormat,
-          text: "Hello",
-        } as never),
-    ],
-    [
-      "updateDocument",
-      (editor: BlockNoteEditor<any, any, any>) =>
-        updateDocument(editor, {
-          format: markdownFormat,
-          text: "Hello",
-        } as never),
-    ],
-    [
-      "updateDocument",
-      (editor: BlockNoteEditor<any, any, any>) =>
-        updateDocument(editor, { document: [] } as never),
-    ],
     [
       "computeOperationsWithMerge",
       (editor: BlockNoteEditor<any, any, any>) =>
@@ -415,15 +394,14 @@ describe.each(formatCases)(
 
         const text = getDocumentText(editor, format);
         expect(
-          valid(computeOperations(editor, { base: "current", format, text }))
-            .operations,
+          valid(computeOperations(editor, { format, text })).operations,
         ).toEqual([]);
 
         /** Returns the changes of one writer alone, by block ID. */
         function alone(base: LensBlock[], text: string): Writer["change"] {
           const single = BlockNoteEditor.create({ initialContent: base });
           const before = blockFieldsById(single);
-          valid(updateDocument(single, { base: "current", format, text }));
+          valid(updateDocument(single, { format, text }));
           const after = blockFieldsById(single);
           return { after, ...diffBlocks(before, after) };
         }
@@ -797,7 +775,7 @@ describe("a write from an older version with onConflict", () => {
     ]);
   });
 
-  it("needs onConflict, and a version as base (a type error without them)", () => {
+  it("needs onConflict and base (a type error without them)", () => {
     const version: DocumentMergeChange["base"] = [];
     // @ts-expect-error: a merge write states what a conflict does.
     const withoutOnConflict: DocumentMergeChange = {
@@ -805,34 +783,31 @@ describe("a write from an older version with onConflict", () => {
       text: "",
       base: version,
     };
-    const withCurrent: DocumentMergeChange = {
+    // @ts-expect-error: a merge write needs the version that the client read.
+    const withoutBase: DocumentMergeChange = {
       format,
       text: "",
-      // @ts-expect-error: the current document has nothing to merge.
-      base: "current",
       onConflict: "reject",
     };
     expect(withoutOnConflict.base).toBe(version);
-    expect(withCurrent.onConflict).toBe("reject");
+    expect(withoutBase.onConflict).toBe("reject");
   });
 
-  it("is not an option of a strict write (a type error)", () => {
-    const withCurrent: DocumentChange = {
+  it("is not an option of a write without a merge, and base is not one (type errors)", () => {
+    const withOnConflict: DocumentChange = {
       format,
       text: "",
-      base: "current",
-      // @ts-expect-error: a strict write does not merge: it has no conflicts.
+      // @ts-expect-error: a write without a merge has no conflicts.
       onConflict: "reject",
     };
-    const withVersion: DocumentChange = {
+    const withBase: DocumentChange = {
       format,
       text: "",
+      // @ts-expect-error: a write without a merge is for the current document.
       base: [],
-      // @ts-expect-error: a strict write does not merge: it has no conflicts.
-      onConflict: "keep-current",
     };
-    expect(withCurrent.base).toBe("current");
-    expect(withVersion.base).toEqual([]);
+    expect(withOnConflict.format).toBe(format);
+    expect(withBase.format).toBe(format);
   });
 });
 
@@ -1202,7 +1177,6 @@ describe("a write from an older version that removes props", () => {
   ) {
     valid(
       updateDocument(editor, {
-        base: "current",
         document: [
           { id: "p", type: "paragraph", props, content: text },
           { id: "e", type: "paragraph", content: "End" },
@@ -1284,7 +1258,6 @@ describe("a write from an older version that removes props", () => {
     const base = editor.document;
     valid(
       updateDocument(editor, {
-        base: "current",
         document: [{ id: "i", type: "image", props: { url } }],
       }),
     );
@@ -1331,7 +1304,6 @@ describe("a write from an older version that removes props", () => {
     ];
     valid(
       updateDocument(editor, {
-        base: "current",
         document: linked("https://b.example", " now"),
       }),
     );

@@ -250,7 +250,7 @@ export function writeText(
   edit: (text: string) => string,
 ): ChangeOperations {
   const text = edit(getDocumentText(editor, format));
-  return valid(updateDocument(editor, { base: "current", format, text }));
+  return valid(updateDocument(editor, { format, text }));
 }
 
 /** Makes an editor with the shared test document (`shared/testDocumentBlocks.ts`). */

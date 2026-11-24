@@ -10,10 +10,9 @@ import { targetFromPairs } from "../target/targetFromPairs.js";
 import type { ViewBlock } from "../projection/projectDocument.js";
 
 /**
- * Runs the stages of a text write on the current document (`base:
- * "current"`), and returns the data of each stage in a short form. Each row
- * is one block: its ID (or the source ID of a view block), its type and its
- * text.
+ * Runs the stages of a text write on the current document, and returns the
+ * data of each stage in a short form. Each row is one block: its ID (or the
+ * source ID of a view block), its type and its text.
  *
  * It calls the stage functions of `textTarget` and `operationsOf` in
  * `api.ts`, in the same order. For a text that is equal to the text of the

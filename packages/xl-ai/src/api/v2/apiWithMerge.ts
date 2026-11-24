@@ -5,7 +5,6 @@ import {
   type InvalidDocumentError,
   type JSONChange,
   jsonTarget,
-  requireBase,
   type TextChange,
   textTarget,
   updateFromTarget,
@@ -23,11 +22,11 @@ import {
 
 // The merge write: the change of the client, made at the version `base`,
 // merges three-way with the changes of other writers after `base`. It runs
-// the stages of the strict write (see `api.ts`) for `base`, with the
+// the stages of a write without a merge (see `api.ts`) for `base`, with the
 // document merge (stage 4) between stage 3 and stage 5: see
 // `mergedOperationsOf`.
 
-/** Each warning of a write. A strict write gives no `MergeWarning`. */
+/** Each warning of a write. A write without a merge gives no `MergeWarning`. */
 export type ChangeWarning = TargetWarning | MergeWarning | FitWarning;
 
 /** A change with `onConflict: "reject"` that has conflicts: nothing applies. */
@@ -140,7 +139,7 @@ export function updateDocumentWithMerge(
 
 /**
  * The operations of a merge write for the document `current`: the stages of
- * the strict write (see `operationsOf`) for the version `base`, with the
+ * a write without a merge (see `operationsOf`) for the version `base`, with the
  * three-way merge of the documents between stage 3 and stage 5.
  *
  * With `onConflict: "reject"`, a conflict of the merge gives the error
@@ -196,4 +195,19 @@ export function mergedOperationsOf(
     // client read.
     written: fitResult(rules, target.target, base),
   };
+}
+
+/**
+ * Throws if a merge write has no `base`. The type requires it, but a caller
+ * without types (for example JavaScript) can forget it. Without this check,
+ * such a write would fail with an unclear error.
+ *
+ * @internal
+ */
+export function requireBase(base: unknown): void {
+  if (base === undefined) {
+    throw new Error(
+      "A merge write needs the option `base`: the version that the client read.",
+    );
+  }
 }

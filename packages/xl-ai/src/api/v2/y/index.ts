@@ -8,7 +8,6 @@ export {
   type YDocChangeResult,
   yDocChangesAfterBase,
   type YDocChangesAfterBaseResult,
-  type YDocOperationsResult,
 } from "./yjsApi.js";
 export {
   computeYDocOperationsWithMerge,

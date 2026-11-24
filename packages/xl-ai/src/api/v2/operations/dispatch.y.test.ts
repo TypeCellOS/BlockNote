@@ -67,7 +67,7 @@ function writeWhileOtherTypes(
     typed,
   );
 
-  valid(updateDocument(editor, { base: "current", document }));
+  valid(updateDocument(editor, { document }));
 
   Y.applyUpdate(ydoc, Y.encodeStateAsUpdate(other, Y.encodeStateVector(ydoc)));
   Y.applyUpdate(other, Y.encodeStateAsUpdate(ydoc, Y.encodeStateVector(other)));
@@ -224,7 +224,6 @@ describe("the undo history of a bound editor", () => {
     // The write removes "c", inserts "new", and changes "a" and "d".
     valid(
       updateDocument(editor, {
-        base: "current",
         document: [
           paragraph("a", "Alpha changed"),
           paragraph("new", "New"),

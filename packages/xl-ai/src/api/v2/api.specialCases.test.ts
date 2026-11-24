@@ -47,7 +47,6 @@ describe("a mounted editor", () => {
 
     valid(
       updateDocument(editor, {
-        base: "current",
         format: plainTextFormat,
         text,
       }),
@@ -64,7 +63,6 @@ describe("a mounted editor", () => {
 
     valid(
       updateDocument(editor, {
-        base: "current",
         format: markdownFormat,
         text,
       }),
@@ -87,8 +85,7 @@ describe("a byte order mark", () => {
     const text = `\uFEFF${getDocumentText(editor, format)}`;
 
     expect(
-      valid(computeOperations(editor, { base: "current", format, text }))
-        .operations,
+      valid(computeOperations(editor, { format, text })).operations,
     ).toEqual([]);
   });
 
@@ -99,7 +96,6 @@ describe("a byte order mark", () => {
     const text = getDocumentText(editor, plainTextFormat);
     const update = valid(
       computeOperations(editor, {
-        base: "current",
         format: plainTextFormat,
         text,
       }),
@@ -128,7 +124,6 @@ describe("a document with two blocks with one ID", () => {
 
     expect(() =>
       updateDocument(editor, {
-        base: "current",
         format: markdownFormat,
         text: text.replace("Beta", "Beta two"),
       }),
@@ -140,7 +135,6 @@ describe("a document with two blocks with one ID", () => {
     const editor = createEditor(documentWithOneId);
     expect(() =>
       computeOperations(editor, {
-        base: "current",
         format: markdownFormat,
         text: getDocumentText(editor, markdownFormat),
       }),
@@ -151,7 +145,6 @@ describe("a document with two blocks with one ID", () => {
     const editor = createEditor(documentWithOneId);
     expect(() =>
       computeOperations(editor, {
-        base: "current",
         document: JSON.parse(JSON.stringify(editor.document)),
       }),
     ).toThrow("Two blocks of the current document have the ID x");
@@ -189,7 +182,6 @@ describe("a document after `removeBlocks` removed all blocks", () => {
 
     valid(
       updateDocument(editor, {
-        base: "current",
         format: markdownFormat,
         text: "Hello\n",
       }),
@@ -202,7 +194,6 @@ describe("a document after `removeBlocks` removed all blocks", () => {
     expect(
       valid(
         computeOperations(editor, {
-          base: "current",
           format: markdownFormat,
           text: "Hello\n",
         }),
@@ -236,13 +227,12 @@ describe("a text with markup that the serializer does not write", () => {
     const editor = createEditor([
       { id: "a", type: "paragraph", content: "Alpha" },
     ]);
-    valid(updateDocument(editor, { base: "current", format, text }));
+    valid(updateDocument(editor, { format, text }));
 
     expect(editor.document).toHaveLength(blocks);
     // PutTwice.
     expect(
-      valid(computeOperations(editor, { base: "current", format, text }))
-        .operations,
+      valid(computeOperations(editor, { format, text })).operations,
     ).toEqual([]);
     // PutGet.
     expect(canonicalText(editor, format, getDocumentText(editor, format))).toBe(

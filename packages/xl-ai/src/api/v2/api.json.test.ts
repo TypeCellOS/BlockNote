@@ -38,7 +38,6 @@ describe("JSON", () => {
     const editor = createEditor(initial);
     expect(
       computeOperations(editor, {
-        base: "current",
         document: copy(editor.document),
       }),
     ).toEqual({ operations: [], warnings: [] });
@@ -49,7 +48,7 @@ describe("JSON", () => {
     const document = copy(editor.document);
     document[1].props.textColor = "red";
 
-    const result = update(editor, { base: "current", document });
+    const result = update(editor, { document });
 
     expect(result.operations).toEqual([
       { type: "update", id: "b", update: { props: { textColor: "red" } } },
@@ -62,7 +61,6 @@ describe("JSON", () => {
     const [a, b, c] = copy(editor.document);
 
     update(editor, {
-      base: "current",
       document: [c, a, { type: "paragraph", content: "New" }],
     });
 
@@ -160,7 +158,6 @@ describe("JSON", () => {
 
       expect(
         updateDocument(editor, {
-          base: "current",
           document: document as JSONChange["document"],
         }),
       ).toEqual({ error: "invalid-document" });
@@ -181,7 +178,6 @@ describe("JSON", () => {
 
     expect(
       updateDocument(editor, {
-        base: "current",
         document: [a, duplicate, b],
       }),
     ).toEqual({ error: "invalid-document" });
@@ -195,7 +191,6 @@ describe("JSON", () => {
 
     expect(
       updateDocument(editor, {
-        base: "current",
         document: [a, { ...b, children: [nested] }, c],
       }),
     ).toEqual({ error: "invalid-document" });
@@ -235,7 +230,7 @@ describe("JSON", () => {
       { id: "new", type: "paragraph" as const, content: "New" },
     ];
 
-    update(editor, { base: "current", document });
+    update(editor, { document });
 
     expect(editor.getBlock("new")?.content).toMatchObject([{ text: "New" }]);
   });
@@ -244,7 +239,6 @@ describe("JSON", () => {
     const editor = createEditor(initial);
 
     update(editor, {
-      base: "current",
       document: [
         { id: "a", type: "paragraph", content: "Alpha", children: null },
       ] as unknown as JSONChange["document"],
@@ -260,7 +254,6 @@ describe("JSON", () => {
 
     expect(
       updateDocument(editor, {
-        base: "current",
         document: [{ type: "unknown" }] as JSONChange["document"],
       }),
     ).toEqual({ error: "invalid-document" });
@@ -304,7 +297,6 @@ describe("JSON", () => {
       ]);
 
       update(editor, {
-        base: "current",
         document: [
           {
             id: "p",
@@ -324,7 +316,6 @@ describe("JSON", () => {
       const editor = columnsEditor(twoColumns);
 
       update(editor, {
-        base: "current",
         document: [{ id: "cA", type: "paragraph", content: "Was a column" }],
       });
 
@@ -341,7 +332,6 @@ describe("JSON", () => {
       ]);
 
       update(editor, {
-        base: "current",
         document: [
           {
             id: "p",
@@ -371,7 +361,6 @@ describe("JSON", () => {
       const editor = columnsEditor(twoColumns);
 
       update(editor, {
-        base: "current",
         document: [{ id: "list", type: "paragraph", content: "Was columns" }],
       });
 
@@ -383,7 +372,6 @@ describe("JSON", () => {
       const editor = columnsEditor(twoColumns);
 
       update(editor, {
-        base: "current",
         document: [
           {
             id: "list",
@@ -414,7 +402,6 @@ describe("JSON, a change of the content kind", () => {
 
     valid(
       updateDocument(editor, {
-        base: "current",
         document: [
           { id: "c", type: "paragraph", content: "line one\nline two" },
         ],
@@ -461,7 +448,6 @@ describe("JSON, the spans of table cells", () => {
     expect(
       computeOperations(editor, {
         document: [table({ colspan: 1_000_000 })],
-        base: "current",
       }),
     ).toEqual({ error: "invalid-document" });
   });
@@ -486,7 +472,6 @@ describe("JSON, props that the client removes", () => {
       },
     ]);
     update(editor, {
-      base: "current",
       document: [{ id: "p", type: "paragraph", content: "Hello" }],
     });
     expect(editor.getBlock("p")?.props).toMatchObject({
@@ -501,7 +486,6 @@ describe("JSON, props that the client removes", () => {
       { id: "i", type: "image", props: { url, previewWidth: 200 } },
     ]);
     update(editor, {
-      base: "current",
       document: [{ id: "i", type: "image", props: { url } }],
     });
     expect(propsOf(editor, "i").previewWidth).toBeUndefined();
@@ -518,7 +502,6 @@ describe("JSON, props that the client removes", () => {
     ]);
     expect(
       updateDocument(editor, {
-        base: "current",
         document: [
           {
             id: "p",
