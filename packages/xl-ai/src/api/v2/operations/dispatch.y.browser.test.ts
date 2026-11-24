@@ -1,7 +1,10 @@
 import { BlockNoteEditor, type PartialBlock } from "@blocknote/core";
 import { blocksToYDoc, yDocToBlocks } from "@blocknote/core/y";
 import * as Y from "@y/y";
-import { describe, expect } from "vite-plus/test";
+import { afterAll, beforeAll, describe, expect } from "vite-plus/test";
+
+import type { SetupEditor } from "../../../../../../tests/src/commands/browser/setupEditor.js";
+import { createSetupEditor } from "../../../../../../tests/src/commands/node/setupEditor.js";
 
 import { updateDocument } from "../index.js";
 import { valid } from "../testUtil/valid.js";
@@ -21,7 +24,14 @@ import { bindEditor, typeAfter } from "../testUtil/y.js";
  * replica typed then goes into a different block, or is lost.
  */
 
-const reader = BlockNoteEditor.create();
+let reader: BlockNoteEditor<any, any, any>;
+let disposeReader = () => {};
+beforeAll(async () => {
+  ({ editor: reader } = await createSetupEditor((dispose) => {
+    disposeReader = dispose;
+  })());
+});
+afterAll(() => disposeReader());
 
 const paragraph = (id: string, content: string): PartialBlock => ({
   id,
@@ -49,20 +59,26 @@ function blocksOf(ydoc: Y.Doc) {
  * `typed` after the text `after`. Returns the blocks after the sync of the
  * two replicas.
  */
-function writeWhileOtherTypes(
+async function writeWhileOtherTypes(
+  setupEditor: SetupEditor,
   blocks: PartialBlock[],
   document: PartialBlock[],
   [after, typed]: [string, string],
 ) {
   const ydoc = blocksToYDoc(
     reader,
-    BlockNoteEditor.create({ initialContent: blocks }).document,
+    (await setupEditor({ mountType: false, initialContent: blocks })).editor
+      .document,
   );
   const other = new Y.Doc();
   Y.applyUpdate(other, Y.encodeStateAsUpdate(ydoc));
-  const editor = bindEditor(ydoc.get("prosemirror"), { trailingBlock: false });
+  const editor = await bindEditor(setupEditor, ydoc.get("prosemirror"), {
+    trailingBlock: false,
+  });
   typeAfter(
-    bindEditor(other.get("prosemirror"), { trailingBlock: false }),
+    await bindEditor(setupEditor, other.get("prosemirror"), {
+      trailingBlock: false,
+    }),
     after,
     typed,
   );
@@ -76,9 +92,12 @@ function writeWhileOtherTypes(
 }
 
 describe("a write to a bound editor while another replica types", () => {
-  it("keeps a change of another replica in a block, with an insert before that block", () => {
+  it("keeps a change of another replica in a block, with an insert before that block", async ({
+    setupEditor,
+  }) => {
     expect(
-      writeWhileOtherTypes(
+      await writeWhileOtherTypes(
+        setupEditor,
         three,
         [
           paragraph("a", "Alpha"),
@@ -96,9 +115,12 @@ describe("a write to a bound editor while another replica types", () => {
     ]);
   });
 
-  it("keeps a change of another replica in a block, with a removal before that block", () => {
+  it("keeps a change of another replica in a block, with a removal before that block", async ({
+    setupEditor,
+  }) => {
     expect(
-      writeWhileOtherTypes(
+      await writeWhileOtherTypes(
+        setupEditor,
         three,
         [paragraph("b", "Changed Beta"), paragraph("c", "Gamma")],
         ["Beta", "!"],
@@ -109,9 +131,12 @@ describe("a write to a bound editor while another replica types", () => {
     ]);
   });
 
-  it("does not put a change of another replica to a removed block into the new block at its place", () => {
+  it("does not put a change of another replica to a removed block into the new block at its place", async ({
+    setupEditor,
+  }) => {
     expect(
-      writeWhileOtherTypes(
+      await writeWhileOtherTypes(
+        setupEditor,
         three,
         [
           paragraph("a", "Alpha"),
@@ -127,9 +152,12 @@ describe("a write to a bound editor while another replica types", () => {
     ]);
   });
 
-  it("keeps a change of another replica in a block, with a type change of the block before it", () => {
+  it("keeps a change of another replica in a block, with a type change of the block before it", async ({
+    setupEditor,
+  }) => {
     expect(
-      writeWhileOtherTypes(
+      await writeWhileOtherTypes(
+        setupEditor,
         three,
         [
           { id: "a", type: "heading", content: "Alpha" },
@@ -145,9 +173,12 @@ describe("a write to a bound editor while another replica types", () => {
     ]);
   });
 
-  it("keeps a change of another replica in a block, with inserts at the start and at the end of the list", () => {
+  it("keeps a change of another replica in a block, with inserts at the start and at the end of the list", async ({
+    setupEditor,
+  }) => {
     expect(
-      writeWhileOtherTypes(
+      await writeWhileOtherTypes(
+        setupEditor,
         three,
         [paragraph("first", "First"), ...three, paragraph("last", "Last")],
         ["Alpha", " of the other client"],
@@ -161,9 +192,12 @@ describe("a write to a bound editor while another replica types", () => {
     ]);
   });
 
-  it("keeps a change of another replica between two changes in one paragraph", () => {
+  it("keeps a change of another replica between two changes in one paragraph", async ({
+    setupEditor,
+  }) => {
     expect(
-      writeWhileOtherTypes(
+      await writeWhileOtherTypes(
+        setupEditor,
         [paragraph("p", "one two three")],
         [paragraph("p", "First one two three Last")],
         ["tw", "X"],
@@ -171,9 +205,12 @@ describe("a write to a bound editor while another replica types", () => {
     ).toEqual([["p", "paragraph", "First one twXo three Last"]]);
   });
 
-  it("keeps a change of another replica in a block, with text changes of two adjacent blocks", () => {
+  it("keeps a change of another replica in a block, with text changes of two adjacent blocks", async ({
+    setupEditor,
+  }) => {
     expect(
-      writeWhileOtherTypes(
+      await writeWhileOtherTypes(
+        setupEditor,
         three,
         [
           paragraph("a", "Changed Alpha"),
@@ -189,9 +226,12 @@ describe("a write to a bound editor while another replica types", () => {
     ]);
   });
 
-  it("keeps a change of another replica in a block that a move passes", () => {
+  it("keeps a change of another replica in a block that a move passes", async ({
+    setupEditor,
+  }) => {
     expect(
-      writeWhileOtherTypes(
+      await writeWhileOtherTypes(
+        setupEditor,
         three,
         [
           paragraph("c", "Gamma"),
@@ -209,14 +249,19 @@ describe("a write to a bound editor while another replica types", () => {
 });
 
 describe("the undo history of a bound editor", () => {
-  it("has a write of updateDocument as one undo step", () => {
+  it("has a write of updateDocument as one undo step", async ({
+    setupEditor,
+  }) => {
     const ydoc = blocksToYDoc(
       reader,
-      BlockNoteEditor.create({
-        initialContent: [...three, paragraph("d", "Delta")],
-      }).document,
+      (
+        await setupEditor({
+          mountType: false,
+          initialContent: [...three, paragraph("d", "Delta")],
+        })
+      ).editor.document,
     );
-    const editor = bindEditor(ydoc.get("prosemirror"), {
+    const editor = await bindEditor(setupEditor, ydoc.get("prosemirror"), {
       trailingBlock: false,
     });
     const before = blocksOf(ydoc);

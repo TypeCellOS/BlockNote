@@ -1,18 +1,29 @@
 import { BlockNoteEditor, type PartialBlock } from "@blocknote/core";
 import { blocksToYDoc, yDocToBlocks } from "@blocknote/core/y";
 import * as Y from "@y/y";
-import { describe, expect } from "vite-plus/test";
+import { afterAll, beforeAll, describe, expect } from "vite-plus/test";
+
+import type { SetupEditor } from "../../../../../../tests/src/commands/browser/setupEditor.js";
+import { createSetupEditor } from "../../../../../../tests/src/commands/node/setupEditor.js";
 
 import { bindEditor, unbindEditor } from "../testUtil/y.js";
 import { updateYDoc } from "./yjsApi.js";
 import { updateYDocWithMerge } from "./yjsApiWithMerge.js";
 
-const reader = BlockNoteEditor.create();
+/** One editor of the fixture, without a view: the schema and the reads of the Y.Doc. */
+let reader: BlockNoteEditor<any, any, any>;
+let disposeReader = () => {};
+beforeAll(async () => {
+  ({ editor: reader } = await createSetupEditor((dispose) => {
+    disposeReader = dispose;
+  })());
+});
+afterAll(() => disposeReader());
 
-function setup(initialContent: PartialBlock[]) {
+async function setup(setupEditor: SetupEditor, initialContent: PartialBlock[]) {
   const ydoc = blocksToYDoc(
     reader,
-    BlockNoteEditor.create({ initialContent }).document,
+    (await setupEditor({ mountType: false, initialContent })).editor.document,
   );
   const fragment = ydoc.get("prosemirror");
   // The editor of the writes is not bound to the Y.Doc.
@@ -27,8 +38,8 @@ function setup(initialContent: PartialBlock[]) {
 }
 
 describe("updateYDoc: a JSON change", () => {
-  it("writes the blocks of the JSON to the Y.Doc", () => {
-    const { editor, fragment, blocks } = setup([
+  it("writes the blocks of the JSON to the Y.Doc", async ({ setupEditor }) => {
+    const { editor, fragment, blocks } = await setup(setupEditor, [
       { id: "a", type: "paragraph", content: "Alpha" },
       { id: "b", type: "paragraph", content: "Beta" },
     ]);
@@ -49,14 +60,16 @@ describe("updateYDoc: a JSON change", () => {
     expect(blocks()[2][1]).toBe("New");
   });
 
-  it("keeps the change of another user for a JSON change from an older version", () => {
-    const { ydoc, fragment, editor, blocks } = setup([
+  it("keeps the change of another user for a JSON change from an older version", async ({
+    setupEditor,
+  }) => {
+    const { ydoc, fragment, editor, blocks } = await setup(setupEditor, [
       { id: "a", type: "paragraph", content: "Alpha" },
       { id: "b", type: "paragraph", content: "Beta" },
     ]);
     const base = Y.encodeStateAsUpdateV2(ydoc);
     // Another user changes block b.
-    const user = bindEditor(fragment);
+    const user = await bindEditor(setupEditor, fragment);
     user.updateBlock("b", { content: "Beta by the user" });
     unbindEditor(user);
 

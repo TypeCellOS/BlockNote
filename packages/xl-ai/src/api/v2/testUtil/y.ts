@@ -1,23 +1,16 @@
-import { BlockNoteEditor, type BlockNoteEditorOptions } from "@blocknote/core";
+import type { BlockNoteEditor, BlockNoteEditorOptions } from "@blocknote/core";
 import { blockNoteTransformer, withCollaboration } from "@blocknote/core/y";
 import { ynodeToPmnode } from "@y/prosemirror";
 import type * as Y from "@y/y";
-import { afterEach } from "vite-plus/test";
 
-import type { TextFormat } from "../formats/types.js";
-import { getYDocText } from "../y/index.js";
-
-/** The editors that `bindEditor` mounted, and that are still mounted. */
-const mounted = new Set<BlockNoteEditor<any, any, any>>();
-
-// A mounted editor stays bound to its Y.Doc. Thus, each test unmounts its
-// editors at its end.
-afterEach(() => {
-  for (const editor of mounted) {
-    editor.unmount();
-  }
-  mounted.clear();
-});
+/**
+ * The `setupEditor` fixture of the browser tests, as {@link bindEditor} uses
+ * it. The fixture is in `tests/`, outside the build of this package, thus
+ * this type gives only the part that the helper needs.
+ */
+type SetupMountedEditor = (
+  options: any,
+) => Promise<{ editor: BlockNoteEditor<any, any, any> }>;
 
 /**
  * The options of an editor that is bound to the fragment with the Yjs 14
@@ -36,38 +29,26 @@ export function boundEditorOptions(
 }
 
 /**
- * An editor that is bound to the fragment (see {@link boundEditorOptions})
- * and mounted. Each call gives a new client. The editor unmounts at the end
- * of the test, or with {@link unbindEditor}.
+ * An editor of the fixture that is bound to the fragment (see
+ * {@link boundEditorOptions}) and mounted in the DOM: a new client of the
+ * Y.Doc. The fixture unmounts and destroys it at the end of the test. Use
+ * {@link unbindEditor} to end the client before.
  */
-export function bindEditor(
+export async function bindEditor(
+  setupEditor: SetupMountedEditor,
   fragment: Y.Node,
   options: Partial<BlockNoteEditorOptions<any, any, any>> = {},
-): BlockNoteEditor<any, any, any> {
-  const editor = BlockNoteEditor.create(boundEditorOptions(fragment, options));
-  const element = document.createElement("div");
-  document.body.appendChild(element);
-  editor.mount(element);
-  mounted.add(editor);
+): Promise<BlockNoteEditor<any, any, any>> {
+  const { editor } = await setupEditor({
+    mountType: "dom",
+    ...boundEditorOptions(fragment, options),
+  });
   return editor;
 }
 
 /** Unmounts an editor of {@link bindEditor}. Thus, it is not a client of the Y.Doc any more. */
 export function unbindEditor(editor: BlockNoteEditor<any, any, any>) {
   editor.unmount();
-  mounted.delete(editor);
-}
-
-/**
- * The text of the fragment, as an editor with the options reads it. The
- * editor is not bound to the Y.Doc, and has no view.
- */
-export function readText(
-  fragment: Y.Node,
-  format: TextFormat,
-  options: Partial<BlockNoteEditorOptions<any, any, any>> = {},
-): string {
-  return getYDocText(BlockNoteEditor.create(options), fragment, format);
 }
 
 /**
@@ -78,7 +59,7 @@ export function readText(
  */
 export function blockNodeIds(
   fragment: Y.Node,
-  editor: BlockNoteEditor<any, any, any> = BlockNoteEditor.create(),
+  editor: BlockNoteEditor<any, any, any>,
 ): unknown[] {
   const ids: unknown[] = [];
   ynodeToPmnode(fragment, editor.pmSchema, {
