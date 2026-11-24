@@ -111,9 +111,7 @@ function serializeNode(node: Node, ctx: SerializeContext): string {
 // ─── Block Serializers ───────────────────────────────────────────────────────
 
 function serializeParagraph(el: HTMLElement, ctx: SerializeContext): string {
-  const content = serializeInlineContent(el);
-  // Trim leading/trailing hard breaks (matching remark behavior)
-  const trimmed = trimHardBreaks(content);
+  const trimmed = serializeBlockText(el);
   if (ctx.inListItem) {
     return trimmed;
   }
@@ -123,7 +121,7 @@ function serializeParagraph(el: HTMLElement, ctx: SerializeContext): string {
 function serializeHeading(el: HTMLElement, ctx: SerializeContext): string {
   const level = parseInt(el.tagName[1], 10);
   const prefix = "#".repeat(level) + " ";
-  const content = toSingleLine(serializeInlineContent(el));
+  const content = toSingleLine(serializeBlockText(el));
   return ctx.indent + prefix + content + "\n\n";
 }
 
@@ -141,7 +139,7 @@ function serializeBlockquote(el: HTMLElement, ctx: SerializeContext): string {
     for (const child of blockChildren) {
       const tag = child.tagName.toLowerCase();
       if (tag === "p") {
-        parts.push(serializeInlineContent(child as HTMLElement));
+        parts.push(serializeBlockText(child));
       } else {
         const innerCtx: SerializeContext = { indent: "", inListItem: false };
         parts.push(serializeNode(child, innerCtx).trim());
@@ -150,7 +148,7 @@ function serializeBlockquote(el: HTMLElement, ctx: SerializeContext): string {
     content = parts.join("\n\n");
   } else {
     // No block-level children — treat entire content as inline
-    content = serializeInlineContent(el);
+    content = serializeBlockText(el);
   }
 
   const lines = content.split("\n");
@@ -325,12 +323,10 @@ function serializeListItem(
     const summary = details.querySelector("summary");
     const summaryP = summary?.querySelector("p");
     firstContentEl = details;
-    inlineContent = summaryP ? serializeInlineContent(summaryP) : "";
+    inlineContent = summaryP ? serializeBlockText(summaryP) : "";
   } else {
     firstContentEl = getFirstContentElement(el, checkbox);
-    inlineContent = firstContentEl
-      ? serializeInlineContent(firstContentEl)
-      : "";
+    inlineContent = firstContentEl ? serializeBlockText(firstContentEl) : "";
   }
 
   // The marker line ends with a single `\n` so that consecutive list items
@@ -352,7 +348,7 @@ function serializeListItem(
       }
       const childTag = child.tagName.toLowerCase();
       if (childTag === "p") {
-        const content = serializeInlineContent(child as HTMLElement);
+        const content = serializeBlockText(child);
         // Continuation paragraph needs a blank line to separate it from the
         // previous content; CommonMark would otherwise treat it as a soft
         // wrap of that content.
@@ -382,7 +378,7 @@ function serializeListItem(
     } else if (childTag === "p") {
       // Continuation paragraph within list item — requires blank line before
       // so it isn't read as part of the marker line's text.
-      const content = serializeInlineContent(child as HTMLElement);
+      const content = serializeBlockText(child);
       result += "\n" + childIndent + indentLines(content, childIndent) + "\n";
     } else {
       // Other block-level children (code blocks, blockquotes, etc.) already
@@ -939,13 +935,24 @@ function escapeHtmlLikeText(text: string): string {
  */
 
 /**
+ * Serialize the inline content of a block, for use as the text of the block:
+ * without hard breaks at its edges. Markdown has no syntax for a hard break
+ * at the end of a block (the parser reads the backslash there as a literal
+ * character), nor for one at the start of a heading or a list item.
+ */
+function serializeBlockText(el: Element): string {
+  return trimHardBreaks(serializeInlineContent(el));
+}
+
+/**
  * Trim leading/trailing hard breaks from inline content.
  * Matches remark behavior where <br> at start/end of paragraph is dropped.
  */
 function trimHardBreaks(content: string): string {
   // Remove leading hard breaks
   let result = content.replace(/^(\\\n)+/, "");
-  // Remove trailing hard breaks produced by `<br>`
-  result = result.replace(/(\\\n)+$/, "");
+  // Remove trailing hard breaks produced by `<br>`, also with spaces or tabs
+  // after them: markdown ignores those at the end of a block.
+  result = result.replace(/(\\\n[ \t]*)+$/, "");
   return result;
 }

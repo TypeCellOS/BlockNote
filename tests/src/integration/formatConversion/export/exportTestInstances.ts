@@ -2695,6 +2695,41 @@ export const exportCases: CoreExportCase[] = [
     ],
   },
   {
+    name: "hardbreak/blockEdges",
+    content: [
+      {
+        type: "heading",
+        content: "Heading\n",
+      },
+      {
+        type: "bulletListItem",
+        content: "\nBullet List Item",
+      },
+      {
+        type: "numberedListItem",
+        content: "Numbered List Item\n",
+      },
+      {
+        type: "checkListItem",
+        content: "Check List Item\n",
+      },
+      {
+        type: "quote",
+        content: "Quote\n",
+      },
+      {
+        type: "toggleListItem",
+        content: "Toggle List Item\n",
+        children: [
+          {
+            type: "paragraph",
+            content: "Child Paragraph\n",
+          },
+        ],
+      },
+    ],
+  },
+  {
     name: "hardbreak/styles",
     content: [
       {

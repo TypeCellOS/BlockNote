@@ -772,6 +772,50 @@ export const markdownRoundTripCases: CoreExportCase[] = [
     ],
   },
   {
+    name: "markdown/hardBreakAtBlockEdges",
+    content: [
+      {
+        type: "heading",
+        content: "Heading\n",
+      },
+      {
+        type: "bulletListItem",
+        content: "\nBullet List Item",
+      },
+      {
+        type: "numberedListItem",
+        content: "Numbered List Item\n",
+      },
+      {
+        type: "checkListItem",
+        content: "Check List Item\n",
+      },
+      {
+        type: "quote",
+        content: "Quote\n",
+      },
+      {
+        type: "toggleListItem",
+        content: "Toggle List Item\n",
+        children: [
+          {
+            type: "paragraph",
+            content: "Child Paragraph\n",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    name: "markdown/hardBreakBeforeTrailingSpace",
+    content: [
+      {
+        type: "paragraph",
+        content: "Paragraph\n ",
+      },
+    ],
+  },
+  {
     name: "markdown/hardBreakInHeading",
     content: [
       {
