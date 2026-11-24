@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
 import type { BlockFields } from "../../model.js";
 import { deepEqual } from "./json.js";

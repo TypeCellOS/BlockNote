@@ -1,7 +1,7 @@
 import type { BlockNoteEditor, PartialBlock } from "@blocknote/core";
 import type { Node } from "prosemirror-model";
 import { EditorState } from "prosemirror-state";
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
 import type { LensTableContent } from "../model.js";
 import { createEditor, createTabsEditor } from "../testUtil/fixtures.js";

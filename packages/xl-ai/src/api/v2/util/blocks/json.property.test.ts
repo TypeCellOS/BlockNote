@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
 import { createRandom, type Random } from "../../testUtil/random.js";
 import { deepEqual, stableStringify } from "./json.js";

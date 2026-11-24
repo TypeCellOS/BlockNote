@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
 import type { LensInlineContent } from "../model.js";
 import { mergeInlineContent } from "./inline.js";

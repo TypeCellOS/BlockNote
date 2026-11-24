@@ -1,5 +1,5 @@
 import type { Block } from "@blocknote/core";
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
 import { computeOperations, getDocumentText, updateDocument } from "./index.js";
 import {

@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
 import { myersMatch } from "../util/sequence/myers.js";
 import { type Diff3Handlers, diff3 } from "./diff3.js";

@@ -4,7 +4,7 @@ import {
   inlineContentToNodes,
 } from "@blocknote/core";
 import { Fragment } from "prosemirror-model";
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
 import { fromUnits, toUnits } from "../merge/inlineUnits.js";
 import type { LensInlineContent, LensStyles } from "../model.js";

@@ -5,7 +5,7 @@ import {
 } from "@blocknote/core";
 import { Fragment } from "prosemirror-model";
 import { ReplaceStep } from "prosemirror-transform";
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
 import type { LensInlineContent } from "../model.js";
 import { commentedText, createCommentEditor } from "../testUtil/comments.js";

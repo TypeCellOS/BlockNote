@@ -1,5 +1,5 @@
 import { type Block, BlockNoteEditor } from "@blocknote/core";
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
 import {
   type ChangeOperations,

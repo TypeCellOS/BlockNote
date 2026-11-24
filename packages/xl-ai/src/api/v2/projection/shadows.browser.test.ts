@@ -1,5 +1,5 @@
 import { BlockNoteEditor } from "@blocknote/core";
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
 import { htmlFormat } from "../formats/html.js";
 import { markdownFormat } from "../formats/markdown.js";

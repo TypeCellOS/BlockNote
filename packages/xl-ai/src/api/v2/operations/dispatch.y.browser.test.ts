@@ -1,7 +1,7 @@
 import { BlockNoteEditor, type PartialBlock } from "@blocknote/core";
 import { blocksToYDoc, yDocToBlocks } from "@blocknote/core/y";
 import * as Y from "@y/y";
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
 import { updateDocument } from "../index.js";
 import { valid } from "../testUtil/valid.js";

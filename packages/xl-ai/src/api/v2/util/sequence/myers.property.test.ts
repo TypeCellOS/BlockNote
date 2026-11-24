@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
 import { createRandom } from "../../testUtil/random.js";
 import { DEFAULT_MAX_WORK, myersMatch, type WorkBudget } from "./myers.js";

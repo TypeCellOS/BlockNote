@@ -1,4 +1,4 @@
-import { afterAll, describe, expect, it } from "vite-plus/test";
+import { afterAll, describe, expect } from "vite-plus/test";
 
 import type {
   Block,

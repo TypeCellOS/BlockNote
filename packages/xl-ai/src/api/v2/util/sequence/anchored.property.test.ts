@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
 import { createRandom } from "../../testUtil/random.js";
 import { anchoredMatch, heaviestIncreasing, uniquePairs } from "./anchored.js";

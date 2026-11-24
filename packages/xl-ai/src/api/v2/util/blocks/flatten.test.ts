@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
 import { flattenBlocks } from "./flatten.js";
 import type { LensBlock } from "../../model.js";

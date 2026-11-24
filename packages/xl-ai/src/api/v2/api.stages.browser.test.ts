@@ -1,5 +1,5 @@
 import { BlockNoteEditor, type PartialBlock } from "@blocknote/core";
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
 import { computeOperations, getDocumentText } from "./api.js";
 import { markdownFormat } from "./formats/markdown.js";

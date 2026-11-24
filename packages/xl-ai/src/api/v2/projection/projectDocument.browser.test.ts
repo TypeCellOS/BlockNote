@@ -4,7 +4,7 @@ import {
   createBlockSpec,
   defaultBlockSpecs,
 } from "@blocknote/core";
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
 import { blockToText } from "../util/blocks/text.js";
 import type { LensBlock } from "../model.js";

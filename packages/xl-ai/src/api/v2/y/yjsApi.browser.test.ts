@@ -6,7 +6,7 @@ import {
 } from "@blocknote/core/y";
 import { pmnodeToDelta } from "@y/prosemirror";
 import * as Y from "@y/y";
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
 import {
   getDocumentText,

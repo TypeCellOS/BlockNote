@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import type { PartialBlock } from "../defaultBlocks.js";

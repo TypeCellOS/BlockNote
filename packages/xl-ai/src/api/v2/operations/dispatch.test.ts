@@ -1,6 +1,6 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import type { Transaction } from "prosemirror-state";
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
 import { applyOperations } from "./applyOperations.js";
 import { dispatchUpdate } from "./dispatch.js";

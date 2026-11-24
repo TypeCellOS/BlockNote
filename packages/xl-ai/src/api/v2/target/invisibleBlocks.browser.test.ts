@@ -1,5 +1,5 @@
 import { BlockNoteEditor, type PartialBlock } from "@blocknote/core";
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
 import { alignBlocks } from "../alignment/alignBlocks.js";
 import { BlockIndex } from "../util/blocks/blockIndex.js";

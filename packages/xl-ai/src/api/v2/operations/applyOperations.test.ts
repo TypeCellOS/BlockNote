@@ -4,7 +4,7 @@ import {
   type PartialBlock,
 } from "@blocknote/core";
 import type { Step } from "prosemirror-transform";
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
 import type { LensBlock } from "../model.js";
 

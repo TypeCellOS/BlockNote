@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
 import type { FlatBlock, LensBlock } from "../model.js";
 import { alignBlocks } from "./alignBlocks.js";

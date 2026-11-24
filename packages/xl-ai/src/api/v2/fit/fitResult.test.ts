@@ -1,5 +1,5 @@
 import { BlockNoteEditor } from "@blocknote/core";
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
 import { schemaRulesOf } from "../util/blocks/schema.js";
 import type { LensBlock } from "../model.js";

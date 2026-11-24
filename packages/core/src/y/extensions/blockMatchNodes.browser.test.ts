@@ -1,5 +1,5 @@
 import * as Y from "@y/y";
-import { afterEach, describe, expect, it } from "vite-plus/test";
+import { afterEach, describe, expect } from "vite-plus/test";
 
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { blocksToYType, yDocToBlocks } from "../utils.js";

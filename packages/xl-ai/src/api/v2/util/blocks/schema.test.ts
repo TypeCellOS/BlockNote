@@ -4,7 +4,7 @@ import {
   createBlockSpec,
   defaultBlockSpecs,
 } from "@blocknote/core";
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
 import { TOP_LEVEL } from "./blockIndex.js";
 import { schemaRulesOf } from "./schema.js";

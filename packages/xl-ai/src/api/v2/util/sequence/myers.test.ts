@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect } from "vite-plus/test";
 
 import { expectValidMatching } from "../../testUtil/matching.js";
 import { myersMatch } from "./myers.js";

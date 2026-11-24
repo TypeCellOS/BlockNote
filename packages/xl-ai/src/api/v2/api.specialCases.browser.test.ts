@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vite-plus/test";
+import { afterEach, describe, expect } from "vite-plus/test";
 
 import {
   applyOperations,
