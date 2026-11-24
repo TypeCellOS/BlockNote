@@ -7,6 +7,7 @@ import {
 } from "../../../schema/index.js";
 
 import { Block } from "../../../blocks/defaultBlocks.js";
+import { detachedDoc } from "../../../util/detachedDoc.js";
 import { EMPTY_BLOCK_PLACEHOLDER } from "../../exporters/html/util/serializeBlocksExternalHTML.js";
 import { nodeToBlock } from "../../nodeConversions/nodeToBlock.js";
 import { nestedListsToBlockNoteStructure } from "./util/nestedLists.js";
@@ -75,9 +76,14 @@ export function HTMLToBlocks<
   I extends InlineContentSchema,
   S extends StyleSchema,
 >(html: string, pmSchema: Schema): Block<BSchema, I, S>[] {
-  const htmlNode = nestedListsToBlockNoteStructure(html);
-  preprocessHTMLWhitespace(htmlNode);
+  const htmlNode = detachedDoc().createElement("div");
+  htmlNode.innerHTML = html;
+  // The images move out of the text before the list steps. An image in the
+  // paragraph of a list item is then a block for these steps, and a nested
+  // list after it stays in the list item.
   moveImagesOutOfText(htmlNode);
+  nestedListsToBlockNoteStructure(htmlNode);
+  preprocessHTMLWhitespace(htmlNode);
   const parser = DOMParser.fromSchema(pmSchema);
 
   // Other approach might be to use

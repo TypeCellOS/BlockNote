@@ -185,10 +185,11 @@ function createGroups(element: HTMLElement) {
   });
 }
 
-export function nestedListsToBlockNoteStructure(html: string) {
-  const element = detachedDoc().createElement("div");
-  element.innerHTML = html;
+/**
+ * Changes the lists in `element` with the two steps above. The element is the
+ * one that `HTMLToBlocks` makes in `detachedDoc()` for the HTML.
+ */
+export function nestedListsToBlockNoteStructure(element: HTMLElement) {
   liftNestedListsToParent(element);
   createGroups(element);
-  return element;
 }

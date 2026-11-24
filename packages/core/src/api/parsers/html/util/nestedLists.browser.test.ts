@@ -1,9 +1,17 @@
 import { describe, expect, it, vi } from "vite-plus/test";
+import { detachedDoc } from "../../../../util/detachedDoc.js";
 import { nestedListsToBlockNoteStructure } from "./nestedLists.js";
 
+// Makes the element for the HTML as `HTMLToBlocks` does, and runs the steps.
+function parse(html: string) {
+  const element = detachedDoc().createElement("div");
+  element.innerHTML = html;
+  nestedListsToBlockNoteStructure(element);
+  return element;
+}
+
 async function testHTML(html: string) {
-  const htmlNode = nestedListsToBlockNoteStructure(html);
-  expect(htmlNode.innerHTML).toMatchSnapshot();
+  expect(parse(html).innerHTML).toMatchSnapshot();
 }
 
 describe("Lift nested lists", () => {
@@ -176,7 +184,7 @@ describe("content after a nested list", () => {
       createElement.mockRestore();
     });
 
-    const htmlNode = nestedListsToBlockNoteStructure(
+    const htmlNode = parse(
       `<ul><li>Item<ul><li>Nested item</li></ul><img src="image.png"></li></ul>`,
     );
 

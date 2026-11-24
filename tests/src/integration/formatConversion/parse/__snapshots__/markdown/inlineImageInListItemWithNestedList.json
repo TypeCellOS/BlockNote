@@ -15,6 +15,40 @@
         },
         "type": "image",
       },
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "sub a",
+            "type": "text",
+          },
+        ],
+        "id": "3",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "bulletListItem",
+      },
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "sub b",
+            "type": "text",
+          },
+        ],
+        "id": "4",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "bulletListItem",
+      },
     ],
     "content": [
       {
@@ -30,40 +64,6 @@
       "textColor": "default",
     },
     "type": "numberedListItem",
-  },
-  {
-    "children": [],
-    "content": [
-      {
-        "styles": {},
-        "text": "sub a",
-        "type": "text",
-      },
-    ],
-    "id": "3",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "bulletListItem",
-  },
-  {
-    "children": [],
-    "content": [
-      {
-        "styles": {},
-        "text": "sub b",
-        "type": "text",
-      },
-    ],
-    "id": "4",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "bulletListItem",
   },
   {
     "children": [],

@@ -625,6 +625,23 @@ export const htmlParseCases: ParseTestCase[] = [
 </li>
 </ul>`,
   },
+  // An image in the paragraph of a list item that has a nested list. The
+  // image, the text after it and the nested list are children of the list
+  // item, in this order, and the numbered list continues.
+  {
+    name: "inlineImageInListItemParagraphWithNestedList",
+    content: `<ol>
+<li>
+<p>Step one <img src="https://example.com/shot.png" alt="A screenshot"> done</p>
+<ul>
+<li>sub a</li>
+<li>sub b</li>
+</ul>
+</li>
+<li><p>Step two</p></li>
+<li><p>Step three</p></li>
+</ol>`,
+  },
   // An image in a quote, as a markdown renderer writes it. The quote splits
   // around the image.
   {
@@ -1918,10 +1935,8 @@ More text`,
     name: "inlineImageInListItem",
     content: `- Item ![inline](https://example.com/img.png) text after`,
   },
-  // A nested list after an image in a list item. The nested list moves out of
-  // its item, and the numbers start again. This is a fault of the list parse:
-  // it occurs for each list item that has a block as a child. This snapshot
-  // changes when the list parse is corrected.
+  // A nested list after an image in a list item. The image and the nested
+  // list are children of the list item, and the numbered list continues.
   {
     name: "inlineImageInListItemWithNestedList",
     content: `1. Step one ![shot](https://example.com/shot.png)
