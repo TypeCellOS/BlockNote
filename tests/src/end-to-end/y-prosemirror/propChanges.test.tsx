@@ -167,9 +167,8 @@ test("suggestion mode: resize image (previewWidth)", async () => {
 
   editor.replaceBlocks(editor.document, imageWidth.initial);
   await sync();
-  // Default `alt=""` on the image makes it decorative, so
-  // `getByRole("img")` doesn't see it. Poll on the prop having
-  // landed in the editor instead.
+  // The suggestion records the block prop. Poll until that prop has
+  // landed in the editor.
   await expect
     .poll(() => (editor.document[0]?.props as { url?: string })?.url)
     .toBe(IMG_SRC_BASE);
@@ -231,9 +230,8 @@ test("suggestion mode: change image source", async () => {
 
   editor.replaceBlocks(editor.document, imageSource.initial);
   await sync();
-  // Default `alt=""` on the image makes it decorative, so
-  // `getByRole("img")` doesn't see it. Poll on the prop having
-  // landed in the editor instead.
+  // The suggestion records the block prop. Poll until that prop has
+  // landed in the editor.
   await expect
     .poll(() => (editor.document[0]?.props as { url?: string })?.url)
     .toBe(IMG_SRC_BASE);
