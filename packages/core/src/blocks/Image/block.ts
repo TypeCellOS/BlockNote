@@ -77,7 +77,7 @@ export const imageParse =
 
     if (element.tagName === "FIGURE") {
       const parsedFigure = parseFigureElement(element, "img");
-      if (!parsedFigure) {
+      if (!parsedFigure || isEmptyMediaElement(parsedFigure.targetElement)) {
         return undefined;
       }
 

@@ -53,7 +53,7 @@ export const videoParse = (_config: VideoOptions) => (element: HTMLElement) => {
 
   if (element.tagName === "FIGURE") {
     const parsedFigure = parseFigureElement(element, "video");
-    if (!parsedFigure) {
+    if (!parsedFigure || isEmptyMediaElement(parsedFigure.targetElement)) {
       return undefined;
     }
 

@@ -1,5 +1,3 @@
-import { isEmptyMediaElement } from "./isEmptyMediaElement.js";
-
 export const parseFigureElement = (
   figureElement: HTMLElement,
   targetTag: string,
@@ -7,7 +5,7 @@ export const parseFigureElement = (
   const targetElement = figureElement.querySelector(
     targetTag,
   ) as HTMLElement | null;
-  if (!targetElement || isEmptyMediaElement(targetElement)) {
+  if (!targetElement) {
     return undefined;
   }
 

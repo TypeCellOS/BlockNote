@@ -71,7 +71,7 @@ export const audioParse =
 
     if (element.tagName === "FIGURE") {
       const parsedFigure = parseFigureElement(element, "audio");
-      if (!parsedFigure) {
+      if (!parsedFigure || isEmptyMediaElement(parsedFigure.targetElement)) {
         return undefined;
       }
 
