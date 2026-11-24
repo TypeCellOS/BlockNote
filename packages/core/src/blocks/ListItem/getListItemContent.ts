@@ -1,4 +1,5 @@
 import { DOMParser, Fragment, Schema } from "prosemirror-model";
+import { detachedDoc } from "../../util/detachedDoc.js";
 
 /**
  * This function is used to parse the content of a list item external HTML node.
@@ -47,12 +48,13 @@ export function getListItemContent(
   // Move the `li` element's content into a new `div` element
   // This is a hacky workaround to not re-trigger list item parsing,
   // when we are looking to understand what the list item's content actually is, in terms of the schema.
-  const clonedNodeDiv = document.createElement("div");
+  const clonedNodeDiv = detachedDoc().createElement("div");
   // Mark the `div` element as a `blockGroup` to make the parsing easier.
   clonedNodeDiv.setAttribute("data-node-type", "blockGroup");
   // Clone all children of the `li` element into the new `div` element
+  // Not `cloneNode`: see the rule in `util/detachedDoc.ts`.
   for (const child of Array.from(node.childNodes)) {
-    clonedNodeDiv.appendChild(child.cloneNode(true));
+    clonedNodeDiv.appendChild(detachedDoc().importNode(child, true));
   }
 
   // Parses children of the `li` element into a `blockGroup` with `blockContainer` node children
