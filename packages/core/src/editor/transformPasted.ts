@@ -3,6 +3,23 @@ import { EditorView } from "@tiptap/pm/view";
 
 import { getBlockInfoFromSelection } from "../api/getBlockInfoFromPos.js";
 import { findParentNodeClosestToPos } from "@tiptap/core";
+import { normalizeBlockNesting } from "./normalizeBlockNesting.js";
+
+const transforms: ((slice: Slice, view: EditorView) => Slice | null)[] = [
+  normalizeBlockNesting,
+  wrapTableRows,
+  retypeLeadingParagraphForEmptyTarget,
+  normalizeTableCellContent,
+  wrapBlockContent,
+];
+
+/** Normalize clipboard and drop content before ProseMirror fits it. */
+export function transformPasted(slice: Slice, view: EditorView): Slice {
+  for (const transform of transforms) {
+    slice = transform(slice, view) ?? slice;
+  }
+  return slice;
+}
 
 /**
  * Checks if the current selection is inside a table cell.
@@ -68,7 +85,8 @@ function removeChild(node: Fragment, n: number) {
  * This makes sure the content that we paste is always a table (and not a tableRow)
  * A table works better for the remaing paste handling logic, as it's actually a content node
  */
-export function wrapTableRows(f: Fragment, schema: Schema) {
+function wrapTableRows(slice: Slice, view: EditorView): Slice | null {
+  const f = slice.content;
   const newItems: any[] = [];
   for (let i = 0; i < f.childCount; i++) {
     if (f.child(i).type.name === "tableRow") {
@@ -79,7 +97,7 @@ export function wrapTableRows(f: Fragment, schema: Schema) {
         newItems[newItems.length - 1] = newTable;
       } else {
         // create new table to wrap tableRow with
-        const newTable = schema.nodes.table.createChecked(
+        const newTable = view.state.schema.nodes.table.createChecked(
           undefined,
           f.child(i),
         );
@@ -89,32 +107,17 @@ export function wrapTableRows(f: Fragment, schema: Schema) {
       newItems.push(f.child(i));
     }
   }
-  f = Fragment.from(newItems);
-  return f;
+  const content = Fragment.from(newItems);
+  return content.eq(f)
+    ? null
+    : new Slice(content, slice.openStart, slice.openEnd);
 }
 
-/**
- * fix for https://github.com/ProseMirror/prosemirror/issues/1430#issuecomment-1822570821
- *
- * This fix wraps pasted ProseMirror nodes in their own `blockContainer` nodes
- * in most cases. This is to ensure that ProseMirror inserts them as separate
- * blocks, which it sometimes doesn't do because it doesn't have enough context
- * about the hierarchy of the pasted nodes. The issue can be seen when pasting
- * e.g. an image or two consecutive paragraphs, where PM tries to nest the
- * pasted block(s) when it shouldn't.
- *
- * However, the fix is not applied in a few cases. See `shouldApplyFix` for
- * which cases are excluded.
- */
-export function transformPasted(slice: Slice, view: EditorView) {
-  let f = Fragment.from(slice.content);
-  f = wrapTableRows(f, view.state.schema);
-
-  const retyped = retypeLeadingParagraphForEmptyTarget(f, view, slice);
-  if (retyped) {
-    return retyped;
-  }
-
+function normalizeTableCellContent(
+  slice: Slice,
+  view: EditorView,
+): Slice | null {
+  const f = slice.content;
   // `tableParagraph` only exists in schemas with the default table blocks. A
   // schema with a custom table implementation (e.g. container-block cells,
   // which hold real blocks and need no inline conversion) skips this branch.
@@ -139,10 +142,27 @@ export function transformPasted(slice: Slice, view: EditorView) {
       );
     }
   }
+  return null;
+}
 
+/**
+ * fix for https://github.com/ProseMirror/prosemirror/issues/1430#issuecomment-1822570821
+ *
+ * This fix wraps pasted ProseMirror nodes in their own `blockContainer` nodes
+ * in most cases. This is to ensure that ProseMirror inserts them as separate
+ * blocks, which it sometimes doesn't do because it doesn't have enough context
+ * about the hierarchy of the pasted nodes. The issue can be seen when pasting
+ * e.g. an image or two consecutive paragraphs, where PM tries to nest the
+ * pasted block(s) when it shouldn't.
+ *
+ * However, the fix is not applied in a few cases. See `shouldApplyFix` for
+ * which cases are excluded.
+ */
+function wrapBlockContent(slice: Slice, view: EditorView): Slice | null {
+  let f = slice.content;
   if (!shouldApplyFix(f, view)) {
     // Don't apply the fix.
-    return new Slice(f, slice.openStart, slice.openEnd);
+    return null;
   }
 
   for (let i = 0; i < f.childCount; i++) {
@@ -197,9 +217,8 @@ export function transformPasted(slice: Slice, view: EditorView) {
  * we keep the existing replace behavior.
  */
 function retypeLeadingParagraphForEmptyTarget(
-  fragment: Fragment,
-  view: EditorView,
   slice: Slice,
+  view: EditorView,
 ): Slice | null {
   if (isInTableCell(view)) {
     return null;
@@ -224,7 +243,7 @@ function retypeLeadingParagraphForEmptyTarget(
   }
   const target = blockInfo.content.node;
 
-  const blockGroup = fragment.firstChild;
+  const blockGroup = slice.content.firstChild;
   const blockContainer = blockGroup?.firstChild;
   const leading = blockContainer?.firstChild;
   if (
@@ -243,7 +262,7 @@ function retypeLeadingParagraphForEmptyTarget(
     blockGroup.content.replaceChild(0, newBlockContainer),
   );
   return new Slice(
-    fragment.replaceChild(0, newBlockGroup),
+    slice.content.replaceChild(0, newBlockGroup),
     slice.openStart,
     slice.openEnd,
   );

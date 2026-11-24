@@ -36,5 +36,7 @@ export const testCopyPasteEquality = async <
   );
   const newDocument = editor.document;
 
-  expect(newDocument).toStrictEqual(originalDocument);
+  expect(newDocument).toStrictEqual(
+    testCase.getExpectedDocument?.(originalDocument) ?? originalDocument,
+  );
 };
