@@ -29,7 +29,7 @@ function setup() {
 }
 
 /** The headers of a merge from the version with the ETag `etag`. */
-function fromBase(etag: string, onConflict?: string) {
+function fromBase(etag: string, onConflict?: string): Record<string, string> {
   return onConflict === undefined
     ? { "Base-Version": etag }
     : { "Base-Version": etag, "On-Conflict": onConflict };
