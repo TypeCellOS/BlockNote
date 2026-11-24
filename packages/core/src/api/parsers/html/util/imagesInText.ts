@@ -24,6 +24,14 @@ function trimNextTo(image: Element, side: "previousSibling" | "nextSibling") {
   }
 }
 
+// Moves the nodes that are before `node` in its parent to the end of `to`.
+function moveNodesBefore(node: ChildNode, to: ParentNode) {
+  const from = node.parentNode;
+  while (from?.firstChild && from.firstChild !== node) {
+    to.append(from.firstChild);
+  }
+}
+
 /**
  * Moves each image out of the text that holds it. An image is a block, and
  * ProseMirror drops a block that is in the text of a block.
@@ -33,6 +41,10 @@ function trimNextTo(image: Element, side: "previousSibling" | "nextSibling") {
  * a link replaces the image there, if the URL of the image can be a link.
  */
 export function moveImagesOutOfText(root: HTMLElement) {
+  // The nodes of an element that are complete wait here until the end. In
+  // jsdom, the time to put a node before another node grows with the number
+  // of nodes before it. Thus a block that splits must be near the start.
+  const complete = new Map<ParentNode, DocumentFragment>();
   for (const image of root.querySelectorAll("img")) {
     // BlockNote's own HTML stays as it is: custom inline content can hold an
     // image, and a block of the full HTML has only one content element.
@@ -52,15 +64,15 @@ export function moveImagesOutOfText(root: HTMLElement) {
     }
     // Splits the parent of the image until no text block holds the image: a
     // copy of the parent takes the content before the image.
+    let holder: ParentNode | null = null;
     while (image.parentElement?.closest(TEXT_BLOCKS)) {
       const parent = image.parentElement;
       trimNextTo(image, "previousSibling");
       trimNextTo(image, "nextSibling");
       const before = detachedDoc().importNode(parent, false);
-      while (image.previousSibling) {
-        before.prepend(image.previousSibling);
-      }
+      moveNodesBefore(image, before);
       parent.before(before, image);
+      holder = parent.parentNode;
       // A part without text is not a block. Its other content stays.
       for (const part of [before, parent]) {
         if (!part.textContent?.trim()) {
@@ -68,5 +80,14 @@ export function moveImagesOutOfText(root: HTMLElement) {
         }
       }
     }
+    if (holder) {
+      const nodes =
+        complete.get(holder) ?? detachedDoc().createDocumentFragment();
+      complete.set(holder, nodes);
+      moveNodesBefore(image, nodes);
+    }
+  }
+  for (const [holder, nodes] of complete) {
+    holder.prepend(nodes);
   }
 }

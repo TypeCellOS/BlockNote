@@ -586,6 +586,19 @@ export const htmlParseCases: ParseTestCase[] = [
     name: "lineBreakNextToInlineImage",
     content: `<p>Some text<br> <img src="https://example.com/harbor.jpg" alt="The harbor"> <br>More text</p>`,
   },
+  // Paragraphs with and without an image, at the top and in a `<div>`. The
+  // blocks keep their order.
+  {
+    name: "inlineImagesBetweenParagraphs",
+    content: `<p>First <img src="https://example.com/one.jpg" alt="One"> second</p>
+<p>No image here</p>
+<div>
+<p>Third <img src="https://example.com/two.jpg" alt="Two"> fourth</p>
+<p>No image here also</p>
+<p>Fifth <img src="https://example.com/three.jpg" alt="Three"> sixth</p>
+</div>
+<p>The end</p>`,
+  },
   // An image in the paragraph of a list item, as GitHub writes it (the image
   // is in a link). The image and the text after it become children of the
   // list item.
