@@ -1,13 +1,13 @@
-import { BlockNoteEditor } from "@blocknote/core";
 import type { Transaction } from "prosemirror-state";
 import { describe, expect } from "vite-plus/test";
 
+import type { SetupEditor } from "../../../../../../tests/src/commands/node/setupEditor.js";
 import { applyOperations } from "./applyOperations.js";
 import { dispatchUpdate } from "./dispatch.js";
 
 /** The editor, and its transactions that change the document. */
-function setup() {
-  const editor = BlockNoteEditor.create({
+async function setup(setupEditor: SetupEditor) {
+  const { editor } = await setupEditor({
     initialContent: [
       { id: "a", type: "paragraph", content: "Alpha one two Omega" },
       { id: "b", type: "paragraph", content: "Beta" },
@@ -28,8 +28,10 @@ const text = (value: string) => [
 ];
 
 describe("dispatchUpdate", () => {
-  it("dispatches all steps of a write in one transaction", () => {
-    const { editor, transactions } = setup();
+  it("dispatches all steps of a write in one transaction", async ({
+    setupEditor,
+  }) => {
+    const { editor, transactions } = await setup(setupEditor);
     const tr = editor.prosemirrorState.tr;
     // Two changes in one paragraph, a change of a different block, and an
     // insert.
@@ -71,8 +73,10 @@ describe("dispatchUpdate", () => {
     });
   });
 
-  it("marks the transaction for the autolink plugin", () => {
-    const { editor, transactions } = setup();
+  it("marks the transaction for the autolink plugin", async ({
+    setupEditor,
+  }) => {
+    const { editor, transactions } = await setup(setupEditor);
     const tr = editor.prosemirrorState.tr;
     applyOperations(tr, [
       { type: "update", id: "b", update: { content: text("https://x.test") } },
@@ -85,8 +89,10 @@ describe("dispatchUpdate", () => {
     ]);
   });
 
-  it("dispatches nothing for a transaction without steps", () => {
-    const { editor, transactions } = setup();
+  it("dispatches nothing for a transaction without steps", async ({
+    setupEditor,
+  }) => {
+    const { editor, transactions } = await setup(setupEditor);
 
     dispatchUpdate(editor, editor.prosemirrorState.tr);
 

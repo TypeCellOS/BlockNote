@@ -77,12 +77,14 @@ function canonical(content: readonly LensInlineContent[]) {
 }
 
 describe("addInlineContentSteps: properties", () => {
-  it("changes the content of the block to the target content", () => {
+  it("changes the content of the block to the target content", async ({
+    setupEditor,
+  }) => {
     const random = createRandom(161);
     for (let run = 0; run < 100; run++) {
       const current = randomContent(random);
       const target = randomContent(random);
-      const editor = BlockNoteEditor.create({
+      const { editor } = await setupEditor({
         initialContent: [
           { id: "p", type: "paragraph", content: current as any },
         ],
@@ -98,11 +100,13 @@ describe("addInlineContentSteps: properties", () => {
     }
   });
 
-  it("makes no steps if the content does not change", () => {
+  it("makes no steps if the content does not change", async ({
+    setupEditor,
+  }) => {
     const random = createRandom(162);
     for (let run = 0; run < 100; run++) {
       const content = randomContent(random);
-      const editor = BlockNoteEditor.create({
+      const { editor } = await setupEditor({
         initialContent: [
           { id: "p", type: "paragraph", content: content as any },
         ],

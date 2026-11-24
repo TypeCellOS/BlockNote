@@ -4,7 +4,7 @@ import { EditorState } from "prosemirror-state";
 import { describe, expect } from "vite-plus/test";
 
 import type { LensTableContent } from "../model.js";
-import { createEditor, createTabsEditor } from "../testUtil/fixtures.js";
+import { tabsEditorOptions } from "../testUtil/fixtures.js";
 import { applyOperations } from "./applyOperations.js";
 import type { BlockOperation } from "./types.js";
 
@@ -37,8 +37,12 @@ function apply(
 }
 
 describe("applyOperations: an update of a table", () => {
-  it("changes the color of one cell, and keeps the text of each cell", () => {
-    const editor = createEditor([table(["default", "default"])]);
+  it("changes the color of one cell, and keeps the text of each cell", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      initialContent: [table(["default", "default"])],
+    });
     const content = editor.getBlock("t")!.content as LensTableContent;
     const cells = content.rows[0].cells as {
       props: Record<string, unknown>;
@@ -73,8 +77,12 @@ describe("applyOperations: an update of a table", () => {
 });
 
 describe("applyOperations: invalid operations", () => {
-  it("throws for an update of a block that is not in the document", () => {
-    const editor = createEditor([{ id: "p", type: "paragraph" }]);
+  it("throws for an update of a block that is not in the document", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      initialContent: [{ id: "p", type: "paragraph" }],
+    });
     expect(() =>
       apply(editor, [{ type: "update", id: "x", update: { type: "heading" } }]),
     ).toThrow("Block x is not in the document");
@@ -88,10 +96,12 @@ describe("applyOperations: the updates apply before the structure operations", (
   ];
   const beta2 = [{ type: "text" as const, text: "Beta 2", styles: {} }];
 
-  it("applies an update to a block that an earlier operation of the list removes", () => {
+  it("applies an update to a block that an earlier operation of the list removes", async ({
+    setupEditor,
+  }) => {
     // In the sequence of the list, block b is not in the document when its
     // update runs. The update applies first, thus the list does not throw.
-    const editor = createEditor(blocks);
+    const { editor } = await setupEditor({ initialContent: blocks });
     apply(editor, [
       { type: "delete", id: "b" },
       { type: "update", id: "b", update: { content: beta2 } },
@@ -100,8 +110,10 @@ describe("applyOperations: the updates apply before the structure operations", (
     expect(editor.document.map((block) => block.id)).toEqual(["a"]);
   });
 
-  it("applies an update that comes after a move of its block in the list", () => {
-    const editor = createEditor(blocks);
+  it("applies an update that comes after a move of its block in the list", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({ initialContent: blocks });
     apply(editor, [
       { type: "move", id: "b", placement: "start" },
       { type: "update", id: "b", update: { content: beta2 } },
@@ -113,8 +125,10 @@ describe("applyOperations: the updates apply before the structure operations", (
     ]);
   });
 
-  it("throws for an update of a block that an insert of the same list adds", () => {
-    const editor = createEditor(blocks);
+  it("throws for an update of a block that an insert of the same list adds", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({ initialContent: blocks });
     expect(() =>
       apply(editor, [
         {
@@ -136,14 +150,18 @@ describe("applyOperations: the updates apply before the structure operations", (
 });
 
 describe("applyOperations: an insert with the ID of a removed block", () => {
-  it("throws, and does not give the removed block its old content at the new place", () => {
+  it("throws, and does not give the removed block its old content at the new place", async ({
+    setupEditor,
+  }) => {
     // Without the check, the apply found the old node of block b, and the
     // result was the old paragraph at the new place: the type and the
     // content of the insert were lost, without an error.
-    const editor = createEditor([
-      { id: "a", type: "paragraph", content: "Alpha" },
-      { id: "b", type: "paragraph", content: "Beta" },
-    ]);
+    const { editor } = await setupEditor({
+      initialContent: [
+        { id: "a", type: "paragraph", content: "Alpha" },
+        { id: "b", type: "paragraph", content: "Beta" },
+      ],
+    });
     expect(() =>
       apply(editor, [
         { type: "delete", id: "b" },
@@ -179,12 +197,16 @@ describe("applyOperations: the ID of a block that the fill of the schema adds", 
     return ids;
   }
 
-  it("gives an ID to the block that fills an empty document, in a state without plugins", () => {
+  it("gives an ID to the block that fills an empty document, in a state without plugins", async ({
+    setupEditor,
+  }) => {
     // A state without plugins has no ID extension. An example is the
     // document of a Y.Doc, which the lens writes without an editor.
+    const { editor } = await setupEditor({
+      initialContent: [{ id: "p", type: "paragraph", content: "Alpha" }],
+    });
     const state = EditorState.create({
-      doc: createEditor([{ id: "p", type: "paragraph", content: "Alpha" }])
-        .prosemirrorState.doc,
+      doc: editor.prosemirrorState.doc,
     });
     const tr = state.tr;
 
@@ -194,8 +216,10 @@ describe("applyOperations: the ID of a block that the fill of the schema adds", 
     expect(nodeIds(tr.doc)).not.toEqual(["p"]);
   });
 
-  it("gives an ID to each block of the fill of a tab set, in a state without plugins", () => {
-    const editor = createTabsEditor(2);
+  it("gives an ID to each block of the fill of a tab set, in a state without plugins", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor(tabsEditorOptions(2));
     const state = EditorState.create({ doc: editor.prosemirrorState.doc });
     const tr = state.tr;
 
@@ -210,10 +234,12 @@ describe("applyOperations: the ID of a block that the fill of the schema adds", 
 });
 
 describe("applyOperations: a layout block with too few children", () => {
-  it("adds the fill of the schema at the end of a tab set with fewer tabs than its minimum", () => {
+  it("adds the fill of the schema at the end of a tab set with fewer tabs than its minimum", async ({
+    setupEditor,
+  }) => {
     // The tab set needs two tabs. The removal of t2 leaves one, thus the
     // schema adds a tab with an empty paragraph, as in the editor.
-    const editor = createTabsEditor(2);
+    const { editor } = await setupEditor(tabsEditorOptions(2));
     apply(editor, [{ type: "delete", id: "t2" }]);
     const [set] = editor.document;
     expect(set.children.map((tab) => tab.type)).toEqual(["tab", "tab"]);

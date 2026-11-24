@@ -1,4 +1,4 @@
-import { BlockNoteEditor, type PartialBlock } from "@blocknote/core";
+import type { PartialBlock } from "@blocknote/core";
 import { describe, expect } from "vite-plus/test";
 
 import {
@@ -8,8 +8,8 @@ import {
   updateDocument,
 } from "./index.js";
 import {
-  createEditor,
   documentShape,
+  richDocument,
   replaceOnce,
   writeText,
 } from "./testUtil/fixtures.js";
@@ -18,8 +18,10 @@ import { richSchema } from "./testUtil/richRandom.js";
 import { valid } from "./testUtil/valid.js";
 
 describe("plain text", () => {
-  it("a heading with changed text stays a heading and keeps its styles", () => {
-    const editor = createEditor();
+  it("a heading with changed text stays a heading and keeps its styles", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({ initialContent: richDocument });
     writeText(editor, plainTextFormat, (text) =>
       replaceOnce(text, "Bold heading with", "Bold heading, edited, with"),
     );
@@ -39,8 +41,10 @@ describe("plain text", () => {
     ]);
   });
 
-  it("gives new text in styled text the styles that plain text does not show", () => {
-    const editor = createEditor();
+  it("gives new text in styled text the styles that plain text does not show", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({ initialContent: richDocument });
     writeText(editor, plainTextFormat, (text) =>
       replaceOnce(text, "red underlined", "red and dotted"),
     );
@@ -57,8 +61,8 @@ describe("plain text", () => {
     ]);
   });
 
-  it("inserts a new paragraph between blocks", () => {
-    const editor = createEditor();
+  it("inserts a new paragraph between blocks", async ({ setupEditor }) => {
+    const { editor } = await setupEditor({ initialContent: richDocument });
     writeText(editor, plainTextFormat, (text) =>
       replaceOnce(text, "A quote\n\n", "A quote\n\nA new paragraph\n\n"),
     );
@@ -71,8 +75,8 @@ describe("plain text", () => {
     ]);
   });
 
-  it("keeps line breaks inside a paragraph", () => {
-    const editor = createEditor();
+  it("keeps line breaks inside a paragraph", async ({ setupEditor }) => {
+    const { editor } = await setupEditor({ initialContent: richDocument });
     writeText(editor, plainTextFormat, (text) =>
       replaceOnce(text, "line one\nline two", "line one\nline 2"),
     );
@@ -82,15 +86,17 @@ describe("plain text", () => {
     ]);
   });
 
-  it("a small change in each of many paragraphs keeps the ID and props of each paragraph", () => {
-    const editor = createEditor(
-      Array.from({ length: 300 }, (_, i) => ({
+  it("a small change in each of many paragraphs keeps the ID and props of each paragraph", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      initialContent: Array.from({ length: 300 }, (_, i) => ({
         id: `p${i}`,
         type: "paragraph" as const,
         props: { textColor: "red" },
         content: `Paragraph ${i} alpha beta gamma delta epsilon`,
       })),
-    );
+    });
     const update = writeText(editor, plainTextFormat, (text) =>
       text.replaceAll("alpha", "omega").replaceAll("beta", "zeta"),
     );
@@ -119,15 +125,18 @@ describe("plain text", () => {
       { id: "end", type: "paragraph" as const, content: "End" },
     ];
 
-    it("shows the blank line as one newline", () => {
+    it("shows the blank line as one newline", async ({ setupEditor }) => {
+      const { editor } = await setupEditor({ initialContent: blocks });
       // A blank line would start a new paragraph in the parse.
-      expect(getDocumentText(createEditor(blocks), plainTextFormat)).toBe(
+      expect(getDocumentText(editor, plainTextFormat)).toBe(
         "first\nsecond\n\nEnd",
       );
     });
 
-    it("keeps the blank line and the block if the text changes a line", () => {
-      const editor = createEditor(blocks);
+    it("keeps the blank line and the block if the text changes a line", async ({
+      setupEditor,
+    }) => {
+      const { editor } = await setupEditor({ initialContent: blocks });
       const update = writeText(editor, plainTextFormat, (text) =>
         replaceOnce(text, "second", "second, changed"),
       );
@@ -139,8 +148,10 @@ describe("plain text", () => {
       });
     });
 
-    it("keeps the block, its language and the blank line if the text changes the last line", () => {
-      const editor = BlockNoteEditor.create({
+    it("keeps the block, its language and the blank line if the text changes the last line", async ({
+      setupEditor,
+    }) => {
+      const { editor } = await setupEditor({
         initialContent: [
           {
             id: "c",
@@ -170,8 +181,10 @@ describe("plain text", () => {
       });
     });
 
-    it("keeps the blank line if the text appends to the line before it", () => {
-      const editor = createEditor(blocks);
+    it("keeps the blank line if the text appends to the line before it", async ({
+      setupEditor,
+    }) => {
+      const { editor } = await setupEditor({ initialContent: blocks });
       writeText(editor, plainTextFormat, (text) =>
         replaceOnce(text, "first\n", "first!\n"),
       );
@@ -181,14 +194,18 @@ describe("plain text", () => {
       ]);
     });
 
-    it("reads `\\r\\n` as a line break, and keeps it", () => {
+    it("reads `\\r\\n` as a line break, and keeps it", async ({
+      setupEditor,
+    }) => {
       // The parse reads `\r\n` and `\r` as `\n`, thus the serialize does
       // too. Before, `\r\n\r\n` gave two blocks, and each write threw.
-      const editor = createEditor([
-        { id: "code", type: "codeBlock", content: "first\r\n\r\nsecond" },
-        { id: "p", type: "paragraph", content: "one\r\rtwo" },
-        { id: "end", type: "paragraph", content: "End" },
-      ]);
+      const { editor } = await setupEditor({
+        initialContent: [
+          { id: "code", type: "codeBlock", content: "first\r\n\r\nsecond" },
+          { id: "p", type: "paragraph", content: "one\r\rtwo" },
+          { id: "end", type: "paragraph", content: "End" },
+        ],
+      });
       expect(getDocumentText(editor, plainTextFormat)).toBe(
         "first\nsecond\n\none\ntwo\n\nEnd",
       );
@@ -205,12 +222,14 @@ describe("plain text", () => {
       ]);
     });
 
-    it("KNOWN LIMIT: loses the blank line if the text inserts at the start of the line after it", () => {
+    it("KNOWN LIMIT: loses the blank line if the text inserts at the start of the line after it", async ({
+      setupEditor,
+    }) => {
       // The insert of the client and the hidden newline are at the same
       // position. In the target stage, an insert of the document at the
       // position of an insert of the text does not stay (a difference of the
       // format, see the rules of the target stage in `targetFromPairs`).
-      const editor = createEditor(blocks);
+      const { editor } = await setupEditor({ initialContent: blocks });
       writeText(editor, plainTextFormat, (text) =>
         replaceOnce(text, "\nsecond", "\n!second"),
       );
@@ -221,15 +240,17 @@ describe("plain text", () => {
     });
   });
 
-  it("keeps many hidden blocks in a row", () => {
-    const editor = createEditor([
-      { id: "first", type: "paragraph", content: "First" },
-      ...Array.from({ length: 6000 }, (_, i) => ({
-        id: `empty${i}`,
-        type: "paragraph" as const,
-      })),
-      { id: "last", type: "paragraph", content: "Last" },
-    ]);
+  it("keeps many hidden blocks in a row", async ({ setupEditor }) => {
+    const { editor } = await setupEditor({
+      initialContent: [
+        { id: "first", type: "paragraph", content: "First" },
+        ...Array.from({ length: 6000 }, (_, i) => ({
+          id: `empty${i}`,
+          type: "paragraph" as const,
+        })),
+        { id: "last", type: "paragraph", content: "Last" },
+      ],
+    });
     writeText(editor, plainTextFormat, (text) =>
       replaceOnce(text, "Last", "Last, edited"),
     );
@@ -242,8 +263,10 @@ describe("plain text", () => {
 });
 
 describe("plain text, a new editor", () => {
-  it("gives only the blocks of the text, without the empty block of the new editor", () => {
-    const editor = BlockNoteEditor.create();
+  it("gives only the blocks of the text, without the empty block of the new editor", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor();
 
     valid(
       updateDocument(editor, {
@@ -260,8 +283,10 @@ describe("plain text, a new editor", () => {
 });
 
 describe("an item that plain text does not show", () => {
-  it("keeps a mention next to a word that the text changes", () => {
-    const editor = BlockNoteEditor.create({
+  it("keeps a mention next to a word that the text changes", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
       schema: richSchema,
       initialContent: [
         {
@@ -291,11 +316,15 @@ describe("an item that plain text does not show", () => {
 });
 
 describe("plain text: white space at the end of a block", () => {
-  it("keeps the laws if the client removes the block after a block that ends with a hard break", () => {
-    const editor = createEditor([
-      { id: "a", type: "paragraph", content: "Alpha\n " },
-      { id: "b", type: "paragraph", content: "Beta" },
-    ]);
+  it("keeps the laws if the client removes the block after a block that ends with a hard break", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      initialContent: [
+        { id: "a", type: "paragraph", content: "Alpha\n " },
+        { id: "b", type: "paragraph", content: "Beta" },
+      ],
+    });
     const text = "Alpha";
     valid(
       updateDocument(editor, {
@@ -325,18 +354,20 @@ describe("plain text: white space at the end of a block", () => {
 describe("plain text, links", () => {
   // Plain text does not show the URL of a link. The text of the link can
   // change, and the link stays.
-  it("keeps a link if the client changes its text", () => {
-    const editor = createEditor([
-      {
-        id: "p",
-        type: "paragraph",
-        content: [
-          "see ",
-          { type: "link", href: "https://a.example", content: "docs" },
-          " now",
-        ],
-      },
-    ]);
+  it("keeps a link if the client changes its text", async ({ setupEditor }) => {
+    const { editor } = await setupEditor({
+      initialContent: [
+        {
+          id: "p",
+          type: "paragraph",
+          content: [
+            "see ",
+            { type: "link", href: "https://a.example", content: "docs" },
+            " now",
+          ],
+        },
+      ],
+    });
     writeText(editor, plainTextFormat, (text) =>
       replaceOnce(text, "docs", "guides"),
     );

@@ -207,29 +207,28 @@ export function tabsEditorOptions(min = 1) {
     },
     { renderFrame: frame },
   )();
-  return {
-    schema: BlockNoteSchema.create().extend({
-      blockSpecs: { ...defaultBlockSpecs, tabs, tab },
-    }),
-    initialContent: [
-      {
-        id: "set",
-        type: "tabs",
-        children: [
-          {
-            id: "t1",
-            type: "tab",
-            children: [{ id: "a", type: "paragraph", content: "One" }],
-          },
-          {
-            id: "t2",
-            type: "tab",
-            children: [{ id: "b", type: "paragraph", content: "Two" }],
-          },
-        ],
-      },
-    ] as PartialBlock<any, any, any>[],
-  };
+  const schema = BlockNoteSchema.create().extend({
+    blockSpecs: { ...defaultBlockSpecs, tabs, tab },
+  });
+  const initialContent: (typeof schema.PartialBlock)[] = [
+    {
+      id: "set",
+      type: "tabs",
+      children: [
+        {
+          id: "t1",
+          type: "tab",
+          children: [{ id: "a", type: "paragraph", content: "One" }],
+        },
+        {
+          id: "t2",
+          type: "tab",
+          children: [{ id: "b", type: "paragraph", content: "Two" }],
+        },
+      ],
+    },
+  ];
+  return { schema, initialContent };
 }
 
 /** An editor with the options of {@link tabsEditorOptions}. */

@@ -1,18 +1,23 @@
 import {
-  BlockNoteEditor,
+  type BlockNoteEditor,
   getNodeById,
   inlineContentToNodes,
+  type PartialBlock,
 } from "@blocknote/core";
 import { Fragment } from "prosemirror-model";
 import { ReplaceStep } from "prosemirror-transform";
 import { describe, expect } from "vite-plus/test";
 
 import type { LensInlineContent } from "../model.js";
-import { commentedText, createCommentEditor } from "../testUtil/comments.js";
+import { commentedText, commentEditorOptions } from "../testUtil/comments.js";
 import { addInlineContentSteps } from "./inlineSteps.js";
 
-function createEditor(text: string) {
-  return createCommentEditor([{ id: "p", type: "paragraph", content: text }]);
+/** The options of an editor with the comments extension and a paragraph "p" with `text`. */
+function paragraphOptions(text: string) {
+  return {
+    initialContent: [{ id: "p", type: "paragraph", content: text }],
+    ...commentEditorOptions(),
+  } satisfies { initialContent: PartialBlock[] };
 }
 
 /** Applies the steps that change paragraph "p" to `content`, and returns the steps. */
@@ -48,8 +53,8 @@ const text = (value: string, styles = {}) => ({
 });
 
 describe("addInlineContentSteps", () => {
-  it("replaces only the changed word", () => {
-    const editor = createEditor("Hello big world");
+  it("replaces only the changed word", async ({ setupEditor }) => {
+    const { editor } = await setupEditor(paragraphOptions("Hello big world"));
     const steps = applySteps(editor, [text("Hello small world")]);
 
     expect(editor.getBlock("p")?.content).toEqual([text("Hello small world")]);
@@ -57,16 +62,20 @@ describe("addInlineContentSteps", () => {
     expect(steps[0]).toBeInstanceOf(ReplaceStep);
   });
 
-  it("replaces a changed word with one step, also if it has letters in common", () => {
-    const editor = createEditor("The last word");
+  it("replaces a changed word with one step, also if it has letters in common", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor(paragraphOptions("The last word"));
     const steps = applySteps(editor, [text("The final word")]);
 
     expect(steps).toHaveLength(1);
     expect(steps[0]).toBeInstanceOf(ReplaceStep);
   });
 
-  it("changes only marks if only the styles changed", () => {
-    const editor = createEditor("Hello world");
+  it("changes only marks if only the styles changed", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor(paragraphOptions("Hello world"));
     const steps = applySteps(editor, [
       text("Hello "),
       text("world", { bold: true }),
@@ -79,8 +88,10 @@ describe("addInlineContentSteps", () => {
     expect(steps.some((step) => step instanceof ReplaceStep)).toBe(false);
   });
 
-  it("keeps a comment on text that does not change", () => {
-    const editor = createEditor("Hello world");
+  it("keeps a comment on text that does not change", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor(paragraphOptions("Hello world"));
     // Positions: the paragraph text starts at 3. "Hello" is 3 to 8.
     const comment = editor.pmSchema.marks.comment.create({
       threadId: "thread-1",
@@ -94,16 +105,18 @@ describe("addInlineContentSteps", () => {
     expect(editor.getBlock("p")?.content).toEqual([text("Hello brave world")]);
   });
 
-  it("does not split emoji", () => {
-    const editor = createEditor("I 😀");
+  it("does not split emoji", async ({ setupEditor }) => {
+    const { editor } = await setupEditor(paragraphOptions("I 😀"));
     applySteps(editor, [text("I 😁")]);
     expect(editor.getBlock("p")?.content).toEqual([text("I 😁")]);
   });
 
-  it("makes at most 200 steps for a large change of one block, and keeps a comment on its unchanged text", () => {
+  it("makes at most 200 steps for a large change of one block, and keeps a comment on its unchanged text", async ({
+    setupEditor,
+  }) => {
     // 500 words, and the text changes each one: 500 changed runs.
     const words = Array.from({ length: 500 }, (_, i) => `w${i}`);
-    const editor = createEditor(words.join(" "));
+    const { editor } = await setupEditor(paragraphOptions(words.join(" ")));
     const comment = editor.pmSchema.marks.comment.create({
       threadId: "thread-1",
       orphan: false,
@@ -123,7 +136,9 @@ describe("addInlineContentSteps", () => {
     ]);
   });
 
-  it("joins only the runs with short unchanged parts between them, if there are more than 200", () => {
+  it("joins only the runs with short unchanged parts between them, if there are more than 200", async ({
+    setupEditor,
+  }) => {
     // 300 changed words. After each 50th word, a long sentence that does not
     // change. The 100 shortest unchanged parts must join (300 runs, at most
     // 200 groups): they are all at most 5 characters long. The 5 long
@@ -135,7 +150,7 @@ describe("addInlineContentSteps", () => {
         (_, i) =>
           `w${i}${changed ? "x" : ""}${i % 50 === 49 && i < 299 ? sentence : ""}`,
       ).join(" ");
-    const editor = createEditor(parts(false));
+    const { editor } = await setupEditor(paragraphOptions(parts(false)));
 
     const steps = applySteps(editor, [text(parts(true))]);
 

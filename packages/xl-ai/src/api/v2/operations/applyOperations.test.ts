@@ -1,8 +1,4 @@
-import {
-  type Block,
-  BlockNoteEditor,
-  type PartialBlock,
-} from "@blocknote/core";
+import type { Block, BlockNoteEditor, PartialBlock } from "@blocknote/core";
 import type { Step } from "prosemirror-transform";
 import { describe, expect } from "vite-plus/test";
 
@@ -25,15 +21,14 @@ function apply(
   return steps;
 }
 
-function createEditor() {
-  return BlockNoteEditor.create({
-    initialContent: [
-      { id: "a", type: "paragraph", content: "A" },
-      { id: "b", type: "paragraph", content: "B" },
-      { id: "c", type: "paragraph", content: "C" },
-    ],
-  });
-}
+/** The options of an editor with the paragraphs A, B and C. */
+const threeParagraphs = {
+  initialContent: [
+    { id: "a", type: "paragraph", content: "A" },
+    { id: "b", type: "paragraph", content: "B" },
+    { id: "c", type: "paragraph", content: "C" },
+  ],
+} satisfies { initialContent: PartialBlock[] };
 
 /** The text of each block, with the children nested. */
 function shape(blocks: Block<any, any, any>[]): unknown[] {
@@ -58,8 +53,10 @@ const paragraph = (id: string, value: string) => ({
 });
 
 describe("applyOperations", () => {
-  it("applies the updates, and then the structure operations in sequence", () => {
-    const editor = createEditor();
+  it("applies the updates, and then the structure operations in sequence", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor(threeParagraphs);
     apply(editor, [
       { type: "update", id: "a", update: { content: text("A2") } },
       {
@@ -86,15 +83,19 @@ describe("applyOperations", () => {
     ]);
   });
 
-  it("does not change the document for an empty list", () => {
-    const editor = createEditor();
+  it("does not change the document for an empty list", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor(threeParagraphs);
     const before = editor.document;
     apply(editor, []);
     expect(editor.document).toEqual(before);
   });
 
-  it("throws an error if an operation refers to a block that does not exist", () => {
-    const editor = createEditor();
+  it("throws an error if an operation refers to a block that does not exist", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor(threeParagraphs);
     expect(() =>
       apply(editor, [
         { type: "move", id: "a", reference: "missing", placement: "after" },
@@ -119,8 +120,10 @@ describe("the steps of a structure change", () => {
     });
   }
 
-  it("inserts a block with one step that only inserts", () => {
-    const editor = createEditor();
+  it("inserts a block with one step that only inserts", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor(threeParagraphs);
     const steps = apply(editor, [
       {
         type: "insert",
@@ -133,8 +136,10 @@ describe("the steps of a structure change", () => {
     expect(shape(editor.document)).toEqual(["A", "New", "B", "C"]);
   });
 
-  it("moves a block with an insert step and a removal step", () => {
-    const editor = createEditor();
+  it("moves a block with an insert step and a removal step", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor(threeParagraphs);
     const steps = apply(editor, [
       { type: "move", id: "c", reference: "a", placement: "before" },
     ]);
@@ -142,8 +147,10 @@ describe("the steps of a structure change", () => {
     expect(shape(editor.document)).toEqual(["C", "A", "B"]);
   });
 
-  it("removes the block group of a block without children", () => {
-    const editor = BlockNoteEditor.create({
+  it("removes the block group of a block without children", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
       initialContent: [
         {
           id: "a",
@@ -158,7 +165,9 @@ describe("the steps of a structure change", () => {
     expect(shape(editor.document)).toEqual(["A"]);
   });
 
-  it("keeps the minimum number of columns at each step", () => {
+  it("keeps the minimum number of columns at each step", async ({
+    setupEditor,
+  }) => {
     const schema = columnSchema;
     const column = (id: string): LensBlock => ({
       id,
@@ -167,7 +176,7 @@ describe("the steps of a structure change", () => {
       content: undefined,
       children: [paragraph(`${id}-text`, id)],
     });
-    const editor = BlockNoteEditor.create({
+    const { editor } = await setupEditor({
       schema,
       initialContent: [
         {
@@ -175,7 +184,7 @@ describe("the steps of a structure change", () => {
           type: "columnList",
           children: [column("k"), column("x"), column("y")],
         },
-      ] as PartialBlock<any, any, any>[],
+      ] as (typeof schema.PartialBlock)[],
     });
     // The removal of x and y gives one column, if it comes before the
     // insert of the two new columns.

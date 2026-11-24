@@ -1,13 +1,15 @@
-import { BlockNoteEditor } from "@blocknote/core";
+import { BlockNoteSchema } from "@blocknote/core";
 import { describe, expect } from "vite-plus/test";
 
 import { propsFit } from "./props.js";
 
-const { blockSchema } = BlockNoteEditor.create().schema;
+const { blockSchema } = BlockNoteSchema.create();
 
 describe("propsFit", () => {
-  it("accepts the props of the blocks of an editor", () => {
-    const editor = BlockNoteEditor.create({
+  it("accepts the props of the blocks of an editor", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
       initialContent: [
         { type: "heading", props: { level: 2 }, content: "Title" },
         { type: "checkListItem", props: { checked: true }, content: "Done" },

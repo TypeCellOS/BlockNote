@@ -1,12 +1,16 @@
 import { describe, expect } from "vite-plus/test";
 
 import type { LensBlock } from "../model.js";
-import { createColumnsEditor, createEditor } from "../testUtil/fixtures.js";
+import { columnsEditorOptions } from "../testUtil/fixtures.js";
 import { parseJSON } from "./parseJSON.js";
 
 describe("parseJSON", () => {
-  it("gives the blocks in the form that the document stores them", () => {
-    const editor = createEditor([{ id: "p", type: "paragraph" }]);
+  it("gives the blocks in the form that the document stores them", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      initialContent: [{ id: "p", type: "paragraph" }],
+    });
     const current = editor.document as LensBlock[];
 
     const result = parseJSON(editor, [
@@ -19,8 +23,12 @@ describe("parseJSON", () => {
     expect(blocks[0].props).toEqual(current[0].props);
   });
 
-  it("gives an error for blocks that do not fit the schema", () => {
-    const editor = createEditor([{ id: "p", type: "paragraph" }]);
+  it("gives an error for blocks that do not fit the schema", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      initialContent: [{ id: "p", type: "paragraph" }],
+    });
 
     expect(parseJSON(editor, [{ type: "unknown" } as never])).toEqual({
       error: "invalid-document",
@@ -29,8 +37,12 @@ describe("parseJSON", () => {
 
   // REVISIT: an earlier version gave the later block the ID with a number
   // (`p-2`). Now the client must give each block its own ID.
-  it("gives an error for a later block with the ID of an earlier block", () => {
-    const editor = createEditor([{ id: "p", type: "paragraph" }]);
+  it("gives an error for a later block with the ID of an earlier block", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor({
+      initialContent: [{ id: "p", type: "paragraph" }],
+    });
 
     expect(
       parseJSON(editor, [
@@ -40,8 +52,10 @@ describe("parseJSON", () => {
     ).toEqual({ error: "invalid-document" });
   });
 
-  it("gives an error for blocks that the conversion must fill", () => {
-    const editor = createColumnsEditor();
+  it("gives an error for blocks that the conversion must fill", async ({
+    setupEditor,
+  }) => {
+    const { editor } = await setupEditor(columnsEditorOptions());
 
     // A column list with one column does not fit the schema: the conversion
     // would add an empty column.

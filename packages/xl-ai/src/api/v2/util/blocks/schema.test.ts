@@ -1,5 +1,4 @@
 import {
-  BlockNoteEditor,
   BlockNoteSchema,
   createBlockSpec,
   defaultBlockSpecs,
@@ -52,9 +51,7 @@ const schema = BlockNoteSchema.create().extend({
     panel: layoutBlock("panel", { children: { exclude: ["box"] } }),
   },
 });
-const rules = schemaRulesOf(
-  BlockNoteEditor.create({ schema }).schema.blockSchema,
-);
+const rules = schemaRulesOf(schema.blockSchema);
 
 describe("schemaRulesOf", () => {
   it("gives the content kind of a block type, and throws for a type that is not in the schema", () => {

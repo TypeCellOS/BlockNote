@@ -1,6 +1,5 @@
 import { describe, expect } from "vite-plus/test";
 
-import { createEditor } from "../testUtil/fixtures.js";
 import { parseJSON } from "./parseJSON.js";
 
 /**
@@ -25,27 +24,42 @@ function table(props: Record<string, unknown>) {
   } as never;
 }
 
-describe("parseJSON: the spans of table cells", () => {
-  const editor = createEditor([{ id: "p", type: "paragraph" }]);
+// One editor for the read-only cases of this file.
+const it = globalThis.it.extend(
+  "editor",
+  { scope: "file" },
+  // eslint-disable-next-line no-empty-pattern -- Vitest requires destructured fixture dependencies.
+  async ({}, { onCleanup }) => {
+    const { createSetupEditor } =
+      await import("../../../../../../tests/src/commands/node/setupEditor.js");
+    const { editor } = await createSetupEditor(onCleanup)({
+      initialContent: [{ id: "p", type: "paragraph" }],
+    });
+    return editor;
+  },
+);
 
-  it("accepts the largest spans of the HTML table model", () => {
+describe("parseJSON: the spans of table cells", () => {
+  it("accepts the largest spans of the HTML table model", ({ editor }) => {
     expect(parseJSON(editor, [table({ colspan: 1000 })]).error).toBeUndefined();
     expect(parseJSON(editor, [table({ rowspan: 2 })]).error).toBeUndefined();
   });
 
-  it("gives an error for a column span above 1,000", () => {
+  it("gives an error for a column span above 1,000", ({ editor }) => {
     expect(parseJSON(editor, [table({ colspan: 1001 })])).toEqual({
       error: "invalid-document",
     });
   });
 
-  it("gives an error for a row span above 65,534", () => {
+  it("gives an error for a row span above 65,534", ({ editor }) => {
     expect(parseJSON(editor, [table({ rowspan: 65535 })])).toEqual({
       error: "invalid-document",
     });
   });
 
-  it("gives an error for a table with a large span in a child block", () => {
+  it("gives an error for a table with a large span in a child block", ({
+    editor,
+  }) => {
     expect(
       parseJSON(editor, [
         {

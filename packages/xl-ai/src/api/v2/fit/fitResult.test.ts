@@ -1,4 +1,3 @@
-import { BlockNoteEditor } from "@blocknote/core";
 import { describe, expect } from "vite-plus/test";
 
 import { schemaRulesOf } from "../util/blocks/schema.js";
@@ -7,9 +6,7 @@ import { columnSchema } from "../testUtil/fixtures.js";
 import { fitResult } from "./fitResult.js";
 
 describe("fitResult", () => {
-  const rules = schemaRulesOf(
-    BlockNoteEditor.create({ schema: columnSchema }).schema.blockSchema,
-  );
+  const rules = schemaRulesOf(columnSchema.blockSchema);
   function block(
     id: string,
     type: string,

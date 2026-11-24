@@ -1,10 +1,21 @@
-import { BlockNoteEditor } from "@blocknote/core";
+import type { BlockNoteEditor } from "@blocknote/core";
 import { describe, expect } from "vite-plus/test";
 
 import type { LensBlock } from "../model.js";
 import { plainTextFormat } from "./plainText.js";
 
-const editor = BlockNoteEditor.create();
+// One editor for the read-only cases of this file.
+const it = globalThis.it.extend(
+  "editor",
+  { scope: "file" },
+  // eslint-disable-next-line no-empty-pattern -- Vitest requires destructured fixture dependencies.
+  async ({}, { onCleanup }) => {
+    const { createSetupEditor } =
+      await import("../../../../../../tests/src/commands/node/setupEditor.js");
+    const { editor } = await createSetupEditor(onCleanup)();
+    return editor;
+  },
+);
 
 function block(
   type: string,
@@ -22,7 +33,9 @@ function block(
 }
 
 describe("plainTextFormat.serialize", () => {
-  it("joins the text of the blocks with blank lines, in document order", () => {
+  it("joins the text of the blocks with blank lines, in document order", ({
+    editor,
+  }) => {
     const blocks = [
       block("heading", "Title"),
       block("bulletListItem", "Parent", [block("paragraph", "Child")]),
@@ -33,7 +46,7 @@ describe("plainTextFormat.serialize", () => {
     );
   });
 
-  it("does not show blocks without text", () => {
+  it("does not show blocks without text", ({ editor }) => {
     const blocks = [
       block("paragraph", "a"),
       block("image", undefined),
@@ -46,40 +59,50 @@ describe("plainTextFormat.serialize", () => {
 });
 
 describe("plainTextFormat.parse", () => {
-  const texts = (text: string) =>
+  const texts = (editor: BlockNoteEditor, text: string) =>
     plainTextFormat.parse(editor, text).map((parsed) => parsed.content);
 
-  it("makes a paragraph from each paragraph of text", () => {
+  it("makes a paragraph from each paragraph of text", ({ editor }) => {
     const [first] = plainTextFormat.parse(editor, "a\n\nb");
     expect(first).toEqual(block("paragraph", "a"));
-    expect(texts("a\n\nb")).toEqual([
+    expect(texts(editor, "a\n\nb")).toEqual([
       [{ type: "text", text: "a", styles: {} }],
       [{ type: "text", text: "b", styles: {} }],
     ]);
   });
 
-  it("keeps single line breaks in a paragraph", () => {
-    expect(texts("line one\nline two")).toEqual([
+  it("keeps single line breaks in a paragraph", ({ editor }) => {
+    expect(texts(editor, "line one\nline two")).toEqual([
       [{ type: "text", text: "line one\nline two", styles: {} }],
     ]);
   });
 
-  it("uses lines with only spaces as blank lines, and ignores empty paragraphs", () => {
-    expect(texts("\n\na\n  \n\n\nb\n")).toEqual([
+  it("uses lines with only spaces as blank lines, and ignores empty paragraphs", ({
+    editor,
+  }) => {
+    expect(texts(editor, "\n\na\n  \n\n\nb\n")).toEqual([
       [{ type: "text", text: "a", styles: {} }],
       [{ type: "text", text: "b", styles: {} }],
     ]);
   });
 
-  it("removes lines with only white space at the end of the text, as before another block", () => {
+  it("removes lines with only white space at the end of the text, as before another block", ({
+    editor,
+  }) => {
     // A block that ends with a hard break and a space gives the same text at
     // the end of the document and before another block.
-    expect(texts("a\n ")).toEqual(texts("a\n \n\nb").slice(0, 1));
-    expect(texts("a\n ")).toEqual([[{ type: "text", text: "a", styles: {} }]]);
-    expect(texts(" \na")).toEqual([[{ type: "text", text: "a", styles: {} }]]);
+    expect(texts(editor, "a\n ")).toEqual(
+      texts(editor, "a\n \n\nb").slice(0, 1),
+    );
+    expect(texts(editor, "a\n ")).toEqual([
+      [{ type: "text", text: "a", styles: {} }],
+    ]);
+    expect(texts(editor, " \na")).toEqual([
+      [{ type: "text", text: "a", styles: {} }],
+    ]);
   });
 
-  it("accepts Windows line breaks", () => {
-    expect(texts("a\r\n\r\nb")).toHaveLength(2);
+  it("accepts Windows line breaks", ({ editor }) => {
+    expect(texts(editor, "a\r\n\r\nb")).toHaveLength(2);
   });
 });
