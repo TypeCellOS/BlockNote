@@ -662,6 +662,13 @@ export const htmlParseCases: ParseTestCase[] = [
 <h5>Level five <img src="https://example.com/5.png" alt="5"></h5>
 <h6>Level six <img src="https://example.com/6.png" alt="6"></h6>`,
   },
+  // An image in the summary of a toggle. The summary is the text of the
+  // toggle, and a toggle cannot split: the step does not change the summary.
+  // The image is dropped, and the words next to it stay apart.
+  {
+    name: "inlineImageInToggleSummary",
+    content: `<details><summary><h2>Step <img src="https://example.com/shot.png" alt="A screenshot"> one</h2></summary><p>The details</p></details>`,
+  },
   // Images in table cells, as GitHub writes them (each image is in a link). A
   // table cell cannot hold a block, so the image becomes a link with its alt
   // text.
