@@ -309,6 +309,29 @@ export const htmlRoundTripCases: CoreExportCase[] = [
       },
     ],
   },
+  // A media block without a URL does not survive the HTML export and parse,
+  // unless it has a caption.
+  {
+    name: "media/captionWithoutUrl",
+    content: [
+      {
+        type: "image",
+        props: { caption: "Image Caption" },
+      },
+      {
+        type: "video",
+        props: { caption: "Video Caption" },
+      },
+      {
+        type: "audio",
+        props: { caption: "Audio Caption" },
+      },
+      {
+        type: "file",
+        props: { caption: "File Caption" },
+      },
+    ],
+  },
 ];
 
 // Markdown round-trip tests: blocks → markdown → blocks
