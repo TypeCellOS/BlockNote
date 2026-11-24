@@ -282,16 +282,32 @@ function serializeBlock<
     .implementation as BlockImplementation;
   const blockWithDefaults = { ...block, props, children: block.children ?? [] };
   const isLayoutBlock = isLayoutNode(editor.pmSchema.nodes[block.type as any]);
-  const { output, frame } = renderBlockOutput(
+  const { output: ret, frame } = renderBlockOutput(
     blockImplementation,
     blockWithDefaults,
     editor,
     isLayoutBlock,
     nestingLevel,
   );
-  // A block that leaves itself out of the export adds no element. Its
-  // children follow, as they do for any other block.
-  const ret: BlockOutput = output ?? { dom: doc.createDocumentFragment() };
+
+  if (ret === null) {
+    // The block leaves itself out of the export. It adds no element and it is
+    // not an item of a list, so its children go to this place in the output,
+    // and not into a list item before it.
+    const childFragment = doc.createDocumentFragment();
+    serializeBlocksToFragment(
+      childFragment,
+      editor,
+      blockWithDefaults.children,
+      serializer,
+      orderedListItemBlockTypes,
+      unorderedListItemBlockTypes,
+      nestingLevel + 1,
+      options,
+    );
+    fragment.append(childFragment);
+    return;
+  }
 
   const elementFragment = doc.createDocumentFragment();
 
