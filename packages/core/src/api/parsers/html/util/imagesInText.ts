@@ -13,6 +13,11 @@ const TEXT_BLOCKS = "p, blockquote, h1, h2, h3, h4, h5, h6";
  */
 export function moveImagesOutOfText(root: HTMLElement) {
   for (const image of root.querySelectorAll("img")) {
+    // BlockNote's own HTML stays as it is: custom inline content can hold an
+    // image, and a block of the full HTML has only one content element.
+    if (image.closest("[data-inline-content-type], [data-content-type]")) {
+      continue;
+    }
     if (image.closest("td, th")) {
       const link = detachedDoc().createElement("a");
       link.href = image.src;

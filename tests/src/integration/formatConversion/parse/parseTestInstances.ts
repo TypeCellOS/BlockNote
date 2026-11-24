@@ -627,6 +627,31 @@ export const htmlParseCases: ParseTestCase[] = [
 </tbody>
 </table>`,
   },
+  // An image in custom inline content (a mention with an avatar), as the HTML
+  // export of BlockNote writes it. The image is a part of the inline content:
+  // the paragraph does not split, and the table cell gets no link.
+  {
+    name: "imageInCustomInlineContent",
+    content: `<p>Ask <span data-inline-content-type="mention" data-user="Matthew"><img src="https://example.com/avatars/matthew.png" alt="">@Matthew</span> for help</p>
+<table>
+<tr>
+<td>Owner: <span data-inline-content-type="mention" data-user="Matthew"><img src="https://example.com/avatars/matthew.png" alt="">@Matthew</span></td>
+</tr>
+</table>`,
+  },
+  // The same in the full HTML of BlockNote. A block of the full HTML has one
+  // content element: a split would lose the text after the image.
+  {
+    name: "imageInCustomInlineContentFullHTML",
+    content: `<div class="bn-block-group" data-node-type="blockGroup"><div class="bn-block-outer" data-node-type="blockOuter" data-id="1"><div class="bn-block" data-node-type="blockContainer" data-id="1"><div class="bn-block-content" data-content-type="paragraph"><p class="bn-inline-content">Ask <span data-inline-content-type="mention" data-user="Matthew"><img src="https://example.com/avatars/matthew.png" alt="">@Matthew</span> for help</p></div></div></div></div>`,
+  },
+  // An image in the content element of a block of the full HTML. BlockNote
+  // does not write this, but the text after the image must not be lost: the
+  // block does not split, and ProseMirror makes the image a child.
+  {
+    name: "inlineImageInFullHTMLBlock",
+    content: `<div data-content-type="paragraph"><p class="bn-inline-content">Before <img src="https://example.com/harbor.jpg" alt="The harbor"> after</p></div>`,
+  },
   {
     name: "fakeImageCaption",
     content: `<div>
