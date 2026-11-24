@@ -388,7 +388,12 @@ describe("markdown", () => {
     ]);
     expect(editor.document.map((block) => block.id)).toEqual(["a", "c", "b"]);
     expect(editor.getBlock("b")?.props).toMatchObject({ textColor: "red" });
-    expect(commentedText(editor.prosemirrorState.doc, comment)).toBe("Second");
+    expect(
+      commentedText(
+        editor.transact((tr) => tr.doc),
+        comment,
+      ),
+    ).toBe("Second");
   });
 
   it("keeps a comment on text that the edit does not touch", async ({
@@ -405,7 +410,12 @@ describe("markdown", () => {
       replaceOnce(md, "Hello world", "Hello brave world"),
     );
 
-    expect(commentedText(editor.prosemirrorState.doc, comment)).toBe("Hello");
+    expect(
+      commentedText(
+        editor.transact((tr) => tr.doc),
+        comment,
+      ),
+    ).toBe("Hello");
   });
 
   it("a new block between a paragraph and its nested child goes into the paragraph, thus the child stays nested", async ({
@@ -563,9 +573,12 @@ describe("markdown", () => {
       ["Commented cell", "Changed"],
       ["c", "d"],
     ]);
-    expect(commentedText(editor.prosemirrorState.doc, comment)).toBe(
-      "Commented",
-    );
+    expect(
+      commentedText(
+        editor.transact((tr) => tr.doc),
+        comment,
+      ),
+    ).toBe("Commented");
   });
 
   it("changes a row with a merged cell: the row of the text replaces the row", async ({

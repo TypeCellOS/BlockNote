@@ -320,14 +320,14 @@ describe("JSON", () => {
       initialContent: initial,
     });
     editor.removeBlocks(["a", "b", "c"]);
-    const before = editor.prosemirrorState.doc;
+    const before = editor.transact((tr) => tr.doc);
 
     expect(
       updateDocument(editor, {
         document: [{ type: "unknown" }] as JSONChange["document"],
       }),
     ).toEqual({ error: "invalid-document" });
-    expect(editor.prosemirrorState.doc).toBe(before);
+    expect(editor.transact((tr) => tr.doc)).toBe(before);
   });
 
   // A block that changes between a layout block (a column or a column list)
@@ -498,11 +498,11 @@ describe("JSON, a change of the content kind", () => {
     );
 
     const nodes: string[] = [];
-    editor.prosemirrorState.doc.firstChild?.firstChild?.firstChild?.forEach(
-      (node) => {
+    editor
+      .transact((tr) => tr.doc)
+      .firstChild?.firstChild?.firstChild?.forEach((node) => {
         nodes.push(`${node.type.name}:${node.text ?? ""}`);
-      },
-    );
+      });
     expect(nodes).toEqual(["text:line one", "hardBreak:", "text:line two"]);
   });
 });

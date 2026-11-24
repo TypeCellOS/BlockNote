@@ -101,7 +101,12 @@ describe("addInlineContentSteps", () => {
 
     applySteps(editor, [text("Hello brave world")]);
 
-    expect(commentedText(editor.prosemirrorState.doc, comment)).toBe("Hello");
+    expect(
+      commentedText(
+        editor.transact((tr) => tr.doc),
+        comment,
+      ),
+    ).toBe("Hello");
     expect(editor.getBlock("p")?.content).toEqual([text("Hello brave world")]);
   });
 
@@ -130,7 +135,12 @@ describe("addInlineContentSteps", () => {
     ]);
 
     expect(steps.length).toBeLessThanOrEqual(200);
-    expect(commentedText(editor.prosemirrorState.doc, comment)).toBe(" ");
+    expect(
+      commentedText(
+        editor.transact((tr) => tr.doc),
+        comment,
+      ),
+    ).toBe(" ");
     expect(editor.getBlock("p")?.content).toEqual([
       text(words.map((word) => `${word}x`).join(" ")),
     ]);

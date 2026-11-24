@@ -36,12 +36,14 @@ export function addComment(
     orphan: false,
   });
   let from: number | undefined;
-  editor.prosemirrorState.doc.descendants((node, pos) => {
-    const index = node.isText ? (node.text ?? "").indexOf(text) : -1;
-    if (from === undefined && index !== -1) {
-      from = pos + index;
-    }
-  });
+  editor
+    .transact((tr) => tr.doc)
+    .descendants((node, pos) => {
+      const index = node.isText ? (node.text ?? "").indexOf(text) : -1;
+      if (from === undefined && index !== -1) {
+        from = pos + index;
+      }
+    });
   if (from === undefined) {
     throw new Error(`Text ${JSON.stringify(text)} not found`);
   }

@@ -587,7 +587,7 @@ describe("yDocChangesAfterBase", () => {
       mountType: false,
       initialContent: threeParagraphs,
     });
-    fragment.applyDelta(pmnodeToDelta(source.prosemirrorState.doc));
+    fragment.applyDelta(pmnodeToDelta(source.transact((tr) => tr.doc)));
     const base = Y.encodeStateAsUpdateV2(ydoc);
     const content = JSON.stringify(fragment.toDeltaDeep().toJSON());
     const user = await bindEditor(setupEditor, fragment, {
@@ -1146,8 +1146,9 @@ describe.each(merges)("comments (merge %s)", (merge) => {
       );
     /** The document of the Y.Doc, as a new client with comments reads it. */
     const doc = async () =>
-      (await bindEditor(setupEditor, fragment, commentEditorOptions()))
-        .prosemirrorState.doc;
+      (
+        await bindEditor(setupEditor, fragment, commentEditorOptions())
+      ).transact((tr) => tr.doc);
     return { kept, moved, write, doc };
   }
 

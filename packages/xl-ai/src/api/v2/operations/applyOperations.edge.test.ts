@@ -206,7 +206,7 @@ describe("applyOperations: the ID of a block that the fill of the schema adds", 
       initialContent: [{ id: "p", type: "paragraph", content: "Alpha" }],
     });
     const state = EditorState.create({
-      doc: editor.prosemirrorState.doc,
+      doc: editor.transact((tr) => tr.doc),
     });
     const tr = state.tr;
 
@@ -220,7 +220,7 @@ describe("applyOperations: the ID of a block that the fill of the schema adds", 
     setupEditor,
   }) => {
     const { editor } = await setupEditor(tabsEditorOptions(2));
-    const state = EditorState.create({ doc: editor.prosemirrorState.doc });
+    const state = EditorState.create({ doc: editor.transact((tr) => tr.doc) });
     const tr = state.tr;
 
     applyOperations(tr, [{ type: "delete", id: "t2" }]);
