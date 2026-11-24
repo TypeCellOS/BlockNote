@@ -25,7 +25,7 @@
     }
   },
   "include": ["src", "vitestSetup.browser-fixtures.ts"],
-  "exclude": ["src/unit/**/*.test.*"],
+  "exclude": ["src/integration/**/*.test.*"],
   "references": [
     {
       "path": "../packages/core"

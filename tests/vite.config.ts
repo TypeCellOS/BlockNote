@@ -42,7 +42,7 @@ export default defineConfig(
         // Reuse the editor module graph within each worker.
         isolate: false,
         setupFiles: ["./vitestSetup.ts", "./vitestSetup.node-fixtures.ts"],
-        include: ["./src/unit/**/*.test.?(c|m)[jt]s?(x)"],
+        include: ["./src/integration/**/*.test.?(c|m)[jt]s?(x)"],
       },
       resolve: {
         alias:

@@ -13,14 +13,14 @@
   },
   "include": [
     "vitestSetup.node-fixtures.ts",
-    "src/unit/**/*.test.ts",
-    "src/unit/**/*.test.tsx",
+    "src/integration/**/*.test.ts",
+    "src/integration/**/*.test.tsx",
     "../packages/*/src/**/*.test.ts",
     "../packages/*/src/**/*.test.tsx",
     "../examples/07-collaboration/12-multi-doc-versioning/src/*.test.ts"
   ],
   "exclude": [
-    "src/unit/**/*.browser.test.*",
+    "src/integration/**/*.browser.test.*",
     "../packages/*/src/**/*.browser.test.*",
     "../packages/*/src/**/*.screen-reader.test.ts"
   ]
