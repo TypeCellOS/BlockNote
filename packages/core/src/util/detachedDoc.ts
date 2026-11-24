@@ -23,6 +23,7 @@ let _detachedDoc: Document | null = null;
 export function detachedDoc(): Document {
   return (
     _detachedDoc ||
+    // oxlint-disable-next-line blocknote-dom/no-active-document -- This is the one place that makes the document.
     (_detachedDoc = document.implementation.createHTMLDocument("title"))
   );
 }
