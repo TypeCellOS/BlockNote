@@ -151,7 +151,7 @@
 /* UI element styling */
 
 /* Select styling */
-.bn-mantine .bn-select {
+.bn-mantine .bn-toolbar-select {
   overflow: auto;
 }
 
@@ -172,8 +172,8 @@
   display: none;
 }
 
-.bn-toolbar .mantine-Button-root,
-.bn-toolbar .mantine-ActionIcon-root {
+.bn-toolbar-button.mantine-Button-root,
+.bn-toolbar-button.mantine-ActionIcon-root {
   background-color: var(--bn-toolbar-button-background);
   border: none;
   border-radius: var(--bn-toolbar-button-radius);
@@ -184,34 +184,34 @@
 /* Hover styles are gated behind `hover: hover` so they don't stick after a tap
 on touch devices (e.g. the mobile formatting toolbar). */
 @media (hover: hover) {
-  .bn-toolbar .mantine-Button-root:hover,
-  .bn-toolbar .mantine-ActionIcon-root:hover {
+  .bn-toolbar-button.mantine-Button-root:hover,
+  .bn-toolbar-button.mantine-ActionIcon-root:hover {
     background-color: var(--bn-toolbar-button-hover-background);
     border: none;
     color: var(--bn-toolbar-button-hover-color);
   }
 }
 
-.bn-toolbar .mantine-Button-root[data-selected],
-.bn-toolbar .mantine-ActionIcon-root[data-selected] {
+.bn-toolbar-button.mantine-Button-root[data-selected],
+.bn-toolbar-button.mantine-ActionIcon-root[data-selected] {
   background-color: var(--bn-toolbar-button-selected-background);
   border: none;
   color: var(--bn-toolbar-button-selected-color);
 }
 
-.bn-toolbar .mantine-Button-root[data-disabled],
-.bn-toolbar .mantine-ActionIcon-root[data-disabled] {
+.bn-toolbar-button.mantine-Button-root[data-disabled],
+.bn-toolbar-button.mantine-ActionIcon-root[data-disabled] {
   background-color: var(--bn-toolbar-button-disabled-background);
   border: none;
   color: var(--bn-toolbar-button-disabled-color);
 }
 
-.bn-mobile-formatting-toolbar .bn-toolbar .mantine-Button-root {
+.bn-mobile-formatting-toolbar .bn-toolbar-button.mantine-Button-root {
   height: 40px;
   padding-inline: 12px;
 }
 
-.bn-mobile-formatting-toolbar .bn-toolbar .mantine-ActionIcon-root {
+.bn-mobile-formatting-toolbar .bn-toolbar-button.mantine-ActionIcon-root {
   width: 40px;
   height: 40px;
 }
@@ -219,7 +219,7 @@ on touch devices (e.g. the mobile formatting toolbar). */
 /* Menus are portalled into the editor container, so they can't be styled
    through the toolbar, side menu or table handle that opened them; scope on
    the dropdowns themselves instead. */
-.bn-mantine .bn-select .mantine-Menu-item,
+.bn-mantine .bn-toolbar-select .mantine-Menu-item,
 .bn-mantine .bn-menu-dropdown .mantine-Menu-item,
 .bn-mantine .bn-table-handle-menu .mantine-Menu-item {
   font-size: 12px;

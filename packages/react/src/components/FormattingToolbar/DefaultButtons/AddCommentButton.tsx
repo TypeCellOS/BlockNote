@@ -39,7 +39,7 @@ export const AddCommentButtonInner = () => {
 
   return (
     <Components.FormattingToolbar.Button
-      className={"bn-button"}
+      className={"bn-toolbar-button"}
       label={dict.formatting_toolbar.comment.tooltip}
       mainTooltip={dict.formatting_toolbar.comment.tooltip}
       icon={<RiChat3Line />}

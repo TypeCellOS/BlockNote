@@ -74,7 +74,7 @@ export const FilePreviewButton = () => {
 
   return (
     <Components.FormattingToolbar.Button
-      className={"bn-button"}
+      className={"bn-toolbar-button"}
       label={"Toggle preview"}
       mainTooltip={dict.formatting_toolbar.file_preview_toggle.tooltip}
       icon={<RiImageAddFill />}
