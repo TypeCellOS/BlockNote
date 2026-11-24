@@ -7,7 +7,6 @@ import {
   defaultStyleSpecs,
 } from "@blocknote/core";
 import { BasicTextStyleButton } from "./BasicTextStyleButton.js";
-import { FormattingToolbar } from "../FormattingToolbar.js";
 import { viewProps } from "./defaultButton.test.fixture.js";
 
 const STYLES = ["bold", "italic", "underline", "strike", "code"] as const;
@@ -232,25 +231,21 @@ AFTER:
   });
 
   describe("axe", () => {
-    it("checks all supported style buttons", async ({
-      setupEditor,
-      runAxe,
-      page,
-    }) => {
-      await setupEditor({
-        props: viewProps,
-        children: (
-          <FormattingToolbar>
-            {STYLES.map((style) => (
-              <BasicTextStyleButton key={style} basicTextStyle={style} />
-            ))}
-          </FormattingToolbar>
-        ),
-      });
-
-      const { violations } = await runAxe(page.getByRole("toolbar"));
-      expect(violations).toEqual([]);
-    });
+    it.for(STYLES)(
+      "checks the %s button",
+      async (style, { setupEditor, runAxe, page }) => {
+        const { editor } = await setupEditor({
+          props: viewProps,
+          children: <BasicTextStyleButton basicTextStyle={style} />,
+        });
+        const button = page.getByRole("button", {
+          name: editor.dictionary.formatting_toolbar[style].tooltip,
+          exact: true,
+        });
+        await expect.element(button).toBeVisible();
+        expect((await runAxe(button)).violations).toEqual([]);
+      },
+    );
   });
 
   describe("keyboard", () => {
