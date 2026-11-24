@@ -765,6 +765,30 @@ console.log("Third Line")</code></pre>`,
     name: "imageWidth",
     content: `<img src="exampleURL" width="100">`,
   },
+  // A media element without a source shows nothing, so it gives no block.
+  {
+    name: "mediaWithoutSource",
+    content: `<p>Paragraph 1</p>
+<img>
+<video></video>
+<audio></audio>
+<embed>
+<p>Paragraph 2</p>`,
+  },
+  // The caption of a figure without a source stays as text.
+  {
+    name: "figureWithoutSource",
+    content: `<figure><img><figcaption>Image Caption</figcaption></figure>
+<figure><video></video><figcaption>Video Caption</figcaption></figure>
+<figure><audio></audio><figcaption>Audio Caption</figcaption></figure>
+<figure><embed><figcaption>File Caption</figcaption></figure>`,
+  },
+  // A `<source>` child is a source. The parse does not read its URL.
+  {
+    name: "mediaWithSourceChild",
+    content: `<video><source src="exampleURL"></video>
+<audio><source src="exampleURL"></audio>`,
+  },
   {
     name: "textAlignmentProp",
     content: `<p style="text-align: center">Text Align Center</p>`,
@@ -1156,6 +1180,19 @@ Regular paragraph`,
   {
     name: "video",
     content: `![Video](https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm)`,
+  },
+  // A media element without a source shows nothing, so it gives no block.
+  {
+    name: "mediaWithoutSource",
+    content: `Paragraph 1
+
+![Image]()
+
+<img>
+
+<video></video>
+
+Paragraph 2`,
   },
   // Individual heading levels
   {

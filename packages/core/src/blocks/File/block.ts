@@ -1,5 +1,6 @@
 import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
 import { defaultProps, parseDefaultProps } from "../defaultProps.js";
+import { isEmptyMediaElement } from "./helpers/parse/isEmptyMediaElement.js";
 import { parseEmbedElement } from "./helpers/parse/parseEmbedElement.js";
 import { parseFigureElement } from "./helpers/parse/parseFigureElement.js";
 import { createFileBlockWrapper } from "./helpers/render/createFileBlockWrapper.js";
@@ -34,6 +35,10 @@ export const fileParse = () => (element: HTMLElement) => {
   if (element.tagName === "EMBED") {
     // Ignore if parent figure has already been parsed.
     if (element.closest("figure")) {
+      return undefined;
+    }
+
+    if (isEmptyMediaElement(element)) {
       return undefined;
     }
 

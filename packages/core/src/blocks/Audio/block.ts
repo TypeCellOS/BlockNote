@@ -5,6 +5,7 @@ import {
   createBlockSpec,
 } from "../../schema/index.js";
 import { defaultProps, parseDefaultProps } from "../defaultProps.js";
+import { isEmptyMediaElement } from "../File/helpers/parse/isEmptyMediaElement.js";
 import { parseFigureElement } from "../File/helpers/parse/parseFigureElement.js";
 import { createFileBlockWrapper } from "../File/helpers/render/createFileBlockWrapper.js";
 import { createFigureWithCaption } from "../File/helpers/toExternalHTML/createFigureWithCaption.js";
@@ -53,6 +54,10 @@ export const audioParse =
     if (element.tagName === "AUDIO") {
       // Ignore if parent figure has already been parsed.
       if (element.closest("figure")) {
+        return undefined;
+      }
+
+      if (isEmptyMediaElement(element)) {
         return undefined;
       }
 
