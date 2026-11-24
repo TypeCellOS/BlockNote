@@ -127,40 +127,41 @@ describe("Office clipboard HTML", () => {
     });
   });
 
-  it("keeps inline Excel styles over class defaults without importing unrelated rules", ({
-    parseOfficeHTML,
-  }) => {
-    expect(
-      parseOfficeHTML(`<meta name="Generator" content="Microsoft Excel">
-        <style><!--.xl1 { color: red; text-align: right }
-          .xl2 { text-align: center }
-          .unrelated { background: yellow }--></style>
+  it.for(["-->", "--!>"])(
+    "keeps inline Excel styles over class defaults with CSS wrapper ending %s",
+    (commentEnd, { parseOfficeHTML }) => {
+      expect(
+        parseOfficeHTML(`<meta name="Generator" content="Microsoft Excel">
+        <style><!--.xl1 { color: red; text-align: right }${commentEnd}</style>
+        <style>.xl2 { text-align: center }
+          .unrelated { background: yellow }</style>
         <table><tr>
           <td class="xl1 xl2 unrelated" style="color: blue">First</td>
           <td class="xl1" align="right" style="text-align: left">Second</td>
         </tr></table>`),
-    ).toMatchObject([
-      {
-        type: "table",
-        content: {
-          rows: [
-            {
-              cells: [
-                {
-                  props: {
-                    textColor: "blue",
-                    textAlignment: "center",
-                    backgroundColor: "default",
+      ).toMatchObject([
+        {
+          type: "table",
+          content: {
+            rows: [
+              {
+                cells: [
+                  {
+                    props: {
+                      textColor: "blue",
+                      textAlignment: "center",
+                      backgroundColor: "default",
+                    },
                   },
-                },
-                { props: { textAlignment: "left" } },
-              ],
-            },
-          ],
+                  { props: { textAlignment: "left" } },
+                ],
+              },
+            ],
+          },
         },
-      },
-    ]);
-  });
+      ]);
+    },
+  );
 
   it("keeps older Word for Windows table cells and readable list text", ({
     parseOfficeHTML,

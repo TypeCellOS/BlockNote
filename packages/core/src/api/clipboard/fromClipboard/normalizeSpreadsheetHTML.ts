@@ -11,9 +11,18 @@ const excelCellProperties = [
 
 function inlineExcelCellStyles(root: HTMLElement) {
   const sheet = new CSSStyleSheet();
-  const rules = Array.from(root.querySelectorAll("style")).map((style) =>
-    (style.textContent ?? "").replace(/^\s*<!--|-->\s*$/g, ""),
-  );
+  const rules = Array.from(root.querySelectorAll("style"), (style) => {
+    const css = (style.textContent ?? "").trim();
+    // Excel wraps stylesheet text in legacy HTML comment delimiters.
+    if (css.startsWith("<!--")) {
+      for (const end of ["-->", "--!>"]) {
+        if (css.endsWith(end)) {
+          return css.slice(4, -end.length);
+        }
+      }
+    }
+    return css;
+  });
   // Parse without applying the stylesheet or attaching it to a document.
   sheet.replaceSync(rules.join("\n"));
   const cellRules = Array.from(sheet.cssRules)
